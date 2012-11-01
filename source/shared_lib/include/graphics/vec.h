@@ -20,6 +20,7 @@
 #include <stdexcept>
 #include <stdlib.h>
 #include <stdio.h>
+#include "byte_order.h"
 //#include <tr1/unordered_map>
 //using namespace std::tr1;
 
@@ -64,6 +65,19 @@ inline T strToType(const std::string &s) {
 template<typename T> class Vec2;
 template<typename T> class Vec3;
 template<typename T> class Vec4;
+
+template<class T>
+void toEndianVecArray(T *vec, size_t size) {
+	for(size_t i = 0; i < size; ++i) {
+		vec[i].toEndian();
+	}
+}
+template<class T>
+void fromEndianVecArray(T *vec, size_t size) {
+	for(size_t i = 0; i < size; ++i) {
+		vec[i].fromEndian();
+	}
+}
 
 // =====================================================
 //	class Vec2
@@ -260,6 +274,16 @@ public:
 
 		return result;
 	}
+
+	void toEndian() {
+		this->x = Shared::PlatformByteOrder::toCommonEndian(this->x);
+		this->y = Shared::PlatformByteOrder::toCommonEndian(this->y);
+	}
+	void fromEndian() {
+		this->x = Shared::PlatformByteOrder::fromCommonEndian(this->x);
+		this->y = Shared::PlatformByteOrder::fromCommonEndian(this->y);
+	}
+
 };
 
 template <typename T>
@@ -499,6 +523,17 @@ public:
 		return result;
 	}
 
+	void toEndian() {
+		this->x = Shared::PlatformByteOrder::toCommonEndian(this->x);
+		this->y = Shared::PlatformByteOrder::toCommonEndian(this->y);
+		this->z = Shared::PlatformByteOrder::toCommonEndian(this->z);
+	}
+	void fromEndian() {
+		this->x = Shared::PlatformByteOrder::fromCommonEndian(this->x);
+		this->y = Shared::PlatformByteOrder::fromCommonEndian(this->y);
+		this->z = Shared::PlatformByteOrder::fromCommonEndian(this->z);
+	}
+
 };
 
 typedef Vec3<int> Vec3i;
@@ -712,6 +747,19 @@ public:
 		}
 
 		return result;
+	}
+
+	void toEndian() {
+		this->x = Shared::PlatformByteOrder::toCommonEndian(this->x);
+		this->y = Shared::PlatformByteOrder::toCommonEndian(this->y);
+		this->z = Shared::PlatformByteOrder::toCommonEndian(this->z);
+		this->w = Shared::PlatformByteOrder::toCommonEndian(this->w);
+	}
+	void fromEndian() {
+		this->x = Shared::PlatformByteOrder::fromCommonEndian(this->x);
+		this->y = Shared::PlatformByteOrder::fromCommonEndian(this->y);
+		this->z = Shared::PlatformByteOrder::fromCommonEndian(this->z);
+		this->w = Shared::PlatformByteOrder::fromCommonEndian(this->w);
 	}
 
 };

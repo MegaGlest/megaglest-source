@@ -20,6 +20,7 @@
 #include "texture.h"
 #include "model_header.h"
 #include <memory>
+#include "byte_order.h"
 #include "leak_dumper.h"
 
 using std::string;
@@ -151,9 +152,13 @@ public:
 
 	void deletePixels();
 
+	void toEndian();
+	void fromEndian();
+
 private:
 	string findAlternateTexture(vector<string> conversionList, string textureFile);
 	void computeTangents();
+
 };
 
 // =====================================================
@@ -215,6 +220,9 @@ public:
 
 	string getFileName() const { return fileName; }
 
+	void toEndian();
+	void fromEndian();
+
 private:
 	void buildInterpolationData() const;
 };
@@ -263,7 +271,6 @@ private:
 
     static auto_ptr<PixelBufferWrapper> pbo;
 };
-
 
 }}//end namespace
 
