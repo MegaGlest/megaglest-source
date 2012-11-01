@@ -3084,6 +3084,7 @@ int glestMain(int argc, char** argv) {
 		printf("\nEndian from common value = %d",testVar);
 
 		printf("\nint8 sizeof = %zu",sizeof(int8));
+		printf("\nSwitchSetupRequest sizeof = %zu",SwitchSetupRequest().getDataSize());
 
 		printf("\nSVN: [%s]",getSVNRevisionString().c_str());
 
