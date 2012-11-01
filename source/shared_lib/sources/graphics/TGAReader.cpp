@@ -70,6 +70,20 @@ Pixmap3D* TGAReader3D::read(ifstream& in, const string& path, Pixmap3D* ret) con
 	//read header
 	TargaFileHeader fileHeader;
 	in.read((char*)&fileHeader, sizeof(TargaFileHeader));
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		fileHeader.bitsPerPixel = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.bitsPerPixel);
+		fileHeader.colourMapDepth = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapDepth);
+		fileHeader.colourMapLength = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapDepth);
+		fileHeader.colourMapOrigin = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapOrigin);
+		fileHeader.colourMapType = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapType);
+		fileHeader.dataTypeCode = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.dataTypeCode);
+		fileHeader.height = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.height);
+		fileHeader.idLength = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.idLength);
+		fileHeader.imageDescriptor = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.imageDescriptor);
+		fileHeader.width = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.width);
+	}
+
 	if (!in.good()) {
 		throw megaglest_runtime_error(path + " could not be read");
 	}
@@ -108,6 +122,10 @@ Pixmap3D* TGAReader3D::read(ifstream& in, const string& path, Pixmap3D* ret) con
 
 		if(fileComponents==1){
 			in.read((char*)&l,1);
+			if(bigEndianSystem == true) {
+				l = Shared::PlatformByteOrder::fromCommonEndian(l);
+			}
+
 			r= l;
 			g= l;
 			b= l;
@@ -115,10 +133,26 @@ Pixmap3D* TGAReader3D::read(ifstream& in, const string& path, Pixmap3D* ret) con
 		}
 		else{
 			in.read((char*)&b, 1);
+			if(bigEndianSystem == true) {
+				b = Shared::PlatformByteOrder::fromCommonEndian(b);
+			}
+
 			in.read((char*)&g, 1);
+			if(bigEndianSystem == true) {
+				g = Shared::PlatformByteOrder::fromCommonEndian(g);
+			}
+
 			in.read((char*)&r, 1);
+			if(bigEndianSystem == true) {
+				r = Shared::PlatformByteOrder::fromCommonEndian(r);
+			}
+
 			if(fileComponents==4){
 				in.read((char*)&a, 1);
+				if(bigEndianSystem == true) {
+					a = Shared::PlatformByteOrder::fromCommonEndian(a);
+				}
+
 			} else {
 				a= 255;
 			}
@@ -169,6 +203,20 @@ Pixmap2D* TGAReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
 	//read header
 	TargaFileHeader fileHeader;
 	in.read((char*)&fileHeader, sizeof(TargaFileHeader));
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		fileHeader.bitsPerPixel = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.bitsPerPixel);
+		fileHeader.colourMapDepth = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapDepth);
+		fileHeader.colourMapLength = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapDepth);
+		fileHeader.colourMapOrigin = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapOrigin);
+		fileHeader.colourMapType = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapType);
+		fileHeader.dataTypeCode = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.dataTypeCode);
+		fileHeader.height = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.height);
+		fileHeader.idLength = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.idLength);
+		fileHeader.imageDescriptor = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.imageDescriptor);
+		fileHeader.width = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.width);
+	}
+
 	if (!in.good()) {
 		throw megaglest_runtime_error(path + " could not be read");
 	}
@@ -200,6 +248,10 @@ Pixmap2D* TGAReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
 
 		if(fileComponents==1){
 			in.read((char*)&l,1);
+			if(bigEndianSystem == true) {
+				l = Shared::PlatformByteOrder::fromCommonEndian(l);
+			}
+
 			r= l;
 			g= l;
 			b= l;
@@ -207,10 +259,26 @@ Pixmap2D* TGAReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
 		}
 		else{
 			in.read((char*)&b, 1);
+			if(bigEndianSystem == true) {
+				b = Shared::PlatformByteOrder::fromCommonEndian(b);
+			}
+
 			in.read((char*)&g, 1);
+			if(bigEndianSystem == true) {
+				g = Shared::PlatformByteOrder::fromCommonEndian(g);
+			}
+
 			in.read((char*)&r, 1);
+			if(bigEndianSystem == true) {
+				r = Shared::PlatformByteOrder::fromCommonEndian(r);
+			}
+
 			if(fileComponents==4){
 				in.read((char*)&a, 1);
+				if(bigEndianSystem == true) {
+					a = Shared::PlatformByteOrder::fromCommonEndian(a);
+				}
+
 			} else {
 				a= 255;
 			}

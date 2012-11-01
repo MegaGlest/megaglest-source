@@ -33,6 +33,11 @@ namespace Shared{ namespace Graphics{
 static void user_read_data(png_structp read_ptr, png_bytep data, png_size_t length) {
 	ifstream& is = *((ifstream*)png_get_io_ptr(read_ptr));
 	is.read((char*)data,(std::streamsize)length);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		Shared::PlatformByteOrder::fromEndianTypeArray<png_byte>(data,length);
+	}
+
 	if (!is.good()) {
 		png_error(read_ptr,"Could not read from png-file");
 	}
@@ -67,6 +72,10 @@ Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	is.seekg(0, ios::beg);
 	uint8 *buffer = new uint8[8];
 	is.read((char*)buffer, 8);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		Shared::PlatformByteOrder::fromEndianTypeArray<uint8>(buffer,8);
+	}
 
 	if (png_sig_cmp(buffer, 0, 8) != 0) {
 		delete [] buffer;
@@ -208,6 +217,10 @@ Pixmap3D* PNGReader3D::read(ifstream& is, const string& path, Pixmap3D* ret) con
 	is.seekg(0, ios::beg);
 	uint8 *buffer = new uint8[8];
 	is.read((char*)buffer, 8);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		Shared::PlatformByteOrder::fromEndianTypeArray<uint8>(buffer,8);
+	}
 
 	if (png_sig_cmp(buffer, 0, 8) != 0) {
 		delete [] buffer;

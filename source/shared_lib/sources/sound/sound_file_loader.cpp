@@ -17,6 +17,7 @@
 #include "sound.h"
 #include "util.h"
 #include "platform_util.h"
+#include "byte_order.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Platform;
@@ -44,6 +45,12 @@ void WavSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 
     //RIFF chunk - Id
     f.read(chunkId, 4);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		for(unsigned int i = 0; i < 4; ++i) {
+			chunkId[i] = Shared::PlatformByteOrder::fromCommonEndian(chunkId[i]);
+		}
+	}
 
 	if(strcmp(chunkId, "RIFF")!=0){
 		throw megaglest_runtime_error("Not a valid wav file (first four bytes are not RIFF):" + path);
@@ -51,9 +58,17 @@ void WavSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 
     //RIFF chunk - Size 
     f.read((char*) &size32, 4);
+	if(bigEndianSystem == true) {
+		size32 = Shared::PlatformByteOrder::fromCommonEndian(size32);
+	}
 
     //RIFF chunk - Data (WAVE string)
     f.read(chunkId, 4);
+	if(bigEndianSystem == true) {
+		for(unsigned int i = 0; i < 4; ++i) {
+			chunkId[i] = Shared::PlatformByteOrder::fromCommonEndian(chunkId[i]);
+		}
+	}
     
 	if(strcmp(chunkId, "WAVE")!=0){
 		throw megaglest_runtime_error("Not a valid wav file (wave data don't start by WAVE): " + path);
@@ -63,6 +78,11 @@ void WavSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 
     //first sub-chunk (header) - Id
     f.read(chunkId, 4);
+	if(bigEndianSystem == true) {
+		for(unsigned int i = 0; i < 4; ++i) {
+			chunkId[i] = Shared::PlatformByteOrder::fromCommonEndian(chunkId[i]);
+		}
+	}
     
 	if(strcmp(chunkId, "fmt ")!=0){
 		throw megaglest_runtime_error("Not a valid wav file (first sub-chunk Id is not fmt): "+ path);
@@ -70,26 +90,50 @@ void WavSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 
     //first sub-chunk (header) - Size 
     f.read((char*) &size32, 4);
+	if(bigEndianSystem == true) {
+		size32 = Shared::PlatformByteOrder::fromCommonEndian(size32);
+	}
 
     //first sub-chunk (header) - Data (encoding type) - Ignore
     f.read((char*) &size16, 2);
+	if(bigEndianSystem == true) {
+		size16 = Shared::PlatformByteOrder::fromCommonEndian(size16);
+	}
 
     //first sub-chunk (header) - Data (nChannels)
     f.read((char*) &size16, 2);
+	if(bigEndianSystem == true) {
+		size16 = Shared::PlatformByteOrder::fromCommonEndian(size16);
+	}
+
 	soundInfo->setChannels(size16);
 
     //first sub-chunk (header) - Data (nsamplesPerSecond)
     f.read((char*) &size32, 4);
+	if(bigEndianSystem == true) {
+		size32 = Shared::PlatformByteOrder::fromCommonEndian(size32);
+	}
+
 	soundInfo->setsamplesPerSecond(size32);
 
     //first sub-chunk (header) - Data (nAvgBytesPerSec)  - Ignore
     f.read((char*) &size32, 4);
+	if(bigEndianSystem == true) {
+		size32 = Shared::PlatformByteOrder::fromCommonEndian(size32);
+	}
 
     //first sub-chunk (header) - Data (blockAlign) - Ignore
     f.read((char*) &size16, 2);
+	if(bigEndianSystem == true) {
+		size16 = Shared::PlatformByteOrder::fromCommonEndian(size16);
+	}
 
     //first sub-chunk (header) - Data (nsamplesPerSecond)
     f.read((char*) &size16, 2);
+	if(bigEndianSystem == true) {
+		size16 = Shared::PlatformByteOrder::fromCommonEndian(size16);
+	}
+
 	soundInfo->setBitsPerSample(size16);
 
 	soundInfo->setBitRate(soundInfo->getSamplesPerSecond() * soundInfo->getChannels() * soundInfo->getBitsPerSample() / 8);
@@ -106,12 +150,22 @@ void WavSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
         // === DATA ===
         //second sub-chunk (samples) - Id
         f.read(chunkId, 4);
+    	if(bigEndianSystem == true) {
+    		for(unsigned int i = 0; i < 4; ++i) {
+    			chunkId[i] = Shared::PlatformByteOrder::fromCommonEndian(chunkId[i]);
+    		}
+    	}
+
 		if(strncmp(chunkId, "data", 4)!=0){
 			continue;
 		}
 
         //second sub-chunk (samples) - Size
         f.read((char*) &size32, 4);
+    	if(bigEndianSystem == true) {
+   			size32 = Shared::PlatformByteOrder::fromCommonEndian(size32);
+    	}
+
 		dataSize= size32;
 		soundInfo->setSize(dataSize);
     }
@@ -127,6 +181,11 @@ void WavSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 
 uint32 WavSoundFileLoader::read(int8 *samples, uint32 size){
 	f.read(reinterpret_cast<char*> (samples), size);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		Shared::PlatformByteOrder::toEndianTypeArray<int8>(samples,size);
+	}
+
 	return (uint32)f.gcount();
 }
 

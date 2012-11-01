@@ -80,15 +80,41 @@ Pixmap2D* BMPReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
 	//read file header
 	BitmapFileHeader fileHeader;
 	in.read((char*)&fileHeader, sizeof(BitmapFileHeader));
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		fileHeader.offsetBits = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.offsetBits);
+		fileHeader.reserved1 = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.reserved1);
+		fileHeader.reserved2 = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.reserved2);
+		fileHeader.size = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.size);
+		fileHeader.type1 = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.type1);
+		fileHeader.type2 = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.type2);
+	}
+
 	if(fileHeader.type1!='B' || fileHeader.type2!='M'){
 		throw megaglest_runtime_error(path +" is not a bitmap");
 	}
-		//read info header
+
+	//read info header
 	BitmapInfoHeader infoHeader;
 	in.read((char*)&infoHeader, sizeof(BitmapInfoHeader));
+	if(bigEndianSystem == true) {
+		infoHeader.bitCount = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.bitCount);
+		infoHeader.clrImportant = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.clrImportant);
+		infoHeader.clrUsed = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.clrUsed);
+		infoHeader.compression = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.compression);
+		infoHeader.height = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.height);
+		infoHeader.planes = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.planes);
+		infoHeader.size = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.size);
+		infoHeader.sizeImage = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.sizeImage);
+		infoHeader.width = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.width);
+		infoHeader.xPelsPerMeter = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.xPelsPerMeter);
+		infoHeader.yPelsPerMeter = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.yPelsPerMeter);
+	}
+
 	if(infoHeader.bitCount!=24){
 		throw megaglest_runtime_error(path+" is not a 24 bit bitmap");
 	}
+
 	int h= infoHeader.height;
 	int w= infoHeader.width;
 	int components= (ret->getComponents() == -1)?3:ret->getComponents();
@@ -104,8 +130,20 @@ Pixmap2D* BMPReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
 		for (int x = 0; x < w; ++x, i+=components) {
 			uint8 r, g, b;
 			in.read((char*)&b, 1);
+			if(bigEndianSystem == true) {
+				b = Shared::PlatformByteOrder::fromCommonEndian(b);
+			}
+
 			in.read((char*)&g, 1);
+			if(bigEndianSystem == true) {
+				g = Shared::PlatformByteOrder::fromCommonEndian(g);
+			}
+
 			in.read((char*)&r, 1);
+			if(bigEndianSystem == true) {
+				r = Shared::PlatformByteOrder::fromCommonEndian(r);
+			}
+
 			if (!in.good()) {
 				return NULL;
 			}
