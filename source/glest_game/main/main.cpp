@@ -3075,7 +3075,16 @@ int glestMain(int argc, char** argv) {
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) == true) {
 		printf("%s %s",extractFileFromDirectoryPath(argv[0]).c_str(),getNetworkPlatformFreeVersionString().c_str());
 		printf("\nCompiled using: %s on: %s platform: %s endianness: %s",getCompilerNameString().c_str(),getCompileDateTime().c_str(),getPlatformNameString().c_str(),(Shared::PlatformByteOrder::isBigEndian() == true ? "big" : "little"));
+
+		int8 testVar = 111;
+		printf("\nEndian value = %d",testVar);
+		testVar = Shared::PlatformByteOrder::toCommonEndian(testVar);
+		printf("\nEndian to common value = %d",testVar);
+		testVar = Shared::PlatformByteOrder::fromCommonEndian(testVar);
+		printf("\nEndian from common value = %d",testVar);
+
 		printf("\nSVN: [%s]",getSVNRevisionString().c_str());
+
 #ifdef USE_STREFLOP
 //#	define STREFLOP_NO_DENORMALS
 //	streflop_init<streflop::Simple>();
