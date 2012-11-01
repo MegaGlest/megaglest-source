@@ -109,10 +109,11 @@ NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionSt
 
 bool NetworkMessageIntro::receive(Socket* socket) {
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	fromEndian();
 	data.name.nullTerminate();
 	data.versionString.nullTerminate();
 	data.language.nullTerminate();
-	fromEndian();
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] get nmtIntro, data.playerIndex = %d, data.sessionId = %d\n",__FILE__,__FUNCTION__,__LINE__,data.playerIndex,data.sessionId);
 	return result;
 }
