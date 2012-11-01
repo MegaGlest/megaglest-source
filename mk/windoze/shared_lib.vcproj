@@ -249,6 +249,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\..\source\shared_lib\sources\platform\common\byte_order.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\source\shared_lib\sources\graphics\freetype-gl\edtaa3func.c"
 				>
 			</File>
