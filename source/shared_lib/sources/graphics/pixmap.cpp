@@ -125,7 +125,19 @@ void PixmapIoTga::openRead(const string &path) {
 		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
-
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		fileHeader.bitsPerPixel = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.bitsPerPixel);
+		fileHeader.colourMapDepth = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapDepth);
+		fileHeader.colourMapLength = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapDepth);
+		fileHeader.colourMapOrigin = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapOrigin);
+		fileHeader.colourMapType = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapType);
+		fileHeader.dataTypeCode = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.dataTypeCode);
+		fileHeader.height = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.height);
+		fileHeader.idLength = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.idLength);
+		fileHeader.imageDescriptor = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.imageDescriptor);
+		fileHeader.width = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.width);
+	}
 	//check that we can load this tga file
 	if(fileHeader.idLength != 0) {
 		throw megaglest_runtime_error(path + ": id field is not 0");
@@ -150,6 +162,8 @@ void PixmapIoTga::read(uint8 *pixels) {
 }
 
 void PixmapIoTga::read(uint8 *pixels, int components) {
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+
 	for(int i=0; i<h*w*components; i+=components) {
 		uint8 r=0, g=0, b=0, a=0, l=0;
 
@@ -160,7 +174,9 @@ void PixmapIoTga::read(uint8 *pixels, int components) {
 				snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
-
+			if(bigEndianSystem == true) {
+				l = Shared::PlatformByteOrder::fromCommonEndian(l);
+			}
 			r= l;
 			g= l;
 			b= l;
@@ -173,12 +189,18 @@ void PixmapIoTga::read(uint8 *pixels, int components) {
 				snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
+			if(bigEndianSystem == true) {
+				b = Shared::PlatformByteOrder::fromCommonEndian(b);
+			}
 
 			readBytes = fread(&g, 1, 1, file);
 			if(readBytes != 1) {
 				char szBuf[8096]="";
 				snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 				throw megaglest_runtime_error(szBuf);
+			}
+			if(bigEndianSystem == true) {
+				g = Shared::PlatformByteOrder::fromCommonEndian(g);
 			}
 
 			readBytes = fread(&r, 1, 1, file);
@@ -187,6 +209,9 @@ void PixmapIoTga::read(uint8 *pixels, int components) {
 				snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
+			if(bigEndianSystem == true) {
+				r = Shared::PlatformByteOrder::fromCommonEndian(r);
+			}
 
 			if(this->components == 4) {
 				readBytes = fread(&a, 1, 1, file);
@@ -194,6 +219,9 @@ void PixmapIoTga::read(uint8 *pixels, int components) {
 					char szBuf[8096]="";
 					snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
+				}
+				if(bigEndianSystem == true) {
+					a = Shared::PlatformByteOrder::fromCommonEndian(a);
 				}
 
 			}
@@ -244,14 +272,39 @@ void PixmapIoTga::openWrite(const string &path, int w, int h, int components) {
 	fileHeader.height= h;
 	fileHeader.imageDescriptor= components==4? 8: 0;
 
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		fileHeader.bitsPerPixel = Shared::PlatformByteOrder::toCommonEndian(fileHeader.bitsPerPixel);
+		fileHeader.colourMapDepth = Shared::PlatformByteOrder::toCommonEndian(fileHeader.colourMapDepth);
+		fileHeader.colourMapLength = Shared::PlatformByteOrder::toCommonEndian(fileHeader.colourMapDepth);
+		fileHeader.colourMapOrigin = Shared::PlatformByteOrder::toCommonEndian(fileHeader.colourMapOrigin);
+		fileHeader.colourMapType = Shared::PlatformByteOrder::toCommonEndian(fileHeader.colourMapType);
+		fileHeader.dataTypeCode = Shared::PlatformByteOrder::toCommonEndian(fileHeader.dataTypeCode);
+		fileHeader.height = Shared::PlatformByteOrder::toCommonEndian(fileHeader.height);
+		fileHeader.idLength = Shared::PlatformByteOrder::toCommonEndian(fileHeader.idLength);
+		fileHeader.imageDescriptor = Shared::PlatformByteOrder::toCommonEndian(fileHeader.imageDescriptor);
+		fileHeader.width = Shared::PlatformByteOrder::toCommonEndian(fileHeader.width);
+	}
+
 	fwrite(&fileHeader, sizeof(TargaFileHeader), 1, file);
 }
 
 void PixmapIoTga::write(uint8 *pixels) {
 	if(components == 1) {
+
+		static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+		if(bigEndianSystem == true) {
+			Shared::PlatformByteOrder::toEndianTypeArray<uint8>(pixels,h*w);
+		}
+
 		fwrite(pixels, h*w, 1, file);
 	}
 	else {
+		static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+		if(bigEndianSystem == true) {
+			Shared::PlatformByteOrder::toEndianTypeArray<uint8>(pixels,h*w*components);
+		}
+
 		for(int i=0; i<h*w*components; i+=components) {
 			fwrite(&pixels[i+2], 1, 1, file);
 			fwrite(&pixels[i+1], 1, 1, file);
@@ -296,6 +349,15 @@ void PixmapIoBmp::openRead(const string &path){
 		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		fileHeader.offsetBits = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.offsetBits);
+		fileHeader.reserved1 = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.reserved1);
+		fileHeader.reserved2 = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.reserved2);
+		fileHeader.size = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.size);
+		fileHeader.type1 = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.type1);
+		fileHeader.type2 = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.type2);
+	}
 
 	if(fileHeader.type1!='B' || fileHeader.type2!='M'){
 		throw megaglest_runtime_error(path +" is not a bitmap");
@@ -309,7 +371,19 @@ void PixmapIoBmp::openRead(const string &path){
 		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
-
+	if(bigEndianSystem == true) {
+		infoHeader.bitCount = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.bitCount);
+		infoHeader.clrImportant = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.clrImportant);
+		infoHeader.clrUsed = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.clrUsed);
+		infoHeader.compression = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.compression);
+		infoHeader.height = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.height);
+		infoHeader.planes = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.planes);
+		infoHeader.size = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.size);
+		infoHeader.sizeImage = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.sizeImage);
+		infoHeader.width = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.width);
+		infoHeader.xPelsPerMeter = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.xPelsPerMeter);
+		infoHeader.yPelsPerMeter = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.yPelsPerMeter);
+	}
 	if(infoHeader.bitCount!=24){
         throw megaglest_runtime_error(path+" is not a 24 bit bitmap");
 	}
@@ -324,7 +398,9 @@ void PixmapIoBmp::read(uint8 *pixels) {
 }
 
 void PixmapIoBmp::read(uint8 *pixels, int components) {
-    for(int i=0; i<h*w*components; i+=components) {
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+
+	for(int i=0; i<h*w*components; i+=components) {
 		uint8 r, g, b;
 		size_t readBytes = fread(&b, 1, 1, file);
 		if(readBytes != 1) {
@@ -332,12 +408,17 @@ void PixmapIoBmp::read(uint8 *pixels, int components) {
 			snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 			throw megaglest_runtime_error(szBuf);
 		}
-
+		if(bigEndianSystem == true) {
+			b = Shared::PlatformByteOrder::fromCommonEndian(b);
+		}
 		readBytes = fread(&g, 1, 1, file);
 		if(readBytes != 1) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 			throw megaglest_runtime_error(szBuf);
+		}
+		if(bigEndianSystem == true) {
+			g = Shared::PlatformByteOrder::fromCommonEndian(g);
 		}
 
 		readBytes = fread(&r, 1, 1, file);
@@ -345,6 +426,9 @@ void PixmapIoBmp::read(uint8 *pixels, int components) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 			throw megaglest_runtime_error(szBuf);
+		}
+		if(bigEndianSystem == true) {
+			r = Shared::PlatformByteOrder::fromCommonEndian(r);
 		}
 
 
@@ -387,6 +471,16 @@ void PixmapIoBmp::openWrite(const string &path, int w, int h, int components) {
 	fileHeader.offsetBits=sizeof(BitmapFileHeader)+sizeof(BitmapInfoHeader);
 	fileHeader.size=sizeof(BitmapFileHeader)+sizeof(BitmapInfoHeader)+3*h*w;
 
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		fileHeader.offsetBits = Shared::PlatformByteOrder::toCommonEndian(fileHeader.offsetBits);
+		fileHeader.reserved1 = Shared::PlatformByteOrder::toCommonEndian(fileHeader.reserved1);
+		fileHeader.reserved2 = Shared::PlatformByteOrder::toCommonEndian(fileHeader.reserved2);
+		fileHeader.size = Shared::PlatformByteOrder::toCommonEndian(fileHeader.size);
+		fileHeader.type1 = Shared::PlatformByteOrder::toCommonEndian(fileHeader.type1);
+		fileHeader.type2 = Shared::PlatformByteOrder::toCommonEndian(fileHeader.type2);
+	}
+
     fwrite(&fileHeader, sizeof(BitmapFileHeader), 1, file);
 
 	//info header
@@ -403,10 +497,29 @@ void PixmapIoBmp::openWrite(const string &path, int w, int h, int components) {
 	infoHeader.xPelsPerMeter= 0;
 	infoHeader.yPelsPerMeter= 0;
 
+	if(bigEndianSystem == true) {
+		infoHeader.bitCount = Shared::PlatformByteOrder::toCommonEndian(infoHeader.bitCount);
+		infoHeader.clrImportant = Shared::PlatformByteOrder::toCommonEndian(infoHeader.clrImportant);
+		infoHeader.clrUsed = Shared::PlatformByteOrder::toCommonEndian(infoHeader.clrUsed);
+		infoHeader.compression = Shared::PlatformByteOrder::toCommonEndian(infoHeader.compression);
+		infoHeader.height = Shared::PlatformByteOrder::toCommonEndian(infoHeader.height);
+		infoHeader.planes = Shared::PlatformByteOrder::toCommonEndian(infoHeader.planes);
+		infoHeader.size = Shared::PlatformByteOrder::toCommonEndian(infoHeader.size);
+		infoHeader.sizeImage = Shared::PlatformByteOrder::toCommonEndian(infoHeader.sizeImage);
+		infoHeader.width = Shared::PlatformByteOrder::toCommonEndian(infoHeader.width);
+		infoHeader.xPelsPerMeter = Shared::PlatformByteOrder::toCommonEndian(infoHeader.xPelsPerMeter);
+		infoHeader.yPelsPerMeter = Shared::PlatformByteOrder::toCommonEndian(infoHeader.yPelsPerMeter);
+	}
+
 	fwrite(&infoHeader, sizeof(BitmapInfoHeader), 1, file);
 }
 
 void PixmapIoBmp::write(uint8 *pixels) {
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		Shared::PlatformByteOrder::toEndianTypeArray<uint8>(pixels,h*w*components);
+	}
+
     for (int i=0; i<h*w*components; i+=components){
         fwrite(&pixels[i+2], 1, 1, file);
 		fwrite(&pixels[i+1], 1, 1, file);
