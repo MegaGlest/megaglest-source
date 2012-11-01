@@ -53,6 +53,8 @@ bool NetworkMessage::receive(Socket* socket, void* data, int dataSize, bool tryR
 		}
 		else {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] dataSize = %d, dataReceived = %d\n",__FILE__,__FUNCTION__,__LINE__,dataSize,dataReceived);
+
+			dump_packet("\nINCOMING PACKET:\n",data, dataSize);
 			return true;
 		}
 	}
@@ -64,6 +66,7 @@ void NetworkMessage::send(Socket* socket, const void* data, int dataSize) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket = %p, data = %p, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,socket,data,dataSize);
 
 	if(socket != NULL) {
+		dump_packet("\nOUTGOING PACKET:\n",data, dataSize);
 		int sendResult = socket->send(data, dataSize);
 		if(sendResult != dataSize) {
 			if(socket != NULL && socket->getSocketId() > 0) {
@@ -75,6 +78,22 @@ void NetworkMessage::send(Socket* socket, const void* data, int dataSize) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d socket has been disconnected\n",__FILE__,__FUNCTION__,__LINE__);
 			}
 		}
+	}
+}
+
+void NetworkMessage::dump_packet(string label, const void* data, int dataSize) {
+	Config &config = Config::getInstance();
+	if(config.getBool("DebugNetworkPackets","false") == true) {
+		printf("%s",label.c_str());
+
+		const char *buf = static_cast<const char *>(data);
+		for(unsigned int i = 0; i < dataSize; ++i) {
+			printf("%d[%X][%d] ",i,buf[i],buf[i]);
+			if(i % 10 == 0) {
+				printf("\n");
+			}
+		}
+		printf("\n== END ==\n");
 	}
 }
 
@@ -126,20 +145,26 @@ void NetworkMessageIntro::send(Socket* socket) {
 }
 
 void NetworkMessageIntro::toEndian() {
-	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
-	data.sessionId = Shared::PlatformByteOrder::toCommonEndian(data.sessionId);
-	data.playerIndex = Shared::PlatformByteOrder::toCommonEndian(data.playerIndex);
-	data.gameState = Shared::PlatformByteOrder::toCommonEndian(data.gameState);
-	data.externalIp = Shared::PlatformByteOrder::toCommonEndian(data.externalIp);
-	data.ftpPort = Shared::PlatformByteOrder::toCommonEndian(data.ftpPort);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		data.sessionId = Shared::PlatformByteOrder::toCommonEndian(data.sessionId);
+		data.playerIndex = Shared::PlatformByteOrder::toCommonEndian(data.playerIndex);
+		data.gameState = Shared::PlatformByteOrder::toCommonEndian(data.gameState);
+		data.externalIp = Shared::PlatformByteOrder::toCommonEndian(data.externalIp);
+		data.ftpPort = Shared::PlatformByteOrder::toCommonEndian(data.ftpPort);
+	}
 }
 void NetworkMessageIntro::fromEndian() {
-	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
-	data.sessionId = Shared::PlatformByteOrder::fromCommonEndian(data.sessionId);
-	data.playerIndex = Shared::PlatformByteOrder::fromCommonEndian(data.playerIndex);
-	data.gameState = Shared::PlatformByteOrder::fromCommonEndian(data.gameState);
-	data.externalIp = Shared::PlatformByteOrder::fromCommonEndian(data.externalIp);
-	data.ftpPort = Shared::PlatformByteOrder::fromCommonEndian(data.ftpPort);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		data.sessionId = Shared::PlatformByteOrder::fromCommonEndian(data.sessionId);
+		data.playerIndex = Shared::PlatformByteOrder::fromCommonEndian(data.playerIndex);
+		data.gameState = Shared::PlatformByteOrder::fromCommonEndian(data.gameState);
+		data.externalIp = Shared::PlatformByteOrder::fromCommonEndian(data.externalIp);
+		data.ftpPort = Shared::PlatformByteOrder::fromCommonEndian(data.ftpPort);
+	}
 }
 
 // =====================================================
@@ -173,14 +198,20 @@ void NetworkMessagePing::send(Socket* socket) {
 }
 
 void NetworkMessagePing::toEndian() {
-	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
-	data.pingFrequency = Shared::PlatformByteOrder::toCommonEndian(data.pingFrequency);
-	data.pingTime = Shared::PlatformByteOrder::toCommonEndian(data.pingTime);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		data.pingFrequency = Shared::PlatformByteOrder::toCommonEndian(data.pingFrequency);
+		data.pingTime = Shared::PlatformByteOrder::toCommonEndian(data.pingTime);
+	}
 }
 void NetworkMessagePing::fromEndian() {
-	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
-	data.pingFrequency = Shared::PlatformByteOrder::fromCommonEndian(data.pingFrequency);
-	data.pingTime = Shared::PlatformByteOrder::fromCommonEndian(data.pingTime);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		data.pingFrequency = Shared::PlatformByteOrder::fromCommonEndian(data.pingFrequency);
+		data.pingTime = Shared::PlatformByteOrder::fromCommonEndian(data.pingTime);
+	}
 }
 
 // =====================================================
@@ -210,12 +241,18 @@ void NetworkMessageReady::send(Socket* socket) {
 }
 
 void NetworkMessageReady::toEndian() {
-	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
-	data.checksum = Shared::PlatformByteOrder::toCommonEndian(data.checksum);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		data.checksum = Shared::PlatformByteOrder::toCommonEndian(data.checksum);
+	}
 }
 void NetworkMessageReady::fromEndian() {
-	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
-	data.checksum = Shared::PlatformByteOrder::fromCommonEndian(data.checksum);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		data.checksum = Shared::PlatformByteOrder::fromCommonEndian(data.checksum);
+	}
 }
 
 // =====================================================
@@ -366,6 +403,7 @@ vector<pair<string,uint32> > NetworkMessageLaunch::getFactionCRCList() const {
 bool NetworkMessageLaunch::receive(Socket* socket) {
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
 	fromEndian();
+
 	data.description.nullTerminate();
 	data.map.nullTerminate();
 	data.tileset.nullTerminate();
@@ -395,70 +433,77 @@ void NetworkMessageLaunch::send(Socket* socket) {
 }
 
 void NetworkMessageLaunch::toEndian() {
-	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
-	for(int i= 0; i < GameConstants::maxPlayers; ++i){
-		data.networkPlayerStatuses[i] = Shared::PlatformByteOrder::toCommonEndian(data.networkPlayerStatuses[i]);
-		data.factionCRCList[i] = Shared::PlatformByteOrder::toCommonEndian(data.factionCRCList[i]);
-		data.factionControls[i] = Shared::PlatformByteOrder::toCommonEndian(data.factionControls[i]);
-		data.resourceMultiplierIndex[i] = Shared::PlatformByteOrder::toCommonEndian(data.resourceMultiplierIndex[i]);
-		data.teams[i] = Shared::PlatformByteOrder::toCommonEndian(data.teams[i]);
-		data.startLocationIndex[i] = Shared::PlatformByteOrder::toCommonEndian(data.startLocationIndex[i]);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		for(int i= 0; i < GameConstants::maxPlayers; ++i){
+			data.networkPlayerStatuses[i] = Shared::PlatformByteOrder::toCommonEndian(data.networkPlayerStatuses[i]);
+			data.factionCRCList[i] = Shared::PlatformByteOrder::toCommonEndian(data.factionCRCList[i]);
+			data.factionControls[i] = Shared::PlatformByteOrder::toCommonEndian(data.factionControls[i]);
+			data.resourceMultiplierIndex[i] = Shared::PlatformByteOrder::toCommonEndian(data.resourceMultiplierIndex[i]);
+			data.teams[i] = Shared::PlatformByteOrder::toCommonEndian(data.teams[i]);
+			data.startLocationIndex[i] = Shared::PlatformByteOrder::toCommonEndian(data.startLocationIndex[i]);
+		}
+		data.mapCRC = Shared::PlatformByteOrder::toCommonEndian(data.mapCRC);
+		data.tilesetCRC = Shared::PlatformByteOrder::toCommonEndian(data.tilesetCRC);
+		data.techCRC = Shared::PlatformByteOrder::toCommonEndian(data.techCRC);
+		data.thisFactionIndex = Shared::PlatformByteOrder::toCommonEndian(data.thisFactionIndex);
+		data.factionCount = Shared::PlatformByteOrder::toCommonEndian(data.factionCount);
+		data.defaultResources = Shared::PlatformByteOrder::toCommonEndian(data.defaultResources);
+		data.defaultUnits = Shared::PlatformByteOrder::toCommonEndian(data.defaultUnits);
+
+		data.defaultVictoryConditions = Shared::PlatformByteOrder::toCommonEndian(data.defaultVictoryConditions);
+		data.fogOfWar = Shared::PlatformByteOrder::toCommonEndian(data.fogOfWar);
+		data.allowObservers = Shared::PlatformByteOrder::toCommonEndian(data.allowObservers);
+		data.enableObserverModeAtEndGame = Shared::PlatformByteOrder::toCommonEndian(data.enableObserverModeAtEndGame);
+		data.enableServerControlledAI = Shared::PlatformByteOrder::toCommonEndian(data.enableServerControlledAI);
+		data.networkFramePeriod = Shared::PlatformByteOrder::toCommonEndian(data.networkFramePeriod);
+		data.networkPauseGameForLaggedClients = Shared::PlatformByteOrder::toCommonEndian(data.networkPauseGameForLaggedClients);
+		data.pathFinderType = Shared::PlatformByteOrder::toCommonEndian(data.pathFinderType);
+		data.flagTypes1 = Shared::PlatformByteOrder::toCommonEndian(data.flagTypes1);
+
+		data.aiAcceptSwitchTeamPercentChance = Shared::PlatformByteOrder::toCommonEndian(data.aiAcceptSwitchTeamPercentChance);
+		data.cpuReplacementMultiplier = Shared::PlatformByteOrder::toCommonEndian(data.cpuReplacementMultiplier);
+		data.masterserver_admin = Shared::PlatformByteOrder::toCommonEndian(data.masterserver_admin);
+		data.masterserver_admin_factionIndex = Shared::PlatformByteOrder::toCommonEndian(data.masterserver_admin_factionIndex);
 	}
-	data.mapCRC = Shared::PlatformByteOrder::toCommonEndian(data.mapCRC);
-	data.tilesetCRC = Shared::PlatformByteOrder::toCommonEndian(data.tilesetCRC);
-	data.techCRC = Shared::PlatformByteOrder::toCommonEndian(data.techCRC);
-	data.thisFactionIndex = Shared::PlatformByteOrder::toCommonEndian(data.thisFactionIndex);
-	data.factionCount = Shared::PlatformByteOrder::toCommonEndian(data.factionCount);
-	data.defaultResources = Shared::PlatformByteOrder::toCommonEndian(data.defaultResources);
-	data.defaultUnits = Shared::PlatformByteOrder::toCommonEndian(data.defaultUnits);
-
-	data.defaultVictoryConditions = Shared::PlatformByteOrder::toCommonEndian(data.defaultVictoryConditions);
-	data.fogOfWar = Shared::PlatformByteOrder::toCommonEndian(data.fogOfWar);
-	data.allowObservers = Shared::PlatformByteOrder::toCommonEndian(data.allowObservers);
-	data.enableObserverModeAtEndGame = Shared::PlatformByteOrder::toCommonEndian(data.enableObserverModeAtEndGame);
-	data.enableServerControlledAI = Shared::PlatformByteOrder::toCommonEndian(data.enableServerControlledAI);
-	data.networkFramePeriod = Shared::PlatformByteOrder::toCommonEndian(data.networkFramePeriod);
-	data.networkPauseGameForLaggedClients = Shared::PlatformByteOrder::toCommonEndian(data.networkPauseGameForLaggedClients);
-	data.pathFinderType = Shared::PlatformByteOrder::toCommonEndian(data.pathFinderType);
-	data.flagTypes1 = Shared::PlatformByteOrder::toCommonEndian(data.flagTypes1);
-
-	data.aiAcceptSwitchTeamPercentChance = Shared::PlatformByteOrder::toCommonEndian(data.aiAcceptSwitchTeamPercentChance);
-	data.cpuReplacementMultiplier = Shared::PlatformByteOrder::toCommonEndian(data.cpuReplacementMultiplier);
-	data.masterserver_admin = Shared::PlatformByteOrder::toCommonEndian(data.masterserver_admin);
-	data.masterserver_admin_factionIndex = Shared::PlatformByteOrder::toCommonEndian(data.masterserver_admin_factionIndex);
 }
+
 void NetworkMessageLaunch::fromEndian() {
-	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
-	for(int i= 0; i < GameConstants::maxPlayers; ++i){
-		data.networkPlayerStatuses[i] = Shared::PlatformByteOrder::fromCommonEndian(data.networkPlayerStatuses[i]);
-		data.factionCRCList[i] = Shared::PlatformByteOrder::fromCommonEndian(data.factionCRCList[i]);
-		data.factionControls[i] = Shared::PlatformByteOrder::fromCommonEndian(data.factionControls[i]);
-		data.resourceMultiplierIndex[i] = Shared::PlatformByteOrder::fromCommonEndian(data.resourceMultiplierIndex[i]);
-		data.teams[i] = Shared::PlatformByteOrder::fromCommonEndian(data.teams[i]);
-		data.startLocationIndex[i] = Shared::PlatformByteOrder::fromCommonEndian(data.startLocationIndex[i]);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		for(int i= 0; i < GameConstants::maxPlayers; ++i){
+			data.networkPlayerStatuses[i] = Shared::PlatformByteOrder::fromCommonEndian(data.networkPlayerStatuses[i]);
+			data.factionCRCList[i] = Shared::PlatformByteOrder::fromCommonEndian(data.factionCRCList[i]);
+			data.factionControls[i] = Shared::PlatformByteOrder::fromCommonEndian(data.factionControls[i]);
+			data.resourceMultiplierIndex[i] = Shared::PlatformByteOrder::fromCommonEndian(data.resourceMultiplierIndex[i]);
+			data.teams[i] = Shared::PlatformByteOrder::fromCommonEndian(data.teams[i]);
+			data.startLocationIndex[i] = Shared::PlatformByteOrder::fromCommonEndian(data.startLocationIndex[i]);
+		}
+		data.mapCRC = Shared::PlatformByteOrder::fromCommonEndian(data.mapCRC);
+		data.tilesetCRC = Shared::PlatformByteOrder::fromCommonEndian(data.tilesetCRC);
+		data.techCRC = Shared::PlatformByteOrder::fromCommonEndian(data.techCRC);
+		data.thisFactionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.thisFactionIndex);
+		data.factionCount = Shared::PlatformByteOrder::fromCommonEndian(data.factionCount);
+		data.defaultResources = Shared::PlatformByteOrder::fromCommonEndian(data.defaultResources);
+		data.defaultUnits = Shared::PlatformByteOrder::fromCommonEndian(data.defaultUnits);
+
+		data.defaultVictoryConditions = Shared::PlatformByteOrder::fromCommonEndian(data.defaultVictoryConditions);
+		data.fogOfWar = Shared::PlatformByteOrder::fromCommonEndian(data.fogOfWar);
+		data.allowObservers = Shared::PlatformByteOrder::fromCommonEndian(data.allowObservers);
+		data.enableObserverModeAtEndGame = Shared::PlatformByteOrder::fromCommonEndian(data.enableObserverModeAtEndGame);
+		data.enableServerControlledAI = Shared::PlatformByteOrder::fromCommonEndian(data.enableServerControlledAI);
+		data.networkFramePeriod = Shared::PlatformByteOrder::fromCommonEndian(data.networkFramePeriod);
+		data.networkPauseGameForLaggedClients = Shared::PlatformByteOrder::fromCommonEndian(data.networkPauseGameForLaggedClients);
+		data.pathFinderType = Shared::PlatformByteOrder::fromCommonEndian(data.pathFinderType);
+		data.flagTypes1 = Shared::PlatformByteOrder::fromCommonEndian(data.flagTypes1);
+
+		data.aiAcceptSwitchTeamPercentChance = Shared::PlatformByteOrder::fromCommonEndian(data.aiAcceptSwitchTeamPercentChance);
+		data.cpuReplacementMultiplier = Shared::PlatformByteOrder::fromCommonEndian(data.cpuReplacementMultiplier);
+		data.masterserver_admin = Shared::PlatformByteOrder::fromCommonEndian(data.masterserver_admin);
+		data.masterserver_admin_factionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.masterserver_admin_factionIndex);
 	}
-	data.mapCRC = Shared::PlatformByteOrder::fromCommonEndian(data.mapCRC);
-	data.tilesetCRC = Shared::PlatformByteOrder::fromCommonEndian(data.tilesetCRC);
-	data.techCRC = Shared::PlatformByteOrder::fromCommonEndian(data.techCRC);
-	data.thisFactionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.thisFactionIndex);
-	data.factionCount = Shared::PlatformByteOrder::fromCommonEndian(data.factionCount);
-	data.defaultResources = Shared::PlatformByteOrder::fromCommonEndian(data.defaultResources);
-	data.defaultUnits = Shared::PlatformByteOrder::fromCommonEndian(data.defaultUnits);
-
-	data.defaultVictoryConditions = Shared::PlatformByteOrder::fromCommonEndian(data.defaultVictoryConditions);
-	data.fogOfWar = Shared::PlatformByteOrder::fromCommonEndian(data.fogOfWar);
-	data.allowObservers = Shared::PlatformByteOrder::fromCommonEndian(data.allowObservers);
-	data.enableObserverModeAtEndGame = Shared::PlatformByteOrder::fromCommonEndian(data.enableObserverModeAtEndGame);
-	data.enableServerControlledAI = Shared::PlatformByteOrder::fromCommonEndian(data.enableServerControlledAI);
-	data.networkFramePeriod = Shared::PlatformByteOrder::fromCommonEndian(data.networkFramePeriod);
-	data.networkPauseGameForLaggedClients = Shared::PlatformByteOrder::fromCommonEndian(data.networkPauseGameForLaggedClients);
-	data.pathFinderType = Shared::PlatformByteOrder::fromCommonEndian(data.pathFinderType);
-	data.flagTypes1 = Shared::PlatformByteOrder::fromCommonEndian(data.flagTypes1);
-
-	data.aiAcceptSwitchTeamPercentChance = Shared::PlatformByteOrder::fromCommonEndian(data.aiAcceptSwitchTeamPercentChance);
-	data.cpuReplacementMultiplier = Shared::PlatformByteOrder::fromCommonEndian(data.cpuReplacementMultiplier);
-	data.masterserver_admin = Shared::PlatformByteOrder::fromCommonEndian(data.masterserver_admin);
-	data.masterserver_admin_factionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.masterserver_admin_factionIndex);
 }
 
 // =====================================================
@@ -544,30 +589,43 @@ void NetworkMessageCommandList::send(Socket* socket) {
 }
 
 void NetworkMessageCommandList::toEndianHeader() {
-	data.header.messageType = Shared::PlatformByteOrder::toCommonEndian(data.header.messageType);
-	data.header.commandCount = Shared::PlatformByteOrder::toCommonEndian(data.header.commandCount);
-	data.header.frameCount = Shared::PlatformByteOrder::toCommonEndian(data.header.frameCount);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.header.messageType = Shared::PlatformByteOrder::toCommonEndian(data.header.messageType);
+		data.header.commandCount = Shared::PlatformByteOrder::toCommonEndian(data.header.commandCount);
+		data.header.frameCount = Shared::PlatformByteOrder::toCommonEndian(data.header.frameCount);
+	}
 }
 void NetworkMessageCommandList::fromEndianHeader() {
-	data.header.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.header.messageType);
-	data.header.commandCount = Shared::PlatformByteOrder::fromCommonEndian(data.header.commandCount);
-	data.header.frameCount = Shared::PlatformByteOrder::fromCommonEndian(data.header.frameCount);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.header.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.header.messageType);
+		data.header.commandCount = Shared::PlatformByteOrder::fromCommonEndian(data.header.commandCount);
+		data.header.frameCount = Shared::PlatformByteOrder::fromCommonEndian(data.header.frameCount);
+	}
 }
 
 void NetworkMessageCommandList::toEndianDetail(uint16 totalCommand) {
-	if(totalCommand > 0) {
-        for(int idx = 0 ; idx < totalCommand; ++idx) {
-            NetworkCommand &cmd = data.commands[idx];
-            cmd.toEndian();
-        }
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		if(totalCommand > 0) {
+			for(int idx = 0 ; idx < totalCommand; ++idx) {
+				NetworkCommand &cmd = data.commands[idx];
+				cmd.toEndian();
+			}
+		}
 	}
 }
+
 void NetworkMessageCommandList::fromEndianDetail() {
-	if(data.header.commandCount > 0) {
-        for(int idx = 0 ; idx < data.header.commandCount; ++idx) {
-            NetworkCommand &cmd = data.commands[idx];
-            cmd.fromEndian();
-        }
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		if(data.header.commandCount > 0) {
+			for(int idx = 0 ; idx < data.header.commandCount; ++idx) {
+				NetworkCommand &cmd = data.commands[idx];
+				cmd.fromEndian();
+			}
+		}
 	}
 }
 
@@ -612,14 +670,20 @@ void NetworkMessageText::send(Socket* socket) {
 }
 
 void NetworkMessageText::toEndian() {
-	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
-	data.teamIndex = Shared::PlatformByteOrder::toCommonEndian(data.teamIndex);
-	data.playerIndex = Shared::PlatformByteOrder::toCommonEndian(data.playerIndex);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		data.teamIndex = Shared::PlatformByteOrder::toCommonEndian(data.teamIndex);
+		data.playerIndex = Shared::PlatformByteOrder::toCommonEndian(data.playerIndex);
+	}
 }
 void NetworkMessageText::fromEndian() {
-	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
-	data.teamIndex = Shared::PlatformByteOrder::fromCommonEndian(data.teamIndex);
-	data.playerIndex = Shared::PlatformByteOrder::fromCommonEndian(data.playerIndex);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		data.teamIndex = Shared::PlatformByteOrder::fromCommonEndian(data.teamIndex);
+		data.playerIndex = Shared::PlatformByteOrder::fromCommonEndian(data.playerIndex);
+	}
 }
 
 // =====================================================
@@ -645,10 +709,16 @@ void NetworkMessageQuit::send(Socket* socket) {
 }
 
 void NetworkMessageQuit::toEndian() {
-	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+	}
 }
 void NetworkMessageQuit::fromEndian() {
-	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+	}
 }
 
 // =====================================================
@@ -851,28 +921,40 @@ void NetworkMessageSynchNetworkGameData::send(Socket* socket) {
 }
 
 void NetworkMessageSynchNetworkGameData::toEndianHeader() {
-	data.header.messageType = Shared::PlatformByteOrder::toCommonEndian(data.header.messageType);
-	data.header.mapCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.mapCRC);
-	data.header.tilesetCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.tilesetCRC);
-	data.header.techCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.techCRC);
-	data.header.techCRCFileCount = Shared::PlatformByteOrder::toCommonEndian(data.header.techCRCFileCount);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.header.messageType = Shared::PlatformByteOrder::toCommonEndian(data.header.messageType);
+		data.header.mapCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.mapCRC);
+		data.header.tilesetCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.tilesetCRC);
+		data.header.techCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.techCRC);
+		data.header.techCRCFileCount = Shared::PlatformByteOrder::toCommonEndian(data.header.techCRCFileCount);
+	}
 }
 void NetworkMessageSynchNetworkGameData::fromEndianHeader() {
-	data.header.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.header.messageType);
-	data.header.mapCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.mapCRC);
-	data.header.tilesetCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.tilesetCRC);
-	data.header.techCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.techCRC);
-	data.header.techCRCFileCount = Shared::PlatformByteOrder::fromCommonEndian(data.header.techCRCFileCount);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.header.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.header.messageType);
+		data.header.mapCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.mapCRC);
+		data.header.tilesetCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.tilesetCRC);
+		data.header.techCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.techCRC);
+		data.header.techCRCFileCount = Shared::PlatformByteOrder::fromCommonEndian(data.header.techCRCFileCount);
+	}
 }
 
 void NetworkMessageSynchNetworkGameData::toEndianDetail(uint32 totalFileCount) {
-	for(unsigned int i = 0; i < totalFileCount; ++i) {
-		data.detail.techCRCFileCRCList[i] = Shared::PlatformByteOrder::toCommonEndian(data.detail.techCRCFileCRCList[i]);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		for(unsigned int i = 0; i < totalFileCount; ++i) {
+			data.detail.techCRCFileCRCList[i] = Shared::PlatformByteOrder::toCommonEndian(data.detail.techCRCFileCRCList[i]);
+		}
 	}
 }
 void NetworkMessageSynchNetworkGameData::fromEndianDetail() {
-	for(unsigned int i = 0; i < data.header.techCRCFileCount; ++i) {
-		data.detail.techCRCFileCRCList[i] = Shared::PlatformByteOrder::fromCommonEndian(data.detail.techCRCFileCRCList[i]);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		for(unsigned int i = 0; i < data.header.techCRCFileCount; ++i) {
+			data.detail.techCRCFileCRCList[i] = Shared::PlatformByteOrder::fromCommonEndian(data.detail.techCRCFileCRCList[i]);
+		}
 	}
 }
 
@@ -1033,28 +1115,41 @@ void NetworkMessageSynchNetworkGameDataStatus::send(Socket* socket) {
 }
 
 void NetworkMessageSynchNetworkGameDataStatus::toEndianHeader() {
-	data.header.messageType = Shared::PlatformByteOrder::toCommonEndian(data.header.messageType);
-	data.header.mapCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.mapCRC);
-	data.header.tilesetCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.tilesetCRC);
-	data.header.techCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.techCRC);
-	data.header.techCRCFileCount = Shared::PlatformByteOrder::toCommonEndian(data.header.techCRCFileCount);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.header.messageType = Shared::PlatformByteOrder::toCommonEndian(data.header.messageType);
+		data.header.mapCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.mapCRC);
+		data.header.tilesetCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.tilesetCRC);
+		data.header.techCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.techCRC);
+		data.header.techCRCFileCount = Shared::PlatformByteOrder::toCommonEndian(data.header.techCRCFileCount);
+	}
 }
+
 void NetworkMessageSynchNetworkGameDataStatus::fromEndianHeader() {
-	data.header.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.header.messageType);
-	data.header.mapCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.mapCRC);
-	data.header.tilesetCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.tilesetCRC);
-	data.header.techCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.techCRC);
-	data.header.techCRCFileCount = Shared::PlatformByteOrder::fromCommonEndian(data.header.techCRCFileCount);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.header.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.header.messageType);
+		data.header.mapCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.mapCRC);
+		data.header.tilesetCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.tilesetCRC);
+		data.header.techCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.techCRC);
+		data.header.techCRCFileCount = Shared::PlatformByteOrder::fromCommonEndian(data.header.techCRCFileCount);
+	}
 }
 
 void NetworkMessageSynchNetworkGameDataStatus::toEndianDetail(uint32 totalFileCount) {
-	for(unsigned int i = 0; i < totalFileCount; ++i) {
-		data.detail.techCRCFileCRCList[i] = Shared::PlatformByteOrder::toCommonEndian(data.detail.techCRCFileCRCList[i]);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		for(unsigned int i = 0; i < totalFileCount; ++i) {
+			data.detail.techCRCFileCRCList[i] = Shared::PlatformByteOrder::toCommonEndian(data.detail.techCRCFileCRCList[i]);
+		}
 	}
 }
 void NetworkMessageSynchNetworkGameDataStatus::fromEndianDetail() {
-	for(unsigned int i = 0; i < data.header.techCRCFileCount; ++i) {
-		data.detail.techCRCFileCRCList[i] = Shared::PlatformByteOrder::fromCommonEndian(data.detail.techCRCFileCRCList[i]);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		for(unsigned int i = 0; i < data.header.techCRCFileCount; ++i) {
+			data.detail.techCRCFileCRCList[i] = Shared::PlatformByteOrder::fromCommonEndian(data.detail.techCRCFileCRCList[i]);
+		}
 	}
 }
 
@@ -1089,17 +1184,23 @@ void NetworkMessageSynchNetworkGameDataFileCRCCheck::send(Socket* socket) {
 }
 
 void NetworkMessageSynchNetworkGameDataFileCRCCheck::toEndian() {
-	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
-	data.totalFileCount = Shared::PlatformByteOrder::toCommonEndian(data.totalFileCount);
-	data.fileIndex = Shared::PlatformByteOrder::toCommonEndian(data.fileIndex);
-	data.fileCRC = Shared::PlatformByteOrder::toCommonEndian(data.fileCRC);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		data.totalFileCount = Shared::PlatformByteOrder::toCommonEndian(data.totalFileCount);
+		data.fileIndex = Shared::PlatformByteOrder::toCommonEndian(data.fileIndex);
+		data.fileCRC = Shared::PlatformByteOrder::toCommonEndian(data.fileCRC);
+	}
 }
 
 void NetworkMessageSynchNetworkGameDataFileCRCCheck::fromEndian() {
-	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
-	data.totalFileCount = Shared::PlatformByteOrder::fromCommonEndian(data.totalFileCount);
-	data.fileIndex = Shared::PlatformByteOrder::fromCommonEndian(data.fileIndex);
-	data.fileCRC = Shared::PlatformByteOrder::fromCommonEndian(data.fileCRC);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		data.totalFileCount = Shared::PlatformByteOrder::fromCommonEndian(data.totalFileCount);
+		data.fileIndex = Shared::PlatformByteOrder::fromCommonEndian(data.fileIndex);
+		data.fileCRC = Shared::PlatformByteOrder::fromCommonEndian(data.fileCRC);
+	}
 }
 // =====================================================
 //	class NetworkMessageSynchNetworkGameDataFileGet
@@ -1127,10 +1228,16 @@ void NetworkMessageSynchNetworkGameDataFileGet::send(Socket* socket) {
 }
 
 void NetworkMessageSynchNetworkGameDataFileGet::toEndian() {
-	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+	}
 }
 void NetworkMessageSynchNetworkGameDataFileGet::fromEndian() {
-	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+	}
 }
 
 
@@ -1186,20 +1293,26 @@ void SwitchSetupRequest::send(Socket* socket) {
 }
 
 void SwitchSetupRequest::toEndian() {
-	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
-	data.currentFactionIndex = Shared::PlatformByteOrder::toCommonEndian(data.currentFactionIndex);
-	data.toFactionIndex = Shared::PlatformByteOrder::toCommonEndian(data.toFactionIndex);
-	data.toTeam = Shared::PlatformByteOrder::toCommonEndian(data.toTeam);
-	data.networkPlayerStatus = Shared::PlatformByteOrder::toCommonEndian(data.networkPlayerStatus);
-	data.switchFlags = Shared::PlatformByteOrder::toCommonEndian(data.switchFlags);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		data.currentFactionIndex = Shared::PlatformByteOrder::toCommonEndian(data.currentFactionIndex);
+		data.toFactionIndex = Shared::PlatformByteOrder::toCommonEndian(data.toFactionIndex);
+		data.toTeam = Shared::PlatformByteOrder::toCommonEndian(data.toTeam);
+		data.networkPlayerStatus = Shared::PlatformByteOrder::toCommonEndian(data.networkPlayerStatus);
+		data.switchFlags = Shared::PlatformByteOrder::toCommonEndian(data.switchFlags);
+	}
 }
 void SwitchSetupRequest::fromEndian() {
-	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
-	data.currentFactionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.currentFactionIndex);
-	data.toFactionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.toFactionIndex);
-	data.toTeam = Shared::PlatformByteOrder::fromCommonEndian(data.toTeam);
-	data.networkPlayerStatus = Shared::PlatformByteOrder::fromCommonEndian(data.networkPlayerStatus);
-	data.switchFlags = Shared::PlatformByteOrder::fromCommonEndian(data.switchFlags);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		data.currentFactionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.currentFactionIndex);
+		data.toFactionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.toFactionIndex);
+		data.toTeam = Shared::PlatformByteOrder::fromCommonEndian(data.toTeam);
+		data.networkPlayerStatus = Shared::PlatformByteOrder::fromCommonEndian(data.networkPlayerStatus);
+		data.switchFlags = Shared::PlatformByteOrder::fromCommonEndian(data.switchFlags);
+	}
 }
 
 // =====================================================
@@ -1223,12 +1336,18 @@ void PlayerIndexMessage::send(Socket* socket) {
 }
 
 void PlayerIndexMessage::toEndian() {
-	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
-	data.playerIndex = Shared::PlatformByteOrder::toCommonEndian(data.playerIndex);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		data.playerIndex = Shared::PlatformByteOrder::toCommonEndian(data.playerIndex);
+	}
 }
 void PlayerIndexMessage::fromEndian() {
-	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
-	data.playerIndex = Shared::PlatformByteOrder::fromCommonEndian(data.playerIndex);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		data.playerIndex = Shared::PlatformByteOrder::fromCommonEndian(data.playerIndex);
+	}
 }
 
 // =====================================================
@@ -1253,12 +1372,18 @@ void NetworkMessageLoadingStatus::send(Socket* socket) {
 }
 
 void NetworkMessageLoadingStatus::toEndian() {
-	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
-	data.status = Shared::PlatformByteOrder::toCommonEndian(data.status);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		data.status = Shared::PlatformByteOrder::toCommonEndian(data.status);
+	}
 }
 void NetworkMessageLoadingStatus::fromEndian() {
-	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
-	data.status = Shared::PlatformByteOrder::fromCommonEndian(data.status);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		data.status = Shared::PlatformByteOrder::fromCommonEndian(data.status);
+	}
 }
 
 // =====================================================
@@ -1300,18 +1425,24 @@ void NetworkMessageMarkCell::send(Socket* socket) {
 }
 
 void NetworkMessageMarkCell::toEndian() {
-	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
-	data.targetX = Shared::PlatformByteOrder::toCommonEndian(data.targetX);
-	data.targetY = Shared::PlatformByteOrder::toCommonEndian(data.targetY);
-	data.factionIndex = Shared::PlatformByteOrder::toCommonEndian(data.factionIndex);
-	data.playerIndex = Shared::PlatformByteOrder::toCommonEndian(data.playerIndex);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		data.targetX = Shared::PlatformByteOrder::toCommonEndian(data.targetX);
+		data.targetY = Shared::PlatformByteOrder::toCommonEndian(data.targetY);
+		data.factionIndex = Shared::PlatformByteOrder::toCommonEndian(data.factionIndex);
+		data.playerIndex = Shared::PlatformByteOrder::toCommonEndian(data.playerIndex);
+	}
 }
 void NetworkMessageMarkCell::fromEndian() {
-	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
-	data.targetX = Shared::PlatformByteOrder::fromCommonEndian(data.targetX);
-	data.targetY = Shared::PlatformByteOrder::fromCommonEndian(data.targetY);
-	data.factionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.factionIndex);
-	data.playerIndex = Shared::PlatformByteOrder::fromCommonEndian(data.playerIndex);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		data.targetX = Shared::PlatformByteOrder::fromCommonEndian(data.targetX);
+		data.targetY = Shared::PlatformByteOrder::fromCommonEndian(data.targetY);
+		data.factionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.factionIndex);
+		data.playerIndex = Shared::PlatformByteOrder::fromCommonEndian(data.playerIndex);
+	}
 }
 
 // =====================================================
@@ -1346,16 +1477,22 @@ void NetworkMessageUnMarkCell::send(Socket* socket) {
 }
 
 void NetworkMessageUnMarkCell::toEndian() {
-	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
-	data.targetX = Shared::PlatformByteOrder::toCommonEndian(data.targetX);
-	data.targetY = Shared::PlatformByteOrder::toCommonEndian(data.targetY);
-	data.factionIndex = Shared::PlatformByteOrder::toCommonEndian(data.factionIndex);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		data.targetX = Shared::PlatformByteOrder::toCommonEndian(data.targetX);
+		data.targetY = Shared::PlatformByteOrder::toCommonEndian(data.targetY);
+		data.factionIndex = Shared::PlatformByteOrder::toCommonEndian(data.factionIndex);
+	}
 }
 void NetworkMessageUnMarkCell::fromEndian() {
-	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
-	data.targetX = Shared::PlatformByteOrder::fromCommonEndian(data.targetX);
-	data.targetY = Shared::PlatformByteOrder::fromCommonEndian(data.targetY);
-	data.factionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.factionIndex);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		data.targetX = Shared::PlatformByteOrder::fromCommonEndian(data.targetX);
+		data.targetY = Shared::PlatformByteOrder::fromCommonEndian(data.targetY);
+		data.factionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.factionIndex);
+	}
 }
 
 // =====================================================
@@ -1385,16 +1522,22 @@ void NetworkMessageHighlightCell::send(Socket* socket) {
 }
 
 void NetworkMessageHighlightCell::toEndian() {
-	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
-	data.targetX = Shared::PlatformByteOrder::toCommonEndian(data.targetX);
-	data.targetY = Shared::PlatformByteOrder::toCommonEndian(data.targetY);
-	data.factionIndex = Shared::PlatformByteOrder::toCommonEndian(data.factionIndex);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+		data.targetX = Shared::PlatformByteOrder::toCommonEndian(data.targetX);
+		data.targetY = Shared::PlatformByteOrder::toCommonEndian(data.targetY);
+		data.factionIndex = Shared::PlatformByteOrder::toCommonEndian(data.factionIndex);
+	}
 }
 void NetworkMessageHighlightCell::fromEndian() {
-	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
-	data.targetX = Shared::PlatformByteOrder::fromCommonEndian(data.targetX);
-	data.targetY = Shared::PlatformByteOrder::fromCommonEndian(data.targetY);
-	data.factionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.factionIndex);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+		data.targetX = Shared::PlatformByteOrder::fromCommonEndian(data.targetX);
+		data.targetY = Shared::PlatformByteOrder::fromCommonEndian(data.targetY);
+		data.factionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.factionIndex);
+	}
 }
 
 }}//end namespace

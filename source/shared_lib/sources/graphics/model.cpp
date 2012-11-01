@@ -37,123 +37,159 @@ using namespace Util;
 
 // Utils methods for endianness conversion
 void toEndianFileHeader(FileHeader &header) {
-	for(unsigned int i = 0; i < 3; ++i) {
-		header.id[i] = Shared::PlatformByteOrder::toCommonEndian(header.id[i]);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		for(unsigned int i = 0; i < 3; ++i) {
+			header.id[i] = Shared::PlatformByteOrder::toCommonEndian(header.id[i]);
+		}
+		header.version = Shared::PlatformByteOrder::toCommonEndian(header.version);
 	}
-	header.version = Shared::PlatformByteOrder::toCommonEndian(header.version);
 }
 void fromEndianFileHeader(FileHeader &header) {
-	for(unsigned int i = 0; i < 3; ++i) {
-		header.id[i] = Shared::PlatformByteOrder::fromCommonEndian(header.id[i]);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		for(unsigned int i = 0; i < 3; ++i) {
+			header.id[i] = Shared::PlatformByteOrder::fromCommonEndian(header.id[i]);
+		}
+		header.version = Shared::PlatformByteOrder::fromCommonEndian(header.version);
 	}
-	header.version = Shared::PlatformByteOrder::fromCommonEndian(header.version);
 }
 
 void toEndianModelHeader(ModelHeader &header) {
-	header.type = Shared::PlatformByteOrder::toCommonEndian(header.type);
-	header.meshCount = Shared::PlatformByteOrder::toCommonEndian(header.meshCount);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		header.type = Shared::PlatformByteOrder::toCommonEndian(header.type);
+		header.meshCount = Shared::PlatformByteOrder::toCommonEndian(header.meshCount);
+	}
 }
 void fromEndianModelHeader(ModelHeader &header) {
-	header.type = Shared::PlatformByteOrder::toCommonEndian(header.type);
-	header.meshCount = Shared::PlatformByteOrder::toCommonEndian(header.meshCount);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		header.type = Shared::PlatformByteOrder::toCommonEndian(header.type);
+		header.meshCount = Shared::PlatformByteOrder::toCommonEndian(header.meshCount);
+	}
 }
 
 void toEndianMeshHeader(MeshHeader &header) {
-	for(unsigned int i = 0; i < meshNameSize; ++i) {
-		header.name[i] = Shared::PlatformByteOrder::toCommonEndian(header.name[i]);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		for(unsigned int i = 0; i < meshNameSize; ++i) {
+			header.name[i] = Shared::PlatformByteOrder::toCommonEndian(header.name[i]);
+		}
+		header.frameCount = Shared::PlatformByteOrder::toCommonEndian(header.frameCount);
+		header.vertexCount = Shared::PlatformByteOrder::toCommonEndian(header.vertexCount);
+		header.indexCount = Shared::PlatformByteOrder::toCommonEndian(header.indexCount);
+		for(unsigned int i = 0; i < 3; ++i) {
+			header.diffuseColor[i] = Shared::PlatformByteOrder::toCommonEndian(header.diffuseColor[i]);
+			header.specularColor[i] = Shared::PlatformByteOrder::toCommonEndian(header.specularColor[i]);
+		}
+		header.specularPower = Shared::PlatformByteOrder::toCommonEndian(header.specularPower);
+		header.opacity = Shared::PlatformByteOrder::toCommonEndian(header.opacity);
+		header.properties = Shared::PlatformByteOrder::toCommonEndian(header.properties);
+		header.textures = Shared::PlatformByteOrder::toCommonEndian(header.textures);
 	}
-	header.frameCount = Shared::PlatformByteOrder::toCommonEndian(header.frameCount);
-	header.vertexCount = Shared::PlatformByteOrder::toCommonEndian(header.vertexCount);
-	header.indexCount = Shared::PlatformByteOrder::toCommonEndian(header.indexCount);
-	for(unsigned int i = 0; i < 3; ++i) {
-		header.diffuseColor[i] = Shared::PlatformByteOrder::toCommonEndian(header.diffuseColor[i]);
-		header.specularColor[i] = Shared::PlatformByteOrder::toCommonEndian(header.specularColor[i]);
-	}
-	header.specularPower = Shared::PlatformByteOrder::toCommonEndian(header.specularPower);
-	header.opacity = Shared::PlatformByteOrder::toCommonEndian(header.opacity);
-	header.properties = Shared::PlatformByteOrder::toCommonEndian(header.properties);
-	header.textures = Shared::PlatformByteOrder::toCommonEndian(header.textures);
 }
 
 void fromEndianMeshHeader(MeshHeader &header) {
-	for(unsigned int i = 0; i < meshNameSize; ++i) {
-		header.name[i] = Shared::PlatformByteOrder::fromCommonEndian(header.name[i]);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		for(unsigned int i = 0; i < meshNameSize; ++i) {
+			header.name[i] = Shared::PlatformByteOrder::fromCommonEndian(header.name[i]);
+		}
+		header.frameCount = Shared::PlatformByteOrder::fromCommonEndian(header.frameCount);
+		header.vertexCount = Shared::PlatformByteOrder::fromCommonEndian(header.vertexCount);
+		header.indexCount = Shared::PlatformByteOrder::fromCommonEndian(header.indexCount);
+		for(unsigned int i = 0; i < 3; ++i) {
+			header.diffuseColor[i] = Shared::PlatformByteOrder::fromCommonEndian(header.diffuseColor[i]);
+			header.specularColor[i] = Shared::PlatformByteOrder::fromCommonEndian(header.specularColor[i]);
+		}
+		header.specularPower = Shared::PlatformByteOrder::fromCommonEndian(header.specularPower);
+		header.opacity = Shared::PlatformByteOrder::fromCommonEndian(header.opacity);
+		header.properties = Shared::PlatformByteOrder::fromCommonEndian(header.properties);
+		header.textures = Shared::PlatformByteOrder::fromCommonEndian(header.textures);
 	}
-	header.frameCount = Shared::PlatformByteOrder::fromCommonEndian(header.frameCount);
-	header.vertexCount = Shared::PlatformByteOrder::fromCommonEndian(header.vertexCount);
-	header.indexCount = Shared::PlatformByteOrder::fromCommonEndian(header.indexCount);
-	for(unsigned int i = 0; i < 3; ++i) {
-		header.diffuseColor[i] = Shared::PlatformByteOrder::fromCommonEndian(header.diffuseColor[i]);
-		header.specularColor[i] = Shared::PlatformByteOrder::fromCommonEndian(header.specularColor[i]);
-	}
-	header.specularPower = Shared::PlatformByteOrder::fromCommonEndian(header.specularPower);
-	header.opacity = Shared::PlatformByteOrder::fromCommonEndian(header.opacity);
-	header.properties = Shared::PlatformByteOrder::fromCommonEndian(header.properties);
-	header.textures = Shared::PlatformByteOrder::fromCommonEndian(header.textures);
 }
 
 void toEndianModelHeaderV3(ModelHeaderV3 &header) {
-	header.meshCount = Shared::PlatformByteOrder::toCommonEndian(header.meshCount);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		header.meshCount = Shared::PlatformByteOrder::toCommonEndian(header.meshCount);
+	}
 }
 void fromEndianModelHeaderV3(ModelHeaderV3 &header) {
-	header.meshCount = Shared::PlatformByteOrder::fromCommonEndian(header.meshCount);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		header.meshCount = Shared::PlatformByteOrder::fromCommonEndian(header.meshCount);
+	}
 }
 
 void toEndianMeshHeaderV3(MeshHeaderV3 &header) {
-	header.vertexFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.vertexFrameCount);
-	header.normalFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.normalFrameCount);
-	header.texCoordFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.texCoordFrameCount);
-	header.colorFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.colorFrameCount);
-	header.pointCount = Shared::PlatformByteOrder::toCommonEndian(header.pointCount);
-	header.indexCount = Shared::PlatformByteOrder::toCommonEndian(header.indexCount);
-	header.properties = Shared::PlatformByteOrder::toCommonEndian(header.properties);
-	for(unsigned int i = 0; i < 64; ++i) {
-		header.texName[i] = Shared::PlatformByteOrder::toCommonEndian(header.texName[i]);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		header.vertexFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.vertexFrameCount);
+		header.normalFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.normalFrameCount);
+		header.texCoordFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.texCoordFrameCount);
+		header.colorFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.colorFrameCount);
+		header.pointCount = Shared::PlatformByteOrder::toCommonEndian(header.pointCount);
+		header.indexCount = Shared::PlatformByteOrder::toCommonEndian(header.indexCount);
+		header.properties = Shared::PlatformByteOrder::toCommonEndian(header.properties);
+		for(unsigned int i = 0; i < 64; ++i) {
+			header.texName[i] = Shared::PlatformByteOrder::toCommonEndian(header.texName[i]);
+		}
 	}
 }
 
 void fromEndianMeshHeaderV3(MeshHeaderV3 &header) {
-	header.vertexFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.vertexFrameCount);
-	header.normalFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.normalFrameCount);
-	header.texCoordFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.texCoordFrameCount);
-	header.colorFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.colorFrameCount);
-	header.pointCount = Shared::PlatformByteOrder::fromCommonEndian(header.pointCount);
-	header.indexCount = Shared::PlatformByteOrder::fromCommonEndian(header.indexCount);
-	header.properties = Shared::PlatformByteOrder::fromCommonEndian(header.properties);
-	for(unsigned int i = 0; i < 64; ++i) {
-		header.texName[i] = Shared::PlatformByteOrder::fromCommonEndian(header.texName[i]);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		header.vertexFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.vertexFrameCount);
+		header.normalFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.normalFrameCount);
+		header.texCoordFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.texCoordFrameCount);
+		header.colorFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.colorFrameCount);
+		header.pointCount = Shared::PlatformByteOrder::fromCommonEndian(header.pointCount);
+		header.indexCount = Shared::PlatformByteOrder::fromCommonEndian(header.indexCount);
+		header.properties = Shared::PlatformByteOrder::fromCommonEndian(header.properties);
+		for(unsigned int i = 0; i < 64; ++i) {
+			header.texName[i] = Shared::PlatformByteOrder::fromCommonEndian(header.texName[i]);
+		}
 	}
 }
 
 void toEndianMeshHeaderV2(MeshHeaderV2 &header) {
-	header.vertexFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.vertexFrameCount);
-	header.normalFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.normalFrameCount);
-	header.texCoordFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.texCoordFrameCount);
-	header.colorFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.colorFrameCount);
-	header.pointCount = Shared::PlatformByteOrder::toCommonEndian(header.pointCount);
-	header.indexCount = Shared::PlatformByteOrder::toCommonEndian(header.indexCount);
-	header.hasTexture = Shared::PlatformByteOrder::toCommonEndian(header.hasTexture);
-	header.primitive = Shared::PlatformByteOrder::toCommonEndian(header.primitive);
-	header.cullFace = Shared::PlatformByteOrder::toCommonEndian(header.cullFace);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		header.vertexFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.vertexFrameCount);
+		header.normalFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.normalFrameCount);
+		header.texCoordFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.texCoordFrameCount);
+		header.colorFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.colorFrameCount);
+		header.pointCount = Shared::PlatformByteOrder::toCommonEndian(header.pointCount);
+		header.indexCount = Shared::PlatformByteOrder::toCommonEndian(header.indexCount);
+		header.hasTexture = Shared::PlatformByteOrder::toCommonEndian(header.hasTexture);
+		header.primitive = Shared::PlatformByteOrder::toCommonEndian(header.primitive);
+		header.cullFace = Shared::PlatformByteOrder::toCommonEndian(header.cullFace);
 
-	for(unsigned int i = 0; i < 64; ++i) {
-		header.texName[i] = Shared::PlatformByteOrder::toCommonEndian(header.texName[i]);
+		for(unsigned int i = 0; i < 64; ++i) {
+			header.texName[i] = Shared::PlatformByteOrder::toCommonEndian(header.texName[i]);
+		}
 	}
 }
 
 void fromEndianMeshHeaderV2(MeshHeaderV2 &header) {
-	header.vertexFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.vertexFrameCount);
-	header.normalFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.normalFrameCount);
-	header.texCoordFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.texCoordFrameCount);
-	header.colorFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.colorFrameCount);
-	header.pointCount = Shared::PlatformByteOrder::fromCommonEndian(header.pointCount);
-	header.indexCount = Shared::PlatformByteOrder::fromCommonEndian(header.indexCount);
-	header.hasTexture = Shared::PlatformByteOrder::fromCommonEndian(header.hasTexture);
-	header.primitive = Shared::PlatformByteOrder::fromCommonEndian(header.primitive);
-	header.cullFace = Shared::PlatformByteOrder::fromCommonEndian(header.cullFace);
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		header.vertexFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.vertexFrameCount);
+		header.normalFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.normalFrameCount);
+		header.texCoordFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.texCoordFrameCount);
+		header.colorFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.colorFrameCount);
+		header.pointCount = Shared::PlatformByteOrder::fromCommonEndian(header.pointCount);
+		header.indexCount = Shared::PlatformByteOrder::fromCommonEndian(header.indexCount);
+		header.hasTexture = Shared::PlatformByteOrder::fromCommonEndian(header.hasTexture);
+		header.primitive = Shared::PlatformByteOrder::fromCommonEndian(header.primitive);
+		header.cullFace = Shared::PlatformByteOrder::fromCommonEndian(header.cullFace);
 
-	for(unsigned int i = 0; i < 64; ++i) {
-		header.texName[i] = Shared::PlatformByteOrder::fromCommonEndian(header.texName[i]);
+		for(unsigned int i = 0; i < 64; ++i) {
+			header.texName[i] = Shared::PlatformByteOrder::fromCommonEndian(header.texName[i]);
+		}
 	}
 }
 

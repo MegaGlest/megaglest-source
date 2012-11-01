@@ -76,6 +76,8 @@ protected:
 	//bool peek(Socket* socket, void* data, int dataSize);
 	bool receive(Socket* socket, void* data, int dataSize,bool tryReceiveUntilDataSizeMet);
 	void send(Socket* socket, const void* data, int dataSize);
+
+	void dump_packet(string label, const void* data, int dataSize);
 };
 
 // =====================================================

@@ -68,14 +68,20 @@ template<typename T> class Vec4;
 
 template<class T>
 void toEndianVecArray(T *vec, size_t size) {
-	for(size_t i = 0; i < size; ++i) {
-		vec[i].toEndian();
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		for(size_t i = 0; i < size; ++i) {
+			vec[i].toEndian();
+		}
 	}
 }
 template<class T>
 void fromEndianVecArray(T *vec, size_t size) {
-	for(size_t i = 0; i < size; ++i) {
-		vec[i].fromEndian();
+	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+	if(bigEndianSystem == true) {
+		for(size_t i = 0; i < size; ++i) {
+			vec[i].fromEndian();
+		}
 	}
 }
 
@@ -276,12 +282,18 @@ public:
 	}
 
 	void toEndian() {
-		this->x = Shared::PlatformByteOrder::toCommonEndian(this->x);
-		this->y = Shared::PlatformByteOrder::toCommonEndian(this->y);
+		static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+		if(bigEndianSystem == true) {
+			this->x = Shared::PlatformByteOrder::toCommonEndian(this->x);
+			this->y = Shared::PlatformByteOrder::toCommonEndian(this->y);
+		}
 	}
 	void fromEndian() {
-		this->x = Shared::PlatformByteOrder::fromCommonEndian(this->x);
-		this->y = Shared::PlatformByteOrder::fromCommonEndian(this->y);
+		static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+		if(bigEndianSystem == true) {
+			this->x = Shared::PlatformByteOrder::fromCommonEndian(this->x);
+			this->y = Shared::PlatformByteOrder::fromCommonEndian(this->y);
+		}
 	}
 
 };
@@ -524,14 +536,20 @@ public:
 	}
 
 	void toEndian() {
-		this->x = Shared::PlatformByteOrder::toCommonEndian(this->x);
-		this->y = Shared::PlatformByteOrder::toCommonEndian(this->y);
-		this->z = Shared::PlatformByteOrder::toCommonEndian(this->z);
+		static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+		if(bigEndianSystem == true) {
+			this->x = Shared::PlatformByteOrder::toCommonEndian(this->x);
+			this->y = Shared::PlatformByteOrder::toCommonEndian(this->y);
+			this->z = Shared::PlatformByteOrder::toCommonEndian(this->z);
+		}
 	}
 	void fromEndian() {
-		this->x = Shared::PlatformByteOrder::fromCommonEndian(this->x);
-		this->y = Shared::PlatformByteOrder::fromCommonEndian(this->y);
-		this->z = Shared::PlatformByteOrder::fromCommonEndian(this->z);
+		static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+		if(bigEndianSystem == true) {
+			this->x = Shared::PlatformByteOrder::fromCommonEndian(this->x);
+			this->y = Shared::PlatformByteOrder::fromCommonEndian(this->y);
+			this->z = Shared::PlatformByteOrder::fromCommonEndian(this->z);
+		}
 	}
 
 };
@@ -750,16 +768,22 @@ public:
 	}
 
 	void toEndian() {
-		this->x = Shared::PlatformByteOrder::toCommonEndian(this->x);
-		this->y = Shared::PlatformByteOrder::toCommonEndian(this->y);
-		this->z = Shared::PlatformByteOrder::toCommonEndian(this->z);
-		this->w = Shared::PlatformByteOrder::toCommonEndian(this->w);
+		static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+		if(bigEndianSystem == true) {
+			this->x = Shared::PlatformByteOrder::toCommonEndian(this->x);
+			this->y = Shared::PlatformByteOrder::toCommonEndian(this->y);
+			this->z = Shared::PlatformByteOrder::toCommonEndian(this->z);
+			this->w = Shared::PlatformByteOrder::toCommonEndian(this->w);
+		}
 	}
 	void fromEndian() {
-		this->x = Shared::PlatformByteOrder::fromCommonEndian(this->x);
-		this->y = Shared::PlatformByteOrder::fromCommonEndian(this->y);
-		this->z = Shared::PlatformByteOrder::fromCommonEndian(this->z);
-		this->w = Shared::PlatformByteOrder::fromCommonEndian(this->w);
+		static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+		if(bigEndianSystem == true) {
+			this->x = Shared::PlatformByteOrder::fromCommonEndian(this->x);
+			this->y = Shared::PlatformByteOrder::fromCommonEndian(this->y);
+			this->z = Shared::PlatformByteOrder::fromCommonEndian(this->z);
+			this->w = Shared::PlatformByteOrder::fromCommonEndian(this->w);
+		}
 	}
 
 };

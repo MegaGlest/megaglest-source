@@ -3243,6 +3243,11 @@ int glestMain(int argc, char** argv) {
 			LuaScript::setDisableSandbox(true);
 		}
 
+		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DEBUG_NETWORK_PACKETS]) == true) {
+			printf("*NOTE: debugging network packets.\n");
+			config.setBool("DebugNetworkPackets",true,true);
+		}
+
 		Socket::setBroadCastPort(config.getInt("BroadcastPort",intToStr(Socket::getBroadCastPort()).c_str()));
 
 		Socket::disableNagle = config.getBool("DisableNagle","false");

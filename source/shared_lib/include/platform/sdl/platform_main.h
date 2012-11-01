@@ -87,6 +87,7 @@ const char  *GAME_ARGS[] = {
 
 	"--disable-opengl-checks",
 	"--disable-streflop-checks",
+	"--debug-network-packets",
 
 	"--verbose"
 
@@ -159,6 +160,8 @@ enum GAME_ARG_TYPE {
 
 	GAME_ARG_DISABLE_OPENGL_CAPS_CHECK,
 	GAME_ARG_DISABLE_STREFLOP_CAPS_CHECK,
+
+	GAME_ARG_DEBUG_NETWORK_PACKETS,
 
 	GAME_ARG_VERBOSE_MODE,
 
