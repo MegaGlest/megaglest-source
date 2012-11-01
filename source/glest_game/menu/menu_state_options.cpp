@@ -46,13 +46,13 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		int leftColumnStart=leftLabelStart+180;
 		int rightLabelStart=450;
 		int rightColumnStart=rightLabelStart+280;
-		int buttonRowPos=80;
+		int buttonRowPos=50;
 		int buttonStartPos=170;
 		int captionOffset=75;
 		int currentLabelStart=leftLabelStart;
 		int currentColumnStart=leftColumnStart;
 		int currentLine=700;
-		int lineOffset=26;
+		int lineOffset=27;
 
 		mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 		mainMessageBox.init(lang.get("Ok"));
@@ -65,6 +65,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		labelAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		labelAudioSection.setText(lang.get("Audio"));
 		currentLine-=lineOffset;
+		currentLine-=lineOffset/2;
 
 		//soundboxes
 		labelSoundFactory.registerGraphicComponent(containerName,"labelSoundFactory");
@@ -116,13 +117,14 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		listBoxVolumeAmbient.setSelectedItem(intToStr(config.getInt("SoundVolumeAmbient")/5*5));
 		listBoxVolumeMusic.setSelectedItem(intToStr(config.getInt("SoundVolumeMusic")/5*5));
 
-		currentLine-=lineOffset;
+		currentLine-=lineOffset/2;
 		// Video Section
 		labelVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
 		labelVideoSection.init(currentLabelStart+captionOffset, currentLine);
 		labelVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		labelVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		labelVideoSection.setText(lang.get("Video"));
+		currentLine-=lineOffset/2;
 		currentLine-=lineOffset;
 
 		//resolution
@@ -322,6 +324,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		labelMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		labelMiscSection.setText(lang.get("Misc"));
 		currentLine-=lineOffset;
+		currentLine-=lineOffset/2;
 
 		//lang
 		labelLang.registerGraphicComponent(containerName,"labelLang");
@@ -469,13 +472,13 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 
 		currentLine-=lineOffset;
 
-
+		currentLine-=lineOffset/2;
 		labelNetworkSettings.registerGraphicComponent(containerName,"labelNetworkSettingsSection");
 		labelNetworkSettings.init(currentLabelStart+captionOffset, currentLine);
 		labelNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		labelNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		labelNetworkSettings.setText(lang.get("Network"));
-
+		currentLine-=lineOffset/2;
 		// external server port
 		currentLine-=lineOffset;
 		labelPublishServerExternalPort.registerGraphicComponent(containerName,"labelPublishServerExternalPort");
