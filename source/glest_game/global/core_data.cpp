@@ -665,7 +665,7 @@ void CoreData::loadFonts() {
 		displayFontNamePostfix = lang.get("FontDisplayPostfix");
 	}
 	if(lang.hasString("FontDisplayBaseSize") == true) {
-		displayFontSize = strToInt(lang.get("FontDisplayBaseSize"));
+		displayFontSize = computeFontSize(strToInt(lang.get("FontDisplayBaseSize")));
 	}
 
 	//printf("displayFontNamePostfix [%s]\n",displayFontNamePostfix.c_str());
@@ -712,7 +712,7 @@ void CoreData::loadFonts() {
 		displayFontNameSmallPostfix = lang.get("FontDisplayPostfix");
 	}
 	if(lang.hasString("FontDisplaySmallBaseSize") == true) {
-		displayFontNameSmallSize = strToInt(lang.get("FontDisplaySmallBaseSize"));
+		displayFontNameSmallSize = computeFontSize(strToInt(lang.get("FontDisplaySmallBaseSize")));
 	}
 
 	string displayFontNameSmall = displayFontNameSmallPrefix + intToStr(displayFontNameSmallSize) + displayFontNameSmallPostfix;
@@ -804,7 +804,7 @@ void CoreData::loadFonts() {
 		menuFontNameBigPostfix = lang.get("FontMenuBigPostfix");
 	}
 	if(lang.hasString("FontMenuBigBaseSize") == true) {
-		menuFontNameBigSize = strToInt(lang.get("FontMenuBigBaseSize"));
+		menuFontNameBigSize = computeFontSize(strToInt(lang.get("FontMenuBigBaseSize")));
 	}
 
 	string menuFontNameBig= menuFontNameBigPrefix+intToStr(menuFontNameBigSize)+menuFontNameBigPostfix;
@@ -848,7 +848,7 @@ void CoreData::loadFonts() {
 		menuFontNameVeryBigPostfix = lang.get("FontMenuBigPostfix");
 	}
 	if(lang.hasString("FontMenuVeryBigBaseSize") == true) {
-		menuFontNameVeryBigSize = strToInt(lang.get("FontMenuVeryBigBaseSize"));
+		menuFontNameVeryBigSize = computeFontSize(strToInt(lang.get("FontMenuVeryBigBaseSize")));
 	}
 
 	string menuFontNameVeryBig= menuFontNameVeryBigPrefix + intToStr(menuFontNameVeryBigSize) + menuFontNameVeryBigPostfix;
@@ -895,7 +895,7 @@ void CoreData::loadFonts() {
 		consoleFontNamePostfix = lang.get("FontConsolePostfix");
 	}
 	if(lang.hasString("FontConsoleBaseSize") == true) {
-		consoleFontNameSize = strToInt(lang.get("FontConsoleBaseSize"));
+		consoleFontNameSize = computeFontSize(strToInt(lang.get("FontConsoleBaseSize")));
 	}
 
 	string consoleFontName= consoleFontNamePrefix + intToStr(consoleFontNameSize) + consoleFontNamePostfix;
