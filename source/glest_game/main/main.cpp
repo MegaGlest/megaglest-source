@@ -3083,6 +3083,8 @@ int glestMain(int argc, char** argv) {
 		testVar = Shared::PlatformByteOrder::fromCommonEndian(testVar);
 		printf("\nEndian from common value = %d",testVar);
 
+		printf("\nint8 sizeof = %zu",sizeof(int8));
+
 		printf("\nSVN: [%s]",getSVNRevisionString().c_str());
 
 #ifdef USE_STREFLOP
