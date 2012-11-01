@@ -15,6 +15,7 @@
 #include "socket.h"
 #include "game_constants.h"
 #include "network_types.h"
+#include "byte_order.h"
 #include "leak_dumper.h"
 
 using Shared::Platform::Socket;
@@ -68,12 +69,12 @@ class NetworkMessage {
 public:
 	virtual ~NetworkMessage(){}
 	virtual bool receive(Socket* socket)= 0;
-	virtual void send(Socket* socket) const = 0;
+	virtual void send(Socket* socket) = 0;
 
 protected:
 	//bool peek(Socket* socket, void* data, int dataSize);
 	bool receive(Socket* socket, void* data, int dataSize,bool tryReceiveUntilDataSizeMet);
-	void send(Socket* socket, const void* data, int dataSize) const;
+	void send(Socket* socket, const void* data, int dataSize);
 };
 
 // =====================================================
@@ -101,6 +102,8 @@ private:
 		uint32 ftpPort;
 		NetworkString<maxLanguageStringSize> language;
 	};
+	void toEndian();
+	void fromEndian();
 
 private:
 	Data data;
@@ -121,7 +124,7 @@ public:
 	string getPlayerLanguage() const			{ return data.language.getString(); }
 
 	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket) const;
+	virtual void send(Socket* socket);
 };
 #pragma pack(pop)
 
@@ -139,6 +142,8 @@ private:
 		int32 pingFrequency;
 		int64 pingTime;
 	};
+	void toEndian();
+	void fromEndian();
 
 private:
 	Data data;
@@ -153,7 +158,7 @@ public:
 	int64 getPingReceivedLocalTime() const { return pingReceivedLocalTime; }
 
 	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket) const;
+	virtual void send(Socket* socket);
 };
 #pragma pack(pop)
 
@@ -170,6 +175,8 @@ private:
 		int8 messageType;
 		uint32 checksum;
 	};
+	void toEndian();
+	void fromEndian();
 
 private:
 	Data data;
@@ -181,7 +188,7 @@ public:
 	uint32 getChecksum() const	{return data.checksum;}
 
 	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket) const;
+	virtual void send(Socket* socket);
 };
 #pragma pack(pop)
 
@@ -243,6 +250,8 @@ private:
 
 		NetworkString<maxStringSize> scenario;
 	};
+	void toEndian();
+	void fromEndian();
 
 private:
 	Data data;
@@ -260,7 +269,7 @@ public:
 	vector<pair<string,uint32> > getFactionCRCList() const;
 
 	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket) const;
+	virtual void send(Socket* socket);
 };
 #pragma pack(pop)
 
@@ -269,8 +278,6 @@ public:
 //
 //	Message to order a commands to several units
 // =====================================================
-
-//const int32 commandListHeaderSize = 6;
 
 #pragma pack(push, 1)
 class NetworkMessageCommandList: public NetworkMessage {
@@ -291,6 +298,10 @@ private:
 		//NetworkCommand commands[maxCommandCount];
 		std::vector<NetworkCommand> commands;
 	};
+	void toEndianHeader();
+	void fromEndianHeader();
+	void toEndianDetail(uint16 totalCommand);
+	void fromEndianDetail();
 
 private:
 	Data data;
@@ -306,7 +317,7 @@ public:
 	const NetworkCommand* getCommand(int i) const	{return &data.commands[i];}
 
 	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket) const;
+	virtual void send(Socket* socket);
 };
 #pragma pack(pop)
 
@@ -329,6 +340,8 @@ private:
 		int8 playerIndex;
 		NetworkString<maxLanguageStringSize> targetLanguage;
 	};
+	void toEndian();
+	void fromEndian();
 
 private:
 	Data data;
@@ -344,7 +357,7 @@ public:
 	string getTargetLanguage() const  {return data.targetLanguage.getString();}
 
 	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket) const;
+	virtual void send(Socket* socket);
 	NetworkMessageText * getCopy() const;
 };
 #pragma pack(pop)
@@ -361,6 +374,8 @@ private:
 	struct Data{
 		int8 messageType;
 	};
+	void toEndian();
+	void fromEndian();
 
 private:
 	Data data;
@@ -369,7 +384,7 @@ public:
 	NetworkMessageQuit();
 
 	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket) const;
+	virtual void send(Socket* socket);
 };
 #pragma pack(pop)
 
@@ -418,6 +433,10 @@ private:
 		DataHeader header;
 		DataDetail detail;
 	};
+	void toEndianHeader();
+	void fromEndianHeader();
+	void toEndianDetail(uint32 totalFileCount);
+	void fromEndianDetail();
 
 private:
 	Data data;
@@ -427,7 +446,7 @@ public:
 	NetworkMessageSynchNetworkGameData(const GameSettings *gameSettings);
 
 	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket) const;
+	virtual void send(Socket* socket);
 
 	string getMap() const		{return data.header.map.getString();}
 	string getTileset() const   {return data.header.tileset.getString();}
@@ -485,6 +504,10 @@ private:
 		DataHeader header;
 		DataDetail detail;
 	};
+	void toEndianHeader();
+	void fromEndianHeader();
+	void toEndianDetail(uint32 totalFileCount);
+	void fromEndianDetail();
 
 private:
 	Data data;
@@ -494,7 +517,7 @@ public:
 	NetworkMessageSynchNetworkGameDataStatus(uint32 mapCRC, uint32 tilesetCRC, uint32 techCRC, vector<std::pair<string,uint32> > &vctFileList);
 
 	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket) const;
+	virtual void send(Socket* socket);
 
 	uint32 getMapCRC() const		{return data.header.mapCRC;}
 	uint32 getTilesetCRC() const	{return data.header.tilesetCRC;}
@@ -531,6 +554,8 @@ private:
 		uint32 fileCRC;
 		NetworkString<maxStringSize> fileName;
 	};
+	void toEndian();
+	void fromEndian();
 
 private:
 	Data data;
@@ -540,7 +565,7 @@ public:
 	NetworkMessageSynchNetworkGameDataFileCRCCheck(uint32 totalFileCount, uint32 fileIndex, uint32 fileCRC, const string fileName);
 
 	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket) const;
+	virtual void send(Socket* socket);
 
 	uint32 getTotalFileCount() const	{return data.totalFileCount;}
 	uint32 getFileIndex() const	    {return data.fileIndex;}
@@ -568,6 +593,8 @@ private:
 
 		NetworkString<maxStringSize> fileName;
 	};
+	void toEndian();
+	void fromEndian();
 
 private:
 	Data data;
@@ -577,7 +604,7 @@ public:
 	NetworkMessageSynchNetworkGameDataFileGet(const string fileName);
 
 	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket) const;
+	virtual void send(Socket* socket);
 
 	string getFileName() const		{return data.fileName.getString();}
 };
@@ -619,6 +646,8 @@ private:
 		int8 switchFlags;
 		NetworkString<maxLanguageStringSize> language;
 	};
+	void toEndian();
+	void fromEndian();
 
 private:
 	Data data;
@@ -643,7 +672,7 @@ public:
 	string getNetworkPlayerLanguage() const	{ return data.language.getString(); }
 
 	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket) const;
+	virtual void send(Socket* socket);
 };
 #pragma pack(pop)
 
@@ -658,10 +687,12 @@ public:
 class PlayerIndexMessage: public NetworkMessage{
 
 private:
-	struct Data{
+	struct Data {
 		int8 messageType;
 		int16 playerIndex;
 	};
+	void toEndian();
+	void fromEndian();
 
 private:
 	Data data;
@@ -672,7 +703,7 @@ public:
 	int16 getPlayerIndex() const	{return data.playerIndex;}
 
 	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket) const;
+	virtual void send(Socket* socket);
 };
 #pragma pack(pop)
 
@@ -707,10 +738,12 @@ enum NetworkMessageLoadingStatusType {
 #pragma pack(push, 1)
 class NetworkMessageLoadingStatus : public NetworkMessage {
 private:
-	struct Data{
+	struct Data {
 		int8 messageType;
 		uint32 status;
 	};
+	void toEndian();
+	void fromEndian();
 
 private:
 	Data data;
@@ -722,7 +755,7 @@ public:
 	uint32 getStatus() const	{return data.status;}
 
 	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket) const;
+	virtual void send(Socket* socket);
 };
 #pragma pack(pop)
 
@@ -748,6 +781,8 @@ private:
 		int8 playerIndex;
 		NetworkString<maxTextStringSize> text;
 	};
+	void toEndian();
+	void fromEndian();
 
 private:
 	Data data;
@@ -762,7 +797,7 @@ public:
 	int getPlayerIndex() const { return data.playerIndex; }
 
 	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket) const;
+	virtual void send(Socket* socket);
 	NetworkMessageMarkCell * getCopy() const;
 };
 #pragma pack(pop)
@@ -777,13 +812,15 @@ public:
 class NetworkMessageUnMarkCell: public NetworkMessage {
 
 private:
-	struct Data{
+	struct Data {
 		int8 messageType;
 
 		int16 targetX;
 		int16 targetY;
 		int8 factionIndex;
 	};
+	void toEndian();
+	void fromEndian();
 
 private:
 	Data data;
@@ -796,7 +833,7 @@ public:
 	int getFactionIndex() const  { return data.factionIndex; }
 
 	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket) const;
+	virtual void send(Socket* socket);
 	NetworkMessageUnMarkCell * getCopy() const;
 };
 #pragma pack(pop)
@@ -821,6 +858,8 @@ private:
 		int16 targetY;
 		int8 factionIndex;
 	};
+	void toEndian();
+	void fromEndian();
 
 private:
 	Data data;
@@ -833,7 +872,7 @@ public:
 	int getFactionIndex() const  { return data.factionIndex; }
 
 	virtual bool receive(Socket* socket);
-	virtual void send(Socket* socket) const;
+	virtual void send(Socket* socket);
 };
 #pragma pack(pop)
 

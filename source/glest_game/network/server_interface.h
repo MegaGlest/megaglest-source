@@ -79,7 +79,7 @@ private:
     vector<TextMessageQueue> textMessageQueue;
 
     Mutex *broadcastMessageQueueThreadAccessor;
-    vector<pair<const NetworkMessage *,int> > broadcastMessageQueue;
+    vector<pair<NetworkMessage *,int> > broadcastMessageQueue;
 
     Mutex *inBroadcastMessageThreadAccessor;
     bool inBroadcastMessage;
@@ -185,12 +185,12 @@ public:
         return serverSocket.getBindPort();
     }
 
-    void broadcastPing(const NetworkMessagePing *networkMessage, int excludeSlot = -1)
+    void broadcastPing(NetworkMessagePing *networkMessage, int excludeSlot = -1)
     {
         this->broadcastMessage(networkMessage, excludeSlot);
     }
 
-    void queueBroadcastMessage(const NetworkMessage *networkMessage, int excludeSlot = -1);
+    void queueBroadcastMessage(NetworkMessage *networkMessage, int excludeSlot = -1);
     virtual string getHumanPlayerName(int index = -1);
     virtual int getHumanPlayerIndex() const;
     bool getNeedToRepublishToMasterserver() const
@@ -223,8 +223,8 @@ public:
     virtual void saveGame(XmlNode *rootNode);
 
 private:
-    void broadcastMessage(const NetworkMessage *networkMessage, int excludeSlot = -1, int lockedSlotIndex = -1);
-    void broadcastMessageToConnectedClients(const NetworkMessage *networkMessage, int excludeSlot = -1);
+    void broadcastMessage(NetworkMessage *networkMessage, int excludeSlot = -1, int lockedSlotIndex = -1);
+    void broadcastMessageToConnectedClients(NetworkMessage *networkMessage, int excludeSlot = -1);
     bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType, ConnectionSlot *connectionSlot);
     void updateSlot(ConnectionSlotEvent *event);
     void validateConnectedClients();

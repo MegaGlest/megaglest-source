@@ -98,6 +98,40 @@ string NetworkCommand::toString() const {
     return result;
 }
 
+void NetworkCommand::toEndian() {
+	networkCommandType = Shared::PlatformByteOrder::toCommonEndian(networkCommandType);
+	unitId = Shared::PlatformByteOrder::toCommonEndian(unitId);
+	unitTypeId = Shared::PlatformByteOrder::toCommonEndian(unitTypeId);
+	commandTypeId = Shared::PlatformByteOrder::toCommonEndian(commandTypeId);
+	positionX = Shared::PlatformByteOrder::toCommonEndian(positionX);
+	positionY = Shared::PlatformByteOrder::toCommonEndian(positionY);
+	targetId = Shared::PlatformByteOrder::toCommonEndian(targetId);
+	wantQueue = Shared::PlatformByteOrder::toCommonEndian(wantQueue);
+	fromFactionIndex = Shared::PlatformByteOrder::toCommonEndian(fromFactionIndex);
+	unitFactionUnitCount = Shared::PlatformByteOrder::toCommonEndian(unitFactionUnitCount);
+	unitFactionIndex = Shared::PlatformByteOrder::toCommonEndian(unitFactionIndex);
+	commandStateType = Shared::PlatformByteOrder::toCommonEndian(commandStateType);
+	commandStateValue = Shared::PlatformByteOrder::toCommonEndian(commandStateValue);
+	unitCommandGroupId = Shared::PlatformByteOrder::toCommonEndian(unitCommandGroupId);
+
+}
+void NetworkCommand::fromEndian() {
+	networkCommandType = Shared::PlatformByteOrder::fromCommonEndian(networkCommandType);
+	unitId = Shared::PlatformByteOrder::fromCommonEndian(unitId);
+	unitTypeId = Shared::PlatformByteOrder::fromCommonEndian(unitTypeId);
+	commandTypeId = Shared::PlatformByteOrder::fromCommonEndian(commandTypeId);
+	positionX = Shared::PlatformByteOrder::fromCommonEndian(positionX);
+	positionY = Shared::PlatformByteOrder::fromCommonEndian(positionY);
+	targetId = Shared::PlatformByteOrder::fromCommonEndian(targetId);
+	wantQueue = Shared::PlatformByteOrder::fromCommonEndian(wantQueue);
+	fromFactionIndex = Shared::PlatformByteOrder::fromCommonEndian(fromFactionIndex);
+	unitFactionUnitCount = Shared::PlatformByteOrder::fromCommonEndian(unitFactionUnitCount);
+	unitFactionIndex = Shared::PlatformByteOrder::fromCommonEndian(unitFactionIndex);
+	commandStateType = Shared::PlatformByteOrder::fromCommonEndian(commandStateType);
+	commandStateValue = Shared::PlatformByteOrder::fromCommonEndian(commandStateValue);
+	unitCommandGroupId = Shared::PlatformByteOrder::fromCommonEndian(unitCommandGroupId);
+}
+
 XmlNode * NetworkCommand::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *networkCommandNode = rootNode->addChild("NetworkCommand");

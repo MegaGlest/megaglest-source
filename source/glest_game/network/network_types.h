@@ -153,6 +153,9 @@ public:
     void preprocessNetworkCommand(World *world);
 	string toString() const;
 
+	void toEndian();
+	void fromEndian();
+
 	XmlNode * saveGame(XmlNode *rootNode);
 	void loadGame(const XmlNode *rootNode);
 };

@@ -60,7 +60,7 @@ bool NetworkMessage::receive(Socket* socket, void* data, int dataSize, bool tryR
 
 }
 
-void NetworkMessage::send(Socket* socket, const void* data, int dataSize) const {
+void NetworkMessage::send(Socket* socket, const void* data, int dataSize) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket = %p, data = %p, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,socket,data,dataSize);
 
 	if(socket != NULL) {
@@ -112,15 +112,33 @@ bool NetworkMessageIntro::receive(Socket* socket) {
 	data.name.nullTerminate();
 	data.versionString.nullTerminate();
 	data.language.nullTerminate();
-
+	fromEndian();
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] get nmtIntro, data.playerIndex = %d, data.sessionId = %d\n",__FILE__,__FUNCTION__,__LINE__,data.playerIndex,data.sessionId);
 	return result;
 }
 
-void NetworkMessageIntro::send(Socket* socket) const {
+void NetworkMessageIntro::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sending nmtIntro, data.playerIndex = %d, data.sessionId = %d\n",__FILE__,__FUNCTION__,__LINE__,data.playerIndex,data.sessionId);
 	assert(data.messageType == nmtIntro);
+	toEndian();
 	NetworkMessage::send(socket, &data, sizeof(data));
+}
+
+void NetworkMessageIntro::toEndian() {
+	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+	data.sessionId = Shared::PlatformByteOrder::toCommonEndian(data.sessionId);
+	data.playerIndex = Shared::PlatformByteOrder::toCommonEndian(data.playerIndex);
+	data.gameState = Shared::PlatformByteOrder::toCommonEndian(data.gameState);
+	data.externalIp = Shared::PlatformByteOrder::toCommonEndian(data.externalIp);
+	data.ftpPort = Shared::PlatformByteOrder::toCommonEndian(data.ftpPort);
+}
+void NetworkMessageIntro::fromEndian() {
+	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+	data.sessionId = Shared::PlatformByteOrder::fromCommonEndian(data.sessionId);
+	data.playerIndex = Shared::PlatformByteOrder::fromCommonEndian(data.playerIndex);
+	data.gameState = Shared::PlatformByteOrder::fromCommonEndian(data.gameState);
+	data.externalIp = Shared::PlatformByteOrder::fromCommonEndian(data.externalIp);
+	data.ftpPort = Shared::PlatformByteOrder::fromCommonEndian(data.ftpPort);
 }
 
 // =====================================================
@@ -141,14 +159,27 @@ NetworkMessagePing::NetworkMessagePing(int32 pingFrequency, int64 pingTime){
 
 bool NetworkMessagePing::receive(Socket* socket){
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	fromEndian();
 	pingReceivedLocalTime = time(NULL);
 	return result;
 }
 
-void NetworkMessagePing::send(Socket* socket) const{
+void NetworkMessagePing::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtPing\n",__FILE__,__FUNCTION__,__LINE__);
 	assert(data.messageType==nmtPing);
+	toEndian();
 	NetworkMessage::send(socket, &data, sizeof(data));
+}
+
+void NetworkMessagePing::toEndian() {
+	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+	data.pingFrequency = Shared::PlatformByteOrder::toCommonEndian(data.pingFrequency);
+	data.pingTime = Shared::PlatformByteOrder::toCommonEndian(data.pingTime);
+}
+void NetworkMessagePing::fromEndian() {
+	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+	data.pingFrequency = Shared::PlatformByteOrder::fromCommonEndian(data.pingFrequency);
+	data.pingTime = Shared::PlatformByteOrder::fromCommonEndian(data.pingTime);
 }
 
 // =====================================================
@@ -165,13 +196,25 @@ NetworkMessageReady::NetworkMessageReady(uint32 checksum) {
 }
 
 bool NetworkMessageReady::receive(Socket* socket){
-	return NetworkMessage::receive(socket, &data, sizeof(data), true);
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	fromEndian();
+	return result;
 }
 
-void NetworkMessageReady::send(Socket* socket) const {
+void NetworkMessageReady::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtReady\n",__FILE__,__FUNCTION__,__LINE__);
 	assert(data.messageType==nmtReady);
+	toEndian();
 	NetworkMessage::send(socket, &data, sizeof(data));
+}
+
+void NetworkMessageReady::toEndian() {
+	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+	data.checksum = Shared::PlatformByteOrder::toCommonEndian(data.checksum);
+}
+void NetworkMessageReady::fromEndian() {
+	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+	data.checksum = Shared::PlatformByteOrder::fromCommonEndian(data.checksum);
 }
 
 // =====================================================
@@ -321,6 +364,7 @@ vector<pair<string,uint32> > NetworkMessageLaunch::getFactionCRCList() const {
 
 bool NetworkMessageLaunch::receive(Socket* socket) {
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	fromEndian();
 	data.description.nullTerminate();
 	data.map.nullTerminate();
 	data.tileset.nullTerminate();
@@ -338,14 +382,82 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 	return result;
 }
 
-void NetworkMessageLaunch::send(Socket* socket) const{
+void NetworkMessageLaunch::send(Socket* socket) {
 	if(data.messageType == nmtLaunch) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	else {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d\n",__FILE__,__FUNCTION__,__LINE__,data.messageType);
 	}
+	toEndian();
 	NetworkMessage::send(socket, &data, sizeof(data));
+}
+
+void NetworkMessageLaunch::toEndian() {
+	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+	for(int i= 0; i < GameConstants::maxPlayers; ++i){
+		data.networkPlayerStatuses[i] = Shared::PlatformByteOrder::toCommonEndian(data.networkPlayerStatuses[i]);
+		data.factionCRCList[i] = Shared::PlatformByteOrder::toCommonEndian(data.factionCRCList[i]);
+		data.factionControls[i] = Shared::PlatformByteOrder::toCommonEndian(data.factionControls[i]);
+		data.resourceMultiplierIndex[i] = Shared::PlatformByteOrder::toCommonEndian(data.resourceMultiplierIndex[i]);
+		data.teams[i] = Shared::PlatformByteOrder::toCommonEndian(data.teams[i]);
+		data.startLocationIndex[i] = Shared::PlatformByteOrder::toCommonEndian(data.startLocationIndex[i]);
+	}
+	data.mapCRC = Shared::PlatformByteOrder::toCommonEndian(data.mapCRC);
+	data.tilesetCRC = Shared::PlatformByteOrder::toCommonEndian(data.tilesetCRC);
+	data.techCRC = Shared::PlatformByteOrder::toCommonEndian(data.techCRC);
+	data.thisFactionIndex = Shared::PlatformByteOrder::toCommonEndian(data.thisFactionIndex);
+	data.factionCount = Shared::PlatformByteOrder::toCommonEndian(data.factionCount);
+	data.defaultResources = Shared::PlatformByteOrder::toCommonEndian(data.defaultResources);
+	data.defaultUnits = Shared::PlatformByteOrder::toCommonEndian(data.defaultUnits);
+
+	data.defaultVictoryConditions = Shared::PlatformByteOrder::toCommonEndian(data.defaultVictoryConditions);
+	data.fogOfWar = Shared::PlatformByteOrder::toCommonEndian(data.fogOfWar);
+	data.allowObservers = Shared::PlatformByteOrder::toCommonEndian(data.allowObservers);
+	data.enableObserverModeAtEndGame = Shared::PlatformByteOrder::toCommonEndian(data.enableObserverModeAtEndGame);
+	data.enableServerControlledAI = Shared::PlatformByteOrder::toCommonEndian(data.enableServerControlledAI);
+	data.networkFramePeriod = Shared::PlatformByteOrder::toCommonEndian(data.networkFramePeriod);
+	data.networkPauseGameForLaggedClients = Shared::PlatformByteOrder::toCommonEndian(data.networkPauseGameForLaggedClients);
+	data.pathFinderType = Shared::PlatformByteOrder::toCommonEndian(data.pathFinderType);
+	data.flagTypes1 = Shared::PlatformByteOrder::toCommonEndian(data.flagTypes1);
+
+	data.aiAcceptSwitchTeamPercentChance = Shared::PlatformByteOrder::toCommonEndian(data.aiAcceptSwitchTeamPercentChance);
+	data.cpuReplacementMultiplier = Shared::PlatformByteOrder::toCommonEndian(data.cpuReplacementMultiplier);
+	data.masterserver_admin = Shared::PlatformByteOrder::toCommonEndian(data.masterserver_admin);
+	data.masterserver_admin_factionIndex = Shared::PlatformByteOrder::toCommonEndian(data.masterserver_admin_factionIndex);
+}
+void NetworkMessageLaunch::fromEndian() {
+	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+	for(int i= 0; i < GameConstants::maxPlayers; ++i){
+		data.networkPlayerStatuses[i] = Shared::PlatformByteOrder::fromCommonEndian(data.networkPlayerStatuses[i]);
+		data.factionCRCList[i] = Shared::PlatformByteOrder::fromCommonEndian(data.factionCRCList[i]);
+		data.factionControls[i] = Shared::PlatformByteOrder::fromCommonEndian(data.factionControls[i]);
+		data.resourceMultiplierIndex[i] = Shared::PlatformByteOrder::fromCommonEndian(data.resourceMultiplierIndex[i]);
+		data.teams[i] = Shared::PlatformByteOrder::fromCommonEndian(data.teams[i]);
+		data.startLocationIndex[i] = Shared::PlatformByteOrder::fromCommonEndian(data.startLocationIndex[i]);
+	}
+	data.mapCRC = Shared::PlatformByteOrder::fromCommonEndian(data.mapCRC);
+	data.tilesetCRC = Shared::PlatformByteOrder::fromCommonEndian(data.tilesetCRC);
+	data.techCRC = Shared::PlatformByteOrder::fromCommonEndian(data.techCRC);
+	data.thisFactionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.thisFactionIndex);
+	data.factionCount = Shared::PlatformByteOrder::fromCommonEndian(data.factionCount);
+	data.defaultResources = Shared::PlatformByteOrder::fromCommonEndian(data.defaultResources);
+	data.defaultUnits = Shared::PlatformByteOrder::fromCommonEndian(data.defaultUnits);
+
+	data.defaultVictoryConditions = Shared::PlatformByteOrder::fromCommonEndian(data.defaultVictoryConditions);
+	data.fogOfWar = Shared::PlatformByteOrder::fromCommonEndian(data.fogOfWar);
+	data.allowObservers = Shared::PlatformByteOrder::fromCommonEndian(data.allowObservers);
+	data.enableObserverModeAtEndGame = Shared::PlatformByteOrder::fromCommonEndian(data.enableObserverModeAtEndGame);
+	data.enableServerControlledAI = Shared::PlatformByteOrder::fromCommonEndian(data.enableServerControlledAI);
+	data.networkFramePeriod = Shared::PlatformByteOrder::fromCommonEndian(data.networkFramePeriod);
+	data.networkPauseGameForLaggedClients = Shared::PlatformByteOrder::fromCommonEndian(data.networkPauseGameForLaggedClients);
+	data.pathFinderType = Shared::PlatformByteOrder::fromCommonEndian(data.pathFinderType);
+	data.flagTypes1 = Shared::PlatformByteOrder::fromCommonEndian(data.flagTypes1);
+
+	data.aiAcceptSwitchTeamPercentChance = Shared::PlatformByteOrder::fromCommonEndian(data.aiAcceptSwitchTeamPercentChance);
+	data.cpuReplacementMultiplier = Shared::PlatformByteOrder::fromCommonEndian(data.cpuReplacementMultiplier);
+	data.masterserver_admin = Shared::PlatformByteOrder::fromCommonEndian(data.masterserver_admin);
+	data.masterserver_admin_factionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.masterserver_admin_factionIndex);
 }
 
 // =====================================================
@@ -359,31 +471,18 @@ NetworkMessageCommandList::NetworkMessageCommandList(int32 frameCount) {
 }
 
 bool NetworkMessageCommandList::addCommand(const NetworkCommand* networkCommand){
-//	if(data.header.commandCount < maxCommandCount){
-//		data.commands[static_cast<int>(data.header.commandCount)]= *networkCommand;
-//		data.header.commandCount++;
-//		return true;
-//	}
-//	else {
-//		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR too many commands in commandlist data.header.commandCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.commandCount);
-//	    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] WARNING / ERROR too many commands in commandlist data.header.commandCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.commandCount);
-//	}
-//	return false;
-
 	data.commands.push_back(*networkCommand);
 	data.header.commandCount++;
 	return true;
-
 }
 
 bool NetworkMessageCommandList::receive(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	bool result = NetworkMessage::receive(socket, &data.header, commandListHeaderSize, true);
+	fromEndianHeader();
 	if(result == true) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got header, messageType = %d, commandCount = %u, frameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.messageType,data.header.commandCount,data.header.frameCount);
-		// read header + data.commandCount commands.
-		//int totalMsgSize = commandListHeaderSize + (sizeof(NetworkCommand) * data.header.commandCount);
 
 		if(data.header.commandCount > 0) {
 			data.commands.resize(data.header.commandCount);
@@ -391,6 +490,7 @@ bool NetworkMessageCommandList::receive(Socket* socket) {
 			int totalMsgSize = (sizeof(NetworkCommand) * data.header.commandCount);
 			result = NetworkMessage::receive(socket, &data.commands[0], totalMsgSize, true);
 			if(result == true) {
+				fromEndianDetail();
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled == true) {
 					for(int idx = 0 ; idx < data.header.commandCount; ++idx) {
 						const NetworkCommand &cmd = data.commands[idx];
@@ -413,15 +513,16 @@ bool NetworkMessageCommandList::receive(Socket* socket) {
 
 }
 
-void NetworkMessageCommandList::send(Socket* socket) const {
+void NetworkMessageCommandList::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtCommandList, frameCount = %d, data.header.commandCount = %d, data.header.messageType = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.frameCount,data.header.commandCount,data.header.messageType);
 
 	assert(data.header.messageType==nmtCommandList);
-	//int totalMsgSize = commandListHeaderSize + (sizeof(NetworkCommand) * data.header.commandCount);
-	//NetworkMessage::send(socket, &data, totalMsgSize);
+	uint16 totalCommand = data.header.commandCount;
+	toEndianHeader();
 	NetworkMessage::send(socket, &data.header, commandListHeaderSize);
-	if(data.header.commandCount > 0) {
-		NetworkMessage::send(socket, &data.commands[0], (sizeof(NetworkCommand) * data.header.commandCount));
+	if(totalCommand > 0) {
+		toEndianDetail(totalCommand);
+		NetworkMessage::send(socket, &data.commands[0], (sizeof(NetworkCommand) * totalCommand));
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled == true) {
@@ -437,6 +538,34 @@ void NetworkMessageCommandList::send(Socket* socket) const {
             }
 
             SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] END of loop, nmtCommandList, frameCount = %d, data.header.commandCount = %d, data.header.messageType = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.frameCount,data.header.commandCount,data.header.messageType);
+        }
+	}
+}
+
+void NetworkMessageCommandList::toEndianHeader() {
+	data.header.messageType = Shared::PlatformByteOrder::toCommonEndian(data.header.messageType);
+	data.header.commandCount = Shared::PlatformByteOrder::toCommonEndian(data.header.commandCount);
+	data.header.frameCount = Shared::PlatformByteOrder::toCommonEndian(data.header.frameCount);
+}
+void NetworkMessageCommandList::fromEndianHeader() {
+	data.header.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.header.messageType);
+	data.header.commandCount = Shared::PlatformByteOrder::fromCommonEndian(data.header.commandCount);
+	data.header.frameCount = Shared::PlatformByteOrder::fromCommonEndian(data.header.frameCount);
+}
+
+void NetworkMessageCommandList::toEndianDetail(uint16 totalCommand) {
+	if(totalCommand > 0) {
+        for(int idx = 0 ; idx < totalCommand; ++idx) {
+            NetworkCommand &cmd = data.commands[idx];
+            cmd.toEndian();
+        }
+	}
+}
+void NetworkMessageCommandList::fromEndianDetail() {
+	if(data.header.commandCount > 0) {
+        for(int idx = 0 ; idx < data.header.commandCount; ++idx) {
+            NetworkCommand &cmd = data.commands[idx];
+            cmd.fromEndian();
         }
 	}
 }
@@ -466,18 +595,30 @@ NetworkMessageText * NetworkMessageText::getCopy() const {
 
 bool NetworkMessageText::receive(Socket* socket){
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
-
+	fromEndian();
 	data.text.nullTerminate();
 	data.targetLanguage.nullTerminate();
 
 	return result;
 }
 
-void NetworkMessageText::send(Socket* socket) const{
+void NetworkMessageText::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtText\n",__FILE__,__FUNCTION__,__LINE__);
 
 	assert(data.messageType==nmtText);
+	toEndian();
 	NetworkMessage::send(socket, &data, sizeof(data));
+}
+
+void NetworkMessageText::toEndian() {
+	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+	data.teamIndex = Shared::PlatformByteOrder::toCommonEndian(data.teamIndex);
+	data.playerIndex = Shared::PlatformByteOrder::toCommonEndian(data.playerIndex);
+}
+void NetworkMessageText::fromEndian() {
+	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+	data.teamIndex = Shared::PlatformByteOrder::fromCommonEndian(data.teamIndex);
+	data.playerIndex = Shared::PlatformByteOrder::fromCommonEndian(data.playerIndex);
 }
 
 // =====================================================
@@ -489,14 +630,24 @@ NetworkMessageQuit::NetworkMessageQuit(){
 }
 
 bool NetworkMessageQuit::receive(Socket* socket){
-	return NetworkMessage::receive(socket, &data, sizeof(data),true);
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data),true);
+	fromEndian();
+	return result;
 }
 
-void NetworkMessageQuit::send(Socket* socket) const{
+void NetworkMessageQuit::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtQuit\n",__FILE__,__FUNCTION__,__LINE__);
 
 	assert(data.messageType==nmtQuit);
+	toEndian();
 	NetworkMessage::send(socket, &data, sizeof(data));
+}
+
+void NetworkMessageQuit::toEndian() {
+	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+}
+void NetworkMessageQuit::fromEndian() {
+	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
 }
 
 // =====================================================
@@ -619,6 +770,7 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 
 	data.header.techCRCFileCount = 0;
 	bool result = NetworkMessage::receive(socket, &data, HeaderSize, true);
+	fromEndianHeader();
 	if(result == true && data.header.techCRCFileCount > 0) {
 		data.header.map.nullTerminate();
 		data.header.tileset.nullTerminate();
@@ -659,22 +811,25 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 				result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[packetIndex], packetDetail2DataSize, true);
 			}
 		}
+		fromEndianDetail();
 	}
 
 	return result;
 }
 
-void NetworkMessageSynchNetworkGameData::send(Socket* socket) const {
+void NetworkMessageSynchNetworkGameData::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to send nmtSynchNetworkGameData\n",__FILE__,__FUNCTION__,__LINE__);
 
 	assert(data.header.messageType==nmtSynchNetworkGameData);
+	uint32 totalFileCount = data.header.techCRCFileCount;
+	toEndianHeader();
 	NetworkMessage::send(socket, &data, HeaderSize);
-	if(data.header.techCRCFileCount > 0) {
+	if(totalFileCount > 0) {
 		// Here we loop possibly multiple times
 		int packetLoopCount = 1;
-		if(data.header.techCRCFileCount > NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount) {
-			packetLoopCount = (data.header.techCRCFileCount / NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount);
-			if(data.header.techCRCFileCount % NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount > 0) {
+		if(totalFileCount > NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount) {
+			packetLoopCount = (totalFileCount / NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount);
+			if(totalFileCount % NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount > 0) {
 				packetLoopCount++;
 			}
 		}
@@ -685,11 +840,38 @@ void NetworkMessageSynchNetworkGameData::send(Socket* socket) const {
 
 			int packetIndex = iPacketLoop * NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount;
 			int maxFileCountPerPacket = maxFileCRCPacketCount;
-			int packetFileCount = min((uint32)maxFileCountPerPacket,data.header.techCRCFileCount - packetIndex);
+			int packetFileCount = min((uint32)maxFileCountPerPacket,totalFileCount - packetIndex);
 
 			NetworkMessage::send(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount));
 			NetworkMessage::send(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount));
 		}
+		toEndianDetail(totalFileCount);
+	}
+}
+
+void NetworkMessageSynchNetworkGameData::toEndianHeader() {
+	data.header.messageType = Shared::PlatformByteOrder::toCommonEndian(data.header.messageType);
+	data.header.mapCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.mapCRC);
+	data.header.tilesetCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.tilesetCRC);
+	data.header.techCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.techCRC);
+	data.header.techCRCFileCount = Shared::PlatformByteOrder::toCommonEndian(data.header.techCRCFileCount);
+}
+void NetworkMessageSynchNetworkGameData::fromEndianHeader() {
+	data.header.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.header.messageType);
+	data.header.mapCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.mapCRC);
+	data.header.tilesetCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.tilesetCRC);
+	data.header.techCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.techCRC);
+	data.header.techCRCFileCount = Shared::PlatformByteOrder::fromCommonEndian(data.header.techCRCFileCount);
+}
+
+void NetworkMessageSynchNetworkGameData::toEndianDetail(uint32 totalFileCount) {
+	for(unsigned int i = 0; i < totalFileCount; ++i) {
+		data.detail.techCRCFileCRCList[i] = Shared::PlatformByteOrder::toCommonEndian(data.detail.techCRCFileCRCList[i]);
+	}
+}
+void NetworkMessageSynchNetworkGameData::fromEndianDetail() {
+	for(unsigned int i = 0; i < data.header.techCRCFileCount; ++i) {
+		data.detail.techCRCFileCRCList[i] = Shared::PlatformByteOrder::fromCommonEndian(data.detail.techCRCFileCRCList[i]);
 	}
 }
 
@@ -777,6 +959,7 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 
 	bool result = NetworkMessage::receive(socket, &data, HeaderSize, true);
 	if(result == true && data.header.techCRCFileCount > 0) {
+		fromEndianHeader();
 		// Here we loop possibly multiple times
 		int packetLoopCount = 1;
 		if(data.header.techCRCFileCount > NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount) {
@@ -806,6 +989,7 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 				result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount),true);
 			}
 		}
+		fromEndianDetail();
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] result = %d\n",__FILE__,__FUNCTION__,__LINE__,result);
@@ -813,34 +997,63 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 	return result;
 }
 
-void NetworkMessageSynchNetworkGameDataStatus::send(Socket* socket) const {
+void NetworkMessageSynchNetworkGameDataStatus::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to send nmtSynchNetworkGameDataStatus, data.header.techCRCFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.techCRCFileCount);
 
 	assert(data.header.messageType==nmtSynchNetworkGameDataStatus);
+	uint32 totalFileCount = data.header.techCRCFileCount;
+	toEndianHeader();
 	NetworkMessage::send(socket, &data, HeaderSize);
-	if(data.header.techCRCFileCount > 0) {
+	if(totalFileCount > 0) {
 		// Here we loop possibly multiple times
 		int packetLoopCount = 1;
-		if(data.header.techCRCFileCount > NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount) {
-			packetLoopCount = (data.header.techCRCFileCount / NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount);
-			if(data.header.techCRCFileCount % NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount > 0) {
+		if(totalFileCount > NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount) {
+			packetLoopCount = (totalFileCount / NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount);
+			if(totalFileCount % NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount > 0) {
 				packetLoopCount++;
 			}
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,packetLoopCount);
 
+		toEndianDetail(totalFileCount);
 		for(int iPacketLoop = 0; iPacketLoop < packetLoopCount; ++iPacketLoop) {
 
 			int packetIndex = iPacketLoop * NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount;
 			int maxFileCountPerPacket = maxFileCRCPacketCount;
-			int packetFileCount = min((uint32)maxFileCountPerPacket,data.header.techCRCFileCount - packetIndex);
+			int packetFileCount = min((uint32)maxFileCountPerPacket,totalFileCount - packetIndex);
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoop = %d, packetIndex = %d, packetFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,iPacketLoop,packetIndex,packetFileCount);
 
 			NetworkMessage::send(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount));
 			NetworkMessage::send(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount));
 		}
+	}
+}
+
+void NetworkMessageSynchNetworkGameDataStatus::toEndianHeader() {
+	data.header.messageType = Shared::PlatformByteOrder::toCommonEndian(data.header.messageType);
+	data.header.mapCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.mapCRC);
+	data.header.tilesetCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.tilesetCRC);
+	data.header.techCRC = Shared::PlatformByteOrder::toCommonEndian(data.header.techCRC);
+	data.header.techCRCFileCount = Shared::PlatformByteOrder::toCommonEndian(data.header.techCRCFileCount);
+}
+void NetworkMessageSynchNetworkGameDataStatus::fromEndianHeader() {
+	data.header.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.header.messageType);
+	data.header.mapCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.mapCRC);
+	data.header.tilesetCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.tilesetCRC);
+	data.header.techCRC = Shared::PlatformByteOrder::fromCommonEndian(data.header.techCRC);
+	data.header.techCRCFileCount = Shared::PlatformByteOrder::fromCommonEndian(data.header.techCRCFileCount);
+}
+
+void NetworkMessageSynchNetworkGameDataStatus::toEndianDetail(uint32 totalFileCount) {
+	for(unsigned int i = 0; i < totalFileCount; ++i) {
+		data.detail.techCRCFileCRCList[i] = Shared::PlatformByteOrder::toCommonEndian(data.detail.techCRCFileCRCList[i]);
+	}
+}
+void NetworkMessageSynchNetworkGameDataStatus::fromEndianDetail() {
+	for(unsigned int i = 0; i < data.header.techCRCFileCount; ++i) {
+		data.detail.techCRCFileCRCList[i] = Shared::PlatformByteOrder::fromCommonEndian(data.detail.techCRCFileCRCList[i]);
 	}
 }
 
@@ -860,45 +1073,64 @@ NetworkMessageSynchNetworkGameDataFileCRCCheck::NetworkMessageSynchNetworkGameDa
 
 bool NetworkMessageSynchNetworkGameDataFileCRCCheck::receive(Socket* socket) {
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
-
+	fromEndian();
 	data.fileName.nullTerminate();
 
 	return result;
 }
 
-void NetworkMessageSynchNetworkGameDataFileCRCCheck::send(Socket* socket) const {
+void NetworkMessageSynchNetworkGameDataFileCRCCheck::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtSynchNetworkGameDataFileCRCCheck\n",__FILE__,__FUNCTION__,__LINE__);
 
 	assert(data.messageType==nmtSynchNetworkGameDataFileCRCCheck);
+	toEndian();
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
 
+void NetworkMessageSynchNetworkGameDataFileCRCCheck::toEndian() {
+	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+	data.totalFileCount = Shared::PlatformByteOrder::toCommonEndian(data.totalFileCount);
+	data.fileIndex = Shared::PlatformByteOrder::toCommonEndian(data.fileIndex);
+	data.fileCRC = Shared::PlatformByteOrder::toCommonEndian(data.fileCRC);
+}
+
+void NetworkMessageSynchNetworkGameDataFileCRCCheck::fromEndian() {
+	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+	data.totalFileCount = Shared::PlatformByteOrder::fromCommonEndian(data.totalFileCount);
+	data.fileIndex = Shared::PlatformByteOrder::fromCommonEndian(data.fileIndex);
+	data.fileCRC = Shared::PlatformByteOrder::fromCommonEndian(data.fileCRC);
+}
 // =====================================================
 //	class NetworkMessageSynchNetworkGameDataFileGet
 // =====================================================
 
-NetworkMessageSynchNetworkGameDataFileGet::NetworkMessageSynchNetworkGameDataFileGet(const string fileName)
-{
+NetworkMessageSynchNetworkGameDataFileGet::NetworkMessageSynchNetworkGameDataFileGet(const string fileName) {
 	data.messageType= nmtSynchNetworkGameDataFileGet;
-
     data.fileName       = fileName;
 }
 
 bool NetworkMessageSynchNetworkGameDataFileGet::receive(Socket* socket) {
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
-
+	fromEndian();
 	data.fileName.nullTerminate();
 
 	return result;
 }
 
-void NetworkMessageSynchNetworkGameDataFileGet::send(Socket* socket) const {
+void NetworkMessageSynchNetworkGameDataFileGet::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtSynchNetworkGameDataFileGet\n",__FILE__,__FUNCTION__,__LINE__);
 
 	assert(data.messageType==nmtSynchNetworkGameDataFileGet);
+	toEndian();
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
 
+void NetworkMessageSynchNetworkGameDataFileGet::toEndian() {
+	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+}
+void NetworkMessageSynchNetworkGameDataFileGet::fromEndian() {
+	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+}
 
 
 // =====================================================
@@ -934,7 +1166,7 @@ SwitchSetupRequest::SwitchSetupRequest(string selectedFactionName, int8 currentF
 
 bool SwitchSetupRequest::receive(Socket* socket) {
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
-
+	fromEndian();
 	data.selectedFactionName.nullTerminate();
 	data.networkPlayerName.nullTerminate();
 	data.language.nullTerminate();
@@ -944,30 +1176,58 @@ bool SwitchSetupRequest::receive(Socket* socket) {
 	return result;
 }
 
-void SwitchSetupRequest::send(Socket* socket) const {
+void SwitchSetupRequest::send(Socket* socket) {
 	assert(data.messageType==nmtSwitchSetupRequest);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] data.networkPlayerName [%s]\n",__FILE__,__FUNCTION__,__LINE__,data.networkPlayerName.getString().c_str());
-
+	toEndian();
 	NetworkMessage::send(socket, &data, sizeof(data));
+}
+
+void SwitchSetupRequest::toEndian() {
+	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+	data.currentFactionIndex = Shared::PlatformByteOrder::toCommonEndian(data.currentFactionIndex);
+	data.toFactionIndex = Shared::PlatformByteOrder::toCommonEndian(data.toFactionIndex);
+	data.toTeam = Shared::PlatformByteOrder::toCommonEndian(data.toTeam);
+	data.networkPlayerStatus = Shared::PlatformByteOrder::toCommonEndian(data.networkPlayerStatus);
+	data.switchFlags = Shared::PlatformByteOrder::toCommonEndian(data.switchFlags);
+}
+void SwitchSetupRequest::fromEndian() {
+	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+	data.currentFactionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.currentFactionIndex);
+	data.toFactionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.toFactionIndex);
+	data.toTeam = Shared::PlatformByteOrder::fromCommonEndian(data.toTeam);
+	data.networkPlayerStatus = Shared::PlatformByteOrder::fromCommonEndian(data.networkPlayerStatus);
+	data.switchFlags = Shared::PlatformByteOrder::fromCommonEndian(data.switchFlags);
 }
 
 // =====================================================
 //	class PlayerIndexMessage
 // =====================================================
-PlayerIndexMessage::PlayerIndexMessage(int16 playerIndex)
-{
+PlayerIndexMessage::PlayerIndexMessage(int16 playerIndex) {
 	data.messageType= nmtPlayerIndexMessage;
 	data.playerIndex=playerIndex;
 }
 
 bool PlayerIndexMessage::receive(Socket* socket) {
-	return NetworkMessage::receive(socket, &data, sizeof(data), true);
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	fromEndian();
+	return result;
 }
 
-void PlayerIndexMessage::send(Socket* socket) const {
+void PlayerIndexMessage::send(Socket* socket) {
 	assert(data.messageType==nmtPlayerIndexMessage);
+	toEndian();
 	NetworkMessage::send(socket, &data, sizeof(data));
+}
+
+void PlayerIndexMessage::toEndian() {
+	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+	data.playerIndex = Shared::PlatformByteOrder::toCommonEndian(data.playerIndex);
+}
+void PlayerIndexMessage::fromEndian() {
+	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+	data.playerIndex = Shared::PlatformByteOrder::fromCommonEndian(data.playerIndex);
 }
 
 // =====================================================
@@ -980,13 +1240,24 @@ NetworkMessageLoadingStatus::NetworkMessageLoadingStatus(uint32 status)
 }
 
 bool NetworkMessageLoadingStatus::receive(Socket* socket) {
-	return NetworkMessage::receive(socket, &data, sizeof(data), true);
+	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	fromEndian();
+	return result;
 }
 
-void NetworkMessageLoadingStatus::send(Socket* socket) const
-{
+void NetworkMessageLoadingStatus::send(Socket* socket) {
 	assert(data.messageType==nmtLoadingStatusMessage);
+	toEndian();
 	NetworkMessage::send(socket, &data, sizeof(data));
+}
+
+void NetworkMessageLoadingStatus::toEndian() {
+	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+	data.status = Shared::PlatformByteOrder::toCommonEndian(data.status);
+}
+void NetworkMessageLoadingStatus::fromEndian() {
+	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+	data.status = Shared::PlatformByteOrder::fromCommonEndian(data.status);
 }
 
 // =====================================================
@@ -1014,15 +1285,32 @@ NetworkMessageMarkCell * NetworkMessageMarkCell::getCopy() const {
 
 bool NetworkMessageMarkCell::receive(Socket* socket){
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	fromEndian();
 	data.text.nullTerminate();
 	return result;
 }
 
-void NetworkMessageMarkCell::send(Socket* socket) const{
+void NetworkMessageMarkCell::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtMarkCell\n",__FILE__,__FUNCTION__,__LINE__);
 
 	assert(data.messageType == nmtMarkCell);
+	toEndian();
 	NetworkMessage::send(socket, &data, sizeof(data));
+}
+
+void NetworkMessageMarkCell::toEndian() {
+	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+	data.targetX = Shared::PlatformByteOrder::toCommonEndian(data.targetX);
+	data.targetY = Shared::PlatformByteOrder::toCommonEndian(data.targetY);
+	data.factionIndex = Shared::PlatformByteOrder::toCommonEndian(data.factionIndex);
+	data.playerIndex = Shared::PlatformByteOrder::toCommonEndian(data.playerIndex);
+}
+void NetworkMessageMarkCell::fromEndian() {
+	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+	data.targetX = Shared::PlatformByteOrder::fromCommonEndian(data.targetX);
+	data.targetY = Shared::PlatformByteOrder::fromCommonEndian(data.targetY);
+	data.factionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.factionIndex);
+	data.playerIndex = Shared::PlatformByteOrder::fromCommonEndian(data.playerIndex);
 }
 
 // =====================================================
@@ -1044,14 +1332,29 @@ NetworkMessageUnMarkCell * NetworkMessageUnMarkCell::getCopy() const {
 
 bool NetworkMessageUnMarkCell::receive(Socket* socket){
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	fromEndian();
 	return result;
 }
 
-void NetworkMessageUnMarkCell::send(Socket* socket) const{
+void NetworkMessageUnMarkCell::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtUnMarkCell\n",__FILE__,__FUNCTION__,__LINE__);
 
 	assert(data.messageType == nmtUnMarkCell);
+	toEndian();
 	NetworkMessage::send(socket, &data, sizeof(data));
+}
+
+void NetworkMessageUnMarkCell::toEndian() {
+	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+	data.targetX = Shared::PlatformByteOrder::toCommonEndian(data.targetX);
+	data.targetY = Shared::PlatformByteOrder::toCommonEndian(data.targetY);
+	data.factionIndex = Shared::PlatformByteOrder::toCommonEndian(data.factionIndex);
+}
+void NetworkMessageUnMarkCell::fromEndian() {
+	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+	data.targetX = Shared::PlatformByteOrder::fromCommonEndian(data.targetX);
+	data.targetY = Shared::PlatformByteOrder::fromCommonEndian(data.targetY);
+	data.factionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.factionIndex);
 }
 
 // =====================================================
@@ -1066,18 +1369,31 @@ NetworkMessageHighlightCell::NetworkMessageHighlightCell(Vec2i target, int facti
 	data.factionIndex 	= factionIndex;
 }
 
-
 bool NetworkMessageHighlightCell::receive(Socket* socket){
 	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	fromEndian();
 	return result;
 }
 
-void NetworkMessageHighlightCell::send(Socket* socket) const{
+void NetworkMessageHighlightCell::send(Socket* socket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtMarkCell\n",__FILE__,__FUNCTION__,__LINE__);
 
 	assert(data.messageType == nmtHighlightCell);
+	toEndian();
 	NetworkMessage::send(socket, &data, sizeof(data));
 }
 
+void NetworkMessageHighlightCell::toEndian() {
+	data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
+	data.targetX = Shared::PlatformByteOrder::toCommonEndian(data.targetX);
+	data.targetY = Shared::PlatformByteOrder::toCommonEndian(data.targetY);
+	data.factionIndex = Shared::PlatformByteOrder::toCommonEndian(data.factionIndex);
+}
+void NetworkMessageHighlightCell::fromEndian() {
+	data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
+	data.targetX = Shared::PlatformByteOrder::fromCommonEndian(data.targetX);
+	data.targetY = Shared::PlatformByteOrder::fromCommonEndian(data.targetY);
+	data.factionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.factionIndex);
+}
 
 }}//end namespace
