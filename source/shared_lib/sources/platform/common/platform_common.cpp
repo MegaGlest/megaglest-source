@@ -64,6 +64,7 @@
 #include <algorithm>
 #include "platform_util.h"
 #include "utf8.h"
+#include "byte_order.h"
 #include "leak_dumper.h"
 
 #ifdef __APPLE__
@@ -654,6 +655,9 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, uint32 &value) {
 			}
 
 			int readbytes = fscanf(fp,"%20ld,%20u,%20ld",&refreshDate,&crcValue,&lastUpdateDate);
+			refreshDate = Shared::PlatformByteOrder::fromCommonEndian(refreshDate);
+			crcValue = Shared::PlatformByteOrder::fromCommonEndian(crcValue);
+			lastUpdateDate = Shared::PlatformByteOrder::fromCommonEndian(lastUpdateDate);
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d for Cache file [%s] readbytes = %d\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),readbytes);
@@ -746,7 +750,7 @@ void writeCachedFileCRCValue(string crcCacheFile, uint32 &crcValue) {
         char szBuf1[100]="";
         strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
 
-		fprintf(fp,"%ld,%u,%ld",refreshDate,crcValue,now);
+		fprintf(fp,"%ld,%u,%ld",Shared::PlatformByteOrder::toCommonEndian(refreshDate),Shared::PlatformByteOrder::toCommonEndian(crcValue),Shared::PlatformByteOrder::toCommonEndian(now));
 		fclose(fp);
 
 		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"========== Writing CRC Cache offset [%d] refreshDate = %ld [%s], crcValue = %u, file [%s]\n",offset,refreshDate,szBuf1,crcValue,crcCacheFile.c_str());

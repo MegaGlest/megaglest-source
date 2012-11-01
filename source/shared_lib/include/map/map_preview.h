@@ -91,6 +91,9 @@ struct MapFileHeader {
 	};
 };
 
+void toEndianMapFileHeader(MapFileHeader &header);
+void fromEndianMapFileHeader(MapFileHeader &header);
+
 class MapInfo {
 public:
 

@@ -19,6 +19,7 @@
 #include <iterator>
 #include "platform_util.h"
 #include "conversion.h"
+#include "byte_order.h"
 
 #ifndef WIN32
 #include <errno.h>
@@ -747,6 +748,35 @@ void MapPreview::switchSurfaces(MapSurfaceType surf1, MapSurfaceType surf2) {
 	}
 }
 
+void toEndianMapFileHeader(MapFileHeader &header) {
+	header.version = Shared::PlatformByteOrder::toCommonEndian(header.version);
+	header.maxFactions = Shared::PlatformByteOrder::toCommonEndian(header.maxFactions);
+	header.width = Shared::PlatformByteOrder::toCommonEndian(header.width);
+	header.height = Shared::PlatformByteOrder::toCommonEndian(header.height);
+	header.heightFactor = Shared::PlatformByteOrder::toCommonEndian(header.heightFactor);
+	header.waterLevel = Shared::PlatformByteOrder::toCommonEndian(header.waterLevel);
+	for(unsigned int i =0; i < MAX_TITLE_LENGTH; ++i) {
+		header.title[i] = Shared::PlatformByteOrder::toCommonEndian(header.title[i]);
+	}
+	for(unsigned int i =0; i < MAX_DESCRIPTION_LENGTH; ++i) {
+		header.description[i] = Shared::PlatformByteOrder::toCommonEndian(header.description[i]);
+	}
+}
+void fromEndianMapFileHeader(MapFileHeader &header) {
+	header.version = Shared::PlatformByteOrder::fromCommonEndian(header.version);
+	header.maxFactions = Shared::PlatformByteOrder::fromCommonEndian(header.maxFactions);
+	header.width = Shared::PlatformByteOrder::fromCommonEndian(header.width);
+	header.height = Shared::PlatformByteOrder::fromCommonEndian(header.height);
+	header.heightFactor = Shared::PlatformByteOrder::fromCommonEndian(header.heightFactor);
+	header.waterLevel = Shared::PlatformByteOrder::fromCommonEndian(header.waterLevel);
+	for(unsigned int i =0; i < MAX_TITLE_LENGTH; ++i) {
+		header.title[i] = Shared::PlatformByteOrder::fromCommonEndian(header.title[i]);
+	}
+	for(unsigned int i =0; i < MAX_DESCRIPTION_LENGTH; ++i) {
+		header.description[i] = Shared::PlatformByteOrder::fromCommonEndian(header.description[i]);
+	}
+}
+
 void MapPreview::loadFromFile(const string &path) {
 
 	// "Could not open file, result: 3 - 2 No such file or directory [C:\Documents and Settings\人間五\Application Data\megaglest\maps\clearings_in_the_woods.gbm]
@@ -768,16 +798,17 @@ void MapPreview::loadFromFile(const string &path) {
 			snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",bytes,__LINE__);
 			throw megaglest_runtime_error(szBuf);
 		}
+		fromEndianMapFileHeader(header);
 
 		heightFactor = header.heightFactor;
 		waterLevel = header.waterLevel;
 		title = header.title;
 		author = header.author;
 		cliffLevel = 0;
-		if(header.version==1){
+		if(header.version == 1) {
 			desc = header.description;
 		}
-		else if(header.version==2){
+		else if(header.version == 2) {
 			desc = header.version2.short_desc;
 			cliffLevel=header.version2.cliffLevel;
 			cameraHeight=header.version2.cameraHeight;
@@ -792,6 +823,7 @@ void MapPreview::loadFromFile(const string &path) {
 				snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",bytes,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
+			startLocations[i].x = Shared::PlatformByteOrder::toCommonEndian(startLocations[i].x);
 
 			bytes = fread(&startLocations[i].y, sizeof(int32), 1, f1);
 			if(bytes != 1) {
@@ -799,7 +831,7 @@ void MapPreview::loadFromFile(const string &path) {
 				snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",bytes,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
-
+			startLocations[i].y = Shared::PlatformByteOrder::toCommonEndian(startLocations[i].y);
 		}
 
 		//read Heights
@@ -812,6 +844,7 @@ void MapPreview::loadFromFile(const string &path) {
 					snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",bytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
+				cells[i][j].height = Shared::PlatformByteOrder::toCommonEndian(cells[i][j].height);
 			}
 		}
 
@@ -824,6 +857,7 @@ void MapPreview::loadFromFile(const string &path) {
 					snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",bytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
+				cells[i][j].surface = Shared::PlatformByteOrder::toCommonEndian(cells[i][j].surface);
 			}
 		}
 
@@ -837,6 +871,7 @@ void MapPreview::loadFromFile(const string &path) {
 					snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",bytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
+				obj = Shared::PlatformByteOrder::toCommonEndian(obj);
 
 				if (obj <= 10) {
 					cells[i][j].object = obj;
@@ -1028,6 +1063,8 @@ bool MapPreview::loadMapInfo(string file, MapInfo *mapInfo, string i18nMaxMapPla
 			}
 		}
 		else {
+			fromEndianMapFileHeader(header);
+
 			if(header.version < mapver_1 || header.version >= mapver_MAX) {
 				validMap = false;
 
