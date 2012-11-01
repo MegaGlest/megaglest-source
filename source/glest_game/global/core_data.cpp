@@ -22,6 +22,7 @@
 #include "lang.h"
 #include "game_settings.h"
 #include "video_player.h"
+#include "byte_order.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Sound;
@@ -980,37 +981,37 @@ void CoreData::saveGameSettingsToFile(std::string fileName, GameSettings *gameSe
 #endif
 
 	saveGameFile << "Description=" << gameSettings->getDescription() << std::endl;
-	saveGameFile << "MapFilterIndex=" << gameSettings->getMapFilterIndex() << std::endl;
+	saveGameFile << "MapFilterIndex=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getMapFilterIndex()) << std::endl;
 	saveGameFile << "Map=" << gameSettings->getMap() << std::endl;
 	saveGameFile << "Tileset=" << gameSettings->getTileset() << std::endl;
 	saveGameFile << "TechTree=" << gameSettings->getTech() << std::endl;
-	saveGameFile << "DefaultUnits=" << gameSettings->getDefaultUnits() << std::endl;
-	saveGameFile << "DefaultResources=" << gameSettings->getDefaultResources() << std::endl;
-	saveGameFile << "DefaultVictoryConditions=" << gameSettings->getDefaultVictoryConditions() << std::endl;
-	saveGameFile << "FogOfWar=" << gameSettings->getFogOfWar() << std::endl;
-	saveGameFile << "AdvancedIndex=" << advancedIndex << std::endl;
-	saveGameFile << "AllowObservers=" << gameSettings->getAllowObservers() << std::endl;
-	saveGameFile << "FlagTypes1=" << gameSettings->getFlagTypes1() << std::endl;
-	saveGameFile << "EnableObserverModeAtEndGame=" << gameSettings->getEnableObserverModeAtEndGame() << std::endl;
-	saveGameFile << "AiAcceptSwitchTeamPercentChance=" << gameSettings->getAiAcceptSwitchTeamPercentChance() << std::endl;
-	saveGameFile << "FallbackCpuMultiplier=" << gameSettings->getFallbackCpuMultiplier() << std::endl;
-	saveGameFile << "PathFinderType=" << gameSettings->getPathFinderType() << std::endl;
-	saveGameFile << "EnableServerControlledAI=" << gameSettings->getEnableServerControlledAI() << std::endl;
-	saveGameFile << "NetworkFramePeriod=" << gameSettings->getNetworkFramePeriod() << std::endl;
-	saveGameFile << "NetworkPauseGameForLaggedClients=" << gameSettings->getNetworkPauseGameForLaggedClients() << std::endl;
+	saveGameFile << "DefaultUnits=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getDefaultUnits()) << std::endl;
+	saveGameFile << "DefaultResources=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getDefaultResources()) << std::endl;
+	saveGameFile << "DefaultVictoryConditions=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getDefaultVictoryConditions()) << std::endl;
+	saveGameFile << "FogOfWar=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getFogOfWar()) << std::endl;
+	saveGameFile << "AdvancedIndex=" << Shared::PlatformByteOrder::toCommonEndian(advancedIndex) << std::endl;
+	saveGameFile << "AllowObservers=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getAllowObservers()) << std::endl;
+	saveGameFile << "FlagTypes1=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getFlagTypes1()) << std::endl;
+	saveGameFile << "EnableObserverModeAtEndGame=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getEnableObserverModeAtEndGame()) << std::endl;
+	saveGameFile << "AiAcceptSwitchTeamPercentChance=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getAiAcceptSwitchTeamPercentChance()) << std::endl;
+	saveGameFile << "FallbackCpuMultiplier=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getFallbackCpuMultiplier()) << std::endl;
+	saveGameFile << "PathFinderType=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getPathFinderType()) << std::endl;
+	saveGameFile << "EnableServerControlledAI=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getEnableServerControlledAI()) << std::endl;
+	saveGameFile << "NetworkFramePeriod=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getNetworkFramePeriod()) << std::endl;
+	saveGameFile << "NetworkPauseGameForLaggedClients=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getNetworkPauseGameForLaggedClients()) << std::endl;
 
-	saveGameFile << "FactionThisFactionIndex=" << gameSettings->getThisFactionIndex() << std::endl;
-	saveGameFile << "FactionCount=" << gameSettings->getFactionCount() << std::endl;
+	saveGameFile << "FactionThisFactionIndex=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getThisFactionIndex()) << std::endl;
+	saveGameFile << "FactionCount=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getFactionCount()) << std::endl;
 
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		int slotIndex = gameSettings->getStartLocationIndex(i);
 
-		saveGameFile << "FactionControlForIndex" 		<< slotIndex << "=" << gameSettings->getFactionControl(i) << std::endl;
-		saveGameFile << "ResourceMultiplierIndex" 		<< slotIndex << "=" << gameSettings->getResourceMultiplierIndex(i) << std::endl;
-		saveGameFile << "FactionTeamForIndex" 			<< slotIndex << "=" << gameSettings->getTeam(i) << std::endl;
-		saveGameFile << "FactionStartLocationForIndex" 	<< slotIndex << "=" << gameSettings->getStartLocationIndex(i) << std::endl;
-		saveGameFile << "FactionTypeNameForIndex" 		<< slotIndex << "=" << gameSettings->getFactionTypeName(i) << std::endl;
-		saveGameFile << "FactionPlayerNameForIndex" 	<< slotIndex << "=" << gameSettings->getNetworkPlayerName(i) << std::endl;
+		saveGameFile << "FactionControlForIndex" 		<< Shared::PlatformByteOrder::toCommonEndian(slotIndex) << "=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getFactionControl(i)) << std::endl;
+		saveGameFile << "ResourceMultiplierIndex" 		<< Shared::PlatformByteOrder::toCommonEndian(slotIndex) << "=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getResourceMultiplierIndex(i)) << std::endl;
+		saveGameFile << "FactionTeamForIndex" 			<< Shared::PlatformByteOrder::toCommonEndian(slotIndex) << "=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getTeam(i)) << std::endl;
+		saveGameFile << "FactionStartLocationForIndex" 	<< Shared::PlatformByteOrder::toCommonEndian(slotIndex) << "=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getStartLocationIndex(i)) << std::endl;
+		saveGameFile << "FactionTypeNameForIndex" 		<< Shared::PlatformByteOrder::toCommonEndian(slotIndex) << "=" << gameSettings->getFactionTypeName(i) << std::endl;
+		saveGameFile << "FactionPlayerNameForIndex" 	<< Shared::PlatformByteOrder::toCommonEndian(slotIndex) << "=" << gameSettings->getNetworkPlayerName(i) << std::endl;
     }
 
 #if defined(WIN32) && !defined(__MINGW32__)
