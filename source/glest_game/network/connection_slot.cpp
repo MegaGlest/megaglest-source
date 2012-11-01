@@ -1276,11 +1276,11 @@ bool ConnectionSlot::updateCompleted(ConnectionSlotEvent *event) {
 	return (waitingForThread == false);
 }
 
-void ConnectionSlot::sendMessage(const NetworkMessage* networkMessage) {
+void ConnectionSlot::sendMessage(NetworkMessage* networkMessage) {
 	MutexSafeWrapper safeMutex(socketSynchAccessor,CODE_AT_LINE);
 
 	// Skip text messages not intended for the players preferred language
-	const NetworkMessageText *textMsg = dynamic_cast<const NetworkMessageText *>(networkMessage);
+	NetworkMessageText *textMsg = dynamic_cast<NetworkMessageText *>(networkMessage);
 	if(textMsg != NULL) {
 		//printf("\n\n\n~~~ SERVER HAS NetworkMessageText target [%s] player [%s] msg[%s]\n\n\n",textMsg->getTargetLanguage().c_str(),this->getNetworkPlayerLanguage().c_str(), textMsg->getText().c_str());
 

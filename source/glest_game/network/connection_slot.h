@@ -55,7 +55,7 @@ public:
 	int64 triggerId;
 	ConnectionSlot* connectionSlot;
 	ConnectionSlotEventType eventType;
-	const NetworkMessage *networkMessage;
+	NetworkMessage *networkMessage;
 	bool socketTriggered;
 	bool eventCompleted;
 	int64 eventId;
@@ -171,7 +171,7 @@ public:
 	void signalUpdate(ConnectionSlotEvent *event);
 	bool updateCompleted(ConnectionSlotEvent *event);
 
-	virtual void sendMessage(const NetworkMessage* networkMessage);
+	virtual void sendMessage(NetworkMessage* networkMessage);
 	int getCurrentFrameCount() const { return currentFrameCount; }
 
 	int getCurrentLagCount() const { return currentLagCount; }

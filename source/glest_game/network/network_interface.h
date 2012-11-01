@@ -203,7 +203,7 @@ public:
 	string getIp() const		{return Socket::getIp();}
 	string getHostName() const	{return Socket::getHostName();}
 
-	virtual void sendMessage(const NetworkMessage* networkMessage);
+	virtual void sendMessage(NetworkMessage* networkMessage);
 	NetworkMessageType getNextMessageType();
 	bool receiveMessage(NetworkMessage* networkMessage);
 

@@ -287,7 +287,7 @@ ServerInterface::~ServerInterface() {
 	serverSocketAdmin = NULL;
 
 	for(int i = 0; i < broadcastMessageQueue.size(); ++i) {
-		pair<const NetworkMessage *,int> &item = broadcastMessageQueue[i];
+		pair<NetworkMessage *,int> &item = broadcastMessageQueue[i];
 		if(item.first != NULL) {
 			delete item.first;
 		}
@@ -1831,7 +1831,7 @@ void ServerInterface::processBroadCastMessageQueue() {
 	if(broadcastMessageQueue.empty() == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] broadcastMessageQueue.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,broadcastMessageQueue.size());
 	for(int i = 0; i < broadcastMessageQueue.size(); ++i) {
-		pair<const NetworkMessage *,int> &item = broadcastMessageQueue[i];
+		pair<NetworkMessage *,int> &item = broadcastMessageQueue[i];
 		if(item.first != NULL) {
 			this->broadcastMessage(item.first,item.second);
 			delete item.first;
@@ -1842,9 +1842,9 @@ void ServerInterface::processBroadCastMessageQueue() {
 }
 }
 
-void ServerInterface::queueBroadcastMessage(const NetworkMessage *networkMessage, int excludeSlot) {
+void ServerInterface::queueBroadcastMessage(NetworkMessage *networkMessage, int excludeSlot) {
 	MutexSafeWrapper safeMutexSlot(broadcastMessageQueueThreadAccessor,CODE_AT_LINE);
-	pair<const NetworkMessage*,int> item;
+	pair<NetworkMessage*,int> item;
 	item.first = networkMessage;
 	item.second = excludeSlot;
 	broadcastMessageQueue.push_back(item);
@@ -2068,15 +2068,15 @@ void ServerInterface::broadcastGameSetup(GameSettings *gameSettingsBuffer, bool 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void ServerInterface::broadcastMessage(const NetworkMessage *networkMessage, int excludeSlot, int lockedSlotIndex) {
+void ServerInterface::broadcastMessage(NetworkMessage *networkMessage, int excludeSlot, int lockedSlotIndex) {
 	try {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	    MutexSafeWrapper safeMutexSlotBroadCastAccessor(inBroadcastMessageThreadAccessor,CODE_AT_LINE);
-	    if(inBroadcastMessage == true && dynamic_cast<const NetworkMessageText *>(networkMessage) != NULL) {
+	    if(inBroadcastMessage == true && dynamic_cast<NetworkMessageText *>(networkMessage) != NULL) {
 	    	safeMutexSlotBroadCastAccessor.ReleaseLock();
-	    	const NetworkMessageText *txtMsg = dynamic_cast<const NetworkMessageText *>(networkMessage);
-	    	const NetworkMessageText *msgCopy = txtMsg->getCopy();
+	    	NetworkMessageText *txtMsg = dynamic_cast<NetworkMessageText *>(networkMessage);
+	    	NetworkMessageText *msgCopy = txtMsg->getCopy();
 	    	queueBroadcastMessage(msgCopy, excludeSlot);
 	    	return;
 	    }
@@ -2133,7 +2133,7 @@ void ServerInterface::broadcastMessage(const NetworkMessage *networkMessage, int
 	}
 }
 
-void ServerInterface::broadcastMessageToConnectedClients(const NetworkMessage *networkMessage, int excludeSlot) {
+void ServerInterface::broadcastMessageToConnectedClients(NetworkMessage *networkMessage, int excludeSlot) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 	try {
 		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
