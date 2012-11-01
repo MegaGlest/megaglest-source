@@ -35,6 +35,128 @@ namespace Shared{ namespace Graphics{
 
 using namespace Util;
 
+// Utils methods for endianness conversion
+void toEndianFileHeader(FileHeader &header) {
+	for(unsigned int i = 0; i < 3; ++i) {
+		header.id[i] = Shared::PlatformByteOrder::toCommonEndian(header.id[i]);
+	}
+	header.version = Shared::PlatformByteOrder::toCommonEndian(header.version);
+}
+void fromEndianFileHeader(FileHeader &header) {
+	for(unsigned int i = 0; i < 3; ++i) {
+		header.id[i] = Shared::PlatformByteOrder::fromCommonEndian(header.id[i]);
+	}
+	header.version = Shared::PlatformByteOrder::fromCommonEndian(header.version);
+}
+
+void toEndianModelHeader(ModelHeader &header) {
+	header.type = Shared::PlatformByteOrder::toCommonEndian(header.type);
+	header.meshCount = Shared::PlatformByteOrder::toCommonEndian(header.meshCount);
+}
+void fromEndianModelHeader(ModelHeader &header) {
+	header.type = Shared::PlatformByteOrder::toCommonEndian(header.type);
+	header.meshCount = Shared::PlatformByteOrder::toCommonEndian(header.meshCount);
+}
+
+void toEndianMeshHeader(MeshHeader &header) {
+	for(unsigned int i = 0; i < meshNameSize; ++i) {
+		header.name[i] = Shared::PlatformByteOrder::toCommonEndian(header.name[i]);
+	}
+	header.frameCount = Shared::PlatformByteOrder::toCommonEndian(header.frameCount);
+	header.vertexCount = Shared::PlatformByteOrder::toCommonEndian(header.vertexCount);
+	header.indexCount = Shared::PlatformByteOrder::toCommonEndian(header.indexCount);
+	for(unsigned int i = 0; i < 3; ++i) {
+		header.diffuseColor[i] = Shared::PlatformByteOrder::toCommonEndian(header.diffuseColor[i]);
+		header.specularColor[i] = Shared::PlatformByteOrder::toCommonEndian(header.specularColor[i]);
+	}
+	header.specularPower = Shared::PlatformByteOrder::toCommonEndian(header.specularPower);
+	header.opacity = Shared::PlatformByteOrder::toCommonEndian(header.opacity);
+	header.properties = Shared::PlatformByteOrder::toCommonEndian(header.properties);
+	header.textures = Shared::PlatformByteOrder::toCommonEndian(header.textures);
+}
+
+void fromEndianMeshHeader(MeshHeader &header) {
+	for(unsigned int i = 0; i < meshNameSize; ++i) {
+		header.name[i] = Shared::PlatformByteOrder::fromCommonEndian(header.name[i]);
+	}
+	header.frameCount = Shared::PlatformByteOrder::fromCommonEndian(header.frameCount);
+	header.vertexCount = Shared::PlatformByteOrder::fromCommonEndian(header.vertexCount);
+	header.indexCount = Shared::PlatformByteOrder::fromCommonEndian(header.indexCount);
+	for(unsigned int i = 0; i < 3; ++i) {
+		header.diffuseColor[i] = Shared::PlatformByteOrder::fromCommonEndian(header.diffuseColor[i]);
+		header.specularColor[i] = Shared::PlatformByteOrder::fromCommonEndian(header.specularColor[i]);
+	}
+	header.specularPower = Shared::PlatformByteOrder::fromCommonEndian(header.specularPower);
+	header.opacity = Shared::PlatformByteOrder::fromCommonEndian(header.opacity);
+	header.properties = Shared::PlatformByteOrder::fromCommonEndian(header.properties);
+	header.textures = Shared::PlatformByteOrder::fromCommonEndian(header.textures);
+}
+
+void toEndianModelHeaderV3(ModelHeaderV3 &header) {
+	header.meshCount = Shared::PlatformByteOrder::toCommonEndian(header.meshCount);
+}
+void fromEndianModelHeaderV3(ModelHeaderV3 &header) {
+	header.meshCount = Shared::PlatformByteOrder::fromCommonEndian(header.meshCount);
+}
+
+void toEndianMeshHeaderV3(MeshHeaderV3 &header) {
+	header.vertexFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.vertexFrameCount);
+	header.normalFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.normalFrameCount);
+	header.texCoordFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.texCoordFrameCount);
+	header.colorFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.colorFrameCount);
+	header.pointCount = Shared::PlatformByteOrder::toCommonEndian(header.pointCount);
+	header.indexCount = Shared::PlatformByteOrder::toCommonEndian(header.indexCount);
+	header.properties = Shared::PlatformByteOrder::toCommonEndian(header.properties);
+	for(unsigned int i = 0; i < 64; ++i) {
+		header.texName[i] = Shared::PlatformByteOrder::toCommonEndian(header.texName[i]);
+	}
+}
+
+void fromEndianMeshHeaderV3(MeshHeaderV3 &header) {
+	header.vertexFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.vertexFrameCount);
+	header.normalFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.normalFrameCount);
+	header.texCoordFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.texCoordFrameCount);
+	header.colorFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.colorFrameCount);
+	header.pointCount = Shared::PlatformByteOrder::fromCommonEndian(header.pointCount);
+	header.indexCount = Shared::PlatformByteOrder::fromCommonEndian(header.indexCount);
+	header.properties = Shared::PlatformByteOrder::fromCommonEndian(header.properties);
+	for(unsigned int i = 0; i < 64; ++i) {
+		header.texName[i] = Shared::PlatformByteOrder::fromCommonEndian(header.texName[i]);
+	}
+}
+
+void toEndianMeshHeaderV2(MeshHeaderV2 &header) {
+	header.vertexFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.vertexFrameCount);
+	header.normalFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.normalFrameCount);
+	header.texCoordFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.texCoordFrameCount);
+	header.colorFrameCount = Shared::PlatformByteOrder::toCommonEndian(header.colorFrameCount);
+	header.pointCount = Shared::PlatformByteOrder::toCommonEndian(header.pointCount);
+	header.indexCount = Shared::PlatformByteOrder::toCommonEndian(header.indexCount);
+	header.hasTexture = Shared::PlatformByteOrder::toCommonEndian(header.hasTexture);
+	header.primitive = Shared::PlatformByteOrder::toCommonEndian(header.primitive);
+	header.cullFace = Shared::PlatformByteOrder::toCommonEndian(header.cullFace);
+
+	for(unsigned int i = 0; i < 64; ++i) {
+		header.texName[i] = Shared::PlatformByteOrder::toCommonEndian(header.texName[i]);
+	}
+}
+
+void fromEndianMeshHeaderV2(MeshHeaderV2 &header) {
+	header.vertexFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.vertexFrameCount);
+	header.normalFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.normalFrameCount);
+	header.texCoordFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.texCoordFrameCount);
+	header.colorFrameCount = Shared::PlatformByteOrder::fromCommonEndian(header.colorFrameCount);
+	header.pointCount = Shared::PlatformByteOrder::fromCommonEndian(header.pointCount);
+	header.indexCount = Shared::PlatformByteOrder::fromCommonEndian(header.indexCount);
+	header.hasTexture = Shared::PlatformByteOrder::fromCommonEndian(header.hasTexture);
+	header.primitive = Shared::PlatformByteOrder::fromCommonEndian(header.primitive);
+	header.cullFace = Shared::PlatformByteOrder::fromCommonEndian(header.cullFace);
+
+	for(unsigned int i = 0; i < 64; ++i) {
+		header.texName[i] = Shared::PlatformByteOrder::fromCommonEndian(header.texName[i]);
+	}
+}
+
 // =====================================================
 //	class Mesh
 // =====================================================
@@ -256,7 +378,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
-
+	fromEndianMeshHeaderV2(meshHeader);
 
 	if(meshHeader.normalFrameCount != meshHeader.vertexFrameCount) {
 		char szBuf[8096]="";
@@ -334,6 +456,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
+	fromEndianVecArray<Vec3f>(vertices, frameCount*vertexCount);
 
 	readBytes = fread(normals, sizeof(Vec3f)*frameCount*vertexCount, 1, f);
 	if(readBytes != 1 && (frameCount * vertexCount) != 0) {
@@ -341,6 +464,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
+	fromEndianVecArray<Vec3f>(normals, frameCount*vertexCount);
 
 	if(textures[mtDiffuse] != NULL) {
 		readBytes = fread(texCoords, sizeof(Vec2f)*vertexCount, 1, f);
@@ -349,6 +473,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 			snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 			throw megaglest_runtime_error(szBuf);
 		}
+		fromEndianVecArray<Vec2f>(texCoords, vertexCount);
 	}
 	readBytes = fread(&diffuseColor, sizeof(Vec3f), 1, f);
 	if(readBytes != 1) {
@@ -356,6 +481,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
+	fromEndianVecArray<Vec3f>(&diffuseColor, 1);
 
 	readBytes = fread(&opacity, sizeof(float32), 1, f);
 	if(readBytes != 1) {
@@ -363,6 +489,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
+	opacity = Shared::PlatformByteOrder::fromCommonEndian(opacity);
 
 	fseek(f, sizeof(Vec4f)*(meshHeader.colorFrameCount-1), SEEK_CUR);
 	readBytes = fread(indices, sizeof(uint32)*indexCount, 1, f);
@@ -371,6 +498,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u] on line: %d.",readBytes,indexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
+	Shared::PlatformByteOrder::fromEndianTypeArray<uint32>(indices, indexCount);
 }
 
 void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
@@ -387,7 +515,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
-
+	fromEndianMeshHeaderV3(meshHeader);
 
 	if(meshHeader.normalFrameCount != meshHeader.vertexFrameCount) {
 		char szBuf[8096]="";
@@ -462,6 +590,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
+	fromEndianVecArray<Vec3f>(vertices, frameCount*vertexCount);
 
 	readBytes = fread(normals, sizeof(Vec3f)*frameCount*vertexCount, 1, f);
 	if(readBytes != 1 && (frameCount * vertexCount) != 0) {
@@ -469,6 +598,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
+	fromEndianVecArray<Vec3f>(normals, frameCount*vertexCount);
 
 	if(textures[mtDiffuse] != NULL) {
 		for(unsigned int i=0; i<meshHeader.texCoordFrameCount; ++i){
@@ -478,6 +608,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 				snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
+			fromEndianVecArray<Vec2f>(texCoords, vertexCount);
 		}
 	}
 	readBytes = fread(&diffuseColor, sizeof(Vec3f), 1, f);
@@ -486,6 +617,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
+	fromEndianVecArray<Vec3f>(&diffuseColor, 1);
 
 	readBytes = fread(&opacity, sizeof(float32), 1, f);
 	if(readBytes != 1) {
@@ -493,6 +625,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
+	opacity = Shared::PlatformByteOrder::fromCommonEndian(opacity);
 
 	fseek(f, sizeof(Vec4f)*(meshHeader.colorFrameCount-1), SEEK_CUR);
 	readBytes = fread(indices, sizeof(uint32)*indexCount, 1, f);
@@ -501,6 +634,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u] on line: %d.",readBytes,indexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
+	Shared::PlatformByteOrder::fromEndianTypeArray<uint32>(indices, indexCount);
 }
 
 Texture2D* Mesh::loadMeshTexture(int meshIndex, int textureIndex,
@@ -568,6 +702,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 		snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
+	fromEndianMeshHeader(meshHeader);
 
 	name = reinterpret_cast<char*>(meshHeader.name);
 
@@ -606,6 +741,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 				snprintf(szBuf,8096,"fread returned wrong size = %zu [%u] on line: %d.",readBytes,mapPathSize,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
+			Shared::PlatformByteOrder::fromEndianTypeArray<uint8>(cMapPath, mapPathSize);
 
 			string mapPath= toLower(reinterpret_cast<char*>(cMapPath));
 
@@ -631,6 +767,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
+	fromEndianVecArray<Vec3f>(vertices, frameCount*vertexCount);
 
 	readBytes = fread(normals, sizeof(Vec3f)*frameCount*vertexCount, 1, f);
 	if(readBytes != 1 && (frameCount * vertexCount) != 0) {
@@ -638,6 +775,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
+	fromEndianVecArray<Vec3f>(normals, frameCount*vertexCount);
 
 	if(meshHeader.textures!=0){
 		readBytes = fread(texCoords, sizeof(Vec2f)*vertexCount, 1, f);
@@ -646,7 +784,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 			snprintf(szBuf,8096,"fread returned wrong size = %zu [%u][%u] on line: %d.",readBytes,frameCount,vertexCount,__LINE__);
 			throw megaglest_runtime_error(szBuf);
 		}
-
+		fromEndianVecArray<Vec2f>(texCoords, vertexCount);
 	}
 	readBytes = fread(indices, sizeof(uint32)*indexCount, 1, f);
 	if(readBytes != 1 && indexCount != 0) {
@@ -654,7 +792,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 		snprintf(szBuf,8096,"fread returned wrong size = %zu [%u] on line: %d.",readBytes,indexCount,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
-
+	Shared::PlatformByteOrder::fromEndianTypeArray<uint32>(indices, indexCount);
 
 	//tangents
 	if(textures[mtNormal]!=NULL){
@@ -997,6 +1135,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 			snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 			throw megaglest_runtime_error(szBuf);
 		}
+		fromEndianFileHeader(fileHeader);
 
 		if(strncmp(reinterpret_cast<char*>(fileHeader.id), "G3D", 3) != 0) {
 			fclose(f);
@@ -1018,6 +1157,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 				snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
+			fromEndianModelHeader(modelHeader);
 
 			meshCount= modelHeader.meshCount;
 
@@ -1051,7 +1191,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 				snprintf(szBuf,8096,"fread returned wrong size = %zu [%u] on line: %d.",readBytes,meshCount,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
-
+			meshCount = Shared::PlatformByteOrder::fromCommonEndian(meshCount);
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("meshCount = %d\n",meshCount);
 
@@ -1078,6 +1218,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 				snprintf(szBuf,8096,"fread returned wrong size = %zu [%u] on line: %d.",readBytes,meshCount,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
+			meshCount = Shared::PlatformByteOrder::fromCommonEndian(meshCount);
 
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("meshCount = %d\n",meshCount);

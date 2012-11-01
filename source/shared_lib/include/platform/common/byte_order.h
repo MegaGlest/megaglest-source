@@ -53,6 +53,26 @@ template<class T> T fromCommonEndian(T t) {
 	return t;
 }
 
+template<class T>
+void toEndianTypeArray(T *data, size_t size) {
+	static bool bigEndianSystem = isBigEndian();
+	if(bigEndianSystem == true) {
+		for(size_t i = 0; i < size; ++i) {
+			data[i] = toCommonEndian(data[i]);
+		}
+	}
+}
+
+template<class T>
+void fromEndianTypeArray(T *data, size_t size) {
+	static bool bigEndianSystem = isBigEndian();
+	if(bigEndianSystem == true) {
+		for(size_t i = 0; i < size; ++i) {
+			data[i] = fromCommonEndian(data[i]);
+		}
+	}
+}
+
 }}
 
 #endif
