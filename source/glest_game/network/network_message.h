@@ -70,6 +70,7 @@ public:
 	virtual ~NetworkMessage(){}
 	virtual bool receive(Socket* socket)= 0;
 	virtual void send(Socket* socket) = 0;
+	virtual size_t getDataSize() const = 0;
 
 protected:
 	//bool peek(Socket* socket, void* data, int dataSize);
@@ -114,6 +115,8 @@ public:
 			const string &name, int playerIndex, NetworkGameStateType gameState,
 			uint32 externalIp, uint32 ftpPort, const string &playerLanguage);
 
+	virtual size_t getDataSize() const { return sizeof(Data); }
+
 	int32 getSessionId() const 					{ return data.sessionId;}
 	string getVersionString() const				{ return data.versionString.getString(); }
 	string getName() const						{ return data.name.getString(); }
@@ -153,6 +156,8 @@ public:
 	NetworkMessagePing();
 	NetworkMessagePing(int32 pingFrequency, int64 pingTime);
 
+	virtual size_t getDataSize() const { return sizeof(Data); }
+
 	int32 getPingFrequency() const	{return data.pingFrequency;}
 	int64 getPingTime() const	{return data.pingTime;}
 	int64 getPingReceivedLocalTime() const { return pingReceivedLocalTime; }
@@ -184,6 +189,8 @@ private:
 public:
 	NetworkMessageReady();
 	NetworkMessageReady(uint32 checksum);
+
+	virtual size_t getDataSize() const { return sizeof(Data); }
 
 	uint32 getChecksum() const	{return data.checksum;}
 
@@ -260,6 +267,8 @@ public:
 	NetworkMessageLaunch();
 	NetworkMessageLaunch(const GameSettings *gameSettings,int8 messageType);
 
+	virtual size_t getDataSize() const { return sizeof(Data); }
+
 	void buildGameSettings(GameSettings *gameSettings) const;
 	int getMessageType() const { return data.messageType; }
 
@@ -309,6 +318,8 @@ private:
 public:
 	NetworkMessageCommandList(int32 frameCount= -1);
 
+	virtual size_t getDataSize() const { return sizeof(Data); }
+
 	bool addCommand(const NetworkCommand* networkCommand);
 
 	void clear()									{data.header.commandCount= 0;}
@@ -351,6 +362,8 @@ public:
 	NetworkMessageText(const string &text, int teamIndex, int playerIndex,
 			const string targetLanguage);
 
+	virtual size_t getDataSize() const { return sizeof(Data); }
+
 	string getText() const		{return data.text.getString();}
 	int getTeamIndex() const	{return data.teamIndex;}
 	int getPlayerIndex() const  {return data.playerIndex;}
@@ -382,6 +395,8 @@ private:
 
 public:
 	NetworkMessageQuit();
+
+	virtual size_t getDataSize() const { return sizeof(Data); }
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket);
@@ -444,6 +459,8 @@ private:
 public:
     NetworkMessageSynchNetworkGameData() {};
 	NetworkMessageSynchNetworkGameData(const GameSettings *gameSettings);
+
+	virtual size_t getDataSize() const { return sizeof(Data); }
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket);
@@ -516,6 +533,8 @@ public:
     NetworkMessageSynchNetworkGameDataStatus() {};
 	NetworkMessageSynchNetworkGameDataStatus(uint32 mapCRC, uint32 tilesetCRC, uint32 techCRC, vector<std::pair<string,uint32> > &vctFileList);
 
+	virtual size_t getDataSize() const { return sizeof(Data); }
+
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket);
 
@@ -564,6 +583,8 @@ public:
     NetworkMessageSynchNetworkGameDataFileCRCCheck() {};
 	NetworkMessageSynchNetworkGameDataFileCRCCheck(uint32 totalFileCount, uint32 fileIndex, uint32 fileCRC, const string fileName);
 
+	virtual size_t getDataSize() const { return sizeof(Data); }
+
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket);
 
@@ -602,6 +623,8 @@ private:
 public:
     NetworkMessageSynchNetworkGameDataFileGet() {};
 	NetworkMessageSynchNetworkGameDataFileGet(const string fileName);
+
+	virtual size_t getDataSize() const { return sizeof(Data); }
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket);
@@ -659,6 +682,8 @@ public:
 						int8 networkPlayerStatus, int8 flags,
 						string language);
 
+	virtual size_t getDataSize() const { return sizeof(Data); }
+
 	string getSelectedFactionName() const	{return data.selectedFactionName.getString();}
 	int getCurrentFactionIndex() const		{return data.currentFactionIndex;}
 	int getToFactionIndex() const			{return data.toFactionIndex;}
@@ -699,6 +724,8 @@ private:
 
 public:
 	PlayerIndexMessage( int16 playerIndex);
+
+	virtual size_t getDataSize() const { return sizeof(Data); }
 
 	int16 getPlayerIndex() const	{return data.playerIndex;}
 
@@ -752,6 +779,8 @@ public:
 	NetworkMessageLoadingStatus();
 	NetworkMessageLoadingStatus(uint32 status);
 
+	virtual size_t getDataSize() const { return sizeof(Data); }
+
 	uint32 getStatus() const	{return data.status;}
 
 	virtual bool receive(Socket* socket);
@@ -791,6 +820,8 @@ public:
 	NetworkMessageMarkCell(){}
 	NetworkMessageMarkCell(Vec2i target, int factionIndex, const string &text, int playerIndex);
 
+	virtual size_t getDataSize() const { return sizeof(Data); }
+
 	string getText() const			{ return data.text.getString(); }
 	Vec2i getTarget() const		{ return Vec2i(data.targetX,data.targetY); }
 	int getFactionIndex() const  { return data.factionIndex; }
@@ -828,6 +859,8 @@ private:
 public:
 	NetworkMessageUnMarkCell(){}
 	NetworkMessageUnMarkCell(Vec2i target, int factionIndex);
+
+	virtual size_t getDataSize() const { return sizeof(Data); }
 
 	Vec2i getTarget() const		{ return Vec2i(data.targetX,data.targetY); }
 	int getFactionIndex() const  { return data.factionIndex; }
@@ -867,6 +900,8 @@ private:
 public:
 	NetworkMessageHighlightCell(){}
 	NetworkMessageHighlightCell(Vec2i target, int factionIndex);
+
+	virtual size_t getDataSize() const { return sizeof(Data); }
 
 	Vec2i getTarget() const		{ return Vec2i(data.targetX,data.targetY); }
 	int getFactionIndex() const  { return data.factionIndex; }
