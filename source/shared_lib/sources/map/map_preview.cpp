@@ -823,7 +823,7 @@ void MapPreview::loadFromFile(const string &path) {
 				snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",bytes,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
-			startLocations[i].x = Shared::PlatformByteOrder::toCommonEndian(startLocations[i].x);
+			startLocations[i].x = Shared::PlatformByteOrder::fromCommonEndian(startLocations[i].x);
 
 			bytes = fread(&startLocations[i].y, sizeof(int32), 1, f1);
 			if(bytes != 1) {
@@ -831,7 +831,7 @@ void MapPreview::loadFromFile(const string &path) {
 				snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",bytes,__LINE__);
 				throw megaglest_runtime_error(szBuf);
 			}
-			startLocations[i].y = Shared::PlatformByteOrder::toCommonEndian(startLocations[i].y);
+			startLocations[i].y = Shared::PlatformByteOrder::fromCommonEndian(startLocations[i].y);
 		}
 
 		//read Heights
@@ -844,7 +844,7 @@ void MapPreview::loadFromFile(const string &path) {
 					snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",bytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
-				cells[i][j].height = Shared::PlatformByteOrder::toCommonEndian(cells[i][j].height);
+				cells[i][j].height = Shared::PlatformByteOrder::fromCommonEndian(cells[i][j].height);
 			}
 		}
 
@@ -857,7 +857,7 @@ void MapPreview::loadFromFile(const string &path) {
 					snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",bytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
-				cells[i][j].surface = Shared::PlatformByteOrder::toCommonEndian(cells[i][j].surface);
+				cells[i][j].surface = Shared::PlatformByteOrder::fromCommonEndian(cells[i][j].surface);
 			}
 		}
 
@@ -871,7 +871,7 @@ void MapPreview::loadFromFile(const string &path) {
 					snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",bytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
-				obj = Shared::PlatformByteOrder::toCommonEndian(obj);
+				obj = Shared::PlatformByteOrder::fromCommonEndian(obj);
 
 				if (obj <= 10) {
 					cells[i][j].object = obj;
