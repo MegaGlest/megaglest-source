@@ -40,6 +40,7 @@ class World;
 //	class NetworkString
 // =====================================================
 
+#pragma pack(push, 1)
 template<int S>
 class NetworkString{
 private:
@@ -63,6 +64,7 @@ public:
 
 	string getString() const { return (buffer[0] != '\0' ? buffer : ""); }
 };
+#pragma pack(pop)
 
 // =====================================================
 //	class NetworkCommand
