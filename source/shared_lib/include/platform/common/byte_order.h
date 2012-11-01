@@ -17,14 +17,18 @@
 namespace Shared{ namespace PlatformByteOrder {
 
 template<class T> T EndianReverse(T t) {
-	unsigned char uc[sizeof t];
-	memcpy(uc, &t, sizeof t);
+//	unsigned char uc[sizeof t];
+//	memcpy(uc, &t, sizeof t);
+//
+//	for (unsigned char *b = uc, *e = uc + sizeof(T) - 1; b < e; ++b, --e) {
+//		std::swap(*b, *e);
+//	}
+//	memcpy(&t, uc, sizeof t);
+//	return t;
 
-	for (unsigned char *b = uc, *e = uc + sizeof(T) - 1; b < e; ++b, --e) {
-		std::swap(*b, *e);
-	}
-	memcpy(&t, uc, sizeof t);
-	return t;
+	char& raw = reinterpret_cast<char&>(t);
+    std::reverse(&raw, &raw + sizeof(T));
+    return t;
 }
 
 static bool isBigEndian() {
