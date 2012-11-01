@@ -27,7 +27,7 @@
 #include "command.h"
 #include "map_preview.h"
 #include "world.h"
-
+#include "byte_order.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -359,6 +359,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			if(readBytes != 1) {
 				throw megaglest_runtime_error("Invalid map header detected for file: " + path);
 			}
+			fromEndianMapFileHeader(header);
 
 			if(next2Power(header.width) != header.width){
 				throw megaglest_runtime_error("Map width is not a power of 2");
@@ -408,6 +409,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 					snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
+				x = Shared::PlatformByteOrder::fromCommonEndian(x);
 
 				readBytes = fread(&y, sizeof(int32), 1, f);
 				if(readBytes != 1) {
@@ -415,6 +417,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 					snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
+				y = Shared::PlatformByteOrder::fromCommonEndian(y);
 
 				startLocations[i]= Vec2i(x, y)*cellScale;
 			}
@@ -433,6 +436,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 						snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 						throw megaglest_runtime_error(szBuf);
 					}
+					alt = Shared::PlatformByteOrder::fromCommonEndian(alt);
 
 					SurfaceCell *sc= getSurfaceCell(i, j);
 					sc->setVertex(Vec3f(i*mapScale, alt / heightFactor, j*mapScale));
@@ -449,6 +453,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 						snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 						throw megaglest_runtime_error(szBuf);
 					}
+					surf = Shared::PlatformByteOrder::fromCommonEndian(surf);
 
 					getSurfaceCell(i, j)->setSurfaceType(surf-1);
 				}
@@ -465,6 +470,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 						snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
 						throw megaglest_runtime_error(szBuf);
 					}
+					objNumber = Shared::PlatformByteOrder::fromCommonEndian(objNumber);
 
 					SurfaceCell *sc= getSurfaceCell(toSurfCoords(Vec2i(i, j)));
 					if(objNumber == 0) {
