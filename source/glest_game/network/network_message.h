@@ -67,6 +67,7 @@ static const int maxLanguageStringSize= 60;
 
 class NetworkMessage {
 public:
+	static bool useOldProtocol;
 	virtual ~NetworkMessage(){}
 	virtual bool receive(Socket* socket)= 0;
 	virtual void send(Socket* socket) = 0;
@@ -78,6 +79,11 @@ protected:
 	void send(Socket* socket, const void* data, int dataSize);
 
 	void dump_packet(string label, const void* data, int dataSize);
+
+	virtual const char * getPackedMessageFormat() const = 0;
+	virtual unsigned int getPackedSize() = 0;
+	virtual void unpackMessage(unsigned char *buf) = 0;
+	virtual unsigned char * packMessage() = 0;
 };
 
 // =====================================================
@@ -110,6 +116,12 @@ private:
 
 private:
 	Data data;
+
+protected:
+	virtual const char * getPackedMessageFormat() const;
+	virtual unsigned int getPackedSize();
+	virtual void unpackMessage(unsigned char *buf);
+	virtual unsigned char * packMessage();
 
 public:
 	NetworkMessageIntro();
@@ -154,6 +166,12 @@ private:
 	Data data;
 	int64 pingReceivedLocalTime;
 
+protected:
+	virtual const char * getPackedMessageFormat() const;
+	virtual unsigned int getPackedSize();
+	virtual void unpackMessage(unsigned char *buf);
+	virtual unsigned char * packMessage();
+
 public:
 	NetworkMessagePing();
 	NetworkMessagePing(int32 pingFrequency, int64 pingTime);
@@ -187,6 +205,12 @@ private:
 
 private:
 	Data data;
+
+protected:
+	virtual const char * getPackedMessageFormat() const;
+	virtual unsigned int getPackedSize();
+	virtual void unpackMessage(unsigned char *buf);
+	virtual unsigned char * packMessage();
 
 public:
 	NetworkMessageReady();
@@ -265,6 +289,12 @@ private:
 private:
 	Data data;
 
+protected:
+	virtual const char * getPackedMessageFormat() const;
+	virtual unsigned int getPackedSize();
+	virtual void unpackMessage(unsigned char *buf);
+	virtual unsigned char * packMessage();
+
 public:
 	NetworkMessageLaunch();
 	NetworkMessageLaunch(const GameSettings *gameSettings,int8 messageType);
@@ -292,6 +322,7 @@ public:
 
 #pragma pack(push, 1)
 class NetworkMessageCommandList: public NetworkMessage {
+
 private:
 	//static const int maxCommandCount = 2496; // can be as large as 65535
 
@@ -316,6 +347,22 @@ private:
 
 private:
 	Data data;
+
+protected:
+	virtual const char * getPackedMessageFormat() const { return NULL; }
+	virtual unsigned int getPackedSize() { return 0; }
+	virtual void unpackMessage(unsigned char *buf) { };
+	virtual unsigned char * packMessage() { return NULL; }
+
+	const char * getPackedMessageFormatHeader() const;
+	unsigned int getPackedSizeHeader();
+	void unpackMessageHeader(unsigned char *buf);
+	unsigned char * packMessageHeader();
+
+	const char * getPackedMessageFormatDetail() const;
+	unsigned int getPackedSizeDetail(int count);
+	void unpackMessageDetail(unsigned char *buf,int count);
+	unsigned char * packMessageDetail(uint16 totalCommand);
 
 public:
 	NetworkMessageCommandList(int32 frameCount= -1);
@@ -359,6 +406,12 @@ private:
 private:
 	Data data;
 
+protected:
+	virtual const char * getPackedMessageFormat() const;
+	virtual unsigned int getPackedSize();
+	virtual void unpackMessage(unsigned char *buf);
+	virtual unsigned char * packMessage();
+
 public:
 	NetworkMessageText(){}
 	NetworkMessageText(const string &text, int teamIndex, int playerIndex,
@@ -394,6 +447,12 @@ private:
 
 private:
 	Data data;
+
+protected:
+	virtual const char * getPackedMessageFormat() const;
+	virtual unsigned int getPackedSize();
+	virtual void unpackMessage(unsigned char *buf);
+	virtual unsigned char * packMessage();
 
 public:
 	NetworkMessageQuit();
@@ -457,6 +516,21 @@ private:
 
 private:
 	Data data;
+
+protected:
+	virtual const char * getPackedMessageFormat() const { return NULL; }
+	virtual unsigned int getPackedSize() { return 0; }
+	virtual void unpackMessage(unsigned char *buf) { };
+	virtual unsigned char * packMessage() { return NULL; }
+
+	const char * getPackedMessageFormatHeader() const;
+	unsigned int getPackedSizeHeader();
+	void unpackMessageHeader(unsigned char *buf);
+	unsigned char * packMessageHeader();
+
+	unsigned int getPackedSizeDetail();
+	void unpackMessageDetail(unsigned char *buf);
+	unsigned char * packMessageDetail();
 
 public:
     NetworkMessageSynchNetworkGameData() {};
@@ -531,6 +605,12 @@ private:
 private:
 	Data data;
 
+protected:
+	virtual const char * getPackedMessageFormat() const { return NULL; }
+	virtual unsigned int getPackedSize() { return 0; }
+	virtual void unpackMessage(unsigned char *buf) { };
+	virtual unsigned char * packMessage() { return NULL; }
+
 public:
     NetworkMessageSynchNetworkGameDataStatus() {};
 	NetworkMessageSynchNetworkGameDataStatus(uint32 mapCRC, uint32 tilesetCRC, uint32 techCRC, vector<std::pair<string,uint32> > &vctFileList);
@@ -581,6 +661,12 @@ private:
 private:
 	Data data;
 
+protected:
+	virtual const char * getPackedMessageFormat() const { return NULL; }
+	virtual unsigned int getPackedSize() { return 0; }
+	virtual void unpackMessage(unsigned char *buf) { };
+	virtual unsigned char * packMessage() { return NULL; }
+
 public:
     NetworkMessageSynchNetworkGameDataFileCRCCheck() {};
 	NetworkMessageSynchNetworkGameDataFileCRCCheck(uint32 totalFileCount, uint32 fileIndex, uint32 fileCRC, const string fileName);
@@ -621,6 +707,12 @@ private:
 
 private:
 	Data data;
+
+protected:
+	virtual const char * getPackedMessageFormat() const { return NULL; }
+	virtual unsigned int getPackedSize() { return 0; }
+	virtual void unpackMessage(unsigned char *buf) { };
+	virtual unsigned char * packMessage() { return NULL; }
 
 public:
     NetworkMessageSynchNetworkGameDataFileGet() {};
@@ -678,6 +770,12 @@ private:
 	Data data;
 
 public:
+	virtual const char * getPackedMessageFormat() const;
+	virtual unsigned int getPackedSize();
+	virtual void unpackMessage(unsigned char *buf);
+	virtual unsigned char * packMessage();
+
+public:
 	SwitchSetupRequest();
 	SwitchSetupRequest( string selectedFactionName, int8 currentFactionIndex,
 						int8 toFactionIndex,int8 toTeam,string networkPlayerName,
@@ -723,6 +821,12 @@ private:
 
 private:
 	Data data;
+
+protected:
+	virtual const char * getPackedMessageFormat() const;
+	virtual unsigned int getPackedSize();
+	virtual void unpackMessage(unsigned char *buf);
+	virtual unsigned char * packMessage();
 
 public:
 	PlayerIndexMessage( int16 playerIndex);
@@ -777,6 +881,12 @@ private:
 private:
 	Data data;
 
+protected:
+	virtual const char * getPackedMessageFormat() const;
+	virtual unsigned int getPackedSize();
+	virtual void unpackMessage(unsigned char *buf);
+	virtual unsigned char * packMessage();
+
 public:
 	NetworkMessageLoadingStatus();
 	NetworkMessageLoadingStatus(uint32 status);
@@ -818,6 +928,12 @@ private:
 private:
 	Data data;
 
+protected:
+	virtual const char * getPackedMessageFormat() const;
+	virtual unsigned int getPackedSize();
+	virtual void unpackMessage(unsigned char *buf);
+	virtual unsigned char * packMessage();
+
 public:
 	NetworkMessageMarkCell(){}
 	NetworkMessageMarkCell(Vec2i target, int factionIndex, const string &text, int playerIndex);
@@ -857,6 +973,12 @@ private:
 
 private:
 	Data data;
+
+protected:
+	virtual const char * getPackedMessageFormat() const;
+	virtual unsigned int getPackedSize();
+	virtual void unpackMessage(unsigned char *buf);
+	virtual unsigned char * packMessage();
 
 public:
 	NetworkMessageUnMarkCell(){}
@@ -898,6 +1020,12 @@ private:
 
 private:
 	Data data;
+
+protected:
+	virtual const char * getPackedMessageFormat() const;
+	virtual unsigned int getPackedSize();
+	virtual void unpackMessage(unsigned char *buf);
+	virtual unsigned char * packMessage();
 
 public:
 	NetworkMessageHighlightCell(){}

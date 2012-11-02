@@ -18,13 +18,14 @@
 #include "util.h"
 #include "game_settings.h"
 
-#include "leak_dumper.h"
-
 #include "checksum.h"
 #include "map.h"
 #include "platform_util.h"
 #include "config.h"
 #include <algorithm>
+#include "network_protocol.h"
+
+#include "leak_dumper.h"
 
 using namespace Shared::Platform;
 using namespace Shared::Util;
@@ -32,6 +33,8 @@ using namespace std;
 using std::min;
 
 namespace Glest{ namespace Game{
+
+bool NetworkMessage::useOldProtocol = true;
 
 // =====================================================
 //	class NetworkMessage
@@ -41,18 +44,18 @@ bool NetworkMessage::receive(Socket* socket, void* data, int dataSize, bool tryR
 	if(socket != NULL) {
 		int dataReceived = socket->receive(data, dataSize, tryReceiveUntilDataSizeMet);
 		if(dataReceived != dataSize) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING, dataReceived = %d dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,dataReceived,dataSize);
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nIn [%s::%s Line: %d] WARNING, dataReceived = %d dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,dataReceived,dataSize);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING, dataReceived = %d dataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,dataReceived,dataSize);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nIn [%s::%s Line: %d] WARNING, dataReceived = %d dataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,dataReceived,dataSize);
 
 			if(socket != NULL && socket->getSocketId() > 0) {
 				throw megaglest_runtime_error("Error receiving NetworkMessage, dataReceived = " + intToStr(dataReceived) + ", dataSize = " + intToStr(dataSize));
 			}
 			else {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket has been disconnected\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket has been disconnected\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			}
 		}
 		else {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] dataSize = %d, dataReceived = %d\n",__FILE__,__FUNCTION__,__LINE__,dataSize,dataReceived);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] dataSize = %d, dataReceived = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,dataSize,dataReceived);
 
 			dump_packet("\nINCOMING PACKET:\n",data, dataSize);
 			return true;
@@ -63,7 +66,7 @@ bool NetworkMessage::receive(Socket* socket, void* data, int dataSize, bool tryR
 }
 
 void NetworkMessage::send(Socket* socket, const void* data, int dataSize) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket = %p, data = %p, dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,socket,data,dataSize);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket = %p, data = %p, dataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,socket,data,dataSize);
 
 	if(socket != NULL) {
 		dump_packet("\nOUTGOING PACKET:\n",data, dataSize);
@@ -75,7 +78,7 @@ void NetworkMessage::send(Socket* socket, const void* data, int dataSize) {
 				throw megaglest_runtime_error(szBuf);
 			}
 			else {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d socket has been disconnected\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d socket has been disconnected\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			}
 		}
 	}
@@ -126,22 +129,94 @@ NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionSt
 	data.language		= playerLanguage;
 }
 
+const char * NetworkMessageIntro::getPackedMessageFormat() const {
+	return "cl128s32shcLL60s";
+}
+
+unsigned int NetworkMessageIntro::getPackedSize() {
+	static unsigned int result = 0;
+	if(result == 0) {
+		Data packedData;
+		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
+		result = pack(buf, getPackedMessageFormat(),
+				packedData.messageType,
+				packedData.sessionId,
+				packedData.versionString.getBuffer(),
+				packedData.name.getBuffer(),
+				packedData.playerIndex,
+				packedData.gameState,
+				packedData.externalIp,
+				packedData.ftpPort,
+				packedData.language.getBuffer());
+		delete [] buf;
+	}
+	return result;
+}
+void NetworkMessageIntro::unpackMessage(unsigned char *buf) {
+	unpack(buf, getPackedMessageFormat(),
+			&data.messageType,
+			&data.sessionId,
+			data.versionString.getBuffer(),
+			data.name.getBuffer(),
+			&data.playerIndex,
+			&data.gameState,
+			&data.externalIp,
+			&data.ftpPort,
+			data.language.getBuffer());
+}
+
+unsigned char * NetworkMessageIntro::packMessage() {
+	unsigned char *buf = new unsigned char[getPackedSize()+1];
+	pack(buf, getPackedMessageFormat(),
+			data.messageType,
+			data.sessionId,
+			data.versionString.getBuffer(),
+			data.name.getBuffer(),
+			data.playerIndex,
+			data.gameState,
+			data.externalIp,
+			data.ftpPort,
+			data.language.getBuffer());
+	return buf;
+}
+
 bool NetworkMessageIntro::receive(Socket* socket) {
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	bool result = false;
+	if(useOldProtocol == true) {
+		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	}
+	else {
+		unsigned char *buf = new unsigned char[getPackedSize()+1];
+		result = NetworkMessage::receive(socket, buf, getPackedSize(), true);
+		unpackMessage(buf);
+		//printf("Got packet size = %u data.messageType = %d\n%s\n",getPackedSize(),data.messageType,buf);
+		delete [] buf;
+	}
 	fromEndian();
+
 	data.name.nullTerminate();
 	data.versionString.nullTerminate();
 	data.language.nullTerminate();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] get nmtIntro, data.playerIndex = %d, data.sessionId = %d\n",__FILE__,__FUNCTION__,__LINE__,data.playerIndex,data.sessionId);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] get nmtIntro, data.playerIndex = %d, data.sessionId = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.playerIndex,data.sessionId);
 	return result;
 }
 
 void NetworkMessageIntro::send(Socket* socket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sending nmtIntro, data.playerIndex = %d, data.sessionId = %d\n",__FILE__,__FUNCTION__,__LINE__,data.playerIndex,data.sessionId);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sending nmtIntro, data.playerIndex = %d, data.sessionId = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.playerIndex,data.sessionId);
 	assert(data.messageType == nmtIntro);
 	toEndian();
-	NetworkMessage::send(socket, &data, sizeof(data));
+
+	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &data, sizeof(data));
+	}
+	else {
+		unsigned char *buf = packMessage();
+		//printf("Send packet size = %u data.messageType = %d\n[%s]\n",getPackedSize(),data.messageType,buf);
+		//NetworkMessage::send(socket, &data, sizeof(data));
+		NetworkMessage::send(socket, buf, getPackedSize());
+		delete [] buf;
+	}
 }
 
 void NetworkMessageIntro::toEndian() {
@@ -183,18 +258,72 @@ NetworkMessagePing::NetworkMessagePing(int32 pingFrequency, int64 pingTime){
 	pingReceivedLocalTime=0;
 }
 
+const char * NetworkMessagePing::getPackedMessageFormat() const {
+	return "clq";
+}
+
+unsigned int NetworkMessagePing::getPackedSize() {
+	static unsigned int result = 0;
+	if(result == 0) {
+		Data packedData;
+		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
+		result = pack(buf, getPackedMessageFormat(),
+				packedData.messageType,
+				packedData.pingFrequency,
+				packedData.pingTime);
+		delete [] buf;
+	}
+	return result;
+}
+void NetworkMessagePing::unpackMessage(unsigned char *buf) {
+	unpack(buf, getPackedMessageFormat(),
+			&data.messageType,
+			&data.pingFrequency,
+			&data.pingTime);
+}
+
+unsigned char * NetworkMessagePing::packMessage() {
+	unsigned char *buf = new unsigned char[getPackedSize()+1];
+	pack(buf, getPackedMessageFormat(),
+			data.messageType,
+			data.pingFrequency,
+			data.pingTime);
+	return buf;
+}
+
 bool NetworkMessagePing::receive(Socket* socket){
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	bool result = false;
+	if(useOldProtocol == true) {
+		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	}
+	else {
+		unsigned char *buf = new unsigned char[getPackedSize()+1];
+		result = NetworkMessage::receive(socket, buf, getPackedSize(), true);
+		unpackMessage(buf);
+		//printf("Got packet size = %u data.messageType = %d\n%s\n",getPackedSize(),data.messageType,buf);
+		delete [] buf;
+	}
 	fromEndian();
+
 	pingReceivedLocalTime = time(NULL);
 	return result;
 }
 
 void NetworkMessagePing::send(Socket* socket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtPing\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtPing\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	assert(data.messageType==nmtPing);
 	toEndian();
-	NetworkMessage::send(socket, &data, sizeof(data));
+
+	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &data, sizeof(data));
+	}
+	else {
+		unsigned char *buf = packMessage();
+		//printf("Send packet size = %u data.messageType = %d\n[%s]\n",getPackedSize(),data.messageType,buf);
+		//NetworkMessage::send(socket, &data, sizeof(data));
+		NetworkMessage::send(socket, buf, getPackedSize());
+		delete [] buf;
+	}
 }
 
 void NetworkMessagePing::toEndian() {
@@ -227,17 +356,66 @@ NetworkMessageReady::NetworkMessageReady(uint32 checksum) {
 	data.checksum= checksum;
 }
 
+const char * NetworkMessageReady::getPackedMessageFormat() const {
+	return "cL";
+}
+
+unsigned int NetworkMessageReady::getPackedSize() {
+	static unsigned int result = 0;
+	if(result == 0) {
+		Data packedData;
+		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
+		result = pack(buf, getPackedMessageFormat(),
+				packedData.messageType,
+				packedData.checksum);
+		delete [] buf;
+	}
+	return result;
+}
+void NetworkMessageReady::unpackMessage(unsigned char *buf) {
+	unpack(buf, getPackedMessageFormat(),
+			&data.messageType,
+			&data.checksum);
+}
+
+unsigned char * NetworkMessageReady::packMessage() {
+	unsigned char *buf = new unsigned char[getPackedSize()+1];
+	pack(buf, getPackedMessageFormat(),
+			data.messageType,
+			data.checksum);
+	return buf;
+}
+
 bool NetworkMessageReady::receive(Socket* socket){
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	bool result = false;
+	if(useOldProtocol == true) {
+		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	}
+	else {
+		unsigned char *buf = new unsigned char[getPackedSize()+1];
+		bool result = NetworkMessage::receive(socket, buf, getPackedSize(), true);
+		unpackMessage(buf);
+		//printf("Got packet size = %u data.messageType = %d\n%s\n",getPackedSize(),data.messageType,buf);
+		delete [] buf;
+	}
 	fromEndian();
 	return result;
 }
 
 void NetworkMessageReady::send(Socket* socket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtReady\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtReady\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	assert(data.messageType==nmtReady);
 	toEndian();
-	NetworkMessage::send(socket, &data, sizeof(data));
+
+	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &data, sizeof(data));
+	}
+	else {
+		unsigned char *buf = packMessage();
+		//printf("Send packet size = %u data.messageType = %d\n[%s]\n",getPackedSize(),data.messageType,buf);
+		NetworkMessage::send(socket, buf, getPackedSize());
+		delete [] buf;
+	}
 }
 
 void NetworkMessageReady::toEndian() {
@@ -400,8 +578,432 @@ vector<pair<string,uint32> > NetworkMessageLaunch::getFactionCRCList() const {
 	return factionCRCList;
 }
 
+const char * NetworkMessageLaunch::getPackedMessageFormat() const {
+	return "c256s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sllllllll60s60s60s60s60s60s60s60sLLL60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sLLLLLLLLLLLLLLLLLLLLcccccccccccccccccccccccccccccccccccccccccCccLccll256s";
+}
+
+unsigned int NetworkMessageLaunch::getPackedSize() {
+	static unsigned int result = 0;
+	if(result == 0) {
+		Data packedData;
+		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
+		result = pack(buf, getPackedMessageFormat(),
+				packedData.messageType,
+				packedData.description.getBuffer(),
+				packedData.map.getBuffer(),
+				packedData.tileset.getBuffer(),
+				packedData.tech.getBuffer(),
+				packedData.factionTypeNames[0].getBuffer(),
+				packedData.factionTypeNames[1].getBuffer(),
+				packedData.factionTypeNames[2].getBuffer(),
+				packedData.factionTypeNames[3].getBuffer(),
+				packedData.factionTypeNames[4].getBuffer(),
+				packedData.factionTypeNames[5].getBuffer(),
+				packedData.factionTypeNames[6].getBuffer(),
+				packedData.factionTypeNames[7].getBuffer(),
+				packedData.networkPlayerNames[0].getBuffer(),
+				packedData.networkPlayerNames[1].getBuffer(),
+				packedData.networkPlayerNames[2].getBuffer(),
+				packedData.networkPlayerNames[3].getBuffer(),
+				packedData.networkPlayerNames[4].getBuffer(),
+				packedData.networkPlayerNames[5].getBuffer(),
+				packedData.networkPlayerNames[6].getBuffer(),
+				packedData.networkPlayerNames[7].getBuffer(),
+				packedData.networkPlayerStatuses[0],
+				packedData.networkPlayerStatuses[1],
+				packedData.networkPlayerStatuses[2],
+				packedData.networkPlayerStatuses[3],
+				packedData.networkPlayerStatuses[4],
+				packedData.networkPlayerStatuses[5],
+				packedData.networkPlayerStatuses[6],
+				packedData.networkPlayerStatuses[7],
+				packedData.networkPlayerLanguages[0].getBuffer(),
+				packedData.networkPlayerLanguages[1].getBuffer(),
+				packedData.networkPlayerLanguages[2].getBuffer(),
+				packedData.networkPlayerLanguages[3].getBuffer(),
+				packedData.networkPlayerLanguages[4].getBuffer(),
+				packedData.networkPlayerLanguages[5].getBuffer(),
+				packedData.networkPlayerLanguages[6].getBuffer(),
+				packedData.networkPlayerLanguages[7].getBuffer(),
+				packedData.mapCRC,
+				packedData.tilesetCRC,
+				packedData.techCRC,
+				packedData.factionNameList[0].getBuffer(),
+				packedData.factionNameList[1].getBuffer(),
+				packedData.factionNameList[2].getBuffer(),
+				packedData.factionNameList[3].getBuffer(),
+				packedData.factionNameList[4].getBuffer(),
+				packedData.factionNameList[5].getBuffer(),
+				packedData.factionNameList[6].getBuffer(),
+				packedData.factionNameList[7].getBuffer(),
+				packedData.factionNameList[8].getBuffer(),
+				packedData.factionNameList[9].getBuffer(),
+				packedData.factionNameList[10].getBuffer(),
+				packedData.factionNameList[11].getBuffer(),
+				packedData.factionNameList[12].getBuffer(),
+				packedData.factionNameList[13].getBuffer(),
+				packedData.factionNameList[14].getBuffer(),
+				packedData.factionNameList[15].getBuffer(),
+				packedData.factionNameList[16].getBuffer(),
+				packedData.factionNameList[17].getBuffer(),
+				packedData.factionNameList[18].getBuffer(),
+				packedData.factionNameList[19].getBuffer(),
+				packedData.factionCRCList[0],
+				packedData.factionCRCList[1],
+				packedData.factionCRCList[2],
+				packedData.factionCRCList[3],
+				packedData.factionCRCList[4],
+				packedData.factionCRCList[5],
+				packedData.factionCRCList[6],
+				packedData.factionCRCList[7],
+				packedData.factionCRCList[8],
+				packedData.factionCRCList[9],
+				packedData.factionCRCList[10],
+				packedData.factionCRCList[11],
+				packedData.factionCRCList[12],
+				packedData.factionCRCList[13],
+				packedData.factionCRCList[14],
+				packedData.factionCRCList[15],
+				packedData.factionCRCList[16],
+				packedData.factionCRCList[17],
+				packedData.factionCRCList[18],
+				packedData.factionCRCList[19],
+				packedData.factionControls[0],
+				packedData.factionControls[1],
+				packedData.factionControls[2],
+				packedData.factionControls[3],
+				packedData.factionControls[4],
+				packedData.factionControls[5],
+				packedData.factionControls[6],
+				packedData.factionControls[7],
+				packedData.resourceMultiplierIndex[0],
+				packedData.resourceMultiplierIndex[1],
+				packedData.resourceMultiplierIndex[2],
+				packedData.resourceMultiplierIndex[3],
+				packedData.resourceMultiplierIndex[4],
+				packedData.resourceMultiplierIndex[5],
+				packedData.resourceMultiplierIndex[6],
+				packedData.resourceMultiplierIndex[7],
+				packedData.thisFactionIndex,
+				packedData.factionCount,
+				packedData.teams[0],
+				packedData.teams[1],
+				packedData.teams[2],
+				packedData.teams[3],
+				packedData.teams[4],
+				packedData.teams[5],
+				packedData.teams[6],
+				packedData.teams[7],
+				packedData.startLocationIndex[0],
+				packedData.startLocationIndex[1],
+				packedData.startLocationIndex[2],
+				packedData.startLocationIndex[3],
+				packedData.startLocationIndex[4],
+				packedData.startLocationIndex[5],
+				packedData.startLocationIndex[6],
+				packedData.startLocationIndex[7],
+				packedData.defaultResources,
+				packedData.defaultUnits,
+				packedData.defaultVictoryConditions,
+				packedData.fogOfWar,
+				packedData.allowObservers,
+				packedData.enableObserverModeAtEndGame,
+				packedData.enableServerControlledAI,
+				packedData.networkFramePeriod,
+				packedData.networkPauseGameForLaggedClients,
+				packedData.pathFinderType,
+				packedData.flagTypes1,
+				packedData.aiAcceptSwitchTeamPercentChance,
+				packedData.cpuReplacementMultiplier,
+				packedData.masterserver_admin,
+				packedData.masterserver_admin_factionIndex,
+				packedData.scenario.getBuffer());
+		delete [] buf;
+	}
+	return result;
+}
+void NetworkMessageLaunch::unpackMessage(unsigned char *buf) {
+	unpack(buf, getPackedMessageFormat(),
+			&data.messageType,
+			data.description.getBuffer(),
+			data.map.getBuffer(),
+			data.tileset.getBuffer(),
+			data.tech.getBuffer(),
+			data.factionTypeNames[0].getBuffer(),
+			data.factionTypeNames[1].getBuffer(),
+			data.factionTypeNames[2].getBuffer(),
+			data.factionTypeNames[3].getBuffer(),
+			data.factionTypeNames[4].getBuffer(),
+			data.factionTypeNames[5].getBuffer(),
+			data.factionTypeNames[6].getBuffer(),
+			data.factionTypeNames[7].getBuffer(),
+			data.networkPlayerNames[0].getBuffer(),
+			data.networkPlayerNames[1].getBuffer(),
+			data.networkPlayerNames[2].getBuffer(),
+			data.networkPlayerNames[3].getBuffer(),
+			data.networkPlayerNames[4].getBuffer(),
+			data.networkPlayerNames[5].getBuffer(),
+			data.networkPlayerNames[6].getBuffer(),
+			data.networkPlayerNames[7].getBuffer(),
+			&data.networkPlayerStatuses[0],
+			&data.networkPlayerStatuses[1],
+			&data.networkPlayerStatuses[2],
+			&data.networkPlayerStatuses[3],
+			&data.networkPlayerStatuses[4],
+			&data.networkPlayerStatuses[5],
+			&data.networkPlayerStatuses[6],
+			&data.networkPlayerStatuses[7],
+			data.networkPlayerLanguages[0].getBuffer(),
+			data.networkPlayerLanguages[1].getBuffer(),
+			data.networkPlayerLanguages[2].getBuffer(),
+			data.networkPlayerLanguages[3].getBuffer(),
+			data.networkPlayerLanguages[4].getBuffer(),
+			data.networkPlayerLanguages[5].getBuffer(),
+			data.networkPlayerLanguages[6].getBuffer(),
+			data.networkPlayerLanguages[7].getBuffer(),
+			&data.mapCRC,
+			&data.tilesetCRC,
+			&data.techCRC,
+			data.factionNameList[0].getBuffer(),
+			data.factionNameList[1].getBuffer(),
+			data.factionNameList[2].getBuffer(),
+			data.factionNameList[3].getBuffer(),
+			data.factionNameList[4].getBuffer(),
+			data.factionNameList[5].getBuffer(),
+			data.factionNameList[6].getBuffer(),
+			data.factionNameList[7].getBuffer(),
+			data.factionNameList[8].getBuffer(),
+			data.factionNameList[9].getBuffer(),
+			data.factionNameList[10].getBuffer(),
+			data.factionNameList[11].getBuffer(),
+			data.factionNameList[12].getBuffer(),
+			data.factionNameList[13].getBuffer(),
+			data.factionNameList[14].getBuffer(),
+			data.factionNameList[15].getBuffer(),
+			data.factionNameList[16].getBuffer(),
+			data.factionNameList[17].getBuffer(),
+			data.factionNameList[18].getBuffer(),
+			data.factionNameList[19].getBuffer(),
+			&data.factionCRCList[0],
+			&data.factionCRCList[1],
+			&data.factionCRCList[2],
+			&data.factionCRCList[3],
+			&data.factionCRCList[4],
+			&data.factionCRCList[5],
+			&data.factionCRCList[6],
+			&data.factionCRCList[7],
+			&data.factionCRCList[8],
+			&data.factionCRCList[9],
+			&data.factionCRCList[10],
+			&data.factionCRCList[11],
+			&data.factionCRCList[12],
+			&data.factionCRCList[13],
+			&data.factionCRCList[14],
+			&data.factionCRCList[15],
+			&data.factionCRCList[16],
+			&data.factionCRCList[17],
+			&data.factionCRCList[18],
+			&data.factionCRCList[19],
+			&data.factionControls[0],
+			&data.factionControls[1],
+			&data.factionControls[2],
+			&data.factionControls[3],
+			&data.factionControls[4],
+			&data.factionControls[5],
+			&data.factionControls[6],
+			&data.factionControls[7],
+			&data.resourceMultiplierIndex[0],
+			&data.resourceMultiplierIndex[1],
+			&data.resourceMultiplierIndex[2],
+			&data.resourceMultiplierIndex[3],
+			&data.resourceMultiplierIndex[4],
+			&data.resourceMultiplierIndex[5],
+			&data.resourceMultiplierIndex[6],
+			&data.resourceMultiplierIndex[7],
+			&data.thisFactionIndex,
+			&data.factionCount,
+			&data.teams[0],
+			&data.teams[1],
+			&data.teams[2],
+			&data.teams[3],
+			&data.teams[4],
+			&data.teams[5],
+			&data.teams[6],
+			&data.teams[7],
+			&data.startLocationIndex[0],
+			&data.startLocationIndex[1],
+			&data.startLocationIndex[2],
+			&data.startLocationIndex[3],
+			&data.startLocationIndex[4],
+			&data.startLocationIndex[5],
+			&data.startLocationIndex[6],
+			&data.startLocationIndex[7],
+			&data.defaultResources,
+			&data.defaultUnits,
+			&data.defaultVictoryConditions,
+			&data.fogOfWar,
+			&data.allowObservers,
+			&data.enableObserverModeAtEndGame,
+			&data.enableServerControlledAI,
+			&data.networkFramePeriod,
+			&data.networkPauseGameForLaggedClients,
+			&data.pathFinderType,
+			&data.flagTypes1,
+			&data.aiAcceptSwitchTeamPercentChance,
+			&data.cpuReplacementMultiplier,
+			&data.masterserver_admin,
+			&data.masterserver_admin_factionIndex,
+			data.scenario.getBuffer());
+}
+
+unsigned char * NetworkMessageLaunch::packMessage() {
+	unsigned char *buf = new unsigned char[getPackedSize()+1];
+	pack(buf, getPackedMessageFormat(),
+			data.messageType,
+			data.description.getBuffer(),
+			data.map.getBuffer(),
+			data.tileset.getBuffer(),
+			data.tech.getBuffer(),
+			data.factionTypeNames[0].getBuffer(),
+			data.factionTypeNames[1].getBuffer(),
+			data.factionTypeNames[2].getBuffer(),
+			data.factionTypeNames[3].getBuffer(),
+			data.factionTypeNames[4].getBuffer(),
+			data.factionTypeNames[5].getBuffer(),
+			data.factionTypeNames[6].getBuffer(),
+			data.factionTypeNames[7].getBuffer(),
+			data.networkPlayerNames[0].getBuffer(),
+			data.networkPlayerNames[1].getBuffer(),
+			data.networkPlayerNames[2].getBuffer(),
+			data.networkPlayerNames[3].getBuffer(),
+			data.networkPlayerNames[4].getBuffer(),
+			data.networkPlayerNames[5].getBuffer(),
+			data.networkPlayerNames[6].getBuffer(),
+			data.networkPlayerNames[7].getBuffer(),
+			data.networkPlayerStatuses[0],
+			data.networkPlayerStatuses[1],
+			data.networkPlayerStatuses[2],
+			data.networkPlayerStatuses[3],
+			data.networkPlayerStatuses[4],
+			data.networkPlayerStatuses[5],
+			data.networkPlayerStatuses[6],
+			data.networkPlayerStatuses[7],
+			data.networkPlayerLanguages[0].getBuffer(),
+			data.networkPlayerLanguages[1].getBuffer(),
+			data.networkPlayerLanguages[2].getBuffer(),
+			data.networkPlayerLanguages[3].getBuffer(),
+			data.networkPlayerLanguages[4].getBuffer(),
+			data.networkPlayerLanguages[5].getBuffer(),
+			data.networkPlayerLanguages[6].getBuffer(),
+			data.networkPlayerLanguages[7].getBuffer(),
+			data.mapCRC,
+			data.tilesetCRC,
+			data.techCRC,
+			data.factionNameList[0].getBuffer(),
+			data.factionNameList[1].getBuffer(),
+			data.factionNameList[2].getBuffer(),
+			data.factionNameList[3].getBuffer(),
+			data.factionNameList[4].getBuffer(),
+			data.factionNameList[5].getBuffer(),
+			data.factionNameList[6].getBuffer(),
+			data.factionNameList[7].getBuffer(),
+			data.factionNameList[8].getBuffer(),
+			data.factionNameList[9].getBuffer(),
+			data.factionNameList[10].getBuffer(),
+			data.factionNameList[11].getBuffer(),
+			data.factionNameList[12].getBuffer(),
+			data.factionNameList[13].getBuffer(),
+			data.factionNameList[14].getBuffer(),
+			data.factionNameList[15].getBuffer(),
+			data.factionNameList[16].getBuffer(),
+			data.factionNameList[17].getBuffer(),
+			data.factionNameList[18].getBuffer(),
+			data.factionNameList[19].getBuffer(),
+			data.factionCRCList[0],
+			data.factionCRCList[1],
+			data.factionCRCList[2],
+			data.factionCRCList[3],
+			data.factionCRCList[4],
+			data.factionCRCList[5],
+			data.factionCRCList[6],
+			data.factionCRCList[7],
+			data.factionCRCList[8],
+			data.factionCRCList[9],
+			data.factionCRCList[10],
+			data.factionCRCList[11],
+			data.factionCRCList[12],
+			data.factionCRCList[13],
+			data.factionCRCList[14],
+			data.factionCRCList[15],
+			data.factionCRCList[16],
+			data.factionCRCList[17],
+			data.factionCRCList[18],
+			data.factionCRCList[19],
+			data.factionControls[0],
+			data.factionControls[1],
+			data.factionControls[2],
+			data.factionControls[3],
+			data.factionControls[4],
+			data.factionControls[5],
+			data.factionControls[6],
+			data.factionControls[7],
+			data.resourceMultiplierIndex[0],
+			data.resourceMultiplierIndex[1],
+			data.resourceMultiplierIndex[2],
+			data.resourceMultiplierIndex[3],
+			data.resourceMultiplierIndex[4],
+			data.resourceMultiplierIndex[5],
+			data.resourceMultiplierIndex[6],
+			data.resourceMultiplierIndex[7],
+			data.thisFactionIndex,
+			data.factionCount,
+			data.teams[0],
+			data.teams[1],
+			data.teams[2],
+			data.teams[3],
+			data.teams[4],
+			data.teams[5],
+			data.teams[6],
+			data.teams[7],
+			data.startLocationIndex[0],
+			data.startLocationIndex[1],
+			data.startLocationIndex[2],
+			data.startLocationIndex[3],
+			data.startLocationIndex[4],
+			data.startLocationIndex[5],
+			data.startLocationIndex[6],
+			data.startLocationIndex[7],
+			data.defaultResources,
+			data.defaultUnits,
+			data.defaultVictoryConditions,
+			data.fogOfWar,
+			data.allowObservers,
+			data.enableObserverModeAtEndGame,
+			data.enableServerControlledAI,
+			data.networkFramePeriod,
+			data.networkPauseGameForLaggedClients,
+			data.pathFinderType,
+			data.flagTypes1,
+			data.aiAcceptSwitchTeamPercentChance,
+			data.cpuReplacementMultiplier,
+			data.masterserver_admin,
+			data.masterserver_admin_factionIndex,
+			data.scenario.getBuffer());
+	return buf;
+}
+
 bool NetworkMessageLaunch::receive(Socket* socket) {
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	bool result = false;
+	if(useOldProtocol == true) {
+		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	}
+	else {
+		unsigned char *buf = new unsigned char[getPackedSize()+1];
+		result = NetworkMessage::receive(socket, buf, getPackedSize(), true);
+		unpackMessage(buf);
+		//printf("Got packet size = %u data.messageType = %d\n%s\n",getPackedSize(),data.messageType,buf);
+		delete [] buf;
+	}
 	fromEndian();
 
 	data.description.nullTerminate();
@@ -423,13 +1025,22 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 
 void NetworkMessageLaunch::send(Socket* socket) {
 	if(data.messageType == nmtLaunch) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtLaunch\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	}
 	else {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d\n",__FILE__,__FUNCTION__,__LINE__,data.messageType);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.messageType);
 	}
 	toEndian();
-	NetworkMessage::send(socket, &data, sizeof(data));
+
+	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &data, sizeof(data));
+	}
+	else {
+		unsigned char *buf = packMessage();
+		//printf("Send packet size = %u data.messageType = %d\n[%s]\n",getPackedSize(),data.messageType,buf);
+		NetworkMessage::send(socket, buf, getPackedSize());
+		delete [] buf;
+	}
 }
 
 void NetworkMessageLaunch::toEndian() {
@@ -522,68 +1133,249 @@ bool NetworkMessageCommandList::addCommand(const NetworkCommand* networkCommand)
 	return true;
 }
 
-bool NetworkMessageCommandList::receive(Socket* socket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+const char * NetworkMessageCommandList::getPackedMessageFormatHeader() const {
+	return "cHl";
+}
 
-	bool result = NetworkMessage::receive(socket, &data.header, commandListHeaderSize, true);
+unsigned int NetworkMessageCommandList::getPackedSizeHeader() {
+	static unsigned int result = 0;
+	if(result == 0) {
+		Data packedData;
+		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
+		result = pack(buf, getPackedMessageFormatHeader(),
+				packedData.header.messageType,
+				packedData.header.commandCount,
+				packedData.header.frameCount);
+		delete [] buf;
+	}
+	return result;
+}
+void NetworkMessageCommandList::unpackMessageHeader(unsigned char *buf) {
+	unpack(buf, getPackedMessageFormatHeader(),
+			&data.header.messageType,
+			&data.header.commandCount,
+			&data.header.frameCount);
+}
+
+unsigned char * NetworkMessageCommandList::packMessageHeader() {
+	unsigned char *buf = new unsigned char[getPackedSizeHeader()+1];
+	pack(buf, getPackedMessageFormatHeader(),
+			data.header.messageType,
+			data.header.commandCount,
+			data.header.frameCount);
+	return buf;
+}
+
+const char * NetworkMessageCommandList::getPackedMessageFormatDetail() const {
+	return "hlhhhhlccHccll";
+}
+
+unsigned int NetworkMessageCommandList::getPackedSizeDetail(int count) {
+	unsigned int result = 0;
+	if(result == 0) {
+		for(unsigned int i = 0; i < count; ++i) {
+			NetworkCommand packedData;
+			unsigned char *buf = new unsigned char[sizeof(NetworkCommand)*3];
+			result += pack(buf, getPackedMessageFormatDetail(),
+					packedData.networkCommandType,
+					packedData.unitId,
+					packedData.unitTypeId,
+					packedData.commandTypeId,
+					packedData.positionX,
+					packedData.positionY,
+					packedData.targetId,
+					packedData.wantQueue,
+					packedData.fromFactionIndex,
+					packedData.unitFactionUnitCount,
+					packedData.unitFactionIndex,
+					packedData.commandStateType,
+					packedData.commandStateValue,
+					packedData.unitCommandGroupId);
+			delete [] buf;
+		}
+	}
+	return result;
+}
+void NetworkMessageCommandList::unpackMessageDetail(unsigned char *buf,int count) {
+	data.commands.clear();
+	data.commands.resize(count);
+	unsigned int bytes_processed_total = 0;
+	unsigned char *bufMove = buf;
+	for(unsigned int i = 0; i < count; ++i) {
+		unsigned int bytes_processed = unpack(bufMove, getPackedMessageFormatDetail(),
+				&data.commands[i].networkCommandType,
+				&data.commands[i].unitId,
+				&data.commands[i].unitTypeId,
+				&data.commands[i].commandTypeId,
+				&data.commands[i].positionX,
+				&data.commands[i].positionY,
+				&data.commands[i].targetId,
+				&data.commands[i].wantQueue,
+				&data.commands[i].fromFactionIndex,
+				&data.commands[i].unitFactionUnitCount,
+				&data.commands[i].unitFactionIndex,
+				&data.commands[i].commandStateType,
+				&data.commands[i].commandStateValue,
+				&data.commands[i].unitCommandGroupId);
+		bufMove += bytes_processed;
+		bytes_processed_total += bytes_processed;
+	}
+	//printf("\nUnPacked detail size = %u\n",bytes_processed_total);
+}
+
+unsigned char * NetworkMessageCommandList::packMessageDetail(uint16 totalCommand) {
+	int packetSize = getPackedSizeDetail(totalCommand) +1;
+	unsigned char *buf = new unsigned char[packetSize];
+	unsigned char *bufMove = buf;
+	unsigned int bytes_processed_total = 0;
+	for(unsigned int i = 0; i < totalCommand; ++i) {
+		unsigned int bytes_processed = pack(bufMove, getPackedMessageFormatDetail(),
+				data.commands[i].networkCommandType,
+				data.commands[i].unitId,
+				data.commands[i].unitTypeId,
+				data.commands[i].commandTypeId,
+				data.commands[i].positionX,
+				data.commands[i].positionY,
+				data.commands[i].targetId,
+				data.commands[i].wantQueue,
+				data.commands[i].fromFactionIndex,
+				data.commands[i].unitFactionUnitCount,
+				data.commands[i].unitFactionIndex,
+				data.commands[i].commandStateType,
+				data.commands[i].commandStateValue,
+				data.commands[i].unitCommandGroupId);
+		bufMove += bytes_processed;
+		bytes_processed_total += bytes_processed;
+	}
+	//printf("\nPacked detail size = %u, allocated = %d\n",bytes_processed_total,packetSize);
+	return buf;
+}
+
+bool NetworkMessageCommandList::receive(Socket* socket) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	unsigned char *buf = NULL;
+	bool result = false;
+	if(useOldProtocol == true) {
+		result = NetworkMessage::receive(socket, &data.header, commandListHeaderSize, true);
+	}
+	else {
+		//fromEndianHeader();
+		buf = new unsigned char[getPackedSizeHeader()+1];
+		result = NetworkMessage::receive(socket, buf, getPackedSizeHeader(), true);
+		unpackMessageHeader(buf);
+		//if(data.header.commandCount) printf("\n\nGot packet size = %u data.messageType = %d\n%s\ncommandcount [%u] framecount [%d]\n",getPackedSizeHeader(),data.header.messageType,buf,data.header.commandCount,data.header.frameCount);
+		delete [] buf;
+	}
 	fromEndianHeader();
+
 	if(result == true) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got header, messageType = %d, commandCount = %u, frameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.messageType,data.header.commandCount,data.header.frameCount);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got header, messageType = %d, commandCount = %u, frameCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.header.messageType,data.header.commandCount,data.header.frameCount);
 
 		if(data.header.commandCount > 0) {
 			data.commands.resize(data.header.commandCount);
 
-			int totalMsgSize = (sizeof(NetworkCommand) * data.header.commandCount);
-			result = NetworkMessage::receive(socket, &data.commands[0], totalMsgSize, true);
+			if(useOldProtocol == true) {
+				int totalMsgSize = (sizeof(NetworkCommand) * data.header.commandCount);
+				result = NetworkMessage::receive(socket, &data.commands[0], totalMsgSize, true);
+			}
+			else {
+				//int totalMsgSize = (sizeof(NetworkCommand) * data.header.commandCount);
+				//result = NetworkMessage::receive(socket, &data.commands[0], totalMsgSize, true);
+				buf = new unsigned char[getPackedSizeDetail(data.header.commandCount)+1];
+				result = NetworkMessage::receive(socket, buf, getPackedSizeDetail(data.header.commandCount), true);
+				unpackMessageDetail(buf,data.header.commandCount);
+				//printf("Got packet size = %u data.messageType = %d\n%s\n",getPackedSize(),data.messageType,buf);
+				delete [] buf;
+			}
+			fromEndianDetail();
+
+//	        for(int idx = 0 ; idx < data.header.commandCount; ++idx) {
+//	            const NetworkCommand &cmd = data.commands[idx];
+//	            printf("========> Got index = %d / %u, got networkCommand [%s]\n",idx, data.header.commandCount,cmd.toString().c_str());
+//	        }
+
 			if(result == true) {
-				fromEndianDetail();
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled == true) {
 					for(int idx = 0 ; idx < data.header.commandCount; ++idx) {
 						const NetworkCommand &cmd = data.commands[idx];
 
 						SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] index = %d, received networkCommand [%s]\n",
-								__FILE__,__FUNCTION__,__LINE__,idx, cmd.toString().c_str());
+								extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,idx, cmd.toString().c_str());
 					}
 				}
 			}
 			else {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR Failed to get command data, totalMsgSize = %d.\n",__FILE__,__FUNCTION__,__LINE__,totalMsgSize);
+				//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR Failed to get command data, totalMsgSize = %d.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,totalMsgSize);
 			}
 		}
 	}
 	else {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR header not received as expected\n",__FILE__,__FUNCTION__,__LINE__);
-	    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR header not received as expected\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ERROR header not received as expected\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] ERROR header not received as expected\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	}
 	return result;
 
 }
 
 void NetworkMessageCommandList::send(Socket* socket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtCommandList, frameCount = %d, data.header.commandCount = %d, data.header.messageType = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.frameCount,data.header.commandCount,data.header.messageType);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtCommandList, frameCount = %d, data.header.commandCount = %d, data.header.messageType = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.header.frameCount,data.header.commandCount,data.header.messageType);
 
 	assert(data.header.messageType==nmtCommandList);
 	uint16 totalCommand = data.header.commandCount;
 	toEndianHeader();
-	NetworkMessage::send(socket, &data.header, commandListHeaderSize);
+
+	unsigned char *buf = NULL;
+	bool result = false;
+	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &data.header, commandListHeaderSize);
+	}
+	else {
+		//NetworkMessage::send(socket, &data.header, commandListHeaderSize);
+		buf = packMessageHeader();
+		//if(totalCommand) printf("\n\nSend packet size = %u data.messageType = %d\n%s\ncommandcount [%u] framecount [%d]\n",getPackedSizeHeader(),data.header.messageType,buf,totalCommand,data.header.frameCount);
+		NetworkMessage::send(socket, buf, getPackedSizeHeader());
+		delete [] buf;
+	}
+
 	if(totalCommand > 0) {
+		//printf("\n#2 Send packet commandcount [%u] framecount [%d]\n",totalCommand,data.header.frameCount);
 		toEndianDetail(totalCommand);
-		NetworkMessage::send(socket, &data.commands[0], (sizeof(NetworkCommand) * totalCommand));
+		//printf("\n#3 Send packet commandcount [%u] framecount [%d]\n",totalCommand,data.header.frameCount);
+
+		bool result = false;
+		if(useOldProtocol == true) {
+			NetworkMessage::send(socket, &data.commands[0], (sizeof(NetworkCommand) * totalCommand));
+		}
+		else {
+			buf = packMessageDetail(totalCommand);
+			//printf("\n#4 Send packet commandcount [%u] framecount [%d]\n",totalCommand,data.header.frameCount);
+			//printf("Send packet size = %u data.messageType = %d\n[%s]\n",getPackedSize(),data.messageType,buf);
+			NetworkMessage::send(socket, buf, getPackedSizeDetail(totalCommand));
+			//printf("\n#5 Send packet commandcount [%u] framecount [%d]\n",totalCommand,data.header.frameCount);
+			delete [] buf;
+			//printf("\n#6 Send packet commandcount [%u] framecount [%d]\n",totalCommand,data.header.frameCount);
+
+	//        for(int idx = 0 ; idx < totalCommand; ++idx) {
+	//            const NetworkCommand &cmd = data.commands[idx];
+	//            printf("========> Send index = %d / %u, sent networkCommand [%s]\n",idx, totalCommand,cmd.toString().c_str());
+	//        }
+		}
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled == true) {
 	    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d, frameCount = %d, data.commandCount = %d\n",
-                __FILE__,__FUNCTION__,__LINE__,data.header.messageType,data.header.frameCount,data.header.commandCount);
+                extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.header.messageType,data.header.frameCount,data.header.commandCount);
 
-        if (data.header.commandCount > 0) {
-            for(int idx = 0 ; idx < data.header.commandCount; ++idx) {
+        if (totalCommand > 0) {
+            for(int idx = 0 ; idx < totalCommand; ++idx) {
                 const NetworkCommand &cmd = data.commands[idx];
 
                 SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] index = %d, sent networkCommand [%s]\n",
-                        __FILE__,__FUNCTION__,__LINE__,idx, cmd.toString().c_str());
+                        extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,idx, cmd.toString().c_str());
             }
 
-            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] END of loop, nmtCommandList, frameCount = %d, data.header.commandCount = %d, data.header.messageType = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.frameCount,data.header.commandCount,data.header.messageType);
+            SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] END of loop, nmtCommandList, frameCount = %d, data.header.commandCount = %d, data.header.messageType = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.header.frameCount,totalCommand,data.header.messageType);
         }
 	}
 }
@@ -636,7 +1428,7 @@ void NetworkMessageCommandList::fromEndianDetail() {
 NetworkMessageText::NetworkMessageText(const string &text, int teamIndex, int playerIndex,
 										const string targetLanguage) {
 	if(text.length() >= maxTextStringSize) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR - text [%s] length = %d, max = %d\n",__FILE__,__FUNCTION__,__LINE__,text.c_str(),text.length(),maxTextStringSize);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR - text [%s] length = %d, max = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,text.c_str(),text.length(),maxTextStringSize);
 	}
 
 	data.messageType	= nmtText;
@@ -652,9 +1444,59 @@ NetworkMessageText * NetworkMessageText::getCopy() const {
 	return copy;
 }
 
-bool NetworkMessageText::receive(Socket* socket){
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+const char * NetworkMessageText::getPackedMessageFormat() const {
+	return "c500scc60s";
+}
+
+unsigned int NetworkMessageText::getPackedSize() {
+	static unsigned int result = 0;
+	if(result == 0) {
+		Data packedData;
+		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
+		result = pack(buf, getPackedMessageFormat(),
+				packedData.messageType,
+				packedData.text.getBuffer(),
+				packedData.teamIndex,
+				packedData.playerIndex,
+				packedData.targetLanguage.getBuffer());
+		delete [] buf;
+	}
+	return result;
+}
+void NetworkMessageText::unpackMessage(unsigned char *buf) {
+	unpack(buf, getPackedMessageFormat(),
+			&data.messageType,
+			data.text.getBuffer(),
+			&data.teamIndex,
+			&data.playerIndex,
+			data.targetLanguage.getBuffer());
+}
+
+unsigned char * NetworkMessageText::packMessage() {
+	unsigned char *buf = new unsigned char[getPackedSize()+1];
+	pack(buf, getPackedMessageFormat(),
+			data.messageType,
+			data.text.getBuffer(),
+			data.teamIndex,
+			data.playerIndex,
+			data.targetLanguage.getBuffer());
+	return buf;
+}
+
+bool NetworkMessageText::receive(Socket* socket) {
+	bool result = false;
+	if(useOldProtocol == true) {
+		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	}
+	else {
+		unsigned char *buf = new unsigned char[getPackedSize()+1];
+		result = NetworkMessage::receive(socket, buf, getPackedSize(), true);
+		unpackMessage(buf);
+		//printf("Got packet size = %u data.messageType = %d\n%s\n",getPackedSize(),data.messageType,buf);
+		delete [] buf;
+	}
 	fromEndian();
+
 	data.text.nullTerminate();
 	data.targetLanguage.nullTerminate();
 
@@ -662,11 +1504,20 @@ bool NetworkMessageText::receive(Socket* socket){
 }
 
 void NetworkMessageText::send(Socket* socket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtText\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtText\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	assert(data.messageType==nmtText);
 	toEndian();
-	NetworkMessage::send(socket, &data, sizeof(data));
+
+	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &data, sizeof(data));
+	}
+	else {
+		unsigned char *buf = packMessage();
+		//printf("Send packet size = %u data.messageType = %d\n[%s]\n",getPackedSize(),data.messageType,buf);
+		NetworkMessage::send(socket, buf, getPackedSize());
+		delete [] buf;
+	}
 }
 
 void NetworkMessageText::toEndian() {
@@ -694,18 +1545,66 @@ NetworkMessageQuit::NetworkMessageQuit(){
 	data.messageType= nmtQuit;
 }
 
-bool NetworkMessageQuit::receive(Socket* socket){
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data),true);
+const char * NetworkMessageQuit::getPackedMessageFormat() const {
+	return "c";
+}
+
+unsigned int NetworkMessageQuit::getPackedSize() {
+	static unsigned int result = 0;
+	if(result == 0) {
+		Data packedData;
+		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
+		result = pack(buf, getPackedMessageFormat(),
+				packedData.messageType);
+		delete [] buf;
+	}
+	return result;
+}
+void NetworkMessageQuit::unpackMessage(unsigned char *buf) {
+	unpack(buf, getPackedMessageFormat(),
+			&data.messageType);
+}
+
+unsigned char * NetworkMessageQuit::packMessage() {
+	unsigned char *buf = new unsigned char[getPackedSize()+1];
+	pack(buf, getPackedMessageFormat(),
+			data.messageType);
+	return buf;
+}
+
+bool NetworkMessageQuit::receive(Socket* socket) {
+	bool result = false;
+	if(useOldProtocol == true) {
+		result = NetworkMessage::receive(socket, &data, sizeof(data),true);
+	}
+	else {
+		//fromEndian();
+		unsigned char *buf = new unsigned char[getPackedSize()+1];
+		result = NetworkMessage::receive(socket, buf, getPackedSize(), true);
+		unpackMessage(buf);
+		//printf("Got packet size = %u data.messageType = %d\n%s\n",getPackedSize(),data.messageType,buf);
+		delete [] buf;
+	}
 	fromEndian();
+
 	return result;
 }
 
 void NetworkMessageQuit::send(Socket* socket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtQuit\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtQuit\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	assert(data.messageType==nmtQuit);
 	toEndian();
-	NetworkMessage::send(socket, &data, sizeof(data));
+
+	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &data, sizeof(data));
+	}
+	else {
+		unsigned char *buf = packMessage();
+		//printf("Send packet size = %u data.messageType = %d\n[%s]\n",getPackedSize(),data.messageType,buf);
+		NetworkMessage::send(socket, buf, getPackedSize());
+		delete [] buf;
+	}
 }
 
 void NetworkMessageQuit::toEndian() {
@@ -745,25 +1644,25 @@ NetworkMessageSynchNetworkGameData::NetworkMessageSynchNetworkGameData(const Gam
             scenarioDir = scenarioDir.erase(scenarioDir.size() - gameSettings->getScenario().size(), gameSettings->getScenario().size() + 1);
         }
 
-        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] gameSettings.getScenarioDir() = [%s] gameSettings.getScenario() = [%s] scenarioDir = [%s]\n",__FILE__,__FUNCTION__,__LINE__,gameSettings->getScenarioDir().c_str(),gameSettings->getScenario().c_str(),scenarioDir.c_str());
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] gameSettings.getScenarioDir() = [%s] gameSettings.getScenario() = [%s] scenarioDir = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,gameSettings->getScenarioDir().c_str(),gameSettings->getScenario().c_str(),scenarioDir.c_str());
     }
 
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     data.header.tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,scenarioDir), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
 
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] data.tilesetCRC = %d, [%s]\n",__FILE__,__FUNCTION__,__LINE__, data.header.tilesetCRC,gameSettings->getTileset().c_str());
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] data.tilesetCRC = %d, [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__, data.header.tilesetCRC,gameSettings->getTileset().c_str());
 
     //tech, load before map because of resources
 	data.header.techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,scenarioDir), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] data.techCRC = %d, [%s]\n",__FILE__,__FUNCTION__,__LINE__, data.header.techCRC,gameSettings->getTech().c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] data.techCRC = %d, [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__, data.header.techCRC,gameSettings->getTech().c_str());
 
 	vector<std::pair<string,uint32> > vctFileList;
 	vctFileList = getFolderTreeContentsCheckSumListRecursively(config.getPathListForType(ptTechs,scenarioDir),string("/") + gameSettings->getTech() + string("/*"), ".xml",&vctFileList);
 	data.header.techCRCFileCount = min((int)vctFileList.size(),(int)maxFileCRCCount);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] vctFileList.size() = %d, maxFileCRCCount = %d\n",__FILE__,__FUNCTION__,__LINE__, vctFileList.size(),maxFileCRCCount);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] vctFileList.size() = %d, maxFileCRCCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__, vctFileList.size(),maxFileCRCCount);
 
 	for(int idx =0; idx < data.header.techCRCFileCount; ++idx) {
 		const std::pair<string,uint32> &fileInfo = vctFileList[idx];
@@ -777,7 +1676,7 @@ NetworkMessageSynchNetworkGameData::NetworkMessageSynchNetworkGameData(const Gam
 	checksum.addFile(file);
 	data.header.mapCRC = checksum.getSum();
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] data.mapCRC = %d, [%s]\n",__FILE__,__FUNCTION__,__LINE__, data.header.mapCRC,gameSettings->getMap().c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] data.mapCRC = %d, [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__, data.header.mapCRC,gameSettings->getMap().c_str());
 }
 
 string NetworkMessageSynchNetworkGameData::getTechCRCFileMismatchReport(vector<std::pair<string,uint32> > &vctFileList) {
@@ -836,8 +1735,109 @@ string NetworkMessageSynchNetworkGameData::getTechCRCFileMismatchReport(vector<s
 	return result;
 }
 
+const char * NetworkMessageSynchNetworkGameData::getPackedMessageFormatHeader() const {
+	return "c255s255s255sLLLL";
+}
+
+unsigned int NetworkMessageSynchNetworkGameData::getPackedSizeHeader() {
+	static unsigned int result = 0;
+	if(result == 0) {
+		Data packedData;
+		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
+		result = pack(buf, getPackedMessageFormatHeader(),
+				packedData.header.messageType,
+				packedData.header.map.getBuffer(),
+				packedData.header.tileset.getBuffer(),
+				packedData.header.tech.getBuffer(),
+				packedData.header.mapCRC,
+				packedData.header.tilesetCRC,
+				packedData.header.techCRC,
+				packedData.header.techCRCFileCount);
+		delete [] buf;
+	}
+	return result;
+}
+void NetworkMessageSynchNetworkGameData::unpackMessageHeader(unsigned char *buf) {
+	unpack(buf, getPackedMessageFormatHeader(),
+			&data.header.messageType,
+			data.header.map.getBuffer(),
+			data.header.tileset.getBuffer(),
+			data.header.tech.getBuffer(),
+			&data.header.mapCRC,
+			&data.header.tilesetCRC,
+			&data.header.techCRC,
+			&data.header.techCRCFileCount);
+}
+
+unsigned char * NetworkMessageSynchNetworkGameData::packMessageHeader() {
+	unsigned char *buf = new unsigned char[getPackedSizeHeader()+1];
+	pack(buf, getPackedMessageFormatHeader(),
+			data.header.messageType,
+			data.header.map.getBuffer(),
+			data.header.tileset.getBuffer(),
+			data.header.tech.getBuffer(),
+			data.header.mapCRC,
+			data.header.tilesetCRC,
+			data.header.techCRC,
+			data.header.techCRCFileCount);
+
+	return buf;
+}
+
+unsigned int NetworkMessageSynchNetworkGameData::getPackedSizeDetail() {
+	static unsigned int result = 0;
+	if(result == 0) {
+		DataDetail packedData;
+		unsigned char *buf = new unsigned char[sizeof(DataDetail)*3];
+
+		for(unsigned int i = 0; i < maxFileCRCCount; ++i) {
+			result += pack(buf, "255s",
+					packedData.techCRCFileList[i].getBuffer());
+			buf += result;
+		}
+		for(unsigned int i = 0; i < maxFileCRCCount; ++i) {
+			result += pack(buf, "l",
+					packedData.techCRCFileCRCList[i]);
+			buf += result;
+		}
+
+		delete [] buf;
+	}
+	return result;
+}
+void NetworkMessageSynchNetworkGameData::unpackMessageDetail(unsigned char *buf) {
+	for(unsigned int i = 0; i < maxFileCRCCount; ++i) {
+		unsigned int bytes_processed = unpack(buf, "255s",
+				data.detail.techCRCFileList[i].getBuffer());
+		buf += bytes_processed;
+	}
+	for(unsigned int i = 0; i < maxFileCRCCount; ++i) {
+		unsigned int bytes_processed = unpack(buf, "l",
+				&data.detail.techCRCFileCRCList[i]);
+		buf += bytes_processed;
+	}
+}
+
+unsigned char * NetworkMessageSynchNetworkGameData::packMessageDetail() {
+	unsigned char *buf = new unsigned char[sizeof(DataDetail) +1];
+	unsigned char *bufMove = buf;
+	for(unsigned int i = 0; i < maxFileCRCCount; ++i) {
+		unsigned int bytes_processed = pack(bufMove, "255s",
+				data.detail.techCRCFileList[i].getBuffer());
+		bufMove += bytes_processed;
+	}
+	for(unsigned int i = 0; i < maxFileCRCCount; ++i) {
+		unsigned int bytes_processed = pack(bufMove, "l",
+				data.detail.techCRCFileCRCList[i]);
+		bufMove += bytes_processed;
+	}
+
+	return buf;
+}
+
+
 bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to get nmtSynchNetworkGameData\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to get nmtSynchNetworkGameData\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	data.header.techCRCFileCount = 0;
 	bool result = NetworkMessage::receive(socket, &data, HeaderSize, true);
@@ -847,7 +1847,7 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 		data.header.tileset.nullTerminate();
 		data.header.tech.nullTerminate();
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d, data.techCRCFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.messageType,data.header.techCRCFileCount);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] messageType = %d, data.techCRCFileCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.header.messageType,data.header.techCRCFileCount);
 
 
 
@@ -860,7 +1860,7 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 			}
 		}
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,packetLoopCount);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoopCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,packetLoopCount);
 
 		for(int iPacketLoop = 0; result == true && iPacketLoop < packetLoopCount; ++iPacketLoop) {
 
@@ -870,7 +1870,7 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 			int packetDetail1DataSize = (DetailSize1 * packetFileCount);
 			int packetDetail2DataSize = (DetailSize2 * packetFileCount);
 
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] iPacketLoop = %d, packetIndex = %d, maxFileCountPerPacket = %d, packetFileCount = %d, packetDetail1DataSize = %d, packetDetail2DataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,iPacketLoop,packetIndex,maxFileCountPerPacket,packetFileCount,packetDetail1DataSize,packetDetail2DataSize);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] iPacketLoop = %d, packetIndex = %d, maxFileCountPerPacket = %d, packetFileCount = %d, packetDetail1DataSize = %d, packetDetail2DataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,iPacketLoop,packetIndex,maxFileCountPerPacket,packetFileCount,packetDetail1DataSize,packetDetail2DataSize);
 
             // Wait a max of x seconds for this message
 			result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[packetIndex], packetDetail1DataSize, true);
@@ -889,7 +1889,7 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 }
 
 void NetworkMessageSynchNetworkGameData::send(Socket* socket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to send nmtSynchNetworkGameData\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to send nmtSynchNetworkGameData\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	assert(data.header.messageType==nmtSynchNetworkGameData);
 	uint32 totalFileCount = data.header.techCRCFileCount;
@@ -905,7 +1905,7 @@ void NetworkMessageSynchNetworkGameData::send(Socket* socket) {
 			}
 		}
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,packetLoopCount);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoopCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,packetLoopCount);
 
 		for(int iPacketLoop = 0; iPacketLoop < packetLoopCount; ++iPacketLoop) {
 
@@ -1036,7 +2036,7 @@ string NetworkMessageSynchNetworkGameDataStatus::getTechCRCFileMismatchReport(st
 }
 
 bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to get nmtSynchNetworkGameDataStatus\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to get nmtSynchNetworkGameDataStatus\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	data.header.techCRCFileCount = 0;
 
@@ -1052,7 +2052,7 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 			}
 		}
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,packetLoopCount);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoopCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,packetLoopCount);
 
 		for(int iPacketLoop = 0; iPacketLoop < packetLoopCount; ++iPacketLoop) {
 
@@ -1060,7 +2060,7 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 			int maxFileCountPerPacket = maxFileCRCPacketCount;
 			int packetFileCount = min((uint32)maxFileCountPerPacket,data.header.techCRCFileCount - packetIndex);
 
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] iPacketLoop = %d, packetIndex = %d, packetFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,iPacketLoop,packetIndex,packetFileCount);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] iPacketLoop = %d, packetIndex = %d, packetFileCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,iPacketLoop,packetIndex,packetFileCount);
 
 			result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount),true);
 			if(result == true) {
@@ -1075,13 +2075,13 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 		fromEndianDetail();
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] result = %d\n",__FILE__,__FUNCTION__,__LINE__,result);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] result = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,result);
 
 	return result;
 }
 
 void NetworkMessageSynchNetworkGameDataStatus::send(Socket* socket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to send nmtSynchNetworkGameDataStatus, data.header.techCRCFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,data.header.techCRCFileCount);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to send nmtSynchNetworkGameDataStatus, data.header.techCRCFileCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.header.techCRCFileCount);
 
 	assert(data.header.messageType==nmtSynchNetworkGameDataStatus);
 	uint32 totalFileCount = data.header.techCRCFileCount;
@@ -1097,7 +2097,7 @@ void NetworkMessageSynchNetworkGameDataStatus::send(Socket* socket) {
 			}
 		}
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoopCount = %d\n",__FILE__,__FUNCTION__,__LINE__,packetLoopCount);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoopCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,packetLoopCount);
 
 		toEndianDetail(totalFileCount);
 		for(int iPacketLoop = 0; iPacketLoop < packetLoopCount; ++iPacketLoop) {
@@ -1106,7 +2106,7 @@ void NetworkMessageSynchNetworkGameDataStatus::send(Socket* socket) {
 			int maxFileCountPerPacket = maxFileCRCPacketCount;
 			int packetFileCount = min((uint32)maxFileCountPerPacket,totalFileCount - packetIndex);
 
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoop = %d, packetIndex = %d, packetFileCount = %d\n",__FILE__,__FUNCTION__,__LINE__,iPacketLoop,packetIndex,packetFileCount);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoop = %d, packetIndex = %d, packetFileCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,iPacketLoop,packetIndex,packetFileCount);
 
 			NetworkMessage::send(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount));
 			NetworkMessage::send(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount));
@@ -1176,7 +2176,7 @@ bool NetworkMessageSynchNetworkGameDataFileCRCCheck::receive(Socket* socket) {
 }
 
 void NetworkMessageSynchNetworkGameDataFileCRCCheck::send(Socket* socket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtSynchNetworkGameDataFileCRCCheck\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtSynchNetworkGameDataFileCRCCheck\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	assert(data.messageType==nmtSynchNetworkGameDataFileCRCCheck);
 	toEndian();
@@ -1220,7 +2220,7 @@ bool NetworkMessageSynchNetworkGameDataFileGet::receive(Socket* socket) {
 }
 
 void NetworkMessageSynchNetworkGameDataFileGet::send(Socket* socket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtSynchNetworkGameDataFileGet\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtSynchNetworkGameDataFileGet\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	assert(data.messageType==nmtSynchNetworkGameDataFileGet);
 	toEndian();
@@ -1272,14 +2272,77 @@ SwitchSetupRequest::SwitchSetupRequest(string selectedFactionName, int8 currentF
     data.language = language;
 }
 
+const char * SwitchSetupRequest::getPackedMessageFormat() const {
+	return "c256sccc80scc60s";
+}
+
+unsigned int SwitchSetupRequest::getPackedSize() {
+	static unsigned int result = 0;
+	if(result == 0) {
+		Data packedData;
+		unsigned char *buf = new unsigned char[sizeof(Data)*3];
+		result = pack(buf, getPackedMessageFormat(),
+				packedData.messageType,
+				packedData.selectedFactionName.getBuffer(),
+				packedData.currentFactionIndex,
+				packedData.toFactionIndex,
+				packedData.toTeam,
+				packedData.networkPlayerName.getBuffer(),
+				packedData.networkPlayerStatus,
+				packedData.switchFlags,
+				packedData.language.getBuffer());
+		delete [] buf;
+	}
+	return result;
+}
+void SwitchSetupRequest::unpackMessage(unsigned char *buf) {
+	unpack(buf, getPackedMessageFormat(),
+			&data.messageType,
+			data.selectedFactionName.getBuffer(),
+			&data.currentFactionIndex,
+			&data.toFactionIndex,
+			&data.toTeam,
+			data.networkPlayerName.getBuffer(),
+			&data.networkPlayerStatus,
+			&data.switchFlags,
+			data.language.getBuffer());
+}
+
+unsigned char * SwitchSetupRequest::packMessage() {
+	unsigned char *buf = new unsigned char[getPackedSize()+1];
+	pack(buf, getPackedMessageFormat(),
+			data.messageType,
+			data.selectedFactionName.getBuffer(),
+			data.currentFactionIndex,
+			data.toFactionIndex,
+			data.toTeam,
+			data.networkPlayerName.getBuffer(),
+			data.networkPlayerStatus,
+			data.switchFlags,
+			data.language.getBuffer());
+	return buf;
+}
+
 bool SwitchSetupRequest::receive(Socket* socket) {
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	bool result = false;
+	if(useOldProtocol == true) {
+		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	}
+	else {
+		//fromEndian();
+		unsigned char *buf = new unsigned char[getPackedSize()+1];
+		result = NetworkMessage::receive(socket, buf, getPackedSize(), true);
+		unpackMessage(buf);
+		//printf("Got packet size = %u data.messageType = %d\n%s\nTeam = %d faction [%s] currentFactionIndex = %d toFactionIndex = %d\n",getPackedSize(),data.messageType,buf,data.toTeam,data.selectedFactionName.getBuffer(),data.currentFactionIndex,data.toFactionIndex);
+		delete [] buf;
+	}
 	fromEndian();
+
 	data.selectedFactionName.nullTerminate();
 	data.networkPlayerName.nullTerminate();
 	data.language.nullTerminate();
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] data.networkPlayerName [%s]\n",__FILE__,__FUNCTION__,__LINE__,data.networkPlayerName.getString().c_str());
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] data.networkPlayerName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.networkPlayerName.getString().c_str());
 
 	return result;
 }
@@ -1287,9 +2350,18 @@ bool SwitchSetupRequest::receive(Socket* socket) {
 void SwitchSetupRequest::send(Socket* socket) {
 	assert(data.messageType==nmtSwitchSetupRequest);
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] data.networkPlayerName [%s]\n",__FILE__,__FUNCTION__,__LINE__,data.networkPlayerName.getString().c_str());
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] data.networkPlayerName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.networkPlayerName.getString().c_str());
 	toEndian();
-	NetworkMessage::send(socket, &data, sizeof(data));
+
+	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &data, sizeof(data));
+	}
+	else {
+		unsigned char *buf = packMessage();
+		//printf("Send packet size = %u data.messageType = %d\n%s\nTeam = %d faction [%s] currentFactionIndex = %d toFactionIndex = %d\n",getPackedSize(),data.messageType,buf,data.toTeam,data.selectedFactionName.getBuffer(),data.currentFactionIndex,data.toFactionIndex);
+		NetworkMessage::send(socket, buf, getPackedSize());
+		delete [] buf;
+	}
 }
 
 void SwitchSetupRequest::toEndian() {
@@ -1323,16 +2395,68 @@ PlayerIndexMessage::PlayerIndexMessage(int16 playerIndex) {
 	data.playerIndex=playerIndex;
 }
 
+const char * PlayerIndexMessage::getPackedMessageFormat() const {
+	return "ch";
+}
+
+unsigned int PlayerIndexMessage::getPackedSize() {
+	static unsigned int result = 0;
+	if(result == 0) {
+		Data packedData;
+		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
+		result = pack(buf, getPackedMessageFormat(),
+				packedData.messageType,
+				packedData.playerIndex);
+		delete [] buf;
+	}
+	return result;
+}
+void PlayerIndexMessage::unpackMessage(unsigned char *buf) {
+	unpack(buf, getPackedMessageFormat(),
+			&data.messageType,
+			&data.playerIndex);
+}
+
+unsigned char * PlayerIndexMessage::packMessage() {
+	unsigned char *buf = new unsigned char[getPackedSize()+1];
+	pack(buf, getPackedMessageFormat(),
+			data.messageType,
+			data.playerIndex);
+	return buf;
+}
+
 bool PlayerIndexMessage::receive(Socket* socket) {
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	bool result = false;
+	if(useOldProtocol == true) {
+		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	}
+	else {
+		//fromEndian();
+		unsigned char *buf = new unsigned char[getPackedSize()+1];
+		result = NetworkMessage::receive(socket, buf, getPackedSize(), true);
+		unpackMessage(buf);
+		//printf("Got packet size = %u data.messageType = %d\n%s\n",getPackedSize(),data.messageType,buf);
+		delete [] buf;
+	}
 	fromEndian();
+
 	return result;
 }
 
 void PlayerIndexMessage::send(Socket* socket) {
 	assert(data.messageType==nmtPlayerIndexMessage);
 	toEndian();
-	NetworkMessage::send(socket, &data, sizeof(data));
+
+	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &data, sizeof(data));
+	}
+	else {
+		unsigned char *buf = packMessage();
+		//printf("Send packet size = %u data.messageType = %d\n[%s]\n",getPackedSize(),data.messageType,buf);
+		//NetworkMessage::send(socket, &data, sizeof(data));
+		NetworkMessage::send(socket, buf, getPackedSize());
+		delete [] buf;
+	}
 }
 
 void PlayerIndexMessage::toEndian() {
@@ -1359,16 +2483,67 @@ NetworkMessageLoadingStatus::NetworkMessageLoadingStatus(uint32 status)
 	data.status=status;
 }
 
+const char * NetworkMessageLoadingStatus::getPackedMessageFormat() const {
+	return "cL";
+}
+
+unsigned int NetworkMessageLoadingStatus::getPackedSize() {
+	static unsigned int result = 0;
+	if(result == 0) {
+		Data packedData;
+		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
+		result = pack(buf, getPackedMessageFormat(),
+				packedData.messageType,
+				packedData.status);
+		delete [] buf;
+	}
+	return result;
+}
+void NetworkMessageLoadingStatus::unpackMessage(unsigned char *buf) {
+	unpack(buf, getPackedMessageFormat(),
+			&data.messageType,
+			&data.status);
+}
+
+unsigned char * NetworkMessageLoadingStatus::packMessage() {
+	unsigned char *buf = new unsigned char[getPackedSize()+1];
+	pack(buf, getPackedMessageFormat(),
+			data.messageType,
+			data.status);
+	return buf;
+}
+
 bool NetworkMessageLoadingStatus::receive(Socket* socket) {
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	bool result = false;
+	if(useOldProtocol == true) {
+		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	}
+	else {
+		//fromEndian();
+		unsigned char *buf = new unsigned char[getPackedSize()+1];
+		result = NetworkMessage::receive(socket, buf, getPackedSize(), true);
+		unpackMessage(buf);
+		//printf("Got packet size = %u data.messageType = %d\n%s\n",getPackedSize(),data.messageType,buf);
+		delete [] buf;
+	}
 	fromEndian();
+
 	return result;
 }
 
 void NetworkMessageLoadingStatus::send(Socket* socket) {
 	assert(data.messageType==nmtLoadingStatusMessage);
 	toEndian();
-	NetworkMessage::send(socket, &data, sizeof(data));
+
+	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &data, sizeof(data));
+	}
+	else {
+		unsigned char *buf = packMessage();
+		//printf("Send packet size = %u data.messageType = %d\n[%s]\n",getPackedSize(),data.messageType,buf);
+		NetworkMessage::send(socket, buf, getPackedSize());
+		delete [] buf;
+	}
 }
 
 void NetworkMessageLoadingStatus::toEndian() {
@@ -1392,7 +2567,7 @@ void NetworkMessageLoadingStatus::fromEndian() {
 
 NetworkMessageMarkCell::NetworkMessageMarkCell(Vec2i target, int factionIndex, const string &text, int playerIndex) {
 	if(text.length() >= maxTextStringSize) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR - text [%s] length = %d, max = %d\n",__FILE__,__FUNCTION__,__LINE__,text.c_str(),text.length(),maxTextStringSize);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR - text [%s] length = %d, max = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,text.c_str(),text.length(),maxTextStringSize);
 	}
 
 	data.messageType	= nmtMarkCell;
@@ -1409,19 +2584,83 @@ NetworkMessageMarkCell * NetworkMessageMarkCell::getCopy() const {
 	return copy;
 }
 
+const char * NetworkMessageMarkCell::getPackedMessageFormat() const {
+	return "chhcc500s";
+}
+
+unsigned int NetworkMessageMarkCell::getPackedSize() {
+	static unsigned int result = 0;
+	if(result == 0) {
+		Data packedData;
+		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
+		result = pack(buf, getPackedMessageFormat(),
+				packedData.messageType,
+				packedData.targetX,
+				packedData.targetY,
+				packedData.factionIndex,
+				packedData.playerIndex,
+				packedData.text.getBuffer());
+		delete [] buf;
+	}
+	return result;
+}
+void NetworkMessageMarkCell::unpackMessage(unsigned char *buf) {
+	unpack(buf, getPackedMessageFormat(),
+			&data.messageType,
+			&data.targetX,
+			&data.targetY,
+			&data.factionIndex,
+			&data.playerIndex,
+			data.text.getBuffer());
+
+}
+
+unsigned char * NetworkMessageMarkCell::packMessage() {
+	unsigned char *buf = new unsigned char[getPackedSize()+1];
+	pack(buf, getPackedMessageFormat(),
+			data.messageType,
+			data.targetX,
+			data.targetY,
+			data.factionIndex,
+			data.playerIndex,
+			data.text.getBuffer());
+
+	return buf;
+}
+
 bool NetworkMessageMarkCell::receive(Socket* socket){
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	bool result = false;
+	if(useOldProtocol == true) {
+		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	}
+	else {
+		unsigned char *buf = new unsigned char[getPackedSize()+1];
+		result = NetworkMessage::receive(socket, buf, getPackedSize(), true);
+		unpackMessage(buf);
+		//printf("Got packet size = %u data.messageType = %d\n%s\n",getPackedSize(),data.messageType,buf);
+		delete [] buf;
+	}
 	fromEndian();
+
 	data.text.nullTerminate();
 	return result;
 }
 
 void NetworkMessageMarkCell::send(Socket* socket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtMarkCell\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtMarkCell\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	assert(data.messageType == nmtMarkCell);
 	toEndian();
-	NetworkMessage::send(socket, &data, sizeof(data));
+
+	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &data, sizeof(data));
+	}
+	else {
+		unsigned char *buf = packMessage();
+		//printf("Send packet size = %u data.messageType = %d\n[%s]\n",getPackedSize(),data.messageType,buf);
+		NetworkMessage::send(socket, buf, getPackedSize());
+		delete [] buf;
+	}
 }
 
 void NetworkMessageMarkCell::toEndian() {
@@ -1462,18 +2701,76 @@ NetworkMessageUnMarkCell * NetworkMessageUnMarkCell::getCopy() const {
 	return copy;
 }
 
+const char * NetworkMessageUnMarkCell::getPackedMessageFormat() const {
+	return "chhc";
+}
+
+unsigned int NetworkMessageUnMarkCell::getPackedSize() {
+	static unsigned int result = 0;
+	if(result == 0) {
+		Data packedData;
+		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
+		result = pack(buf, getPackedMessageFormat(),
+				packedData.messageType,
+				packedData.targetX,
+				packedData.targetY,
+				packedData.factionIndex);
+		delete [] buf;
+	}
+	return result;
+}
+void NetworkMessageUnMarkCell::unpackMessage(unsigned char *buf) {
+	unpack(buf, getPackedMessageFormat(),
+			&data.messageType,
+			&data.targetX,
+			&data.targetY,
+			&data.factionIndex);
+
+}
+
+unsigned char * NetworkMessageUnMarkCell::packMessage() {
+	unsigned char *buf = new unsigned char[getPackedSize()+1];
+	pack(buf, getPackedMessageFormat(),
+			data.messageType,
+			data.targetX,
+			data.targetY,
+			data.factionIndex);
+
+	return buf;
+}
+
 bool NetworkMessageUnMarkCell::receive(Socket* socket){
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	bool result = false;
+	if(useOldProtocol == true) {
+		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	}
+	else {
+		unsigned char *buf = new unsigned char[getPackedSize()+1];
+		result = NetworkMessage::receive(socket, buf, getPackedSize(), true);
+		unpackMessage(buf);
+		//printf("Got packet size = %u data.messageType = %d\n%s\n",getPackedSize(),data.messageType,buf);
+		delete [] buf;
+	}
 	fromEndian();
+
 	return result;
 }
 
 void NetworkMessageUnMarkCell::send(Socket* socket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtUnMarkCell\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtUnMarkCell\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	assert(data.messageType == nmtUnMarkCell);
 	toEndian();
-	NetworkMessage::send(socket, &data, sizeof(data));
+
+	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &data, sizeof(data));
+	}
+	else {
+		unsigned char *buf = packMessage();
+		//printf("Send packet size = %u data.messageType = %d\n[%s]\n",getPackedSize(),data.messageType,buf);
+		NetworkMessage::send(socket, buf, getPackedSize());
+		delete [] buf;
+	}
 }
 
 void NetworkMessageUnMarkCell::toEndian() {
@@ -1507,18 +2804,75 @@ NetworkMessageHighlightCell::NetworkMessageHighlightCell(Vec2i target, int facti
 	data.factionIndex 	= factionIndex;
 }
 
-bool NetworkMessageHighlightCell::receive(Socket* socket){
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+const char * NetworkMessageHighlightCell::getPackedMessageFormat() const {
+	return "chhc";
+}
+
+unsigned int NetworkMessageHighlightCell::getPackedSize() {
+	static unsigned int result = 0;
+	if(result == 0) {
+		Data packedData;
+		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
+		result = pack(buf, getPackedMessageFormat(),
+				packedData.messageType,
+				packedData.targetX,
+				packedData.targetY,
+				packedData.factionIndex);
+		delete [] buf;
+	}
+	return result;
+}
+void NetworkMessageHighlightCell::unpackMessage(unsigned char *buf) {
+	unpack(buf, getPackedMessageFormat(),
+			&data.messageType,
+			&data.targetX,
+			&data.targetY,
+			&data.factionIndex);
+
+}
+
+unsigned char * NetworkMessageHighlightCell::packMessage() {
+	unsigned char *buf = new unsigned char[getPackedSize()+1];
+	pack(buf, getPackedMessageFormat(),
+			data.messageType,
+			data.targetX,
+			data.targetY,
+			data.factionIndex);
+
+	return buf;
+}
+
+bool NetworkMessageHighlightCell::receive(Socket* socket) {
+	bool result = false;
+	if(useOldProtocol == true) {
+		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	}
+	else {
+		unsigned char *buf = new unsigned char[getPackedSize()+1];
+		result = NetworkMessage::receive(socket, buf, getPackedSize(), true);
+		unpackMessage(buf);
+		//printf("Got packet size = %u data.messageType = %d\n%s\n",getPackedSize(),data.messageType,buf);
+		delete [] buf;
+	}
 	fromEndian();
 	return result;
 }
 
 void NetworkMessageHighlightCell::send(Socket* socket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtMarkCell\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtMarkCell\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	assert(data.messageType == nmtHighlightCell);
 	toEndian();
-	NetworkMessage::send(socket, &data, sizeof(data));
+
+	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &data, sizeof(data));
+	}
+	else {
+		unsigned char *buf = packMessage();
+		//printf("Send packet size = %u data.messageType = %d\n[%s]\n",getPackedSize(),data.messageType,buf);
+		NetworkMessage::send(socket, buf, getPackedSize());
+		delete [] buf;
+	}
 }
 
 void NetworkMessageHighlightCell::toEndian() {
