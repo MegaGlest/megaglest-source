@@ -332,6 +332,10 @@
 				RelativePath="..\..\source\glest_game\facilities\logger.h"
 				>
 			</File>
+			<File
+				RelativePath="..\..\source\glest_game\network\network_protocol.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="ai"
@@ -360,6 +364,10 @@
 			</File>
 			<File
 				RelativePath="..\..\source\glest_game\ai\ai_rule.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\network\network_protocol.h"
 				>
 			</File>
 			<File

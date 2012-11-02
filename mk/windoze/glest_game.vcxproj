@@ -241,6 +241,7 @@
     <ClCompile Include="..\..\source\glest_game\network\network_interface.cpp" />
     <ClCompile Include="..\..\source\glest_game\network\network_manager.cpp" />
     <ClCompile Include="..\..\source\glest_game\network\network_message.cpp" />
+    <ClCompile Include="..\..\source\glest_game\network\network_protocol.cpp" />
     <ClCompile Include="..\..\source\glest_game\network\network_types.cpp" />
     <ClCompile Include="..\..\source\glest_game\network\server_interface.cpp" />
     <ClCompile Include="..\..\source\glest_game\sound\sound_container.cpp" />
@@ -324,6 +325,7 @@
     <ClInclude Include="..\..\source\glest_game\network\network_interface.h" />
     <ClInclude Include="..\..\source\glest_game\network\network_manager.h" />
     <ClInclude Include="..\..\source\glest_game\network\network_message.h" />
+    <ClInclude Include="..\..\source\glest_game\network\network_protocol.h" />
     <ClInclude Include="..\..\source\glest_game\network\network_types.h" />
     <ClInclude Include="..\..\source\glest_game\network\server_interface.h" />
     <ClInclude Include="..\..\source\glest_game\sound\sound_container.h" />
