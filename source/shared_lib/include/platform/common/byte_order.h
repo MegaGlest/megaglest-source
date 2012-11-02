@@ -13,6 +13,7 @@
 #define BYTE_ORDER_H
 
 #include <algorithm>
+#include "leak_dumper.h"
 
 namespace Shared{ namespace PlatformByteOrder {
 

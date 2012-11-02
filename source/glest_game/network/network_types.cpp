@@ -16,7 +16,6 @@
 #include "unit_type.h"
 #include "game.h"
 #include "gui.h"
-
 #include "leak_dumper.h"
 
 using namespace Shared::Util;

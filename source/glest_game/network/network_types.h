@@ -35,7 +35,6 @@ using Shared::Graphics::Vec2i;
 namespace Glest{ namespace Game{
 
 class World;
-
 // =====================================================
 //	class NetworkString
 // =====================================================
@@ -62,6 +61,7 @@ public:
 		buffer[maxBufferSize-1] = '\0';
 	}
 
+	char *getBuffer() { return &buffer[0]; }
 	string getString() const { return (buffer[0] != '\0' ? buffer : ""); }
 };
 #pragma pack(pop)
@@ -88,21 +88,6 @@ enum NetworkCommandType {
 
 #pragma pack(push, 1)
 class NetworkCommand {
-private:
-	int16 networkCommandType;
-	int32 unitId;
-	int16 unitTypeId;
-	int16 commandTypeId;
-	int16 positionX;
-	int16 positionY;
-	int32 targetId;
-	int8 wantQueue;
-	int8 fromFactionIndex;
-	uint16 unitFactionUnitCount;
-	int8 unitFactionIndex;
-	int8 commandStateType;
-	int32 commandStateValue;
-	int32 unitCommandGroupId;
 
 public:
 	NetworkCommand() {
@@ -135,6 +120,21 @@ public:
 		CommandStateType commandStateType = cst_None,
 		int commandTypeStateValue = -1,
 		int unitCommandGroupId = -1);
+
+	int16 networkCommandType;
+	int32 unitId;
+	int16 unitTypeId;
+	int16 commandTypeId;
+	int16 positionX;
+	int16 positionY;
+	int32 targetId;
+	int8 wantQueue;
+	int8 fromFactionIndex;
+	uint16 unitFactionUnitCount;
+	int8 unitFactionIndex;
+	int8 commandStateType;
+	int32 commandStateValue;
+	int32 unitCommandGroupId;
 
 	NetworkCommandType getNetworkCommandType() const	{return static_cast<NetworkCommandType>(networkCommandType);}
 	int getUnitId() const								{return unitId;}

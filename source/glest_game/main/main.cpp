@@ -72,6 +72,9 @@
 #endif
 
 #include <stdlib.h>
+
+//#include "network_message.h"
+//#include "network_protocol.h"
 #include "leak_dumper.h"
 
 #ifdef WIN32
@@ -3076,15 +3079,65 @@ int glestMain(int argc, char** argv) {
 		printf("%s %s",extractFileFromDirectoryPath(argv[0]).c_str(),getNetworkPlatformFreeVersionString().c_str());
 		printf("\nCompiled using: %s on: %s platform: %s endianness: %s",getCompilerNameString().c_str(),getCompileDateTime().c_str(),getPlatformNameString().c_str(),(Shared::PlatformByteOrder::isBigEndian() == true ? "big" : "little"));
 
-		int8 testVar = 111;
-		printf("\nEndian value = %d",testVar);
-		testVar = Shared::PlatformByteOrder::toCommonEndian(testVar);
-		printf("\nEndian to common value = %d",testVar);
-		testVar = Shared::PlatformByteOrder::fromCommonEndian(testVar);
-		printf("\nEndian from common value = %d",testVar);
 
-		printf("\nint8 sizeof = %zu",sizeof(int8));
-		printf("\nSwitchSetupRequest sizeof = %zu",SwitchSetupRequest().getDataSize());
+//		SwitchSetupRequest data("factionname", 3,-1,2,"softcoder",10, 11,"eng");
+//
+//		unsigned char *buf = data.packMessage();
+//		printf("\nSend packet size = %u\n%s\nTeam = %d faction [%s] currentFactionIndex = %d toFactionIndex = %d [%s] [%s] %d %d\n",data.getPackedSize(),buf,data.getToTeam(),data.getSelectedFactionName().c_str(),data.getCurrentFactionIndex(),data.getToFactionIndex(),data.getNetworkPlayerLanguage().c_str(),data.getNetworkPlayerName().c_str(),data.getNetworkPlayerStatus(),data.getSwitchFlags());
+//		//delete [] buf;
+//
+//		data.unpackMessage(buf);
+//		printf("\nGot packet size = %u\n%s\nTeam = %d faction [%s] currentFactionIndex = %d toFactionIndex = %d [%s] [%s] %d %d\n",data.getPackedSize(),buf,data.getToTeam(),data.getSelectedFactionName().c_str(),data.getCurrentFactionIndex(),data.getToFactionIndex(),data.getNetworkPlayerLanguage().c_str(),data.getNetworkPlayerName().c_str(),data.getNetworkPlayerStatus(),data.getSwitchFlags());
+//		delete [] buf;
+
+//		int8 a = 1;
+//		uint8 b = 2;
+//		int16 c = 3;
+//		uint16 d = 4;
+//		int32 e = 5;
+//		uint32 f = 6;
+//
+//		printf("\nPack test #1: [%d][%u][%d][%u][%d][%u]\n,",a,b,c,d,e,f);
+//
+//		unsigned char *buf = new unsigned char[100];
+//		unsigned int packedsize = pack(buf, "cChHlL",
+//				a,
+//				b,
+//				c,
+//				d,
+//				e,
+//				f);
+//
+//		printf("Pack test #2: [%u][%s]\n,",packedsize,buf);
+//
+//		int8 a1 = 0;
+//		uint8 b1 = 0;
+//		int16 c1 = 0;
+//		uint16 d1 = 0;
+//		int32 e1 = 0;
+//		uint32 f1 = 0;
+//
+//		unpack(buf, "cChHlL",
+//				&a1,
+//				&b1,
+//				&c1,
+//				&d1,
+//				&e1,
+//				&f1);
+//
+//		printf("UnPack test #3: [%d][%u][%d][%u][%d][%u]\n,",a1,b1,c1,d1,e1,f1);
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED == true) {
+			int8 testVar = 111;
+			printf("\nEndian value = %d",testVar);
+			testVar = Shared::PlatformByteOrder::toCommonEndian(testVar);
+			printf("\nEndian to common value = %d",testVar);
+			testVar = Shared::PlatformByteOrder::fromCommonEndian(testVar);
+			printf("\nEndian from common value = %d",testVar);
+
+			printf("\nint8 sizeof = %zu",sizeof(int8));
+			printf("\nSwitchSetupRequest sizeof = %zu",SwitchSetupRequest().getDataSize());
+		}
 
 		printf("\nSVN: [%s]",getSVNRevisionString().c_str());
 
@@ -3246,6 +3299,11 @@ int glestMain(int argc, char** argv) {
 		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DEBUG_NETWORK_PACKETS]) == true) {
 			printf("*NOTE: debugging network packets.\n");
 			config.setBool("DebugNetworkPackets",true,true);
+		}
+
+		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_ENABLE_NEW_PROTOCOL]) == true) {
+			printf("*NOTE: enabling new newtork protocol.\n");
+			NetworkMessage::useOldProtocol = false;
 		}
 
 		Socket::setBroadCastPort(config.getInt("BroadcastPort",intToStr(Socket::getBroadCastPort()).c_str()));

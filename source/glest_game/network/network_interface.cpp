@@ -19,7 +19,7 @@
 #include "platform_util.h"
 #include <fstream>
 #include "util.h"
-
+#include "network_protocol.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Platform;
@@ -54,16 +54,16 @@ NetworkMessageType NetworkInterface::getNextMessageType()
     if(socket != NULL &&
         socket->hasDataToRead() == true) {
         //peek message type
-			int dataSize = socket->getDataToRead();
-			if(dataSize >= sizeof(messageType)) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,dataSize);
+		int dataSize = socket->getDataToRead();
+		if(dataSize >= sizeof(messageType)) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() dataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,dataSize);
 
 			int iPeek = socket->peek(&messageType, sizeof(messageType));
 
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() iPeek = %d, messageType = %d [size = %d]\n",__FILE__,__FUNCTION__,__LINE__,iPeek,messageType,sizeof(messageType));
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() iPeek = %d, messageType = %d [size = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,iPeek,messageType,sizeof(messageType));
     	}
 		else {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] PEEK WARNING, socket->getDataToRead() messageType = %d [size = %d], dataSize = %d\n",__FILE__,__FUNCTION__,__LINE__,messageType,sizeof(messageType),dataSize);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] PEEK WARNING, socket->getDataToRead() messageType = %d [size = %d], dataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,messageType,sizeof(messageType),dataSize);
 		}
 
         //sanity check new message type
@@ -72,7 +72,7 @@ NetworkMessageType NetworkInterface::getNextMessageType()
         		throw megaglest_runtime_error("Invalid message type: " + intToStr(messageType));
         	}
         	else {
-        		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Invalid message type = %d (no packet handshake yet so ignored)\n",__FILE__,__FUNCTION__,__LINE__,messageType);
+        		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Invalid message type = %d (no packet handshake yet so ignored)\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,messageType);
         	}
         }
     }
@@ -82,7 +82,7 @@ NetworkMessageType NetworkInterface::getNextMessageType()
 
 bool NetworkInterface::receiveMessage(NetworkMessage* networkMessage){
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s]\n",__FILE__,__FUNCTION__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
 
 	Socket* socket= getSocket(false);
 
@@ -95,10 +95,10 @@ bool NetworkInterface::isConnected(){
 }
 
 void NetworkInterface::DisplayErrorMessage(string sErr, bool closeSocket) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sErr [%s]\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sErr [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sErr.c_str());
+	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] sErr [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sErr.c_str());
 
-    if(closeSocket == true && getSocket() != NULL)
-    {
+    if(closeSocket == true && getSocket() != NULL) {
         close();
     }
 
@@ -124,7 +124,7 @@ std::vector<ChatMsgInfo> NetworkInterface::getChatTextList(bool clearList) {
 
 void NetworkInterface::clearChatInfo() {
 	if(chatTextList.empty() == false) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] chatTextList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,chatTextList.size());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] chatTextList.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chatTextList.size());
 		chatTextList.clear();
 	}
 }
@@ -143,7 +143,7 @@ std::vector<MarkedCell> NetworkInterface::getMarkedCellList(bool clearList) {
 
 void NetworkInterface::clearMarkedCellList() {
 	if(markedCellList.empty() == false) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] markedCellList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,markedCellList.size());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] markedCellList.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,markedCellList.size());
 		markedCellList.clear();
 	}
 }
@@ -162,7 +162,7 @@ std::vector<UnMarkedCell> NetworkInterface::getUnMarkedCellList(bool clearList) 
 
 void NetworkInterface::clearUnMarkedCellList() {
 	if(unmarkedCellList.empty() == false) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unmarkedCellList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,unmarkedCellList.size());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unmarkedCellList.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unmarkedCellList.size());
 		unmarkedCellList.clear();
 	}
 }
@@ -181,7 +181,7 @@ std::vector<MarkedCell> NetworkInterface::getHighlightedCellList(bool clearList)
 
 void NetworkInterface::clearHighlightedCellList() {
 	if(highlightedCellList.empty() == false) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] markedCellList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,markedCellList.size());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] markedCellList.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,markedCellList.size());
 		highlightedCellList.clear();
 	}
 }
