@@ -74,6 +74,7 @@ public:
     virtual void mouseMove(int x, int y, const MouseState *mouseState);
     virtual void mouseDownLeft(int x, int y);
     virtual void mouseDownRight(int x, int y);
+	virtual void mouseUpLeft(int x, int y);
 	virtual void keyDown(SDL_KeyboardEvent key);
 	virtual void keyUp(SDL_KeyboardEvent key);
 	virtual void keyPress(SDL_KeyboardEvent key);
@@ -115,6 +116,7 @@ public:
 	MenuState(Program *program, MainMenu *mainMenu, const string &stateName);
 	virtual ~MenuState();
 	virtual void mouseClick(int x, int y, MouseButton mouseButton)=0;
+	virtual void mouseUp(int x, int y, const MouseButton mouseButton){};
 	virtual void mouseMove(int x, int y, const MouseState *mouseState)=0;
 	virtual void render()=0;
 	virtual void update(){};

@@ -222,6 +222,11 @@ void MainMenu::mouseDownRight(int x, int y){
 	state->mouseClick(x, y, mbRight);
 }
 
+void MainMenu::mouseUpLeft(int x, int y){
+	if(GraphicComponent::getFade()<0.2f) return;
+	state->mouseUp(x, y, mbLeft);
+}
+
 void MainMenu::keyDown(SDL_KeyboardEvent key) {
 	state->keyDown(key);
 }

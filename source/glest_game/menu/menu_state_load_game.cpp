@@ -324,6 +324,12 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
     }
 }
 
+void MenuStateLoadGame::mouseUp(int x, int y, const MouseButton mouseButton){
+    if (mouseButton == mbLeft) {
+        slotsScrollBar.mouseUp(x, y);
+    }
+}
+
 void MenuStateLoadGame::deleteSlot(int i){
 	if(selectedButton==slots[i]){
 		selectedButton=NULL;

@@ -723,6 +723,7 @@ const int GraphicScrollBar::defLength= 200;
 GraphicScrollBar::GraphicScrollBar(std::string containerName, std::string objName)
 : GraphicComponent(containerName, objName) {
 	lighted = false;
+	activated = false;
 	horizontal = false;
 	elementCount = 0;
 	visibleSize = 0;
@@ -741,13 +742,14 @@ void GraphicScrollBar::init(int x, int y, bool horizontal,int length, int thickn
 	this->visibleStart=0;
 	this->visibleCompPosStart=0;
 	this->visibleCompPosEnd=length;
-	lighted= false;
+	activated = false;
+	lighted = false;
 }
 
 bool GraphicScrollBar::mouseDown(int x, int y) {
 	if(getVisible() && getEnabled() && getEditable())
 	{
-		if(mouseMove(x,y))
+		if(activated)
 		{
 			if( elementCount>visibleSize) {
 				int pos;
@@ -769,6 +771,11 @@ bool GraphicScrollBar::mouseDown(int x, int y) {
 		}
 	}
 	return false;
+}
+
+void GraphicScrollBar::mouseUp(int x, int y) {
+	activated = false;
+	lighted = false;
 }
 
 void GraphicScrollBar::setVisibleStart(int vs){
@@ -806,20 +813,23 @@ void GraphicScrollBar::setVisibleSize(int visibleSize){
 
 bool GraphicScrollBar::mouseClick(int x, int y){
 	bool result=GraphicComponent::mouseClick( x,  y);
-	if(result)
+	if(result) {
+		activated = true;
+		lighted = true;
 		mouseDown( x,  y);
-    return result;
+	}
+	return result;
 }
 
 
 bool GraphicScrollBar::mouseMove(int x, int y){
-	if(this->getVisible() == false) {
-		return false;
+	bool inScrollBar = GraphicComponent::mouseMove(x, y);
+	if (activated) {
+		lighted = true;
+	} else {
+		lighted = inScrollBar;
 	}
-
-	bool b= GraphicComponent::mouseMove(x, y);
-    lighted= b;
-    return b;
+	return inScrollBar;
 }
 
 int GraphicScrollBar::getLength() const {

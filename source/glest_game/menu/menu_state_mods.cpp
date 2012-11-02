@@ -2005,6 +2005,15 @@ void MenuStateMods::showRemoteDesription(ModInfo *modInfo) {
 	}
 }
 
+void MenuStateMods::mouseUp(int x, int y, const MouseButton mouseButton){
+	if (mouseButton == mbLeft) {
+		keyTechScrollBar.mouseUp(x, y);
+		keyTilesetScrollBar.mouseUp(x, y);
+		keyMapScrollBar.mouseUp(x, y);
+		keyScenarioScrollBar.mouseUp(x, y);
+	}
+}
+
 void MenuStateMods::mouseMove(int x, int y, const MouseState *ms) {
 	buttonReturn.mouseMove(x, y);
 
