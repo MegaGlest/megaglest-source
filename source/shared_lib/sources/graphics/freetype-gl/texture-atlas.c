@@ -42,6 +42,7 @@
 #include <string.h>
 #include <assert.h>
 #include <limits.h>
+#include <stdlib.h>
 #include "texture-atlas.h"
 
 #define max(a,b) (a)>(b)?(a):(b)
