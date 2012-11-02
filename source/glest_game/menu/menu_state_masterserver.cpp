@@ -588,6 +588,13 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
     }
 }
 
+void MenuStateMasterserver::mouseUp(int x, int y, const MouseButton mouseButton){
+	if (mouseButton == mbLeft) {
+		userScrollBar.mouseUp(x, y);
+		serverScrollBar.mouseUp(x, y);
+	}
+}
+
 void MenuStateMasterserver::mouseMove(int x, int y, const MouseState *ms){
 	MutexSafeWrapper safeMutex((updateFromMasterserverThread != NULL ? updateFromMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 

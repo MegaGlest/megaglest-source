@@ -304,6 +304,12 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
     }
 }
 
+void MenuStateKeysetup::mouseUp(int x, int y, const MouseButton mouseButton){
+	if (mouseButton == mbLeft) {
+		keyScrollBar.mouseUp(x, y);
+	}
+}
+
 void MenuStateKeysetup::mouseMove(int x, int y, const MouseState *ms){
     buttonReturn.mouseMove(x, y);
     buttonOk.mouseMove(x, y);
