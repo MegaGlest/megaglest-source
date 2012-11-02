@@ -3423,7 +3423,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 		if(masterserver_admin_found == false)
 		{
-			labelGameName.setText("headless("+defaultPlayerName+")");
+			labelGameName.setText("Headless: "+defaultPlayerName);
 		}
 	}
 
