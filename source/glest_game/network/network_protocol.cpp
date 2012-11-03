@@ -257,9 +257,12 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 	char *s;                    // strings
 	uint16 len;
 
-	uint16 size = 0;
+	unsigned int size = 0;
 
 	uint16 maxstrlen=0, count;
+
+	unsigned char *bufStart = buf;
+
 	va_start(ap, format);
 
 	for(; *format != '\0'; format++) {
@@ -269,7 +272,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			c = (int8)va_arg(ap, int); // promoted
 			*buf++ = c;
 
-			printf("pack int8 = %d [%X] c = %d [%X] \n",*(buf-1),*(buf-1),c,c);
+			printf("pack int8 = %d [%X] c = %d [%X] buf pos = %d\n",*(buf-1),*(buf-1),c,c,(buf - bufStart));
 			break;
 
 		case 'C': // 8-bit unsigned
@@ -277,7 +280,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			C = (uint8)va_arg(ap, unsigned int); // promoted
 			*buf++ = C;
 
-			printf("pack uint8 = %u [%X] C = %u [%X] \n",*(buf-1),*(buf-1),C,C);
+			printf("pack uint8 = %u [%X] C = %u [%X] buf pos = %d\n",*(buf-1),*(buf-1),C,C,(buf - bufStart));
 			break;
 
 		case 'h': // 16-bit
@@ -286,7 +289,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			packi16(buf, h);
 			buf += 2;
 
-			printf("pack int16 = %d [%X] h = %d [%X] \n",*(buf-2),*(buf-2),h,h);
+			printf("pack int16 = %d [%X] h = %d [%X] buf pos = %d\n",*(buf-2),*(buf-2),h,h,(buf - bufStart));
 			break;
 
 		case 'H': // 16-bit unsigned
@@ -295,7 +298,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			packi16(buf, H);
 			buf += 2;
 
-			printf("pack uint16 = %u [%X] H = %u [%X] \n",*(buf-2),*(buf-2),H,H);
+			printf("pack uint16 = %u [%X] H = %u [%X] buf pos = %d\n",*(buf-2),*(buf-2),H,H,(buf - bufStart));
 			break;
 
 		case 'l': // 32-bit
@@ -304,7 +307,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			packi32(buf, l);
 			buf += 4;
 
-			printf("pack int32 = %d [%X] l = %d [%X] \n",*(buf-4),*(buf-4),l,l);
+			printf("pack int32 = %d [%X] l = %d [%X] buf pos = %d\n",*(buf-4),*(buf-4),l,l,(buf - bufStart));
 			break;
 
 		case 'L': // 32-bit unsigned
@@ -313,7 +316,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			packi32(buf, L);
 			buf += 4;
 
-			printf("pack uint32 = %u [%X] L = %u [%X] \n",*(buf-4),*(buf-4),L,L);
+			printf("pack uint32 = %u [%X] L = %u [%X] buf pos = %d\n",*(buf-4),*(buf-4),L,L,(buf - bufStart));
 			break;
 
 		case 'q': // 64-bit
@@ -322,7 +325,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			packi64(buf, q);
 			buf += 8;
 
-			printf("pack int64 = %ld [%X] q = %ld [%lX] \n",*(buf-8),*(buf-8),q,q);
+			printf("pack int64 = %ld [%X] q = %ld [%lX] buf pos = %d\n",*(buf-8),*(buf-8),q,q,(buf - bufStart));
 			break;
 
 		case 'Q': // 64-bit unsigned
@@ -331,7 +334,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			packi64(buf, Q);
 			buf += 8;
 
-			printf("pack uint64 = %lu [%X] Q = %lu [%X] \n",*(buf-8),*(buf-8),Q,Q);
+			printf("pack uint64 = %lu [%X] Q = %lu [%X] buf pos = %d\n",*(buf-8),*(buf-8),Q,Q,(buf - bufStart));
 			break;
 
 		case 'f': // float-16
@@ -369,7 +372,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			buf += 2;
 
 			memcpy(buf, s, len);
-			printf("pack string size = %d [%X] len = %d str [%s]\n",*(buf-2),*(buf-2),len,s);
+			printf("pack string size = %d [%X] len = %d str [%s] buf pos = %d\n",*(buf-2),*(buf-2),len,s,(buf - bufStart));
 
 			buf += len;
 			break;
@@ -426,7 +429,9 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 	char *s;
 	uint16 len, maxstrlen=0, count;
 
-	uint16 size = 0;
+	unsigned int size = 0;
+
+	unsigned char *bufStart = buf;
 
 	va_start(ap, format);
 
@@ -444,7 +449,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			*c = *buf++;
 			size += 1;
 
-			printf("unpack int8 = %d [%X] c = %d [%X] c2 = %d [%X]\n",*(buf-1),*(buf-1),*c,*c, (-1 - (uint8)(0xffu - *(buf-1))),(-1 - (uint8)(0xffu - *(buf-1))));
+			printf("unpack int8 = %d [%X] c = %d [%X] buf pos = %d\n",*(buf-1),*(buf-1),*c,*c,(buf - bufStart));
 			break;
 
 		case 'C': // 8-bit unsigned
@@ -452,7 +457,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			*C = *buf++;
 			size += 1;
 
-			printf("unpack uint8 = %u [%X] C = %u [%X] \n",*(buf-1),*(buf-1),*C,*C);
+			printf("unpack uint8 = %u [%X] C = %u [%X] buf pos = %d\n",*(buf-1),*(buf-1),*C,*C,(buf - bufStart));
 			break;
 
 		case 'h': // 16-bit
@@ -461,7 +466,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			buf += 2;
 			size += 2;
 
-			printf("unpack int16 = %d [%X] h = %d [%X] \n",*(buf-2),*(buf-2),*h,*h);
+			printf("unpack int16 = %d [%X] h = %d [%X] buf pos = %d\n",*(buf-2),*(buf-2),*h,*h,(buf - bufStart));
 			break;
 
 		case 'H': // 16-bit unsigned
@@ -470,7 +475,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			buf += 2;
 			size += 2;
 
-			printf("unpack uint16 = %u [%X] H = %u [%X] \n",*(buf-2),*(buf-2),*H,*H);
+			printf("unpack uint16 = %u [%X] H = %u [%X] buf pos = %d\n",*(buf-2),*(buf-2),*H,*H,(buf - bufStart));
 			break;
 
 		case 'l': // 32-bit
@@ -479,7 +484,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			buf += 4;
 			size += 4;
 
-			printf("unpack int32 = %d [%X] l = %d [%X] \n",*(buf-4),*(buf-4),*l,*l);
+			printf("unpack int32 = %d [%X] l = %d [%X] buf pos = %d\n",*(buf-4),*(buf-4),*l,*l,(buf - bufStart));
 			break;
 
 		case 'L': // 32-bit unsigned
@@ -488,7 +493,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			buf += 4;
 			size += 4;
 
-			printf("unpack uint32 = %u [%X] L = %u [%X] \n",*(buf-4),*(buf-4),*L,*L);
+			printf("unpack uint32 = %u [%X] L = %u [%X] buf pos = %d\n",*(buf-4),*(buf-4),*L,*L,(buf - bufStart));
 			break;
 
 		case 'q': // 64-bit
@@ -497,7 +502,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			buf += 8;
 			size += 8;
 
-			printf("unpack int64 = %ld [%X] q = %ld [%X] \n",*(buf-8),*(buf-8),*q,*q);
+			printf("unpack int64 = %ld [%X] q = %ld [%X] buf pos = %d\n",*(buf-8),*(buf-8),*q,*q,(buf - bufStart));
 			break;
 
 		case 'Q': // 64-bit unsigned
@@ -506,7 +511,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			buf += 8;
 			size += 8;
 
-			printf("unpack uint64 = %lu [%X] Q = %lu [%X] \n",*(buf-8),*(buf-8),*Q,*Q);
+			printf("unpack uint64 = %lu [%X] Q = %lu [%X] buf pos = %d\n",*(buf-8),*(buf-8),*Q,*Q,(buf - bufStart));
 			break;
 
 		case 'f': // float
@@ -544,7 +549,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 
 			memcpy(s, buf, count);
 			s[count] = '\0';
-			printf("unpack string size = %d [%X] count = %d len = %d str [%s]\n",*(buf-2),*(buf-2),count,len,s);
+			printf("unpack string size = %d [%X] count = %d len = %d str [%s] buf pos = %d\n",*(buf-2),*(buf-2),count,len,s,(buf - bufStart));
 
 			buf += len;
 			size += len;

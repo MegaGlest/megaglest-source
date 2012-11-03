@@ -165,6 +165,7 @@ void NetworkMessageIntro::unpackMessage(unsigned char *buf) {
 			&data.externalIp,
 			&data.ftpPort,
 			data.language.getBuffer());
+	printf("In [%s] unpacked data:\n%s\n",__FUNCTION__,this->toString().c_str());
 }
 
 unsigned char * NetworkMessageIntro::packMessage() {
