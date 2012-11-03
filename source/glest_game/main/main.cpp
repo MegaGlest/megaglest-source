@@ -3087,9 +3087,10 @@ int glestMain(int argc, char** argv) {
 		data.dump_packet("Send data", buf, data.getPackedSize());
 		//delete [] buf;
 
-		data.unpackMessage(buf);
-		printf("\nReceive packet size = %u\n%s\n",data.getPackedSize(),data.toString().c_str());
-		data.dump_packet("nReceive data", buf, data.getPackedSize());
+		NetworkMessageIntro data2;
+		data2.unpackMessage(buf);
+		printf("\nReceive packet size = %u\n%s\n",data2.getPackedSize(),data2.toString().c_str());
+		data2.dump_packet("nReceive data", buf, data2.getPackedSize());
 		delete [] buf;
 
 //		SwitchSetupRequest data("factionname", 3,-1,2,"softcoder",10, 11,"eng");
