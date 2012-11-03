@@ -12,6 +12,7 @@
 #include <stdarg.h>
 #include <cstring>
 #include <ctype.h>
+#include <stdio.h>
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -122,9 +123,14 @@ int unpacki16(unsigned char *buf)
 	int i;
 
 	// change unsigned numbers to signed
-	//if (i2 <= 0x7fffu) { i = i2; }
-	//else { i = -1 - (unsigned int)(0xffffu - i2); }
-	i = i2;
+	if (i2 <= 0x7fffu) {
+		i = i2;
+	}
+	else {
+		i = -1 - (unsigned int)(0xffffu - i2);
+		printf("IN [%s] [%d] [%d] [%d] [%u]\n",__FUNCTION__,buf[0],buf[1],i,i2);
+	}
+
 	return i;
 }
 
@@ -148,9 +154,14 @@ long int unpacki32(unsigned char *buf)
 	long int i;
 
 	// change unsigned numbers to signed
-	//if (i2 <= 0x7fffffffu) { i = i2; }
-	//else { i = -1 - (long int)(0xffffffffu - i2); }
-	i = i2;
+	if (i2 <= 0x7fffffffu) {
+		i = i2;
+	}
+	else {
+		i = -1 - (long int)(0xffffffffu - i2);
+		printf("IN [%s] [%d] [%d] [%d] [%d] [%ld] [%lu]\n",__FUNCTION__,buf[0],buf[1],buf[2],buf[3],i,i2);
+	}
+
 	return i;
 }
 
@@ -181,9 +192,14 @@ long long int unpacki64(unsigned char *buf)
 	long long int i;
 
 	// change unsigned numbers to signed
-	//if (i2 <= 0x7fffffffffffffffu) { i = i2; }
-	//else { i = -1 -(long long int)(0xffffffffffffffffu - i2); }
-	i = i2;
+	if (i2 <= 0x7fffffffffffffffu) {
+		i = i2;
+	}
+	else {
+		i = -1 -(long long int)(0xffffffffffffffffu - i2);
+		printf("IN [%s] [%d] [%d] [%d] [%d] [%d] [%d] [%d] [%d] [%lld] [%llu]\n",__FUNCTION__,buf[0],buf[1],buf[2],buf[3],buf[4],buf[5],buf[6],buf[7],i,i2);
+	}
+
 	return i;
 }
 
@@ -248,7 +264,6 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 		switch(*format) {
 		case 'c': // 8-bit
 			size += 1;
-			//c = (signed char)va_arg(ap, int); // promoted
 			c = (signed char)va_arg(ap, int); // promoted
 			*buf++ = c;
 			break;
@@ -399,6 +414,8 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 		switch(*format) {
 		case 'c': // 8-bit
 			c = va_arg(ap, signed char*);
+
+			printf("unpack int8 = %d [%X]\n",*buf,*buf);
 //			if (*buf <= 0x7f) {
 //				*c = *buf++;
 //				size += 1;
