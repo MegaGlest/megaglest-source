@@ -122,9 +122,9 @@ int unpacki16(unsigned char *buf)
 	int i;
 
 	// change unsigned numbers to signed
-	if (i2 <= 0x7fffu) { i = i2; }
-	else { i = -1 - (unsigned int)(0xffffu - i2); }
-
+	//if (i2 <= 0x7fffu) { i = i2; }
+	//else { i = -1 - (unsigned int)(0xffffu - i2); }
+	i = i2;
 	return i;
 }
 
@@ -148,9 +148,9 @@ long int unpacki32(unsigned char *buf)
 	long int i;
 
 	// change unsigned numbers to signed
-	if (i2 <= 0x7fffffffu) { i = i2; }
-	else { i = -1 - (long int)(0xffffffffu - i2); }
-
+	//if (i2 <= 0x7fffffffu) { i = i2; }
+	//else { i = -1 - (long int)(0xffffffffu - i2); }
+	i = i2;
 	return i;
 }
 
@@ -181,9 +181,9 @@ long long int unpacki64(unsigned char *buf)
 	long long int i;
 
 	// change unsigned numbers to signed
-	if (i2 <= 0x7fffffffffffffffu) { i = i2; }
-	else { i = -1 -(long long int)(0xffffffffffffffffu - i2); }
-
+	//if (i2 <= 0x7fffffffffffffffu) { i = i2; }
+	//else { i = -1 -(long long int)(0xffffffffffffffffu - i2); }
+	i = i2;
 	return i;
 }
 
@@ -248,6 +248,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 		switch(*format) {
 		case 'c': // 8-bit
 			size += 1;
+			//c = (signed char)va_arg(ap, int); // promoted
 			c = (signed char)va_arg(ap, int); // promoted
 			*buf++ = c;
 			break;
