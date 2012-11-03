@@ -3082,6 +3082,22 @@ int glestMain(int argc, char** argv) {
 
 		printf("\n\nData type sizes int8 = %zu int16 = %zu int32 = %zu int64 = %zu\n\n",sizeof(int8),sizeof(int16),sizeof(int32),sizeof(int64));
 
+		unsigned char dataBuf[20]="";
+		unsigned char *dataBufPtr = &dataBuf[0];
+		memset(dataBufPtr,0,20);
+		int8 dataTest = 1;
+
+		int8 c = (int8)((int)dataTest); // promoted
+		*dataBufPtr++ = c;
+
+		printf("\n#1 Test dataTest = %d, c = %d dataBuf [%d,%d,%d,%d,%d,%d,%d,%d]\n",dataTest,c,dataBuf[0],dataBuf[1],dataBuf[2],dataBuf[3],dataBuf[4],dataBuf[5],dataBuf[6],dataBuf[7]);
+
+		dataBufPtr = &dataBuf[0];
+		int8 *cPtr = ((int8*)dataBufPtr);
+		*cPtr = *dataBufPtr++;
+
+		printf("#2 Test dataTest = %d, cPtr = %d dataBuf [%d,%d,%d,%d,%d,%d,%d,%d]\n",dataTest,*cPtr,dataBuf[0],dataBuf[1],dataBuf[2],dataBuf[3],dataBuf[4],dataBuf[5],dataBuf[6],dataBuf[7]);
+
 		Config::getInstance().setBool("DebugNetworkPackets",true,true);
 		NetworkMessageIntro data(424336, "mg_version_x","player_x", 3, nmgstOk,444444, 555555, "english");
 		unsigned char *buf = data.packMessage();
