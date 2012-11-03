@@ -255,11 +255,11 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 	unsigned long long int fhold;
 
 	char *s;                    // strings
-	unsigned int len;
+	uint16 len;
 
-	unsigned int size = 0;
+	uint16 size = 0;
 
-	unsigned int maxstrlen=0, count;
+	uint16 maxstrlen=0, count;
 	va_start(ap, format);
 
 	for(; *format != '\0'; format++) {
@@ -276,6 +276,8 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			size += 1;
 			C = (uint8)va_arg(ap, unsigned int); // promoted
 			*buf++ = C;
+
+			printf("pack uint8 = %u [%X] C = %u [%X] \n",*(buf-1),*(buf-1),C,C);
 			break;
 
 		case 'h': // 16-bit
@@ -283,6 +285,8 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			h = (int16)va_arg(ap, int);
 			packi16(buf, h);
 			buf += 2;
+
+			printf("pack int16 = %d [%X] h = %d [%X] \n",*(buf-2),*(buf-2),h,h);
 			break;
 
 		case 'H': // 16-bit unsigned
@@ -290,6 +294,8 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			H = (uint16)va_arg(ap, unsigned int);
 			packi16(buf, H);
 			buf += 2;
+
+			printf("pack uint16 = %u [%X] H = %u [%X] \n",*(buf-2),*(buf-2),H,H);
 			break;
 
 		case 'l': // 32-bit
@@ -297,6 +303,8 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			l = va_arg(ap, int32);
 			packi32(buf, l);
 			buf += 4;
+
+			printf("pack int32 = %d [%X] l = %d [%X] \n",*(buf-4),*(buf-4),l,l);
 			break;
 
 		case 'L': // 32-bit unsigned
@@ -304,6 +312,8 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			L = va_arg(ap, uint32);
 			packi32(buf, L);
 			buf += 4;
+
+			printf("pack uint32 = %u [%X] L = %u [%X] \n",*(buf-4),*(buf-4),L,L);
 			break;
 
 		case 'q': // 64-bit
@@ -311,6 +321,8 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			q = va_arg(ap, int64);
 			packi64(buf, q);
 			buf += 8;
+
+			printf("pack int64 = %ld [%X] q = %ld [%lX] \n",*(buf-8),*(buf-8),q,q);
 			break;
 
 		case 'Q': // 64-bit unsigned
@@ -318,6 +330,8 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			Q = va_arg(ap, uint64);
 			packi64(buf, Q);
 			buf += 8;
+
+			printf("pack uint64 = %lu [%X] Q = %lu [%X] \n",*(buf-8),*(buf-8),Q,Q);
 			break;
 
 		case 'f': // float-16
@@ -355,6 +369,8 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			buf += 2;
 
 			memcpy(buf, s, len);
+			printf("pack string size = %d [%X] len = %d str [%s]\n",*(buf-2),*(buf-2),len,s);
+
 			buf += len;
 			break;
 
@@ -408,9 +424,9 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 	unsigned long long int fhold;
 
 	char *s;
-	unsigned int len, maxstrlen=0, count;
+	uint16 len, maxstrlen=0, count;
 
-	unsigned int size = 0;
+	uint16 size = 0;
 
 	va_start(ap, format);
 
@@ -435,6 +451,8 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			C = va_arg(ap, uint8*);
 			*C = *buf++;
 			size += 1;
+
+			printf("unpack uint8 = %u [%X] C = %u [%X] \n",*(buf-1),*(buf-1),*C,*C);
 			break;
 
 		case 'h': // 16-bit
@@ -442,6 +460,8 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			*h = unpacki16(buf);
 			buf += 2;
 			size += 2;
+
+			printf("unpack int16 = %d [%X] h = %d [%X] \n",*(buf-2),*(buf-2),*h,*h);
 			break;
 
 		case 'H': // 16-bit unsigned
@@ -449,6 +469,8 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			*H = unpacku16(buf);
 			buf += 2;
 			size += 2;
+
+			printf("unpack uint16 = %u [%X] H = %u [%X] \n",*(buf-2),*(buf-2),*H,*H);
 			break;
 
 		case 'l': // 32-bit
@@ -456,6 +478,8 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			*l = unpacki32(buf);
 			buf += 4;
 			size += 4;
+
+			printf("unpack int32 = %d [%X] l = %d [%X] \n",*(buf-4),*(buf-4),*l,*l);
 			break;
 
 		case 'L': // 32-bit unsigned
@@ -463,6 +487,8 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			*L = unpacku32(buf);
 			buf += 4;
 			size += 4;
+
+			printf("unpack uint32 = %u [%X] L = %u [%X] \n",*(buf-4),*(buf-4),*L,*L);
 			break;
 
 		case 'q': // 64-bit
@@ -470,6 +496,8 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			*q = unpacki64(buf);
 			buf += 8;
 			size += 8;
+
+			printf("unpack int64 = %ld [%X] q = %ld [%X] \n",*(buf-8),*(buf-8),*q,*q);
 			break;
 
 		case 'Q': // 64-bit unsigned
@@ -477,6 +505,8 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			*Q = unpacku64(buf);
 			buf += 8;
 			size += 8;
+
+			printf("unpack uint64 = %lu [%X] Q = %lu [%X] \n",*(buf-8),*(buf-8),*Q,*Q);
 			break;
 
 		case 'f': // float
@@ -511,8 +541,11 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 				count = maxstrlen - 1;
 			else
 				count = len;
+
 			memcpy(s, buf, count);
 			s[count] = '\0';
+			printf("unpack string size = %d [%X] count = %d len = %d str [%s]\n",*(buf-2),*(buf-2),count,len,s);
+
 			buf += len;
 			size += len;
 			break;

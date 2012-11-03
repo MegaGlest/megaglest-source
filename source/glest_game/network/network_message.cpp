@@ -154,6 +154,7 @@ unsigned int NetworkMessageIntro::getPackedSize() {
 	return result;
 }
 void NetworkMessageIntro::unpackMessage(unsigned char *buf) {
+	printf("\nIn [%s] about to unpack...\n",__FUNCTION__);
 	unpack(buf, getPackedMessageFormat(),
 			&data.messageType,
 			&data.sessionId,
@@ -168,6 +169,8 @@ void NetworkMessageIntro::unpackMessage(unsigned char *buf) {
 
 unsigned char * NetworkMessageIntro::packMessage() {
 	unsigned char *buf = new unsigned char[getPackedSize()+1];
+
+	printf("\nIn [%s] about to pack...\n",__FUNCTION__);
 	pack(buf, getPackedMessageFormat(),
 			data.messageType,
 			data.sessionId,
