@@ -17,5 +17,7 @@ do
   -e 's/\s*$//' \
   -e 's/  / /g' \
   -e 's/⏎ /\\n/g' \
+  -e 's/ \\n/\\n/g' \
+  -e 's/\\n /\\n/g' \
   $file
 done
