@@ -270,7 +270,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 		case 'c': // 8-bit
 			size += 1;
 			c = (int8)va_arg(ap, int); // promoted
-			*buf++ = (unsigned char)c;
+			*buf++ = reinterpret_cast<unsigned char&>(c);
 
 			printf("pack int8 = %d [%X] c = %d [%X] buf pos = %d\n",*(buf-1),*(buf-1),c,c,(buf - bufStart));
 			break;
@@ -278,7 +278,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 		case 'C': // 8-bit unsigned
 			size += 1;
 			C = (uint8)va_arg(ap, unsigned int); // promoted
-			*buf++ = (unsigned char)C;
+			*buf++ = reinterpret_cast<unsigned char&>(C);
 
 			printf("pack uint8 = %u [%X] C = %u [%X] buf pos = %d\n",*(buf-1),*(buf-1),C,C,(buf - bufStart));
 			break;
@@ -286,7 +286,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 		case 'h': // 16-bit
 			size += 2;
 			h = (int16)va_arg(ap, int);
-			packi16(buf, h);
+			packi16(buf, reinterpret_cast<uint16&>(h));
 			buf += 2;
 
 			printf("pack int16 = %d [%X] h = %d [%X] buf pos = %d\n",*(buf-2),*(buf-2),h,h,(buf - bufStart));
@@ -304,7 +304,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 		case 'l': // 32-bit
 			size += 4;
 			l = va_arg(ap, int32);
-			packi32(buf, l);
+			packi32(buf, reinterpret_cast<uint32&>(l));
 			buf += 4;
 
 			printf("pack int32 = %d [%X] l = %d [%X] buf pos = %d\n",*(buf-4),*(buf-4),l,l,(buf - bufStart));
@@ -322,7 +322,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 		case 'q': // 64-bit
 			size += 8;
 			q = va_arg(ap, int64);
-			packi64(buf, q);
+			packi64(buf, reinterpret_cast<uint64&>(q));
 			buf += 8;
 
 			printf("pack int64 = %ld [%X] q = %ld [%lX] buf pos = %d\n",*(buf-8),*(buf-8),q,q,(buf - bufStart));
@@ -446,7 +446,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 //			else {
 //				*c = -1 - (unsigned char)(0xffu - *buf);
 //			}
-			*c = (int8)*buf++;
+			*c = reinterpret_cast<signed char&>(*buf++);
 			size += 1;
 
 			printf("unpack int8 = %d [%X] c = %d [%X] buf pos = %d\n",*(buf-1),*(buf-1),*c,*c,(buf - bufStart));
@@ -454,7 +454,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 
 		case 'C': // 8-bit unsigned
 			C = va_arg(ap, uint8*);
-			*C = (uint8)*buf++;
+			*C = reinterpret_cast<unsigned char&>(*buf++);
 			size += 1;
 
 			printf("unpack uint8 = %u [%X] C = %u [%X] buf pos = %d\n",*(buf-1),*(buf-1),*C,*C,(buf - bufStart));
