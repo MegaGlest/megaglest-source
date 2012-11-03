@@ -266,6 +266,8 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			size += 1;
 			c = (signed char)va_arg(ap, int); // promoted
 			*buf++ = c;
+
+			printf("pack int8 = %d [%X] c = %d [%X] \n",*(buf-1),*(buf-1),c,c);
 			break;
 
 		case 'C': // 8-bit unsigned
@@ -424,7 +426,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			*c = *buf++;
 			size += 1;
 
-			printf("unpack int8 = %d [%X] c = %d [%X] c2 = %d [%X]\n",*(buf-1),*(buf-1),*c,(-1 - (unsigned char)(0xffu - *(buf-1))));
+			printf("unpack int8 = %d [%X] c = %d [%X] c2 = %d [%X]\n",*(buf-1),*(buf-1),*c,*c, (-1 - (unsigned char)(0xffu - *(buf-1))),(-1 - (unsigned char)(0xffu - *(buf-1))));
 			break;
 
 		case 'C': // 8-bit unsigned
