@@ -13,8 +13,10 @@
 #include <cstring>
 #include <ctype.h>
 #include <stdio.h>
+#include "data_types.h"
 #include "leak_dumper.h"
 
+using namespace Shared::Platform;
 namespace Glest{ namespace Game{
 
 // macros for packing floats and doubles:
@@ -89,7 +91,7 @@ long double unpack754(unsigned long long int i, unsigned bits, unsigned expbits)
 /*
 ** packi16() -- store a 16-bit int into a char buffer (like htons())
 */
-void packi16(unsigned char *buf, unsigned int i)
+void packi16(unsigned char *buf, uint16 i)
 {
 	*buf++ = i>>8; *buf++ = i;
 }
@@ -97,7 +99,7 @@ void packi16(unsigned char *buf, unsigned int i)
 /*
 ** packi32() -- store a 32-bit int into a char buffer (like htonl())
 */
-void packi32(unsigned char *buf, unsigned long int i)
+void packi32(unsigned char *buf, uint32 i)
 {
 	*buf++ = i>>24; *buf++ = i>>16;
 	*buf++ = i>>8;  *buf++ = i;
@@ -106,7 +108,7 @@ void packi32(unsigned char *buf, unsigned long int i)
 /*
 ** packi64() -- store a 64-bit int into a char buffer (like htonl())
 */
-void packi64(unsigned char *buf, unsigned long long int i)
+void packi64(unsigned char *buf, uint64 i)
 {
 	*buf++ = i>>56; *buf++ = i>>48;
 	*buf++ = i>>40; *buf++ = i>>32;
@@ -117,17 +119,17 @@ void packi64(unsigned char *buf, unsigned long long int i)
 /*
 ** unpacki16() -- unpack a 16-bit int from a char buffer (like ntohs())
 */
-int unpacki16(unsigned char *buf)
+int16 unpacki16(unsigned char *buf)
 {
-	unsigned int i2 = ((unsigned int)buf[0]<<8) | buf[1];
-	int i;
+	uint16 i2 = ((uint16)buf[0]<<8) | buf[1];
+	int16 i;
 
 	// change unsigned numbers to signed
 	if (i2 <= 0x7fffu) {
 		i = i2;
 	}
 	else {
-		i = -1 - (unsigned int)(0xffffu - i2);
+		i = -1 - (uint16)(0xffffu - i2);
 		printf("IN [%s] [%d] [%d] [%d] [%u]\n",__FUNCTION__,buf[0],buf[1],i,i2);
 	}
 
@@ -137,29 +139,29 @@ int unpacki16(unsigned char *buf)
 /*
 ** unpacku16() -- unpack a 16-bit unsigned from a char buffer (like ntohs())
 */
-unsigned int unpacku16(unsigned char *buf)
+uint16 unpacku16(unsigned char *buf)
 {
-	return ((unsigned int)buf[0]<<8) | buf[1];
+	return ((uint16)buf[0]<<8) | buf[1];
 }
 
 /*
 ** unpacki32() -- unpack a 32-bit int from a char buffer (like ntohl())
 */
-long int unpacki32(unsigned char *buf)
+int32 unpacki32(unsigned char *buf)
 {
-	unsigned long int i2 = ((unsigned long int)buf[0]<<24) |
-	                       ((unsigned long int)buf[1]<<16) |
-	                       ((unsigned long int)buf[2]<<8)  |
-	                       buf[3];
-	long int i;
+	uint32 i2 = ((uint32)buf[0]<<24) |
+	            ((uint32)buf[1]<<16) |
+	            ((uint32)buf[2]<<8)  |
+	                     buf[3];
+	int32 i;
 
 	// change unsigned numbers to signed
 	if (i2 <= 0x7fffffffu) {
 		i = i2;
 	}
 	else {
-		i = -1 - (long int)(0xffffffffu - i2);
-		printf("IN [%s] [%d] [%d] [%d] [%d] [%ld] [%lu]\n",__FUNCTION__,buf[0],buf[1],buf[2],buf[3],i,i2);
+		i = -1 - (int32)(0xffffffffu - i2);
+		printf("IN [%s] [%d] [%d] [%d] [%d] [%d] [%u]\n",__FUNCTION__,buf[0],buf[1],buf[2],buf[3],i,i2);
 	}
 
 	return i;
@@ -168,36 +170,36 @@ long int unpacki32(unsigned char *buf)
 /*
 ** unpacku32() -- unpack a 32-bit unsigned from a char buffer (like ntohl())
 */
-unsigned long int unpacku32(unsigned char *buf)
+uint32 unpacku32(unsigned char *buf)
 {
-	return ((unsigned long int)buf[0]<<24) |
-	       ((unsigned long int)buf[1]<<16) |
-	       ((unsigned long int)buf[2]<<8)  |
+	return ((uint32)buf[0]<<24) |
+	       ((uint32)buf[1]<<16) |
+	       ((uint32)buf[2]<<8)  |
 	       buf[3];
 }
 
 /*
 ** unpacki64() -- unpack a 64-bit int from a char buffer (like ntohl())
 */
-long long int unpacki64(unsigned char *buf)
+int64 unpacki64(unsigned char *buf)
 {
-	unsigned long long int i2 = ((unsigned long long int)buf[0]<<56) |
-	                            ((unsigned long long int)buf[1]<<48) |
-	                            ((unsigned long long int)buf[2]<<40) |
-	                            ((unsigned long long int)buf[3]<<32) |
-	                            ((unsigned long long int)buf[4]<<24) |
-	                            ((unsigned long long int)buf[5]<<16) |
-	                            ((unsigned long long int)buf[6]<<8)  |
-	                            buf[7];
-	long long int i;
+	uint64 i2 = ((uint64)buf[0]<<56) |
+	              ((uint64)buf[1]<<48) |
+	              ((uint64)buf[2]<<40) |
+	              ((uint64)buf[3]<<32) |
+	              ((uint64)buf[4]<<24) |
+	              ((uint64)buf[5]<<16) |
+	              ((uint64)buf[6]<<8)  |
+	                       buf[7];
+	int64 i;
 
 	// change unsigned numbers to signed
 	if (i2 <= 0x7fffffffffffffffu) {
 		i = i2;
 	}
 	else {
-		i = -1 -(long long int)(0xffffffffffffffffu - i2);
-		printf("IN [%s] [%d] [%d] [%d] [%d] [%d] [%d] [%d] [%d] [%lld] [%llu]\n",__FUNCTION__,buf[0],buf[1],buf[2],buf[3],buf[4],buf[5],buf[6],buf[7],i,i2);
+		i = -1 -(int64)(0xffffffffffffffffu - i2);
+		printf("IN [%s] [%d] [%d] [%d] [%d] [%d] [%d] [%d] [%d] [%ld] [%lu]\n",__FUNCTION__,buf[0],buf[1],buf[2],buf[3],buf[4],buf[5],buf[6],buf[7],i,i2);
 	}
 
 	return i;
@@ -206,15 +208,15 @@ long long int unpacki64(unsigned char *buf)
 /*
 ** unpacku64() -- unpack a 64-bit unsigned from a char buffer (like ntohl())
 */
-unsigned long long int unpacku64(unsigned char *buf)
+uint64 unpacku64(unsigned char *buf)
 {
-	return ((unsigned long long int)buf[0]<<56) |
-	       ((unsigned long long int)buf[1]<<48) |
-	       ((unsigned long long int)buf[2]<<40) |
-	       ((unsigned long long int)buf[3]<<32) |
-	       ((unsigned long long int)buf[4]<<24) |
-	       ((unsigned long long int)buf[5]<<16) |
-	       ((unsigned long long int)buf[6]<<8)  |
+	return ((uint64)buf[0]<<56) |
+	       ((uint64)buf[1]<<48) |
+	       ((uint64)buf[2]<<40) |
+	       ((uint64)buf[3]<<32) |
+	       ((uint64)buf[4]<<24) |
+	       ((uint64)buf[5]<<16) |
+	       ((uint64)buf[6]<<8)  |
 	       buf[7];
 }
 
@@ -235,17 +237,17 @@ unsigned long long int unpacku64(unsigned char *buf)
 unsigned int pack(unsigned char *buf, const char *format, ...) {
 	va_list ap;
 
-	signed char c;              // 8-bit
-	unsigned char C;
+	int8 c;              // 8-bit
+	uint8 C;
 
-	int h;                      // 16-bit
-	unsigned int H;
+	int16 h;                      // 16-bit
+	uint16 H;
 
-	long int l;                 // 32-bit
-	unsigned long int L;
+	int32 l;                 // 32-bit
+	uint32 L;
 
-	long long int q;            // 64-bit
-	unsigned long long int Q;
+	int64 q;            // 64-bit
+	uint64 Q;
 
 	float f;                    // floats
 	double d;
@@ -264,7 +266,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 		switch(*format) {
 		case 'c': // 8-bit
 			size += 1;
-			c = (signed char)va_arg(ap, int); // promoted
+			c = (int8)va_arg(ap, int); // promoted
 			*buf++ = c;
 
 			printf("pack int8 = %d [%X] c = %d [%X] \n",*(buf-1),*(buf-1),c,c);
@@ -272,48 +274,48 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 
 		case 'C': // 8-bit unsigned
 			size += 1;
-			C = (unsigned char)va_arg(ap, unsigned int); // promoted
+			C = (uint8)va_arg(ap, unsigned int); // promoted
 			*buf++ = C;
 			break;
 
 		case 'h': // 16-bit
 			size += 2;
-			h = va_arg(ap, int);
+			h = (int16)va_arg(ap, int);
 			packi16(buf, h);
 			buf += 2;
 			break;
 
 		case 'H': // 16-bit unsigned
 			size += 2;
-			H = va_arg(ap, unsigned int);
+			H = (uint16)va_arg(ap, unsigned int);
 			packi16(buf, H);
 			buf += 2;
 			break;
 
 		case 'l': // 32-bit
 			size += 4;
-			l = va_arg(ap, long int);
+			l = va_arg(ap, int32);
 			packi32(buf, l);
 			buf += 4;
 			break;
 
 		case 'L': // 32-bit unsigned
 			size += 4;
-			L = va_arg(ap, unsigned long int);
+			L = va_arg(ap, uint32);
 			packi32(buf, L);
 			buf += 4;
 			break;
 
 		case 'q': // 64-bit
 			size += 8;
-			q = va_arg(ap, long long int);
+			q = va_arg(ap, int64);
 			packi64(buf, q);
 			buf += 8;
 			break;
 
 		case 'Q': // 64-bit unsigned
 			size += 8;
-			Q = va_arg(ap, unsigned long long int);
+			Q = va_arg(ap, uint64);
 			packi64(buf, Q);
 			buf += 8;
 			break;
@@ -388,17 +390,17 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 unsigned int unpack(unsigned char *buf, const char *format, ...) {
 	va_list ap;
 
-	signed char *c;              // 8-bit
-	unsigned char *C;
+	int8 *c;              // 8-bit
+	uint8 *C;
 
-	int *h;                      // 16-bit
-	unsigned int *H;
+	int16 *h;                      // 16-bit
+	uint16 *H;
 
-	long int *l;                 // 32-bit
-	unsigned long int *L;
+	int32 *l;                 // 32-bit
+	uint32 *L;
 
-	long long int *q;            // 64-bit
-	unsigned long long int *Q;
+	int64 *q;            // 64-bit
+	uint64 *Q;
 
 	float *f;                    // floats
 	double *d;
@@ -415,7 +417,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 	for(; *format != '\0'; format++) {
 		switch(*format) {
 		case 'c': // 8-bit
-			c = va_arg(ap, signed char*);
+			c = va_arg(ap, int8*);
 //			if (*buf <= 0x7f) {
 //				*c = *buf++;
 //				size += 1;
@@ -426,52 +428,52 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			*c = *buf++;
 			size += 1;
 
-			printf("unpack int8 = %d [%X] c = %d [%X] c2 = %d [%X]\n",*(buf-1),*(buf-1),*c,*c, (-1 - (unsigned char)(0xffu - *(buf-1))),(-1 - (unsigned char)(0xffu - *(buf-1))));
+			printf("unpack int8 = %d [%X] c = %d [%X] c2 = %d [%X]\n",*(buf-1),*(buf-1),*c,*c, (-1 - (uint8)(0xffu - *(buf-1))),(-1 - (uint8)(0xffu - *(buf-1))));
 			break;
 
 		case 'C': // 8-bit unsigned
-			C = va_arg(ap, unsigned char*);
+			C = va_arg(ap, uint8*);
 			*C = *buf++;
 			size += 1;
 			break;
 
 		case 'h': // 16-bit
-			h = va_arg(ap, int*);
+			h = va_arg(ap, int16*);
 			*h = unpacki16(buf);
 			buf += 2;
 			size += 2;
 			break;
 
 		case 'H': // 16-bit unsigned
-			H = va_arg(ap, unsigned int*);
+			H = va_arg(ap, uint16*);
 			*H = unpacku16(buf);
 			buf += 2;
 			size += 2;
 			break;
 
 		case 'l': // 32-bit
-			l = va_arg(ap, long int*);
+			l = va_arg(ap, int32*);
 			*l = unpacki32(buf);
 			buf += 4;
 			size += 4;
 			break;
 
 		case 'L': // 32-bit unsigned
-			L = va_arg(ap, unsigned long int*);
+			L = va_arg(ap, uint32*);
 			*L = unpacku32(buf);
 			buf += 4;
 			size += 4;
 			break;
 
 		case 'q': // 64-bit
-			q = va_arg(ap, long long int*);
+			q = va_arg(ap, int64*);
 			*q = unpacki64(buf);
 			buf += 8;
 			size += 8;
 			break;
 
 		case 'Q': // 64-bit unsigned
-			Q = va_arg(ap, unsigned long long int*);
+			Q = va_arg(ap, uint64*);
 			*Q = unpacku64(buf);
 			buf += 8;
 			size += 8;

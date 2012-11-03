@@ -110,6 +110,7 @@ NetworkMessageIntro::NetworkMessageIntro() {
 	data.playerIndex= -1;
 	data.gameState	= nmgstInvalid;
 	data.externalIp = 0;
+	data.ftpPort = 0;
 }
 
 NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionString,
@@ -181,17 +182,6 @@ unsigned char * NetworkMessageIntro::packMessage() {
 }
 
 string NetworkMessageIntro::toString() const {
-
-	int8 messageType;
-	int32 sessionId;
-	NetworkString<maxVersionStringSize> versionString;
-	NetworkString<maxNameSize> name;
-	int16 playerIndex;
-	int8 gameState;
-	uint32 externalIp;
-	uint32 ftpPort;
-	NetworkString<maxLanguageStringSize> language;
-
 	string result = "messageType = " + intToStr(data.messageType);
 	result += " sessionId = " + intToStr(data.sessionId);
 	result += " versionString = " + data.versionString.getString();
