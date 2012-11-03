@@ -667,10 +667,10 @@ private:
 	Data data;
 
 protected:
-	virtual const char * getPackedMessageFormat() const { return NULL; }
-	virtual unsigned int getPackedSize() { return 0; }
-	virtual void unpackMessage(unsigned char *buf) { };
-	virtual unsigned char * packMessage() { return NULL; }
+	virtual const char * getPackedMessageFormat() const;
+	virtual unsigned int getPackedSize();
+	virtual void unpackMessage(unsigned char *buf);
+	virtual unsigned char * packMessage();
 
 public:
     NetworkMessageSynchNetworkGameDataFileCRCCheck() {};
@@ -714,10 +714,10 @@ private:
 	Data data;
 
 protected:
-	virtual const char * getPackedMessageFormat() const { return NULL; }
-	virtual unsigned int getPackedSize() { return 0; }
-	virtual void unpackMessage(unsigned char *buf) { };
-	virtual unsigned char * packMessage() { return NULL; }
+	virtual const char * getPackedMessageFormat() const;
+	virtual unsigned int getPackedSize();
+	virtual void unpackMessage(unsigned char *buf);
+	virtual unsigned char * packMessage();
 
 public:
     NetworkMessageSynchNetworkGameDataFileGet() {};

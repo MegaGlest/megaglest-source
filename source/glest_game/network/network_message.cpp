@@ -1814,7 +1814,7 @@ unsigned int NetworkMessageSynchNetworkGameData::getPackedSizeDetail() {
 			buf += result;
 		}
 		for(unsigned int i = 0; i < maxFileCRCCount; ++i) {
-			result += pack(buf, "l",
+			result += pack(buf, "L",
 					packedData.techCRCFileCRCList[i]);
 			buf += result;
 		}
@@ -1830,14 +1830,14 @@ void NetworkMessageSynchNetworkGameData::unpackMessageDetail(unsigned char *buf)
 		buf += bytes_processed;
 	}
 	for(unsigned int i = 0; i < maxFileCRCCount; ++i) {
-		unsigned int bytes_processed = unpack(buf, "l",
+		unsigned int bytes_processed = unpack(buf, "L",
 				&data.detail.techCRCFileCRCList[i]);
 		buf += bytes_processed;
 	}
 }
 
 unsigned char * NetworkMessageSynchNetworkGameData::packMessageDetail() {
-	unsigned char *buf = new unsigned char[sizeof(DataDetail) +1];
+	unsigned char *buf = new unsigned char[sizeof(DataDetail)*3 +1];
 	unsigned char *bufMove = buf;
 	for(unsigned int i = 0; i < maxFileCRCCount; ++i) {
 		unsigned int bytes_processed = pack(bufMove, "255s",
@@ -1845,7 +1845,7 @@ unsigned char * NetworkMessageSynchNetworkGameData::packMessageDetail() {
 		bufMove += bytes_processed;
 	}
 	for(unsigned int i = 0; i < maxFileCRCCount; ++i) {
-		unsigned int bytes_processed = pack(bufMove, "l",
+		unsigned int bytes_processed = pack(bufMove, "L",
 				data.detail.techCRCFileCRCList[i]);
 		bufMove += bytes_processed;
 	}
@@ -2185,8 +2185,57 @@ NetworkMessageSynchNetworkGameDataFileCRCCheck::NetworkMessageSynchNetworkGameDa
     data.fileName       = fileName;
 }
 
+const char * NetworkMessageSynchNetworkGameDataFileCRCCheck::getPackedMessageFormat() const {
+	return "cLLL256s";
+}
+
+unsigned int NetworkMessageSynchNetworkGameDataFileCRCCheck::getPackedSize() {
+	static unsigned int result = 0;
+	if(result == 0) {
+		Data packedData;
+		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
+		result = pack(buf, getPackedMessageFormat(),
+				packedData.messageType,
+				packedData.totalFileCount,
+				packedData.fileIndex,
+				packedData.fileCRC,
+				packedData.fileName.getBuffer());
+		delete [] buf;
+	}
+	return result;
+}
+void NetworkMessageSynchNetworkGameDataFileCRCCheck::unpackMessage(unsigned char *buf) {
+	unpack(buf, getPackedMessageFormat(),
+			&data.messageType,
+			&data.totalFileCount,
+			&data.fileIndex,
+			&data.fileCRC,
+			data.fileName.getBuffer());
+}
+
+unsigned char * NetworkMessageSynchNetworkGameDataFileCRCCheck::packMessage() {
+	unsigned char *buf = new unsigned char[getPackedSize()+1];
+	pack(buf, getPackedMessageFormat(),
+			data.messageType,
+			data.totalFileCount,
+			data.fileIndex,
+			data.fileCRC,
+			data.fileName.getBuffer());
+	return buf;
+}
+
 bool NetworkMessageSynchNetworkGameDataFileCRCCheck::receive(Socket* socket) {
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	bool result = false;
+	if(useOldProtocol == true) {
+		result = NetworkMessage::receive(socket, &data, sizeof(data),true);
+	}
+	else {
+		unsigned char *buf = new unsigned char[getPackedSize()+1];
+		result = NetworkMessage::receive(socket, buf, getPackedSize(), true);
+		unpackMessage(buf);
+		//printf("Got packet size = %u data.messageType = %d\n%s\n",getPackedSize(),data.messageType,buf);
+		delete [] buf;
+	}
 	fromEndian();
 	data.fileName.nullTerminate();
 
@@ -2198,7 +2247,16 @@ void NetworkMessageSynchNetworkGameDataFileCRCCheck::send(Socket* socket) {
 
 	assert(data.messageType==nmtSynchNetworkGameDataFileCRCCheck);
 	toEndian();
-	NetworkMessage::send(socket, &data, sizeof(data));
+
+	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &data, sizeof(data));
+	}
+	else {
+		unsigned char *buf = packMessage();
+		//printf("Send packet size = %u data.messageType = %d\n[%s]\n",getPackedSize(),data.messageType,buf);
+		NetworkMessage::send(socket, buf, getPackedSize());
+		delete [] buf;
+	}
 }
 
 void NetworkMessageSynchNetworkGameDataFileCRCCheck::toEndian() {
@@ -2229,8 +2287,48 @@ NetworkMessageSynchNetworkGameDataFileGet::NetworkMessageSynchNetworkGameDataFil
     data.fileName       = fileName;
 }
 
+const char * NetworkMessageSynchNetworkGameDataFileGet::getPackedMessageFormat() const {
+	return "c256s";
+}
+
+unsigned int NetworkMessageSynchNetworkGameDataFileGet::getPackedSize() {
+	static unsigned int result = 0;
+	if(result == 0) {
+		Data packedData;
+		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
+		result = pack(buf, getPackedMessageFormat(),
+				packedData.messageType,
+				packedData.fileName.getBuffer());
+		delete [] buf;
+	}
+	return result;
+}
+void NetworkMessageSynchNetworkGameDataFileGet::unpackMessage(unsigned char *buf) {
+	unpack(buf, getPackedMessageFormat(),
+			&data.messageType,
+			data.fileName.getBuffer());
+}
+
+unsigned char * NetworkMessageSynchNetworkGameDataFileGet::packMessage() {
+	unsigned char *buf = new unsigned char[getPackedSize()+1];
+	pack(buf, getPackedMessageFormat(),
+			data.messageType,
+			data.fileName.getBuffer());
+	return buf;
+}
+
 bool NetworkMessageSynchNetworkGameDataFileGet::receive(Socket* socket) {
-	bool result = NetworkMessage::receive(socket, &data, sizeof(data), true);
+	bool result = false;
+	if(useOldProtocol == true) {
+		result = NetworkMessage::receive(socket, &data, sizeof(data),true);
+	}
+	else {
+		unsigned char *buf = new unsigned char[getPackedSize()+1];
+		result = NetworkMessage::receive(socket, buf, getPackedSize(), true);
+		unpackMessage(buf);
+		//printf("Got packet size = %u data.messageType = %d\n%s\n",getPackedSize(),data.messageType,buf);
+		delete [] buf;
+	}
 	fromEndian();
 	data.fileName.nullTerminate();
 
@@ -2242,7 +2340,15 @@ void NetworkMessageSynchNetworkGameDataFileGet::send(Socket* socket) {
 
 	assert(data.messageType==nmtSynchNetworkGameDataFileGet);
 	toEndian();
-	NetworkMessage::send(socket, &data, sizeof(data));
+	if(useOldProtocol == true) {
+		NetworkMessage::send(socket, &data, sizeof(data));
+	}
+	else {
+		unsigned char *buf = packMessage();
+		//printf("Send packet size = %u data.messageType = %d\n[%s]\n",getPackedSize(),data.messageType,buf);
+		NetworkMessage::send(socket, buf, getPackedSize());
+		delete [] buf;
+	}
 }
 
 void NetworkMessageSynchNetworkGameDataFileGet::toEndian() {
