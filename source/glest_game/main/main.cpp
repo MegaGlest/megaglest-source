@@ -3079,7 +3079,6 @@ int glestMain(int argc, char** argv) {
 		printf("%s %s",extractFileFromDirectoryPath(argv[0]).c_str(),getNetworkPlatformFreeVersionString().c_str());
 		printf("\nCompiled using: %s on: %s platform: %s endianness: %s",getCompilerNameString().c_str(),getCompileDateTime().c_str(),getPlatformNameString().c_str(),(Shared::PlatformByteOrder::isBigEndian() == true ? "big" : "little"));
 
-
 		printf("\n\nData type sizes int8 = %zu int16 = %zu int32 = %zu int64 = %zu\n\n",sizeof(int8),sizeof(int16),sizeof(int32),sizeof(int64));
 
 		Config::getInstance().setBool("DebugNetworkPackets",true,true);
