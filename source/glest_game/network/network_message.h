@@ -73,12 +73,12 @@ public:
 	virtual void send(Socket* socket) = 0;
 	virtual size_t getDataSize() const = 0;
 
+	void dump_packet(string label, const void* data, int dataSize);
+
 protected:
 	//bool peek(Socket* socket, void* data, int dataSize);
 	bool receive(Socket* socket, void* data, int dataSize,bool tryReceiveUntilDataSizeMet);
 	void send(Socket* socket, const void* data, int dataSize);
-
-	void dump_packet(string label, const void* data, int dataSize);
 
 	virtual const char * getPackedMessageFormat() const = 0;
 	virtual unsigned int getPackedSize() = 0;
@@ -118,16 +118,19 @@ private:
 	Data data;
 
 protected:
-	virtual const char * getPackedMessageFormat() const;
-	virtual unsigned int getPackedSize();
-	virtual void unpackMessage(unsigned char *buf);
-	virtual unsigned char * packMessage();
 
 public:
 	NetworkMessageIntro();
 	NetworkMessageIntro(int32 sessionId, const string &versionString,
 			const string &name, int playerIndex, NetworkGameStateType gameState,
 			uint32 externalIp, uint32 ftpPort, const string &playerLanguage);
+
+
+	virtual const char * getPackedMessageFormat() const;
+	virtual unsigned int getPackedSize();
+	virtual void unpackMessage(unsigned char *buf);
+	virtual unsigned char * packMessage();
+
 
 	virtual size_t getDataSize() const { return sizeof(Data); }
 
@@ -142,6 +145,8 @@ public:
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket);
+
+	string toString() const;
 };
 #pragma pack(pop)
 

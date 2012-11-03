@@ -73,8 +73,8 @@
 
 #include <stdlib.h>
 
-//#include "network_message.h"
-//#include "network_protocol.h"
+#include "network_message.h"
+#include "network_protocol.h"
 #include "leak_dumper.h"
 
 #ifdef WIN32
@@ -139,7 +139,7 @@ void cleanupCRCThread() {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("D - shutting down crc threads\n");
 
 			if(preCacheThread->canShutdown(false) == true) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				delete preCacheThread;
 
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("E - shutting down crc threads\n");
@@ -3079,6 +3079,18 @@ int glestMain(int argc, char** argv) {
 		printf("%s %s",extractFileFromDirectoryPath(argv[0]).c_str(),getNetworkPlatformFreeVersionString().c_str());
 		printf("\nCompiled using: %s on: %s platform: %s endianness: %s",getCompilerNameString().c_str(),getCompileDateTime().c_str(),getPlatformNameString().c_str(),(Shared::PlatformByteOrder::isBigEndian() == true ? "big" : "little"));
 
+
+		Config::getInstance().setBool("DebugNetworkPackets",true,true);
+		NetworkMessageIntro data(424336, "mg_version_x","player_x", 3, nmgstOk,444444, 555555, "english");
+		unsigned char *buf = data.packMessage();
+		printf("\nSend packet size = %u\n%s\n",data.getPackedSize(),data.toString().c_str());
+		data.dump_packet("Send data", buf, data.getPackedSize());
+		//delete [] buf;
+
+		data.unpackMessage(buf);
+		printf("\nReceive packet size = %u\n%s\n",data.getPackedSize(),data.toString().c_str());
+		data.dump_packet("nReceive data", buf, data.getPackedSize());
+		delete [] buf;
 
 //		SwitchSetupRequest data("factionname", 3,-1,2,"softcoder",10, 11,"eng");
 //
