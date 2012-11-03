@@ -3079,20 +3079,20 @@ int glestMain(int argc, char** argv) {
 		printf("%s %s",extractFileFromDirectoryPath(argv[0]).c_str(),getNetworkPlatformFreeVersionString().c_str());
 		printf("\nCompiled using: %s on: %s platform: %s endianness: %s",getCompilerNameString().c_str(),getCompileDateTime().c_str(),getPlatformNameString().c_str(),(Shared::PlatformByteOrder::isBigEndian() == true ? "big" : "little"));
 
-		printf("\n\nData type sizes int8 = %zu int16 = %zu int32 = %zu int64 = %zu\n\n",sizeof(int8),sizeof(int16),sizeof(int32),sizeof(int64));
-
-		Config::getInstance().setBool("DebugNetworkPackets",true,true);
-		NetworkMessageIntro data(424336, "mg_version_x","player_x", 3, nmgstOk,444444, 555555, "english");
-		unsigned char *buf = data.packMessage();
-		printf("\nSend packet size = %u\n%s\n",data.getPackedSize(),data.toString().c_str());
-		data.dump_packet("Send data", buf, data.getPackedSize());
-		//delete [] buf;
-
-		NetworkMessageIntro data2;
-		data2.unpackMessage(buf);
-		printf("\nReceive packet size = %u\n%s\n",data2.getPackedSize(),data2.toString().c_str());
-		data2.dump_packet("nReceive data", buf, data2.getPackedSize());
-		delete [] buf;
+//		printf("\n\nData type sizes int8 = %zu int16 = %zu int32 = %zu int64 = %zu\n\n",sizeof(int8),sizeof(int16),sizeof(int32),sizeof(int64));
+//
+//		Config::getInstance().setBool("DebugNetworkPackets",true,true);
+//		NetworkMessageIntro data(424336, "mg_version_x","player_x", 3, nmgstOk,444444, 555555, "english");
+//		unsigned char *buf = data.packMessage();
+//		printf("\nSend packet size = %u\n%s\n",data.getPackedSize(),data.toString().c_str());
+//		data.dump_packet("Send data", buf, data.getPackedSize());
+//		//delete [] buf;
+//
+//		NetworkMessageIntro data2;
+//		data2.unpackMessage(buf);
+//		printf("\nReceive packet size = %u\n%s\n",data2.getPackedSize(),data2.toString().c_str());
+//		data2.dump_packet("nReceive data", buf, data2.getPackedSize());
+//		delete [] buf;
 
 //		SwitchSetupRequest data("factionname", 3,-1,2,"softcoder",10, 11,"eng");
 //
