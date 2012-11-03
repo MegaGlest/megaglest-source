@@ -719,7 +719,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 							NetworkMessageIntro networkMessageIntro;
 							if(receiveMessage(&networkMessageIntro)) {
-								int msgSessionId = networkMessageIntro.getSessionId();
+								int32 msgSessionId = networkMessageIntro.getSessionId();
 								this->name= networkMessageIntro.getName();
 								this->versionString = networkMessageIntro.getVersionString();
 								this->connectedRemoteIPAddress = networkMessageIntro.getExternalIp();
