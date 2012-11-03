@@ -414,8 +414,6 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 		switch(*format) {
 		case 'c': // 8-bit
 			c = va_arg(ap, signed char*);
-
-			printf("unpack int8 = %d [%X]\n",*buf,*buf);
 //			if (*buf <= 0x7f) {
 //				*c = *buf++;
 //				size += 1;
@@ -426,6 +424,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			*c = *buf++;
 			size += 1;
 
+			printf("unpack int8 = %d [%X] c = %d [%X] c2 = %d [%X]\n",*(buf-1),*(buf-1),*c,(-1 - (unsigned char)(0xffu - *(buf-1))));
 			break;
 
 		case 'C': // 8-bit unsigned
