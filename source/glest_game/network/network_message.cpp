@@ -180,6 +180,30 @@ unsigned char * NetworkMessageIntro::packMessage() {
 	return buf;
 }
 
+string NetworkMessageIntro::toString() const {
+
+	int8 messageType;
+	int32 sessionId;
+	NetworkString<maxVersionStringSize> versionString;
+	NetworkString<maxNameSize> name;
+	int16 playerIndex;
+	int8 gameState;
+	uint32 externalIp;
+	uint32 ftpPort;
+	NetworkString<maxLanguageStringSize> language;
+
+	string result = "messageType = " + intToStr(data.messageType);
+	result += " sessionId = " + intToStr(data.sessionId);
+	result += " versionString = " + data.versionString.getString();
+	result += " name = " + data.name.getString();
+	result += " playerIndex = " + intToStr(data.playerIndex);
+	result += " gameState = " + intToStr(data.gameState);
+	result += " externalIp = " + uIntToStr(data.externalIp);
+	result += " ftpPort = " + uIntToStr(data.ftpPort);
+	result += " language = " + data.language.getString();
+	return result;
+}
+
 bool NetworkMessageIntro::receive(Socket* socket) {
 	bool result = false;
 	if(useOldProtocol == true) {
