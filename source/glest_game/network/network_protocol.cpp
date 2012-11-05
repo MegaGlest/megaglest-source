@@ -386,6 +386,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			if (isdigit(*format)) { // track max str len
 				maxstrlen = maxstrlen * 10 + (*format-'0');
 			}
+			break;
 		}
 
 		if (!isdigit(*format)) maxstrlen = 0;
@@ -426,9 +427,6 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 	int64 *q;            // 64-bit
 	uint64 *Q;
 
-	float *f;                    // floats
-	double *d;
-	long double *g;
 	unsigned long long int fhold;
 
 	char *s;
@@ -520,27 +518,33 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			break;
 
 		case 'f': // float
-			f = va_arg(ap, float*);
+			{
+			float *f = va_arg(ap, float*);
 			fhold = unpacku16(buf);
 			*f = unpack754_16(fhold);
 			buf += 2;
 			size += 2;
+			}
 			break;
 
 		case 'd': // float-32
-			d = va_arg(ap, double*);
+			{
+			double *d = va_arg(ap, double*);
 			fhold = unpacku32(buf);
 			*d = unpack754_32(fhold);
 			buf += 4;
 			size += 4;
+			}
 			break;
 
 		case 'g': // float-64
-			g = va_arg(ap, long double*);
+			{
+			long double *g = va_arg(ap, long double*);
 			fhold = unpacku64(buf);
 			*g = unpack754_64(fhold);
 			buf += 8;
 			size += 8;
+			}
 			break;
 
 		case 's': // string
@@ -564,6 +568,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			if (isdigit(*format)) { // track max str len
 				maxstrlen = maxstrlen * 10 + (*format-'0');
 			}
+			break;
 		}
 
 		if (!isdigit(*format)) maxstrlen = 0;
