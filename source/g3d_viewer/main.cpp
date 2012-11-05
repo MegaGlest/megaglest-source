@@ -810,7 +810,7 @@ void MainWindow::onMenuFileLoad(wxCommandEvent &event){
 
 		if(fileDialog->ShowModal()==wxID_OK){
 			modelPathList.clear();
-			string file = "";
+			string file;
 #ifdef WIN32
 			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
 			file = tmp_buf;
@@ -846,7 +846,7 @@ void MainWindow::onMenuFileLoadParticleXML(wxCommandEvent &event){
 
 		if(fileDialog->ShowModal()==wxID_OK){
 			//string path = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
-			string file = "";
+			string file;
 #ifdef WIN32
 			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
 			file = tmp_buf;
@@ -880,7 +880,7 @@ void MainWindow::onMenuFileLoadProjectileParticleXML(wxCommandEvent &event){
 
 		if(fileDialog->ShowModal()==wxID_OK){
 			//string path = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
-			string file = "";
+			string file;
 #ifdef WIN32
 			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
 			file = tmp_buf;
@@ -914,7 +914,7 @@ void MainWindow::onMenuFileLoadSplashParticleXML(wxCommandEvent &event){
 
 		if(fileDialog->ShowModal()==wxID_OK){
 			//string path = (const char*)wxFNCONV(fileDialog->GetPath().c_str());
-			string file = "";
+			string file;
 #ifdef WIN32
 			const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(fileDialog->GetPath());
 			file = tmp_buf;

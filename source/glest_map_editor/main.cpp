@@ -985,8 +985,7 @@ void MainWindow::onMenuEditInfo(wxCommandEvent &event) {
 	simpleDialog.addValue("Author", program->getMap()->getAuthor());
 	if (!simpleDialog.show("Info",true)) return;
 
-    bool ischanged = false;
-	ischanged = program->setMapTitle(simpleDialog.getValue("Title"));
+    bool ischanged = program->setMapTitle(simpleDialog.getValue("Title"));
 	ischanged = (program->setMapDesc(simpleDialog.getValue("Description")) || ischanged);
 	ischanged = (program->setMapAuthor(simpleDialog.getValue("Author")) || ischanged);
 	if (ischanged)
