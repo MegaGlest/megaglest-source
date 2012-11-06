@@ -55,7 +55,7 @@ string Lang::getDefaultLanguage() const {
 
 void Lang::loadStrings(string uselanguage, bool loadFonts,
 		bool fallbackToDefault) {
-	if(uselanguage.length() == 2) {
+	if(uselanguage.length() == 2 || (uselanguage.length() == 5 && uselanguage[2] == '-')) {
 		uselanguage = getLanguageFile(uselanguage);
 	}
 	bool languageChanged = (uselanguage != this->language);
