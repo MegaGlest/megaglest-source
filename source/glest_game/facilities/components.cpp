@@ -823,6 +823,10 @@ bool GraphicScrollBar::mouseClick(int x, int y){
 
 
 bool GraphicScrollBar::mouseMove(int x, int y){
+	if(this->getVisible() == false) {
+		return false;
+	}
+
 	bool inScrollBar = GraphicComponent::mouseMove(x, y);
 	if (activated) {
 		lighted = true;
