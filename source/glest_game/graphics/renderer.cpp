@@ -5314,7 +5314,7 @@ void Renderer::renderSelectionEffects() {
 		}
 
 	}
-	if(selectedResourceObject!=NULL)
+	if(selectedResourceObject!=NULL && selection->getCount()<1)
 	{
 		Resource *r= selectedResourceObject->getResource();
 		int defaultValue= r->getType()->getDefResPerPatch();
