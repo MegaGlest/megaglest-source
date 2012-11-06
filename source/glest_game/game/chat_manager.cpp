@@ -388,14 +388,14 @@ void ChatManager::appendText(const wchar_t *addText, bool validateChars, bool ad
 			}
 			else if (key < 0x800) {
 				buf[0] = (0xC0 | key >> 6);
-				buf[1] = (0x80 | key & 0x3F);
+				buf[1] = (0x80 | (key & 0x3F));
 				textCharLength.push_back(2);
 				//printf("2 char, textCharLength = %d\n",textCharLength.size());
 			}
 			else {
 				buf[0] = (0xE0 | key >> 12);
-				buf[1] = (0x80 | key >> 6 & 0x3F);
-				buf[2] = (0x80 | key & 0x3F);
+				buf[1] = (0x80 | (key >> 6 & 0x3F));
+				buf[2] = (0x80 | (key & 0x3F));
 				textCharLength.push_back(3);
 				//printf("3 char, textCharLength = %d\n",textCharLength.size());
 			}
