@@ -29,6 +29,8 @@ ShaderProgramD3d9::ShaderProgramD3d9(){
 	d3dDevice= static_cast<ContextD3d9*>(gi.getCurrentContext())->getD3dDevice();
 	vertexShader= NULL;
 	pixelShader= NULL;
+	d3dVsConstantTable=NULL;
+	d3dPsConstantTable=NULL;
 }
 
 void ShaderProgramD3d9::attach(VertexShader *vs, FragmentShader *fs){

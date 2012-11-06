@@ -73,6 +73,7 @@ namespace rapidxml
                         break;
                     default:
                         *out++ = *begin;    // No expansion, copy character
+                        break;
                     }
                 }
                 ++begin;    // Step to next character

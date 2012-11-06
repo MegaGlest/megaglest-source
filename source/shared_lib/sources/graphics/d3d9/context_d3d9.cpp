@@ -28,6 +28,8 @@ namespace Shared{ namespace Graphics{ namespace D3d9{
 ContextD3d9::ContextD3d9(){
 	windowed= true;
 	hardware= true;
+	d3dObject=NULL;
+	d3dDevice=NULL;
 }
 
 void ContextD3d9::init(){

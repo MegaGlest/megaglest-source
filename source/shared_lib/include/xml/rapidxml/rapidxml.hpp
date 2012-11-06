@@ -658,6 +658,8 @@ namespace rapidxml
             : m_name(0)
             , m_value(0)
             , m_parent(0)
+            , m_name_size(0)
+            , m_value_size(0)
         {
         }
 
@@ -807,7 +809,7 @@ namespace rapidxml
     
         //! Constructs an empty attribute with the specified type. 
         //! Consider using memory_pool of appropriate xml_document if allocating attributes manually.
-        xml_attribute()
+        xml_attribute() : m_next_attribute(0), m_prev_attribute(0)
         {
         }
 
@@ -902,6 +904,10 @@ namespace rapidxml
             : m_type(type)
             , m_first_node(0)
             , m_first_attribute(0)
+            , m_last_attribute(0)
+    		, m_last_node(0)
+            , m_next_sibling(0)
+            , m_prev_sibling(0)
         {
         }
 
@@ -1849,7 +1855,7 @@ namespace rapidxml
                 // Other character, skip it
                 default:
                     ++text;
-
+                    break;
                 }
             }
             
