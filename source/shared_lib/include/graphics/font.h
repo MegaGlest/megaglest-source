@@ -52,6 +52,9 @@ public:
 
 	float getTextWidth(const string &str);
 	float getHeight(const string &str) const;
+
+	string wordWrapText(string text, int maxWidth);
+
 };
 
 // =====================================================

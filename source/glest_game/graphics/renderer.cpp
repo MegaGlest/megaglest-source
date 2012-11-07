@@ -3529,6 +3529,15 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 			messageBox->setFont(CoreData::getInstance().getMenuFontNormal());
 			messageBox->setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 		}
+
+		string wrappedText = messageBox->getText();
+		if(renderText3DEnabled == false) {
+			wrappedText = messageBox->getFont()->getMetrics()->wordWrapText(wrappedText,messageBox->getW() * 0.90);
+		}
+		else {
+			wrappedText = messageBox->getFont3D()->getMetrics()->wordWrapText(wrappedText,messageBox->getW() * 0.90);
+		}
+
 		//background
 		glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 		glEnable(GL_BLEND);
@@ -3598,7 +3607,7 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 		if(renderText3DEnabled == true) {
 			//text
 			renderTextShadow3D(
-				messageBox->getText(), messageBox->getFont3D(), fontColor,
+					wrappedText, messageBox->getFont3D(), fontColor,
 				messageBox->getX()+15, messageBox->getY()+7*messageBox->getH()/10,
 				false );
 
@@ -3611,7 +3620,7 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 		else {
 			//text
 			renderTextShadow(
-				messageBox->getText(), messageBox->getFont(), fontColor,
+					wrappedText, messageBox->getFont(), fontColor,
 				messageBox->getX()+15, messageBox->getY()+7*messageBox->getH()/10,
 				false );
 

@@ -176,6 +176,31 @@ float FontMetrics::getHeight(const string &str) const {
 	}
 }
 
+string FontMetrics::wordWrapText(string text, int maxWidth) {
+	// Strip newlines from source
+    //replaceAll(text, "\n", " ");
+
+	// Get all words (space separated text)
+	vector<string> words;
+	Tokenize(text,words," ");
+
+	string wrappedText = "";
+    float lineWidth = 0.0f;
+
+    for(unsigned int i = 0; i < words.size(); ++i) {
+    	string word = words[i];
+        float wordWidth = this->getTextWidth(word);
+        if (lineWidth + wordWidth > maxWidth) {
+            wrappedText += "\n";
+            lineWidth = 0;
+        }
+        lineWidth += wordWidth;
+        wrappedText += word + " ";
+    }
+
+    return wrappedText;
+}
+
 // ===============================================
 //	class Font
 // ===============================================
