@@ -276,6 +276,7 @@ public:
 private:
 	GraphicButtons buttons;
 	string header;
+	bool autoWordWrap;
 
 private:
 	void alignButtons();
@@ -287,6 +288,9 @@ public:
 	void init(int newWidth=-1,int newHeight=-1);
 	void removeButtons();
 	void addButton(const string &buttonStr, int width=-1,int height=-1);
+
+	bool getAutoWordWrap() const { return autoWordWrap; }
+	void setAutoWordWrap(bool value) { autoWordWrap = value; }
 
 	int getButtonCount() const				{return buttons.size();}
 	GraphicButton *getButton(int index) 	{return buttons[index];}

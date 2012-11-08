@@ -3531,11 +3531,13 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 		}
 
 		string wrappedText = messageBox->getText();
-		if(renderText3DEnabled == false) {
-			wrappedText = messageBox->getFont()->getMetrics()->wordWrapText(wrappedText,messageBox->getW() * 0.90);
-		}
-		else {
-			wrappedText = messageBox->getFont3D()->getMetrics()->wordWrapText(wrappedText,messageBox->getW() * 0.90);
+		if(messageBox->getAutoWordWrap() == true) {
+			if(renderText3DEnabled == false) {
+				wrappedText = messageBox->getFont()->getMetrics()->wordWrapText(wrappedText,messageBox->getW() * 0.90);
+			}
+			else {
+				wrappedText = messageBox->getFont3D()->getMetrics()->wordWrapText(wrappedText,messageBox->getW() * 0.90);
+			}
 		}
 
 		//background

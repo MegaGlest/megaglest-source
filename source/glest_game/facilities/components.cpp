@@ -538,6 +538,7 @@ const int GraphicMessageBox::defW= 350;
 GraphicMessageBox::GraphicMessageBox(std::string containerName, std::string objName) :
 	GraphicComponent(containerName, objName){
 	header= "";
+	autoWordWrap=true;
 }
 
 GraphicMessageBox::~GraphicMessageBox(){

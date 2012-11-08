@@ -408,6 +408,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	//setup message box
 	messageBox.init( Lang::getInstance().get("Ok") );
 	messageBox.setEnabled(false);
+	messageBox.setAutoWordWrap(false);
 
 	//last created unit
 	lastCreatedUnitId= -1;
