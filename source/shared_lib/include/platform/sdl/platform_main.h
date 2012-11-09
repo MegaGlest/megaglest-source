@@ -214,6 +214,8 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t               has no more connected players.");
 	printf("\n                     \t\tvps  - which does NOT read commands from the");
 	printf("\n                     \t               local console (for some vps's).");
+	printf("\n                     \t\tlan  - which does not broadcast the hosting server");
+	printf("\n                     \t               to the masterserver (for local LAN games).");
 
 	printf("\n%s\tCheck the current status of a headless server.",GAME_ARGS[GAME_ARG_MASTERSERVER_STATUS]);
 

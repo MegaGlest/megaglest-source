@@ -2872,6 +2872,10 @@ int glestMain(int argc, char** argv) {
 					printf("Disabled reading from console [%s]\n",headless_command.c_str());
 					disableheadless_console = true;
 				}
+				else if(headless_command == "lan") {
+					printf("Forcing local LAN mode [%s]\n",headless_command.c_str());
+					GlobalStaticFlags::setFlag(gsft_lan_mode);
+				}
 			}
 		}
     }
