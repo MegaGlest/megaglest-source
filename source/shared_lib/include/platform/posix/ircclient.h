@@ -52,7 +52,10 @@ public:
 
 class IRCThread : public BaseThread
 {
+public:
+	static bool debugEnabled;
 protected:
+
     std::vector<string> argv;
     irc_session_t *ircSession;
 

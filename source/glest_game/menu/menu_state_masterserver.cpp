@@ -507,6 +507,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		if (ircClient != NULL && ircClient->isConnected() == true
 					&& ircClient->getHasJoinedChannel() == true) {
 			ircClient->SendIRCCmdMessage(IRC_CHANNEL, "left the lobby");
+			sleep(30);
 		}
         cleanup();
 
@@ -528,6 +529,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		if (ircClient != NULL && ircClient->isConnected() == true
 					&& ircClient->getHasJoinedChannel() == true) {
 			ircClient->SendIRCCmdMessage(IRC_CHANNEL, "tries to create a game");
+			sleep(30);
 		}
         cleanup();
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -559,6 +561,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 						if (ircClient != NULL && ircClient->isConnected() == true
 									&& ircClient->getHasJoinedChannel() == true) {
 							ircClient->SendIRCCmdMessage(IRC_CHANNEL, "connecting to '"+serverLines[i]->getMasterServerInfo()->getServerTitle()+"'");
+							sleep(30);
 						}
 						cleanup();
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -756,24 +759,26 @@ void MenuStateMasterserver::update() {
     MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
     if(ircClient != NULL) {
         std::vector<string> nickList = ircClient->getNickList();
+
+    	if(currentIrcNick != ircClient->getNick()) {
+    		currentIrcNick = ircClient->getNick();
+    		consoleIRC.setStringToHighlight(currentIrcNick);
+    	}
+
         bool isNew=false;
         //check if there is something new
-        if( oldNickList.size()!=nickList.size()) {
+        if( oldNickList.size() != nickList.size()) {
         	isNew=true;
-        	if(currentIrcNick!=ircClient->getNick()){
-        		currentIrcNick=ircClient->getNick();
-        		consoleIRC.setStringToHighlight(currentIrcNick);
-        	}
         }
         else {
-        	for(int i = 0; i < nickList.size(); ++i) {
-        		if(nickList[i]!=oldNickList[i])
-        		{
+        	for(unsigned int i = 0; i < nickList.size(); ++i) {
+        		if(nickList[i] != oldNickList[i]) {
         			isNew=true;
         			break;
         		}
         	}
         }
+
         if(isNew) {
 	        clearUserButtons();
 	        for(int i = 0; i < nickList.size(); ++i) {
