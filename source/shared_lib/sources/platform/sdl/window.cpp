@@ -804,6 +804,9 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllow
 		else if(compareKey == SDLK_KP_MULTIPLY) {
 			result = (c == SDLK_ASTERISK);
 		}
+		else if(compareKey == SDLK_BACKSPACE) {
+			result = (c == SDLK_DELETE);
+		}
 		else if( compareKey >= SDLK_0 && compareKey <= SDLK_9) {
 			switch(compareKey) {
 				case SDLK_0:
