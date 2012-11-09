@@ -28,6 +28,15 @@ using namespace Shared::Platform;
 
 namespace Shared { namespace Util {
 
+enum GlobalStaticFlagTypes {
+    gsft_none               = 0x00,
+    gsft_lan_mode  			= 0x01,
+    //gsft_xx  = 0x02
+    //gsft__xx                  = 0x04,
+    //gsft__xx                  = 0x08,
+    //gsft__xx                  = 0x10,
+};
+
 class GlobalStaticFlags {
 public:
 	static bool getIsNonGraphicalModeEnabled() {
@@ -38,8 +47,15 @@ public:
 		isNonGraphicalMode = value;
 	}
 
+	static void setFlags(uint64 flagsValue) { flags = flagsValue; }
+	static uint64 getFlags() { return flags; }
+
+	static void setFlag(GlobalStaticFlagTypes flag) { flags |= flag; }
+	static bool isFlagSet(GlobalStaticFlagTypes flag) { return (flags & flag) == flag; }
+
 protected:
 	static bool isNonGraphicalMode;
+	static uint64 flags;
 };
 
 class SystemFlags

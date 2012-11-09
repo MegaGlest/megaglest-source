@@ -391,12 +391,12 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 //	}
 	checkBoxPublishServer.registerGraphicComponent(containerName,"checkBoxPublishServer");
 	checkBoxPublishServer.init(50, networkPos);
-	if(this->headlessServerMode == true ||
-		(openNetworkSlots == true && parentMenuState != pLanGame)) {
+
+	checkBoxPublishServer.setValue(false);
+	if((this->headlessServerMode == true ||
+		(openNetworkSlots == true && parentMenuState != pLanGame)) &&
+			GlobalStaticFlags::isFlagSet(gsft_lan_mode) == false) {
 		checkBoxPublishServer.setValue(true);
-	}
-	else {
-		checkBoxPublishServer.setValue(false);
 	}
 
 	labelGameNameLabel.registerGraphicComponent(containerName,"labelGameNameLabel");
@@ -2542,7 +2542,8 @@ void MenuStateCustomGame::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 		if(this->headlessServerMode == true || hasOneNetworkSlotOpen == true) {
-			if(this->headlessServerMode == true) {
+			if(this->headlessServerMode == true &&
+					GlobalStaticFlags::isFlagSet(gsft_lan_mode) == false) {
 				checkBoxPublishServer.setValue(true);
 			}
 			listBoxFallbackCpuMultiplier.setEditable(true);
