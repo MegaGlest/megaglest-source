@@ -199,11 +199,11 @@ int64 unpacki64(unsigned char *buf)
 	int64 i;
 
 	// change unsigned numbers to signed
-	if (i2 <= 0x7fffffffffffffffu) {
+	if (i2 <= 0x7fffffffffffffffull) {
 		i = i2;
 	}
 	else {
-		i = -1 -(int64)(0xffffffffffffffffu - i2);
+		i = -1 -(int64)(0xffffffffffffffffull - i2);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("IN [%s] [%d] [%d] [%d] [%d] [%d] [%d] [%d] [%d] [%ld] [%lu]\n",__FUNCTION__,buf[0],buf[1],buf[2],buf[3],buf[4],buf[5],buf[6],buf[7],i,i2);
 	}
 
