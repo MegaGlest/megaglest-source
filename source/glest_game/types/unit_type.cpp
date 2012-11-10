@@ -155,7 +155,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 		const FactionType *factionType, Checksum* checksum,
 		Checksum* techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
@@ -639,12 +639,18 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 
 	}
 	//Exception handling (conversions and so on);
+    catch(megaglest_runtime_error& ex) {
+    	//printf("1111111a ex.wantStackTrace() = %d\n",ex.wantStackTrace());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		//printf("222222a\n");
+		throw megaglest_runtime_error("Error loading UnitType: " + path + "\n" + ex.what(),!ex.wantStackTrace());
+    }
 	catch(const exception &e){
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		throw megaglest_runtime_error("Error loading UnitType: " + path + "\n" + e.what());
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 // ==================== get ====================
@@ -664,7 +670,7 @@ const Level *UnitType::getLevel(string name) const {
 
 const CommandType *UnitType::getFirstCtOfClass(CommandClass commandClass) const{
 	if(firstCommandTypeOfClass[commandClass] == NULL) {
-		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] commandClass = %d\n",__FILE__,__FUNCTION__,__LINE__,commandClass);
+		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] commandClass = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,commandClass);
 
 		/*
 	    for(int j=0; j<ccCount; ++j){
@@ -676,7 +682,7 @@ const CommandType *UnitType::getFirstCtOfClass(CommandClass commandClass) const{
 	    }
 	    */
 
-		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	}
     return firstCommandTypeOfClass[commandClass];
 }
@@ -692,7 +698,7 @@ const SkillType *UnitType::getFirstStOfClass(SkillClass skillClass) const{
 	        }
 	    }
 	    */
-		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	}
     return firstSkillTypeOfClass[skillClass];
 }
@@ -979,7 +985,7 @@ const CommandType* UnitType::findCommandTypeById(int id) const{
 const CommandType *UnitType::getCommandType(int i) const {
 	if(i >= commandTypes.size()) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] i >= commandTypes.size(), i = %d, commandTypes.size() = " MG_SIZE_T_SPECIFIER "",__FILE__,__FUNCTION__,__LINE__,i,commandTypes.size());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] i >= commandTypes.size(), i = %d, commandTypes.size() = " MG_SIZE_T_SPECIFIER "",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,commandTypes.size());
 		throw megaglest_runtime_error(szBuf);
 	}
 	return commandTypes[i];

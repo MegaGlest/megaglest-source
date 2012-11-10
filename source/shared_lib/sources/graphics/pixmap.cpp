@@ -108,6 +108,8 @@ PixmapIoTga::~PixmapIoTga() {
 }
 
 void PixmapIoTga::openRead(const string &path) {
+
+	try {
 #ifdef WIN32
 	file= _wfopen(utf8_decode(path).c_str(), L"rb");
 #else
@@ -155,6 +157,14 @@ void PixmapIoTga::openRead(const string &path) {
 	h= fileHeader.height;
     w= fileHeader.width;
 	components= fileHeader.bitsPerPixel / 8;
+
+	}
+	catch(exception& ex) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Error in [%s] on line: %d msg: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,ex.what());
+		throw megaglest_runtime_error(szBuf);
+	}
+
 }
 
 void PixmapIoTga::read(uint8 *pixels) {
@@ -162,6 +172,7 @@ void PixmapIoTga::read(uint8 *pixels) {
 }
 
 void PixmapIoTga::read(uint8 *pixels, int components) {
+	try {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 
 	for(int i=0; i<h*w*components; i+=components) {
@@ -248,6 +259,14 @@ void PixmapIoTga::read(uint8 *pixels, int components) {
 			break;
 		}
 	}
+
+	}
+	catch(exception& ex) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Error in [%s] on line: %d msg: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,ex.what());
+		throw megaglest_runtime_error(szBuf);
+	}
+
 }
 
 void PixmapIoTga::openWrite(const string &path, int w, int h, int components) {

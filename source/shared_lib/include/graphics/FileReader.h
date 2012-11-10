@@ -158,6 +158,9 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 			FileReader<T> const * reader = *i;
 			ret = reader->read(file, filepath); //It is guaranteed that at least the filepath matches ...
 		}
+		catch (megaglest_runtime_error &ex) { //TODO: Specific exceptions
+			throw;
+		}
 		catch (...) { //TODO: Specific exceptions
 			continue;
 		}
@@ -202,7 +205,11 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 		try {
 			FileReader<T> const * reader = *i;
 			ret = reader->read(file, filepath, object); //It is guaranteed that at least the filepath matches ...
-		} catch (...) { //TODO: Specific exceptions
+		}
+		catch (megaglest_runtime_error &ex) { //TODO: Specific exceptions
+			throw;
+		}
+		catch (...) { //TODO: Specific exceptions
 			continue;
 		}
 		if (ret != NULL) {
@@ -321,7 +328,11 @@ bool FileReader<T>::canRead(ifstream& file) const {
 		bool ret = (wouldRead != NULL);
 		delete wouldRead;
 		return ret;
-	} catch (...) {
+	}
+	catch (megaglest_runtime_error &ex) { //TODO: Specific exceptions
+		throw;
+	}
+	catch (...) {
 		return false;
 	}
 }

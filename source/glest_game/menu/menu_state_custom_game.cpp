@@ -2688,6 +2688,19 @@ void MenuStateCustomGame::update() {
 			return;
 		}
 	}
+    catch(megaglest_runtime_error& ex) {
+    	//abort();
+    	//printf("1111111bbbb ex.wantStackTrace() = %d\n",ex.wantStackTrace());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+		//printf("2222222bbbb ex.wantStackTrace() = %d\n",ex.wantStackTrace());
+
+		showGeneralError=true;
+		generalErrorToShow = szBuf;
+    }
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());

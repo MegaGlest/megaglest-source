@@ -83,7 +83,7 @@ string TechTree::findPath(const string &techName, const vector<string> &pathTech
 
 void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum,
 		Checksum *techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	string currentPath = dir;
 	endPathWithSlash(currentPath);
@@ -116,7 +116,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
         }
     }
     catch(const exception &e){
-    	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+    	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		throw megaglest_runtime_error("Error loading Resource Types in: [" + currentPath + "]\n" + e.what());
     }
 
@@ -185,7 +185,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		}
     }
     catch(const exception &e){
-    	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+    	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		throw megaglest_runtime_error("Error loading Tech Tree: "+ currentPath + "\n" + e.what());
     }
 
@@ -219,8 +219,14 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 			SDL_PumpEvents();
         }
     }
+    catch(megaglest_runtime_error& ex) {
+    	//printf("1111111b ex.wantStackTrace() = %d\n",ex.wantStackTrace());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		//printf("222222b\n");
+		throw megaglest_runtime_error("Error loading Faction Types: "+ currentPath + "\n" + ex.what(),!ex.wantStackTrace());
+    }
 	catch(const exception &e){
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		throw megaglest_runtime_error("Error loading Faction Types: "+ currentPath + "\n" + e.what());
     }
 
@@ -231,11 +237,11 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
     Lang &lang = Lang::getInstance();
     lang.loadTechTreeStrings(name);
 
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 TechTree::~TechTree() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingTechtree","",true), true);
 	resourceTypes.clear();
 	factionTypes.clear();
@@ -309,7 +315,7 @@ FactionType *TechTree::getTypeByName(const string &name) {
                return &factionTypes[i];
           }
     }
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     throw megaglest_runtime_error("Faction not found: "+name);
 }
 
@@ -319,7 +325,7 @@ const FactionType *TechTree::getType(const string &name) const {
                return &factionTypes[i];
           }
     }
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     throw megaglest_runtime_error("Faction not found: "+name);
 }
 

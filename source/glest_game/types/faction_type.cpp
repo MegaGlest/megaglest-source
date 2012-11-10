@@ -40,7 +40,7 @@ FactionType::FactionType() {
 void FactionType::load(const string &factionName, const TechTree *techTree, Checksum* checksum,
 		Checksum *techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	string techTreePath = techTree->getPath();
 	string techTreeName=techTree->getName();
@@ -168,8 +168,14 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 				SDL_PumpEvents();
 			}
 		}
+	    catch(megaglest_runtime_error& ex) {
+	    	//printf("1111111b ex.wantStackTrace() = %d\n",ex.wantStackTrace());
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+			//printf("222222b\n");
+			throw megaglest_runtime_error("Error loading units: "+ currentPath + "\n" + ex.what(),!ex.wantStackTrace());
+	    }
 		catch(const exception &e) {
-			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 			throw megaglest_runtime_error("Error loading units: "+ currentPath + "\n" + e.what());
 		}
 
@@ -184,7 +190,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 			}
 		}
 		catch(const exception &e){
-			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
+			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 			throw megaglest_runtime_error("Error loading upgrades: "+ currentPath + "\n" + e.what());
 		}
 
@@ -313,7 +319,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 			}
 		}
 	}
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 int FactionType::getAIBehaviorStaticOverideValue(AIBehaviorStaticValueCategory type) const {
@@ -778,14 +784,14 @@ const UnitType *FactionType::getUnitType(const string &name) const{
 		}
     }
 
-    printf("In [%s::%s Line: %d] scanning [%s] size = " MG_SIZE_T_SPECIFIER "\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
+    printf("In [%s::%s Line: %d] scanning [%s] size = " MG_SIZE_T_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
     for(int i=0; i<unitTypes.size();i++){
-    	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str());
+    	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str());
     }
 
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] size = %d\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] size = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
     for(int i=0; i<unitTypes.size();i++){
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str());
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str());
     }
 
 	throw megaglest_runtime_error("Unit type not found: [" + name + "] in faction type [" + this->name + "]");
@@ -798,14 +804,14 @@ const UnitType *FactionType::getUnitTypeById(int id) const{
 		}
     }
 
-    printf("In [%s::%s Line: %d] scanning [%d] size = " MG_SIZE_T_SPECIFIER "\n",__FILE__,__FUNCTION__,__LINE__,id,unitTypes.size());
+    printf("In [%s::%s Line: %d] scanning [%d] size = " MG_SIZE_T_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,id,unitTypes.size());
     for(int i=0; i<unitTypes.size();i++){
-    	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s][%d]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str(),unitTypes[i].getId());
+    	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s][%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str(),unitTypes[i].getId());
     }
 
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] size = %d\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] size = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
     for(int i=0; i<unitTypes.size();i++){
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str());
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str());
     }
 
 	throw megaglest_runtime_error("Unit type not found: [" + intToStr(id) + "] in faction type [" + this->name + "]");
@@ -818,14 +824,14 @@ const UpgradeType *FactionType::getUpgradeType(const string &name) const{
 		}
     }
 
-    printf("In [%s::%s Line: %d] scanning [%s] size = " MG_SIZE_T_SPECIFIER "\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
+    printf("In [%s::%s Line: %d] scanning [%s] size = " MG_SIZE_T_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
     for(int i=0; i<upgradeTypes.size();i++){
-    	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),i,upgradeTypes[i].getName().c_str());
+    	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,upgradeTypes[i].getName().c_str());
     }
 
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] size = %d\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] size = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
     for(int i=0; i<upgradeTypes.size();i++){
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),i,upgradeTypes[i].getName().c_str());
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,upgradeTypes[i].getName().c_str());
     }
 
 	throw megaglest_runtime_error("Upgrade type not found: [" + name + "] in faction type [" + this->name + "]");
