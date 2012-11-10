@@ -6006,10 +6006,15 @@ void Renderer::renderHighlightedCellsOnMinimap() {
 				if(mc->getFaction() != NULL) {
 					color=  mc->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0, 0);
 				}
-				float alpha = 0.49f+0.5f/(mc->getAliveCount()%15);
+				int lighting=(mc->getAliveCount()%15);
+				Vec3f myColor=Vec3f(color.x/2+.5f/lighting,color.y/2+.5f/lighting,color.z/2+.5f/lighting);
+
+				//float alpha = 0.49f+0.5f/(mc->getAliveCount()%15);
+				float alpha=1.0f;
+
 				Vec2i pos=mc->getTargetPos();
 				if(texture!=NULL){
-					renderTextureQuad((int)(pos.x*zoom.x)+pointersize, my + mh-(int)(pos.y*zoom.y), pointersize, pointersize, texture, alpha,&color);
+					renderTextureQuad((int)(pos.x*zoom.x)+pointersize, my + mh-(int)(pos.y*zoom.y), pointersize, pointersize, texture, alpha,&myColor);
 				}
 			}
 		}
