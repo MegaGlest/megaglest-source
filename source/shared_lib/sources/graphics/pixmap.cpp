@@ -470,6 +470,8 @@ void PixmapIoBmp::openWrite(const string &path, int w, int h, int components) {
 	fileHeader.type2='M';
 	fileHeader.offsetBits=sizeof(BitmapFileHeader)+sizeof(BitmapInfoHeader);
 	fileHeader.size=sizeof(BitmapFileHeader)+sizeof(BitmapInfoHeader)+3*h*w;
+	fileHeader.reserved1 = 0;
+	fileHeader.reserved2 = 0;
 
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
