@@ -706,4 +706,48 @@ void normalizeNick(char *nick) {
 	}
 }
 
+void IRCThread::connectToHost() {
+	bool connectRequired = false;
+	if(ircSession == NULL) {
+		connectRequired = true;
+	}
+	else {
+		int result = irc_is_connected(ircSession);
+		if(result != 1) {
+			connectRequired = true;
+		}
+	}
+
+	if(connectRequired == false) {
+        if(irc_connect(ircSession, argv[0].c_str(), IRC_SERVER_PORT, 0, this->nick.c_str(), this->username.c_str(), "megaglest")) {
+            if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC Could not connect: %s\n", irc_strerror (irc_errno(ircSession)));
+            return;
+        }
+	}
+}
+
+void IRCThread::joinChannel() {
+	connectToHost();
+	if(ircSession != NULL) {
+		IRCThread *ctx = (IRCThread *)irc_get_ctx(ircSession);
+		if(ctx != NULL) {
+			eventData.clear();
+			eventDataDone = false;
+			hasJoinedChannel = false;
+			lastNickListUpdate = time(NULL);
+
+			irc_cmd_join(ircSession, ctx->getChannel().c_str(), 0);
+		}
+	}
+}
+
+void IRCThread::leaveChannel() {
+	if(ircSession != NULL) {
+		IRCThread *ctx = (IRCThread *)irc_get_ctx(ircSession);
+		if(ctx != NULL) {
+			irc_cmd_part(ircSession,ctx->getChannel().c_str());
+		}
+	}
+}
+
 }}//end namespace

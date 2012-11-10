@@ -111,6 +111,10 @@ public:
     Mutex * getMutexIRCCB() { return &mutexIRCCB; }
     IRCCallbackInterface * getCallbackObj(bool lockObj=true);
     void setCallbackObj(IRCCallbackInterface *cb);
+
+    void joinChannel();
+    void leaveChannel();
+    void connectToHost();
 };
 
 }}//end namespace

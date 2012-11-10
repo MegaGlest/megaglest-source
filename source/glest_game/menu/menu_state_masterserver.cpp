@@ -26,7 +26,7 @@
 #include "socket.h"
 #include "masterserver_info.h"
 #include <curl/curl.h>
-
+#include "cache_manager.h"
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -305,9 +305,22 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     }
 
     MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
-    ircClient = new IRCThread(ircArgs,this);
-    ircClient->setUniqueID(extractFileFromDirectoryPath(__FILE__).c_str());
-    ircClient->start();
+
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 IRCCLient Cache check\n");
+    IRCThread * &ircThread = CacheManager::getCachedItem< IRCThread * >(GameConstants::ircClinetCacheLookupKey);
+    if(ircThread == NULL) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 IRCCLient Cache check\n");
+    	ircThread = new IRCThread(ircArgs,this);
+    	ircClient = ircThread;
+    	ircClient->setUniqueID(extractFileFromDirectoryPath(__FILE__).c_str());
+		ircClient->start();
+    }
+    else {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#3 IRCCLient Cache check\n");
+    	ircClient = ircThread;
+    	ircClient->setCallbackObj(this);
+    	ircClient->joinChannel();
+    }
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
@@ -433,8 +446,9 @@ void MenuStateMasterserver::cleanup() {
     if(ircClient != NULL) {
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+    	ircClient->leaveChannel();
         ircClient->setCallbackObj(NULL);
-        ircClient->signalQuit();
+        //ircClient->signalQuit();
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         ircClient = NULL;
     }

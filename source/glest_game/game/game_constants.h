@@ -153,6 +153,7 @@ public:
 	static const char *RANDOMFACTION_SLOTNAME;
 
 	static const char *playerTextureCacheLookupKey;
+	static const char *ircClinetCacheLookupKey;
 	static const char *factionPreviewTextureCacheLookupKey;
 	static const char *characterMenuScreenPositionListCacheLookupKey;
 	static const char *pathCacheLookupKey;
