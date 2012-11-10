@@ -597,7 +597,7 @@ public:
 	void replaceCurrCommand(Command *cmd);
 	int getCountOfProducedUnits(const UnitType *ut) const;
 	unsigned int getCommandSize() const;
-	CommandResult giveCommand(Command *command, bool tryQueue = false);		//give a command
+	std::pair<CommandResult,string> giveCommand(Command *command, bool tryQueue = false);		//give a command
 	CommandResult finishCommand();						//command finished
 	CommandResult cancelCommand();						//cancel canceled
 
@@ -633,7 +633,7 @@ public:
 	void computeTotalUpgrade();
 	void incKills(int team);
 	bool morph(const MorphCommandType *mct);
-	CommandResult checkCommand(Command *command) const;
+	std::pair<CommandResult,string> checkCommand(Command *command) const;
 	void applyCommand(Command *command);
 
 	void setModelFacing(CardinalDir value);

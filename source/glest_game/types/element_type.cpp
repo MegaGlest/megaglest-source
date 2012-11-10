@@ -124,30 +124,59 @@ const Resource *ProducibleType::getCost(const ResourceType *rt) const{
 string ProducibleType::getReqDesc() const {
 	return getReqDesc(false);
 }
-string ProducibleType::getReqDesc(bool ignoreResourceRequirements) const {
-    string str= getName(true) + " " + Lang::getInstance().get("Reqs") + ":\n";
-    if(ignoreResourceRequirements == false) {
-		for(int i=0; i<getCostCount(); ++i){
-			if(getCost(i)->getAmount()!=0){
-				str+= getCost(i)->getType()->getName(true);
-				str+= ": "+ intToStr(getCost(i)->getAmount());
+
+string ProducibleType::getResourceReqDesc(bool lineBreaks) const {
+    string str= "";
+	for(int i=0; i<getCostCount(); ++i){
+		if(getCost(i)->getAmount()!=0){
+			str+= getCost(i)->getType()->getName(true);
+			str+= ": "+ intToStr(getCost(i)->getAmount());
+			if(lineBreaks == true) {
 				str+= "\n";
 			}
+			else {
+				str+= " ";
+			}
 		}
-    }
+	}
 
+    return str;
+}
+
+string ProducibleType::getUnitAndUpgradeReqDesc(bool lineBreaks) const {
+	string str= "";
     for(int i=0; i<getUnitReqCount(); ++i){
         str+= getUnitReq(i)->getName(true);
-        str+= "\n";
+        if(lineBreaks == true) {
+        	str+= "\n";
+        }
+		else {
+			str+= " ";
+		}
     }
 
     for(int i=0; i<getUpgradeReqCount(); ++i){
         str+= getUpgradeReq(i)->getName(true);
-        str+= "\n";
+        if(lineBreaks == true) {
+        	str+= "\n";
+        }
+		else {
+			str+= " ";
+		}
     }
 
     return str;
 }   
+
+string ProducibleType::getReqDesc(bool ignoreResourceRequirements) const {
+    string str= getName(true) + " " + Lang::getInstance().get("Reqs") + ":\n";
+    if(ignoreResourceRequirements == false) {
+		str+= getResourceReqDesc();
+    }
+
+    str+= getUnitAndUpgradeReqDesc();
+    return str;
+}
 
 //void ProducibleType::saveGame(XmlNode *rootNode) const {
 //	RequirableType::saveGame(rootNode);

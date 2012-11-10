@@ -423,7 +423,7 @@ void Gui::onSelectionChanged(){
 void Gui::giveOneClickOrders(){
 	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	CommandResult result;
+	std::pair<CommandResult,string> result(crFailUndefined,"");
 	bool queueKeyDown = isKeyDown(queueCommandKey);
 	if(selection.isUniform()){
 		result= commander->tryGiveCommand(&selection, activeCommandType, Vec2i(0), (Unit*)NULL,  queueKeyDown);
@@ -458,11 +458,11 @@ void Gui::giveDefaultOrders(int x, int y,const Unit *targetUnit, bool paintMouse
 	bool queueKeyDown = isKeyDown(queueCommandKey);
 	Vec2i targetPos=Vec2i(x, y);
 	//give order
-	CommandResult result= commander->tryGiveCommand(&selection, targetPos, targetUnit, queueKeyDown);
+	std::pair<CommandResult,string> result= commander->tryGiveCommand(&selection, targetPos, targetUnit, queueKeyDown);
 
 	//graphical result
 	addOrdersResultToConsole(activeCommandClass, result);
-	if(result == crSuccess || result == crSomeFailed) {
+	if(result.first == crSuccess || result.first == crSomeFailed) {
 		if(paintMouse3d)
 			mouse3d.enable();
 
@@ -480,7 +480,7 @@ void Gui::giveDefaultOrders(int x, int y,const Unit *targetUnit, bool paintMouse
 
 void Gui::giveTwoClickOrders(int x, int y , bool prepared) {
 	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	CommandResult result;
+	std::pair<CommandResult,string> result(crFailUndefined,"");
 
 	//compute target
 	const Unit *targetUnit= NULL;
@@ -516,7 +516,7 @@ void Gui::giveTwoClickOrders(int x, int y , bool prepared) {
 
 	//graphical result
 	addOrdersResultToConsole(activeCommandClass, result);
-	if(result == crSuccess || result == crSomeFailed) {
+	if(result.first == crSuccess || result.first == crSomeFailed) {
 		if(prepared == false) {
 			mouse3d.enable();
 		}
@@ -950,24 +950,24 @@ int Gui::computePosDisplay(int x, int y){
 	return posDisplay;
 }
 
-void Gui::addOrdersResultToConsole(CommandClass cc, CommandResult result){
+void Gui::addOrdersResultToConsole(CommandClass cc, std::pair<CommandResult,string> result) {
 
-    switch(result){
+    switch(result.first) {
 	case crSuccess:
 		break;
 	case crFailReqs:
         switch(cc){
         case ccBuild:
-            console->addStdMessage("BuildingNoReqs");
+            console->addStdMessage("BuildingNoReqs",result.second);
 		    break;
         case ccProduce:
-            console->addStdMessage("UnitNoReqs");
+            console->addStdMessage("UnitNoReqs",result.second);
             break;
         case ccMorph:
-            console->addStdMessage("MorphNoReqs");
+            console->addStdMessage("MorphNoReqs",result.second);
             break;
         case ccUpgrade:
-            console->addStdMessage("UpgradeNoReqs");
+            console->addStdMessage("UpgradeNoReqs",result.second);
             break;
         default:
             break;
@@ -976,16 +976,16 @@ void Gui::addOrdersResultToConsole(CommandClass cc, CommandResult result){
 	case crFailRes:
         switch(cc){
         case ccBuild:
-            console->addStdMessage("BuildingNoRes");
+            console->addStdMessage("BuildingNoRes",result.second);
 		    break;
         case ccProduce:
-            console->addStdMessage("UnitNoRes");
+            console->addStdMessage("UnitNoRes",result.second);
             break;
         case ccMorph:
-            console->addStdMessage("MorphNoRes");
+            console->addStdMessage("MorphNoRes",result.second);
             break;
         case ccUpgrade:
-            console->addStdMessage("UpgradeNoRes");
+            console->addStdMessage("UpgradeNoRes",result.second);
             break;
 		default:
 			break;
@@ -993,11 +993,11 @@ void Gui::addOrdersResultToConsole(CommandClass cc, CommandResult result){
 		break;
 
     case crFailUndefined:
-        console->addStdMessage("InvalidOrder");
+        console->addStdMessage("InvalidOrder",result.second);
         break;
 
     case crSomeFailed:
-        console->addStdMessage("SomeOrdersFailed");
+        console->addStdMessage("SomeOrdersFailed",result.second);
         break;
     }
 }

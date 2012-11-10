@@ -77,7 +77,7 @@ public:
 
 class Commander : public CommanderNetworkCallbackInterface {
 private:
-	typedef vector<CommandResult> CommandResultContainer;
+	typedef vector<std::pair<CommandResult,string> > CommandResultContainer;
 
 private:
     World *world;
@@ -100,14 +100,14 @@ public:
 	bool hasReplayCommandListForFrame() const;
 	int getReplayCommandListForFrameCount() const;
 
-	CommandResult tryGiveCommand(const Selection *selection, const CommandType *commandType,
+	std::pair<CommandResult,string> tryGiveCommand(const Selection *selection, const CommandType *commandType,
 										const Vec2i &pos, const UnitType* unitType,
 										CardinalDir facing, bool tryQueue,Unit *targetUnit=NULL) const;
 
-	CommandResult tryGiveCommand(const Unit* unit, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType, CardinalDir facing, bool tryQueue = false,Unit *targetUnit=NULL,int unitGroupCommandId=-1) const;
-	CommandResult tryGiveCommand(const Selection *selection, CommandClass commandClass, const Vec2i &pos= Vec2i(0), const Unit *targetUnit= NULL, bool tryQueue = false) const;
-    CommandResult tryGiveCommand(const Selection *selection, const CommandType *commandType, const Vec2i &pos= Vec2i(0), const Unit *targetUnit= NULL, bool tryQueue = false) const;
-    CommandResult tryGiveCommand(const Selection *selection, const Vec2i &pos, const Unit *targetUnit= NULL, bool tryQueue = false, int unitCommandGroupId = -1) const;
+	std::pair<CommandResult,string> tryGiveCommand(const Unit* unit, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType, CardinalDir facing, bool tryQueue = false,Unit *targetUnit=NULL,int unitGroupCommandId=-1) const;
+	std::pair<CommandResult,string> tryGiveCommand(const Selection *selection, CommandClass commandClass, const Vec2i &pos= Vec2i(0), const Unit *targetUnit= NULL, bool tryQueue = false) const;
+	std::pair<CommandResult,string> tryGiveCommand(const Selection *selection, const CommandType *commandType, const Vec2i &pos= Vec2i(0), const Unit *targetUnit= NULL, bool tryQueue = false) const;
+	std::pair<CommandResult,string> tryGiveCommand(const Selection *selection, const Vec2i &pos, const Unit *targetUnit= NULL, bool tryQueue = false, int unitCommandGroupId = -1) const;
 	CommandResult tryCancelCommand(const Selection *selection) const;
 	void trySetMeetingPoint(const Unit* unit, const Vec2i &pos) const;
 	void trySwitchTeam(const Faction* faction, int teamIndex) const;
@@ -120,10 +120,10 @@ public:
 	Command* buildCommand(const NetworkCommand* networkCommand) const;
 
 private:
-	CommandResult pushNetworkCommand(const NetworkCommand* networkCommand) const;
+	std::pair<CommandResult,string> pushNetworkCommand(const NetworkCommand* networkCommand) const;
 	//void giveNetworkCommandSpecial(const NetworkCommand* networkCommand) const;
 
-    CommandResult computeResult(const CommandResultContainer &results) const;
+	std::pair<CommandResult,string> computeResult(const CommandResultContainer &results) const;
 	void giveNetworkCommand(NetworkCommand* networkCommand) const;
 
 	virtual void commanderNetworkUpdateTask(int id);

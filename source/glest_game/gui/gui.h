@@ -226,7 +226,7 @@ private:
 	void mouseDownDisplayUnitBuild(int posDisplay);
 	void computeInfoString(int posDisplay);
 	string computeDefaultInfoString();
-	void addOrdersResultToConsole(CommandClass cc, CommandResult rr);
+	void addOrdersResultToConsole(CommandClass cc, std::pair<CommandResult,string> result);
 	bool isSharedCommandClass(CommandClass commandClass);
 	void computeSelected(bool doubleCkick,bool force);
 	bool computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&targetUnit);
