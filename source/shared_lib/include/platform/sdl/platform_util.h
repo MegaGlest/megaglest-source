@@ -34,7 +34,7 @@ protected:
 public:
     megaglest_runtime_error(const string& __arg,bool noStackTrace=false);
 
-    bool wantStackTrace() const { return noStackTrace; }
+    bool wantStackTrace() const { return !noStackTrace; }
 };
 
 #ifndef WIN32

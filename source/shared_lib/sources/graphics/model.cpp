@@ -1280,7 +1280,14 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 
 		fclose(f);
     }
+    catch(megaglest_runtime_error& ex) {
+    	//printf("1111111 ex.wantStackTrace() = %d\n",ex.wantStackTrace());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		//printf("2222222\n");
+		throw megaglest_runtime_error("Exception caught loading 3d file: " + path +"\n"+ ex.what(),!ex.wantStackTrace());
+    }
 	catch(exception &e){
+		//abort();
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		throw megaglest_runtime_error("Exception caught loading 3d file: " + path +"\n"+ e.what());
 	}

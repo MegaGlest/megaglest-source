@@ -587,6 +587,35 @@ void Program::setState(ProgramState *programStateNew, bool cleanupOldState) {
 		this->programStateOldSystemError = NULL;
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	}
+	catch(megaglest_runtime_error& e) {
+		//printf("3333333 ex.wantStackTrace() = %d\n",e.wantStackTrace());
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d]\nError [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+		//abort();
+		//printf("44444444a ex.wantStackTrace() = %d\n",e.wantStackTrace());
+
+		messageBoxIsSystemError = true;
+		string errorMsg = e.what();
+
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+			if(dynamic_cast<Game *>(programStateNew) != NULL) {
+				try {
+					Game *game = dynamic_cast<Game *>(programStateNew);
+					Renderer &renderer= Renderer::getInstance();
+					renderer.initGame(game,game->getGameCameraPtr());
+				}
+				catch(megaglest_runtime_error& ex2) {
+					errorMsg += "\n" + string(ex2.what());
+				}
+			}
+		}
+
+		//printf("44444444b ex.wantStackTrace() = %d\n",e.wantStackTrace());
+		this->showMessage(errorMsg.c_str());
+		//setState(new Intro(this));
+	}
 	catch(const exception &e){
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d]\nError [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
