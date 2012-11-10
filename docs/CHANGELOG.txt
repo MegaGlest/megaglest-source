@@ -5,6 +5,11 @@ http://sourceforge.net/apps/trac/megaglest/timeline
 
 v3.7.0
 - bugfixes reported in the bugs forum since 3.6.0.3
+- display requirements when a player cannot execute a command
+- improved IRC connection handling
+- auto word wrapping for message boxes
+- headless server can run in local lan mode (does not broadcast to master server)
+- Added lua security sandbox
 - third person view allows you to follow a selected unit. Select one unit anf press f4 to enable (deselect anf f4 to disable).
 - cell markers allow players to create markers anywhere on the map and associate a note with them. All team players see the markers.
 - quick sonar signal to tell team players where the action is happening
@@ -31,6 +36,9 @@ v3.7.0
 - particle colors are now affected by the time of day
 - new game hints are displayed while loading a new game
 - linked faction support (and new techtree MagiTech for classic Glest play)
+- added runtime checks to ensure cpu supports expected optimizations of the binary used (sse, x87)
+- lots of code cleanup from static analysis such as cppcheck and valgrind
+- experimental big endian and non x86 architecure support (need testers to give feedback)
 
 v3.6.0
 - bugfixes reported in the bugs forum from beta1 and 2
