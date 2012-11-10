@@ -14,7 +14,10 @@
 
 #ifndef WIN32
 
+#define __STDC_FORMAT_MACROS
+
 #include <SDL_types.h>
+#include <inttypes.h>
 //#include "leak_dumper.h"
 
 #else
@@ -29,20 +32,30 @@
   #define MG_SIZE_T_SPECIFIER    "%Iu"
   #define MG_SSIZE_T_SPECIFIER   "%Id"
   #define MG_PTRDIFF_T_SPECIFIER "%Id"
+  #define MG_I64_SPECIFIER 		 "%I64d"
+  #define MG_I64U_SPECIFIER 	 "%I64u"
 #elif defined(__GNUC__)
   #define MG_SIZE_T_SPECIFIER    "%zu"
   #define MG_SSIZE_T_SPECIFIER   "%zd"
   #define MG_PTRDIFF_T_SPECIFIER "%zd"
+  #define MG_I64_SPECIFIER 		 "%" PRId64""
+  #define MG_I64U_SPECIFIER 	 "%" PRIu64""
 #else
   // TODO figure out which to use.
   #if NUMBITS == 32
     #define MG_SIZE_T_SPECIFIER    "%lu"
     #define MG_SSIZE_T_SPECIFIER   "%ld"
     #define MG_PTRDIFF_T_SPECIFIER "%ld"
+    #define MG_I64_SPECIFIER 	   "%lld"
+    #define MG_I64U_SPECIFIER 	   "%llu"
+
   #else
     #define MG_SIZE_T_SPECIFIER    "%llu"
     #define MG_SSIZE_T_SPECIFIER   "%lld"
     #define MG_PTRDIFF_T_SPECIFIER "%lld"
+    #define MG_I64_SPECIFIER 	   "%lld"
+    #define MG_I64U_SPECIFIER 	   "%llu"
+
   #endif
 #endif
 
