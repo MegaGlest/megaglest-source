@@ -3325,7 +3325,7 @@ void Unit::cleanupOldBadHarvestPos() {
 
 		if(purgeList.empty() == false) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"[cleaning old bad harvest targets] purgeList.size() [%zu]",purgeList.size());
+			snprintf(szBuf,8096,"[cleaning old bad harvest targets] purgeList.size() [" MG_SIZE_T_SPECIFIER "]",purgeList.size());
 			logSynchData(__FILE__,__LINE__,szBuf);
 
 			for(int i = 0; i < purgeList.size(); ++i) {

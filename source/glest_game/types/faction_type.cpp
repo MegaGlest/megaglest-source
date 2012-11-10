@@ -592,7 +592,7 @@ std::vector<std::string> FactionType::validateFactionType() {
 		}
 
 		if(foundUnit == false) {
-			//printf("Problem for unit [%s] unitTypes.size() = %zu\n",unitType.getName().c_str(),unitTypes.size());
+			//printf("Problem for unit [%s] unitTypes.size() = " MG_SIZE_T_SPECIFIER "\n",unitType.getName().c_str(),unitTypes.size());
 
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has no other units that can produce, build or morph into it in this faction!",unitType.getName().c_str(),this->getName().c_str());
@@ -778,7 +778,7 @@ const UnitType *FactionType::getUnitType(const string &name) const{
 		}
     }
 
-    printf("In [%s::%s Line: %d] scanning [%s] size = %zu\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
+    printf("In [%s::%s Line: %d] scanning [%s] size = " MG_SIZE_T_SPECIFIER "\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
     for(int i=0; i<unitTypes.size();i++){
     	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str());
     }
@@ -798,7 +798,7 @@ const UnitType *FactionType::getUnitTypeById(int id) const{
 		}
     }
 
-    printf("In [%s::%s Line: %d] scanning [%d] size = %zu\n",__FILE__,__FUNCTION__,__LINE__,id,unitTypes.size());
+    printf("In [%s::%s Line: %d] scanning [%d] size = " MG_SIZE_T_SPECIFIER "\n",__FILE__,__FUNCTION__,__LINE__,id,unitTypes.size());
     for(int i=0; i<unitTypes.size();i++){
     	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s][%d]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str(),unitTypes[i].getId());
     }
@@ -818,7 +818,7 @@ const UpgradeType *FactionType::getUpgradeType(const string &name) const{
 		}
     }
 
-    printf("In [%s::%s Line: %d] scanning [%s] size = %zu\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
+    printf("In [%s::%s Line: %d] scanning [%s] size = " MG_SIZE_T_SPECIFIER "\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
     for(int i=0; i<upgradeTypes.size();i++){
     	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,name.c_str(),i,upgradeTypes[i].getName().c_str());
     }

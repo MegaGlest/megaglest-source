@@ -1650,7 +1650,7 @@ void Game::update() {
 			try {
 				gameStarted = false;
 
-			//printf("\nname [%s] scenarioFile [%s] results.size() = %zu\n",name.c_str(),scenarioFile.c_str(),results.size());
+			//printf("\nname [%s] scenarioFile [%s] results.size() = " MG_SIZE_T_SPECIFIER "\n",name.c_str(),scenarioFile.c_str(),results.size());
 			//printf("[%s:%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			ScenarioInfo scenarioInfo;
 			Scenario::loadScenarioInfo(scenarioFile, &scenarioInfo);
@@ -2446,7 +2446,7 @@ void Game::removeCellMarker(Vec2i surfaceCellPos, const Faction *faction) {
 			gameNetworkInterface->sendUnMarkCellMessage(mc.getTargetPos(),factionIndex);
 		}
 	}
-	//printf("#1 ADDED in marked list pos [%s] markedCells.size() = %zu\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
+	//printf("#1 ADDED in marked list pos [%s] markedCells.size() = " MG_SIZE_T_SPECIFIER "\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
 
 	//isUnMarkCellEnabled = false;
 
@@ -2821,7 +2821,7 @@ void Game::mouseDownLeft(int x, int y) {
 						//GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 						//gameNetworkInterface->sendMarkCellMessage(mc.getTargetPos(),mc.getFaction()->getIndex(),mc.getNote());
 
-						//printf("#1 ADDED in marked list pos [%s] markedCells.size() = %zu\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
+						//printf("#1 ADDED in marked list pos [%s] markedCells.size() = " MG_SIZE_T_SPECIFIER "\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
 
 						isMarkCellEnabled = false;
 						cellMarkedData = mc;
@@ -2851,7 +2851,7 @@ void Game::mouseDownLeft(int x, int y) {
 						isUnMarkCellEnabled = false;
 
 						removeCellMarker(surfaceCellPos, world.getThisFaction());
-						//printf("#1 ADDED in marked list pos [%s] markedCells.size() = %zu\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
+						//printf("#1 ADDED in marked list pos [%s] markedCells.size() = " MG_SIZE_T_SPECIFIER "\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
 
 						Renderer &renderer= Renderer::getInstance();
 						//renderer.updateMarkedCellScreenPosQuadCache(surfaceCellPos);
@@ -2898,7 +2898,7 @@ void Game::mouseDownLeft(int x, int y) {
 
 					MarkedCell mc(targetPos,world.getThisFaction(),"placeholder for note",world.getThisFaction()->getStartLocationIndex());
 
-					//printf("#2 ADDED in marked list pos [%s] markedCells.size() = %zu\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
+					//printf("#2 ADDED in marked list pos [%s] markedCells.size() = " MG_SIZE_T_SPECIFIER "\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
 
 					isMarkCellEnabled = false;
 					cellMarkedData = mc;
@@ -2928,7 +2928,7 @@ void Game::mouseDownLeft(int x, int y) {
 
 					isUnMarkCellEnabled = false;
 					removeCellMarker(surfaceCellPos, world.getThisFaction());
-					//printf("#1 ADDED in marked list pos [%s] markedCells.size() = %zu\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
+					//printf("#1 ADDED in marked list pos [%s] markedCells.size() = " MG_SIZE_T_SPECIFIER "\n",surfaceCellPos.getString().c_str(),mapMarkedCellList.size());
 
 					//Renderer &renderer= Renderer::getInstance();
 					//renderer.updateMarkedCellScreenPosQuadCache(surfaceCellPos);
@@ -5109,7 +5109,7 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 		newGame->lastworldFrameCountForReplay = gameNode->getAttribute("LastWorldFrameCount")->getIntValue();
 
 		vector<XmlNode *> networkCommandNodeList = gameNode->getChildList("NetworkCommand");
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("networkCommandNodeList.size() = %zu\n",networkCommandNodeList.size());
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("networkCommandNodeList.size() = " MG_SIZE_T_SPECIFIER "\n",networkCommandNodeList.size());
 		for(unsigned int i = 0; i < networkCommandNodeList.size(); ++i) {
 			XmlNode *node = networkCommandNodeList[i];
 			int worldFrameCount = node->getAttribute("worldFrameCount")->getIntValue();

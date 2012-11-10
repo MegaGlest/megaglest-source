@@ -979,7 +979,7 @@ const CommandType* UnitType::findCommandTypeById(int id) const{
 const CommandType *UnitType::getCommandType(int i) const {
 	if(i >= commandTypes.size()) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] i >= commandTypes.size(), i = %d, commandTypes.size() = %zu",__FILE__,__FUNCTION__,__LINE__,i,commandTypes.size());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] i >= commandTypes.size(), i = %d, commandTypes.size() = " MG_SIZE_T_SPECIFIER "",__FILE__,__FUNCTION__,__LINE__,i,commandTypes.size());
 		throw megaglest_runtime_error(szBuf);
 	}
 	return commandTypes[i];

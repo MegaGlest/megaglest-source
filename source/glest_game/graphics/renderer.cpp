@@ -1521,7 +1521,7 @@ void Renderer::computeVisibleQuad() {
 			visibleQuad.p[3].x,visibleQuad.p[3].y);
 
 		for(unsigned int i = 0; i < quadCache.frustumData.size(); ++i) {
-			printf("\nFrustrum #%u [%zu]: ",i,quadCache.frustumData.size());
+			printf("\nFrustrum #%u [" MG_SIZE_T_SPECIFIER "]: ",i,quadCache.frustumData.size());
 			vector<float> &frustumDataInner = quadCache.frustumData[i];
 			for(unsigned int j = 0; j < frustumDataInner.size(); ++j) {
 				printf("[%f]",quadCache.frustumData[i][j]);
@@ -4479,7 +4479,7 @@ void Renderer::renderSurface(const int renderFps) {
 		    	std::pair<Chrono, std::vector<SurfaceData> > &surfaceCacheEntity = mapSurfaceData[snapshotOfvisibleQuad.getString()];
 		    	surface = &surfaceCacheEntity.second;
 
-		    	//printf("Surface Cache Size for Rendering using VA's = %zu\n",mapSurfaceData.size());
+		    	//printf("Surface Cache Size for Rendering using VA's = " MG_SIZE_T_SPECIFIER "\n",mapSurfaceData.size());
 		    }
 
 		    glEnableClientState(GL_VERTEX_ARRAY);
@@ -7756,7 +7756,7 @@ void Renderer::init3dList() {
 }
 
 void Renderer::render3dSetup() {
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	const Metrics &metrics= Metrics::getInstance();
 	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -7769,7 +7769,7 @@ void Renderer::render3dSetup() {
 
 	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//texture state
 	glActiveTexture(shadowTexUnit);
@@ -7786,7 +7786,7 @@ void Renderer::render3dSetup() {
 
 	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//material state
 	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, defSpecularColor.ptr());
@@ -7799,7 +7799,7 @@ void Renderer::render3dSetup() {
 	glDisable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//alpha test state
 	glEnable(GL_ALPHA_TEST);
@@ -7823,7 +7823,7 @@ void Renderer::render3dSetup() {
 	glDisable(GL_STENCIL_TEST);
 
 	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//fog
 	const Tileset *tileset= NULL;
@@ -8812,14 +8812,14 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 
 							if(markedCells.empty() == false) {
 								if(markedCells.find(pos) != markedCells.end()) {
-									//printf("#1 ******** VISIBLE SCALED CELL FOUND in marked list pos [%s] markedCells.size() = %zu\n",pos.getString().c_str(),markedCells.size());
+									//printf("#1 ******** VISIBLE SCALED CELL FOUND in marked list pos [%s] markedCells.size() = " MG_SIZE_T_SPECIFIER "\n",pos.getString().c_str(),markedCells.size());
 								//if(markedCells.empty() == false) {
 									//SurfaceCell *sc = map->getSurfaceCell(pos);
 									//quadCache.visibleScaledCellToScreenPosList[pos]=computeScreenPosition(sc->getVertex());
 									updateMarkedCellScreenPosQuadCache(pos);
 								}
 								else {
-									//printf("#1 VISIBLE SCALED CELL NOT FOUND in marked list pos [%s] markedCells.size() = %zu\n",pos.getString().c_str(),markedCells.size());
+									//printf("#1 VISIBLE SCALED CELL NOT FOUND in marked list pos [%s] markedCells.size() = " MG_SIZE_T_SPECIFIER "\n",pos.getString().c_str(),markedCells.size());
 								}
 							}
 						}
@@ -8834,13 +8834,13 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 
 								if(markedCells.empty() == false) {
 									if(markedCells.find(pos) != markedCells.end()) {
-										//printf("#2 ******** VISIBLE SCALED CELL FOUND in marked list pos [%s] markedCells.size() = %zu\n",pos.getString().c_str(),markedCells.size());
+										//printf("#2 ******** VISIBLE SCALED CELL FOUND in marked list pos [%s] markedCells.size() = " MG_SIZE_T_SPECIFIER "\n",pos.getString().c_str(),markedCells.size());
 									//if(markedCells.empty() == false) {
 										//quadCache.visibleScaledCellToScreenPosList[pos]=computeScreenPosition(sc->getVertex());
 										updateMarkedCellScreenPosQuadCache(pos);
 									}
 									else {
-										//printf("#2 VISIBLE SCALED CELL NOT FOUND in marked list pos [%s] markedCells.size() = %zu\n",pos.getString().c_str(),markedCells.size());
+										//printf("#2 VISIBLE SCALED CELL NOT FOUND in marked list pos [%s] markedCells.size() = " MG_SIZE_T_SPECIFIER "\n",pos.getString().c_str(),markedCells.size());
 									}
 								}
 							}

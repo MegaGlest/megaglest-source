@@ -1180,7 +1180,7 @@ void Faction::addResourceTargetToCache(const Vec2i &pos,bool incrementUseCounter
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"[addResourceTargetToCache] pos [%s]cacheResourceTargetList.size() [%zu]",
+				snprintf(szBuf,8096,"[addResourceTargetToCache] pos [%s]cacheResourceTargetList.size() [" MG_SIZE_T_SPECIFIER "]",
 								pos.getString().c_str(),cacheResourceTargetList.size());
 
 				//unit->logSynchData(szBuf);
@@ -1203,7 +1203,7 @@ void Faction::removeResourceTargetFromCache(const Vec2i &pos) {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 					char szBuf[8096]="";
-					snprintf(szBuf,8096,"[removeResourceTargetFromCache] pos [%s]cacheResourceTargetList.size() [%zu]",
+					snprintf(szBuf,8096,"[removeResourceTargetFromCache] pos [%s]cacheResourceTargetList.size() [" MG_SIZE_T_SPECIFIER "]",
 									pos.getString().c_str(),cacheResourceTargetList.size());
 
 					//unit->logSynchData(szBuf);
@@ -1347,7 +1347,7 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 			if(deleteList.empty() == false) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 					char szBuf[8096]="";
-					snprintf(szBuf,8096,"[cleaning old resource targets] deleteList.size() [%zu] cacheResourceTargetList.size() [%zu] result [%s]",
+					snprintf(szBuf,8096,"[cleaning old resource targets] deleteList.size() [" MG_SIZE_T_SPECIFIER "] cacheResourceTargetList.size() [" MG_SIZE_T_SPECIFIER "] result [%s]",
 										deleteList.size(),cacheResourceTargetList.size(),result.getString().c_str());
 
 					unit->logSynchData(__FILE__,__LINE__,szBuf);
@@ -1494,7 +1494,7 @@ void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) 
 				if(deleteList.empty() == false) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 						char szBuf[8096]="";
-						snprintf(szBuf,8096,"[cleaning old resource targets] deleteList.size() [%zu] cacheResourceTargetList.size() [%zu], needToCleanup [%d]",
+						snprintf(szBuf,8096,"[cleaning old resource targets] deleteList.size() [" MG_SIZE_T_SPECIFIER "] cacheResourceTargetList.size() [" MG_SIZE_T_SPECIFIER "], needToCleanup [%d]",
 											deleteList.size(),cacheResourceTargetList.size(),needToCleanup);
 						//unit->logSynchData(szBuf);
 						SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",getFrameCount());

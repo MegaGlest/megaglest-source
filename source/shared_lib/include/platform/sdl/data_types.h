@@ -25,6 +25,27 @@
 
 #endif
 
+#if defined(_MSC_VER)
+  #define MG_SIZE_T_SPECIFIER    "%Iu"
+  #define MG_SSIZE_T_SPECIFIER   "%Id"
+  #define MG_PTRDIFF_T_SPECIFIER "%Id"
+#elif defined(__GNUC__)
+  #define MG_SIZE_T_SPECIFIER    "%zu"
+  #define MG_SSIZE_T_SPECIFIER   "%zd"
+  #define MG_PTRDIFF_T_SPECIFIER "%zd"
+#else
+  // TODO figure out which to use.
+  #if NUMBITS == 32
+    #define MG_SIZE_T_SPECIFIER    "%lu"
+    #define MG_SSIZE_T_SPECIFIER   "%ld"
+    #define MG_PTRDIFF_T_SPECIFIER "%ld"
+  #else
+    #define MG_SIZE_T_SPECIFIER    "%llu"
+    #define MG_SSIZE_T_SPECIFIER   "%lld"
+    #define MG_PTRDIFF_T_SPECIFIER "%lld"
+  #endif
+#endif
+
 namespace Shared{ namespace Platform{
 
 #ifndef WIN32

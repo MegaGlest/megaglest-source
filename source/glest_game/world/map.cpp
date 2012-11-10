@@ -406,7 +406,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 				readBytes = fread(&x, sizeof(int32), 1, f);
 				if(readBytes != 1) {
 					char szBuf[8096]="";
-					snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
+					snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
 				x = Shared::PlatformByteOrder::fromCommonEndian(x);
@@ -414,7 +414,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 				readBytes = fread(&y, sizeof(int32), 1, f);
 				if(readBytes != 1) {
 					char szBuf[8096]="";
-					snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
+					snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
 				y = Shared::PlatformByteOrder::fromCommonEndian(y);
@@ -433,7 +433,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 					readBytes = fread(&alt, sizeof(float32), 1, f);
 					if(readBytes != 1) {
 						char szBuf[8096]="";
-						snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
+						snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
 						throw megaglest_runtime_error(szBuf);
 					}
 					alt = Shared::PlatformByteOrder::fromCommonEndian(alt);
@@ -450,7 +450,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 					readBytes = fread(&surf, sizeof(int8), 1, f);
 					if(readBytes != 1) {
 						char szBuf[8096]="";
-						snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
+						snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
 						throw megaglest_runtime_error(szBuf);
 					}
 					surf = Shared::PlatformByteOrder::fromCommonEndian(surf);
@@ -467,7 +467,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 					readBytes = fread(&objNumber, sizeof(int8), 1, f);
 					if(readBytes != 1) {
 						char szBuf[8096]="";
-						snprintf(szBuf,8096,"fread returned wrong size = %zu on line: %d.",readBytes,__LINE__);
+						snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
 						throw megaglest_runtime_error(szBuf);
 					}
 					objNumber = Shared::PlatformByteOrder::fromCommonEndian(objNumber);

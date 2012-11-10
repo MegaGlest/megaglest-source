@@ -781,7 +781,7 @@ string Config::findValidLocalFileFromPath(string fileName) {
 		vector<string> dirList = config.getPathListForType(ptMaps);
 		replaceFileWithLocalFile(dirList, fileNamePart, result);
 
-		printf("Found file [%s] @ %zu [%s]\nNew File [%s]\n",fileName.c_str(),pos,fileNamePart.c_str(),result.c_str());
+		printf("Found file [%s] @ " MG_SIZE_T_SPECIFIER " [%s]\nNew File [%s]\n",fileName.c_str(),pos,fileNamePart.c_str(),result.c_str());
 	}
 	else if(fileName.find("tilesets/") != fileName.npos ) {
 		size_t pos = fileName.find("tilesets/");
@@ -790,7 +790,7 @@ string Config::findValidLocalFileFromPath(string fileName) {
 		vector<string> dirList = config.getPathListForType(ptTilesets);
 		replaceFileWithLocalFile(dirList, fileNamePart, result);
 
-		printf("Found file [%s] @ %zu [%s]\nNew File [%s]\n",fileName.c_str(),pos,fileNamePart.c_str(),result.c_str());
+		printf("Found file [%s] @ " MG_SIZE_T_SPECIFIER " [%s]\nNew File [%s]\n",fileName.c_str(),pos,fileNamePart.c_str(),result.c_str());
 	}
 	else if(fileName.find("techs/") != fileName.npos ) {
 		size_t pos = fileName.find("techs/");
@@ -799,7 +799,7 @@ string Config::findValidLocalFileFromPath(string fileName) {
 		vector<string> dirList = config.getPathListForType(ptTechs);
 		replaceFileWithLocalFile(dirList, fileNamePart, result);
 
-		printf("Found file [%s] @ %zu [%s]\nNew File [%s]\n",fileName.c_str(),pos,fileNamePart.c_str(),result.c_str());
+		printf("Found file [%s] @ " MG_SIZE_T_SPECIFIER " [%s]\nNew File [%s]\n",fileName.c_str(),pos,fileNamePart.c_str(),result.c_str());
 	}
 	else if(fileName.find("scenarios/") != fileName.npos) {
 		size_t pos = fileName.find("scenarios/");
@@ -808,7 +808,7 @@ string Config::findValidLocalFileFromPath(string fileName) {
 		vector<string> dirList = config.getPathListForType(ptScenarios);
 		replaceFileWithLocalFile(dirList, fileNamePart, result);
 
-		printf("Found file [%s] @ %zu [%s]\nNew File [%s]\n",fileName.c_str(),pos,fileNamePart.c_str(),result.c_str());
+		printf("Found file [%s] @ " MG_SIZE_T_SPECIFIER " [%s]\nNew File [%s]\n",fileName.c_str(),pos,fileNamePart.c_str(),result.c_str());
 	}
 	else if(fileName.find("tutorials/") != fileName.npos) {
 		size_t pos = fileName.find("tutorials/");
@@ -817,7 +817,7 @@ string Config::findValidLocalFileFromPath(string fileName) {
 		vector<string> dirList = config.getPathListForType(ptTutorials);
 		replaceFileWithLocalFile(dirList, fileNamePart, result);
 
-		printf("Found file [%s] @ %zu [%s]\nNew File [%s]\n",fileName.c_str(),pos,fileNamePart.c_str(),result.c_str());
+		printf("Found file [%s] @ " MG_SIZE_T_SPECIFIER " [%s]\nNew File [%s]\n",fileName.c_str(),pos,fileNamePart.c_str(),result.c_str());
 	}
 
 	return result;

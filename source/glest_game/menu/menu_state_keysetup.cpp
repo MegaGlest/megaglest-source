@@ -274,8 +274,8 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
         if(userProperties.empty() == false) {
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 			string userKeysFile = configKeys.getFileName(true);
-	        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] save file [%s] userProperties.size() = %zu\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),userProperties.size());
-	        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] save file [%s] userProperties.size() = %zu\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),userProperties.size());
+	        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] save file [%s] userProperties.size() = " MG_SIZE_T_SPECIFIER "\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),userProperties.size());
+	        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] save file [%s] userProperties.size() = " MG_SIZE_T_SPECIFIER "\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),userProperties.size());
 
 			configKeys.setUserProperties(userProperties);
 			configKeys.save();
