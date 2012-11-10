@@ -161,6 +161,21 @@ static void cleanupProcessObjects() {
 		restoreVideoMode(true);
 	}
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 IRCCLient Cache SHUTDOWN\n");
+	IRCThread * &ircClient = CacheManager::getCachedItem< IRCThread * >(GameConstants::ircClinetCacheLookupKey);
+    if(ircClient != NULL) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 IRCCLient Cache SHUTDOWN\n");
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+        ircClient->setCallbackObj(NULL);
+        ircClient->signalQuit();
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+        ircClient = NULL;
+
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#3 IRCCLient Cache SHUTDOWN\n");
+    }
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#4 IRCCLient Cache SHUTDOWN\n");
+
     cleanupCRCThread();
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
