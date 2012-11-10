@@ -1499,8 +1499,8 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 						Command* command= this->game->getCommander()->buildCommand(&networkCommand);
-						CommandResult cr= unit->checkCommand(command);
-						if(cr == crSuccess) {
+						std::pair<CommandResult,string> cr= unit->checkCommand(command);
+						if(cr.first == crSuccess) {
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 							unit->replaceCurrCommand(command);
 						}

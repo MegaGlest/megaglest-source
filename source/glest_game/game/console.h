@@ -107,6 +107,8 @@ public:
 
 	void clearStoredLines();
 	void addStdMessage(const string &s, bool clearOtherLines=false);
+	void addStdMessage(const string &s, string failText, bool clearOtherLines=false);
+
 	void addStdScenarioMessage(const string &s,bool clearOtherLines=false);
 	void addLineOnly(string line);
 	void addLine(string line, bool playSound= false,int playerIndex=-1,Vec3f textColor=Vec3f(1.f, 1.f, 1.f),bool teamMode=false,bool clearOtherLines=false);

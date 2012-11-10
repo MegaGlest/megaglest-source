@@ -869,7 +869,7 @@ void World::morphToUnit(int unitId,const string &morphName,bool ignoreRequiremen
 			if(mct != NULL && mct->getName() == morphName) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] comparing mct [%s]\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),mct->getName().c_str());
 
-				CommandResult cr = crFailUndefined;
+				std::pair<CommandResult,string> cr(crFailUndefined,"");
 				try {
 					if(unit->getFaction()->reqsOk(mct) == false && ignoreRequirements == true) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] comparing mct [%s] mct->getUpgradeReqCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),mct->getName().c_str(),mct->getUpgradeReqCount());
@@ -886,14 +886,14 @@ void World::morphToUnit(int unitId,const string &morphName,bool ignoreRequiremen
 					throw megaglest_runtime_error(ex.what());
 				}
 
-				if(cr == crSuccess) {
+				if(cr.first == crSuccess) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				}
 				else {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				}
 
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] comparing mct [%s] returned = %d\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),mct->getName().c_str(),cr);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] comparing mct [%s] returned = %d\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),mct->getName().c_str(),cr.first);
 
 				break;
 			}

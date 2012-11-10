@@ -67,13 +67,13 @@ public:
     void printLog(int logLevel, const string &s);
 
     //interact
-    CommandResult giveCommand(int unitIndex, CommandClass commandClass, const Vec2i &pos=Vec2i(0));
-    CommandResult giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType);
-    CommandResult giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, int unitGroupCommandId);
-    CommandResult giveCommand(int unitIndex, const CommandType *commandType,  Unit *u= NULL);
-    CommandResult giveCommand(const Unit *unit, const CommandType *commandType, const Vec2i &pos, int unitGroupCommandId);
+    std::pair<CommandResult,string> giveCommand(int unitIndex, CommandClass commandClass, const Vec2i &pos=Vec2i(0));
+    std::pair<CommandResult,string> giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, const UnitType* unitType);
+    std::pair<CommandResult,string> giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, int unitGroupCommandId);
+    std::pair<CommandResult,string> giveCommand(int unitIndex, const CommandType *commandType,  Unit *u= NULL);
+    std::pair<CommandResult,string> giveCommand(const Unit *unit, const CommandType *commandType, const Vec2i &pos, int unitGroupCommandId);
 
-    CommandResult giveCommandSwitchTeamVote(const Faction* faction, SwitchTeamVote *vote);
+    std::pair<CommandResult,string> giveCommandSwitchTeamVote(const Faction* faction, SwitchTeamVote *vote);
 
     //get data
     const ControlType getControlType();

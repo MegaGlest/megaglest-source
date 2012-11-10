@@ -948,7 +948,7 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 
 void Ai::returnBase(int unitIndex) {
     Vec2i pos;
-    CommandResult r;
+    std::pair<CommandResult,string> r(crFailUndefined,"");
     aiInterface->getFactionIndex();
     pos= Vec2i(
 		random.randRange(-villageRadius, villageRadius),
@@ -1141,7 +1141,7 @@ void Ai::unblockUnits() {
 									unitGroupCommandId = aiInterface->getWorld()->getNextCommandGroupId();
 								}
 
-								CommandResult r = aiInterface->giveCommand(adjacentUnit,ct, pos, unitGroupCommandId);
+								std::pair<CommandResult,string> r = aiInterface->giveCommand(adjacentUnit,ct, pos, unitGroupCommandId);
 							}
 						}
 					}

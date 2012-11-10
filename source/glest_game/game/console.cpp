@@ -58,6 +58,15 @@ void Console::addStdMessage(const string &s,bool clearOtherLines) {
 	}
 }
 
+void Console::addStdMessage(const string &s,string failText, bool clearOtherLines) {
+	if(clearOtherLines == true) {
+		addLineOnly(Lang::getInstance().get(s) + failText);
+	}
+	else {
+		addLine(Lang::getInstance().get(s) + failText);
+	}
+}
+
 void Console::addStdScenarioMessage(const string &s,bool clearOtherLines) {
 	if(clearOtherLines == true) {
 		addLineOnly(Lang::getInstance().getScenarioString(s));

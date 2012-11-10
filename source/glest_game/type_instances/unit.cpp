@@ -1357,9 +1357,10 @@ int Unit::getCountOfProducedUnits(const UnitType *ut) const{
 }
 
 //give one command (clear, and push back)
-CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
+std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueue) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"\n======================\nUnit Command tryQueue = %d\nUnit Info:\n%s\nCommand Info:\n%s\n",tryQueue,this->toString().c_str(),command->toString().c_str());
 
+	std::pair<CommandResult,string> result(crFailUndefined,"");
 	changedActiveCommand = false;
 
 	Chrono chrono;
@@ -1457,21 +1458,21 @@ CommandResult Unit::giveCommand(Command *command, bool tryQueue) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//check command
-	CommandResult result= checkCommand(command);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] checkCommand returned: [%d]\n",__FILE__,__FUNCTION__,__LINE__,result);
+	result= checkCommand(command);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] checkCommand returned: [%d]\n",__FILE__,__FUNCTION__,__LINE__,result.first);
 
 	//printf("In [%s::%s] Line: %d check command returned %d, commands.size() = %d\n[%s]\n\n",__FILE__,__FUNCTION__,__LINE__,result,commands.size(),command->toString().c_str());
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-	if(result == crSuccess) {
+	if(result.first == crSuccess) {
 		applyCommand(command);
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//push back command
-	if(result == crSuccess) {
+	if(result.first == crSuccess) {
 		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 		MutexSafeWrapper safeMutex(mutexCommands,mutexOwnerId);
 
@@ -2811,7 +2812,9 @@ void Unit::deleteQueuedCommand(Command *command) {
 }
 
 
-CommandResult Unit::checkCommand(Command *command) const {
+std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
+	std::pair<CommandResult,string> result(crSuccess,"");
+
 	if(command == NULL) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
@@ -2832,14 +2835,16 @@ CommandResult Unit::checkCommand(Command *command) const {
 
 		}
 		else {
-			return crFailUndefined;
+			result.first = crFailUndefined;
+			return result;
 		}
 	}
 
 	//if pos is not inside the world (if comand has not a pos, pos is (0, 0) and is inside world
 	if(map->isInside(command->getPos()) == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
-        return crFailUndefined;
+		result.first = crFailUndefined;
+		return result;
 	}
 
 	//check produced
@@ -2852,12 +2857,21 @@ CommandResult Unit::checkCommand(Command *command) const {
 	const ProducibleType *produced= command->getCommandType()->getProduced();
 	if(produced != NULL) {
 		if(ignoreCheckCommand == false && faction->reqsOk(produced) == false) {
-            return crFailReqs;
+			//printf("To produce this unit you need:\n%s\n",produced->getUnitAndUpgradeReqDesc().c_str());
+			result.first = crFailReqs;
+
+			Lang &lang= Lang::getInstance();
+			result.second = " - " + lang.get("Reqs") + " : " + produced->getUnitAndUpgradeReqDesc(false);
+			return result;
 		}
 
 		if(ignoreCheckCommand == false &&
 				faction->checkCosts(produced,command->getCommandType()) == false) {
-			return crFailRes;
+			//printf("To produce this unit you need:\n%s\n",produced->getResourceReqDesc().c_str());
+			result.first = crFailRes;
+			Lang &lang= Lang::getInstance();
+			result.second = " - " + lang.get("Reqs") + " : " + produced->getResourceReqDesc(false);
+			return result;
 		}
 	}
 
@@ -2872,10 +2886,18 @@ CommandResult Unit::checkCommand(Command *command) const {
 		}
 
 		if(faction->reqsOk(builtUnit) == false) {
-            return crFailReqs;
+			//printf("To build this unit you need:\n%s\n",builtUnit->getUnitAndUpgradeReqDesc().c_str());
+			result.first = crFailReqs;
+			Lang &lang= Lang::getInstance();
+			result.second = " - " + lang.get("Reqs") + " : " + builtUnit->getUnitAndUpgradeReqDesc(false);
+			return result;
 		}
 		if(faction->checkCosts(builtUnit,NULL) == false) {
-			return crFailRes;
+			//printf("To build this unit you need:\n%s\n",builtUnit->getResourceReqDesc().c_str());
+			result.first = crFailRes;
+			Lang &lang= Lang::getInstance();
+			result.second = " - " + lang.get("Reqs") + " : " + builtUnit->getResourceReqDesc(false);
+			return result;
 		}
     }
     //upgrade command specific, check that upgrade is not upgraded
@@ -2890,11 +2912,12 @@ CommandResult Unit::checkCommand(Command *command) const {
 
 		if(faction->getUpgradeManager()->isUpgradingOrUpgraded(uct->getProducedUpgrade())){
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
-            return crFailUndefined;
+			result.first = crFailUndefined;
+			return result;
 		}
 	}
 
-    return crSuccess;
+    return result;
 }
 
 void Unit::applyCommand(Command *command){

@@ -126,36 +126,37 @@ bool AiInterface::executeCommandOverNetwork() {
 	return faction->getCpuControl(enableServerControlledAI,isNetworkGame,role);
 }
 
-CommandResult AiInterface::giveCommandSwitchTeamVote(const Faction* faction, SwitchTeamVote *vote) {
+std::pair<CommandResult,string> AiInterface::giveCommandSwitchTeamVote(const Faction* faction, SwitchTeamVote *vote) {
 	assert(this->gameSettings != NULL);
 
 	commander->trySwitchTeamVote(faction,vote);
-	return crSuccess;
+	return std::pair<CommandResult,string>(crSuccess,"");
 }
 
-CommandResult AiInterface::giveCommand(int unitIndex, CommandClass commandClass, const Vec2i &pos){
+std::pair<CommandResult,string> AiInterface::giveCommand(int unitIndex, CommandClass commandClass, const Vec2i &pos){
 	assert(this->gameSettings != NULL);
 
+	std::pair<CommandResult,string> result(crFailUndefined,"");
 	if(executeCommandOverNetwork() == true) {
 		const Unit *unit = getMyUnit(unitIndex);
-		CommandResult result = commander->tryGiveCommand(unit, unit->getType()->getFirstCtOfClass(commandClass), pos, unit->getType(),CardinalDir::NORTH);
-
+		result = commander->tryGiveCommand(unit, unit->getType()->getFirstCtOfClass(commandClass), pos, unit->getType(),CardinalDir::NORTH);
 		return result;
 	}
 	else {
 		Command *c= new Command (world->getFaction(factionIndex)->getUnit(unitIndex)->getType()->getFirstCtOfClass(commandClass), pos);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		CommandResult result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(c);
+		result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(c);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		return result;
 	}
 }
 
-CommandResult AiInterface::giveCommand(const Unit *unit, const CommandType *commandType, const Vec2i &pos, int unitGroupCommandId) {
+std::pair<CommandResult,string> AiInterface::giveCommand(const Unit *unit, const CommandType *commandType, const Vec2i &pos, int unitGroupCommandId) {
 	assert(this->gameSettings != NULL);
 
+	std::pair<CommandResult,string> result(crFailUndefined,"");
 	if(unit == NULL) {
 	    char szBuf[8096]="";
 	    snprintf(szBuf,8096,"In [%s::%s Line: %d] Can not find AI unit in AI factionIndex = %d. Game out of synch.",__FILE__,__FUNCTION__,__LINE__,factionIndex);
@@ -188,7 +189,7 @@ CommandResult AiInterface::giveCommand(const Unit *unit, const CommandType *comm
 	}
 
 	if(executeCommandOverNetwork() == true) {
-		CommandResult result = commander->tryGiveCommand(unit, commandType, pos,
+		result = commander->tryGiveCommand(unit, commandType, pos,
 				unit->getType(),CardinalDir::NORTH, false, NULL,unitGroupCommandId);
 		return result;
 	}
@@ -199,16 +200,17 @@ CommandResult AiInterface::giveCommand(const Unit *unit, const CommandType *comm
 		Unit *unitToCommand = faction->findUnit(unit->getId());
 		Command *cmd = new Command(commandType, pos);
 		cmd->setUnitCommandGroupId(unitGroupCommandId);
-		CommandResult result = unitToCommand->giveCommand(cmd);
+		result = unitToCommand->giveCommand(cmd);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		return result;
 	}
 }
 
-CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, int unitGroupCommandId) {
+std::pair<CommandResult,string> AiInterface::giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, int unitGroupCommandId) {
 	assert(this->gameSettings != NULL);
 
+	std::pair<CommandResult,string> result(crFailUndefined,"");
 	const Unit *unit = getMyUnit(unitIndex);
 	if(unit == NULL) {
 	    char szBuf[8096]="";
@@ -238,7 +240,7 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 
 	if(executeCommandOverNetwork() == true) {
 		const Unit *unit = getMyUnit(unitIndex);
-		CommandResult result = commander->tryGiveCommand(unit, commandType, pos, unit->getType(),CardinalDir::NORTH);
+		result = commander->tryGiveCommand(unit, commandType, pos, unit->getType(),CardinalDir::NORTH);
 		return result;
 	}
 	else {
@@ -246,16 +248,17 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 
 		Command *cmd = new Command(commandType, pos);
 		cmd->setUnitCommandGroupId(unitGroupCommandId);
-		CommandResult result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(cmd);
+		result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(cmd);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		return result;
 	}
 }
 
-CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, const UnitType *ut) {
+std::pair<CommandResult,string> AiInterface::giveCommand(int unitIndex, const CommandType *commandType, const Vec2i &pos, const UnitType *ut) {
 	assert(this->gameSettings != NULL);
 
+	std::pair<CommandResult,string> result(crFailUndefined,"");
 	const Unit *unit = getMyUnit(unitIndex);
 	if(unit == NULL) {
 	    char szBuf[8096]="";
@@ -285,13 +288,13 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 
 	if(executeCommandOverNetwork() == true) {
 		const Unit *unit = getMyUnit(unitIndex);
-		CommandResult result = commander->tryGiveCommand(unit, commandType, pos, ut,CardinalDir::NORTH);
+		result = commander->tryGiveCommand(unit, commandType, pos, ut,CardinalDir::NORTH);
 		return result;
 	}
 	else {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		CommandResult result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(new Command(commandType, pos, ut, CardinalDir::NORTH));
+		result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(new Command(commandType, pos, ut, CardinalDir::NORTH));
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -299,10 +302,11 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 	}
 }
 
-CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *commandType, Unit *u){
+std::pair<CommandResult,string> AiInterface::giveCommand(int unitIndex, const CommandType *commandType, Unit *u){
 	assert(this->gameSettings != NULL);
 	assert(this->commander != NULL);
 
+	std::pair<CommandResult,string> result(crFailUndefined,"");
 	const Unit *unit = getMyUnit(unitIndex);
 	if(unit == NULL) {
 	    char szBuf[8096]="";
@@ -334,14 +338,14 @@ CommandResult AiInterface::giveCommand(int unitIndex, const CommandType *command
 		Unit *targetUnit = u;
 		const Unit *unit = getMyUnit(unitIndex);
 
-		CommandResult result = commander->tryGiveCommand(unit, commandType, Vec2i(0), unit->getType(),CardinalDir::NORTH,false,targetUnit);
+		result = commander->tryGiveCommand(unit, commandType, Vec2i(0), unit->getType(),CardinalDir::NORTH,false,targetUnit);
 
 		return result;
 	}
 	else {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		CommandResult result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(new Command(commandType, u));
+		result = world->getFaction(factionIndex)->getUnit(unitIndex)->giveCommand(new Command(commandType, u));
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

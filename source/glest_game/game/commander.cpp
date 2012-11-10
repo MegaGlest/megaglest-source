@@ -171,11 +171,12 @@ bool Commander::canSubmitCommandType(const Unit *unit, const CommandType *comman
 	return canSubmitCommand;
 }
 
-CommandResult Commander::tryGiveCommand(const Selection *selection, const CommandType *commandType,
+std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selection, const CommandType *commandType,
 									const Vec2i &pos, const UnitType* unitType,
 									CardinalDir facing, bool tryQueue,Unit *targetUnit) const {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	std::pair<CommandResult,string> result(crFailUndefined,"");
 	if(!selection->isEmpty() && commandType != NULL) {
 		Vec2i refPos;
 		CommandResultContainer results;
@@ -202,7 +203,7 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Comman
 			const Unit *unit = selection->getUnit(i);
 
 
-			CommandResult result = crFailUndefined;
+			std::pair<CommandResult,string> resultCur(crFailUndefined,"");
 			bool canSubmitCommand = canSubmitCommandType(unit, commandType);
 			if(canSubmitCommand == true) {
 				int unitId= unit->getId();
@@ -238,21 +239,19 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Comman
 							unitCommandGroupId);
 
 					//every unit is ordered to a the position
-					result= pushNetworkCommand(&networkCommand);
+					resultCur= pushNetworkCommand(&networkCommand);
 				}
 			}
 
-			results.push_back(result);
+			results.push_back(resultCur);
 		}
 
 		return computeResult(results);
 	}
-	else{
-		return crFailUndefined;
-	}
+	return std::pair<CommandResult,string>(crFailUndefined,"");
 }
 
-CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *commandType,
+std::pair<CommandResult,string> Commander::tryGiveCommand(const Unit* unit, const CommandType *commandType,
 									const Vec2i &pos, const UnitType* unitType,
 									CardinalDir facing, bool tryQueue,Unit *targetUnit,
 									int unitGroupCommandId) const {
@@ -268,7 +267,7 @@ CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *com
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-	CommandResult result = crFailUndefined;
+	std::pair<CommandResult,string> result(crFailUndefined,"");
 	bool canSubmitCommand=canSubmitCommandType(unit, commandType);
 	if(canSubmitCommand == true) {
 		NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(),
@@ -286,9 +285,10 @@ CommandResult Commander::tryGiveCommand(const Unit* unit, const CommandType *com
 	return result;
 }
 
-CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass commandClass,
+std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selection, CommandClass commandClass,
 		const Vec2i &pos, const Unit *targetUnit, bool tryQueue) const{
 
+	std::pair<CommandResult,string> result(crFailUndefined,"");
 	if(selection->isEmpty() == false) {
 		Vec2i refPos, currPos;
 		CommandResultContainer results;
@@ -305,7 +305,8 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass
 			const Unit *unit= selection->getUnit(i);
 			const CommandType *ct= unit->getType()->getFirstCtOfClass(commandClass);
 			if(ct != NULL) {
-				CommandResult result = crFailUndefined;
+				std::pair<CommandResult,string> resultCur(crFailUndefined,"");
+
 				bool canSubmitCommand=canSubmitCommandType(unit, ct);
 				if(canSubmitCommand == true) {
 
@@ -318,24 +319,26 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, CommandClass
 							tryQueue,cst_None,-1,unitCommandGroupId);
 
 					//every unit is ordered to a different pos
-					result= pushNetworkCommand(&networkCommand);
+					resultCur= pushNetworkCommand(&networkCommand);
 				}
-				results.push_back(result);
+				results.push_back(resultCur);
 			}
 			else{
-				results.push_back(crFailUndefined);
+				results.push_back(std::pair<CommandResult,string>(crFailUndefined,""));
 			}
 		}
 		return computeResult(results);
 	}
 	else{
-		return crFailUndefined;
+		return std::pair<CommandResult,string>(crFailUndefined,"");
 	}
 }
 
-CommandResult Commander::tryGiveCommand(const Selection *selection,
+std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selection,
 						const CommandType *commandType, const Vec2i &pos,
 						const Unit *targetUnit, bool tryQueue) const {
+	std::pair<CommandResult,string> result(crFailUndefined,"");
+
 	if(!selection->isEmpty() && commandType!=NULL){
 		Vec2i refPos;
 		CommandResultContainer results;
@@ -352,7 +355,8 @@ CommandResult Commander::tryGiveCommand(const Selection *selection,
 			const Unit *unit = selection->getUnit(i);
 			assert(unit != NULL);
 
-			CommandResult result = crFailUndefined;
+			std::pair<CommandResult,string> resultCur(crFailUndefined,"");
+
 			bool canSubmitCommand=canSubmitCommandType(unit, commandType);
 			if(canSubmitCommand == true) {
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
@@ -363,24 +367,24 @@ CommandResult Commander::tryGiveCommand(const Selection *selection,
 						cst_None, -1, unitCommandGroupId);
 
 				//every unit is ordered to a different position
-				result= pushNetworkCommand(&networkCommand);
+				resultCur= pushNetworkCommand(&networkCommand);
 			}
-			results.push_back(result);
+			results.push_back(resultCur);
 		}
 
 		return computeResult(results);
 	}
 	else{
-		return crFailUndefined;
+		return std::pair<CommandResult,string>(crFailUndefined,"");
 	}
 }
 
 //auto command
-CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i &pos,
+std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selection, const Vec2i &pos,
 		const Unit *targetUnit, bool tryQueue, int unitCommandGroupId) const {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	CommandResult result = crFailUndefined;
+	std::pair<CommandResult,string> result(crFailUndefined,"");
 
 	if(selection->isEmpty() == false){
 		Vec2i refPos, currPos;
@@ -407,26 +411,27 @@ CommandResult Commander::tryGiveCommand(const Selection *selection, const Vec2i 
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 				int unitId= unit->getId();
 
-				CommandResult result = crFailUndefined;
+				std::pair<CommandResult,string> resultCur(crFailUndefined,"");
+
 				bool canSubmitCommand=canSubmitCommandType(unit, commandType);
 				if(canSubmitCommand == true) {
 					NetworkCommand networkCommand(this->world,nctGiveCommand,
 							unitId, commandType->getId(), currPos, -1, targetId,
 							-1, tryQueue, cst_None, -1, unitCommandGroupId);
-					result= pushNetworkCommand(&networkCommand);
+					resultCur= pushNetworkCommand(&networkCommand);
 				}
-				results.push_back(result);
+				results.push_back(resultCur);
 			}
 			else if(unit->isMeetingPointSettable() == true) {
 				NetworkCommand command(this->world,nctSetMeetingPoint,
 						unit->getId(), -1, currPos,-1,-1,-1,false,
 						cst_None,-1,unitCommandGroupId);
 
-				CommandResult result= pushNetworkCommand(&command);
-				results.push_back(result);
+				std::pair<CommandResult,string> resultCur= pushNetworkCommand(&command);
+				results.push_back(resultCur);
 			}
 			else {
-				results.push_back(crFailUndefined);
+				results.push_back(std::pair<CommandResult,string>(crFailUndefined,""));
 			}
 		}
 		result = computeResult(results);
@@ -491,25 +496,27 @@ void Commander::tryNetworkPlayerDisconnected(int factionIndex) const {
 
 // ==================== PRIVATE ====================
 
-CommandResult Commander::computeResult(const CommandResultContainer &results) const {
+std::pair<CommandResult,string> Commander::computeResult(const CommandResultContainer &results) const {
+	std::pair<CommandResult,string> result(crFailUndefined,"");
 	switch(results.size()) {
         case 0:
-            return crFailUndefined;
+            return std::pair<CommandResult,string>(crFailUndefined,"");
         case 1:
             return results.front();
         default:
             for(int i = 0; i < results.size(); ++i) {
-                if(results[i] != crSuccess) {
-                    return crSomeFailed;
+                if(results[i].first != crSuccess) {
+                	return std::pair<CommandResult,string>(crSomeFailed,results[i].second);
                 }
             }
-            return crSuccess;
+            break;
 	}
+	return std::pair<CommandResult,string>(crSuccess,"");
 }
 
-CommandResult Commander::pushNetworkCommand(const NetworkCommand* networkCommand) const {
+std::pair<CommandResult,string> Commander::pushNetworkCommand(const NetworkCommand* networkCommand) const {
 	GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
-	CommandResult cr= crSuccess;
+	std::pair<CommandResult,string> result(crSuccess,"");
 
 	//validate unit
 	const Unit* unit = NULL;
@@ -538,10 +545,10 @@ CommandResult Commander::pushNetworkCommand(const NetworkCommand* networkCommand
 	//calculate the result of the command
 	if(networkCommand->getNetworkCommandType() == nctGiveCommand) {
 		Command* command= buildCommand(networkCommand);
-		cr= unit->checkCommand(command);
+		result= unit->checkCommand(command);
 		delete command;
 	}
-	return cr;
+	return result;
 }
 
 void Commander::signalNetworkUpdate(Game *game) {

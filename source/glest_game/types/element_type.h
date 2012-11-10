@@ -119,6 +119,8 @@ public:
     void checkCostStrings(TechTree *techTree);
     
 	virtual string getReqDesc() const;
+	string getResourceReqDesc(bool lineBreaks=true) const;
+	string getUnitAndUpgradeReqDesc(bool lineBreaks=true) const;
 	string getReqDesc(bool ignoreResourceRequirements) const;
 
 //	virtual void saveGame(XmlNode *rootNode) const;
