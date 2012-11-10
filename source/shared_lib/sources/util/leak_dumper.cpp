@@ -54,21 +54,21 @@ void AllocRegistry::dump(const char *path) {
 				leakBytes += info.bytes;
 
 				//allocs[i].stack = AllocInfo::getStackTrace();
-				fprintf(f, "Leak #%d.\tfile: %s, line: %d, ptr [%p], bytes: %zu, array: %d, inuse: %d\n%s\n", ++leakCount, info.file, info.line, info.ptr, info.bytes, info.array,info.inuse,info.stack.c_str());
+				fprintf(f, "Leak #%d.\tfile: %s, line: %d, ptr [%p], bytes: " MG_SIZE_T_SPECIFIER ", array: %d, inuse: %d\n%s\n", ++leakCount, info.file, info.line, info.ptr, info.bytes, info.array,info.inuse,info.stack.c_str());
 			}
 		}
 	}
 
-	fprintf(f, "\nTotal leaks: %d, %zu bytes\n", leakCount, leakBytes);
-	fprintf(f, "Total allocations: %d, %zu bytes\n", allocCount, allocBytes);
-	fprintf(f, "Not monitored allocations: %d, %zu bytes\n", nonMonitoredCount, nonMonitoredBytes);
+	fprintf(f, "\nTotal leaks: %d, " MG_SIZE_T_SPECIFIER " bytes\n", leakCount, leakBytes);
+	fprintf(f, "Total allocations: %d, " MG_SIZE_T_SPECIFIER " bytes\n", allocCount, allocBytes);
+	fprintf(f, "Not monitored allocations: %d, " MG_SIZE_T_SPECIFIER " bytes\n", nonMonitoredCount, nonMonitoredBytes);
 
 	fclose(f);
 
 	printf("Memory leak dump summary at: %s\n",szBuf2);
-	printf("Total leaks: %d, %zu bytes\n", leakCount, leakBytes);
-	printf("Total allocations: %d, %zu bytes\n", allocCount, allocBytes);
-	printf("Not monitored allocations: %d, %zu bytes\n", nonMonitoredCount, nonMonitoredBytes);
+	printf("Total leaks: %d, " MG_SIZE_T_SPECIFIER " bytes\n", leakCount, leakBytes);
+	printf("Total allocations: %d, " MG_SIZE_T_SPECIFIER " bytes\n", allocCount, allocBytes);
+	printf("Not monitored allocations: %d, " MG_SIZE_T_SPECIFIER " bytes\n", nonMonitoredCount, nonMonitoredBytes);
 }
 
 #endif

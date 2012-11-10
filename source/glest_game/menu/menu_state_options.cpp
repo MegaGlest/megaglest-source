@@ -1168,7 +1168,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		vector<string> languageFileMappings;
 		Tokenize(txnURLFileListMapping,languageFileMappings,"|");
 
-		printf("URL5 file count = %zu, %zu [%s]\n",languageFiles.size(),languageFileMappings.size(),(languageFiles.empty() == false ? languageFiles[0].c_str() : ""));
+		printf("URL5 file count = " MG_SIZE_T_SPECIFIER ", " MG_SIZE_T_SPECIFIER " [%s]\n",languageFiles.size(),languageFileMappings.size(),(languageFiles.empty() == false ? languageFiles[0].c_str() : ""));
 
 		if(languageFiles.empty() == false) {
 

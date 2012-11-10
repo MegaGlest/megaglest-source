@@ -556,7 +556,7 @@ bool Commander::getReplayCommandListForFrame(int worldFrameCount) {
 	bool haveReplyCommands = false;
 	if(replayCommandList.empty() == false) {
 		//int worldFrameCount = world->getFrameCount();
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("worldFrameCount = %d replayCommandList.size() = %zu\n",worldFrameCount,replayCommandList.size());
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("worldFrameCount = %d replayCommandList.size() = " MG_SIZE_T_SPECIFIER "\n",worldFrameCount,replayCommandList.size());
 
 		std::vector<NetworkCommand> replayList;
 		for(unsigned int i = 0; i < replayCommandList.size(); ++i) {
@@ -569,7 +569,7 @@ bool Commander::getReplayCommandListForFrame(int worldFrameCount) {
 		if(haveReplyCommands == true) {
 			replayCommandList.erase(replayCommandList.begin(),replayCommandList.begin() + replayList.size());
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("worldFrameCount = %d GIVING COMMANDS replayList.size() = %zu\n",worldFrameCount,replayList.size());
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("worldFrameCount = %d GIVING COMMANDS replayList.size() = " MG_SIZE_T_SPECIFIER "\n",worldFrameCount,replayList.size());
 			for(int i= 0; i < replayList.size(); ++i){
 				giveNetworkCommand(&replayList[i]);
 				//pushNetworkCommand(&replayList[i]);

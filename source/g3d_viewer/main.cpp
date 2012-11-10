@@ -314,7 +314,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 
 	if(modelPath != "") {
 		this->modelPathList.push_back(modelPath);
-		printf("Startup Adding model [%s] list size %zu\n",modelPath.c_str(),this->modelPathList.size());
+		printf("Startup Adding model [%s] list size " MG_SIZE_T_SPECIFIER "\n",modelPath.c_str(),this->modelPathList.size());
 	}
 	if(particlePath != "") {
 		this->particlePathList.push_back(particlePath);
@@ -1232,14 +1232,14 @@ void MainWindow::loadModel(string path) {
     try {
         if(path != "" && fileExists(path) == true) {
             this->modelPathList.push_back(path);
-            printf("Adding model [%s] list size %zu\n",path.c_str(),this->modelPathList.size());
+            printf("Adding model [%s] list size " MG_SIZE_T_SPECIFIER "\n",path.c_str(),this->modelPathList.size());
         }
 
         string titlestring=winHeader;
         for(unsigned int idx =0; idx < this->modelPathList.size(); idx++) {
             string modelPath = this->modelPathList[idx];
 
-            //printf("Loading model [%s] %u of %zu\n",modelPath.c_str(),idx, this->modelPathList.size());
+            //printf("Loading model [%s] %u of " MG_SIZE_T_SPECIFIER "\n",modelPath.c_str(),idx, this->modelPathList.size());
 
             if(timer) timer->Stop();
             delete model;
@@ -1369,7 +1369,7 @@ void MainWindow::loadParticle(string path) {
 }
 
 void MainWindow::loadProjectileParticle(string path) {
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s] particleProjectilePathList.size() = %zu\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),this->particleProjectilePathList.size());
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s] particleProjectilePathList.size() = " MG_SIZE_T_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),this->particleProjectilePathList.size());
 
 	if(timer) timer->Stop();
 	if(path != "" && fileExists(path) == true) {
@@ -1390,7 +1390,7 @@ void MainWindow::loadProjectileParticle(string path) {
 
 	try {
 	if(this->particleProjectilePathList.empty() == false) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("this->particleProjectilePathList.size() = %zu\n",this->particleProjectilePathList.size());
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("this->particleProjectilePathList.size() = " MG_SIZE_T_SPECIFIER "\n",this->particleProjectilePathList.size());
 
         string titlestring=winHeader;
 		for(unsigned int idx = 0; idx < this->particleProjectilePathList.size(); idx++) {
@@ -1487,7 +1487,7 @@ void MainWindow::loadProjectileParticle(string path) {
 }
 
 void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSplash::load  (and own list...)
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s] particleSplashPathList.size() = %zu\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),this->particleSplashPathList.size());
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s] particleSplashPathList.size() = " MG_SIZE_T_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),this->particleSplashPathList.size());
 
 	if(timer) timer->Stop();
 	if(path != "" && fileExists(path) == true) {
@@ -1590,7 +1590,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 		wxMessageDialog(NULL, ToUnicode(e.what()), ToUnicode("Not a Mega-Glest projectile particle XML file, or broken"), wxOK | wxICON_ERROR).ShowModal();
 	}
 	if(timer) timer->Start(100);
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] after load [%s] particleSplashPathList.size() = %zu\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),this->particleSplashPathList.size());
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] after load [%s] particleSplashPathList.size() = " MG_SIZE_T_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),this->particleSplashPathList.size());
 }
 
 void MainWindow::onMenuModeNormals(wxCommandEvent &event){
