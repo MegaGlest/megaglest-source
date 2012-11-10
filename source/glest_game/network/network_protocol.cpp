@@ -204,7 +204,7 @@ int64 unpacki64(unsigned char *buf)
 	}
 	else {
 		i = -1 -(int64)(0xffffffffffffffffull - i2);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("IN [%s] [%d] [%d] [%d] [%d] [%d] [%d] [%d] [%d] [%ld] [%lu]\n",__FUNCTION__,buf[0],buf[1],buf[2],buf[3],buf[4],buf[5],buf[6],buf[7],i,i2);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("IN [%s] [%d] [%d] [%d] [%d] [%d] [%d] [%d] [%d] [" MG_I64_SPECIFIER "] [" MG_I64U_SPECIFIER "]\n",__FUNCTION__,buf[0],buf[1],buf[2],buf[3],buf[4],buf[5],buf[6],buf[7],i,i2);
 	}
 
 	return i;
@@ -277,7 +277,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			c = (int8)va_arg(ap, int); // promoted
 			*buf++ = (unsigned char)c;
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack int8 = %d [%X] c = %d [%X] buf pos = %ld\n",*(buf-1),*(buf-1),c,c,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack int8 = %d [%X] c = %d [%X] buf pos = %lu\n",*(buf-1),*(buf-1),c,c,(unsigned long)(buf - bufStart));
 			break;
 
 		case 'C': // 8-bit unsigned
@@ -285,7 +285,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			C = (uint8)va_arg(ap, unsigned int); // promoted
 			*buf++ = (unsigned char)C;
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack uint8 = %u [%X] C = %u [%X] buf pos = %ld\n",*(buf-1),*(buf-1),C,C,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack uint8 = %u [%X] C = %u [%X] buf pos = %lu\n",*(buf-1),*(buf-1),C,C,(unsigned long)(buf - bufStart));
 			break;
 
 		case 'h': // 16-bit
@@ -294,7 +294,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			packi16(buf, h);
 			buf += 2;
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack int16 = %d [%X] h = %d [%X] buf pos = %ld\n",*(buf-2),*(buf-2),h,h,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack int16 = %d [%X] h = %d [%X] buf pos = %lu\n",*(buf-2),*(buf-2),h,h,(unsigned long)(buf - bufStart));
 			break;
 
 		case 'H': // 16-bit unsigned
@@ -303,7 +303,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			packi16(buf, H);
 			buf += 2;
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack uint16 = %u [%X] H = %u [%X] buf pos = %ld\n",*(buf-2),*(buf-2),H,H,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack uint16 = %u [%X] H = %u [%X] buf pos = %lu\n",*(buf-2),*(buf-2),H,H,(unsigned long)(buf - bufStart));
 			break;
 
 		case 'l': // 32-bit
@@ -312,7 +312,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			packi32(buf, l);
 			buf += 4;
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack int32 = %d [%X] l = %d [%X] buf pos = %ld\n",*(buf-4),*(buf-4),l,l,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack int32 = %d [%X] l = %d [%X] buf pos = %lu\n",*(buf-4),*(buf-4),l,l,(unsigned long)(buf - bufStart));
 			break;
 
 		case 'L': // 32-bit unsigned
@@ -321,7 +321,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			packi32(buf, L);
 			buf += 4;
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack uint32 = %u [%X] L = %u [%X] buf pos = %ld\n",*(buf-4),*(buf-4),L,L,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack uint32 = %u [%X] L = %u [%X] buf pos = %lu\n",*(buf-4),*(buf-4),L,L,(unsigned long)(buf - bufStart));
 			break;
 
 		case 'q': // 64-bit
@@ -330,7 +330,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			packi64(buf, q);
 			buf += 8;
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack int64 = %ld [%X] q = %ld [%lX] buf pos = %ld\n",(int64)*(buf-8),*(buf-8),q,q,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack int64 = " MG_I64_SPECIFIER " [%X] q = %ld [%lX] buf pos = %lu\n",(int64)*(buf-8),*(buf-8),q,q,(unsigned long)(buf - bufStart));
 			break;
 
 		case 'Q': // 64-bit unsigned
@@ -339,7 +339,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			packi64(buf, Q);
 			buf += 8;
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack uint64 = %lu [%X] Q = %lu buf pos = %ld\n",(uint64)*(buf-8),*(buf-8),Q,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack uint64 = " MG_I64U_SPECIFIER " [%X] Q = " MG_I64U_SPECIFIER " buf pos = %lu\n",(uint64)*(buf-8),*(buf-8),Q,(unsigned long)(buf - bufStart));
 			break;
 
 		case 'f': // float-16
@@ -377,7 +377,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			buf += 2;
 
 			memcpy(buf, s, len);
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack string size = %d [%X] len = %d str [%s] buf pos = %ld\n",*(buf-2),*(buf-2),len,s,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack string size = %d [%X] len = %d str [%s] buf pos = %lu\n",*(buf-2),*(buf-2),len,s,(unsigned long)(buf - bufStart));
 
 			buf += len;
 			break;
@@ -452,7 +452,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			*c = (int8)*buf++;
 			size += 1;
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack int8 = %d [%X] c = %d [%X] buf pos = %ld\n",*(buf-1),*(buf-1),*c,*c,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack int8 = %d [%X] c = %d [%X] buf pos = %lu\n",*(buf-1),*(buf-1),*c,*c,(unsigned long)(buf - bufStart));
 			break;
 
 		case 'C': // 8-bit unsigned
@@ -460,7 +460,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			*C = (uint8)*buf++;
 			size += 1;
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack uint8 = %u [%X] C = %u [%X] buf pos = %ld\n",*(buf-1),*(buf-1),*C,*C,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack uint8 = %u [%X] C = %u [%X] buf pos = %lu\n",*(buf-1),*(buf-1),*C,*C,(unsigned long)(buf - bufStart));
 			break;
 
 		case 'h': // 16-bit
@@ -469,7 +469,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			buf += 2;
 			size += 2;
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack int16 = %d [%X] h = %d [%X] buf pos = %ld\n",*(buf-2),*(buf-2),*h,*h,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack int16 = %d [%X] h = %d [%X] buf pos = %lu\n",*(buf-2),*(buf-2),*h,*h,(unsigned long)(buf - bufStart));
 			break;
 
 		case 'H': // 16-bit unsigned
@@ -478,7 +478,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			buf += 2;
 			size += 2;
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack uint16 = %u [%X] H = %u [%X] buf pos = %ld\n",*(buf-2),*(buf-2),*H,*H,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack uint16 = %u [%X] H = %u [%X] buf pos = %lu\n",*(buf-2),*(buf-2),*H,*H,(unsigned long)(buf - bufStart));
 			break;
 
 		case 'l': // 32-bit
@@ -487,7 +487,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			buf += 4;
 			size += 4;
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack int32 = %d [%X] l = %d [%X] buf pos = %ld\n",*(buf-4),*(buf-4),*l,*l,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack int32 = %d [%X] l = %d [%X] buf pos = %lu\n",*(buf-4),*(buf-4),*l,*l,(unsigned long)(buf - bufStart));
 			break;
 
 		case 'L': // 32-bit unsigned
@@ -496,7 +496,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			buf += 4;
 			size += 4;
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack uint32 = %u [%X] L = %u [%X] buf pos = %ld\n",*(buf-4),*(buf-4),*L,*L,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack uint32 = %u [%X] L = %u [%X] buf pos = %lu\n",*(buf-4),*(buf-4),*L,*L,(unsigned long)(buf - bufStart));
 			break;
 
 		case 'q': // 64-bit
@@ -505,7 +505,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			buf += 8;
 			size += 8;
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack int64 = %ld [%X] q = %ld buf pos = %ld\n",(int64)*(buf-8),*(buf-8),*q,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack int64 = " MG_I64_SPECIFIER " [%X] q = " MG_I64_SPECIFIER " buf pos = %lu\n",(int64)*(buf-8),*(buf-8),*q,(unsigned long)(buf - bufStart));
 			break;
 
 		case 'Q': // 64-bit unsigned
@@ -514,7 +514,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 			buf += 8;
 			size += 8;
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack uint64 = %lu [%X] Q = %lu buf pos = %ld\n",(uint64)*(buf-8),*(buf-8),*Q,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack uint64 = " MG_I64U_SPECIFIER " [%X] Q = " MG_I64U_SPECIFIER " buf pos = %lu\n",(uint64)*(buf-8),*(buf-8),*Q,(unsigned long)(buf - bufStart));
 			break;
 
 		case 'f': // float
@@ -558,7 +558,7 @@ unsigned int unpack(unsigned char *buf, const char *format, ...) {
 
 			memcpy(s, buf, count);
 			s[count] = '\0';
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack string size = %d [%X] count = %d len = %d str [%s] buf pos = %ld\n",*(buf-2),*(buf-2),count,len,s,(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("unpack string size = %d [%X] count = %d len = %d str [%s] buf pos = %lu\n",*(buf-2),*(buf-2),count,len,s,(unsigned long)(buf - bufStart));
 
 			buf += len;
 			size += len;
