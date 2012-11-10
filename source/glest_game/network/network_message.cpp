@@ -284,6 +284,7 @@ unsigned int NetworkMessagePing::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.pingTime = 0;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
@@ -382,6 +383,7 @@ unsigned int NetworkMessageReady::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.messageType = nmtReady;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
@@ -1571,6 +1573,7 @@ unsigned int NetworkMessageQuit::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.messageType = nmtQuit;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType);
@@ -2527,6 +2530,7 @@ unsigned int PlayerIndexMessage::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.messageType = nmtPlayerIndexMessage;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
@@ -2615,6 +2619,7 @@ unsigned int NetworkMessageLoadingStatus::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.messageType = nmtLoadingStatusMessage;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
@@ -2833,6 +2838,7 @@ unsigned int NetworkMessageUnMarkCell::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.messageType = nmtUnMarkCell;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
@@ -2936,6 +2942,7 @@ unsigned int NetworkMessageHighlightCell::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.messageType = nmtHighlightCell;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,

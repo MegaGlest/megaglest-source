@@ -641,7 +641,7 @@ float LuaArguments::getFloat(int argumentIndex) const {
 	if(!lua_isnumber(luaState, argumentIndex)) {
 		throwLuaError("Can not get int from Lua state");
 	}
-	float result = luaL_checknumber(luaState, argumentIndex);
+	float result = static_cast<float>(luaL_checknumber(luaState, argumentIndex));
 	return result;
 }
 Vec2f LuaArguments::getVec2f(int argumentIndex) const {
@@ -668,7 +668,7 @@ Vec2f LuaArguments::getVec2f(int argumentIndex) const {
 	//printf("xa = %s argumentIndex = %d\n",lua_tostring(luaState, argumentIndex),argumentIndex);
 
 	//v.x= luaL_checkint(luaState, argumentIndex);
-	v.x= lua_tonumber(luaState, argumentIndex);
+	v.x= static_cast<float>(lua_tonumber(luaState, argumentIndex));
 	lua_pop(luaState, 1);
 
 	//printf("X = %d\n",v.x);
@@ -677,7 +677,7 @@ Vec2f LuaArguments::getVec2f(int argumentIndex) const {
 	//printf("ya = %s\n",lua_tostring(luaState, argumentIndex));
 
 	//v.y= luaL_checkint(luaState, argumentIndex);
-	v.y= lua_tonumber(luaState, argumentIndex);
+	v.y= static_cast<float>(lua_tonumber(luaState, argumentIndex));
 	lua_pop(luaState, 1);
 
 	//printf("Y = %d\n",v.y);
@@ -709,7 +709,7 @@ Vec3f LuaArguments::getVec3f(int argumentIndex) const {
 	//printf("xa = %s argumentIndex = %d\n",lua_tostring(luaState, argumentIndex),argumentIndex);
 
 	//v.x= luaL_checkint(luaState, argumentIndex);
-	v.x= lua_tonumber(luaState, argumentIndex);
+	v.x= static_cast<float>(lua_tonumber(luaState, argumentIndex));
 	lua_pop(luaState, 1);
 
 	//printf("X = %d\n",v.x);
@@ -718,7 +718,7 @@ Vec3f LuaArguments::getVec3f(int argumentIndex) const {
 	//printf("ya = %s\n",lua_tostring(luaState, argumentIndex));
 
 	//v.y= luaL_checkint(luaState, argumentIndex);
-	v.y= lua_tonumber(luaState, argumentIndex);
+	v.y= static_cast<float>(lua_tonumber(luaState, argumentIndex));
 	lua_pop(luaState, 1);
 
 	//printf("Y = %d\n",v.y);
@@ -727,7 +727,7 @@ Vec3f LuaArguments::getVec3f(int argumentIndex) const {
 	//printf("ya = %s\n",lua_tostring(luaState, argumentIndex));
 
 	//v.y= luaL_checkint(luaState, argumentIndex);
-	v.z= lua_tonumber(luaState, argumentIndex);
+	v.z= static_cast<float>(lua_tonumber(luaState, argumentIndex));
 	lua_pop(luaState, 1);
 
 	return v;
@@ -757,7 +757,7 @@ Vec4f LuaArguments::getVec4f(int argumentIndex) const {
 	//printf("xa = %s argumentIndex = %d\n",lua_tostring(luaState, argumentIndex),argumentIndex);
 
 	//v.x= luaL_checkint(luaState, argumentIndex);
-	v.x= lua_tonumber(luaState, argumentIndex);
+	v.x= static_cast<float>(lua_tonumber(luaState, argumentIndex));
 	lua_pop(luaState, 1);
 
 	//printf("X = %d\n",v.x);
@@ -766,7 +766,7 @@ Vec4f LuaArguments::getVec4f(int argumentIndex) const {
 	//printf("ya = %s\n",lua_tostring(luaState, argumentIndex));
 
 	//v.y= luaL_checkint(luaState, argumentIndex);
-	v.y= lua_tonumber(luaState, argumentIndex);
+	v.y= static_cast<float>(lua_tonumber(luaState, argumentIndex));
 	lua_pop(luaState, 1);
 
 	//printf("Y = %d\n",v.y);
@@ -775,14 +775,14 @@ Vec4f LuaArguments::getVec4f(int argumentIndex) const {
 	//printf("ya = %s\n",lua_tostring(luaState, argumentIndex));
 
 	//v.y= luaL_checkint(luaState, argumentIndex);
-	v.z= lua_tonumber(luaState, argumentIndex);
+	v.z= static_cast<float>(lua_tonumber(luaState, argumentIndex));
 	lua_pop(luaState, 1);
 
 	lua_rawgeti(luaState, argumentIndex, 4);
 	//printf("ya = %s\n",lua_tostring(luaState, argumentIndex));
 
 	//v.y= luaL_checkint(luaState, argumentIndex);
-	v.w= lua_tonumber(luaState, argumentIndex);
+	v.w= static_cast<float>(lua_tonumber(luaState, argumentIndex));
 	lua_pop(luaState, 1);
 
 	return v;
