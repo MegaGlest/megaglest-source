@@ -502,6 +502,9 @@ Intro::Intro(Program *program):
 		}
 	}
 
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+		renderer.swapBuffers();
+	}
 	//test = NULL;
 	//Shared::Graphics::md5::initMD5OpenGL(data_path + "data/core/shaders/");
 	//md5Test = Shared::Graphics::md5::getMD5ObjectFromLoaderScript("/home/softcoder/Code/megaglest/trunk/mk/linux/mydata/test/mv1/mv1.loader");
