@@ -40,7 +40,7 @@ void WavSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 	f.open(path.c_str(), ios_base::in | ios_base::binary);
 
 	if(!f.is_open()){
-		throw megaglest_runtime_error("Error opening wav file: "+ string(path));
+		throw megaglest_runtime_error("Error opening wav file: "+ string(path),true);
 	}
 
     //RIFF chunk - Id
@@ -53,7 +53,7 @@ void WavSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 	}
 
 	if(strcmp(chunkId, "RIFF")!=0){
-		throw megaglest_runtime_error("Not a valid wav file (first four bytes are not RIFF):" + path);
+		throw megaglest_runtime_error("Not a valid wav file (first four bytes are not RIFF):" + path,true);
 	}
 
     //RIFF chunk - Size 
@@ -71,7 +71,7 @@ void WavSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 	}
     
 	if(strcmp(chunkId, "WAVE")!=0){
-		throw megaglest_runtime_error("Not a valid wav file (wave data don't start by WAVE): " + path);
+		throw megaglest_runtime_error("Not a valid wav file (wave data don't start by WAVE): " + path,true);
 	}
 
     // === HEADER ===
@@ -85,7 +85,7 @@ void WavSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 	}
     
 	if(strcmp(chunkId, "fmt ")!=0){
-		throw megaglest_runtime_error("Not a valid wav file (first sub-chunk Id is not fmt): "+ path);
+		throw megaglest_runtime_error("Not a valid wav file (first sub-chunk Id is not fmt): "+ path,true);
 	}
 
     //first sub-chunk (header) - Size 
@@ -139,7 +139,7 @@ void WavSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 	soundInfo->setBitRate(soundInfo->getSamplesPerSecond() * soundInfo->getChannels() * soundInfo->getBitsPerSample() / 8);
 
 	if (soundInfo->getBitsPerSample() != 8 && soundInfo->getBitsPerSample()!=16){
-		throw megaglest_runtime_error("Bits per sample must be 8 or 16: " + path);
+		throw megaglest_runtime_error("Bits per sample must be 8 or 16: " + path,true);
 	}
 	bytesPerSecond= soundInfo->getBitsPerSample()*8*soundInfo->getSamplesPerSecond()*soundInfo->getChannels();
 
@@ -172,7 +172,7 @@ void WavSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
     while(strncmp(chunkId, "data", 4)!=0 && count<maxDataRetryCount);
 
 	if(f.bad() || count==maxDataRetryCount){
-		throw megaglest_runtime_error("Error reading samples: "+ path);
+		throw megaglest_runtime_error("Error reading samples: "+ path,true);
 	}
 
 	dataOffset= (uint32)f.tellg();
@@ -210,19 +210,19 @@ void OggSoundFileLoader::open(const string &path, SoundInfo *soundInfo){
 	f= fopen(path.c_str(), "rb");
 #endif
 	if(f==NULL){
-		throw megaglest_runtime_error("Can't open ogg file: "+path);
+		throw megaglest_runtime_error("Can't open ogg file: "+path,true);
 	}
 
 	vf= new OggVorbis_File();
 	if(vf==NULL) {
-		throw megaglest_runtime_error("Can't create ogg object for file: "+path);
+		throw megaglest_runtime_error("Can't create ogg object for file: "+path,true);
 	}
 
 	ov_open(f, vf, NULL, 0);
 
 	vorbis_info *vi= ov_info(vf, -1);
 	if(vi==NULL) {
-		throw megaglest_runtime_error("Can't read ogg header info for file: "+path);
+		throw megaglest_runtime_error("Can't read ogg header info for file: "+path,true);
 	}
 
 	uint32 samples = static_cast<uint32>(ov_pcm_total(vf, -1));

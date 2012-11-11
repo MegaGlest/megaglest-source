@@ -419,13 +419,13 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 	if(meshHeader.normalFrameCount != meshHeader.vertexFrameCount) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"Old v2 model: vertex frame count different from normal frame count [v = %d, n = %d] meshIndex = %d modelFile [%s]",meshHeader.vertexFrameCount,meshHeader.normalFrameCount,meshIndex,modelFile.c_str());
-		throw megaglest_runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf,true);
 	}
 
 	if(meshHeader.texCoordFrameCount != 1) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"Old v2 model: texture coord frame count is not 1 [t = %d] meshIndex = %d modelFile [%s]",meshHeader.texCoordFrameCount,meshIndex,modelFile.c_str());
-		throw megaglest_runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf,true);
 	}
 
 	//init
@@ -556,7 +556,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 	if(meshHeader.normalFrameCount != meshHeader.vertexFrameCount) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"Old v3 model: vertex frame count different from normal frame count [v = %d, n = %d] meshIndex = %d modelFile [%s]",meshHeader.vertexFrameCount,meshHeader.normalFrameCount,meshIndex,modelFile.c_str());
-		throw megaglest_runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf,true);
 	}
 
 	//init
@@ -1153,7 +1153,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 #endif
 		if (f == NULL) {
 		    printf("In [%s::%s] cannot load file = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,path.c_str());
-			throw megaglest_runtime_error("Error opening g3d model file [" + path + "]");
+			throw megaglest_runtime_error("Error opening g3d model file [" + path + "]",true);
 		}
 
 		if(loadedFileList) {
@@ -1177,7 +1177,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 			fclose(f);
 			f = NULL;
 		    printf("In [%s::%s] file = [%s] fileheader.id = [%s][%c]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,path.c_str(),reinterpret_cast<char*>(fileHeader.id),fileHeader.id[0]);
-			throw megaglest_runtime_error("Not a valid G3D model");
+			throw megaglest_runtime_error("Not a valid G3D model",true);
 		}
 		fileVersion= fileHeader.version;
 

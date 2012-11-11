@@ -20,7 +20,6 @@ using std::runtime_error;
 
 namespace Shared{ namespace Graphics{
 
-/**Copied from pixmap.cpp*/
 // =====================================================
 //	Structs used for BMP-reading
 // =====================================================
@@ -91,7 +90,7 @@ Pixmap2D* BMPReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
 	}
 
 	if(fileHeader.type1!='B' || fileHeader.type2!='M'){
-		throw megaglest_runtime_error(path +" is not a bitmap");
+		throw megaglest_runtime_error(path +" is not a bitmap",true);
 	}
 
 	//read info header
@@ -112,7 +111,7 @@ Pixmap2D* BMPReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
 	}
 
 	if(infoHeader.bitCount!=24){
-		throw megaglest_runtime_error(path+" is not a 24 bit bitmap");
+		throw megaglest_runtime_error(path+" is not a 24 bit bitmap",true);
 	}
 
 	int h= infoHeader.height;

@@ -110,61 +110,64 @@ PixmapIoTga::~PixmapIoTga() {
 void PixmapIoTga::openRead(const string &path) {
 
 	try {
-#ifdef WIN32
-	file= _wfopen(utf8_decode(path).c_str(), L"rb");
-#else
-	file= fopen(path.c_str(),"rb");
-#endif
-	if (file == NULL) {
-		throw megaglest_runtime_error("Can't open TGA file: "+ path);
-	}
+	#ifdef WIN32
+		file= _wfopen(utf8_decode(path).c_str(), L"rb");
+	#else
+		file= fopen(path.c_str(),"rb");
+	#endif
+		if (file == NULL) {
+			throw megaglest_runtime_error("Can't open TGA file: "+ path,true);
+		}
 
-	//read header
-	TargaFileHeader fileHeader;
-	size_t readBytes = fread(&fileHeader, sizeof(TargaFileHeader), 1, file);
-	if(readBytes != 1) {
+		//read header
+		TargaFileHeader fileHeader;
+		size_t readBytes = fread(&fileHeader, sizeof(TargaFileHeader), 1, file);
+		if(readBytes != 1) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
+			throw megaglest_runtime_error(szBuf);
+		}
+		static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+		if(bigEndianSystem == true) {
+			fileHeader.bitsPerPixel = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.bitsPerPixel);
+			fileHeader.colourMapDepth = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapDepth);
+			fileHeader.colourMapLength = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapDepth);
+			fileHeader.colourMapOrigin = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapOrigin);
+			fileHeader.colourMapType = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapType);
+			fileHeader.dataTypeCode = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.dataTypeCode);
+			fileHeader.height = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.height);
+			fileHeader.idLength = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.idLength);
+			fileHeader.imageDescriptor = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.imageDescriptor);
+			fileHeader.width = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.width);
+		}
+		//check that we can load this tga file
+		if(fileHeader.idLength != 0) {
+			throw megaglest_runtime_error(path + ": id field is not 0",true);
+		}
+
+		if(fileHeader.dataTypeCode != tgaUncompressedRgb && fileHeader.dataTypeCode != tgaUncompressedBw) {
+			throw megaglest_runtime_error(path + ": only uncompressed BW and RGB targa images are supported",true);
+		}
+
+		//check bits per pixel
+		if(fileHeader.bitsPerPixel != 8 && fileHeader.bitsPerPixel != 24 && fileHeader.bitsPerPixel !=32) {
+			throw megaglest_runtime_error(path + ": only 8, 24 and 32 bit targa images are supported",true);
+		}
+
+		h= fileHeader.height;
+		w= fileHeader.width;
+		components= fileHeader.bitsPerPixel / 8;
+	}
+	catch(megaglest_runtime_error& ex) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
-		throw megaglest_runtime_error(szBuf);
-	}
-	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
-	if(bigEndianSystem == true) {
-		fileHeader.bitsPerPixel = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.bitsPerPixel);
-		fileHeader.colourMapDepth = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapDepth);
-		fileHeader.colourMapLength = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapDepth);
-		fileHeader.colourMapOrigin = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapOrigin);
-		fileHeader.colourMapType = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.colourMapType);
-		fileHeader.dataTypeCode = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.dataTypeCode);
-		fileHeader.height = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.height);
-		fileHeader.idLength = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.idLength);
-		fileHeader.imageDescriptor = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.imageDescriptor);
-		fileHeader.width = Shared::PlatformByteOrder::fromCommonEndian(fileHeader.width);
-	}
-	//check that we can load this tga file
-	if(fileHeader.idLength != 0) {
-		throw megaglest_runtime_error(path + ": id field is not 0");
-	}
-
-	if(fileHeader.dataTypeCode != tgaUncompressedRgb && fileHeader.dataTypeCode != tgaUncompressedBw) {
-		throw megaglest_runtime_error(path + ": only uncompressed BW and RGB targa images are supported");
-	}
-
-	//check bits per pixel
-	if(fileHeader.bitsPerPixel != 8 && fileHeader.bitsPerPixel != 24 && fileHeader.bitsPerPixel !=32) {
-		throw megaglest_runtime_error(path + ": only 8, 24 and 32 bit targa images are supported");
-	}
-
-	h= fileHeader.height;
-    w= fileHeader.width;
-	components= fileHeader.bitsPerPixel / 8;
-
+		snprintf(szBuf,8096,"Error in [%s] on line: %d msg: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,ex.what());
+		throw megaglest_runtime_error(szBuf,!ex.wantStackTrace());
 	}
 	catch(exception& ex) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"Error in [%s] on line: %d msg: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,ex.what());
 		throw megaglest_runtime_error(szBuf);
 	}
-
 }
 
 void PixmapIoTga::read(uint8 *pixels) {
@@ -173,100 +176,103 @@ void PixmapIoTga::read(uint8 *pixels) {
 
 void PixmapIoTga::read(uint8 *pixels, int components) {
 	try {
-	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
+		static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 
-	for(int i=0; i<h*w*components; i+=components) {
-		uint8 r=0, g=0, b=0, a=0, l=0;
+		for(int i=0; i<h*w*components; i+=components) {
+			uint8 r=0, g=0, b=0, a=0, l=0;
 
-		if(this->components == 1) {
-			size_t readBytes = fread(&l, 1, 1, file);
-			if(readBytes != 1) {
-				char szBuf[8096]="";
-				snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
-				throw megaglest_runtime_error(szBuf);
-			}
-			if(bigEndianSystem == true) {
-				l = Shared::PlatformByteOrder::fromCommonEndian(l);
-			}
-			r= l;
-			g= l;
-			b= l;
-			a= 255;
-		}
-		else {
-			size_t readBytes = fread(&b, 1, 1, file);
-			if(readBytes != 1) {
-				char szBuf[8096]="";
-				snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
-				throw megaglest_runtime_error(szBuf);
-			}
-			if(bigEndianSystem == true) {
-				b = Shared::PlatformByteOrder::fromCommonEndian(b);
-			}
-
-			readBytes = fread(&g, 1, 1, file);
-			if(readBytes != 1) {
-				char szBuf[8096]="";
-				snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
-				throw megaglest_runtime_error(szBuf);
-			}
-			if(bigEndianSystem == true) {
-				g = Shared::PlatformByteOrder::fromCommonEndian(g);
-			}
-
-			readBytes = fread(&r, 1, 1, file);
-			if(readBytes != 1) {
-				char szBuf[8096]="";
-				snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
-				throw megaglest_runtime_error(szBuf);
-			}
-			if(bigEndianSystem == true) {
-				r = Shared::PlatformByteOrder::fromCommonEndian(r);
-			}
-
-			if(this->components == 4) {
-				readBytes = fread(&a, 1, 1, file);
+			if(this->components == 1) {
+				size_t readBytes = fread(&l, 1, 1, file);
 				if(readBytes != 1) {
 					char szBuf[8096]="";
 					snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
 				if(bigEndianSystem == true) {
-					a = Shared::PlatformByteOrder::fromCommonEndian(a);
+					l = Shared::PlatformByteOrder::fromCommonEndian(l);
 				}
-
-			}
-			else {
+				r= l;
+				g= l;
+				b= l;
 				a= 255;
 			}
-			l= (r+g+b)/3;
-		}
+			else {
+				size_t readBytes = fread(&b, 1, 1, file);
+				if(readBytes != 1) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
+					throw megaglest_runtime_error(szBuf);
+				}
+				if(bigEndianSystem == true) {
+					b = Shared::PlatformByteOrder::fromCommonEndian(b);
+				}
 
-		switch(components) {
-		case 1:
-			pixels[i]= l;
-			break;
-		case 3:
-			pixels[i]= r;
-			pixels[i+1]= g;
-			pixels[i+2]= b;
-			break;
-		case 4:
-			pixels[i]= r;
-			pixels[i+1]= g;
-			pixels[i+2]= b;
-			pixels[i+3]= a;
-			break;
+				readBytes = fread(&g, 1, 1, file);
+				if(readBytes != 1) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
+					throw megaglest_runtime_error(szBuf);
+				}
+				if(bigEndianSystem == true) {
+					g = Shared::PlatformByteOrder::fromCommonEndian(g);
+				}
+
+				readBytes = fread(&r, 1, 1, file);
+				if(readBytes != 1) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
+					throw megaglest_runtime_error(szBuf);
+				}
+				if(bigEndianSystem == true) {
+					r = Shared::PlatformByteOrder::fromCommonEndian(r);
+				}
+
+				if(this->components == 4) {
+					readBytes = fread(&a, 1, 1, file);
+					if(readBytes != 1) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
+						throw megaglest_runtime_error(szBuf);
+					}
+					if(bigEndianSystem == true) {
+						a = Shared::PlatformByteOrder::fromCommonEndian(a);
+					}
+
+				}
+				else {
+					a= 255;
+				}
+				l= (r+g+b)/3;
+			}
+
+			switch(components) {
+			case 1:
+				pixels[i]= l;
+				break;
+			case 3:
+				pixels[i]= r;
+				pixels[i+1]= g;
+				pixels[i+2]= b;
+				break;
+			case 4:
+				pixels[i]= r;
+				pixels[i+1]= g;
+				pixels[i+2]= b;
+				pixels[i+3]= a;
+				break;
+			}
 		}
 	}
-
+	catch(megaglest_runtime_error& ex) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Error in [%s] on line: %d msg: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,ex.what());
+		throw megaglest_runtime_error(szBuf,!ex.wantStackTrace());
 	}
 	catch(exception& ex) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"Error in [%s] on line: %d msg: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,ex.what());
 		throw megaglest_runtime_error(szBuf);
 	}
-
 }
 
 void PixmapIoTga::openWrite(const string &path, int w, int h, int components) {
@@ -280,7 +286,7 @@ void PixmapIoTga::openWrite(const string &path, int w, int h, int components) {
     file= fopen(path.c_str(),"wb");
 #endif
 	if (file == NULL) {
-		throw megaglest_runtime_error("Can't open TGA file: "+ path);
+		throw megaglest_runtime_error("Can't open TGA file: "+ path,true);
 	}
 
 	TargaFileHeader fileHeader;
@@ -357,7 +363,7 @@ void PixmapIoBmp::openRead(const string &path){
     file= fopen(path.c_str(),"rb");
 #endif
 	if (file==NULL){
-		throw megaglest_runtime_error("Can't open BMP file: "+ path);
+		throw megaglest_runtime_error("Can't open BMP file: "+ path,true);
 	}
 
 	//read file header
@@ -379,7 +385,7 @@ void PixmapIoBmp::openRead(const string &path){
 	}
 
 	if(fileHeader.type1!='B' || fileHeader.type2!='M'){
-		throw megaglest_runtime_error(path +" is not a bitmap");
+		throw megaglest_runtime_error(path +" is not a bitmap",true);
 	}
 
 	//read info header
@@ -404,7 +410,7 @@ void PixmapIoBmp::openRead(const string &path){
 		infoHeader.yPelsPerMeter = Shared::PlatformByteOrder::fromCommonEndian(infoHeader.yPelsPerMeter);
 	}
 	if(infoHeader.bitCount!=24){
-        throw megaglest_runtime_error(path+" is not a 24 bit bitmap");
+        throw megaglest_runtime_error(path+" is not a 24 bit bitmap",true);
 	}
 
     h= infoHeader.height;
@@ -593,31 +599,7 @@ void PixmapIoPng::openWrite(const string &path, int w, int h, int components) {
 }
 
 void PixmapIoPng::write(uint8 *pixels) {
-
     // initialize stuff
-/*
-    std::auto_ptr<png_byte*> imrow(new png_byte*[h]);
-    for(int i = 0; i < h; ++i) {
-        imrow.get()[i] = pixels+(h-1-i) * w * components;
-    }
-
-    png_structp imgp = png_create_write_struct(PNG_LIBPNG_VER_STRING,0,0,0);
-    png_infop infop = png_create_info_struct(imgp);
-    png_init_io(imgp, file);
-
-    int color_type = PNG_COLOR_TYPE_RGB;
-    if(components == 4) {
-    	color_type = PNG_COLOR_TYPE_RGBA;
-    }
-    png_set_IHDR(imgp, infop, w, h,
-		 8, color_type, PNG_INTERLACE_NONE,
-		 PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-
-    // write file
-    png_write_info(imgp, infop);
-    png_write_image(imgp, imrow.get());
-    png_write_end(imgp, NULL);
-*/
     png_bytep *imrow = new png_bytep[h];
 	//png_bytep *imrow = (png_bytep*) malloc(sizeof(png_bytep) * height);
     for(int i = 0; i < h; ++i) {
@@ -642,127 +624,7 @@ void PixmapIoPng::write(uint8 *pixels) {
     png_write_end(imgp, NULL);
 
     delete [] imrow;
-
-/*
-	// Allocate write & info structures
-   png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-   if(!png_ptr) {
-	 fclose(file);
-	 throw megaglest_runtime_error("OpenGlDevice::saveImageAsPNG() - out of memory creating write structure");
-   }
-
-   png_infop info_ptr = png_create_info_struct(png_ptr);
-   if(!info_ptr) {
-	 png_destroy_write_struct(&png_ptr,
-							  (png_infopp)NULL);
-	 fclose(file);
-	 throw megaglest_runtime_error("OpenGlDevice::saveImageAsPNG() - out of memery creating info structure");
-   }
-
-   // setjmp() must be called in every function that calls a PNG-writing
-   // libpng function, unless an alternate error handler was installed--
-   // but compatible error handlers must either use longjmp() themselves
-   // (as in this program) or exit immediately, so here we go:
-
-   if(setjmp(png_jmpbuf(png_ptr))) {
-	 png_destroy_write_struct(&png_ptr, &info_ptr);
-	 fclose(file);
-	 throw megaglest_runtime_error("OpenGlDevice::saveImageAsPNG() - setjmp problem");
-   }
-
-   // make sure outfile is (re)opened in BINARY mode
-   png_init_io(png_ptr, file);
-
-   // set the compression levels--in general, always want to leave filtering
-   // turned on (except for palette images) and allow all of the filters,
-   // which is the default; want 32K zlib window, unless entire image buffer
-   // is 16K or smaller (unknown here)--also the default; usually want max
-   // compression (NOT the default); and remaining compression flags should
-   // be left alone
-
-   //png_set_compression_level(png_ptr, Z_BEST_COMPRESSION);
-   png_set_compression_level(png_ptr, Z_DEFAULT_COMPRESSION);
-
-   //
-   // this is default for no filtering; Z_FILTERED is default otherwise:
-   // png_set_compression_strategy(png_ptr, Z_DEFAULT_STRATEGY);
-   //  these are all defaults:
-   //   png_set_compression_mem_level(png_ptr, 8);
-   //   png_set_compression_window_bits(png_ptr, 15);
-   //   png_set_compression_method(png_ptr, 8);
-
-
-   // Set some options: color_type, interlace_type
-   int color_type=0, interlace_type=0, numChannels=0;
-
-   //  color_type = PNG_COLOR_TYPE_GRAY;
-   //  color_type = PNG_COLOR_TYPE_GRAY_ALPHA;
-   color_type = PNG_COLOR_TYPE_RGBA;
-   numChannels = 4;
-   // color_type = PNG_COLOR_TYPE_RGB_ALPHA;
-
-   interlace_type =  PNG_INTERLACE_NONE;
-   // interlace_type = PNG_INTERLACE_ADAM7;
-
-   int bit_depth = 8;
-   png_set_IHDR(png_ptr, info_ptr, this->w, this->h,
-                bit_depth,
-				color_type,
-				interlace_type,
-				PNG_COMPRESSION_TYPE_BASE,
-				PNG_FILTER_TYPE_BASE);
-
-   // Optional gamma chunk is strongly suggested if you have any guess
-   // as to the correct gamma of the image. (we don't have a guess)
-   //
-   // png_set_gAMA(png_ptr, info_ptr, image_gamma);
-   //png_set_strip_alpha(png_ptr);
-
-   // write all chunks up to (but not including) first IDAT
-   png_write_info(png_ptr, info_ptr);
-
-   //png_write_png(png_ptr, info_ptr, PNG_TRANSFORM_IDENTITY, NULL );
-
-
-   // set up the row pointers for the image so we can use png_write_image
-   png_bytep* row_pointers = new png_bytep[this->h];
-   if (row_pointers == 0) {
-	 png_destroy_write_struct(&png_ptr, &info_ptr);
-	 fclose(file);
-	 throw megaglest_runtime_error("OpenGlDevice::failed to allocate memory for row pointers");
-   }
-
-   unsigned int row_stride = this->w * numChannels;
-   unsigned char *rowptr = (unsigned char*) pixels;
-   for (int row = this->h-1; row >=0 ; row--) {
-	 row_pointers[row] = rowptr;
-	 rowptr += row_stride;
-   }
-
-   // now we just write the whole image; libpng takes care of interlacing for us
-   png_write_image(png_ptr, row_pointers);
-
-   // since that's it, we also close out the end of the PNG file now--if we
-   // had any text or time info to write after the IDATs, second argument
-   // would be info_ptr, but we optimize slightly by sending NULL pointer:
-
-   png_write_end(png_ptr, info_ptr);
-
-   //
-   // clean up after the write
-   //    free any memory allocated & close the file
-   //
-   png_destroy_write_struct(&png_ptr, &info_ptr);
-
-   delete [] row_pointers;
-*/
 }
-
-
-
-
-
-
 
 // =====================================================
 //	class PixmapIoJpg
@@ -780,7 +642,6 @@ PixmapIoJpg::~PixmapIoJpg() {
 }
 
 void PixmapIoJpg::openRead(const string &path) {
-
 	throw megaglest_runtime_error("PixmapIoJpg::openRead not implemented!");
 }
 

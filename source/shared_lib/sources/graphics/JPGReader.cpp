@@ -24,8 +24,6 @@
 using std::runtime_error;
 using std::ios;
 
-/**Used things from CImageLoaderJPG.cpp from Irrlicht*/
-
 namespace Shared{ namespace Graphics{
 
 // =====================================================
@@ -92,7 +90,7 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	if (buffer[0] != 0xFF || buffer[1] != 0xD8) {
 	    std::cout << "0 = [" << std::hex << (int)buffer[0] << "] 1 = [" << std::hex << (int)buffer[1] << "]" << std::endl;
 		delete[] buffer;
-		return NULL;
+		throw megaglest_runtime_error(path +" is not a jpeg",true);
 	}
 
 	struct jpeg_decompress_struct cinfo;
@@ -116,7 +114,7 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 		if (row_pointer[0] != NULL) {
 			delete[] row_pointer[0];
 		}
-		return NULL;
+		throw megaglest_runtime_error(path +" is a corrupt(1) jpeg",true);
 	}
 
 	source.init_source = init_source;
@@ -129,7 +127,7 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	if (jpeg_read_header( &cinfo, TRUE ) != JPEG_HEADER_OK) {
 		delete[] buffer;
 		jpeg_destroy_decompress(&cinfo);
-		return NULL;
+		throw megaglest_runtime_error(path +" is a corrupt(1) jpeg",true);
 	}
 
 
