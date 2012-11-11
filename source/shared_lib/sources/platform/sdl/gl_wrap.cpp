@@ -213,7 +213,6 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 		}
 #endif
 
-
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
 
@@ -249,6 +248,9 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 				printf("WARNING, SDL_SetGamma failed using value %f [%s]\n", gammaValue,SDL_GetError());
 			}
 		}
+
+        SDL_WM_GrabInput(SDL_GRAB_ON);
+        SDL_WM_GrabInput(SDL_GRAB_OFF);
 	}
 }
 
