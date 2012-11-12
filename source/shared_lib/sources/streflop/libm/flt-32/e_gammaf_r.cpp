@@ -53,7 +53,6 @@ __ieee754_gammaf_r (Simple x, int *signgamp)
       return x - x;
     }
 
-  /* XXX FIXME.  */
   return __ieee754_expf (__ieee754_lgammaf_r (x, signgamp));
 }
 }
