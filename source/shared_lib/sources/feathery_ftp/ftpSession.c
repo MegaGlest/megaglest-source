@@ -323,7 +323,7 @@ if(VERBOSE_MODE_ENABLED) printf("ftpChangeDir path [%s] realPath [%s] NEW sessio
 }
 
 /**
- *  @todo documentation
+ *  Open an ftp transmission
  */
 void ftpOpenTransmission(int id, operation_E op, void* fsHandle, socket_t dataSocket, uint32_t fileSize)
 {
@@ -335,7 +335,7 @@ void ftpOpenTransmission(int id, operation_E op, void* fsHandle, socket_t dataSo
 }
 
 /**
- *  @todo documentation
+ *  Close an ftp transmission
  */
 void ftpCloseTransmission(int id)
 {
@@ -366,7 +366,7 @@ void ftpCloseTransmission(int id)
 }
 
 /**
- *  @todo documentation
+ *  Get the active transaction count
  */
 int ftpGetActiveTransCnt(void)
 {

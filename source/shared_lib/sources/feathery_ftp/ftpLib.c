@@ -75,7 +75,7 @@ void ftpRemoveDoubleSlash(char* path)
  *  The function catenates all passed strings to a new string and assures that  
  *  the result does not exceed MAX_PATH_LEN. The last parameter has to be
  *  NULL.
- *  @todo Not all embedded environments support variadic functions, or they are
+ *  Not all embedded environments support variadic functions, or they are
  *  too expensive. 
  *
  *  @param dest    user name

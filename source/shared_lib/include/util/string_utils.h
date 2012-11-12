@@ -600,7 +600,7 @@ namespace Shared { namespace Util {
 
 	/*!
 	** \brief Convert an UTF-8 String into a WideChar String
-	** \todo This class must be removed as soon as possible and is only here to prevent against
+	** \This class must be removed as soon as possible and is only here to prevent against
 	** stange bugs with the previous implementation
 	*/
 	struct WString
