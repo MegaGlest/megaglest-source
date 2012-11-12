@@ -1,6 +1,6 @@
 [Desktop Entry]
 Categories=Game;StrategyGame;
-Comment=MegaGlest Model Viewer
+Comment=G3d Model Viewer
 Name=MegaGlest Model Viewer
 Icon=megaglest
 Exec=megaglest_g3dviewer
