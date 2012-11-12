@@ -505,10 +505,6 @@ Intro::Intro(Program *program):
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		renderer.swapBuffers();
 	}
-	//test = NULL;
-	//Shared::Graphics::md5::initMD5OpenGL(data_path + "data/core/shaders/");
-	//md5Test = Shared::Graphics::md5::getMD5ObjectFromLoaderScript("/home/softcoder/Code/megaglest/trunk/mk/linux/mydata/test/mv1/mv1.loader");
-	//md5Test = Shared::Graphics::md5::getMD5ObjectFromLoaderScript("/home/softcoder/Code/megaglest/trunk/mk/linux/mydata/test/mv1/mv2.loader");
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -519,11 +515,6 @@ Intro::Intro(Program *program):
 		string introVideoFileFallback = CoreData::getInstance().getIntroVideoFilenameFallback();
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Intro Video [%s] [%s]\n",introVideoFile.c_str(),introVideoFileFallback.c_str());
-
-		//renderer.clearBuffers();
-		//renderer.reset3dMenu();
-		//renderer.clearZBuffer();
-		//renderer.reset2d();
 
 		Context *c= GraphicsInterface::getInstance().getCurrentContext();
 		SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
@@ -689,61 +680,8 @@ void Intro::render() {
 	renderer.clearZBuffer();
 	renderer.loadCameraMatrix(&camera);
 
-//	const Vec3f &position= camera.getConstPosition();
-//	Quaternion orientation= camera.getOrientation().conjugate();
-//	Shared::Graphics::md5::Matrix4x4f modelViewMatrix;
-//	float *mtx = orientation.toMatrix4().ptr();
-//	for(unsigned int i = 0; i < 16; ++i) {
-//		modelViewMatrix._m[i] = mtx[i];
-//	}
-
 	renderModelBackground();
 	renderer.renderParticleManager(rsMenu);
-
-	//printf("animTimer.deltaTime () = %f anim = %f animTimer.deltaTime() / 25.0 = %f\n",animTimer.deltaTime (),anim,animTimer.deltaTime() / 25.0);
-	//double anim = animTimer.deltaTime();
-	//Shared::Graphics::md5::renderMD5Object(md5Test, animTimer.deltaTime() / 30.0, &modelViewMatrix);
-
-	//Shared::Graphics::md5::renderMD5Object(md5Test, animTimer.deltaTime() / 30.0, NULL);
-
-//	if(test == NULL) {
-//		glClearColor (0.0, 0.0, 0.0, 0.0);
-//		glEnable(GL_DEPTH_TEST);
-//		glShadeModel (GL_SMOOTH);
-//
-//		test = glmReadOBJ("/home/softcoder/Code/megaglest/trunk/mk/linux/r_stack_fall.obj");
-//		glmUnitize(test);
-//		glmFacetNormals(test);
-//		glmVertexNormals(test, 90.0);
-//
-//		int h = 900;
-//		int w = 1680;
-//		glViewport (0, 0, (GLsizei) w, (GLsizei) h);
-//		glMatrixMode (GL_PROJECTION);
-//		glLoadIdentity ();
-//		gluPerspective(60.0, (GLfloat) w/(GLfloat) h, 1.0, 20.0);
-//		glMatrixMode (GL_MODELVIEW);
-//	}
-//	if(test != NULL) {
-//
-//		glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-//		glLoadIdentity();
-//		glTranslatef(0,0,-5);
-//
-//		glPushMatrix();
-//		// I added these to be able to rotate the whole scene so you can see the box and textures
-//		glRotatef(90,1,0,0);
-//		glRotatef(0,0,1,0);
-//		glRotatef(0,0,0,1);
-//		glmDraw(test, GLM_SMOOTH| GLM_TEXTURE);
-//		//glmDraw(test, GLM_SMOOTH| GLM_TEXTURE|GLM_COLOR);
-//		//glmDraw(test, GLM_FLAT);
-//		glPopMatrix();
-//
-//		renderer.swapBuffers();
-//		return;
-//		//printf("Rendering test");
-//	}
 
 	renderer.reset2d();
 

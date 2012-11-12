@@ -4178,18 +4178,6 @@ int glestMain(int argc, char** argv) {
             return 0;
     	}
 
-		//vector<string> techPaths;
-		//vector<string> techDataPaths = config.getPathListForType(ptTechs);
-		//findDirs(techDataPaths, techPaths);
-
-        //int32 techCRC = getFolderTreeContentsCheckSumRecursively(techDataPaths, string("/") + "megapack" + string("/*"), ".xml", NULL, true);
-        //return -1;
-
-        //
-        //removeFolder("/home/softcoder/Code/megaglest/trunk/mk/linux/mydata/tilesets/mother_board");
-        //return -1;
-        //
-
 		program= new Program();
 		mainProgram = program;
 		renderer.setProgram(program);
