@@ -201,10 +201,6 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		        MESSAGE(STATUS "**NOTE:  Warning: FTGL font support was not detected. Visit http://ftgl.wiki.sourceforge.net/ for help on installing FTGL.")
 		ENDIF()
 	
-		# todo: change this because its obscure and probably not being used
-		#set (FTGL_INCLUDE_DIRS )
-		#set (FTGL_LINK_DIRS )
-		#set (FTGL_LINK_TARGETS )
 	ENDIF(USE_FTGL)
 
 	OPTION(USE_FREETYPEGL "Use Freetype-GL for on-screen fonts" OFF)
