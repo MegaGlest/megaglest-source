@@ -2906,143 +2906,12 @@ int glestMain(int argc, char** argv) {
 	Properties::setApplicationPath(executable_path(argv[0]));
 	Properties::setGameVersion(glestVersionString);
 
-/*	
-#if defined(WIN32)
-	printf("Path [%s]\n",executable_path(argv[0]).c_str());
-	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
-		folderExists(executable_path(argv[0]) + "plugins\\") == false) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("*** VLC START ****\n");
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
-		if(getenv("VLC_PLUGIN_PATH") == NULL) {
-			//printf("*** VLC C ****\n");
-
-			// For windows check registry for install path
-			std::string strValue = getRegKey("Software\\VideoLAN\\VLC", "InstallDir");
-			if(strValue != "") {
-				if(strValue.length() >= 2) {
-					if(strValue[0] == '"') {
-						strValue = strValue.erase(0);
-					}
-					if(strValue[strValue.length()-1] == '"') {
-						strValue = strValue.erase(strValue.length()-1);
-					}
-					if(strValue[strValue.length()-1] != '\\') {
-						strValue += "\\";
-					}
-				}
-				strValue += "plugins";
-				string newstrValue = "VLC_PLUGIN_PATH=" + strValue;
-				_putenv(newstrValue.c_str());
-				//bool result = SetEnvironmentVariableA("VLC_PLUGIN_PATH",strValue.c_str());
-			
-				//Open the registry key.
-				wstring subKey = L"Environment";
-				HKEY keyHandle;
-				DWORD dwDisposition;
-				RegCreateKeyEx(HKEY_CURRENT_USER,subKey.c_str(),0, NULL, 0, KEY_ALL_ACCESS, NULL, &keyHandle, &dwDisposition);
-				//Set the value.
-				std::auto_ptr<wchar_t> wstr(Ansi2WideString(strValue.c_str()));
-	
-				wstring vlcPluginPath = wstring(wstr.get());
-				DWORD len = (DWORD) sizeof(wchar_t) * vlcPluginPath.length() + 1;
-				RegSetValueEx(keyHandle, L"VLC_PLUGIN_PATH", 0, REG_SZ, (PBYTE)vlcPluginPath.c_str(), len);
-				RegCloseKey(keyHandle);
-
-				subKey = L"System\\CurrentControlSet\\Control\\Session Manager\\Environment";
-				RegCreateKeyEx(HKEY_LOCAL_MACHINE,subKey.c_str(),0, NULL, 0, KEY_ALL_ACCESS, NULL, &keyHandle, &dwDisposition);
-				//Set the value.
-				wstr.reset(Ansi2WideString(strValue.c_str()));
-				vlcPluginPath = wstring(wstr.get());
-				len = (DWORD) sizeof(wchar_t) * vlcPluginPath.length() + 1;
-				RegSetValueEx(keyHandle, L"VLC_PLUGIN_PATH", 0, REG_SZ, (PBYTE)vlcPluginPath.c_str(), len);
-				RegCloseKey(keyHandle);
-
-				RegFlushKey(keyHandle);
-
-				//string test = "SET " + newstrValue;
-				//system(test.c_str());
-				DWORD dwReturnValue=0;
-				LRESULT error1 = SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM)
-					L"Environment", SMTO_ABORTIFHUNG, 5000, &dwReturnValue);
-				//SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) "Environment", SMTO_ABORTIFHUNG, 10000, NULL );
-				//SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) L"Environment", SMTO_ABORTIFHUNG, 10000, NULL );
-				//SendMessageTimeout(HWND_BROADCAST, WM_SETTINGCHANGE, 0, (LPARAM) TEXT("Environment"), SMTO_ABORTIFHUNG,10000, &dwReturnValue);
-
-				//printf("*** VLC D [%s] error1 = %d dwReturnValue = %d ****\n",getenv("VLC_PLUGIN_PATH"),error1,dwReturnValue);
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("*** VLC D [%s] error1 = %d dwReturnValue = %d ****\n",getenv("VLC_PLUGIN_PATH"),error1,dwReturnValue);
-				//system(argv[0]);
-				SDL_Quit();
-
-				_flushall();
-				// Gotta do this or else the process hangs on exit
-				// Windows has no support for FD_CLOEXEC :(
-				fclose(stdin);
-				fclose(stdout);
-				fclose(stderr);
-
-				// int myin = _dup(_fileno(stdin));
-				// int myout = _dup(_fileno(stdout));
-				// int myerr = _dup(_fileno(stderr));
-
-				// fclose(stdin);
-				// fclose(stdout);
-				// fclose(stderr);
-
-				// _dup2(myin,0);
-				// _dup2(myout,1);
-				// _dup2(myerr,2);
-
-				//fcntl(fd, F_SETFD, FD_CLOEXEC);
-				//fcntl(fd, F_SETFL, fcntl(fd, F_GETFD) | FD_CLOEXEC));
-
-				const char *const *newargv = argv;
-				if(_execv(argv[0], newargv) == -1) {
-					perror("Unable to relaunch!");
-				}
-				abort();
-			}
-		}
-		else {
-			//fclose(stdin);
-			//fclose(stdout);
-			//fclose(stderr);
-		}
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("*** VLC E [%s]\n",getenv("VLC_PLUGIN_PATH"));
-	}
-#endif
-*/
-
     ServerSocket::setMaxPlayerCount(GameConstants::maxPlayers);
-
-	//vector<string> results;
-	//findAll("/home/softcoder/Code/megaglest/trunk/mk/linux//äöüß/maps/*.gbm", results, false, true);
-	//findAll("C:\\Documents and Settings\\SoftCoder\\Application Data\\人間五\\maps\\*", results, false, true);
-	//for(unsigned int i = 0; i < results.size(); ++i) {
-	//	string file = results[i];
-	//	printf("FILE: [%s]\n",file.c_str());
-	//}
-	//return -1;
 
     if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DISABLE_BACKTRACE]) == true) {
         disableBacktrace = true;
     }
     PlatformExceptionHandler::disableBacktrace= disableBacktrace;
-
-//    UErrorCode status = U_ZERO_ERROR;
-//	u_init(&status);
-//	if (U_SUCCESS(status)) {
-//		printf("everything is OK\n");
-//	}
-//	else {
-//		printf("error %s opening resource\n", u_errorName(status));
-//	}
-
-    // TEST:
-    //string testfile = "/home/softcoder/Code/megaglest/trunk/mk/linux/techs/megapack/factions/egypt/units/desert_camp/../../upgrades/spear_weapons/images/piercing.bmp";
-    //updatePathClimbingParts(testfile);
-    //return -1;
-    //CHANGED relative path from [/home/softcoder/Code/megaglest/trunk/mk/linux/techs/megapack/factions/egypt/units/desert_camp/../../upgrades/spear_weapons/images/piercing.bmp] to [/home/softcoder/Code/megaglest/trunk/mk/linux/techs/megapack/factions/egypt/units/desert_camp/upgrades/spear_weapons/images/piercing.bmp]
-
 
 #if defined(CUSTOM_DATA_INSTALL_PATH)
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nCUSTOM_DATA_INSTALL_PATH = [%s]\n\n",formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)).c_str());
@@ -3062,11 +2931,6 @@ int glestMain(int argc, char** argv) {
 		printParameterHelp(argv[0],foundInvalidArgs);
 		return 2;
 	}
-
-	//off_t fileSize = getFileSize(argv[0]);
-	//double fSize = ((double)fileSize / 1048576.0);
-	//printf("[%ld] [%.2f]\n",fileSize,fSize);
-	//return -1;
 
 #ifdef WIN32
 	SocketManager winSockManager;
