@@ -110,7 +110,7 @@ private:
 	int maxUnitCount;
 
 
-	///@todo remove fields, multiple fields are not supported by the engine
+	// remove fields, multiple fields are not supported by the engine
 	bool fields[fieldCount];			//fields: land, sea or air
 	Field field;
 
