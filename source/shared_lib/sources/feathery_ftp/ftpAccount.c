@@ -69,7 +69,7 @@ int ftpDeleteAccount(const char* name)
  *  The translated path depends on the current working directory of the
  *  session and the root path of the session. In addition the path will
  *  be normalized.
- *  @todo normalize root and check if normalized path really exists
+ *  normalize root and check if normalized path really exists
  *
  *  @param name    user name
  *  @param passw   account password
