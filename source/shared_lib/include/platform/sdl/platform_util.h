@@ -56,7 +56,6 @@ public:
 // =====================================================
 //	Misc
 // =====================================================
-int MessageBox(int handle, const char *msg, const char *title, int buttons);
 void message(string message);
 bool ask(string message);
 void exceptionMessage(const exception &excp);
