@@ -772,8 +772,6 @@ bool Config::replaceFileWithLocalFile(const vector<string> &dirList, string file
 
 string Config::findValidLocalFileFromPath(string fileName) {
 	string result = fileName;
-	// /home/user1/SCM/megaglest-trunk/mk/linux//techs/megapack/factions/tech/units/blacksmith/images/particle.bmp
-	// /home/user1/SCM/megaglest-trunk/mk/linux//tutorials/3_advanced_tutorial/3_advanced_tutorial.xml
 
 	if(fileName.find("maps/") != fileName.npos ) {
 		size_t pos = fileName.find("maps/");
