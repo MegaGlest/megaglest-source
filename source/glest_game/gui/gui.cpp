@@ -767,7 +767,7 @@ void Gui::computeDisplay(){
 
 	// ================ PART 1 ================
 	const Object *selectedResourceObject =getSelectedResourceObject();
-	if(selection.isEmpty() && selectedResourceObject != NULL) {
+	if(selection.isEmpty() && selectedResourceObject != NULL && selectedResourceObject->getResource() != NULL) {
 		Resource *r = selectedResourceObject->getResource();
 		display.setTitle(r->getType()->getName(true));
 		display.setText(lang.get("Amount")+ ": "+intToStr(r->getAmount())+" / "+intToStr(r->getType()->getDefResPerPatch()));
