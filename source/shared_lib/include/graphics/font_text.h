@@ -32,6 +32,7 @@ protected:
 public:
 
 	static std::string DEFAULT_FONT_PATH;
+	static std::string DEFAULT_FONT_PATH_ABSOLUTE;
 
 	Text(FontTextHandlerType type);
 	virtual ~Text();

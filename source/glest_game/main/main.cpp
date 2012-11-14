@@ -1151,6 +1151,29 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
     }
 
     Text::DEFAULT_FONT_PATH = pathCache[GameConstants::path_data_CacheLookupKey];
+    if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_FONT_PATH]) == true) {
+        int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_FONT_PATH]) + string("="),&foundParamIndIndex);
+        if(foundParamIndIndex < 0) {
+            hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_FONT_PATH]),&foundParamIndIndex);
+        }
+        string customPath = argv[foundParamIndIndex];
+        vector<string> paramPartTokens;
+        Tokenize(customPath,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+            string customPathValue = paramPartTokens[1];
+            Properties::applyTagsToValue(customPathValue);
+
+            Text::DEFAULT_FONT_PATH_ABSOLUTE = customPathValue;
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using custom fonts path [%s]\n",customPathValue.c_str());
+        }
+        else {
+
+            printf("\nInvalid path specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+            printParameterHelp(argv[0],false);
+            return 1;
+        }
+    }
 
     return 0;
 }

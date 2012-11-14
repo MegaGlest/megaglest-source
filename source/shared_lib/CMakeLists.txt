@@ -110,23 +110,23 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	# ENDIF()
 
 
-	FIND_PACKAGE(LUAJIT)
-        IF(LUAJIT_FOUND)
-                MESSAGE(STATUS "**NOTE: LUAJIT found, this should improve Lua performance.")
-
-	        INCLUDE_DIRECTORIES(${LUAJIT_INCLUDE_DIR})
-	        IF(UNIX)
-		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LUAJIT_LIBRARIES} "libdl.so")
-	        ENDIF()
-        ELSE()
-                MESSAGE(STATUS "**WARNING: LUAJIT NOT found, so Lua performance may suffer.")
-
-	        FIND_PACKAGE(LUA REQUIRED)
-	        INCLUDE_DIRECTORIES(${LUA_INCLUDE_DIR})
-	        IF(UNIX)
-		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LUA_LIBRARIES} "libdl.so")
-	        ENDIF()
+#	FIND_PACKAGE(LUAJIT)
+#        IF(LUAJIT_FOUND)
+#                MESSAGE(STATUS "**NOTE: LUAJIT found, this should improve Lua performance.")
+#
+#	        INCLUDE_DIRECTORIES(${LUAJIT_INCLUDE_DIR})
+#	        IF(UNIX)
+#		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LUAJIT_LIBRARIES} "libdl.so")
+#	        ENDIF()
+#        ELSE()
+#                MESSAGE(STATUS "**WARNING: LUAJIT NOT found, so Lua performance may suffer.")
+#
+        FIND_PACKAGE(LUA REQUIRED)
+        INCLUDE_DIRECTORIES(${LUA_INCLUDE_DIR})
+        IF(UNIX)
+	        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LUA_LIBRARIES} "libdl.so")
         ENDIF()
+#        ENDIF()
 
 	OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
 
@@ -223,7 +223,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
         SET(LIBVLC_MIN_VERSION "1.1.0")
 	FIND_PACKAGE(LIBVLC)
 
-        IF(LIBVLC_FOUND AND NOT LIBVLC_VERSION STRLESS "${LIBVLC_MIN_VERSION}")
+        IF(LIBVLC_FOUND AND WITH_VLC AND NOT LIBVLC_VERSION STRLESS "${LIBVLC_MIN_VERSION}")
                 MESSAGE(STATUS "**NOTE: LIBVLC found so videos are supported.")
 	        INCLUDE_DIRECTORIES(${LIBVLC_INCLUDE_DIR})
 	        IF(UNIX)
@@ -239,6 +239,12 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		
         ELSE()
                 MESSAGE(STATUS "**WARNING: LIBVLC NOT found so videos are NOT supported.")
+                
+                IF(WITH_VLC)
+	                MESSAGE(STATUS "**WARNING: LIBVLC NOT found so videos are NOT supported.")
+		ELSE()
+			MESSAGE(STATUS "LIBVLC disabled so videos are NOT supported.")
+		ENDIF()
         ENDIF()
 
 	#########################################################################################

@@ -59,6 +59,7 @@ const char  *GAME_ARGS[] = {
 	"--data-path",
 	"--ini-path",
 	"--log-path",
+	"--font-path",
 	"--show-ini-settings",
 	"--convert-models",
 	"--use-language",
@@ -131,6 +132,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_DATA_PATH,
 	GAME_ARG_INI_PATH,
 	GAME_ARG_LOG_PATH,
+	GAME_ARG_FONT_PATH,
 	GAME_ARG_SHOW_INI_SETTINGS,
 	GAME_ARG_CONVERT_MODELS,
 	GAME_ARG_USE_LANGUAGE,
@@ -347,6 +349,10 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s=x\t\t\tSets the game logs path to x",GAME_ARGS[GAME_ARG_LOG_PATH]);
 	printf("\n                     \t\texample:");
 	printf("\n                     %s %s=~/game_logs/",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_LOG_PATH]);
+	printf("\n%s=x\t\t\tSets the game fonts path to x",GAME_ARGS[GAME_ARG_FONT_PATH]);
+	printf("\n                     \t\texample:");
+	printf("\n                     %s %s=~/myfonts/",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_FONT_PATH]);
+
 	printf("\n%s=x\t\tdisplay merged ini settings information.",GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]);
 	printf("\n                     \t\tWhere x is an optional property name to");
 	printf("\n                     \t\t        filter (default shows all).");
