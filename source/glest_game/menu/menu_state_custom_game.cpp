@@ -1053,6 +1053,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
         		//printf("lastKey = %d [%c]\n",lastKey,lastKey);
         		advanceToItemStartingWith = lastKey;
         	}
+
         	if(activeInputLabel!=NULL && !(activeInputLabel->mouseClick(x,y))){
 				setActiveInputLabel(NULL);
 			}
@@ -1380,7 +1381,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 							}
 						}
 					}
-					else if(listBoxFactions[i].mouseClick(x, y)) {
+					else if(listBoxFactions[i].mouseClick(x, y,advanceToItemStartingWith)) {
 						// Disallow CPU players to be observers
 						if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
 							(listBoxControls[i].getSelectedItemIndex() == ctCpuEasy || listBoxControls[i].getSelectedItemIndex() == ctCpu ||
@@ -3936,7 +3937,8 @@ void MenuStateCustomGame::keyDown(SDL_KeyboardEvent key) {
 		if(hasNetworkGameSettings() == true) {
 			chatManager.keyDown(key);
 		}
-		if(chatManager.getEditEnabled() == false) {
+		if(chatManager.getEditEnabled() == false &&
+				(Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == false)	) {
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
 			//if(key == configKeys.getCharKey("ShowFullConsole")) {
