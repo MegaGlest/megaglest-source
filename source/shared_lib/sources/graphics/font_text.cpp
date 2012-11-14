@@ -13,6 +13,7 @@
 using namespace std;
 
 std::string Text::DEFAULT_FONT_PATH = "";
+std::string Text::DEFAULT_FONT_PATH_ABSOLUTE = "";
 
 //====================================================================
 Text::Text(FontTextHandlerType type) {

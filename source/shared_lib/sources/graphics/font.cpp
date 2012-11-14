@@ -366,6 +366,9 @@ string findFontFamily(const char* font, const char *fontFamily) {
 		// -DWANT_FONTCONFIG=Off
 		FcFini();
 	}
+	else {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("******************* FONT CONFIG will not be called font [%s] fontFamily [%s]!\n",(font != NULL ? font : "null"),(fontFamily != NULL ? fontFamily : "null"));
+	}
 #else
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("******************* NO FONT CONFIG ENABLED!\n");
 #endif
@@ -382,17 +385,19 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 		path = filename; \
 		if( font == NULL && path != NULL && strlen(path) > 0 && fileExists(path) == true ) { \
 			font = strdup(path); \
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 candidate font file [%s]\n",(font != NULL ? font : "null")); \
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 candidate font file exists [%s]\n",(font != NULL ? font : "null")); \
 		} \
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 Searching for font file [%s] result [%s]\n",(path != NULL ? path : "null"),(font != NULL ? font : "null")); \
-		if( font != NULL && fontFamily != NULL && strlen(fontFamily) > 0) { \
+		if( font == NULL && fontFamily != NULL && strlen(fontFamily) > 0) { \
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 Searching for font [%s] family [%s]\n",(font != NULL ? font : "null"),(fontFamily != NULL ? fontFamily : "null")); \
 			string fileFound = findFontFamily(font, fontFamily); \
 			if(fileFound != "") { \
 				path = fileFound.c_str(); \
-				if( font != NULL && path && strlen(path) > 0 && fileExists(path) == true ) { \
-					free((void*)font); \
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 candidate font file found [%s]\n",fileFound.c_str()); \
+				if( path != NULL && strlen(path) > 0 && fileExists(path) == true ) { \
+					if(font) free((void*)font); \
 					font = strdup(path); \
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 candidate font file [%s]\n",(font != NULL ? font : "null")); \
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 candidate font file has been set[%s]\n",(font != NULL ? font : "null")); \
 				} \
 			} \
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 Searching for font family [%s] result [%s]\n",(fontFamily != NULL ? fontFamily : "null"),(font != NULL ? font : "null")); \
@@ -420,6 +425,10 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 
 		if(getenv("MEGAGLEST_FONT") != NULL) {
 			tryFont = getenv("MEGAGLEST_FONT");
+
+			if(Text::DEFAULT_FONT_PATH_ABSOLUTE != "") {
+				tryFont = Text::DEFAULT_FONT_PATH_ABSOLUTE + "/" + extractFileFromDirectoryPath(tryFont);
+			}
 			#ifdef WIN32
 			  replaceAll(tryFont, "/", "\\");
 			#endif
@@ -433,16 +442,20 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 
 	string data_path = Text::DEFAULT_FONT_PATH;
 	string defaultFont = data_path + "data/core/fonts/LinBiolinum_RB.ttf";//LinBiolinum_Re-0.6.4.ttf
+	if(Text::DEFAULT_FONT_PATH_ABSOLUTE != "") {
+		data_path = Text::DEFAULT_FONT_PATH;
+		defaultFont = data_path + "/LinBiolinum_RB.ttf";//LinBiolinum_Re-0.6.4.ttf
+	}
 	tryFont = defaultFont;
 	#ifdef WIN32
 	  replaceAll(tryFont, "/", "\\");
 	#endif
 	CHECK_FONT_PATH(tryFont.c_str(),"Linux Biolinum O:style=Bold")
 
-#ifdef FONT_PATH
+	#ifdef FONT_PATH
 	// Get distro-specified font path
 	CHECK_FONT_PATH(FONT_PATH)
-#endif
+	#endif
 
 	CHECK_FONT_PATH("/usr/share/fonts/truetype/uralic/gothub__.ttf","Gothic Uralic:style=Regular")
 
@@ -485,6 +498,11 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 	CHECK_FONT_PATH("/usr/share/fonts/truetype/freefont/FreeSerif.ttf","FreeSerif")
 	CHECK_FONT_PATH("/usr/share/fonts/truetype/freefont/FreeSans.ttf","FreeSans")
 	CHECK_FONT_PATH("/usr/share/fonts/truetype/freefont/FreeMono.ttf","FreeMono")
+
+	// gentoo paths
+	CHECK_FONT_PATH("/usr/share/fonts/freefont-ttf/FreeSerif.ttf","FreeSerif")
+	CHECK_FONT_PATH("/usr/share/fonts/freefont-ttf/FreeSans.ttf","FreeSans")
+	CHECK_FONT_PATH("/usr/share/fonts/freefont-ttf/FreeMono.ttf","FreeMono")
 
 #ifdef _WIN32
 	CHECK_FONT_PATH("c:\\windows\\fonts\\verdana.ttf",NULL)
