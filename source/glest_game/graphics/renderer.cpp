@@ -5245,88 +5245,88 @@ void Renderer::renderSelectionEffects() {
 	for(int i=0; i<selection->getCount(); ++i){
 
 		const Unit *unit= selection->getUnit(i);
+		if(unit != NULL) {
+			//translate
+			Vec3f currVec= unit->getCurrVectorFlat();
+			currVec.y+= 0.3f;
 
-		//translate
-		Vec3f currVec= unit->getCurrVectorFlat();
-		currVec.y+= 0.3f;
+			//selection circle
+			if(world->getThisFactionIndex() == unit->getFactionIndex()) {
+				if(	showDebugUI == true &&
+					((showDebugUILevel & debugui_unit_titles) == debugui_unit_titles) &&
+					unit->getCommandSize() > 0 &&
+					dynamic_cast<const BuildCommandType *>(unit->getCurrCommand()->getCommandType()) != NULL) {
+					glColor4f(unit->getHpRatio(), unit->getHpRatio(), unit->getHpRatio(), 0.3f);
+				}
+				else {
+					glColor4f(0, unit->getHpRatio(), 0, 0.3f);
+				}
+			}
+			else if ( world->getThisTeamIndex() == unit->getTeam()) {
+				glColor4f(unit->getHpRatio(), unit->getHpRatio(), 0, 0.3f);
+			}
+			else{
+				glColor4f(unit->getHpRatio(), 0, 0, 0.3f);
+			}
+			renderSelectionCircle(currVec, unit->getType()->getSize(), selectionCircleRadius);
 
-		//selection circle
-		if(world->getThisFactionIndex() == unit->getFactionIndex()) {
 			if(	showDebugUI == true &&
-				((showDebugUILevel & debugui_unit_titles) == debugui_unit_titles) &&
-				unit->getCommandSize() > 0 &&
-				dynamic_cast<const BuildCommandType *>(unit->getCurrCommand()->getCommandType()) != NULL) {
-				glColor4f(unit->getHpRatio(), unit->getHpRatio(), unit->getHpRatio(), 0.3f);
-			}
-			else {
-				glColor4f(0, unit->getHpRatio(), 0, 0.3f);
-			}
-		}
-		else if ( world->getThisTeamIndex() == unit->getTeam()) {
-			glColor4f(unit->getHpRatio(), unit->getHpRatio(), 0, 0.3f);
-		}
-		else{
-			glColor4f(unit->getHpRatio(), 0, 0, 0.3f);
-		}
-		renderSelectionCircle(currVec, unit->getType()->getSize(), selectionCircleRadius);
+				(showDebugUILevel & debugui_unit_titles) == debugui_unit_titles) {
 
-		if(	showDebugUI == true &&
-			(showDebugUILevel & debugui_unit_titles) == debugui_unit_titles) {
+				const UnitPathInterface *path= unit->getPath();
+				if(path != NULL && dynamic_cast<const UnitPathBasic *>(path)) {
+					vector<Vec2i> pathList = dynamic_cast<const UnitPathBasic *>(path)->getLastPathCacheQueue();
 
-			const UnitPathInterface *path= unit->getPath();
-			if(path != NULL && dynamic_cast<const UnitPathBasic *>(path)) {
-				vector<Vec2i> pathList = dynamic_cast<const UnitPathBasic *>(path)->getLastPathCacheQueue();
+					Vec2i lastPosValue;
+					for(int i = 0; i < pathList.size(); ++i) {
+						Vec2i curPosValue = pathList[i];
+						if(i == 0) {
+							lastPosValue = curPosValue;
+						}
+						Vec3f currVec2 = unit->getVectorFlat(lastPosValue,curPosValue);
+						currVec2.y+= 0.3f;
+						renderSelectionCircle(currVec2, 1, selectionCircleRadius);
+						//renderSelectionCircle(currVec2, unit->getType()->getSize(), selectionCircleRadius);
 
-				Vec2i lastPosValue;
-				for(int i = 0; i < pathList.size(); ++i) {
-					Vec2i curPosValue = pathList[i];
-					if(i == 0) {
-						lastPosValue = curPosValue;
+						//SurfaceCell *cell= map->getSurfaceCell(currVec2.x, currVec2.y);
+						//currVec2.z = cell->getHeight() + 2.0;
+						//renderSelectionCircle(currVec2, unit->getType()->getSize(), selectionCircleRadius);
 					}
-					Vec3f currVec2 = unit->getVectorFlat(lastPosValue,curPosValue);
-					currVec2.y+= 0.3f;
-					renderSelectionCircle(currVec2, 1, selectionCircleRadius);
-					//renderSelectionCircle(currVec2, unit->getType()->getSize(), selectionCircleRadius);
-
-					//SurfaceCell *cell= map->getSurfaceCell(currVec2.x, currVec2.y);
-					//currVec2.z = cell->getHeight() + 2.0;
-					//renderSelectionCircle(currVec2, unit->getType()->getSize(), selectionCircleRadius);
 				}
 			}
-		}
 
-		//magic circle
-		if(world->getThisFactionIndex() == unit->getFactionIndex() && unit->getType()->getMaxEp() > 0) {
-			glColor4f(unit->getEpRatio()/2.f, unit->getEpRatio(), unit->getEpRatio(), 0.5f);
-			renderSelectionCircle(currVec, unit->getType()->getSize(), magicCircleRadius);
-		}
+			//magic circle
+			if(world->getThisFactionIndex() == unit->getFactionIndex() && unit->getType()->getMaxEp() > 0) {
+				glColor4f(unit->getEpRatio()/2.f, unit->getEpRatio(), unit->getEpRatio(), 0.5f);
+				renderSelectionCircle(currVec, unit->getType()->getSize(), magicCircleRadius);
+			}
 
-		// Render Attack-boost circles
-		if(showDebugUI == true) {
-			//const std::pair<const SkillType *,std::vector<Unit *> > &currentAttackBoostUnits = unit->getCurrentAttackBoostUnits();
-			const UnitAttackBoostEffectOriginator &effect = unit->getAttackBoostOriginatorEffect();
+			// Render Attack-boost circles
+			if(showDebugUI == true) {
+				//const std::pair<const SkillType *,std::vector<Unit *> > &currentAttackBoostUnits = unit->getCurrentAttackBoostUnits();
+				const UnitAttackBoostEffectOriginator &effect = unit->getAttackBoostOriginatorEffect();
 
-			if(effect.skillType->isAttackBoostEnabled() == true) {
-				glColor4f(MAGENTA.x,MAGENTA.y,MAGENTA.z,MAGENTA.w);
-				renderSelectionCircle(currVec, unit->getType()->getSize(), effect.skillType->getAttackBoost()->radius);
+				if(effect.skillType->isAttackBoostEnabled() == true) {
+					glColor4f(MAGENTA.x,MAGENTA.y,MAGENTA.z,MAGENTA.w);
+					renderSelectionCircle(currVec, unit->getType()->getSize(), effect.skillType->getAttackBoost()->radius);
 
-				for(unsigned int i = 0; i < effect.currentAttackBoostUnits.size(); ++i) {
-					// Remove attack boost upgrades from unit
-					int findUnitId = effect.currentAttackBoostUnits[i];
-					Unit *affectedUnit = game->getWorld()->findUnitById(findUnitId);
-					if(affectedUnit != NULL) {
-						Vec3f currVecBoost = affectedUnit->getCurrVectorFlat();
-						currVecBoost.y += 0.3f;
+					for(unsigned int i = 0; i < effect.currentAttackBoostUnits.size(); ++i) {
+						// Remove attack boost upgrades from unit
+						int findUnitId = effect.currentAttackBoostUnits[i];
+						Unit *affectedUnit = game->getWorld()->findUnitById(findUnitId);
+						if(affectedUnit != NULL) {
+							Vec3f currVecBoost = affectedUnit->getCurrVectorFlat();
+							currVecBoost.y += 0.3f;
 
-						renderSelectionCircle(currVecBoost, affectedUnit->getType()->getSize(), 1.f);
+							renderSelectionCircle(currVecBoost, affectedUnit->getType()->getSize(), 1.f);
+						}
 					}
 				}
 			}
 		}
-
 	}
-	if(selectedResourceObject!=NULL && selection->getCount()<1)
-	{
+
+	if(selectedResourceObject != NULL && selectedResourceObject->getResource() != NULL && selection->getCount() < 1) {
 		Resource *r= selectedResourceObject->getResource();
 		int defaultValue= r->getType()->getDefResPerPatch();
 		float colorValue=static_cast<float>(r->getAmount())/static_cast<float>(defaultValue);
@@ -5336,58 +5336,57 @@ void Renderer::renderSelectionEffects() {
 	//target arrow
 	if(selection->getCount() == 1) {
 		const Unit *unit= selection->getUnit(0);
+		if(unit != NULL) {
+			//comand arrow
+			if(focusArrows && unit->anyCommand()) {
+				const CommandType *ct= unit->getCurrCommand()->getCommandType();
+				if(ct->getClicks() != cOne){
 
-		//comand arrow
-		if(focusArrows && unit->anyCommand()) {
-			const CommandType *ct= unit->getCurrCommand()->getCommandType();
-			if(ct->getClicks() != cOne){
+					//arrow color
+					Vec3f arrowColor;
+					switch(ct->getClass()) {
+					case ccMove:
+						arrowColor= Vec3f(0.f, 1.f, 0.f);
+						break;
+					case ccAttack:
+					case ccAttackStopped:
+						arrowColor= Vec3f(1.f, 0.f, 0.f);
+						break;
+					default:
+						arrowColor= Vec3f(1.f, 1.f, 0.f);
+						break;
+					}
 
-				//arrow color
-				Vec3f arrowColor;
-				switch(ct->getClass()) {
-				case ccMove:
-					arrowColor= Vec3f(0.f, 1.f, 0.f);
-					break;
-				case ccAttack:
-				case ccAttackStopped:
-					arrowColor= Vec3f(1.f, 0.f, 0.f);
-					break;
-				default:
-					arrowColor= Vec3f(1.f, 1.f, 0.f);
-					break;
+					//arrow target
+					Vec3f arrowTarget;
+					Command *c= unit->getCurrCommand();
+					if(c->getUnit() != NULL) {
+						arrowTarget= c->getUnit()->getCurrVectorFlat();
+					}
+					else {
+						Vec2i pos= c->getPos();
+						map->clampPos(pos);
+
+						arrowTarget= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
+					}
+
+					renderArrow(unit->getCurrVectorFlat(), arrowTarget, arrowColor, 0.3f);
 				}
+			}
 
-				//arrow target
-				Vec3f arrowTarget;
-				Command *c= unit->getCurrCommand();
-				if(c->getUnit() != NULL) {
-					arrowTarget= c->getUnit()->getCurrVectorFlat();
-				}
-				else {
-					Vec2i pos= c->getPos();
-					map->clampPos(pos);
+			//meeting point arrow
+			if(unit->getType()->getMeetingPoint()) {
+				Vec2i pos= unit->getMeetingPos();
+				map->clampPos(pos);
 
-					arrowTarget= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
-				}
-
-				renderArrow(unit->getCurrVectorFlat(), arrowTarget, arrowColor, 0.3f);
+				Vec3f arrowTarget= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
+				renderArrow(unit->getCurrVectorFlat(), arrowTarget, Vec3f(0.f, 0.f, 1.f), 0.3f);
 			}
 		}
-
-		//meeting point arrow
-		if(unit->getType()->getMeetingPoint()) {
-			Vec2i pos= unit->getMeetingPos();
-			map->clampPos(pos);
-
-			Vec3f arrowTarget= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
-			renderArrow(unit->getCurrVectorFlat(), arrowTarget, Vec3f(0.f, 0.f, 1.f), 0.3f);
-		}
-
 	}
 
 	//render selection hightlights
-	if(game->getGui()->getHighlightedUnit()!=NULL)
-	{
+	if(game->getGui()->getHighlightedUnit() != NULL)	{
 		const Unit *unit=game->getGui()->getHighlightedUnit() ;
 
 		if(unit->isHighlighted()) {
@@ -5425,11 +5424,9 @@ void Renderer::renderSelectionEffects() {
 //		}
 //	}
 	//render resource selection highlight
-	if(game->getGui()->getHighlightedResourceObject()!=NULL)
-	{
+	if(game->getGui()->getHighlightedResourceObject() != NULL) {
 		const Object* object=game->getGui()->getHighlightedResourceObject();
-		if(object->isHighlighted())
-		{
+		if(object->isHighlighted()) {
 			float highlight= object->getHightlight();
 			glColor4f(0.1f, 0.1f , 1.0f, highlight);
 			Vec3f v= object->getPos();
