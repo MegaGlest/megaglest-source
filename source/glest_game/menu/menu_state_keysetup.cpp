@@ -429,7 +429,7 @@ void MenuStateKeysetup::keyDown(SDL_KeyboardEvent key) {
 
 	char szCharText[20]="";
 	snprintf(szCharText,20,"%c",hotkeyChar);
-	char *utfStr = String::ConvertToUTF8(&szCharText[0]);
+	char *utfStr = ConvertToUTF8(&szCharText[0]);
 
 	char szBuf[8096] = "";
 	snprintf(szBuf,8096,"%s [%s][%d][%d][%d][%d]",keyName.c_str(),utfStr,key.keysym.sym,hotkeyChar,key.keysym.unicode,key.keysym.mod);
