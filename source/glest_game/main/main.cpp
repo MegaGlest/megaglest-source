@@ -162,7 +162,7 @@ static void cleanupProcessObjects() {
 	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 IRCCLient Cache SHUTDOWN\n");
-	IRCThread * &ircClient = CacheManager::getCachedItem< IRCThread * >(GameConstants::ircClinetCacheLookupKey);
+	IRCThread * &ircClient = CacheManager::getCachedItem< IRCThread * >(GameConstants::ircClientCacheLookupKey);
     if(ircClient != NULL) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 IRCCLient Cache SHUTDOWN\n");
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);

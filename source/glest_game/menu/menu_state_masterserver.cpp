@@ -307,7 +307,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 IRCCLient Cache check\n");
-    IRCThread * &ircThread = CacheManager::getCachedItem< IRCThread * >(GameConstants::ircClinetCacheLookupKey);
+    IRCThread * &ircThread = CacheManager::getCachedItem< IRCThread * >(GameConstants::ircClientCacheLookupKey);
     if(ircThread == NULL) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 IRCCLient Cache check\n");
     	ircThread = new IRCThread(ircArgs,this);

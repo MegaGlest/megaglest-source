@@ -50,7 +50,7 @@ const char *GameConstants::folder_path_screenshots	= "screens/";
 const char *GameConstants::OBSERVER_SLOTNAME		= "*Observer*";
 const char *GameConstants::RANDOMFACTION_SLOTNAME	= "*Random*";
 
-const char *GameConstants::ircClinetCacheLookupKey  			= "ircClientCache";
+const char *GameConstants::ircClientCacheLookupKey  			= "ircClientCache";
 const char *GameConstants::playerTextureCacheLookupKey  		= "playerTextureCache";
 const char *GameConstants::factionPreviewTextureCacheLookupKey  = "factionPreviewTextureCache";
 const char *GameConstants::characterMenuScreenPositionListCacheLookupKey  = "characterMenuScreenPositionListCache";
