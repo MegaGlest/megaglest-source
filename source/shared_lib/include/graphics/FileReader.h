@@ -148,7 +148,7 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 #else
 	ifstream file(filepath.c_str(), ios::in | ios::binary);
 #endif
-	if (!file.is_open()) { //An error occured; TODO: Which one - throw an exception, print error message?
+	if (!file.is_open()) {
 		throw megaglest_runtime_error("[#1] Could not open file " + filepath);
 	}
 	for (typename vector<FileReader<T> const *>::const_iterator i = readers->begin(); i != readers->end(); ++i) {
@@ -158,10 +158,10 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 			FileReader<T> const * reader = *i;
 			ret = reader->read(file, filepath); //It is guaranteed that at least the filepath matches ...
 		}
-		catch (megaglest_runtime_error &ex) { //TODO: Specific exceptions
+		catch (megaglest_runtime_error &ex) {
 			throw;
 		}
-		catch (...) { //TODO: Specific exceptions
+		catch (...) {
 			continue;
 		}
 		if (ret != NULL) {
@@ -191,7 +191,7 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 #else
 	ifstream file(filepath.c_str(), ios::in | ios::binary);
 #endif
-	if (!file.is_open()) { //An error occured; TODO: Which one - throw an exception, print error message?
+	if (!file.is_open()) {
 #if defined(WIN32) && !defined(__MINGW32__)
 		DWORD error = GetLastError();
 		throw megaglest_runtime_error("[#2] Could not open file, result: " + intToStr(error) + " - " + intToStr(fileErrno) + " [" + filepath + "]");
@@ -206,10 +206,10 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 			FileReader<T> const * reader = *i;
 			ret = reader->read(file, filepath, object); //It is guaranteed that at least the filepath matches ...
 		}
-		catch (megaglest_runtime_error &ex) { //TODO: Specific exceptions
+		catch (megaglest_runtime_error &ex) {
 			throw;
 		}
-		catch (...) { //TODO: Specific exceptions
+		catch (...) {
 			continue;
 		}
 		if (ret != NULL) {
@@ -329,7 +329,7 @@ bool FileReader<T>::canRead(ifstream& file) const {
 		delete wouldRead;
 		return ret;
 	}
-	catch (megaglest_runtime_error &ex) { //TODO: Specific exceptions
+	catch (megaglest_runtime_error &ex) {
 		throw;
 	}
 	catch (...) {
@@ -350,7 +350,7 @@ T* FileReader<T>::read(const string& filepath) const {
 #else
 	ifstream file(filepath.c_str(), ios::in | ios::binary);
 #endif
-	if (!file.is_open()) { //An error occured; TODO: Which one - throw an exception, print error message?
+	if (!file.is_open()) {
 		throw megaglest_runtime_error("[#3] Could not open file " + filepath);
 	}
 	T* ret = read(file,filepath);
@@ -375,7 +375,7 @@ T* FileReader<T>::read(const string& filepath, T* object) const {
 #else
 	ifstream file(filepath.c_str(), ios::in | ios::binary);
 #endif
-	if (!file.is_open()) { //An error occured; TODO: Which one - throw an exception, print error message?
+	if (!file.is_open()) {
 		throw megaglest_runtime_error("[#4] Could not open file " + filepath);
 	}
 	T* ret = read(file,filepath,object);

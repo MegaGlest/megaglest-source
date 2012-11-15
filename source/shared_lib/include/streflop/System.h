@@ -19,7 +19,7 @@
 #define __BYTE_ORDER 1234
 #define __FLOAT_WORD_ORDER 1234
 
-// Softfloat or other unknown FPU. TODO: Try some header autodetect?
+// Softfloat or other unknown FPU.
 #else
 
 #define __BYTE_ORDER 1234

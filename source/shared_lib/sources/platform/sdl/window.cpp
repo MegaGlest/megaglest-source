@@ -37,9 +37,8 @@ namespace Shared{ namespace Platform{
 //               WINDOW
 // =======================================
 
-// ========== STATIC INICIALIZATIONS ==========
+// ========== STATIC INITIALIZATIONS ==========
 
-// Matze: hack for now...
 static Window* global_window = 0;
 static int oldX=0,oldY=0;
 int64 Window::lastMouseEvent = 0;	/** for use in mouse hover calculations */

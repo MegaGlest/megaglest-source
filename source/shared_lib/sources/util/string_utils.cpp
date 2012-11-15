@@ -102,10 +102,8 @@ namespace Shared { namespace Util {
         // Empty the container
         if (emptyBefore)
             out.clear();
-        // TODO This method should be rewritten for better performance
         String s(*this);
-        while (!s.empty())
-        {
+        while (!s.empty()) {
             String::size_type i = s.find_first_of(separators);
             if (i == std::string::npos)
             {
@@ -126,10 +124,8 @@ namespace Shared { namespace Util {
         // Empty the container
         if (emptyBefore)
             out.clear();
-        // TODO This method should be rewritten for better performance
         String s(*this);
-        while (!s.empty())
-        {
+        while (!s.empty()) {
             String::size_type i = s.find_first_of(separators);
             if (i == std::string::npos)
             {
@@ -488,7 +484,7 @@ namespace Shared { namespace Util {
         char* ret = ConvertToUTF8(s.c_str(), s.size());
         if (ret)
         {
-            String s(ret); // TODO Find a way to not use a temporary string
+            String s(ret);
             delete[] ret;
             return s;
         }

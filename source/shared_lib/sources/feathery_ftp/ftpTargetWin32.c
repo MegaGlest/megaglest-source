@@ -514,7 +514,6 @@ int ftpUntrackSocket(socket_t s)
 	{
 		FD_CLR(s, &watchedSockets);
 	}
-	// TODO hier sollte eine Möglichkeit geschaffen werden um maxSockNr anzupassen
 	return 0;
 }
 

@@ -165,7 +165,7 @@ Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 						a = row_pointers[y][xFile+3];	
 						break;
 					default:
-						//TODO: Error
+						// Possible Error
 					case 1:
 						r = g = b = l = row_pointers[y][xFile];
 						a = 255;
@@ -188,7 +188,7 @@ Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 							pixels[location+xPic+i] = l;
 						}
 						break;
-						//TODO: Error
+						// Possible Error
 				}
 			}
 		}
@@ -322,7 +322,7 @@ Pixmap3D* PNGReader3D::read(ifstream& is, const string& path, Pixmap3D* ret) con
 						a = row_pointers[y][xFile+3];
 						break;
 					default:
-						//TODO: Error
+						// Possible Error
 					case 1:
 						r = g = b = l = row_pointers[y][xFile];
 						a = 255;
@@ -345,7 +345,7 @@ Pixmap3D* PNGReader3D::read(ifstream& is, const string& path, Pixmap3D* ret) con
 							pixels[location+xPic+i] = l;
 						}
 						break;
-						//TODO: Error
+						// Possible Error
 				}
 			}
 		}

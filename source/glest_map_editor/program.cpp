@@ -180,7 +180,6 @@ int Program::getResource(int x, int y) {
 	}
 }
 
-// TODO: move editor-specific code from shared_lib to here.
 void Program::glestChangeMapHeight(int x, int y, int Height, int radius) {
 	if(map) map->glestChangeHeight((x - ofsetX) / cellSize, (y + ofsetY) / cellSize, Height, radius);
 }
