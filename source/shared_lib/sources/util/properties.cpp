@@ -88,7 +88,7 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 		if(lineBuffer[0] != '\0') {
 			// If the file is NOT in UTF-8 format convert each line
 			if(is_utf8_language == false && Font::forceLegacyFonts == false) {
-				char *utfStr = String::ConvertToUTF8(&lineBuffer[0]);
+				char *utfStr = ConvertToUTF8(&lineBuffer[0]);
 
 				//printf("\nBefore [%s] After [%s]\n",&lineBuffer[0],utfStr);
 
@@ -98,7 +98,7 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 				delete [] utfStr;
 			}
 			else if(is_utf8_language == true && Font::forceLegacyFonts == true) {
-				char *asciiStr = String::ConvertFromUTF8(&lineBuffer[0]);
+				char *asciiStr = ConvertFromUTF8(&lineBuffer[0]);
 
 				//printf("\nBefore [%s] After [%s]\n",&lineBuffer[0],utfStr);
 
