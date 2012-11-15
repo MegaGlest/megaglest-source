@@ -48,7 +48,7 @@ class UndoPoint {
 	private:
 		// Only keep a certain number of undo points in memory otherwise
 		// Big projects could hog a lot of memory
-		const static int MAX_UNDO_LIST_SIZE = 100; // TODO get feedback on this value
+		const static int MAX_UNDO_LIST_SIZE = 100;
 		static int undoCount;
 
 		ChangeType change;

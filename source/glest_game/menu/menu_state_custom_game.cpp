@@ -1170,7 +1170,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 				}
 			}
 			else if (checkBoxAdvanced.mouseClick(x, y)) {
-				//TODO
 			}
 			else if(listBoxTileset.mouseClick(x, y,advanceToItemStartingWith)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));

@@ -139,8 +139,8 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	int picComponents = (ret->getComponents() == -1)?cinfo.num_components:ret->getComponents();
 	//std::cout << "JPG-Components: Pic: " << picComponents << " old: " << (ret->getComponents()) << " File: " << cinfo.num_components << std::endl;
 	//picComponents = 4;
-	//TODO: Irrlicht has some special CMYK-handling - maybe needed too?
-	/* Start decompression jpeg here */
+
+	// Start decompression jpeg here
 	jpeg_start_decompress( &cinfo );
 	ret->init(cinfo.image_width, cinfo.image_height, picComponents);
 	uint8* pixels = ret->getPixels();
@@ -175,7 +175,7 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 						a = row_pointer[0][xFile+3];
 						break;
 					default:
-						//TODO: Error
+						// Possible Error
 					case 1:
 						r = g = b = l = row_pointer[0][xFile];
 						a = 255;
@@ -198,7 +198,7 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 							pixels[location+xPic+i] = l;
 						}
 						break;
-						//TODO: Error
+						// Possible Error
 				}
 			}
 		}

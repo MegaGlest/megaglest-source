@@ -1595,7 +1595,6 @@ MsgDialog::MsgDialog(wxWindow *parent,
 					 const wxPoint& pos) {
 
 	m_sizerText = NULL;
-	// TODO: should we use main frame as parent by default here?
     if ( !wxDialog::Create(parent, wxID_ANY, caption,
                            pos, wxDefaultSize,
 						   style) ) {

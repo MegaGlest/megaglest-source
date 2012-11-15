@@ -60,7 +60,7 @@ void Texture1D::load(const string &path){
 	this->path= path;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] this->path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->path.c_str());
 
-	if (pixmap.getComponents() == -1) { //TODO: look where you really need that
+	if (pixmap.getComponents() == -1) {
 		pixmap.init(defaultComponents);
 	}
 	pixmap.load(path);
@@ -179,8 +179,9 @@ std::pair<SDL_Surface*,unsigned char*> Texture2D::CreateSDLSurface(bool newPixel
 	        int ybegin = 0;
 	        int yend = image->h - 1;
 
-	        // TODO: consider if this lock is legal/appropriate
-	        if (SDL_MUSTLOCK(image)) { SDL_LockSurface(image); }
+	        if (SDL_MUSTLOCK(image)) {
+	        	SDL_LockSurface(image);
+	        }
 	        while (ybegin < yend) {
 	                memcpy(line, pixels + pitch*ybegin, pitch);
 	                memcpy(pixels + pitch*ybegin, pixels + pitch*yend, pitch);
@@ -188,7 +189,9 @@ std::pair<SDL_Surface*,unsigned char*> Texture2D::CreateSDLSurface(bool newPixel
 	                ybegin++;
 	                yend--;
 	        }
-	        if (SDL_MUSTLOCK(image)) { SDL_UnlockSurface(image); }
+	        if (SDL_MUSTLOCK(image)) {
+	        	SDL_UnlockSurface(image);
+	        }
 
 //	        if (freeSource) {
 //	                SDL_FreeSurface(surface);

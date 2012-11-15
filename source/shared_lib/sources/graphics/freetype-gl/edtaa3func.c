@@ -86,7 +86,7 @@ void computegradient(double *img, int w, int h, double *gx, double *gy)
             }
         }
     }
-    // TODO: Compute reasonable values for gx, gy also around the image edges.
+    // Compute reasonable values for gx, gy also around the image edges.
     // (These are zero now, which reduces the accuracy for a 1-pixel wide region
 	// around the image edge.) 2x2 kernels would be suitable for this.
 }

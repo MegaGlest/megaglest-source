@@ -115,7 +115,6 @@
 # Jan Woetzel (FindwxWindows.cmake),
 # Jorgen Bodde and Jerry Fath (FindwxWin.cmake).
 
-# TODO/ideas
 #
 # (1) Option/Setting to use all available wx libs
 # In contrast to expert developer who lists the
