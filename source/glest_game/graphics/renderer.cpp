@@ -6786,8 +6786,8 @@ void Renderer::selectUsingSelectionBuffer(Selection::UnitContainer &units,
 
 	//setup matrices
 	glSelectBuffer(Gui::maxSelBuff, selectBuffer);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
+	//glMatrixMode(GL_PROJECTION);
+	//glPushMatrix();
 
 	GLint renderModeResult = glRenderMode(GL_SELECT);
 	if(renderModeResult < 0) {
@@ -6797,12 +6797,21 @@ void Renderer::selectUsingSelectionBuffer(Selection::UnitContainer &units,
 
 		printf("%s\n",szBuf);
 	}
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+
 	glLoadIdentity();
 
 	const Metrics &metrics= Metrics::getInstance();
 	GLint view[]= {0, 0, metrics.getVirtualW(), metrics.getVirtualH()};
+	//GLint view[4];
+	//glGetIntegerv(GL_VIEWPORT, view);
+
 	gluPickMatrix(x, y, w, h, view);
-	gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, perspFarPlane);
+	//gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, perspFarPlane);
+	gluPerspective(perspFov, metrics.getAspectRatio(), 0.0001, 1000.0);
+	//gluPerspective(perspFov, (float)view[2]/(float)view[3], perspNearPlane, perspFarPlane);
 	loadGameCameraMatrix();
 
 	//render units to find which ones should be selected
@@ -6817,7 +6826,7 @@ void Renderer::selectUsingSelectionBuffer(Selection::UnitContainer &units,
 
 	// Added this to ensure all the selection calls are done now
 	// (see http://www.unknownroad.com/rtfm/graphics/glselection.html section: [0x4])
-	glFlush();
+	//glFlush();
 
 	//select units by checking the selected buffer
 	int selCount= glRenderMode(GL_RENDER);
