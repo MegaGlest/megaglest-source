@@ -6809,8 +6809,8 @@ void Renderer::selectUsingSelectionBuffer(Selection::UnitContainer &units,
 	//glGetIntegerv(GL_VIEWPORT, view);
 
 	gluPickMatrix(x, y, w, h, view);
-	//gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, perspFarPlane);
-	gluPerspective(perspFov, metrics.getAspectRatio(), 0.0001, 1000.0);
+	gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, perspFarPlane);
+	//gluPerspective(perspFov, metrics.getAspectRatio(), 0.0001, 1000.0);
 	//gluPerspective(perspFov, (float)view[2]/(float)view[3], perspNearPlane, perspFarPlane);
 	loadGameCameraMatrix();
 

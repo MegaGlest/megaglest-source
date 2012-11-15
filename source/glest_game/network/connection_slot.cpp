@@ -839,12 +839,11 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									if(networkMessageLaunch.getMessageType() == nmtLaunch &&
 											this->serverInterface->getConnectedSlotCount() < minHeadLessPlayersRequired) {
 								    	Lang &lang= Lang::getInstance();
-								    	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
+								    	const vector<string> languageList = this->serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 								    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-											char szBuf[4096]="";
-
+								    		char szBuf[4096]="";
 											string msgTemplate = "You must have have at least %d player(s) connected to start this game!";
-											if(lang.hasString("HeadlessAdminRequiresMorePlayers") == true) {
+											if(lang.hasString("HeadlessAdminRequiresMorePlayers",languageList[i]) == true) {
 												msgTemplate = lang.get("HeadlessAdminRequiresMorePlayers",languageList[i]);
 											}
 					#ifdef WIN32
@@ -857,6 +856,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 											string sMsg = szBuf;
 											bool echoLocal = lang.isLanguageLocal(languageList[i]);
 											this->serverInterface->sendTextMessage(sMsg,-1, echoLocal, languageList[i], this->getPlayerIndex());
+
+											//printf("Lang [%s] msgTemplate [%s] echoLocal = %d\n",languageList[i].c_str(),msgTemplate.c_str(),echoLocal);
 								    	}
 									}
 									else {
