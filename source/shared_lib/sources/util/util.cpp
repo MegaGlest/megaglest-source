@@ -118,7 +118,7 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut,CURLco
 		handle = SystemFlags::curl_handle;
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	curl_easy_setopt(handle, CURLOPT_URL, URL.c_str());
 
@@ -140,13 +140,13 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut,CURLco
 	curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1);
 	curl_easy_setopt(handle, CURLOPT_MAXREDIRS, 20);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] handle = %p\n",__FILE__,__FUNCTION__,__LINE__,handle);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] handle = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,handle);
 
 	if(getSystemSettingType(SystemFlags::debugNetwork).enabled == true) {
 		curl_easy_setopt(handle, CURLOPT_VERBOSE, 1);
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	char errbuf[CURL_ERROR_SIZE]="";
 	curl_easy_setopt(handle, CURLOPT_ERRORBUFFER, errbuf);
@@ -162,7 +162,7 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut,CURLco
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CURL result = %d\n",result);
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CURL errbuf [%s]\n",errbuf);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] return code [%d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,errbuf);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] return code [%d] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,result,errbuf);
 
 	std::string serverResponse = (chunk.memory != NULL ? chunk.memory : "");
 	if(chunk.memory) {
@@ -177,7 +177,7 @@ std::string SystemFlags::getHTTP(std::string URL,CURL *handle,int timeOut,CURLco
 	}
 
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] serverResponse [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverResponse.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] serverResponse [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,serverResponse.c_str());
 
 	return serverResponse;
 }
@@ -186,31 +186,31 @@ CURL *SystemFlags::initHTTP() {
 	if(SystemFlags::curl_global_init_called == false) {
 		SystemFlags::curl_global_init_called = true;
 		//printf("HTTP init\n");
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] calling curl_global_init\n",__FILE__,__FUNCTION__,__LINE__);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] calling curl_global_init\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] calling curl_global_init\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] calling curl_global_init\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		CURLcode result = curl_global_init(CURL_GLOBAL_ALL);
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] curl_global_init called and returned: result %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,curl_easy_strerror(result));
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] curl_global_init called and returned: result %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,curl_easy_strerror(result));
-		//printf("In [%s::%s Line %d] curl_global_init called and returned: result %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,result,curl_easy_strerror(result));
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] curl_global_init called and returned: result %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,result,curl_easy_strerror(result));
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] curl_global_init called and returned: result %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,result,curl_easy_strerror(result));
+		//printf("In [%s::%s Line %d] curl_global_init called and returned: result %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,result,curl_easy_strerror(result));
 	}
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] calling curl_easy_init\n",__FILE__,__FUNCTION__,__LINE__);
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] calling curl_easy_init\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] calling curl_easy_init\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] calling curl_easy_init\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	CURL *handle = curl_easy_init();
 	if(handle == NULL) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] ERROR handle = NULL\n",__FILE__,__FUNCTION__,__LINE__);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] ERROR handle = NULL\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] ERROR handle = NULL\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] ERROR handle = NULL\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	}
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] handle = %p\n",__FILE__,__FUNCTION__,__LINE__,handle);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] handle = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,handle);
 	curl_easy_setopt(handle, CURLOPT_NOSIGNAL, 1);
 	curl_easy_setopt(handle, CURLOPT_FOLLOWLOCATION, 1);
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] handle = %p\n",__FILE__,__FUNCTION__,__LINE__,handle);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] handle = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,handle);
 	return handle;
 }
 
 void SystemFlags::globalCleanupHTTP() {
 
 	if(curl_handle != NULL) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		SystemFlags::cleanupHTTP(&curl_handle, true);
 		curl_handle = NULL;
 	}
@@ -219,16 +219,16 @@ void SystemFlags::globalCleanupHTTP() {
 		SystemFlags::curl_global_init_called = false;
 		//printf("HTTP cleanup\n");
 		curl_global_cleanup();
-		//printf("In [%s::%s Line %d] curl_global_cleanup called\n",__FILE__,__FUNCTION__,__LINE__);
+		//printf("In [%s::%s Line %d] curl_global_cleanup called\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	}
 }
 
 SystemFlags::SystemFlagsType * SystemFlags::setupRequiredMembers() {
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true) {
 		//throw megaglest_runtime_error("threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true");
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ERROR threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ERROR threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		//static SystemFlagsType *result = new SystemFlagsType();
 		static SystemFlags::SystemFlagsType result;
 		result.enabled = SystemFlags::VERBOSE_MODE_ENABLED;
@@ -243,11 +243,11 @@ SystemFlags::SystemFlagsType * SystemFlags::setupRequiredMembers() {
 void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
 	SystemFlags::haveSpecialOutputCommandLineOption = haveSpecialOutputCommandLineOption;
 	if(SystemFlags::debugLogFileList == NULL) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		if(threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true) {
 			//throw megaglest_runtime_error("threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true");
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ERROR threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ERROR threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			return;
 		}
 
@@ -265,21 +265,21 @@ void SystemFlags::init(bool haveSpecialOutputCommandLineOption) {
 	}
 
     if(threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == false) {
-    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         threadLogger = new LogFileThread();
         threadLogger->start();
         sleep(1);
     }
 
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(curl_handle == NULL) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		curl_handle = SystemFlags::initHTTP();
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] curl_handle = %p\n",__FILE__,__FUNCTION__,__LINE__,curl_handle);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] curl_handle = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,curl_handle);
 	}
 }
 
@@ -316,40 +316,40 @@ void SystemFlags::cleanupHTTP(CURL **handle, bool globalCleanup) {
 SystemFlags::~SystemFlags() {
 	SystemFlags::Close();
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	SystemFlags::globalCleanupHTTP();
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 void SystemFlags::Close() {
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     if(threadLogger != NULL) {
         SystemFlags::ENABLE_THREADED_LOGGING = false;
         //SystemFlags::SHUTDOWN_PROGRAM_MODE=true;
         time_t elapsed = time(NULL);
         threadLogger->signalQuit();
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         //threadLogger->shutdownAndWait();
 		for(;threadLogger->canShutdown(false) == false &&
 			difftime(time(NULL),elapsed) <= 15;) {
 			//sleep(150);
 		}
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 //		if(threadLogger->canShutdown(false)) {
 //			Sleep(0);
 //		}
 		if(threadLogger->shutdownAndWait() == true) {
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			delete threadLogger;
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		}
 		threadLogger = NULL;
         //delete threadLogger;
         //threadLogger = NULL;
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     }
 
 	if(SystemFlags::debugLogFileList != NULL) {
@@ -366,7 +366,7 @@ void SystemFlags::Close() {
 		delete SystemFlags::debugLogFileList;
 		SystemFlags::debugLogFileList = NULL;
 	}
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(SystemFlags::lockFile != -1) {
 #ifndef WIN32
@@ -383,7 +383,7 @@ void SystemFlags::Close() {
 		}
 	}
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(SystemFlags::debugLogFileList != NULL) {
 		if(SystemFlags::haveSpecialOutputCommandLineOption == false) {
@@ -391,16 +391,16 @@ void SystemFlags::Close() {
 		}
 	}
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 	if(SystemFlags::debugLogFileList == NULL) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		if(threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true) {
 			//throw megaglest_runtime_error("threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true");
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ERROR threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ERROR threadLogger == NULL && SystemFlags::SHUTDOWN_PROGRAM_MODE == true\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			//return;
 		}
 
@@ -436,7 +436,7 @@ void SystemFlags::handleDebug(DebugType type, const char *fmt, ...) {
 
 void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugTime) {
 	if(SystemFlags::debugLogFileList == NULL) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		SystemFlags::init(false);
 	}
 	//SystemFlags::SystemFlagsType &currentDebugLog = (*SystemFlags::debugLogFileList)[type];
@@ -544,7 +544,7 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
             }
 
             if(currentDebugLog.fileStream->is_open() == true) {
-				MutexSafeWrapper safeMutex(currentDebugLog.mutex,string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutex(currentDebugLog.mutex,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 
 				(*currentDebugLog.fileStream) << "Starting Mega-Glest logging for type: " << type << "\n";
 				(*currentDebugLog.fileStream).flush();
@@ -556,7 +556,7 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
         assert(currentDebugLog.fileStream != NULL);
 
         if(currentDebugLog.fileStream->is_open() == true) {
-			MutexSafeWrapper safeMutex(currentDebugLog.mutex,string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutex(currentDebugLog.mutex,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 
 			// All items in the if clause we don't want timestamps
 			if (type != debugPathFinder && type != debugError && type != debugWorldSynch) {
@@ -609,7 +609,7 @@ string lastDir(const string &s) {
 	}
 
 	if (pos==string::npos) {
-		throw megaglest_runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " pos == string::npos for [" + s + "]");
+		throw megaglest_runtime_error(string(extractFileFromDirectoryPath(__FILE__).c_str()) + " line: " + intToStr(__LINE__) + " pos == string::npos for [" + s + "]");
 	}
 
 	if(	pos + 1 == s.length() && s.length() > 0 &&
@@ -646,7 +646,7 @@ string cutLastFile(const string &s){
 	}
 
 	if (pos != string::npos) {
-		//throw megaglest_runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " pos == string::npos for [" + s + "]");
+		//throw megaglest_runtime_error(string(extractFileFromDirectoryPath(__FILE__).c_str()) + " line: " + intToStr(__LINE__) + " pos == string::npos for [" + s + "]");
 	//}
 
 		return (s.substr(0, pos));
@@ -657,7 +657,7 @@ string cutLastFile(const string &s){
 string cutLastExt(const string &s) {
      size_t i= s.find_last_of('.');
 	 if (i != string::npos) {
-          //throw megaglest_runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " i==string::npos for [" + s + "]");
+          //throw megaglest_runtime_error(string(extractFileFromDirectoryPath(__FILE__).c_str()) + " line: " + intToStr(__LINE__) + " i==string::npos for [" + s + "]");
 	 //}
 
 		return (s.substr(0, i));
@@ -671,7 +671,7 @@ string ext(const string &s) {
      i=s.find_last_of('.')+1;
 
 	 if (i != string::npos) {
-          //throw megaglest_runtime_error(string(__FILE__) + " line: " + intToStr(__LINE__) + " i==string::npos for [" + s + "]");
+          //throw megaglest_runtime_error(string(extractFileFromDirectoryPath(__FILE__).c_str()) + " line: " + intToStr(__LINE__) + " i==string::npos for [" + s + "]");
 	 //}
 		return (s.substr(i, s.size()-i));
 	 }
@@ -746,23 +746,180 @@ int round(float f){
 bool checkVersionComptability(string clientVersionString, string serverVersionString) {
 	bool compatible = (clientVersionString == serverVersionString);
 	if(compatible == false) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientVersionString [%s], serverVersionString [%s]\n",__FILE__,__FUNCTION__,__LINE__,clientVersionString.c_str(),serverVersionString.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientVersionString [%s], serverVersionString [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,clientVersionString.c_str(),serverVersionString.c_str());
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] clientVersionString [%s], serverVersionString [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,clientVersionString.c_str(),serverVersionString.c_str());
 
 		vector<string> tokens;
 		vector<string> tokensServer;
 		Tokenize(clientVersionString,tokens,".");
 		Tokenize(serverVersionString,tokensServer,".");
 
-		// only check the first 3 sections with . to compare makor versions #'s
-		compatible = (tokens.size() >= 3 && tokensServer.size() >= 3);
+		// Search for -dev, -gamma, -alpha, -beta and strip characters after
+		for(unsigned int i = 0; i < tokensServer.size(); ++i) {
+			vector<string> tokensSpecialVersionTags;
+			Tokenize(tokensServer[i],tokensSpecialVersionTags,"-");
+			if(tokensSpecialVersionTags.size() > 1) {
+				if( StartsWith(tokensSpecialVersionTags[1],"dev") == true ||
+					StartsWith(tokensSpecialVersionTags[1],"gamma") == true ||
+					StartsWith(tokensSpecialVersionTags[1],"alpha") == true ||
+					StartsWith(tokensSpecialVersionTags[1],"beta") == true) {
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientVersionString [%s], serverVersionString [%s] compatible [%d]\n",__FILE__,__FUNCTION__,__LINE__,clientVersionString.c_str(),serverVersionString.c_str(),compatible);
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND SPECIAL SERVER VERSION TAG [%s] [%s] tokensSpecialVersionTags.size() = " MG_SIZE_T_SPECIFIER "\n",tokensSpecialVersionTags[0].c_str(),tokensSpecialVersionTags[1].c_str(),tokensSpecialVersionTags.size());
 
-		for(int i = 0; compatible == true && i < 3; ++i) {
-			if(tokens[i] != tokensServer[i]) {
-				compatible = false;
+					// Chop off platform specific version info
+					if(tokensSpecialVersionTags.size() > 2) {
+						string trimRightDelim = "-" + tokensSpecialVersionTags[2];
+						string newVersionText = trim_at_delim(serverVersionString, trimRightDelim);
 
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tokens[i] = [%s], tokensServer[i] = [%s] compatible [%d]\n",__FILE__,__FUNCTION__,__LINE__,tokens[i].c_str(),tokensServer[i].c_str(),compatible);
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("NEW SERVER VERSION TAG [%s] OLD TAG [%s] delim [%s]\n",newVersionText.c_str(),serverVersionString.c_str(),trimRightDelim.c_str());
+						serverVersionString = newVersionText;
+
+						tokensServer.clear();
+						Tokenize(serverVersionString,tokensServer,".");
+					}
+
+					break;
+				}
+			}
+		}
+		for(unsigned int i = 0; i < tokens.size(); ++i) {
+			vector<string> tokensSpecialVersionTags;
+			Tokenize(tokens[i],tokensSpecialVersionTags,"-");
+			if(tokensSpecialVersionTags.size() > 1) {
+				if( StartsWith(tokensSpecialVersionTags[1],"dev") == true ||
+					StartsWith(tokensSpecialVersionTags[1],"gamma") == true ||
+					StartsWith(tokensSpecialVersionTags[1],"alpha") == true ||
+					StartsWith(tokensSpecialVersionTags[1],"beta") == true) {
+
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND SPECIAL CLIENT VERSION TAG [%s] [%s] tokensSpecialVersionTags.size() = " MG_SIZE_T_SPECIFIER "\n",tokensSpecialVersionTags[0].c_str(),tokensSpecialVersionTags[1].c_str(),tokensSpecialVersionTags.size());
+
+					// Chop off platform specific version info
+					if(tokensSpecialVersionTags.size() > 2) {
+						string trimRightDelim = "-" + tokensSpecialVersionTags[2];
+						string newVersionText = trim_at_delim(clientVersionString, trimRightDelim);
+
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("NEW CLIENT VERSION TAG [%s] OLD TAG [%s] delim [%s]\n",newVersionText.c_str(),clientVersionString.c_str(),trimRightDelim.c_str());
+						clientVersionString = newVersionText;
+
+						tokens.clear();
+						Tokenize(clientVersionString,tokens,".");
+					}
+
+					break;
+				}
+			}
+		}
+
+		// strip the v off the first version, ie v3.7.0
+		replaceAll(tokensServer[0], "v", "");
+		replaceAll(tokens[0], "v", "");
+
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) {
+			// debug version strings
+			for(unsigned int i = 0; i < tokensServer.size(); ++i) {
+				printf("Server version index = %d str [%s] IsNumeric = %d\n",i,tokensServer[i].c_str(),IsNumeric(tokensServer[i].c_str(),false));
+			}
+			for(unsigned int i = 0; i < tokens.size(); ++i) {
+				printf("Client version index = %d str [%s] IsNumeric = %d\n",i,tokens[i].c_str(),IsNumeric(tokens[i].c_str(),false));
+			}
+		}
+		// **NOTE:
+		// after of 3.7.0 we go to 2 digi version compatibility, check if both
+		// client and server are at least 3.7
+		bool compatiblePost3_7_0_Check = false;
+		bool compatiblePre3_7_0_1_Check = true;
+
+//		if(tokens.size() >= 3 && tokensServer.size() >= 3 &&
+//			tokensServer[0] != "" && IsNumeric(tokensServer[0].c_str(),false) && strToInt(tokensServer[0]) == 3 &&
+//			tokensServer[1] != "" && IsNumeric(tokensServer[1].c_str(),false) && strToInt(tokensServer[1]) == 7 &&
+//			(tokensServer[2][0] == '0' || tokensServer[2][0] == '1') &&
+//			tokens[0] != "" && IsNumeric(tokens[0].c_str(),false) && strToInt(tokens[0]) == 3 &&
+//			tokens[1] != "" && IsNumeric(tokens[1].c_str(),false) && strToInt(tokens[1]) == 7 &&
+//			(tokens[2][0] == '0' || tokens[2][0] == '1')) {
+//
+//			compatiblePost3_7_0_Check = false;
+//			compatiblePre3_7_0_1_Check = false;
+//			compatible = true;
+//		}
+//		else if(tokens.size() >= 2 && tokensServer.size() >= 2) {
+		if(tokens.size() >= 2 && tokensServer.size() >= 2) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+			// Both Client and Server are >= to 3.7.0
+			if(tokensServer[0] != "" && IsNumeric(tokensServer[0].c_str(),false) && strToInt(tokensServer[0]) >= 3 &&
+				tokensServer[1] != "" && IsNumeric(tokensServer[1].c_str(),false) && strToInt(tokensServer[1]) >= 7 &&
+				tokens[0] != "" && IsNumeric(tokens[0].c_str(),false) && strToInt(tokens[0]) >= 3 &&
+				tokens[1] != "" && IsNumeric(tokens[1].c_str(),false) && strToInt(tokens[1]) >= 7) {
+
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+				// Both are at least 3.7.0, now check if both are > 3.7.0
+				if(tokens.size() >= 3 && tokensServer.size() >= 3) {
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+					if((tokensServer[0] != "" && IsNumeric(tokensServer[0].c_str(),false) && strToInt(tokensServer[0]) >= 3 &&
+						tokensServer[1] != "" && IsNumeric(tokensServer[1].c_str(),false) && strToInt(tokensServer[1]) >= 7 &&
+						tokensServer[2] != "" && IsNumeric(tokensServer[2].c_str(),false) && strToInt(tokensServer[2]) > 0) &&
+   					   (tokens[0] != "" && IsNumeric(tokens[0].c_str(),false) && strToInt(tokens[0]) >= 3 &&
+   						tokens[1] != "" && IsNumeric(tokens[1].c_str(),false) && strToInt(tokens[1]) >= 7 &&
+   						tokens[2] != "" && IsNumeric(tokens[2].c_str(),false) && strToInt(tokens[2]) > 0)) {
+
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+						compatiblePost3_7_0_Check = true;
+					}
+				}
+				else {
+					// If both are > 3.7 use new version checking of 2 digits since both are higher than 3.7.0
+					if((tokensServer[0] != "" && IsNumeric(tokensServer[0].c_str(),false) && strToInt(tokensServer[0]) >= 3 &&
+						tokensServer[1] != "" && IsNumeric(tokensServer[1].c_str(),false) && strToInt(tokensServer[1]) > 7) &&
+   					   (tokens[0] != "" && IsNumeric(tokens[0].c_str(),false) && strToInt(tokens[0]) >= 3 &&
+   						tokens[1] != "" && IsNumeric(tokens[1].c_str(),false) && strToInt(tokens[1]) > 7)) {
+
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+						compatiblePost3_7_0_Check = true;
+					}
+					else {
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+						compatiblePost3_7_0_Check = true;
+					}
+				}
+
+				if(compatiblePost3_7_0_Check == true) {
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+					compatiblePre3_7_0_1_Check = false;
+					// only check the first 2 sections with . to compare makor versions #'s
+					compatible = (tokens.size() >= 2 && tokensServer.size() >= 2);
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientVersionString [%s], serverVersionString [%s] compatible [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,clientVersionString.c_str(),serverVersionString.c_str(),compatible);
+
+					for(int i = 0; compatible == true && i < 2; ++i) {
+						if(tokens[i] != tokensServer[i]) {
+							compatible = false;
+
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tokens[i] = [%s], tokensServer[i] = [%s] compatible [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,tokens[i].c_str(),tokensServer[i].c_str(),compatible);
+						}
+					}
+
+				}
+			}
+		}
+
+		if(compatiblePre3_7_0_1_Check == true) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			// only check the first 3 sections with . to compare makor versions #'s
+			compatible = (tokens.size() >= 3 && tokensServer.size() >= 3);
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientVersionString [%s], serverVersionString [%s] compatible [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,clientVersionString.c_str(),serverVersionString.c_str(),compatible);
+
+			for(int i = 0; compatible == true && i < 3; ++i) {
+				if(tokens[i] != tokensServer[i]) {
+					compatible = false;
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tokens[i] = [%s], tokensServer[i] = [%s] compatible [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,tokens[i].c_str(),tokensServer[i].c_str(),compatible);
+				}
 			}
 		}
 	}

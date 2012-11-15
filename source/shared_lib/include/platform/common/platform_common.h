@@ -248,6 +248,21 @@ string getCommandLine();
 
 #define SPACES " "
 
+inline string trim_at_delim (const string & s, const string &t)  {
+  string d (s);
+  string::size_type i(d.find(t));
+  //printf("Searching for [%s] in [%s] got " MG_SIZE_T_SPECIFIER "\n",t.c_str(),d.c_str(),i);
+
+  if (i == string::npos) {
+    return d;
+  }
+  else {
+	  d = d.erase (i) ;
+	  //printf("returning [%s]\n",d.c_str());
+	  return d;
+  }
+}
+
 inline string trim_right (const string & s, const string & t = SPACES)  {
   string d (s);
   string::size_type i (d.find_last_not_of (t));
