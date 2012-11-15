@@ -84,7 +84,7 @@ bool NetworkManager::isNetworkGame() {
 
 GameNetworkInterface* NetworkManager::getGameNetworkInterface(bool throwErrorOnNull) {
     if(throwErrorOnNull) {
-        assert(gameNetworkInterface!=NULL);
+        //assert(gameNetworkInterface!=NULL);
 
         if(gameNetworkInterface==NULL) {
             throw megaglest_runtime_error("gameNetworkInterface==NULL");
@@ -95,7 +95,7 @@ GameNetworkInterface* NetworkManager::getGameNetworkInterface(bool throwErrorOnN
 
 ServerInterface* NetworkManager::getServerInterface(bool throwErrorOnNull) {
     if(throwErrorOnNull) {
-        assert(gameNetworkInterface!=NULL);
+        //assert(gameNetworkInterface!=NULL);
         if(gameNetworkInterface==NULL) {
             throw megaglest_runtime_error("gameNetworkInterface==NULL");
         }
@@ -112,7 +112,7 @@ ClientInterface* NetworkManager::getClientInterface(bool throwErrorOnNull) {
 	//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
 
     if(throwErrorOnNull) {
-        assert(gameNetworkInterface!=NULL);
+        //assert(gameNetworkInterface!=NULL);
         if(gameNetworkInterface==NULL) {
             throw megaglest_runtime_error("gameNetworkInterface==NULL");
         }
