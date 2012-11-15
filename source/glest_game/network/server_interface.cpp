@@ -78,11 +78,19 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	// This is an admin port listening only on the localhost intended to
 	// give current connection status info
 #ifndef __APPLE__
-	serverSocketAdmin				= new ServerSocket(true);
-	serverSocketAdmin->setBlock(false);
-	serverSocketAdmin->setBindPort(Config::getInstance().getInt("ServerAdminPort", intToStr(GameConstants::serverAdminPort).c_str()));
-	serverSocketAdmin->setBindSpecificAddress(Config::getInstance().getString("ServerAdminBindAddress", "127.0.0.1"));
-	serverSocketAdmin->listen(5);
+	try {
+		serverSocketAdmin				= new ServerSocket(true);
+		serverSocketAdmin->setBlock(false);
+		serverSocketAdmin->setBindPort(Config::getInstance().getInt("ServerAdminPort", intToStr(GameConstants::serverAdminPort).c_str()));
+		serverSocketAdmin->setBindSpecificAddress(Config::getInstance().getString("ServerAdminBindAddress", "127.0.0.1"));
+		serverSocketAdmin->listen(5);
+	}
+	catch(const std::exception &ex) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Warning Server admin port bind/listen error:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+	}
 #endif
 
 	maxFrameCountLagAllowed 				= Config::getInstance().getInt("MaxFrameCountLagAllowed", intToStr(maxFrameCountLagAllowed).c_str());
