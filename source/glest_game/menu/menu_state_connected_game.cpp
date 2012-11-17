@@ -1104,6 +1104,16 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	ClientInterface* clientInterface= networkManager.getClientInterface();
 	Lang &lang= Lang::getInstance();
 
+	string advanceToItemStartingWith = "";
+	if(!mainMessageBox.getEnabled())
+	{
+    	if(Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
+    		wchar_t lastKey = Shared::Platform::Window::extractLastKeyPressed();
+    		//printf("lastKey = %d [%c]\n",lastKey,lastKey);
+    		advanceToItemStartingWith = lastKey;
+    	}
+	}
+
 	if(mainMessageBox.getEnabled()) {
 		int button= 0;
 		if(mainMessageBox.mouseClick(x, y, button)) {
@@ -1359,7 +1369,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 			for(int i= 0; i < GameConstants::maxPlayers; ++i) {
 				if(listBoxFactions[i].getEditable() &&
 					clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) == i) {
-					if(listBoxFactions[i].mouseClick(x, y)) {
+					if(listBoxFactions[i].mouseClick(x, y,advanceToItemStartingWith)) {
 						soundRenderer.playFx(coreData.getClickSoundA());
 						ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 						if(clientInterface->isConnected()) {
@@ -1486,7 +1496,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 		if(isHeadlessAdmin() == true) {
 			//printf("#1 admin key [%d] client key [%d]\n",settings->getMasterserver_admin(),clientInterface->getSessionKey());
-			mouseClickAdmin(x, y, mouseButton);
+			mouseClickAdmin(x, y, mouseButton,advanceToItemStartingWith);
 		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1578,7 +1588,7 @@ void MenuStateConnectedGame::updateResourceMultiplier(const int index) {
 		listBoxRMultiplier[index].setVisible(listBoxRMultiplier[index].getEnabled());
 }
 
-void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButton) {
+void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButton,string advanceToItemStartingWith) {
 
     try {
         if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
@@ -1592,7 +1602,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
             RestoreLastGameSettings();
         }
-        else if(listBoxMap.mouseClick(x, y)) {
+        else if(listBoxMap.mouseClick(x, y,advanceToItemStartingWith)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
 
@@ -1631,12 +1641,12 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
-        else if(listBoxTileset.mouseClick(x, y)) {
+        else if(listBoxTileset.mouseClick(x, y,advanceToItemStartingWith)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
-        else if(listBoxTechTree.mouseClick(x, y)) {
+        else if(listBoxTechTree.mouseClick(x, y,advanceToItemStartingWith)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
             reloadFactions(false,"");
         	needToBroadcastServerSettings=true;
@@ -1682,7 +1692,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
                 	broadcastServerSettingsDelayTimer=time(NULL);
                 }
                 else if(clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) != i &&
-                		listBoxFactions[i].mouseClick(x, y)) {
+                		listBoxFactions[i].mouseClick(x, y,advanceToItemStartingWith)) {
                 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
                     // Disallow CPU players to be observers
         			if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
@@ -3300,7 +3310,8 @@ void MenuStateConnectedGame::keyDown(SDL_KeyboardEvent key) {
 				clientInterface->getIntroDone() == true) {
 			chatManager.keyDown(key);
 		}
-		if(chatManager.getEditEnabled() == false) {
+		if(chatManager.getEditEnabled() == false &&
+				(Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == false)) {
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
 			//if(key == configKeys.getCharKey("ShowFullConsole")) {

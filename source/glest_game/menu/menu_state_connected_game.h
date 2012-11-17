@@ -256,7 +256,7 @@ private:
     int32 getNetworkPlayerStatus();
     void cleanupMapPreviewTexture();
 
-    void mouseClickAdmin(int x, int y, MouseButton mouseButton);
+    void mouseClickAdmin(int x, int y, MouseButton mouseButton,string advanceToItemStartingWith);
     string getCurrentMapFile();
     void loadGameSettings(GameSettings *gameSettings);
     void reloadFactions(bool keepExistingSelectedItem,string scenario);
