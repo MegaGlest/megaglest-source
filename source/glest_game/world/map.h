@@ -76,7 +76,8 @@ public:
 	inline void setHeight(float height)		{this->height= height;}
 
 	inline bool isFree(Field field) const {
-		bool result = getUnit(field) == NULL || getUnit(field)->isPutrefacting();
+		Unit *unit = getUnit(field);
+		bool result = (unit == NULL || unit->isPutrefacting());
 
 		if(result == false) {
 			//printf("[%s] Line: %d returning false, unit id = %d [%s]\n",__FUNCTION__,__LINE__,getUnit(field)->getId(),getUnit(field)->getType()->getName().c_str());
@@ -86,10 +87,11 @@ public:
 	}
 
 	inline bool isFreeOrMightBeFreeSoon(Vec2i originPos, Vec2i cellPos, Field field) const {
-		bool result = getUnit(field) == NULL || getUnit(field)->isPutrefacting();
+		Unit *unit = getUnit(field);
+		bool result = (unit == NULL || unit->isPutrefacting());
 
 		if(result == false) {
-			if(originPos.dist(cellPos) > 5 && getUnit(field)->getType()->isMobile() == true) {
+			if(originPos.dist(cellPos) > 5 && unit->getType()->isMobile() == true) {
 				result = true;
 			}
 
@@ -174,7 +176,7 @@ public:
 	void deleteResource();
 	bool decAmount(int value);
 	inline bool isFree() const {
-		bool result = object==NULL || object->getWalkable();
+		bool result = (object==NULL || object->getWalkable());
 
 		if(result == false) {
 			//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
