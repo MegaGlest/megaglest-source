@@ -1759,6 +1759,9 @@ void MenuStateConnectedGame::PlayNow(bool saveGame) {
 
 string MenuStateConnectedGame::getCurrentMapFile() {
 	int mapIndex=listBoxMap.getSelectedItemIndex();
+	if(mapIndex < 0) {
+		return "";
+	}
 	return mapFiles[mapIndex];
 }
 
