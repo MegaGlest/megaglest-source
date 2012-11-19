@@ -461,6 +461,7 @@ IRCThread::IRCThread(const std::vector<string> &argv, IRCCallbackInterface *call
     hasJoinedChannel = false;
     lastNickListUpdate = time(NULL);
     wantToLeaveChannel = false;
+    playerName = "";
 }
 
 void IRCThread::signalQuit() {
