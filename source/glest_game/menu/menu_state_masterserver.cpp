@@ -401,6 +401,9 @@ void MenuStateMasterserver::IRC_CallbackEvent(IRCEventType evt, const char* orig
     MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
     if(ircClient != NULL) {
         if(evt == IRC_evt_exitThread) {
+        	ircClient->leaveChannel();
+            ircClient->setCallbackObj(NULL);
+
             ircClient = NULL;
         }
         else if(evt == IRC_evt_chatText) {
