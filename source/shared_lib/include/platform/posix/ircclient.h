@@ -65,6 +65,8 @@ protected:
 	string channel;
 	string nick;
 
+	string playerName;
+
     bool hasJoinedChannel;
     bool eventDataDone;
     Mutex mutexNickList;
@@ -82,6 +84,9 @@ public:
     virtual void execute();
     virtual void signalQuit();
     virtual bool shutdownAndWait();
+
+    void setPlayerName(string value) { playerName = value; }
+    string getPlayerName() const { return playerName; }
 
     bool getWantToLeaveChannel() const { return wantToLeaveChannel; }
 

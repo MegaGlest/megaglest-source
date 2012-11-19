@@ -308,11 +308,23 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 IRCCLient Cache check\n");
     IRCThread * &ircThread = CacheManager::getCachedItem< IRCThread * >(GameConstants::ircClientCacheLookupKey);
+
+    // Playername changed so restart the IRC Thread
+    if(ircThread != NULL && netPlayerName != ircThread->getPlayerName()) {
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    	ircThread->leaveChannel();
+    	ircThread->setCallbackObj(NULL);
+    	ircThread->signalQuit();
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+        ircThread = NULL;
+    }
+
     if(ircThread == NULL) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 IRCCLient Cache check\n");
     	ircThread = new IRCThread(ircArgs,this);
     	ircClient = ircThread;
     	ircClient->setUniqueID(extractFileFromDirectoryPath(__FILE__).c_str());
+    	ircClient->setPlayerName(netPlayerName);
 		ircClient->start();
     }
     else {
