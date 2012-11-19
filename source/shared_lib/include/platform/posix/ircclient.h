@@ -74,12 +74,16 @@ protected:
     Mutex mutexIRCCB;
     IRCCallbackInterface *callbackObj;
 
+    bool wantToLeaveChannel;
+
 public:
 
 	IRCThread(const std::vector<string> &argv,IRCCallbackInterface *callbackObj);
     virtual void execute();
     virtual void signalQuit();
     virtual bool shutdownAndWait();
+
+    bool getWantToLeaveChannel() const { return wantToLeaveChannel; }
 
     void SendIRCCmdMessage(string target, string msg);
     std::vector<string> getNickList();

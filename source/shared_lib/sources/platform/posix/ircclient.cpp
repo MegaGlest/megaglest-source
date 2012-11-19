@@ -159,6 +159,10 @@ void event_join(irc_session_t * session, const char * event, const char * origin
                 nickList.push_back(realNick);
             }
         }
+
+        if(ctx->getWantToLeaveChannel() == true) {
+        	ctx->leaveChannel();
+        }
     }
 }
 
@@ -456,6 +460,7 @@ IRCThread::IRCThread(const std::vector<string> &argv, IRCCallbackInterface *call
     eventDataDone = false;
     hasJoinedChannel = false;
     lastNickListUpdate = time(NULL);
+    wantToLeaveChannel = false;
 }
 
 void IRCThread::signalQuit() {
@@ -727,6 +732,7 @@ void IRCThread::connectToHost() {
 }
 
 void IRCThread::joinChannel() {
+	wantToLeaveChannel = false;
 	connectToHost();
 	if(ircSession != NULL) {
 		IRCThread *ctx = (IRCThread *)irc_get_ctx(ircSession);
@@ -742,6 +748,7 @@ void IRCThread::joinChannel() {
 }
 
 void IRCThread::leaveChannel() {
+	wantToLeaveChannel = true;
 	if(ircSession != NULL) {
 		IRCThread *ctx = (IRCThread *)irc_get_ctx(ircSession);
 		if(ctx != NULL) {
