@@ -924,19 +924,29 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 			}
 		}
 		//else if(key == configKeys.getCharKey("ReloadINI")) {
-		else if(isKeyPressed(configKeys.getSDLKey("ReloadINI"),key) == true) {
+		else if(isKeyPressed(configKeys.getSDLKey("ReloadINI"),key,false) == true) {
 			Config &config = Config::getInstance();
 			config.reload();
 		}
 		//else if(key == configKeys.getCharKey("Screenshot")) {
-		else if(isKeyPressed(configKeys.getSDLKey("Screenshot"),key) == true) {
+		else if(isKeyPressed(configKeys.getSDLKey("Screenshot"),key,false) == true) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Screenshot key pressed\n");
+
 	        string userData = Config::getInstance().getString("UserData_Root","");
 	        if(userData != "") {
         		endPathWithSlash(userData);
 	        }
 
 			string path = userData + GameConstants::folder_path_screenshots;
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Screenshot checking path [%s]\n",path.c_str());
+
+			if(isdir(path.c_str()) == false) {
+				createDirectoryPaths(path);
+			}
+
 			if(isdir(path.c_str()) == true) {
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Screenshot path [%s]\n",path.c_str());
+
 				Config &config= Config::getInstance();
 				string fileFormat = config.getString("ScreenShotFileType","jpg");
 
@@ -962,14 +972,20 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
-						if(Config::getInstance().getBool("DisableScreenshotConsoleText","false") == false) {
+						bool showScreenshotSavedMsg = Config::getInstance().getBool("DisableScreenshotConsoleText","false");
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Screenshot console showScreenshotSavedMsg = %d\n",showScreenshotSavedMsg);
+
+						if(showScreenshotSavedMsg == false) {
+							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Screenshot console [%s]\n",szBuf);
 							program->consoleAddLine(szBuf);
 						}
 
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Screenshot save to [%s]\n",path.c_str());
 						Renderer::getInstance().saveScreen(path);
 						break;
 					}
 					else {
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CANNOT save Screenshot [%s]\n",path.c_str());
 						fclose(f);
 					}
 				}

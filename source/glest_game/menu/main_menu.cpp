@@ -337,7 +337,14 @@ MenuState::~MenuState() {
 }
 
 void MenuState::consoleAddLine(string line) {
+	bool onlyWantChatMsgs = console.getOnlyChatMessagesInStoredLines();
+	if(onlyWantChatMsgs == true) {
+		console.setOnlyChatMessagesInStoredLines(false);
+	}
 	console.addLine(line);
+	if(onlyWantChatMsgs == true) {
+		console.setOnlyChatMessagesInStoredLines(true);
+	}
 }
 
 void MenuState::reloadUI() {
