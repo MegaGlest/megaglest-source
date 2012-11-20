@@ -323,6 +323,8 @@ private:
 	void checkWinner();
 	void checkWinnerStandard();
 	void checkWinnerScripted();
+	void setEndGameTeamWinnersAndLosers();
+
 	bool hasBuilding(const Faction *faction);
 	bool factionLostGame(const Faction *faction);
 	void incSpeed();
