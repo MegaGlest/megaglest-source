@@ -180,16 +180,16 @@ string getAboutString1(int i) {
 	switch(i) {
 	case 0: return "MegaGlest " + glestVersionString + " (" + "Shared Library " + sharedLibVersionString + ")";
 	case 1: return "Built: " + string(__DATE__) + " " + SVN_Rev;
-	case 2: return "Copyright 2001-2011 The MegaGlest Team";
+	case 2: return "Copyright 2001-2012 The MegaGlest Team";
 	}
 	return "";
 }
 
 string getAboutString2(int i) {
 	switch(i) {
-	case 0: return "Web: http://www.megaglest.org  http://glest.org";
+	case 0: return "Web: http://www.megaglest.org";
 	case 1: return "Bug reports: " + string(mailString);
-	case 2: return "Irc: irc://irc.freenode.net/glest";
+	case 2: return "Irc: irc://irc.freenode.net/megaglest";
 	}
 	return "";
 }
