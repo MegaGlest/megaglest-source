@@ -3812,12 +3812,6 @@ Stats Game::quitGame() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	//ProgramState *newState = new BattleEnd(program, endStats);
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-	//program->setState(newState);
-
 	return endStats;
 }
 
@@ -3826,6 +3820,7 @@ void Game::exitGameState(Program *program, Stats &endStats) {
 
 	Game *game = dynamic_cast<Game *>(program->getState());
 	if(game) {
+		game->setEndGameTeamWinnersAndLosers();
 		game->endGame();
 	}
 
@@ -4330,6 +4325,71 @@ void Game::checkWinner() {
 		else {
 			checkWinnerScripted();
 		}
+	}
+}
+
+void Game::setEndGameTeamWinnersAndLosers() {
+	bool lose= false;
+	bool checkTeamIndex = !(this->masterserverMode == false && world.getThisFaction()->getPersonalityType() != fpt_Observer);
+
+	// lookup int is team #, value is players alive on team
+	std::map<int,int> teamsAlive;
+	for(int i = 0; i < world.getFactionCount(); ++i) {
+		if(checkTeamIndex == false || i != world.getThisFactionIndex()) {
+			if(factionLostGame(world.getFaction(i)) == false) {
+				teamsAlive[world.getFaction(i)->getTeam()] = teamsAlive[world.getFaction(i)->getTeam()] + 1;
+			}
+		}
+	}
+
+	// did some team win
+	if(teamsAlive.size() <= 1) {
+		for(int i=0; i< world.getFactionCount(); ++i) {
+			if(checkTeamIndex == false || i != world.getThisFactionIndex()) {
+				if(teamsAlive.find(world.getFaction(i)->getTeam()) != teamsAlive.end()) {
+					world.getStats()->setVictorious(i);
+				}
+				else if(i == world.getThisFactionIndex()) {
+					lose= true;
+				}
+			}
+		}
+		bool firstGameOverTrigger = false;
+		if(gameOver == false) {
+			firstGameOverTrigger = true;
+			gameOver= true;
+		}
+		if( this->gameSettings.isNetworkGame() == false ||
+			this->gameSettings.getEnableObserverModeAtEndGame() == true) {
+			// Let the happy winner view everything left in the world
+
+			// This caused too much LAG for network games
+			if(this->gameSettings.isNetworkGame() == false) {
+				Renderer::getInstance().setPhotoMode(true);
+				gameCamera.setMaxHeight(PHOTO_MODE_MAXHEIGHT);
+			}
+			// END
+		}
+
+		if(firstGameOverTrigger == true) {
+			scriptManager.onGameOver(true);
+		}
+
+		if(world.getFactionCount() == 1 && world.getFaction(0)->getPersonalityType() == fpt_Observer) {
+			//printf("!!!!!!!!!!!!!!!!!!!!");
+
+			//gameCamera.setMoveY(100.0);
+			gameCamera.zoom(-300);
+			//gameCamera.update();
+		}
+//		else {
+//			if(lose == true) {
+//				showLoseMessageBox();
+//			}
+//			else {
+//				showWinMessageBox();
+//			}
+//		}
 	}
 }
 
