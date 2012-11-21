@@ -897,6 +897,14 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 	if(program != NULL && program->isInSpecialKeyCaptureEvent() == false) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+    	vector<int> modifiersToCheck;
+		modifiersToCheck.push_back(KMOD_LCTRL);
+		modifiersToCheck.push_back(KMOD_RCTRL);
+		modifiersToCheck.push_back(KMOD_LALT);
+		modifiersToCheck.push_back(KMOD_RALT);
+		modifiersToCheck.push_back(KMOD_LSHIFT);
+		modifiersToCheck.push_back(KMOD_RSHIFT);
+
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 		//if(key == configKeys.getCharKey("HotKeyShowDebug")) {
 		if(isKeyPressed(configKeys.getSDLKey("HotKeyShowDebug"),key) == true) {
@@ -924,12 +932,12 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 			}
 		}
 		//else if(key == configKeys.getCharKey("ReloadINI")) {
-		else if(isKeyPressed(configKeys.getSDLKey("ReloadINI"),key,false) == true) {
+		else if(isKeyPressed(configKeys.getSDLKey("ReloadINI"),key,modifiersToCheck) == true) {
 			Config &config = Config::getInstance();
 			config.reload();
 		}
 		//else if(key == configKeys.getCharKey("Screenshot")) {
-		else if(isKeyPressed(configKeys.getSDLKey("Screenshot"),key,false) == true) {
+		else if(isKeyPressed(configKeys.getSDLKey("Screenshot"),key,modifiersToCheck) == true) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Screenshot key pressed\n");
 
 	        string userData = Config::getInstance().getString("UserData_Root","");

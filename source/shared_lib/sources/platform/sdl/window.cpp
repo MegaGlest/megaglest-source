@@ -703,6 +703,18 @@ MouseButton Window::getMouseButton(int sdlButton) {
 }
 
 bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllowed) {
+	vector<int> modifiersToCheck;
+	if(modifiersAllowed == false) {
+		modifiersToCheck.push_back(KMOD_LCTRL);
+		modifiersToCheck.push_back(KMOD_RCTRL);
+		modifiersToCheck.push_back(KMOD_LALT);
+		modifiersToCheck.push_back(KMOD_RALT);
+	}
+
+	bool result = isKeyPressed(compareKey, input, modifiersToCheck);
+	return result;
+}
+bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,vector<int> modifiersToCheck) {
 	Uint16 c = SDLK_UNKNOWN;
 	//if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
 	if(input.keysym.unicode > 0) {
@@ -876,16 +888,16 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllow
 		}
 	}
 
-	if(result == true && modifiersAllowed == false) {
+	if(result == true) {
 		//printf("input.keysym.mod = %d\n",input.keysym.mod);
 
-		if( (input.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) ||
-			(input.keysym.mod & (KMOD_LALT | KMOD_RALT)) ||
-			(input.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT))) {
-			//input.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) {
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] result *WOULD HAVE BEEN TRUE* but is false due to: modifiersAllowed = %d input.keysym.mod = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,modifiersAllowed,input.keysym.mod);
+		for(unsigned int i = 0; i < modifiersToCheck.size(); ++i) {
+			if( (input.keysym.mod & modifiersToCheck[i])) {
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] result *WOULD HAVE BEEN TRUE* but is false due to: input.keysym.mod = %d modifiersToCheck[i] = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,input.keysym.mod,modifiersToCheck[i]);
 				result = false;
+				break;
 			}
+		}
 	}
 	string compareKeyName = SDL_GetKeyName(compareKey);
 	string pressKeyName = SDL_GetKeyName((SDLKey)c);
