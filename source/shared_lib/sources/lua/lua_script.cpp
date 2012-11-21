@@ -128,7 +128,12 @@ void LuaScript::DumpGlobals()
 	// 2 - push the next key
 	// 3 - push the value at that key
 	// ... so the key will be at index -2 and the value at index -1
+#if LUA_VERSION_NUM > 501
+		lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
+		for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+#else
 	while (lua_next(L, LUA_GLOBALSINDEX) != 0) {
+#endif
 		// get type of key and value
 		int key_type = lua_type(L, -2);
 		int value_type = lua_type(L, -1);
@@ -192,7 +197,9 @@ void LuaScript::DumpGlobals()
 		// call luaL_dostring with that line.
 		//SaveLine(key_string + " = " + value_string);		// Pop the value so the index remains on top of the stack for the next iteration
 		printf("Found global LUA var: %s = %s\n",key_string.c_str(),value_string.c_str());
+#if LUA_VERSION_NUM <= 501
 		lua_pop(L, 1);
+#endif
 	}
 }
 
@@ -210,7 +217,13 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 	// 2 - push the next key
 	// 3 - push the value at that key
 	// ... so the key will be at index -2 and the value at index -1
+
+#if LUA_VERSION_NUM > 501
+	lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
+	for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+#else
 	while (lua_next(L, LUA_GLOBALSINDEX) != 0) {
+#endif
 		// get type of key and value
 		int key_type = lua_type(L, -2);
 		int value_type = lua_type(L, -1);
@@ -374,7 +387,9 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 				luaScriptNode->addAttribute("value_type",intToStr(value_type), mapTagReplacements);
 			}
 		}
+#if LUA_VERSION_NUM <= 501
 		lua_pop(L, 1);
+#endif
 	}
 
 	//}
