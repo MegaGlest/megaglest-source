@@ -187,9 +187,9 @@ string getAboutString1(int i) {
 
 string getAboutString2(int i) {
 	switch(i) {
-	case 0: return "Web: http://www.megaglest.org";
+	case 0: return "Web: http://megaglest.org";
 	case 1: return "Bug reports: " + string(mailString);
-	case 2: return "Irc: irc://irc.freenode.net/megaglest";
+	case 2: return "IRC: irc://irc.freenode.net/megaglest";
 	}
 	return "";
 }
