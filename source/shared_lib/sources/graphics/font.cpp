@@ -499,6 +499,12 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 	CHECK_FONT_PATH("/usr/share/fonts/truetype/freefont/FreeSans.ttf","FreeSans")
 	CHECK_FONT_PATH("/usr/share/fonts/truetype/freefont/FreeMono.ttf","FreeMono")
 
+	//openSUSE
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/LinBiolinum_RB.otf","Bold")
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/FreeSerif.ttf","FreeSerif")
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/FreeSans.ttf","FreeSans")
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/FreeMono.ttf","FreeMono")
+
 	// gentoo paths
 	CHECK_FONT_PATH("/usr/share/fonts/freefont-ttf/FreeSerif.ttf","FreeSerif")
 	CHECK_FONT_PATH("/usr/share/fonts/freefont-ttf/FreeSans.ttf","FreeSans")
