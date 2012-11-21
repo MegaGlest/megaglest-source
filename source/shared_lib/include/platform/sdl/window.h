@@ -211,7 +211,9 @@ private:
 	static void toggleFullscreen();
 };
 
+bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input, vector<int> modifiersToCheck);
 bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input, bool modifiersAllowed=true);
+
 SDLKey extractKeyPressed(SDL_KeyboardEvent input);
 bool isAllowedInputTextKey(SDLKey key);
 
