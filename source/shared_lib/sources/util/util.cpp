@@ -744,6 +744,8 @@ int round(float f){
 // ==================== misc ====================
 
 bool checkVersionComptability(string clientVersionString, string serverVersionString) {
+	//SystemFlags::VERBOSE_MODE_ENABLED = true;
+
 	bool compatible = (clientVersionString == serverVersionString);
 	if(compatible == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientVersionString [%s], serverVersionString [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,clientVersionString.c_str(),serverVersionString.c_str());
@@ -869,6 +871,27 @@ bool checkVersionComptability(string clientVersionString, string serverVersionSt
 
 						compatiblePost3_7_0_Check = true;
 					}
+					if(strToInt(tokensServer[0]) == strToInt(tokens[0]) &&
+						strToInt(tokensServer[1]) == strToInt(tokens[1])) {
+
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+						if((tokensServer[0] != "" && IsNumeric(tokensServer[0].c_str(),false) && strToInt(tokensServer[0]) == 3 &&
+							tokensServer[1] != "" && IsNumeric(tokensServer[1].c_str(),false) && strToInt(tokensServer[1]) == 7 &&
+							tokensServer[2] != "" && IsNumeric(tokensServer[2].c_str(),false) && strToInt(tokensServer[2]) == 0) ||
+	   					   (tokens[0] != "" && IsNumeric(tokens[0].c_str(),false) && strToInt(tokens[0]) == 3 &&
+	   						tokens[1] != "" && IsNumeric(tokens[1].c_str(),false) && strToInt(tokens[1]) == 7 &&
+	   						tokens[2] != "" && IsNumeric(tokens[2].c_str(),false) && strToInt(tokens[2]) == 0)) {
+
+							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+							compatiblePost3_7_0_Check = false;
+						}
+						else {
+							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+							compatiblePost3_7_0_Check = true;
+						}
+					}
+
 				}
 				else {
 					// If both are > 3.7 use new version checking of 2 digits since both are higher than 3.7.0
@@ -896,7 +919,11 @@ bool checkVersionComptability(string clientVersionString, string serverVersionSt
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientVersionString [%s], serverVersionString [%s] compatible [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,clientVersionString.c_str(),serverVersionString.c_str(),compatible);
 
 					for(int i = 0; compatible == true && i < 2; ++i) {
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 						if(tokens[i] != tokensServer[i]) {
+							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] tokens[i] = [%s] tokensServer[i] = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,tokens[i].c_str(),tokensServer[i].c_str());
+
 							compatible = false;
 
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tokens[i] = [%s], tokensServer[i] = [%s] compatible [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,tokens[i].c_str(),tokensServer[i].c_str(),compatible);
@@ -918,12 +945,15 @@ bool checkVersionComptability(string clientVersionString, string serverVersionSt
 				if(tokens[i] != tokensServer[i]) {
 					compatible = false;
 
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] tokens[i] = [%s], tokensServer[i] = [%s] compatible [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,tokens[i].c_str(),tokensServer[i].c_str(),compatible);
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] tokens[i] = [%s], tokensServer[i] = [%s] compatible [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,tokens[i].c_str(),tokensServer[i].c_str(),compatible);
 				}
 			}
 		}
 	}
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n------> In [%s::%s Line: %d] compatible returning as: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,compatible);
+
+	//SystemFlags::VERBOSE_MODE_ENABLED = false;
 	return compatible;
 }
 
