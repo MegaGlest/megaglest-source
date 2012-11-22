@@ -741,6 +741,8 @@ private:
 	void checkCustomizedParticleTriggers(bool force);
 	bool checkModelStateInfoForNewHpValue();
 	void checkUnitLevel();
+
+	void morphAttackBoosts(Unit *unit);
 };
 
 }}// end namespace

@@ -2679,6 +2679,25 @@ void Unit::checkUnitLevel() {
 	}
 }
 
+void Unit::morphAttackBoosts(Unit *unit) {
+	// Remove any units that were previously in range
+	if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.empty() == false && currentAttackBoostOriginatorEffect.skillType != NULL) {
+		for(int i = currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size() - 1; i >= 0; --i) {
+			// Remove attack boost upgrades from unit
+
+			int findUnitId = currentAttackBoostOriginatorEffect.currentAttackBoostUnits[i];
+			Unit *affectedUnit = game->getWorld()->findUnitById(findUnitId);
+			if(affectedUnit != NULL && affectedUnit->getId() == unit->getId()) {
+				affectedUnit->deapplyAttackBoost(currentAttackBoostOriginatorEffect.skillType->getAttackBoost(), this);
+
+				currentAttackBoostOriginatorEffect.currentAttackBoostUnits.erase(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.begin() + i);
+			}
+
+			//printf("- #1 DE-APPLY ATTACK BOOST from unit [%s - %d]\n",affectedUnit->getType()->getName().c_str(),affectedUnit->getId());
+		}
+	}
+}
+
 bool Unit::morph(const MorphCommandType *mct){
 
 	if(mct == NULL) {
@@ -2702,6 +2721,17 @@ bool Unit::morph(const MorphCommandType *mct){
     if(map->isFreeCellsOrHasUnit(pos, morphUnitType->getSize(), morphUnitField, this,morphUnitType)) {
 		map->clearUnitCells(this, pos, true);
 		faction->deApplyStaticCosts(type,mct);
+
+		//printf("Now unapply attack-boost for unit [%d - %s]\n",this->getId(),this->getType()->getName().c_str());
+		// De apply attack boosts for morphed unit
+		for(int i = currentAttackBoostEffects.size() - 1; i >= 0; --i) {
+			UnitAttackBoostEffect *effect = currentAttackBoostEffects[i];
+			if(effect != NULL) {
+				Unit *sourceUnit = game->getWorld()->findUnitById(effect->source->getId());
+				sourceUnit->morphAttackBoosts(this);
+			}
+		}
+
 
 		checkItemInVault(&this->hp,this->hp);
 		hp += morphUnitType->getMaxHp() - type->getMaxHp();
