@@ -3,6 +3,9 @@ MEGAGLEST CHANGELOG
 To see a timeline of detail changes please visit:
 http://sourceforge.net/apps/trac/megaglest/timeline
 
+v3.7.1
+- bugfixes reported in the bugs forum since 3.7.0
+
 v3.7.0
 - bugfixes reported in the bugs forum since 3.6.0.3
 - display requirements when a player cannot execute a command
