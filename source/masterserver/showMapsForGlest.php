@@ -43,8 +43,8 @@
                         $addItem = true;
                 }
 
-                if($addItem == true) {
-	                $mgversion = $_GET["version"];
+                if ( $addItem == true ) {
+	                if ( isset( $_GET['version'] ) ) { $mgversion = $_GET["version"]; } else { $mgversion = ''; }
 	                if($mgversion == '')
 	                {
 		                $outString =

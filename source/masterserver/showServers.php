@@ -10,13 +10,13 @@
 	define( 'DB_LINK', db_connect() );
 
 	// allow for automatic refreshing in web browser by appending '?refresh=VALUE', where VALUE is a numeric value in seconds.
-	define( 'REFRESH_INTERVAL', (int) $_GET['refresh'] );
+	if ( isset( $_GET['refresh'] ) ) { define( 'REFRESH_INTERVAL', (int) $_GET['refresh'] ); } else { define( 'REFRESH_INTERVAL', '' ); }
 
 	// allow for filtering by gameserver version
-	define( 'FILTER_VERSION', $_GET['version'] );
+	if ( isset( $_GET['version'] ) ) { define( 'FILTER_VERSION', $_GET['version'] ); } else { define( 'FILTER_VERSION', '' ); }
 
-	define( 'MGG_HOST', $_GET['mgg_host'] );
-	define( 'MGG_PORT', $_GET['mgg_port'] );
+	if ( isset( $_GET['mgg_host'] ) ) { define( 'MGG_HOST', $_GET['mgg_host'] ); } else { define( 'MGG_HOST', '' ); }
+	if ( isset( $_GET['mgg_port'] ) ) { define( 'MGG_PORT', $_GET['mgg_port'] ); } else { define( 'MGG_PORT', '' ); }
 
 	if ( MGG_HOST != '' ) {
 		$body = MGG_HOST . ':' . MGG_PORT;
