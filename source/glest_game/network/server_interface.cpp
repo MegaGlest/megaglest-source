@@ -1361,7 +1361,7 @@ void ServerInterface::update() {
 			int iFirstConnectedSlot = -1;
 			for(int i= 0; i < GameConstants::maxPlayers; ++i) {
 				MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
-				if(slots[i] != NULL) {
+				if(slots[i] != NULL && slots[i]->isConnected() == true) {
 					if(iFirstConnectedSlot < 0) {
 						iFirstConnectedSlot = i;
 					}
@@ -1375,13 +1375,17 @@ void ServerInterface::update() {
 			if(foundAdminSlot == false && iFirstConnectedSlot >= 0) {
 				printf("Switching masterserver admin to slot#%d...\n",iFirstConnectedSlot);
 
-				string sMsg = "Switching player to admin mode: " + slots[iFirstConnectedSlot]->getName();
-				sendTextMessage(sMsg,-1, true,"");
+				MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[iFirstConnectedSlot],CODE_AT_LINE_X(iFirstConnectedSlot));
+				if(slots[iFirstConnectedSlot] != NULL) {
+					string sMsg = "Switching player to admin mode: " + slots[iFirstConnectedSlot]->getName();
+					sendTextMessage(sMsg,-1, true,"");
 
-				this->gameSettings.setMasterserver_admin(slots[iFirstConnectedSlot]->getSessionKey());
-				this->gameSettings.setMasterserver_admin_faction_index(slots[iFirstConnectedSlot]->getPlayerIndex());
+					this->gameSettings.setMasterserver_admin(slots[iFirstConnectedSlot]->getSessionKey());
+					this->gameSettings.setMasterserver_admin_faction_index(slots[iFirstConnectedSlot]->getPlayerIndex());
 
-				this->broadcastGameSetup(&this->gameSettings);
+					safeMutexSlot.ReleaseLock();
+					this->broadcastGameSetup(&this->gameSettings);
+				}
 			}
 		}
 		//printf("\nServerInterface::update -- G\n");
