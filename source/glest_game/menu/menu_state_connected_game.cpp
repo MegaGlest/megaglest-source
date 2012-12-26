@@ -1754,6 +1754,7 @@ void MenuStateConnectedGame::PlayNow(bool saveGame) {
 
 	//printf("Client sending map [%s] admin key [%d]\n",gameSettings.getMap().c_str(),gameSettings.getMasterserver_admin());
 
+	broadCastGameSettingsToHeadlessServer(needToBroadcastServerSettings);
     clientInterface->broadcastGameStart(&gameSettings);
 }
 
