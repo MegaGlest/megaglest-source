@@ -45,81 +45,125 @@ void UpgradeTypeBase::load(const XmlNode *upgradeNode, string upgradename) {
 	this->upgradename = upgradename;
 	//values
 	maxHpIsMultiplier = false;
-	maxHp= upgradeNode->getChild("max-hp")->getAttribute("value")->getIntValue();
-	if(upgradeNode->getChild("max-hp")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
-		maxHpIsMultiplier = upgradeNode->getChild("max-hp")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
+	if(upgradeNode->hasChild("max-hp") == true) {
+		maxHp = upgradeNode->getChild("max-hp")->getAttribute("value")->getIntValue();
+		if(upgradeNode->getChild("max-hp")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
+			maxHpIsMultiplier = upgradeNode->getChild("max-hp")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
-		//printf("Found maxHpIsMultiplier = %d\n",maxHpIsMultiplier);
+			//printf("Found maxHpIsMultiplier = %d\n",maxHpIsMultiplier);
+		}
+	}
+	else {
+		maxHp = 0;
 	}
 	maxHpRegeneration = 0;
 	//maxHpRegenerationIsMultiplier = false;
-	if(upgradeNode->getChild("max-hp")->getAttribute(VALUE_REGEN_KEY_NAME,false) != NULL) {
-		maxHpRegeneration = upgradeNode->getChild("max-hp")->getAttribute(VALUE_REGEN_KEY_NAME)->getIntValue();
+	if(upgradeNode->hasChild("max-hp") == true) {
+		if(upgradeNode->getChild("max-hp")->getAttribute(VALUE_REGEN_KEY_NAME,false) != NULL) {
+			maxHpRegeneration = upgradeNode->getChild("max-hp")->getAttribute(VALUE_REGEN_KEY_NAME)->getIntValue();
 
-		//printf("Found maxHpIsMultiplier = %d\n",maxHpIsMultiplier);
+			//printf("Found maxHpIsMultiplier = %d\n",maxHpIsMultiplier);
+		}
 	}
 
 	maxEpIsMultiplier = false;
-	maxEp= upgradeNode->getChild("max-ep")->getAttribute("value")->getIntValue();
-	if(upgradeNode->getChild("max-ep")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
-		maxEpIsMultiplier = upgradeNode->getChild("max-ep")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
+	if(upgradeNode->hasChild("max-ep") == true) {
+		maxEp = upgradeNode->getChild("max-ep")->getAttribute("value")->getIntValue();
+		if(upgradeNode->getChild("max-ep")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
+			maxEpIsMultiplier = upgradeNode->getChild("max-ep")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
-		//printf("Found maxEpIsMultiplier = %d\n",maxEpIsMultiplier);
+			//printf("Found maxEpIsMultiplier = %d\n",maxEpIsMultiplier);
+		}
+	}
+	else {
+		maxEp = 0;
 	}
 	maxEpRegeneration = 0;
 	//maxEpRegenerationIsMultiplier = false;
-	if(upgradeNode->getChild("max-ep")->getAttribute(VALUE_REGEN_KEY_NAME,false) != NULL) {
-		maxEpRegeneration = upgradeNode->getChild("max-ep")->getAttribute(VALUE_REGEN_KEY_NAME)->getIntValue();
+	if(upgradeNode->hasChild("max-ep") == true) {
+		if(upgradeNode->getChild("max-ep")->getAttribute(VALUE_REGEN_KEY_NAME,false) != NULL) {
+			maxEpRegeneration = upgradeNode->getChild("max-ep")->getAttribute(VALUE_REGEN_KEY_NAME)->getIntValue();
 
-		//printf("Found maxHpIsMultiplier = %d\n",maxHpIsMultiplier);
+			//printf("Found maxHpIsMultiplier = %d\n",maxHpIsMultiplier);
+		}
 	}
 
 	sightIsMultiplier = false;
-	sight= upgradeNode->getChild("sight")->getAttribute("value")->getIntValue();
-	if(upgradeNode->getChild("sight")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
-		sightIsMultiplier = upgradeNode->getChild("sight")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
+	if(upgradeNode->hasChild("sight") == true) {
+		sight= upgradeNode->getChild("sight")->getAttribute("value")->getIntValue();
+		if(upgradeNode->getChild("sight")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
+			sightIsMultiplier = upgradeNode->getChild("sight")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
-		//printf("Found sightIsMultiplier = %d\n",sightIsMultiplier);
+			//printf("Found sightIsMultiplier = %d\n",sightIsMultiplier);
+		}
+	}
+	else {
+		sight = 0;
 	}
 
 	attackStrengthIsMultiplier = false;
-	attackStrength= upgradeNode->getChild("attack-strenght")->getAttribute("value")->getIntValue();
-	if(upgradeNode->getChild("attack-strenght")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
-		attackStrengthIsMultiplier = upgradeNode->getChild("attack-strenght")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
+	if(upgradeNode->hasChild("attack-strenght") == true) {
+		attackStrength= upgradeNode->getChild("attack-strenght")->getAttribute("value")->getIntValue();
+		if(upgradeNode->getChild("attack-strenght")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
+			attackStrengthIsMultiplier = upgradeNode->getChild("attack-strenght")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
-		//printf("Found attackStrengthIsMultiplier = %d\n",attackStrengthIsMultiplier);
+			//printf("Found attackStrengthIsMultiplier = %d\n",attackStrengthIsMultiplier);
+		}
+	}
+	else {
+		attackStrength = 0;
 	}
 
 	attackRangeIsMultiplier = false;
-	attackRange= upgradeNode->getChild("attack-range")->getAttribute("value")->getIntValue();
-	if(upgradeNode->getChild("attack-range")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
-		attackRangeIsMultiplier = upgradeNode->getChild("attack-range")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
+	if(upgradeNode->hasChild("attack-range") == true) {
+		attackRange= upgradeNode->getChild("attack-range")->getAttribute("value")->getIntValue();
+		if(upgradeNode->getChild("attack-range")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
+			attackRangeIsMultiplier = upgradeNode->getChild("attack-range")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
-		//printf("Found attackRangeIsMultiplier = %d\n",attackRangeIsMultiplier);
+			//printf("Found attackRangeIsMultiplier = %d\n",attackRangeIsMultiplier);
+		}
+	}
+	else {
+		attackRange = 0;
 	}
 
 	armorIsMultiplier = false;
-	armor= upgradeNode->getChild("armor")->getAttribute("value")->getIntValue();
-	if(upgradeNode->getChild("armor")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
-		armorIsMultiplier = upgradeNode->getChild("armor")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
+	if(upgradeNode->hasChild("armor") == true) {
+		armor= upgradeNode->getChild("armor")->getAttribute("value")->getIntValue();
+		if(upgradeNode->getChild("armor")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
+			armorIsMultiplier = upgradeNode->getChild("armor")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
-		//printf("Found armorIsMultiplier = %d\n",armorIsMultiplier);
+			//printf("Found armorIsMultiplier = %d\n",armorIsMultiplier);
+		}
+	}
+	else {
+		armor = 0;
 	}
 
 	moveSpeedIsMultiplier = false;
-	moveSpeed= upgradeNode->getChild("move-speed")->getAttribute("value")->getIntValue();
-	if(upgradeNode->getChild("move-speed")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
-		moveSpeedIsMultiplier = upgradeNode->getChild("move-speed")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
+	if(upgradeNode->hasChild("move-speed") == true) {
+		moveSpeed= upgradeNode->getChild("move-speed")->getAttribute("value")->getIntValue();
+		if(upgradeNode->getChild("move-speed")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
+			moveSpeedIsMultiplier = upgradeNode->getChild("move-speed")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
-		//printf("Found moveSpeedIsMultiplier = %d\n",moveSpeedIsMultiplier);
+			//printf("Found moveSpeedIsMultiplier = %d\n",moveSpeedIsMultiplier);
+		}
+	}
+	else {
+		moveSpeed= 0;
 	}
 
 	prodSpeedIsMultiplier = false;
-	prodSpeed= upgradeNode->getChild("production-speed")->getAttribute("value")->getIntValue();
-	if(upgradeNode->getChild("production-speed")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
-		prodSpeedIsMultiplier = upgradeNode->getChild("production-speed")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
+	if(upgradeNode->hasChild("production-speed") == true) {
+		prodSpeed= upgradeNode->getChild("production-speed")->getAttribute("value")->getIntValue();
+		if(upgradeNode->getChild("production-speed")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
+			prodSpeedIsMultiplier = upgradeNode->getChild("production-speed")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
-		//printf("Found prodSpeedIsMultiplier = %d\n",prodSpeedIsMultiplier);
+			//printf("Found prodSpeedIsMultiplier = %d\n",prodSpeedIsMultiplier);
+		}
+	}
+	else {
+		prodSpeed = 0;
 	}
 }
 
