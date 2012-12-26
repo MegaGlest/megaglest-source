@@ -288,13 +288,19 @@ void SkillType::loadAttackBoost(const XmlNode *attackBoostsNode, const XmlNode *
         attackBoost.name = "attack-boost-autoname-" + intToStr(getNextAttackBoostId());
     }
     string targetType = attackBoostNode->getChild("target")->getAttribute("value")->getValue();
-    attackBoost.allowMultipleBoosts = attackBoostNode->getChild("allow-multiple-boosts")->getAttribute("value")->getBoolValue();
-    attackBoost.radius = attackBoostNode->getChild("radius")->getAttribute("value")->getIntValue();
-    attackBoost.includeSelf = false;
 
+    attackBoost.allowMultipleBoosts = false;
+    if(attackBoostNode->hasChild("allow-multiple-boosts") == true) {
+    	attackBoost.allowMultipleBoosts = attackBoostNode->getChild("allow-multiple-boosts")->getAttribute("value")->getBoolValue();
+    }
+
+    attackBoost.radius = attackBoostNode->getChild("radius")->getAttribute("value")->getIntValue();
+
+    attackBoost.includeSelf = false;
     if(attackBoostNode->getChild("target")->hasAttribute("include-self") == true) {
         attackBoost.includeSelf = attackBoostNode->getChild("target")->getAttribute("include-self")->getBoolValue();
     }
+
     if(targetType == "ally") {
         attackBoost.targetType = abtAlly;
         for(int i = 0;i < attackBoostNode->getChild("target")->getChildCount();++i) {
