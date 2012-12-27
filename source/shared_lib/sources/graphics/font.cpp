@@ -34,6 +34,11 @@ using namespace Shared::Graphics::Gl;
 #include "util.h"
 #include "platform_common.h"
 #include "platform_util.h"
+
+#ifdef	HAVE_FRIBIDI
+#include <fribidi.h>
+#endif
+
 #include "leak_dumper.h"
 
 using namespace std;
@@ -301,6 +306,39 @@ void Font::setSize(int size)	{
 	else {
 		this->size= size;
 	}
+}
+
+void Font::bidi_cvt(string &str_) {
+#ifdef	HAVE_FRIBIDI
+	char		*c_str = const_cast<char *>(str_.c_str());	// fribidi forgot const...
+	FriBidiStrIndex	len = str_.length();
+	FriBidiChar	*bidi_logical = new FriBidiChar[len + 2];
+	FriBidiChar	*bidi_visual = new FriBidiChar[len + 2];
+	char		*utf8str = new char[4*len + 1];	//assume worst case here (all 4 Byte characters)
+	FriBidiCharType	base_dir = FRIBIDI_TYPE_ON;
+	FriBidiStrIndex n;
+
+
+#ifdef	OLD_FRIBIDI
+	n = fribidi_utf8_to_unicode (c_str, len, bidi_logical);
+#else
+	n = fribidi_charset_to_unicode(FRIBIDI_CHAR_SET_UTF8, c_str, len, bidi_logical);
+#endif
+	fribidi_log2vis(bidi_logical, n, &base_dir, bidi_visual, NULL, NULL, NULL);
+#ifdef	OLD_FRIBIDI
+	fribidi_unicode_to_utf8 (bidi_visual, n, utf8str);
+#else
+	fribidi_unicode_to_charset(FRIBIDI_CHAR_SET_UTF8, bidi_visual, n, utf8str);
+#endif
+	//is_rtl_ = base_dir == FRIBIDI_TYPE_RTL;
+	//fontIsRightToLeft = base_dir == FRIBIDI_TYPE_RTL;
+	fontIsRightToLeft = false;
+
+	str_ = std::string(utf8str);
+	delete[] bidi_logical;
+	delete[] bidi_visual;
+	delete[] utf8str;
+#endif
 }
 
 // ===============================================

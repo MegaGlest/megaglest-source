@@ -20,6 +20,7 @@
 #include "string_utils.h"
 #include "utf8.h"
 #include "util.h"
+
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -58,6 +59,7 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 	}
 
 	string renderText			= text;
+	Font::bidi_cvt(renderText);
 	int line					= 0;
 	int size					= font->getSize();
 	const unsigned char *utext	= NULL;
@@ -388,6 +390,8 @@ void TextRenderer3DGl::render(const string &text, float  x, float y, bool center
 
 	if(text.empty() == false) {
 		string renderText = text;
+		Font::bidi_cvt(renderText);
+
 		if(Font::fontIsMultibyte == true) {
 			if(font->getTextHandler() != NULL) {
 				if(Font::fontIsRightToLeft == true) {

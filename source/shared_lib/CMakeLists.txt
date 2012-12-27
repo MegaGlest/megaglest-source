@@ -17,6 +17,9 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 
 	INCLUDE (CheckIncludeFiles)
 
+#Game options
+option(ENABLE_FRIBIDI "Enable FriBIDi support" ON)
+
 	IF(WIN32)
 		SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
 					${PROJECT_SOURCE_DIR}/source/win32_deps/lib
@@ -246,6 +249,18 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 			MESSAGE(STATUS "LIBVLC disabled so videos are NOT supported.")
 		ENDIF()
         ENDIF()
+
+
+	find_package( FriBiDi )
+	if(ENABLE_FRIBIDI AND FRIBIDI_LIBRARIES)
+	        add_definitions(-DHAVE_FRIBIDI)
+
+        	include_directories( ${FRIBIDI_INCLUDE_DIR} )
+                SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FRIBIDI_LIBRARIES})
+
+	elseif(ENABLE_FRIBIDI AND NOT FRIBIDI_LIBRARIES)
+		message("Could not find FriBiDi. Disabling FriBiDi support.")
+	endif()
 
 	#########################################################################################
 	# megaglest lib
