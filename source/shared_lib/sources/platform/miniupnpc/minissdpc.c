@@ -1,30 +1,23 @@
-/* $Id: minissdpc.c,v 1.14 2010/11/25 09:57:25 nanard Exp $ */
+/* $Id: minissdpc.c,v 1.16 2012/03/05 19:42:46 nanard Exp $ */
 /* Project : miniupnp
+ * Web : http://miniupnp.free.fr/
  * Author : Thomas BERNARD
- * copyright (c) 2005-2009 Thomas Bernard
+ * copyright (c) 2005-2012 Thomas Bernard
  * This software is subjet to the conditions detailed in the
  * provided LICENCE file. */
 /*#include <syslog.h>*/
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#ifndef WIN32
 #include <unistd.h>
-#endif
 #include <sys/types.h>
-#if defined(WIN32) || defined(__amigaos__) || defined(__amigaos4__)
-#ifdef WIN32
+#if defined(_WIN32) || defined(__amigaos__) || defined(__amigaos4__)
+#ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <io.h>
 #include <winsock.h>
-#ifndef WIN32
 #include <stdint.h>
-#else
-//#include "types.h"
-#define uint16_t unsigned short
-typedef SSIZE_T ssize_t;
-#endif
 #endif
 #if defined(__amigaos__) || defined(__amigaos4__)
 #include <sys/socket.h>
@@ -127,7 +120,7 @@ getDevicesFromMiniSSDPD(const char * devtype, const char * socketpath)
 		p += stsize;
 		tmp->buffer[urlsize+1+stsize] = '\0';
 		devlist = tmp;
-		/* added for compatibility with recent versions of MiniSSDPd 
+		/* added for compatibility with recent versions of MiniSSDPd
 		 * >= 2007/12/19 */
 		DECODELENGTH(usnsize, p);
 		p += usnsize;

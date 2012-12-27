@@ -1,7 +1,7 @@
-/* $Id: connecthostport.c,v 1.5 2011/04/09 08:49:50 nanard Exp $ */
+/* $Id: connecthostport.c,v 1.9 2012/06/26 00:00:27 nanard Exp $ */
 /* Project : miniupnp
  * Author : Thomas Bernard
- * Copyright (c) 2010-2011 Thomas Bernard
+ * Copyright (c) 2010-2012 Thomas Bernard
  * This software is subject to the conditions detailed in the
  * LICENCE file provided in this distribution. */
 
@@ -13,7 +13,7 @@
 
 #include <string.h>
 #include <stdio.h>
-#ifdef WIN32
+#ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <io.h>
@@ -21,12 +21,13 @@
 #define snprintf _snprintf
 #define herror
 #define socklen_t int
-#else /* #ifdef WIN32 */
+#else /* #ifdef _WIN32 */
 #include <unistd.h>
 #include <sys/param.h>
 #include <errno.h>
 #define closesocket close
 #include <netdb.h>
+#include <netinet/in.h>
 /* defining MINIUPNPC_IGNORE_EINTR enable the ignore of interruptions
  * during the connect() call */
 #define MINIUPNPC_IGNORE_EINTR
@@ -34,10 +35,10 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #endif /* #ifndef USE_GETHOSTBYNAME */
-#endif /* #else WIN32 */
+#endif /* #else _WIN32 */
 
 /* definition of PRINT_SOCKET_ERROR */
-#ifdef WIN32
+#ifdef _WIN32
 #define PRINT_SOCKET_ERROR(x)    printf("Socket error: %s, %d\n", x, WSAGetLastError());
 #else
 #define PRINT_SOCKET_ERROR(x) perror(x)
@@ -52,7 +53,8 @@
 /* connecthostport()
  * return a socket connected (TCP) to the host and port
  * or -1 in case of error */
-int connecthostport(const char * host, unsigned short port)
+int connecthostport(const char * host, unsigned short port,
+                    unsigned int scope_id)
 {
 	int s, n;
 #ifdef USE_GETHOSTBYNAME
@@ -67,7 +69,7 @@ int connecthostport(const char * host, unsigned short port)
 #ifdef MINIUPNPC_SET_SOCKET_TIMEOUT
 	struct timeval timeout;
 #endif /* #ifdef MINIUPNPC_SET_SOCKET_TIMEOUT */
-	
+
 #ifdef USE_GETHOSTBYNAME
 	hp = gethostbyname(host);
 	if(hp == NULL)
@@ -145,10 +147,12 @@ int connecthostport(const char * host, unsigned short port)
 	if(host[0] == '[')
 	{
 		/* literal ip v6 address */
-		int i;
-		for(i = 0; host[i+1] && (host[i+1] != ']') && i < MAXHOSTNAMELEN; i++)
+		int i, j;
+		for(i = 0, j = 1; host[j] && (host[j] != ']') && i < MAXHOSTNAMELEN; i++, j++)
 		{
-			tmp_host[i] = host[i+1];
+			tmp_host[i] = host[j];
+			if(0 == memcmp(host+j, "%25", 3))	/* %25 is just url encoding for '%' */
+				j+=2;							/* skip "25" */
 		}
 		tmp_host[i] = '\0';
 	}
@@ -160,7 +164,7 @@ int connecthostport(const char * host, unsigned short port)
 	n = getaddrinfo(tmp_host, port_str, &hints, &ai);
 	if(n != 0)
 	{
-#ifdef WIN32
+#ifdef _WIN32
 		fprintf(stderr, "getaddrinfo() error : %d\n", n);
 #else
 		fprintf(stderr, "getaddrinfo() error : %s\n", gai_strerror(n));
@@ -173,6 +177,10 @@ int connecthostport(const char * host, unsigned short port)
 		s = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
 		if(s < 0)
 			continue;
+		if(p->ai_addr->sa_family == AF_INET6 && scope_id > 0) {
+			struct sockaddr_in6 * addr6 = (struct sockaddr_in6 *)p->ai_addr;
+			addr6->sin6_scope_id = scope_id;
+		}
 #ifdef MINIUPNPC_SET_SOCKET_TIMEOUT
 		/* setting a 3 seconds timeout for the connect() call */
 		timeout.tv_sec = 3;

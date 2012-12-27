@@ -1,7 +1,7 @@
-/* $Id: upnpc.c,v 1.88 2011/06/17 23:31:01 nanard Exp $ */
+/* $Id: upnpc.c,v 1.97 2012/06/23 23:16:00 nanard Exp $ */
 /* Project : miniupnp
  * Author : Thomas Bernard
- * Copyright (c) 2005-2011 Thomas Bernard
+ * Copyright (c) 2005-2012 Thomas Bernard
  * This software is subject to the conditions detailed in the
  * LICENCE file provided in this distribution. */
 
@@ -9,16 +9,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#ifdef WIN32
+#ifdef _WIN32
 #include <winsock2.h>
 #define snprintf _snprintf
+#else
+/* for IPPROTO_TCP / IPPROTO_UDP */
+#include <netinet/in.h>
 #endif
 #include "miniwget.h"
 #include "miniupnpc.h"
 #include "upnpcommands.h"
 #include "upnperrors.h"
 
-/* protofix() checks if protocol is "UDP" or "TCP" 
+/* protofix() checks if protocol is "UDP" or "TCP"
  * returns NULL if not */
 const char * protofix(const char * proto)
 {
@@ -26,7 +29,7 @@ const char * protofix(const char * proto)
 	static const char proto_udp[4] = { 'U', 'D', 'P', 0};
 	int i, b;
 	for(i=0, b=1; i<4; i++)
-		b = b && (   (proto[i] == proto_tcp[i]) 
+		b = b && (   (proto[i] == proto_tcp[i])
 		          || (proto[i] == (proto_tcp[i] | 32)) );
 	if(b)
 		return proto_tcp;
@@ -49,44 +52,47 @@ static void DisplayInfos(struct UPNPUrls * urls,
 	unsigned int brUp, brDown;
 	time_t timenow, timestarted;
 	int r;
-	UPNP_GetConnectionTypeInfo(urls->controlURL,
-	                           data->first.servicetype,
-							   connectionType);
-	if(connectionType[0])
-		printf("Connection Type : %s\n", connectionType);
-	else
+	if(UPNP_GetConnectionTypeInfo(urls->controlURL,
+	                              data->first.servicetype,
+	                              connectionType) != UPNPCOMMAND_SUCCESS)
 		printf("GetConnectionTypeInfo failed.\n");
-	UPNP_GetStatusInfo(urls->controlURL, data->first.servicetype,
-	                   status, &uptime, lastconnerr);
-	printf("Status : %s, uptime=%us, LastConnectionError : %s\n",
-	       status, uptime, lastconnerr);
+	else
+		printf("Connection Type : %s\n", connectionType);
+	if(UPNP_GetStatusInfo(urls->controlURL, data->first.servicetype,
+	                      status, &uptime, lastconnerr) != UPNPCOMMAND_SUCCESS)
+		printf("GetStatusInfo failed.\n");
+	else
+		printf("Status : %s, uptime=%us, LastConnectionError : %s\n",
+		       status, uptime, lastconnerr);
 	timenow = time(NULL);
 	timestarted = timenow - uptime;
 	printf("  Time started : %s", ctime(&timestarted));
-	UPNP_GetLinkLayerMaxBitRates(urls->controlURL_CIF, data->CIF.servicetype,
-			&brDown, &brUp);
-	printf("MaxBitRateDown : %u bps", brDown);
-	if(brDown >= 1000000) {
-		printf(" (%u.%u Mbps)", brDown / 1000000, (brDown / 100000) % 10);
-	} else if(brDown >= 1000) {
-		printf(" (%u Kbps)", brDown / 1000);
+	if(UPNP_GetLinkLayerMaxBitRates(urls->controlURL_CIF, data->CIF.servicetype,
+	                                &brDown, &brUp) != UPNPCOMMAND_SUCCESS) {
+		printf("GetLinkLayerMaxBitRates failed.\n");
+	} else {
+		printf("MaxBitRateDown : %u bps", brDown);
+		if(brDown >= 1000000) {
+			printf(" (%u.%u Mbps)", brDown / 1000000, (brDown / 100000) % 10);
+		} else if(brDown >= 1000) {
+			printf(" (%u Kbps)", brDown / 1000);
+		}
+		printf("   MaxBitRateUp %u bps", brUp);
+		if(brUp >= 1000000) {
+			printf(" (%u.%u Mbps)", brUp / 1000000, (brUp / 100000) % 10);
+		} else if(brUp >= 1000) {
+			printf(" (%u Kbps)", brUp / 1000);
+		}
+		printf("\n");
 	}
-	printf("   MaxBitRateUp %u bps", brUp);
-	if(brUp >= 1000000) {
-		printf(" (%u.%u Mbps)", brUp / 1000000, (brUp / 100000) % 10);
-	} else if(brUp >= 1000) {
-		printf(" (%u Kbps)", brUp / 1000);
-	}
-	printf("\n");
 	r = UPNP_GetExternalIPAddress(urls->controlURL,
 	                          data->first.servicetype,
 							  externalIPAddress);
-	if(r != UPNPCOMMAND_SUCCESS)
-		printf("GetExternalIPAddress() returned %d\n", r);
-	if(externalIPAddress[0])
+	if(r != UPNPCOMMAND_SUCCESS) {
+		printf("GetExternalIPAddress failed. (errorcode=%d)\n", r);
+	} else {
 		printf("ExternalIPAddress = %s\n", externalIPAddress);
-	else
-		printf("GetExternalIPAddress failed.\n");
+	}
 }
 
 static void GetConnectionStatus(struct UPNPUrls * urls,
@@ -119,6 +125,7 @@ static void ListRedirections(struct UPNPUrls * urls,
 	/*unsigned int num=0;
 	UPNP_GetPortMappingNumberOfEntries(urls->controlURL, data->servicetype, &num);
 	printf("PortMappingNumberOfEntries : %u\n", num);*/
+	printf(" i protocol exPort->inAddr:inPort description remoteHost leaseTime\n");
 	do {
 		snprintf(index, 6, "%d", i);
 		rHost[0] = '\0'; enabled[0] = '\0';
@@ -166,6 +173,7 @@ static void NewListRedirections(struct UPNPUrls * urls,
 	                               &pdata);
 	if(r == UPNPCOMMAND_SUCCESS)
 	{
+		printf(" i protocol exPort->inAddr:inPort description remoteHost leaseTime\n");
 		for(pm = pdata.head.lh_first; pm != NULL; pm = pm->entries.le_next)
 		{
 			printf("%2d %s %5hu->%s:%-5hu '%s' '%s' %u\n",
@@ -209,7 +217,7 @@ static void NewListRedirections(struct UPNPUrls * urls,
 	}
 }
 
-/* Test function 
+/* Test function
  * 1 - get connection type
  * 2 - get extenal ip address
  * 3 - Add port mapping
@@ -239,7 +247,7 @@ static void SetRedirectAndTest(struct UPNPUrls * urls,
 		fprintf(stderr, "invalid protocol\n");
 		return;
 	}
-	
+
 	UPNP_GetExternalIPAddress(urls->controlURL,
 	                          data->first.servicetype,
 							  externalIPAddress);
@@ -247,7 +255,7 @@ static void SetRedirectAndTest(struct UPNPUrls * urls,
 		printf("ExternalIPAddress = %s\n", externalIPAddress);
 	else
 		printf("GetExternalIPAddress failed.\n");
-	
+
 	r = UPNP_AddPortMapping(urls->controlURL, data->first.servicetype,
 	                        eport, iport, iaddr, 0, proto, 0, leaseDuration);
 	if(r!=UPNPCOMMAND_SUCCESS)
@@ -262,7 +270,7 @@ static void SetRedirectAndTest(struct UPNPUrls * urls,
 	if(r!=UPNPCOMMAND_SUCCESS)
 		printf("GetSpecificPortMappingEntry() failed with code %d (%s)\n",
 		       r, strupnperror(r));
-	
+
 	if(intClient[0]) {
 		printf("InternalIP:Port = %s:%s\n", intClient, intPort);
 		printf("external %s:%s %s is redirected to internal %s:%s (duration=%s)\n",
@@ -301,7 +309,7 @@ static void GetFirewallStatus(struct UPNPUrls * urls, struct IGDdatas * data)
 	UPNP_GetFirewallStatus(urls->controlURL_6FC, data->IPv6FC.servicetype, &firewallEnabled, &inboundPinholeAllowed);
 	printf("FirewallEnabled: %d & Inbound Pinhole Allowed: %d\n", firewallEnabled, inboundPinholeAllowed);
 	printf("GetFirewallStatus:\n   Firewall Enabled: %s\n   Inbound Pinhole Allowed: %s\n", (firewallEnabled)? "Yes":"No", (inboundPinholeAllowed)? "Yes":"No");
-	
+
 	bytessent = UPNP_GetTotalBytesSent(urls->controlURL_CIF, data->CIF.servicetype);
 	bytesreceived = UPNP_GetTotalBytesReceived(urls->controlURL_CIF, data->CIF.servicetype);
 	packetssent = UPNP_GetTotalPacketsSent(urls->controlURL_CIF, data->CIF.servicetype);
@@ -310,7 +318,7 @@ static void GetFirewallStatus(struct UPNPUrls * urls, struct IGDdatas * data)
 	printf("Packets: Sent: %8u\tRecv: %8u\n", packetssent, packetsreceived);
 }
 
-/* Test function 
+/* Test function
  * 1 - Add pinhole
  * 2 - Check if pinhole is working from the IGD side */
 static void SetPinholeAndTest(struct UPNPUrls * urls, struct IGDdatas * data,
@@ -319,27 +327,43 @@ static void SetPinholeAndTest(struct UPNPUrls * urls, struct IGDdatas * data,
 					const char * proto, const char * lease_time)
 {
 	char uniqueID[8];
-	//int isWorking = 0;
+	/*int isWorking = 0;*/
 	int r;
+	char proto_tmp[8];
 
 	if(!intaddr || !remoteaddr || !iport || !eport || !proto || !lease_time)
 	{
 		fprintf(stderr, "Wrong arguments\n");
 		return;
 	}
-	/*proto = protofix(proto);
-	if(!proto)
+	if(atoi(proto) == 0)
 	{
-		fprintf(stderr, "invalid protocol\n");
-		return;
-	}*/
+		const char * protocol;
+		protocol = protofix(proto);
+		if(protocol && (strcmp("TCP", protocol) == 0))
+		{
+			snprintf(proto_tmp, sizeof(proto_tmp), "%d", IPPROTO_TCP);
+			proto = proto_tmp;
+		}
+		else if(protocol && (strcmp("UDP", protocol) == 0))
+		{
+			snprintf(proto_tmp, sizeof(proto_tmp), "%d", IPPROTO_UDP);
+			proto = proto_tmp;
+		}
+		else
+		{
+			fprintf(stderr, "invalid protocol\n");
+			return;
+		}
+	}
 	r = UPNP_AddPinhole(urls->controlURL_6FC, data->IPv6FC.servicetype, remoteaddr, eport, intaddr, iport, proto, lease_time, uniqueID);
 	if(r!=UPNPCOMMAND_SUCCESS)
 		printf("AddPinhole([%s]:%s -> [%s]:%s) failed with code %d (%s)\n",
-		       intaddr, iport, remoteaddr, eport, r, strupnperror(r));
+		       remoteaddr, eport, intaddr, iport, r, strupnperror(r));
 	else
 	{
-		printf("AddPinhole: ([%s]:%s -> [%s]:%s) / Pinhole ID = %s\n", intaddr, iport, remoteaddr, eport, uniqueID);
+		printf("AddPinhole: ([%s]:%s -> [%s]:%s) / Pinhole ID = %s\n",
+		       remoteaddr, eport, intaddr, iport, uniqueID);
 		/*r = UPNP_CheckPinholeWorking(urls->controlURL_6FC, data->servicetype_6FC, uniqueID, &isWorking);
 		if(r!=UPNPCOMMAND_SUCCESS)
 			printf("CheckPinholeWorking() failed with code %d (%s)\n", r, strupnperror(r));
@@ -374,7 +398,7 @@ static void GetPinholeAndUpdate(struct UPNPUrls * urls, struct IGDdatas * data,
 	}
 }
 
-/* Test function 
+/* Test function
  * Get pinhole timeout
  */
 static void GetPinholeOutboundTimeout(struct UPNPUrls * urls, struct IGDdatas * data,
@@ -464,7 +488,7 @@ int main(int argc, char ** argv)
 	int error = 0;
 	int ipv6 = 0;
 
-#ifdef WIN32
+#ifdef _WIN32
 	WSADATA wsaData;
 	int nResult = WSAStartup(MAKEWORD(2,2), &wsaData);
 	if(nResult != NO_ERROR)
@@ -473,7 +497,7 @@ int main(int argc, char ** argv)
 		return -1;
 	}
 #endif
-    printf("upnpc : miniupnpc library test client. (c) 2006-2011 Thomas Bernard\n");
+    printf("upnpc : miniupnpc library test client. (c) 2006-2012 Thomas Bernard\n");
     printf("Go to http://miniupnp.free.fr/ or http://miniupnp.tuxfamily.org/\n"
 	       "for more information.\n");
 	/* command line processing */
@@ -529,7 +553,7 @@ int main(int argc, char ** argv)
 		fprintf(stderr, "Options:\n");
 		fprintf(stderr, "  -6 : use ip v6 instead of ip v4.\n");
 		fprintf(stderr, "  -u url : bypass discovery process by providing the XML root description url.\n");
-		fprintf(stderr, "  -m address/interface : provide ip address (ip v4) or interface name (ip v6) to use for sending SSDP multicast packets.\n");
+		fprintf(stderr, "  -m address/interface : provide ip address (ip v4) or interface name (ip v4 or v6) to use for sending SSDP multicast packets.\n");
 		fprintf(stderr, "  -p path : use this path for MiniSSDPd socket.\n");
 		return 1;
 	}
@@ -573,7 +597,6 @@ int main(int argc, char ** argv)
 			default:
 				printf("Found device (igd ?) : %s\n", urls.controlURL);
 				printf("Trying to continue anyway\n");
-				break;
 			}
 			printf("Local LAN ip address : %s\n", lanaddr);
 			#if 0
@@ -663,7 +686,6 @@ int main(int argc, char ** argv)
 			default:
 				fprintf(stderr, "Unknown switch -%c\n", command);
 				retcode = 1;
-				break;
 			}
 
 			FreeUPNPUrls(&urls);
