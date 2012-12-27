@@ -1,29 +1,48 @@
-# $Id: Makefile,v 1.81 2011/06/21 15:24:14 nanard Exp $
+# $Id: Makefile,v 1.98 2012/08/29 07:51:30 nanard Exp $
 # MiniUPnP Project
 # http://miniupnp.free.fr/
-# (c) 2005-2011 Thomas Bernard
+# http://miniupnp.tuxfamily.org/
+# https://github.com/miniupnp/miniupnp
+# (c) 2005-2012 Thomas Bernard
 # to install use :
 # $ PREFIX=/tmp/dummylocation make install
 # or
 # $ INSTALLPREFIX=/usr/local make install
-# or 
+# or
 # make install (will go to /usr/bin, /usr/lib, etc...)
 OS = $(shell uname -s)
+VERSION = $(shell cat VERSION)
+
+ifeq ($(OS), Darwin)
+JARSUFFIX=mac
+endif
+ifeq ($(OS), Linux)
+JARSUFFIX=linux
+endif
+
 CC ?= gcc
 #AR = gar
-#CFLAGS = -O -Wall -g -DDEBUG
-CFLAGS ?= -O -Wall -DNDEBUG -DMINIUPNPC_SET_SOCKET_TIMEOUT -Wstrict-prototypes
+#CFLAGS = -O -g -DDEBUG
+CFLAGS ?= -O
+CFLAGS += -Wall
+CFLAGS += -W -Wstrict-prototypes
+CFLAGS += -fno-common
+CFLAGS += -DMINIUPNPC_SET_SOCKET_TIMEOUT
+CFLAGS += -DMINIUPNPC_GET_SRC_ADDR
+CFLAGS += -D_BSD_SOURCE -D_POSIX_C_SOURCE=1
+CFLAGS += -ansi
 # -DNO_GETADDRINFO
 INSTALL = install
 SH = /bin/sh
 JAVA = java
 # see http://code.google.com/p/jnaerator/
-JNAERATOR = jnaerator-0.9.3.jar
+JNAERATOR = jnaerator-0.9.7.jar
+JNAERATORBASEURL = http://jnaerator.googlecode.com/files/
 #following libs are needed on Solaris
 #LDLIBS=-lsocket -lnsl -lresolv
 
 # APIVERSION is used to build SONAME
-APIVERSION = 8
+APIVERSION = 9
 
 SRCS = igd_desc_parse.c miniupnpc.c minixml.c minisoap.c miniwget.c \
        upnpc.c upnpcommands.c upnpreplyparse.c testminixml.c \
@@ -54,7 +73,7 @@ ifeq ($(OS), Darwin)
   SHAREDLIBRARY = libminiupnpc.dylib
   SONAME = $(basename $(SHAREDLIBRARY)).$(APIVERSION).dylib
   CFLAGS := -DMACOSX -D_DARWIN_C_SOURCE $(CFLAGS)
-else 
+else
   SHAREDLIBRARY = libminiupnpc.so
   SONAME = $(SHAREDLIBRARY).$(APIVERSION)
 endif
@@ -85,6 +104,7 @@ INSTALLPREFIX ?= $(PREFIX)/usr
 INSTALLDIRINC = $(INSTALLPREFIX)/include/miniupnpc
 INSTALLDIRLIB = $(INSTALLPREFIX)/lib
 INSTALLDIRBIN = $(INSTALLPREFIX)/bin
+INSTALLDIRMAN = $(INSTALLPREFIX)/share/man
 
 FILESTOINSTALL = $(LIBRARY) $(EXECUTABLES)
 ifneq ($(OS), AmigaOS)
@@ -92,11 +112,13 @@ FILESTOINSTALL := $(FILESTOINSTALL) $(SHAREDLIBRARY)
 endif
 
 
-.PHONY:	install clean depend all check everything \
-	installpythonmodule
+.PHONY:	install clean depend all check test everything \
+	installpythonmodule updateversion
 #	validateminixml validateminiwget
 
 all:	$(LIBRARY) $(EXECUTABLES)
+
+test:	check
 
 check:	validateminixml validateminiwget
 
@@ -108,6 +130,13 @@ pythonmodule:	$(LIBRARY) miniupnpcmodule.c setup.py
 
 installpythonmodule:	pythonmodule
 	python setup.py install
+
+pythonmodule3:	$(LIBRARY) miniupnpcmodule.c setup.py
+	python3 setup.py build
+	touch $@
+
+installpythonmodule3:	pythonmodule3
+	python3 setup.py install
 
 validateminixml:	minixmlvalid
 	@echo "minixml validation test"
@@ -122,11 +151,17 @@ validateminiwget:	testminiwget minihttptestserver testminiwget.sh
 clean:
 	$(RM) $(LIBRARY) $(SHAREDLIBRARY) $(EXECUTABLES) $(OBJS) miniupnpcstrings.h
 	# clean python stuff
-	$(RM) pythonmodule validateminixml
+	$(RM) pythonmodule pythonmodule3 validateminixml validateminiwget
 	$(RM) -r build/ dist/
 	#python setup.py clean
+	# clean jnaerator stuff
+	$(RM) _jnaerator.* java/miniupnpc_$(OS).jar
 
-install:	$(FILESTOINSTALL)
+updateversion:	miniupnpc.h
+	cp miniupnpc.h miniupnpc.h.bak
+	sed 's/\(.*MINIUPNPC_API_VERSION\s\+\)[0-9]\+/\1$(APIVERSION)/' < miniupnpc.h.bak > miniupnpc.h
+
+install:	updateversion $(FILESTOINSTALL)
 	$(INSTALL) -d $(INSTALLDIRINC)
 	$(INSTALL) -m 644 $(HEADERS) $(INSTALLDIRINC)
 	$(INSTALL) -d $(INSTALLDIRLIB)
@@ -142,6 +177,11 @@ else
 	$(INSTALL) -m 755 upnpc-shared $(INSTALLDIRBIN)/upnpc
 endif
 	$(INSTALL) -m 755 external-ip.sh $(INSTALLDIRBIN)/external-ip
+ifneq ($(OS), AmigaOS)
+	$(INSTALL) -d $(INSTALLDIRMAN)/man3
+	$(INSTALL) man3/miniupnpc.3 $(INSTALLDIRMAN)/man3/miniupnpc.3
+endif
+
 
 cleaninstall:
 	$(RM) -r $(INSTALLDIRINC)
@@ -156,7 +196,8 @@ $(LIBRARY):	$(LIBOBJS)
 
 $(SHAREDLIBRARY):	$(LIBOBJS)
 ifeq ($(OS), Darwin)
-	$(CC) -dynamiclib $(LDFLAGS) -Wl,-install_name,$(SONAME) -o $@ $^ 
+#	$(CC) -dynamiclib $(LDFLAGS) -Wl,-install_name,$(SONAME) -o $@ $^
+	$(CC) -dynamiclib $(LDFLAGS) -Wl,-install_name,$(INSTALLDIRLIB)/$(SONAME) -o $@ $^
 else
 	$(CC) -shared $(LDFLAGS) -Wl,-soname,$(SONAME) -o $@ $^
 endif
@@ -177,11 +218,47 @@ testupnpreplyparse:	$(TESTUPNPREPLYPARSE)
 
 testigddescparse:	$(TESTIGDDESCPARSE)
 
-miniupnpcstrings.h:	miniupnpcstrings.h.in updateminiupnpcstrings.sh
+miniupnpcstrings.h:	miniupnpcstrings.h.in updateminiupnpcstrings.sh VERSION
 	$(SH) updateminiupnpcstrings.sh
 
-jar:	$(SHAREDLIBRARY) 
-	$(JAVA) -jar $(JNAERATOR) -library miniupnpc miniupnpc.h declspec.h upnpcommands.h upnpreplyparse.h igd_desc_parse.h miniwget.h upnperrors.h $(SHAREDLIBRARY) -package fr.free.miniupnp -o . -jar java/miniupnpc_$(OS).jar -v
+jnaerator-0.9.8-shaded.jar:
+	wget $(JNAERATORBASEURL)/$@ || curl -o $@ $(JNAERATORBASEURL)/$@
+
+jnaerator-0.9.7.jar:
+	wget $(JNAERATORBASEURL)/$@ || curl -o $@ $(JNAERATORBASEURL)/$@
+
+jnaerator-0.9.3.jar:
+	wget $(JNAERATORBASEURL)/$@ || curl -o $@ $(JNAERATORBASEURL)/$@
+
+jar: $(SHAREDLIBRARY)  $(JNAERATOR)
+	$(JAVA) -jar $(JNAERATOR) -library miniupnpc \
+	miniupnpc.h declspec.h upnpcommands.h upnpreplyparse.h \
+	igd_desc_parse.h miniwget.h upnperrors.h $(SHAREDLIBRARY) \
+	-package fr.free.miniupnp -o . -jar java/miniupnpc_$(JARSUFFIX).jar -v
+
+mvn_install:
+	mvn install:install-file -Dfile=java/miniupnpc_$(JARSUFFIX).jar \
+	 -DgroupId=com.github \
+	 -DartifactId=miniupnp \
+	 -Dversion=$(VERSION) \
+	 -Dpackaging=jar \
+	 -Dclassifier=$(JARSUFFIX) \
+	 -DgeneratePom=true \
+	 -DcreateChecksum=true
+
+# make .deb packages
+deb: /usr/share/pyshared/stdeb all
+	(python setup.py --command-packages=stdeb.command bdist_deb)
+
+# install .deb packages
+ideb:
+	(sudo dpkg -i deb_dist/*.deb)
+
+/usr/share/pyshared/stdeb: /usr/share/doc/python-all-dev
+	(sudo apt-get install python-stdeb)
+
+/usr/share/doc/python-all-dev:
+	(sudo apt-get install python-all-dev)
 
 minihttptestserver:	minihttptestserver.o
 

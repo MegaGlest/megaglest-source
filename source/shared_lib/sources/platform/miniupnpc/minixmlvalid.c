@@ -1,4 +1,4 @@
-/* $Id: minixmlvalid.c,v 1.4 2011/02/07 13:44:57 nanard Exp $ */
+/* $Id: minixmlvalid.c,v 1.6 2012/05/01 16:24:07 nanard Exp $ */
 /* MiniUPnP Project
  * http://miniupnp.tuxfamily.org/ or http://miniupnp.free.fr/
  * minixmlvalid.c :
@@ -32,7 +32,7 @@ int evtlistcmp(struct eventlist * a, struct eventlist * b)
 	if(a->n != b->n)
 	{
 		printf("event number not matching : %d != %d\n", a->n, b->n);
-		//return 1;
+		/*return 1;*/
 	}
 	for(i=0; i<a->n; i++)
 	{
@@ -82,7 +82,7 @@ static const struct event evtref[] =
 	{ELTEND, "elt2b", 5},
 	{ELTEND, "elt2a", 5},
 	{ELTEND, "xmlroot", 7}
-};	
+};
 
 void startelt(void * data, const char * p, int l)
 {
@@ -148,6 +148,8 @@ int testxmlparser(const char * xml, int size)
 int main(int argc, char * * argv)
 {
 	int r;
+	(void)argc; (void)argv;
+
 	r = testxmlparser(xmldata, sizeof(xmldata)-1);
 	if(r)
 		printf("minixml validation test failed\n");

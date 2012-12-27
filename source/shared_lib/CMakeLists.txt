@@ -296,6 +296,11 @@ option(ENABLE_FRIBIDI "Enable FriBIDi support" ON)
 	if(NOT MINIUPNP_FOUND)
 		MESSAGE(STATUS "*** Using EMBEDDED miniupnpc since dev system does not have it... MINIUPNP_FOUND [${MINIUPNP_FOUND}]")
 
+                if (NOT WIN32)
+                   add_definitions (-DMINIUPNPC_SET_SOCKET_TIMEOUT)
+                   add_definitions (-D_BSD_SOURCE -D_POSIX_C_SOURCE=1)
+                endif()
+
 		SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/miniupnpc)
 	else()
 		MESSAGE(STATUS "*** Using SHARED miniupnpc found in [${MINIUPNP_INCLUDE_DIR}] MINIUPNP_FOUND [${MINIUPNP_FOUND}] MINIUPNP_LIBRARY [${MINIUPNP_LIBRARY}]")

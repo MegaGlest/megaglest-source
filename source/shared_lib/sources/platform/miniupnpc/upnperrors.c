@@ -1,4 +1,4 @@
-/* $Id: upnperrors.c,v 1.5 2011/04/10 11:19:36 nanard Exp $ */
+/* $Id: upnperrors.c,v 1.6 2012/03/15 01:02:03 nanard Exp $ */
 /* Project : miniupnp
  * Author : Thomas BERNARD
  * copyright (c) 2007 Thomas Bernard
@@ -97,7 +97,7 @@ const char * strupnperror(int err)
 		s = "ExternalPortOnlySupportsWildcard";
 		break;
 	default:
-		s = NULL;
+		s = "UnknownError";
 		break;
 	}
 	return s;

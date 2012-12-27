@@ -1,4 +1,4 @@
-/* $Id: upnperrors.h,v 1.2 2008/07/02 23:31:15 nanard Exp $ */
+/* $Id: upnperrors.h,v 1.3 2012/03/05 19:42:47 nanard Exp $ */
 /* (c) 2007 Thomas Bernard
  * All rights reserved.
  * MiniUPnP Project.
@@ -15,7 +15,7 @@ extern "C" {
 #endif
 
 /* strupnperror()
- * Return a string description of the UPnP error code 
+ * Return a string description of the UPnP error code
  * or NULL for undefinded errors */
 LIBSPEC const char * strupnperror(int err);
 
