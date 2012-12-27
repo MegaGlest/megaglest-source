@@ -1799,39 +1799,6 @@ bool isKeyDown(int virtualKey) {
 }
 
 string replaceAllHTMLEntities(string& context) {
-//	quotation mark = APL quote	&quot;	&#34;	&#x22;	"	"	"
-//	ampersand	&amp;	&#38;	&#x26;	&	&	&
-//	less-than sign	&lt;	&#60;	&#x3C;	<	<	<
-//	greater-than sign	&gt;	&#62;	&#x3E;	>	>	>
-//	Latin capital ligature OE	&OElig;	&#338;	&#x152;	Œ	Œ	Œ
-//	Latin small ligature oe	&oelig;	&#339;	&#x153;	œ	œ	œ
-//	Latin capital letter S with caron	&Scaron;	&#352;	&#x160;	Š	Š	Š
-//	Latin small letter s with caron	&scaron;	&#353;	&#x161;	š	š	š
-//	Latin capital letter Y with diaeresis	&Yuml;	&#376;	&#x178;	Ÿ	Ÿ	Ÿ
-//	modifier letter circumflex accent	&circ;	&#710;	&#x2C6;	ˆ	ˆ	ˆ
-//	small tilde	&tilde;	&#732;	&#x2DC;	˜	˜	˜
-//	en space	&ensp;	&#8194;	&#x2002;
-//	em space	&emsp;	&#8195;	&#x2003;
-//	thin space	&thinsp;	&#8201;	&#x2009;
-//	zero width non-joiner	&zwnj;	&#8204;	&#x200C;	‌	‌	‌
-//	zero width joiner	&zwj;	&#8205;	&#x200D;	‍	‍	‍
-//	left-to-right mark	&lrm;	&#8206;	&#x200E;	‎	‎	‎
-//	right-to-left mark	&rlm;	&#8207;	&#x200F;	‏	‏	‏
-//	en dash	&ndash;	&#8211;	&#x2013;	–	–	–
-//	em dash	&mdash;	&#8212;	&#x2014;	—	—	—
-//	left single quotation mark	&lsquo;	&#8216;	&#x2018;	‘	‘	‘
-//	right single quotation mark	&rsquo;	&#8217;	&#x2019;	’	’	’
-//	single low-9 quotation mark	&sbquo;	&#8218;	&#x201A;	‚	‚	‚
-//	left double quotation mark	&ldquo;	&#8220;	&#x201C;	“	“	“
-//	right double quotation mark	&rdquo;	&#8221;	&#x201D;	”	”	”
-//	double low-9 quotation mark	&bdquo;	&#8222;	&#x201E;	„	„	„
-//	dagger	&dagger;	&#8224;	&#x2020;	†	†	†
-//	double dagger	&Dagger;	&#8225;	&#x2021;	‡	‡	‡
-//	per mille sign	&permil;	&#8240;	&#x2030;	‰	‰	‰
-//	single left-pointing angle quotation mark	&lsaquo;	&#8249;	&#x2039;	‹	‹	‹
-//	single right-pointing angle quotation mark	&rsaquo;	&#8250;	&#x203A;	›	›	›
-//	euro sign	&euro;	&#8364;	&#x20AC;	€	€	€
-
 	replaceAll(context,"&quot;","\"");
 	replaceAll(context,"&amp;","&");
 	replaceAll(context,"&lt;","<");
