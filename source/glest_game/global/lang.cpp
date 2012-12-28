@@ -564,14 +564,25 @@ string Lang::getLanguageFile(string uselanguage) {
 
 string Lang::getNativeLanguageName(string uselanguage, string testLanguageFile) {
 	string result = uselanguage;
-	Properties stringsTest;
-	stringsTest.load(testLanguageFile);
 
-	try {
-		result = stringsTest.getString("NativeLanguageName");
+	static map<string,string> cachedNativeLanguageNames;
+	if(cachedNativeLanguageNames.find(testLanguageFile) != cachedNativeLanguageNames.end()) {
+		result = cachedNativeLanguageNames[testLanguageFile];
 	}
-	//catch(const exception &ex) {
-	catch(...) {
+	else {
+		Properties stringsTest;
+		stringsTest.load(testLanguageFile);
+
+		try {
+			result = stringsTest.getString("NativeLanguageName");
+			cachedNativeLanguageNames[testLanguageFile] = result;
+
+			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Caching native language name for [%s] = [%s]\n",testLanguageFile.c_str(),result.c_str());
+			printf("Caching native language name for [%s] = [%s]\n",testLanguageFile.c_str(),result.c_str());
+		}
+		//catch(const exception &ex) {
+		catch(...) {
+		}
 	}
 
 	return result;
