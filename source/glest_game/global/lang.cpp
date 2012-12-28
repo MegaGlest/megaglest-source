@@ -577,11 +577,13 @@ string Lang::getNativeLanguageName(string uselanguage, string testLanguageFile) 
 			result = stringsTest.getString("NativeLanguageName");
 			cachedNativeLanguageNames[testLanguageFile] = result;
 
-			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Caching native language name for [%s] = [%s]\n",testLanguageFile.c_str(),result.c_str());
-			printf("Caching native language name for [%s] = [%s]\n",testLanguageFile.c_str(),result.c_str());
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Caching native language name for [%s] = [%s]\n",testLanguageFile.c_str(),result.c_str());
 		}
-		//catch(const exception &ex) {
+		catch(const exception &ex) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("ERROR Caching native language name for [%s] msg: [%s]\n",testLanguageFile.c_str(),ex.what());
+		}
 		catch(...) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("ERROR Caching native language name for [%s] msg: [UNKNOWN]\n",testLanguageFile.c_str());
 		}
 	}
 
