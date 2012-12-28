@@ -111,6 +111,13 @@ static FileCRCPreCacheThread *preCacheThread	= NULL;
 static string runtimeErrorMsg 					= "";
 #endif
 
+class NavtiveLanguageNameListCacheGenerator : public SimpleTaskCallbackInterface {
+	virtual void simpleTask(BaseThread *callingThread) {
+		Lang &lang = Lang::getInstance();
+		lang.getDiscoveredLanguageList(true);
+	}
+};
+
 void cleanupCRCThread() {
 	if(preCacheThread != NULL) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -4660,6 +4667,18 @@ int glestMain(int argc, char** argv) {
 			preCacheThread->setTechDataPaths(techDataPaths);
 			//preCacheThread->setFileCRCPreCacheThreadCallbackInterface(&preCacheThreadGame);
 			preCacheThread->start();
+		}
+
+		std::auto_ptr<NavtiveLanguageNameListCacheGenerator> lngCacheGen;
+		std::auto_ptr<SimpleTaskThread> languageCacheGen;
+
+		bool startNativeLanguageNamesPrecacheThread = config.getBool("PreCacheNativeLanguageNamesThread","true");
+		if(startNativeLanguageNamesPrecacheThread == true &&
+				GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+			lngCacheGen.reset(new NavtiveLanguageNameListCacheGenerator());
+			languageCacheGen.reset(new SimpleTaskThread(lngCacheGen.get(),1));
+
+			languageCacheGen->start();
 		}
 
         // test
