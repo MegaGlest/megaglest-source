@@ -5138,7 +5138,7 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 
 		Lang &lang= Lang::getInstance();
 		string gameVer = versionNode->getAttribute("version")->getValue();
-		if(gameVer != glestVersionString) {
+		if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
 			throw megaglest_runtime_error(szBuf);
@@ -5199,7 +5199,7 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 
 	Lang &lang= Lang::getInstance();
 	string gameVer = versionNode->getAttribute("version")->getValue();
-	if(gameVer != glestVersionString) {
+	if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
 		throw megaglest_runtime_error(szBuf);
