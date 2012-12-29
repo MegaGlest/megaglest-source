@@ -2193,7 +2193,10 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 
 		if(wasAlive == true) {
 			//startDamageParticles
-			startDamageParticles();
+
+			if(originalHp > hp) {
+				startDamageParticles();
+			}
 
 			//stop DamageParticles on death
 			if(hp <= 0) {
@@ -2270,7 +2273,9 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		//printf("DE-APPLYING ATTACK BOOST wasalive = true to unit [%s - %d] from unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId());
 
 		//startDamageParticles
-		startDamageParticles();
+		if(originalHp > hp) {
+			startDamageParticles();
+		}
 
 		//stop DamageParticles on death
 		if(hp <= 0) {
