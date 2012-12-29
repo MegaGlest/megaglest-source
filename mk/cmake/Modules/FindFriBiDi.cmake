@@ -15,7 +15,6 @@
 include(CheckSymbolExists)
 
 SET(FRIBIDI_FOUND "NO")
-
 MESSAGE(STATUS "** Searching for library: FriBiDi...")
 
 # Set variable in temp var, otherwise FIND_PATH might fail
@@ -27,6 +26,12 @@ FIND_PATH(xFRIBIDI_INCLUDE_DIR fribidi.h
 set(FRIBIDI_INCLUDE_DIR ${xFRIBIDI_INCLUDE_DIR})
 
 SET(FRIBIDI_NAMES ${FRIBIDI_NAMES} fribidi libfribidi)
+
+OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
+IF(WANT_STATIC_LIBS)
+	SET(FRIBIDI_NAMES fribidi.a libfribidi.a ${FRIBIDI_NAMES})
+ENDIF()
+
 FIND_LIBRARY(FRIBIDI_LIBRARY
   NAMES ${FRIBIDI_NAMES}
   PATHS /usr/lib /usr/local/lib
