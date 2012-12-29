@@ -289,7 +289,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 						const XmlNode *versionNode= rootNode;
 						string gameVer = versionNode->getAttribute("version")->getValue();
-						if(gameVer != glestVersionString) {
+						if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false) {
 							char szBuf[8096]="";
 							snprintf(szBuf,8096,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
 							infoTextLabel.setText(szBuf);
