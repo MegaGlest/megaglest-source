@@ -14,6 +14,12 @@
 #include "graphics_interface.h"
 #include "util.h"
 #include "platform_util.h"
+#include "sdl_private.h"
+#include "opengl.h"
+
+#ifdef WIN32
+#include "SDL_syswm.h"
+#endif
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
@@ -55,9 +61,11 @@ bool WindowGl::ChangeVideoMode(bool preserveContext, int resWidth, int resHeight
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d] preserveContext = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,preserveContext);
 
 #ifdef WIN32
-	if(preserveContext == true) {
-		SDL_SysWMinfo info;
+	SDL_SysWMinfo info;
+	HDC tempDC = 0;
+	HGLRC tempRC = 0;
 
+	if(preserveContext == true) {
 		// get window handle from SDL
 		SDL_VERSION(&info.version);
 		if (SDL_GetWMInfo(&info) == -1) {
@@ -66,10 +74,10 @@ bool WindowGl::ChangeVideoMode(bool preserveContext, int resWidth, int resHeight
 		}
 
 		// get device context handle
-		HDC tempDC = GetDC( info.window );
+		tempDC = GetDC( info.window );
 
 		// create temporary context
-		HGLRC tempRC = wglCreateContext( tempDC );
+		tempRC = wglCreateContext( tempDC );
 		if (tempRC == NULL) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s %d] wglCreateContext failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			return false;
