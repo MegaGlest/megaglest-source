@@ -24,6 +24,15 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 Metrics::Metrics() {
+	reloadData();
+}
+
+void Metrics::reload() {
+	Metrics *metrics = getInstancePtr();
+	metrics->reloadData();
+}
+
+void Metrics::reloadData() {
 	Config &config = Config::getInstance();
 	
 	virtualW= 1000;
@@ -43,9 +52,14 @@ Metrics::Metrics() {
 	displayH= 480;	
 }
 
+Metrics * Metrics::getInstancePtr() {
+	static Metrics metrics;
+	return &metrics;
+}
+
 const Metrics &Metrics::getInstance(){
-	static const Metrics metrics;
-	return metrics;
+	Metrics *metrics = getInstancePtr();
+	return *metrics;
 }
 
 float Metrics::getAspectRatio() const{

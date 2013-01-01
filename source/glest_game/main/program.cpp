@@ -785,15 +785,8 @@ void Program::setDisplaySettings(){
             config.setInt("ScreenWidth",screenWidth);
             config.setInt("ScreenHeight",screenHeight);
         }
-
-		if(!(changeVideoMode(screenWidth, screenHeight, colorBits, freq) ||
-			changeVideoMode(screenWidth, screenHeight, colorBits, 0)))
-		{
-			throw megaglest_runtime_error(
-				"Error setting video mode: " +
-				intToStr(screenWidth) + "x" + intToStr(screenHeight) + "x" + intToStr(colorBits));
-		}
 	}
+	changeVideoModeFullScreen(!config.getBool("Windowed"));
 }
 
 void Program::restoreDisplaySettings(){

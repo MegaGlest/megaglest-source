@@ -1694,9 +1694,8 @@ void getFullscreenVideoModes(vector<ModeInfo> *modeinfos, bool isFullscreen) {
 
 
 
-bool changeVideoMode(int resW, int resH, int colorBits, int ) {
-	Private::shouldBeFullscreen = true;
-	return true;
+void changeVideoModeFullScreen(bool value) {
+	Private::shouldBeFullscreen = value;
 }
 
 void restoreVideoMode(bool exitingApp) {
