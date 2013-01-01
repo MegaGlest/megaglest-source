@@ -22,6 +22,7 @@
 #include "menu_state_graphic_info.h"
 #include "menu_state_keysetup.h"
 #include "string_utils.h"
+#include "metrics.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -859,21 +860,19 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
-	if(mainMessageBox.getEnabled()){
+	if(mainMessageBox.getEnabled()) {
 		int button= 0;
-		if(mainMessageBox.mouseClick(x, y, button))
-		{
+		if(mainMessageBox.mouseClick(x, y, button)) {
 			soundRenderer.playFx(coreData.getClickSoundA());
-			if(button==0)
-			{
-				if(mainMessageBoxState==1)
-				{
+			if(button==0) {
+				if(mainMessageBoxState==1) {
 					mainMessageBox.setEnabled(false);
 					saveConfig();
 					mainMenu->setState(new MenuStateRoot(program, mainMenu));
 				}
-				else
+				else {
 					mainMessageBox.setEnabled(false);
+				}
 			}
 		}
 	}
@@ -904,15 +903,15 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 
 		string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight")+"-"+intToStr(config.getInt("ColorBits"));
 		string selectedResolution=listBoxScreenModes.getSelectedItem();
-		if(currentResolution!=selectedResolution){
-			mainMessageBoxState=1;
-			Lang &lang= Lang::getInstance();
-			showMessageBox(lang.get("RestartNeeded"), lang.get("ResolutionChanged"), false);
-			return;
+		if(currentResolution != selectedResolution){
+			//mainMessageBoxState=1;
+			//Lang &lang= Lang::getInstance();
+			//showMessageBox(lang.get("RestartNeeded"), lang.get("ResolutionChanged"), false);
+			//return;
 		}
 		string currentFontSizeAdjustment=config.getString("FontSizeAdjustment");
 		string selectedFontSizeAdjustment=listFontSizeAdjustment.getSelectedItem();
-		if(currentFontSizeAdjustment!=selectedFontSizeAdjustment){
+		if(currentFontSizeAdjustment != selectedFontSizeAdjustment){
 			mainMessageBoxState=1;
 			Lang &lang= Lang::getInstance();
 			showMessageBox(lang.get("RestartNeeded"), lang.get("FontSizeAdjustmentChanged"), false);
@@ -921,14 +920,35 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 
 		bool currentFullscreenWindowed=config.getBool("Windowed");
 		bool selectedFullscreenWindowed = checkBoxFullscreenWindowed.getValue();
-		if(currentFullscreenWindowed!=selectedFullscreenWindowed){
-			mainMessageBoxState=1;
-			Lang &lang= Lang::getInstance();
-			showMessageBox(lang.get("RestartNeeded"), lang.get("DisplaySettingsChanged"), false);
-			return;
+		if(currentFullscreenWindowed != selectedFullscreenWindowed) {
+			//mainMessageBoxState=1;
+			//Lang &lang= Lang::getInstance();
+			//showMessageBox(lang.get("RestartNeeded"), lang.get("DisplaySettingsChanged"), false);
+			//return;
 		}
 
 		saveConfig();
+
+		if(currentResolution != selectedResolution ||
+				currentFullscreenWindowed != selectedFullscreenWindowed) {
+
+			changeVideoModeFullScreen(!config.getBool("Windowed"));
+			WindowGl *window = this->program->getWindow();
+			window->ChangeVideoMode(true,
+							config.getInt("ScreenWidth"),
+							config.getInt("ScreenHeight"),
+							!config.getBool("Windowed"),
+							config.getInt("ColorBits"),
+					       config.getInt("DepthBits"),
+					       config.getInt("StencilBits"),
+					       config.getBool("HardwareAcceleration","false"),
+					       config.getBool("FullScreenAntiAliasing","false"),
+					       config.getFloat("GammaValue","0.0"));
+
+			Metrics::reload();
+			this->mainMenu->init();
+		}
+
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
 		return;
     }

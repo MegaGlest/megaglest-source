@@ -213,7 +213,7 @@ string extractExtension(const string& filename);
 
 void getFullscreenVideoModes(vector<ModeInfo> *modeinfos,bool isFullscreen);
 void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight,bool isFullscreen);
-bool changeVideoMode(int resH, int resW, int colorBits, int refreshFrequency);
+void changeVideoModeFullScreen(bool value);
 void restoreVideoMode(bool exitingApp=false);
 
 bool StartsWith(const std::string &str, const std::string &key);

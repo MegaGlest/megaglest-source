@@ -105,6 +105,8 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 				// try different color bits
 				screen = SDL_SetVideoMode(resW, resH, i, flags);
 				if(screen != 0) {
+					glViewport( 0, 0, resW, resH ) ;
+
 					break;
 				}
 			}
@@ -116,6 +118,8 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 					if(screen != 0) {
 						resW = 800;
 						resH = 600;
+
+						glViewport( 0, 0, resW, resH ) ;
 						break;
 					}
 				}
@@ -127,6 +131,8 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 					if(screen != 0) {
 						resW = 640;
 						resH = 480;
+
+						glViewport( 0, 0, resW, resH ) ;
 						break;
 					}
 				}
@@ -135,6 +141,10 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 			if(screen == 0) {
 				throw std::runtime_error(msg.str());
 			}
+		}
+		else {
+			glViewport( 0, 0, resW, resH ) ;
+			//printf("Reset resolution to [%d] x [%d]\n",resW, resH);
 		}
 
 #ifndef WIN32

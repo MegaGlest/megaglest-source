@@ -143,6 +143,10 @@ public:
 	Window();
 	virtual ~Window();
 
+	virtual bool ChangeVideoMode(bool preserveContext,int resWidth, int resHeight,
+			bool fullscreenWindow, int colorBits, int depthBits, int stencilBits,
+            bool hardware_acceleration, bool fullscreen_anti_aliasing,
+            float gammaValue) = 0;
 	//static void setMasterserverMode(bool value) { Window::masterserverMode = value;}
 	//static bool getMasterserverMode() { return Window::masterserverMode;}
 
