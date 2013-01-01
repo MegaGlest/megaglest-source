@@ -27,19 +27,29 @@ Metrics::Metrics() {
 	reloadData();
 }
 
-void Metrics::reload() {
+void Metrics::reload(int resWidth, int resHeight) {
 	Metrics *metrics = getInstancePtr();
-	metrics->reloadData();
+	metrics->reloadData(resWidth, resHeight);
 }
 
-void Metrics::reloadData() {
+void Metrics::reloadData(int resWidth, int resHeight) {
 	Config &config = Config::getInstance();
 	
 	virtualW= 1000;
 	virtualH= 750;
 
-	screenW= config.getInt("ScreenWidth");
-	screenH= config.getInt("ScreenHeight");
+	if(resWidth > 0) {
+		screenW= resWidth;
+	}
+	else {
+		screenW= config.getInt("ScreenWidth");
+	}
+	if(resHeight > 0) {
+		screenH= resHeight;
+	}
+	else {
+		screenH= config.getInt("ScreenHeight");
+	}
 	
 	minimapX= 10;
 	minimapY= 750-128-30+16;

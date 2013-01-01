@@ -44,7 +44,7 @@ private:
 private:
 	Metrics();
 	static Metrics *getInstancePtr();
-	void reloadData();
+	void reloadData(int resWidth=-1, int resHeight=-1);
 
 public:
 	static const Metrics &getInstance();
@@ -69,7 +69,7 @@ public:
 	bool isInDisplay(int x, int y) const;
 	bool isInMinimap(int x, int y) const;
 
-	static void reload();
+	static void reload(int resWidth=-1, int resHeight=-1);
 };
 
 }}//end namespace

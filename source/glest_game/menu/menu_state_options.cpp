@@ -864,14 +864,55 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		int button= 0;
 		if(mainMessageBox.mouseClick(x, y, button)) {
 			soundRenderer.playFx(coreData.getClickSoundA());
-			if(button==0) {
-				if(mainMessageBoxState==1) {
+			if(button == 0) {
+				if(mainMessageBoxState == 1) {
+					mainMessageBoxState=0;
 					mainMessageBox.setEnabled(false);
 					saveConfig();
+
+					Lang &lang= Lang::getInstance();
+					mainMessageBox.init(lang.get("Ok"));
 					mainMenu->setState(new MenuStateRoot(program, mainMenu));
 				}
 				else {
 					mainMessageBox.setEnabled(false);
+
+					Lang &lang= Lang::getInstance();
+					mainMessageBox.init(lang.get("Ok"));
+				}
+			}
+			else {
+				if(mainMessageBoxState == 1) {
+					mainMessageBoxState=0;
+					mainMessageBox.setEnabled(false);
+
+					Lang &lang= Lang::getInstance();
+					mainMessageBox.init(lang.get("Ok"));
+
+					//!!!
+					// Revert resolution or fullscreen
+					checkBoxFullscreenWindowed.setValue(config.getBool("Windowed"));
+					string currentResString = config.getString("ScreenWidth") + "x" +
+											  config.getString("ScreenHeight") + "-" +
+											  intToStr(config.getInt("ColorBits"));
+					listBoxScreenModes.setSelectedItem(currentResString);
+
+
+					changeVideoModeFullScreen(!config.getBool("Windowed"));
+					WindowGl *window = this->program->getWindow();
+					window->ChangeVideoMode(true,
+									config.getInt("ScreenWidth"),
+									config.getInt("ScreenHeight"),
+									!config.getBool("Windowed"),
+									config.getInt("ColorBits"),
+								   config.getInt("DepthBits"),
+								   config.getInt("StencilBits"),
+								   config.getBool("HardwareAcceleration","false"),
+								   config.getBool("FullScreenAntiAliasing","false"),
+								   config.getFloat("GammaValue","0.0"));
+
+					Metrics::reload();
+					this->mainMenu->init();
 				}
 			}
 		}
@@ -901,13 +942,62 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 	else if(buttonOk.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
 
+		bool selectedFullscreenWindowed = checkBoxFullscreenWindowed.getValue();
 		string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight")+"-"+intToStr(config.getInt("ColorBits"));
 		string selectedResolution=listBoxScreenModes.getSelectedItem();
 		if(currentResolution != selectedResolution){
-			//mainMessageBoxState=1;
-			//Lang &lang= Lang::getInstance();
+//			if(currentResolution != selectedResolution ||
+//					currentFullscreenWindowed != selectedFullscreenWindowed) {
+//
+//				changeVideoModeFullScreen(!config.getBool("Windowed"));
+//				WindowGl *window = this->program->getWindow();
+//				window->ChangeVideoMode(true,
+//								config.getInt("ScreenWidth"),
+//								config.getInt("ScreenHeight"),
+//								!config.getBool("Windowed"),
+//								config.getInt("ColorBits"),
+//						       config.getInt("DepthBits"),
+//						       config.getInt("StencilBits"),
+//						       config.getBool("HardwareAcceleration","false"),
+//						       config.getBool("FullScreenAntiAliasing","false"),
+//						       config.getFloat("GammaValue","0.0"));
+//
+//				Metrics::reload();
+//				this->mainMenu->init();
+//			}
+
+			changeVideoModeFullScreen(!selectedFullscreenWindowed);
+			const ModeInfo *selectedMode = NULL;
+			for(vector<ModeInfo>::const_iterator it= modeInfos.begin(); it!=modeInfos.end(); ++it) {
+				if((*it).getString() == selectedResolution) {
+					//config.setInt("ScreenWidth",(*it).width);
+					//config.setInt("ScreenHeight",(*it).height);
+					//config.setInt("ColorBits",(*it).depth);
+					selectedMode = &(*it);
+				}
+			}
+
+			WindowGl *window = this->program->getWindow();
+			window->ChangeVideoMode(true,
+					selectedMode->width,
+					selectedMode->height,
+						!selectedFullscreenWindowed,
+							selectedMode->depth,
+						   config.getInt("DepthBits"),
+						   config.getInt("StencilBits"),
+						   config.getBool("HardwareAcceleration","false"),
+						   config.getBool("FullScreenAntiAliasing","false"),
+						   strToFloat(listBoxGammaCorrection.getSelectedItem()));
+
+			Metrics::reload(selectedMode->width,selectedMode->height);
+			this->mainMenu->init();
+
+			mainMessageBoxState=1;
+			Lang &lang= Lang::getInstance();
+			mainMessageBox.init(lang.get("Ok"),lang.get("Cancel"));
 			//showMessageBox(lang.get("RestartNeeded"), lang.get("ResolutionChanged"), false);
-			//return;
+			showMessageBox(lang.get("ResolutionChanged"), lang.get("Notice"), false);
+			return;
 		}
 		string currentFontSizeAdjustment=config.getString("FontSizeAdjustment");
 		string selectedFontSizeAdjustment=listFontSizeAdjustment.getSelectedItem();
@@ -919,38 +1009,50 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 
 		bool currentFullscreenWindowed=config.getBool("Windowed");
-		bool selectedFullscreenWindowed = checkBoxFullscreenWindowed.getValue();
+		//bool selectedFullscreenWindowed = checkBoxFullscreenWindowed.getValue();
 		if(currentFullscreenWindowed != selectedFullscreenWindowed) {
 			//mainMessageBoxState=1;
 			//Lang &lang= Lang::getInstance();
 			//showMessageBox(lang.get("RestartNeeded"), lang.get("DisplaySettingsChanged"), false);
 			//return;
-		}
 
-		saveConfig();
+			changeVideoModeFullScreen(!selectedFullscreenWindowed);
+			const ModeInfo *selectedMode = NULL;
+			for(vector<ModeInfo>::const_iterator it= modeInfos.begin(); it!=modeInfos.end(); ++it) {
+				if((*it).getString() == selectedResolution) {
+					//config.setInt("ScreenWidth",(*it).width);
+					//config.setInt("ScreenHeight",(*it).height);
+					//config.setInt("ColorBits",(*it).depth);
+					selectedMode = &(*it);
+				}
+			}
 
-		if(currentResolution != selectedResolution ||
-				currentFullscreenWindowed != selectedFullscreenWindowed) {
-
-			changeVideoModeFullScreen(!config.getBool("Windowed"));
 			WindowGl *window = this->program->getWindow();
 			window->ChangeVideoMode(true,
-							config.getInt("ScreenWidth"),
-							config.getInt("ScreenHeight"),
-							!config.getBool("Windowed"),
-							config.getInt("ColorBits"),
-					       config.getInt("DepthBits"),
-					       config.getInt("StencilBits"),
-					       config.getBool("HardwareAcceleration","false"),
-					       config.getBool("FullScreenAntiAliasing","false"),
-					       config.getFloat("GammaValue","0.0"));
+					selectedMode->width,
+					selectedMode->height,
+						!selectedFullscreenWindowed,
+							selectedMode->depth,
+						   config.getInt("DepthBits"),
+						   config.getInt("StencilBits"),
+						   config.getBool("HardwareAcceleration","false"),
+						   config.getBool("FullScreenAntiAliasing","false"),
+						   strToFloat(listBoxGammaCorrection.getSelectedItem()));
 
-			Metrics::reload();
+			Metrics::reload(selectedMode->width,selectedMode->height);
 			this->mainMenu->init();
+
+			mainMessageBoxState=1;
+			Lang &lang= Lang::getInstance();
+			mainMessageBox.init(lang.get("Ok"),lang.get("Cancel"));
+			//showMessageBox(lang.get("RestartNeeded"), lang.get("ResolutionChanged"), false);
+			showMessageBox(lang.get("DisplaySettingsChanged"), lang.get("Notice"), false);
+			return;
 		}
 
-		mainMenu->setState(new MenuStateRoot(program, mainMenu));
-		return;
+		//saveConfig();
+		//mainMenu->setState(new MenuStateRoot(program, mainMenu));
+		//return;
     }
 	else if(buttonAbort.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
