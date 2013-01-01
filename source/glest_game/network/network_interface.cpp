@@ -226,14 +226,16 @@ GameNetworkInterface::GameNetworkInterface(){
 
 void GameNetworkInterface::requestCommand(const NetworkCommand *networkCommand, bool insertAtStart) {
 	assert(networkCommand != NULL);
-	//Mutex *mutex = getServerSynchAccessor();
+	Mutex *mutex = getServerSynchAccessor();
 
     if(insertAtStart == false) {
+    	MutexSafeWrapper safeMutex(mutex,string(__FILE__) + "_" + intToStr(__LINE__));
     	//if(mutex != NULL) mutex->p();
         requestedCommands.push_back(*networkCommand);
         //if(mutex != NULL) mutex->v();
     }
     else {
+    	MutexSafeWrapper safeMutex(mutex,string(__FILE__) + "_" + intToStr(__LINE__));
     	//if(mutex != NULL) mutex->p();
         requestedCommands.insert(requestedCommands.begin(),*networkCommand);
         //if(mutex != NULL) mutex->v();

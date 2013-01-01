@@ -32,9 +32,198 @@ using namespace Shared::Graphics;
 
 namespace Glest{ namespace Game{
 
-AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex, int useStartLocation) : fp(NULL) {
+// =====================================================
+//	class FactionThread
+// =====================================================
+
+AiInterfaceThread::AiInterfaceThread(AiInterface *aiIntf) : BaseThread() {
+	this->triggerIdMutex = new Mutex();
+	this->aiIntf = aiIntf;
+}
+
+AiInterfaceThread::~AiInterfaceThread() {
+	delete triggerIdMutex;
+	triggerIdMutex = NULL;
+}
+
+void AiInterfaceThread::setQuitStatus(bool value) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d value = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
+
+	BaseThread::setQuitStatus(value);
+	if(value == true) {
+		signal(-1);
+	}
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void AiInterfaceThread::signal(int frameIndex) {
+	if(frameIndex >= 0) {
+		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+		MutexSafeWrapper safeMutex(triggerIdMutex,mutexOwnerId);
+		this->frameIndex.first = frameIndex;
+		this->frameIndex.second = false;
+
+		safeMutex.ReleaseLock();
+	}
+	semTaskSignalled.signal();
+}
+
+void AiInterfaceThread::setTaskCompleted(int frameIndex) {
+	if(frameIndex >= 0) {
+		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+		MutexSafeWrapper safeMutex(triggerIdMutex,mutexOwnerId);
+		if(this->frameIndex.first == frameIndex) {
+			this->frameIndex.second = true;
+		}
+		safeMutex.ReleaseLock();
+	}
+}
+
+bool AiInterfaceThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
+	bool ret = (getExecutingTask() == false);
+	if(ret == false && deleteSelfIfShutdownDelayed == true) {
+	    setDeleteSelfOnExecutionDone(deleteSelfIfShutdownDelayed);
+	    signalQuit();
+	}
+
+	return ret;
+}
+
+bool AiInterfaceThread::isSignalCompleted(int frameIndex) {
+	if(getRunningStatus() == false) {
+		return true;
+	}
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(triggerIdMutex,mutexOwnerId);
+	//bool result = (event != NULL ? event->eventCompleted : true);
+	bool result = (this->frameIndex.first == frameIndex && this->frameIndex.second == true);
+
+	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] worker thread this = %p, this->frameIndex.first = %d, this->frameIndex.second = %d\n",__FILE__,__FUNCTION__,__LINE__,this,this->frameIndex.first,this->frameIndex.second);
+
+	safeMutex.ReleaseLock();
+	return result;
+}
+
+void AiInterfaceThread::execute() {
+    RunningStatusSafeWrapper runningStatus(this);
+	try {
+		//setRunningStatus(true);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ****************** STARTING worker thread this = %p\n",__FILE__,__FUNCTION__,__LINE__,this);
+
+		bool minorDebugPerformance = false;
+		Chrono chrono;
+
+		//unsigned int idx = 0;
+		for(;this->aiIntf != NULL;) {
+			if(getQuitStatus() == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+
+			semTaskSignalled.waitTillSignalled();
+
+			if(getQuitStatus() == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+
+			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+            MutexSafeWrapper safeMutex(triggerIdMutex,mutexOwnerId);
+            bool executeTask = (frameIndex.first >= 0);
+
+            //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] frameIndex = %d this = %p executeTask = %d\n",__FILE__,__FUNCTION__,__LINE__,frameIndex.first, this, executeTask);
+
+            safeMutex.ReleaseLock();
+
+            if(executeTask == true) {
+				ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
+
+				MutexSafeWrapper safeMutex(this->aiIntf->getMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+
+				this->aiIntf->update();
+
+/*
+				World *world = faction->getWorld();
+
+				//Config &config= Config::getInstance();
+				//bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","true");
+				bool sortedUnitsAllowed = false;
+				if(sortedUnitsAllowed) {
+					faction->sortUnitsByCommandGroups();
+				}
+
+				MutexSafeWrapper safeMutex(faction->getUnitMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+
+				//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+				if(minorDebugPerformance) chrono.start();
+
+				int unitCount = faction->getUnitCount();
+				for(int j = 0; j < unitCount; ++j) {
+					Unit *unit = faction->getUnit(j);
+					if(unit == NULL) {
+						throw megaglest_runtime_error("unit == NULL");
+					}
+
+					int64 elapsed1 = 0;
+					if(minorDebugPerformance) elapsed1 = chrono.getMillis();
+
+					bool update = unit->needToUpdate();
+
+					if(minorDebugPerformance && (chrono.getMillis() - elapsed1) >= 1) printf("Faction [%d - %s] #1-unit threaded updates on frame: %d for [%d] unit # %d, unitCount = %d, took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),frameIndex.first,faction->getUnitPathfindingListCount(),j,unitCount,(long long int)chrono.getMillis() - elapsed1);
+
+					//update = true;
+					if(update == true) {
+
+						int64 elapsed2 = 0;
+						if(minorDebugPerformance) elapsed2 = chrono.getMillis();
+
+						world->getUnitUpdater()->updateUnitCommand(unit,frameIndex.first);
+
+						if(minorDebugPerformance && (chrono.getMillis() - elapsed2) >= 1) printf("Faction [%d - %s] #2-unit threaded updates on frame: %d for [%d] unit # %d, unitCount = %d, took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),frameIndex.first,faction->getUnitPathfindingListCount(),j,unitCount,(long long int)chrono.getMillis() - elapsed2);
+					}
+				}
+
+				if(minorDebugPerformance && chrono.getMillis() >= 1) printf("Faction [%d - %s] threaded updates on frame: %d for [%d] units took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),frameIndex.first,faction->getUnitPathfindingListCount(),(long long int)chrono.getMillis());
+*/
+
+				safeMutex.ReleaseLock();
+
+				setTaskCompleted(frameIndex.first);
+            }
+
+			if(getQuitStatus() == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+		}
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ****************** ENDING worker thread this = %p\n",__FILE__,__FUNCTION__,__LINE__,this);
+	}
+	catch(const exception &ex) {
+		//setRunningStatus(false);
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		throw megaglest_runtime_error(ex.what());
+	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+
+
+
+
+
+AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex,
+		int useStartLocation) : fp(NULL) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	this->aiMutex = new Mutex();
+	this->workerThread = NULL;
 	this->world= game.getWorld();
 	this->commander= game.getCommander();
 	this->console= game.getConsole();
@@ -75,6 +264,21 @@ AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex, int useSta
 		}
 		fprintf(fp, "MegaGlest AI log file for Tech [%s] Faction [%s] #%d\n\n",this->gameSettings->getTech().c_str(),this->world->getFaction(this->factionIndex)->getType()->getName().c_str(),this->factionIndex);
 	}
+
+
+	if( Config::getInstance().getBool("EnableAIWorkerThreads","true") == true) {
+		if(workerThread != NULL) {
+			workerThread->signalQuit();
+			if(workerThread->shutdownAndWait() == true) {
+				delete workerThread;
+			}
+			workerThread = NULL;
+		}
+		this->workerThread = new AiInterfaceThread(this);
+		this->workerThread->setUniqueID(__FILE__);
+		this->workerThread->start();
+	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
@@ -82,11 +286,39 @@ AiInterface::~AiInterface() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] deleting AI factionIndex = %d, teamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,this->factionIndex,this->teamIndex);
     cacheUnitHarvestResourceLookup.clear();
 
+	if(workerThread != NULL) {
+		workerThread->signalQuit();
+		if(workerThread->shutdownAndWait() == true) {
+			delete workerThread;
+		}
+		workerThread = NULL;
+	}
+
     if(fp) {
     	fclose(fp);
     	fp = NULL;
     }
+
+	delete aiMutex;
+	aiMutex = NULL;
 }
+
+void AiInterface::signalWorkerThread(int frameIndex) {
+	if(workerThread != NULL) {
+		workerThread->signal(frameIndex);
+	}
+	else {
+		this->update();
+	}
+}
+
+bool AiInterface::isWorkerThreadSignalCompleted(int frameIndex) {
+	if(workerThread != NULL) {
+		return workerThread->isSignalCompleted(frameIndex);
+	}
+	return true;
+}
+
 // ==================== main ====================
 
 void AiInterface::update() {
@@ -100,6 +332,7 @@ void AiInterface::printLog(int logLevel, const string &s){
     if(this->logLevel >= logLevel) {
 		string logString= "(" + intToStr(factionIndex) + ") " + s;
 
+		MutexSafeWrapper safeMutex(aiMutex,string(__FILE__) + "_" + intToStr(__LINE__));
 		//print log to file
 		if(fp != NULL) {
 			fprintf(fp, "%s\n", logString.c_str());

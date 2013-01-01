@@ -83,6 +83,7 @@ private:
     World *world;
 	Chrono perfTimer;
 
+	Mutex commandMutex;
 	//CommanderNetworkThread *networkThread;
 	//Game *game;
 	std::vector<std::pair<int,NetworkCommand> > replayCommandList;

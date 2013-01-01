@@ -31,6 +31,26 @@ namespace Glest{ namespace Game{
 ///	The AI will interact with the game through this interface
 // =====================================================
 
+class AiInterfaceThread : public BaseThread {
+protected:
+
+	AiInterface *aiIntf;
+	Semaphore semTaskSignalled;
+	Mutex *triggerIdMutex;
+	std::pair<int,bool> frameIndex;
+
+	virtual void setQuitStatus(bool value);
+	virtual void setTaskCompleted(int frameIndex);
+	virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
+
+public:
+	AiInterfaceThread(AiInterface *aiIntf);
+	virtual ~AiInterfaceThread();
+    virtual void execute();
+    void signal(int frameIndex);
+    bool isSignalCompleted(int frameIndex);
+};
+
 class AiInterface {
 private:
     World *world;
@@ -52,12 +72,21 @@ private:
 
     std::map<const ResourceType *,int> cacheUnitHarvestResourceLookup;
 
+    Mutex *aiMutex;
+
+    AiInterfaceThread *workerThread;
+
 public:
     AiInterface(Game &game, int factionIndex, int teamIndex, int useStartLocation=-1);
     ~AiInterface();
 
 	//main
     void update();
+
+    inline Mutex * getMutex() {return aiMutex;}
+
+    void signalWorkerThread(int frameIndex);
+    bool isWorkerThreadSignalCompleted(int frameIndex);
 
 	//get
 	int getTimer() const		{return timer;}

@@ -1476,6 +1476,9 @@ void Game::update() {
 					chrono.start();
 					//AiInterface
 					if(commander.hasReplayCommandListForFrame() == false) {
+
+
+						/*
 						for(int j = 0; j < world.getFactionCount(); ++j) {
 							Faction *faction = world.getFaction(j);
 
@@ -1492,6 +1495,54 @@ void Game::update() {
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [after AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
 							}
 						}
+						*/
+
+						// Signal the faction threads to do any pre-processing
+						for(int j = 0; j < world.getFactionCount(); ++j) {
+							Faction *faction = world.getFaction(j);
+
+							//printf("Faction Index = %d enableServerControlledAI = %d, isNetworkGame = %d, role = %d isCPU player = %d scriptManager.getPlayerModifiers(j)->getAiEnabled() = %d\n",j,enableServerControlledAI,isNetworkGame,role,faction->getCpuControl(enableServerControlledAI,isNetworkGame,role),scriptManager.getPlayerModifiers(j)->getAiEnabled());
+
+							if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
+								scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
+
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [before AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
+								aiInterfaces[j]->signalWorkerThread(world.getFrameCount());
+							}
+						}
+
+						bool workThreadsFinished = false;
+						Chrono chrono;
+						chrono.start();
+
+						const int MAX_FACTION_THREAD_WAIT_MILLISECONDS = 20000;
+						for(;chrono.getMillis() < MAX_FACTION_THREAD_WAIT_MILLISECONDS;) {
+							workThreadsFinished = true;
+							for(int j = 0; j < world.getFactionCount(); ++j) {
+								Faction *faction = world.getFaction(j);
+								if(faction == NULL) {
+									throw megaglest_runtime_error("faction == NULL");
+								}
+								if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
+									scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
+									if(aiInterfaces[j]->isWorkerThreadSignalCompleted(world.getFrameCount()) == false) {
+										workThreadsFinished = false;
+										break;
+									}
+								}
+							}
+							if(workThreadsFinished == false) {
+								//sleep(0);
+							}
+							else {
+								break;
+							}
+						}
+
+
+
+
+
 					}
 					else {
 						// Simply show a progress message while replaying commands
