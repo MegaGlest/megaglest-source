@@ -19,5 +19,10 @@ fi
 cd ${CURRENTDIR}
 echo ''
 echo '*** Eclipse Project files [.project and .cproject] are created in the folder: [eclipse] and can be imported'
+echo 'Import the created project using Menu File->Import'
+echo 'Select General->Existing projects into workspace:'
+echo 'Browse where your build tree is ['${CURRENTDIR}'/eclipse] and select the directory.'
+echo 'Keep "Copy projects into workspace" unchecked.'
+echo 'You get a fully functional eclipse project'
 echo ''
 ls -la eclipse
