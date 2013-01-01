@@ -62,6 +62,8 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+	//printf("In [%s::%s %d] PlatformCommon::Private::shouldBeFullscreen = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,PlatformCommon::Private::shouldBeFullscreen);
+
 	int flags = SDL_OPENGL;
 	if(PlatformCommon::Private::shouldBeFullscreen) {
 		flags |= SDL_FULLSCREEN;
