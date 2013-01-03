@@ -1050,9 +1050,9 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 			return;
 		}
 
-		//saveConfig();
-		//mainMenu->setState(new MenuStateRoot(program, mainMenu));
-		//return;
+		saveConfig();
+		mainMenu->setState(new MenuStateRoot(program, mainMenu));
+		return;
     }
 	else if(buttonAbort.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
