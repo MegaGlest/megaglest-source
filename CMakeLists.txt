@@ -57,6 +57,21 @@ endif()
 
 include(${CMAKE_SOURCE_DIR}/mk/cmake/Modules/SpecialMacros.cmake) 
 
+SET(PKG_NAME "megaglest")
+# read version
+file(READ ${PROJECT_SOURCE_DIR}/source/glest_game/facilities/game_util.cpp MG_VERSION_H_CONTENTS)
+# find the version string
+string (REGEX MATCH "\"v(.*).(.*).(.*)\"" _threePartMatch ${MG_VERSION_H_CONTENTS})
+# parse the version string
+if (_threePartMatch)
+        # parse the parts of the version string
+        STRING(REGEX REPLACE "[^0-9]*([0-9]+)\\.[0-9]+\\.[0-9]+.*" "\\1" VER_MAJOR   "${_threePartMatch}")
+        STRING(REGEX REPLACE "[^0-9]*[0-9]+\\.([0-9]+)\\.[0-9]+.*" "\\1" VER_MINOR   "${_threePartMatch}")
+        STRING(REGEX REPLACE "[^0-9]*[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" VER_RELEASE "${_threePartMatch}")
+
+        MESSAGE(STATUS "MegaGlest Version is [${VER_MAJOR}.${VER_MINOR}.${VER_RELEASE}] ")
+endif (_threePartMatch)
+
 ## Compiler flags
 IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 	IF(CMAKE_COMPILER_IS_GNUCXX)
@@ -205,6 +220,9 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 		ENDIF()
 		SET(CUSTOM_DATA_INSTALL_PATH_VALUE "-DCUSTOM_DATA_INSTALL_PATH=${CUSTOM_DATA_INSTALL_PATH}")
 
+                SET(PKG_DATADIR ${CUSTOM_DATA_INSTALL_PATH_VALUE})
+                SET(PKG_BINDIR ${MEGAGLEST_BIN_INSTALL_PATH})
+   
 		MESSAGE(STATUS "*NOTE: Custom Data Install Path is [${CUSTOM_DATA_INSTALL_PATH}]")
 	ENDIF()
 
@@ -291,6 +309,23 @@ IF(EXISTS "${PROJECT_SOURCE_DIR}/data/glest_game/")
         MESSAGE(STATUS "**Found game data.")
 	ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/data/glest_game )
 ENDIF()
+
+SET(CPACK_PACKAGE_NAME ${PKG_NAME})
+SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MegaGlest")
+SET(CPACK_PACKAGE_VENDOR "megaglest.org")
+#SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
+#SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
+SET(CPACK_PACKAGE_INSTALL_DIRECTORY "megaglest")
+SET(CPACK_PACKAGE_VERSION_MAJOR ${VER_MAJOR})
+SET(CPACK_PACKAGE_VERSION_MINOR ${VER_MINOR})
+SET(CPACK_PACKAGE_VERSION_PATCH ${VER_RELEASE})
+IF(WIN32)
+    SET(CPACK_NSIS_DISPLAY_NAME "MegaGlest")
+    SET(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/mk/linux/glest.ico")
+    SET(CPACK_PACKAGE_ICON "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.bmp")
+    SET(CPACK_NSIS_URL_INFO_ABOUT "http://megaglest.org")
+ENDIF()
+INCLUDE(CPack)
 
 get_directory_property( DirDefs DIRECTORY ${CMAKE_SOURCE_DIR} COMPILE_DEFINITIONS )
 foreach( d ${DirDefs} )
