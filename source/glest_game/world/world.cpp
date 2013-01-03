@@ -56,7 +56,7 @@ World::World() {
 	ExploredCellsLookupItemCacheTimerCount = 0;
 	FowAlphaCellsLookupItemCache.clear();
 	// Disable this cache as it takes too much RAM (not sure if its worth the performance gain)
-	enableFowAlphaCellsLookupItemCache = false;
+	enableFowAlphaCellsLookupItemCache = config.getBool("EnableFowCache","true");
 
 	nextCommandGroupId = 0;
 	techTree = NULL;
@@ -415,9 +415,9 @@ void World::updateAllFactionUnits() {
 	// Clear pathfinder list restrictions
 	for(int i = 0; i < factionCount; ++i) {
 		Faction *faction = getFaction(i);
-		if(faction == NULL) {
-			throw megaglest_runtime_error("faction == NULL");
-		}
+		//if(faction == NULL) {
+		//	throw megaglest_runtime_error("faction == NULL");
+		//}
 		faction->clearUnitsPathfinding();
 		faction->clearAproxCanMoveSoonCached();
 	}
@@ -425,12 +425,13 @@ void World::updateAllFactionUnits() {
 	// Signal the faction threads to do any pre-processing
 	for(int i = 0; i < factionCount; ++i) {
 		Faction *faction = getFaction(i);
-		if(faction == NULL) {
-			throw megaglest_runtime_error("faction == NULL");
-		}
+		//if(faction == NULL) {
+		//	throw megaglest_runtime_error("faction == NULL");
+		//}
 		faction->signalWorkerThread(frameCount);
 	}
 
+	//sleep(0);
 	bool workThreadsFinished = false;
 	Chrono chrono;
 	chrono.start();
@@ -440,9 +441,9 @@ void World::updateAllFactionUnits() {
 		workThreadsFinished = true;
 		for(int i = 0; i < factionCount; ++i) {
 			Faction *faction = getFaction(i);
-			if(faction == NULL) {
-				throw megaglest_runtime_error("faction == NULL");
-			}
+			//if(faction == NULL) {
+			//	throw megaglest_runtime_error("faction == NULL");
+			//}
 			if(faction->isWorkerThreadSignalCompleted(frameCount) == false) {
 				workThreadsFinished = false;
 				break;
@@ -461,10 +462,9 @@ void World::updateAllFactionUnits() {
 	//units
 	for(int i = 0; i < factionCount; ++i) {
 		Faction *faction = getFaction(i);
-		if(faction == NULL) {
-			throw megaglest_runtime_error("faction == NULL");
-		}
-
+		//if(faction == NULL) {
+		//	throw megaglest_runtime_error("faction == NULL");
+		//}
 		faction->clearUnitsPathfinding();
 
 		int unitCount = faction->getUnitCount();
@@ -539,16 +539,33 @@ void World::updateAllFactionConsumableCosts() {
 	}
 }
 
-void World::update(){
+void World::update() {
+
+	bool showPerfStats = Config::getInstance().getBool("ShowPerfStats","false");
+	Chrono chronoPerf;
+	char perfBuf[8096]="";
+	std::vector<string> perfList;
+	if(showPerfStats) chronoPerf.start();
+
 	++frameCount;
 
 	//time
 	timeFlow.update();
 
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
 	//water effects
 	waterEffects.update(1.0f);
 	// attack effects
 	attackEffects.update(0.25f);
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
 
 	//bool needToUpdateUnits = true;
 	//if(staggeredFactionUpdates == true) {
@@ -561,16 +578,36 @@ void World::update(){
 	// objects on the map from tilesets
 	updateAllTilesetObjects();
 
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
 	//units
 	if(getFactionCount() > 0) {
 		updateAllFactionUnits();
+
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
 
 		//undertake the dead
 		underTakeDeadFactionUnits();
 		//}
 
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
+
 		//food costs
 		updateAllFactionConsumableCosts();
+
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
 
 		//fow smoothing
 		if(fogOfWarSmoothing && ((frameCount+1) % (fogOfWarSmoothingFrameSkip+1))==0) {
@@ -578,11 +615,33 @@ void World::update(){
 			minimap.updateFowTex(clamp(fogFactor, 0.f, 1.f));
 		}
 
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
+
 		//tick
 		bool needToTick = canTickWorld();
+
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
+
 		if(needToTick == true) {
 			//printf("=========== World is about to be updated, current frameCount = %d\n",frameCount);
 			tick();
+		}
+
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
+	}
+
+	if(showPerfStats && chronoPerf.getMillis() >= 50) {
+		for(unsigned int x = 0; x < perfList.size(); ++x) {
+			printf("%s",perfList[x].c_str());
 		}
 	}
 }
@@ -625,6 +684,12 @@ int World::tickFactionIndex() {
 }
 
 void World::tick() {
+	bool showPerfStats = Config::getInstance().getBool("ShowPerfStats","false");
+	Chrono chronoPerf;
+	char perfBuf[8096]="";
+	std::vector<string> perfList;
+	if(showPerfStats) chronoPerf.start();
+
 	int factionIdxToTick = -1;
 	if(staggeredFactionUpdates == true) {
 		factionIdxToTick = tickFactionIndex();
@@ -632,12 +697,28 @@ void World::tick() {
 			return;
 		}
 	}
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
 	computeFow(factionIdxToTick);
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER " fogOfWar: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis(),fogOfWar);
+		perfList.push_back(perfBuf);
+	}
 
 	if(factionIdxToTick == -1 || factionIdxToTick == 0) {
 		if(fogOfWarSmoothing == false) {
 			minimap.updateFowTex(1.f);
 		}
+	}
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
 	}
 
 	//increase hp
@@ -646,9 +727,6 @@ void World::tick() {
 	for(int i = 0; i < factionCount; ++i) {
 		if(factionIdxToTick == -1 || i == factionIdxToTick) {
 			Faction *faction = getFaction(i);
-			if(faction == NULL) {
-				throw megaglest_runtime_error("faction == NULL");
-			}
 			int unitCount = faction->getUnitCount();
 
 			for(int j = 0; j < unitCount; ++j) {
@@ -662,15 +740,17 @@ void World::tick() {
 		}
 	}
 
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
 	//compute resources balance
 	//int k = factionIdxToTick;
 	factionCount = getFactionCount();
 	for(int k = 0; k < factionCount; ++k) {
 		if(factionIdxToTick == -1 || k == factionIdxToTick) {
 			Faction *faction= getFaction(k);
-			if(faction == NULL) {
-				throw megaglest_runtime_error("faction == NULL");
-			}
 
 			//for each resource
 			for(int i = 0; i < techTree->getResourceTypeCount(); ++i) {
@@ -693,6 +773,17 @@ void World::tick() {
 					faction->setResourceBalance(rt, balance);
 				}
 			}
+		}
+	}
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
+	if(showPerfStats && chronoPerf.getMillis() >= 50) {
+		for(unsigned int x = 0; x < perfList.size(); ++x) {
+			printf("%s",perfList[x].c_str());
 		}
 	}
 }
@@ -2001,7 +2092,18 @@ bool World::showWorldForPlayer(int factionIndex) const {
 
 //computes the fog of war texture, contained in the minimap
 void World::computeFow(int factionIdxToTick) {
+	bool showPerfStats = Config::getInstance().getBool("ShowPerfStats","false");
+	Chrono chronoPerf;
+	char perfBuf[8096]="";
+	std::vector<string> perfList;
+	if(showPerfStats) chronoPerf.start();
+
 	minimap.resetFowTex();
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
 
 	//reset cells
 	if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
@@ -2075,6 +2177,11 @@ void World::computeFow(int factionIdxToTick) {
 		}
 	}
 
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
 	//compute cells
 	for(int i=0; i<getFactionCount(); ++i) {
 		if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
@@ -2085,6 +2192,11 @@ void World::computeFow(int factionIdxToTick) {
 				unit->exploreCells();
 			}
 		}
+	}
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
 	}
 
 	//fire
@@ -2105,6 +2217,11 @@ void World::computeFow(int factionIdxToTick) {
 				}
 			}
 		}
+	}
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
 	}
 
 	//compute texture
@@ -2181,6 +2298,18 @@ void World::computeFow(int factionIdxToTick) {
 			}
 		}
 	}
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
+	if(showPerfStats && chronoPerf.getMillis() >= 50) {
+		for(unsigned int x = 0; x < perfList.size(); ++x) {
+			printf("%s",perfList[x].c_str());
+		}
+	}
+
 }
 
 GameSettings * World::getGameSettingsPtr() {

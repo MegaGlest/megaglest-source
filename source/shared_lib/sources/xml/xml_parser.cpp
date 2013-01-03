@@ -105,7 +105,7 @@ XmlIo::~XmlIo() {
 	cleanup();
 }
 
-XmlNode *XmlIo::load(const string &path, std::map<string,string> mapTagReplacementValues,bool noValidation,bool skipStackCheck) {
+XmlNode *XmlIo::load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation,bool skipStackCheck) {
 	//printf("Load file using Xerces engine [%s]\n",path.c_str());
 
 	try {
@@ -264,10 +264,11 @@ XmlIoRapid::~XmlIoRapid() {
 	cleanup();
 }
 
-XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagReplacementValues,bool noValidation,bool skipStackCheck) {
+XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation,bool skipStackCheck) {
+	bool showPerfStats = SystemFlags::VERBOSE_MODE_ENABLED;
 	Chrono chrono;
 	chrono.start();
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using RapidXml to load file [%s]\n",path.c_str());
+	if(SystemFlags::VERBOSE_MODE_ENABLED || showPerfStats) printf("Using RapidXml to load file [%s]\n",path.c_str());
 	//printf("Using RapidXml to load file [%s]\n",path.c_str());
 
 	XmlNode *rootNode = NULL;
@@ -282,6 +283,8 @@ XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagRepl
 			throw megaglest_runtime_error("Can not open file: [" + path + "]");
 		}
 
+		if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+
 		xmlFile.unsetf(ios::skipws);
 
         // Determine stream size
@@ -289,18 +292,29 @@ XmlNode *XmlIoRapid::load(const string &path, std::map<string,string> mapTagRepl
         streampos size = xmlFile.tellg();
         xmlFile.seekg(0);
 
+        if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+
         // Load data and add terminating 0
         vector<char> buffer;
         buffer.resize((unsigned int)size + 1);
         xmlFile.read(&buffer.front(), static_cast<streamsize>(size));
         buffer[(unsigned int)size] = 0;
 
+        if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+
         // This is required because rapidxml seems to choke when we load lua
         // scenarios that have lua + xml style comments
         replaceAllBetweenTokens(buffer, "<!--","-->", "", true);
+
+        if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+
         doc->parse<parse_no_data_nodes>(&buffer.front());
 
+        if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+
 		rootNode= new XmlNode(doc->first_node(),mapTagReplacementValues);
+
+		if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 #if defined(WIN32) && !defined(__MINGW32__)
 		if(fp) {
@@ -402,7 +416,7 @@ typedef std::vector<XmlTree*> LoadStack;
 //static LoadStack loadStack;
 static string loadStackCacheName = string(__FILE__) + string("_loadStackCacheName");
 
-void XmlTree::load(const string &path, std::map<string,string> mapTagReplacementValues, bool noValidation,bool skipStackCheck) {
+void XmlTree::load(const string &path, const std::map<string,string> &mapTagReplacementValues, bool noValidation,bool skipStackCheck) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s] skipStackCheck = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),skipStackCheck);
 
 	this->skipStackCheck = skipStackCheck;
@@ -465,7 +479,7 @@ XmlTree::~XmlTree() {
 //	class XmlNode
 // =====================================================
 
-XmlNode::XmlNode(DOMNode *node, std::map<string,string> mapTagReplacementValues): superNode(NULL) {
+XmlNode::XmlNode(DOMNode *node, const std::map<string,string> &mapTagReplacementValues): superNode(NULL) {
     if(node == NULL || node->getNodeName() == NULL) {
         throw megaglest_runtime_error("XML structure seems to be corrupt!");
     }
@@ -512,13 +526,15 @@ XmlNode::XmlNode(DOMNode *node, std::map<string,string> mapTagReplacementValues)
 	}
 }
 
-XmlNode::XmlNode(xml_node<> *node, std::map<string,string> mapTagReplacementValues) : superNode(NULL) {
+XmlNode::XmlNode(xml_node<> *node, const std::map<string,string> &mapTagReplacementValues) : superNode(NULL) {
 	if(node == NULL || node->name() == NULL) {
         throw megaglest_runtime_error("XML structure seems to be corrupt!");
     }
 
 	//get name
 	name = node->name();
+	children.reserve(1000);
+	attributes.reserve(1000);
 
 	//check document
 	if(node->type() == node_document) {
@@ -546,7 +562,7 @@ XmlNode::XmlNode(xml_node<> *node, std::map<string,string> mapTagReplacementValu
 	//get value
 	if(node->type() == node_element && children.size() == 0) {
 		text = node->value();
-		Properties::applyTagsToValue(this->text);
+		Properties::applyTagsToValue(this->text,&mapTagReplacementValues);
 	}
 }
 
@@ -670,7 +686,7 @@ XmlNode *XmlNode::addChild(const string &name){
 	return node;
 }
 
-XmlAttribute *XmlNode::addAttribute(const string &name, const string &value, std::map<string,string> mapTagReplacementValues) {
+XmlAttribute *XmlNode::addAttribute(const string &name, const string &value, const std::map<string,string> &mapTagReplacementValues) {
 	XmlAttribute *attr= new XmlAttribute(name, value, mapTagReplacementValues);
 	attributes.push_back(attr);
 	return attr;
@@ -737,7 +753,7 @@ string XmlNode::getTreeString() const {
 //	class XmlAttribute
 // =====================================================
 
-XmlAttribute::XmlAttribute(DOMNode *attribute, std::map<string,string> mapTagReplacementValues) {
+XmlAttribute::XmlAttribute(DOMNode *attribute, const std::map<string,string> &mapTagReplacementValues) {
 	skipRestrictionCheck 			= false;
 	usesCommondata 					= false;
 	this->mapTagReplacementValues 	= mapTagReplacementValues;
@@ -752,10 +768,12 @@ XmlAttribute::XmlAttribute(DOMNode *attribute, std::map<string,string> mapTagRep
 	name= str;
 }
 
-XmlAttribute::XmlAttribute(xml_attribute<> *attribute, std::map<string,string> mapTagReplacementValues) {
+XmlAttribute::XmlAttribute(xml_attribute<> *attribute, const std::map<string,string> &mapTagReplacementValues) {
 	skipRestrictionCheck 			= false;
 	usesCommondata 					= false;
-	this->mapTagReplacementValues 	= mapTagReplacementValues;
+	if(mapTagReplacementValues.size() > 0) {
+		this->mapTagReplacementValues 	= mapTagReplacementValues;
+	}
 	//char str[strSize]				= "";
 
 	//XMLString::transcode(attribute->getNodeValue(), str, strSize-1);
@@ -767,10 +785,12 @@ XmlAttribute::XmlAttribute(xml_attribute<> *attribute, std::map<string,string> m
 	name= attribute->name();
 }
 
-XmlAttribute::XmlAttribute(const string &name, const string &value, std::map<string,string> mapTagReplacementValues) {
+XmlAttribute::XmlAttribute(const string &name, const string &value, const std::map<string,string> &mapTagReplacementValues) {
 	skipRestrictionCheck 			= false;
 	usesCommondata 					= false;
-	this->mapTagReplacementValues 	= mapTagReplacementValues;
+	if(mapTagReplacementValues.size() > 0) {
+		this->mapTagReplacementValues 	= mapTagReplacementValues;
+	}
 	this->name						= name;
 	this->value						= value;
 

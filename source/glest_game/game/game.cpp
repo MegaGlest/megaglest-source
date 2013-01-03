@@ -1385,6 +1385,17 @@ void Game::update() {
 			currentUIState->update();
 		}
 
+		bool showPerfStats = Config::getInstance().getBool("ShowPerfStats","false");
+		Chrono chronoPerf;
+		char perfBuf[8096]="";
+		std::vector<string> perfList;
+		if(showPerfStats) chronoPerf.start();
+
+		if(showPerfStats) {
+			sprintf(perfBuf,"=============== FRAME: %d In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",world.getFrameCount(),extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
+
 		Chrono chrono;
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
@@ -1441,6 +1452,10 @@ void Game::update() {
 		int updateLoops= getUpdateLoops();
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
 
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
@@ -1448,6 +1463,10 @@ void Game::update() {
 		NetworkRole role 				= networkManager.getNetworkRole();
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [before ReplaceDisconnectedNetworkPlayersWithAI]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
 
 		// Check to see if we are playing a network game and if any players
 		// have disconnected?
@@ -1455,6 +1474,10 @@ void Game::update() {
 		setupPopupMenus(true);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after ReplaceDisconnectedNetworkPlayersWithAI]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
 
 		if(updateLoops > 0) {
 			// update the frame based timer in the stats with at least one step
@@ -1473,7 +1496,12 @@ void Game::update() {
 					replayCommandsPlayed = (replayTotal - commander.getReplayCommandListForFrameCount());
 				}
 				for(int i = 0; i < updateLoops; ++i) {
-					chrono.start();
+					//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+					if(showPerfStats) {
+						sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+						perfList.push_back(perfBuf);
+					}
+
 					//AiInterface
 					if(commander.hasReplayCommandListForFrame() == false) {
 
@@ -1498,6 +1526,7 @@ void Game::update() {
 						*/
 
 						// Signal the faction threads to do any pre-processing
+						bool hasAIPlayer = false;
 						for(int j = 0; j < world.getFactionCount(); ++j) {
 							Faction *faction = world.getFaction(j);
 
@@ -1508,40 +1537,51 @@ void Game::update() {
 
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [before AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
 								aiInterfaces[j]->signalWorkerThread(world.getFrameCount());
+								hasAIPlayer = true;
 							}
 						}
 
-						bool workThreadsFinished = false;
-						Chrono chrono;
-						chrono.start();
+						if(showPerfStats) {
+							sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+							perfList.push_back(perfBuf);
+						}
 
-						const int MAX_FACTION_THREAD_WAIT_MILLISECONDS = 20000;
-						for(;chrono.getMillis() < MAX_FACTION_THREAD_WAIT_MILLISECONDS;) {
-							workThreadsFinished = true;
-							for(int j = 0; j < world.getFactionCount(); ++j) {
-								Faction *faction = world.getFaction(j);
-								if(faction == NULL) {
-									throw megaglest_runtime_error("faction == NULL");
-								}
-								if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
-									scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
-									if(aiInterfaces[j]->isWorkerThreadSignalCompleted(world.getFrameCount()) == false) {
-										workThreadsFinished = false;
-										break;
+						if(hasAIPlayer == true) {
+							//sleep(0);
+
+							bool workThreadsFinished = false;
+							Chrono chronoAI;
+							chronoAI.start();
+
+							const int MAX_FACTION_THREAD_WAIT_MILLISECONDS = 20000;
+							for(;chronoAI.getMillis() < MAX_FACTION_THREAD_WAIT_MILLISECONDS;) {
+								workThreadsFinished = true;
+								for(int j = 0; j < world.getFactionCount(); ++j) {
+									Faction *faction = world.getFaction(j);
+									if(faction == NULL) {
+										throw megaglest_runtime_error("faction == NULL");
+									}
+									if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
+										scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
+										if(aiInterfaces[j]->isWorkerThreadSignalCompleted(world.getFrameCount()) == false) {
+											workThreadsFinished = false;
+											break;
+										}
 									}
 								}
-							}
-							if(workThreadsFinished == false) {
-								//sleep(0);
-							}
-							else {
-								break;
+								if(workThreadsFinished == false) {
+									//sleep(0);
+								}
+								else {
+									break;
+								}
 							}
 						}
 
-
-
-
+						if(showPerfStats) {
+							sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+							perfList.push_back(perfBuf);
+						}
 
 					}
 					else {
@@ -1587,6 +1627,11 @@ void Game::update() {
 						}
 					}
 
+					if(showPerfStats) {
+						sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+						perfList.push_back(perfBuf);
+					}
+
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
@@ -1594,6 +1639,11 @@ void Game::update() {
 					if(pendingQuitError == false) world.update();
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [world update i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
+					if(showPerfStats) {
+						sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+						perfList.push_back(perfBuf);
+					}
 
 					if(currentCameraFollowUnit!=NULL){
 						Vec3f c=currentCameraFollowUnit->getCurrVector();
@@ -1621,9 +1671,19 @@ void Game::update() {
 						}
 					}
 
+					if(showPerfStats) {
+						sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+						perfList.push_back(perfBuf);
+					}
+
 					// Commander
 					//commander.updateNetwork();
 					if(pendingQuitError == false) commander.signalNetworkUpdate(this);
+
+					if(showPerfStats) {
+						sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+						perfList.push_back(perfBuf);
+					}
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [commander updateNetwork i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
@@ -1633,6 +1693,11 @@ void Game::update() {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [gui updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
+					if(showPerfStats) {
+						sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+						perfList.push_back(perfBuf);
+					}
+
 					//Particle systems
 					if(weatherParticleSystem != NULL) {
 						weatherParticleSystem->setPos(gameCamera.getPos());
@@ -1641,10 +1706,20 @@ void Game::update() {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [weather particle updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
+					if(showPerfStats) {
+						sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+						perfList.push_back(perfBuf);
+					}
+
 					Renderer &renderer= Renderer::getInstance();
 					renderer.updateParticleManager(rsGame,avgRenderFps);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [particle manager updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
+					if(showPerfStats) {
+						sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+						perfList.push_back(perfBuf);
+					}
 
 					//good_fpu_control_registers(NULL,extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 				}
@@ -1663,14 +1738,29 @@ void Game::update() {
 			}
 		}
 
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
+
 		//call the chat manager
 		chatManager.updateNetwork();
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [chatManager.updateNetwork]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
+
 		updateNetworkMarkedCells();
 		updateNetworkUnMarkedCells();
 		updateNetworkHighligtedCells();
+
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
 
 		//check for quiting status
 		if(NetworkManager::getInstance().getGameNetworkInterface() != NULL &&
@@ -1682,10 +1772,20 @@ void Game::update() {
 			return;
 		}
 
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
+
 		//update auto test
 		if(Config::getInstance().getBool("AutoTest")){
 			AutoTest::getInstance().updateGame(this);
 			return;
+		}
+
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
 		}
 
 		if(world.getQueuedScenario() != "") {
@@ -1831,6 +1931,17 @@ void Game::update() {
 				totalRenderFps++;
 
 				throw;
+			}
+		}
+
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
+
+		if(showPerfStats && chronoPerf.getMillis() >= 50) {
+			for(unsigned int x = 0; x < perfList.size(); ++x) {
+				printf("%s",perfList[x].c_str());
 			}
 		}
 	}

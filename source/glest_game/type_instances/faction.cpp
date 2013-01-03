@@ -511,7 +511,9 @@ int Faction::getUnitPathfindingListCount() {
 
 void Faction::clearUnitsPathfinding() {
 	//printf("CLEAR Faction [%d - %s] threaded updates for [%d] units\n",this->getStartLocationIndex(),this->getType()->getName().c_str(),unitsPathfindingList.size());
-	unitsPathfindingList.clear();
+	if(unitsPathfindingList.empty() == false) {
+		unitsPathfindingList.clear();
+	}
 }
 
 bool Faction::canUnitsPathfind() {
