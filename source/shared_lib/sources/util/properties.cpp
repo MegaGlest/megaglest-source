@@ -248,7 +248,7 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
 	return mapTagReplacementValues;
 }
 
-bool Properties::applyTagsToValue(string &value, std::map<string,string> *mapTagReplacementValues) {
+bool Properties::applyTagsToValue(string &value, const std::map<string,string> *mapTagReplacementValues) {
 	string originalValue = value;
 
 	//if(originalValue.find("$APPLICATIONDATAPATH") != string::npos) {
@@ -256,7 +256,7 @@ bool Properties::applyTagsToValue(string &value, std::map<string,string> *mapTag
 	//}
 
 	if(mapTagReplacementValues != NULL) {
-		for(std::map<string,string>::iterator iterMap = mapTagReplacementValues->begin();
+		for(std::map<string,string>::const_iterator iterMap = mapTagReplacementValues->begin();
 				iterMap != mapTagReplacementValues->end(); ++iterMap) {
 			replaceAll(value, iterMap->first, iterMap->second);
 		}

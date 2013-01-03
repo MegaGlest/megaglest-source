@@ -85,7 +85,7 @@ public:
 
 	bool hasString(const string &key) const;
 
-	static bool applyTagsToValue(string &value, std::map<string,string> *mapTagReplacementValues=NULL);
+	static bool applyTagsToValue(string &value, const std::map<string,string> *mapTagReplacementValues=NULL);
 	static std::map<string,string> getTagReplacementValues(std::map<string,string> *mapExtraTagReplacementValues=NULL);
 
 	string getpath() const { return path;}

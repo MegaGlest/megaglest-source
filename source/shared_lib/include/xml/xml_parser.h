@@ -64,7 +64,7 @@ public:
 	~XmlIo();
 	void cleanup();
 
-	XmlNode *load(const string &path, std::map<string,string> mapTagReplacementValues,bool noValidation=false, bool skipStackCheck=false);
+	XmlNode *load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation=false, bool skipStackCheck=false);
 	void save(const string &path, const XmlNode *node);
 };
 
@@ -81,7 +81,7 @@ public:
 	~XmlIoRapid();
 	void cleanup();
 
-	XmlNode *load(const string &path, std::map<string,string> mapTagReplacementValues,bool noValidation=false,bool skipStackCheck=false);
+	XmlNode *load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation=false,bool skipStackCheck=false);
 	void save(const string &path, const XmlNode *node);
 };
 
@@ -104,7 +104,7 @@ public:
 	~XmlTree();
 
 	void init(const string &name);
-	void load(const string &path, std::map<string,string> mapTagReplacementValues, bool noValidation=false,bool skipStackCheck=false);
+	void load(const string &path, const std::map<string,string> &mapTagReplacementValues, bool noValidation=false,bool skipStackCheck=false);
 	void save(const string &path);
 
 	XmlNode *getRootNode() const	{return rootNode;}
@@ -127,8 +127,8 @@ private:
 	void operator =(XmlNode&);
 
 public:
-	XmlNode(XERCES_CPP_NAMESPACE::DOMNode *node, std::map<string,string> mapTagReplacementValues);
-	XmlNode(xml_node<> *node, std::map<string,string> mapTagReplacementValues);
+	XmlNode(XERCES_CPP_NAMESPACE::DOMNode *node, const std::map<string,string> &mapTagReplacementValues);
+	XmlNode(xml_node<> *node, const std::map<string,string> &mapTagReplacementValues);
 	XmlNode(const string &name);
 	~XmlNode();
 	
@@ -152,7 +152,7 @@ public:
 
 
 	XmlNode *addChild(const string &name);
-	XmlAttribute *addAttribute(const string &name, const string &value, std::map<string,string> mapTagReplacementValues);
+	XmlAttribute *addAttribute(const string &name, const string &value, const std::map<string,string> &mapTagReplacementValues);
 
 	XERCES_CPP_NAMESPACE::DOMElement *buildElement(XERCES_CPP_NAMESPACE::DOMDocument *document) const;
 	xml_node<>* buildElement(xml_document<> *document) const;
@@ -179,9 +179,9 @@ private:
 	void operator =(XmlAttribute&);
 
 public:
-	XmlAttribute(XERCES_CPP_NAMESPACE::DOMNode *attribute, std::map<string,string> mapTagReplacementValues);
-	XmlAttribute(xml_attribute<> *attribute, std::map<string,string> mapTagReplacementValues);
-	XmlAttribute(const string &name, const string &value, std::map<string,string> mapTagReplacementValues);
+	XmlAttribute(XERCES_CPP_NAMESPACE::DOMNode *attribute, const std::map<string,string> &mapTagReplacementValues);
+	XmlAttribute(xml_attribute<> *attribute, const std::map<string,string> &mapTagReplacementValues);
+	XmlAttribute(const string &name, const string &value, const std::map<string,string> &mapTagReplacementValues);
 
 public:
 	const string getName() const	{return name;}
