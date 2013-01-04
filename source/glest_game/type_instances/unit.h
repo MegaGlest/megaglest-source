@@ -456,6 +456,7 @@ private:
 	RandomGen random;
 	int pathFindRefreshCellCount;
 
+	FowAlphaCellsLookupItem cachedFow;
 
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
@@ -477,6 +478,10 @@ public:
     inline uint32 getPathfindFailedConsecutiveFrameCount() const { return pathfindFailedConsecutiveFrameCount; }
     inline void incrementPathfindFailedConsecutiveFrameCount() { pathfindFailedConsecutiveFrameCount++; }
     inline void resetPathfindFailedConsecutiveFrameCount() { pathfindFailedConsecutiveFrameCount=0; }
+
+    const FowAlphaCellsLookupItem & getCachedFow() const { return cachedFow; }
+    FowAlphaCellsLookupItem getFogOfWarRadius(bool useCache) const;
+    void calculateFogOfWarRadius();
 
     //queries
     Command *getCurrrentCommandThreadSafe();

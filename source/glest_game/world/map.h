@@ -47,6 +47,7 @@ class Resource;
 class TechTree;
 class GameSettings;
 class World;
+
 // =====================================================
 // 	class Cell
 //

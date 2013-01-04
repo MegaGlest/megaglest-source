@@ -76,15 +76,6 @@ public:
 	static time_t lastDebug;
 };
 
-class FowAlphaCellsLookupItem {
-public:
-
-	std::vector<Vec2i> surfPosList;
-	std::vector<float> alphaList;
-
-	static time_t lastDebug;
-};
-
 class World {
 private:
 	typedef vector<Faction *> Factions;
@@ -94,7 +85,7 @@ private:
 	int ExploredCellsLookupItemCacheTimerCount;
 
 	bool enableFowAlphaCellsLookupItemCache;
-	std::map<Vec2i, std::map<int, FowAlphaCellsLookupItem > > FowAlphaCellsLookupItemCache;
+	//std::map<Vec2i, std::map<int, FowAlphaCellsLookupItem > > FowAlphaCellsLookupItemCache;
 
 public:
 	static const int generationArea= 100;
@@ -283,6 +274,8 @@ public:
 	std::vector<std::string> validateResourceTypes();
 
 	void setFogOfWar(bool value);
+	bool getFogOfWar() const { return fogOfWar; }
+
 	std::string DumpWorldToLog(bool consoleBasicInfoOnly = false) const;
 
 	inline int getUpdateFps(int factionIndex) const {

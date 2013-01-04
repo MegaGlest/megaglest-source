@@ -486,6 +486,8 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	addItemToVault(&this->hp,this->hp);
 	addItemToVault(&this->ep,this->ep);
 
+	calculateFogOfWarRadius();
+
 //	if(isUnitDeleted(this) == true) {
 //		MutexSafeWrapper safeMutex(&mutexDeletedUnits,string(__FILE__) + "_" + intToStr(__LINE__));
 //		deletedUnits.erase(this);
@@ -1088,7 +1090,51 @@ void Unit::setPos(const Vec2i &pos, bool clearPathFinder) {
 	// Attempt to improve performance
 	this->exploreCells();
 
+	calculateFogOfWarRadius();
+
 	logSynchData(__FILE__,__LINE__);
+}
+
+FowAlphaCellsLookupItem Unit::getFogOfWarRadius(bool useCache) const {
+	if(useCache == true && Config::getInstance().getBool("EnableFowCache","true") == true) {
+		return cachedFow;
+	}
+
+	FowAlphaCellsLookupItem result;
+	//iterate through all cells
+	int sightRange= this->getType()->getSight();
+	PosCircularIterator pci(map, this->getPos(), sightRange + World::indirectSightRange);
+	while(pci.next()){
+		const Vec2i sightpos= pci.getPos();
+		Vec2i surfPos= Map::toSurfCoords(sightpos);
+
+		//compute max alpha
+		float maxAlpha= 0.0f;
+		if(surfPos.x > 1 && surfPos.y > 1 && surfPos.x < map->getSurfaceW() -2 && surfPos.y < map->getSurfaceH() -2) {
+			maxAlpha= 1.f;
+		}
+		else if(surfPos.x > 0 && surfPos.y > 0 && surfPos.x < map->getSurfaceW() -1 && surfPos.y < map->getSurfaceH() -1) {
+			maxAlpha= 0.3f;
+		}
+
+		//compute alpha
+		float alpha = maxAlpha;
+		float dist = this->getPos().dist(sightpos);
+		if(dist > sightRange) {
+			alpha= clamp(1.f-(dist - sightRange) / (World::indirectSightRange), 0.f, maxAlpha);
+		}
+		result.surfPosList.push_back(surfPos);
+		result.alphaList.push_back(alpha);
+	}
+	return result;
+}
+
+void Unit::calculateFogOfWarRadius() {
+	if(game->getWorld()->getFogOfWar() == true) {
+		if(Config::getInstance().getBool("EnableFowCache","true") == true && this->pos != this->lastPos) {
+			cachedFow = getFogOfWarRadius(false);
+		}
+	}
 }
 
 void Unit::setTargetPos(const Vec2i &targetPos) {
@@ -4278,6 +4324,8 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 	if(unitNode->hasAttribute("pathFindRefreshCellCount")) {
 		result->pathFindRefreshCellCount = unitNode->getAttribute("pathFindRefreshCellCount")->getIntValue();
 	}
+
+	result->calculateFogOfWarRadius();
 
     return result;
 }
