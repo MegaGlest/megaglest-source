@@ -9,6 +9,7 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+#include "data_types.h"
 #include "xml_parser.h"
 
 #include <fstream>
@@ -21,7 +22,6 @@
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include "util.h"
-#include "data_types.h"
 #include "properties.h"
 #include "platform_common.h"
 #include "platform_util.h"
@@ -283,7 +283,7 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
 			throw megaglest_runtime_error("Can not open file: [" + path + "]");
 		}
 
-		if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+		if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 		xmlFile.unsetf(ios::skipws);
 
@@ -292,7 +292,7 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
         streampos size = xmlFile.tellg();
         xmlFile.seekg(0);
 
-        if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+        if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
         // Load data and add terminating 0
         vector<char> buffer;
@@ -300,21 +300,21 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
         xmlFile.read(&buffer.front(), static_cast<streamsize>(size));
         buffer[(unsigned int)size] = 0;
 
-        if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+        if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
         // This is required because rapidxml seems to choke when we load lua
         // scenarios that have lua + xml style comments
         replaceAllBetweenTokens(buffer, "<!--","-->", "", true);
 
-        if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+        if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
         doc->parse<parse_no_data_nodes>(&buffer.front());
 
-        if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+        if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 		rootNode= new XmlNode(doc->first_node(),mapTagReplacementValues);
 
-		if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+		if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 #if defined(WIN32) && !defined(__MINGW32__)
 		if(fp) {

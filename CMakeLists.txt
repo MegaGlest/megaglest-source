@@ -310,6 +310,38 @@ IF(EXISTS "${PROJECT_SOURCE_DIR}/data/glest_game/")
 	ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/data/glest_game )
 ENDIF()
 
+SET(CPACK_GENERATOR "DEB")
+SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Mark Vejvoda") #required
+SET(CPACK_DEBIAN_PACKAGE_DEPENDS "
+ libcurl4-gnutls-dev | libcurl4-nss-dev,
+ libfontconfig1-dev,
+ libftgl-dev,
+ libglew-dev,
+ libircclient-dev,
+ libjpeg-dev,
+ liblua5.1-0-dev,
+ libminiupnpc-dev,
+ libogg-dev,
+ libopenal-dev,
+ libpng12-dev,
+ libsdl1.2-dev,
+ libvlc-dev,
+ libvorbis-dev,
+ libwxgtk2.8-dev,
+ libxerces-c2-dev,
+ libxml2-dev,
+ libz-dev,
+ libfribidi-dev")
+
+#find_program(DPKG_PROGRAM dpkg DOC "dpkg program of Debian-based systems")
+#if(DPKG_PROGRAM)
+#  execute_process(
+#    COMMAND ${DPKG_PROGRAM} --print-architecture
+#    OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
+#    OUTPUT_STRIP_TRAILING_WHITESPACE
+#  )
+#endif(DPKG_PROGRAM)
+
 SET(CPACK_PACKAGE_NAME ${PKG_NAME})
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MegaGlest")
 SET(CPACK_PACKAGE_VENDOR "megaglest.org")
