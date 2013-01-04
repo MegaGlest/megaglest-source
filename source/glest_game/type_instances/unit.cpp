@@ -1131,8 +1131,9 @@ FowAlphaCellsLookupItem Unit::getFogOfWarRadius(bool useCache) const {
 
 void Unit::calculateFogOfWarRadius() {
 	if(game->getWorld()->getFogOfWar() == true) {
-		if(Config::getInstance().getBool("EnableFowCache","true") == true && this->pos != this->lastPos) {
+		if(Config::getInstance().getBool("EnableFowCache","true") == true && this->pos != this->cachedFowPos) {
 			cachedFow = getFogOfWarRadius(false);
+			this->cachedFowPos = this->pos;
 		}
 	}
 }

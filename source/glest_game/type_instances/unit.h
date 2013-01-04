@@ -457,6 +457,7 @@ private:
 	int pathFindRefreshCellCount;
 
 	FowAlphaCellsLookupItem cachedFow;
+	Vec2i cachedFowPos;
 
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
