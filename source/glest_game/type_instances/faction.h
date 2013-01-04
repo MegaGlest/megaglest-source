@@ -51,6 +51,15 @@ class World;
 class Faction;
 class GameSettings;
 
+class FowAlphaCellsLookupItem {
+public:
+
+	std::vector<Vec2i> surfPosList;
+	std::vector<float> alphaList;
+
+	static time_t lastDebug;
+};
+
 // =====================================================
 // 	class Faction
 //
