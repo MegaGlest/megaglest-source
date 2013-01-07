@@ -218,7 +218,7 @@ case $distribution in
 		esac
 		;;
 
-	SuSE|SUSE LINUX|Opensuse) 
+	SuSE|SUSE?LINUX|Opensuse) 
 		case $release in
 			11.2|11.3|11.4)
 				zypper install subversion gcc gcc-c++ automake cmake
