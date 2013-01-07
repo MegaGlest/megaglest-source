@@ -187,7 +187,6 @@ case $distribution in
 				apt-get install libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew1.5-dev libftgl-dev libfribidi-dev
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
 				;;
-
 			11.10|12.04|12.10)
 				apt-get install build-essential subversion automake autoconf autogen cmake
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
@@ -219,16 +218,22 @@ case $distribution in
 		esac
 		;;
 
-	SuSE|Opensuse) 
+	SuSE|SUSE LINUX|Opensuse) 
 		case $release in
 			11.2|11.3|11.4)
-				zypper install subdistribution gcc gcc-c++ automake cmake
+				zypper install subversion gcc gcc-c++ automake cmake
+				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
+				zypper install libSDL-devel libxerces-c-devel MesaGLw-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel
+				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
+				;;
+			12.2)
+				zypper install subversion gcc gcc-c++ automake cmake
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
 				zypper install libSDL-devel libxerces-c-devel MesaGLw-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
 				;;
 			*)
-				alternative='zypper install subdistribution gcc gcc-c++ automake cmake; zypper install libSDL-devel libxerces-c-devel MesaGLw-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel'
+				alternative='zypper install subversion gcc gcc-c++ automake cmake; zypper install libSDL-devel libxerces-c-devel MesaGLw-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel'
 				unsupported_release
 				exit 1
 				;;
@@ -241,13 +246,13 @@ case $distribution in
 			13|14)
 				yum groupinstall "Development Tools"
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
-				yum install subdistribution automake autoconf autogen cmake
+				yum install subversion automake autoconf autogen cmake
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
 				yum install SDL-devel xerces-c-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-dev libircclient-dev glew-devel ftgl-devel fribidi-devel
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
 				;;
 			*)
-				alternative='yum groupinstall "Development Tools"; yum install subdistribution automake autoconf autogen cmake; yum install SDL-devel xerces-c-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-dev libircclient-dev glew-devel ftgl-devel fribidi-devel'
+				alternative='yum groupinstall "Development Tools"; yum install subversion automake autoconf autogen cmake; yum install SDL-devel xerces-c-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-dev libircclient-dev glew-devel ftgl-devel fribidi-devel'
 				unsupported_release
 				exit 1
 				;;
