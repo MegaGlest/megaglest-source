@@ -81,6 +81,7 @@ protected:
 public:
 
 	IRCThread(const std::vector<string> &argv,IRCCallbackInterface *callbackObj);
+	virtual ~IRCThread();
     virtual void execute();
     virtual void signalQuit();
     virtual bool shutdownAndWait();
