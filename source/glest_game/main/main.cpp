@@ -170,11 +170,14 @@ static void cleanupProcessObjects() {
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 IRCCLient Cache SHUTDOWN\n");
 	IRCThread * &ircClient = CacheManager::getCachedItem< IRCThread * >(GameConstants::ircClientCacheLookupKey);
+	//printf("In main IRCThreadcheck [%p]...\n",ircClient);
     if(ircClient != NULL) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 IRCCLient Cache SHUTDOWN\n");
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
         ircClient->setCallbackObj(NULL);
+
+        //printf("In main IRCThreadcheck [%p] signalled quit...\n",ircClient);
         ircClient->signalQuit();
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         ircClient = NULL;

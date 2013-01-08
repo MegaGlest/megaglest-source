@@ -347,48 +347,55 @@ option(ENABLE_FRIBIDI "Enable FriBIDi support" ON)
 	INCLUDE_DIRECTORIES( ${MG_INCLUDES_ROOT}platform/sdl )
         INCLUDE_DIRECTORIES( ${MG_INCLUDES_ROOT}xml/rapidxml )
 
-	IF(NOT WANT_STATIC_LIBS)
-		MESSAGE(STATUS "*** Searching for libircclient since WANT_STATIC_LIBS is off ...")
-		FIND_PACKAGE(Ircclient)
-	ENDIF()
+        option(DISABLE_IRCCLIENT "Disable libircclient support" OFF)
 
-	if(NOT IRCCLIENT_FOUND)
-		MESSAGE(STATUS "*** Using EMBEDDED libircclient since this system does not have it... IRCCLIENT_FOUND [${IRCCLIENT_FOUND}]")
+        IF(NOT DISABLE_IRCCLIENT)
+	        IF(NOT WANT_STATIC_LIBS)
+		        MESSAGE(STATUS "*** Searching for libircclient since WANT_STATIC_LIBS is off ...")
+		        FIND_PACKAGE(Ircclient)
+	        ENDIF()
 
-		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/libircclient/src/libircclient.c)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/libircclient/include)
-	else()
-		MESSAGE(STATUS "*** Using SHARED libircclient found in [${IRCCLIENT_INCLUDE_DIR}] IRCCLIENT_FOUND [${IRCCLIENT_FOUND}] IRCCLIENT_LIBRARY [${IRCCLIENT_LIBRARY}]")
+	        if(NOT IRCCLIENT_FOUND)
+		        MESSAGE(STATUS "*** Using EMBEDDED libircclient since this system does not have it... IRCCLIENT_FOUND [${IRCCLIENT_FOUND}]")
 
-		INCLUDE_DIRECTORIES(${IRCCLIENT_INCLUDE_DIR})
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${IRCCLIENT_LIBRARY})
-	endif()
+		        SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/libircclient/src/libircclient.c)
+		        INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/libircclient/include)
+	        else()
+		        MESSAGE(STATUS "*** Using SHARED libircclient found in [${IRCCLIENT_INCLUDE_DIR}] IRCCLIENT_FOUND [${IRCCLIENT_FOUND}] IRCCLIENT_LIBRARY [${IRCCLIENT_LIBRARY}]")
 
-        set(CMAKE_REQUIRED_INCLUDES "${IRCCLIENT_INCLUDE_DIR}")
-        set(CMAKE_REQUIRED_LIBRARIES "${IRCCLIENT_LIBRARY}")
-        include(CheckCXXSourceRuns)
+		        INCLUDE_DIRECTORIES(${IRCCLIENT_INCLUDE_DIR})
+		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${IRCCLIENT_LIBRARY})
+	        endif()
 
-        check_cxx_source_runs("
-        #include <stdio.h>
-        #include <stdlib.h>
-        #include <libircclient.h>
-        int main()
-        {
-        unsigned int high = 0;
-        unsigned int low = 0;
-        irc_get_version(&high,&low);
-        if( (high == 1 && low >= 6) || (high > 1)) {
-          return 0;
-        }
-        throw 1;
-        }"
-        HAS_LIBIRCCLIENT_1_6)
+                set(CMAKE_REQUIRED_INCLUDES "${IRCCLIENT_INCLUDE_DIR}")
+                set(CMAKE_REQUIRED_LIBRARIES "${IRCCLIENT_LIBRARY}")
+                include(CheckCXXSourceRuns)
 
-        IF(HAS_LIBIRCCLIENT_1_6)
-                message(STATUS "Found HAS_LIBIRCCLIENT_1_6: ${HAS_LIBIRCCLIENT_1_6}")
-        ELSE()
-                ADD_DEFINITIONS(-DLIBIRCCLIENT_PRE1_6)
-        ENDIF()
+                check_cxx_source_runs("
+                #include <stdio.h>
+                #include <stdlib.h>
+                #include <libircclient.h>
+                int main()
+                {
+                unsigned int high = 0;
+                unsigned int low = 0;
+                irc_get_version(&high,&low);
+                if( (high == 1 && low >= 6) || (high > 1)) {
+                  return 0;
+                }
+                throw 1;
+                }"
+                HAS_LIBIRCCLIENT_1_6)
+
+                IF(HAS_LIBIRCCLIENT_1_6)
+                        message(STATUS "Found HAS_LIBIRCCLIENT_1_6: ${HAS_LIBIRCCLIENT_1_6}")
+                ELSE()
+                        ADD_DEFINITIONS(-DLIBIRCCLIENT_PRE1_6)
+                ENDIF()
+        else()
+                message(STATUS "****WARNING DISABLING libircclient!!")
+                ADD_DEFINITIONS(-DDISABLE_IRCCLIENT)
+        endif()
 
 	IF(WIN32)
 		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/posix/socket.cpp)
