@@ -4990,6 +4990,7 @@ __try {
 #endif
 
 	initSpecialStrings();
+	IRCThread::setGlobalCacheContainerName(GameConstants::ircClientCacheLookupKey);
 	int result = glestMain(argc, argv);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
