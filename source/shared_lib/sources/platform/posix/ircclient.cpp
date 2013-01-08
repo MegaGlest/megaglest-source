@@ -13,6 +13,7 @@
 #include "ircclient.h"
 #include "util.h"
 #include "platform_common.h"
+#include "cache_manager.h"
 
 #if !defined(DISABLE_IRCCLIENT)
 
@@ -35,6 +36,7 @@ using namespace Shared::PlatformCommon;
 
 namespace Shared { namespace PlatformCommon {
 
+const char *IRCThread::globalCacheContainerName = NULL;
 const int IRC_SERVER_PORT = 6667;
 //bool IRCThread::debugEnabled = true;
 bool IRCThread::debugEnabled = false;
@@ -697,6 +699,11 @@ void IRCThread::execute() {
 
 IRCThread::~IRCThread() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In ~IRCThread() ...\n");
+
+	if(IRCThread::globalCacheContainerName != NULL) {
+		IRCThread * &ircClient = CacheManager::getCachedItem< IRCThread * >(IRCThread::globalCacheContainerName);
+		ircClient = NULL;
+	}
 }
 
 void normalizeNick(char *nick) {

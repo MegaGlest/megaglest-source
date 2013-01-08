@@ -55,6 +55,7 @@ class IRCThread : public BaseThread
 public:
 	static bool debugEnabled;
 protected:
+	static const char *globalCacheContainerName;
 
     std::vector<string> argv;
     irc_session_t *ircSession;
@@ -85,6 +86,8 @@ public:
     virtual void execute();
     virtual void signalQuit();
     virtual bool shutdownAndWait();
+
+    static void setGlobalCacheContainerName(const char *name) { globalCacheContainerName = name; }
 
     void setPlayerName(string value) { playerName = value; }
     string getPlayerName() const { return playerName; }
