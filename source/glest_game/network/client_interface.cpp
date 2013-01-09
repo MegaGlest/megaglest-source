@@ -154,41 +154,54 @@ void ClientInterface::update() {
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
-	NetworkMessageCommandList networkMessageCommandList(currentFrameCount);
+	try {
+		NetworkMessageCommandList networkMessageCommandList(currentFrameCount);
 
-	//send as many commands as we can
-	while(requestedCommands.empty() == false) {
-		if(networkMessageCommandList.addCommand(&requestedCommands.back())) {
-			requestedCommands.pop_back();
+		//send as many commands as we can
+		while(requestedCommands.empty() == false) {
+			if(networkMessageCommandList.addCommand(&requestedCommands.back())) {
+				requestedCommands.pop_back();
+			}
+			else {
+				break;
+			}
 		}
-		else {
-			break;
-		}
-	}
 
-	double lastSendElapsed = difftime((long int)time(NULL),lastNetworkCommandListSendTime);
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
-
-	if(networkMessageCommandList.getCommandCount() > 0 ||
-	  (lastNetworkCommandListSendTime > 0 && lastSendElapsed >= ClientInterface::maxNetworkCommandListSendTimeWait)) {
-		lastNetworkCommandListSendTime = time(NULL);
-		sendMessage(&networkMessageCommandList);
+		double lastSendElapsed = difftime((long int)time(NULL),lastNetworkCommandListSendTime);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+
+		if(networkMessageCommandList.getCommandCount() > 0 ||
+		  (lastNetworkCommandListSendTime > 0 && lastSendElapsed >= ClientInterface::maxNetworkCommandListSendTimeWait)) {
+			lastNetworkCommandListSendTime = time(NULL);
+			sendMessage(&networkMessageCommandList);
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+		}
+
+		// Possible cause of out of synch since we have more commands that need
+		// to be sent in this frame
+		if(requestedCommands.empty() == false) {
+			//char szBuf[4096]="";
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,requestedCommands.size());
+
+			string sMsg = "may go out of synch: client requestedCommands.size() = " + intToStr(requestedCommands.size());
+			sendTextMessage(sMsg,-1, true,"");
+			sleep(1);
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+		}
 	}
+	catch(const megaglest_runtime_error &ex) {
+		if(this->isConnected() == false) {
+			string sErr = string(extractFileFromDirectoryPath(__FILE__).c_str()) + "::" + string(__FUNCTION__) + " network error: " + string(ex.what());
 
-	// Possible cause of out of synch since we have more commands that need
-	// to be sent in this frame
-	if(requestedCommands.empty() == false) {
-		//char szBuf[4096]="";
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,requestedCommands.size());
-
-        string sMsg = "may go out of synch: client requestedCommands.size() = " + intToStr(requestedCommands.size());
-        sendTextMessage(sMsg,-1, true,"");
-        sleep(1);
-
-        if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			DisplayErrorMessage(sErr);
+			quit= true;
+		}
+		else {
+			throw megaglest_runtime_error(ex.what());
+		}
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
