@@ -25,6 +25,12 @@
 #include <pwd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+
+#if defined(__APPLE__)
+#include <sys/select.h>
+#include <sys/time.h>
+#endif
+
 #include <unistd.h>
 
 #if defined(__FreeBSD__)
@@ -203,7 +209,7 @@ int ftpSend(socket_t s, const void *data, int len)
 
 	do
 	{
-#ifdef __APPLE__
+#if defined(__APPLE__) && defined(SO_NOSIGPIPE)
 		currLen = send(s, data, len, SO_NOSIGPIPE);
 #else
         currLen = send(s, data, len, MSG_NOSIGNAL);
