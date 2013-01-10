@@ -215,6 +215,7 @@ void Faction::sortUnitsByCommandGroups() {
 FactionThread::FactionThread(Faction *faction) : BaseThread() {
 	this->triggerIdMutex = new Mutex();
 	this->faction = faction;
+	this->masterController = NULL;
 }
 
 FactionThread::~FactionThread() {
@@ -300,6 +301,11 @@ void FactionThread::execute() {
 
 			semTaskSignalled.waitTillSignalled();
 
+			//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			static string masterSlaveOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+			MasterSlaveThreadControllerSafeWrapper safeMasterController(masterController,20000,masterSlaveOwnerId);
+			//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			if(getQuitStatus() == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
@@ -312,6 +318,8 @@ void FactionThread::execute() {
             //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] frameIndex = %d this = %p executeTask = %d\n",__FILE__,__FUNCTION__,__LINE__,frameIndex.first, this, executeTask);
 
             safeMutex.ReleaseLock();
+
+            //printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
             if(executeTask == true) {
 				ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
@@ -329,6 +337,8 @@ void FactionThread::execute() {
 
 				//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 				if(minorDebugPerformance) chrono.start();
+
+				//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				int unitCount = faction->getUnitCount();
 				for(int j = 0; j < unitCount; ++j) {
@@ -358,10 +368,18 @@ void FactionThread::execute() {
 
 				if(minorDebugPerformance && chrono.getMillis() >= 1) printf("Faction [%d - %s] threaded updates on frame: %d for [%d] units took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),frameIndex.first,faction->getUnitPathfindingListCount(),(long long int)chrono.getMillis());
 
+				//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				safeMutex.ReleaseLock();
 
+				//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 				setTaskCompleted(frameIndex.first);
+
+				//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
             }
+
+            //printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(getQuitStatus() == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

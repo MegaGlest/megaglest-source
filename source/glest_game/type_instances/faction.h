@@ -76,13 +76,14 @@ struct CommandGroupUnitSorterId {
 	bool operator()(const int l, const int r);
 };
 
-class FactionThread : public BaseThread {
+class FactionThread : public BaseThread, public SlaveThreadControllerInterface {
 protected:
 
 	Faction *faction;
 	Semaphore semTaskSignalled;
 	Mutex *triggerIdMutex;
 	std::pair<int,bool> frameIndex;
+	MasterSlaveThreadController *masterController;
 
 	virtual void setQuitStatus(bool value);
 	virtual void setTaskCompleted(int frameIndex);
@@ -92,6 +93,10 @@ public:
 	FactionThread(Faction *faction);
 	virtual ~FactionThread();
     virtual void execute();
+
+	virtual void setMasterController(MasterSlaveThreadController *master) { masterController = master; }
+	virtual void signalSlave(void *userdata) { signalPathfinder(*((int *)(userdata))); }
+
     void signalPathfinder(int frameIndex);
     bool isSignalPathfinderCompleted(int frameIndex);
 };
@@ -320,8 +325,11 @@ public:
 
 	inline World * getWorld() { return world; }
 	int getFrameCount();
+
 	void signalWorkerThread(int frameIndex);
 	bool isWorkerThreadSignalCompleted(int frameIndex);
+	FactionThread *getWorkerThread() { return workerThread; }
+
 	void limitResourcesToStore();
 
 	void sortUnitsByCommandGroups();

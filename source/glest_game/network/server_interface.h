@@ -93,6 +93,7 @@ private:
 	map<string,pair<uint64,time_t> > badClientConnectIPList;
 
 	ServerSocket *serverSocketAdmin;
+	MasterSlaveThreadController masterController;
 
 public:
 	ServerInterface(bool publishEnabled);

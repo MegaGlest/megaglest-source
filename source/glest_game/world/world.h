@@ -143,6 +143,8 @@ private:
 
 	const XmlNode *loadWorldNode;
 
+	MasterSlaveThreadController masterController;
+
 public:
 	World();
 	~World();

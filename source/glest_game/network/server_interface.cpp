@@ -243,6 +243,8 @@ ServerInterface::~ServerInterface() {
 	//printf("===> Destructor for ServerInterface\n");
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	masterController.clearSlaves(true);
 	exitServer = true;
 	for(int i= 0; i < GameConstants::maxPlayers; ++i) {
 		if(slots[i] != NULL) {
@@ -826,25 +828,6 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 	return clientLagExceededOrWarned;
 }
 
-bool ServerInterface::signalClientReceiveCommands(ConnectionSlot *connectionSlot, int slotIndex, bool socketTriggered, ConnectionSlotEvent & event) {
-	bool slotSignalled 		= false;
-
-	event.eventType 		= eReceiveSocketData;
-	event.networkMessage 	= NULL;
-	event.connectionSlot 	= connectionSlot;
-	event.socketTriggered 	= socketTriggered;
-	event.triggerId 		= slotIndex;
-	event.eventId 			= getNextEventId();
-
-	if(connectionSlot != NULL) {
-		if(socketTriggered == true || connectionSlot->isConnected() == false) {
-			connectionSlot->signalUpdate(&event);
-			slotSignalled = true;
-		}
-	}
-	return slotSignalled;
-}
-
 void ServerInterface::updateSocketTriggeredList(std::map<PLATFORM_SOCKET,bool> & socketTriggeredList) {
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 		MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
@@ -868,51 +851,97 @@ void ServerInterface::validateConnectedClients() {
 	}
 }
 
+bool ServerInterface::signalClientReceiveCommands(ConnectionSlot *connectionSlot,
+		int slotIndex, bool socketTriggered, ConnectionSlotEvent & event) {
+	bool slotSignalled 		= false;
+
+	event.eventType 		= eReceiveSocketData;
+	event.networkMessage 	= NULL;
+	event.connectionSlot 	= connectionSlot;
+	event.socketTriggered 	= socketTriggered;
+	event.triggerId 		= slotIndex;
+	event.eventId 			= getNextEventId();
+
+	if(connectionSlot != NULL) {
+		if(socketTriggered == true || connectionSlot->isConnected() == false) {
+			connectionSlot->signalUpdate(&event);
+			slotSignalled = true;
+		}
+	}
+	return slotSignalled;
+}
+
 void ServerInterface::signalClientsToRecieveData(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList,
 												 std::map<int,ConnectionSlotEvent> &eventList,
 												 std::map<int,bool> & mapSlotSignalledList) {
-	//bool checkForNewClients = true;
-	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
-		MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
-		ConnectionSlot* connectionSlot = slots[i];
+	const bool newThreadManager = Config::getInstance().getBool("EnableNewThreadManager","false");
+	if(newThreadManager == true) {
+		masterController.clearSlaves(true);
+		std::vector<SlaveThreadControllerInterface *> slaveThreadList;
+		for(unsigned int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
+			MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
+			ConnectionSlot* connectionSlot = slots[i];
 
-		bool socketTriggered = false;
+			bool socketTriggered = false;
 
-		if(connectionSlot != NULL) {
-			PLATFORM_SOCKET clientSocket = connectionSlot->getSocketId();
-			if(Socket::isSocketValid(&clientSocket)) {
-				socketTriggered = socketTriggeredList[clientSocket];
+			if(connectionSlot != NULL) {
+				PLATFORM_SOCKET clientSocket = connectionSlot->getSocketId();
+				if(Socket::isSocketValid(&clientSocket)) {
+					socketTriggered = socketTriggeredList[clientSocket];
+				}
+			}
+			ConnectionSlotEvent &event = eventList[i];
+			if(connectionSlot != NULL) {
+				if(socketTriggered == true || connectionSlot->isConnected() == false) {
+					ConnectionSlotEvent &event = eventList[i];
+					event.eventType 		= eReceiveSocketData;
+					event.networkMessage 	= NULL;
+					event.connectionSlot 	= connectionSlot;
+					event.socketTriggered 	= socketTriggered;
+					event.triggerId 		= i;
+					event.eventId 			= getNextEventId();
+
+					slaveThreadList.push_back(connectionSlot->getWorkerThread());
+					mapSlotSignalledList[i] = true;
+				}
 			}
 		}
-		ConnectionSlotEvent &event = eventList[i];
-		mapSlotSignalledList[i] = signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
+		masterController.setSlaves(slaveThreadList);
+		masterController.signalSlaves(&eventList);
+	}
+	else {
+		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
+			MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
+			ConnectionSlot* connectionSlot = slots[i];
+
+			bool socketTriggered = false;
+
+			if(connectionSlot != NULL) {
+				PLATFORM_SOCKET clientSocket = connectionSlot->getSocketId();
+				if(Socket::isSocketValid(&clientSocket)) {
+					socketTriggered = socketTriggeredList[clientSocket];
+				}
+			}
+			ConnectionSlotEvent &event = eventList[i];
+			mapSlotSignalledList[i] = signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
+		}
 	}
 }
 
 void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSignalledList,
 											   std::vector <string> &errorMsgList,
 											   std::map<int,ConnectionSlotEvent> &eventList) {
-	time_t waitForThreadElapsed = time(NULL);
-	std::map<int,bool> slotsCompleted;
-	for(bool threadsDone = false;
-		exitServer == false && threadsDone == false &&
-		difftime((long int)time(NULL),waitForThreadElapsed) < MAX_SLOT_THREAD_WAIT_TIME;) {
-		threadsDone = true;
-		// Examine all threads for completion of delegation
-		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 
-			//printf("===> START slot %d [%p] - About to checkForCompletedClients\n",i,slots[i]);
+	const bool newThreadManager = Config::getInstance().getBool("EnableNewThreadManager","false");
+	if(newThreadManager == true) {
+		bool slavesCompleted = masterController.waitTillSlavesTrigger(1000 * MAX_SLOT_THREAD_WAIT_TIME);
 
+		for(unsigned int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 			MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
 
-			//printf("===> IN slot %d - About to checkForCompletedClients\n",i);
-
 			ConnectionSlot* connectionSlot = slots[i];
-			if(connectionSlot != NULL && mapSlotSignalledList[i] == true &&
-			   slotsCompleted.find(i) == slotsCompleted.end()) {
+			if(connectionSlot != NULL && mapSlotSignalledList[i] == true) {
 				try {
-
-
 					std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
 					// Collect any collected errors from threads
 					if(errorList.empty() == false) {
@@ -924,16 +953,6 @@ void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSigna
 						}
 						connectionSlot->clearThreadErrorList();
 					}
-
-					// Not done waiting for data yet
-					bool updateFinished = (connectionSlot != NULL ? connectionSlot->updateCompleted(&eventList[i]) : true);
-					if(updateFinished == false) {
-						threadsDone = false;
-						break;
-					}
-					else {
-						slotsCompleted[i] = true;
-					}
 				}
 				catch(const exception &ex) {
 					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
@@ -942,8 +961,63 @@ void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSigna
 					errorMsgList.push_back(ex.what());
 				}
 			}
+		}
+		masterController.clearSlaves(true);
+	}
+	else {
+		time_t waitForThreadElapsed = time(NULL);
+		std::map<int,bool> slotsCompleted;
+		for(bool threadsDone = false;
+			exitServer == false && threadsDone == false &&
+			difftime((long int)time(NULL),waitForThreadElapsed) < MAX_SLOT_THREAD_WAIT_TIME;) {
+			threadsDone = true;
+			// Examine all threads for completion of delegation
+			for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 
-			//printf("===> END slot %d - About to checkForCompletedClients\n",i);
+				//printf("===> START slot %d [%p] - About to checkForCompletedClients\n",i,slots[i]);
+
+				MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
+
+				//printf("===> IN slot %d - About to checkForCompletedClients\n",i);
+
+				ConnectionSlot* connectionSlot = slots[i];
+				if(connectionSlot != NULL && mapSlotSignalledList[i] == true &&
+				   slotsCompleted.find(i) == slotsCompleted.end()) {
+					try {
+
+
+						std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
+						// Collect any collected errors from threads
+						if(errorList.empty() == false) {
+							for(int iErrIdx = 0; iErrIdx < errorList.size(); ++iErrIdx) {
+								string &sErr = errorList[iErrIdx];
+								if(sErr != "") {
+									errorMsgList.push_back(sErr);
+								}
+							}
+							connectionSlot->clearThreadErrorList();
+						}
+
+						// Not done waiting for data yet
+						bool updateFinished = (connectionSlot != NULL ? connectionSlot->updateCompleted(&eventList[i]) : true);
+						if(updateFinished == false) {
+							threadsDone = false;
+							break;
+						}
+						else {
+							slotsCompleted[i] = true;
+						}
+					}
+					catch(const exception &ex) {
+						SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] error detected [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+
+						errorMsgList.push_back(ex.what());
+					}
+				}
+
+				//printf("===> END slot %d - About to checkForCompletedClients\n",i);
+			}
 		}
 	}
 }
