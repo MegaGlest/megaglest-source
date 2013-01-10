@@ -100,6 +100,7 @@ void World::cleanup() {
 		factions[i]->end();
 	}
 
+	masterController.clearSlaves(true);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	for(int i= 0; i<factions.size(); ++i){
 		delete factions[i];
@@ -171,6 +172,8 @@ void World::end(){
 	for(int i= 0; i<factions.size(); ++i){
 		factions[i]->end();
 	}
+
+	masterController.clearSlaves(true);
 	for(int i= 0; i<factions.size(); ++i){
 		delete factions[i];
 	}
@@ -422,42 +425,54 @@ void World::updateAllFactionUnits() {
 		faction->clearAproxCanMoveSoonCached();
 	}
 
-	// Signal the faction threads to do any pre-processing
-	for(int i = 0; i < factionCount; ++i) {
-		Faction *faction = getFaction(i);
-		//if(faction == NULL) {
-		//	throw megaglest_runtime_error("faction == NULL");
-		//}
-		faction->signalWorkerThread(frameCount);
-	}
-
-	//sleep(0);
-	bool workThreadsFinished = false;
 	Chrono chrono;
 	chrono.start();
 
-	const int MAX_FACTION_THREAD_WAIT_MILLISECONDS = 20000;
-	for(;chrono.getMillis() < MAX_FACTION_THREAD_WAIT_MILLISECONDS;) {
-		workThreadsFinished = true;
+	const bool newThreadManager = Config::getInstance().getBool("EnableNewThreadManager","false");
+	if(newThreadManager == true) {
+		masterController.signalSlaves(&frameCount);
+		bool slavesCompleted = masterController.waitTillSlavesTrigger(20000);
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED && chrono.getMillis() >= 10) printf("In [%s::%s Line: %d] *** Faction thread preprocessing took [%lld] msecs for %d factions for frameCount = %d slavesCompleted = %d.\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),factionCount,frameCount,slavesCompleted);
+	}
+	else {
+		// Signal the faction threads to do any pre-processing
 		for(int i = 0; i < factionCount; ++i) {
 			Faction *faction = getFaction(i);
 			//if(faction == NULL) {
 			//	throw megaglest_runtime_error("faction == NULL");
 			//}
-			if(faction->isWorkerThreadSignalCompleted(frameCount) == false) {
-				workThreadsFinished = false;
+			faction->signalWorkerThread(frameCount);
+		}
+
+		//sleep(0);
+		bool workThreadsFinished = false;
+		Chrono chrono;
+		chrono.start();
+
+		const int MAX_FACTION_THREAD_WAIT_MILLISECONDS = 20000;
+		for(;chrono.getMillis() < MAX_FACTION_THREAD_WAIT_MILLISECONDS;) {
+			workThreadsFinished = true;
+			for(int i = 0; i < factionCount; ++i) {
+				Faction *faction = getFaction(i);
+				//if(faction == NULL) {
+				//	throw megaglest_runtime_error("faction == NULL");
+				//}
+				if(faction->isWorkerThreadSignalCompleted(frameCount) == false) {
+					workThreadsFinished = false;
+					break;
+				}
+			}
+			if(workThreadsFinished == false) {
+				//sleep(0);
+			}
+			else {
 				break;
 			}
 		}
-		if(workThreadsFinished == false) {
-			//sleep(0);
-		}
-		else {
-			break;
-		}
-	}
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED && chrono.getMillis() >= 10) printf("In [%s::%s Line: %d] *** Faction thread preprocessing took [%lld] msecs for %d factions for frameCount = %d.\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),factionCount,frameCount);
+		if(SystemFlags::VERBOSE_MODE_ENABLED && chrono.getMillis() >= 10) printf("In [%s::%s Line: %d] *** Faction thread preprocessing took [%lld] msecs for %d factions for frameCount = %d.\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),factionCount,frameCount);
+	}
 
 	//units
 	for(int i = 0; i < factionCount; ++i) {
@@ -1702,6 +1717,15 @@ void World::initFactionTypes(GameSettings *gs) {
 		if(getFaction(i)->getTexture()) {
 			stats.setPlayerColor(i,getFaction(i)->getTexture()->getPixmapConst()->getPixel3f(0, 0));
 		}
+	}
+
+	if(Config::getInstance().getBool("EnableNewThreadManager","false") == true) {
+		std::vector<SlaveThreadControllerInterface *> slaveThreadList;
+		for(unsigned int i = 0; i < factions.size(); ++i) {
+			Faction *faction = factions[i];
+			slaveThreadList.push_back(faction->getWorkerThread());
+		}
+		masterController.setSlaves(slaveThreadList);
 	}
 
 	if(loadWorldNode != NULL) {

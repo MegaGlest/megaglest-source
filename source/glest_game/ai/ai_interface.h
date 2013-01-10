@@ -31,13 +31,14 @@ namespace Glest{ namespace Game{
 ///	The AI will interact with the game through this interface
 // =====================================================
 
-class AiInterfaceThread : public BaseThread {
+class AiInterfaceThread : public BaseThread, public SlaveThreadControllerInterface {
 protected:
 
 	AiInterface *aiIntf;
 	Semaphore semTaskSignalled;
 	Mutex *triggerIdMutex;
 	std::pair<int,bool> frameIndex;
+	MasterSlaveThreadController *masterController;
 
 	virtual void setQuitStatus(bool value);
 	virtual void setTaskCompleted(int frameIndex);
@@ -49,6 +50,10 @@ public:
     virtual void execute();
     void signal(int frameIndex);
     bool isSignalCompleted(int frameIndex);
+
+	virtual void setMasterController(MasterSlaveThreadController *master) { masterController = master; }
+	virtual void signalSlave(void *userdata) { signal(*((int *)(userdata))); }
+
 };
 
 class AiInterface {
@@ -87,6 +92,7 @@ public:
 
     void signalWorkerThread(int frameIndex);
     bool isWorkerThreadSignalCompleted(int frameIndex);
+    AiInterfaceThread *getWorkerThread() { return workerThread; }
 
 	//get
 	int getTimer() const		{return timer;}

@@ -94,6 +94,8 @@ public:
 	void p();
 	void v();
 	int getRefCount() const { return refCount; }
+
+	SDL_mutex* getMutex() { return mutex; }
 };
 
 class MutexSafeWrapper {
@@ -190,8 +192,10 @@ public:
 	~Semaphore();
 	void signal();
 	int waitTillSignalled(int waitMilliseconds=-1);
+	bool tryDecrement();
 
 	uint32 getSemValue();
+	void resetSemValue(Uint32 initialValue);
 };
 
 
@@ -313,6 +317,86 @@ public:
 	}
 };
 
+const bool debugMasterSlaveThreadController = false;
+// =====================================================
+//	class Trigger
+// =====================================================
+
+class Trigger {
+private:
+	SDL_cond* trigger;
+	Mutex *mutex;
+
+public:
+	Trigger(Mutex *mutex);
+	~Trigger();
+	void signal(bool allThreads=false);
+	int waitTillSignalled(Mutex *mutex, int waitMilliseconds=-1);
+};
+
+class MasterSlaveThreadController;
+
+class SlaveThreadControllerInterface {
+public:
+	virtual void setMasterController(MasterSlaveThreadController *master) = 0;
+	virtual void signalSlave(void *userdata) = 0;
+};
+
+class MasterSlaveThreadController {
+private:
+	static const int triggerBaseCount = 1;
+
+	Mutex *mutex;
+	Semaphore *slaveTriggerSem;
+	int slaveTriggerCounter;
+
+	std::vector<SlaveThreadControllerInterface *> slaveThreadList;
+
+	void init(std::vector<SlaveThreadControllerInterface *> &newSlaveThreadList);
+public:
+
+	MasterSlaveThreadController();
+	MasterSlaveThreadController(std::vector<SlaveThreadControllerInterface *> &slaveThreadList);
+	~MasterSlaveThreadController();
+
+	void setSlaves(std::vector<SlaveThreadControllerInterface *> &slaveThreadList);
+	void clearSlaves(bool clearListOnly=false);
+
+	void signalSlaves(void *userdata);
+	void triggerMaster(int waitMilliseconds=-1);
+	bool waitTillSlavesTrigger(int waitMilliseconds=-1);
+
+};
+
+class MasterSlaveThreadControllerSafeWrapper {
+protected:
+	MasterSlaveThreadController *master;
+	string ownerId;
+	int waitMilliseconds;
+
+public:
+
+	MasterSlaveThreadControllerSafeWrapper(MasterSlaveThreadController *master, int waitMilliseconds=-1, string ownerId="") {
+		if(debugMasterSlaveThreadController) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		this->master = master;
+		this->waitMilliseconds = waitMilliseconds;
+		this->ownerId = ownerId;
+
+		if(debugMasterSlaveThreadController) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+	~MasterSlaveThreadControllerSafeWrapper() {
+		if(debugMasterSlaveThreadController) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		if(master != NULL) {
+			if(debugMasterSlaveThreadController) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			master->triggerMaster(this->waitMilliseconds);
+		}
+
+		if(debugMasterSlaveThreadController) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+};
 
 }}//end namespace
 

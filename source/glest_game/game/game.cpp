@@ -378,6 +378,7 @@ Game::~Game() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+	masterController.clearSlaves(true);
 	deleteValues(aiInterfaces.begin(), aiInterfaces.end());
 	aiInterfaces.clear();
 
@@ -1133,8 +1134,10 @@ void Game::init(bool initForPreviewOnly) {
 		bool isNetworkGame 				= this->gameSettings.isNetworkGame();
 		role 							= networkManager.getNetworkRole();
 
+		masterController.clearSlaves(true);
 		deleteValues(aiInterfaces.begin(), aiInterfaces.end());
 
+		std::vector<SlaveThreadControllerInterface *> slaveThreadList;
 		aiInterfaces.resize(world.getFactionCount());
 		for(int i=0; i < world.getFactionCount(); ++i) {
 			Faction *faction= world.getFaction(i);
@@ -1146,14 +1149,18 @@ void Game::init(bool initForPreviewOnly) {
 				char szBuf[8096]="";
 				snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
 				logger.add(szBuf, true);
+
+				slaveThreadList.push_back(aiInterfaces[i]->getWorkerThread());
 			}
 			else {
 				aiInterfaces[i]= NULL;
 			}
 		}
+		if(Config::getInstance().getBool("EnableNewThreadManager","false") == true) {
+			masterController.setSlaves(slaveThreadList);
+		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
 
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
@@ -1525,55 +1532,63 @@ void Game::update() {
 						}
 						*/
 
-						// Signal the faction threads to do any pre-processing
-						bool hasAIPlayer = false;
-						for(int j = 0; j < world.getFactionCount(); ++j) {
-							Faction *faction = world.getFaction(j);
+						const bool newThreadManager = Config::getInstance().getBool("EnableNewThreadManager","false");
+						if(newThreadManager == true) {
+							int currentFrameCount = world.getFrameCount();
+							masterController.signalSlaves(&currentFrameCount);
+							bool slavesCompleted = masterController.waitTillSlavesTrigger(20000);
+						}
+						else {
+							// Signal the faction threads to do any pre-processing
+							bool hasAIPlayer = false;
+							for(int j = 0; j < world.getFactionCount(); ++j) {
+								Faction *faction = world.getFaction(j);
 
-							//printf("Faction Index = %d enableServerControlledAI = %d, isNetworkGame = %d, role = %d isCPU player = %d scriptManager.getPlayerModifiers(j)->getAiEnabled() = %d\n",j,enableServerControlledAI,isNetworkGame,role,faction->getCpuControl(enableServerControlledAI,isNetworkGame,role),scriptManager.getPlayerModifiers(j)->getAiEnabled());
+								//printf("Faction Index = %d enableServerControlledAI = %d, isNetworkGame = %d, role = %d isCPU player = %d scriptManager.getPlayerModifiers(j)->getAiEnabled() = %d\n",j,enableServerControlledAI,isNetworkGame,role,faction->getCpuControl(enableServerControlledAI,isNetworkGame,role),scriptManager.getPlayerModifiers(j)->getAiEnabled());
 
-							if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
-								scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
+								if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
+									scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
 
-								if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [before AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
-								aiInterfaces[j]->signalWorkerThread(world.getFrameCount());
-								hasAIPlayer = true;
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [before AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
+									aiInterfaces[j]->signalWorkerThread(world.getFrameCount());
+									hasAIPlayer = true;
+								}
 							}
-						}
 
-						if(showPerfStats) {
-							sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
-							perfList.push_back(perfBuf);
-						}
+							if(showPerfStats) {
+								sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+								perfList.push_back(perfBuf);
+							}
 
-						if(hasAIPlayer == true) {
-							//sleep(0);
+							if(hasAIPlayer == true) {
+								//sleep(0);
 
-							bool workThreadsFinished = false;
-							Chrono chronoAI;
-							chronoAI.start();
+								bool workThreadsFinished = false;
+								Chrono chronoAI;
+								chronoAI.start();
 
-							const int MAX_FACTION_THREAD_WAIT_MILLISECONDS = 20000;
-							for(;chronoAI.getMillis() < MAX_FACTION_THREAD_WAIT_MILLISECONDS;) {
-								workThreadsFinished = true;
-								for(int j = 0; j < world.getFactionCount(); ++j) {
-									Faction *faction = world.getFaction(j);
-									if(faction == NULL) {
-										throw megaglest_runtime_error("faction == NULL");
-									}
-									if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
-										scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
-										if(aiInterfaces[j]->isWorkerThreadSignalCompleted(world.getFrameCount()) == false) {
-											workThreadsFinished = false;
-											break;
+								const int MAX_FACTION_THREAD_WAIT_MILLISECONDS = 20000;
+								for(;chronoAI.getMillis() < MAX_FACTION_THREAD_WAIT_MILLISECONDS;) {
+									workThreadsFinished = true;
+									for(int j = 0; j < world.getFactionCount(); ++j) {
+										Faction *faction = world.getFaction(j);
+										if(faction == NULL) {
+											throw megaglest_runtime_error("faction == NULL");
+										}
+										if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
+											scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
+											if(aiInterfaces[j]->isWorkerThreadSignalCompleted(world.getFrameCount()) == false) {
+												workThreadsFinished = false;
+												break;
+											}
 										}
 									}
-								}
-								if(workThreadsFinished == false) {
-									//sleep(0);
-								}
-								else {
-									break;
+									if(workThreadsFinished == false) {
+										//sleep(0);
+									}
+									else {
+										break;
+									}
 								}
 							}
 						}
@@ -1824,6 +1839,8 @@ void Game::update() {
 				world.clearTileset();
 
 				SoundRenderer::getInstance().stopAllSounds();
+
+				masterController.clearSlaves(true);
 				deleteValues(aiInterfaces.begin(), aiInterfaces.end());
 				aiInterfaces.clear();
 				gui.end();		//selection must be cleared before deleting units
@@ -2092,6 +2109,7 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 		Logger &logger= Logger::getInstance();
 		ServerInterface *server = NetworkManager::getInstance().getServerInterface();
 
+		bool newAIPlayerCreated = false;
 		for(int i = 0; i < world.getFactionCount(); ++i) {
 			Faction *faction = world.getFaction(i);
 			if(	faction->getFactionDisconnectHandled() == false &&
@@ -2123,6 +2141,8 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 						snprintf(szBuf,8096,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 
 						commander.tryNetworkPlayerDisconnected(i);
+
+						newAIPlayerCreated = true;
 					}
 					else {
 						string msg = "Player #%d [%s] has disconnected, but player was only an observer!";
@@ -2139,6 +2159,21 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 					}
 				}
 			}
+		}
+
+		if(newAIPlayerCreated == true && Config::getInstance().getBool("EnableNewThreadManager","false") == true) {
+			bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
+
+			masterController.clearSlaves(true);
+
+			std::vector<SlaveThreadControllerInterface *> slaveThreadList;
+			for(int i=0; i < world.getFactionCount(); ++i) {
+				Faction *faction= world.getFaction(i);
+				if(faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true) {
+					slaveThreadList.push_back(aiInterfaces[i]->getWorkerThread());
+				}
+			}
+			masterController.setSlaves(slaveThreadList);
 		}
 	}
 }

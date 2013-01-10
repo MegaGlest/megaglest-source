@@ -196,6 +196,8 @@ private:
 
 	std::map<int,HighlightSpecialUnitInfo> unitHighlightList;
 
+	MasterSlaveThreadController masterController;
+
 public:
 	Game();
     Game(Program *program, const GameSettings *gameSettings, bool masterserverMode);

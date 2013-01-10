@@ -33,6 +33,7 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 ConnectionSlotThread::ConnectionSlotThread(int slotIndex) : BaseThread() {
+	this->masterController = NULL;
 	this->triggerIdMutex = new Mutex();
 	this->slotIndex = slotIndex;
 	this->slotInterface = NULL;
@@ -42,6 +43,7 @@ ConnectionSlotThread::ConnectionSlotThread(int slotIndex) : BaseThread() {
 }
 
 ConnectionSlotThread::ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex) : BaseThread() {
+	this->masterController = NULL;
 	this->triggerIdMutex = new Mutex();
 	this->slotIndex = slotIndex;
 	this->slotInterface = slotInterface;
@@ -164,6 +166,14 @@ void ConnectionSlotThread::slotUpdateTask(ConnectionSlotEvent *event) {
 	}
 }
 
+void ConnectionSlotThread::signalSlave(void *userdata) {
+
+	//ConnectionSlotEvent &event = eventList[i];
+	std::map<int,ConnectionSlotEvent> *eventList = (std::map<int,ConnectionSlotEvent> *)userdata;
+	ConnectionSlotEvent &event = (*eventList)[slotIndex];
+	signalUpdate(&event);
+}
+
 void ConnectionSlotThread::execute() {
     RunningStatusSafeWrapper runningStatus(this);
 	try {
@@ -178,6 +188,9 @@ void ConnectionSlotThread::execute() {
 			}
 
 			semTaskSignalled.waitTillSignalled();
+
+			static string masterSlaveOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+			MasterSlaveThreadControllerSafeWrapper safeMasterController(masterController,20000,masterSlaveOwnerId);
 
 			if(getQuitStatus() == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

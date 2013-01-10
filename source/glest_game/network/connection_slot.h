@@ -70,7 +70,7 @@ public:
 	virtual ~ConnectionSlotCallbackInterface() {}
 };
 
-class ConnectionSlotThread : public BaseThread
+class ConnectionSlotThread : public BaseThread, public SlaveThreadControllerInterface
 {
 protected:
 
@@ -79,6 +79,7 @@ protected:
 	Mutex *triggerIdMutex;
 	vector<ConnectionSlotEvent> eventList;
 	int slotIndex;
+	MasterSlaveThreadController *masterController;
 
 	virtual void setQuitStatus(bool value);
 	virtual void setTaskCompleted(int eventId);
@@ -90,6 +91,9 @@ public:
 	ConnectionSlotThread(int slotIndex);
 	ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex);
 	virtual ~ConnectionSlotThread();
+
+	virtual void setMasterController(MasterSlaveThreadController *master) { masterController = master; }
+	virtual void signalSlave(void *userdata);
 
     virtual void execute();
     void signalUpdate(ConnectionSlotEvent *event);
@@ -139,6 +143,8 @@ private:
 public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
 	~ConnectionSlot();
+
+	ConnectionSlotThread *getWorkerThread() { return slotThreadWorker; }
 
     void update(bool checkForNewClients,int lockedSlotIndex);
 	void setPlayerIndex(int value) { playerIndex = value; }
