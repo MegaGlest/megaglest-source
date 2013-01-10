@@ -154,7 +154,21 @@ void ClientInterface::update() {
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
-	bool wasConncted = this->isConnected();
+	bool wasConnected = this->isConnected();
+	if(wasConnected == false) {
+		string playerNameStr = getHumanPlayerName();
+
+    	Lang &lang= Lang::getInstance();
+
+		char szBuf1[8096]="";
+		string statusTextFormat= lang.get("PlayerDisconnected");
+		snprintf(szBuf1,8096,statusTextFormat.c_str(),playerNameStr.c_str());
+
+    	//string sErr = "Disconnected from server during intro handshake.";
+		DisplayErrorMessage(szBuf1);
+        quit= true;
+        return;
+	}
 	try {
 		NetworkMessageCommandList networkMessageCommandList(currentFrameCount);
 
@@ -198,7 +212,7 @@ void ClientInterface::update() {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
-			if(wasConncted == false) {
+			if(wasConnected == false) {
 				string sErr = string(extractFileFromDirectoryPath(__FILE__).c_str()) + "::" + string(__FUNCTION__) + " network error: " + string(ex.what());
 				DisplayErrorMessage(sErr);
 			}
