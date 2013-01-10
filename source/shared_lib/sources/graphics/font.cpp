@@ -11,6 +11,7 @@
 
 #include "font.h"
 #include <stdexcept>
+#include <string.h>
 #include "conversion.h"
 
 #ifdef USE_FTGL
