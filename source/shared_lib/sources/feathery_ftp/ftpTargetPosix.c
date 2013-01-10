@@ -211,8 +211,10 @@ int ftpSend(socket_t s, const void *data, int len)
 	{
 #if defined(__APPLE__) && defined(SO_NOSIGPIPE)
 		currLen = send(s, data, len, SO_NOSIGPIPE);
-#else
+#elif defined(MSG_NOSIGNAL)
         currLen = send(s, data, len, MSG_NOSIGNAL);
+#else
+        currLen = send(s, data, len, 0);
 #endif
 
 		if(currLen >= 0)
