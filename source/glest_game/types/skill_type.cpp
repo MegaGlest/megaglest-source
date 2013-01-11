@@ -373,8 +373,14 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	name= sn->getChild("name")->getAttribute("value")->getRestrictedValue();
 
 	//ep cost
-	mpCost= sn->getChild("ep-cost")->getAttribute("value")->getIntValue();
-	if (sn->hasChild("hp-cost")) {
+	if(sn->hasChild("ep-cost") == true) {
+		mpCost = sn->getChild("ep-cost")->getAttribute("value")->getIntValue();
+	}
+	else {
+		mpCost = 0;
+	}
+
+	if (sn->hasChild("hp-cost") == true) {
 		hpCost = sn->getChild("hp-cost")->getAttribute("value")->getIntValue();
 	}
 	else {
@@ -382,10 +388,20 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	}
 
 	//speed
-	speed= sn->getChild("speed")->getAttribute("value")->getIntValue();
+	if(sn->hasChild("speed") == true) {
+		speed = sn->getChild("speed")->getAttribute("value")->getIntValue();
+	}
+	else {
+		speed = 0;
+	}
 
 	//anim speed
-	animSpeed= sn->getChild("anim-speed")->getAttribute("value")->getIntValue();
+	if(sn->hasChild("anim-speed") == true) {
+		animSpeed = sn->getChild("anim-speed")->getAttribute("value")->getIntValue();
+	}
+	else {
+		animSpeed = 0;
+	}
 
 	//model
 	string currentPath = dir;
@@ -397,35 +413,37 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 		animationRandomCycleMaxcount = randomCycleCountNode->getAttribute("value")->getIntValue();
 	}
 
-	//string path= sn->getChild("animation")->getAttribute("path")->getRestrictedValue(currentPath);
-	vector<XmlNode *> animationList = sn->getChildList("animation");
-	for(unsigned int i = 0; i < animationList.size(); ++i) {
-		string path= animationList[i]->getAttribute("path")->getRestrictedValue(currentPath);
-		if(fileExists(path) == true) {
-			Model *animation= Renderer::getInstance().newModel(rsGame);
-			if(animation) {
-				animation->load(path, false, &loadedFileList, &parentLoader);
-			}
-			loadedFileList[path].push_back(make_pair(parentLoader,animationList[i]->getAttribute("path")->getRestrictedValue()));
+	if(sn->hasChild("animation") == true) {
+		//string path= sn->getChild("animation")->getAttribute("path")->getRestrictedValue(currentPath);
+		vector<XmlNode *> animationList = sn->getChildList("animation");
+		for(unsigned int i = 0; i < animationList.size(); ++i) {
+			string path= animationList[i]->getAttribute("path")->getRestrictedValue(currentPath);
+			if(fileExists(path) == true) {
+				Model *animation= Renderer::getInstance().newModel(rsGame);
+				if(animation) {
+					animation->load(path, false, &loadedFileList, &parentLoader);
+				}
+				loadedFileList[path].push_back(make_pair(parentLoader,animationList[i]->getAttribute("path")->getRestrictedValue()));
 
-			animations.push_back(animation);
-			//printf("**FOUND ANIMATION [%s]\n",path.c_str());
+				animations.push_back(animation);
+				//printf("**FOUND ANIMATION [%s]\n",path.c_str());
 
-			AnimationAttributes animationAttributeList;
-			if(animationList[i]->getAttribute("minHp",false) != NULL && animationList[i]->getAttribute("maxHp",false) != NULL) {
-				animationAttributeList.fromHp = animationList[i]->getAttribute("minHp")->getIntValue();
-				animationAttributeList.toHp = animationList[i]->getAttribute("maxHp")->getIntValue();
+				AnimationAttributes animationAttributeList;
+				if(animationList[i]->getAttribute("minHp",false) != NULL && animationList[i]->getAttribute("maxHp",false) != NULL) {
+					animationAttributeList.fromHp = animationList[i]->getAttribute("minHp")->getIntValue();
+					animationAttributeList.toHp = animationList[i]->getAttribute("maxHp")->getIntValue();
+				}
+				animationAttributes.push_back(animationAttributeList);
 			}
-			animationAttributes.push_back(animationAttributeList);
+			else {
+				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] WARNING CANNOT LOAD MODEL [%s] for parentLoader [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),parentLoader.c_str());
+			}
 		}
-		else {
-			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] WARNING CANNOT LOAD MODEL [%s] for parentLoader [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str(),parentLoader.c_str());
+		if(animations.empty() == true) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"Error no animations found for skill [%s] for parentLoader [%s]",name.c_str(),parentLoader.c_str());
+			throw megaglest_runtime_error(szBuf);
 		}
-	}
-	if(animations.empty() == true) {
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"Error no animations found for skill [%s] for parentLoader [%s]",name.c_str(),parentLoader.c_str());
-		throw megaglest_runtime_error(szBuf);
 	}
 
 	//particles
@@ -456,18 +474,20 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	}
 
 	//sound
-	const XmlNode *soundNode= sn->getChild("sound");
-	if(soundNode->getAttribute("enabled")->getBoolValue()) {
-		soundStartTime= soundNode->getAttribute("start-time")->getFloatValue();
-		sounds.resize(soundNode->getChildCount());
-		for(int i = 0; i < soundNode->getChildCount(); ++i) {
-			const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
-			string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
+	if(sn->hasChild("sound")) {
+		const XmlNode *soundNode= sn->getChild("sound");
+		if(soundNode->getAttribute("enabled")->getBoolValue()) {
+			soundStartTime= soundNode->getAttribute("start-time")->getFloatValue();
+			sounds.resize(soundNode->getChildCount());
+			for(int i = 0; i < soundNode->getChildCount(); ++i) {
+				const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
+				string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
 
-			StaticSound *sound= new StaticSound();
-			sound->load(path);
-			loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
-			sounds[i]= sound;
+				StaticSound *sound= new StaticSound();
+				sound->load(path);
+				loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
+				sounds[i]= sound;
+			}
 		}
 	}
 
