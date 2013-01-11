@@ -54,19 +54,18 @@ World::World() {
 	ExploredCellsLookupItemCache.clear();
 	ExploredCellsLookupItemCacheTimer.clear();
 	ExploredCellsLookupItemCacheTimerCount = 0;
-	//FowAlphaCellsLookupItemCache.clear();
 	// Disable this cache as it takes too much RAM (not sure if its worth the performance gain)
 	enableFowAlphaCellsLookupItemCache = config.getBool("EnableFowCache","true");
 
 	nextCommandGroupId = 0;
 	techTree = NULL;
 	fogOfWarOverride = false;
+	fogOfWarSkillTypeValue = -1;
 
 	fogOfWarSmoothing= config.getBool("FogOfWarSmoothing");
 	fogOfWarSmoothingFrameSkip= config.getInt("FogOfWarSmoothingFrameSkip");
 
 	MaxExploredCellsLookupItemCache= config.getInt("MaxExploredCellsLookupItemCache",intToStr(MaxExploredCellsLookupItemCache).c_str());
-	//MaxExploredCellsLookupItemCache = 0;
 
 	frameCount= 0;
 	//nextUnitId= 0;
@@ -77,6 +76,7 @@ World::World() {
 	thisFactionIndex=0;
 	thisTeamIndex=0;
 	fogOfWar=false;
+	originalGameFogOfWar = fogOfWar;
 	perfTimerEnabled=false;
 	queuedScenarioName="";
 	queuedScenarioKeepFactions=false;
@@ -151,9 +151,10 @@ void World::endScenario() {
 
     ExploredCellsLookupItemCache.clear();
     ExploredCellsLookupItemCacheTimer.clear();
-    //FowAlphaCellsLookupItemCache.clear();
 
 	fogOfWarOverride = false;
+	originalGameFogOfWar = fogOfWar;
+	fogOfWarSkillTypeValue = -1;
 
 	map.end();
 
@@ -167,7 +168,6 @@ void World::end(){
 
     ExploredCellsLookupItemCache.clear();
     ExploredCellsLookupItemCacheTimer.clear();
-    //FowAlphaCellsLookupItemCache.clear();
 
 	for(int i= 0; i<factions.size(); ++i){
 		factions[i]->end();
@@ -186,6 +186,8 @@ void World::end(){
 #endif
 
 	fogOfWarOverride = false;
+	originalGameFogOfWar = fogOfWar;
+	fogOfWarSkillTypeValue = -1;
 
 	map.end();
 
@@ -195,17 +197,75 @@ void World::end(){
 
 // ========================== init ===============================================
 
-void World::setFogOfWar(bool value) {
-	fogOfWar 		 = value;
-	fogOfWarOverride = true;
+void World::addFogOfWarSkillType(const Unit *unit,const FogOfWarSkillType *fowst) {
+	std::pair<const Unit *,const FogOfWarSkillType *> fowData;
+	fowData.first = unit;
+	fowData.second = fowst;
 
-	if(game != NULL && game->getGameSettings() != NULL) {
-		game->getGameSettings()->setFogOfWar(fogOfWar);
-		initCells(fogOfWar); //must be done after knowing faction number and dimensions
-		//initMinimap();
-		minimap.setFogOfWar(fogOfWar);
-		computeFow();
+	mapFogOfWarUnitList[unit->getId()] = fowData;
+
+	if((fowst->getApplyToTeam() == true && unit->getTeam() == this->getThisTeamIndex()) ||
+		(fowst->getApplyToTeam() == false && unit->getFactionIndex() == this->getThisFactionIndex())) {
+		if((fowst->getFowEnable() == false && fogOfWarSkillTypeValue != 0) ||
+				(fowst->getFowEnable() == true && fogOfWarSkillTypeValue != 1)) {
+
+			//printf("In [%s::%s Line: %d] current = %d new = %d\n",__FILE__,__FUNCTION__,__LINE__,fogOfWar,fowst->getFowEnable());
+			setFogOfWar(fowst->getFowEnable());
+		}
 	}
+}
+void World::removeFogOfWarSkillType(const Unit *unit) {
+	if(mapFogOfWarUnitList.find(unit->getId()) != mapFogOfWarUnitList.end()) {
+		mapFogOfWarUnitList.erase(unit->getId());
+
+		if(mapFogOfWarUnitList.empty() == true) {
+
+			//printf("In [%s::%s Line: %d] current = %d new = %d\n",__FILE__,__FUNCTION__,__LINE__,fogOfWar,originalGameFogOfWar);
+			fogOfWarSkillTypeValue = -1;
+			fogOfWarOverride = false;
+			minimap.restoreFowTex();
+		}
+		else {
+			bool fowEnabled = false;
+			for(std::map<int,std::pair<const Unit *,const FogOfWarSkillType *> >::const_iterator iterMap = mapFogOfWarUnitList.begin();
+					iterMap != mapFogOfWarUnitList.end(); ++iterMap) {
+
+				const Unit *unit 				= iterMap->second.first;
+				const FogOfWarSkillType *fowst 	= iterMap->second.second;
+
+				if((fowst->getApplyToTeam() == true && unit->getTeam() == this->getThisTeamIndex()) ||
+					(fowst->getApplyToTeam() == false && unit->getFactionIndex() == this->getThisFactionIndex())) {
+					if(fowst->getFowEnable() == true) {
+						fowEnabled = true;
+						break;
+					}
+				}
+			}
+
+			if((fowEnabled == false && fogOfWarSkillTypeValue != 0) ||
+					(fowEnabled == true && fogOfWarSkillTypeValue != 1)) {
+				//printf("In [%s::%s Line: %d] current = %d new = %d\n",__FILE__,__FUNCTION__,__LINE__,fogOfWar,fowEnabled);
+				setFogOfWar(fowEnabled);
+			}
+		}
+	}
+}
+
+void World::setFogOfWar(bool value) {
+	//printf("In [%s::%s Line: %d] current = %d new = %d\n",__FILE__,__FUNCTION__,__LINE__,fogOfWar,value);
+
+	if(fogOfWarOverride == false) {
+		minimap.copyFowTex();
+	}
+
+	if(value == true) {
+		fogOfWarSkillTypeValue = 1;
+	}
+	else {
+		fogOfWarSkillTypeValue = 0;
+	}
+
+	fogOfWarOverride = true;
 }
 
 void World::clearTileset() {
@@ -218,7 +278,6 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 
 	ExploredCellsLookupItemCache.clear();
 	ExploredCellsLookupItemCacheTimer.clear();
-	//FowAlphaCellsLookupItemCache.clear();
 
 	this->game = game;
 	scriptManager= game->getScriptManager();
@@ -227,6 +286,7 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 	if(fogOfWarOverride == false) {
 		fogOfWar = gs->getFogOfWar();
 	}
+	originalGameFogOfWar = fogOfWar;
 
 	if(loadWorldNode != NULL) {
 		timeFlow.loadGame(loadWorldNode);
@@ -418,9 +478,6 @@ void World::updateAllFactionUnits() {
 	// Clear pathfinder list restrictions
 	for(int i = 0; i < factionCount; ++i) {
 		Faction *faction = getFaction(i);
-		//if(faction == NULL) {
-		//	throw megaglest_runtime_error("faction == NULL");
-		//}
 		faction->clearUnitsPathfinding();
 		faction->clearAproxCanMoveSoonCached();
 	}
@@ -439,13 +496,9 @@ void World::updateAllFactionUnits() {
 		// Signal the faction threads to do any pre-processing
 		for(int i = 0; i < factionCount; ++i) {
 			Faction *faction = getFaction(i);
-			//if(faction == NULL) {
-			//	throw megaglest_runtime_error("faction == NULL");
-			//}
 			faction->signalWorkerThread(frameCount);
 		}
 
-		//sleep(0);
 		bool workThreadsFinished = false;
 		Chrono chrono;
 		chrono.start();
@@ -455,18 +508,12 @@ void World::updateAllFactionUnits() {
 			workThreadsFinished = true;
 			for(int i = 0; i < factionCount; ++i) {
 				Faction *faction = getFaction(i);
-				//if(faction == NULL) {
-				//	throw megaglest_runtime_error("faction == NULL");
-				//}
 				if(faction->isWorkerThreadSignalCompleted(frameCount) == false) {
 					workThreadsFinished = false;
 					break;
 				}
 			}
-			if(workThreadsFinished == false) {
-				//sleep(0);
-			}
-			else {
+			if(workThreadsFinished == true) {
 				break;
 			}
 		}
@@ -477,9 +524,6 @@ void World::updateAllFactionUnits() {
 	//units
 	for(int i = 0; i < factionCount; ++i) {
 		Faction *faction = getFaction(i);
-		//if(faction == NULL) {
-		//	throw megaglest_runtime_error("faction == NULL");
-		//}
 		faction->clearUnitsPathfinding();
 
 		int unitCount = faction->getUnitCount();
@@ -512,9 +556,6 @@ void World::underTakeDeadFactionUnits() {
 	for(int i = 0; i< factionCount; ++i) {
 		if(factionIdxToTick == -1 || factionIdxToTick == i) {
 			Faction *faction = getFaction(i);
-			if(faction == NULL) {
-				throw megaglest_runtime_error("faction == NULL");
-			}
 			int unitCount = faction->getUnitCount();
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] factionIdxToTick = %d, i = %d, unitCount = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdxToTick,i,unitCount);
 
@@ -528,7 +569,6 @@ void World::underTakeDeadFactionUnits() {
 				if(unit->getToBeUndertaken() == true) {
 					unit->undertake();
 					delete unit;
-					//j--;
 				}
 			}
 		}
@@ -581,14 +621,6 @@ void World::update() {
 		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
 		perfList.push_back(perfBuf);
 	}
-
-	//bool needToUpdateUnits = true;
-	//if(staggeredFactionUpdates == true) {
-	//	needToUpdateUnits = (frameCount % (GameConstants::updateFps / GameConstants::maxPlayers) == 0);
-	//}
-
-	//if(needToUpdateUnits == true) {
-	//	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] needToUpdateUnits = %d, frameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,needToUpdateUnits,frameCount);
 
 	// objects on the map from tilesets
 	updateAllTilesetObjects();
@@ -737,7 +769,6 @@ void World::tick() {
 	}
 
 	//increase hp
-	//int i = factionIdxToTick;
 	int factionCount = getFactionCount();
 	for(int i = 0; i < factionCount; ++i) {
 		if(factionIdxToTick == -1 || i == factionIdxToTick) {
@@ -761,7 +792,6 @@ void World::tick() {
 	}
 
 	//compute resources balance
-	//int k = factionIdxToTick;
 	factionCount = getFactionCount();
 	for(int k = 0; k < factionCount; ++k) {
 		if(factionIdxToTick == -1 || k == factionIdxToTick) {
@@ -870,7 +900,6 @@ void World::moveUnitCells(Unit *unit) {
 	Vec2i newPos= unit->getTargetPos();
 
 	//newPos must be free or the same pos as current
-	//assert(map.getCell(unit->getPos())->getUnit(unit->getCurrField())==unit || map.isFreeCell(newPos, unit->getCurrField()));
 
 	// Only change cell placement in map if the new position is different
 	// from the old one
@@ -1466,13 +1495,10 @@ void World::setUnitPosition(int unitId, Vec2i pos) {
 		throw megaglest_runtime_error("Can not find unit to set position unitId = " + intToStr(unitId));
 	}
 	unit->setTargetPos(pos);
-	//unit->setPos(pos,true);
 	this->moveUnitCells(unit);
 }
 
 void World::addCellMarker(Vec2i pos, int factionIndex, const string &note, const string textureFile) {
-	//Vec2i surfaceCellPos = map.toSurfCoords(pos);
-	//Vec2i surfaceCellPos = pos;
 	const Faction *faction = NULL;
 	if(factionIndex >= 0) {
 		faction = this->getFaction(factionIndex);
@@ -1493,8 +1519,6 @@ void World::addCellMarker(Vec2i pos, int factionIndex, const string &note, const
 }
 
 void World::removeCellMarker(Vec2i pos, int factionIndex) {
-	//Vec2i surfaceCellPos = map.toSurfCoords(pos);
-	//Vec2i surfaceCellPos = pos;
 	const Faction *faction = NULL;
 	if(factionIndex >= 0) {
 		faction = this->getFaction(factionIndex);
@@ -1506,8 +1530,6 @@ void World::removeCellMarker(Vec2i pos, int factionIndex) {
 }
 
 void World::showMarker(Vec2i pos, int factionIndex, const string &note, const string textureFile, int flashCount) {
-	//Vec2i surfaceCellPos = map.toSurfCoords(pos);
-	//Vec2i surfaceCellPos = pos;
 	const Faction *faction = NULL;
 	if(factionIndex >= 0) {
 		faction = this->getFaction(factionIndex);
@@ -2076,9 +2098,13 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
     }
 }
 
-bool World::showWorldForPlayer(int factionIndex) const {
+bool World::showWorldForPlayer(int factionIndex, bool excludeFogOfWarCheck) const {
     bool ret = false;
-    if(factionIndex == thisFactionIndex && game != NULL) {
+
+	if(excludeFogOfWarCheck == false && fogOfWarSkillTypeValue == 0 && fogOfWarOverride == true) {
+		ret = true;
+	}
+	else if(factionIndex == thisFactionIndex && game != NULL) {
         // Player is an Observer
         if(thisTeamIndex == GameConstants::maxPlayers -1 + fpt_Observer) {
             ret = true;
@@ -2249,14 +2275,10 @@ void World::computeFow(int factionIdxToTick) {
 	}
 
 	//compute texture
-	//printf("Masterserver = %d\n",game->isMasterserverMode());
-
-	//if(fogOfWar == true && game->isMasterserverMode() == false) {
 	if(fogOfWar == true) {
 		for(int i=0; i<getFactionCount(); ++i) {
 			Faction *faction= getFaction(i);
 			if(faction->getTeam() == thisTeamIndex) {
-				//if(thisTeamIndex == GameConstants::maxPlayers + fpt_Observer) {
 				for(int j=0; j<faction->getUnitCount(); ++j){
 					const Unit *unit= faction->getUnit(j);
 					if(unit->isOperative()){
@@ -2268,7 +2290,7 @@ void World::computeFow(int factionIdxToTick) {
 								const Vec2i &surfPos = cellList.surfPosList[k];
 								const float &alpha = cellList.alphaList[k];
 
-								minimap.incFowTextureAlphaSurface(surfPos, alpha);
+								minimap.incFowTextureAlphaSurface(surfPos, alpha, true);
 							}
 						}
 						else {
@@ -2277,69 +2299,9 @@ void World::computeFow(int factionIdxToTick) {
 								const Vec2i &surfPos = cellList.surfPosList[k];
 								const float &alpha = cellList.alphaList[k];
 
-								minimap.incFowTextureAlphaSurface(surfPos, alpha);
+								minimap.incFowTextureAlphaSurface(surfPos, alpha, true);
 							}
 						}
-
-						/*
-						bool foundInCache = false;
-						if(enableFowAlphaCellsLookupItemCache == true) {
-							std::map<Vec2i, std::map<int, FowAlphaCellsLookupItem > >::iterator iterMap = FowAlphaCellsLookupItemCache.find(unit->getPos());
-							if(iterMap != FowAlphaCellsLookupItemCache.end()) {
-								std::map<int, FowAlphaCellsLookupItem>::iterator iterMap2 = iterMap->second.find(sightRange);
-								if(iterMap2 != iterMap->second.end()) {
-									foundInCache = true;
-
-									FowAlphaCellsLookupItem &cellList = iterMap2->second;
-									for(int k = 0; k < cellList.surfPosList.size(); ++k) {
-										Vec2i &surfPos = cellList.surfPosList[k];
-										float &alpha = cellList.alphaList[k];
-
-										minimap.incFowTextureAlphaSurface(surfPos, alpha);
-									}
-								}
-							}
-						}
-
-						if(foundInCache == false) {
-							FowAlphaCellsLookupItem itemCache;
-
-							//iterate through all cells
-							PosCircularIterator pci(&map, unit->getPos(), sightRange+indirectSightRange);
-							while(pci.next()){
-								const Vec2i pos= pci.getPos();
-								Vec2i surfPos= Map::toSurfCoords(pos);
-
-								//compute max alpha
-								float maxAlpha= 0.0f;
-								if(surfPos.x>1 && surfPos.y>1 && surfPos.x<map.getSurfaceW()-2 && surfPos.y<map.getSurfaceH()-2){
-									maxAlpha= 1.f;
-								}
-								else if(surfPos.x>0 && surfPos.y>0 && surfPos.x<map.getSurfaceW()-1 && surfPos.y<map.getSurfaceH()-1){
-									maxAlpha= 0.3f;
-								}
-
-								//compute alpha
-								float alpha=maxAlpha;
-								float dist= unit->getPos().dist(pos);
-								if(dist>sightRange){
-									alpha= clamp(1.f-(dist-sightRange)/(indirectSightRange), 0.f, maxAlpha);
-								}
-								minimap.incFowTextureAlphaSurface(surfPos, alpha);
-
-								if(enableFowAlphaCellsLookupItemCache == true) {
-									itemCache.surfPosList.push_back(surfPos);
-									itemCache.alphaList.push_back(alpha);
-								}
-							}
-
-							if(enableFowAlphaCellsLookupItemCache == true) {
-								if(itemCache.surfPosList.empty() == false) {
-									FowAlphaCellsLookupItemCache[unit->getPos()][sightRange] = itemCache;
-								}
-							}
-						}
-						*/
 					}
 				}
 			}
@@ -2356,7 +2318,6 @@ void World::computeFow(int factionIdxToTick) {
 			printf("%s",perfList[x].c_str());
 		}
 	}
-
 }
 
 GameSettings * World::getGameSettingsPtr() {
@@ -2416,7 +2377,6 @@ string World::getExploredCellsLookupItemCacheStats() {
 	int exploredCellCount = 0;
 	int visibleCellCount = 0;
 
-	//std::map<Vec2i, std::map<int, ExploredCellsLookupItem > > ExploredCellsLookupItemCache;
 	for(std::map<Vec2i, std::map<int, ExploredCellsLookupItem > >::iterator iterMap1 = ExploredCellsLookupItemCache.begin();
 		iterMap1 != ExploredCellsLookupItemCache.end(); ++iterMap1) {
 		posCount++;
@@ -2449,19 +2409,6 @@ string World::getFowAlphaCellsLookupItemCacheStats() {
 	int surfPosCount = 0;
 	int alphaListCount = 0;
 
-	//std::map<Vec2i, std::map<int, FowAlphaCellsLookupItem > > FowAlphaCellsLookupItemCache;
-//	for(std::map<Vec2i, std::map<int, FowAlphaCellsLookupItem > >::iterator iterMap1 = FowAlphaCellsLookupItemCache.begin();
-//		iterMap1 != FowAlphaCellsLookupItemCache.end(); ++iterMap1) {
-//		posCount++;
-//
-//		for(std::map<int, FowAlphaCellsLookupItem >::iterator iterMap2 = iterMap1->second.begin();
-//			iterMap2 != iterMap1->second.end(); ++iterMap2) {
-//			sightCount++;
-//
-//			surfPosCount += iterMap2->second.surfPosList.size();
-//			alphaListCount += iterMap2->second.alphaList.size();
-//		}
-//	}
 	for(int i=0; i<getFactionCount(); ++i) {
 		Faction *faction= getFaction(i);
 		if(faction->getTeam() == thisTeamIndex) {

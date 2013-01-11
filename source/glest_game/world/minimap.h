@@ -50,6 +50,9 @@ class Minimap{
 private:
 	Pixmap2D *fowPixmap0;
 	Pixmap2D *fowPixmap1;
+	Pixmap2D *fowPixmap0Copy;
+	Pixmap2D *fowPixmap1Copy;
+
 	Texture2D *tex;
 	Texture2D *fowTex;    //Fog Of War Texture2D
 	bool fogOfWar;
@@ -66,10 +69,13 @@ public:
 	const Texture2D *getFowTexture() const	{return fowTex;}
 	const Texture2D *getTexture() const		{return tex;}
 
-	void incFowTextureAlphaSurface(const Vec2i &sPos, float alpha);
+	void incFowTextureAlphaSurface(const Vec2i &sPos, float alpha, bool isIncrementalUpdate=false);
 	void resetFowTex();
 	void updateFowTex(float t);
-	void setFogOfWar(bool value) { fogOfWar = value; resetFowTex(); }
+	void setFogOfWar(bool value);
+
+	void copyFowTex();
+	void restoreFowTex();
 
 	void saveGame(XmlNode *rootNode);
 	void loadGame(const XmlNode *rootNode);

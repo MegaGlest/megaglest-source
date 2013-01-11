@@ -135,8 +135,6 @@ Game::Game() : ProgramState(NULL) {
 	pauseGamePopupMenuIndex = -1;
 	saveGamePopupMenuIndex = -1;
 	loadGamePopupMenuIndex = -1;
-	//markCellPopupMenuIndex = -1;
-	//unmarkCellPopupMenuIndex = -1;
 	keyboardSetupPopupMenuIndex = -1;
 	disconnectPlayerPopupMenuIndex = -1;
 
@@ -201,8 +199,6 @@ void Game::resetMembers() {
 	pauseGamePopupMenuIndex = -1;
 	saveGamePopupMenuIndex = -1;
 	loadGamePopupMenuIndex = -1;
-	//markCellPopupMenuIndex = -1;
-	//unmarkCellPopupMenuIndex = -1;
 	keyboardSetupPopupMenuIndex = -1;
 	disconnectPlayerPopupMenuIndex = -1;
 
@@ -215,7 +211,6 @@ void Game::resetMembers() {
 
 	currentUIState = NULL;
 
-	//this->gameSettings= NULL;
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
 	photoModeEnabled = Config::getInstance().getBool("PhotoMode","false");
 	visibleHUD = Config::getInstance().getBool("VisibleHud","true");

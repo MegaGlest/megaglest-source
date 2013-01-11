@@ -68,6 +68,7 @@ enum SkillClass{
     scUpgrade,
 	scMorph,
 	scDie,
+	scFogOfWar,
 
     scCount
 };
@@ -394,7 +395,7 @@ public:
 // 	class DieSkillType  
 // ===============================
 
-class DieSkillType: public SkillType{
+class DieSkillType: public SkillType {
 private:
 	bool fade;
 
@@ -411,10 +412,34 @@ public:
 };
 
 // ===============================
+// 	class FogOfWarSkillType
+// ===============================
+
+class FogOfWarSkillType: public SkillType {
+private:
+	bool fowEnable;
+	bool applyToTeam;
+	float durationTime;
+
+public:
+	FogOfWarSkillType();
+    bool getFowEnable() const	{return fowEnable;}
+    bool getApplyToTeam() const	{return applyToTeam;}
+    float getDurationTime() const	{return durationTime;}
+
+	virtual void load(const XmlNode *sn, const XmlNode *attackBoostsNode, const string &dir, const TechTree *tt,
+			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
+			string parentLoader);
+	virtual string toString() const;
+
+	virtual void saveGame(XmlNode *rootNode);
+};
+
+// ===============================
 // 	class SkillFactory  
 // ===============================
 
-class SkillTypeFactory: public MultiFactory<SkillType>{
+class SkillTypeFactory: public MultiFactory<SkillType> {
 private:
 	SkillTypeFactory();
 public:
