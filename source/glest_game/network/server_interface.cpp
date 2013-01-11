@@ -563,12 +563,15 @@ int ServerInterface::getSlotCount() {
 	return slotCount;
 }
 
-int ServerInterface::getConnectedSlotCount() {
+int ServerInterface::getConnectedSlotCount(bool authenticated) {
 	int connectedSlotCount = 0;
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 		MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
 		if(slots[i] != NULL && slots[i]->isConnected() == true) {
-			++connectedSlotCount;
+			if(authenticated == false ||
+					(authenticated == true && slots[i]->getConnectHasHandshaked() == true)) {
+				++connectedSlotCount;
+			}
 		}
 	}
 	return connectedSlotCount;
