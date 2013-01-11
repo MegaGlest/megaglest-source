@@ -278,15 +278,113 @@ void fatal(const char *s, ...)    // failure exit
     exit(EXIT_FAILURE);
 }
 
+void write_module_name(string &out, HANDLE process, DWORD64 program_counter) {
+  DWORD64 module_base = SymGetModuleBase64(process, program_counter);
+  if (module_base) {
+    std::string module_name = get_module_path(reinterpret_cast<HMODULE>(module_base));
+    if (!module_name.empty())
+      out += module_name + "|";
+    else
+      os += "Unknown module|";
+  } else {
+    os += "Unknown module|";
+  }
+}
+
+void write_function_name(string &out, HANDLE process, DWORD64 program_counter) {
+  SYMBOL_INFO_PACKAGE sym = { sizeof(sym) };
+  sym.si.MaxNameLen = MAX_SYM_NAME;
+  if (SymFromAddr(process, program_counter, 0, &sym.si)) {
+    os += sym.si.Name += "()";
+  } else {
+    os += "Unknown function";
+  }
+}
+
+void write_file_and_line(std::ostream & os, HANDLE process, DWORD64 program_counter) {
+  IMAGEHLP_LINE64 ih_line = { sizeof(IMAGEHLP_LINE64) };
+  DWORD dummy = 0;
+  if (SymGetLineFromAddr64(process, program_counter, &dummy, &ih_line)) {
+    os += "|" += ih_line.FileName += ":" += ih_line.LineNumber;
+  }
+}
+void generate_stack_trace(string &out, CONTEXT ctx, int skip) {
+  STACKFRAME64 sf = {};
+  sf.AddrPC.Offset    = ctx.Eip;
+  sf.AddrPC.Mode      = AddrModeFlat;
+  sf.AddrStack.Offset = ctx.Esp;
+  sf.AddrStack.Mode   = AddrModeFlat;
+  sf.AddrFrame.Offset = ctx.Ebp;
+  sf.AddrFrame.Mode   = AddrModeFlat;
+
+  HANDLE process = GetCurrentProcess();
+  HANDLE thread = GetCurrentThread();
+
+  for (;;) {
+    SetLastError(0);
+    BOOL stack_walk_ok = StackWalk64(IMAGE_FILE_MACHINE_I386, process, thread, &sf,
+                                     &ctx, 0, &SymFunctionTableAccess64,
+                                     &SymGetModuleBase64, 0);
+    if (!stack_walk_ok || !sf.AddrFrame.Offset) return;
+
+    if (skip) {
+      --skip;
+    } else {
+      // write the address
+      out += reinterpret_cast<void *>(sf.AddrPC.Offset) + "|";
+
+      write_module_name(out, process, sf.AddrPC.Offset);
+      write_function_name(out, process, sf.AddrPC.Offset);
+      write_file_and_line(out, process, sf.AddrPC.Offset);
+
+      out += "\n";
+    }
+  }
+}
+
 void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep) {
     if(!ep) fatal("unknown type");
     EXCEPTION_RECORD *er = ep->ExceptionRecord;
     CONTEXT *context = ep->ContextRecord;
-    stringType out, t;
-    formatstring(out)("%s Exception: 0x%x [0x%x]\n\n", mg_app_name, er->ExceptionCode, er->ExceptionCode==EXCEPTION_ACCESS_VIOLATION ? er->ExceptionInformation[1] : -1);
+    //stringType out, t;
+    //formatstring(out)("%s Exception: 0x%x [0x%x]\n\n", mg_app_name, er->ExceptionCode, er->ExceptionCode==EXCEPTION_ACCESS_VIOLATION ? er->ExceptionInformation[1] : -1);
+    string out="";
+    //char szBuf[8096]="";
+    //snsprintf(szBuf,"%s Exception: 0x%x [0x%x]\n\n", mg_app_name, er->ExceptionCode, er->ExceptionCode==EXCEPTION_ACCESS_VIOLATION ? er->ExceptionInformation[1] : -1);
+    //out = szBuf;
+
+    int skip = 0;
+    switch (er->ExceptionCode) {
+       case 0xE06D7363: { // C++ exception
+         UntypedException ue(er);
+         if (std::exception * e = exception_cast<std::exception>(ue)) {
+           const std::type_info & ti = typeid(*e);
+           out += ti.name() += ":" += e->what();
+         } else {
+        	 out += "Unknown C++ exception thrown.";
+         }
+         skip = 2; // skip RaiseException and _CxxThrowException
+       } break;
+       case EXCEPTION_ACCESS_VIOLATION: {
+         out += "Access violation. Illegal "
+              + (er.ExceptionInformation[0] ? "write" : "read")
+              + " by "
+              + er.ExceptionAddress
+              + " at "
+              + reinterpret_cast<void *>(er.ExceptionInformation[1]);
+       } break;
+       default: {
+         out += "SEH exception thrown. Exception code: "
+              + er.ExceptionCode
+              + " at "
+              + er.ExceptionAddress;
+       }
+     }
     STACKFRAME sf = {{context->Eip, 0, AddrModeFlat}, {}, {context->Ebp, 0, AddrModeFlat}, {context->Esp, 0, AddrModeFlat}, 0};
     SymInitialize(GetCurrentProcess(), NULL, TRUE);
 
+    generate_stack_trace(out, CONTEXT ctx, skip);
+/*
     while(::StackWalk(IMAGE_FILE_MACHINE_I386, GetCurrentProcess(), GetCurrentThread(), &sf, context, NULL, ::SymFunctionTableAccess, ::SymGetModuleBase, NULL)) {
         struct { IMAGEHLP_SYMBOL sym; stringType n; }
 		si = { { sizeof( IMAGEHLP_SYMBOL ), 0, 0, 0, sizeof(stringType) } };
@@ -300,6 +398,8 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep) {
             concatstring(out, t);
         }
     }
+*/
+
     fatal(out);
 }
 #endif
