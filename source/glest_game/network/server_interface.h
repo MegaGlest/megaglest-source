@@ -145,7 +145,7 @@ public:
     void removeSlot(int playerIndex, int lockedSlotIndex = -1);
     ConnectionSlot *getSlot(int playerIndex);
     int getSlotCount();
-    int getConnectedSlotCount();
+    int getConnectedSlotCount(bool authenticated);
 
     int getOpenSlotCount();
     bool launchGame(const GameSettings *gameSettings);
