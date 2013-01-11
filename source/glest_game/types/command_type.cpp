@@ -83,7 +83,7 @@ void CommandType::load(int id, const XmlNode *n, const string &dir,
 		string skillName= n->getChild("fog-of-war-skill")->getAttribute("value")->getRestrictedValue();
 		fogOfWarSkillType = static_cast<const FogOfWarSkillType*>(ut.getSkillType(skillName, scFogOfWar));
 
-		string skillAttachmentNames = n->getChild("fog-of-war-skill")->getAttribute("skill-attachments")->getRestrictedValue();
+		string skillAttachmentNames = n->getChild("fog-of-war-skill")->getAttribute("skill-attachments")->getValue();
 
 		std::vector<std::string> skillList;
 		Tokenize(skillAttachmentNames,skillList,",");
