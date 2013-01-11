@@ -214,10 +214,19 @@ void World::addFogOfWarSkillType(const Unit *unit,const FogOfWarSkillType *fowst
 		}
 	}
 }
-void World::removeFogOfWarSkillType(const Unit *unit) {
+
+bool World::removeFogOfWarSkillTypeFromList(const Unit *unit) {
+	bool result = false;
 	if(mapFogOfWarUnitList.find(unit->getId()) != mapFogOfWarUnitList.end()) {
 		mapFogOfWarUnitList.erase(unit->getId());
+		result = true;
+	}
+	return result;
+}
 
+void World::removeFogOfWarSkillType(const Unit *unit) {
+	bool removedFromList = removeFogOfWarSkillTypeFromList(unit);
+	if(removedFromList == true) {
 		if(mapFogOfWarUnitList.empty() == true) {
 
 			//printf("In [%s::%s Line: %d] current = %d new = %d\n",__FILE__,__FUNCTION__,__LINE__,fogOfWar,originalGameFogOfWar);

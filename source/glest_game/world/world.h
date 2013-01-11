@@ -159,6 +159,7 @@ public:
 
 	void addFogOfWarSkillType(const Unit *unit,const FogOfWarSkillType *fowst);
 	void removeFogOfWarSkillType(const Unit *unit);
+	bool removeFogOfWarSkillTypeFromList(const Unit *unit);
 
 	//get
 	inline int getMaxPlayers() const						{return map.getMaxPlayers();}
