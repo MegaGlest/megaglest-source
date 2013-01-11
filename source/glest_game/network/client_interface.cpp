@@ -155,7 +155,7 @@ void ClientInterface::update() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
 	bool wasConnected = this->isConnected();
-	if(wasConnected == false) {
+	if(gotIntro == true && wasConnected == false) {
 		string playerNameStr = getHumanPlayerName();
 
     	Lang &lang= Lang::getInstance();
@@ -212,7 +212,7 @@ void ClientInterface::update() {
 			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
-			if(wasConnected == false) {
+			if(gotIntro == false || wasConnected == false) {
 				string sErr = string(extractFileFromDirectoryPath(__FILE__).c_str()) + "::" + string(__FUNCTION__) + " network error: " + string(ex.what());
 				DisplayErrorMessage(sErr);
 			}
