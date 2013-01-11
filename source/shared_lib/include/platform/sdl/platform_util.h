@@ -51,6 +51,9 @@ public:
 	virtual ~PlatformExceptionHandler() {}
 	void install(string dumpFileName) {}
 	virtual void handle()=0;
+#if defined(__WIN32__) && !defined(__GNUC__)
+	virtual void handle(LPEXCEPTION_POINTERS pointers)=0;
+#endif
 };
 
 // =====================================================
@@ -84,6 +87,9 @@ public:
 
 	void install(string dumpFileName);
 	virtual void handle()=0;
+#if !defined(__GNUC__)
+	virtual void handle(LPEXCEPTION_POINTERS pointers)=0;
+#endif
 	static string codeToStr(DWORD code);
 };
 
