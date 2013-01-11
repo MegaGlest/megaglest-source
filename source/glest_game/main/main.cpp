@@ -75,6 +75,7 @@
 
 #include "network_message.h"
 #include "network_protocol.h"
+#include "conversion.h"
 #include "leak_dumper.h"
 
 #ifdef WIN32
@@ -116,6 +117,24 @@ class NavtiveLanguageNameListCacheGenerator : public SimpleTaskCallbackInterface
 		Lang &lang = Lang::getInstance();
 		lang.getDiscoveredLanguageList(true);
 	}
+};
+
+// =====================================================
+// 	class ExceptionHandler
+// =====================================================
+class ExceptionHandler: public PlatformExceptionHandler{
+public:
+
+#if defined(__WIN32__) && !defined(__GNUC__)
+	virtual void handle(LPEXCEPTION_POINTERS pointers);
+#endif
+
+	virtual void handle();
+
+    static void logError(const char *msg, bool confirmToConsole);
+    static void handleRuntimeError(const megaglest_runtime_error &ex);
+	static void handleRuntimeError(const char *msg, bool getStackTraceString);
+	static int DisplayMessage(const char *msg, bool exitApp);
 };
 
 void cleanupCRCThread() {
@@ -278,6 +297,11 @@ void fatal(const char *s, ...)    // failure exit
     exit(EXIT_FAILURE);
 }
 
+std::string get_module_path(HMODULE module = 0) {
+  char path_name[MAX_PATH] = {};
+  DWORD size = GetModuleFileNameA(module, path_name, MAX_PATH);
+  return std::string(path_name, size);
+}
 void write_module_name(string &out, HANDLE process, DWORD64 program_counter) {
   DWORD64 module_base = SymGetModuleBase64(process, program_counter);
   if (module_base) {
@@ -285,9 +309,9 @@ void write_module_name(string &out, HANDLE process, DWORD64 program_counter) {
     if (!module_name.empty())
       out += module_name + "|";
     else
-      os += "Unknown module|";
+      out += "Unknown module|";
   } else {
-    os += "Unknown module|";
+    out += "Unknown module|";
   }
 }
 
@@ -295,17 +319,17 @@ void write_function_name(string &out, HANDLE process, DWORD64 program_counter) {
   SYMBOL_INFO_PACKAGE sym = { sizeof(sym) };
   sym.si.MaxNameLen = MAX_SYM_NAME;
   if (SymFromAddr(process, program_counter, 0, &sym.si)) {
-    os += sym.si.Name += "()";
+    out += string(sym.si.Name) + "()";
   } else {
-    os += "Unknown function";
+    out += "Unknown function";
   }
 }
 
-void write_file_and_line(std::ostream & os, HANDLE process, DWORD64 program_counter) {
+void write_file_and_line(string & out, HANDLE process, DWORD64 program_counter) {
   IMAGEHLP_LINE64 ih_line = { sizeof(IMAGEHLP_LINE64) };
   DWORD dummy = 0;
   if (SymGetLineFromAddr64(process, program_counter, &dummy, &ih_line)) {
-    os += "|" += ih_line.FileName += ":" += ih_line.LineNumber;
+    out += string("|") + string(ih_line.FileName) + ":" + intToStr(ih_line.LineNumber);
   }
 }
 void generate_stack_trace(string &out, CONTEXT ctx, int skip) {
@@ -319,98 +343,152 @@ void generate_stack_trace(string &out, CONTEXT ctx, int skip) {
 
   HANDLE process = GetCurrentProcess();
   HANDLE thread = GetCurrentThread();
+  
+  bool tryThreadContext = true;
+  CONTEXT threadContext;
+  memset(&threadContext, 0, sizeof(CONTEXT));
+  threadContext.ContextFlags = CONTEXT_FULL;
 
   for (;;) {
     SetLastError(0);
     BOOL stack_walk_ok = StackWalk64(IMAGE_FILE_MACHINE_I386, process, thread, &sf,
-                                     &ctx, 0, &SymFunctionTableAccess64,
+                                     (tryThreadContext == false ? &threadContext : &ctx), 0, &SymFunctionTableAccess64,
                                      &SymGetModuleBase64, 0);
-    if (!stack_walk_ok || !sf.AddrFrame.Offset) return;
+    if (!stack_walk_ok || !sf.AddrFrame.Offset) {
+		if(tryThreadContext == true) {
+			tryThreadContext = false;
+			if(GetThreadContext(thread, &threadContext) != 0) {
+			  sf.AddrPC.Offset    = threadContext.Eip;
+			  sf.AddrPC.Mode      = AddrModeFlat;
+			  sf.AddrStack.Offset = threadContext.Esp;
+			  sf.AddrStack.Mode   = AddrModeFlat;
+			  sf.AddrFrame.Offset = threadContext.Ebp;
+			  sf.AddrFrame.Mode   = AddrModeFlat;
+			}
+			else {
+				return;
+			}
+		}
+		else {
+			return;
+		}
+	}
 
     if (skip) {
-      --skip;
-    } else {
+		--skip;
+    } 
+	else {
       // write the address
-      out += reinterpret_cast<void *>(sf.AddrPC.Offset) + "|";
+      //out += reinterpret_cast<void *>(sf.AddrPC.Offset) + "|";
+		out += intToStr(sf.AddrPC.Offset) + "|";
 
-      write_module_name(out, process, sf.AddrPC.Offset);
-      write_function_name(out, process, sf.AddrPC.Offset);
-      write_file_and_line(out, process, sf.AddrPC.Offset);
+		write_module_name(out, process, sf.AddrPC.Offset);
+		write_function_name(out, process, sf.AddrPC.Offset);
+		write_file_and_line(out, process, sf.AddrPC.Offset);
 
-      out += "\n";
+		out += "\n";
     }
   }
 }
 
-void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep) {
-    if(!ep) fatal("unknown type");
+struct UntypedException {
+  UntypedException(const EXCEPTION_RECORD & er)
+    : exception_object(reinterpret_cast<void *>(er.ExceptionInformation[1])),
+      type_array(reinterpret_cast<_ThrowInfo *>(er.ExceptionInformation[2])->pCatchableTypeArray)
+  {}
+  void * exception_object;
+  _CatchableTypeArray * type_array;
+};
+
+void * exception_cast_worker(const UntypedException & e, const type_info & ti) {
+  for (int i = 0; i < e.type_array->nCatchableTypes; ++i) {
+    _CatchableType & type_i = *e.type_array->arrayOfCatchableTypes[i];
+    const std::type_info & ti_i = *reinterpret_cast<std::type_info *>(type_i.pType);
+    if (ti_i == ti) {
+      char * base_address = reinterpret_cast<char *>(e.exception_object);
+      base_address += type_i.thisDisplacement.mdisp;
+      return base_address;
+    }
+  }
+  return 0;
+}
+
+template <typename T>
+T * exception_cast(const UntypedException & e) {
+  const std::type_info & ti = typeid(T);
+  return reinterpret_cast<T *>(exception_cast_worker(e, ti));
+}
+void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
+    if(!ep) {
+		fatal("unknown type");
+	}
     EXCEPTION_RECORD *er = ep->ExceptionRecord;
     CONTEXT *context = ep->ContextRecord;
-    //stringType out, t;
-    //formatstring(out)("%s Exception: 0x%x [0x%x]\n\n", mg_app_name, er->ExceptionCode, er->ExceptionCode==EXCEPTION_ACCESS_VIOLATION ? er->ExceptionInformation[1] : -1);
     string out="";
-    //char szBuf[8096]="";
-    //snsprintf(szBuf,"%s Exception: 0x%x [0x%x]\n\n", mg_app_name, er->ExceptionCode, er->ExceptionCode==EXCEPTION_ACCESS_VIOLATION ? er->ExceptionInformation[1] : -1);
-    //out = szBuf;
-
     int skip = 0;
+
     switch (er->ExceptionCode) {
        case 0xE06D7363: { // C++ exception
-         UntypedException ue(er);
+         UntypedException ue(*er);
          if (std::exception * e = exception_cast<std::exception>(ue)) {
-           const std::type_info & ti = typeid(*e);
-           out += ti.name() += ":" += e->what();
-         } else {
-        	 out += "Unknown C++ exception thrown.";
+			const std::type_info & ti = typeid(*e);
+			out += string(ti.name()) + ":" + string(e->what());
+         } 
+		 else {
+			out += "Unknown C++ exception thrown.";
          }
          skip = 2; // skip RaiseException and _CxxThrowException
        } break;
        case EXCEPTION_ACCESS_VIOLATION: {
-         out += "Access violation. Illegal "
-              + (er.ExceptionInformation[0] ? "write" : "read")
-              + " by "
-              + er.ExceptionAddress
-              + " at "
-              + reinterpret_cast<void *>(er.ExceptionInformation[1]);
+         out += string("Access violation. Illegal ")
+              + (er->ExceptionInformation[0] ? "write" : "read")
+              + string(" by ")
+              + intToStr((int)er->ExceptionAddress)
+              + string(" at ")
+              //+ reinterpret_cast<void *>(er->ExceptionInformation[1]);
+			  + intToStr(er->ExceptionInformation[1]);
        } break;
        default: {
          out += "SEH exception thrown. Exception code: "
-              + er.ExceptionCode
-              + " at "
-              + er.ExceptionAddress;
+              + er->ExceptionCode
+              + string(" at ")
+              + intToStr((int)er->ExceptionAddress);
        }
-     }
-    STACKFRAME sf = {{context->Eip, 0, AddrModeFlat}, {}, {context->Ebp, 0, AddrModeFlat}, {context->Esp, 0, AddrModeFlat}, 0};
-    SymInitialize(GetCurrentProcess(), NULL, TRUE);
-
-    generate_stack_trace(out, CONTEXT ctx, skip);
-/*
-    while(::StackWalk(IMAGE_FILE_MACHINE_I386, GetCurrentProcess(), GetCurrentThread(), &sf, context, NULL, ::SymFunctionTableAccess, ::SymGetModuleBase, NULL)) {
-        struct { IMAGEHLP_SYMBOL sym; stringType n; }
-		si = { { sizeof( IMAGEHLP_SYMBOL ), 0, 0, 0, sizeof(stringType) } };
-        IMAGEHLP_LINE li = { sizeof( IMAGEHLP_LINE ) };
-        DWORD off=0;
-		DWORD dwDisp=0;
-        if( SymGetSymFromAddr(GetCurrentProcess(), (DWORD)sf.AddrPC.Offset, &off, &si.sym) &&
-			SymGetLineFromAddr(GetCurrentProcess(), (DWORD)sf.AddrPC.Offset, &dwDisp, &li)) {
-            char *del = strrchr(li.FileName, '\\');
-            formatstring(t)("%s - %s [%d]\n", si.sym.Name, del ? del + 1 : li.FileName, li.LineNumber+dwDisp);
-            concatstring(out, t);
-        }
     }
-*/
 
-    fatal(out);
+    generate_stack_trace(out, *context, skip);
+
+	if(fatalExit == true) {
+		fatal(out.c_str());
+	}
+	else {
+		ExceptionHandler::logError(out.c_str(), true);
+	}
 }
 #endif
 
 // =====================================================
 // 	class ExceptionHandler
 // =====================================================
+#if defined(__WIN32__) && !defined(__GNUC__)
+	void ExceptionHandler::handle(LPEXCEPTION_POINTERS pointers) {
+		string msg = "#1 An error occurred and " + string(mg_app_name) + " will close.\nPlease report this bug to: " + string(mailString);
+		msg += ", attaching the generated " + getCrashDumpFileName()+ " file.";
 
-class ExceptionHandler: public PlatformExceptionHandler{
-public:
-	virtual void handle() {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",msg.c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg.c_str());
+
+		stackdumper(0, pointers, false);
+
+        if(mainProgram && gameInitialized == true) {
+        	mainProgram->showMessage(msg.c_str());
+        }
+
+        message(msg.c_str());
+}
+#endif
+
+	void ExceptionHandler::handle() {
 		string msg = "#1 An error occurred and " + string(mg_app_name) + " will close.\nPlease report this bug to: " + string(mailString);
 #ifdef WIN32
 		msg += ", attaching the generated " + getCrashDumpFileName()+ " file.";
@@ -425,7 +503,7 @@ public:
         message(msg.c_str());
 	}
 
-    static void logError(const char *msg, bool confirmToConsole) {
+    void ExceptionHandler::logError(const char *msg, bool confirmToConsole) {
 		string errorLogFile = "error.log";
 		if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
 			errorLogFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + errorLogFile;
@@ -477,12 +555,12 @@ public:
 		}
     }
 
-    static void handleRuntimeError(const megaglest_runtime_error &ex) {
+    void ExceptionHandler::handleRuntimeError(const megaglest_runtime_error &ex) {
 		const char *msg = ex.what();
 		handleRuntimeError(msg,false);
     }
 
-	static void handleRuntimeError(const char *msg, bool getStackTraceString) {
+	void ExceptionHandler::handleRuntimeError(const char *msg, bool getStackTraceString) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		static bool inErrorNow = false;
@@ -619,7 +697,7 @@ public:
         abort();
 	}
 
-	static int DisplayMessage(const char *msg, bool exitApp) {
+	int ExceptionHandler::DisplayMessage(const char *msg, bool exitApp) {
 		//printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
@@ -658,7 +736,6 @@ public:
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 	    return 0;
 	}
-};
 
 // =====================================================
 // 	class MainWindow
@@ -5107,7 +5184,7 @@ __try {
 	return result;
 
 #ifdef WIN32_STACK_TRACE
-} __except(stackdumper(0, GetExceptionInformation()), EXCEPTION_CONTINUE_SEARCH) { return 0; }
+} __except(stackdumper(0, GetExceptionInformation(),true), EXCEPTION_CONTINUE_SEARCH) { return 0; }
 #endif
 }
 
