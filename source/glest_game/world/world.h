@@ -125,6 +125,8 @@ private:
 	bool fogOfWar;
 	int fogOfWarSmoothingFrameSkip;
 	bool fogOfWarSmoothing;
+	int fogOfWarSkillTypeValue;
+
 	Game *game;
 	Chrono chronoPerfTimer;
 	bool perfTimerEnabled;
@@ -145,12 +147,18 @@ private:
 
 	MasterSlaveThreadController masterController;
 
+	bool originalGameFogOfWar;
+	std::map<int,std::pair<const Unit *,const FogOfWarSkillType *> > mapFogOfWarUnitList;
+
 public:
 	World();
 	~World();
 	void cleanup();
 	void end(); //to die before selection does
 	void endScenario(); //to die before selection does
+
+	void addFogOfWarSkillType(const Unit *unit,const FogOfWarSkillType *fowst);
+	void removeFogOfWarSkillType(const Unit *unit);
 
 	//get
 	inline int getMaxPlayers() const						{return map.getMaxPlayers();}
@@ -290,7 +298,7 @@ public:
 	bool canTickWorld() const;
 
 	void exploreCells(const Vec2i &newPos, int sightRange, int teamIndex);
-	bool showWorldForPlayer(int factionIndex) const;
+	bool showWorldForPlayer(int factionIndex, bool excludeFogOfWarCheck=false) const;
 
 	inline UnitUpdater * getUnitUpdater() { return &unitUpdater; }
 

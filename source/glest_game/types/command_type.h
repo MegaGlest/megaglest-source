@@ -76,6 +76,9 @@ protected:
     Clicks clicks;
 	int id;
 
+	std::map<string,bool> fogOfWarSkillAttachments;
+	const FogOfWarSkillType* fogOfWarSkillType;
+
 public:
 	static const int invalidId= -1;
     CommandClass commandTypeClass;
@@ -85,6 +88,8 @@ public:
 	    commandTypeClass 	= ccNull;
 	    clicks 				= cOne;
 		id 					= -1;
+		fogOfWarSkillType	= NULL;
+		fogOfWarSkillAttachments.clear();
 	}
     virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const= 0;
     virtual void load(int id, const XmlNode *n, const string &dir,
@@ -110,6 +115,10 @@ public:
     CommandClass getClass() const;
 	Clicks getClicks() const		{return clicks;}
 	int getId() const				{return id;}
+
+	const FogOfWarSkillType *getFogOfWarSkillType() const	{return fogOfWarSkillType;};
+
+	bool hasFogOfWarSkillType(string name) const;
 };
 
 // ===============================

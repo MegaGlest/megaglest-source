@@ -583,6 +583,7 @@ string SkillType::skillClassToStr(SkillClass skillClass) {
 	case scBeBuilt: return "Be Built";
 	case scProduce: return "Produce";
 	case scUpgrade: return "Upgrade";
+	case scFogOfWar: return "Fog Of War";
 	default:
 		assert(false);
 		break;
@@ -1116,6 +1117,44 @@ void DieSkillType::saveGame(XmlNode *rootNode) {
 	dieSkillTypeNode->addAttribute("fade",intToStr(fade), mapTagReplacements);
 }
 
+
+// =====================================================
+// 	class FogOfWarSkillType
+// =====================================================
+
+FogOfWarSkillType::FogOfWarSkillType(){
+    skillClass= scFogOfWar;
+
+	fowEnable = false;
+	applyToTeam = false;
+	durationTime = 0;
+}
+
+void FogOfWarSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
+		const string &dir, const TechTree *tt,
+		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
+		string parentLoader) {
+	SkillType::load(sn, attackBoostsNode,dir, tt, ft, loadedFileList, parentLoader);
+
+	fowEnable = sn->getChild("enable-fog")->getAttribute("value")->getBoolValue();
+	applyToTeam = sn->getChild("apply-team")->getAttribute("value")->getBoolValue();
+	durationTime = sn->getChild("duration")->getAttribute("value")->getFloatValue();
+}
+
+string FogOfWarSkillType::toString() const{
+	return "FogOfWar";
+}
+
+void FogOfWarSkillType::saveGame(XmlNode *rootNode) {
+	SkillType::saveGame(rootNode);
+	std::map<string,string> mapTagReplacements;
+	XmlNode *fogSkillTypeNode = rootNode->addChild("FogOfWarSkillType");
+
+	fogSkillTypeNode->addAttribute("enable-fog",intToStr(fowEnable), mapTagReplacements);
+	fogSkillTypeNode->addAttribute("apply-team",intToStr(applyToTeam), mapTagReplacements);
+	fogSkillTypeNode->addAttribute("duration",floatToStr(durationTime), mapTagReplacements);
+}
+
 // =====================================================
 // 	class SkillTypeFactory
 // =====================================================
@@ -1132,6 +1171,7 @@ SkillTypeFactory::SkillTypeFactory(){
 	registerClass<UpgradeSkillType>("upgrade");
 	registerClass<MorphSkillType>("morph");
 	registerClass<DieSkillType>("die");
+	registerClass<FogOfWarSkillType>("fog_of_war");
 }
 
 SkillTypeFactory &SkillTypeFactory::getInstance(){

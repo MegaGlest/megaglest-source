@@ -34,7 +34,9 @@ const float Minimap::exploredAlpha= 0.5f;
 Minimap::Minimap() {
 	fowPixmap0= NULL;
 	fowPixmap1= NULL;
-	fogOfWar= true;//Config::getInstance().getBool("FogOfWar");
+	fowPixmap0Copy = NULL;
+	fowPixmap1Copy = NULL;
+	fogOfWar= true;
 	gameSettings= NULL;
 	tex=NULL;
 	fowTex=NULL;
@@ -58,8 +60,10 @@ void Minimap::init(int w, int h, const World *world, bool fogOfWar) {
 	float f= 0.f;
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
-		fowPixmap0= new Pixmap2D(potW, potH, 1);
-		fowPixmap1= new Pixmap2D(potW, potH, 1);
+		fowPixmap0 = new Pixmap2D(potW, potH, 1);
+		fowPixmap0Copy = new Pixmap2D(potW, potH, 1);
+		fowPixmap1 = new Pixmap2D(potW, potH, 1);
+		fowPixmap1Copy = new Pixmap2D(potW, potH, 1);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -112,20 +116,45 @@ Minimap::~Minimap() {
 	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingMiniMap","",true), true);
 	delete fowPixmap0;
 	fowPixmap0=NULL;
+	delete fowPixmap0Copy;
+	fowPixmap0Copy = NULL;
 	delete fowPixmap1;
 	fowPixmap1=NULL;
+	delete fowPixmap1Copy;
+	fowPixmap1Copy=NULL;
 }
 
 // ==================== set ====================
 
-void Minimap::incFowTextureAlphaSurface(const Vec2i &sPos, float alpha) {
+void Minimap::incFowTextureAlphaSurface(const Vec2i &sPos, float alpha,
+		bool isIncrementalUpdate) {
 	if(fowPixmap1) {
 		assert(sPos.x<fowPixmap1->getW() && sPos.y<fowPixmap1->getH());
 
 		if(fowPixmap1->getPixelf(sPos.x, sPos.y)<alpha){
 			fowPixmap1->setPixel(sPos.x, sPos.y, alpha);
 		}
+
+		if(fowPixmap1Copy != NULL && isIncrementalUpdate == true) {
+			if(fowPixmap1Copy->getPixelf(sPos.x, sPos.y)<alpha){
+				fowPixmap1Copy->setPixel(sPos.x, sPos.y, alpha);
+			}
+		}
 	}
+}
+
+void Minimap::setFogOfWar(bool value) {
+	fogOfWar = value;
+	resetFowTex();
+}
+
+void Minimap::copyFowTex() {
+	fowPixmap0Copy->copy(fowPixmap0);
+	fowPixmap1Copy->copy(fowPixmap1);
+}
+void Minimap::restoreFowTex() {
+	fowPixmap0->copy(fowPixmap0Copy);
+	fowPixmap1->copy(fowPixmap1Copy);
 }
 
 void Minimap::resetFowTex() {
@@ -224,8 +253,6 @@ void Minimap::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *minimapNode = rootNode->addChild("Minimap");
 
-//	Pixmap2D *fowPixmap0;
-//	Pixmap2D *fowPixmap1;
 	if(fowPixmap1 != NULL) {
 		for(unsigned int i = 0; i < fowPixmap1->getPixelByteCount(); ++i) {
 			if(fowPixmap1->getPixels()[i] != 0) {
@@ -235,11 +262,6 @@ void Minimap::saveGame(XmlNode *rootNode) {
 			}
 		}
 	}
-//	Texture2D *tex;
-//	Texture2D *fowTex;    //Fog Of War Texture2D
-//	bool fogOfWar;
-//	const GameSettings *gameSettings;
-
 }
 
 void Minimap::loadGame(const XmlNode *rootNode) {

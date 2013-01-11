@@ -979,6 +979,17 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 			}
 			unitParticleSystems.pop_back();
 		}
+
+		Command *cmd = getCurrrentCommandThreadSafe();
+		// Remove old fog of war skill type if need be
+		game->getWorld()->removeFogOfWarSkillType(this);
+
+		// Set mew fog of war skill type if need be
+		if(cmd != NULL && cmd->getCommandType() != NULL &&
+				cmd->getCommandType()->hasFogOfWarSkillType(currSkill->getName())) {
+			const FogOfWarSkillType *fowst = cmd->getCommandType()->getFogOfWarSkillType();
+			game->getWorld()->addFogOfWarSkillType(this,fowst);
+		}
 	}
 	if(showUnitParticles == true  &&
 		currSkill->unitParticleSystemTypes.empty() == false &&

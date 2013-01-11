@@ -78,7 +78,28 @@ void CommandType::load(int id, const XmlNode *n, const string &dir,
 		upgradeReqs.push_back(ft->getUpgradeType(name));
 	}
 
+	//fog of war
+	if(n->hasChild("fog-of-war-skill") == true) {
+		string skillName= n->getChild("fog-of-war-skill")->getAttribute("value")->getRestrictedValue();
+		fogOfWarSkillType = static_cast<const FogOfWarSkillType*>(ut.getSkillType(skillName, scFogOfWar));
+
+		string skillAttachmentNames = n->getChild("fog-of-war-skill")->getAttribute("skill-attachments")->getRestrictedValue();
+
+		std::vector<std::string> skillList;
+		Tokenize(skillAttachmentNames,skillList,",");
+		for(unsigned int i = 0; i < skillList.size(); ++i) {
+			string skillAttachName = skillList[i];
+			fogOfWarSkillAttachments[skillAttachName] = true;
+		}
+	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+bool CommandType::hasFogOfWarSkillType(string name) const {
+	std::map<string,bool>::const_iterator iterFind = fogOfWarSkillAttachments.find(name);
+	bool result = (iterFind != fogOfWarSkillAttachments.end());
+	return result;
 }
 
 // =====================================================

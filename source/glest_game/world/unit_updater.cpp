@@ -406,7 +406,6 @@ void UnitUpdater::updateStop(Unit *unit, int frameIndex) {
    	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
-
 // ==================== updateMove ====================
 void UnitUpdater::updateMove(Unit *unit, int frameIndex) {
 	Chrono chrono;
