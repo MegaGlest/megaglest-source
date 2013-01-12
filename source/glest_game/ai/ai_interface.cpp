@@ -288,8 +288,12 @@ void AiInterface::update() {
 
 // ==================== misc ====================
 
+bool AiInterface::isLogLevelEnabled(int level) {
+	return (this->logLevel >= level);
+}
+
 void AiInterface::printLog(int logLevel, const string &s){
-    if(this->logLevel >= logLevel) {
+    if(isLogLevelEnabled(logLevel) == true) {
 		string logString= "(" + intToStr(factionIndex) + ") " + s;
 
 		MutexSafeWrapper safeMutex(aiMutex,string(__FILE__) + "_" + intToStr(__LINE__));
