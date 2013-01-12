@@ -80,6 +80,7 @@ private:
     Mutex *aiMutex;
 
     AiInterfaceThread *workerThread;
+    std::vector<Vec2i> enemyWarningPositionList;
 
 public:
     AiInterface(Game &game, int factionIndex, int teamIndex, int useStartLocation=-1);
@@ -87,6 +88,9 @@ public:
 
 	//main
     void update();
+
+    std::vector<Vec2i> getEnemyWarningPositionList() const { return enemyWarningPositionList; }
+    void removeEnemyWarningPositionFromList(Vec2i &checkPos);
 
     inline Mutex * getMutex() {return aiMutex;}
 

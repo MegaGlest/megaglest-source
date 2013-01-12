@@ -735,7 +735,18 @@ void Ai::sendScoutPatrol(){
 	        && random.randRange(0, 2) == 1;
 	bool megaResourceAttack=(aiInterface->getControlType() == ctCpuMega || aiInterface->getControlType() == ctNetworkCpuMega)
 			&& random.randRange(0, 1) == 1;
-	if( megaResourceAttack || ultraResourceAttack) {
+
+	std::vector<Vec2i> warningEnemyList = aiInterface->getEnemyWarningPositionList();
+	if(warningEnemyList.empty() == false) {
+		for(int i = warningEnemyList.size() - 1; i <= 0; --i) {
+			Vec2i &checkPos = warningEnemyList[i];
+			pos = checkPos;
+			possibleTargetFound = true;
+			aiInterface->removeEnemyWarningPositionFromList(checkPos);
+			break;
+		}
+	}
+	else if( megaResourceAttack || ultraResourceAttack) {
 		Map *map= aiInterface->getMap();
 
 		const TechTree *tt= aiInterface->getTechTree();
