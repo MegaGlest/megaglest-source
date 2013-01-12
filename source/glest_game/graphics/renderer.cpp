@@ -7495,7 +7495,10 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 			//render
 			Model *model= unit->getCurrentModelPtr();
 			//if(this->gameCamera->getPos().dist(unit->getCurrVector()) <= SKIP_INTERPOLATION_DISTANCE) {
-				model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive() && !unit->isAnimProgressBound());
+
+				// ***MV don't think this is needed below 2013/01/11
+				//model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive() && !unit->isAnimProgressBound());
+
 			//}
 
 			if(colorPickingSelection == true) {
@@ -7560,7 +7563,6 @@ vector<Object *>  Renderer::renderObjectsFast(bool renderingShadows, bool resour
 				visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
 			Object *o = qCache.visibleObjectList[visibleIndex];
 
-
 			if(modelRenderStarted == false) {
 				modelRenderStarted = true;
 
@@ -7602,7 +7604,10 @@ vector<Object *>  Renderer::renderObjectsFast(bool renderingShadows, bool resour
 			if(resourceOnly == false || o->getResource()!= NULL) {
 				Model *objModel= o->getModelPtr();
 				//if(this->gameCamera->getPos().dist(o->getPos()) <= SKIP_INTERPOLATION_DISTANCE) {
-					objModel->updateInterpolationData(o->getAnimProgress(), true);
+
+					// ***MV don't think this is needed below 2013/01/11
+					//objModel->updateInterpolationData(o->getAnimProgress(), true);
+
 				//}
 				const Vec3f &v= o->getConstPos();
 
