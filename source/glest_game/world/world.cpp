@@ -2413,8 +2413,6 @@ string World::getExploredCellsLookupItemCacheStats() {
 string World::getFowAlphaCellsLookupItemCacheStats() {
 	string result = "";
 
-	int posCount = 0;
-	int sightCount = 0;
 	int surfPosCount = 0;
 	int alphaListCount = 0;
 
@@ -2436,7 +2434,7 @@ string World::getFowAlphaCellsLookupItemCacheStats() {
 	totalBytes /= 1000;
 
 	char szBuf[8096]="";
-	snprintf(szBuf,8096,"pos [%d] sight [%d] [%d][%d] total KB: %s",posCount,sightCount,surfPosCount,alphaListCount,formatNumber(totalBytes).c_str());
+	snprintf(szBuf,8096,"surface count [%d] alpha count [%d] total KB: %s",surfPosCount,alphaListCount,formatNumber(totalBytes).c_str());
 	result = szBuf;
 	return result;
 }
