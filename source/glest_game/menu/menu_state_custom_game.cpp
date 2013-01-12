@@ -3818,7 +3818,8 @@ void MenuStateCustomGame::closeUnusedSlots(){
 				if(listBoxControls[i].getSelectedItemIndex() == ctNetwork ||
 						listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
 					if(serverInterface->getSlot(i) == NULL ||
-					   serverInterface->getSlot(i)->isConnected() == false) {
+					   serverInterface->getSlot(i)->isConnected() == false ||
+					   serverInterface->getSlot(i)->getConnectHasHandshaked() == false) {
 						//printf("Closed A [%d] [%s]\n",i,labelPlayerNames[i].getText().c_str());
 
 						listBoxControls[i].setSelectedItemIndex(ctClosed);
