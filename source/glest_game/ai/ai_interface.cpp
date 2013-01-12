@@ -832,8 +832,22 @@ bool AiInterface::isFreeCells(const Vec2i &pos, int size, Field field){
     return world->getMap()->isFreeCells(pos, size, field);
 }
 
+void AiInterface::removeEnemyWarningPositionFromList(Vec2i &checkPos) {
+	for(int i = enemyWarningPositionList.size() - 1; i <= 0; --i) {
+		Vec2i &pos = enemyWarningPositionList[i];
+
+		if(checkPos == pos) {
+			enemyWarningPositionList.erase(enemyWarningPositionList.begin()+i);
+			break;
+		}
+	}
+}
+
 const Unit *AiInterface::getFirstOnSightEnemyUnit(Vec2i &pos, Field &field, int radius) {
 	Map *map= world->getMap();
+
+	const int CHECK_RADIUS = 12;
+	const int WARNING_ENEMY_COUNT = 6;
 
 	for(int i = 0; i < world->getFactionCount(); ++i) {
         for(int j = 0; j < world->getFaction(i)->getUnitCount(); ++j) {
@@ -850,6 +864,37 @@ const Unit *AiInterface::getFirstOnSightEnemyUnit(Vec2i &pos, Field &field, int 
                 if(pos.dist(getHomeLocation()) < radius) {
                     printLog(2, "Being attacked at pos "+intToStr(pos.x)+","+intToStr(pos.y)+"\n");
 
+                    // Now check if there are more than x enemies in sight and if
+                    // so make note of the position
+                    int foundEnemies = 0;
+                    std::map<int,bool> foundEnemyList;
+                	for(int aiX = pos.x-CHECK_RADIUS; aiX < pos.x + CHECK_RADIUS; ++aiX) {
+                		for(int aiY = pos.y-CHECK_RADIUS; aiY < pos.y + CHECK_RADIUS; ++aiY) {
+                			Vec2i checkPos(aiX,aiY);
+                			if(map->isInside(checkPos) && map->isInsideSurface(map->toSurfCoords(checkPos))) {
+                				Cell *cAI = map->getCell(checkPos);
+                				SurfaceCell *scAI = map->getSurfaceCell(Map::toSurfCoords(checkPos));
+                				if(scAI != NULL && cAI != NULL && cAI->getUnit(field) != NULL && sc->isVisible(teamIndex)) {
+                					const Unit *checkUnit = cAI->getUnit(field);
+                					if(foundEnemyList.find(checkUnit->getId()) == foundEnemyList.end()) {
+										bool cannotSeeUnitAI = (checkUnit->getType()->hasCellMap() == true &&
+															checkUnit->getType()->getAllowEmptyCellMap() == true &&
+															checkUnit->getType()->hasEmptyCellMap() == true);
+										if(cannotSeeUnitAI == false && isAlly(checkUnit) == false
+												&& checkUnit->isAlive() == true) {
+											foundEnemies++;
+											foundEnemyList[checkUnit->getId()] = true;
+										}
+                					}
+                				}
+                			}
+                		}
+                	}
+                	if(foundEnemies >= WARNING_ENEMY_COUNT) {
+                		if(std::find(enemyWarningPositionList.begin(),enemyWarningPositionList.end(),pos) == enemyWarningPositionList.end()) {
+                			enemyWarningPositionList.push_back(pos);
+                		}
+                	}
                     return unit;
                 }
             }
