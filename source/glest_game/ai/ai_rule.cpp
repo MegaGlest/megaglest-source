@@ -315,7 +315,7 @@ void AiRuleRepair::execute() {
 						}
 
 						aiInterface->giveCommand(i, rct, damagedUnit->getPosWithCellMapSet(),unitGroupCommandId);
-						aiInterface->printLog(3, "Repairing order issued");
+						if(aiInterface->isLogLevelEnabled(3) == true) aiInterface->printLog(3, "Repairing order issued");
 						unitCountAlreadyRepairingDamagedUnit++;
 						//						printf(
 						//						        "^^^^^^^^^^adding one unit to repair ... unitCountAlreadyRepairingDamagedUnit/minUnitsRepairingCastle=%d/%d\n",
@@ -401,12 +401,10 @@ void AiRuleAddTasks::execute(){
 
 	//standard tasks
 	if(ai->outputAIBehaviourToConsole()) printf("Add a TASK - AiRuleAddTasks adding ProduceTask(ucWorker) workerCount = %d, RULE Name[%s]\n",workerCount,this->getName().c_str());
-	//ai->getAiInterface()->printLog(4, "Add a TASK - AiRuleAddTasks adding ProduceTask(ucWorker) workerCount = %d, RULE Name[%s]",workerCount,this->getName().c_str());
 
 	//emergency workers
 	if(workerCount < 4){
 		if(ai->outputAIBehaviourToConsole()) printf("AAA AiRuleAddTasks adding ProduceTask(ucWorker) workerCount = %d, RULE Name[%s]\n",workerCount,this->getName().c_str());
-		//ai->getAiInterface()->printLog(4, "AAA AiRuleAddTasks adding ProduceTask(ucWorker) workerCount = %d, RULE Name[%s]",workerCount,this->getName().c_str());
 
 		ai->addPriorityTask(new ProduceTask(ucWorker));
 	}
@@ -416,8 +414,6 @@ void AiRuleAddTasks::execute(){
 		{
 			if(ai->outputAIBehaviourToConsole()) printf("AAA AiRuleAddTasks adding #1 workerCount = %d[%.2f], buildingCount = %d[%.2f] warriorCount = %d[%.2f] upgradeCount = %d RULE Name[%s]\n",
 					workerCount,workerRatio,buildingCount,buildingRatio,warriorCount,warriorRatio,upgradeCount,this->getName().c_str());
-			//ai->getAiInterface()->printLog(4, "AAA AiRuleAddTasks adding #1 workerCount = %d[%.2f], buildingCount = %d[%.2f] warriorCount = %d[%.2f] upgradeCount = %d RULE Name[%s]",
-			//		workerCount,workerRatio,buildingCount,buildingRatio,warriorCount,warriorRatio,upgradeCount,this->getName().c_str());
 
 			//workers
 			if(workerCount<5) ai->addTask(new ProduceTask(ucWorker));
@@ -461,8 +457,6 @@ void AiRuleAddTasks::execute(){
 
 			if(ai->outputAIBehaviourToConsole()) printf("AAA AiRuleAddTasks adding #2 workerCount = %d[%.2f], buildingCount = %d[%.2f] warriorCount = %d[%.2f] upgradeCount = %d RULE Name[%s]\n",
 					workerCount,workerRatio,buildingCount,buildingRatio,warriorCount,warriorRatio,upgradeCount,this->getName().c_str());
-			//ai->getAiInterface()->printLog(4, "AAA AiRuleAddTasks adding #2 workerCount = %d[%.2f], buildingCount = %d[%.2f] warriorCount = %d[%.2f] upgradeCount = %d RULE Name[%s]\n",
-			//		workerCount,workerRatio,buildingCount,buildingRatio,warriorCount,warriorRatio,upgradeCount,this->getName().c_str());
 
 			//workers
 			if(workerCount<buildingCount+2) ai->addTask(new ProduceTask(ucWorker));
@@ -489,8 +483,6 @@ void AiRuleAddTasks::execute(){
 		{// normal CPU / UltraCPU ...
 			if(ai->outputAIBehaviourToConsole()) printf("AAA AiRuleAddTasks adding #3 workerCount = %d[%.2f], buildingCount = %d[%.2f] warriorCount = %d[%.2f] upgradeCount = %d RULE Name[%s]\n",
 					workerCount,workerRatio,buildingCount,buildingRatio,warriorCount,warriorRatio,upgradeCount,this->getName().c_str());
-			//ai->getAiInterface()->printLog(4, "AAA AiRuleAddTasks adding #3 workerCount = %d[%.2f], buildingCount = %d[%.2f] warriorCount = %d[%.2f] upgradeCount = %d RULE Name[%s]\n",
-			//		workerCount,workerRatio,buildingCount,buildingRatio,warriorCount,warriorRatio,upgradeCount,this->getName().c_str());
 
 			//workers
 			if(workerCount<5) ai->addTask(new ProduceTask(ucWorker));
@@ -552,7 +544,6 @@ bool AiRuleBuildOneFarm::test(){
 							//printf("AiRuleBuildOneFarm returning true, RULE Name[%s] ut [%s] producedType [%s]\n",this->getName().c_str(),ut->getName().c_str(),producedType->getName().c_str());
 
 							if(ai->outputAIBehaviourToConsole()) printf("AiRuleBuildOneFarm returning true, RULE Name[%s]\n",this->getName().c_str());
-							//aiInterface->printLog(4, "AiRuleBuildOneFarm returning true, RULE Name[%s]\n",this->getName().c_str());
 
 							return true;
 						}
@@ -589,17 +580,27 @@ bool AiRuleProduceResourceProducer::test(){
 		const Resource *r= aiInterface->getResource(rt);
 
 		if(ai->outputAIBehaviourToConsole()) printf("CONSUMABLE [%s][%d] Testing AI RULE Name[%s]\n",rt->getName().c_str(), r->getBalance(), this->getName().c_str());
-		//aiInterface->printLog(4, "CONSUMABLE [%s][%d] Testing AI RULE Name[%s]",rt->getName().c_str(), r->getBalance(), this->getName().c_str());
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"CONSUMABLE [%s][%d] Testing AI RULE Name[%s]",rt->getName().c_str(), r->getBalance(), this->getName().c_str());
-		aiInterface->printLog(4, szBuf);
+
+		if(aiInterface->isLogLevelEnabled(4) == true) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"CONSUMABLE [%s][%d] Testing AI RULE Name[%s]",rt->getName().c_str(), r->getBalance(), this->getName().c_str());
+			aiInterface->printLog(4, szBuf);
+		}
 
 		bool factionUsesResourceType = aiInterface->factionUsesResourceType(aiInterface->getMyFactionType(), rt);
-		//if(rt->getClass()==rcConsumable && r->getBalance()<0){
-		if(factionUsesResourceType == true && rt->getClass() == rcConsumable && r->getBalance() < 0) {
-			interval= longInterval;
-			return true;
-
+		if(factionUsesResourceType == true && rt->getClass() == rcConsumable) {
+			// The consumable balance is negative
+			if(r->getBalance() < 0) {
+				interval= longInterval;
+				return true;
+			}
+			// If the consumable balance is down to 1/3 of what we need
+			else {
+				if(r->getBalance() * 3 + r->getAmount() < 0) {
+					interval= longInterval;
+					return true;
+				}
+			}
         }
     }
 
@@ -614,9 +615,11 @@ bool AiRuleProduceResourceProducer::test(){
 		const Resource *r= aiInterface->getResource(rt);
 
 		if(ai->outputAIBehaviourToConsole()) printf("STATIC [%s][%d] [min %d] Testing AI RULE Name[%s]\n",rt->getName().c_str(), r->getAmount(), targetStaticResourceCount, this->getName().c_str());
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"STATIC resource check [%s][%d] [min %d] Testing AI RULE Name[%s]",rt->getName().c_str(), r->getAmount(), targetStaticResourceCount, this->getName().c_str());
-		aiInterface->printLog(4, szBuf);
+		if(aiInterface->isLogLevelEnabled(4) == true) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"STATIC resource check [%s][%d] [min %d] Testing AI RULE Name[%s]",rt->getName().c_str(), r->getAmount(), targetStaticResourceCount, this->getName().c_str());
+			aiInterface->printLog(4, szBuf);
+		}
 
 		if(rt->getClass() == rcStatic && r->getAmount() < targetStaticResourceCount) {
 			bool factionUsesResourceType = aiInterface->factionUsesResourceType(aiInterface->getMyFactionType(), rt);
@@ -628,7 +631,7 @@ bool AiRuleProduceResourceProducer::test(){
     }
 
 	if(ai->outputAIBehaviourToConsole()) printf("STATIC returning FALSE\n");
-	aiInterface->printLog(4, "Static Resource check returning FALSE");
+	if(aiInterface->isLogLevelEnabled(4) == true) aiInterface->printLog(4, "Static Resource check returning FALSE");
 
 	interval= shortInterval;
 	return false;
@@ -665,10 +668,11 @@ void AiRuleProduce::execute() {
 	if(produceTask!=NULL) {
 
 		if(ai->outputAIBehaviourToConsole()) printf("AiRuleProduce producing [%s]\n",(produceTask->getUnitType() != NULL ? produceTask->getUnitType()->getName().c_str() : "null"));
-		//aiInterface->printLog(4, "AiRuleProduce producing [%s]",(produceTask->getUnitType() != NULL ? produceTask->getUnitType()->getName().c_str() : "null"));
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"AiRuleProduce producing [%s]",(produceTask->getUnitType() != NULL ? produceTask->getUnitType()->getName().c_str() : "null"));
-		aiInterface->printLog(4, szBuf);
+		if(aiInterface->isLogLevelEnabled(4) == true) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"AiRuleProduce producing [%s]",(produceTask->getUnitType() != NULL ? produceTask->getUnitType()->getName().c_str() : "null"));
+			aiInterface->printLog(4, szBuf);
+		}
 
 		//generic produce task, produce random unit that has the skill or produces the resource
 		if(produceTask->getUnitType() == NULL) {
@@ -751,7 +755,6 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 				bool produceIt= false;
 
 				if(ai->outputAIBehaviourToConsole()) printf("produceGeneric [%p] Testing AI RULE Name[%s]\n",pt->getResourceType(), this->getName().c_str());
-				//aiInterface->printLog(4, "produceGeneric [%p] Testing AI RULE Name[%s]",pt->getResourceType(), this->getName().c_str());
 
 				//if the unit produces the resource
 				if(pt->getResourceType() != NULL) {
@@ -759,7 +762,6 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 
 					if(r != NULL) {
 						if(ai->outputAIBehaviourToConsole()) printf("produceGeneric r = [%s][%d] Testing AI RULE Name[%s]\n",r->getDescription().c_str(),r->getAmount(), this->getName().c_str());
-						//aiInterface->printLog(4, "produceGeneric r = [%s][%d] Testing AI RULE Name[%s]",r->getDescription().c_str(),r->getAmount(), this->getName().c_str());
 					}
 
 					if(r != NULL && r->getAmount() < 0) {
@@ -770,7 +772,6 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 				else {
 					//if the unit is from the right class
 					if(ai->outputAIBehaviourToConsole()) printf("produceGeneric right class = [%d] Testing AI RULE Name[%s]\n",producedUnit->isOfClass(pt->getUnitClass()), this->getName().c_str());
-					//aiInterface->printLog(4, "produceGeneric right class = [%d] Testing AI RULE Name[%s]",producedUnit->isOfClass(pt->getUnitClass()), this->getName().c_str());
 
 					if(producedUnit->isOfClass(pt->getUnitClass())){
 						if(aiInterface->reqsOk(ct) && aiInterface->reqsOk(producedUnit)){
@@ -793,7 +794,6 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 	if(ableUnits.empty() == false) {
 
 		if(ai->outputAIBehaviourToConsole()) printf("produceGeneric !ableUnits.empty(), ableUnits.size() = [%d] Testing AI RULE Name[%s]\n",(int)ableUnits.size(), this->getName().c_str());
-		//aiInterface->printLog(4, "produceGeneric !ableUnits.empty(), ableUnits.size() = [%d] Testing AI RULE Name[%s]",(int)ableUnits.size(), this->getName().c_str());
 
 		//priority for non produced units
 		for(unsigned int i=0; i < ableUnits.size(); ++i) {
@@ -815,9 +815,11 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 	AiInterface *aiInterface= ai->getAiInterface();
 
 	if(ai->outputAIBehaviourToConsole()) printf("produceSpecific aiInterface->reqsOk(pt->getUnitType()) = [%s][%d] Testing AI RULE Name[%s]\n",pt->getUnitType()->getName().c_str(),aiInterface->reqsOk(pt->getUnitType()), this->getName().c_str());
-	char szBuf[8096]="";
-	snprintf(szBuf,8096,"produceSpecific aiInterface->reqsOk(pt->getUnitType()) = [%s][%d] Testing AI RULE Name[%s]",pt->getUnitType()->getName().c_str(),aiInterface->reqsOk(pt->getUnitType()), this->getName().c_str());
-	aiInterface->printLog(4, szBuf);
+	if(aiInterface->isLogLevelEnabled(4) == true) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"produceSpecific aiInterface->reqsOk(pt->getUnitType()) = [%s][%d] Testing AI RULE Name[%s]",pt->getUnitType()->getName().c_str(),aiInterface->reqsOk(pt->getUnitType()), this->getName().c_str());
+		aiInterface->printLog(4, szBuf);
+	}
 
 	//if unit meets requirements
 	if(aiInterface->reqsOk(pt->getUnitType())) {
@@ -839,7 +841,6 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 					if(producedUnit == pt->getUnitType()){
 
 						if(ai->outputAIBehaviourToConsole()) printf("produceSpecific aiInterface->reqsOk(ct) = [%d] Testing AI RULE Name[%s]\n",aiInterface->reqsOk(ct), this->getName().c_str());
-						//aiInterface->printLog(4, "produceSpecific aiInterface->reqsOk(ct) = [%d] Testing AI RULE Name[%s]",aiInterface->reqsOk(ct), this->getName().c_str());
 
 						if(aiInterface->reqsOk(ct)){
 							if(ctypeForCostCheck == NULL || ct->getClass() == ccMorph) {
@@ -860,13 +861,19 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 		}
 
 		if(ai->outputAIBehaviourToConsole()) printf("produceSpecific aiInterface->checkCosts(pt->getUnitType()) = [%d] Testing AI RULE Name[%s]\n",aiInterface->checkCosts(pt->getUnitType(),ctypeForCostCheck), this->getName().c_str());
-		snprintf(szBuf,8096,"produceSpecific aiInterface->checkCosts(pt->getUnitType()) = [%d] Testing AI RULE Name[%s]",aiInterface->checkCosts(pt->getUnitType(),ctypeForCostCheck), this->getName().c_str());
-		aiInterface->printLog(4, szBuf);
+		if(aiInterface->isLogLevelEnabled(4) == true) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"produceSpecific aiInterface->checkCosts(pt->getUnitType()) = [%d] Testing AI RULE Name[%s]",aiInterface->checkCosts(pt->getUnitType(),ctypeForCostCheck), this->getName().c_str());
+			aiInterface->printLog(4, szBuf);
+		}
 
 		//if unit doesnt meet resources retry
 		if(aiInterface->checkCosts(pt->getUnitType(),ctypeForCostCheck) == false) {
-			snprintf(szBuf,8096,"Check costs FAILED.");
-			aiInterface->printLog(4, szBuf);
+			if(aiInterface->isLogLevelEnabled(4) == true) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"Check costs FAILED.");
+				aiInterface->printLog(4, szBuf);
+			}
 
 			ai->retryTask(pt);
 			return;
@@ -895,7 +902,6 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 					if(producedUnit == pt->getUnitType()){
 
 						if(ai->outputAIBehaviourToConsole()) printf("produceSpecific aiInterface->reqsOk(ct) = [%d] Testing AI RULE Name[%s]\n",aiInterface->reqsOk(ct), this->getName().c_str());
-						//aiInterface->printLog(4, "produceSpecific aiInterface->reqsOk(ct) = [%d] Testing AI RULE Name[%s]",aiInterface->reqsOk(ct), this->getName().c_str());
 
 						if(aiInterface->reqsOk(ct)){
 							defCt= ct;
@@ -911,9 +917,11 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 		if(producers.empty() == false) {
 
 			if(ai->outputAIBehaviourToConsole()) printf("produceSpecific producers.empty() = [%d] Testing AI RULE Name[%s]\n",producers.empty(), this->getName().c_str());
-			//aiInterface->printLog(4, "produceSpecific producers.empty() = [%d] Testing AI RULE Name[%s]",producers.empty(), this->getName().c_str());
-			snprintf(szBuf,8096,"produceSpecific producers.empty() = [%d] Testing AI RULE Name[%s]",producers.empty(), this->getName().c_str());
-			aiInterface->printLog(4, szBuf);
+			if(aiInterface->isLogLevelEnabled(4) == true) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"produceSpecific producers.empty() = [%d] Testing AI RULE Name[%s]",producers.empty(), this->getName().c_str());
+				aiInterface->printLog(4, szBuf);
+			}
 
 			// Narrow down producers list to those who are not busy if possible
 			vector<int> idle_producers;
@@ -1061,9 +1069,11 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 						if(ai->outputAIBehaviourToConsole()) printf("mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
-						//aiInterface->printLog(4, "mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
-						snprintf(szBuf,8096,"mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
-						aiInterface->printLog(4, szBuf);
+						if(aiInterface->isLogLevelEnabled(4) == true) {
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
+							aiInterface->printLog(4, szBuf);
+						}
 
 						aiInterface->giveCommand(bestIndex, ut->getCommandType(commandIndex));
 					}
@@ -1081,10 +1091,11 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						}
 
 						if(ai->outputAIBehaviourToConsole()) printf("mega #2 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
-						//aiInterface->printLog(4, "mega #2 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
-						snprintf(szBuf,8096,"mega #2 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
-						aiInterface->printLog(4, szBuf);
-
+						if(aiInterface->isLogLevelEnabled(4) == true) {
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"mega #2 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
+							aiInterface->printLog(4, szBuf);
+						}
 						aiInterface->giveCommand(bestIndex, defCt);
 					}
 				}
@@ -1104,9 +1115,11 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						}
 
 						if(ai->outputAIBehaviourToConsole()) printf("mega #3 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
-						//aiInterface->printLog(4, "mega #3 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
-						snprintf(szBuf,8096,"mega #3 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
-						aiInterface->printLog(4, szBuf);
+						if(aiInterface->isLogLevelEnabled(4) == true) {
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"mega #3 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
+							aiInterface->printLog(4, szBuf);
+						}
 
 						aiInterface->giveCommand(bestIndex, defCt);
 					}
@@ -1122,9 +1135,11 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						defCt = producersDefaultCommandType[bestIndex][bestCommandTypeIndex];
 					}
 					if(ai->outputAIBehaviourToConsole()) printf("mega #4 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
-					//aiInterface->printLog(4, "mega #4 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
-					snprintf(szBuf,8096,"mega #4 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
-					aiInterface->printLog(4, szBuf);
+					if(aiInterface->isLogLevelEnabled(4) == true) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"mega #4 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
+						aiInterface->printLog(4, szBuf);
+					}
 
 					aiInterface->giveCommand(bestIndex, defCt);
 				}
@@ -1146,10 +1161,11 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] producers.size() = %d, producerIndex = %d, pIndex = %d, producersDefaultCommandType.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,producers.size(),producerIndex,pIndex,producersDefaultCommandType.size());
 
 				if(ai->outputAIBehaviourToConsole()) printf("produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(producerIndex)->getType()->getName().c_str(),defCt->getName().c_str());
-				//aiInterface->printLog(4, "produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(producerIndex)->getType()->getName().c_str(),defCt->getName().c_str());
-				snprintf(szBuf,8096,"produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(producerIndex)->getType()->getName().c_str(),defCt->getName().c_str());
-				aiInterface->printLog(4, szBuf);
-
+				if(aiInterface->isLogLevelEnabled(4) == true) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(producerIndex)->getType()->getName().c_str(),defCt->getName().c_str());
+					aiInterface->printLog(4, szBuf);
+				}
 				aiInterface->giveCommand(producerIndex, defCt);
 			}
 		}
@@ -1181,7 +1197,6 @@ bool AiRuleBuild::test(){
 void AiRuleBuild::execute() {
 	if(buildTask!=NULL) {
 		if(ai->outputAIBehaviourToConsole()) printf("BUILD AiRuleBuild Unit Name[%s]\n",(buildTask->getUnitType() != NULL ? buildTask->getUnitType()->getName().c_str() : "null"));
-		//aiInterface->printLog(4, "BUILD AiRuleBuild Unit Name[%s]",(buildTask->getUnitType() != NULL ? buildTask->getUnitType()->getName().c_str() : "null"));
 
 		//generic build task, build random building that can be built
 		if(buildTask->getUnitType() == NULL) {
@@ -1443,7 +1458,6 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 
 bool AiRuleBuild::isDefensive(const UnitType *building){
 	if(ai->outputAIBehaviourToConsole()) printf("BUILD isDefensive check for Unit Name[%s] result = %d\n",building->getName().c_str(),building->hasSkillClass(scAttack));
-	//aiInterface->printLog(4, "BUILD isDefensive check for Unit Name[%s] result = %d",building->getName().c_str(),building->hasSkillClass(scAttack));
 
 	return building->hasSkillClass(scAttack);
 }
@@ -1452,12 +1466,11 @@ bool AiRuleBuild::isResourceProducer(const UnitType *building){
 	for(int i= 0; i<building->getCostCount(); i++){
 		if(building->getCost(i)->getAmount()<0){
 			if(ai->outputAIBehaviourToConsole()) printf("BUILD isResourceProducer check for Unit Name[%s] result = true\n",building->getName().c_str());
-			//aiInterface->printLog(4, "BUILD isResourceProducer check for Unit Name[%s] result = true",building->getName().c_str());
+
 			return true;
 		}
 	}
 	if(ai->outputAIBehaviourToConsole()) printf("BUILD isResourceProducer check for Unit Name[%s] result = false\n",building->getName().c_str());
-	//aiInterface->printLog(4, "BUILD isResourceProducer check for Unit Name[%s] result = false",building->getName().c_str());
 
 	return false;
 }
@@ -1470,13 +1483,12 @@ bool AiRuleBuild::isWarriorProducer(const UnitType *building){
 
 			if(ut->isOfClass(ucWarrior)){
 				if(ai->outputAIBehaviourToConsole()) printf("BUILD isWarriorProducer check for Unit Name[%s] result = true\n",building->getName().c_str());
-				//aiInterface->printLog(4, "BUILD isWarriorProducer check for Unit Name[%s] result = true",building->getName().c_str());
+
 				return true;
 			}
 		}
 	}
 	if(ai->outputAIBehaviourToConsole()) printf("BUILD isWarriorProducer check for Unit Name[%s] result = false\n",building->getName().c_str());
-	//aiInterface->printLog(4, "BUILD isWarriorProducer check for Unit Name[%s] result = false",building->getName().c_str());
 
 	return false;
 }

@@ -94,6 +94,8 @@ public:
     bool isWorkerThreadSignalCompleted(int frameIndex);
     AiInterfaceThread *getWorkerThread() { return workerThread; }
 
+    bool isLogLevelEnabled(int level);
+
 	//get
 	int getTimer() const		{return timer;}
 	int getFactionIndex() const	{return factionIndex;}
