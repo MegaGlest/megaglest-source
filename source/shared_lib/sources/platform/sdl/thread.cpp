@@ -484,6 +484,7 @@ void MasterSlaveThreadController::triggerMaster(int waitMilliseconds) {
 
 	MutexSafeWrapper safeMutex(mutex);
 	if(debugMasterSlaveThreadController) printf("In [%s::%s Line: %d] semVal = %u\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,slaveTriggerCounter);
+	//printf("In [%s::%s Line: %d] semVal = %u\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,slaveTriggerCounter);
 
 	slaveTriggerCounter--;
 	int newCount = slaveTriggerCounter;
@@ -491,6 +492,8 @@ void MasterSlaveThreadController::triggerMaster(int waitMilliseconds) {
 	if(debugMasterSlaveThreadController) printf("In [%s::%s Line: %d] slaveTriggerCounter = %u\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,slaveTriggerCounter);
 
 	safeMutex.ReleaseLock();
+
+	//printf("In [%s::%s Line: %d] semVal = %u\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,slaveTriggerCounter);
 
 	if(newCount <= triggerBaseCount) {
 		slaveTriggerSem->signal();
