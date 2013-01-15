@@ -7402,10 +7402,12 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 	const World *world= game->getWorld();
 	assert(world != NULL);
 
-	//assertGl();
-
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	if(qCache.visibleQuadUnitList.empty() == false) {
+		if(colorPickingSelection == true) {
+			unitsList.reserve(qCache.visibleQuadUnitList.size());
+		}
+
 		bool modelRenderStarted = false;
 		for(int visibleUnitIndex = 0;
 				visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
@@ -7506,13 +7508,12 @@ vector<Object *>  Renderer::renderObjectsFast(bool renderingShadows, bool resour
 		return objectList;
 	}
 
-	//const World *world= game->getWorld();
-	//const Map *map= world->getMap();
-
-    assertGl();
-
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	if(qCache.visibleObjectList.empty() == false) {
+		if(colorPickingSelection == true) {
+			objectList.reserve(qCache.visibleObjectList.size());
+		}
+
 		bool modelRenderStarted = false;
 		for(int visibleIndex = 0;
 				visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
@@ -7575,8 +7576,6 @@ vector<Object *>  Renderer::renderObjectsFast(bool renderingShadows, bool resour
 				if(colorPickingSelection == true) {
 					o->setUniquePickingColor();
 					objectList.push_back(o);
-
-					//assertGl();
 				}
 
 				modelRenderer->render(objModel,resourceOnly?rmSelection:rmNormal);
@@ -7597,8 +7596,6 @@ vector<Object *>  Renderer::renderObjectsFast(bool renderingShadows, bool resour
 			}
 		}
 	}
-
-	assertGl();
 
 	return objectList;
 }
