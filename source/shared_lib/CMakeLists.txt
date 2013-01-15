@@ -152,7 +152,7 @@ option(ENABLE_FRIBIDI "Enable FriBIDi support" ON)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PNG_LIBRARY})
 	ENDIF()
 
-        OPTION(WANT_FONTCONFIG "use the library fontconfig" ON)
+        OPTION(WANT_FONTCONFIG "use the library fontconfig" OFF)
 	IF(WANT_FONTCONFIG)
 	        FIND_PACKAGE(FontConfig)
 	        IF(FONTCONFIG_FOUND)
