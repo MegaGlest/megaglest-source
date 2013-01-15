@@ -261,7 +261,7 @@ void ParticleRendererGl::renderModel(GameParticleSystem *ps, ModelRenderer *mr){
 		glRotatef(angleH, 0.f, 1.f, 0.f);
 
 		//render
-		mr->begin(true, true, false);
+		mr->begin(true, true, false, false);
 		float t = ps->getTween();
 
 		if(t < 0.0f || t > 1.0f) {
