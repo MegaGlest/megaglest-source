@@ -120,6 +120,8 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 	        ENDIF()
         ENDIF()
 
+        MESSAGE(STATUS "***Note: The final output path for Megaglest Map Editor will be [${EXECUTABLE_OUTPUT_PATH}]")
+
 	FIND_PROGRAM(HELP2MAN "help2man")
 
 	SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
