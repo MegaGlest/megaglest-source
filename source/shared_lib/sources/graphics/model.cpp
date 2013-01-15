@@ -1527,24 +1527,25 @@ void BaseColorPickEntity::beginPicking() {
 	//glClearColor (0.0,0.0,0.0,0.0);
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glClear(GL_COLOR_BUFFER_BIT);
+
 	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_FOG);
+	//glDisable(GL_FOG);
 	glDisable(GL_LIGHTING);
 
 	glDisable(GL_BLEND);
-	glDisable(GL_MULTISAMPLE);
-	glDisable(GL_DITHER);
+	//glDisable(GL_MULTISAMPLE);
+	//glDisable(GL_DITHER);
 }
 
 void BaseColorPickEntity::endPicking() {
 	// turn off texturing, lighting and fog
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_FOG);
-	glEnable(GL_LIGHTING);
+	//glEnable(GL_TEXTURE_2D);
+	//glEnable(GL_FOG);
+	//glEnable(GL_LIGHTING);
 
-	glEnable(GL_BLEND);
-	glEnable(GL_MULTISAMPLE);
-	glEnable(GL_DITHER);
+	//glEnable(GL_BLEND);
+	//glEnable(GL_MULTISAMPLE);
+	//glEnable(GL_DITHER);
 }
 
 vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
