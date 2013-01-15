@@ -1837,7 +1837,7 @@ void Renderer::renderMouse3d() {
 
 		if(gui->isPlacingBuilding()) {
 
-			modelRenderer->begin(true, true, false);
+			modelRenderer->begin(true, true, false, false);
 
 			const UnitType *building= gui->getBuilding();
 			const Gui *gui= game->getGui();
@@ -2576,9 +2576,7 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
 	}
 	glColor4fv(Vec4f(1.f, 1.f, 1.f, alpha).ptr());
 	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
-	//textRenderer3D->begin(font);
 	textRenderer3D->render(text, pos.x, pos.y);
-	//textRenderer3D->end();
 	safeTextRender.end();
 
 	glDisable(GL_BLEND);
@@ -2597,7 +2595,6 @@ void Renderer::renderText3D(const string &text, Font3D *font, float alpha, int x
 	Vec2i pos= Vec2i(x, y);
 	//Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	//textRenderer3D->begin(font);
 	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
 	textRenderer3D->render(text, pos.x, pos.y, centered);
 	//textRenderer3D->end();
@@ -2618,10 +2615,8 @@ void Renderer::renderText(const string &text, Font2D *font, float alpha, int x, 
 
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	//textRenderer->begin(font);
 	TextRendererSafeWrapper safeTextRender(textRenderer,font);
 	textRenderer->render(text, pos.x, pos.y);
-	//textRenderer->end();
 	safeTextRender.end();
 
 	glPopAttrib();
@@ -2726,10 +2721,8 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
 		renderTextSurroundingBox(pos.x, pos.y, w, h,maxEditWidth,maxEditRenderWidth);
 	}
 	glColor3fv(color.ptr());
-	//textRenderer3D->begin(font);
 	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
 	textRenderer3D->render(text, pos.x, pos.y);
-	//textRenderer3D->end();
 	safeTextRender.end();
 
 	glPopAttrib();
@@ -2746,10 +2739,8 @@ void Renderer::renderText3D(const string &text, Font3D *font, const Vec3f &color
 	Vec2i pos= Vec2i(x, y);
 	//Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	//textRenderer3D->begin(font);
 	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
 	textRenderer3D->render(text, pos.x, pos.y, centered);
-	//textRenderer3D->end();
 	safeTextRender.end();
 
 	glPopAttrib();
@@ -2765,10 +2756,8 @@ void Renderer::renderText(const string &text, Font2D *font, const Vec3f &color, 
 
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	//textRenderer->begin(font);
 	TextRendererSafeWrapper safeTextRender(textRenderer,font);
 	textRenderer->render(text, pos.x, pos.y);
-	//textRenderer->end();
 	safeTextRender.end();
 
 	glPopAttrib();
@@ -2808,10 +2797,8 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
 		renderTextSurroundingBox(pos.x, pos.y, w, h,maxEditWidth,maxEditRenderWidth);
 	}
 	glColor4fv(color.ptr());
-	//textRenderer3D->begin(font);
 	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
 	textRenderer3D->render(text, pos.x, pos.y);
-	//textRenderer3D->end();
 	safeTextRender.end();
 
 	glDisable(GL_BLEND);
@@ -2830,10 +2817,8 @@ void Renderer::renderText3D(const string &text, Font3D *font, const Vec4f &color
 	Vec2i pos= Vec2i(x, y);
 	//Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	//textRenderer3D->begin(font);
 	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
 	textRenderer3D->render(text, pos.x, pos.y, centered);
-	//textRenderer3D->end();
 	safeTextRender.end();
 
 	glDisable(GL_BLEND);
@@ -2851,10 +2836,8 @@ void Renderer::renderText(const string &text, Font2D *font, const Vec4f &color, 
 
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	//textRenderer->begin(font);
 	TextRendererSafeWrapper safeTextRender(textRenderer,font);
 	textRenderer->render(text, pos.x, pos.y);
-	//textRenderer->end();
 	safeTextRender.end();
 
 	glPopAttrib();
@@ -2873,7 +2856,6 @@ void Renderer::renderTextShadow3D(const string &text, Font3D *font,const Vec4f &
 
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	//textRenderer3D->begin(font);
 	TextRendererSafeWrapper safeTextRender(textRenderer3D,font);
 	if(color.w < 0.5)	{
 		glColor3f(0.0f, 0.0f, 0.0f);
@@ -2902,7 +2884,6 @@ void Renderer::renderTextShadow(const string &text, Font2D *font,const Vec4f &co
 
 	Vec2i pos= centered? computeCenteredPos(text, font, x, y): Vec2i(x, y);
 
-	//textRenderer->begin(font);
 	TextRendererSafeWrapper safeTextRender(textRenderer,font);
 	if(color.w < 0.5)	{
 		glColor3f(0.0f, 0.0f, 0.0f);
@@ -4618,7 +4599,7 @@ void Renderer::renderObjects(const int renderFps) {
 			glEnable(GL_COLOR_MATERIAL);
 			glAlphaFunc(GL_GREATER, 0.5f);
 
-			modelRenderer->begin(true, true, false);
+			modelRenderer->begin(true, true, false, false);
 		}
 		//ambient and diffuse color is taken from cell color
 
@@ -5015,7 +4996,7 @@ void Renderer::renderUnits(const int renderFps) {
 				}
 				glActiveTexture(baseTexUnit);
 
-				modelRenderer->begin(true, true, true, &meshCallbackTeamColor);
+				modelRenderer->begin(true, true, true, false, &meshCallbackTeamColor);
 			}
 
 			glMatrixMode(GL_MODELVIEW);
@@ -5107,7 +5088,7 @@ void Renderer::renderUnitsToBuild(const int renderFps) {
 		glEnable(GL_COLOR_MATERIAL);
 		glDepthMask(GL_FALSE);
 
-		modelRenderer->begin(true, true, false);
+		modelRenderer->begin(true, true, false, false);
 
 		for(int visibleUnitIndex = 0;
 				visibleUnitIndex < qCache.visibleQuadUnitBuildList.size(); ++visibleUnitIndex) {
@@ -6386,7 +6367,7 @@ void Renderer::renderMenuBackground(const MenuBackground *menuBackground) {
 	//main model
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.5f);
-	modelRenderer->begin(true, true, true);
+	modelRenderer->begin(true, true, true, false);
 	menuBackground->getMainModelPtr()->updateInterpolationData(menuBackground->getAnim(), true);
 	modelRenderer->render(menuBackground->getMainModelPtr());
 	modelRenderer->end();
@@ -6405,7 +6386,7 @@ void Renderer::renderMenuBackground(const MenuBackground *menuBackground) {
 				CacheManager::getCachedItem< std::vector<Vec3f> >(GameConstants::characterMenuScreenPositionListCacheLookupKey);
 		characterMenuScreenPositionListCache.clear();
 
-		modelRenderer->begin(true, true, false);
+		modelRenderer->begin(true, true, false, false);
 
 		for(int i=0; i < MenuBackground::characterCount; ++i) {
 			glMatrixMode(GL_MODELVIEW);
@@ -6559,7 +6540,7 @@ void Renderer::renderMenuBackground(Camera *camera, float fade, Model *mainModel
 	if(mainModel) {
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.5f);
-		modelRenderer->begin(true, true, true);
+		modelRenderer->begin(true, true, true, false);
 		mainModel->updateInterpolationData(anim, true);
 		modelRenderer->render(mainModel);
 		modelRenderer->end();
@@ -6574,7 +6555,7 @@ void Renderer::renderMenuBackground(Camera *camera, float fade, Model *mainModel
 			glAlphaFunc(GL_GREATER, 0.0f);
 			float alpha= clamp((minDist-dist) / minDist, 0.f, 1.f);
 			glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, Vec4f(1.0f, 1.0f, 1.0f, alpha).ptr());
-			modelRenderer->begin(true, true, false);
+			modelRenderer->begin(true, true, false, false);
 
 			for(unsigned int i = 0; i < characterModels.size(); ++i) {
 				if(characterModels[i]) {
@@ -7459,20 +7440,11 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 					}
 				}
 
-				//assertGl();
+				modelRenderer->begin(false, renderingShadows, false, colorPickingSelection);
 
-				modelRenderer->begin(false, renderingShadows, false);
-
-				//assertGl();
-
-				if(colorPickingSelection == true) {
-					BaseColorPickEntity::beginPicking();
-				}
-				else {
+				if(colorPickingSelection == false) {
 					glInitNames();
 				}
-
-				//assertGl();
 			}
 
 			if(colorPickingSelection == false) {
@@ -7504,11 +7476,7 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 			if(colorPickingSelection == true) {
 				unit->setUniquePickingColor();
 				unitsList.push_back(unit);
-
-				//assertGl();
 			}
-
-			//assertGl();
 
 			modelRenderer->render(model,rmSelection);
 
@@ -7517,35 +7485,22 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 			if(colorPickingSelection == false) {
 				glPopName();
 			}
-
-			//assertGl();
 		}
 
 		if(modelRenderStarted == true) {
-			//assertGl();
-
 			modelRenderer->end();
-
-			//assertGl();
-
-			if(colorPickingSelection == true) {
-				BaseColorPickEntity::endPicking();
-			}
-			else {
+			if(colorPickingSelection == false) {
 				glPopAttrib();
 			}
-
-//			assertGl();
 		}
 	}
-
-//	assertGl();
 
 	return unitsList;
 }
 
 //render objects for selection purposes
-vector<Object *>  Renderer::renderObjectsFast(bool renderingShadows, bool resourceOnly, bool colorPickingSelection) {
+vector<Object *>  Renderer::renderObjectsFast(bool renderingShadows, bool resourceOnly,
+		bool colorPickingSelection) {
 	vector<Object *> objectList;
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return objectList;
@@ -7591,12 +7546,9 @@ vector<Object *>  Renderer::renderObjectsFast(bool renderingShadows, bool resour
 					}
 				}
 
-				modelRenderer->begin(false, renderingShadows, false);
+				modelRenderer->begin(false, renderingShadows, false, colorPickingSelection);
 
-				if(colorPickingSelection == true) {
-					BaseColorPickEntity::beginPicking();
-				}
-				else {
+				if(colorPickingSelection == false) {
 					glInitNames();
 				}
 			}
@@ -7640,10 +7592,7 @@ vector<Object *>  Renderer::renderObjectsFast(bool renderingShadows, bool resour
 		if(modelRenderStarted == true) {
 			modelRenderer->end();
 
-			if(colorPickingSelection == true) {
-				BaseColorPickEntity::endPicking();
-			}
-			else {
+			if(colorPickingSelection == false) {
 				glPopAttrib();
 			}
 		}

@@ -34,7 +34,8 @@ ModelRendererGl::ModelRendererGl() {
 	lastTexture=0;
 }
 
-void ModelRendererGl::begin(bool renderNormals, bool renderTextures, bool renderColors, MeshCallback *meshCallback) {
+void ModelRendererGl::begin(bool renderNormals, bool renderTextures, bool renderColors,
+		bool colorPickingMode, MeshCallback *meshCallback) {
 	//assertions
 	assert(rendering == false);
 	assertGl();
@@ -42,6 +43,7 @@ void ModelRendererGl::begin(bool renderNormals, bool renderTextures, bool render
 	this->renderTextures= renderTextures;
 	this->renderNormals= renderNormals;
 	this->renderColors= renderColors;
+	this->colorPickingMode = colorPickingMode;
 	this->meshCallback= meshCallback;
 
 	rendering= true;
@@ -53,14 +55,19 @@ void ModelRendererGl::begin(bool renderNormals, bool renderTextures, bool render
 	glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
 
 	//init opengl
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	if(this->colorPickingMode == false) {
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
 	glBindTexture(GL_TEXTURE_2D, 0);
 	glFrontFace(GL_CCW);
-	glEnable(GL_NORMALIZE);
-	glEnable(GL_BLEND);
 
-	glEnable(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(0.005f, 0.0f);
+	if(this->colorPickingMode == false) {
+		glEnable(GL_NORMALIZE);
+		glEnable(GL_BLEND);
+
+		glEnable(GL_POLYGON_OFFSET_FILL);
+		glPolygonOffset(0.005f, 0.0f);
+	}
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 
@@ -81,6 +88,11 @@ void ModelRendererGl::begin(bool renderNormals, bool renderTextures, bool render
 	glHint( GL_POLYGON_SMOOTH_HINT, GL_FASTEST );
 	glHint( GL_TEXTURE_COMPRESSION_HINT, GL_FASTEST );
 */
+
+	if(this->colorPickingMode == true) {
+		BaseColorPickEntity::beginPicking();
+	}
+
 	//assertions
 	assertGl();
 }
@@ -93,12 +105,18 @@ void ModelRendererGl::end() {
 	//set render state
 	rendering= false;
 
-	glPolygonOffset( 0.0f, 0.0f );
-	glDisable(GL_POLYGON_OFFSET_FILL);
+	if(this->colorPickingMode == false) {
+		glPolygonOffset( 0.0f, 0.0f );
+		glDisable(GL_POLYGON_OFFSET_FILL);
+	}
 
 	//pop
 	glPopAttrib();
 	glPopClientAttrib();
+
+	if(colorPickingMode == true) {
+		BaseColorPickEntity::endPicking();
+	}
 
 	//assertions
 	assertGl();
@@ -157,35 +175,37 @@ void ModelRendererGl::renderMesh(Mesh *mesh,int renderMode) {
 		glEnable(GL_CULL_FACE);
 	}
 
-	//set color
-	if(renderColors) {
-		Vec4f color(mesh->getDiffuseColor(), mesh->getOpacity());
-		glColor4fv(color.ptr());
-	}
+	if(this->colorPickingMode == false) {
+		//set color
+		if(renderColors) {
+			Vec4f color(mesh->getDiffuseColor(), mesh->getOpacity());
+			glColor4fv(color.ptr());
+		}
 
-	//texture state
-	const Texture2DGl *texture= static_cast<const Texture2DGl*>(mesh->getTexture(mtDiffuse));
-	if(texture != NULL && renderTextures) {
-		if(lastTexture != texture->getHandle()){
-			//assert(glIsTexture(texture->getHandle()));
-			//throw megaglest_runtime_error("glIsTexture(texture->getHandle()) == false for texture: " + texture->getPath());
-			if(glIsTexture(texture->getHandle()) == GL_TRUE) {
-                glBindTexture(GL_TEXTURE_2D, texture->getHandle());
-                lastTexture= texture->getHandle();
-			}
-			else {
-                glBindTexture(GL_TEXTURE_2D, 0);
-                lastTexture= 0;
+		//texture state
+		const Texture2DGl *texture= static_cast<const Texture2DGl*>(mesh->getTexture(mtDiffuse));
+		if(texture != NULL && renderTextures) {
+			if(lastTexture != texture->getHandle()){
+				//assert(glIsTexture(texture->getHandle()));
+				//throw megaglest_runtime_error("glIsTexture(texture->getHandle()) == false for texture: " + texture->getPath());
+				if(glIsTexture(texture->getHandle()) == GL_TRUE) {
+					glBindTexture(GL_TEXTURE_2D, texture->getHandle());
+					lastTexture= texture->getHandle();
+				}
+				else {
+					glBindTexture(GL_TEXTURE_2D, 0);
+					lastTexture= 0;
+				}
 			}
 		}
-	}
-	else{
-		glBindTexture(GL_TEXTURE_2D, 0);
-		lastTexture= 0;
-	}
+		else{
+			glBindTexture(GL_TEXTURE_2D, 0);
+			lastTexture= 0;
+		}
 
-	if(meshCallback != NULL) {
-		meshCallback->execute(mesh);
+		if(meshCallback != NULL) {
+			meshCallback->execute(mesh);
+		}
 	}
 
 	//misc vars

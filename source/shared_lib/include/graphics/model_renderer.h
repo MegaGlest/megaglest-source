@@ -49,6 +49,7 @@ protected:
 	bool renderNormals;
 	bool renderTextures;
 	bool renderColors;
+	bool colorPickingMode;
 	MeshCallback *meshCallback;
 
 public:
@@ -56,13 +57,14 @@ public:
 		renderNormals = false;
 		renderTextures = false;
 		renderColors = false;
+		colorPickingMode = false;
 
 		meshCallback= NULL;
 	}
 
 	virtual ~ModelRenderer(){};
 
-	virtual void begin(bool renderNormals, bool renderTextures, bool renderColors, MeshCallback *meshCallback= NULL)=0;
+	virtual void begin(bool renderNormals, bool renderTextures, bool renderColors, bool colorPickingMode, MeshCallback *meshCallback= NULL)=0;
 	virtual void end()=0;
 	virtual void render(Model *model,int renderMode=rmNormal)=0;
 	virtual void renderNormalsOnly(Model *model)=0;

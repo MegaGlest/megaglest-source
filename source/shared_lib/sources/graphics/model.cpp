@@ -1528,15 +1528,18 @@ void BaseColorPickEntity::beginPicking() {
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//glClear(GL_COLOR_BUFFER_BIT);
 
-	//glDisable(GL_TEXTURE_2D);
-	//glDisable(GL_FOG);
-	//glDisable(GL_LIGHTING);
+	glPushAttrib(GL_ENABLE_BIT);
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_FOG);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_BLEND);
+	glDisable(GL_MULTISAMPLE);
+	glDisable(GL_DITHER);
+	glDisable(GL_POLYGON_OFFSET_FILL);
+	glDisable(GL_NORMALIZE);
 
-	//glDisable(GL_BLEND);
-	//glDisable(GL_MULTISAMPLE);
-	//glDisable(GL_DITHER);
-
-	glPushAttrib(GL_TEXTURE_2D | GL_LIGHTING | GL_BLEND | GL_MULTISAMPLE | GL_DITHER);
+	//glPushAttrib(GL_TEXTURE_2D | GL_LIGHTING | GL_BLEND | GL_MULTISAMPLE | GL_DITHER);
+	//glPushAttrib(GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT | GL_TEXTURE_BIT | GL_NORMALIZE | GL_BLEND | GL_POLYGON_OFFSET_FILL);
 }
 
 void BaseColorPickEntity::endPicking() {

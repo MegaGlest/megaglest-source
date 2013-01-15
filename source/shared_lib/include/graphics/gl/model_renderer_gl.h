@@ -32,7 +32,7 @@ private:
 
 public:
 	ModelRendererGl();
-	virtual void begin(bool renderNormals, bool renderTextures, bool renderColors, MeshCallback *meshCallback);
+	virtual void begin(bool renderNormals, bool renderTextures, bool renderColors, bool colorPickingMode, MeshCallback *meshCallback);
 	virtual void end();
 	virtual void render(Model *model,int renderMode=rmNormal);
 	virtual void renderNormalsOnly(Model *model);
