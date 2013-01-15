@@ -261,9 +261,8 @@ echo '' >> $REPORT_LOCATION
 echo '***** MegaGlest version ********************************************************' >> $REPORT_LOCATION
 echo '' >> $REPORT_LOCATION
 
-# Currently commented out due to http://glest.org/glest_board/?topic=8482
-#if [ "$ERROR_RUNNING_MEGAGLEST"'x' = '0x' -o  "$ERROR_RUNNING_MEGAGLEST"'x' = 'x' ]
-#then # Only run this if MegaGlest didn't already fail last time it was run
+if [ "$ERROR_RUNNING_MEGAGLEST"'x' = '0x' -o  "$ERROR_RUNNING_MEGAGLEST"'x' = 'x' ]
+then # Only run this if MegaGlest didn't already fail last time it was run
 	echo '    (I will now try to run MegaGlest, but it should quit automatically.)'
 	echo '' >> $REPORT_LOCATION
 	echo '>>> ./start_megaglest --use-language=en --version' >> $REPORT_LOCATION
@@ -275,10 +274,10 @@ echo '' >> $REPORT_LOCATION
 		ERROR_RUNNING_MEGAGLEST=1
 	fi
 	sleep 1
-#else
-#	echo 'WARNING: A previous run of MegaGlest failed. Skipping test.' >&2
-#	echo '>>> SKIPPED: ./start_megaglest --use-language=en --version' >> $REPORT_LOCATION
-#fi
+else
+	echo 'WARNING: A previous run of MegaGlest failed. Skipping test.' >&2
+	echo '>>> SKIPPED: ./start_megaglest --use-language=en --version' >> $REPORT_LOCATION
+fi
 
 echo ' →  CPU'
 echo '' >> $REPORT_LOCATION
@@ -334,10 +333,10 @@ then # not available in search path
 	echo 'WARNING: "lspci" utility is not available.' >&2
 	echo '         Consider installing it to provide more useful information on your system.' >&2
 	echo '' >&2
-	echo '>>> SKIPPED: lspci -knnv | grep -EA10 '"'"'(VGA|Display)'"'" >> $REPORT_LOCATION
+	echo '>>> SKIPPED: lspci -knnv | grep -EA12 '"'"'(VGA|Display)'"'" >> $REPORT_LOCATION
 else # it's available
-	echo ">>> lspci -knnv | grep -EA10 '(VGA|Display)'" >> $REPORT_LOCATION
-	lspci -knnv | grep -EA10 '(VGA|Display)' >> $REPORT_LOCATION 2>&1
+	echo ">>> lspci -knnv | grep -EA12 '(VGA|Display)'" >> $REPORT_LOCATION
+	lspci -knnv | grep -EA12 '(VGA|Display)' >> $REPORT_LOCATION 2>&1
 fi
 sleep 1
 echo '' >> $REPORT_LOCATION
@@ -379,10 +378,10 @@ then # not available in search path
 	echo 'WARNING: "glxinfo" utility is not available.' >&2
 	echo '         Consider installing it to provide more useful information on your system.' >&2
 	echo '' >&2
-	echo '>>> SKIPPED: glxinfo -l' >> $REPORT_LOCATION
+	echo '>>> SKIPPED: glxinfo | grep -E '^(name|display|server|client|GLX|OpenGL)' >> $REPORT_LOCATION
 else # it's available
-	echo ">>> glxinfo -l" >> $REPORT_LOCATION
-	glxinfo -l >> $REPORT_LOCATION 2>&1
+	echo ">>> glxinfo | grep -E '^(name|display|server|client|GLX|OpenGL)'" >> $REPORT_LOCATION
+	glxinfo | grep -E '^(name|display|server|client|GLX|OpenGL)' >> $REPORT_LOCATION 2>&1
 fi
 sleep 1
 echo '' >> $REPORT_LOCATION
