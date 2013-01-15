@@ -213,11 +213,14 @@ IF(BUILD_MEGAGLEST)
 
 	ENDIF()
 
-	IF(UNIX AND NOT APPLE)
-		SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux)
-	ELSE()
-		SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game)
-	ENDIF()
+        OPTION(WANT_DEV_OUTPATH "use developer friendly output paths" OFF)
+        IF(WANT_DEV_OUTPATH)
+	        IF(UNIX AND NOT APPLE)
+		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux)
+	        ELSE()
+		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game)
+	        ENDIF()
+        ENDIF()
 
 	SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
@@ -259,18 +262,6 @@ IF(BUILD_MEGAGLEST)
 
         # Requires an install prefix for the items below to work
         IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
-	        #IF(NOT WIN32)
-		        #set_target_properties(megaglest.bin PROPERTIES OUTPUT_NAME "megaglest")
-		        # rename the binary for installation
-	        #	MESSAGE(STATUS "Copying [${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}] to [${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_BIN_INSTALL_PATH}/megaglest]")
-	        #	install(CODE 
-	        #		"EXECUTE_PROCESS(COMMAND \"cmake\" \"-E\" \"copy\" \"${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}\" \"${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_BIN_INSTALL_PATH}/megaglest\")")
-
-	        #	install(CODE 
-	        #		"EXECUTE_PROCESS(COMMAND \"chmod\" \"+x\" \"${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_BIN_INSTALL_PATH}/megaglest\")")
-
-	        #ELSE()
-
 	        MESSAGE(STATUS "**Source package [${PROJECT_SOURCE_DIR}]")	
 
 	        # Installation of the program
