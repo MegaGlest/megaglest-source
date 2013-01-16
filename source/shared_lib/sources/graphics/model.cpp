@@ -1434,14 +1434,14 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int col
 void PixelBufferWrapper::begin() {
 	if(PixelBufferWrapper::isPBOEnabled == true) {
 		// set the framebuffer to read
-		//glReadBuffer(GL_FRONT);
+		glReadBuffer(GL_FRONT);
 	}
 }
 
 void PixelBufferWrapper::end() {
 	if(PixelBufferWrapper::isPBOEnabled == true) {
 		// set the framebuffer to read
-		//glReadBuffer(GL_BACK);
+		glReadBuffer(GL_BACK);
 	}
 }
 
