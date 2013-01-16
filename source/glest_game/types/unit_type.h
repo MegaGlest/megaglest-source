@@ -56,7 +56,7 @@ public:
 	}
 	void init(string name, int kills);
 
-	const string &getName() const	{return name;}
+	string getName(bool translatedValue=false) const;
 	int getKills() const			{return kills;}
 
 	void saveGame(XmlNode *rootNode) const ;

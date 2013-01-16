@@ -111,7 +111,7 @@ public:
 	bool getIsLinked() const { return isLinked; }
 	int getUnitTypeCount() const						{return unitTypes.size();}
 	int getUpgradeTypeCount() const						{return upgradeTypes.size();}
-	string getName() const								{return name;}
+	virtual string getName(bool translatedValue=false) const;
 	const UnitType *getUnitType(int i) const			{return &unitTypes[i];}
 	const UpgradeType *getUpgradeType(int i) const		{return &upgradeTypes[i];}
 	StrSound *getMusic() const							{return music;}

@@ -45,6 +45,13 @@ void Level::init(string name, int kills){
 	this->kills= kills;
 }
 
+string Level::getName(bool translatedValue) const	{
+	if(translatedValue == false) return name;
+
+	Lang &lang = Lang::getInstance();
+	return lang.getTechTreeString("LevelName_" + name,name.c_str());
+}
+
 void Level::saveGame(XmlNode *rootNode) const {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *levelNode = rootNode->addChild("Level");

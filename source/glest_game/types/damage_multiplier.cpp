@@ -11,6 +11,7 @@
 
 #include "damage_multiplier.h"
 #include "conversion.h"
+#include "lang.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -27,6 +28,13 @@ void AttackType::saveGame(XmlNode *rootNode) {
 	attackTypeNode->addAttribute("id",intToStr(id), mapTagReplacements);
 }
 
+string AttackType::getName(bool translatedValue) const	{
+	if(translatedValue == false) return name;
+
+	Lang &lang = Lang::getInstance();
+	return lang.getTechTreeString("AttackTypeName_" + name,name.c_str());
+}
+
 void ArmorType::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *armorTypeNode = rootNode->addChild("ArmorType");
@@ -37,6 +45,12 @@ void ArmorType::saveGame(XmlNode *rootNode) {
 	armorTypeNode->addAttribute("id",intToStr(id), mapTagReplacements);
 }
 
+string ArmorType::getName(bool translatedValue) const	{
+	if(translatedValue == false) return name;
+
+	Lang &lang = Lang::getInstance();
+	return lang.getTechTreeString("ArmorTypeName_" + name,name.c_str());
+}
 // =====================================================
 // 	class DamageMultiplierTable
 // =====================================================
