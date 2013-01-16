@@ -28,6 +28,7 @@
 #include "cache_manager.h"
 #include "network_manager.h"
 #include <algorithm>
+#include <iterator>
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
