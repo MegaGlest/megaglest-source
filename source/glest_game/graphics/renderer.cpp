@@ -6663,8 +6663,9 @@ Vec3f Renderer::computeScreenPosition(const Vec3f &worldPos) {
 void Renderer::computeSelected(	Selection::UnitContainer &units, const Object *&obj,
 								const bool withObjectSelection,
 								const Vec2i &posDown, const Vec2i &posUp) {
-	const bool colorPickingSelection 	= Config::getInstance().getBool("EnableColorPicking","false");
-	const bool frustumPickingSelection 	= Config::getInstance().getBool("EnableFrustumPicking","false");
+	const bool selectBufPickingSelection 	= Config::getInstance().getBool("EnableSelectBufPicking","false");
+	const bool colorPickingSelection 		= Config::getInstance().getBool("EnableColorPicking","true");
+	const bool frustumPickingSelection 		= Config::getInstance().getBool("EnableFrustumPicking","false");
 
 	if(colorPickingSelection == true) {
 		selectUsingColorPicking(units,obj, withObjectSelection,posDown, posUp);
