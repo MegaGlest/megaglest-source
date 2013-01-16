@@ -6900,6 +6900,14 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 	PixelBufferWrapper::end();
 
 	vector<BaseColorPickEntity *> rendererModels;
+	if(rendererUnits.empty() == false) {
+		copy(rendererUnits.begin(), rendererUnits.end(), std::inserter(rendererModels, rendererModels.begin()));
+	}
+	if(rendererObjects.empty() == false) {
+		copy(rendererObjects.begin(), rendererObjects.end(), std::inserter(rendererModels, rendererModels.begin()));
+	}
+
+/*
 	for(unsigned int i = 0; i < rendererObjects.size(); ++i) {
 		Object *object = rendererObjects[i];
 		rendererModels.push_back(object);
@@ -6914,6 +6922,7 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 		//printf("In [%s::%s] Line: %d rendered unit i = %d [%s] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,unit->getUniquePickName().c_str(),unit->getColorDescription().c_str());
 		//printf("In [%s::%s] Line: %d\ni = %d [%d - %s] ptr[%p] color[%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,unit->getId(),unit->getType()->getName().c_str(),unit->getCurrentModelPtr(),unit->getColorDescription().c_str());
 	}
+*/
 
 	vector<int> pickedList = BaseColorPickEntity::getPickedList(x,y,w,h, rendererModels);
 	//printf("In [%s::%s] Line: %d pickedList = %d models rendered = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,pickedList.size(),rendererModels.size());
@@ -6941,7 +6950,6 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 				if(unit != NULL && unit->isAlive()) {
 					units.push_back(unit);
 				}
-
 			}
 		}
 	}
