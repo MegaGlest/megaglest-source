@@ -35,6 +35,13 @@ DisplayableType::DisplayableType(){
 	image= NULL;
 }
 
+string DisplayableType::getName(bool translatedValue) const {
+	if(translatedValue == false) return name;
+
+	Lang &lang = Lang::getInstance();
+	return lang.getTechTreeString("CommandName_" + name,name.c_str());
+}
+
 //void DisplayableType::saveGame(XmlNode *rootNode) const {
 //	std::map<string,string> mapTagReplacements;
 //	XmlNode *displayableTypeNode = rootNode->addChild("DisplayableType");

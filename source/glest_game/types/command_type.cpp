@@ -121,7 +121,7 @@ string StopCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
     string str;
 	Lang &lang= Lang::getInstance();
 
-    str= name+"\n";
+    str= getName(true)+"\n";
 	str+= lang.get("ReactionSpeed")+": "+ intToStr(stopSkillType->getSpeed())+"\n";
     if(stopSkillType->getEpCost()!=0)
         str+= lang.get("EpCost")+": "+intToStr(stopSkillType->getEpCost())+"\n";
@@ -177,7 +177,7 @@ string MoveCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
     string str;
 	Lang &lang= Lang::getInstance();
 
-    str= name+"\n";
+    str=getName(true)+"\n";
     str+= lang.get("WalkSpeed")+": "+ intToStr(moveSkillType->getSpeed());
 	if(totalUpgrade->getMoveSpeed(moveSkillType) != 0) {
         str+= "+" + intToStr(totalUpgrade->getMoveSpeed(moveSkillType));
@@ -233,7 +233,7 @@ string AttackCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
     string str;
 	Lang &lang= Lang::getInstance();
 
-    str= name+"\n";
+    str=getName(true)+"\n";
 	if(attackSkillType->getEpCost()!=0){
         str+= lang.get("EpCost") + ": " + intToStr(attackSkillType->getEpCost()) + "\n";
 	}
@@ -249,7 +249,7 @@ string AttackCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 	if(totalUpgrade->getAttackStrength(attackSkillType) != 0) {
         str+= "+"+intToStr(totalUpgrade->getAttackStrength(attackSkillType));
 	}
-	str+= " ("+ attackSkillType->getAttackType()->getName() +")";
+	str+= " ("+ attackSkillType->getAttackType()->getName(true) +")";
     str+= "\n";
 
     //splash radius
@@ -327,7 +327,7 @@ string AttackStoppedCommandType::getDesc(const TotalUpgrade *totalUpgrade) const
     Lang &lang= Lang::getInstance();
 	string str;
 
-    str= name+"\n";
+    str=getName(true)+"\n";
 	if(attackSkillType->getEpCost()!=0){
         str+= lang.get("EpCost")+": "+intToStr(attackSkillType->getEpCost())+"\n";
 	}
@@ -342,7 +342,7 @@ string AttackStoppedCommandType::getDesc(const TotalUpgrade *totalUpgrade) const
     str+= intToStr(attackSkillType->getAttackStrength()+attackSkillType->getAttackVar());
     if(totalUpgrade->getAttackStrength(attackSkillType) != 0)
         str+= "+"+intToStr(totalUpgrade->getAttackStrength(attackSkillType));
-    str+= " ("+ attackSkillType->getAttackType()->getName() +")";
+    str+= " ("+ attackSkillType->getAttackType()->getName(true) +")";
     str+="\n";
 
     //splash radius
@@ -462,7 +462,7 @@ string BuildCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
     string str;
 	Lang &lang= Lang::getInstance();
 
-    str= name+"\n";
+    str=getName(true)+"\n";
     str+= lang.get("BuildSpeed")+": "+ intToStr(buildSkillType->getSpeed())+"\n";
 	if(buildSkillType->getEpCost()!=0){
         str+= lang.get("EpCost")+": "+intToStr(buildSkillType->getEpCost())+"\n";
@@ -536,7 +536,7 @@ string HarvestCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 	Lang &lang= Lang::getInstance();
 	string str;
 
-    str= name+"\n";
+    str=getName(true)+"\n";
     str+= lang.get("HarvestSpeed")+": "+ intToStr(harvestSkillType->getSpeed()/hitsPerUnit)+"\n";
     str+= lang.get("MaxLoad")+": "+ intToStr(maxLoad)+"\n";
     str+= lang.get("LoadedSpeed")+": "+ intToStr(moveLoadedSkillType->getSpeed())+"\n";
@@ -612,7 +612,7 @@ string RepairCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
     Lang &lang= Lang::getInstance();
 	string str;
 
-    str= name+"\n";
+    str=getName(true)+"\n";
     str+= lang.get("RepairSpeed")+": "+ intToStr(repairSkillType->getSpeed())+"\n";
 	if(repairSkillType->getEpCost()!=0){
         str+= lang.get("EpCost")+": "+intToStr(repairSkillType->getEpCost())+"\n";
@@ -677,7 +677,7 @@ void ProduceCommandType::load(int id, const XmlNode *n, const string &dir,
 }
 
 string ProduceCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
-    string str= name+"\n";
+    string str=getName(true)+"\n";
 	Lang &lang= Lang::getInstance();
 
     //prod speed
@@ -747,7 +747,7 @@ string UpgradeCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
     string str;
 	Lang &lang= Lang::getInstance();
 
-    str= name+"\n";
+    str=getName(true)+"\n";
     str+= lang.get("UpgradeSpeed")+": "+ intToStr(upgradeSkillType->getSpeed())+"\n";
     if(upgradeSkillType->getEpCost()!=0)
         str+= lang.get("EpCost")+": "+intToStr(upgradeSkillType->getEpCost())+"\n";
@@ -816,7 +816,7 @@ void MorphCommandType::load(int id, const XmlNode *n, const string &dir,
 }
 
 string MorphCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
-    string str= name+"\n";
+    string str=getName(true)+"\n";
 	Lang &lang= Lang::getInstance();
 
     //prod speed
@@ -881,7 +881,7 @@ void SwitchTeamCommandType::load(int id, const XmlNode *n, const string &dir,
 }
 
 string SwitchTeamCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
-    string str= name+"\n";
+    string str= getName(true)+"\n";
 	//Lang &lang= Lang::getInstance();
 
     //prod speed

@@ -794,7 +794,7 @@ const Level *Unit::getNextLevel() const{
 string Unit::getFullName() const{
 	string str="";
 	if(level != NULL){
-		str += (level->getName() + " ");
+		str += (level->getName(true) + " ");
 	}
 	if(type == NULL) {
 	    throw megaglest_runtime_error("type == NULL in Unit::getFullName()!");
@@ -2649,7 +2649,7 @@ string Unit::getDesc() const {
 	if(totalUpgrade.getArmor()!=0){
 		str+="+"+intToStr(totalUpgrade.getArmor());
 	}
-	str+= " ("+getType()->getArmorType()->getName()+")";
+	str+= " ("+getType()->getArmorType()->getName(true)+")";
 
 	//sight
 	str+="\n"+ lang.get("Sight")+ ": " + intToStr(getType()->getSight());
@@ -2662,7 +2662,7 @@ string Unit::getDesc() const {
 	if(enemyKills > 0 || nextLevel != NULL) {
 		str+= "\n" + lang.get("Kills") +": " + intToStr(enemyKills);
 		if(nextLevel != NULL) {
-			str+= " (" + nextLevel->getName() + ": " + intToStr(nextLevel->getKills()) + ")";
+			str+= " (" + nextLevel->getName(true) + ": " + intToStr(nextLevel->getKills()) + ")";
 		}
 	}
 

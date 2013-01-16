@@ -40,7 +40,7 @@ public:
 		id = -1;
 	}
 	int getId() const					{return id;}
-	const string &getName() const		{return name;}
+	string getName(bool translatedValue=false) const;
 
 	void setName(const string &name)	{this->name= name;}
 	void setId(int id)					{this->id= id;}
@@ -62,7 +62,7 @@ public:
 		id = -1;
 	}
 	int getId() const					{return id;}
-	const string &getName() const		{return name;}
+	string getName(bool translatedValue=false) const;
 
 	void setName(const string &name)	{this->name= name;}
 	void setId(int id)					{this->id= id;}

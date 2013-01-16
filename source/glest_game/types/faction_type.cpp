@@ -908,6 +908,13 @@ std::string FactionType::toString() const {
 	return result;
 }
 
+string FactionType::getName(bool translatedValue) const {
+	if(translatedValue == false) return name;
+
+	Lang &lang = Lang::getInstance();
+	return lang.getTechTreeString("FactionName_" + name,name.c_str());
+}
+
 void FactionType::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *factionTypeNode = rootNode->addChild("FactionType");
