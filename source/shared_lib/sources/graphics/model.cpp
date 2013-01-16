@@ -1434,14 +1434,14 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int col
 void PixelBufferWrapper::begin() {
 	if(PixelBufferWrapper::isPBOEnabled == true) {
 		// set the framebuffer to read
-		glReadBuffer(GL_FRONT);
+		//glReadBuffer(GL_FRONT);
 	}
 }
 
 void PixelBufferWrapper::end() {
 	if(PixelBufferWrapper::isPBOEnabled == true) {
 		// set the framebuffer to read
-		glReadBuffer(GL_BACK);
+		//glReadBuffer(GL_BACK);
 	}
 }
 
@@ -1557,6 +1557,7 @@ void BaseColorPickEntity::endPicking() {
 vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
 						const vector<BaseColorPickEntity *> &rendererModels) {
 	vector<int> pickedModels;
+	pickedModels.reserve(rendererModels.size());
 
 	//printf("In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	//static auto_ptr<unsigned char> cachedPixels;
@@ -1629,11 +1630,11 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
 		unsigned char *pixel = &pixelBuffer[index];
 
 		// Skip duplicate scanned colors
-		map<unsigned char,map<unsigned char, map<unsigned char,bool> > >::iterator iterFind1 = colorAlreadyPickedList.find(pixel[0]);
+		map<unsigned char,map<unsigned char, map<unsigned char,bool> > >::const_iterator iterFind1 = colorAlreadyPickedList.find(pixel[0]);
 		if(iterFind1 != colorAlreadyPickedList.end()) {
-			map<unsigned char, map<unsigned char,bool> >::iterator iterFind2 = iterFind1->second.find(pixel[1]);
+			map<unsigned char, map<unsigned char,bool> >::const_iterator iterFind2 = iterFind1->second.find(pixel[1]);
 			if(iterFind2 != iterFind1->second.end()) {
-				map<unsigned char,bool>::iterator iterFind3 = iterFind2->second.find(pixel[2]);
+				map<unsigned char,bool>::const_iterator iterFind3 = iterFind2->second.find(pixel[2]);
 				if(iterFind3 != iterFind2->second.end()) {
 					continue;
 				}
