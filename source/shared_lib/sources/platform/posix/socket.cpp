@@ -212,7 +212,7 @@ Mutex UPNP_Tools::mutexUPNP;
 		else
 		{
 			// Didn't find error in list, so make up a generic one
-			outs << "unknown error";
+			outs << "unknown socket error";
 		}
 		outs << " (" << Target.nID << ")";
 

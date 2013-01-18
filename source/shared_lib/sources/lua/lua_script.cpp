@@ -620,7 +620,7 @@ string LuaScript::errorToString(int errorCode) {
 			error+= "Error while running the error handler"; 
 			break;
 		default:
-			error+= "Unknown error";
+			error+= "Unknown LUA error" + intToStr(errorCode);
 			break;
 	}
 
