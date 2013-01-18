@@ -5076,7 +5076,6 @@ int glestMain(int argc, char** argv) {
 
 		ExceptionHandler::handleRuntimeError(ex.c_str(),true);
 	}
-#ifndef WIN32_STACK_TRACE
 	catch(...) {
 		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 			soundThreadManager = (program != NULL ? program->getSoundThreadManager(true) : NULL);
@@ -5089,7 +5088,7 @@ int glestMain(int argc, char** argv) {
 
 		ExceptionHandler::handleRuntimeError("Unknown error [main]!",true);
 	}
-#endif
+
 	cleanupCRCThread();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
