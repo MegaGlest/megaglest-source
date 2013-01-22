@@ -540,6 +540,10 @@ public:
 	void selectUsingSelectionBuffer(Selection::UnitContainer &units,const Object *&obj, const bool withObjectSelection,const Vec2i &posDown, const Vec2i &posUp);
 	void selectUsingFrustumSelection(Selection::UnitContainer &units,const Object *&obj, const bool withObjectSelection,const Vec2i &posDown, const Vec2i &posUp);
 
+	void colorPickUnits(Selection::UnitContainer &units,const Vec2i &posDown, const Vec2i &posUp);
+	void colorPickObject(const Object *&obj, const Vec2i &posDown,const Vec2i &posUp);
+
+
 
     //gl wrap
 	string getGlInfo();

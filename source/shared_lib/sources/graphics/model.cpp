@@ -1568,7 +1568,8 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
 	//printf("In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	static Chrono lastSnapshot(true);
-	const int selectionMillisecondUpdate = 100;
+	//const int selectionMillisecondUpdate = 100;
+	const int selectionMillisecondUpdate = 0;
 
 	if(PixelBufferWrapper::getIsPBOEnable() == true) {
 		// Only update the pixel buffer every x milliseconds or as required
@@ -1679,10 +1680,17 @@ bool BaseColorPickEntity::isUniquePickingColor(unsigned char *pixel) const {
 }
 
 void BaseColorPickEntity::setUniquePickingColor() const {
+
+	glColor3ub(uniqueColorID[0],
+			 	uniqueColorID[1],
+			 	uniqueColorID[2]);
+/*
 	 glColor3f(	uniqueColorID[0] / 255.0f,
 			 	uniqueColorID[1] / 255.0f,
 			 	uniqueColorID[2] / 255.0f);
 			 	//uniqueColorID[3] / 255.0f);
+
+			 	 */
 }
 
 
