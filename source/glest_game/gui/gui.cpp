@@ -1020,6 +1020,7 @@ void Gui::computeSelected(bool doubleClick, bool force){
 		const Object *selectedResourceObject=NULL;
 		selectedResourceObjectPos=Vec2i(-1,-1);
 		if(selectionQuad.isEnabled() && selectionQuad.getPosUp().dist(selectionQuad.getPosDown())<minQuadSize){
+			//Renderer::getInstance().computeSelected(units, selectedResourceObject, true, selectionQuad.getPosDown(), selectionQuad.getPosDown());
 			Renderer::getInstance().computeSelected(units, selectedResourceObject, true, selectionQuad.getPosDown(), selectionQuad.getPosDown());
 			if(selectedResourceObject!=NULL){
 				selectedResourceObjectPos=Map::toSurfCoords(selectedResourceObject->getMapPos());

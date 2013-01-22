@@ -6846,6 +6846,13 @@ void Renderer::selectUsingSelectionBuffer(Selection::UnitContainer &units,
 void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 		const Object *&obj, const bool withObjectSelection,
 		const Vec2i &posDown, const Vec2i &posUp) {
+
+	colorPickUnits(units,posDown, posUp);
+	if(units.empty() == true && withObjectSelection == true) {
+		colorPickObject(obj, posDown,posUp);
+	}
+
+/*
 	int x1 = posDown.x;
 	int y1 = posDown.y;
 	int x2 = posUp.x;
@@ -6895,8 +6902,9 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 
 	// Added this to ensure all the selection calls are done now
 	// (see http://www.unknownroad.com/rtfm/graphics/glselection.html section: [0x4])
-	//glFlush();
+	glFlush();
 
+	// uncomment this for debugging color picking to see what is colored
 	//GraphicsInterface::getInstance().getCurrentContext()->swapBuffers();
 
 	PixelBufferWrapper::end();
@@ -6909,26 +6917,10 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 		copy(rendererObjects.begin(), rendererObjects.end(), std::inserter(rendererModels, rendererModels.begin()));
 	}
 
-/*
-	for(unsigned int i = 0; i < rendererObjects.size(); ++i) {
-		Object *object = rendererObjects[i];
-		rendererModels.push_back(object);
-		//printf("In [%s::%s] Line: %d rendered object i = %d [%s] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,object->getUniquePickName().c_str(),object->getColorDescription().c_str());
-		//printf("In [%s::%s] Line: %d\ni = %d [%d - %s] ptr[%p] color[%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,unit->getId(),unit->getType()->getName().c_str(),unit->getCurrentModelPtr(),unit->getColorDescription().c_str());
-	}
-
-	//printf("In [%s::%s] Line: %d\nLooking for picks inside [%d,%d,%d,%d] posdown [%s] posUp [%s]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,x,y,w,h,posDown.getString().c_str(),posUp.getString().c_str());
-	for(unsigned int i = 0; i < rendererUnits.size(); ++i) {
-		Unit *unit = rendererUnits[i];
-		rendererModels.push_back(unit);
-		//printf("In [%s::%s] Line: %d rendered unit i = %d [%s] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,unit->getUniquePickName().c_str(),unit->getColorDescription().c_str());
-		//printf("In [%s::%s] Line: %d\ni = %d [%d - %s] ptr[%p] color[%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,unit->getId(),unit->getType()->getName().c_str(),unit->getCurrentModelPtr(),unit->getColorDescription().c_str());
-	}
-*/
-
 	vector<int> pickedList = BaseColorPickEntity::getPickedList(x,y,w,h, rendererModels);
 	//printf("In [%s::%s] Line: %d pickedList = %d models rendered = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,pickedList.size(),rendererModels.size());
 
+	//glPopAttrib();
 	if(pickedList.empty() == false) {
 		units.reserve(pickedList.size());
 		for(unsigned int i = 0; i < pickedList.size(); ++i) {
@@ -6956,7 +6948,151 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 			}
 		}
 	}
+*/
 }
+
+void Renderer::colorPickUnits(Selection::UnitContainer &units,
+		const Vec2i &posDown, const Vec2i &posUp) {
+	int x1 = posDown.x;
+	int y1 = posDown.y;
+	int x2 = posUp.x;
+	int y2 = posUp.y;
+
+	int x = min(x1,x2);
+	int y = min(y1,y2);
+	int w = max(x1,x2) - min(x1,x2);
+	int h = max(y1,y2) - min(y1,y2);
+	if(w < 1) {
+		w = 1;
+	}
+	if(h < 1) {
+		h = 1;
+	}
+
+	const Metrics &metrics= Metrics::getInstance();
+	x= (x * metrics.getScreenW() / metrics.getVirtualW());
+	y= (y * metrics.getScreenH() / metrics.getVirtualH());
+
+	w= (w * metrics.getScreenW() / metrics.getVirtualW());
+	h= (h * metrics.getScreenH() / metrics.getVirtualH());
+
+	PixelBufferWrapper::begin();
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	//GLint view[]= {0, 0, metrics.getVirtualW(), metrics.getVirtualH()};
+	//gluPickMatrix(x, y, w, h, view);
+	gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, perspFarPlane);
+	loadGameCameraMatrix();
+
+	vector<Unit *> rendererUnits = renderUnitsFast(false, true);
+
+	//pop matrices
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	// Added this to ensure all the selection calls are done now
+	// (see http://www.unknownroad.com/rtfm/graphics/glselection.html section: [0x4])
+	glFlush();
+
+	// uncomment this for debugging color picking to see what is colored
+	//GraphicsInterface::getInstance().getCurrentContext()->swapBuffers();
+
+	PixelBufferWrapper::end();
+
+	vector<BaseColorPickEntity *> rendererModels;
+	if(rendererUnits.empty() == false) {
+		copy(rendererUnits.begin(), rendererUnits.end(), std::inserter(rendererModels, rendererModels.begin()));
+	}
+
+	vector<int> pickedList = BaseColorPickEntity::getPickedList(x,y,w,h, rendererModels);
+
+	if(pickedList.empty() == false) {
+		units.reserve(pickedList.size());
+		for(unsigned int i = 0; i < pickedList.size(); ++i) {
+			int index = pickedList[i];
+			Unit *unit = rendererUnits[index];
+			if(unit != NULL && unit->isAlive()) {
+				units.push_back(unit);
+			}
+		}
+	}
+}
+
+
+void Renderer::colorPickObject(const Object *&obj, const Vec2i &posDown,
+		const Vec2i &posUp) {
+
+	int x1 = posDown.x;
+	int y1 = posDown.y;
+	int x2 = posUp.x;
+	int y2 = posUp.y;
+
+	int x = min(x1,x2);
+	int y = min(y1,y2);
+	int w = max(x1,x2) - min(x1,x2);
+	int h = max(y1,y2) - min(y1,y2);
+	if(w < 1) {
+		w = 1;
+	}
+	if(h < 1) {
+		h = 1;
+	}
+
+	const Metrics &metrics= Metrics::getInstance();
+	x= (x * metrics.getScreenW() / metrics.getVirtualW());
+	y= (y * metrics.getScreenH() / metrics.getVirtualH());
+
+	w= (w * metrics.getScreenW() / metrics.getVirtualW());
+	h= (h * metrics.getScreenH() / metrics.getVirtualH());
+
+	PixelBufferWrapper::begin();
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	//GLint view[]= {0, 0, metrics.getVirtualW(), metrics.getVirtualH()};
+	//gluPickMatrix(x, y, w, h, view);
+	gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, perspFarPlane);
+	loadGameCameraMatrix();
+
+	vector<Object *> rendererObjects = renderObjectsFast(false,true,true);
+
+	//pop matrices
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+	// Added this to ensure all the selection calls are done now
+	// (see http://www.unknownroad.com/rtfm/graphics/glselection.html section: [0x4])
+	glFlush();
+
+	// uncomment this for debugging color picking to see what is colored
+	//GraphicsInterface::getInstance().getCurrentContext()->swapBuffers();
+
+	PixelBufferWrapper::end();
+
+	vector<BaseColorPickEntity *> rendererModels;
+	if(rendererObjects.empty() == false) {
+		copy(rendererObjects.begin(), rendererObjects.end(), std::inserter(rendererModels, rendererModels.begin()));
+	}
+
+	vector<int> pickedList = BaseColorPickEntity::getPickedList(x,y,w,h, rendererModels);
+
+	if(pickedList.empty() == false) {
+		for(unsigned int i = 0; i < pickedList.size(); ++i) {
+			int index = pickedList[i];
+			Object *object = rendererObjects[index];
+			//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,index,object);
+
+			if(object != NULL) {
+				obj = object;
+				return;
+			}
+		}
+	}
+}
+
 
 // ==================== shadows ====================
 
