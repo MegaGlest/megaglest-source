@@ -251,7 +251,7 @@ public:
     BaseColorPickEntity();
     virtual ~BaseColorPickEntity() {}
 
-    static const int COLOR_COMPONENTS = 3;
+    static const int COLOR_COMPONENTS = 4;
 
     struct ColorPickStruct {
       unsigned char color[COLOR_COMPONENTS];
