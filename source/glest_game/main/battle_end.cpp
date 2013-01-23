@@ -620,9 +620,9 @@ void BattleEnd::render() {
 
 			Vec3f highliteColor = Vec3f(WHITE.x,WHITE.y,WHITE.z);
 			if(disableStatsColorCoding == false) {
-				highliteColor.x = 0.85;
-				highliteColor.y = 0.8;
-				highliteColor.z = 0.07;
+				highliteColor.x = 0.85f;
+				highliteColor.y = 0.8f;
+				highliteColor.z = 0.07f;
 			}
 
 			if(stats.getPersonalityType(i) == fpt_Observer) {
