@@ -286,7 +286,7 @@ void Gui::mouseDownRightGraphics(int x, int y , bool prepared) {
 		}
 		else {
 			Vec2i targetPos;
-			if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos) &&
+			if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos, true) &&
 				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
 				giveDefaultOrders(x, y);
 			}
