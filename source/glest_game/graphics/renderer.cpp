@@ -6045,7 +6045,7 @@ void Renderer::renderMarkedCellsOnMinimap() {
 				if(bm.getFaction() != NULL) {
 					color=  bm.getFaction()->getTexture()->getPixmapConst()->getPixel3f(0, 0);
 				}
-				float alpha = 0.65;
+				float alpha = 0.65f;
 
 				unit_colors[unitIdx] = Vec4f(color.x,color.y,color.z,alpha);
 				unit_vertices[unitIdx] = Vec2f(mx + pos.x*zoom.x, my + mh - (pos.y*zoom.y));
@@ -9668,7 +9668,7 @@ void Renderer::renderVideoLoading(int progressPercent) {
     if(cycle.getCurMillis() % 50 == 0) {
     	static bool animCycleUp = true;
     	if(animCycleUp == true) {
-			anim += 0.1;
+			anim += 0.1f;
 			if(anim > 1.f) {
 				anim= 1.f;
 				cycle.reset();
