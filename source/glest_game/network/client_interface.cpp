@@ -934,8 +934,9 @@ void ClientInterface::updateKeyframe(int frameCount) {
 		}
 		else {
 			if(networkCommandListThread == NULL) {
+				static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 				networkCommandListThread = new SimpleTaskThread(this,0,0);
-				networkCommandListThread->setUniqueID(extractFileFromDirectoryPath(__FILE__).c_str());
+				networkCommandListThread->setUniqueID(mutexOwnerId);
 				networkCommandListThread->start();
 			}
 

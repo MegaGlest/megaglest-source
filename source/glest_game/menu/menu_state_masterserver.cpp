@@ -270,8 +270,10 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     chatManager.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	needUpdateFromServer = true;
+
+	static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 	updateFromMasterserverThread = new SimpleTaskThread(this,0,100);
-	updateFromMasterserverThread->setUniqueID(extractFileFromDirectoryPath(__FILE__).c_str());
+	updateFromMasterserverThread->setUniqueID(mutexOwnerId);
 	updateFromMasterserverThread->start();
 
     if(Config::getInstance().getString("IRCServer","") != "") {

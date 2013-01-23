@@ -614,8 +614,9 @@ void Faction::init(
 			}
 			workerThread = NULL;
 		}
+		static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 		this->workerThread = new FactionThread(this);
-		this->workerThread->setUniqueID(__FILE__);
+		this->workerThread->setUniqueID(mutexOwnerId);
 		this->workerThread->start();
 	}
 

@@ -275,8 +275,9 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 
 	this->setSocket(NULL);
 	this->slotThreadWorker 	= NULL;
+	static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 	this->slotThreadWorker 	= new ConnectionSlotThread(this->serverInterface,playerIndex);
-	this->slotThreadWorker->setUniqueID(__FILE__);
+	this->slotThreadWorker->setUniqueID(mutexOwnerId);
 	this->slotThreadWorker->start();
 
 	this->ready		= false;

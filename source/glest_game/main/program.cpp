@@ -807,8 +807,9 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 			if(BaseThread::shutdownAndWait(soundThreadManager) == true) {
 				delete soundThreadManager;
 			}
+			static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 			soundThreadManager = new SimpleTaskThread(&SoundRenderer::getInstance(),0,SOUND_THREAD_UPDATE_MILLISECONDS);
-			soundThreadManager->setUniqueID(extractFileFromDirectoryPath(__FILE__).c_str());
+			soundThreadManager->setUniqueID(mutexOwnerId);
 			soundThreadManager->start();
 		}
 	}
@@ -886,8 +887,9 @@ void Program::stopSoundSystem() {
 void Program::startSoundSystem() {
 	stopSoundSystem();
 	if(SoundRenderer::getInstance().runningThreaded() == true) {
+		static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 		soundThreadManager = new SimpleTaskThread(&SoundRenderer::getInstance(),0,SOUND_THREAD_UPDATE_MILLISECONDS);
-		soundThreadManager->setUniqueID(extractFileFromDirectoryPath(__FILE__).c_str());
+		soundThreadManager->setUniqueID(mutexOwnerId);
 		soundThreadManager->start();
 	}
 }

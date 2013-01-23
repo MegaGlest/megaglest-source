@@ -1791,8 +1791,9 @@ void ClientSocket::startBroadCastClientThread(DiscoveredServersInterface *cb) {
 
 	ClientSocket::stopBroadCastClientThread();
 
+	static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 	broadCastClientThread = new BroadCastClientSocketThread(cb);
-	broadCastClientThread->setUniqueID(string(__FILE__) + string("_") + string(__FUNCTION__));
+	broadCastClientThread->setUniqueID(mutexOwnerId);
 	broadCastClientThread->start();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -2151,7 +2152,8 @@ void ServerSocket::startBroadCastThread() {
 
 	//printf("Start broadcast thread [%p]\n",broadCastThread);
 
-	broadCastThread->setUniqueID(string(__FILE__) + string("_") + string(__FUNCTION__));
+	static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
+	broadCastThread->setUniqueID(mutexOwnerId);
 	broadCastThread->start();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

@@ -705,8 +705,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 
+	static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 	publishToMasterserverThread = new SimpleTaskThread(this,0,200);
-	publishToMasterserverThread->setUniqueID(__FILE__);
+	publishToMasterserverThread->setUniqueID(mutexOwnerId);
 	publishToMasterserverThread->start();
 
 	if(openNetworkSlots==true){

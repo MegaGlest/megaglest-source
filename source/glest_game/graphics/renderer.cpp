@@ -257,8 +257,9 @@ Renderer::Renderer() : BaseRenderer() {
 	}
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+		static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 		saveScreenShotThread = new SimpleTaskThread(this,0,25);
-		saveScreenShotThread->setUniqueID(extractFileFromDirectoryPath(__FILE__).c_str());
+		saveScreenShotThread->setUniqueID(mutexOwnerId);
 		saveScreenShotThread->start();
 	}
 }
@@ -266,20 +267,27 @@ Renderer::Renderer() : BaseRenderer() {
 void Renderer::cleanupScreenshotThread() {
     if(saveScreenShotThread) {
 		saveScreenShotThread->signalQuit();
-		for(time_t elapsed = time(NULL);
-			getSaveScreenQueueSize() > 0 && difftime((long int)time(NULL),elapsed) <= 7;) {
-			sleep(0);
-		}
-		if(saveScreenShotThread->canShutdown(true) == true &&
-				saveScreenShotThread->shutdownAndWait() == true) {
-			//printf("IN MenuStateCustomGame cleanup - C\n");
+//		for(time_t elapsed = time(NULL);
+//			getSaveScreenQueueSize() > 0 && difftime((long int)time(NULL),elapsed) <= 7;) {
+//			sleep(0);
+//		}
+//		if(saveScreenShotThread->canShutdown(true) == true &&
+//				saveScreenShotThread->shutdownAndWait() == true) {
+//			//printf("IN MenuStateCustomGame cleanup - C\n");
+//			delete saveScreenShotThread;
+//		}
+//		saveScreenShotThread = NULL;
+		if(saveScreenShotThread->shutdownAndWait() == true) {
 			delete saveScreenShotThread;
 		}
 		saveScreenShotThread = NULL;
 
+
 		if(getSaveScreenQueueSize() > 0) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] FORCING MEMORY CLEANUP and NOT SAVING screenshots, saveScreenQueue.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,saveScreenQueue.size());
 
+			static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
+			MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,mutexOwnerId);
 			for(std::list<std::pair<string,Pixmap2D *> >::iterator iter = saveScreenQueue.begin();
 				iter != saveScreenQueue.end(); ++iter) {
 				delete iter->second;
@@ -290,37 +298,57 @@ void Renderer::cleanupScreenshotThread() {
 }
 
 Renderer::~Renderer() {
-	delete modelRenderer;
-	modelRenderer = NULL;
-	delete textRenderer;
-	textRenderer = NULL;
-	delete textRenderer3D;
-	textRenderer3D = NULL;
-	delete particleRenderer;
-	particleRenderer = NULL;
+	try{
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	//resources
-	for(int i=0; i<rsCount; ++i){
-		delete modelManager[i];
-		modelManager[i] = NULL;
-		delete textureManager[i];
-		textureManager[i] = NULL;
-		delete particleManager[i];
-		particleManager[i] = NULL;
-		delete fontManager[i];
-		fontManager[i] = NULL;
+		delete modelRenderer;
+		modelRenderer = NULL;
+		delete textRenderer;
+		textRenderer = NULL;
+		delete textRenderer3D;
+		textRenderer3D = NULL;
+		delete particleRenderer;
+		particleRenderer = NULL;
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+		//resources
+		for(int i=0; i<rsCount; ++i){
+			delete modelManager[i];
+			modelManager[i] = NULL;
+			delete textureManager[i];
+			textureManager[i] = NULL;
+			delete particleManager[i];
+			particleManager[i] = NULL;
+			delete fontManager[i];
+			fontManager[i] = NULL;
+		}
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+		// Wait for the queue to become empty or timeout the thread at 7 seconds
+		cleanupScreenshotThread();
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+		mapSurfaceData.clear();
+		quadCache = VisibleQuadContainerCache();
+		quadCache.clearFrustrumData();
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+		this->menu = NULL;
+		this->game = NULL;
+		this->gameCamera = NULL;
 	}
+	catch(const exception &e) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d]\nError [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
 
-	// Wait for the queue to become empty or timeout the thread at 7 seconds
-    cleanupScreenshotThread();
-
-	mapSurfaceData.clear();
-	quadCache = VisibleQuadContainerCache();
-	quadCache.clearFrustrumData();
-
-	this->menu = NULL;
-	this->game = NULL;
-	this->gameCamera = NULL;
+		throw megaglest_runtime_error(szBuf);
+	}
 }
 
 void Renderer::simpleTask(BaseThread *callingThread) {
