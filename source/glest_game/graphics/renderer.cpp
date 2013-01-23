@@ -6875,10 +6875,16 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 		const Object *&obj, const bool withObjectSelection,
 		const Vec2i &posDown, const Vec2i &posUp) {
 
+	//glReadBuffer(GL_FRONT);
+	//glDrawBuffer(GL_FRONT);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	colorPickUnits(units,posDown, posUp);
 	if(units.empty() == true && withObjectSelection == true) {
 		colorPickObject(obj, posDown,posUp);
 	}
+	//glDrawBuffer(GL_BACK);
+	//glReadBuffer(GL_BACK);
 }
 
 void Renderer::colorPickUnits(Selection::UnitContainer &units,
