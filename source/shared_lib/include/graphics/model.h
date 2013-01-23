@@ -252,6 +252,11 @@ public:
     virtual ~BaseColorPickEntity() {}
 
     static const int COLOR_COMPONENTS = 4;
+
+    struct ColorPickStruct {
+      unsigned char color[COLOR_COMPONENTS];
+    };
+
     static void init(int bufferSize);
     static void beginPicking();
     static void endPicking();
@@ -263,10 +268,17 @@ public:
     string getColorDescription() const;
     virtual string getUniquePickName() const = 0;
 
-private:
-	unsigned char uniqueColorID[COLOR_COMPONENTS];
+    static void resetUniqueColors();
 
-    static unsigned char nextColorID[COLOR_COMPONENTS];
+protected:
+
+    void recycleUniqueColor();
+
+private:
+    ColorPickStruct uniqueColorID;
+
+    static ColorPickStruct nextColorID;
+    static vector<ColorPickStruct> nextColorIDReuseList;
     static Mutex mutexNextColorID;
 
     static auto_ptr<PixelBufferWrapper> pbo;

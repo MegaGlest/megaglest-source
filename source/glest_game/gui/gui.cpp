@@ -437,8 +437,9 @@ void Gui::giveOneClickOrders(){
 }
 
 void Gui::giveDefaultOrders(int x, int y) {
-
 	//compute target
+	//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	const Unit *targetUnit= NULL;
 	Vec2i targetPos;
 	if(computeTarget(Vec2i(x, y), targetPos, targetUnit) == false) {
@@ -446,6 +447,7 @@ void Gui::giveDefaultOrders(int x, int y) {
 		return;
 	}
 	giveDefaultOrders(targetPos.x,targetPos.y,targetUnit,true);
+	//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 void Gui::givePreparedDefaultOrders(int x, int y){
@@ -457,7 +459,9 @@ void Gui::giveDefaultOrders(int x, int y,const Unit *targetUnit, bool paintMouse
 	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	bool queueKeyDown = isKeyDown(queueCommandKey);
 	Vec2i targetPos=Vec2i(x, y);
+
 	//give order
+	//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	std::pair<CommandResult,string> result= commander->tryGiveCommand(&selection, targetPos, targetUnit, queueKeyDown);
 
 	//graphical result

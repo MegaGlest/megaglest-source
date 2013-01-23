@@ -564,6 +564,8 @@ Unit::~Unit() {
 	delete mutexCommands;
 	mutexCommands=NULL;
 
+	recycleUniqueColor();
+
 #ifdef LEAK_CHECK_UNITS
 	Unit::mapMemoryList.erase(this);
 #endif

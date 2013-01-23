@@ -385,6 +385,8 @@ Game::~Game() {
 
 	world.end();	//must die before selection because of referencers
 
+	BaseColorPickEntity::resetUniqueColors();
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] aiInterfaces.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,aiInterfaces.size());
 
 	delete videoPlayer;
@@ -1830,6 +1832,7 @@ void Game::update() {
 
 			if(keepFactions == false) {
 				world.end();
+
 				world.cleanup();
 				world.clearTileset();
 
@@ -1840,6 +1843,7 @@ void Game::update() {
 				aiInterfaces.clear();
 				gui.end();		//selection must be cleared before deleting units
 				world.end();	//must die before selection because of referencers
+				BaseColorPickEntity::resetUniqueColors();
 				// MUST DO THIS LAST!!!! Because objects above have pointers to things like
 				// unit particles and fade them out etc and this end method deletes the original
 				// object pointers.
@@ -1864,6 +1868,8 @@ void Game::update() {
 				soundRenderer.stopAllSounds(fadeMusicMilliseconds);
 
 				world.endScenario();
+				BaseColorPickEntity::resetUniqueColors();
+
 				Renderer &renderer= Renderer::getInstance();
 				renderer.endScenario();
 				world.clearTileset();
