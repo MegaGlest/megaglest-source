@@ -234,8 +234,9 @@ AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex,
 			}
 			workerThread = NULL;
 		}
+		static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 		this->workerThread = new AiInterfaceThread(this);
-		this->workerThread->setUniqueID(__FILE__);
+		this->workerThread->setUniqueID(mutexOwnerId);
 		this->workerThread->start();
 	}
 

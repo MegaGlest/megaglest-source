@@ -205,8 +205,9 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 
 	if(publishToMasterserverThread == NULL) {
 		if(needToRepublishToMasterserver == true || GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+			static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 			publishToMasterserverThread = new SimpleTaskThread(this,0,125);
-			publishToMasterserverThread->setUniqueID(extractFileFromDirectoryPath(__FILE__).c_str());
+			publishToMasterserverThread->setUniqueID(mutexOwnerId);
 			publishToMasterserverThread->start();
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,needToRepublishToMasterserver);
@@ -2135,8 +2136,9 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 
 		if(publishToMasterserverThread == NULL) {
 			if(needToRepublishToMasterserver == true || GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+				static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 				publishToMasterserverThread = new SimpleTaskThread(this,0,125);
-				publishToMasterserverThread->setUniqueID(extractFileFromDirectoryPath(__FILE__).c_str());
+				publishToMasterserverThread->setUniqueID(mutexOwnerId);
 				publishToMasterserverThread->start();
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,needToRepublishToMasterserver);

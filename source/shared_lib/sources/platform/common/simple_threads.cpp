@@ -134,7 +134,8 @@ void FileCRCPreCacheThread::execute() {
 									new FileCRCPreCacheThread(techDataPaths,
 											workerTechList,
 											this->processTechCB);
-							workerThread->setUniqueID(__FILE__);
+							static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
+							workerThread->setUniqueID(mutexOwnerId);
 							preCacheWorkerThreadList.push_back(workerThread);
 							workerThread->start();
 
@@ -368,8 +369,8 @@ SimpleTaskThread::~SimpleTaskThread() {
         SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->getUniqueID().c_str());
 
-        //throw megaglest_runtime_error(ex.what());
-        abort();
+        throw megaglest_runtime_error(ex.what());
+        //abort();
     }
 }
 

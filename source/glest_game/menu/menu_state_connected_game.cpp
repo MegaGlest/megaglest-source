@@ -544,8 +544,9 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
         ftpClientThread->start();
     }
 	// Start http meta data thread
+    static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 	modHttpServerThread = new SimpleTaskThread(this,0,200);
-	modHttpServerThread->setUniqueID(__FILE__);
+	modHttpServerThread->setUniqueID(mutexOwnerId);
 	modHttpServerThread->start();
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
