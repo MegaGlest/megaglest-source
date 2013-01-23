@@ -6925,7 +6925,7 @@ void Renderer::colorPickUnits(Selection::UnitContainer &units,
 
 	// Added this to ensure all the selection calls are done now
 	// (see http://www.unknownroad.com/rtfm/graphics/glselection.html section: [0x4])
-	glFlush();
+	//glFlush();
 
 	// uncomment this for debugging color picking to see what is colored
 	//GraphicsInterface::getInstance().getCurrentContext()->swapBuffers();
@@ -6996,7 +6996,7 @@ void Renderer::colorPickObject(const Object *&obj, const Vec2i &posDown,
 
 	// Added this to ensure all the selection calls are done now
 	// (see http://www.unknownroad.com/rtfm/graphics/glselection.html section: [0x4])
-	glFlush();
+	//glFlush();
 
 	// uncomment this for debugging color picking to see what is colored
 	//GraphicsInterface::getInstance().getCurrentContext()->swapBuffers();
