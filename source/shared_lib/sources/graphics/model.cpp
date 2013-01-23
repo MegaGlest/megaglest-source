@@ -1459,40 +1459,64 @@ PixelBufferWrapper::~PixelBufferWrapper() {
 }
 
 //unsigned char BaseColorPickEntity::nextColorID[COLOR_COMPONENTS] = {1, 1, 1, 1};
-unsigned char BaseColorPickEntity::nextColorID[COLOR_COMPONENTS] = { 1, 1, 1 };
+BaseColorPickEntity::ColorPickStruct BaseColorPickEntity::nextColorID = { 1, 1, 1 };
+vector<BaseColorPickEntity::ColorPickStruct> BaseColorPickEntity::nextColorIDReuseList;
 Mutex BaseColorPickEntity::mutexNextColorID;
 auto_ptr<PixelBufferWrapper> BaseColorPickEntity::pbo;
+
+void BaseColorPickEntity::recycleUniqueColor() {
+	MutexSafeWrapper safeMutex(&mutexNextColorID);
+	nextColorIDReuseList.push_back(uniqueColorID);
+}
+
+void BaseColorPickEntity::resetUniqueColors() {
+	MutexSafeWrapper safeMutex(&mutexNextColorID);
+    nextColorID.color[0] = 1;
+    nextColorID.color[1] = 1;
+    nextColorID.color[2] = 1;
+	nextColorIDReuseList.clear();
+}
 
 BaseColorPickEntity::BaseColorPickEntity() {
 	 MutexSafeWrapper safeMutex(&mutexNextColorID);
 
-	 uniqueColorID[0] = nextColorID[0];
-	 uniqueColorID[1] = nextColorID[1];
-	 uniqueColorID[2] = nextColorID[2];
+	 // Reuse old colors
+	 if(nextColorIDReuseList.empty() == false) {
+		 uniqueColorID.color[0] = nextColorIDReuseList.back().color[0];
+		 uniqueColorID.color[1] = nextColorIDReuseList.back().color[1];
+		 uniqueColorID.color[2] = nextColorIDReuseList.back().color[2];
+		 nextColorIDReuseList.pop_back();
+
+		 return;
+	 }
+
+	 uniqueColorID.color[0] = nextColorID.color[0];
+	 uniqueColorID.color[1] = nextColorID.color[1];
+	 uniqueColorID.color[2] = nextColorID.color[2];
 	 //uniqueColorID[3] = nextColorID[3];
 
-	 const int colorSpacing = 2;
+	 const int colorSpacing = 8;
 
-	 if(nextColorID[0] + colorSpacing <= 255) {
-		 nextColorID[0] += colorSpacing;
+	 if(nextColorID.color[0] + colorSpacing <= 255) {
+		 nextColorID.color[0] += colorSpacing;
 	 }
 	 else {
-		 nextColorID[0] = 1;
-	 	 if(nextColorID[1] + colorSpacing <= 255) {
-	 		 nextColorID[1] += colorSpacing;
+		 nextColorID.color[0] = 1;
+	 	 if(nextColorID.color[1] + colorSpacing <= 255) {
+	 		 nextColorID.color[1] += colorSpacing;
 	 	 }
 	 	 else {
-       	   nextColorID[1] = 1;
-       	   if(nextColorID[2] + colorSpacing <= 255) {
-       		   nextColorID[2] += colorSpacing;
+       	   nextColorID.color[1] = 1;
+       	   if(nextColorID.color[2] + colorSpacing <= 255) {
+       		   nextColorID.color[2] += colorSpacing;
        	   }
        	   else {
 
         	   //printf("Color rolled over on 3rd level!\n");
 
-			   nextColorID[0] = 1;
-			   nextColorID[1] = 1;
-			   nextColorID[2] = 1;
+			   nextColorID.color[0] = 1;
+			   nextColorID.color[1] = 1;
+			   nextColorID.color[2] = 1;
 
 
 //          	   nextColorID[2] = 1;
@@ -1517,7 +1541,7 @@ void BaseColorPickEntity::init(int bufferSize) {
 
 string BaseColorPickEntity::getColorDescription() const {
 	char szBuf[100]="";
-	snprintf(szBuf,100,"%d.%d.%d",uniqueColorID[0],uniqueColorID[1],uniqueColorID[2]);
+	snprintf(szBuf,100,"%d.%d.%d",uniqueColorID.color[0],uniqueColorID.color[1],uniqueColorID.color[2]);
 	string result = szBuf;
 	return result;
 }
@@ -1669,9 +1693,9 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
 
 bool BaseColorPickEntity::isUniquePickingColor(unsigned char *pixel) const {
 	bool result = false;
-	if( uniqueColorID[0] == pixel[0] &&
-		uniqueColorID[1] == pixel[1] &&
-		uniqueColorID[2] == pixel[2]) {
+	if( uniqueColorID.color[0] == pixel[0] &&
+		uniqueColorID.color[1] == pixel[1] &&
+		uniqueColorID.color[2] == pixel[2]) {
 		//uniqueColorID[3] == pixel[3]) {
 		result = true;
 	}
@@ -1681,9 +1705,9 @@ bool BaseColorPickEntity::isUniquePickingColor(unsigned char *pixel) const {
 
 void BaseColorPickEntity::setUniquePickingColor() const {
 
-	glColor3ub(uniqueColorID[0],
-			 	uniqueColorID[1],
-			 	uniqueColorID[2]);
+	glColor3ub(uniqueColorID.color[0],
+			 	uniqueColorID.color[1],
+			 	uniqueColorID.color[2]);
 /*
 	 glColor3f(	uniqueColorID[0] / 255.0f,
 			 	uniqueColorID[1] / 255.0f,
