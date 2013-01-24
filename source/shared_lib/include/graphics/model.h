@@ -252,27 +252,6 @@ public:
     virtual ~BaseColorPickEntity() {}
 
     static const int COLOR_COMPONENTS = 4;
-
-    class ColorPickStruct {
-    public:
-      unsigned char color[COLOR_COMPONENTS];
-
-      ColorPickStruct(unsigned char newColor1,unsigned char newColor2,
-    		  unsigned char newColor3,unsigned char newColor4) {
-    	  color[0] = newColor1;
-    	  color[1] = newColor2;
-    	  color[2] = newColor3;
-    	  color[3] = newColor4;
-      }
-      ColorPickStruct() {
-    	  color[0] = 0;
-    	  color[1] = 0;
-    	  color[2] = 0;
-    	  color[3] = 0;
-      }
-
-    };
-
     static void init(int bufferSize);
     static void beginPicking();
     static void endPicking();
@@ -291,10 +270,10 @@ protected:
     void recycleUniqueColor();
 
 private:
-    ColorPickStruct uniqueColorID;
+	unsigned char uniqueColorID[COLOR_COMPONENTS];
 
-    static ColorPickStruct nextColorID;
-    static vector<ColorPickStruct> nextColorIDReuseList;
+    static unsigned char nextColorID[COLOR_COMPONENTS];
+    static vector<vector<unsigned char> > nextColorIDReuseList;
     static Mutex mutexNextColorID;
 
     static auto_ptr<PixelBufferWrapper> pbo;

@@ -6874,21 +6874,6 @@ void Renderer::selectUsingSelectionBuffer(Selection::UnitContainer &units,
 void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 		const Object *&obj, const bool withObjectSelection,
 		const Vec2i &posDown, const Vec2i &posUp) {
-
-	//glReadBuffer(GL_FRONT);
-	//glDrawBuffer(GL_FRONT);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	colorPickUnits(units,posDown, posUp);
-	if(units.empty() == true && withObjectSelection == true) {
-		colorPickObject(obj, posDown,posUp);
-	}
-	//glDrawBuffer(GL_BACK);
-	//glReadBuffer(GL_BACK);
-}
-
-void Renderer::colorPickUnits(Selection::UnitContainer &units,
-		const Vec2i &posDown, const Vec2i &posUp) {
 	int x1 = posDown.x;
 	int y1 = posDown.y;
 	int x2 = posUp.x;
@@ -6913,7 +6898,6 @@ void Renderer::colorPickUnits(Selection::UnitContainer &units,
 	h= (h * metrics.getScreenH() / metrics.getVirtualH());
 
 	PixelBufferWrapper::begin();
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
@@ -6923,8 +6907,16 @@ void Renderer::colorPickUnits(Selection::UnitContainer &units,
 	gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, perspFarPlane);
 	loadGameCameraMatrix();
 
-	vector<Unit *> rendererUnits = renderUnitsFast(false, true);
+	//render units to find which ones should be selected
+	//printf("In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+	vector<Unit *> rendererUnits = renderUnitsFast(false, true);
+	//printf("In [%s::%s] Line: %d rendererUnits = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,rendererUnits.size());
+
+	vector<Object *> rendererObjects;
+	if(withObjectSelection == true) {
+		rendererObjects = renderObjectsFast(false,true,true);
+	}
 	//pop matrices
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
@@ -6933,7 +6925,6 @@ void Renderer::colorPickUnits(Selection::UnitContainer &units,
 	// (see http://www.unknownroad.com/rtfm/graphics/glselection.html section: [0x4])
 	//glFlush();
 
-	// uncomment this for debugging color picking to see what is colored
 	//GraphicsInterface::getInstance().getCurrentContext()->swapBuffers();
 
 	PixelBufferWrapper::end();
@@ -6942,94 +6933,43 @@ void Renderer::colorPickUnits(Selection::UnitContainer &units,
 	if(rendererUnits.empty() == false) {
 		copy(rendererUnits.begin(), rendererUnits.end(), std::inserter(rendererModels, rendererModels.begin()));
 	}
-
-	vector<int> pickedList = BaseColorPickEntity::getPickedList(x,y,w,h, rendererModels);
-
-	if(pickedList.empty() == false) {
-		units.reserve(pickedList.size());
-		for(unsigned int i = 0; i < pickedList.size(); ++i) {
-			int index = pickedList[i];
-			Unit *unit = rendererUnits[index];
-			if(unit != NULL && unit->isAlive()) {
-				units.push_back(unit);
-			}
-		}
-	}
-}
-
-
-void Renderer::colorPickObject(const Object *&obj, const Vec2i &posDown,
-		const Vec2i &posUp) {
-
-	int x1 = posDown.x;
-	int y1 = posDown.y;
-	int x2 = posUp.x;
-	int y2 = posUp.y;
-
-	int x = min(x1,x2);
-	int y = min(y1,y2);
-	int w = max(x1,x2) - min(x1,x2);
-	int h = max(y1,y2) - min(y1,y2);
-	if(w < 1) {
-		w = 1;
-	}
-	if(h < 1) {
-		h = 1;
-	}
-
-	const Metrics &metrics= Metrics::getInstance();
-	x= (x * metrics.getScreenW() / metrics.getVirtualW());
-	y= (y * metrics.getScreenH() / metrics.getVirtualH());
-
-	w= (w * metrics.getScreenW() / metrics.getVirtualW());
-	h= (h * metrics.getScreenH() / metrics.getVirtualH());
-
-	PixelBufferWrapper::begin();
-
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	//GLint view[]= {0, 0, metrics.getVirtualW(), metrics.getVirtualH()};
-	//gluPickMatrix(x, y, w, h, view);
-	gluPerspective(perspFov, metrics.getAspectRatio(), perspNearPlane, perspFarPlane);
-	loadGameCameraMatrix();
-
-	vector<Object *> rendererObjects = renderObjectsFast(false,true,true);
-
-	//pop matrices
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-
-	// Added this to ensure all the selection calls are done now
-	// (see http://www.unknownroad.com/rtfm/graphics/glselection.html section: [0x4])
-	//glFlush();
-
-	// uncomment this for debugging color picking to see what is colored
-	//GraphicsInterface::getInstance().getCurrentContext()->swapBuffers();
-
-	PixelBufferWrapper::end();
-
-	vector<BaseColorPickEntity *> rendererModels;
 	if(rendererObjects.empty() == false) {
 		copy(rendererObjects.begin(), rendererObjects.end(), std::inserter(rendererModels, rendererModels.begin()));
 	}
 
-	vector<int> pickedList = BaseColorPickEntity::getPickedList(x,y,w,h, rendererModels);
+	if(rendererModels.empty() == false) {
+		vector<int> pickedList = BaseColorPickEntity::getPickedList(x,y,w,h, rendererModels);
+		//printf("In [%s::%s] Line: %d pickedList = %d models rendered = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,pickedList.size(),rendererModels.size());
 
-	if(pickedList.empty() == false) {
-		for(unsigned int i = 0; i < pickedList.size(); ++i) {
-			int index = pickedList[i];
-			Object *object = rendererObjects[index];
-			//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,index,object);
+		if(pickedList.empty() == false) {
+			units.reserve(pickedList.size());
+			for(unsigned int i = 0; i < pickedList.size(); ++i) {
+				int index = pickedList[i];
+				//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d units = %d objects = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,index,rendererUnits.size(),rendererObjects.size());
 
-			if(object != NULL) {
-				obj = object;
-				return;
+				if(rendererObjects.empty() == false && index < rendererObjects.size()) {
+					Object *object = rendererObjects[index];
+					//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,index,object);
+
+					if(object != NULL) {
+						obj = object;
+						if(withObjectSelection == true) {
+							//printf("In [%s::%s] Line: %d found selected object [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,obj);
+							return;
+						}
+					}
+				}
+				else {
+					index -= rendererObjects.size();
+					Unit *unit = rendererUnits[index];
+					if(unit != NULL && unit->isAlive()) {
+						units.push_back(unit);
+					}
+				}
 			}
 		}
 	}
 }
-
 
 // ==================== shadows ====================
 
@@ -7496,81 +7436,80 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 		for(int visibleUnitIndex = 0;
 				visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
-			if(unit != NULL && unit->isAlive() == true) {
-				if(modelRenderStarted == false) {
-					modelRenderStarted = true;
 
-					if(colorPickingSelection == false) {
-						//glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
-						glDisable(GL_LIGHTING);
-						if (renderingShadows == false) {
-							glPushAttrib(GL_ENABLE_BIT);
-							glDisable(GL_TEXTURE_2D);
-						}
-						else {
-							glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
-							glEnable(GL_TEXTURE_2D);
-							glAlphaFunc(GL_GREATER, 0.4f);
+			if(modelRenderStarted == false) {
+				modelRenderStarted = true;
 
-							glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
-
-							//set color to the texture alpha
-							glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
-							glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
-							glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-
-							//set alpha to the texture alpha
-							glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-							glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
-							glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
-						}
+				if(colorPickingSelection == false) {
+					//glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
+					glDisable(GL_LIGHTING);
+					if (renderingShadows == false) {
+						glPushAttrib(GL_ENABLE_BIT);
+						glDisable(GL_TEXTURE_2D);
 					}
+					else {
+						glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
+						glEnable(GL_TEXTURE_2D);
+						glAlphaFunc(GL_GREATER, 0.4f);
 
-					modelRenderer->begin(false, renderingShadows, false, colorPickingSelection);
+						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 
-					if(colorPickingSelection == false) {
-						glInitNames();
+						//set color to the texture alpha
+						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
+						glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
+						glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+
+						//set alpha to the texture alpha
+						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+						glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
+						glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
 					}
 				}
 
-				if(colorPickingSelection == false) {
-					glPushName(visibleUnitIndex);
-				}
-
-				//assertGl();
-
-				glMatrixMode(GL_MODELVIEW);
-				//debuxar modelo
-				glPushMatrix();
-
-				//translate
-				Vec3f currVec= unit->getCurrVectorFlat();
-				glTranslatef(currVec.x, currVec.y, currVec.z);
-
-				//rotate
-				glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
-
-				//render
-				Model *model= unit->getCurrentModelPtr();
-				//if(this->gameCamera->getPos().dist(unit->getCurrVector()) <= SKIP_INTERPOLATION_DISTANCE) {
-
-					// ***MV don't think this is needed below 2013/01/11
-					//model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive() && !unit->isAnimProgressBound());
-
-				//}
-
-				if(colorPickingSelection == true) {
-					unit->setUniquePickingColor();
-					unitsList.push_back(unit);
-				}
-
-				modelRenderer->render(model,rmSelection);
-
-				glPopMatrix();
+				modelRenderer->begin(false, renderingShadows, false, colorPickingSelection);
 
 				if(colorPickingSelection == false) {
-					glPopName();
+					glInitNames();
 				}
+			}
+
+			if(colorPickingSelection == false) {
+				glPushName(visibleUnitIndex);
+			}
+
+			//assertGl();
+
+			glMatrixMode(GL_MODELVIEW);
+			//debuxar modelo
+			glPushMatrix();
+
+			//translate
+			Vec3f currVec= unit->getCurrVectorFlat();
+			glTranslatef(currVec.x, currVec.y, currVec.z);
+
+			//rotate
+			glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
+
+			//render
+			Model *model= unit->getCurrentModelPtr();
+			//if(this->gameCamera->getPos().dist(unit->getCurrVector()) <= SKIP_INTERPOLATION_DISTANCE) {
+
+				// ***MV don't think this is needed below 2013/01/11
+				//model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive() && !unit->isAnimProgressBound());
+
+			//}
+
+			if(colorPickingSelection == true) {
+				unit->setUniquePickingColor();
+				unitsList.push_back(unit);
+			}
+
+			modelRenderer->render(model,rmSelection);
+
+			glPopMatrix();
+
+			if(colorPickingSelection == false) {
+				glPopName();
 			}
 		}
 
