@@ -191,6 +191,23 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		listBoxFilter.setSelectedItem(config.getString("Filter"));
 		currentLine-=lineOffset;
 
+		//selectionType
+		labelSelectionType.registerGraphicComponent(containerName,"labelSelectionType");
+		labelSelectionType.init(currentLabelStart, currentLine);
+		labelSelectionType.setText(lang.get("SelectionType"));
+
+		listBoxSelectionType.registerGraphicComponent(containerName,"listBoxSelectionType");
+		listBoxSelectionType.init(currentColumnStart, currentLine, 170);
+		listBoxSelectionType.pushBackItem("SelectBuffer");
+		listBoxSelectionType.pushBackItem("Colorpicking");
+		bool isColorpicking= config.getBool("EnableColorPicking","false");
+		bool isSelectBuf= config.getBool("EnableSelectBufPicking","true");
+		if( isSelectBuf == true && isColorpicking == false )
+			listBoxSelectionType.setSelectedItemIndex(0);
+		else
+			listBoxSelectionType.setSelectedItemIndex(1);
+		currentLine-=lineOffset;
+
 		//shadows
 		labelShadows.registerGraphicComponent(containerName,"labelShadows");
 		labelShadows.init(currentLabelStart, currentLine);
@@ -809,6 +826,8 @@ void MenuStateOptions::reloadUI() {
 	labelTransifexUserLabel.setText(lang.get("TransifexUserName"));
 	labelTransifexPwdLabel.setText(lang.get("TransifexPwd"));
 	labelTransifexI18NLabel.setText(lang.get("TransifexI18N"));
+
+	labelSelectionType.setText(lang.get("SelectionType"));
 
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
@@ -1450,6 +1469,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 	else
 	{
 		listBoxLang.mouseClick(x, y);
+		listBoxSelectionType.mouseClick(x, y);
 		listBoxShadows.mouseClick(x, y);
 		listBoxShadowTextureSize.mouseClick(x, y);
 		listBoxFilter.mouseClick(x, y);
@@ -1534,6 +1554,7 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	listBoxLang.mouseMove(x, y);
 	listBoxFilter.mouseMove(x, y);
 	listBoxGammaCorrection.mouseMove(x, y);
+	listBoxSelectionType.mouseMove(x, y);
 	listBoxShadows.mouseMove(x, y);
 	checkBoxTextures3D.mouseMove(x, y);
 	checkBoxUnitParticles.mouseMove(x, y);
@@ -1720,6 +1741,9 @@ void MenuStateOptions::render(){
 		renderer.renderLabel(&labelShadowTextureSize);
 		renderer.renderListBox(&listBoxShadowTextureSize);
 
+		renderer.renderLabel(&labelSelectionType);
+		renderer.renderListBox(&listBoxSelectionType);
+
         renderer.renderLabel(&labelVideos);
         renderer.renderCheckBox(&checkBoxVideos);
 	}
@@ -1743,6 +1767,17 @@ void MenuStateOptions::saveConfig(){
 
 	config.setString("Lang", iterMap->first);
 	lang.loadStrings(config.getString("Lang"));
+
+	int selectionTypeindex= listBoxSelectionType.getSelectedItemIndex();
+	if(selectionTypeindex==0){
+		config.setBool("EnableColorPicking", false);
+		config.setBool("EnableSelectBufPicking", true);
+	}
+	else
+	{
+		config.setBool("EnableColorPicking", true);
+		config.setBool("EnableSelectBufPicking", true);
+	}
 
 	int index= listBoxShadows.getSelectedItemIndex();
 	config.setString("Shadows", Renderer::shadowsToStr(static_cast<Renderer::Shadows>(index)));

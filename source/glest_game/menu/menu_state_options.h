@@ -158,6 +158,10 @@ private:
 	GraphicLabel labelTransifexI18NLabel;
 	GraphicLabel labelTransifexI18N;
 
+	GraphicLabel labelSelectionType;
+	GraphicListBox listBoxSelectionType;
+
+
 public:
 	MenuStateOptions(Program *program, MainMenu *mainMenu);
 
