@@ -199,11 +199,15 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		listBoxSelectionType.registerGraphicComponent(containerName,"listBoxSelectionType");
 		listBoxSelectionType.init(currentColumnStart, currentLine, 170);
 		listBoxSelectionType.pushBackItem("SelectBuffer");
-		listBoxSelectionType.pushBackItem("Colorpicking");
+		listBoxSelectionType.pushBackItem("ColorPicking");
+		listBoxSelectionType.pushBackItem("FrustumPicking");
 		bool isColorpicking= config.getBool("EnableColorPicking","false");
+		bool isFrustumPicking=config.getBool("EnableFrustumPicking","false");
 		bool isSelectBuf= config.getBool("EnableSelectBufPicking","true");
-		if( isSelectBuf == true && isColorpicking == false )
+		if( isSelectBuf == true && isColorpicking == false && isFrustumPicking == false )
 			listBoxSelectionType.setSelectedItemIndex(0);
+		else if(isColorpicking == false && isFrustumPicking == true)
+			listBoxSelectionType.setSelectedItemIndex(2);
 		else
 			listBoxSelectionType.setSelectedItemIndex(1);
 		currentLine-=lineOffset;
@@ -1771,12 +1775,18 @@ void MenuStateOptions::saveConfig(){
 	int selectionTypeindex= listBoxSelectionType.getSelectedItemIndex();
 	if(selectionTypeindex==0){
 		config.setBool("EnableColorPicking", false);
+		config.setBool("EnableSelectBufPicking", false);
 		config.setBool("EnableSelectBufPicking", true);
 	}
-	else
-	{
+	else if (selectionTypeindex==1){
 		config.setBool("EnableColorPicking", true);
+		config.setBool("EnableSelectBufPicking", false);
+		config.setBool("EnableFrustumPicking", true);
+	}
+	else if (selectionTypeindex==2){
+		config.setBool("EnableColorPicking", false);
 		config.setBool("EnableSelectBufPicking", true);
+		config.setBool("EnableFrustumPicking", true);
 	}
 
 	int index= listBoxShadows.getSelectedItemIndex();
