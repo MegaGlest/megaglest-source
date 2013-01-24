@@ -851,6 +851,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 									int minHeadLessPlayersRequired = Config::getInstance().getInt("MinHeadlessPlayersRequired","2");
 									if(networkMessageLaunch.getMessageType() == nmtLaunch &&
+											ready == false &&
 											this->serverInterface->getConnectedSlotCount(true) < minHeadLessPlayersRequired) {
 								    	Lang &lang= Lang::getInstance();
 								    	const vector<string> languageList = this->serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();

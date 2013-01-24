@@ -208,10 +208,10 @@ void ClientInterface::update() {
 		}
 	}
 	catch(const megaglest_runtime_error &ex) {
-		if(this->isConnected() == false) {
-			SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
-			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 
+		if(this->isConnected() == false) {
 			if(gotIntro == false || wasConnected == false) {
 				string sErr = string(extractFileFromDirectoryPath(__FILE__).c_str()) + "::" + string(__FUNCTION__) + " network error: " + string(ex.what());
 				DisplayErrorMessage(sErr);
