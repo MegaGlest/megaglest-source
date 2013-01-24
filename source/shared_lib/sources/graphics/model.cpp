@@ -1599,98 +1599,99 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
 	static Chrono lastSnapshot(true);
 	const int selectionMillisecondUpdate = 100;
 
-	if(PixelBufferWrapper::getIsPBOEnable() == true) {
-		// Only update the pixel buffer every x milliseconds or as required
-		if(cachedPixels.get() == NULL || cachedPixels->getW() != w+1 ||cachedPixels->getH() != h+1 ||
-				lastSnapshot.getMillis() > selectionMillisecondUpdate) {
-			//printf("Updating selection millis = %ld\n",lastSnapshot.getMillis());
+	if(rendererModels.empty() == false) {
+		if(PixelBufferWrapper::getIsPBOEnable() == true) {
+			// Only update the pixel buffer every x milliseconds or as required
+			if(cachedPixels.get() == NULL || cachedPixels->getW() != w+1 ||cachedPixels->getH() != h+1 ||
+					lastSnapshot.getMillis() > selectionMillisecondUpdate) {
+				//printf("Updating selection millis = %ld\n",lastSnapshot.getMillis());
 
-			lastSnapshot.reset();
-			//Pixmap2D *pixmapScreenShot = BaseColorPickEntity::pbo->getPixelBufferFor(x,y,w,h, COLOR_COMPONENTS);
-			cachedPixels.reset(BaseColorPickEntity::pbo->getPixelBufferFor(x,y,w,h, COLOR_COMPONENTS));
+				lastSnapshot.reset();
+				//Pixmap2D *pixmapScreenShot = BaseColorPickEntity::pbo->getPixelBufferFor(x,y,w,h, COLOR_COMPONENTS);
+				cachedPixels.reset(BaseColorPickEntity::pbo->getPixelBufferFor(x,y,w,h, COLOR_COMPONENTS));
 
-			//cachedPixels.reset(new unsigned char[(unsigned int)pixmapScreenShot->getPixelByteCount()]);
-			//memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),(size_t)pixmapScreenShot->getPixelByteCount());
-			//cachedPixelsW = w+1;
-			//cachedPixelsH = h+1;
+				//cachedPixels.reset(new unsigned char[(unsigned int)pixmapScreenShot->getPixelByteCount()]);
+				//memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),(size_t)pixmapScreenShot->getPixelByteCount());
+				//cachedPixelsW = w+1;
+				//cachedPixelsH = h+1;
 
-			//delete pixmapScreenShot;
+				//delete pixmapScreenShot;
+			}
 		}
-	}
-	else {
-		// Only update the pixel buffer every x milliseconds or as required
-		if(cachedPixels.get() == NULL || cachedPixels->getW() != w+1 ||cachedPixels->getH() != h+1 ||
-				lastSnapshot.getMillis() > selectionMillisecondUpdate) {
-			//printf("Updating selection millis = %ld\n",lastSnapshot.getMillis());
+		else {
+			// Only update the pixel buffer every x milliseconds or as required
+			if(cachedPixels.get() == NULL || cachedPixels->getW() != w+1 ||cachedPixels->getH() != h+1 ||
+					lastSnapshot.getMillis() > selectionMillisecondUpdate) {
+				//printf("Updating selection millis = %ld\n",lastSnapshot.getMillis());
 
-			lastSnapshot.reset();
+				lastSnapshot.reset();
 
-			//Pixmap2D *pixmapScreenShot = new Pixmap2D(w+1, h+1, COLOR_COMPONENTS);
-			cachedPixels.reset(new Pixmap2D(w+1, h+1, COLOR_COMPONENTS));
-			//glPixelStorei(GL_PACK_ALIGNMENT, 1);
-			//glReadPixels(x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
-			//glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
-			glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, cachedPixels->getPixels());
-			//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+				//Pixmap2D *pixmapScreenShot = new Pixmap2D(w+1, h+1, COLOR_COMPONENTS);
+				cachedPixels.reset(new Pixmap2D(w+1, h+1, COLOR_COMPONENTS));
+				//glPixelStorei(GL_PACK_ALIGNMENT, 1);
+				//glReadPixels(x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
+				//glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
+				glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, cachedPixels->getPixels());
+				//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-			//cachedPixels.reset(new unsigned char[(unsigned int)pixmapScreenShot->getPixelByteCount()]);
-			//memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),(size_t)pixmapScreenShot->getPixelByteCount());
-			//cachedPixelsW = w+1;
-			//cachedPixelsH = h+1;
+				//cachedPixels.reset(new unsigned char[(unsigned int)pixmapScreenShot->getPixelByteCount()]);
+				//memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),(size_t)pixmapScreenShot->getPixelByteCount());
+				//cachedPixelsW = w+1;
+				//cachedPixelsH = h+1;
 
-			//delete pixmapScreenShot;
+				//delete pixmapScreenShot;
+			}
 		}
-	}
-	unsigned char *pixelBuffer = cachedPixels->getPixels();
+		unsigned char *pixelBuffer = cachedPixels->getPixels();
 
-	// Enable screenshots to debug selection scene
-	//pixmapScreenShot->save("debug.png");
+		// Enable screenshots to debug selection scene
+		//pixmapScreenShot->save("debug.png");
 
-	//printf("In [%s::%s] Line: %d x,y,w,h [%d,%d,%d,%d] pixels = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,x,y,w,h,pixmapScreenShot->getPixelByteCount());
+		//printf("In [%s::%s] Line: %d x,y,w,h [%d,%d,%d,%d] pixels = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,x,y,w,h,pixmapScreenShot->getPixelByteCount());
 
-	// now our picked screen pixel color is stored in pixel[3]
-	// so we search through our object list looking for the object that was selected
+		// now our picked screen pixel color is stored in pixel[3]
+		// so we search through our object list looking for the object that was selected
 
-	map<int,bool> modelAlreadyPickedList;
-	map<unsigned char,map<unsigned char, map<unsigned char,bool> > > colorAlreadyPickedList;
-	int nEnd = w * h;
-	for(int x = 0; x < nEnd && pickedModels.size() < rendererModels.size(); ++x) {
-		int index = x * COLOR_COMPONENTS;
-		unsigned char *pixel = &pixelBuffer[index];
+		map<int,bool> modelAlreadyPickedList;
+		map<unsigned char,map<unsigned char, map<unsigned char,bool> > > colorAlreadyPickedList;
+		int nEnd = w * h;
+		for(int x = 0; x < nEnd && pickedModels.size() < rendererModels.size(); ++x) {
+			int index = x * COLOR_COMPONENTS;
+			unsigned char *pixel = &pixelBuffer[index];
 
-		// Skip duplicate scanned colors
-		map<unsigned char,map<unsigned char, map<unsigned char,bool> > >::const_iterator iterFind1 = colorAlreadyPickedList.find(pixel[0]);
-		if(iterFind1 != colorAlreadyPickedList.end()) {
-			map<unsigned char, map<unsigned char,bool> >::const_iterator iterFind2 = iterFind1->second.find(pixel[1]);
-			if(iterFind2 != iterFind1->second.end()) {
-				map<unsigned char,bool>::const_iterator iterFind3 = iterFind2->second.find(pixel[2]);
-				if(iterFind3 != iterFind2->second.end()) {
+			// Skip duplicate scanned colors
+			map<unsigned char,map<unsigned char, map<unsigned char,bool> > >::const_iterator iterFind1 = colorAlreadyPickedList.find(pixel[0]);
+			if(iterFind1 != colorAlreadyPickedList.end()) {
+				map<unsigned char, map<unsigned char,bool> >::const_iterator iterFind2 = iterFind1->second.find(pixel[1]);
+				if(iterFind2 != iterFind1->second.end()) {
+					map<unsigned char,bool>::const_iterator iterFind3 = iterFind2->second.find(pixel[2]);
+					if(iterFind3 != iterFind2->second.end()) {
+						continue;
+					}
+				}
+			}
+
+			for(unsigned int i = 0; i < rendererModels.size(); ++i) {
+				// Skip models already selected
+				if(modelAlreadyPickedList.find(i) != modelAlreadyPickedList.end()) {
 					continue;
+				}
+				const BaseColorPickEntity *model = rendererModels[i];
+
+				if( model != NULL && model->isUniquePickingColor(pixel) == true) {
+					//printf("Found match pixel [%d.%d.%d] for model [%s] ptr [%p][%s]\n",pixel[0],pixel[1],pixel[2],model->getColorDescription().c_str(), model,model->getUniquePickName().c_str());
+
+					pickedModels.push_back(i);
+					modelAlreadyPickedList[i]=true;
+					colorAlreadyPickedList[pixel[0]][pixel[1]][pixel[2]]=true;
+					break;
 				}
 			}
 		}
 
-		for(unsigned int i = 0; i < rendererModels.size(); ++i) {
-			// Skip models already selected
-			if(modelAlreadyPickedList.find(i) != modelAlreadyPickedList.end()) {
-				continue;
-			}
-			const BaseColorPickEntity *model = rendererModels[i];
-
-			if( model != NULL && model->isUniquePickingColor(pixel) == true) {
-				//printf("Found match pixel [%d.%d.%d] for model [%s] ptr [%p][%s]\n",pixel[0],pixel[1],pixel[2],model->getColorDescription().c_str(), model,model->getUniquePickName().c_str());
-
-				pickedModels.push_back(i);
-				modelAlreadyPickedList[i]=true;
-				colorAlreadyPickedList[pixel[0]][pixel[1]][pixel[2]]=true;
-				break;
-			}
-		}
+		//printf("In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		//delete pixmapScreenShot;
 	}
-
-	//printf("In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	//delete pixmapScreenShot;
-
 	//printf("In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	return pickedModels;
 }
