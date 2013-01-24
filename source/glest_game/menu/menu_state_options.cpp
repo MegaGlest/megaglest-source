@@ -1774,18 +1774,18 @@ void MenuStateOptions::saveConfig(){
 
 	int selectionTypeindex= listBoxSelectionType.getSelectedItemIndex();
 	if(selectionTypeindex==0){
-		config.setBool("EnableColorPicking", false);
-		config.setBool("EnableSelectBufPicking", false);
 		config.setBool("EnableSelectBufPicking", true);
+		config.setBool("EnableColorPicking", false);
+		config.setBool("EnableFrustumPicking", false);
 	}
 	else if (selectionTypeindex==1){
-		config.setBool("EnableColorPicking", true);
 		config.setBool("EnableSelectBufPicking", false);
-		config.setBool("EnableFrustumPicking", true);
+		config.setBool("EnableColorPicking", true);
+		config.setBool("EnableFrustumPicking", false);
 	}
 	else if (selectionTypeindex==2){
+		config.setBool("EnableSelectBufPicking", false);
 		config.setBool("EnableColorPicking", false);
-		config.setBool("EnableSelectBufPicking", true);
 		config.setBool("EnableFrustumPicking", true);
 	}
 
