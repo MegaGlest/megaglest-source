@@ -1462,7 +1462,7 @@ PixelBufferWrapper::~PixelBufferWrapper() {
 
 const int colorSpacing = 8;
 //unsigned char BaseColorPickEntity::nextColorID[COLOR_COMPONENTS] = {1, 1, 1, 1};
-BaseColorPickEntity::ColorPickStruct BaseColorPickEntity::nextColorID = { colorSpacing, colorSpacing, colorSpacing };
+BaseColorPickEntity::ColorPickStruct BaseColorPickEntity::nextColorID = ColorPickStruct(colorSpacing, colorSpacing, colorSpacing, colorSpacing);
 vector<BaseColorPickEntity::ColorPickStruct> BaseColorPickEntity::nextColorIDReuseList;
 Mutex BaseColorPickEntity::mutexNextColorID;
 auto_ptr<PixelBufferWrapper> BaseColorPickEntity::pbo;

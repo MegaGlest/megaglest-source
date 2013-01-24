@@ -253,8 +253,24 @@ public:
 
     static const int COLOR_COMPONENTS = 4;
 
-    struct ColorPickStruct {
+    class ColorPickStruct {
+    public:
       unsigned char color[COLOR_COMPONENTS];
+
+      ColorPickStruct(unsigned char newColor1,unsigned char newColor2,
+    		  unsigned char newColor3,unsigned char newColor4) {
+    	  color[0] = newColor1;
+    	  color[1] = newColor2;
+    	  color[2] = newColor3;
+    	  color[3] = newColor4;
+      }
+      ColorPickStruct() {
+    	  color[0] = 0;
+    	  color[1] = 0;
+    	  color[2] = 0;
+    	  color[3] = 0;
+      }
+
     };
 
     static void init(int bufferSize);
