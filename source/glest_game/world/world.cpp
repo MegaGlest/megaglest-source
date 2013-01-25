@@ -2291,7 +2291,7 @@ void World::computeFow(int factionIdxToTick) {
 				for(int j=0; j<faction->getUnitCount(); ++j){
 					const Unit *unit= faction->getUnit(j);
 					if(unit->isOperative()){
-						int sightRange= unit->getType()->getSight();
+						//int sightRange= unit->getType()->getSight();
 
 						if(enableFowAlphaCellsLookupItemCache == true) {
 							const FowAlphaCellsLookupItem &cellList = unit->getCachedFow();

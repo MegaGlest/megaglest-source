@@ -6016,11 +6016,10 @@ void Renderer::renderHighlightedCellsOnMinimap() {
 				int lighting=(mc->getAliveCount()%15);
 				Vec3f myColor=Vec3f(color.x/2+.5f/lighting,color.y/2+.5f/lighting,color.z/2+.5f/lighting);
 
-				//float alpha = 0.49f+0.5f/(mc->getAliveCount()%15);
-				float alpha=1.0f;
-
 				Vec2i pos=mc->getTargetPos();
-				if(texture!=NULL){
+				if(texture != NULL) {
+					//float alpha = 0.49f+0.5f/(mc->getAliveCount()%15);
+					float alpha=1.0f;
 					renderTextureQuad((int)(pos.x*zoom.x)+pointersize, my + mh-(int)(pos.y*zoom.y), pointersize, pointersize, texture, alpha,&myColor);
 				}
 			}
@@ -6692,7 +6691,7 @@ Vec3f Renderer::computeScreenPosition(const Vec3f &worldPos) {
 void Renderer::computeSelected(	Selection::UnitContainer &units, const Object *&obj,
 								const bool withObjectSelection,
 								const Vec2i &posDown, const Vec2i &posUp) {
-	const bool selectBufPickingSelection 	= Config::getInstance().getBool("EnableSelectBufPicking","false");
+	//const bool selectBufPickingSelection 	= Config::getInstance().getBool("EnableSelectBufPicking","false");
 	const bool colorPickingSelection 		= Config::getInstance().getBool("EnableColorPicking","true");
 	const bool frustumPickingSelection 		= Config::getInstance().getBool("EnableFrustumPicking","false");
 

@@ -340,6 +340,7 @@ class SlaveThreadControllerInterface {
 public:
 	virtual void setMasterController(MasterSlaveThreadController *master) = 0;
 	virtual void signalSlave(void *userdata) = 0;
+	virtual ~SlaveThreadControllerInterface() {}
 };
 
 class MasterSlaveThreadController {

@@ -91,7 +91,7 @@ void NetworkMessage::dump_packet(string label, const void* data, int dataSize) {
 
 		const char *buf = static_cast<const char *>(data);
 		for(unsigned int i = 0; i < dataSize; ++i) {
-			printf("%d[%X][%d] ",i,buf[i],buf[i]);
+			printf("%u[%X][%d] ",i,buf[i],buf[i]);
 			if(i % 10 == 0) {
 				printf("\n");
 			}

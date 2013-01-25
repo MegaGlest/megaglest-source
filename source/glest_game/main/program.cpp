@@ -832,7 +832,7 @@ void Program::setDisplaySettings(){
 
 	if(!config.getBool("Windowed")) {
 
-		int freq= config.getInt("RefreshFrequency");
+		//int freq= config.getInt("RefreshFrequency");
 		int colorBits= config.getInt("ColorBits");
 		int screenWidth= config.getInt("ScreenWidth");
 		int screenHeight= config.getInt("ScreenHeight");

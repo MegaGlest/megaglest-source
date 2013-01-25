@@ -4214,7 +4214,7 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 	str+= "FowAlphaCellsLookupItemCache: "  + world.getFowAlphaCellsLookupItemCacheStats()+"\n";
 
 	const bool selectBufPickingSelection 	= Config::getInstance().getBool("EnableSelectBufPicking","false");
-	const bool colorPickingSelection 		= Config::getInstance().getBool("EnableColorPicking","true");
+	//const bool colorPickingSelection 		= Config::getInstance().getBool("EnableColorPicking","true");
 	const bool frustumPickingSelection 		= Config::getInstance().getBool("EnableFrustumPicking","false");
 	if(selectBufPickingSelection) {
 		str += "Unit selection type: selectBuf\n";
@@ -4540,7 +4540,7 @@ void Game::checkWinner() {
 }
 
 void Game::setEndGameTeamWinnersAndLosers() {
-	bool lose= false;
+	//bool lose= false;
 	bool checkTeamIndex = !(this->masterserverMode == false && world.getThisFaction()->getPersonalityType() != fpt_Observer);
 
 	// lookup int is team #, value is players alive on team
@@ -4561,7 +4561,7 @@ void Game::setEndGameTeamWinnersAndLosers() {
 					world.getStats()->setVictorious(i);
 				}
 				else if(i == world.getThisFactionIndex()) {
-					lose= true;
+					//lose= true;
 				}
 			}
 		}
