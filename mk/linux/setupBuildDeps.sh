@@ -113,7 +113,7 @@ unsupported_distribution () {
 }
 
 unsupported_release () {
-	echo 'Unsupported '"$distribution"'release.' >&2
+	echo 'Unsupported '"$distribution"' release.' >&2
 	echo ''
 	echo 'Please report a bug at http://bugs.megaglest.org providing the following information:'
 	echo '--- snip ---'
@@ -124,10 +124,10 @@ unsupported_release () {
 	echo 'Codename:     '"$codename"
 	echo '--- snip ---'
 	echo ''
-	if [ "$alternative" != '' ]
+	if [ "$installcommand" != '' ]
 	then
 		echo 'For now, please try this (which works with other '"$distribution"' releases) and report back how it works for you:'
-		echo $alternative
+		echo $installcommand
 		echo 'Thanks!'
 	fi
 }
@@ -154,10 +154,9 @@ case $distribution in
 	Debian) 
 		case $release in
 			6.0*)
-				apt-get install build-essential subversion automake autoconf autogen cmake cmake-curses-gui
-				if [ $? != 0 ]; then error_during_installation; exit 1; fi
 				# No libvlc-dev since version (1.1.3) in Debian 6.0/Squeeze is incompatible, no libluajit-5.1-dev because it is not available on Debian 6.0/Squeeze, cf. http://glest.org/glest_board/?topic=8460
-				apt-get install libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libminiupnpc-dev librtmp-dev libgtk2.0-dev libfribidi-dev
+				installcommand='apt-get install build-essential subversion automake autoconf autogen cmake libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libminiupnpc-dev librtmp-dev libgtk2.0-dev'
+				$installcommand
 				if [ $? != 0 ]; then
 					error_during_installation; 
 					echo ''
@@ -166,7 +165,7 @@ case $distribution in
 				fi
 				;;
 			*)
-				alternative='apt-get install build-essential subversion automake autoconf autogen cmake cmake-curses-gui; apt-get install libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libminiupnpc-dev libvlc-dev librtmp-dev libgtk2.0-dev libfribidi-dev'
+				installcommand='apt-get install build-essential subversion automake autoconf autogen cmake libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev ilibfribidi-dev libvlc-dev libminiupnpc-dev librtmp-dev libgtk2.0-dev'
 				unsupported_release
 				exit 1
 				;;
@@ -176,25 +175,22 @@ case $distribution in
 	Ubuntu) 
 		case $release in
 			8.04)
-				apt-get install build-essential subversion automake autoconf autogen cmake
-				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
-				apt-get install libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev
+				installcommand='apt-get install build-essential subversion automake autoconf autogen cmake libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev'
+				$installcommand
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
 				;;
 			10.04)
-				apt-get install build-essential subversion automake autoconf autogen cmake
-				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
-				apt-get install libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew1.5-dev libftgl-dev libfribidi-dev
+				installcommand='apt-get install build-essential subversion automake autoconf autogen cmake libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew1.5-dev libftgl-dev libfribidi-dev'
+				$installcommand
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
 				;;
 			11.10|12.04|12.10)
-				apt-get install build-essential subversion automake autoconf autogen cmake
-				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
-				apt-get install libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libvlc-dev libfribidi-dev
+				installcommand='apt-get install build-essential subversion automake autoconf autogen cmake libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev'
+				$installcommand
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
 				;;
 			*)
-				alternative='apt-get install build-essential subversion automake autoconf autogen cmake; apt-get install libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libvlc-dev libfribidi-dev'
+				installcommand='apt-get install build-essential subversion automake autoconf autogen cmake libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev'
 				unsupported_release
 				exit 1
 				;;
@@ -204,14 +200,13 @@ case $distribution in
 	LinuxMint) 
 		case $release in
 
-			13)
-				apt-get install build-essential subversion automake autoconf autogen cmake
-				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
-				apt-get install libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libvlc-dev libfribidi-dev
+			13|14)
+				installcommand='apt-get install build-essential subversion automake autoconf autogen cmake libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev'
+				$installcommand
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
 				;;
 			*)
-				alternative='apt-get install build-essential subversion automake autoconf autogen cmake; apt-get install libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libvlc-dev libfribidi-dev'
+				installcommand='apt-get install build-essential subversion automake autoconf autogen cmake libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev'
 				unsupported_release
 				exit 1
 				;;
@@ -220,39 +215,28 @@ case $distribution in
 
 	SuSE|SUSE?LINUX|Opensuse) 
 		case $release in
-			11.2|11.3|11.4)
-				zypper install subversion gcc gcc-c++ automake cmake
-				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
-				zypper install libSDL-devel libxerces-c-devel MesaGLw-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel
-				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
-				;;
-			12.2)
-				zypper install subversion gcc gcc-c++ automake cmake
-				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
-				zypper install libSDL-devel libxerces-c-devel MesaGLw-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel
+			11.2|11.3|11.4|12.2)
+				installcommand='zypper install subversion gcc gcc-c++ automake cmake libSDL-devel libxerces-c-devel MesaGLw-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel'
+				$installcommand
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
 				;;
 			*)
-				alternative='zypper install subversion gcc gcc-c++ automake cmake; zypper install libSDL-devel libxerces-c-devel MesaGLw-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel'
+				installcommand='zypper install subversion gcc gcc-c++ automake cmake libSDL-devel libxerces-c-devel MesaGLw-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel'
 				unsupported_release
 				exit 1
 				;;
 		esac
 		;;
 
-
 	Fedora) 
 		case $release in
 			13|14)
-				yum groupinstall "Development Tools"
-				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
-				yum install subversion automake autoconf autogen cmake
-				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
-				yum install SDL-devel xerces-c-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-dev libircclient-dev glew-devel ftgl-devel fribidi-devel
-				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
+				installcommand='yum groupinstall "Development Tools"; yum install subversion automake autoconf autogen cmake SDL-devel xerces-c-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-dev libircclient-dev glew-devel ftgl-devel fribidi-devel'
+				$installcommand
+				if [ $? != 0 ]; then error_during_installation; exit 1; fi
 				;;
 			*)
-				alternative='yum groupinstall "Development Tools"; yum install subversion automake autoconf autogen cmake; yum install SDL-devel xerces-c-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-dev libircclient-dev glew-devel ftgl-devel fribidi-devel'
+				installcommand='yum groupinstall "Development Tools"; yum install subversion automake autoconf autogen cmake SDL-devel xerces-c-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-dev libircclient-dev glew-devel ftgl-devel fribidi-devel'
 				unsupported_release
 				exit 1
 				;;
