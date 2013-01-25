@@ -101,7 +101,7 @@ public:
 	FactionType();
     void load(const string &factionName, const TechTree *techTree, Checksum* checksum,
     		Checksum *techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList);
-	~FactionType();
+	virtual ~FactionType();
 
 	const std::vector<FactionType::PairPUnitTypeInt> getAIBehaviorUnits(AIBehaviorUnitCategory category) const;
 	const std::vector<const UpgradeType*> getAIBehaviorUpgrades() const { return vctAIBehaviorUpgrades; };
