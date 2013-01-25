@@ -457,6 +457,8 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
         }
 		texPath += texturePaths[mtDiffuse];
 
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] v2 model texture [%s] meshIndex = %d modelFile [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,texPath.c_str(),meshIndex,modelFile.c_str());
+
 		textures[mtDiffuse]= dynamic_cast<Texture2D*>(textureManager->getTexture(texPath));
 		if(textures[mtDiffuse] == NULL) {
 			if(fileExists(texPath) == false) {
@@ -468,6 +470,8 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 				texPath = findAlternateTexture(conversionList, texPath);
 			}
 			if(fileExists(texPath) == true) {
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] v2 model texture [%s] meshIndex = %d modelFile [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,texPath.c_str(),meshIndex,modelFile.c_str());
+
 				textures[mtDiffuse]= textureManager->newTexture2D();
 				textures[mtDiffuse]->load(texPath);
 				if(loadedFileList) {
@@ -589,6 +593,8 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
         }
 		texPath += texturePaths[mtDiffuse];
 
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] v3 model texture [%s] meshIndex = %d modelFile [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,texPath.c_str(),meshIndex,modelFile.c_str());
+
 		textures[mtDiffuse]= dynamic_cast<Texture2D*>(textureManager->getTexture(texPath));
 		if(textures[mtDiffuse] == NULL) {
 			if(fileExists(texPath) == false) {
@@ -601,6 +607,8 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 			}
 
 			if(fileExists(texPath) == true) {
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] v3 model texture [%s] meshIndex = %d modelFile [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,texPath.c_str(),meshIndex,modelFile.c_str());
+
 				textures[mtDiffuse]= textureManager->newTexture2D();
 				textures[mtDiffuse]->load(texPath);
 				if(loadedFileList) {
@@ -695,6 +703,7 @@ Texture2D* Mesh::loadMeshTexture(int meshIndex, int textureIndex,
 		}
 
 		if(fileExists(textureFile) == true) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] #3 load texture [%s] modelFile [%s]\n",__FUNCTION__,textureFile.c_str(),modelFile.c_str());
 			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] texture exists loading [%s]\n",__FUNCTION__,textureFile.c_str());
 
 			texture = textureManager->newTexture2D();

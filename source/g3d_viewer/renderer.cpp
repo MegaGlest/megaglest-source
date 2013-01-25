@@ -425,7 +425,7 @@ void Renderer::loadTheModel(Model *model, string file) {
 
 void Renderer::renderTheModel(Model *model, float f) {
 	if(model != NULL){
-		modelRenderer->begin(true, true, !wireframe, &meshCallbackTeamColor);
+		modelRenderer->begin(true, true, !wireframe, false, &meshCallbackTeamColor);
 		model->updateInterpolationData(f, true);
 		modelRenderer->render(model);
 
