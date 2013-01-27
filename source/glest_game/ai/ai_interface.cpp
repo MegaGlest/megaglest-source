@@ -106,6 +106,14 @@ bool AiInterfaceThread::isSignalCompleted(int frameIndex) {
 	return result;
 }
 
+void AiInterfaceThread::signalQuit() {
+	if(this->aiIntf != NULL) {
+		MutexSafeWrapper safeMutex(this->aiIntf->getMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+		this->aiIntf = NULL;
+	}
+
+	BaseThread::signalQuit();
+}
 void AiInterfaceThread::execute() {
     RunningStatusSafeWrapper runningStatus(this);
 	try {
@@ -172,11 +180,6 @@ void AiInterfaceThread::execute() {
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
-
-
-
-
-
 
 AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex,
 		int useStartLocation) : fp(NULL) {

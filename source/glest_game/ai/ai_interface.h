@@ -54,6 +54,8 @@ public:
 	virtual void setMasterController(MasterSlaveThreadController *master) { masterController = master; }
 	virtual void signalSlave(void *userdata) { signal(*((int *)(userdata))); }
 
+	virtual void signalQuit();
+
 };
 
 class AiInterface {

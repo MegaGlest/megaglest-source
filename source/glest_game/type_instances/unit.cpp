@@ -493,7 +493,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 //		deletedUnits.erase(this);
 //	}
 
-	logSynchData(__FILE__,__LINE__);
+	logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 }
 
 Unit::~Unit() {
@@ -600,7 +600,7 @@ void Unit::setModelFacing(CardinalDir value) {
 Vec2i Unit::getCenteredPos() const {
 	if(type == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -610,7 +610,7 @@ Vec2i Unit::getCenteredPos() const {
 Vec2f Unit::getFloatCenteredPos() const {
 	if(type == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -620,7 +620,7 @@ Vec2f Unit::getFloatCenteredPos() const {
 Vec2i Unit::getCellPos() const {
 	if(type == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -751,7 +751,7 @@ float Unit::getProgressRatio() const{
 float Unit::getHpRatio() const {
 	if(type == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -761,7 +761,7 @@ float Unit::getHpRatio() const {
 float Unit::getEpRatio() const {
 	if(type == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -776,7 +776,7 @@ float Unit::getEpRatio() const {
 const Level *Unit::getNextLevel() const{
 	if(type == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -814,7 +814,7 @@ bool Unit::isOperative() const{
 bool Unit::isAnimProgressBound() const{
 	if(currSkill == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -849,7 +849,7 @@ bool Unit::isAnimProgressBound() const{
 bool Unit::isBeingBuilt() const{
 	if(currSkill == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -896,7 +896,7 @@ UnitBuildInfo Unit::getBuildCommandPendingInfo() const {
 bool Unit::isAlly(const Unit *unit) const {
 	if(unit == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: unit == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: unit == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -906,7 +906,7 @@ bool Unit::isAlly(const Unit *unit) const {
 bool Unit::isDamaged() const {
 	if(type == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -916,7 +916,7 @@ bool Unit::isDamaged() const {
 bool Unit::isInteresting(InterestingUnitType iut) const {
 	if(type == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -950,12 +950,12 @@ bool Unit::isInteresting(InterestingUnitType iut) const {
 void Unit::setCurrSkill(const SkillType *currSkill) {
 	if(currSkill == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 	if(this->currSkill == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: this->currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: this->currSkill == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1035,7 +1035,7 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 void Unit::setCurrSkill(SkillClass sc) {
 	if(getType() == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: getType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: getType() == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1046,7 +1046,7 @@ void Unit::setTarget(const Unit *unit){
 
 	if(unit == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: unit == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: unit == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1111,7 +1111,7 @@ void Unit::setPos(const Vec2i &pos, bool clearPathFinder) {
 
 	calculateFogOfWarRadius();
 
-	logSynchData(__FILE__,__LINE__);
+	logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 }
 
 FowAlphaCellsLookupItem Unit::getFogOfWarRadius(bool useCache) const {
@@ -1181,7 +1181,7 @@ void Unit::setTargetPos(const Vec2i &targetPos) {
 	this->targetPos= targetPos;
 	map->clampPos(this->targetPos);
 
-	logSynchData(__FILE__,__LINE__);
+	logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 }
 
 void Unit::setVisible(const bool visible) {
@@ -1237,7 +1237,7 @@ void Unit::setVisible(const bool visible) {
 Model *Unit::getCurrentModelPtr() {
 	if(currSkill == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1255,7 +1255,7 @@ Model *Unit::getCurrentModelPtr() {
 const Model *Unit::getCurrentModel() {
 	if(currSkill == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1298,7 +1298,7 @@ bool Unit::checkModelStateInfoForNewHpValue() {
 Vec3f Unit::getCurrVector() const{
 	if(type == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1437,14 +1437,14 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
 
     const int command_priority = command->getPriority();
 
-    if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+    if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
-    //printf("In [%s::%s] Line: %d unit [%d - %s] command [%s] tryQueue = %d command->getCommandType()->isQueuable(tryQueue) = %d\n",__FILE__,__FUNCTION__,__LINE__,this->getId(),this->getType()->getName().c_str(), command->getCommandType()->getName().c_str(), tryQueue,command->getCommandType()->isQueuable(tryQueue));
+    //printf("In [%s::%s] Line: %d unit [%d - %s] command [%s] tryQueue = %d command->getCommandType()->isQueuable(tryQueue) = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->getId(),this->getType()->getName().c_str(), command->getCommandType()->getName().c_str(), tryQueue,command->getCommandType()->isQueuable(tryQueue));
 
 
 	if(command->getCommandType()->isQueuable(tryQueue)) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Command is Queable\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Command is Queable\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		if(command->getCommandType()->isQueuable() == qAlways && tryQueue){
 			// Its a produce or upgrade command called without queued key
@@ -1457,7 +1457,7 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
 			for(list<Command*>::iterator i= commands.begin(); i != commands.end();){
 				if((*i)->getPriority() < command_priority){
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled)
-						SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Deleting lower priority command [%s]\n",__FILE__,__FUNCTION__,__LINE__,(*i)->toString().c_str());
+						SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Deleting lower priority command [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(*i)->toString().c_str());
 
 					static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 					MutexSafeWrapper safeMutex(mutexCommands,mutexOwnerId);
@@ -1472,21 +1472,21 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
 				}
 			}
 		}
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 		//cancel current command if it is not queuable
 		if(commands.empty() == false &&
           commands.back()->getCommandType()->isQueueAppendable() == false) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Cancel command because last one is NOT queable [%s]\n",__FILE__,__FUNCTION__,__LINE__,commands.back()->toString().c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Cancel command because last one is NOT queable [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,commands.back()->toString().c_str());
 
 		    cancelCommand();
 		}
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 	}
 	else {
 		//empty command queue
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Clear commands because current is NOT queable.\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Clear commands because current is NOT queable.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 //		bool willChangedActiveCommand = (commands.size() > 0);
 //		if(willChangedActiveCommand && getCurrCommand()->getCommandType()->getClass() == command->getCommandType()->getClass()) {
@@ -1516,26 +1516,26 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
 
 
 
-		//printf("In [%s::%s] Line: %d cleared existing commands\n",__FILE__,__FUNCTION__,__LINE__);
+		//printf("In [%s::%s] Line: %d cleared existing commands\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//check command
 	result= checkCommand(command);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] checkCommand returned: [%d]\n",__FILE__,__FUNCTION__,__LINE__,result.first);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] checkCommand returned: [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,result.first);
 
-	//printf("In [%s::%s] Line: %d check command returned %d, commands.size() = %d\n[%s]\n\n",__FILE__,__FUNCTION__,__LINE__,result,commands.size(),command->toString().c_str());
+	//printf("In [%s::%s] Line: %d check command returned %d, commands.size() = %d\n[%s]\n\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,result,commands.size(),command->toString().c_str());
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 	if(result.first == crSuccess) {
 		applyCommand(command);
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 	//push back command
 	if(result.first == crSuccess) {
@@ -1551,7 +1551,7 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
 		changedActiveCommand = false;
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 	return result;
 }
@@ -1563,7 +1563,7 @@ CommandResult Unit::finishCommand() {
 	this->setCurrentUnitTitle("");
 	//is empty?
 	if(commands.empty()) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__, __LINE__);
 		return crFailUndefined;
 	}
 
@@ -1601,7 +1601,7 @@ CommandResult Unit::cancelCommand() {
 
 	//is empty?
 	if(commands.empty()){
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__, __LINE__);
 		return crFailUndefined;
 	}
 
@@ -1638,7 +1638,7 @@ void Unit::create(bool startingUnit) {
 void Unit::born(const CommandType *ct) {
 	if(type == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1679,30 +1679,64 @@ void Unit::kill() {
 }
 
 void Unit::undertake() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to undertake unit id = %d [%s] [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->id, this->getFullName().c_str(),this->getDesc().c_str());
+	try {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to undertake unit id = %d [%s] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->id, this->getFullName().c_str(),this->getDesc().c_str());
 
-	// Remove any units that were previously in attack-boost range
-	if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.empty() == false && currentAttackBoostOriginatorEffect.skillType != NULL) {
-		for(unsigned int i = 0; i < currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size(); ++i) {
-			// Remove attack boost upgrades from unit
-			int findUnitId = currentAttackBoostOriginatorEffect.currentAttackBoostUnits[i];
-			Unit *affectedUnit = game->getWorld()->findUnitById(findUnitId);
-			if(affectedUnit != NULL) {
-				affectedUnit->deapplyAttackBoost(currentAttackBoostOriginatorEffect.skillType->getAttackBoost(), this);
+		// Remove any units that were previously in attack-boost range
+		if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.empty() == false && currentAttackBoostOriginatorEffect.skillType != NULL) {
+			for(unsigned int i = 0; i < currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size(); ++i) {
+				// Remove attack boost upgrades from unit
+				int findUnitId = currentAttackBoostOriginatorEffect.currentAttackBoostUnits[i];
+				Unit *affectedUnit = game->getWorld()->findUnitById(findUnitId);
+				if(affectedUnit != NULL) {
+					affectedUnit->deapplyAttackBoost(currentAttackBoostOriginatorEffect.skillType->getAttackBoost(), this);
+				}
+
+				//printf("!!!! DE-APPLY ATTACK BOOST from unit [%s - %d]\n",affectedUnit->getType()->getName().c_str(),affectedUnit->getId());
 			}
-
-			//printf("!!!! DE-APPLY ATTACK BOOST from unit [%s - %d]\n",affectedUnit->getType()->getName().c_str(),affectedUnit->getId());
+			currentAttackBoostOriginatorEffect.currentAttackBoostUnits.clear();
 		}
-		currentAttackBoostOriginatorEffect.currentAttackBoostUnits.clear();
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+		UnitUpdater *unitUpdater = game->getWorld()->getUnitUpdater();
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+		//unitUpdater->clearUnitPrecache(this);
+		unitUpdater->removeUnitPrecache(this);
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+		this->faction->deleteLivingUnits(id);
+		this->faction->deleteLivingUnitsp(this);
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+		faction->removeUnit(this);
 	}
+	catch(const megaglest_runtime_error &ex) {
+		string sErrBuf = "";
+		if(ex.wantStackTrace() == true) {
+			char szErrBuf[8096]="";
+			snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+		}
+		else {
+			sErrBuf = ex.what();
+		}
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 
-	UnitUpdater *unitUpdater = game->getWorld()->getUnitUpdater();
-	//unitUpdater->clearUnitPrecache(this);
-	unitUpdater->removeUnitPrecache(this);
+		throw;
+	}
+	catch(const std::exception &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 
-	this->faction->deleteLivingUnits(id);
-	this->faction->deleteLivingUnitsp(this);
-	faction->removeUnit(this);
+		throw;
+	}
 }
 
 // =================== Referencers ===================
@@ -1738,7 +1772,7 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 
 	if(type == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1774,7 +1808,7 @@ bool Unit::needToUpdate() {
 	assert(progress <= 1.f);
 	if(currSkill == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1877,7 +1911,7 @@ bool Unit::update() {
 
 	if(currSkill == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2185,7 +2219,7 @@ bool Unit::unitHasAttackBoost(const AttackBoost *boost, const Unit *source) cons
 bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 	if(boost == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: boost == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: boost == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2302,7 +2336,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 	if(boost == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: boost == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: boost == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2396,7 +2430,7 @@ void Unit::tick() {
 	if(isAlive()) {
 		if(type == NULL) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+			snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -2501,7 +2535,7 @@ bool Unit::computeEp() {
 
 	if(currSkill == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2517,7 +2551,7 @@ bool Unit::computeEp() {
 
 	if(getType() == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: getType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: getType() == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2533,7 +2567,7 @@ bool Unit::repair(){
 
 	if(type == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2569,7 +2603,7 @@ bool Unit::decHp(int i) {
 
 	if(type == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2709,7 +2743,7 @@ string Unit::getDesc() const {
 void Unit::applyUpgrade(const UpgradeType *upgradeType){
 	if(upgradeType == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: upgradeType == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: upgradeType == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2776,7 +2810,7 @@ bool Unit::morph(const MorphCommandType *mct){
 
 	if(mct == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: mct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: mct == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2784,7 +2818,7 @@ bool Unit::morph(const MorphCommandType *mct){
 
 	if(morphUnitType == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: morphUnitType == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: morphUnitType == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2921,7 +2955,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 
 	if(command == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2930,7 +2964,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
        command->getUnit() == this ||
        getType()->hasCommandType(command->getCommandType()) == false ||
        (ignoreCheckCommand == false && this->getFaction()->reqsOk(command->getCommandType()) == false)) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] isOperative() = %d, command->getUnit() = %p, getType()->hasCommandType(command->getCommandType()) = %d, this->getFaction()->reqsOk(command->getCommandType()) = %d\n",__FILE__,__FUNCTION__, __LINE__,isOperative(),command->getUnit(),getType()->hasCommandType(command->getCommandType()),this->getFaction()->reqsOk(command->getCommandType()));
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] isOperative() = %d, command->getUnit() = %p, getType()->hasCommandType(command->getCommandType()) = %d, this->getFaction()->reqsOk(command->getCommandType()) = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__, __LINE__,isOperative(),command->getUnit(),getType()->hasCommandType(command->getCommandType()),this->getFaction()->reqsOk(command->getCommandType()));
 
 		// Allow self healing if able to heal own unit type
 		if(	command->getUnit() == this &&
@@ -2946,7 +2980,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 
 	//if pos is not inside the world (if comand has not a pos, pos is (0, 0) and is inside world
 	if(map->isInside(command->getPos()) == false) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__, __LINE__);
 		result.first = crFailUndefined;
 		return result;
 	}
@@ -2954,7 +2988,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 	//check produced
 	if(command->getCommandType() == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -2985,7 +3019,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 
 		if(builtUnit == NULL) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: builtUnit == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+			snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: builtUnit == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -3010,12 +3044,12 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 
 		if(uct == NULL) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+			snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 			throw megaglest_runtime_error(szBuf);
 		}
 
 		if(faction->getUpgradeManager()->isUpgradingOrUpgraded(uct->getProducedUpgrade())){
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__, __LINE__);
 			result.first = crFailUndefined;
 			return result;
 		}
@@ -3027,12 +3061,12 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 void Unit::applyCommand(Command *command){
 	if(command == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 	else if(command->getCommandType() == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -3052,7 +3086,7 @@ void Unit::applyCommand(Command *command){
 
 		if(uct == NULL) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+			snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -3064,12 +3098,12 @@ CommandResult Unit::undoCommand(Command *command){
 
 	if(command == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 	else if(command->getCommandType() == NULL) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: command->getCommandType() == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -3097,7 +3131,7 @@ CommandResult Unit::undoCommand(Command *command){
         const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());
         if(uct == NULL) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",__FILE__,__FUNCTION__,__LINE__,this->toString().c_str());
+			snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: uct == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 			throw megaglest_runtime_error(szBuf);
 		}
 
@@ -3330,7 +3364,7 @@ void Unit::startDamageParticles() {
 
 void Unit::setTargetVec(const Vec3f &targetVec)	{
 	this->targetVec= targetVec;
-	logSynchData(__FILE__,__LINE__);
+	logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 }
 
 void Unit::setMeetingPos(const Vec2i &meetingPos) {
@@ -3341,7 +3375,7 @@ void Unit::setMeetingPos(const Vec2i &meetingPos) {
 		throw megaglest_runtime_error("#8 Invalid path position = " + this->meetingPos.getString());
 	}
 
-	logSynchData(__FILE__,__LINE__);
+	logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 }
 
 bool Unit::isMeetingPointSettable() const {
@@ -3453,7 +3487,7 @@ void Unit::cleanupOldBadHarvestPos() {
 		if(purgeList.empty() == false) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"[cleaning old bad harvest targets] purgeList.size() [" MG_SIZE_T_SPECIFIER "]",purgeList.size());
-			logSynchData(__FILE__,__LINE__,szBuf);
+			logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 
 			for(int i = 0; i < purgeList.size(); ++i) {
 				const Vec2i &item = purgeList[i];
