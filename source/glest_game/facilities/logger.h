@@ -60,6 +60,7 @@ private:
 	string statusText;
 	bool cancelSelected;
 	GraphicButton buttonCancel;
+	Vec4f displayColor;
 
 	//bool masterserverMode;
 
