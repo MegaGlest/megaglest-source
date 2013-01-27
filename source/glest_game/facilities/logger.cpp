@@ -57,6 +57,7 @@ Logger::Logger() {
 
 	cancelSelected = false;
 	buttonCancel.setEnabled(false);
+	displayColor=Vec4f(1.f,1.f,1.f,0.1f);
 }
 
 Logger::~Logger() {
@@ -207,37 +208,37 @@ void Logger::renderLoadingScreen() {
     int xLocation = metrics.getVirtualW() / 4;
 	if(Renderer::renderText3DEnabled) {
 
-		renderer.renderText3D(
-			state, coreData.getMenuFontBig3D(), Vec3f(1.f),
+		renderer.renderTextShadow3D(
+			state, coreData.getMenuFontBig3D(), displayColor,
 			xLocation,
 			65 * metrics.getVirtualH() / 100, false);
 
-		renderer.renderText3D(
-			current, coreData.getMenuFontNormal3D(), Vec3f(1.f),
+		renderer.renderTextShadow3D(
+			current, coreData.getMenuFontNormal3D(), displayColor,
 			xLocation,
 			62 * metrics.getVirtualH() / 100, false);
 
 	    if(this->statusText != "") {
-	    	renderer.renderText3D(
-	    		this->statusText, coreData.getMenuFontNormal3D(), 1.0f,
+	    	renderer.renderTextShadow3D(
+	    		this->statusText, coreData.getMenuFontNormal3D(), displayColor,
 	    		xLocation,
 	    		56 * metrics.getVirtualH() / 100, false);
 	    }
 	}
 	else {
-		renderer.renderText(
-			state, coreData.getMenuFontBig(), Vec3f(1.f),
+		renderer.renderTextShadow(
+			state, coreData.getMenuFontBig(), displayColor,
 			xLocation,
 			65 * metrics.getVirtualH() / 100, false);
 
-		renderer.renderText(
-			current, coreData.getMenuFontNormal(), 1.0f,
+		renderer.renderTextShadow(
+			current, coreData.getMenuFontNormal(), displayColor,
 			xLocation,
 			62 * metrics.getVirtualH() / 100, false);
 
 		if(this->statusText != "") {
-			renderer.renderText(
-				this->statusText, coreData.getMenuFontNormal(), 1.0f,
+			renderer.renderTextShadow(
+				this->statusText, coreData.getMenuFontNormal(), displayColor,
 				xLocation,
 				56 * metrics.getVirtualH() / 100, false);
 		}
@@ -253,8 +254,8 @@ void Logger::renderLoadingScreen() {
 		if(Renderer::renderText3DEnabled) {
 			int xLocationHint =  (metrics.getVirtualW() / 2) - (coreData.getMenuFontBig3D()->getMetrics()->getTextWidth(hintText) / 2);
 
-			renderer.renderText3D(
-					hintText, coreData.getMenuFontBig3D(), Vec3f(1.f),
+			renderer.renderTextShadow3D(
+					hintText, coreData.getMenuFontBig3D(), displayColor,
 					//xLocation*1.5f,
 					xLocationHint,
 					90 * metrics.getVirtualH() / 100, false);
@@ -262,8 +263,8 @@ void Logger::renderLoadingScreen() {
 		else {
 			int xLocationHint =  (metrics.getVirtualW() / 2) - (coreData.getMenuFontBig()->getMetrics()->getTextWidth(hintText) / 2);
 
-			renderer.renderText(
-					hintText, coreData.getMenuFontBig(), Vec3f(1.f),
+			renderer.renderTextShadow(
+					hintText, coreData.getMenuFontBig(), displayColor,
 				//xLocation*1.5f,
 				xLocationHint,
 				90 * metrics.getVirtualH() / 100, false);
