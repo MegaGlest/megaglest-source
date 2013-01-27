@@ -1842,7 +1842,7 @@ void MenuStateCustomGame::render() {
 		if(mainMessageBox.getEnabled() == false) {
 			if(factionTexture != NULL) {
 				if(factionVideo == NULL || factionVideo->isPlaying() == false) {
-					renderer.renderTextureQuad(800,600,200,150,factionTexture,0.7f);
+					renderer.renderTextureQuad(800,600,200,150,factionTexture,1.0f);
 				}
 			}
 		}
