@@ -66,6 +66,10 @@ public:
 
     static const char *ACTIVE_MOD_PROPERTY_NAME;
 
+    static const char *colorPicking;
+    static const char *selectBufPicking;
+    static const char *frustrumPicking;
+
 protected:
 
 	Config();

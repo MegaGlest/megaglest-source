@@ -4213,18 +4213,7 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 	str+= "ExploredCellsLookupItemCache: " 	+ world.getExploredCellsLookupItemCacheStats()+"\n";
 	str+= "FowAlphaCellsLookupItemCache: "  + world.getFowAlphaCellsLookupItemCacheStats()+"\n";
 
-	const bool selectBufPickingSelection 	= Config::getInstance().getBool("EnableSelectBufPicking","false");
-	//const bool colorPickingSelection 		= Config::getInstance().getBool("EnableColorPicking","true");
-	const bool frustumPickingSelection 		= Config::getInstance().getBool("EnableFrustumPicking","false");
-	if(selectBufPickingSelection) {
-		str += "Unit selection type: selectBuf\n";
-	}
-	else if(frustumPickingSelection) {
-		str += "Unit selection type: frustrum\n";
-	}
-	else {
-		str += "Unit selection type: color picking\n";
-	}
+	str += "Selection type: "+toLower(Config::getInstance().getString("SelectionType",Config::selectBufPicking))+"\n";
 
 	//str+= "AllFactionsCacheStats: "			+ world.getAllFactionsCacheStats()+"\n";
 	//str+= "AttackWarningCount: " + intToStr(world.getUnitUpdater()->getAttackWarningCount()) + "\n";

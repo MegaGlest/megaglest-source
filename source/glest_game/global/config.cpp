@@ -73,6 +73,11 @@ const char *Config::glestkeys_ini_filename              = "glestkeys.ini";
 const char *Config::glestuserkeys_ini_filename          = "glestuserkeys.ini";
 
 const char *Config::ACTIVE_MOD_PROPERTY_NAME			= "current_mod_name";
+
+ const char *Config::colorPicking = "color";
+ const char *Config::selectBufPicking = "frustrum";
+ const char *Config::frustrumPicking = "selectbuf";
+
 map<string,string> Config::customRuntimeProperties;
 
 // =====================================================

@@ -201,15 +201,14 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		listBoxSelectionType.pushBackItem("SelectBuffer");
 		listBoxSelectionType.pushBackItem("ColorPicking");
 		listBoxSelectionType.pushBackItem("FrustumPicking");
-		bool isColorpicking= config.getBool("EnableColorPicking","false");
-		bool isFrustumPicking=config.getBool("EnableFrustumPicking","false");
-		bool isSelectBuf= config.getBool("EnableSelectBufPicking","true");
-		if( isSelectBuf == true && isColorpicking == false && isFrustumPicking == false )
-			listBoxSelectionType.setSelectedItemIndex(0);
-		else if(isColorpicking == false && isFrustumPicking == true)
+
+		const string selectionType=toLower(config.getString("SelectionType",Config::selectBufPicking));
+		if( selectionType==Config::colorPicking)
+			listBoxSelectionType.setSelectedItemIndex(1);
+		else if ( selectionType==Config::frustrumPicking )
 			listBoxSelectionType.setSelectedItemIndex(2);
 		else
-			listBoxSelectionType.setSelectedItemIndex(1);
+			listBoxSelectionType.setSelectedItemIndex(0);
 		currentLine-=lineOffset;
 
 		//shadows
@@ -1774,19 +1773,13 @@ void MenuStateOptions::saveConfig(){
 
 	int selectionTypeindex= listBoxSelectionType.getSelectedItemIndex();
 	if(selectionTypeindex==0){
-		config.setBool("EnableSelectBufPicking", true);
-		config.setBool("EnableColorPicking", false);
-		config.setBool("EnableFrustumPicking", false);
+		config.setString("SelectionType",Config::selectBufPicking);
 	}
 	else if (selectionTypeindex==1){
-		config.setBool("EnableSelectBufPicking", false);
-		config.setBool("EnableColorPicking", true);
-		config.setBool("EnableFrustumPicking", false);
+		config.setString("SelectionType",Config::colorPicking);
 	}
 	else if (selectionTypeindex==2){
-		config.setBool("EnableSelectBufPicking", false);
-		config.setBool("EnableColorPicking", false);
-		config.setBool("EnableFrustumPicking", true);
+		config.setString("SelectionType",Config::frustrumPicking);
 	}
 
 	int index= listBoxShadows.getSelectedItemIndex();
