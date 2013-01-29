@@ -697,11 +697,30 @@ MenuStateConnectedGame::~MenuStateConnectedGame() {
 	}
 
 	if(ftpClientThread != NULL) {
-	    ftpClientThread->setCallBackObject(NULL);
-	    if(ftpClientThread->shutdownAndWait() == true) {
-            delete ftpClientThread;
-            ftpClientThread = NULL;
-	    }
+		ftpClientThread->setCallBackObject(NULL);
+		ftpClientThread->signalQuit();
+    	sleep(0);
+    	if(ftpClientThread->canShutdown(true) == true &&
+    			ftpClientThread->shutdownAndWait() == true) {
+    		delete ftpClientThread;
+    	}
+		else {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s::%s %d] Error cannot shutdown ftpClientThread\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s",szBuf);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+			//publishToMasterserverThread->cleanup();
+		}
+
+    	ftpClientThread = NULL;
+
+//	    ftpClientThread->setCallBackObject(NULL);
+//	    if(ftpClientThread->shutdownAndWait() == true) {
+//            delete ftpClientThread;
+//            ftpClientThread = NULL;
+//	    }
 	}
 
 	cleanupMapPreviewTexture();
@@ -1243,10 +1262,29 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 	else if(buttonCancelDownloads.mouseClick(x,y)) {
         if(ftpClientThread != NULL && fileFTPProgressList.empty() == false) {
-    	    ftpClientThread->setCallBackObject(NULL);
-    	    if(ftpClientThread->shutdownAndWait() == true) {
-                delete ftpClientThread;
-    	    }
+
+			ftpClientThread->setCallBackObject(NULL);
+			ftpClientThread->signalQuit();
+			sleep(0);
+			if(ftpClientThread->canShutdown(true) == true &&
+					ftpClientThread->shutdownAndWait() == true) {
+				delete ftpClientThread;
+			}
+			else {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"In [%s::%s %d] Error cannot shutdown ftpClientThread\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+				//SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s",szBuf);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+				//publishToMasterserverThread->cleanup();
+			}
+			ftpClientThread = NULL;
+
+//    	    ftpClientThread->setCallBackObject(NULL);
+//    	    if(ftpClientThread->shutdownAndWait() == true) {
+//                delete ftpClientThread;
+//    	    }
 
             fileFTPProgressList.clear();
             getMissingMapFromFTPServerInProgress 		= false;
@@ -2142,11 +2180,30 @@ void MenuStateConnectedGame::returnToJoinMenu() {
 	}
 
 	if(ftpClientThread != NULL) {
-	    ftpClientThread->setCallBackObject(NULL);
-	    if(ftpClientThread->shutdownAndWait() == true) {
-            delete ftpClientThread;
-            ftpClientThread = NULL;
-	    }
+
+		ftpClientThread->setCallBackObject(NULL);
+		ftpClientThread->signalQuit();
+		sleep(0);
+		if(ftpClientThread->canShutdown(true) == true &&
+				ftpClientThread->shutdownAndWait() == true) {
+			delete ftpClientThread;
+		}
+		else {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s::%s %d] Error cannot shutdown ftpClientThread\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s",szBuf);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+			//publishToMasterserverThread->cleanup();
+		}
+		ftpClientThread = NULL;
+
+//	    ftpClientThread->setCallBackObject(NULL);
+//	    if(ftpClientThread->shutdownAndWait() == true) {
+//            delete ftpClientThread;
+//            ftpClientThread = NULL;
+//	    }
 	}
 
 	if(returnMenuInfo == jmSimple) {
@@ -3089,11 +3146,29 @@ void MenuStateConnectedGame::update() {
 					}
 
                     if(ftpClientThread != NULL) {
-                        ftpClientThread->setCallBackObject(NULL);
-                        if(ftpClientThread->shutdownAndWait() == true) {
-                            delete ftpClientThread;
-                            ftpClientThread = NULL;
-                        }
+						ftpClientThread->setCallBackObject(NULL);
+						ftpClientThread->signalQuit();
+						sleep(0);
+						if(ftpClientThread->canShutdown(true) == true &&
+								ftpClientThread->shutdownAndWait() == true) {
+							delete ftpClientThread;
+						}
+						else {
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"In [%s::%s %d] Error cannot shutdown ftpClientThread\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+							//SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s",szBuf);
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+							//publishToMasterserverThread->cleanup();
+						}
+						ftpClientThread = NULL;
+
+//                        ftpClientThread->setCallBackObject(NULL);
+//                        if(ftpClientThread->shutdownAndWait() == true) {
+//                            delete ftpClientThread;
+//                            ftpClientThread = NULL;
+//                        }
                     }
 
                     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
