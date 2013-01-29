@@ -1135,15 +1135,33 @@ void MenuStateMods::cleanUp() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(ftpClientThread != NULL) {
-	    ftpClientThread->signalQuit();
-	    ftpClientThread->setCallBackObject(NULL);
-	    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	    if( ftpClientThread->shutdownAndWait() == true) {
-	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
-            delete ftpClientThread;
-	    }
-	    ftpClientThread = NULL;
-	    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		ftpClientThread->setCallBackObject(NULL);
+		ftpClientThread->signalQuit();
+		sleep(0);
+		if(ftpClientThread->canShutdown(true) == true &&
+				ftpClientThread->shutdownAndWait() == true) {
+			delete ftpClientThread;
+		}
+		else {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s::%s %d] Error cannot shutdown ftpClientThread\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s",szBuf);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+			//publishToMasterserverThread->cleanup();
+		}
+		ftpClientThread = NULL;
+
+//		ftpClientThread->signalQuit();
+//	    ftpClientThread->setCallBackObject(NULL);
+//	    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+//	    if( ftpClientThread->shutdownAndWait() == true) {
+//	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+//            delete ftpClientThread;
+//	    }
+//	    ftpClientThread = NULL;
+//	    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
