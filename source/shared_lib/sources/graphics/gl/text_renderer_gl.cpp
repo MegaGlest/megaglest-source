@@ -577,7 +577,8 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 			vector<string> parts;
 			char szBuf[8096]="";
 
-			for (int i=0; renderText[i] != '\0'; ++i) {
+			//for (int i=0; renderText[i] != '\0'; ++i) {
+			for(size_t i=0; i < renderText.size(); ++i) {
 				szBuf[0] = '\0';
 				snprintf(szBuf,8096,"%c",renderText[i]);
 

@@ -613,6 +613,7 @@ void World::updateAllFactionConsumableCosts() {
 
 void World::update() {
 
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	bool showPerfStats = Config::getInstance().getBool("ShowPerfStats","false");
 	Chrono chronoPerf;
 	char perfBuf[8096]="";
@@ -639,6 +640,7 @@ void World::update() {
 		perfList.push_back(perfBuf);
 	}
 
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	// objects on the map from tilesets
 	updateAllTilesetObjects();
 
@@ -665,6 +667,7 @@ void World::update() {
 			perfList.push_back(perfBuf);
 		}
 
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		//food costs
 		updateAllFactionConsumableCosts();
 
@@ -673,6 +676,7 @@ void World::update() {
 			perfList.push_back(perfBuf);
 		}
 
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		//fow smoothing
 		if(fogOfWarSmoothing && ((frameCount+1) % (fogOfWarSmoothingFrameSkip+1))==0) {
 			float fogFactor= static_cast<float>(frameCount % GameConstants::updateFps) / GameConstants::updateFps;
@@ -684,6 +688,7 @@ void World::update() {
 			perfList.push_back(perfBuf);
 		}
 
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		//tick
 		bool needToTick = canTickWorld();
 
@@ -694,6 +699,7 @@ void World::update() {
 
 		if(needToTick == true) {
 			//printf("=========== World is about to be updated, current frameCount = %d\n",frameCount);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			tick();
 		}
 
@@ -708,6 +714,7 @@ void World::update() {
 			printf("%s",perfList[x].c_str());
 		}
 	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 bool World::canTickWorld() const {
