@@ -423,6 +423,8 @@ bool isdir(const char *path)
 }
 
 bool fileExists(const string &path) {
+	 if (path.size() == 0) return false;
+
 #ifdef WIN32
 	wstring wstr = utf8_decode(path);
 	FILE* file= _wfopen(wstr.c_str(), L"rb");
