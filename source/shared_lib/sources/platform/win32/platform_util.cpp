@@ -37,17 +37,29 @@ PlatformExceptionHandler *PlatformExceptionHandler::thisPointer= NULL;
 // Constructs object and convert lpaszString to Unicode
 LPWSTR Ansi2WideString(LPCSTR lpaszString) {
 	LPWSTR lpwszString(NULL);
-	int nLen = ::lstrlenA(lpaszString) + 1;
-	lpwszString = new WCHAR[nLen];
-	if (lpwszString == NULL) {
-		return lpwszString;
+
+	if(lpaszString != NULL) {
+		int nLen = ::lstrlenA(lpaszString) + 1;
+		lpwszString = new WCHAR[nLen];
+		if (lpwszString == NULL) {
+			return lpwszString;
+		}
+
+		memset(lpwszString, 0, nLen * sizeof(WCHAR));
+
+		if (::MultiByteToWideChar(CP_ACP, 0, lpaszString, nLen, lpwszString, nLen) == 0) {
+			// Conversation failed
+			return lpwszString;
+		}
 	}
+	else {
+		int nLen = 1;
+		lpwszString = new WCHAR[nLen];
+		if (lpwszString == NULL) {
+			return lpwszString;
+		}
 
-	memset(lpwszString, 0, nLen * sizeof(WCHAR));
-
-	if (::MultiByteToWideChar(CP_ACP, 0, lpaszString, nLen, lpwszString, nLen) == 0) {
-		// Conversation failed
-		return lpwszString;
+		memset(lpwszString, 0, nLen * sizeof(WCHAR));
 	}
 
 	return lpwszString;
@@ -55,7 +67,12 @@ LPWSTR Ansi2WideString(LPCSTR lpaszString) {
 
 // Convert a wide Unicode string to an UTF8 string
 std::string utf8_encode(const std::wstring &wstr) {
-    int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+	if(wstr.length() == 0) {
+		std::string wstrTo;
+		return wstrTo;
+	}
+
+	int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
     std::string strTo( size_needed, 0 );
     WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
 	replaceAll(strTo, "/", "\\");
@@ -66,6 +83,10 @@ std::string utf8_encode(const std::wstring &wstr) {
 
 // Convert an UTF8 string to a wide Unicode String
 std::wstring utf8_decode(const std::string &str) {
+	if(str.length() == 0) {
+		std::wstring wstrTo;
+		return wstrTo;
+	}
 	string friendly_path = str;
 	replaceAll(friendly_path, "/", "\\");
 	replaceAll(friendly_path, "\\\\", "\\");
@@ -126,7 +147,7 @@ LONG WINAPI PlatformExceptionHandler::handler(LPEXCEPTION_POINTERS pointers){
 	lExceptionInformation.ExceptionPointers= pointers;
 	lExceptionInformation.ClientPointers= false;
 
-#if defined(__WIN32__) && !defined(__GNUC__)
+#if !defined(__GNUC__)
 	MiniDumpWriteDump(
 		GetCurrentProcess(),
 		GetCurrentProcessId(),
@@ -148,7 +169,9 @@ LONG WINAPI PlatformExceptionHandler::handler(LPEXCEPTION_POINTERS pointers){
 void PlatformExceptionHandler::install(string dumpFileName){
 	thisPointer= this;
 	this->dumpFileName= dumpFileName;
+#if !defined(HAVE_GOOGLE_BREAKPAD)
 	SetUnhandledExceptionFilter(handler);
+#endif
 }
 
 string PlatformExceptionHandler::getStackTrace() {
