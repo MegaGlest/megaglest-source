@@ -90,7 +90,7 @@ Game::Game() : ProgramState(NULL) {
 	camRightButtonDown=false;
 	camUpButtonDown=false;
 	camDownButtonDown=false;
-	speed=sNormal;
+	speed=1;
 	weatherParticleSystem=NULL;
 	isFirstRender=false;
 	quitTriggeredIndicator=false;
@@ -234,7 +234,7 @@ void Game::resetMembers() {
 	paused= false;
 	gameOver= false;
 	renderNetworkStatus= false;
-	speed= sNormal;
+	speed= 1;
 	showFullConsole= false;
 	setMarker = false;
 	camLeftButtonDown=false;
@@ -4786,33 +4786,25 @@ bool Game::hasBuilding(const Faction *faction) {
 
 void Game::incSpeed() {
 	Lang &lang= Lang::getInstance();
-	switch(speed){
-	case sSlow:
-		speed= sNormal;
-		console.addLine(lang.get("GameSpeedSet")+" "+lang.get("Normal"));
-		break;
-	case sNormal:
-		speed= sFast;
-		console.addLine(lang.get("GameSpeedSet")+" "+lang.get("Fast"));
-		break;
-	default:
-		break;
+
+	if(speed < Config::getInstance().getInt("FastSpeedLoops"))
+	{
+		if(speed==0)
+		{
+			speed=1;
+		}
+		else
+			speed++;
+		console.addLine(lang.get("GameSpeedSet")+" "+((speed==0)?lang.get("Slow"):(speed==1)?lang.get("Normal"):"x"+intToStr(speed)));
 	}
 }
 
 void Game::decSpeed() {
 	Lang &lang= Lang::getInstance();
-	switch(speed){
-	case sNormal:
-		speed= sSlow;
-		console.addLine(lang.get("GameSpeedSet")+" "+lang.get("Slow"));
-		break;
-	case sFast:
-		speed= sNormal;
-		console.addLine(lang.get("GameSpeedSet")+" "+lang.get("Normal"));
-		break;
-	default:
-		break;
+	if(speed > 0)
+	{
+		speed--;
+		console.addLine(lang.get("GameSpeedSet")+" "+((speed==0)?lang.get("Slow"):(speed==1)?lang.get("Normal"):"x"+intToStr(speed)));
 	}
 }
 
@@ -4861,12 +4853,11 @@ int Game::getUpdateLoops() {
 	if(getPaused()) {
 		return 0;
 	}
-	else if(speed == sFast) {
-		return Config::getInstance().getInt("FastSpeedLoops");
-	}
-	else if(speed == sSlow) {
+	else if(speed == 0) {
 		return updateFps % 2 == 0? 1: 0;
 	}
+	else
+		return speed;
 	return 1;
 }
 
