@@ -181,6 +181,11 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
     	//string currentpath = extractDirectoryPathFromFile(Properties::getApplicationPath());
     	fileName.first = currentpath + fileName.first;
     }
+
+#if defined(WIN32)
+	updatePathClimbingParts(fileName.first);
+#endif
+
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("-=-=-=-=-=-=-= About to load fileName.first = [%s]\n",fileName.first.c_str());
 
     if(fileMustExist.first == true ||
@@ -204,6 +209,11 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
         	}
         	fileName.second = userData + fileNameParameter.second;
         }
+
+#if defined(WIN32)
+		updatePathClimbingParts(fileName.second);
+#endif
+
     }
     else if(cfgType.first == cfgMainKeys) {
         Config &mainCfg = Config::getInstance();
@@ -221,6 +231,11 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
         	}
         	fileName.second = userData + fileNameParameter.second;
         }
+
+#if defined(WIN32)
+	updatePathClimbingParts(fileName.second);
+#endif
+
     }
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("-=-=-=-=-=-=-= About to load fileName.second = [%s]\n",fileName.second.c_str());

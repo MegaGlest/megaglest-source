@@ -572,6 +572,20 @@ void updatePathClimbingParts(string &path) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CHANGED relative path from [%s] to [%s]\n",orig.c_str(),path.c_str());
 	}
 
+	// Update paths with /./
+	pos = path.find("/./");
+	if(pos != string::npos && pos != 0) {
+		string orig = path;
+		path.erase(pos,2);
+		pos--;
+
+		pos = path.find("/./");
+		if(pos != string::npos && pos != 0) {
+			updatePathClimbingParts(path);
+		}
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CHANGED relative path from [%s] to [%s]\n",orig.c_str(),path.c_str());
+	}
 
 /*
 	string::size_type pos = path.rfind("..");
