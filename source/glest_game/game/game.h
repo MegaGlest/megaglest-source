@@ -61,11 +61,6 @@ enum LoadGameItem {
 class Game: public ProgramState, public FileCRCPreCacheThreadCallbackInterface, public CustomInputCallbackInterface {
 public:
 	static const float highlightTime;
-	enum Speed{
-		sFast,
-		sNormal,
-		sSlow
-	};
 
 private:
 	typedef vector<Ai*> Ais;
@@ -106,7 +101,7 @@ private:
 	bool camUpButtonDown;
 	bool camDownButtonDown;
 
-	Speed speed;
+	int speed;
 	GraphicMessageBox mainMessageBox;
 	GraphicMessageBox errorMessageBox;
 
