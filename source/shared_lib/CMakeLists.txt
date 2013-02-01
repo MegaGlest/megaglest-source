@@ -262,6 +262,17 @@ option(ENABLE_FRIBIDI "Enable FriBIDi support" ON)
 		message("Could not find FriBiDi. Disabling FriBiDi support.")
 	endif()
 
+	find_package( GoogleBreakpad )
+	if(BREAKPAD_EXCEPTION_HANDLER_FOUND AND BREAKPAD_EXCEPTION_HANDLER_LIBRARIES)
+	        add_definitions(-DHAVE_GOOGLE_BREAKPAD)
+
+        	#include_directories( ${BREAKPAD_EXCEPTION_HANDLER_INCLUDE_DIR} )
+                #SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES})
+
+	else()
+		message("** WARNING: Could not find GoogleBreakpad. Disabling GoogleBreakpad support.")
+	endif()
+
 	#########################################################################################
 	# megaglest lib
 

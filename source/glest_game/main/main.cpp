@@ -16,7 +16,7 @@
 #endif
 
 #ifdef HAVE_GOOGLE_BREAKPAD
-#include "exception_handler.h"
+#include "handler/exception_handler.h"
 #endif
 
 #include "math_wrapper.h"
@@ -1426,9 +1426,17 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
 		}
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 In setting up errorHandlerPtr->set_dump_path...\n");
+#if defined(WIN32)
 		wstring dumpfilepath = utf8_decode(dumpFilePath);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) wprintf(L"Hooking up google_breakpad::ExceptionHandler to save dmp files to [%s]...\n",dumpfilepath.c_str());
 		errorHandlerPtr->set_dump_path(dumpfilepath);
+#else
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Hooking up google_breakpad::ExceptionHandler to save dmp files to [%s]...\n",dumpFilePath.c_str());
+		//errorHandlerPtr->set_dump_path(dumpfilepath);
+		google_breakpad::MinidumpDescriptor descriptor(dumpFilePath);
+		errorHandlerPtr->set_minidump_descriptor(descriptor);
+#endif
+
 	}
 #endif
 
@@ -5171,6 +5179,7 @@ void handleSIGSEGV(int sig) {
 
 #if defined(HAVE_GOOGLE_BREAKPAD)
 
+#if defined(WIN32)
 // Callback when minidump written.
 static bool MinidumpCallback(const wchar_t *dump_path,
                              const wchar_t *minidump_id,
@@ -5181,15 +5190,31 @@ static bool MinidumpCallback(const wchar_t *dump_path,
   printf("\n======= In MinidumpCallback...\n");
   wprintf(L"\n***ERROR details captured:\nCrash minidump folder: %s\nfile: %s.dmp\nSucceeded: %d\n", (dump_path != NULL ? dump_path : L"(null)"),(minidump_id != NULL ? minidump_id : L"(null)"),succeeded);
 
-#ifdef WIN32
   wchar_t szBuf[8096];
   _snwprintf(szBuf,8096,L"An unhandled error was detected.\n\nA crash dump file has been created in the folder:\n%s\nCrash dump filename is: %s.dmp",dump_path,minidump_id);
   MessageBox(NULL, szBuf, L"Unhandled error", MB_OK|MB_SYSTEMMODAL);
 
-#endif
+  return succeeded;
+}
+
+#else
+
+// Callback when minidump written.
+static bool MinidumpCallback(const google_breakpad::MinidumpDescriptor& descriptor,
+							void* context,
+							bool succeeded) {
+  printf("\n======= In MinidumpCallback...\n");
+  printf("\n***ERROR details captured:\nCrash minidump folder: %s\nfile: %s\nSucceeded: %d\n", descriptor.directory().c_str(),descriptor.path(),succeeded);
+
+  char szBuf[8096];
+  snprintf(szBuf,8096,"An unhandled error was detected.\n\nA crash dump file has been created in the folder:\n%s\nCrash dump filename is: %s.dmp",descriptor.directory().c_str(),descriptor.path());
+  //MessageBox(NULL, szBuf, "Unhandled error", MB_OK|MB_SYSTEMMODAL);
 
   return succeeded;
 }
+
+#endif
+
 #endif
 
 #ifdef WIN32
@@ -5238,9 +5263,15 @@ int glestMainWrapper(int argc, char** argv) {
 	//}
 
 	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Hooking up google_breakpad::ExceptionHandler...\n");
+
+#if defined(WIN32)
 	wstring dumpfilepath = utf8_decode(".");
 	//google_breakpad::ExceptionHandler handler(dumpfilepath, NULL, MinidumpCallback, NULL, true);
 	errorHandlerPtr.reset(new google_breakpad::ExceptionHandler(dumpfilepath, NULL, MinidumpCallback, NULL, true));
+#else
+	google_breakpad::MinidumpDescriptor descriptor(".");
+	errorHandlerPtr.reset(new google_breakpad::ExceptionHandler(descriptor, NULL, MinidumpCallback, NULL, true,-1));
+#endif
 //  ExceptionHandler(const wstring& dump_path,
 //                   FilterCallback filter,
 //                   MinidumpCallback callback,
