@@ -63,6 +63,7 @@ public:
 		for(Factories::iterator it= factories.begin(); it!=factories.end(); ++it){
 			delete it->second;
 		}
+		factories.clear();
 	}
 
 	template<typename R>

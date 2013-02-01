@@ -79,8 +79,10 @@ ParticleSystemType::~ParticleSystemType() {
 		memoryObjectList[this]--;
 		assert(memoryObjectList[this] == 0);
 	}
-	for(Children::iterator it = children.begin(); it != children.end(); ++it)
+	for(Children::iterator it = children.begin(); it != children.end(); ++it) {
 		delete *it;
+	}
+	children.clear();
 }
 
 void ParticleSystemType::copyAll(const ParticleSystemType &src) {

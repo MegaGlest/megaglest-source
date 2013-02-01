@@ -473,6 +473,7 @@ XmlTree::~XmlTree() {
 	}
 
 	delete rootNode;
+	rootNode=NULL;
 }
 
 // =====================================================
@@ -574,9 +575,11 @@ XmlNode::~XmlNode() {
 	for(unsigned int i=0; i<children.size(); ++i) {
 		delete children[i];
 	}
+	children.clear();
 	for(unsigned int i=0; i<attributes.size(); ++i) {
 		delete attributes[i];
 	}
+	attributes.clear();
 }
 
 XmlAttribute *XmlNode::getAttribute(unsigned int i) const {

@@ -430,6 +430,7 @@ void SoundPlayerOpenAL::end() {
 			i != staticSources.end(); ++i) {
 		delete *i;
     }
+	staticSources.clear();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled) SystemFlags::OutputDebug(SystemFlags::debugSound,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -437,6 +438,7 @@ void SoundPlayerOpenAL::end() {
 			i != streamSources.end(); ++i) {
 		delete *i;
     }
+	streamSources.clear();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled) SystemFlags::OutputDebug(SystemFlags::debugSound,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

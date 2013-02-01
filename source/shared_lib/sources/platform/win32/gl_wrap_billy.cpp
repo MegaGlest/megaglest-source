@@ -97,7 +97,7 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 						   size, 0, 0, 0, width, FALSE, FALSE, FALSE, charSet,
 						   OUT_TT_ONLY_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 						   DEFAULT_PITCH| (useRealFontName.c_str() ? FF_DONTCARE:FF_SWISS), wstr);
-	delete [] wstr;
+	if(wstr) delete [] wstr;
 	assert(font!=NULL);
 
 	HDC dc= wglGetCurrentDC();

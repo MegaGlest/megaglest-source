@@ -50,6 +50,7 @@ public:
 	StaticSound *&operator[](int i)	{return sounds[i];}
 
 	const Sounds &getSounds() const	{return sounds;}
+	void clearSounds() {sounds.clear();}
 	Sounds *getSoundsPtr() {return &sounds;}
 	StaticSound *getRandSound() const;
 };

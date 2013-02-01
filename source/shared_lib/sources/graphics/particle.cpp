@@ -492,6 +492,7 @@ void ParticleSystem::fade(){
 	state= sFade;
 	if(particleObserver != NULL){
 		particleObserver->update(this);
+		particleObserver=NULL;
 	}
 	for(int i=getChildCount()-1; i>=0; i--)
 		getChild(i)->fade();
@@ -1539,6 +1540,7 @@ void ProjectileParticleSystem::update(){
 
 			if(particleObserver != NULL){
 				particleObserver->update(this);
+				particleObserver=NULL;
 			}
 
 			if(nextParticleSystem != NULL){

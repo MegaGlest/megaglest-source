@@ -137,7 +137,7 @@ LONG WINAPI PlatformExceptionHandler::handler(LPEXCEPTION_POINTERS pointers){
 		CREATE_ALWAYS,
 		FILE_ATTRIBUTE_NORMAL,
 		0);
-	delete [] wstr;
+	if(wstr) delete [] wstr;
 
 	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -332,13 +332,13 @@ void message(string message){
 
 	LPWSTR wstr = Ansi2WideString(message.c_str());
 	MessageBox(NULL, wstr, L"Message", MB_OK | MB_SYSTEMMODAL);
-	delete [] wstr;
+	if(wstr) delete [] wstr;
 }
 
 bool ask(string message){
 	LPWSTR wstr = Ansi2WideString(message.c_str());	
 	bool result = MessageBox(NULL, wstr, L"Confirmation", MB_YESNO | MB_SYSTEMMODAL) == IDYES;
-	delete [] wstr;
+	if(wstr) delete [] wstr;
 	return result;
 }
 
@@ -355,8 +355,8 @@ void exceptionMessage(const exception &excp){
 	LPWSTR wstr = Ansi2WideString(message.c_str());	
 	LPWSTR wstr1 = Ansi2WideString(title.c_str());	
 	MessageBox(NULL, wstr, wstr1, MB_ICONSTOP | MB_OK | MB_SYSTEMMODAL);
-	delete [] wstr;
-	delete [] wstr1;
+	if(wstr) delete [] wstr;
+	if(wstr1) delete [] wstr1;
 }
 
 //int getScreenW(){

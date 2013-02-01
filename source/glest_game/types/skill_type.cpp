@@ -742,6 +742,7 @@ AttackSkillType::~AttackSkillType() {
 	delete splashParticleSystemType;
 	splashParticleSystemType = NULL;
 	deleteValues(projSounds.getSounds().begin(), projSounds.getSounds().end());
+	projSounds.clearSounds();
 }
 
 void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,

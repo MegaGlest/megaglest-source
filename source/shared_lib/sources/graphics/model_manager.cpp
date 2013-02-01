@@ -56,6 +56,7 @@ void ModelManager::end(){
 		if(models[i] != NULL) {
 			models[i]->end();
 			delete models[i];
+			models[i]=NULL;
 		}
 	}
 	models.clear();

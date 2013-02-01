@@ -77,6 +77,7 @@ void FontManager::end() {
 		if(fonts[i] != NULL) {
 			fonts[i]->end();
 			delete fonts[i];
+			fonts[i]=NULL;
 		}
 	}
 	fonts.clear();
