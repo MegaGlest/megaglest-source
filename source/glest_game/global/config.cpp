@@ -183,6 +183,9 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
     }
 
 #if defined(WIN32)
+	//string test = "C:\\Code\\megaglest\\mk\\windoze\\.\\..\\..\\data\\glest_game\\glest.ini";
+	//updatePathClimbingParts(test);
+
 	updatePathClimbingParts(fileName.first);
 #endif
 

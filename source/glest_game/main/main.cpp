@@ -5267,7 +5267,7 @@ int glestMainWrapper(int argc, char** argv) {
 #if defined(WIN32)
 	wstring dumpfilepath = utf8_decode(".");
 	//google_breakpad::ExceptionHandler handler(dumpfilepath, NULL, MinidumpCallback, NULL, true);
-	errorHandlerPtr.reset(new google_breakpad::ExceptionHandler(dumpfilepath, NULL, MinidumpCallback, NULL, true));
+	errorHandlerPtr.reset(new google_breakpad::ExceptionHandler(dumpfilepath, NULL, MinidumpCallback, NULL, google_breakpad::ExceptionHandler::HANDLER_ALL));
 #else
 	google_breakpad::MinidumpDescriptor descriptor(".");
 	errorHandlerPtr.reset(new google_breakpad::ExceptionHandler(descriptor, NULL, MinidumpCallback, NULL, true,-1));

@@ -9548,7 +9548,7 @@ void Renderer::renderVideoLoading(int progressPercent) {
 			}
     	}
     	else {
-			anim -= 0.1;
+			anim -= 0.1f;
 			if(anim < 0.f) {
 				anim= 0.f;
 				cycle.reset();
