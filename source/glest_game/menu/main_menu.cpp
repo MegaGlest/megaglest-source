@@ -246,10 +246,11 @@ void MainMenu::setState(MenuState *newstate) {
     //this->state = newstate;
 
 	if(oldstate != NULL && oldstate != newstate) {
+		MenuState *oldstatePtr = oldstate;
 		delete oldstate;
 
         //printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		if(oldstate != this->state) {
+		if(oldstatePtr != this->state) {
 			oldstate=this->state;
 			//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}

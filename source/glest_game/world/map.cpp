@@ -140,6 +140,7 @@ SurfaceCell::SurfaceCell() {
 
 SurfaceCell::~SurfaceCell() {
 	delete object;
+	object=NULL;
 }
 
 void SurfaceCell::end(){

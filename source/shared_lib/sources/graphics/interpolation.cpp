@@ -51,8 +51,9 @@ InterpolationData::InterpolationData(const Mesh *mesh) {
 
 InterpolationData::~InterpolationData(){
 	delete [] vertices;
+	vertices=NULL;
 	delete [] normals;
-
+	normals=NULL;
 
 	for(std::map<float, std::map<bool, Vec3f *> >::iterator iterVert = cacheVertices.begin();
 		iterVert != cacheVertices.end(); ++iterVert) {
@@ -61,6 +62,7 @@ InterpolationData::~InterpolationData(){
 			delete [] iterVert2->second;
 		}
 	}
+	cacheVertices.clear();
 
 	for(std::map<float, std::map<bool, Vec3f *> >::iterator iterVert = cacheNormals.begin();
 		iterVert != cacheNormals.end(); ++iterVert) {
@@ -69,6 +71,7 @@ InterpolationData::~InterpolationData(){
 			delete [] iterVert2->second;
 		}
 	}
+	cacheNormals.clear();
 }
 
 void InterpolationData::update(float t, bool cycle){

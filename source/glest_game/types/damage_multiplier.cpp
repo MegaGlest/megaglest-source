@@ -63,6 +63,7 @@ DamageMultiplierTable::DamageMultiplierTable(){
 
 DamageMultiplierTable::~DamageMultiplierTable(){
 	delete [] values;
+	values=NULL;
 }
 
 void DamageMultiplierTable::init(int attackTypeCount, int armorTypeCount){

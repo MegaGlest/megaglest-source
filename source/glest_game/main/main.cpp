@@ -165,6 +165,7 @@ void cleanupCRCThread() {
 			}
 			if(preCacheThread->getRunningStatus() == false) {
 				delete preCacheThread;
+				preCacheThread=NULL;
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("C - shutting down crc threads\n");
 			}
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -175,6 +176,7 @@ void cleanupCRCThread() {
 			if(preCacheThread->canShutdown(false) == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				delete preCacheThread;
+				preCacheThread=NULL;
 
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("E - shutting down crc threads\n");
 				//printf("Stopping broadcast thread [%p] - C\n",broadCastThread);
@@ -288,8 +290,8 @@ void fatal(const char *s, ...)    // failure exit
 					MessageBox(NULL, wstr, wstr1, MB_OK|MB_SYSTEMMODAL);
 				}
 
-				delete [] wstr;
-				delete [] wstr1;
+				if(wstr) delete [] wstr;
+				if(wstr1) delete [] wstr1;
             #endif
             //SDL_Quit();
         }
@@ -4602,6 +4604,7 @@ int glestMain(int argc, char** argv) {
 				printf("\nInvalid map name specified on commandline [%s] map [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 				printParameterHelp(argv[0],foundInvalidArgs);
 				delete mainWindow;
+				mainWindow=NULL;
 				return 1;
 			}
 		}
@@ -4640,6 +4643,7 @@ int glestMain(int argc, char** argv) {
 				printf("\nInvalid host specified on commandline [%s] host [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 				printParameterHelp(argv[0],foundInvalidArgs);
 				delete mainWindow;
+				mainWindow=NULL;
 				return 1;
 			}
 		}
@@ -4669,6 +4673,7 @@ int glestMain(int argc, char** argv) {
 				printf("\nInvalid host specified on commandline [%s] host [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 				printParameterHelp(argv[0],foundInvalidArgs);
 				delete mainWindow;
+				mainWindow=NULL;
 				return 1;
 			}
 		}
@@ -4692,6 +4697,7 @@ int glestMain(int argc, char** argv) {
 				printf("\nInvalid scenario name specified on commandline [%s] scenario [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 				printParameterHelp(argv[0],foundInvalidArgs);
 				delete mainWindow;
+				mainWindow=NULL;
 				return 1;
 			}
 		}
@@ -4711,6 +4717,7 @@ int glestMain(int argc, char** argv) {
 			printf("%s",renderer.getGlMoreInfo().c_str());
 
 			delete mainWindow;
+			mainWindow=NULL;
 			return 0;
 		}
 
@@ -4828,12 +4835,14 @@ int glestMain(int argc, char** argv) {
 				}
 
 				delete mainWindow;
+				mainWindow=NULL;
 				return result;
 			}
 			else {
 				printf("\nInvalid model specified on commandline [%s] texture [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
 				printParameterHelp(argv[0],foundInvalidArgs);
 				delete mainWindow;
+				mainWindow=NULL;
 				return 1;
 			}
     	}
@@ -4844,6 +4853,7 @@ int glestMain(int argc, char** argv) {
 			runTechValidationReport(argc, argv);
 
 		    delete mainWindow;
+		    mainWindow=NULL;
 		    return 0;
 		}
 
@@ -4851,6 +4861,7 @@ int glestMain(int argc, char** argv) {
 			runTilesetValidationReport(argc, argv);
 
 		    delete mainWindow;
+		    mainWindow=NULL;
 		    return 0;
 		}
 

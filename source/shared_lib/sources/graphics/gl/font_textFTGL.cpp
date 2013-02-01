@@ -115,7 +115,9 @@ void TextFTGL::cleanupFont() {
 	delete ftFont;
 	ftFont = NULL;
 
-	free((void*)fontFile);
+	if(fontFile) {
+		free((void*)fontFile);
+	}
 	fontFile = NULL;
 }
 
@@ -149,7 +151,9 @@ void TextFTGL::init(string fontName, string fontFamilyName, int fontSize) {
 	if(ftFont->Error())	{
 		printf("FTGL: error loading font: %s\n", fontFile);
 		delete ftFont; ftFont = NULL;
-		free((void*)fontFile);
+		if(fontFile) {
+			free((void*)fontFile);
+		}
 		fontFile = NULL;
 		throw megaglest_runtime_error("FTGL: error loading font");
 	}

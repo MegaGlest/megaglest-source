@@ -143,10 +143,15 @@ UnitType::UnitType() : ProducibleType() {
 
 UnitType::~UnitType(){
 	deleteValues(commandTypes.begin(), commandTypes.end());
+	commandTypes.clear();
 	deleteValues(skillTypes.begin(), skillTypes.end());
+	skillTypes.clear();
 	deleteValues(selectionSounds.getSounds().begin(), selectionSounds.getSounds().end());
+	selectionSounds.clearSounds();
 	deleteValues(commandSounds.getSounds().begin(), commandSounds.getSounds().end());
+	commandSounds.clearSounds();
 	delete [] cellMap;
+	cellMap=NULL;
 	//remove damageParticleSystemTypes
 	while(!damageParticleSystemTypes.empty()){
 		delete damageParticleSystemTypes.back();
