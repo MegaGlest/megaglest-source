@@ -82,7 +82,7 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	is.read((char*)buffer, (std::streamsize)length);
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
-		Shared::PlatformByteOrder::fromEndianTypeArray<uint8>(buffer,length);
+		Shared::PlatformByteOrder::fromEndianTypeArray<uint8>(buffer,(size_t)length);
 	}
 	//Check buffer (weak jpeg check)
 	//if (buffer[0] != 0x46 || buffer[1] != 0xA0) {
