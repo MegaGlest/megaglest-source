@@ -284,7 +284,9 @@ void fatal(const char *s, ...)    // failure exit
 				LPWSTR wstr = Ansi2WideString(errText.c_str());
 				LPWSTR wstr1 = Ansi2WideString(sErr.c_str());
 
-                MessageBox(NULL, wstr, wstr1, MB_OK|MB_SYSTEMMODAL);
+				if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+					MessageBox(NULL, wstr, wstr1, MB_OK|MB_SYSTEMMODAL);
+				}
 
 				delete [] wstr;
 				delete [] wstr1;
@@ -5190,9 +5192,11 @@ static bool MinidumpCallback(const wchar_t *dump_path,
   printf("\n======= In MinidumpCallback...\n");
   wprintf(L"\n***ERROR details captured:\nCrash minidump folder: %s\nfile: %s.dmp\nSucceeded: %d\n", (dump_path != NULL ? dump_path : L"(null)"),(minidump_id != NULL ? minidump_id : L"(null)"),succeeded);
 
-  wchar_t szBuf[8096];
-  _snwprintf(szBuf,8096,L"An unhandled error was detected.\n\nA crash dump file has been created in the folder:\n%s\nCrash dump filename is: %s.dmp",dump_path,minidump_id);
-  MessageBox(NULL, szBuf, L"Unhandled error", MB_OK|MB_SYSTEMMODAL);
+  if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+	  wchar_t szBuf[8096];
+	  _snwprintf(szBuf,8096,L"An unhandled error was detected.\n\nA crash dump file has been created in the folder:\n%s\nCrash dump filename is: %s.dmp",dump_path,minidump_id);
+	  MessageBox(NULL, szBuf, L"Unhandled error", MB_OK|MB_SYSTEMMODAL);
+  }
 
   return succeeded;
 }
@@ -5206,9 +5210,12 @@ static bool MinidumpCallback(const google_breakpad::MinidumpDescriptor& descript
   printf("\n======= In MinidumpCallback...\n");
   printf("\n***ERROR details captured:\nCrash minidump folder: %s\nfile: %s\nSucceeded: %d\n", descriptor.directory().c_str(),descriptor.path(),succeeded);
 
-  char szBuf[8096];
-  snprintf(szBuf,8096,"An unhandled error was detected.\n\nA crash dump file has been created in the folder:\n%s\nCrash dump filename is: %s.dmp",descriptor.directory().c_str(),descriptor.path());
-  //MessageBox(NULL, szBuf, "Unhandled error", MB_OK|MB_SYSTEMMODAL);
+  if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+	  char szBuf[8096];
+	  snprintf(szBuf,8096,"An unhandled error was detected.\n\nA crash dump file has been created in the folder:\n%s\nCrash dump filename is: %s.dmp",descriptor.directory().c_str(),descriptor.path());
+	  //MessageBox(NULL, szBuf, "Unhandled error", MB_OK|MB_SYSTEMMODAL);
+	  message(szBuf);
+  }
 
   return succeeded;
 }
