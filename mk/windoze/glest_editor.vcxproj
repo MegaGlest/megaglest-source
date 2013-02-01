@@ -113,8 +113,7 @@
       </OptimizeReferences>
       <EnableCOMDATFolding>
       </EnableCOMDATFolding>
-      <TargetMachine>
-      </TargetMachine>
+      <TargetMachine>MachineX86</TargetMachine>
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>

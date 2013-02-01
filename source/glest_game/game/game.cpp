@@ -1944,7 +1944,11 @@ void Game::update() {
 			//Checksum checksum;
 			//world->loadScenario(scenarioFile, &checksum, true);
 			}
+#if defined(WIN32)
+			catch(const exception) {
+#else
 			catch(const exception &ex) {
+#endif
 				gameStarted = true;
 				totalRenderFps++;
 

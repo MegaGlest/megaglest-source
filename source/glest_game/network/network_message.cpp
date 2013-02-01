@@ -284,6 +284,9 @@ unsigned int NetworkMessagePing::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.messageType = 0;
+		packedData.pingFrequency = 0;
+		packedData.pingTime = 0;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
@@ -382,6 +385,8 @@ unsigned int NetworkMessageReady::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.checksum = 0;
+		packedData.messageType = 0;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
@@ -1571,6 +1576,7 @@ unsigned int NetworkMessageQuit::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.messageType = 0;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType);
@@ -2527,6 +2533,8 @@ unsigned int PlayerIndexMessage::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.messageType = 0;
+		packedData.playerIndex = 0;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
@@ -2615,6 +2623,8 @@ unsigned int NetworkMessageLoadingStatus::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.messageType = 0;
+		packedData.status = 0;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
@@ -2833,6 +2843,10 @@ unsigned int NetworkMessageUnMarkCell::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.factionIndex = 0;
+		packedData.messageType = 0;
+		packedData.targetX = 0;
+		packedData.targetY = 0;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
@@ -2936,6 +2950,10 @@ unsigned int NetworkMessageHighlightCell::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.factionIndex = 0;
+		packedData.messageType = 0;
+		packedData.targetX = 0;
+		packedData.targetY = 0;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
