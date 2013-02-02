@@ -121,7 +121,7 @@ SoundRenderer &SoundRenderer::getInstance() {
 }
 
 void SoundRenderer::update() {
-    if(soundPlayer != NULL) {
+    if(wasInitOk() == true && soundPlayer != NULL) {
         MutexSafeWrapper safeMutex(NULL,string(__FILE__) + "_" + intToStr(__LINE__));
     	if(runThreadSafe == true) {
     	    safeMutex.setMutex(&mutex);
