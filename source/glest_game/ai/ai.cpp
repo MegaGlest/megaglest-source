@@ -284,8 +284,8 @@ void Ai::init(AiInterface *aiInterface, int useStartLocation) {
 		minWorkerAttackersHarvesting = faction->getAIBehaviorStaticOverideValue(aibsvcMinWorkerAttackersHarvesting);
 		//printf("Discovered overriden static value for AI, scoutResourceRange = %d\n",scoutResourceRange);
 	}
-	if(faction->getAIBehaviorStaticOverideValue(aibsvcMinWorkerAttackersHarvesting) != INT_MAX) {
-		minBuildSpacing = faction->getAIBehaviorStaticOverideValue(aibsvcMinWorkerAttackersHarvesting);
+	if(faction->getAIBehaviorStaticOverideValue(aibsvcMinBuildSpacing) != INT_MAX) {
+		minBuildSpacing = faction->getAIBehaviorStaticOverideValue(aibsvcMinBuildSpacing);
 		//printf("Discovered overriden static value for AI, scoutResourceRange = %d\n",scoutResourceRange);
 	}
 
