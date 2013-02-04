@@ -513,13 +513,15 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		TravelState tsValue = tsImpossible;
-		switch(this->game->getGameSettings()->getPathFinderType()) {
-			case pfBasic:
-				tsValue = pathFinder->findPath(unit, pos, NULL, frameIndex);
-				break;
-			default:
-				throw megaglest_runtime_error("detected unsupported pathfinder type!");
-	    }
+		if(frameIndex < 0) {
+			switch(this->game->getGameSettings()->getPathFinderType()) {
+				case pfBasic:
+					tsValue = pathFinder->findPath(unit, pos, NULL, frameIndex);
+					break;
+				default:
+					throw megaglest_runtime_error("detected unsupported pathfinder type!");
+			}
+		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
