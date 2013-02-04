@@ -19,6 +19,7 @@
 #include <curl/curl.h>
 #include <cstdio>
 #include <assert.h>
+#include <stdexcept>
 #include "leak_dumper.h"
 
 using std::string;
@@ -167,7 +168,7 @@ public:
 				return *result;
 			}
 			else if(SystemFlags::debugLogFileList == NULL) {
-				throw std::exception("unknown return value for SystemFlagsType!");
+				throw std::runtime_error("unknown return value for SystemFlagsType!");
 			}
 		}
 
