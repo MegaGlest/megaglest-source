@@ -541,7 +541,8 @@ public:
 	inline void setCauseOfDeath(CauseOfDeathType cause) { causeOfDeath = cause; }
 
     //pos
-	inline Vec2i getPos() const				{return pos;}
+	inline Vec2i getPosNotThreadSafe() const				{return pos;}
+	Vec2i getPos();
 	Vec2i getPosWithCellMapSet() const;
 	inline Vec2i getLastPos() const			{return lastPos;}
 	Vec2i getCenteredPos() const;

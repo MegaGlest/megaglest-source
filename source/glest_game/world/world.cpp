@@ -950,7 +950,7 @@ void World::moveUnitCells(Unit *unit) {
 
 void World::addAttackEffects(const Unit *unit) {
 	attackEffects.addWaterSplash(
-					Vec2f(unit->getPos().x, unit->getPos().y),1);
+					Vec2f(unit->getPosNotThreadSafe().x, unit->getPosNotThreadSafe().y),1);
 }
 
 //returns the nearest unit that can store a type of resource given a position and a faction
@@ -981,7 +981,7 @@ bool World::toRenderUnit(const Unit *unit, const Quad2i &visibleQuad) const {
     }
 
 	//a unit is rendered if it is in a visible cell or is attacking a unit in a visible cell
-    return visibleQuad.isInside(unit->getPos()) && toRenderUnit(unit);
+    return visibleQuad.isInside(unit->getPosNotThreadSafe()) && toRenderUnit(unit);
 }
 
 bool World::toRenderUnit(const Unit *unit) const {

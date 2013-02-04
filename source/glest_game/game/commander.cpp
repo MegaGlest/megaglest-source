@@ -207,7 +207,7 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 			bool canSubmitCommand = canSubmitCommandType(unit, commandType);
 			if(canSubmitCommand == true) {
 				int unitId= unit->getId();
-				Vec2i currPos= world->getMap()->computeDestPos(refPos, unit->getPos(), pos);
+				Vec2i currPos= world->getMap()->computeDestPos(refPos, unit->getPosNotThreadSafe(), pos);
 
 				Vec2i usePos = currPos;
 				const CommandType *useCommandtype = commandType;
@@ -313,7 +313,7 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 					int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 					int unitId= selection->getUnit(i)->getId();
 					Vec2i currPos= world->getMap()->computeDestPos(refPos,
-							selection->getUnit(i)->getPos(), pos);
+							selection->getUnit(i)->getPosNotThreadSafe(), pos);
 					NetworkCommand networkCommand(this->world,nctGiveCommand,
 							unitId, ct->getId(), currPos, -1, targetId, -1,
 							tryQueue,cst_None,-1,unitCommandGroupId);
@@ -361,7 +361,7 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 			if(canSubmitCommand == true) {
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
 				int unitId= unit->getId();
-				Vec2i currPos= world->getMap()->computeDestPos(refPos, unit->getPos(), pos);
+				Vec2i currPos= world->getMap()->computeDestPos(refPos, unit->getPosNotThreadSafe(), pos);
 				NetworkCommand networkCommand(this->world,nctGiveCommand, unitId,
 						commandType->getId(), currPos, -1, targetId, -1, tryQueue,
 						cst_None, -1, unitCommandGroupId);
@@ -401,7 +401,7 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 			const Unit *unit = selection->getUnit(i);
 			assert(unit != NULL);
 
-			currPos= world->getMap()->computeDestPos(refPos, unit->getPos(), pos);
+			currPos= world->getMap()->computeDestPos(refPos, unit->getPosNotThreadSafe(), pos);
 
 			//get command type
 			const CommandType *commandType= unit->computeCommandType(pos, targetUnit);
@@ -543,7 +543,7 @@ std::pair<CommandResult,string> Commander::pushNetworkCommand(const NetworkComma
 	gameNetworkInterface->requestCommand(networkCommand);
 
 	//calculate the result of the command
-	if(networkCommand->getNetworkCommandType() == nctGiveCommand) {
+	if(unit != NULL && networkCommand->getNetworkCommandType() == nctGiveCommand) {
 		Command* command= buildCommand(networkCommand);
 		result= unit->checkCommand(command);
 		delete command;

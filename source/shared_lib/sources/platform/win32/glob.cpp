@@ -297,6 +297,9 @@ int glob(   char const  *pattern
                 cbAlloc = new_cbAlloc;
             }
 
+			if(buffer == NULL) {
+				throw exception("buffer == NULL");
+			}
             (void)lstrcpynA(buffer + cbCurr, szRelative, 1 + (int)(file_part - effectivePattern));
             (void)lstrcatA(buffer + cbCurr, sFileName.c_str());
             cbCurr += cch + 1;

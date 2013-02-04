@@ -1732,7 +1732,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
                 	needToBroadcastServerSettings=true;
                 	broadcastServerSettingsDelayTimer=time(NULL);
                 }
-                else if(clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) != i &&
+                else if(clientInterface != NULL && clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) != i &&
                 		listBoxFactions[i].mouseClick(x, y,advanceToItemStartingWith)) {
                 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
                     // Disallow CPU players to be observers
@@ -1746,7 +1746,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
                 	needToBroadcastServerSettings=true;
                 	broadcastServerSettingsDelayTimer=time(NULL);
                 }
-                else if(clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) != i &&
+                else if(clientInterface != NULL && clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()) != i &&
                 		listBoxTeams[i].mouseClick(x, y)) {
                 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
                     if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
@@ -3187,25 +3187,27 @@ void MenuStateConnectedGame::update() {
             console.update();
 
             // check for need to switch music on again
-			GameSettings *gameSettings = clientInterface->getGameSettingsPtr();
-			int currentConnectionCount=0;
-			for(int i=0; i < GameConstants::maxPlayers; ++i) {
-				if(gameSettings->getFactionControl(i)==ctNetwork &&
-						gameSettings->getNetworkPlayerName(i) != "" &&
-						gameSettings->getNetworkPlayerName(i) != GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME)
-				{
-					currentConnectionCount++;
+			if(clientInterface != NULL) {
+				GameSettings *gameSettings = clientInterface->getGameSettingsPtr();
+				int currentConnectionCount=0;
+				for(int i=0; i < GameConstants::maxPlayers; ++i) {
+					if(gameSettings->getFactionControl(i)==ctNetwork &&
+							gameSettings->getNetworkPlayerName(i) != "" &&
+							gameSettings->getNetworkPlayerName(i) != GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME)
+					{
+						currentConnectionCount++;
+					}
 				}
-			}
-    		if(currentConnectionCount > soundConnectionCount){
+    			if(currentConnectionCount > soundConnectionCount){
+    				soundConnectionCount = currentConnectionCount;
+    				SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
+    				//switch on music again!!
+    				Config &config = Config::getInstance();
+    				float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
+    				CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
+    			}
     			soundConnectionCount = currentConnectionCount;
-    			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
-    			//switch on music again!!
-    			Config &config = Config::getInstance();
-    			float configVolume = (config.getInt("SoundVolumeMusic") / 100.f);
-    			CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
-    		}
-    		soundConnectionCount = currentConnectionCount;
+			}
 
 
 		}

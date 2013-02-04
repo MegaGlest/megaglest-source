@@ -82,7 +82,8 @@
 #include "conversion.h"
 #include "leak_dumper.h"
 
-#if defined(WIN32) && !defined(HAVE_GOOGLE_BREAKPAD)
+//#if defined(WIN32) && !defined(HAVE_GOOGLE_BREAKPAD)
+#if defined(WIN32)
 #ifndef _DEBUG
 #ifndef __GNUC__
 
@@ -431,8 +432,14 @@ T * exception_cast(const UntypedException & e) {
   return reinterpret_cast<T *>(exception_cast_worker(e, ti));
 }
 void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
-    if(!ep) {
+#ifdef HAVE_GOOGLE_BREAKPAD
+	if(errorHandlerPtr.get() != NULL) {
+		errorHandlerPtr->WriteMinidump();
+	}
+#endif
+	if(!ep) {
 		fatal("unknown type");
+		return;
 	}
     EXCEPTION_RECORD *er = ep->ExceptionRecord;
     CONTEXT *context = ep->ContextRecord;
@@ -5205,7 +5212,8 @@ static bool MinidumpCallback(const wchar_t *dump_path,
 
   if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 	  wchar_t szBuf[8096];
-	  _snwprintf(szBuf,8096,L"An unhandled error was detected.\n\nA crash dump file has been created in the folder:\n%s\nCrash dump filename is: %s.dmp",dump_path,minidump_id);
+	  int bufBytes = _snwprintf(szBuf,8096,L"An unhandled error was detected.\n\nA crash dump file has been created in the folder:\n%s\nCrash dump filename is: %s.dmp",dump_path,minidump_id);
+	  szBuf[bufBytes] = '\0';
 	  MessageBox(NULL, szBuf, L"Unhandled error", MB_OK|MB_SYSTEMMODAL);
   }
 
@@ -5241,70 +5249,22 @@ void EnableCrashingOnCrashes() {
     typedef BOOL (WINAPI *tSetPolicy)(DWORD dwFlags); 
     const DWORD EXCEPTION_SWALLOWING = 0x1;
 
-    HMODULE kernel32 = LoadLibraryA("kernel32.dll"); 
-    tGetPolicy pGetPolicy = (tGetPolicy)GetProcAddress(kernel32, "GetProcessUserModeExceptionPolicy"); 
-    tSetPolicy pSetPolicy = (tSetPolicy)GetProcAddress(kernel32, "SetProcessUserModeExceptionPolicy"); 
-    if (pGetPolicy && pSetPolicy) { 
-        DWORD dwFlags; 
-        if (pGetPolicy(&dwFlags)) { 
-            // Turn off the filter 
-            pSetPolicy(dwFlags & ~EXCEPTION_SWALLOWING); 
-        } 
-    } 
+    HMODULE kernel32 = LoadLibraryA("kernel32.dll");
+	if(kernel32 != 0) {
+		tGetPolicy pGetPolicy = (tGetPolicy)GetProcAddress(kernel32, "GetProcessUserModeExceptionPolicy"); 
+		tSetPolicy pSetPolicy = (tSetPolicy)GetProcAddress(kernel32, "SetProcessUserModeExceptionPolicy"); 
+		if (pGetPolicy && pSetPolicy) { 
+			DWORD dwFlags; 
+			if (pGetPolicy(&dwFlags)) { 
+				// Turn off the filter 
+				pSetPolicy(dwFlags & ~EXCEPTION_SWALLOWING); 
+			} 
+		} 
+	}
 }
 #endif
 
-int glestMainWrapper(int argc, char** argv) {
-	//setlocale(LC_ALL, "zh_TW.UTF-8");
-	//setlocale(LC_ALL, "");
-
-#ifdef WIN32
-	EnableCrashingOnCrashes();
-#endif
-
-#if defined(HAVE_GOOGLE_BREAKPAD)
-/*
-	handler = new ExceptionHandler(const wstring& dump_path,
-                                                              FilterCallback filter,
-                                                              MinidumpCallback callback,
-                                                              void* callback_context,
-                                                              int handler_types,
-                                                              MINIDUMP_TYPE dump_type,
-                                                              const wchar_t* pipe_name,
-                                                              const CustomClientInfo* custom_info);
-*/
-
-	// See this link about swallowed exceptions in Win 7: http://blog.paulbetts.org/index.php/2010/07/20/the-case-of-the-disappearing-onload-exception-user-mode-callback-exceptions-in-x64/
-	//DWORD dwFlags;
-	//if (GetProcessUserModeExceptionPolicy(&dwFlags)) {
-	//	SetProcessUserModeExceptionPolicy(dwFlags & ~PROCESS_CALLBACK_FILTER_ENABLED); // turn off bit 1
-	//}
-
-	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Hooking up google_breakpad::ExceptionHandler...\n");
-
-#if defined(WIN32)
-	wstring dumpfilepath = utf8_decode(".");
-	//google_breakpad::ExceptionHandler handler(dumpfilepath, NULL, MinidumpCallback, NULL, true);
-	errorHandlerPtr.reset(new google_breakpad::ExceptionHandler(dumpfilepath, NULL, MinidumpCallback, NULL, google_breakpad::ExceptionHandler::HANDLER_ALL));
-#else
-	google_breakpad::MinidumpDescriptor descriptor(".");
-	errorHandlerPtr.reset(new google_breakpad::ExceptionHandler(descriptor, NULL, MinidumpCallback, NULL, true,-1));
-#endif
-//  ExceptionHandler(const wstring& dump_path,
-//                   FilterCallback filter,
-//                   MinidumpCallback callback,
-//                   void* callback_context,
-//                   int handler_types);
-
-#endif
-
-#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
-//#ifdef DEBUG
-	  //printf("MTRACE will be called...\n");
-      //mtrace ();
-//#endif
-#endif
-
+int glestMainSEHWrapper(int argc, char** argv) {
 #ifdef WIN32_STACK_TRACE
 	printf("Hooking up WIN32_STACK_TRACE...\n");
 __try {
@@ -5339,10 +5299,67 @@ __try {
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	return result;
-
 #ifdef WIN32_STACK_TRACE
 } __except(stackdumper(0, GetExceptionInformation(),true), EXCEPTION_CONTINUE_SEARCH) { return 0; }
 #endif
+
+}
+
+int glestMainWrapper(int argc, char** argv) {
+	//setlocale(LC_ALL, "zh_TW.UTF-8");
+	//setlocale(LC_ALL, "");
+
+#ifdef WIN32
+	EnableCrashingOnCrashes();
+#endif
+
+#if defined(HAVE_GOOGLE_BREAKPAD)
+/*
+	handler = new ExceptionHandler(const wstring& dump_path,
+                                                              FilterCallback filter,
+                                                              MinidumpCallback callback,
+                                                              void* callback_context,
+                                                              int handler_types,
+                                                              MINIDUMP_TYPE dump_type,
+                                                              const wchar_t* pipe_name,
+                                                              const CustomClientInfo* custom_info);
+*/
+
+	// See this link about swallowed exceptions in Win 7: http://blog.paulbetts.org/index.php/2010/07/20/the-case-of-the-disappearing-onload-exception-user-mode-callback-exceptions-in-x64/
+	//DWORD dwFlags;
+	//if (GetProcessUserModeExceptionPolicy(&dwFlags)) {
+	//	SetProcessUserModeExceptionPolicy(dwFlags & ~PROCESS_CALLBACK_FILTER_ENABLED); // turn off bit 1
+	//}
+
+	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Hooking up google_breakpad::ExceptionHandler...\n");
+
+#if defined(WIN32)
+	wstring dumpfilepath = utf8_decode(".");
+	//google_breakpad::ExceptionHandler handler(dumpfilepath, NULL, MinidumpCallback, NULL, true);
+	errorHandlerPtr.reset(new google_breakpad::ExceptionHandler(dumpfilepath, NULL, MinidumpCallback, 
+											  NULL, google_breakpad::ExceptionHandler::HANDLER_ALL));
+#else
+	google_breakpad::MinidumpDescriptor descriptor(".");
+	errorHandlerPtr.reset(new google_breakpad::ExceptionHandler(descriptor, NULL, MinidumpCallback, NULL, true,-1));
+#endif
+
+//  ExceptionHandler(const wstring& dump_path,
+//                   FilterCallback filter,
+//                   MinidumpCallback callback,
+//                   void* callback_context,
+//                   int handler_types);
+
+#endif
+
+#if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
+//#ifdef DEBUG
+	  //printf("MTRACE will be called...\n");
+      //mtrace ();
+//#endif
+#endif
+
+	int result = glestMainSEHWrapper(argc, argv);
+	return result;
 }
 
 }}//end namespace

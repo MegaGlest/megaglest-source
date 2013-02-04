@@ -939,7 +939,9 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 	    						if(clickPos != command->getOriginalPos()) {
 	    							//printf("%%----------- unit [%s - %d] CHANGING RESOURCE POS from [%s] to [%s]\n",unit->getFullName().c_str(),unit->getId(),command->getOriginalPos().getString().c_str(),clickPos.getString().c_str());
 
-	    							command->setPos(clickPos);
+									if(frameIndex < 0) {
+	    								command->setPos(clickPos);
+									}
 	    						}
 	    					}
 	    				}
@@ -2365,7 +2367,7 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 
 	//aux vars
 	int size 			= unit->getType()->getSize();
-	Vec2i center 		= unit->getPos();
+	Vec2i center 		= unit->getPosNotThreadSafe();
 	Vec2f floatCenter	= unit->getFloatCenteredPos();
 
 	//bool foundInCache = true;
@@ -2423,11 +2425,11 @@ vector<Unit*> UnitUpdater::findUnitsInRange(const Unit *unit, int radius) {
 
 	//aux vars
 	int size 			= unit->getType()->getSize();
-	Vec2i center 		= unit->getPos();
+	Vec2i center 		= unit->getPosNotThreadSafe();
 	Vec2f floatCenter	= unit->getFloatCenteredPos();
 
 	//nearby cells
-	UnitRangeCellsLookupItem cacheItem;
+	//UnitRangeCellsLookupItem cacheItem;
 	for(int i = center.x - range; i < center.x + range + size; ++i) {
 		for(int j = center.y - range; j < center.y + range + size; ++j) {
 			//cells inside map and in range
@@ -2453,7 +2455,7 @@ string UnitUpdater::getUnitRangeCellsLookupItemCacheStats() {
 	int rangeCount = 0;
 	int rangeCountCellCount = 0;
 
-	Mutex mutexUnitRangeCellsLookupItemCache;
+	MutexSafeWrapper safeMutex(&mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
 	//std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > > UnitRangeCellsLookupItemCache;
 	for(std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > >::iterator iterMap1 = UnitRangeCellsLookupItemCache.begin();
 		iterMap1 != UnitRangeCellsLookupItemCache.end(); ++iterMap1) {

@@ -267,7 +267,9 @@ void MainMenu::setState(MenuState *newstate) {
 	this->state= newstate;
 
 	GraphicComponent::resetFade();
-	menuBackground.setTargetCamera(newstate->getCamera());
+	if(newstate) {
+		menuBackground.setTargetCamera(newstate->getCamera());
+	}
 }
 
 bool MainMenu::isInSpecialKeyCaptureEvent() {

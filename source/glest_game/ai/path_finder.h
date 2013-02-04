@@ -149,6 +149,7 @@ private:
 	static int pathFindNodesMax;
 	static int pathFindNodesAbsoluteMax;
 
+	Mutex *factionMutex;
 	FactionStateList factions;
 	const Map *map;
 	bool minorDebugPathfinder;

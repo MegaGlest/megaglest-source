@@ -1163,7 +1163,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 				if(ai->outputAIBehaviourToConsole()) printf("produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(producerIndex)->getType()->getName().c_str(),defCt->getName().c_str());
 				if(aiInterface->isLogLevelEnabled(4) == true) {
 					char szBuf[8096]="";
-					snprintf(szBuf,8096,"produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(producerIndex)->getType()->getName().c_str(),defCt->getName().c_str());
+					snprintf(szBuf,8096,"produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(producerIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "(null)"));
 					aiInterface->printLog(4, szBuf);
 				}
 				aiInterface->giveCommand(producerIndex, defCt);
@@ -1668,7 +1668,7 @@ bool AiRuleExpand::test() {
 						// If this building is a store
 						if(ut->getStore(rt) > 0) {
 							storeType = ut;
-							int distance= static_cast<int> (u->getPos().dist(expandPos));
+							int distance= static_cast<int> (u->getPosNotThreadSafe().dist(expandPos));
 							if(distance < minDistance) {
 								minDistance = distance;
 							}

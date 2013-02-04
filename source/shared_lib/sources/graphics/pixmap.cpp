@@ -678,12 +678,14 @@ void PixmapIoJpg::write(uint8 *pixels) {
 	if(components == 4) {
 		int n = w * h;
 		unsigned char *dst = tmpbytes = (unsigned char *) malloc(n*3);
-		const unsigned char *src = pixels;
-		for (int i = 0; i < n; i++) {
-			*dst++ = *src++;
-			*dst++ = *src++;
-			*dst++ = *src++;
-			src++;
+		if(dst != NULL) {
+			const unsigned char *src = pixels;
+			for (int i = 0; i < n; i++) {
+				*dst++ = *src++;
+				*dst++ = *src++;
+				*dst++ = *src++;
+				src++;
+			}
 		}
 		components = 3;
 	}
@@ -718,25 +720,29 @@ void PixmapIoJpg::write(uint8 *pixels) {
     // flip lines.
 	uint8 *flip = (uint8 *)malloc(sizeof(uint8) * w * h * 3);
 
-	for (int y = 0;y < h; ++y) {
-		for (int x = 0;x < w; ++x) {
-			flip[(y * w + x) * 3] = pixels[((h - 1 - y) * w + x) * 3];
-			flip[(y * w + x) * 3 + 1] = pixels[((h - 1 - y) * w + x) * 3 + 1];
-			flip[(y * w + x) * 3 + 2] = pixels[((h - 1 - y) * w + x) * 3 + 2];
+	if(pixels != NULL && flip != NULL) {
+		for (int y = 0;y < h; ++y) {
+			for (int x = 0;x < w; ++x) {
+				flip[(y * w + x) * 3] = pixels[((h - 1 - y) * w + x) * 3];
+				flip[(y * w + x) * 3 + 1] = pixels[((h - 1 - y) * w + x) * 3 + 1];
+				flip[(y * w + x) * 3 + 2] = pixels[((h - 1 - y) * w + x) * 3 + 2];
+			}
 		}
-	 }
-
-	/* like reading a file, this time write one row at a time */
-	while( cinfo.next_scanline < cinfo.image_height ) {
-		row_pointer[0] = &flip[ cinfo.next_scanline * cinfo.image_width *  cinfo.input_components];
-		jpeg_write_scanlines( &cinfo, row_pointer, 1 );
+	
+		/* like reading a file, this time write one row at a time */
+		while( cinfo.next_scanline < cinfo.image_height ) {
+			row_pointer[0] = &flip[ cinfo.next_scanline * cinfo.image_width *  cinfo.input_components];
+			jpeg_write_scanlines( &cinfo, row_pointer, 1 );
+		}
 	}
 	if (tmpbytes) {
 		free(tmpbytes);
 		tmpbytes=NULL;
 	}
-	free(flip);
-	flip=NULL;
+	if(flip) {
+		free(flip);
+		flip=NULL;
+	}
 
 	/* similar to read file, clean up after we're done compressing */
 	jpeg_finish_compress( &cinfo );

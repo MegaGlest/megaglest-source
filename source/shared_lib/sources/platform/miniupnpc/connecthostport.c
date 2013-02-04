@@ -143,7 +143,8 @@ int connecthostport(const char * host, unsigned short port,
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_family = AF_UNSPEC; /* AF_INET, AF_INET6 or AF_UNSPEC */
 	/* hints.ai_protocol = IPPROTO_TCP; */
-	snprintf(port_str, sizeof(port_str), "%hu", port);
+	snprintf(port_str, 7, "%hu", port);
+	port_str[7] = '\0';
 	if(host[0] == '[')
 	{
 		/* literal ip v6 address */

@@ -650,13 +650,15 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 								(distanceFromUnit < 0 || unit->getCenteredPos().dist(resPos) <= (distanceFromUnit + 2.0))) {
 
 								if(resourceClickPos->dist(resPos) <= 1.0) {
-									FindBestPos bestPosItem;
+									if(unit != NULL) {
+										FindBestPos bestPosItem;
 
-									bestPosItem.distanceFromUnitNoAdjustment = unit->getCenteredPos().dist(resPos);
-									bestPosItem.distanceFromClickNoAdjustment =distanceFromClick = resourceClickPos->dist(resPos);
-									bestPosItem.resourcePosNoAdjustment = resPos;
+										bestPosItem.distanceFromUnitNoAdjustment = unit->getCenteredPos().dist(resPos);
+										bestPosItem.distanceFromClickNoAdjustment =distanceFromClick = resourceClickPos->dist(resPos);
+										bestPosItem.resourcePosNoAdjustment = resPos;
 
-									bestPosList.push_back(bestPosItem);
+										bestPosList.push_back(bestPosItem);
+									}
 								}
 
 								//printf("!!!! unit [%s - %d] resPos = [%s] resourceClickPos->dist(resPos) [%f] distanceFromClick [%f] unit->getCenteredPos().dist(resPos) [%f] distanceFromUnit [%f]\n",unit->getFullName().c_str(),unit->getId(),resPos.getString().c_str(),resourceClickPos->dist(resPos),distanceFromClick,unit->getCenteredPos().dist(resPos),distanceFromUnit);
@@ -1079,7 +1081,7 @@ Vec2i Map::computeRefPos(const Selection *selection) const {
     	if(selection == NULL || selection->getUnit(i) == NULL) {
     		throw megaglest_runtime_error("selection == NULL || selection->getUnit(i) == NULL");
     	}
-        total = total + selection->getUnit(i)->getPos();
+        total = total + selection->getUnit(i)->getPosNotThreadSafe();
     }
 
     return Vec2i(total.x / selection->getCount(), total.y / selection->getCount());
@@ -1111,7 +1113,7 @@ std::pair<float,Vec2i> Map::getUnitDistanceToPos(const Unit *unit,Vec2i pos,cons
 
 	std::pair<float,Vec2i> result(-1,Vec2i(0));
 	//int unitId= unit->getId();
-	Vec2i unitPos= computeDestPos(unit->getPos(), unit->getPos(), pos);
+	Vec2i unitPos= computeDestPos(unit->getPosNotThreadSafe(), unit->getPosNotThreadSafe(), pos);
 
 	Vec2i start = pos - Vec2i(1);
 	int unitTypeSize = 0;
@@ -1156,7 +1158,7 @@ const Unit * Map::findClosestUnitToPos(const Selection *selection, Vec2i origina
 	for(int i = 0; i < selection->getCount(); ++i) {
 		const Unit *unit = selection->getUnit(i);
 		//int unitId= unit->getId();
-		Vec2i unitBuilderPos= computeDestPos(refPos, unit->getPos(), pos);
+		Vec2i unitBuilderPos= computeDestPos(refPos, unit->getPosNotThreadSafe(), pos);
 
 		for(int i = start.x; i <= end.x; ++i) {
 			for(int j = start.y; j <= end.y; ++j){
@@ -1177,7 +1179,7 @@ const Unit * Map::findClosestUnitToPos(const Selection *selection, Vec2i origina
 }
 
 Vec2i Map::findBestBuildApproach(const Unit *unit, Vec2i originalBuildPos,const UnitType *ut) const {
-    Vec2i unitBuilderPos    = unit->getPos();
+    Vec2i unitBuilderPos    = unit->getPosNotThreadSafe();
 	Vec2i pos               = originalBuildPos;
 
 	float bestRange = -1;
@@ -1442,7 +1444,7 @@ bool Map::isNextTo(const Vec2i &pos, const Unit *unit) const {
 
 //return if unit is next to pos
 bool Map::isNextTo(const Unit *unit1, const Unit *unit2) const {
-	Vec2i pos = unit1->getPos();
+	Vec2i pos = unit1->getPosNotThreadSafe();
 	const UnitType *ut = unit1->getType();
 	for (int y=-1; y < ut->getSize()+1; ++y) {
 		for (int x=-1; x < ut->getSize()+1; ++x) {
@@ -1516,7 +1518,7 @@ void Map::flatternTerrain(const Unit *unit){
 	float refHeight= getSurfaceCell(toSurfCoords(unit->getCenteredPos()))->getHeight();
 	for(int i=-1; i<=unit->getType()->getSize(); ++i){
         for(int j=-1; j<=unit->getType()->getSize(); ++j){
-            Vec2i pos= unit->getPos()+Vec2i(i, j);
+            Vec2i pos= unit->getPosNotThreadSafe()+Vec2i(i, j);
             if(isInside(pos) && isInsideSurface(toSurfCoords(pos))) {
 				Cell *c= getCell(pos);
 				SurfaceCell *sc= getSurfaceCell(toSurfCoords(pos));
