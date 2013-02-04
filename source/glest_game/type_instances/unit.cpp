@@ -1064,6 +1064,9 @@ void Unit::setPos(const Vec2i &pos, bool clearPathFinder) {
 		throw megaglest_runtime_error("#3 Invalid path position = " + pos.getString());
 	}
 
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(mutexCommands,mutexOwnerId);
+
 	if(clearPathFinder == true && this->unitPath != NULL) {
 		this->unitPath->clear();
 	}
@@ -1106,6 +1109,8 @@ void Unit::setPos(const Vec2i &pos, bool clearPathFinder) {
 	this->meetingPos= pos - Vec2i(1);
 	map->clampPos(this->meetingPos);
 
+	safeMutex.ReleaseLock();
+
 	// Attempt to improve performance
 	this->exploreCells();
 
@@ -1122,7 +1127,7 @@ FowAlphaCellsLookupItem Unit::getFogOfWarRadius(bool useCache) const {
 	FowAlphaCellsLookupItem result;
 	//iterate through all cells
 	int sightRange= this->getType()->getSight();
-	PosCircularIterator pci(map, this->getPos(), sightRange + World::indirectSightRange);
+	PosCircularIterator pci(map, this->getPosNotThreadSafe(), sightRange + World::indirectSightRange);
 	while(pci.next()){
 		const Vec2i sightpos= pci.getPos();
 		Vec2i surfPos= Map::toSurfCoords(sightpos);
@@ -1138,7 +1143,7 @@ FowAlphaCellsLookupItem Unit::getFogOfWarRadius(bool useCache) const {
 
 		//compute alpha
 		float alpha = maxAlpha;
-		float dist = this->getPos().dist(sightpos);
+		float dist = this->getPosNotThreadSafe().dist(sightpos);
 		if(dist > sightRange) {
 			alpha= clamp(1.f-(dist - sightRange) / (World::indirectSightRange), 0.f, maxAlpha);
 		}
@@ -1152,6 +1157,9 @@ void Unit::calculateFogOfWarRadius() {
 	if(game->getWorld()->getFogOfWar() == true) {
 		if(Config::getInstance().getBool("EnableFowCache","true") == true && this->pos != this->cachedFowPos) {
 			cachedFow = getFogOfWarRadius(false);
+
+			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+			MutexSafeWrapper safeMutex(mutexCommands,mutexOwnerId);
 			this->cachedFowPos = this->pos;
 		}
 	}
@@ -1805,7 +1813,13 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 
 
 bool Unit::needToUpdate() {
-	assert(progress <= 1.f);
+	//assert(progress <= 1.f);
+	if(progress > 1.f) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: progress > 1.f, progress = [%f]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,progress);
+		throw megaglest_runtime_error(szBuf);
+	}
+
 	if(currSkill == NULL) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
@@ -1832,12 +1846,29 @@ bool Unit::needToUpdate() {
 			}
 
 			//if moving to an higher cell move slower else move faster
-			float heightDiff= map->getCell(pos)->getHeight() - map->getCell(targetPos)->getHeight();
+			Cell *unitCell = map->getCell(pos);
+			if(unitCell == NULL) {
+				throw megaglest_runtime_error("unitCell == NULL");
+			}
+
+			Cell *targetCell = map->getCell(targetPos);
+			if(targetCell == NULL) {
+				throw megaglest_runtime_error("targetCell == NULL");
+			}
+
+			float heightDiff= unitCell->getHeight() - targetCell->getHeight();
 			heightFactor= clamp(1.f + heightDiff / 5.f, 0.2f, 5.f);
 		}
 
 		//update progresses
 		const Game *game = Renderer::getInstance().getGame();
+		if(game == NULL) {
+			throw megaglest_runtime_error("game == NULL");
+		}
+		if(game->getWorld() == NULL) {
+			throw megaglest_runtime_error("game->getWorld() == NULL");
+		}
+
 		float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
 		float newProgress = progress;
 		newProgress += (speed * diagonalFactor * heightFactor) / speedDenominator;
@@ -3563,6 +3594,17 @@ Vec2i Unit::getPosWithCellMapSet() const {
 string Unit::getUniquePickName() const {
 	string result = intToStr(id) + " - " + type->getName() + " : ";
 	result += pos.getString();
+	return result;
+}
+
+Vec2i Unit::getPos() {
+	Vec2i result;
+
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(mutexCommands,mutexOwnerId);
+	result = this->pos;
+	safeMutex.ReleaseLock();
+
 	return result;
 }
 

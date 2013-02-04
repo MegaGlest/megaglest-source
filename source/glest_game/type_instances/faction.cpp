@@ -219,8 +219,10 @@ FactionThread::FactionThread(Faction *faction) : BaseThread() {
 }
 
 FactionThread::~FactionThread() {
-	delete triggerIdMutex;
-	triggerIdMutex = NULL;
+	this->faction = NULL;
+	this->masterController = NULL;
+	delete this->triggerIdMutex;
+	this->triggerIdMutex = NULL;
 }
 
 void FactionThread::setQuitStatus(bool value) {
@@ -271,10 +273,11 @@ bool FactionThread::isSignalPathfinderCompleted(int frameIndex) {
 	if(getRunningStatus() == false) {
 		return true;
 	}
+	bool result = false;
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(triggerIdMutex,mutexOwnerId);
 	//bool result = (event != NULL ? event->eventCompleted : true);
-	bool result = (this->frameIndex.first == frameIndex && this->frameIndex.second == true);
+	result = (this->frameIndex.first == frameIndex && this->frameIndex.second == true);
 
 	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] worker thread this = %p, this->frameIndex.first = %d, this->frameIndex.second = %d\n",__FILE__,__FUNCTION__,__LINE__,this,this->frameIndex.first,this->frameIndex.second);
 
@@ -311,9 +314,11 @@ void FactionThread::execute() {
 				break;
 			}
 
+			int currentTriggeredFrameIndex = 0;
 			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
             MutexSafeWrapper safeMutex(triggerIdMutex,mutexOwnerId);
-            bool executeTask = (frameIndex.first >= 0);
+            bool executeTask = (this->frameIndex.first >= 0);
+			currentTriggeredFrameIndex = this->frameIndex.first;
 
             //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] frameIndex = %d this = %p executeTask = %d\n",__FILE__,__FUNCTION__,__LINE__,frameIndex.first, this, executeTask);
 
@@ -324,25 +329,32 @@ void FactionThread::execute() {
             if(executeTask == true) {
 				ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
 
-				World *world = faction->getWorld();
+				if(this->faction == NULL) {
+					throw megaglest_runtime_error("this->faction == NULL");
+				}
+				World *world = this->faction->getWorld();
+				if(world == NULL) {
+					throw megaglest_runtime_error("world == NULL");
+				}
 
 				//Config &config= Config::getInstance();
 				//bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","true");
 				bool sortedUnitsAllowed = false;
-				if(sortedUnitsAllowed) {
-					faction->sortUnitsByCommandGroups();
+				if(sortedUnitsAllowed == true) {
+					this->faction->sortUnitsByCommandGroups();
 				}
 
-				MutexSafeWrapper safeMutex(faction->getUnitMutex(),string(__FILE__) + "_" + intToStr(__LINE__));
+				static string mutexOwnerId2 = string(__FILE__) + string("_") + intToStr(__LINE__);
+				MutexSafeWrapper safeMutex(faction->getUnitMutex(),mutexOwnerId2);
 
 				//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 				if(minorDebugPerformance) chrono.start();
 
 				//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-				int unitCount = faction->getUnitCount();
+				int unitCount = this->faction->getUnitCount();
 				for(int j = 0; j < unitCount; ++j) {
-					Unit *unit = faction->getUnit(j);
+					Unit *unit = this->faction->getUnit(j);
 					if(unit == NULL) {
 						throw megaglest_runtime_error("unit == NULL");
 					}
@@ -352,7 +364,7 @@ void FactionThread::execute() {
 
 					bool update = unit->needToUpdate();
 
-					if(minorDebugPerformance && (chrono.getMillis() - elapsed1) >= 1) printf("Faction [%d - %s] #1-unit threaded updates on frame: %d for [%d] unit # %d, unitCount = %d, took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),frameIndex.first,faction->getUnitPathfindingListCount(),j,unitCount,(long long int)chrono.getMillis() - elapsed1);
+					if(minorDebugPerformance && (chrono.getMillis() - elapsed1) >= 1) printf("Faction [%d - %s] #1-unit threaded updates on frame: %d for [%d] unit # %d, unitCount = %d, took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),currentTriggeredFrameIndex,faction->getUnitPathfindingListCount(),j,unitCount,(long long int)chrono.getMillis() - elapsed1);
 
 					//update = true;
 					if(update == true) {
@@ -360,13 +372,17 @@ void FactionThread::execute() {
 						int64 elapsed2 = 0;
 						if(minorDebugPerformance) elapsed2 = chrono.getMillis();
 
-						world->getUnitUpdater()->updateUnitCommand(unit,frameIndex.first);
+						if(world->getUnitUpdater() == NULL) {
+							throw megaglest_runtime_error("world->getUnitUpdater() == NULL");
+						}
 
-						if(minorDebugPerformance && (chrono.getMillis() - elapsed2) >= 1) printf("Faction [%d - %s] #2-unit threaded updates on frame: %d for [%d] unit # %d, unitCount = %d, took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),frameIndex.first,faction->getUnitPathfindingListCount(),j,unitCount,(long long int)chrono.getMillis() - elapsed2);
+						world->getUnitUpdater()->updateUnitCommand(unit,currentTriggeredFrameIndex);
+
+						if(minorDebugPerformance && (chrono.getMillis() - elapsed2) >= 1) printf("Faction [%d - %s] #2-unit threaded updates on frame: %d for [%d] unit # %d, unitCount = %d, took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),currentTriggeredFrameIndex,faction->getUnitPathfindingListCount(),j,unitCount,(long long int)chrono.getMillis() - elapsed2);
 					}
 				}
 
-				if(minorDebugPerformance && chrono.getMillis() >= 1) printf("Faction [%d - %s] threaded updates on frame: %d for [%d] units took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),frameIndex.first,faction->getUnitPathfindingListCount(),(long long int)chrono.getMillis());
+				if(minorDebugPerformance && chrono.getMillis() >= 1) printf("Faction [%d - %s] threaded updates on frame: %d for [%d] units took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),currentTriggeredFrameIndex,faction->getUnitPathfindingListCount(),(long long int)chrono.getMillis());
 
 				//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -374,7 +390,7 @@ void FactionThread::execute() {
 
 				//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-				setTaskCompleted(frameIndex.first);
+				setTaskCompleted(currentTriggeredFrameIndex);
 
 				//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
             }
@@ -398,6 +414,13 @@ void FactionThread::execute() {
 
 		throw megaglest_runtime_error(ex.what());
 	}
+	catch(...) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] UNKNOWN error\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		throw megaglest_runtime_error(szBuf);
+	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
 

@@ -202,7 +202,7 @@ LOCAL int ftpCmdSyst(int sessionId, const char* args, int len)
 LOCAL int ftpCmdPort(int sessionId, const char* args, int len)
 {
 	char clientIp[16];
-	uint16_t clientPort;
+	uint16_t clientPort=0;
 
 	int commaCnt = 0;
 	int n;

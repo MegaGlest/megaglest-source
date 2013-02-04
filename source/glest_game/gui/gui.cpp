@@ -1042,7 +1042,7 @@ void Gui::computeSelected(bool doubleClick, bool force){
 			int factionIndex= refUnit->getFactionIndex();
 			for(int i=0; i<world->getFaction(factionIndex)->getUnitCount(); ++i){
 				Unit *unit= world->getFaction(factionIndex)->getUnit(i);
-				if(unit->getPos().dist(refUnit->getPos())<doubleClickSelectionRadius &&
+				if(unit->getPos().dist(refUnit->getPosNotThreadSafe())<doubleClickSelectionRadius &&
 					unit->getType()==refUnit->getType())
 				{
 					units.push_back(unit);
@@ -1081,7 +1081,7 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 
 	if(uc.empty() == false){
 		targetUnit= getRelevantObjectFromSelection(&uc);
-		targetPos= targetUnit->getPos();
+		targetPos= targetUnit->getPosNotThreadSafe();
 		highlightedUnitId=targetUnit->getId();
 		getHighlightedUnit()->resetHighlight();
 		return true;

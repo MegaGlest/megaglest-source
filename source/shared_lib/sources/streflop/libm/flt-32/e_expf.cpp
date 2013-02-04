@@ -52,8 +52,8 @@ P5   =  4.1381369442e-08f; /* 0x3331bb4c */
 	Simple x;
 #endif
 {
-	Simple y,hi,lo,c,t;
-	int32_t k,xsb;
+	Simple y,hi,lo=0,c,t;
+	int32_t k=0,xsb=0;
 	u_int32_t hx;
 
 	GET_FLOAT_WORD(hx,x);

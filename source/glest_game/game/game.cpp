@@ -4026,7 +4026,7 @@ void Game::exitGameState(Program *program, Stats &endStats) {
 		game->endGame();
 	}
 
-	if(game->isMasterserverMode() == true ||
+	if(game != NULL && game->isMasterserverMode() == true ||
 		Config::getInstance().getBool("AutoTest") == true) {
 		printf("Game ending with stats:\n");
 		printf("-----------------------\n");

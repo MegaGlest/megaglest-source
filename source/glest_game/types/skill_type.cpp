@@ -563,7 +563,7 @@ Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 				if(foundSpecificAnimation == false) {
 					//int modelIndex = random.randRange(0,animations.size()-1);
 					Chrono seed(true);
-					srand((unsigned int)seed.getCurTicks() + unit->getId());
+					srand((unsigned int)seed.getCurTicks() + (unit != NULL ? unit->getId() : 0));
 
 					modelIndex = rand() % animations.size();
 

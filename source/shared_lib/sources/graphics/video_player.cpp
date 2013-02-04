@@ -1413,7 +1413,12 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 		}
 	}
 
-	return ctxPtr->needToQuit;
+	if(ctxPtr != NULL) {
+		return ctxPtr->needToQuit;
+	}
+	else {
+		return false; 
+	}
 }
 
 void VideoPlayer::RestartVideo() {

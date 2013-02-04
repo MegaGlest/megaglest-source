@@ -218,12 +218,14 @@ namespace Shared { namespace Util {
 
 
 	void strrev(char *p) {
-	  char *q = p;
-	  while(q && *q) ++q;
-	  for(--q; p < q; ++p, --q)
-	    *p = *p ^ *q,
-	    *q = *p ^ *q,
-	    *p = *p ^ *q;
+		if(p != NULL) {
+		  char *q = p;
+		  while(q && *q) ++q;
+		  for(--q; p < q; ++p, --q)
+			*p = *p ^ *q,
+			*q = *p ^ *q,
+			*p = *p ^ *q;
+		}
 	}
 
 	#define SWP(x,y) (x^=y, y^=x, x^=y)

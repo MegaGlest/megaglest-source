@@ -2465,7 +2465,7 @@ int UPNP_Tools::upnp_init(void *param) {
 			}
 
 			dev = devlist;
-			while (dev) {
+			while (dev && dev->st) {
 				if (strstr(dev->st, "InternetGatewayDevice")) {
 					break;
 				}

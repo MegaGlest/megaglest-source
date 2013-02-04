@@ -166,6 +166,9 @@ public:
 			if(result != NULL) {
 				return *result;
 			}
+			else if(SystemFlags::debugLogFileList == NULL) {
+				throw std::exception("unknown return value for SystemFlagsType!");
+			}
 		}
 
 		return (*debugLogFileList)[type];

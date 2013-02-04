@@ -50,6 +50,7 @@ const int PathFinder::pathFindExtendRefreshNodeCountMax	= 40;
 
 PathFinder::PathFinder() {
 	minorDebugPathfinder = false;
+	factionMutex = new Mutex();
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		factions.push_back(FactionState());
 	//factions.resize(GameConstants::maxPlayers);
@@ -64,6 +65,7 @@ int PathFinder::getPathFindExtendRefreshNodeCount(int factionIndex) {
 
 PathFinder::PathFinder(const Map *map) {
 	minorDebugPathfinder = false;
+	factionMutex = new Mutex();
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		factions.push_back(FactionState());
 	//factions.resize(GameConstants::maxPlayers);
@@ -89,9 +91,15 @@ PathFinder::~PathFinder() {
 	}
 	factions.clear();
 	map=NULL;
+
+	delete factionMutex;
+	factionMutex = NULL;
 }
 
 void PathFinder::clearUnitPrecache(Unit *unit) {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(factionMutex,mutexOwnerId);
+
 	factions[unit->getFactionIndex()].precachedTravelState[unit->getId()] = tsImpossible;
 	factions[unit->getFactionIndex()].precachedPath[unit->getId()].clear();
 
@@ -99,6 +107,9 @@ void PathFinder::clearUnitPrecache(Unit *unit) {
 }
 
 void PathFinder::removeUnitPrecache(Unit *unit) {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(factionMutex,mutexOwnerId);
+
 	if(factions.size() > unit->getFactionIndex()) {
 		if(factions[unit->getFactionIndex()].precachedTravelState.find(unit->getId()) != factions[unit->getFactionIndex()].precachedTravelState.end()) {
 			factions[unit->getFactionIndex()].precachedTravelState.erase(unit->getId());
@@ -427,6 +438,10 @@ bool PathFinder::addToOpenSet(Unit *unit, Node *node,const Vec2i finalPos, Vec2i
 			sucNode->prev= node;
 			sucNode->next= NULL;
 			sucNode->exploredCell= map->getSurfaceCell(Map::toSurfCoords(sucPos))->isExplored(unit->getTeam());
+
+			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+			MutexSafeWrapper safeMutex(factionMutex,mutexOwnerId);
+
 			if(factions[unit->getFactionIndex()].openNodesList.find(sucNode->heuristic) == factions[unit->getFactionIndex()].openNodesList.end()) {
 				factions[unit->getFactionIndex()].openNodesList[sucNode->heuristic].clear();
 			}
@@ -1352,7 +1367,7 @@ Vec2i PathFinder::computeNearestFreePos(const Unit *unit, const Vec2i &finalPos)
 	}
 
 	//find nearest pos
-	Vec2i unitPos= unit->getPos();
+	Vec2i unitPos= unit->getPosNotThreadSafe();
 	Vec2i nearestPos= unitPos;
 	float nearestDist= unitPos.dist(finalPos);
 

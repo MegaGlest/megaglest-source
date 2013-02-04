@@ -26,7 +26,7 @@
 
 
 // if the compiler is c99 complient, we don't need to define our own types
-#if __STDC_VERSION__ == 199901L
+#if __STDC_VERSION__ == 199901L || (defined(WIN32) && defined(_MSC_VER) && _MSC_VER >= 1600)
 #	include <stdint.h>
 #else
 

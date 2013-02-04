@@ -84,6 +84,9 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	if(bigEndianSystem == true) {
 		Shared::PlatformByteOrder::fromEndianTypeArray<uint8>(buffer,(size_t)length);
 	}
+	if(length < 2) {
+		throw megaglest_runtime_error("length < 2",true);
+	}
 	//Check buffer (weak jpeg check)
 	//if (buffer[0] != 0x46 || buffer[1] != 0xA0) {
 	// Proper header check found from: http://www.fastgraph.com/help/jpeg_header_format.html

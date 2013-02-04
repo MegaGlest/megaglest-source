@@ -328,7 +328,7 @@ void Renderer::reset(int w, int h, PlayerColor playerColor) {
 	glLoadIdentity();
 	glTranslatef(0, -1.5, -5);
 
-	Texture2D *customTexture;
+	Texture2D *customTexture=NULL;
 	switch(playerColor) {
 	case pcRed:
 		customTexture= customTextureRed;
@@ -462,7 +462,7 @@ void Renderer::renderParticleManager() {
 }
 
 Texture2D * Renderer::getPlayerColorTexture(PlayerColor playerColor) {
-	Texture2D *customTexture;
+	Texture2D *customTexture=NULL;
 	switch(playerColor){
 	case pcRed:
 		customTexture= customTextureRed;

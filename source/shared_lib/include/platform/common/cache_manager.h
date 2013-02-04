@@ -74,14 +74,16 @@ protected:
 				}
 
 			}
-			try {
-				Mutex &mutexCache = manageCachedItemMutex<T>(cacheKey);
-				MutexSafeWrapper safeMutex(&mutexCache);
-				itemCache[cacheKey] = *value;
-				safeMutex.ReleaseLock();
-			}
-			catch(const std::exception &ex) {
-				throw megaglest_runtime_error(ex.what());
+			if(value != NULL) {
+				try {
+					Mutex &mutexCache = manageCachedItemMutex<T>(cacheKey);
+					MutexSafeWrapper safeMutex(&mutexCache);
+					itemCache[cacheKey] = *value;
+					safeMutex.ReleaseLock();
+				}
+				catch(const std::exception &ex) {
+					throw megaglest_runtime_error(ex.what());
+				}
 			}
 		}
 		// If this is the first access we return a default object of the type

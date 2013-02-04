@@ -1001,7 +1001,7 @@ bool Ai::haveBlockedUnits() {
 
 		// If this building is a store
 		if(u->isAlive() && ut->isMobile() && u->getPath() != NULL && (u->getPath()->isBlocked() || u->getPath()->getBlockCount())) {
-			Vec2i unitPos = u->getPos();
+			Vec2i unitPos = u->getPosNotThreadSafe();
 
 			//printf("#1 AI found blocked unit [%d - %s]\n",u->getId(),u->getFullName().c_str());
 
@@ -1042,7 +1042,7 @@ bool Ai::getAdjacentUnits(std::map<float, std::map<int, const Unit *> > &signalA
 
 	bool result = false;
 	Map *map = aiInterface->getMap();
-	Vec2i unitPos = unit->getPos();
+	Vec2i unitPos = unit->getPosNotThreadSafe();
 	for(int i = -1; i <= 1; ++i) {
 		for(int j = -1; j <= 1; ++j) {
 			Vec2i pos = unitPos + Vec2i(i, j);
@@ -1094,7 +1094,7 @@ void Ai::unblockUnits() {
 
 		// If this building is a store
 		if(u->isAlive() && ut->isMobile() && u->getPath() != NULL && (u->getPath()->isBlocked() || u->getPath()->getBlockCount())) {
-			Vec2i unitPos = u->getPos();
+			Vec2i unitPos = u->getPosNotThreadSafe();
 
 			//printf("#2 AI found blocked unit [%d - %s]\n",u->getId(),u->getFullName().c_str());
 
@@ -1142,9 +1142,9 @@ void Ai::unblockUnits() {
 						Vec2i pos= Vec2i(
 							random.randRange(-villageRadius*2, villageRadius*2),
 							random.randRange(-villageRadius*2, villageRadius*2)) +
-											 adjacentUnit->getPos();
+											 adjacentUnit->getPosNotThreadSafe();
 
-						bool canUnitMoveToCell = map->aproxCanMove(adjacentUnit, adjacentUnit->getPos(), pos);
+						bool canUnitMoveToCell = map->aproxCanMove(adjacentUnit, adjacentUnit->getPosNotThreadSafe(), pos);
 						if(canUnitMoveToCell == true) {
 
 							if(ct != NULL) {

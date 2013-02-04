@@ -417,14 +417,14 @@ public:
 
 		//single cell units
 		if(size == 1) {
-			if(isAproxFreeCellOrMightBeFreeSoon(unit->getPos(),pos2, field, teamIndex) == false) {
+			if(isAproxFreeCellOrMightBeFreeSoon(unit->getPosNotThreadSafe(),pos2, field, teamIndex) == false) {
 
 				//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
 				unit->getFaction()->addAproxCanMoveSoonCached(size,field, pos1, pos2, false);
 				return false;
 			}
 			if(pos1.x != pos2.x && pos1.y != pos2.y) {
-				if(isAproxFreeCellOrMightBeFreeSoon(unit->getPos(),Vec2i(pos1.x, pos2.y), field, teamIndex) == false) {
+				if(isAproxFreeCellOrMightBeFreeSoon(unit->getPosNotThreadSafe(),Vec2i(pos1.x, pos2.y), field, teamIndex) == false) {
 
 					//Unit *cellUnit = getCell(Vec2i(pos1.x, pos2.y))->getUnit(field);
 					//Object * obj = getSurfaceCell(toSurfCoords(Vec2i(pos1.x, pos2.y)))->getObject();
@@ -434,7 +434,7 @@ public:
 					unit->getFaction()->addAproxCanMoveSoonCached(size,field, pos1, pos2, false);
 					return false;
 				}
-				if(isAproxFreeCellOrMightBeFreeSoon(unit->getPos(),Vec2i(pos2.x, pos1.y), field, teamIndex) == false) {
+				if(isAproxFreeCellOrMightBeFreeSoon(unit->getPosNotThreadSafe(),Vec2i(pos2.x, pos1.y), field, teamIndex) == false) {
 					//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
 					unit->getFaction()->addAproxCanMoveSoonCached(size,field, pos1, pos2, false);
 					return false;
@@ -470,7 +470,7 @@ public:
 					Vec2i cellPos = Vec2i(i,j);
 					if(isInside(cellPos) && isInsideSurface(toSurfCoords(cellPos))) {
 						if(getCell(cellPos)->getUnit(unit->getCurrField()) != unit) {
-							if(isAproxFreeCellOrMightBeFreeSoon(unit->getPos(),cellPos, field, teamIndex) == false) {
+							if(isAproxFreeCellOrMightBeFreeSoon(unit->getPosNotThreadSafe(),cellPos, field, teamIndex) == false) {
 
 								//printf("[%s] Line: %d returning false\n",__FUNCTION__,__LINE__);
 								unit->getFaction()->addAproxCanMoveSoonCached(size,field, pos1, pos2, false);

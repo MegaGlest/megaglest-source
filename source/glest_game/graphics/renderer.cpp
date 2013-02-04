@@ -8488,7 +8488,7 @@ void Renderer::renderUnitTitles3D(Font3D *font, Vec3f color) {
 						//unitRenderedList[unit->getId()] = true;
 					}
 					else {
-						string str = unit->getFullName() + " - " + intToStr(unit->getId()) + " [" + unit->getPos().getString() + "]";
+						string str = unit->getFullName() + " - " + intToStr(unit->getId()) + " [" + unit->getPosNotThreadSafe().getString() + "]";
 						Vec3f screenPos = unit->getScreenPos();
 	#ifdef USE_STREFLOP
 						renderText3D(str, font, color, streflop::fabs(static_cast<streflop::Simple>(screenPos.x)) + 5, streflop::fabs(static_cast<streflop::Simple>(screenPos.y)) + 5, false);
@@ -8550,7 +8550,7 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 					//unitRenderedList[unit->getId()] = true;
 				}
 				else {
-					string str = unit->getFullName() + " - " + intToStr(unit->getId()) + " [" + unit->getPos().getString() + "]";
+					string str = unit->getFullName() + " - " + intToStr(unit->getId()) + " [" + unit->getPosNotThreadSafe().getString() + "]";
 					Vec3f screenPos = unit->getScreenPos();
 #ifdef USE_STREFLOP
 					renderText(str, font, color, streflop::fabs(static_cast<streflop::Simple>(screenPos.x)) + 5, streflop::fabs(static_cast<streflop::Simple>(screenPos.y)) + 5, false);
