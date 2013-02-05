@@ -738,15 +738,22 @@ void Ai::sendScoutPatrol(){
 
 	std::vector<Vec2i> warningEnemyList = aiInterface->getEnemyWarningPositionList();
 	if(warningEnemyList.empty() == false) {
-		for(int i = warningEnemyList.size() - 1; i <= 0; --i) {
+		// Randomly check the enemy warning location list
+		if(random.randRange(0, 1) == 1) {
+			//for(int i = warningEnemyList.size() - 1; i <= 0; --i) {
+
+			// randomly pick a location from the location list
+			int i = random.randRange(0, warningEnemyList.size() - 1);
+
 			Vec2i &checkPos = warningEnemyList[i];
 			pos = checkPos;
 			possibleTargetFound = true;
 			aiInterface->removeEnemyWarningPositionFromList(checkPos);
-			break;
+			//	break;
+			//}
 		}
 	}
-	else if( megaResourceAttack || ultraResourceAttack) {
+	if(possibleTargetFound == false && (megaResourceAttack || ultraResourceAttack)) {
 		Map *map= aiInterface->getMap();
 
 		const TechTree *tt= aiInterface->getTechTree();
