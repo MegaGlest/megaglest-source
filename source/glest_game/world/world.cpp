@@ -966,7 +966,7 @@ Unit *World::nearestStore(const Vec2i &pos, int factionIndex, const ResourceType
 		Unit *u= getFaction(factionIndex)->getUnit(i);
 		if(u != NULL) {
 			float tmpDist= u->getPos().dist(pos);
-			if(tmpDist < currDist && u->getType()->getStore(rt) > 0 && u->isOperative()) {
+			if(tmpDist < currDist &&  u->getType() != NULL && u->getType()->getStore(rt) > 0 && u->isOperative()) {
 				currDist= tmpDist;
 				currUnit= u;
 			}

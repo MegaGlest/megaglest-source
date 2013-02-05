@@ -598,6 +598,9 @@ void Unit::setModelFacing(CardinalDir value) {
 // ====================================== get ======================================
 
 Vec2i Unit::getCenteredPos() const {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(mutexCommands,mutexOwnerId);
+
 	if(type == NULL) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
@@ -608,6 +611,9 @@ Vec2i Unit::getCenteredPos() const {
 }
 
 Vec2f Unit::getFloatCenteredPos() const {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(mutexCommands,mutexOwnerId);
+
 	if(type == NULL) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());

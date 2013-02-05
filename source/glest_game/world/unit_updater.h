@@ -80,6 +80,7 @@ private:
 	PathFinder *pathFinder;
 	Game *game;
 	//RandomGen random;
+	Mutex mutexAttackWarnings;
 	float attackWarnRange;
 	AttackWarnings attackWarnings;
 
@@ -143,10 +144,10 @@ private:
 
 	//misc
     bool searchForResource(Unit *unit, const HarvestCommandType *hct);
-    bool attackerOnSight(Unit *unit, Unit **enemyPtr);
-    bool attackableOnSight(Unit *unit, Unit **enemyPtr, const AttackSkillType *ast);
-    bool attackableOnRange(Unit *unit, Unit **enemyPtr, const AttackSkillType *ast);
-	bool unitOnRange(Unit *unit, int range, Unit **enemyPtr, const AttackSkillType *ast);
+    bool attackerOnSight(Unit *unit, Unit **enemyPtr, bool evalMode=false);
+    bool attackableOnSight(Unit *unit, Unit **enemyPtr, const AttackSkillType *ast, bool evalMode=false);
+    bool attackableOnRange(Unit *unit, Unit **enemyPtr, const AttackSkillType *ast, bool evalMode=false);
+	bool unitOnRange(Unit *unit, int range, Unit **enemyPtr, const AttackSkillType *ast,bool evalMode=false);
 	void enemiesAtDistance(const Unit *unit, const Unit *priorityUnit, int distance, vector<Unit*> &enemies);
 
 	Unit * findPeerUnitBuilder(Unit *unit);

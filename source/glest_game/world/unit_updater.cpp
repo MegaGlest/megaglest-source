@@ -95,11 +95,12 @@ UnitUpdater::~UnitUpdater() {
 	delete pathFinder;
 	pathFinder = NULL;
 
+	MutexSafeWrapper safeMutex(&mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
 	while(attackWarnings.empty() == false) {
-			AttackWarningData* awd=attackWarnings.back();
-			attackWarnings.pop_back();
-			delete awd;
-		}
+		AttackWarningData* awd=attackWarnings.back();
+		attackWarnings.pop_back();
+		delete awd;
+	}
 }
 
 // ==================== progress skills ====================
@@ -304,15 +305,19 @@ void UnitUpdater::updateUnitCommand(Unit *unit, int frameIndex) {
 
     	bool commandUsesPathFinder = (frameIndex < 0);
     	if(frameIndex > 0) {
-    		commandUsesPathFinder = unit->getCurrCommand()->getCommandType()->usesPathfinder();
+			if(unit->getCurrCommand() != NULL && unit->getCurrCommand()->getCommandType() != NULL) {
+    			commandUsesPathFinder = unit->getCurrCommand()->getCommandType()->usesPathfinder();
 
-    		// Clear previous cached unit data
-    		if(commandUsesPathFinder == true) {
-    			clearUnitPrecache(unit);
-    		}
+    			// Clear previous cached unit data
+    			if(commandUsesPathFinder == true) {
+    				clearUnitPrecache(unit);
+    			}
+			}
     	}
     	if(commandUsesPathFinder == true) {
-    		unit->getCurrCommand()->getCommandType()->update(this, unit, frameIndex);
+			if(unit->getCurrCommand() != NULL && unit->getCurrCommand()->getCommandType() != NULL) {
+    			unit->getCurrCommand()->getCommandType()->update(this, unit, frameIndex);
+			}
     	}
 
     	if((minorDebugPerformance && frameIndex > 0) && (chrono.getMillis() - elapsed1) >= 1) {
@@ -379,7 +384,7 @@ void UnitUpdater::updateStop(Unit *unit, int frameIndex) {
 
 			//use it to attack
 			if(ast != NULL) {
-				if(attackableOnSight(unit, &sighted, ast)) {
+				if(attackableOnSight(unit, &sighted, ast, (frameIndex >= 0))) {
 				    //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					unit->giveCommand(new Command(ct, sighted->getPos()));
 					break;
@@ -393,7 +398,7 @@ void UnitUpdater::updateStop(Unit *unit, int frameIndex) {
 	else if(unit->getType()->hasCommandClass(ccMove)) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-		if(attackerOnSight(unit, &sighted)) {
+		if(attackerOnSight(unit, &sighted, (frameIndex >= 0))) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 			Vec2i escapePos = unit->getPos() * 2 - sighted->getPos();
 			//SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -464,7 +469,13 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
 	Command *command= unit->getCurrCommand();
+	if(command == NULL) {
+		return;
+	}
     const AttackCommandType *act= static_cast<const AttackCommandType*>(command->getCommandType());
+	if(act == NULL) {
+		return;
+	}
 	Unit *target= NULL;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -478,116 +489,125 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 	}
 
 	//if found
-    if(attackableOnRange(unit, &target, act->getAttackSkillType())) {
-    	if(frameIndex < 0) {
-			if(unit->getEp() >= act->getAttackSkillType()->getEpCost()) {
-				unit->setCurrSkill(act->getAttackSkillType());
-				unit->setTarget(target);
-			}
-			else {
-				unit->setCurrSkill(scStop);
-			}
-    	}
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-    }
-    else {
-		//compute target pos
-		Vec2i pos;
-		if(command->getUnit() != NULL) {
-			pos= command->getUnit()->getCenteredPos();
-		}
-		else if(attackableOnSight(unit, &target, act->getAttackSkillType())) {
-			pos= target->getPos();
+	//if(frameIndex < 0) {
+	{
+		if(attackableOnRange(unit, &target, act->getAttackSkillType(),(frameIndex >= 0))) {
+    		if(frameIndex < 0) {
+				if(unit->getEp() >= act->getAttackSkillType()->getEpCost()) {
+					unit->setCurrSkill(act->getAttackSkillType());
+					unit->setTarget(target);
+				}
+				else {
+					unit->setCurrSkill(scStop);
+				}
+    		}
+    		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		}
 		else {
-			pos= command->getPos();
-		}
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-			char szBuf[8096]="";
-			snprintf(szBuf,8096,"[updateAttack] pos [%s] unit->getPos() [%s]",
-					pos.getString().c_str(),unit->getPos().getString().c_str());
-			unit->logSynchData(__FILE__,__LINE__,szBuf);
-		}
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
-		TravelState tsValue = tsImpossible;
-		if(frameIndex < 0) {
-			switch(this->game->getGameSettings()->getPathFinderType()) {
-				case pfBasic:
-					tsValue = pathFinder->findPath(unit, pos, NULL, frameIndex);
-					break;
-				default:
-					throw megaglest_runtime_error("detected unsupported pathfinder type!");
+			//compute target pos
+			Vec2i pos;
+			if(command->getUnit() != NULL) {
+				pos= command->getUnit()->getCenteredPos();
 			}
-		}
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
-		if(frameIndex < 0) {
-			if(command->getUnit() != NULL && !command->getUnit()->isAlive() && unit->getCommandSize() > 1) {
-				// don't run over to dead body if there is still something to do in the queue
-				unit->finishCommand();
+			else if(attackableOnSight(unit, &target, act->getAttackSkillType(), (frameIndex >= 0))) {
+				pos= target->getPos();
 			}
 			else {
-				//if unit arrives destPos order has ended
-				switch (tsValue) {
-					case tsMoving:
-						unit->setCurrSkill(act->getMoveSkillType());
-						break;
-					case tsBlocked:
-						if(unit->getPath()->isBlocked()) {
-							unit->finishCommand();
-						}
+				pos= command->getPos();
+			}
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"[updateAttack] pos [%s] unit->getPos() [%s]",
+						pos.getString().c_str(),unit->getPos().getString().c_str());
+				unit->logSynchData(__FILE__,__LINE__,szBuf);
+			}
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+
+			TravelState tsValue = tsImpossible;
+			if(frameIndex < 0) {
+			//{
+				//printf("In [%s::%s Line: %d] START pathfind for attacker [%d - %s]\n",__FILE__,__FUNCTION__,__LINE__,unit->getId(), unit->getType()->getName().c_str());
+				//fflush(stdout);
+				switch(this->game->getGameSettings()->getPathFinderType()) {
+					case pfBasic:
+						tsValue = pathFinder->findPath(unit, pos, NULL, frameIndex);
 						break;
 					default:
-						unit->finishCommand();
-						break;
-					}
-/*
-					case tsMoving:
-						unit->setCurrSkill(act->getMoveSkillType());
+						throw megaglest_runtime_error("detected unsupported pathfinder type!");
+				}
+				//printf("In [%s::%s Line: %d] END pathfind for attacker [%d - %s]\n",__FILE__,__FUNCTION__,__LINE__,unit->getId(), unit->getType()->getName().c_str());
+				//fflush(stdout);
+			}
 
-						{
-							std::pair<bool,Unit *> beingAttacked = unitBeingAttacked(unit);
-							if(beingAttacked.first == true) {
-								Unit *enemy = beingAttacked.second;
-								const AttackCommandType *act_forenemy = unit->getType()->getFirstAttackCommand(enemy->getCurrField());
-								if(act_forenemy != NULL) {
-									if(unit->getEp() >= act_forenemy->getAttackSkillType()->getEpCost()) {
-										unit->setCurrSkill(act_forenemy->getAttackSkillType());
-										unit->setTarget(enemy);
-									}
-									//aiInterface->giveCommand(i, act_forenemy, beingAttacked.second->getPos());
-								}
-								else {
-									const AttackStoppedCommandType *asct_forenemy = unit->getType()->getFirstAttackStoppedCommand(enemy->getCurrField());
-									if(asct_forenemy != NULL) {
-										//aiInterface->giveCommand(i, asct_forenemy, beingAttacked.second->getCenteredPos());
-										if(unit->getEp() >= asct_forenemy->getAttackSkillType()->getEpCost()) {
-											unit->setCurrSkill(asct_forenemy->getAttackSkillType());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+			if(frameIndex < 0) {
+				if(command->getUnit() != NULL && !command->getUnit()->isAlive() && unit->getCommandSize() > 1) {
+					// don't run over to dead body if there is still something to do in the queue
+					unit->finishCommand();
+				}
+				else {
+					//if unit arrives destPos order has ended
+					switch (tsValue) {
+						case tsMoving:
+							unit->setCurrSkill(act->getMoveSkillType());
+							break;
+						case tsBlocked:
+							if(unit->getPath()->isBlocked()) {
+								unit->finishCommand();
+							}
+							break;
+						default:
+							unit->finishCommand();
+							break;
+						}
+	/*
+						case tsMoving:
+							unit->setCurrSkill(act->getMoveSkillType());
+
+							{
+								std::pair<bool,Unit *> beingAttacked = unitBeingAttacked(unit);
+								if(beingAttacked.first == true) {
+									Unit *enemy = beingAttacked.second;
+									const AttackCommandType *act_forenemy = unit->getType()->getFirstAttackCommand(enemy->getCurrField());
+									if(act_forenemy != NULL) {
+										if(unit->getEp() >= act_forenemy->getAttackSkillType()->getEpCost()) {
+											unit->setCurrSkill(act_forenemy->getAttackSkillType());
 											unit->setTarget(enemy);
+										}
+										//aiInterface->giveCommand(i, act_forenemy, beingAttacked.second->getPos());
+									}
+									else {
+										const AttackStoppedCommandType *asct_forenemy = unit->getType()->getFirstAttackStoppedCommand(enemy->getCurrField());
+										if(asct_forenemy != NULL) {
+											//aiInterface->giveCommand(i, asct_forenemy, beingAttacked.second->getCenteredPos());
+											if(unit->getEp() >= asct_forenemy->getAttackSkillType()->getEpCost()) {
+												unit->setCurrSkill(asct_forenemy->getAttackSkillType());
+												unit->setTarget(enemy);
+											}
 										}
 									}
 								}
 							}
-						}
 
-						break;
+							break;
 
-					case tsBlocked:
-						if(unit->getPath()->isBlocked()){
+						case tsBlocked:
+							if(unit->getPath()->isBlocked()){
+								unit->finishCommand();
+							}
+							break;
+						default:
 							unit->finishCommand();
-						}
-						break;
-					default:
-						unit->finishCommand();
+					}
+	*/
 				}
-*/
 			}
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		}
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
     }
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -623,7 +643,7 @@ void UnitUpdater::updateAttackStopped(Unit *unit, int frameIndex) {
         unit->setCurrSkill(asct->getAttackSkillType());
 		unit->setTarget(result.second);
 	}
-	else if(attackableOnRange(unit, &enemy, asct->getAttackSkillType())) {
+	else if(attackableOnRange(unit, &enemy, asct->getAttackSkillType(),(frameIndex >= 0))) {
         unit->setCurrSkill(asct->getAttackSkillType());
 		unit->setTarget(enemy);
     }
@@ -699,7 +719,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 	//std::pair<float,Vec2i> distance = map->getUnitDistanceToPos(unit,command->getPos(),command->getUnitType());
 	//unit->setCurrentUnitTitle("Distance: " + floatToStr(distance.first) + " build pos: " + distance.second.getString() + " current pos: " + unit->getPos().getString());
 
-	if(unit->getCurrSkill()->getClass() != scBuild) {
+	if(unit->getCurrSkill() != NULL && unit->getCurrSkill()->getClass() != scBuild) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         //if not building
@@ -909,206 +929,209 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 
 	//printf("In UpdateHarvest [%d - %s] unit->getCurrSkill()->getClass() = %d\n",unit->getId(),unit->getType()->getName().c_str(),unit->getCurrSkill()->getClass());
 
-	if(unit->getCurrSkill()->getClass() != scHarvest) {
+	if(unit->getCurrSkill() != NULL && unit->getCurrSkill()->getClass() != scHarvest) {
 		//if not working
 		if(unit->getLoadCount() == 0) {
 			//if not loaded go for resources
-			Resource *r = map->getSurfaceCell(Map::toSurfCoords(command->getPos()))->getResource();
-			if(r != NULL && hct->canHarvest(r->getType())) {
-				//if can harvest dest. pos
-				bool canHarvestDestPos = false;
-
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
-	    		switch(this->game->getGameSettings()->getPathFinderType()) {
-	    			case pfBasic:
-	    				{
-	    					const bool newHarvestPath = false;
-	    					bool isNearResource = false;
-	    					Vec2i clickPos = command->getOriginalPos();
-	    					if(newHarvestPath == true) {
-	    						isNearResource = map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit, false,&clickPos);
-	    					}
-	    					else {
-	    						isNearResource = map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit);
-	    					}
-	    					if(isNearResource == true) {
-	    						if((unit->getPos().dist(command->getPos()) < harvestDistance || unit->getPos().dist(targetPos) < harvestDistance) && isNearResource == true) {
-	    							canHarvestDestPos = true;
-	    						}
-	    					}
-	    					else if(newHarvestPath == true) {
-	    						if(clickPos != command->getOriginalPos()) {
-	    							//printf("%%----------- unit [%s - %d] CHANGING RESOURCE POS from [%s] to [%s]\n",unit->getFullName().c_str(),unit->getId(),command->getOriginalPos().getString().c_str(),clickPos.getString().c_str());
-
-									if(frameIndex < 0) {
-	    								command->setPos(clickPos);
-									}
-	    						}
-	    					}
-	    				}
-	    				break;
-	    			default:
-	    				throw megaglest_runtime_error("detected unsupported pathfinder type!");
-	    	    }
-
-	    		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
-				if (canHarvestDestPos == true ) {
-					if(frameIndex < 0) {
-						unit->setLastHarvestResourceTarget(NULL);
-					}
-
-					canHarvestDestPos = (map->getSurfaceCell(Map::toSurfCoords(targetPos)) != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource()->getType() != NULL);
-
-					if(canHarvestDestPos == true) {
-						if(frameIndex < 0) {
-							//if it finds resources it starts harvesting
-							unit->setCurrSkill(hct->getHarvestSkillType());
-							unit->setTargetPos(targetPos);
-							command->setPos(targetPos);
-							unit->setLoadCount(0);
-							unit->getFaction()->addResourceTargetToCache(targetPos);
-
-							switch(this->game->getGameSettings()->getPathFinderType()) {
-								case pfBasic:
-									unit->setLoadType(r->getType());
-									break;
-								default:
-									throw megaglest_runtime_error("detected unsupported pathfinder type!");
-							}
-						}
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-					}
-				}
-				if(canHarvestDestPos == false) {
-					if(frameIndex < 0) {
-						unit->setLastHarvestResourceTarget(&targetPos);
-					}
+			SurfaceCell *sc = map->getSurfaceCell(Map::toSurfCoords(command->getPos()));
+			if(sc != NULL) {
+				Resource *r = sc->getResource();
+				if(r != NULL && hct != NULL && hct->canHarvest(r->getType())) {
+					//if can harvest dest. pos
+					bool canHarvestDestPos = false;
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-						char szBuf[8096]="";
-						snprintf(szBuf,8096,"[updateHarvest] unit->getPos() [%s] command->getPos() [%s]",
-								unit->getPos().getString().c_str(),command->getPos().getString().c_str());
-						unit->logSynchData(__FILE__,__LINE__,szBuf);
-					}
+	    			switch(this->game->getGameSettings()->getPathFinderType()) {
+	    				case pfBasic:
+	    					{
+	    						const bool newHarvestPath = false;
+	    						bool isNearResource = false;
+	    						Vec2i clickPos = command->getOriginalPos();
+	    						if(newHarvestPath == true) {
+	    							isNearResource = map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit, false,&clickPos);
+	    						}
+	    						else {
+	    							isNearResource = map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit);
+	    						}
+	    						if(isNearResource == true) {
+	    							if((unit->getPos().dist(command->getPos()) < harvestDistance || unit->getPos().dist(targetPos) < harvestDistance) && isNearResource == true) {
+	    								canHarvestDestPos = true;
+	    							}
+	    						}
+	    						else if(newHarvestPath == true) {
+	    							if(clickPos != command->getOriginalPos()) {
+	    								//printf("%%----------- unit [%s - %d] CHANGING RESOURCE POS from [%s] to [%s]\n",unit->getFullName().c_str(),unit->getId(),command->getOriginalPos().getString().c_str(),clickPos.getString().c_str());
 
-					//if not continue walking
-					bool wasStuck = false;
-					TravelState tsValue = tsImpossible;
-		    		switch(this->game->getGameSettings()->getPathFinderType()) {
-		    			case pfBasic:
-							tsValue = pathFinder->findPath(unit, command->getPos(), &wasStuck, frameIndex);
-							if (tsValue == tsMoving && frameIndex < 0) {
-								unit->setCurrSkill(hct->getMoveSkillType());
-							}
-		    				break;
-		    			default:
-		    				throw megaglest_runtime_error("detected unsupported pathfinder type!");
-		    	    }
-
-		    		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
-		    		// If the unit is blocked or Even worse 'stuck' then try to
-		    		// find the same resource type elsewhere, but close by
-		    		if((wasStuck == true || tsValue == tsBlocked) && unit->isAlive() == true) {
-		    			switch(this->game->getGameSettings()->getPathFinderType()) {
-							case pfBasic:
-								{
-									bool isNearResource = map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit,true);
-									if(isNearResource == true) {
-										if((unit->getPos().dist(command->getPos()) < harvestDistance || unit->getPos().dist(targetPos) < harvestDistance) && isNearResource == true) {
-											canHarvestDestPos = true;
+										if(frameIndex < 0) {
+	    									command->setPos(clickPos);
 										}
-									}
-								}
-								break;
-							default:
-								throw megaglest_runtime_error("detected unsupported pathfinder type!");
+	    							}
+	    						}
+	    					}
+	    					break;
+	    				default:
+	    					throw megaglest_runtime_error("detected unsupported pathfinder type!");
+	    			}
+
+	    			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+					if (canHarvestDestPos == true ) {
+						if(frameIndex < 0) {
+							unit->setLastHarvestResourceTarget(NULL);
 						}
 
-						if (canHarvestDestPos == true) {
+						canHarvestDestPos = (map->getSurfaceCell(Map::toSurfCoords(targetPos)) != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource()->getType() != NULL);
+
+						if(canHarvestDestPos == true) {
 							if(frameIndex < 0) {
-								unit->setLastHarvestResourceTarget(NULL);
-							}
+								//if it finds resources it starts harvesting
+								unit->setCurrSkill(hct->getHarvestSkillType());
+								unit->setTargetPos(targetPos);
+								command->setPos(targetPos);
+								unit->setLoadCount(0);
+								unit->getFaction()->addResourceTargetToCache(targetPos);
 
-							canHarvestDestPos = (map->getSurfaceCell(Map::toSurfCoords(targetPos)) != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource()->getType() != NULL);
-							if(canHarvestDestPos == true) {
-								if(frameIndex < 0) {
-									//if it finds resources it starts harvesting
-									unit->setCurrSkill(hct->getHarvestSkillType());
-									unit->setTargetPos(targetPos);
-									command->setPos(targetPos);
-									unit->setLoadCount(0);
-									unit->getFaction()->addResourceTargetToCache(targetPos);
-
-									switch(this->game->getGameSettings()->getPathFinderType()) {
-										case pfBasic:
-											unit->setLoadType(r->getType());
-											break;
-										default:
-											throw megaglest_runtime_error("detected unsupported pathfinder type!");
-									}
-								}
-							}
-
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-						}
-
-						if(canHarvestDestPos == false) {
-							if(frameIndex < 0) {
-								unit->setLastHarvestResourceTarget(&targetPos);
-							}
-
-							if(targetPos.x >= 0) {
-								//if not continue walking
-
-								if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-									char szBuf[8096]="";
-									snprintf(szBuf,8096,"[updateHarvest #2] unit->getPos() [%s] command->getPos() [%s] targetPos [%s]",
-											unit->getPos().getString().c_str(),command->getPos().getString().c_str(),targetPos.getString().c_str());
-									unit->logSynchData(__FILE__,__LINE__,szBuf);
-								}
-
-								wasStuck = false;
-								TravelState tsValue = tsImpossible;
 								switch(this->game->getGameSettings()->getPathFinderType()) {
 									case pfBasic:
-										tsValue = pathFinder->findPath(unit, targetPos, &wasStuck, frameIndex);
-										if (tsValue == tsMoving && frameIndex < 0) {
-											unit->setCurrSkill(hct->getMoveSkillType());
-											command->setPos(targetPos);
-										}
+										unit->setLoadType(r->getType());
 										break;
 									default:
 										throw megaglest_runtime_error("detected unsupported pathfinder type!");
 								}
 							}
-
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
-				    		if(wasStuck == true && frameIndex < 0) {
-								//if can't harvest, search for another resource
-								unit->setCurrSkill(scStop);
-								if(searchForResource(unit, hct) == false) {
-									unit->finishCommand();
-								}
-				    		}
 						}
-		    		}
-				}
-			}
-			else {
-				if(frameIndex < 0) {
-					//if can't harvest, search for another resource
-					unit->setCurrSkill(scStop);
-					if(searchForResource(unit, hct) == false) {
-						unit->finishCommand();
+					}
+					if(canHarvestDestPos == false) {
+						if(frameIndex < 0) {
+							unit->setLastHarvestResourceTarget(&targetPos);
+						}
+
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"[updateHarvest] unit->getPos() [%s] command->getPos() [%s]",
+									unit->getPos().getString().c_str(),command->getPos().getString().c_str());
+							unit->logSynchData(__FILE__,__LINE__,szBuf);
+						}
+
+						//if not continue walking
+						bool wasStuck = false;
+						TravelState tsValue = tsImpossible;
+		    			switch(this->game->getGameSettings()->getPathFinderType()) {
+		    				case pfBasic:
+								tsValue = pathFinder->findPath(unit, command->getPos(), &wasStuck, frameIndex);
+								if (tsValue == tsMoving && frameIndex < 0) {
+									unit->setCurrSkill(hct->getMoveSkillType());
+								}
+		    					break;
+		    				default:
+		    					throw megaglest_runtime_error("detected unsupported pathfinder type!");
+		    			}
+
+		    			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+		    			// If the unit is blocked or Even worse 'stuck' then try to
+		    			// find the same resource type elsewhere, but close by
+		    			if((wasStuck == true || tsValue == tsBlocked) && unit->isAlive() == true) {
+		    				switch(this->game->getGameSettings()->getPathFinderType()) {
+								case pfBasic:
+									{
+										bool isNearResource = map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit,true);
+										if(isNearResource == true) {
+											if((unit->getPos().dist(command->getPos()) < harvestDistance || unit->getPos().dist(targetPos) < harvestDistance) && isNearResource == true) {
+												canHarvestDestPos = true;
+											}
+										}
+									}
+									break;
+								default:
+									throw megaglest_runtime_error("detected unsupported pathfinder type!");
+							}
+
+							if (canHarvestDestPos == true) {
+								if(frameIndex < 0) {
+									unit->setLastHarvestResourceTarget(NULL);
+								}
+
+								canHarvestDestPos = (map->getSurfaceCell(Map::toSurfCoords(targetPos)) != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource()->getType() != NULL);
+								if(canHarvestDestPos == true) {
+									if(frameIndex < 0) {
+										//if it finds resources it starts harvesting
+										unit->setCurrSkill(hct->getHarvestSkillType());
+										unit->setTargetPos(targetPos);
+										command->setPos(targetPos);
+										unit->setLoadCount(0);
+										unit->getFaction()->addResourceTargetToCache(targetPos);
+
+										switch(this->game->getGameSettings()->getPathFinderType()) {
+											case pfBasic:
+												unit->setLoadType(r->getType());
+												break;
+											default:
+												throw megaglest_runtime_error("detected unsupported pathfinder type!");
+										}
+									}
+								}
+
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+							}
+
+							if(canHarvestDestPos == false) {
+								if(frameIndex < 0) {
+									unit->setLastHarvestResourceTarget(&targetPos);
+								}
+
+								if(targetPos.x >= 0) {
+									//if not continue walking
+
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+										char szBuf[8096]="";
+										snprintf(szBuf,8096,"[updateHarvest #2] unit->getPos() [%s] command->getPos() [%s] targetPos [%s]",
+												unit->getPos().getString().c_str(),command->getPos().getString().c_str(),targetPos.getString().c_str());
+										unit->logSynchData(__FILE__,__LINE__,szBuf);
+									}
+
+									wasStuck = false;
+									TravelState tsValue = tsImpossible;
+									switch(this->game->getGameSettings()->getPathFinderType()) {
+										case pfBasic:
+											tsValue = pathFinder->findPath(unit, targetPos, &wasStuck, frameIndex);
+											if (tsValue == tsMoving && frameIndex < 0) {
+												unit->setCurrSkill(hct->getMoveSkillType());
+												command->setPos(targetPos);
+											}
+											break;
+										default:
+											throw megaglest_runtime_error("detected unsupported pathfinder type!");
+									}
+								}
+
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+				    			if(wasStuck == true && frameIndex < 0) {
+									//if can't harvest, search for another resource
+									unit->setCurrSkill(scStop);
+									if(searchForResource(unit, hct) == false) {
+										unit->finishCommand();
+									}
+				    			}
+							}
+		    			}
 					}
 				}
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				else {
+					if(frameIndex < 0) {
+						//if can't harvest, search for another resource
+						unit->setCurrSkill(scStop);
+						if(searchForResource(unit, hct) == false) {
+							unit->finishCommand();
+						}
+					}
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+				}
 			}
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -2062,19 +2085,19 @@ bool UnitUpdater::searchForResource(Unit *unit, const HarvestCommandType *hct) {
     return false;
 }
 
-bool UnitUpdater::attackerOnSight(Unit *unit, Unit **rangedPtr){
+bool UnitUpdater::attackerOnSight(Unit *unit, Unit **rangedPtr, bool evalMode){
 	int range= unit->getType()->getSight();
-	return unitOnRange(unit, range, rangedPtr, NULL);
+	return unitOnRange(unit, range, rangedPtr, NULL,evalMode);
 }
 
-bool UnitUpdater::attackableOnSight(Unit *unit, Unit **rangedPtr, const AttackSkillType *ast){
+bool UnitUpdater::attackableOnSight(Unit *unit, Unit **rangedPtr, const AttackSkillType *ast, bool evalMode) {
 	int range= unit->getType()->getSight();
-	return unitOnRange(unit, range, rangedPtr, ast);
+	return unitOnRange(unit, range, rangedPtr, ast, evalMode);
 }
 
-bool UnitUpdater::attackableOnRange(Unit *unit, Unit **rangedPtr, const AttackSkillType *ast){
+bool UnitUpdater::attackableOnRange(Unit *unit, Unit **rangedPtr, const AttackSkillType *ast,bool evalMode) {
 	int range= ast->getTotalAttackRange(unit->getTotalUpgrade());
-	return unitOnRange(unit, range, rangedPtr, ast);
+	return unitOnRange(unit, range, rangedPtr, ast, evalMode);
 }
 
 bool UnitUpdater::findCachedCellsEnemies(Vec2i center, int range, int size, vector<Unit*> &enemies,
@@ -2167,12 +2190,12 @@ void UnitUpdater::findEnemiesForCell(const Vec2i pos, int size, int sightRange, 
 
 //if the unit has any enemy on range
 bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
-							  const AttackSkillType *ast) {
+							  const AttackSkillType *ast,bool evalMode) {
     vector<Unit*> enemies;
 	bool result=false;
 	//we check command target
 	const Unit *commandTarget = NULL;
-	if(unit->anyCommand()) {
+	if(unit->anyCommand() && unit->getCurrCommand() != NULL) {
 		commandTarget = static_cast<const Unit*>(unit->getCurrCommand()->getUnit());
 	}
 	if(commandTarget != NULL && commandTarget->isDead()) {
@@ -2229,7 +2252,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
     for(int i = 0; i< enemies.size(); ++i) {
     	Unit *enemy = enemies[i];
 
-    	if(enemy->isAlive() == true) {
+    	if(enemy != NULL && enemy->isAlive() == true) {
     		// Here we default to first enemy if no attackers found
     		if(enemySeen == NULL) {
                 *rangedPtr 	= enemy;
@@ -2283,7 +2306,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 			onlyEnemyUnits	= false;
 		}
 
-		if(onlyEnemyUnits == false &&
+		if(evalMode == false && onlyEnemyUnits == false &&
 			enemyUnit->getTeam() != world->getThisTeamIndex()) {
 			Vec2f enemyFloatCenter	= enemyUnit->getFloatCenteredPos();
 			// find nearest Attack and cleanup old dates
@@ -2291,6 +2314,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 			float currentDistance		= 0.f;
 			float nearestDistance		= 0.f;
 
+			MutexSafeWrapper safeMutex(&mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
 			for(int i = attackWarnings.size() - 1; i >= 0; --i) {
 				if(world->getFrameCount() - attackWarnings[i]->lastFrameCount > 200) { //after 200 frames attack break we warn again
 					AttackWarningData *toDelete =attackWarnings[i];
@@ -2338,6 +2362,8 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 	    		awd->lastFrameCount=world->getFrameCount();
 	    		awd->attackPosition.x=enemyFloatCenter.x;
 	    		awd->attackPosition.y=enemyFloatCenter.y;
+
+				MutexSafeWrapper safeMutex(&mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
 	    		attackWarnings.push_back(awd);
 
 	    		if(world->getAttackWarningsEnabled() == true) {
@@ -2409,14 +2435,16 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 
 void UnitUpdater::findUnitsForCell(Cell *cell, const Unit *unit,vector<Unit*> &units) {
 	//all fields
-	for(int k = 0; k < fieldCount; k++) {
-		Field f= static_cast<Field>(k);
+	if(cell != NULL) {
+		for(int k = 0; k < fieldCount; k++) {
+			Field f= static_cast<Field>(k);
 
-		//check field
-		Unit *cellUnit = cell->getUnit(f);
+			//check field
+			Unit *cellUnit = cell->getUnit(f);
 
-		if(cellUnit != NULL && cellUnit->isAlive()) {
-			units.push_back(cellUnit);
+			if(cellUnit != NULL && cellUnit->isAlive()) {
+				units.push_back(cellUnit);
+			}
 		}
 	}
 }
