@@ -212,7 +212,7 @@ typedef uint32_t  uint_least32_t;
 typedef uint64_t  uint_least64_t;
 
 // 7.18.1.3 Fastest minimum-width integer types
-#if (_MSC_VER < 1700)
+#if (_MSC_VER < 1300)
 
 typedef int8_t    int_fast8_t;
 typedef int16_t   int_fast16_t;
