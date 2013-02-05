@@ -1496,7 +1496,7 @@ void ScriptManager::setUnitPosition(int unitId, Vec2i pos) {
 void ScriptManager::addCellMarker(Vec2i pos, int factionIndex, const string &note, const string &textureFile) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
-	return world->addCellMarker(pos,factionIndex, note, textureFile);
+	world->addCellMarker(pos,factionIndex, note, textureFile);
 }
 
 void ScriptManager::removeCellMarker(Vec2i pos, int factionIndex) {
@@ -1508,7 +1508,7 @@ void ScriptManager::removeCellMarker(Vec2i pos, int factionIndex) {
 void ScriptManager::showMarker(Vec2i pos, int factionIndex, const string &note, const string &textureFile, int flashCount) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
-	return world->showMarker(pos,factionIndex, note, textureFile, flashCount);
+	world->showMarker(pos,factionIndex, note, textureFile, flashCount);
 }
 
 int ScriptManager::getIsUnitAlive(int unitId) {

@@ -736,23 +736,23 @@ void Ai::sendScoutPatrol(){
 	bool megaResourceAttack=(aiInterface->getControlType() == ctCpuMega || aiInterface->getControlType() == ctNetworkCpuMega)
 			&& random.randRange(0, 1) == 1;
 
-	std::vector<Vec2i> warningEnemyList = aiInterface->getEnemyWarningPositionList();
-	if(warningEnemyList.empty() == false) {
-		// Randomly check the enemy warning location list
-		if(random.randRange(0, 1) == 1) {
-			//for(int i = warningEnemyList.size() - 1; i <= 0; --i) {
-
-			// randomly pick a location from the location list
-			int i = random.randRange(0, warningEnemyList.size() - 1);
-
-			Vec2i &checkPos = warningEnemyList[i];
-			pos = checkPos;
-			possibleTargetFound = true;
-			aiInterface->removeEnemyWarningPositionFromList(checkPos);
-			//	break;
-			//}
-		}
-	}
+//	std::vector<Vec2i> warningEnemyList = aiInterface->getEnemyWarningPositionList();
+//	if(warningEnemyList.empty() == false) {
+//		// Randomly check the enemy warning location list
+//		if(random.randRange(0, 1) == 1) {
+//			//for(int i = warningEnemyList.size() - 1; i <= 0; --i) {
+//
+//			// randomly pick a location from the location list
+//			int i = random.randRange(0, warningEnemyList.size() - 1);
+//
+//			Vec2i &checkPos = warningEnemyList[i];
+//			pos = checkPos;
+//			possibleTargetFound = true;
+//			aiInterface->removeEnemyWarningPositionFromList(checkPos);
+//			//	break;
+//			//}
+//		}
+//	}
 	if(possibleTargetFound == false && (megaResourceAttack || ultraResourceAttack)) {
 		Map *map= aiInterface->getMap();
 
@@ -794,6 +794,22 @@ void Ai::sendScoutPatrol(){
 			//else printf("is outside map\n");
 		}
 	}
+
+	std::vector<Vec2i> warningEnemyList = aiInterface->getEnemyWarningPositionList();
+	if( (possibleTargetFound == false) && (warningEnemyList.empty() == false)) {
+		for(int i = warningEnemyList.size() - 1; i <= 0; --i) {
+			Vec2i &checkPos = warningEnemyList[i];
+			if (random.randRange(0, 1) == 1 ) {
+				pos = checkPos;
+				possibleTargetFound = true;
+				warningEnemyList.clear();
+			} else {
+				aiInterface->removeEnemyWarningPositionFromList(checkPos);
+			}
+			break;
+		}
+	}
+
 	if(possibleTargetFound == false){
 		startLoc= (startLoc + 1) % aiInterface->getMapMaxPlayers();
 		pos= aiInterface->getStartLocation(startLoc);
