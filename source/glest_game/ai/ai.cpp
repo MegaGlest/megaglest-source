@@ -727,6 +727,12 @@ Vec2i Ai::getRandomHomePosition() {
 // ==================== actions ====================
 
 void Ai::sendScoutPatrol(){
+
+
+/* original svn head restore when we fix anaychy bug
+
+
+
 	Vec2i pos;
 	int unit;
 	bool possibleTargetFound= false;
@@ -825,6 +831,87 @@ void Ai::sendScoutPatrol(){
 			aiInterface->printLog(2, "Scout patrol sent to: " + intToStr(pos.x) + "," + intToStr(pos.y) + "\n");
 		}
 	}
+
+*
+ *
+ */
+
+	Vec2i pos;
+		int unit;
+		bool possibleTargetFound= false;
+
+		bool ultraResourceAttack= (aiInterface->getControlType() == ctCpuUltra || aiInterface->getControlType() == ctNetworkCpuUltra)
+		        && random.randRange(0, 2) == 1;
+		bool megaResourceAttack=(aiInterface->getControlType() == ctCpuMega || aiInterface->getControlType() == ctNetworkCpuMega)
+				&& random.randRange(0, 1) == 1;
+
+		std::vector<Vec2i> warningEnemyList = aiInterface->getEnemyWarningPositionList();
+		if(warningEnemyList.empty() == false) {
+			for(int i = warningEnemyList.size() - 1; i <= 0; --i) {
+				Vec2i &checkPos = warningEnemyList[i];
+				pos = checkPos;
+				possibleTargetFound = true;
+				aiInterface->removeEnemyWarningPositionFromList(checkPos);
+				break;
+			}
+		}
+		else if( megaResourceAttack || ultraResourceAttack) {
+			Map *map= aiInterface->getMap();
+
+			const TechTree *tt= aiInterface->getTechTree();
+			const ResourceType *rt= tt->getResourceType(0);
+			int tryCount= 0;
+			int height= map->getH();
+			int width= map->getW();
+
+			for(int i= 0; i < tt->getResourceTypeCount(); ++i){
+				const ResourceType *rt_= tt->getResourceType(i);
+				//const Resource *r= aiInterface->getResource(rt);
+
+				if(rt_->getClass() == rcTech){
+					rt=rt_;
+					break;
+				}
+			}
+			//printf("looking for resource %s\n",rt->getName().c_str());
+			while(possibleTargetFound == false){
+				tryCount++;
+				if(tryCount == 4){
+					//printf("no target found\n");
+					break;
+				}
+				pos= Vec2i(random.randRange(2, width - 2), random.randRange(2, height - 2));
+				if(map->isInside(pos) && map->isInsideSurface(map->toSurfCoords(pos))){
+					//printf("is inside map\n");
+					// find first resource in this area
+					Vec2i resPos;
+					if(aiInterface->isResourceInRegion(pos, rt, resPos, scoutResourceRange)){
+						// found a possible target.
+						pos= resPos;
+						//printf("lets try the new target\n");
+						possibleTargetFound= true;
+						break;
+					}
+				}
+				//else printf("is outside map\n");
+			}
+		}
+		if(possibleTargetFound == false){
+			startLoc= (startLoc + 1) % aiInterface->getMapMaxPlayers();
+			pos= aiInterface->getStartLocation(startLoc);
+			//printf("normal target used\n");
+		}
+
+		if(aiInterface->getHomeLocation() != pos){
+			if(findAbleUnit(&unit, ccAttack, false)){
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+					SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				aiInterface->giveCommand(unit, ccAttack, pos);
+				aiInterface->printLog(2, "Scout patrol sent to: " + intToStr(pos.x) + "," + intToStr(pos.y) + "\n");
+			}
+		}
+
 }
 
 void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
