@@ -1558,10 +1558,10 @@ void getFullscreenVideoModes(vector<ModeInfo> *modeinfos, bool isFullscreen) {
 					format.BitsPerPixel = 16;
 					bpp = 16;
 					break;
-				case 3://8 bpp
-					format.BitsPerPixel = 8;
-					bpp = 8;
-					break;
+//				case 3://8 bpp
+//					format.BitsPerPixel = 8;
+//					bpp = 8;
+//					break;
 			}
 
 			/* Get available fullscreen/hardware modes */
@@ -1716,7 +1716,8 @@ void getFullscreenVideoModes(vector<ModeInfo> *modeinfos, bool isFullscreen) {
 				    }
 			   }
 		  }
-	} while(++loops != 4);
+	//} while(++loops != 4);
+	} while(++loops != 3);
 
 	std::sort(modeinfos->begin(),modeinfos->end());
 }
