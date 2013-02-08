@@ -195,8 +195,7 @@ Mutex UPNP_Tools::mutexUPNP;
 									   int nErrorID = 0 )
 	{
 		// Build basic error string
-		static char acErrorBuffer[256];
-		std::ostrstream outs(acErrorBuffer, (sizeof(acErrorBuffer) / sizeof(acErrorBuffer[0])));
+		static char acErrorBuffer[8096];
 		outs << pcMessagePrefix << ": ";
 
 		// Tack appropriate canned message onto end of supplied message
@@ -218,7 +217,7 @@ Mutex UPNP_Tools::mutexUPNP;
 
 		// Finish error message off and return it.
 		outs << std::ends;
-		acErrorBuffer[(sizeof(acErrorBuffer) / sizeof(acErrorBuffer[0])) - 1] = '\0';
+		acErrorBuffer[8095] = '\0';
 		return acErrorBuffer;
 	}
 
