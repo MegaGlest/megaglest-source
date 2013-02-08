@@ -61,16 +61,41 @@ SET(PKG_NAME "megaglest")
 # read version
 file(READ ${PROJECT_SOURCE_DIR}/source/glest_game/facilities/game_util.cpp MG_VERSION_H_CONTENTS)
 # find the version string
-string (REGEX MATCH "\"v(.*).(.*).(.*)\"" _threePartMatch ${MG_VERSION_H_CONTENTS})
-# parse the version string
-if (_threePartMatch)
-        # parse the parts of the version string
-        STRING(REGEX REPLACE "[^0-9]*([0-9]+)\\.[0-9]+\\.[0-9]+.*" "\\1" VER_MAJOR   "${_threePartMatch}")
-        STRING(REGEX REPLACE "[^0-9]*[0-9]+\\.([0-9]+)\\.[0-9]+.*" "\\1" VER_MINOR   "${_threePartMatch}")
-        STRING(REGEX REPLACE "[^0-9]*[0-9]+\\.[0-9]+\\.([0-9]+).*" "\\1" VER_RELEASE "${_threePartMatch}")
+#string (REGEX MATCH "\"v(.*).(.*).(.*)\"" _threePartMatch ${MG_VERSION_H_CONTENTS})
+#string (REGEX MATCH "\"v[^.]*.[^.]*(.[^.])?\"" _threePartMatch ${MG_VERSION_H_CONTENTS})
+#
+# "v([0-9]).([0-9].*)([0-9].*)?";
+string (REGEX MATCH "\"v([0-9]).([0-9]).([0-9].*)[^\";]" _threePartMatch ${MG_VERSION_H_CONTENTS})
+if(NOT _threePartMatch)
+        MESSAGE(STATUS "******* Trying 2 part versioning] ")
+        string (REGEX MATCH "\"v([0-9]).([0-9].*)[^\";]" _threePartMatch ${MG_VERSION_H_CONTENTS})
 
-        MESSAGE(STATUS "MegaGlest Version is [${VER_MAJOR}.${VER_MINOR}.${VER_RELEASE}] ")
-endif (_threePartMatch)
+        if (_threePartMatch)
+                # parse the parts of the version string
+                STRING(REGEX REPLACE "\"v([0-9])\\.[0-9].*" "\\1" VER_MAJOR   "${_threePartMatch}")
+                STRING(REGEX REPLACE "\"v[0-9]\\.([0-9]).*" "\\1" VER_MINOR "${_threePartMatch}")
+
+                #MESSAGE(STATUS "******* TEST2 MegaGlest Version #1 is [${VER_MAJOR}] ")
+                #MESSAGE(STATUS "******* TEST2 MegaGlest Version #2 is [${VER_MINOR}] ")
+                #MESSAGE(STATUS "******* TEST2 MegaGlest Version #3 is [${VER_RELEASE}] ")
+
+                MESSAGE(STATUS "MegaGlest Version is [${VER_MAJOR}.${VER_MINOR}] ")
+        endif()
+# parse the version string
+else()
+        if (_threePartMatch)
+                # parse the parts of the version string
+                STRING(REGEX REPLACE "\"v([0-9])\\.[0-9]\\.[0-9].*" "\\1" VER_MAJOR   "${_threePartMatch}")
+                STRING(REGEX REPLACE "\"v[0-9]\\.([0-9])\\.[0-9].*" "\\1" VER_MINOR   "${_threePartMatch}")
+                STRING(REGEX REPLACE "\"v[0-9]\\.[0-9]\\.([0-9]).*" "\\1" VER_RELEASE "${_threePartMatch}")
+
+                #MESSAGE(STATUS "******* TEST3 MegaGlest Version #1 is [${VER_MAJOR}] ")
+                #MESSAGE(STATUS "******* TEST3 MegaGlest Version #2 is [${VER_MINOR}] ")
+                #MESSAGE(STATUS "******* TEST3 MegaGlest Version #3 is [${VER_RELEASE}] ")
+
+                MESSAGE(STATUS "MegaGlest Version is [${VER_MAJOR}.${VER_MINOR}.${VER_RELEASE}] ")
+        endif()
+endif()
 
 ## Compiler flags
 IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
