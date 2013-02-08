@@ -42,6 +42,11 @@ Thread::~Thread() {
 
 	MutexSafeWrapper safeMutex(&Thread::mutexthreadList);
 	std::vector<Thread *>::iterator iterFind = std::find(Thread::threadList.begin(),Thread::threadList.end(),this);
+	if(iterFind == Thread::threadList.end()) {
+		char szBuf[1024]="";
+		snprintf(szBuf,1023,"In [%s::%s Line: %d] iterFind == Thread::threadList.end()",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		throw megaglest_runtime_error(szBuf);
+	}
 	Thread::threadList.erase(iterFind);
 	safeMutex.ReleaseLock();
 }
@@ -428,7 +433,9 @@ void MasterSlaveThreadController::clearSlaves(bool clearListOnly) {
 		if(clearListOnly == false) {
 			for(unsigned int i = 0; i < this->slaveThreadList.size(); ++i) {
 				SlaveThreadControllerInterface *slave = this->slaveThreadList[i];
-				slave->setMasterController(NULL);
+				if(slave != NULL) {
+					slave->setMasterController(NULL);
+				}
 			}
 		}
 		this->slaveThreadList.clear();
@@ -457,7 +464,9 @@ void MasterSlaveThreadController::setSlaves(std::vector<SlaveThreadControllerInt
 	if(this->slaveThreadList.empty() == false) {
 		for(unsigned int i = 0; i < this->slaveThreadList.size(); ++i) {
 			SlaveThreadControllerInterface *slave = this->slaveThreadList[i];
-			slave->setMasterController(this);
+			if(slave != NULL) {
+				slave->setMasterController(this);
+			}
 		}
 	}
 }
@@ -472,7 +481,9 @@ void MasterSlaveThreadController::signalSlaves(void *userdata) {
 	if(this->slaveThreadList.empty() == false) {
 		for(unsigned int i = 0; i < this->slaveThreadList.size(); ++i) {
 			SlaveThreadControllerInterface *slave = this->slaveThreadList[i];
-			slave->signalSlave(userdata);
+			if(slave != NULL) {
+				slave->signalSlave(userdata);
+			}
 		}
 	}
 
