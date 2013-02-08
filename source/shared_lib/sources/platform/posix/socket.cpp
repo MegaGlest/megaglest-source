@@ -196,6 +196,7 @@ Mutex UPNP_Tools::mutexUPNP;
 	{
 		// Build basic error string
 		static char acErrorBuffer[8096];
+		std::ostrstream outs(acErrorBuffer, 8095);
 		outs << pcMessagePrefix << ": ";
 
 		// Tack appropriate canned message onto end of supplied message
