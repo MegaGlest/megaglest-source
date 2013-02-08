@@ -3,7 +3,11 @@
 IF(BUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS)
 	MESSAGE(STATUS "Will try to build MegaGlest model import/export tools")
 
-	SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/source/tools/glexemel)
+        OPTION(WANT_DEV_OUTPATH "use developer friendly output paths" OFF)
+        IF(WANT_DEV_OUTPATH)
+	        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/source/tools/glexemel)
+        ENDIF()
+
 	add_executable(g2xml g2xml.c g3dv4.h)
 
 	IF(${CMAKE_SYSTEM_NAME} MATCHES "FreeBSD")
