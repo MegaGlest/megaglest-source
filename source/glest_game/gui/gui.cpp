@@ -350,6 +350,7 @@ void Gui::groupKey(int groupIndex) {
 		if(lastGroupRecall == groupIndex &&
 			lastGroupRecallTime.getMillis() > 0 &&
 			lastGroupRecallTime.getMillis() <= recallGroupCenterCameraTimeout) {
+			selection.recallGroup(groupIndex);
 			centerCameraOnSelection();
 		}
 		else {
