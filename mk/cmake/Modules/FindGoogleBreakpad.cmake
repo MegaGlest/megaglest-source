@@ -21,6 +21,11 @@ FIND_PATH(BREAKPAD_INCLUDE_DIR
         client/${BREAKPAD_OS}/handler/exception_handler.h
 	PATHS
 	${BREAKPAD_ROOT}/src/
+        /usr/local/include/google-breakpad/
+        /usr/include/google-breakpad/
+        /usr/local/include/
+        /usr/include/
+
 )
 
 IF(NOT GoogleBreakpad_FIND_COMPONENTS)
@@ -29,13 +34,16 @@ IF(NOT GoogleBreakpad_FIND_COMPONENTS)
 ENDIF()
 
 #IF(CMAKE_TRACE)
-	MESSAGE(STATUS "BREAKPAD_ROOT=${BREAKPAD_ROOT}")
+	MESSAGE(STATUS "BREAKPAD_ROOT=${BREAKPAD_ROOT} Operating system: ${BREAKPAD_OS}")
 	MESSAGE(STATUS "BREAKPAD_INCLUDE_DIR=${BREAKPAD_INCLUDE_DIR}")
 #ENDIF(CMAKE_TRACE)
 
 IF(BREAKPAD_INCLUDE_DIR)
         SET(BREAKPAD_EXCEPTION_HANDLER_INCLUDE_DIR ${BREAKPAD_INCLUDE_DIR} ${BREAKPAD_INCLUDE_DIR}/client/${BREAKPAD_OS}/)
 	SET(BREAKPAD_FOUND TRUE)
+
+        MESSAGE(STATUS "*** FOUND BREAKPAD_INCLUDE_DIR=${BREAKPAD_INCLUDE_DIR}")
+
 	FOREACH(COMPONENT ${GoogleBreakpad_FIND_COMPONENTS})
 		#string(TOUPPER ${COMPONENT} UPPERCOMPONENT)
                 string(TOLOWER ${COMPONENT} UPPERCOMPONENT)
@@ -46,6 +54,10 @@ IF(BREAKPAD_INCLUDE_DIR)
 				${BREAKPAD_INCLUDE_DIR}/src/client/${BREAKPAD_OS}/Release/lib
 				${BREAKPAD_ROOT}/src/client/${BREAKPAD_OS}/
 				${BREAKPAD_INCLUDE_DIR}/src/client/${BREAKPAD_OS}/
+                                /usr/local/lib/google-breakpad/
+                                /usr/lib/google-breakpad/
+                                /usr/local/lib/
+                                /usr/lib/
 
 			)
 		FIND_LIBRARY(BREAKPAD_${UPPERCOMPONENT}_LIBRARY_DEBUG 
@@ -55,6 +67,10 @@ IF(BREAKPAD_INCLUDE_DIR)
 				${BREAKPAD_INCLUDE_DIR}/src/client/${BREAKPAD_OS}/Debug/lib
 				${BREAKPAD_ROOT}/src/client/${BREAKPAD_OS}/
 				${BREAKPAD_INCLUDE_DIR}/src/client/${BREAKPAD_OS}/
+                                /usr/local/lib/google-breakpad/
+                                /usr/lib/google-breakpad/
+                                /usr/local/lib/
+                                /usr/lib/
 
 			)
 		IF(BREAKPAD_${UPPERCOMPONENT}_LIBRARY_RELEASE OR BREAKPAD_${UPPERCOMPONENT}_LIBRARY_DEBUG)
@@ -64,6 +80,8 @@ IF(BREAKPAD_INCLUDE_DIR)
 
                         set(BREAKPAD_EXCEPTION_HANDLER_FOUND TRUE)
                         set(BREAKPAD_EXCEPTION_HANDLER_LIBRARIES ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES} ${BREAKPAD_${UPPERCOMPONENT}_LIBRARY_RELEASE})
+
+                        MESSAGE(STATUS "*** FOUND BREAKPAD LIB ${BREAKPAD_${UPPERCOMPONENT}_LIBRARY}")
 
 		ELSE()
 			SET(BREAKPAD_FOUND FALSE)
@@ -97,6 +115,8 @@ IF(BREAKPAD_FOUND)
 			${BREAKPAD_INCLUDE_DIR}/src/tools/${BREAKPAD_OS}/binaries
 			${BREAKPAD_ROOT}/src/tools/${BREAKPAD_OS}/dump_syms
 			${BREAKPAD_INCLUDE_DIR}/src/tools/${BREAKPAD_OS}/dump_syms
+                        /usr/local/bin/
+                        /usr/bin/
 
 		)
 #	IF(CMAKE_TRACE)
@@ -104,6 +124,9 @@ IF(BREAKPAD_FOUND)
 #	ENDIF(CMAKE_TRACE)
 	IF(BREAKPAD_DUMPSYMS_EXE)
 		SET(BREAKPAD_DUMPSYMS_EXE_FOUND TRUE)
+
+                MESSAGE(STATUS "*** FOUND BREAKPAD TOOLS ${BREAKPAD_DUMPSYMS_EXE}}")
+
 	ELSE(BREAKPAD_DUMPSYMS_EXE)
 		SET(BREAKPAD_DUMPSYMS_EXE_FOUND FALSE)
 		#SET(BREAKPAD_FOUND FALSE)
