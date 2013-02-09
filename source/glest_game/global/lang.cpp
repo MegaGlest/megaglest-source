@@ -453,6 +453,20 @@ string Lang::getScenarioString(const string &s) {
 	}
 }
 
+bool Lang::hasScenarioString(const string &s) {
+	bool result = false;
+	try {
+		scenarioStrings.getString(s);
+		result = true;
+	}
+	catch(exception &ex) {
+		if(scenarioStrings.getpath() != "") {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		}
+	}
+	return result;
+}
+
 string Lang::getTechTreeString(const string &s,const char *defaultValue) {
 	try{
 		string result = "";

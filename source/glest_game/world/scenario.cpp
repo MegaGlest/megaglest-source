@@ -310,9 +310,13 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
 	
 	//look for description and append it
 	lang.loadScenarioStrings(scenarioDir,scenarioName.c_str());
-	string tmp_description = lang.getScenarioString("DESCRIPTION");
-	if( tmp_description != "???DESCRIPTION???"){
-		scenarioInfo->desc+= lang.get("Description") + ": \n" + tmp_description + "\n";
+	//string tmp_description = lang.getScenarioString("DESCRIPTION");
+	string tmp_description = "";
+	if(lang.hasScenarioString("DESCRIPTION") == true) {
+		tmp_description = lang.getScenarioString("DESCRIPTION");
+	}
+	if( tmp_description != "") {
+		scenarioInfo->desc += lang.get("Description") + ": \n" + tmp_description + "\n";
 	}
 
 	if(scenarioNode->hasChild("fog-of-war") == true) {

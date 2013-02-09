@@ -63,6 +63,7 @@ public:
 	string get(const string &s,string uselanguage="", bool fallbackToDefault=false);
 	bool hasString(const string &s, string uselanguage="", bool fallbackToDefault=false);
 	string getScenarioString(const string &s);
+	bool hasScenarioString(const string &s);
 	string getTechTreeString(const string &s, const char *defaultValue=NULL);
 	string getTilesetString(const string &s, const char *defaultValue=NULL);
 
