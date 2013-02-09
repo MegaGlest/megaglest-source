@@ -159,6 +159,9 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
 	//printf("In [%s::%s Line: %d] file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str());
 
     Lang &lang= Lang::getInstance();
+	string scenarioDir = cutLastFile(formatPath(file));
+	string scenarioName = extractLastDirectoryFromPath(scenarioDir);
+	scenarioDir = cutLastFile(scenarioDir);
 
     XmlTree xmlTree;
 	xmlTree.load(file,Properties::getTagReplacementValues());
@@ -287,7 +290,7 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
     }
 
 	//add player info
-    scenarioInfo->desc= lang.get("Player") + ": ";
+    scenarioInfo->desc= lang.get("PlayerFaction") + ": ";
 	for(int i=0; i<GameConstants::maxPlayers; ++i) {
 		if(scenarioInfo->factionControls[i] == ctHuman) {
 			scenarioInfo->desc+= formatString(scenarioInfo->factionTypeNames[i]);
@@ -303,6 +306,14 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
     scenarioInfo->desc+= lang.get("Map") + ": " + formatString(scenarioInfo->mapName) + "\n";
     scenarioInfo->desc+= lang.get("Tileset") + ": " + formatString(scenarioInfo->tilesetName) + "\n";
 	scenarioInfo->desc+= lang.get("TechTree") + ": " + formatString(scenarioInfo->techTreeName) + "\n";
+
+	
+	//look for description and append it
+	lang.loadScenarioStrings(scenarioDir,scenarioName.c_str());
+	string tmp_description = lang.getScenarioString("DESCRIPTION");
+	if( tmp_description != "???DESCRIPTION???"){
+		scenarioInfo->desc+= lang.get("Description") + ": \n" + tmp_description + "\n";
+	}
 
 	if(scenarioNode->hasChild("fog-of-war") == true) {
 		if(scenarioNode->getChild("fog-of-war")->getAttribute("value")->getValue() == "explored") {

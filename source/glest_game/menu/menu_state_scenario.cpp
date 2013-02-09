@@ -72,7 +72,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
 	int startX=350;
 
 	labelInfo.registerGraphicComponent(containerName,"labelInfo");
-    labelInfo.init(startX, startY+130);
+    labelInfo.init(startX, startY+330);
 	labelInfo.setFont(CoreData::getInstance().getMenuFontNormal());
 	labelInfo.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
@@ -83,10 +83,10 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
 	buttonPlayNow.init(startX+175, startY, 125);
 
 	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
-    listBoxScenario.init(startX, startY+160, 190);
+    listBoxScenario.init(startX, startY+360, 190);
 
     labelScenario.registerGraphicComponent(containerName,"labelScenario");
-	labelScenario.init(startX, startY+190);
+	labelScenario.init(startX, startY+390);
 
 	buttonReturn.setText(lang.get("Return"));
 	buttonPlayNow.setText(lang.get("PlayNow"));
@@ -233,8 +233,8 @@ void MenuStateScenario::render(){
 	Renderer &renderer= Renderer::getInstance();
 
 	if(scenarioLogoTexture != NULL) {
-		renderer.renderTextureQuad(300,350,400,300,scenarioLogoTexture,1.0f);
-		//renderer.renderBackground(scenarioLogoTexture);
+		//renderer.renderTextureQuad(300,350,400,300,scenarioLogoTexture,1.0f);
+		renderer.renderBackground(scenarioLogoTexture);
 	}
 
 	if(mainMessageBox.getEnabled()) {
