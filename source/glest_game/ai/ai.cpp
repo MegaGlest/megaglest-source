@@ -379,7 +379,7 @@ void Ai::update() {
 	}
 
 	//process ai rules
-	for(int ruleIdx = 0; ruleIdx < aiRules.size(); ++ruleIdx) {
+	for(unsigned int ruleIdx = 0; ruleIdx < aiRules.size(); ++ruleIdx) {
 		AiRule *rule = aiRules[ruleIdx];
 		if(rule == NULL) {
 			throw megaglest_runtime_error("rule == NULL");
@@ -582,7 +582,7 @@ vector<int> Ai::findUnitsHarvestingResourceType(const ResourceType *rt) {
 				Command *command= unit->getCurrCommand();
 			    const BuildCommandType *bct= dynamic_cast<const BuildCommandType*>(command->getCommandType());
 			    if(bct != NULL) {
-			    	for(unsigned int j = 0; j < bct->getBuildingCount(); ++j) {
+			    	for(int j = 0; j < bct->getBuildingCount(); ++j) {
 						const UnitType *ut = bct->getBuilding(j);
 						if(ut != NULL) {
 							const Resource *r = ut->getCost(rt);

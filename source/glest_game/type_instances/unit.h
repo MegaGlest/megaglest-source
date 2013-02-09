@@ -521,7 +521,7 @@ public:
 	inline float getRotation() const					{return rotation;}
 	float getRotationX() const;
 	float getRotationZ() const;
-	inline ParticleSystem *getFire() const				{return fire;}
+	ParticleSystem *getFire() const;
 	inline int getKills() const						{return kills;}
 	inline int getEnemyKills() const					{return enemyKills;}
 	inline const Level *getLevel() const				{return level;}

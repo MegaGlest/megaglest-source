@@ -367,6 +367,28 @@ private:
 				vbo_fowTexCoords(0), vbo_surfTexCoords(0),
 				vbo_indices(0), indexCount(0),
 				textureHandle(th),textureCRC(0) {}
+
+			inline Layer & operator=(Layer &obj) {
+				this->vertices = obj.vertices;
+				this->normals = obj.normals;
+				this->fowTexCoords = obj.fowTexCoords; 
+				this->surfTexCoords = obj.surfTexCoords;
+				this->indices = obj.indices;
+				this->cellToIndicesMap = obj.cellToIndicesMap;
+				this->rowsToRenderCache = obj.rowsToRenderCache;
+				this->vbo_vertices = obj.vbo_vertices;
+				this->vbo_normals = obj.vbo_normals;
+				this->vbo_fowTexCoords = obj.vbo_fowTexCoords;
+				this->vbo_surfTexCoords = obj.vbo_surfTexCoords;
+				this->vbo_indices = obj.vbo_indices;
+				this->indexCount = obj.indexCount;
+				this->textureHandle = obj.textureHandle;
+				this->texturePath = obj.texturePath;
+				this->textureCRC = obj.textureCRC;
+
+				return *this;
+			}
+
 			~Layer();
 			void load_vbos(bool vboEnabled);
 			void render(VisibleQuadContainerCache &qCache);
@@ -382,7 +404,7 @@ private:
 				vbo_fowTexCoords, vbo_surfTexCoords,
 				vbo_indices;
 			int indexCount;
-			const int textureHandle;
+			int textureHandle;
 			string texturePath;
 			uint32 textureCRC;
 		};

@@ -451,7 +451,6 @@ string Lang::getScenarioString(const string &s) {
 		}
 		return "???" + s + "???";
 	}
-	return "???" + s + "???";
 }
 
 string Lang::getTechTreeString(const string &s,const char *defaultValue) {

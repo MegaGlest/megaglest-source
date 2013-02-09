@@ -4862,7 +4862,6 @@ int Game::getUpdateLoops() {
 	}
 	else
 		return speed;
-	return 1;
 }
 
 void Game::showLoseMessageBox() {

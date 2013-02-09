@@ -571,8 +571,6 @@ void Intro::update() {
 
 		AutoTest::getInstance().updateIntro(program);
 		return;
-
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	mouse2d= (mouse2d+1) % Renderer::maxMouse2dAnim;

@@ -463,8 +463,9 @@ bool VideoPlayer::hasBackEndVideoPlayer() {
 
 #ifdef HAS_LIBVLC
 	return true;
-#endif
+#else
 	return false;
+#endif
 }
 
 void VideoPlayer::cleanupPlayer() {
