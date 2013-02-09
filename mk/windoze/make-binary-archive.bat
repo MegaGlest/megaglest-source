@@ -7,27 +7,33 @@ rem pause
 cd /d "%~dp0"
 
 ECHO Checking for windows binaries...
+ECHO Calling ..\..\data\glest_game\megaglest.exe --version
+rem call ..\..\data\glest_game\megaglest.exe --version
 
 set mg_version=
 for /f "tokens=2 delims= " %%i in ('..\..\data\glest_game\megaglest.exe --version') do call :mgver %%i
 goto got_ver
 
 :mgver
-rem echo *[%1%]*
+rem echo mgver [%1%] mg_version is [%mg_version%]
 if "%mg_version%." == "." goto set_mg_ver
 goto exit_mg_ver
 
 :set_mg_ver
 set mg_version=%1%
-rem echo *1[%mg_version%]
+rem echo set_mg_ver 1[%mg_version%]
+
 set mg_version=%mg_version:~1%
-rem echo *2[%mg_version%]
+
+rem echo set_mg_ver 2[%mg_version%]
 
 :exit_mg_ver
 exit /B 0
 
 :got_ver
-echo [%mg_version%]
+rem echo got_ver [%mg_version%]
+
+rem pause
 
 set RELEASENAME=megaglest-binary-win32-i386
 set PACKAGE=%RELEASENAME%-%mg_version%.7z
