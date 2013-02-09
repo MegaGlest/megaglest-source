@@ -49,7 +49,7 @@ Q5  =  -2.0109921195e-07f; /* 0xb457edbb */
 	Simple x;
 #endif
 {
-	Simple y,hi,lo,c,t,e,hxs,hfx,r1;
+	Simple y,hi,lo,c=0,t,e,hxs,hfx,r1;
 	int32_t k,xsb;
 	u_int32_t hx;
 

@@ -963,7 +963,7 @@ void Socket::disconnectSocket() {
         sock = INVALID_SOCKET;
 #else
         ::closesocket(sock);
-        sock = -1;
+        sock = INVALID_SOCKET;
 #endif
         }
         safeMutex.ReleaseLock();
@@ -2036,7 +2036,7 @@ void BroadCastClientSocketThread::execute() {
         bcfd = INVALID_SOCKET;
 #else
         ::closesocket(bcfd);
-        bcfd = -1;
+        bcfd = INVALID_SOCKET;
 #endif
 
     }
@@ -2331,7 +2331,7 @@ Socket *ServerSocket::accept(bool errorOnFail) {
 			newSock = INVALID_SOCKET;
 	#else
 			::closesocket(newSock);
-			newSock = -1;
+			newSock = INVALID_SOCKET;
 	#endif
 
 			return NULL;
@@ -2773,7 +2773,7 @@ void BroadCastSocketThread::execute() {
 #ifdef WIN32
 		bcfd[idx] = INVALID_SOCKET;
 #else
-		bcfd[idx] = -1;
+		bcfd[idx] = INVALID_SOCKET;
 #endif
 		//if(strlen(subnetmask[idx]) > 0) {
 		bcfd[idx] = socket( AF_INET, SOCK_DGRAM, 0 );
@@ -2867,7 +2867,7 @@ void BroadCastSocketThread::execute() {
         bcfd[idx] = INVALID_SOCKET;
 #else
         ::closesocket(bcfd[idx]);
-        bcfd[idx] = -1;
+        bcfd[idx] = INVALID_SOCKET;
 #endif
 		}
 	}

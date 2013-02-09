@@ -51,8 +51,8 @@ static Simple zero = 0.0f;
 	Simple x;
 #endif
 {
-	Simple hfsq,f,c,s,z,R,u;
-	int32_t k,hx,hu,ax;
+	Simple hfsq,f=0,c=0,s,z,R,u;
+	int32_t k,hx,hu=0,ax;
 
 	GET_FLOAT_WORD(hx,x);
 	ax = hx&0x7fffffff;

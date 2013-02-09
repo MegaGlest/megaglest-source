@@ -394,6 +394,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	rotationZ=.0f;
 	rotationX=.0f;
 
+	this->fire= NULL;
     this->unitPath = unitpath;
     this->unitPath->setMap(map);
 
@@ -470,8 +471,6 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
     	currField = fLand;
     }
 
-    fire= NULL;
-
 	computeTotalUpgrade();
 
 	//starting skill
@@ -520,8 +519,8 @@ Unit::~Unit() {
 		Renderer::getInstance().cleanupParticleSystems(fireParticleSystems,rsGame);
 		// Must set this to null of it will be used below in stopDamageParticles()
 
-		if(Renderer::getInstance().validateParticleSystemStillExists(fire,rsGame) == false) {
-			fire = NULL;
+		if(Renderer::getInstance().validateParticleSystemStillExists(this->fire,rsGame) == false) {
+			this->fire = NULL;
 		}
 	}
 
@@ -569,6 +568,13 @@ Unit::~Unit() {
 #ifdef LEAK_CHECK_UNITS
 	Unit::mapMemoryList.erase(this);
 #endif
+}
+
+ParticleSystem * Unit::getFire() const	{
+	if(Renderer::getInstance().validateParticleSystemStillExists(this->fire,rsGame) == false) {
+		return NULL;
+	}
+	return this->fire;
 }
 
 #ifdef LEAK_CHECK_UNITS
@@ -2029,12 +2035,12 @@ bool Unit::update() {
 		 rotationX=.0f;
 	}
 
-	if(Renderer::getInstance().validateParticleSystemStillExists(fire,rsGame) == false) {
-		fire = NULL;
+	if(Renderer::getInstance().validateParticleSystemStillExists(this->fire,rsGame) == false) {
+		this->fire = NULL;
 	}
 
-	if (fire != NULL) {
-		fire->setPos(getCurrVector());
+	if (this->fire != NULL) {
+		this->fire->setPos(getCurrVector());
 	}
 	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
 		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
@@ -3185,14 +3191,14 @@ void Unit::stopDamageParticles(bool force) {
 	if(force == true || (hp > type->getTotalMaxHp(&totalUpgrade) / 2) ) {
 		//printf("Checking to stop damageparticles for unit [%s - %d] hp = %d\n",this->getType()->getName().c_str(),this->getId(),hp);
 
-		if(Renderer::getInstance().validateParticleSystemStillExists(fire,rsGame) == false) {
-			fire = NULL;
+		if(Renderer::getInstance().validateParticleSystemStillExists(this->fire,rsGame) == false) {
+			this->fire = NULL;
 		}
 
 		// stop fire
-		if(fire != NULL) {
-			fire->fade();
-			fire = NULL;
+		if(this->fire != NULL) {
+			this->fire->fade();
+			this->fire = NULL;
 		}
 		// stop additional particles
 
@@ -3358,7 +3364,7 @@ void Unit::startDamageParticles() {
 		}
 
 		// start fire
-		if(type->getProperty(UnitType::pBurnable) && fire == NULL) {
+		if(type->getProperty(UnitType::pBurnable) && this->fire == NULL) {
 			FireParticleSystem *fps = new FireParticleSystem(200);
 			const Game *game = Renderer::getInstance().getGame();
 			fps->setSpeed(2.5f / game->getWorld()->getUpdateFps(this->getFactionIndex()));
@@ -3366,7 +3372,7 @@ void Unit::startDamageParticles() {
 			fps->setRadius(type->getSize()/3.f);
 			fps->setTexture(CoreData::getInstance().getFireTexture());
 			fps->setParticleSize(type->getSize()/3.f);
-			fire= fps;
+			this->fire= fps;
 			fireParticleSystems.push_back(fps);
 
 			Renderer::getInstance().manageParticleSystem(fps, rsGame);
@@ -3809,13 +3815,13 @@ void Unit::saveGame(XmlNode *rootNode) {
 //    Faction *faction;
 //	ParticleSystem *fire;
 	int linkFireIndex = -1;
-	if(fire != NULL && Renderer::getInstance().validateParticleSystemStillExists(fire,rsGame) == true) {
+	if(this->fire != NULL && Renderer::getInstance().validateParticleSystemStillExists(this->fire,rsGame) == true) {
 		//fire->saveGame(unitNode);
 		bool fireInSystemList = false;
 		if(fireParticleSystems.empty() == false) {
 			for(unsigned int i = 0; i < fireParticleSystems.size(); ++i) {
 				ParticleSystem *ps= fireParticleSystems[i];
-				if(ps == fire) {
+				if(ps == this->fire) {
 					linkFireIndex = i;
 					fireInSystemList = true;
 					break;
@@ -3823,7 +3829,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 			}
 		}
 		if(fireInSystemList == false) {
-			fire->saveGame(unitNode);
+			this->fire->saveGame(unitNode);
 		}
 	}
 //	TotalUpgrade totalUpgrade;

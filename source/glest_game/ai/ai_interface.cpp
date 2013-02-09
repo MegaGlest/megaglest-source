@@ -837,7 +837,7 @@ bool AiInterface::isFreeCells(const Vec2i &pos, int size, Field field){
 }
 
 void AiInterface::removeEnemyWarningPositionFromList(Vec2i &checkPos) {
-	for(int i = enemyWarningPositionList.size() - 1; i <= 0; --i) {
+	for(int i = enemyWarningPositionList.size() - 1; i >= 0; --i) {
 		Vec2i &pos = enemyWarningPositionList[i];
 
 		if(checkPos == pos) {

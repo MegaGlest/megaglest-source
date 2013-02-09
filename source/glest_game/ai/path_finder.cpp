@@ -462,7 +462,7 @@ bool PathFinder::addToOpenSet(Unit *unit, Node *node,const Vec2i finalPos, Vec2i
 direction PathFinder::directionOfMove(Vec2i to, Vec2i from) const {
 	if (from.x == to.x) {
 		if (from.y == to.y)
-			return -1;
+			return 0;
 		else if (from.y < to.y)
 			return 4;
 		else // from.y > to.y

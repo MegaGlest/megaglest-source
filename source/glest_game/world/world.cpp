@@ -2166,11 +2166,15 @@ bool World::showWorldForPlayer(int factionIndex, bool excludeFogOfWarCheck) cons
 
 //computes the fog of war texture, contained in the minimap
 void World::computeFow(int factionIdxToTick) {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
+
 	bool showPerfStats = Config::getInstance().getBool("ShowPerfStats","false");
 	Chrono chronoPerf;
 	char perfBuf[8096]="";
 	std::vector<string> perfList;
 	if(showPerfStats) chronoPerf.start();
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
 
 	minimap.resetFowTex();
 
@@ -2179,8 +2183,10 @@ void World::computeFow(int factionIdxToTick) {
 		perfList.push_back(perfBuf);
 	}
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
 	//reset cells
 	if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
 		for(int i = 0; i < map.getSurfaceW(); ++i) {
 			for(int j = 0; j < map.getSurfaceH(); ++j) {
 				for(int k = 0; k < GameConstants::maxPlayers + GameConstants::specialFactions; ++k) {
@@ -2214,8 +2220,10 @@ void World::computeFow(int factionIdxToTick) {
 				}
 			}
 		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
 	}
 	else {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
 		// Deal with observers
 		for(int i = 0; i < map.getSurfaceW(); ++i) {
 			for(int j = 0; j < map.getSurfaceH(); ++j) {
@@ -2249,8 +2257,10 @@ void World::computeFow(int factionIdxToTick) {
 				}
 			}
 		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
 	}
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
 	if(showPerfStats) {
 		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
 		perfList.push_back(perfBuf);
@@ -2276,15 +2286,20 @@ void World::computeFow(int factionIdxToTick) {
 	//fire
 	for(int i=0; i<getFactionCount(); ++i) {
 		if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
+			bool cellVisibleForFaction = showWorldForPlayer(thisFactionIndex);
 			for(int j=0; j<getFaction(i)->getUnitCount(); ++j){
 				Unit *unit= getFaction(i)->getUnit(j);
 
 				//fire
 				ParticleSystem *fire= unit->getFire();
 				if(fire != NULL) {
-				    bool cellVisible = showWorldForPlayer(thisFactionIndex);
+					bool cellVisible = cellVisibleForFaction;
 				    if(cellVisible == false) {
-				        cellVisible = map.getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(thisTeamIndex);
+						Vec2i sCoords = Map::toSurfCoords(unit->getPos());
+						SurfaceCell *sc = map.getSurfaceCell(sCoords);
+						if(sc != NULL) {
+							cellVisible = sc->isVisible(thisTeamIndex);
+						}
 				    }
 
 					fire->setActive(cellVisible);
