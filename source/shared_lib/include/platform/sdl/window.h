@@ -132,6 +132,7 @@ protected:
 public:
 	static bool handleEvent();
 	static void revertMousePos();
+	static Vec2i getOldMousePos();
 	static bool isKeyDown() { return isKeyPressedDown; }
 	static void setupGraphicsScreen(int depthBits=-1, int stencilBits=-1, bool hardware_acceleration=false, bool fullscreen_anti_aliasing=false);
 	static const bool getIsFullScreen() { return isFullScreen; }
