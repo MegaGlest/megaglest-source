@@ -3385,7 +3385,12 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 					float ymult = 0.2f;
 					float xmult = 0.2f;
 
-					gameCamera.transitionVH(-(y - lastMousePos.y) * ymult, (lastMousePos.x - x) * xmult);
+					Vec2i oldPos=Shared::Platform::Window::getOldMousePos();
+					int oldx= (oldPos.x * metrics.getVirtualW() / metrics.getScreenW());
+					int oldy= ((metrics.getScreenH()-oldPos.y) * metrics.getVirtualH()  /  metrics.getScreenH());
+					lastMousePos.x=oldx;
+					lastMousePos.y=oldy;
+					gameCamera.transitionVH(-(y - oldy) * ymult, (oldx - x) * xmult);
 				}
 				mouseX=lastMousePos.x;
 				mouseY=lastMousePos.y;

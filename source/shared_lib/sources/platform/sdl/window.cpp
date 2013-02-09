@@ -359,6 +359,10 @@ void Window::revertMousePos() {
 	SDL_WarpMouse(oldX, oldY);
 }
 
+Vec2i Window::getOldMousePos() {
+	return Vec2i(oldX, oldY);
+}
+
 string Window::getText() {
 	char* c = 0;
 	SDL_WM_GetCaption(&c, 0);
