@@ -621,11 +621,14 @@ void Commander::updateNetwork(Game *game) {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) perfTimer.start();
 				//give pending commands
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("START process: %d network commands in frame: %d\n",gameNetworkInterface->getPendingCommandCount(),this->world->getFrameCount());
 				for(int i= 0; i < gameNetworkInterface->getPendingCommandCount(); ++i){
 					giveNetworkCommand(gameNetworkInterface->getPendingCommand(i));
 				}
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("END process: %d network commands in frame: %d\n",gameNetworkInterface->getPendingCommandCount(),this->world->getFrameCount());
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] giveNetworkCommand took %lld msecs, PendingCommandCount = %d\n",__FILE__,__FUNCTION__,__LINE__,perfTimer.getMillis(),gameNetworkInterface->getPendingCommandCount());
 				gameNetworkInterface->clearPendingCommands();
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Cleared network commands in frame: %d\n",this->world->getFrameCount());
         	}
         }
 	}
