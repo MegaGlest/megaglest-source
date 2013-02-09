@@ -5266,7 +5266,7 @@ void EnableCrashingOnCrashes() {
 
 int glestMainSEHWrapper(int argc, char** argv) {
 #ifdef WIN32_STACK_TRACE
-	printf("Hooking up WIN32_STACK_TRACE...\n");
+	//printf("Hooking up WIN32_STACK_TRACE...\n");
 __try {
 #endif
 
