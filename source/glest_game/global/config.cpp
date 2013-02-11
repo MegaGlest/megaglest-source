@@ -76,7 +76,7 @@ const char *Config::ACTIVE_MOD_PROPERTY_NAME			= "current_mod_name";
 
  const char *Config::colorPicking = "color";
  const char *Config::selectBufPicking = "selectbuf";
- const char *Config::frustrumPicking = "frustrum";
+ const char *Config::frustumPicking = "frustum";
 
 map<string,string> Config::customRuntimeProperties;
 

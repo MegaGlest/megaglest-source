@@ -205,7 +205,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu):
 		const string selectionType=toLower(config.getString("SelectionType",Config::selectBufPicking));
 		if( selectionType==Config::colorPicking)
 			listBoxSelectionType.setSelectedItemIndex(1);
-		else if ( selectionType==Config::frustrumPicking )
+		else if ( selectionType==Config::frustumPicking )
 			listBoxSelectionType.setSelectedItemIndex(2);
 		else
 			listBoxSelectionType.setSelectedItemIndex(0);
@@ -1779,7 +1779,7 @@ void MenuStateOptions::saveConfig(){
 		config.setString("SelectionType",Config::colorPicking);
 	}
 	else if (selectionTypeindex==2){
-		config.setString("SelectionType",Config::frustrumPicking);
+		config.setString("SelectionType",Config::frustumPicking);
 	}
 
 	int index= listBoxShadows.getSelectedItemIndex();
