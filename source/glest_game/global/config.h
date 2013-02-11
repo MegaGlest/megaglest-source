@@ -68,7 +68,7 @@ public:
 
     static const char *colorPicking;
     static const char *selectBufPicking;
-    static const char *frustrumPicking;
+    static const char *frustumPicking;
 
 protected:
 

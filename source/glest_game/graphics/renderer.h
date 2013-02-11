@@ -116,7 +116,7 @@ public:
 
 	inline VisibleQuadContainerCache() {
 		cacheFrame = 0;
-		clearFrustrumData();
+		clearFrustumData();
 		clearCacheData();
 	}
 	inline VisibleQuadContainerCache(const VisibleQuadContainerCache &obj) {
@@ -149,7 +149,7 @@ public:
 		visibleObjectList.reserve(500);
 		visibleScaledCellList.reserve(500);
 	}
-	inline void clearFrustrumData() {
+	inline void clearFrustumData() {
 		frustumData = vector<vector<float> >(6,vector<float>(4,0));
 		proj = vector<float>(16,0);
 		modl = vector<float>(16,0);
