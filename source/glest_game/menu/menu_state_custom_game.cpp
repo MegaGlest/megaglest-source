@@ -2798,7 +2798,7 @@ void MenuStateCustomGame::initFactionPreview(const GameSettings *gameSettings) {
 	}
 
 	if(factionVideo == NULL) {
-		string factionLogo = Game::findFactionLogoFile(gameSettings, NULL,"preview_screen.*");
+		string factionLogo = Game::findFactionLogoFile(gameSettings, NULL,GameConstants::PREVIEW_SCREEN_FILE_FILTER);
 		if(factionLogo == "") {
 			factionLogo = Game::findFactionLogoFile(gameSettings, NULL);
 		}

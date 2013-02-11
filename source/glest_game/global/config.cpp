@@ -56,6 +56,13 @@ const char *GameConstants::factionPreviewTextureCacheLookupKey  = "factionPrevie
 const char *GameConstants::characterMenuScreenPositionListCacheLookupKey  = "characterMenuScreenPositionListCache";
 const char *GameConstants::application_name				= "MegaGlest";
 
+const char * GameConstants::LOADING_SCREEN_FILE 	   = "loading_screen";
+const char * GameConstants::LOADING_SCREEN_FILE_FILTER = "loading_screen*.*";
+const char * GameConstants::PREVIEW_SCREEN_FILE 	   = "preview_screen";
+const char * GameConstants::PREVIEW_SCREEN_FILE_FILTER = "preview_screen*.*";
+const char * GameConstants::HUD_SCREEN_FILE 	   	   = "hud";
+const char * GameConstants::HUD_SCREEN_FILE_FILTER     = "hud*.*";
+
 
 const char *GameConstants::pathCacheLookupKey           = "pathCache_";
 const char *GameConstants::path_data_CacheLookupKey     = "data";
