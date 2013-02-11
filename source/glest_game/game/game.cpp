@@ -462,9 +462,54 @@ string Game::extractScenarioLogoFile(const GameSettings *settings, string &resul
 		//printf("!!! extractScenarioLogoFile scenarioDir [%s] factionLogoFilter [%s]\n",scenarioDir.c_str(),factionLogoFilter.c_str());
 
 		vector<string> loadScreenList;
-		findAll(scenarioDir + factionLogoFilter, loadScreenList, false, false);
+		string logoFullPathFilter = scenarioDir + factionLogoFilter;
+		findAll(logoFullPathFilter, loadScreenList, false, false);
 		if(loadScreenList.empty() == false) {
-			string senarioLogo = scenarioDir + loadScreenList[0];
+			int bestLogoIndex = 0;
+
+			if(loadScreenList.size() > 1 && EndsWith(factionLogoFilter, ".xml") == false) {
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nLooking for best logo from a list of: " MG_SIZE_T_SPECIFIER " using filter: [%s]\n",loadScreenList.size(),logoFullPathFilter.c_str());
+
+				int bestMinWidthDiff = INT_MAX;
+				int bestMinHeightDiff = INT_MAX;
+				// Now find the best texture for our screen
+				// Texture2D *result = preloadTexture(logoFilename);
+				for(unsigned int logoIndex = 0; logoIndex < loadScreenList.size(); ++logoIndex) {
+					string senarioLogo = scenarioDir + loadScreenList[bestLogoIndex];
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for loading screen '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,senarioLogo.c_str());
+
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Looking for best logo: %u [%s]\n",logoIndex,senarioLogo.c_str());
+
+					if(fileExists(senarioLogo) == true) {
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,senarioLogo.c_str());
+
+						Texture2D *checkLogo = Renderer::preloadTexture(senarioLogo);
+						if(checkLogo != NULL) {
+							const Metrics &metrics= Metrics::getInstance();
+							int minWidthDifference = abs(metrics.getScreenW() - checkLogo->getPixmapConst()->getW());
+							int minHeightDifference = abs(metrics.getScreenH() - checkLogo->getPixmapConst()->getH());
+
+							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Logo info: %d x %d (%d,%d)\n",checkLogo->getPixmapConst()->getW(),checkLogo->getPixmapConst()->getH(),minWidthDifference,minHeightDifference);
+
+							if(minWidthDifference < bestMinWidthDiff) {
+								bestMinWidthDiff = minWidthDifference;
+
+								bestLogoIndex = logoIndex;
+								if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 New best logo is [%s]\n",senarioLogo.c_str());
+							}
+							else if(minWidthDifference == bestMinWidthDiff &&
+									minHeightDifference < bestMinHeightDiff) {
+								bestMinHeightDiff = minHeightDifference;
+
+								bestLogoIndex = logoIndex;
+								if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 New best logo is [%s]\n",senarioLogo.c_str());
+							}
+						}
+					}
+				}
+			}
+
+			string senarioLogo = scenarioDir + loadScreenList[bestLogoIndex];
 			if(fileExists(senarioLogo) == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] found scenario loading screen '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,senarioLogo.c_str());
 
