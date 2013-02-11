@@ -174,6 +174,13 @@ public:
 	static const float megaMultiplier;
 	//
 	
+	static const char * LOADING_SCREEN_FILE;
+	static const char * LOADING_SCREEN_FILE_FILTER;
+	static const char * PREVIEW_SCREEN_FILE;
+	static const char * PREVIEW_SCREEN_FILE_FILTER;
+	static const char * HUD_SCREEN_FILE;
+	static const char * HUD_SCREEN_FILE_FILTER;
+
 };
 
 enum PathType {

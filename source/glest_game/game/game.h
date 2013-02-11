@@ -277,11 +277,11 @@ public:
 	void endPerformanceTimer();
 	Vec2i getPerformanceTimerResults();
 
-	static Texture2D * findFactionLogoTexture(const GameSettings *settings, Logger *logger=NULL,string factionLogoFilter="loading_screen.*", bool useTechDefaultIfFilterNotFound=true);
-	static string findFactionLogoFile(const GameSettings *settings, Logger *logger=NULL, string factionLogoFilter="loading_screen.*");
-	static string extractScenarioLogoFile(const GameSettings *settings, string &result, bool &loadingImageUsed, Logger *logger=NULL, string factionLogoFilter="loading_screen.*");
-	static string extractFactionLogoFile(bool &loadingImageUsed, string factionName, string scenarioDir, string techName, Logger *logger=NULL, string factionLogoFilter="loading_screen.*");
-	static string extractTechLogoFile(string scenarioDir, string techName, bool &loadingImageUsed, Logger *logger=NULL,string factionLogoFilter="loading_screen.*");
+	static Texture2D * findFactionLogoTexture(const GameSettings *settings, Logger *logger=NULL,string factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER, bool useTechDefaultIfFilterNotFound=true);
+	static string findFactionLogoFile(const GameSettings *settings, Logger *logger=NULL, string factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER);
+	static string extractScenarioLogoFile(const GameSettings *settings, string &result, bool &loadingImageUsed, Logger *logger=NULL, string factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER);
+	static string extractFactionLogoFile(bool &loadingImageUsed, string factionName, string scenarioDir, string techName, Logger *logger=NULL, string factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER);
+	static string extractTechLogoFile(string scenarioDir, string techName, bool &loadingImageUsed, Logger *logger=NULL,string factionLogoFilter=GameConstants::LOADING_SCREEN_FILE_FILTER);
 
 	void loadHudTexture(const GameSettings *settings);
 

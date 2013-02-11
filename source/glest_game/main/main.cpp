@@ -2058,9 +2058,9 @@ void runTechValidationForPath(string techPath, string techName,
 					replaceAll(file, "//", "/");
 					replaceAll(file, "\\\\", "\\");
 
-					if(	file.find("loading_screen") != string::npos ||
-							file.find("preview_screen") != string::npos ||
-							file.find("hud") != string::npos) {
+					if(	file.find(GameConstants::LOADING_SCREEN_FILE) != string::npos ||
+							file.find(GameConstants::PREVIEW_SCREEN_FILE) != string::npos ||
+							file.find(GameConstants::HUD_SCREEN_FILE) != string::npos) {
 						continue;
 					}
 					if(file.find("/factions/") != string::npos) {

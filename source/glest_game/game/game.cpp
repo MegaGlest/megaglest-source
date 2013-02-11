@@ -528,9 +528,55 @@ string Game::extractFactionLogoFile(bool &loadingImageUsed, string factionName,
 				endPathWithSlash(path);
 
 				vector<string> loadScreenList;
-				findAll(path + factionLogoFilter, loadScreenList, false, false);
+				string logoFullPathFilter = path + factionLogoFilter;
+				findAll(logoFullPathFilter, loadScreenList, false, false);
 				if(loadScreenList.empty() == false) {
-					string factionLogo = path + loadScreenList[0];
+					int bestLogoIndex = 0;
+
+					if(loadScreenList.size() > 1 && EndsWith(factionLogoFilter, ".xml") == false) {
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nLooking for best logo from a list of: " MG_SIZE_T_SPECIFIER " using filter: [%s]\n",loadScreenList.size(),logoFullPathFilter.c_str());
+
+
+						int bestMinWidthDiff = INT_MAX;
+						int bestMinHeightDiff = INT_MAX;
+						// Now find the best texture for our screen
+						// Texture2D *result = preloadTexture(logoFilename);
+						for(unsigned int logoIndex = 0; logoIndex < loadScreenList.size(); ++logoIndex) {
+							string factionLogo = path + loadScreenList[logoIndex];
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for loading screen '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,factionLogo.c_str());
+
+							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Looking for best logo: %u [%s]\n",logoIndex,factionLogo.c_str());
+
+							if(fileExists(factionLogo) == true) {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found loading screen '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,factionLogo.c_str());
+
+								Texture2D *checkLogo = Renderer::preloadTexture(factionLogo);
+								if(checkLogo != NULL) {
+									const Metrics &metrics= Metrics::getInstance();
+									int minWidthDifference = abs(metrics.getScreenW() - checkLogo->getPixmapConst()->getW());
+									int minHeightDifference = abs(metrics.getScreenH() - checkLogo->getPixmapConst()->getH());
+
+									if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Logo info: %d x %d (%d,%d)\n",checkLogo->getPixmapConst()->getW(),checkLogo->getPixmapConst()->getH(),minWidthDifference,minHeightDifference);
+
+									if(minWidthDifference < bestMinWidthDiff) {
+										bestMinWidthDiff = minWidthDifference;
+
+										bestLogoIndex = logoIndex;
+										if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 New best logo is [%s]\n",factionLogo.c_str());
+									}
+									else if(minWidthDifference == bestMinWidthDiff &&
+											minHeightDifference < bestMinHeightDiff) {
+										bestMinHeightDiff = minHeightDifference;
+
+										bestLogoIndex = logoIndex;
+										if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 New best logo is [%s]\n",factionLogo.c_str());
+									}
+								}
+							}
+						}
+					}
+
+					string factionLogo = path + loadScreenList[bestLogoIndex];
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for loading screen '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,factionLogo.c_str());
 
 					if(fileExists(factionLogo) == true) {
@@ -698,7 +744,7 @@ void Game::loadHudTexture(const GameSettings *settings)
 			vector<string> hudList;
 			string path= currentPath + techName + "/" + "factions" + "/" + factionName;
 			endPathWithSlash(path);
-			findAll(path + "hud.*", hudList, false, false);
+			findAll(path + GameConstants::HUD_SCREEN_FILE_FILTER, hudList, false, false);
 			if(hudList.empty() == false){
 				for(unsigned int hudIdx = 0; hudFound == false && hudIdx < hudList.size(); ++hudIdx) {
 					string hudImageFileName= path + hudList[hudIdx];
@@ -800,7 +846,7 @@ vector<Texture2D *> Game::processTech(string techName) {
 							"",
 							techName,
 							NULL,
-							"preview_screen.*");
+							GameConstants::PREVIEW_SCREEN_FILE_FILTER);
 
 					if(factionLogo == "") {
 						factionLogo = Game::extractFactionLogoFile(
@@ -809,7 +855,7 @@ vector<Texture2D *> Game::processTech(string techName) {
 								"",
 								techName,
 								NULL,
-								"loading_screen.*");
+								GameConstants::LOADING_SCREEN_FILE_FILTER);
 					}
 					if(factionLogo != "") {
 						Texture2D *texture = Renderer::preloadTexture(factionLogo);
