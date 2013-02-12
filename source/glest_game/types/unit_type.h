@@ -156,6 +156,8 @@ private:
 
     UnitCountsInVictoryConditions countInVictoryConditions;
 
+    static auto_ptr<CommandType> ctHarvestEmergencyReturnCommandType;
+
 public:
 	//creation and loading
     UnitType();
@@ -215,6 +217,7 @@ public:
 	const SkillType *getFirstStOfClass(SkillClass skillClass) const;
     const CommandType *getFirstCtOfClass(CommandClass commandClass) const;
     const HarvestCommandType *getFirstHarvestCommand(const ResourceType *resourceType,const Faction *faction) const;
+    const HarvestEmergencyReturnCommandType *getFirstHarvestEmergencyReturnCommand() const;
 	const AttackCommandType *getFirstAttackCommand(Field field) const;
 	const AttackStoppedCommandType *getFirstAttackStoppedCommand(Field field) const;
 	const RepairCommandType *getFirstRepairCommand(const UnitType *repaired) const;

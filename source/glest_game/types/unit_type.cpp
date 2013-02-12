@@ -36,6 +36,7 @@ using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
+auto_ptr<CommandType> UnitType::ctHarvestEmergencyReturnCommandType(new HarvestEmergencyReturnCommandType());
 // ===============================
 // 	class Level
 // ===============================
@@ -732,6 +733,11 @@ const HarvestCommandType *UnitType::getFirstHarvestCommand(const ResourceType *r
 	return NULL;
 }
 
+const HarvestEmergencyReturnCommandType *UnitType::getFirstHarvestEmergencyReturnCommand() const {
+	const HarvestEmergencyReturnCommandType *result = dynamic_cast<const HarvestEmergencyReturnCommandType *>(ctHarvestEmergencyReturnCommandType.get());
+	return result;
+}
+
 const AttackCommandType *UnitType::getFirstAttackCommand(Field field) const{
 	//printf("$$$ Unit [%s] commandTypes.size() = %d\n",this->getName().c_str(),(int)commandTypes.size());
 
@@ -925,6 +931,12 @@ bool UnitType::hasSkillClass(SkillClass skillClass) const {
 
 bool UnitType::hasCommandType(const CommandType *commandType) const {
     assert(commandType!=NULL);
+
+	const HarvestEmergencyReturnCommandType *result = dynamic_cast<const HarvestEmergencyReturnCommandType *>(ctHarvestEmergencyReturnCommandType.get());
+	if(commandType == result) {
+		return true;
+	}
+
     for(int i=0; i<commandTypes.size(); ++i) {
         if(commandTypes[i]==commandType) {
             return true;
@@ -985,6 +997,11 @@ void UnitType::computeFirstCtOfClass() {
 }
 
 const CommandType* UnitType::findCommandTypeById(int id) const{
+	const HarvestEmergencyReturnCommandType *result = dynamic_cast<const HarvestEmergencyReturnCommandType *>(ctHarvestEmergencyReturnCommandType.get());
+	if(id == result->getId()) {
+		return result;
+	}
+
 	for(int i=0; i<getCommandTypeCount(); ++i){
 		const CommandType* commandType= getCommandType(i);
 		if(commandType->getId()==id){

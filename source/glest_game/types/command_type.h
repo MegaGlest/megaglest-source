@@ -48,6 +48,7 @@ enum CommandClass {
 	ccUpgrade,
 	ccMorph,
 	ccSwitchTeam,
+	ccHarvestEmergencyReturn,
 
 	ccCount,
 	ccNull
@@ -291,6 +292,27 @@ public:
 	const ResourceType* getHarvestedResource(int i) const	{return harvestedResources[i];}
 	bool canHarvest(const ResourceType *resourceType) const;
 
+	virtual bool usesPathfinder() const { return true; }
+};
+
+// ===============================
+// 	class HarvestEmergencyReturnCommandType
+// ===============================
+
+class HarvestEmergencyReturnCommandType: public CommandType {
+private:
+
+public:
+    HarvestEmergencyReturnCommandType();
+	virtual void update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const;
+    virtual void load(int id, const XmlNode *n, const string &dir,
+    		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+    		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
+    virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
+	virtual string toString() const;
+	virtual Queueability isQueuable() const						{return qOnRequest;}
+
+    //get
 	virtual bool usesPathfinder() const { return true; }
 };
 

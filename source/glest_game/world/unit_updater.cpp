@@ -911,15 +911,80 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
-
 // ==================== updateHarvest ====================
+void UnitUpdater::updateHarvestEmergencyReturn(Unit *unit, int frameIndex) {
+	if(frameIndex >= 0) {
+		return;
+	}
+
+	//printf("\n#1 updateHarvestEmergencyReturn\n");
+
+	Command *command= unit->getCurrCommand();
+	if(command != NULL) {
+		//printf("\n#2 updateHarvestEmergencyReturn\n");
+
+		//const HarvestCommandType *hct= dynamic_cast<const HarvestCommandType*>((command != NULL ? command->getCommandType() : NULL));
+		//if(hct != NULL) {
+		{
+			//printf("\n#3 updateHarvestEmergencyReturn\n");
+
+			const Vec2i unitTargetPos = command->getPos();
+			Cell *cell= map->getCell(unitTargetPos);
+			if(cell != NULL && cell->getUnit(unit->getCurrField()) != NULL) {
+				//printf("\n#4 updateHarvestEmergencyReturn\n");
+
+				Unit *targetUnit = cell->getUnit(unit->getCurrField());
+				if(targetUnit != NULL) {
+					//printf("\n#5 updateHarvestEmergencyReturn\n");
+
+					// Check if we can return whatever resources we have
+					if(targetUnit->getFactionIndex() == unit->getFactionIndex() &&
+						targetUnit->isOperative() == true && unit->getLoadType() != NULL &&
+						targetUnit->getType() != NULL && targetUnit->getType()->getStore(unit->getLoadType()) > 0) {
+
+						//printf("\n#6 updateHarvestEmergencyReturn\n");
+
+						const HarvestCommandType *previousHarvestCmd = unit->getType()->getFirstHarvestCommand(unit->getLoadType(),unit->getFaction());
+						if(previousHarvestCmd != NULL) {
+							//printf("\n\n#1a return harvested resources\n\n");
+							NetworkCommand networkCommand(this->world,nctGiveCommand, unit->getId(), previousHarvestCmd->getId(), unit->getLastHarvestedResourcePos(),
+															-1, Unit::invalidId, -1, false, cst_None, -1, -1);
+
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+							Command* new_command= this->game->getCommander()->buildCommand(&networkCommand);
+							std::pair<CommandResult,string> cr= unit->checkCommand(new_command);
+							if(cr.first == crSuccess) {
+								//printf("\n\n#1b return harvested resources\n\n");
+
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+								unit->replaceCurrCommand(new_command);
+
+								unit->setCurrSkill(previousHarvestCmd->getStopLoadedSkillType()); // make sure we use the right harvest animation
+							}
+							else {
+								//printf("\n\n#1c return harvested resources\n\n");
+
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+								delete new_command;
+
+								unit->setCurrSkill(scStop);
+								unit->finishCommand();
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
 
 void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
 	Command *command= unit->getCurrCommand();
-    const HarvestCommandType *hct= static_cast<const HarvestCommandType*>(command->getCommandType());
+    const HarvestCommandType *hct= dynamic_cast<const HarvestCommandType*>(command->getCommandType());
 	Vec2i targetPos(-1);
 
 	TravelState tsValue = tsImpossible;
@@ -1265,6 +1330,8 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 
 					// if there is a resource, continue working, until loaded
 					unit->update2();
+
+					unit->setLastHarvestedResourcePos(unitTargetPos);
 
 					if (unit->getProgress2() >= hct->getHitsPerUnit()) {
 						if (unit->getLoadCount() < hct->getMaxLoad()) {

@@ -563,6 +563,43 @@ bool HarvestCommandType::canHarvest(const ResourceType *resourceType) const{
 	return find(harvestedResources.begin(), harvestedResources.end(), resourceType) != harvestedResources.end();
 }
 
+
+// =====================================================
+// 	class HarvestCommandType
+// =====================================================
+
+//varios
+HarvestEmergencyReturnCommandType::HarvestEmergencyReturnCommandType(){
+    commandTypeClass= ccHarvestEmergencyReturn;
+    clicks= cTwo;
+
+    this->id= -10;
+}
+
+void HarvestEmergencyReturnCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
+	unitUpdater->updateHarvestEmergencyReturn(unit, frameIndex);
+}
+
+void HarvestEmergencyReturnCommandType::load(int id, const XmlNode *n, const string &dir,
+		const TechTree *tt, const FactionType *ft, const UnitType &ut,
+		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader) {
+//	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList, parentLoader);
+}
+
+string HarvestEmergencyReturnCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
+
+	Lang &lang= Lang::getInstance();
+	string str;
+
+    str=getName(true)+"\n";
+    return str;
+}
+
+string HarvestEmergencyReturnCommandType::toString() const{
+	Lang &lang= Lang::getInstance();
+	return lang.get("Harvest");
+}
+
 // =====================================================
 // 	class RepairCommandType
 // =====================================================
@@ -926,6 +963,7 @@ CommandTypeFactory::CommandTypeFactory(){
 	registerClass<UpgradeCommandType>("upgrade");
 	registerClass<MorphCommandType>("morph");
 	registerClass<SwitchTeamCommandType>("switch_team");
+	registerClass<HarvestEmergencyReturnCommandType>("harvest_return");
 }
 
 CommandTypeFactory &CommandTypeFactory::getInstance(){

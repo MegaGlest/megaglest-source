@@ -112,6 +112,7 @@ public:
     void updateAttackStopped(Unit *unit, int frameIndex);
     void updateBuild(Unit *unit, int frameIndex);
     void updateHarvest(Unit *unit, int frameIndex);
+    void updateHarvestEmergencyReturn(Unit *unit, int frameIndex);
     void updateRepair(Unit *unit, int frameIndex);
     void updateProduce(Unit *unit, int frameIndex);
     void updateUpgrade(Unit *unit, int frameIndex);
