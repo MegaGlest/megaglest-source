@@ -70,6 +70,7 @@ public:
 
 	    file = "";
 	    name = "";
+	    namei18n = "";
 	}
 	int difficulty;
     ControlType factionControls[GameConstants::maxPlayers];
@@ -92,6 +93,7 @@ public:
 
     string file;
     string name;
+    string namei18n;
 };
 
 // =====================================================

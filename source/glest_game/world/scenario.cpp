@@ -319,6 +319,16 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
 		scenarioInfo->desc += lang.get("Description") + ": \n" + tmp_description + "\n";
 	}
 
+	scenarioInfo->namei18n = "";
+	if(lang.hasScenarioString("SCENARIO_NAME") == true) {
+		scenarioInfo->namei18n =lang.getScenarioString("SCENARIO_NAME");
+		//printf("scenarioInfo->namei18n [%s]\n",scenarioInfo->namei18n.c_str());
+	}
+	else if(lang.hasScenarioString("TUTORIAL_NAME") == true) {
+		scenarioInfo->namei18n =lang.getScenarioString("TUTORIAL_NAME");
+		//printf("scenarioInfo->namei18n [%s]\n",scenarioInfo->namei18n.c_str());
+	}
+
 	if(scenarioNode->hasChild("fog-of-war") == true) {
 		if(scenarioNode->getChild("fog-of-war")->getAttribute("value")->getValue() == "explored") {
 			scenarioInfo->fogOfWar 				= true;
