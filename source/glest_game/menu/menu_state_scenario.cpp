@@ -113,8 +113,25 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
         	showMessageBox( "Error: There are no scenarios found to load", "Error detected", false);
         }
 	}
-	for(int i= 0; i<results.size(); ++i){
-		results[i] = formatString(results[i]);
+	for(unsigned int i = 0; i < results.size(); ++i) {
+		bool foundTranslatedName = false;
+		string current_scenario = results[i];
+    	if(current_scenario != "") {
+    		//printf("current_scenario [%s]\n",current_scenario.c_str());
+    		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[i]), &scenarioInfo );
+
+			if(scenarioInfo.namei18n != "") {
+				current_scenario = scenarioInfo.namei18n;
+				foundTranslatedName = true;
+			}
+    	}
+
+    	if(foundTranslatedName == false) {
+    		results[i] = formatString(current_scenario);
+    	}
+    	else {
+    		results[i] = current_scenario;
+    	}
 	}
     listBoxScenario.setItems(results);
 
