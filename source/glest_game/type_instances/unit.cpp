@@ -1796,27 +1796,43 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	if(targetUnit!=NULL){
+	if(targetUnit != NULL) {
 		//attack enemies
-		if(!isAlly(targetUnit)){
+		if(isAlly(targetUnit) == false) {
 			commandType= type->getFirstAttackCommand(targetUnit->getCurrField());
 		}
-
 		//repair allies
 		else{
 			commandType= type->getFirstRepairCommand(targetUnit->getType());
 		}
 	}
-	else{
+	else {
 		//check harvest command
 		Resource *resource= sc->getResource();
-		if(resource!=NULL){
+		if(resource != NULL) {
 			commandType= type->getFirstHarvestCommand(resource->getType(),this->getFaction());
 		}
 	}
 
+	// Check if we want to help build (repair) any buildings instead of just moving
+	if(targetUnit == NULL && commandType == NULL) {
+		const Vec2i unitTargetPos = pos;
+		Cell *cell= map->getCell(unitTargetPos);
+		if(cell != NULL && cell->getUnit(this->getCurrField()) != NULL) {
+			Unit *targetUnit = cell->getUnit(this->getCurrField());
+			if(targetUnit != NULL && targetUnit->getFactionIndex() == this->getFactionIndex() &&
+					(targetUnit->isBuilt() == false || targetUnit->isDamaged() == true)) {
+				const RepairCommandType *rct= this->getType()->getFirstRepairCommand(targetUnit->getType());
+				if(rct != NULL) {
+					commandType= type->getFirstRepairCommand(targetUnit->getType());
+					//printf("************ Unit will repair building built = %d, repair = %d\n",targetUnit->isBuilt(),targetUnit->isDamaged());
+				}
+			}
+		}
+	}
+
 	//default command is move command
-	if(commandType==NULL){
+	if(commandType == NULL) {
 		commandType= type->getFirstCtOfClass(ccMove);
 	}
 
