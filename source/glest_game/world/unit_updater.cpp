@@ -953,6 +953,8 @@ void UnitUpdater::updateHarvestEmergencyReturn(Unit *unit, int frameIndex) {
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 							Command* new_command= this->game->getCommander()->buildCommand(&networkCommand);
+							new_command->setStateType(cst_EmergencyReturnResource);
+							new_command->setStateValue(1);
 							std::pair<CommandResult,string> cr= unit->checkCommand(new_command);
 							if(cr.first == crSuccess) {
 								//printf("\n\n#1b return harvested resources\n\n");
@@ -994,9 +996,21 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 
 	//printf("In UpdateHarvest [%d - %s] unit->getCurrSkill()->getClass() = %d\n",unit->getId(),unit->getType()->getName().c_str(),unit->getCurrSkill()->getClass());
 
+	Resource *harvestResource = NULL;
+	SurfaceCell *sc = map->getSurfaceCell(Map::toSurfCoords(command->getPos()));
+	if(sc != NULL) {
+		harvestResource = sc->getResource();
+	}
+
 	if(unit->getCurrSkill() != NULL && unit->getCurrSkill()->getClass() != scHarvest) {
+		bool forceReturnToStore = (command != NULL &&
+							command->getStateType() == cst_EmergencyReturnResource && command->getStateValue() == 1);
+
 		//if not working
-		if(unit->getLoadCount() == 0) {
+		if(unit->getLoadCount() == 0 ||
+			(forceReturnToStore == false && unit->getLoadType() != NULL &&
+					harvestResource != NULL &&
+			 harvestResource->getType() != NULL && unit->getLoadType() == harvestResource->getType())) {
 			//if not loaded go for resources
 			SurfaceCell *sc = map->getSurfaceCell(Map::toSurfCoords(command->getPos()));
 			if(sc != NULL) {
@@ -1054,7 +1068,11 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 								unit->setCurrSkill(hct->getHarvestSkillType());
 								unit->setTargetPos(targetPos);
 								command->setPos(targetPos);
-								unit->setLoadCount(0);
+
+								if(unit->getLoadType() == NULL || harvestResource == NULL ||
+								   harvestResource->getType() == NULL || unit->getLoadType() != harvestResource->getType()) {
+									unit->setLoadCount(0);
+								}
 								unit->getFaction()->addResourceTargetToCache(targetPos);
 
 								switch(this->game->getGameSettings()->getPathFinderType()) {
@@ -1128,7 +1146,11 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 										unit->setCurrSkill(hct->getHarvestSkillType());
 										unit->setTargetPos(targetPos);
 										command->setPos(targetPos);
-										unit->setLoadCount(0);
+
+										if(unit->getLoadType() == NULL || harvestResource == NULL ||
+										   harvestResource->getType() == NULL || unit->getLoadType() != harvestResource->getType()) {
+											unit->setLoadCount(0);
+										}
 										unit->getFaction()->addResourceTargetToCache(targetPos);
 
 										switch(this->game->getGameSettings()->getPathFinderType()) {

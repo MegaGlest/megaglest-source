@@ -31,7 +31,8 @@ class CommandType;
 
 enum CommandStateType {
 	cst_None,
-	cst_linkedUnit
+	cst_linkedUnit,
+	cst_EmergencyReturnResource
 };
 
 // =====================================================
