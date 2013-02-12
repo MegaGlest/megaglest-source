@@ -459,6 +459,8 @@ private:
 	FowAlphaCellsLookupItem cachedFow;
 	Vec2i cachedFowPos;
 
+	Vec2i lastHarvestedResourcePos;
+
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
     virtual ~Unit();
@@ -574,6 +576,9 @@ public:
 
     void setMorphFieldsBlocked ( bool value ) {this->morphFieldsBlocked=value;}
 	bool getMorphFieldsBlocked() const { return morphFieldsBlocked; }
+
+	inline void setLastHarvestedResourcePos(Vec2i pos)		{ this->lastHarvestedResourcePos = pos; }
+	inline Vec2i getLastHarvestedResourcePos() const	{ return this->lastHarvestedResourcePos; }
 
     inline void setLoadCount(int loadCount)					{this->loadCount= loadCount;}
     inline void setLoadType(const ResourceType *loadType)		{this->loadType= loadType;}

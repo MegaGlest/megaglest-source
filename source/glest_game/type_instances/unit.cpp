@@ -1796,14 +1796,44 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 		throw megaglest_runtime_error(szBuf);
 	}
 
+	//printf("Line: %d Unit::computeCommandType pos [%s] targetUnit [%s]\n",__LINE__,pos.getString().c_str(),(targetUnit != NULL ? targetUnit->getType()->getName().c_str() : "(null)"));
 	if(targetUnit != NULL) {
 		//attack enemies
 		if(isAlly(targetUnit) == false) {
 			commandType= type->getFirstAttackCommand(targetUnit->getCurrField());
 		}
 		//repair allies
-		else{
-			commandType= type->getFirstRepairCommand(targetUnit->getType());
+		else {
+			if(targetUnit->isBuilt() == false || targetUnit->isDamaged() == true) {
+				commandType= type->getFirstRepairCommand(targetUnit->getType());
+			}
+
+			//printf("Line: %d Unit::computeCommandType pos [%s] targetUnit [%s] commandType [%p]\n",__LINE__,pos.getString().c_str(),(targetUnit != NULL ? targetUnit->getType()->getName().c_str() : "(null)"),commandType);
+
+			if(commandType == NULL && targetUnit != NULL) {
+				Command *command= this->getCurrCommand();
+			    const HarvestCommandType *hct= dynamic_cast<const HarvestCommandType*>((command != NULL ? command->getCommandType() : NULL));
+
+				// Check if we can return whatever resources we have
+				if(targetUnit->getFactionIndex() == this->getFactionIndex() &&
+					targetUnit->isOperative() == true &&
+					this->getLoadType() != NULL && this->getLoadCount() != 0 &&
+					targetUnit->getType() != NULL &&
+					targetUnit->getType()->getStore(this->getLoadType()) > 0) {
+
+					const HarvestCommandType *previousHarvestCmd = this->getType()->getFirstHarvestCommand(this->getLoadType(),this->getFaction());
+					if(previousHarvestCmd != NULL) {
+						//printf("\n#1 return harvested resources\n\n");
+						//this->setCurrSkill(previousHarvestCmd->getStopLoadedSkillType()); // make sure we use the right harvest animation
+						commandType = type->getFirstHarvestEmergencyReturnCommand();
+					}
+					else {
+						//printf("\n#2 return harvested resources\n\n");
+						//this->setCurrSkill(hct->getStopLoadedSkillType());
+						commandType = type->getFirstHarvestEmergencyReturnCommand();
+					}
+				}
+			}
 		}
 	}
 	else {
@@ -1814,18 +1844,20 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 		}
 	}
 
-	// Check if we want to help build (repair) any buildings instead of just moving
 	if(targetUnit == NULL && commandType == NULL) {
 		const Vec2i unitTargetPos = pos;
 		Cell *cell= map->getCell(unitTargetPos);
 		if(cell != NULL && cell->getUnit(this->getCurrField()) != NULL) {
 			Unit *targetUnit = cell->getUnit(this->getCurrField());
-			if(targetUnit != NULL && targetUnit->getFactionIndex() == this->getFactionIndex() &&
+			if(targetUnit != NULL) {
+				// Check if we want to help build (repair) any buildings instead of just moving
+				if(targetUnit->getFactionIndex() == this->getFactionIndex() &&
 					(targetUnit->isBuilt() == false || targetUnit->isDamaged() == true)) {
-				const RepairCommandType *rct= this->getType()->getFirstRepairCommand(targetUnit->getType());
-				if(rct != NULL) {
-					commandType= type->getFirstRepairCommand(targetUnit->getType());
-					//printf("************ Unit will repair building built = %d, repair = %d\n",targetUnit->isBuilt(),targetUnit->isDamaged());
+					const RepairCommandType *rct= this->getType()->getFirstRepairCommand(targetUnit->getType());
+					if(rct != NULL) {
+						commandType= type->getFirstRepairCommand(targetUnit->getType());
+						//printf("************ Unit will repair building built = %d, repair = %d\n",targetUnit->isBuilt(),targetUnit->isDamaged());
+					}
 				}
 			}
 		}
