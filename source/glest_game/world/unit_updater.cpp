@@ -1009,7 +1009,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 		//if not working
 		if(unit->getLoadCount() == 0 ||
 			(forceReturnToStore == false && unit->getLoadType() != NULL &&
-					harvestResource != NULL &&
+			 harvestResource != NULL && (unit->getLoadCount() < hct->getMaxLoad()) &&
 			 harvestResource->getType() != NULL && unit->getLoadType() == harvestResource->getType())) {
 			//if not loaded go for resources
 			SurfaceCell *sc = map->getSurfaceCell(Map::toSurfCoords(command->getPos()));
