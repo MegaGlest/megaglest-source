@@ -110,6 +110,7 @@ private:
 		uint32 externalIp;
 		uint32 ftpPort;
 		NetworkString<maxLanguageStringSize> language;
+		int8 gameInProgress;
 	};
 	void toEndian();
 	void fromEndian();
@@ -123,7 +124,8 @@ public:
 	NetworkMessageIntro();
 	NetworkMessageIntro(int32 sessionId, const string &versionString,
 			const string &name, int playerIndex, NetworkGameStateType gameState,
-			uint32 externalIp, uint32 ftpPort, const string &playerLanguage);
+			uint32 externalIp, uint32 ftpPort, const string &playerLanguage,
+			int gameInProgress);
 
 
 	virtual const char * getPackedMessageFormat() const;
@@ -142,6 +144,7 @@ public:
 	uint32 getExternalIp() const                { return data.externalIp;}
 	uint32 getFtpPort() const					{ return data.ftpPort; }
 	string getPlayerLanguage() const			{ return data.language.getString(); }
+	uint8 getGameInProgress() const				{ return data.gameInProgress; }
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket);

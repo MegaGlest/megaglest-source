@@ -122,6 +122,8 @@ private:
 	bool receivedNetworkGameStatus;
 	time_t connectedTime;
 	bool gotIntro;
+	bool skipLagCheck;
+	bool joinGameInProgress;
 
 	Mutex *mutexCloseConnection;
 
@@ -144,6 +146,9 @@ public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
 	~ConnectionSlot();
 
+	bool getSkipLagCheck() const { return skipLagCheck; }
+	bool getJoinGameInProgress() const { return joinGameInProgress; }
+
 	ConnectionSlotThread *getWorkerThread() { return slotThreadWorker; }
 
     void update(bool checkForNewClients,int lockedSlotIndex);
@@ -152,7 +157,7 @@ public:
 
 	uint32 getConnectedRemoteIPAddress() const { return connectedRemoteIPAddress; }
 
-	void setReady()					{ready= true;}
+	void setReady();
 	const string &getName() const	{return name;}
 	void setName(string value)      {name = value;}
 	bool isReady() const			{return ready;}

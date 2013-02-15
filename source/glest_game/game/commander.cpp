@@ -406,6 +406,8 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 			//get command type
 			const CommandType *commandType= unit->computeCommandType(pos, targetUnit);
 
+			//printf("In [%s::%s Line: %d] commandType = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,commandType);
+
 			//give commands
 			if(commandType != NULL) {
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
@@ -420,6 +422,7 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 							-1, tryQueue, cst_None, -1, unitCommandGroupId);
 					resultCur= pushNetworkCommand(&networkCommand);
 				}
+				//printf("In [%s::%s Line: %d] canSubmitCommand = %d resultCur.first = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,canSubmitCommand,resultCur.first);
 				results.push_back(resultCur);
 			}
 			else if(unit->isMeetingPointSettable() == true) {
@@ -435,6 +438,7 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 			}
 		}
 		result = computeResult(results);
+		//printf("In [%s::%s Line: %d] result.first = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,result.first);
 	}
 
 	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] result = %d\n",__FILE__,__FUNCTION__,__LINE__,result);
@@ -544,9 +548,11 @@ std::pair<CommandResult,string> Commander::pushNetworkCommand(const NetworkComma
 
 	//calculate the result of the command
 	if(unit != NULL && networkCommand->getNetworkCommandType() == nctGiveCommand) {
+		//printf("In [%s::%s Line: %d] result.first = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,result.first);
 		Command* command= buildCommand(networkCommand);
 		result= unit->checkCommand(command);
 		delete command;
+		//printf("In [%s::%s Line: %d] result.first = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,result.first);
 	}
 	return result;
 }
@@ -847,6 +853,8 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 							NetworkMessageQuit networkMessageQuit;
 							slot->sendMessage(&networkMessageQuit);
 							sleep(5);
+
+							//printf("Sending nctDisconnectNetworkPlayer\n");
 							slot->close();
 						}
 					}

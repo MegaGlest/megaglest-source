@@ -95,6 +95,11 @@ private:
 	ServerSocket *serverSocketAdmin;
 	MasterSlaveThreadController masterController;
 
+	bool allowInGameConnections;
+	bool pauseForInGameConnection;
+	bool startInGameConnectionLaunch;
+	bool unPauseForInGameConnection;
+
 public:
 	ServerInterface(bool publishEnabled);
 	virtual ~ServerInterface();
@@ -106,6 +111,18 @@ public:
     //}
 
 	time_t getGameStartTime() const { return gameStartTime; }
+
+	bool getAllowInGameConnections() const { return allowInGameConnections; }
+	void setAllowInGameConnections(bool value) { allowInGameConnections = value; }
+
+	bool getStartInGameConnectionLaunch() const { return startInGameConnectionLaunch; }
+	void setStartInGameConnectionLaunch(bool value) { startInGameConnectionLaunch = value; }
+
+	bool getPauseForInGameConnection() const { return pauseForInGameConnection; }
+	void setPauseForInGameConnection(bool value) { pauseForInGameConnection = value; }
+
+	bool getUnPauseForInGameConnection() const { return unPauseForInGameConnection; }
+	void setUnPauseForInGameConnection(bool value) { unPauseForInGameConnection = value; }
 
     virtual void close();
     virtual void update();
@@ -223,8 +240,10 @@ public:
 
     virtual void saveGame(XmlNode *rootNode);
 
-private:
     void broadcastMessage(NetworkMessage *networkMessage, int excludeSlot = -1, int lockedSlotIndex = -1);
+
+private:
+
     void broadcastMessageToConnectedClients(NetworkMessage *networkMessage, int excludeSlot = -1);
     bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType, ConnectionSlot *connectionSlot);
     void updateSlot(ConnectionSlotEvent *event);
@@ -243,7 +262,6 @@ protected:
     void dispatchPendingMarkCellMessages(std::vector <string> &errorMsgList);
     void dispatchPendingUnMarkCellMessages(std::vector <string> &errorMsgList);
     void dispatchPendingHighlightCellMessages(std::vector <string> &errorMsgList);
-
 
     void shutdownMasterserverPublishThread();
 };

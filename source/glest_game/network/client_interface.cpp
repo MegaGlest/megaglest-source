@@ -52,10 +52,13 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 	networkCommandListThread = NULL;
 	cachedPendingCommandsIndex = 0;
 
+	pausedForInGameJoin = false;
+	readyForInGameJoin = false;
 	clientSocket= NULL;
 	sessionKey = 0;
 	launchGame= false;
 	introDone= false;
+	joinGameInProgress = false;
 	playerIndex= -1;
 	setGameSettingsReceived(false);
 	gotIntro = false;
@@ -248,6 +251,9 @@ void ClientInterface::updateLobby() {
 				playerIndex= networkMessageIntro.getPlayerIndex();
 				serverName= networkMessageIntro.getName();
 				serverFTPPort = networkMessageIntro.getFtpPort();
+				joinGameInProgress = networkMessageIntro.getGameInProgress();
+
+				//printf("Client got intro playerIndex = %d\n",playerIndex);
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got NetworkMessageIntro, networkMessageIntro.getGameState() = %d, versionString [%s], sessionKey = %d, playerIndex = %d, serverFTPPort = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageIntro.getGameState(),versionString.c_str(),sessionKey,playerIndex,serverFTPPort);
 
@@ -309,8 +315,11 @@ void ClientInterface::updateLobby() {
 							nmgstOk,
 							this->getSocket()->getConnectedIPAddress(),
 							serverFTPPort,
-							lang.getLanguage());
+							lang.getLanguage(),
+							networkMessageIntro.getGameInProgress());
 					sendMessage(&sendNetworkMessageIntro);
+
+					//printf("Got intro sending client details to server\n");
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -574,9 +583,14 @@ void ClientInterface::updateLobby() {
 
                 networkMessageLaunch.buildGameSettings(&gameSettings);
 
+                //printf("Client got game settings playerIndex = %d lookingfor match...\n",playerIndex);
+
                 if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got networkMessageLaunch.getMessageType() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
                 //replace server player by network
                 for(int i= 0; i<gameSettings.getFactionCount(); ++i) {
+
+                	//printf("Faction = %d start location = %d faction name = %s\n",i,gameSettings.getStartLocationIndex(i),gameSettings.getFactionTypeName(i).c_str());
+
                     //replace by network
                     if(gameSettings.getFactionControl(i)==ctHuman) {
                         gameSettings.setFactionControl(i, ctNetwork);
@@ -585,6 +599,8 @@ void ClientInterface::updateLobby() {
                     //set the faction index
                     if(gameSettings.getStartLocationIndex(i) == playerIndex) {
                         gameSettings.setThisFactionIndex(i);
+
+                        //printf("Client got game settings playerIndex = %d factionIndex = %d control = %d name = %s\n",playerIndex,i,gameSettings.getFactionControl(i),gameSettings.getFactionTypeName(i).c_str());
                         if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] gameSettings.getThisFactionIndex(i) = %d, playerIndex = %d, i = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,gameSettings.getThisFactionIndex(),playerIndex,i);
                     }
                 }
@@ -608,6 +624,30 @@ void ClientInterface::updateLobby() {
             }
 		}
 		break;
+
+		case nmtReady:
+			{
+			NetworkMessageReady networkMessageReady;
+			if(receiveMessage(&networkMessageReady)) {
+				this->readyForInGameJoin = true;
+			}
+			break;
+			}
+		case nmtCommandList:
+			{
+
+			int waitCount = 0;
+			//make sure we read the message
+			time_t receiveTimeElapsed = time(NULL);
+			NetworkMessageCommandList networkMessageCommandList;
+			bool gotCmd = receiveMessage(&networkMessageCommandList);
+			if(gotCmd == false) {
+				throw megaglest_runtime_error("error retrieving nmtCommandList returned false!");
+			}
+			pausedForInGameJoin = true;
+		}
+		break;
+
         default:
             {
             string sErr = string(extractFileFromDirectoryPath(__FILE__).c_str()) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType);
@@ -955,6 +995,9 @@ bool ClientInterface::isMasterServerAdminOverride() {
 void ClientInterface::waitUntilReady(Checksum* checksum) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+	bool signalServerWhenReadyToStartJoinedGame = readyForInGameJoin;
+	pausedForInGameJoin = false;
+	readyForInGameJoin = false;
     Logger &logger= Logger::getInstance();
 
 	Chrono chrono;
@@ -1036,6 +1079,16 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					return;
 
+				}
+			}
+			else if(networkMessageType == nmtCommandList) {
+				int waitCount = 0;
+				//make sure we read the message
+				time_t receiveTimeElapsed = time(NULL);
+				NetworkMessageCommandList networkMessageCommandList;
+				bool gotCmd = receiveMessage(&networkMessageCommandList);
+				if(gotCmd == false) {
+					throw megaglest_runtime_error("error retrieving nmtCommandList returned false!");
 				}
 			}
 			else if(networkMessageType == nmtInvalid) {
@@ -1188,7 +1241,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//check checksum
-	if(networkMessageReady.getChecksum() != checksum->getSum()) {
+	if(joinGameInProgress == false && networkMessageReady.getChecksum() != checksum->getSum()) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     	Lang &lang= Lang::getInstance();
@@ -1265,6 +1318,13 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
         return;
 	}
 
+	//printf("Client signalServerWhenReadyToStartJoinedGame = %d\n",signalServerWhenReadyToStartJoinedGame);
+	if(signalServerWhenReadyToStartJoinedGame == true) {
+		NetworkMessageReady networkMessageReady;
+		sendMessage(&networkMessageReady);
+	}
+
+	joinGameInProgress = false;
 	// delay the start a bit, so clients have more room to get messages
 	// This is to ensure clients don't start ahead of the server and thus
 	// constantly freeze because they are waiting for the server to catch up

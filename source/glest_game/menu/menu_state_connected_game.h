@@ -177,6 +177,10 @@ private:
     string getMissingTechtreeFromFTPServer;
     bool getMissingTechtreeFromFTPServerInProgress;
 
+    string getInProgressSavedGameFromFTPServer;
+    bool getInProgressSavedGameFromFTPServerInProgress;
+    bool readyToJoinInProgressGame;
+
     string lastCheckedCRCTilesetName;
     string lastCheckedCRCTechtreeName;
     string lastCheckedCRCMapName;
@@ -211,7 +215,6 @@ private:
 	bool needToLoadTextures;
 	bool enableScenarioTexturePreview;
 	Texture2D *scenarioLogoTexture;
-
 
 	bool needToBroadcastServerSettings;
 	time_t broadcastServerSettingsDelayTimer;

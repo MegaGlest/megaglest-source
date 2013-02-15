@@ -153,6 +153,7 @@ Game::Game() : ProgramState(NULL) {
 	loadGameNode = NULL;
 	lastworldFrameCountForReplay = -1;
 	lastNetworkPlayerConnectionCheck = time(NULL);
+	inJoinGameLoading = false;
 
 
 	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
@@ -250,6 +251,8 @@ void Game::resetMembers() {
 	lastworldFrameCountForReplay = -1;
 
 	lastNetworkPlayerConnectionCheck = time(NULL);
+
+	inJoinGameLoading = false;
 
 	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
 	GAME_STATS_DUMP_INTERVAL = Config::getInstance().getInt("GameStatsDumpIntervalSeconds",intToStr(GAME_STATS_DUMP_INTERVAL).c_str());
@@ -1199,6 +1202,23 @@ void Game::init(bool initForPreviewOnly) {
 	}
 	else {
 		gui.loadGame(loadGameNode,&world);
+
+		if(inJoinGameLoading == true) {
+			gameCamera.init(map->getW(), map->getH());
+
+			// camera default height calculation
+			if(map->getCameraHeight()>0 && gameCamera.getCalculatedDefault()<map->getCameraHeight()){
+				gameCamera.setCalculatedDefault(map->getCameraHeight());
+			}
+			else if(gameCamera.getCalculatedDefault()<map->getMaxMapHeight()+13.0f){
+				gameCamera.setCalculatedDefault(map->getMaxMapHeight()+13.0f);
+			}
+
+			if(world.getThisFaction() != NULL) {
+				const Vec2i &v= map->getStartLocation(world.getThisFaction()->getStartLocationIndex());
+				gameCamera.setPos(Vec2f(v.x, v.y));
+			}
+		}
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1229,7 +1249,12 @@ void Game::init(bool initForPreviewOnly) {
 		aiInterfaces.resize(world.getFactionCount());
 		for(int i=0; i < world.getFactionCount(); ++i) {
 			Faction *faction= world.getFaction(i);
+
+			//printf("Controltype = %d for index = %d\n",faction->getControlType(),i);
+
 			if(faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true) {
+				//printf("** Loading AI player for Controltype = %d for index = %d\n",faction->getControlType(),i);
+
 				aiInterfaces[i]= new AiInterface(*this, i, faction->getTeam());
 				if(loadGameNode != NULL) {
 					aiInterfaces[i]->loadGame(loadGameNode,faction);
@@ -1561,6 +1586,71 @@ void Game::update() {
 		if(showPerfStats) {
 			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
 			perfList.push_back(perfBuf);
+		}
+
+		if(role == nrServer) {
+			ServerInterface *server = NetworkManager::getInstance().getServerInterface();
+			if(server->getPauseForInGameConnection() == true && paused == false) {
+
+				//printf("================= Switching player pausing game\n");
+
+				for(int i = 0; i < world.getFactionCount(); ++i) {
+					Faction *faction = world.getFaction(i);
+
+					//printf("Switching player check %d from: %d connected: %d, startindex = %d, connected #2: %d\n",i,faction->getControlType(),server->isClientConnected(faction->getStartLocationIndex()),faction->getStartLocationIndex(),server->isClientConnected(i));
+					//printf("Slot: %d faction name: %s\n",i,faction->getType()->getName().c_str());
+
+					if(	faction->getControlType() != ctNetwork &&
+						faction->getControlType() != ctHuman &&
+						server->isClientConnected(faction->getStartLocationIndex()) == true) {
+
+						//printf("Switching player %d from: %d to %d\n",i,faction->getControlType(),ctNetwork);
+						//printf("Slot: %d faction name: %s GS faction: %s\n",i,faction->getType()->getName().c_str(),server->gameSettings.getFactionTypeName(i).c_str());
+
+						server->gameSettings.setFactionControl(i,ctNetwork);
+						ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+						server->gameSettings.setNetworkPlayerName(i,slot->getName());
+
+						this->gameSettings.setFactionControl(i,ctNetwork);
+						this->gameSettings.setNetworkPlayerName(i,server->gameSettings.getNetworkPlayerName(i));
+					}
+				}
+				//printf("#1 Data synch: lmap %u ltile: %d ltech: %u\n",gameSettings.getMapCRC(),gameSettings.getTilesetCRC(),gameSettings.getTechCRC());
+				//printf("#2 Data synch: lmap %u ltile: %d ltech: %u\n",server->gameSettings.getMapCRC(),server->gameSettings.getTilesetCRC(),server->gameSettings.getTechCRC());
+				server->broadcastGameSetup(&server->gameSettings,true);
+
+				server->setPauseForInGameConnection(false);
+			}
+			else if(server->getStartInGameConnectionLaunch() == true) {
+				//printf("^^^ getStartInGameConnectionLaunch triggered!\n");
+
+				server->setStartInGameConnectionLaunch(false);
+
+				for(int i = 0; i < world.getFactionCount(); ++i) {
+					Faction *faction = world.getFaction(i);
+					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+					if(slot != NULL && slot->getJoinGameInProgress() == true) {
+						//printf("$$$ signalling client to start game!\n");
+
+						this->gameSettings.setFactionControl(i,ctNetwork);
+						this->gameSettings.setNetworkPlayerName(i,server->gameSettings.getNetworkPlayerName(i));
+
+						//printf("START Purging AI player for index: %d\n",i);
+						masterController.clearSlaves(true);
+						delete aiInterfaces[i];
+						aiInterfaces[i] = NULL;
+						//printf("END Purging AI player for index: %d\n",i);
+
+						commander.tryPauseGame();
+					}
+				}
+			}
+			else if(server->getUnPauseForInGameConnection() == true && paused == true) {
+				//printf("^^^ getUnPauseForInGameConnection triggered!\n");
+
+				server->setUnPauseForInGameConnection(false);
+				commander.tryResumeGame();
+			}
 		}
 
 		// Check to see if we are playing a network game and if any players
@@ -4923,6 +5013,43 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange) {
 		else {
 			console.addLine(lang.get("GamePaused"));
 			paused= true;
+
+			NetworkManager &networkManager= NetworkManager::getInstance();
+			NetworkRole role 				= networkManager.getNetworkRole();
+
+			if(role == nrServer) {
+				bool saveNetworkGame = false;
+
+				ServerInterface *server = NetworkManager::getInstance().getServerInterface();
+				for(int i = 0; i < world.getFactionCount(); ++i) {
+					Faction *faction = world.getFaction(i);
+					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+					if(slot != NULL && slot->getJoinGameInProgress() == true) {
+						saveNetworkGame = true;
+						break;
+					}
+				}
+
+				if(saveNetworkGame == true) {
+					//printf("Saved network game to disk\n");
+
+					string file = this->saveGame(GameConstants::saveGameFileDefault,"temp/");
+					char szBuf[8096]="";
+					Lang &lang= Lang::getInstance();
+					snprintf(szBuf,8096,lang.get("GameSaved","",true).c_str(),file.c_str());
+					console.addLine(szBuf);
+
+					for(int i = 0; i < world.getFactionCount(); ++i) {
+						Faction *faction = world.getFaction(i);
+						ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+						if(slot != NULL && slot->getJoinGameInProgress() == true) {
+
+							NetworkMessageReady networkMessageReady(0);
+							slot->sendMessage(&networkMessageReady);
+						}
+					}
+				}
+			}
 		}
 		//printf("setPaused new paused = %d\n",paused);
 	}
@@ -5165,7 +5292,7 @@ void Game::saveGame(){
 	config.save();
 }
 
-string Game::saveGame(string name) {
+string Game::saveGame(string name, string path) {
 	Config &config= Config::getInstance();
 	// auto name file if using saved file pattern string
 	if(name == GameConstants::saveGameFilePattern) {
@@ -5190,7 +5317,7 @@ string Game::saveGame(string name) {
 	}
 
 	// Save the file now
-	string saveGameFile = "saved/" + name;
+	string saveGameFile = path + name;
 	if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
 		saveGameFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + saveGameFile;
 	}
@@ -5408,11 +5535,11 @@ string Game::saveGame(string name) {
 	return saveGameFile;
 }
 
-void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
+void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,const GameSettings *joinGameSettings) {
 	Config &config= Config::getInstance();
 	// This condition will re-play all the commands from a replay file
 	// INSTEAD of saving from a saved game.
-	if(config.getBool("SaveCommandsForReplay","false") == true) {
+	if(joinGameSettings == NULL && config.getBool("SaveCommandsForReplay","false") == true) {
 		XmlTree	xmlTreeReplay(XML_RAPIDXML_ENGINE);
 		std::map<string,string> mapExtraTagReplacementValues;
 		xmlTreeReplay.load(name + ".replay", Properties::getTagReplacementValues(&mapExtraTagReplacementValues),true);
@@ -5499,22 +5626,69 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 
 	XmlNode *gameNode = rootNode->getChild("Game");
 	GameSettings newGameSettings;
-	newGameSettings.loadGame(gameNode);
-	//printf("Loading scenario [%s]\n",newGameSettings.getScenarioDir().c_str());
-	if(newGameSettings.getScenarioDir() != "" && fileExists(newGameSettings.getScenarioDir()) == false) {
-		newGameSettings.setScenarioDir(Scenario::getScenarioPath(Config::getInstance().getPathListForType(ptScenarios),newGameSettings.getScenario()));
+	if(joinGameSettings != NULL) {
+		newGameSettings = *joinGameSettings;
 
-		//printf("Loading scenario #2 [%s]\n",newGameSettings.getScenarioDir().c_str());
+		XmlNode *worldNode = gameNode->getChild("World");
+
+		//gui.loadGame(loadGameNode,&world);
+		XmlNode *guiNode = gameNode->getChild("Gui");
+		XmlNode *selectionNode = guiNode->getChild("Selection");
+
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		NetworkRole role = networkManager.getNetworkRole();
+		ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
+
+		for(int i= 0; i<newGameSettings.getFactionCount(); ++i) {
+			//replace by network
+			if(newGameSettings.getFactionControl(i)==ctHuman) {
+				newGameSettings.setFactionControl(i, ctNetwork);
+			}
+
+			//set the faction index
+			if(newGameSettings.getStartLocationIndex(i) == clientInterface->getPlayerIndex()) {
+				newGameSettings.setThisFactionIndex(i);
+				newGameSettings.setFactionControl(i, ctNetwork);
+
+				worldNode->getAttribute("thisFactionIndex")->setValue(intToStr(i));
+				worldNode->getAttribute("thisTeamIndex")->setValue(intToStr(newGameSettings.getTeam(i)));
+
+				XmlNode *factionNode = worldNode->getChild("Faction",i);
+				factionNode->getAttribute("thisFaction")->setValue(intToStr(i));
+				factionNode->getAttribute("control")->setValue(intToStr(ctNetwork));
+
+				selectionNode->getAttribute("factionIndex")->setValue(intToStr(i));
+				selectionNode->getAttribute("teamIndex")->setValue(intToStr(newGameSettings.getTeam(i)));
+			}
+			else {
+				//XmlNode *factionNode = worldNode->getChild("Faction",i);
+				//if(factionNode->hasAttribute("control") == true) {
+				//	factionNode->getAttribute("control")->setValue(intToStr(ctNetwork));
+				//}
+			}
+		}
+	}
+	else {
+		newGameSettings.loadGame(gameNode);
+		//printf("Loading scenario [%s]\n",newGameSettings.getScenarioDir().c_str());
+		if(newGameSettings.getScenarioDir() != "" && fileExists(newGameSettings.getScenarioDir()) == false) {
+			newGameSettings.setScenarioDir(Scenario::getScenarioPath(Config::getInstance().getPathListForType(ptScenarios),newGameSettings.getScenario()));
+
+			//printf("Loading scenario #2 [%s]\n",newGameSettings.getScenarioDir().c_str());
+		}
 	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Game settings loaded\n");
 
-	NetworkManager &networkManager= NetworkManager::getInstance();
-	networkManager.end();
-	networkManager.init(nrServer,true);
+	if(joinGameSettings == NULL) {
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		networkManager.end();
+		networkManager.init(nrServer,true);
+	}
 
 	Game *newGame = new Game(programPtr, &newGameSettings, isMasterserverMode);
 	newGame->loadGameNode = gameNode;
+	newGame->inJoinGameLoading = (joinGameSettings != NULL);
 
 //	newGame->mouse2d = gameNode->getAttribute("mouse2d")->getIntValue();
 //    int mouseX;
@@ -5594,19 +5768,21 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 	newGame->withRainEffect = gameNode->getAttribute("withRainEffect")->getIntValue() != 0;
 	//Program *program;
 
-	if(gameNode->hasChild("unitHighlightList") == true) {
-		XmlNode *unitHighlightListNode = gameNode->getChild("unitHighlightList");
-		vector<XmlNode *> infoNodeList = unitHighlightListNode->getChildList("info");
-		for(unsigned int i = 0; i < infoNodeList.size(); ++i) {
-			XmlNode *infoNode = infoNodeList[i];
+	if(joinGameSettings == NULL) {
+		if(gameNode->hasChild("unitHighlightList") == true) {
+			XmlNode *unitHighlightListNode = gameNode->getChild("unitHighlightList");
+			vector<XmlNode *> infoNodeList = unitHighlightListNode->getChildList("info");
+			for(unsigned int i = 0; i < infoNodeList.size(); ++i) {
+				XmlNode *infoNode = infoNodeList[i];
 
-			int unitId = infoNode->getAttribute("radius")->getIntValue();
-			HighlightSpecialUnitInfo info;
-			info.radius = infoNode->getAttribute("radius")->getFloatValue();
-			info.thickness = infoNode->getAttribute("thickness")->getFloatValue();
-			info.color = Vec4f::strToVec4(infoNode->getAttribute("color")->getValue());
+				int unitId = infoNode->getAttribute("radius")->getIntValue();
+				HighlightSpecialUnitInfo info;
+				info.radius = infoNode->getAttribute("radius")->getFloatValue();
+				info.thickness = infoNode->getAttribute("thickness")->getFloatValue();
+				info.color = Vec4f::strToVec4(infoNode->getAttribute("color")->getValue());
 
-			newGame->unitHighlightList[unitId] = info;
+				newGame->unitHighlightList[unitId] = info;
+			}
 		}
 	}
 
@@ -5642,8 +5818,9 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode) {
 	//time_t lastMasterServerGameStatsDump;
 	//gameNode->addAttribute("lastMasterServerGameStatsDump",intToStr(lastMasterServerGameStatsDump), mapTagReplacements);
 
-
-	newGame->gameCamera.loadGame(gameNode);
+	if(joinGameSettings == NULL) {
+		newGame->gameCamera.loadGame(gameNode);
+	}
 
 	const XmlNode *worldNode = gameNode->getChild("World");
 	newGame->world.loadGame(worldNode);

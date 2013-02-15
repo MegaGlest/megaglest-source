@@ -39,6 +39,7 @@ protected:
     std::pair<string,string> mapsPath;
     std::pair<string,string> tilesetsPath;
     std::pair<string,string> techtreesPath;
+    string tempFilesPath;
 
     int portNumber;
     int maxPlayers;
@@ -54,7 +55,8 @@ public:
     		std::pair<string,string> tilesetsPath, std::pair<string,string> techtreesPath,
     		bool internetEnabledFlag,
     		bool allowInternetTilesetFileTransfers, bool allowInternetTechtreeFileTransfers,
-    		int portNumber,int maxPlayers, FTPClientValidationInterface *ftpValidationIntf);
+    		int portNumber,int maxPlayers, FTPClientValidationInterface *ftpValidationIntf,
+    		string tempFilesPath);
     ~FTPServerThread();
     virtual void execute();
     virtual void signalQuit();
