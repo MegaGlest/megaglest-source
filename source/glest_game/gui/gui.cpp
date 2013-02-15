@@ -447,6 +447,7 @@ void Gui::giveDefaultOrders(int x, int y) {
 		console->addStdMessage("InvalidPosition");
 		return;
 	}
+	//printf("In [%s::%s Line: %d] targetUnit = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,targetUnit);
 	giveDefaultOrders(targetPos.x,targetPos.y,targetUnit,true);
 	//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
@@ -464,6 +465,8 @@ void Gui::giveDefaultOrders(int x, int y,const Unit *targetUnit, bool paintMouse
 	//give order
 	//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	std::pair<CommandResult,string> result= commander->tryGiveCommand(&selection, targetPos, targetUnit, queueKeyDown);
+
+	//printf("In [%s::%s Line: %d] selected units = %d result.first = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,selection.getCount(),result.first);
 
 	//graphical result
 	addOrdersResultToConsole(activeCommandClass, result);

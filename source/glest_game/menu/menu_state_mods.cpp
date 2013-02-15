@@ -305,11 +305,26 @@ MenuStateMods::MenuStateMods(Program *program, MainMenu *mainMenu) :
 
 	console.setOnlyChatMessagesInStoredLines(false);
 
+	// Get path to temp files
+	string tempFilePath = "temp/";
+	if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+		tempFilePath = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + tempFilePath;
+	}
+	else {
+        string userData = config.getString("UserData_Root","");
+        if(userData != "") {
+        	endPathWithSlash(userData);
+        }
+        tempFilePath = userData + tempFilePath;
+	}
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Temp files path [%s]\n",tempFilePath.c_str());
+
 	ftpClientThread = new FTPClientThread(-1,"",
 			mapsPath,tilesetsPath,techtreesPath,scenariosPath,
 			this,fileArchiveExtension,fileArchiveExtractCommand,
 			fileArchiveExtractCommandParameters,
-			fileArchiveExtractCommandSuccessResult);
+			fileArchiveExtractCommandSuccessResult,
+			tempFilePath);
 	ftpClientThread->start();
 
 

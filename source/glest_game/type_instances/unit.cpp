@@ -3064,6 +3064,8 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 
 		}
 		else {
+			//printf("In [%s::%s Line: %d] command = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,command);
+
 			result.first = crFailUndefined;
 			return result;
 		}
@@ -3072,6 +3074,8 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 	//if pos is not inside the world (if comand has not a pos, pos is (0, 0) and is inside world
 	if(map->isInside(command->getPos()) == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__, __LINE__);
+		//printf("In [%s::%s Line: %d] command = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,command);
+
 		result.first = crFailUndefined;
 		return result;
 	}
@@ -3086,6 +3090,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 	const ProducibleType *produced= command->getCommandType()->getProduced();
 	if(produced != NULL) {
 		if(ignoreCheckCommand == false && faction->reqsOk(produced) == false) {
+			//printf("In [%s::%s Line: %d] command = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,command);
 			//printf("To produce this unit you need:\n%s\n",produced->getUnitAndUpgradeReqDesc().c_str());
 			result.first = crFailReqs;
 
@@ -3097,6 +3102,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 		if(ignoreCheckCommand == false &&
 				faction->checkCosts(produced,command->getCommandType()) == false) {
 			//printf("To produce this unit you need:\n%s\n",produced->getResourceReqDesc().c_str());
+			//printf("In [%s::%s Line: %d] command = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,command);
 			result.first = crFailRes;
 			Lang &lang= Lang::getInstance();
 			result.second = " - " + lang.get("Reqs") + " : " + produced->getResourceReqDesc(false);
@@ -3116,6 +3122,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 
 		if(faction->reqsOk(builtUnit) == false) {
 			//printf("To build this unit you need:\n%s\n",builtUnit->getUnitAndUpgradeReqDesc().c_str());
+			//printf("In [%s::%s Line: %d] command = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,command);
 			result.first = crFailReqs;
 			Lang &lang= Lang::getInstance();
 			result.second = " - " + lang.get("Reqs") + " : " + builtUnit->getUnitAndUpgradeReqDesc(false);
@@ -3123,6 +3130,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 		}
 		if(faction->checkCosts(builtUnit,NULL) == false) {
 			//printf("To build this unit you need:\n%s\n",builtUnit->getResourceReqDesc().c_str());
+			//printf("In [%s::%s Line: %d] command = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,command);
 			result.first = crFailRes;
 			Lang &lang= Lang::getInstance();
 			result.second = " - " + lang.get("Reqs") + " : " + builtUnit->getResourceReqDesc(false);
@@ -3141,6 +3149,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 
 		if(faction->getUpgradeManager()->isUpgradingOrUpgraded(uct->getProducedUpgrade())){
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__, __LINE__);
+			//printf("In [%s::%s Line: %d] command = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,command);
 			result.first = crFailUndefined;
 			return result;
 		}

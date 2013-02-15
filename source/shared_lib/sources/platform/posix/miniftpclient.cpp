@@ -25,14 +25,16 @@ using namespace Shared::PlatformCommon;
 
 namespace Shared { namespace PlatformCommon {
 
-const char *FTP_MAPS_CUSTOM_USERNAME        = "maps_custom";
-const char *FTP_MAPS_USERNAME               = "maps";
-const char *FTP_TILESETS_CUSTOM_USERNAME    = "tilesets_custom";
-const char *FTP_TILESETS_USERNAME           = "tilesets";
-const char *FTP_TECHTREES_CUSTOM_USERNAME   = "techtrees_custom";
-const char *FTP_TECHTREES_USERNAME          = "techtrees";
+static const char *FTP_MAPS_CUSTOM_USERNAME        = "maps_custom";
+static const char *FTP_MAPS_USERNAME               = "maps";
+static const char *FTP_TILESETS_CUSTOM_USERNAME    = "tilesets_custom";
+static const char *FTP_TILESETS_USERNAME           = "tilesets";
+static const char *FTP_TECHTREES_CUSTOM_USERNAME   = "techtrees_custom";
+static const char *FTP_TECHTREES_USERNAME          = "techtrees";
 
-const char *FTP_COMMON_PASSWORD             = "mg_ftp_server";
+static const char *FTP_TEMPFILES_USERNAME          = "temp";
+
+static const char *FTP_COMMON_PASSWORD             = "mg_ftp_server";
 
 /*
  * This is an example showing how to get a single file from an FTP server.
@@ -237,7 +239,8 @@ FTPClientThread::FTPClientThread(int portNumber, string serverUrl,
 		string fileArchiveExtension,
 		string fileArchiveExtractCommand,
 		string fileArchiveExtractCommandParameters,
-		int fileArchiveExtractCommandSuccessResult) : BaseThread() {
+		int fileArchiveExtractCommandSuccessResult,
+		string tempFilesPath) : BaseThread() {
     this->portNumber    = portNumber;
     this->serverUrl     = serverUrl;
     this->mapsPath      = mapsPath;
@@ -251,6 +254,7 @@ FTPClientThread::FTPClientThread(int portNumber, string serverUrl,
     this->fileArchiveExtractCommand = fileArchiveExtractCommand;
     this->fileArchiveExtractCommandParameters = fileArchiveExtractCommandParameters;
     this->fileArchiveExtractCommandSuccessResult = fileArchiveExtractCommandSuccessResult;
+    this->tempFilesPath = tempFilesPath;
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d] Using FTP port #: %d, serverUrl [%s]\n",__FILE__,__FUNCTION__,__LINE__,portNumber,serverUrl.c_str());
 }
@@ -446,6 +450,16 @@ void FTPClientThread::addFileToRequests(string fileName,string URL) {
     mutexFileList.setOwnerId(mutexOwnerId);
     if(std::find(fileList.begin(),fileList.end(),item) == fileList.end()) {
     	fileList.push_back(item);
+    }
+}
+
+void FTPClientThread::addTempFileToRequests(string fileName,string URL) {
+	std::pair<string,string> item = make_pair(fileName,URL);
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(&mutexTempFileList,mutexOwnerId);
+    mutexTempFileList.setOwnerId(mutexOwnerId);
+    if(std::find(tempFileList.begin(),tempFileList.end(),item) == tempFileList.end()) {
+    	tempFileList.push_back(item);
     }
 }
 
@@ -840,6 +854,58 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileInternalFromServer(p
     return result;
 }
 
+void FTPClientThread::getTempFileFromServer(pair<string,string> fileName) {
+	pair<FTP_Client_ResultType,string> result = make_pair(ftp_crt_FAIL,"");
+
+	bool findArchive = true;
+	string ext = extractExtension(fileName.first);
+	if(("." + ext) == this->fileArchiveExtension) {
+		findArchive = executeShellCommand(
+				this->fileArchiveExtractCommand,
+				this->fileArchiveExtractCommandSuccessResult);
+	}
+	if(findArchive == true) {
+		result = getTempFileInternalFromServer(fileName);
+	}
+
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutex(this->getProgressMutex(),mutexOwnerId);
+    this->getProgressMutex()->setOwnerId(mutexOwnerId);
+    if(this->pCBObject != NULL) {
+        this->pCBObject->FTPClient_CallbackEvent(fileName.first,ftp_cct_TempFile,result,NULL);
+    }
+}
+
+pair<FTP_Client_ResultType,string>  FTPClientThread::getTempFileInternalFromServer(pair<string,string> fileName) {
+	string destFile = fileName.first;
+	string destFileSaveAs = fileName.first;
+
+	string remotePath = fileName.second;
+
+    pair<FTP_Client_ResultType,string> result = getFileFromServer(ftp_cct_TempFile,
+    		fileName,remotePath, destFileSaveAs, FTP_TEMPFILES_USERNAME, FTP_COMMON_PASSWORD);
+
+    // Extract the archive
+    if(result.first == ftp_crt_SUCCESS) {
+    	string ext = extractExtension(destFileSaveAs);
+    	if(("." + ext) == fileArchiveExtension) {
+    		string destRootArchiveFolder = extractDirectoryPathFromFile(destFileSaveAs);
+			string extractCmd = getFullFileArchiveExtractCommand(
+					this->fileArchiveExtractCommand,
+					this->fileArchiveExtractCommandParameters,
+					destRootArchiveFolder,
+					destFileSaveAs);
+
+			if(executeShellCommand(extractCmd,this->fileArchiveExtractCommandSuccessResult) == false) {
+				result.first = ftp_crt_FAIL;
+				result.second = "failed to extract archive!";
+			}
+    	}
+    }
+
+    return result;
+}
+
 pair<FTP_Client_ResultType,string>  FTPClientThread::getFileFromServer(FTP_Client_CallbackType downloadType,
 		pair<string,string> fileNameTitle,
 		string remotePath, string destFileSaveAs,
@@ -1099,6 +1165,20 @@ void FTPClientThread::execute() {
                     safeMutex5.ReleaseLock();
 
                     getFileFromServer(file);
+                }
+                else {
+                    safeMutex5.ReleaseLock();
+                }
+
+                static string mutexOwnerId6 = string(__FILE__) + string("_") + intToStr(__LINE__);
+                MutexSafeWrapper safeMutex6(&mutexTempFileList,mutexOwnerId6);
+                mutexTempFileList.setOwnerId(mutexOwnerId6);
+                if(tempFileList.size() > 0) {
+                	pair<string,string> file = tempFileList[0];
+                	tempFileList.erase(tempFileList.begin() + 0);
+                    safeMutex6.ReleaseLock();
+
+                    getTempFileFromServer(file);
                 }
                 else {
                     safeMutex5.ReleaseLock();

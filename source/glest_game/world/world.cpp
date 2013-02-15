@@ -1731,6 +1731,8 @@ void World::initFactionTypes(GameSettings *gs) {
 	}
 
 	//create stats
+	//printf("World gs->getThisFactionIndex() = %d\n",gs->getThisFactionIndex());
+
 	stats.init(gs->getFactionCount(), gs->getThisFactionIndex(), gs->getDescription(),gs->getTech());
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1783,6 +1785,8 @@ void World::initFactionTypes(GameSettings *gs) {
 		thisTeamIndex = loadWorldNode->getAttribute("thisTeamIndex")->getIntValue();
 	//	int frameCount;
 		frameCount = loadWorldNode->getAttribute("frameCount")->getIntValue();
+
+		//printf("**LOAD World thisFactionIndex = %d\n",thisFactionIndex);
 
 		MutexSafeWrapper safeMutex(&mutexFactionNextUnitId,string(__FILE__) + "_" + intToStr(__LINE__));
 	//	std::map<int,int> mapFactionNextUnitId;

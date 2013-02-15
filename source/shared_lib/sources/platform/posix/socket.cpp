@@ -948,6 +948,8 @@ Socket::~Socket() {
 }
 
 void Socket::disconnectSocket() {
+	//printf("Socket disconnecting\n");
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
 
     if(isSocketValid() == true) {

@@ -2108,6 +2108,8 @@ void Faction::loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *s
 		thisFaction = factionNode->getAttribute("thisFaction")->getIntValue() != 0;
 		//	bool factionDisconnectHandled;
 
+		//printf("**LOAD FACTION thisFaction = %d\n",thisFaction);
+
 //		for(std::map<Vec2i,int>::iterator iterMap = cacheResourceTargetList.begin();
 //				iterMap != cacheResourceTargetList.end(); ++iterMap) {
 //			XmlNode *cacheResourceTargetListNode = factionNode->addChild("cacheResourceTargetList");

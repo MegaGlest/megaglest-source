@@ -272,6 +272,8 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->lastReceiveCommandListTime	= 0;
 	this->receivedNetworkGameStatus = false;
 	this->canAcceptConnections = true;
+	this->skipLagCheck = false;
+	this->joinGameInProgress = false;
 
 	this->setSocket(NULL);
 	this->slotThreadWorker 	= NULL;
@@ -298,6 +300,7 @@ ConnectionSlot::~ConnectionSlot() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] START\n",__FILE__,__FUNCTION__,__LINE__);
 
+	//printf("Deleting connection slot\n");
 	close();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -324,23 +327,44 @@ ConnectionSlot::~ConnectionSlot() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
+void ConnectionSlot::setReady()	{
+	this->ready= true;
+	this->skipLagCheck = false;
+	this->joinGameInProgress = false;
+}
+
 void ConnectionSlot::updateSlot(ConnectionSlotEvent *event) {
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
+	if(serverInterface->getGameHasBeenInitiated() == true &&
+	   serverInterface->getAllowInGameConnections() == true) {
+		//printf("Checking updateSlot event = %p\n",event);
+	}
+
 	if(event != NULL) {
 		bool &socketTriggered = event->socketTriggered;
-		bool checkForNewClients = (serverInterface->getGameHasBeenInitiated() == false);
+		bool checkForNewClients =
+				(serverInterface->getGameHasBeenInitiated() == false ||
+					serverInterface->getAllowInGameConnections() == true);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
+		if(serverInterface->getGameHasBeenInitiated() == true &&
+		   serverInterface->getAllowInGameConnections() == true) {
+			//printf("Checking for new client connection on slot, checkForNewClients: %d this->canAcceptConnections: %d\n",checkForNewClients,this->canAcceptConnections);
+		}
+
 		if((serverInterface->getGameHasBeenInitiated() == false ||
+				serverInterface->getAllowInGameConnections() == true ||
 			//(this->getSocket() != NULL && socketTriggered == true))) {
 			socketTriggered == true)) {
 			if(socketTriggered == true ||
-				(serverInterface->getGameHasBeenInitiated() == false && this->isConnected() == false)) {
+				((serverInterface->getGameHasBeenInitiated() == false ||
+				  serverInterface->getAllowInGameConnections() == true) &&
+					this->isConnected() == false)) {
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
@@ -381,6 +405,11 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 			if(networkGameDataSynchCheckOkTech) networkGameDataSynchCheckOkTech = false;
 			this->setReceivedDataSynchCheck(false);
 
+			if(serverInterface->getGameHasBeenInitiated() == true &&
+			   serverInterface->getAllowInGameConnections() == true) {
+				//printf("Checking for new client connection on slot, checkForNewClients: %d this->canAcceptConnections: %d\n",checkForNewClients,this->canAcceptConnections);
+			}
+
 			// Is the listener socket ready to be read?
 			if(checkForNewClients == true && this->canAcceptConnections == true) {
 
@@ -394,6 +423,11 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 				bool hasData = (serverInterface->getServerSocket() != NULL && serverInterface->getServerSocket()->hasDataToRead() == true);
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
+				if(serverInterface->getGameHasBeenInitiated() == true &&
+				   serverInterface->getAllowInGameConnections() == true) {
+					//printf("Checking for new client connection on slot, hasData: %d\n",hasData);
+				}
 
 				if(hasData == true) {
 
@@ -451,8 +485,16 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 
 						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
+
+						//if(serverInterface->getGameHasBeenInitiated() == true &&
+						//   serverInterface->getAllowInGameConnections() == true) {
+							//printf("Got Client connection on slot!\n");
+						//}
 					}
 					else {
+						//printf("Did not get new socket!\n");
+
 						close();
 						return;
 					}
@@ -486,11 +528,14 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								nmgstNoSlots,
 								0,
 								ServerSocket::getFTPServerPort(),
-								"");
+								"",
+								serverInterface->getGameHasBeenInitiated());
 						sendMessage(&networkMessageIntro);
 						//}
 
 						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+
+						//printf("No open slots available\n");
 
 						close();
 					}
@@ -506,7 +551,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								nmgstOk,
 								0,
 								ServerSocket::getFTPServerPort(),
-								"");
+								"",
+								serverInterface->getGameHasBeenInitiated());
 						sendMessage(&networkMessageIntro);
 
 							//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
@@ -807,6 +853,18 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 										NetworkMessageSynchNetworkGameData networkMessageSynchNetworkGameData(serverInterface->getGameSettings());
 										sendMessage(&networkMessageSynchNetworkGameData);
 									}
+
+									if(serverInterface->getGameHasBeenInitiated() == true &&
+									   serverInterface->getAllowInGameConnections() == true) {
+										//printf("Sent intro to client connection on slot!\n");
+
+										this->skipLagCheck = true;
+										this->joinGameInProgress = true;
+										serverInterface->setPauseForInGameConnection(true);
+
+										//printf("Got intro from client sending game settings..\n");
+									}
+
 								}
 							}
 							else {
@@ -823,7 +881,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 				        {
 				        	if(gotIntro == true) {
 								if(this->serverInterface->getGameSettings() == NULL ||
-									sessionKey != this->serverInterface->getGameSettings()->getMasterserver_admin()) {
+									(joinGameInProgress == false && sessionKey != this->serverInterface->getGameSettings()->getMasterserver_admin())) {
 									string playerNameStr = name;
 									string sErr = "Client has invalid admin sessionid for player [" + playerNameStr + "]";
 									printf("%s\n",sErr.c_str());
@@ -837,6 +895,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								if(receiveMessage(&networkMessageLaunch)) {
 									if(networkMessageLaunch.getMessageType() == nmtLaunch) {
 										if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
+
+										//printf("Got launch request from client joinGameInProgress = %d!\n",joinGameInProgress);
 									}
 									else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
 										if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtBroadCastSetup\n",__FILE__,__FUNCTION__,__LINE__);
@@ -850,7 +910,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									}
 
 									int minHeadLessPlayersRequired = Config::getInstance().getInt("MinHeadlessPlayersRequired","2");
-									if(networkMessageLaunch.getMessageType() == nmtLaunch &&
+									if(joinGameInProgress == false && networkMessageLaunch.getMessageType() == nmtLaunch &&
 											ready == false &&
 											this->serverInterface->getConnectedSlotCount(true) < minHeadLessPlayersRequired) {
 								    	Lang &lang= Lang::getInstance();
@@ -876,17 +936,32 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								    	}
 									}
 									else {
-										GameSettings gameSettingsBuffer;
-										networkMessageLaunch.buildGameSettings(&gameSettingsBuffer);
+										if(joinGameInProgress == false) {
+											GameSettings gameSettingsBuffer;
+											networkMessageLaunch.buildGameSettings(&gameSettingsBuffer);
 
-										//printf("Connection slot got networkMessageLaunch.getMessageType() = %d, got map [%s]\n",networkMessageLaunch.getMessageType(),gameSettings.getMap().c_str());
-										//printf("\n\n\n\n=====Connection slot got settings:\n%s\n",gameSettings.toString().c_str());
+											//printf("Connection slot got networkMessageLaunch.getMessageType() = %d, got map [%s]\n",networkMessageLaunch.getMessageType(),gameSettings.getMap().c_str());
+											//printf("\n\n\n\n=====Connection slot got settings:\n%s\n",gameSettings.toString().c_str());
 
-										//this->serverInterface->setGameSettings(&gameSettingsBuffer,false);
-										this->serverInterface->broadcastGameSetup(&gameSettingsBuffer, true);
+											//this->serverInterface->setGameSettings(&gameSettingsBuffer,false);
+											this->serverInterface->broadcastGameSetup(&gameSettingsBuffer, true);
+										}
 
-										if(networkMessageLaunch.getMessageType() == nmtLaunch) {
+										if(joinGameInProgress == false && networkMessageLaunch.getMessageType() == nmtLaunch) {
 											this->serverInterface->setMasterserverAdminRequestLaunch(true);
+										}
+										else if(joinGameInProgress == true && networkMessageLaunch.getMessageType() == nmtLaunch) {
+											//printf("!!! setStartInGameConnectionLaunch for client joinGameInProgress = %d!\n",joinGameInProgress);
+
+											//GameSettings gameSettingsBuffer;
+											//networkMessageLaunch.buildGameSettings(&gameSettingsBuffer);
+
+											int factionIndex = this->serverInterface->gameSettings.getFactionIndexForStartLocation(playerIndex);
+											this->serverInterface->gameSettings.setFactionControl(factionIndex,ctNetwork);
+											this->serverInterface->gameSettings.setNetworkPlayerName(factionIndex,this->name);
+											this->serverInterface->broadcastGameSetup(&this->serverInterface->gameSettings, true);
+
+											this->serverInterface->setStartInGameConnectionLaunch(true);
 										}
 									}
 								}
@@ -1141,7 +1216,25 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						}
 						case nmtReady:
 						{
+							NetworkMessageReady networkMessageReady;
+						    this->receiveMessage(&networkMessageReady);
+
 							// its simply ignored here. Probably we are starting a game
+							//printf("Got ready message from client slot joinGameInProgress = %d\n",joinGameInProgress);
+							if(joinGameInProgress == true) {
+								NetworkMessageReady networkMessageReady(0);
+								this->sendMessage(&networkMessageReady);
+
+								this->currentFrameCount = serverInterface->getCurrentFrameCount();
+								this->currentLagCount = 0;
+								this->lastReceiveCommandListTime = time(NULL);
+
+								this->setReady();
+							}
+							// unpause the game
+							else {
+								serverInterface->setUnPauseForInGameConnection(true);
+							}
 							break;
 						}
 			            case nmtLoadingStatusMessage:
@@ -1177,7 +1270,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 						if(this->serverInterface->getGameStartTime() > 0 &&
 								difftime((long int)time(NULL),this->serverInterface->getGameStartTime()) >= LAG_CHECK_GRACE_PERIOD) {
-							if(this->isConnected() == true) {
+							if(this->isConnected() == true && this->gotIntro == true && this->skipLagCheck == false) {
 								double clientLag = this->serverInterface->getCurrentFrameCount() - this->getCurrentFrameCount();
 								double clientLagCount = (gameSettings.getNetworkFramePeriod() > 0 ? (clientLag / gameSettings.getNetworkFramePeriod()) : 0);
 								double clientLagTime = difftime((long int)time(NULL),this->getLastReceiveCommandListTime());
@@ -1213,6 +1306,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 			else {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] calling close...\n",__FILE__,__FUNCTION__,__LINE__);
 
+				//printf("Closing connection slot socketInfo.first = %d\n",socketInfo.first);
+
 				close();
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
@@ -1237,12 +1332,23 @@ void ConnectionSlot::validateConnection() {
 	if(this->isConnected() == true && 
 		gotIntro == false && connectedTime > 0 &&
 		difftime((long int)time(NULL),connectedTime) > GameConstants::maxClientConnectHandshakeSecs) {
+
+		//printf("Closing connection slot timed out!\n");
 		close();
 	}
 }
 
 void ConnectionSlot::close() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//if(serverInterface->getAllowInGameConnections() == true) {
+		//printf("Closing connection slot!\n");
+	//}
+
+	this->gotIntro = false;
+	this->skipLagCheck = false;
+	this->joinGameInProgress = false;
+	this->ready= true;
 
 	if(this->slotThreadWorker != NULL) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

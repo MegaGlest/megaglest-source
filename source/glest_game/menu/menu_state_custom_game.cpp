@@ -325,11 +325,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelEnableSwitchTeamMode.init(xoffset+310, aHeadPos+45, 80);
 	labelEnableSwitchTeamMode.setText(lang.get("EnableSwitchTeamMode"));
 
-//	listBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"listBoxEnableSwitchTeamMode");
-//	listBoxEnableSwitchTeamMode.init(xoffset+310, aPos+45, 80);
-//	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("Yes"));
-//	listBoxEnableSwitchTeamMode.pushBackItem(lang.get("No"));
-//	listBoxEnableSwitchTeamMode.setSelectedItemIndex(1);
 	checkBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"checkBoxEnableSwitchTeamMode");
 	checkBoxEnableSwitchTeamMode.init(xoffset+310, aPos+45);
 	checkBoxEnableSwitchTeamMode.setValue(false);
@@ -344,6 +339,14 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		listBoxAISwitchTeamAcceptPercent.pushBackItem(intToStr(i));
 	}
 	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(30));
+
+	labelAllowInGameJoinPlayer.registerGraphicComponent(containerName,"labelAllowInGameJoinPlayer");
+	labelAllowInGameJoinPlayer.init(xoffset+410, 670, 80);
+	labelAllowInGameJoinPlayer.setText(lang.get("AllowInGameJoinPlayer"));
+
+	checkBoxAllowInGameJoinPlayer.registerGraphicComponent(containerName,"checkBoxAllowInGameJoinPlayer");
+	checkBoxAllowInGameJoinPlayer.init(xoffset+600, 670);
+	checkBoxAllowInGameJoinPlayer.setValue(false);
 
 	// Which Pathfinder
 	//labelPathFinderType.registerGraphicComponent(containerName,"labelPathFinderType");
@@ -798,6 +801,8 @@ void MenuStateCustomGame::reloadUI() {
 	// Allow Switch Team Mode
 	labelEnableSwitchTeamMode.setText(lang.get("EnableSwitchTeamMode"));
 
+	labelAllowInGameJoinPlayer.setText(lang.get("AllowInGameJoinPlayer"));
+
 	//listBoxData.clear();
 	//listBoxData.push_back(lang.get("Yes"));
 	//listBoxData.push_back(lang.get("No"));
@@ -1130,6 +1135,22 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					needToSetChangedGameSettings = true;
 					lastSetChangedGameSettings   = time(NULL);
 				}
+			}
+			else if (checkBoxAllowInGameJoinPlayer.mouseClick(x, y)) {
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+				if(checkBoxPublishServer.getValue() == true) {
+					needToRepublishToMasterserver = true;
+				}
+
+				if(hasNetworkGameSettings() == true)
+				{
+					needToSetChangedGameSettings = true;
+					lastSetChangedGameSettings   = time(NULL);
+				}
+
+				ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+				serverInterface->setAllowInGameConnections(checkBoxAllowInGameJoinPlayer.getValue() == true);
 			}
 			else if (checkBoxAdvanced.getValue() == 1 && checkBoxEnableSwitchTeamMode.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1811,6 +1832,8 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 		//labelPathFinderType.mouseMove(x, y);
 		//listBoxPathFinderType.mouseMove(x, y);
 	}
+	checkBoxAllowInGameJoinPlayer.mouseMove(x, y);
+
 	listBoxTileset.mouseMove(x, y);
 	listBoxMapFilter.mouseMove(x, y);
 	listBoxTechTree.mouseMove(x, y);
@@ -2015,6 +2038,9 @@ void MenuStateCustomGame::render() {
 				renderer.renderListBox(&listBoxAISwitchTeamAcceptPercent);
 				renderer.renderListBox(&listBoxFallbackCpuMultiplier);
 			}
+			renderer.renderLabel(&labelAllowInGameJoinPlayer);
+			renderer.renderCheckBox(&checkBoxAllowInGameJoinPlayer);
+
 			renderer.renderLabel(&labelTileset);
 			renderer.renderLabel(&labelMapFilter);
 			renderer.renderLabel(&labelTechTree);
@@ -3174,6 +3200,16 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	gameSettings->setAiAcceptSwitchTeamPercentChance(strToInt(listBoxAISwitchTeamAcceptPercent.getSelectedItem()));
 	gameSettings->setFallbackCpuMultiplier(listBoxFallbackCpuMultiplier.getSelectedItemIndex());
 
+
+	if(checkBoxAllowInGameJoinPlayer.getValue() == true) {
+        valueFlags1 |= ft1_allow_in_game_joining;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+	else {
+        valueFlags1 &= ~ft1_allow_in_game_joining;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+
 	// First save Used slots
     //for(int i=0; i<mapInfo.players; ++i)
 	int AIPlayerCount = 0;
@@ -3321,7 +3357,8 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	gameSettings->setNetworkFramePeriod(config.getInt("NetworkSendFrameCount","20"));
 	gameSettings->setNetworkPauseGameForLaggedClients(((checkBoxNetworkPauseGameForLaggedClients.getValue() == true)));
 
-	if(hasNetworkGameSettings() == true) {
+	//if(hasNetworkGameSettings() == true) {
+	{
 		if( gameSettings->getTileset() != "") {
 			if(lastCheckedCRCTilesetName != gameSettings->getTileset()) {
 				//console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
@@ -3587,6 +3624,12 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	checkBoxEnableSwitchTeamMode.setValue((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching ? true : false);
 	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(gameSettings.getAiAcceptSwitchTeamPercentChance()));
 	listBoxFallbackCpuMultiplier.setSelectedItemIndex(gameSettings.getFallbackCpuMultiplier());
+
+	checkBoxAllowInGameJoinPlayer.setValue((gameSettings.getFlagTypes1() & ft1_allow_in_game_joining) == ft1_allow_in_game_joining ? true : false);
+	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+	if(serverInterface != NULL) {
+		serverInterface->setAllowInGameConnections(checkBoxAllowInGameJoinPlayer.getValue() == true);
+	}
 
 	//listBoxPathFinderType.setSelectedItemIndex(gameSettings.getPathFinderType());
 

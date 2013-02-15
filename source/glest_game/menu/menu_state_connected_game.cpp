@@ -77,6 +77,10 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	getMissingTilesetFromFTPServerInProgress    = false;
     getMissingTechtreeFromFTPServer				= "";
     getMissingTechtreeFromFTPServerInProgress	= false;
+    getInProgressSavedGameFromFTPServer			  = "";
+    getInProgressSavedGameFromFTPServerInProgress = false;
+    readyToJoinInProgressGame					  = false;
+
     lastCheckedCRCTilesetName					= "";
     lastCheckedCRCTechtreeName					= "";
     lastCheckedCRCMapName						= "";
@@ -537,10 +541,26 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
         string fileArchiveExtractCommandParameters = config.getString("FileArchiveExtractCommandParameters","");
         int32 fileArchiveExtractCommandSuccessResult = config.getInt("FileArchiveExtractCommandSuccessResult","0");
 
+    	// Get path to temp files
+    	string tempFilePath = "temp/";
+    	if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+    		tempFilePath = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + tempFilePath;
+    	}
+    	else {
+            string userData = config.getString("UserData_Root","");
+            if(userData != "") {
+            	endPathWithSlash(userData);
+            }
+            tempFilePath = userData + tempFilePath;
+    	}
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Temp files path [%s]\n",tempFilePath.c_str());
+
         ftpClientThread = new FTPClientThread(portNumber,serverUrl,
         		mapsPath,tilesetsPath,techtreesPath,scenariosPath,
         		this,fileArchiveExtension,fileArchiveExtractCommand,
-        		fileArchiveExtractCommandParameters,fileArchiveExtractCommandSuccessResult);
+        		fileArchiveExtractCommandParameters,
+        		fileArchiveExtractCommandSuccessResult,
+        		tempFilePath);
         ftpClientThread->start();
     }
 	// Start http meta data thread
@@ -548,6 +568,23 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	modHttpServerThread = new SimpleTaskThread(this,0,200);
 	modHttpServerThread->setUniqueID(mutexOwnerId);
 	modHttpServerThread->start();
+
+	ClientInterface *clientInterface = networkManager.getClientInterface();
+	if(clientInterface != NULL && clientInterface->getJoinGameInProgress() == true) {
+    	Lang &lang= Lang::getInstance();
+    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+			char szMsg[8096]="";
+			if(lang.hasString("JoinPlayerToCurrentGameWelcome",languageList[i]) == true) {
+				snprintf(szMsg,8096,lang.get("JoinPlayerToCurrentGameWelcome",languageList[i]).c_str(),getHumanPlayerName().c_str());
+			}
+			else {
+				snprintf(szMsg,8096,"Player: %s has connected to the game and would like to join.",getHumanPlayerName().c_str());
+			}
+			bool localEcho = lang.isLanguageLocal(languageList[i]);
+			clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
+    	}
+	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1294,6 +1331,9 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
             getMissingTilesetFromFTPServer				= "";
             getMissingTechtreeFromFTPServer				= "";
 
+            getInProgressSavedGameFromFTPServer = "";
+            getInProgressSavedGameFromFTPServerInProgress = false;
+
             ClientInterface *clientInterface = networkManager.getClientInterface();
             string serverUrl = clientInterface->getServerIpAddress();
             //int portNumber   = config.getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
@@ -1342,10 +1382,26 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
             string fileArchiveExtractCommandParameters = config.getString("FileArchiveExtractCommandParameters","");
             int32 fileArchiveExtractCommandSuccessResult = config.getInt("FileArchiveExtractCommandSuccessResult","0");
 
+        	// Get path to temp files
+        	string tempFilePath = "temp/";
+        	if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+        		tempFilePath = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + tempFilePath;
+        	}
+        	else {
+                string userData = config.getString("UserData_Root","");
+                if(userData != "") {
+                	endPathWithSlash(userData);
+                }
+                tempFilePath = userData + tempFilePath;
+        	}
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Temp files path [%s]\n",tempFilePath.c_str());
+
             ftpClientThread = new FTPClientThread(portNumber,serverUrl,
             		mapsPath,tilesetsPath,techtreesPath,scenariosPath,
             		this,fileArchiveExtension,fileArchiveExtractCommand,
-            		fileArchiveExtractCommandParameters,fileArchiveExtractCommandSuccessResult);
+            		fileArchiveExtractCommandParameters,
+            		fileArchiveExtractCommandSuccessResult,
+            		tempFilePath);
             ftpClientThread->start();
 
 	    	Lang &lang= Lang::getInstance();
@@ -1538,6 +1594,15 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 		if(isHeadlessAdmin() == true) {
 			//printf("#1 admin key [%d] client key [%d]\n",settings->getMasterserver_admin(),clientInterface->getSessionKey());
 			mouseClickAdmin(x, y, mouseButton,advanceToItemStartingWith);
+		}
+		else if(clientInterface != NULL && clientInterface->getJoinGameInProgress() == true) {
+	        if(buttonPlayNow.mouseClick(x,y) && buttonPlayNow.getEnabled()) {
+	        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	        	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	            PlayNow(true);
+	            return;
+	        }
 		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1795,8 +1860,44 @@ void MenuStateConnectedGame::PlayNow(bool saveGame) {
 
 	//printf("Client sending map [%s] admin key [%d]\n",gameSettings.getMap().c_str(),gameSettings.getMasterserver_admin());
 
-	broadCastGameSettingsToHeadlessServer(needToBroadcastServerSettings);
-    clientInterface->broadcastGameStart(&gameSettings);
+	//printf("Tell server we want to join!\n");
+
+	//if(readyToJoinInProgressGame == true) {
+	if(clientInterface->getJoinGameInProgress() == true) {
+    	Lang &lang= Lang::getInstance();
+    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+			char szMsg[8096]="";
+			if(lang.hasString("JoinPlayerToCurrentGameLaunch",languageList[i]) == true) {
+				snprintf(szMsg,8096,lang.get("JoinPlayerToCurrentGameLaunch",languageList[i]).c_str(),getHumanPlayerName().c_str());
+			}
+			else {
+				snprintf(szMsg,8096,"Player: %s is about to join the game, please wait...",getHumanPlayerName().c_str());
+			}
+			bool localEcho = lang.isLanguageLocal(languageList[i]);
+			clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
+    	}
+
+//		string saveGameFile = "temp/" + string(GameConstants::saveGameFileDefault);
+//		if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+//			saveGameFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + saveGameFile;
+//		}
+//		else {
+//	        string userData = Config::getInstance().getString("UserData_Root","");
+//	        if(userData != "") {
+//	        	endPathWithSlash(userData);
+//	        }
+//	        saveGameFile = userData + saveGameFile;
+//		}
+
+		clientInterface->broadcastGameStart(&gameSettings);
+		//Game::loadGame(saveGameFile,program,false,&gameSettings);
+		return;
+	}
+	else {
+		broadCastGameSettingsToHeadlessServer(needToBroadcastServerSettings);
+		clientInterface->broadcastGameStart(&gameSettings);
+	}
 }
 
 string MenuStateConnectedGame::getCurrentMapFile() {
@@ -2562,7 +2663,8 @@ void MenuStateConnectedGame::update() {
 		broadCastGameSettingsToHeadlessServer(false);
 
 		listBoxMap.setEditable(isHeadlessAdmin());
-		buttonPlayNow.setVisible(isHeadlessAdmin());
+		buttonPlayNow.setVisible(isHeadlessAdmin() ||
+				clientInterface->getJoinGameInProgress() == true);
 		buttonRestoreLastSettings.setVisible(isHeadlessAdmin());
 		listBoxTechTree.setEditable(isHeadlessAdmin());
 		listBoxTileset.setEditable(isHeadlessAdmin());
@@ -2597,7 +2699,7 @@ void MenuStateConnectedGame::update() {
 
 				clientInterface->updateLobby();
 
-				if(clientInterface->isConnected() &&
+				if(clientInterface->isConnected() && clientInterface->getPausedForInGameJoin() == false &&
 					pingCount >= 3 && clientInterface->getLastPingLag() >= (GameConstants::networkPingInterval * 3)) {
 					MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 					if(fileFTPProgressList.empty() == true) {
@@ -2756,6 +2858,9 @@ void MenuStateConnectedGame::update() {
                 //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nmapCRC [%d] gameSettings->getMapCRC() [%d]\ntilesetCRC [%d] gameSettings->getTilesetCRC() [%d]\ntechCRC [%d] gameSettings->getTechCRC() [%d]\n",mapCRC,gameSettings->getMapCRC(),tilesetCRC,gameSettings->getTilesetCRC(),techCRC,gameSettings->getTechCRC());
 
                 if(dataSynchMismatch == true) {
+
+                    //printf("Data not synched: lmap %u rmap: %u ltile: %d rtile: %u ltech: %u rtech: %u\n",mapCRC,gameSettings->getMapCRC(),tilesetCRC,gameSettings->getTilesetCRC(),techCRC,gameSettings->getTechCRC());
+
                     string labelSynch = lang.get("DataNotSynchedTitle");
 
                     if(mapCRC != 0 && mapCRC != gameSettings->getMapCRC() &&
@@ -3079,6 +3184,56 @@ void MenuStateConnectedGame::update() {
 				bool errorOnMissingData = (clientInterface->getAllowGameDataSynchCheck() == false);
 				GameSettings *gameSettings = clientInterface->getGameSettingsPtr();
 				setupUIFromGameSettings(gameSettings, errorOnMissingData);
+
+//				// check if we are joining an in progress game
+//				if(clientInterface->getJoinGameInProgress() == true &&
+//				   clientInterface->getReadyForInGameJoin() == true &&
+//				   ftpClientThread != NULL) {
+//
+//					if(ftpClientThread != NULL) ftpClientThread->addTempFileToRequests(GameConstants::saveGameFileDefault);
+//            		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//            		fileFTPProgressList[getInProgressSavedGameFromFTPServer] = pair<int,string>(0,"");
+//            		safeMutexFTPProgress.ReleaseLock();
+//				}
+			}
+
+			// check if we are joining an in progress game
+			if(clientInterface->getJoinGameInProgress() == true &&
+			   clientInterface->getReadyForInGameJoin() == true &&
+			   ftpClientThread != NULL) {
+
+				MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				if(readyToJoinInProgressGame == false) {
+					if(getInProgressSavedGameFromFTPServer == "") {
+						ftpClientThread->addTempFileToRequests(GameConstants::saveGameFileDefault);
+
+						getInProgressSavedGameFromFTPServer = GameConstants::saveGameFileDefault;
+						fileFTPProgressList[getInProgressSavedGameFromFTPServer] = pair<int,string>(0,"");
+					}
+					safeMutexFTPProgress.ReleaseLock();
+				}
+				else {
+					safeMutexFTPProgress.ReleaseLock();
+
+					string saveGameFile = "temp/" + string(GameConstants::saveGameFileDefault);
+					if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+						saveGameFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + saveGameFile;
+					}
+					else {
+						string userData = Config::getInstance().getString("UserData_Root","");
+						if(userData != "") {
+							endPathWithSlash(userData);
+						}
+						saveGameFile = userData + saveGameFile;
+					}
+
+					//clientInterface->broadcastGameStart(&gameSettings);
+					GameSettings gameSettings = *clientInterface->getGameSettings();
+					loadGameSettings(&gameSettings);
+
+					Game::loadGame(saveGameFile,program,false,&gameSettings);
+					return;
+				}
 			}
 
 			//update lobby
@@ -3980,6 +4135,62 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
             console.addLine(result.second,true);
         }
     }
+    else if(type == ftp_cct_TempFile) {
+    	getInProgressSavedGameFromFTPServerInProgress = false;
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
+
+        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+        fileFTPProgressList.erase(itemName);
+        safeMutexFTPProgress.ReleaseLock();
+
+        NetworkManager &networkManager= NetworkManager::getInstance();
+        ClientInterface* clientInterface= networkManager.getClientInterface();
+        const GameSettings *gameSettings = clientInterface->getGameSettings();
+
+        if(result.first == ftp_crt_SUCCESS) {
+	    	Lang &lang= Lang::getInstance();
+	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+				char szMsg[8096]="";
+	            if(lang.hasString("JoinPlayerToCurrentGameSuccessDownload",languageList[i]) == true) {
+	            	snprintf(szMsg,8096,lang.get("JoinPlayerToCurrentGameSuccessDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str());
+	            }
+	            else {
+	            	snprintf(szMsg,8096,"Player: %s SUCCESSFULLY downloaded the saved game: %s",getHumanPlayerName().c_str(),itemName.c_str());
+	            }
+	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+	    	}
+
+	    	readyToJoinInProgressGame = true;
+        }
+        else {
+            curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
+
+	    	Lang &lang= Lang::getInstance();
+	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+				char szMsg[8096]="";
+	            if(lang.hasString("JoinPlayerToCurrentGameFailDownload",languageList[i]) == true) {
+	            	snprintf(szMsg,8096,lang.get("JoinPlayerToCurrentGameFailDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            }
+	            else {
+	            	snprintf(szMsg,8096,"Player: %s FAILED to download the saved game: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            }
+	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+
+	            if(result.first == ftp_crt_HOST_NOT_ACCEPTING) {
+		            if(lang.hasString("HostNotAcceptingDataConnections",languageList[i]) == true) {
+		            	clientInterface->sendTextMessage(lang.get("HostNotAcceptingDataConnections",languageList[i]),-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+		            }
+		            else {
+		            	clientInterface->sendTextMessage("*Warning* the host is not accepting data connections.",-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+		            }
+	            }
+	    	}
+
+            console.addLine(result.second,true);
+        }
+    }
 }
 
 void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings, bool errorOnMissingData) {
@@ -4299,8 +4510,10 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		listBoxControls[i].setSelectedItemIndex(ctClosed);
 
 		if(isHeadlessAdmin() == false) {
-			listBoxFactions[i].setEditable(false);
-			listBoxTeams[i].setEditable(false);
+			if(clientInterface->getJoinGameInProgress() == false) {
+				listBoxFactions[i].setEditable(false);
+				listBoxTeams[i].setEditable(false);
+			}
 		}
 
 		labelPlayerStatus[i].setText("");
@@ -4395,8 +4608,10 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 					listBoxControls[slot].setSelectedItemIndex(ctHuman);
 				}
 				if(checkBoxScenario.getValue() == false) {
-					listBoxFactions[slot].setEditable(true);
-					listBoxTeams[slot].setEditable(true);
+					if(clientInterface->getJoinGameInProgress() == false) {
+						listBoxFactions[slot].setEditable(true);
+						listBoxTeams[slot].setEditable(true);
+					}
 				}
 
 				if(labelPlayerNames[slot].getText() == "" &&

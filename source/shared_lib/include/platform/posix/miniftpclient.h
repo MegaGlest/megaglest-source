@@ -40,8 +40,9 @@ enum FTP_Client_CallbackType {
     ftp_cct_Techtree            = 2,
     ftp_cct_Scenario           	= 3,
     ftp_cct_File           		= 4,
-    ftp_cct_DownloadProgress    = 5,
-    ftp_cct_ExtractProgress     = 6
+    ftp_cct_TempFile       		= 5,
+    ftp_cct_DownloadProgress    = 6,
+    ftp_cct_ExtractProgress     = 7
 };
 
 class FTPClientCallbackInterface {
@@ -72,6 +73,7 @@ protected:
     std::pair<string,string> tilesetsPath;
     std::pair<string,string> techtreesPath;
     std::pair<string,string> scenariosPath;
+    string tempFilesPath;
 
     Mutex mutexMapFileList;
     vector<pair<string,string> > mapFileList;
@@ -88,6 +90,9 @@ protected:
     Mutex mutexFileList;
     vector<pair<string,string> > fileList;
 
+    Mutex mutexTempFileList;
+    vector<pair<string,string> > tempFileList;
+
     void getMapFromServer(pair<string,string> mapFilename);
     pair<FTP_Client_ResultType,string> getMapFromServer(pair<string,string> mapFileName, string ftpUser, string ftpUserPassword);
 
@@ -102,6 +107,9 @@ protected:
 
     void getFileFromServer(pair<string,string> fileName);
     pair<FTP_Client_ResultType,string> getFileInternalFromServer(pair<string,string> fileName);
+
+    void getTempFileFromServer(pair<string,string> fileName);
+    pair<FTP_Client_ResultType,string> getTempFileInternalFromServer(pair<string,string> fileName);
 
     Mutex mutexProgressMutex;
 
@@ -130,7 +138,8 @@ public:
     				string fileArchiveExtension,
     				string fileArchiveExtractCommand,
     				string fileArchiveExtractCommandParameters,
-    				int fileArchiveExtractCommandSuccessResult);
+    				int fileArchiveExtractCommandSuccessResult,
+    				string tempFilesPath);
     virtual void execute();
     virtual void signalQuit();
     virtual bool shutdownAndWait();
@@ -140,6 +149,7 @@ public:
     void addTechtreeToRequests(string techtreeName,string URL="");
     void addScenarioToRequests(string fileName,string URL="");
     void addFileToRequests(string fileName,string URL="");
+    void addTempFileToRequests(string fileName,string URL="");
 
     FTPClientCallbackInterface * getCallBackObject();
     void setCallBackObject(FTPClientCallbackInterface *value);

@@ -26,6 +26,17 @@ using namespace Shared::PlatformCommon;
 
 namespace Shared { namespace PlatformCommon {
 
+static const char *FTP_MAPS_CUSTOM_USERNAME        = "maps_custom";
+static const char *FTP_MAPS_USERNAME               = "maps";
+static const char *FTP_TILESETS_CUSTOM_USERNAME    = "tilesets_custom";
+static const char *FTP_TILESETS_USERNAME           = "tilesets";
+static const char *FTP_TECHTREES_CUSTOM_USERNAME   = "techtrees_custom";
+static const char *FTP_TECHTREES_USERNAME          = "techtrees";
+
+static const char *FTP_TEMPFILES_USERNAME          = "temp";
+
+static const char *FTP_COMMON_PASSWORD             = "mg_ftp_server";
+
 static std::map<uint32,uint32> clientToFTPServerList;
 FTPClientValidationInterface * FTPServerThread::ftpValidationIntf = NULL;
 
@@ -62,7 +73,7 @@ FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,
 		bool internetEnabledFlag,
 		bool allowInternetTilesetFileTransfers, bool allowInternetTechtreeFileTransfers,
 		int portNumber, int maxPlayers,
-		FTPClientValidationInterface *ftpValidationIntf) : BaseThread() {
+		FTPClientValidationInterface *ftpValidationIntf, string tempFilesPath) : BaseThread() {
     this->mapsPath              = mapsPath;
     this->tilesetsPath          = tilesetsPath;
     this->techtreesPath			= techtreesPath;
@@ -72,6 +83,7 @@ FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,
     this->portNumber            = portNumber;
     this->maxPlayers            = maxPlayers;
     this->ftpValidationIntf     = ftpValidationIntf;
+    this->tempFilesPath			= tempFilesPath;
 
 	ftpInit(&FindExternalFTPServerIp,&UPNP_Tools::AddUPNPPortForward,&UPNP_Tools::RemoveUPNPPortForward,
 			&isValidClientType, &isClientAllowedToGetFile);
@@ -131,18 +143,18 @@ void FTPServerThread::setInternetEnabled(bool value, bool forceChange) {
 			if(this->allowInternetTilesetFileTransfers == true) {
 				if(tilesetsPath.first != "") {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tilesetsPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,tilesetsPath.first.c_str());
-					ftpCreateAccount("tilesets", "mg_ftp_server", tilesetsPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
+					ftpCreateAccount(FTP_TILESETS_USERNAME, FTP_COMMON_PASSWORD, tilesetsPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 				}
 				if(tilesetsPath.second != "") {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tilesetsPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,tilesetsPath.second.c_str());
-					ftpCreateAccount("tilesets_custom", "mg_ftp_server", tilesetsPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
+					ftpCreateAccount(FTP_TILESETS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD, tilesetsPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 				}
 
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server thread, tilesets users created\n");
 			}
 			else {
-				ftpDeleteAccount("tilesets");
-				ftpDeleteAccount("tilesets_custom");
+				ftpDeleteAccount(FTP_TILESETS_USERNAME);
+				ftpDeleteAccount(FTP_TILESETS_CUSTOM_USERNAME);
 
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server thread, tilesets users deleted\n");
 			}
@@ -151,18 +163,18 @@ void FTPServerThread::setInternetEnabled(bool value, bool forceChange) {
 				// Setup FTP Users and permissions for tilesets
 				if(techtreesPath.first != "") {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] techtreesPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,techtreesPath.first.c_str());
-					ftpCreateAccount("techtrees", "mg_ftp_server", techtreesPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
+					ftpCreateAccount(FTP_TECHTREES_USERNAME, FTP_COMMON_PASSWORD, techtreesPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 				}
 				if(techtreesPath.second != "") {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] techtreesPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,techtreesPath.second.c_str());
-					ftpCreateAccount("techtrees_custom", "mg_ftp_server", techtreesPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
+					ftpCreateAccount(FTP_TECHTREES_CUSTOM_USERNAME, FTP_COMMON_PASSWORD, techtreesPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 				}
 
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server thread, techtrees users created\n");
 			}
 			else {
-				ftpDeleteAccount("techtrees");
-				ftpDeleteAccount("techtrees_custom");
+				ftpDeleteAccount(FTP_TECHTREES_USERNAME);
+				ftpDeleteAccount(FTP_TECHTREES_CUSTOM_USERNAME);
 
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server thread, techtrees users deleted\n");
 			}
@@ -170,11 +182,11 @@ void FTPServerThread::setInternetEnabled(bool value, bool forceChange) {
 		else {
 			if(tilesetsPath.first != "") {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tilesetsPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,tilesetsPath.first.c_str());
-				ftpCreateAccount("tilesets", "mg_ftp_server", tilesetsPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
+				ftpCreateAccount(FTP_TILESETS_USERNAME, FTP_COMMON_PASSWORD, tilesetsPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 			}
 			if(tilesetsPath.second != "") {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tilesetsPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,tilesetsPath.second.c_str());
-				ftpCreateAccount("tilesets_custom", "mg_ftp_server", tilesetsPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
+				ftpCreateAccount(FTP_TILESETS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD, tilesetsPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 			}
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server thread, tilesets users created\n");
@@ -182,11 +194,11 @@ void FTPServerThread::setInternetEnabled(bool value, bool forceChange) {
 			// Setup FTP Users and permissions for tilesets
 			if(techtreesPath.first != "") {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] techtreesPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,techtreesPath.first.c_str());
-				ftpCreateAccount("techtrees", "mg_ftp_server", techtreesPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
+				ftpCreateAccount(FTP_TECHTREES_USERNAME, FTP_COMMON_PASSWORD, techtreesPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 			}
 			if(techtreesPath.second != "") {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] techtreesPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,techtreesPath.second.c_str());
-				ftpCreateAccount("techtrees_custom", "mg_ftp_server", techtreesPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
+				ftpCreateAccount(FTP_TECHTREES_CUSTOM_USERNAME, FTP_COMMON_PASSWORD, techtreesPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
 			}
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Server thread, techtrees users created\n");
@@ -212,11 +224,16 @@ void FTPServerThread::execute() {
             // Setup FTP Users and permissions for maps
             if(mapsPath.first != "") {
             	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] mapsPath #1 [%s]\n",__FILE__,__FUNCTION__,__LINE__,mapsPath.first.c_str());
-                ftpCreateAccount("maps", "mg_ftp_server", mapsPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
+                ftpCreateAccount(FTP_MAPS_USERNAME, FTP_COMMON_PASSWORD, mapsPath.first.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
             }
             if(mapsPath.second != "") {
             	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] mapsPath #2 [%s]\n",__FILE__,__FUNCTION__,__LINE__,mapsPath.second.c_str());
-                ftpCreateAccount("maps_custom", "mg_ftp_server", mapsPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
+                ftpCreateAccount(FTP_MAPS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD, mapsPath.second.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
+            }
+
+            if(tempFilesPath != "") {
+            	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tempFilesPath [%s]\n",__FILE__,__FUNCTION__,__LINE__,tempFilesPath.c_str());
+                ftpCreateAccount(FTP_TEMPFILES_USERNAME, FTP_COMMON_PASSWORD, tempFilesPath.c_str(), FTP_ACC_RD | FTP_ACC_LS | FTP_ACC_DIR);
             }
 
 /*

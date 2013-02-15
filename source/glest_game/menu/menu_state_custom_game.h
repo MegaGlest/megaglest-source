@@ -127,6 +127,9 @@ private:
 	GraphicLabel labelFallbackCpuMultiplier;
 	GraphicListBox listBoxFallbackCpuMultiplier;
 
+	GraphicLabel labelAllowInGameJoinPlayer;
+	GraphicCheckBox checkBoxAllowInGameJoinPlayer;
+
 	GraphicCheckBox checkBoxScenario;
 	GraphicLabel labelScenario;
 	GraphicListBox listBoxScenario;

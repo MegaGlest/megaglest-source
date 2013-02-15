@@ -111,6 +111,7 @@ NetworkMessageIntro::NetworkMessageIntro() {
 	data.gameState	= nmgstInvalid;
 	data.externalIp = 0;
 	data.ftpPort = 0;
+	data.gameInProgress = 0;
 }
 
 NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionString,
@@ -118,7 +119,8 @@ NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionSt
 										NetworkGameStateType gameState,
 										uint32 externalIp,
 										uint32 ftpPort,
-										const string &playerLanguage) {
+										const string &playerLanguage,
+										int gameInProgress) {
 	data.messageType	= nmtIntro;
 	data.sessionId		= sessionId;
 	data.versionString	= versionString;
@@ -128,10 +130,11 @@ NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionSt
 	data.externalIp     = externalIp;
 	data.ftpPort		= ftpPort;
 	data.language		= playerLanguage;
+	data.gameInProgress = gameInProgress;
 }
 
 const char * NetworkMessageIntro::getPackedMessageFormat() const {
-	return "cl128s32shcLL60s";
+	return "cl128s32shcLL60sc";
 }
 
 unsigned int NetworkMessageIntro::getPackedSize() {
@@ -148,7 +151,8 @@ unsigned int NetworkMessageIntro::getPackedSize() {
 				packedData.gameState,
 				packedData.externalIp,
 				packedData.ftpPort,
-				packedData.language.getBuffer());
+				packedData.language.getBuffer(),
+				data.gameInProgress);
 		delete [] buf;
 	}
 	return result;
@@ -164,7 +168,8 @@ void NetworkMessageIntro::unpackMessage(unsigned char *buf) {
 			&data.gameState,
 			&data.externalIp,
 			&data.ftpPort,
-			data.language.getBuffer());
+			data.language.getBuffer(),
+			&data.gameInProgress);
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] unpacked data:\n%s\n",__FUNCTION__,this->toString().c_str());
 }
 
@@ -181,7 +186,8 @@ unsigned char * NetworkMessageIntro::packMessage() {
 			data.gameState,
 			data.externalIp,
 			data.ftpPort,
-			data.language.getBuffer());
+			data.language.getBuffer(),
+			data.gameInProgress);
 	return buf;
 }
 
@@ -195,6 +201,7 @@ string NetworkMessageIntro::toString() const {
 	result += " externalIp = " + uIntToStr(data.externalIp);
 	result += " ftpPort = " + uIntToStr(data.ftpPort);
 	result += " language = " + data.language.getString();
+	result += " gameInProgress = " + uIntToStr(data.gameInProgress);
 	return result;
 }
 
@@ -246,6 +253,8 @@ void NetworkMessageIntro::toEndian() {
 		data.gameState = Shared::PlatformByteOrder::toCommonEndian(data.gameState);
 		data.externalIp = Shared::PlatformByteOrder::toCommonEndian(data.externalIp);
 		data.ftpPort = Shared::PlatformByteOrder::toCommonEndian(data.ftpPort);
+
+		data.gameInProgress = Shared::PlatformByteOrder::toCommonEndian(data.gameInProgress);
 	}
 }
 void NetworkMessageIntro::fromEndian() {
@@ -257,6 +266,8 @@ void NetworkMessageIntro::fromEndian() {
 		data.gameState = Shared::PlatformByteOrder::fromCommonEndian(data.gameState);
 		data.externalIp = Shared::PlatformByteOrder::fromCommonEndian(data.externalIp);
 		data.ftpPort = Shared::PlatformByteOrder::fromCommonEndian(data.ftpPort);
+
+		data.gameInProgress = Shared::PlatformByteOrder::fromCommonEndian(data.gameInProgress);
 	}
 }
 

@@ -63,8 +63,8 @@ public:
 enum FlagTypes1 {
     ft1_none                = 0x00,
     ft1_show_map_resources  = 0x01,
-    ft1_allow_team_switching  = 0x02
-    //ft1_xx                  = 0x04,
+    ft1_allow_team_switching  = 0x02,
+    ft1_allow_in_game_joining = 0x04
     //ft1_xx                  = 0x08,
     //ft1_xx                  = 0x10,
 };
@@ -305,6 +305,21 @@ public:
 
 		return startLocationIndex[factionIndex];
 	}
+	int getFactionIndexForStartLocation(int startIndex) const {
+		if(startIndex < 0 || startIndex >= GameConstants::maxPlayers) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid startIndex = %d\n",__FUNCTION__,startIndex);
+			throw megaglest_runtime_error(szBuf);
+		}
+
+		for(unsigned int i =0; i < GameConstants::maxPlayers; ++i) {
+			if(startLocationIndex[i] == startIndex) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	int getMapFilterIndex() const 						{return mapFilterIndex;}
 
 	bool getDefaultUnits() const				{return defaultUnits;}

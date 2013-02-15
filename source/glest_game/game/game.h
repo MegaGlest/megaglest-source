@@ -193,6 +193,8 @@ private:
 
 	MasterSlaveThreadController masterController;
 
+	bool inJoinGameLoading;
+
 public:
 	Game();
     Game(Program *program, const GameSettings *gameSettings, bool masterserverMode);
@@ -297,8 +299,8 @@ public:
 	void stopStreamingVideo(const string &playVideo);
 	void stopAllVideo();
 
-	string saveGame(string name);
-	static void loadGame(string name,Program *programPtr,bool isMasterserverMode);
+	string saveGame(string name, string path="saved/");
+	static void loadGame(string name,Program *programPtr,bool isMasterserverMode, const GameSettings *joinGameSettings=NULL);
 
 	void addNetworkCommandToReplayList(NetworkCommand* networkCommand,int worldFrameCount);
 
