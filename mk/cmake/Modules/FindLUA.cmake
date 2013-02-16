@@ -21,6 +21,7 @@ ENDIF(LUA_INCLUDE_DIR AND LUA_LIBRARIES)
 FIND_PATH(LUA_INCLUDE_DIR NAMES lua.hpp 
 		PATHS 	/usr/include
 				/usr/include/lua
+                                /usr/include/lua5.2
 				/usr/include/lua5.1
 		IF(FreeBSD)
                 	SET(PATHS "/usr/local/include/lua51")
@@ -29,7 +30,7 @@ FIND_PATH(LUA_INCLUDE_DIR NAMES lua.hpp
 		)
 
 IF (LUA_STATIC AND NOT LUA_LIBRARIES)
-	FIND_LIBRARY(LUA_LIBRARIES NAMES liblua5.1.a liblua.a lua5.1 lua
+	FIND_LIBRARY(LUA_LIBRARIES NAMES liblua5.2.a liblua5.1.a liblua.a lua5.1 lua
 		PATHS 
                 IF(FreeBSD)
                        SET(PATHS "/usr/local/lib/lua51")
@@ -37,7 +38,7 @@ IF (LUA_STATIC AND NOT LUA_LIBRARIES)
                 $ENV{LUA_HOME})
 
 ELSE()
-	FIND_LIBRARY(LUA_LIBRARIES NAMES lua5.1 lua
+	FIND_LIBRARY(LUA_LIBRARIES NAMES lua5.2 lua5.1 lua
 		PATHS 
                 IF(FreeBSD)
                        SET(PATHS "/usr/local/lib/lua51")
