@@ -5798,10 +5798,9 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 		newGameSettings = *joinGameSettings;
 
 		XmlNode *worldNode = gameNode->getChild("World");
-
-		//gui.loadGame(loadGameNode,&world);
 		XmlNode *guiNode = gameNode->getChild("Gui");
 		XmlNode *selectionNode = guiNode->getChild("Selection");
+		XmlNode *statsNode = worldNode->getChild("Stats");
 
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		NetworkRole role = networkManager.getNetworkRole();
@@ -5819,20 +5818,20 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 				newGameSettings.setFactionControl(i, ctNetwork);
 
 				worldNode->getAttribute("thisFactionIndex")->setValue(intToStr(i));
-				worldNode->getAttribute("thisTeamIndex")->setValue(intToStr(newGameSettings.getTeam(i)));
+				//worldNode->getAttribute("thisTeamIndex")->setValue(intToStr(newGameSettings.getTeam(i)));
 
 				XmlNode *factionNode = worldNode->getChild("Faction",i);
 				factionNode->getAttribute("thisFaction")->setValue(intToStr(i));
 				factionNode->getAttribute("control")->setValue(intToStr(ctNetwork));
 
 				selectionNode->getAttribute("factionIndex")->setValue(intToStr(i));
-				selectionNode->getAttribute("teamIndex")->setValue(intToStr(newGameSettings.getTeam(i)));
+				//selectionNode->getAttribute("teamIndex")->setValue(intToStr(newGameSettings.getTeam(i)));
+
+				statsNode->getAttribute("thisFactionIndex")->setValue(intToStr(i));
 			}
 			else {
-				//XmlNode *factionNode = worldNode->getChild("Faction",i);
-				//if(factionNode->hasAttribute("control") == true) {
-				//	factionNode->getAttribute("control")->setValue(intToStr(ctNetwork));
-				//}
+				XmlNode *factionNode = worldNode->getChild("Faction",i);
+				factionNode->getAttribute("thisFaction")->setValue(intToStr(0));
 			}
 		}
 	}
