@@ -1558,6 +1558,8 @@ void ServerInterface::update() {
 			}
 		}
 		//printf("\nServerInterface::update -- G\n");
+
+		checkListenerSlots();
 	}
 	catch(const exception &ex) {
 		//printf("\nServerInterface::update -- H\n");
@@ -2188,9 +2190,11 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 				if(connectionSlot != NULL && connectionSlot->isConnected()) {
 					connectionSlot->getSocket()->setBlock(true);
 				}
-				// Open slots for joining in progress game
-				else if(gameSettings->getFactionControl(factionIndex) != ctClosed && gameSettings->getFactionControl(factionIndex) != ctHuman) {
-					if(allowInGameConnections == true) {
+				else if(allowInGameConnections == true) {
+					// Open slots for joining in progress game
+					if(gameSettings->getFactionControl(factionIndex) != ctClosed &&
+						gameSettings->getFactionControl(factionIndex) != ctHuman) {
+
 						//printf("Opening slot for in game connections for slot: %d, faction: %d\n",i,factionIndex);
 						if(connectionSlot == NULL) {
 							addSlot(i);
@@ -2255,6 +2259,34 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	return bOkToStart;
+}
+
+void ServerInterface::checkListenerSlots() {
+	if(allowInGameConnections == true) {
+		bool useInGameBlockingClientSockets = Config::getInstance().getBool("EnableInGameBlockingSockets","true");
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		for(int i= 0; i < GameConstants::maxPlayers; ++i) {
+			int factionIndex = gameSettings.getFactionIndexForStartLocation(i);
+			MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
+			ConnectionSlot *connectionSlot= slots[i];
+			// Open slots for joining in progress game
+			if(connectionSlot == NULL &&
+				gameSettings.getFactionControl(factionIndex) != ctClosed &&
+				gameSettings.getFactionControl(factionIndex) != ctHuman) {
+				//printf("Opening slot for in game connections for slot: %d, faction: %d\n",i,factionIndex);
+				if(connectionSlot == NULL) {
+					addSlot(i);
+					connectionSlot = slots[i];
+					if(useInGameBlockingClientSockets == true) {
+						connectionSlot->getSocket()->setBlock(true);
+					}
+				}
+				connectionSlot->setCanAcceptConnections(true);
+			}
+		}
+	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,needToRepublishToMasterserver);
 }
 
 void ServerInterface::broadcastGameSetup(GameSettings *gameSettingsBuffer, bool setGameSettingsBuffer) {

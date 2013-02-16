@@ -254,6 +254,7 @@ private:
     int64 getNextEventId();
     void processTextMessageQueue();
     void processBroadCastMessageQueue();
+    void checkListenerSlots();
 
 protected:
     void signalClientsToRecieveData(std::map<PLATFORM_SOCKET,bool> & socketTriggeredList, std::map<int,ConnectionSlotEvent> & eventList, std::map<int,bool> & mapSlotSignalledList);

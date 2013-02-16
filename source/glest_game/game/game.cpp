@@ -5201,7 +5201,7 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange) {
 				if(saveNetworkGame == true) {
 					//printf("Saved network game to disk\n");
 
-					string file = this->saveGame(GameConstants::saveGameFileDefault,"temp/");
+					string file = this->saveGame(GameConstants::saveNetworkGameFileServer,"temp/");
 					char szBuf[8096]="";
 					Lang &lang= Lang::getInstance();
 					snprintf(szBuf,8096,lang.get("GameSaved","",true).c_str(),file.c_str());

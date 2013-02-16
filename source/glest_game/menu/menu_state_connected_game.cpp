@@ -1887,20 +1887,7 @@ void MenuStateConnectedGame::PlayNow(bool saveGame) {
 			clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
     	}
 
-//		string saveGameFile = "temp/" + string(GameConstants::saveGameFileDefault);
-//		if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
-//			saveGameFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + saveGameFile;
-//		}
-//		else {
-//	        string userData = Config::getInstance().getString("UserData_Root","");
-//	        if(userData != "") {
-//	        	endPathWithSlash(userData);
-//	        }
-//	        saveGameFile = userData + saveGameFile;
-//		}
-
 		clientInterface->broadcastGameStart(&gameSettings);
-		//Game::loadGame(saveGameFile,program,false,&gameSettings);
 		return;
 	}
 	else {
@@ -3209,17 +3196,6 @@ void MenuStateConnectedGame::update() {
 				//printf("Menu got new settings thisfactionindex = %d startlocation: %d control = %d\n",gameSettings->getThisFactionIndex(),clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()),gameSettings->getFactionControl(clientInterface->getGameSettings()->getThisFactionIndex()));
 
 				setupUIFromGameSettings(gameSettings, errorOnMissingData);
-
-//				// check if we are joining an in progress game
-//				if(clientInterface->getJoinGameInProgress() == true &&
-//				   clientInterface->getReadyForInGameJoin() == true &&
-//				   ftpClientThread != NULL) {
-//
-//					if(ftpClientThread != NULL) ftpClientThread->addTempFileToRequests(GameConstants::saveGameFileDefault);
-//            		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-//            		fileFTPProgressList[getInProgressSavedGameFromFTPServer] = pair<int,string>(0,"");
-//            		safeMutexFTPProgress.ReleaseLock();
-//				}
 			}
 
 			// check if we are joining an in progress game
@@ -3230,9 +3206,11 @@ void MenuStateConnectedGame::update() {
 				MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 				if(readyToJoinInProgressGame == false) {
 					if(getInProgressSavedGameFromFTPServer == "") {
-						ftpClientThread->addTempFileToRequests(GameConstants::saveGameFileDefault);
+						//printf("Requesting saved game file\n");
 
-						getInProgressSavedGameFromFTPServer = GameConstants::saveGameFileDefault;
+						ftpClientThread->addTempFileToRequests(GameConstants::saveNetworkGameFileClient,GameConstants::saveNetworkGameFileServer);
+
+						getInProgressSavedGameFromFTPServer = GameConstants::saveNetworkGameFileClient;
 						fileFTPProgressList[getInProgressSavedGameFromFTPServer] = pair<int,string>(0,"");
 					}
 					safeMutexFTPProgress.ReleaseLock();
@@ -3240,7 +3218,7 @@ void MenuStateConnectedGame::update() {
 				else {
 					safeMutexFTPProgress.ReleaseLock();
 
-					string saveGameFile = "temp/" + string(GameConstants::saveGameFileDefault);
+					string saveGameFile = "temp/" + string(GameConstants::saveNetworkGameFileClient);
 					if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
 						saveGameFile = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + saveGameFile;
 					}
@@ -3251,6 +3229,8 @@ void MenuStateConnectedGame::update() {
 						}
 						saveGameFile = userData + saveGameFile;
 					}
+
+					//printf("Loading saved game file [%s]\n",saveGameFile.c_str());
 
 					//clientInterface->broadcastGameStart(&gameSettings);
 					GameSettings gameSettings = *clientInterface->getGameSettings();
@@ -4168,6 +4148,8 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
         fileFTPProgressList.erase(itemName);
         safeMutexFTPProgress.ReleaseLock();
 
+        //printf("Status update downloading saved game file: [%s]\n",itemName.c_str());
+
         NetworkManager &networkManager= NetworkManager::getInstance();
         ClientInterface* clientInterface= networkManager.getClientInterface();
         const GameSettings *gameSettings = clientInterface->getGameSettings();
@@ -4187,6 +4169,8 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	    	}
 
 	    	readyToJoinInProgressGame = true;
+
+	    	//printf("Success downloading saved game file: [%s]\n",itemName.c_str());
         }
         else {
             curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);

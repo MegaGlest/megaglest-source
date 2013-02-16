@@ -66,6 +66,7 @@ static size_t my_fwrite(void *buffer, size_t size, size_t nmemb, void *stream) {
     }
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("===> FTP Client thread writing to file [%s]\n",fullFilePath.c_str());
+    //printf ("===> FTP Client thread writing to file [%s]\n",fullFilePath.c_str());
 
     // Abort file xfer and delete partial file
     if(out && out->ftpServer && out->ftpServer->getQuitStatus() == true) {
@@ -878,9 +879,14 @@ void FTPClientThread::getTempFileFromServer(pair<string,string> fileName) {
 
 pair<FTP_Client_ResultType,string>  FTPClientThread::getTempFileInternalFromServer(pair<string,string> fileName) {
 	string destFile = fileName.first;
-	string destFileSaveAs = fileName.first;
+	//string destFileSaveAs = fileName.first;
+    string destFileSaveAs = tempFilesPath;
+
+	endPathWithSlash(destFileSaveAs);
+	destFileSaveAs += fileName.first;
 
 	string remotePath = fileName.second;
+	fileName.second = "";
 
     pair<FTP_Client_ResultType,string> result = getFileFromServer(ftp_cct_TempFile,
     		fileName,remotePath, destFileSaveAs, FTP_TEMPFILES_USERNAME, FTP_COMMON_PASSWORD);
@@ -949,6 +955,8 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileFromServer(FTP_Clien
         else {
         	snprintf(szBuf,8096,"ftp://%s:%s@%s:%d/%s",ftpUser.c_str(),ftpUserPassword.c_str(),serverUrl.c_str(),portNumber,remotePath.c_str());
         }
+
+        //printf("===> Getting ftp file: %s\n",szBuf);
 
         curl_easy_setopt(curl, CURLOPT_URL,szBuf);
         curl_easy_setopt(curl, CURLOPT_FTP_USE_EPSV, 0L);
