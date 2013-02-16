@@ -2129,13 +2129,13 @@ void MenuStateCustomGame::switchSetupForSlots(SwitchSetupRequest **switchSetupRe
 			}
 
 			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork || listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] switchSetupRequests[i]->getToFactionIndex() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,switchSetupRequests[i]->getToFactionIndex());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] switchSetupRequests[i]->getToFactionIndex() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,switchSetupRequests[i]->getToSlotIndex());
 
-				if(switchSetupRequests[i]->getToFactionIndex() != -1) {
-					int newFactionIdx = switchSetupRequests[i]->getToFactionIndex();
+				if(switchSetupRequests[i]->getToSlotIndex() != -1) {
+					int newFactionIdx = switchSetupRequests[i]->getToSlotIndex();
 
 					//printf("switchSlot request from %d to %d\n",switchSetupRequests[i]->getCurrentFactionIndex(),switchSetupRequests[i]->getToFactionIndex());
-					int switchFactionIdx = switchSetupRequests[i]->getCurrentFactionIndex();
+					int switchFactionIdx = switchSetupRequests[i]->getCurrentSlotIndex();
 					if(serverInterface->switchSlot(switchFactionIdx,newFactionIdx)) {
 						try {
 							if(switchSetupRequests[i]->getSelectedFactionName() != "") {

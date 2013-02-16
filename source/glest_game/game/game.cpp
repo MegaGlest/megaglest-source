@@ -1626,11 +1626,13 @@ void Game::update() {
 
 				server->setStartInGameConnectionLaunch(false);
 
+				Lang &lang= Lang::getInstance();
+				bool pauseAndSaveGameForNewClient = false;
 				for(int i = 0; i < world.getFactionCount(); ++i) {
 					Faction *faction = world.getFaction(i);
 					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
 					if(slot != NULL && slot->getJoinGameInProgress() == true) {
-						//printf("$$$ signalling client to start game!\n");
+						//printf("$$$ signalling client to start game [deleting AI player] factionIndex: %d slot: %d startlocation: %d!\n",i,slot->getPlayerIndex(),faction->getStartLocationIndex());
 
 						this->gameSettings.setFactionControl(i,ctNetwork);
 						this->gameSettings.setNetworkPlayerName(i,server->gameSettings.getNetworkPlayerName(i));
@@ -1641,8 +1643,22 @@ void Game::update() {
 						aiInterfaces[i] = NULL;
 						//printf("END Purging AI player for index: %d\n",i);
 
-						commander.tryPauseGame();
+						Faction *faction = world.getFaction(i);
+						faction->setControlType(ctNetwork);
+
+						pauseAndSaveGameForNewClient = true;
 					}
+					else if((slot == NULL || slot->isConnected() == false) &&
+							this->gameSettings.getFactionControl(i) == ctNetwork &&
+							aiInterfaces[i] == NULL) {
+						faction->setFactionDisconnectHandled(false);
+						//this->gameSettings.setNetworkPlayerName(i,lang.get("AI") + intToStr(i+1));
+						//server->gameSettings.setNetworkPlayerName(i,lang.get("AI") + intToStr(i+1));
+					}
+				}
+
+				if(pauseAndSaveGameForNewClient == true) {
+					commander.tryPauseGame();
 				}
 			}
 			else if(server->getUnPauseForInGameConnection() == true && paused == true) {
@@ -1650,6 +1666,26 @@ void Game::update() {
 
 				server->setUnPauseForInGameConnection(false);
 				commander.tryResumeGame();
+			}
+			else {
+				// handle setting changes from clients
+				Map *map= world.getMap();
+				//printf("switchSetupRequests != NULL\n");
+
+				bool switchRequested = switchSetupForSlots(server, 0, map->getMaxPlayers(), false);
+				switchRequested = switchRequested || switchSetupForSlots(server, map->getMaxPlayers(), GameConstants::maxPlayers, true);
+
+				if(switchRequested == true) {
+					//printf("Send new game setup from switch: %d\n",switchRequested);
+
+					//for(int i= 0; i < gameSettings.getFactionCount(); ++i) {
+						//printf("#1 Faction Index: %d control: %d startlocation: %d\n",i,gameSettings.getFactionControl(i),gameSettings.getStartLocationIndex(i));
+
+						//printf("#2 Faction Index: %d control: %d startlocation: %d\n",i,server->gameSettings.getFactionControl(i),server->gameSettings.getStartLocationIndex(i));
+					//}
+
+					server->broadcastGameSetup(&server->gameSettings,true);
+				}
 			}
 		}
 
@@ -2172,6 +2208,137 @@ void Game::update() {
 	}
 }
 
+bool Game::switchSetupForSlots(ServerInterface *& serverInterface,
+		int startIndex, int endIndex, bool onlyNetworkUnassigned) {
+	bool switchRequested = false;
+	if(serverInterface == NULL) {
+		return switchRequested;
+	}
+
+	MutexSafeWrapper safeMutex(serverInterface->getSwitchSetupRequestsMutex(),CODE_AT_LINE);
+	SwitchSetupRequest ** switchSetupRequests = serverInterface->getSwitchSetupRequests();
+	if(switchSetupRequests == NULL) {
+		return switchRequested;
+	}
+
+	Map *map= world.getMap();
+	for(int i= startIndex; i < endIndex; ++i) {
+		if(switchSetupRequests[i] != NULL) {
+			//printf("Faction Index: %d Switch slot = %d to = %d current control = %d\n",i,switchSetupRequests[i]->getCurrentSlotIndex(),switchSetupRequests[i]->getToSlotIndex(),gameSettings.getFactionControl(i));
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] switchSetupRequests[i]->getSwitchFlags() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,switchSetupRequests[i]->getSwitchFlags());
+
+			if(onlyNetworkUnassigned == true && gameSettings.getFactionControl(i) != ctNetworkUnassigned) {
+				if(i < map->getMaxPlayers() || (i >= map->getMaxPlayers() && gameSettings.getFactionControl(i) != ctNetwork)) {
+					continue;
+				}
+			}
+
+			if(gameSettings.getFactionControl(i) == ctNetwork ||
+				gameSettings.getFactionControl(i) == ctNetworkUnassigned ||
+				//(gameSettings.getFactionControl(i) != ctClosed && gameSettings.getFactionControl(i) != ctHuman)) {
+				(gameSettings.getFactionControl(i) != ctHuman)) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] switchSetupRequests[i]->getToFactionIndex() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,switchSetupRequests[i]->getToSlotIndex());
+
+				if(switchSetupRequests[i]->getToSlotIndex() != -1) {
+					int newSlotIdx = switchSetupRequests[i]->getToSlotIndex();
+
+					//printf("switchSlot request from %d to %d\n",switchSetupRequests[i]->getCurrentSlotIndex(),switchSetupRequests[i]->getToSlotIndex());
+
+					int switchSlotIdx = switchSetupRequests[i]->getCurrentSlotIndex();
+					if(serverInterface->switchSlot(switchSlotIdx,newSlotIdx)) {
+						//printf("switchSlot returned true\n");
+						switchRequested = true;
+
+						int oldFactionIndex = gameSettings.getFactionIndexForStartLocation(switchSlotIdx);
+						int newFactionIndex = gameSettings.getFactionIndexForStartLocation(newSlotIdx);
+
+						//printf("Switching faction for index %d [%d] to %d\n",newSlotIdx,switchSlotIdx,gameSettings.getFactionControl(newFactionIndex));
+
+						gameSettings.setNetworkPlayerName(oldFactionIndex, "");
+						serverInterface->gameSettings.setNetworkPlayerName(oldFactionIndex, "");
+
+						gameSettings.setFactionControl(newFactionIndex,ctNetwork);
+						serverInterface->gameSettings.setFactionControl(newFactionIndex,ctNetwork);
+
+						//printf("#1a Faction Index: %d control: %d startlocation: %d\n",newFactionIndex,gameSettings.getFactionControl(newFactionIndex),gameSettings.getStartLocationIndex(newFactionIndex));
+						//printf("#2a Faction Index: %d control: %d startlocation: %d\n",newFactionIndex,serverInterface->gameSettings.getFactionControl(newFactionIndex),serverInterface->gameSettings.getStartLocationIndex(newFactionIndex));
+
+						try {
+							//if(switchSetupRequests[i]->getSelectedFactionName() != "") {
+							//	listBoxFactions[newFactionIdx].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
+							//}
+							//if(switchSetupRequests[i]->getToTeam() != -1) {
+							//	listBoxTeams[newFactionIdx].setSelectedItemIndex(switchSetupRequests[i]->getToTeam());
+							//}
+							if(switchSetupRequests[i]->getNetworkPlayerName() != "") {
+								//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[newFactionIdx].getText() [%s] switchSetupRequests[i]->getNetworkPlayerName() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,labelPlayerNames[newFactionIdx].getText().c_str(),switchSetupRequests[i]->getNetworkPlayerName().c_str());
+								gameSettings.setNetworkPlayerName(newFactionIndex,switchSetupRequests[i]->getNetworkPlayerName());
+								serverInterface->gameSettings.setNetworkPlayerName(newFactionIndex,switchSetupRequests[i]->getNetworkPlayerName());
+							}
+
+//							if(gameSettings.getFactionControl(switchFactionIdx) == ctNetworkUnassigned) {
+//								serverInterface->removeSlot(switchFactionIdx);
+//								//listBoxControls[switchFactionIdx].setSelectedItemIndex(ctClosed);
+//								gameSettings.getFactionControl(switchFactionIdx)
+//
+//								labelPlayers[switchFactionIdx].setVisible(switchFactionIdx+1 <= mapInfo.players);
+//								labelPlayerNames[switchFactionIdx].setVisible(switchFactionIdx+1 <= mapInfo.players);
+//								listBoxControls[switchFactionIdx].setVisible(switchFactionIdx+1 <= mapInfo.players);
+//								listBoxFactions[switchFactionIdx].setVisible(switchFactionIdx+1 <= mapInfo.players);
+//								listBoxTeams[switchFactionIdx].setVisible(switchFactionIdx+1 <= mapInfo.players);
+//								labelNetStatus[switchSlotIdx].setVisible(switchSlotIdx+1 <= mapInfo.players);
+//							}
+						}
+						catch(const runtime_error &e) {
+							SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] caught exception error = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+						}
+					}
+				}
+				else {
+					try {
+						//if(switchSetupRequests[i]->getSelectedFactionName() != "") {
+						//	listBoxFactions[i].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
+						//}
+						//if(switchSetupRequests[i]->getToTeam() != -1) {
+						//	listBoxTeams[i].setSelectedItemIndex(switchSetupRequests[i]->getToTeam());
+						//}
+
+						if((switchSetupRequests[i]->getSwitchFlags() & ssrft_NetworkPlayerName) == ssrft_NetworkPlayerName) {
+							//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, switchSetupRequests[i]->getSwitchFlags() = %d, switchSetupRequests[i]->getNetworkPlayerName() [%s], labelPlayerNames[i].getText() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,switchSetupRequests[i]->getSwitchFlags(),switchSetupRequests[i]->getNetworkPlayerName().c_str(),labelPlayerNames[i].getText().c_str());
+
+							if(switchSetupRequests[i]->getNetworkPlayerName() != GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
+								//labelPlayerNames[i].setText(switchSetupRequests[i]->getNetworkPlayerName());
+								gameSettings.setNetworkPlayerName(i,switchSetupRequests[i]->getNetworkPlayerName());
+								serverInterface->gameSettings.setNetworkPlayerName(i,switchSetupRequests[i]->getNetworkPlayerName());
+								switchRequested = true;
+							}
+							else {
+								//labelPlayerNames[i].setText("");
+								gameSettings.setNetworkPlayerName(i,"");
+								serverInterface->gameSettings.setNetworkPlayerName(i,"");
+								switchRequested = true;
+							}
+							//SetActivePlayerNameEditor();
+							//switchSetupRequests[i]->clearSwitchFlag(ssrft_NetworkPlayerName);
+						}
+					}
+					catch(const runtime_error &e) {
+						SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] caught exception error = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+					}
+				}
+			}
+
+			delete switchSetupRequests[i];
+			switchSetupRequests[i]=NULL;
+		}
+	}
+
+	return switchRequested;
+}
+
 void Game::updateNetworkMarkedCells() {
 	try {
 		GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
@@ -2226,6 +2393,7 @@ void Game::updateNetworkUnMarkedCells() {
 		throw megaglest_runtime_error(szBuf);
 	}
 }
+
 
 void Game::updateNetworkHighligtedCells() {
 	try {

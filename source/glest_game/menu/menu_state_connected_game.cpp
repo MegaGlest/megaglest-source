@@ -1505,15 +1505,22 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 						break;
 					}
 				}
-				//if(grabSlotButton[i].mouseClick(x, y)) {
-				//	printf("Send slot switch request for slot = %d, myCurrentIndex = %d name [%s] control = %d, mapInfo.players = %d\n",i,myCurrentIndex,labelNetStatus[i].getText().c_str(),listBoxControls[i].getSelectedItemIndex(),mapInfo.players);
-				//}
-				//else {
-				//	printf("No Click i = %d!\n",i);
-				//}
 
-				if(listBoxControls[i].getSelectedItemIndex() == ctNetwork &&
-					labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
+				bool canGrabSlot = false;
+				ClientInterface *clientInterface = networkManager.getClientInterface();
+				if(clientInterface != NULL && clientInterface->getJoinGameInProgress() == true) {
+					canGrabSlot = ((listBoxControls[i].getSelectedItemIndex() == ctNetwork &&
+							labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) ||
+							(listBoxControls[i].getSelectedItemIndex() != ctHuman &&
+							 listBoxControls[i].getSelectedItemIndex() != ctClosed &&
+							 listBoxControls[i].getSelectedItemIndex() != ctNetwork));
+				}
+				else {
+					canGrabSlot = (listBoxControls[i].getSelectedItemIndex() == ctNetwork &&
+										labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME);
+				}
+
+				if(canGrabSlot == true) {
 					if(i < mapInfo.players && grabSlotButton[i].mouseClick(x, y)) {
 						//printf("Send slot switch request for slot = %d, myCurrentIndex = %d\n",i,myCurrentIndex);
 
@@ -1531,6 +1538,8 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 							desiredFactionName = listBoxFactions[i].getSelectedItem();
 							desiredTeamIndex = listBoxTeams[i].getSelectedItemIndex();
 						}
+
+						//printf("Sending switch slot request to server...\n");
 
 						clientInterface->sendSwitchSetupRequest(
 								desiredFactionName,
@@ -2505,8 +2514,21 @@ void MenuStateConnectedGame::render() {
 				renderer.renderListBox(&listBoxFactions[i]);
 				renderer.renderListBox(&listBoxTeams[i]);
 
-				if((listBoxControls[i].getSelectedItemIndex() == ctNetwork) &&
-					(labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME)) {
+				bool canGrabSlot = false;
+				ClientInterface *clientInterface = networkManager.getClientInterface();
+				if(clientInterface != NULL && clientInterface->getJoinGameInProgress() == true) {
+					canGrabSlot = ((listBoxControls[i].getSelectedItemIndex() == ctNetwork &&
+							labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) ||
+							(listBoxControls[i].getSelectedItemIndex() != ctHuman &&
+							 listBoxControls[i].getSelectedItemIndex() != ctClosed &&
+							 listBoxControls[i].getSelectedItemIndex() != ctNetwork));
+				}
+				else {
+					canGrabSlot = (listBoxControls[i].getSelectedItemIndex() == ctNetwork &&
+										labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME);
+				}
+
+				if(canGrabSlot == true) {
 					if(i < mapInfo.players) {
 						renderer.renderButton(&grabSlotButton[i]);
 					}
@@ -3183,6 +3205,9 @@ void MenuStateConnectedGame::update() {
 				lastGameSettingsReceivedCount = clientInterface->getGameSettingsReceivedCount();
 				bool errorOnMissingData = (clientInterface->getAllowGameDataSynchCheck() == false);
 				GameSettings *gameSettings = clientInterface->getGameSettingsPtr();
+
+				//printf("Menu got new settings thisfactionindex = %d startlocation: %d control = %d\n",gameSettings->getThisFactionIndex(),clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()),gameSettings->getFactionControl(clientInterface->getGameSettings()->getThisFactionIndex()));
+
 				setupUIFromGameSettings(gameSettings, errorOnMissingData);
 
 //				// check if we are joining an in progress game

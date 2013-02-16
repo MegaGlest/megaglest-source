@@ -42,6 +42,7 @@ namespace Shared { namespace Graphics {
 namespace Glest{ namespace Game{
 
 class GraphicMessageBox;
+class ServerInterface;
 
 enum LoadGameItem {
 	lgt_FactionPreview 	= 0x01,
@@ -359,6 +360,10 @@ private:
 
 	void startMarkCell();
 	void startCameraFollowUnit();
+
+	bool switchSetupForSlots(ServerInterface *& serverInterface,
+			int startIndex, int endIndex, bool onlyNetworkUnassigned);
+
 };
 
 }}//end namespace

@@ -1027,6 +1027,7 @@ unsigned char * NetworkMessageLaunch::packMessage() {
 }
 
 bool NetworkMessageLaunch::receive(Socket* socket) {
+	//printf("Receive NetworkMessageLaunch\n");
 	bool result = false;
 	if(useOldProtocol == true) {
 		result = NetworkMessage::receive(socket, &data, sizeof(data), true);
@@ -1058,6 +1059,8 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 }
 
 void NetworkMessageLaunch::send(Socket* socket) {
+	//printf("Sending NetworkMessageLaunch\n");
+
 	if(data.messageType == nmtLaunch) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtLaunch\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	}
@@ -2389,8 +2392,8 @@ void NetworkMessageSynchNetworkGameDataFileGet::fromEndian() {
 SwitchSetupRequest::SwitchSetupRequest() {
 	data.messageType= nmtSwitchSetupRequest;
 	data.selectedFactionName="";
-	data.currentFactionIndex=-1;
-	data.toFactionIndex=-1;
+	data.currentSlotIndex=-1;
+	data.toSlotIndex=-1;
     data.toTeam = -1;
     data.networkPlayerName="";
     data.networkPlayerStatus = npst_None;
@@ -2404,8 +2407,8 @@ SwitchSetupRequest::SwitchSetupRequest(string selectedFactionName, int8 currentF
 										string language) {
 	data.messageType= nmtSwitchSetupRequest;
 	data.selectedFactionName=selectedFactionName;
-	data.currentFactionIndex=currentFactionIndex;
-	data.toFactionIndex=toFactionIndex;
+	data.currentSlotIndex=currentFactionIndex;
+	data.toSlotIndex=toFactionIndex;
     data.toTeam = toTeam;
     data.networkPlayerName=networkPlayerName;
     data.networkPlayerStatus=networkPlayerStatus;
@@ -2425,8 +2428,8 @@ unsigned int SwitchSetupRequest::getPackedSize() {
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
 				packedData.selectedFactionName.getBuffer(),
-				packedData.currentFactionIndex,
-				packedData.toFactionIndex,
+				packedData.currentSlotIndex,
+				packedData.toSlotIndex,
 				packedData.toTeam,
 				packedData.networkPlayerName.getBuffer(),
 				packedData.networkPlayerStatus,
@@ -2440,8 +2443,8 @@ void SwitchSetupRequest::unpackMessage(unsigned char *buf) {
 	unpack(buf, getPackedMessageFormat(),
 			&data.messageType,
 			data.selectedFactionName.getBuffer(),
-			&data.currentFactionIndex,
-			&data.toFactionIndex,
+			&data.currentSlotIndex,
+			&data.toSlotIndex,
 			&data.toTeam,
 			data.networkPlayerName.getBuffer(),
 			&data.networkPlayerStatus,
@@ -2454,8 +2457,8 @@ unsigned char * SwitchSetupRequest::packMessage() {
 	pack(buf, getPackedMessageFormat(),
 			data.messageType,
 			data.selectedFactionName.getBuffer(),
-			data.currentFactionIndex,
-			data.toFactionIndex,
+			data.currentSlotIndex,
+			data.toSlotIndex,
 			data.toTeam,
 			data.networkPlayerName.getBuffer(),
 			data.networkPlayerStatus,
@@ -2509,8 +2512,8 @@ void SwitchSetupRequest::toEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
 		data.messageType = Shared::PlatformByteOrder::toCommonEndian(data.messageType);
-		data.currentFactionIndex = Shared::PlatformByteOrder::toCommonEndian(data.currentFactionIndex);
-		data.toFactionIndex = Shared::PlatformByteOrder::toCommonEndian(data.toFactionIndex);
+		data.currentSlotIndex = Shared::PlatformByteOrder::toCommonEndian(data.currentSlotIndex);
+		data.toSlotIndex = Shared::PlatformByteOrder::toCommonEndian(data.toSlotIndex);
 		data.toTeam = Shared::PlatformByteOrder::toCommonEndian(data.toTeam);
 		data.networkPlayerStatus = Shared::PlatformByteOrder::toCommonEndian(data.networkPlayerStatus);
 		data.switchFlags = Shared::PlatformByteOrder::toCommonEndian(data.switchFlags);
@@ -2520,8 +2523,8 @@ void SwitchSetupRequest::fromEndian() {
 	static bool bigEndianSystem = Shared::PlatformByteOrder::isBigEndian();
 	if(bigEndianSystem == true) {
 		data.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.messageType);
-		data.currentFactionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.currentFactionIndex);
-		data.toFactionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.toFactionIndex);
+		data.currentSlotIndex = Shared::PlatformByteOrder::fromCommonEndian(data.currentSlotIndex);
+		data.toSlotIndex = Shared::PlatformByteOrder::fromCommonEndian(data.toSlotIndex);
 		data.toTeam = Shared::PlatformByteOrder::fromCommonEndian(data.toTeam);
 		data.networkPlayerStatus = Shared::PlatformByteOrder::fromCommonEndian(data.networkPlayerStatus);
 		data.switchFlags = Shared::PlatformByteOrder::fromCommonEndian(data.switchFlags);

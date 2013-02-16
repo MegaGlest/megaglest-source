@@ -858,8 +858,9 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									   serverInterface->getAllowInGameConnections() == true) {
 										//printf("Sent intro to client connection on slot!\n");
 
-										this->skipLagCheck = true;
-										this->joinGameInProgress = true;
+										//this->skipLagCheck = true;
+										//this->joinGameInProgress = true;
+										setJoinGameInProgressFlags();
 										serverInterface->setPauseForInGameConnection(true);
 
 										//printf("Got intro from client sending game settings..\n");
@@ -1170,7 +1171,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 						case nmtSwitchSetupRequest:
 						{
-							//printf("Got nmtSwitchSetupRequest A\n");
+							//printf("Got nmtSwitchSetupRequest A gotIntro = %d\n",gotIntro);
 
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtSwitchSetupRequest gotIntro = %d\n",__FILE__,__FUNCTION__,__LINE__,gotIntro);
 
@@ -1181,11 +1182,17 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								if(receiveMessage(&switchSetupRequest)) {
 									MutexSafeWrapper safeMutex(getServerSynchAccessor(),CODE_AT_LINE);
 
-									int factionIdx = switchSetupRequest.getCurrentFactionIndex();
-									if(serverInterface->getSwitchSetupRequests()[factionIdx] == NULL) {
-										serverInterface->getSwitchSetupRequests()[factionIdx]= new SwitchSetupRequest();
+									int slotIdx = switchSetupRequest.getCurrentSlotIndex();
+									int newSlotIdx = switchSetupRequest.getToSlotIndex();
+
+									//printf("slotIdx = %d newSlotIdx = %d\n",slotIdx,newSlotIdx);
+
+									if(serverInterface->getSwitchSetupRequests(slotIdx) == NULL) {
+										serverInterface->setSwitchSetupRequests(slotIdx,new SwitchSetupRequest());
 									}
-									*(serverInterface->getSwitchSetupRequests()[factionIdx]) = switchSetupRequest;
+									*(serverInterface->getSwitchSetupRequests(slotIdx)) = switchSetupRequest;
+
+									//printf("slotIdx = %d newSlotIdx = %d\n",serverInterface->getSwitchSetupRequests(slotIdx)->getCurrentSlotIndex(),serverInterface->getSwitchSetupRequests(slotIdx)->getToSlotIndex());
 
 									this->playerStatus = switchSetupRequest.getNetworkPlayerStatus();
 									this->name = switchSetupRequest.getNetworkPlayerName();
@@ -1194,9 +1201,9 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									//printf("Got nmtSwitchSetupRequest C\n");
 									//printf("In [%s::%s Line %d] networkPlayerName [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getSwitchSetupRequests()[factionIdx]->getNetworkPlayerName().c_str());
 
-									if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] networkPlayerName [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getSwitchSetupRequests()[factionIdx]->getNetworkPlayerName().c_str());
+									if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] networkPlayerName [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getSwitchSetupRequests()[slotIdx]->getNetworkPlayerName().c_str());
 
-									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] factionIdx = %d, switchSetupRequest.getNetworkPlayerName() [%s] switchSetupRequest.getNetworkPlayerStatus() = %d, switchSetupRequest.getSwitchFlags() = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdx,switchSetupRequest.getNetworkPlayerName().c_str(),switchSetupRequest.getNetworkPlayerStatus(),switchSetupRequest.getSwitchFlags());
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] factionIdx = %d, switchSetupRequest.getNetworkPlayerName() [%s] switchSetupRequest.getNetworkPlayerStatus() = %d, switchSetupRequest.getSwitchFlags() = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIdx,switchSetupRequest.getNetworkPlayerName().c_str(),switchSetupRequest.getNetworkPlayerStatus(),switchSetupRequest.getSwitchFlags());
 								}
 								else {
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
@@ -1214,6 +1221,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 							break;
 						}
+
 						case nmtReady:
 						{
 							NetworkMessageReady networkMessageReady;
@@ -1336,6 +1344,20 @@ void ConnectionSlot::validateConnection() {
 		//printf("Closing connection slot timed out!\n");
 		close();
 	}
+}
+
+void ConnectionSlot::resetJoinGameInProgressFlags() {
+	this->gotIntro = false;
+	this->skipLagCheck = false;
+	this->joinGameInProgress = false;
+	this->ready= false;
+}
+
+void ConnectionSlot::setJoinGameInProgressFlags() {
+	this->gotIntro = true;
+	this->skipLagCheck = true;
+	this->joinGameInProgress = true;
+	this->ready= false;
 }
 
 void ConnectionSlot::close() {
