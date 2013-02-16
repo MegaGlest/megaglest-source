@@ -102,6 +102,7 @@ private:
 	bool pauseForInGameConnection;
 	bool startInGameConnectionLaunch;
 	bool unPauseForInGameConnection;
+	bool gameStarted;
 
 public:
 	ServerInterface(bool publishEnabled);

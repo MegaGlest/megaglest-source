@@ -54,6 +54,7 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	allowInGameConnections = false;
 	pauseForInGameConnection = false;
 	unPauseForInGameConnection = false;
+	gameStarted = false;
 
 	serverSynchAccessor = new Mutex();
 	switchSetupRequestsSynchAccessor = new Mutex();
@@ -2256,13 +2257,15 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 				ftpServer = NULL;
 			}
 		}
+
+		gameStarted = true;
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	return bOkToStart;
 }
 
 void ServerInterface::checkListenerSlots() {
-	if(allowInGameConnections == true) {
+	if(gameStarted == true && allowInGameConnections == true) {
 		bool useInGameBlockingClientSockets = Config::getInstance().getBool("EnableInGameBlockingSockets","true");
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
