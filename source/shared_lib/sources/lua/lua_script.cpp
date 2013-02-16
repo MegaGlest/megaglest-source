@@ -121,16 +121,18 @@ void LuaScript::DumpGlobals()
 {
 	LuaHandle *L = luaState;
 	// push the first key (nil = beginning of table)
+#if LUA_VERSION_NUM <= 501
 	lua_pushnil(L);
-
+#endif
 	// lua_next will:
 	// 1 - pop the key
 	// 2 - push the next key
 	// 3 - push the value at that key
 	// ... so the key will be at index -2 and the value at index -1
 #if LUA_VERSION_NUM > 501
-		lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
-		for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+	lua_pushglobaltable(L);
+	lua_pushnil(L);
+	while (lua_next(L, -2) != 0) {
 #else
 	while (lua_next(L, LUA_GLOBALSINDEX) != 0) {
 #endif
@@ -197,10 +199,13 @@ void LuaScript::DumpGlobals()
 		// call luaL_dostring with that line.
 		//SaveLine(key_string + " = " + value_string);		// Pop the value so the index remains on top of the stack for the next iteration
 		printf("Found global LUA var: %s = %s\n",key_string.c_str(),value_string.c_str());
-#if LUA_VERSION_NUM <= 501
+
+		lua_pop(L, 1);
+	}
+#if LUA_VERSION_NUM > 501
 		lua_pop(L, 1);
 #endif
-	}
+
 }
 
 void LuaScript::saveGame(XmlNode *rootNode) {
@@ -210,7 +215,9 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 	//try{
 	LuaHandle *L = luaState;
 	// push the first key (nil = beginning of table)
+#if LUA_VERSION_NUM <= 501
 	lua_pushnil(L);
+#endif
 
 	// lua_next will:
 	// 1 - pop the key
@@ -219,8 +226,9 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 	// ... so the key will be at index -2 and the value at index -1
 
 #if LUA_VERSION_NUM > 501
-	lua_rawgeti(L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS);
-	for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
+	lua_pushglobaltable(L);
+	lua_pushnil(L);
+	while (lua_next(L, -2) != 0) {
 #else
 	while (lua_next(L, LUA_GLOBALSINDEX) != 0) {
 #endif
@@ -387,10 +395,12 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 				luaScriptNode->addAttribute("value_type",intToStr(value_type), mapTagReplacements);
 			}
 		}
-#if LUA_VERSION_NUM <= 501
+		lua_pop(L, 1);
+	}
+
+#if LUA_VERSION_NUM > 501
 		lua_pop(L, 1);
 #endif
-	}
 
 	//}
 	//catch(const exception &ex) {
