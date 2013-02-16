@@ -42,7 +42,6 @@ protected:
 
 	virtual void setQuitStatus(bool value);
 	virtual void setTaskCompleted(int frameIndex);
-	virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
 
 public:
 	AiInterfaceThread(AiInterface *aiIntf);
@@ -55,7 +54,7 @@ public:
 	virtual void signalSlave(void *userdata) { signal(*((int *)(userdata))); }
 
 	virtual void signalQuit();
-
+	virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
 };
 
 class AiInterface {

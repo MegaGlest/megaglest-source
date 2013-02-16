@@ -56,6 +56,8 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	unPauseForInGameConnection = false;
 
 	serverSynchAccessor = new Mutex();
+	switchSetupRequestsSynchAccessor = new Mutex();
+
 	for(int i= 0; i < GameConstants::maxPlayers; ++i) {
 		slotAccessorMutexes[i] = new Mutex();
 	}
@@ -325,7 +327,25 @@ ServerInterface::~ServerInterface() {
 	}
 	broadcastMessageQueue.clear();
 
+	delete switchSetupRequestsSynchAccessor;
+	switchSetupRequestsSynchAccessor = NULL;
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+}
+
+SwitchSetupRequest ** ServerInterface::getSwitchSetupRequests() {
+	MutexSafeWrapper safeMutex(switchSetupRequestsSynchAccessor,CODE_AT_LINE);
+    return &switchSetupRequests[0];
+}
+
+SwitchSetupRequest * ServerInterface::getSwitchSetupRequests(int index) {
+	MutexSafeWrapper safeMutex(switchSetupRequestsSynchAccessor,CODE_AT_LINE);
+    return switchSetupRequests[index];
+}
+
+void ServerInterface::setSwitchSetupRequests(int index,SwitchSetupRequest *ptr) {
+	MutexSafeWrapper safeMutex(switchSetupRequestsSynchAccessor,CODE_AT_LINE);
+    switchSetupRequests[index] = ptr;
 }
 
 int ServerInterface::isValidClientType(uint32 clientIp) {
@@ -460,22 +480,34 @@ bool ServerInterface::switchSlot(int fromPlayerIndex, int toPlayerIndex) {
 	MutexSafeWrapper safeMutex(serverSynchAccessor,CODE_AT_LINE);
 	MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[fromPlayerIndex],CODE_AT_LINE_X(fromPlayerIndex));
 	MutexSafeWrapper safeMutexSlot2(slotAccessorMutexes[toPlayerIndex],CODE_AT_LINE_X(toPlayerIndex));
+
+	//printf("#1 Server is switching slots\n");
 	if(slots[toPlayerIndex] != NULL &&
 	   slots[toPlayerIndex]->isConnected() == false) {
+
+		//printf("#2 Server is switching slots\n");
+
 		slots[fromPlayerIndex]->setPlayerIndex(toPlayerIndex);
 		slots[toPlayerIndex]->setPlayerIndex(fromPlayerIndex);
 		ConnectionSlot *tmp = slots[toPlayerIndex];
 		slots[toPlayerIndex] = slots[fromPlayerIndex];
 		slots[fromPlayerIndex] = tmp;
 		safeMutex.ReleaseLock();
+
 		PlayerIndexMessage playerIndexMessage(toPlayerIndex);
 		slots[toPlayerIndex]->sendMessage(&playerIndexMessage);
+
+		//slots[fromPlayerIndex]->resetJoinGameInProgressFlags();
+		//slots[toPlayerIndex]->setJoinGameInProgressFlags();
+
 		safeMutexSlot.ReleaseLock();
 		safeMutexSlot2.ReleaseLock();
 		result = true;
 		updateListen();
 	}
 	else {
+		//printf("#3 Server is switching slots aborted, is slot already connected?\n");
+
 		safeMutexSlot.ReleaseLock();
 		safeMutexSlot2.ReleaseLock();
 		safeMutex.ReleaseLock();
@@ -2227,6 +2259,16 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 
 void ServerInterface::broadcastGameSetup(GameSettings *gameSettingsBuffer, bool setGameSettingsBuffer) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	if(gameSettingsBuffer != NULL) {
+		for(unsigned int i = 0; i < gameSettingsBuffer->getFactionCount(); ++i) {
+			int slotIndex = gameSettingsBuffer->getStartLocationIndex(i);
+			if(gameSettingsBuffer->getFactionControl(i) == ctNetwork &&
+				isClientConnected(slotIndex) == false) {
+				gameSettingsBuffer->setNetworkPlayerName(i,GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME);
+			}
+		}
+	}
 	if(setGameSettingsBuffer == true) {
 		validateGameSettings(gameSettingsBuffer);
 		//setGameSettings(gameSettingsBuffer,false);

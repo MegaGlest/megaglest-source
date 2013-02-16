@@ -763,8 +763,8 @@ private:
 	struct Data {
 		int8 messageType;
 		NetworkString<maxStringSize> selectedFactionName; //wanted faction name
-		int8 currentFactionIndex;
-		int8 toFactionIndex;
+		int8 currentSlotIndex;
+		int8 toSlotIndex;
 		int8 toTeam;
 		NetworkString<maxPlayernameStringSize> networkPlayerName;
 		int8 networkPlayerStatus;
@@ -793,8 +793,8 @@ public:
 	virtual size_t getDataSize() const { return sizeof(Data); }
 
 	string getSelectedFactionName() const	{return data.selectedFactionName.getString();}
-	int getCurrentFactionIndex() const		{return data.currentFactionIndex;}
-	int getToFactionIndex() const			{return data.toFactionIndex;}
+	int getCurrentSlotIndex() const		{return data.currentSlotIndex;}
+	int getToSlotIndex() const			{return data.toSlotIndex;}
 	int getToTeam() const					{return data.toTeam;}
 	string getNetworkPlayerName() const		{return data.networkPlayerName.getString(); }
 	int getSwitchFlags() const				{return data.switchFlags;}

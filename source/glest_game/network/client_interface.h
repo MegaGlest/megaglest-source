@@ -118,8 +118,8 @@ public:
 	void discoverServers(DiscoveredServersInterface *cb);
 	void stopServerDiscovery();
 	
-	void sendSwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex,
-								int8 toFactionIndex, int8 toTeam,string networkPlayerName,
+	void sendSwitchSetupRequest(string selectedFactionName, int8 currentSlotIndex,
+								int8 toSlotIndex, int8 toTeam,string networkPlayerName,
 								int8 networkPlayerStatus, int8 flags,
 								string language);
 	virtual bool getConnectHasHandshaked() const { return gotIntro; }

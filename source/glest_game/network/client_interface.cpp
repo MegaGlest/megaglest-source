@@ -565,6 +565,8 @@ void ClientInterface::updateLobby() {
         case nmtLaunch:
         case nmtBroadCastSetup:
         {
+        	//printf("#1 Got new game setup playerIndex = %d!\n",playerIndex);
+
             NetworkMessageLaunch networkMessageLaunch;
             if(receiveMessage(&networkMessageLaunch)) {
             	if(networkMessageLaunch.getMessageType() == nmtLaunch) {
@@ -596,8 +598,12 @@ void ClientInterface::updateLobby() {
                         gameSettings.setFactionControl(i, ctNetwork);
                     }
 
-                    //set the faction index
-                    if(gameSettings.getStartLocationIndex(i) == playerIndex) {
+					//printf("i = %d gameSettings.getStartLocationIndex(i) = %d playerIndex = %d, gameSettings.getFactionControl(i) = %d\n",i,gameSettings.getStartLocationIndex(i),playerIndex,gameSettings.getFactionControl(i));
+
+					//set the faction index
+					if(gameSettings.getStartLocationIndex(i) == playerIndex) {
+						//printf("Setting my factionindex to: %d for playerIndex: %d\n",i,playerIndex);
+
                         gameSettings.setThisFactionIndex(i);
 
                         //printf("Client got game settings playerIndex = %d factionIndex = %d control = %d name = %s\n",playerIndex,i,gameSettings.getFactionControl(i),gameSettings.getFactionTypeName(i).c_str());
@@ -622,6 +628,8 @@ void ClientInterface::updateLobby() {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtPlayerIndexMessage, playerIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex);
             }
+
+			//printf("Got player index changed msg: %d\n",playerIndex);
 		}
 		break;
 
@@ -839,6 +847,8 @@ void ClientInterface::updateFrame(int *checkFrame) {
 				case nmtLaunch:
 				case nmtBroadCastSetup:
 				{
+					//printf("#2 Got new game setup playerIndex = %d!\n",playerIndex);
+
 					NetworkMessageLaunch networkMessageLaunch;
 					if(receiveMessage(&networkMessageLaunch)) {
 						if(networkMessageLaunch.getMessageType() == nmtLaunch) {
@@ -865,8 +875,12 @@ void ClientInterface::updateFrame(int *checkFrame) {
 								gameSettings.setFactionControl(i, ctNetwork);
 							}
 
+							//printf("i = %d gameSettings.getStartLocationIndex(i) = %d playerIndex = %d!\n",i,gameSettings.getStartLocationIndex(i),playerIndex);
+
 							//set the faction index
 							if(gameSettings.getStartLocationIndex(i) == playerIndex) {
+								//printf("Setting my factionindex to: %d for playerIndex: %d\n",i,playerIndex);
+
 								gameSettings.setThisFactionIndex(i);
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] gameSettings.getThisFactionIndex(i) = %d, playerIndex = %d, i = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,gameSettings.getThisFactionIndex(),playerIndex,i);
 							}
@@ -1511,13 +1525,13 @@ void ClientInterface::stopServerDiscovery() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
-void ClientInterface::sendSwitchSetupRequest(string selectedFactionName, int8 currentFactionIndex,
-											int8 toFactionIndex,int8 toTeam, string networkPlayerName,
+void ClientInterface::sendSwitchSetupRequest(string selectedFactionName, int8 currentSlotIndex,
+											int8 toSlotIndex,int8 toTeam, string networkPlayerName,
 											int8 networkPlayerStatus, int8 flags,
 											string language) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkPlayerName [%s] flags = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkPlayerName.c_str(),flags);
 	SwitchSetupRequest message=SwitchSetupRequest(selectedFactionName,
-			currentFactionIndex, toFactionIndex,toTeam,networkPlayerName,
+			currentSlotIndex, toSlotIndex,toTeam,networkPlayerName,
 			networkPlayerStatus, flags,language);
 	sendMessage(&message);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);

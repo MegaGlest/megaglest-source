@@ -252,7 +252,9 @@ AiInterface::~AiInterface() {
 
 	if(workerThread != NULL) {
 		workerThread->signalQuit();
-		if(workerThread->shutdownAndWait() == true) {
+    	sleep(0);
+    	if(workerThread->canShutdown(true) == true &&
+    			workerThread->shutdownAndWait() == true) {
 			delete workerThread;
 		}
 		workerThread = NULL;

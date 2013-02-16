@@ -58,7 +58,10 @@ private:
 	ServerSocket serverSocket;
 	bool gameHasBeenInitiated;
 	int gameSettingsUpdateCount;
+
+	Mutex *switchSetupRequestsSynchAccessor;
 	SwitchSetupRequest* switchSetupRequests[GameConstants::maxPlayers];
+
 	Mutex *serverSynchAccessor;
 	int currentFrameCount;
 
@@ -147,15 +150,14 @@ public:
 
     virtual void quitGame(bool userManuallyQuit);
     virtual string getNetworkStatus();
-    ServerSocket *getServerSocket()
-    {
+    ServerSocket *getServerSocket() {
         return &serverSocket;
     }
 
-    SwitchSetupRequest **getSwitchSetupRequests()
-    {
-        return &switchSetupRequests[0];
-    }
+    SwitchSetupRequest **getSwitchSetupRequests();
+    SwitchSetupRequest *getSwitchSetupRequests(int index);
+    void setSwitchSetupRequests(int index,SwitchSetupRequest *ptr);
+    Mutex * getSwitchSetupRequestsMutex() { return switchSetupRequestsSynchAccessor; }
 
     void addSlot(int playerIndex);
     bool switchSlot(int fromPlayerIndex, int toPlayerIndex);
