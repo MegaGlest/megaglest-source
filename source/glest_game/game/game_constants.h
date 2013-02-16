@@ -163,6 +163,8 @@ public:
 
 	static const char *application_name;
 	
+	static const char *saveNetworkGameFileServer;
+	static const char *saveNetworkGameFileClient;
 	static const char *saveGameFileDefault;
 	static const char *saveGameFileAutoTestDefault;
 	static const char *saveGameFilePattern;
