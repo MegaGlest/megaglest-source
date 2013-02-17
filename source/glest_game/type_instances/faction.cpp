@@ -1842,6 +1842,20 @@ bool Faction::canCreateUnit(const UnitType *ut, bool checkBuild, bool checkProdu
 	return foundUnit;
 }
 
+void Faction::clearCaches() {
+	cacheResourceTargetList.clear();
+	cachedCloseResourceTargetLookupList.clear();
+	mapSharedPathFinderCache.clear();
+
+	unsigned int unitCount = this->getUnitCount();
+	for(unsigned int i = 0; i < unitCount; ++i) {
+		Unit *unit = this->getUnit(i);
+		if(unit != NULL) {
+			unit->clearCaches();
+		}
+	}
+}
+
 uint64 Faction::getCacheKBytes(uint64 *cache1Size, uint64 *cache2Size) {
 	uint64 cache1Count = 0;
 	uint64 cache2Count = 0;

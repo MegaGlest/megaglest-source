@@ -344,6 +344,8 @@ public:
 	void saveGame(XmlNode *rootNode);
 	void loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *settings,World *world);
 
+	void clearCaches();
+
 private:
 	void init();
 	void resetResourceAmount(const ResourceType *rt);

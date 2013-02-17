@@ -239,7 +239,7 @@ public:
 
 	Uint64 getTickCount()					{return tickCount;}
 	bool getPaused();
-	void setPaused(bool value, bool forceAllowPauseStateChange=false);
+	void setPaused(bool value, bool forceAllowPauseStateChange=false,bool clearCaches=false);
 	void tryPauseToggle(bool pause);
 	void setupRenderForVideo();
 	void saveGame();
