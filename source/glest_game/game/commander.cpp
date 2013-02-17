@@ -483,13 +483,13 @@ void Commander::tryDisconnectNetworkPlayer(const Faction* faction, int playerInd
 	pushNetworkCommand(&command);
 }
 
-void Commander::tryPauseGame() const {
-	NetworkCommand command(this->world,nctPauseResume, 1);
+void Commander::tryPauseGame(bool clearCaches) const {
+	NetworkCommand command(this->world,nctPauseResume, 1, (clearCaches == true ? 1 : 0));
 	pushNetworkCommand(&command);
 }
 
-void Commander::tryResumeGame() const {
-	NetworkCommand command(this->world,nctPauseResume, 0);
+void Commander::tryResumeGame(bool clearCaches) const {
+	NetworkCommand command(this->world,nctPauseResume, 0, (clearCaches == true ? 1 : 0));
 	pushNetworkCommand(&command);
 }
 
@@ -613,6 +613,7 @@ void Commander::updateNetwork(Game *game) {
         GameSettings *gameSettings = game->getGameSettings();
         if( networkManager.isNetworkGame() == false ||
             (world->getFrameCount() % gameSettings->getNetworkFramePeriod()) == 0) {
+        	//printf("Commander world->getFrameCount() = %d gameSettings->getNetworkFramePeriod() = %d\n",world->getFrameCount(),gameSettings->getNetworkFramePeriod());
 
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] networkManager.isNetworkGame() = %d,world->getFrameCount() = %d, gameSettings->getNetworkFramePeriod() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkManager.isNetworkGame(),world->getFrameCount(),gameSettings->getNetworkFramePeriod());
 
@@ -870,11 +871,12 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
         	commandWasHandled = true;
 
-        	bool pauseGame = networkCommand->getUnitId() != 0;
+        	bool pauseGame 		= networkCommand->getUnitId() != 0;
+        	bool clearCaches 	= networkCommand->getCommandTypeId();
        		Game *game = this->world->getGame();
 
        		//printf("nctPauseResume pauseGame = %d\n",pauseGame);
-       		game->setPaused(pauseGame,true);
+       		game->setPaused(pauseGame,true,clearCaches);
 
             if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctPauseResume\n",__FILE__,__FUNCTION__,__LINE__);
         	}

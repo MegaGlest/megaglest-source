@@ -1416,10 +1416,6 @@ void Game::init(bool initForPreviewOnly) {
 
 void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 	Lang &lang= Lang::getInstance();
-	//Logger &logger= Logger::getInstance();
-	//CoreData &coreData= CoreData::getInstance();
-	//Renderer &renderer= Renderer::getInstance();
-	//Map *map= world.getMap();
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	NetworkRole role = networkManager.getNetworkRole();
 	ClientInterface *clientInterface = NULL;
@@ -1442,6 +1438,14 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 			(clientInterface != NULL &&
 			 (gameSettings.getMasterserver_admin() != clientInterface->getSessionKey() &&
 					clientInterface->isMasterServerAdminOverride() == true))) {
+		exitGamePopupMenuIndex = -1;
+		joinTeamPopupMenuIndex = -1;
+		pauseGamePopupMenuIndex = -1;
+		saveGamePopupMenuIndex = -1;
+		loadGamePopupMenuIndex = -1;
+		keyboardSetupPopupMenuIndex = -1;
+		disconnectPlayerPopupMenuIndex = -1;
+
 		if(checkClientAdminOverrideOnly == true) {
 			gameSettings.setMasterserver_admin(clientInterface->getSessionKey());
 			gameSettings.setMasterserver_admin_faction_index(clientInterface->getPlayerIndex());
@@ -1473,6 +1477,11 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 //				menuItems.push_back(lang.get("LoadGame"));
 //				loadGamePopupMenuIndex= menuItems.size() - 1;
 			}
+
+			//printf("Checking disconnect menu: %d\n",gameSettings.isNetworkGame());
+			//for(int idx = 0; idx < GameConstants::maxPlayers; ++idx) {
+			//	printf("Faction Index: %d, control: %d\n",idx,gameSettings.getFactionControl(idx));
+			//}
 
 			if(gameSettings.isNetworkGame() == true){
 				menuItems.push_back(lang.get("DisconnectNetorkPlayer"));
@@ -1588,107 +1597,6 @@ void Game::update() {
 			perfList.push_back(perfBuf);
 		}
 
-		if(role == nrServer) {
-			ServerInterface *server = NetworkManager::getInstance().getServerInterface();
-			if(server->getPauseForInGameConnection() == true && paused == false) {
-
-				//printf("================= Switching player pausing game\n");
-
-				for(int i = 0; i < world.getFactionCount(); ++i) {
-					Faction *faction = world.getFaction(i);
-
-					//printf("Switching player check %d from: %d connected: %d, startindex = %d, connected #2: %d\n",i,faction->getControlType(),server->isClientConnected(faction->getStartLocationIndex()),faction->getStartLocationIndex(),server->isClientConnected(i));
-					//printf("Slot: %d faction name: %s\n",i,faction->getType()->getName().c_str());
-
-					if(	faction->getControlType() != ctNetwork &&
-						faction->getControlType() != ctHuman &&
-						server->isClientConnected(faction->getStartLocationIndex()) == true) {
-
-						//printf("Switching player %d from: %d to %d\n",i,faction->getControlType(),ctNetwork);
-						//printf("Slot: %d faction name: %s GS faction: %s\n",i,faction->getType()->getName().c_str(),server->gameSettings.getFactionTypeName(i).c_str());
-
-						server->gameSettings.setFactionControl(i,ctNetwork);
-						ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
-						server->gameSettings.setNetworkPlayerName(i,slot->getName());
-
-						this->gameSettings.setFactionControl(i,ctNetwork);
-						this->gameSettings.setNetworkPlayerName(i,server->gameSettings.getNetworkPlayerName(i));
-					}
-				}
-				//printf("#1 Data synch: lmap %u ltile: %d ltech: %u\n",gameSettings.getMapCRC(),gameSettings.getTilesetCRC(),gameSettings.getTechCRC());
-				//printf("#2 Data synch: lmap %u ltile: %d ltech: %u\n",server->gameSettings.getMapCRC(),server->gameSettings.getTilesetCRC(),server->gameSettings.getTechCRC());
-				server->broadcastGameSetup(&server->gameSettings,true);
-
-				server->setPauseForInGameConnection(false);
-			}
-			else if(server->getStartInGameConnectionLaunch() == true) {
-				//printf("^^^ getStartInGameConnectionLaunch triggered!\n");
-
-				server->setStartInGameConnectionLaunch(false);
-
-				Lang &lang= Lang::getInstance();
-				bool pauseAndSaveGameForNewClient = false;
-				for(int i = 0; i < world.getFactionCount(); ++i) {
-					Faction *faction = world.getFaction(i);
-					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
-					if(slot != NULL && slot->getJoinGameInProgress() == true) {
-						//printf("$$$ signalling client to start game [deleting AI player] factionIndex: %d slot: %d startlocation: %d!\n",i,slot->getPlayerIndex(),faction->getStartLocationIndex());
-
-						this->gameSettings.setFactionControl(i,ctNetwork);
-						this->gameSettings.setNetworkPlayerName(i,server->gameSettings.getNetworkPlayerName(i));
-
-						//printf("START Purging AI player for index: %d\n",i);
-						masterController.clearSlaves(true);
-						delete aiInterfaces[i];
-						aiInterfaces[i] = NULL;
-						//printf("END Purging AI player for index: %d\n",i);
-
-						Faction *faction = world.getFaction(i);
-						faction->setControlType(ctNetwork);
-
-						pauseAndSaveGameForNewClient = true;
-					}
-					else if((slot == NULL || slot->isConnected() == false) &&
-							this->gameSettings.getFactionControl(i) == ctNetwork &&
-							aiInterfaces[i] == NULL) {
-						faction->setFactionDisconnectHandled(false);
-						//this->gameSettings.setNetworkPlayerName(i,lang.get("AI") + intToStr(i+1));
-						//server->gameSettings.setNetworkPlayerName(i,lang.get("AI") + intToStr(i+1));
-					}
-				}
-
-				if(pauseAndSaveGameForNewClient == true) {
-					commander.tryPauseGame();
-				}
-			}
-			else if(server->getUnPauseForInGameConnection() == true && paused == true) {
-				//printf("^^^ getUnPauseForInGameConnection triggered!\n");
-
-				server->setUnPauseForInGameConnection(false);
-				commander.tryResumeGame();
-			}
-			else {
-				// handle setting changes from clients
-				Map *map= world.getMap();
-				//printf("switchSetupRequests != NULL\n");
-
-				bool switchRequested = switchSetupForSlots(server, 0, map->getMaxPlayers(), false);
-				switchRequested = switchRequested || switchSetupForSlots(server, map->getMaxPlayers(), GameConstants::maxPlayers, true);
-
-				if(switchRequested == true) {
-					//printf("Send new game setup from switch: %d\n",switchRequested);
-
-					//for(int i= 0; i < gameSettings.getFactionCount(); ++i) {
-						//printf("#1 Faction Index: %d control: %d startlocation: %d\n",i,gameSettings.getFactionControl(i),gameSettings.getStartLocationIndex(i));
-
-						//printf("#2 Faction Index: %d control: %d startlocation: %d\n",i,server->gameSettings.getFactionControl(i),server->gameSettings.getStartLocationIndex(i));
-					//}
-
-					server->broadcastGameSetup(&server->gameSettings,true);
-				}
-			}
-		}
-
 		// Check to see if we are playing a network game and if any players
 		// have disconnected?
 		ReplaceDisconnectedNetworkPlayersWithAI(isNetworkGame, role);
@@ -1712,6 +1620,7 @@ void Game::update() {
 			if(replayTotal > 0) {
 				chronoReplay.start();
 			}
+
 			do {
 				if(replayTotal > 0) {
 					replayCommandsPlayed = (replayTotal - commander.getReplayCommandListForFrameCount());
@@ -2005,6 +1914,111 @@ void Game::update() {
 			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
 			perfList.push_back(perfBuf);
 		}
+
+		// START - Handle joining in progress games
+		if(role == nrServer) {
+			ServerInterface *server = NetworkManager::getInstance().getServerInterface();
+			if(server->getPauseForInGameConnection() == true && paused == false) {
+
+				//printf("================= Switching player pausing game\n");
+
+				for(int i = 0; i < world.getFactionCount(); ++i) {
+					Faction *faction = world.getFaction(i);
+
+					//printf("Switching player check %d from: %d connected: %d, startindex = %d, connected #2: %d\n",i,faction->getControlType(),server->isClientConnected(faction->getStartLocationIndex()),faction->getStartLocationIndex(),server->isClientConnected(i));
+					//printf("Slot: %d faction name: %s\n",i,faction->getType()->getName().c_str());
+
+					if(	faction->getControlType() != ctNetwork &&
+						faction->getControlType() != ctHuman &&
+						server->isClientConnected(faction->getStartLocationIndex()) == true) {
+
+						//printf("Switching player %d from: %d to %d\n",i,faction->getControlType(),ctNetwork);
+						//printf("Slot: %d faction name: %s GS faction: %s\n",i,faction->getType()->getName().c_str(),server->gameSettings.getFactionTypeName(i).c_str());
+
+						server->gameSettings.setFactionControl(i,ctNetwork);
+						ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+						server->gameSettings.setNetworkPlayerName(i,slot->getName());
+
+						this->gameSettings.setFactionControl(i,ctNetwork);
+						this->gameSettings.setNetworkPlayerName(i,server->gameSettings.getNetworkPlayerName(i));
+					}
+				}
+				//printf("#1 Data synch: lmap %u ltile: %d ltech: %u\n",gameSettings.getMapCRC(),gameSettings.getTilesetCRC(),gameSettings.getTechCRC());
+				//printf("#2 Data synch: lmap %u ltile: %d ltech: %u\n",server->gameSettings.getMapCRC(),server->gameSettings.getTilesetCRC(),server->gameSettings.getTechCRC());
+				server->broadcastGameSetup(&server->gameSettings,true);
+
+				server->setPauseForInGameConnection(false);
+			}
+			else if(server->getStartInGameConnectionLaunch() == true) {
+				//printf("^^^ getStartInGameConnectionLaunch triggered!\n");
+
+				server->setStartInGameConnectionLaunch(false);
+
+				Lang &lang= Lang::getInstance();
+				bool pauseAndSaveGameForNewClient = false;
+				for(int i = 0; i < world.getFactionCount(); ++i) {
+					Faction *faction = world.getFaction(i);
+					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+					if(slot != NULL && slot->getJoinGameInProgress() == true) {
+						//printf("$$$ signalling client to start game [deleting AI player] factionIndex: %d slot: %d startlocation: %d!\n",i,slot->getPlayerIndex(),faction->getStartLocationIndex());
+
+						this->gameSettings.setFactionControl(i,ctNetwork);
+						this->gameSettings.setNetworkPlayerName(i,server->gameSettings.getNetworkPlayerName(i));
+
+						//printf("START Purging AI player for index: %d\n",i);
+						masterController.clearSlaves(true);
+						delete aiInterfaces[i];
+						aiInterfaces[i] = NULL;
+						//printf("END Purging AI player for index: %d\n",i);
+
+						Faction *faction = world.getFaction(i);
+						faction->setControlType(ctNetwork);
+
+						pauseAndSaveGameForNewClient = true;
+					}
+					else if((slot == NULL || slot->isConnected() == false) &&
+							this->gameSettings.getFactionControl(i) == ctNetwork &&
+							aiInterfaces[i] == NULL) {
+						faction->setFactionDisconnectHandled(false);
+						//this->gameSettings.setNetworkPlayerName(i,lang.get("AI") + intToStr(i+1));
+						//server->gameSettings.setNetworkPlayerName(i,lang.get("AI") + intToStr(i+1));
+					}
+				}
+
+				if(pauseAndSaveGameForNewClient == true) {
+					commander.tryPauseGame(true);
+					//return;
+				}
+			}
+			else if(server->getUnPauseForInGameConnection() == true && paused == true) {
+				//printf("^^^ getUnPauseForInGameConnection triggered!\n");
+
+				server->setUnPauseForInGameConnection(false);
+				commander.tryResumeGame(false);
+				//return;
+			}
+			else {
+				// handle setting changes from clients
+				Map *map= world.getMap();
+				//printf("switchSetupRequests != NULL\n");
+
+				bool switchRequested = switchSetupForSlots(server, 0, map->getMaxPlayers(), false);
+				switchRequested = switchRequested || switchSetupForSlots(server, map->getMaxPlayers(), GameConstants::maxPlayers, true);
+
+				if(switchRequested == true) {
+					//printf("Send new game setup from switch: %d\n",switchRequested);
+
+					//for(int i= 0; i < gameSettings.getFactionCount(); ++i) {
+						//printf("#1 Faction Index: %d control: %d startlocation: %d\n",i,gameSettings.getFactionControl(i),gameSettings.getStartLocationIndex(i));
+
+						//printf("#2 Faction Index: %d control: %d startlocation: %d\n",i,server->gameSettings.getFactionControl(i),server->gameSettings.getStartLocationIndex(i));
+					//}
+
+					server->broadcastGameSetup(&server->gameSettings,true);
+				}
+			}
+		}
+		// END - Handle joining in progress games
 
 		//update auto test
 		if(Config::getInstance().getBool("AutoTest")){
@@ -2869,14 +2883,14 @@ void Game::tryPauseToggle(bool pauseValue) {
 
 	if(allowAdminMenuItems) {
 		if(pauseValue == true) {
-			commander.tryPauseGame();
+			commander.tryPauseGame(false);
 		}
 		else {
 			if(isNetworkGame == false) {
 				setPaused(pauseValue, true);
 			}
 			else {
-				commander.tryResumeGame();
+				commander.tryResumeGame(false);
 			}
 		}
 	}
@@ -3049,6 +3063,8 @@ void Game::mouseDownLeft(int x, int y) {
 			std::pair<int,string> result = popupMenu.mouseClickedMenuItem(x, y);
 			//printf("In popup callback menuItemSelected [%s] menuIndexSelected = %d\n",result.second.c_str(),result.first);
 
+			//printf("popupMenu.mouseClick == true result.first = %d disconnectPlayerPopupMenuIndex = %d\n",result.first,disconnectPlayerPopupMenuIndex);
+
 			popupMenu.setEnabled(false);
 			popupMenu.setVisible(false);
 
@@ -3168,10 +3184,10 @@ void Game::mouseDownLeft(int x, int y) {
 
 				if(allowAdminMenuItems) {
 					if(getPaused() == false) {
-						commander.tryPauseGame();
+						commander.tryPauseGame(false);
 					}
 					else {
-						commander.tryResumeGame();
+						commander.tryResumeGame(false);
 					}
 				}
 			}
@@ -4078,10 +4094,10 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 
 				if(allowAdminMenuItems) {
 					if(getPaused() == false) {
-						commander.tryPauseGame();
+						commander.tryPauseGame(false);
 					}
 					else {
-						commander.tryResumeGame();
+						commander.tryResumeGame(false);
 					}
 				}
 			}
@@ -5166,7 +5182,7 @@ void Game::decSpeed() {
 	}
 }
 
-void Game::setPaused(bool value,bool forceAllowPauseStateChange) {
+void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches) {
 	bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
 	//printf("Toggle pause value = %d, speedChangesAllowed = %d, forceAllowPauseStateChange = %d\n",value,speedChangesAllowed,forceAllowPauseStateChange);
 
@@ -5177,6 +5193,15 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange) {
 		if(value == false) {
 			console.addLine(lang.get("GameResumed"));
 			paused= false;
+
+			if(clearCaches == true) {
+				world.clearCaches();
+				for(int i = 0; i < world.getFactionCount(); ++i) {
+					Faction *faction = world.getFaction(i);
+					faction->clearCaches();
+				}
+			}
+			setupPopupMenus(false);
 		}
 		else {
 			console.addLine(lang.get("GamePaused"));

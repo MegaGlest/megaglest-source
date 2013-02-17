@@ -1424,6 +1424,12 @@ void World::moveToUnit(int unitId, int destUnitId) {
 	}
 }
 
+void World::clearCaches() {
+	ExploredCellsLookupItemCache.clear();
+	ExploredCellsLookupItemCacheTimer.clear();
+	ExploredCellsLookupItemCacheTimerCount = 0;
+}
+
 void World::togglePauseGame(bool pauseStatus,bool forceAllowPauseStateChange) {
 	game->setPaused(pauseStatus, forceAllowPauseStateChange);
 }

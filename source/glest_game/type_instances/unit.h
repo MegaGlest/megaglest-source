@@ -161,6 +161,9 @@ public:
 	virtual Map * getMap() = 0;
 
 	virtual void saveGame(XmlNode *rootNode) = 0;
+	virtual void loadGame(const XmlNode *rootNode) = 0;
+
+	virtual void clearCaches() = 0;
 };
 
 class UnitPathBasic : public UnitPathInterface {
@@ -209,6 +212,8 @@ public:
 	virtual std::string toString() const;
 
 	virtual void saveGame(XmlNode *rootNode);
+	virtual void loadGame(const XmlNode *rootNode);
+	virtual void clearCaches();
 };
 
 // =====================================================
@@ -227,6 +232,7 @@ private:
 
 public:
 	UnitPath() : UnitPathInterface(), blockCount(0), map(NULL) {} /**< Construct path object */
+
 	virtual bool isBlocked() const	{return blockCount >= maxBlockCount;} /**< is this path blocked	   */
 	virtual bool isEmpty() const	{return list<Vec2i>::empty();}	/**< is path empty				  */
 	virtual bool isStuck() const	{return false; }
@@ -267,6 +273,8 @@ public:
 	virtual std::string toString() const;
 
 	virtual void saveGame(XmlNode *rootNode) {};
+	virtual void loadGame(const XmlNode *rootNode) {};
+	virtual void clearCaches() {};
 };
 
 class WaypointPath : public list<Vec2i> {
@@ -738,6 +746,8 @@ public:
 	virtual string getUniquePickName() const;
 	void saveGame(XmlNode *rootNode);
 	static Unit * loadGame(const XmlNode *rootNode,GameSettings *settings,Faction *faction, World *world);
+
+	void clearCaches();
 
 private:
 	float computeHeight(const Vec2i &pos) const;

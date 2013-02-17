@@ -84,6 +84,12 @@ void UnitPathBasic::dumpMemoryList() {
 }
 #endif
 
+void UnitPathBasic::clearCaches() {
+	this->blockCount = 0;
+	this->pathQueue.clear();
+	this->lastPathCacheQueue.clear();
+}
+
 bool UnitPathBasic::isEmpty() const {
 	return pathQueue.empty();
 }
@@ -175,6 +181,30 @@ void UnitPathBasic::saveGame(XmlNode *rootNode) {
 
 		XmlNode *lastPathCacheQueueNode = unitPathBasicNode->addChild("lastPathCacheQueue");
 		lastPathCacheQueueNode->addAttribute("vec",vec.getString(), mapTagReplacements);
+	}
+}
+
+void UnitPathBasic::loadGame(const XmlNode *rootNode) {
+	const XmlNode *unitPathBasicNode = rootNode->getChild("UnitPathBasic");
+
+	blockCount = unitPathBasicNode->getAttribute("blockCount")->getIntValue();
+
+	pathQueue.clear();
+	vector<XmlNode *> pathqueueNodeList = unitPathBasicNode->getChildList("pathQueue");
+	for(unsigned int i = 0; i < pathqueueNodeList.size(); ++i) {
+		XmlNode *node = pathqueueNodeList[i];
+
+		Vec2i vec = Vec2i::strToVec2(node->getAttribute("vec")->getValue());
+		pathQueue.push_back(vec);
+	}
+
+	lastPathCacheQueue.clear();
+	vector<XmlNode *> lastpathqueueNodeList = unitPathBasicNode->getChildList("lastPathCacheQueue");
+	for(unsigned int i = 0; i < lastpathqueueNodeList.size(); ++i) {
+		XmlNode *node = lastpathqueueNodeList[i];
+
+		Vec2i vec = Vec2i::strToVec2(node->getAttribute("vec")->getValue());
+		lastPathCacheQueue.push_back(vec);
 	}
 }
 
@@ -1507,13 +1537,6 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
 	else {
 		//empty command queue
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Clear commands because current is NOT queable.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-//		bool willChangedActiveCommand = (commands.size() > 0);
-//		if(willChangedActiveCommand && getCurrCommand()->getCommandType()->getClass() == command->getCommandType()->getClass()) {
-//			willChangedActiveCommand = false;
-//		}
-//		clearCommands();
-//		changedActiveCommand = willChangedActiveCommand;
 
 		bool willChangedActiveCommand= (commands.empty() == false);
 		if(willChangedActiveCommand){
@@ -3677,6 +3700,16 @@ Vec2i Unit::getPos() {
 	return result;
 }
 
+void Unit::clearCaches() {
+	cachedFow.alphaList.clear();
+	cachedFow.surfPosList.clear();
+	cachedFowPos = Vec2i(0,0);
+
+	//unitPath->clearCaches();
+
+	lastHarvestedResourcePos = Vec2i(0,0);
+}
+
 std::string Unit::toString() const {
 	std::string result = "";
 
@@ -4091,6 +4124,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 			throw megaglest_runtime_error("detected unsupported pathfinder type!");
     }
 
+	newpath->loadGame(unitNode);
 	//Unit *result = new Unit(getNextUnitId(f), newpath, Vec2i(0), ut, f, &map, CardinalDir::NORTH);
 	//Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
 	Unit *result = new Unit(newUnitId, newpath, newUnitPos, ut, faction, world->getMapPtr(), newModelFacing);

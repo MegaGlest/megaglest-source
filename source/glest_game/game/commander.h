@@ -114,8 +114,8 @@ public:
 	void trySwitchTeam(const Faction* faction, int teamIndex) const;
 	void trySwitchTeamVote(const Faction* faction, SwitchTeamVote *vote) const;
 	void tryDisconnectNetworkPlayer(const Faction* faction, int playerIndex) const;
-	void tryPauseGame() const;
-	void tryResumeGame() const;
+	void tryPauseGame(bool clearCaches) const;
+	void tryResumeGame(bool clearCaches) const;
 	void tryNetworkPlayerDisconnected(int factionIndex) const;
 
 	Command* buildCommand(const NetworkCommand* networkCommand) const;
