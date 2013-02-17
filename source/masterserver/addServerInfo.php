@@ -194,6 +194,14 @@
 					$country = '';
 				}
 			}
+			// cleanup old entrys with same remote port and ip
+			// I hope this fixes those double entrys of servers
+			mysql_query( 'DELETE FROM glestserver WHERE '.
+			'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
+			' AND ' .
+			'ip=\''                . mysql_real_escape_string( $remote_ip )         . '\', '
+			);
+			// insert new entry
 			mysql_query( 'INSERT INTO glestserver SET ' .
 				'glestVersion=\''      . mysql_real_escape_string( $glestVersion )      . '\', ' .
 				'platform=\''          . mysql_real_escape_string( $platform )          . '\', ' .
