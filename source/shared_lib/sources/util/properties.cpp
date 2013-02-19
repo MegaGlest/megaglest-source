@@ -413,7 +413,7 @@ float Properties::getFloat(const string &key, const char *defaultValueIfNotFound
 float Properties::getFloat(const string &key, float min, float max, const char *defaultValueIfNotFound) const{
 	float f= getFloat(key,defaultValueIfNotFound);
 	if(f<min || f>max){
-		throw megaglest_runtime_error("Value out of range: " + key + ", min: " + floatToStr(min) + ", max: " + floatToStr(max));
+		throw megaglest_runtime_error("Value out of range: " + key + ", min: " + floatToStr(min,16) + ", max: " + floatToStr(max,16));
 	}
 	return f;
 }
@@ -470,7 +470,7 @@ void Properties::setBool(const string &key, bool value){
 }
 
 void Properties::setFloat(const string &key, float value){
-	setString(key, floatToStr(value));
+	setString(key, floatToStr(value,16));
 }
 
 void Properties::setString(const string &key, const string &value){

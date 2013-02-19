@@ -613,6 +613,18 @@ bool XmlNode::hasAttribute(const string &name) const {
 	return result;
 }
 
+int XmlNode::clearChild(const string &childName) {
+	int clearChildCount = 0;
+	for(int i = children.size()-1; i >= 0; --i) {
+		if(children[i]->getName() == childName) {
+			delete children[i];
+			children.erase(children.begin()+i);
+			clearChildCount++;
+		}
+	}
+	return clearChildCount;
+}
+
 XmlNode *XmlNode::getChild(unsigned int i) const {
 	assert(!superNode);
 	if(i >= children.size()) {

@@ -55,7 +55,7 @@ void Particle::saveGame(XmlNode *rootNode) {
 //	Vec4f color;
 	particleNode->addAttribute("color",color.getString(), mapTagReplacements);
 //	float size;
-	particleNode->addAttribute("size",floatToStr(size), mapTagReplacements);
+	particleNode->addAttribute("size",floatToStr(size,16), mapTagReplacements);
 //	int energy;
 	particleNode->addAttribute("energy",intToStr(energy), mapTagReplacements);
 }
@@ -290,12 +290,12 @@ string ParticleSystem::toString() const {
 	result += "\npos = " + pos.getString();
 	result += "\ncolor = " + color.getString();
 	result += "\ncolorNoEnergy = " + colorNoEnergy.getString();
-	result += "\nemissionRate = " + floatToStr(emissionRate);
-	result += "\nemissionState = " + floatToStr(emissionState);
+	result += "\nemissionRate = " + floatToStr(emissionRate,16);
+	result += "\nemissionState = " + floatToStr(emissionState,16);
 	result += "\nmaxParticleEnergy = " + intToStr(maxParticleEnergy);
 	result += "\nvarParticleEnergy = " + intToStr(varParticleEnergy);
-	result += "\nparticleSize = " + floatToStr(particleSize);
-	result += "\nspeed = " + floatToStr(speed);
+	result += "\nparticleSize = " + floatToStr(particleSize,16);
+	result += "\nspeed = " + floatToStr(speed,16);
 	result += "\nfactionColor = " + factionColor.getString();
     result += "\nteamcolorNoEnergy = " + intToStr(teamcolorNoEnergy);
     result += "\nteamcolorEnergy = " + intToStr(teamcolorEnergy);
@@ -348,17 +348,17 @@ void ParticleSystem::saveGame(XmlNode *rootNode) {
 //	Vec4f colorNoEnergy;
 	particleSystemNode->addAttribute("colorNoEnergy",colorNoEnergy.getString(), mapTagReplacements);
 //	float emissionRate;
-	particleSystemNode->addAttribute("emissionRate",floatToStr(emissionRate), mapTagReplacements);
+	particleSystemNode->addAttribute("emissionRate",floatToStr(emissionRate,16), mapTagReplacements);
 //	float emissionState;
-	particleSystemNode->addAttribute("emissionState",floatToStr(emissionState), mapTagReplacements);
+	particleSystemNode->addAttribute("emissionState",floatToStr(emissionState,16), mapTagReplacements);
 //	int maxParticleEnergy;
 	particleSystemNode->addAttribute("maxParticleEnergy",intToStr(maxParticleEnergy), mapTagReplacements);
 //	int varParticleEnergy;
 	particleSystemNode->addAttribute("varParticleEnergy",intToStr(varParticleEnergy), mapTagReplacements);
 //	float particleSize;
-	particleSystemNode->addAttribute("particleSize",floatToStr(particleSize), mapTagReplacements);
+	particleSystemNode->addAttribute("particleSize",floatToStr(particleSize,16), mapTagReplacements);
 //	float speed;
-	particleSystemNode->addAttribute("speed",floatToStr(speed), mapTagReplacements);
+	particleSystemNode->addAttribute("speed",floatToStr(speed,16), mapTagReplacements);
 //	Vec3f factionColor;
 	particleSystemNode->addAttribute("factionColor",factionColor.getString(), mapTagReplacements);
 //    bool teamcolorNoEnergy;
@@ -674,7 +674,7 @@ void FireParticleSystem::saveGame(XmlNode *rootNode) {
 	ParticleSystem::saveGame(fireParticleSystemNode);
 
 //	float radius;
-	fireParticleSystemNode->addAttribute("radius",floatToStr(radius), mapTagReplacements);
+	fireParticleSystemNode->addAttribute("radius",floatToStr(radius,16), mapTagReplacements);
 //	Vec3f windSpeed;
 	fireParticleSystemNode->addAttribute("windSpeed",windSpeed.getString(), mapTagReplacements);
 }
@@ -841,13 +841,13 @@ void GameParticleSystem::saveGame(XmlNode *rootNode) {
 		gameParticleSystemNode->addAttribute("model",model->getFileName(), mapTagReplacements);
 	}
 //	float modelCycle;
-	gameParticleSystemNode->addAttribute("modelCycle",floatToStr(modelCycle), mapTagReplacements);
+	gameParticleSystemNode->addAttribute("modelCycle",floatToStr(modelCycle,16), mapTagReplacements);
 //	Vec3f offset;
 	gameParticleSystemNode->addAttribute("offset",offset.getString(), mapTagReplacements);
 //	Vec3f direction;
 	gameParticleSystemNode->addAttribute("direction",direction.getString(), mapTagReplacements);
 //	float tween;
-	gameParticleSystemNode->addAttribute("tween",floatToStr(tween), mapTagReplacements);
+	gameParticleSystemNode->addAttribute("tween",floatToStr(tween,16), mapTagReplacements);
 }
 void GameParticleSystem::loadGame(const XmlNode *rootNode) {
 	const XmlNode *gameParticleSystemNode = rootNode->getChild("GameParticleSystem");
@@ -1166,9 +1166,9 @@ void UnitParticleSystem::saveGame(XmlNode *rootNode) {
 	GameParticleSystem::saveGame(unitParticleSystemNode);
 
 //	float radius;
-	unitParticleSystemNode->addAttribute("radius",floatToStr(radius), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("radius",floatToStr(radius,16), mapTagReplacements);
 //	float minRadius;
-	unitParticleSystemNode->addAttribute("minRadius",floatToStr(minRadius), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("minRadius",floatToStr(minRadius,16), mapTagReplacements);
 //	Vec3f windSpeed;
 	unitParticleSystemNode->addAttribute("windSpeed",windSpeed.getString(), mapTagReplacements);
 //	Vec3f cRotation;
@@ -1180,9 +1180,9 @@ void UnitParticleSystem::saveGame(XmlNode *rootNode) {
 //    bool energyUp;
 	unitParticleSystemNode->addAttribute("energyUp",intToStr(energyUp), mapTagReplacements);
 //	float startTime;
-	unitParticleSystemNode->addAttribute("startTime",floatToStr(startTime), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("startTime",floatToStr(startTime,16), mapTagReplacements);
 //	float endTime;
-	unitParticleSystemNode->addAttribute("endTime",floatToStr(endTime), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("endTime",floatToStr(endTime,16), mapTagReplacements);
 //	bool relative;
 	unitParticleSystemNode->addAttribute("relative",intToStr(relative), mapTagReplacements);
 //	bool relativeDirection;
@@ -1192,13 +1192,13 @@ void UnitParticleSystem::saveGame(XmlNode *rootNode) {
 //	Shape shape;
 	unitParticleSystemNode->addAttribute("shape",intToStr(shape), mapTagReplacements);
 //	float angle;
-	unitParticleSystemNode->addAttribute("angle",floatToStr(angle), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("angle",floatToStr(angle,16), mapTagReplacements);
 //	float sizeNoEnergy;
-	unitParticleSystemNode->addAttribute("sizeNoEnergy",floatToStr(sizeNoEnergy), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("sizeNoEnergy",floatToStr(sizeNoEnergy,16), mapTagReplacements);
 //	float gravity;
-	unitParticleSystemNode->addAttribute("gravity",floatToStr(gravity), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("gravity",floatToStr(gravity,16), mapTagReplacements);
 //	float rotation;
-	unitParticleSystemNode->addAttribute("rotation",floatToStr(rotation), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("rotation",floatToStr(rotation,16), mapTagReplacements);
 //	bool isVisibleAtNight;
 	unitParticleSystemNode->addAttribute("isVisibleAtNight",intToStr(isVisibleAtNight), mapTagReplacements);
 //	bool isVisibleAtDay;
@@ -1214,7 +1214,7 @@ void UnitParticleSystem::saveGame(XmlNode *rootNode) {
 //	int lifetime;
 	unitParticleSystemNode->addAttribute("lifetime",intToStr(lifetime), mapTagReplacements);
 //	float emissionRateFade;
-	unitParticleSystemNode->addAttribute("emissionRateFade",floatToStr(emissionRateFade), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("emissionRateFade",floatToStr(emissionRateFade,16), mapTagReplacements);
 //	GameParticleSystem* parent;
 	//if(parent != NULL) {
 	//	parent->saveGame(unitParticleSystemNode);
@@ -1416,9 +1416,9 @@ void AttackParticleSystem::saveGame(XmlNode *rootNode) {
 	GameParticleSystem::saveGame(attackParticleSystemNode);
 
 //	float sizeNoEnergy;
-	attackParticleSystemNode->addAttribute("sizeNoEnergy",floatToStr(sizeNoEnergy), mapTagReplacements);
+	attackParticleSystemNode->addAttribute("sizeNoEnergy",floatToStr(sizeNoEnergy,16), mapTagReplacements);
 //	float gravity;
-	attackParticleSystemNode->addAttribute("gravity",floatToStr(gravity), mapTagReplacements);
+	attackParticleSystemNode->addAttribute("gravity",floatToStr(gravity,16), mapTagReplacements);
 
 }
 void AttackParticleSystem::loadGame(const XmlNode *rootNode) {
@@ -1668,12 +1668,12 @@ void ProjectileParticleSystem::saveGame(XmlNode *rootNode) {
 //	Trajectory trajectory;
 	projectileParticleSystemNode->addAttribute("trajectory",intToStr(trajectory), mapTagReplacements);
 //	float trajectorySpeed;
-	projectileParticleSystemNode->addAttribute("trajectorySpeed",floatToStr(trajectorySpeed), mapTagReplacements);
+	projectileParticleSystemNode->addAttribute("trajectorySpeed",floatToStr(trajectorySpeed,16), mapTagReplacements);
 //	//parabolic
 //	float trajectoryScale;
-	projectileParticleSystemNode->addAttribute("trajectoryScale",floatToStr(trajectoryScale), mapTagReplacements);
+	projectileParticleSystemNode->addAttribute("trajectoryScale",floatToStr(trajectoryScale,16), mapTagReplacements);
 //	float trajectoryFrequency;
-	projectileParticleSystemNode->addAttribute("trajectoryFrequency",floatToStr(trajectoryFrequency), mapTagReplacements);
+	projectileParticleSystemNode->addAttribute("trajectoryFrequency",floatToStr(trajectoryFrequency,16), mapTagReplacements);
 }
 
 void ProjectileParticleSystem::loadGame(const XmlNode *rootNode) {
@@ -1802,18 +1802,18 @@ void SplashParticleSystem::saveGame(XmlNode *rootNode) {
 	}
 
 //	float emissionRateFade;
-	splashParticleSystemNode->addAttribute("emissionRateFade",floatToStr(emissionRateFade), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("emissionRateFade",floatToStr(emissionRateFade,16), mapTagReplacements);
 //	float verticalSpreadA;
-	splashParticleSystemNode->addAttribute("verticalSpreadA",floatToStr(verticalSpreadA), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("verticalSpreadA",floatToStr(verticalSpreadA,16), mapTagReplacements);
 //	float verticalSpreadB;
-	splashParticleSystemNode->addAttribute("verticalSpreadB",floatToStr(verticalSpreadB), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("verticalSpreadB",floatToStr(verticalSpreadB,16), mapTagReplacements);
 //	float horizontalSpreadA;
-	splashParticleSystemNode->addAttribute("horizontalSpreadA",floatToStr(horizontalSpreadA), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("horizontalSpreadA",floatToStr(horizontalSpreadA,16), mapTagReplacements);
 //	float horizontalSpreadB;
-	splashParticleSystemNode->addAttribute("horizontalSpreadB",floatToStr(horizontalSpreadB), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("horizontalSpreadB",floatToStr(horizontalSpreadB,16), mapTagReplacements);
 //
 //	float startEmissionRate;
-	splashParticleSystemNode->addAttribute("startEmissionRate",floatToStr(startEmissionRate), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("startEmissionRate",floatToStr(startEmissionRate,16), mapTagReplacements);
 }
 
 void SplashParticleSystem::loadGame(const XmlNode *rootNode) {
