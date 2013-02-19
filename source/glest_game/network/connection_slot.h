@@ -141,10 +141,22 @@ private:
 	string playerLanguage;
 
 	bool canAcceptConnections;
+	bool startInGameConnectionLaunch;
+	bool pauseForInGameConnection;
+	bool unPauseForInGameConnection;
 
 public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
 	~ConnectionSlot();
+
+	bool getStartInGameConnectionLaunch() const { return startInGameConnectionLaunch; }
+	void setStartInGameConnectionLaunch(bool value) { startInGameConnectionLaunch = value; }
+
+	bool getPauseForInGameConnection() const { return pauseForInGameConnection; }
+	void setPauseForInGameConnection(bool value) { pauseForInGameConnection = value; }
+
+	bool getUnPauseForInGameConnection() const { return unPauseForInGameConnection; }
+	void setUnPauseForInGameConnection(bool value) { unPauseForInGameConnection = value; }
 
 	bool getSkipLagCheck() const { return skipLagCheck; }
 	bool getJoinGameInProgress() const { return joinGameInProgress; }

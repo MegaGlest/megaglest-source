@@ -272,6 +272,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->lastReceiveCommandListTime	= 0;
 	this->receivedNetworkGameStatus = false;
 	this->canAcceptConnections = true;
+	this->startInGameConnectionLaunch = false;
 	this->skipLagCheck = false;
 	this->joinGameInProgress = false;
 
@@ -861,7 +862,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 										//this->skipLagCheck = true;
 										//this->joinGameInProgress = true;
 										setJoinGameInProgressFlags();
-										serverInterface->setPauseForInGameConnection(true);
+										this->setPauseForInGameConnection(true);
 
 										//printf("Got intro from client sending game settings..\n");
 									}
@@ -962,7 +963,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 											this->serverInterface->gameSettings.setNetworkPlayerName(factionIndex,this->name);
 											this->serverInterface->broadcastGameSetup(&this->serverInterface->gameSettings, true);
 
-											this->serverInterface->setStartInGameConnectionLaunch(true);
+											this->setStartInGameConnectionLaunch(true);
 										}
 									}
 								}
@@ -1241,7 +1242,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 							}
 							// unpause the game
 							else {
-								serverInterface->setUnPauseForInGameConnection(true);
+								this->setUnPauseForInGameConnection(true);
 							}
 							break;
 						}
