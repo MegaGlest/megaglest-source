@@ -4531,6 +4531,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 		result->pathFindRefreshCellCount = unitNode->getAttribute("pathFindRefreshCellCount")->getIntValue();
 	}
 
+	result->exploreCells();
 	result->calculateFogOfWarRadius();
 
     return result;
