@@ -79,6 +79,7 @@ Game::Game() : ProgramState(NULL) {
 	avgRenderFps=0;
 	currentAvgRenderFpsTotal=0;
 	paused=false;
+	pauseStateChanged=false;
 	gameOver=false;
 	renderNetworkStatus=false;
 	showFullConsole=false;
@@ -233,6 +234,7 @@ void Game::resetMembers() {
 	currentAvgRenderFpsTotal=0;
 	tickCount=0;
 	paused= false;
+	pauseStateChanged=false;
 	gameOver= false;
 	renderNetworkStatus= false;
 	speed= 1;
@@ -1989,6 +1991,47 @@ void Game::update() {
 					commander.tryPauseGame(true);
 					//return;
 				}
+			}
+			//else if(server->getPauseForInGameConnection() == true && paused == true &&
+			else if(paused == true && pauseStateChanged == true) {
+				pauseStateChanged = false;
+
+				//NetworkManager &networkManager= NetworkManager::getInstance();
+				//NetworkRole role 				= networkManager.getNetworkRole();
+
+				//if(role == nrServer) {
+					bool saveNetworkGame = false;
+
+					ServerInterface *server = NetworkManager::getInstance().getServerInterface();
+					for(int i = 0; i < world.getFactionCount(); ++i) {
+						Faction *faction = world.getFaction(i);
+						ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+						if(slot != NULL && slot->getJoinGameInProgress() == true) {
+							saveNetworkGame = true;
+							break;
+						}
+					}
+
+					if(saveNetworkGame == true) {
+						//printf("Saved network game to disk\n");
+
+						string file = this->saveGame(GameConstants::saveNetworkGameFileServer,"temp/");
+						char szBuf[8096]="";
+						Lang &lang= Lang::getInstance();
+						snprintf(szBuf,8096,lang.get("GameSaved","",true).c_str(),file.c_str());
+						console.addLine(szBuf);
+
+						for(int i = 0; i < world.getFactionCount(); ++i) {
+							Faction *faction = world.getFaction(i);
+							ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+							if(slot != NULL && slot->getJoinGameInProgress() == true) {
+
+								NetworkMessageReady networkMessageReady(0);
+								slot->sendMessage(&networkMessageReady);
+							}
+						}
+					}
+				//}
 			}
 			else if(server->getUnPauseForInGameConnection() == true && paused == true) {
 				//printf("^^^ getUnPauseForInGameConnection triggered!\n");
@@ -5193,6 +5236,7 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 		if(value == false) {
 			console.addLine(lang.get("GameResumed"));
 			paused= false;
+			pauseStateChanged = true;
 
 			if(clearCaches == true) {
 				world.clearCaches();
@@ -5206,41 +5250,14 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 		else {
 			console.addLine(lang.get("GamePaused"));
 			paused= true;
+			pauseStateChanged = true;
+			//!!!
 
-			NetworkManager &networkManager= NetworkManager::getInstance();
-			NetworkRole role 				= networkManager.getNetworkRole();
-
-			if(role == nrServer) {
-				bool saveNetworkGame = false;
-
-				ServerInterface *server = NetworkManager::getInstance().getServerInterface();
+			if(clearCaches == true) {
+				world.clearCaches();
 				for(int i = 0; i < world.getFactionCount(); ++i) {
 					Faction *faction = world.getFaction(i);
-					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
-					if(slot != NULL && slot->getJoinGameInProgress() == true) {
-						saveNetworkGame = true;
-						break;
-					}
-				}
-
-				if(saveNetworkGame == true) {
-					//printf("Saved network game to disk\n");
-
-					string file = this->saveGame(GameConstants::saveNetworkGameFileServer,"temp/");
-					char szBuf[8096]="";
-					Lang &lang= Lang::getInstance();
-					snprintf(szBuf,8096,lang.get("GameSaved","",true).c_str(),file.c_str());
-					console.addLine(szBuf);
-
-					for(int i = 0; i < world.getFactionCount(); ++i) {
-						Faction *faction = world.getFaction(i);
-						ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
-						if(slot != NULL && slot->getJoinGameInProgress() == true) {
-
-							NetworkMessageReady networkMessageReady(0);
-							slot->sendMessage(&networkMessageReady);
-						}
-					}
+					faction->clearCaches();
 				}
 			}
 		}

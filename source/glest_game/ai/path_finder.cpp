@@ -96,6 +96,17 @@ PathFinder::~PathFinder() {
 	factionMutex = NULL;
 }
 
+void PathFinder::clearCaches() {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(factionMutex,mutexOwnerId);
+
+	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+		factions[i].precachedTravelState.clear();
+		factions[i].precachedPath.clear();
+		factions[i].badCellList.clear();
+	}
+}
+
 void PathFinder::clearUnitPrecache(Unit *unit) {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(factionMutex,mutexOwnerId);
