@@ -29,8 +29,6 @@ using Shared::Platform::ServerSocket;
 
 namespace Shared {  namespace PlatformCommon {  class FTPServerThread;  }}
 
-//using Shared::PlatformCommon::FTPServerThread;
-
 namespace Glest{ namespace Game{
 
 // =====================================================
@@ -56,8 +54,6 @@ private:
 	Mutex *slotAccessorMutexes[GameConstants::maxPlayers];
 
 	ServerSocket serverSocket;
-	bool gameHasBeenInitiated;
-	int gameSettingsUpdateCount;
 
 	Mutex *switchSetupRequestsSynchAccessor;
 	SwitchSetupRequest* switchSetupRequests[GameConstants::maxPlayers];
@@ -98,11 +94,11 @@ private:
 	ServerSocket *serverSocketAdmin;
 	MasterSlaveThreadController masterController;
 
+	bool gameHasBeenInitiated;
+	int gameSettingsUpdateCount;
+
 	bool allowInGameConnections;
-	bool pauseForInGameConnection;
-	bool startInGameConnectionLaunch;
-	bool unPauseForInGameConnection;
-	bool gameStarted;
+	bool gameLaunched;
 
 public:
 	ServerInterface(bool publishEnabled);
@@ -110,23 +106,14 @@ public:
 
 	virtual Socket* getSocket(bool mutexLock=true)				{return &serverSocket;}
 
-    //const virtual Socket *getSocket() const {
-    //    return &serverSocket;
-    //}
-
 	time_t getGameStartTime() const { return gameStartTime; }
 
 	bool getAllowInGameConnections() const { return allowInGameConnections; }
 	void setAllowInGameConnections(bool value) { allowInGameConnections = value; }
 
-	bool getStartInGameConnectionLaunch() const { return startInGameConnectionLaunch; }
-	void setStartInGameConnectionLaunch(bool value) { startInGameConnectionLaunch = value; }
-
-	bool getPauseForInGameConnection() const { return pauseForInGameConnection; }
-	void setPauseForInGameConnection(bool value) { pauseForInGameConnection = value; }
-
-	bool getUnPauseForInGameConnection() const { return unPauseForInGameConnection; }
-	void setUnPauseForInGameConnection(bool value) { unPauseForInGameConnection = value; }
+	bool getStartInGameConnectionLaunch();
+	bool getPauseForInGameConnection();
+	bool getUnPauseForInGameConnection();
 
     virtual void close();
     virtual void update();
@@ -179,54 +166,49 @@ public:
     void setMasterserverAdminRequestLaunch(bool value) { masterserverAdminRequestLaunch = value; }
 
     void updateListen();
-    virtual bool getConnectHasHandshaked() const
-    {
+    virtual bool getConnectHasHandshaked() const {
         return false;
     }
 
-    virtual void slotUpdateTask(ConnectionSlotEvent *event);
+    virtual void slotUpdateTask(ConnectionSlotEvent *event) { };
     bool hasClientConnection();
     bool isClientConnected(int index);
 
-    int getCurrentFrameCount() const
-    {
+    int getCurrentFrameCount() const {
         return currentFrameCount;
     }
 
     std::pair<bool,bool> clientLagCheck(ConnectionSlot *connectionSlot, bool skipNetworkBroadCast = false);
     bool signalClientReceiveCommands(ConnectionSlot *connectionSlot, int slotIndex, bool socketTriggered, ConnectionSlotEvent & event);
     void updateSocketTriggeredList(std::map<PLATFORM_SOCKET,bool> & socketTriggeredList);
-    bool isPortBound() const
-    {
+    bool isPortBound() const {
         return serverSocket.isPortBound();
     }
 
-    int getBindPort() const
-    {
+    int getBindPort() const {
         return serverSocket.getBindPort();
     }
 
-    void broadcastPing(NetworkMessagePing *networkMessage, int excludeSlot = -1)
-    {
+    void broadcastPing(NetworkMessagePing *networkMessage, int excludeSlot = -1) {
         this->broadcastMessage(networkMessage, excludeSlot);
     }
 
     void queueBroadcastMessage(NetworkMessage *networkMessage, int excludeSlot = -1);
     virtual string getHumanPlayerName(int index = -1);
     virtual int getHumanPlayerIndex() const;
-    bool getNeedToRepublishToMasterserver() const
-    {
+    bool getNeedToRepublishToMasterserver() const {
         return needToRepublishToMasterserver;
     }
 
-    void setNeedToRepublishToMasterserver(bool value)
-    {
+    void setNeedToRepublishToMasterserver(bool value) {
         needToRepublishToMasterserver = value;
     }
 
     void setPublishEnabled(bool value);
 
-    bool getGameHasBeenInitiated() const { return gameHasBeenInitiated; }
+    bool getGameHasBeenInitiated() const {
+    	return gameHasBeenInitiated;
+    }
 
 public:
     Mutex *getServerSynchAccessor() {

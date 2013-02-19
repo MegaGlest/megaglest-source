@@ -1949,18 +1949,27 @@ void Game::update() {
 				//printf("#2 Data synch: lmap %u ltile: %d ltech: %u\n",server->gameSettings.getMapCRC(),server->gameSettings.getTilesetCRC(),server->gameSettings.getTechCRC());
 				server->broadcastGameSetup(&server->gameSettings,true);
 
-				server->setPauseForInGameConnection(false);
+				for(int i = 0; i < world.getFactionCount(); ++i) {
+					Faction *faction = world.getFaction(i);
+					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+					if(slot != NULL && slot->getPauseForInGameConnection() == true) {
+						slot->setPauseForInGameConnection(false);
+					}
+				}
 			}
 			else if(server->getStartInGameConnectionLaunch() == true) {
 				//printf("^^^ getStartInGameConnectionLaunch triggered!\n");
 
-				server->setStartInGameConnectionLaunch(false);
+				//server->setStartInGameConnectionLaunch(false);
 
 				Lang &lang= Lang::getInstance();
 				bool pauseAndSaveGameForNewClient = false;
 				for(int i = 0; i < world.getFactionCount(); ++i) {
 					Faction *faction = world.getFaction(i);
 					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+					if(slot != NULL && slot->getStartInGameConnectionLaunch() == true) {
+						slot->setStartInGameConnectionLaunch(false);
+					}
 					if(slot != NULL && slot->getJoinGameInProgress() == true) {
 						//printf("$$$ signalling client to start game [deleting AI player] factionIndex: %d slot: %d startlocation: %d!\n",i,slot->getPlayerIndex(),faction->getStartLocationIndex());
 
@@ -1996,47 +2005,47 @@ void Game::update() {
 			else if(paused == true && pauseStateChanged == true) {
 				pauseStateChanged = false;
 
-				//NetworkManager &networkManager= NetworkManager::getInstance();
-				//NetworkRole role 				= networkManager.getNetworkRole();
+				bool saveNetworkGame = false;
 
-				//if(role == nrServer) {
-					bool saveNetworkGame = false;
+				ServerInterface *server = NetworkManager::getInstance().getServerInterface();
+				for(int i = 0; i < world.getFactionCount(); ++i) {
+					Faction *faction = world.getFaction(i);
+					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+					if(slot != NULL && slot->getJoinGameInProgress() == true) {
+						saveNetworkGame = true;
+						break;
+					}
+				}
 
-					ServerInterface *server = NetworkManager::getInstance().getServerInterface();
+				if(saveNetworkGame == true) {
+					//printf("Saved network game to disk\n");
+
+					string file = this->saveGame(GameConstants::saveNetworkGameFileServer,"temp/");
+					char szBuf[8096]="";
+					Lang &lang= Lang::getInstance();
+					snprintf(szBuf,8096,lang.get("GameSaved","",true).c_str(),file.c_str());
+					console.addLine(szBuf);
+
 					for(int i = 0; i < world.getFactionCount(); ++i) {
 						Faction *faction = world.getFaction(i);
 						ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
 						if(slot != NULL && slot->getJoinGameInProgress() == true) {
-							saveNetworkGame = true;
-							break;
+							NetworkMessageReady networkMessageReady(0);
+							slot->sendMessage(&networkMessageReady);
 						}
 					}
-
-					if(saveNetworkGame == true) {
-						//printf("Saved network game to disk\n");
-
-						string file = this->saveGame(GameConstants::saveNetworkGameFileServer,"temp/");
-						char szBuf[8096]="";
-						Lang &lang= Lang::getInstance();
-						snprintf(szBuf,8096,lang.get("GameSaved","",true).c_str(),file.c_str());
-						console.addLine(szBuf);
-
-						for(int i = 0; i < world.getFactionCount(); ++i) {
-							Faction *faction = world.getFaction(i);
-							ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
-							if(slot != NULL && slot->getJoinGameInProgress() == true) {
-
-								NetworkMessageReady networkMessageReady(0);
-								slot->sendMessage(&networkMessageReady);
-							}
-						}
-					}
-				//}
+				}
 			}
 			else if(server->getUnPauseForInGameConnection() == true && paused == true) {
 				//printf("^^^ getUnPauseForInGameConnection triggered!\n");
 
-				server->setUnPauseForInGameConnection(false);
+				for(int i = 0; i < world.getFactionCount(); ++i) {
+					Faction *faction = world.getFaction(i);
+					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+					if(slot != NULL && slot->getUnPauseForInGameConnection() == true) {
+						slot->setUnPauseForInGameConnection(false);
+					}
+				}
 				commander.tryResumeGame(false);
 				//return;
 			}
