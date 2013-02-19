@@ -3733,11 +3733,11 @@ std::string Unit::toString() const {
 	result += " ep = " + intToStr(this->ep);
 	result += " loadCount = " + intToStr(this->loadCount);
 	result += " deadCount = " + intToStr(this->deadCount);
-	result += " progress = " + floatToStr(this->progress);
+	result += " progress = " + floatToStr(this->progress,16);
 	result += "\n";
-	result += " lastAnimProgress = " + floatToStr(this->lastAnimProgress);
-	result += " animProgress = " + floatToStr(this->animProgress);
-	result += " highlight = " + floatToStr(this->highlight);
+	result += " lastAnimProgress = " + floatToStr(this->lastAnimProgress,16);
+	result += " animProgress = " + floatToStr(this->animProgress,16);
+	result += " highlight = " + floatToStr(this->highlight,16);
 	result += " progress2 = " + intToStr(this->progress2);
 	result += " kills = " + intToStr(this->kills);
 	result += " enemyKills = " + intToStr(this->enemyKills);
@@ -3764,9 +3764,9 @@ std::string Unit::toString() const {
 	result += " meetingPos = " + meetingPos.getString();
 	result += "\n";
 
-	result += " lastRotation = " + floatToStr(this->lastRotation);
-	result += " targetRotation = " + floatToStr(this->targetRotation);
-	result += " rotation = " + floatToStr(this->rotation);
+	result += " lastRotation = " + floatToStr(this->lastRotation,16);
+	result += " targetRotation = " + floatToStr(this->targetRotation,16);
+	result += " rotation = " + floatToStr(this->rotation,16);
 
     if(loadType != NULL) {
     	result += " loadType = " + loadType->getName();
@@ -3831,13 +3831,13 @@ void Unit::saveGame(XmlNode *rootNode) {
 //    int deadCount;
 	unitNode->addAttribute("deadCount",intToStr(deadCount), mapTagReplacements);
 //    float progress;			//between 0 and 1
-	unitNode->addAttribute("progress",floatToStr(progress), mapTagReplacements);
+	unitNode->addAttribute("progress",floatToStr(progress,16), mapTagReplacements);
 //	float lastAnimProgress;	//between 0 and 1
-	unitNode->addAttribute("lastAnimProgress",floatToStr(lastAnimProgress), mapTagReplacements);
+	unitNode->addAttribute("lastAnimProgress",floatToStr(lastAnimProgress,16), mapTagReplacements);
 //	float animProgress;		//between 0 and 1
-	unitNode->addAttribute("animProgress",floatToStr(animProgress), mapTagReplacements);
+	unitNode->addAttribute("animProgress",floatToStr(animProgress,16), mapTagReplacements);
 //	float highlight;
-	unitNode->addAttribute("highlight",floatToStr(highlight), mapTagReplacements);
+	unitNode->addAttribute("highlight",floatToStr(highlight,16), mapTagReplacements);
 //	int progress2;
 	unitNode->addAttribute("progress2",intToStr(progress2), mapTagReplacements);
 //	int kills;
@@ -3867,19 +3867,19 @@ void Unit::saveGame(XmlNode *rootNode) {
 	unitNode->addAttribute("meetingPos",meetingPos.getString(), mapTagReplacements);
 //
 //	float lastRotation;		//in degrees
-	unitNode->addAttribute("lastRotation",floatToStr(lastRotation), mapTagReplacements);
+	unitNode->addAttribute("lastRotation",floatToStr(lastRotation,16), mapTagReplacements);
 //	float targetRotation;
-	unitNode->addAttribute("targetRotation",floatToStr(targetRotation), mapTagReplacements);
+	unitNode->addAttribute("targetRotation",floatToStr(targetRotation,16), mapTagReplacements);
 //	float rotation;
-	unitNode->addAttribute("rotation",floatToStr(rotation), mapTagReplacements);
+	unitNode->addAttribute("rotation",floatToStr(rotation,16), mapTagReplacements);
 //	float targetRotationZ;
-	unitNode->addAttribute("targetRotationZ",floatToStr(targetRotationZ), mapTagReplacements);
+	unitNode->addAttribute("targetRotationZ",floatToStr(targetRotationZ,16), mapTagReplacements);
 //	float targetRotationX;
-	unitNode->addAttribute("targetRotationX",floatToStr(targetRotationX), mapTagReplacements);
+	unitNode->addAttribute("targetRotationX",floatToStr(targetRotationX,16), mapTagReplacements);
 //	float rotationZ;
-	unitNode->addAttribute("rotationZ",floatToStr(rotationZ), mapTagReplacements);
+	unitNode->addAttribute("rotationZ",floatToStr(rotationZ,16), mapTagReplacements);
 //	float rotationX;
-	unitNode->addAttribute("rotationX",floatToStr(rotationX), mapTagReplacements);
+	unitNode->addAttribute("rotationX",floatToStr(rotationX,16), mapTagReplacements);
 //    const UnitType *type;
 	unitNode->addAttribute("type",type->getName(), mapTagReplacements);
 //    const ResourceType *loadType;

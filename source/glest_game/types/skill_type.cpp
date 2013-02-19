@@ -665,7 +665,7 @@ void SkillType::saveGame(XmlNode *rootNode) {
 //
 //    SoundContainer sounds;
 //	float soundStartTime;
-	skillTypeNode->addAttribute("soundStartTime",floatToStr(soundStartTime), mapTagReplacements);
+	skillTypeNode->addAttribute("soundStartTime",floatToStr(soundStartTime,16), mapTagReplacements);
 //	RandomGen random;
 	skillTypeNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
 //	AttackBoost attackBoost;
@@ -886,7 +886,7 @@ void AttackSkillType::saveGame(XmlNode *rootNode) {
 		attackFieldsNode->addAttribute("value",intToStr(attackFields[i]), mapTagReplacements);
 	}
 //	float attackStartTime;
-	attackSkillTypeNode->addAttribute("attackStartTime",floatToStr(attackStartTime), mapTagReplacements);
+	attackSkillTypeNode->addAttribute("attackStartTime",floatToStr(attackStartTime,16), mapTagReplacements);
 //	string spawnUnit;
 	attackSkillTypeNode->addAttribute("spawnUnit",spawnUnit, mapTagReplacements);
 //	int spawnUnitcount;
@@ -1173,7 +1173,7 @@ void FogOfWarSkillType::saveGame(XmlNode *rootNode) {
 
 	fogSkillTypeNode->addAttribute("enable-fog",intToStr(fowEnable), mapTagReplacements);
 	fogSkillTypeNode->addAttribute("apply-team",intToStr(applyToTeam), mapTagReplacements);
-	fogSkillTypeNode->addAttribute("duration",floatToStr(durationTime), mapTagReplacements);
+	fogSkillTypeNode->addAttribute("duration",floatToStr(durationTime,16), mapTagReplacements);
 }
 
 // =====================================================

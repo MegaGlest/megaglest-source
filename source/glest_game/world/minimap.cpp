@@ -267,12 +267,14 @@ void Minimap::saveGame(XmlNode *rootNode) {
 void Minimap::loadGame(const XmlNode *rootNode) {
 	const XmlNode *minimapNode = rootNode->getChild("Minimap");
 
-	vector<XmlNode *> fowPixmap1NodeList = minimapNode->getChildList("fowPixmap1");
-	for(unsigned int i = 0; i < fowPixmap1NodeList.size(); ++i) {
-		XmlNode *fowPixmap1Node = fowPixmap1NodeList[i];
+	if(minimapNode->hasChild("fowPixmap1") == true) {
+		vector<XmlNode *> fowPixmap1NodeList = minimapNode->getChildList("fowPixmap1");
+		for(unsigned int i = 0; i < fowPixmap1NodeList.size(); ++i) {
+			XmlNode *fowPixmap1Node = fowPixmap1NodeList[i];
 
-		int pixelIndex = fowPixmap1Node->getAttribute("index")->getIntValue();
-		fowPixmap1->getPixels()[pixelIndex] = fowPixmap1Node->getAttribute("pixel")->getIntValue();
+			int pixelIndex = fowPixmap1Node->getAttribute("index")->getIntValue();
+			fowPixmap1->getPixels()[pixelIndex] = fowPixmap1Node->getAttribute("pixel")->getIntValue();
+		}
 	}
 }
 

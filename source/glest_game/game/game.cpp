@@ -5633,7 +5633,7 @@ string Game::saveGame(string name, string path) {
 	//bool showFullConsole;
 	//bool mouseMoved;
 	//float scrollSpeed;
-	gameNode->addAttribute("scrollSpeed",floatToStr(scrollSpeed), mapTagReplacements);
+	gameNode->addAttribute("scrollSpeed",floatToStr(scrollSpeed,16), mapTagReplacements);
 	//bool camLeftButtonDown;
 	//bool camRightButtonDown;
 	//bool camUpButtonDown;
@@ -5727,8 +5727,8 @@ string Game::saveGame(string name, string path) {
 		HighlightSpecialUnitInfo &info = iterMap->second;
 		XmlNode *infoNode = unitHighlightListNode->addChild("info");
 		infoNode->addAttribute("unitid",intToStr(iterMap->first), mapTagReplacements);
-		infoNode->addAttribute("radius",floatToStr(info.radius), mapTagReplacements);
-		infoNode->addAttribute("thickness",floatToStr(info.thickness), mapTagReplacements);
+		infoNode->addAttribute("radius",floatToStr(info.radius,16), mapTagReplacements);
+		infoNode->addAttribute("thickness",floatToStr(info.thickness,16), mapTagReplacements);
 		infoNode->addAttribute("color",info.color.getString(), mapTagReplacements);
 	}
 
@@ -5843,6 +5843,9 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 		XmlNode *guiNode = gameNode->getChild("Gui");
 		XmlNode *selectionNode = guiNode->getChild("Selection");
 		XmlNode *statsNode = worldNode->getChild("Stats");
+		XmlNode *minimapNode = worldNode->getChild("Minimap");
+		// This is explored fog of war for the host player, clear it
+		minimapNode->clearChild("fowPixmap1");
 
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		NetworkRole role = networkManager.getNetworkRole();

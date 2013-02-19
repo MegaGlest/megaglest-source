@@ -47,13 +47,7 @@ private:
 	float timeInc;
 
 public:
-	TimeFlow() {
-		firstTime = false;
-		tileset = NULL;
-		time = 0.0f;
-		lastTime = 0.0f;
-		timeInc = 0.0f;
-	}
+	TimeFlow();
 	void init(Tileset *tileset);
 
 	inline float getTime() const				{return time;}

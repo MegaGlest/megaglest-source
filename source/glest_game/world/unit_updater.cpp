@@ -2618,7 +2618,7 @@ void UnitUpdater::saveGame(XmlNode *rootNode) {
 //	RandomGen random;
 	//unitupdaterNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
 //	float attackWarnRange;
-	unitupdaterNode->addAttribute("attackWarnRange",floatToStr(attackWarnRange), mapTagReplacements);
+	unitupdaterNode->addAttribute("attackWarnRange",floatToStr(attackWarnRange,16), mapTagReplacements);
 //	AttackWarnings attackWarnings;
 //
 //	Mutex mutexUnitRangeCellsLookupItemCache;

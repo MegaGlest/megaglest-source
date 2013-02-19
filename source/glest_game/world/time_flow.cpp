@@ -29,6 +29,15 @@ namespace Glest{ namespace Game{
 const float TimeFlow::dusk= 18.f;
 const float TimeFlow::dawn= 6.f;
 
+TimeFlow::TimeFlow() {
+	firstTime = false;
+	tileset = NULL;
+	time = 0.0f;
+	lastTime = 0.0f;
+	timeInc = 0.0f;
+	//printf("#1a timeInc = %f\n",timeInc);
+}
+
 void TimeFlow::init(Tileset *tileset){
 	firstTime= true;
 	this->tileset= tileset;
@@ -36,16 +45,20 @@ void TimeFlow::init(Tileset *tileset){
 	lastTime= time;
 	Config &config= Config::getInstance();
 	timeInc= 24.f * (1.f / config.getFloat("DayTime")) / GameConstants::updateFps;
+	//printf("#1 timeInc = %f\n",timeInc);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] timeInc = %f\n",__FILE__,__FUNCTION__,__LINE__,timeInc);
 }
 
 void TimeFlow::update() {
+	//printf("START TimeFlow::update() time = %f\n",time);
 	//update time
 	time += isDay()? timeInc: timeInc*2;
 	if(time > 24.f){
 		time -= 24.f;
 	}
+
+	//printf("END TimeFlow::update() time = %f\n",time);
 
 	//sounds
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
@@ -147,11 +160,13 @@ void TimeFlow::saveGame(XmlNode *rootNode) {
 //	bool firstTime;
 //	Tileset *tileset;
 //	float time;
-	timeflowNode->addAttribute("time",floatToStr(time), mapTagReplacements);
+	timeflowNode->addAttribute("time",floatToStr(time,16), mapTagReplacements);
 //	float lastTime;
-	timeflowNode->addAttribute("lastTime",floatToStr(lastTime), mapTagReplacements);
+	timeflowNode->addAttribute("lastTime",floatToStr(lastTime,16), mapTagReplacements);
 //	float timeInc;
-	timeflowNode->addAttribute("timeInc",floatToStr(timeInc), mapTagReplacements);
+	//printf("#2 timeInc = %f\n",timeInc);
+	timeflowNode->addAttribute("timeInc",floatToStr(timeInc,16), mapTagReplacements);
+	//printf("#3 timeInc = %f\n",timeInc);
 }
 
 void TimeFlow::loadGame(const XmlNode *rootNode) {
@@ -161,6 +176,7 @@ void TimeFlow::loadGame(const XmlNode *rootNode) {
 	time = timeflowNode->getAttribute("time")->getFloatValue();
 	lastTime = timeflowNode->getAttribute("lastTime")->getFloatValue();
 	timeInc = timeflowNode->getAttribute("timeInc")->getFloatValue();
+	//printf("#4 timeInc = %f\n",timeInc);
 }
 
 }}//end namespace

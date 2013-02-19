@@ -148,6 +148,7 @@ public:
 	vector<XmlNode *> getChildList(const string &childName) const;
 	bool hasChildAtIndex(const string &childName, int childIndex=0) const;
 	bool hasChild(const string &childName) const;
+	int clearChild(const string &childName);
 	XmlNode *getParent() const;
 
 

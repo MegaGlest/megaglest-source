@@ -1080,7 +1080,7 @@ std::string UnitType::toString() const {
 	result += " sight = " + intToStr(sight);
 	result += " size = " + intToStr(size);
 	result += " height = " + intToStr(height);
-	result += " rotatedBuildPos = " + floatToStr(rotatedBuildPos);
+	result += " rotatedBuildPos = " + floatToStr(rotatedBuildPos,16);
 	result += " rotationAllowed = " + intToStr(rotationAllowed);
 
 	if(cellMap != NULL) {
