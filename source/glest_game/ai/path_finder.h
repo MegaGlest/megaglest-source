@@ -162,6 +162,7 @@ public:
 	TravelState findPath(Unit *unit, const Vec2i &finalPos, bool *wasStuck=NULL,int frameIndex=-1);
 	void clearUnitPrecache(Unit *unit);
 	void removeUnitPrecache(Unit *unit);
+	void clearCaches();
 
 	int findNodeIndex(Node *node, Nodes &nodeList);
 	int findNodeIndex(Node *node, std::vector<Node> &nodeList);

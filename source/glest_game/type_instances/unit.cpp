@@ -4134,10 +4134,15 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 	result->rotation = unitNode->getAttribute("rotation")->getFloatValue();
 
 	//world->placeUnitAtLocation(newUnitPos, generationArea, unit, true);
-	result->setPos(newUnitPos);
-    Vec2i meetingPos = newUnitPos-Vec2i(1);
-    result->setMeetingPos(meetingPos);
-
+	//result->setPos(newUnitPos);
+    //Vec2i meetingPos = newUnitPos-Vec2i(1);
+    //result->setMeetingPos(meetingPos);
+	result->pos = newUnitPos;
+	result->lastPos = Vec2i::strToVec2(unitNode->getAttribute("lastPos")->getValue());
+	result->meetingPos = Vec2i::strToVec2(unitNode->getAttribute("meetingPos")->getValue());
+	// Attempt to improve performance
+	//result->exploreCells();
+	//result->calculateFogOfWarRadius();
     // --------------------------
 
     result->hp = unitNode->getAttribute("hp")->getIntValue();
@@ -4511,6 +4516,8 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 		//result->born();
 	}
 
+	result->pos = newUnitPos;
+	result->lastPos = Vec2i::strToVec2(unitNode->getAttribute("lastPos")->getValue());
 	result->meetingPos = Vec2i::strToVec2(unitNode->getAttribute("meetingPos")->getValue());
 
 	if(unitNode->hasAttribute("currentPathFinderDesiredFinalPos")) {

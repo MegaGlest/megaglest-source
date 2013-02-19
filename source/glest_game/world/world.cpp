@@ -1428,6 +1428,8 @@ void World::clearCaches() {
 	ExploredCellsLookupItemCache.clear();
 	ExploredCellsLookupItemCacheTimer.clear();
 	ExploredCellsLookupItemCacheTimerCount = 0;
+
+	unitUpdater.clearCaches();
 }
 
 void World::togglePauseGame(bool pauseStatus,bool forceAllowPauseStateChange) {

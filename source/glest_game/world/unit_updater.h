@@ -136,6 +136,8 @@ public:
 	void saveGame(XmlNode *rootNode);
 	void loadGame(const XmlNode *rootNode);
 
+	void clearCaches();
+
 private:
     //attack
     void hit(Unit *attacker);

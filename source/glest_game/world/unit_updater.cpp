@@ -2625,6 +2625,12 @@ void UnitUpdater::saveGame(XmlNode *rootNode) {
 //	std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > > UnitRangeCellsLookupItemCache;
 }
 
+void UnitUpdater::clearCaches() {
+	 if(pathFinder != NULL) {
+		 pathFinder->clearCaches();
+	 }
+}
+
 void UnitUpdater::loadGame(const XmlNode *rootNode) {
 	const XmlNode *unitupdaterNode = rootNode->getChild("UnitUpdater");
 
