@@ -132,6 +132,9 @@ private:
 	SurfProbs surfProbs[surfCount];
 	SurfPixmaps surfPixmaps[surfCount];
 
+	int partsArray[surfCount];
+	//int partsizes[surfCount];
+
 	RandomGen random;
     Texture3D *waterTex;
     bool waterEffects;
@@ -181,7 +184,7 @@ public:
 
 	//surface textures
 	const Pixmap2D *getSurfPixmap(int type, int var) const;
-	void addSurfTex(int leftUp, int rightUp, int leftDown, int rightDown, Vec2f &coord, const Texture2D *&texture);
+	void addSurfTex(int leftUp, int rightUp, int leftDown, int rightDown, Vec2f &coord, const Texture2D *&texture, int mapX, int mapY);
 
 	//sounds
 	AmbientSounds *getAmbientSounds() {return &ambientSounds;}

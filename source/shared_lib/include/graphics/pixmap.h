@@ -293,6 +293,7 @@ public:
 	void lerp(float t, const Pixmap2D *pixmap1, const Pixmap2D *pixmap2);
 	void copy(const Pixmap2D *sourcePixmap);
 	void subCopy(int x, int y, const Pixmap2D *sourcePixmap);
+	void copyImagePart(int x, int y, const Pixmap2D *sourcePixmap);
 	string getPath() const		{ return path;}
 	uint64 getPixelByteCount() const;
 

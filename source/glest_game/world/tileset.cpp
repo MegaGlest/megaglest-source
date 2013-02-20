@@ -183,7 +183,9 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 
 		//surfaces
 		const XmlNode *surfacesNode= tilesetNode->getChild("surfaces");
+		int partsize= 0;
 		for(int i=0; i < surfCount; ++i) {
+
 			const XmlNode *surfaceNode;
 			if(surfacesNode->hasChildAtIndex("surface",i)){
 				surfaceNode= surfacesNode->getChild("surface", i);
@@ -193,25 +195,61 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 				surfaceNode= surfacesNode->getChild("surface", 2);
 			}
 
-
-			int childCount= surfaceNode->getChildCount();
-			surfPixmaps[i].resize(childCount);
-			surfProbs[i].resize(childCount);
-
-			for(int j = 0; j < childCount; ++j) {
-				surfPixmaps[i][j] = NULL;
+			if(surfaceNode->hasAttribute("partsize")){
+				partsize=surfaceNode->getAttribute("partsize",true)->getIntValue();
+			}
+			else{
+				partsize=0;
 			}
 
-			for(int j = 0; j < childCount; ++j) {
-				const XmlNode *textureNode= surfaceNode->getChild("texture", j);
-				if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
-					surfPixmaps[i][j] = new Pixmap2D();
-					surfPixmaps[i][j]->init(3);
-					surfPixmaps[i][j]->load(textureNode->getAttribute("path")->getRestrictedValue(currentPath));
-				}
-				loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,textureNode->getAttribute("path")->getRestrictedValue()));
+			if(partsize==0){
+				int childCount= surfaceNode->getChildCount();
+				surfPixmaps[i].resize(childCount);
+				surfProbs[i].resize(childCount);
 
-				surfProbs[i][j]= textureNode->getAttribute("prob")->getFloatValue();
+				for(int j = 0; j < childCount; ++j) {
+					surfPixmaps[i][j] = NULL;
+				}
+
+				for(int j = 0; j < childCount; ++j) {
+					const XmlNode *textureNode= surfaceNode->getChild("texture", j);
+					if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+						surfPixmaps[i][j] = new Pixmap2D();
+						surfPixmaps[i][j]->init(3);
+						surfPixmaps[i][j]->load(textureNode->getAttribute("path")->getRestrictedValue(currentPath));
+					}
+					loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,textureNode->getAttribute("path")->getRestrictedValue()));
+
+					surfProbs[i][j]= textureNode->getAttribute("prob")->getFloatValue();
+				}
+			}
+			else {
+				// read single big texture and cut it into pieces
+				const XmlNode *textureNode= surfaceNode->getChild("texture", 0);
+				Pixmap2D *pixmap=new Pixmap2D();
+				pixmap->init(3);
+				pixmap->load(textureNode->getAttribute("path")->getRestrictedValue(currentPath));
+				loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,textureNode->getAttribute("path")->getRestrictedValue()));
+				int width=pixmap->getW();
+				int heith=pixmap->getW();
+				assert(width==heith);
+				assert(width%64==0);
+				assert(width%partsize==0);
+				int parts=width/partsize;
+				int numberOfPieces=parts*parts;
+				partsArray[i]=parts;
+				surfPixmaps[i].resize(numberOfPieces);
+				surfProbs[i].resize(numberOfPieces);
+				int j=0;
+				for(int x = 0; x < parts; ++x) {
+					for(int y = 0; y < parts; ++y) {
+						surfPixmaps[i][j] = new Pixmap2D();
+						surfPixmaps[i][j]->init(partsize,partsize,3);
+						surfPixmaps[i][j]->copyImagePart(x*partsize,y*partsize,pixmap);
+						surfProbs[i][j]=-1;
+						j++;
+					}
+				}
 			}
 		}
 
@@ -391,23 +429,33 @@ const Pixmap2D *Tileset::getSurfPixmap(int type, int var) const{
 	return surfPixmaps[type][var % vars];
 }
 
-void Tileset::addSurfTex(int leftUp, int rightUp, int leftDown, int rightDown, Vec2f &coord, const Texture2D *&texture) {
+void Tileset::addSurfTex(int leftUp, int rightUp, int leftDown, int rightDown, Vec2f &coord, const Texture2D *&texture, int mapX, int mapY) {
 	//center textures
 	if(leftUp == rightUp && leftUp == leftDown && leftUp == rightDown) {
 		//texture variation according to probability
 		float r= random.randRange(0.f, 1.f);
 		int var= 0;
 		float max= 0.f;
-		for(int i=0; i < surfProbs[leftUp].size(); ++i) {
-			max+= surfProbs[leftUp][i];
-			if(r <= max) {
-				var= i;
-				break;
-			}
+		const Pixmap2D* pixmap;
+		if(surfProbs[leftUp][0]<0)
+		{// big textures use coordinates
+			int parts=partsArray[leftUp];
+			pixmap=getSurfPixmap(leftUp, (mapY%parts)*parts+(mapX%parts));
 		}
-		SurfaceInfo si(getSurfPixmap(leftUp, var));
+		else{
+			for(int i=0; i < surfProbs[leftUp].size(); ++i) {
+				max+= surfProbs[leftUp][i];
+				if(r <= max) {
+					var= i;
+					break;
+				}
+			}
+			pixmap=getSurfPixmap(leftUp, var);
+		}
+		SurfaceInfo si(pixmap);
 		surfaceAtlas.addSurface(&si);
 		coord= si.getCoord();
+		// only for 512px printf("coord.x=%f coord.y=%f mapX=%d mapY=%d  result=%d\n",coord.x,coord.y,mapX,mapY,(mapY%8)*8+(mapX%8));
 		texture= si.getTexture();
 	}
 	//spatted textures
