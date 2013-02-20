@@ -527,8 +527,8 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 
 
 			TravelState tsValue = tsImpossible;
-			if(frameIndex < 0) {
-			//{
+			//if(frameIndex < 0) {
+			{
 				//printf("In [%s::%s Line: %d] START pathfind for attacker [%d - %s]\n",__FILE__,__FUNCTION__,__LINE__,unit->getId(), unit->getType()->getName().c_str());
 				//fflush(stdout);
 				switch(this->game->getGameSettings()->getPathFinderType()) {
