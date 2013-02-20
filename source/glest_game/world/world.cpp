@@ -1717,7 +1717,7 @@ void World::initSplattedTextures() {
 								sc10->getSurfaceType(),
 								sc01->getSurfaceType(),
 								sc11->getSurfaceType(),
-								coord, texture);
+								coord, texture,j,i);
 			sc00->setSurfTexCoord(coord);
 			sc00->setSurfaceTexture(texture);
 		}

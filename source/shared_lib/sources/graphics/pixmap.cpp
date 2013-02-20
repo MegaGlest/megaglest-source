@@ -1286,6 +1286,27 @@ void Pixmap2D::subCopy(int x, int y, const Pixmap2D *sourcePixmap){
 	delete [] pixel;
 }
 
+// uses a a part of a bigger source image to fill this image.
+void Pixmap2D::copyImagePart(int x, int y, const Pixmap2D *sourcePixmap){
+	assert(components==sourcePixmap->getComponents());
+
+	if(x+w>sourcePixmap->getW() && y+h>sourcePixmap->getH()){
+		throw megaglest_runtime_error("Pixmap2D::copyImagePart(), bad dimensions");
+	}
+
+	uint8 *pixel= new uint8[components];
+
+	for(int i=x; i<x+w; ++i){
+		for(int j=y; j<y+h; ++j){
+			sourcePixmap->getPixel(i, j, pixel);
+			setPixel(i-x, j-y, pixel);
+		}
+	}
+	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
+
+	delete [] pixel;
+}
+
 bool Pixmap2D::doDimensionsAgree(const Pixmap2D *pixmap){
 	return pixmap->getW() == w && pixmap->getH() == h;
 }
