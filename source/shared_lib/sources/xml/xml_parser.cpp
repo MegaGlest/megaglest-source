@@ -269,10 +269,15 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
 	Chrono chrono;
 	chrono.start();
 	if(SystemFlags::VERBOSE_MODE_ENABLED || showPerfStats) printf("Using RapidXml to load file [%s]\n",path.c_str());
-	//printf("Using RapidXml to load file [%s]\n",path.c_str());
+	printf("Using RapidXml to load file [%s]\n",path.c_str());
 
 	XmlNode *rootNode = NULL;
 	try {
+
+		if(folderExists(path) == true) {
+			throw megaglest_runtime_error("Can not open file: [" + path + "] as it is a folder!");
+		}
+
 #if defined(WIN32) && !defined(__MINGW32__)
 		FILE *fp = _wfopen(utf8_decode(path).c_str(), L"rb");
 		ifstream xmlFile(fp);
@@ -288,17 +293,29 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
 		xmlFile.unsetf(ios::skipws);
 
         // Determine stream size
-		xmlFile.seekg(0, ios::end);
-        streampos size = xmlFile.tellg();
-        xmlFile.seekg(0);
+		int64 file_size = -1;
+		if(xmlFile.tellg() != -1) {
+			streampos size1 = xmlFile.tellg();
+			xmlFile.seekg(0, ios::end);
+			if(xmlFile.tellg() != -1) {
+				streampos size2 = xmlFile.tellg();
+				xmlFile.seekg(0);
+				file_size = size2 - size1;
+			}
+		}
 
         if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
+        if(file_size <= 0) {
+        	throw megaglest_runtime_error("Invalid file size for file: [" + path + "] size = " + intToStr(file_size));
+        }
+        //printf("File size is: " MG_I64_SPECIFIER " for [%s]\n",file_size,path.c_str());
+
         // Load data and add terminating 0
         vector<char> buffer;
-        buffer.resize((unsigned int)size + 1);
-        xmlFile.read(&buffer.front(), static_cast<streamsize>(size));
-        buffer[(unsigned int)size] = 0;
+        buffer.resize(file_size + 1);
+        xmlFile.read(&buffer.front(), static_cast<streamsize>(file_size));
+        buffer[file_size] = 0;
 
         if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
