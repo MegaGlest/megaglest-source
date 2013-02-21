@@ -269,7 +269,7 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
 	Chrono chrono;
 	chrono.start();
 	if(SystemFlags::VERBOSE_MODE_ENABLED || showPerfStats) printf("Using RapidXml to load file [%s]\n",path.c_str());
-	printf("Using RapidXml to load file [%s]\n",path.c_str());
+	//printf("Using RapidXml to load file [%s]\n",path.c_str());
 
 	XmlNode *rootNode = NULL;
 	try {
