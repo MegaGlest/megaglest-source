@@ -613,6 +613,27 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 				//uniform selection
 				if(selection.isUniform()) {
 				    const CommandType *ct = display.getCommandType(posDisplay);
+					if(activeCommandClass == ccAttack)
+					{// try to switch to next attack type
+						int maxI=unit->getType()->getCommandTypeCount();
+						int i=activeCommandType->getId();
+						int k=i+1;
+						while(k!=i)
+						{
+							if(k>=maxI)
+							{
+								k=0;
+							}
+							const CommandType *ctype=display.getCommandType(k);
+							if(ctype->getClass() == ccAttack)
+							{
+								posDisplay=k;
+								break;
+							}
+							k++;
+						}
+					}
+
 					if(ct != NULL && unit->getFaction()->reqsOk(ct)) {
 						activeCommandType= display.getCommandType(posDisplay);
 						activeCommandClass= activeCommandType->getClass();
