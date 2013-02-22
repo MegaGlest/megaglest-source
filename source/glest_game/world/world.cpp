@@ -462,6 +462,12 @@ void World::updateAllTilesetObjects() {
 }
 
 void World::updateAllFactionUnits() {
+	bool showPerfStats = Config::getInstance().getBool("ShowPerfStats","false");
+	Chrono chronoPerf;
+	if(showPerfStats) chronoPerf.start();
+	char perfBuf[8096]="";
+	std::vector<string> perfList;
+
 	scriptManager->onTimerTriggerEvent();
 
 	// Prioritize grouped command units so closest units to target go first
@@ -491,6 +497,11 @@ void World::updateAllFactionUnits() {
 		faction->clearAproxCanMoveSoonCached();
 	}
 
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
 	Chrono chrono;
 	chrono.start();
 
@@ -500,12 +511,23 @@ void World::updateAllFactionUnits() {
 		bool slavesCompleted = masterController.waitTillSlavesTrigger(20000);
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED && chrono.getMillis() >= 10) printf("In [%s::%s Line: %d] *** Faction thread preprocessing took [%lld] msecs for %d factions for frameCount = %d slavesCompleted = %d.\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),factionCount,frameCount,slavesCompleted);
+
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
+
 	}
 	else {
 		// Signal the faction threads to do any pre-processing
 		for(int i = 0; i < factionCount; ++i) {
 			Faction *faction = getFaction(i);
 			faction->signalWorkerThread(frameCount);
+		}
+
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
 		}
 
 		bool workThreadsFinished = false;
@@ -527,13 +549,31 @@ void World::updateAllFactionUnits() {
 			}
 		}
 
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
+
 		if(SystemFlags::VERBOSE_MODE_ENABLED && chrono.getMillis() >= 10) printf("In [%s::%s Line: %d] *** Faction thread preprocessing took [%lld] msecs for %d factions for frameCount = %d.\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),factionCount,frameCount);
 	}
 
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
 	//units
+	Chrono chronoPerfUnit;
+	int totalUnitsChecked = 0;
+	int totalUnitsProcessed = 0;
 	for(int i = 0; i < factionCount; ++i) {
 		Faction *faction = getFaction(i);
 		faction->clearUnitsPathfinding();
+
+		std::map<CommandClass,int> mapCommandCount;
+		std::map<SkillClass,int> mapSkillCount;
+		int unitCountStuck = 0;
+		int unitCountUpdated = 0;
 
 		int unitCount = faction->getUnitCount();
 		for(int j = 0; j < unitCount; ++j) {
@@ -542,7 +582,70 @@ void World::updateAllFactionUnits() {
 				throw megaglest_runtime_error("unit == NULL");
 			}
 
-			unitUpdater.updateUnit(unit);
+			CommandClass unitCommandClass = ccCount;
+			if(unit->getCurrCommand() != NULL) {
+				unitCommandClass = unit->getCurrCommand()->getCommandType()->getClass();
+			}
+
+			SkillClass unitSkillClass = scCount;
+			if(unit->getCurrSkill() != NULL) {
+				unitSkillClass = unit->getCurrSkill()->getClass();
+			}
+
+			if(showPerfStats) chronoPerfUnit.start();
+
+			int unitBlockCount = unit->getPath()->getBlockCount();
+			bool isStuck = unit->getPath()->isStuck();
+			bool isStuckWithinTolerance = unit->isLastStuckFrameWithinCurrentFrameTolerance();
+			uint32 lastStuckFrame = unit->getLastStuckFrame();
+
+			if(unitUpdater.updateUnit(unit) == true) {
+				unitCountUpdated++;
+
+				if(unit->getLastStuckFrame() == frameCount) {
+					unitCountStuck++;
+				}
+				mapCommandCount[unitCommandClass] = mapCommandCount[unitCommandClass] + 1;
+				mapSkillCount[unitSkillClass] = mapSkillCount[unitSkillClass] + 1;
+			}
+			totalUnitsChecked++;
+
+			if(showPerfStats && chronoPerfUnit.getMillis() >= 10) {
+				sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER " stuck: %d [%d] for unit:\n%sBEFORE unitBlockCount = %d, AFTER = %d, BEFORE lastStuckFrame = %u, AFTER: %u\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerfUnit.getMillis(),isStuck,isStuckWithinTolerance,unit->toString().c_str(),unitBlockCount,unit->getPath()->getBlockCount(),lastStuckFrame,unit->getLastStuckFrame());
+				perfList.push_back(perfBuf);
+			}
+
+		}
+		totalUnitsProcessed += unitCountUpdated;
+
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER " faction: %d / %d unitCount = %d unitCountUpdated = %d unitCountStuck = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis(),i+1,factionCount,unitCount,unitCountUpdated,unitCountStuck);
+			perfList.push_back(perfBuf);
+
+			for(std::map<CommandClass,int>::iterator iterMap = mapCommandCount.begin();
+					iterMap != mapCommandCount.end(); ++iterMap) {
+
+				sprintf(perfBuf,"Command class = %d, count = %d\n",iterMap->first,iterMap->second);
+				perfList.push_back(perfBuf);
+			}
+
+			for(std::map<SkillClass,int>::iterator iterMap = mapSkillCount.begin();
+					iterMap != mapSkillCount.end(); ++iterMap) {
+
+				sprintf(perfBuf,"Skill class = %d, count = %d\n",iterMap->first,iterMap->second);
+				perfList.push_back(perfBuf);
+			}
+		}
+	}
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER " totalUnitsProcessed = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis(),totalUnitsProcessed);
+		perfList.push_back(perfBuf);
+	}
+
+	if(showPerfStats && chronoPerf.getMillis() >= 50) {
+		for(unsigned int x = 0; x < perfList.size(); ++x) {
+			printf("%s",perfList[x].c_str());
 		}
 	}
 

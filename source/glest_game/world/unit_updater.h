@@ -102,7 +102,7 @@ public:
     ~UnitUpdater();
 
 	//update skills
-    void updateUnit(Unit *unit);
+    bool updateUnit(Unit *unit);
 
     //update commands
     void updateUnitCommand(Unit *unit, int frameIndex);

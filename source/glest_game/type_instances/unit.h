@@ -722,7 +722,7 @@ public:
 	std::string toString() const;
 	bool needToUpdate();
 
-	bool isLastStuckFrameWithinCurrentFrameTolerance() const;
+	bool isLastStuckFrameWithinCurrentFrameTolerance();
 	inline uint32 getLastStuckFrame() const { return lastStuckFrame; }
 	inline void setLastStuckFrame(uint32 value) { lastStuckFrame = value; }
 	void setLastStuckFrameToCurrentFrame();
