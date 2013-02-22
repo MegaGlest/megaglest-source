@@ -294,10 +294,10 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
 
         // Determine stream size
 		int64 file_size = -1;
-		if(xmlFile.tellg() != -1) {
+		if((double)xmlFile.tellg() != -1) {
 			streampos size1 = xmlFile.tellg();
 			xmlFile.seekg(0, ios::end);
-			if(xmlFile.tellg() != -1) {
+			if((double)xmlFile.tellg() != -1) {
 				streampos size2 = xmlFile.tellg();
 				xmlFile.seekg(0);
 				file_size = size2 - size1;
@@ -313,9 +313,9 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
 
         // Load data and add terminating 0
         vector<char> buffer;
-        buffer.resize(file_size + 1);
+        buffer.resize((unsigned int)file_size + 1);
         xmlFile.read(&buffer.front(), static_cast<streamsize>(file_size));
-        buffer[file_size] = 0;
+        buffer[(unsigned int)file_size] = 0;
 
         if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
