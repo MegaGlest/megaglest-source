@@ -106,7 +106,9 @@ UnitUpdater::~UnitUpdater() {
 // ==================== progress skills ====================
 
 //skill dependent actions
-void UnitUpdater::updateUnit(Unit *unit) {
+bool UnitUpdater::updateUnit(Unit *unit) {
+	bool processUnitCommand = false;
+
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
@@ -153,6 +155,7 @@ void UnitUpdater::updateUnit(Unit *unit) {
 	if(update == true) {
         //SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+		processUnitCommand = true;
 		updateUnitCommand(unit,-1);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after updateUnitCommand()]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -282,6 +285,8 @@ void UnitUpdater::updateUnit(Unit *unit) {
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+
+	return processUnitCommand;
 }
 
 // ==================== progress commands ====================

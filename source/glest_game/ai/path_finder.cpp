@@ -218,7 +218,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 		}
 	}
 
-	if(path->isStuck() == true && unit->getLastStuckPos() == finalPos &&
+	if(path->isStuck() == true &&
+			(unit->getLastStuckPos() == finalPos || path->getBlockCount() > 500) &&
 		unit->isLastStuckFrameWithinCurrentFrameTolerance() == true) {
 
 		//printf("$$$$ Unit STILL BLOCKED for [%d - %s]\n",unit->getId(),unit->getFullName().c_str());
@@ -1416,6 +1417,31 @@ int PathFinder::findNodeIndex(Node *node, std::vector<Node> &nodeList) {
 		}
 	}
 	return index;
+}
+
+bool PathFinder::unitCannotMove(Unit *unit) {
+	bool unitImmediatelyBlocked = false;
+
+	// First check if unit currently blocked all around them, if so don't try to pathfind
+	const bool showConsoleDebugInfo = Config::getInstance().getBool("EnablePathfinderDistanceOutput","false");
+	const Vec2i unitPos = unit->getPos();
+	int failureCount = 0;
+	int cellCount = 0;
+
+	for(int i = -1; i <= 1; ++i) {
+		for(int j = -1; j <= 1; ++j) {
+			Vec2i pos = unitPos + Vec2i(i, j);
+			if(pos != unitPos) {
+				bool canUnitMoveToCell = map->aproxCanMove(unit, unitPos, pos);
+				if(canUnitMoveToCell == false) {
+					failureCount++;
+				}
+				cellCount++;
+			}
+		}
+	}
+	unitImmediatelyBlocked = (failureCount == cellCount);
+	return unitImmediatelyBlocked;
 }
 
 void PathFinder::saveGame(XmlNode *rootNode) {

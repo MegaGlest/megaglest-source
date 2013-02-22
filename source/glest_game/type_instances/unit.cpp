@@ -3672,9 +3672,17 @@ void Unit::setLastStuckFrameToCurrentFrame() {
 	lastStuckFrame = getFrameCount();
 }
 
-bool Unit::isLastStuckFrameWithinCurrentFrameTolerance() const {
-	const int MIN_FRAME_ELAPSED_RETRY = 300;
-	bool result (getFrameCount() - lastStuckFrame <= MIN_FRAME_ELAPSED_RETRY);
+bool Unit::isLastStuckFrameWithinCurrentFrameTolerance() {
+	//const int MIN_FRAME_ELAPSED_RETRY = 300;
+	const int MAX_BLOCKED_FRAME_THRESHOLD = 25000;
+	int MIN_FRAME_ELAPSED_RETRY = 6;
+	if(lastStuckFrame < MAX_BLOCKED_FRAME_THRESHOLD) {
+		MIN_FRAME_ELAPSED_RETRY = random.randRange(2,6);
+	}
+	else {
+		MIN_FRAME_ELAPSED_RETRY = random.randRange(6,8);
+	}
+	bool result (getFrameCount() - lastStuckFrame <= (MIN_FRAME_ELAPSED_RETRY * 100));
 	return result;
 }
 
