@@ -924,6 +924,17 @@ void Game::load() {
 }
 
 void Game::load(int loadTypes) {
+	bool showPerfStats = Config::getInstance().getBool("ShowPerfStats","false");
+	Chrono chronoPerf;
+	if(showPerfStats) chronoPerf.start();
+	char perfBuf[8096]="";
+	std::vector<string> perfList;
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
 	std::map<string,vector<pair<string, string> > > loadedFileList;
 	originalDisplayMsgCallback = NetworkInterface::getDisplayMessageFunction();
 	NetworkInterface::setDisplayMessageFunction(ErrorDisplayMessage);
@@ -943,33 +954,32 @@ void Game::load(int loadTypes) {
 	string data_path= getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 	// loadHints
 
-		if(data_path != ""){
-			endPathWithSlash(data_path);
-		}
+	if(data_path != ""){
+		endPathWithSlash(data_path);
+	}
 
-		string user_data_path = config.getString("UserData_Root","");
-		if(user_data_path != "") {
-			endPathWithSlash(user_data_path);
-		}
+	string user_data_path = config.getString("UserData_Root","");
+	if(user_data_path != "") {
+		endPathWithSlash(user_data_path);
+	}
 
-		string englishFile=getGameCustomCoreDataPath(data_path, "data/lang/hint/hint_"+Lang::getInstance().getDefaultLanguage()+".lng");
-		string languageFile=getGameCustomCoreDataPath(data_path, "data/lang/hint/hint_"+ Lang::getInstance().getLanguage() +".lng");
-		string languageFileUserData=user_data_path + "data/lang/hint/hint_"+ Lang::getInstance().getLanguage() +".lng";
+	string englishFile=getGameCustomCoreDataPath(data_path, "data/lang/hint/hint_"+Lang::getInstance().getDefaultLanguage()+".lng");
+	string languageFile=getGameCustomCoreDataPath(data_path, "data/lang/hint/hint_"+ Lang::getInstance().getLanguage() +".lng");
+	string languageFileUserData=user_data_path + "data/lang/hint/hint_"+ Lang::getInstance().getLanguage() +".lng";
 
-		if(fileExists(languageFileUserData) == true){
-			languageFile=languageFileUserData;
-		}
-		if(fileExists(languageFile) == false){
-			// if there is no language specific file use english instead
-			languageFile=englishFile;
-		}
-		if(fileExists(englishFile) == false){
-			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] file [%s] not found\n",__FILE__,__FUNCTION__,__LINE__,englishFile.c_str());
-		} else {
-			logger.loadGameHints(englishFile,languageFile,true);
-		}
-
-
+	if(fileExists(languageFileUserData) == true){
+		languageFile=languageFileUserData;
+	}
+	if(fileExists(languageFile) == false){
+		// if there is no language specific file use english instead
+		languageFile=englishFile;
+	}
+	if(fileExists(englishFile) == false){
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] file [%s] not found\n",__FILE__,__FUNCTION__,__LINE__,englishFile.c_str());
+	}
+	else {
+		logger.loadGameHints(englishFile,languageFile,true);
+	}
 
 	if((loadTypes & lgt_FactionPreview) == lgt_FactionPreview) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -979,7 +989,10 @@ void Game::load(int loadTypes) {
 		SDL_PumpEvents();
 	}
 
-
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
 
 	loadHudTexture(&gameSettings);
 
@@ -1000,6 +1013,11 @@ void Game::load(int loadTypes) {
         }
     }
 
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
 	//throw megaglest_runtime_error("Test!");
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -1008,6 +1026,11 @@ void Game::load(int loadTypes) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		world.loadTileset(	config.getPathListForType(ptTilesets,scenarioDir),
     						tilesetName, &checksum, loadedFileList);
+	}
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
 	}
 
     // give CPU time to update other things to avoid apperance of hanging
@@ -1022,6 +1045,11 @@ void Game::load(int loadTypes) {
 
 	for ( int i=0; i < gameSettings.getFactionCount(); ++i ) {
 		factions.insert(gameSettings.getFactionTypeName(i));
+	}
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
 	}
 
     if((loadTypes & lgt_TechTree) == lgt_TechTree) {
@@ -1048,6 +1076,11 @@ void Game::load(int loadTypes) {
 		*/
     }
 
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
     Shared::Platform::Window::handleEvent();
@@ -1060,6 +1093,11 @@ void Game::load(int loadTypes) {
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     	world.loadMap(Map::getMapPath(mapName,scenarioDir), &checksum);
     }
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
@@ -1079,12 +1117,23 @@ void Game::load(int loadTypes) {
 		}
     }
 
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
 	SDL_PumpEvents();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     //good_fpu_control_registers(NULL,extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	if(showPerfStats && chronoPerf.getMillis() >= 50) {
+		for(unsigned int x = 0; x < perfList.size(); ++x) {
+			printf("%s",perfList[x].c_str());
+		}
+	}
 }
 
 void Game::init() {
@@ -1092,6 +1141,17 @@ void Game::init() {
 }
 
 void Game::init(bool initForPreviewOnly) {
+	bool showPerfStats = Config::getInstance().getBool("ShowPerfStats","false");
+	Chrono chronoPerf;
+	if(showPerfStats) chronoPerf.start();
+	char perfBuf[8096]="";
+	std::vector<string> perfList;
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] initForPreviewOnly = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,initForPreviewOnly);
 
 	Lang &lang= Lang::getInstance();
@@ -1162,6 +1222,11 @@ void Game::init(bool initForPreviewOnly) {
 		}
 	}
 
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
 	if(loadGameNode != NULL) {
 		//world.getMapPtr()->loadGame(loadGameNode,&world);
 	}
@@ -1184,6 +1249,11 @@ void Game::init(bool initForPreviewOnly) {
 
 		chatManager.init(&console, world.getThisTeamIndex());
 		console.clearStoredLines();
+	}
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
 	}
 
 	if(this->loadGameNode == NULL) {
@@ -1221,6 +1291,11 @@ void Game::init(bool initForPreviewOnly) {
 				gameCamera.setPos(Vec2f(v.x, v.y));
 			}
 		}
+	}
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1275,6 +1350,11 @@ void Game::init(bool initForPreviewOnly) {
 			masterController.setSlaves(slaveThreadList);
 		}
 
+		if(showPerfStats) {
+			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+			perfList.push_back(perfBuf);
+		}
+
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		// give CPU time to update other things to avoid apperance of hanging
@@ -1311,6 +1391,11 @@ void Game::init(bool initForPreviewOnly) {
 		renderer.manageDeferredParticleSystems();
     }
 
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
 	//init renderer state
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Initializing renderer\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
 	logger.add(Lang::getInstance().get("LogScreenGameLoadingInitRenderer","",true), true);
@@ -1319,11 +1404,21 @@ void Game::init(bool initForPreviewOnly) {
 	renderer.initGame(this,this->getGameCameraPtr());
 	//printf("After renderer.initGame\n");
 
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
 	for(int i=0; i < world.getFactionCount(); ++i) {
 		Faction *faction= world.getFaction(i);
 		if(faction != NULL) {
 			faction->deletePixels();
 		}
+	}
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
 	}
 
 	if(initForPreviewOnly == false) {
@@ -1387,6 +1482,11 @@ void Game::init(bool initForPreviewOnly) {
 		logger.add(Lang::getInstance().get("LogScreenGameLoadingLaunchGame","",true));
 	}
 
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
 	//throw "test";
 
 	logger.setCancelLoadingEnabled(false);
@@ -1404,6 +1504,12 @@ void Game::init(bool initForPreviewOnly) {
 			world.getStats()->setPersonalityType(i, faction->getPersonalityType());
 		}
 	}
+
+	if(showPerfStats) {
+		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+		perfList.push_back(perfBuf);
+	}
+
 	gameStarted = true;
 
 	if(this->masterserverMode == true) {
@@ -1412,6 +1518,12 @@ void Game::init(bool initForPreviewOnly) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== START GAME ==== getCurrentPixelByteCount() = %llu\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"==== START GAME ====\n");
+
+	if(showPerfStats && chronoPerf.getMillis() >= 50) {
+		for(unsigned int x = 0; x < perfList.size(); ++x) {
+			printf("%s",perfList[x].c_str());
+		}
+	}
 }
 
 // ==================== update ====================
