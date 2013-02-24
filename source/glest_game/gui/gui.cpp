@@ -627,8 +627,10 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 							const CommandType *ctype=display.getCommandType(k);
 							if(ctype->getClass() == ccAttack)
 							{
-								posDisplay=k;
-								break;
+								if(ctype != NULL && unit->getFaction()->reqsOk(ctype)) {
+									posDisplay=k;
+									break;
+								}
 							}
 							k++;
 						}
