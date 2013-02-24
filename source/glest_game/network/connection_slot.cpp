@@ -1364,6 +1364,7 @@ void ConnectionSlot::setJoinGameInProgressFlags() {
 void ConnectionSlot::close() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	//printf("Closing slot for playerIndex = %d\n",playerIndex);
 	//if(serverInterface->getAllowInGameConnections() == true) {
 		//printf("Closing connection slot!\n");
 	//}
@@ -1371,7 +1372,8 @@ void ConnectionSlot::close() {
 	this->gotIntro = false;
 	this->skipLagCheck = false;
 	this->joinGameInProgress = false;
-	this->ready= true;
+	this->ready= false;
+	this->connectedTime = 0;
 
 	if(this->slotThreadWorker != NULL) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1389,14 +1391,16 @@ void ConnectionSlot::close() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	//printf("Closing slot for playerIndex = %d updateServerListener = %d ready = %d\n",playerIndex,updateServerListener,ready);
+
     if(updateServerListener == true && ready == false) {
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     	serverInterface->updateListen();
     }
 
-    ready = false;
-    gotIntro = false;
-	connectedTime = 0;
+    //ready = false;
+    //gotIntro = false;
+
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }

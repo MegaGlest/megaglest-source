@@ -399,6 +399,8 @@ void ServerInterface::addClientToServerIPAddress(uint32 clientIp, uint32 ServerI
 }
 
 void ServerInterface::addSlot(int playerIndex) {
+	//printf("Adding slot for playerIndex = %d, serverSocket.isPortBound() = %d\n",playerIndex,serverSocket.isPortBound());
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	//assert(playerIndex >= 0 && playerIndex < GameConstants::maxPlayers);
 	if(playerIndex < 0 || playerIndex >= GameConstants::maxPlayers) {
@@ -431,6 +433,66 @@ void ServerInterface::addSlot(int playerIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	updateListen();
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+}
+
+void ServerInterface::removeSlot(int playerIndex, int lockedSlotIndex) {
+	//printf("Removing slot for playerIndex = %d, serverSocket.isPortBound() = %d\n",playerIndex,serverSocket.isPortBound());
+	//printf("Removing connection slot!\n");
+
+	Lang &lang= Lang::getInstance();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
+	MutexSafeWrapper safeMutex(serverSynchAccessor,CODE_AT_LINE);
+	MutexSafeWrapper safeMutexSlot(NULL,CODE_AT_LINE_X(playerIndex));
+	if(playerIndex != lockedSlotIndex) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
+		safeMutexSlot.setMutex(slotAccessorMutexes[playerIndex],CODE_AT_LINE_X(playerIndex));
+	}
+	ConnectionSlot *slot = slots[playerIndex];
+	bool notifyDisconnect = false;
+	vector<string> msgList;
+	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
+	if(slot != NULL) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
+
+		if(slot->getLastReceiveCommandListTime() > 0) {
+			char szBuf[4096] = "";
+
+			for(unsigned int i = 0; i < languageList.size(); ++i) {
+				string msgTemplate = "Player %s, disconnected from the game.";
+				if(lang.hasString("PlayerDisconnected",languageList[i]) == true) {
+					msgTemplate = lang.get("PlayerDisconnected",languageList[i]);
+				}
+#ifdef WIN32
+				_snprintf(szBuf,4095,msgTemplate.c_str(),slot->getName().c_str());
+#else
+				snprintf(szBuf,4095,msgTemplate.c_str(),slot->getName().c_str());
+#endif
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,szBuf);
+
+				msgList.push_back(szBuf);
+			}
+
+			notifyDisconnect = true;
+		}
+	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
+	slots[playerIndex]= NULL;
+	safeMutexSlot.ReleaseLock();
+	safeMutex.ReleaseLock();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
+	delete slot;
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
+	updateListen();
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
+	if(notifyDisconnect == true) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
+		for(unsigned int j = 0; j < languageList.size(); ++j) {
+			bool localEcho = lang.isLanguageLocal(languageList[j]);
+			queueTextMessage(msgList[j],-1, localEcho, languageList[j]);
+		}
+	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
 }
 
 bool ServerInterface::switchSlot(int fromPlayerIndex, int toPlayerIndex) {
@@ -491,66 +553,6 @@ bool ServerInterface::switchSlot(int fromPlayerIndex, int toPlayerIndex) {
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	return result;
-}
-
-void ServerInterface::removeSlot(int playerIndex, int lockedSlotIndex) {
-
-	//printf("Removing connection slot!\n");
-
-	Lang &lang= Lang::getInstance();
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
-	MutexSafeWrapper safeMutex(serverSynchAccessor,CODE_AT_LINE);
-	MutexSafeWrapper safeMutexSlot(NULL,CODE_AT_LINE_X(playerIndex));
-	if(playerIndex != lockedSlotIndex) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
-		safeMutexSlot.setMutex(slotAccessorMutexes[playerIndex],CODE_AT_LINE_X(playerIndex));
-	}
-	ConnectionSlot *slot = slots[playerIndex];
-	bool notifyDisconnect = false;
-	vector<string> msgList;
-	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
-	if(slot != NULL) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
-
-		if(slot->getLastReceiveCommandListTime() > 0) {
-			char szBuf[4096] = "";
-
-			for(unsigned int i = 0; i < languageList.size(); ++i) {
-				string msgTemplate = "Player %s, disconnected from the game.";
-				if(lang.hasString("PlayerDisconnected",languageList[i]) == true) {
-					msgTemplate = lang.get("PlayerDisconnected",languageList[i]);
-				}
-#ifdef WIN32
-				_snprintf(szBuf,4095,msgTemplate.c_str(),slot->getName().c_str());
-#else
-				snprintf(szBuf,4095,msgTemplate.c_str(),slot->getName().c_str());
-#endif
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,szBuf);
-
-				msgList.push_back(szBuf);
-			}
-
-			notifyDisconnect = true;
-		}
-	}
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
-	slots[playerIndex]= NULL;
-	safeMutexSlot.ReleaseLock();
-	safeMutex.ReleaseLock();
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
-	delete slot;
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
-	updateListen();
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
-	if(notifyDisconnect == true) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
-		for(unsigned int j = 0; j < languageList.size(); ++j) {
-			bool localEcho = lang.isLanguageLocal(languageList[j]);
-			queueTextMessage(msgList[j],-1, localEcho, languageList[j]);
-		}
-	}
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] playerIndex = %d, lockedSlotIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex,lockedSlotIndex);
 }
 
 ConnectionSlot *ServerInterface::getSlot(int playerIndex) {
