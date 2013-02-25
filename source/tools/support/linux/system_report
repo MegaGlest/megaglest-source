@@ -29,7 +29,7 @@
 #
 
 LANG=C
-VERSION='0.3.2'
+VERSION='0.3.3'
 MYNAME=`basename $0`
 DEFAULT_REPORT_FILENAME=system_report.log
 
@@ -378,8 +378,8 @@ then # not available in search path
 	echo 'WARNING: "glxinfo" utility is not available.' >&2
 	echo '         Consider installing it to provide more useful information on your system.' >&2
 	echo '' >&2
-	echo '>>> SKIPPED: glxinfo | grep -E '^(name|display|server|client|GLX|OpenGL)' >> $REPORT_LOCATION
-else # it's available
+	echo '>>> SKIPPED: glxinfo | grep -E '"'"'^(name|display|server|client|GLX|OpenGL)'"'" >> $REPORT_LOCATION
+else
 	echo ">>> glxinfo | grep -E '^(name|display|server|client|GLX|OpenGL)'" >> $REPORT_LOCATION
 	glxinfo | grep -E '^(name|display|server|client|GLX|OpenGL)' >> $REPORT_LOCATION 2>&1
 fi
