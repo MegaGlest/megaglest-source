@@ -41,6 +41,8 @@ public:
 	void update();
 
 	bool isNetworkGame();
+	bool isNetworkGameWithConnectedClients();
+
 	GameNetworkInterface* getGameNetworkInterface(bool throwErrorOnNull=true);
 	ServerInterface* getServerInterface(bool throwErrorOnNull=true);
 	ClientInterface* getClientInterface(bool throwErrorOnNull=true);

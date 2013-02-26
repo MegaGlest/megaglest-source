@@ -91,7 +91,7 @@ Game::Game() : ProgramState(NULL) {
 	camRightButtonDown=false;
 	camUpButtonDown=false;
 	camDownButtonDown=false;
-	speed=1;
+	this->speed=1;
 	weatherParticleSystem=NULL;
 	isFirstRender=false;
 	quitTriggeredIndicator=false;
@@ -237,7 +237,7 @@ void Game::resetMembers() {
 	pauseStateChanged=false;
 	gameOver= false;
 	renderNetworkStatus= false;
-	speed= 1;
+	this->speed= 1;
 	showFullConsole= false;
 	setMarker = false;
 	camLeftButtonDown=false;
@@ -2074,6 +2074,8 @@ void Game::update() {
 
 				//server->setStartInGameConnectionLaunch(false);
 
+				this->speed = 1;
+
 				Lang &lang= Lang::getInstance();
 				bool pauseAndSaveGameForNewClient = false;
 				for(int i = 0; i < world.getFactionCount(); ++i) {
@@ -2151,6 +2153,7 @@ void Game::update() {
 			else if(server->getUnPauseForInGameConnection() == true && paused == true) {
 				//printf("^^^ getUnPauseForInGameConnection triggered!\n");
 
+				this->speed = 1;
 				for(int i = 0; i < world.getFactionCount(); ++i) {
 					Faction *faction = world.getFaction(i);
 					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
@@ -4277,7 +4280,7 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			//increment speed
 			//else if(key == configKeys.getCharKey("GameSpeedIncrease")) {
 			else if(isKeyPressed(configKeys.getSDLKey("GameSpeedIncrease"),key, false) == true) {
-				bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
+				bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGameWithConnectedClients();
 				if(speedChangesAllowed){
 					incSpeed();
 				}
@@ -4285,7 +4288,7 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			//decrement speed
 			//else if(key == configKeys.getCharKey("GameSpeedDecrease")) {
 			else if(isKeyPressed(configKeys.getSDLKey("GameSpeedDecrease"),key, false) == true) {
-				bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
+				bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGameWithConnectedClients();
 				if(speedChangesAllowed){
 					decSpeed();
 				}
@@ -5325,24 +5328,22 @@ bool Game::hasBuilding(const Faction *faction) {
 void Game::incSpeed() {
 	Lang &lang= Lang::getInstance();
 
-	if(speed < Config::getInstance().getInt("FastSpeedLoops"))
-	{
-		if(speed==0)
-		{
-			speed=1;
+	if(this->speed < Config::getInstance().getInt("FastSpeedLoops")) {
+		if(this->speed == 0) {
+			this->speed = 1;
 		}
-		else
-			speed++;
-		console.addLine(lang.get("GameSpeedSet")+" "+((speed==0)?lang.get("Slow"):(speed==1)?lang.get("Normal"):"x"+intToStr(speed)));
+		else {
+			this->speed++;
+		}
+		console.addLine(lang.get("GameSpeedSet")+" "+((this->speed == 0)?lang.get("Slow") : (this->speed == 1)?lang.get("Normal"):"x"+intToStr(this->speed)));
 	}
 }
 
 void Game::decSpeed() {
 	Lang &lang= Lang::getInstance();
-	if(speed > 0)
-	{
-		speed--;
-		console.addLine(lang.get("GameSpeedSet")+" "+((speed==0)?lang.get("Slow"):(speed==1)?lang.get("Normal"):"x"+intToStr(speed)));
+	if(this->speed > 0) {
+		this->speed--;
+		console.addLine(lang.get("GameSpeedSet")+" "+((this->speed == 0)?lang.get("Slow") : (this->speed == 1)?lang.get("Normal"):"x"+intToStr(this->speed)));
 	}
 }
 
@@ -5411,11 +5412,11 @@ int Game::getUpdateLoops() {
 	if(getPaused()) {
 		return 0;
 	}
-	else if(speed == 0) {
+	else if(this->speed == 0) {
 		return updateFps % 2 == 0? 1: 0;
 	}
 	else
-		return speed;
+		return this->speed;
 }
 
 void Game::showLoseMessageBox() {
