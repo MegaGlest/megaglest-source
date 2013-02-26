@@ -783,10 +783,10 @@ void ServerInterface::updateSocketTriggeredList(std::map<PLATFORM_SOCKET,bool> &
 			if(Socket::isSocketValid(&clientSocket) == true) {
 				socketTriggeredList[clientSocket] = false;
 			}
-			else if(this->getGameHasBeenInitiated() == true &&
-					this->getAllowInGameConnections() == true) {
-				socketTriggeredList[clientSocket] = false;
-			}
+			//else if(this->getGameHasBeenInitiated() == true &&
+			//		this->getAllowInGameConnections() == true) {
+			//	socketTriggeredList[clientSocket] = false;
+			//}
 		}
 	}
 }
@@ -880,14 +880,17 @@ void ServerInterface::signalClientsToRecieveData(std::map<PLATFORM_SOCKET,bool> 
 				if(Socket::isSocketValid(&clientSocket)) {
 					socketTriggered = socketTriggeredList[clientSocket];
 				}
-				else if(this->getGameHasBeenInitiated() == true &&
-						this->getAllowInGameConnections() == true) {
-					socketTriggeredList[clientSocket] = true;
-					socketTriggered = socketTriggeredList[clientSocket];
-				}
+				//else if(this->getGameHasBeenInitiated() == true &&
+				//		this->getAllowInGameConnections() == true) {
+					//socketTriggeredList[clientSocket] = true;
+					//socketTriggered = socketTriggeredList[clientSocket];
+				//}
 			}
 			ConnectionSlotEvent &event = eventList[i];
-			mapSlotSignalledList[i] = signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
+			bool socketSignalled = signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
+			if(connectionSlot != NULL && socketTriggered == true) {
+				mapSlotSignalledList[i] = socketSignalled;
+			}
 		}
 	}
 }
@@ -895,6 +898,8 @@ void ServerInterface::signalClientsToRecieveData(std::map<PLATFORM_SOCKET,bool> 
 void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSignalledList,
 											   std::vector <string> &errorMsgList,
 											   std::map<int,ConnectionSlotEvent> &eventList) {
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	const bool newThreadManager = Config::getInstance().getBool("EnableNewThreadManager","false");
 	if(newThreadManager == true) {
@@ -933,6 +938,8 @@ void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSigna
 		//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	}
 	else {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		time_t waitForThreadElapsed = time(NULL);
 		std::map<int,bool> slotsCompleted;
 		for(bool threadsDone = false;
@@ -989,6 +996,7 @@ void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSigna
 			}
 		}
 	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void ServerInterface::checkForLaggingClients(std::map<int,bool> &mapSlotSignalledList,
@@ -1336,10 +1344,10 @@ void ServerInterface::update() {
 			std::map<int,ConnectionSlotEvent> eventList;
 			bool hasData = Socket::hasDataToRead(socketTriggeredList);
 
-			if(this->getGameHasBeenInitiated() == true &&
-			   this->getAllowInGameConnections() == true) {
+			//if(this->getGameHasBeenInitiated() == true &&
+			//   this->getAllowInGameConnections() == true) {
 				//printf("Checking for new client connections socketTriggeredList.size(): %d hasData: %d\n",socketTriggeredList.size(),hasData);
-			}
+			//}
 
 			if(hasData) if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] hasData == true\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
 
@@ -1354,35 +1362,43 @@ void ServerInterface::update() {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
-				// Step #2 check all connection slot worker threads for completed status
-				checkForCompletedClients(mapSlotSignalledList,errorMsgList, eventList);
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #3\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+				if(gameHasBeenInitiated == false || hasData == true) {
+					// Step #2 check all connection slot worker threads for completed status
+					checkForCompletedClients(mapSlotSignalledList,errorMsgList, eventList);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #3\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
-				//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				// Step #3 check clients for any lagging scenarios and try to deal with them
-				checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #4\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+					//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+					// Step #3 check clients for any lagging scenarios and try to deal with them
+					checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #4\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
-				//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				// Step #4 dispatch network commands to the pending list so that they are done in proper order
-				executeNetworkCommandsFromClients();
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #5\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+					//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+					// Step #4 dispatch network commands to the pending list so that they are done in proper order
+					executeNetworkCommandsFromClients();
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #5\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
-				//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				// Step #5 dispatch pending chat messages
-				dispatchPendingChatMessages(errorMsgList);
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+					//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+					// Step #5 dispatch pending chat messages
+					dispatchPendingChatMessages(errorMsgList);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-				dispatchPendingMarkCellMessages(errorMsgList);
-				dispatchPendingUnMarkCellMessages(errorMsgList);
+					dispatchPendingMarkCellMessages(errorMsgList);
+					dispatchPendingUnMarkCellMessages(errorMsgList);
 
-				dispatchPendingHighlightCellMessages(errorMsgList);
+					dispatchPendingHighlightCellMessages(errorMsgList);
+				}
+				else if(gameHasBeenInitiated == true &&
+						difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
+					//printf("Skip network data process because hasData == false\n");
+					std::map<int,bool> mapSlotSignalledList;
+					checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
+				}
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 			}
@@ -1390,9 +1406,7 @@ void ServerInterface::update() {
 					difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
 				//printf("\nServerInterface::update -- E1\n");
 
-				//std::map<int,ConnectionSlotEvent> eventList;
 				std::map<int,bool> mapSlotSignalledList;
-
 				checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
 			}
 
@@ -2155,27 +2169,29 @@ void ServerInterface::checkListenerSlots() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		for(int i= 0; i < GameConstants::maxPlayers; ++i) {
 			int factionIndex = gameSettings.getFactionIndexForStartLocation(i);
-			MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
-			ConnectionSlot *connectionSlot= slots[i];
-			// Open slots for joining in progress game
-			if(connectionSlot == NULL &&
-				gameSettings.getFactionControl(factionIndex) != ctClosed &&
+			if(gameSettings.getFactionControl(factionIndex) != ctClosed &&
 				gameSettings.getFactionControl(factionIndex) != ctHuman) {
-				printf("Opening slot for in game connections, slot: %d, factionindex: %d name: %s\n",i,factionIndex,gameSettings.getFactionTypeName(factionIndex).c_str());
 
-				addSlot(i);
-				connectionSlot = slots[i];
-				if(useInGameBlockingClientSockets == true) {
-					connectionSlot->getSocket()->setBlock(true);
+				MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
+				ConnectionSlot *connectionSlot= slots[i];
+				// Open slots for joining in progress game
+				if(connectionSlot == NULL) {
+					printf("Opening slot for in game connections, slot: %d, factionindex: %d name: %s\n",i,factionIndex,gameSettings.getFactionTypeName(factionIndex).c_str());
+
+					addSlot(i);
+					connectionSlot = slots[i];
+					if(useInGameBlockingClientSockets == true) {
+						connectionSlot->getSocket()->setBlock(true);
+					}
+					connectionSlot->setCanAcceptConnections(true);
 				}
-				connectionSlot->setCanAcceptConnections(true);
-			}
-			else if(connectionSlot != NULL &&
-					connectionSlot->getCanAcceptConnections() == false &&
-					connectionSlot->isConnected() == false &&
-					gameSettings.getFactionControl(factionIndex) != ctClosed &&
-					gameSettings.getFactionControl(factionIndex) != ctHuman) {
-				this->removeSlot(i);
+				else if(connectionSlot != NULL &&
+						connectionSlot->getCanAcceptConnections() == false &&
+						connectionSlot->isConnected() == false) {
+					printf("Removing slot for in game connections, slot: %d, factionindex: %d name: %s\n",i,factionIndex,gameSettings.getFactionTypeName(factionIndex).c_str());
+
+					this->removeSlot(i);
+				}
 			}
 		}
 	}

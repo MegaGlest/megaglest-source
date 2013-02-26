@@ -199,6 +199,10 @@ void ConnectionSlotThread::execute() {
 
             MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
             int eventCount = eventList.size();
+
+            //printf("Slot thread slotIndex: %d eventCount: %d\n",slotIndex,eventCount);
+            if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Slot thread slotIndex: %d eventCount: %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,eventCount);
+
             if(eventCount > 0) {
                 ConnectionSlotEvent eventCopy;
                 eventCopy.eventId = -1;
@@ -220,9 +224,13 @@ void ConnectionSlotThread::execute() {
 
                 if(eventCopy.eventId > 0) {
                     ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
+
+                    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,eventCount,(int)eventCopy.eventId);
+                    //printf("#1 Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",slotIndex,eventCount,(int)eventCopy.eventId);
                     //this->slotInterface->slotUpdateTask(&eventCopy);
                     this->slotUpdateTask(&eventCopy);
                     setTaskCompleted(eventCopy.eventId);
+                    //printf("#2 Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",slotIndex,eventCount,(int)eventCopy.eventId);
                 }
             }
             else {
@@ -406,10 +414,10 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 			if(networkGameDataSynchCheckOkTech) networkGameDataSynchCheckOkTech = false;
 			this->setReceivedDataSynchCheck(false);
 
-			if(serverInterface->getGameHasBeenInitiated() == true &&
-			   serverInterface->getAllowInGameConnections() == true) {
+			//if(serverInterface->getGameHasBeenInitiated() == true &&
+			//   serverInterface->getAllowInGameConnections() == true) {
 				//printf("Checking for new client connection on slot, checkForNewClients: %d this->canAcceptConnections: %d\n",checkForNewClients,this->canAcceptConnections);
-			}
+			//}
 
 			// Is the listener socket ready to be read?
 			if(checkForNewClients == true && this->canAcceptConnections == true) {
@@ -417,7 +425,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] BEFORE accept new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getOpenSlotCount());
-				bool hasOpenSlots = (serverInterface->getOpenSlotCount() > 0);
+				//bool hasOpenSlots = (serverInterface->getOpenSlotCount() > 0);
+				bool hasOpenSlots = true;
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
@@ -425,10 +434,10 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
-				if(serverInterface->getGameHasBeenInitiated() == true &&
-				   serverInterface->getAllowInGameConnections() == true) {
+				//if(serverInterface->getGameHasBeenInitiated() == true &&
+				//   serverInterface->getAllowInGameConnections() == true) {
 					//printf("Checking for new client connection on slot, hasData: %d\n",hasData);
-				}
+				//}
 
 				if(hasData == true) {
 
@@ -1393,7 +1402,7 @@ void ConnectionSlot::close() {
 
 	//printf("Closing slot for playerIndex = %d updateServerListener = %d ready = %d\n",playerIndex,updateServerListener,ready);
 
-    if(updateServerListener == true && ready == false) {
+    if(updateServerListener == true) {
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     	serverInterface->updateListen();
     }
