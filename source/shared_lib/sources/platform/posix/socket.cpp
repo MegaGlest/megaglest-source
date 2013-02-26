@@ -980,7 +980,7 @@ bool Socket::hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList)
 {
     bool bResult = false;
 
-    if(socketTriggeredList.size() > 0)
+    if(socketTriggeredList.empty() == false)
     {
         /* Watch stdin (fd 0) to see when it has input. */
         fd_set rfds;
@@ -1545,12 +1545,14 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) if(chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 	}
 	else {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 SOCKET appears to be invalid [%d]\n",__FILE__,__FUNCTION__,__LINE__,sock);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #2 SOCKET appears to be invalid [%d] lastSocketError [%d] err [%d] mustGetData [%d]\n",__FILE__,__FUNCTION__,__LINE__,sock,lastSocketError,err,mustGetData);
 	}
 
 	//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 	if(err <= 0) {
+		int iErr = lastSocketError;
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTING SOCKET for socket [%d], err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,socket,err,getLastSocketErrorFormattedText(&iErr).c_str());
 		//printf("Peek #3 err = %d\n",err);
 		//lastSocketError = getLastSocketError();
 		if(mustGetData == true || lastSocketError != PLATFORM_SOCKET_TRY_AGAIN) {
