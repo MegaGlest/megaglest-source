@@ -281,6 +281,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->receivedNetworkGameStatus = false;
 	this->canAcceptConnections = true;
 	this->startInGameConnectionLaunch = false;
+	this->sentSavedGameInfo = false;
 	this->skipLagCheck = false;
 	this->joinGameInProgress = false;
 
@@ -340,6 +341,7 @@ void ConnectionSlot::setReady()	{
 	this->ready= true;
 	this->skipLagCheck = false;
 	this->joinGameInProgress = false;
+	this->sentSavedGameInfo = false;
 }
 
 void ConnectionSlot::updateSlot(ConnectionSlotEvent *event) {
@@ -1368,6 +1370,7 @@ void ConnectionSlot::setJoinGameInProgressFlags() {
 	this->skipLagCheck = true;
 	this->joinGameInProgress = true;
 	this->ready= false;
+	this->sentSavedGameInfo = false;
 }
 
 void ConnectionSlot::close() {
@@ -1381,6 +1384,7 @@ void ConnectionSlot::close() {
 	this->gotIntro = false;
 	this->skipLagCheck = false;
 	this->joinGameInProgress = false;
+	this->sentSavedGameInfo = false;
 	this->ready= false;
 	this->connectedTime = 0;
 

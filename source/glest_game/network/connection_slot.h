@@ -144,6 +144,7 @@ private:
 	bool startInGameConnectionLaunch;
 	bool pauseForInGameConnection;
 	bool unPauseForInGameConnection;
+	bool sentSavedGameInfo;
 
 public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
@@ -160,6 +161,9 @@ public:
 
 	bool getSkipLagCheck() const { return skipLagCheck; }
 	bool getJoinGameInProgress() const { return joinGameInProgress; }
+
+	bool getSentSavedGameInfo() const { return sentSavedGameInfo; }
+	void setSentSavedGameInfo(bool value) { sentSavedGameInfo = value; }
 
 	ConnectionSlotThread *getWorkerThread() { return slotThreadWorker; }
 
