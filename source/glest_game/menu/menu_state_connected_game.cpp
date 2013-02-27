@@ -3199,8 +3199,9 @@ void MenuStateConnectedGame::update() {
 			}
 
 			// check if we are joining an in progress game
-			if(clientInterface->getJoinGameInProgress() == true &&
-			   clientInterface->getReadyForInGameJoin() == true &&
+			if( clientInterface->getJoinGameInProgress() == true &&
+				clientInterface->getJoinGameInProgressLaunch() == true &&
+			    clientInterface->getReadyForInGameJoin() == true &&
 			   ftpClientThread != NULL) {
 
 				MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));

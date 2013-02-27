@@ -79,6 +79,8 @@ Game::Game() : ProgramState(NULL) {
 	avgRenderFps=0;
 	currentAvgRenderFpsTotal=0;
 	paused=false;
+	pauseRequestSent=false;
+	resumeRequestSent=false;
 	pauseStateChanged=false;
 	gameOver=false;
 	renderNetworkStatus=false;
@@ -234,6 +236,8 @@ void Game::resetMembers() {
 	currentAvgRenderFpsTotal=0;
 	tickCount=0;
 	paused= false;
+	resumeRequestSent=false;
+	pauseRequestSent=false;
 	pauseStateChanged=false;
 	gameOver= false;
 	renderNetworkStatus= false;
@@ -2034,7 +2038,18 @@ void Game::update() {
 			ServerInterface *server = NetworkManager::getInstance().getServerInterface();
 
 			if(server->getPauseForInGameConnection() == true) {
-				if(paused == false) {
+
+				bool clientNeedsGameSetup = false;
+				for(int i = 0; i < world.getFactionCount(); ++i) {
+					Faction *faction = world.getFaction(i);
+					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+					if(slot != NULL && slot->getPauseForInGameConnection() == true) {
+						clientNeedsGameSetup = true;
+						break;
+					}
+				}
+
+				if(paused == false || clientNeedsGameSetup == true) {
 					//printf("================= Switching player pausing game\n");
 
 					for(int i = 0; i < world.getFactionCount(); ++i) {
@@ -2085,7 +2100,7 @@ void Game::update() {
 					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
 
 					if(slot != NULL && slot->getStartInGameConnectionLaunch() == true) {
-						slot->setStartInGameConnectionLaunch(false);
+						//slot->setStartInGameConnectionLaunch(false);
 						pauseAndSaveGameForNewClient = true;
 					}
 					if(slot != NULL && slot->getJoinGameInProgress() == true) {
@@ -2113,13 +2128,15 @@ void Game::update() {
 					}
 				}
 
-				if(pauseAndSaveGameForNewClient == true) {
+				if(pauseAndSaveGameForNewClient == true && paused == false &&
+						pauseRequestSent == false) {
 					commander.tryPauseGame(true);
+					pauseRequestSent = true;
 					//return;
 				}
 			}
 			//else if(server->getPauseForInGameConnection() == true && paused == true &&
-			else if(paused == true) {
+			if(paused == true) {
 				if(pauseStateChanged == true) {
 					pauseStateChanged = false;
 				}
@@ -2136,9 +2153,10 @@ void Game::update() {
 						}
 					}
 					commander.tryResumeGame(false);
+					resumeRequestSent = true;
 					//return;
 				}
-				else {
+				else if(server->getStartInGameConnectionLaunch() == true) {
 					bool saveNetworkGame = false;
 
 					ServerInterface *server = NetworkManager::getInstance().getServerInterface();
@@ -2146,7 +2164,10 @@ void Game::update() {
 						Faction *faction = world.getFaction(i);
 						ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
 						if(slot != NULL && slot->getJoinGameInProgress() == true &&
-								slot->getSentSavedGameInfo() == false) {
+							slot->getStartInGameConnectionLaunch() == true &&
+							slot->getSentSavedGameInfo() == false) {
+							slot->setStartInGameConnectionLaunch(false);
+
 							saveNetworkGame = true;
 							break;
 						}
@@ -2175,25 +2196,31 @@ void Game::update() {
 					}
 				}
 			}
-			else {
-				// handle setting changes from clients
-				Map *map= world.getMap();
-				//printf("switchSetupRequests != NULL\n");
+			//else {
+			// handle setting changes from clients
+			Map *map= world.getMap();
+			//printf("switchSetupRequests != NULL\n");
 
-				bool switchRequested = switchSetupForSlots(server, 0, map->getMaxPlayers(), false);
-				switchRequested = switchRequested || switchSetupForSlots(server, map->getMaxPlayers(), GameConstants::maxPlayers, true);
+			bool switchRequested = switchSetupForSlots(server, 0, map->getMaxPlayers(), false);
+			switchRequested = switchRequested || switchSetupForSlots(server, map->getMaxPlayers(), GameConstants::maxPlayers, true);
 
-				if(switchRequested == true) {
-					//printf("Send new game setup from switch: %d\n",switchRequested);
+			if(switchRequested == true) {
+				//printf("Send new game setup from switch: %d\n",switchRequested);
 
-					//for(int i= 0; i < gameSettings.getFactionCount(); ++i) {
-						//printf("#1 Faction Index: %d control: %d startlocation: %d\n",i,gameSettings.getFactionControl(i),gameSettings.getStartLocationIndex(i));
+				//for(int i= 0; i < gameSettings.getFactionCount(); ++i) {
+					//printf("#1 Faction Index: %d control: %d startlocation: %d\n",i,gameSettings.getFactionControl(i),gameSettings.getStartLocationIndex(i));
 
-						//printf("#2 Faction Index: %d control: %d startlocation: %d\n",i,server->gameSettings.getFactionControl(i),server->gameSettings.getStartLocationIndex(i));
-					//}
+					//printf("#2 Faction Index: %d control: %d startlocation: %d\n",i,server->gameSettings.getFactionControl(i),server->gameSettings.getStartLocationIndex(i));
+				//}
 
-					server->broadcastGameSetup(&server->gameSettings,true);
+				server->broadcastGameSetup(&server->gameSettings,true);
 				}
+			//}
+
+			// Make the server wait a bit for clients to start.
+			if(paused == false && resumeRequestSent == true) {
+				resumeRequestSent = false;
+				sleep(500);
 			}
 		}
 		// END - Handle joining in progress games
@@ -5395,6 +5422,9 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 			}
 		}
 		//printf("setPaused new paused = %d\n",paused);
+
+		pauseRequestSent=false;
+		//resumeRequestSent=false;
 	}
 }
 

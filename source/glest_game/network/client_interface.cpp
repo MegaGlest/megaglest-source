@@ -58,7 +58,10 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 	sessionKey = 0;
 	launchGame= false;
 	introDone= false;
-	joinGameInProgress = false;
+
+	this->joinGameInProgress = false;
+	this->joinGameInProgressLaunch = false;
+
 	playerIndex= -1;
 	setGameSettingsReceived(false);
 	gotIntro = false;
@@ -251,7 +254,8 @@ void ClientInterface::updateLobby() {
 				playerIndex= networkMessageIntro.getPlayerIndex();
 				serverName= networkMessageIntro.getName();
 				serverFTPPort = networkMessageIntro.getFtpPort();
-				joinGameInProgress = networkMessageIntro.getGameInProgress();
+				this->joinGameInProgress = networkMessageIntro.getGameInProgress();
+				this->joinGameInProgressLaunch = false;
 
 				//printf("Client got intro playerIndex = %d\n",playerIndex);
 
@@ -1333,7 +1337,8 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
         return;
 	}
 
-	joinGameInProgress = false;
+	this->joinGameInProgress = false;
+	this->joinGameInProgressLaunch = false;
 
 	//printf("Client signalServerWhenReadyToStartJoinedGame = %d\n",signalServerWhenReadyToStartJoinedGame);
 	if(signalServerWhenReadyToStartJoinedGame == true) {
@@ -1509,6 +1514,11 @@ void ClientInterface::close()
 
 	connectedTime = 0;
 	gotIntro = false;
+
+	this->joinGameInProgress = false;
+	this->joinGameInProgressLaunch = false;
+	this->pausedForInGameJoin = false;
+	this->readyForInGameJoin = false;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] END\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
@@ -1713,6 +1723,7 @@ void ClientInterface::broadcastGameStart(const GameSettings *gameSettings) {
 	//broadcastMessage(&networkMessageLaunch);
 	sendMessage(&networkMessageLaunch);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	this->joinGameInProgressLaunch = true;
 }
 void ClientInterface::setGameSettingsReceived(bool value) {
 	//printf("In [%s:%s] Line: %d gameSettingsReceived = %d value = %d, gameSettingsReceivedCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,gameSettingsReceived,value,gameSettingsReceivedCount);
