@@ -90,6 +90,8 @@ private:
 	int totalRenderFps, renderFps, lastRenderFps, avgRenderFps,currentAvgRenderFpsTotal;
 	uint64 tickCount;
 	bool paused;
+	bool pauseRequestSent;
+	bool resumeRequestSent;
 	bool pauseStateChanged;
 	bool gameOver;
 	bool renderNetworkStatus;

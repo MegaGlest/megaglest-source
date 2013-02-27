@@ -49,7 +49,6 @@ private:
 	int gameSettingsReceivedCount;
 	time_t connectedTime;
 	bool gotIntro;
-	bool joinGameInProgress;
 
 	Ip ip;
 	int port;
@@ -66,6 +65,9 @@ private:
 	Mutex *networkCommandListThreadAccessor;
 	std::map<int,Commands> cachedPendingCommands;	//commands ready to be given
 	uint64 cachedPendingCommandsIndex;
+
+	bool joinGameInProgress;
+	bool joinGameInProgressLaunch;
 	bool pausedForInGameJoin;
 	bool readyForInGameJoin;
 
@@ -78,6 +80,7 @@ public:
 	virtual void close();
 
 	bool getJoinGameInProgress() const { return joinGameInProgress; }
+	bool getJoinGameInProgressLaunch() const { return joinGameInProgressLaunch; }
 
 	bool getPausedForInGameJoin() const { return pausedForInGameJoin; }
 	bool getReadyForInGameJoin() const { return readyForInGameJoin; }
