@@ -5420,11 +5420,9 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 					faction->clearCaches();
 				}
 			}
+			pauseRequestSent=false;
 		}
 		//printf("setPaused new paused = %d\n",paused);
-
-		pauseRequestSent=false;
-		//resumeRequestSent=false;
 	}
 }
 
