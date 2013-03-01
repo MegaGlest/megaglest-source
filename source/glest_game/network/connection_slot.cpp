@@ -187,55 +187,98 @@ void ConnectionSlotThread::execute() {
 				break;
 			}
 
-			semTaskSignalled.waitTillSignalled();
+			if(this->slotInterface->getAllowInGameConnections() == true &&
+				this->slotInterface->isClientConnected(slotIndex) == false) {
+				//printf("#1 Non connected slot: %d waiting for client connection..\n",slotIndex);
+				sleep(100);
 
-			static string masterSlaveOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-			MasterSlaveThreadControllerSafeWrapper safeMasterController(masterController,20000,masterSlaveOwnerId);
+				if(getQuitStatus() == true) {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					break;
+				}
 
-			if(getQuitStatus() == true) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-				break;
+				//printf("Slot thread slotIndex: %d eventCount: %d\n",slotIndex,eventCount);
+				//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Slot thread slotIndex: %d eventCount: %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,eventCount);
+
+				//if(eventCount > 0) {
+				ConnectionSlotEvent eventCopy;
+				eventCopy.eventType = eReceiveSocketData;
+				eventCopy.connectionSlot = this->slotInterface->getSlot(slotIndex);
+				eventCopy.eventId = -1;
+
+				if(getQuitStatus() == true) {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					break;
+				}
+
+				//if(eventCopy.eventId > 0) {
+				ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
+
+				//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,eventCount,(int)eventCopy.eventId);
+				//printf("#1 Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",slotIndex,eventCount,(int)eventCopy.eventId);
+				//this->slotInterface->slotUpdateTask(&eventCopy);
+
+				//printf("#2 Non connected slot: %d waiting for client connection..\n",slotIndex);
+				this->slotUpdateTask(&eventCopy);
+				//setTaskCompleted(eventCopy.eventId);
+					//printf("#2 Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",slotIndex,eventCount,(int)eventCopy.eventId);
+				//}
+				//}
+				//else {
+				//	safeMutex.ReleaseLock();
+				//}
 			}
+			else {
+				semTaskSignalled.waitTillSignalled();
 
-            MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
-            int eventCount = eventList.size();
+				static string masterSlaveOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+				MasterSlaveThreadControllerSafeWrapper safeMasterController(masterController,20000,masterSlaveOwnerId);
 
-            //printf("Slot thread slotIndex: %d eventCount: %d\n",slotIndex,eventCount);
-            if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Slot thread slotIndex: %d eventCount: %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,eventCount);
+				if(getQuitStatus() == true) {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					break;
+				}
 
-            if(eventCount > 0) {
-                ConnectionSlotEvent eventCopy;
-                eventCopy.eventId = -1;
+				MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
+				int eventCount = eventList.size();
 
-                for(int i = 0; i < eventList.size(); ++i) {
-                    ConnectionSlotEvent &slotEvent = eventList[i];
-                    if(slotEvent.eventCompleted == false) {
-                        eventCopy = slotEvent;
-                        break;
-                    }
-                }
+				//printf("Slot thread slotIndex: %d eventCount: %d\n",slotIndex,eventCount);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Slot thread slotIndex: %d eventCount: %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,eventCount);
 
-                safeMutex.ReleaseLock();
+				if(eventCount > 0) {
+					ConnectionSlotEvent eventCopy;
+					eventCopy.eventId = -1;
 
-                if(getQuitStatus() == true) {
-                	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                    break;
-                }
+					for(int i = 0; i < eventList.size(); ++i) {
+						ConnectionSlotEvent &slotEvent = eventList[i];
+						if(slotEvent.eventCompleted == false) {
+							eventCopy = slotEvent;
+							break;
+						}
+					}
 
-                if(eventCopy.eventId > 0) {
-                    ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
+					safeMutex.ReleaseLock();
 
-                    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,eventCount,(int)eventCopy.eventId);
-                    //printf("#1 Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",slotIndex,eventCount,(int)eventCopy.eventId);
-                    //this->slotInterface->slotUpdateTask(&eventCopy);
-                    this->slotUpdateTask(&eventCopy);
-                    setTaskCompleted(eventCopy.eventId);
-                    //printf("#2 Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",slotIndex,eventCount,(int)eventCopy.eventId);
-                }
-            }
-            else {
-                safeMutex.ReleaseLock();
-            }
+					if(getQuitStatus() == true) {
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						break;
+					}
+
+					if(eventCopy.eventId > 0) {
+						ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
+
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,eventCount,(int)eventCopy.eventId);
+						//printf("#1 Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",slotIndex,eventCount,(int)eventCopy.eventId);
+						//this->slotInterface->slotUpdateTask(&eventCopy);
+						this->slotUpdateTask(&eventCopy);
+						setTaskCompleted(eventCopy.eventId);
+						//printf("#2 Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",slotIndex,eventCount,(int)eventCopy.eventId);
+					}
+				}
+				else {
+					safeMutex.ReleaseLock();
+				}
+			}
 
 			if(getQuitStatus() == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -348,10 +391,10 @@ void ConnectionSlot::updateSlot(ConnectionSlotEvent *event) {
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
-	if(serverInterface->getGameHasBeenInitiated() == true &&
-	   serverInterface->getAllowInGameConnections() == true) {
+	//if(serverInterface->getGameHasBeenInitiated() == true &&
+	   //serverInterface->getAllowInGameConnections() == true) {
 		//printf("Checking updateSlot event = %p\n",event);
-	}
+	//}
 
 	if(event != NULL) {
 		bool &socketTriggered = event->socketTriggered;
@@ -363,13 +406,13 @@ void ConnectionSlot::updateSlot(ConnectionSlotEvent *event) {
 
 		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
-		if(serverInterface->getGameHasBeenInitiated() == true &&
-		   serverInterface->getAllowInGameConnections() == true) {
+		//if(serverInterface->getGameHasBeenInitiated() == true &&
+		   //serverInterface->getAllowInGameConnections() == true) {
 			//printf("Checking for new client connection on slot, checkForNewClients: %d this->canAcceptConnections: %d\n",checkForNewClients,this->canAcceptConnections);
-		}
+		//}
 
 		if((serverInterface->getGameHasBeenInitiated() == false ||
-				serverInterface->getAllowInGameConnections() == true ||
+				(serverInterface->getAllowInGameConnections() == true && this->isConnected() == false) ||
 			//(this->getSocket() != NULL && socketTriggered == true))) {
 			socketTriggered == true)) {
 			if(socketTriggered == true ||
@@ -1289,7 +1332,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						double LAG_CHECK_GRACE_PERIOD 		= 15;
 
 						if(this->serverInterface->getGameStartTime() > 0 &&
-								difftime((long int)time(NULL),this->serverInterface->getGameStartTime()) >= LAG_CHECK_GRACE_PERIOD) {
+								difftime((long int)time(NULL),this->serverInterface->getGameStartTime()) >= LAG_CHECK_GRACE_PERIOD &&
+								difftime((long int)time(NULL),this->getConnectedTime()) >= LAG_CHECK_GRACE_PERIOD) {
 							if(this->isConnected() == true && this->gotIntro == true && this->skipLagCheck == false) {
 								double clientLag = this->serverInterface->getCurrentFrameCount() - this->getCurrentFrameCount();
 								double clientLagCount = (gameSettings.getNetworkFramePeriod() > 0 ? (clientLag / gameSettings.getNetworkFramePeriod()) : 0);

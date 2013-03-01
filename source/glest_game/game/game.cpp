@@ -110,6 +110,7 @@ Game::Game() : ProgramState(NULL) {
 	withRainEffect=false;
 	program=NULL;
 	gameStarted=false;
+	this->initialResumeSpeedLoops=false;
 
 	highlightCellTexture=NULL;
 	lastMasterServerGameStatsDump=0;
@@ -166,6 +167,7 @@ Game::Game() : ProgramState(NULL) {
 void Game::resetMembers() {
 	Unit::setGame(this);
 	gameStarted = false;
+	this->initialResumeSpeedLoops = false;
 
 	original_updateFps = GameConstants::updateFps;
 	original_cameraFps = GameConstants::cameraFps;
@@ -1514,6 +1516,14 @@ void Game::init(bool initForPreviewOnly) {
 		perfList.push_back(perfBuf);
 	}
 
+	if(role == nrClient) {
+		ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
+		if(clientInterface != NULL && clientInterface->getResumeInGameJoin() == true) {
+			clientInterface->sendResumeGameMessage();
+			//this->initialResumeSpeedLoops = true;
+		}
+	}
+
 	gameStarted = true;
 
 	if(this->masterserverMode == true) {
@@ -1697,6 +1707,15 @@ void Game::update() {
 
 		// b) Updates depandant on speed
 		int updateLoops= getUpdateLoops();
+
+		// Temp speed boost when player first joins an in progress game
+		//if(this->initialResumeSpeedLoops == true && updateLoops == 1) {
+		if(this->initialResumeSpeedLoops == true) {
+			printf("Resume #1\n");
+
+			this->initialResumeSpeedLoops = false;
+			updateLoops = 80;
+		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		if(showPerfStats) {
@@ -2154,6 +2173,18 @@ void Game::update() {
 					}
 					commander.tryResumeGame(false);
 					resumeRequestSent = true;
+
+//					server->setAllowInGameConnections(false);
+//					for(int i = 0; i < world.getFactionCount(); ++i) {
+//						Faction *faction = world.getFaction(i);
+//						ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+//						if(slot != NULL && slot->isConnected() == false) {
+//							server->setAllowInGameConnections(false);
+//							server->removeSlot(faction->getStartLocationIndex());
+//						}
+//					}
+
+					//server->shutdownFTPServer();
 					//return;
 				}
 				else if(server->getStartInGameConnectionLaunch() == true) {
@@ -2220,7 +2251,7 @@ void Game::update() {
 			// Make the server wait a bit for clients to start.
 			if(paused == false && resumeRequestSent == true) {
 				resumeRequestSent = false;
-				sleep(500);
+				//sleep(500);
 			}
 		}
 		// END - Handle joining in progress games
@@ -5406,6 +5437,15 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 				}
 			}
 			setupPopupMenus(false);
+
+			//!!!
+			NetworkManager &networkManager= NetworkManager::getInstance();
+			if(networkManager.getNetworkRole() == nrClient) {
+				//ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
+				//if(clientInterface != NULL && clientInterface->getResumeInGameJoin() == true) {
+				initialResumeSpeedLoops = true;
+				//}
+			}
 		}
 		else {
 			console.addLine(lang.get("GamePaused"));

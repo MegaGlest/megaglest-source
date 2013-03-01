@@ -66,6 +66,10 @@ public:
 //
 class ConnectionSlotCallbackInterface {
 public:
+	virtual bool isClientConnected(int index) = 0;
+	virtual bool getAllowInGameConnections() const = 0;
+	virtual ConnectionSlot *getSlot(int index) = 0;
+
 	virtual void slotUpdateTask(ConnectionSlotEvent *event) = 0;
 	virtual ~ConnectionSlotCallbackInterface() {}
 };

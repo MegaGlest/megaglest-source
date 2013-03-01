@@ -99,6 +99,7 @@ private:
 
 	bool allowInGameConnections;
 	bool gameLaunched;
+	time_t lastListenerSlotCheckTime;
 
 public:
 	ServerInterface(bool publishEnabled);
@@ -108,12 +109,14 @@ public:
 
 	time_t getGameStartTime() const { return gameStartTime; }
 
-	bool getAllowInGameConnections() const { return allowInGameConnections; }
+	virtual bool getAllowInGameConnections() const { return allowInGameConnections; }
 	void setAllowInGameConnections(bool value) { allowInGameConnections = value; }
 
 	bool getStartInGameConnectionLaunch();
 	bool getPauseForInGameConnection();
 	bool getUnPauseForInGameConnection();
+
+	void shutdownFTPServer();
 
     virtual void close();
     virtual void update();
@@ -150,7 +153,7 @@ public:
     void addSlot(int playerIndex);
     bool switchSlot(int fromPlayerIndex, int toPlayerIndex);
     void removeSlot(int playerIndex, int lockedSlotIndex = -1);
-    ConnectionSlot *getSlot(int playerIndex);
+    virtual ConnectionSlot *getSlot(int playerIndex);
     int getSlotCount();
     int getConnectedSlotCount(bool authenticated);
 
@@ -172,7 +175,7 @@ public:
 
     virtual void slotUpdateTask(ConnectionSlotEvent *event) { };
     bool hasClientConnection();
-    bool isClientConnected(int index);
+    virtual bool isClientConnected(int index);
 
     int getCurrentFrameCount() const {
         return currentFrameCount;

@@ -198,6 +198,7 @@ private:
 	MasterSlaveThreadController masterController;
 
 	bool inJoinGameLoading;
+	bool initialResumeSpeedLoops;
 
 public:
 	Game();
