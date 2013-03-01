@@ -1714,7 +1714,7 @@ void Game::update() {
 			printf("Resume #1\n");
 
 			this->initialResumeSpeedLoops = false;
-			updateLoops = 100;
+			updateLoops = 80;
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
