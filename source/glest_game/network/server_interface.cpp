@@ -2657,6 +2657,8 @@ void ServerInterface::simpleTask(BaseThread *callingThread) {
 	if(difftime((long int)time(NULL),lastMasterserverHeartbeatTime) >= MASTERSERVER_HEARTBEAT_GAME_STATUS_SECONDS) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking to see masterserver needs an update of the game status [%d] callingThread [%p] publishToMasterserverThread [%p]\n",needToRepublishToMasterserver,callingThread,publishToMasterserverThread);
+
 		lastMasterserverHeartbeatTime = time(NULL);
 		if(needToRepublishToMasterserver == true) {
 			try {
@@ -2678,8 +2680,12 @@ void ServerInterface::simpleTask(BaseThread *callingThread) {
 					//printf("the request is:\n%s\n",request.c_str());
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d] the request is:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,request.c_str());
 
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Calling masterserver [%s]...\n",request.c_str());
+
 					std::string serverInfo = SystemFlags::getHTTP(request,handle);
 					SystemFlags::cleanupHTTP(&handle);
+
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Done Calling masterserver\n");
 
 					//printf("the result is:\n'%s'\n",serverInfo.c_str());
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d] the result is:\n'%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,serverInfo.c_str());
