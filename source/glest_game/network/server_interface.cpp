@@ -78,6 +78,7 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	inBroadcastMessage				= false;
 	lastGlobalLagCheckTime			= 0;
 	masterserverAdminRequestLaunch	= false;
+	lastListenerSlotCheckTime		= 0;
 
 	// This is an admin port listening only on the localhost intended to
 	// give current connection status info
@@ -260,11 +261,7 @@ ServerInterface::~ServerInterface() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	close();
-	if(ftpServer != NULL) {
-		ftpServer->shutdownAndWait();
-		delete ftpServer;
-		ftpServer = NULL;
-	}
+	shutdownFTPServer();
 	shutdownMasterserverPublishThread();
 
 	lastMasterserverHeartbeatTime = 0;
@@ -885,11 +882,12 @@ void ServerInterface::signalClientsToRecieveData(std::map<PLATFORM_SOCKET,bool> 
 					//socketTriggeredList[clientSocket] = true;
 					//socketTriggered = socketTriggeredList[clientSocket];
 				//}
-			}
-			ConnectionSlotEvent &event = eventList[i];
-			bool socketSignalled = signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
-			if(connectionSlot != NULL && socketTriggered == true) {
-				mapSlotSignalledList[i] = socketSignalled;
+
+				ConnectionSlotEvent &event = eventList[i];
+				bool socketSignalled = signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
+				if(connectionSlot != NULL && socketTriggered == true) {
+					mapSlotSignalledList[i] = socketSignalled;
+				}
 			}
 		}
 	}
@@ -956,7 +954,8 @@ void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSigna
 				//printf("===> IN slot %d - About to checkForCompletedClients\n",i);
 
 				ConnectionSlot* connectionSlot = slots[i];
-				if(connectionSlot != NULL && mapSlotSignalledList[i] == true &&
+				if(connectionSlot != NULL && connectionSlot->isConnected() == true &&
+						mapSlotSignalledList[i] == true &&
 					connectionSlot->getJoinGameInProgress() == false &&
 				   slotsCompleted.find(i) == slotsCompleted.end()) {
 					try {
@@ -1017,7 +1016,8 @@ void ServerInterface::checkForLaggingClients(std::map<int,bool> &mapSlotSignalle
 			for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 				MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
 				ConnectionSlot* connectionSlot = slots[i];
-				if(connectionSlot != NULL && mapSlotSignalledList[i] == true &&
+				if(connectionSlot != NULL && connectionSlot->isConnected() == true &&
+						mapSlotSignalledList[i] == true &&
 				   slotsCompleted.find(i) == slotsCompleted.end()) {
 					try {
 						std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
@@ -1306,8 +1306,9 @@ void ServerInterface::dispatchPendingUnMarkCellMessages(std::vector <string> &er
 }
 
 void ServerInterface::update() {
+	bool miniDebugPerf = false;
 	Chrono chrono;
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled || miniDebugPerf) chrono.start();
 
 	//printf("\nServerInterface::update -- A\n");
 
@@ -1320,6 +1321,7 @@ void ServerInterface::update() {
 		//printf("\nServerInterface::update -- B\n");
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+		if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 		processTextMessageQueue();
 		processBroadCastMessageQueue();
@@ -1327,6 +1329,7 @@ void ServerInterface::update() {
 		//printf("\nServerInterface::update -- C\n");
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+		if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 		std::map<PLATFORM_SOCKET,bool> socketTriggeredList;
 		//update all slots
@@ -1335,9 +1338,10 @@ void ServerInterface::update() {
 		//printf("\nServerInterface::update -- D\n");
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+		if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 		if(gameHasBeenInitiated == false ||
-			this->getAllowInGameConnections() == true ||
+			//this->getAllowInGameConnections() == true ||
 			socketTriggeredList.empty() == false) {
 			//printf("\nServerInterface::update -- E\n");
 
@@ -1352,8 +1356,10 @@ void ServerInterface::update() {
 			if(hasData) if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] hasData == true\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
-			if(gameHasBeenInitiated == false || hasData == true || this->getAllowInGameConnections() == true) {
+			//if(gameHasBeenInitiated == false || hasData == true || this->getAllowInGameConnections() == true) {
+			if(gameHasBeenInitiated == false || hasData == true) {
 				std::map<int,bool> mapSlotSignalledList;
 
 				// Step #1 tell all connection slot worker threads to receive socket data
@@ -1361,6 +1367,7 @@ void ServerInterface::update() {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #2\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+				if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 				if(gameHasBeenInitiated == false || hasData == true) {
 					// Step #2 check all connection slot worker threads for completed status
@@ -1368,6 +1375,7 @@ void ServerInterface::update() {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #3\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+					if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 					//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					// Step #3 check clients for any lagging scenarios and try to deal with them
@@ -1375,6 +1383,7 @@ void ServerInterface::update() {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #4\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+					if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 					//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					// Step #4 dispatch network commands to the pending list so that they are done in proper order
@@ -1382,6 +1391,7 @@ void ServerInterface::update() {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #5\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+					if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 					//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					// Step #5 dispatch pending chat messages
@@ -1401,6 +1411,7 @@ void ServerInterface::update() {
 				}
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+				if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 			}
 			else if(gameHasBeenInitiated == true &&
 					difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
@@ -1411,6 +1422,7 @@ void ServerInterface::update() {
 			}
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+			if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		}
 		else if(gameHasBeenInitiated == true &&
 				difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
@@ -1422,8 +1434,12 @@ void ServerInterface::update() {
 			checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
 		}
 
+		if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+
 		// Check if we need to switch masterserver admin to a new player because original admin disconnected
 		if(gameHasBeenInitiated == true && this->gameSettings.getMasterserver_admin() > 0) {
+
+			if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 			//!!!
 			bool foundAdminSlot = false;
 			int iFirstConnectedSlot = -1;
@@ -1458,7 +1474,10 @@ void ServerInterface::update() {
 		}
 		//printf("\nServerInterface::update -- G\n");
 
+		if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		checkListenerSlots();
+
+		if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 	}
 	catch(const exception &ex) {
 		//printf("\nServerInterface::update -- H\n");
@@ -2089,7 +2108,7 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 				if(connectionSlot != NULL && connectionSlot->isConnected()) {
 					connectionSlot->getSocket()->setBlock(true);
 				}
-				else if(allowInGameConnections == true) {
+				else if(this->getAllowInGameConnections() == true) {
 					// Open slots for joining in progress game
 					if(gameSettings->getFactionControl(factionIndex) != ctClosed &&
 						gameSettings->getFactionControl(factionIndex) != ctHuman) {
@@ -2107,7 +2126,7 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,needToRepublishToMasterserver);
 
-		if(allowInGameConnections == false) {
+		if(this->getAllowInGameConnections() == false) {
 			serverSocket.stopBroadCastThread();
 		}
 
@@ -2127,12 +2146,8 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ftpServer = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ftpServer);
 
-		if(allowInGameConnections == false) {
-			if(ftpServer != NULL) {
-				ftpServer->shutdownAndWait();
-				delete ftpServer;
-				ftpServer = NULL;
-			}
+		if(this->getAllowInGameConnections() == false) {
+			shutdownFTPServer();
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] needToRepublishToMasterserver = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,needToRepublishToMasterserver);
@@ -2148,12 +2163,8 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 			}
 		}
 
-		if(allowInGameConnections == false) {
-			if(ftpServer != NULL) {
-				ftpServer->shutdownAndWait();
-				delete ftpServer;
-				ftpServer = NULL;
-			}
+		if(this->getAllowInGameConnections() == false) {
+			shutdownFTPServer();
 		}
 
 		gameLaunched = true;
@@ -2162,35 +2173,46 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 	return bOkToStart;
 }
 
+void ServerInterface::shutdownFTPServer() {
+	if(ftpServer != NULL) {
+		ftpServer->shutdownAndWait();
+		delete ftpServer;
+		ftpServer = NULL;
+	}
+}
+
 void ServerInterface::checkListenerSlots() {
-	if(gameLaunched == true && allowInGameConnections == true) {
-		bool useInGameBlockingClientSockets = Config::getInstance().getBool("EnableInGameBlockingSockets","true");
+	if(gameLaunched == true && this->getAllowInGameConnections() == true) {
+		if(difftime((long int)time(NULL),lastListenerSlotCheckTime) >= 7) {
+			lastListenerSlotCheckTime = time(NULL);
+			bool useInGameBlockingClientSockets = Config::getInstance().getBool("EnableInGameBlockingSockets","true");
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		for(int i= 0; i < GameConstants::maxPlayers; ++i) {
-			int factionIndex = gameSettings.getFactionIndexForStartLocation(i);
-			if(gameSettings.getFactionControl(factionIndex) != ctClosed &&
-				gameSettings.getFactionControl(factionIndex) != ctHuman) {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			for(int i= 0; i < GameConstants::maxPlayers; ++i) {
+				int factionIndex = gameSettings.getFactionIndexForStartLocation(i);
+				if(gameSettings.getFactionControl(factionIndex) != ctClosed &&
+					gameSettings.getFactionControl(factionIndex) != ctHuman) {
 
-				MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
-				ConnectionSlot *connectionSlot= slots[i];
-				// Open slots for joining in progress game
-				if(connectionSlot == NULL) {
-					printf("Opening slot for in game connections, slot: %d, factionindex: %d name: %s\n",i,factionIndex,gameSettings.getFactionTypeName(factionIndex).c_str());
+					MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
+					ConnectionSlot *connectionSlot= slots[i];
+					// Open slots for joining in progress game
+					if(connectionSlot == NULL) {
+						printf("Opening slot for in game connections, slot: %d, factionindex: %d name: %s\n",i,factionIndex,gameSettings.getFactionTypeName(factionIndex).c_str());
 
-					addSlot(i);
-					connectionSlot = slots[i];
-					if(useInGameBlockingClientSockets == true) {
-						connectionSlot->getSocket()->setBlock(true);
+						addSlot(i);
+						connectionSlot = slots[i];
+						if(useInGameBlockingClientSockets == true) {
+							connectionSlot->getSocket()->setBlock(true);
+						}
+						connectionSlot->setCanAcceptConnections(true);
 					}
-					connectionSlot->setCanAcceptConnections(true);
-				}
-				else if(connectionSlot != NULL &&
-						connectionSlot->getCanAcceptConnections() == false &&
-						connectionSlot->isConnected() == false) {
-					printf("Removing slot for in game connections, slot: %d, factionindex: %d name: %s\n",i,factionIndex,gameSettings.getFactionTypeName(factionIndex).c_str());
+					else if(connectionSlot != NULL &&
+							connectionSlot->getCanAcceptConnections() == false &&
+							connectionSlot->isConnected() == false) {
+						printf("Removing slot for in game connections, slot: %d, factionindex: %d name: %s\n",i,factionIndex,gameSettings.getFactionTypeName(factionIndex).c_str());
 
-					this->removeSlot(i);
+						this->removeSlot(i);
+					}
 				}
 			}
 		}
@@ -2325,6 +2347,9 @@ void ServerInterface::updateListen() {
 	if(gameHasBeenInitiated == true && this->getAllowInGameConnections() == false) {
 		return;
 	}
+
+	//printf("updateListen() #1!\n");
+
 	int openSlotCount = 0;
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i)	{
 		//MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],intToStr(__LINE__) + "_" + intToStr(i));

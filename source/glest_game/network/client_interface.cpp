@@ -52,8 +52,8 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 	networkCommandListThread = NULL;
 	cachedPendingCommandsIndex = 0;
 
-	pausedForInGameJoin = false;
-	readyForInGameJoin = false;
+	this->pausedForInGameJoin = false;
+	this->readyForInGameJoin = false;
 	clientSocket= NULL;
 	sessionKey = 0;
 	launchGame= false;
@@ -657,7 +657,7 @@ void ClientInterface::updateLobby() {
 			if(gotCmd == false) {
 				throw megaglest_runtime_error("error retrieving nmtCommandList returned false!");
 			}
-			pausedForInGameJoin = true;
+			this->pausedForInGameJoin = true;
 		}
 		break;
 
@@ -932,7 +932,8 @@ void ClientInterface::updateFrame(int *checkFrame) {
 		}
 		else {
 			if(checkFrame == NULL) {
-				sleep(15);
+				//sleep(15);
+				sleep(0);
 			}
 		}
 	}
@@ -1014,9 +1015,9 @@ bool ClientInterface::isMasterServerAdminOverride() {
 void ClientInterface::waitUntilReady(Checksum* checksum) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	bool signalServerWhenReadyToStartJoinedGame = readyForInGameJoin;
-	pausedForInGameJoin = false;
-	readyForInGameJoin = false;
+	bool signalServerWhenReadyToStartJoinedGame = this->readyForInGameJoin;
+	this->pausedForInGameJoin = false;
+	this->readyForInGameJoin = false;
     Logger &logger= Logger::getInstance();
 
 	Chrono chrono;
@@ -1260,7 +1261,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//check checksum
-	if(joinGameInProgress == false && networkMessageReady.getChecksum() != checksum->getSum()) {
+	if(this->joinGameInProgress == false && networkMessageReady.getChecksum() != checksum->getSum()) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     	Lang &lang= Lang::getInstance();
@@ -1342,8 +1343,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 
 	//printf("Client signalServerWhenReadyToStartJoinedGame = %d\n",signalServerWhenReadyToStartJoinedGame);
 	if(signalServerWhenReadyToStartJoinedGame == true) {
-		NetworkMessageReady networkMessageReady;
-		sendMessage(&networkMessageReady);
+		this->resumeInGameJoin = true;
 	}
 	else {
 		// delay the start a bit, so clients have more room to get messages
@@ -1356,6 +1356,11 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 	lastNetworkCommandListSendTime = time(NULL);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
+}
+
+void ClientInterface::sendResumeGameMessage() {
+	NetworkMessageReady networkMessageReady;
+	sendMessage(&networkMessageReady);
 }
 
 void ClientInterface::sendTextMessage(const string &text, int teamIndex, bool echoLocal,

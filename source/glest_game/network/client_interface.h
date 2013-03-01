@@ -70,6 +70,7 @@ private:
 	bool joinGameInProgressLaunch;
 	bool pausedForInGameJoin;
 	bool readyForInGameJoin;
+	bool resumeInGameJoin;
 
 public:
 	ClientInterface();
@@ -84,6 +85,9 @@ public:
 
 	bool getPausedForInGameJoin() const { return pausedForInGameJoin; }
 	bool getReadyForInGameJoin() const { return readyForInGameJoin; }
+
+	bool getResumeInGameJoin() const { return resumeInGameJoin; }
+	void sendResumeGameMessage();
 
 	//message processing
 	virtual void update();
