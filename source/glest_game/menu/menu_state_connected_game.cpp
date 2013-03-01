@@ -1871,23 +1871,24 @@ void MenuStateConnectedGame::PlayNow(bool saveGame) {
 
 	//printf("Tell server we want to join!\n");
 
-	//if(readyToJoinInProgressGame == true) {
 	if(clientInterface->getJoinGameInProgress() == true) {
-    	Lang &lang= Lang::getInstance();
-    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
-    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-			char szMsg[8096]="";
-			if(lang.hasString("JoinPlayerToCurrentGameLaunch",languageList[i]) == true) {
-				snprintf(szMsg,8096,lang.get("JoinPlayerToCurrentGameLaunch",languageList[i]).c_str(),getHumanPlayerName().c_str());
+		if(readyToJoinInProgressGame == false) {
+			Lang &lang= Lang::getInstance();
+			const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+			for(unsigned int i = 0; i < languageList.size(); ++i) {
+				char szMsg[8096]="";
+				if(lang.hasString("JoinPlayerToCurrentGameLaunch",languageList[i]) == true) {
+					snprintf(szMsg,8096,lang.get("JoinPlayerToCurrentGameLaunch",languageList[i]).c_str(),getHumanPlayerName().c_str());
+				}
+				else {
+					snprintf(szMsg,8096,"Player: %s is about to join the game, please wait...",getHumanPlayerName().c_str());
+				}
+				bool localEcho = lang.isLanguageLocal(languageList[i]);
+				clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
 			}
-			else {
-				snprintf(szMsg,8096,"Player: %s is about to join the game, please wait...",getHumanPlayerName().c_str());
-			}
-			bool localEcho = lang.isLanguageLocal(languageList[i]);
-			clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
-    	}
 
-		clientInterface->broadcastGameStart(&gameSettings);
+			clientInterface->broadcastGameStart(&gameSettings);
+		}
 		return;
 	}
 	else {
