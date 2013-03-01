@@ -82,26 +82,70 @@
 	{ // delete server; no checks are performed
 		mysql_query( 'DELETE FROM glestserver WHERE ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';' );
 		echo 'OK' ;	
-	}
-	else if ( $remote_ip == $server[0] && $service_port == $server[1] )    // this server is contained in the database
-	{ // update database info on this game server; no checks are performed
-		mysql_query( 'UPDATE glestserver SET ' .
-			'glestVersion=\''      . mysql_real_escape_string( $glestVersion )      . '\', ' .
-			'platform=\''          . mysql_real_escape_string( $platform )          . '\', ' .
-			'binaryCompileDate=\'' . mysql_real_escape_string( $binaryCompileDate ) . '\', ' .
-			'serverTitle=\''       . mysql_real_escape_string( $serverTitle )       . '\', ' .
-			'tech=\''              . mysql_real_escape_string( $tech )              . '\', ' .
-			'map=\''               . mysql_real_escape_string( $map )               . '\', ' .
-			'tileset=\''           . mysql_real_escape_string( $tileset )           . '\', ' .
-			'activeSlots=\''       . mysql_real_escape_string( $activeSlots )       . '\', ' .
-			'networkSlots=\''      . mysql_real_escape_string( $networkSlots )      . '\', ' .
-			'connectedClients=\''  . mysql_real_escape_string( $connectedClients )  . '\', ' .
-			'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
-			'status=\''            . mysql_real_escape_string( $status )            . '\', ' .
-			'lasttime='            . 'now()'                                        .    ' ' .
-			'where ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';' );
-		//updateServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots);
-		echo 'OK';
+	}                                                                      // game in progress
+	else if ( ($remote_ip == $server[0] && $service_port == $server[1]) || $status == 2 )    // this server is contained in the database
+	{ 
+                if ( $remote_ip == $server[0] && $service_port == $server[1])
+                {
+                        // update database info on this game server; no checks are performed
+		        mysql_query( 'UPDATE glestserver SET ' .
+			        'glestVersion=\''      . mysql_real_escape_string( $glestVersion )      . '\', ' .
+			        'platform=\''          . mysql_real_escape_string( $platform )          . '\', ' .
+			        'binaryCompileDate=\'' . mysql_real_escape_string( $binaryCompileDate ) . '\', ' .
+			        'serverTitle=\''       . mysql_real_escape_string( $serverTitle )       . '\', ' .
+			        'tech=\''              . mysql_real_escape_string( $tech )              . '\', ' .
+			        'map=\''               . mysql_real_escape_string( $map )               . '\', ' .
+			        'tileset=\''           . mysql_real_escape_string( $tileset )           . '\', ' .
+			        'activeSlots=\''       . mysql_real_escape_string( $activeSlots )       . '\', ' .
+			        'networkSlots=\''      . mysql_real_escape_string( $networkSlots )      . '\', ' .
+			        'connectedClients=\''  . mysql_real_escape_string( $connectedClients )  . '\', ' .
+			        'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
+			        'status=\''            . mysql_real_escape_string( $status )            . '\', ' .
+			        'lasttime='            . 'now()'                                        .    ' ' .
+			        'where ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';' );
+		        //updateServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots);
+		        echo 'OK';
+                }
+                else if ($status == 2)
+                {
+
+	                if ( extension_loaded('geoip') ) {
+			
+		                if ( $privacyPlease == 0 )
+		                {
+			                $country = geoip_country_code_by_name( $remote_ip );
+		                }
+		                else
+		                {
+			                $country = '';
+		                }
+	                }
+	                // cleanup old entrys with same remote port and ip
+	                // I hope this fixes those double entrys of servers
+	                mysql_query( 'DELETE FROM glestserver WHERE '.
+	                'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
+	                ' AND ' .
+	                'ip=\''                . mysql_real_escape_string( $remote_ip )         . '\', '
+	                );
+	                // insert new entry
+	                mysql_query( 'INSERT INTO glestserver SET ' .
+		                'glestVersion=\''      . mysql_real_escape_string( $glestVersion )      . '\', ' .
+		                'platform=\''          . mysql_real_escape_string( $platform )          . '\', ' .
+		                'binaryCompileDate=\'' . mysql_real_escape_string( $binaryCompileDate ) . '\', ' .
+		                'serverTitle=\''       . mysql_real_escape_string( $serverTitle )       . '\', ' .
+		                'ip=\''                . mysql_real_escape_string( $remote_ip )         . '\', ' .
+		                'tech=\''              . mysql_real_escape_string( $tech )              . '\', ' .
+		                'map=\''               . mysql_real_escape_string( $map )               . '\', ' .
+		                'tileset=\''           . mysql_real_escape_string( $tileset )           . '\', ' .
+		                'activeSlots=\''       . mysql_real_escape_string( $activeSlots )       . '\', ' .
+		                'networkSlots=\''      . mysql_real_escape_string( $networkSlots )      . '\', ' .
+		                'connectedClients=\''  . mysql_real_escape_string( $connectedClients )  . '\', ' .
+		                'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
+		                'country=\''           . mysql_real_escape_string( $country )           . '\', ' .
+		                'status=\''            . mysql_real_escape_string( $status )            . '\';'  
+	                );
+	                echo 'OK';
+                }
 	}
 	else                                        // this game server is not listed in the database, yet
 	{ // check whether this game server is available from the Internet; if it is, add it to the database
