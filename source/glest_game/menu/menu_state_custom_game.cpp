@@ -2568,7 +2568,8 @@ void MenuStateCustomGame::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
-		if(this->headlessServerMode == true || hasOneNetworkSlotOpen == true) {
+		if(this->headlessServerMode == true || hasOneNetworkSlotOpen == true ||
+				checkBoxAllowInGameJoinPlayer.getValue() == true) {
 			if(this->headlessServerMode == true &&
 					GlobalStaticFlags::isFlagSet(gsft_lan_mode) == false) {
 				checkBoxPublishServer.setValue(true);
