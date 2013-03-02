@@ -36,6 +36,10 @@ using namespace std;
 using namespace Shared::PlatformCommon;
 #endif
 
+namespace Shared { namespace PlatformCommon {
+class Chrono;
+}};
+
 namespace Shared { namespace Platform {
 
 class Mutex;
@@ -86,6 +90,9 @@ private:
 	string deleteownerId;
 
 	SDL_mutex* mutexAccessor;
+	string lastownerId;
+
+	Shared::PlatformCommon::Chrono *chronoPerf;
 
 public:
 	Mutex(string ownerId="");
@@ -139,6 +146,9 @@ public:
 #endif
 
 			this->mutex->p();
+			if(this->mutex != NULL) {
+				this->mutex->setOwnerId(ownerId);
+			}
 
 #ifdef DEBUG_PERFORMANCE_MUTEXES
 			if(chrono.getMillis() > 5) printf("In [%s::%s Line: %d] MUTEX LOCK took msecs: %lld, this->mutex->getRefCount() = %d ownerId [%s]\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),this->mutex->getRefCount(),ownerId.c_str());

@@ -954,7 +954,7 @@ void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSigna
 				//printf("===> IN slot %d - About to checkForCompletedClients\n",i);
 
 				ConnectionSlot* connectionSlot = slots[i];
-				if(connectionSlot != NULL && connectionSlot->isConnected() == true &&
+				if(connectionSlot != NULL && connectionSlot->hasValidSocketId() == true &&
 						mapSlotSignalledList[i] == true &&
 					connectionSlot->getJoinGameInProgress() == false &&
 				   slotsCompleted.find(i) == slotsCompleted.end()) {
@@ -1016,7 +1016,7 @@ void ServerInterface::checkForLaggingClients(std::map<int,bool> &mapSlotSignalle
 			for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 				MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
 				ConnectionSlot* connectionSlot = slots[i];
-				if(connectionSlot != NULL && connectionSlot->isConnected() == true &&
+				if(connectionSlot != NULL && connectionSlot->hasValidSocketId() == true &&
 						mapSlotSignalledList[i] == true &&
 				   slotsCompleted.find(i) == slotsCompleted.end()) {
 					try {
@@ -1345,6 +1345,8 @@ void ServerInterface::update() {
 			socketTriggeredList.empty() == false) {
 			//printf("\nServerInterface::update -- E\n");
 
+			//printf("START Server update #1\n");
+
 			std::map<int,ConnectionSlotEvent> eventList;
 			bool hasData = Socket::hasDataToRead(socketTriggeredList);
 
@@ -1360,6 +1362,8 @@ void ServerInterface::update() {
 
 			//if(gameHasBeenInitiated == false || hasData == true || this->getAllowInGameConnections() == true) {
 			if(gameHasBeenInitiated == false || hasData == true) {
+				//printf("START Server update #2\n");
+
 				std::map<int,bool> mapSlotSignalledList;
 
 				// Step #1 tell all connection slot worker threads to receive socket data
@@ -1369,13 +1373,20 @@ void ServerInterface::update() {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 				if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
+				//printf("START Server update #2\n");
+
 				if(gameHasBeenInitiated == false || hasData == true) {
+
+					//printf("START Server update #3\n");
+
 					// Step #2 check all connection slot worker threads for completed status
 					checkForCompletedClients(mapSlotSignalledList,errorMsgList, eventList);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #3\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 					if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+
+					//printf("START Server update #4\n");
 
 					//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					// Step #3 check clients for any lagging scenarios and try to deal with them
@@ -1385,6 +1396,8 @@ void ServerInterface::update() {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 					if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
+					//printf("START Server update #5\n");
+
 					//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					// Step #4 dispatch network commands to the pending list so that they are done in proper order
 					executeNetworkCommandsFromClients();
@@ -1392,6 +1405,8 @@ void ServerInterface::update() {
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 					if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+
+					//printf("START Server update #6\n");
 
 					//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					// Step #5 dispatch pending chat messages
@@ -1402,13 +1417,19 @@ void ServerInterface::update() {
 					dispatchPendingUnMarkCellMessages(errorMsgList);
 
 					dispatchPendingHighlightCellMessages(errorMsgList);
+
+					//printf("START Server update #7\n");
 				}
 				else if(gameHasBeenInitiated == true &&
 						difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
 					//printf("Skip network data process because hasData == false\n");
+					//printf("START Server update #8\n");
+
 					std::map<int,bool> mapSlotSignalledList;
 					checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
 				}
+
+				//printf("START Server update #9\n");
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 				if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1416,10 +1437,13 @@ void ServerInterface::update() {
 			else if(gameHasBeenInitiated == true &&
 					difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
 				//printf("\nServerInterface::update -- E1\n");
+				//printf("START Server update #10\n");
 
 				std::map<int,bool> mapSlotSignalledList;
 				checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
 			}
+
+			//printf("START Server update #11\n");
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 			if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1428,11 +1452,15 @@ void ServerInterface::update() {
 				difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
 			//printf("\nServerInterface::update -- F\n");
 
+			//printf("START Server update #12\n");
+
 			std::map<int,ConnectionSlotEvent> eventList;
 			std::map<int,bool> mapSlotSignalledList;
 
 			checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
 		}
+
+		//printf("START Server update #13\n");
 
 		if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -1474,8 +1502,12 @@ void ServerInterface::update() {
 		}
 		//printf("\nServerInterface::update -- G\n");
 
+		//printf("START Server update #14\n");
+
 		if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		checkListenerSlots();
+
+		//printf("START Server update #15\n");
 
 		if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 	}
@@ -1531,7 +1563,11 @@ void ServerInterface::updateKeyframe(int frameCount) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] build command list took %lld msecs, networkMessageCommandList.getCommandCount() = %d, frameCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),networkMessageCommandList.getCommandCount(),frameCount);
 
 		//broadcast commands
+		//printf("START Server send currentFrameCount = %d\n",currentFrameCount);
+
 		broadcastMessage(&networkMessageCommandList);
+
+		//printf("END Server send currentFrameCount = %d\n",currentFrameCount);
 	}
 	catch(const exception &ex) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());

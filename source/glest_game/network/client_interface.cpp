@@ -68,6 +68,7 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 	gotIntro = false;
 	lastNetworkCommandListSendTime = 0;
 	currentFrameCount = 0;
+	lastSentFrameCount = 0;
 	clientSimulationLagStartTime = 0;
 
 	networkGameDataSynchCheckOkMap  = false;
@@ -199,9 +200,12 @@ void ClientInterface::update() {
 		  (lastNetworkCommandListSendTime > 0 && lastSendElapsed >= ClientInterface::maxNetworkCommandListSendTimeWait)) {
 			lastNetworkCommandListSendTime = time(NULL);
 
-			//printf("#1 Client send currentFrameCount = %d\n",currentFrameCount );
+			if(lastSentFrameCount < currentFrameCount || networkMessageCommandList.getCommandCount() > 0) {
+				//printf("#1 Client send currentFrameCount = %d lastSentFrameCount = %d\n",currentFrameCount,lastSentFrameCount );
 
-			sendMessage(&networkMessageCommandList);
+				lastSentFrameCount = currentFrameCount;
+				sendMessage(&networkMessageCommandList);
+			}
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		}

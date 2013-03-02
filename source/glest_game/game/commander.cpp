@@ -613,12 +613,14 @@ void Commander::updateNetwork(Game *game) {
         GameSettings *gameSettings = game->getGameSettings();
         if( networkManager.isNetworkGame() == false ||
             (world->getFrameCount() % gameSettings->getNetworkFramePeriod()) == 0) {
-        	//printf("Commander world->getFrameCount() = %d gameSettings->getNetworkFramePeriod() = %d\n",world->getFrameCount(),gameSettings->getNetworkFramePeriod());
+        	//printf("#1 Commander world->getFrameCount() = %d gameSettings->getNetworkFramePeriod() = %d\n",world->getFrameCount(),gameSettings->getNetworkFramePeriod());
 
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] networkManager.isNetworkGame() = %d,world->getFrameCount() = %d, gameSettings->getNetworkFramePeriod() = %d\n",__FILE__,__FUNCTION__,__LINE__,networkManager.isNetworkGame(),world->getFrameCount(),gameSettings->getNetworkFramePeriod());
 
         	//std::vector<NetworkCommand> replayList = getReplayCommandListForFrame();
         	if(getReplayCommandListForFrame(world->getFrameCount()) == false) {
+        		//printf("#2 Commander world->getFrameCount() = %d gameSettings->getNetworkFramePeriod() = %d\n",world->getFrameCount(),gameSettings->getNetworkFramePeriod());
+
 				GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) perfTimer.start();

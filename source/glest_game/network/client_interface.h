@@ -54,6 +54,7 @@ private:
 	int port;
 
 	int currentFrameCount;
+	int lastSentFrameCount;
 	time_t lastNetworkCommandListSendTime;
 
 	time_t clientSimulationLagStartTime;
