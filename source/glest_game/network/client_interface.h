@@ -90,6 +90,8 @@ public:
 	bool getResumeInGameJoin() const { return resumeInGameJoin; }
 	void sendResumeGameMessage();
 
+	uint64 getCachedLastPendingFrameCount();
+
 	//message processing
 	virtual void update();
 	virtual void updateLobby();
