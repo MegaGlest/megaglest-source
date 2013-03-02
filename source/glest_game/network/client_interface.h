@@ -65,6 +65,7 @@ private:
 	Mutex *networkCommandListThreadAccessor;
 	std::map<int,Commands> cachedPendingCommands;	//commands ready to be given
 	uint64 cachedPendingCommandsIndex;
+	uint64 cachedLastPendingFrameCount;
 
 	bool joinGameInProgress;
 	bool joinGameInProgressLaunch;
