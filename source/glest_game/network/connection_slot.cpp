@@ -637,6 +637,9 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 				for(;waitForLaggingClient == true ||
 						(this->hasDataToRead() == true &&
 						 (gotTextMsg == true || gotCellMarkerMsg == true));) {
+
+					//printf("Server slot checking for waitForLaggingClient = %d this->hasDataToRead() = %d gotTextMsg = %d gotCellMarkerMsg = %d\n",waitForLaggingClient,this->hasDataToRead(),gotTextMsg,gotCellMarkerMsg);
+
 					waitForLaggingClient = false;
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] polling for networkMessageType...\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -803,6 +806,9 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								if(receiveMessage(&networkMessageCommandList)) {
 									currentFrameCount = networkMessageCommandList.getFrameCount();
 									lastReceiveCommandListTime = time(NULL);
+
+									//printf("#1 Server slot got currentFrameCount = %d\n",currentFrameCount);
+
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] currentFrameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,currentFrameCount);
 
 									MutexSafeWrapper safeMutexSlot(mutexPendingNetworkCommandList,CODE_AT_LINE);
@@ -810,6 +816,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 										vctPendingNetworkCommandList.push_back(*networkMessageCommandList.getCommand(i));
 									}
 									safeMutexSlot.ReleaseLock();
+
+									//printf("#2 Server slot got currentFrameCount = %d\n",currentFrameCount);
 								}
 								else {
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
@@ -1289,6 +1297,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								this->sendMessage(&networkMessageReady);
 
 								this->currentFrameCount = serverInterface->getCurrentFrameCount();
+								//printf("#2 Server slot got currentFrameCount = %d\n",currentFrameCount);
+
 								this->currentLagCount = 0;
 								this->lastReceiveCommandListTime = time(NULL);
 
@@ -1326,10 +1336,14 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 							}
 					}
 
+					//printf("#3 Server slot got currentFrameCount = %d\n",currentFrameCount);
+
 					// This may end up continuously lagging and not disconnecting players who have
 					// just the 'wrong' amount of lag (but not enough to be horrible for a disconnect)
 					if(Config::getInstance().getBool("AutoClientLagCorrection","true") == true) {
 						double LAG_CHECK_GRACE_PERIOD 		= 15;
+
+						//printf("#4 Server slot got currentFrameCount = %d\n",currentFrameCount);
 
 						if(this->serverInterface->getGameStartTime() > 0 &&
 								difftime((long int)time(NULL),this->serverInterface->getGameStartTime()) >= LAG_CHECK_GRACE_PERIOD &&
@@ -1354,8 +1368,13 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								}
 							}
 						}
+
+						//printf("#5 Server slot got currentFrameCount = %d\n",currentFrameCount);
 					}
+					//printf("#5a Server slot got currentFrameCount = %d\n",currentFrameCount);
 				}
+
+				//printf("#6 Server slot got currentFrameCount = %d\n",currentFrameCount);
 
 				if(waitedForLaggingClient == true) {
 					printf("*TESTING*: FINISHED Waiting for lagging client playerIndex = %d [%s]\n",playerIndex,name.c_str());
@@ -1364,6 +1383,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
 				validateConnection();
+
+				//printf("#7 Server slot got currentFrameCount = %d\n",currentFrameCount);
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 			}
@@ -1389,6 +1410,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 	}
 
+	//printf("#8 Server slot got currentFrameCount = %d\n",currentFrameCount);
 	//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 }
 
@@ -1586,11 +1608,19 @@ void ConnectionSlot::deleteSocket() {
 
 bool ConnectionSlot::hasDataToRead() {
     bool result = false;
+
+    //printf("==> #1 Slot hasDataToRead()\n");
+
     MutexSafeWrapper safeMutexSlot(mutexSocket,CODE_AT_LINE);
+
+    //printf("==> #2 Slot hasDataToRead()\n");
 
 	if(socket != NULL && socket->hasDataToRead() == true) {
 		result = true;
 	}
+
+	//printf("==> #3 Slot hasDataToRead()\n");
+
 	return result;
 }
 

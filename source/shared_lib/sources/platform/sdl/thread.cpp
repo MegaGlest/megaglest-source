@@ -141,6 +141,7 @@ Mutex::Mutex(string ownerId) {
 	SDLMutexSafeWrapper safeMutex(&mutexAccessor);
     refCount=0;
     this->ownerId = ownerId;
+    this->lastownerId = "";
 	mutex = SDL_CreateMutex();
 	assert(mutex != NULL);
 	if(mutex == NULL) {
@@ -149,6 +150,8 @@ Mutex::Mutex(string ownerId) {
 		throw megaglest_runtime_error(szBuf);
 	}
 	deleteownerId = "";
+
+	//chronoPerf = new Chrono();
 }
 
 Mutex::~Mutex() {
@@ -165,6 +168,9 @@ Mutex::~Mutex() {
 		throw megaglest_runtime_error(szBuf);
 	}
 
+	//delete chronoPerf;
+	//chronoPerf = NULL;
+
 	if(mutex != NULL) {
 		deleteownerId = ownerId;
 		SDL_DestroyMutex(mutex);
@@ -178,8 +184,16 @@ void Mutex::p() {
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
+	//Chrono chrono;
+	//chrono.start();
 	SDL_mutexP(mutex);
 	refCount++;
+
+	//if(chrono.getMillis() > 2000) {
+	//	printf("Last ownerid: [%s]\n",lastownerId.c_str());
+	//}
+
+	//chronoPerf->start();
 }
 
 void Mutex::v() {
@@ -189,6 +203,11 @@ void Mutex::v() {
 		throw megaglest_runtime_error(szBuf);
 	}
 	refCount--;
+	lastownerId = ownerId;
+
+	//if(chronoPerf->getMillis() > 2000) {
+	//	lastownerId = PlatformExceptionHandler::getStackTrace();
+	//}
 	SDL_mutexV(mutex);
 }
 
