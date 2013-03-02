@@ -1727,7 +1727,7 @@ void Game::update() {
 			if(clientInterface != NULL) {
 				uint64 lastNetworkFrameFromServer = clientInterface->getCachedLastPendingFrameCount();
 				if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount() + gameSettings.getNetworkFramePeriod()) {
-					int frameDifference = lastNetworkFrameFromServer - world.getFrameCount();
+					int frameDifference = lastNetworkFrameFromServer - (world.getFrameCount() + gameSettings.getNetworkFramePeriod());
 
 					printf("Client will speed up: %d frames lastNetworkFrameFromServer: %lld world.getFrameCount() = %d updateLoops = %d\n",frameDifference,(long long int)lastNetworkFrameFromServer,world.getFrameCount(),updateLoops);
 
