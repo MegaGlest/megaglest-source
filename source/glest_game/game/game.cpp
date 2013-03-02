@@ -1722,12 +1722,14 @@ void Game::update() {
 		bool isNetworkGame 				= this->gameSettings.isNetworkGame();
 		NetworkRole role 				= networkManager.getNetworkRole();
 
-		if(role == nrClient && updateLoops == 1 && world.getFrameCount() > 400) {
+		if(role == nrClient && updateLoops == 1 && world.getFrameCount() >= (gameSettings.getNetworkFramePeriod() * 2) ) {
 			ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
 			if(clientInterface != NULL) {
 				uint64 lastNetworkFrameFromServer = clientInterface->getCachedLastPendingFrameCount();
-				if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount() + gameSettings.getNetworkFramePeriod()) {
-					int frameDifference = lastNetworkFrameFromServer - (world.getFrameCount() + gameSettings.getNetworkFramePeriod());
+				//if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount() + gameSettings.getNetworkFramePeriod()) {
+				if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount()) {
+					//int frameDifference = lastNetworkFrameFromServer - (world.getFrameCount() + gameSettings.getNetworkFramePeriod());
+					int frameDifference = lastNetworkFrameFromServer - world.getFrameCount();
 
 					printf("Client will speed up: %d frames lastNetworkFrameFromServer: %lld world.getFrameCount() = %d updateLoops = %d\n",frameDifference,(long long int)lastNetworkFrameFromServer,world.getFrameCount(),updateLoops);
 

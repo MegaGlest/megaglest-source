@@ -198,9 +198,15 @@ void ClientInterface::update() {
 				networkMessageCommandList.getCommandCount() > 0 ||
 		  (lastNetworkCommandListSendTime > 0 && lastSendElapsed >= ClientInterface::maxNetworkCommandListSendTimeWait)) {
 			lastNetworkCommandListSendTime = time(NULL);
+
+			//printf("#1 Client send currentFrameCount = %d\n",currentFrameCount );
+
 			sendMessage(&networkMessageCommandList);
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+		}
+		else {
+			//printf("#2 SKIP Client send currentFrameCount = %d\n",currentFrameCount );
 		}
 
 		// Possible cause of out of synch since we have more commands that need
