@@ -1722,7 +1722,7 @@ void Game::update() {
 		bool isNetworkGame 				= this->gameSettings.isNetworkGame();
 		NetworkRole role 				= networkManager.getNetworkRole();
 
-		if(role == nrClient && updateLoops == 1) {
+		if(role == nrClient && updateLoops == 1 && world.getFrameCount() > 400) {
 			ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
 			if(clientInterface != NULL) {
 				uint64 lastNetworkFrameFromServer = clientInterface->getCachedLastPendingFrameCount();

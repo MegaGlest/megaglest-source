@@ -193,7 +193,9 @@ void ClientInterface::update() {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
-		if(networkMessageCommandList.getCommandCount() > 0 ||
+		if((currentFrameCount >= this->gameSettings.getNetworkFramePeriod() &&
+				currentFrameCount % this->gameSettings.getNetworkFramePeriod() == 0) ||
+				networkMessageCommandList.getCommandCount() > 0 ||
 		  (lastNetworkCommandListSendTime > 0 && lastSendElapsed >= ClientInterface::maxNetworkCommandListSendTimeWait)) {
 			lastNetworkCommandListSendTime = time(NULL);
 			sendMessage(&networkMessageCommandList);
@@ -683,15 +685,24 @@ void ClientInterface::updateLobby() {
 }
 
 void ClientInterface::updateFrame(int *checkFrame) {
+	//printf("#1 ClientInterface::updateFrame\n");
+
 	if(isConnected() == true && quit == false) {
+		//printf("#2 ClientInterface::updateFrame\n");
+
 		Chrono chrono;
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
 		int simulateLag = Config::getInstance().getInt("SimulateClientLag","0");
 		bool done= false;
 		while(done == false) {
+
+			//printf("BEFORE Client get networkMessageType\n");
+
 			//wait for the next message
 			NetworkMessageType networkMessageType = waitForMessage();
+
+			//printf("AFTER Client got networkMessageType = %d\n",networkMessageType);
 
 			// START: Test simulating lag for the client
 			if(simulateLag > 0) {
@@ -730,6 +741,10 @@ void ClientInterface::updateFrame(int *checkFrame) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] receiveMessage took %lld msecs, waitCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),waitCount);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
+					MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
+					cachedLastPendingFrameCount = networkMessageCommandList.getFrameCount();
+					//printf("cachedLastPendingFrameCount = %lld\n",(long long int)cachedLastPendingFrameCount);
+
 					//check that we are in the right frame
 					if(checkFrame != NULL) {
 						if(networkMessageCommandList.getFrameCount() != *checkFrame) {
@@ -747,8 +762,6 @@ void ClientInterface::updateFrame(int *checkFrame) {
 						}
 					}
 
-					MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
-					cachedLastPendingFrameCount = networkMessageCommandList.getFrameCount();
 					cachedPendingCommands[networkMessageCommandList.getFrameCount()].reserve(networkMessageCommandList.getCommandCount());
 
 					// give all commands
@@ -944,6 +957,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 			}
 		}
 	}
+	//printf("#3 ClientInterface::updateFrame\n");
 }
 
 uint64 ClientInterface::getCachedLastPendingFrameCount() {
@@ -958,9 +972,14 @@ void ClientInterface::simpleTask(BaseThread *callingThread) {
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
+	//printf("START === Client thread ended\n");
+
 	while(callingThread->getQuitStatus() == false && quit == false) {
 		updateFrame(NULL);
 	}
+
+	//printf("END === Client thread ended\n");
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
@@ -996,15 +1015,16 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 				//	break;
 				//}
 
-				printf("Client waiting for packet for frame: %d, copyCachedLastPendingFrameCount = %lld\n",frameCount,(long long int)copyCachedLastPendingFrameCount);
-
+				if(waitForData == false) {
+					printf("Client waiting for packet for frame: %d, copyCachedLastPendingFrameCount = %lld\n",frameCount,(long long int)copyCachedLastPendingFrameCount);
+				}
 				if(copyCachedLastPendingFrameCount > frameCount) {
 					break;
 				}
 
 				if(waitForData == false) {
 					waitForData = true;
-					sleep(0);
+					sleep(1);
 				}
 
 				//printf("Client waiting for packet for frame: %d, currentCachedPendingCommandsIndex = %d, cachedPendingCommandsIndex = %lld\n",frameCount,currentCachedPendingCommandsIndex,(long long int)cachedPendingCommandsIndex);
@@ -1039,6 +1059,7 @@ void ClientInterface::updateKeyframe(int frameCount) {
 				networkCommandListThread = new SimpleTaskThread(this,0,0);
 				networkCommandListThread->setUniqueID(mutexOwnerId);
 				networkCommandListThread->start();
+				sleep(0);
 			}
 
 			getNetworkCommand(frameCount,cachedPendingCommandsIndex);
