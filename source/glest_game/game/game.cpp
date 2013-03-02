@@ -1717,16 +1717,30 @@ void Game::update() {
 			//updateLoops = 80;
 		}
 
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
+		bool isNetworkGame 				= this->gameSettings.isNetworkGame();
+		NetworkRole role 				= networkManager.getNetworkRole();
+
+		if(role == nrClient && updateLoops == 1) {
+			ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
+			if(clientInterface != NULL) {
+				uint64 lastNetworkFrameFromServer = clientInterface->getCachedLastPendingFrameCount();
+				if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount() + gameSettings.getNetworkFramePeriod()) {
+					int frameDifference = lastNetworkFrameFromServer - world.getFrameCount();
+
+					printf("Client will speed up: %d frames lastNetworkFrameFromServer: %lld world.getFrameCount() = %d updateLoops = %d\n",frameDifference,(long long int)lastNetworkFrameFromServer,world.getFrameCount(),updateLoops);
+
+					updateLoops += frameDifference;
+				}
+			}
+		}
+
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		if(showPerfStats) {
 			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
 			perfList.push_back(perfBuf);
 		}
-
-		NetworkManager &networkManager= NetworkManager::getInstance();
-		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
-		bool isNetworkGame 				= this->gameSettings.isNetworkGame();
-		NetworkRole role 				= networkManager.getNetworkRole();
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [before ReplaceDisconnectedNetworkPlayersWithAI]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		if(showPerfStats) {

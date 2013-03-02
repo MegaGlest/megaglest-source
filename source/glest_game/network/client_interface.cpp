@@ -946,6 +946,14 @@ void ClientInterface::updateFrame(int *checkFrame) {
 	}
 }
 
+uint64 ClientInterface::getCachedLastPendingFrameCount() {
+	MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
+	uint64 result = cachedLastPendingFrameCount;
+	safeMutex.ReleaseLock();
+
+	return result;
+}
+
 void ClientInterface::simpleTask(BaseThread *callingThread) {
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
