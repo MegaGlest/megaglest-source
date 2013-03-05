@@ -64,10 +64,11 @@ file(READ ${PROJECT_SOURCE_DIR}/source/glest_game/facilities/game_util.cpp MG_VE
 #string (REGEX MATCH "\"v(.*).(.*).(.*)\"" _threePartMatch ${MG_VERSION_H_CONTENTS})
 #string (REGEX MATCH "\"v[^.]*.[^.]*(.[^.])?\"" _threePartMatch ${MG_VERSION_H_CONTENTS})
 #
+MESSAGE(STATUS "Determining version number system type to use:")
 # "v([0-9]).([0-9].*)([0-9].*)?";
 string (REGEX MATCH "\"v([0-9]).([0-9]).([0-9].*)[^\";]" _threePartMatch ${MG_VERSION_H_CONTENTS})
 if(NOT _threePartMatch)
-        MESSAGE(STATUS "******* Trying 2 part versioning] ")
+        MESSAGE(STATUS "** Trying 2 part versioning] ")
         string (REGEX MATCH "\"v([0-9]).([0-9].*)[^\";]" _threePartMatch ${MG_VERSION_H_CONTENTS})
 
         if (_threePartMatch)
@@ -83,6 +84,7 @@ if(NOT _threePartMatch)
         endif()
 # parse the version string
 else()
+        MESSAGE(STATUS "** Trying 3 part versioning] ")
         if (_threePartMatch)
                 # parse the parts of the version string
                 STRING(REGEX REPLACE "\"v([0-9])\\.[0-9]\\.[0-9].*" "\\1" VER_MAJOR   "${_threePartMatch}")
