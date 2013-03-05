@@ -215,13 +215,18 @@ case $distribution in
 
 	SuSE|SUSE?LINUX|Opensuse) 
 		case $release in
-			11.2|11.3|11.4|12.2)
-				installcommand='zypper install subversion gcc gcc-c++ automake cmake libSDL-devel libxerces-c-devel MesaGLw-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel'
+			11.2|11.3|11.4|12.1)
+				installcommand='zypper install subversion gcc gcc-c++ automake cmake libSDL-devel libxerces-c-devel Mesa-libGL-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel'
 				$installcommand
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
 				;;
-			*)
+			12.2)
 				installcommand='zypper install subversion gcc gcc-c++ automake cmake libSDL-devel libxerces-c-devel MesaGLw-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel'
+				$installcommand
+				if [ $? != 0 ]; then error_during_installation; exit 1; fi
+				;;
+			*)
+				installcommand='zypper install subversion gcc gcc-c++ automake cmake libSDL-devel libxerces-c-devel Mesa-libGL-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel'
 				unsupported_release
 				exit 1
 				;;
