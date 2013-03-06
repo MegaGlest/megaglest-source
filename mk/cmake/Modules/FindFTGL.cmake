@@ -19,11 +19,11 @@ ENDIF()
 
 IF (FTGL_LIBRARY AND FTGL_INCLUDE_DIR)
   SET(FTGL_FOUND "YES")
-  message(STATUS "!!!!!!!!!!!!!!!!!!!!!!!!!!!!! FTGL lib ALREADY FOUND in: [${FTGL_LIBRARY}]")
+  message(STATUS "** FTGL lib ALREADY FOUND in: [${FTGL_LIBRARY}]")
 ELSE (FTGL_LIBRARY AND FTGL_INCLUDE_DIR)
 
   IF(FTGL_LIBRARY_PATH)
-        message(STATUS "!!!!!!!!!!!!!!!!!!!!!!!!!!!!! Searching for FTGL lib in custom path: [${FTGL_LIBRARY_PATH}]")
+        message(STATUS "** Searching for FTGL lib in custom path: [${FTGL_LIBRARY_PATH}]")
   ENDIF()
 
   FIND_PATH(FTGL_INCLUDE_DIR FTGL/ftgl.h 

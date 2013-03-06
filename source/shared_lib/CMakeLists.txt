@@ -361,10 +361,10 @@ option(ENABLE_FRIBIDI "Enable FriBIDi support" ON)
         option(DISABLE_IRCCLIENT "Disable libircclient support" OFF)
 
         IF(NOT DISABLE_IRCCLIENT)
-	        IF(NOT WANT_STATIC_LIBS)
-		        MESSAGE(STATUS "*** Searching for libircclient since WANT_STATIC_LIBS is off ...")
+	        #IF(NOT WANT_STATIC_LIBS)
+		        MESSAGE(STATUS "*** Searching for libircclient since WANT_STATIC_LIBS is: ${WANT_STATIC_LIBS} ...")
 		        FIND_PACKAGE(Ircclient)
-	        ENDIF()
+	        #ENDIF()
 
 	        if(NOT IRCCLIENT_FOUND)
 		        MESSAGE(STATUS "*** Using EMBEDDED libircclient since this system does not have it... IRCCLIENT_FOUND [${IRCCLIENT_FOUND}]")
