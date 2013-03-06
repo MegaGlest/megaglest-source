@@ -1116,49 +1116,21 @@ void Unit::setPos(const Vec2i &pos, bool clearPathFinder) {
 	this->lastPos= this->pos;
 	this->pos= pos;
 
-//  	// This code is initial code to make the camera 'follow' a unit
-//	//if(this->getId() == 5) {
-//	if(cameraFollowUnit == true) {
-//		//printf("A fov [%f] [H [%f] [V [%f]\n",game->getGameCameraPtr()->getFov(),game->getGameCameraPtr()->getHAng(),game->getGameCameraPtr()->getVAng());
-//
-//		//game->getGameCameraPtr()->setClampDisabled(true);
-//
-//		//game->getGameCameraPtr()->setFov(45);
-//		if(oldLastPos.x > pos.x) {
-//			game->getGameCameraPtr()->setHAng(270);
-//			game->getGameCameraPtr()->setVAng(-7.6);
-//		}
-//		else if(oldLastPos.x < pos.x) {
-//			game->getGameCameraPtr()->setHAng(90);
-//			game->getGameCameraPtr()->setVAng(1.4);
-//		}
-//		else if(oldLastPos.y > pos.y) {
-//			game->getGameCameraPtr()->setHAng(180);
-//			game->getGameCameraPtr()->setVAng(4.2);
-//		}
-//		else {
-//			game->getGameCameraPtr()->setHAng(-2.4);
-//			game->getGameCameraPtr()->setVAng(-1.4);
-//		}
-//
-//		game->getGameCameraPtr()->setPos(getCurrVector());
-//		game->getGameCameraPtr()->stop();
-//
-//		//printf("B fov [%f] [H [%f] [V [%f]\n",game->getGameCameraPtr()->getFov(),game->getGameCameraPtr()->getHAng(),game->getGameCameraPtr()->getVAng());
-//	}
-
 	map->clampPos(this->pos);
 	this->meetingPos= pos - Vec2i(1);
 	map->clampPos(this->meetingPos);
 
 	safeMutex.ReleaseLock();
 
-	// Attempt to improve performance
-	this->exploreCells();
-
-	calculateFogOfWarRadius();
+	refreshPos();
 
 	logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+}
+
+void Unit::refreshPos() {
+	// Attempt to improve performance
+	this->exploreCells();
+	calculateFogOfWarRadius();
 }
 
 FowAlphaCellsLookupItem Unit::getFogOfWarRadius(bool useCache) const {
@@ -4539,8 +4511,8 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 		result->pathFindRefreshCellCount = unitNode->getAttribute("pathFindRefreshCellCount")->getIntValue();
 	}
 
-	result->exploreCells();
-	result->calculateFogOfWarRadius();
+	//result->exploreCells();
+	//result->calculateFogOfWarRadius();
 
     return result;
 }

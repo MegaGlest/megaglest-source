@@ -5496,6 +5496,7 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 					Faction *faction = world.getFaction(i);
 					faction->clearCaches();
 				}
+				world.refreshAllUnitExplorations();
 			}
 			setupPopupMenus(false);
 
@@ -5521,6 +5522,7 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 					Faction *faction = world.getFaction(i);
 					faction->clearCaches();
 				}
+				world.refreshAllUnitExplorations();
 			}
 			pauseRequestSent=false;
 		}
