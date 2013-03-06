@@ -2709,7 +2709,8 @@ void MenuStateConnectedGame::update() {
 
 				clientInterface->updateLobby();
 
-				if(clientInterface->isConnected() && clientInterface->getPausedForInGameJoin() == false &&
+				//if(clientInterface->isConnected() && clientInterface->getPausedForInGameJoin() == false &&
+				if(clientInterface->isConnected() && clientInterface->getJoinGameInProgress() == false &&
 					pingCount >= 3 && clientInterface->getLastPingLag() >= (GameConstants::networkPingInterval * 3)) {
 					MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 					if(fileFTPProgressList.empty() == true) {

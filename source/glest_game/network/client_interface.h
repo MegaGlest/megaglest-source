@@ -70,7 +70,6 @@ private:
 
 	bool joinGameInProgress;
 	bool joinGameInProgressLaunch;
-	bool pausedForInGameJoin;
 	bool readyForInGameJoin;
 	bool resumeInGameJoin;
 
@@ -85,7 +84,6 @@ public:
 	bool getJoinGameInProgress() const { return joinGameInProgress; }
 	bool getJoinGameInProgressLaunch() const { return joinGameInProgressLaunch; }
 
-	bool getPausedForInGameJoin() const { return pausedForInGameJoin; }
 	bool getReadyForInGameJoin() const { return readyForInGameJoin; }
 
 	bool getResumeInGameJoin() const { return resumeInGameJoin; }

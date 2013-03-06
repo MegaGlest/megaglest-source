@@ -380,6 +380,14 @@ ConnectionSlot::~ConnectionSlot() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
+void ConnectionSlot::setPlayerIndex(int value) {
+	playerIndex = value;
+
+	if(this->slotThreadWorker != NULL) {
+		this->slotThreadWorker->setSlotIndex(playerIndex);
+	}
+}
+
 void ConnectionSlot::setReady()	{
 	this->ready= true;
 	this->skipLagCheck = false;
@@ -960,7 +968,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									if(networkMessageLaunch.getMessageType() == nmtLaunch) {
 										if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
 
-										//printf("Got launch request from client joinGameInProgress = %d!\n",joinGameInProgress);
+										//printf("Got launch request from client joinGameInProgress = %d joinGameInProgress = %d!\n",joinGameInProgress,joinGameInProgress);
 									}
 									else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
 										if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtBroadCastSetup\n",__FILE__,__FUNCTION__,__LINE__);
@@ -974,8 +982,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									}
 
 									int minHeadLessPlayersRequired = Config::getInstance().getInt("MinHeadlessPlayersRequired","2");
-									if(joinGameInProgress == false && networkMessageLaunch.getMessageType() == nmtLaunch &&
-											ready == false &&
+									if(this->joinGameInProgress == false && networkMessageLaunch.getMessageType() == nmtLaunch &&
+											this->ready == false &&
 											this->serverInterface->getConnectedSlotCount(true) < minHeadLessPlayersRequired) {
 								    	Lang &lang= Lang::getInstance();
 								    	const vector<string> languageList = this->serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
@@ -1000,7 +1008,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								    	}
 									}
 									else {
-										if(joinGameInProgress == false) {
+										if(this->joinGameInProgress == false) {
 											GameSettings gameSettingsBuffer;
 											networkMessageLaunch.buildGameSettings(&gameSettingsBuffer);
 
@@ -1011,10 +1019,10 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 											this->serverInterface->broadcastGameSetup(&gameSettingsBuffer, true);
 										}
 
-										if(joinGameInProgress == false && networkMessageLaunch.getMessageType() == nmtLaunch) {
+										if(this->joinGameInProgress == false && networkMessageLaunch.getMessageType() == nmtLaunch) {
 											this->serverInterface->setMasterserverAdminRequestLaunch(true);
 										}
-										else if(joinGameInProgress == true && networkMessageLaunch.getMessageType() == nmtLaunch) {
+										else if(this->joinGameInProgress == true && networkMessageLaunch.getMessageType() == nmtLaunch) {
 											//printf("!!! setStartInGameConnectionLaunch for client joinGameInProgress = %d!\n",joinGameInProgress);
 
 											//GameSettings gameSettingsBuffer;

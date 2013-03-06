@@ -980,8 +980,7 @@ bool Socket::hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList)
 {
     bool bResult = false;
 
-    if(socketTriggeredList.empty() == false)
-    {
+    if(socketTriggeredList.empty() == false) {
         /* Watch stdin (fd 0) to see when it has input. */
         fd_set rfds;
         FD_ZERO(&rfds);
@@ -989,11 +988,9 @@ bool Socket::hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList)
 		string socketDebugList = "";
         PLATFORM_SOCKET imaxsocket = 0;
         for(std::map<PLATFORM_SOCKET,bool>::iterator itermap = socketTriggeredList.begin();
-            itermap != socketTriggeredList.end(); ++itermap)
-        {
+            itermap != socketTriggeredList.end(); ++itermap) {
         	PLATFORM_SOCKET socket = itermap->first;
-            if(Socket::isSocketValid(&socket) == true)
-            {
+            if(Socket::isSocketValid(&socket) == true) {
                 FD_SET(socket, &rfds);
                 imaxsocket = max(socket,imaxsocket);
 
@@ -1004,8 +1001,7 @@ bool Socket::hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList)
             }
         }
 
-        if(imaxsocket > 0)
-        {
+        if(imaxsocket > 0) {
             /* Wait up to 0 seconds. */
             struct timeval tv;
             tv.tv_sec = 0;
@@ -1017,24 +1013,19 @@ bool Socket::hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList)
             	//MutexSafeWrapper safeMutex(&dataSynchAccessor);
             	retval = select((int)imaxsocket + 1, &rfds, NULL, NULL, &tv);
             }
-            if(retval < 0)
-            {
+            if(retval < 0) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, ERROR SELECTING SOCKET DATA retval = %d error = %s, socketDebugList [%s]\n",__FILE__,__FUNCTION__,__LINE__,retval,getLastSocketErrorFormattedText().c_str(),socketDebugList.c_str());
             }
-            else if(retval)
-            {
+            else if(retval) {
                 bResult = true;
 
                 for(std::map<PLATFORM_SOCKET,bool>::iterator itermap = socketTriggeredList.begin();
-                    itermap != socketTriggeredList.end(); ++itermap)
-                {
+                    itermap != socketTriggeredList.end(); ++itermap) {
                 	PLATFORM_SOCKET socket = itermap->first;
-                    if (FD_ISSET(socket, &rfds))
-                    {
+                    if (FD_ISSET(socket, &rfds)) {
                         itermap->second = true;
                     }
-                    else
-                    {
+                    else {
                         itermap->second = false;
                     }
                 }
