@@ -2073,6 +2073,10 @@ void World::initUnits() {
 				f->limitResourcesToStore();
 			}
 		}
+		else {
+			printf("Load game setting unit pos\n");
+			refreshAllUnitExplorations();
+		}
 	}
 	catch(const megaglest_runtime_error &ex) {
 		gotError = true;
@@ -2102,6 +2106,17 @@ void World::initUnits() {
 		throw megaglest_runtime_error(sErrBuf,!skipStackTrace);
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+void World::refreshAllUnitExplorations() {
+	for(unsigned int i = 0; i < getFactionCount(); ++i) {
+		Faction *faction = factions[i];
+
+		for(unsigned int j = 0; j < faction->getUnitCount(); ++j) {
+			Unit *unit = faction->getUnit(j);
+			unit->refreshPos();
+		}
+	}
 }
 
 void World::initMap() {

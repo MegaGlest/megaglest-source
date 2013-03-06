@@ -319,6 +319,7 @@ public:
 	void loadGame(const XmlNode *rootNode);
 
 	void clearCaches();
+	void refreshAllUnitExplorations();
 
 private:
 
