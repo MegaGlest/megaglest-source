@@ -79,6 +79,7 @@ Game::Game() : ProgramState(NULL) {
 	avgRenderFps=0;
 	currentAvgRenderFpsTotal=0;
 	paused=false;
+	pausedForJoinGame=false;
 	pauseRequestSent=false;
 	resumeRequestSent=false;
 	pauseStateChanged=false;
@@ -238,6 +239,7 @@ void Game::resetMembers() {
 	currentAvgRenderFpsTotal=0;
 	tickCount=0;
 	paused= false;
+	pausedForJoinGame=false;
 	resumeRequestSent=false;
 	pauseRequestSent=false;
 	pauseStateChanged=false;
@@ -1519,6 +1521,9 @@ void Game::init(bool initForPreviewOnly) {
 	if(role == nrClient) {
 		ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
 		if(clientInterface != NULL && clientInterface->getResumeInGameJoin() == true) {
+
+			//printf("Client sending resume message to server...\n");
+
 			clientInterface->sendResumeGameMessage();
 			//this->initialResumeSpeedLoops = true;
 		}
@@ -2085,7 +2090,7 @@ void Game::update() {
 					}
 				}
 
-				if(paused == false || clientNeedsGameSetup == true) {
+				if(pausedForJoinGame == false || clientNeedsGameSetup == true) {
 					//printf("================= Switching player pausing game\n");
 
 					for(int i = 0; i < world.getFactionCount(); ++i) {
@@ -2164,15 +2169,17 @@ void Game::update() {
 					}
 				}
 
-				if(pauseAndSaveGameForNewClient == true && paused == false &&
+				if(pauseAndSaveGameForNewClient == true && pausedForJoinGame == false &&
 						pauseRequestSent == false) {
-					commander.tryPauseGame(true);
+					//printf("Pausing game for join in progress game...\n");
+
+					commander.tryPauseGame(true,true);
 					pauseRequestSent = true;
-					//return;
+					return;
 				}
 			}
 			//else if(server->getPauseForInGameConnection() == true && paused == true &&
-			if(paused == true) {
+			if(pausedForJoinGame == true) {
 				if(pauseStateChanged == true) {
 					pauseStateChanged = false;
 				}
@@ -2188,7 +2195,9 @@ void Game::update() {
 							slot->setUnPauseForInGameConnection(false);
 						}
 					}
-					commander.tryResumeGame(false);
+					//printf("Resuming game for join in progress game resumeRequestSent: %d...\n",resumeRequestSent);
+
+					commander.tryResumeGame(true,false);
 					resumeRequestSent = true;
 
 //					server->setAllowInGameConnections(false);
@@ -2266,7 +2275,7 @@ void Game::update() {
 			//}
 
 			// Make the server wait a bit for clients to start.
-			if(paused == false && resumeRequestSent == true) {
+			if(pausedForJoinGame == false && resumeRequestSent == true) {
 				resumeRequestSent = false;
 				//sleep(500);
 			}
@@ -2562,6 +2571,7 @@ bool Game::switchSetupForSlots(ServerInterface *& serverInterface,
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] caught exception error = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 						}
 					}
+					//printf("AFTER switchSlot returned\n");
 				}
 				else {
 					try {
@@ -3136,14 +3146,14 @@ void Game::tryPauseToggle(bool pauseValue) {
 
 	if(allowAdminMenuItems) {
 		if(pauseValue == true) {
-			commander.tryPauseGame(false);
+			commander.tryPauseGame(false,false);
 		}
 		else {
 			if(isNetworkGame == false) {
-				setPaused(pauseValue, true);
+				setPaused(pauseValue, true,false,false);
 			}
 			else {
-				commander.tryResumeGame(false);
+				commander.tryResumeGame(false,false);
 			}
 		}
 	}
@@ -3437,10 +3447,10 @@ void Game::mouseDownLeft(int x, int y) {
 
 				if(allowAdminMenuItems) {
 					if(getPaused() == false) {
-						commander.tryPauseGame(false);
+						commander.tryPauseGame(false,false);
 					}
 					else {
-						commander.tryResumeGame(false);
+						commander.tryResumeGame(false,false);
 					}
 				}
 			}
@@ -4347,10 +4357,10 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 
 				if(allowAdminMenuItems) {
 					if(getPaused() == false) {
-						commander.tryPauseGame(false);
+						commander.tryPauseGame(false,false);
 					}
 					else {
-						commander.tryResumeGame(false);
+						commander.tryResumeGame(false,false);
 					}
 				}
 			}
@@ -5433,17 +5443,51 @@ void Game::decSpeed() {
 	}
 }
 
-void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches) {
+void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches, bool joinNetworkGame) {
 	bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
 	//printf("Toggle pause value = %d, speedChangesAllowed = %d, forceAllowPauseStateChange = %d\n",value,speedChangesAllowed,forceAllowPauseStateChange);
 
 	if(forceAllowPauseStateChange == true || speedChangesAllowed == true) {
 		//printf("setPaused paused = %d, value = %d\n",paused,value);
 
+		// Cannot change pause state while client is joining in progress game
+		if(pausedForJoinGame == true && joinNetworkGame == false) {
+
+			ServerInterface *server = NetworkManager::getInstance().getServerInterface();
+			Lang &lang= Lang::getInstance();
+			const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
+
+			bool haveClientConnectedButNoReady = false;
+			for(int i = 0; i < world.getFactionCount(); ++i) {
+				Faction *faction = world.getFaction(i);
+				ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+				if(slot != NULL && slot->isConnected() == true && slot->isReady() == false) {
+					for(unsigned int i = 0; i < languageList.size(); ++i) {
+						char szMsg[8096]="";
+						if(lang.hasString("JoinPlayerToCurrentGameLaunch",languageList[i]) == true) {
+							snprintf(szMsg,8096,lang.get("JoinPlayerToCurrentGameLaunch",languageList[i]).c_str(), slot->getName().c_str());
+						}
+						else {
+							snprintf(szMsg,8096,"Player: %s is about to join the game, please wait...",slot->getName().c_str());
+						}
+						bool localEcho = lang.isLanguageLocal(languageList[i]);
+						server->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
+
+						haveClientConnectedButNoReady = true;
+					}
+				}
+			}
+
+			if(haveClientConnectedButNoReady == true) {
+				return;
+			}
+		}
+
 		Lang &lang= Lang::getInstance();
 		if(value == false) {
 			console.addLine(lang.get("GameResumed"));
 			paused= false;
+			pausedForJoinGame = false;
 			pauseStateChanged = true;
 
 			if(clearCaches == true) {
@@ -5467,6 +5511,7 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 		else {
 			console.addLine(lang.get("GamePaused"));
 			paused= true;
+			pausedForJoinGame = joinNetworkGame;
 			pauseStateChanged = true;
 			//!!!
 

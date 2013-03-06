@@ -495,6 +495,9 @@ void ServerInterface::removeSlot(int playerIndex, int lockedSlotIndex) {
 bool ServerInterface::switchSlot(int fromPlayerIndex, int toPlayerIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	bool result = false;
+
+	//printf("#1 Server is switching slots\n");
+
 	//assert(fromPlayerIndex >= 0 && fromPlayerIndex < GameConstants::maxPlayers);
 	if(fromPlayerIndex < 0 || fromPlayerIndex >= GameConstants::maxPlayers) {
 		char szBuf[8096]="";
@@ -517,9 +520,10 @@ bool ServerInterface::switchSlot(int fromPlayerIndex, int toPlayerIndex) {
 	MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[fromPlayerIndex],CODE_AT_LINE_X(fromPlayerIndex));
 	MutexSafeWrapper safeMutexSlot2(slotAccessorMutexes[toPlayerIndex],CODE_AT_LINE_X(toPlayerIndex));
 
-	//printf("#1 Server is switching slots\n");
+	//printf("#1a Server is switching slots\n");
+
 	if(slots[toPlayerIndex] != NULL &&
-	   slots[toPlayerIndex]->isConnected() == false) {
+	   slots[toPlayerIndex]->hasValidSocketId() == false) {
 
 		//printf("#2 Server is switching slots\n");
 
@@ -548,6 +552,8 @@ bool ServerInterface::switchSlot(int fromPlayerIndex, int toPlayerIndex) {
 		safeMutexSlot2.ReleaseLock();
 		safeMutex.ReleaseLock();
 	}
+	//printf("#4 Server is switching slots\n");
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	return result;
 }
@@ -1014,11 +1020,17 @@ void ServerInterface::checkForLaggingClients(std::map<int,bool> &mapSlotSignalle
 			threadsDone = true;
 			// Examine all threads for completion of delegation
 			for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
+				//printf("#1 Check lag for i: %d\n",i);
+
 				MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
 				ConnectionSlot* connectionSlot = slots[i];
-				if(connectionSlot != NULL && connectionSlot->hasValidSocketId() == true &&
+				if(connectionSlot != NULL && connectionSlot->isConnected() == true &&
+						connectionSlot->getSkipLagCheck() == false &&
 						mapSlotSignalledList[i] == true &&
 				   slotsCompleted.find(i) == slotsCompleted.end()) {
+
+					//printf("#2 Check lag for i: %d playerindex: %d name [%s] socket: %d\n",i,connectionSlot->getPlayerIndex(),connectionSlot->getName().c_str(),connectionSlot->getSocketId());
+
 					try {
 						std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
 						// Show any collected errors from threads
@@ -1035,6 +1047,7 @@ void ServerInterface::checkForLaggingClients(std::map<int,bool> &mapSlotSignalle
 						// Not done waiting for data yet
 						bool updateFinished = (connectionSlot != NULL ? connectionSlot->updateCompleted(&eventList[i]) : true);
 						if(updateFinished == false) {
+							//printf("#2a Check lag for i: %d\n",i);
 							threadsDone = false;
 							break;
 						}
@@ -1070,6 +1083,8 @@ void ServerInterface::checkForLaggingClients(std::map<int,bool> &mapSlotSignalle
 										}
 										ConnectionSlotEvent &event = eventList[i];
 										mapSlotSignalledList[i] = signalClientReceiveCommands(connectionSlot,i,socketTriggered,event);
+
+										//printf("#2b Check lag for i: %d\n",i);
 										threadsDone = false;
 									}
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, clientLagExceededOrWarned.first = %d, clientLagExceededOrWarned.second = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second);
@@ -1087,7 +1102,12 @@ void ServerInterface::checkForLaggingClients(std::map<int,bool> &mapSlotSignalle
 					}
 				}
 
-				if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
+				//printf("#3 Check lag for i: %d\n",i);
+
+				if(connectionSlot != NULL && connectionSlot->isConnected() == true &&
+						connectionSlot->getSkipLagCheck() == false) {
+					//printf("#4 Check lag for i: %d\n",i);
+
 					try {
 						if(gameHasBeenInitiated == true &&
 							difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
@@ -1117,6 +1137,8 @@ void ServerInterface::checkForLaggingClients(std::map<int,bool> &mapSlotSignalle
 						errorMsgList.push_back(ex.what());
 					}
 				}
+
+				//printf("#5 Check lag for i: %d\n",i);
 			}
 		}
 	}
@@ -2144,18 +2166,28 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 				if(connectionSlot != NULL && connectionSlot->isConnected()) {
 					connectionSlot->getSocket()->setBlock(true);
 				}
-				else if(this->getAllowInGameConnections() == true) {
-					// Open slots for joining in progress game
-					if(gameSettings->getFactionControl(factionIndex) != ctClosed &&
-						gameSettings->getFactionControl(factionIndex) != ctHuman) {
+			}
+		}
 
-						//printf("Opening slot for in game connections for slot: %d, faction: %d\n",i,factionIndex);
-						if(connectionSlot == NULL) {
-							addSlot(i);
-							connectionSlot = slots[i];
-						}
-						connectionSlot->setCanAcceptConnections(true);
+		bool requiresUPNPTrigger = false;
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		for(int i= 0; i < GameConstants::maxPlayers; ++i) {
+			int factionIndex = gameSettings->getFactionIndexForStartLocation(i);
+			MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
+			ConnectionSlot *connectionSlot= slots[i];
+			if((connectionSlot == NULL || connectionSlot->isConnected() == false) &&
+				this->getAllowInGameConnections() == true) {
+				// Open slots for joining in progress game
+				if(gameSettings->getFactionControl(factionIndex) != ctClosed &&
+					gameSettings->getFactionControl(factionIndex) != ctHuman) {
+
+					//printf("Opening slot for in game connections for slot: %d, faction: %d\n",i,factionIndex);
+					if(connectionSlot == NULL) {
+						addSlot(i);
+						connectionSlot = slots[i];
+						requiresUPNPTrigger = true;
 					}
+					connectionSlot->setCanAcceptConnections(true);
 				}
 			}
 		}
@@ -2202,6 +2234,10 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 		if(this->getAllowInGameConnections() == false) {
 			shutdownFTPServer();
 		}
+
+		if(requiresUPNPTrigger == true) {
+            this->getServerSocket()->NETdiscoverUPnPDevices();
+        }
 
 		gameLaunched = true;
 	}

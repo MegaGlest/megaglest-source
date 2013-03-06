@@ -102,7 +102,9 @@ public:
     virtual void execute();
     void signalUpdate(ConnectionSlotEvent *event);
     bool isSignalCompleted(ConnectionSlotEvent *event);
+
     int getSlotIndex() const {return slotIndex; }
+    void setSlotIndex(int index) { this->slotIndex = index; }
 
     void purgeCompletedEvents();
     void purgeAllEvents();
@@ -172,7 +174,7 @@ public:
 	ConnectionSlotThread *getWorkerThread() { return slotThreadWorker; }
 
     void update(bool checkForNewClients,int lockedSlotIndex);
-	void setPlayerIndex(int value) { playerIndex = value; }
+	void setPlayerIndex(int value);
 	int getPlayerIndex() const {return playerIndex;}
 
 	uint32 getConnectedRemoteIPAddress() const { return connectedRemoteIPAddress; }

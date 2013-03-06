@@ -5231,7 +5231,7 @@ static bool MinidumpCallback(const google_breakpad::MinidumpDescriptor& descript
 
   if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 	  char szBuf[8096];
-	  snprintf(szBuf,8096,"An unhandled error was detected.\n\nA crash dump file has been created in the folder:\n%s\nCrash dump filename is: %s.dmp",descriptor.directory().c_str(),descriptor.path());
+	  snprintf(szBuf,8096,"An unhandled error was detected.\n\nA crash dump file has been created in the folder:\n%s\nCrash dump filename is: %s",descriptor.directory().c_str(),descriptor.path());
 	  //MessageBox(NULL, szBuf, "Unhandled error", MB_OK|MB_SYSTEMMODAL);
 	  message(szBuf);
   }

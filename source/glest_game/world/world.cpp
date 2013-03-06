@@ -1536,7 +1536,7 @@ void World::clearCaches() {
 }
 
 void World::togglePauseGame(bool pauseStatus,bool forceAllowPauseStateChange) {
-	game->setPaused(pauseStatus, forceAllowPauseStateChange);
+	game->setPaused(pauseStatus, forceAllowPauseStateChange, false, false);
 }
 
 void World::addConsoleText(const string &text) {

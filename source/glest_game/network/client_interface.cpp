@@ -53,7 +53,6 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 	cachedPendingCommandsIndex = 0;
 	cachedLastPendingFrameCount = 0;
 
-	this->pausedForInGameJoin = false;
 	this->readyForInGameJoin = false;
 	clientSocket= NULL;
 	sessionKey = 0;
@@ -83,11 +82,13 @@ void ClientInterface::shutdownNetworkCommandListThread() {
 
 	if(networkCommandListThread != NULL) {
 		time_t elapsed = time(NULL);
+		this->quit = true;
 		networkCommandListThread->signalQuit();
 		for(;networkCommandListThread->canShutdown(false) == false &&
 			difftime((long int)time(NULL),elapsed) <= 15;) {
 			//sleep(150);
 		}
+		sleep(0);
 		if(networkCommandListThread->canShutdown(true)) {
 			delete networkCommandListThread;
 			networkCommandListThread = NULL;
@@ -656,13 +657,14 @@ void ClientInterface::updateLobby() {
 			if(receiveMessage(&networkMessageReady)) {
 				this->readyForInGameJoin = true;
 			}
+
+			//printf("ClientInterface got nmtReady this->readyForInGameJoin: %d\n",this->readyForInGameJoin);
 		}
 		break;
 
 		case nmtCommandList:
 			{
 
-			int waitCount = 0;
 			//make sure we read the message
 			time_t receiveTimeElapsed = time(NULL);
 			NetworkMessageCommandList networkMessageCommandList;
@@ -670,7 +672,6 @@ void ClientInterface::updateLobby() {
 			if(gotCmd == false) {
 				throw megaglest_runtime_error("error retrieving nmtCommandList returned false!");
 			}
-			this->pausedForInGameJoin = true;
 		}
 		break;
 
@@ -1088,7 +1089,6 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	bool signalServerWhenReadyToStartJoinedGame = this->readyForInGameJoin;
-	this->pausedForInGameJoin = false;
 	this->readyForInGameJoin = false;
     Logger &logger= Logger::getInstance();
 
@@ -1594,7 +1594,6 @@ void ClientInterface::close()
 
 	this->joinGameInProgress = false;
 	this->joinGameInProgressLaunch = false;
-	this->pausedForInGameJoin = false;
 	this->readyForInGameJoin = false;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] END\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1795,13 +1794,19 @@ void ClientInterface::broadcastGameSetup(const GameSettings *gameSettings) {
 
 void ClientInterface::broadcastGameStart(const GameSettings *gameSettings) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	//MutexSafeWrapper safeMutex(&serverSynchAccessor,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
+
+	if(this->joinGameInProgress == true) {
+		this->joinGameInProgressLaunch = true;
+	}
+
+	//printf("Sending game launch joinGameInProgress: %d\n",joinGameInProgress);
+
 	NetworkMessageLaunch networkMessageLaunch(gameSettings, nmtLaunch);
-	//broadcastMessage(&networkMessageLaunch);
 	sendMessage(&networkMessageLaunch);
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	this->joinGameInProgressLaunch = true;
 }
+
 void ClientInterface::setGameSettingsReceived(bool value) {
 	//printf("In [%s:%s] Line: %d gameSettingsReceived = %d value = %d, gameSettingsReceivedCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,gameSettingsReceived,value,gameSettingsReceivedCount);
 	gameSettingsReceived = value;

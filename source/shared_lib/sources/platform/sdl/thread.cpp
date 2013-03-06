@@ -16,6 +16,7 @@
 #include <algorithm>
 #include "platform_util.h"
 #include "platform_common.h"
+#include <memory>
 
 using namespace std;
 
@@ -136,6 +137,9 @@ public:
 	}
 };
 
+const bool debugMutexLock = false;
+const int debugMutexLockMillisecondThreshold = 2000;
+
 Mutex::Mutex(string ownerId) {
 	mutexAccessor  = SDL_CreateMutex();
 	SDLMutexSafeWrapper safeMutex(&mutexAccessor);
@@ -151,7 +155,10 @@ Mutex::Mutex(string ownerId) {
 	}
 	deleteownerId = "";
 
-	//chronoPerf = new Chrono();
+	chronoPerf = NULL;
+	if(debugMutexLock == true) {
+		chronoPerf = new Chrono();
+	}
 }
 
 Mutex::~Mutex() {
@@ -168,8 +175,10 @@ Mutex::~Mutex() {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	//delete chronoPerf;
-	//chronoPerf = NULL;
+	if(debugMutexLock == true) {
+		delete chronoPerf;
+		chronoPerf = NULL;
+	}
 
 	if(mutex != NULL) {
 		deleteownerId = ownerId;
@@ -184,16 +193,21 @@ void Mutex::p() {
 		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
-	//Chrono chrono;
-	//chrono.start();
+	std::auto_ptr<Chrono> chronoLockPerf;
+	if(debugMutexLock == true) {
+		chronoLockPerf.reset(new Chrono());
+		chronoLockPerf->start();
+	}
+
 	SDL_mutexP(mutex);
 	refCount++;
 
-	//if(chrono.getMillis() > 2000) {
-	//	printf("Last ownerid: [%s]\n",lastownerId.c_str());
-	//}
-
-	//chronoPerf->start();
+	if(debugMutexLock == true) {
+		if(chronoLockPerf->getMillis() >= debugMutexLockMillisecondThreshold) {
+			printf("\n**WARNING possible mutex lock detected ms [%lld] Last ownerid: [%s]\n",(long long int)chronoLockPerf->getMillis(),lastownerId.c_str());
+		}
+		chronoPerf->start();
+	}
 }
 
 void Mutex::v() {
@@ -205,9 +219,15 @@ void Mutex::v() {
 	refCount--;
 	lastownerId = ownerId;
 
-	//if(chronoPerf->getMillis() > 2000) {
-	//	lastownerId = PlatformExceptionHandler::getStackTrace();
-	//}
+	if(debugMutexLock == true) {
+		if(chronoPerf->getMillis() >= debugMutexLockMillisecondThreshold) {
+			printf("About to get stacktrace for stuck mutex ...\n");
+			string oldLastownerId = lastownerId;
+			lastownerId = PlatformExceptionHandler::getStackTrace();
+
+			printf("\n**WARNING possible mutex lock (on unlock) detected ms [%lld] Last ownerid: [%s]\noldLastownerId: [%s]\n",(long long int)chronoPerf->getMillis(),lastownerId.c_str(),oldLastownerId.c_str());
+		}
+	}
 	SDL_mutexV(mutex);
 }
 

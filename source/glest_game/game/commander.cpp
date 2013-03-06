@@ -483,13 +483,17 @@ void Commander::tryDisconnectNetworkPlayer(const Faction* faction, int playerInd
 	pushNetworkCommand(&command);
 }
 
-void Commander::tryPauseGame(bool clearCaches) const {
-	NetworkCommand command(this->world,nctPauseResume, 1, (clearCaches == true ? 1 : 0));
+void Commander::tryPauseGame(bool joinNetworkGame, bool clearCaches) const {
+	NetworkCommand command(this->world,nctPauseResume,1);
+	command.commandTypeId = (clearCaches == true ? 1 : 0);
+	command.unitTypeId = (joinNetworkGame == true ? 1 : 0);
 	pushNetworkCommand(&command);
 }
 
-void Commander::tryResumeGame(bool clearCaches) const {
-	NetworkCommand command(this->world,nctPauseResume, 0, (clearCaches == true ? 1 : 0));
+void Commander::tryResumeGame(bool joinNetworkGame, bool clearCaches) const {
+	NetworkCommand command(this->world,nctPauseResume,0);
+	command.commandTypeId = (clearCaches == true ? 1 : 0);
+	command.unitTypeId = (joinNetworkGame == true ? 1 : 0);
 	pushNetworkCommand(&command);
 }
 
@@ -873,12 +877,13 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
         	commandWasHandled = true;
 
-        	bool pauseGame 		= networkCommand->getUnitId() != 0;
-        	bool clearCaches 	= networkCommand->getCommandTypeId();
+        	bool pauseGame 			= networkCommand->getUnitId() != 0;
+        	bool clearCaches 		= networkCommand->getCommandTypeId();
+        	bool joinNetworkGame 	= networkCommand->getUnitTypeId();
        		Game *game = this->world->getGame();
 
        		//printf("nctPauseResume pauseGame = %d\n",pauseGame);
-       		game->setPaused(pauseGame,true,clearCaches);
+       		game->setPaused(pauseGame,true,clearCaches,joinNetworkGame);
 
             if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctPauseResume\n",__FILE__,__FUNCTION__,__LINE__);
         	}
