@@ -78,8 +78,7 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 }
 
 void ClientInterface::shutdownNetworkCommandListThread() {
-	//MutexSafeWrapper safeMutex(masterServerThreadAccessor,CODE_AT_LINE);
-
+	MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
 	if(networkCommandListThread != NULL) {
 		time_t elapsed = time(NULL);
 		this->quit = true;
@@ -94,6 +93,10 @@ void ClientInterface::shutdownNetworkCommandListThread() {
 			networkCommandListThread = NULL;
 		}
 	}
+
+	Mutex *tempMutexPtr = networkCommandListThreadAccessor;
+	networkCommandListThreadAccessor = NULL;
+	safeMutex.ReleaseLock(false,true);
 }
 
 ClientInterface::~ClientInterface() {
@@ -121,9 +124,6 @@ ClientInterface::~ClientInterface() {
 
 	delete clientSocket;
 	clientSocket = NULL;
-
-	delete networkCommandListThreadAccessor;
-	networkCommandListThreadAccessor = NULL;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
