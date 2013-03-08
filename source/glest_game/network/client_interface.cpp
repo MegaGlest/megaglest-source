@@ -62,6 +62,8 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 	this->joinGameInProgress = false;
 	this->joinGameInProgressLaunch = false;
 
+	this->quitThread = false;
+
 	playerIndex= -1;
 	setGameSettingsReceived(false);
 	gotIntro = false;
@@ -78,31 +80,41 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 }
 
 void ClientInterface::shutdownNetworkCommandListThread() {
-	MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
 	if(networkCommandListThread != NULL) {
+		//printf("START === shutdownNetworkCommandListThread\n");
+
 		time_t elapsed = time(NULL);
-		this->quit = true;
+
+		this->quitThread = true;
 		networkCommandListThread->signalQuit();
+
 		for(;networkCommandListThread->canShutdown(false) == false &&
 			difftime((long int)time(NULL),elapsed) <= 15;) {
 			//sleep(150);
 		}
-		sleep(0);
+
+		//printf("A === shutdownNetworkCommandListThread\n");
+
+		//sleep(0);
 		if(networkCommandListThread->canShutdown(true)) {
 			delete networkCommandListThread;
 			networkCommandListThread = NULL;
 		}
-	}
 
-	Mutex *tempMutexPtr = networkCommandListThreadAccessor;
-	networkCommandListThreadAccessor = NULL;
-	safeMutex.ReleaseLock(false,true);
+		//printf("END === shutdownNetworkCommandListThread\n");
+	}
 }
 
 ClientInterface::~ClientInterface() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] destructor for %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this);
 
+	//printf("START === Client destructor\n");
+
+	MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
+
 	shutdownNetworkCommandListThread();
+
+	//printf("A === Client destructor\n");
 
     if(clientSocket != NULL && clientSocket->isConnected() == true) {
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -118,12 +130,22 @@ ClientInterface::~ClientInterface() {
     	}
     }
 
+    //printf("B === Client destructor\n");
+
     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     close();
     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	delete clientSocket;
 	clientSocket = NULL;
+
+	//printf("C === Client destructor\n");
+
+	Mutex *tempMutexPtr = networkCommandListThreadAccessor;
+	networkCommandListThreadAccessor = NULL;
+	safeMutex.ReleaseLock(false,true);
+
+	//printf("END === Client destructor\n");
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
@@ -716,7 +738,7 @@ void ClientInterface::updateLobby() {
 void ClientInterface::updateFrame(int *checkFrame) {
 	//printf("#1 ClientInterface::updateFrame\n");
 
-	if(isConnected() == true && quit == false) {
+	if(isConnected() == true && this->quitThread == false) {
 		//printf("#2 ClientInterface::updateFrame\n");
 
 		Chrono chrono;
@@ -724,7 +746,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 
 		int simulateLag = Config::getInstance().getInt("SimulateClientLag","0");
 		bool done= false;
-		while(done == false) {
+		while(done == false && this->quitThread == false) {
 
 			//printf("BEFORE Client get networkMessageType\n");
 
@@ -1003,7 +1025,7 @@ void ClientInterface::simpleTask(BaseThread *callingThread) {
 
 	//printf("START === Client thread ended\n");
 
-	while(callingThread->getQuitStatus() == false && quit == false) {
+	while(callingThread->getQuitStatus() == false && this->quitThread == false) {
 		updateFrame(NULL);
 	}
 
@@ -1016,11 +1038,11 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 	bool result = false;
 
 	bool waitForData = false;
-	if(quit == false) {
+	if(quit == false && this->quitThread == false) {
 		MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
 		safeMutex.ReleaseLock(true);
 
-		for(;quit == false;) {
+		for(;quit == false && this->quitThread == false;) {
 			safeMutex.Lock();
 			uint64 copyCachedLastPendingFrameCount = cachedLastPendingFrameCount;
 			if(cachedPendingCommands.find(frameCount) != cachedPendingCommands.end()) {
@@ -1071,9 +1093,9 @@ void ClientInterface::updateKeyframe(int frameCount) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 	//chrono.start();
 
-	if(quit == false) {
-		bool testThreaded = Config::getInstance().getBool("ThreadedNetworkClient","true");
-		//bool testThreaded = false;
+	if(quit == false && this->quitThread == false) {
+		//bool testThreaded = Config::getInstance().getBool("ThreadedNetworkClient","true");
+		bool testThreaded = true;
 		if(testThreaded == false) {
 			updateFrame(&frameCount);
 			Commands &frameCmdList = cachedPendingCommands[frameCount];
@@ -1521,7 +1543,7 @@ NetworkMessageType ClientInterface::waitForMessage()
 
 	NetworkMessageType msg = nmtInvalid;
 	//uint64 waitLoopCount = 0;
-	while(msg == nmtInvalid) {
+	while(msg == nmtInvalid && this->quitThread == false) {
 		msg = getNextMessageType();
 		if(msg == nmtInvalid) {
 			if(chrono.getMillis() % 250 == 0 && isConnected() == false) {

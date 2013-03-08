@@ -73,6 +73,8 @@ private:
 	bool readyForInGameJoin;
 	bool resumeInGameJoin;
 
+	bool quitThread;
+
 public:
 	ClientInterface();
 	virtual ~ClientInterface();
