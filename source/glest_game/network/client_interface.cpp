@@ -1039,11 +1039,12 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 
 	bool waitForData = false;
 	if(quit == false && this->quitThread == false) {
-		MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
-		safeMutex.ReleaseLock(true);
+		//MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
+		//safeMutex.ReleaseLock(true);
 
 		for(;quit == false && this->quitThread == false;) {
-			safeMutex.Lock();
+			MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
+			//safeMutex.Lock();
 			uint64 copyCachedLastPendingFrameCount = cachedLastPendingFrameCount;
 			if(cachedPendingCommands.find(frameCount) != cachedPendingCommands.end()) {
 				Commands &frameCmdList = cachedPendingCommands[frameCount];
