@@ -960,7 +960,7 @@ void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSigna
 				//printf("===> IN slot %d - About to checkForCompletedClients\n",i);
 
 				ConnectionSlot* connectionSlot = slots[i];
-				if(connectionSlot != NULL && connectionSlot->hasValidSocketId() == true &&
+				if(connectionSlot != NULL && connectionSlot->isConnected() == true &&
 						mapSlotSignalledList[i] == true &&
 					connectionSlot->getJoinGameInProgress() == false &&
 				   slotsCompleted.find(i) == slotsCompleted.end()) {

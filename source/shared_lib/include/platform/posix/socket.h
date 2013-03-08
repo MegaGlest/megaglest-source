@@ -130,6 +130,8 @@ protected:
 	Mutex *inSocketDestructorSynchAccessor;
 	bool inSocketDestructor;
 
+	bool isSocketBlocking;
+
 public:
 	Socket(PLATFORM_SOCKET sock);
 	Socket();
@@ -164,6 +166,7 @@ public:
 
 	void setBlock(bool block);
 	static void setBlock(bool block, PLATFORM_SOCKET socket);
+	bool getBlock();
 
 	bool isReadable();
 	bool isWritable(struct timeval *timeVal=NULL);
@@ -184,6 +187,17 @@ public:
 
 protected:
 	static void throwException(string str);
+};
+
+class SafeSocketBlockToggleWrapper {
+protected:
+	Socket *socket;
+	bool originallyBlocked;
+	bool newBlocked;
+public:
+	SafeSocketBlockToggleWrapper(Socket *socket, bool toggle);
+	~SafeSocketBlockToggleWrapper();
+	void Restore();
 };
 
 class BroadCastClientSocketThread : public BaseThread
