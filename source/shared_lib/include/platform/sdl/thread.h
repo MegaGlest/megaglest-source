@@ -162,7 +162,7 @@ public:
             #endif
 		}
 	}
-	void ReleaseLock(bool keepMutex=false) {
+	void ReleaseLock(bool keepMutex=false,bool deleteMutexOnRelease=false) {
 		if(this->mutex != NULL) {
 		    #ifdef DEBUG_MUTEXES
             if(ownerId != "") {
@@ -181,6 +181,11 @@ public:
                 printf("UnLocked Mutex [%s] refCount: %d\n",ownerId.c_str(),this->mutex->getRefCount());
             }
             #endif
+
+			if(deleteMutexOnRelease == true) {
+				delete this->mutex;
+				this->mutex = NULL;
+			}
 
 			if(keepMutex == false) {
 				this->mutex = NULL;

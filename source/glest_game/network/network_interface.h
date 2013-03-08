@@ -281,6 +281,7 @@ protected:
 
 public:
 	GameNetworkInterface();
+	virtual ~GameNetworkInterface(){}
 
 	//message processimg
 	virtual void update()= 0;
