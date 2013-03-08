@@ -1055,13 +1055,13 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 					//cachedPendingCommands.erase(frameCount);
 					cachedPendingCommands[frameCount].clear();
 				}
-				safeMutex.ReleaseLock(true);
+				safeMutex.ReleaseLock();
 
 				result = true;
 				break;
 			}
 			else {
-				safeMutex.ReleaseLock(true);
+				safeMutex.ReleaseLock();
 				// No data for this frame
 				//if(cachedPendingCommandsIndex > currentCachedPendingCommandsIndex) {
 				//	break;
