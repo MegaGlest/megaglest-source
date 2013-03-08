@@ -178,6 +178,7 @@ void ClientInterface::update() {
         quit= true;
         return;
 	}
+
 	try {
 		NetworkMessageCommandList networkMessageCommandList(currentFrameCount);
 
@@ -195,23 +196,40 @@ void ClientInterface::update() {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
-		if((currentFrameCount >= this->gameSettings.getNetworkFramePeriod() &&
-				currentFrameCount % this->gameSettings.getNetworkFramePeriod() == 0) ||
-				networkMessageCommandList.getCommandCount() > 0 ||
-		  (lastNetworkCommandListSendTime > 0 && lastSendElapsed >= ClientInterface::maxNetworkCommandListSendTimeWait)) {
-			lastNetworkCommandListSendTime = time(NULL);
+		//printf("#1 Client send currentFrameCount = %d lastSendElapsed = %f\n",currentFrameCount,lastSendElapsed);
 
-			if(lastSentFrameCount < currentFrameCount || networkMessageCommandList.getCommandCount() > 0) {
-				//printf("#1 Client send currentFrameCount = %d lastSentFrameCount = %d\n",currentFrameCount,lastSentFrameCount );
+		// If we are on a frame that should send packets or we have commands
+		// to send now, send it now.
+		if((currentFrameCount >= this->gameSettings.getNetworkFramePeriod() &&
+			currentFrameCount % this->gameSettings.getNetworkFramePeriod() == 0) ||
+				networkMessageCommandList.getCommandCount() > 0) {
+
+			//printf("#2 Client send currentFrameCount = %d lastSendElapsed = %f\n",currentFrameCount,lastSendElapsed);
+
+			if(lastSentFrameCount < currentFrameCount ||
+					networkMessageCommandList.getCommandCount() > 0) {
+				//printf("#3 Client send currentFrameCount = %d lastSentFrameCount = %d\n",currentFrameCount,lastSentFrameCount );
 
 				lastSentFrameCount = currentFrameCount;
 				sendMessage(&networkMessageCommandList);
+				lastNetworkCommandListSendTime = time(NULL);
+				lastSendElapsed = difftime((long int)time(NULL),lastNetworkCommandListSendTime);
 			}
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		}
-		else {
-			//printf("#2 SKIP Client send currentFrameCount = %d\n",currentFrameCount );
+		// If we have not sent anything for maxNetworkCommandListSendTimeWait
+		// seconds, send one now.
+		if(lastNetworkCommandListSendTime > 0 &&
+				lastSendElapsed >= ClientInterface::maxNetworkCommandListSendTimeWait) {
+			//printf("#4 Client send currentFrameCount = %d lastSendElapsed = %f\n",currentFrameCount,lastSendElapsed);
+
+			lastSentFrameCount = currentFrameCount;
+			sendMessage(&networkMessageCommandList);
+			lastNetworkCommandListSendTime = time(NULL);
+			lastSendElapsed = difftime((long int)time(NULL),lastNetworkCommandListSendTime);
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		}
 
 		// Possible cause of out of synch since we have more commands that need
