@@ -1731,7 +1731,8 @@ void Game::update() {
 			ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
 			if(clientInterface != NULL) {
 				uint64 lastNetworkFrameFromServer = clientInterface->getCachedLastPendingFrameCount();
-				if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > (world.getFrameCount() + gameSettings.getNetworkFramePeriod())) {
+				//TT: gameSettings.getNetworkFramePeriod()/4 is 250 ms which should be exact enough.
+				if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > (world.getFrameCount() + gameSettings.getNetworkFramePeriod()/4)) {
 				//if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount()) {
 					int frameDifference = ((lastNetworkFrameFromServer - world.getFrameCount()) / gameSettings.getNetworkFramePeriod()) * gameSettings.getNetworkFramePeriod();
 
@@ -1740,6 +1741,11 @@ void Game::update() {
 					printf("Client will speed up: %d frames lastNetworkFrameFromServer: %lld world.getFrameCount() = %d updateLoops = %d\n",frameDifference,(long long int)lastNetworkFrameFromServer,world.getFrameCount(),updateLoops);
 
 					updateLoops += frameDifference;
+				}
+				//If client is ahead maybe this fixes it ( by titi ):
+				if(lastNetworkFrameFromServer > 0 && world.getFrameCount() > lastNetworkFrameFromServer && (world.getFrameCount()%gameSettings.getNetworkFramePeriod())==20 ){
+					printf("Client will slow down because no message has arrived yet. currentFrame=%d",world.getFrameCount());
+					updateLoops = 0;
 				}
 			}
 		}
