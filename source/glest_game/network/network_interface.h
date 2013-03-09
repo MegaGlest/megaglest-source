@@ -185,12 +185,15 @@ protected:
 
 	std::vector<MarkedCell> highlightedCellList;
 
+	Mutex *networkAccessMutex;
+
 public:
 	static const int readyWaitTimeout;
 	GameSettings gameSettings;
 
 public:
-	virtual ~NetworkInterface(){}
+	NetworkInterface();
+	virtual ~NetworkInterface();
 
 	virtual Socket* getSocket(bool mutexLock=true)= 0;
 	virtual void close()= 0;
@@ -228,15 +231,15 @@ public:
 
     std::vector<ChatMsgInfo> getChatTextList(bool clearList);
 	void clearChatInfo();
-	void addChatInfo(const ChatMsgInfo &msg) { chatTextList.push_back(msg); }
+	void addChatInfo(const ChatMsgInfo &msg);
 
     std::vector<MarkedCell> getMarkedCellList(bool clearList);
 	void clearMarkedCellList();
-	void addMarkedCell(const MarkedCell &msg) { markedCellList.push_back(msg); }
+	void addMarkedCell(const MarkedCell &msg);
 
     std::vector<UnMarkedCell> getUnMarkedCellList(bool clearList);
 	void clearUnMarkedCellList();
-	void addUnMarkedCell(const UnMarkedCell &msg) { unmarkedCellList.push_back(msg); }
+	void addUnMarkedCell(const UnMarkedCell &msg);
 
     std::vector<MarkedCell> getHighlightedCellList(bool clearList);
 	void clearHighlightedCellList();

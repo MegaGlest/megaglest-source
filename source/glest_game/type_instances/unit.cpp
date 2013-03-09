@@ -1816,17 +1816,17 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 					targetUnit->getType() != NULL &&
 					targetUnit->getType()->getStore(this->getLoadType()) > 0) {
 
-					const HarvestCommandType *previousHarvestCmd = this->getType()->getFirstHarvestCommand(this->getLoadType(),this->getFaction());
-					if(previousHarvestCmd != NULL) {
+					//const HarvestCommandType *previousHarvestCmd = this->getType()->getFirstHarvestCommand(this->getLoadType(),this->getFaction());
+					//if(previousHarvestCmd != NULL) {
 						//printf("\n#1 return harvested resources\n\n");
 						//this->setCurrSkill(previousHarvestCmd->getStopLoadedSkillType()); // make sure we use the right harvest animation
-						commandType = type->getFirstHarvestEmergencyReturnCommand();
-					}
-					else {
+					commandType = type->getFirstHarvestEmergencyReturnCommand();
+					//}
+					//else {
 						//printf("\n#2 return harvested resources\n\n");
 						//this->setCurrSkill(hct->getStopLoadedSkillType());
-						commandType = type->getFirstHarvestEmergencyReturnCommand();
-					}
+					//	commandType = type->getFirstHarvestEmergencyReturnCommand();
+					//}
 				}
 			}
 		}

@@ -28,12 +28,36 @@ using std::vector;
 
 namespace Glest{ namespace Game{
 
+class ClientInterface;
+
+class ClientInterfaceThread : public BaseThread, public SlaveThreadControllerInterface {
+protected:
+
+	ClientInterface *clientInterface;
+	//Semaphore semTaskSignalled;
+	//Mutex *triggerIdMutex;
+	//MasterSlaveThreadController *masterController;
+
+	virtual void setQuitStatus(bool value);
+
+public:
+	ClientInterfaceThread(ClientInterface *client);
+	virtual ~ClientInterfaceThread();
+    virtual void execute();
+
+	//virtual void setMasterController(MasterSlaveThreadController *master) { masterController = master; }
+    virtual void setMasterController(MasterSlaveThreadController *master) { }
+	virtual void signalSlave(void *userdata) { }
+
+	virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
+};
+
 // =====================================================
 //	class ClientInterface
 // =====================================================
 
-class ClientInterface: public GameNetworkInterface,
-						public SimpleTaskCallbackInterface {
+class ClientInterface: public GameNetworkInterface {
+						//public SimpleTaskCallbackInterface {
 private:
 	static const int messageWaitTimeout;
 	static const int waitSleepTime;
@@ -62,7 +86,9 @@ private:
 	int sessionKey;
 	int serverFTPPort;
 
-	SimpleTaskThread *networkCommandListThread;
+	//SimpleTaskThread *networkCommandListThread;
+	ClientInterfaceThread *networkCommandListThread;
+
 	Mutex *networkCommandListThreadAccessor;
 	std::map<int,Commands> cachedPendingCommands;	//commands ready to be given
 	uint64 cachedPendingCommandsIndex;
@@ -152,7 +178,8 @@ public:
     void broadcastGameSetup(const GameSettings *gameSettings);
     void broadcastGameStart(const GameSettings *gameSettings);
 
-    virtual void simpleTask(BaseThread *callingThread);
+    //virtual void simpleTask(BaseThread *callingThread);
+    void updateNetworkFrame();
 
     virtual void saveGame(XmlNode *rootNode) {};
 
