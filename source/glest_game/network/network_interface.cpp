@@ -40,6 +40,35 @@ DisplayMessageFunction NetworkInterface::pCB_DisplayMessage = NULL;
 
 Vec3f MarkedCell::static_system_marker_color(MAGENTA.x,MAGENTA.y,MAGENTA.z);
 
+NetworkInterface::NetworkInterface() {
+	networkAccessMutex = new Mutex();
+}
+
+NetworkInterface::~NetworkInterface() {
+	delete networkAccessMutex;
+	networkAccessMutex = NULL;
+}
+
+void NetworkInterface::addChatInfo(const ChatMsgInfo &msg) {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
+
+	chatTextList.push_back(msg);
+}
+
+void NetworkInterface::addMarkedCell(const MarkedCell &msg) {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
+
+	markedCellList.push_back(msg);
+}
+void NetworkInterface::addUnMarkedCell(const UnMarkedCell &msg) {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
+
+	unmarkedCellList.push_back(msg);
+}
+
 void NetworkInterface::sendMessage(NetworkMessage* networkMessage){
 	Socket* socket= getSocket(false);
 
@@ -112,6 +141,10 @@ void NetworkInterface::DisplayErrorMessage(string sErr, bool closeSocket) {
 
 std::vector<ChatMsgInfo> NetworkInterface::getChatTextList(bool clearList) {
 	std::vector<ChatMsgInfo> result;
+
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
+
 	if(chatTextList.empty() == false) {
 		result = chatTextList;
 
@@ -123,6 +156,9 @@ std::vector<ChatMsgInfo> NetworkInterface::getChatTextList(bool clearList) {
 }
 
 void NetworkInterface::clearChatInfo() {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
+
 	if(chatTextList.empty() == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] chatTextList.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chatTextList.size());
 		chatTextList.clear();
@@ -131,6 +167,10 @@ void NetworkInterface::clearChatInfo() {
 
 std::vector<MarkedCell> NetworkInterface::getMarkedCellList(bool clearList) {
 	std::vector<MarkedCell> result;
+
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
+
 	if(markedCellList.empty() == false) {
 		result = markedCellList;
 
@@ -142,6 +182,9 @@ std::vector<MarkedCell> NetworkInterface::getMarkedCellList(bool clearList) {
 }
 
 void NetworkInterface::clearMarkedCellList() {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
+
 	if(markedCellList.empty() == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] markedCellList.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,markedCellList.size());
 		markedCellList.clear();
@@ -150,6 +193,10 @@ void NetworkInterface::clearMarkedCellList() {
 
 std::vector<UnMarkedCell> NetworkInterface::getUnMarkedCellList(bool clearList) {
 	std::vector<UnMarkedCell> result;
+
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
+
 	if(unmarkedCellList.empty() == false) {
 		result = unmarkedCellList;
 
@@ -161,6 +208,9 @@ std::vector<UnMarkedCell> NetworkInterface::getUnMarkedCellList(bool clearList) 
 }
 
 void NetworkInterface::clearUnMarkedCellList() {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
+
 	if(unmarkedCellList.empty() == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unmarkedCellList.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unmarkedCellList.size());
 		unmarkedCellList.clear();
@@ -169,6 +219,10 @@ void NetworkInterface::clearUnMarkedCellList() {
 
 std::vector<MarkedCell> NetworkInterface::getHighlightedCellList(bool clearList) {
 	std::vector<MarkedCell> result;
+
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
+
 	if(highlightedCellList.empty() == false) {
 		result = highlightedCellList;
 
@@ -180,6 +234,9 @@ std::vector<MarkedCell> NetworkInterface::getHighlightedCellList(bool clearList)
 }
 
 void NetworkInterface::clearHighlightedCellList() {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
+
 	if(highlightedCellList.empty() == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] markedCellList.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,markedCellList.size());
 		highlightedCellList.clear();
@@ -187,6 +244,9 @@ void NetworkInterface::clearHighlightedCellList() {
 }
 
 void NetworkInterface::setHighlightedCell(const MarkedCell &msg){
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
+
 	for(int idx = 0; idx < highlightedCellList.size(); idx++) {
 		MarkedCell mc = highlightedCellList[idx];
 		if(mc.getFactionIndex()==msg.getFactionIndex()){

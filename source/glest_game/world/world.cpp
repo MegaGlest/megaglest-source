@@ -348,6 +348,28 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 
 	if(loadWorldNode != NULL) {
 		map.loadGame(loadWorldNode,this);
+
+		if(fogOfWar == false) {
+		    for(int i=0; i< map.getSurfaceW(); ++i) {
+		        for(int j=0; j< map.getSurfaceH(); ++j) {
+
+					SurfaceCell *sc= map.getSurfaceCell(i, j);
+					if(sc == NULL) {
+						throw megaglest_runtime_error("sc == NULL");
+					}
+
+					for (int k = 0; k < GameConstants::maxPlayers; k++) {
+						//sc->setExplored(k, (game->getGameSettings()->getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources);
+						sc->setVisible(k, !fogOfWar);
+					}
+					for (int k = GameConstants::maxPlayers; k < GameConstants::maxPlayers + GameConstants::specialFactions; k++) {
+						sc->setExplored(k, true);
+						sc->setVisible(k, true);
+					}
+		        }
+		    }
+		}
+
 		minimap.loadGame(loadWorldNode);
 	}
 

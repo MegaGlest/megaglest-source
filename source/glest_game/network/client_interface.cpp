@@ -38,6 +38,115 @@ using namespace Shared::Util;
 namespace Glest{ namespace Game{
 
 // =====================================================
+//	class ClientInterfaceThread
+// =====================================================
+
+ClientInterfaceThread::ClientInterfaceThread(ClientInterface *client) : BaseThread() {
+	//this->triggerIdMutex = new Mutex();
+	this->clientInterface = client;
+	//this->masterController = NULL;
+}
+
+ClientInterfaceThread::~ClientInterfaceThread() {
+	this->clientInterface = NULL;
+	//this->masterController = NULL;
+	//delete this->triggerIdMutex;
+	//this->triggerIdMutex = NULL;
+}
+
+void ClientInterfaceThread::setQuitStatus(bool value) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d value = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
+
+	BaseThread::setQuitStatus(value);
+//	if(value == true) {
+//		semTaskSignalled.signal();
+//	}
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+bool ClientInterfaceThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
+	bool ret = (getExecutingTask() == false);
+	if(ret == false && deleteSelfIfShutdownDelayed == true) {
+	    setDeleteSelfOnExecutionDone(deleteSelfIfShutdownDelayed);
+	    signalQuit();
+	}
+
+	return ret;
+}
+
+void ClientInterfaceThread::execute() {
+    RunningStatusSafeWrapper runningStatus(this);
+	try {
+		//setRunningStatus(true);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ****************** STARTING worker thread this = %p\n",__FILE__,__FUNCTION__,__LINE__,this);
+
+		bool minorDebugPerformance = false;
+		Chrono chrono;
+
+		//unsigned int idx = 0;
+		for(;this->clientInterface != NULL;) {
+			if(getQuitStatus() == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+
+			//semTaskSignalled.waitTillSignalled();
+
+			//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//static string masterSlaveOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+			//MasterSlaveThreadControllerSafeWrapper safeMasterController(masterController,20000,masterSlaveOwnerId);
+			//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			if(getQuitStatus() == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+
+			ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
+
+			//Chrono chrono;
+			//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+
+			//printf("START === Client thread ended\n");
+
+			while(this->getQuitStatus() == false && clientInterface != NULL) {
+				clientInterface->updateNetworkFrame();
+			}
+
+			//printf("END === Client thread ended\n");
+
+			//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+
+			if(getQuitStatus() == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				break;
+			}
+		}
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ****************** ENDING worker thread this = %p\n",__FILE__,__FUNCTION__,__LINE__,this);
+	}
+	catch(const exception &ex) {
+		//setRunningStatus(false);
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		throw megaglest_runtime_error(ex.what());
+	}
+	catch(...) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] UNKNOWN error\n",__FILE__,__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		throw megaglest_runtime_error(szBuf);
+	}
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
+// =====================================================
 //	class ClientInterface
 // =====================================================
 
@@ -113,7 +222,6 @@ ClientInterface::~ClientInterface() {
 	MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
 
 	shutdownNetworkCommandListThread();
-
 	//printf("A === Client destructor\n");
 
     if(clientSocket != NULL && clientSocket->isConnected() == true) {
@@ -735,6 +843,10 @@ void ClientInterface::updateLobby() {
 	}
 }
 
+void ClientInterface::updateNetworkFrame() {
+	this->updateFrame(NULL);
+}
+
 void ClientInterface::updateFrame(int *checkFrame) {
 	//printf("#1 ClientInterface::updateFrame\n");
 
@@ -1019,20 +1131,20 @@ uint64 ClientInterface::getCachedLastPendingFrameCount() {
 	return result;
 }
 
-void ClientInterface::simpleTask(BaseThread *callingThread) {
-	Chrono chrono;
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
-
-	//printf("START === Client thread ended\n");
-
-	while(callingThread->getQuitStatus() == false && this->quitThread == false) {
-		updateFrame(NULL);
-	}
-
-	//printf("END === Client thread ended\n");
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
-}
+//void ClientInterface::simpleTask(BaseThread *callingThread) {
+//	Chrono chrono;
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+//
+//	//printf("START === Client thread ended\n");
+//
+//	while(callingThread->getQuitStatus() == false && this->quitThread == false) {
+//		updateFrame(NULL);
+//	}
+//
+//	//printf("END === Client thread ended\n");
+//
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
+//}
 
 bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPendingCommandsIndex) {
 	bool result = false;
@@ -1108,9 +1220,13 @@ void ClientInterface::updateKeyframe(int frameCount) {
 		else {
 			if(networkCommandListThread == NULL) {
 				static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
-				networkCommandListThread = new SimpleTaskThread(this,0,0);
+//				networkCommandListThread = new SimpleTaskThread(this,0,0);
+//				networkCommandListThread->setUniqueID(mutexOwnerId);
+//				networkCommandListThread->start();
+				networkCommandListThread = new ClientInterfaceThread(this);
 				networkCommandListThread->setUniqueID(mutexOwnerId);
 				networkCommandListThread->start();
+
 				sleep(0);
 			}
 

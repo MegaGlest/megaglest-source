@@ -325,6 +325,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->canAcceptConnections = true;
 	this->startInGameConnectionLaunch = false;
 	this->sentSavedGameInfo = false;
+	this->unPauseForInGameConnection = false;
 	this->skipLagCheck = false;
 	this->joinGameInProgress = false;
 
@@ -1459,6 +1460,7 @@ void ConnectionSlot::close() {
 	this->skipLagCheck = false;
 	this->joinGameInProgress = false;
 	this->sentSavedGameInfo = false;
+	this->unPauseForInGameConnection = false;
 	this->ready= false;
 	this->connectedTime = 0;
 
