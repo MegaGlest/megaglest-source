@@ -1743,7 +1743,7 @@ void Game::update() {
 				}
 				//If client is ahead maybe this fixes it ( by titi ):
 				if(lastNetworkFrameFromServer > 0 && world.getFrameCount() > lastNetworkFrameFromServer && (world.getFrameCount()%gameSettings.getNetworkFramePeriod())==19 ){
-					printf("Client will slow down because no message has arrived yet. currentFrame=%d",world.getFrameCount());
+					printf("Client will slow down because no message has arrived yet. currentFrame=%d \n",world.getFrameCount());
 					updateLoops = 0;
 				}
 			}
