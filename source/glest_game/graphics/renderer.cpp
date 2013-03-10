@@ -5925,16 +5925,32 @@ void Renderer::renderMinimap(){
 
 	//draw units
 	VisibleQuadContainerCache &qCache = getQuadCache();
-	if(qCache.visibleUnitList.empty() == false) {
+	std::vector<Unit *> visibleUnitList = qCache.visibleUnitList;
+
+	const bool showAllUnitsInMinimap = Config::getInstance().getBool("DebugGameSynchUI","false");
+	if(showAllUnitsInMinimap == true) {
+		visibleUnitList.clear();
+
+		const World *world= game->getWorld();
+		for(unsigned int i = 0; i < world->getFactionCount(); ++i) {
+			const Faction *faction = world->getFaction(i);
+			for(unsigned int j = 0; j < faction->getUnitCount(); ++j) {
+				Unit *unit = faction->getUnit(j);
+				visibleUnitList.push_back(unit);
+			}
+		}
+	}
+
+	if(visibleUnitList.empty() == false) {
 		uint32 unitIdx=0;
 		vector<Vec2f> unit_vertices;
-		unit_vertices.resize(qCache.visibleUnitList.size()*4);
+		unit_vertices.resize(visibleUnitList.size()*4);
 		vector<Vec3f> unit_colors;
-		unit_colors.resize(qCache.visibleUnitList.size()*4);
+		unit_colors.resize(visibleUnitList.size()*4);
 
 		for(int visibleIndex = 0;
-				visibleIndex < qCache.visibleUnitList.size(); ++visibleIndex) {
-			Unit *unit = qCache.visibleUnitList[visibleIndex];
+				visibleIndex < visibleUnitList.size(); ++visibleIndex) {
+			Unit *unit = visibleUnitList[visibleIndex];
 			if (unit->isAlive() == false) {
 				continue;
 			}
