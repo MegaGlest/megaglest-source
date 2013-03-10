@@ -106,13 +106,19 @@ void ClientInterfaceThread::execute() {
 
 			ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
 
-			//Chrono chrono;
 			//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
 			//printf("START === Client thread ended\n");
 
+			Chrono chrono(true);
 			while(this->getQuitStatus() == false && clientInterface != NULL) {
 				clientInterface->updateNetworkFrame();
+
+				if(chrono.getMillis() >= 200) {
+					sleep(5);
+					chrono.start();
+				}
+
 			}
 
 			//printf("END === Client thread ended\n");
