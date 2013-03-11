@@ -168,8 +168,8 @@ public:
 	static void setBlock(bool block, PLATFORM_SOCKET socket);
 	bool getBlock();
 
-	bool isReadable();
-	bool isWritable(struct timeval *timeVal=NULL);
+	bool isReadable(bool lockMutex=false);
+	bool isWritable(struct timeval *timeVal=NULL,bool lockMutex=false);
 	bool isConnected();
 
 	static string getHostName();
