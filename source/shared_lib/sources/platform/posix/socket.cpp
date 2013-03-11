@@ -1039,6 +1039,7 @@ bool Socket::hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList)
 
 bool Socket::hasDataToRead()
 {
+	MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
     return Socket::hasDataToRead(sock) ;
 }
 
