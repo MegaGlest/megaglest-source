@@ -1396,7 +1396,7 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
                 if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] DISCONNECTED SOCKET error while receiving socket data, bytesSent = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,bytesReceived,getLastSocketErrorFormattedText(&iErr).c_str());
 	            break;
 	        }
-	        else if(Socket::isReadable() == true) {
+	        else if(Socket::isReadable(true) == true) {
 //	        	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,CODE_AT_LINE);
 //	        	if(this->inSocketDestructor == true) {
 //	        		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] this->inSocketDestructor == true\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1544,7 +1544,7 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 	            break;
 	        }
 */
-	        if(Socket::isReadable() == true) {
+	        if(Socket::isReadable(true) == true) {
 
 //	        	MutexSafeWrapper safeMutexSocketDestructorFlag(&inSocketDestructorSynchAccessor,CODE_AT_LINE);
 //	        	if(this->inSocketDestructor == true) {
@@ -1661,7 +1661,7 @@ void Socket::setBlock(bool block, PLATFORM_SOCKET socket) {
 	}
 }
 
-bool Socket::isReadable() {
+bool Socket::isReadable(bool lockMutex) {
     if(isSocketValid() == false) return false;
 
     struct timeval tv;
@@ -1670,6 +1670,12 @@ bool Socket::isReadable() {
 
 	fd_set set;
 	FD_ZERO(&set);
+
+	MutexSafeWrapper safeMutex(NULL,CODE_AT_LINE);
+	if(lockMutex == true) {
+		safeMutex.setMutex(dataSynchAccessorRead,CODE_AT_LINE);
+	}
+
 	FD_SET(sock, &set);
 
 	int i = 0;
@@ -1697,7 +1703,7 @@ bool Socket::isReadable() {
 	return result;
 }
 
-bool Socket::isWritable(struct timeval *timeVal) {
+bool Socket::isWritable(struct timeval *timeVal, bool lockMutex) {
     if(isSocketValid() == false) return false;
 
 	struct timeval tv;
@@ -1712,6 +1718,11 @@ bool Socket::isWritable(struct timeval *timeVal) {
 
 	fd_set set;
 	FD_ZERO(&set);
+
+	MutexSafeWrapper safeMutex(NULL,CODE_AT_LINE);
+	if(lockMutex == true) {
+		safeMutex.setMutex(dataSynchAccessorWrite,CODE_AT_LINE);
+	}
 	FD_SET(sock, &set);
 
 	int i = 0;
@@ -1757,12 +1768,12 @@ bool Socket::isConnected() {
 //	inSocketDestructorSynchAccessor->setOwnerId(CODE_AT_LINE);
 
 	//if the socket is not writable then it is not conencted
-	if(isWritable() == false) {
+	if(isWritable(NULL,true) == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR isWritable failed.\n",__FILE__,__FUNCTION__,__LINE__);
 		return false;
 	}
 	//if the socket is readable it is connected if we can read a byte from it
-	if(isReadable()) {
+	if(isReadable(true)) {
 		char tmp=0;
 		int peekDataBytes=1;
 		int lastSocketError=0;
