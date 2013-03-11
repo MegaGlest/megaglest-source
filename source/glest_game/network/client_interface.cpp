@@ -860,7 +860,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 		//printf("#2 ClientInterface::updateFrame\n");
 
 		Chrono chrono;
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
+		chrono.start();
 
 		int simulateLag = Config::getInstance().getInt("SimulateClientLag","0");
 		bool done= false;
@@ -1113,17 +1113,19 @@ void ClientInterface::updateFrame(int *checkFrame) {
 			if(isConnected() == false && quit == true) {
 				done = true;
 			}
+			// Sleep ever second we wait to let other threads work
+			else if(chrono.getMillis() % 25 == 0) {
+				sleep(1);
+			}
 		}
 
 		if(done == true) {
 			MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
 			cachedPendingCommandsIndex++;
 		}
-		else {
-			if(checkFrame == NULL) {
-				//sleep(15);
-				sleep(0);
-			}
+		else if(checkFrame == NULL) {
+			//sleep(15);
+			sleep(0);
 		}
 	}
 	//printf("#3 ClientInterface::updateFrame\n");
@@ -1705,9 +1707,9 @@ NetworkMessageType ClientInterface::waitForMessage()
 				return msg;
 			}
 			// Sleep ever second we wait to let other threads work
-			//else if(chrono.getMillis() % 1000 == 0) {
-				//sleep(0);
-			//}
+			else if(chrono.getMillis() % 25 == 0) {
+				sleep(1);
+			}
 
 			//sleep(waitSleepTime);
 		}
