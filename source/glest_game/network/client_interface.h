@@ -192,6 +192,8 @@ protected:
 	void updateFrame(int *checkFrame);
 	void shutdownNetworkCommandListThread();
 	bool getNetworkCommand(int frameCount, int currentCachedPendingCommandsIndex);
+
+	void close(bool lockMutex);
 };
 
 }}//end namespace
