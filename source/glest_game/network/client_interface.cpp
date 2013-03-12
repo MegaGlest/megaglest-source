@@ -247,7 +247,7 @@ ClientInterface::~ClientInterface() {
     //printf("B === Client destructor\n");
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-    close();
+    close(false);
     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	delete clientSocket;
@@ -270,7 +270,14 @@ void ClientInterface::connect(const Ip &ip, int port) {
 	this->ip    = ip;
 	this->port  = port;
 
+	MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
+	shutdownNetworkCommandListThread();
+
 	delete clientSocket;
+	clientSocket = NULL;
+
+	safeMutex.ReleaseLock();
+
 	clientSocket= new ClientSocket();
 	clientSocket->setBlock(false);
 	clientSocket->connect(ip, port);
@@ -1747,12 +1754,19 @@ void ClientInterface::quitGame(bool userManuallyQuit)
     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
-void ClientInterface::close()
-{
+void ClientInterface::close(bool lockMutex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] START, clientSocket = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,clientSocket);
+
+	MutexSafeWrapper safeMutex(NULL,CODE_AT_LINE);
+	if(lockMutex == true) {
+		safeMutex.setMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
+	}
+	shutdownNetworkCommandListThread();
 
 	delete clientSocket;
 	clientSocket= NULL;
+
+	safeMutex.ReleaseLock();
 
 	connectedTime = 0;
 	gotIntro = false;
@@ -1762,6 +1776,10 @@ void ClientInterface::close()
 	this->readyForInGameJoin = false;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] END\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+}
+
+void ClientInterface::close() {
+	close(true);
 }
 
 void ClientInterface::discoverServers(DiscoveredServersInterface *cb) {
