@@ -37,6 +37,8 @@ using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
+const bool debugClientInterfacePerf = false;
+
 // =====================================================
 //	class ClientInterfaceThread
 // =====================================================
@@ -85,6 +87,11 @@ void ClientInterfaceThread::execute() {
 		bool minorDebugPerformance = false;
 		Chrono chrono;
 
+		// Set socket to blocking
+		if(clientInterface != NULL && clientInterface->getSocket(true) != NULL) {
+			clientInterface->getSocket(true)->setBlock(true);
+		}
+
 		//unsigned int idx = 0;
 		for(;this->clientInterface != NULL;) {
 			if(getQuitStatus() == true) {
@@ -108,20 +115,29 @@ void ClientInterfaceThread::execute() {
 
 			//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
-			//printf("START === Client thread ended\n");
+			if(debugClientInterfacePerf == true) printf("START === Client thread\n");
 
-			Chrono chrono(true);
+			uint64 loopCount = 0;
+			Chrono chrono;
+			if(debugClientInterfacePerf == true) {
+				chrono.start();
+			}
 			while(this->getQuitStatus() == false && clientInterface != NULL) {
 				clientInterface->updateNetworkFrame();
 
-				if(chrono.getMillis() >= 200) {
-					sleep(5);
-					chrono.start();
-				}
+				if(debugClientInterfacePerf == true) {
+					loopCount++;
+					if(chrono.getMillis() >= 1000) {
+						printf("Client thread loopCount = %llu\n",(long long unsigned int)loopCount);
 
+						loopCount = 0;
+						//sleep(0);
+						chrono.start();
+					}
+				}
 			}
 
-			//printf("END === Client thread ended\n");
+			if(debugClientInterfacePerf == true)printf("END === Client thread\n");
 
 			//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -866,9 +882,16 @@ void ClientInterface::updateFrame(int *checkFrame) {
 	if(isConnected() == true && this->quitThread == false) {
 		//printf("#2 ClientInterface::updateFrame\n");
 
+		uint64 loopCount = 0;
+		Chrono chronoPerf;
+		if(debugClientInterfacePerf == true) {
+			chronoPerf.start();
+		}
+
 		Chrono chrono;
 		chrono.start();
 
+		int waitMilliseconds = (checkFrame == NULL ? 1 : 0);
 		int simulateLag = Config::getInstance().getInt("SimulateClientLag","0");
 		bool done= false;
 		while(done == false && this->quitThread == false) {
@@ -876,7 +899,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 			//printf("BEFORE Client get networkMessageType\n");
 
 			//wait for the next message
-			NetworkMessageType networkMessageType = waitForMessage();
+			NetworkMessageType networkMessageType = waitForMessage(waitMilliseconds);
 
 			//printf("AFTER Client got networkMessageType = %d\n",networkMessageType);
 
@@ -1121,8 +1144,19 @@ void ClientInterface::updateFrame(int *checkFrame) {
 				done = true;
 			}
 			// Sleep ever second we wait to let other threads work
-			else if(chrono.getMillis() % 25 == 0) {
-				sleep(1);
+//			else if(chrono.getMillis() % 25 == 0) {
+//				sleep(1);
+//			}
+
+			if(debugClientInterfacePerf == true) {
+				loopCount++;
+				if(chronoPerf.getMillis() >= 1000) {
+					printf("Client updateFrame loopCount = %llu\n",(long long unsigned int)loopCount);
+
+					loopCount = 0;
+					//sleep(0);
+					chronoPerf.start();
+				}
 			}
 		}
 
@@ -1132,7 +1166,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 		}
 		else if(checkFrame == NULL) {
 			//sleep(15);
-			sleep(0);
+			//sleep(0);
 		}
 	}
 	//printf("#3 ClientInterface::updateFrame\n");
@@ -1165,14 +1199,24 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 	bool result = false;
 
 	bool waitForData = false;
+	uint64 copyCachedLastPendingFrameCount = 0;
+	uint64 waitCount = 0;
+
 	if(quit == false && this->quitThread == false) {
 		//MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
 		//safeMutex.ReleaseLock(true);
+		MutexSafeWrapper safeMutex(NULL,CODE_AT_LINE);
 
 		for(;quit == false && this->quitThread == false;) {
-			MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
+			//MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
 			//safeMutex.Lock();
-			uint64 copyCachedLastPendingFrameCount = cachedLastPendingFrameCount;
+			if(safeMutex.isValidMutex() == false) {
+				safeMutex.setMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
+			}
+			else {
+				safeMutex.Lock();
+			}
+			copyCachedLastPendingFrameCount = cachedLastPendingFrameCount;
 			if(cachedPendingCommands.find(frameCount) != cachedPendingCommands.end()) {
 				Commands &frameCmdList = cachedPendingCommands[frameCount];
 				if(frameCmdList.size() > 0) {
@@ -1203,12 +1247,17 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 
 				if(waitForData == false) {
 					waitForData = true;
-					sleep(1);
+					sleep(0);
 				}
+
+				waitCount++;
 
 				//printf("Client waiting for packet for frame: %d, currentCachedPendingCommandsIndex = %d, cachedPendingCommandsIndex = %lld\n",frameCount,currentCachedPendingCommandsIndex,(long long int)cachedPendingCommandsIndex);
 			}
 		}
+	}
+	if(waitForData == true) {
+		printf("Client waiting for packet FINISHED for frame: %d, copyCachedLastPendingFrameCount = %lld waitCount = %llu\n",frameCount,(long long int)copyCachedLastPendingFrameCount,(long long unsigned int)waitCount);
 	}
 
 	return result;
@@ -1659,7 +1708,7 @@ string ClientInterface::getNetworkStatus() {
 	return szBuf;
 }
 
-NetworkMessageType ClientInterface::waitForMessage()
+NetworkMessageType ClientInterface::waitForMessage(int waitMilliseconds)
 {
 	// Debug!
 /*
@@ -1670,13 +1719,19 @@ NetworkMessageType ClientInterface::waitForMessage()
     return;
 */
 
+	uint64 loopCount = 0;
+	Chrono chronoPerf;
+	if(debugClientInterfacePerf == true) {
+		chronoPerf.start();
+	}
+
 	Chrono chrono;
 	chrono.start();
 
 	NetworkMessageType msg = nmtInvalid;
 	//uint64 waitLoopCount = 0;
 	while(msg == nmtInvalid && this->quitThread == false) {
-		msg = getNextMessageType();
+		msg = getNextMessageType(waitMilliseconds);
 		if(msg == nmtInvalid) {
 			if(chrono.getMillis() % 250 == 0 && isConnected() == false) {
 				if(quit == false) {
@@ -1715,12 +1770,23 @@ NetworkMessageType ClientInterface::waitForMessage()
 			}
 			// Sleep ever second we wait to let other threads work
 			else if(chrono.getMillis() % 25 == 0) {
-				sleep(1);
+				sleep(5);
 			}
 
 			//sleep(waitSleepTime);
 		}
 		//waitLoopCount++;
+
+		if(debugClientInterfacePerf == true) {
+			loopCount++;
+			if(chronoPerf.getMillis() >= 100) {
+				printf("Client waitForMessage loopCount = %llu\n",(long long unsigned int)loopCount);
+
+				loopCount = 0;
+				//sleep(0);
+				chronoPerf.start();
+			}
+		}
 	}
 
 	//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] waiting took %lld msecs, waitLoopCount = %ull, msg = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),waitLoopCount,msg);

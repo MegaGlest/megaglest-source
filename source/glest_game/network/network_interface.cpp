@@ -75,13 +75,14 @@ void NetworkInterface::sendMessage(NetworkMessage* networkMessage){
 	networkMessage->send(socket);
 }
 
-NetworkMessageType NetworkInterface::getNextMessageType()
+NetworkMessageType NetworkInterface::getNextMessageType(int waitMilliseconds)
 {
 	Socket* socket= getSocket(false);
 	int8 messageType= nmtInvalid;
 
     if(socket != NULL &&
-        socket->hasDataToRead() == true) {
+        ((waitMilliseconds <= 0 && socket->hasDataToRead() == true) ||
+         (waitMilliseconds > 0 && socket->hasDataToReadWithWait(waitMilliseconds) == true))) {
         //peek message type
 		int dataSize = socket->getDataToRead();
 		if(dataSize >= sizeof(messageType)) {
