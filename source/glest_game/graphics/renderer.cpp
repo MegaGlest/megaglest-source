@@ -4701,9 +4701,10 @@ void Renderer::renderObjects(const int renderFps) {
 		glTranslatef(v.x, v.y, v.z);
 		glRotatef(o->getRotation(), 0.f, 1.f, 0.f);
 
-		if(o->getRotation() != 0.0) {
-			setupLightingForRotatedModel();
-		}
+		//We use OpenGL Lights so no manual action is needed here. In fact this call did bad things on lighting big rocks for example
+		//		if(o->getRotation() != 0.0) {
+		//			setupLightingForRotatedModel();
+		//		}
 
 		//objModel->updateInterpolationData(0.f, true);
 		//if(this->gameCamera->getPos().dist(o->getPos()) <= SKIP_INTERPOLATION_DISTANCE) {
