@@ -128,8 +128,6 @@ private:
 	bool receivedNetworkGameStatus;
 	time_t connectedTime;
 	bool gotIntro;
-	bool skipLagCheck;
-	bool joinGameInProgress;
 
 	Mutex *mutexCloseConnection;
 
@@ -146,6 +144,8 @@ private:
 	int playerStatus;
 	string playerLanguage;
 
+	bool skipLagCheck;
+	bool joinGameInProgress;
 	bool canAcceptConnections;
 	bool startInGameConnectionLaunch;
 	bool pauseForInGameConnection;

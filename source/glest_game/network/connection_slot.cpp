@@ -322,12 +322,14 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->gotLagCountWarning = false;
 	this->lastReceiveCommandListTime	= 0;
 	this->receivedNetworkGameStatus = false;
-	this->canAcceptConnections = true;
-	this->startInGameConnectionLaunch = false;
-	this->sentSavedGameInfo = false;
-	this->unPauseForInGameConnection = false;
+
 	this->skipLagCheck = false;
 	this->joinGameInProgress = false;
+	this->canAcceptConnections = true;
+	this->startInGameConnectionLaunch = false;
+	this->pauseForInGameConnection = false;
+	this->unPauseForInGameConnection = false;
+	this->sentSavedGameInfo = false;
 
 	this->setSocket(NULL);
 	this->slotThreadWorker 	= NULL;
@@ -1460,6 +1462,7 @@ void ConnectionSlot::close() {
 	this->skipLagCheck = false;
 	this->joinGameInProgress = false;
 	this->sentSavedGameInfo = false;
+	this->pauseForInGameConnection = false;
 	this->unPauseForInGameConnection = false;
 	this->ready= false;
 	this->connectedTime = 0;
