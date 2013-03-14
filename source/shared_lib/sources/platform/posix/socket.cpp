@@ -1676,6 +1676,7 @@ bool Socket::isReadable(bool lockMutex) {
 		safeMutex.setMutex(dataSynchAccessorRead,CODE_AT_LINE);
 	}
 
+	if(isSocketValid() == false) return false;
 	FD_SET(sock, &set);
 
 	int i = 0;
@@ -1723,6 +1724,7 @@ bool Socket::isWritable(struct timeval *timeVal, bool lockMutex) {
 	if(lockMutex == true) {
 		safeMutex.setMutex(dataSynchAccessorWrite,CODE_AT_LINE);
 	}
+	if(isSocketValid() == false) return false;
 	FD_SET(sock, &set);
 
 	int i = 0;
