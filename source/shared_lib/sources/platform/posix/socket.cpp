@@ -949,7 +949,7 @@ Socket::~Socket() {
 }
 
 void Socket::disconnectSocket() {
-	//printf("Socket disconnecting\n");
+	//printf("Socket disconnecting sock = %d\n",sock);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START closing socket = %d...\n",__FILE__,__FUNCTION__,sock);
 
@@ -1511,6 +1511,11 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 
 //			if(recvTimer.getMillis() > 1000 || (err <= 0 && lastSocketError != 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN)) {
 //				printf("#1 PEEK err = %d lastSocketError = %d ms: %lld\n",err,lastSocketError,(long long int)recvTimer.getMillis());
+
+			//if(err != dataSize) {
+			//	printf("#1 PEEK err = %d lastSocketError = %d\n",err,lastSocketError);
+			//}
+
 //			}
 		}
 	    safeMutex.ReleaseLock();
@@ -1782,7 +1787,9 @@ bool Socket::isConnected() {
 		//int err = peek(&tmp, 1, false, &lastSocketError);
 		int err = peek(&tmp, peekDataBytes, false, &lastSocketError);
 		//if(err <= 0 && err != PLATFORM_SOCKET_TRY_AGAIN) {
-		if(err <= 0 && lastSocketError != 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN) {
+		//if(err <= 0 && lastSocketError != 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN) {
+		if(err < 0 || (err == 0 && peekDataBytes != 0) ||
+			((err == 0 || err == -1) && peekDataBytes == 0 && lastSocketError != 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN)) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR Peek failed, err = %d for socket: %d, error = %s, lastSocketError = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,getLastSocketErrorFormattedText().c_str(),lastSocketError);
 			if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET DISCONNECTED In [%s::%s Line: %d] ERROR Peek failed, err = %d for socket: %d, error = %s, lastSocketError = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,getLastSocketErrorFormattedText().c_str(),lastSocketError);
 			return false;

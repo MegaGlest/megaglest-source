@@ -1458,6 +1458,8 @@ void ConnectionSlot::close() {
 		//printf("Closing connection slot!\n");
 	//}
 
+	//printf("ConnectionSlot::close() #1 this->getSocket() = %p\n",this->getSocket());
+
 	this->gotIntro = false;
 	this->skipLagCheck = false;
 	this->joinGameInProgress = false;
@@ -1475,9 +1477,14 @@ void ConnectionSlot::close() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	//printf("ConnectionSlot::close() #2 this->getSocket() = %p\n",this->getSocket());
+
 	MutexSafeWrapper safeMutex(mutexCloseConnection,CODE_AT_LINE);
 
 	bool updateServerListener = (this->getSocket() != NULL);
+
+	//printf("ConnectionSlot::close() #3 this->getSocket() = %p updateServerListener = %d\n",this->getSocket(),updateServerListener);
+
 	this->deleteSocket();
 	safeMutex.ReleaseLock();
 
