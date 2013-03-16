@@ -44,6 +44,7 @@ private:
 	int mouse2d;
 	GraphicMessageBox mainMessageBox;
 	Texture2D *renderToTexture;
+	uint64 renderToTextureCount;
 	ProgramState *originState;
 	const char *containerName;
 

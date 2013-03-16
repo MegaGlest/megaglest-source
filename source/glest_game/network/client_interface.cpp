@@ -44,25 +44,17 @@ const bool debugClientInterfacePerf = false;
 // =====================================================
 
 ClientInterfaceThread::ClientInterfaceThread(ClientInterface *client) : BaseThread() {
-	//this->triggerIdMutex = new Mutex();
 	this->clientInterface = client;
-	//this->masterController = NULL;
 }
 
 ClientInterfaceThread::~ClientInterfaceThread() {
 	this->clientInterface = NULL;
-	//this->masterController = NULL;
-	//delete this->triggerIdMutex;
-	//this->triggerIdMutex = NULL;
 }
 
 void ClientInterfaceThread::setQuitStatus(bool value) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d value = %d\n",__FILE__,__FUNCTION__,__LINE__,value);
 
 	BaseThread::setQuitStatus(value);
-//	if(value == true) {
-//		semTaskSignalled.signal();
-//	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -80,7 +72,6 @@ bool ClientInterfaceThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 void ClientInterfaceThread::execute() {
     RunningStatusSafeWrapper runningStatus(this);
 	try {
-		//setRunningStatus(true);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ****************** STARTING worker thread this = %p\n",__FILE__,__FUNCTION__,__LINE__,this);
 
@@ -92,19 +83,11 @@ void ClientInterfaceThread::execute() {
 			clientInterface->getSocket(true)->setBlock(true);
 		}
 
-		//unsigned int idx = 0;
 		for(;this->clientInterface != NULL;) {
 			if(getQuitStatus() == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
 			}
-
-			//semTaskSignalled.waitTillSignalled();
-
-			//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			//static string masterSlaveOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-			//MasterSlaveThreadControllerSafeWrapper safeMasterController(masterController,20000,masterSlaveOwnerId);
-			//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(getQuitStatus() == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -112,8 +95,6 @@ void ClientInterfaceThread::execute() {
 			}
 
 			ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
-
-			//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
 			if(debugClientInterfacePerf == true) printf("START === Client thread\n");
 
@@ -151,7 +132,6 @@ void ClientInterfaceThread::execute() {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ****************** ENDING worker thread this = %p\n",__FILE__,__FUNCTION__,__LINE__,this);
 	}
 	catch(const exception &ex) {
-		//setRunningStatus(false);
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -183,6 +163,8 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 	networkCommandListThread = NULL;
 	cachedPendingCommandsIndex = 0;
 	cachedLastPendingFrameCount = 0;
+
+	flagAccessor = new Mutex();
 
 	this->readyForInGameJoin = false;
 	clientSocket= NULL;
@@ -275,9 +257,30 @@ ClientInterface::~ClientInterface() {
 	networkCommandListThreadAccessor = NULL;
 	safeMutex.ReleaseLock(false,true);
 
+	delete flagAccessor;
+	flagAccessor = NULL;
 	//printf("END === Client destructor\n");
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+}
+
+bool ClientInterface::getJoinGameInProgress() {
+	MutexSafeWrapper safeMutex(flagAccessor,CODE_AT_LINE);
+	return joinGameInProgress;
+}
+bool ClientInterface::getJoinGameInProgressLaunch() {
+	MutexSafeWrapper safeMutex(flagAccessor,CODE_AT_LINE);
+	return joinGameInProgressLaunch;
+}
+
+bool ClientInterface::getReadyForInGameJoin() {
+	MutexSafeWrapper safeMutex(flagAccessor,CODE_AT_LINE);
+	return readyForInGameJoin;
+}
+
+bool ClientInterface::getResumeInGameJoin() {
+	MutexSafeWrapper safeMutex(flagAccessor,CODE_AT_LINE);
+	return resumeInGameJoin;
 }
 
 void ClientInterface::connect(const Ip &ip, int port) {
@@ -445,8 +448,11 @@ void ClientInterface::updateLobby() {
 				playerIndex= networkMessageIntro.getPlayerIndex();
 				serverName= networkMessageIntro.getName();
 				serverFTPPort = networkMessageIntro.getFtpPort();
+
+				MutexSafeWrapper safeMutexFlags(flagAccessor,CODE_AT_LINE);
 				this->joinGameInProgress = networkMessageIntro.getGameInProgress();
 				this->joinGameInProgressLaunch = false;
+				safeMutexFlags.ReleaseLock();
 
 				//printf("Client got intro playerIndex = %d\n",playerIndex);
 
@@ -832,6 +838,7 @@ void ClientInterface::updateLobby() {
 		{
 			NetworkMessageReady networkMessageReady;
 			if(receiveMessage(&networkMessageReady)) {
+				MutexSafeWrapper safeMutexFlags(flagAccessor,CODE_AT_LINE);
 				this->readyForInGameJoin = true;
 			}
 
@@ -1309,8 +1316,11 @@ bool ClientInterface::isMasterServerAdminOverride() {
 void ClientInterface::waitUntilReady(Checksum* checksum) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+	MutexSafeWrapper safeMutexFlags(flagAccessor,CODE_AT_LINE);
 	bool signalServerWhenReadyToStartJoinedGame = this->readyForInGameJoin;
 	this->readyForInGameJoin = false;
+	safeMutexFlags.ReleaseLock();
+
     Logger &logger= Logger::getInstance();
 
 	Chrono chrono;
@@ -1554,7 +1564,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//check checksum
-	if(this->joinGameInProgress == false && networkMessageReady.getChecksum() != checksum->getSum()) {
+	if(getJoinGameInProgress() == false && networkMessageReady.getChecksum() != checksum->getSum()) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     	Lang &lang= Lang::getInstance();
@@ -1631,14 +1641,17 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
         return;
 	}
 
+	MutexSafeWrapper safeMutexFlags2(flagAccessor,CODE_AT_LINE);
 	this->joinGameInProgress = false;
 	this->joinGameInProgressLaunch = false;
 
 	//printf("Client signalServerWhenReadyToStartJoinedGame = %d\n",signalServerWhenReadyToStartJoinedGame);
 	if(signalServerWhenReadyToStartJoinedGame == true) {
 		this->resumeInGameJoin = true;
+		safeMutexFlags2.ReleaseLock();
 	}
 	else {
+		safeMutexFlags2.ReleaseLock();
 		// delay the start a bit, so clients have more room to get messages
 		// This is to ensure clients don't start ahead of the server and thus
 		// constantly freeze because they are waiting for the server to catch up
@@ -1837,6 +1850,7 @@ void ClientInterface::close(bool lockMutex) {
 	connectedTime = 0;
 	gotIntro = false;
 
+	MutexSafeWrapper safeMutexFlags(flagAccessor,CODE_AT_LINE);
 	this->joinGameInProgress = false;
 	this->joinGameInProgressLaunch = false;
 	this->readyForInGameJoin = false;
@@ -2044,9 +2058,11 @@ void ClientInterface::broadcastGameSetup(const GameSettings *gameSettings) {
 void ClientInterface::broadcastGameStart(const GameSettings *gameSettings) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+	MutexSafeWrapper safeMutexFlags(flagAccessor,CODE_AT_LINE);
 	if(this->joinGameInProgress == true) {
 		this->joinGameInProgressLaunch = true;
 	}
+	safeMutexFlags.ReleaseLock();
 
 	//printf("Sending game launch joinGameInProgress: %d\n",joinGameInProgress);
 
