@@ -746,7 +746,9 @@ void BattleEnd::render() {
 		}
 
 		if(menuBackgroundVideo == NULL) {
-			renderToTextureCount++;
+			if(renderToTexture == NULL && renderToTextureCount < 300) {
+				renderToTextureCount++;
+			}
 		}
 	}
 
