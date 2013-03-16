@@ -34,9 +34,6 @@ class ClientInterfaceThread : public BaseThread, public SlaveThreadControllerInt
 protected:
 
 	ClientInterface *clientInterface;
-	//Semaphore semTaskSignalled;
-	//Mutex *triggerIdMutex;
-	//MasterSlaveThreadController *masterController;
 
 	virtual void setQuitStatus(bool value);
 
@@ -45,7 +42,6 @@ public:
 	virtual ~ClientInterfaceThread();
     virtual void execute();
 
-	//virtual void setMasterController(MasterSlaveThreadController *master) { masterController = master; }
     virtual void setMasterController(MasterSlaveThreadController *master) { }
 	virtual void signalSlave(void *userdata) { }
 
@@ -57,7 +53,6 @@ public:
 // =====================================================
 
 class ClientInterface: public GameNetworkInterface {
-						//public SimpleTaskCallbackInterface {
 private:
 	static const int messageWaitTimeout;
 	static const int waitSleepTime;
@@ -86,7 +81,6 @@ private:
 	int sessionKey;
 	int serverFTPPort;
 
-	//SimpleTaskThread *networkCommandListThread;
 	ClientInterfaceThread *networkCommandListThread;
 
 	Mutex *networkCommandListThreadAccessor;
@@ -94,6 +88,7 @@ private:
 	uint64 cachedPendingCommandsIndex;
 	uint64 cachedLastPendingFrameCount;
 
+	Mutex *flagAccessor;
 	bool joinGameInProgress;
 	bool joinGameInProgressLaunch;
 	bool readyForInGameJoin;
@@ -106,15 +101,14 @@ public:
 	virtual ~ClientInterface();
 
 	virtual Socket* getSocket(bool mutexLock=true)					{return clientSocket;}
-	//virtual const Socket* getSocket() const		{return clientSocket;}
 	virtual void close();
 
-	bool getJoinGameInProgress() const { return joinGameInProgress; }
-	bool getJoinGameInProgressLaunch() const { return joinGameInProgressLaunch; }
+	bool getJoinGameInProgress();
+	bool getJoinGameInProgressLaunch();
 
-	bool getReadyForInGameJoin() const { return readyForInGameJoin; }
+	bool getReadyForInGameJoin();
 
-	bool getResumeInGameJoin() const { return resumeInGameJoin; }
+	bool getResumeInGameJoin();
 	void sendResumeGameMessage();
 
 	uint64 getCachedLastPendingFrameCount();
@@ -147,7 +141,6 @@ public:
 	int getGameSettingsReceivedCount() const { return gameSettingsReceivedCount; }
 
 	int getPlayerIndex() const				{return playerIndex;}
-	//const GameSettings *getGameSettings()	{return &gameSettings;}
 
 	void connect(const Ip &ip, int port);
 	void reset();
@@ -178,7 +171,6 @@ public:
     void broadcastGameSetup(const GameSettings *gameSettings);
     void broadcastGameStart(const GameSettings *gameSettings);
 
-    //virtual void simpleTask(BaseThread *callingThread);
     void updateNetworkFrame();
 
     virtual void saveGame(XmlNode *rootNode) {};

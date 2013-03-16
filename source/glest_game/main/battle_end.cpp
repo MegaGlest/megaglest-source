@@ -58,6 +58,7 @@ BattleEnd::BattleEnd(Program *program, const Stats *stats,ProgramState *originSt
 	mouseY = 0;
 	mouse2d = 0;
 	renderToTexture = NULL;
+	renderToTextureCount = 0;
 
 	const Metrics &metrics= Metrics::getInstance();
 	Lang &lang= Lang::getInstance();
@@ -420,7 +421,7 @@ void BattleEnd::render() {
 	else {
 		//printf("Rendering to texture!\n");
 
-		if(menuBackgroundVideo == NULL) {
+		if(menuBackgroundVideo == NULL && renderToTextureCount >= 300) {
 			renderer.beginRenderToTexture(&renderToTexture);
 		}
 
@@ -736,12 +737,16 @@ void BattleEnd::render() {
 			renderer.renderMessageBox(&mainMessageBox);
 		}
 
-		if(menuBackgroundVideo == NULL || renderToTexture == NULL) {
+		if(menuBackgroundVideo == NULL && renderToTexture == NULL) {
 			renderer.renderMouse2d(mouseX, mouseY, mouse2d, 0.f);
 		}
 
-		if(menuBackgroundVideo == NULL) {
+		if(menuBackgroundVideo == NULL && renderToTextureCount >= 300) {
 			renderer.endRenderToTexture(&renderToTexture);
+		}
+
+		if(menuBackgroundVideo == NULL) {
+			renderToTextureCount++;
 		}
 	}
 
