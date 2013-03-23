@@ -1077,12 +1077,12 @@ bool Socket::hasDataToRead(PLATFORM_SOCKET socket)
     return bResult;
 }
 
-bool Socket::hasDataToReadWithWait(int waitMilliseconds) {
+bool Socket::hasDataToReadWithWait(int waitMicroseconds) {
 	MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
-    return Socket::hasDataToReadWithWait(sock,waitMilliseconds) ;
+    return Socket::hasDataToReadWithWait(sock,waitMicroseconds) ;
 }
 
-bool Socket::hasDataToReadWithWait(PLATFORM_SOCKET socket,int waitMilliseconds) {
+bool Socket::hasDataToReadWithWait(PLATFORM_SOCKET socket,int waitMicroseconds) {
     bool bResult = false;
 
     Chrono chono;
@@ -1098,7 +1098,7 @@ bool Socket::hasDataToReadWithWait(PLATFORM_SOCKET socket,int waitMilliseconds) 
 
         /* Wait up to 0 seconds. */
         tv.tv_sec = 0;
-        tv.tv_usec = 1000 * waitMilliseconds;
+        tv.tv_usec = waitMicroseconds;
 
         int retval = 0;
         {

@@ -152,8 +152,8 @@ public:
     static bool hasDataToRead(PLATFORM_SOCKET socket);
     bool hasDataToRead();
 
-    static bool hasDataToReadWithWait(PLATFORM_SOCKET socket,int waitMilliseconds);
-    bool hasDataToReadWithWait(int waitMilliseconds);
+    static bool hasDataToReadWithWait(PLATFORM_SOCKET socket,int waitMicroseconds);
+    bool hasDataToReadWithWait(int waitMicroseconds);
 
     virtual void disconnectSocket();
 
