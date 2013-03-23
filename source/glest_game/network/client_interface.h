@@ -178,7 +178,7 @@ public:
 protected:
 
 	Mutex * getServerSynchAccessor() { return NULL; }
-	NetworkMessageType waitForMessage(int waitMilliseconds=0);
+	NetworkMessageType waitForMessage(int waitMicroseconds=0);
 	bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType);
 
 	void updateFrame(int *checkFrame);

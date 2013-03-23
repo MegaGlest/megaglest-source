@@ -898,7 +898,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 		Chrono chrono;
 		chrono.start();
 
-		int waitMilliseconds = (checkFrame == NULL ? 1 : 0);
+		int waitMicroseconds = (checkFrame == NULL ? 100 : 0);
 		int simulateLag = Config::getInstance().getInt("SimulateClientLag","0");
 		bool done= false;
 		while(done == false && this->quitThread == false) {
@@ -906,7 +906,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 			//printf("BEFORE Client get networkMessageType\n");
 
 			//wait for the next message
-			NetworkMessageType networkMessageType = waitForMessage(waitMilliseconds);
+			NetworkMessageType networkMessageType = waitForMessage(waitMicroseconds);
 
 			//printf("AFTER Client got networkMessageType = %d\n",networkMessageType);
 
@@ -1233,13 +1233,13 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 					//cachedPendingCommands.erase(frameCount);
 					cachedPendingCommands[frameCount].clear();
 				}
-				safeMutex.ReleaseLock();
+				safeMutex.ReleaseLock(true);
 
 				result = true;
 				break;
 			}
 			else {
-				safeMutex.ReleaseLock();
+				safeMutex.ReleaseLock(true);
 				// No data for this frame
 				//if(cachedPendingCommandsIndex > currentCachedPendingCommandsIndex) {
 				//	break;
@@ -1721,7 +1721,7 @@ string ClientInterface::getNetworkStatus() {
 	return szBuf;
 }
 
-NetworkMessageType ClientInterface::waitForMessage(int waitMilliseconds)
+NetworkMessageType ClientInterface::waitForMessage(int waitMicroseconds)
 {
 	// Debug!
 /*
@@ -1744,7 +1744,7 @@ NetworkMessageType ClientInterface::waitForMessage(int waitMilliseconds)
 	NetworkMessageType msg = nmtInvalid;
 	//uint64 waitLoopCount = 0;
 	while(msg == nmtInvalid && this->quitThread == false) {
-		msg = getNextMessageType(waitMilliseconds);
+		msg = getNextMessageType(waitMicroseconds);
 		if(msg == nmtInvalid) {
 			if(chrono.getMillis() % 250 == 0 && isConnected() == false) {
 				if(quit == false) {
@@ -1781,8 +1781,8 @@ NetworkMessageType ClientInterface::waitForMessage(int waitMilliseconds)
 				close();
 				return msg;
 			}
-			// Sleep ever second we wait to let other threads work
-			else if(chrono.getMillis() % 25 == 0) {
+			// Sleep every x milli-seconds we wait to let other threads work
+			else if(chrono.getMillis() % 50 == 0) {
 				sleep(5);
 			}
 
