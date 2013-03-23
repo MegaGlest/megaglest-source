@@ -28,9 +28,7 @@ using namespace std;
 
 namespace Glest{ namespace Game{
 
-// 20 was working ok, we try 10 to see if its better for performance
-//int GameConstants::networkFramePeriod				= 20;
-int GameConstants::networkFramePeriod				= 10;
+int GameConstants::networkFramePeriod				= 20;
 int GameConstants::updateFps						= 40;
 int GameConstants::cameraFps						= 100;
 
