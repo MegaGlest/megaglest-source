@@ -79,9 +79,9 @@ void ClientInterfaceThread::execute() {
 		Chrono chrono;
 
 		// Set socket to blocking
-		if(clientInterface != NULL && clientInterface->getSocket(true) != NULL) {
-			clientInterface->getSocket(true)->setBlock(true);
-		}
+		//if(clientInterface != NULL && clientInterface->getSocket(true) != NULL) {
+		//	clientInterface->getSocket(true)->setBlock(true);
+		//}
 
 		for(;this->clientInterface != NULL;) {
 			if(getQuitStatus() == true) {
@@ -1782,8 +1782,8 @@ NetworkMessageType ClientInterface::waitForMessage(int waitMicroseconds)
 				return msg;
 			}
 			// Sleep every x milli-seconds we wait to let other threads work
-			else if(chrono.getMillis() % 50 == 0) {
-				sleep(5);
+			else if(chrono.getMillis() % 100 == 0) {
+				sleep(10);
 			}
 
 			//sleep(waitSleepTime);
