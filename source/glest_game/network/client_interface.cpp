@@ -901,7 +901,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 		Chrono chrono;
 		chrono.start();
 
-		int waitMicroseconds = (checkFrame == NULL ? 100 : 0);
+		int waitMicroseconds = (checkFrame == NULL ? 10 : 0);
 		int simulateLag = Config::getInstance().getInt("SimulateClientLag","0");
 		bool done= false;
 		while(done == false && this->quitThread == false) {
@@ -1785,7 +1785,7 @@ NetworkMessageType ClientInterface::waitForMessage(int waitMicroseconds)
 				return msg;
 			}
 			// Sleep every x milli-seconds we wait to let other threads work
-			else if(chrono.getMillis() % 50 == 0) {
+			else if(chrono.getMillis() % 100 == 0) {
 				sleep(5);
 			}
 
