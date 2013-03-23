@@ -79,8 +79,11 @@ void ClientInterfaceThread::execute() {
 		Chrono chrono;
 
 		// Set socket to blocking
+//		if(clientInterface != NULL && clientInterface->getSocket(true) != NULL) {
+//			clientInterface->getSocket(true)->setBlock(true);
+//		}
 		if(clientInterface != NULL && clientInterface->getSocket(true) != NULL) {
-			clientInterface->getSocket(true)->setBlock(true);
+			clientInterface->getSocket(true)->setBlock(false);
 		}
 
 		for(;this->clientInterface != NULL;) {

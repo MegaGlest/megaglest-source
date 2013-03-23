@@ -1500,14 +1500,14 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 		if(isSocketValid() == true)	{
 //			Chrono recvTimer(true);
-			//SafeSocketBlockToggleWrapper safeUnblock(this, false);
+			SafeSocketBlockToggleWrapper safeUnblock(this, false);
 			errno = 0;
 			err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 			lastSocketError = getLastSocketError();
 			if(pLastSocketError != NULL) {
 				*pLastSocketError = lastSocketError;
 			}
-			//safeUnblock.Restore();
+			safeUnblock.Restore();
 
 //			if(recvTimer.getMillis() > 1000 || (err <= 0 && lastSocketError != 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN)) {
 //				printf("#1 PEEK err = %d lastSocketError = %d ms: %lld\n",err,lastSocketError,(long long int)recvTimer.getMillis());
@@ -1563,14 +1563,14 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 	        	MutexSafeWrapper safeMutex(dataSynchAccessorRead,CODE_AT_LINE);
 
 //	        	Chrono recvTimer(true);
-	        	//SafeSocketBlockToggleWrapper safeUnblock(this, false);
+	        	SafeSocketBlockToggleWrapper safeUnblock(this, false);
 	        	errno = 0;
                 err = recv(sock, reinterpret_cast<char*>(data), dataSize, MSG_PEEK);
 				lastSocketError = getLastSocketError();
 				if(pLastSocketError != NULL) {
 					*pLastSocketError = lastSocketError;
 				}
-				//safeUnblock.Restore();
+				safeUnblock.Restore();
 
 //                if(recvTimer.getMillis() > 1000 || (err <= 0 && lastSocketError != 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN)) {
 //    				printf("#2 PEEK err = %d lastSocketError = %d ms: %lld\n",err,lastSocketError,(long long int)recvTimer.getMillis());
