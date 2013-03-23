@@ -901,7 +901,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 		Chrono chrono;
 		chrono.start();
 
-		int waitMicroseconds = (checkFrame == NULL ? 10 : 0);
+		int waitMicroseconds = (checkFrame == NULL ? 0 : 0);
 		int simulateLag = Config::getInstance().getInt("SimulateClientLag","0");
 		bool done= false;
 		while(done == false && this->quitThread == false) {
