@@ -1782,8 +1782,8 @@ NetworkMessageType ClientInterface::waitForMessage(int waitMicroseconds)
 				return msg;
 			}
 			// Sleep every x milli-seconds we wait to let other threads work
-			else if(chrono.getMillis() % 5 == 0) {
-				sleep(1);
+			else if(chrono.getMillis() % 50 == 0) {
+				sleep(5);
 			}
 
 			//sleep(waitSleepTime);
