@@ -304,7 +304,7 @@ void ClientInterface::connect(const Ip &ip, int port) {
 	clientSocket->setBlock(false);
 	clientSocket->connect(ip, port);
 	connectedTime = time(NULL);
-	clientSocket->setBlock(true);
+	//clientSocket->setBlock(true);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END - socket = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,clientSocket->getSocketId());
 }
@@ -901,7 +901,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 		Chrono chrono;
 		chrono.start();
 
-		int waitMicroseconds = (checkFrame == NULL ? 0 : 0);
+		int waitMicroseconds = (checkFrame == NULL ? 10 : 0);
 		int simulateLag = Config::getInstance().getInt("SimulateClientLag","0");
 		bool done= false;
 		while(done == false && this->quitThread == false) {
@@ -1785,7 +1785,7 @@ NetworkMessageType ClientInterface::waitForMessage(int waitMicroseconds)
 				return msg;
 			}
 			// Sleep every x milli-seconds we wait to let other threads work
-			else if(chrono.getMillis() % 100 == 0) {
+			else if(chrono.getMillis() % 20 == 0) {
 				sleep(5);
 			}
 
