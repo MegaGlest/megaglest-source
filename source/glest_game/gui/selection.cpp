@@ -45,44 +45,47 @@ bool Selection::select(Unit *unit) {
 		return result;
 	}
 
-	//check if already selected
-	for(int i=0; i < selectedUnits.size(); ++i) {
-		if(selectedUnits[i ]== unit) {
-			return true;
+	// Fix Bug reported on sourceforge.net: Glest::Game::Selection::select crash with NULL pointer - ID: 3608835
+	if(unit != NULL) {
+		//check if already selected
+		for(int i=0; i < selectedUnits.size(); ++i) {
+			if(selectedUnits[i ]== unit) {
+				return true;
+			}
 		}
+
+		//check if dead
+		if(unit->isDead()) {
+			return false;
+		}
+
+		//check if multisel
+		if(!unit->getType()->getMultiSelect() && !isEmpty()) {
+			return false;
+		}
+
+		//check if enemy
+		if(unit->getFactionIndex() != factionIndex && !isEmpty()) {
+			return false;
+		}
+
+		//check existing enemy
+		if(selectedUnits.size()==1 && selectedUnits.front()->getFactionIndex() != factionIndex) {
+			clear();
+		}
+
+		//check existing multisel
+		if(selectedUnits.size()==1 && !selectedUnits.front()->getType()->getMultiSelect()){
+			clear();
+		}
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit selected [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
+
+		unit->addObserver(this);
+		selectedUnits.push_back(unit);
+		result = true;
+		gui->onSelectionChanged();
 	}
-
-	//check if dead
-	if(unit->isDead()) {
-		return false;
-	}
-
-	//check if multisel
-	if(!unit->getType()->getMultiSelect() && !isEmpty()) {
-		return false;
-	}
-
-	//check if enemy
-	if(unit->getFactionIndex() != factionIndex && !isEmpty()) {
-		return false;
-	}
-
-	//check existing enemy
-	if(selectedUnits.size()==1 && selectedUnits.front()->getFactionIndex() != factionIndex) {
-		clear();
-	}
-
-	//check existing multisel
-	if(selectedUnits.size()==1 && !selectedUnits.front()->getType()->getMultiSelect()){
-		clear();
-	}
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit selected [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
-
-	unit->addObserver(this);
-	selectedUnits.push_back(unit);
-	result = true;
-	gui->onSelectionChanged();
 
 	return result;
 }
