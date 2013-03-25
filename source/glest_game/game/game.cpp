@@ -1731,20 +1731,22 @@ void Game::update() {
 			ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
 			if(clientInterface != NULL) {
 				uint64 lastNetworkFrameFromServer = clientInterface->getCachedLastPendingFrameCount();
-				if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > (world.getFrameCount() + gameSettings.getNetworkFramePeriod())+1) {
-				//if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount()) {
-					int frameDifference = ((lastNetworkFrameFromServer - world.getFrameCount()) / gameSettings.getNetworkFramePeriod()) * gameSettings.getNetworkFramePeriod();
-
-					//int frameDifference = lastNetworkFrameFromServer - world.getFrameCount();
-
+//				if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > (world.getFrameCount() + gameSettings.getNetworkFramePeriod())+1) {
+//				//if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount()) {
+//					int frameDifference = ((lastNetworkFrameFromServer - world.getFrameCount()) / gameSettings.getNetworkFramePeriod()) * gameSettings.getNetworkFramePeriod();
+//
+//					//int frameDifference = lastNetworkFrameFromServer - world.getFrameCount();
+				if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > (world.getFrameCount() + gameSettings.getNetworkFramePeriod()/4)) {
+					//if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount()) {
+					int frameDifference = lastNetworkFrameFromServer - world.getFrameCount();
 					printf("Client will speed up: %d frames lastNetworkFrameFromServer: %lld world.getFrameCount() = %d updateLoops = %d\n",frameDifference,(long long int)lastNetworkFrameFromServer,world.getFrameCount(),updateLoops);
 
 					updateLoops += frameDifference;
 				}
 //				//If client is ahead maybe this fixes it ( by titi ):
-				if(updateLoops!=0 && lastNetworkFrameFromServer > 0 && world.getFrameCount() > lastNetworkFrameFromServer && (world.getFrameCount()%gameSettings.getNetworkFramePeriod())==19 ){
-					printf("Client will slow down because no message has arrived yet. currentFrame=%d \n",world.getFrameCount());
-					updateLoops = 0;
+				if(updateLoops!=0 && lastNetworkFrameFromServer > 0 && world.getFrameCount() > lastNetworkFrameFromServer && (world.getFrameCount()%GameConstants::updateFps)>38 ){
+						printf("Client will slow down because no message has arrived yet. currentFrame=%d \n",world.getFrameCount());
+						updateLoops = 0;
 				}
 			}
 		}
