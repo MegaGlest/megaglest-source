@@ -73,6 +73,7 @@ Game::Game() : ProgramState(NULL) {
 	updateFps=0;
 	lastUpdateFps=0;
 	avgUpdateFps=0;
+	framesToCatchUpAsClient=0;
 	totalRenderFps=0;
 	renderFps=0;
 	lastRenderFps=0;
@@ -233,6 +234,7 @@ void Game::resetMembers() {
 	updateFps=0;
 	renderFps=0;
 	lastUpdateFps=0;
+	framesToCatchUpAsClient=0;
 	lastRenderFps=-1;
 	avgUpdateFps=-1;
 	avgRenderFps=-1;
@@ -1736,18 +1738,33 @@ void Game::update() {
 //					int frameDifference = ((lastNetworkFrameFromServer - world.getFrameCount()) / gameSettings.getNetworkFramePeriod()) * gameSettings.getNetworkFramePeriod();
 //
 //					//int frameDifference = lastNetworkFrameFromServer - world.getFrameCount();
-				if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > (world.getFrameCount() + gameSettings.getNetworkFramePeriod()/4)) {
-					//if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount()) {
-					int frameDifference = lastNetworkFrameFromServer - world.getFrameCount();
-					printf("Client will speed up: %d frames lastNetworkFrameFromServer: %lld world.getFrameCount() = %d updateLoops = %d\n",frameDifference,(long long int)lastNetworkFrameFromServer,world.getFrameCount(),updateLoops);
-
-					updateLoops += frameDifference;
+				if(framesToCatchUpAsClient==0){
+					if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > (world.getFrameCount() + gameSettings.getNetworkFramePeriod()/4)) {
+						//if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount()) {
+						int frameDifference = lastNetworkFrameFromServer - world.getFrameCount();
+						printf("Client will speed up: %d frames lastNetworkFrameFromServer: %lld world.getFrameCount() = %d updateLoops = %d\n",frameDifference,(long long int)lastNetworkFrameFromServer,world.getFrameCount(),updateLoops);
+						framesToCatchUpAsClient=frameDifference;
+						// done below now: updateLoops += frameDifference;
+					}
 				}
 //				//If client is ahead maybe this fixes it ( by titi ):
 				if(updateLoops!=0 && lastNetworkFrameFromServer > 0 && world.getFrameCount() > lastNetworkFrameFromServer && (world.getFrameCount()%GameConstants::updateFps)>38 ){
 						printf("Client will slow down because no message has arrived yet. currentFrame=%d \n",world.getFrameCount());
 						updateLoops = 0;
 				}
+			}
+		}
+		// we catch up a bit smoother with updateLoops = 2
+		if(framesToCatchUpAsClient>0)
+		{
+			if(framesToCatchUpAsClient==1)
+			{
+				//ignore it and don't catch up this one frame
+				framesToCatchUpAsClient=0;
+			}
+			else if(framesToCatchUpAsClient>1){
+				updateLoops = 2;
+				framesToCatchUpAsClient=framesToCatchUpAsClient-2;
 			}
 		}
 
