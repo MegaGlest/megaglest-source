@@ -336,6 +336,11 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     	ircClient->joinChannel();
     }
 
+    if(netPlayerName=="newbie"){
+    	showMessageBox(lang.get("Go back and set your name in the game options"),lang.get("Player name not set"),false);
+    }
+    //showMessageBox("Go back and set your name in the game options!\n\nAt the moment you are just called >>newbie<< !","Player name not set!",false);
+
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
