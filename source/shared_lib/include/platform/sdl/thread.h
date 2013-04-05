@@ -18,6 +18,7 @@
 #include <SDL_thread.h>
 #include <SDL_mutex.h>
 #include <string>
+#include <memory>
 
 #include "data_types.h"
 #ifdef DEBUG_PERFORMANCE_MUTEXES
@@ -59,7 +60,7 @@ private:
 	SDL_Thread* thread;
 
 	static Mutex mutexthreadList;
-	static std::vector<Thread *> threadList;
+	static vector<Thread *> threadList;
 
 public:
 	Thread();
@@ -93,6 +94,10 @@ private:
 	string lastownerId;
 
 	Shared::PlatformCommon::Chrono *chronoPerf;
+
+	bool isStaticMutexListMutex;
+	static auto_ptr<Mutex> mutexMutexList;
+	static vector<Mutex *> mutexList;
 
 public:
 	Mutex(string ownerId="");

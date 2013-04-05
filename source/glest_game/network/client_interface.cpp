@@ -162,12 +162,12 @@ const int ClientInterface::maxNetworkCommandListSendTimeWait = 4;
 ClientInterface::ClientInterface() : GameNetworkInterface() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] constructor for %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this);
 
-	networkCommandListThreadAccessor = new Mutex();
+	networkCommandListThreadAccessor = new Mutex(CODE_AT_LINE);
 	networkCommandListThread = NULL;
 	cachedPendingCommandsIndex = 0;
 	cachedLastPendingFrameCount = 0;
 
-	flagAccessor = new Mutex();
+	flagAccessor = new Mutex(CODE_AT_LINE);
 
 	this->readyForInGameJoin = false;
 	clientSocket= NULL;
