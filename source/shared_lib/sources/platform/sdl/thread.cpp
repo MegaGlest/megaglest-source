@@ -23,7 +23,10 @@ using namespace std;
 namespace Shared { namespace Platform {
 
 Mutex Thread::mutexthreadList;
-std::vector<Thread *> Thread::threadList;
+vector<Thread *> Thread::threadList;
+
+auto_ptr<Mutex> Mutex::mutexMutexList(new Mutex(CODE_AT_LINE));
+vector<Mutex *> Mutex::mutexList;
 
 // =====================================
 //          Threads
@@ -44,8 +47,8 @@ Thread::~Thread() {
 	MutexSafeWrapper safeMutex(&Thread::mutexthreadList);
 	std::vector<Thread *>::iterator iterFind = std::find(Thread::threadList.begin(),Thread::threadList.end(),this);
 	if(iterFind == Thread::threadList.end()) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] iterFind == Thread::threadList.end()",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] iterFind == Thread::threadList.end()",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 	Thread::threadList.erase(iterFind);
@@ -64,8 +67,8 @@ void Thread::start() {
 	thread = SDL_CreateThread(beginExecution, this);
 	assert(thread != NULL);
 	if(thread == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] thread == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] thread == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 }
@@ -78,8 +81,8 @@ int Thread::beginExecution(void* data) {
 	Thread* thread = static_cast<Thread*> (data);
 	assert(thread != NULL);
 	if(thread == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] thread == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] thread == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 	thread->execute();
@@ -141,6 +144,7 @@ const bool debugMutexLock = false;
 const int debugMutexLockMillisecondThreshold = 2000;
 
 Mutex::Mutex(string ownerId) {
+	isStaticMutexListMutex = false;
 	mutexAccessor  = SDL_CreateMutex();
 	SDLMutexSafeWrapper safeMutex(&mutexAccessor);
     refCount=0;
@@ -149,8 +153,8 @@ Mutex::Mutex(string ownerId) {
 	mutex = SDL_CreateMutex();
 	assert(mutex != NULL);
 	if(mutex == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] mutex == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 	deleteownerId = "";
@@ -159,19 +163,40 @@ Mutex::Mutex(string ownerId) {
 	if(debugMutexLock == true) {
 		chronoPerf = new Chrono();
 	}
+
+	if(Mutex::mutexMutexList.get()) {
+		MutexSafeWrapper safeMutexX(Mutex::mutexMutexList.get());
+		Mutex::mutexList.push_back(this);
+		safeMutexX.ReleaseLock();
+	}
+	else {
+		isStaticMutexListMutex = true;
+	}
 }
 
 Mutex::~Mutex() {
+	if(Mutex::mutexMutexList.get() && isStaticMutexListMutex == false) {
+		MutexSafeWrapper safeMutexX(Mutex::mutexMutexList.get());
+		std::vector<Mutex *>::iterator iterFind = std::find(Mutex::mutexList.begin(),Mutex::mutexList.end(),this);
+		if(iterFind == Mutex::mutexList.end()) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8095,"In [%s::%s Line: %d] iterFind == Mutex::mutexList.end()",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			throw megaglest_runtime_error(szBuf);
+		}
+		Mutex::mutexList.erase(iterFind);
+		safeMutexX.ReleaseLock();
+	}
+
 	SDLMutexSafeWrapper safeMutex(&mutexAccessor,true);
 	if(mutex == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
 		throw megaglest_runtime_error(szBuf);
 		//printf("%s\n",szBuf);
 	}
 	else if(refCount >= 1) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] about to destroy mutex refCount = %d owner [%s] deleteownerId [%s]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] about to destroy mutex refCount = %d owner [%s] deleteownerId [%s]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -189,8 +214,8 @@ Mutex::~Mutex() {
 
 void Mutex::p() {
 	if(mutex == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 	std::auto_ptr<Chrono> chronoLockPerf;
@@ -212,14 +237,14 @@ void Mutex::p() {
 
 void Mutex::v() {
 	if(mutex == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 	refCount--;
-	lastownerId = ownerId;
 
 	if(debugMutexLock == true) {
+		lastownerId = ownerId;
 		if(chronoPerf->getMillis() >= debugMutexLockMillisecondThreshold) {
 			printf("About to get stacktrace for stuck mutex ...\n");
 			string oldLastownerId = lastownerId;
@@ -238,16 +263,16 @@ void Mutex::v() {
 Semaphore::Semaphore(Uint32 initialValue) {
 	semaphore = SDL_CreateSemaphore(initialValue);
 	if(semaphore == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] semaphore == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 }
 
 Semaphore::~Semaphore() {
 	if(semaphore == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] semaphore == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 	SDL_DestroySemaphore(semaphore);
@@ -256,8 +281,8 @@ Semaphore::~Semaphore() {
 
 void Semaphore::signal() {
 	if(semaphore == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] semaphore == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 	SDL_SemPost(semaphore);
@@ -265,8 +290,8 @@ void Semaphore::signal() {
 
 int Semaphore::waitTillSignalled(int waitMilliseconds) {
 	if(semaphore == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] semaphore == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 	int semValue = 0;
@@ -281,8 +306,8 @@ int Semaphore::waitTillSignalled(int waitMilliseconds) {
 
 bool Semaphore::tryDecrement() {
 	if(semaphore == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] semaphore == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 	int semValue = SDL_SemTryWait(semaphore);
@@ -291,8 +316,8 @@ bool Semaphore::tryDecrement() {
 
 uint32 Semaphore::getSemValue() {
 	if(semaphore == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] semaphore == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -301,8 +326,8 @@ uint32 Semaphore::getSemValue() {
 
 void Semaphore::resetSemValue(Uint32 initialValue) {
 	if(semaphore == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] semaphore == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] semaphore == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -354,8 +379,8 @@ Trigger::Trigger(Mutex *mutex) {
 	this->mutex = mutex;
 	this->trigger = SDL_CreateCond();
 	if(this->trigger == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] trigger == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] trigger == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -366,8 +391,8 @@ Trigger::~Trigger() {
 	if(debugMasterSlaveThreadController) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(trigger == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] trigger == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] trigger == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 	if(debugMasterSlaveThreadController) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -386,8 +411,8 @@ void Trigger::signal(bool allThreads) {
 	if(debugMasterSlaveThreadController) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(trigger == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] trigger == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] trigger == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -419,13 +444,13 @@ int Trigger::waitTillSignalled(Mutex *mutex, int waitMilliseconds) {
 	if(debugMasterSlaveThreadController) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(trigger == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] trigger == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] trigger == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 	if(mutex == NULL) {
-		char szBuf[1024]="";
-		snprintf(szBuf,1023,"In [%s::%s Line: %d] mutex == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] mutex == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
