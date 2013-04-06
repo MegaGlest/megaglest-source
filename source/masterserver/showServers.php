@@ -61,7 +61,7 @@
 	echo '		<link rel="shortcut icon" type="image/x-icon" href="' . htmlspecialchars( strtolower( PRODUCT_NAME ) ) . '.ico" />' . PHP_EOL;
 	echo '	</head>' . PHP_EOL;
 	echo '	<body>' . PHP_EOL;
-	echo '		<h1>' . htmlspecialchars( PRODUCT_NAME ) . ' gameservers</h1>' . PHP_EOL;
+	echo '		<h1><a href="' . htmlspecialchars( PRODUCT_URL ) . '">' . htmlspecialchars( PRODUCT_NAME ) . '</a> gameservers</h1>' . PHP_EOL;
 	echo '		<table>' . PHP_EOL;
 	echo '			<tr>' . PHP_EOL;
 	echo '				<th title="glestVersion">Version</th>' . PHP_EOL;
@@ -88,7 +88,7 @@
 			echo "\t\t\t" . '<tr>' . PHP_EOL;
 
 			// glestVersion
-			printf( "\t\t\t\t<td><a href=\"?version=%s\">%s</a></td>%s", htmlspecialchars( $server['glestVersion'], ENT_QUOTES ), htmlspecialchars( $server['glestVersion'], ENT_QUOTES ), PHP_EOL );
+			printf( "\t\t\t\t<td><a href=\"?version=%s\" rel=\"nofollow\">%s</a></td>%s", htmlspecialchars( $server['glestVersion'], ENT_QUOTES ), htmlspecialchars( $server['glestVersion'], ENT_QUOTES ), PHP_EOL );
 
 			// status
 			$status_code = $server['status'];
@@ -184,13 +184,13 @@
 	{
 		echo "\t\t<p>Filters active:</p>" . PHP_EOL;
 		echo "\t\t<ul>" . PHP_EOL;
-		printf( "\t\t\t<li>Version <a href=\"?\">%s</a></li>%s", htmlspecialchars( FILTER_VERSION, ENT_QUOTES ), PHP_EOL );
+		printf( "\t\t\t<li>Version <a href=\"?\" rel=\"nofollow\">%s</a></li>%s", htmlspecialchars( FILTER_VERSION, ENT_QUOTES ), PHP_EOL );
 		echo "\t\t</ul>" . PHP_EOL;
 	}
 
 	echo '		<p>Usage:</p>' . PHP_EOL;
 	echo '		<ul>' . PHP_EOL;
-	echo '			<li>You can have this page auto <a href="?refresh=60">refresh every 60 seconds</a> by appending <code>?refresh=60</code> to the URL. Minimum refresh time is 10 seconds.</li>' . PHP_EOL;
+	echo '			<li>You can have this page auto <a href="?refresh=60" rel="nofollow">refresh every 60 seconds</a> by appending <code>?refresh=60</code> to the URL. Minimum refresh time is 10 seconds.</li>' . PHP_EOL;
 	echo '			<li>The parameters used by the masterserver API will display when you move your mouse pointer over any of the table headings.</li>' . PHP_EOL;
 	echo '		</ul>' . PHP_EOL;
 	echo '	</body>' . PHP_EOL;

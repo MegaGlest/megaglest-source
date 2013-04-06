@@ -6,6 +6,7 @@
 	if ( !defined('INCLUSION_PERMITTED') || ( defined('INCLUSION_PERMITTED') && INCLUSION_PERMITTED !== true ) ) { die( 'This file must not be invoked directly.' ); }
 
 	define( 'PRODUCT_NAME',       'MegaGlest' );
+	define( 'PRODUCT_URL',        'http://megaglest.org' );
 
 	define( 'MYSQL_HOST',         '127.0.0.1' );
 	define( 'MYSQL_DATABASE',     'glest' );
