@@ -1779,6 +1779,10 @@ void Game::update() {
 								/ gameSettings.getNetworkFramePeriod())
 						% GameConstants::networkSmoothInterval;
 
+				// clean the next frame slot
+				frameWhenMessageWasReceived[(index+1)%GameConstants::networkSmoothInterval]=-1;
+				framesNeededToWaitForServerMessage[(index+1)%GameConstants::networkSmoothInterval]=-1;
+
 				if(frameWhenMessageWasReceived[index]==-1){
 					// we need to check if we already received something for next frame
 					if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount()) {
@@ -1788,7 +1792,14 @@ void Game::update() {
 				}
 				if(frameWhenMessageWasReceived[index]==-1){
 				// calc time waiting for message in milliseconds to frames
-				 framesNeededToWaitForServerMessage[index]=clientInterface->getTimeClientWaitedForLastMessage()/1000/GameConstants::updateFps;
+					int64 timeClientWaitedForLastMessage=clientInterface->getTimeClientWaitedForLastMessage();
+					if(timeClientWaitedForLastMessage>0){
+						printf("Client waited:%d ms\n",(int)timeClientWaitedForLastMessage);
+						framesNeededToWaitForServerMessage[index]=timeClientWaitedForLastMessage/1000/GameConstants::updateFps;
+					}
+					else {
+						framesNeededToWaitForServerMessage[index]=0;
+					}
 				}
 
 				////////////////////////////////////////////
@@ -1818,7 +1829,7 @@ void Game::update() {
 					}
 				}
 
-				if( countOfMessagesReceivedTooEarly==GameConstants::networkSmoothInterval )
+				if( countOfMessagesReceivedTooEarly==GameConstants::networkSmoothInterval-1 ) // -1 because slot for next frame is already initialized
 				{// all packages where too early
 					// we catch up the minimum-catchupInterval of what we recorded
 					framesToCatchUpAsClient=minimum-allowedMaxFallback;
