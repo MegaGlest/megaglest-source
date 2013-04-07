@@ -163,7 +163,7 @@ Game::Game() : ProgramState(NULL) {
 	inJoinGameLoading = false;
 
 	for( int i=0;i<GameConstants::networkSmoothInterval;i++){
-		frameWhenMessageWasReceived[i]==-1;
+		receivedTooEarlyInFrames[i]==-1;
 		framesNeededToWaitForServerMessage[i]==-1;
 	}
 
@@ -273,7 +273,7 @@ void Game::resetMembers() {
 	inJoinGameLoading = false;
 
 	for( int i=0;i<GameConstants::networkSmoothInterval;i++){
-		frameWhenMessageWasReceived[i]==-1;
+		receivedTooEarlyInFrames[i]==-1;
 		framesNeededToWaitForServerMessage[i]==-1;
 	}
 
@@ -1773,29 +1773,29 @@ void Game::update() {
 				//get stats of received/waiting for packages
 				////////////////////////////////////////////
 				// calculate current receive Index slot:
-				int index = (world.getFrameCount()
+				int index = ((world.getFrameCount()
 						- (world.getFrameCount()
-								% gameSettings.getNetworkFramePeriod())
+								% gameSettings.getNetworkFramePeriod()))
 								/ gameSettings.getNetworkFramePeriod())
 						% GameConstants::networkSmoothInterval;
 
 				// clean the next frame slot
-				frameWhenMessageWasReceived[(index+1)%GameConstants::networkSmoothInterval]=-1;
+				receivedTooEarlyInFrames[(index+1)%GameConstants::networkSmoothInterval]=-1;
 				framesNeededToWaitForServerMessage[(index+1)%GameConstants::networkSmoothInterval]=-1;
 
-				if(frameWhenMessageWasReceived[index]==-1){
+				if(receivedTooEarlyInFrames[index]==-1){
 					// we need to check if we already received something for next frame
 					if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount()) {
-						frameWhenMessageWasReceived[index]= lastNetworkFrameFromServer-world.getFrameCount();
-
+						receivedTooEarlyInFrames[index]= lastNetworkFrameFromServer-world.getFrameCount();
 					}
 				}
-				if(frameWhenMessageWasReceived[index]==-1){
+				if(framesNeededToWaitForServerMessage[index]==-1){
 				// calc time waiting for message in milliseconds to frames
 					int64 timeClientWaitedForLastMessage=clientInterface->getTimeClientWaitedForLastMessage();
 					if(timeClientWaitedForLastMessage>0){
-						printf("Client waited:%d ms\n",(int)timeClientWaitedForLastMessage);
+						printf("world.getFrameCount():%d index %d Client waited:%d ms\n",world.getFrameCount(),index,(int)timeClientWaitedForLastMessage);
 						framesNeededToWaitForServerMessage[index]=timeClientWaitedForLastMessage/1000/GameConstants::updateFps;
+						printf("ClienttimeClientWaitedForLastMessage:%d ms\n",world.getFrameCount(),(int)timeClientWaitedForLastMessage);
 					}
 					else {
 						framesNeededToWaitForServerMessage[index]=0;
@@ -1817,10 +1817,10 @@ void Game::update() {
 
 
 				for( int i=0;i<GameConstants::networkSmoothInterval;i++){
-					if(frameWhenMessageWasReceived[i]>allowedMaxFallback){
+					if(receivedTooEarlyInFrames[i]>allowedMaxFallback){
 						countOfMessagesReceivedTooEarly++;
-						if ( minimum == 0 || minimum > frameWhenMessageWasReceived[i]  ){
-							minimum=frameWhenMessageWasReceived[i];
+						if ( minimum == 0 || minimum > receivedTooEarlyInFrames[i]  ){
+							minimum=receivedTooEarlyInFrames[i];
 						}
 					}
 					if(framesNeededToWaitForServerMessage[i]>0){
@@ -1847,7 +1847,7 @@ void Game::update() {
 				if(cleanupStats==true) {
 					// Once we decided to use the stats to do some correction, we reset/cleanup our recorded stats
 					for( int i=0;i<GameConstants::networkSmoothInterval;i++){
-						frameWhenMessageWasReceived[i]=-1;
+						receivedTooEarlyInFrames[i]=-1;
 						framesNeededToWaitForServerMessage[index]=-1;
 					}
 				}
