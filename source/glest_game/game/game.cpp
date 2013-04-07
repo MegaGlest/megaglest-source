@@ -1794,8 +1794,8 @@ void Game::update() {
 					int64 timeClientWaitedForLastMessage=clientInterface->getTimeClientWaitedForLastMessage();
 					if(timeClientWaitedForLastMessage>0){
 						printf("world.getFrameCount():%d index %d Client waited:%d ms\n",world.getFrameCount(),index,(int)timeClientWaitedForLastMessage);
-						framesNeededToWaitForServerMessage[index]=timeClientWaitedForLastMessage/1000/GameConstants::updateFps;
-						printf("ClienttimeClientWaitedForLastMessage:%d ms\n",world.getFrameCount(),(int)timeClientWaitedForLastMessage);
+						framesNeededToWaitForServerMessage[index]=timeClientWaitedForLastMessage*GameConstants::updateFps/1000;
+						printf("ClienttimeClientWaitedForLastMessage:%d ms  which is %d frames \n",(int)timeClientWaitedForLastMessage,framesNeededToWaitForServerMessage[index]);
 					}
 					else {
 						framesNeededToWaitForServerMessage[index]=0;
