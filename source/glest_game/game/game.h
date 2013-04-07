@@ -89,7 +89,7 @@ private:
 	int updateFps, lastUpdateFps, avgUpdateFps;
 	int framesToCatchUpAsClient;
 	int framesToSlowDownAsClient;
-	int frameWhenMessageWasReceived[GameConstants::networkSmoothInterval];
+	int receivedTooEarlyInFrames[GameConstants::networkSmoothInterval];
 	int framesNeededToWaitForServerMessage[GameConstants::networkSmoothInterval];
 	int totalRenderFps, renderFps, lastRenderFps, avgRenderFps,currentAvgRenderFpsTotal;
 	uint64 tickCount;
