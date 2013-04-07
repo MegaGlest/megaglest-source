@@ -1830,7 +1830,7 @@ void Game::update() {
 					framesToSlowDownAsClient=sumOfTooLateFrames/countOfMessagesReceivedTooLate;
 					framesToCatchUpAsClient=0;
 					cleanupStats=true;
-					printf("Worldframe %d : Client will slow down: %d frames\n",world.getFrameCount(),framesToCatchUpAsClient);
+					printf("Worldframe %d : Client will slow down: %d frames\n",world.getFrameCount(),framesToSlowDownAsClient);
 				}
 
 				if(cleanupStats==true) {
