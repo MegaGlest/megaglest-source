@@ -166,6 +166,7 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 	networkCommandListThread = NULL;
 	cachedPendingCommandsIndex = 0;
 	cachedLastPendingFrameCount = 0;
+	timeClientWaitedForLastMessage = 0;
 
 	flagAccessor = new Mutex(CODE_AT_LINE);
 
@@ -1190,6 +1191,16 @@ uint64 ClientInterface::getCachedLastPendingFrameCount() {
 	return result;
 }
 
+int64 ClientInterface::getTimeClientWaitedForLastMessage() {
+	MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
+	uint64 result = timeClientWaitedForLastMessage;
+	safeMutex.ReleaseLock();
+
+	return result;
+}
+
+
+
 //void ClientInterface::simpleTask(BaseThread *callingThread) {
 //	Chrono chrono;
 //	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
@@ -1211,6 +1222,8 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 	bool waitForData = false;
 	uint64 copyCachedLastPendingFrameCount = 0;
 	uint64 waitCount = 0;
+	Chrono chrono;
+	timeClientWaitedForLastMessage = 0;
 
 	if(quit == false && this->quitThread == false) {
 		//MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
@@ -1236,6 +1249,10 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 					//cachedPendingCommands.erase(frameCount);
 					cachedPendingCommands[frameCount].clear();
 				}
+				if(waitForData == true) {
+					timeClientWaitedForLastMessage=chrono.getMillis();
+					chrono.stop();
+				}
 				safeMutex.ReleaseLock(true);
 
 				result = true;
@@ -1250,6 +1267,7 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 
 				if(waitForData == false) {
 					printf("Client waiting for packet for frame: %d, copyCachedLastPendingFrameCount = %lld\n",frameCount,(long long int)copyCachedLastPendingFrameCount);
+					chrono.start();
 				}
 				if(copyCachedLastPendingFrameCount > frameCount) {
 					break;

@@ -74,6 +74,7 @@ Game::Game() : ProgramState(NULL) {
 	lastUpdateFps=0;
 	avgUpdateFps=0;
 	framesToCatchUpAsClient=0;
+	framesToSlowDownAsClient=0;
 	totalRenderFps=0;
 	renderFps=0;
 	lastRenderFps=0;
@@ -161,6 +162,10 @@ Game::Game() : ProgramState(NULL) {
 	lastNetworkPlayerConnectionCheck = time(NULL);
 	inJoinGameLoading = false;
 
+	for( int i=0;i<GameConstants::networkSmoothInterval;i++){
+		frameWhenMessageWasReceived[i]==-1;
+		framesNeededToWaitForServerMessage[i]==-1;
+	}
 
 	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
 	GAME_STATS_DUMP_INTERVAL = Config::getInstance().getInt("GameStatsDumpIntervalSeconds",intToStr(GAME_STATS_DUMP_INTERVAL).c_str());
@@ -235,6 +240,7 @@ void Game::resetMembers() {
 	renderFps=0;
 	lastUpdateFps=0;
 	framesToCatchUpAsClient=0;
+	framesToSlowDownAsClient=0;
 	lastRenderFps=-1;
 	avgUpdateFps=-1;
 	avgRenderFps=-1;
@@ -265,6 +271,12 @@ void Game::resetMembers() {
 	lastNetworkPlayerConnectionCheck = time(NULL);
 
 	inJoinGameLoading = false;
+
+	for( int i=0;i<GameConstants::networkSmoothInterval;i++){
+		frameWhenMessageWasReceived[i]==-1;
+		framesNeededToWaitForServerMessage[i]==-1;
+	}
+
 
 	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
 	GAME_STATS_DUMP_INTERVAL = Config::getInstance().getInt("GameStatsDumpIntervalSeconds",intToStr(GAME_STATS_DUMP_INTERVAL).c_str());
@@ -1733,39 +1745,113 @@ void Game::update() {
 			ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
 			if(clientInterface != NULL) {
 				uint64 lastNetworkFrameFromServer = clientInterface->getCachedLastPendingFrameCount();
-//				if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > (world.getFrameCount() + gameSettings.getNetworkFramePeriod())+1) {
-//				//if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount()) {
-//					int frameDifference = ((lastNetworkFrameFromServer - world.getFrameCount()) / gameSettings.getNetworkFramePeriod()) * gameSettings.getNetworkFramePeriod();
-//
-//					//int frameDifference = lastNetworkFrameFromServer - world.getFrameCount();
-				if(framesToCatchUpAsClient==0){
-					if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > (world.getFrameCount() + gameSettings.getNetworkFramePeriod()/4)) {
-						//if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount()) {
-						int frameDifference = lastNetworkFrameFromServer - world.getFrameCount();
-						printf("Client will speed up: %d frames lastNetworkFrameFromServer: %lld world.getFrameCount() = %d updateLoops = %d\n",frameDifference,(long long int)lastNetworkFrameFromServer,world.getFrameCount(),updateLoops);
-						framesToCatchUpAsClient=frameDifference;
-						// done below now: updateLoops += frameDifference;
+////				if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > (world.getFrameCount() + gameSettings.getNetworkFramePeriod())+1) {
+////				//if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount()) {
+////					int frameDifference = ((lastNetworkFrameFromServer - world.getFrameCount()) / gameSettings.getNetworkFramePeriod()) * gameSettings.getNetworkFramePeriod();
+////
+////					//int frameDifference = lastNetworkFrameFromServer - world.getFrameCount();
+//				if(framesToCatchUpAsClient==0){
+//					if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > (world.getFrameCount() + gameSettings.getNetworkFramePeriod()/4)) {
+//						//if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount()) {
+//						int frameDifference = lastNetworkFrameFromServer - world.getFrameCount();
+//						printf("Client will speed up: %d frames lastNetworkFrameFromServer: %lld world.getFrameCount() = %d updateLoops = %d\n",frameDifference,(long long int)lastNetworkFrameFromServer,world.getFrameCount(),updateLoops);
+//						framesToCatchUpAsClient=frameDifference;
+//						// done below now: updateLoops += frameDifference;
+//					}
+//				}
+////				//If client is ahead maybe this fixes it ( by titi ):
+//				if(updateLoops!=0 && lastNetworkFrameFromServer > 0 && world.getFrameCount() > lastNetworkFrameFromServer && (world.getFrameCount()%GameConstants::updateFps)>38 ){
+//						printf("Client will slow down because no message has arrived yet. currentFrame=%d \n",world.getFrameCount());
+//						updateLoops = 0;
+//				}
+
+				/////////////////////////////////
+				// TTTT new attempt to make things smoother:
+				///////////////
+
+				////////////////////////////////////////////
+				//get stats of received/waiting for packages
+				////////////////////////////////////////////
+				// calculate current receive Index slot:
+				int index = (world.getFrameCount()
+						- (world.getFrameCount()
+								% gameSettings.getNetworkFramePeriod())
+								/ gameSettings.getNetworkFramePeriod())
+						% GameConstants::networkSmoothInterval;
+
+				if(frameWhenMessageWasReceived[index]==-1){
+					// we need to check if we already received something for next frame
+					if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount()) {
+						frameWhenMessageWasReceived[index]= lastNetworkFrameFromServer-world.getFrameCount();
+
 					}
 				}
-//				//If client is ahead maybe this fixes it ( by titi ):
-				if(updateLoops!=0 && lastNetworkFrameFromServer > 0 && world.getFrameCount() > lastNetworkFrameFromServer && (world.getFrameCount()%GameConstants::updateFps)>38 ){
-						printf("Client will slow down because no message has arrived yet. currentFrame=%d \n",world.getFrameCount());
-						updateLoops = 0;
+				if(frameWhenMessageWasReceived[index]==-1){
+				// calc time waiting for message in milliseconds to frames
+				 framesNeededToWaitForServerMessage[index]=clientInterface->getTimeClientWaitedForLastMessage()/1000/GameConstants::updateFps;
+				}
+
+				////////////////////////////////////////////
+				//use the recorded stats of received/waiting for packages
+				////////////////////////////////////////////
+				//lets see if the client is in front and had to wait for messages ...
+
+				//lets see if all last recorded frames where received too early
+				int minimum=0;
+				int allowedMaxFallback=5;
+				int countOfMessagesReceivedTooEarly=0;
+				int countOfMessagesReceivedTooLate=0;
+				int sumOfTooLateFrames=0;
+				bool cleanupStats=false;
+
+
+				for( int i=0;i<GameConstants::networkSmoothInterval;i++){
+					if(frameWhenMessageWasReceived[i]>allowedMaxFallback){
+						countOfMessagesReceivedTooEarly++;
+						if ( minimum == 0 || minimum > frameWhenMessageWasReceived[i]  ){
+							minimum=frameWhenMessageWasReceived[i];
+						}
+					}
+					if(framesNeededToWaitForServerMessage[i]>0){
+						countOfMessagesReceivedTooLate++;
+						sumOfTooLateFrames+=framesNeededToWaitForServerMessage[i];
+					}
+				}
+
+				if( countOfMessagesReceivedTooEarly==GameConstants::networkSmoothInterval )
+				{// all packages where too early
+					// we catch up the minimum-catchupInterval of what we recorded
+					framesToCatchUpAsClient=minimum-allowedMaxFallback;
+					framesToSlowDownAsClient=0;
+					cleanupStats=true;
+					printf("Worldframe %d : Client will speed up: %d frames\n",world.getFrameCount(),framesToCatchUpAsClient);
+				}
+				else if(countOfMessagesReceivedTooLate>3){
+					framesToSlowDownAsClient=sumOfTooLateFrames/countOfMessagesReceivedTooLate;
+					framesToCatchUpAsClient=0;
+					cleanupStats=true;
+					printf("Worldframe %d : Client will slow down: %d frames\n",world.getFrameCount(),framesToCatchUpAsClient);
+				}
+
+				if(cleanupStats==true) {
+					// Once we decided to use the stats to do some correction, we reset/cleanup our recorded stats
+					for( int i=0;i<GameConstants::networkSmoothInterval;i++){
+						frameWhenMessageWasReceived[i]=-1;
+						framesNeededToWaitForServerMessage[index]=-1;
+					}
 				}
 			}
 		}
 		// we catch up a bit smoother with updateLoops = 2
 		if(framesToCatchUpAsClient>0)
 		{
-			if(framesToCatchUpAsClient==1)
-			{
-				//ignore it and don't catch up this one frame
-				framesToCatchUpAsClient=0;
-			}
-			else if(framesToCatchUpAsClient>1){
 				updateLoops = 2;
-				framesToCatchUpAsClient=framesToCatchUpAsClient-2;
-			}
+				framesToCatchUpAsClient=framesToCatchUpAsClient-1;
+		}
+		if(framesToSlowDownAsClient>0)
+		{// slowdown still the hard way.
+			updateLoops = 0;
+			framesToSlowDownAsClient=framesToSlowDownAsClient-1;
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());

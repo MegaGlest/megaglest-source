@@ -87,6 +87,7 @@ private:
 	std::map<int,Commands> cachedPendingCommands;	//commands ready to be given
 	uint64 cachedPendingCommandsIndex;
 	uint64 cachedLastPendingFrameCount;
+	int64 timeClientWaitedForLastMessage;
 
 	Mutex *flagAccessor;
 	bool joinGameInProgress;
@@ -112,6 +113,7 @@ public:
 	void sendResumeGameMessage();
 
 	uint64 getCachedLastPendingFrameCount();
+	int64 getTimeClientWaitedForLastMessage();
 
 	//message processing
 	virtual void update();
