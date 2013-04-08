@@ -770,7 +770,11 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 	specularColor= Vec3f(meshHeader.specularColor);
 	specularPower= meshHeader.specularPower;
 	opacity= meshHeader.opacity;
-
+	if(opacity==0){
+		printf("found a mesh with opacity=0 in header, using opacity=1 to see it now \n");
+		printf("file: %s\n",modelFile.c_str());
+		opacity=1.0f;
+	}
 	textureFlags= meshHeader.textures;
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Load v4, this = %p Found meshHeader.textures = %d meshIndex = %d\n",this,meshHeader.textures,meshIndex);
