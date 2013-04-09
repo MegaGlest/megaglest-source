@@ -163,8 +163,8 @@ Game::Game() : ProgramState(NULL) {
 	inJoinGameLoading = false;
 
 	for( int i=0;i<GameConstants::networkSmoothInterval;i++){
-		receivedTooEarlyInFrames[i]==-1;
-		framesNeededToWaitForServerMessage[i]==-1;
+		receivedTooEarlyInFrames[i]=-1;
+		framesNeededToWaitForServerMessage[i]=-1;
 	}
 
 	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
@@ -273,8 +273,8 @@ void Game::resetMembers() {
 	inJoinGameLoading = false;
 
 	for( int i=0;i<GameConstants::networkSmoothInterval;i++){
-		receivedTooEarlyInFrames[i]==-1;
-		framesNeededToWaitForServerMessage[i]==-1;
+		receivedTooEarlyInFrames[i]=-1;
+		framesNeededToWaitForServerMessage[i]=-1;
 	}
 
 
@@ -1765,6 +1765,7 @@ void Game::update() {
 //						updateLoops = 0;
 //				}
 
+				if(world.getFrameCount() == (gameSettings.getNetworkFramePeriod() * 2)){ printf("alles neu\n");}
 				/////////////////////////////////
 				// TTTT new attempt to make things smoother:
 				///////////////
@@ -1848,7 +1849,7 @@ void Game::update() {
 					// Once we decided to use the stats to do some correction, we reset/cleanup our recorded stats
 					for( int i=0;i<GameConstants::networkSmoothInterval;i++){
 						receivedTooEarlyInFrames[i]=-1;
-						framesNeededToWaitForServerMessage[index]=-1;
+						framesNeededToWaitForServerMessage[i]=-1;
 					}
 				}
 			}
