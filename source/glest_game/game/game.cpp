@@ -1765,7 +1765,6 @@ void Game::update() {
 //						updateLoops = 0;
 //				}
 
-				if(world.getFrameCount() == (gameSettings.getNetworkFramePeriod() * 2)){ printf("alles neu\n");}
 				/////////////////////////////////
 				// TTTT new attempt to make things smoother:
 				///////////////

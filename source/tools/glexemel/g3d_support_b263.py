@@ -514,7 +514,10 @@ def G3DSaver(filepath, context, operator):
 			if material.active_texture.type=='IMAGE' and len(mesh.uv_textures)>0:
 				diffuseColor = material.diffuse_color
 				specularColor = material.specular_color
-				opacity = material.alpha
+				if material.alpha == 0 : #ignore the opacity if it is 0 . in this case its set to 1.0 to make it visible
+					opacity = 1.0 
+				else:
+					opacity = material.alpha
 				textures = 1
 				texname = bpy.path.basename(material.active_texture.image.filepath)
 			else:
