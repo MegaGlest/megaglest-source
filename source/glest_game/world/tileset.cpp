@@ -315,12 +315,8 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 				if(modelNode->hasAttribute("smoothTwoFrameAnim") == true) {
 					tmt->setSmoothTwoFrameAnim(modelNode->getAttribute("smoothTwoFrameAnim")->getBoolValue());
 				}
-				else if(modelNode->hasChild("smoothTwoFrameAnim")){
-					const XmlNode *smoothTwoFrameAnimNode= modelNode->getChild("smoothTwoFrameAnim");
-					tmt->setSmoothTwoFrameAnim(smoothTwoFrameAnimNode->getAttribute("value")->getBoolValue());
-				}
 				else{
-					tmt->setSmoothTwoFrameAnim(true);
+					tmt->setSmoothTwoFrameAnim(false);
 				}
 			}
 		}
