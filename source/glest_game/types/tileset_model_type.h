@@ -43,6 +43,7 @@ private:
 	ModelParticleSystemTypes particleTypes;
 	int height;
 	bool rotationAllowed;
+	bool smoothTwoFrameAnim;
 
     int animSpeed;
 
@@ -64,8 +65,14 @@ public:
 	inline bool getRotationAllowed() const			{return rotationAllowed;}
 	inline void setRotationAllowed(bool rotationAllowed)	{this->rotationAllowed=rotationAllowed;}
 
+	inline bool getSmoothTwoFrameAnim() const			{return smoothTwoFrameAnim;}
+	inline void setSmoothTwoFrameAnim(bool smoothTwoFrameAnim)	{this->smoothTwoFrameAnim=smoothTwoFrameAnim;}
+
 	inline int getAnimSpeed() const			{return animSpeed;}
 	inline void setAnimSpeed(int value) {animSpeed = value;}
+
+//	inline int getAnimSpeedVariation() const			{return animVariation;}
+//	inline void setAnimSpeedVariation(int value) {animSpeed = valueVariation;}
 };
 
 }}//end namespace

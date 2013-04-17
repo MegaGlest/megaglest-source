@@ -140,7 +140,15 @@ void Object::update() {
 		float heightFactor   = 1.f;
 		const float speedDivider= 100.f;
 		float speedDenominator = (speedDivider * GameConstants::updateFps);
-		float newAnimProgress = animProgress + (((float)objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator);
+
+		//
+		//float f= 2.1-4*abs(animProgress-.5f);
+		float f=1.0f;
+		if(objectType->getTilesetModelType(variation)->getSmoothTwoFrameAnim()==true){
+			f=abs(std::sin(animProgress*2*3.16))+0.4f;
+		}
+
+		float newAnimProgress = animProgress + f*(((float)objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator);
 
 //		printf("A [%f] B [%f] C [%f] D [%f] E [%f] F [%f]\n",
 //				((float)objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor),
