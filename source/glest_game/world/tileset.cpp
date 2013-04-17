@@ -310,6 +310,18 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 				else{
 					tmt->setRotationAllowed(true);
 				}
+
+				//smoothTwoFrameAnim
+				if(modelNode->hasAttribute("smoothTwoFrameAnim") == true) {
+					tmt->setSmoothTwoFrameAnim(modelNode->getAttribute("smoothTwoFrameAnim")->getBoolValue());
+				}
+				else if(modelNode->hasChild("smoothTwoFrameAnim")){
+					const XmlNode *smoothTwoFrameAnimNode= modelNode->getChild("smoothTwoFrameAnim");
+					tmt->setSmoothTwoFrameAnim(smoothTwoFrameAnimNode->getAttribute("value")->getBoolValue());
+				}
+				else{
+					tmt->setSmoothTwoFrameAnim(true);
+				}
 			}
 		}
 
