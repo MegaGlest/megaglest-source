@@ -141,8 +141,7 @@ void Object::update() {
 		const float speedDivider= 100.f;
 		float speedDenominator = (speedDivider * GameConstants::updateFps);
 
-		//
-		//float f= 2.1-4*abs(animProgress-.5f);
+		// smooth TwoFrameanimations
 		float f=1.0f;
 		if(objectType->getTilesetModelType(variation)->getSmoothTwoFrameAnim()==true){
 			f=abs(std::sin(animProgress*2*3.16))+0.4f;
