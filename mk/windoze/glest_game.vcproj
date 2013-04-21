@@ -691,6 +691,30 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\source\glest_game\menu\menu_state_options_graphics.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\menu\menu_state_options_graphics.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\menu\menu_state_options_network.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\menu\menu_state_options_network.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\menu\menu_state_options_sound.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\glest_game\menu\menu_state_options_sound.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\source\glest_game\menu\menu_state_root.cpp"
 				>
 			</File>

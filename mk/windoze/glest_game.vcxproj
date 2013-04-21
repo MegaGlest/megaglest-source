@@ -239,6 +239,9 @@
     <ClCompile Include="..\..\source\glest_game\menu\menu_state_mods.cpp" />
     <ClCompile Include="..\..\source\glest_game\menu\menu_state_new_game.cpp" />
     <ClCompile Include="..\..\source\glest_game\menu\menu_state_options.cpp" />
+    <ClCompile Include="..\..\source\glest_game\menu\menu_state_options_graphics.cpp" />
+    <ClCompile Include="..\..\source\glest_game\menu\menu_state_options_network.cpp" />
+    <ClCompile Include="..\..\source\glest_game\menu\menu_state_options_sound.cpp" />
     <ClCompile Include="..\..\source\glest_game\menu\menu_state_root.cpp" />
     <ClCompile Include="..\..\source\glest_game\menu\menu_state_scenario.cpp" />
     <ClCompile Include="..\..\source\glest_game\menu\server_line.cpp" />
@@ -323,6 +326,9 @@
     <ClInclude Include="..\..\source\glest_game\menu\menu_state_mods.h" />
     <ClInclude Include="..\..\source\glest_game\menu\menu_state_new_game.h" />
     <ClInclude Include="..\..\source\glest_game\menu\menu_state_options.h" />
+    <ClInclude Include="..\..\source\glest_game\menu\menu_state_options_graphics.h" />
+    <ClInclude Include="..\..\source\glest_game\menu\menu_state_options_network.h" />
+    <ClInclude Include="..\..\source\glest_game\menu\menu_state_options_sound.h" />
     <ClInclude Include="..\..\source\glest_game\menu\menu_state_root.h" />
     <ClInclude Include="..\..\source\glest_game\menu\menu_state_scenario.h" />
     <ClInclude Include="..\..\source\glest_game\menu\server_line.h" />

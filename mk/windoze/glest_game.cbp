@@ -563,6 +563,12 @@
 		<Unit filename="../../source/glest_game/menu/menu_state_new_game.h" />
 		<Unit filename="../../source/glest_game/menu/menu_state_options.cpp" />
 		<Unit filename="../../source/glest_game/menu/menu_state_options.h" />
+		<Unit filename="../../source/glest_game/menu/menu_state_options_graphics.cpp" />
+		<Unit filename="../../source/glest_game/menu/menu_state_options_graphics.h" />
+		<Unit filename="../../source/glest_game/menu/menu_state_options_network.cpp" />
+		<Unit filename="../../source/glest_game/menu/menu_state_options_network.h" />
+		<Unit filename="../../source/glest_game/menu/menu_state_options_sound.cpp" />
+		<Unit filename="../../source/glest_game/menu/menu_state_options_sound.h" />
 		<Unit filename="../../source/glest_game/menu/menu_state_root.cpp" />
 		<Unit filename="../../source/glest_game/menu/menu_state_root.h" />
 		<Unit filename="../../source/glest_game/menu/menu_state_scenario.cpp" />
