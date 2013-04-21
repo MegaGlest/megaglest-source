@@ -282,8 +282,7 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
 			*this->parentUI = NULL;
 			delete *this->parentUI;
 		}
-
-		mainMenu->setState(new MenuStateOptions(program, mainMenu));
+		mainMenu->setState(new MenuStateRoot(program, mainMenu));
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
     else if(buttonDefaults.mouseClick(x, y)){
