@@ -14,7 +14,7 @@
 #include "renderer.h"
 #include "sound_renderer.h"
 #include "core_data.h"
-#include "menu_state_options.h"
+#include "menu_state_options_graphics.h"
 #include "config.h"
 #include "opengl.h"
 #include "leak_dumper.h"
@@ -123,7 +123,7 @@ void MenuStateGraphicInfo::mouseClick(int x, int y, MouseButton mouseButton){
 
 	if(buttonReturn.mouseClick(x,y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
-		mainMenu->setState(new MenuStateOptions(program, mainMenu));
+		mainMenu->setState(new MenuStateOptionsGraphics(program, mainMenu));
     }
 }
 

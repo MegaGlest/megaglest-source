@@ -17,6 +17,11 @@
 #include "config.h"
 #include "menu_state_options.h"
 #include "menu_state_root.h"
+#include "menu_state_keysetup.h"
+#include "menu_state_options_graphics.h"
+#include "menu_state_options_sound.h"
+#include "menu_state_options_network.h"
+#include "menu_state_options_sound.h"
 #include "metrics.h"
 #include "string_utils.h"
 
@@ -38,26 +43,63 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 		containerName = "KeySetup";
 
 		this->parentUI = parentUI;
+		this->console.setOnlyChatMessagesInStoredLines(false);
 		hotkeyIndex = -1;
 		hotkeyChar = SDLK_UNKNOWN;
 
 		Lang &lang= Lang::getInstance();
 		int buttonRowPos=80;
+		if(this->parentUI==NULL){
+			int tabButtonWidth=200;
+			int tabButtonHeight=30;
+
+			buttonAudioSection.registerGraphicComponent(containerName,"buttonAudioSection");
+			buttonAudioSection.init(0, 720,tabButtonWidth,tabButtonHeight);
+			buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
+			buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
+			buttonAudioSection.setText(lang.get("Audio"));
+			// Video Section
+			buttonVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
+			buttonVideoSection.init(200, 720,tabButtonWidth,tabButtonHeight);
+			buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
+			buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
+			buttonVideoSection.setText(lang.get("Video"));
+			//currentLine-=lineOffset;
+			//MiscSection
+			buttonMiscSection.registerGraphicComponent(containerName,"labelMiscSection");
+			buttonMiscSection.init(400, 720,tabButtonWidth,tabButtonHeight);
+			buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
+			buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
+			buttonMiscSection.setText(lang.get("Misc"));
+			//NetworkSettings
+			buttonNetworkSettings.registerGraphicComponent(containerName,"labelNetworkSettingsSection");
+			buttonNetworkSettings.init(600, 720,tabButtonWidth,tabButtonHeight);
+			buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
+			buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
+			buttonNetworkSettings.setText(lang.get("Network"));
+
+			//KeyboardSetup
+			buttonKeyboardSetup.registerGraphicComponent(containerName,"buttonKeyboardSetup");
+			buttonKeyboardSetup.init(800, 700,tabButtonWidth,tabButtonHeight+20);
+			buttonKeyboardSetup.setFont(CoreData::getInstance().getMenuFontVeryBig());
+			buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
+			buttonKeyboardSetup.setText(lang.get("Keyboardsetup"));
+		}
 		// header
 		labelTitle.registerGraphicComponent(containerName,"labelTitle");
-		labelTitle.init(330,700);
+		labelTitle.init(330,670);
 		labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
 		labelTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 		labelTitle.setText(lang.get("Keyboardsetup"));
 
 		labelTestTitle.registerGraphicComponent(containerName,"labelTestTitle");
-		labelTestTitle.init(50,700);
+		labelTestTitle.init(50,670);
 		labelTestTitle.setFont(CoreData::getInstance().getMenuFontBig());
 		labelTestTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 		labelTestTitle.setText(lang.get("KeyboardsetupTest"));
 
 		labelTestValue.registerGraphicComponent(containerName,"labelTestValue");
-		labelTestValue.init(50,670);
+		labelTestValue.init(50,640);
 		labelTestValue.setFont(CoreData::getInstance().getMenuFontBig());
 		labelTestValue.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 		labelTestValue.setText("");
@@ -78,7 +120,7 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 		// buttons
 		buttonOk.registerGraphicComponent(containerName,"buttonOk");
 		buttonOk.init(200, buttonRowPos, 100);
-		buttonOk.setText(lang.get("Ok"));
+		buttonOk.setText(lang.get("Save"));
 
 		buttonDefaults.registerGraphicComponent(containerName,"buttonDefaults");
 		buttonDefaults.init(310, buttonRowPos, 100);
@@ -86,7 +128,7 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 
 		buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 		buttonReturn.init(420, buttonRowPos, 100);
-		buttonReturn.setText(lang.get("Abort"));
+		buttonReturn.setText(lang.get("Return"));
 
 		keyButtonsLineHeight=25;
 		keyButtonsHeight=20;
@@ -178,11 +220,10 @@ void MenuStateKeysetup::reloadUI() {
 	// mainMassegeBox
 	mainMessageBox.init(lang.get("Ok"));
 
-	buttonOk.setText(lang.get("Ok"));
+	buttonOk.setText(lang.get("Save"));
+	buttonReturn.setText(lang.get("Return"));
 
 	buttonDefaults.setText(lang.get("Defaults"));
-
-	buttonReturn.setText(lang.get("Abort"));
 
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
@@ -280,18 +321,19 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
 			configKeys.setUserProperties(userProperties);
 			configKeys.save();
 			configKeys.reload();
-        }
+       }
 
-		if(this->parentUI != NULL) {
-			*this->parentUI = NULL;
-			delete *this->parentUI;
-		}
-
-		mainMenu->setState(new MenuStateOptions(program, mainMenu));
+		Lang &lang= Lang::getInstance();
+		console.addLine(lang.get("SettingsSaved"));
+//		if(this->parentUI != NULL) {
+//			*this->parentUI = NULL;
+//			delete *this->parentUI;
+//		}
+//
+//		mainMenu->setState(new MenuStateOptions(program, mainMenu));
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
-    else {
-    	if ( keyScrollBar.getElementCount() != 0) {
+    else if ( keyScrollBar.getElementCount() != 0) {
 			for (int i = keyScrollBar.getVisibleStart(); i
 					<= keyScrollBar.getVisibleEnd(); ++i) {
 				if (keyButtons[i]->mouseClick(x, y)) {
@@ -301,7 +343,38 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
 				}
 			}
 		}
-    }
+
+	if(this->parentUI==NULL){
+		if(buttonKeyboardSetup.mouseClick(x, y)){
+			soundRenderer.playFx(coreData.getClickSoundA());
+			//mainMenu->setState(new MenuStateKeysetup(program, mainMenu)); // open keyboard shortcuts setup screen
+			//mainMenu->setState(new MenuStateOptionsGraphics(program, mainMenu)); // open keyboard shortcuts setup screen
+			//mainMenu->setState(new MenuStateOptionsNetwork(program, mainMenu)); // open keyboard shortcuts setup screen
+			//mainMenu->setState(new MenuStateKeysetup(program, mainMenu)); // open keyboard shortcuts setup screen
+			//showMessageBox("Not implemented yet", "Keyboard setup", false);
+			return;
+		}
+		else if(buttonAudioSection.mouseClick(x, y)){
+				soundRenderer.playFx(coreData.getClickSoundA());
+				mainMenu->setState(new MenuStateOptionsSound(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
+				return;
+			}
+		else if(buttonNetworkSettings.mouseClick(x, y)){
+				soundRenderer.playFx(coreData.getClickSoundA());
+				mainMenu->setState(new MenuStateOptionsNetwork(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
+				return;
+			}
+		else if(buttonMiscSection.mouseClick(x, y)){
+				soundRenderer.playFx(coreData.getClickSoundA());
+				mainMenu->setState(new MenuStateOptions(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
+				return;
+			}
+		else if(buttonVideoSection.mouseClick(x, y)){
+				soundRenderer.playFx(coreData.getClickSoundA());
+				mainMenu->setState(new MenuStateOptionsGraphics(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
+				return;
+			}
+	}
 }
 
 void MenuStateKeysetup::mouseUp(int x, int y, const MouseButton mouseButton){
@@ -313,6 +386,13 @@ void MenuStateKeysetup::mouseUp(int x, int y, const MouseButton mouseButton){
 void MenuStateKeysetup::mouseMove(int x, int y, const MouseState *ms){
     buttonReturn.mouseMove(x, y);
     buttonOk.mouseMove(x, y);
+    if(this->parentUI==NULL){
+    	buttonKeyboardSetup.mouseMove(x, y);
+    	buttonAudioSection.mouseMove(x, y);
+    	buttonNetworkSettings.mouseMove(x, y);
+    	buttonMiscSection.mouseMove(x, y);
+    	buttonVideoSection.mouseMove(x, y);
+    }
     if (ms->get(mbLeft)) {
 		keyScrollBar.mouseDown(x, y);
 	} else {
@@ -341,6 +421,13 @@ void MenuStateKeysetup::render(){
 		renderer.renderButton(&buttonReturn);
 		renderer.renderButton(&buttonDefaults);
 		renderer.renderButton(&buttonOk);
+		if(this->parentUI==NULL){
+			renderer.renderButton(&buttonKeyboardSetup);
+			renderer.renderButton(&buttonVideoSection);
+			renderer.renderButton(&buttonAudioSection);
+			renderer.renderButton(&buttonMiscSection);
+			renderer.renderButton(&buttonNetworkSettings);
+		}
 		renderer.renderLabel(&labelTitle);
 		renderer.renderLabel(&labelTestTitle);
 		renderer.renderLabel(&labelTestValue);
