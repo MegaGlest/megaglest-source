@@ -32,6 +32,12 @@ private:
 	GraphicButton buttonDefaults;
 	GraphicButton buttonReturn;
 
+	GraphicButton buttonKeyboardSetup; // configure the keyboard
+	GraphicButton buttonVideoSection;
+	GraphicButton buttonAudioSection;
+	GraphicButton buttonMiscSection;
+	GraphicButton buttonNetworkSettings;
+
 	GraphicLabel labelTitle;
 
 	GraphicScrollBar keyScrollBar;

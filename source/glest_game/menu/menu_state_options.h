@@ -25,88 +25,29 @@ class MenuStateOptions: public MenuState{
 private:
 
 	GraphicButton buttonOk;
-	GraphicButton buttonAbort;
-	GraphicButton buttonAutoConfig;
-	GraphicButton buttonVideoInfo;
-	GraphicButton buttonKeyboardSetup; // configure the keyboard
+	GraphicButton buttonReturn;
 
 	GraphicLabel labelLang;
-	GraphicLabel labelShadows;
-	GraphicLabel labelFilter;
-	GraphicLabel labelTextures3D;
-	GraphicLabel labelLights;
-	GraphicLabel labelUnitParticles;
-	GraphicLabel labelTilesetParticles;
-	GraphicLabel labelSoundFactory;
-	GraphicLabel labelVolumeFx;
-	GraphicLabel labelVolumeAmbient;
-	GraphicLabel labelVolumeMusic;
 	GraphicListBox listBoxLang;
-	GraphicListBox listBoxShadows;
-	GraphicListBox listBoxFilter;
-	GraphicCheckBox checkBoxTextures3D;
-	GraphicListBox listBoxLights;
-	GraphicCheckBox checkBoxUnitParticles;
-	GraphicCheckBox checkBoxTilesetParticles;
-	GraphicListBox listBoxSoundFactory;
-	GraphicListBox listBoxVolumeFx;
-	GraphicListBox listBoxVolumeAmbient;
-	GraphicListBox listBoxVolumeMusic;
 	GraphicLabel labelPlayerName;
 	GraphicLabel labelPlayerNameLabel;
 	GraphicLabel *activeInputLabel;
-	GraphicLabel labelExternalPort;
-	GraphicLabel labelServerPortLabel;
 
 
-	GraphicLabel labelScreenModes;
-	GraphicListBox listBoxScreenModes;
-	vector<ModeInfo> modeInfos;
-
-	GraphicLabel labelFullscreenWindowed;
-	GraphicCheckBox checkBoxFullscreenWindowed;
-
-	GraphicLabel labelVideoSection;
-	GraphicLabel labelAudioSection;
-	GraphicLabel labelMiscSection;
-	GraphicLabel labelNetworkSettings;
+	GraphicButton buttonKeyboardSetup; // configure the keyboard
+	GraphicButton buttonVideoSection;
+	GraphicButton buttonAudioSection;
+	GraphicButton buttonMiscSection;
+	GraphicButton buttonNetworkSettings;
 
 	GraphicLabel labelFontSizeAdjustment;
 	GraphicListBox listFontSizeAdjustment;
 
-	GraphicLabel labelMapPreview;
-	GraphicCheckBox checkBoxMapPreview;
 
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
 
-	GraphicLabel labelPublishServerExternalPort;
-	GraphicListBox listBoxServerPort;
 
-
-	GraphicLabel labelEnableFTP;
-	GraphicCheckBox checkBoxEnableFTP;
-
-	GraphicLabel labelEnableFTPServer;
-	GraphicCheckBox checkBoxEnableFTPServer;
-
-	GraphicLabel labelFTPServerPortLabel;
-	GraphicLabel labelFTPServerPort;
-
-	GraphicLabel labelFTPServerDataPortsLabel;
-	GraphicLabel labelFTPServerDataPorts;
-
-	GraphicLabel labelEnableFTPServerInternetTilesetXfer;
-	GraphicCheckBox checkBoxEnableFTPServerInternetTilesetXfer;
-
-	GraphicLabel labelEnableFTPServerInternetTechtreeXfer;
-	GraphicCheckBox checkBoxEnableFTPServerInternetTechtreeXfer;
-
-	GraphicLabel labelEnablePrivacy;
-	GraphicCheckBox checkBoxEnablePrivacy;
-
-	GraphicLabel labelEnableTextureCompression;
-	GraphicCheckBox checkBoxEnableTextureCompression;
 
 	GraphicLabel labelScreenShotType;
 	GraphicListBox listBoxScreenShotType;
@@ -123,20 +64,6 @@ private:
 	GraphicCheckBox checkBoxTimeDisplay;
 	GraphicLabel labelChatStaysActive;
 	GraphicCheckBox checkBoxChatStaysActive;
-
-	GraphicLabel labelRainEffect;
-	GraphicLabel labelRainEffectSeparator;
-	GraphicCheckBox checkBoxRainEffect;
-	GraphicCheckBox checkBoxRainEffectMenu;
-
-	GraphicLabel labelGammaCorrection;
-	GraphicListBox listBoxGammaCorrection;
-
-	GraphicLabel labelShadowTextureSize;
-	GraphicListBox listBoxShadowTextureSize;
-
-	GraphicLabel labelVideos;
-	GraphicCheckBox checkBoxVideos;
 
 	GraphicLabel labelLuaDisableSecuritySandbox;
 	GraphicCheckBox checkBoxLuaDisableSecuritySandbox;
@@ -158,12 +85,10 @@ private:
 	GraphicLabel labelTransifexI18NLabel;
 	GraphicLabel labelTransifexI18N;
 
-	GraphicLabel labelSelectionType;
-	GraphicListBox listBoxSelectionType;
-
+	ProgramState **parentUI;
 
 public:
-	MenuStateOptions(Program *program, MainMenu *mainMenu);
+	MenuStateOptions(Program *program, MainMenu *mainMenu, ProgramState **parentUI=NULL);
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
