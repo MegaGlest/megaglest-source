@@ -6985,13 +6985,6 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 	vector<Unit *> rendererUnits = renderUnitsFast(false, true);
 	//printf("In [%s::%s] Line: %d rendererUnits = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,rendererUnits.size());
 
-	vector<Object *> rendererObjects;
-	if(withObjectSelection == true) {
-		rendererObjects = renderObjectsFast(false,true,true);
-	}
-	//pop matrices
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
 
 	// Added this to ensure all the selection calls are done now
 	// (see http://www.unknownroad.com/rtfm/graphics/glselection.html section: [0x4])
@@ -7001,16 +6994,15 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 
 	PixelBufferWrapper::end();
 
-	vector<BaseColorPickEntity *> rendererModels;
+	vector<BaseColorPickEntity *> unitsVector;
+	bool unitFound=false;
+
 	if(rendererUnits.empty() == false) {
-		copy(rendererUnits.begin(), rendererUnits.end(), std::inserter(rendererModels, rendererModels.begin()));
-	}
-	if(rendererObjects.empty() == false) {
-		copy(rendererObjects.begin(), rendererObjects.end(), std::inserter(rendererModels, rendererModels.begin()));
+		copy(rendererUnits.begin(), rendererUnits.end(), std::inserter(unitsVector, unitsVector.begin()));
 	}
 
-	if(rendererModels.empty() == false) {
-		vector<int> pickedList = BaseColorPickEntity::getPickedList(x,y,w,h, rendererModels);
+	if(unitsVector.empty() == false) {
+		vector<int> pickedList = BaseColorPickEntity::getPickedList(x,y,w,h, unitsVector);
 		//printf("In [%s::%s] Line: %d pickedList = %d models rendered = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,pickedList.size(),rendererModels.size());
 
 		if(pickedList.empty() == false) {
@@ -7019,28 +7011,55 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 				int index = pickedList[i];
 				//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d units = %d objects = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,index,rendererUnits.size(),rendererObjects.size());
 
-				if(rendererObjects.empty() == false && index < rendererObjects.size()) {
-					Object *object = rendererObjects[index];
-					//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,index,object);
-
-					if(object != NULL) {
-						obj = object;
-						if(withObjectSelection == true) {
-							//printf("In [%s::%s] Line: %d found selected object [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,obj);
-							return;
-						}
-					}
-				}
-				else {
-					index -= rendererObjects.size();
+				if(rendererUnits.empty() == false && index < rendererUnits.size()) {
 					Unit *unit = rendererUnits[index];
 					if(unit != NULL && unit->isAlive()) {
+						unitFound=true;
 						units.push_back(unit);
 					}
 				}
 			}
 		}
 	}
+
+	if(withObjectSelection == true && unitFound==false) {
+		vector<Object *> rendererObjects;
+		vector<BaseColorPickEntity *> objectsVector;
+		rendererObjects = renderObjectsFast(false,true,true);
+		if(rendererObjects.empty() == false) {
+			copy(rendererObjects.begin(), rendererObjects.end(), std::inserter(objectsVector, objectsVector.begin()));
+		}
+
+		if(objectsVector.empty() == false) {
+			vector<int> pickedList = BaseColorPickEntity::getPickedList(x,y,w,h, objectsVector);
+			//printf("In [%s::%s] Line: %d pickedList = %d models rendered = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,pickedList.size(),rendererModels.size());
+
+			if(pickedList.empty() == false) {
+				units.reserve(pickedList.size());
+				for(unsigned int i = 0; i < pickedList.size(); ++i) {
+					int index = pickedList[i];
+					//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d units = %d objects = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,index,rendererUnits.size(),rendererObjects.size());
+
+					if(rendererObjects.empty() == false && index < rendererObjects.size()) {
+						Object *object = rendererObjects[index];
+						//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,index,object);
+
+						if(object != NULL) {
+							obj = object;
+							if(withObjectSelection == true) {
+								//printf("In [%s::%s] Line: %d found selected object [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,obj);
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	//pop matrices
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
 }
 
 // ==================== shadows ====================
