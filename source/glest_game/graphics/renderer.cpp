@@ -7035,7 +7035,6 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 			//printf("In [%s::%s] Line: %d pickedList = %d models rendered = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,pickedList.size(),rendererModels.size());
 
 			if(pickedList.empty() == false) {
-				units.reserve(pickedList.size());
 				for(unsigned int i = 0; i < pickedList.size(); ++i) {
 					int index = pickedList[i];
 					//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d units = %d objects = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,index,rendererUnits.size(),rendererObjects.size());
@@ -7046,10 +7045,7 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 
 						if(object != NULL) {
 							obj = object;
-							if(withObjectSelection == true) {
-								//printf("In [%s::%s] Line: %d found selected object [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,obj);
-								break;
-							}
+							break;
 						}
 					}
 				}

@@ -1610,7 +1610,7 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
 	//printf("In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	static Chrono lastSnapshot(true);
-	const int selectionMillisecondUpdate = 100;
+	const int selectionMillisecondUpdate = -1;
 
 	if(rendererModels.empty() == false) {
 		if(PixelBufferWrapper::getIsPBOEnable() == true) {
@@ -1668,9 +1668,19 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
 		map<int,bool> modelAlreadyPickedList;
 		map<unsigned char,map<unsigned char, map<unsigned char,bool> > > colorAlreadyPickedList;
 		int nEnd = w * h;
-		for(int x = 0; x < nEnd && pickedModels.size() < rendererModels.size(); ++x) {
+		unsigned char *oldpixel = &pixelBuffer[0];
+		for(int x = 0; x < nEnd && pickedModels.size() < rendererModels.size(); x=x+4) {
 			int index = x * COLOR_COMPONENTS;
 			unsigned char *pixel = &pixelBuffer[index];
+			if(pixel[3]==0) continue;
+			if(x>0)
+			{
+				oldpixel = &pixelBuffer[index-1*COLOR_COMPONENTS];
+				if(memcmp(pixel,oldpixel,4)) continue;
+			}
+
+
+
 
 			// Skip duplicate scanned colors
 			map<unsigned char,map<unsigned char, map<unsigned char,bool> > >::const_iterator iterFind1 = colorAlreadyPickedList.find(pixel[0]);
