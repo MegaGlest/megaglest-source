@@ -1667,47 +1667,48 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
 
 		map<int,bool> modelAlreadyPickedList;
 		map<unsigned char,map<unsigned char, map<unsigned char,bool> > > colorAlreadyPickedList;
-		int nEnd = w * h;
+
+		int skipSteps=4;
 		unsigned char *oldpixel = &pixelBuffer[0];
-		for(int x = 0; x < nEnd && pickedModels.size() < rendererModels.size(); x=x+4) {
-			int index = x * COLOR_COMPONENTS;
-			unsigned char *pixel = &pixelBuffer[index];
-			if(pixel[3]==0) continue;
-			if(x>0)
-			{
-				oldpixel = &pixelBuffer[index-1*COLOR_COMPONENTS];
-				if(memcmp(pixel,oldpixel,4)) continue;
-			}
+		for(int hh = 0; hh < h && pickedModels.size() < rendererModels.size(); hh=hh+skipSteps) {
+			for(int ww=0;ww < w && pickedModels.size() < rendererModels.size(); ww=ww+skipSteps){
 
+				int index = (hh*w+ww) * COLOR_COMPONENTS;
+				unsigned char *pixel = &pixelBuffer[index];
+				if(pixel[3]==0) continue;
+				if(x>0)
+				{
+					oldpixel = &pixelBuffer[index-1*COLOR_COMPONENTS];
+					if(memcmp(pixel,oldpixel,4)) continue;
+				}
 
-
-
-			// Skip duplicate scanned colors
-			map<unsigned char,map<unsigned char, map<unsigned char,bool> > >::const_iterator iterFind1 = colorAlreadyPickedList.find(pixel[0]);
-			if(iterFind1 != colorAlreadyPickedList.end()) {
-				map<unsigned char, map<unsigned char,bool> >::const_iterator iterFind2 = iterFind1->second.find(pixel[1]);
-				if(iterFind2 != iterFind1->second.end()) {
-					map<unsigned char,bool>::const_iterator iterFind3 = iterFind2->second.find(pixel[2]);
-					if(iterFind3 != iterFind2->second.end()) {
-						continue;
+				// Skip duplicate scanned colors
+				map<unsigned char,map<unsigned char, map<unsigned char,bool> > >::const_iterator iterFind1 = colorAlreadyPickedList.find(pixel[0]);
+				if(iterFind1 != colorAlreadyPickedList.end()) {
+					map<unsigned char, map<unsigned char,bool> >::const_iterator iterFind2 = iterFind1->second.find(pixel[1]);
+					if(iterFind2 != iterFind1->second.end()) {
+						map<unsigned char,bool>::const_iterator iterFind3 = iterFind2->second.find(pixel[2]);
+						if(iterFind3 != iterFind2->second.end()) {
+							continue;
+						}
 					}
 				}
-			}
 
-			for(unsigned int i = 0; i < rendererModels.size(); ++i) {
-				// Skip models already selected
-				if(modelAlreadyPickedList.find(i) != modelAlreadyPickedList.end()) {
-					continue;
-				}
-				const BaseColorPickEntity *model = rendererModels[i];
+				for(unsigned int i = 0; i < rendererModels.size(); ++i) {
+					// Skip models already selected
+					if(modelAlreadyPickedList.find(i) != modelAlreadyPickedList.end()) {
+						continue;
+					}
+					const BaseColorPickEntity *model = rendererModels[i];
 
-				if( model != NULL && model->isUniquePickingColor(pixel) == true) {
-					//printf("Found match pixel [%d.%d.%d] for model [%s] ptr [%p][%s]\n",pixel[0],pixel[1],pixel[2],model->getColorDescription().c_str(), model,model->getUniquePickName().c_str());
+					if( model != NULL && model->isUniquePickingColor(pixel) == true) {
+						//printf("Found match pixel [%d.%d.%d] for model [%s] ptr [%p][%s]\n",pixel[0],pixel[1],pixel[2],model->getColorDescription().c_str(), model,model->getUniquePickName().c_str());
 
-					pickedModels.push_back(i);
-					modelAlreadyPickedList[i]=true;
-					colorAlreadyPickedList[pixel[0]][pixel[1]][pixel[2]]=true;
-					break;
+						pickedModels.push_back(i);
+						modelAlreadyPickedList[i]=true;
+						colorAlreadyPickedList[pixel[0]][pixel[1]][pixel[2]]=true;
+						break;
+					}
 				}
 			}
 		}
