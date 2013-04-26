@@ -1670,13 +1670,13 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
 
 		int skipSteps=4;
 		unsigned char *oldpixel = &pixelBuffer[0];
-		for(int hh = 0; hh < h && pickedModels.size() < rendererModels.size(); hh=hh+skipSteps) {
-			for(int ww=0;ww < w && pickedModels.size() < rendererModels.size(); ww=ww+skipSteps){
+		for(int hh = 0; hh <= h && pickedModels.size() < rendererModels.size(); hh=hh+skipSteps) {
+			for(int ww=0;ww <= w && pickedModels.size() < rendererModels.size(); ww=ww+skipSteps){
 
 				int index = (hh*w+ww) * COLOR_COMPONENTS;
 				unsigned char *pixel = &pixelBuffer[index];
 				if(pixel[3]==0) continue;
-				if(x>0)
+				if(index>0)
 				{
 					oldpixel = &pixelBuffer[index-1*COLOR_COMPONENTS];
 					if(memcmp(pixel,oldpixel,4)) continue;
