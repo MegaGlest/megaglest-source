@@ -6795,11 +6795,11 @@ void Renderer::selectUsingFrustumSelection(Selection::UnitContainer &units,
 	int y = (posDown.y+posUp.y) / 2;
 	int w = abs(posDown.x-posUp.x);
 	int h = abs(posDown.y-posUp.y);
-	if(w < 1) {
-		w = 1;
+	if(w < 2) {
+		w = 2;
 	}
-	if(h < 1) {
-		h = 1;
+	if(h < 2) {
+		h = 2;
 	}
 
 	gluPickMatrix(x, y, w, h, view);
@@ -6857,11 +6857,11 @@ void Renderer::selectUsingSelectionBuffer(Selection::UnitContainer &units,
 	int y = (posDown.y+posUp.y) / 2;
 	int w = abs(posDown.x-posUp.x);
 	int h = abs(posDown.y-posUp.y);
-	if(w < 1) {
-		w = 1;
+	if(w < 2) {
+		w = 2;
 	}
-	if(h < 1) {
-		h = 1;
+	if(h < 2) {
+		h = 2;
 	}
 
 	//declarations
@@ -6955,11 +6955,11 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 	int y = min(y1,y2);
 	int w = max(x1,x2) - min(x1,x2);
 	int h = max(y1,y2) - min(y1,y2);
-	if(w < 1) {
-		w = 1;
+	if(w < 2) {
+		w = 2;
 	}
-	if(h < 1) {
-		h = 1;
+	if(h < 2) {
+		h = 2;
 	}
 
 	const Metrics &metrics= Metrics::getInstance();
