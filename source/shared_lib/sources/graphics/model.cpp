@@ -1429,7 +1429,7 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int col
 		glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, pboIds[index]);
 		GLubyte* src = (GLubyte*)glMapBufferARB(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY_ARB);
 		if(src) {
-			pixmapScreenShot = new Pixmap2D(w+1, h+1, colorComponents);
+			pixmapScreenShot = new Pixmap2D(w, h, colorComponents);
 			memcpy(pixmapScreenShot->getPixels(),src,(size_t)pixmapScreenShot->getPixelByteCount());
 			glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB);     // release pointer to the mapped buffer
 			//pixmapScreenShot->save("debugPBO.png");
@@ -1568,7 +1568,9 @@ void BaseColorPickEntity::beginPicking() {
 	// turn off texturing, lighting and fog
 	//glClearColor (0.0,0.0,0.0,0.0);
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	//glClear(GL_COLOR_BUFFER_BIT);
+
+	//reset current background. This is neeeded to get a proper black background!
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	glPushAttrib(GL_ENABLE_BIT);
 	glDisable(GL_TEXTURE_2D);
@@ -1602,85 +1604,48 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
 	pickedModels.reserve(rendererModels.size());
 
 	//printf("In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	//static auto_ptr<unsigned char> cachedPixels;
 	static auto_ptr<Pixmap2D> cachedPixels;
-	//static int cachedPixelsW = -1;
-	//static int cachedPixelsH = -1;
-
-	//printf("In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-	static Chrono lastSnapshot(true);
-	const int selectionMillisecondUpdate = -1;
 
 	if(rendererModels.empty() == false) {
 		if(PixelBufferWrapper::getIsPBOEnable() == true) {
-			// Only update the pixel buffer every x milliseconds or as required
-			if(cachedPixels.get() == NULL || cachedPixels->getW() != w+1 ||cachedPixels->getH() != h+1 ||
-					lastSnapshot.getMillis() > selectionMillisecondUpdate) {
-				//printf("Updating selection millis = %ld\n",lastSnapshot.getMillis());
-
-				lastSnapshot.reset();
-				//Pixmap2D *pixmapScreenShot = BaseColorPickEntity::pbo->getPixelBufferFor(x,y,w,h, COLOR_COMPONENTS);
-				cachedPixels.reset(BaseColorPickEntity::pbo->getPixelBufferFor(x,y,w,h, COLOR_COMPONENTS));
-
-				//cachedPixels.reset(new unsigned char[(unsigned int)pixmapScreenShot->getPixelByteCount()]);
-				//memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),(size_t)pixmapScreenShot->getPixelByteCount());
-				//cachedPixelsW = w+1;
-				//cachedPixelsH = h+1;
-
-				//delete pixmapScreenShot;
-			}
+				Pixmap2D *pixmapScreenShot = BaseColorPickEntity::pbo->getPixelBufferFor(x,y,w,h, COLOR_COMPONENTS);
+				//pixmapScreenShot->saveTga("/tmp/toll.tga");
+				cachedPixels.reset(pixmapScreenShot);
 		}
 		else {
-			// Only update the pixel buffer every x milliseconds or as required
-			if(cachedPixels.get() == NULL || cachedPixels->getW() != w+1 ||cachedPixels->getH() != h+1 ||
-					lastSnapshot.getMillis() > selectionMillisecondUpdate) {
-				//printf("Updating selection millis = %ld\n",lastSnapshot.getMillis());
-
-				lastSnapshot.reset();
-
-				//Pixmap2D *pixmapScreenShot = new Pixmap2D(w+1, h+1, COLOR_COMPONENTS);
-				cachedPixels.reset(new Pixmap2D(w+1, h+1, COLOR_COMPONENTS));
+				Pixmap2D *pixmapScreenShot = new Pixmap2D(w, h, COLOR_COMPONENTS);
 				//glPixelStorei(GL_PACK_ALIGNMENT, 1);
-				//glReadPixels(x, y, w, h, GL_RGB, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
-				//glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
-				glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, cachedPixels->getPixels());
+				glReadPixels(x, y, w, h, GL_RGBA, GL_UNSIGNED_BYTE, pixmapScreenShot->getPixels());
+				//pixmapScreenShot->saveTga("/tmp/toll.tga");
+				cachedPixels.reset(pixmapScreenShot);
 				//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-				//cachedPixels.reset(new unsigned char[(unsigned int)pixmapScreenShot->getPixelByteCount()]);
-				//memcpy(cachedPixels.get(),pixmapScreenShot->getPixels(),(size_t)pixmapScreenShot->getPixelByteCount());
-				//cachedPixelsW = w+1;
-				//cachedPixelsH = h+1;
-
-				//delete pixmapScreenShot;
-			}
 		}
 		unsigned char *pixelBuffer = cachedPixels->getPixels();
-
-		// Enable screenshots to debug selection scene
-		//pixmapScreenShot->save("debug.png");
-
-		//printf("In [%s::%s] Line: %d x,y,w,h [%d,%d,%d,%d] pixels = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,x,y,w,h,pixmapScreenShot->getPixelByteCount());
-
-		// now our picked screen pixel color is stored in pixel[3]
-		// so we search through our object list looking for the object that was selected
 
 		map<int,bool> modelAlreadyPickedList;
 		map<unsigned char,map<unsigned char, map<unsigned char,bool> > > colorAlreadyPickedList;
 
 		int skipSteps=4;
 		unsigned char *oldpixel = &pixelBuffer[0];
-		for(int hh = 0; hh <= h && pickedModels.size() < rendererModels.size(); hh=hh+skipSteps) {
-			for(int ww=0;ww <= w && pickedModels.size() < rendererModels.size(); ww=ww+skipSteps){
+
+		// now we check the screenshot if we find pixels in color of unit identity
+		// to speedup we only check every "skipSteps" line and pixel in a row if we find such a color.
+		// this is exact enough for MG purpose
+		for(int hh = 0; hh < h && pickedModels.size() < rendererModels.size(); hh=hh+skipSteps) {
+			for(int ww=0;ww < w && pickedModels.size() < rendererModels.size(); ww=ww+skipSteps){
 
 				int index = (hh*w+ww) * COLOR_COMPONENTS;
 				unsigned char *pixel = &pixelBuffer[index];
-				if(pixel[3]==0) continue;
-				if(index>0)
+				//printf("pixel[0]=%d pixel[1]=%d pixel[2]=%d\n",pixel[0],pixel[1],pixel[2]);
+				if(pixel[0]==0 && pixel[1]==0 && pixel[2]==0)
 				{
-					oldpixel = &pixelBuffer[index-1*COLOR_COMPONENTS];
-					if(memcmp(pixel,oldpixel,4)) continue;
+					continue;
 				}
+//				if(index>0)
+//				{
+//					oldpixel = &pixelBuffer[index-1*COLOR_COMPONENTS];
+//					if(memcmp(pixel,oldpixel,3)) continue;
+//				}
 
 				// Skip duplicate scanned colors
 				map<unsigned char,map<unsigned char, map<unsigned char,bool> > >::const_iterator iterFind1 = colorAlreadyPickedList.find(pixel[0]);
