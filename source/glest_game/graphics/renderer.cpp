@@ -7520,83 +7520,105 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 		}
 
 		bool modelRenderStarted = false;
-		for(int visibleUnitIndex = 0;
-				visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
-			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
+		bool renderOnlyBuildings=true;
+		for(int k=0; k<2 ;k++) {
+			if(k==0){
+				//glDisable(GL_DEPTH_TEST);
+				renderOnlyBuildings=true;
+			}
+			else {
+				//glClear(GL_DEPTH_BUFFER_BIT);
+				//glEnable(GL_DEPTH_TEST);
+				renderOnlyBuildings=false;
+			}
+			for(int visibleUnitIndex = 0;
+					visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
+				Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 
-			if(modelRenderStarted == false) {
-				modelRenderStarted = true;
+				if(renderOnlyBuildings==true && unit->getType()->hasCommandClass(ccMove))
+				{
+					continue;
+				}
 
-				if(colorPickingSelection == false) {
-					//glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
-					glDisable(GL_LIGHTING);
-					if (renderingShadows == false) {
-						glPushAttrib(GL_ENABLE_BIT);
-						glDisable(GL_TEXTURE_2D);
+				if(renderOnlyBuildings==false && !unit->getType()->hasCommandClass(ccMove))
+				{
+					continue;
+				}
+
+				if(modelRenderStarted == false) {
+					modelRenderStarted = true;
+
+					if(colorPickingSelection == false) {
+						//glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
+						glDisable(GL_LIGHTING);
+						if (renderingShadows == false) {
+							glPushAttrib(GL_ENABLE_BIT);
+							glDisable(GL_TEXTURE_2D);
+						}
+						else {
+							glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
+							glEnable(GL_TEXTURE_2D);
+							glAlphaFunc(GL_GREATER, 0.4f);
+
+							glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+
+							//set color to the texture alpha
+							glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
+							glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
+							glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
+
+							//set alpha to the texture alpha
+							glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
+							glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
+							glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+						}
 					}
-					else {
-						glPushAttrib(GL_ENABLE_BIT| GL_TEXTURE_BIT);
-						glEnable(GL_TEXTURE_2D);
-						glAlphaFunc(GL_GREATER, 0.4f);
 
-						glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
+					modelRenderer->begin(false, renderingShadows, false, colorPickingSelection);
 
-						//set color to the texture alpha
-						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_REPLACE);
-						glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_PRIMARY_COLOR);
-						glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_RGB, GL_SRC_COLOR);
-
-						//set alpha to the texture alpha
-						glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA, GL_REPLACE);
-						glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA, GL_TEXTURE);
-						glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA, GL_SRC_ALPHA);
+					if(colorPickingSelection == false) {
+						glInitNames();
 					}
 				}
 
-				modelRenderer->begin(false, renderingShadows, false, colorPickingSelection);
+				if(colorPickingSelection == false) {
+					glPushName(visibleUnitIndex);
+				}
+
+				//assertGl();
+
+				glMatrixMode(GL_MODELVIEW);
+				//debuxar modelo
+				glPushMatrix();
+
+				//translate
+				Vec3f currVec= unit->getCurrVectorFlat();
+				glTranslatef(currVec.x, currVec.y, currVec.z);
+
+				//rotate
+				glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
+
+				//render
+				Model *model= unit->getCurrentModelPtr();
+				//if(this->gameCamera->getPos().dist(unit->getCurrVector()) <= SKIP_INTERPOLATION_DISTANCE) {
+
+					// ***MV don't think this is needed below 2013/01/11
+					//model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive() && !unit->isAnimProgressBound());
+
+				//}
+
+				if(colorPickingSelection == true) {
+					unit->setUniquePickingColor();
+					unitsList.push_back(unit);
+				}
+
+				modelRenderer->render(model,rmSelection);
+
+				glPopMatrix();
 
 				if(colorPickingSelection == false) {
-					glInitNames();
+					glPopName();
 				}
-			}
-
-			if(colorPickingSelection == false) {
-				glPushName(visibleUnitIndex);
-			}
-
-			//assertGl();
-
-			glMatrixMode(GL_MODELVIEW);
-			//debuxar modelo
-			glPushMatrix();
-
-			//translate
-			Vec3f currVec= unit->getCurrVectorFlat();
-			glTranslatef(currVec.x, currVec.y, currVec.z);
-
-			//rotate
-			glRotatef(unit->getRotation(), 0.f, 1.f, 0.f);
-
-			//render
-			Model *model= unit->getCurrentModelPtr();
-			//if(this->gameCamera->getPos().dist(unit->getCurrVector()) <= SKIP_INTERPOLATION_DISTANCE) {
-
-				// ***MV don't think this is needed below 2013/01/11
-				//model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive() && !unit->isAnimProgressBound());
-
-			//}
-
-			if(colorPickingSelection == true) {
-				unit->setUniquePickingColor();
-				unitsList.push_back(unit);
-			}
-
-			modelRenderer->render(model,rmSelection);
-
-			glPopMatrix();
-
-			if(colorPickingSelection == false) {
-				glPopName();
 			}
 		}
 
@@ -7607,7 +7629,7 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 			}
 		}
 	}
-
+	//glDisable(GL_DEPTH_TEST);
 	return unitsList;
 }
 
