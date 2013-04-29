@@ -7535,13 +7535,11 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 					visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 				Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 
-				if(renderOnlyBuildings==true && unit->getType()->hasCommandClass(ccMove))
-				{
+				if(renderOnlyBuildings==true && unit->getType()->hasSkillClass(scMove)){
 					continue;
 				}
 
-				if(renderOnlyBuildings==false && !unit->getType()->hasCommandClass(ccMove))
-				{
+				if(renderOnlyBuildings==false && !unit->getType()->hasSkillClass(scMove)){
 					continue;
 				}
 
