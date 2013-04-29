@@ -1663,7 +1663,8 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 		replaceAll(foundFile, "//", "/");
 		replaceAll(foundFile, "\\\\", "\\");
 
-		if(loadedFileList.find(foundFile) == loadedFileList.end()) {
+		if(loadedFileList.find(foundFile) == loadedFileList.end() &&
+				foundFile.find("lang/") == foundFile.npos) {
 			if(foundUnusedFile == false) {
 				printf("\nLine ref: %d, Warning, unused files were detected - START:\n=====================\n",__LINE__);
 			}
@@ -2103,7 +2104,8 @@ void runTechValidationForPath(string techPath, string techName,
 				replaceAll(foundFile, "//", "/");
 				replaceAll(foundFile, "\\\\", "\\");
 
-				if(loadedFileList.find(foundFile) == loadedFileList.end()) {
+				if(loadedFileList.find(foundFile) == loadedFileList.end() &&
+						foundFile.find("lang/") == foundFile.npos) {
 					if(foundUnusedFile == false) {
 						printf("\nLine ref: %d, Warning, unused files were detected - START:\n=====================\n",__LINE__);
 					}
