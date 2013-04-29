@@ -6,6 +6,13 @@
 
 echo 'Recording performnce stats...'
 
+echo 'cat /proc/sys/kernel/kptr_restrict'
+echo '1'
+#echo 'echo 0 > /proc/sys/kernel/kptr_restrict'
+echo  'sudo sh -c "echo 0 > /proc/sys/kernel/kptr_restrict"'
+echo 'cat /proc/sys/kernel/kptr_restrict'
+echo '0'
+
 perf record ./megaglest $@
 
 perf report
