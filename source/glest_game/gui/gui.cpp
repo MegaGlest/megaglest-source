@@ -1217,6 +1217,29 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 			validPosObjWorld= true;
 			posObjWorld= targetPos;
 
+			// lets check for enemy units on this cell we might not have correctly hit with our click
+			// if we find an enemy unit on the cell we use it as target.
+			if(world->getMap()->getCell(targetPos)->getUnit(fLand) != NULL) {
+				Unit* unitOnCell=world->getMap()->getCell(targetPos)->getUnit(fLand);
+				Faction *unitFaction= unitOnCell->getFaction();
+				const Faction *myFaction=world->getThisFaction();
+				bool cannotSeeUnit = (unitOnCell->getType()->hasCellMap() == true &&
+						unitOnCell->getType()->getAllowEmptyCellMap() == true &&
+						unitOnCell->getType()->hasEmptyCellMap() == true);
+
+				if(cannotSeeUnit == false && unitFaction->isAlly( myFaction)==false){
+					bool visible=world->getMap()->getSurfaceCell(Map::toSurfCoords(targetPos))->isVisible(world->getThisTeamIndex());
+					if(visible){
+						// we found an enemy unit! this is our target.
+						targetUnit= unitOnCell;
+						targetPos= targetUnit->getPosNotThreadSafe();
+						highlightedUnitId=targetUnit->getId();
+						getHighlightedUnit()->resetHighlight();
+						return true;
+					}
+				}
+			}
+
 			if(world->getMap()->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL) {
 				highlightedResourceObjectPos=Map::toSurfCoords(targetPos);
 
