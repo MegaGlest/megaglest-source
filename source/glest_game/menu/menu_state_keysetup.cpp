@@ -279,8 +279,11 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(this->parentUI != NULL) {
+			// Set the parent pointer to NULL so the owner knows it was deleted
 			*this->parentUI = NULL;
-			delete *this->parentUI;
+			// Delete the main menu
+			delete mainMenu;
+			return;
 		}
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -299,8 +302,11 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
         configKeys.reload();
 
 		if(this->parentUI != NULL) {
+			// Set the parent pointer to NULL so the owner knows it was deleted
 			*this->parentUI = NULL;
-			delete *this->parentUI;
+			// Delete the main menu
+			delete mainMenu;
+			return;
 		}
 
 		mainMenu->setState(new MenuStateKeysetup(program, mainMenu));
@@ -324,12 +330,6 @@ void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
 
 		Lang &lang= Lang::getInstance();
 		console.addLine(lang.get("SettingsSaved"));
-//		if(this->parentUI != NULL) {
-//			*this->parentUI = NULL;
-//			delete *this->parentUI;
-//		}
-//
-//		mainMenu->setState(new MenuStateOptions(program, mainMenu));
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
     else if ( keyScrollBar.getElementCount() != 0) {

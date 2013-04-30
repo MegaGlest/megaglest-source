@@ -83,6 +83,7 @@ private:
 
 public:
 	MenuBackground();
+	~MenuBackground();
 
 	bool getWater() const						{return water;}
 	float getWaterHeight() const				{return waterHeight;}
@@ -107,6 +108,7 @@ public:
 private:
 	Vec2f computeRaindropPos();
 	void createRainParticleSystem();
+	void cleanup();
 };
 
 }} //end namespace

@@ -49,6 +49,8 @@ MenuState * MainMenu::oldstate=NULL;
 MainMenu::MainMenu(Program *program) : ProgramState(program), menuBackgroundVideo(NULL) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	//printf("In MainMenu::MainMenu()\n");
+
 	mouseX=100;
 	mouseY=100;
 
@@ -77,6 +79,8 @@ void MainMenu::reloadUI() {
 
 MainMenu::~MainMenu() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	//printf("In MainMenu::~MainMenu()\n");
 
 	if(menuBackgroundVideo != NULL) {
 		menuBackgroundVideo->closePlayer();
@@ -242,6 +246,8 @@ void MainMenu::keyPress(SDL_KeyboardEvent c) {
 void MainMenu::setState(MenuState *newstate) {
     //printf("In [%s::%s Line: %d] oldstate [%p] newstate [%p] this->state [%p]\n",__FILE__,__FUNCTION__,__LINE__,oldstate,newstate,this->state);
 
+	//printf("In MainMenu::setState() #1\n");
+
     //delete this->state;
     //this->state = newstate;
 
@@ -249,19 +255,24 @@ void MainMenu::setState(MenuState *newstate) {
 		MenuState *oldstatePtr = oldstate;
 		delete oldstate;
 
+		//printf("In MainMenu::setState() #2\n");
+
         //printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(oldstatePtr != this->state) {
 			oldstate=this->state;
 			//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//printf("In MainMenu::setState() #3\n");
 		}
 		else {
 			oldstate = NULL;
 			//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			//printf("In MainMenu::setState() #4\n");
 		}
 	}
 	else {
 		oldstate=this->state;
 		//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//printf("In MainMenu::setState() #5\n");
 	}
 	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	this->state= newstate;

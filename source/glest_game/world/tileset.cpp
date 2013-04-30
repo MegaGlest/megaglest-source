@@ -410,6 +410,8 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			weather= wSnowy;
 		}
 
+		//printf("==> Weather is: %d rnd = %f [sun: %f rainyProb: %f]",weather,rnd,sunnyProb,rainyProb);
+
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	}
