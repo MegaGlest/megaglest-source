@@ -44,6 +44,7 @@ OPTION(BUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS "Build model import/export tool
 OPTION(BUILD_MEGAGLEST_MODEL_VIEWER "Build model viewer" ON)
 OPTION(BUILD_MEGAGLEST_MAP_EDITOR "Build map editor" ON)
 OPTION(BUILD_MEGAGLEST "Build MegaGlest" ON)
+OPTION(BUILD_MEGAGLEST_TESTS "Build MegaGlest Unit Tests" OFF)
 OPTION(WITH_VLC "Use libVLC to play videos" ON)
 
 FIND_PROGRAM(HELP2MAN "help2man")
@@ -329,6 +330,8 @@ IF(EXISTS "${PROJECT_SOURCE_DIR}/source/")
 	IF(APPLE)
 		include(${PROJECT_SOURCE_DIR}/mk/macosx/CMakeLists.txt)
 	ENDIF(APPLE)
+
+        ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/source/tests )
 ENDIF()
 
 # Check if data exist

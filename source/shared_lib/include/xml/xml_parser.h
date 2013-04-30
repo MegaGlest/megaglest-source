@@ -28,7 +28,15 @@ namespace XERCES_CPP_NAMESPACE{
 	class DOMDocument;
 	class DOMNode;
 	class DOMElement;
+
+#if XERCES_VERSION_MAJOR < 3
+	class DOMBuilder;
+#else
+	class DOMLSParser;
+#endif
 }
+
+XERCES_CPP_NAMESPACE_USE
 
 namespace Shared { namespace Xml {
 
@@ -58,11 +66,22 @@ private:
 
 private:
 	XmlIo();
+	void init();
+
+protected:
+
+#if XERCES_VERSION_MAJOR < 3
+	XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument * getRootDOMDocument(const string &path, DOMBuilder *parser, bool noValidation);
+#else
+	XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument * getRootDOMDocument(const string &path, DOMLSParser *parser, bool noValidation);
+#endif
 
 public:
 	static XmlIo &getInstance();
 	~XmlIo();
 	void cleanup();
+
+	static bool isInitialized();
 
 	XmlNode *load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation=false, bool skipStackCheck=false);
 	void save(const string &path, const XmlNode *node);
@@ -75,11 +94,14 @@ private:
 
 private:
 	XmlIoRapid();
+	void init();
 
 public:
 	static XmlIoRapid &getInstance();
 	~XmlIoRapid();
 	void cleanup();
+
+	static bool isInitialized();
 
 	XmlNode *load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation=false,bool skipStackCheck=false);
 	void save(const string &path, const XmlNode *node);
@@ -98,6 +120,7 @@ private:
 private:
 	XmlTree(XmlTree&);
 	void operator =(XmlTree&);
+	void clearRootNode();
 
 public:
 	XmlTree(xml_engine_parser_type engine_type = DEFAULT_XML_ENGINE);

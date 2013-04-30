@@ -61,10 +61,18 @@ public:
 //	class XmlIo
 // =====================================================
 
-bool XmlIo::initialized= false;
+bool XmlIo::initialized		= false;
 bool XmlIoRapid::initialized= false;
 
 XmlIo::XmlIo() {
+	init();
+}
+
+bool XmlIo::isInitialized() {
+	return XmlIo::initialized;
+}
+
+void XmlIo::init() {
 	try{
 		//printf("XmlIo init\n");
 		XMLPlatformUtils::Initialize();
@@ -90,6 +98,9 @@ XmlIo::XmlIo() {
 
 XmlIo &XmlIo::getInstance() {
 	static XmlIo XmlIo;
+	if(XmlIo::initialized == false) {
+		XmlIo.init();
+	}
 	return XmlIo;
 }
 
@@ -104,6 +115,18 @@ void XmlIo::cleanup() {
 XmlIo::~XmlIo() {
 	cleanup();
 }
+
+#if XERCES_VERSION_MAJOR < 3
+	XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument * XmlIo::getRootDOMDocument(const string &path, DOMBuilder *parser, bool noValidation) {
+		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document= parser->parseURI(path.c_str());
+		return document;
+	}
+#else
+	XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument * XmlIo::getRootDOMDocument(const string &path, DOMLSParser *parser, bool noValidation) {
+		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document= parser->parseURI(path.c_str());
+		return document;
+	}
+#endif
 
 XmlNode *XmlIo::load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation,bool skipStackCheck) {
 	//printf("Load file using Xerces engine [%s]\n",path.c_str());
@@ -152,7 +175,9 @@ XmlNode *XmlIo::load(const string &path, const std::map<string,string> &mapTagRe
 			config->setParameter(XMLUni::fgXercesUseCachedGrammarInParse, true);
  		}
 #endif
-		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document= parser->parseURI(path.c_str());
+		//XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document= parser->parseURI(path.c_str());
+ 		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document = getRootDOMDocument(path, parser, noValidation);
+
 #ifdef WIN32
 		if(document == NULL) {
 			document= parser->parseURI(utf8_decode(path).c_str());
@@ -180,6 +205,9 @@ void XmlIo::save(const string &path, const XmlNode *node){
 	//printf("Saving file using Xerces engine [%s]\n",path.c_str());
 
 	try{
+		if(node == NULL) {
+			throw megaglest_runtime_error("node == NULL during save!");
+		}
 		XMLCh str[strSize];
 		XMLString::transcode(node->getName().c_str(), str, strSize-1);
 
@@ -227,6 +255,10 @@ void XmlIo::save(const string &path, const XmlNode *node){
 //	class XmlIoRapid
 // =====================================================
 XmlIoRapid::XmlIoRapid() {
+	init();
+}
+
+void XmlIoRapid::init() {
 	try{
 		//printf("XmlIo init\n");
 
@@ -246,8 +278,16 @@ XmlIoRapid::XmlIoRapid() {
 	}
 }
 
+bool XmlIoRapid::isInitialized() {
+	return XmlIoRapid::initialized;
+}
+
 XmlIoRapid &XmlIoRapid::getInstance() {
 	static XmlIoRapid io;
+	if(XmlIoRapid::initialized == false) {
+		io.init();
+	}
+
 	return io;
 }
 
@@ -355,6 +395,10 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
 
 void XmlIoRapid::save(const string &path, const XmlNode *node){
 	try {
+		if(node == NULL) {
+			throw megaglest_runtime_error("node == NULL during save!");
+		}
+
 		xml_document<> doc;
 
 		// xml declaration
@@ -423,9 +467,20 @@ XmlTree::XmlTree(xml_engine_parser_type engine_type) {
 	rootNode= NULL;
 	this->engine_type = engine_type;
 	this->skipStackCheck = false;
+
+	switch(this->engine_type) {
+		case XML_XERCES_ENGINE:
+			break;
+		case XML_RAPIDXML_ENGINE:
+		break;
+
+		default:
+			throw megaglest_runtime_error("Invalid XML parser engine: " + intToStr(this->engine_type));
+	}
 }
 
 void XmlTree::init(const string &name){
+	clearRootNode();
 	this->rootNode= new XmlNode(name);
 }
 
@@ -474,9 +529,7 @@ void XmlTree::save(const string &path){
 	}
 }
 
-XmlTree::~XmlTree() {
-	//printf("XmlTree::~XmlTree p [%p]\n",this);
-
+void XmlTree::clearRootNode() {
 	if(this->skipStackCheck == false) {
 		LoadStack &loadStack = CacheManager::getCachedItem<LoadStack>(loadStackCacheName);
 		Mutex &mutex = CacheManager::getMutexForItem<LoadStack>(loadStackCacheName);
@@ -491,6 +544,11 @@ XmlTree::~XmlTree() {
 
 	delete rootNode;
 	rootNode=NULL;
+}
+
+XmlTree::~XmlTree() {
+	//printf("XmlTree::~XmlTree p [%p]\n",this);
+	clearRootNode();
 }
 
 // =====================================================
