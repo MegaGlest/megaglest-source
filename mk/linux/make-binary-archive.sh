@@ -26,15 +26,16 @@ mkdir -p "$RELEASEDIR"
 
 if [ $skipbinarybuild = 0 ] 
 then
-
-# build the binaries
-echo "building binaries ..."
-cd $PROJDIR
-[[ -d "build" ]] && rm -rf "build"
-./build-mg.sh
-
+  # build the binaries
+  echo "building binaries ..."
+  cd $PROJDIR
+  [[ -d "build" ]] && rm -rf "build"
+  ./build-mg.sh
+  if [ $? -ne 0 ]; then
+    echo 'ERROR: "./build-mg.sh" failed.' >&2; exit 1
+  fi
 else
-echo "SKIPPING build of binaries ..."
+  echo "SKIPPING build of binaries ..."
 fi
 
 cd $PROJDIR
@@ -43,6 +44,9 @@ cd mk/linux
 [[ -d "lib" ]] && rm -rf "lib"
 echo "building binary dependencies ..."
 ./makedeps_folder.sh megaglest
+if [ $? -ne 0 ]; then
+  echo 'ERROR: "./makedeps_folder.sh megaglest" failed.' >&2; exit 2
+fi
 
 # copy binary info
 cd $PROJDIR
