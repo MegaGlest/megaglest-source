@@ -109,7 +109,7 @@ esac
 #exit 1;
 
 CURRENTDIR="$(dirname $(readlink -f $0))"
-cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON -DWANT_STATIC_LIBS=ON -DBREAKPAD_ROOT=${CURRENTDIR}/../google-breakpad/ ${EXTRA_CMAKE_OPTIONS} ..
+cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON -DWANT_STATIC_LIBS=ON -DBUILD_MEGAGLEST_TESTS=ON -DBREAKPAD_ROOT=${CURRENTDIR}/../google-breakpad/ ${EXTRA_CMAKE_OPTIONS} ..
 if [ $? -ne 0 ]; then 
   echo 'ERROR: CMAKE failed.' >&2; exit 1
 fi
