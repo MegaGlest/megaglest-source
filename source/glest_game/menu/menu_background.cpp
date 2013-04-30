@@ -130,7 +130,31 @@ MenuBackground::MenuBackground() : rps(NULL) {
 	anim= 0.f;
 }
 
+MenuBackground::~MenuBackground() {
+	//printf("In ~MenuBackground() rps = %p\n",rps);
+
+	cleanup();
+}
+
+void MenuBackground::cleanup() {
+	//printf("In MenuBackground::cleanup() rps = %p\n",rps);
+
+	if(rps != NULL) {
+		Renderer &renderer= Renderer::getInstance();
+		if(renderer.validateParticleSystemStillExists(rps,rsMenu) == true) {
+			rps->fade();
+			vector<ParticleSystem *> particleSystems;
+			particleSystems.push_back(rps);
+			renderer.cleanupParticleSystems(particleSystems, rsMenu);
+		}
+
+		rps = NULL;
+	}
+}
+
 void MenuBackground::createRainParticleSystem() {
+	//printf("In MenuBackground::createRainParticleSystem() rps = %p\n",rps);
+
 	if(rps == NULL) {
 		rps= new RainParticleSystem();
 		rps->setSpeed(12.f/GameConstants::updateFps);
@@ -176,17 +200,7 @@ void MenuBackground::update() {
 	else if(rain == true) {
 		rain = false;
 
-		if(rps != NULL) {
-			Renderer &renderer= Renderer::getInstance();
-			if(renderer.validateParticleSystemStillExists(rps,rsMenu) == true) {
-				rps->fade();
-				vector<ParticleSystem *> particleSystems;
-				particleSystems.push_back(rps);
-				renderer.cleanupParticleSystems(particleSystems, rsMenu);
-			}
-
-			rps = NULL;
-		}
+		cleanup();
 	}
 
 	if(targetCamera!=NULL){

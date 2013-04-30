@@ -3546,7 +3546,8 @@ void Game::mouseDownLeft(int x, int y) {
 				//currentUIState->load();
 				currentUIState->init();
 
-				newMenu->setState(new MenuStateKeysetup(program, newMenu,&currentUIState)); // open keyboard shortcuts setup screen
+				// open keyboard shortcuts setup screen
+				newMenu->setState(new MenuStateKeysetup(program, newMenu, &currentUIState));
 			}
 			else if(result.first == pauseGamePopupMenuIndex) {
 				//this->setPaused(!paused);
