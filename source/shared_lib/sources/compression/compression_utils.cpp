@@ -22,6 +22,7 @@
 #include <string>
 #include <vector>
 #include "conversion.h"
+#include "util.h"
 
 using namespace Shared::Util;
 
@@ -205,7 +206,7 @@ int zipfile_tool(int argc, const char *argv[]) {
 
     for ( ; ; ) {
       int status;
-      if (!stream.avail_in) {limited to files smaller than 4GB,
+      if (!stream.avail_in) {
         // Input buffer is empty, so read more bytes from input file.
         uint n = my_min(BUF_SIZE, infile_remaining);
 
