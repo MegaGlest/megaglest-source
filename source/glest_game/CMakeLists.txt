@@ -136,7 +136,8 @@ IF(BUILD_MEGAGLEST)
 
 	SET(GLEST_LIB_INCLUDE_ROOT "../shared_lib/include/")
 	SET(GLEST_LIB_INCLUDE_DIRS
-	    ${GLEST_LIB_INCLUDE_ROOT}platform/common
+                ${GLEST_LIB_INCLUDE_ROOT}compression
+	        ${GLEST_LIB_INCLUDE_ROOT}platform/common
 		${GLEST_LIB_INCLUDE_ROOT}platform/posix
 		${GLEST_LIB_INCLUDE_ROOT}util
 		${GLEST_LIB_INCLUDE_ROOT}graphics

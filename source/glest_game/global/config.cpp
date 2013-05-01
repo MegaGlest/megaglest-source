@@ -69,8 +69,12 @@ const char *GameConstants::path_data_CacheLookupKey     = "data";
 const char *GameConstants::path_ini_CacheLookupKey      = "ini";
 const char *GameConstants::path_logs_CacheLookupKey     = "logs";
 
-const char *GameConstants::saveNetworkGameFileServer	= "megaglest-saved-server.xml";
-const char *GameConstants::saveNetworkGameFileClient	= "megaglest-saved-client.xml";
+const char *GameConstants::saveNetworkGameFileServer			= "megaglest-saved-server.xml";
+const char *GameConstants::saveNetworkGameFileServerCompressed 	= "megaglest-saved-server.zip";
+
+const char *GameConstants::saveNetworkGameFileClient			= "megaglest-saved-client.xml";
+const char *GameConstants::saveNetworkGameFileClientCompressed 	= "megaglest-saved-client.zip";
+
 const char *GameConstants::saveGameFileDefault 			= "megaglest-saved.xml";
 const char *GameConstants::saveGameFileAutoTestDefault 	= "megaglest-auto-saved_%s.xml";
 const char *GameConstants::saveGameFilePattern 			= "megaglest-saved_%s.xml";

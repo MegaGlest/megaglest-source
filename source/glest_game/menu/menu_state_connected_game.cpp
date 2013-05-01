@@ -31,15 +31,18 @@
 #include "string_utils.h"
 #include "map_preview.h"
 #include <iterator>
+#include "compression_utils.h"
+
 #include "leak_dumper.h"
+
+using namespace Shared::Util;
+using namespace Shared::CompressionUtil;
 
 namespace Glest{ namespace Game{
 
 static const string ITEM_MISSING 					= "***missing***";
 const int HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS  	= 4;
 static const char *HEADLESS_SAVED_GAME_FILENAME 	= "lastHeadlessGameSettings.mgg";
-
-using namespace Shared::Util;
 
 struct FormatString {
 	void operator()(string &s) {
@@ -3211,7 +3214,12 @@ void MenuStateConnectedGame::update() {
 					if(getInProgressSavedGameFromFTPServer == "") {
 						//printf("Requesting saved game file\n");
 
-						ftpClientThread->addTempFileToRequests(GameConstants::saveNetworkGameFileClient,GameConstants::saveNetworkGameFileServer);
+//						ftpClientThread->addTempFileToRequests(
+//								GameConstants::saveNetworkGameFileClient,
+//								GameConstants::saveNetworkGameFileServer);
+						ftpClientThread->addTempFileToRequests(
+								GameConstants::saveNetworkGameFileClientCompressed,
+								GameConstants::saveNetworkGameFileServerCompressed);
 
 						getInProgressSavedGameFromFTPServer = GameConstants::saveNetworkGameFileClient;
 						fileFTPProgressList[getInProgressSavedGameFromFTPServer] = pair<int,string>(0,"");
@@ -4188,6 +4196,28 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 	    	}
 
+	    	if(itemName == GameConstants::saveNetworkGameFileClientCompressed) {
+				string saveGameFilePath = "temp/";
+				string saveGameFile = saveGameFilePath + string(GameConstants::saveNetworkGameFileClientCompressed);
+				if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+					saveGameFilePath = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + saveGameFilePath;
+					saveGameFile = saveGameFilePath + string(GameConstants::saveNetworkGameFileClientCompressed);
+				}
+				else {
+					string userData = Config::getInstance().getString("UserData_Root","");
+					if(userData != "") {
+						endPathWithSlash(userData);
+					}
+					saveGameFilePath = userData + saveGameFilePath;
+					saveGameFile = saveGameFilePath + string(GameConstants::saveNetworkGameFileClientCompressed);
+				}
+
+				string extractedFileName = saveGameFilePath + string(GameConstants::saveNetworkGameFileClient);
+				bool extract_result = extractFileFromZIPFile(
+						saveGameFile,extractedFileName);
+
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Saved game [%s] compressed to [%s] returned: %d\n",saveGameFile.c_str(),extractedFileName.c_str(), extract_result);
+	    	}
 	    	readyToJoinInProgressGame = true;
 
 	    	//printf("Success downloading saved game file: [%s]\n",itemName.c_str());

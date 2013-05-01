@@ -277,6 +277,7 @@ option(ENABLE_FRIBIDI "Enable FriBIDi support" ON)
 	# megaglest lib
 
 	SET(DIRS_WITH_SRC
+                compression
 		feathery_ftp	
 		glew
 		graphics
@@ -357,6 +358,7 @@ option(ENABLE_FRIBIDI "Enable FriBIDi support" ON)
 	SET(MG_SOURCE_FILES "")
 	INCLUDE_DIRECTORIES( ${MG_INCLUDES_ROOT}platform/sdl )
         INCLUDE_DIRECTORIES( ${MG_INCLUDES_ROOT}xml/rapidxml )
+        INCLUDE_DIRECTORIES("sources/")
 
         option(DISABLE_IRCCLIENT "Disable libircclient support" OFF)
 
