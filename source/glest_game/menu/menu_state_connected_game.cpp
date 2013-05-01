@@ -3932,8 +3932,15 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
             Checksum::clearFileCache();
     		Checksum checksum;
     		string file = Map::getMapPath(itemName,"",false);
-    		checksum.addFile(file);
-    		lastCheckedCRCMapValue = checksum.getSum();
+
+    		//printf("Got map itemName [%s] file [%s] lastCheckedCRCMapName [%s] gameSettings->getMap() [%s]\n",
+    		//		itemName.c_str(),file.c_str(),lastCheckedCRCMapName.c_str(),gameSettings->getMap().c_str());
+
+			if(gameSettings != NULL && lastCheckedCRCMapName == gameSettings->getMap() &&
+					gameSettings->getMap() != "") {
+				checksum.addFile(file);
+				lastCheckedCRCMapValue = checksum.getSum();
+			}
 
 	    	Lang &lang= Lang::getInstance();
 	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
@@ -4017,8 +4024,15 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
             clearFolderTreeContentsCheckSumList(paths, pathSearchString, filterFileExt);
 
             // Refresh CRC
-            Config &config = Config::getInstance();
-            lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
+
+    		//printf("Got map itemName [%s] file [%s] lastCheckedCRCMapName [%s] gameSettings->getMap() [%s]\n",
+    		//		itemName.c_str(),file.c_str(),lastCheckedCRCMapName.c_str(),gameSettings->getMap().c_str());
+
+			if(gameSettings != NULL && lastCheckedCRCTilesetName == gameSettings->getTileset() &&
+					gameSettings->getTileset() != "") {
+				Config &config = Config::getInstance();
+				lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
+			}
 
             safeMutexFTPProgress.ReleaseLock();
             // END
@@ -4100,9 +4114,11 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
             clearFolderTreeContentsCheckSumList(paths, pathSearchString, filterFileExt);
 
             // Refresh CRC
-            Config &config = Config::getInstance();
-            lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
-
+			if(gameSettings != NULL && lastCheckedCRCTechtreeName == gameSettings->getTech() &&
+					gameSettings->getTech() != "") {
+				Config &config = Config::getInstance();
+				lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
+			}
             safeMutexFTPProgress.ReleaseLock();
             // END
 
