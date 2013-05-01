@@ -465,18 +465,19 @@ void XmlIoRapid::save(const string &path, const XmlNode *node){
 // =====================================================
 XmlTree::XmlTree(xml_engine_parser_type engine_type) {
 	rootNode= NULL;
-	this->engine_type = engine_type;
-	this->skipStackCheck = false;
 
-	switch(this->engine_type) {
+	switch(engine_type) {
 		case XML_XERCES_ENGINE:
 			break;
 		case XML_RAPIDXML_ENGINE:
 		break;
 
 		default:
-			throw megaglest_runtime_error("Invalid XML parser engine: " + intToStr(this->engine_type));
+			throw megaglest_runtime_error("Invalid XML parser engine: " + intToStr(engine_type));
 	}
+
+	this->engine_type = engine_type;
+	this->skipStackCheck = false;
 }
 
 void XmlTree::init(const string &name){
