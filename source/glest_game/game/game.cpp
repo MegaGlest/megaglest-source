@@ -25,12 +25,14 @@
 #include "auto_test.h"
 #include "menu_state_keysetup.h"
 #include "video_player.h"
+#include "compression_utils.h"
 
 #include "leak_dumper.h"
 
 using namespace Shared::Graphics;
 using namespace Shared::Util;
 using namespace Shared::Platform;
+using namespace Shared::CompressionUtil;
 
 namespace Glest{ namespace Game{
 
@@ -2355,6 +2357,26 @@ void Game::update() {
 						//printf("Saved network game to disk\n");
 
 						string file = this->saveGame(GameConstants::saveNetworkGameFileServer,"temp/");
+
+						string saveGameFilePath = "temp/";
+						string saveGameFileCompressed = saveGameFilePath + string(GameConstants::saveNetworkGameFileServerCompressed);
+						if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+							saveGameFilePath = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + saveGameFilePath;
+							saveGameFileCompressed = saveGameFilePath + string(GameConstants::saveNetworkGameFileServerCompressed);
+						}
+						else {
+							string userData = Config::getInstance().getString("UserData_Root","");
+							if(userData != "") {
+								endPathWithSlash(userData);
+							}
+							saveGameFilePath = userData + saveGameFilePath;
+							saveGameFileCompressed = saveGameFilePath + string(GameConstants::saveNetworkGameFileServerCompressed);
+						}
+
+						bool compressed_result = compressFileToZIPFile(
+								file, saveGameFileCompressed);
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Saved game [%s] compressed to [%s] returned: %d\n",file.c_str(),saveGameFileCompressed.c_str(), compressed_result);
+
 						char szBuf[8096]="";
 						Lang &lang= Lang::getInstance();
 						snprintf(szBuf,8096,lang.get("GameSaved","",true).c_str(),file.c_str());
