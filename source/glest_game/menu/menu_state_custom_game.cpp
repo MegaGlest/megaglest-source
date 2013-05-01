@@ -3529,6 +3529,8 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 }
 
 void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettings) {
+	string humanPlayerName = getHumanPlayerName();
+
 	string scenarioDir = "";
 	checkBoxScenario.setValue((gameSettings.getScenario() != ""));
 	if(checkBoxScenario.getValue() == true) {
@@ -3695,8 +3697,21 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	updateControlers();
 	updateNetworkSlots();
 
-	if(hasNetworkGameSettings() == true)
-	{
+	if(this->headlessServerMode == false && humanPlayerName != "") {
+		for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+			ControlType ct= static_cast<ControlType>(listBoxControls[index].getSelectedItemIndex());
+			if(ct == ctHuman) {
+				if(humanPlayerName != labelPlayerNames[index].getText()) {
+					//printf("Player name changing from [%s] to [%s]\n",labelPlayerNames[index].getText().c_str(),humanPlayerName.c_str());
+
+					labelPlayerNames[index].setText("");
+					labelPlayerNames[index].setText(humanPlayerName);
+				}
+			}
+		}
+	}
+
+	if(hasNetworkGameSettings() == true) {
 		needToSetChangedGameSettings = true;
 		lastSetChangedGameSettings   = time(NULL);
 	}
