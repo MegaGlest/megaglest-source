@@ -214,13 +214,15 @@ class XmlTreeTest : public CppUnit::TestFixture {
 public:
 
 	void test_invalid_xml_engine_lowerbound() {
-		if(static_cast<xml_engine_parser_type>(XML_XERCES_ENGINE - 1) == XML_XERCES_ENGINE - 1) {
-			XmlTree xml(static_cast<xml_engine_parser_type>(XML_XERCES_ENGINE - 1));
+		xml_engine_parser_type testType = static_cast<xml_engine_parser_type>(XML_XERCES_ENGINE - 1);
+		if(testType == XML_XERCES_ENGINE - 1) {
+			XmlTree xml(testType);
 		}
 	}
 	void test_invalid_xml_engine_upperbound() {
-		if(static_cast<xml_engine_parser_type>(XML_RAPIDXML_ENGINE + 1) == XML_RAPIDXML_ENGINE + 1) {
-			XmlTree xml(static_cast<xml_engine_parser_type>(XML_RAPIDXML_ENGINE + 1));
+		xml_engine_parser_type testType = static_cast<xml_engine_parser_type>(XML_RAPIDXML_ENGINE + 1);
+		if(testType == XML_RAPIDXML_ENGINE + 1) {
+			XmlTree xml(testType);
 		}
 	}
 	void test_valid_xml_engine() {
