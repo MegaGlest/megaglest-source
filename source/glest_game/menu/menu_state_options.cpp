@@ -57,7 +57,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		int currentLabelStart=leftLabelStart;
 		int currentColumnStart=leftColumnStart;
 		int currentLine=700;
-		int lineOffset=27;
+		int lineOffset=30;
 		int tabButtonWidth=200;
 		int tabButtonHeight=30;
 
@@ -108,7 +108,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		labelLang.setText(lang.get("Language"));
 
 		listBoxLang.registerGraphicComponent(containerName,"listBoxLang");
-		listBoxLang.init(currentColumnStart, currentLine, 260);
+		listBoxLang.init(currentColumnStart, currentLine, 320);
 		vector<string> langResults;
 
 	//    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);

@@ -37,15 +37,15 @@ MenuStateGraphicInfo::MenuStateGraphicInfo(Program *program, MainMenu *mainMenu)
 	buttonReturn.setText(lang.get("Return"));
 
 	labelInfo.registerGraphicComponent(containerName,"labelInfo");
-	labelInfo.init(100, 700);
+	labelInfo.init(0, 730);
 
 	labelMoreInfo.registerGraphicComponent(containerName,"labelMoreInfo");
-	labelMoreInfo.init(100, 520);
+	labelMoreInfo.init(0, 520);
 	labelMoreInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
 	labelMoreInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
 	labelInternalInfo.registerGraphicComponent(containerName,"labelInternalInfo");
-	labelInternalInfo.init(600, 700);
+	labelInternalInfo.init(300, 730);
 	labelInternalInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
 	labelInternalInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
