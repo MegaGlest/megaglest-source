@@ -87,19 +87,19 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 		}
 		// header
 		labelTitle.registerGraphicComponent(containerName,"labelTitle");
-		labelTitle.init(330,670);
+		labelTitle.init(360,670);
 		labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
 		labelTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 		labelTitle.setText(lang.get("Keyboardsetup"));
 
 		labelTestTitle.registerGraphicComponent(containerName,"labelTestTitle");
-		labelTestTitle.init(50,670);
+		labelTestTitle.init(50,170);
 		labelTestTitle.setFont(CoreData::getInstance().getMenuFontBig());
 		labelTestTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 		labelTestTitle.setText(lang.get("KeyboardsetupTest"));
 
 		labelTestValue.registerGraphicComponent(containerName,"labelTestValue");
-		labelTestValue.init(50,640);
+		labelTestValue.init(50,140);
 		labelTestValue.setFont(CoreData::getInstance().getMenuFontBig());
 		labelTestValue.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 		labelTestValue.setText("");
@@ -130,10 +130,10 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 		buttonReturn.init(420, buttonRowPos, 100);
 		buttonReturn.setText(lang.get("Return"));
 
-		keyButtonsLineHeight=25;
-		keyButtonsHeight=20;
-		keyButtonsWidth=200;
-		keyButtonsXBase=300;
+		keyButtonsLineHeight=30;
+		keyButtonsHeight=25;
+		keyButtonsWidth=400;
+		keyButtonsXBase=200;
 		keyButtonsYBase=200+400-keyButtonsLineHeight;
 		keyButtonsToRender=400/keyButtonsLineHeight;
 		int labelWidth=100;

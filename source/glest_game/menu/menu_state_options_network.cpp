@@ -46,7 +46,7 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mai
 		this->console.setOnlyChatMessagesInStoredLines(false);
 		//modeinfos=list<ModeInfo> ();
 		int leftLabelStart=50;
-		int leftColumnStart=leftLabelStart+180;
+		int leftColumnStart=leftLabelStart+280;
 		int rightLabelStart=450;
 		int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=50;
@@ -55,7 +55,7 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mai
 		int currentLabelStart=leftLabelStart;
 		int currentColumnStart=leftColumnStart;
 		int currentLine=700;
-		int lineOffset=27;
+		int lineOffset=30;
 		int tabButtonWidth=200;
 		int tabButtonHeight=30;
 
