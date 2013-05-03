@@ -113,30 +113,44 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
         	showMessageBox( "Error: There are no scenarios found to load", "Error detected", false);
         }
 	}
+
+	std::map<string,string> scenarioErrors;
 	for(unsigned int i = 0; i < results.size(); ++i) {
 		bool foundTranslatedName = false;
 		string current_scenario = results[i];
-    	if(current_scenario != "") {
-    		//printf("current_scenario [%s]\n",current_scenario.c_str());
-    		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[i]), &scenarioInfo );
 
-			if(scenarioInfo.namei18n != "") {
-				current_scenario = scenarioInfo.namei18n;
-				foundTranslatedName = true;
+		try {
+			if(current_scenario != "") {
+				//printf("current_scenario [%s]\n",current_scenario.c_str());
+				loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[i]), &scenarioInfo );
+
+				if(scenarioInfo.namei18n != "") {
+					current_scenario = scenarioInfo.namei18n;
+					foundTranslatedName = true;
+				}
 			}
-    	}
 
-    	if(foundTranslatedName == false) {
-    		results[i] = formatString(current_scenario);
-    	}
-    	else {
-    		results[i] = current_scenario;
-    	}
+			if(foundTranslatedName == false) {
+				results[i] = formatString(current_scenario);
+			}
+			else {
+				results[i] = current_scenario;
+			}
+		}
+		catch(const std::exception &ex) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+			SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+			scenarioErrors[current_scenario] = szBuf;
+		}
 	}
     listBoxScenario.setItems(results);
 
     try {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
+
     	if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
     		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo );
     		labelInfo.setText(scenarioInfo.desc);
@@ -152,6 +166,17 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
 
         mainMessageBoxState=1;
         showMessageBox( "Error: " + string(ex.what()), "Error detected", false);
+	}
+
+	if(scenarioErrors.size() > 0) {
+        mainMessageBoxState=1;
+
+        string errorMsg = "";
+        for(std::map<string,string>::iterator iterMap = scenarioErrors.begin();
+        		iterMap != scenarioErrors.end(); ++iterMap) {
+        	errorMsg += "scenario: " + iterMap->first + " error text: " + iterMap->second.substr(0,400) + "\n";
+        }
+        showMessageBox( "Error loading scenario(s): " + errorMsg, "Error detected", false);
 	}
 }
 
