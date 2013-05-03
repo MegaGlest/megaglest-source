@@ -323,9 +323,11 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 
     if(ircThread == NULL) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 IRCCLient Cache check\n");
+
+    	static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
     	ircThread = new IRCThread(ircArgs,this);
     	ircClient = ircThread;
-    	ircClient->setUniqueID(extractFileFromDirectoryPath(__FILE__).c_str());
+    	ircClient->setUniqueID(mutexOwnerId);
     	ircClient->setPlayerName(netPlayerName);
 		ircClient->start();
     }
