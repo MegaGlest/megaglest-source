@@ -59,16 +59,21 @@ class XmlAttribute;
 ///	Wrapper for Xerces C++
 // =====================================================
 
-class XmlIo{
+class XmlIo {
 private:
 	static bool initialized;
 	XERCES_CPP_NAMESPACE::DOMImplementation *implementation;
-
-private:
-	XmlIo();
-	void init();
+#if XERCES_VERSION_MAJOR < 3
+	XERCES_CPP_NAMESPACE::DOMBuilder *parser;
+#else
+	XERCES_CPP_NAMESPACE::DOMLSParser *parser;
+#endif
 
 protected:
+	XmlIo();
+	virtual ~XmlIo();
+
+	void init();
 
 #if XERCES_VERSION_MAJOR < 3
 	XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument * getRootDOMDocument(const string &path, DOMBuilder *parser, bool noValidation);
@@ -76,14 +81,16 @@ protected:
 	XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument * getRootDOMDocument(const string &path, DOMLSParser *parser, bool noValidation);
 #endif
 
+	DOMNode *loadDOMNode(const string &path, bool noValidation=false);
+	virtual void releaseDOMParser();
+
 public:
 	static XmlIo &getInstance();
-	~XmlIo();
-	void cleanup();
 
 	static bool isInitialized();
+	void cleanup();
 
-	XmlNode *load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation=false, bool skipStackCheck=false);
+	XmlNode *load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation=false);
 	void save(const string &path, const XmlNode *node);
 };
 
@@ -99,9 +106,9 @@ private:
 public:
 	static XmlIoRapid &getInstance();
 	~XmlIoRapid();
-	void cleanup();
 
 	static bool isInitialized();
+	void cleanup();
 
 	XmlNode *load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation=false,bool skipStackCheck=false);
 	void save(const string &path, const XmlNode *node);
@@ -149,6 +156,9 @@ private:
 	XmlNode(XmlNode&);
 	void operator =(XmlNode&);
 
+	string getTreeString() const;
+	bool hasChildNoSuper(const string& childName) const;
+
 public:
 	XmlNode(XERCES_CPP_NAMESPACE::DOMNode *node, const std::map<string,string> &mapTagReplacementValues);
 	XmlNode(xml_node<> *node, const std::map<string,string> &mapTagReplacementValues);
@@ -172,18 +182,13 @@ public:
 	bool hasChildAtIndex(const string &childName, int childIndex=0) const;
 	bool hasChild(const string &childName) const;
 	int clearChild(const string &childName);
-	XmlNode *getParent() const;
 
 
-	XmlNode *addChild(const string &name);
+	XmlNode *addChild(const string &name, const string text = "");
 	XmlAttribute *addAttribute(const string &name, const string &value, const std::map<string,string> &mapTagReplacementValues);
 
 	XERCES_CPP_NAMESPACE::DOMElement *buildElement(XERCES_CPP_NAMESPACE::DOMDocument *document) const;
 	xml_node<>* buildElement(xml_document<> *document) const;
-
-private:
-	string getTreeString() const;
-	bool hasChildNoSuper(const string& childName) const;
 };
 
 // =====================================================
