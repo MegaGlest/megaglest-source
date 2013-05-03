@@ -128,6 +128,7 @@ public:
     void joinChannel();
     void leaveChannel();
     void connectToHost();
+    void disconnect();
 };
 
 }}//end namespace

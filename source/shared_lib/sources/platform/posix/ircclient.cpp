@@ -473,6 +473,22 @@ IRCThread::IRCThread(const std::vector<string> &argv, IRCCallbackInterface *call
     playerName = "";
 }
 
+void IRCThread::disconnect() {
+#if !defined(DISABLE_IRCCLIENT)
+    if(ircSession != NULL) {
+        setCallbackObj(NULL);
+        if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Quitting Channel\n");
+
+        irc_disconnect(ircSession);
+
+        BaseThread::signalQuit();
+        hasJoinedChannel = false;
+    }
+#else
+    BaseThread::signalQuit();
+#endif
+}
+
 void IRCThread::signalQuit() {
     if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: signalQuit [%p]\n",ircSession);
 

@@ -205,37 +205,68 @@ static void cleanupProcessObjects() {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 IRCCLient Cache SHUTDOWN\n");
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+    	//printf("Closing IRC CLient %d\n",__LINE__);
+    	ircClient->disconnect();
+    	ircClient = NULL;
+
+/*
         ircClient->setCallbackObj(NULL);
 
         //printf("In main IRCThreadcheck [%p] signalled quit...\n",ircClient);
+        printf("Closing IRC CLient %d\n",__LINE__);
         ircClient->signalQuit();
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+        ircClient->disconnect();
         ircClient = NULL;
 
+        printf("Closing IRC CLient %d\n",__LINE__);
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#3 IRCCLient Cache SHUTDOWN\n");
+*/
     }
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#4 IRCCLient Cache SHUTDOWN\n");
+
+    //printf("Closing IRC CLient %d\n",__LINE__);
 
     cleanupCRCThread();
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+    //printf("Closing IRC CLient %d\n",__LINE__);
     if(Renderer::isEnded() == false) {
     	Renderer::getInstance().end();
     	CoreData &coreData= CoreData::getInstance();
         coreData.cleanup();
     }
 
+    //printf("Closing IRC CLient %d\n",__LINE__);
+
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	SystemFlags::Close();
 	SystemFlags::SHUTDOWN_PROGRAM_MODE=true;
 
+	//printf("Closing IRC CLient %d\n",__LINE__);
+
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("start running threads = " MG_SIZE_T_SPECIFIER "\n",Thread::getThreadList().size());
 	time_t elapsed = time(NULL);
+	int lastLazyThreadDump = 0;
     for(;Thread::getThreadList().size() > 0 &&
     	 difftime((long int)time(NULL),elapsed) <= 10;) {
     	//sleep(0);
+    	if(difftime((long int)time(NULL),elapsed) > 1) {
+			if(lastLazyThreadDump != (int)difftime((long int)time(NULL),elapsed)) {
+				lastLazyThreadDump = difftime((long int)time(NULL),elapsed);
+
+				std::vector<Thread *> threadList = Thread::getThreadList();
+				printf("Waiting for the following threads to exit [" MG_SIZE_T_SPECIFIER "]:\n",threadList.size());
+
+				for(int i = 0; i < threadList.size(); ++i) {
+					BaseThread *baseThread = dynamic_cast<BaseThread *>(threadList[i]);
+					printf("Thread index: %d isBaseThread: %d, Name: [%s]\n",i,(baseThread != NULL),baseThread->getUniqueID().c_str());
+				}
+			}
+    	}
     }
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("end running threads = " MG_SIZE_T_SPECIFIER "\n",Thread::getThreadList().size());
 
@@ -256,11 +287,18 @@ static void cleanupProcessObjects() {
 
 	XmlIo::getInstance().cleanup();
 
+	//printf("Closing IRC CLient %d\n",__LINE__);
+
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 
 	SystemFlags::globalCleanupHTTP();
+
+	//printf("Closing IRC CLient %d\n",__LINE__);
+
 	CacheManager::cleanupMutexes();
+
+	//printf("Closing IRC CLient %d\n",__LINE__);
 }
 
 #if defined(WIN32) && !defined(_DEBUG) && !defined(__GNUC__)
@@ -5155,6 +5193,8 @@ int glestMain(int argc, char** argv) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	//printf("Closing IRC CLient %d\n",__LINE__);
+
 	delete mainWindow;
 	mainWindow = NULL;
 
@@ -5170,6 +5210,8 @@ int glestMain(int argc, char** argv) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+	//printf("Closing IRC CLient %d\n",__LINE__);
+
 	if(soundThreadManager) {
 		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 		if( Config::getInstance().getString("FactorySound","") != "None" &&
@@ -5184,6 +5226,8 @@ int glestMain(int argc, char** argv) {
 		delete soundThreadManager;
 		soundThreadManager = NULL;
 	}
+
+	//printf("Closing IRC CLient %d\n",__LINE__);
 
 	return 0;
 }
