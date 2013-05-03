@@ -3937,15 +3937,17 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 
         if(result.first == ftp_crt_SUCCESS) {
             // Clear the CRC file Cache
-            Checksum::clearFileCache();
-    		Checksum checksum;
     		string file = Map::getMapPath(itemName,"",false);
 
-    		//printf("Got map itemName [%s] file [%s] lastCheckedCRCMapName [%s] gameSettings->getMap() [%s]\n",
-    		//		itemName.c_str(),file.c_str(),lastCheckedCRCMapName.c_str(),gameSettings->getMap().c_str());
+    		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got map itemName [%s] file [%s] lastCheckedCRCMapName [%s] gameSettings->getMap() [%s]\n",
+    				itemName.c_str(),file.c_str(),lastCheckedCRCMapName.c_str(),gameSettings->getMap().c_str());
 
-			if(gameSettings != NULL && lastCheckedCRCMapName == gameSettings->getMap() &&
+			if(gameSettings != NULL && itemName == gameSettings->getMap() &&
+					lastCheckedCRCMapName == gameSettings->getMap() &&
 					gameSettings->getMap() != "") {
+	            Checksum::clearFileCache();
+	    		Checksum checksum;
+
 				checksum.addFile(file);
 				lastCheckedCRCMapValue = checksum.getSum();
 			}
@@ -3964,6 +3966,9 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	    	}
         }
         else {
+    		printf("FAILED map itemName [%s] lastCheckedCRCMapName [%s] gameSettings->getMap() [%s]\n",
+    				itemName.c_str(),lastCheckedCRCMapName.c_str(),gameSettings->getMap().c_str());
+
             curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
 
 	    	Lang &lang= Lang::getInstance();
@@ -4036,7 +4041,8 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
     		//printf("Got map itemName [%s] file [%s] lastCheckedCRCMapName [%s] gameSettings->getMap() [%s]\n",
     		//		itemName.c_str(),file.c_str(),lastCheckedCRCMapName.c_str(),gameSettings->getMap().c_str());
 
-			if(gameSettings != NULL && lastCheckedCRCTilesetName == gameSettings->getTileset() &&
+			if(gameSettings != NULL && itemName == gameSettings->getTileset() &&
+					lastCheckedCRCTilesetName == gameSettings->getTileset() &&
 					gameSettings->getTileset() != "") {
 				Config &config = Config::getInstance();
 				lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
@@ -4122,7 +4128,8 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
             clearFolderTreeContentsCheckSumList(paths, pathSearchString, filterFileExt);
 
             // Refresh CRC
-			if(gameSettings != NULL && lastCheckedCRCTechtreeName == gameSettings->getTech() &&
+			if(gameSettings != NULL && itemName == gameSettings->getTech() &&
+					lastCheckedCRCTechtreeName == gameSettings->getTech() &&
 					gameSettings->getTech() != "") {
 				Config &config = Config::getInstance();
 				lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
