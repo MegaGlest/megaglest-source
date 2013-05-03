@@ -195,6 +195,7 @@ Section "Start Menu Shortcuts"
   Delete "$SMPROGRAMS\${APNAME}\*.*"
 
   CreateDirectory "$SMPROGRAMS\${APNAME}"
+  CreateDirectory "$APPDATA\megaglest"
   CreateShortCut "$SMPROGRAMS\${APNAME}\Uninstall.lnk" "$INSTDIR\uninstall.exe" "" "$INSTDIR\uninstall.exe" 0
   CreateShortCut "$SMPROGRAMS\${APNAME}\${APNAME}.lnk" "$INSTDIR\megaglest.exe" "" "$INSTDIR\megaglest.exe" 0 "" "" "${APNAME}"
 
