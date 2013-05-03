@@ -64,8 +64,12 @@ public:
 bool XmlIo::initialized		= false;
 bool XmlIoRapid::initialized= false;
 
-XmlIo::XmlIo() {
+XmlIo::XmlIo() : parser(NULL) {
 	init();
+}
+
+XmlIo::~XmlIo() {
+	cleanup();
 }
 
 bool XmlIo::isInitialized() {
@@ -105,15 +109,12 @@ XmlIo &XmlIo::getInstance() {
 }
 
 void XmlIo::cleanup() {
+	releaseDOMParser();
 	if(XmlIo::initialized == true) {
 		XmlIo::initialized= false;
 		//printf("XmlIo cleanup\n");
 		XMLPlatformUtils::Terminate();
 	}
-}
-
-XmlIo::~XmlIo() {
-	cleanup();
 }
 
 #if XERCES_VERSION_MAJOR < 3
@@ -128,7 +129,14 @@ XmlIo::~XmlIo() {
 	}
 #endif
 
-XmlNode *XmlIo::load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation,bool skipStackCheck) {
+void XmlIo::releaseDOMParser() {
+	if(parser != NULL) {
+		parser->release();
+		parser = NULL;
+	}
+}
+
+DOMNode *XmlIo::loadDOMNode(const string &path, bool noValidation) {
 	//printf("Load file using Xerces engine [%s]\n",path.c_str());
 
 	try {
@@ -136,15 +144,15 @@ XmlNode *XmlIo::load(const string &path, const std::map<string,string> &mapTagRe
 
 		ErrorHandler errorHandler;
 #if XERCES_VERSION_MAJOR < 3
- 		DOMBuilder *parser= (static_cast<DOMImplementationLS*>(implementation))->createDOMBuilder(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
- 		parser->setErrorHandler(&errorHandler);
- 		if(noValidation == false) {
+		parser= (static_cast<DOMImplementationLS*>(implementation))->createDOMBuilder(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+		parser->setErrorHandler(&errorHandler);
+		if(noValidation == false) {
 			parser->setFeature(XMLUni::fgXercesSchema, true);
 			parser->setFeature(XMLUni::fgXercesSchemaFullChecking, true);
 			//parser->setFeature(XMLUni::fgDOMValidateIfSchema, true);
 			parser->setFeature(XMLUni::fgDOMValidation, true);
- 		}
- 		else {
+		}
+		else {
 			//parser->setFeature(XMLUni::fgSAX2CoreValidation, false);
 			//parser->setFeature(XMLUni::fgXercesDynamic, true);
 
@@ -153,30 +161,30 @@ XmlNode *XmlIo::load(const string &path, const std::map<string,string> &mapTagRe
 			//parser->setFeature(XMLUni::fgDOMValidateIfSchema, true);
 			//parser->setFeature(XMLUni::fgDOMValidation, false);
 
- 			parser->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
- 			parser->setFeature(XMLUni::fgXercesLoadExternalDTD, false);
- 			parser->setFeature(XMLUni::fgXercesCacheGrammarFromParse, true);
- 			parser->setFeature(XMLUni::fgXercesUseCachedGrammarInParse, true);
- 		}
+			parser->setFeature(XMLUni::fgXercesSchemaFullChecking, false);
+			parser->setFeature(XMLUni::fgXercesLoadExternalDTD, false);
+			parser->setFeature(XMLUni::fgXercesCacheGrammarFromParse, true);
+			parser->setFeature(XMLUni::fgXercesUseCachedGrammarInParse, true);
+		}
 #else
-		DOMLSParser *parser = (static_cast<DOMImplementationLS*>(implementation))->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
- 		DOMConfiguration  *config = parser->getDomConfig();
- 		if(noValidation == false) {
+		parser = (static_cast<DOMImplementationLS*>(implementation))->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+		DOMConfiguration  *config = parser->getDomConfig();
+		if(noValidation == false) {
 			config->setParameter(XMLUni::fgXercesSchema, true);
 			config->setParameter(XMLUni::fgXercesSchemaFullChecking, true);
 			//config->setParameter(XMLUni::fgDOMValidateIfSchema, true);
 			config->setParameter(XMLUni::fgDOMValidate, true);
- 		}
- 		else {
+		}
+		else {
 			config->setParameter(XMLUni::fgXercesSchema, false);
 			config->setParameter(XMLUni::fgXercesSchemaFullChecking, false);
 			config->setParameter(XMLUni::fgXercesLoadExternalDTD, false);
 			config->setParameter(XMLUni::fgXercesCacheGrammarFromParse, true);
 			config->setParameter(XMLUni::fgXercesUseCachedGrammarInParse, true);
- 		}
+		}
 #endif
 		//XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document= parser->parseURI(path.c_str());
- 		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document = getRootDOMDocument(path, parser, noValidation);
+		XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument *document = getRootDOMDocument(path, parser, noValidation);
 
 #ifdef WIN32
 		if(document == NULL) {
@@ -187,8 +195,29 @@ XmlNode *XmlIo::load(const string &path, const std::map<string,string> &mapTagRe
 			throw megaglest_runtime_error("Can not parse URL: " + path);
 		}
 
-		XmlNode *rootNode= new XmlNode(document->getDocumentElement(),mapTagReplacementValues);
-		parser->release();
+		DOMNode *rootNode = document->getDocumentElement();
+		return rootNode;
+	}
+	catch(const DOMException &ex) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] Exception while loading: [%s], msg:\n%s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(ex.msg));
+		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
+
+		throw megaglest_runtime_error(szBuf);
+	}
+	return NULL;
+}
+
+XmlNode *XmlIo::load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation) {
+	//printf("Load file using Xerces engine [%s]\n",path.c_str());
+
+	try {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("XERCES_FULLVERSIONDOT [%s]\nnoValidation = %d\npath [%s]\n",XERCES_FULLVERSIONDOT,noValidation,path.c_str());
+
+		DOMNode *domNode = loadDOMNode(path, noValidation);
+		XmlNode *rootNode= new XmlNode(domNode,mapTagReplacementValues);
+		releaseDOMParser();
+
 		return rootNode;
 	}
 	catch(const DOMException &ex) {
@@ -512,7 +541,7 @@ void XmlTree::load(const string &path, const std::map<string,string> &mapTagRepl
 
 	loadPath = path;
 	if(this->engine_type == XML_XERCES_ENGINE) {
-		this->rootNode= XmlIo::getInstance().load(path, mapTagReplacementValues, noValidation,this->skipStackCheck);
+		this->rootNode= XmlIo::getInstance().load(path, mapTagReplacementValues, noValidation);
 	}
 	else {
 		this->rootNode= XmlIoRapid::getInstance().load(path, mapTagReplacementValues, noValidation,this->skipStackCheck);
@@ -745,6 +774,7 @@ bool XmlNode::hasChildAtIndex(const string &childName, int i) const {
 		return superNode->hasChildAtIndex(childName,i);
 	int count= 0;
 	for(unsigned int j = 0; j < children.size(); ++j) {
+		//printf("Looking for [%s] at index: %d found [%s] index = %d\n",childName.c_str(),i,children[j]->getName().c_str(),j);
 		if(children[j]->getName()==childName) {
             if(count == i) {
 				return true;
@@ -770,9 +800,10 @@ bool XmlNode::hasChildNoSuper(const string &childName) const {
 	return false;
 }
 
-XmlNode *XmlNode::addChild(const string &name){
+XmlNode *XmlNode::addChild(const string &name, const string text) {
 	assert(!superNode);
 	XmlNode *node= new XmlNode(name);
+	node->text = text;
 	children.push_back(node);
 	return node;
 }

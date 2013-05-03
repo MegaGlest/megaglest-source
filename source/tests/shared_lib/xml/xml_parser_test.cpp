@@ -15,6 +15,10 @@
 #include "xml_parser.h"
 #include "platform_util.h"
 
+#include <xercesc/dom/DOM.hpp>
+//#include <xercesc/util/PlatformUtils.hpp>
+//#include <xercesc/framework/LocalFileFormatTarget.hpp>
+
 #ifdef WIN32
 #include <io.h>
 #else
@@ -37,7 +41,7 @@ bool removeTestFile(string file) {
 void createValidXMLTestFile(const string& test_filename) {
 	std::ofstream xmlFile(test_filename.c_str());
 	xmlFile << "<?xml version=\"1.0\"?>" << std::endl
-			<< "<menu>"	<< std::endl
+			<< "<menu mytest-attribute=\"true\">"	<< std::endl
 			<< "<menu-background-model value=\"data/core/menu/main_model/menu_main1.g3d\"/>" << std::endl
 			<< "</menu>" << std::endl;
 	xmlFile.close();
@@ -103,7 +107,7 @@ public:
 		XmlNode *rootNode = XmlIo::getInstance().load(test_filename, std::map<string,string>());
 
 		CPPUNIT_ASSERT( rootNode != NULL );
-		CPPUNIT_ASSERT( rootNode->getName() == "menu" );
+		CPPUNIT_ASSERT_EQUAL( string("menu"), rootNode->getName() );
 	}
 	void test_load_file_malformed_content() {
 		const string test_filename = "xml_test_malformed.xml";
@@ -170,7 +174,7 @@ public:
 		XmlNode *rootNode = XmlIoRapid::getInstance().load(test_filename, std::map<string,string>());
 
 		CPPUNIT_ASSERT( rootNode != NULL );
-		CPPUNIT_ASSERT( rootNode->getName() == "menu" );
+		CPPUNIT_ASSERT_EQUAL( string("menu"), rootNode->getName() );
 	}
 	void test_load_file_malformed_content() {
 		const string test_filename = "xml_test_malformed.xml";
@@ -233,11 +237,11 @@ public:
 		XmlTree xmlInstance;
 		xmlInstance.init("");
 		CPPUNIT_ASSERT( xmlInstance.getRootNode() != NULL );
-		CPPUNIT_ASSERT( xmlInstance.getRootNode()->getName() == "" );
+		CPPUNIT_ASSERT_EQUAL( string(""), xmlInstance.getRootNode()->getName() );
 
 		xmlInstance.init("testRoot");
 		CPPUNIT_ASSERT( xmlInstance.getRootNode() != NULL );
-		CPPUNIT_ASSERT( xmlInstance.getRootNode()->getName() == "testRoot" );
+		CPPUNIT_ASSERT_EQUAL( string("testRoot"), xmlInstance.getRootNode()->getName() );
 	}
 	void test_load_simultaneously_same_file() {
 		const string test_filename = "xml_test_valid.xml";
@@ -264,7 +268,148 @@ public:
 	}
 };
 
+
+class XmlNodeTest : public CppUnit::TestFixture {
+	// Register the suite of tests for this fixture
+	CPPUNIT_TEST_SUITE( XmlNodeTest );
+
+	CPPUNIT_TEST_EXCEPTION( test_null_xerces_node,  megaglest_runtime_error );
+	CPPUNIT_TEST_EXCEPTION( test_null_rapidxml_node,  megaglest_runtime_error );
+	CPPUNIT_TEST( test_valid_xerces_node );
+	CPPUNIT_TEST( test_valid_named_node );
+	CPPUNIT_TEST( test_child_nodes );
+	CPPUNIT_TEST( test_node_attributes );
+
+	CPPUNIT_TEST_SUITE_END();
+	// End of Fixture registration
+
+private:
+
+	class XmlIoMock : public XmlIo {
+	protected:
+		virtual void releaseDOMParser() { }
+
+	public:
+		XmlIoMock() : XmlIo() {	}
+
+		DOMNode *loadDOMNode(const string &path, bool noValidation=false) {
+			return XmlIo::loadDOMNode(path, noValidation);
+		}
+
+		void manualParserRelease() {
+			XmlIo::releaseDOMParser();
+		}
+	};
+
+public:
+
+	void test_null_xerces_node() {
+		XERCES_CPP_NAMESPACE::DOMNode *node = NULL;
+		const std::map<string,string> mapTagReplacementValues;
+		XmlNode(node, mapTagReplacementValues);
+	}
+	void test_null_rapidxml_node() {
+		xml_node<> *node = NULL;
+		const std::map<string,string> mapTagReplacementValues;
+		XmlNode(node, mapTagReplacementValues);
+	}
+	void test_valid_xerces_node() {
+		const string test_filename = "xml_test_valid.xml";
+		createValidXMLTestFile(test_filename);
+		SafeRemoveTestFile deleteFile(test_filename);
+
+		XmlIoMock xml;
+		XERCES_CPP_NAMESPACE::DOMNode *domNode = xml.loadDOMNode(test_filename);
+
+		CPPUNIT_ASSERT( domNode != NULL );
+
+		const std::map<string,string> mapTagReplacementValues;
+		XmlNode node(domNode, mapTagReplacementValues);
+
+		xml.manualParserRelease();
+
+		CPPUNIT_ASSERT_EQUAL( string("menu"), node.getName() );
+		CPPUNIT_ASSERT( node.hasAttribute("mytest-attribute") == true );
+		CPPUNIT_ASSERT( node.hasChild("menu-background-model") == true );
+	}
+	void test_valid_named_node() {
+		XmlNode node("testNode");
+
+		CPPUNIT_ASSERT_EQUAL( string("testNode"), node.getName() );
+	}
+
+	void test_child_nodes() {
+		XmlNode node("testNode");
+
+		CPPUNIT_ASSERT( node.getName() == "testNode" );
+		CPPUNIT_ASSERT_EQUAL( (size_t)0,node.getChildCount() );
+
+		XmlNode *childNode1 = node.addChild("child1");
+		CPPUNIT_ASSERT_EQUAL( (size_t)1,node.getChildCount() );
+		CPPUNIT_ASSERT_EQUAL( string(""), childNode1->getText() );
+
+		XmlNode *childChildNode1 = childNode1->addChild("childchild1", "testValue");
+		CPPUNIT_ASSERT_EQUAL( (size_t)1,childNode1->getChildCount() );
+		CPPUNIT_ASSERT_EQUAL( string("testValue"), childChildNode1->getText() );
+
+		XmlNode *childChildNode2 = childNode1->addChild("childchild2", "testValue2");
+		CPPUNIT_ASSERT_EQUAL( (size_t)2, childNode1->getChildCount() );
+		CPPUNIT_ASSERT_EQUAL( string("testValue2"), childChildNode2->getText() );
+
+		XmlNode *childChildNode3 = childNode1->addChild("childchild2", "testValue3");
+		CPPUNIT_ASSERT_EQUAL( (size_t)3, childNode1->getChildCount() );
+		CPPUNIT_ASSERT_EQUAL( string("testValue3"), childChildNode3->getText() );
+
+		CPPUNIT_ASSERT( childNode1->hasChildAtIndex("childchild2",1) == true);
+
+		XmlNode *childNode2 = node.addChild("child2","child2Value");
+		CPPUNIT_ASSERT_EQUAL( (size_t)2,node.getChildCount() );
+		CPPUNIT_ASSERT_EQUAL( string("child2Value"), childNode2->getText() );
+
+		CPPUNIT_ASSERT_EQUAL( string("child2"), node.getChild(1)->getName() );
+		CPPUNIT_ASSERT_EQUAL( string("child2"), node.getChild("child2")->getName() );
+		CPPUNIT_ASSERT_EQUAL( string("child1"), node.getChild("child1")->getName() );
+
+		XmlNode *childNode2x = node.addChild("child2","child2xValue");
+		CPPUNIT_ASSERT_EQUAL( (size_t)3, node.getChildCount() );
+		CPPUNIT_ASSERT_EQUAL( string("child2xValue"), childNode2x->getText() );
+		CPPUNIT_ASSERT_EQUAL( string("child2xValue"), node.getChild("child2",1)->getText() );
+
+		XmlNode *childNode3 = node.addChild("child3","child3Value");
+		CPPUNIT_ASSERT_EQUAL( (size_t)4, node.getChildCount() );
+
+		vector<XmlNode *> child2List = node.getChildList("child2");
+		CPPUNIT_ASSERT_EQUAL( (size_t)2, child2List.size() );
+		CPPUNIT_ASSERT_EQUAL( string("child2Value"), child2List[0]->getText() );
+		CPPUNIT_ASSERT_EQUAL( string("child2xValue"), child2List[1]->getText() );
+
+		//printf("%d\n",__LINE__);
+		CPPUNIT_ASSERT( childNode3->hasChild("child2") == false);
+		CPPUNIT_ASSERT_EQUAL( 2, node.clearChild("child2"));
+		CPPUNIT_ASSERT_EQUAL( (size_t)2,node.getChildCount() );
+	}
+
+	void test_node_attributes() {
+		XmlNode node("testNode");
+
+		CPPUNIT_ASSERT( node.getName() == "testNode" );
+		CPPUNIT_ASSERT_EQUAL( (size_t)0,node.getAttributeCount() );
+		CPPUNIT_ASSERT_EQUAL( (XmlAttribute *)NULL, node.getAttribute("some-attribute",false) );
+		CPPUNIT_ASSERT_EQUAL( false, node.hasAttribute("some-attribute") );
+
+		std::map<string,string> mapTagReplacementValues;
+		XmlAttribute *attribute1 = node.addAttribute("some-attribute", "some-value", mapTagReplacementValues);
+		CPPUNIT_ASSERT_EQUAL( (size_t)1,node.getAttributeCount() );
+		CPPUNIT_ASSERT_EQUAL( attribute1, node.getAttribute("some-attribute") );
+		CPPUNIT_ASSERT_EQUAL( string("some-attribute"), node.getAttribute(0)->getName() );
+		CPPUNIT_ASSERT_EQUAL( true, node.hasAttribute("some-attribute") );
+	}
+
+};
+
+
 // Suite Registrations
 CPPUNIT_TEST_SUITE_REGISTRATION( XmlIoTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( XmlIoRapidTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( XmlTreeTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( XmlNodeTest );
