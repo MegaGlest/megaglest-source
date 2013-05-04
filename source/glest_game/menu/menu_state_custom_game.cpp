@@ -433,7 +433,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	// Network Pause for lagged clients
 	labelNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"labelNetworkPauseGameForLaggedClients");
-	labelNetworkPauseGameForLaggedClients.init(xoffset+380, networkHeadPos, 80);
+	//labelNetworkPauseGameForLaggedClients.init(xoffset+380, networkHeadPos, 80);
+	labelNetworkPauseGameForLaggedClients.init(labelAllowInGameJoinPlayer.getX(), networkHeadPos, 80);
 	labelNetworkPauseGameForLaggedClients.setText(lang.get("NetworkPauseGameForLaggedClients"));
 
 //	listBoxNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"listBoxNetworkPauseGameForLaggedClients");
@@ -442,7 +443,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 //	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("Yes"));
 //	listBoxNetworkPauseGameForLaggedClients.setSelectedItem(lang.get("Yes"));
 	checkBoxNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"checkBoxNetworkPauseGameForLaggedClients");
-	checkBoxNetworkPauseGameForLaggedClients.init(xoffset+380, networkPos);
+	//checkBoxNetworkPauseGameForLaggedClients.init(xoffset+380, networkPos);
+	checkBoxNetworkPauseGameForLaggedClients.init(checkBoxAllowInGameJoinPlayer.getX(), networkHeadPos);
 	checkBoxNetworkPauseGameForLaggedClients.setValue(true);
 
 	// Enable Server Controlled AI
