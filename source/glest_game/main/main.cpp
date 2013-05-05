@@ -258,12 +258,11 @@ static void cleanupProcessObjects() {
 			if(lastLazyThreadDump != (int)difftime((long int)time(NULL),elapsed)) {
 				lastLazyThreadDump = difftime((long int)time(NULL),elapsed);
 
-				std::vector<Thread *> threadList = Thread::getThreadList();
-				printf("Waiting for the following threads to exit [" MG_SIZE_T_SPECIFIER "]:\n",threadList.size());
+				printf("Waiting for the following threads to exit [" MG_SIZE_T_SPECIFIER "]:\n",Thread::getThreadList().size());
 
-				for(int i = 0; i < threadList.size(); ++i) {
-					BaseThread *baseThread = dynamic_cast<BaseThread *>(threadList[i]);
-					printf("Thread index: %d isBaseThread: %d, Name: [%s]\n",i,(baseThread != NULL),baseThread->getUniqueID().c_str());
+				for(int i = 0; i < Thread::getThreadList().size(); ++i) {
+					BaseThread *baseThread = dynamic_cast<BaseThread *>(Thread::getThreadList()[i]);
+					printf("Thread index: %d isBaseThread: %d, Name: [%s]\n",i,(baseThread != NULL),(baseThread != NULL ? baseThread->getUniqueID().c_str() : "<na>"));
 				}
 			}
     	}
