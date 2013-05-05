@@ -339,7 +339,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     }
 
     if(netPlayerName=="newbie"){
-    	showMessageBox(lang.get("Go back and set your name in the game options"),lang.get("Player name not set"),false);
+    	showMessageBox(lang.get("PlayerNameNotSetPrompt"),lang.get("PlayerNameNotSetTitle"),false);
     }
     //showMessageBox("Go back and set your name in the game options!\n\nAt the moment you are just called >>newbie<< !","Player name not set!",false);
 

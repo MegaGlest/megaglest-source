@@ -123,7 +123,7 @@ cd ..
 echo ''
 echo 'BUILD COMPLETE.'
 echo ''
-echo 'To build with boogle-breakpad support pass the path to the library as follows:'
+echo 'To build with google-breakpad support pass the path to the library as follows:'
 echo 'cmake -DBREAKPAD_ROOT=/home/softcoder/Code/google-breakpad/'
 echo 'To launch MegaGlest from the current directory, use:'
 echo '  mk/linux/megaglest --ini-path=mk/linux/ --data-path=mk/linux/'
