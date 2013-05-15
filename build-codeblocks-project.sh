@@ -11,7 +11,8 @@ cd codeblocks
 if [ -f 'CMakeCache.txt' ]; then rm -f 'CMakeCache.txt'; fi
 
 LANG=C
-NUMCORES=`nproc`
+NUMCORES=`lscpu -p | grep -cv '^#'`
+if [ "$NUMCORES" = '' ]; then NUMCORES=1; fi
 
 # This is for regular developers and used by our installer
 cmake -G"CodeBlocks - Unix Makefiles" -DCMAKE_INSTALL_PREFIX= -DWANT_STATIC_LIBS=ON -DCMAKE_ECLIPSE_MAKE_ARGUMENTS=-j$NUMCORES ${CURRENTDIR}
