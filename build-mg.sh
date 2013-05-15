@@ -5,7 +5,8 @@
 # Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+
 
 LANG=C
-NUMCORES=`nproc`
+NUMCORES=`lscpu -p | grep -cv '^#'`
+if [ "$NUMCORES" = '' ]; then NUMCORES=1; fi
 
 mkdir -p build
 cd build

@@ -119,7 +119,8 @@ CXX=/usr/bin/g++
 
 OSTYPE=`uname -s`
 if [ "$OSTYPE" = "Linux" ]; then
-    NCPU=`nproc`
+    NCPU=`lscpu -p | grep -cv '^#'`
+    if [ "$NUMCORES" = '' ]; then NUMCORES=1; fi
 elif [ "$OSTYPE" = "Darwin" ]; then
     NCPU=`sysctl -n hw.ncpu`
 elif [ "$OSTYPE" = "SunOS" ]; then

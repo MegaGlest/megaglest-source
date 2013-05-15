@@ -5,7 +5,8 @@
 # Originally written by Mark Vejvoda <mark_vejvoda@hotmail.com>
 # Copyright (c) 2012 Mark Vejvoda under GNU GPL v3.0
 
-NUMCORES=`nproc`
+NUMCORES=`lscpu -p | grep -cv '^#'`
+if [ "$NUMCORES" = '' ]; then NUMCORES=1; fi
 
 #PROJECT_SOURCE_DIR="$(dirname $(readlink -f $0))"
 mkdir -p build-win32
