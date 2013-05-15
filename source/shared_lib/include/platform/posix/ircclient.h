@@ -71,7 +71,10 @@ protected:
 	string playerName;
 
     bool hasJoinedChannel;
+
+    Mutex mutexEventDataDone;
     bool eventDataDone;
+
     Mutex mutexNickList;
     time_t lastNickListUpdate;
     std::vector<string> eventData;
@@ -100,12 +103,12 @@ public:
 
     void SendIRCCmdMessage(string target, string msg);
     std::vector<string> getNickList();
-    bool isConnected();
+    bool isConnected(bool mutexLockRequired=true);
 
     std::vector<string> GetIRCConnectedNickList(string target, bool waitForCompletion);
 
-    bool getEventDataDone() const { return eventDataDone; }
-    void setEventDataDone(bool value) { eventDataDone=value; }
+    bool getEventDataDone();
+    void setEventDataDone(bool value);
 
     bool getHasJoinedChannel() const { return hasJoinedChannel; }
     void setHasJoinedChannel(bool value) { hasJoinedChannel=value; }
