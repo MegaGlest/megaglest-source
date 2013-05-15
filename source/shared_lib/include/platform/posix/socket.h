@@ -50,6 +50,20 @@ using namespace Shared::PlatformCommon;
 
 namespace Shared { namespace Platform {
 
+#ifdef WIN32
+
+	#define PLATFORM_SOCKET_TRY_AGAIN WSAEWOULDBLOCK
+    #define PLATFORM_SOCKET_INPROGRESS WSAEINPROGRESS
+	#define PLATFORM_SOCKET_INTERRUPTED WSAEWOULDBLOCK
+
+#else
+
+	#define PLATFORM_SOCKET_TRY_AGAIN EAGAIN
+	#define PLATFORM_SOCKET_INPROGRESS EINPROGRESS
+	#define PLATFORM_SOCKET_INTERRUPTED EINTR
+
+#endif
+
 // The callback Interface used by the UPNP discovery process
 class FTPClientValidationInterface {
 public:
@@ -136,6 +150,10 @@ public:
 	Socket(PLATFORM_SOCKET sock);
 	Socket();
 	virtual ~Socket();
+
+	static int getLastSocketError();
+	static const char * getLastSocketErrorText(int *errNumber=NULL);
+	static string getLastSocketErrorFormattedText(int *errNumber=NULL);
 
 	static bool disableNagle;
 	static int DEFAULT_SOCKET_SENDBUF_SIZE;

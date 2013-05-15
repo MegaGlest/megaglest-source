@@ -91,9 +91,10 @@ Mutex UPNP_Tools::mutexUPNP;
 
     #define socklen_t 	int
 	#define MAXHOSTNAME 254
-	#define PLATFORM_SOCKET_TRY_AGAIN WSAEWOULDBLOCK
-    #define PLATFORM_SOCKET_INPROGRESS WSAEINPROGRESS
-	#define PLATFORM_SOCKET_INTERRUPTED WSAEWOULDBLOCK
+
+//#define PLATFORM_SOCKET_TRY_AGAIN WSAEWOULDBLOCK
+//#define PLATFORM_SOCKET_INPROGRESS WSAEINPROGRESS
+//#define PLATFORM_SOCKET_INTERRUPTED WSAEWOULDBLOCK
 	typedef SSIZE_T ssize_t;
 
 	//// Constants /////////////////////////////////////////////////////////
@@ -246,13 +247,13 @@ Mutex UPNP_Tools::mutexUPNP;
 	typedef UINT_PTR        SOCKET;
 	#define INVALID_SOCKET  (SOCKET)(~0)
 
-	#define PLATFORM_SOCKET_TRY_AGAIN EAGAIN
-	#define PLATFORM_SOCKET_INPROGRESS EINPROGRESS
-	#define PLATFORM_SOCKET_INTERRUPTED EINTR
+	//#define PLATFORM_SOCKET_TRY_AGAIN EAGAIN
+	//#define PLATFORM_SOCKET_INPROGRESS EINPROGRESS
+	//#define PLATFORM_SOCKET_INTERRUPTED EINTR
 
 #endif
 
-int getLastSocketError() {
+int Socket::getLastSocketError() {
 #ifndef WIN32
 	return errno;
 #else
@@ -260,7 +261,7 @@ int getLastSocketError() {
 #endif
 }
 
-const char * getLastSocketErrorText(int *errNumber=NULL) {
+const char * Socket::getLastSocketErrorText(int *errNumber) {
 	int errId = (errNumber != NULL ? *errNumber : getLastSocketError());
 #ifndef WIN32
 	return strerror(errId);
@@ -269,7 +270,7 @@ const char * getLastSocketErrorText(int *errNumber=NULL) {
 #endif
 }
 
-string getLastSocketErrorFormattedText(int *errNumber=NULL) {
+string Socket::getLastSocketErrorFormattedText(int *errNumber) {
 	int errId = (errNumber != NULL ? *errNumber : getLastSocketError());
 	string msg = "(Error: " + intToStr(errId) + " - [" + string(getLastSocketErrorText(&errId)) +"])";
 	return msg;
@@ -2039,7 +2040,7 @@ void BroadCastClientSocketThread::execute() {
     // Prepare to receive the broadcast.
     bcfd = socket(AF_INET, SOCK_DGRAM, 0);
     if( bcfd <= 0 )	{
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"socket failed: %s\n", getLastSocketErrorFormattedText().c_str());
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"socket failed: %s\n", Socket::getLastSocketErrorFormattedText().c_str());
 	}
     else {
 		// Create the address we are receiving on.
@@ -2055,7 +2056,7 @@ void BroadCastClientSocketThread::execute() {
 		setsockopt(bcfd, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
 #endif
 		if(::bind( bcfd,  (struct sockaddr *)&bcaddr, sizeof(bcaddr) ) < 0 )	{
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"bind failed: %s\n", getLastSocketErrorFormattedText().c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"bind failed: %s\n", Socket::getLastSocketErrorFormattedText().c_str());
 		}
 		else {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -2074,7 +2075,7 @@ void BroadCastClientSocketThread::execute() {
 					//printf("Broadcasting client nb = %d buff [%s] gotData = %d\n",nb,buff,gotData);
 
 					if(gotData == false) {
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"recvfrom failed: %s\n", getLastSocketErrorFormattedText().c_str());
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"recvfrom failed: %s\n", Socket::getLastSocketErrorFormattedText().c_str());
 					}
 					else {
 						//string fromIP = inet_ntoa(bcSender.sin_addr);
@@ -2871,12 +2872,12 @@ void BroadCastSocketThread::execute() {
 		bcfd[idx] = socket( AF_INET, SOCK_DGRAM, 0 );
 
 		if( bcfd[idx] <= 0  ) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Unable to allocate broadcast socket [%s]: %s\n", ipSubnetMaskList[idx].c_str(), getLastSocketErrorFormattedText().c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Unable to allocate broadcast socket [%s]: %s\n", ipSubnetMaskList[idx].c_str(), Socket::getLastSocketErrorFormattedText().c_str());
 			//exit(-1);
 		}
 		// Mark the socket for broadcast.
 		else if( setsockopt( bcfd[idx], SOL_SOCKET, SO_BROADCAST, (const char *) &one, sizeof( int ) ) < 0 ) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Could not set socket to broadcast [%s]: %s\n", ipSubnetMaskList[idx].c_str(), getLastSocketErrorFormattedText().c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Could not set socket to broadcast [%s]: %s\n", ipSubnetMaskList[idx].c_str(), Socket::getLastSocketErrorFormattedText().c_str());
 			//exit(-1);
 		}
 		//}
@@ -2912,7 +2913,7 @@ void BroadCastSocketThread::execute() {
 
 							ssize_t send_res = sendto( bcfd[idx], buff, buffMaxSize, 0 , (struct sockaddr *)&bcLocal[idx], sizeof(struct sockaddr_in) );
 							if( send_res != buffMaxSize ) {
-								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Sendto error: %s\n", getLastSocketErrorFormattedText().c_str());
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Sendto error: %s\n", Socket::getLastSocketErrorFormattedText().c_str());
 							}
 							else {
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Broadcasting on port [%d] the message: [%s]\n",Socket::getBroadCastPort(),buff);

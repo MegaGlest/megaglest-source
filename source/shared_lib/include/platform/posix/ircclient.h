@@ -58,6 +58,8 @@ protected:
 	static const char *globalCacheContainerName;
 
     std::vector<string> argv;
+
+    Mutex mutexIRCSession;
     irc_session_t *ircSession;
 
     string execute_cmd_onconnect;
@@ -78,6 +80,8 @@ protected:
     IRCCallbackInterface *callbackObj;
 
     bool wantToLeaveChannel;
+
+    int irc_run_session(irc_session_t * session);
 
 public:
 
