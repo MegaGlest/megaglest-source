@@ -106,6 +106,7 @@ unsupported_distribution () {
 	echo 'Distribution: '"$distribution"
 	echo 'Release:      '"$release"
 	echo 'Codename:     '"$codename"
+	echo 'Architecture: '"$architecture"
 	echo '--- snip ---'
 	echo ''
 	echo 'For now, you may want to take a look at the build hints on the MegaGlest wiki at http://wiki.megaglest.org/'
@@ -122,6 +123,7 @@ unsupported_release () {
 	echo 'Distribution: '"$distribution"
 	echo 'Release:      '"$release"
 	echo 'Codename:     '"$codename"
+	echo 'Architecture: '"$architecture"
 	echo '--- snip ---'
 	echo ''
 	if [ "$installcommand" != '' ]
@@ -142,6 +144,7 @@ error_during_installation () {
 	echo 'Distribution: '"$distribution"
 	echo 'Release:      '"$release"
 	echo 'Codename:     '"$codename"
+	echo 'Architecture: '"$architecture"
 	echo '--- snip ---'
 	echo ''
 	echo 'For now, you may want to take a look at the build hints on the MegaGlest wiki at http://wiki.megaglest.org/'
@@ -165,7 +168,7 @@ case $distribution in
 				fi
 				;;
 			*)
-				installcommand='apt-get install build-essential subversion automake autoconf autogen cmake libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev ilibfribidi-dev libvlc-dev libminiupnpc-dev librtmp-dev libgtk2.0-dev libcppunit-dev'
+				installcommand='apt-get install build-essential subversion automake autoconf autogen cmake libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libminiupnpc-dev librtmp-dev libgtk2.0-dev libcppunit-dev'
 				unsupported_release
 				exit 1
 				;;
