@@ -119,8 +119,7 @@ CXX=/usr/bin/g++
 
 OSTYPE=`uname -s`
 if [ "$OSTYPE" = "Linux" ]; then
-    NCPU=`cat /proc/cpuinfo |grep vendor_id |wc -l`
-    let NCPU=$NCPU+1
+    NCPU=`nproc`
 elif [ "$OSTYPE" = "Darwin" ]; then
     NCPU=`sysctl -n hw.ncpu`
 elif [ "$OSTYPE" = "SunOS" ]; then

@@ -5,7 +5,7 @@
 # Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+
 
 LANG=C
-NUMCORES=`cat /proc/cpuinfo | grep -cE '^processor'`
+NUMCORES=`nproc`
 
 mkdir -p build
 cd build
