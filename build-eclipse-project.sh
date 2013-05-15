@@ -11,7 +11,7 @@ cd eclipse
 if [ -f 'CMakeCache.txt' ]; then rm -f 'CMakeCache.txt'; fi
 
 LANG=C
-NUMCORES=`cat /proc/cpuinfo | grep -cE '^processor'`
+NUMCORES=`nproc`
 
 # This is for regular developers and used by our installer
 cmake -G"Eclipse CDT4 - Unix Makefiles" -DCMAKE_INSTALL_PREFIX= -DWANT_STATIC_LIBS=ON -DCMAKE_ECLIPSE_MAKE_ARGUMENTS=-j$NUMCORES ${CURRENTDIR}

@@ -5,7 +5,7 @@
 # Originally written by Mark Vejvoda <mark_vejvoda@hotmail.com>
 # Copyright (c) 2012 Mark Vejvoda under GNU GPL v3.0
 
-NUMCORES=`cat /proc/cpuinfo | grep -cE '^processor'`
+NUMCORES=`nproc`
 
 #PROJECT_SOURCE_DIR="$(dirname $(readlink -f $0))"
 mkdir -p build-win32

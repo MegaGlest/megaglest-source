@@ -29,7 +29,7 @@
 #
 
 LANG=C
-VERSION='0.3.3'
+VERSION='0.3.4'
 MYNAME=`basename $0`
 DEFAULT_REPORT_FILENAME=system_report.log
 
@@ -284,8 +284,8 @@ echo '' >> $REPORT_LOCATION
 echo '' >> $REPORT_LOCATION
 echo '***** CPU **********************************************************************' >> $REPORT_LOCATION
 echo '' >> $REPORT_LOCATION
-echo '>>> cat /proc/cpuinfo | awk -F : '"'"'/^model name/ { print $2 }' >> $REPORT_LOCATION
-cat /proc/cpuinfo | awk -F : '/^model name/ { print $2 }' >> $REPORT_LOCATION
+echo '>>> cat /proc/cpuinfo' >> $REPORT_LOCATION
+cat /proc/cpuinfo >> $REPORT_LOCATION
 sleep 1
 
 echo ' →  Memory'
