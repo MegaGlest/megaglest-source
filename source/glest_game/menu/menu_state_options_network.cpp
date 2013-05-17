@@ -47,7 +47,7 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mai
 		//modeinfos=list<ModeInfo> ();
 		int leftLabelStart=50;
 		int leftColumnStart=leftLabelStart+280;
-		int rightLabelStart=450;
+		//int rightLabelStart=450;
 		//int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=50;
 		int buttonStartPos=170;

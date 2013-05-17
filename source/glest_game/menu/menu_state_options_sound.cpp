@@ -150,7 +150,7 @@ MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMen
 		listBoxVolumeAmbient.setSelectedItem(intToStr(config.getInt("SoundVolumeAmbient")/5*5));
 		listBoxVolumeMusic.setSelectedItem(intToStr(config.getInt("SoundVolumeMusic")/5*5));
 
-		currentLine-=lineOffset/2;
+		//currentLine-=lineOffset/2;
 
 
 
