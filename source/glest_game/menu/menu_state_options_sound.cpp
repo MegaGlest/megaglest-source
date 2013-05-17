@@ -47,7 +47,7 @@ MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMen
 
 		int leftLabelStart=50;
 		int leftColumnStart=leftLabelStart+280;
-		int rightLabelStart=450;
+		//int rightLabelStart=450;
 		//int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=50;
 		int buttonStartPos=170;
@@ -139,7 +139,7 @@ MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMen
 		listBoxVolumeMusic.registerGraphicComponent(containerName,"listBoxVolumeMusic");
 		listBoxVolumeMusic.init(currentColumnStart, currentLine, 80);
 		labelVolumeMusic.setText(lang.get("MusicVolume"));
-		currentLine-=lineOffset;
+		//currentLine-=lineOffset;
 
 		for(int i=0; i<=100; i+=5){
 			listBoxVolumeFx.pushBackItem(intToStr(i));

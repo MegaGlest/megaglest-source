@@ -160,9 +160,11 @@ public:
 	~PathFinder();
 
 	PathFinder(const PathFinder& obj) {
+		init();
 		throw megaglest_runtime_error("class PathFinder is NOT safe to copy!");
 	}
 	PathFinder & operator=(const PathFinder& obj) {
+		init();
 		throw megaglest_runtime_error("class PathFinder is NOT safe to assign!");
 	}
 
@@ -181,6 +183,8 @@ public:
 	void loadGame(const XmlNode *rootNode);
 
 private:
+	void init();
+
 	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex, int maxNodeCount=-1,uint32 *searched_node_count=NULL);
 	//Node *newNode(FactionState &faction,int maxNodeCount);
 	inline static Node *newNode(FactionState &faction, int maxNodeCount) {

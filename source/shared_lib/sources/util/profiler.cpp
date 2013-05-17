@@ -44,7 +44,7 @@ Section *Section::getChild(const string &name){
 void Section::print(FILE *outStream, int tabLevel){
 
 	float percent= (parent==NULL || parent->milisElapsed==0)? 100.0f: 100.0f*milisElapsed/parent->milisElapsed;
-	string pname= parent==NULL? "": parent->getName();
+	//string pname= parent==NULL? "": parent->getName();
 
 	for(int i=0; i<tabLevel; ++i)
 		fprintf(outStream, "\t");

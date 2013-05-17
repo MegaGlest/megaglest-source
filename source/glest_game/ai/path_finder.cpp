@@ -85,6 +85,12 @@ void PathFinder::init(const Map *map) {
 	this->map= map;
 }
 
+void PathFinder::init() {
+	minorDebugPathfinder = false;
+	factionMutex = NULL;
+	map=NULL;
+}
+
 PathFinder::~PathFinder() {
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		factions[i].nodePool.clear();

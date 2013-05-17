@@ -47,7 +47,15 @@ NetworkInterface::NetworkInterface() {
 	networkGameDataSynchCheckOkTile=false;
 	networkGameDataSynchCheckOkTech=false;
 	receivedDataSynchCheck=false;
+}
 
+void NetworkInterface::init() {
+	networkAccessMutex = NULL;
+
+	networkGameDataSynchCheckOkMap=false;
+	networkGameDataSynchCheckOkTile=false;
+	networkGameDataSynchCheckOkTech=false;
+	receivedDataSynchCheck=false;
 }
 
 NetworkInterface::~NetworkInterface() {
