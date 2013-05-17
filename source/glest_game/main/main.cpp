@@ -207,6 +207,7 @@ static void cleanupProcessObjects() {
 
     	//printf("Closing IRC CLient %d\n",__LINE__);
     	ircClient->disconnect();
+		ircClient->signalQuit();
     	ircClient = NULL;
 
 /*
@@ -248,21 +249,39 @@ static void cleanupProcessObjects() {
 
 	//printf("Closing IRC CLient %d\n",__LINE__);
 
+	Thread::shutdownThreads();
+
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("start running threads = " MG_SIZE_T_SPECIFIER "\n",Thread::getThreadList().size());
 	time_t elapsed = time(NULL);
 	int lastLazyThreadDump = 0;
     for(;Thread::getThreadList().size() > 0 &&
     	 difftime((long int)time(NULL),elapsed) <= 10;) {
     	//sleep(0);
+		
     	if(difftime((long int)time(NULL),elapsed) > 1) {
 			if(lastLazyThreadDump != (int)difftime((long int)time(NULL),elapsed)) {
 				lastLazyThreadDump = difftime((long int)time(NULL),elapsed);
 
 				printf("Waiting for the following threads to exit [" MG_SIZE_T_SPECIFIER "]:\n",Thread::getThreadList().size());
 
+				//std::auto_ptr<Thread> baseThreadTest(new FileCRCPreCacheThread());
+
 				for(int i = 0; i < Thread::getThreadList().size(); ++i) {
+					//Thread *thr = Thread::getThreadList()[i];
+					//printf("#1 Lagging thread typeid: %d [%s]\n,",typeid(thr),typeid(thr).name());
+
+					//BaseThread *baseThread = dynamic_cast<BaseThread *>(Thread::getThreadList()[i]);
 					BaseThread *baseThread = dynamic_cast<BaseThread *>(Thread::getThreadList()[i]);
-					printf("Thread index: %d isBaseThread: %d, Name: [%s]\n",i,(baseThread != NULL),(baseThread != NULL ? baseThread->getUniqueID().c_str() : "<na>"));
+
+					printf("Thread index: %d ptr [%p] isBaseThread: %d, Name: [%s]\n",i,baseThread,(baseThread != NULL),(baseThread != NULL ? baseThread->getUniqueID().c_str() : "<na>"));
+					//printf("#2 Lagging thread typeid: %d [%s]\n,",typeid(baseThread),typeid(baseThread).name());
+
+					//if(baseThread != NULL && baseThread->getRunningStatus() == false) {
+					//	baseThread->kill();
+					//}
+					//BaseThread *baseThread2 = dynamic_cast<BaseThread *>(baseThreadTest.get());
+					//printf("#3 Thread index: %d isBaseThread: %d, Name: [%s]\n",i,(baseThread2 != NULL),(baseThread2 != NULL ? baseThread2->getUniqueID().c_str() : "<na>"));
+					//printf("#3 Lagging thread typeid: %d [%s]\n,",typeid(baseThread2),typeid(baseThread2).name());
 				}
 			}
     	}

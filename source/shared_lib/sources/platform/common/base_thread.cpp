@@ -24,7 +24,7 @@ namespace Shared { namespace PlatformCommon {
 Mutex BaseThread::mutexMasterThreadList;
 std::map<void *,int> BaseThread::masterThreadList;
 
-BaseThread::BaseThread() : Thread(), ptr(NULL) {
+BaseThread::BaseThread() : Thread(), ptr(NULL), genericData(NULL) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	ptr = this;
@@ -45,13 +45,22 @@ BaseThread::BaseThread() : Thread(), ptr(NULL) {
 }
 
 BaseThread::~BaseThread() {
+
+	//printf("In ~BaseThread Line: %d uniqueID [%s]\n",__LINE__,uniqueID.c_str());
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 	bool ret = shutdownAndWait();
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),ret);
 
+	//printf("In ~BaseThread Line: %d uniqueID [%s]\n",__LINE__,uniqueID.c_str());
+
 	MutexSafeWrapper safeMutexMasterList(&mutexMasterThreadList);
 
+	//printf("In ~BaseThread Line: %d uniqueID [%s]\n",__LINE__,uniqueID.c_str());
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),ret);
+
+	//printf("In ~BaseThread Line: %d uniqueID [%s]\n",__LINE__,uniqueID.c_str());
 
 	if(masterThreadList.find(this) == masterThreadList.end()) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),ret);
@@ -62,14 +71,21 @@ BaseThread::~BaseThread() {
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),ret);
 
+	//printf("In ~BaseThread Line: %d uniqueID [%s]\n",__LINE__,uniqueID.c_str());
+
 	masterThreadList[this]--;
 	if(masterThreadList[this] <= 0) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),ret);
 		masterThreadList.erase(this);
 	}
+
+	//printf("In ~BaseThread Line: %d uniqueID [%s]\n",__LINE__,uniqueID.c_str());
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),ret);
 	safeMutexMasterList.ReleaseLock();
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s] ret [%d] END\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str(),ret);
+
+	//printf("In ~BaseThread Line: %d uniqueID [%s] [%p]\n",__LINE__,uniqueID.c_str(),this);
 }
 
 bool BaseThread::isThreadDeleted(void *ptr) {

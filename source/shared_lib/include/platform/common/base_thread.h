@@ -91,10 +91,14 @@ public:
 
     Mutex * getMutexThreadObjectAccessor() { return &mutexThreadObjectAccessor; }
 
-    template <typename T>
-    T * getGenericData() { return genericData; }
-    template <typename T>
-    void setGenericData(T *value) { genericData = value; }
+	template <typename T>
+	T * getGenericData() { 
+		return genericData; 
+	}
+	template <typename T>
+	void setGenericData(T *value) { 
+		genericData = value; 
+	}
 
     static bool isThreadDeleted(void *ptr);
 };

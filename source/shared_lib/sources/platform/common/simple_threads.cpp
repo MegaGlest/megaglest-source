@@ -343,7 +343,9 @@ vector<Texture2D *> FileCRCPreCacheThread::getPendingTextureList(int maxTextures
 SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInterface,
 									unsigned int executionCount,
 									unsigned int millisecsBetweenExecutions,
-									bool needTaskSignal) : BaseThread() {
+									bool needTaskSignal) : BaseThread(), 
+															simpleTaskInterface(NULL), 
+															overrideShutdownTask(NULL) {
 	this->simpleTaskInterface		 = simpleTaskInterface;
 	this->executionCount			 = executionCount;
 	this->millisecsBetweenExecutions = millisecsBetweenExecutions;
