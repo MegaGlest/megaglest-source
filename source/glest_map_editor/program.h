@@ -103,14 +103,17 @@ private:
 
 	ChangeStack undoStack, redoStack;
 
+	void init();
 public:
 	Program(int w, int h);
 	~Program();
 
 	Program(const Program& obj) {
+		init();
 		throw runtime_error("class Program is NOT safe to copy!");
 	}
 	Program & operator=(const Program& obj) {
+		init();
 		throw runtime_error("class Program is NOT safe to assign!");
 	}
 

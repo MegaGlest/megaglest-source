@@ -187,6 +187,7 @@ protected:
 
 	Mutex *networkAccessMutex;
 
+	void init();
 public:
 	static const int readyWaitTimeout;
 	GameSettings gameSettings;
@@ -196,9 +197,11 @@ public:
 	virtual ~NetworkInterface();
 
 	NetworkInterface(const NetworkInterface& obj) {
+		init();
 		throw megaglest_runtime_error("class NetworkInterface is NOT safe to copy!");
 	}
 	NetworkInterface & operator=(const NetworkInterface& obj) {
+		init();
 		throw megaglest_runtime_error("class NetworkInterface is NOT safe to assign!");
 	}
 

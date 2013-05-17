@@ -153,6 +153,14 @@ Program::Program(int w, int h) {
 	renderer.initMapSurface(w, h);
 }
 
+void Program::init() {
+	cellSize = 6;
+	grid=false;
+	ofsetX = 0;
+	ofsetY = 0;
+	map = NULL;
+}
+
 Program::~Program() {
 	delete map;
 	map = NULL;

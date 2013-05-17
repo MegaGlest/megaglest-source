@@ -88,9 +88,11 @@ public:
     ~AiInterface();
 
     AiInterface(const AiInterface& obj) {
+    	init();
 		throw megaglest_runtime_error("class AiInterface is NOT safe to copy!");
 	}
     AiInterface & operator=(const AiInterface& obj) {
+    	init();
 		throw megaglest_runtime_error("class AiInterface is NOT safe to assign!");
 	}
 
@@ -161,6 +163,8 @@ public:
 private:
 	string getLogFilename() const	{return "ai"+intToStr(factionIndex)+".log";}
 	bool executeCommandOverNetwork();
+
+	void init();
 };
 
 }}//end namespace

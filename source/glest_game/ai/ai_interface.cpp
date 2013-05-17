@@ -246,6 +246,21 @@ AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex,
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void AiInterface::init() {
+    world=NULL;;
+    commander=NULL;;
+    console=NULL;;
+    gameSettings=NULL;;
+    timer=0;
+    factionIndex=0;
+    teamIndex=0;
+	redir=false;
+    logLevel=0;
+    fp=NULL;;
+    aiMutex=NULL;
+    workerThread=NULL;
+}
+
 AiInterface::~AiInterface() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] deleting AI factionIndex = %d, teamIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,this->factionIndex,this->teamIndex);
     cacheUnitHarvestResourceLookup.clear();
