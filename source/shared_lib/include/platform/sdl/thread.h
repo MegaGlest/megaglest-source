@@ -65,6 +65,7 @@ private:
 protected:
 	void addThreadToList();
 	void removeThreadFromList();
+	void queueAutoCleanThread();
 
 public:
 	Thread();

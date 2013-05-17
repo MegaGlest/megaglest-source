@@ -52,6 +52,7 @@ public:
 		removeThreadFromList();
 	}
 	virtual ~ThreadAutoCleanup() {
+		//printf("In ~ThreadAutoCleanup Line: %d\n",__LINE__);
 	}
     virtual void execute() {
         RunningStatusSafeWrapper runningStatus(this);
@@ -110,16 +111,22 @@ void Thread::shutdownThreads() {
 	}
 	safeMutex.ReleaseLock();
 
+	//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
 	if(cleanupThread.get() != 0) {
+		//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
 		sleep(0);
 		cleanupThread->signalQuit();
 
+		//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
 		time_t elapsed = time(NULL);
 		for(;cleanupThread->getRunningStatus() == true &&
     		difftime((long int)time(NULL),elapsed) <= 5;) {
 			sleep(100);
 		}
+		//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
+		//sleep(100);
 		cleanupThread.reset(0);
+		//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
 	}
 }
 
@@ -176,14 +183,24 @@ int Thread::beginExecution(void* data) {
 
 	//printf("In Thread::execute Line: %d thread = %p\n",__LINE__,thread);
 
-	if(thread->deleteAfterExecute == true) {
+	thread->queueAutoCleanThread();
+
+	return 0;
+}
+
+void Thread::queueAutoCleanThread() {
+	if(this->deleteAfterExecute == true) {
+		//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
+
 		if(cleanupThread.get() == NULL) {
+			//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
 			cleanupThread.reset(new ThreadAutoCleanup());
 			cleanupThread->start();
+			sleep(0);
 		}
-		cleanupThread->addThread(thread);
+		cleanupThread->addThread(this);
+		//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
 	}
-	return 0;
 }
 
 void Thread::kill() {
