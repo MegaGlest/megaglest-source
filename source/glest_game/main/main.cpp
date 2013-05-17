@@ -209,6 +209,7 @@ static void cleanupProcessObjects() {
     	ircClient->disconnect();
 		ircClient->signalQuit();
     	ircClient = NULL;
+    	sleep(0);
 
 /*
         ircClient->setCallbackObj(NULL);
@@ -287,6 +288,8 @@ static void cleanupProcessObjects() {
     	}
     }
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("end running threads = " MG_SIZE_T_SPECIFIER "\n",Thread::getThreadList().size());
+
+    Thread::shutdownThreads();
 
 	std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
 	//deleteMapValues(crcPlayerTextureCache.begin(),crcPlayerTextureCache.end());
