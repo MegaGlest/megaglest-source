@@ -190,6 +190,8 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
     }
 #endif
 
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("foundPath = [%d]\n",foundPath);
+
     if(fileMustExist.first == true && fileExists(fileName.first) == false) {
     	//string currentpath = extractDirectoryPathFromFile(Properties::getApplicationPath());
     	fileName.first = currentpath + fileName.first;

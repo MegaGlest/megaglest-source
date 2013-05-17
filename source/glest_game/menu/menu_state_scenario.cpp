@@ -168,7 +168,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
         showMessageBox( "Error: " + string(ex.what()), "Error detected", false);
 	}
 
-	if(scenarioErrors.size() > 0) {
+	if(scenarioErrors.empty() == false) {
         mainMessageBoxState=1;
 
         string errorMsg = "";

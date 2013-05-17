@@ -107,6 +107,13 @@ public:
 	Program(int w, int h);
 	~Program();
 
+	Program(const Program& obj) {
+		throw runtime_error("class Program is NOT safe to copy!");
+	}
+	Program & operator=(const Program& obj) {
+		throw runtime_error("class Program is NOT safe to assign!");
+	}
+
 	//map cell change
 	void glestChangeMapHeight(int x, int y, int Height, int radius);
 	void pirateChangeMapHeight(int x, int y, int Height, int radius);
