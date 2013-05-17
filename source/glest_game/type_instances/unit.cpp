@@ -3536,13 +3536,13 @@ void Unit::logSynchData(string file,int line,string source) {
 	    	lastFile = file;
 	    	lastSource = source;
 
-	    	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",getFrameCount());
+	    	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [FRAME %d UNIT: %d - %s] ------------------------------------------------\n",getFrameCount(),this->id,this->getType()->getName().c_str());
 	    	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"[%s::%d]\n",extractFileFromDirectoryPath(file).c_str(),line);
 			if(source != "") {
 				SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s ",source.c_str());
 			}
 			SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s\n",szBuf);
-			SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",getFrameCount());
+			SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [[FRAME %d UNIT: %d - %s] ------------------------------------------------\n",getFrameCount(),this->id,this->getType()->getName().c_str());
 	    }
 	}
 }
