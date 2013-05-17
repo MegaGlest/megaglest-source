@@ -1872,7 +1872,7 @@ bool ParticleManager::hasActiveParticleSystem(ParticleSystem::ParticleSystemType
 	//size_t particleSystemCount= particleSystems.size();
 	//int currentParticleCount= 0;
 
-	vector<ParticleSystem *> cleanupParticleSystemsList;
+	//vector<ParticleSystem *> cleanupParticleSystemsList;
 	for(unsigned int i= 0; i < particleSystems.size(); i++){
 		ParticleSystem *ps= particleSystems[i];
 		if(ps != NULL){

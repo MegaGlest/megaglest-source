@@ -159,6 +159,10 @@ public:
 	    fogMode = 0;
 		fogDensity = 0.0f;
 		weather= wSunny;
+
+		for(int index = 0; index < surfCount; ++index) {
+			partsArray[index] = 0;
+		}
 	}
     ~Tileset();
     Checksum loadTileset(const vector<string> pathList, const string &tilesetName,

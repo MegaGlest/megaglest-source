@@ -1021,7 +1021,7 @@ void Renderer::setupLighting() {
 	if(timeFlow->isTotalNight()) {
 		VisibleQuadContainerCache &qCache = getQuadCache();
 		if(qCache.visibleQuadUnitList.empty() == false) {
-			bool modelRenderStarted = false;
+			//bool modelRenderStarted = false;
 			for(int visibleUnitIndex = 0;
 					visibleUnitIndex < qCache.visibleQuadUnitList.size() && lightCount < maxLights;
 					++visibleUnitIndex) {
@@ -9324,46 +9324,10 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 
 	assertGl();
 
-	std::auto_ptr<Vec2f> vertices(new Vec2f[map->getMaxFactions() * 4]);
-	std::auto_ptr<Vec3f> colors(new Vec3f[map->getMaxFactions() * 4]);
+	Vec2f *vertices = new Vec2f[map->getMaxFactions() * 4];
+	Vec3f *colors = new Vec3f[map->getMaxFactions() * 4];
 
 	for (int i = 0; i < map->getMaxFactions(); i++) {
-/*
-		switch (i) {
-			case 0:
-				glColor3f(1.f, 0.f, 0.f);
-				break;
-			case 1:
-				glColor3f(0.f, 0.f, 1.f);
-				break;
-			case 2:
-				glColor3f(0.f, 1.f, 0.f);
-				break;
-			case 3:
-				glColor3f(1.f, 1.f, 0.f);
-				break;
-			case 4:
-				glColor3f(1.f, 1.f, 1.f);
-				break;
-			case 5:
-				glColor3f(0.f, 1.f, 0.8f);
-				break;
-			case 6:
-				glColor3f(1.f, 0.5f, 0.f);
-				break;
-			case 7:
-				glColor3f(1.f, 0.5f, 1.f);
-				break;
-   		}
-
-		glBegin(GL_LINES);
-		glVertex2f((map->getStartLocationX(i) - 1) * cellSize, clientH - (map->getStartLocationY(i) - 1) * cellSize);
-		glVertex2f((map->getStartLocationX(i) + 1) * cellSize + playerCrossSize, clientH - (map->getStartLocationY(i) + 1) * cellSize - playerCrossSize);
-		glVertex2f((map->getStartLocationX(i) - 1) * cellSize, clientH - (map->getStartLocationY(i) + 1) * cellSize - playerCrossSize);
-		glVertex2f((map->getStartLocationX(i) + 1) * cellSize + playerCrossSize, clientH - (map->getStartLocationY(i) - 1) * cellSize);
-		glEnd();
-*/
-
 		Vec3f color;
 		switch (i) {
 			case 0:
@@ -9392,21 +9356,21 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 				break;
    		}
 
-		colors.get()[i*4]     = color;
-		colors.get()[(i*4)+1] = color;
-		colors.get()[(i*4)+2] = color;
-		colors.get()[(i*4)+3] = color;
+		colors[i*4]     = color;
+		colors[(i*4)+1] = color;
+		colors[(i*4)+2] = color;
+		colors[(i*4)+3] = color;
 
-		vertices.get()[i*4] 	= Vec2f((map->getStartLocationX(i) - 1) * cellSize, clientH - (map->getStartLocationY(i) - 1) * cellSize);
-		vertices.get()[(i*4)+1] = Vec2f((map->getStartLocationX(i) + 1) * cellSize + playerCrossSize, clientH - (map->getStartLocationY(i) + 1) * cellSize - playerCrossSize);
-		vertices.get()[(i*4)+2] = Vec2f((map->getStartLocationX(i) - 1) * cellSize, clientH - (map->getStartLocationY(i) + 1) * cellSize - playerCrossSize);
-		vertices.get()[(i*4)+3] = Vec2f((map->getStartLocationX(i) + 1) * cellSize + playerCrossSize, clientH - (map->getStartLocationY(i) - 1) * cellSize);
+		vertices[i*4] 	= Vec2f((map->getStartLocationX(i) - 1) * cellSize, clientH - (map->getStartLocationY(i) - 1) * cellSize);
+		vertices[(i*4)+1] = Vec2f((map->getStartLocationX(i) + 1) * cellSize + playerCrossSize, clientH - (map->getStartLocationY(i) + 1) * cellSize - playerCrossSize);
+		vertices[(i*4)+2] = Vec2f((map->getStartLocationX(i) - 1) * cellSize, clientH - (map->getStartLocationY(i) + 1) * cellSize - playerCrossSize);
+		vertices[(i*4)+3] = Vec2f((map->getStartLocationX(i) + 1) * cellSize + playerCrossSize, clientH - (map->getStartLocationY(i) - 1) * cellSize);
 	}
 
 	glEnableClientState(GL_COLOR_ARRAY);
-	glColorPointer(3, GL_FLOAT, 0, &colors.get()[0]);
+	glColorPointer(3, GL_FLOAT, 0, &colors[0]);
 	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(2, GL_FLOAT, 0, &vertices.get()[0]);
+	glVertexPointer(2, GL_FLOAT, 0, &vertices[0]);
 	glDrawArrays(GL_LINES, 0, 4 * map->getMaxFactions());
 	glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_VERTEX_ARRAY);
@@ -9430,6 +9394,9 @@ void Renderer::renderMapPreview( const MapPreview *map, bool renderAll,
 
 		assertGl();
 	}
+
+	delete [] vertices;
+	delete [] colors;
 
 	assertGl();
 }

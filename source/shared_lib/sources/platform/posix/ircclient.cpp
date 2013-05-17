@@ -282,13 +282,13 @@ void dcc_file_recv_callback (irc_session_t * session, irc_dcc_t id, int status, 
 		if ( ctx ) {
 			fwrite (data, 1, length, (FILE*) ctx);
 		}
-		if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("File sent progress: %d\n", length);
+		if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("File sent progress: %u\n", length);
 	}
 }
 
 void event_channel(irc_session_t * session, const char * event, const char * origin, const char ** params, unsigned int count) {
 	//IRC: Event "433", origin: "leguin.freenode.net", params: 3 [*|softcoder|Nickname is already in use.]
-	if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf("In [%s::%s] Line: %d count = %d origin = %s\n",__FILE__,__FUNCTION__,__LINE__,count,(origin ? origin : "null"));
+	if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf("In [%s::%s] Line: %d count = %u origin = %s\n",__FILE__,__FUNCTION__,__LINE__,count,(origin ? origin : "null"));
 
 	if ( count != 2 )
 		return;
@@ -403,7 +403,7 @@ void event_leave(irc_session_t *session, const char *event, const char *origin, 
 }
 void event_numeric(irc_session_t * session, unsigned int event, const char * origin, const char ** params, unsigned int count) {
 	char buf[24]="";
-	sprintf (buf, "%d", event);
+	sprintf (buf, "%u", event);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: Line: %d event = %u\n", __LINE__, event);
 
@@ -453,7 +453,7 @@ void event_numeric(irc_session_t * session, unsigned int event, const char * ori
             {
                 if(event == LIBIRC_RFC_RPL_NAMREPLY) {
 
-                	if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: LIBIRC_RFC_RPL_NAMREPLY count = %d\n", count);
+                	if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: LIBIRC_RFC_RPL_NAMREPLY count = %u\n", count);
 
                     std::vector<string> nickList;
                     if(count >= 4) {

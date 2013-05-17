@@ -51,10 +51,10 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		int leftLabelStart=50;
 		int leftColumnStart=leftLabelStart+180;
 		int rightLabelStart=450;
-		int rightColumnStart=rightLabelStart+280;
+		//int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=50;
 		int buttonStartPos=170;
-		int captionOffset=75;
+		//int captionOffset=75;
 		int currentLabelStart=leftLabelStart;
 		int currentColumnStart=leftColumnStart;
 		int currentLine=700;
@@ -305,7 +305,7 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		// end
 
 		// external server port
-		currentLine-=lineOffset;
+		//currentLine-=lineOffset;
 
 		// buttons
 		buttonOk.registerGraphicComponent(containerName,"buttonOk");

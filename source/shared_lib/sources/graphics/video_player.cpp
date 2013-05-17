@@ -1318,10 +1318,11 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 		return false;
 	}
 
-	int action = 0, pause = 0, n = 0;
 	if(successLoadingLib == true &&
 		ctxPtr != NULL && ctxPtr->isPlaying == true &&
 		finished == false && stop == false) {
+
+		int action = 0, pause = 0, n = 0;
 		action = 0;
 
 		SDL_Event event;

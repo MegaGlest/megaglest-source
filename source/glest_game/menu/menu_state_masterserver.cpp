@@ -612,7 +612,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 	    if(!clicked && userScrollBar.getElementCount()!=0){
 	    	for(int i = userScrollBar.getVisibleStart(); i <= userScrollBar.getVisibleEnd(); ++i) {
 	       		if(userButtons[i]->getEnabled() == true && userButtons[i]->mouseClick(x, y)) {
-	       			clicked=true;
+	       			//clicked=true;
 	     			if(!chatManager.getEditEnabled())
 	     			{
 	     				chatManager.switchOnEdit();

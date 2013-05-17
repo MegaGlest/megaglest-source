@@ -668,7 +668,6 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 	/* get my host name */
 	char myhostname[101]="";
 	gethostname(myhostname,100);
-	char myhostaddr[101] = "";
 
 	struct hostent* myhostent = gethostbyname(myhostname);
 	if(myhostent) {
@@ -733,6 +732,7 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 				struct sockaddr_in *pSockAddr = (struct sockaddr_in *)&ifr.ifr_addr;
 				if(pSockAddr != NULL) {
 
+					char myhostaddr[101] = "";
 					Ip::Inet_NtoA(SockAddrToUint32(&pSockAddr->sin_addr), myhostaddr);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] szBuf [%s], myhostaddr = [%s], ifr.ifr_flags = %d, ifrA.ifr_flags = %d, ifr.ifr_name [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf,myhostaddr,ifr.ifr_flags,ifrA.ifr_flags,ifr.ifr_name);
 

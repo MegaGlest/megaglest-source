@@ -257,7 +257,7 @@ ClientInterface::~ClientInterface() {
 
 	//printf("C === Client destructor\n");
 
-	Mutex *tempMutexPtr = networkCommandListThreadAccessor;
+	//Mutex *tempMutexPtr = networkCommandListThreadAccessor;
 	networkCommandListThreadAccessor = NULL;
 	safeMutex.ReleaseLock(false,true);
 
@@ -393,7 +393,7 @@ void ClientInterface::update() {
 			lastSentFrameCount = currentFrameCount;
 			sendMessage(&networkMessageCommandList);
 			lastNetworkCommandListSendTime = time(NULL);
-			lastSendElapsed = difftime((long int)time(NULL),lastNetworkCommandListSendTime);
+			//lastSendElapsed = difftime((long int)time(NULL),lastNetworkCommandListSendTime);
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		}
@@ -1426,7 +1426,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 				}
 			}
 			else if(networkMessageType == nmtCommandList) {
-				int waitCount = 0;
+				//int waitCount = 0;
 				//make sure we read the message
 				time_t receiveTimeElapsed = time(NULL);
 				NetworkMessageCommandList networkMessageCommandList;

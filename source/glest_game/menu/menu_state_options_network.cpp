@@ -48,10 +48,10 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mai
 		int leftLabelStart=50;
 		int leftColumnStart=leftLabelStart+280;
 		int rightLabelStart=450;
-		int rightColumnStart=rightLabelStart+280;
+		//int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=50;
 		int buttonStartPos=170;
-		int captionOffset=75;
+		//int captionOffset=75;
 		int currentLabelStart=leftLabelStart;
 		int currentColumnStart=leftColumnStart;
 		int currentLine=700;
@@ -319,7 +319,7 @@ void MenuStateOptionsNetwork::showMessageBox(const string &text, const string &h
 
 void MenuStateOptionsNetwork::mouseClick(int x, int y, MouseButton mouseButton){
 
-	Config &config= Config::getInstance();
+	//Config &config= Config::getInstance();
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 

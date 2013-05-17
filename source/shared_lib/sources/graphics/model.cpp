@@ -1404,7 +1404,7 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int col
 	    index = (index + 1) % 2;
 
 	    // pbo index used for next frame
-	    int nextIndex = (index + 1) % 2;
+	    //int nextIndex = (index + 1) % 2;
 
 	    // read framebuffer ///////////////////////////////
 		// copy pixels from framebuffer to PBO

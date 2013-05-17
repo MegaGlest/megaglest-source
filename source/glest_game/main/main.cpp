@@ -265,24 +265,9 @@ static void cleanupProcessObjects() {
 
 				printf("Waiting for the following threads to exit [" MG_SIZE_T_SPECIFIER "]:\n",Thread::getThreadList().size());
 
-				//std::auto_ptr<Thread> baseThreadTest(new FileCRCPreCacheThread());
-
 				for(int i = 0; i < Thread::getThreadList().size(); ++i) {
-					//Thread *thr = Thread::getThreadList()[i];
-					//printf("#1 Lagging thread typeid: %d [%s]\n,",typeid(thr),typeid(thr).name());
-
-					//BaseThread *baseThread = dynamic_cast<BaseThread *>(Thread::getThreadList()[i]);
 					BaseThread *baseThread = dynamic_cast<BaseThread *>(Thread::getThreadList()[i]);
-
 					printf("Thread index: %d ptr [%p] isBaseThread: %d, Name: [%s]\n",i,baseThread,(baseThread != NULL),(baseThread != NULL ? baseThread->getUniqueID().c_str() : "<na>"));
-					//printf("#2 Lagging thread typeid: %d [%s]\n,",typeid(baseThread),typeid(baseThread).name());
-
-					//if(baseThread != NULL && baseThread->getRunningStatus() == false) {
-					//	baseThread->kill();
-					//}
-					//BaseThread *baseThread2 = dynamic_cast<BaseThread *>(baseThreadTest.get());
-					//printf("#3 Thread index: %d isBaseThread: %d, Name: [%s]\n",i,(baseThread2 != NULL),(baseThread2 != NULL ? baseThread2->getUniqueID().c_str() : "<na>"));
-					//printf("#3 Lagging thread typeid: %d [%s]\n,",typeid(baseThread2),typeid(baseThread2).name());
 				}
 			}
     	}
@@ -3985,7 +3970,7 @@ int glestMain(int argc, char** argv) {
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 				vector<string> paramPartTokens2;
 				Tokenize(paramPartTokens[1],paramPartTokens2,",");
-				if(paramPartTokens2.size() >= 1 && paramPartTokens2[0].length() > 0) {
+				if(paramPartTokens2.empty() == false && paramPartTokens2[0].length() > 0) {
 					string newMaxSeconds = paramPartTokens2[0];
 					time_t newTimeMaxSeconds = strToInt(newMaxSeconds);
 					AutoTest::setMaxGameTime(newTimeMaxSeconds);

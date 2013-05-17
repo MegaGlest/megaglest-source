@@ -91,7 +91,7 @@ void FileCRCPreCacheThread::execute() {
 						techsPerWorker++;
 					}
 
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] techsPerWorker = %d, MAX_FileCRCPreCacheThread_WORKER_THREADS = %d, techPaths.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,techsPerWorker,MAX_FileCRCPreCacheThread_WORKER_THREADS,(int)techPaths.size());
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] techsPerWorker = %u, MAX_FileCRCPreCacheThread_WORKER_THREADS = %d, techPaths.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,techsPerWorker,MAX_FileCRCPreCacheThread_WORKER_THREADS,(int)techPaths.size());
 
 					unsigned int consumedWorkers = 0;
 
@@ -116,7 +116,7 @@ void FileCRCPreCacheThread::execute() {
 								if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Spawning CRC thread for Tech [%s] [%d of %d]\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),idx+1,(int)techPaths.size());
 							}
 
-							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] workerIdx = %d, currentWorkerMax = %d, endConsumerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,workerIdx,currentWorkerMax,endConsumerIndex);
+							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] workerIdx = %u, currentWorkerMax = %u, endConsumerIndex = %u\n",__FILE__,__FUNCTION__,__LINE__,workerIdx,currentWorkerMax,endConsumerIndex);
 
 							// Pause before launching this worker thread
 							time_t pauseTime = time(NULL);
@@ -225,8 +225,8 @@ void FileCRCPreCacheThread::execute() {
 
 						time_t elapsedTime = time(NULL);
 						// Clear existing CRC to force a CRC refresh
-						string pathSearchString     = string("/") + techName + string("/*");
-						const string filterFileExt  = ".xml";
+						//string pathSearchString     = string("/") + techName + string("/*");
+						//const string filterFileExt  = ".xml";
 						//clearFolderTreeContentsCheckSum(techDataPaths, pathSearchString, filterFileExt);
 						//clearFolderTreeContentsCheckSumList(techDataPaths, pathSearchString, filterFileExt);
 

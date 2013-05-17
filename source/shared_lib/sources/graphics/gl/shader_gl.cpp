@@ -73,7 +73,7 @@ bool ShaderProgramGl::link(string &messages){
 	//bind attributes
 	for(unsigned int i=0; i<attributes.size(); ++i){
 		//int a= attributes[i].second;
-		string s= attributes[i].first;
+		//string s= attributes[i].first;
 		glBindAttribLocationARB(handle, attributes[i].second, attributes[i].first.c_str());
 	}
 

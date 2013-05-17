@@ -1454,7 +1454,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 
 	// Only allow changes after we get game settings from the server
-	if(clientInterface->isConnected() == true) {
+	if(clientInterface != NULL && clientInterface->isConnected() == true) {
 		int myCurrentIndex= -1;
 		for(int i= 0; i < GameConstants::maxPlayers; ++i) {// find my current index by looking at editable listBoxes
 			if(//listBoxFactions[i].getEditable() &&
@@ -1589,7 +1589,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 			}
 
 			ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
-			if(clientInterface->isConnected()) {
+			if(clientInterface != NULL && clientInterface->isConnected()) {
 				clientInterface->setGameSettingsReceived(false);
 				clientInterface->sendSwitchSetupRequest(
 						listBoxFactions[clientInterface->getPlayerIndex()].getSelectedItem(),

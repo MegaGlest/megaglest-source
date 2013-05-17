@@ -51,7 +51,7 @@ MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMen
 		int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=50;
 		int buttonStartPos=170;
-		int captionOffset=75;
+		//int captionOffset=75;
 		int currentLabelStart=leftLabelStart;
 		int currentColumnStart=leftColumnStart;
 		int currentLine=700;
@@ -158,9 +158,9 @@ MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMen
 		///////// RIGHT SIDE
 		//////////////////////////////////////////////////////////////////
 
-		currentLine=700; // reset line pos
-		currentLabelStart=rightLabelStart; // set to right side
-		currentColumnStart=rightColumnStart; // set to right side
+		//currentLine=700; // reset line pos
+		//currentLabelStart=rightLabelStart; // set to right side
+		//currentColumnStart=rightColumnStart; // set to right side
 
 
 		// buttons
@@ -248,7 +248,7 @@ void MenuStateOptionsSound::showMessageBox(const string &text, const string &hea
 
 void MenuStateOptionsSound::mouseClick(int x, int y, MouseButton mouseButton){
 
-	Config &config= Config::getInstance();
+	//Config &config= Config::getInstance();
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 

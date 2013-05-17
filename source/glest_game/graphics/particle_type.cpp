@@ -52,6 +52,16 @@ ParticleSystemType::ParticleSystemType() {
     minHp=0;
     maxHp=0;
     minmaxIsPercent=false;
+
+    modelCycle=0;
+    size=0;
+    sizeNoEnergy=0;
+    speed=0;
+	gravity=0;
+	emissionRate=0;
+	energyMax=0;
+	energyVar=0;
+
 }
 
 ParticleSystemType::ParticleSystemType(const ParticleSystemType &src) {
