@@ -36,6 +36,10 @@ NetworkManager::NetworkManager() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
 }
 
+NetworkManager::~NetworkManager() {
+	end();
+}
+
 void NetworkManager::init(NetworkRole networkRole, bool publishEnabled) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d, networkRole = %d, gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,networkRole,gameNetworkInterface);
