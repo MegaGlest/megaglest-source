@@ -812,7 +812,7 @@ time_t getFolderTreeContentsCheckSumRecursivelyLastGenerated(vector<string> path
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"-------------- In [%s::%s Line: %d] Calculating CRC for [%s] -----------\n",__FILE__,__FUNCTION__,__LINE__,pathSearchString.c_str());
 
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumCacheKey(paths, pathSearchString, filterFileExt);
-	string cacheLookupId =  cacheKeys.first;
+	//string cacheLookupId =  cacheKeys.first;
 	//std::map<string,uint32> &crcTreeCache = CacheManager::getCachedItem< std::map<string,uint32> >(cacheLookupId);
 
 	string cacheKey = cacheKeys.second;
