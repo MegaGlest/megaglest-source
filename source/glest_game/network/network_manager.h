@@ -36,6 +36,8 @@ public:
 	static NetworkManager &getInstance();
 
 	NetworkManager();
+	virtual ~NetworkManager();
+
 	void init(NetworkRole networkRole,bool publishEnabled=false);
 	void end();
 	void update();

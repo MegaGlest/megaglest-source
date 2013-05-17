@@ -3542,7 +3542,7 @@ void Unit::logSynchData(string file,int line,string source) {
 				SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s ",source.c_str());
 			}
 			SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s\n",szBuf);
-			SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [[FRAME %d UNIT: %d - %s] ------------------------------------------------\n",getFrameCount(),this->id,this->getType()->getName().c_str());
+			SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [FRAME %d UNIT: %d - %s] ------------------------------------------------\n",getFrameCount(),this->id,this->getType()->getName().c_str());
 	    }
 	}
 }
