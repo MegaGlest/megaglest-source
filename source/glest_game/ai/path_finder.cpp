@@ -178,6 +178,13 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 		if(frameIndex < 0) {
 			//if arrived
 			unit->setCurrSkill(scStop);
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"Unit finalPos [%s] == unit->getPos() [%s]",finalPos.getString().c_str(),unit->getPos().getString().c_str());
+				unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+			}
+
 		}
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled == true) {
 			string commandDesc = "none";
@@ -203,6 +210,13 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			if(map->canMove(unit, unit->getPos(), pos)) {
 				if(frameIndex < 0) {
 					unit->setTargetPos(pos);
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"map->canMove to pos [%s] from [%s]",pos.getString().c_str(),unit->getPos().getString().c_str());
+						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+					}
+
 				}
 				return tsMoving;
 			}
@@ -227,6 +241,12 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 	if(path->isStuck() == true &&
 			(unit->getLastStuckPos() == finalPos || path->getBlockCount() > 500) &&
 		unit->isLastStuckFrameWithinCurrentFrameTolerance() == true) {
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"path->isStuck() == true unit->getLastStuckPos() [%s] finalPos [%s] path->getBlockCount() [%d] tolerance: %d",unit->getLastStuckPos().getString().c_str(),finalPos.getString().c_str(),path->getBlockCount(),unit->isLastStuckFrameWithinCurrentFrameTolerance());
+			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+		}
 
 		//printf("$$$$ Unit STILL BLOCKED for [%d - %s]\n",unit->getId(),unit->getFullName().c_str());
 		return tsBlocked;
