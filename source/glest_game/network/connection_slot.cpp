@@ -1257,7 +1257,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									MutexSafeWrapper safeMutex(getServerSynchAccessor(),CODE_AT_LINE);
 
 									int slotIdx = switchSetupRequest.getCurrentSlotIndex();
-									int newSlotIdx = switchSetupRequest.getToSlotIndex();
+									//int newSlotIdx = switchSetupRequest.getToSlotIndex();
 
 									//printf("slotIdx = %d newSlotIdx = %d\n",slotIdx,newSlotIdx);
 

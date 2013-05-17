@@ -763,7 +763,7 @@ void PathFinder::astarJPS(std::map<Vec2i,Vec2i> cameFrom, Node *& node,
 				if(addToOpenSet(unit, node, finalPos, newPath, nodeLimitReached, maxNodeCount,&newNode, false) == true) {
 					//cameFrom = node->pos;
 					cameFrom[newPath]=node->pos;
-					foundQuickRoute = true;
+					//foundQuickRoute = true;
 
 					//printf("#2 add node - current node [%s] next possible node [%s] canUnitMoveToCell [%d] posOpen [%d] isFreeCell [%d]\n",node->pos.getString().c_str(),newPath.getString().c_str(),canUnitMoveToCell,posOpen,isFreeCell);
 				}

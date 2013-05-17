@@ -30,7 +30,7 @@ namespace Glest{ namespace Game{
 
 int SkillType::nextAttackBoostId = 0;
 
-AttackBoost::AttackBoost() {
+AttackBoost::AttackBoost() : boostUpgrade() {
 	enabled = false;
 	allowMultipleBoosts = false;
 	radius = 0;

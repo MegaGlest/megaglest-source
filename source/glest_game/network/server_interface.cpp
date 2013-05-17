@@ -2160,7 +2160,7 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 		if(useInGameBlockingClientSockets == true) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			for(int i= 0; i < GameConstants::maxPlayers; ++i) {
-				int factionIndex = gameSettings->getFactionIndexForStartLocation(i);
+				//int factionIndex = gameSettings->getFactionIndexForStartLocation(i);
 				MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
 				ConnectionSlot *connectionSlot= slots[i];
 				if(connectionSlot != NULL && connectionSlot->isConnected()) {

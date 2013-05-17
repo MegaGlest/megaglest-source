@@ -42,6 +42,12 @@ Vec3f MarkedCell::static_system_marker_color(MAGENTA.x,MAGENTA.y,MAGENTA.z);
 
 NetworkInterface::NetworkInterface() {
 	networkAccessMutex = new Mutex();
+
+	networkGameDataSynchCheckOkMap=false;
+	networkGameDataSynchCheckOkTile=false;
+	networkGameDataSynchCheckOkTech=false;
+	receivedDataSynchCheck=false;
+
 }
 
 NetworkInterface::~NetworkInterface() {

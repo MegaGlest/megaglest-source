@@ -119,7 +119,9 @@ int zipfile_tool(int argc, const char *argv[]) {
 
   if ((file_loc < 0) || (file_loc > INT_MAX)) {
      // This is not a limitation of miniz or tinfl, but this example.
-	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("File is too large to be processed by this example.\n");
+	  printf("File is too large to be processed by this example.\n");
+
+	  fclose(pInfile);
       return EXIT_FAILURE;
   }
 
@@ -128,7 +130,9 @@ int zipfile_tool(int argc, const char *argv[]) {
   // Open output file.
   pOutfile = fopen(pDst_filename, "wb");
   if (!pOutfile) {
-	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed opening output file!\n");
+	  printf("Failed opening output file!\n");
+
+	  fclose(pInfile);
 	  return EXIT_FAILURE;
   }
 

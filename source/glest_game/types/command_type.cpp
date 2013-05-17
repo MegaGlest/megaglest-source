@@ -588,7 +588,7 @@ void HarvestEmergencyReturnCommandType::load(int id, const XmlNode *n, const str
 
 string HarvestEmergencyReturnCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 
-	Lang &lang= Lang::getInstance();
+	//Lang &lang= Lang::getInstance();
 	string str;
 
     str=getName(true)+"\n";

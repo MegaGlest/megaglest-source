@@ -609,7 +609,7 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getTilesetFromServer(
     			for(unsigned int i = 0; i < wantDirListOnly.size(); ++i) {
     				string fileFromList = wantDirListOnly[i];
 
-    				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("fileFromList [%s] i [%d]\n",fileFromList.c_str(),i);
+    				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("fileFromList [%s] i [%u]\n",fileFromList.c_str(),i);
 
     				if( fileFromList != "models" && fileFromList != "textures" &&
     					fileFromList != "sounds") {

@@ -813,7 +813,7 @@ time_t getFolderTreeContentsCheckSumRecursivelyLastGenerated(vector<string> path
 
 	std::pair<string,string> cacheKeys = getFolderTreeContentsCheckSumCacheKey(paths, pathSearchString, filterFileExt);
 	string cacheLookupId =  cacheKeys.first;
-	std::map<string,uint32> &crcTreeCache = CacheManager::getCachedItem< std::map<string,uint32> >(cacheLookupId);
+	//std::map<string,uint32> &crcTreeCache = CacheManager::getCachedItem< std::map<string,uint32> >(cacheLookupId);
 
 	string cacheKey = cacheKeys.second;
 	string crcCacheFile = getFormattedCRCCacheFileName(cacheKeys);

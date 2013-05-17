@@ -260,7 +260,7 @@ void Selection::unitEvent(UnitObserver::Event event, const Unit *unit) {
 
 		//notify gui only if no more units to execute the command
 		//of course the selection changed, but this doesn't matter in this case.
-		if( selectedUnits.size()<1 ){
+		if( selectedUnits.empty() == true ){
 			gui->onSelectionChanged();
 		}
 
