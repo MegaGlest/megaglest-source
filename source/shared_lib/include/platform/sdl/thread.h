@@ -58,21 +58,30 @@ public:
 
 private:
 	SDL_Thread* thread;
-
+	bool deleteAfterExecute;
 	static Mutex mutexthreadList;
 	static vector<Thread *> threadList;
+
+protected:
+	void addThreadToList();
+	void removeThreadFromList();
 
 public:
 	Thread();
 	virtual ~Thread();
 
 	static std::vector<Thread *> getThreadList();
+	static void shutdownThreads();
+
+	void setDeleteAfterExecute(bool value) { deleteAfterExecute = value; }
+	bool getDeleteAfterExecute() const { return deleteAfterExecute; }
 
 	void start();
 	virtual void execute()=0;
 	void setPriority(Thread::Priority threadPriority);
 	void suspend();
 	void resume();
+	void kill();
 
 private:
 	static int beginExecution(void *param);

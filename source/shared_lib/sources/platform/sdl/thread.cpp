@@ -16,6 +16,8 @@
 #include <algorithm>
 #include "platform_util.h"
 #include "platform_common.h"
+#include "base_thread.h"
+#include "time.h"
 #include <memory>
 
 using namespace std;
@@ -28,31 +30,112 @@ vector<Thread *> Thread::threadList;
 auto_ptr<Mutex> Mutex::mutexMutexList(new Mutex(CODE_AT_LINE));
 vector<Mutex *> Mutex::mutexList;
 
+class ThreadAutoCleanup : public BaseThread
+{
+protected:
+	Mutex mutexPendingCleanupList;
+	vector<Thread *> pendingCleanupList;
+
+	bool cleanupPendingThreads() {
+		MutexSafeWrapper safeMutex(&mutexPendingCleanupList);
+		if(pendingCleanupList.empty() == false) {
+			for(unsigned int index = 0; index < pendingCleanupList.size(); ++index) {
+				delete pendingCleanupList[index];
+			}
+			pendingCleanupList.clear();
+			return true;
+		}
+		return false;
+	}
+public:
+	ThreadAutoCleanup() : BaseThread() { 
+		removeThreadFromList();
+	}
+	virtual ~ThreadAutoCleanup() {
+	}
+    virtual void execute() {
+        RunningStatusSafeWrapper runningStatus(this);
+        for(;getQuitStatus() == false;) {
+			if(cleanupPendingThreads() == false) {
+				if(getQuitStatus() == false) {
+					sleep(200);
+				}
+			}
+		}
+		cleanupPendingThreads();
+	}
+    void addThread(Thread *thread) { 
+		MutexSafeWrapper safeMutex(&mutexPendingCleanupList);
+		pendingCleanupList.push_back(thread);
+		safeMutex.ReleaseLock();
+	}
+};
+
+static auto_ptr<ThreadAutoCleanup> cleanupThread;
 // =====================================
 //          Threads
 // =====================================
-Thread::Thread() {
+Thread::Thread() : thread(NULL), deleteAfterExecute(false) {
+	addThreadToList();
+}
+
+void Thread::addThreadToList() {
 	MutexSafeWrapper safeMutex(&Thread::mutexthreadList);
 	Thread::threadList.push_back(this);
 	safeMutex.ReleaseLock();
-	thread = NULL;
+}
+void Thread::removeThreadFromList() {
+	MutexSafeWrapper safeMutex(&Thread::mutexthreadList);
+	std::vector<Thread *>::iterator iterFind = std::find(Thread::threadList.begin(),Thread::threadList.end(),this);
+	if(iterFind == Thread::threadList.end()) {
+		if(this != cleanupThread.get()) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8095,"In [%s::%s Line: %d] iterFind == Thread::threadList.end()",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			throw megaglest_runtime_error(szBuf);
+		}
+	}
+	else {
+		Thread::threadList.erase(iterFind);
+	}
+	safeMutex.ReleaseLock();
+}
+
+void Thread::shutdownThreads() {
+	MutexSafeWrapper safeMutex(&Thread::mutexthreadList);
+	for(unsigned int index = 0; index < Thread::threadList.size(); ++index) {
+		BaseThread *thread = dynamic_cast<BaseThread *>(Thread::threadList[index]);
+		if(thread && thread->getRunningStatus() == true) {
+			thread->signalQuit();
+		}
+	}
+	safeMutex.ReleaseLock();
+
+	if(cleanupThread.get() != 0) {
+		sleep(0);
+		cleanupThread->signalQuit();
+
+		time_t elapsed = time(NULL);
+		for(;cleanupThread->getRunningStatus() == true &&
+    		difftime((long int)time(NULL),elapsed) <= 5;) {
+			sleep(100);
+		}
+		cleanupThread.reset(0);
+	}
 }
 
 Thread::~Thread() {
+	//printf("In ~Thread Line: %d [%p] thread = %p\n",__LINE__,this,thread);
+
 	if(thread != NULL) {
 		SDL_WaitThread(thread, NULL);
 		thread = NULL;
 	}
 
-	MutexSafeWrapper safeMutex(&Thread::mutexthreadList);
-	std::vector<Thread *>::iterator iterFind = std::find(Thread::threadList.begin(),Thread::threadList.end(),this);
-	if(iterFind == Thread::threadList.end()) {
-		char szBuf[8096]="";
-		snprintf(szBuf,8095,"In [%s::%s Line: %d] iterFind == Thread::threadList.end()",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		throw megaglest_runtime_error(szBuf);
-	}
-	Thread::threadList.erase(iterFind);
-	safeMutex.ReleaseLock();
+	//printf("In ~Thread Line: %d [%p] thread = %p\n",__LINE__,this,thread);
+
+	removeThreadFromList();
+
+	//printf("In ~Thread Line: %d [%p] thread = %p\n",__LINE__,this,thread);
 }
 
 std::vector<Thread *> Thread::getThreadList() {
@@ -71,6 +154,8 @@ void Thread::start() {
 		snprintf(szBuf,8095,"In [%s::%s Line: %d] thread == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
+
+	//printf("In Thread::start Line: %d [%p] thread = %p\n",__LINE__,this,thread);
 }
 
 void Thread::setPriority(Thread::Priority threadPriority) {
@@ -85,8 +170,25 @@ int Thread::beginExecution(void* data) {
 		snprintf(szBuf,8095,"In [%s::%s Line: %d] thread == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
+	//printf("In Thread::execute Line: %d thread = %p\n",__LINE__,thread);
+
 	thread->execute();
+
+	//printf("In Thread::execute Line: %d thread = %p\n",__LINE__,thread);
+
+	if(thread->deleteAfterExecute == true) {
+		if(cleanupThread.get() == NULL) {
+			cleanupThread.reset(new ThreadAutoCleanup());
+			cleanupThread->start();
+		}
+		cleanupThread->addThread(thread);
+	}
 	return 0;
+}
+
+void Thread::kill() {
+	SDL_KillThread(thread);
+	thread = NULL;
 }
 
 void Thread::suspend() {
