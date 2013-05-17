@@ -2257,7 +2257,7 @@ void Game::update() {
 
 				this->speed = 1;
 
-				Lang &lang= Lang::getInstance();
+				//Lang &lang= Lang::getInstance();
 				bool pauseAndSaveGameForNewClient = false;
 				for(int i = 0; i < world.getFactionCount(); ++i) {
 					Faction *faction = world.getFaction(i);
@@ -4803,7 +4803,7 @@ void Game::exitGameState(Program *program, Stats &endStats) {
 		game->endGame();
 	}
 
-	if(game != NULL && game->isMasterserverMode() == true ||
+	if((game != NULL && game->isMasterserverMode() == true) ||
 		Config::getInstance().getBool("AutoTest") == true) {
 		printf("Game ending with stats:\n");
 		printf("-----------------------\n");

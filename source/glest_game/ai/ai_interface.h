@@ -87,6 +87,13 @@ public:
     AiInterface(Game &game, int factionIndex, int teamIndex, int useStartLocation=-1);
     ~AiInterface();
 
+    AiInterface(const AiInterface& obj) {
+		throw megaglest_runtime_error("class AiInterface is NOT safe to copy!");
+	}
+    AiInterface & operator=(const AiInterface& obj) {
+		throw megaglest_runtime_error("class AiInterface is NOT safe to assign!");
+	}
+
 	//main
     void update();
 

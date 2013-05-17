@@ -195,6 +195,13 @@ public:
 	NetworkInterface();
 	virtual ~NetworkInterface();
 
+	NetworkInterface(const NetworkInterface& obj) {
+		throw megaglest_runtime_error("class NetworkInterface is NOT safe to copy!");
+	}
+	NetworkInterface & operator=(const NetworkInterface& obj) {
+		throw megaglest_runtime_error("class NetworkInterface is NOT safe to assign!");
+	}
+
 	virtual Socket* getSocket(bool mutexLock=true)= 0;
 	virtual void close()= 0;
 	virtual string getHumanPlayerName(int index=-1) = 0;

@@ -158,6 +158,14 @@ public:
 	PathFinder();
 	PathFinder(const Map *map);
 	~PathFinder();
+
+	PathFinder(const PathFinder& obj) {
+		throw megaglest_runtime_error("class PathFinder is NOT safe to copy!");
+	}
+	PathFinder & operator=(const PathFinder& obj) {
+		throw megaglest_runtime_error("class PathFinder is NOT safe to assign!");
+	}
+
 	void init(const Map *map);
 	TravelState findPath(Unit *unit, const Vec2i &finalPos, bool *wasStuck=NULL,int frameIndex=-1);
 	void clearUnitPrecache(Unit *unit);

@@ -48,7 +48,7 @@ MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMen
 		int leftLabelStart=50;
 		int leftColumnStart=leftLabelStart+280;
 		int rightLabelStart=450;
-		int rightColumnStart=rightLabelStart+280;
+		//int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=50;
 		int buttonStartPos=170;
 		//int captionOffset=75;
