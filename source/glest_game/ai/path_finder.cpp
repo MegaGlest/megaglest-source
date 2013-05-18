@@ -1163,6 +1163,13 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 		const bool tryJPSPathfinder = false;
 
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"Calling doAStarPathSearch nodeLimitReached: %d whileLoopCount: %d unitFactionIndex: %d pathFound: %d finalPos [%s] maxNodeCount: %d frameIndex: %d",nodeLimitReached, whileLoopCount, unitFactionIndex,
+					pathFound, finalPos.getString().c_str(),  maxNodeCount,frameIndex);
+			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+		}
+
 		doAStarPathSearch(nodeLimitReached, whileLoopCount, unitFactionIndex,
 							pathFound, node, finalPos, tryJPSPathfinder,
 							closedNodes, cameFrom, canAddNode, unit, maxNodeCount,frameIndex);
@@ -1177,6 +1184,13 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		}
 		else {
 			unit->resetPathfindFailedConsecutiveFrameCount();
+		}
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"Calling doAStarPathSearch nodeLimitReached: %d whileLoopCount: %d unitFactionIndex: %d pathFound: %d finalPos [%s] maxNodeCount: %d pathFindNodesAbsoluteMax: %d frameIndex: %d",nodeLimitReached, whileLoopCount, unitFactionIndex,
+					pathFound, finalPos.getString().c_str(),  maxNodeCount,pathFindNodesAbsoluteMax,frameIndex);
+			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 		}
 
 		if(nodeLimitReached == true && maxNodeCount != pathFindNodesAbsoluteMax) {
