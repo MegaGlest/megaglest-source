@@ -445,7 +445,6 @@ void MainWindow::onClose(wxCloseEvent &event) {
 	if(glCanvas) glCanvas->Destroy();
 	glCanvas = NULL;
 
-	//delete this;
 	this->Destroy();
 }
 

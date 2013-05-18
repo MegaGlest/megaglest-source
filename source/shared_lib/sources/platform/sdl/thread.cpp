@@ -30,7 +30,7 @@ vector<Thread *> Thread::threadList;
 auto_ptr<Mutex> Mutex::mutexMutexList(new Mutex(CODE_AT_LINE));
 vector<Mutex *> Mutex::mutexList;
 
-class ThreadAutoCleanup : public BaseThread
+class ThreadGarbageCollector : public BaseThread
 {
 protected:
 	Mutex mutexPendingCleanupList;
@@ -48,10 +48,10 @@ protected:
 		return false;
 	}
 public:
-	ThreadAutoCleanup() : BaseThread() { 
+	ThreadGarbageCollector() : BaseThread() { 
 		removeThreadFromList();
 	}
-	virtual ~ThreadAutoCleanup() {
+	virtual ~ThreadGarbageCollector() {
 		//printf("In ~ThreadAutoCleanup Line: %d\n",__LINE__);
 	}
     virtual void execute() {
@@ -72,7 +72,7 @@ public:
 	}
 };
 
-static auto_ptr<ThreadAutoCleanup> cleanupThread;
+static auto_ptr<ThreadGarbageCollector> cleanupThread;
 // =====================================
 //          Threads
 // =====================================
@@ -194,7 +194,7 @@ void Thread::queueAutoCleanThread() {
 
 		if(cleanupThread.get() == NULL) {
 			//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
-			cleanupThread.reset(new ThreadAutoCleanup());
+			cleanupThread.reset(new ThreadGarbageCollector());
 			cleanupThread->start();
 			sleep(0);
 		}

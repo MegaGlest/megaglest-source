@@ -495,7 +495,7 @@ void SimpleTaskThread::execute() {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(isThreadDeleted(ptr_cpy) == false) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			delete this;
+			this->setDeleteAfterExecute(true);
 		}
 		return;
 	}
@@ -608,7 +608,7 @@ void LogFileThread::execute() {
     if(mustDeleteSelf == true) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] LogFile thread is deleting self\n",__FILE__,__FUNCTION__,__LINE__);
     	if(isThreadDeleted(ptr_cpy) == false) {
-    		delete this;
+    		this->setDeleteAfterExecute(true);
     	}
         return;
     }

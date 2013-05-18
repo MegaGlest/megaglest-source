@@ -238,7 +238,7 @@ void BaseThread::setDeleteSelfOnExecutionDone(bool value) {
 void BaseThread::deleteSelfIfRequired() {
     if(getDeleteSelfOnExecutionDone() == true) {
     	if(isThreadDeleted(this->ptr) == false) {
-    		delete this;
+    		this->setDeleteAfterExecute(true);
     	}
         return;
     }

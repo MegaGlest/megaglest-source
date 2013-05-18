@@ -1214,7 +1214,6 @@ void FTPClientThread::execute() {
 
     // Delete ourself when the thread is done (no other actions can happen after this
     // such as the mutex which modifies the running status of this method
-	//delete this;
     deleteSelfIfRequired();
 }
 

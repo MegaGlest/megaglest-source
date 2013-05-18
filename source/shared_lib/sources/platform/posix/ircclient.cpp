@@ -855,7 +855,6 @@ void IRCThread::execute() {
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In IRCThread() calling delete ...\n");
 
 	//printf("In ~IRCThread Line: %d [%p]\n",__LINE__,this);
-	//delete this;
 	setDeleteAfterExecute(true);
 }
 

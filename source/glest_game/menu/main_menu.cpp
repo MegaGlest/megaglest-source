@@ -248,9 +248,6 @@ void MainMenu::setState(MenuState *newstate) {
 
 	//printf("In MainMenu::setState() #1\n");
 
-    //delete this->state;
-    //this->state = newstate;
-
 	if(oldstate != NULL && oldstate != newstate) {
 		MenuState *oldstatePtr = oldstate;
 		delete oldstate;

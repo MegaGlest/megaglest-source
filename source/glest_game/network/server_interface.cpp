@@ -1784,6 +1784,8 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 	MAX_LOOP_COUNT_BEFORE_SLEEP = Config::getInstance().getInt("NetworkServerLoopGameLoadingCap",intToStr(MAX_LOOP_COUNT_BEFORE_SLEEP).c_str());
 	int sleepMillis = Config::getInstance().getInt("NetworkServerLoopGameLoadingCapSleepMillis","10");
 
+	int64 lastStatusUpdate = 0;
+
 	while(exitServer == false && allReady == false && logger.getCancelLoading() == false) {
 		waitLoopIterationCount++;
 		if(waitLoopIterationCount > 0 && waitLoopIterationCount % MAX_LOOP_COUNT_BEFORE_SLEEP == 0) {
@@ -1844,7 +1846,10 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 				return;
 			}
 			else {
-				if(chrono.getMillis() % 100 == 0) {
+				//if(chrono.getMillis() % 100 == 0) {
+				if(chrono.getMillis() - lastStatusUpdate > 200) {
+					lastStatusUpdate = chrono.getMillis();
+
 					string waitForHosts = "";
 					for(int i = 0; i < waitingForHosts.size(); i++) {
 						if(waitForHosts != "") {
