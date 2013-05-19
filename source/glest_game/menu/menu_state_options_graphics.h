@@ -45,8 +45,12 @@ private:
 	GraphicListBox listBoxLights;
 	GraphicLabel labelUnitParticles;
 	GraphicCheckBox checkBoxUnitParticles;
+
 	GraphicLabel labelTilesetParticles;
 	GraphicCheckBox checkBoxTilesetParticles;
+	GraphicLabel labelAnimatedTilesetObjects;
+	GraphicListBox listBoxAnimatedTilesetObjects;
+
 
 	GraphicLabel labelScreenModes;
 	GraphicListBox listBoxScreenModes;
@@ -83,6 +87,7 @@ private:
 	GraphicListBox listBoxSelectionType;
 
 	ProgramState **parentUI;
+	time_t screenModeChangedTimer;
 
 public:
 	MenuStateOptionsGraphics(Program *program, MainMenu *mainMenu, ProgramState **parentUI=NULL);
@@ -101,8 +106,9 @@ private:
 	void saveConfig();
 	void setActiveInputLable(GraphicLabel* newLable);
 	void showMessageBox(const string &text, const string &header, bool toggle);
-
+	void revertScreenMode();
 	void setupTransifexUI();
+	virtual void update();
 };
 
 }}//end namespace

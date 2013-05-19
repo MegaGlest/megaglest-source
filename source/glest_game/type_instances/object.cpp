@@ -42,6 +42,7 @@ Object::Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos) : 
 	this->objectType= objectType;
 	resource= NULL;
 	highlight= 0.f;
+	animated= false;
 	this->mapPos = mapPos;
 	this->pos= pos + Vec3f(random.randRange(-0.6f, 0.6f), 0.0f, random.randRange(-0.6f, 0.6f));
 	rotation= random.randRange(0.f, 360.f);
@@ -51,6 +52,7 @@ Object::Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos) : 
 		if(tmt->getRotationAllowed()!=true){
 			rotation=0;
 		}
+		animated=tmt->getAnimSpeed()>0;
 	}
 	visible=false;
 	animProgress=0.0f;
