@@ -45,11 +45,12 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		Lang &lang= Lang::getInstance();
 		Config &config= Config::getInstance();
 		this->console.setOnlyChatMessagesInStoredLines(false);
+		screenModeChangedTimer= time(NULL); // just init
 		//modeinfos=list<ModeInfo> ();
 		Shared::PlatformCommon::getFullscreenVideoModes(&modeInfos,!config.getBool("Windowed"));
 
 		int leftLabelStart=50;
-		int leftColumnStart=leftLabelStart+180;
+		int leftColumnStart=leftLabelStart+280;
 		//int rightLabelStart=450;
 		//int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=50;
@@ -58,7 +59,7 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		int currentLabelStart=leftLabelStart;
 		int currentColumnStart=leftColumnStart;
 		int currentLine=700;
-		int lineOffset=27;
+		int lineOffset=30;
 		int tabButtonWidth=200;
 		int tabButtonHeight=30;
 
@@ -257,6 +258,25 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		checkBoxTilesetParticles.setValue(config.getBool("TilesetParticles","true"));
 		currentLine-=lineOffset;
 
+		//animated tileset objects
+		labelAnimatedTilesetObjects.registerGraphicComponent(containerName,"labelAnimatedTilesetObjects");
+		labelAnimatedTilesetObjects.init(currentLabelStart,currentLine);
+		labelAnimatedTilesetObjects.setText(lang.get("AnimatedTilesetObjects"));
+
+		listBoxAnimatedTilesetObjects.registerGraphicComponent(containerName,"listBoxAnimatedTilesetObjects");
+		listBoxAnimatedTilesetObjects.init(currentColumnStart, currentLine, 80);
+		listBoxAnimatedTilesetObjects.pushBackItem("0");
+		listBoxAnimatedTilesetObjects.pushBackItem("10");
+		listBoxAnimatedTilesetObjects.pushBackItem("25");
+		listBoxAnimatedTilesetObjects.pushBackItem("50");
+		listBoxAnimatedTilesetObjects.pushBackItem("100");
+		listBoxAnimatedTilesetObjects.pushBackItem("300");
+		listBoxAnimatedTilesetObjects.pushBackItem("500");
+		listBoxAnimatedTilesetObjects.pushBackItem("∞");
+		listBoxAnimatedTilesetObjects.setSelectedItem("∞",true);
+		listBoxAnimatedTilesetObjects.setSelectedItem(config.getString("AnimatedTilesetObjects","-1"),false);
+		currentLine-=lineOffset;
+
 		//unit particles
 		labelMapPreview.registerGraphicComponent(containerName,"labelMapPreview");
 		labelMapPreview.init(currentLabelStart,currentLine);
@@ -395,6 +415,7 @@ void MenuStateOptionsGraphics::reloadUI() {
 	labelUnitParticles.setText(lang.get("ShowUnitParticles"));
 
 	labelTilesetParticles.setText(lang.get("ShowTilesetParticles"));
+	labelAnimatedTilesetObjects.setText(lang.get("AnimatedTilesetObjects"));
 
 	labelMapPreview.setText(lang.get("ShowMapPreview"));
 
@@ -433,6 +454,55 @@ void MenuStateOptionsGraphics::showMessageBox(const string &text, const string &
 	}
 }
 
+void MenuStateOptionsGraphics::revertScreenMode(){
+	Config &config= Config::getInstance();
+	//!!!
+	// Revert resolution or fullscreen
+	checkBoxFullscreenWindowed.setValue(config.getBool("Windowed"));
+	string currentResString = config.getString("ScreenWidth") + "x" +
+							  config.getString("ScreenHeight") + "-" +
+							  intToStr(config.getInt("ColorBits"));
+	listBoxScreenModes.setSelectedItem(currentResString);
+
+
+	changeVideoModeFullScreen(!config.getBool("Windowed"));
+	WindowGl *window = this->program->getWindow();
+	window->ChangeVideoMode(true,
+					config.getInt("ScreenWidth"),
+					config.getInt("ScreenHeight"),
+					!config.getBool("Windowed"),
+					config.getInt("ColorBits"),
+				   config.getInt("DepthBits"),
+				   config.getInt("StencilBits"),
+				   config.getBool("HardwareAcceleration","false"),
+				   config.getBool("FullScreenAntiAliasing","false"),
+				   config.getFloat("GammaValue","0.0"));
+
+	Metrics::reload();
+	this->mainMenu->init();
+}
+
+void MenuStateOptionsGraphics::update(){
+	if(mainMessageBox.getEnabled() && (mainMessageBoxState == 1)) {
+		int waitTime=10;
+		if(( time(NULL) - screenModeChangedTimer >waitTime)){
+			mainMessageBoxState=0;
+			mainMessageBox.setEnabled(false);
+
+			Lang &lang= Lang::getInstance();
+			mainMessageBox.init(lang.get("Ok"));
+
+			revertScreenMode();
+		}
+		else
+		{
+			Lang &lang= Lang::getInstance();
+			int timeToShow=waitTime- time(NULL) + screenModeChangedTimer;
+			// show timer in button
+			mainMessageBox.getButton(0)->setText(lang.get("Ok")+" ("+intToStr(timeToShow)+")");
+		}
+	}
+}
 
 void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton){
 
@@ -440,8 +510,11 @@ void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton)
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
+
+
 	if(mainMessageBox.getEnabled()) {
 		int button= 0;
+
 		if(mainMessageBox.mouseClick(x, y, button)) {
 			soundRenderer.playFx(coreData.getClickSoundA());
 			if(button == 0) {
@@ -469,30 +542,7 @@ void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton)
 					Lang &lang= Lang::getInstance();
 					mainMessageBox.init(lang.get("Ok"));
 
-					//!!!
-					// Revert resolution or fullscreen
-					checkBoxFullscreenWindowed.setValue(config.getBool("Windowed"));
-					string currentResString = config.getString("ScreenWidth") + "x" +
-											  config.getString("ScreenHeight") + "-" +
-											  intToStr(config.getInt("ColorBits"));
-					listBoxScreenModes.setSelectedItem(currentResString);
-
-
-					changeVideoModeFullScreen(!config.getBool("Windowed"));
-					WindowGl *window = this->program->getWindow();
-					window->ChangeVideoMode(true,
-									config.getInt("ScreenWidth"),
-									config.getInt("ScreenHeight"),
-									!config.getBool("Windowed"),
-									config.getInt("ColorBits"),
-								   config.getInt("DepthBits"),
-								   config.getInt("StencilBits"),
-								   config.getBool("HardwareAcceleration","false"),
-								   config.getBool("FullScreenAntiAliasing","false"),
-								   config.getFloat("GammaValue","0.0"));
-
-					Metrics::reload();
-					this->mainMenu->init();
+					revertScreenMode();
 				}
 			}
 		}
@@ -503,67 +553,8 @@ void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton)
 		bool selectedFullscreenWindowed = checkBoxFullscreenWindowed.getValue();
 		string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight")+"-"+intToStr(config.getInt("ColorBits"));
 		string selectedResolution=listBoxScreenModes.getSelectedItem();
-		if(currentResolution != selectedResolution){
-//			if(currentResolution != selectedResolution ||
-//					currentFullscreenWindowed != selectedFullscreenWindowed) {
-//
-//				changeVideoModeFullScreen(!config.getBool("Windowed"));
-//				WindowGl *window = this->program->getWindow();
-//				window->ChangeVideoMode(true,
-//								config.getInt("ScreenWidth"),
-//								config.getInt("ScreenHeight"),
-//								!config.getBool("Windowed"),
-//								config.getInt("ColorBits"),
-//						       config.getInt("DepthBits"),
-//						       config.getInt("StencilBits"),
-//						       config.getBool("HardwareAcceleration","false"),
-//						       config.getBool("FullScreenAntiAliasing","false"),
-//						       config.getFloat("GammaValue","0.0"));
-//
-//				Metrics::reload();
-//				this->mainMenu->init();
-//			}
-
-			changeVideoModeFullScreen(!selectedFullscreenWindowed);
-			const ModeInfo *selectedMode = NULL;
-			for(vector<ModeInfo>::const_iterator it= modeInfos.begin(); it!=modeInfos.end(); ++it) {
-				if((*it).getString() == selectedResolution) {
-					//config.setInt("ScreenWidth",(*it).width);
-					//config.setInt("ScreenHeight",(*it).height);
-					//config.setInt("ColorBits",(*it).depth);
-					selectedMode = &(*it);
-				}
-			}
-
-			WindowGl *window = this->program->getWindow();
-			window->ChangeVideoMode(true,
-					selectedMode->width,
-					selectedMode->height,
-						!selectedFullscreenWindowed,
-							selectedMode->depth,
-						   config.getInt("DepthBits"),
-						   config.getInt("StencilBits"),
-						   config.getBool("HardwareAcceleration","false"),
-						   config.getBool("FullScreenAntiAliasing","false"),
-						   strToFloat(listBoxGammaCorrection.getSelectedItem()));
-
-			//Metrics::reload(selectedMode->width,selectedMode->height);
-			//this->mainMenu->init();
-
-			mainMessageBoxState=1;
-			mainMessageBox.init(lang.get("Ok"),lang.get("Cancel"));
-			//showMessageBox(lang.get("RestartNeeded"), lang.get("ResolutionChanged"), false);
-			showMessageBox(lang.get("ResolutionChanged"), lang.get("Notice"), false);
-			return;
-		}
-
 		bool currentFullscreenWindowed=config.getBool("Windowed");
-		//bool selectedFullscreenWindowed = checkBoxFullscreenWindowed.getValue();
-		if(currentFullscreenWindowed != selectedFullscreenWindowed) {
-			//mainMessageBoxState=1;
-			//Lang &lang= Lang::getInstance();
-			//showMessageBox(lang.get("RestartNeeded"), lang.get("DisplaySettingsChanged"), false);
-			//return;
+		if(currentResolution != selectedResolution || currentFullscreenWindowed != selectedFullscreenWindowed){
 
 			changeVideoModeFullScreen(!selectedFullscreenWindowed);
 			const ModeInfo *selectedMode = NULL;
@@ -593,13 +584,13 @@ void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton)
 
 			mainMessageBoxState=1;
 			mainMessageBox.init(lang.get("Ok"),lang.get("Cancel"));
+			screenModeChangedTimer= time(NULL);
 			//showMessageBox(lang.get("RestartNeeded"), lang.get("ResolutionChanged"), false);
-			showMessageBox(lang.get("DisplaySettingsChanged"), lang.get("Notice"), false);
+			showMessageBox(lang.get("ResolutionChanged"), lang.get("Notice"), false);
+			//No saveConfig() here! this is done by the messageBox
 			return;
 		}
-
 		saveConfig();
-		//mainMenu->setState(new MenuStateOptions(program, mainMenu));
 		return;
     }
 	else if(buttonReturn.mouseClick(x, y)){
@@ -668,6 +659,7 @@ void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton)
 	{
 		listBoxSelectionType.mouseClick(x, y);
 		listBoxShadows.mouseClick(x, y);
+		listBoxAnimatedTilesetObjects.mouseClick(x, y);
 		listBoxShadowTextureSize.mouseClick(x, y);
 		listBoxFilter.mouseClick(x, y);
 		if(listBoxGammaCorrection.mouseClick(x, y)){
@@ -712,6 +704,9 @@ void MenuStateOptionsGraphics::mouseMove(int x, int y, const MouseState *ms){
 	listBoxShadows.mouseMove(x, y);
 	checkBoxTextures3D.mouseMove(x, y);
 	checkBoxUnitParticles.mouseMove(x, y);
+	checkBoxTilesetParticles.mouseMove(x, y);
+	labelAnimatedTilesetObjects.mouseMove(x, y);
+	listBoxAnimatedTilesetObjects.mouseMove(x, y);
 	checkBoxTilesetParticles.mouseMove(x, y);
 	checkBoxMapPreview.mouseMove(x, y);
 	listBoxLights.mouseMove(x, y);
@@ -784,6 +779,8 @@ void MenuStateOptionsGraphics::render(){
 		renderer.renderLabel(&labelTextures3D);
 		renderer.renderLabel(&labelUnitParticles);
 		renderer.renderLabel(&labelTilesetParticles);
+		renderer.renderListBox(&listBoxAnimatedTilesetObjects);
+		renderer.renderLabel(&labelAnimatedTilesetObjects);
 		renderer.renderLabel(&labelMapPreview);
 		renderer.renderLabel(&labelLights);
 		renderer.renderLabel(&labelFilter);
@@ -845,6 +842,12 @@ void MenuStateOptionsGraphics::saveConfig(){
 	config.setBool("TilesetParticles", (checkBoxTilesetParticles.getValue()));
 	config.setBool("MapPreview", checkBoxMapPreview.getValue());
 	config.setInt("MaxLights", listBoxLights.getSelectedItemIndex()+1);
+
+	if (listBoxAnimatedTilesetObjects.getSelectedItem()=="∞") {
+		config.setInt("AnimatedTilesetObjects", -1);
+	} else {
+		config.setInt("AnimatedTilesetObjects", atoi(listBoxAnimatedTilesetObjects.getSelectedItem().c_str()));
+	}
 
     config.setBool("RainEffect", checkBoxRainEffect.getValue());
     config.setBool("RainEffectMenu", checkBoxRainEffectMenu.getValue());

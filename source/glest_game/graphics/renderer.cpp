@@ -4649,6 +4649,9 @@ void Renderer::renderObjects(const int renderFps) {
 	const World *world= game->getWorld();
 	const Map *map= world->getMap();
 
+	Config &config= Config::getInstance();
+	int tilesetObjectsToAnimate=config.getInt("AnimatedTilesetObjects","-1");
+
     assertGl();
 
 	const Texture2D *fowTex = world->getMinimap()->getFowTexture();
@@ -4658,8 +4661,13 @@ void Renderer::renderObjects(const int renderFps) {
     bool modelRenderStarted = false;
 
 	VisibleQuadContainerCache &qCache = getQuadCache();
-	for(int visibleIndex = 0;
-			visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
+
+	//	for(int visibleIndex = 0;
+	//			visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
+	// render from last to first object so animated objects which are on bottom of screen are
+	// rendered first which looks better for limited number of animated tileset objects
+	for(int visibleIndex = qCache.visibleObjectList.size()-1;
+			visibleIndex > -1 ; --visibleIndex) {
 		Object *o = qCache.visibleObjectList[visibleIndex];
 
 		Model *objModel= o->getModelPtr();
@@ -4708,7 +4716,18 @@ void Renderer::renderObjects(const int renderFps) {
 
 		//objModel->updateInterpolationData(0.f, true);
 		//if(this->gameCamera->getPos().dist(o->getPos()) <= SKIP_INTERPOLATION_DISTANCE) {
+
+
+		if (tilesetObjectsToAnimate == -1) {
 			objModel->updateInterpolationData(o->getAnimProgress(), true);
+		} else if (tilesetObjectsToAnimate > 0 && o->isAnimated()) {
+			tilesetObjectsToAnimate--;
+			objModel->updateInterpolationData(o->getAnimProgress(), true);
+		} else {
+			objModel->updateInterpolationData(0, true);
+		}
+
+//		objModel->updateInterpolationData(o->getAnimProgress(), true);
 		//}
 		modelRenderer->render(objModel);
 

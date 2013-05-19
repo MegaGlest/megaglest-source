@@ -63,6 +63,7 @@ private:
 	int lastRenderFrame;
 	Vec2i mapPos;
 	bool visible;
+	bool animated;
 	float animProgress;
 	float highlight;
 
@@ -86,6 +87,7 @@ public:
 	const Model *getModel() const;
 	Model *getModelPtr() const;
 	bool getWalkable() const;
+	bool isAnimated() const				{return animated;}
 
 	float getHightlight() const			{return highlight;}
 	bool isHighlighted() const			{return highlight>0.f;}
