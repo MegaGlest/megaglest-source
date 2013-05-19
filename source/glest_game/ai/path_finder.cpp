@@ -76,7 +76,7 @@ PathFinder::PathFinder(const Map *map) {
 }
 
 void PathFinder::init(const Map *map) {
-	PathFinder::pathFindNodesMax = Config::getInstance().getInt("MaxPathfinderNodeCount",intToStr(PathFinder::pathFindNodesMax).c_str());
+	//PathFinder::pathFindNodesMax = Config::getInstance().getInt("MaxPathfinderNodeCount",intToStr(PathFinder::pathFindNodesMax).c_str());
 
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		factions[i].nodePool.resize(pathFindNodesAbsoluteMax);
@@ -302,7 +302,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				}
 				unit->setInBailOutAttempt(true);
 
-				bool useBailoutRadius = Config::getInstance().getBool("EnableBailoutPathfinding","true");
+				//bool useBailoutRadius = Config::getInstance().getBool("EnableBailoutPathfinding","true");
+				bool useBailoutRadius = true;
 				if(useBailoutRadius == true) {
 					bool unitImmediatelyBlocked = false;
 
@@ -815,7 +816,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	}
 
 	const bool showConsoleDebugInfo = Config::getInstance().getBool("EnablePathfinderDistanceOutput","false");
-	const bool tryLastPathCache = Config::getInstance().getBool("EnablePathfinderCache","false");
+	//const bool tryLastPathCache = Config::getInstance().getBool("EnablePathfinderCache","false");
+	const bool tryLastPathCache = false;
 
 	if(maxNodeCount < 0) {
 		maxNodeCount = factions[unit->getFactionIndex()].useMaxNodeCount;
@@ -842,6 +844,13 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	// check the pre-cache to see if we can re-use a cached path
 	if(frameIndex < 0) {
 		if(factions[unitFactionIndex].precachedTravelState.find(unit->getId()) != factions[unitFactionIndex].precachedTravelState.end()) {
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"factions[unitFactionIndex].precachedTravelState[unit->getId()]: %d",factions[unitFactionIndex].precachedTravelState[unit->getId()]);
+				unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+			}
+
 			if(factions[unitFactionIndex].precachedTravelState[unit->getId()] == tsMoving) {
 				bool canMoveToCells = true;
 
@@ -927,6 +936,13 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		if(tryLastPathCache == true && path != NULL) {
 			UnitPathBasic *basicPathFinder = dynamic_cast<UnitPathBasic *>(path);
 			if(basicPathFinder != NULL && basicPathFinder->getLastPathCacheQueueCount() > 0) {
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"basicPathFinder->getLastPathCacheQueueCount(): %d",basicPathFinder->getLastPathCacheQueueCount());
+					unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+				}
+
 				vector<Vec2i> cachedPath= basicPathFinder->getLastPathCacheQueue();
 				for(int i = 0; i < cachedPath.size(); ++i) {
 					Vec2i &pos1 = cachedPath[i];
@@ -1110,6 +1126,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		nodeLimitReached = (failureCount == cellCount);
 		pathFound = !nodeLimitReached;
 
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"nodeLimitReached: %d failureCount: %d cellCount: %d",nodeLimitReached,failureCount,cellCount);
+			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+		}
+
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] **Check if dest blocked, distance for unit [%d - %s] from [%s] to [%s] is %.2f took msecs: %lld nodeLimitReached = %d, failureCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unit->getId(),unit->getFullName().c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,failureCount);
 		if(showConsoleDebugInfo && nodeLimitReached) {
 			printf("**Check if src blocked [%d - %d], unit [%d - %s] from [%s] to [%s] distance %.2f took msecs: %lld nodeLimitReached = %d, failureCount = %d [%d]\n",
@@ -1136,6 +1158,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			}
 			nodeLimitReached = (failureCount == cellCount);
 			pathFound = !nodeLimitReached;
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"nodeLimitReached: %d failureCount: %d cellCount: %d",nodeLimitReached,failureCount,cellCount);
+				unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+			}
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] **Check if dest blocked, distance for unit [%d - %s] from [%s] to [%s] is %.2f took msecs: %lld nodeLimitReached = %d, failureCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unit->getId(),unit->getFullName().c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,failureCount);
 			if(showConsoleDebugInfo && nodeLimitReached) {

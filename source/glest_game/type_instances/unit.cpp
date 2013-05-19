@@ -137,7 +137,8 @@ void UnitPathBasic::addToLastPathCache(const Vec2i &path) {
 		}
 	}
 
-	const bool tryLastPathCache = Config::getInstance().getBool("EnablePathfinderCache","false");
+	//const bool tryLastPathCache = Config::getInstance().getBool("EnablePathfinderCache","false");
+	const bool tryLastPathCache = false;
 	if(tryLastPathCache == true) {
 		lastPathCacheQueue.push_back(path);
 	}
