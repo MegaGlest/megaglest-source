@@ -3622,7 +3622,8 @@ void Unit::setLastPathfindFailedFrameToCurrentFrame() {
 }
 
 bool Unit::isLastPathfindFailedFrameWithinCurrentFrameTolerance() const {
-	static const bool enablePathfinderEnlargeMaxNodes = Config::getInstance().getBool("EnablePathfinderEnlargeMaxNodes","false");
+	//static const bool enablePathfinderEnlargeMaxNodes = Config::getInstance().getBool("EnablePathfinderEnlargeMaxNodes","false");
+	static const bool enablePathfinderEnlargeMaxNodes = false;
 	bool result = enablePathfinderEnlargeMaxNodes;
 	if(enablePathfinderEnlargeMaxNodes) {
 		const int MIN_FRAME_ELAPSED_RETRY = 960;

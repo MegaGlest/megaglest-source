@@ -299,6 +299,12 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 	minorDebugPathfinder = false;
 	if(minorDebugPathfinder) printf("Legacy Pathfind Unit [%d - %s] from = %s to = %s frameIndex = %d\n",unit->getId(),unit->getType()->getName().c_str(),unit->getPos().getString().c_str(),finalPos.getString().c_str(),frameIndex);
 
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"calling aStar()");
+		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+	}
+
 	ts = aStar(unit, finalPos, false, frameIndex, maxNodeCount,&searched_node_count);
 
 	//post actions
@@ -377,6 +383,12 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 
 										int maxBailoutNodeCount = (PathFinder::pathFindBailoutRadius * 2);
 
+										if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+											char szBuf[8096]="";
+											snprintf(szBuf,8096,"calling aStar()");
+											unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+										}
+
 										ts= aStar(unit, newFinalPos, true, frameIndex, maxBailoutNodeCount,&searched_node_count);
 									}
 								}
@@ -398,6 +410,12 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 									if(canUnitMove) {
 										//printf("$$$$ Unit BAILOUT(1) ASTAR ATTEMPT for [%d - %s] newFinalPos = [%s]\n",unit->getId(),unit->getFullName().c_str(),newFinalPos.getString().c_str());
 										int maxBailoutNodeCount = (PathFinder::pathFindBailoutRadius * 2);
+
+										if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+											char szBuf[8096]="";
+											snprintf(szBuf,8096,"calling aStar()");
+											unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+										}
 
 										ts= aStar(unit, newFinalPos, true, frameIndex, maxBailoutNodeCount,&searched_node_count);
 									}
@@ -451,6 +469,13 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 						}
 
 						if(minorDebugPathfinderPerformance && chrono.getMillis() >= 1) printf("Unit [%d - %s] astar #2 took [%lld] msecs, ts = %d searched_node_count = %d.\n",unit->getId(),unit->getType()->getName().c_str(),(long long int)chrono.getMillis(),ts,searched_node_count);
+
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"tsBlocked");
+							unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+						}
+
 						return tsBlocked;
 					}
 				}
@@ -937,6 +962,13 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						}
 					}
 					unit->setUsePathfinderExtendedMaxNodes(false);
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"return factions[unitFactionIndex].precachedTravelState[unit->getId()];");
+						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+					}
+
 					return factions[unitFactionIndex].precachedTravelState[unit->getId()];
 				}
 				else {
@@ -950,6 +982,13 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				if(factions[unitFactionIndex].precachedTravelState[unit->getId()] == tsBlocked) {
 					path->incBlockCount();
 					unit->setUsePathfinderExtendedMaxNodes(false);
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"return factions[unitFactionIndex].precachedTravelState[unit->getId()];");
+						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+					}
+
 					return factions[unitFactionIndex].precachedTravelState[unit->getId()];
 				}
 			}
@@ -1055,6 +1094,13 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 									unit->setUsePathfinderExtendedMaxNodes(false);
+
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+										char szBuf[8096]="";
+										snprintf(szBuf,8096,"return ts: %d",ts);
+										unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+									}
+
 									return ts;
 								}
 								//else if(j - i > pathFindRefresh) {
@@ -1115,6 +1161,13 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 									unit->setUsePathfinderExtendedMaxNodes(false);
+
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+										char szBuf[8096]="";
+										snprintf(szBuf,8096,"return ts: %d",ts);
+										unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+									}
+
 									return ts;
 								}
 							}
@@ -1288,6 +1341,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 				if(showConsoleDebugInfo || SystemFlags::VERBOSE_MODE_ENABLED) {
 					printf("\n\n\n\n$$$ Calling AStar with LARGE maxnodes for unit [%d - %s]\n\n",unit->getId(),unit->getFullName().c_str());
+				}
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"calling aStar()");
+					unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 				}
 
 				return aStar(unit, targetPos, false, frameIndex, pathFindNodesAbsoluteMax);
@@ -1476,6 +1535,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	}
 
 	//printf("$$$$ Path for Unit [%d - %s] return value = %d inBailout = %d\n",unit->getId(),unit->getFullName().c_str(),ts,inBailout);
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"return ts: %d",ts);
+		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+	}
 
 	return ts;
 }
