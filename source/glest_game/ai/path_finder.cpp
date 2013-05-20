@@ -111,11 +111,6 @@ void PathFinder::clearCaches() {
 		factions[i].precachedPath.clear();
 		factions[i].badCellList.clear();
 	}
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"[clearCaches]");
-	}
 }
 
 void PathFinder::clearUnitPrecache(Unit *unit) {
@@ -149,6 +144,7 @@ void PathFinder::removeUnitPrecache(Unit *unit) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"[removeUnitPrecache] clearTravelState: %d clearPath: %d",clearTravelState,clearPath);
+			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 		}
 	}
 }
@@ -965,6 +961,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"[clearUnitPrecache]");
+			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 		}
 	}
 
