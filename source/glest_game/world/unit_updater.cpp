@@ -359,6 +359,10 @@ void UnitUpdater::updateStop(Unit *unit, int frameIndex) {
 		clearUnitPrecache(unit);
 		return;
 	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[updateStop]");
+	}
 
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
@@ -470,15 +474,33 @@ void UnitUpdater::updateMove(Unit *unit, int frameIndex) {
 // ==================== updateAttack ====================
 
 void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[updateAttack]");
+	}
+
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
 	Command *command= unit->getCurrCommand();
 	if(command == NULL) {
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"[updateAttack]");
+		}
+
 		return;
 	}
     const AttackCommandType *act= static_cast<const AttackCommandType*>(command->getCommandType());
 	if(act == NULL) {
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"[updateAttack]");
+		}
+
 		return;
 	}
 	Unit *target= NULL;
@@ -489,6 +511,11 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 
 		if(frameIndex < 0) {
 			unit->finishCommand(); // all queued "ground attacks" are skipped if somthing else is queued after them.
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"[updateAttack]");
+			}
 		}
 		return;
 	}
@@ -504,6 +531,11 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 				}
 				else {
 					unit->setCurrSkill(scStop);
+				}
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"[updateAttack]");
 				}
     		}
     		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -553,6 +585,11 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 				if(command->getUnit() != NULL && !command->getUnit()->isAlive() && unit->getCommandSize() > 1) {
 					// don't run over to dead body if there is still something to do in the queue
 					unit->finishCommand();
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"[updateAttack]");
+					}
 				}
 				else {
 					//if unit arrives destPos order has ended
@@ -609,6 +646,12 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 							unit->finishCommand();
 					}
 	*/
+
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"[updateAttack]");
+					}
+
 				}
 			}
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -626,6 +669,10 @@ void UnitUpdater::updateAttackStopped(Unit *unit, int frameIndex) {
 	if(frameIndex >= 0) {
 		clearUnitPrecache(unit);
 		return;
+	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[updateAttackStopped]");
 	}
 
 	Chrono chrono;
@@ -1527,6 +1574,10 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 		clearUnitPrecache(unit);
 		return;
 	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[updateRepair]");
+	}
 
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
@@ -1836,6 +1887,11 @@ void UnitUpdater::updateProduce(Unit *unit, int frameIndex) {
 		clearUnitPrecache(unit);
 		return;
 	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[updateProduce]");
+	}
+
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
@@ -1907,6 +1963,10 @@ void UnitUpdater::updateUpgrade(Unit *unit, int frameIndex) {
 		clearUnitPrecache(unit);
 		return;
 	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[updateUpgrade]");
+	}
 
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
@@ -1938,6 +1998,10 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
 	if(frameIndex >= 0) {
 		clearUnitPrecache(unit);
 		return;
+	}
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[updateMorph]");
 	}
 
 	Chrono chrono;
