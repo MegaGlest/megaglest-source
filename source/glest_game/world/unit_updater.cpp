@@ -362,6 +362,7 @@ void UnitUpdater::updateStop(Unit *unit, int frameIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"[updateStop]");
+		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 	}
 
 	Chrono chrono;
@@ -478,6 +479,7 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"[updateAttack]");
+		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 	}
 
 	Chrono chrono;
@@ -489,6 +491,7 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"[updateAttack]");
+			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 		}
 
 		return;
@@ -499,6 +502,7 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"[updateAttack]");
+			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 		}
 
 		return;
@@ -515,6 +519,7 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 				char szBuf[8096]="";
 				snprintf(szBuf,8096,"[updateAttack]");
+				unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 			}
 		}
 		return;
@@ -536,6 +541,7 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 					char szBuf[8096]="";
 					snprintf(szBuf,8096,"[updateAttack]");
+					unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 				}
     		}
     		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -589,6 +595,7 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 						char szBuf[8096]="";
 						snprintf(szBuf,8096,"[updateAttack]");
+						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 					}
 				}
 				else {
@@ -650,6 +657,7 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 						char szBuf[8096]="";
 						snprintf(szBuf,8096,"[updateAttack]");
+						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 					}
 
 				}
@@ -673,6 +681,7 @@ void UnitUpdater::updateAttackStopped(Unit *unit, int frameIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"[updateAttackStopped]");
+		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 	}
 
 	Chrono chrono;
@@ -1577,6 +1586,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"[updateRepair]");
+		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 	}
 
 	Chrono chrono;
@@ -1890,6 +1900,7 @@ void UnitUpdater::updateProduce(Unit *unit, int frameIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"[updateProduce]");
+		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 	}
 
 	Chrono chrono;
@@ -1966,6 +1977,7 @@ void UnitUpdater::updateUpgrade(Unit *unit, int frameIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"[updateUpgrade]");
+		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 	}
 
 	Chrono chrono;
@@ -2002,6 +2014,7 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"[updateMorph]");
+		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 	}
 
 	Chrono chrono;
