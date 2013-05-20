@@ -111,28 +111,44 @@ void PathFinder::clearCaches() {
 		factions[i].precachedPath.clear();
 		factions[i].badCellList.clear();
 	}
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[clearCaches]");
+	}
 }
 
 void PathFinder::clearUnitPrecache(Unit *unit) {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(factionMutex,mutexOwnerId);
 
-	factions[unit->getFactionIndex()].precachedTravelState[unit->getId()] = tsImpossible;
-	factions[unit->getFactionIndex()].precachedPath[unit->getId()].clear();
-
-	factions[unit->getFactionIndex()].badCellList.clear();
+	if(unit != NULL && factions.size() > unit->getFactionIndex()) {
+		factions[unit->getFactionIndex()].precachedTravelState[unit->getId()] = tsImpossible;
+		factions[unit->getFactionIndex()].precachedPath[unit->getId()].clear();
+		factions[unit->getFactionIndex()].badCellList.clear();
+	}
 }
 
 void PathFinder::removeUnitPrecache(Unit *unit) {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(factionMutex,mutexOwnerId);
 
-	if(factions.size() > unit->getFactionIndex()) {
+	if(unit != NULL && factions.size() > unit->getFactionIndex()) {
+		bool clearTravelState = false;
+		bool clearPath = false;
+
 		if(factions[unit->getFactionIndex()].precachedTravelState.find(unit->getId()) != factions[unit->getFactionIndex()].precachedTravelState.end()) {
 			factions[unit->getFactionIndex()].precachedTravelState.erase(unit->getId());
+			clearTravelState = true;
 		}
 		if(factions[unit->getFactionIndex()].precachedPath.find(unit->getId()) != factions[unit->getFactionIndex()].precachedPath.end()) {
 			factions[unit->getFactionIndex()].precachedPath.erase(unit->getId());
+			clearPath = true;
+		}
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"[removeUnitPrecache] clearTravelState: %d clearPath: %d",clearTravelState,clearPath);
 		}
 	}
 }
@@ -149,14 +165,19 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 	if(frameIndex >= 0) {
 		clearUnitPrecache(unit);
 	}
-	//else {
-		if(unit->getFaction()->canUnitsPathfind() == true) {
-			unit->getFaction()->addUnitToPathfindingList(unit->getId());
+	if(unit->getFaction()->canUnitsPathfind() == true) {
+		unit->getFaction()->addUnitToPathfindingList(unit->getId());
+	}
+	else {
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"canUnitsPathfind() == false");
+			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 		}
-		else {
-			return tsBlocked;
-		}
-	//}
+
+		return tsBlocked;
+	}
 
 //	if(frameIndex != factions[unit->getFactionIndex()].lastFromToNodeListFrame) {
 //		if(factions[unit->getFactionIndex()].mapFromToNodeList.size() > 0) {
@@ -263,6 +284,12 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 		}
 
 		maxNodeCount= PathFinder::pathFindNodesAbsoluteMax;
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"maxNodeCount: %d",maxNodeCount);
+			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+		}
 	}
 
 	//int unitFactionIndex = unit->getFactionIndex();
@@ -407,6 +434,9 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 						pos = basicPath->pop(frameIndex < 0);
 					}
 					else {
+						static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+						MutexSafeWrapper safeMutex(factionMutex,mutexOwnerId);
+
 						if(factions[unit->getFactionIndex()].precachedPath[unit->getId()].size() <= 0) {
 							throw megaglest_runtime_error("factions[unit->getFactionIndex()].precachedPath[unit->getId()].size() <= 0!");
 						}
@@ -855,6 +885,10 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				bool canMoveToCells = true;
 
 				Vec2i lastPos = unit->getPos();
+
+				static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+				MutexSafeWrapper safeMutex(factionMutex,mutexOwnerId);
+
 				for(int i=0; i < factions[unitFactionIndex].precachedPath[unit->getId()].size(); i++) {
 					Vec2i nodePos = factions[unitFactionIndex].precachedPath[unit->getId()][i];
 					if(map->isInside(nodePos) == false || map->isInsideSurface(map->toSurfCoords(nodePos)) == false) {
@@ -876,10 +910,14 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						break;
 					}
 				}
+				safeMutex.ReleaseLock();
 
 				if(canMoveToCells == true) {
 					path->clear();
 					UnitPathBasic *basicPathFinder = dynamic_cast<UnitPathBasic *>(path);
+
+					static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+					MutexSafeWrapper safeMutex1(factionMutex,mutexOwnerId);
 
 					for(int i=0; i < factions[unitFactionIndex].precachedPath[unit->getId()].size(); i++) {
 						Vec2i nodePos = factions[unitFactionIndex].precachedPath[unit->getId()][i];
@@ -909,15 +947,25 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 					clearUnitPrecache(unit);
 				}
 			}
-			else if(factions[unitFactionIndex].precachedTravelState[unit->getId()] == tsBlocked) {
-				path->incBlockCount();
-				unit->setUsePathfinderExtendedMaxNodes(false);
-				return factions[unitFactionIndex].precachedTravelState[unit->getId()];
+			else {
+				static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+				MutexSafeWrapper safeMutex1(factionMutex,mutexOwnerId);
+
+				if(factions[unitFactionIndex].precachedTravelState[unit->getId()] == tsBlocked) {
+					path->incBlockCount();
+					unit->setUsePathfinderExtendedMaxNodes(false);
+					return factions[unitFactionIndex].precachedTravelState[unit->getId()];
+				}
 			}
 		}
 	}
 	else {
 		clearUnitPrecache(unit);
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"[clearUnitPrecache]");
+		}
 	}
 
 	const Vec2i unitPos = unit->getPos();
@@ -971,6 +1019,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 										}
 
 										if(frameIndex >= 0) {
+											static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+											MutexSafeWrapper safeMutex(factionMutex,mutexOwnerId);
+
 											factions[unitFactionIndex].precachedPath[unit->getId()].push_back(cachedPath[k]);
 										}
 										else {
@@ -1028,6 +1079,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 										}
 
 										if(frameIndex >= 0) {
+											static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+											MutexSafeWrapper safeMutex(factionMutex,mutexOwnerId);
+
 											factions[unitFactionIndex].precachedPath[unit->getId()].push_back(cachedPath[k]);
 										}
 										else {
@@ -1172,6 +1226,13 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			}
 		}
 	}
+	else {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"inBailout: %d unitPos: [%s] finalPos [%s]",inBailout,unitPos.getString().c_str(), finalPos.getString().c_str());
+			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+		}
+	}
 	//
 
 	// START
@@ -1234,6 +1295,13 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 				return aStar(unit, targetPos, false, frameIndex, pathFindNodesAbsoluteMax);
 			}
+		}
+	}
+	else {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"nodeLimitReached: %d",nodeLimitReached);
+			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 		}
 	}
 
@@ -1339,6 +1407,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			if(minorDebugPathfinder) printf("nodePos [%s]\n",nodePos.getString().c_str());
 
 			if(frameIndex >= 0) {
+				static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+				MutexSafeWrapper safeMutex(factionMutex,mutexOwnerId);
+
 				factions[unitFactionIndex].precachedPath[unit->getId()].push_back(nodePos);
 			}
 			else {
