@@ -159,6 +159,12 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 	//printf("Unit Pathfind Unit [%d - %s] from = %s to = %s frameIndex = %d\n",unit->getId(),unit->getType()->getName().c_str(),unit->getPos().getString().c_str(),finalPos.getString().c_str(),frameIndex);
 
 	if(frameIndex >= 0) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"[findPath] ");
+			unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+		}
+
 		clearUnitPrecache(unit);
 	}
 	if(unit->getFaction()->canUnitsPathfind() == true) {
@@ -170,6 +176,11 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"canUnitsPathfind() == false");
 			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+		}
+		else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"canUnitsPathfind() == false");
+			unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
 		}
 
 		return tsBlocked;
@@ -214,6 +225,12 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			unit->setCurrentUnitTitle(szBuf);
 		}
 
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"return tsArrived");
+			unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+		}
+
 		return tsArrived;
 	}
 
@@ -235,6 +252,13 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 					}
 
 				}
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"return tsMoving");
+					unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+				}
+
 				return tsMoving;
 			}
 		}
@@ -247,6 +271,13 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 					advPath->pop();
 					unit->setTargetPos(pos);
 				}
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"return tsMoving");
+					unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+				}
+
 				return tsMoving;
 			}
 		}
@@ -263,6 +294,11 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"path->isStuck() == true unit->getLastStuckPos() [%s] finalPos [%s] path->getBlockCount() [%d] tolerance: %d",unit->getLastStuckPos().getString().c_str(),finalPos.getString().c_str(),path->getBlockCount(),unit->isLastStuckFrameWithinCurrentFrameTolerance());
 			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+		}
+		else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"path->isStuck() == true unit->getLastStuckPos() [%s] finalPos [%s] path->getBlockCount() [%d] tolerance: %d",unit->getLastStuckPos().getString().c_str(),finalPos.getString().c_str(),path->getBlockCount(),unit->isLastStuckFrameWithinCurrentFrameTolerance());
+			unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
 		}
 
 		//printf("$$$$ Unit STILL BLOCKED for [%d - %s]\n",unit->getId(),unit->getFullName().c_str());
@@ -286,6 +322,12 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			snprintf(szBuf,8096,"maxNodeCount: %d",maxNodeCount);
 			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 		}
+		else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"maxNodeCount: %d",maxNodeCount);
+			unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+		}
+
 	}
 
 	//int unitFactionIndex = unit->getFactionIndex();
@@ -304,8 +346,19 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 		snprintf(szBuf,8096,"calling aStar()");
 		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 	}
+	else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"calling aStar()");
+		unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+	}
 
 	ts = aStar(unit, finalPos, false, frameIndex, maxNodeCount,&searched_node_count);
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"called aStar() ts: %d",ts);
+		unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+	}
 
 	//post actions
 	switch(ts) {
@@ -859,6 +912,12 @@ void PathFinder::astarJPS(std::map<Vec2i,Vec2i> cameFrom, Node *& node,
 TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout,
 		int frameIndex, int maxNodeCount, uint32 *searched_node_count) {
 
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In aStar()");
+		unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+	}
+
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
@@ -968,10 +1027,21 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						snprintf(szBuf,8096,"return factions[unitFactionIndex].precachedTravelState[unit->getId()];");
 						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 					}
+					else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"return factions[unitFactionIndex].precachedTravelState[unit->getId()];");
+						unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+					}
 
 					return factions[unitFactionIndex].precachedTravelState[unit->getId()];
 				}
 				else {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"clearUnitPrecache(unit);");
+						unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+					}
+
 					clearUnitPrecache(unit);
 				}
 			}
@@ -988,6 +1058,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						snprintf(szBuf,8096,"return factions[unitFactionIndex].precachedTravelState[unit->getId()];");
 						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 					}
+					else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"return factions[unitFactionIndex].precachedTravelState[unit->getId()];");
+						unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+					}
 
 					return factions[unitFactionIndex].precachedTravelState[unit->getId()];
 				}
@@ -995,6 +1070,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		}
 	}
 	else {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"clearUnitPrecache(unit);");
+			unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+		}
+
 		clearUnitPrecache(unit);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
@@ -1100,6 +1181,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 										snprintf(szBuf,8096,"return ts: %d",ts);
 										unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 									}
+									else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+										char szBuf[8096]="";
+										snprintf(szBuf,8096,"return ts: %d",ts);
+										unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+									}
 
 									return ts;
 								}
@@ -1166,6 +1252,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 										char szBuf[8096]="";
 										snprintf(szBuf,8096,"return ts: %d",ts);
 										unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+									}
+									else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+										char szBuf[8096]="";
+										snprintf(szBuf,8096,"return ts: %d",ts);
+										unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
 									}
 
 									return ts;
@@ -1348,6 +1439,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 					snprintf(szBuf,8096,"calling aStar()");
 					unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 				}
+				else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"calling aStar()");
+					unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+				}
 
 				return aStar(unit, targetPos, false, frameIndex, pathFindNodesAbsoluteMax);
 			}
@@ -1359,6 +1455,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			snprintf(szBuf,8096,"nodeLimitReached: %d",nodeLimitReached);
 			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 		}
+		else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"nodeLimitReached: %d",nodeLimitReached);
+			unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+		}
+
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),nodeLimitReached,whileLoopCount,factions[unitFactionIndex].nodePoolCount);
@@ -1540,6 +1642,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"return ts: %d",ts);
 		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+	}
+	else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"return ts: %d",ts);
+		unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
 	}
 
 	return ts;

@@ -67,7 +67,7 @@ World::World() {
 	fogOfWarSmoothing= config.getBool("FogOfWarSmoothing");
 	fogOfWarSmoothingFrameSkip= config.getInt("FogOfWarSmoothingFrameSkip");
 
-	MaxExploredCellsLookupItemCache= config.getInt("MaxExploredCellsLookupItemCache",intToStr(MaxExploredCellsLookupItemCache).c_str());
+	//MaxExploredCellsLookupItemCache= config.getInt("MaxExploredCellsLookupItemCache",intToStr(MaxExploredCellsLookupItemCache).c_str());
 
 	frameCount= 0;
 	//nextUnitId= 0;
@@ -519,6 +519,7 @@ void World::updateAllFactionUnits() {
 		Faction *faction = getFaction(i);
 		faction->clearUnitsPathfinding();
 		faction->clearAproxCanMoveSoonCached();
+		faction->clearWorldSynchThreadedLogList();
 	}
 
 	if(showPerfStats) {
@@ -592,6 +593,8 @@ void World::updateAllFactionUnits() {
 	int totalUnitsProcessed = 0;
 	for(int i = 0; i < factionCount; ++i) {
 		Faction *faction = getFaction(i);
+
+		faction->dumpWorldSynchThreadedLogList();
 		faction->clearUnitsPathfinding();
 
 		std::map<CommandClass,int> mapCommandCount;

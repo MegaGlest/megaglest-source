@@ -720,6 +720,8 @@ public:
 	//void addCurrentTargetPathTakenCell(const Vec2i &target,const Vec2i &cell);
 
 	void logSynchData(string file,int line,string source="");
+	void logSynchDataThreaded(string file,int line,string source="");
+
 	std::string toString() const;
 	bool needToUpdate();
 
@@ -766,6 +768,8 @@ private:
 	void checkUnitLevel();
 
 	void morphAttackBoosts(Unit *unit);
+
+	void logSynchDataCommon(string file,int line,string source="",bool threadedMode=false);
 };
 
 }}// end namespace

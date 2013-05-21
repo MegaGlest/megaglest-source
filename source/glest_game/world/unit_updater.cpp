@@ -356,6 +356,11 @@ void UnitUpdater::updateUnitCommand(Unit *unit, int frameIndex) {
 void UnitUpdater::updateStop(Unit *unit, int frameIndex) {
 	// Nothing to do
 	if(frameIndex >= 0) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"[updateStop]");
+			unit->logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+		}
 		clearUnitPrecache(unit);
 		return;
 	}
@@ -436,6 +441,11 @@ void UnitUpdater::updateMove(Unit *unit, int frameIndex) {
 		snprintf(szBuf,8096,"[updateMove] pos [%s] unit [%d - %s] cmd [%s]",pos.getString().c_str(),unit->getId(),unit->getFullName().c_str(),command->toString().c_str());
 		unit->logSynchData(__FILE__,__LINE__,szBuf);
 	}
+	else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[updateMove] pos [%s] unit [%d - %s] cmd [%s]",pos.getString().c_str(),unit->getId(),unit->getFullName().c_str(),command->toString().c_str());
+		unit->logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -468,6 +478,18 @@ void UnitUpdater::updateMove(Unit *unit, int frameIndex) {
 			break;
 		}
 	}
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[updateMove] tsValue [%d]",tsValue);
+		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+	}
+	else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[updateMove] tsValue [%d]",tsValue);
+		unit->logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
@@ -480,6 +502,11 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"[updateAttack]");
 		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+	}
+	else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[updateAttack]");
+		unit->logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 	}
 
 	Chrono chrono;
@@ -561,9 +588,13 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"[updateAttack] pos [%s] unit->getPos() [%s]",
-						pos.getString().c_str(),unit->getPos().getString().c_str());
+				snprintf(szBuf,8096,"[updateAttack] pos [%s] unit->getPos() [%s]",pos.getString().c_str(),unit->getPos().getString().c_str());
 				unit->logSynchData(__FILE__,__LINE__,szBuf);
+			}
+			else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"[updateAttack] pos [%s] unit->getPos() [%s]",pos.getString().c_str(),unit->getPos().getString().c_str());
+				unit->logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 			}
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -662,6 +693,12 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 
 				}
 			}
+			else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"[updateAttack] tsValue [%d]",tsValue);
+				unit->logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+			}
+
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 		}
     }
@@ -675,6 +712,11 @@ void UnitUpdater::updateAttack(Unit *unit, int frameIndex) {
 void UnitUpdater::updateAttackStopped(Unit *unit, int frameIndex) {
 	// Nothing to do
 	if(frameIndex >= 0) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"[updateAttackStopped]");
+			unit->logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+		}
 		clearUnitPrecache(unit);
 		return;
 	}
@@ -691,8 +733,13 @@ void UnitUpdater::updateAttackStopped(Unit *unit, int frameIndex) {
     const AttackStoppedCommandType *asct= static_cast<const AttackStoppedCommandType*>(command->getCommandType());
     Unit *enemy=NULL;
 
-    if(unit->getCommandSize() > 1)
-    {
+    if(unit->getCommandSize() > 1) {
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+    		char szBuf[8096]="";
+    		snprintf(szBuf,8096,"[updateAttackStopped]");
+    		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+    	}
+
     	unit->finishCommand(); // attackStopped is skipped if somthing else is queued after this.
     	return;
     }
@@ -703,13 +750,31 @@ void UnitUpdater::updateAttackStopped(Unit *unit, int frameIndex) {
 	if(result.first == true) {
         unit->setCurrSkill(asct->getAttackSkillType());
 		unit->setTarget(result.second);
+
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+    		char szBuf[8096]="";
+    		snprintf(szBuf,8096,"[updateAttackStopped]");
+    		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+    	}
 	}
 	else if(attackableOnRange(unit, &enemy, asct->getAttackSkillType(),(frameIndex >= 0))) {
         unit->setCurrSkill(asct->getAttackSkillType());
 		unit->setTarget(enemy);
+
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+    		char szBuf[8096]="";
+    		snprintf(szBuf,8096,"[updateAttackStopped]");
+    		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+    	}
     }
     else {
         unit->setCurrSkill(asct->getStopSkillType());
+
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+    		char szBuf[8096]="";
+    		snprintf(szBuf,8096,"[updateAttackStopped]");
+    		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+    	}
     }
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -769,6 +834,18 @@ std::pair<bool,Unit *> UnitUpdater::unitBeingAttacked(const Unit *unit) {
 // ==================== updateBuild ====================
 
 void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[updateBuild]");
+		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+	}
+	else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[updateBuild]");
+		unit->logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+	}
+
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
@@ -802,8 +879,26 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 							unit->getPos().getString().c_str(),command->getPos().getString().c_str(),buildPos.getString().c_str());
 					unit->logSynchData(__FILE__,__LINE__,szBuf);
 				}
+				else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"[updateBuild] unit->getPos() [%s] command->getPos() [%s] buildPos [%s]",
+							unit->getPos().getString().c_str(),command->getPos().getString().c_str(),buildPos.getString().c_str());
+					unit->logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+				}
 
 				tsValue = pathFinder->findPath(unit, buildPos, NULL, frameIndex);
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"[updateBuild] tsValue: %d",tsValue);
+					unit->logSynchData(__FILE__,__LINE__,szBuf);
+				}
+				else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"[updateBuild] tsValue: %d",tsValue);
+					unit->logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+				}
+
 				}
 				break;
 			default:
@@ -938,10 +1033,23 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 			//if unit is killed while building then u==NULL;
 			if(builtUnit != NULL && builtUnit != command->getUnit()) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] builtUnit is not the command's unit!\n",__FILE__,__FUNCTION__,__LINE__);
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"[updateBuild]");
+					unit->logSynchData(__FILE__,__LINE__,szBuf);
+				}
+
 				unit->setCurrSkill(scStop);
 			}
 			else if(builtUnit == NULL || builtUnit->isBuilt()) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] builtUnit is NULL or ALREADY built\n",__FILE__,__FUNCTION__,__LINE__);
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"[updateBuild]");
+					unit->logSynchData(__FILE__,__LINE__,szBuf);
+				}
 
 				unit->finishCommand();
 				unit->setCurrSkill(scStop);
@@ -949,6 +1057,12 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 			}
 			else if(builtUnit == NULL || builtUnit->repair()) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"[updateBuild]");
+					unit->logSynchData(__FILE__,__LINE__,szBuf);
+				}
 
 				const CommandType *ct = (command != NULL ? command->getCommandType() : NULL);
 				//building finished
@@ -976,6 +1090,12 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 void UnitUpdater::updateHarvestEmergencyReturn(Unit *unit, int frameIndex) {
 	if(frameIndex >= 0) {
 		return;
+	}
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[updateHarvestEmergencyReturn]");
+		unit->logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 	}
 
 	//printf("\n#1 updateHarvestEmergencyReturn\n");
@@ -1043,6 +1163,18 @@ void UnitUpdater::updateHarvestEmergencyReturn(Unit *unit, int frameIndex) {
 }
 
 void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[updateHarvest]");
+		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+	}
+	else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"[updateHarvest]");
+		unit->logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+	}
+
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
@@ -1104,6 +1236,12 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 	    								//printf("%%----------- unit [%s - %d] CHANGING RESOURCE POS from [%s] to [%s]\n",unit->getFullName().c_str(),unit->getId(),command->getOriginalPos().getString().c_str(),clickPos.getString().c_str());
 
 										if(frameIndex < 0) {
+											if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+												char szBuf[8096]="";
+												snprintf(szBuf,8096,"[updateHarvest] clickPos [%s]",clickPos.getString().c_str());
+												unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+											}
+
 	    									command->setPos(clickPos);
 										}
 	    							}
@@ -1118,7 +1256,18 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 
 					if (canHarvestDestPos == true ) {
 						if(frameIndex < 0) {
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+								char szBuf[8096]="";
+								snprintf(szBuf,8096,"[updateHarvest]");
+								unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+							}
+
 							unit->setLastHarvestResourceTarget(NULL);
+						}
+						else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"[updateHarvest]");
+							unit->logSynchDataThreaded(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 						}
 
 						canHarvestDestPos = (map->getSurfaceCell(Map::toSurfCoords(targetPos)) != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource() != NULL && map->getSurfaceCell(Map::toSurfCoords(targetPos))->getResource()->getType() != NULL);
@@ -1143,12 +1292,24 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 									default:
 										throw megaglest_runtime_error("detected unsupported pathfinder type!");
 								}
+
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+									char szBuf[8096]="";
+									snprintf(szBuf,8096,"[updateHarvest] targetPos [%s]",targetPos.getString().c_str());
+									unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+								}
 							}
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 						}
 					}
 					if(canHarvestDestPos == false) {
 						if(frameIndex < 0) {
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+								char szBuf[8096]="";
+								snprintf(szBuf,8096,"[updateHarvest] targetPos [%s]",targetPos.getString().c_str());
+								unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+							}
+
 							unit->setLastHarvestResourceTarget(&targetPos);
 						}
 
@@ -1159,6 +1320,12 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 							snprintf(szBuf,8096,"[updateHarvest] unit->getPos() [%s] command->getPos() [%s]",
 									unit->getPos().getString().c_str(),command->getPos().getString().c_str());
 							unit->logSynchData(__FILE__,__LINE__,szBuf);
+						}
+						else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"[updateHarvest] unit->getPos() [%s] command->getPos() [%s]",
+									unit->getPos().getString().c_str(),command->getPos().getString().c_str());
+							unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
 						}
 
 						//if not continue walking

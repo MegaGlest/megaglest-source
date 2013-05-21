@@ -3498,10 +3498,14 @@ void Unit::exploreCells() {
 }
 
 void Unit::logSynchData(string file,int line,string source) {
+	logSynchDataCommon(file,line,source,false);
+}
+void Unit::logSynchDataThreaded(string file,int line,string source) {
+	logSynchDataCommon(file,line,source,true);
+}
+void Unit::logSynchDataCommon(string file,int line,string source,bool threadedMode) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
-
 	    char szBuf[8096]="";
-
 	    snprintf(szBuf,8096,
 	    		"FrameCount [%d] Unit = %d [%s][%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, progress [%f], progress2 [%d]\nUnit Path [%s]\n",
 	    		getFrameCount(),
@@ -3529,6 +3533,23 @@ void Unit::logSynchData(string file,int line,string source) {
 	    	lastFile = file;
 	    	lastSource = source;
 
+	    	string logDataText = "";
+	    	char szBufDataText[8096]="";
+	    	snprintf(szBufDataText,8096,"----------------------------------- START [FRAME %d UNIT: %d - %s] ------------------------------------------------\n",getFrameCount(),this->id,this->getType()->getName().c_str());
+	    	logDataText = szBufDataText;
+
+	    	snprintf(szBufDataText,8096,"[%s::%d]\n",extractFileFromDirectoryPath(file).c_str(),line);
+	    	logDataText += szBufDataText;
+
+			if(source != "") {
+				snprintf(szBufDataText,8096,"%s ",source.c_str());
+				logDataText += szBufDataText;
+			}
+			snprintf(szBufDataText,8096,"%s\n",szBuf);
+			logDataText += szBufDataText;
+			snprintf(szBufDataText,8096,"------------------------------------ END [FRAME %d UNIT: %d - %s] ------------------------------------------------\n",getFrameCount(),this->id,this->getType()->getName().c_str());
+			logDataText += szBufDataText;
+/*
 	    	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [FRAME %d UNIT: %d - %s] ------------------------------------------------\n",getFrameCount(),this->id,this->getType()->getName().c_str());
 	    	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"[%s::%d]\n",extractFileFromDirectoryPath(file).c_str(),line);
 			if(source != "") {
@@ -3536,6 +3557,13 @@ void Unit::logSynchData(string file,int line,string source) {
 			}
 			SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s\n",szBuf);
 			SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [FRAME %d UNIT: %d - %s] ------------------------------------------------\n",getFrameCount(),this->id,this->getType()->getName().c_str());
+*/
+			if(threadedMode == false) {
+				SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s",logDataText.c_str());
+			}
+			else {
+				this->faction->addWorldSynchThreadedLogList(logDataText);
+			}
 	    }
 	}
 }
