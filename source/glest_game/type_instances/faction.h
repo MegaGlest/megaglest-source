@@ -167,6 +167,8 @@ private:
 
 	std::map<int,std::map<Field, std::map<Vec2i,bool> > > mapSharedPathFinderCache;
 
+	std::vector<string> worldSynchThreadedLogList;
+
 public:
 	Faction();
 	~Faction();
@@ -178,6 +180,27 @@ public:
 	Faction & operator=(const Faction& obj) {
 		init();
 		throw megaglest_runtime_error("class Faction is NOT safe to assign!");
+	}
+
+	inline void addWorldSynchThreadedLogList(const string &data) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+			worldSynchThreadedLogList.push_back(data);
+		}
+	}
+	inline void clearWorldSynchThreadedLogList() {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+			worldSynchThreadedLogList.clear();
+		}
+	}
+	inline void dumpWorldSynchThreadedLogList() {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+			if(worldSynchThreadedLogList.empty() == false) {
+				for(unsigned int index = 0; index < worldSynchThreadedLogList.size(); ++index) {
+					SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,worldSynchThreadedLogList[index].c_str());
+				}
+				worldSynchThreadedLogList.clear();
+			}
+		}
 	}
 
 	inline const bool * aproxCanMoveSoonCached(int size, Field field, const Vec2i &pos1, const Vec2i &pos2) const {
