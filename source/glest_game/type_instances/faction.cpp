@@ -603,7 +603,8 @@ void Faction::init(
 	this->thisFaction= thisFaction;
 	this->world= game->getWorld();
 	this->scriptManager= game->getScriptManager();
-	cachingDisabled = (Config::getInstance().getBool("DisableCaching","false") == true);
+	//cachingDisabled = (Config::getInstance().getBool("DisableCaching","false") == true);
+	cachingDisabled = false;
 
 	resources.resize(techTree->getResourceTypeCount());
 	store.resize(techTree->getResourceTypeCount());
@@ -628,8 +629,9 @@ void Faction::init(
 		loadGame(loadWorldNode, this->index,game->getGameSettings(),game->getWorld());
 	}
 
-	if( game->getGameSettings()->getPathFinderType() == pfBasic &&
-		Config::getInstance().getBool("EnableFactionWorkerThreads","true") == true) {
+	if( game->getGameSettings()->getPathFinderType() == pfBasic) {
+//	if( game->getGameSettings()->getPathFinderType() == pfBasic &&
+//		Config::getInstance().getBool("EnableFactionWorkerThreads","true") == true) {
 		if(workerThread != NULL) {
 			workerThread->signalQuit();
 			if(workerThread->shutdownAndWait() == true) {
