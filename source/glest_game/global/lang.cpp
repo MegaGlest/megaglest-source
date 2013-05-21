@@ -206,12 +206,20 @@ bool Lang::isUTF8Language() const {
 	return is_utf8_language;
 }
 
-void Lang::loadScenarioStrings(string scenarioDir, string scenarioName){
+void Lang::loadScenarioStrings(string scenarioDir, string scenarioName, bool isTutorial) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scenarioDir = [%s] scenarioName = [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioDir.c_str(),scenarioName.c_str());
+
+	//printf("Loading scenario scenarioDir [%s] scenarioName [%s]\n",scenarioDir.c_str(),scenarioName.c_str());
 
 	// First try to find scenario lng file in userdata
 	Config &config = Config::getInstance();
-    vector<string> scenarioPaths = config.getPathListForType(ptScenarios);
+    vector<string> scenarioPaths;
+    if(isTutorial == false) {
+    	scenarioPaths = config.getPathListForType(ptScenarios);
+    }
+    else {
+    	scenarioPaths = config.getPathListForType(ptTutorials);
+    }
     if(scenarioPaths.size() > 1) {
         string &scenarioPath = scenarioPaths[1];
 		endPathWithSlash(scenarioPath);
@@ -242,6 +250,8 @@ void Lang::loadScenarioStrings(string scenarioDir, string scenarioName){
 
 	//try to load the current language first
 	if(fileExists(path)) {
+		//printf("#2 Loading scenario path [%s]\n",path.c_str());
+
 		scenarioStrings.load(path);
 	}
 	else{
@@ -252,6 +262,8 @@ void Lang::loadScenarioStrings(string scenarioDir, string scenarioName){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 
 		if(fileExists(path)){
+			//printf("#3 Loading scenario path [%s]\n",path.c_str());
+
 			scenarioStrings.load(path);
 		}
 	}

@@ -347,7 +347,8 @@ void MenuStateScenario::setScenario(int i) {
 }
 
 void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
-	Scenario::loadScenarioInfo(file, scenarioInfo);
+	bool isTutorial = Scenario::isGameTutorial(file);
+	Scenario::loadScenarioInfo(file, scenarioInfo, isTutorial);
 
 	cleanupPreviewTexture();
 	previewLoadDelayTimer=time(NULL);

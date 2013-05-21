@@ -1134,7 +1134,11 @@ void Game::load(int loadTypes) {
     if((loadTypes & lgt_Scenario) == lgt_Scenario) {
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		if(scenarioName.empty() == false) {
-			Lang::getInstance().loadScenarioStrings(gameSettings.getScenarioDir(), scenarioName);
+
+			bool isTutorial = Scenario::isGameTutorial(gameSettings.getScenarioDir());
+			//printf("Loading scenario gameSettings.getScenarioDir() [%s] scenarioName [%s] isTutorial: %d\n",gameSettings.getScenarioDir().c_str(),scenarioName.c_str(),isTutorial);
+
+			Lang::getInstance().loadScenarioStrings(gameSettings.getScenarioDir(), scenarioName, isTutorial);
 
 			//printf("In [%s::%s Line: %d] rootNode [%p][%s]\n",__FILE__,__FUNCTION__,__LINE__,loadGameNode,(loadGameNode != NULL ? loadGameNode->getName().c_str() : "none"));
 			world.loadScenario(gameSettings.getScenarioDir(), &checksum, false,loadGameNode);
@@ -2451,8 +2455,10 @@ void Game::update() {
 
 			//printf("\nname [%s] scenarioFile [%s] results.size() = " MG_SIZE_T_SPECIFIER "\n",name.c_str(),scenarioFile.c_str(),results.size());
 			//printf("[%s:%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+			bool isTutorial = Scenario::isGameTutorial(scenarioFile);
 			ScenarioInfo scenarioInfo;
-			Scenario::loadScenarioInfo(scenarioFile, &scenarioInfo);
+			Scenario::loadScenarioInfo(scenarioFile, &scenarioInfo, isTutorial);
 
 			//printf("[%s:%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			GameSettings gameSettings;

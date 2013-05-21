@@ -2010,6 +2010,7 @@ BroadCastClientSocketThread::BroadCastClientSocketThread(DiscoveredServersInterf
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	discoveredServersCB = cb;
+	uniqueID = "BroadCastClientSocketThread";
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -2782,6 +2783,7 @@ BroadCastSocketThread::BroadCastSocketThread(int boundPort) : BaseThread() {
 	mutexPauseBroadcast = new Mutex();
 	setPauseBroadcast(false);
 	this->boundPort = boundPort;
+	uniqueID = "BroadCastSocketThread";
 	//printf("new broadcast thread [%p]\n",this);
 }
 

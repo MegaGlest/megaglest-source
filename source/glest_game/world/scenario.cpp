@@ -54,7 +54,8 @@ Checksum Scenario::load(const string &path) {
 		snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingScenario","",true).c_str(),formatString(name).c_str());
 		Logger::getInstance().add(szBuf, true);
 
-		Scenario::loadScenarioInfo(path, &info);
+		bool isTutorial = Scenario::isGameTutorial(path);
+		Scenario::loadScenarioInfo(path, &info, isTutorial);
 
 		//parse xml
 		XmlTree xmlTree;
@@ -153,7 +154,25 @@ string Scenario::getFunctionName(const XmlNode *scriptNode){
 	return name;
 }
 
-void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
+bool Scenario::isGameTutorial(string path) {
+	bool isTutorial = false;
+	Config &config = Config::getInstance();
+    vector<string> tutorialPaths = config.getPathListForType(ptTutorials);
+    if(tutorialPaths.empty() == false) {
+    	for(unsigned int tutorialIndex = 0; tutorialIndex < tutorialPaths.size(); ++tutorialIndex) {
+    		const string &tutorialPath = tutorialPaths[tutorialIndex];
+    		size_t pos = path.find( tutorialPath );
+    		if( pos != path.npos ) {
+    			isTutorial = true;
+    			break;
+    		}
+    	}
+    }
+
+    return isTutorial;
+}
+
+void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo, bool isTutorial) {
 	//printf("[%s:%s] Line: %d file [%s]\n",__FILE__,__FUNCTION__,__LINE__,file.c_str());
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str());
 	//printf("In [%s::%s Line: %d] file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str());
@@ -309,7 +328,7 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
 
 	
 	//look for description and append it
-	lang.loadScenarioStrings(scenarioDir,scenarioName.c_str());
+	lang.loadScenarioStrings(scenarioDir,scenarioName.c_str(),isTutorial);
 	//string tmp_description = lang.getScenarioString("DESCRIPTION");
 	string tmp_description = "";
 	if(lang.hasScenarioString("DESCRIPTION") == true) {

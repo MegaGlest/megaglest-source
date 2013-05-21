@@ -31,6 +31,7 @@ FileCRCPreCacheThread::FileCRCPreCacheThread() : BaseThread() {
 	techDataPaths.clear();
 	workerThreadTechPaths.clear();
 	processTechCB = NULL;
+	uniqueID = "FileCRCPreCacheThread";
 }
 
 FileCRCPreCacheThread::FileCRCPreCacheThread(vector<string> techDataPaths,
@@ -39,6 +40,7 @@ FileCRCPreCacheThread::FileCRCPreCacheThread(vector<string> techDataPaths,
 	this->techDataPaths					= techDataPaths;
 	this->workerThreadTechPaths 		= workerThreadTechPaths;
 	this->processTechCB 				= processTechCB;
+	uniqueID = "FileCRCPreCacheThread";
 }
 
 bool FileCRCPreCacheThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
@@ -346,6 +348,7 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 									bool needTaskSignal) : BaseThread(), 
 															simpleTaskInterface(NULL), 
 															overrideShutdownTask(NULL) {
+	uniqueID = "SimpleTaskThread";
 	this->simpleTaskInterface		 = simpleTaskInterface;
 	this->executionCount			 = executionCount;
 	this->millisecsBetweenExecutions = millisecsBetweenExecutions;
@@ -525,6 +528,7 @@ bool SimpleTaskThread::getTaskSignalled() {
 // -------------------------------------------------
 
 LogFileThread::LogFileThread() : BaseThread() {
+	uniqueID = "LogFileThread";
     logList.clear();
     lastSaveToDisk = time(NULL);
     static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);

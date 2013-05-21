@@ -37,6 +37,7 @@ ConnectionSlotThread::ConnectionSlotThread(int slotIndex) : BaseThread() {
 	this->triggerIdMutex = new Mutex();
 	this->slotIndex = slotIndex;
 	this->slotInterface = NULL;
+	uniqueID = "ConnectionSlotThread";
 	//this->event = NULL;
 	eventList.clear();
 	eventList.reserve(100);
@@ -47,6 +48,7 @@ ConnectionSlotThread::ConnectionSlotThread(ConnectionSlotCallbackInterface *slot
 	this->triggerIdMutex = new Mutex();
 	this->slotIndex = slotIndex;
 	this->slotInterface = slotInterface;
+	uniqueID = "ConnectionSlotThread";
 	//this->event = NULL;
 	eventList.clear();
 }

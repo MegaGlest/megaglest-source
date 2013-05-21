@@ -466,7 +466,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 		try {
 			if(file != "") {
-				Scenario::loadScenarioInfo(file, &scenarioInfo);
+				bool isTutorial = Scenario::isGameTutorial(file);
+				Scenario::loadScenarioInfo(file, &scenarioInfo, isTutorial);
 
 				bool isNetworkScenario = false;
 				for(unsigned int j = 0; isNetworkScenario == false && j < GameConstants::maxPlayers; ++j) {
@@ -4278,7 +4279,9 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		string scenario = gameSettings->getScenario();
 		listBoxScenario.setSelectedItem(formatString(scenario));
 		string file = Scenario::getScenarioPath(dirList, scenario);
-		Scenario::loadScenarioInfo(file, &scenarioInfo);
+
+		bool isTutorial = Scenario::isGameTutorial(file);
+		Scenario::loadScenarioInfo(file, &scenarioInfo, isTutorial);
 
 		gameSettings->setScenarioDir(Scenario::getScenarioPath(dirList, scenarioInfo.name));
 
@@ -4971,7 +4974,8 @@ void MenuStateConnectedGame::setupTilesetList(string scenario) {
 
 void MenuStateConnectedGame::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
 	//printf("Load scenario file [%s]\n",file.c_str());
-	Scenario::loadScenarioInfo(file, scenarioInfo);
+	bool isTutorial = Scenario::isGameTutorial(file);
+	Scenario::loadScenarioInfo(file, scenarioInfo, isTutorial);
 
 	//cleanupPreviewTexture();
 	previewLoadDelayTimer=time(NULL);

@@ -668,7 +668,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 		try {
 			if(file != "") {
-				Scenario::loadScenarioInfo(file, &scenarioInfo);
+				bool isTutorial = Scenario::isGameTutorial(file);
+				Scenario::loadScenarioInfo(file, &scenarioInfo, isTutorial);
 
 				bool isNetworkScenario = false;
 				for(unsigned int j = 0; isNetworkScenario == false && j < GameConstants::maxPlayers; ++j) {
@@ -4207,7 +4208,8 @@ int32 MenuStateCustomGame::getNetworkPlayerStatus() {
 
 void MenuStateCustomGame::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
 	//printf("Load scenario file [%s]\n",file.c_str());
-	Scenario::loadScenarioInfo(file, scenarioInfo);
+	bool isTutorial = Scenario::isGameTutorial(file);
+	Scenario::loadScenarioInfo(file, scenarioInfo, isTutorial);
 
 	//cleanupPreviewTexture();
 	previewLoadDelayTimer=time(NULL);

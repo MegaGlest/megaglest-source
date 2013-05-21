@@ -56,7 +56,7 @@ public:
 	static Lang &getInstance();    
 
 	void loadStrings(string uselanguage, bool loadFonts=true, bool fallbackToDefault=false);
-	void loadScenarioStrings(string scenarioDir, string scenarioName);
+	void loadScenarioStrings(string scenarioDir, string scenarioName, bool isTutorial);
 	void loadTechTreeStrings(string techTree);
 	void loadTilesetStrings(string tileset);
 
