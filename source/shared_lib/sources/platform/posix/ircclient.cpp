@@ -517,6 +517,7 @@ void IRCThread::setEventDataDone(bool value) {
 }
 
 IRCThread::IRCThread(const std::vector<string> &argv, IRCCallbackInterface *callbackObj) : BaseThread() {
+	uniqueID = "IRCThread";
     this->argv = argv;
     this->callbackObj = callbackObj;
     ircSession = NULL;

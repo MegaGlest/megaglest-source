@@ -135,12 +135,13 @@ public:
 
 	ScenarioInfo getInfo() const { return info; }
 
+	static bool isGameTutorial(string path);
 	static string getScenarioPath(const vector<string> dir, const string &scenarioName, bool getMatchingRootScenarioPathOnly=false);
 	static string getScenarioPath(const string &dir, const string &scenarioName);
 	static int getScenarioPathIndex(const vector<string> dirList, const string &scenarioName);
 	static string getScenarioDir(const vector<string> dir, const string &scenarioName);
 
-	static void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
+	static void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo,bool isTutorial);
 	static ControlType strToControllerType(const string &str);
 	static string controllerTypeToStr(const ControlType &ct);
 

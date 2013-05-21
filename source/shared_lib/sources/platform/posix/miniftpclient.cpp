@@ -242,6 +242,8 @@ FTPClientThread::FTPClientThread(int portNumber, string serverUrl,
 		string fileArchiveExtractCommandParameters,
 		int fileArchiveExtractCommandSuccessResult,
 		string tempFilesPath) : BaseThread() {
+
+	uniqueID = "FTPClientThread";
     this->portNumber    = portNumber;
     this->serverUrl     = serverUrl;
     this->mapsPath      = mapsPath;

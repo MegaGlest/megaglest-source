@@ -40,6 +40,7 @@ AiInterfaceThread::AiInterfaceThread(AiInterface *aiIntf) : BaseThread() {
 	this->masterController = NULL;
 	this->triggerIdMutex = new Mutex();
 	this->aiIntf = aiIntf;
+	uniqueID = "AiInterfaceThread";
 }
 
 AiInterfaceThread::~AiInterfaceThread() {

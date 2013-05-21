@@ -373,7 +373,6 @@ private:
 
 	bool switchSetupForSlots(ServerInterface *& serverInterface,
 			int startIndex, int endIndex, bool onlyNetworkUnassigned);
-
 };
 
 }}//end namespace

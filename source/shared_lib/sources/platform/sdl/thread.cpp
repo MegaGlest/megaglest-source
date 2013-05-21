@@ -48,7 +48,8 @@ protected:
 		return false;
 	}
 public:
-	ThreadGarbageCollector() : BaseThread() { 
+	ThreadGarbageCollector() : BaseThread() {
+		uniqueID = "ThreadGarbageCollector";
 		removeThreadFromList();
 	}
 	virtual ~ThreadGarbageCollector() {

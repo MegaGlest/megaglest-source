@@ -74,6 +74,8 @@ FTPServerThread::FTPServerThread(std::pair<string,string> mapsPath,
 		bool allowInternetTilesetFileTransfers, bool allowInternetTechtreeFileTransfers,
 		int portNumber, int maxPlayers,
 		FTPClientValidationInterface *ftpValidationIntf, string tempFilesPath) : BaseThread() {
+
+	uniqueID = "FTPServerThread";
     this->mapsPath              = mapsPath;
     this->tilesetsPath          = tilesetsPath;
     this->techtreesPath			= techtreesPath;

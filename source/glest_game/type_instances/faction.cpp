@@ -216,6 +216,7 @@ FactionThread::FactionThread(Faction *faction) : BaseThread() {
 	this->triggerIdMutex = new Mutex();
 	this->faction = faction;
 	this->masterController = NULL;
+	uniqueID = "FactionThread";
 }
 
 FactionThread::~FactionThread() {

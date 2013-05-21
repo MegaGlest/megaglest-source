@@ -45,6 +45,7 @@ const bool debugClientInterfacePerf = false;
 
 ClientInterfaceThread::ClientInterfaceThread(ClientInterface *client) : BaseThread() {
 	this->clientInterface = client;
+	uniqueID = "ClientInterfaceThread";
 }
 
 ClientInterfaceThread::~ClientInterfaceThread() {

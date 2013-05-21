@@ -40,6 +40,7 @@ namespace Glest{ namespace Game{
 CommanderNetworkThread::CommanderNetworkThread() : BaseThread() {
 	this->idStatus = make_pair<int,bool>(-1,false);
 	this->commanderInterface = NULL;
+	uniqueID = "CommanderNetworkThread";
 }
 
 CommanderNetworkThread::CommanderNetworkThread(CommanderNetworkCallbackInterface *commanderInterface) : BaseThread() {
