@@ -2274,7 +2274,7 @@ void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &t
 					attacker->setLastAttackedUnitId(attacked->getId());
 					scriptManager->onUnitAttacking(attacker);
 
-					damage(attacker, ast, attacked, pci.getPos().dist(attacker->getTargetPos()));
+					damage(attacker, ast, attacked, pci.getPos().dist(targetPos));
 			  	}
 			}
 		}
