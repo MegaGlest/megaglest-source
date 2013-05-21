@@ -1,4 +1,4 @@
-@echo
+@echo off
 
 if "%1." == "." goto NOTSET
 if NOT EXIST "%AppData%\megaglest\%1" goto NOTFOUND
