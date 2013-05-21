@@ -1135,7 +1135,8 @@ void Unit::refreshPos() {
 }
 
 FowAlphaCellsLookupItem Unit::getFogOfWarRadius(bool useCache) const {
-	if(useCache == true && Config::getInstance().getBool("EnableFowCache","true") == true) {
+	//if(useCache == true && Config::getInstance().getBool("EnableFowCache","true") == true) {
+	if(useCache == true) {
 		return cachedFow;
 	}
 
@@ -1170,7 +1171,8 @@ FowAlphaCellsLookupItem Unit::getFogOfWarRadius(bool useCache) const {
 
 void Unit::calculateFogOfWarRadius() {
 	if(game->getWorld()->getFogOfWar() == true) {
-		if(Config::getInstance().getBool("EnableFowCache","true") == true && this->pos != this->cachedFowPos) {
+		//if(Config::getInstance().getBool("EnableFowCache","true") == true && this->pos != this->cachedFowPos) {
+		if(this->pos != this->cachedFowPos) {
 			cachedFow = getFogOfWarRadius(false);
 
 			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);

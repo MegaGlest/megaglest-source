@@ -48,14 +48,16 @@ World::World() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Config &config= Config::getInstance();
 
-	staggeredFactionUpdates = config.getBool("StaggeredFactionUpdates","false");
+	//staggeredFactionUpdates = config.getBool("StaggeredFactionUpdates","false");
+	staggeredFactionUpdates = false;
 	unitParticlesEnabled=config.getBool("UnitParticles","true");
 
 	ExploredCellsLookupItemCache.clear();
 	ExploredCellsLookupItemCacheTimer.clear();
 	ExploredCellsLookupItemCacheTimerCount = 0;
 	// Disable this cache as it takes too much RAM (not sure if its worth the performance gain)
-	enableFowAlphaCellsLookupItemCache = config.getBool("EnableFowCache","true");
+	//enableFowAlphaCellsLookupItemCache = config.getBool("EnableFowCache","true");
+	enableFowAlphaCellsLookupItemCache = true;
 
 	nextCommandGroupId = 0;
 	techTree = NULL;
