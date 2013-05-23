@@ -1860,7 +1860,7 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 }
 
 
-bool Unit::needToUpdate() {
+float Unit::getUpdateProgress() {
 	//assert(progress <= 1.f);
 	if(progress > 1.f) {
 		char szBuf[8096]="";
@@ -1874,7 +1874,7 @@ bool Unit::needToUpdate() {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	bool return_value = false;
+	float newProgress = progress;
 	if(currSkill->getClass() != scDie) {
 		//speed
 		int speed = currSkill->getTotalSpeed(&totalUpgrade);
@@ -1920,9 +1920,17 @@ bool Unit::needToUpdate() {
 		//float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
 		//float newProgress = progress;
 		//newProgress += (speed * diagonalFactor * heightFactor) / speedDenominator;
-		float newProgress = getUpdatedProgress(progress, game->getWorld()->getUpdateFps(this->getFactionIndex()),
+		newProgress = getUpdatedProgress(progress, game->getWorld()->getUpdateFps(this->getFactionIndex()),
 				speed, diagonalFactor, heightFactor);
 
+	}
+	return newProgress;
+}
+
+bool Unit::needToUpdate() {
+	bool return_value = false;
+	if(currSkill->getClass() != scDie) {
+		float newProgress = getUpdateProgress();
 		if(newProgress >= 1.f) {
 			return_value = true;
 		}
@@ -1933,8 +1941,13 @@ bool Unit::needToUpdate() {
 float Unit::getUpdatedProgress(float currentProgress, int updateFPS, int speed,
 		float diagonalFactor, float heightFactor) {
 
+	truncateDecimal<float>(diagonalFactor);
+	truncateDecimal<float>(heightFactor);
+
 	float speedDenominator = (speedDivider * updateFPS);
+	truncateDecimal<float>(speedDenominator);
 	float newProgress = currentProgress;
+	truncateDecimal<float>(newProgress);
 	newProgress += ((speed * diagonalFactor * heightFactor) / speedDenominator);
 	truncateDecimal<float>(newProgress);
 	return newProgress;

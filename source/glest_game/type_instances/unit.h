@@ -724,6 +724,7 @@ public:
 
 	std::string toString() const;
 	bool needToUpdate();
+	float getUpdateProgress();
 
 	bool isLastStuckFrameWithinCurrentFrameTolerance();
 	inline uint32 getLastStuckFrame() const { return lastStuckFrame; }
