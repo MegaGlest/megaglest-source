@@ -164,11 +164,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelDataSynchInfo.setFont(CoreData::getInstance().getMenuFontBig());
 	labelDataSynchInfo.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
-	//create
-	buttonCancelDownloads.registerGraphicComponent(containerName,"buttonCancelDownloads");
-	buttonCancelDownloads.init(10, 150, 125);
-	buttonCancelDownloads.setText(lang.get("CancelDownloads"));
-
 	// fog - o - war
 	// @350 ? 300 ?
 	int xoffset=70;
@@ -253,8 +248,16 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	//listBoxPathFinderType.setSelectedItemIndex(0);
 	//listBoxPathFinderType.setEditable(false);
 
+	//create
+	buttonCancelDownloads.registerGraphicComponent(containerName,"buttonCancelDownloads");
+	//buttonCancelDownloads.init(10, 150, 125);
+	//buttonCancelDownloads.init(xoffset+650, 150, 150);
+	buttonCancelDownloads.init(xoffset+620, 180, 150);
+	buttonCancelDownloads.setText(lang.get("CancelDownloads"));
+
 	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
-	listBoxPlayerStatus.init(xoffset+650, 180, 150);
+	//listBoxPlayerStatus.init(xoffset+650, 180, 150);
+	listBoxPlayerStatus.init(xoffset+460, 180, 150);
 	listBoxPlayerStatus.setTextColor(Vec3f(1.0f,0.f,0.f));
 	listBoxPlayerStatus.setLighted(true);
 	playerStatuses.push_back(lang.get("PlayerStatusSetup"));
@@ -295,10 +298,12 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxTechTree.setEditable(false);
 
 	listBoxTechTree.registerGraphicComponent(containerName,"listBoxTechTree");
-	listBoxTechTree.init(xoffset+650, mapPos, 150);
+	//listBoxTechTree.init(xoffset+650, mapPos, 150);
+	listBoxTechTree.init(xoffset+620, mapPos, 150);
 
 	labelTechTree.registerGraphicComponent(containerName,"labelTechTree");
-	labelTechTree.init(xoffset+650, mapHeadPos);
+	//labelTechTree.init(xoffset+650, mapHeadPos);
+	labelTechTree.init(xoffset+620, mapHeadPos);
 	labelTechTree.setText(lang.get("TechTree"));
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -2592,9 +2597,19 @@ void MenuStateConnectedGame::render() {
 		}
 
         MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+        // !!! START TEMP MV
+        //renderer.renderButton(&buttonCancelDownloads);
+        //fileFTPProgressList.clear();
+        //fileFTPProgressList["test1a dsa asd asda sdasd asd ad ad"] = make_pair(1,"testa");
+        //fileFTPProgressList["test2 asdasdasdadas dasdasdasda"] = make_pair(1,"testb");
+        //fileFTPProgressList["test3 asdasdad asd ada dasdadasdada"] = make_pair(1,"testc");
+        // !!! END TEMP MV
+
         if(fileFTPProgressList.empty() == false) {
         	Lang &lang= Lang::getInstance();
         	renderer.renderButton(&buttonCancelDownloads);
+        	int xLocation = buttonCancelDownloads.getX();
             int yLocation = buttonCancelDownloads.getY() - 20;
             for(std::map<string,pair<int,string> >::iterator iterMap = fileFTPProgressList.begin();
                 iterMap != fileFTPProgressList.end(); ++iterMap) {
@@ -2604,21 +2619,25 @@ void MenuStateConnectedGame::render() {
                 if(Renderer::renderText3DEnabled) {
 					renderer.renderProgressBar3D(
 						iterMap->second.first,
-						10,
+						xLocation,
+						//10,
 						yLocation,
 						CoreData::getInstance().getDisplayFontSmall3D(),
-						350,progressLabelPrefix);
+						//350,progressLabelPrefix);
+						300,progressLabelPrefix);
                 }
                 else {
 					renderer.renderProgressBar(
 						iterMap->second.first,
-						10,
+						//10,
+						xLocation,
 						yLocation,
 						CoreData::getInstance().getDisplayFontSmall(),
-						350,progressLabelPrefix);
+						//350,progressLabelPrefix);
+						300,progressLabelPrefix);
                 }
 
-                yLocation -= 10;
+                yLocation -= 20;
             }
         }
         safeMutexFTPProgress.ReleaseLock();
