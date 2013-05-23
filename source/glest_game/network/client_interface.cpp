@@ -243,7 +243,10 @@ ClientInterface::~ClientInterface() {
 			if(lang.hasString("PlayerLeftGame",languageList[i]) == true) {
 				sQuitText = lang.get("PlayerLeftGame",languageList[i]);
 			}
-			sendTextMessage(sQuitText,-1,false,languageList[i]);
+
+			if(clientSocket != NULL && clientSocket->isConnected() == true) {
+				sendTextMessage(sQuitText,-1,false,languageList[i]);
+			}
     	}
     }
 
