@@ -220,6 +220,8 @@ private:
 	time_t broadcastServerSettingsDelayTimer;
 	int lastGameSettingsReceivedCount;
 
+	bool launchingNewGame;
+
 public:
 
 	MenuStateConnectedGame(Program *program, MainMenu *mainMenu, JoinMenu joinMenuInfo=jmSimple, bool openNetworkSlots= false);
@@ -283,6 +285,8 @@ private:
 	string refreshTechModInfo(string techInfo);
 	string refreshMapModInfo(string mapInfo);
 	string getMapCRC(string mapName);
+
+	void disconnectFromServer();
 };
 
 }}//end namespace

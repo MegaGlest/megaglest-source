@@ -57,9 +57,12 @@ struct FormatString {
 MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainMenu,JoinMenu joinMenuInfo, bool openNetworkSlots):
 	MenuState(program, mainMenu, "connected-game")
 {
+	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	containerName = "ClientConnectedGame";
 	switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
 	updateDataSynchDetailText = false;
+	launchingNewGame = false;
 
 	needToBroadcastServerSettings=false;
 	broadcastServerSettingsDelayTimer=0;
@@ -723,7 +726,49 @@ void MenuStateConnectedGame::reloadUI() {
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
 
+void MenuStateConnectedGame::disconnectFromServer() {
+	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//printf("!!!!!! In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,PlatformExceptionHandler::getStackTrace().c_str());
+
+	NetworkManager &networkManager= NetworkManager::getInstance();
+	ClientInterface* clientInterface= networkManager.getClientInterface(false);
+	if(clientInterface != NULL) {
+		CoreData &coreData= CoreData::getInstance();
+		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+
+		soundRenderer.playFx(coreData.getClickSoundA());
+		if(clientInterface->getSocket() != NULL) {
+			if(clientInterface->isConnected() == true) {
+				Lang &lang= Lang::getInstance();
+				const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+				for(unsigned int i = 0; i < languageList.size(); ++i) {
+					string sQuitText = lang.get("QuitGame",languageList[i]);
+					clientInterface->sendTextMessage(sQuitText,-1,false,languageList[i]);
+				}
+				sleep(1);
+
+			}
+			clientInterface->close();
+		}
+		clientInterface->reset();
+	}
+	currentFactionName="";
+	currentMap="";
+
+	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+}
+
 MenuStateConnectedGame::~MenuStateConnectedGame() {
+	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	if(launchingNewGame == false) {
+		disconnectFromServer();
+		NetworkManager &networkManager= NetworkManager::getInstance();
+		networkManager.end();
+	}
+
+	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	if(modHttpServerThread != NULL) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -776,6 +821,8 @@ MenuStateConnectedGame::~MenuStateConnectedGame() {
 		delete factionVideo;
 		factionVideo = NULL;
 	}
+
+	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 string MenuStateConnectedGame::refreshTilesetModInfo(string tilesetInfo) {
@@ -1430,6 +1477,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	else if(buttonDisconnect.mouseClick(x,y)){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+/*
 		soundRenderer.playFx(coreData.getClickSoundA());
 		if(clientInterface->getSocket() != NULL) {
 		    if(clientInterface->isConnected() == true) {
@@ -1449,6 +1497,10 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 		networkManager.end();
 		currentFactionName="";
 		currentMap="";
+		returnToJoinMenu();
+*/
+		disconnectFromServer();
+		networkManager.end();
 		returnToJoinMenu();
 		return;
     }
@@ -2315,10 +2367,16 @@ void MenuStateConnectedGame::returnToJoinMenu() {
 
 	if(returnMenuInfo == jmSimple) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+        launchingNewGame = true;
+        disconnectFromServer();
 		mainMenu->setState(new MenuStateJoinGame(program, mainMenu));
 	}
 	else {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+        launchingNewGame = true;
+        disconnectFromServer();
 		mainMenu->setState(new MenuStateMasterserver(program, mainMenu));
 	}
 }
@@ -3364,6 +3422,8 @@ void MenuStateConnectedGame::update() {
 
                     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+                    launchingNewGame = true;
+                    //disconnectFromServer();
 					program->setState(new Game(program, clientInterface->getGameSettings(),false));
 					return;
 
