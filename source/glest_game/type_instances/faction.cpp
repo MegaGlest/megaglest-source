@@ -389,8 +389,9 @@ void FactionThread::execute() {
 					else {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 							float updateProgressValue = unit->getUpdateProgress();
+							int speed = unit->getCurrSkill()->getTotalSpeed(unit->getTotalUpgrade());
 							char szBuf[8096]="";
-							snprintf(szBuf,8096,"unit->needToUpdate() returned: %d updateProgressValue: %f",update,updateProgressValue);
+							snprintf(szBuf,8096,"unit->needToUpdate() returned: %d updateProgressValue: %f speed = %d",update,updateProgressValue,speed);
 							unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
 						}
 
