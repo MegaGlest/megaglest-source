@@ -386,6 +386,15 @@ void FactionThread::execute() {
 
 						if(minorDebugPerformance && (chrono.getMillis() - elapsed2) >= 1) printf("Faction [%d - %s] #2-unit threaded updates on frame: %d for [%d] unit # %d, unitCount = %d, took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),currentTriggeredFrameIndex,faction->getUnitPathfindingListCount(),j,unitCount,(long long int)chrono.getMillis() - elapsed2);
 					}
+					else {
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+							float updateProgressValue = unit->getUpdateProgress();
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"unit->needToUpdate() returned: %d updateProgressValue: %f",update,updateProgressValue);
+							unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+						}
+
+					}
 				}
 
 				if(minorDebugPerformance && chrono.getMillis() >= 1) printf("Faction [%d - %s] threaded updates on frame: %d for [%d] units took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),currentTriggeredFrameIndex,faction->getUnitPathfindingListCount(),(long long int)chrono.getMillis());
