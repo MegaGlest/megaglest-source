@@ -1917,9 +1917,11 @@ bool Unit::needToUpdate() {
 			throw megaglest_runtime_error("game->getWorld() == NULL");
 		}
 
-		float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
-		float newProgress = progress;
-		newProgress += (speed * diagonalFactor * heightFactor) / speedDenominator;
+		//float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
+		//float newProgress = progress;
+		//newProgress += (speed * diagonalFactor * heightFactor) / speedDenominator;
+		float newProgress = getUpdatedProgress(progress, game->getWorld()->getUpdateFps(this->getFactionIndex()),
+				speed, diagonalFactor, heightFactor);
 
 		if(newProgress >= 1.f) {
 			return_value = true;
@@ -1928,55 +1930,14 @@ bool Unit::needToUpdate() {
 	return return_value;
 }
 
-void Unit::updateTimedParticles() {
-	//!!!
-	// Start new particle systems based on start time
-	if(queuedUnitParticleSystemTypes.empty() == false) {
-		for(int i = queuedUnitParticleSystemTypes.size() - 1; i >= 0; i--) {
-			UnitParticleSystemType *pst = queuedUnitParticleSystemTypes[i];
-			if(pst != NULL) {
-				if(truncateDecimal<float>(pst->getStartTime()) <= truncateDecimal<float>(animProgress)) {
-					//printf("STARTING queued particle system type [%s] [%f] [%f] [%f] [%f]\n",pst->getType().c_str(),truncateDecimal<float>(pst->getStartTime()),truncateDecimal<float>(pst->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
+float Unit::getUpdatedProgress(float currentProgress, int updateFPS, int speed,
+		float diagonalFactor, float heightFactor) {
 
-					UnitParticleSystem *ups = new UnitParticleSystem(200);
-					pst->setValues(ups);
-					ups->setPos(getCurrVector());
-					if(getFaction()->getTexture()) {
-						ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
-					}
-					unitParticleSystems.push_back(ups);
-					Renderer::getInstance().manageParticleSystem(ups, rsGame);
-
-					queuedUnitParticleSystemTypes.erase(queuedUnitParticleSystemTypes.begin() + i);
-				}
-			}
-			else {
-				queuedUnitParticleSystemTypes.erase(queuedUnitParticleSystemTypes.begin() + i);
-			}
-		}
-	}
-
-	// End existing systems based on end time
-	if(unitParticleSystems.empty() == false) {
-		for(int i = unitParticleSystems.size() - 1; i >= 0; i--) {
-			UnitParticleSystem *ps = unitParticleSystems[i];
-			if(ps != NULL) {
-				if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
-					if(truncateDecimal<float>(ps->getStartTime()) != 0.0 || truncateDecimal<float>(ps->getEndTime()) != 1.0) {
-						//printf("Checking for end particle system #%d [%d] [%f] [%f] [%f] [%f]\n",i,ps->shape,truncateDecimal<float>(ps->getStartTime()),truncateDecimal<float>(ps->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
-
-						if(truncateDecimal<float>(animProgress) >= 0.99 ||
-								truncateDecimal<float>(animProgress) >= truncateDecimal<float>(ps->getEndTime())) {
-							//printf("ENDING particle system [%d]\n",ps->shape);
-
-							ps->fade();
-							unitParticleSystems.erase(unitParticleSystems.begin() + i);
-						}
-					}
-				}
-			}
-		}
-	}
+	float speedDenominator = (speedDivider * updateFPS);
+	float newProgress = currentProgress;
+	newProgress += ((speed * diagonalFactor * heightFactor) / speedDenominator);
+	truncateDecimal<float>(newProgress);
+	return newProgress;
 }
 
 bool Unit::update() {
@@ -2020,8 +1981,10 @@ bool Unit::update() {
 	lastAnimProgress= animProgress;
 	const Game *game = Renderer::getInstance().getGame();
 
-	float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
-	progress += (speed * diagonalFactor * heightFactor) / speedDenominator;
+	//float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
+	//progress += (speed * diagonalFactor * heightFactor) / speedDenominator;
+	progress = getUpdatedProgress(progress, game->getWorld()->getUpdateFps(this->getFactionIndex()),
+			speed, diagonalFactor, heightFactor);
 
 	if(isAnimProgressBound() == true) {
 		float targetProgress=0;
@@ -2043,6 +2006,7 @@ bool Unit::update() {
 		}
 	}
 	else {
+		float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
 		animProgress += (currSkill->getAnimSpeed() * heightFactor) / speedDenominator;
 	}
 	//update target
@@ -2280,6 +2244,57 @@ bool Unit::update() {
 	}
 
 	return return_value;
+}
+
+void Unit::updateTimedParticles() {
+	//!!!
+	// Start new particle systems based on start time
+	if(queuedUnitParticleSystemTypes.empty() == false) {
+		for(int i = queuedUnitParticleSystemTypes.size() - 1; i >= 0; i--) {
+			UnitParticleSystemType *pst = queuedUnitParticleSystemTypes[i];
+			if(pst != NULL) {
+				if(truncateDecimal<float>(pst->getStartTime()) <= truncateDecimal<float>(animProgress)) {
+					//printf("STARTING queued particle system type [%s] [%f] [%f] [%f] [%f]\n",pst->getType().c_str(),truncateDecimal<float>(pst->getStartTime()),truncateDecimal<float>(pst->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
+
+					UnitParticleSystem *ups = new UnitParticleSystem(200);
+					pst->setValues(ups);
+					ups->setPos(getCurrVector());
+					if(getFaction()->getTexture()) {
+						ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+					}
+					unitParticleSystems.push_back(ups);
+					Renderer::getInstance().manageParticleSystem(ups, rsGame);
+
+					queuedUnitParticleSystemTypes.erase(queuedUnitParticleSystemTypes.begin() + i);
+				}
+			}
+			else {
+				queuedUnitParticleSystemTypes.erase(queuedUnitParticleSystemTypes.begin() + i);
+			}
+		}
+	}
+
+	// End existing systems based on end time
+	if(unitParticleSystems.empty() == false) {
+		for(int i = unitParticleSystems.size() - 1; i >= 0; i--) {
+			UnitParticleSystem *ps = unitParticleSystems[i];
+			if(ps != NULL) {
+				if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
+					if(truncateDecimal<float>(ps->getStartTime()) != 0.0 || truncateDecimal<float>(ps->getEndTime()) != 1.0) {
+						//printf("Checking for end particle system #%d [%d] [%f] [%f] [%f] [%f]\n",i,ps->shape,truncateDecimal<float>(ps->getStartTime()),truncateDecimal<float>(ps->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
+
+						if(truncateDecimal<float>(animProgress) >= 0.99 ||
+								truncateDecimal<float>(animProgress) >= truncateDecimal<float>(ps->getEndTime())) {
+							//printf("ENDING particle system [%d]\n",ps->shape);
+
+							ps->fade();
+							unitParticleSystems.erase(unitParticleSystems.begin() + i);
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 bool Unit::unitHasAttackBoost(const AttackBoost *boost, const Unit *source) const {

@@ -369,6 +369,11 @@ void FactionThread::execute() {
 
 					//update = true;
 					if(update == true) {
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"unit->needToUpdate() returned: %d",update);
+							unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+						}
 
 						int64 elapsed2 = 0;
 						if(minorDebugPerformance) elapsed2 = chrono.getMillis();

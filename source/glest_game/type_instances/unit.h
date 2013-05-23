@@ -769,6 +769,7 @@ private:
 
 	void morphAttackBoosts(Unit *unit);
 
+	float getUpdatedProgress(float currentProgress, int updateFPS, int speed, float diagonalFactor, float heightFactor);
 	void logSynchDataCommon(string file,int line,string source="",bool threadedMode=false);
 };
 
