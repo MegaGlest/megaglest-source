@@ -725,6 +725,10 @@ public:
 	std::string toString() const;
 	bool needToUpdate();
 	float getUpdateProgress();
+	float getDiagonalFactor();
+	float getHeightFactor();
+	float getSpeedDenominator(int updateFPS);
+	bool isChangedActiveCommand() const { return changedActiveCommand; }
 
 	bool isLastStuckFrameWithinCurrentFrameTolerance();
 	inline uint32 getLastStuckFrame() const { return lastStuckFrame; }
@@ -771,6 +775,7 @@ private:
 	void morphAttackBoosts(Unit *unit);
 
 	float getUpdatedProgress(float currentProgress, int updateFPS, int speed, float diagonalFactor, float heightFactor);
+
 	void logSynchDataCommon(string file,int line,string source="",bool threadedMode=false);
 };
 

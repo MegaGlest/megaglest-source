@@ -1859,9 +1859,7 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 	return commandType;
 }
 
-
 float Unit::getUpdateProgress() {
-	//assert(progress <= 1.f);
 	if(progress > 1.f) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: progress > 1.f, progress = [%f]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,progress);
@@ -1884,29 +1882,8 @@ float Unit::getUpdateProgress() {
 		}
 
 		//speed modifier
-		float diagonalFactor= 1.f;
-		float heightFactor= 1.f;
-		if(currSkill->getClass() == scMove) {
-			//if moving in diagonal move slower
-			Vec2i dest= pos - lastPos;
-			if(abs(dest.x) + abs(dest.y) == 2) {
-				diagonalFactor = 0.71f;
-			}
-
-			//if moving to an higher cell move slower else move faster
-			Cell *unitCell = map->getCell(pos);
-			if(unitCell == NULL) {
-				throw megaglest_runtime_error("unitCell == NULL");
-			}
-
-			Cell *targetCell = map->getCell(targetPos);
-			if(targetCell == NULL) {
-				throw megaglest_runtime_error("targetCell == NULL");
-			}
-
-			float heightDiff= unitCell->getHeight() - targetCell->getHeight();
-			heightFactor= clamp(1.f + heightDiff / 5.f, 0.2f, 5.f);
-		}
+		float diagonalFactor = getDiagonalFactor();
+		float heightFactor   = getHeightFactor();
 
 		//update progresses
 		const Game *game = Renderer::getInstance().getGame();
@@ -1917,10 +1894,8 @@ float Unit::getUpdateProgress() {
 			throw megaglest_runtime_error("game->getWorld() == NULL");
 		}
 
-		//float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
-		//float newProgress = progress;
-		//newProgress += (speed * diagonalFactor * heightFactor) / speedDenominator;
-		newProgress = getUpdatedProgress(progress, game->getWorld()->getUpdateFps(this->getFactionIndex()),
+		newProgress = getUpdatedProgress(progress,
+				game->getWorld()->getUpdateFps(this->getFactionIndex()),
 				speed, diagonalFactor, heightFactor);
 
 	}
@@ -1938,18 +1913,55 @@ bool Unit::needToUpdate() {
 	return return_value;
 }
 
+float Unit::getDiagonalFactor() {
+	//speed modifier
+	float diagonalFactor= 1.f;
+	if(currSkill->getClass() == scMove) {
+		//if moving in diagonal move slower
+		Vec2i dest= pos - lastPos;
+		if(abs(dest.x) + abs(dest.y) == 2) {
+			diagonalFactor = 0.71f;
+			diagonalFactor = truncateDecimal<float>(diagonalFactor);
+		}
+	}
+
+	return diagonalFactor;
+}
+
+float Unit::getHeightFactor() {
+	//speed modifier
+	float heightFactor= 1.f;
+	if(currSkill->getClass() == scMove) {
+		//if moving to an higher cell move slower else move faster
+		Cell *unitCell = map->getCell(pos);
+		if(unitCell == NULL) {
+			throw megaglest_runtime_error("unitCell == NULL");
+		}
+
+		Cell *targetCell = map->getCell(targetPos);
+		if(targetCell == NULL) {
+			throw megaglest_runtime_error("targetCell == NULL");
+		}
+
+		float heightDiff= unitCell->getHeight() - targetCell->getHeight();
+		heightFactor= clamp(1.f + heightDiff / 5.f, 0.2f, 5.f);
+		heightFactor = truncateDecimal<float>(heightFactor);
+	}
+
+	return heightFactor;
+}
+
+float Unit::getSpeedDenominator(int updateFPS) {
+	float speedDenominator 	= truncateDecimal<float>(speedDivider * updateFPS);
+	return speedDenominator;
+}
 float Unit::getUpdatedProgress(float currentProgress, int updateFPS, int speed,
 		float diagonalFactor, float heightFactor) {
 
-	truncateDecimal<float>(diagonalFactor);
-	truncateDecimal<float>(heightFactor);
-
-	float speedDenominator = (speedDivider * updateFPS);
-	truncateDecimal<float>(speedDenominator);
-	float newProgress = currentProgress;
-	truncateDecimal<float>(newProgress);
-	newProgress += ((speed * diagonalFactor * heightFactor) / speedDenominator);
-	truncateDecimal<float>(newProgress);
+	float speedDenominator 	= getSpeedDenominator(updateFPS);
+	float newProgress 		= truncateDecimal<float>(currentProgress);
+	newProgress += truncateDecimal<float>
+			((speed * diagonalFactor * heightFactor) / speedDenominator);
 	return newProgress;
 }
 
@@ -1976,19 +1988,8 @@ bool Unit::update() {
 	}
 
 	//speed modifier
-	float diagonalFactor = 1.f;
-	float heightFactor   = 1.f;
-	if(currSkill->getClass() == scMove) {
-		//if moving in diagonal move slower
-		Vec2i dest = pos - lastPos;
-		if(abs(dest.x) + abs(dest.y) == 2) {
-			diagonalFactor = 0.71f;
-		}
-
-		//if moving to an higher cell move slower else move faster
-		float heightDiff = map->getCell(pos)->getHeight() - map->getCell(targetPos)->getHeight();
-		heightFactor     = clamp(1.f + heightDiff / 5.f, 0.2f, 5.f);
-	}
+	float diagonalFactor = getDiagonalFactor();
+	float heightFactor   = getHeightFactor();
 
 	//update progresses
 	lastAnimProgress= animProgress;
@@ -2019,7 +2020,8 @@ bool Unit::update() {
 		}
 	}
 	else {
-		float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
+		//float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
+		float speedDenominator = getSpeedDenominator(game->getWorld()->getUpdateFps(this->getFactionIndex()));
 		animProgress += (currSkill->getAnimSpeed() * heightFactor) / speedDenominator;
 	}
 	//update target
