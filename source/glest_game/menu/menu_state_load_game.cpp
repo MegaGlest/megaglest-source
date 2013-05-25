@@ -121,6 +121,10 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
     listFiles();
     slotsScrollBar.setElementCount(filenames.size());
 
+    mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
+	mainMessageBox.init(lang.get("Ok"),450);
+	mainMessageBox.setEnabled(false);
+
 	GraphicComponent::applyAllCustomProperties(containerName);
 }
 
@@ -183,6 +187,8 @@ void MenuStateLoadGame::reloadUI() {
 	deleteButton.setText(lang.get("Delete"));
 	loadButton.setText(lang.get("LoadGame"));
 
+	mainMessageBox.init(lang.get("Ok"),450);
+
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
 
@@ -191,6 +197,15 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 	CoreData &coreData=  CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
+	if(mainMessageBox.getEnabled()) {
+		int button= 0;
+		if(mainMessageBox.mouseClick(x, y, button)) {
+			mainMessageBox.setEnabled(false);
+
+			Lang &lang= Lang::getInstance();
+			mainMessageBox.init(lang.get("Ok"),450);
+		}
+	}
     if(abortButton.mouseClick(x, y)) {
 		soundRenderer.playFx(coreData.getClickSoundB());
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
@@ -245,7 +260,12 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 			snprintf(szBuf,8096,lang.get("LoadGameLoadingFile","",true).c_str(),filename.c_str());
 			console.addLineOnly(szBuf);
 
-			Game::loadGame(filename,program,false);
+			try {
+				Game::loadGame(filename,program,false);
+			}
+			catch(const megaglest_runtime_error &ex) {
+				showMessageBox(ex.what(), lang.get("Notice"), true);
+			}
 			return;
 		}
 		//mainMenu->setState(new MenuStateRoot(program, mainMenu));
@@ -389,6 +409,9 @@ void MenuStateLoadGame::render(){
 		renderer.renderTextureQuad(550,slotLinesYBase-300+slotsLineHeight,400,300,previewTexture,1.0f);
 	}
 
+	if(mainMessageBox.getEnabled()) {
+		renderer.renderMessageBox(&mainMessageBox);
+	}
 
 	renderer.renderConsole(&console,false,false);
 	if(program != NULL) program->renderProgramMsgBox();
@@ -420,6 +443,21 @@ void MenuStateLoadGame::keyDown(SDL_KeyboardEvent key) {
 		GraphicComponent::saveAllCustomProperties(containerName);
 		//Lang &lang= Lang::getInstance();
 		//console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
+	}
+}
+
+void MenuStateLoadGame::showMessageBox(const string &text, const string &header, bool toggle) {
+	if(toggle == false) {
+		mainMessageBox.setEnabled(false);
+	}
+
+	if(mainMessageBox.getEnabled() == false) {
+		mainMessageBox.setText(text);
+		mainMessageBox.setHeader(header);
+		mainMessageBox.setEnabled(true);
+	}
+	else{
+		mainMessageBox.setEnabled(false);
 	}
 }
 
