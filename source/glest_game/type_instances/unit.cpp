@@ -438,6 +438,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	}
 
 	this->pos=pos;
+	this->preMorph_type = NULL;
 	this->type=type;
     this->faction=faction;
 	this->map= map;
