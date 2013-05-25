@@ -5158,12 +5158,12 @@ void Game::render2d() {
 		if(Renderer::renderText3DEnabled == true) {
 			renderer.renderText3D(
 				scriptManager.getDisplayText(), coreData.getMenuFontNormal3D(),
-				Vec3f(fontColor.x,fontColor.y,fontColor.z), 200, 680, false);
+				Vec3f(fontColor.x,fontColor.y,fontColor.z), 200, 660, false);
 		}
 		else {
 			renderer.renderText(
 				scriptManager.getDisplayText(), coreData.getMenuFontNormal(),
-				Vec3f(fontColor.x,fontColor.y,fontColor.z), 200, 680, false);
+				Vec3f(fontColor.x,fontColor.y,fontColor.z), 200, 660, false);
 		}
 	}
 

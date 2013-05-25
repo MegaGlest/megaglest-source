@@ -2424,7 +2424,7 @@ void Renderer::renderResourceStatus() {
 
 	glPushAttrib(GL_ENABLE_BIT);
 
-	int j= 0;
+	int resourceCountRendered = 0;
 	for(int i= 0; i < world->getTechTree()->getResourceTypeCount(); ++i) {
 		const ResourceType *rt = world->getTechTree()->getResourceType(i);
 		const Resource *r = thisFaction->getResource(rt);
@@ -2475,7 +2475,11 @@ void Renderer::renderResourceStatus() {
 			if(isNegativeConsumableDisplayCycle == false) {
 				glColor3f(1.f, 1.f, 1.f);
 			}
-			renderQuad(j*100+200, metrics.getVirtualH()-30, 16, 16, rt->getImage());
+			const int MAX_RESOURCES_PER_ROW = 6;
+			int resourceRow = (resourceCountRendered > 0 ? resourceCountRendered / MAX_RESOURCES_PER_ROW : 0);
+			int resourceCol = resourceCountRendered % MAX_RESOURCES_PER_ROW;
+			//renderQuad(resourceCountRendered*100+200, metrics.getVirtualH()-30 - (30 * resourceRows), 16, 16, rt->getImage());
+			renderQuad(resourceCol * 100 + 200, metrics.getVirtualH()-30 - (30 * resourceRow), 16, 16, rt->getImage());
 
 			if(rt->getClass() != rcStatic) {
 				str+= "/" + intToStr(thisFaction->getStoreAmount(rt));
@@ -2494,15 +2498,15 @@ void Renderer::renderResourceStatus() {
 				renderTextShadow3D(
 					str, CoreData::getInstance().getDisplayFontSmall3D(),
 					resourceFontColor,
-					j*100+220, metrics.getVirtualH()-30, false);
+					resourceCol * 100 + 220, metrics.getVirtualH()-30 - (30 * resourceRow), false);
 			}
 			else {
 				renderTextShadow(
 					str, CoreData::getInstance().getDisplayFontSmall(),
 					resourceFontColor,
-					j*100+220, metrics.getVirtualH()-30, false);
+					resourceCol * 100 + 220, metrics.getVirtualH()-30 - (30 * resourceRow), false);
 			}
-			++j;
+			++resourceCountRendered;
 		}
 	}
 

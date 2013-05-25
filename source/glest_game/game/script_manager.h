@@ -28,7 +28,6 @@
 #include "leak_dumper.h"
 
 using std::string;
-//using std::queue;
 using std::list;
 using Shared::Graphics::Vec2i;
 using Shared::Lua::LuaScript;
@@ -198,6 +197,9 @@ private:
 	bool inCellTriggerEvent;
 	std::vector<int> unRegisterCellTriggerEventList;
 
+	bool registeredDayNightEvent;
+	int lastDayNightTriggerStatus;
+
 	RandomGen random;
 	const XmlNode *rootNode;
 
@@ -228,8 +230,10 @@ public:
 	void onUnitAttacked(const Unit* unit);
 	void onUnitAttacking(const Unit* unit);
 	void onGameOver(bool won);
+
 	void onCellTriggerEvent(Unit *movingUnit);
 	void onTimerTriggerEvent();
+	void onDayNightTriggerEvent();
 
 	bool getGameWon() const;
 	bool getIsGameOver() const;
@@ -381,6 +385,12 @@ private:
 	void setAttackWarningsEnabled(bool enabled);
 	bool getAttackWarningsEnabled();
 
+	int getIsDayTime();
+	int getIsNightTime();
+	float getTimeOfDay();
+	void registerDayNightEvent();
+	void unregisterDayNightEvent();
+
 	//callbacks, commands
 	static int networkShowMessageForFaction(LuaHandle* luaHandle);
 	static int networkShowMessageForTeam(LuaHandle* luaHandle);
@@ -527,6 +537,12 @@ private:
 	static int removeUnitFromGroupSelection(LuaHandle* luaHandle);
 	static int setAttackWarningsEnabled(LuaHandle* luaHandle);
 	static int getAttackWarningsEnabled(LuaHandle* luaHandle);
+
+	static int getIsDayTime(LuaHandle* luaHandle);
+	static int getIsNightTime(LuaHandle* luaHandle);
+	static int getTimeOfDay(LuaHandle* luaHandle);
+	static int registerDayNightEvent(LuaHandle* luaHandle);
+	static int unregisterDayNightEvent(LuaHandle* luaHandle);
 
 };
 
