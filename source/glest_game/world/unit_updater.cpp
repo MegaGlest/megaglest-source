@@ -1221,10 +1221,10 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 	    						bool isNearResource = false;
 	    						Vec2i clickPos = command->getOriginalPos();
 	    						if(newHarvestPath == true) {
-	    							isNearResource = map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit, false,&clickPos);
+	    							isNearResource = map->isResourceNear(frameIndex,unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit, false,&clickPos);
 	    						}
 	    						else {
-	    							isNearResource = map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit);
+	    							isNearResource = map->isResourceNear(frameIndex,unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit);
 	    						}
 	    						if(isNearResource == true) {
 	    							if((unit->getPos().dist(command->getPos()) < harvestDistance || unit->getPos().dist(targetPos) < harvestDistance) && isNearResource == true) {
@@ -1350,7 +1350,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 		    				switch(this->game->getGameSettings()->getPathFinderType()) {
 								case pfBasic:
 									{
-										bool isNearResource = map->isResourceNear(unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit,true);
+										bool isNearResource = map->isResourceNear(frameIndex,unit->getPos(), r->getType(), targetPos,unit->getType()->getSize(),unit,true);
 										if(isNearResource == true) {
 											if((unit->getPos().dist(command->getPos()) < harvestDistance || unit->getPos().dist(targetPos) < harvestDistance) && isNearResource == true) {
 												canHarvestDestPos = true;

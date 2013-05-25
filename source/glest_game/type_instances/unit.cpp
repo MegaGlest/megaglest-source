@@ -1351,13 +1351,13 @@ Vec3f Unit::getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) c
         v.z= lastPosValue.y + getProgessAsFloat() * (curPosValue.y - lastPosValue.y);
 		v.y= y1 + getProgessAsFloat() * (y2-y1);
     }
-    else{
+    else {
         v.x= static_cast<float>(curPosValue.x);
         v.z= static_cast<float>(curPosValue.y);
         v.y= y2;
     }
-    v.x+= type->getSize()/2.f-0.5f;
-    v.z+= type->getSize()/2.f-0.5f;
+    v.x += type->getSize() / 2.f - 0.5f;
+    v.z += type->getSize() / 2.f - 0.5f;
 
     return v;
 }
@@ -2975,7 +2975,7 @@ bool Unit::morph(const MorphCommandType *mct){
 
 // ==================== PRIVATE ====================
 
-float Unit::computeHeight(const Vec2i &pos) const{
+float Unit::computeHeight(const Vec2i &pos) const {
 	//printf("CRASHING FOR UNIT: %d alive = %d\n",this->getId(),this->isAlive());
 	//printf("[%s]\n",this->getType()->getName().c_str());
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
@@ -2988,16 +2988,19 @@ float Unit::computeHeight(const Vec2i &pos) const{
 
 	if(currField == fAir) {
 		height += World::airHeight;
+		height = truncateDecimal<float>(height);
 
 		Unit *unit = map->getCell(pos)->getUnit(fLand);
 		if(unit != NULL && unit->getType()->getHeight() > World::airHeight) {
 			height += (std::min((float)unit->getType()->getHeight(),World::airHeight * 3) - World::airHeight);
+			height = truncateDecimal<float>(height);
 		}
 		else {
 			SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(pos));
 			if(sc != NULL && sc->getObject() != NULL && sc->getObject()->getType() != NULL) {
 				if(sc->getObject()->getType()->getHeight() > World::airHeight) {
 					height += (std::min((float)sc->getObject()->getType()->getHeight(),World::airHeight * 3) - World::airHeight);
+					height = truncateDecimal<float>(height);
 				}
 			}
 		}

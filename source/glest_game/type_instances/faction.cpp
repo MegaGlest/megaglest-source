@@ -1315,7 +1315,7 @@ void Faction::addCloseResourceTargetToCache(const Vec2i &pos) {
 	}
 }
 
-Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type) {
+Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type, int frameIndex) {
 	Vec2i result(-1);
 
 	if(cachingDisabled == false) {
@@ -1422,10 +1422,15 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 					snprintf(szBuf,8096,"[cleaning old resource targets] deleteList.size() [" MG_SIZE_T_SPECIFIER "] cacheResourceTargetList.size() [" MG_SIZE_T_SPECIFIER "] result [%s]",
 										deleteList.size(),cacheResourceTargetList.size(),result.getString().c_str());
 
-					unit->logSynchData(__FILE__,__LINE__,szBuf);
+					if(frameIndex < 0) {
+						unit->logSynchData(__FILE__,__LINE__,szBuf);
+					}
+					else {
+						unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+					}
 				}
 
-				cleanupResourceTypeTargetCache(&deleteList);
+				cleanupResourceTypeTargetCache(&deleteList,frameIndex);
 			}
 		}
 	}
@@ -1534,7 +1539,7 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(const Vec2i &pos, const Res
 	return result;
 }
 
-void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) {
+void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr,int frameIndex) {
 	if(cachingDisabled == false) {
 		if(cacheResourceTargetList.empty() == false) {
 			const int cleanupInterval = (GameConstants::updateFps * 5);
@@ -1569,10 +1574,26 @@ void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr) 
 						snprintf(szBuf,8096,"[cleaning old resource targets] deleteList.size() [" MG_SIZE_T_SPECIFIER "] cacheResourceTargetList.size() [" MG_SIZE_T_SPECIFIER "], needToCleanup [%d]",
 											deleteList.size(),cacheResourceTargetList.size(),needToCleanup);
 						//unit->logSynchData(szBuf);
-						SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",getFrameCount());
-						SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"[%s::%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
-						SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s\n",szBuf);
-						SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",getFrameCount());
+
+						char szBuf1[8096]="";
+						snprintf(szBuf1,8096,"----------------------------------- START [%d] ------------------------------------------------\n",getFrameCount());
+						string logDataText = szBuf1;
+
+						snprintf(szBuf1,8096,"[%s::%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+						logDataText += szBuf1;
+
+						snprintf(szBuf1,8096,"%s\n",szBuf);
+						logDataText += szBuf1;
+
+						snprintf(szBuf1,8096,"------------------------------------ END [%d] -------------------------------------------------\n",getFrameCount());
+						logDataText += szBuf1;
+
+						if(frameIndex < 0) {
+							SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s",logDataText.c_str());
+						}
+						else {
+							addWorldSynchThreadedLogList(logDataText);
+						}
 					}
 
 					for(int i = 0; i < deleteList.size(); ++i) {

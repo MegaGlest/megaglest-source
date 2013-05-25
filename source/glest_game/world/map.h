@@ -70,11 +70,11 @@ public:
 	//get
 	inline Unit *getUnit(int field) const		{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} return units[field];}
 	inline Unit *getUnitWithEmptyCellMap(int field) const		{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} return unitsWithEmptyCellMap[field];}
-	inline float getHeight() const				{return height;}
+	inline float getHeight() const				{return truncateDecimal<float>(height);}
 
 	inline void setUnit(int field, Unit *unit)	{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} units[field]= unit;}
 	inline void setUnitWithEmptyCellMap(int field, Unit *unit)	{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} unitsWithEmptyCellMap[field]= unit;}
-	inline void setHeight(float height)		{this->height= height;}
+	inline void setHeight(float height)		{this->height = truncateDecimal<float>(height);}
 
 	inline bool isFree(Field field) const {
 		Unit *unit = getUnit(field);
@@ -295,12 +295,12 @@ public:
 	inline int getH() const											{return h;}
 	inline int getSurfaceW() const										{return surfaceW;}
 	inline int getSurfaceH() const										{return surfaceH;}
-	inline int getMaxPlayers() const										{return maxPlayers;}
-	inline float getHeightFactor() const								{return heightFactor;}
-	inline float getWaterLevel() const									{return waterLevel;}
-	inline float getCliffLevel() const									{return cliffLevel;}
+	inline int getMaxPlayers() const									{return maxPlayers;}
+	inline float getHeightFactor() const								{return truncateDecimal<float>(heightFactor);}
+	inline float getWaterLevel() const									{return truncateDecimal<float>(waterLevel);}
+	inline float getCliffLevel() const									{return truncateDecimal<float>(cliffLevel);}
 	inline int getCameraHeight() const									{return cameraHeight;}
-	inline float getMaxMapHeight() const								{return maxMapHeight;}
+	inline float getMaxMapHeight() const								{return truncateDecimal<float>(maxMapHeight);}
 	Vec2i getStartLocation(int locationIndex) const;
 	inline bool getSubmerged(const SurfaceCell *sc) const				{return sc->getHeight()<waterLevel;}
 	inline bool getSubmerged(const Cell *c) const						{return c->getHeight()<waterLevel;}
@@ -321,7 +321,7 @@ public:
 	inline bool isInsideSurface(const Vec2i &sPos) const {
 		return isInsideSurface(sPos.x, sPos.y);
 	}
-	bool isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, int size, Unit *unit=NULL,bool fallbackToPeersHarvestingSameResource=false,Vec2i *resourceClickPos=NULL) const;
+	bool isResourceNear(int frameIndex,const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, int size, Unit *unit=NULL,bool fallbackToPeersHarvestingSameResource=false,Vec2i *resourceClickPos=NULL) const;
 
 	//free cells
 	bool isFreeCell(const Vec2i &pos, Field field) const;

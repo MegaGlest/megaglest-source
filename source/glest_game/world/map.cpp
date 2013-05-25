@@ -93,7 +93,7 @@ void Cell::saveGame(XmlNode *rootNode, int index) const {
 		}
 
 	//	float height;
-		cellNode->addAttribute("height",floatToStr(height,16), mapTagReplacements);
+		cellNode->addAttribute("height",floatToStr(getHeight(),16), mapTagReplacements);
 	}
 }
 
@@ -157,6 +157,7 @@ void SurfaceCell::deleteResource() {
 }
 
 void SurfaceCell::setHeight(float height, bool cellChangedFromOriginalMapLoadValue) {
+	height = truncateDecimal<float>(height);
 	vertex.y= height;
 	if(cellChangedFromOriginalMapLoadValue == true) {
 		this->cellChangedFromOriginalMapLoad = true;
@@ -373,8 +374,10 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			heightFactor= header.heightFactor;
 			if(heightFactor>100){
 				heightFactor=heightFactor/100;
+				heightFactor = truncateDecimal<float>(heightFactor);
 			}
 			waterLevel= static_cast<float>((header.waterLevel-0.01f)/heightFactor);
+			waterLevel = truncateDecimal<float>(waterLevel);
 			title= header.title;
 			maxPlayers= header.maxFactions;
 
@@ -393,9 +396,9 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 				//desc = header.version2.short_desc;
 				if(header.version2.cliffLevel > 0  && header.version2.cliffLevel < 5000){
 					cliffLevel=static_cast<float>((header.version2.cliffLevel-0.01f)/(heightFactor));
+					cliffLevel = truncateDecimal<float>(cliffLevel);
 				}
-				if(header.version2.cameraHeight > 0 && header.version2.cameraHeight < 5000)
-				{
+				if(header.version2.cameraHeight > 0 && header.version2.cameraHeight < 5000) {
 					cameraHeight = header.version2.cameraHeight;
 				}
 			}
@@ -532,7 +535,7 @@ public:
 };
 
 //returns if there is a resource next to a unit, in "resourcePos" is stored the relative position of the resource
-bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos,
+bool Map::isResourceNear(int frameIndex,const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos,
 		int size, Unit *unit, bool fallbackToPeersHarvestingSameResource,
 		Vec2i *resourceClickPos) const {
 
@@ -606,7 +609,7 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 
 			// Check the faction cache for a known position where we can harvest
 			// this resource type
-			Vec2i result = unit->getFaction()->getClosestResourceTypeTargetFromCache(unit, rt);
+			Vec2i result = unit->getFaction()->getClosestResourceTypeTargetFromCache(unit, rt,frameIndex);
 			if(result.x >= 0) {
 				resourcePos = result;
 
@@ -614,7 +617,13 @@ bool Map::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i &resour
 					char szBuf[8096]="";
 					snprintf(szBuf,8096,"[found peer harvest pos] pos [%s] resourcePos [%s] unit->getFaction()->getCacheResourceTargetListSize() [%d]",
 										pos.getString().c_str(),resourcePos.getString().c_str(),unit->getFaction()->getCacheResourceTargetListSize());
-					unit->logSynchData(__FILE__,__LINE__,szBuf);
+
+					if(frameIndex < 0) {
+						unit->logSynchData(__FILE__,__LINE__,szBuf);
+					}
+					else {
+						unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+					}
 				}
 
 				if(unit->getPos().dist(resourcePos) <= size) {
