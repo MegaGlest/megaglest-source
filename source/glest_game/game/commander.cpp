@@ -1033,7 +1033,7 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-    ct= unit->getType()->findCommandTypeById(networkCommand->getCommandTypeId());
+    ct = unit->getType()->findCommandTypeById(networkCommand->getCommandTypeId());
 
 	if(unit->getFaction()->getIndex() != networkCommand->getUnitFactionIndex()) {
 
@@ -1076,6 +1076,14 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 
     // !!!Test out of synch behaviour
     //ct = NULL;
+
+    // Check if the command was for the unit before it morphed, if so cancel it
+    if(ct == NULL && unit->getPreMorphType() != NULL) {
+    	const CommandType *ctPreMorph = unit->getPreMorphType()->findCommandTypeById(networkCommand->getCommandTypeId());
+    	if(ctPreMorph != NULL) {
+    		ct = unit->getType()->getFirstCtOfClass(ccStop);
+    	}
+    }
 
 	if(ct == NULL) {
 	    char szBuf[8096]="";

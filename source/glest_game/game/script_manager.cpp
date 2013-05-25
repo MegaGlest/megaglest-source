@@ -3019,6 +3019,9 @@ void ScriptManager::saveGame(XmlNode *rootNode) {
 		unRegisterCellTriggerEventListNode->addAttribute("eventId",intToStr(unRegisterCellTriggerEventList[i]), mapTagReplacements);
 	}
 
+	scriptManagerNode->addAttribute("registeredDayNightEvent",intToStr(registeredDayNightEvent), mapTagReplacements);
+	scriptManagerNode->addAttribute("lastDayNightTriggerStatus",intToStr(lastDayNightTriggerStatus), mapTagReplacements);
+
 	luaScript.saveGame(scriptManagerNode);
 }
 
@@ -3127,6 +3130,13 @@ void ScriptManager::loadGame(const XmlNode *rootNode) {
 	for(unsigned int i = 0; i < unRegisterCellTriggerEventListNodeList.size(); ++i) {
 		XmlNode *node = unRegisterCellTriggerEventListNodeList[i];
 		unRegisterCellTriggerEventList.push_back(node->getAttribute("eventId")->getIntValue());
+	}
+
+	if(scriptManagerNode->hasAttribute("registeredDayNightEvent") == true) {
+		registeredDayNightEvent = scriptManagerNode->getAttribute("registeredDayNightEvent")->getIntValue() != 0;
+	}
+	if(scriptManagerNode->hasAttribute("lastDayNightTriggerStatus") == true) {
+		lastDayNightTriggerStatus = scriptManagerNode->getAttribute("lastDayNightTriggerStatus")->getIntValue();
 	}
 
 	luaScript.loadGame(scriptManagerNode);
