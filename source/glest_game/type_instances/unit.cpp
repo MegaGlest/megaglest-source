@@ -1327,14 +1327,14 @@ Vec3f Unit::getCurrVector() const{
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	return getCurrVectorFlat() + Vec3f(0.f, type->getHeight()/2.f, 0.f);
+	return getCurrVectorFlat() + Vec3f(0.f, truncateDecimal<float>(type->getHeight()/2.f), 0.f);
 }
 
 Vec3f Unit::getCurrVectorFlat() const{
 	return getVectorFlat(lastPos, pos);
 }
 
-float Unit::getProgessAsFloat() const {
+float Unit::getProgressAsFloat() const {
 	float result = (static_cast<float>(progress) / 100.f);
 	result = truncateDecimal<float>(result);
 	return result;
@@ -1347,17 +1347,17 @@ Vec3f Unit::getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) c
 	float y2= computeHeight(curPosValue);
 
     if(currSkill->getClass() == scMove) {
-        v.x= lastPosValue.x + getProgessAsFloat() * (curPosValue.x - lastPosValue.x);
-        v.z= lastPosValue.y + getProgessAsFloat() * (curPosValue.y - lastPosValue.y);
-		v.y= y1 + getProgessAsFloat() * (y2-y1);
+        v.x= truncateDecimal<float>(lastPosValue.x + getProgressAsFloat() * (curPosValue.x - lastPosValue.x));
+        v.z= truncateDecimal<float>(lastPosValue.y + getProgressAsFloat() * (curPosValue.y - lastPosValue.y));
+		v.y= truncateDecimal<float>(y1 + getProgressAsFloat() * (y2-y1));
     }
     else {
         v.x= static_cast<float>(curPosValue.x);
         v.z= static_cast<float>(curPosValue.y);
         v.y= y2;
     }
-    v.x += type->getSize() / 2.f - 0.5f;
-    v.z += type->getSize() / 2.f - 0.5f;
+    v.x += truncateDecimal<float>(type->getSize() / 2.f - 0.5f);
+    v.z += truncateDecimal<float>(type->getSize() / 2.f - 0.5f);
 
     return v;
 }
@@ -1900,24 +1900,19 @@ bool Unit::needToUpdate() {
 
 int Unit::getDiagonalFactor() {
 	//speed modifier
-	//float diagonalFactor= 1.f;
 	int diagonalFactor= 100;
 	if(currSkill->getClass() == scMove) {
 		//if moving in diagonal move slower
 		Vec2i dest= pos - lastPos;
 		if(abs(dest.x) + abs(dest.y) == 2) {
 			diagonalFactor = 71;
-			//diagonalFactor = truncateDecimal<float>(diagonalFactor);
 		}
 	}
-
 	return diagonalFactor;
 }
 
 int Unit::getHeightFactor() {
-	//speed modifier
-	//float heightFactor= 1.f;
-	float heightFactor= 100;
+	int heightFactor = 100;
 	if(currSkill->getClass() == scMove) {
 		//if moving to an higher cell move slower else move faster
 		Cell *unitCell = map->getCell(pos);
@@ -1930,9 +1925,6 @@ int Unit::getHeightFactor() {
 			throw megaglest_runtime_error("targetCell == NULL");
 		}
 
-//		float heightDiff= unitCell->getHeight() - targetCell->getHeight();
-//		heightFactor= clamp(1.f + heightDiff / 5.f, 0.2f, 5.f);
-//		heightFactor = truncateDecimal<float>(heightFactor);
 		int heightDiff= ((unitCell->getHeight() * 100.f) - (targetCell->getHeight() * 100.f));
 		heightFactor= clamp(100 + heightDiff / 500, 20, 500);
 	}
@@ -1941,19 +1933,21 @@ int Unit::getHeightFactor() {
 }
 
 int Unit::getSpeedDenominator(int updateFPS) {
-	//float speedDenominator 	= truncateDecimal<float>(speedDivider * updateFPS);
 	int speedDenominator 	= (speedDivider * updateFPS) * 100;
 	return speedDenominator;
 }
 int Unit::getUpdatedProgress(int currentProgress, int updateFPS, int speed,
 		int diagonalFactor, int heightFactor) {
 
-	//float speedDenominator 	= getSpeedDenominator(updateFPS);
 	int speedDenominator 	= getSpeedDenominator(updateFPS);
-	//float newProgress 		= truncateDecimal<float>(currentProgress);
 	int newProgress = currentProgress;
-	//newProgress += truncateDecimal<float> ((speed * diagonalFactor * heightFactor) / speedDenominator);
-	newProgress += ((speed * diagonalFactor * heightFactor) / speedDenominator);
+	int progressIncrease = ((speed * diagonalFactor * heightFactor) / speedDenominator);
+	// Ensure we increment at least a value of 1 of the action will be stuck infinitely
+	if(speed > 0 && diagonalFactor > 0 && heightFactor > 0 && progressIncrease == 0) {
+		progressIncrease = 1;
+	}
+	newProgress += progressIncrease;
+
 	return newProgress;
 }
 
@@ -1987,9 +1981,8 @@ bool Unit::update() {
 	lastAnimProgress= animProgress;
 	const Game *game = Renderer::getInstance().getGame();
 
-	//float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
-	//progress += (speed * diagonalFactor * heightFactor) / speedDenominator;
-	progress = getUpdatedProgress(progress, game->getWorld()->getUpdateFps(this->getFactionIndex()),
+	progress = getUpdatedProgress(progress,
+			game->getWorld()->getUpdateFps(this->getFactionIndex()),
 			speed, diagonalFactor, heightFactor);
 
 	//printf("Test progress = %d for unit [%d - %s]\n",progress,id,getType()->getName().c_str());
@@ -2008,17 +2001,17 @@ bool Unit::update() {
 		if(currSkill->getClass() == scMorph) {
 			targetProgress = this->getProgressRatio();
 		}
-		if(animProgress<targetProgress){
+		if(animProgress < targetProgress) {
 			float diff = targetProgress - animProgress;
-			animProgress=animProgress + diff / (GameConstants::updateFps);
+			animProgress = animProgress + diff / (GameConstants::updateFps);
 		}
 	}
 	else {
-		//float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
-		int speedDenominator = getSpeedDenominator(game->getWorld()->getUpdateFps(this->getFactionIndex()));
+		float speedDenominator = static_cast<float>(speedDivider) *
+				game->getWorld()->getUpdateFps(this->getFactionIndex());
 		animProgress += (currSkill->getAnimSpeed() *
 				(truncateDecimal<float>(static_cast<float>(heightFactor) / 100.f))) /
-						(truncateDecimal<float>(static_cast<float>(speedDenominator) / 100.f));
+						(truncateDecimal<float>(speedDenominator));
 	}
 	//update target
 	updateTarget();
@@ -2026,15 +2019,15 @@ bool Unit::update() {
 	//rotation
 	if(currSkill->getClass() != scStop) {
 		const int rotFactor= 2;
-		if(getProgessAsFloat() < 1.f / rotFactor) {
+		if(getProgressAsFloat() < 1.f / rotFactor) {
 			if(type->getFirstStOfClass(scMove)){
 				if(abs((int)(lastRotation-targetRotation)) < 180)
 					rotation= lastRotation + (targetRotation - lastRotation) *
-							getProgessAsFloat() * rotFactor;
+							getProgressAsFloat() * rotFactor;
 				else {
 					float rotationTerm = targetRotation > lastRotation ? -360.f: +360.f;
 					rotation           = lastRotation + (targetRotation - lastRotation + rotationTerm) *
-							getProgessAsFloat() * rotFactor;
+							getProgressAsFloat() * rotFactor;
 				}
 			}
 		}
