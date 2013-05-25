@@ -331,7 +331,7 @@ private:
 #endif
 
 public:
-	static const float speedDivider;
+	static const int speedDivider;
 	static const int maxDeadCount;
 	static const int invalidId;
 
@@ -346,7 +346,8 @@ private:
     int ep;
     int loadCount;
     int deadCount;
-    float progress;			//between 0 and 1
+    //float progress;			//between 0 and 1
+    int progress;			//between 0 and 1
 	float lastAnimProgress;	//between 0 and 1
 	float animProgress;		//between 0 and 1
 	float highlight;
@@ -724,10 +725,11 @@ public:
 
 	std::string toString() const;
 	bool needToUpdate();
-	float getUpdateProgress();
-	float getDiagonalFactor();
-	float getHeightFactor();
-	float getSpeedDenominator(int updateFPS);
+	float getProgessAsFloat() const;
+	int getUpdateProgress();
+	int getDiagonalFactor();
+	int getHeightFactor();
+	int getSpeedDenominator(int updateFPS);
 	bool isChangedActiveCommand() const { return changedActiveCommand; }
 
 	bool isLastStuckFrameWithinCurrentFrameTolerance();
@@ -774,7 +776,7 @@ private:
 
 	void morphAttackBoosts(Unit *unit);
 
-	float getUpdatedProgress(float currentProgress, int updateFPS, int speed, float diagonalFactor, float heightFactor);
+	int getUpdatedProgress(int currentProgress, int updateFPS, int speed, int diagonalFactor, int heightFactor);
 
 	void logSynchDataCommon(string file,int line,string source="",bool threadedMode=false);
 };

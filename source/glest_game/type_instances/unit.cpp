@@ -35,7 +35,7 @@ using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
-const float CHANGE_COMMAND_SPEED = 325.0;
+const int CHANGE_COMMAND_SPEED = 325;
 
 //Mutex Unit::mutexDeletedUnits;
 //map<void *,bool> Unit::deletedUnits;
@@ -388,7 +388,7 @@ void UnitAttackBoostEffectOriginator::saveGame(XmlNode *rootNode) {
 // 	class Unit
 // =====================================================
 
-const float Unit::speedDivider= 100.f;
+const int Unit::speedDivider= 100;
 const int Unit::maxDeadCount= 1000;	//time in until the corpse disapears - should be about 40 seconds
 const int Unit::invalidId= -1;
 
@@ -1332,27 +1332,12 @@ Vec3f Unit::getCurrVector() const{
 
 Vec3f Unit::getCurrVectorFlat() const{
 	return getVectorFlat(lastPos, pos);
-/*
-	Vec3f v;
+}
 
-	float y1= computeHeight(lastPos);
-	float y2= computeHeight(pos);
-
-    if(currSkill->getClass() == scMove) {
-        v.x= lastPos.x + progress * (pos.x-lastPos.x);
-        v.z= lastPos.y + progress * (pos.y-lastPos.y);
-		v.y= y1+progress*(y2-y1);
-    }
-    else{
-        v.x= static_cast<float>(pos.x);
-        v.z= static_cast<float>(pos.y);
-        v.y= y2;
-    }
-    v.x+= type->getSize()/2.f-0.5f;
-    v.z+= type->getSize()/2.f-0.5f;
-
-    return v;
-*/
+float Unit::getProgessAsFloat() const {
+	float result = (static_cast<float>(progress) / 100.f);
+	result = truncateDecimal<float>(result);
+	return result;
 }
 
 Vec3f Unit::getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) const {
@@ -1362,9 +1347,9 @@ Vec3f Unit::getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) c
 	float y2= computeHeight(curPosValue);
 
     if(currSkill->getClass() == scMove) {
-        v.x= lastPosValue.x + progress * (curPosValue.x-lastPosValue.x);
-        v.z= lastPosValue.y + progress * (curPosValue.y-lastPosValue.y);
-		v.y= y1+progress*(y2-y1);
+        v.x= lastPosValue.x + getProgessAsFloat() * (curPosValue.x - lastPosValue.x);
+        v.z= lastPosValue.y + getProgessAsFloat() * (curPosValue.y - lastPosValue.y);
+		v.y= y1 + getProgessAsFloat() * (y2-y1);
     }
     else{
         v.x= static_cast<float>(curPosValue.x);
@@ -1859,10 +1844,10 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 	return commandType;
 }
 
-float Unit::getUpdateProgress() {
-	if(progress > 1.f) {
+int Unit::getUpdateProgress() {
+	if(progress > 100) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: progress > 1.f, progress = [%f]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,progress);
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: progress > 100, progress = [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,progress);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1872,7 +1857,7 @@ float Unit::getUpdateProgress() {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	float newProgress = progress;
+	int newProgress = progress;
 	if(currSkill->getClass() != scDie) {
 		//speed
 		int speed = currSkill->getTotalSpeed(&totalUpgrade);
@@ -1882,8 +1867,8 @@ float Unit::getUpdateProgress() {
 		}
 
 		//speed modifier
-		float diagonalFactor = getDiagonalFactor();
-		float heightFactor   = getHeightFactor();
+		int diagonalFactor = getDiagonalFactor();
+		int heightFactor   = getHeightFactor();
 
 		//update progresses
 		const Game *game = Renderer::getInstance().getGame();
@@ -1905,32 +1890,34 @@ float Unit::getUpdateProgress() {
 bool Unit::needToUpdate() {
 	bool return_value = false;
 	if(currSkill->getClass() != scDie) {
-		float newProgress = getUpdateProgress();
-		if(newProgress >= 1.f) {
+		int newProgress = getUpdateProgress();
+		if(newProgress >= 100) {
 			return_value = true;
 		}
 	}
 	return return_value;
 }
 
-float Unit::getDiagonalFactor() {
+int Unit::getDiagonalFactor() {
 	//speed modifier
-	float diagonalFactor= 1.f;
+	//float diagonalFactor= 1.f;
+	int diagonalFactor= 100;
 	if(currSkill->getClass() == scMove) {
 		//if moving in diagonal move slower
 		Vec2i dest= pos - lastPos;
 		if(abs(dest.x) + abs(dest.y) == 2) {
-			diagonalFactor = 0.71f;
-			diagonalFactor = truncateDecimal<float>(diagonalFactor);
+			diagonalFactor = 71;
+			//diagonalFactor = truncateDecimal<float>(diagonalFactor);
 		}
 	}
 
 	return diagonalFactor;
 }
 
-float Unit::getHeightFactor() {
+int Unit::getHeightFactor() {
 	//speed modifier
-	float heightFactor= 1.f;
+	//float heightFactor= 1.f;
+	float heightFactor= 100;
 	if(currSkill->getClass() == scMove) {
 		//if moving to an higher cell move slower else move faster
 		Cell *unitCell = map->getCell(pos);
@@ -1943,30 +1930,35 @@ float Unit::getHeightFactor() {
 			throw megaglest_runtime_error("targetCell == NULL");
 		}
 
-		float heightDiff= unitCell->getHeight() - targetCell->getHeight();
-		heightFactor= clamp(1.f + heightDiff / 5.f, 0.2f, 5.f);
-		heightFactor = truncateDecimal<float>(heightFactor);
+//		float heightDiff= unitCell->getHeight() - targetCell->getHeight();
+//		heightFactor= clamp(1.f + heightDiff / 5.f, 0.2f, 5.f);
+//		heightFactor = truncateDecimal<float>(heightFactor);
+		int heightDiff= ((unitCell->getHeight() * 100.f) - (targetCell->getHeight() * 100.f));
+		heightFactor= clamp(100 + heightDiff / 500, 20, 500);
 	}
 
 	return heightFactor;
 }
 
-float Unit::getSpeedDenominator(int updateFPS) {
-	float speedDenominator 	= truncateDecimal<float>(speedDivider * updateFPS);
+int Unit::getSpeedDenominator(int updateFPS) {
+	//float speedDenominator 	= truncateDecimal<float>(speedDivider * updateFPS);
+	int speedDenominator 	= (speedDivider * updateFPS) * 100;
 	return speedDenominator;
 }
-float Unit::getUpdatedProgress(float currentProgress, int updateFPS, int speed,
-		float diagonalFactor, float heightFactor) {
+int Unit::getUpdatedProgress(int currentProgress, int updateFPS, int speed,
+		int diagonalFactor, int heightFactor) {
 
-	float speedDenominator 	= getSpeedDenominator(updateFPS);
-	float newProgress 		= truncateDecimal<float>(currentProgress);
-	newProgress += truncateDecimal<float>
-			((speed * diagonalFactor * heightFactor) / speedDenominator);
+	//float speedDenominator 	= getSpeedDenominator(updateFPS);
+	int speedDenominator 	= getSpeedDenominator(updateFPS);
+	//float newProgress 		= truncateDecimal<float>(currentProgress);
+	int newProgress = currentProgress;
+	//newProgress += truncateDecimal<float> ((speed * diagonalFactor * heightFactor) / speedDenominator);
+	newProgress += ((speed * diagonalFactor * heightFactor) / speedDenominator);
 	return newProgress;
 }
 
 bool Unit::update() {
-	assert(progress <= 1.f);
+	assert(progress <= 100);
 
 	//highlight
 	if(highlight > 0.f) {
@@ -1988,8 +1980,8 @@ bool Unit::update() {
 	}
 
 	//speed modifier
-	float diagonalFactor = getDiagonalFactor();
-	float heightFactor   = getHeightFactor();
+	int diagonalFactor = getDiagonalFactor();
+	int heightFactor   = getHeightFactor();
 
 	//update progresses
 	lastAnimProgress= animProgress;
@@ -1999,6 +1991,8 @@ bool Unit::update() {
 	//progress += (speed * diagonalFactor * heightFactor) / speedDenominator;
 	progress = getUpdatedProgress(progress, game->getWorld()->getUpdateFps(this->getFactionIndex()),
 			speed, diagonalFactor, heightFactor);
+
+	//printf("Test progress = %d for unit [%d - %s]\n",progress,id,getType()->getName().c_str());
 
 	if(isAnimProgressBound() == true) {
 		float targetProgress=0;
@@ -2015,14 +2009,16 @@ bool Unit::update() {
 			targetProgress = this->getProgressRatio();
 		}
 		if(animProgress<targetProgress){
-			float diff=targetProgress-animProgress;
-			animProgress=animProgress+diff/(GameConstants::updateFps);
+			float diff = targetProgress - animProgress;
+			animProgress=animProgress + diff / (GameConstants::updateFps);
 		}
 	}
 	else {
 		//float speedDenominator = (speedDivider * game->getWorld()->getUpdateFps(this->getFactionIndex()));
-		float speedDenominator = getSpeedDenominator(game->getWorld()->getUpdateFps(this->getFactionIndex()));
-		animProgress += (currSkill->getAnimSpeed() * heightFactor) / speedDenominator;
+		int speedDenominator = getSpeedDenominator(game->getWorld()->getUpdateFps(this->getFactionIndex()));
+		animProgress += (currSkill->getAnimSpeed() *
+				(truncateDecimal<float>(static_cast<float>(heightFactor) / 100.f))) /
+						(truncateDecimal<float>(static_cast<float>(speedDenominator) / 100.f));
 	}
 	//update target
 	updateTarget();
@@ -2030,13 +2026,15 @@ bool Unit::update() {
 	//rotation
 	if(currSkill->getClass() != scStop) {
 		const int rotFactor= 2;
-		if(progress < 1.f / rotFactor) {
+		if(getProgessAsFloat() < 1.f / rotFactor) {
 			if(type->getFirstStOfClass(scMove)){
 				if(abs((int)(lastRotation-targetRotation)) < 180)
-					rotation= lastRotation + (targetRotation - lastRotation) * progress * rotFactor;
+					rotation= lastRotation + (targetRotation - lastRotation) *
+							getProgessAsFloat() * rotFactor;
 				else {
 					float rotationTerm = targetRotation > lastRotation ? -360.f: +360.f;
-					rotation           = lastRotation + (targetRotation - lastRotation + rotationTerm) * progress * rotFactor;
+					rotation           = lastRotation + (targetRotation - lastRotation + rotationTerm) *
+							getProgessAsFloat() * rotFactor;
 				}
 			}
 		}
@@ -2108,14 +2106,14 @@ bool Unit::update() {
 
     bool return_value = false;
 	//checks
-	if(progress >= 1.f) {
+	if(progress >= 100) {
 		lastRotation= targetRotation;
 		if(currSkill->getClass() != scDie) {
-			progress     = 0.f;
+			progress     = 0;
 			return_value = true;
 		}
 		else {
-			progress= 1.f;
+			progress= 100;
 			deadCount++;
 			if(deadCount >= maxDeadCount) {
 				toBeUndertaken= true;
@@ -3537,7 +3535,7 @@ void Unit::logSynchDataCommon(string file,int line,string source,bool threadedMo
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 	    char szBuf[8096]="";
 	    snprintf(szBuf,8096,
-	    		"FrameCount [%d] Unit = %d [%s][%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, progress [%f], progress2 [%d]\nUnit Path [%s]\n",
+	    		"FrameCount [%d] Unit = %d [%s][%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, progress [%d], progress2 [%d]\nUnit Path [%s]\n",
 	    		getFrameCount(),
 	    		id,
 				getFullName().c_str(),
@@ -3765,7 +3763,7 @@ std::string Unit::toString() const {
 	result += " ep = " + intToStr(this->ep);
 	result += " loadCount = " + intToStr(this->loadCount);
 	result += " deadCount = " + intToStr(this->deadCount);
-	result += " progress = " + floatToStr(this->progress,16);
+	result += " progress = " + intToStr(this->progress);
 	result += "\n";
 	result += " lastAnimProgress = " + floatToStr(this->lastAnimProgress,16);
 	result += " animProgress = " + floatToStr(this->animProgress,16);
@@ -3863,7 +3861,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 //    int deadCount;
 	unitNode->addAttribute("deadCount",intToStr(deadCount), mapTagReplacements);
 //    float progress;			//between 0 and 1
-	unitNode->addAttribute("progress",floatToStr(progress,16), mapTagReplacements);
+	unitNode->addAttribute("progress",intToStr(progress), mapTagReplacements);
 //	float lastAnimProgress;	//between 0 and 1
 	unitNode->addAttribute("lastAnimProgress",floatToStr(lastAnimProgress,16), mapTagReplacements);
 //	float animProgress;		//between 0 and 1
@@ -4185,7 +4183,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //    int deadCount;
 	result->deadCount = unitNode->getAttribute("deadCount")->getIntValue();
 //    float progress;			//between 0 and 1
-	result->progress = unitNode->getAttribute("progress")->getFloatValue();
+	result->progress = unitNode->getAttribute("progress")->getIntValue();
 //	float lastAnimProgress;	//between 0 and 1
 	result->lastAnimProgress = unitNode->getAttribute("lastAnimProgress")->getFloatValue();
 //	float animProgress;		//between 0 and 1
