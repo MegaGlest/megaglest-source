@@ -212,6 +212,8 @@ ScriptManager::ScriptManager() {
 	rootNode = NULL;
 	currentCellTriggeredEventAreaEntryUnitId = 0;
 	currentCellTriggeredEventAreaExitUnitId = 0;
+	lastDayNightTriggerStatus = 0;
+	registeredDayNightEvent = false;
 }
 
 ScriptManager::~ScriptManager() {
@@ -380,6 +382,12 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(removeUnitFromGroupSelection, "removeUnitFromGroupSelection");
 	luaScript.registerFunction(setAttackWarningsEnabled, "setAttackWarningsEnabled");
 	luaScript.registerFunction(getAttackWarningsEnabled, "getAttackWarningsEnabled");
+
+	luaScript.registerFunction(getIsDayTime, "getIsDayTime");
+	luaScript.registerFunction(getIsNightTime, "getIsNightTime");
+	luaScript.registerFunction(getTimeOfDay, "getTimeOfDay");
+	luaScript.registerFunction(registerDayNightEvent, "registerDayNightEvent");
+	luaScript.registerFunction(unregisterDayNightEvent, "unregisterDayNightEvent");
 
 	//load code
 	for(int i= 0; i<scenario->getScriptCount(); ++i){
@@ -1784,6 +1792,66 @@ bool ScriptManager::getAttackWarningsEnabled() {
 	return world->getAttackWarningsEnabled();
 }
 
+
+void ScriptManager::registerDayNightEvent() {
+	registeredDayNightEvent = true;
+}
+
+void ScriptManager::unregisterDayNightEvent() {
+	registeredDayNightEvent = false;
+}
+
+void ScriptManager::onDayNightTriggerEvent() {
+	if(registeredDayNightEvent == true) {
+		bool isDay = this->getIsDayTime();
+		if((lastDayNightTriggerStatus != 1 && isDay == true) ||
+			(lastDayNightTriggerStatus != 2 && isDay == false)) {
+			if(isDay == true) {
+				lastDayNightTriggerStatus = 1;
+			}
+			else {
+				lastDayNightTriggerStatus = 2;
+			}
+
+			printf("Triggering daynight event isDay: %d [%f]\n",isDay,getTimeOfDay());
+
+			luaScript.beginCall("dayNightTriggerEvent");
+			luaScript.endCall();
+		}
+	}
+}
+
+int ScriptManager::getIsDayTime() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+
+	const TimeFlow *tf= world->getTimeFlow();
+	if(tf == NULL) {
+		throw megaglest_runtime_error("tf == NULL");
+	}
+	return tf->isDay();
+}
+int ScriptManager::getIsNightTime() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+
+	const TimeFlow *tf= world->getTimeFlow();
+	if(tf == NULL) {
+		throw megaglest_runtime_error("tf == NULL");
+	}
+	return tf->isNight();
+}
+float ScriptManager::getTimeOfDay() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	ScriptManager_STREFLOP_Wrapper streflopWrapper;
+
+	const TimeFlow *tf= world->getTimeFlow();
+	if(tf == NULL) {
+		throw megaglest_runtime_error("tf == NULL");
+	}
+	return tf->getTime();
+}
+
 // ========================== lua callbacks ===============================================
 
 int ScriptManager::showMessage(LuaHandle* luaHandle){
@@ -2819,6 +2887,33 @@ int ScriptManager::setAttackWarningsEnabled(LuaHandle* luaHandle) {
 int ScriptManager::getAttackWarningsEnabled(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 	luaArguments.returnInt(thisScriptManager->getAttackWarningsEnabled());
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getIsDayTime(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getIsDayTime());
+	return luaArguments.getReturnCount();
+}
+int ScriptManager::getIsNightTime(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getIsNightTime());
+	return luaArguments.getReturnCount();
+}
+int ScriptManager::getTimeOfDay(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnFloat(thisScriptManager->getTimeOfDay());
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::registerDayNightEvent(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->registerDayNightEvent();
+	return luaArguments.getReturnCount();
+}
+int ScriptManager::unregisterDayNightEvent(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->unregisterDayNightEvent();
 	return luaArguments.getReturnCount();
 }
 

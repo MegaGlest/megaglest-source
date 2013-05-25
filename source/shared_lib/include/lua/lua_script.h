@@ -100,6 +100,7 @@ public:
 	int getReturnCount() const					{return returnCount;}
 
 	void returnInt(int value);
+	void returnFloat(float value);
 	void returnString(const string &value);
 	void returnVec2i(const Vec2i &value);
 	void returnVec4i(const Vec4i &value);

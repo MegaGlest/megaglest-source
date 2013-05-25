@@ -930,6 +930,13 @@ void LuaArguments::returnInt(int value){
 	lua_pushinteger(luaState, value);
 }
 
+void LuaArguments::returnFloat(float value){
+	Lua_STREFLOP_Wrapper streflopWrapper;
+
+	++returnCount;
+	lua_pushnumber(luaState, value);
+}
+
 void LuaArguments::returnString(const string &value){
 	Lua_STREFLOP_Wrapper streflopWrapper;
 

@@ -754,6 +754,7 @@ void World::update() {
 
 	//time
 	timeFlow.update();
+	scriptManager->onDayNightTriggerEvent();
 
 	if(showPerfStats) {
 		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
