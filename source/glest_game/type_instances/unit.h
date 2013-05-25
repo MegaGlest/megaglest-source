@@ -376,6 +376,7 @@ private:
 	float rotationZ;
 	float rotationX;
 
+	const UnitType *preMorph_type;
     const UnitType *type;
     const ResourceType *loadType;
     const SkillType *currSkill;
@@ -527,6 +528,8 @@ public:
 	inline Faction *getFaction() const					{return faction;}
 	inline const ResourceType *getLoadType() const		{return loadType;}
 	inline const UnitType *getType() const				{return type;}
+	inline const UnitType *getPreMorphType() const		{return preMorph_type;}
+
 	inline const SkillType *getCurrSkill() const		{return currSkill;}
 	inline const TotalUpgrade *getTotalUpgrade() const	{return &totalUpgrade;}
 	inline float getRotation() const					{return rotation;}

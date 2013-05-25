@@ -2906,7 +2906,7 @@ void Unit::morphAttackBoosts(Unit *unit) {
 	}
 }
 
-bool Unit::morph(const MorphCommandType *mct){
+bool Unit::morph(const MorphCommandType *mct) {
 
 	if(mct == NULL) {
 		char szBuf[8096]="";
@@ -2922,9 +2922,14 @@ bool Unit::morph(const MorphCommandType *mct){
 		throw megaglest_runtime_error(szBuf);
 	}
 
-    Field morphUnitField=fLand;
-    if(morphUnitType->getField(fAir)) morphUnitField=fAir;
-    if(morphUnitType->getField(fLand)) morphUnitField=fLand;
+    Field morphUnitField = fLand;
+    if(morphUnitType->getField(fAir)) {
+    	morphUnitField = fAir;
+    }
+    else if(morphUnitType->getField(fLand)) {
+    	morphUnitField = fLand;
+    }
+
     map->clearUnitCells(this, pos, false);
     if(map->isFreeCellsOrHasUnit(pos, morphUnitType->getSize(), morphUnitField, this,morphUnitType)) {
 		map->clearUnitCells(this, pos, true);
@@ -2947,6 +2952,7 @@ bool Unit::morph(const MorphCommandType *mct){
 
 		checkModelStateInfoForNewHpValue();
 
+		preMorph_type = type;
 		type= morphUnitType;
 		currField=morphUnitField;
 		computeTotalUpgrade();
@@ -3848,6 +3854,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 	unitNode->addAttribute("id",intToStr(id), mapTagReplacements);
 	// For info purposes only
 	unitNode->addAttribute("name",type->getName(), mapTagReplacements);
+
 //    int hp;
 	unitNode->addAttribute("hp",intToStr(hp), mapTagReplacements);
 //    int ep;
@@ -3908,6 +3915,9 @@ void Unit::saveGame(XmlNode *rootNode) {
 	unitNode->addAttribute("rotationX",floatToStr(rotationX,16), mapTagReplacements);
 //    const UnitType *type;
 	unitNode->addAttribute("type",type->getName(), mapTagReplacements);
+
+	unitNode->addAttribute("preMorph_type",(preMorph_type != NULL ? preMorph_type->getName() : ""), mapTagReplacements);
+
 //    const ResourceType *loadType;
 	if(loadType != NULL) {
 		unitNode->addAttribute("loadType",loadType->getName(), mapTagReplacements);
@@ -4154,6 +4164,12 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 	//Unit *result = new Unit(getNextUnitId(f), newpath, Vec2i(0), ut, f, &map, CardinalDir::NORTH);
 	//Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
 	Unit *result = new Unit(newUnitId, newpath, newUnitPos, ut, faction, world->getMapPtr(), newModelFacing);
+
+	if(unitNode->hasAttribute("preMorph_name") == true) {
+		string newUnitType_preMorph = unitNode->getAttribute("preMorph_name")->getValue();
+		const UnitType *ut_premorph = faction->getType()->getUnitType(newUnitType_preMorph);
+		result->preMorph_type = ut_premorph;
+	}
 
 	result->lastRotation = unitNode->getAttribute("lastRotation")->getFloatValue();
 	result->targetRotation = unitNode->getAttribute("targetRotation")->getFloatValue();
