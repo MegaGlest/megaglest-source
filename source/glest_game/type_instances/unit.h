@@ -725,7 +725,7 @@ public:
 
 	std::string toString() const;
 	bool needToUpdate();
-	float getProgessAsFloat() const;
+	float getProgressAsFloat() const;
 	int getUpdateProgress();
 	int getDiagonalFactor();
 	int getHeightFactor();
