@@ -6183,7 +6183,7 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 		if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
-			throw megaglest_runtime_error(szBuf);
+			throw megaglest_runtime_error(szBuf,true);
 		}
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Found saved game version that matches your application version: [%s] --> [%s]\n",gameVer.c_str(),glestVersionString.c_str());
@@ -6244,7 +6244,7 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 	if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
-		throw megaglest_runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf,true);
 	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Found saved game version that matches your application version: [%s] --> [%s]\n",gameVer.c_str(),glestVersionString.c_str());

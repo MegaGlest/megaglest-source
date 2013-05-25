@@ -4179,7 +4179,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //    int deadCount;
 	result->deadCount = unitNode->getAttribute("deadCount")->getIntValue();
 //    float progress;			//between 0 and 1
-	result->progress = unitNode->getAttribute("progress")->getIntValue();
+	result->progress = unitNode->getAttribute("progress")->getFloatValue();
 //	float lastAnimProgress;	//between 0 and 1
 	result->lastAnimProgress = unitNode->getAttribute("lastAnimProgress")->getFloatValue();
 //	float animProgress;		//between 0 and 1

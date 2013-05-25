@@ -45,6 +45,8 @@ private:
 
 	GraphicLine lines[2];
 
+	GraphicMessageBox mainMessageBox;
+
 	string saveGameDir;
 	int slotLinesYBase;
 	int slotsLineHeight;
@@ -61,10 +63,14 @@ public:
 	virtual void keyDown(SDL_KeyboardEvent key);
 
 	void reloadUI();
+
 private:
+
 	void clearSlots();
 	void deleteSlot(int i);
 	void listFiles();
+
+	void showMessageBox(const string &text, const string &header, bool toggle);
 };
 
 
