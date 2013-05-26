@@ -101,6 +101,8 @@ private:
 	bool gameLaunched;
 	time_t lastListenerSlotCheckTime;
 
+	time_t resumeGameStartTime;
+
 public:
 	ServerInterface(bool publishEnabled);
 	virtual ~ServerInterface();
