@@ -1572,10 +1572,29 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	NetworkRole role = networkManager.getNetworkRole();
 	ClientInterface *clientInterface = NULL;
+	ServerInterface *serverInterface = NULL;
 
 	bool allowAdminMenuItems = false;
+	bool forceJoinInProgressUpdate = false;
 	if(role == nrServer) {
 		allowAdminMenuItems = true;
+
+		if(disconnectPlayerPopupMenuIndex == -1) {
+			serverInterface = dynamic_cast<ServerInterface *>(networkManager.getServerInterface());
+			if(serverInterface != NULL && checkClientAdminOverrideOnly == true) {
+				for(int i = 0; i < world.getFactionCount(); ++i) {
+					Faction *faction = world.getFaction(i);
+					ConnectionSlot *slot =  serverInterface->getSlot(faction->getStartLocationIndex());
+					if(slot != NULL && slot->getConnectHasHandshaked() == true &&
+							slot->getCurrentFrameCount() <= 0) {
+						//printf("Connected slot can be disconnected: %d\n",slot->getPlayerIndex());
+
+						forceJoinInProgressUpdate = true;
+						break;
+					}
+				}
+			}
+		}
 	}
 	else if(role == nrClient) {
 		clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
@@ -1588,6 +1607,7 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 	}
 
 	if(checkClientAdminOverrideOnly == false ||
+			forceJoinInProgressUpdate == true ||
 			(clientInterface != NULL &&
 			 (gameSettings.getMasterserver_admin() != clientInterface->getSessionKey() &&
 					clientInterface->isMasterServerAdminOverride() == true))) {
@@ -1599,7 +1619,7 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 		keyboardSetupPopupMenuIndex = -1;
 		disconnectPlayerPopupMenuIndex = -1;
 
-		if(checkClientAdminOverrideOnly == true) {
+		if(checkClientAdminOverrideOnly == true && clientInterface != NULL) {
 			gameSettings.setMasterserver_admin(clientInterface->getSessionKey());
 			gameSettings.setMasterserver_admin_faction_index(clientInterface->getPlayerIndex());
 		}
@@ -3531,6 +3551,13 @@ void Game::mouseDownLeft(int x, int y) {
 			}
 			else if(result.first == disconnectPlayerPopupMenuIndex) {
 				Lang &lang= Lang::getInstance();
+
+				NetworkManager &networkManager= NetworkManager::getInstance();
+				NetworkRole role = networkManager.getNetworkRole();
+				ServerInterface *serverInterface = NULL;
+				if(role == nrServer) {
+					serverInterface = dynamic_cast<ServerInterface *>(networkManager.getServerInterface());
+				}
 				disconnectPlayerIndexMap.clear();
 				std::vector<string> menuItems;
 				for(unsigned int i = 0; i < world.getFactionCount(); ++i) {
@@ -3538,10 +3565,19 @@ void Game::mouseDownLeft(int x, int y) {
 
 					//printf("faction->getPersonalityType() = %d index [%d,%d] control [%d] networkstatus [%d]\n",faction->getPersonalityType(),world.getThisFaction()->getIndex(),faction->getIndex(),faction->getControlType(),this->gameSettings.getNetworkPlayerStatuses(i));
 
-					if(faction->getPersonalityType() != fpt_Observer &&
+					bool isSlotJoinInProgressClient = false;
+					if(serverInterface != NULL) {
+						ConnectionSlot *slot =  serverInterface->getSlot(faction->getStartLocationIndex());
+						if(slot != NULL && slot->getConnectHasHandshaked() == true &&
+								slot->getCurrentFrameCount() <= 0) {
+							isSlotJoinInProgressClient = true;
+						}
+					}
+					if(isSlotJoinInProgressClient == true ||
+						(faction->getPersonalityType() != fpt_Observer &&
 						world.getThisFaction()->getIndex() != faction->getIndex() &&
 						faction->getControlType() == ctNetwork &&
-						this->gameSettings.getNetworkPlayerStatuses(i) != npst_Disconnected) {
+						this->gameSettings.getNetworkPlayerStatuses(i) != npst_Disconnected)) {
 
 						char szBuf[8096]="";
 						if(lang.hasString("DisconnectNetorkPlayerIndex") == true) {

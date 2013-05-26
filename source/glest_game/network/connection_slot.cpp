@@ -924,6 +924,12 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 									this->serverInterface->addClientToServerIPAddress(this->getSocket()->getConnectedIPAddress(this->getSocket()->getIpAddress()),this->connectedRemoteIPAddress);
 
+									if(serverInterface->getGameHasBeenInitiated() == true &&
+									   serverInterface->getAllowInGameConnections() == true) {
+										int factionIndex = this->serverInterface->gameSettings.getFactionIndexForStartLocation(playerIndex);
+										this->serverInterface->gameSettings.setNetworkPlayerStatuses(factionIndex,npst_None);
+									}
+
 									if(getAllowGameDataSynchCheck() == true && serverInterface->getGameSettings() != NULL) {
 										if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sending NetworkMessageSynchNetworkGameData\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -935,8 +941,6 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									   serverInterface->getAllowInGameConnections() == true) {
 										//printf("Sent intro to client connection on slot!\n");
 
-										//this->skipLagCheck = true;
-										//this->joinGameInProgress = true;
 										setJoinGameInProgressFlags();
 										this->setPauseForInGameConnection(true);
 
@@ -1037,7 +1041,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 											int factionIndex = this->serverInterface->gameSettings.getFactionIndexForStartLocation(playerIndex);
 											this->serverInterface->gameSettings.setFactionControl(factionIndex,ctNetwork);
 											this->serverInterface->gameSettings.setNetworkPlayerName(factionIndex,this->name);
-											this->serverInterface->gameSettings.setNetworkPlayerStatuses(factionIndex,npst_None);
+											//this->serverInterface->gameSettings.setNetworkPlayerStatuses(factionIndex,npst_None);
 
 											this->serverInterface->broadcastGameSetup(&this->serverInterface->gameSettings, true);
 
