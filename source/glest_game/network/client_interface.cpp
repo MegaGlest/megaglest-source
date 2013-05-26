@@ -867,6 +867,20 @@ void ClientInterface::updateLobby() {
 		}
 		break;
 
+		case nmtQuit:
+			{
+				time_t receiveTimeElapsed = time(NULL);
+				NetworkMessageQuit networkMessageQuit;
+				bool gotCmd = receiveMessage(&networkMessageQuit);
+				if(gotCmd == false) {
+					throw megaglest_runtime_error("error retrieving nmtQuit returned false!");
+				}
+
+				quit= true;
+				close();
+		}
+		break;
+
         default:
             {
             string sErr = string(extractFileFromDirectoryPath(__FILE__).c_str()) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType);
