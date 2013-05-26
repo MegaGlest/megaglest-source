@@ -6,6 +6,10 @@
 
 # This script compares two mega-glest data content folders for file differences, 
 # then creates an archive of ONLY the differences (including files ONLY in new version)
+
+# Consider setting this for small packages if there's plenty of RAM and CPU available:
+#export XZ_OPT="$XZ_OPT -9e"
+
 OLD_VERSION=`./mg-version.sh --oldversion`
 VERSION=`./mg-version.sh --version`
 NEW_SUBFOLDER_PATH="megaglest-$VERSION"
@@ -95,7 +99,7 @@ files_list=`cat ../megaglest-data-$VERSION-fileslist.txt`
 echo Current Folder is [`pwd`]
 #echo 7za a "../$RELEASENAME.7z" $files_list
 #7za a -mx=9 -ms=on -mhc=on "../$RELEASENAME.7z" $files_list
-tar -cf - --add-file $files_list | xz -9e > ../$RELEASENAME.tar.xz
+tar -cf - --add-file $files_list | xz > ../$RELEASENAME.tar.xz
 
 cd ..
 

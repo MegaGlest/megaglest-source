@@ -14,6 +14,9 @@
 
 # below is the branch to build and installer from.
 
+# Consider setting this for small packages if there's plenty of RAM and CPU available:
+#export XZ_OPT="$XZ_OPT -9e"
+
 megaglest_release_folder=""
 #megaglest_release_folder="trunk"
 #megaglest_release_folder="release-3.3.5.1"
@@ -75,7 +78,7 @@ fi
 #    { "txz", MojoArchive_createTAR, true },
 # };
 #
-#megaglest_archiver_app_data='tar -cf - * | xz -9e > mgdata.tar.xz'
+#megaglest_archiver_app_data='tar -cf - * | xz > mgdata.tar.xz'
 megaglest_archivefilename_data="mgdata.tar.xz"
 
 #megaglest_archiver_app="zip -9r "
@@ -327,7 +330,7 @@ cd ../megaglest-installer
 # Compress the main data archive
 cd data
 #${megaglest_archiver_app_data} ${megaglest_archivefilename_data}
-tar -cf - * | xz -9e > $megaglest_archivefilename_data
+tar -cf - * | xz > $megaglest_archivefilename_data
 # now remove everything except for the docs folder and the data archive
 shopt -s extglob
 rm -rf !(docs|$megaglest_archivefilename_data)

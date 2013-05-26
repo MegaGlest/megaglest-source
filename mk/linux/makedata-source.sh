@@ -4,6 +4,9 @@
 # Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
 # Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+
 
+# Consider setting this for small packages if there's plenty of RAM and CPU available:
+#export XZ_OPT="$XZ_OPT -9e"
+
 VERSION=`./mg-version.sh --version`
 RELEASENAME=megaglest-data-source
 #PACKAGE="$RELEASENAME-$VERSION.7z"
@@ -33,7 +36,7 @@ svn export --force "$CURRENTDIR/../../../trunk-data-source" "$RELEASEDIR/data-so
 echo "creating $PACKAGE"
 [[ -f "$release/$PACKAGE" ]] && rm "release/$PACKAGE"
 #tar cJf "release/$PACKAGE" -C "$CURRENTDIR/release/" "$RELEASENAME-$VERSION"
-tar -cf - -C "$CURRENTDIR/release/$RELEASENAME-$VERSION/" "megaglest-$VERSION" | xz -9e > release/$PACKAGE
+tar -cf - -C "$CURRENTDIR/release/$RELEASENAME-$VERSION/" "megaglest-$VERSION" | xz > release/$PACKAGE
 # 7z a -mmt -mx=9 -ms=on -mhc=on "release/$PACKAGE" "$CURRENTDIR/release/$RELEASENAME-$VERSION"
 
 ls -la release/$PACKAGE
