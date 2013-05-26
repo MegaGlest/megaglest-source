@@ -198,6 +198,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
 	if(mainMessageBox.getEnabled()) {
+		soundRenderer.playFx(coreData.getClickSoundA());
 		int button= 0;
 		if(mainMessageBox.mouseClick(x, y, button)) {
 			mainMessageBox.setEnabled(false);
@@ -207,7 +208,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 	}
     if(abortButton.mouseClick(x, y)) {
-		soundRenderer.playFx(coreData.getClickSoundB());
+		soundRenderer.playFx(coreData.getClickSoundA());
 		mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
     else if(deleteButton.mouseClick(x, y)) {
@@ -271,12 +272,14 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 		//mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
 	else if(slotsScrollBar.mouseClick(x, y)){
-		soundRenderer.playFx(coreData.getClickSoundB());
+		soundRenderer.playFx(coreData.getClickSoundA());
 	}
     else {
     	if(slotsScrollBar.getElementCount()!=0){
     		for(int i = slotsScrollBar.getVisibleStart(); i <= slotsScrollBar.getVisibleEnd(); ++i) {
 				if(slots[i]->mouseClick(x, y) && selectedButton != slots[i]) {
+					soundRenderer.playFx(coreData.getClickSoundB());
+
 					needsToBeFreedTexture = previewTexture;
 					selectedButton = slots[i];
 					string filename	= saveGameDir + selectedButton->getText()+".xml";

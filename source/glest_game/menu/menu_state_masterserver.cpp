@@ -508,23 +508,21 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 
 	if(mainMessageBox.getEnabled()){
 		int button= 0;
-		if(mainMessageBox.mouseClick(x, y, button))
-		{
+		if(mainMessageBox.mouseClick(x, y, button)) {
 			soundRenderer.playFx(coreData.getClickSoundA());
-			if(button==0)
-			{
+			if(button == 0) {
 				mainMessageBox.setEnabled(false);
 			}
 		}
 	}
 	else if(userScrollBar.mouseClick(x, y)){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			soundRenderer.playFx(coreData.getClickSoundB());
+			soundRenderer.playFx(coreData.getClickSoundA());
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	    }
 	else if(serverScrollBar.mouseClick(x, y)){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			soundRenderer.playFx(coreData.getClickSoundB());
+			soundRenderer.playFx(coreData.getClickSoundA());
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	    }
 	else if(buttonRefresh.mouseClick(x, y)){
@@ -539,7 +537,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
     else if(buttonReturn.mouseClick(x, y)){
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-		soundRenderer.playFx(coreData.getClickSoundB());
+		soundRenderer.playFx(coreData.getClickSoundA());
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		if (ircClient != NULL && ircClient->isConnected() == true
@@ -596,6 +594,8 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					safeMutex.ReleaseLock();
 					if(connected){
+						soundRenderer.playFx(coreData.getClickSoundB());
+
 						if (ircClient != NULL && ircClient->isConnected() == true
 									&& ircClient->getHasJoinedChannel() == true) {
 							ircClient->SendIRCCmdMessage(IRC_CHANNEL, "connecting to '"+serverLines[i]->getMasterServerInfo()->getServerTitle()+"'");

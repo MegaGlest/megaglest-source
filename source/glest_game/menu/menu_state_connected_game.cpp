@@ -1084,16 +1084,6 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread) {
 	    }
 
 		string result=refreshTilesetModInfo(tilesetListRemote[i]);
-//		if(result != "") {
-//			ModInfo modinfo;
-//			modinfo=tilesetCacheList[result];
-//			GraphicButton *button=new GraphicButton();
-//			button->init(tilesetInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
-//			button->setText(modinfo.name);
-//			button->setUseCustomTexture(true);
-//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
-//			keyTilesetButtons.push_back(button);
-//		}
 	}
 
     if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
@@ -1127,22 +1117,6 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread) {
 	    }
 
 		string result=refreshTechModInfo(techListRemote[i]);
-//		if(result != "") {
-//			ModInfo modinfo;
-//			modinfo=techCacheList[result];
-//
-//			GraphicButton *button=new GraphicButton();
-//			button->init(techInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
-//			button->setText(modinfo.name);
-//			button->setUseCustomTexture(true);
-//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
-//
-//			keyTechButtons.push_back(button);
-//			GraphicLabel *label=new GraphicLabel();
-//			label->init(techInfoXPos + keyButtonsWidth+10,keyButtonsYBase,labelWidth,20);
-//			label->setText(modinfo.count);
-//			labelsTech.push_back(label);
-//		}
 	}
 
     if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
@@ -1171,22 +1145,6 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread) {
 	    }
 
 		string result=refreshMapModInfo(mapListRemote[i]);
-//		if(result != "") {
-//			ModInfo modinfo;
-//			modinfo=mapCacheList[result];
-//
-//			GraphicButton *button=new GraphicButton();
-//			button->init(mapInfoXPos, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
-//			button->setText(modinfo.name);
-//			button->setUseCustomTexture(true);
-//			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
-//			keyMapButtons.push_back(button);
-//
-//			GraphicLabel *label=new GraphicLabel();
-//			label->init(mapInfoXPos + keyButtonsWidth + 10,keyButtonsYBase,labelWidth,20);
-//			label->setText(modinfo.count);
-//			labelsMap.push_back(label);
-//		}
 	}
 
     if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
@@ -1354,6 +1312,8 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 		}
 	}
 	else if(buttonCancelDownloads.mouseClick(x,y)) {
+		soundRenderer.playFx(coreData.getClickSoundA());
+
         if(ftpClientThread != NULL && fileFTPProgressList.empty() == false) {
 
 			ftpClientThread->setCallBackObject(NULL);
@@ -1477,28 +1437,6 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	else if(buttonDisconnect.mouseClick(x,y)){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-/*
-		soundRenderer.playFx(coreData.getClickSoundA());
-		if(clientInterface->getSocket() != NULL) {
-		    if(clientInterface->isConnected() == true) {
-		    	Lang &lang= Lang::getInstance();
-		    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
-		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
-		    		string sQuitText = lang.get("QuitGame",languageList[i]);
-		    		clientInterface->sendTextMessage(sQuitText,-1,false,languageList[i]);
-
-		    		//printf("~~~ langList[%s] localLang[%s] msg[%s]\n",languageList[i].c_str(),lang.getLanguage().c_str(), sQuitText.c_str());
-		    	}
-                sleep(1);
-		    }
-		    clientInterface->close();
-		}
-		clientInterface->reset();
-		networkManager.end();
-		currentFactionName="";
-		currentMap="";
-		returnToJoinMenu();
-*/
 		disconnectFromServer();
 		networkManager.end();
 		returnToJoinMenu();
@@ -1585,7 +1523,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 					if(i < mapInfo.players && grabSlotButton[i].mouseClick(x, y)) {
 						//printf("Send slot switch request for slot = %d, myCurrentIndex = %d\n",i,myCurrentIndex);
 
-						soundRenderer.playFx(coreData.getClickSoundA());
+						soundRenderer.playFx(coreData.getClickSoundB());
 						clientInterface->setGameSettingsReceived(false);
 						settingsReceivedFromServer= false;
 
@@ -1776,7 +1714,12 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         }
         else if(buttonRestoreLastSettings.mouseClick(x,y) && buttonRestoreLastSettings.getEnabled()) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-            RestoreLastGameSettings();
+
+        	CoreData &coreData= CoreData::getInstance();
+        	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+        	soundRenderer.playFx(coreData.getClickSoundB());
+
+        	RestoreLastGameSettings();
         }
         else if(listBoxMap.mouseClick(x, y,advanceToItemStartingWith)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
