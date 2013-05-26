@@ -1178,8 +1178,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	Lang &lang= Lang::getInstance();
 
 	string advanceToItemStartingWith = "";
-	if(!mainMessageBox.getEnabled())
-	{
+	if(mainMessageBox.getEnabled() == false) {
     	if(Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
     		wchar_t lastKey = Shared::Platform::Window::extractLastKeyPressed();
     		//printf("lastKey = %d [%c]\n",lastKey,lastKey);
@@ -1443,9 +1442,11 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 		return;
     }
 
-	if (initialSettingsReceivedFromServer == false) return;
+	if (initialSettingsReceivedFromServer == false) {
+		return;
+	}
 
-	if(activeInputLabel!=NULL && !(activeInputLabel->mouseClick(x,y))){
+	if(activeInputLabel != NULL && activeInputLabel->mouseClick(x,y) == false){
 		setActiveInputLabel(NULL);
 	}
 
@@ -1608,8 +1609,21 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 	        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	        	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	            PlayNow(true);
-	            return;
+                uint32 tilesetCRC = lastCheckedCRCTilesetValue;
+                uint32 techCRC = lastCheckedCRCTechtreeValue;
+                uint32 mapCRC = lastCheckedCRCMapValue;
+                const GameSettings *gameSettings = clientInterface->getGameSettings();
+
+                bool dataSynchMismatch = ((mapCRC != 0 && mapCRC != gameSettings->getMapCRC()) ||
+                						  (tilesetCRC != 0 && tilesetCRC != gameSettings->getTilesetCRC()) ||
+                						  (techCRC != 0 && techCRC != gameSettings->getTechCRC()));
+	        	if(dataSynchMismatch == false) {
+	        		PlayNow(true);
+	        		return;
+	        	}
+	        	else {
+	        		showMessageBox("You cannot start the game because\none or more clients do not have the same game data!", "Data Mismatch Error", false);
+	        	}
 	        }
 		}
 	}
@@ -1891,11 +1905,13 @@ void MenuStateConnectedGame::PlayNow(bool saveGame) {
 				clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
 			}
 
+			launchingNewGame = true;
 			clientInterface->broadcastGameStart(&gameSettings);
 		}
 		return;
 	}
 	else {
+		launchingNewGame = true;
 		broadCastGameSettingsToHeadlessServer(needToBroadcastServerSettings);
 		clientInterface->broadcastGameStart(&gameSettings);
 	}

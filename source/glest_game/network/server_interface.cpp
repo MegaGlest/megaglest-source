@@ -71,6 +71,7 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	gameSettingsUpdateCount 		= 0;
 	currentFrameCount 				= 0;
 	gameStartTime 					= 0;
+	resumeGameStartTime				= 0;
 	publishToMasterserverThread 	= NULL;
 	lastMasterserverHeartbeatTime 	= 0;
 	needToRepublishToMasterserver 	= false;
@@ -633,8 +634,11 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 	try {
 		alreadyInLagCheck = true;
 
-		if(gameStartTime > 0 &&
-				difftime((long int)time(NULL),gameStartTime) >= LAG_CHECK_GRACE_PERIOD) {
+		if((gameStartTime > 0 &&
+				difftime((long int)time(NULL),gameStartTime) >= LAG_CHECK_GRACE_PERIOD) &&
+			(resumeGameStartTime == 0 ||
+			  (resumeGameStartTime > 0 &&
+					  difftime((long int)time(NULL),resumeGameStartTime) >= LAG_CHECK_GRACE_PERIOD))) {
 			if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
 				double clientLag = this->getCurrentFrameCount() - connectionSlot->getCurrentFrameCount();
 				double clientLagCount = (gameSettings.getNetworkFramePeriod() > 0 ? (clientLag / gameSettings.getNetworkFramePeriod()) : 0);
@@ -2958,16 +2962,31 @@ bool ServerInterface::getPauseForInGameConnection() {
 }
 
 bool ServerInterface::getUnPauseForInGameConnection() {
+
+	bool allResumeClientsReady = false;
 	bool result = false;
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 		if(slots[i] != NULL) {
 			MutexSafeWrapper safeMutex(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
 			ConnectionSlot *slot = slots[i];
-			if(slot->getUnPauseForInGameConnection() == true) {
-				result = true;
-				break;
+			if(slot->isConnected() == true) {
+				if(slot->isReady() == true) {
+					result = true;
+					if(slot->getUnPauseForInGameConnection() == false) {
+						result = false;
+						break;
+					}
+				}
+				else {
+					result = false;
+					break;
+				}
 			}
 		}
+	}
+	if(allResumeClientsReady == true) {
+		resumeGameStartTime = time(NULL);
+		result = true;
 	}
 	return result;
 }
