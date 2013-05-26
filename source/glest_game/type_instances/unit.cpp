@@ -2927,7 +2927,7 @@ bool Unit::morph(const MorphCommandType *mct) {
     if(morphUnitType->getField(fAir)) {
     	morphUnitField = fAir;
     }
-    else if(morphUnitType->getField(fLand)) {
+    if(morphUnitType->getField(fLand)) {
     	morphUnitField = fLand;
     }
 
