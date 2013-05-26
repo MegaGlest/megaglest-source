@@ -444,17 +444,18 @@ void Tileset::addSurfTex(int leftUp, int rightUp, int leftDown, int rightDown, V
 	if(leftUp == rightUp && leftUp == leftDown && leftUp == rightDown) {
 		//texture variation according to probability
 		float r= random.randRange(0.f, 1.f);
-		int var= 0;
-		float max= 0.f;
-		const Pixmap2D* pixmap;
-		if(surfProbs[leftUp][0]<0)
-		{// big textures use coordinates
-			int parts=partsArray[leftUp];
-			pixmap=getSurfPixmap(leftUp, (mapY%parts)*parts+(mapX%parts));
+		const Pixmap2D *pixmap = NULL;
+
+		if(surfProbs[leftUp][0] < 0) {
+			// big textures use coordinates
+			int parts = partsArray[leftUp];
+			pixmap = getSurfPixmap(leftUp, (mapY % parts) * parts + (mapX % parts));
 		}
-		else{
+		else {
+			float max= 0.f;
+			int var= 0;
 			for(int i=0; i < surfProbs[leftUp].size(); ++i) {
-				max+= surfProbs[leftUp][i];
+				max += surfProbs[leftUp][i];
 				if(r <= max) {
 					var= i;
 					break;

@@ -84,7 +84,7 @@ TextFTGL::TextFTGL(FontTextHandlerType type) : Text(type) {
 
 	GLenum error = glGetError();
 	if(error != GL_NO_ERROR) {
-		printf("\n[%s::%s] Line %d Error = %d [%s] for size = %d res = %d\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),defSize,TextFTGL::faceResolution);
+		printf("\n[%s::%s] Line %d Error = %d [%s] for size = %u res = %d\n",__FILE__,__FUNCTION__,__LINE__,error,gluErrorString(error),defSize,TextFTGL::faceResolution);
 		fflush(stdout);
 	}
 

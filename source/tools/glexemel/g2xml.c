@@ -252,7 +252,7 @@ int g3d2xml(FILE *infile, FILE *outfile)
 				free(fdata);
 				return FALSE;
 			}
-			fprintf(outfile, "\t\t<Vertices frame=\"%d\">\n",
+			fprintf(outfile, "\t\t<Vertices frame=\"%u\">\n",
 				jj);
 			for (kk=0; kk < meshHeader.vertexCount; kk++)
 			{
@@ -286,7 +286,7 @@ int g3d2xml(FILE *infile, FILE *outfile)
 				free(fdata);
 				return FALSE;
 			}
-			fprintf(outfile, "\t\t<Normals frame=\"%d\">\n",
+			fprintf(outfile, "\t\t<Normals frame=\"%u\">\n",
 				jj);
 			for (kk=0; kk < meshHeader.vertexCount; kk++)
 			{

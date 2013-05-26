@@ -427,7 +427,8 @@ bool NetworkMessageReady::receive(Socket* socket){
 	}
 	else {
 		unsigned char *buf = new unsigned char[getPackedSize()+1];
-		bool result = NetworkMessage::receive(socket, buf, getPackedSize(), true);
+		//bool result = NetworkMessage::receive(socket, buf, getPackedSize(), true);
+		NetworkMessage::receive(socket, buf, getPackedSize(), true);
 		unpackMessage(buf);
 		//printf("Got packet size = %u data.messageType = %d\n%s\n",getPackedSize(),data.messageType,buf);
 		delete [] buf;
@@ -1236,7 +1237,7 @@ unsigned int NetworkMessageCommandList::getPackedSizeDetail(int count) {
 void NetworkMessageCommandList::unpackMessageDetail(unsigned char *buf,int count) {
 	data.commands.clear();
 	data.commands.resize(count);
-	unsigned int bytes_processed_total = 0;
+	//unsigned int bytes_processed_total = 0;
 	unsigned char *bufMove = buf;
 	for(unsigned int i = 0; i < count; ++i) {
 		unsigned int bytes_processed = unpack(bufMove, getPackedMessageFormatDetail(),
@@ -1255,7 +1256,7 @@ void NetworkMessageCommandList::unpackMessageDetail(unsigned char *buf,int count
 				&data.commands[i].commandStateValue,
 				&data.commands[i].unitCommandGroupId);
 		bufMove += bytes_processed;
-		bytes_processed_total += bytes_processed;
+		//bytes_processed_total += bytes_processed;
 	}
 	//printf("\nUnPacked detail size = %u\n",bytes_processed_total);
 }
@@ -1264,7 +1265,7 @@ unsigned char * NetworkMessageCommandList::packMessageDetail(uint16 totalCommand
 	int packetSize = getPackedSizeDetail(totalCommand) +1;
 	unsigned char *buf = new unsigned char[packetSize];
 	unsigned char *bufMove = buf;
-	unsigned int bytes_processed_total = 0;
+	//unsigned int bytes_processed_total = 0;
 	for(unsigned int i = 0; i < totalCommand; ++i) {
 		unsigned int bytes_processed = pack(bufMove, getPackedMessageFormatDetail(),
 				data.commands[i].networkCommandType,
@@ -1282,7 +1283,7 @@ unsigned char * NetworkMessageCommandList::packMessageDetail(uint16 totalCommand
 				data.commands[i].commandStateValue,
 				data.commands[i].unitCommandGroupId);
 		bufMove += bytes_processed;
-		bytes_processed_total += bytes_processed;
+		//bytes_processed_total += bytes_processed;
 	}
 	//printf("\nPacked detail size = %u, allocated = %d\n",bytes_processed_total,packetSize);
 	return buf;
@@ -1363,7 +1364,7 @@ void NetworkMessageCommandList::send(Socket* socket) {
 	toEndianHeader();
 
 	unsigned char *buf = NULL;
-	bool result = false;
+	//bool result = false;
 	if(useOldProtocol == true) {
 		NetworkMessage::send(socket, &data.header, commandListHeaderSize);
 	}
@@ -1380,7 +1381,7 @@ void NetworkMessageCommandList::send(Socket* socket) {
 		toEndianDetail(totalCommand);
 		//printf("\n#3 Send packet commandcount [%u] framecount [%d]\n",totalCommand,data.header.frameCount);
 
-		bool result = false;
+		//bool result = false;
 		if(useOldProtocol == true) {
 			NetworkMessage::send(socket, &data.commands[0], (sizeof(NetworkCommand) * totalCommand));
 		}

@@ -598,7 +598,7 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
 
          // Now lookup the appropriate adaptor-name in the pAdaptorInfos, if we can find it
          const char * name = NULL;
-         const char * desc = NULL;
+         //const char * desc = NULL;
          if (pAdapterInfo)
          {
             IP_ADAPTER_INFO * next = pAdapterInfo;
@@ -610,7 +610,7 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
                   if (Inet_AtoN(ipAddr->IpAddress.String) == ntohl(row.dwAddr))
                   {
                      name = next->AdapterName;
-                     desc = next->Description;
+                     //desc = next->Description;
                      break;
                   }
                   ipAddr = ipAddr->Next;
@@ -1361,8 +1361,6 @@ int Socket::send(const void *data, int dataSize) {
 }
 
 int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
-	const int MAX_RECV_WAIT_SECONDS = 3;
-
 	ssize_t bytesReceived = 0;
 
 	if(isSocketValid() == true)	{
@@ -1387,6 +1385,7 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 	else if(bytesReceived < 0 && lastSocketError == PLATFORM_SOCKET_TRY_AGAIN)	{
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] #1 EAGAIN during receive, trying again...\n",__FILE__,__FUNCTION__,__LINE__);
 
+		const int MAX_RECV_WAIT_SECONDS = 3;
 	    time_t tStartTimer = time(NULL);
 	    while((bytesReceived < 0 && lastSocketError == PLATFORM_SOCKET_TRY_AGAIN) &&
 	    		(difftime((long int)time(NULL),tStartTimer) <= MAX_RECV_WAIT_SECONDS)) {
@@ -1480,8 +1479,6 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) chrono.start();
 
-    const int MAX_PEEK_WAIT_SECONDS = 3;
-
     int lastSocketError = 0;
 	int err = 0;
 	if(isSocketValid() == true) {
@@ -1539,6 +1536,7 @@ int Socket::peek(void *data, int dataSize,bool mustGetData,int *pLastSocketError
 
 		//printf("Peek #2 err = %d\n",err);
 
+		const int MAX_PEEK_WAIT_SECONDS = 3;
 	    time_t tStartTimer = time(NULL);
 	    while((err < 0 && lastSocketError == PLATFORM_SOCKET_TRY_AGAIN) &&
 	    		isSocketValid() == true &&
@@ -2033,7 +2031,6 @@ void BroadCastClientSocketThread::execute() {
     struct sockaddr_in bcaddr;  // The broadcast address for the receiver.
     PLATFORM_SOCKET bcfd;                // The file descriptor used for the broadcast.
     //bool one = true;            // Parameter for "setscokopt".
-    char buff[10024]="";            // Buffers the data to be broadcasted.
     socklen_t alen=0;
 
     port = htons( Socket::getBroadCastPort() );
@@ -2067,6 +2064,7 @@ void BroadCastClientSocketThread::execute() {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			try	{
+				char buff[10024]="";  // Buffers the data to be broadcasted.
 				// Keep getting packets forever.
 				for( time_t elapsed = time(NULL); difftime((long int)time(NULL),elapsed) <= 5; ) {
 					alen = sizeof(struct sockaddr);
@@ -2515,7 +2513,6 @@ int UPNP_Tools::upnp_init(void *param) {
 	int result				= -1;
 	struct UPNPDev *devlist = NULL;
 	struct UPNPDev *dev     = NULL;
-	char *descXML           = NULL;
 	int descXMLsize         = 0;
 	char buf[255]           = "";
 	// Callers MUST pass in NULL or a UPNPInitInterface *
@@ -2575,9 +2572,9 @@ int UPNP_Tools::upnp_init(void *param) {
 
 				//printf("UPnP device found: [%s] [%s] lanaddr [%s]\n", dev->descURL, dev->st,lanaddr);
 #if !defined(MINIUPNPC_VERSION_PRE1_7) && !defined(MINIUPNPC_VERSION_PRE1_6)
-				descXML = (char *)miniwget_getaddr(dev->descURL, &descXMLsize, lanaddr, (sizeof(lanaddr) / sizeof(lanaddr[0])),0);
+				char *descXML = (char *)miniwget_getaddr(dev->descURL, &descXMLsize, lanaddr, (sizeof(lanaddr) / sizeof(lanaddr[0])),0);
 #else
-				descXML = (char *)miniwget_getaddr(dev->descURL, &descXMLsize, lanaddr, (sizeof(lanaddr) / sizeof(lanaddr[0])));
+				char *descXML = (char *)miniwget_getaddr(dev->descURL, &descXMLsize, lanaddr, (sizeof(lanaddr) / sizeof(lanaddr[0])));
 #endif
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"LAN address: %s\n", lanaddr);
 
@@ -2656,9 +2653,6 @@ int UPNP_Tools::upnp_init(void *param) {
 
 bool UPNP_Tools::upnp_add_redirect(int ports[2],bool mutexLock) {
 	bool result				= true;
-	char externalIP[16]     = "";
-	char ext_port_str[16]   = "";
-	char int_port_str[16]   = "";
 
 	//printf("SERVER SOCKET upnp_add_redirect - START\n");
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] upnp_add_redir(%d : %d)\n",__FILE__,__FUNCTION__,__LINE__,ports[0],ports[1]);
@@ -2679,12 +2673,15 @@ bool UPNP_Tools::upnp_add_redirect(int ports[2],bool mutexLock) {
 		result = false;
 	}
 	else {
+		char externalIP[16] = "";
 #ifndef MINIUPNPC_VERSION_PRE1_5
 		UPNP_GetExternalIPAddress(urls.controlURL, data.first.servicetype, externalIP);
 #else
 		UPNP_GetExternalIPAddress(urls.controlURL, data.servicetype, externalIP);
 #endif
 
+		char ext_port_str[16]   = "";
+		char int_port_str[16]   = "";
 		sprintf(ext_port_str, "%d", ports[0]);
 		sprintf(int_port_str, "%d", ports[1]);
 

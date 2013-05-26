@@ -261,7 +261,6 @@ bool Checksum::addFileToSum(const string &path) {
 		addString(lastFile(path));
 
 		bool isXMLFile = (EndsWith(path, ".xml") == true);
-		bool inCommentTag=false;
 
 		// Determine the file length
 		ifs.seekg(0, ios::end);
@@ -277,6 +276,7 @@ bool Checksum::addFileToSum(const string &path) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] buf.size() = %d, path [%s], isXMLFile = %d\n",__FILE__,__FUNCTION__,__LINE__,buf.size(), path.c_str(),isXMLFile);
 
 		if(isXMLFile == true) {
+			bool inCommentTag=false;
 			for(std::size_t i = 0; i < buf.size(); ++i) {
 				// Ignore Spaces in XML files as they are
 				// ONLY for formatting
@@ -343,7 +343,8 @@ uint32 Checksum::getSum() {
 			MutexSafeWrapper safeMutexSocketDestructorFlag(&Checksum::fileListCacheSynchAccessor,string(__FILE__) + "_" + intToStr(__LINE__));
 			if(Checksum::fileListCache.find(iterMap->first) == Checksum::fileListCache.end()) {
 				Checksum fileResult;
-				bool fileAddedOk = fileResult.addFileToSum(iterMap->first);
+				//bool fileAddedOk = fileResult.addFileToSum(iterMap->first);
+				fileResult.addFileToSum(iterMap->first);
 				Checksum::fileListCache[iterMap->first] = fileResult.getSum();
 				//printf("fileAddedOk = %d for file [%s] CRC [%d]\n",fileAddedOk,iterMap->first.c_str(),Checksum::fileListCache[iterMap->first]);
 			}

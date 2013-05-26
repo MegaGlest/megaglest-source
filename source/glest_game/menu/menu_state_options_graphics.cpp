@@ -56,9 +56,9 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		int buttonRowPos=50;
 		int buttonStartPos=170;
 		//int captionOffset=75;
-		int currentLabelStart=leftLabelStart;
-		int currentColumnStart=leftColumnStart;
-		int currentLine=700;
+		//int currentLabelStart=leftLabelStart;
+		//int currentColumnStart=leftColumnStart;
+		//int currentLine=700;
 		int lineOffset=30;
 		int tabButtonWidth=200;
 		int tabButtonHeight=30;
@@ -100,9 +100,9 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		buttonKeyboardSetup.setText(lang.get("Keyboardsetup"));
 
-		currentLine=650; // reset line pos
-		currentLabelStart=leftLabelStart; // set to right side
-		currentColumnStart=leftColumnStart; // set to right side
+		int currentLine=650; // reset line pos
+		int currentLabelStart=leftLabelStart; // set to right side
+		int currentColumnStart=leftColumnStart; // set to right side
 
 		//resolution
 		labelScreenModes.registerGraphicComponent(containerName,"labelScreenModes");

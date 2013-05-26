@@ -966,7 +966,7 @@ void Ai::massiveAttack(const Vec2i &pos, Field field, bool ultraAttack){
 
 void Ai::returnBase(int unitIndex) {
     Vec2i pos;
-    std::pair<CommandResult,string> r(crFailUndefined,"");
+    //std::pair<CommandResult,string> r(crFailUndefined,"");
     aiInterface->getFactionIndex();
     pos= Vec2i(
 		random.randRange(-villageRadius, villageRadius),
@@ -974,7 +974,8 @@ void Ai::returnBase(int unitIndex) {
 		                 getRandomHomePosition();
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    r= aiInterface->giveCommand(unitIndex, ccMove, pos);
+    //r= aiInterface->giveCommand(unitIndex, ccMove, pos);
+    aiInterface->giveCommand(unitIndex, ccMove, pos);
 
     //aiInterface->printLog(1, "Order return to base pos:" + intToStr(pos.x)+", "+intToStr(pos.y)+": "+rrToStr(r)+"\n");
 }
@@ -1159,7 +1160,8 @@ void Ai::unblockUnits() {
 									unitGroupCommandId = aiInterface->getWorld()->getNextCommandGroupId();
 								}
 
-								std::pair<CommandResult,string> r = aiInterface->giveCommand(adjacentUnit,ct, pos, unitGroupCommandId);
+								//std::pair<CommandResult,string> r = aiInterface->giveCommand(adjacentUnit,ct, pos, unitGroupCommandId);
+								aiInterface->giveCommand(adjacentUnit,ct, pos, unitGroupCommandId);
 							}
 						}
 					}
