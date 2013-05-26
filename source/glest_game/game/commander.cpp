@@ -1078,10 +1078,12 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
     //ct = NULL;
 
     // Check if the command was for the unit before it morphed, if so cancel it
+    bool isCancelPreMorphCommand = false;
     if(ct == NULL && unit->getPreMorphType() != NULL) {
     	const CommandType *ctPreMorph = unit->getPreMorphType()->findCommandTypeById(networkCommand->getCommandTypeId());
     	if(ctPreMorph != NULL) {
     		ct = unit->getType()->getFirstCtOfClass(ccStop);
+    		isCancelPreMorphCommand = true;
     	}
     }
 
@@ -1111,29 +1113,36 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 
 	CardinalDir facing;
 	// get facing/target ... the target might be dead due to lag, cope with it
-	if (ct->getClass() == ccBuild) {
-		//assert(networkCommand->getTargetId() >= 0 && networkCommand->getTargetId() < 4);
-		if(networkCommand->getTargetId() < 0 || networkCommand->getTargetId() >= 4) {
-			char szBuf[8096]="";
-			snprintf(szBuf,8096,"networkCommand->getTargetId() >= 0 && networkCommand->getTargetId() < 4, [%s]",networkCommand->toString().c_str());
-			throw megaglest_runtime_error(szBuf);
+	if(isCancelPreMorphCommand == false) {
+		if(ct->getClass() == ccBuild) {
+			//assert(networkCommand->getTargetId() >= 0 && networkCommand->getTargetId() < 4);
+			if(networkCommand->getTargetId() < 0 || networkCommand->getTargetId() >= 4) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"networkCommand->getTargetId() >= 0 && networkCommand->getTargetId() < 4, [%s]",networkCommand->toString().c_str());
+				throw megaglest_runtime_error(szBuf);
+			}
+			facing = CardinalDir(networkCommand->getTargetId());
 		}
-		facing = CardinalDir(networkCommand->getTargetId());
-	}
-	else if (networkCommand->getTargetId() != Unit::invalidId ) {
-		target= world->findUnitById(networkCommand->getTargetId());
+		else if (networkCommand->getTargetId() != Unit::invalidId ) {
+			target= world->findUnitById(networkCommand->getTargetId());
+		}
 	}
 
 	//create command
 	Command *command= NULL;
-	if(unitType != NULL) {
-		command= new Command(ct, networkCommand->getPosition(), unitType, facing);
-	}
-	else if(target == NULL) {
-		command= new Command(ct, networkCommand->getPosition());
+	if(isCancelPreMorphCommand == false) {
+		if(unitType != NULL) {
+			command= new Command(ct, networkCommand->getPosition(), unitType, facing);
+		}
+		else if(target == NULL) {
+			command= new Command(ct, networkCommand->getPosition());
+		}
+		else {
+			command= new Command(ct, target);
+		}
 	}
 	else {
-		command= new Command(ct, target);
+		command= new Command(ct, NULL);
 	}
 
 	// Add in any special state
