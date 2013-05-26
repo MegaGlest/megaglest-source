@@ -1502,25 +1502,24 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 	}
 	else if(keyTechScrollBar.mouseClick(x, y)) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		soundRenderer.playFx(coreData.getClickSoundB());
+		soundRenderer.playFx(coreData.getClickSoundA());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
 	else if(keyTilesetScrollBar.mouseClick(x, y)) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		soundRenderer.playFx(coreData.getClickSoundB());
+		soundRenderer.playFx(coreData.getClickSoundA());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
 	else if(keyMapScrollBar.mouseClick(x, y)) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		soundRenderer.playFx(coreData.getClickSoundB());
+		soundRenderer.playFx(coreData.getClickSoundA());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
 	else if(keyScenarioScrollBar.mouseClick(x, y)) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		soundRenderer.playFx(coreData.getClickSoundB());
+		soundRenderer.playFx(coreData.getClickSoundA());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
-
 	else if(buttonInstallTech.mouseClick(x, y) && buttonInstallTech.getEnabled()) {
 		soundRenderer.playFx(coreData.getClickSoundB());
 		if(selectedTechName != "") {

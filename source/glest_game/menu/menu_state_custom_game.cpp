@@ -1046,11 +1046,9 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 
         if(mainMessageBox.getEnabled()){
             int button= 0;
-            if(mainMessageBox.mouseClick(x, y, button))
-            {
+            if(mainMessageBox.mouseClick(x, y, button)) {
                 soundRenderer.playFx(coreData.getClickSoundA());
-                if(button==0)
-                {
+                if(button == 0) {
                     mainMessageBox.setEnabled(false);
                 }
             }
@@ -1089,6 +1087,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 				return;
 			}
 			else if(buttonRestoreLastSettings.mouseClick(x,y) && buttonRestoreLastSettings.getEnabled()) {
+				soundRenderer.playFx(coreData.getClickSoundB());
+
 				RestoreLastGameSettings();
 			}
 			else if(listBoxMap.mouseClick(x, y,advanceToItemStartingWith)){
@@ -1368,6 +1368,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 						}
 					}
 					else if(buttonClearBlockedPlayers.mouseClick(x, y)) {
+						soundRenderer.playFx(coreData.getClickSoundB());
+
 						ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 						if(serverInterface != NULL) {
 							ServerSocket *serverSocket = serverInterface->getServerSocket();
@@ -1377,6 +1379,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 						}
 					}
 					else if(buttonBlockPlayers[i].mouseClick(x, y)) {
+						soundRenderer.playFx(coreData.getClickSoundB());
+
 						ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 						if(serverInterface != NULL) {
 							if(serverInterface->getSlot(i) != NULL &&

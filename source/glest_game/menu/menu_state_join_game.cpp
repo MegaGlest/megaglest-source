@@ -368,7 +368,7 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
 	else if(buttonConnect.mouseClick(x, y) && buttonConnect.getEnabled() == true) {
 		ClientInterface* clientInterface= networkManager.getClientInterface();
 
-		soundRenderer.playFx(coreData.getClickSoundA());
+		soundRenderer.playFx(coreData.getClickSoundB());
 		labelInfo.setText("");
 
 		if(clientInterface->isConnected())
@@ -383,6 +383,7 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
     else if(buttonCreateGame.mouseClick(x, y)){
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		soundRenderer.playFx(coreData.getClickSoundB());
+
 		clientInterface->stopServerDiscovery();
 		if(clientInterface->getSocket() != NULL) {
 		    clientInterface->close();
@@ -396,7 +397,7 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		ClientInterface* clientInterface= networkManager.getClientInterface();
-		soundRenderer.playFx(coreData.getClickSoundA());
+		soundRenderer.playFx(coreData.getClickSoundB());
 
 		// Triggers a thread which calls back into MenuStateJoinGame::DiscoveredServers
 		// with the results
