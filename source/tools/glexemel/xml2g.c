@@ -521,7 +521,7 @@ int processVertices(xmlNode *n, FILE *outfile, uint32 vertexCount)
 	/* check that the correct number of vertices were processed */
 	if (counted_vertices != vertexCount)
 	{
-		printf("Found %d vertices, expected %d!\n",
+		printf("Found %u vertices, expected %u!\n",
 			counted_vertices, vertexCount);
 		return FALSE;
 	}
@@ -570,7 +570,7 @@ int processNormals(xmlNode *n, FILE *outfile, uint32 vertexCount)
 	/* check that the correct number of normals were processed */
 	if (counted_normals != vertexCount)
 	{
-		printf("Found %d normals, expected %d!\n",
+		printf("Found %u normals, expected %u!\n",
 			counted_normals, vertexCount);
 		return FALSE;
 	}
@@ -617,7 +617,7 @@ int processTexcoords(xmlNode *n, FILE *outfile, uint32 vertexCount)
 	/* check that the correct number of texco were processed */
 	if (counted_texco != vertexCount)
 	{
-		printf("Found %d texture coordinates, expected %d!\n",
+		printf("Found %u texture coordinates, expected %u!\n",
 			counted_texco, vertexCount);
 		return FALSE;
 	}
@@ -662,7 +662,7 @@ int processIndices(xmlNode *n, FILE *outfile, uint32 indexCount)
 	/* check that the correct number of indices were processed */
 	if (counted_indices != indexCount)
 	{
-		printf("Found %d indices, expected %d!\n",
+		printf("Found %u indices, expected %u!\n",
 			counted_indices, indexCount);
 		return FALSE;
 	}

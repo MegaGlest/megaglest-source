@@ -128,7 +128,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_VERBOSE,
 };
 
-bool hasCommandArgument(int argc, wxChar** argv,const string argName,
+bool hasCommandArgument(int argc, wxChar** argv,const string &argName,
 						int *foundIndex=NULL, int startLookupIndex=1,
 						bool useArgParamLen=false) {
 	bool result = false;
@@ -294,7 +294,6 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	Properties::setApplicationPath(executable_path(appPath));
 
 	Config &config = Config::getInstance();
-	string iniFilePath = extractDirectoryPathFromFile(config.getFileName(false));
     //getGlPlatformExtensions();
 
 	isControlKeyPressed = false;
@@ -410,6 +409,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 
 #else
 	wxIcon icon;
+	string iniFilePath = extractDirectoryPathFromFile(config.getFileName(false));
 	string icon_file = iniFilePath + "g3dviewer.ico";
 	std::ifstream testFile(icon_file.c_str());
 	if(testFile.good())	{
@@ -2446,8 +2446,6 @@ bool App::OnInit() {
 
 	}
 
-	string appPath = "";
-
 //#if defined(__MINGW32__)
 //		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(argv[0]));
 //		appPath = tmp_buf;
@@ -2464,12 +2462,12 @@ bool App::OnInit() {
 //#if defined(__MINGW32__)
 #ifdef WIN32
 	const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(exe_path));
-	appPath = tmp_buf;
+	string appPath = tmp_buf;
 
 	std::auto_ptr<wchar_t> wstr(Ansi2WideString(appPath.c_str()));
 	appPath = utf8_encode(wstr.get());
 #else
-	appPath = wxFNCONV(exe_path);
+	string appPath(wxFNCONV(exe_path));
 #endif
 
 //#else

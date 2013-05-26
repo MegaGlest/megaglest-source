@@ -504,9 +504,8 @@ void event_numeric(irc_session_t * session, unsigned int event, const char * ori
 #endif
 
 bool IRCThread::getEventDataDone() {
-	bool result = false;
 	MutexSafeWrapper safeMutex(&mutexEventDataDone,string(__FILE__) + "_" + intToStr(__LINE__));
-	result = eventDataDone;
+	bool result = eventDataDone;
 	safeMutex.ReleaseLock();
 
 	return result;

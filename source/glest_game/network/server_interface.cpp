@@ -880,9 +880,8 @@ void ServerInterface::signalClientsToRecieveData(std::map<PLATFORM_SOCKET,bool> 
 			MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
 			ConnectionSlot* connectionSlot = slots[i];
 
-			bool socketTriggered = false;
-
 			if(connectionSlot != NULL) {
+				bool socketTriggered = false;
 				PLATFORM_SOCKET clientSocket = connectionSlot->getSocketId();
 				if(Socket::isSocketValid(&clientSocket)) {
 					socketTriggered = socketTriggeredList[clientSocket];
@@ -913,7 +912,8 @@ void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSigna
 	if(newThreadManager == true) {
 
 		//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		bool slavesCompleted = masterController.waitTillSlavesTrigger(1000 * MAX_SLOT_THREAD_WAIT_TIME);
+		//bool slavesCompleted = masterController.waitTillSlavesTrigger(1000 * MAX_SLOT_THREAD_WAIT_TIME);
+		masterController.waitTillSlavesTrigger(1000 * MAX_SLOT_THREAD_WAIT_TIME);
 		masterController.clearSlaves(true);
 		//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 

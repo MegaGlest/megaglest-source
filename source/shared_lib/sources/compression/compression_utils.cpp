@@ -103,7 +103,7 @@ int zipfile_tool(int argc, const char *argv[]) {
   pSrc_filename = argv[p++];
   pDst_filename = argv[p++];
 
-  if(SystemFlags::VERBOSE_MODE_ENABLED)printf("Mode: %c, Level: %u\nInput File: \"%s\"\nOutput File: \"%s\"\n", pMode[0], level, pSrc_filename, pDst_filename);
+  if(SystemFlags::VERBOSE_MODE_ENABLED)printf("Mode: %c, Level: %d\nInput File: \"%s\"\nOutput File: \"%s\"\n", pMode[0], level, pSrc_filename, pDst_filename);
 
   // Open input file.
   pInfile = fopen(pSrc_filename, "rb");

@@ -1945,7 +1945,8 @@ void Game::update() {
 						if(newThreadManager == true) {
 							int currentFrameCount = world.getFrameCount();
 							masterController.signalSlaves(&currentFrameCount);
-							bool slavesCompleted = masterController.waitTillSlavesTrigger(20000);
+							//bool slavesCompleted = masterController.waitTillSlavesTrigger(20000);
+							masterController.waitTillSlavesTrigger(20000);
 						}
 						else {
 							// Signal the faction threads to do any pre-processing

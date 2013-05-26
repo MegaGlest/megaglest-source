@@ -46,7 +46,7 @@ const float GameCamera::centerOffsetZ= 8.0f;
 
 GameCamera::GameCamera() : pos(0.f, defaultHeight, 0.f),
 		destPos(0.f, defaultHeight, 0.f), destAng(startingVAng, startingHAng) {
-	Config &config = Config::getInstance();
+	//Config &config = Config::getInstance();
 	calculatedDefault=defaultHeight;
     state= sGame;
 

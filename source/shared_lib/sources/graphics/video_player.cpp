@@ -551,7 +551,7 @@ bool VideoPlayer::initPlayer(string mediaURL) {
 #if defined(WIN32)
 	if(verboseEnabled) _putenv("VLC_VERBOSE=2");
 #endif
-	int vlc_argc = ctxPtr->vlc_argv.size();
+
 
 //	char const *vlc_argv[] =
 //	{
@@ -591,6 +591,7 @@ bool VideoPlayer::initPlayer(string mediaURL) {
 	ctxPtr->libvlc = libvlc_new(ctxPtr->vlc_argc, &ctxPtr->vlc_argv[0],&ex);
 	catchError(&ex);
 #else
+	int vlc_argc = ctxPtr->vlc_argv.size();
 	ctxPtr->libvlc = libvlc_new(vlc_argc, &ctxPtr->vlc_argv[0]);
 #endif
 
@@ -1322,8 +1323,9 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 		ctxPtr != NULL && ctxPtr->isPlaying == true &&
 		finished == false && stop == false) {
 
-		int action = 0, pause = 0, n = 0;
-		action = 0;
+		//int action = 0, pause = 0, n = 0;
+		//int action = 0, n = 0;
+		int action = 0;
 
 		SDL_Event event;
 		/* Keys: enter (fullscreen), space (pause), escape (quit) */
@@ -1353,14 +1355,14 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 				//screen = SDL_SetVideoMode(WIDTH, HEIGHT, 0, options);
 				finished = true;
 				break;
-			case ' ':
-				//pause = !pause;
-				break;
+			//case ' ':
+			//	//pause = !pause;
+			//	break;
 			}
 
-			if(pause == 0) {
-				n++;
-			}
+			//if(pause == 0) {
+			//n++;
+			//}
 
 		    //assertGl();
 

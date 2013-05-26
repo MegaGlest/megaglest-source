@@ -362,7 +362,7 @@ void MainWindow::init(string fname) {
 	toolbar2->Realize();
 
 	Config &config = Config::getInstance();
-	string iniFilePath = extractDirectoryPathFromFile(config.getFileName(false));
+
     string userData = config.getString("UserData_Root","");
     if(userData != "") {
     	endPathWithSlash(userData);
@@ -381,6 +381,7 @@ void MainWindow::init(string fname) {
 #else
 	//std::cout << "B" << std::endl;
 	wxIcon icon;
+	string iniFilePath = extractDirectoryPathFromFile(config.getFileName(false));
 	string icon_file = iniFilePath + "editor.ico";
 	std::ifstream testFile(icon_file.c_str());
 	if(testFile.good())	{
@@ -1536,7 +1537,7 @@ bool App::OnInit() {
     //exe_path = exe_path.BeforeLast(path_separator[0]);
     //exe_path += path_separator;
 
-	string appPath = "";
+	string appPath;
 //#if defined(__MINGW32__)
 
 #ifdef WIN32

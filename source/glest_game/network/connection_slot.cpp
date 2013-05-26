@@ -484,7 +484,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] BEFORE accept new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getOpenSlotCount());
 				//bool hasOpenSlots = (serverInterface->getOpenSlotCount() > 0);
-				bool hasOpenSlots = true;
+				//bool hasOpenSlots = true;
 
 				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
 
@@ -584,30 +584,31 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] accepted new client connection, serverInterface->getOpenSlotCount() = %d, sessionKey = %d\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getOpenSlotCount(),sessionKey);
 
-					if(hasOpenSlots == false) {
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] !!!!!!!!WARNING - no open slots, disconnecting client\n",__FILE__,__FUNCTION__,__LINE__);
-
-						//if(this->getSocket() != NULL) {
-						NetworkMessageIntro networkMessageIntro(
-								sessionKey,
-								getNetworkVersionSVNString(),
-								getHostName(),
-								playerIndex,
-								nmgstNoSlots,
-								0,
-								ServerSocket::getFTPServerPort(),
-								"",
-								serverInterface->getGameHasBeenInitiated());
-						sendMessage(&networkMessageIntro);
-						//}
-
-						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
-
-						//printf("No open slots available\n");
-
-						close();
-					}
-					else {
+//					if(hasOpenSlots == false) {
+//						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] !!!!!!!!WARNING - no open slots, disconnecting client\n",__FILE__,__FUNCTION__,__LINE__);
+//
+//						//if(this->getSocket() != NULL) {
+//						NetworkMessageIntro networkMessageIntro(
+//								sessionKey,
+//								getNetworkVersionSVNString(),
+//								getHostName(),
+//								playerIndex,
+//								nmgstNoSlots,
+//								0,
+//								ServerSocket::getFTPServerPort(),
+//								"",
+//								serverInterface->getGameHasBeenInitiated());
+//						sendMessage(&networkMessageIntro);
+//						//}
+//
+//						//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] action running for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+//
+//						//printf("No open slots available\n");
+//
+//						close();
+//					}
+//					else {
+					{
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] client will be assigned to the next open slot\n",__FILE__,__FUNCTION__,__LINE__);
 
 						//if(this->getSocket() != NULL) {

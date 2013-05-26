@@ -154,6 +154,8 @@ Program::Program(int w, int h) {
 }
 
 void Program::init() {
+	undoStack = ChangeStack();
+	redoStack = ChangeStack();
 	cellSize = 6;
 	grid=false;
 	ofsetX = 0;

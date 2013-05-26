@@ -632,7 +632,6 @@ void Window::toggleFullscreen() {
 
 void Window::handleMouseDown(SDL_Event event) {
 	static const Uint32 DOUBLECLICKTIME = 500;
-	static const int DOUBLECLICKDELTA = 5;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -663,6 +662,7 @@ void Window::handleMouseDown(SDL_Event event) {
 	if(n >= 0 && n < mbCount) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+		static const int DOUBLECLICKDELTA = 5;
 		if(ticks - lastMouseDown[n] < DOUBLECLICKTIME
 				&& abs(lastMouseX[n] - event.button.x) < DOUBLECLICKDELTA
 				&& abs(lastMouseY[n] - event.button.y) < DOUBLECLICKDELTA) {
@@ -944,7 +944,7 @@ wchar_t extractKeyPressedUnicode(SDL_KeyboardEvent input) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] returning key [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,c);
 
 	string pressKeyName = SDL_GetKeyName((SDLKey)c);
-	string inputKeyName = SDL_GetKeyName(input.keysym.sym);
+	//string inputKeyName = SDL_GetKeyName(input.keysym.sym);
 
 	//printf ("PRESS pressed key [%d - %s] input.keysym.sym [%d] input.keysym.unicode [%d] mod = %d\n",
 	//		c,pressKeyName.c_str(),input.keysym.sym,input.keysym.unicode,input.keysym.mod);
@@ -1010,7 +1010,7 @@ SDLKey extractKeyPressed(SDL_KeyboardEvent input) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] returning key [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,c);
 
 	string pressKeyName = SDL_GetKeyName((SDLKey)c);
-	string inputKeyName = SDL_GetKeyName(input.keysym.sym);
+	//string inputKeyName = SDL_GetKeyName(input.keysym.sym);
 
 	//printf ("PRESS pressed key [%d - %s] input.keysym.sym [%d] input.keysym.unicode [%d] mod = %d\n",
 	//		c,pressKeyName.c_str(),input.keysym.sym,input.keysym.unicode,input.keysym.mod);
@@ -1177,7 +1177,7 @@ wchar_t Window::extractLastKeyPressed() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] returning key [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,c);
 
 	string pressKeyName = SDL_GetKeyName((SDLKey)c);
-	string inputKeyName = SDL_GetKeyName(keystate.sym);
+	//string inputKeyName = SDL_GetKeyName(keystate.sym);
 
 	//printf ("PRESS pressed key [%d - %s] input.keysym.sym [%d] input.keysym.unicode [%d] mod = %d\n",
 	//		c,pressKeyName.c_str(),input.keysym.sym,input.keysym.unicode,input.keysym.mod);
