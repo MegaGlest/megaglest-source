@@ -7,6 +7,9 @@
 # set this to non 0 to skip building the binary
 skipbinarybuild=0
 
+# Consider setting this for small packages if there's plenty of RAM and CPU available:
+#export XZ_OPT="$XZ_OPT -9e"
+
 VERSION=`./mg-version.sh --version`
 kernel=`uname -s | tr '[A-Z]' '[a-z]'`
 architecture=`uname -m  | tr '[A-Z]' '[a-z]'`
@@ -68,9 +71,9 @@ echo "creating $PACKAGE"
 cd $CURRENTDIR
 [[ -f "$release/$PACKAGE" ]] && rm "release/$PACKAGE"
 #tar cJf "release/$PACKAGE" -C "$CURRENTDIR/release/" "$RELEASENAME-$VERSION"
-#tar -cf - -C "$CURRENTDIR/release/$RELEASENAME-$VERSION/" "./" | xz -9e > release/$PACKAGE
+#tar -cf - -C "$CURRENTDIR/release/$RELEASENAME-$VERSION/" "./" | xz > release/$PACKAGE
 cd release/$RELEASENAME-$VERSION/
-tar -cf - * | xz -9e > ../$PACKAGE
+tar -cf - * | xz > ../$PACKAGE
 cd $CURRENTDIR
 # 7z a -mmt -mx=9 -ms=on -mhc=on "release/$PACKAGE" "$CURRENTDIR/release/$RELEASENAME-$VERSION"
 
