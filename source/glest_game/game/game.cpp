@@ -1556,7 +1556,11 @@ void Game::init(bool initForPreviewOnly) {
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== START GAME ==== getCurrentPixelByteCount() = %llu\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"=============================================\n");
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"==== START GAME ====\n");
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"=============================================\n");
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"Starting framecount: %d\n",world.getFrameCount());
 
 	if(showPerfStats && chronoPerf.getMillis() >= 50) {
 		for(unsigned int x = 0; x < perfList.size(); ++x) {
@@ -1756,7 +1760,7 @@ void Game::update() {
 		// Temp speed boost when player first joins an in progress game
 		//if(this->initialResumeSpeedLoops == true && updateLoops == 1) {
 		if(this->initialResumeSpeedLoops == true) {
-			printf("Resume #1\n");
+			printf("Resume In Progress Game: %d\n",__LINE__);
 
 			this->initialResumeSpeedLoops = false;
 			//updateLoops = 80;
@@ -2345,7 +2349,8 @@ void Game::update() {
 					}
 					//printf("Resuming game for join in progress game resumeRequestSent: %d...\n",resumeRequestSent);
 
-					commander.tryResumeGame(true,false);
+					//commander.tryResumeGame(true,false);
+					commander.tryResumeGame(true,true);
 					resumeRequestSent = true;
 
 //					server->setAllowInGameConnections(false);
@@ -5634,6 +5639,9 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 	bool speedChangesAllowed= !NetworkManager::getInstance().isNetworkGame();
 	//printf("Toggle pause value = %d, speedChangesAllowed = %d, forceAllowPauseStateChange = %d\n",value,speedChangesAllowed,forceAllowPauseStateChange);
 
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"game.cpp line: %d setPaused value: %d clearCaches: %d forceAllowPauseStateChange: %d speedChangesAllowed: %d pausedForJoinGame: %d joinNetworkGame: %d\n",__LINE__,value,clearCaches,forceAllowPauseStateChange,speedChangesAllowed,pausedForJoinGame,joinNetworkGame);
+	//printf("Line: %d setPaused value: %d clearCaches: %d forceAllowPauseStateChange: %d speedChangesAllowed: %d pausedForJoinGame: %d joinNetworkGame: %d\n",__LINE__,value,clearCaches,forceAllowPauseStateChange,speedChangesAllowed,pausedForJoinGame,joinNetworkGame);
+
 	if(forceAllowPauseStateChange == true || speedChangesAllowed == true) {
 		//printf("setPaused paused = %d, value = %d\n",paused,value);
 
@@ -5670,6 +5678,8 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 			}
 		}
 
+		//printf("Line: %d setPaused value: %d clearCaches: %d\n",__LINE__,value,clearCaches);
+
 		Lang &lang= Lang::getInstance();
 		if(value == false) {
 			console.addLine(lang.get("GameResumed"));
@@ -5678,6 +5688,9 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 			pauseStateChanged = true;
 
 			if(clearCaches == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"game.cpp line: %d Clear Caches for resume in progress game\n",__LINE__);
+				//printf("Line: %d Clear Caches for resume in progress game\n",__LINE__);
+
 				world.clearCaches();
 				for(int i = 0; i < world.getFactionCount(); ++i) {
 					Faction *faction = world.getFaction(i);
@@ -5704,6 +5717,9 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 			//!!!
 
 			if(clearCaches == true) {
+				//printf("Line: %d Clear Caches for resume in progress game\n",__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"game.cpp line: %d Clear Caches for resume in progress game\n",__LINE__);
+
 				world.clearCaches();
 				for(int i = 0; i < world.getFactionCount(); ++i) {
 					Faction *faction = world.getFaction(i);
