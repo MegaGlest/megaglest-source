@@ -1320,6 +1320,19 @@ Vec2i Faction::getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceT
 
 	if(cachingDisabled == false) {
 		if(cacheResourceTargetList.empty() == false) {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"cacheResourceTargetList.size() [" MG_SIZE_T_SPECIFIER "]",cacheResourceTargetList.size());
+
+				if(frameIndex < 0) {
+					unit->logSynchData(__FILE__,__LINE__,szBuf);
+				}
+				else {
+					unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
+				}
+			}
+
+
 			std::vector<Vec2i> deleteList;
 
 			const int harvestDistance = 5;
@@ -1896,13 +1909,34 @@ void Faction::clearCaches() {
 	cachedCloseResourceTargetLookupList.clear();
 	mapSharedPathFinderCache.clear();
 
+	//Unit *firstUnit = NULL;
 	unsigned int unitCount = this->getUnitCount();
 	for(unsigned int i = 0; i < unitCount; ++i) {
 		Unit *unit = this->getUnit(i);
 		if(unit != NULL) {
+			//if(firstUnit == NULL) {
+			//	firstUnit = unit;
+			//}
 			unit->clearCaches();
+
+//			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+//				char szBuf[8096]="";
+//				snprintf(szBuf,8096,"[clearCaches unit check]");
+//				if(firstUnit != NULL) {
+//					firstUnit->logSynchData(__FILE__,__LINE__,szBuf);
+//				}
+//			}
 		}
 	}
+
+//	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+//		char szBuf[8096]="";
+//		snprintf(szBuf,8096,"[clearCaches] cacheResourceTargetList.size() [" MG_SIZE_T_SPECIFIER "] cacheResourceTargetList.size() [" MG_SIZE_T_SPECIFIER "] mapSharedPathFinderCache"  MG_SIZE_T_SPECIFIER "]",
+//				cacheResourceTargetList.size(),cacheResourceTargetList.size(),mapSharedPathFinderCache.size());
+//		if(firstUnit != NULL) {
+//			firstUnit->logSynchData(__FILE__,__LINE__,szBuf);
+//		}
+//	}
 }
 
 uint64 Faction::getCacheKBytes(uint64 *cache1Size, uint64 *cache2Size) {

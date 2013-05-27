@@ -596,6 +596,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 			bool localEcho = lang.isLanguageLocal(languageList[i]);
 			clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
     	}
+    	sleep(1);
 	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1905,6 +1906,7 @@ void MenuStateConnectedGame::PlayNow(bool saveGame) {
 				clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
 			}
 
+			sleep(1);
 			launchingNewGame = true;
 			clientInterface->broadcastGameStart(&gameSettings);
 		}
@@ -3929,8 +3931,8 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 		            }
 		            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] szMsg [%s] lastProgress.first = %d, fileProgress = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,szMsg,lastProgress.first,fileProgress);
 		            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
-		            sleep(1);
 		    	}
+		    	sleep(1);
             }
         }
     }
@@ -3954,6 +3956,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] szMsg [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,szMsg);
 				clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 			}
+			sleep(1);
     	}
     	else {
 			char *szBuf = (char *)userdata;
@@ -4003,6 +4006,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	            }
 	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 	    	}
+	    	sleep(1);
         }
         else {
     		printf("FAILED map itemName [%s] lastCheckedCRCMapName [%s] gameSettings->getMap() [%s]\n",
@@ -4031,6 +4035,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 		            }
 	            }
 	    	}
+	    	sleep(1);
 
             console.addLine(result.second,true);
         }
@@ -4061,6 +4066,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	            }
 	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 	    	}
+	    	sleep(1);
 
             // START
             // Clear the CRC Cache if it is populated
@@ -4122,6 +4128,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 		            }
 	            }
 	    	}
+	    	sleep(1);
 
             console.addLine(result.second,true);
         }
@@ -4152,6 +4159,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	            }
 	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 	    	}
+	    	sleep(1);
 
             // START
             // Clear the CRC Cache if it is populated
@@ -4210,6 +4218,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 		            }
 	            }
 	    	}
+	    	sleep(1);
 
             console.addLine(result.second,true);
         }
@@ -4241,6 +4250,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	            }
 	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 	    	}
+	    	sleep(1);
 
 	    	if(itemName == GameConstants::saveNetworkGameFileClientCompressed) {
 				string saveGameFilePath = "temp/";
@@ -4292,6 +4302,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 		            }
 	            }
 	    	}
+	    	sleep(1);
 
             console.addLine(result.second,true);
         }

@@ -207,7 +207,7 @@ void ClientInterface::shutdownNetworkCommandListThread() {
 		networkCommandListThread->signalQuit();
 
 		for(;networkCommandListThread->canShutdown(false) == false &&
-			difftime((long int)time(NULL),elapsed) <= 15;) {
+			difftime((long int)time(NULL),elapsed) <= 11;) {
 			//sleep(150);
 		}
 
@@ -1686,6 +1686,23 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 
 	//printf("Client signalServerWhenReadyToStartJoinedGame = %d\n",signalServerWhenReadyToStartJoinedGame);
 	if(signalServerWhenReadyToStartJoinedGame == true) {
+    	Lang &lang= Lang::getInstance();
+    	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
+    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+			string sText = "Player: %s is joining the game now.";
+			if(lang.hasString("JoinPlayerToCurrentGameLaunchDone",languageList[i]) == true) {
+				sText = lang.get("JoinPlayerToCurrentGameLaunchDone",languageList[i]);
+			}
+
+			if(clientSocket != NULL && clientSocket->isConnected() == true) {
+				string playerNameStr = getHumanPlayerName();
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,sText.c_str(),playerNameStr.c_str());
+
+				sendTextMessage(szBuf,-1,false,languageList[i]);
+			}
+    	}
+
 		this->resumeInGameJoin = true;
 		safeMutexFlags2.ReleaseLock();
 	}

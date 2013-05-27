@@ -2102,7 +2102,7 @@ void World::initUnits() {
 			}
 		}
 		else {
-			printf("Load game setting unit pos\n");
+			//printf("Load game setting unit pos\n");
 			refreshAllUnitExplorations();
 		}
 	}
