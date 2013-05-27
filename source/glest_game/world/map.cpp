@@ -1331,23 +1331,25 @@ void Map::putUnitCellsPrivate(Unit *unit, const Vec2i &pos, const UnitType *ut, 
 //                              getCell(currPos)->getUnit(unit->getCurrField())->toString().c_str());
 //                    }
 				}
-				if(getCell(currPos)->getUnit(field) == NULL ||
-				                   getCell(currPos)->getUnit(field) == unit) {
-					if(isMorph){
-                    	// unit is beeing morphed to another unit with maybe other field.
-                    	getCell(currPos)->setUnit(field, unit);
-                    	canPutInCell = false;
-					}
-	                if(canPutInCell == true) {
-	                    getCell(currPos)->setUnit(unit->getCurrField(), unit);
-	                }
-				}
-				else {
-					char szBuf[8096]="";
-					snprintf(szBuf,8096,"Trying to move unit [%d - %s] into occupied cell [%s] and field = %d, unit already in cell [%d - %s] ",unit->getId(),unit->getType()->getName().c_str(),pos.getString().c_str(),field,getCell(currPos)->getUnit(field)->getId(),getCell(currPos)->getUnit(field)->getType()->getName().c_str());
-					throw megaglest_runtime_error(szBuf);
-				}
 
+				if(canPutInCell == true) {
+					if(getCell(currPos)->getUnit(field) == NULL ||
+									   getCell(currPos)->getUnit(field) == unit) {
+						if(isMorph) {
+							// unit is beeing morphed to another unit with maybe other field.
+							getCell(currPos)->setUnit(field, unit);
+							canPutInCell = false;
+						}
+						if(canPutInCell == true) {
+							getCell(currPos)->setUnit(unit->getCurrField(), unit);
+						}
+					}
+					else {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"Trying to move unit [%d - %s] into occupied cell [%s] and field = %d, unit already in cell [%d - %s] ",unit->getId(),unit->getType()->getName().c_str(),pos.getString().c_str(),field,getCell(currPos)->getUnit(field)->getId(),getCell(currPos)->getUnit(field)->getType()->getName().c_str());
+						throw megaglest_runtime_error(szBuf);
+					}
+				}
 			}
 			else if(ut->hasCellMap() == true &&
 					ut->getAllowEmptyCellMap() == true &&
