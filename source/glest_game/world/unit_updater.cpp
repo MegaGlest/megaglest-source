@@ -2088,7 +2088,7 @@ void UnitUpdater::updateProduce(Unit *unit, int frameIndex) {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
-        if(unit->getProgress2()>pct->getProduced()->getProductionTime()){
+        if(unit->getProgress2() > pct->getProduced()->getProductionTime()){
             unit->finishCommand();
             unit->setCurrSkill(scStop);
 
@@ -2153,14 +2153,14 @@ void UnitUpdater::updateUpgrade(Unit *unit, int frameIndex) {
     Command *command= unit->getCurrCommand();
     const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(command->getCommandType());
 
-	if(unit->getCurrSkill()->getClass()!=scUpgrade){
+	if(unit->getCurrSkill()->getClass() != scUpgrade) {
 		//if not producing
 		unit->setCurrSkill(uct->getUpgradeSkillType());
     }
-	else{
+	else {
 		//if producing
 		unit->update2();
-        if(unit->getProgress2()>uct->getProduced()->getProductionTime()){
+        if(unit->getProgress2() > uct->getProduced()->getProductionTime()){
             unit->finishCommand();
             unit->setCurrSkill(scStop);
 			unit->getFaction()->finishUpgrade(uct->getProducedUpgrade());
@@ -2206,7 +2206,7 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
     }
     else{
 		unit->update2();
-        if(unit->getProgress2()>mct->getProduced()->getProductionTime()){
+        if(unit->getProgress2() > mct->getProduced()->getProductionTime()){
 			//int oldSize = 0;
 			//bool needMapUpdate = false;
 
