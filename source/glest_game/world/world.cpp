@@ -456,7 +456,7 @@ Checksum World::loadScenario(const string &path, Checksum *checksum, bool resetC
 
 	if(resetCurrentScenario == true) {
 		scenario = Scenario();
-		scriptManager->init(this, this->getGame()->getGameCameraPtr(),rootNode);
+		if(scriptManager) scriptManager->init(this, this->getGame()->getGameCameraPtr(),rootNode);
 	}
 
 	scenarioChecksum = scenario.load(path);
@@ -492,7 +492,7 @@ void World::updateAllFactionUnits() {
 	char perfBuf[8096]="";
 	std::vector<string> perfList;
 
-	scriptManager->onTimerTriggerEvent();
+	if(scriptManager) scriptManager->onTimerTriggerEvent();
 
 	// Prioritize grouped command units so closest units to target go first
 	// units
@@ -754,7 +754,7 @@ void World::update() {
 
 	//time
 	timeFlow.update();
-	scriptManager->onDayNightTriggerEvent();
+	if(scriptManager) scriptManager->onDayNightTriggerEvent();
 
 	if(showPerfStats) {
 		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
@@ -1076,7 +1076,7 @@ void World::moveUnitCells(Unit *unit) {
 		}
 	}
 
-	scriptManager->onCellTriggerEvent(unit);
+	if(scriptManager) scriptManager->onCellTriggerEvent(unit);
 }
 
 void World::addAttackEffects(const Unit *unit) {
@@ -1223,7 +1223,7 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 		if(placeUnit(pos, generationArea, unit, spaciated)) {
 			unit->create(true);
 			unit->born(NULL);
-			scriptManager->onUnitCreated(unit);
+			if(scriptManager) scriptManager->onUnitCreated(unit);
 		}
 		else {
 			delete unit;

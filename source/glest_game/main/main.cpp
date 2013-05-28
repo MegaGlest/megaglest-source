@@ -628,7 +628,8 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 
 		static bool inErrorNow = false;
 		if(inErrorNow == true) {
-			printf("\n** Already in error handler, msg [%s]\n",msg);
+			printf("\n=====================================\n");
+			printf("\n** Already in error handler aborting, msg [%s]\n",msg);
 			fflush(stdout);
 			abort();
 			return;
@@ -678,9 +679,16 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 					for(;GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && mainProgram->isMessageShowing();) {
 						//program->getState()->render();
 						Shared::Platform::Window::handleEvent();
-						mainProgram->loop();
-
-						//printf("\nhandle error #1\n");
+						try {
+							mainProgram->loop();
+						}
+						catch(const exception &e) {
+							printf("\n=====================================\n");
+							printf("\n** Already in error handler exiting errror rendering, msg [%s]\n",e.what());
+							fflush(stdout);
+							//abort();
+							break;
+						}
 					}
 				}
 			}
@@ -693,9 +701,16 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 					for(;GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && mainProgram->isMessageShowing();) {
 						//program->renderProgramMsgBox();
 						Shared::Platform::Window::handleEvent();
-						mainProgram->loop();
-
-						//printf("\nhandle error #2\n");
+						try {
+							mainProgram->loop();
+						}
+						catch(const exception &e) {
+							printf("\n=====================================\n");
+							printf("\n** Already in error handler exiting errror rendering, msg [%s]\n",e.what());
+							fflush(stdout);
+							//abort();
+							break;
+						}
 					}
 				}
 			}
