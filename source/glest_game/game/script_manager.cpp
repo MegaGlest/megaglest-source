@@ -214,6 +214,9 @@ ScriptManager::ScriptManager() {
 	currentCellTriggeredEventAreaExitUnitId = 0;
 	lastDayNightTriggerStatus = 0;
 	registeredDayNightEvent = false;
+
+	lastUnitTriggerEventUnitId = -1;
+	lastUnitTriggerEventType = utet_None;
 }
 
 ScriptManager::~ScriptManager() {
@@ -388,6 +391,13 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(getTimeOfDay, "getTimeOfDay");
 	luaScript.registerFunction(registerDayNightEvent, "registerDayNightEvent");
 	luaScript.registerFunction(unregisterDayNightEvent, "unregisterDayNightEvent");
+
+	luaScript.registerFunction(registerUnitTriggerEvent, "registerUnitTriggerEvent");
+	luaScript.registerFunction(unregisterUnitTriggerEvent, "unregisterUnitTriggerEvent");
+	luaScript.registerFunction(getLastUnitTriggerEventUnitId, "lastUnitTriggerEventUnit");
+	luaScript.registerFunction(getLastUnitTriggerEventType, "lastUnitTriggerEventType");
+	luaScript.registerFunction(getUnitProperty, "getUnitProperty");
+	luaScript.registerFunction(getUnitPropertyName, "getUnitPropertyName");
 
 	//load code
 	for(int i= 0; i<scenario->getScriptCount(); ++i){
@@ -1792,6 +1802,106 @@ bool ScriptManager::getAttackWarningsEnabled() {
 	return world->getAttackWarningsEnabled();
 }
 
+void ScriptManager::registerUnitTriggerEvent(int unitId) {
+	UnitTriggerEventList[unitId]=utet_None;
+}
+
+void ScriptManager::unregisterUnitTriggerEvent(int unitId) {
+	UnitTriggerEventList.erase(unitId);
+}
+
+int ScriptManager::getLastUnitTriggerEventUnitId() {
+	return lastUnitTriggerEventUnitId;
+}
+UnitTriggerEventType ScriptManager::getLastUnitTriggerEventType() {
+	return lastUnitTriggerEventType;
+}
+
+int ScriptManager::getUnitProperty(int unitId, UnitTriggerEventType type) {
+	int result = -1;
+	Unit *unit= world->findUnitById(unitId);
+	if(unit != NULL) {
+		switch(type) {
+			case utet_None:
+				result = -2;
+			break;
+			case utet_HPChanged:
+				result = unit->getHp();
+			break;
+			case utet_EPChanged:
+				result = unit->getEp();
+			break;
+			case utet_LevelChanged:
+				result = -3;
+				if(unit->getLevel() != NULL) {
+					result = unit->getLevel()->getKills();
+				}
+			break;
+			case utet_FieldChanged:
+				result = unit->getCurrField();
+			break;
+			case utet_SkillChanged:
+				result = -4;
+				if(unit->getCurrSkill() != NULL) {
+					result = unit->getCurrSkill()->getClass();
+				}
+			break;
+			default:
+				result = -1000;
+				break;
+		}
+	}
+	return result;
+}
+const string ScriptManager::getUnitPropertyName(int unitId, UnitTriggerEventType type) {
+	string result = "";
+	Unit *unit= world->findUnitById(unitId);
+	if(unit != NULL) {
+		switch(type) {
+			case utet_None:
+				result = "";
+			break;
+			case utet_HPChanged:
+				result = "";
+			break;
+			case utet_EPChanged:
+				result = "";
+			break;
+			case utet_LevelChanged:
+				result = "";
+				if(unit->getLevel() != NULL) {
+					result = unit->getLevel()->getName(false);
+				}
+			break;
+			case utet_FieldChanged:
+				result = "";
+			break;
+			case utet_SkillChanged:
+				result = "";
+				if(unit->getCurrSkill() != NULL) {
+					result = unit->getCurrSkill()->getName();
+				}
+			break;
+			default:
+				result = "???";
+				break;
+		}
+	}
+	return result;
+}
+
+void ScriptManager::onUnitTriggerEvent(const Unit *unit, UnitTriggerEventType event) {
+	if(UnitTriggerEventList.empty() == false) {
+		std::map<int,UnitTriggerEventType>::iterator iterFind = UnitTriggerEventList.find(unit->getId());
+		if(iterFind != UnitTriggerEventList.end()) {
+			lastUnitTriggerEventUnitId = unit->getId();
+			lastUnitTriggerEventType = event;
+
+			luaScript.beginCall("unitTriggerEvent");
+			luaScript.endCall();
+		}
+	}
+}
 
 void ScriptManager::registerDayNightEvent() {
 	registeredDayNightEvent = true;
@@ -2917,6 +3027,41 @@ int ScriptManager::unregisterDayNightEvent(LuaHandle* luaHandle) {
 	return luaArguments.getReturnCount();
 }
 
+int ScriptManager::registerUnitTriggerEvent(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->registerUnitTriggerEvent(luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+int ScriptManager::unregisterUnitTriggerEvent(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->unregisterUnitTriggerEvent(luaArguments.getInt(-1));
+	return luaArguments.getReturnCount();
+}
+int ScriptManager::getLastUnitTriggerEventUnitId(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getLastUnitTriggerEventUnitId());
+	return luaArguments.getReturnCount();
+}
+int ScriptManager::getLastUnitTriggerEventType(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getLastUnitTriggerEventType());
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::getUnitProperty(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	int value = thisScriptManager->getUnitProperty(luaArguments.getInt(-2),static_cast<UnitTriggerEventType>(luaArguments.getInt(-1)));
+	luaArguments.returnInt(value);
+	return luaArguments.getReturnCount();
+}
+int ScriptManager::getUnitPropertyName(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	const string unitname = thisScriptManager->getUnitPropertyName(luaArguments.getInt(-2),static_cast<UnitTriggerEventType>(luaArguments.getInt(-1)));
+	luaArguments.returnString(unitname);
+	return luaArguments.getReturnCount();
+}
+
+
 void ScriptManager::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *scriptManagerNode = rootNode->addChild("ScriptManager");
@@ -3021,6 +3166,16 @@ void ScriptManager::saveGame(XmlNode *rootNode) {
 
 	scriptManagerNode->addAttribute("registeredDayNightEvent",intToStr(registeredDayNightEvent), mapTagReplacements);
 	scriptManagerNode->addAttribute("lastDayNightTriggerStatus",intToStr(lastDayNightTriggerStatus), mapTagReplacements);
+
+	for(std::map<int,UnitTriggerEventType>::iterator iterMap = UnitTriggerEventList.begin();
+			iterMap != UnitTriggerEventList.end(); ++iterMap) {
+		XmlNode *unitTriggerEventListNode = scriptManagerNode->addChild("UnitTriggerEventList");
+
+		unitTriggerEventListNode->addAttribute("unitId",intToStr(iterMap->first), mapTagReplacements);
+		unitTriggerEventListNode->addAttribute("evenType",intToStr(iterMap->second), mapTagReplacements);
+	}
+	scriptManagerNode->addAttribute("lastUnitTriggerEventUnitId",intToStr(lastUnitTriggerEventUnitId), mapTagReplacements);
+	scriptManagerNode->addAttribute("lastUnitTriggerEventType",intToStr(lastUnitTriggerEventType), mapTagReplacements);
 
 	luaScript.saveGame(scriptManagerNode);
 }
@@ -3137,6 +3292,21 @@ void ScriptManager::loadGame(const XmlNode *rootNode) {
 	}
 	if(scriptManagerNode->hasAttribute("lastDayNightTriggerStatus") == true) {
 		lastDayNightTriggerStatus = scriptManagerNode->getAttribute("lastDayNightTriggerStatus")->getIntValue();
+	}
+
+	vector<XmlNode *> unitTriggerEventListNodeList = scriptManagerNode->getChildList("UnitTriggerEventList");
+	for(unsigned int i = 0; i < unitTriggerEventListNodeList.size(); ++i) {
+		XmlNode *node = unitTriggerEventListNodeList[i];
+
+		int unitId = node->getAttribute("unitId")->getIntValue();
+		UnitTriggerEventType evenType = static_cast<UnitTriggerEventType>(node->getAttribute("eventType")->getIntValue());
+		UnitTriggerEventList[unitId] = evenType;
+	}
+	if(scriptManagerNode->hasAttribute("lastUnitTriggerEventUnitId") == true) {
+		lastUnitTriggerEventUnitId = scriptManagerNode->getAttribute("lastUnitTriggerEventUnitId")->getIntValue();
+	}
+	if(scriptManagerNode->hasAttribute("lastUnitTriggerEventType") == true) {
+		lastUnitTriggerEventType = static_cast<UnitTriggerEventType>(scriptManagerNode->getAttribute("lastUnitTriggerEventType")->getIntValue());
 	}
 
 	luaScript.loadGame(scriptManagerNode);

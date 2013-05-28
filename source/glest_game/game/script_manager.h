@@ -95,6 +95,15 @@ private:
 //	class ScriptManager
 // =====================================================
 
+enum UnitTriggerEventType {
+	utet_None = 0,
+	utet_HPChanged = 1,
+	utet_EPChanged,
+	utet_LevelChanged,
+	utet_FieldChanged,
+	utet_SkillChanged
+};
+
 enum CellTriggerEventType {
 	ctet_Unit,
 	ctet_UnitPos,
@@ -200,6 +209,10 @@ private:
 	bool registeredDayNightEvent;
 	int lastDayNightTriggerStatus;
 
+	std::map<int,UnitTriggerEventType> UnitTriggerEventList;
+	int lastUnitTriggerEventUnitId;
+	UnitTriggerEventType lastUnitTriggerEventType;
+
 	RandomGen random;
 	const XmlNode *rootNode;
 
@@ -234,6 +247,7 @@ public:
 	void onCellTriggerEvent(Unit *movingUnit);
 	void onTimerTriggerEvent();
 	void onDayNightTriggerEvent();
+	void onUnitTriggerEvent(const Unit *unit, UnitTriggerEventType event);
 
 	bool getGameWon() const;
 	bool getIsGameOver() const;
@@ -391,6 +405,13 @@ private:
 	void registerDayNightEvent();
 	void unregisterDayNightEvent();
 
+	void registerUnitTriggerEvent(int unitId);
+	void unregisterUnitTriggerEvent(int unitId);
+	int getLastUnitTriggerEventUnitId();
+	UnitTriggerEventType getLastUnitTriggerEventType();
+	int getUnitProperty(int unitId, UnitTriggerEventType type);
+	const string getUnitPropertyName(int unitId, UnitTriggerEventType type);
+
 	//callbacks, commands
 	static int networkShowMessageForFaction(LuaHandle* luaHandle);
 	static int networkShowMessageForTeam(LuaHandle* luaHandle);
@@ -543,6 +564,13 @@ private:
 	static int getTimeOfDay(LuaHandle* luaHandle);
 	static int registerDayNightEvent(LuaHandle* luaHandle);
 	static int unregisterDayNightEvent(LuaHandle* luaHandle);
+
+	static int registerUnitTriggerEvent(LuaHandle* luaHandle);
+	static int unregisterUnitTriggerEvent(LuaHandle* luaHandle);
+	static int getLastUnitTriggerEventUnitId(LuaHandle* luaHandle);
+	static int getLastUnitTriggerEventType(LuaHandle* luaHandle);
+	static int getUnitProperty(LuaHandle* luaHandle);
+	static int getUnitPropertyName(LuaHandle* luaHandle);
 
 };
 
