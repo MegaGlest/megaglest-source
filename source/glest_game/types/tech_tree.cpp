@@ -140,6 +140,9 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		xmlTree.load(path, Properties::getTagReplacementValues(&mapExtraTagReplacementValues));
 		loadedFileList[path].push_back(make_pair(currentPath,currentPath));
 
+		Properties::setTechtreePath(currentPath);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("==> Set techtree path to [%s]\n",currentPath.c_str());
+
 		const XmlNode *techTreeNode= xmlTree.getRootNode();
 
 		//attack types

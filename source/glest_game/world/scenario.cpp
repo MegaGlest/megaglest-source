@@ -55,6 +55,24 @@ Checksum Scenario::load(const string &path) {
 		Logger::getInstance().add(szBuf, true);
 
 		bool isTutorial = Scenario::isGameTutorial(path);
+
+		//Properties::setTechtreePath();
+
+		string scenarioFolder = cutLastFile(formatPath(path));
+		scenarioFolder = cutLastFile(scenarioFolder);
+		endPathWithSlash(scenarioFolder);
+
+		if(isTutorial == false) {
+			Properties::setScenarioPath(scenarioFolder);
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("==> Set scenario path to [%s]\n",scenarioFolder.c_str());
+		}
+		else {
+			Properties::setTutorialPath(scenarioFolder);
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("==> Set tutorial path to [%s]\n",scenarioFolder.c_str());
+		}
+
 		Scenario::loadScenarioInfo(path, &info, isTutorial);
 
 		//parse xml
