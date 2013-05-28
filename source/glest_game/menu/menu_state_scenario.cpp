@@ -50,7 +50,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
     }
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -139,7 +139,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
 		}
 		catch(const std::exception &ex) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+			snprintf(szBuf,8096,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 			SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -160,7 +160,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
     }
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		snprintf(szBuf,8096,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -201,7 +201,7 @@ MenuStateScenario::~MenuStateScenario() {
 }
 
 void MenuStateScenario::cleanupPreviewTexture() {
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] scenarioLogoTexture [%p]\n",__FILE__,__FUNCTION__,__LINE__,scenarioLogoTexture);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] scenarioLogoTexture [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenarioLogoTexture);
 
 	if(scenarioLogoTexture != NULL) {
 		Renderer::getInstance().endTexture(rsGlobal, scenarioLogoTexture, false);
@@ -248,7 +248,7 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
         }
         catch(const std::exception &ex) {
             char szBuf[8096]="";
-            snprintf(szBuf,8096,"In [%s::%s %d] Error detected:\n%s\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+            snprintf(szBuf,8096,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
             SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
             if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
@@ -308,15 +308,27 @@ void MenuStateScenario::update() {
 			this->autoloadScenarioName = "";
 		}
 		else {
-			if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
-				loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
-				labelInfo.setText(scenarioInfo.desc);
+			try {
+				this->autoloadScenarioName = "";
+				if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
+					loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+					labelInfo.setText(scenarioInfo.desc);
 
-				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-				CoreData &coreData= CoreData::getInstance();
-				soundRenderer.playFx(coreData.getClickSoundC());
-				launchGame();
-				return;
+					SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+					CoreData &coreData= CoreData::getInstance();
+					soundRenderer.playFx(coreData.getClickSoundC());
+					launchGame();
+					return;
+				}
+			}
+			catch(const std::exception &ex) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+				SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+				mainMessageBoxState=1;
+				showMessageBox( "Error: " + string(ex.what()), "Error detected", false);
 			}
 		}
 	}
@@ -367,7 +379,7 @@ void MenuStateScenario::loadScenarioPreviewTexture(){
 
 			Game::extractScenarioLogoFile(&gameSettings, scenarioLogo, loadingImageUsed);
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] scenarioLogo [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioLogo.c_str());
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] scenarioLogo [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenarioLogo.c_str());
 
 			if(scenarioLogo != "") {
 				cleanupPreviewTexture();
