@@ -28,6 +28,9 @@
 using namespace Shared::Xml;
 using namespace Shared::Platform;
 
+//
+// Utility methods for tests
+//
 bool removeTestFile(string file) {
 #ifdef WIN32
 	int result = _unlink(file.c_str());
@@ -67,7 +70,11 @@ public:
 		removeTestFile(this->filename);
 	}
 };
+//
 
+//
+// Tests for XmlIo
+//
 class XmlIoTest : public CppUnit::TestFixture {
 	// Register the suite of tests for this fixture
 	CPPUNIT_TEST_SUITE( XmlIoTest );
@@ -87,14 +94,14 @@ public:
 
 	void test_getInstance() {
 		XmlIo &newInstance = XmlIo::getInstance();
-		CPPUNIT_ASSERT( newInstance.isInitialized() == true );
+		CPPUNIT_ASSERT_EQUAL( true, newInstance.isInitialized() );
 	}
 	void test_cleanup() {
 		XmlIo &newInstance = XmlIo::getInstance();
-		CPPUNIT_ASSERT( newInstance.isInitialized() == true );
+		CPPUNIT_ASSERT_EQUAL( true, newInstance.isInitialized() );
 
 		newInstance.cleanup();
-		CPPUNIT_ASSERT( newInstance.isInitialized() == false );
+		CPPUNIT_ASSERT_EQUAL( false, newInstance.isInitialized() );
 	}
 	void test_load_file_missing() {
 		XmlNode *rootNode = XmlIo::getInstance().load("/some/path/that/does/not exist", std::map<string,string>());
@@ -135,6 +142,9 @@ public:
 	}
 };
 
+//
+// Tests for XmlIoRapid
+//
 class XmlIoRapidTest : public CppUnit::TestFixture {
 	// Register the suite of tests for this fixture
 	CPPUNIT_TEST_SUITE( XmlIoRapidTest );
@@ -154,14 +164,14 @@ public:
 
 	void test_getInstance() {
 		XmlIoRapid &newInstance = XmlIoRapid::getInstance();
-		CPPUNIT_ASSERT( newInstance.isInitialized() == true );
+		CPPUNIT_ASSERT_EQUAL( true, newInstance.isInitialized() );
 	}
 	void test_cleanup() {
 		XmlIoRapid &newInstance = XmlIoRapid::getInstance();
-		CPPUNIT_ASSERT( newInstance.isInitialized() == true );
+		CPPUNIT_ASSERT_EQUAL( true, newInstance.isInitialized() );
 
 		newInstance.cleanup();
-		CPPUNIT_ASSERT( newInstance.isInitialized() == false );
+		CPPUNIT_ASSERT_EQUAL( false, newInstance.isInitialized() );
 	}
 	void test_load_file_missing() {
 		XmlNode *rootNode = XmlIoRapid::getInstance().load("/some/path/that/does/not exist", std::map<string,string>());
@@ -201,6 +211,9 @@ public:
 	}
 };
 
+//
+// Tests for XmlTree
+//
 class XmlTreeTest : public CppUnit::TestFixture {
 	// Register the suite of tests for this fixture
 	CPPUNIT_TEST_SUITE( XmlTreeTest );
@@ -231,7 +244,7 @@ public:
 	}
 	void test_valid_xml_engine() {
 		XmlTree xmlInstance;
-		CPPUNIT_ASSERT( xmlInstance.getRootNode() == NULL );
+		CPPUNIT_ASSERT_EQUAL( (XmlNode *)NULL, xmlInstance.getRootNode() );
 	}
 	void test_init() {
 		XmlTree xmlInstance;
@@ -269,6 +282,9 @@ public:
 };
 
 
+//
+// Tests for XmlNode
+//
 class XmlNodeTest : public CppUnit::TestFixture {
 	// Register the suite of tests for this fixture
 	CPPUNIT_TEST_SUITE( XmlNodeTest );
@@ -341,7 +357,7 @@ public:
 	void test_child_nodes() {
 		XmlNode node("testNode");
 
-		CPPUNIT_ASSERT( node.getName() == "testNode" );
+		CPPUNIT_ASSERT_EQUAL( string("testNode"), node.getName() );
 		CPPUNIT_ASSERT_EQUAL( (size_t)0,node.getChildCount() );
 
 		XmlNode *childNode1 = node.addChild("child1");
@@ -360,7 +376,7 @@ public:
 		CPPUNIT_ASSERT_EQUAL( (size_t)3, childNode1->getChildCount() );
 		CPPUNIT_ASSERT_EQUAL( string("testValue3"), childChildNode3->getText() );
 
-		CPPUNIT_ASSERT( childNode1->hasChildAtIndex("childchild2",1) == true);
+		CPPUNIT_ASSERT_EQUAL( true, childNode1->hasChildAtIndex("childchild2",1));
 
 		XmlNode *childNode2 = node.addChild("child2","child2Value");
 		CPPUNIT_ASSERT_EQUAL( (size_t)2,node.getChildCount() );
@@ -384,7 +400,7 @@ public:
 		CPPUNIT_ASSERT_EQUAL( string("child2xValue"), child2List[1]->getText() );
 
 		//printf("%d\n",__LINE__);
-		CPPUNIT_ASSERT( childNode3->hasChild("child2") == false);
+		CPPUNIT_ASSERT_EQUAL( false, childNode3->hasChild("child2"));
 		CPPUNIT_ASSERT_EQUAL( 2, node.clearChild("child2"));
 		CPPUNIT_ASSERT_EQUAL( (size_t)2,node.getChildCount() );
 	}
@@ -392,7 +408,7 @@ public:
 	void test_node_attributes() {
 		XmlNode node("testNode");
 
-		CPPUNIT_ASSERT( node.getName() == "testNode" );
+		CPPUNIT_ASSERT_EQUAL( string("testNode"), node.getName() );
 		CPPUNIT_ASSERT_EQUAL( (size_t)0,node.getAttributeCount() );
 		CPPUNIT_ASSERT_EQUAL( (XmlAttribute *)NULL, node.getAttribute("some-attribute",false) );
 		CPPUNIT_ASSERT_EQUAL( false, node.hasAttribute("some-attribute") );
@@ -407,9 +423,154 @@ public:
 
 };
 
+//
+// Tests for XmlAttribute
+//
+class XmlAttributeTest : public CppUnit::TestFixture {
+	// Register the suite of tests for this fixture
+	CPPUNIT_TEST_SUITE( XmlAttributeTest );
 
-// Suite Registrations
+	CPPUNIT_TEST_EXCEPTION( test_null_xerces_attribute,  megaglest_runtime_error );
+	CPPUNIT_TEST( test_node_attributes );
+	CPPUNIT_TEST_EXCEPTION( test_node_attributes_restricted, megaglest_runtime_error );
+	CPPUNIT_TEST_EXCEPTION( test_node_attributes_int_outofrange, megaglest_runtime_error );
+	CPPUNIT_TEST_EXCEPTION( test_node_attributes_float_outofrange, megaglest_runtime_error );
+
+	CPPUNIT_TEST_SUITE_END();
+	// End of Fixture registration
+
+private:
+
+	class XmlIoMock : public XmlIo {
+	protected:
+		virtual void releaseDOMParser() { }
+
+	public:
+		XmlIoMock() : XmlIo() {	}
+
+		DOMNode *loadDOMNode(const string &path, bool noValidation=false) {
+			return XmlIo::loadDOMNode(path, noValidation);
+		}
+
+		void manualParserRelease() {
+			XmlIo::releaseDOMParser();
+		}
+	};
+
+public:
+
+	void test_null_xerces_attribute() {
+		const string test_filename = "xml_test_valid.xml";
+		createValidXMLTestFile(test_filename);
+		SafeRemoveTestFile deleteFile(test_filename);
+
+		XERCES_CPP_NAMESPACE::DOMNode *node = NULL;
+		const std::map<string,string> mapTagReplacementValues;
+		XmlAttribute attr(node, mapTagReplacementValues);
+	}
+
+	void test_node_attributes() {
+		const string test_filename = "xml_test_valid.xml";
+		createValidXMLTestFile(test_filename);
+		SafeRemoveTestFile deleteFile(test_filename);
+
+		XmlIoMock xmlIo;
+		XERCES_CPP_NAMESPACE::DOMNode *node = xmlIo.loadDOMNode(test_filename);
+		const std::map<string,string> mapTagReplacementValues;
+
+		XmlAttribute attr(node, mapTagReplacementValues);
+
+		CPPUNIT_ASSERT_EQUAL( string("menu"),attr.getName() );
+		CPPUNIT_ASSERT_EQUAL( string(""),attr.getValue() );
+
+		attr.setValue("abcdefg");
+		CPPUNIT_ASSERT_EQUAL( string("abcdefg"),attr.getValue() );
+		CPPUNIT_ASSERT_EQUAL( string("abcdefg"),attr.getRestrictedValue() );
+
+		attr.setValue("!@#$%^&*()_+");
+		CPPUNIT_ASSERT_EQUAL( string("!@#$%^&*()_+"),attr.getValue() );
+
+		attr.setValue("true");
+		CPPUNIT_ASSERT_EQUAL( true,attr.getBoolValue() );
+
+		attr.setValue("false");
+		CPPUNIT_ASSERT_EQUAL( false,attr.getBoolValue() );
+
+		attr.setValue("-123456");
+		CPPUNIT_ASSERT_EQUAL( -123456,attr.getIntValue() );
+
+		attr.setValue("1");
+		CPPUNIT_ASSERT_EQUAL( 1,attr.getIntValue(1, 10) );
+		attr.setValue("10");
+		CPPUNIT_ASSERT_EQUAL( 10,attr.getIntValue(1, 10) );
+		attr.setValue("5");
+		CPPUNIT_ASSERT_EQUAL( 5,attr.getIntValue(1, 10) );
+
+		attr.setValue("-123456.123456");
+		CPPUNIT_ASSERT_DOUBLES_EQUAL( -123456.123456f,attr.getFloatValue(), 1e-6 );
+
+		// Nasty floating point issues shown by this test sometimes may need to comment out
+		attr.setValue("123456.123456");
+		CPPUNIT_ASSERT_DOUBLES_EQUAL( 123456.123456f,attr.getFloatValue(123456.01f, 123456.999f), 1e-6 );
+	}
+
+	void test_node_attributes_restricted() {
+		const string test_filename = "xml_test_valid.xml";
+		createValidXMLTestFile(test_filename);
+		SafeRemoveTestFile deleteFile(test_filename);
+
+		XmlIoMock xmlIo;
+
+		XERCES_CPP_NAMESPACE::DOMNode *node = xmlIo.loadDOMNode(test_filename);
+		const std::map<string,string> mapTagReplacementValues;
+
+		XmlAttribute attr(node, mapTagReplacementValues);
+
+		CPPUNIT_ASSERT_EQUAL( string("menu"),attr.getName() );
+		CPPUNIT_ASSERT_EQUAL( string(""),attr.getValue() );
+
+		attr.setValue("!@#$%^&*()_+");
+		CPPUNIT_ASSERT_EQUAL( string("!@#$%^&*()_+"),attr.getRestrictedValue() );
+	}
+
+	void test_node_attributes_int_outofrange() {
+		const string test_filename = "xml_test_valid.xml";
+		createValidXMLTestFile(test_filename);
+		SafeRemoveTestFile deleteFile(test_filename);
+
+		XmlIoMock xmlIo;
+		XERCES_CPP_NAMESPACE::DOMNode *node = xmlIo.loadDOMNode(test_filename);
+		const std::map<string,string> mapTagReplacementValues;
+
+		XmlAttribute attr(node, mapTagReplacementValues);
+
+		CPPUNIT_ASSERT_EQUAL( string("menu"),attr.getName() );
+		CPPUNIT_ASSERT_EQUAL( string(""),attr.getValue() );
+
+		attr.setValue("-123456");
+		int value = attr.getIntValue(1, 10);
+	}
+	void test_node_attributes_float_outofrange() {
+		const string test_filename = "xml_test_valid.xml";
+		createValidXMLTestFile(test_filename);
+		SafeRemoveTestFile deleteFile(test_filename);
+
+		XmlIoMock xmlIo;
+		XERCES_CPP_NAMESPACE::DOMNode *node = xmlIo.loadDOMNode(test_filename);
+		const std::map<string,string> mapTagReplacementValues;
+
+		XmlAttribute attr(node, mapTagReplacementValues);
+
+		attr.setValue("-123456.01");
+		float value = attr.getFloatValue(-123456.999f, -123456.123456f);
+	}
+};
+
+
+// Test Suite Registrations
 CPPUNIT_TEST_SUITE_REGISTRATION( XmlIoTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( XmlIoRapidTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( XmlTreeTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( XmlNodeTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( XmlAttributeTest );
+//
