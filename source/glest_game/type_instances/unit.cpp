@@ -633,6 +633,15 @@ void Unit::setModelFacing(CardinalDir value) {
 	lastRotation = targetRotation = rotation = value * 90.f;
 }
 
+void Unit::setCurrField(Field currField) {
+	Field original_field = this->currField;
+
+	this->currField = currField;
+
+	if(original_field != this->currField) {
+		game->getScriptManager()->onUnitTriggerEvent(this,utet_FieldChanged);
+	}
+}
 // ====================================== get ======================================
 
 Vec2i Unit::getCenteredPos() const {
@@ -824,10 +833,10 @@ const Level *Unit::getNextLevel() const{
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	if(level==NULL && type->getLevelCount()>0){
+	if(level == NULL && type->getLevelCount() > 0) {
 		return type->getLevel(0);
 	}
-	else{
+	else {
 		for(int i=1; i<type->getLevelCount(); ++i){
 			if(type->getLevel(i-1)==level){
 				return type->getLevel(i);
@@ -1073,7 +1082,12 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 		this->lastModelIndexForCurrSkillType = -1;
 		this->animationRandomCycleCount = 0;
 	}
+	const SkillType *original_skill = this->currSkill;
 	this->currSkill= currSkill;
+
+	if(original_skill != this->currSkill) {
+		game->getScriptManager()->onUnitTriggerEvent(this,utet_SkillChanged);
+	}
 }
 
 void Unit::setCurrSkill(SkillClass sc) {
@@ -1651,7 +1665,11 @@ void Unit::born(const CommandType *ct) {
 	setCurrSkill(scStop);
 
 	checkItemInVault(&this->hp,this->hp);
-	hp= type->getMaxHp();
+	int original_hp = this->hp;
+	this->hp= type->getMaxHp();
+	if(original_hp != this->hp) {
+		game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+	}
 	addItemToVault(&this->hp,this->hp);
 }
 
@@ -2353,7 +2371,11 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 
 		checkItemInVault(&this->hp,this->hp);
 		//hp += boost->boostUpgrade.getMaxHp();
-		hp += (totalUpgrade.getMaxHp() - prevMaxHp);
+		int original_hp = this->hp;
+		this->hp += (totalUpgrade.getMaxHp() - prevMaxHp);
+		if(original_hp != this->hp) {
+			game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+		}
 		addItemToVault(&this->hp,this->hp);
 
 		//regenerate hp upgrade / or boost
@@ -2361,8 +2383,11 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 			checkItemInVault(&this->hp,this->hp);
 
 			//printf("BEFORE Apply Hp Regen max = %d, prev = %d, hp = %d\n",totalUpgrade.getMaxHpRegeneration(),prevMaxHpRegen,hp);
-
-			hp += (totalUpgrade.getMaxHpRegeneration() - prevMaxHpRegen);
+			int original_hp = this->hp;
+			this->hp += (totalUpgrade.getMaxHpRegeneration() - prevMaxHpRegen);
+			if(original_hp != this->hp) {
+				game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+			}
 			//if(hp > type->getTotalMaxHp(&totalUpgrade)) {
 			//	hp = type->getTotalMaxHp(&totalUpgrade);
 			//}
@@ -2398,14 +2423,15 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		if(wasAlive == true) {
 			//startDamageParticles
 
-			if(originalHp > hp) {
+			if(originalHp > this->hp) {
 				startDamageParticles();
 			}
 
 			//stop DamageParticles on death
-			if(hp <= 0) {
-				alive= false;
-				hp=0;
+			if(this->hp <= 0) {
+				this->alive= false;
+				this->hp=0;
+				game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
 				addItemToVault(&this->hp,this->hp);
 				checkModelStateInfoForNewHpValue();
 
@@ -2450,8 +2476,12 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 	totalUpgrade.deapply(&boost->boostUpgrade, this);
 
 	checkItemInVault(&this->hp,this->hp);
+	int original_hp = this->hp;
 	//hp -= boost->boostUpgrade.getMaxHp();
-	hp -= (prevMaxHp - totalUpgrade.getMaxHp());
+	this->hp -= (prevMaxHp - totalUpgrade.getMaxHp());
+	if(original_hp != this->hp) {
+		game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+	}
 	addItemToVault(&this->hp,this->hp);
 
 	//regenerate hp upgrade / or boost
@@ -2459,8 +2489,11 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		checkItemInVault(&this->hp,this->hp);
 
 		//printf("BEFORE DeApply Hp Regen max = %d, prev = %d, hp = %d\n",totalUpgrade.getMaxHpRegeneration(),prevMaxHpRegen,hp);
-
-		hp -= (totalUpgrade.getMaxHpRegeneration() - prevMaxHpRegen);
+		int original_hp = this->hp;
+		this->hp -= (totalUpgrade.getMaxHpRegeneration() - prevMaxHpRegen);
+		if(original_hp != this->hp) {
+			game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+		}
 		//if(hp > totalUpgrade.getMaxHp()) {
 		//	hp = totalUpgrade.getMaxHp();
 		//}
@@ -2477,14 +2510,15 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		//printf("DE-APPLYING ATTACK BOOST wasalive = true to unit [%s - %d] from unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId());
 
 		//startDamageParticles
-		if(originalHp > hp) {
+		if(originalHp > this->hp) {
 			startDamageParticles();
 		}
 
 		//stop DamageParticles on death
-		if(hp <= 0) {
-			alive= false;
-			hp=0;
+		if(this->hp <= 0) {
+			this->alive= false;
+			this->hp=0;
+			game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
 			addItemToVault(&this->hp,this->hp);
 
 			checkModelStateInfoForNewHpValue();
@@ -2543,9 +2577,13 @@ void Unit::tick() {
 			if( currSkill->getClass() != scBeBuilt){
 				if(type->getTotalMaxHpRegeneration(&totalUpgrade) >= 0) {
 					checkItemInVault(&this->hp,this->hp);
-					hp += type->getTotalMaxHpRegeneration(&totalUpgrade);
-					if(hp > type->getTotalMaxHp(&totalUpgrade)) {
-						hp = type->getTotalMaxHp(&totalUpgrade);
+					int original_hp = this->hp;
+					this->hp += type->getTotalMaxHpRegeneration(&totalUpgrade);
+					if(this->hp > type->getTotalMaxHp(&totalUpgrade)) {
+						this->hp = type->getTotalMaxHp(&totalUpgrade);
+					}
+					if(original_hp != this->hp) {
+						game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
 					}
 					addItemToVault(&this->hp,this->hp);
 
@@ -2575,10 +2613,13 @@ void Unit::tick() {
 			if(type->getHpRegeneration() >= 0) {
 				if( currSkill->getClass() != scBeBuilt){
 					checkItemInVault(&this->hp,this->hp);
-
-					hp += type->getHpRegeneration();
-					if(hp > type->getTotalMaxHp(&totalUpgrade)) {
-						hp = type->getTotalMaxHp(&totalUpgrade);
+					int original_hp = this->hp;
+					this->hp += type->getHpRegeneration();
+					if(this->hp > type->getTotalMaxHp(&totalUpgrade)) {
+						this->hp = type->getTotalMaxHp(&totalUpgrade);
+					}
+					if(original_hp != this->hp) {
+						game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
 					}
 					addItemToVault(&this->hp,this->hp);
 
@@ -2618,9 +2659,13 @@ void Unit::tick() {
 		//regenerate ep upgrade / or boost
 		checkItemInVault(&this->ep,this->ep);
 		//regenerate ep
-		ep += type->getTotalMaxEpRegeneration(&totalUpgrade);
-		if(ep > type->getTotalMaxEp(&totalUpgrade)){
-			ep = type->getTotalMaxEp(&totalUpgrade);
+		int original_ep = this->ep;
+		this->ep += type->getTotalMaxEpRegeneration(&totalUpgrade);
+		if(this->ep > type->getTotalMaxEp(&totalUpgrade)){
+			this->ep = type->getTotalMaxEp(&totalUpgrade);
+		}
+		if(original_ep != this->ep) {
+			game->getScriptManager()->onUnitTriggerEvent(this,utet_EPChanged);
 		}
 		addItemToVault(&this->ep,this->ep);
 
@@ -2641,13 +2686,17 @@ bool Unit::computeEp() {
 	}
 
 	//if not enough ep
-    if(ep - currSkill->getEpCost() < 0) {
+    if(this->ep - currSkill->getEpCost() < 0) {
         return true;
     }
 
 	checkItemInVault(&this->ep,this->ep);
+	int original_ep = this->ep;
 	//decrease ep
-    ep -= currSkill->getEpCost();
+	this->ep -= currSkill->getEpCost();
+	if(original_ep != this->ep) {
+		game->getScriptManager()->onUnitTriggerEvent(this,utet_EPChanged);
+	}
 	addItemToVault(&this->ep,this->ep);
 
 	if(getType() == NULL) {
@@ -2656,8 +2705,12 @@ bool Unit::computeEp() {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	if(ep > getType()->getTotalMaxEp(&totalUpgrade)){
-        ep = getType()->getTotalMaxEp(&totalUpgrade);
+	if(this->ep > getType()->getTotalMaxEp(&totalUpgrade)){
+		int original_ep = this->ep;
+		this->ep = getType()->getTotalMaxEp(&totalUpgrade);
+    	if(original_ep != this->ep) {
+    		game->getScriptManager()->onUnitTriggerEvent(this,utet_EPChanged);
+    	}
 	}
 	addItemToVault(&this->ep,this->ep);
 
@@ -2674,12 +2727,19 @@ bool Unit::repair(){
 
 	//increase hp
 	checkItemInVault(&this->hp,this->hp);
-	hp += getType()->getMaxHp()/type->getProductionTime() + 1;
-    if(hp > (getType()->getTotalMaxHp(&totalUpgrade))) {
-        hp = getType()->getTotalMaxHp(&totalUpgrade);
+	int original_hp = this->hp;
+	this->hp += getType()->getMaxHp()/type->getProductionTime() + 1;
+    if(this->hp > (getType()->getTotalMaxHp(&totalUpgrade))) {
+    	this->hp = getType()->getTotalMaxHp(&totalUpgrade);
+    	if(original_hp != this->hp) {
+    		game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+    	}
     	addItemToVault(&this->hp,this->hp);
         return true;
     }
+	if(original_hp != this->hp) {
+		game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+	}
 	addItemToVault(&this->hp,this->hp);
 
 	checkModelStateInfoForNewHpValue();
@@ -2692,12 +2752,16 @@ bool Unit::repair(){
 
 //decrements HP and returns if dead
 bool Unit::decHp(int i) {
-	if(hp == 0) {
+	if(this->hp == 0) {
 		return false;
 	}
 
 	checkItemInVault(&this->hp,this->hp);
-	hp -= i;
+	int original_hp = this->hp;
+	this->hp -= i;
+	if(original_hp != this->hp) {
+		game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+	}
 	addItemToVault(&this->hp,this->hp);
 
 	checkModelStateInfoForNewHpValue();
@@ -2712,9 +2776,10 @@ bool Unit::decHp(int i) {
 	startDamageParticles();
 
 	//stop DamageParticles on death
-    if(hp <= 0) {
-		alive= false;
-        hp=0;
+    if(this->hp <= 0) {
+    	this->alive = false;
+		this->hp = 0;
+        game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
     	addItemToVault(&this->hp,this->hp);
 
     	checkModelStateInfoForNewHpValue();
@@ -2852,8 +2917,12 @@ void Unit::applyUpgrade(const UpgradeType *upgradeType){
 		totalUpgrade.sum(upgradeType, this);
 
 		checkItemInVault(&this->hp,this->hp);
-		hp += upgradeType->getMaxHp();
-		hp = max(0,hp);
+		int original_hp = this->hp;
+		this->hp += upgradeType->getMaxHp();
+		this->hp = max(0,this->hp);
+		if(original_hp != this->hp) {
+			game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+		}
 		addItemToVault(&this->hp,this->hp);
 
 		checkModelStateInfoForNewHpValue();
@@ -2875,13 +2944,19 @@ void Unit::incKills(int team) {
 
 void Unit::checkUnitLevel() {
 	const Level *nextLevel= getNextLevel();
-	if(nextLevel != NULL && enemyKills >= nextLevel->getKills()) {
-		level= nextLevel;
-		int maxHp= totalUpgrade.getMaxHp();
+	if(nextLevel != NULL && this->enemyKills >= nextLevel->getKills()) {
+		this->level= nextLevel;
+
+		int maxHp= this->totalUpgrade.getMaxHp();
 		totalUpgrade.incLevel(type);
+		game->getScriptManager()->onUnitTriggerEvent(this,utet_LevelChanged);
 
 		checkItemInVault(&this->hp,this->hp);
-		hp += totalUpgrade.getMaxHp() - maxHp;
+		int original_hp = this->hp;
+		this->hp += totalUpgrade.getMaxHp() - maxHp;
+		if(original_hp != this->hp) {
+			game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+		}
 		addItemToVault(&this->hp,this->hp);
 
 		checkModelStateInfoForNewHpValue();
@@ -2948,22 +3023,32 @@ bool Unit::morph(const MorphCommandType *mct) {
 
 
 		checkItemInVault(&this->hp,this->hp);
-		hp += morphUnitType->getMaxHp() - type->getMaxHp();
+		int original_hp = this->hp;
+		this->hp += morphUnitType->getMaxHp() - type->getMaxHp();
+		if(original_hp != this->hp) {
+			game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+		}
 		addItemToVault(&this->hp,this->hp);
 
 		checkModelStateInfoForNewHpValue();
 
-		preMorph_type = type;
-		type= morphUnitType;
-		currField=morphUnitField;
+		this->preMorph_type = this->type;
+		this->type= morphUnitType;
+		Field original_field = this->currField;
+		this->currField=morphUnitField;
 		computeTotalUpgrade();
-		map->putUnitCells(this, pos);
-		faction->applyDiscount(morphUnitType, mct->getDiscount());
-		faction->addStore(type);
-		faction->applyStaticProduction(morphUnitType,mct);
+		map->putUnitCells(this, this->pos);
+		this->faction->applyDiscount(morphUnitType, mct->getDiscount());
+		this->faction->addStore(this->type);
+		this->faction->applyStaticProduction(morphUnitType,mct);
 
-		level= NULL;
+		this->level= NULL;
+		game->getScriptManager()->onUnitTriggerEvent(this,utet_LevelChanged);
 		checkUnitLevel();
+
+		if(original_field != this->currField) {
+			game->getScriptManager()->onUnitTriggerEvent(this,utet_FieldChanged);
+		}
 
 		return true;
 	}

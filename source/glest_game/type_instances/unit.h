@@ -582,7 +582,7 @@ public:
 	bool isInteresting(InterestingUnitType iut) const;
 
     //set
-	inline void setCurrField(Field currField)					{this->currField= currField;}
+	void setCurrField(Field currField);
     void setCurrSkill(const SkillType *currSkill);
     void setCurrSkill(SkillClass sc);
 
