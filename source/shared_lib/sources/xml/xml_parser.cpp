@@ -876,6 +876,10 @@ string XmlNode::getTreeString() const {
 // =====================================================
 
 XmlAttribute::XmlAttribute(DOMNode *attribute, const std::map<string,string> &mapTagReplacementValues) {
+	if(attribute == NULL || attribute->getNodeName() == NULL) {
+        throw megaglest_runtime_error("XML attribute seems to be corrupt!");
+    }
+
 	skipRestrictionCheck 			= false;
 	usesCommondata 					= false;
 	this->mapTagReplacementValues 	= mapTagReplacementValues;
@@ -891,6 +895,10 @@ XmlAttribute::XmlAttribute(DOMNode *attribute, const std::map<string,string> &ma
 }
 
 XmlAttribute::XmlAttribute(xml_attribute<> *attribute, const std::map<string,string> &mapTagReplacementValues) {
+	if(attribute == NULL || attribute->name() == NULL) {
+        throw megaglest_runtime_error("XML attribute seems to be corrupt!");
+    }
+
 	skipRestrictionCheck 			= false;
 	usesCommondata 					= false;
 	if(mapTagReplacementValues.size() > 0) {
@@ -954,6 +962,7 @@ float XmlAttribute::getFloatValue() const{
 
 float XmlAttribute::getFloatValue(float min, float max) const{
 	float f= strToFloat(value);
+	//printf("getFloatValue f = %.10f [%s]\n",f,value.c_str());
 	if(f<min || f>max){
 		throw megaglest_runtime_error("Xml attribute float out of range: " + getName() + ": " + value);
 	}
