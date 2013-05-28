@@ -1819,6 +1819,9 @@ UnitTriggerEventType ScriptManager::getLastUnitTriggerEventType() {
 
 int ScriptManager::getUnitProperty(int unitId, UnitTriggerEventType type) {
 	int result = -1;
+
+	//printf("File: %s line: %d type: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,type);
+
 	Unit *unit= world->findUnitById(unitId);
 	if(unit != NULL) {
 		switch(type) {
@@ -1851,6 +1854,7 @@ int ScriptManager::getUnitProperty(int unitId, UnitTriggerEventType type) {
 				break;
 		}
 	}
+	//printf("File: %s line: %d result: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,result);
 	return result;
 }
 const string ScriptManager::getUnitPropertyName(int unitId, UnitTriggerEventType type) {
@@ -1891,16 +1895,32 @@ const string ScriptManager::getUnitPropertyName(int unitId, UnitTriggerEventType
 }
 
 void ScriptManager::onUnitTriggerEvent(const Unit *unit, UnitTriggerEventType event) {
+	//static bool inEvent = false;
+	//if(inEvent == true) {
+	//	printf("\n\n!!!!!!!!!!!!!!! File: %s line: %d unit [%d - %s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,unit->getId(),unit->getType()->getName().c_str());
+	//	return;
+	//}
+	//inEvent = true;
+	//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 	if(UnitTriggerEventList.empty() == false) {
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		std::map<int,UnitTriggerEventType>::iterator iterFind = UnitTriggerEventList.find(unit->getId());
 		if(iterFind != UnitTriggerEventList.end()) {
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+
 			lastUnitTriggerEventUnitId = unit->getId();
 			lastUnitTriggerEventType = event;
 
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+
 			luaScript.beginCall("unitTriggerEvent");
 			luaScript.endCall();
+
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		}
 	}
+	//inEvent = false;
+	//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 }
 
 void ScriptManager::registerDayNightEvent() {
@@ -1952,6 +1972,8 @@ int ScriptManager::getIsNightTime() {
 	return tf->isNight();
 }
 float ScriptManager::getTimeOfDay() {
+	//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	ScriptManager_STREFLOP_Wrapper streflopWrapper;
 
@@ -1959,6 +1981,7 @@ float ScriptManager::getTimeOfDay() {
 	if(tf == NULL) {
 		throw megaglest_runtime_error("tf == NULL");
 	}
+	//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 	return tf->getTime();
 }
 
@@ -3044,7 +3067,7 @@ int ScriptManager::getLastUnitTriggerEventUnitId(LuaHandle* luaHandle) {
 }
 int ScriptManager::getLastUnitTriggerEventType(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getLastUnitTriggerEventType());
+	luaArguments.returnInt(static_cast<int>(thisScriptManager->getLastUnitTriggerEventType()));
 	return luaArguments.getReturnCount();
 }
 

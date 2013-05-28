@@ -479,7 +479,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	loadCount= 0;
     ep= 0;
 	deadCount= 0;
-	hp= type->getMaxHp()/20;
+	hp= type->getMaxHp() / 20;
 	toBeUndertaken= false;
 
 	highlight= 0.f;
@@ -639,7 +639,9 @@ void Unit::setCurrField(Field currField) {
 	this->currField = currField;
 
 	if(original_field != this->currField) {
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		game->getScriptManager()->onUnitTriggerEvent(this,utet_FieldChanged);
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 	}
 }
 // ====================================== get ======================================
@@ -783,8 +785,11 @@ float Unit::getRotationX() const{
 int Unit::getProductionPercent() const{
 	if(anyCommand()){
 		const ProducibleType *produced= commands.front()->getCommandType()->getProduced();
-		if(produced!=NULL){
-			return clamp(progress2*100/produced->getProductionTime(), 0, 100);
+		if(produced != NULL) {
+			if(produced->getProductionTime() == 0) {
+				return 0;
+			}
+			return clamp(progress2 * 100 / produced->getProductionTime(), 0, 100);
 		}
 	}
 	return -1;
@@ -793,9 +798,13 @@ int Unit::getProductionPercent() const{
 float Unit::getProgressRatio() const{
 	if(anyCommand()){
 		const ProducibleType *produced= commands.front()->getCommandType()->getProduced();
-		if(produced!=NULL){
-			float help=progress2;
-			return clamp(help/produced->getProductionTime(), 0.f, 1.f);
+		if(produced != NULL){
+			if(produced->getProductionTime() == 0) {
+				return 0.f;
+			}
+
+			float help = progress2;
+			return clamp(help / produced->getProductionTime(), 0.f, 1.f);
 		}
 	}
 	return -1;
@@ -808,7 +817,11 @@ float Unit::getHpRatio() const {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	return clamp(static_cast<float>(hp)/type->getTotalMaxHp(&totalUpgrade), 0.f, 1.f);
+	float maxHpAllowed = type->getTotalMaxHp(&totalUpgrade);
+	if(maxHpAllowed == 0.f) {
+		return 0.f;
+	}
+	return clamp(static_cast<float>(hp) / maxHpAllowed, 0.f, 1.f);
 }
 
 float Unit::getEpRatio() const {
@@ -818,11 +831,15 @@ float Unit::getEpRatio() const {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	if(type->getMaxHp()==0){
+	if(type->getMaxHp() == 0) {
 		return 0.f;
 	}
-	else{
-		return clamp(static_cast<float>(ep)/type->getTotalMaxEp(&totalUpgrade), 0.f, 1.f);
+	else {
+		float maxEpAllowed = type->getTotalMaxEp(&totalUpgrade);
+		if(maxEpAllowed == 0.f) {
+			return 0.f;
+		}
+		return clamp(static_cast<float>(ep) / maxEpAllowed, 0.f, 1.f);
 	}
 }
 
@@ -1086,7 +1103,9 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 	this->currSkill= currSkill;
 
 	if(original_skill != this->currSkill) {
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		game->getScriptManager()->onUnitTriggerEvent(this,utet_SkillChanged);
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 	}
 }
 
@@ -1668,7 +1687,9 @@ void Unit::born(const CommandType *ct) {
 	int original_hp = this->hp;
 	this->hp= type->getMaxHp();
 	if(original_hp != this->hp) {
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 	}
 	addItemToVault(&this->hp,this->hp);
 }
@@ -2374,7 +2395,9 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		int original_hp = this->hp;
 		this->hp += (totalUpgrade.getMaxHp() - prevMaxHp);
 		if(original_hp != this->hp) {
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 			game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		}
 		addItemToVault(&this->hp,this->hp);
 
@@ -2386,7 +2409,9 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 			int original_hp = this->hp;
 			this->hp += (totalUpgrade.getMaxHpRegeneration() - prevMaxHpRegen);
 			if(original_hp != this->hp) {
+				//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 				game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+				//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 			}
 			//if(hp > type->getTotalMaxHp(&totalUpgrade)) {
 			//	hp = type->getTotalMaxHp(&totalUpgrade);
@@ -2431,7 +2456,9 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 			if(this->hp <= 0) {
 				this->alive= false;
 				this->hp=0;
+				//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 				game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+				//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 				addItemToVault(&this->hp,this->hp);
 				checkModelStateInfoForNewHpValue();
 
@@ -2480,7 +2507,9 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 	//hp -= boost->boostUpgrade.getMaxHp();
 	this->hp -= (prevMaxHp - totalUpgrade.getMaxHp());
 	if(original_hp != this->hp) {
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 	}
 	addItemToVault(&this->hp,this->hp);
 
@@ -2492,7 +2521,9 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		int original_hp = this->hp;
 		this->hp -= (totalUpgrade.getMaxHpRegeneration() - prevMaxHpRegen);
 		if(original_hp != this->hp) {
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 			game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		}
 		//if(hp > totalUpgrade.getMaxHp()) {
 		//	hp = totalUpgrade.getMaxHp();
@@ -2518,7 +2549,9 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		if(this->hp <= 0) {
 			this->alive= false;
 			this->hp=0;
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 			game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 			addItemToVault(&this->hp,this->hp);
 
 			checkModelStateInfoForNewHpValue();
@@ -2583,7 +2616,9 @@ void Unit::tick() {
 						this->hp = type->getTotalMaxHp(&totalUpgrade);
 					}
 					if(original_hp != this->hp) {
+						//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 						game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+						//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 					}
 					addItemToVault(&this->hp,this->hp);
 
@@ -2619,7 +2654,9 @@ void Unit::tick() {
 						this->hp = type->getTotalMaxHp(&totalUpgrade);
 					}
 					if(original_hp != this->hp) {
+						//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 						game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+						//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 					}
 					addItemToVault(&this->hp,this->hp);
 
@@ -2665,7 +2702,9 @@ void Unit::tick() {
 			this->ep = type->getTotalMaxEp(&totalUpgrade);
 		}
 		if(original_ep != this->ep) {
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 			game->getScriptManager()->onUnitTriggerEvent(this,utet_EPChanged);
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		}
 		addItemToVault(&this->ep,this->ep);
 
@@ -2695,7 +2734,9 @@ bool Unit::computeEp() {
 	//decrease ep
 	this->ep -= currSkill->getEpCost();
 	if(original_ep != this->ep) {
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		game->getScriptManager()->onUnitTriggerEvent(this,utet_EPChanged);
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 	}
 	addItemToVault(&this->ep,this->ep);
 
@@ -2709,7 +2750,9 @@ bool Unit::computeEp() {
 		int original_ep = this->ep;
 		this->ep = getType()->getTotalMaxEp(&totalUpgrade);
     	if(original_ep != this->ep) {
+    		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
     		game->getScriptManager()->onUnitTriggerEvent(this,utet_EPChanged);
+    		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
     	}
 	}
 	addItemToVault(&this->ep,this->ep);
@@ -2728,17 +2771,24 @@ bool Unit::repair(){
 	//increase hp
 	checkItemInVault(&this->hp,this->hp);
 	int original_hp = this->hp;
-	this->hp += getType()->getMaxHp()/type->getProductionTime() + 1;
+	if(type->getProductionTime() + 1 == 0) {
+		throw megaglest_runtime_error("Detected divide by 0 condition: type->getProductionTime() + 1 == 0");
+	}
+	this->hp += getType()->getMaxHp() / type->getProductionTime() + 1;
     if(this->hp > (getType()->getTotalMaxHp(&totalUpgrade))) {
     	this->hp = getType()->getTotalMaxHp(&totalUpgrade);
     	if(original_hp != this->hp) {
+    		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
     		game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+    		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
     	}
     	addItemToVault(&this->hp,this->hp);
         return true;
     }
 	if(original_hp != this->hp) {
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 	}
 	addItemToVault(&this->hp,this->hp);
 
@@ -2760,7 +2810,9 @@ bool Unit::decHp(int i) {
 	int original_hp = this->hp;
 	this->hp -= i;
 	if(original_hp != this->hp) {
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 	}
 	addItemToVault(&this->hp,this->hp);
 
@@ -2779,7 +2831,9 @@ bool Unit::decHp(int i) {
     if(this->hp <= 0) {
     	this->alive = false;
 		this->hp = 0;
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
         game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+        //printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
     	addItemToVault(&this->hp,this->hp);
 
     	checkModelStateInfoForNewHpValue();
@@ -2921,7 +2975,9 @@ void Unit::applyUpgrade(const UpgradeType *upgradeType){
 		this->hp += upgradeType->getMaxHp();
 		this->hp = max(0,this->hp);
 		if(original_hp != this->hp) {
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 			game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		}
 		addItemToVault(&this->hp,this->hp);
 
@@ -2949,13 +3005,17 @@ void Unit::checkUnitLevel() {
 
 		int maxHp= this->totalUpgrade.getMaxHp();
 		totalUpgrade.incLevel(type);
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		game->getScriptManager()->onUnitTriggerEvent(this,utet_LevelChanged);
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 
 		checkItemInVault(&this->hp,this->hp);
 		int original_hp = this->hp;
 		this->hp += totalUpgrade.getMaxHp() - maxHp;
 		if(original_hp != this->hp) {
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 			game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		}
 		addItemToVault(&this->hp,this->hp);
 
@@ -3026,7 +3086,9 @@ bool Unit::morph(const MorphCommandType *mct) {
 		int original_hp = this->hp;
 		this->hp += morphUnitType->getMaxHp() - type->getMaxHp();
 		if(original_hp != this->hp) {
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 			game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		}
 		addItemToVault(&this->hp,this->hp);
 
@@ -3043,11 +3105,15 @@ bool Unit::morph(const MorphCommandType *mct) {
 		this->faction->applyStaticProduction(morphUnitType,mct);
 
 		this->level= NULL;
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		game->getScriptManager()->onUnitTriggerEvent(this,utet_LevelChanged);
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		checkUnitLevel();
 
 		if(original_field != this->currField) {
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 			game->getScriptManager()->onUnitTriggerEvent(this,utet_FieldChanged);
+			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		}
 
 		return true;

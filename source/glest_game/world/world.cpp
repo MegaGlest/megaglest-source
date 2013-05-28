@@ -1428,19 +1428,29 @@ void World::giveAttackCommand(int unitId, int unitToAttackId) {
 }
 
 void World::giveProductionCommand(int unitId, const string &producedName) {
+	//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 	Unit *unit= findUnitById(unitId);
+	//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+
 	if(unit != NULL) {
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+
 		const UnitType *ut= unit->getType();
+
+		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 
 		//Search for a command that can produce the unit
 		for(int i= 0; i< ut->getCommandTypeCount(); ++i) {
 			const CommandType* ct= ut->getCommandType(i);
 			if(ct != NULL && ct->getClass() == ccProduce) {
-				const ProduceCommandType *pct= static_cast<const ProduceCommandType*>(ct);
-				if(pct != NULL && pct->getProducedUnit()->getName() == producedName) {
+				const ProduceCommandType *pct= dynamic_cast<const ProduceCommandType*>(ct);
+				if(pct != NULL && pct->getProducedUnit() != NULL &&
+					pct->getProducedUnit()->getName() == producedName) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+					//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 					unit->giveCommand(new Command(pct));
+					//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					break;
@@ -1451,6 +1461,7 @@ void World::giveProductionCommand(int unitId, const string &producedName) {
 	else {
 		throw megaglest_runtime_error("Invalid unitId index in giveProductionCommand: " + intToStr(unitId) + " producedName = " + producedName);
 	}
+	//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 }
 
 void World::giveAttackStoppedCommand(int unitId, const string &itemName, bool ignoreRequirements) {
