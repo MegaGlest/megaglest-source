@@ -1496,38 +1496,50 @@ void World::giveAttackStoppedCommand(int unitId, const string &itemName, bool ig
 void World::playStaticSound(const string &playSound) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playSound [%s]\n",__FILE__,__FUNCTION__,__LINE__,playSound.c_str());
 
-	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+	string calculatedFilePath = playSound;
+	bool changed = Properties::applyTagsToValue(calculatedFilePath);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nPlay static sound changed: %d [%s] [%s]\n\n",changed, playSound.c_str(),calculatedFilePath.c_str());
 
-	if(staticSoundList.find(playSound) == staticSoundList.end()) {
+	if(staticSoundList.find(calculatedFilePath) == staticSoundList.end()) {
 		StaticSound *sound = new StaticSound();
-		sound->load(playSound);
-		staticSoundList[playSound] = sound;
+		sound->load(calculatedFilePath);
+		staticSoundList[calculatedFilePath] = sound;
 	}
-	StaticSound *playSoundItem = staticSoundList[playSound];
+	StaticSound *playSoundItem = staticSoundList[calculatedFilePath];
+
+	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 	soundRenderer.playFx(playSoundItem);
 }
 
 void World::playStreamingSound(const string &playSound) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playSound [%s]\n",__FILE__,__FUNCTION__,__LINE__,playSound.c_str());
 
-	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+	string calculatedFilePath = playSound;
+	bool changed = Properties::applyTagsToValue(calculatedFilePath);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nPlay streaming sound changed: %d [%s] [%s]\n\n",changed, playSound.c_str(),calculatedFilePath.c_str());
 
-	if(streamSoundList.find(playSound) == streamSoundList.end()) {
+	if(streamSoundList.find(calculatedFilePath) == streamSoundList.end()) {
 		StrSound *sound = new StrSound();
-		sound->open(playSound);
+		sound->open(calculatedFilePath);
 		sound->setNext(sound);
-		streamSoundList[playSound] = sound;
+		streamSoundList[calculatedFilePath] = sound;
 	}
-	StrSound *playSoundItem = streamSoundList[playSound];
+	StrSound *playSoundItem = streamSoundList[calculatedFilePath];
+
+	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 	soundRenderer.playMusic(playSoundItem);
 }
 
 void World::stopStreamingSound(const string &playSound) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playSound [%s]\n",__FILE__,__FUNCTION__,__LINE__,playSound.c_str());
-	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
-	if(streamSoundList.find(playSound) != streamSoundList.end()) {
-		StrSound *playSoundItem = streamSoundList[playSound];
+	string calculatedFilePath = playSound;
+	bool changed = Properties::applyTagsToValue(calculatedFilePath);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nStop streaming sound changed: %d [%s] [%s]\n\n",changed, playSound.c_str(),calculatedFilePath.c_str());
+
+	if(streamSoundList.find(calculatedFilePath) != streamSoundList.end()) {
+		StrSound *playSoundItem = streamSoundList[calculatedFilePath];
+		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 		soundRenderer.stopMusic(playSoundItem);
 	}
 }
@@ -2545,15 +2557,27 @@ int World::getNextCommandGroupId() {
 }
 
 void World::playStaticVideo(const string &playVideo) {
-	this->game->playStaticVideo(playVideo);
+	string calculatedFilePath = playVideo;
+	bool changed = Properties::applyTagsToValue(calculatedFilePath);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nPlay static video changed: %d [%s] [%s]\n\n",changed, playVideo.c_str(),calculatedFilePath.c_str());
+
+	this->game->playStaticVideo(calculatedFilePath);
 }
 
 void World::playStreamingVideo(const string &playVideo) {
-	this->game->playStreamingVideo(playVideo);
+	string calculatedFilePath = playVideo;
+	bool changed = Properties::applyTagsToValue(calculatedFilePath);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nPlay streaming video changed: %d [%s] [%s]\n\n",changed, playVideo.c_str(),calculatedFilePath.c_str());
+
+	this->game->playStreamingVideo(calculatedFilePath);
 }
 
 void World::stopStreamingVideo(const string &playVideo) {
-	this->game->stopStreamingVideo(playVideo);
+	string calculatedFilePath = playVideo;
+	bool changed = Properties::applyTagsToValue(calculatedFilePath);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nStop streaming video changed: %d [%s] [%s]\n\n",changed, playVideo.c_str(),calculatedFilePath.c_str());
+
+	this->game->stopStreamingVideo(calculatedFilePath);
 }
 
 void World::stopAllVideo() {

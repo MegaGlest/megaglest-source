@@ -43,6 +43,10 @@ namespace Shared{ namespace Util{
 string Properties::applicationPath = "";
 string Properties::gameVersion = "";
 
+string Properties::techtreePath = "";
+string Properties::scenarioPath = "";
+string Properties::tutorialPath = "";
+
 // =====================================================
 //	class Properties
 // =====================================================
@@ -232,6 +236,10 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
 
 #endif
 
+	mapTagReplacementValues["{TECHTREEPATH}"] = Properties::techtreePath;
+	mapTagReplacementValues["{SCENARIOPATH}"] = Properties::scenarioPath;
+	mapTagReplacementValues["{TUTORIALPATH}"] = Properties::tutorialPath;
+
 	mapTagReplacementValues["$GAMEVERSION"] = Properties::gameVersion;
 
 	//
@@ -258,7 +266,15 @@ bool Properties::applyTagsToValue(string &value, const std::map<string,string> *
 	if(mapTagReplacementValues != NULL) {
 		for(std::map<string,string>::const_iterator iterMap = mapTagReplacementValues->begin();
 				iterMap != mapTagReplacementValues->end(); ++iterMap) {
+
+//			if(value.find("{SCENARIOPATH}") != string::npos) {
+//				printf("\n\n** WILL REPLACE [%s]\n",value.c_str());
+//				replaceAll(value, "{SCENARIOPATH}",		Properties::scenarioPath);
+//				printf("** REPLACED [%s]\n\n",value.c_str());
+//			}
+//			else {
 			replaceAll(value, iterMap->first, iterMap->second);
+//			}
 		}
 	}
 	else {
@@ -318,6 +334,14 @@ bool Properties::applyTagsToValue(string &value, const std::map<string,string> *
 	replaceAll(value, "{APPLICATIONDATAPATH}",		Properties::applicationPath);
 
 #endif
+
+	replaceAll(value, "{TECHTREEPATH}",		Properties::techtreePath);
+//	if(value.find("{SCENARIOPATH}") != string::npos) {
+//		printf("\n\n** WILL REPLACE [%s]\n",value.c_str());
+	replaceAll(value, "{SCENARIOPATH}",		Properties::scenarioPath);
+//		printf("** REPLACED [%s]\n\n",value.c_str());
+//	}
+	replaceAll(value, "{TUTORIALPATH}",		Properties::tutorialPath);
 
 	replaceAll(value, "$GAMEVERSION",		Properties::gameVersion);
 	}

@@ -49,12 +49,23 @@ private:
 	static string applicationPath;
 	static string gameVersion;
 
+	static string techtreePath;
+	static string scenarioPath;
+	static string tutorialPath;
+
 public:
 	static void setApplicationPath(string value) { applicationPath=value; }
 	static string getApplicationPath() { return applicationPath; }
 
 	static void setGameVersion(string value) { gameVersion=value; }
 	static string getGameVersion() { return gameVersion; }
+
+	static void setTechtreePath(string value) { techtreePath=value; }
+	static string getTechtreePath() { return techtreePath; }
+	static void setScenarioPath(string value) { scenarioPath=value; }
+	static string getScenarioPath() { return scenarioPath; }
+	static void setTutorialPath(string value) { tutorialPath=value; }
+	static string getTutorialPath() { return tutorialPath; }
 
 	void clear();
 	void load(const string &path,bool clearCurrentProperties=true);
