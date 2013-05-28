@@ -58,8 +58,8 @@ Checksum Scenario::load(const string &path) {
 
 		//Properties::setTechtreePath();
 
+		//printf("path [%s]\n",path.c_str());
 		string scenarioFolder = cutLastFile(formatPath(path));
-		scenarioFolder = cutLastFile(scenarioFolder);
 		endPathWithSlash(scenarioFolder);
 
 		if(isTutorial == false) {
