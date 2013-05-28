@@ -2261,9 +2261,11 @@ void Game::update() {
 							server->gameSettings.setFactionControl(i,ctNetwork);
 							ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
 							server->gameSettings.setNetworkPlayerName(i,slot->getName());
+							server->gameSettings.setNetworkPlayerStatuses(i,npst_None);
 
 							this->gameSettings.setFactionControl(i,ctNetwork);
 							this->gameSettings.setNetworkPlayerName(i,server->gameSettings.getNetworkPlayerName(i));
+							this->gameSettings.setNetworkPlayerStatuses(i,npst_None);
 						}
 					}
 					//printf("#1 Data synch: lmap %u ltile: %d ltech: %u\n",gameSettings.getMapCRC(),gameSettings.getTilesetCRC(),gameSettings.getTechCRC());
@@ -2301,6 +2303,10 @@ void Game::update() {
 
 						this->gameSettings.setFactionControl(i,ctNetwork);
 						this->gameSettings.setNetworkPlayerName(i,server->gameSettings.getNetworkPlayerName(i));
+
+						if(this->gameSettings.getNetworkPlayerStatuses(i) == npst_Disconnected) {
+							this->gameSettings.setNetworkPlayerStatuses(i,npst_None);
+						}
 
 						//printf("START Purging AI player for index: %d\n",i);
 						masterController.clearSlaves(true);
@@ -3578,6 +3584,10 @@ void Game::mouseDownLeft(int x, int y) {
 							isSlotJoinInProgressClient = true;
 						}
 					}
+
+					//printf("isSlotJoinInProgressClient: %d [%d] [%d][%d] [%d] [%d] [%d]\n",
+					//		isSlotJoinInProgressClient,faction->getPersonalityType(),faction->getIndex(),world.getThisFaction()->getIndex(),faction->getControlType(),this->gameSettings.getNetworkPlayerStatuses(i),i);
+
 					if(isSlotJoinInProgressClient == true ||
 						(faction->getPersonalityType() != fpt_Observer &&
 						world.getThisFaction()->getIndex() != faction->getIndex() &&

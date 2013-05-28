@@ -499,6 +499,8 @@ void Commander::tryResumeGame(bool joinNetworkGame, bool clearCaches) const {
 }
 
 void Commander::tryNetworkPlayerDisconnected(int factionIndex) const {
+	//printf("tryNetworkPlayerDisconnected factionIndex: %d\n",factionIndex);
+
 	NetworkCommand command(this->world,nctPlayerStatusChange, factionIndex, npst_Disconnected);
 	pushNetworkCommand(&command);
 }
@@ -905,6 +907,8 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
 			GameSettings *settings = world->getGameSettingsPtr();
     		if(playerStatus == npst_Disconnected) {
+    			//printf("Commander nctPlayerStatusChange factionIndex: %d\n",factionIndex);
+
     			settings->setNetworkPlayerStatuses(factionIndex,npst_Disconnected);
 
     			//printf("nctPlayerStatusChange -> faction->getPersonalityType() = %d index [%d] control [%d] networkstatus [%d]\n",
