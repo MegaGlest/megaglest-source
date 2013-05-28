@@ -533,6 +533,7 @@ bool ServerInterface::switchSlot(int fromPlayerIndex, int toPlayerIndex) {
 		ConnectionSlot *tmp = slots[toPlayerIndex];
 		slots[toPlayerIndex] = slots[fromPlayerIndex];
 		slots[fromPlayerIndex] = tmp;
+
 		safeMutex.ReleaseLock();
 
 		PlayerIndexMessage playerIndexMessage(toPlayerIndex);

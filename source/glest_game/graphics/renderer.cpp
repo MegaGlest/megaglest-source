@@ -739,8 +739,18 @@ void Renderer::endGame(bool isFinalEnd) {
 	this->game= NULL;
 	this->gameCamera = NULL;
 
-	quadCache = VisibleQuadContainerCache();
-	quadCache.clearFrustumData();
+	try {
+		quadCache = VisibleQuadContainerCache();
+		quadCache.clearFrustumData();
+	}
+	catch(const exception &e) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d]\nError [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,szBuf);
+
+		abort();
+	}
 
 	if(isFinalEnd) {
 		//delete resources

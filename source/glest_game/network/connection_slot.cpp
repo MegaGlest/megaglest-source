@@ -1041,7 +1041,10 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 											int factionIndex = this->serverInterface->gameSettings.getFactionIndexForStartLocation(playerIndex);
 											this->serverInterface->gameSettings.setFactionControl(factionIndex,ctNetwork);
 											this->serverInterface->gameSettings.setNetworkPlayerName(factionIndex,this->name);
-											//this->serverInterface->gameSettings.setNetworkPlayerStatuses(factionIndex,npst_None);
+
+											if(this->serverInterface->gameSettings.getNetworkPlayerStatuses(factionIndex) == npst_Disconnected) {
+												this->serverInterface->gameSettings.setNetworkPlayerStatuses(factionIndex,npst_None);
+											}
 
 											this->serverInterface->broadcastGameSetup(&this->serverInterface->gameSettings, true);
 
