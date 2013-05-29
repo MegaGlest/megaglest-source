@@ -95,7 +95,13 @@ private:
 	bool readyForInGameJoin;
 	bool resumeInGameJoin;
 
+	Mutex *quitThreadAccessor;
 	bool quitThread;
+
+	bool getQuitThread();
+	void setQuitThread(bool value);
+	bool getQuit();
+	void setQuit(bool value);
 
 public:
 	ClientInterface();
@@ -184,7 +190,7 @@ protected:
 	bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType);
 
 	void updateFrame(int *checkFrame);
-	void shutdownNetworkCommandListThread();
+	void shutdownNetworkCommandListThread(MutexSafeWrapper &safeMutexWrapper);
 	bool getNetworkCommand(int frameCount, int currentCachedPendingCommandsIndex);
 
 	void close(bool lockMutex);
