@@ -3737,10 +3737,10 @@ void Game::mouseDownLeft(int x, int y) {
 
 					char szBuf[8096]="";
 					if(lang.hasString("DisconnectNetorkPlayerIndexConfirm") == true) {
-						snprintf(szBuf,8096,lang.get("DisconnectNetorkPlayerIndexConfirm").c_str(),factionIndex,settings->getNetworkPlayerName(factionIndex).c_str());
+						snprintf(szBuf,8096,lang.get("DisconnectNetorkPlayerIndexConfirm").c_str(),factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
 					}
 					else {
-						snprintf(szBuf,8096,"Confirm disconnection for player #%d - %s?",factionIndex,settings->getNetworkPlayerName(factionIndex).c_str());
+						snprintf(szBuf,8096,"Confirm disconnection for player #%d - %s?",factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
 					}
 
 					disconnectPlayerConfirmMessageBox.setText(szBuf);
@@ -3756,10 +3756,10 @@ void Game::mouseDownLeft(int x, int y) {
 						for(unsigned int i = 0; i < languageList.size(); ++i) {
 							char szMsg[8096]="";
 							if(lang.hasString("DisconnectNetorkPlayerIndexConfirmed",languageList[i]) == true) {
-								snprintf(szMsg,8096,lang.get("DisconnectNetorkPlayerIndexConfirmed",languageList[i]).c_str(),factionIndex,settings->getNetworkPlayerName(factionIndex).c_str());
+								snprintf(szMsg,8096,lang.get("DisconnectNetorkPlayerIndexConfirmed",languageList[i]).c_str(),factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
 							}
 							else {
-								snprintf(szMsg,8096,"Notice - Admin is warning to disconnect player #%d - %s!",factionIndex,settings->getNetworkPlayerName(factionIndex).c_str());
+								snprintf(szMsg,8096,"Notice - Admin is warning to disconnect player #%d - %s!",factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
 							}
 							bool localEcho = lang.isLanguageLocal(languageList[i]);
 							gameNetworkInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
