@@ -5655,8 +5655,11 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 	if(forceAllowPauseStateChange == true || speedChangesAllowed == true) {
 		//printf("setPaused paused = %d, value = %d\n",paused,value);
 
+		NetworkManager &networkManager= NetworkManager::getInstance();
+
 		// Cannot change pause state while client is joining in progress game
-		if(pausedForJoinGame == true && joinNetworkGame == false) {
+		if(pausedForJoinGame == true && joinNetworkGame == false &&
+			networkManager.getNetworkRole() == nrServer) {
 
 			ServerInterface *server = NetworkManager::getInstance().getServerInterface();
 			Lang &lang= Lang::getInstance();
@@ -5711,7 +5714,7 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 			setupPopupMenus(false);
 
 			//!!!
-			NetworkManager &networkManager= NetworkManager::getInstance();
+			//NetworkManager &networkManager= NetworkManager::getInstance();
 			if(networkManager.getNetworkRole() == nrClient) {
 				//ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
 				//if(clientInterface != NULL && clientInterface->getResumeInGameJoin() == true) {
