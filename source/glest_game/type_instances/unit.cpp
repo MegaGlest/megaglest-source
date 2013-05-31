@@ -471,8 +471,8 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 
 	lastPos= pos;
     progress= 0;
-	lastAnimProgress= 0;
-    animProgress= 0;
+	this->lastAnimProgress= 0;
+	this->animProgress= 0;
     progress2= 0;
 	kills= 0;
 	enemyKills = 0;
@@ -1041,8 +1041,8 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 	changedActiveCommand = false;
 	if( currSkill->getClass() != this->currSkill->getClass() ||
 		currSkill->getName() != this->currSkill->getName()) {
-		animProgress= 0;
-		lastAnimProgress= 0;
+		this->animProgress= 0;
+		this->lastAnimProgress= 0;
 
 		queuedUnitParticleSystemTypes.clear();
 		while(unitParticleSystems.empty() == false) {
@@ -1301,7 +1301,7 @@ Model *Unit::getCurrentModelPtr() {
 	}
 
 	int currentModelIndexForCurrSkillType = lastModelIndexForCurrSkillType;
-	Model *result = currSkill->getAnimation(animProgress,this,&lastModelIndexForCurrSkillType, &animationRandomCycleCount);
+	Model *result = currSkill->getAnimation(getAnimProgressAsFloat(),this,&lastModelIndexForCurrSkillType, &animationRandomCycleCount);
 	if(currentModelIndexForCurrSkillType != lastModelIndexForCurrSkillType) {
 		animationRandomCycleCount++;
 		if(currSkill != NULL && animationRandomCycleCount >= currSkill->getAnimationCount()) {
@@ -1319,7 +1319,7 @@ const Model *Unit::getCurrentModel() {
 	}
 
 	int currentModelIndexForCurrSkillType = lastModelIndexForCurrSkillType;
-	const Model *result = currSkill->getAnimation(animProgress,this,&lastModelIndexForCurrSkillType, &animationRandomCycleCount);
+	const Model *result = currSkill->getAnimation(getAnimProgressAsFloat(),this,&lastModelIndexForCurrSkillType, &animationRandomCycleCount);
 	if(currentModelIndexForCurrSkillType != lastModelIndexForCurrSkillType) {
 		animationRandomCycleCount++;
 		if(currSkill != NULL && animationRandomCycleCount >= currSkill->getAnimationCount()) {
@@ -2018,7 +2018,7 @@ bool Unit::update() {
 	int heightFactor   = getHeightFactor();
 
 	//update progresses
-	lastAnimProgress= animProgress;
+	this->lastAnimProgress= this->animProgress;
 	const Game *game = Renderer::getInstance().getGame();
 
 	progress = getUpdatedProgress(progress,
@@ -2041,17 +2041,15 @@ bool Unit::update() {
 		if(currSkill->getClass() == scMorph) {
 			targetProgress = this->getProgressRatio();
 		}
-		if(animProgress < targetProgress) {
-			float diff = targetProgress - animProgress;
-			animProgress = animProgress + diff / (GameConstants::updateFps);
+		if(getAnimProgressAsFloat() < targetProgress) {
+			float diff = targetProgress - getAnimProgressAsFloat();
+			this->animProgress = this->animProgress + static_cast<int>(diff * 100.f) / (GameConstants::updateFps);
 		}
 	}
 	else {
-		float speedDenominator = static_cast<float>(speedDivider) *
+		int speedDenominator = speedDivider *
 				game->getWorld()->getUpdateFps(this->getFactionIndex());
-		animProgress += (currSkill->getAnimSpeed() *
-				(truncateDecimal<float>(static_cast<float>(heightFactor) / 100.f))) /
-						(truncateDecimal<float>(speedDenominator));
+		this->animProgress += (currSkill->getAnimSpeed() * heightFactor) / speedDenominator;
 	}
 	//update target
 	updateTarget();
@@ -2129,9 +2127,9 @@ bool Unit::update() {
 	}
 
 	//checks
-	if(animProgress > 1.f) {
+	if(this->animProgress > 100) {
 		bool canCycle = currSkill->CanCycleNextRandomAnimation(&animationRandomCycleCount);
-		animProgress = currSkill->getClass() == scDie? 1.f: 0.f;
+		this->animProgress = currSkill->getClass() == scDie ? 100 : 0;
 		if(canCycle == true) {
 			this->lastModelIndexForCurrSkillType = -1;
 		}
@@ -2299,7 +2297,7 @@ void Unit::updateTimedParticles() {
 		for(int i = queuedUnitParticleSystemTypes.size() - 1; i >= 0; i--) {
 			UnitParticleSystemType *pst = queuedUnitParticleSystemTypes[i];
 			if(pst != NULL) {
-				if(truncateDecimal<float>(pst->getStartTime()) <= truncateDecimal<float>(animProgress)) {
+				if(truncateDecimal<float>(pst->getStartTime()) <= truncateDecimal<float>(getAnimProgressAsFloat())) {
 					//printf("STARTING queued particle system type [%s] [%f] [%f] [%f] [%f]\n",pst->getType().c_str(),truncateDecimal<float>(pst->getStartTime()),truncateDecimal<float>(pst->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
 
 					UnitParticleSystem *ups = new UnitParticleSystem(200);
@@ -2329,8 +2327,8 @@ void Unit::updateTimedParticles() {
 					if(truncateDecimal<float>(ps->getStartTime()) != 0.0 || truncateDecimal<float>(ps->getEndTime()) != 1.0) {
 						//printf("Checking for end particle system #%d [%d] [%f] [%f] [%f] [%f]\n",i,ps->shape,truncateDecimal<float>(ps->getStartTime()),truncateDecimal<float>(ps->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
 
-						if(truncateDecimal<float>(animProgress) >= 0.99 ||
-								truncateDecimal<float>(animProgress) >= truncateDecimal<float>(ps->getEndTime())) {
+						if(truncateDecimal<float>(getAnimProgressAsFloat()) >= 0.99 ||
+								truncateDecimal<float>(getAnimProgressAsFloat()) >= truncateDecimal<float>(ps->getEndTime())) {
 							//printf("ENDING particle system [%d]\n",ps->shape);
 
 							ps->fade();
