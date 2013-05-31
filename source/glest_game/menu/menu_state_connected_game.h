@@ -170,12 +170,15 @@ private:
 
     string getMissingMapFromFTPServer;
     bool getMissingMapFromFTPServerInProgress;
+    time_t getMissingMapFromFTPServerLastPrompted;
 
     string getMissingTilesetFromFTPServer;
     bool getMissingTilesetFromFTPServerInProgress;
+    time_t getMissingTilesetFromFTPServerLastPrompted;
 
     string getMissingTechtreeFromFTPServer;
     bool getMissingTechtreeFromFTPServerInProgress;
+    time_t getMissingTechtreeFromFTPServerLastPrompted;
 
     string getInProgressSavedGameFromFTPServer;
     bool getInProgressSavedGameFromFTPServerInProgress;

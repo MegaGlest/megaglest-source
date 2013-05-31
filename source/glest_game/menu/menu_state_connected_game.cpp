@@ -40,6 +40,7 @@ using namespace Shared::CompressionUtil;
 
 namespace Glest{ namespace Game{
 
+static const double REPROMPT_DOWNLOAD_SECONDS		= 7;
 static const string ITEM_MISSING 					= "***missing***";
 const int HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS  	= 4;
 static const char *HEADLESS_SAVED_GAME_FILENAME 	= "lastHeadlessGameSettings.mgg";
@@ -78,11 +79,15 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	ftpClientThread                             = NULL;
     ftpMissingDataType                          = ftpmsg_MissingNone;
 	getMissingMapFromFTPServer                  = "";
+	getMissingMapFromFTPServerLastPrompted		= 0;
 	getMissingMapFromFTPServerInProgress        = false;
 	getMissingTilesetFromFTPServer              = "";
+	getMissingTilesetFromFTPServerLastPrompted	= 0;
 	getMissingTilesetFromFTPServerInProgress    = false;
     getMissingTechtreeFromFTPServer				= "";
+    getMissingTechtreeFromFTPServerLastPrompted	= 0;
     getMissingTechtreeFromFTPServerInProgress	= false;
+
     getInProgressSavedGameFromFTPServer			  = "";
     getInProgressSavedGameFromFTPServerInProgress = false;
     readyToJoinInProgressGame					  = false;
@@ -1346,6 +1351,9 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
             getMissingMapFromFTPServer					= "";
             getMissingTilesetFromFTPServer				= "";
             getMissingTechtreeFromFTPServer				= "";
+            getMissingMapFromFTPServerLastPrompted		= 0;
+            getMissingTilesetFromFTPServerLastPrompted	= 0;
+            getMissingTechtreeFromFTPServerLastPrompted	= 0;
 
             ClientInterface *clientInterface = networkManager.getClientInterface();
 
@@ -4392,8 +4400,11 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 //			}
 
 			// try to get the tileset via ftp
-			if(ftpClientThread != NULL && getMissingTilesetFromFTPServer != gameSettings->getTileset()) {
+			if(ftpClientThread != NULL &&
+					(getMissingTilesetFromFTPServer != gameSettings->getTileset() ||
+						difftime(time(NULL),getMissingTilesetFromFTPServerLastPrompted) > REPROMPT_DOWNLOAD_SECONDS)) {
 				if(ftpMessageBox.getEnabled() == false) {
+					getMissingTilesetFromFTPServerLastPrompted = time(NULL);
 					getMissingTilesetFromFTPServer = gameSettings->getTileset();
 					Lang &lang= Lang::getInstance();
 
@@ -4464,8 +4475,10 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		}
 		else {
 			// try to get the tileset via ftp
-			if(ftpClientThread != NULL && getMissingTechtreeFromFTPServer != gameSettings->getTech()) {
+			if(ftpClientThread != NULL && (getMissingTechtreeFromFTPServer != gameSettings->getTech() ||
+					difftime(time(NULL),getMissingTechtreeFromFTPServerLastPrompted) > REPROMPT_DOWNLOAD_SECONDS)) {
 				if(ftpMessageBox.getEnabled() == false) {
+					getMissingTechtreeFromFTPServerLastPrompted = time(NULL);
 					getMissingTechtreeFromFTPServer = gameSettings->getTech();
 					Lang &lang= Lang::getInstance();
 
@@ -4551,8 +4564,10 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		}
 		else {
 			// try to get the map via ftp
-			if(ftpClientThread != NULL && getMissingMapFromFTPServer != currentMap) {
+			if(ftpClientThread != NULL && (getMissingMapFromFTPServer != currentMap ||
+					difftime(time(NULL),getMissingMapFromFTPServerLastPrompted) > REPROMPT_DOWNLOAD_SECONDS)) {
 				if(ftpMessageBox.getEnabled() == false) {
+					getMissingMapFromFTPServerLastPrompted = time(NULL);
 					getMissingMapFromFTPServer = currentMap;
 					Lang &lang= Lang::getInstance();
 
