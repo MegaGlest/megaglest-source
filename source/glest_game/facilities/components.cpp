@@ -400,6 +400,12 @@ void GraphicListBox::setSelectedItemIndex(int index, bool errorOnMissing){
     setText(getSelectedItem());
 }
 
+void GraphicListBox::setX(int x) {
+	this->x= x;
+	graphButton1.setX(x);
+	graphButton2.setX(x+w-22);
+}
+
 void GraphicListBox::setY(int y) {
 	this->y= y;
 	graphButton1.setY(y);

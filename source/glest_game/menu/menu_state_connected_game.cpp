@@ -264,8 +264,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	buttonCancelDownloads.setText(lang.get("CancelDownloads"));
 
 	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
-	//listBoxPlayerStatus.init(xoffset+650, 180, 150);
-	listBoxPlayerStatus.init(xoffset+460, 180, 150);
+	nonAdminPlayerStatusX = xoffset+460;
+	listBoxPlayerStatus.init(nonAdminPlayerStatusX, 180, 150);
 	listBoxPlayerStatus.setTextColor(Vec3f(1.0f,0.f,0.f));
 	listBoxPlayerStatus.setLighted(true);
 	playerStatuses.push_back(lang.get("PlayerStatusSetup"));
@@ -2402,6 +2402,14 @@ bool MenuStateConnectedGame::isVideoPlaying() {
 void MenuStateConnectedGame::render() {
 	try {
 		Renderer &renderer= Renderer::getInstance();
+
+		if(isHeadlessAdmin() == true) {
+			listBoxPlayerStatus.setX(buttonRestoreLastSettings.getX() +
+									 buttonRestoreLastSettings.getW() + 20);
+		}
+		else {
+			listBoxPlayerStatus.setX(nonAdminPlayerStatusX);
+		}
 
 		if(mainMessageBox.getEnabled()) {
 			renderer.renderMessageBox(&mainMessageBox);
