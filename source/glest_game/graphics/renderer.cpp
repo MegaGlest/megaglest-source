@@ -5141,7 +5141,7 @@ void Renderer::renderUnits(const int renderFps) {
 			//dead alpha
 			const SkillType *st= unit->getCurrSkill();
 			if(st->getClass() == scDie && static_cast<const DieSkillType*>(st)->getFade()) {
-				float alpha= 1.0f-unit->getAnimProgress();
+				float alpha= 1.0f - unit->getAnimProgressAsFloat();
 				glDisable(GL_COLOR_MATERIAL);
 				glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, Vec4f(1.0f, 1.0f, 1.0f, alpha).ptr());
 			}
@@ -5155,7 +5155,7 @@ void Renderer::renderUnits(const int renderFps) {
 			//printf("Rendering model [%d - %s]\n[%s]\nCamera [%s]\nDistance: %f\n",unit->getId(),unit->getType()->getName().c_str(),unit->getCurrVector().getString().c_str(),this->gameCamera->getPos().getString().c_str(),this->gameCamera->getPos().dist(unit->getCurrVector()));
 
 			//if(this->gameCamera->getPos().dist(unit->getCurrVector()) <= SKIP_INTERPOLATION_DISTANCE) {
-				model->updateInterpolationData(unit->getAnimProgress(), unit->isAlive() && !unit->isAnimProgressBound());
+				model->updateInterpolationData(unit->getAnimProgressAsFloat(), unit->isAlive() && !unit->isAnimProgressBound());
 			//}
 
 			modelRenderer->render(model);

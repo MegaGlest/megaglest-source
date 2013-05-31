@@ -348,8 +348,8 @@ private:
     int deadCount;
     //float progress;			//between 0 and 1
     int progress;			//between 0 and 1
-	float lastAnimProgress;	//between 0 and 1
-	float animProgress;		//between 0 and 1
+	int lastAnimProgress;	//between 0 and 1
+	int animProgress;		//between 0 and 1
 	float highlight;
 	int progress2;
 	int kills;
@@ -503,9 +503,12 @@ public:
     inline int getId() const							{return id;}
     inline Field getCurrField() const					{return currField;}
     inline int getLoadCount() const					{return loadCount;}
-    inline float getLastAnimProgress() const			{return lastAnimProgress;}
-	//float getProgress() const					{return progress;}
-    inline float getAnimProgress() const				{return animProgress;}
+
+    //inline int getLastAnimProgress() const			{return lastAnimProgress;}
+    //inline int getAnimProgress() const				{return animProgress;}
+    inline float getLastAnimProgressAsFloat() const	{return static_cast<float>(lastAnimProgress) / 100.f;}
+    inline float getAnimProgressAsFloat() const		{return static_cast<float>(animProgress) / 100.f;}
+
     inline float getHightlight() const					{return highlight;}
     inline int getProgress2() const					{return progress2;}
 	inline int getFactionIndex() const {

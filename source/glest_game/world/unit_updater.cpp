@@ -120,7 +120,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 	const SkillType *currSkill= unit->getCurrSkill();
 	if(currSkill->getSound() != NULL) {
 		float soundStartTime= currSkill->getSoundStartTime();
-		if(soundStartTime >= unit->getLastAnimProgress() && soundStartTime < unit->getAnimProgress()) {
+		if(soundStartTime >= unit->getLastAnimProgressAsFloat() && soundStartTime < unit->getAnimProgressAsFloat()) {
 			if(map->getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(world->getThisTeamIndex()) ||
 				(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
 				soundRenderer.playFx(currSkill->getSound(), unit->getCurrVector(), gameCamera->getPos());
@@ -138,7 +138,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 	if(unit->getCurrSkill()->getClass() == scAttack) {
 		const AttackSkillType *ast= static_cast<const AttackSkillType*>(unit->getCurrSkill());
 		float attackStartTime= ast->getAttackStartTime();
-		if(attackStartTime>=unit->getLastAnimProgress() && attackStartTime<unit->getAnimProgress()){
+		if(attackStartTime>=unit->getLastAnimProgressAsFloat() && attackStartTime<unit->getAnimProgressAsFloat()){
 			startAttackParticleSystem(unit);
 		}
 	}
