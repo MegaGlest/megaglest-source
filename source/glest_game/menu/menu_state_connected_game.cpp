@@ -1347,10 +1347,18 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
             getMissingTilesetFromFTPServer				= "";
             getMissingTechtreeFromFTPServer				= "";
 
-            getInProgressSavedGameFromFTPServer = "";
-            getInProgressSavedGameFromFTPServerInProgress = false;
-
             ClientInterface *clientInterface = networkManager.getClientInterface();
+
+            if(getInProgressSavedGameFromFTPServerInProgress == true) {
+            	if(clientInterface != NULL) {
+            		clientInterface->close();
+            		return;
+            	}
+            }
+
+        	getInProgressSavedGameFromFTPServer = "";
+        	getInProgressSavedGameFromFTPServerInProgress = false;
+
             string serverUrl = clientInterface->getServerIpAddress();
             //int portNumber   = config.getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
             int portNumber   = clientInterface->getServerFTPPort();
@@ -3253,6 +3261,7 @@ void MenuStateConnectedGame::update() {
 					if(getInProgressSavedGameFromFTPServer == "") {
 						//printf("Requesting saved game file\n");
 
+						getInProgressSavedGameFromFTPServerInProgress = true;
 //						ftpClientThread->addTempFileToRequests(
 //								GameConstants::saveNetworkGameFileClient,
 //								GameConstants::saveNetworkGameFileServer);
