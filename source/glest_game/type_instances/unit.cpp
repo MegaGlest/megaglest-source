@@ -3691,7 +3691,7 @@ void Unit::logSynchDataCommon(string file,int line,string source,bool threadedMo
 	    		getFrameCount(),
 	    		id,
 				getFullName().c_str(),
-				faction->getType()->getName().c_str(),
+				faction->getType()->getName(false).c_str(),
 				//getDesc().c_str(),
 				pos.getString().c_str(),
 				lastPos.getString().c_str(),
@@ -3715,7 +3715,7 @@ void Unit::logSynchDataCommon(string file,int line,string source,bool threadedMo
 
 	    	string logDataText = "";
 	    	char szBufDataText[8096]="";
-	    	snprintf(szBufDataText,8096,"----------------------------------- START [FRAME %d UNIT: %d - %s] ------------------------------------------------\n",getFrameCount(),this->id,this->getType()->getName().c_str());
+	    	snprintf(szBufDataText,8096,"----------------------------------- START [FRAME %d UNIT: %d - %s] ------------------------------------------------\n",getFrameCount(),this->id,this->getType()->getName(false).c_str());
 	    	logDataText = szBufDataText;
 
 	    	snprintf(szBufDataText,8096,"[%s::%d]\n",extractFileFromDirectoryPath(file).c_str(),line);
@@ -3727,7 +3727,7 @@ void Unit::logSynchDataCommon(string file,int line,string source,bool threadedMo
 			}
 			snprintf(szBufDataText,8096,"%s\n",szBuf);
 			logDataText += szBufDataText;
-			snprintf(szBufDataText,8096,"------------------------------------ END [FRAME %d UNIT: %d - %s] ------------------------------------------------\n",getFrameCount(),this->id,this->getType()->getName().c_str());
+			snprintf(szBufDataText,8096,"------------------------------------ END [FRAME %d UNIT: %d - %s] ------------------------------------------------\n",getFrameCount(),this->id,this->getType()->getName(false).c_str());
 			logDataText += szBufDataText;
 /*
 	    	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [FRAME %d UNIT: %d - %s] ------------------------------------------------\n",getFrameCount(),this->id,this->getType()->getName().c_str());
