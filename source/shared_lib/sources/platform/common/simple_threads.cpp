@@ -350,6 +350,7 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 															overrideShutdownTask(NULL) {
 	uniqueID = "SimpleTaskThread";
 	this->simpleTaskInterface		 = simpleTaskInterface;
+	this->simpleTaskInterfaceValid	 = (this->simpleTaskInterface != NULL);
 	this->executionCount			 = executionCount;
 	this->millisecsBetweenExecutions = millisecsBetweenExecutions;
 	this->needTaskSignal			 = needTaskSignal;
@@ -363,7 +364,12 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 	mutexLastExecuteTimestamp.setOwnerId(mutexOwnerId);
 	lastExecuteTimestamp = time(NULL);
 
-	this->simpleTaskInterface->setupTask(this);
+	string mutexOwnerId1 = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
+	if(this->simpleTaskInterfaceValid == true) {
+		safeMutex1.ReleaseLock();
+		this->simpleTaskInterface->setupTask(this);
+	}
 }
 
 SimpleTaskThread::~SimpleTaskThread() {
@@ -385,8 +391,13 @@ void SimpleTaskThread::cleanup() {
 		this->overrideShutdownTask = NULL;
 	}
 	else if(this->simpleTaskInterface != NULL) {
-		this->simpleTaskInterface->shutdownTask(this);
-		this->simpleTaskInterface = NULL;
+		string mutexOwnerId1 = string(__FILE__) + string("_") + intToStr(__LINE__);
+		MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
+		if(this->simpleTaskInterfaceValid == true) {
+			safeMutex1.ReleaseLock();
+			this->simpleTaskInterface->shutdownTask(this);
+			this->simpleTaskInterface = NULL;
+		}
 	}
 }
 
@@ -434,6 +445,13 @@ void SimpleTaskThread::execute() {
 
             unsigned int idx = 0;
             for(;this->simpleTaskInterface != NULL;) {
+        		string mutexOwnerId1 = string(__FILE__) + string("_") + intToStr(__LINE__);
+        		MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
+        		if(this->simpleTaskInterfaceValid == false) {
+        			break;
+        		}
+        		safeMutex1.ReleaseLock();
+
                 bool runTask = true;
                 if(needTaskSignal == true) {
                     runTask = getTaskSignalled();
