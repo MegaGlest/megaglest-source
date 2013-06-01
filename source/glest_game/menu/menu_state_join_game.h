@@ -89,7 +89,7 @@ public:
 private:
 
     void CommonInit(bool connect, Ip serverIp,int portNumberOverride);
-	void connectToServer();
+	bool connectToServer();
 	virtual void DiscoveredServers(std::vector<string> serverList);
 };
 }}//end namespace
