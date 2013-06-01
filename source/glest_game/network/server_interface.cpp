@@ -2134,7 +2134,7 @@ string ServerInterface::getNetworkStatus() {
 				//float pingTime = connectionSlot->getThreadedPingMS(connectionSlot->getIpAddress().c_str());
 				char szBuf[8096]="";
 				snprintf(szBuf,8096,", lag = %d [%.2f]",clientLagCount,lastClientCommandListTimeLag);
-				str+= connectionSlot->getName() + string(szBuf);
+				str += connectionSlot->getName() + " [" + connectionSlot->getUUID() + "] " + string(szBuf);
 			}
 		}
 		else {
@@ -2594,6 +2594,7 @@ void ServerInterface::setGameSettings(GameSettings *serverGameSettings, bool wai
 	}
 
 	gameSettings = *serverGameSettings;
+
 	if(getAllowGameDataSynchCheck() == true) {
 		if(waitForClientAck == true && gameSettingsUpdateCount > 0) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Waiting for client acks #1\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
@@ -2709,6 +2710,7 @@ std::map<string,string> ServerInterface::publishToMasterserver() {
 			}
 		}
 	}
+	publishToServerInfo["uuid"] = Config::getInstance().getString("PlayerId","");
 	publishToServerInfo["glestVersion"] = glestVersionString;
 	publishToServerInfo["platform"] = getPlatformNameString() + "-" + getSVNRevisionString();
 	publishToServerInfo["binaryCompileDate"] = getCompileDateTime();
@@ -2854,6 +2856,7 @@ std::string ServerInterface::DumpStatsToLog(bool dumpToStringOnly) const {
 				out << "Player Index: " << slot->getPlayerIndex() << std::endl;
 				out << "IP Address: " << slot->getIpAddress() << std::endl;
 				out << "Player name: " << slot->getName() << std::endl;
+				out << "Player uuid: " << slot->getUUID() << std::endl;
 				out << "Language: " << slot->getNetworkPlayerLanguage() << std::endl;
 				out << "Game Version: " << slot->getVersionString() << std::endl;
 				out << "Session id: " << slot->getSessionKey() << std::endl;
@@ -3008,6 +3011,7 @@ void ServerInterface::saveGame(XmlNode *rootNode) {
 				slotNode->addAttribute("sessionkey",intToStr(slot->getSessionKey()), mapTagReplacements);
 				slotNode->addAttribute("ipaddress",slot->getSocket(false)->getIpAddress(), mapTagReplacements);
 				slotNode->addAttribute("name",slot->getName(), mapTagReplacements);
+				slotNode->addAttribute("uuid",slot->getUUID(), mapTagReplacements);
 			}
 			else {
 				slotNode->addAttribute("isconnected",intToStr(false), mapTagReplacements);

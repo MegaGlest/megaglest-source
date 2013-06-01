@@ -98,6 +98,7 @@ class NetworkMessageIntro: public NetworkMessage{
 private:
 	static const int maxVersionStringSize= 128;
 	static const int maxNameSize= 32;
+	static const int maxSmallStringSize= 60;
 
 private:
 	struct Data {
@@ -111,6 +112,7 @@ private:
 		uint32 ftpPort;
 		NetworkString<maxLanguageStringSize> language;
 		int8 gameInProgress;
+		NetworkString<maxSmallStringSize> playerUUID;
 	};
 	void toEndian();
 	void fromEndian();
@@ -125,7 +127,7 @@ public:
 	NetworkMessageIntro(int32 sessionId, const string &versionString,
 			const string &name, int playerIndex, NetworkGameStateType gameState,
 			uint32 externalIp, uint32 ftpPort, const string &playerLanguage,
-			int gameInProgress);
+			int gameInProgress, const string &playerUUID);
 
 
 	virtual const char * getPackedMessageFormat() const;
@@ -145,6 +147,8 @@ public:
 	uint32 getFtpPort() const					{ return data.ftpPort; }
 	string getPlayerLanguage() const			{ return data.language.getString(); }
 	uint8 getGameInProgress() const				{ return data.gameInProgress; }
+
+	string getPlayerUUID() const				{ return data.playerUUID.getString();}
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket);
@@ -272,6 +276,7 @@ private:
 		int8 factionCount;
 		int8 teams[GameConstants::maxPlayers];
 		int8 startLocationIndex[GameConstants::maxPlayers];
+
 		int8 defaultResources;
         int8 defaultUnits;
         int8 defaultVictoryConditions;
@@ -290,6 +295,8 @@ private:
 		int32 masterserver_admin_factionIndex;
 
 		NetworkString<maxStringSize> scenario;
+
+		NetworkString<maxSmallStringSize> networkPlayerUUID[GameConstants::maxPlayers];
 	};
 	void toEndian();
 	void fromEndian();

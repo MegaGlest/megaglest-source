@@ -81,6 +81,8 @@ private:
 	int sessionKey;
 	int serverFTPPort;
 
+	string serverUUID;
+
 	ClientInterfaceThread *networkCommandListThread;
 
 	Mutex *networkCommandListThreadAccessor;

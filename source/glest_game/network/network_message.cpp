@@ -120,7 +120,7 @@ NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionSt
 										uint32 externalIp,
 										uint32 ftpPort,
 										const string &playerLanguage,
-										int gameInProgress) {
+										int gameInProgress, const string &playerUUID) {
 	data.messageType	= nmtIntro;
 	data.sessionId		= sessionId;
 	data.versionString	= versionString;
@@ -131,10 +131,11 @@ NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionSt
 	data.ftpPort		= ftpPort;
 	data.language		= playerLanguage;
 	data.gameInProgress = gameInProgress;
+	data.playerUUID		= playerUUID;
 }
 
 const char * NetworkMessageIntro::getPackedMessageFormat() const {
-	return "cl128s32shcLL60sc";
+	return "cl128s32shcLL60sc60s";
 }
 
 unsigned int NetworkMessageIntro::getPackedSize() {
@@ -152,7 +153,8 @@ unsigned int NetworkMessageIntro::getPackedSize() {
 				packedData.externalIp,
 				packedData.ftpPort,
 				packedData.language.getBuffer(),
-				data.gameInProgress);
+				data.gameInProgress,
+				packedData.playerUUID.getBuffer());
 		delete [] buf;
 	}
 	return result;
@@ -169,7 +171,8 @@ void NetworkMessageIntro::unpackMessage(unsigned char *buf) {
 			&data.externalIp,
 			&data.ftpPort,
 			data.language.getBuffer(),
-			&data.gameInProgress);
+			&data.gameInProgress,
+			data.playerUUID.getBuffer());
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] unpacked data:\n%s\n",__FUNCTION__,this->toString().c_str());
 }
 
@@ -187,7 +190,8 @@ unsigned char * NetworkMessageIntro::packMessage() {
 			data.externalIp,
 			data.ftpPort,
 			data.language.getBuffer(),
-			data.gameInProgress);
+			data.gameInProgress,
+			data.playerUUID.getBuffer());
 	return buf;
 }
 
@@ -202,6 +206,8 @@ string NetworkMessageIntro::toString() const {
 	result += " ftpPort = " + uIntToStr(data.ftpPort);
 	result += " language = " + data.language.getString();
 	result += " gameInProgress = " + uIntToStr(data.gameInProgress);
+	result += " playerUUID = " + data.playerUUID.getString();
+
 	return result;
 }
 
@@ -222,6 +228,7 @@ bool NetworkMessageIntro::receive(Socket* socket) {
 	data.name.nullTerminate();
 	data.versionString.nullTerminate();
 	data.language.nullTerminate();
+	data.playerUUID.nullTerminate();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] get nmtIntro, data.playerIndex = %d, data.sessionId = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.playerIndex,data.sessionId);
 	return result;
@@ -530,17 +537,10 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 		data.resourceMultiplierIndex[i]= gameSettings->getResourceMultiplierIndex(i);
 		data.teams[i]= gameSettings->getTeam(i);
 		data.startLocationIndex[i]= gameSettings->getStartLocationIndex(i);
+
+		data.networkPlayerUUID[i] = gameSettings->getNetworkPlayerUUID(i);
+		//printf("Build netmsg for index: %d [%s]\n",i,data.networkPlayerUUID[i].getString().c_str());
 	}
-//	for(int i= data.factionCount; i < GameConstants::maxPlayers; ++i) {
-//		data.factionTypeNames[i]= "";
-//		data.networkPlayerNames[i]= "";
-//		data.networkPlayerStatuses[i] = 0;
-//		data.networkPlayerLanguages[i] = "";
-//		data.factionControls[i]= 0;
-//		data.resourceMultiplierIndex[i]= 0;
-//		data.teams[i]= -1;
-//		data.startLocationIndex[i]= 0;
-//	}
 	data.cpuReplacementMultiplier = gameSettings->getFallbackCpuMultiplier();
 	data.aiAcceptSwitchTeamPercentChance = gameSettings->getAiAcceptSwitchTeamPercentChance();
 	data.masterserver_admin = gameSettings->getMasterserver_admin();
@@ -591,6 +591,9 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
 		gameSettings->setResourceMultiplierIndex(i,data.resourceMultiplierIndex[i]);
 		gameSettings->setTeam(i, data.teams[i]);
 		gameSettings->setStartLocationIndex(i, data.startLocationIndex[i]);
+
+		gameSettings->setNetworkPlayerUUID(i,data.networkPlayerUUID[i].getString());
+		//printf("Build game settings for index: %d [%s]\n",i,data.networkPlayerUUID[i].getString().c_str());
 	}
 
 	gameSettings->setAiAcceptSwitchTeamPercentChance(data.aiAcceptSwitchTeamPercentChance);
@@ -614,7 +617,7 @@ vector<pair<string,uint32> > NetworkMessageLaunch::getFactionCRCList() const {
 }
 
 const char * NetworkMessageLaunch::getPackedMessageFormat() const {
-	return "c256s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sllllllll60s60s60s60s60s60s60s60sLLL60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sLLLLLLLLLLLLLLLLLLLLcccccccccccccccccccccccccccccccccccccccccCccLccll256s";
+	return "c256s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sllllllll60s60s60s60s60s60s60s60sLLL60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sLLLLLLLLLLLLLLLLLLLLcccccccccccccccccccccccccccccccccccccccccCccLccll256s60s60s60s60s60s60s60s60s";
 }
 
 unsigned int NetworkMessageLaunch::getPackedSize() {
@@ -752,7 +755,16 @@ unsigned int NetworkMessageLaunch::getPackedSize() {
 				packedData.cpuReplacementMultiplier,
 				packedData.masterserver_admin,
 				packedData.masterserver_admin_factionIndex,
-				packedData.scenario.getBuffer());
+				packedData.scenario.getBuffer(),
+				packedData.networkPlayerUUID[0].getBuffer(),
+				packedData.networkPlayerUUID[1].getBuffer(),
+				packedData.networkPlayerUUID[2].getBuffer(),
+				packedData.networkPlayerUUID[3].getBuffer(),
+				packedData.networkPlayerUUID[4].getBuffer(),
+				packedData.networkPlayerUUID[5].getBuffer(),
+				packedData.networkPlayerUUID[6].getBuffer(),
+				packedData.networkPlayerUUID[7].getBuffer()
+		);
 		delete [] buf;
 	}
 	return result;
@@ -888,7 +900,16 @@ void NetworkMessageLaunch::unpackMessage(unsigned char *buf) {
 			&data.cpuReplacementMultiplier,
 			&data.masterserver_admin,
 			&data.masterserver_admin_factionIndex,
-			data.scenario.getBuffer());
+			data.scenario.getBuffer(),
+			data.networkPlayerUUID[0].getBuffer(),
+			data.networkPlayerUUID[1].getBuffer(),
+			data.networkPlayerUUID[2].getBuffer(),
+			data.networkPlayerUUID[3].getBuffer(),
+			data.networkPlayerUUID[4].getBuffer(),
+			data.networkPlayerUUID[5].getBuffer(),
+			data.networkPlayerUUID[6].getBuffer(),
+			data.networkPlayerUUID[7].getBuffer()
+	);
 }
 
 unsigned char * NetworkMessageLaunch::packMessage() {
@@ -1023,7 +1044,16 @@ unsigned char * NetworkMessageLaunch::packMessage() {
 			data.cpuReplacementMultiplier,
 			data.masterserver_admin,
 			data.masterserver_admin_factionIndex,
-			data.scenario.getBuffer());
+			data.scenario.getBuffer(),
+			data.networkPlayerUUID[0].getBuffer(),
+			data.networkPlayerUUID[1].getBuffer(),
+			data.networkPlayerUUID[2].getBuffer(),
+			data.networkPlayerUUID[3].getBuffer(),
+			data.networkPlayerUUID[4].getBuffer(),
+			data.networkPlayerUUID[5].getBuffer(),
+			data.networkPlayerUUID[6].getBuffer(),
+			data.networkPlayerUUID[7].getBuffer()
+			);
 	return buf;
 }
 
@@ -1050,9 +1080,12 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 		data.factionTypeNames[i].nullTerminate();
 		data.networkPlayerNames[i].nullTerminate();
 		data.networkPlayerLanguages[i].nullTerminate();
+
+		data.networkPlayerUUID[i].nullTerminate();
 	}
 	for(unsigned int i = 0; i < maxFactionCRCCount; ++i) {
 		data.factionNameList[i].nullTerminate();
+		data.networkPlayerUUID[i].nullTerminate();
 	}
 
 	data.scenario.nullTerminate();
