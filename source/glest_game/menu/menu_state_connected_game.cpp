@@ -3142,7 +3142,7 @@ void MenuStateConnectedGame::update() {
 								GameConstants::saveNetworkGameFileClientCompressed,
 								GameConstants::saveNetworkGameFileServerCompressed);
 
-						getInProgressSavedGameFromFTPServer = GameConstants::saveNetworkGameFileClient;
+						getInProgressSavedGameFromFTPServer = GameConstants::saveNetworkGameFileServerCompressed;
 						fileFTPProgressList[getInProgressSavedGameFromFTPServer] = pair<int,string>(0,"");
 					}
 					safeMutexFTPProgress.ReleaseLock();
@@ -4081,8 +4081,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 				}
 
 				string extractedFileName = saveGameFilePath + string(GameConstants::saveNetworkGameFileClient);
-				bool extract_result = extractFileFromZIPFile(
-						saveGameFile,extractedFileName);
+				bool extract_result = extractFileFromZIPFile(saveGameFile,extractedFileName);
 
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Saved game [%s] compressed to [%s] returned: %d\n",saveGameFile.c_str(),extractedFileName.c_str(), extract_result);
 	    	}
