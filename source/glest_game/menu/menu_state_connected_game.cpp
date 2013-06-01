@@ -2605,7 +2605,7 @@ void MenuStateConnectedGame::update() {
 
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 	Lang &lang= Lang::getInstance();
-	string newLabel = lang.get("WaitingHost");
+	string newLabelConnectionInfo = lang.get("WaitingHost");
 	// Test progress bar
     //MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
     //fileFTPProgressList["test"] = pair<int,string>(difftime(time(NULL),lastNetworkSendPing) * 20,"test file 123");
@@ -3208,10 +3208,9 @@ void MenuStateConnectedGame::update() {
 
 				//intro
 				if(clientInterface->getIntroDone()) {
-					//string newLabel = Lang::getInstance().get("WaitingHost");
-					if(newLabel != labelInfo.getText()) {
+					if(newLabelConnectionInfo != labelInfo.getText()) {
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-						labelInfo.setText(newLabel);
+						labelInfo.setText(newLabelConnectionInfo);
 					}
 				}
 
@@ -4371,7 +4370,8 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 			mapFile = ITEM_MISSING;
 		}
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] listBoxMap.getSelectedItemIndex() = %d, mapFiles.size() = " MG_SIZE_T_SPECIFIER ", maps.size() = " MG_SIZE_T_SPECIFIER ", getCurrentMapFile() [%s] mapFile [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxMap.getSelectedItemIndex(),mapFiles.size(),maps.size(),getCurrentMapFile().c_str(),mapFile.c_str());
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] listBoxMap.getSelectedItemIndex() = %d, mapFiles.size() = " MG_SIZE_T_SPECIFIER ", maps.size() = " MG_SIZE_T_SPECIFIER ", getCurrentMapFile() [%s] mapFile [%s]\n",
+				extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxMap.getSelectedItemIndex(),mapFiles.size(),maps.size(),getCurrentMapFile().c_str(),mapFile.c_str());
 
 		listBoxMap.setItems(maps);
 
