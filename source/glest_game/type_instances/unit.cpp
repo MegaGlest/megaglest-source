@@ -2043,13 +2043,28 @@ bool Unit::update() {
 		}
 		if(getAnimProgressAsFloat() < targetProgress) {
 			float diff = targetProgress - getAnimProgressAsFloat();
-			this->animProgress = this->animProgress + static_cast<int>(diff * 100.f) / (GameConstants::updateFps);
+			int progressIncrease = this->animProgress + static_cast<int>(diff * 100.f) / (GameConstants::updateFps);
+			// Ensure we increment at least a value of 1 of the action will be stuck infinitely
+			if(diff > 0 && GameConstants::updateFps > 0 && progressIncrease == 0) {
+				progressIncrease = 1;
+			}
+			this->animProgress = progressIncrease;
 		}
 	}
 	else {
 		int speedDenominator = speedDivider *
 				game->getWorld()->getUpdateFps(this->getFactionIndex());
-		this->animProgress += (currSkill->getAnimSpeed() * heightFactor) / speedDenominator;
+		int progressIncrease = (currSkill->getAnimSpeed() * heightFactor) / speedDenominator;
+		// Ensure we increment at least a value of 1 of the action will be stuck infinitely
+		if(currSkill->getAnimSpeed() > 0 && heightFactor > 0 && progressIncrease == 0) {
+			progressIncrease = 1;
+		}
+		this->animProgress += progressIncrease;
+		//this->animProgress += (currSkill->getAnimSpeed() * heightFactor) / speedDenominator;
+
+		//if(currSkill->getClass() == scDie) {
+		//	printf("Unit died progress: %d anim: %d\n",progress,this->animProgress);
+		//}
 	}
 	//update target
 	updateTarget();
