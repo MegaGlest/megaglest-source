@@ -3208,7 +3208,11 @@ void MenuStateConnectedGame::update() {
 
 				//intro
 				if(clientInterface->getIntroDone()) {
-					labelInfo.setText(lang.get("WaitingHost"));
+					string newLabel = lang.get("WaitingHost");
+					if(newLabel != labelInfo.getText()) {
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						labelInfo.setText(newLabel);
+					}
 				}
 
 				//launch
