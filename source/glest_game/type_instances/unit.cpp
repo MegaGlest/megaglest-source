@@ -1993,7 +1993,7 @@ int Unit::getUpdatedProgress(int currentProgress, int updateFPS, int speed,
 
 void Unit::updateAttackBoostProgress(const Game* game) {
 	const bool debugBoost = false;
-	if(debugBoost) printf("===================== START Unit [%d - %s] skill: %s affected unit size: %d\n",
+	if(debugBoost) printf("===================== START Unit [%d - %s] skill: %s affected unit size: " MG_SIZE_T_SPECIFIER "\n",
 			this->id,this->getType()->getName().c_str(),currSkill->getBoostDesc().c_str(),
 			currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size());
 
@@ -2029,12 +2029,12 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 			currentAttackBoostOriginatorEffect.currentAttackBoostUnits.clear();
 		}
 
-		if(debugBoost) printf("Line: %d affected unit size: %d\n",__LINE__,currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size());
+		if(debugBoost) printf("Line: %d affected unit size: " MG_SIZE_T_SPECIFIER "\n",__LINE__,currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size());
 
 		currentAttackBoostOriginatorEffect.skillType = currSkill;
 
 		if (currSkill->isAttackBoostEnabled() == true) {
-			if(debugBoost) printf("Line: %d affected unit size: %d\n",__LINE__,currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size());
+			if(debugBoost) printf("Line: %d affected unit size: " MG_SIZE_T_SPECIFIER "\n",__LINE__,currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size());
 
 			// Search for units in range of this unit which apply to the
 			// attack-boost and temporarily upgrade them
@@ -2044,7 +2044,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 			vector<Unit *> candidates = unitUpdater->findUnitsInRange(this,
 					attackBoost->radius);
 
-			if(debugBoost) printf("Line: %d candidates unit size: %d attackBoost: %s\n",__LINE__,candidates.size(),attackBoost->getDesc().c_str());
+			if(debugBoost) printf("Line: %d candidates unit size: " MG_SIZE_T_SPECIFIER " attackBoost: %s\n",__LINE__,candidates.size(),attackBoost->getDesc().c_str());
 
 			for (unsigned int i = 0; i < candidates.size(); ++i) {
 				Unit *affectedUnit = candidates[i];
@@ -2057,7 +2057,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 				}
 			}
 
-			if(debugBoost) printf("Line: %d affected unit size: %d\n",__LINE__,currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size());
+			if(debugBoost) printf("Line: %d affected unit size: " MG_SIZE_T_SPECIFIER "\n",__LINE__,currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size());
 
 			if (showUnitParticles == true) {
 				if (currentAttackBoostOriginatorEffect.currentAttackBoostUnits.empty() == false) {
@@ -2090,7 +2090,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 	}
 	else {
 		if (currSkill->isAttackBoostEnabled() == true) {
-			if(debugBoost) printf("Line: %d affected unit size: %d\n",__LINE__,currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size());
+			if(debugBoost) printf("Line: %d affected unit size: " MG_SIZE_T_SPECIFIER "\n",__LINE__,currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size());
 
 			// Search for units in range of this unit which apply to the
 			// attack-boost and temporarily upgrade them
@@ -2101,7 +2101,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 			vector<int> candidateValidIdList;
 			candidateValidIdList.reserve(candidates.size());
 
-			if(debugBoost) printf("Line: %d candidates unit size: %d attackBoost: %s\n",__LINE__,candidates.size(),attackBoost->getDesc().c_str());
+			if(debugBoost) printf("Line: %d candidates unit size: " MG_SIZE_T_SPECIFIER " attackBoost: %s\n",__LINE__,candidates.size(),attackBoost->getDesc().c_str());
 
 			for (unsigned int i = 0; i < candidates.size(); ++i) {
 				Unit *affectedUnit = candidates[i];
@@ -2162,7 +2162,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 				}
 			}
 
-			if(debugBoost) printf("Line: %d affected unit size: %d\n",__LINE__,currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size());
+			if(debugBoost) printf("Line: %d affected unit size: " MG_SIZE_T_SPECIFIER "\n",__LINE__,currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size());
 
 			if (showUnitParticles == true) {
 				if (currentAttackBoostOriginatorEffect.currentAttackBoostUnits.empty() == false) {
