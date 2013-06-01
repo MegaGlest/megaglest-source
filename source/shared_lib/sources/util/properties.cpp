@@ -51,6 +51,10 @@ string Properties::tutorialPath = "";
 //	class Properties
 // =====================================================
 
+Properties::Properties() {
+	propertyMapTmpInUse = false;
+	path = "";
+}
 void Properties::load(const string &path, bool clearCurrentProperties) {
 
 	char lineBuffer[maxLine]="";
@@ -78,9 +82,12 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 
 	if(clearCurrentProperties == true) {
 		propertyMap.clear();
+		propertyMapTmpInUse = true;
 		propertyMapTmp.clear();
+		propertyMapTmpInUse = false;
 	}
 
+	propertyMapTmpInUse = true;
 	while(fileStream.eof() == false) {
 		lineBuffer[0]='\0';
 		fileStream.getline(lineBuffer, maxLine);
@@ -161,6 +168,7 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 			}
 		}
 	}
+	propertyMapTmpInUse = false;
 
 	fileStream.close();
 #if defined(WIN32) && !defined(__MINGW32__)
@@ -375,7 +383,9 @@ void Properties::save(const string &path){
 
 void Properties::clear(){
 	propertyMap.clear();
+	propertyMapTmpInUse = true;
 	propertyMapTmp.clear();
+	propertyMapTmpInUse = false;
 	propertyVector.clear();
 	propertyVectorTmp.clear();
 }
@@ -443,6 +453,10 @@ float Properties::getFloat(const string &key, float min, float max, const char *
 }
 
 const string Properties::getString(const string &key, const char *defaultValueIfNotFound) const{
+	for(time_t elapsed = time(NULL); propertyMapTmpInUse == true && difftime(time(NULL),elapsed) < 5;) {
+		sleep(100);
+		printf("Waiting for ini file updates to complete.\n");
+	}
 	PropertyMap::const_iterator it = propertyMapTmp.find(key);
 	if(it == propertyMapTmp.end()) {
 	    if(defaultValueIfNotFound != NULL) {
@@ -501,9 +515,10 @@ void Properties::setString(const string &key, const string &value){
 	propertyMap.erase(key);
 	propertyMap.insert(PropertyPair(key, value));
 
+	propertyMapTmpInUse = true;
 	propertyMapTmp.erase(key);
 	propertyMapTmp.insert(PropertyPair(key, value));
-
+	propertyMapTmpInUse = false;
 }
 
 string Properties::toString(){
