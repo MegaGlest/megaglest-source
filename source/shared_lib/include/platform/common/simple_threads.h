@@ -83,6 +83,8 @@ class SimpleTaskThread : public BaseThread
 {
 protected:
 
+	Mutex mutexSimpleTaskInterfaceValid;
+	bool simpleTaskInterfaceValid;
 	SimpleTaskCallbackInterface *simpleTaskInterface;
 	unsigned int executionCount;
 	unsigned int millisecsBetweenExecutions;
@@ -114,6 +116,9 @@ public:
     void cleanup();
 
     void setOverrideShutdownTask(taskFunctionCallback *ptr);
+
+    bool getSimpleTaskInterfaceValid() const { return this->simpleTaskInterfaceValid; }
+    void setSimpleTaskInterfaceValid(bool value) { this->simpleTaskInterfaceValid = value; }
 };
 
 // =====================================================
