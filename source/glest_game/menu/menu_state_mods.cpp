@@ -428,13 +428,14 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 	if(config.getString("Masterserver","") != "") {
 		string baseURL = config.getString("Masterserver");
 		string phpVersionParam = config.getString("phpVersionParam","?version=0.1");
+		string playerUUID = "&uuid=" + SystemFlags::escapeURL(Config::getInstance().getString("PlayerId",""));
 		string gameVersion = "&glestVersion=" + SystemFlags::escapeURL(glestVersionString);
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] About to call first http url, base [%s]..\n",__FILE__,__FUNCTION__,__LINE__,baseURL.c_str());
 
 		CURL *handle = SystemFlags::initHTTP();
 		CURLcode curlResult = CURLE_OK;
-		techsMetaData = SystemFlags::getHTTP(baseURL + "showTechsForGlest.php"+phpVersionParam+gameVersion,handle,-1,&curlResult);
+		techsMetaData = SystemFlags::getHTTP(baseURL + "showTechsForGlest.php"+phpVersionParam+gameVersion+playerUUID,handle,-1,&curlResult);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("techsMetaData [%s] curlResult = %d\n",techsMetaData.c_str(),curlResult);
 
 	    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {

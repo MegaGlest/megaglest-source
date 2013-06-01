@@ -80,6 +80,7 @@
 #include "network_message.h"
 #include "network_protocol.h"
 #include "conversion.h"
+#include "gen_uuid.h"
 #include "leak_dumper.h"
 
 //#if defined(WIN32) && !defined(HAVE_GOOGLE_BREAKPAD)
@@ -3528,6 +3529,16 @@ int glestMain(int argc, char** argv) {
 		// Attempt to read ini files
 		Config &config = Config::getInstance();
 		setupGameItemPaths(argc, argv, &config);
+
+		if(config.getString("PlayerId","") == "") {
+			Shared::Util::uuid_t u;
+			char  uuid_str[38];
+			get_uuid_string(uuid_str,sizeof(uuid_str));
+
+			config.setString("PlayerId",uuid_str);
+			config.save();
+		}
+		//printf("Players UUID: [%s]\n",config.getString("PlayerId","").c_str());
 
 		if(config.getBool("DisableLuaSandbox","false") == true) {
 			LuaScript::setDisableSandbox(true);

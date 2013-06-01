@@ -603,6 +603,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	//init controllers
 	if(serverInitError == false) {
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+		if(serverInterface == NULL) {
+			throw megaglest_runtime_error("serverInterface == NULL");
+		}
 		if(this->headlessServerMode == true) {
 			listBoxControls[0].setSelectedItemIndex(ctNetwork);
 			updateResourceMultiplier(0);
@@ -2879,6 +2882,8 @@ void MenuStateCustomGame::publishToMasterserver() {
 		}
 	}
 
+	publishToServerInfo["uuid"] = Config::getInstance().getString("PlayerId","");
+
 	//?status=waiting&system=linux&info=titus
 	publishToServerInfo["glestVersion"] = glestVersionString;
 	publishToServerInfo["platform"] = getPlatformNameString() + "-" + getSVNRevisionString();
@@ -3254,6 +3259,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 				gameSettings->setThisFactionIndex(slotIndex);
 				gameSettings->setNetworkPlayerName(slotIndex, getHumanPlayerName(i));
+				gameSettings->setNetworkPlayerUUID(slotIndex,Config::getInstance().getString("PlayerId",""));
 				gameSettings->setNetworkPlayerStatuses(slotIndex, getNetworkPlayerStatus());
 				Lang &lang= Lang::getInstance();
 				gameSettings->setNetworkPlayerLanguages(slotIndex, lang.getLanguage());
@@ -3310,6 +3316,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, connectionSlot->getName() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,serverInterface->getSlot(i)->getName().c_str());
 
 					gameSettings->setNetworkPlayerName(slotIndex, serverInterface->getSlot(i)->getName());
+					gameSettings->setNetworkPlayerUUID(i,serverInterface->getSlot(i)->getUUID());
 					labelPlayerNames[i].setText(serverInterface->getSlot(i)->getName());
 				}
 				else {
@@ -3326,6 +3333,10 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 				Lang &lang= Lang::getInstance();
 				gameSettings->setNetworkPlayerName(slotIndex, lang.get("AI") + intToStr(AIPlayerCount));
 				labelPlayerNames[i].setText("");
+			}
+
+			if(serverInterface != NULL && serverInterface->getSlot(i) != NULL) {
+				gameSettings->setNetworkPlayerUUID(slotIndex,serverInterface->getSlot(i)->getUUID());
 			}
 
 			factionCount++;
@@ -3353,6 +3364,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
 			gameSettings->setNetworkPlayerName(slotIndex, "Closed");
+			gameSettings->setNetworkPlayerUUID(slotIndex,"");
 
 			closedCount++;
 		}

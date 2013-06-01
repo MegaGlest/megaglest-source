@@ -2261,10 +2261,12 @@ void Game::update() {
 							server->gameSettings.setFactionControl(i,ctNetwork);
 							ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
 							server->gameSettings.setNetworkPlayerName(i,slot->getName());
+							server->gameSettings.setNetworkPlayerUUID(i,slot->getUUID());
 							server->gameSettings.setNetworkPlayerStatuses(i,npst_None);
 
 							this->gameSettings.setFactionControl(i,ctNetwork);
 							this->gameSettings.setNetworkPlayerName(i,server->gameSettings.getNetworkPlayerName(i));
+							this->gameSettings.setNetworkPlayerUUID(i,server->gameSettings.getNetworkPlayerUUID(i));
 							this->gameSettings.setNetworkPlayerStatuses(i,npst_None);
 						}
 					}
@@ -2303,6 +2305,7 @@ void Game::update() {
 
 						this->gameSettings.setFactionControl(i,ctNetwork);
 						this->gameSettings.setNetworkPlayerName(i,server->gameSettings.getNetworkPlayerName(i));
+						this->gameSettings.setNetworkPlayerUUID(i,server->gameSettings.getNetworkPlayerUUID(i));
 
 						if(this->gameSettings.getNetworkPlayerStatuses(i) == npst_Disconnected) {
 							this->gameSettings.setNetworkPlayerStatuses(i,npst_None);
@@ -2714,6 +2717,8 @@ bool Game::switchSetupForSlots(ServerInterface *& serverInterface,
 
 						gameSettings.setNetworkPlayerName(oldFactionIndex, "");
 						serverInterface->gameSettings.setNetworkPlayerName(oldFactionIndex, "");
+						gameSettings.setNetworkPlayerUUID(oldFactionIndex, "");
+						serverInterface->gameSettings.setNetworkPlayerUUID(oldFactionIndex, "");
 
 						gameSettings.setFactionControl(newFactionIndex,ctNetwork);
 						serverInterface->gameSettings.setFactionControl(newFactionIndex,ctNetwork);
@@ -5118,6 +5123,7 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 	// resources
 	for(int i = 0; i < world.getFactionCount(); ++i) {
 		string factionInfo = this->gameSettings.getNetworkPlayerName(i);
+		factionInfo += " [" + this->gameSettings.getNetworkPlayerUUID(i) + "]";
 		switch(this->gameSettings.getFactionControl(i)) {
 			case ctCpuEasy:
 				factionInfo += " CPU Easy";

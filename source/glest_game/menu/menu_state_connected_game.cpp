@@ -998,12 +998,13 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread) {
 		string baseURL = config.getString("Masterserver");
 		string phpVersionParam = config.getString("phpVersionParam","?version=0.1");
 		string gameVersion = "&glestVersion=" + SystemFlags::escapeURL(glestVersionString);
+		string playerUUID = "&uuid=" + SystemFlags::escapeURL(config.getString("PlayerId",""));
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] About to call first http url, base [%s]..\n",__FILE__,__FUNCTION__,__LINE__,baseURL.c_str());
 
 		CURL *handle = SystemFlags::initHTTP();
 		CURLcode curlResult = CURLE_OK;
-		techsMetaData = SystemFlags::getHTTP(baseURL + "showTechsForGlest.php"+phpVersionParam+gameVersion,handle,-1,&curlResult);
+		techsMetaData = SystemFlags::getHTTP(baseURL + "showTechsForGlest.php"+phpVersionParam+gameVersion+playerUUID,handle,-1,&curlResult);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("techsMetaData [%s] curlResult = %d\n",techsMetaData.c_str(),curlResult);
 
 	    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
@@ -2156,6 +2157,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 
 				gameSettings->setThisFactionIndex(slotIndex);
 				gameSettings->setNetworkPlayerName(slotIndex, getHumanPlayerName());
+				gameSettings->setNetworkPlayerUUID(slotIndex,Config::getInstance().getString("PlayerId",""));
 				gameSettings->setNetworkPlayerStatuses(slotIndex, getNetworkPlayerStatus());
 				Lang &lang= Lang::getInstance();
 				gameSettings->setNetworkPlayerLanguages(slotIndex, lang.getLanguage());

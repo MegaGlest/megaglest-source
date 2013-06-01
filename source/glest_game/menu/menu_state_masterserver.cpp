@@ -972,7 +972,10 @@ void MenuStateMasterserver::simpleTask(BaseThread *callingThread) {
 
                     safeMutex.ReleaseLock(true);
 					CURL *handle = SystemFlags::initHTTP();
-                    std::string localServerInfoString = SystemFlags::getHTTP(Config::getInstance().getString("Masterserver") + "showServersForGlest.php",handle);
+
+					string playerUUID = "?uuid=" + SystemFlags::escapeURL(Config::getInstance().getString("PlayerId",""));
+                    std::string localServerInfoString = SystemFlags::getHTTP(
+                    		Config::getInstance().getString("Masterserver") + "showServersForGlest.php" + playerUUID,handle);
 					SystemFlags::cleanupHTTP(&handle);
                     if(callingThread->getQuitStatus() == true) {
                         return;

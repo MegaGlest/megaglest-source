@@ -93,6 +93,7 @@ private:
 
 	ControlType factionControls[GameConstants::maxPlayers];
 	int resourceMultiplierIndex[GameConstants::maxPlayers];
+	string networkPlayerUUID[GameConstants::maxPlayers];
 
 
 	int thisFactionIndex;
@@ -156,6 +157,8 @@ public:
     		teams[i] = 0;
     		startLocationIndex[i] = i;
     		networkPlayerGameStatus[i] = 0;
+
+    		networkPlayerUUID[i] = "";
     	}
 
     	flagTypes1 = ft1_none;
@@ -271,6 +274,15 @@ public:
 		}
 
 		return resourceMultiplierIndex[factionIndex];
+	}
+
+	const string &getNetworkPlayerUUID(int factionIndex) const {
+		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			throw megaglest_runtime_error(szBuf);
+		}
+		return networkPlayerUUID[factionIndex];
 	}
 
 	bool isNetworkGame() const {
@@ -414,6 +426,16 @@ public:
 		this->resourceMultiplierIndex[factionIndex]= multiplierIndex;
 	}
 
+	void setNetworkPlayerUUID(int factionIndex, const string& uuid) {
+		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			throw megaglest_runtime_error(szBuf);
+		}
+
+		this->networkPlayerUUID[factionIndex]= uuid;
+	}
+
 	void setThisFactionIndex(int thisFactionIndex) {
 		this->thisFactionIndex= thisFactionIndex;
 	}
@@ -491,6 +513,7 @@ public:
 			result += "resourceMultiplierIndex = " + intToStr(resourceMultiplierIndex[idx]) + "\n";
 			result += "team = " + intToStr(teams[idx]) + "\n";
 			result += "startLocationIndex = " + intToStr(startLocationIndex[idx]) + "\n";
+			result += "networkPlayerUUID = " + networkPlayerUUID[idx] + "\n";
 		}
 
 		result += "thisFactionIndex = " + intToStr(thisFactionIndex) + "\n";
@@ -561,8 +584,6 @@ public:
 			networkPlayerStatusesNode->addAttribute("game_status",intToStr(networkPlayerGameStatus[idx]), mapTagReplacements);
 		}
 
-
-
 //		string networkPlayerLanguages[GameConstants::maxPlayers];
 		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
 			XmlNode *networkPlayerLanguagesNode = gameSettingsNode->addChild("networkPlayerLanguages");
@@ -595,6 +616,11 @@ public:
 		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
 			XmlNode *startLocationIndexNode = gameSettingsNode->addChild("startLocationIndex");
 			startLocationIndexNode->addAttribute("location",intToStr(startLocationIndex[idx]), mapTagReplacements);
+		}
+
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			XmlNode *networkPlayerUUIDNode = gameSettingsNode->addChild("networkPlayerUUID");
+			networkPlayerUUIDNode->addAttribute("value",networkPlayerUUID[idx], mapTagReplacements);
 		}
 
 //		int mapFilterIndex;
@@ -706,6 +732,11 @@ public:
 		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
 			const XmlNode *resourceMultiplierIndexNode = gameSettingsNode->getChild("resourceMultiplierIndex",idx);
 			resourceMultiplierIndex[idx] = resourceMultiplierIndexNode->getAttribute("multiplier")->getIntValue();
+		}
+
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			const XmlNode *networkPlayerUUIDNode = gameSettingsNode->getChild("networkPlayerUUID",idx);
+			networkPlayerUUID[idx] = networkPlayerUUIDNode->getAttribute("value")->getValue();
 		}
 
 //		int thisFactionIndex;

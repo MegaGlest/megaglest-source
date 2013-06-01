@@ -525,6 +525,7 @@ void ClientInterface::updateLobby() {
             	versionString = networkMessageIntro.getVersionString();
 				playerIndex= networkMessageIntro.getPlayerIndex();
 				serverName= networkMessageIntro.getName();
+				serverUUID = networkMessageIntro.getPlayerUUID();
 				serverFTPPort = networkMessageIntro.getFtpPort();
 
 				MutexSafeWrapper safeMutexFlags(flagAccessor,CODE_AT_LINE);
@@ -595,7 +596,8 @@ void ClientInterface::updateLobby() {
 							this->getSocket()->getConnectedIPAddress(),
 							serverFTPPort,
 							lang.getLanguage(),
-							networkMessageIntro.getGameInProgress());
+							networkMessageIntro.getGameInProgress(),
+							Config::getInstance().getString("PlayerId",""));
 					sendMessage(&sendNetworkMessageIntro);
 
 					//printf("Got intro sending client details to server\n");

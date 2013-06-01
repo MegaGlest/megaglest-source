@@ -143,6 +143,7 @@ private:
 	uint32 connectedRemoteIPAddress;
 	int playerStatus;
 	string playerLanguage;
+	string playerUUID;
 
 	bool skipLagCheck;
 	bool joinGameInProgress;
@@ -181,6 +182,7 @@ public:
 
 	void setReady();
 	const string &getName() const	{return name;}
+	const string &getUUID() const	{return playerUUID;}
 	void setName(string value)      {name = value;}
 	bool isReady() const			{return ready;}
 
