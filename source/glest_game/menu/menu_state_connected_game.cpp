@@ -2605,7 +2605,7 @@ void MenuStateConnectedGame::update() {
 
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 	Lang &lang= Lang::getInstance();
-
+	string newLabel = lang.get("WaitingHost");
 	// Test progress bar
     //MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
     //fileFTPProgressList["test"] = pair<int,string>(difftime(time(NULL),lastNetworkSendPing) * 20,"test file 123");
@@ -3208,7 +3208,7 @@ void MenuStateConnectedGame::update() {
 
 				//intro
 				if(clientInterface->getIntroDone()) {
-					string newLabel = lang.get("WaitingHost");
+					//string newLabel = Lang::getInstance().get("WaitingHost");
 					if(newLabel != labelInfo.getText()) {
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						labelInfo.setText(newLabel);
