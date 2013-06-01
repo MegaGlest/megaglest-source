@@ -383,13 +383,13 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
 		soundRenderer.playFx(coreData.getClickSoundB());
 		labelInfo.setText("");
 
-		if(clientInterface->isConnected())
-		{
+		if(clientInterface->isConnected()) {
 			clientInterface->reset();
 		}
-		else
-		{
-			connectToServer();
+		else {
+			if(connectToServer() == true) {
+				return;
+			}
 		}
 	}
     else if(buttonCreateGame.mouseClick(x, y)){
@@ -614,7 +614,9 @@ void MenuStateJoinGame::update()
 	}
 	else if(autoConnectToServer == true) {
 		autoConnectToServer = false;
-		connectToServer();
+		if(connectToServer() == true) {
+			return;
+		}
 	}
 
     if(clientInterface != NULL && clientInterface->getLaunchGame()) if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - D\n",__FILE__,__FUNCTION__);
@@ -720,7 +722,7 @@ void MenuStateJoinGame::keyPress(SDL_KeyboardEvent c) {
 	}
 }
 
-void MenuStateJoinGame::connectToServer() {
+bool MenuStateJoinGame::connectToServer() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] START\n",__FILE__,__FUNCTION__);
 
 	Config& config= Config::getInstance();
@@ -752,7 +754,7 @@ void MenuStateJoinGame::connectToServer() {
 	for(time_t elapsedWait = time(NULL);
 		clientInterface->getIntroDone() == false &&
 		clientInterface->isConnected() &&
-		difftime(time(NULL),elapsedWait) <= 8;) {
+		difftime(time(NULL),elapsedWait) <= 10;) {
 		if(clientInterface->isConnected()) {
 			//update lobby
 			clientInterface->updateLobby();
@@ -774,9 +776,10 @@ void MenuStateJoinGame::connectToServer() {
 		abortAutoFind = true;
 		clientInterface->stopServerDiscovery();
 		mainMenu->setState(new MenuStateConnectedGame(program, mainMenu));
-		return;
+		return true;
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
+	return false;
 }
 
 }}//end namespace
