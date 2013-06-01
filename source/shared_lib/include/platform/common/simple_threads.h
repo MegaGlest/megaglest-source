@@ -117,8 +117,8 @@ public:
 
     void setOverrideShutdownTask(taskFunctionCallback *ptr);
 
-    bool getSimpleTaskInterfaceValid() const { return this->simpleTaskInterfaceValid; }
-    void setSimpleTaskInterfaceValid(bool value) { this->simpleTaskInterfaceValid = value; }
+    bool getSimpleTaskInterfaceValid();
+    void setSimpleTaskInterfaceValid(bool value);
 };
 
 // =====================================================

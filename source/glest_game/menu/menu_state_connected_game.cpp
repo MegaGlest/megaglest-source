@@ -976,21 +976,11 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread) {
 
     Lang &lang= Lang::getInstance();
     Config &config = Config::getInstance();
-//    string fileArchiveExtractCommand = config.getString("FileArchiveExtractCommand","");
-//    int expectedResult = config.getInt("FileArchiveExtractCommandSuccessResult","0");
-//	bool findArchive = executeShellCommand(fileArchiveExtractCommand,expectedResult);
-//	if(findArchive == false) {
-//		mainMessageBoxState = ftpmsg_None;
-//		mainMessageBox.init(lang.get("Ok"),450);
-//		showMessageBox(lang.get("ModRequires7z"), lang.get("Notice"), true);
-//	}
 
 	std::string techsMetaData = "";
 	std::string tilesetsMetaData = "";
 	std::string mapsMetaData = "";
 	std::string scenariosMetaData = "";
-
-	//modMenuState=mmst_Loading;
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -1005,6 +995,7 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread) {
 		CURL *handle = SystemFlags::initHTTP();
 		CURLcode curlResult = CURLE_OK;
 		techsMetaData = SystemFlags::getHTTP(baseURL + "showTechsForGlest.php"+phpVersionParam+gameVersion+playerUUID,handle,-1,&curlResult);
+
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("techsMetaData [%s] curlResult = %d\n",techsMetaData.c_str(),curlResult);
 
 	    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
@@ -1166,8 +1157,6 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread) {
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-	//modMenuState=mmst_None;
 
 	if(modHttpServerThread != NULL) {
 		modHttpServerThread->signalQuit();
@@ -2304,6 +2293,8 @@ void MenuStateConnectedGame::returnToJoinMenu() {
 	if(modHttpServerThread != NULL) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		modHttpServerThread->setSimpleTaskInterfaceValid(false);
 		modHttpServerThread->signalQuit();
 		//modHttpServerThread->setThreadOwnerValid(false);
 
@@ -3369,6 +3360,7 @@ void MenuStateConnectedGame::update() {
 					if(modHttpServerThread != NULL) {
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						modHttpServerThread->setSimpleTaskInterfaceValid(false);
 						modHttpServerThread->signalQuit();
 						//modHttpServerThread->setThreadOwnerValid(false);
 

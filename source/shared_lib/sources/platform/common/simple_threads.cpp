@@ -427,6 +427,19 @@ bool SimpleTaskThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 	return ret;
 }
 
+bool SimpleTaskThread::getSimpleTaskInterfaceValid() {
+	string mutexOwnerId1 = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
+
+	return this->simpleTaskInterfaceValid;
+}
+void SimpleTaskThread::setSimpleTaskInterfaceValid(bool value) {
+	string mutexOwnerId1 = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
+
+	this->simpleTaskInterfaceValid = value;
+}
+
 void SimpleTaskThread::execute() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	void *ptr_cpy = this->ptr;
