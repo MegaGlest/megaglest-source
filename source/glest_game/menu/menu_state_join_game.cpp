@@ -249,10 +249,12 @@ void MenuStateJoinGame::reloadUI() {
 
 MenuStateJoinGame::~MenuStateJoinGame() {
 	abortAutoFind = true;
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(abortAutoFind == true) {
 		return;
@@ -262,6 +264,8 @@ void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 	//serverList.push_back("test2");
 	//
 
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 	autoConnectToServer = false;
 	buttonAutoFindServers.setEnabled(true);
 	buttonConnect.setEnabled(true);
@@ -270,6 +274,8 @@ void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 		string bestIPMatch = "";
 		int serverGamePort = config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str());
 		std::vector<std::string> localIPList = Socket::getLocalIPAddressList();
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		for(int idx = 0; idx < serverList.size(); idx++) {
 
@@ -288,10 +294,14 @@ void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 			}
 		}
 
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 		if(bestIPMatch != "") {
 			bestIPMatch += ":" + intToStr(serverGamePort);
 		}
 		labelServerIp.setText(bestIPMatch);
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(serverList.size() > 1) {
 			listBoxServerType.setSelectedItemIndex(MenuStateJoinGame::foundServersIndex);
@@ -302,6 +312,7 @@ void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
@@ -362,6 +373,7 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
 		}
 		abortAutoFind = true;
 		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
+		return;
     }
 
 	//connect
@@ -390,7 +402,7 @@ void MenuStateJoinGame::mouseClick(int x, int y, MouseButton mouseButton) {
 		}
 		abortAutoFind = true;
 		mainMenu->setState(new MenuStateCustomGame(program, mainMenu,true,pLanGame));
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		return;
     }
 
 	else if(buttonAutoFindServers.mouseClick(x, y) && buttonAutoFindServers.getEnabled() == true) {
@@ -596,8 +608,7 @@ void MenuStateJoinGame::update()
 				abortAutoFind = true;
 				clientInterface->stopServerDiscovery();
 				program->setState(new Game(program, clientInterface->getGameSettings(),false));
-
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - C\n",__FILE__,__FUNCTION__);
+				return;
 			}
 		}
 	}
@@ -763,6 +774,7 @@ void MenuStateJoinGame::connectToServer() {
 		abortAutoFind = true;
 		clientInterface->stopServerDiscovery();
 		mainMenu->setState(new MenuStateConnectedGame(program, mainMenu));
+		return;
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }

@@ -44,7 +44,6 @@ private:
 	PropertyMap propertyMap;
 	PropertyVector propertyVectorTmp;
 	PropertyMap propertyMapTmp;
-	bool propertyMapTmpInUse;
 
 	string path;
 	static string applicationPath;
@@ -55,7 +54,6 @@ private:
 	static string tutorialPath;
 
 public:
-	Properties();
 	static void setApplicationPath(string value) { applicationPath=value; }
 	static string getApplicationPath() { return applicationPath; }
 
