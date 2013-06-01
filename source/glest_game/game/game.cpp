@@ -2943,34 +2943,39 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 
 					Lang &lang= Lang::getInstance();
 
+					bool isPlayerObserver = false;
 					char szBuf[8096]="";
 					if(faction->getPersonalityType() != fpt_Observer) {
-						//faction->setControlType(ctCpuUltra);
 						aiInterfaces[i] = new AiInterface(*this, i, faction->getTeam(), faction->getStartLocationIndex());
 
 						snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
 						logger.add(szBuf, true);
-
-						string msg = "Player #%d [%s] has disconnected, switching player to AI mode!";
-						if(lang.hasString("GameSwitchPlayerToAI")) {
-							msg = lang.get("GameSwitchPlayerToAI");
-						}
-						snprintf(szBuf,8096,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 
 						commander.tryNetworkPlayerDisconnected(i);
 
 						newAIPlayerCreated = true;
 					}
 					else {
-						string msg = "Player #%d [%s] has disconnected, but player was only an observer!";
-						if(lang.hasString("GameSwitchPlayerObserverToAI")) {
-							msg = lang.get("GameSwitchPlayerObserverToAI");
-						}
-						snprintf(szBuf,8096,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+						isPlayerObserver = true;
+
 					}
 
 					const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
 					for(unsigned int j = 0; j < languageList.size(); ++j) {
+						if(isPlayerObserver == false) {
+							string msg = "Player #%d [%s] has disconnected, switching player to AI mode!";
+							if(lang.hasString("GameSwitchPlayerToAI",languageList[i])) {
+								msg = lang.get("GameSwitchPlayerToAI",languageList[i]);
+							}
+							snprintf(szBuf,8096,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+						}
+						else {
+							string msg = "Player #%d [%s] has disconnected, but player was only an observer!";
+							if(lang.hasString("GameSwitchPlayerObserverToAI",languageList[i])) {
+								msg = lang.get("GameSwitchPlayerObserverToAI",languageList[i]);
+							}
+							snprintf(szBuf,8096,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+						}
 						bool localEcho = (languageList[j] == lang.getLanguage());
 						server->sendTextMessage(szBuf,-1,localEcho,languageList[j]);
 					}
