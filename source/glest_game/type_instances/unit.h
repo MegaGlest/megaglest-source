@@ -785,6 +785,7 @@ private:
 	int getUpdatedProgress(int currentProgress, int updateFPS, int speed, int diagonalFactor, int heightFactor);
 
 	void logSynchDataCommon(string file,int line,string source="",bool threadedMode=false);
+	void updateAttackBoostProgress(const Game* game);
 };
 
 }}// end namespace
