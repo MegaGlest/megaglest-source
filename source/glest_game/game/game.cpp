@@ -2964,15 +2964,15 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 					for(unsigned int j = 0; j < languageList.size(); ++j) {
 						if(isPlayerObserver == false) {
 							string msg = "Player #%d [%s] has disconnected, switching player to AI mode!";
-							if(lang.hasString("GameSwitchPlayerToAI",languageList[i])) {
-								msg = lang.get("GameSwitchPlayerToAI",languageList[i]);
+							if(lang.hasString("GameSwitchPlayerToAI",languageList[j],true)) {
+								msg = lang.get("GameSwitchPlayerToAI",languageList[j],true);
 							}
 							snprintf(szBuf,8096,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 						}
 						else {
 							string msg = "Player #%d [%s] has disconnected, but player was only an observer!";
-							if(lang.hasString("GameSwitchPlayerObserverToAI",languageList[i])) {
-								msg = lang.get("GameSwitchPlayerObserverToAI",languageList[i]);
+							if(lang.hasString("GameSwitchPlayerObserverToAI",languageList[j],true)) {
+								msg = lang.get("GameSwitchPlayerObserverToAI",languageList[j],true);
 							}
 							snprintf(szBuf,8096,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 						}
