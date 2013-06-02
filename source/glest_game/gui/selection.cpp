@@ -82,7 +82,25 @@ bool Selection::select(Unit *unit) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] unit selected [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->toString().c_str());
 
 		unit->addObserver(this);
-		selectedUnits.push_back(unit);
+
+		int unitTypeId=unit->getType()->getId();
+		bool inserted=false;
+		for(int i=0; i < selectedUnits.size(); ++i) {
+			int currentTypeId=selectedUnits[i]->getType()->getId();
+
+			if(unitTypeId<=currentTypeId) {
+				//place unit here
+				selectedUnits.insert(selectedUnits.begin()+i,unit);
+				inserted=true;
+				break;
+			}
+			else if(unitTypeId>currentTypeId) {
+				//do nothing
+			}
+		}
+		if( !inserted ){
+			selectedUnits.push_back(unit);
+		}
 		result = true;
 		gui->onSelectionChanged();
 	}
