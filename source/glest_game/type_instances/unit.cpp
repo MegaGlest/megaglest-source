@@ -1965,7 +1965,8 @@ int Unit::getHeightFactor() {
 			throw megaglest_runtime_error("targetCell == NULL");
 		}
 
-		int heightDiff= ((unitCell->getHeight() * 100.f) - (targetCell->getHeight() * 100.f));
+		int heightDiff= (truncateDecimal<float>(unitCell->getHeight() * 100.f,2) -
+				         truncateDecimal<float>(targetCell->getHeight() * 100.f,2));
 		heightFactor= clamp(100 + heightDiff / 500, 20, 500);
 	}
 
@@ -4032,8 +4033,8 @@ std::string Unit::toString() const {
 	result += " deadCount = " + intToStr(this->deadCount);
 	result += " progress = " + intToStr(this->progress);
 	result += "\n";
-	result += " lastAnimProgress = " + floatToStr(this->lastAnimProgress,16);
-	result += " animProgress = " + floatToStr(this->animProgress,16);
+	result += " lastAnimProgress = " + intToStr(this->lastAnimProgress);
+	result += " animProgress = " + intToStr(this->animProgress);
 	result += " highlight = " + floatToStr(this->highlight,16);
 	result += " progress2 = " + intToStr(this->progress2);
 	result += " kills = " + intToStr(this->kills);
@@ -4131,9 +4132,9 @@ void Unit::saveGame(XmlNode *rootNode) {
 //    float progress;			//between 0 and 1
 	unitNode->addAttribute("progress",intToStr(progress), mapTagReplacements);
 //	float lastAnimProgress;	//between 0 and 1
-	unitNode->addAttribute("lastAnimProgress",floatToStr(lastAnimProgress,16), mapTagReplacements);
+	unitNode->addAttribute("lastAnimProgress",intToStr(lastAnimProgress), mapTagReplacements);
 //	float animProgress;		//between 0 and 1
-	unitNode->addAttribute("animProgress",floatToStr(animProgress,16), mapTagReplacements);
+	unitNode->addAttribute("animProgress",intToStr(animProgress), mapTagReplacements);
 //	float highlight;
 	unitNode->addAttribute("highlight",floatToStr(highlight,16), mapTagReplacements);
 //	int progress2;
