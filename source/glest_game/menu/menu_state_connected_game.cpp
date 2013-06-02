@@ -3723,8 +3723,18 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
             //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] current file [%s] fileProgress = %d [now = %f, total = %f]\n",itemName.c_str(),stats->currentFilename.c_str(), fileProgress,stats->download_now,stats->download_total);
 
             MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-            pair<int,string> lastProgress = fileFTPProgressList[itemName];
-            fileFTPProgressList[itemName] = pair<int,string>(fileProgress,stats->currentFilename);
+            pair<int,string> lastProgress;
+            std::map<string,pair<int,string> >::iterator iterFind = fileFTPProgressList.find(itemName);
+            if(iterFind == fileFTPProgressList.end()) {
+            	iterFind = fileFTPProgressList.find(GameConstants::saveNetworkGameFileServerCompressed);
+                if(iterFind == fileFTPProgressList.end()) {
+                	iterFind = fileFTPProgressList.find(GameConstants::saveNetworkGameFileClientCompressed);
+                }
+            }
+            if(iterFind != fileFTPProgressList.end()) {
+            	lastProgress = iterFind->second;
+            	fileFTPProgressList[iterFind->first] = pair<int,string>(fileProgress,stats->currentFilename);
+            }
             safeMutexFTPProgress.ReleaseLock();
 
             if(itemName != "" && (lastProgress.first / 25) < (fileProgress / 25)) {
@@ -4040,7 +4050,17 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
 
         MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-        fileFTPProgressList.erase(itemName);
+        //fileFTPProgressList.erase(itemName);
+        std::map<string,pair<int,string> >::iterator iterFind = fileFTPProgressList.find(itemName);
+        if(iterFind == fileFTPProgressList.end()) {
+        	iterFind = fileFTPProgressList.find(GameConstants::saveNetworkGameFileServerCompressed);
+            if(iterFind == fileFTPProgressList.end()) {
+            	iterFind = fileFTPProgressList.find(GameConstants::saveNetworkGameFileClientCompressed);
+            }
+        }
+        if(iterFind != fileFTPProgressList.end()) {
+        	fileFTPProgressList.erase(iterFind->first);
+        }
         safeMutexFTPProgress.ReleaseLock();
 
         //printf("Status update downloading saved game file: [%s]\n",itemName.c_str());
