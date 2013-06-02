@@ -6232,6 +6232,9 @@ string Game::saveGame(string name, string path) {
 	if(masterserverMode == false) {
 		// take Screenshot
 		string jpgFileName=saveGameFile+".jpg";
+		// menu is already disabled, last rendered screen is still with enabled one. Lets render again:
+		render3d();
+		render2d();
 		Renderer::getInstance().saveScreen(jpgFileName,config.getInt("SaveGameScreenshotWidth","800"),config.getInt("SaveGameScreenshotHeight","600"));
 	}
 
