@@ -5691,6 +5691,7 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 						}
 						bool localEcho = lang.isLanguageLocal(languageList[i]);
 						server->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
+						sleep(1);
 
 						haveClientConnectedButNoReady = true;
 					}
