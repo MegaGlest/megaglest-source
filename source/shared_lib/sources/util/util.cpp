@@ -727,6 +727,16 @@ int clamp(int value, int min, int max){
     return value;
 }
 
+int64 clamp(int64 value, int64 min, int64 max){
+	if (value<min){
+        return min;
+	}
+	if (value>max){
+        return max;
+	}
+    return value;
+}
+
 float clamp(float value, float min, float max){
 	if (value<min){
         return min;

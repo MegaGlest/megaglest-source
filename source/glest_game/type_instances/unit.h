@@ -349,9 +349,9 @@ private:
     int loadCount;
     int deadCount;
     //float progress;			//between 0 and 1
-    int progress;			//between 0 and 1
-	int lastAnimProgress;	//between 0 and 1
-	int animProgress;		//between 0 and 1
+    int64 progress;			//between 0 and 1
+	int64 lastAnimProgress;	//between 0 and 1
+	int64 animProgress;		//between 0 and 1
 	float highlight;
 	int progress2;
 	int kills;
@@ -734,10 +734,10 @@ public:
 	std::string toString() const;
 	bool needToUpdate();
 	float getProgressAsFloat() const;
-	int getUpdateProgress();
-	int getDiagonalFactor();
-	int getHeightFactor(float speedMultiplier=PROGRESS_SPEED_MULTIPLIER);
-	int getSpeedDenominator(int updateFPS);
+	int64 getUpdateProgress();
+	int64 getDiagonalFactor();
+	int64 getHeightFactor(float speedMultiplier=PROGRESS_SPEED_MULTIPLIER);
+	int64 getSpeedDenominator(int64 updateFPS);
 	bool isChangedActiveCommand() const { return changedActiveCommand; }
 
 	bool isLastStuckFrameWithinCurrentFrameTolerance();
@@ -784,7 +784,7 @@ private:
 
 	void morphAttackBoosts(Unit *unit);
 
-	int getUpdatedProgress(int currentProgress, int updateFPS, int speed, int diagonalFactor, int heightFactor);
+	int64 getUpdatedProgress(int64 currentProgress, int64 updateFPS, int64 speed, int64 diagonalFactor, int64 heightFactor);
 
 	void logSynchDataCommon(string file,int line,string source="",bool threadedMode=false);
 	void updateAttackBoostProgress(const Game* game);
