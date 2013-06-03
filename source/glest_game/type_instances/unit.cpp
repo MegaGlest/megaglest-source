@@ -4018,7 +4018,9 @@ void Unit::clearCaches() {
 	cachedFow.surfPosList.clear();
 	cachedFowPos = Vec2i(0,0);
 
-	//unitPath->clearCaches();
+	if(unitPath != NULL) {
+		unitPath->clearCaches();
+	}
 
 	lastHarvestedResourcePos = Vec2i(0,0);
 }
