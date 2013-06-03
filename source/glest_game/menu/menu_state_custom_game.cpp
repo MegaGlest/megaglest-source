@@ -2148,7 +2148,12 @@ void MenuStateCustomGame::switchSetupForSlots(SwitchSetupRequest **switchSetupRe
 					int switchFactionIdx = switchSetupRequests[i]->getCurrentSlotIndex();
 					if(serverInterface->switchSlot(switchFactionIdx,newFactionIdx)) {
 						try {
-							if(switchSetupRequests[i]->getSelectedFactionName() != "") {
+							ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+							ConnectionSlot *slot = serverInterface->getSlot(newFactionIdx);
+
+							if(switchSetupRequests[i]->getSelectedFactionName() != "" &&
+								(slot != NULL && switchSetupRequests[i]->getSelectedFactionName() !=
+										Lang::getInstance().get("DataMissing",slot->getNetworkPlayerLanguage(),true))) {
 								listBoxFactions[newFactionIdx].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
 							}
 							if(switchSetupRequests[i]->getToTeam() != -1) {
@@ -2179,7 +2184,13 @@ void MenuStateCustomGame::switchSetupForSlots(SwitchSetupRequest **switchSetupRe
 				}
 				else {
 					try {
-						if(switchSetupRequests[i]->getSelectedFactionName() != "") {
+						int factionIdx = switchSetupRequests[i]->getCurrentSlotIndex();
+						ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+						ConnectionSlot *slot = serverInterface->getSlot(factionIdx);
+
+						if(switchSetupRequests[i]->getSelectedFactionName() != "" &&
+							(slot != NULL && switchSetupRequests[i]->getSelectedFactionName() !=
+									Lang::getInstance().get("DataMissing",slot->getNetworkPlayerLanguage(),true))) {
 							listBoxFactions[i].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
 						}
 						if(switchSetupRequests[i]->getToTeam() != -1) {
@@ -2195,8 +2206,6 @@ void MenuStateCustomGame::switchSetupForSlots(SwitchSetupRequest **switchSetupRe
 							else {
 								labelPlayerNames[i].setText("");
 							}
-							//SetActivePlayerNameEditor();
-							//switchSetupRequests[i]->clearSwitchFlag(ssrft_NetworkPlayerName);
 						}
 					}
 					catch(const runtime_error &e) {
