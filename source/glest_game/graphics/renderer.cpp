@@ -6914,8 +6914,9 @@ void Renderer::selectUsingSelectionBuffer(Selection::UnitContainer &units,
 		printf("%s\n",szBuf);
 	}
 
-	glMatrixMode(GL_PROJECTION);
+
 	glPushMatrix();
+	glMatrixMode(GL_PROJECTION);
 
 	glLoadIdentity();
 
@@ -6937,7 +6938,6 @@ void Renderer::selectUsingSelectionBuffer(Selection::UnitContainer &units,
 	}
 
 	//pop matrices
-	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 
 	// Added this to ensure all the selection calls are done now
@@ -7004,8 +7004,9 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 
 	PixelBufferWrapper::begin();
 
-	glMatrixMode(GL_PROJECTION);
+
 	glPushMatrix();
+	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	//GLint view[]= {0, 0, metrics.getVirtualW(), metrics.getVirtualH()};
 	//gluPickMatrix(x, y, w, h, view);
@@ -7086,9 +7087,7 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 		}
 	}
 	//pop matrices
-	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
-
 }
 
 // ==================== shadows ====================
