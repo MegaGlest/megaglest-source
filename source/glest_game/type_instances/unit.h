@@ -334,6 +334,8 @@ public:
 	static const int speedDivider;
 	static const int maxDeadCount;
 	static const int invalidId;
+	static const float ANIMATION_SPEED_MULTIPLIER;
+	static const float PROGRESS_SPEED_MULTIPLIER;
 
 #ifdef LEAK_CHECK_UNITS
 	static std::map<UnitPathInterface *,int> mapMemoryList2;
@@ -506,8 +508,8 @@ public:
 
     //inline int getLastAnimProgress() const			{return lastAnimProgress;}
     //inline int getAnimProgress() const				{return animProgress;}
-    inline float getLastAnimProgressAsFloat() const	{return static_cast<float>(lastAnimProgress) / 100.f;}
-    inline float getAnimProgressAsFloat() const		{return static_cast<float>(animProgress) / 100.f;}
+    inline float getLastAnimProgressAsFloat() const	{return static_cast<float>(lastAnimProgress) / ANIMATION_SPEED_MULTIPLIER;}
+    inline float getAnimProgressAsFloat() const		{return static_cast<float>(animProgress) / ANIMATION_SPEED_MULTIPLIER;}
 
     inline float getHightlight() const					{return highlight;}
     inline int getProgress2() const					{return progress2;}
@@ -734,7 +736,7 @@ public:
 	float getProgressAsFloat() const;
 	int getUpdateProgress();
 	int getDiagonalFactor();
-	int getHeightFactor();
+	int getHeightFactor(float speedMultiplier=PROGRESS_SPEED_MULTIPLIER);
 	int getSpeedDenominator(int updateFPS);
 	bool isChangedActiveCommand() const { return changedActiveCommand; }
 
