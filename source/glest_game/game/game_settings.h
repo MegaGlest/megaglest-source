@@ -735,8 +735,10 @@ public:
 		}
 
 		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
-			const XmlNode *networkPlayerUUIDNode = gameSettingsNode->getChild("networkPlayerUUID",idx);
-			networkPlayerUUID[idx] = networkPlayerUUIDNode->getAttribute("value")->getValue();
+			if(gameSettingsNode->hasChildAtIndex("networkPlayerUUID",idx) == true) {
+				const XmlNode *networkPlayerUUIDNode = gameSettingsNode->getChild("networkPlayerUUID",idx);
+				networkPlayerUUID[idx] = networkPlayerUUIDNode->getAttribute("value")->getValue();
+			}
 		}
 
 //		int thisFactionIndex;
