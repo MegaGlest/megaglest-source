@@ -370,14 +370,14 @@ void FactionThread::execute() {
 					//update = true;
 					if(update == true) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
-							int updateProgressValue = unit->getUpdateProgress();
-							int speed = unit->getCurrSkill()->getTotalSpeed(unit->getTotalUpgrade());
-							int df = unit->getDiagonalFactor();
-							int hf = unit->getHeightFactor();
+							int64 updateProgressValue = unit->getUpdateProgress();
+							int64 speed = unit->getCurrSkill()->getTotalSpeed(unit->getTotalUpgrade());
+							int64 df = unit->getDiagonalFactor();
+							int64 hf = unit->getHeightFactor();
 							bool changedActiveCommand = unit->isChangedActiveCommand();
 
 							char szBuf[8096]="";
-							snprintf(szBuf,8096,"unit->needToUpdate() returned: %d updateProgressValue: %d speed: %d changedActiveCommand: %d df: %d hf: %d",update,updateProgressValue,speed,changedActiveCommand,df,hf);
+							snprintf(szBuf,8096,"unit->needToUpdate() returned: %d updateProgressValue: %ld speed: %ld changedActiveCommand: %d df: %ld hf: %ld",update,updateProgressValue,speed,changedActiveCommand,df,hf);
 							unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
 						}
 
@@ -394,14 +394,14 @@ void FactionThread::execute() {
 					}
 					else {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
-							int updateProgressValue = unit->getUpdateProgress();
-							int speed = unit->getCurrSkill()->getTotalSpeed(unit->getTotalUpgrade());
-							int df = unit->getDiagonalFactor();
-							int hf = unit->getHeightFactor();
+							int64 updateProgressValue = unit->getUpdateProgress();
+							int64 speed = unit->getCurrSkill()->getTotalSpeed(unit->getTotalUpgrade());
+							int64 df = unit->getDiagonalFactor();
+							int64 hf = unit->getHeightFactor();
 							bool changedActiveCommand = unit->isChangedActiveCommand();
 
 							char szBuf[8096]="";
-							snprintf(szBuf,8096,"unit->needToUpdate() returned: %d updateProgressValue: %d speed: %d changedActiveCommand: %d df: %d hf: %d",update,updateProgressValue,speed,changedActiveCommand,df,hf);
+							snprintf(szBuf,8096,"unit->needToUpdate() returned: %d updateProgressValue: %ld speed: %ld changedActiveCommand: %d df: %ld hf: %ld",update,updateProgressValue,speed,changedActiveCommand,df,hf);
 							unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
 						}
 					}
