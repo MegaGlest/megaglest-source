@@ -474,6 +474,13 @@ void MainWindow::setupTimer() {
 }
 
 void MainWindow::setupStartupSettings() {
+	 GLuint err = glewInit();
+	 if (GLEW_OK != err) {
+		fprintf(stderr, "Error [main]: glewInit failed: %s\n", glewGetErrorString(err));
+		//return 1;
+		throw std::runtime_error((char *)glewGetErrorString(err));
+	 }
+
 	renderer= Renderer::getInstance();
 
 	for(unsigned int i = 0; i < autoScreenShotParams.size(); ++i) {
@@ -555,18 +562,13 @@ void MainWindow::init() {
 
 #if wxCHECK_VERSION(2, 9, 3)
 	glCanvas->setCurrentGLContext();
+	//printf("setcurrent #1\n");
 #elif wxCHECK_VERSION(2, 9, 1)
 
 #else
 	glCanvas->SetCurrent();
+	//printf("setcurrent #2\n");
 #endif
-
-	 GLuint err = glewInit();
-	 if (GLEW_OK != err) {
-		fprintf(stderr, "Error [main]: glewInit failed: %s\n", glewGetErrorString(err));
-		//return 1;
-		throw std::runtime_error((char *)glewGetErrorString(err));
-	 }
 
 	//renderer->init();
 
@@ -1997,8 +1999,9 @@ GlCanvas::~GlCanvas() {
 
 void GlCanvas::setCurrentGLContext() {
 #ifndef __APPLE__
+	//printf("Set ctx [%p]\n",this->context);
 	if(this->context) {
-		this->SetCurrent(*this->context);
+		wxGLCanvas::SetCurrent(*this->context);
 	}
 #else
 	this->SetCurrent();
