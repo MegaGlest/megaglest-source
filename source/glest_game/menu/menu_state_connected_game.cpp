@@ -41,7 +41,8 @@ using namespace Shared::CompressionUtil;
 namespace Glest{ namespace Game{
 
 static const double REPROMPT_DOWNLOAD_SECONDS		= 7;
-static const string ITEM_MISSING 					= "***missing***";
+//static const string ITEM_MISSING 					= "***missing***";
+// above replaced with Lang::getInstance().get("DataMissing","",true)
 const int HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS  	= 4;
 static const char *HEADLESS_SAVED_GAME_FILENAME 	= "lastHeadlessGameSettings.mgg";
 
@@ -2726,7 +2727,7 @@ void MenuStateConnectedGame::update() {
 
                     if(techCRC != 0 && techCRC != gameSettings->getTechCRC() &&
                     	listBoxTechTree.getSelectedItemIndex() >= 0 &&
-                    	listBoxTechTree.getSelectedItem() != ITEM_MISSING) {
+                    	listBoxTechTree.getSelectedItem() != Lang::getInstance().get("DataMissing","",true)) {
 
                     	time_t now = time(NULL);
                     	time_t lastUpdateDate = getFolderTreeContentsCheckSumRecursivelyLastGenerated(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml");
@@ -2750,7 +2751,7 @@ void MenuStateConnectedGame::update() {
 	    				string factionName = factionFiles[factionIdx];
 	    				if(factionName != GameConstants::RANDOMFACTION_SLOTNAME &&
 	    					factionName != GameConstants::OBSERVER_SLOTNAME &&
-	    					factionName != ITEM_MISSING) {
+	    					factionName != Lang::getInstance().get("DataMissing","",true)) {
 
 	    					uint32 factionCRC   = 0;
 	                    	time_t now = time(NULL);
@@ -2816,7 +2817,7 @@ void MenuStateConnectedGame::update() {
 
                     if(mapCRC != 0 && mapCRC != gameSettings->getMapCRC() &&
                     		listBoxMap.getSelectedItemIndex() >= 0 &&
-                    		listBoxMap.getSelectedItem() != ITEM_MISSING) {
+                    		listBoxMap.getSelectedItem() != Lang::getInstance().get("DataMissing","",true)) {
                         labelSynch = labelSynch + " " + lang.get("Map");
 
                         if(updateDataSynchDetailText == true &&
@@ -2835,7 +2836,7 @@ void MenuStateConnectedGame::update() {
 
                     if(tilesetCRC != 0 && tilesetCRC != gameSettings->getTilesetCRC() &&
                     		listBoxTileset.getSelectedItemIndex() >= 0 &&
-                    		listBoxTileset.getSelectedItem() != ITEM_MISSING) {
+                    		listBoxTileset.getSelectedItem() != Lang::getInstance().get("DataMissing","",true)) {
                         labelSynch = labelSynch + " " + lang.get("Tileset");
                         if(updateDataSynchDetailText == true &&
                             lastTileDataSynchError != lang.get("DataNotSynchedTileset") + " " + listBoxTileset.getSelectedItem()) {
@@ -2853,7 +2854,7 @@ void MenuStateConnectedGame::update() {
 
                     if(techCRC != 0 && techCRC != gameSettings->getTechCRC() &&
                     		listBoxTechTree.getSelectedItemIndex() >= 0 &&
-                    		listBoxTechTree.getSelectedItem() != ITEM_MISSING) {
+                    		listBoxTechTree.getSelectedItem() != Lang::getInstance().get("DataMissing","",true)) {
                         labelSynch = labelSynch + " " + lang.get("TechTree");
                         if(updateDataSynchDetailText == true &&
                         	lastTechtreeDataSynchError != lang.get("DataNotSynchedTechtree") + " " + listBoxTechTree.getSelectedItem()) {
@@ -3339,7 +3340,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 				}
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] (2)There are no factions for the tech tree [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,gameSettings->getTech().c_str());
 			}
-			results.push_back(ITEM_MISSING);
+			results.push_back(Lang::getInstance().get("DataMissing","",true));
 			factionFiles = results;
 			for(int i=0; i<GameConstants::maxPlayers; ++i){
 				listBoxFactions[i].setItems(results);
@@ -3605,7 +3606,7 @@ bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loa
 		}
 		else {
 			cleanupMapPreviewTexture();
-			mapInfo->desc = ITEM_MISSING;
+			mapInfo->desc = Lang::getInstance().get("DataMissing","",true);
 
 			NetworkManager &networkManager= NetworkManager::getInstance();
 			ClientInterface* clientInterface= networkManager.getClientInterface();
@@ -4230,7 +4231,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 				}
 			}
 
-			tilesets.push_back(ITEM_MISSING);
+			tilesets.push_back(Lang::getInstance().get("DataMissing","",true));
 
 			NetworkManager &networkManager= NetworkManager::getInstance();
 			ClientInterface* clientInterface= networkManager.getClientInterface();
@@ -4257,7 +4258,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 			}
 
 			listBoxTileset.setItems(tilesets);
-			listBoxTileset.setSelectedItem(ITEM_MISSING);
+			listBoxTileset.setSelectedItem(Lang::getInstance().get("DataMissing","",true));
 		}
 
 	}
@@ -4301,7 +4302,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 				}
 			}
 
-			techtree.push_back(ITEM_MISSING);
+			techtree.push_back(Lang::getInstance().get("DataMissing","",true));
 
 			NetworkManager &networkManager= NetworkManager::getInstance();
 			ClientInterface* clientInterface= networkManager.getClientInterface();
@@ -4327,7 +4328,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 				}
 			}
 			listBoxTechTree.setItems(techtree);
-			listBoxTechTree.setSelectedItem(ITEM_MISSING);
+			listBoxTechTree.setSelectedItem(Lang::getInstance().get("DataMissing","",true));
 		}
 	}
 
@@ -4385,8 +4386,8 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 					showFTPMessageBox(szBuf, lang.get("Question"), false);
 				}
 			}
-			maps.push_back(ITEM_MISSING);
-			mapFile = ITEM_MISSING;
+			maps.push_back(Lang::getInstance().get("DataMissing","",true));
+			mapFile = Lang::getInstance().get("DataMissing","",true);
 		}
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] listBoxMap.getSelectedItemIndex() = %d, mapFiles.size() = " MG_SIZE_T_SPECIFIER ", maps.size() = " MG_SIZE_T_SPECIFIER ", getCurrentMapFile() [%s] mapFile [%s]\n",
