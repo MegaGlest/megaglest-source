@@ -388,6 +388,9 @@ void UnitAttackBoostEffectOriginator::saveGame(XmlNode *rootNode) {
 // 	class Unit
 // =====================================================
 
+const float Unit::ANIMATION_SPEED_MULTIPLIER = 100000.f;
+const float Unit::PROGRESS_SPEED_MULTIPLIER = 100.f;
+
 const int Unit::speedDivider= 100;
 const int Unit::maxDeadCount= 1000;	//time in until the corpse disapears - should be about 40 seconds
 const int Unit::invalidId= -1;
@@ -1369,7 +1372,7 @@ Vec3f Unit::getCurrVectorFlat() const{
 }
 
 float Unit::getProgressAsFloat() const {
-	float result = (static_cast<float>(progress) / 100.f);
+	float result = (static_cast<float>(progress) / PROGRESS_SPEED_MULTIPLIER);
 	result = truncateDecimal<float>(result);
 	return result;
 }
@@ -1885,9 +1888,9 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 }
 
 int Unit::getUpdateProgress() {
-	if(progress > 100) {
+	if(progress > PROGRESS_SPEED_MULTIPLIER) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: progress > 100, progress = [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,progress);
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: progress > %f, progress = [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,PROGRESS_SPEED_MULTIPLIER,progress);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1908,7 +1911,7 @@ int Unit::getUpdateProgress() {
 
 		//speed modifier
 		int diagonalFactor = getDiagonalFactor();
-		int heightFactor   = getHeightFactor();
+		int heightFactor   = getHeightFactor(PROGRESS_SPEED_MULTIPLIER);
 
 		//update progresses
 		const Game *game = Renderer::getInstance().getGame();
@@ -1931,7 +1934,7 @@ bool Unit::needToUpdate() {
 	bool return_value = false;
 	if(currSkill->getClass() != scDie) {
 		int newProgress = getUpdateProgress();
-		if(newProgress >= 100) {
+		if(newProgress >= PROGRESS_SPEED_MULTIPLIER) {
 			return_value = true;
 		}
 	}
@@ -1940,7 +1943,7 @@ bool Unit::needToUpdate() {
 
 int Unit::getDiagonalFactor() {
 	//speed modifier
-	int diagonalFactor= 100;
+	int diagonalFactor= PROGRESS_SPEED_MULTIPLIER;
 	if(currSkill->getClass() == scMove) {
 		//if moving in diagonal move slower
 		Vec2i dest= pos - lastPos;
@@ -1951,8 +1954,8 @@ int Unit::getDiagonalFactor() {
 	return diagonalFactor;
 }
 
-int Unit::getHeightFactor() {
-	int heightFactor = 100;
+int Unit::getHeightFactor(float speedMultiplier) {
+	int heightFactor = speedMultiplier;
 	if(currSkill->getClass() == scMove) {
 		//if moving to an higher cell move slower else move faster
 		Cell *unitCell = map->getCell(pos);
@@ -1965,16 +1968,16 @@ int Unit::getHeightFactor() {
 			throw megaglest_runtime_error("targetCell == NULL");
 		}
 
-		int heightDiff= (truncateDecimal<float>(unitCell->getHeight() * 100.f,2) -
-				         truncateDecimal<float>(targetCell->getHeight() * 100.f,2));
-		heightFactor= clamp(100 + heightDiff / 500, 20, 500);
+		int heightDiff= (truncateDecimal<float>(unitCell->getHeight() * speedMultiplier,2) -
+				         truncateDecimal<float>(targetCell->getHeight() * speedMultiplier,2));
+		heightFactor= clamp(speedMultiplier + heightDiff / (5.f * speedMultiplier), 0.2f * speedMultiplier, 5.f * speedMultiplier);
 	}
 
 	return heightFactor;
 }
 
 int Unit::getSpeedDenominator(int updateFPS) {
-	int speedDenominator 	= (speedDivider * updateFPS) * 100;
+	int speedDenominator 	= (speedDivider * updateFPS) * PROGRESS_SPEED_MULTIPLIER;
 	return speedDenominator;
 }
 int Unit::getUpdatedProgress(int currentProgress, int updateFPS, int speed,
@@ -2221,7 +2224,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 }
 
 bool Unit::update() {
-	assert(progress <= 100);
+	assert(progress <= PROGRESS_SPEED_MULTIPLIER);
 
 	//highlight
 	if(highlight > 0.f) {
@@ -2244,7 +2247,7 @@ bool Unit::update() {
 
 	//speed modifier
 	int diagonalFactor = getDiagonalFactor();
-	int heightFactor   = getHeightFactor();
+	int heightFactor   = getHeightFactor(PROGRESS_SPEED_MULTIPLIER);
 
 	//update progresses
 	this->lastAnimProgress= this->animProgress;
@@ -2270,17 +2273,29 @@ bool Unit::update() {
 		if(currSkill->getClass() == scMorph) {
 			targetProgress = this->getProgressRatio();
 		}
-		if(getAnimProgressAsFloat() < targetProgress) {
-			float diff = targetProgress - getAnimProgressAsFloat();
-			int progressIncrease = this->animProgress + static_cast<int>(diff * 100.f) / (GameConstants::updateFps);
+
+		float targetProgressIntValue = targetProgress * ANIMATION_SPEED_MULTIPLIER;
+		if(this->animProgress < targetProgressIntValue) {
+			float diff = targetProgressIntValue - this->animProgress;
+			float progressIncrease = static_cast<float>(this->animProgress) + diff / static_cast<float>(GameConstants::updateFps);
 			// Ensure we increment at least a value of 1 of the action will be stuck infinitely
-			if(diff > 0 && GameConstants::updateFps > 0 && progressIncrease == 0) {
-				progressIncrease = 1;
+			if(diff > 0.f && GameConstants::updateFps > 0 && progressIncrease == 0.f) {
+				progressIncrease = 1.f;
 			}
+
+			//if(currSkill->getClass() == scBeBuilt) {
+			//	printf("targetProgress: %.10f this->animProgress: %d diff: %.10f GameConstants::updateFps: %d progressIncrease: %.10f\n",targetProgress,this->animProgress,diff,GameConstants::updateFps,progressIncrease);
+			//}
+
 			this->animProgress = progressIncrease;
+
+			//if(currSkill->getClass() == scBeBuilt) {
+			//	printf("Unit build progress: %d anim: %d\n",progress,this->animProgress);
+			//}
 		}
 	}
 	else {
+		int heightFactor   = getHeightFactor(ANIMATION_SPEED_MULTIPLIER);
 		int speedDenominator = speedDivider *
 				game->getWorld()->getUpdateFps(this->getFactionIndex());
 		int progressIncrease = (currSkill->getAnimSpeed() * heightFactor) / speedDenominator;
@@ -2371,9 +2386,9 @@ bool Unit::update() {
 	}
 
 	//checks
-	if(this->animProgress > 100) {
+	if(this->animProgress > ANIMATION_SPEED_MULTIPLIER) {
 		bool canCycle = currSkill->CanCycleNextRandomAnimation(&animationRandomCycleCount);
-		this->animProgress = currSkill->getClass() == scDie ? 100 : 0;
+		this->animProgress = currSkill->getClass() == scDie ? ANIMATION_SPEED_MULTIPLIER : 0;
 		if(canCycle == true) {
 			this->lastModelIndexForCurrSkillType = -1;
 		}
@@ -2381,14 +2396,14 @@ bool Unit::update() {
 
     bool return_value = false;
 	//checks
-	if(progress >= 100) {
+	if(progress >= PROGRESS_SPEED_MULTIPLIER) {
 		lastRotation= targetRotation;
 		if(currSkill->getClass() != scDie) {
 			progress     = 0;
 			return_value = true;
 		}
 		else {
-			progress= 100;
+			progress= PROGRESS_SPEED_MULTIPLIER;
 			deadCount++;
 			if(deadCount >= maxDeadCount) {
 				toBeUndertaken= true;
