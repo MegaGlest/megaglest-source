@@ -389,7 +389,7 @@ void UnitAttackBoostEffectOriginator::saveGame(XmlNode *rootNode) {
 // =====================================================
 
 const float Unit::ANIMATION_SPEED_MULTIPLIER = 100000.f;
-const float Unit::PROGRESS_SPEED_MULTIPLIER = 100.f;
+const float Unit::PROGRESS_SPEED_MULTIPLIER  = 100000.f;
 
 const int Unit::speedDivider= 100;
 const int Unit::maxDeadCount= 1000;	//time in until the corpse disapears - should be about 40 seconds
@@ -1887,10 +1887,10 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 	return commandType;
 }
 
-int Unit::getUpdateProgress() {
+int64 Unit::getUpdateProgress() {
 	if(progress > PROGRESS_SPEED_MULTIPLIER) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: progress > %f, progress = [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,PROGRESS_SPEED_MULTIPLIER,progress);
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: progress > %f, progress = [" MG_I64_SPECIFIER "]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,PROGRESS_SPEED_MULTIPLIER,progress);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1900,7 +1900,7 @@ int Unit::getUpdateProgress() {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	int newProgress = progress;
+	int64 newProgress = progress;
 	if(currSkill->getClass() != scDie) {
 		//speed
 		int speed = currSkill->getTotalSpeed(&totalUpgrade);
@@ -1910,8 +1910,8 @@ int Unit::getUpdateProgress() {
 		}
 
 		//speed modifier
-		int diagonalFactor = getDiagonalFactor();
-		int heightFactor   = getHeightFactor(PROGRESS_SPEED_MULTIPLIER);
+		int64 diagonalFactor = getDiagonalFactor();
+		int64 heightFactor   = getHeightFactor(PROGRESS_SPEED_MULTIPLIER);
 
 		//update progresses
 		const Game *game = Renderer::getInstance().getGame();
@@ -1922,8 +1922,7 @@ int Unit::getUpdateProgress() {
 			throw megaglest_runtime_error("game->getWorld() == NULL");
 		}
 
-		newProgress = getUpdatedProgress(progress,
-				game->getWorld()->getUpdateFps(this->getFactionIndex()),
+		newProgress = getUpdatedProgress(progress, GameConstants::updateFps,
 				speed, diagonalFactor, heightFactor);
 
 	}
@@ -1941,21 +1940,21 @@ bool Unit::needToUpdate() {
 	return return_value;
 }
 
-int Unit::getDiagonalFactor() {
+int64 Unit::getDiagonalFactor() {
 	//speed modifier
-	int diagonalFactor= PROGRESS_SPEED_MULTIPLIER;
+	int64 diagonalFactor= PROGRESS_SPEED_MULTIPLIER;
 	if(currSkill->getClass() == scMove) {
 		//if moving in diagonal move slower
 		Vec2i dest= pos - lastPos;
 		if(abs(dest.x) + abs(dest.y) == 2) {
-			diagonalFactor = 71;
+			diagonalFactor = 0.71f * PROGRESS_SPEED_MULTIPLIER;
 		}
 	}
 	return diagonalFactor;
 }
 
-int Unit::getHeightFactor(float speedMultiplier) {
-	int heightFactor = speedMultiplier;
+int64 Unit::getHeightFactor(float speedMultiplier) {
+	int64 heightFactor = speedMultiplier;
 	if(currSkill->getClass() == scMove) {
 		//if moving to an higher cell move slower else move faster
 		Cell *unitCell = map->getCell(pos);
@@ -1968,7 +1967,7 @@ int Unit::getHeightFactor(float speedMultiplier) {
 			throw megaglest_runtime_error("targetCell == NULL");
 		}
 
-		int heightDiff= (truncateDecimal<float>(unitCell->getHeight() * speedMultiplier,2) -
+		int64 heightDiff= (truncateDecimal<float>(unitCell->getHeight() * speedMultiplier,2) -
 				         truncateDecimal<float>(targetCell->getHeight() * speedMultiplier,2));
 		heightFactor= clamp(speedMultiplier + heightDiff / (5.f * speedMultiplier), 0.2f * speedMultiplier, 5.f * speedMultiplier);
 	}
@@ -1976,21 +1975,25 @@ int Unit::getHeightFactor(float speedMultiplier) {
 	return heightFactor;
 }
 
-int Unit::getSpeedDenominator(int updateFPS) {
-	int speedDenominator 	= (speedDivider * updateFPS) * PROGRESS_SPEED_MULTIPLIER;
+int64 Unit::getSpeedDenominator(int64 updateFPS) {
+	int64 speedDenominator 	= (speedDivider * updateFPS) * PROGRESS_SPEED_MULTIPLIER;
 	return speedDenominator;
 }
-int Unit::getUpdatedProgress(int currentProgress, int updateFPS, int speed,
-		int diagonalFactor, int heightFactor) {
+int64 Unit::getUpdatedProgress(int64 currentProgress, int64 updateFPS, int64 speed,
+		int64 diagonalFactor, int64 heightFactor) {
 
-	int speedDenominator 	= getSpeedDenominator(updateFPS);
-	int newProgress = currentProgress;
-	int progressIncrease = ((speed * diagonalFactor * heightFactor) / speedDenominator);
+	int64 speedDenominator 	= getSpeedDenominator(updateFPS);
+	int64 newProgress = currentProgress;
+	int64 progressIncrease = ((speed * diagonalFactor * heightFactor) / speedDenominator);
 	// Ensure we increment at least a value of 1 of the action will be stuck infinitely
 	if(speed > 0 && diagonalFactor > 0 && heightFactor > 0 && progressIncrease == 0) {
 		progressIncrease = 1;
 	}
 	newProgress += progressIncrease;
+
+//	if(currSkill->getClass() == scMove || (currSkill->getClass() == scStop && this->loadCount > 0)) {
+//		printf("speedDenominator: " MG_I64_SPECIFIER " currentProgress: " MG_I64_SPECIFIER " speed: " MG_I64_SPECIFIER " diagonalFactor: " MG_I64_SPECIFIER " heightFactor: " MG_I64_SPECIFIER " progressIncrease: " MG_I64_SPECIFIER " newProgress: " MG_I64_SPECIFIER " TOP #: " MG_I64_SPECIFIER "\n",speedDenominator,currentProgress,speed,diagonalFactor,heightFactor,progressIncrease,newProgress,(speed * diagonalFactor * heightFactor));
+//	}
 
 	return newProgress;
 }
@@ -2246,15 +2249,15 @@ bool Unit::update() {
 	}
 
 	//speed modifier
-	int diagonalFactor = getDiagonalFactor();
-	int heightFactor   = getHeightFactor(PROGRESS_SPEED_MULTIPLIER);
+	int64 diagonalFactor = getDiagonalFactor();
+	int64 heightFactor   = getHeightFactor(PROGRESS_SPEED_MULTIPLIER);
 
 	//update progresses
 	this->lastAnimProgress= this->animProgress;
 	const Game *game = Renderer::getInstance().getGame();
 
 	progress = getUpdatedProgress(progress,
-			game->getWorld()->getUpdateFps(this->getFactionIndex()),
+			GameConstants::updateFps,
 			speed, diagonalFactor, heightFactor);
 
 	//printf("Test progress = %d for unit [%d - %s]\n",progress,id,getType()->getName().c_str());
@@ -2295,10 +2298,10 @@ bool Unit::update() {
 		}
 	}
 	else {
-		int heightFactor   = getHeightFactor(ANIMATION_SPEED_MULTIPLIER);
-		int speedDenominator = speedDivider *
+		int64 heightFactor   = getHeightFactor(ANIMATION_SPEED_MULTIPLIER);
+		int64 speedDenominator = speedDivider *
 				game->getWorld()->getUpdateFps(this->getFactionIndex());
-		int progressIncrease = (currSkill->getAnimSpeed() * heightFactor) / speedDenominator;
+		int64 progressIncrease = (currSkill->getAnimSpeed() * heightFactor) / speedDenominator;
 		// Ensure we increment at least a value of 1 of the action will be stuck infinitely
 		if(currSkill->getAnimSpeed() > 0 && heightFactor > 0 && progressIncrease == 0) {
 			progressIncrease = 1;
@@ -3818,7 +3821,7 @@ void Unit::logSynchDataCommon(string file,int line,string source,bool threadedMo
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 	    char szBuf[8096]="";
 	    snprintf(szBuf,8096,
-	    		"FrameCount [%d] Unit = %d [%s][%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, progress [%d], progress2 [%d]\nUnit Path [%s]\n",
+	    		"FrameCount [%d] Unit = %d [%s][%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, progress [" MG_I64_SPECIFIER "], progress2 [%d]\nUnit Path [%s]\n",
 	    		getFrameCount(),
 	    		id,
 				getFullName().c_str(),
@@ -4478,11 +4481,28 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //    int deadCount;
 	result->deadCount = unitNode->getAttribute("deadCount")->getIntValue();
 //    float progress;			//between 0 and 1
-	result->progress = unitNode->getAttribute("progress")->getFloatValue();
+	try {
+		result->progress = unitNode->getAttribute("progress")->getIntValue();
+	}
+	catch(const exception &ex) {
+		result->progress = unitNode->getAttribute("progress")->getFloatValue();
+	}
 //	float lastAnimProgress;	//between 0 and 1
-	result->lastAnimProgress = unitNode->getAttribute("lastAnimProgress")->getFloatValue();
+	try {
+		result->lastAnimProgress = unitNode->getAttribute("lastAnimProgress")->getIntValue();
+	}
+	catch(const exception &ex) {
+		result->lastAnimProgress = unitNode->getAttribute("lastAnimProgress")->getFloatValue();
+	}
+
 //	float animProgress;		//between 0 and 1
-	result->animProgress = unitNode->getAttribute("animProgress")->getFloatValue();
+	try {
+		result->animProgress = unitNode->getAttribute("animProgress")->getIntValue();
+	}
+	catch(const exception &ex) {
+		result->animProgress = unitNode->getAttribute("animProgress")->getFloatValue();
+	}
+
 //	float highlight;
 	result->highlight = unitNode->getAttribute("highlight")->getFloatValue();
 //	int progress2;
