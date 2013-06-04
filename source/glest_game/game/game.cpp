@@ -2291,7 +2291,7 @@ void Game::update() {
 
 				//server->setStartInGameConnectionLaunch(false);
 
-				this->speed = 1;
+				//this->speed = 1;
 
 				//Lang &lang= Lang::getInstance();
 				bool pauseAndSaveGameForNewClient = false;
@@ -2351,12 +2351,13 @@ void Game::update() {
 				if(server->getUnPauseForInGameConnection() == true) {
 					//printf("^^^ getUnPauseForInGameConnection triggered!\n");
 
-					this->speed = 1;
+					//this->speed = 1;
 					for(int i = 0; i < world.getFactionCount(); ++i) {
 						Faction *faction = world.getFaction(i);
 						ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
 						if(slot != NULL && slot->getUnPauseForInGameConnection() == true) {
 							slot->setUnPauseForInGameConnection(false);
+							faction->setFactionDisconnectHandled(false);
 						}
 					}
 					//printf("Resuming game for join in progress game resumeRequestSent: %d...\n",resumeRequestSent);

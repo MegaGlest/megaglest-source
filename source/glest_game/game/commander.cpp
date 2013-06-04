@@ -415,9 +415,9 @@ void Commander::tryResumeGame(bool joinNetworkGame, bool clearCaches) const {
 void Commander::tryNetworkPlayerDisconnected(int factionIndex) const {
 	//printf("tryNetworkPlayerDisconnected factionIndex: %d\n",factionIndex);
 
-	if(this->pauseNetworkCommands == true) {
-		return;
-	}
+	//if(this->pauseNetworkCommands == true) {
+	//	return;
+	//}
 
 	NetworkCommand command(this->world,nctPlayerStatusChange, factionIndex, npst_Disconnected);
 	pushNetworkCommand(&command);
