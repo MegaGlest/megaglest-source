@@ -3531,7 +3531,6 @@ int glestMain(int argc, char** argv) {
 		setupGameItemPaths(argc, argv, &config);
 
 		if(config.getString("PlayerId","") == "") {
-			Shared::Util::uuid_t u;
 			char  uuid_str[38];
 			get_uuid_string(uuid_str,sizeof(uuid_str));
 

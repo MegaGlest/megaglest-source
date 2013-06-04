@@ -1933,7 +1933,7 @@ void ScriptManager::unregisterDayNightEvent() {
 
 void ScriptManager::onDayNightTriggerEvent() {
 	if(registeredDayNightEvent == true) {
-		bool isDay = this->getIsDayTime();
+		bool isDay = (this->getIsDayTime() == 1);
 		if((lastDayNightTriggerStatus != 1 && isDay == true) ||
 			(lastDayNightTriggerStatus != 2 && isDay == false)) {
 			if(isDay == true) {

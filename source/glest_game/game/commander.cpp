@@ -787,8 +787,8 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
         	commandWasHandled = true;
 
         	bool pauseGame 			= networkCommand->getUnitId() != 0;
-        	bool clearCaches 		= networkCommand->getCommandTypeId();
-        	bool joinNetworkGame 	= networkCommand->getUnitTypeId();
+        	bool clearCaches 		= (networkCommand->getCommandTypeId() == 1);
+        	bool joinNetworkGame 	= (networkCommand->getUnitTypeId() == 1);
        		Game *game = this->world->getGame();
 
        		//printf("nctPauseResume pauseGame = %d\n",pauseGame);
