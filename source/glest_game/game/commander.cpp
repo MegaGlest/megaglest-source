@@ -34,118 +34,12 @@ namespace Glest{ namespace Game{
 // =====================================================
 // 	class Commander
 // =====================================================
-
-// ===================== PUBLIC ========================
-
-CommanderNetworkThread::CommanderNetworkThread() : BaseThread() {
-	this->idStatus = make_pair<int,bool>(-1,false);
-	this->commanderInterface = NULL;
-	uniqueID = "CommanderNetworkThread";
-}
-
-CommanderNetworkThread::CommanderNetworkThread(CommanderNetworkCallbackInterface *commanderInterface) : BaseThread() {
-	this->idStatus = make_pair<int,bool>(-1,false);
-	this->commanderInterface = commanderInterface;
-}
-
-void CommanderNetworkThread::setQuitStatus(bool value) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d value = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,value);
-
-	BaseThread::setQuitStatus(value);
-	if(value == true) {
-		signalUpdate(-1);
-	}
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-}
-
-void CommanderNetworkThread::signalUpdate(int id) {
-	MutexSafeWrapper safeMutex(&idMutex,string(__FILE__) + "_" + intToStr(__LINE__));
-	this->idStatus.first = id;
-	this->idStatus.second = false;
-	safeMutex.ReleaseLock();
-
-	semTaskSignalled.signal();
-}
-
-void CommanderNetworkThread::setTaskCompleted(int id) {
-    MutexSafeWrapper safeMutex(&idMutex,string(__FILE__) + "_" + intToStr(__LINE__));
-    this->idStatus.second = true;
-    safeMutex.ReleaseLock();
-}
-
-bool CommanderNetworkThread::isSignalCompleted(int id) {
-	MutexSafeWrapper safeMutex(&idMutex,string(__FILE__) + "_" + intToStr(__LINE__));
-	bool result = this->idStatus.second;
-	safeMutex.ReleaseLock();
-	return result;
-}
-
-void CommanderNetworkThread::execute() {
-    RunningStatusSafeWrapper runningStatus(this);
-	try {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-		//unsigned int idx = 0;
-		for(;this->commanderInterface != NULL;) {
-			if(getQuitStatus() == true) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				break;
-			}
-
-			semTaskSignalled.waitTillSignalled();
-
-			if(getQuitStatus() == true) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				break;
-			}
-
-            MutexSafeWrapper safeMutex(&idMutex,string(__FILE__) + "_" + intToStr(__LINE__));
-            if(idStatus.first > 0) {
-                int updateId = this->idStatus.first;
-                safeMutex.ReleaseLock();
-
-                this->commanderInterface->commanderNetworkUpdateTask(updateId);
-                setTaskCompleted(updateId);
-            }
-            else {
-                safeMutex.ReleaseLock();
-            }
-			if(getQuitStatus() == true) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				break;
-			}
-		}
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	}
-	catch(const exception &ex) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-		throw megaglest_runtime_error(ex.what());
-	}
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-}
-
-// =====================================================
-//	class
-// =====================================================
-
 Commander::Commander() {
-	//this->networkThread = new CommanderNetworkThread(this);
-	//this->networkThread->setUniqueID(__FILE__);
-	//this->networkThread->start();
-	world=NULL;
+	this->world=NULL;
+	this->pauseNetworkCommands = false;
 }
 
 Commander::~Commander() {
-	//if(BaseThread::shutdownAndWait(networkThread) == true) {
-    //    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-    //    delete networkThread;
-    //    SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	//}
-	//networkThread = NULL;
 }
 
 void Commander::init(World *world){
@@ -177,17 +71,18 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 									CardinalDir facing, bool tryQueue,Unit *targetUnit) const {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+	if(this->pauseNetworkCommands == true) {
+		return std::pair<CommandResult,string>(crFailUndefined,"");
+	}
+
 	std::pair<CommandResult,string> result(crFailUndefined,"");
-	if(!selection->isEmpty() && commandType != NULL) {
+	if(selection->isEmpty() == false && commandType != NULL) {
 		Vec2i refPos;
 		CommandResultContainer results;
 
 		refPos = world->getMap()->computeRefPos(selection);
 
 		const Unit *builderUnit = world->getMap()->findClosestUnitToPos(selection, pos, unitType);
-		//Vec2i  = world->getMap()->computeDestPos(refPos, builderUnit->getPos(), pos);
-		//std::pair<float,Vec2i> distance = world->getMap()->getUnitDistanceToPos(builderUnit,pos,unitType);
-		//builderUnit->setCurrentUnitTitle("Distance: " + floatToStr(distance.first) + " pos: " + distance.second.getString());
 
 		int builderUnitId 					= builderUnit->getId();
 		CommandStateType commandStateType 	= cst_None;
@@ -198,7 +93,6 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 			unitCommandGroupId = world->getNextCommandGroupId();
 		}
 
-		//bool unitSignalledToBuild = false;
 		//give orders to all selected units
 		for(int i = 0; i < selection->getCount(); ++i) {
 			const Unit *unit = selection->getUnit(i);
@@ -214,17 +108,10 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 				const CommandType *useCommandtype = commandType;
 				if(dynamic_cast<const BuildCommandType *>(commandType) != NULL) {
 					usePos = pos;
-					//if(unitSignalledToBuild == false) {
-					//if(builderUnit->getId() == unitId)
-					//	builderUnitId		 = unitId;
-						//unitSignalledToBuild = true;
-					//}
-					//else {
 					if(builderUnit->getId() != unitId) {
 						useCommandtype 		= unit->getType()->getFirstRepairCommand(unitType);
 						commandStateType 	= cst_linkedUnit;
 						commandStateValue 	= builderUnitId;
-						//tryQueue = true;
 					}
 					else {
 						commandStateType 	= cst_None;
@@ -258,6 +145,10 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Unit* unit, cons
 									int unitGroupCommandId) const {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+	if(this->pauseNetworkCommands == true) {
+		return std::pair<CommandResult,string>(crFailUndefined,"");
+	}
+
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
@@ -288,6 +179,10 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Unit* unit, cons
 
 std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selection, CommandClass commandClass,
 		const Vec2i &pos, const Unit *targetUnit, bool tryQueue) const{
+
+	if(this->pauseNetworkCommands == true) {
+		return std::pair<CommandResult,string>(crFailUndefined,"");
+	}
 
 	std::pair<CommandResult,string> result(crFailUndefined,"");
 	if(selection->isEmpty() == false) {
@@ -330,7 +225,7 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 		}
 		return computeResult(results);
 	}
-	else{
+	else {
 		return std::pair<CommandResult,string>(crFailUndefined,"");
 	}
 }
@@ -338,6 +233,11 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selection,
 						const CommandType *commandType, const Vec2i &pos,
 						const Unit *targetUnit, bool tryQueue) const {
+
+	if(this->pauseNetworkCommands == true) {
+		return std::pair<CommandResult,string>(crFailUndefined,"");
+	}
+
 	std::pair<CommandResult,string> result(crFailUndefined,"");
 
 	if(!selection->isEmpty() && commandType!=NULL){
@@ -383,6 +283,11 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 //auto command
 std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selection, const Vec2i &pos,
 		const Unit *targetUnit, bool tryQueue, int unitCommandGroupId) const {
+
+	if(this->pauseNetworkCommands == true) {
+		return std::pair<CommandResult,string>(crFailUndefined,"");
+	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	std::pair<CommandResult,string> result(crFailUndefined,"");
@@ -407,8 +312,6 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 			//get command type
 			const CommandType *commandType= unit->computeCommandType(pos, targetUnit);
 
-			//printf("In [%s::%s Line: %d] commandType = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,commandType);
-
 			//give commands
 			if(commandType != NULL) {
 				int targetId= targetUnit==NULL? Unit::invalidId: targetUnit->getId();
@@ -423,7 +326,6 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 							-1, tryQueue, cst_None, -1, unitCommandGroupId);
 					resultCur= pushNetworkCommand(&networkCommand);
 				}
-				//printf("In [%s::%s Line: %d] canSubmitCommand = %d resultCur.first = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,canSubmitCommand,resultCur.first);
 				results.push_back(resultCur);
 			}
 			else if(unit->isMeetingPointSettable() == true) {
@@ -439,15 +341,15 @@ std::pair<CommandResult,string> Commander::tryGiveCommand(const Selection *selec
 			}
 		}
 		result = computeResult(results);
-		//printf("In [%s::%s Line: %d] result.first = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,result.first);
 	}
-
-	//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] result = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,result);
 
 	return result;
 }
 
 CommandResult Commander::tryCancelCommand(const Selection *selection) const {
+	if(this->pauseNetworkCommands == true) {
+		return crFailUndefined;
+	}
 
 	int unitCommandGroupId = -1;
 	if(selection->getCount() > 1) {
@@ -465,16 +367,28 @@ CommandResult Commander::tryCancelCommand(const Selection *selection) const {
 }
 
 void Commander::trySetMeetingPoint(const Unit* unit, const Vec2i &pos) const {
+	if(this->pauseNetworkCommands == true) {
+		return;
+	}
+
 	NetworkCommand command(this->world,nctSetMeetingPoint, unit->getId(), -1, pos);
 	pushNetworkCommand(&command);
 }
 
 void Commander::trySwitchTeam(const Faction* faction, int teamIndex) const {
+	if(this->pauseNetworkCommands == true) {
+		return;
+	}
+
 	NetworkCommand command(this->world,nctSwitchTeam, faction->getIndex(), teamIndex);
 	pushNetworkCommand(&command);
 }
 
 void Commander::trySwitchTeamVote(const Faction* faction, SwitchTeamVote *vote) const {
+	if(this->pauseNetworkCommands == true) {
+		return;
+	}
+
 	NetworkCommand command(this->world,nctSwitchTeamVote, faction->getIndex(), vote->factionIndex,Vec2i(0),vote->allowSwitchTeam);
 	pushNetworkCommand(&command);
 }
@@ -500,6 +414,10 @@ void Commander::tryResumeGame(bool joinNetworkGame, bool clearCaches) const {
 
 void Commander::tryNetworkPlayerDisconnected(int factionIndex) const {
 	//printf("tryNetworkPlayerDisconnected factionIndex: %d\n",factionIndex);
+
+	if(this->pauseNetworkCommands == true) {
+		return;
+	}
 
 	NetworkCommand command(this->world,nctPlayerStatusChange, factionIndex, npst_Disconnected);
 	pushNetworkCommand(&command);
@@ -559,7 +477,6 @@ std::pair<CommandResult,string> Commander::pushNetworkCommand(const NetworkComma
 		Command* command= buildCommand(networkCommand);
 		result= unit->checkCommand(command);
 		delete command;
-		//printf("In [%s::%s Line: %d] result.first = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,result.first);
 	}
 	return result;
 }
@@ -568,14 +485,9 @@ void Commander::signalNetworkUpdate(Game *game) {
     updateNetwork(game);
 }
 
-void Commander::commanderNetworkUpdateTask(int id) {
-    //updateNetwork(game);
-}
-
 bool Commander::getReplayCommandListForFrame(int worldFrameCount) {
 	bool haveReplyCommands = false;
 	if(replayCommandList.empty() == false) {
-		//int worldFrameCount = world->getFrameCount();
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("worldFrameCount = %d replayCommandList.size() = " MG_SIZE_T_SPECIFIER "\n",worldFrameCount,replayCommandList.size());
 
 		std::vector<NetworkCommand> replayList;
@@ -592,7 +504,6 @@ bool Commander::getReplayCommandListForFrame(int worldFrameCount) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("worldFrameCount = %d GIVING COMMANDS replayList.size() = " MG_SIZE_T_SPECIFIER "\n",worldFrameCount,replayList.size());
 			for(int i= 0; i < replayList.size(); ++i){
 				giveNetworkCommand(&replayList[i]);
-				//pushNetworkCommand(&replayList[i]);
 			}
 			GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 			gameNetworkInterface->setKeyframe(worldFrameCount);
@@ -620,14 +531,10 @@ void Commander::updateNetwork(Game *game) {
         GameSettings *gameSettings = game->getGameSettings();
         if( networkManager.isNetworkGame() == false ||
             (world->getFrameCount() % gameSettings->getNetworkFramePeriod()) == 0) {
-        	//printf("#1 Commander world->getFrameCount() = %d gameSettings->getNetworkFramePeriod() = %d\n",world->getFrameCount(),gameSettings->getNetworkFramePeriod());
 
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] networkManager.isNetworkGame() = %d,world->getFrameCount() = %d, gameSettings->getNetworkFramePeriod() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkManager.isNetworkGame(),world->getFrameCount(),gameSettings->getNetworkFramePeriod());
 
-        	//std::vector<NetworkCommand> replayList = getReplayCommandListForFrame();
         	if(getReplayCommandListForFrame(world->getFrameCount()) == false) {
-        		//printf("#2 Commander world->getFrameCount() = %d gameSettings->getNetworkFramePeriod() = %d\n",world->getFrameCount(),gameSettings->getNetworkFramePeriod());
-
 				GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) perfTimer.start();
@@ -655,7 +562,6 @@ void Commander::addToReplayCommandList(NetworkCommand &command,int worldFrameCou
 }
 
 void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
-
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
@@ -938,12 +844,6 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
     }
 
-    /*
-    if(networkCommand->getNetworkCommandType() == nctNetworkCommand) {
-        giveNetworkCommandSpecial(networkCommand);
-    }
-    else
-    */
     if(commandWasHandled == false) {
         Unit* unit= world->findUnitById(networkCommand->getUnitId());
 
@@ -1100,7 +1000,6 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 
 	    SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
 	    SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
-	    //std::string worldLog = world->DumpWorldToLog();
 	    world->DumpWorldToLog();
 
         GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
@@ -1119,7 +1018,6 @@ Command* Commander::buildCommand(const NetworkCommand* networkCommand) const {
 	// get facing/target ... the target might be dead due to lag, cope with it
 	if(isCancelPreMorphCommand == false) {
 		if(ct->getClass() == ccBuild) {
-			//assert(networkCommand->getTargetId() >= 0 && networkCommand->getTargetId() < 4);
 			if(networkCommand->getTargetId() < 0 || networkCommand->getTargetId() >= 4) {
 				char szBuf[8096]="";
 				snprintf(szBuf,8096,"networkCommand->getTargetId() >= 0 && networkCommand->getTargetId() < 4, [%s]",networkCommand->toString().c_str());
