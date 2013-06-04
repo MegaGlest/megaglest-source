@@ -45,37 +45,7 @@ class SwitchTeamVote;
 //
 ///	Gives commands to the units
 // =====================================================
-
-//
-// This interface describes the methods a callback object must implement
-//
-class CommanderNetworkCallbackInterface {
-public:
-	virtual void commanderNetworkUpdateTask(int id) = 0;
-	virtual ~CommanderNetworkCallbackInterface() {}
-};
-
-class CommanderNetworkThread : public BaseThread
-{
-protected:
-
-	CommanderNetworkCallbackInterface *commanderInterface;
-	Semaphore semTaskSignalled;
-
-	virtual void setQuitStatus(bool value);
-	virtual void setTaskCompleted(int id);
-	Mutex idMutex;
-	std::pair<int,bool> idStatus;
-
-public:
-	CommanderNetworkThread();
-	CommanderNetworkThread(CommanderNetworkCallbackInterface *commanderInterface);
-    virtual void execute();
-    void signalUpdate(int id);
-    bool isSignalCompleted(int id);
-};
-
-class Commander : public CommanderNetworkCallbackInterface {
+class Commander {
 private:
 	typedef vector<std::pair<CommandResult,string> > CommandResultContainer;
 
@@ -84,13 +54,16 @@ private:
 	Chrono perfTimer;
 
 	Mutex commandMutex;
-	//CommanderNetworkThread *networkThread;
-	//Game *game;
 	std::vector<std::pair<int,NetworkCommand> > replayCommandList;
+
+	bool pauseNetworkCommands;
 
 public:
     Commander();
     virtual ~Commander();
+
+    bool getPauseNetworkCommands() const { return this->pauseNetworkCommands; }
+    void setPauseNetworkCommands(bool pause) { this->pauseNetworkCommands = pause; }
 
     void signalNetworkUpdate(Game *game);
     void init(World *world);
@@ -124,12 +97,8 @@ public:
 
 private:
 	std::pair<CommandResult,string> pushNetworkCommand(const NetworkCommand* networkCommand) const;
-	//void giveNetworkCommandSpecial(const NetworkCommand* networkCommand) const;
-
 	std::pair<CommandResult,string> computeResult(const CommandResultContainer &results) const;
 	void giveNetworkCommand(NetworkCommand* networkCommand) const;
-
-	virtual void commanderNetworkUpdateTask(int id);
 	bool canSubmitCommandType(const Unit *unit, const CommandType *commandType) const;
 };
 

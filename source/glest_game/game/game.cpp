@@ -1883,16 +1883,19 @@ void Game::update() {
 				}
 			}
 		}
-		// we catch up a bit smoother with updateLoops = 2
-		if(framesToCatchUpAsClient>0)
-		{
-				updateLoops = 2;
-				framesToCatchUpAsClient=framesToCatchUpAsClient-1;
-		}
-		if(framesToSlowDownAsClient>0)
-		{// slowdown still the hard way.
-			updateLoops = 0;
-			framesToSlowDownAsClient=framesToSlowDownAsClient-1;
+		// if game is paused don't try to catch up
+		if(updateLoops > 0) {
+			// we catch up a bit smoother with updateLoops = 2
+			if(framesToCatchUpAsClient>0)
+			{
+					updateLoops = 2;
+					framesToCatchUpAsClient=framesToCatchUpAsClient-1;
+			}
+			if(framesToSlowDownAsClient>0)
+			{// slowdown still the hard way.
+				updateLoops = 0;
+				framesToSlowDownAsClient=framesToSlowDownAsClient-1;
+			}
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -5733,6 +5736,8 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 				initialResumeSpeedLoops = true;
 				//}
 			}
+
+			commander.setPauseNetworkCommands(false);
 		}
 		else {
 			console.addLine(lang.get("GamePaused"));
@@ -5753,6 +5758,8 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 				world.refreshAllUnitExplorations();
 			}
 			pauseRequestSent=false;
+
+			commander.setPauseNetworkCommands(true);
 		}
 		//printf("setPaused new paused = %d\n",paused);
 	}
