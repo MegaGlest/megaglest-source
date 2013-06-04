@@ -602,12 +602,17 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] BEFORE accept new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getOpenSlotCount());
 
+				//printf("Checking for new connections...\n");
 				bool hasData = (serverInterface->getServerSocket() != NULL && serverInterface->getServerSocket()->hasDataToRead() == true);
+				//printf("Server socket hasData: %d\n",hasData);
+
 				if(hasData == true) {
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to accept new client connection playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 
 					Socket *newSocket = serverInterface->getServerSocket()->accept(false);
+
+					//printf("Server socket newSocket: %p\n",newSocket);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] called accept new client connection playerIndex = %d newSocket = %p\n",__FILE__,__FUNCTION__,__LINE__,playerIndex,newSocket);
 					if(newSocket != NULL) {
@@ -649,6 +654,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 					//send intro message when connected
 					if(this->isConnected() == true) {
+						//printf("Server socket newSocket is connected: %d\n",playerIndex);
+
 						Chrono seed(true);
 						srand((unsigned int)seed.getCurTicks() / (this->playerIndex + 1));
 
@@ -669,6 +676,10 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								serverInterface->getGameHasBeenInitiated(),
 								Config::getInstance().getString("PlayerId",""));
 						sendMessage(&networkMessageIntro);
+
+						if(this->serverInterface->getGameHasBeenInitiated() == true) {
+							setGameStarted(true);
+						}
 					}
 				}
 			}
