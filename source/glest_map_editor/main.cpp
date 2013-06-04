@@ -114,11 +114,33 @@ void MainWindow::onToolPlayer(wxCommandEvent& event){
 	PopupMenu(menuBrushStartLocation);
 }
 
+void MainToolBar::onMouseMove(wxMouseEvent &event) {
+#ifdef WIN32
+	if(this->GetParent() != NULL && this->GetParent()->GetParent() != NULL) {
+		MainWindow *mainWindow = dynamic_cast<MainWindow *>(this->GetParent()->GetParent());
+		if(mainWindow != NULL) {
+			mainWindow->refreshMapRender();
+		}
+	}
+#endif
+	event.Skip();
+}
+
+BEGIN_EVENT_TABLE(MainToolBar, wxToolBar)
+
+	EVT_MOTION(MainToolBar::onMouseMove)
+
+END_EVENT_TABLE()
+
 void MainWindow::init(string fname) {
-#if wxCHECK_VERSION(2, 9, 1)
+#if wxCHECK_VERSION(2, 9, 3)
+	glCanvas->setCurrentGLContext();
+	//printf("setcurrent #1\n");
+#elif wxCHECK_VERSION(2, 9, 1)
 
 #else
 	glCanvas->SetCurrent();
+	//printf("setcurrent #2\n");
 #endif
 
 	//menus
@@ -291,7 +313,7 @@ void MainWindow::init(string fname) {
 	SetStatusText(wxT("Value: 0"), siBRUSH_VALUE);
 	SetStatusText(wxT("Radius: 1"), siBRUSH_RADIUS);
 
-	wxToolBar *toolbar = new wxToolBar(this->panel, wxID_ANY);
+	wxToolBar *toolbar = new MainToolBar(this->panel, wxID_ANY);
 	toolbar->AddTool(miEditUndo, _("undo"), wxBitmap(edit_undo), _("Undo"));
 	toolbar->AddTool(miEditRedo, _("redo"), wxBitmap(edit_redo), _("Redo"));
 	toolbar->AddTool(miEditRandomizeHeights, _("randomizeHeights"), wxBitmap(edit_randomize_heights), _("Randomize Heights"));
@@ -325,7 +347,7 @@ void MainWindow::init(string fname) {
 	toolbar->AddTool(toolPlayer, _("brush_player"), wxBitmap(brush_players_player),  _("Player start position"));
 	toolbar->Realize();
 
-	wxToolBar *toolbar2 = new wxToolBar(this->panel, wxID_ANY);
+	wxToolBar *toolbar2 = new MainToolBar(this->panel, wxID_ANY);
 	toolbar2->AddTool(miBrushGradient + 1, _("brush_gradient_n5"), wxBitmap(brush_gradient_n5));
 	toolbar2->AddTool(miBrushGradient + 2, _("brush_gradient_n4"), wxBitmap(brush_gradient_n4));
 	toolbar2->AddTool(miBrushGradient + 3, _("brush_gradient_n3"), wxBitmap(brush_gradient_n3));
@@ -578,6 +600,10 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 			resourceUnderMouse = 0;
 			objectUnderMouse = currObject;
 		}
+
+//#ifdef WIN32
+		//repaint = true;
+//#endif
 	}
 	lastX = x;
 	lastY = y;
@@ -610,14 +636,18 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 
 	lastPaintEvent.start();
 
-	if(panel) panel->Update();
-	if(menuBar) menuBar->Update();
+	if(panel) panel->Refresh(false);
+	if(menuBar) menuBar->Refresh(false);
 
+	refreshMapRender();
+	event.Skip();
+}
+
+void MainWindow::refreshMapRender() {
 	if(program && glCanvas) {
 		program->renderMap(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
 		glCanvas->SwapBuffers();
 	}
-	event.Skip();
 }
 
 void MainWindow::onMenuFileLoad(wxCommandEvent &event) {
@@ -1563,6 +1593,10 @@ bool App::OnInit() {
 #ifdef WIN32
 	wxPoint pos = mainWindow->GetScreenPosition();
 	wxSize size = mainWindow->GetSize();
+
+	mainWindow->SetSize(pos.x, pos.y, 1, 1, wxSIZE_FORCE);
+	//mainWindow->Update();
+
 	mainWindow->SetSize(pos.x, pos.y, size.x-1, size.y, wxSIZE_FORCE);
 	mainWindow->Update();
 #endif
