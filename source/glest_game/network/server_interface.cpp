@@ -1457,6 +1457,12 @@ void ServerInterface::update() {
 
 					dispatchPendingHighlightCellMessages(errorMsgList);
 
+					if(gameHasBeenInitiated == true &&
+							difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
+						std::map<int,bool> mapSlotSignalledList;
+						checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
+					}
+
 					//printf("START Server update #7\n");
 				}
 				else if(gameHasBeenInitiated == true &&
