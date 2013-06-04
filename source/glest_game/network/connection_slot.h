@@ -85,9 +85,11 @@ protected:
 	int slotIndex;
 	MasterSlaveThreadController *masterController;
 
+	Mutex *triggerGameStarted;
+	bool gameStarted;
+
 	virtual void setQuitStatus(bool value);
 	virtual void setTaskCompleted(int eventId);
-	virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
 
 	void slotUpdateTask(ConnectionSlotEvent *event);
 
@@ -95,6 +97,9 @@ public:
 	ConnectionSlotThread(int slotIndex);
 	ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex);
 	virtual ~ConnectionSlotThread();
+
+	bool getGameStarted();
+	void setGameStarted(bool value);
 
 	virtual void setMasterController(MasterSlaveThreadController *master) { masterController = master; }
 	virtual void signalSlave(void *userdata);
@@ -109,6 +114,8 @@ public:
     void purgeCompletedEvents();
     void purgeAllEvents();
     void setAllEventsCompleted();
+
+    virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
 };
 
 // =====================================================
@@ -156,6 +163,9 @@ private:
 public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
 	~ConnectionSlot();
+
+	bool getGameStarted();
+	void setGameStarted(bool value);
 
 	bool getStartInGameConnectionLaunch() const { return startInGameConnectionLaunch; }
 	void setStartInGameConnectionLaunch(bool value) { startInGameConnectionLaunch = value; }

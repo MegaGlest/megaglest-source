@@ -47,6 +47,7 @@ bool FileCRCPreCacheThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 	bool ret = (getExecutingTask() == false);
 	if(ret == false && deleteSelfIfShutdownDelayed == true) {
 	    setDeleteSelfOnExecutionDone(deleteSelfIfShutdownDelayed);
+	    deleteSelfIfRequired();
 	    signalQuit();
 	}
 
@@ -421,6 +422,7 @@ bool SimpleTaskThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 	bool ret = (getExecutingTask() == false);
 	if(ret == false && deleteSelfIfShutdownDelayed == true) {
 	    setDeleteSelfOnExecutionDone(deleteSelfIfShutdownDelayed);
+	    deleteSelfIfRequired();
 	    signalQuit();
 	}
 
@@ -662,6 +664,7 @@ bool LogFileThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 	bool ret = (getExecutingTask() == false);
 	if(ret == false && deleteSelfIfShutdownDelayed == true) {
 	    setDeleteSelfOnExecutionDone(deleteSelfIfShutdownDelayed);
+	    deleteSelfIfRequired();
 	    signalQuit();
 	}
 

@@ -1164,6 +1164,8 @@ void ServerInterface::executeNetworkCommandsFromClients() {
 						NetworkCommand &cmd = pendingList[idx];
 						this->requestCommand(&cmd);
 					}
+
+					//printf("Executed: %d commands from slot: %d\n",pendingList.size(),i);
 				}
 			}
 		}
@@ -1375,7 +1377,16 @@ void ServerInterface::update() {
 			//printf("START Server update #1\n");
 
 			std::map<int,ConnectionSlotEvent> eventList;
-			bool hasData = Socket::hasDataToRead(socketTriggeredList);
+
+			//bool hasData = Socket::hasDataToRead(socketTriggeredList);
+			bool hasData = false;
+			if(gameHasBeenInitiated == false) {
+				hasData = Socket::hasDataToRead(socketTriggeredList);
+			}
+			else {
+				hasData = true;
+			}
+
 
 			//if(this->getGameHasBeenInitiated() == true &&
 			//   this->getAllowInGameConnections() == true) {
@@ -1394,7 +1405,7 @@ void ServerInterface::update() {
 				std::map<int,bool> mapSlotSignalledList;
 
 				// Step #1 tell all connection slot worker threads to receive socket data
-				signalClientsToRecieveData(socketTriggeredList, eventList, mapSlotSignalledList);
+				if(gameHasBeenInitiated == false) signalClientsToRecieveData(socketTriggeredList, eventList, mapSlotSignalledList);
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #2\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1407,7 +1418,7 @@ void ServerInterface::update() {
 					//printf("START Server update #3\n");
 
 					// Step #2 check all connection slot worker threads for completed status
-					checkForCompletedClients(mapSlotSignalledList,errorMsgList, eventList);
+					if(gameHasBeenInitiated == false) checkForCompletedClients(mapSlotSignalledList,errorMsgList, eventList);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #3\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1417,7 +1428,7 @@ void ServerInterface::update() {
 
 					//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					// Step #3 check clients for any lagging scenarios and try to deal with them
-					checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
+					if(gameHasBeenInitiated == false) checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] ============ Step #4\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1815,6 +1826,7 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s] networkMessageType==nmtReady\n",__FUNCTION__);
 
 							connectionSlot->setReady();
+							connectionSlot->setGameStarted(true);
 						}
 						else if(networkMessageType != nmtInvalid) {
 							string sErr = "Unexpected network message: " + intToStr(networkMessageType);
@@ -1983,6 +1995,8 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 			if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
 				NetworkMessageReady networkMessageReady(checksum->getSum());
 				connectionSlot->sendMessage(&networkMessageReady);
+
+				connectionSlot->setGameStarted(true);
 			}
 		}
 

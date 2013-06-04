@@ -2808,6 +2808,7 @@ bool BroadCastSocketThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 	bool ret = (getExecutingTask() == false);
 	if(ret == false && deleteSelfIfShutdownDelayed == true) {
 	    setDeleteSelfOnExecutionDone(deleteSelfIfShutdownDelayed);
+	    deleteSelfIfRequired();
 	    signalQuit();
 	}
 
