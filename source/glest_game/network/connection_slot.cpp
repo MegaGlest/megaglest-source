@@ -291,7 +291,7 @@ void ConnectionSlotThread::execute() {
 					eventCopy.eventType = eReceiveSocketData;
 					eventCopy.connectionSlot = slot;
 					eventCopy.eventId = slotIndex;
-					eventCopy.socketTriggered =  socket->hasDataToReadWithWait(5000);
+					eventCopy.socketTriggered =  socket->hasDataToReadWithWait(1000);
 					//eventCopy.socketTriggered =  true;
 
 					if(getQuitStatus() == true) {
