@@ -457,8 +457,11 @@ ConnectionSlot::~ConnectionSlot() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//printf("#1 Ending client SLOT: %d slotThreadWorker: %p\n",playerIndex,slotThreadWorker);
-
-	if(slotThreadWorker != NULL && slotThreadWorker->getRunningStatus() == false) {
+	if(slotThreadWorker != NULL) {
+		slotThreadWorker->signalQuit();
+	}
+	if(slotThreadWorker != NULL && slotThreadWorker->canShutdown(false) == true  &&
+		slotThreadWorker->getRunningStatus() == false) {
 		//printf("#2 Ending client SLOT: %d\n",playerIndex);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -466,12 +469,17 @@ ConnectionSlot::~ConnectionSlot() {
         if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	//else if(BaseThread::shutdownAndWait(slotThreadWorker) == true) {
-	if(slotThreadWorker != NULL && slotThreadWorker->canShutdown(true) == true) {
-		//printf("#3 Ending client SLOT: %d\n",playerIndex);
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-        delete slotThreadWorker;
-        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	else if(slotThreadWorker != NULL && slotThreadWorker->canShutdown(true) == true) {
+		if(slotThreadWorker->getRunningStatus() == false) {
+			//printf("#3 Ending client SLOT: %d\n",playerIndex);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			delete slotThreadWorker;
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		}
+		else {
+			slotThreadWorker->setDeleteSelfOnExecutionDone(true);
+			slotThreadWorker->setDeleteAfterExecute(true);
+		}
 	}
 	//printf("#4 Ending client SLOT: %d\n",playerIndex);
 	slotThreadWorker = NULL;
