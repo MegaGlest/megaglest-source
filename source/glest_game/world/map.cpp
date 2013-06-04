@@ -1882,6 +1882,10 @@ void Map::loadGame(const XmlNode *rootNode, World *world) {
 				string value = tokensExploredValue[k];
 
 				surfaceCell.setExplored(k,strToInt(value) != 0);
+
+				//if(surfaceCell.isExplored(k) == true) {
+				//	printf("Setting cell at index: %d for team: %d to: %d [%s]\n",surfaceCellIndexExplored,k,surfaceCell.isExplored(k),value.c_str());
+				//}
 			}
 			surfaceCellIndexExplored++;
 		}

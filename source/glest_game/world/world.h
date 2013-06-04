@@ -341,6 +341,7 @@ private:
 	void updateAllFactionUnits();
 	void underTakeDeadFactionUnits();
 	void updateAllFactionConsumableCosts();
+	void restoreExploredFogOfWarCells();
 };
 
 }}//end namespace

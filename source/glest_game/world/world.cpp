@@ -283,6 +283,36 @@ void World::clearTileset() {
 	tileset = Tileset();
 }
 
+void World::restoreExploredFogOfWarCells() {
+	for (int i = 0; i < map.getSurfaceW(); ++i) {
+		for (int j = 0; j < map.getSurfaceH(); ++j) {
+			for (int k = 0;	k < GameConstants::maxPlayers + GameConstants::specialFactions; ++k) {
+				if (k == thisTeamIndex) {
+					if (map.getSurfaceCell(i, j)->isExplored(k) == true) {
+						const Vec2i pos(i, j);
+						Vec2i surfPos = pos;
+						//compute max alpha
+						float maxAlpha = 0.0f;
+						if (surfPos.x > 1 && surfPos.y > 1
+								&& surfPos.x < map.getSurfaceW() - 2
+								&& surfPos.y < map.getSurfaceH() - 2) {
+							maxAlpha = 1.f;
+						} else if (surfPos.x > 0 && surfPos.y > 0
+								&& surfPos.x < map.getSurfaceW() - 1
+								&& surfPos.y < map.getSurfaceH() - 1) {
+							maxAlpha = 0.3f;
+						}
+
+						//compute alpha
+						float alpha = maxAlpha;
+						minimap.incFowTextureAlphaSurface(surfPos, alpha);
+					}
+				}
+			}
+		}
+	}
+}
+
 void World::init(Game *game, bool createUnits, bool initFactions){
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -371,8 +401,11 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 		        }
 		    }
 		}
+		else {
+			restoreExploredFogOfWarCells();
+		}
 
-		minimap.loadGame(loadWorldNode);
+		//minimap.loadGame(loadWorldNode);
 	}
 
 	//initExplorationState(); ... was only for !fog-of-war, now handled in initCells()
