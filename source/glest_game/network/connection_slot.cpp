@@ -287,11 +287,14 @@ void ConnectionSlotThread::execute() {
 						break;
 					}
 
+					//bool socketHasReadData = socket->hasDataToReadWithWait(1000);
+					bool socketHasReadData = socket->hasDataToRead();;
+
 					ConnectionSlotEvent eventCopy;
 					eventCopy.eventType = eReceiveSocketData;
 					eventCopy.connectionSlot = slot;
 					eventCopy.eventId = slotIndex;
-					eventCopy.socketTriggered =  socket->hasDataToReadWithWait(1000);
+					eventCopy.socketTriggered = socketHasReadData;
 					//eventCopy.socketTriggered =  true;
 
 					if(getQuitStatus() == true) {
@@ -302,6 +305,10 @@ void ConnectionSlotThread::execute() {
 					//printf("#C Checking action for slot: %d\n",slotIndex);
 					this->slotUpdateTask(&eventCopy);
 					//printf("#D Checking action for slot: %d\n",slotIndex);
+
+					if(socketHasReadData == false && getQuitStatus() == false) {
+						sleep(10);
+					}
 				}
 				else {
 					//printf("#1 Checking action for slot: %d\n",slotIndex);
