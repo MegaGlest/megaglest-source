@@ -453,13 +453,39 @@ void MenuStateMasterserver::cleanup() {
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-    if(updateFromMasterserverThread != NULL &&
-        updateFromMasterserverThread->canShutdown(true) == true) {
-        if(updateFromMasterserverThread->shutdownAndWait() == true) {
-            delete updateFromMasterserverThread;
-        }
-    }
-    updateFromMasterserverThread = NULL;
+//    if(updateFromMasterserverThread != NULL &&
+//        updateFromMasterserverThread->canShutdown(true) == true) {
+//        if(updateFromMasterserverThread->shutdownAndWait() == true) {
+//            delete updateFromMasterserverThread;
+//        }
+//    }
+//    updateFromMasterserverThread = NULL;
+	if(updateFromMasterserverThread != NULL) {
+		updateFromMasterserverThread->signalQuit();
+	}
+	if(updateFromMasterserverThread != NULL && updateFromMasterserverThread->canShutdown(false) == true  &&
+			updateFromMasterserverThread->getRunningStatus() == false) {
+		//printf("#2 Ending client SLOT: %d\n",playerIndex);
+
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        delete updateFromMasterserverThread;
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+	//else if(BaseThread::shutdownAndWait(slotThreadWorker) == true) {
+	else if(updateFromMasterserverThread != NULL && updateFromMasterserverThread->canShutdown(true) == true) {
+		if(updateFromMasterserverThread->getRunningStatus() == false) {
+			//printf("#3 Ending client SLOT: %d\n",playerIndex);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			delete updateFromMasterserverThread;
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		}
+		else {
+			updateFromMasterserverThread->setDeleteSelfOnExecutionDone(true);
+			updateFromMasterserverThread->setDeleteAfterExecute(true);
+		}
+	}
+	//printf("#4 Ending client SLOT: %d\n",playerIndex);
+	updateFromMasterserverThread = NULL;
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
