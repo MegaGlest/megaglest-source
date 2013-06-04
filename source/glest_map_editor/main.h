@@ -79,6 +79,19 @@ const char *surface_descs[] = {
 	"Grass", "Sec. grass", "Road", "Stone", "Ground"
 };
 
+
+class MainToolBar : public wxToolBar {
+private:
+	DECLARE_EVENT_TABLE()
+
+public:
+	
+    MainToolBar(wxWindow *parent,
+              wxWindowID id) : wxToolBar(parent,id) {}
+
+	void onMouseMove(wxMouseEvent &event);
+};
+
 // =====================================================
 //	class MainWindow
 // =====================================================
@@ -196,6 +209,7 @@ public:
 	MainWindow(string appPath);
 	~MainWindow();
 
+	void refreshMapRender();
 	void init(string fname);
 
 	void onClose(wxCloseEvent &event);
