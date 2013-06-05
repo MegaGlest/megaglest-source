@@ -25,6 +25,7 @@
 #include "renderer.h"
 #include <algorithm>
 #include "config.h"
+#include "window.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -174,6 +175,15 @@ void Lang::loadStrings(string uselanguage, bool loadFonts,
 
 		// end win32
 	#endif
+
+
+		if(	lang.hasString("ALLOWED_SPECIAL_KEYS")) {
+			string allowedKeys = lang.get("ALLOWED_SPECIAL_KEYS");
+			Window::addAllowedKeys(allowedKeys);
+		}
+		else {
+			Window::clearAllowedKeys();
+		}
 
 		if(loadFonts == true) {
 			CoreData &coreData= CoreData::getInstance();

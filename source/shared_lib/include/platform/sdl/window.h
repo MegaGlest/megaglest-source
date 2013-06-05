@@ -121,6 +121,7 @@ private:
     static void setKeystate(SDL_keysym state)					{ keystate = state; }
 
     //static bool masterserverMode;
+    static map<wchar_t,bool> mapAllowedKeys;
 
 protected:
 	int w, h;
@@ -143,6 +144,10 @@ public:
 
 	Window();
 	virtual ~Window();
+
+	static void addAllowedKeys(string keyList);
+	static void clearAllowedKeys();
+	static bool isAllowedKey(wchar_t key);
 
 	virtual bool ChangeVideoMode(bool preserveContext,int resWidth, int resHeight,
 			bool fullscreenWindow, int colorBits, int depthBits, int stencilBits,
@@ -214,6 +219,8 @@ private:
 	//static char getKey(SDL_keysym keysym, bool skipSpecialKeys=false);
 	//static char getNormalKey(SDL_keysym keysym,bool skipSpecialKeys=false);
 	static void toggleFullscreen();
+
+	static wchar_t convertStringtoSDLKey(const string &value);
 };
 
 bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input, vector<int> modifiersToCheck);
