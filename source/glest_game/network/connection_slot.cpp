@@ -288,7 +288,10 @@ void ConnectionSlotThread::execute() {
 					}
 
 					//bool socketHasReadData = socket->hasDataToReadWithWait(1000);
-					bool socketHasReadData = socket->hasDataToRead();;
+					//bool socketHasReadData = socket->hasDataToRead();;
+					// Avoid mutex locking
+					//bool socketHasReadData = Socket::hasDataToRead(socket->getSocketId());
+					bool socketHasReadData = Socket::hasDataToReadWithWait(socket->getSocketId(),100000);
 
 					ConnectionSlotEvent eventCopy;
 					eventCopy.eventType = eReceiveSocketData;
@@ -306,9 +309,9 @@ void ConnectionSlotThread::execute() {
 					this->slotUpdateTask(&eventCopy);
 					//printf("#D Checking action for slot: %d\n",slotIndex);
 
-					if(socketHasReadData == false && getQuitStatus() == false) {
-						sleep(10);
-					}
+					//if(socketHasReadData == false && getQuitStatus() == false) {
+					//	sleep(10);
+					//}
 				}
 				else {
 					//printf("#1 Checking action for slot: %d\n",slotIndex);
