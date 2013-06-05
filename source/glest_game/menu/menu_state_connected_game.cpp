@@ -2604,9 +2604,13 @@ void MenuStateConnectedGame::update() {
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
-	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 	Lang &lang= Lang::getInstance();
+	ClientInterface *clientInterface= NetworkManager::getInstance().getClientInterface();
+
 	string newLabelConnectionInfo = lang.get("WaitingHost");
+	if(clientInterface != NULL && clientInterface->getJoinGameInProgress() == true) {
+		newLabelConnectionInfo = lang.get("MGGameStatus2");
+	}
 	// Test progress bar
     //MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
     //fileFTPProgressList["test"] = pair<int,string>(difftime(time(NULL),lastNetworkSendPing) * 20,"test file 123");
