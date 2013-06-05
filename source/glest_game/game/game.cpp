@@ -84,6 +84,7 @@ Game::Game() : ProgramState(NULL) {
 	currentAvgRenderFpsTotal=0;
 	paused=false;
 	pausedForJoinGame=false;
+	pausedBeforeJoinGame=false;
 	pauseRequestSent=false;
 	resumeRequestSent=false;
 	pauseStateChanged=false;
@@ -250,6 +251,7 @@ void Game::resetMembers() {
 	tickCount=0;
 	paused= false;
 	pausedForJoinGame=false;
+	pausedBeforeJoinGame=false;
 	resumeRequestSent=false;
 	pauseRequestSent=false;
 	pauseStateChanged=false;
@@ -2363,8 +2365,10 @@ void Game::update() {
 					//printf("Resuming game for join in progress game resumeRequestSent: %d...\n",resumeRequestSent);
 
 					//commander.tryResumeGame(true,false);
-					commander.tryResumeGame(true,true);
-					resumeRequestSent = true;
+					if(pausedBeforeJoinGame == false && resumeRequestSent == false) {
+						commander.tryResumeGame(true,true);
+						resumeRequestSent = true;
+					}
 
 //					server->setAllowInGameConnections(false);
 //					for(int i = 0; i < world.getFactionCount(); ++i) {
@@ -5714,6 +5718,7 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 			console.addLine(lang.get("GameResumed"));
 			paused= false;
 			pausedForJoinGame = false;
+			pausedBeforeJoinGame = false;
 			pauseStateChanged = true;
 
 			if(clearCaches == true) {
@@ -5742,6 +5747,10 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 		}
 		else {
 			console.addLine(lang.get("GamePaused"));
+
+			if(joinNetworkGame == true) {
+				pausedBeforeJoinGame = paused;
+			}
 			paused= true;
 			pausedForJoinGame = joinNetworkGame;
 			pauseStateChanged = true;

@@ -98,6 +98,7 @@ private:
 	bool resumeRequestSent;
 	bool pauseStateChanged;
 	bool pausedForJoinGame;
+	bool pausedBeforeJoinGame;
 
 	bool gameOver;
 	bool renderNetworkStatus;
