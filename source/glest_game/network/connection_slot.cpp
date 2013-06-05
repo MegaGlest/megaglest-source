@@ -1014,8 +1014,24 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 									if(serverInterface->getGameHasBeenInitiated() == true &&
 									   serverInterface->getAllowInGameConnections() == true) {
-										setJoinGameInProgressFlags();
-										this->setPauseForInGameConnection(true);
+
+										ConnectionSlot *slot = serverInterface->findSlotForUUID(this->playerUUID,true);
+										if(slot != NULL) {
+											slot->setJoinGameInProgressFlags();
+											slot->setPauseForInGameConnection(true);
+
+											serverInterface->switchSlot(this->playerIndex,slot->getPlayerIndex());
+										}
+										else {
+											setJoinGameInProgressFlags();
+											this->setPauseForInGameConnection(true);
+										}
+									}
+									else {
+										ConnectionSlot *slot = serverInterface->findSlotForUUID(this->playerUUID,true);
+										if(slot != NULL) {
+											serverInterface->switchSlot(this->playerIndex,slot->getPlayerIndex());
+										}
 									}
 								}
 							}

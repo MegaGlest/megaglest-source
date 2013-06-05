@@ -232,6 +232,8 @@ public:
 
     void broadcastMessage(NetworkMessage *networkMessage, int excludeSlot = -1, int lockedSlotIndex = -1);
 
+    ConnectionSlot * findSlotForUUID(string uuid, bool unConnectedOnly=true);
+
 private:
 
     void broadcastMessageToConnectedClients(NetworkMessage *networkMessage, int excludeSlot = -1);
@@ -255,6 +257,8 @@ protected:
     void dispatchPendingHighlightCellMessages(std::vector <string> &errorMsgList);
 
     void shutdownMasterserverPublishThread();
+
+
 };
 
 }}//end namespace
