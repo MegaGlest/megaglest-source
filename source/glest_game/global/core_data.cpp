@@ -1012,6 +1012,8 @@ void CoreData::saveGameSettingsToFile(std::string fileName, GameSettings *gameSe
 		saveGameFile << "FactionStartLocationForIndex" 	<< Shared::PlatformByteOrder::toCommonEndian(slotIndex) << "=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getStartLocationIndex(i)) << std::endl;
 		saveGameFile << "FactionTypeNameForIndex" 		<< Shared::PlatformByteOrder::toCommonEndian(slotIndex) << "=" << gameSettings->getFactionTypeName(i) << std::endl;
 		saveGameFile << "FactionPlayerNameForIndex" 	<< Shared::PlatformByteOrder::toCommonEndian(slotIndex) << "=" << gameSettings->getNetworkPlayerName(i) << std::endl;
+
+		saveGameFile << "FactionPlayerUUIDForIndex" 	<< Shared::PlatformByteOrder::toCommonEndian(slotIndex) << "=" << gameSettings->getNetworkPlayerUUID(i) << std::endl;
     }
 
 #if defined(WIN32) && !defined(__MINGW32__)
@@ -1093,6 +1095,8 @@ bool CoreData::loadGameSettingsFromFile(std::string fileName, GameSettings *game
 		else {
 			gameSettings->setNetworkPlayerName(i,"");
 		}
+
+		gameSettings->setNetworkPlayerUUID(i,properties.getString(string("FactionPlayerUUIDForIndex") + intToStr(i),"") );
 	}
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
