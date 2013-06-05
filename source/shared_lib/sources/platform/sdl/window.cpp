@@ -59,6 +59,8 @@ int Window::lastShowMouseState = 0;
 
 bool Window::tryVSynch = false;
 
+map<wchar_t,bool> Window::mapAllowedKeys;
+
 //bool Window::masterserverMode = false;
 
 // ========== PUBLIC ==========
@@ -706,6 +708,76 @@ MouseButton Window::getMouseButton(int sdlButton) {
 	}
 }
 
+wchar_t Window::convertStringtoSDLKey(const string &value) {
+	wchar_t result = SDLK_UNKNOWN;
+
+	if(value.length() >= 1) {
+		if(value.length() == 3 && value[0] == '\'' && value[2] == '\'') {
+			result = (SDLKey)value[1];
+		}
+		else {
+			bool foundKey = false;
+			if(value.length() > 1) {
+				for(int i = SDLK_UNKNOWN; i < SDLK_LAST; ++i) {
+					SDLKey key = static_cast<SDLKey>(i);
+					string keyName = SDL_GetKeyName(key);
+					if(value == keyName) {
+						result = key;
+						foundKey = true;
+						break;
+					}
+				}
+			}
+
+			if(foundKey == false) {
+				result = (SDLKey)value[0];
+			}
+		}
+	}
+	else {
+		string sError = "Unsupported key name: [" + value + "]";
+		throw megaglest_runtime_error(sError.c_str());
+	}
+
+	// Because SDL is based on lower Ascii
+	//result = tolower(result);
+	return result;
+}
+
+void Window::addAllowedKeys(string keyList) {
+	clearAllowedKeys();
+
+	if(keyList.empty() == false) {
+		vector<string> keys;
+		Tokenize(keyList,keys,",");
+		if(keys.empty() == false) {
+			for(unsigned int keyIndex = 0; keyIndex < keys.size(); ++keyIndex) {
+				string key = trim(keys[keyIndex]);
+
+				wchar_t sdl_key = convertStringtoSDLKey(key);
+				mapAllowedKeys[sdl_key] = true;
+
+				if(SystemFlags::VERBOSE_MODE_ENABLED)  printf("key: %d [%s] IS ALLOWED\n",sdl_key, key.c_str());
+			}
+		}
+	}
+}
+void Window::clearAllowedKeys() {
+	mapAllowedKeys.clear();
+}
+
+bool Window::isAllowedKey(wchar_t key) {
+	map<wchar_t,bool>::const_iterator iterFind = mapAllowedKeys.find(key);
+	bool result =(iterFind != mapAllowedKeys.end());
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) {
+		string keyName = SDL_GetKeyName((SDLKey)key);
+		printf("key: %d [%s] allowed result: %d\n",key,keyName.c_str(),result);
+	}
+
+	return result;
+}
+
 bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllowed) {
 	vector<int> modifiersToCheck;
 	if(modifiersAllowed == false) {
@@ -1022,6 +1094,10 @@ SDLKey extractKeyPressed(SDL_KeyboardEvent input) {
 }
 
 bool isAllowedInputTextKey(wchar_t &key) {
+	if(Window::isAllowedKey(key) == true) {
+		return true;
+	}
+
 	bool result = (
 	key != SDLK_DELETE &&
 	key != SDLK_BACKSPACE &&
@@ -1082,6 +1158,10 @@ bool isAllowedInputTextKey(wchar_t &key) {
 }
 
 bool isAllowedInputTextKey(SDLKey key) {
+	if(Window::isAllowedKey(key) == true) {
+		return true;
+	}
+
 	bool result = (
 	key != SDLK_DELETE &&
 	key != SDLK_BACKSPACE &&
