@@ -3016,6 +3016,27 @@ bool ServerInterface::getUnPauseForInGameConnection() {
 	return result;
 }
 
+ConnectionSlot * ServerInterface::findSlotForUUID(string uuid, bool unConnectedOnly) {
+	ConnectionSlot *result = NULL;
+	if(uuid != "") {
+		for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
+			MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[i],CODE_AT_LINE_X(i));
+			ConnectionSlot *connectionSlot= slots[i];
+			if(connectionSlot!= NULL) {
+				if(connectionSlot->getUUID() == uuid) {
+					if(unConnectedOnly == false ||
+						(unConnectedOnly == true && connectionSlot->isConnected() == false)) {
+						if(result == NULL ||
+								(result->getConnectedTime() > connectionSlot->getConnectedTime()))
+						result = connectionSlot;
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+
 void ServerInterface::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *serverInterfaceNode = rootNode->addChild("ServerInterface");
