@@ -939,11 +939,13 @@ void MenuStateCustomGame::cleanup() {
         if(forceWaitForShutdown == true) {
     		time_t elapsed = time(NULL);
     		publishToMasterserverThread->signalQuit();
-    		for(;publishToMasterserverThread->canShutdown(false) == false &&
+    		for(;(publishToMasterserverThread->canShutdown(false) == false  ||
+    				publishToMasterserverThread->getRunningStatus() == true) &&
     			difftime((long int)time(NULL),elapsed) <= 15;) {
     			//sleep(150);
     		}
-    		if(publishToMasterserverThread->canShutdown(true)) {
+    		if(publishToMasterserverThread->canShutdown(true) == true &&
+    				publishToMasterserverThread->getRunningStatus() == false) {
     			delete publishToMasterserverThread;
     			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     		}
@@ -955,6 +957,9 @@ void MenuStateCustomGame::cleanup() {
     			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
     			publishToMasterserverThread->setOverrideShutdownTask(shutdownTaskStatic);
+    			publishToMasterserverThread->setDeleteSelfOnExecutionDone(true);
+    			publishToMasterserverThread->setDeleteAfterExecute(true);
+
     			//publishToMasterserverThread->cleanup();
     		}
     		publishToMasterserverThread = NULL;
@@ -963,7 +968,7 @@ void MenuStateCustomGame::cleanup() {
         	publishToMasterserverThread->signalQuit();
         	sleep(0);
         	if(publishToMasterserverThread->canShutdown(true) == true &&
-        		publishToMasterserverThread->shutdownAndWait() == true) {
+        			publishToMasterserverThread->getRunningStatus() == false) {
         		delete publishToMasterserverThread;
         	}
     		else {
@@ -974,6 +979,8 @@ void MenuStateCustomGame::cleanup() {
     			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
     			publishToMasterserverThread->setOverrideShutdownTask(shutdownTaskStatic);
+    			publishToMasterserverThread->setDeleteSelfOnExecutionDone(true);
+    			publishToMasterserverThread->setDeleteAfterExecute(true);
     			//publishToMasterserverThread->cleanup();
     		}
         }
