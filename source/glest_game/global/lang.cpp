@@ -177,7 +177,7 @@ void Lang::loadStrings(string uselanguage, bool loadFonts,
 	#endif
 
 
-		if(	lang.hasString("ALLOWED_SPECIAL_KEYS")) {
+		if(	lang.hasString("ALLOWED_SPECIAL_KEYS","",false)) {
 			string allowedKeys = lang.get("ALLOWED_SPECIAL_KEYS");
 			Window::addAllowedKeys(allowedKeys);
 		}
