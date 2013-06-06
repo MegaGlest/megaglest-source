@@ -240,6 +240,13 @@ int round(float f);
 bool checkVersionComptability(string clientVersionString, string serverVersionString);
 
 template<typename T>
+void enforceMinimumValue(T minValue, T &value) {
+	if(value < minValue) {
+		value = minValue;
+	}
+}
+
+template<typename T>
 void deleteValues(T beginIt, T endIt){
 	for(T it= beginIt; it!=endIt; ++it){
 		delete *it;

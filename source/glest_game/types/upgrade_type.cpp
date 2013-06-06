@@ -928,10 +928,13 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 	prodSpeedIsMultiplier		= ut->getProdSpeedIsMultiplier();
 
 	if(ut->getMaxHpIsMultiplier() == true) {
+		//printf("#1 Maxhp maxHp = %d, unit->getHp() = %d ut->getMaxHp() = %d\n",maxHp,unit->getHp(),ut->getMaxHp());
 		maxHp -= ((double)unit->getHp() * ((double)ut->getMaxHp() / (double)100));
+
 		if(ut->getMaxHpRegeneration() != 0) {
 			maxHpRegeneration -= ((double)unit->getType()->getHpRegeneration() + ((double)max(maxHp,unit->getHp()) * ((double)ut->getMaxHpRegeneration() / (double)100)));
 		}
+		//printf("#1.1 Maxhp maxHp = %d, unit->getHp() = %d ut->getMaxHp() = %d\n",maxHp,unit->getHp(),ut->getMaxHp());
 	}
 	else {
 		maxHp -= ut->getMaxHp();
@@ -939,11 +942,13 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 			maxHpRegeneration -= ut->getMaxHpRegeneration();
 		}
 	}
+	enforceMinimumValue(0,maxHp);
+	enforceMinimumValue(0,maxHpRegeneration);
 
 	if(ut->getMaxEpIsMultiplier() == true) {
 		maxEp -= ((double)unit->getEp() * ((double)ut->getMaxEp() / (double)100));
 		if(ut->getMaxEpRegeneration() != 0) {
-			maxEpRegeneration += ((double)unit->getType()->getEpRegeneration() + ((double)max(maxEp,unit->getEp()) * ((double)ut->getMaxEpRegeneration() / (double)100)));
+			maxEpRegeneration -= ((double)unit->getType()->getEpRegeneration() + ((double)max(maxEp,unit->getEp()) * ((double)ut->getMaxEpRegeneration() / (double)100)));
 		}
 	}
 	else {
@@ -952,6 +957,8 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 			maxEpRegeneration -= ut->getMaxEpRegeneration();
 		}
 	}
+	enforceMinimumValue(0,maxEp);
+	enforceMinimumValue(0,maxEpRegeneration);
 
 	if(ut->getSightIsMultiplier() == true) {
 		sight -= ((double)unit->getType()->getSight() * ((double)ut->getSight() / (double)100));
@@ -959,6 +966,7 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 	else {
 		sight -= ut->getSight();
 	}
+	enforceMinimumValue(0,sight);
 
 	if(ut->getArmorIsMultiplier() == true) {
 		armor -= ((double)unit->getType()->getArmor() * ((double)ut->getArmor() / (double)100));
@@ -966,6 +974,7 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 	else {
 		armor -= ut->getArmor();
 	}
+	enforceMinimumValue(0,armor);
 
 	if(ut->getAttackStrengthIsMultiplier() == true) {
 		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
@@ -973,12 +982,15 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 			const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(skillType);
 			if(ast != NULL) {
 				attackStrengthMultiplierValueList[ast->getName()] -= ((double)ast->getAttackStrength() * ((double)ut->getAttackStrength(NULL) / (double)100));
+				enforceMinimumValue(0,attackStrengthMultiplierValueList[ast->getName()]);
 			}
 		}
 	}
 	else {
 		attackStrength -= ut->getAttackStrength(NULL);
+		enforceMinimumValue(0,attackStrength);
 	}
+
 
 	if(ut->getAttackRangeIsMultiplier() == true) {
 		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
@@ -986,11 +998,13 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 			const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(skillType);
 			if(ast != NULL) {
 				attackRangeMultiplierValueList[ast->getName()] -= ((double)ast->getAttackRange() * ((double)ut->getAttackRange(NULL) / (double)100));
+				enforceMinimumValue(0,attackRangeMultiplierValueList[ast->getName()]);
 			}
 		}
 	}
 	else {
 		attackRange -= ut->getAttackRange(NULL);
+		enforceMinimumValue(0,attackRange);
 	}
 
 	if(ut->getMoveSpeedIsMultiplier() == true) {
@@ -1001,6 +1015,7 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 			const MoveSkillType *mst = dynamic_cast<const MoveSkillType *>(skillType);
 			if(mst != NULL) {
 				moveSpeedIsMultiplierValueList[mst->getName()] -= ((double)mst->getSpeed() * ((double)ut->getMoveSpeed(NULL) / (double)100));
+				enforceMinimumValue(0,moveSpeedIsMultiplierValueList[mst->getName()]);
 			}
 		}
 
@@ -1008,6 +1023,7 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 	}
 	else {
 		moveSpeed -= ut->getMoveSpeed(NULL);
+		enforceMinimumValue(0,moveSpeed);
 	}
 
 	if(ut->getProdSpeedIsMultiplier() == true) {
@@ -1016,19 +1032,23 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 			const ProduceSkillType *pst = dynamic_cast<const ProduceSkillType *>(skillType);
 			if(pst != NULL) {
 				prodSpeedProduceIsMultiplierValueList[pst->getName()] -= ((double)pst->getSpeed() * ((double)ut->getProdSpeed(NULL) / (double)100));
+				enforceMinimumValue(0,prodSpeedProduceIsMultiplierValueList[pst->getName()]);
 			}
 			const UpgradeSkillType *ust = dynamic_cast<const UpgradeSkillType *>(skillType);
 			if(ust != NULL) {
 				prodSpeedUpgradeIsMultiplierValueList[ust->getName()] -= ((double)ust->getSpeed() * ((double)ut->getProdSpeed(NULL) / (double)100));
+				enforceMinimumValue(0,prodSpeedUpgradeIsMultiplierValueList[ust->getName()]);
 			}
 			const MorphSkillType *mst = dynamic_cast<const MorphSkillType *>(skillType);
 			if(mst != NULL) {
 				prodSpeedMorphIsMultiplierValueList[mst->getName()] -= ((double)mst->getSpeed() * ((double)ut->getProdSpeed(NULL) / (double)100));
+				enforceMinimumValue(0,prodSpeedMorphIsMultiplierValueList[mst->getName()]);
 			}
 		}
 	}
 	else {
 		prodSpeed -= ut->getProdSpeed(NULL);
+		enforceMinimumValue(0,prodSpeed);
 	}
 }
 
