@@ -554,7 +554,8 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	ClientInterface *clientInterface = networkManager.getClientInterface();
 	if(clientInterface != NULL && clientInterface->getJoinGameInProgress() == true) {
-    	Lang &lang= Lang::getInstance();
+		listBoxPlayerStatus.setVisible(false);
+		Lang &lang= Lang::getInstance();
     	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
     	for(unsigned int i = 0; i < languageList.size(); ++i) {
 			char szMsg[8096]="";
