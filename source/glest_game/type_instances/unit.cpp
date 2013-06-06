@@ -2508,7 +2508,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 	}
 
 	if(shouldApplyAttackBoost == true) {
-		//printf("APPLYING ATTACK BOOST START to unit [%s - %d] from unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId());
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("=== APPLYING ATTACK BOOST START to unit [%s - %d] from unit [%s - %d] hp: %d\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId(),hp);
 
 		UnitAttackBoostEffect *effect = new UnitAttackBoostEffect();
 		effect->boost = boost;
@@ -2616,6 +2616,9 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 
 		//printf("APPLYING ATTACK BOOST END to unit [%s - %d] from unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId());
 	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("APPLIED ATTACK BOOST START to unit [%s - %d] from unit [%s - %d] hp: %d\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId(),hp);
+
 	return shouldApplyAttackBoost;
 }
 
@@ -2626,7 +2629,7 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	//printf("DE-APPLYING ATTACK BOOST START to unit [%s - %d] from unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId());
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("=== DE-APPLYING ATTACK BOOST START to unit [%s - %d] from unit [%s - %d] hp: %d\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId(),hp);
 
 	bool wasAlive = alive;
 	int originalHp = hp;
@@ -2721,6 +2724,8 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 			break;
 		}
 	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("DE-APPLIED ATTACK BOOST START to unit [%s - %d] from unit [%s - %d] hp: %d\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId(),hp);
 
 	//printf("DE-APPLYING ATTACK BOOST END to unit [%s - %d] from unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId());
 }
