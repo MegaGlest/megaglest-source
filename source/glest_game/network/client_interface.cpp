@@ -954,6 +954,15 @@ void ClientInterface::updateLobby() {
 		}
 		break;
 
+		case nmtLoadingStatusMessage:
+			{
+				NetworkMessageLoadingStatus networkMessageLoadingStatus(nmls_NONE);
+				if(receiveMessage(&networkMessageLoadingStatus)) {
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+				}
+			}
+			break;
+
         default:
             {
             string sErr = string(extractFileFromDirectoryPath(__FILE__).c_str()) + "::" + string(__FUNCTION__) + " Unexpected network message: " + intToStr(networkMessageType);
