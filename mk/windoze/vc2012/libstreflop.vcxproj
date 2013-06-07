@@ -21,6 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}</ProjectGuid>
     <RootNamespace>libstreflop</RootNamespace>
+    <ProjectName>libstreflop</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'" Label="Configuration">
@@ -37,6 +38,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -69,10 +71,13 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'">$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'">$(Configuration)\</IntDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <TargetName>libstreflop</TargetName>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\source\shared_lib\include\streflop\libm\flt-32;..\..\source\shared_lib\include\streflop\libm\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\source\shared_lib\include\streflop\libm\flt-32;..\..\..\source\shared_lib\include\streflop\libm\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1;USE_STREFLOP;STREFLOP_SSE;LIBM_COMPILING_FLT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -92,7 +97,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>..\..\source\shared_lib\include\streflop\libm\flt-32;..\..\source\shared_lib\include\streflop\libm\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\source\shared_lib\include\streflop\libm\flt-32;..\..\..\source\shared_lib\include\streflop\libm\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1;USE_STREFLOP;STREFLOP_SSE;LIBM_COMPILING_FLT32;HAVE_GOOGLE_BREAKPAD;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -119,7 +124,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>..\..\source\shared_lib\include\streflop\libm\flt-32;..\..\source\shared_lib\include\streflop\libm\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\source\shared_lib\include\streflop\libm\flt-32;..\..\..\source\shared_lib\include\streflop\libm\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1;USE_STREFLOP;STREFLOP_SSE;LIBM_COMPILING_FLT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -141,7 +146,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <WholeProgramOptimization>false</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>..\..\source\shared_lib\include\streflop\libm\flt-32;..\..\source\shared_lib\include\streflop\libm\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\source\shared_lib\include\streflop\libm\flt-32;..\..\..\source\shared_lib\include\streflop\libm\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;USE_PCH=1;STREFLOP_SSE;LIBM_COMPILING_FLT32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Async</ExceptionHandling>
@@ -156,74 +161,74 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_acosf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_acoshf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_asinf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_atan2f.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_atanhf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_coshf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_exp2f.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_expf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_fmodf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_gammaf_r.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_hypotf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_j0f.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_j1f.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_jnf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_lgammaf_r.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_log10f.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_log2f.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_logf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_powf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_rem_pio2f.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_remainderf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_sinhf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\e_sqrtf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\k_cosf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\k_rem_pio2f.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\k_sinf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\k_tanf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_asinhf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_atanf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_cbrtf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_ceilf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_copysignf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_cosf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_erff.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_expm1f.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_fabsf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_finitef.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_floorf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_fpclassifyf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_frexpf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_ilogbf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_isinff.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_isnanf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_ldexpf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_llrintf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_llroundf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_log1pf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_logbf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_lrintf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_lroundf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_modff.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_nearbyintf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_nextafterf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_remquof.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_rintf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_roundf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_scalblnf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_scalbnf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_signbitf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_sincosf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_sinf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_tanf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_tanhf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\s_truncf.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\w_expf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_acosf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_acoshf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_asinf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_atan2f.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_atanhf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_coshf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_exp2f.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_expf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_fmodf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_gammaf_r.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_hypotf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_j0f.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_j1f.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_jnf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_lgammaf_r.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_log10f.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_log2f.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_logf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_powf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_rem_pio2f.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_remainderf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_sinhf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\e_sqrtf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\k_cosf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\k_rem_pio2f.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\k_sinf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\k_tanf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_asinhf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_atanf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_cbrtf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_ceilf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_copysignf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_cosf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_erff.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_expm1f.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_fabsf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_finitef.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_floorf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_fpclassifyf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_frexpf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_ilogbf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_isinff.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_isnanf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_ldexpf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_llrintf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_llroundf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_log1pf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_logbf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_lrintf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_lroundf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_modff.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_nearbyintf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_nextafterf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_remquof.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_rintf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_roundf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_scalblnf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_scalbnf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_signbitf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_sincosf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_sinf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_tanf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_tanhf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\s_truncf.cpp" />
+    <ClCompile Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\w_expf.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\source\shared_lib\sources\streflop\libm\flt-32\Makefile" />
+    <None Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\Makefile" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

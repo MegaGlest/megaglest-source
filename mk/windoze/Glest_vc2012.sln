@@ -1,35 +1,30 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C++ Express 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "g2xml", "g2xml.vcxproj", "{407355A4-D12A-4E3B-A7EB-A835E573B376}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Express 2012 for Windows Desktop
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "g2xml", "vc2012\g2xml.vcxproj", "{407355A4-D12A-4E3B-A7EB-A835E573B376}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xml2g", "xml2g.vcxproj", "{3BAC3FE8-1CC4-487D-802A-E0A04B39BB6A}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xml2g", "vc2012\xml2g.vcxproj", "{3BAC3FE8-1CC4-487D-802A-E0A04B39BB6A}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libstreflop", "libstreflop.vcxproj", "{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libstreflop", "vc2012\libstreflop.vcxproj", "{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libglest", "shared_lib.vcxproj", "{8DAA0C24-95CD-4F66-B4C5-19ABDD771746}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libglest", "vc2012\shared_lib.vcxproj", "{8DAA0C24-95CD-4F66-B4C5-19ABDD771746}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glest_game", "glest_game.vcxproj", "{6B0C65F1-D031-46AF-AC0D-7C38892D2952}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glest_game", "vc2012\glest_game.vcxproj", "{6B0C65F1-D031-46AF-AC0D-7C38892D2952}"
 	ProjectSection(ProjectDependencies) = postProject
 		{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141} = {CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glest_editor", "glest_editor.vcxproj", "{5D09BE33-81EC-450B-8A7B-2E7B941ADC56}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glest_editor", "vc2012\glest_editor.vcxproj", "{5D09BE33-81EC-450B-8A7B-2E7B941ADC56}"
 	ProjectSection(ProjectDependencies) = postProject
 		{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141} = {CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "g3d_viewer", "g3d_viewer.vcxproj", "{FE5C7C7C-F109-44F5-8329-25A4E24F162C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "g3d_viewer", "vc2012\g3d_viewer.vcxproj", "{FE5C7C7C-F109-44F5-8329-25A4E24F162C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141} = {CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "megaglest_tests", "megaglest_tests.vcxproj", "{9A3DE527-6000-40BB-B971-F0FCAD9FF519}"
-	ProjectSection(ProjectDependencies) = postProject
-		{8DAA0C24-95CD-4F66-B4C5-19ABDD771746} = {8DAA0C24-95CD-4F66-B4C5-19ABDD771746}
-		{CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141} = {CDF4DDB9-945E-4D0D-9F0E-2BBEB5D22141}
-		{6B0C65F1-D031-46AF-AC0D-7C38892D2952} = {6B0C65F1-D031-46AF-AC0D-7C38892D2952}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "megaglest_tests", "vc2012\megaglest_tests.vcxproj", "{9A3DE527-6000-40BB-B971-F0FCAD9FF519}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
