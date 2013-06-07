@@ -852,6 +852,8 @@ void MenuStateOptionsGraphics::saveConfig(){
     config.setBool("RainEffect", checkBoxRainEffect.getValue());
     config.setBool("RainEffectMenu", checkBoxRainEffectMenu.getValue());
 
+    config.setBool("EnableTextureCompression", checkBoxEnableTextureCompression.getValue());
+
     config.setBool("EnableVideos", checkBoxVideos.getValue());
 
 	string currentResolution=config.getString("ScreenWidth")+"x"+config.getString("ScreenHeight");
