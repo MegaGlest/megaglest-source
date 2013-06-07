@@ -1771,7 +1771,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] rct = %p\n",__FILE__,__FUNCTION__,__LINE__,rct);
 
-	Unit *repaired = map->getCell(command->getPos())->getUnitWithEmptyCellMap(fLand);
+	Unit *repaired = (command != NULL ? map->getCell(command->getPos())->getUnitWithEmptyCellMap(fLand) : NULL);
 	if(repaired == NULL) {
 		repaired = map->getCell(command->getPos())->getUnit(fLand);
 	}

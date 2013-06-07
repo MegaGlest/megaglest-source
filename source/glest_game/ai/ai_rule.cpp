@@ -1160,7 +1160,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] producers.size() = %d, producerIndex = %d, pIndex = %d, producersDefaultCommandType.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,producers.size(),producerIndex,pIndex,producersDefaultCommandType.size());
 
-				if(ai->outputAIBehaviourToConsole()) printf("produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(producerIndex)->getType()->getName().c_str(),defCt->getName().c_str());
+				if(ai->outputAIBehaviourToConsole()) printf("produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(producerIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
 				if(aiInterface->isLogLevelEnabled(4) == true) {
 					char szBuf[8096]="";
 					snprintf(szBuf,8096,"produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(producerIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "(null)"));

@@ -1085,7 +1085,6 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 	}
 	for(unsigned int i = 0; i < maxFactionCRCCount; ++i) {
 		data.factionNameList[i].nullTerminate();
-		data.networkPlayerUUID[i].nullTerminate();
 	}
 
 	data.scenario.nullTerminate();
