@@ -104,10 +104,6 @@ MenuStateAbout::MenuStateAbout(Program *program, MainMenu *mainMenu) :
 
 	enableCustomModCredits = Config::getInstance().getBool("EnabledCustomModCredits","false");
 	if(enableCustomModCredits == true) {
-		string customModCreditsTextureFile = Config::getInstance().getString("CustomModCreditsTextureFile","");
-		if(customModCreditsTextureFile != "") {
-			customModTexture = Renderer::findTexture(customModCreditsTextureFile);
-		}
 		string customModCreditsText = Config::getInstance().getString("CustomModCreditsText","");
 		if(customModCreditsText != "") {
 			replaceAll(customModCreditsText, "\\n", "\n");
@@ -133,14 +129,8 @@ MenuStateAbout::MenuStateAbout(Program *program, MainMenu *mainMenu) :
 
 MenuStateAbout::~MenuStateAbout() {
 	if(customModTexture != NULL) {
-
-		//customModTexture->end();
-		//delete customModTexture;
-		//customModTexture = NULL;
-		if(customModTexture != NULL) {
-			Renderer::getInstance().endTexture(rsGlobal, customModTexture, false);
-		}
-
+		Renderer::getInstance().endTexture(rsGlobal, customModTexture, false);
+		customModTexture = NULL;
 	}
 }
 
@@ -230,6 +220,13 @@ void MenuStateAbout::render() {
 	Renderer &renderer= Renderer::getInstance();
 
 	if(enableCustomModCredits == true) {
+		if(customModTexture == NULL) {
+			string customModCreditsTextureFile = Config::getInstance().getString("CustomModCreditsTextureFile","");
+			if(customModCreditsTextureFile != "") {
+				customModTexture = Renderer::findTexture(customModCreditsTextureFile);
+			}
+		}
+
 		renderer.renderBackground(customModTexture);
 		renderer.renderLabel(&labelCustomModCredits);
 	}
