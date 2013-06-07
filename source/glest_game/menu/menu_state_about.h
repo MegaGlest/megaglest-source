@@ -44,8 +44,19 @@ private:
 	bool adjustModelText;
 	string loadAdditionalCredits();
 
+	bool enableCustomModCredits;
+	Texture2D *customModTexture;
+	int customModTextureX;
+	int customModTextureY;
+	int customModTextureW;
+	int customModTextureH;
+	float customModTextureAlpha;
+
+	GraphicLabel labelCustomModCredits;
+
 public:
 	MenuStateAbout(Program *program, MainMenu *mainMenu);
+	virtual ~MenuStateAbout();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
