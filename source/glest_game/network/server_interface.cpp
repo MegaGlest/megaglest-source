@@ -2336,6 +2336,9 @@ void ServerInterface::broadcastGameSetup(GameSettings *gameSettingsBuffer, bool 
 		}
 	}
 	if(setGameSettingsBuffer == true) {
+		if(gameSettingsBuffer == NULL) {
+			throw megaglest_runtime_error("gameSettingsBuffer == NULL");
+		}
 		validateGameSettings(gameSettingsBuffer);
 		//setGameSettings(gameSettingsBuffer,false);
 		MutexSafeWrapper safeMutex(serverSynchAccessor,CODE_AT_LINE);
