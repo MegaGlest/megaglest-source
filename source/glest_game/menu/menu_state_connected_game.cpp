@@ -1808,7 +1808,7 @@ void MenuStateConnectedGame::PlayNow(bool saveGame) {
 	//printf("Client sending map [%s] admin key [%d]\n",gameSettings.getMap().c_str(),gameSettings.getMasterserver_admin());
 
 	if(clientInterface->getJoinGameInProgress() == true) {
-		if(readyToJoinInProgressGame == false) {
+		if(readyToJoinInProgressGame == false && launchingNewGame == false) {
 			Lang &lang= Lang::getInstance();
 			const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 			for(unsigned int i = 0; i < languageList.size(); ++i) {
