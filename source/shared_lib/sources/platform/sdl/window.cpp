@@ -755,9 +755,12 @@ void Window::addAllowedKeys(string keyList) {
 				string key = trim(keys[keyIndex]);
 
 				wchar_t sdl_key = convertStringtoSDLKey(key);
-				mapAllowedKeys[sdl_key] = true;
+				if(sdl_key != SDLK_UNKNOWN) {
+					mapAllowedKeys[sdl_key] = true;
+				}
 
 				if(SystemFlags::VERBOSE_MODE_ENABLED)  printf("key: %d [%s] IS ALLOWED\n",sdl_key, key.c_str());
+				//printf("key: %d [%s] IS ALLOWED\n",sdl_key, key.c_str());
 			}
 		}
 	}
