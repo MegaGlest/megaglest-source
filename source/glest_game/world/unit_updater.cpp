@@ -1772,7 +1772,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
     if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] rct = %p\n",__FILE__,__FUNCTION__,__LINE__,rct);
 
 	Unit *repaired = (command != NULL ? map->getCell(command->getPos())->getUnitWithEmptyCellMap(fLand) : NULL);
-	if(repaired == NULL) {
+	if(repaired == NULL && command != NULL) {
 		repaired = map->getCell(command->getPos())->getUnit(fLand);
 	}
 
@@ -1890,6 +1890,10 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 
 	if(unit->getCurrSkill()->getClass() != scRepair ||
 		(nextToRepaired == false && peerUnitBuilder == NULL)) {
+
+		if(command == NULL) {
+			throw megaglest_runtime_error("command == NULL");
+		}
 
 		Vec2i repairPos = command->getPos();
 		bool startRepairing = (repaired != NULL && rct->isRepairableUnitType(repaired->getType()) && repaired->isDamaged());

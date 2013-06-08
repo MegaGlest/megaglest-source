@@ -617,6 +617,9 @@ void Program::setState(ProgramState *programStateNew, bool cleanupOldState) {
 
 		this->programState= programStateNew;
 		assert(programStateNew != NULL);
+		if(programStateNew == NULL) {
+			throw megaglest_runtime_error("programStateNew == NULL");
+		}
 		programStateNew->load();
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
