@@ -256,7 +256,11 @@ string UpgradeTypeBase::getDesc() const{
 			str += " [" + intToStr(maxHpRegeneration) + "]";
 		}
 	}
+
 	if(sight != 0) {
+		if(str != "") {
+			str += "\n";
+		}
 		if(sightIsMultiplier) {
 			str+= indent+lang.get("Sight") + " *" + intToStr(sight);
 		}
@@ -265,55 +269,82 @@ string UpgradeTypeBase::getDesc() const{
 		}
 	}
 	if(maxEp != 0) {
+		if(str != "") {
+			str += "\n";
+		}
+
 		if(maxEpIsMultiplier) {
-			str+= indent+lang.get("Ep") + " *" + intToStr(maxEp)+"\n";
+			str+= indent+lang.get("Ep") + " *" + intToStr(maxEp);
 		}
 		else {
-			str+= indent+lang.get("Ep") + " +" + intToStr(maxEp)+"\n";
+			str+= indent+lang.get("Ep") + " +" + intToStr(maxEp);
 		}
 		if(maxEpRegeneration != 0) {
 			str += " [" + intToStr(maxEpRegeneration) + "]";
 		}
 	}
 	if(attackStrength != 0) {
+		if(str != "") {
+			str += "\n";
+		}
+
 		if(attackStrengthIsMultiplier) {
-			str+= indent+lang.get("AttackStrenght") + " *" + intToStr(attackStrength)+"\n";
+			str+= indent+lang.get("AttackStrenght") + " *" + intToStr(attackStrength);
 		}
 		else {
-			str+= indent+lang.get("AttackStrenght") + " +" + intToStr(attackStrength)+"\n";
+			str+= indent+lang.get("AttackStrenght") + " +" + intToStr(attackStrength);
 		}
 	}
 	if(attackRange != 0) {
+		if(str != "") {
+			str += "\n";
+		}
+
 		if(attackRangeIsMultiplier) {
-			str+= indent+lang.get("AttackDistance") + " *" + intToStr(attackRange)+"\n";
+			str+= indent+lang.get("AttackDistance") + " *" + intToStr(attackRange);
 		}
 		else {
-			str+= indent+lang.get("AttackDistance") + " +" + intToStr(attackRange)+"\n";
+			str+= indent+lang.get("AttackDistance") + " +" + intToStr(attackRange);
 		}
 	}
 	if(armor != 0) {
+		if(str != "") {
+			str += "\n";
+		}
+
 		if(armorIsMultiplier) {
-			str+= indent+lang.get("Armor") + " *" + intToStr(armor)+"\n";
+			str+= indent+lang.get("Armor") + " *" + intToStr(armor);
 		}
 		else {
-			str+= indent+lang.get("Armor") + " +" + intToStr(armor)+"\n";
+			str+= indent+lang.get("Armor") + " +" + intToStr(armor);
 		}
 	}
 	if(moveSpeed != 0) {
+		if(str != "") {
+			str += "\n";
+		}
+
 		if(moveSpeedIsMultiplier) {
-			str+= indent+lang.get("WalkSpeed") + " *" + intToStr(moveSpeed)+"\n";
+			str+= indent+lang.get("WalkSpeed") + " *" + intToStr(moveSpeed);
 		}
 		else {
-			str+= indent+lang.get("WalkSpeed") + " +" + intToStr(moveSpeed)+"\n";
+			str+= indent+lang.get("WalkSpeed") + " +" + intToStr(moveSpeed);
 		}
 	}
 	if(prodSpeed != 0) {
+		if(str != "") {
+			str += "\n";
+		}
+
 		if(prodSpeedIsMultiplier) {
-			str+= indent+lang.get("ProductionSpeed") + " *" + intToStr(prodSpeed)+"\n";
+			str+= indent+lang.get("ProductionSpeed") + " *" + intToStr(prodSpeed);
 		}
 		else {
-			str+= indent+lang.get("ProductionSpeed") + " +" + intToStr(prodSpeed)+"\n";
+			str+= indent+lang.get("ProductionSpeed") + " +" + intToStr(prodSpeed);
 		}
+	}
+	if(str != "") {
+		str += "\n";
 	}
 
     return str;
