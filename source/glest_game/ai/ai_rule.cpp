@@ -1090,10 +1090,10 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 							defCt = producersDefaultCommandType[bestIndex][bestCommandTypeIndex];
 						}
 
-						if(ai->outputAIBehaviourToConsole()) printf("mega #2 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
+						if(ai->outputAIBehaviourToConsole()) printf("mega #2 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
 						if(aiInterface->isLogLevelEnabled(4) == true) {
 							char szBuf[8096]="";
-							snprintf(szBuf,8096,"mega #2 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
+							snprintf(szBuf,8096,"mega #2 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
 							aiInterface->printLog(4, szBuf);
 						}
 						aiInterface->giveCommand(bestIndex, defCt);
@@ -1114,10 +1114,10 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 							defCt = producersDefaultCommandType[bestIndex][bestCommandTypeIndex];
 						}
 
-						if(ai->outputAIBehaviourToConsole()) printf("mega #3 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
+						if(ai->outputAIBehaviourToConsole()) printf("mega #3 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
 						if(aiInterface->isLogLevelEnabled(4) == true) {
 							char szBuf[8096]="";
-							snprintf(szBuf,8096,"mega #3 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
+							snprintf(szBuf,8096,"mega #3 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
 							aiInterface->printLog(4, szBuf);
 						}
 
@@ -1134,10 +1134,10 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 
 						defCt = producersDefaultCommandType[bestIndex][bestCommandTypeIndex];
 					}
-					if(ai->outputAIBehaviourToConsole()) printf("mega #4 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
+					if(ai->outputAIBehaviourToConsole()) printf("mega #4 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
 					if(aiInterface->isLogLevelEnabled(4) == true) {
 						char szBuf[8096]="";
-						snprintf(szBuf,8096,"mega #4 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),defCt->getName().c_str());
+						snprintf(szBuf,8096,"mega #4 produceSpecific giveCommand to unit [%s] commandType [%s]",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),(defCt != NULL ? defCt->getName().c_str() : "n/a"));
 						aiInterface->printLog(4, szBuf);
 					}
 
