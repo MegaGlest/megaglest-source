@@ -330,7 +330,7 @@ inline T truncateDecimal(const T &value, int precision=6) {
 	return result;
 */
 
-	T precNum = pow(10, precision);
+	T precNum = std::pow((T)10, (T)precision);
 	T result = xs_CRoundToInt(value * precNum);
 	result /= precNum;
 	return result;
