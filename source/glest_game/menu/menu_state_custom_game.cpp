@@ -340,13 +340,16 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	}
 	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(30));
 
+	bool allowInProgressJoin = Config::getInstance().getBool("EnableJoinInProgressGame","false");
 	labelAllowInGameJoinPlayer.registerGraphicComponent(containerName,"labelAllowInGameJoinPlayer");
 	labelAllowInGameJoinPlayer.init(xoffset+410, 670, 80);
 	labelAllowInGameJoinPlayer.setText(lang.get("AllowInGameJoinPlayer"));
+	labelAllowInGameJoinPlayer.setVisible(allowInProgressJoin);
 
 	checkBoxAllowInGameJoinPlayer.registerGraphicComponent(containerName,"checkBoxAllowInGameJoinPlayer");
 	checkBoxAllowInGameJoinPlayer.init(xoffset+600, 670);
 	checkBoxAllowInGameJoinPlayer.setValue(false);
+	checkBoxAllowInGameJoinPlayer.setVisible(allowInProgressJoin);
 
 	// Which Pathfinder
 	//labelPathFinderType.registerGraphicComponent(containerName,"labelPathFinderType");
