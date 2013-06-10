@@ -98,6 +98,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\source\tests\shared_lib\graphics\math_util_test.cpp" />
     <ClCompile Include="..\..\source\tests\shared_lib\xml\xml_parser_test.cpp" />
     <ClCompile Include="..\..\source\tests\test_runner.cpp" />
   </ItemGroup>
