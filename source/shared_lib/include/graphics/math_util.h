@@ -14,9 +14,11 @@
 
 #include "math_wrapper.h"
 #include "vec.h"
+#include "data_types.h"
 #include "leak_dumper.h"
 
 using namespace std;
+using namespace Shared::Platform;
 
 namespace Shared{ namespace Graphics{
 
@@ -276,8 +278,46 @@ inline T radToDeg(T rad){
 	return (rad*360)/(2*pi);
 }
 
+// ====================================================================================================================
+// ====================================================================================================================
+//  Inline implementation
+// ====================================================================================================================
+// ====================================================================================================================
+#if _xs_BigEndian_
+	#define _xs_iexp_				0
+	#define _xs_iman_				1
+#else
+	#define _xs_iexp_				1       //intel is little endian
+	#define _xs_iman_				0
+#endif //BigEndian_
+
+//#define finline                     __forceinline
+#define finline                     inline
+
+#ifndef _xs_DEFAULT_CONVERSION
+#define _xs_DEFAULT_CONVERSION      0
+#endif
+
+//typedef long                    int32;
+typedef double                  real64;
+const real64 _xs_doublemagic			= real64 (6755399441055744.0); 	    //2^52 * 1.5,  uses limited precisicion to floor
+
+finline int32 xs_CRoundToInt(real64 val, real64 dmr = _xs_doublemagic) {
+#if _xs_DEFAULT_CONVERSION==0
+    val		= val + dmr;
+	return ((int32*)&val)[_xs_iman_];
+    //return 0;
+#else
+    return int32(floor(val+.5));
+#endif
+}
+
+
+
 template<typename T>
 inline T truncateDecimal(const T &value, int precision=6) {
+
+/*
 	int iSigned = value >= 0 ? 1: -1;
 
 #ifdef USE_STREFLOP
@@ -287,6 +327,12 @@ inline T truncateDecimal(const T &value, int precision=6) {
 	unsigned int uiTemp = (value * pow((T)10, precision)) * iSigned; //Note I'm using unsigned int so that I can increase the precision of the truncate
 	T result = (((double)uiTemp) / pow((T)10,precision) * iSigned);
 #endif
+	return result;
+*/
+
+	T precNum = pow(10, precision);
+	T result = xs_CRoundToInt(value * precNum);
+	result /= precNum;
 	return result;
 }
 
