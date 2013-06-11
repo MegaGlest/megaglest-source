@@ -150,6 +150,9 @@ private:
 	bool originalGameFogOfWar;
 	std::map<int,std::pair<const Unit *,const FogOfWarSkillType *> > mapFogOfWarUnitList;
 
+	bool animatedTilesetObjectPosListLoaded;
+	std::vector<Vec2i> animatedTilesetObjectPosList;
+
 public:
 	World();
 	~World();
