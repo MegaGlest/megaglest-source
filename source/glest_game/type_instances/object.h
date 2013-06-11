@@ -102,6 +102,7 @@ public:
 
 	const Vec2i & getMapPos() const { return mapPos; }
 
+	void updateHighlight();
 	void update();
 	float getAnimProgress() const { return animProgress;}
 

@@ -128,41 +128,47 @@ void Object::setHeight(float height) {
 	}
 }
 
-void Object::update() {
+void Object::updateHighlight() {
 	//highlight
 	if(highlight > 0.f) {
-		const Game *game = Renderer::getInstance().getGame();
-		highlight -= 1.f / (Game::highlightTime * game->getWorld()->getUpdateFps(-1));
+		//const Game *game = Renderer::getInstance().getGame();
+		//highlight -= 1.f / (Game::highlightTime * game->getWorld()->getUpdateFps(-1));
+		highlight -= 1.f / (Game::highlightTime * GameConstants::updateFps);
 	}
+}
 
-	if(objectType != NULL && objectType->getTilesetModelType(variation) != NULL &&
-			objectType->getTilesetModelType(variation)->getAnimSpeed() != 0.0) {
+void Object::update() {
+	//if(objectType != NULL && objectType->getTilesetModelType(variation) != NULL &&
+	//		objectType->getTilesetModelType(variation)->getAnimSpeed() != 0.0) {
+	if(animated == true) {
 //		printf("#1 Object updating [%s] Speed [%d] animProgress [%f]\n",this->objectType->getTilesetModelType(variation)->getModel()->getFileName().c_str(),objectType->getTilesetModelType(variation)->getAnimSpeed(),animProgress);
 
-		float heightFactor   = 1.f;
-		const float speedDivider= 100.f;
-		float speedDenominator = (speedDivider * GameConstants::updateFps);
+		if(objectType != NULL && objectType->getTilesetModelType(variation) != NULL) {
+			float heightFactor   = 1.f;
+			const float speedDivider= 100.f;
+			float speedDenominator = (speedDivider * GameConstants::updateFps);
 
-		// smooth TwoFrameanimations
-		float f=1.0f;
-		if(objectType->getTilesetModelType(variation)->getSmoothTwoFrameAnim()==true){
-			f=abs(std::sin(animProgress*2*3.16))+0.4f;
-		}
+			// smooth TwoFrameanimations
+			float f=1.0f;
+			if(objectType->getTilesetModelType(variation)->getSmoothTwoFrameAnim()==true){
+				f=abs(std::sin(animProgress*2*3.16))+0.4f;
+			}
 
-		float newAnimProgress = animProgress + f*(((float)objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator);
+			float newAnimProgress = animProgress + f*(((float)objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator);
 
-//		printf("A [%f] B [%f] C [%f] D [%f] E [%f] F [%f]\n",
-//				((float)objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor),
-//				speedDenominator,
-//				((objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator),
-//				(animProgress + ((objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator)),
-//				animProgress,newAnimProgress);
+	//		printf("A [%f] B [%f] C [%f] D [%f] E [%f] F [%f]\n",
+	//				((float)objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor),
+	//				speedDenominator,
+	//				((objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator),
+	//				(animProgress + ((objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator)),
+	//				animProgress,newAnimProgress);
 
-		animProgress = newAnimProgress;
-//		printf("#2 new animProgress [%f]\n",animProgress);
+			animProgress = newAnimProgress;
+	//		printf("#2 new animProgress [%f]\n",animProgress);
 
-		if(animProgress > 1.f) {
-			animProgress = 0.f;
+			if(animProgress > 1.f) {
+				animProgress = 0.f;
+			}
 		}
 	}
 }

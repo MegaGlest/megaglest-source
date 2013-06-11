@@ -52,6 +52,8 @@ World::World() {
 	staggeredFactionUpdates = false;
 	unitParticlesEnabled=config.getBool("UnitParticles","true");
 
+	animatedTilesetObjectPosListLoaded = false;
+
 	ExploredCellsLookupItemCache.clear();
 	ExploredCellsLookupItemCacheTimer.clear();
 	ExploredCellsLookupItemCacheTimerCount = 0;
@@ -91,6 +93,8 @@ World::World() {
 
 void World::cleanup() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	animatedTilesetObjectPosListLoaded = false;
 
 	ExploredCellsLookupItemCache.clear();
 	ExploredCellsLookupItemCacheTimer.clear();
@@ -151,6 +155,8 @@ void World::endScenario() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingWorld","",true), true);
 
+    animatedTilesetObjectPosListLoaded = false;
+
     ExploredCellsLookupItemCache.clear();
     ExploredCellsLookupItemCacheTimer.clear();
 
@@ -167,6 +173,8 @@ void World::endScenario() {
 void World::end(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingWorld","",true), true);
+
+    animatedTilesetObjectPosListLoaded = false;
 
     ExploredCellsLookupItemCache.clear();
     ExploredCellsLookupItemCacheTimer.clear();
@@ -505,17 +513,55 @@ void World::setQueuedScenario(string scenarioName,bool keepFactions) {
 }
 
 void World::updateAllTilesetObjects() {
-	for(int x = 0; x < map.getSurfaceW(); ++x) {
-		for(int y = 0; y < map.getSurfaceH(); ++y) {
-			SurfaceCell *sc = map.getSurfaceCell(x,y);
+	Gui *gui = this->game->getGuiPtr();
+	if(gui != NULL) {
+		Object *selObj = gui->getHighlightedResourceObject();
+		if(selObj != NULL) {
+			selObj->updateHighlight();
+		}
+	}
+
+	if(animatedTilesetObjectPosListLoaded == false) {
+		animatedTilesetObjectPosListLoaded = true;
+		animatedTilesetObjectPosList.clear();
+
+		for(int x = 0; x < map.getSurfaceW(); ++x) {
+			for(int y = 0; y < map.getSurfaceH(); ++y) {
+				SurfaceCell *sc = map.getSurfaceCell(x,y);
+				if(sc != NULL) {
+					Object *obj = sc->getObject();
+					if(obj != NULL && obj->isAnimated() == true) {
+						//obj->update();
+						animatedTilesetObjectPosList.push_back(Vec2i(x,y));
+					}
+				}
+			}
+		}
+	}
+	if(animatedTilesetObjectPosList.empty() == false) {
+		for(unsigned int i = 0; i < animatedTilesetObjectPosList.size(); ++i) {
+			const Vec2i &pos = animatedTilesetObjectPosList[i];
+			SurfaceCell *sc = map.getSurfaceCell(pos);
 			if(sc != NULL) {
 				Object *obj = sc->getObject();
-				if(obj != NULL) {
+				if(obj != NULL && obj->isAnimated() == true) {
 					obj->update();
 				}
 			}
 		}
 	}
+
+//	for(int x = 0; x < map.getSurfaceW(); ++x) {
+//		for(int y = 0; y < map.getSurfaceH(); ++y) {
+//			SurfaceCell *sc = map.getSurfaceCell(x,y);
+//			if(sc != NULL) {
+//				Object *obj = sc->getObject();
+//				if(obj != NULL) {
+//					obj->update();
+//				}
+//			}
+//		}
+//	}
 }
 
 void World::updateAllFactionUnits() {

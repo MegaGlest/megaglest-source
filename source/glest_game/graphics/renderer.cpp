@@ -1400,11 +1400,12 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustum #%da: [%f][%f][%f][%f]\n",0,frustum[0][0],frustum[0][1],frustum[0][2],frustum[0][3]);
 
 	   /* Normalize the result */
-	#ifdef USE_STREFLOP
-	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2]) );
-	#else
-	   t = sqrt( frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2] );
-	#endif
+//	#ifdef USE_STREFLOP
+//	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2]) );
+//	#else
+//	   t = sqrt( frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2] );
+//	#endif
+	   t = std::sqrt( frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2] );
 	   if(t != 0.0) {
 		   frustum[0][0] /= t;
 		   frustum[0][1] /= t;
@@ -1423,11 +1424,12 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustum #%da: [%f][%f][%f][%f]\n",1,frustum[1][0],frustum[1][1],frustum[1][2],frustum[1][3]);
 
 	   /* Normalize the result */
-	#ifdef USE_STREFLOP
-	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2]) );
-	#else
-	   t = sqrt( frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2] );
-	#endif
+//	#ifdef USE_STREFLOP
+//	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2]) );
+//	#else
+//	   t = sqrt( frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2] );
+//	#endif
+	   t = std::sqrt( frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2] );
 	   if(t != 0.0) {
 		   frustum[1][0] /= t;
 		   frustum[1][1] /= t;
@@ -1446,11 +1448,13 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustum #%da: [%f][%f][%f][%f]\n",2,frustum[2][0],frustum[2][1],frustum[2][2],frustum[2][3]);
 
 	   /* Normalize the result */
-	#ifdef USE_STREFLOP
-	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2]) );
-	#else
-	   t = sqrt( frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2] );
-	#endif
+//	#ifdef USE_STREFLOP
+//	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2]) );
+//	#else
+//	   t = sqrt( frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2] );
+//	#endif
+
+	   t = std::sqrt( frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2] );
 	   if(t != 0.0) {
 		   frustum[2][0] /= t;
 		   frustum[2][1] /= t;
@@ -1469,12 +1473,13 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustum #%da: [%f][%f][%f][%f]\n",3,frustum[3][0],frustum[3][1],frustum[3][2],frustum[3][3]);
 
 	   /* Normalize the result */
-	#ifdef USE_STREFLOP
-	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2]) );
-	#else
-	   t = sqrt( frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2] );
-	#endif
+//	#ifdef USE_STREFLOP
+//	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2]) );
+//	#else
+//	   t = sqrt( frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2] );
+//	#endif
 
+	   t = std::sqrt( frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2] );
 	   if(t != 0.0) {
 		   frustum[3][0] /= t;
 		   frustum[3][1] /= t;
@@ -1493,11 +1498,13 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustum #%da: [%f][%f][%f][%f]\n",4,frustum[4][0],frustum[4][1],frustum[4][2],frustum[4][3]);
 
 	   /* Normalize the result */
-	#ifdef USE_STREFLOP
-	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2]) );
-	#else
-	   t = sqrt( frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2] );
-	#endif
+//	#ifdef USE_STREFLOP
+//	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2]) );
+//	#else
+//	   t = sqrt( frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2] );
+//	#endif
+
+	   t = std::sqrt( frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2] );
 
 	   if(t != 0.0) {
 		   frustum[4][0] /= t;
@@ -1517,11 +1524,13 @@ bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
 	   if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nCalc Frustum #%da: [%f][%f][%f][%f]\n",5,frustum[5][0],frustum[5][1],frustum[5][2],frustum[5][3]);
 
 	   /* Normalize the result */
-	#ifdef USE_STREFLOP
-	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2]) );
-	#else
-	   t = sqrt( frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2] );
-	#endif
+//	#ifdef USE_STREFLOP
+//	   t = streflop::sqrt( static_cast<streflop::Simple>(frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2]) );
+//	#else
+//	   t = sqrt( frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2] );
+//	#endif
+
+	   t = std::sqrt( frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2] );
 
 	   if(t != 0.0) {
 		   frustum[5][0] /= t;
@@ -8293,14 +8302,14 @@ void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2,
 	const float blendDelay= 5.f;
 
 	Vec3f dir= Vec3f(pos2-pos1);
-	float len= dir.length();
+	float len= dir.length(false);
 
 	if(len>maxlen) {
 		return;
 	}
 	float alphaFactor= clamp((maxlen-len)/blendDelay, 0.f, 1.f);
 
-	dir.normalize();
+	dir.normalize(false);
 	Vec3f normal= dir.cross(Vec3f(0, 1, 0));
 
 	Vec3f pos2Left= pos2 + normal*(width-0.05f) - dir*arrowEndSize*width;
