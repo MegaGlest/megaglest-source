@@ -1134,6 +1134,20 @@ void ServerInterface::checkForLaggingClients(std::map<int,bool> &mapSlotSignalle
 								if(clientLagExceededOrWarned.first == true) {
 									slotsWarnedList[i] = true;
 								}
+
+								// If the client has exceeded lag and the server wants
+								// to pause while they catch up, re-trigger the
+								// client reader thread
+								if((clientLagExceededOrWarned.first == true &&
+										gameSettings.getNetworkPauseGameForLaggedClients() == true)) {
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, clientLagExceededOrWarned.first = %d, clientLagExceededOrWarned.second = %d, difftime(time(NULL),waitForClientsElapsed) = %.2f, MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE = %.2f\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second,difftime((long int)time(NULL),waitForClientsElapsed),MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE);
+
+									if(difftime((long int)time(NULL),waitForClientsElapsed) < MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE) {
+										if(connectionSlot != NULL) {
+											threadsDone = false;
+										}
+									}
+								}
 							}
 						}
 					}
