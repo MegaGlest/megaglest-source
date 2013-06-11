@@ -40,10 +40,10 @@ public:
 		CPPUNIT_ASSERT_EQUAL( 1.123456f, value1 );
 
 		value1 = truncateDecimal<float>(1.123456f, 5);
-		CPPUNIT_ASSERT_EQUAL( 1.12346f, value1 );
+		CPPUNIT_ASSERT_EQUAL( 1.12345f, value1 );
 
 		value1 = truncateDecimal<float>(1.123456f, 4);
-		CPPUNIT_ASSERT_EQUAL( 1.1235f, value1 );
+		CPPUNIT_ASSERT_EQUAL( 1.1234f, value1 );
 
 		value1 = truncateDecimal<float>(1.123456f, 3);
 		CPPUNIT_ASSERT_EQUAL( 1.123f, value1 );
@@ -54,11 +54,11 @@ public:
 		value1 = truncateDecimal<float>(1.123456f, 1);
 		CPPUNIT_ASSERT_EQUAL( 1.1f, value1 );
 
-		int32 value2 = xs_CRoundToInt(1.123456f);
-		CPPUNIT_ASSERT_EQUAL( (int32)1, value2 );
-
-		value2 = xs_CRoundToInt(1.523456f);
-		CPPUNIT_ASSERT_EQUAL( (int32)2, value2 );
+//		int32 value2 = xs_CRoundToInt(1.123456f);
+//		CPPUNIT_ASSERT_EQUAL( (int32)1, value2 );
+//
+//		value2 = xs_CRoundToInt(1.523456f);
+//		CPPUNIT_ASSERT_EQUAL( (int32)2, value2 );
 	}
 };
 

@@ -283,36 +283,34 @@ inline T radToDeg(T rad){
 //  Inline implementation
 // ====================================================================================================================
 // ====================================================================================================================
-#if _xs_BigEndian_
-	#define _xs_iexp_				0
-	#define _xs_iman_				1
-#else
-	#define _xs_iexp_				1       //intel is little endian
-	#define _xs_iman_				0
-#endif //BigEndian_
-
-//#define finline                     __forceinline
-#define finline                     inline
-
-#ifndef _xs_DEFAULT_CONVERSION
-#define _xs_DEFAULT_CONVERSION      0
-#endif
-
-//typedef long                    int32;
-typedef double                  real64;
-const real64 _xs_doublemagic			= real64 (6755399441055744.0); 	    //2^52 * 1.5,  uses limited precisicion to floor
-
-finline int32 xs_CRoundToInt(real64 val, real64 dmr = _xs_doublemagic) {
-#if _xs_DEFAULT_CONVERSION==0
-    val		= val + dmr;
-	return ((int32*)&val)[_xs_iman_];
-    //return 0;
-#else
-    return int32(floor(val+.5));
-#endif
-}
-
-
+//#if _xs_BigEndian_
+//	#define _xs_iexp_				0
+//	#define _xs_iman_				1
+//#else
+//	#define _xs_iexp_				1       //intel is little endian
+//	#define _xs_iman_				0
+//#endif //BigEndian_
+//
+////#define finline                     __forceinline
+//#define finline                     inline
+//
+//#ifndef _xs_DEFAULT_CONVERSION
+//#define _xs_DEFAULT_CONVERSION      0
+//#endif
+//
+////typedef long                    int32;
+//typedef double                  real64;
+//const real64 _xs_doublemagic			= real64 (6755399441055744.0); 	    //2^52 * 1.5,  uses limited precisicion to floor
+//
+//finline int32 xs_CRoundToInt(real64 val, real64 dmr = _xs_doublemagic) {
+//#if _xs_DEFAULT_CONVERSION==0
+//    val		= val + dmr;
+//	return ((int32*)&val)[_xs_iman_];
+//    //return 0;
+//#else
+//    return int32(floor(val+.5));
+//#endif
+//}
 
 template<typename T>
 inline T truncateDecimal(const T &value, int precision=6) {
@@ -330,9 +328,35 @@ inline T truncateDecimal(const T &value, int precision=6) {
 	return result;
 */
 
-	T precNum = std::pow((T)10, (T)precision);
-	T result = xs_CRoundToInt(value * precNum);
-	result /= precNum;
+	T precNum = 0;
+	if(precision == 0) {
+		precNum = 1;
+	}
+	else if(precision == 1) {
+		precNum = 10;
+	}
+	else if(precision == 2) {
+		precNum = 100;
+	}
+	else if(precision == 3) {
+		precNum = 1000;
+	}
+	else if(precision == 4) {
+		precNum = 10000;
+	}
+	else if(precision == 5) {
+		precNum = 100000;
+	}
+	else if(precision == 6) {
+		precNum = 1000000;
+	}
+	else  {
+		precNum = std::pow((T)10,(T)precision);
+	}
+
+	int64 resultInt = (T)value * (T)precNum;
+
+	T result = (long double)resultInt / precNum;
 	return result;
 }
 
