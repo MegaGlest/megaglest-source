@@ -985,7 +985,7 @@ void Renderer::swapBuffers() {
 		return;
 	}
 	//glFlush(); // should not be required - http://www.opengl.org/wiki/Common_Mistakes
-	glFlush();
+	//glFlush();
 
 	GraphicsInterface::getInstance().getCurrentContext()->swapBuffers();
 }
@@ -4690,7 +4690,7 @@ void Renderer::renderObjects(const int renderFps) {
 	// render from last to first object so animated objects which are on bottom of screen are
 	// rendered first which looks better for limited number of animated tileset objects
 	for(int visibleIndex = qCache.visibleObjectList.size()-1;
-			visibleIndex > -1 ; --visibleIndex) {
+			visibleIndex >= 0 ; --visibleIndex) {
 		Object *o = qCache.visibleObjectList[visibleIndex];
 
 		Model *objModel= o->getModelPtr();
@@ -7642,7 +7642,7 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 				//if(this->gameCamera->getPos().dist(unit->getCurrVector()) <= SKIP_INTERPOLATION_DISTANCE) {
 
 					// ***MV don't think this is needed below 2013/01/11
-					//model->updateInterpolationVertices(unit->getAnimProgress(), unit->isAlive() && !unit->isAnimProgressBound());
+					model->updateInterpolationVertices(unit->getAnimProgressAsFloat(), unit->isAlive() && !unit->isAnimProgressBound());
 
 				//}
 
