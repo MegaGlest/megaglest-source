@@ -204,7 +204,7 @@ public:
 		return x*v.x+y*v.y;
 	}
 
-	inline float dist(const Vec2<T> &v) const{
+	inline double dist(const Vec2<T> &v) const{
 		return Vec2<T>(v-*this).length();
 	}
 
@@ -231,7 +231,7 @@ public:
 		y/= m;
 	}
 	
-	inline Vec2<T> rotate(float rad) {
+	inline Vec2<T> rotate(double rad) {
 //		const float
 //#ifdef USE_STREFLOP
 //			c = streflop::cosf(rad),
@@ -246,7 +246,7 @@ public:
 		return Vec2<T>(x*c-y*s,x*s+y*c);
 	}
 
-	inline Vec2<T> rotateAround(float rad,const Vec2<T>& pt){
+	inline Vec2<T> rotateAround(double rad,const Vec2<T>& pt){
 		return pt+(*this-pt).rotate(rad);
 	}
 
@@ -447,7 +447,7 @@ public:
 		return x*v.x + y*v.y + z*v.z;
 	}
 
-	inline float dist(const Vec3<T> &v) const{
+	inline double dist(const Vec3<T> &v) const{
 		return Vec3<T>(v-*this).length();
 	}
 
