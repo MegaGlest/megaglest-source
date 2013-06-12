@@ -128,21 +128,30 @@ Pixmap2D* BMPReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
 	for (int y = 0, i = 0; y < h; ++y) {
 		for (int x = 0; x < w; ++x, i+=components) {
 			uint8 r, g, b;
-			in.read((char*)&b, 1);
+//			in.read((char*)&b, 1);
+//			if(bigEndianSystem == true) {
+//				b = Shared::PlatformByteOrder::fromCommonEndian(b);
+//			}
+//
+//			in.read((char*)&g, 1);
+//			if(bigEndianSystem == true) {
+//				g = Shared::PlatformByteOrder::fromCommonEndian(g);
+//			}
+//
+//			in.read((char*)&r, 1);
+//			if(bigEndianSystem == true) {
+//				r = Shared::PlatformByteOrder::fromCommonEndian(r);
+//			}
+			uint8 bgr[3] = {0,0,0};
+			in.read((char*)&bgr[0], 3);
+			b = bgr[0];
+			g = bgr[1];
+			r = bgr[2];
 			if(bigEndianSystem == true) {
 				b = Shared::PlatformByteOrder::fromCommonEndian(b);
-			}
-
-			in.read((char*)&g, 1);
-			if(bigEndianSystem == true) {
 				g = Shared::PlatformByteOrder::fromCommonEndian(g);
-			}
-
-			in.read((char*)&r, 1);
-			if(bigEndianSystem == true) {
 				r = Shared::PlatformByteOrder::fromCommonEndian(r);
 			}
-
 			if (!in.good()) {
 				return NULL;
 			}
