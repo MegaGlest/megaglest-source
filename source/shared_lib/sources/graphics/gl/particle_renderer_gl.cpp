@@ -253,12 +253,13 @@ void ParticleRendererGl::renderModel(GameParticleSystem *ps, ModelRenderer *mr){
 		float angleV= radToDeg(std::atan2(flatDirection.length(false), direction.y)) - 90.f;
 		glRotatef(angleV, rotVector.x, rotVector.y, rotVector.z);
 
-#ifdef USE_STREFLOP
-		float angleH= radToDeg(streflop::atan2(static_cast<streflop::Simple>(direction.x), static_cast<streflop::Simple>(direction.z)));
-#else
-		float angleH= radToDeg(atan2(direction.x, direction.z));
-#endif
+//#ifdef USE_STREFLOP
+//		float angleH= radToDeg(streflop::atan2(static_cast<streflop::Simple>(direction.x), static_cast<streflop::Simple>(direction.z)));
+//#else
+//		float angleH= radToDeg(atan2(direction.x, direction.z));
+//#endif
 
+		float angleH= radToDeg(std::atan2(direction.x, direction.z));
 		glRotatef(angleH, 0.f, 1.f, 0.f);
 
 		//render

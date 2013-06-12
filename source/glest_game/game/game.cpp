@@ -2105,13 +2105,16 @@ void Game::update() {
 						float angle=rotation+180;
 
 
-#ifdef USE_STREFLOP
-						c.z=c.z+4*streflop::cosf(static_cast<streflop::Simple>(degToRad(angle)));
-						c.x=c.x+4*streflop::sinf(static_cast<streflop::Simple>(degToRad(angle)));
-#else
-						c.z=c.z+4*cosf(degToRad(angle));
-						c.x=c.x+4*sinf(degToRad(angle));
-#endif
+//#ifdef USE_STREFLOP
+//						c.z=c.z+4*streflop::cosf(static_cast<streflop::Simple>(degToRad(angle)));
+//						c.x=c.x+4*streflop::sinf(static_cast<streflop::Simple>(degToRad(angle)));
+//#else
+//						c.z=c.z+4*cosf(degToRad(angle));
+//						c.x=c.x+4*sinf(degToRad(angle));
+//#endif
+						c.z=c.z+4*std::cos(degToRad(angle));
+						c.x=c.x+4*std::sin(degToRad(angle));
+
 						c.y=c.y+currentCameraFollowUnit->getType()->getHeight()/2.f+2.0f;
 
 						getGameCameraPtr()->setPos(c);
