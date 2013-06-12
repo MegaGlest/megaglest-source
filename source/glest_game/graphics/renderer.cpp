@@ -985,7 +985,7 @@ void Renderer::swapBuffers() {
 		return;
 	}
 	//glFlush(); // should not be required - http://www.opengl.org/wiki/Common_Mistakes
-	//glFlush();
+	glFlush();
 
 	GraphicsInterface::getInstance().getCurrentContext()->swapBuffers();
 }
