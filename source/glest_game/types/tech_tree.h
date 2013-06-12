@@ -70,7 +70,7 @@ public:
 	int getTypeCount() const									{return factionTypes.size();}
 	const FactionType *getType(int i) const						{return &factionTypes[i];}
 	const ResourceType *getResourceType(int i) const			{return &resourceTypes[i];}
-	const string getName() const								{return name;}
+	string getName(bool translatedValue=false) const;
 	vector<string> getPathList() const					{return pathList;}
     //const string &getDesc() const								{return desc;}
 
@@ -81,8 +81,15 @@ public:
 	const ResourceType *getResourceType(const string &name) const;
     const ResourceType *getTechResourceType(int i) const;
     const ResourceType *getFirstTechResourceType() const;
-	const ArmorType *getArmorType(const string &name) const;
+
+    const ArmorType *getArmorType(const string &name) const;
 	const AttackType *getAttackType(const string &name) const;
+
+    int getArmorTypeCount() const { return armorTypes.size(); }
+    const ArmorType * getArmorTypeByIndex(int index) const { return &armorTypes[index]; }
+	int getAttackTypeCount() const { return attackTypes.size(); }
+	const AttackType * getAttackTypeByIndex(int index) const { return &attackTypes[index]; }
+
 	float getDamageMultiplier(const AttackType *att, const ArmorType *art) const;
 	std::vector<std::string> validateFactionTypes();
 	std::vector<std::string> validateResourceTypes();

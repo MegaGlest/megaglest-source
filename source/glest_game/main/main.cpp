@@ -2515,6 +2515,261 @@ void runTechValidationForPath(string techPath, string techName,
 	}
 }
 
+
+void runTechTranslationExtractionForPath(string techPath, string techName,
+		const std::vector<string> &filteredFactionList, World &world) {
+	//Config &config = Config::getInstance();
+	vector<string> factionsList;
+	findDirs(techPath + techName + "/factions/", factionsList, false, false);
+
+	if(factionsList.empty() == false) {
+		Checksum checksum;
+		set<string> factions;
+		for(int j = 0; j < factionsList.size(); ++j) {
+			if(	filteredFactionList.empty() == true ||
+				std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
+				factions.insert(factionsList[j]);
+			}
+		}
+
+		printf("\n----------------------------------------------------------------");
+		printf("\nChecking techPath [%s] techName [%s] total faction count = %d\n",techPath.c_str(), techName.c_str(),(int)factionsList.size());
+		for(int j = 0; j < factionsList.size(); ++j) {
+			if(	filteredFactionList.empty() == true ||
+				std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
+				printf("Using faction [%s]\n",factionsList[j].c_str());
+			}
+		}
+
+		if(factions.empty() == false) {
+			bool techtree_errors = false;
+
+			std::map<string,vector<pair<string, string> >  > loadedFileList;
+			//vector<string> pathList = config.getPathListForType(ptTechs,"");
+			vector<string> pathList;
+			pathList.push_back(techPath);
+			Config &config = Config::getInstance();
+			vector<string> otherTechPaths = config.getPathListForType(ptTechs,"");
+			pathList.insert(pathList.end(), otherTechPaths.begin(), otherTechPaths.end());
+			world.loadTech(pathList, techName, factions, &checksum, loadedFileList);
+
+			const TechTree *techtree = world.getTechTree();
+			string translationFile = techtree->getPath();
+			endPathWithSlash(translationFile);
+			translationFile += "lang/" + techName + "_default.lng";
+			if(fileExists(translationFile) == false) {
+				string txFilePath = extractDirectoryPathFromFile(translationFile);
+				createDirectoryPaths(txFilePath);
+
+#if defined(WIN32) && !defined(__MINGW32__)
+				FILE *fp = _wfopen(utf8_decode(translationFile).c_str(), L"w");
+				std::ofstream txFile(fp);
+#else
+				std::ofstream txFile;
+				txFile.open(translationFile.c_str(), ios_base::out | ios_base::trunc);
+#endif
+
+				if(txFile.is_open() == true) {
+					txFile << "TechTreeName=" << techName << std::endl;
+
+					txFile << "; --------------" << std::endl;
+					txFile << "; Types of Armor" << std::endl;
+					for(unsigned int index = 0; index < techtree->getArmorTypeCount(); ++index) {
+						const ArmorType *at = techtree->getArmorTypeByIndex(index);
+						txFile << "ArmorTypeName_" << at->getName(false) << "=" << at->getName(false) << std::endl;
+					}
+
+					txFile << "; -------------- " << std::endl;
+					txFile << "; Types of Attack" << std::endl;
+					for(unsigned int index = 0; index < techtree->getAttackTypeCount(); ++index) {
+						const AttackType *at = techtree->getAttackTypeByIndex(index);
+						txFile << "AttackTypeName_" << at->getName(false) << "=" << at->getName(false) << std::endl;
+					}
+
+					txFile << "; ------------------" << std::endl;
+					txFile << "; Types of Resources" << std::endl;
+					for(unsigned int index = 0; index < techtree->getResourceTypeCount(); ++index) {
+						const ResourceType *rt = techtree->getResourceType(index);
+						txFile << "ResourceTypeName_" << rt->getName(false) << "=" << rt->getName(false) << std::endl;
+					}
+
+					txFile << "; -----------------" << std::endl;
+					txFile << "; Types of Factions" << std::endl;
+					for(unsigned int index = 0; index < techtree->getTypeCount(); ++index) {
+						const FactionType *ft = techtree->getType(index);
+						txFile << "FactionName_" << ft->getName(false) << "=" << ft->getName(false) << std::endl;
+
+						txFile << "; ----------------------------------" << std::endl;
+						txFile << "; Types of Upgrades for this Faction" << std::endl;
+						for(unsigned int upgradeIndex = 0; upgradeIndex < ft->getUpgradeTypeCount(); ++upgradeIndex) {
+							const UpgradeType *upt = ft->getUpgradeType(upgradeIndex);
+							txFile << "UpgradeTypeName_" << upt->getName(false) << "=" << upt->getName(false) << std::endl;
+						}
+
+						txFile << "; -------------------------------" << std::endl;
+						txFile << "; Types of Units for this Faction" << std::endl;
+						for(unsigned int unitIndex = 0; unitIndex < ft->getUnitTypeCount(); ++unitIndex) {
+							const UnitType *ut = ft->getUnitType(unitIndex);
+							txFile << "UnitTypeName_" << ut->getName(false) << "=" << ut->getName(false) << std::endl;
+
+							txFile << "; --------------------" << std::endl;
+							txFile << "; Levels for this Unit" << std::endl;
+							for(unsigned int levelIndex = 0; levelIndex < ut->getLevelCount(); ++levelIndex) {
+								const Level *level = ut->getLevel(levelIndex);
+								txFile << "LevelName_" << level->getName(false) << "=" << level->getName(false) << std::endl;
+							}
+
+							txFile << "; -------------------------------" << std::endl;
+							txFile << "; Types of Commands for this Unit" << std::endl;
+							for(unsigned int commandIndex = 0; commandIndex < ut->getCommandTypeCount(); ++commandIndex) {
+								const CommandType *ct = ut->getCommandType(commandIndex);
+								txFile << "CommandName_" << ct->getName(false) << "=" << ct->getName(false) << std::endl;
+							}
+						}
+					}
+				}
+				txFile.close();
+
+#if defined(WIN32) && !defined(__MINGW32__)
+			if(fp) {
+				fclose(fp);
+			}
+#endif
+
+			}
+			else {
+				printf("\n** Cannot product techtree translation file [%s] for techPath [%s] techName [%s] because the file already exists!\n",translationFile.c_str(),techPath.c_str(), techName.c_str());
+			}
+		}
+		printf("----------------------------------------------------------------");
+	}
+}
+
+void runTechTranslationExtraction(int argc, char** argv) {
+	//disableBacktrace=true;
+	printf("====== Started Translation Extraction ======\n");
+
+	bool purgeDuplicateFiles = false;
+	bool showDuplicateFiles = true;
+	bool purgeUnusedFiles = false;
+	bool svnPurgeFiles = false;
+
+	double purgedMegaBytes=0;
+	Config &config = Config::getInstance();
+
+    // Did the user pass a specific list of factions to validate?
+    std::vector<string> filteredFactionList;
+
+    vector<string> results;
+    findDirs(config.getPathListForType(ptTechs), results);
+    vector<string> techTreeFiles = results;
+    // Did the user pass a specific list of techtrees to validate?
+    std::vector<string> filteredTechTreeList;
+    if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_TRANSLATE_TECHTREES]) + string("=")) == true) {
+        int foundParamIndIndex = -1;
+        hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_TRANSLATE_TECHTREES]) + string("="),&foundParamIndIndex);
+        string filterList = argv[foundParamIndIndex];
+        vector<string> paramPartTokens;
+        Tokenize(filterList,paramPartTokens,"=");
+        if(paramPartTokens.size() >= 2) {
+            string techtreeList = paramPartTokens[1];
+            Tokenize(techtreeList,filteredTechTreeList,",");
+
+            if(filteredTechTreeList.empty() == false) {
+                printf("Filtering techtrees and only looking for the following:\n");
+                for(int idx = 0; idx < filteredTechTreeList.size(); ++idx) {
+                    filteredTechTreeList[idx] = trim(filteredTechTreeList[idx]);
+                    printf("%s\n",filteredTechTreeList[idx].c_str());
+                }
+            }
+
+//            if(paramPartTokens.size() >= 3) {
+//            	if(paramPartTokens[2] == "purgeunused") {
+//            		purgeUnusedFiles = true;
+//            		printf("*NOTE All unused techtree files will be deleted!\n");
+//            	}
+//            	else if(paramPartTokens[2] == "purgeduplicates") {
+//            		purgeDuplicateFiles = true;
+//            		printf("*NOTE All duplicate techtree files will be merged!\n");
+//            	}
+//            	else if(paramPartTokens[2] == "svndelete") {
+//            		svnPurgeFiles = true;
+//            		printf("*NOTE All unused / duplicate techtree files will be removed from svn!\n");
+//            	}
+//            	else if(paramPartTokens[2] == "hideduplicates") {
+//            		showDuplicateFiles = false;
+//            		printf("*NOTE All duplicate techtree files will NOT be shown!\n");
+//            	}
+//            }
+//            if(paramPartTokens.size() >= 4) {
+//            	if(paramPartTokens[3] == "purgeunused") {
+//            		purgeUnusedFiles = true;
+//            		printf("*NOTE All unused techtree files will be deleted!\n");
+//            	}
+//            	else if(paramPartTokens[3] == "purgeduplicates") {
+//            		purgeDuplicateFiles = true;
+//            		printf("*NOTE All duplicate techtree files will be merged!\n");
+//            	}
+//            	else if(paramPartTokens[3] == "svndelete") {
+//            		svnPurgeFiles = true;
+//            		printf("*NOTE All unused / duplicate techtree files will be removed from svn!\n");
+//            	}
+//            	else if(paramPartTokens[3] == "hideduplicates") {
+//            		showDuplicateFiles = false;
+//            		printf("*NOTE All duplicate techtree files will NOT be shown!\n");
+//            	}
+//            }
+//            if(paramPartTokens.size() >= 5) {
+//            	if(paramPartTokens[4] == "purgeunused") {
+//            		purgeUnusedFiles = true;
+//            		printf("*NOTE All unused techtree files will be deleted!\n");
+//            	}
+//            	else if(paramPartTokens[4] == "purgeduplicates") {
+//            		purgeDuplicateFiles = true;
+//            		printf("*NOTE All duplicate techtree files will be merged!\n");
+//            	}
+//            	else if(paramPartTokens[4] == "svndelete") {
+//            		svnPurgeFiles = true;
+//            		printf("*NOTE All unused / duplicate techtree files will be removed from svn!\n");
+//            	}
+//            	else if(paramPartTokens[4] == "hideduplicates") {
+//            		showDuplicateFiles = false;
+//            		printf("*NOTE All duplicate techtree files will NOT be shown!\n");
+//            	}
+//            }
+
+        }
+    }
+
+    {
+    printf("\n---------------- Loading factions inside world ----------------");
+    World world;
+
+    vector<string> techPaths = config.getPathListForType(ptTechs);
+    for(int idx = 0; idx < techPaths.size(); idx++) {
+        string &techPath = techPaths[idx];
+		endPathWithSlash(techPath);
+
+        //printf("techPath [%s]\n",techPath.c_str());
+
+        for(int idx2 = 0; idx2 < techTreeFiles.size(); idx2++) {
+            string &techName = techTreeFiles[idx2];
+
+            if(	filteredTechTreeList.empty() == true ||
+                std::find(filteredTechTreeList.begin(),filteredTechTreeList.end(),techName) != filteredTechTreeList.end()) {
+
+            	runTechTranslationExtractionForPath(techPath, techName,
+            			filteredFactionList,world);
+            }
+        }
+    }
+
+    printf("\n====== Finished Translation ======\n");
+    }
+
+}
+
+
 void runTechValidationReport(int argc, char** argv) {
 	//disableBacktrace=true;
 	printf("====== Started Validation ======\n");
@@ -3290,6 +3545,7 @@ int glestMain(int argc, char** argv) {
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TILESET]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_TRANSLATE_TECHTREES]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) 	== true ||
@@ -3414,6 +3670,7 @@ int glestMain(int argc, char** argv) {
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TILESET]) 	== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_TRANSLATE_TECHTREES]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) 	== true ||
@@ -3471,6 +3728,7 @@ int glestMain(int argc, char** argv) {
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS])  == false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO])  == false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TILESET])   == false &&
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_TRANSLATE_TECHTREES]) 	== false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) 		== false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) 	== false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) 	== false &&
@@ -4930,6 +5188,13 @@ int glestMain(int argc, char** argv) {
 			hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO])    == true) {
 			runTechValidationReport(argc, argv);
 
+		    delete mainWindow;
+		    mainWindow=NULL;
+		    return 0;
+		}
+
+		if(	hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_TRANSLATE_TECHTREES]) == true) {
+			runTechTranslationExtraction(argc, argv);
 		    delete mainWindow;
 		    mainWindow=NULL;
 		    return 0;

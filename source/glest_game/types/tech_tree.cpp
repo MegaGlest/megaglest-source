@@ -45,6 +45,13 @@ TechTree::TechTree(const vector<string> pathList) {
 	attackTypes.clear();
 }
 
+string TechTree::getName(bool translatedValue) const {
+	if(translatedValue == false) return name;
+
+	Lang &lang = Lang::getInstance();
+	return lang.getTechTreeString("TechTreeName",name.c_str());
+}
+
 Checksum TechTree::loadTech(const string &techName,
 		set<string> &factions, Checksum* checksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
 	name = "";
@@ -90,8 +97,11 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 	treePath = currentPath;
 	name= lastDir(currentPath);
 
+    Lang &lang = Lang::getInstance();
+    lang.loadTechTreeStrings(name);
+
 	char szBuf[8096]="";
-	snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingTechtree","",true).c_str(),formatString(name).c_str());
+	snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingTechtree","",true).c_str(),formatString(getName(true)).c_str());
 	Logger::getInstance().add(szBuf, true);
 
 	vector<string> filenames;
@@ -236,9 +246,6 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
     if(techtreeChecksum != NULL) {
         *techtreeChecksum = checksumValue;
     }
-
-    Lang &lang = Lang::getInstance();
-    lang.loadTechTreeStrings(name);
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
