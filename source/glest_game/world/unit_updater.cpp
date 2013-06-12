@@ -744,7 +744,7 @@ void UnitUpdater::updateAttackStopped(Unit *unit, int frameIndex) {
     	return;
     }
 
-    float distToUnit=-1;
+    double distToUnit=-1;
     std::pair<bool,Unit *> result = make_pair(false,(Unit *)NULL);
     unitBeingAttacked(result, unit, asct->getAttackSkillType(), &distToUnit);
 	if(result.first == true) {
@@ -780,10 +780,10 @@ void UnitUpdater::updateAttackStopped(Unit *unit, int frameIndex) {
     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
-void UnitUpdater::unitBeingAttacked(std::pair<bool,Unit *> &result, const Unit *unit, const AttackSkillType *ast, float *currentDistToUnit) {
+void UnitUpdater::unitBeingAttacked(std::pair<bool,Unit *> &result, const Unit *unit, const AttackSkillType *ast, double *currentDistToUnit) {
 	//std::pair<bool,Unit *> result = make_pair(false,(Unit *)NULL);
 
-	float distToUnit = -1;
+	double distToUnit = -1;
 	if(currentDistToUnit != NULL) {
 		distToUnit = *currentDistToUnit;
 	}
@@ -818,7 +818,7 @@ void UnitUpdater::unitBeingAttacked(std::pair<bool,Unit *> &result, const Unit *
 std::pair<bool,Unit *> UnitUpdater::unitBeingAttacked(const Unit *unit) {
 	std::pair<bool,Unit *> result = make_pair(false,(Unit *)NULL);
 
-	float distToUnit = -1;
+	double distToUnit = -1;
 	for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
 		const SkillType *st = unit->getType()->getSkillType(i);
 		const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(st);
@@ -2291,7 +2291,7 @@ void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &t
 	}
 }
 
-void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance) {
+void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, double distance) {
 	if(attacker == NULL) {
 		throw megaglest_runtime_error("attacker == NULL");
 	}
@@ -2303,10 +2303,10 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	}
 
 	//get vars
-	float damage			= ast->getTotalAttackStrength(attacker->getTotalUpgrade());
+	double damage			= ast->getTotalAttackStrength(attacker->getTotalUpgrade());
 	int var					= ast->getAttackVar();
 	int armor				= attacked->getType()->getTotalArmor(attacked->getTotalUpgrade());
-	float damageMultiplier	= world->getTechTree()->getDamageMultiplier(ast->getAttackType(), attacked->getType()->getArmorType());
+	double damageMultiplier	= world->getTechTree()->getDamageMultiplier(ast->getAttackType(), attacked->getType()->getArmorType());
 
 	//compute damage
 	//damage += random.randRange(-var, var);
@@ -2534,6 +2534,7 @@ void UnitUpdater::findEnemiesForCell(const Vec2i pos, int size, int sightRange, 
 bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 							  const AttackSkillType *ast,bool evalMode) {
     vector<Unit*> enemies;
+    enemies.reserve(100);
 	bool result=false;
 	//we check command target
 	const Unit *commandTarget = NULL;
@@ -2581,10 +2582,10 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 	}
 
 	//attack enemies that can attack first
-	float distToUnit= -1;
+	double distToUnit= -1;
 	Unit* enemySeen= NULL;
 
-	float distToStandingUnit= -1;
+	double distToStandingUnit= -1;
 	Unit* attackingEnemySeen= NULL;
 	ControlType controlType= unit->getFaction()->getControlType();
 	bool isUltra= controlType == ctCpuUltra || controlType == ctNetworkCpuUltra;
@@ -2601,9 +2602,11 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
     			enemySeen 	= enemy;
                 result		= true;
     		}
-    		float currentDist=unit->getCenteredPos().dist(enemy->getCenteredPos());
+
     		// Attackers get first priority
     		if(enemy->getType()->hasSkillClass(scAttack) == true) {
+    			double currentDist = unit->getCenteredPos().dist(enemy->getCenteredPos());
+
     			// Select closest attacking unit
     			if(distToUnit < 0 ||  currentDist< distToUnit) {
     				distToUnit = currentDist;
@@ -2653,8 +2656,8 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 			Vec2f enemyFloatCenter	= enemyUnit->getFloatCenteredPos();
 			// find nearest Attack and cleanup old dates
 			AttackWarningData *nearest	= NULL;
-			float currentDistance		= 0.f;
-			float nearestDistance		= 0.f;
+			double currentDistance		= 0.f;
+			double nearestDistance		= 0.f;
 
 			MutexSafeWrapper safeMutex(&mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
 			for(int i = attackWarnings.size() - 1; i >= 0; --i) {
@@ -2726,6 +2729,7 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 		range = ast->getTotalAttackRange(unit->getTotalUpgrade());
 	}
 	vector<Unit*> enemies;
+	enemies.reserve(100);
 	//we check command target
 	const Unit *commandTarget = NULL;
 //	if(unit->anyCommand()) {
