@@ -109,6 +109,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4250;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <OmitFramePointers>false</OmitFramePointers>
     </ClCompile>
     <Lib>
       <AdditionalDependencies>libstreflop.lib;libcurl.lib;glew32s.lib;freetype244MT.lib;libvlc.lib;libfribidi.lib;%(AdditionalDependencies)</AdditionalDependencies>
