@@ -50,6 +50,8 @@ const char  *GAME_ARGS[] = {
 	"--validate-scenario",
 	"--validate-tileset",
 
+	"--translate-techtrees",
+
 	"--list-maps",
 	"--list-techtrees",
 	"--list-scenarios",
@@ -122,6 +124,8 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_VALIDATE_FACTIONS,
 	GAME_ARG_VALIDATE_SCENARIO,
 	GAME_ARG_VALIDATE_TILESET,
+
+	GAME_ARG_TRANSLATE_TECHTREES,
 
 	GAME_ARG_LIST_MAPS,
 	GAME_ARG_LIST_TECHTRESS,
@@ -307,6 +311,11 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\t      files in the scenario that are not used.");
 	printf("\n                     \t\texample:");
 	printf("\n                     %s %s=desert2",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_TILESET]);
+
+	printf("\n%s=x",GAME_ARGS[GAME_ARG_TRANSLATE_TECHTREES]);
+	printf("\n                     \t\tProduces a deafult lng file for the specified techtree");
+	printf("\n                     \t\tto prepare for translation into other languages.");
+	printf("\n                     \t\tWhere x is a techtree name");
 
 	printf("\n%s=x",GAME_ARGS[GAME_ARG_LIST_MAPS]);
 	printf("\n                     \t\tdisplay a list of game content: maps");

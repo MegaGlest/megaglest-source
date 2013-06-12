@@ -51,6 +51,13 @@ ResourceType::~ResourceType() {
 	}
 }
 
+string ResourceType::getName(bool translatedValue) const {
+	if(translatedValue == false) return name;
+
+	Lang &lang = Lang::getInstance();
+	return lang.getTechTreeString("ResourceTypeName_" + name,name.c_str());
+}
+
 void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtreeChecksum,
 		std::map<string,vector<pair<string, string> > > &loadedFileList, string techtreePath) {
 
@@ -64,7 +71,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 		name= lastDir(dir);
 
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingResourceType","",true).c_str(),formatString(name).c_str());
+		snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingResourceType","",true).c_str(),formatString(getName(true)).c_str());
 		Logger::getInstance().add(szBuf, true);
 
 		string currentPath = dir;
@@ -186,13 +193,6 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());
 		throw megaglest_runtime_error("Error loading resource type: " + path + "\n" + e.what());
 	}
-}
-
-string ResourceType::getName(bool translatedValue) const {
-	if(translatedValue == false) return name;
-
-	Lang &lang = Lang::getInstance();
-	return lang.getTechTreeString("ResourceTypeName_" + name,name.c_str());
 }
 
 // ==================== misc ====================
