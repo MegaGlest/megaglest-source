@@ -213,32 +213,36 @@ public:
 		return x < v.x || (x == v.x && y < v.y);
 	}
 
-	inline float length(bool requireAccuracy=true) const {
-#ifdef USE_STREFLOP
-		if(requireAccuracy == true) {
-			return static_cast<float>(streflop::sqrt(static_cast<streflop::Simple>(x*x + y*y)));
-		}
-		return static_cast<float>(std::sqrt(static_cast<float>(x*x + y*y)));
-#else
-		return static_cast<float>(sqrt(static_cast<float>(x*x + y*y)));
-#endif
+	inline double length() const {
+//#ifdef USE_STREFLOP
+//		if(requireAccuracy == true) {
+//			return static_cast<float>(streflop::sqrt(static_cast<streflop::Simple>(x*x + y*y)));
+//		}
+//		return static_cast<float>(std::sqrt(static_cast<float>(x*x + y*y)));
+//#else
+//		return static_cast<float>(sqrt(static_cast<float>(x*x + y*y)));
+//#endif
+		return static_cast<double>(std::sqrt(static_cast<double>(x*x + y*y)));
 	}
 
-	inline void normalize(bool requireAccuracy=true){
-		T m= length(requireAccuracy);
+	inline void normalize(){
+		T m= length();
 		x/= m;
 		y/= m;
 	}
 	
-	inline Vec2<T> rotate(float rad){
-		const float
-#ifdef USE_STREFLOP
-			c = streflop::cosf(rad),
-			s = streflop::sinf(rad);
-#else
-			c = cosf(rad),
-			s = sinf(rad);
-#endif
+	inline Vec2<T> rotate(float rad) {
+//		const float
+//#ifdef USE_STREFLOP
+//			c = streflop::cosf(rad),
+//			s = streflop::sinf(rad);
+//#else
+//			c = cosf(rad),
+//			s = sinf(rad);
+//#endif
+		double c = std::cos(rad),
+			   s = std::sin(rad);
+
 		return Vec2<T>(x*c-y*s,x*s+y*c);
 	}
 
@@ -447,25 +451,26 @@ public:
 		return Vec3<T>(v-*this).length();
 	}
 
-	inline float length(bool requireAccuracy=true) const {
-#ifdef USE_STREFLOP
-		if(requireAccuracy == true) {
-			return static_cast<float>(streflop::sqrt(static_cast<streflop::Simple>(x*x + y*y + z*z)));
-		}
-		return static_cast<float>(std::sqrt(x*x + y*y + z*z));
-#else
-		return static_cast<float>(sqrt(x*x + y*y + z*z));
-#endif
+	inline double length() const {
+//#ifdef USE_STREFLOP
+//		if(requireAccuracy == true) {
+//			return static_cast<float>(streflop::sqrt(static_cast<streflop::Simple>(x*x + y*y + z*z)));
+//		}
+//		return static_cast<float>(std::sqrt(x*x + y*y + z*z));
+//#else
+//		return static_cast<float>(sqrt(x*x + y*y + z*z));
+//#endif
+		return static_cast<double>(std::sqrt(x*x + y*y + z*z));
 	}
 
-	inline void normalize(bool requireAccuracy=true){
-		T m= length(requireAccuracy);
+	inline void normalize() {
+		T m= length();
 		x/= m;
 		y/= m;
 		z/= m;
 	}
 
-	inline Vec3<T> getNormalized() const{
+	inline Vec3<T> getNormalized() const {
 		T m= length();
 		return Vec3<T>(x/m, y/m, z/m);
 	}

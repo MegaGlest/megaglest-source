@@ -66,7 +66,7 @@ public:
 	Quaternion();
 	Quaternion(float w, const Vec3f &v);
 	Quaternion(const EulerAngles &eulerAngles);
-	Quaternion(const AxisAngle &axisAngle);
+	//Quaternion(const AxisAngle &axisAngle);
 
 	//initializers
 	void setMultIdentity();
@@ -75,9 +75,9 @@ public:
 	void setEuler(const EulerAngles &eulerAngles);
 	
 	//unary operators
-	float length();
+	//float length();
 	Quaternion conjugate();
-	void normalize();
+	//void normalize();
 
 	//binary operators
 	Quaternion operator + (const Quaternion &q) const;
@@ -91,7 +91,7 @@ public:
 	//conversions
 	Matrix3f toMatrix3() const;
 	Matrix4f toMatrix4() const;
-	AxisAngle toAxisAngle() const;
+	//AxisAngle toAxisAngle() const;
 
 	//local axis
 	Vec3f getLocalXAxis() const;
