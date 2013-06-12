@@ -1209,19 +1209,26 @@ void Pixmap2D::splat(const Pixmap2D *leftUp, const Pixmap2D *rightUp, const Pixm
 			float distRd= splatDist(Vec2i(i, j), Vec2i(w, h));
 
 			const float powFactor= 2.0f;
-#ifdef USE_STREFLOP
-			distLu= streflop::pow(static_cast<streflop::Simple>(distLu), static_cast<streflop::Simple>(powFactor));
-			distRu= streflop::pow(static_cast<streflop::Simple>(distRu), static_cast<streflop::Simple>(powFactor));
-			distLd= streflop::pow(static_cast<streflop::Simple>(distLd), static_cast<streflop::Simple>(powFactor));
-			distRd= streflop::pow(static_cast<streflop::Simple>(distRd), static_cast<streflop::Simple>(powFactor));
-			avg= streflop::pow(static_cast<streflop::Simple>(avg), static_cast<streflop::Simple>(powFactor));
-#else
-			distLu= pow(distLu, powFactor);
-			distRu= pow(distRu, powFactor);
-			distLd= pow(distLd, powFactor);
-			distRd= pow(distRd, powFactor);
-			avg= pow(avg, powFactor);
-#endif
+//#ifdef USE_STREFLOP
+//			distLu= streflop::pow(static_cast<streflop::Simple>(distLu), static_cast<streflop::Simple>(powFactor));
+//			distRu= streflop::pow(static_cast<streflop::Simple>(distRu), static_cast<streflop::Simple>(powFactor));
+//			distLd= streflop::pow(static_cast<streflop::Simple>(distLd), static_cast<streflop::Simple>(powFactor));
+//			distRd= streflop::pow(static_cast<streflop::Simple>(distRd), static_cast<streflop::Simple>(powFactor));
+//			avg= streflop::pow(static_cast<streflop::Simple>(avg), static_cast<streflop::Simple>(powFactor));
+//#else
+//			distLu= pow(distLu, powFactor);
+//			distRu= pow(distRu, powFactor);
+//			distLd= pow(distLd, powFactor);
+//			distRd= pow(distRd, powFactor);
+//			avg= pow(avg, powFactor);
+//#endif
+
+			distLu	= std::pow(distLu, powFactor);
+			distRu	= std::pow(distRu, powFactor);
+			distLd	= std::pow(distLd, powFactor);
+			distRd	= std::pow(distRd, powFactor);
+			avg		= std::pow(avg, powFactor);
+
 			float lu= distLu>avg? 0: ((avg-distLu))*random.randRange(0.5f, 1.0f);
 			float ru= distRu>avg? 0: ((avg-distRu))*random.randRange(0.5f, 1.0f);
 			float ld= distLd>avg? 0: ((avg-distLd))*random.randRange(0.5f, 1.0f);

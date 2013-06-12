@@ -8139,14 +8139,14 @@ void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2,
 	const float blendDelay= 5.f;
 
 	Vec3f dir= Vec3f(pos2-pos1);
-	float len= dir.length(false);
+	float len= dir.length();
 
 	if(len>maxlen) {
 		return;
 	}
 	float alphaFactor= clamp((maxlen-len)/blendDelay, 0.f, 1.f);
 
-	dir.normalize(false);
+	dir.normalize();
 	Vec3f normal= dir.cross(Vec3f(0, 1, 0));
 
 	Vec3f pos2Left= pos2 + normal*(width-0.05f) - dir*arrowEndSize*width;

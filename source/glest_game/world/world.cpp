@@ -2349,7 +2349,7 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
 				}
 
 				//explore
-				float posLength = currRelPos.length();
+				double posLength = currRelPos.length();
 				//if(Vec2i(0).dist(currRelPos) < surfSightRange + indirectSightRange + 1) {
 				if(posLength < surfSightRange + indirectSightRange + 1) {
                     sc->setExplored(teamIndex, true);

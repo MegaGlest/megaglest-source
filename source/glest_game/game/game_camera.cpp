@@ -240,9 +240,9 @@ Quad2i GameCamera::computeVisibleQuad() {
 	Vec2f v1(std::sin(degToRad(viewDegree - hAng - fov)), std::cos(degToRad(viewDegree - hAng - fov)));
 	Vec2f v2(std::sin(degToRad(viewDegree - hAng + fov)), std::cos(degToRad(viewDegree - hAng + fov)));
 
-	v.normalize(false);
-	v1.normalize(false);
-	v2.normalize(false);
+	v.normalize();
+	v1.normalize();
+	v2.normalize();
 
 	Vec2f p = Vec2f(pos.x, pos.z) - v * dist;
 	Vec2i p1(static_cast<int>(p.x + v1.x * nearDist), static_cast<int>(p.y + v1.y * nearDist));
