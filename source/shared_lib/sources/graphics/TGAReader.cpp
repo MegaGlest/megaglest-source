@@ -254,11 +254,12 @@ Pixmap2D* TGAReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
 		//std::cout << "TGA-Components: Pic: " << picComponents << " old: " << (ret->getComponents()) << " File: " << fileComponents << std::endl;
 		ret->init(w,h,picComponents);
 		uint8* pixels = ret->getPixels();
+
 		//read file
-		for(int i=0; i<h*w*picComponents; i+=picComponents){
+		for(int i = 0; i < h*w*picComponents; i += picComponents) {
 			uint8 r=0, g=0, b=0, a=0, l=0;
 
-			if(fileComponents==1){
+			if(fileComponents == 1) {
 				in.read((char*)&l,1);
 				if(bigEndianSystem == true) {
 					l = Shared::PlatformByteOrder::fromCommonEndian(l);
@@ -269,38 +270,60 @@ Pixmap2D* TGAReader::read(ifstream& in, const string& path, Pixmap2D* ret) const
 				b= l;
 				a= 255;
 			}
-			else{
-				in.read((char*)&b, 1);
+			else {
+				uint8 bgra[4] = {0,0,0,0};
+				in.read((char*)&bgra[0], fileComponents);
+				b = bgra[0];
+				g = bgra[1];
+				r = bgra[2];
+				a= 255;
+
+				if(fileComponents == 4) {
+					a = bgra[3];
+				}
+
 				if(bigEndianSystem == true) {
 					b = Shared::PlatformByteOrder::fromCommonEndian(b);
-				}
-
-				in.read((char*)&g, 1);
-				if(bigEndianSystem == true) {
 					g = Shared::PlatformByteOrder::fromCommonEndian(g);
-				}
-
-				in.read((char*)&r, 1);
-				if(bigEndianSystem == true) {
 					r = Shared::PlatformByteOrder::fromCommonEndian(r);
-				}
-
-				if(fileComponents==4){
-					in.read((char*)&a, 1);
-					if(bigEndianSystem == true) {
+					if(fileComponents == 4) {
 						a = Shared::PlatformByteOrder::fromCommonEndian(a);
 					}
-
-				} else {
-					a= 255;
 				}
-				l= (r+g+b)/3;
+
+//				in.read((char*)&b, 1);
+//				if(bigEndianSystem == true) {
+//					b = Shared::PlatformByteOrder::fromCommonEndian(b);
+//				}
+//
+//				in.read((char*)&g, 1);
+//				if(bigEndianSystem == true) {
+//					g = Shared::PlatformByteOrder::fromCommonEndian(g);
+//				}
+//
+//				in.read((char*)&r, 1);
+//				if(bigEndianSystem == true) {
+//					r = Shared::PlatformByteOrder::fromCommonEndian(r);
+//				}
+//
+//				if(fileComponents==4){
+//					in.read((char*)&a, 1);
+//					if(bigEndianSystem == true) {
+//						a = Shared::PlatformByteOrder::fromCommonEndian(a);
+//					}
+//
+//				}
+//				else {
+//					a= 255;
+//				}
+
+				l = (r+g+b) / 3;
 			}
 			if (!in.good()) {
 				return NULL;
 			}
 
-			switch(picComponents){
+			switch(picComponents) {
 			case 1:
 				pixels[i]= l;
 				break;
