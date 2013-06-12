@@ -1178,50 +1178,6 @@ static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble*
 	gluUnProject(pt.x,realy,0,model,projection,viewport,&a.x,&a.y,&a.z);
 	gluUnProject(pt.x,realy,1,model,projection,viewport,&b.x,&b.y,&b.z);
 
-/*
-	//We could use some vector3d class, but this will do fine for now
-	//ray
-	b.x -= a.x;
-	b.y -= a.y;
-	b.z -= a.z;
-	float rayLength = streflop::sqrtf(a.x*a.x + a.y*a.y + a.z*a.z);
-	//normalize
-	b.x /= rayLength;
-	b.y /= rayLength;
-	b.z /= rayLength;
-
-	//T = [planeNormal.(pointOnPlane - rayOrigin)]/planeNormal.rayDirection;
-	//pointInPlane = rayOrigin + (rayDirection * T);
-
-	float dot1, dot2;
-
-	float pointInPlaneX = 0;
-	float pointInPlaneY = 0;
-	float pointInPlaneZ = 0;
-	float planeNormalX = 0;
-	float planeNormalY = 0;
-	float planeNormalZ = -1;
-
-	pointInPlaneX -= a.x;
-	pointInPlaneY -= a.y;
-	pointInPlaneZ -= a.z;
-
-	dot1 = (planeNormalX * pointInPlaneX) + (planeNormalY * pointInPlaneY) + (planeNormalZ * pointInPlaneZ);
-	dot2 = (planeNormalX * b.x) + (planeNormalY * b.y) + (planeNormalZ * b.z);
-
-	float t = dot1/dot2;
-
-	b.x *= t;
-	b.y *= t;
-	//b.z *= t;
-	//we don't need the z coordinate in my case
-
-	//return Vec2i(b.x + a.x, b.z + a.z);
-	return Vec2i(b.x + a.x, b.z + a.z);
-*/
-
-
-
 	// junk values if you were looking parallel to the XZ plane; this shouldn't happen as the camera can't do this?
 	const Vec3f
 		start(a.x,a.y,a.z),
@@ -1231,11 +1187,12 @@ static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble*
 		u = stop-start,
 		w = start-plane;
 	const float d = norm.x*u.x + norm.y*u.y + norm.z*u.z;
-#ifdef USE_STREFLOP
-	if(streflop::fabs(static_cast<streflop::Simple>(d)) < 0.00001)
-#else
-	if(fabs(d) < 0.00001)
-#endif
+//#ifdef USE_STREFLOP
+//	if(streflop::fabs(static_cast<streflop::Simple>(d)) < 0.00001)
+//#else
+//	if(fabs(d) < 0.00001)
+//#endif
+	if(std::fabs(d) < 0.00001)
 		throw pti_D_IS_ZERO;
 
 	const float nd = -(norm.x*w.x + norm.y*w.y + norm.z*w.z) / d;
@@ -1247,32 +1204,36 @@ static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble*
 
 	Vec2i pos;
 	if(strcmp(label,"tl") == 0) {
-#ifdef USE_STREFLOP
-		pos = Vec2i(streflop::floor(static_cast<streflop::Simple>(i.x)),streflop::floor(static_cast<streflop::Simple>(i.z)));
-#else
-		pos = Vec2i(floor(i.x),floor(i.z));
-#endif
+//#ifdef USE_STREFLOP
+//		pos = Vec2i(streflop::floor(static_cast<streflop::Simple>(i.x)),streflop::floor(static_cast<streflop::Simple>(i.z)));
+//#else
+//		pos = Vec2i(floor(i.x),floor(i.z));
+//#endif
+		pos = Vec2i(std::floor(i.x),std::floor(i.z));
 	}
 	else if(strcmp(label,"tr") == 0) {
-#ifdef USE_STREFLOP
-		pos = Vec2i(streflop::ceil(static_cast<streflop::Simple>(i.x)),streflop::floor(static_cast<streflop::Simple>(i.z)));
-#else
-		pos = Vec2i(ceil(i.x),floor(i.z));
-#endif
+//#ifdef USE_STREFLOP
+//		pos = Vec2i(streflop::ceil(static_cast<streflop::Simple>(i.x)),streflop::floor(static_cast<streflop::Simple>(i.z)));
+//#else
+//		pos = Vec2i(ceil(i.x),floor(i.z));
+//#endif
+		pos = Vec2i(std::ceil(i.x),std::floor(i.z));
 	}
 	else if(strcmp(label,"bl") == 0) {
-#ifdef USE_STREFLOP
-		pos = Vec2i(streflop::floor(static_cast<streflop::Simple>(i.x)),streflop::ceil(static_cast<streflop::Simple>(i.z)));
-#else
-		pos = Vec2i(floor(i.x),ceil(i.z));
-#endif
+//#ifdef USE_STREFLOP
+//		pos = Vec2i(streflop::floor(static_cast<streflop::Simple>(i.x)),streflop::ceil(static_cast<streflop::Simple>(i.z)));
+//#else
+//		pos = Vec2i(floor(i.x),ceil(i.z));
+//#endif
+		pos = Vec2i(std::floor(i.x),std::ceil(i.z));
 	}
 	else if(strcmp(label,"br") == 0) {
-#ifdef USE_STREFLOP
-		pos = Vec2i(streflop::ceil(static_cast<streflop::Simple>(i.x)),streflop::ceil(static_cast<streflop::Simple>(i.z)));
-#else
-		pos = Vec2i(ceil(i.x),ceil(i.z));
-#endif
+//#ifdef USE_STREFLOP
+//		pos = Vec2i(streflop::ceil(static_cast<streflop::Simple>(i.x)),streflop::ceil(static_cast<streflop::Simple>(i.z)));
+//#else
+//		pos = Vec2i(ceil(i.x),ceil(i.z));
+//#endif
+		pos = Vec2i(std::ceil(i.x),std::ceil(i.z));
 	}
 
 	if(false) { // print debug info
@@ -1287,32 +1248,6 @@ static Vec2i _unprojectMap(const Vec2i& pt,const GLdouble* model,const GLdouble*
 	return pos;
 
 }
-
-//Matrix4 LookAt( Vector3 eye, Vector3 target, Vector3 up ) {
-//    Vector3 zaxis = normal(target - eye);    // The "look-at" vector.
-//    Vector3 xaxis = normal(cross(up, zaxis));// The "right" vector.
-//    Vector3 yaxis = cross(zaxis, xaxis);     // The "up" vector.
-//
-//    // Create a 4x4 orientation matrix from the right, up, and at vectors
-//    Matrix4 orientation = {
-//        xaxis.x, yaxis.x, zaxis.x, 0,
-//        xaxis.y, yaxis.y, zaxis.y, 0,
-//        xaxis.z, yaxis.z, zaxis.z, 0,
-//          0,       0,       0,     1
-//    };
-//
-//    // Create a 4x4 translation matrix by negating the eye position.
-//    Matrix4 translation = {
-//          1,      0,      0,     0,
-//          0,      1,      0,     0,
-//          0,      0,      1,     0,
-//        -eye.x, -eye.y, -eye.z,  1
-//    };
-//
-//    // Combine the orientation and translation to compute the view matrix
-//    return ( translation * orientation );
-//}
-
 
 bool Renderer::ExtractFrustum(VisibleQuadContainerCache &quadCacheItem) {
    bool frustumChanged = false;
@@ -1600,19 +1535,6 @@ bool Renderer::CubeInFrustum(vector<vector<float> > &frustum, float x, float y, 
 
 void Renderer::computeVisibleQuad() {
 	visibleQuad = this->gameCamera->computeVisibleQuad();
-
-	//Matrix4 LookAt( gameCamera->getPos(), gameCamera->getPos(), Vector3 up );
-	//gluLookAt
-
-	//const Metrics &metrics= Metrics::getInstance();
-	//float Hnear = 2.0 * streflop::tanf(gameCamera->getFov() / 2.0) * perspNearPlane;
-	//float Hnear = 2.0 * streflop::tanf(perspFov / 2.0) * perspNearPlane;
-	//float Wnear = Hnear * metrics.getAspectRatio();
-	//The same reasoning can be applied to the far plane:
-	//float Hfar = 2.0 * streflop::tanf(perspFov / 2.0) * perspFarPlane;
-	//float Hfar = 2.0 * streflop::tanf(gameCamera->getFov() / 2.0) * perspFarPlane;
-	//float Wfar = Hfar * metrics.getAspectRatio();
-	//printf("Hnear = %f, Wnear = %f, Hfar = %f, Wfar = %f\n",Hnear,Wnear,Hfar,Wfar);
 
 	bool frustumChanged = false;
 	if(VisibleQuadContainerCache::enableFrustumCalcs == true) {
@@ -2788,11 +2710,12 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 		else if(lineHeight > h) {
 			//printf("line %d, lineHeight [%f] h [%d] text [%s]\n",__LINE__,lineHeight,h,text.c_str());
 
-#ifdef USE_STREFLOP
-			pos.y += (float)(streflop::ceil( static_cast<streflop::Simple>( ((float)lineHeight - (float)h)) ));
-#else
-			pos.y += (ceil(lineHeight - h));
-#endif
+//#ifdef USE_STREFLOP
+//			pos.y += (float)(streflop::ceil( static_cast<streflop::Simple>( ((float)lineHeight - (float)h)) ));
+//#else
+//			pos.y += (ceil(lineHeight - h));
+//#endif
+			pos.y += (std::ceil(lineHeight - h));
 		}
 	}
 	return pos;
@@ -5688,29 +5611,6 @@ void Renderer::renderMinimap(){
 
 	assertGl();
 
-//	CoreData &coreData= CoreData::getInstance();
-//	Texture2D *backTexture =coreData.getButtonBigTexture();
-//	glEnable(GL_TEXTURE_2D);
-//	glEnable(GL_BLEND);
-//	glBindTexture(GL_TEXTURE_2D, static_cast<Texture2DGl*>(backTexture)->getHandle());
-//
-//	glBegin(GL_TRIANGLE_STRIP);
-//			glTexCoord2f(0.f, 0.f);
-//			glVertex2f(mx-8, my-8);
-//
-//			glTexCoord2f(0.f, 1.f);
-//			glVertex2f(mx-8, my+mh+8);
-//
-//			glTexCoord2f(1.f, 0.f);
-//			glVertex2f(mx+mw+8, my-8);
-//
-//			glTexCoord2f(1.f, 1.f);
-//			glVertex2f(mx+mw+8, my+mh+8);
-//	glEnd();
-//
-//	glDisable(GL_TEXTURE_2D);
-
-
 	// render minimap border
 	Vec4f col= game->getGui()->getDisplay()->getColor();
 	glColor4f(col.x*0.5f,col.y*0.5f,col.z*0.5f,1.0 );
@@ -5744,18 +5644,6 @@ void Renderer::renderMinimap(){
 	glVertex2i(mx+mw+borderWidth, my);
 	glEnd();
 
-
-//	Vec4f col= game->getGui()->getDisplay()->getColor();
-//	glBegin(GL_QUADS);
-//	glColor4f(col.x*0.5f,col.y*0.5f,col.z*0.5f,1.0 );
-//	glVertex2i(mx-4, my-4);
-//	glVertex2i(mx-4, my+mh+4);
-//	glVertex2i(mx+mw+4, my+mh+4);
-//	glVertex2i(mx+mw+4, my-4);
-//
-//	glEnd();
-
-
 	assertGl();
 
 	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT | GL_LINE_BIT | GL_TEXTURE_BIT);
@@ -5781,50 +5669,6 @@ void Renderer::renderMinimap(){
 	glActiveTexture(baseTexUnit);
 	glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(minimap->getTexture())->getHandle());
 
-/*
-	Vec2f texCoords[4];
-	Vec2f texCoords2[4];
-	Vec2i vertices[4];
-
-    texCoords[0] = Vec2f(0.0f, 1.0f);
-    texCoords2[0] = Vec2f(0.0f, 1.0f);
-    vertices[0] = Vec2i(mx, my);
-
-    texCoords[1] = Vec2f(0.0f, 0.0f);
-    texCoords2[1] = Vec2f(0.0f, 0.0f);
-    vertices[1] = Vec2i(mx, my+mh);
-
-    texCoords[2] = Vec2f(1.0f, 1.0f);
-    texCoords2[2] = Vec2f(1.0f, 1.0f);
-    vertices[2] = Vec2i(mx+mw, my);
-
-    texCoords[3] = Vec2f(1.0f, 0.0f);
-    texCoords2[3] = Vec2f(1.0f, 0.0f);
-    vertices[3] = Vec2i(mx+mw, my+mh);
-
-    glClientActiveTexture(baseTexUnit);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer(2, GL_FLOAT, 0,&texCoords[0]);
-
-	glClientActiveTexture(fowTexUnit);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glTexCoordPointer(2, GL_FLOAT, 0,&texCoords2[0]);
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(2, GL_INT, 0, &vertices[0]);
-
-	glColor4f(0.5f, 0.5f, 0.5f, 0.1f);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-    glDisableClientState(GL_VERTEX_ARRAY);
-
-    glClientActiveTexture(baseTexUnit);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glClientActiveTexture(fowTexUnit);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-*/
-
-	//glColor4f(0.3f, 0.3f, 0.3f, 0.90f);
 	glColor4f(0.5f, 0.5f, 0.5f, 0.2f);
 
 	glBegin(GL_TRIANGLE_STRIP);
@@ -6017,19 +5861,6 @@ void Renderer::renderMinimap(){
 			unit_colors[unitIdx] = color;
 			unit_vertices[unitIdx] = Vec2f(mx + pos.x*zoom.x, my + mh - ((pos.y+size)*zoom.y));
 			unitIdx++;
-
-/*
-			glColor3fv(color.ptr());
-
-			glBegin(GL_QUADS);
-
-			glVertex2f(mx + pos.x*zoom.x, my + mh - (pos.y*zoom.y));
-			glVertex2f(mx + (pos.x+1)*zoom.x+size, my + mh - (pos.y*zoom.y));
-			glVertex2f(mx + (pos.x+1)*zoom.x+size, my + mh - ((pos.y+size)*zoom.y));
-			glVertex2f(mx + pos.x*zoom.x, my + mh - ((pos.y+size)*zoom.y));
-
-			glEnd();
-*/
 		}
 
 		if(unitIdx > 0) {
@@ -6059,23 +5890,27 @@ void Renderer::renderMinimap(){
 
     int x1;
     int y1;
-#ifdef USE_STREFLOP
-    x1 = mx + x + static_cast<int>(20*streflop::sin(static_cast<streflop::Simple>(ang-pi/5)));
-	y1 = my + mh - (y-static_cast<int>(20*streflop::cos(static_cast<streflop::Simple>(ang-pi/5))));
-#else
-	x1 = mx + x + static_cast<int>(20*sin(ang-pi/5));
-	y1 = my + mh - (y-static_cast<int>(20*cos(ang-pi/5)));
-#endif
+//#ifdef USE_STREFLOP
+//    x1 = mx + x + static_cast<int>(20*streflop::sin(static_cast<streflop::Simple>(ang-pi/5)));
+//	y1 = my + mh - (y-static_cast<int>(20*streflop::cos(static_cast<streflop::Simple>(ang-pi/5))));
+//#else
+//	x1 = mx + x + static_cast<int>(20*sin(ang-pi/5));
+//	y1 = my + mh - (y-static_cast<int>(20*cos(ang-pi/5)));
+//#endif
+    x1 = mx + x + static_cast<int>(20*std::sin(ang-pi/5));
+    y1 = my + mh - (y-static_cast<int>(20*std::cos(ang-pi/5)));
 
     int x2;
     int y2;
-#ifdef USE_STREFLOP
-    x2 = mx + x + static_cast<int>(20*streflop::sin(static_cast<streflop::Simple>(ang+pi/5)));
-	y2 = my + mh - (y-static_cast<int>(20*streflop::cos(static_cast<streflop::Simple>(ang+pi/5))));
-#else
-	x2 = mx + x + static_cast<int>(20*sin(ang+pi/5));
-	y2 = my + mh - (y-static_cast<int>(20*cos(ang+pi/5)));
-#endif
+//#ifdef USE_STREFLOP
+//    x2 = mx + x + static_cast<int>(20*streflop::sin(static_cast<streflop::Simple>(ang+pi/5)));
+//	y2 = my + mh - (y-static_cast<int>(20*streflop::cos(static_cast<streflop::Simple>(ang+pi/5))));
+//#else
+//	x2 = mx + x + static_cast<int>(20*sin(ang+pi/5));
+//	y2 = my + mh - (y-static_cast<int>(20*cos(ang+pi/5)));
+//#endif
+    x2 = mx + x + static_cast<int>(20*std::sin(ang+pi/5));
+    y2 = my + mh - (y-static_cast<int>(20*std::cos(ang+pi/5)));
 
     glColor4f(1.f, 1.f, 1.f, 1.f);
     glBegin(GL_TRIANGLES);
@@ -7525,20 +7360,22 @@ float Renderer::computeMoonAngle(float time) {
 
 Vec4f Renderer::computeSunPos(float time) {
 	float ang= computeSunAngle(time);
-#ifdef USE_STREFLOP
-	return Vec4f(-streflop::cos(static_cast<streflop::Simple>(ang))*sunDist, streflop::sin(static_cast<streflop::Simple>(ang))*sunDist, 0.f, 0.f);
-#else
-	return Vec4f(-cos(ang)*sunDist, sin(ang)*sunDist, 0.f, 0.f);
-#endif
+//#ifdef USE_STREFLOP
+//	return Vec4f(-streflop::cos(static_cast<streflop::Simple>(ang))*sunDist, streflop::sin(static_cast<streflop::Simple>(ang))*sunDist, 0.f, 0.f);
+//#else
+//	return Vec4f(-cos(ang)*sunDist, sin(ang)*sunDist, 0.f, 0.f);
+//#endif
+	return Vec4f(-std::cos(ang)*sunDist, std::sin(ang)*sunDist, 0.f, 0.f);
 }
 
 Vec4f Renderer::computeMoonPos(float time) {
 	float ang= computeMoonAngle(time);
-#ifdef USE_STREFLOP
-	return Vec4f(-streflop::cos(static_cast<streflop::Simple>(ang))*moonDist, streflop::sin(static_cast<streflop::Simple>(ang))*moonDist, 0.f, 0.f);
-#else
-	return Vec4f(-cos(ang)*moonDist, sin(ang)*moonDist, 0.f, 0.f);
-#endif
+//#ifdef USE_STREFLOP
+//	return Vec4f(-streflop::cos(static_cast<streflop::Simple>(ang))*moonDist, streflop::sin(static_cast<streflop::Simple>(ang))*moonDist, 0.f, 0.f);
+//#else
+//	return Vec4f(-cos(ang)*moonDist, sin(ang)*moonDist, 0.f, 0.f);
+//#endif
+	return Vec4f(-std::cos(ang)*moonDist, std::sin(ang)*moonDist, 0.f, 0.f);
 }
 
 // ==================== fast render ====================
@@ -8630,22 +8467,24 @@ void Renderer::renderUnitTitles3D(Font3D *font, Vec3f color) {
 					if(unit->getCurrentUnitTitle() != "") {
 						//get the screen coordinates
 						Vec3f screenPos = unit->getScreenPos();
-	#ifdef USE_STREFLOP
-						renderText3D(unit->getCurrentUnitTitle(), font, color, streflop::fabs(static_cast<streflop::Simple>(screenPos.x)) + 5, streflop::fabs(static_cast<streflop::Simple>(screenPos.y)) + 5, false);
-	#else
-						renderText3D(unit->getCurrentUnitTitle(), font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
-	#endif
+//	#ifdef USE_STREFLOP
+//						renderText3D(unit->getCurrentUnitTitle(), font, color, streflop::fabs(static_cast<streflop::Simple>(screenPos.x)) + 5, streflop::fabs(static_cast<streflop::Simple>(screenPos.y)) + 5, false);
+//	#else
+//						renderText3D(unit->getCurrentUnitTitle(), font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
+//	#endif
+						renderText3D(unit->getCurrentUnitTitle(), font, color, std::fabs(screenPos.x) + 5, std::fabs(screenPos.y) + 5, false);
 
 						//unitRenderedList[unit->getId()] = true;
 					}
 					else {
 						string str = unit->getFullName() + " - " + intToStr(unit->getId()) + " [" + unit->getPosNotThreadSafe().getString() + "]";
 						Vec3f screenPos = unit->getScreenPos();
-	#ifdef USE_STREFLOP
-						renderText3D(str, font, color, streflop::fabs(static_cast<streflop::Simple>(screenPos.x)) + 5, streflop::fabs(static_cast<streflop::Simple>(screenPos.y)) + 5, false);
-	#else
-						renderText3D(str, font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
-	#endif
+//	#ifdef USE_STREFLOP
+//						renderText3D(str, font, color, streflop::fabs(static_cast<streflop::Simple>(screenPos.x)) + 5, streflop::fabs(static_cast<streflop::Simple>(screenPos.y)) + 5, false);
+//	#else
+//						renderText3D(str, font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
+//	#endif
+						renderText3D(str, font, color, std::fabs(screenPos.x) + 5, std::fabs(screenPos.y) + 5, false);
 					}
 				}
 			}
@@ -8692,22 +8531,24 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 				if(unit->getCurrentUnitTitle() != "") {
 					//get the screen coordinates
 					Vec3f screenPos = unit->getScreenPos();
-#ifdef USE_STREFLOP
-					renderText(unit->getCurrentUnitTitle(), font, color, streflop::fabs(static_cast<streflop::Simple>(screenPos.x)) + 5, streflop::fabs(static_cast<streflop::Simple>(screenPos.y)) + 5, false);
-#else
-					renderText(unit->getCurrentUnitTitle(), font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
-#endif
+//#ifdef USE_STREFLOP
+//					renderText(unit->getCurrentUnitTitle(), font, color, streflop::fabs(static_cast<streflop::Simple>(screenPos.x)) + 5, streflop::fabs(static_cast<streflop::Simple>(screenPos.y)) + 5, false);
+//#else
+//					renderText(unit->getCurrentUnitTitle(), font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
+//#endif
+					renderText(unit->getCurrentUnitTitle(), font, color, std::fabs(screenPos.x) + 5, std::fabs(screenPos.y) + 5, false);
 
 					//unitRenderedList[unit->getId()] = true;
 				}
 				else {
 					string str = unit->getFullName() + " - " + intToStr(unit->getId()) + " [" + unit->getPosNotThreadSafe().getString() + "]";
 					Vec3f screenPos = unit->getScreenPos();
-#ifdef USE_STREFLOP
-					renderText(str, font, color, streflop::fabs(static_cast<streflop::Simple>(screenPos.x)) + 5, streflop::fabs(static_cast<streflop::Simple>(screenPos.y)) + 5, false);
-#else
-					renderText(str, font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
-#endif
+//#ifdef USE_STREFLOP
+//					renderText(str, font, color, streflop::fabs(static_cast<streflop::Simple>(screenPos.x)) + 5, streflop::fabs(static_cast<streflop::Simple>(screenPos.y)) + 5, false);
+//#else
+//					renderText(str, font, color, fabs(screenPos.x) + 5, fabs(screenPos.y) + 5, false);
+//#endif
+					renderText(str, font, color, std::fabs(screenPos.x) + 5, std::fabs(screenPos.y) + 5, false);
 				}
 			}
 		}
