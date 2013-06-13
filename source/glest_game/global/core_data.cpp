@@ -1003,6 +1003,8 @@ void CoreData::saveGameSettingsToFile(std::string fileName, GameSettings *gameSe
 	saveGameFile << "FactionThisFactionIndex=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getThisFactionIndex()) << std::endl;
 	saveGameFile << "FactionCount=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getFactionCount()) << std::endl;
 
+	saveGameFile << "NetworkAllowNativeLanguageTechtree=" << Shared::PlatformByteOrder::toCommonEndian(gameSettings->getNetworkAllowNativeLanguageTechtree()) << std::endl;
+
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		int slotIndex = gameSettings->getStartLocationIndex(i);
 
@@ -1074,6 +1076,13 @@ bool CoreData::loadGameSettingsFromFile(std::string fileName, GameSettings *game
 
 	gameSettings->setThisFactionIndex(properties.getInt("FactionThisFactionIndex"));
 	gameSettings->setFactionCount(properties.getInt("FactionCount"));
+
+	if(properties.hasString("NetworkAllowNativeLanguageTechtree") == true) {
+		gameSettings->setNetworkAllowNativeLanguageTechtree(properties.getInt("NetworkAllowNativeLanguageTechtree"));
+	}
+	else {
+		gameSettings->setNetworkAllowNativeLanguageTechtree(false);
+	}
 
 	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		gameSettings->setFactionControl(i,(ControlType)properties.getInt(string("FactionControlForIndex") + intToStr(i),intToStr(ctClosed).c_str()) );

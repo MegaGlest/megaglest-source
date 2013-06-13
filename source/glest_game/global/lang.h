@@ -44,6 +44,9 @@ private:
 
 	std::map<string,Properties> otherLanguageStrings;
 
+	string techNameLoaded;
+	bool allowNativeLanguageTechtree;
+
 private:
 	Lang();
 	void loadStrings(string language, Properties &properties, bool fileMustExist,bool fallbackToDefault=false);
@@ -55,9 +58,12 @@ private:
 public:
 	static Lang &getInstance();    
 
+	bool getAllowNativeLanguageTechtree() const { return allowNativeLanguageTechtree; }
+	void setAllowNativeLanguageTechtree(bool value) { allowNativeLanguageTechtree = value; }
+
 	void loadStrings(string uselanguage, bool loadFonts=true, bool fallbackToDefault=false);
 	void loadScenarioStrings(string scenarioDir, string scenarioName, bool isTutorial);
-	void loadTechTreeStrings(string techTree);
+	void loadTechTreeStrings(string techTree, bool forceLoad=false);
 	void loadTilesetStrings(string tileset);
 
 	string get(const string &s,string uselanguage="", bool fallbackToDefault=false);

@@ -41,8 +41,10 @@ const char *DEFAULT_LANGUAGE = "english";
 // =====================================================
 
 Lang::Lang() {
-	language 			= "";
-	is_utf8_language 	= false;
+	language 					= "";
+	is_utf8_language 			= false;
+	allowNativeLanguageTechtree = true;
+	techNameLoaded				= "";
 }
 
 Lang &Lang::getInstance() {
@@ -279,8 +281,13 @@ void Lang::loadScenarioStrings(string scenarioDir, string scenarioName, bool isT
 	}
 }
 
-void Lang::loadTechTreeStrings(string techTree) {
+void Lang::loadTechTreeStrings(string techTree,bool forceLoad) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] techTree = [%s]\n",__FILE__,__FUNCTION__,__LINE__,techTree.c_str());
+
+	printf("Load techtree strings techTree [%s] techNameLoaded [%s] forceLoad: %d\n",techTree.c_str(),techNameLoaded.c_str(),forceLoad);
+	if(forceLoad == false && techTree == techNameLoaded) {
+		return;
+	}
 
 	string currentPath = "";
 	Config &config = Config::getInstance();
@@ -308,7 +315,10 @@ void Lang::loadTechTreeStrings(string techTree) {
 
 	//try to load the current language first
 	if(fileExists(path)) {
-		techTreeStrings.load(path);
+		if(forceLoad == true || path != techTreeStrings.getpath()) {
+			techTreeStrings.load(path);
+			techNameLoaded = techTree;
+		}
 	}
 	else {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path not found [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
@@ -318,12 +328,18 @@ void Lang::loadTechTreeStrings(string techTree) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 
 		if(fileExists(path)) {
-			techTreeStrings.load(path);
+			if(forceLoad == true || path != techTreeStrings.getpath()) {
+				techTreeStrings.load(path);
+				techNameLoaded = techTree;
+			}
 		}
 	}
 
 	if(fileExists(pathDefault)) {
-		techTreeStringsDefault.load(pathDefault);
+		if(forceLoad == true || pathDefault != techTreeStrings.getpath()) {
+			techTreeStringsDefault.load(pathDefault);
+			techNameLoaded = techTree;
+		}
 	}
 }
 
@@ -493,7 +509,8 @@ string Lang::getTechTreeString(const string &s,const char *defaultValue) {
 	try{
 		string result = "";
 
-		if(techTreeStrings.hasString(s) == true || defaultValue == NULL) {
+		if(allowNativeLanguageTechtree == true &&
+				(techTreeStrings.hasString(s) == true || defaultValue == NULL)) {
 			if(techTreeStrings.hasString(s) == false && techTreeStringsDefault.hasString(s) == true) {
 				result = techTreeStringsDefault.getString(s);
 			}
@@ -501,7 +518,8 @@ string Lang::getTechTreeString(const string &s,const char *defaultValue) {
 				result = techTreeStrings.getString(s);
 			}
 		}
-		else if(techTreeStringsDefault.hasString(s) == true) {
+		else if(allowNativeLanguageTechtree == true &&
+				techTreeStringsDefault.hasString(s) == true) {
 			result = techTreeStringsDefault.getString(s);
 		}
 		else if(defaultValue != NULL) {

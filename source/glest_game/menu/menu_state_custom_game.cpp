@@ -172,11 +172,12 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
 	buttonPlayNow.init(250+130+235, 180, 125);
 
+	techTree.reset(new TechTree(config.getPathListForType(ptTechs)));
+
 	int labelOffset=23;
 	int setupPos=590;
 	int mapHeadPos=330;
 	int mapPos=mapHeadPos-labelOffset;
-	//int aHeadPos=mapHeadPos-80;
 	int aHeadPos=240;
 	int aPos=aHeadPos-labelOffset;
 	int networkHeadPos=700;
@@ -259,11 +260,10 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	listBoxTileset.setSelectedItemIndex(rand() % listBoxTileset.getItemCount());
 
     //tech Tree listBox
-    int initialTechSelection = setupTechList("");
+    int initialTechSelection = setupTechList("", true);
 
 	listBoxTechTree.registerGraphicComponent(containerName,"listBoxTechTree");
 	listBoxTechTree.init(xoffset+650, mapPos, 150);
-    //listBoxTechTree.setItems(results);
     listBoxTechTree.setSelectedItemIndex(initialTechSelection);
 
     labelTechTree.registerGraphicComponent(containerName,"labelTechTree");
@@ -288,11 +288,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelAllowObservers.init(xoffset+310, aHeadPos, 80);
 	labelAllowObservers.setText(lang.get("AllowObservers"));
 
-//	listBoxAllowObservers.registerGraphicComponent(containerName,"listBoxAllowObservers");
-//	listBoxAllowObservers.init(xoffset+310, aPos, 80);
-//	listBoxAllowObservers.pushBackItem(lang.get("No"));
-//	listBoxAllowObservers.pushBackItem(lang.get("Yes"));
-//	listBoxAllowObservers.setSelectedItemIndex(0);
 	checkBoxAllowObservers.registerGraphicComponent(containerName,"checkBoxAllowObservers");
 	checkBoxAllowObservers.init(xoffset+310, aPos);
 	checkBoxAllowObservers.setValue(false);
@@ -309,16 +304,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	listBoxFallbackCpuMultiplier.init(xoffset+460, aPos, 80);
 	listBoxFallbackCpuMultiplier.setItems(rMultiplier);
 	listBoxFallbackCpuMultiplier.setSelectedItemIndex(5);
-
-	// View Map At End Of Game
-	//labelEnableObserverMode.registerGraphicComponent(containerName,"labelEnableObserverMode");
-	//labelEnableObserverMode.init(xoffset+460, aHeadPos, 80);
-
-	//listBoxEnableObserverMode.registerGraphicComponent(containerName,"listBoxEnableObserverMode");
-	//listBoxEnableObserverMode.init(xoffset+460, aPos, 80);
-	//listBoxEnableObserverMode.pushBackItem(lang.get("Yes"));
-	//listBoxEnableObserverMode.pushBackItem(lang.get("No"));
-	//listBoxEnableObserverMode.setSelectedItemIndex(0);
 
 	// Allow Switch Team Mode
 	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
@@ -351,26 +336,18 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	checkBoxAllowInGameJoinPlayer.setValue(false);
 	checkBoxAllowInGameJoinPlayer.setVisible(allowInProgressJoin);
 
-	// Which Pathfinder
-	//labelPathFinderType.registerGraphicComponent(containerName,"labelPathFinderType");
-	//labelPathFinderType.init(xoffset+650, aHeadPos, 80);
-	//labelPathFinderType.setText(lang.get("PathFinderType"));
+	labelAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"labelAllowNativeLanguageTechtree");
+	labelAllowNativeLanguageTechtree.init(xoffset+650, mapHeadPos-50);
+	labelAllowNativeLanguageTechtree.setText(lang.get("AllowNativeLanguageTechtree"));
 
-	//listBoxPathFinderType.registerGraphicComponent(containerName,"listBoxPathFinderType");
-	//listBoxPathFinderType.init(xoffset+650, aPos, 150);
-	//listBoxPathFinderType.pushBackItem(lang.get("PathFinderTypeRegular"));
-	//listBoxPathFinderType.setSelectedItemIndex(0);
+	checkBoxAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"checkBoxAllowNativeLanguageTechtree");
+	checkBoxAllowNativeLanguageTechtree.init(xoffset+650, mapHeadPos-70);
+	checkBoxAllowNativeLanguageTechtree.setValue(false);
 
 	// Advanced Options
 	labelAdvanced.registerGraphicComponent(containerName,"labelAdvanced");
 	labelAdvanced.init(810, 80, 80);
 	labelAdvanced.setText(lang.get("AdvancedGameOptions"));
-
-//	listBoxAdvanced.registerGraphicComponent(containerName,"listBoxAdvanced");
-//	listBoxAdvanced.init(810,  80-labelOffset, 80);
-//	listBoxAdvanced.pushBackItem(lang.get("No"));
-//	listBoxAdvanced.pushBackItem(lang.get("Yes"));
-//	listBoxAdvanced.setSelectedItemIndex(0);
 
 	checkBoxAdvanced.registerGraphicComponent(containerName,"checkBoxAdvanced");
 	checkBoxAdvanced.init(810,  80-labelOffset);
@@ -384,17 +361,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelPublishServer.init(50, networkHeadPos, 100);
 	labelPublishServer.setText(lang.get("PublishServer"));
 
-//	listBoxPublishServer.registerGraphicComponent(containerName,"listBoxPublishServer");
-//	listBoxPublishServer.init(50, networkPos, 100);
-//	listBoxPublishServer.pushBackItem(lang.get("Yes"));
-//	listBoxPublishServer.pushBackItem(lang.get("No"));
-//	if(this->headlessServerMode == true ||
-//		(openNetworkSlots == true && parentMenuState != pLanGame)) {
-//		listBoxPublishServer.setSelectedItemIndex(0);
-//	}
-//	else {
-//		listBoxPublishServer.setSelectedItemIndex(1);
-//	}
 	checkBoxPublishServer.registerGraphicComponent(containerName,"checkBoxPublishServer");
 	checkBoxPublishServer.init(50, networkPos);
 
@@ -421,46 +387,15 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	}
 	labelGameName.setMaxEditWidth(20);
 	labelGameName.setMaxEditRenderWidth(160);
-	// Network Frame Period
-	//labelNetworkFramePeriod.registerGraphicComponent(containerName,"labelNetworkFramePeriod");
-	//labelNetworkFramePeriod.init(xoffset+230, networkHeadPos, 80);
-	//labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
-
-	//listBoxNetworkFramePeriod.registerGraphicComponent(containerName,"listBoxNetworkFramePeriod");
-	//listBoxNetworkFramePeriod.init(xoffset+230, networkPos, 80);
-	//listBoxNetworkFramePeriod.pushBackItem("10");
-	//listBoxNetworkFramePeriod.pushBackItem("20");
-	//listBoxNetworkFramePeriod.pushBackItem("30");
-	//listBoxNetworkFramePeriod.pushBackItem("40");
-	//listBoxNetworkFramePeriod.setSelectedItem("20");
 
 	// Network Pause for lagged clients
 	labelNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"labelNetworkPauseGameForLaggedClients");
-	//labelNetworkPauseGameForLaggedClients.init(xoffset+380, networkHeadPos, 80);
 	labelNetworkPauseGameForLaggedClients.init(labelAllowInGameJoinPlayer.getX(), networkHeadPos, 80);
 	labelNetworkPauseGameForLaggedClients.setText(lang.get("NetworkPauseGameForLaggedClients"));
 
-//	listBoxNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"listBoxNetworkPauseGameForLaggedClients");
-//	listBoxNetworkPauseGameForLaggedClients.init(xoffset+380, networkPos, 80);
-//	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("No"));
-//	listBoxNetworkPauseGameForLaggedClients.pushBackItem(lang.get("Yes"));
-//	listBoxNetworkPauseGameForLaggedClients.setSelectedItem(lang.get("Yes"));
 	checkBoxNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"checkBoxNetworkPauseGameForLaggedClients");
-	//checkBoxNetworkPauseGameForLaggedClients.init(xoffset+380, networkPos);
 	checkBoxNetworkPauseGameForLaggedClients.init(checkBoxAllowInGameJoinPlayer.getX(), networkHeadPos);
 	checkBoxNetworkPauseGameForLaggedClients.setValue(true);
-
-	// Enable Server Controlled AI
-	//labelEnableServerControlledAI.registerGraphicComponent(containerName,"labelEnableServerControlledAI");
-	//labelEnableServerControlledAI.init(xoffset+550, networkHeadPos, 80);
-	//labelEnableServerControlledAI.setText(lang.get("EnableServerControlledAI"));
-
-	//listBoxEnableServerControlledAI.registerGraphicComponent(containerName,"listBoxEnableServerControlledAI");
-	//listBoxEnableServerControlledAI.init(xoffset+550, networkPos, 80);
-	//listBoxEnableServerControlledAI.pushBackItem(lang.get("Yes"));
-	//listBoxEnableServerControlledAI.pushBackItem(lang.get("No"));
-	//listBoxEnableServerControlledAI.setSelectedItemIndex(0);
-
 
 	//list boxes
 	xoffset=100;
@@ -560,21 +495,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	reloadFactions(false,"");
 
-//    vector<string> techPaths = config.getPathListForType(ptTechs);
-//    for(int idx = 0; idx < techPaths.size(); idx++) {
-//        string &techPath = techPaths[idx];
-//        endPathWithSlash(techPath);
-//        //findAll(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/*.", results, false, false);
-//        findDirs(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/", results, false, false);
-//
-//        if(results.empty() == false) {
-//            break;
-//        }
-//    }
-
-//    if(results.empty() == true) {
 	if(factionFiles.empty() == true) {
-        //throw megaglest_runtime_error("(1)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
 		showGeneralError=true;
 		generalErrorToShow = "[#1] There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]";
     }
@@ -785,6 +706,8 @@ void MenuStateCustomGame::reloadUI() {
 
 	labelTechTree.setText(lang.get("TechTree"));
 
+	labelAllowNativeLanguageTechtree.setText(lang.get("AllowNativeLanguageTechtree"));
+
 	labelFogOfWar.setText(lang.get("FogOfWar"));
 
 	std::vector<std::string> listBoxData;
@@ -796,49 +719,19 @@ void MenuStateCustomGame::reloadUI() {
 	// Allow Observers
 	labelAllowObservers.setText(lang.get("AllowObservers"));
 
-	//listBoxData.clear();
-	//listBoxData.push_back(lang.get("No"));
-	//listBoxData.push_back(lang.get("Yes"));
-	//listBoxAllowObservers.setItems(listBoxData);
-
-	// View Map At End Of Game
-	//listBoxData.clear();
-	//listBoxData.push_back(lang.get("Yes"));
-	//listBoxData.push_back(lang.get("No"));
-	//listBoxEnableObserverMode.setItems(listBoxData);
-
 	// Allow Switch Team Mode
 	labelEnableSwitchTeamMode.setText(lang.get("EnableSwitchTeamMode"));
 
 	labelAllowInGameJoinPlayer.setText(lang.get("AllowInGameJoinPlayer"));
 
-	//listBoxData.clear();
-	//listBoxData.push_back(lang.get("Yes"));
-	//listBoxData.push_back(lang.get("No"));
-	//listBoxEnableSwitchTeamMode.setItems(listBoxData);
-
 	labelAISwitchTeamAcceptPercent.setText(lang.get("AISwitchTeamAcceptPercent"));
 
-	//labelPathFinderType.setText(lang.get("PathFinderType"));
-
 	listBoxData.clear();
-	//listBoxData.push_back(lang.get("PathFinderTypeRegular"));
-	//listBoxPathFinderType.setItems(listBoxData);
 
 	// Advanced Options
 	labelAdvanced.setText(lang.get("AdvancedGameOptions"));
 
-	//listBoxData.clear();
-	//listBoxData.push_back(lang.get("No"));
-	//listBoxData.push_back(lang.get("Yes"));
-	//listBoxAdvanced.setItems(listBoxData);
-
 	labelPublishServer.setText(lang.get("PublishServer"));
-
-	//listBoxData.clear();
-	//listBoxData.push_back(lang.get("Yes"));
-	//listBoxData.push_back(lang.get("No"));
-	//listBoxPublishServer.setItems(listBoxData);
 
 	labelGameNameLabel.setText(lang.get("MGGameTitle")+":");
 
@@ -852,11 +745,6 @@ void MenuStateCustomGame::reloadUI() {
 	}
 
 	labelNetworkPauseGameForLaggedClients.setText(lang.get("NetworkPauseGameForLaggedClients"));
-
-	//listBoxData.clear();
-	//listBoxData.push_back(lang.get("No"));
-	//listBoxData.push_back(lang.get("Yes"));
-	//listBoxNetworkPauseGameForLaggedClients.setItems(listBoxData);
 
     for(int i=0; i < GameConstants::maxPlayers; ++i) {
         buttonBlockPlayers[i].setText(lang.get("BlockPlayer"));
@@ -1167,6 +1055,19 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 
 				ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 				serverInterface->setAllowInGameConnections(checkBoxAllowInGameJoinPlayer.getValue() == true);
+			}
+			else if (checkBoxAllowNativeLanguageTechtree.mouseClick(x, y)) {
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+				if(checkBoxPublishServer.getValue() == true) {
+					needToRepublishToMasterserver = true;
+				}
+
+				if(hasNetworkGameSettings() == true)
+				{
+					needToSetChangedGameSettings = true;
+					lastSetChangedGameSettings   = time(NULL);
+				}
 			}
 			else if (checkBoxAdvanced.getValue() == 1 && checkBoxEnableSwitchTeamMode.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1854,6 +1755,8 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 	}
 	checkBoxAllowInGameJoinPlayer.mouseMove(x, y);
 
+	checkBoxAllowNativeLanguageTechtree.mouseMove(x, y);
+
 	listBoxTileset.mouseMove(x, y);
 	listBoxMapFilter.mouseMove(x, y);
 	listBoxTechTree.mouseMove(x, y);
@@ -2100,6 +2003,9 @@ void MenuStateCustomGame::render() {
 			if(checkBoxScenario.getValue() == true) {
 				renderer.renderListBox(&listBoxScenario);
 			}
+
+			renderer.renderLabel(&labelAllowNativeLanguageTechtree);
+			renderer.renderCheckBox(&checkBoxAllowNativeLanguageTechtree);
 		}
 
 		if(program != NULL) program->renderProgramMsgBox();
@@ -3242,6 +3148,8 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
         gameSettings->setFlagTypes1(valueFlags1);
 	}
 
+	gameSettings->setNetworkAllowNativeLanguageTechtree(checkBoxAllowNativeLanguageTechtree.getValue());
+
 	// First save Used slots
     //for(int i=0; i<mapInfo.players; ++i)
 	int AIPlayerCount = 0;
@@ -3589,7 +3497,7 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 		}
 	}
 	setupMapList(gameSettings.getScenario());
-	setupTechList(gameSettings.getScenario());
+	setupTechList(gameSettings.getScenario(),false);
 	setupTilesetList(gameSettings.getScenario());
 
 	if(checkBoxScenario.getValue() == true) {
@@ -3671,6 +3579,8 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	if(serverInterface != NULL) {
 		serverInterface->setAllowInGameConnections(checkBoxAllowInGameJoinPlayer.getValue() == true);
 	}
+
+	checkBoxAllowNativeLanguageTechtree.setValue(gameSettings.getNetworkAllowNativeLanguageTechtree());
 
 	//listBoxPathFinderType.setSelectedItemIndex(gameSettings.getPathFinderType());
 
@@ -4274,7 +4184,7 @@ void MenuStateCustomGame::processScenario() {
 				listBoxFogOfWar.setSelectedItemIndex(0);
 			}
 
-			setupTechList(scenarioInfo.name);
+			setupTechList(scenarioInfo.name, false);
 			listBoxTechTree.setSelectedItem(formatString(scenarioInfo.techTreeName));
 			reloadFactions(false,scenarioInfo.name);
 
@@ -4413,7 +4323,7 @@ void MenuStateCustomGame::processScenario() {
 			loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",true), &mapInfo, true);
 			labelMapInfo.setText(mapInfo.desc);
 
-			setupTechList("");
+			setupTechList("", false);
 			reloadFactions(false,"");
 			setupTilesetList("");
 		}
@@ -4562,7 +4472,7 @@ int MenuStateCustomGame::setupMapList(string scenario) {
 	return initialMapSelection;
 }
 
-int MenuStateCustomGame::setupTechList(string scenario) {
+int MenuStateCustomGame::setupTechList(string scenario, bool forceLoad) {
 	int initialTechSelection = 0;
 	try {
 		Config &config = Config::getInstance();
@@ -4578,6 +4488,8 @@ int MenuStateCustomGame::setupTechList(string scenario) {
 
 		techTreeFiles= results;
 
+		vector<string> translatedTechs;
+
 		for(unsigned int i= 0; i < results.size(); i++) {
 			//printf("TECHS i = %d results [%s] scenario [%s]\n",i,results[i].c_str(),scenario.c_str());
 
@@ -4585,9 +4497,12 @@ int MenuStateCustomGame::setupTechList(string scenario) {
 			if(config.getString("InitialTechTree", "Megapack") == results.at(i)) {
 				initialTechSelection= i;
 			}
+			string txTech = techTree->getTranslatedName(techTreeFiles.at(i), forceLoad);
+			translatedTechs.push_back(txTech);
 		}
 
-		listBoxTechTree.setItems(results);
+
+		listBoxTechTree.setItems(results,translatedTechs);
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";

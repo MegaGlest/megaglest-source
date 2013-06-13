@@ -54,6 +54,7 @@ public:
 protected:
     int x, y, w, h;
     string text;
+    string textNativeTranslation;
 	Font2D *font;
 	Font3D *font3D;
 	bool enabled;
@@ -94,6 +95,7 @@ public:
 	virtual int getW() const				{return w;}
 	virtual int getH() const				{return h;}
 	virtual const string &getText() const	{return text;}
+	virtual const string &getTextNativeTranslation() { return this->textNativeTranslation;}
 	virtual Font2D *getFont() 				{return font;}
 	virtual Font3D *getFont3D() 			{return font3D;}
 	virtual bool getEnabled() const			{return enabled;}
@@ -105,6 +107,7 @@ public:
 	virtual void setW(int w)					{this->w= w;}
 	virtual void setH(int h)					{this->h= h;}
 	virtual void setText(const string &text)	{this->text= text;}
+	virtual void setTextNativeTranslation(const string &text)	{this->textNativeTranslation= text;}
 	virtual void setFont(Font2D *font)			{this->font= font;}
 	virtual void setFont3D(Font3D *font)		{this->font3D= font;}
 	virtual void setEnabled(bool enabled)		{this->enabled= enabled;}
@@ -231,6 +234,7 @@ public:
 private:
     GraphicButton graphButton1, graphButton2;
     vector<string> items;
+    vector<string> translated_items;
     int selectedItemIndex;
     bool lighted;
 	Vec3f textColor;
@@ -250,8 +254,8 @@ public:
 	Vec3f getTextColor() const				{return textColor;}
     void setTextColor(Vec3f color)			{this->textColor= color;}
 
-    void pushBackItem(string item);
-    void setItems(const vector<string> &items);
+    void pushBackItem(string item, string translated_item="");
+    void setItems(const vector<string> &items, const vector<string> translated_items=vector<string>());
 	void setSelectedItemIndex(int index, bool errorOnMissing=true);
     void setSelectedItem(string item, bool errorOnMissing=true);
     void setEditable(bool editable);
@@ -263,6 +267,8 @@ public:
 
     virtual bool mouseMove(int x, int y);
     virtual bool mouseClick(int x, int y, string advanceToItemStartingWith="");
+
+    virtual const string &getTextNativeTranslation();
 };
 
 // ===========================================================

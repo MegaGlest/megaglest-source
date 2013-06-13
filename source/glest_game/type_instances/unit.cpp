@@ -4048,7 +4048,7 @@ std::string Unit::toString() const {
 	    result += "thisFaction = " + intToStr(this->faction->getThisFaction()) + "\n";
 	    result += "control = " + intToStr(this->faction->getControlType()) + "\n";
 	    if(this->faction->getType() != NULL) {
-	    	result += "factionName = " + this->faction->getType()->getName() + "\n";
+	    	result += "factionName = " + this->faction->getType()->getName(false) + "\n";
 	    }
 	}
 

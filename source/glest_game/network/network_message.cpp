@@ -547,6 +547,8 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 	data.masterserver_admin_factionIndex = gameSettings->getMasterserver_admin_faction_index();
 
 	data.scenario = gameSettings->getScenario();
+
+	data.networkAllowNativeLanguageTechtree = gameSettings->getNetworkAllowNativeLanguageTechtree();
 }
 
 void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
@@ -603,6 +605,8 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
 	gameSettings->setMasterserver_admin_faction_index(data.masterserver_admin_factionIndex);
 
 	gameSettings->setScenario(data.scenario.getString());
+
+	gameSettings->setNetworkAllowNativeLanguageTechtree(data.networkAllowNativeLanguageTechtree);
 }
 
 vector<pair<string,uint32> > NetworkMessageLaunch::getFactionCRCList() const {
@@ -617,7 +621,7 @@ vector<pair<string,uint32> > NetworkMessageLaunch::getFactionCRCList() const {
 }
 
 const char * NetworkMessageLaunch::getPackedMessageFormat() const {
-	return "c256s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sllllllll60s60s60s60s60s60s60s60sLLL60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sLLLLLLLLLLLLLLLLLLLLcccccccccccccccccccccccccccccccccccccccccCccLccll256s60s60s60s60s60s60s60s60s";
+	return "c256s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sllllllll60s60s60s60s60s60s60s60sLLL60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sLLLLLLLLLLLLLLLLLLLLcccccccccccccccccccccccccccccccccccccccccCccLccll256s60s60s60s60s60s60s60s60sc";
 }
 
 unsigned int NetworkMessageLaunch::getPackedSize() {
@@ -763,7 +767,8 @@ unsigned int NetworkMessageLaunch::getPackedSize() {
 				packedData.networkPlayerUUID[4].getBuffer(),
 				packedData.networkPlayerUUID[5].getBuffer(),
 				packedData.networkPlayerUUID[6].getBuffer(),
-				packedData.networkPlayerUUID[7].getBuffer()
+				packedData.networkPlayerUUID[7].getBuffer(),
+				packedData.networkAllowNativeLanguageTechtree
 		);
 		delete [] buf;
 	}
@@ -908,7 +913,8 @@ void NetworkMessageLaunch::unpackMessage(unsigned char *buf) {
 			data.networkPlayerUUID[4].getBuffer(),
 			data.networkPlayerUUID[5].getBuffer(),
 			data.networkPlayerUUID[6].getBuffer(),
-			data.networkPlayerUUID[7].getBuffer()
+			data.networkPlayerUUID[7].getBuffer(),
+			&data.networkAllowNativeLanguageTechtree
 	);
 }
 
@@ -1052,7 +1058,8 @@ unsigned char * NetworkMessageLaunch::packMessage() {
 			data.networkPlayerUUID[4].getBuffer(),
 			data.networkPlayerUUID[5].getBuffer(),
 			data.networkPlayerUUID[6].getBuffer(),
-			data.networkPlayerUUID[7].getBuffer()
+			data.networkPlayerUUID[7].getBuffer(),
+			data.networkAllowNativeLanguageTechtree
 			);
 	return buf;
 }
@@ -1147,6 +1154,8 @@ void NetworkMessageLaunch::toEndian() {
 		data.cpuReplacementMultiplier = Shared::PlatformByteOrder::toCommonEndian(data.cpuReplacementMultiplier);
 		data.masterserver_admin = Shared::PlatformByteOrder::toCommonEndian(data.masterserver_admin);
 		data.masterserver_admin_factionIndex = Shared::PlatformByteOrder::toCommonEndian(data.masterserver_admin_factionIndex);
+
+		data.networkAllowNativeLanguageTechtree = Shared::PlatformByteOrder::toCommonEndian(data.networkAllowNativeLanguageTechtree);
 	}
 }
 
@@ -1184,6 +1193,8 @@ void NetworkMessageLaunch::fromEndian() {
 		data.cpuReplacementMultiplier = Shared::PlatformByteOrder::fromCommonEndian(data.cpuReplacementMultiplier);
 		data.masterserver_admin = Shared::PlatformByteOrder::fromCommonEndian(data.masterserver_admin);
 		data.masterserver_admin_factionIndex = Shared::PlatformByteOrder::fromCommonEndian(data.masterserver_admin_factionIndex);
+
+		data.networkAllowNativeLanguageTechtree = Shared::PlatformByteOrder::fromCommonEndian(data.networkAllowNativeLanguageTechtree);
 	}
 }
 

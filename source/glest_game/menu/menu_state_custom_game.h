@@ -28,6 +28,7 @@ namespace Glest { namespace Game {
 
 class SwitchSetupRequest;
 class ServerInterface;
+class TechTree;
 
 enum ParentMenuState {
 	pNewGame,
@@ -130,6 +131,9 @@ private:
 	GraphicLabel labelAllowInGameJoinPlayer;
 	GraphicCheckBox checkBoxAllowInGameJoinPlayer;
 
+	GraphicLabel labelAllowNativeLanguageTechtree;
+	GraphicCheckBox checkBoxAllowNativeLanguageTechtree;
+
 	GraphicCheckBox checkBoxScenario;
 	GraphicLabel labelScenario;
 	GraphicListBox listBoxScenario;
@@ -209,6 +213,8 @@ private:
     bool masterserverModeMinimalResources;
     int lastMasterServerSettingsUpdateCount;
 
+    std::auto_ptr<TechTree> techTree;
+
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,
 			bool openNetworkSlots= false, ParentMenuState parentMenuState=pNewGame,
@@ -280,7 +286,7 @@ private:
 	void processScenario();
 	void SetupUIForScenarios();
 	int setupMapList(string scenario);
-	int setupTechList(string scenario);
+	int setupTechList(string scenario, bool forceLoad=false);
 	void reloadFactions(bool keepExistingSelectedItem, string scenario);
 	void setupTilesetList(string scenario);
 

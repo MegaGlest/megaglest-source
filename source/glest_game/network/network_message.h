@@ -297,6 +297,8 @@ private:
 		NetworkString<maxStringSize> scenario;
 
 		NetworkString<maxSmallStringSize> networkPlayerUUID[GameConstants::maxPlayers];
+
+		int8 networkAllowNativeLanguageTechtree;
 	};
 	void toEndian();
 	void fromEndian();

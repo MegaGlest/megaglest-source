@@ -55,6 +55,7 @@ GraphicComponent::GraphicComponent(std::string containerName, std::string objNam
 	text = "";
 	font = NULL;
 	font3D = NULL;
+	textNativeTranslation = "";
 }
 
 void GraphicComponent::clearRegisteredComponents(std::string containerName) {
@@ -377,14 +378,28 @@ void GraphicListBox::init(int x, int y, int w, int h, Vec3f textColor){
     lighted=false;
 }
 
+const string & GraphicListBox::getTextNativeTranslation() {
+	if(this->translated_items.size() == 0 ||
+			this->selectedItemIndex < 0 ||
+			this->selectedItemIndex >= this->translated_items.size() ||
+			this->items.size() != this->translated_items.size()) {
+		return this->text;
+	}
+	else {
+		return this->translated_items[this->selectedItemIndex];
+	}
+}
+
 //queryes
-void GraphicListBox::pushBackItem(string item){
+void GraphicListBox::pushBackItem(string item, string translated_item){
     items.push_back(item);
+    translated_items.push_back(translated_item);
     setSelectedItemIndex(0);
 }
 
-void GraphicListBox::setItems(const vector<string> &items){
+void GraphicListBox::setItems(const vector<string> &items, const vector<string> translated_items){
     this->items= items;
+    this->translated_items = translated_items;
     if(items.empty() == false) {
     	setSelectedItemIndex(0);
     }

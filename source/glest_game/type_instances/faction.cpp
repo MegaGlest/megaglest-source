@@ -366,7 +366,7 @@ void FactionThread::execute() {
 
 					bool update = unit->needToUpdate();
 
-					if(minorDebugPerformance && (chrono.getMillis() - elapsed1) >= 1) printf("Faction [%d - %s] #1-unit threaded updates on frame: %d for [%d] unit # %d, unitCount = %d, took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),currentTriggeredFrameIndex,faction->getUnitPathfindingListCount(),j,unitCount,(long long int)chrono.getMillis() - elapsed1);
+					if(minorDebugPerformance && (chrono.getMillis() - elapsed1) >= 1) printf("Faction [%d - %s] #1-unit threaded updates on frame: %d for [%d] unit # %d, unitCount = %d, took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName(false).c_str(),currentTriggeredFrameIndex,faction->getUnitPathfindingListCount(),j,unitCount,(long long int)chrono.getMillis() - elapsed1);
 
 					//update = true;
 					if(update == true) {
@@ -391,7 +391,7 @@ void FactionThread::execute() {
 
 						world->getUnitUpdater()->updateUnitCommand(unit,currentTriggeredFrameIndex);
 
-						if(minorDebugPerformance && (chrono.getMillis() - elapsed2) >= 1) printf("Faction [%d - %s] #2-unit threaded updates on frame: %d for [%d] unit # %d, unitCount = %d, took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),currentTriggeredFrameIndex,faction->getUnitPathfindingListCount(),j,unitCount,(long long int)chrono.getMillis() - elapsed2);
+						if(minorDebugPerformance && (chrono.getMillis() - elapsed2) >= 1) printf("Faction [%d - %s] #2-unit threaded updates on frame: %d for [%d] unit # %d, unitCount = %d, took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName(false).c_str(),currentTriggeredFrameIndex,faction->getUnitPathfindingListCount(),j,unitCount,(long long int)chrono.getMillis() - elapsed2);
 					}
 					else {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
@@ -408,7 +408,7 @@ void FactionThread::execute() {
 					}
 				}
 
-				if(minorDebugPerformance && chrono.getMillis() >= 1) printf("Faction [%d - %s] threaded updates on frame: %d for [%d] units took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName().c_str(),currentTriggeredFrameIndex,faction->getUnitPathfindingListCount(),(long long int)chrono.getMillis());
+				if(minorDebugPerformance && chrono.getMillis() >= 1) printf("Faction [%d - %s] threaded updates on frame: %d for [%d] units took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName(false).c_str(),currentTriggeredFrameIndex,faction->getUnitPathfindingListCount(),(long long int)chrono.getMillis());
 
 				//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -2022,7 +2022,7 @@ std::string Faction::toString() const {
 
 	result += "Allies = " + intToStr(allies.size()) + "\n";
 	for(int idx = 0; idx < allies.size(); idx ++) {
-		result += "index = " + intToStr(idx) + " name: " + allies[idx]->factionType->getName() + " factionindex = " + intToStr(allies[idx]->index)  + "\n";
+		result += "index = " + intToStr(idx) + " name: " + allies[idx]->factionType->getName(false) + " factionindex = " + intToStr(allies[idx]->index)  + "\n";
 	}
 
 	result += "Units = " + intToStr(units.size()) + "\n";
@@ -2073,7 +2073,7 @@ void Faction::saveGame(XmlNode *rootNode) {
 	factionNode->addAttribute("overridePersonalityType",intToStr(overridePersonalityType), mapTagReplacements);
 //	Texture2D *texture;
 //	FactionType *factionType;
-	factionNode->addAttribute("factiontype",factionType->getName(), mapTagReplacements);
+	factionNode->addAttribute("factiontype",factionType->getName(false), mapTagReplacements);
 //	int index;
 	factionNode->addAttribute("index",intToStr(index), mapTagReplacements);
 //	int teamIndex;
