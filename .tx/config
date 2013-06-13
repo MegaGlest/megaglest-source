@@ -26,7 +26,7 @@ trans.ru = data/glest_game/data/lang/russian.lng
 trans.uk = data/glest_game/data/lang/ukrainian.lng
 trans.zh_CN = data/glest_game/data/lang/chinese.lng
 
-[megaglest.megapack-language-file]
+[megaglest.megapack]
 source_file = data/glest_game/techs/megapack/lang/megapack_default.lng
 source_lang = en
 trans.af = data/glest_game/techs/megapack/lang/megapack_afrikaans.lng
