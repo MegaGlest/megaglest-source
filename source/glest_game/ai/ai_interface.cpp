@@ -398,7 +398,7 @@ std::pair<CommandResult,string> AiInterface::giveCommand(const Unit *unit, const
 	    char szBuf[8096]="";
 	    snprintf(szBuf,8096,"In [%s::%s Line: %d]\nCan not find AI command type for:\nunit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
             __FILE__,__FUNCTION__,__LINE__,
-            unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),
+            unit->getId(), unit->getFullName(false).c_str(),unit->getDesc(false).c_str(),
             unit->getFaction()->getIndex());
 
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
@@ -448,7 +448,7 @@ std::pair<CommandResult,string> AiInterface::giveCommand(int unitIndex, const Co
 	    char szBuf[8096]="";
 	    snprintf(szBuf,8096,"In [%s::%s Line: %d]\nCan not find AI command type for:\nunit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
             __FILE__,__FUNCTION__,__LINE__,
-            unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),
+            unit->getId(), unit->getFullName(false).c_str(),unit->getDesc(false).c_str(),
             unit->getFaction()->getIndex());
 
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
@@ -496,7 +496,7 @@ std::pair<CommandResult,string> AiInterface::giveCommand(int unitIndex, const Co
 	    char szBuf[8096]="";
 	    snprintf(szBuf,8096,"In [%s::%s Line: %d]\nCan not find AI command type for:\nunit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
             __FILE__,__FUNCTION__,__LINE__,
-            unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),
+            unit->getId(), unit->getFullName(false).c_str(),unit->getDesc(false).c_str(),
             unit->getFaction()->getIndex());
 
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);
@@ -544,7 +544,7 @@ std::pair<CommandResult,string> AiInterface::giveCommand(int unitIndex, const Co
 	    char szBuf[8096]="";
 	    snprintf(szBuf,8096,"In [%s::%s Line: %d]\nCan not find AI command type for:\nunit = %d\n[%s]\n[%s]\nactual local factionIndex = %d.\nGame out of synch.",
             __FILE__,__FUNCTION__,__LINE__,
-            unit->getId(), unit->getFullName().c_str(),unit->getDesc().c_str(),
+            unit->getId(), unit->getFullName(false).c_str(),unit->getDesc(false).c_str(),
             unit->getFaction()->getIndex());
 
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",szBuf);

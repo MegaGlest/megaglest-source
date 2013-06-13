@@ -253,7 +253,7 @@ public:
 	inline void setRotatedBuildPos(float value) { rotatedBuildPos = value; }
 
 	//other
-    virtual string getReqDesc() const;
+    virtual string getReqDesc(bool translatedValue) const;
 
     std::string toString() const;
 

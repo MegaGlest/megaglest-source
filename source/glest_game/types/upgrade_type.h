@@ -110,7 +110,8 @@ public:
 
 	void load(const XmlNode *upgradeNode, string upgradename);
 
-	virtual string getDesc() const;
+	virtual string getDesc(bool translatedValue) const;
+
 	std::string toString() const {
 		std::string result = "";
 
@@ -168,7 +169,7 @@ public:
 	bool isAffected(const UnitType *unitType) const;
 
     //other methods
-	virtual string getReqDesc() const;
+	virtual string getReqDesc(bool translatedValue) const;
 
 	//virtual void saveGame(XmlNode *rootNode) const;
 	//virtual void loadGame(const XmlNode *rootNode);

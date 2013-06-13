@@ -53,7 +53,7 @@ string DisplayableType::getName(bool translatedValue) const {
 // 	class RequirableType
 // =====================================================
 
-string RequirableType::getReqDesc() const{
+string RequirableType::getReqDesc(bool translatedValue) const{
 	bool anyReqs= false;
 
 	string reqString="";
@@ -61,7 +61,7 @@ string RequirableType::getReqDesc() const{
 		if(getUnitReq(i) == NULL) {
 			throw megaglest_runtime_error("getUnitReq(i) == NULL");
 		}
-        reqString+= getUnitReq(i)->getName(true);
+        reqString+= getUnitReq(i)->getName(translatedValue);
         reqString+= "\n";
 		anyReqs= true;
     }
@@ -71,12 +71,12 @@ string RequirableType::getReqDesc() const{
 			throw megaglest_runtime_error("getUpgradeReq(i) == NULL");
 		}
 
-    	reqString+= getUpgradeReq(i)->getName(true);
+    	reqString+= getUpgradeReq(i)->getName(translatedValue);
         reqString+= "\n";
 		anyReqs= true;
     }
 
-	string str= getName(true);
+	string str= getName(translatedValue);
 	if(anyReqs){
 		return str + " " + Lang::getInstance().get("Reqs") + ":\n" + reqString;
 	}
@@ -128,15 +128,15 @@ const Resource *ProducibleType::getCost(const ResourceType *rt) const{
 	return NULL;
 }
 
-string ProducibleType::getReqDesc() const {
-	return getReqDesc(false);
+string ProducibleType::getReqDesc(bool translatedValue) const {
+	return getReqDesc(false,translatedValue);
 }
 
-string ProducibleType::getResourceReqDesc(bool lineBreaks) const {
+string ProducibleType::getResourceReqDesc(bool lineBreaks, bool translatedValue) const {
     string str= "";
 	for(int i=0; i<getCostCount(); ++i){
 		if(getCost(i)->getAmount()!=0){
-			str+= getCost(i)->getType()->getName(true);
+			str+= getCost(i)->getType()->getName(translatedValue);
 			str+= ": "+ intToStr(getCost(i)->getAmount());
 			if(lineBreaks == true) {
 				str+= "\n";
@@ -150,10 +150,10 @@ string ProducibleType::getResourceReqDesc(bool lineBreaks) const {
     return str;
 }
 
-string ProducibleType::getUnitAndUpgradeReqDesc(bool lineBreaks) const {
+string ProducibleType::getUnitAndUpgradeReqDesc(bool lineBreaks, bool translatedValue) const {
 	string str= "";
     for(int i=0; i<getUnitReqCount(); ++i){
-        str+= getUnitReq(i)->getName(true);
+        str+= getUnitReq(i)->getName(translatedValue);
         if(lineBreaks == true) {
         	str+= "\n";
         }
@@ -163,7 +163,7 @@ string ProducibleType::getUnitAndUpgradeReqDesc(bool lineBreaks) const {
     }
 
     for(int i=0; i<getUpgradeReqCount(); ++i){
-        str+= getUpgradeReq(i)->getName(true);
+        str+= getUpgradeReq(i)->getName(translatedValue);
         if(lineBreaks == true) {
         	str+= "\n";
         }
@@ -175,13 +175,13 @@ string ProducibleType::getUnitAndUpgradeReqDesc(bool lineBreaks) const {
     return str;
 }   
 
-string ProducibleType::getReqDesc(bool ignoreResourceRequirements) const {
-    string str= getName(true) + " " + Lang::getInstance().get("Reqs") + ":\n";
+string ProducibleType::getReqDesc(bool ignoreResourceRequirements, bool translatedValue) const {
+    string str= getName(translatedValue) + " " + Lang::getInstance().get("Reqs") + ":\n";
     if(ignoreResourceRequirements == false) {
-		str+= getResourceReqDesc();
+		str+= getResourceReqDesc(true,translatedValue);
     }
 
-    str+= getUnitAndUpgradeReqDesc();
+    str+= getUnitAndUpgradeReqDesc(true,translatedValue);
     return str;
 }
 

@@ -284,7 +284,7 @@ void Lang::loadScenarioStrings(string scenarioDir, string scenarioName, bool isT
 void Lang::loadTechTreeStrings(string techTree,bool forceLoad) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] techTree = [%s]\n",__FILE__,__FUNCTION__,__LINE__,techTree.c_str());
 
-	printf("Load techtree strings techTree [%s] techNameLoaded [%s] forceLoad: %d\n",techTree.c_str(),techNameLoaded.c_str(),forceLoad);
+	//printf("Load techtree strings techTree [%s] techNameLoaded [%s] forceLoad: %d\n",techTree.c_str(),techNameLoaded.c_str(),forceLoad);
 	if(forceLoad == false && techTree == techNameLoaded) {
 		return;
 	}
@@ -508,6 +508,8 @@ bool Lang::hasScenarioString(const string &s) {
 string Lang::getTechTreeString(const string &s,const char *defaultValue) {
 	try{
 		string result = "";
+
+		//printf("getTechTreeString [%s] allowNativeLanguageTechtree: %d techTreeStrings.hasString(s): %d path [%s]\n",s.c_str(),allowNativeLanguageTechtree,techTreeStrings.hasString(s),techTreeStrings.getpath().c_str());
 
 		if(allowNativeLanguageTechtree == true &&
 				(techTreeStrings.hasString(s) == true || defaultValue == NULL)) {

@@ -325,6 +325,8 @@ public:
 	void highlightUnit(int unitId,float radius, float thickness, Vec4f color);
 	void unhighlightUnit(int unitId);
 
+	bool showTranslatedTechTree() const;
+
 private:
 	//render
     void render3d();

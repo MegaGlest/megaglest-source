@@ -54,6 +54,7 @@ private:
 	Checksum checksumValue;
 
 	std::map<string,string> translatedTechNames;
+	std::map<string,std::map<string,string> > translatedTechFactionNames;
 
 public:
     Checksum loadTech(const string &techName,
@@ -73,7 +74,9 @@ public:
 	const FactionType *getType(int i) const						{return &factionTypes[i];}
 	const ResourceType *getResourceType(int i) const			{return &resourceTypes[i];}
 	string getName(bool translatedValue=false) const;
-	string getTranslatedName(string techName, bool forceLoad=false);
+
+	string getTranslatedName(string techName, bool forceLoad=false, bool forceTechtreeActiveFile=false);
+	string getTranslatedFactionName(string techName, string factionName);
 
 	vector<string> getPathList() const					{return pathList;}
     //const string &getDesc() const								{return desc;}

@@ -523,7 +523,7 @@ void ScriptManager::onUnitCreated(const Unit* unit){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(this->rootNode == NULL) {
-		lastCreatedUnitName= unit->getType()->getName();
+		lastCreatedUnitName= unit->getType()->getName(false);
 		lastCreatedUnitId= unit->getId();
 		luaScript.beginCall("unitCreated");
 		luaScript.endCall();
@@ -540,10 +540,10 @@ void ScriptManager::onUnitDied(const Unit* unit){
 			Unit *killer = world->findUnitById(unit->getLastAttackerUnitId());
 
 			if(killer != NULL) {
-				lastAttackingUnitName= killer->getType()->getName();
+				lastAttackingUnitName= killer->getType()->getName(false);
 				lastAttackingUnitId= killer->getId();
 
-				lastDeadUnitKillerName= killer->getType()->getName();
+				lastDeadUnitKillerName= killer->getType()->getName(false);
 				lastDeadUnitKillerId= killer->getId();
 			}
 			else {
@@ -552,10 +552,10 @@ void ScriptManager::onUnitDied(const Unit* unit){
 			}
 		}
 
-		lastAttackedUnitName= unit->getType()->getName();
+		lastAttackedUnitName= unit->getType()->getName(false);
 		lastAttackedUnitId= unit->getId();
 
-		lastDeadUnitName= unit->getType()->getName();
+		lastDeadUnitName= unit->getType()->getName(false);
 		lastDeadUnitId= unit->getId();
 		lastDeadUnitCauseOfDeath = unit->getCauseOfDeath();
 
@@ -568,7 +568,7 @@ void ScriptManager::onUnitAttacked(const Unit* unit) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(this->rootNode == NULL) {
-		lastAttackedUnitName= unit->getType()->getName();
+		lastAttackedUnitName= unit->getType()->getName(false);
 		lastAttackedUnitId= unit->getId();
 		luaScript.beginCall("unitAttacked");
 		luaScript.endCall();
@@ -579,7 +579,7 @@ void ScriptManager::onUnitAttacking(const Unit* unit) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(this->rootNode == NULL) {
-		lastAttackingUnitName= unit->getType()->getName();
+		lastAttackingUnitName= unit->getType()->getName(false);
 		lastAttackingUnitId= unit->getId();
 		luaScript.beginCall("unitAttacking");
 		luaScript.endCall();
@@ -1720,7 +1720,7 @@ int ScriptManager::isFreeCellsOrHasUnit(int field, int unitId, Vec2i pos) {
 	Unit* unit= world->findUnitById(unitId);
 	int result = world->getMap()->isFreeCellsOrHasUnit(pos,unit->getType()->getSize(),static_cast<Field>(field),unit,NULL,true);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s] unitId = %d, [%s] pos [%s] field = %d result = %d\n",__FUNCTION__,unitId,unit->getType()->getName().c_str(),pos.getString().c_str(),field,result);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s] unitId = %d, [%s] pos [%s] field = %d result = %d\n",__FUNCTION__,unitId,unit->getType()->getName(false).c_str(),pos.getString().c_str(),field,result);
 
 	return result;
 }

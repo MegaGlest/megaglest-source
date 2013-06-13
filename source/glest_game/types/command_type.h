@@ -96,7 +96,7 @@ public:
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade) const= 0;
+    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const= 0;
 	virtual string toString() const= 0;
 	virtual const ProducibleType *getProduced() const	{return NULL;}
 	virtual Queueability isQueuable() const						{return qOnRequest;}
@@ -136,7 +136,7 @@ public:
     virtual void load(int id, const XmlNode *n, const string &dir, const TechTree *tt,
     		const FactionType *ft, const UnitType &ut, std::map<string,vector<pair<string, string> > > &loadedFileList,
     		string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
+    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
 	virtual string toString() const;
 	virtual Queueability isQueuable() const						{return qNever;}
 	virtual int getTypePriority() const							{return 100000;}
@@ -161,7 +161,7 @@ public:
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
+    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
 	virtual string toString() const;
 
     //get
@@ -186,7 +186,7 @@ public:
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
+    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
 	virtual string toString() const;
 
 
@@ -212,7 +212,7 @@ public:
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
+    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
 	virtual string toString() const;
 
     //get
@@ -242,7 +242,7 @@ public:
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
+    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
 	virtual string toString() const;
 
     //get
@@ -277,7 +277,7 @@ public:
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
+    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
 	virtual string toString() const;
 	virtual Queueability isQueuable() const						{return qOnRequest;}
 
@@ -308,7 +308,7 @@ public:
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
+    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
 	virtual string toString() const;
 	virtual Queueability isQueuable() const						{return qOnRequest;}
 
@@ -334,7 +334,7 @@ public:
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
+    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
 	virtual string toString() const;
 
     //get
@@ -364,8 +364,8 @@ public:
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
-    virtual string getReqDesc() const;
+    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
+    virtual string getReqDesc(bool translatedValue) const;
 	virtual string toString() const;
 	virtual const ProducibleType *getProduced() const;
 	virtual Queueability isQueuable() const						{return qAlways;}
@@ -394,9 +394,9 @@ public:
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
+    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
 	virtual string toString() const;
-	virtual string getReqDesc() const;
+	virtual string getReqDesc(bool translatedValue) const;
 	virtual const ProducibleType *getProduced() const;
 	virtual Queueability isQueuable() const						{return qAlways;}
 	virtual int getTypePriority() const {return 15;}
@@ -425,9 +425,9 @@ public:
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
+    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
 	virtual string toString() const;
-	virtual string getReqDesc() const;
+	virtual string getReqDesc(bool translatedValue) const;
 	virtual const ProducibleType *getProduced() const;
 	Queueability isQueuable() const						{return qOnlyLast;} //After morph anything can happen
 
@@ -454,7 +454,7 @@ public:
     virtual void load(int id, const XmlNode *n, const string &dir,
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
-    virtual string getDesc(const TotalUpgrade *totalUpgrade) const;
+    virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
 	virtual string toString() const;
 
 	virtual bool usesPathfinder() const { return false; }

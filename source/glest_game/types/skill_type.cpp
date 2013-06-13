@@ -150,7 +150,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 	return result;
 }
 
-string AttackBoost::getDesc() const{
+string AttackBoost::getDesc(bool translatedValue) const{
 	Lang &lang= Lang::getInstance();
     string str= "";
     string indent="  ";
@@ -166,7 +166,7 @@ string AttackBoost::getDesc() const{
     			allowIt=lang.get("False");
     		str += indent+lang.get("allowMultiBoost") + ": " + allowIt +"\n";
     	}
-    	str+=boostUpgrade.getDesc();
+    	str+=boostUpgrade.getDesc(translatedValue);
 
     	if(targetType==abtAlly)
     	{
@@ -191,7 +191,7 @@ string AttackBoost::getDesc() const{
 
     	if(boostUnitList.empty() == false) {
 			for(int i=0; i<boostUnitList.size(); ++i){
-				str+= "  "+boostUnitList[i]->getName(true)+"\n";
+				str+= "  "+boostUnitList[i]->getName(translatedValue)+"\n";
 			}
     	}
     	else
@@ -221,7 +221,7 @@ void AttackBoost::saveGame(XmlNode *rootNode) const {
 	for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
 		const UnitType *ut = boostUnitList[i];
 		XmlNode *unitTypeNode = attackBoostNode->addChild("UnitType");
-		unitTypeNode->addAttribute("name",ut->getName(), mapTagReplacements);
+		unitTypeNode->addAttribute("name",ut->getName(false), mapTagReplacements);
 	}
 //	UpgradeTypeBase boostUpgrade;
 	boostUpgrade.saveGame(attackBoostNode);
@@ -877,7 +877,7 @@ void AttackSkillType::saveGame(XmlNode *rootNode) {
 	attackSkillTypeNode->addAttribute("attackRange",intToStr(attackRange), mapTagReplacements);
 //	const AttackType *attackType;
 	if(attackType != NULL) {
-		attackSkillTypeNode->addAttribute("attackType",attackType->getName(), mapTagReplacements);
+		attackSkillTypeNode->addAttribute("attackType",attackType->getName(false), mapTagReplacements);
 	}
 //	bool attackFields[fieldCount];
 	for(unsigned int i = 0; i < fieldCount; ++i) {

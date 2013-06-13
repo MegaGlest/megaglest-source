@@ -38,14 +38,14 @@ bool CommandGroupUnitSorterId::operator()(const int l, const int r) {
 		printf("Error lUnit == NULL for id = %d factionIndex = %d\n",l,faction->getIndex());
 
 		for(unsigned int i = 0; i < faction->getUnitCount(); ++i) {
-			printf("%u / %d id = %d [%s]\n",i,faction->getUnitCount(),faction->getUnit(i)->getId(),faction->getUnit(i)->getType()->getName().c_str());
+			printf("%u / %d id = %d [%s]\n",i,faction->getUnitCount(),faction->getUnit(i)->getId(),faction->getUnit(i)->getType()->getName(false).c_str());
 		}
 	}
 	if(!rUnit) {
 		printf("Error rUnit == NULL for id = %d factionIndex = %d\n",r,faction->getIndex());
 
 		for(unsigned int i = 0; i < faction->getUnitCount(); ++i) {
-			printf("%u / %d id = %d [%s]\n",i,faction->getUnitCount(),faction->getUnit(i)->getId(),faction->getUnit(i)->getType()->getName().c_str());
+			printf("%u / %d id = %d [%s]\n",i,faction->getUnitCount(),faction->getUnit(i)->getId(),faction->getUnit(i)->getType()->getName(false).c_str());
 		}
 	}
 
@@ -71,9 +71,9 @@ bool CommandGroupUnitSorter::compare(const Unit *l, const Unit *r) {
 
 	if(l == NULL || r == NULL)
 		printf("Unit l [%s - %d] r [%s - %d]\n",
-			(l != NULL ? l->getType()->getName().c_str() : "null"),
+			(l != NULL ? l->getType()->getName(false).c_str() : "null"),
 			(l != NULL ? l->getId() : -1),
-			(r != NULL ? r->getType()->getName().c_str() : "null"),
+			(r != NULL ? r->getType()->getName(false).c_str() : "null"),
 			(r != NULL ? r->getId() : -1));
 
 
@@ -178,10 +178,10 @@ void Faction::sortUnitsByCommandGroups() {
 	for(unsigned int i = 0; i < units.size(); ++i) {
 		int unitId = units[i]->getId();
 		if(this->findUnit(unitId) == NULL) {
-			printf("#1 Error unitId not found for id = %d [%s] factionIndex = %d\n",unitId,units[i]->getType()->getName().c_str(),this->getIndex());
+			printf("#1 Error unitId not found for id = %d [%s] factionIndex = %d\n",unitId,units[i]->getType()->getName(false).c_str(),this->getIndex());
 
 			for(unsigned int j = 0; j < units.size(); ++j) {
-				printf("%u / %d id = %d [%s]\n",j,(int)units.size(),units[j]->getId(),units[j]->getType()->getName().c_str());
+				printf("%u / %d id = %d [%s]\n",j,(int)units.size(),units[j]->getId(),units[j]->getType()->getName(false).c_str());
 			}
 		}
 		unitIds.push_back(unitId);
@@ -198,7 +198,7 @@ void Faction::sortUnitsByCommandGroups() {
 			printf("#2 Error unitId not found for id = %d factionIndex = %d\n",unitId,this->getIndex());
 
 			for(unsigned int j = 0; j < units.size(); ++j) {
-				printf("%u / %d id = %d [%s]\n",j,(int)units.size(),units[j]->getId(),units[j]->getType()->getName().c_str());
+				printf("%u / %d id = %d [%s]\n",j,(int)units.size(),units[j]->getId(),units[j]->getType()->getName(false).c_str());
 			}
 		}
 
@@ -850,14 +850,14 @@ bool Faction::applyCosts(const ProducibleType *p,const CommandType *ct) {
 			const Resource *r= p->getCost(i);
 			if(r == NULL) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"cannot apply costs for p [%s] %d of %d costs resource is null",p->getName().c_str(),i,p->getCostCount());
+				snprintf(szBuf,8096,"cannot apply costs for p [%s] %d of %d costs resource is null",p->getName(false).c_str(),i,p->getCostCount());
 				throw megaglest_runtime_error(szBuf);
 			}
 
 			const ResourceType *rt= r->getType();
 			if(rt == NULL) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"cannot apply costs for p [%s] %d of %d costs resourcetype [%s] is null",p->getName().c_str(),i,p->getCostCount(),r->getDescription().c_str());
+				snprintf(szBuf,8096,"cannot apply costs for p [%s] %d of %d costs resourcetype [%s] is null",p->getName(false).c_str(),i,p->getCostCount(),r->getDescription(false).c_str());
 				throw megaglest_runtime_error(szBuf);
 			}
 			int cost= r->getAmount();
@@ -903,7 +903,7 @@ void Faction::applyStaticCosts(const ProducibleType *p,const CommandType *ct) {
 			const ResourceType *rt= p->getCost(i)->getType();
 			//assert(rt != NULL);
 			if(rt == NULL) {
-				throw megaglest_runtime_error(string(__FUNCTION__) + " rt == NULL for ProducibleType [" + p->getName() + "] index: " + intToStr(i));
+				throw megaglest_runtime_error(string(__FUNCTION__) + " rt == NULL for ProducibleType [" + p->getName(false) + "] index: " + intToStr(i));
 			}
 			if(rt->getClass() == rcStatic) {
 				int cost= p->getCost(i)->getAmount();
@@ -1865,7 +1865,7 @@ bool Faction::canCreateUnit(const UnitType *ut, bool checkBuild, bool checkProdu
 
 						if( produceUnit != NULL &&
 							ut->getId() != unitType2->getId() &&
-							ut->getName() == produceUnit->getName()) {
+							ut->getName(false) == produceUnit->getName(false)) {
 							 foundUnit = true;
 							 break;
 						}
@@ -1879,7 +1879,7 @@ bool Faction::canCreateUnit(const UnitType *ut, bool checkBuild, bool checkProdu
 
 						if( buildUnit != NULL &&
 							ut->getId() != unitType2->getId() &&
-							ut->getName() == buildUnit->getName()) {
+							ut->getName(false) == buildUnit->getName(false)) {
 							 foundUnit = true;
 							 break;
 						}
@@ -1892,7 +1892,7 @@ bool Faction::canCreateUnit(const UnitType *ut, bool checkBuild, bool checkProdu
 
 					if( morphUnit != NULL &&
 						ut->getId() != unitType2->getId() &&
-						ut->getName() == morphUnit->getName()) {
+						ut->getName(false) == morphUnit->getName(false)) {
 						 foundUnit = true;
 						 break;
 					}
@@ -2012,12 +2012,12 @@ std::string Faction::toString() const {
 
 	result += "ResourceCount = " + intToStr(resources.size()) + "\n";
 	for(int idx = 0; idx < resources.size(); idx ++) {
-		result += "index = " + intToStr(idx) + " " + resources[idx].getDescription() + "\n";
+		result += "index = " + intToStr(idx) + " " + resources[idx].getDescription(false) + "\n";
 	}
 
 	result += "StoreCount = " + intToStr(store.size()) + "\n";
 	for(int idx = 0; idx < store.size(); idx ++) {
-		result += "index = " + intToStr(idx) + " " + store[idx].getDescription()  + "\n";
+		result += "index = " + intToStr(idx) + " " + store[idx].getDescription(false)  + "\n";
 	}
 
 	result += "Allies = " + intToStr(allies.size()) + "\n";

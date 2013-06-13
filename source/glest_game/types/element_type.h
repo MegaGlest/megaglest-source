@@ -83,7 +83,7 @@ public:
 	const UnitType *getUnitReq(int i) const				{return unitReqs[i];}
     
     //other
-    virtual string getReqDesc() const;
+    virtual string getReqDesc(bool translatedValue) const;
 
     //virtual void saveGame(XmlNode *rootNode) const;
 };
@@ -118,10 +118,10 @@ public:
     //varios
     void checkCostStrings(TechTree *techTree);
     
-	virtual string getReqDesc() const;
-	string getResourceReqDesc(bool lineBreaks=true) const;
-	string getUnitAndUpgradeReqDesc(bool lineBreaks=true) const;
-	string getReqDesc(bool ignoreResourceRequirements) const;
+	virtual string getReqDesc(bool translatedValue) const;
+	string getResourceReqDesc(bool lineBreaks,bool translatedValue) const;
+	string getUnitAndUpgradeReqDesc(bool lineBreaks, bool translatedValue) const;
+	string getReqDesc(bool ignoreResourceRequirements, bool translatedValue) const;
 
 //	virtual void saveGame(XmlNode *rootNode) const;
 //	void loadGame(const XmlNode *rootNode);
