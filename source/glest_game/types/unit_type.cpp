@@ -181,7 +181,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 		//Lang &lang= Lang::getInstance();
 
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingUnitType","",true).c_str(),formatString(name).c_str());
+		snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingUnitType","",true).c_str(),formatString(this->getName(true)).c_str());
 		Logger::getInstance().add(szBuf, true);
 
 		//file load
@@ -613,7 +613,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 		const XmlNode *skillsNode= unitNode->getChild("skills");
 		skillTypes.resize(skillsNode->getChildCount());
 
-		snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingUnitTypeSkills","",true).c_str(),formatString(name).c_str(),skillTypes.size());
+		snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingUnitTypeSkills","",true).c_str(),formatString(this->getName(true)).c_str(),skillTypes.size());
 		Logger::getInstance().add(szBuf, true);
 
 		for(int i = 0; i < skillTypes.size(); ++i) {

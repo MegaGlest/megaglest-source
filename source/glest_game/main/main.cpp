@@ -2595,6 +2595,9 @@ void runTechTranslationExtractionForPath(string techPath, string techName,
 
 					txFile << "; -----------------" << std::endl;
 					txFile << "; Types of Factions" << std::endl;
+					txFile << "FactionName_" << GameConstants::OBSERVER_SLOTNAME << "=" << GameConstants::OBSERVER_SLOTNAME << std::endl;
+					txFile << "FactionName_" << GameConstants::RANDOMFACTION_SLOTNAME << "=" << GameConstants::RANDOMFACTION_SLOTNAME << std::endl;
+
 					for(unsigned int index = 0; index < techtree->getTypeCount(); ++index) {
 						const FactionType *ft = techtree->getType(index);
 						txFile << "FactionName_" << ft->getName(false) << "=" << ft->getName(false) << std::endl;
