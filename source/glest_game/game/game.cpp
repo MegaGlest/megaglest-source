@@ -5783,7 +5783,7 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 			}
 			pauseRequestSent=false;
 
-			commander.setPauseNetworkCommands(true);
+			commander.setPauseNetworkCommands(joinNetworkGame);
 		}
 		//printf("setPaused new paused = %d\n",paused);
 	}
