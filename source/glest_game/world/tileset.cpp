@@ -29,6 +29,7 @@ using namespace Shared::Graphics;
 
 namespace Glest{ namespace Game{
 
+const float Tileset::standardAirHeight= 5.0f;
 // =====================================================
 // 	class AmbientSounds
 // =====================================================
