@@ -585,7 +585,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	char szBuf[8096]="";
-	snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingUpgradeType","",true).c_str(),formatString(name).c_str());
+	snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingUpgradeType","",true).c_str(),formatString(this->getName(true)).c_str());
 	Logger::getInstance().add(szBuf, true);
 
 	string currentPath = dir;
