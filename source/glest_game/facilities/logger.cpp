@@ -127,32 +127,38 @@ void Logger::loadGameHints(string filePathEnglish,string filePathTranslation,boo
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] filePathEnglish = [%s]\n filePathTranslation = [%s]\n",__FILE__,__FUNCTION__,__LINE__,filePathEnglish.c_str(),filePathTranslation.c_str());
 		gameHints.load(filePathEnglish,clearList);
 		gameHintsTranslation.load(filePathTranslation,clearList);
-		string key=gameHints.getRandomKey(true);
-		string tmpString=gameHintsTranslation.getString(key,"");
+		showNextHint();
+		GraphicComponent::applyAllCustomProperties("Loading");
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+}
+
+void Logger::showNextHint() {
+	string key=gameHints.getRandomKey(true);
+	string tmpString=gameHintsTranslation.getString(key,"");
+	if(tmpString!=""){
+		gameHintToShow=tmpString;
+	}
+	else {
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] key [%s] not found for [%s] hint translation\n",__FILE__,__FUNCTION__,__LINE__,key.c_str(),Lang::getInstance().getLanguage().c_str());
+		tmpString=gameHints.getString(key,"");
 		if(tmpString!=""){
 			gameHintToShow=tmpString;
 		}
 		else {
-			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] key [%s] not found for [%s] hint translation\n",__FILE__,__FUNCTION__,__LINE__,key.c_str(),Lang::getInstance().getLanguage().c_str());
-			tmpString=gameHints.getString(key,"");
-			if(tmpString!=""){
-				gameHintToShow=tmpString;
-			}
-			else {
-				gameHintToShow="Problems to resolve hint key '"+key+"'";
-			}
+			gameHintToShow="Problems to resolve hint key '"+key+"'";
 		}
-		replaceAll(gameHintToShow, "\\n", "\n");
-
-		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-
-		vector<pair<string,string> > mergedKeySettings = configKeys.getMergedProperties();
-		for(unsigned int j = 0; j < mergedKeySettings.size(); ++j) {
-            pair<string,string> &property = mergedKeySettings[j];
-            replaceAll(gameHintToShow, "#"+property.first+"#", property.second);
-		}
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
+	replaceAll(gameHintToShow, "\\n", "\n");
+
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+
+	vector<pair<string,string> > mergedKeySettings = configKeys.getMergedProperties();
+	for(unsigned int j = 0; j < mergedKeySettings.size(); ++j) {
+        pair<string,string> &property = mergedKeySettings[j];
+        replaceAll(gameHintToShow, "#"+property.first+"#", property.second);
+	}
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void Logger::clearHints() {
@@ -162,6 +168,7 @@ void Logger::clearHints() {
 }
 
 void Logger::handleMouseClick(int x, int y) {
+	showNextHint();
 	if(buttonCancel.getEnabled() == true) {
 		if(buttonCancel.mouseClick(x, y)) {
 			cancelSelected = true;
@@ -246,6 +253,7 @@ void Logger::renderLoadingScreen() {
 
 	if(gameHintToShow != "") {
 		Lang &lang= Lang::getInstance();
+
 		string hintText = lang.get("Hint","",true);
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,hintText.c_str(),gameHintToShow.c_str());
@@ -268,6 +276,26 @@ void Logger::renderLoadingScreen() {
 				//xLocation*1.5f,
 				xLocationHint,
 				90 * metrics.getVirtualH() / 100, false);
+
+		}
+		//Show next Hint
+		if(Renderer::renderText3DEnabled) {
+			int xLocationHint =  (metrics.getVirtualW() / 2) - (coreData.getMenuFontBig3D()->getMetrics()->getTextWidth(hintText) / 2);
+
+			renderer.renderTextShadow3D(
+					lang.get("ShowNextHint","",true), coreData.getMenuFontNormal3D(), displayColor,
+					//xLocation*1.5f,
+					xLocationHint,
+					93 * metrics.getVirtualH() / 100, false);
+		}
+		else {
+			int xLocationHint =  (metrics.getVirtualW() / 2) - (coreData.getMenuFontBig()->getMetrics()->getTextWidth(hintText) / 2);
+
+			renderer.renderTextShadow(
+					lang.get("ShowNextHint","",true), coreData.getMenuFontNormal(), displayColor,
+				//xLocation*1.5f,
+				xLocationHint,
+				93 * metrics.getVirtualH() / 100, false);
 
 		}
 	}
