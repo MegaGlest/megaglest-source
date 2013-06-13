@@ -779,19 +779,19 @@ std::vector<std::string> FactionType::validateFactionTypeUpgradeTypes() {
 
 const UnitType *FactionType::getUnitType(const string &name) const{
     for(int i=0; i<unitTypes.size();i++){
-		if(unitTypes[i].getName()==name){
+		if(unitTypes[i].getName(false)==name){
             return &unitTypes[i];
 		}
     }
 
     printf("In [%s::%s Line: %d] scanning [%s] size = " MG_SIZE_T_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
     for(int i=0; i<unitTypes.size();i++){
-    	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str());
+    	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName(false).c_str());
     }
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] size = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
     for(int i=0; i<unitTypes.size();i++){
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str());
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName(false).c_str());
     }
 
 	throw megaglest_runtime_error("Unit type not found: [" + name + "] in faction type [" + this->name + "]");
@@ -806,12 +806,12 @@ const UnitType *FactionType::getUnitTypeById(int id) const{
 
     printf("In [%s::%s Line: %d] scanning [%d] size = " MG_SIZE_T_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,id,unitTypes.size());
     for(int i=0; i<unitTypes.size();i++){
-    	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s][%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str(),unitTypes[i].getId());
+    	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s][%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName(false).c_str(),unitTypes[i].getId());
     }
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] size = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
     for(int i=0; i<unitTypes.size();i++){
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName().c_str());
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName(false).c_str());
     }
 
 	throw megaglest_runtime_error("Unit type not found: [" + intToStr(id) + "] in faction type [" + this->name + "]");
@@ -902,7 +902,7 @@ std::string FactionType::toString() const {
 
 	result += "Upgrade Type List count = " + intToStr(this->getUpgradeTypeCount()) + "\n";
     for(int i=0; i<upgradeTypes.size();i++) {
-		result += "index: " + intToStr(i) + " " + upgradeTypes[i].getReqDesc() + "\n";
+		result += "index: " + intToStr(i) + " " + upgradeTypes[i].getReqDesc(false) + "\n";
     }
 
 	return result;
@@ -924,18 +924,18 @@ void FactionType::saveGame(XmlNode *rootNode) {
 //    UnitTypes unitTypes;
 	for(unsigned int i = 0; i < unitTypes.size(); ++i) {
 		XmlNode *unitTypesNode = factionTypeNode->addChild("unitTypes");
-		unitTypesNode->addAttribute("name",unitTypes[i].getName(), mapTagReplacements);
+		unitTypesNode->addAttribute("name",unitTypes[i].getName(false), mapTagReplacements);
 	}
 //    UpgradeTypes upgradeTypes;
 	for(unsigned int i = 0; i < upgradeTypes.size(); ++i) {
 		XmlNode *upgradeTypesNode = factionTypeNode->addChild("upgradeTypes");
-		upgradeTypesNode->addAttribute("name",upgradeTypes[i].getName(), mapTagReplacements);
+		upgradeTypesNode->addAttribute("name",upgradeTypes[i].getName(false), mapTagReplacements);
 	}
 
 //	StartingUnits startingUnits;
 	for(unsigned int i = 0; i < startingUnits.size(); ++i) {
 		XmlNode *startingUnitsNode = factionTypeNode->addChild("startingUnits");
-		startingUnitsNode->addAttribute("name",startingUnits[i].first->getName(), mapTagReplacements);
+		startingUnitsNode->addAttribute("name",startingUnits[i].first->getName(false), mapTagReplacements);
 		startingUnitsNode->addAttribute("count",intToStr(startingUnits[i].second), mapTagReplacements);
 	}
 
@@ -957,7 +957,7 @@ void FactionType::saveGame(XmlNode *rootNode) {
 
 			XmlNode *mapAIBehaviorUnitCategoriesNode = factionTypeNode->addChild("mapAIBehaviorUnitCategories");
 			mapAIBehaviorUnitCategoriesNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
-			mapAIBehaviorUnitCategoriesNode->addAttribute("unitType",item.first->getName(), mapTagReplacements);
+			mapAIBehaviorUnitCategoriesNode->addAttribute("unitType",item.first->getName(false), mapTagReplacements);
 			mapAIBehaviorUnitCategoriesNode->addAttribute("count",intToStr(item.second), mapTagReplacements);
 		}
 	}

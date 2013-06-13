@@ -66,7 +66,7 @@ std::string Upgrade::toString() const {
 
 	result += " state = " + intToStr(state) + " factionIndex = " + intToStr(factionIndex);
 	if(type != NULL) {
-		result += " type = " + type->getReqDesc();
+		result += " type = " + type->getReqDesc(false);
 	}
 
 	return result;

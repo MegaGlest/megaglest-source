@@ -66,7 +66,7 @@ ProduceTask::ProduceTask(const ResourceType *resourceType) : Task() {
 string ProduceTask::toString() const{
 	string str= "Produce ";
 	if(unitType!=NULL){
-		str+= unitType->getName(true);
+		str+= unitType->getName(false);
 	}
 	return str;
 }
@@ -81,11 +81,11 @@ void ProduceTask::saveGame(XmlNode *rootNode) const {
 	produceTaskNode->addAttribute("unitClass",intToStr(unitClass), mapTagReplacements);
 //	const UnitType *unitType;
 	if(unitType != NULL) {
-		produceTaskNode->addAttribute("unitType",unitType->getName(), mapTagReplacements);
+		produceTaskNode->addAttribute("unitType",unitType->getName(false), mapTagReplacements);
 	}
 //	const ResourceType *resourceType;
 	if(resourceType != NULL) {
-		produceTaskNode->addAttribute("resourceType",resourceType->getName(), mapTagReplacements);
+		produceTaskNode->addAttribute("resourceType",resourceType->getName(false), mapTagReplacements);
 	}
 }
 
@@ -144,7 +144,7 @@ BuildTask::BuildTask(const UnitType *unitType, const Vec2i &pos){
 string BuildTask::toString() const{
 	string str= "Build ";
 	if(unitType!=NULL){
-		str+= unitType->getName(true);
+		str+= unitType->getName(false);
 	}
 	return str;
 }
@@ -157,7 +157,7 @@ void BuildTask::saveGame(XmlNode *rootNode) const {
 
 //	const UnitType *unitType;
 	if(unitType != NULL) {
-		buildTaskNode->addAttribute("unitType",unitType->getName(), mapTagReplacements);
+		buildTaskNode->addAttribute("unitType",unitType->getName(false), mapTagReplacements);
 	}
 //	const ResourceType *resourceType;
 	if(resourceType != NULL) {
@@ -487,7 +487,7 @@ const ResourceType *Ai::getNeededResource(int unitIndex) {
     }
 
     char szBuf[8096]="";
-    snprintf(szBuf,8096,"Unit [%d - %s] looking for resources (not static or consumable)",unit->getId(),unit->getType()->getName().c_str());
+    snprintf(szBuf,8096,"Unit [%d - %s] looking for resources (not static or consumable)",unit->getId(),unit->getType()->getName(false).c_str());
     aiInterface->printLog(3, szBuf);
     snprintf(szBuf,8096,"[resource type count %d] Needed resource [%s].",tt->getResourceTypeCount(),(neededResource != NULL ? neededResource->getName().c_str() : "<none>"));
     aiInterface->printLog(3, szBuf);

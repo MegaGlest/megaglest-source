@@ -417,7 +417,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 			sortedItems[name] = 0;
 		}
 		if(hasDup) {
-			printf("WARNING, unit type [%s] has one or more duplicate unit requirements\n",this->getName().c_str());
+			printf("WARNING, unit type [%s] has one or more duplicate unit requirements\n",this->getName(false).c_str());
 		}
 
 		for(std::map<string,int>::iterator iterMap = sortedItems.begin();
@@ -441,7 +441,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 		}
 
 		if(hasDup) {
-			printf("WARNING, unit type [%s] has one or more duplicate upgrade requirements\n",this->getName().c_str());
+			printf("WARNING, unit type [%s] has one or more duplicate upgrade requirements\n",this->getName(false).c_str());
 		}
 
 		for(std::map<string,int>::iterator iterMap = sortedItems.begin();
@@ -467,7 +467,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 		//if(hasDup || sortedItems.size() != costs.size()) printf("Found duplicate resource requirement, costs.size() = %d sortedItems.size() = %d\n",costs.size(),sortedItems.size());
 
 		if(hasDup) {
-			printf("WARNING, unit type [%s] has one or more duplicate resource requirements\n",this->getName().c_str());
+			printf("WARNING, unit type [%s] has one or more duplicate resource requirements\n",this->getName(false).c_str());
 		}
 
 		if(sortedItems.size() < costs.size()) {
@@ -498,7 +498,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 		}
 
 		if(hasDup) {
-			printf("WARNING, unit type [%s] has one or more duplicate stored resources\n",this->getName().c_str());
+			printf("WARNING, unit type [%s] has one or more duplicate stored resources\n",this->getName(false).c_str());
 		}
 
 		if(sortedItems.size() < storedResources.size()) {
@@ -1030,9 +1030,9 @@ string UnitType::getCommandTypeListDesc() const {
 
 }
 
-string UnitType::getReqDesc() const{
+string UnitType::getReqDesc(bool translatedValue) const{
 	Lang &lang= Lang::getInstance();
-	string desc = "Limits: ";
+	//string desc = "Limits: ";
 	string resultTxt="";
 
 	checkItemInVault(&(this->maxUnitCount),this->maxUnitCount);
@@ -1040,9 +1040,9 @@ string UnitType::getReqDesc() const{
 		resultTxt += "\n" + lang.get("MaxUnitCount") + " " + intToStr(getMaxUnitCount());
 	}
 	if(resultTxt == "")
-		return ProducibleType::getReqDesc();
+		return ProducibleType::getReqDesc(translatedValue);
 	else
-		return ProducibleType::getReqDesc()+"\nLimits: "+resultTxt;
+		return ProducibleType::getReqDesc(translatedValue)+"\n" + lang.get("Limits") + " " + resultTxt;
 }
 
 string UnitType::getName(bool translatedValue) const {
@@ -1071,7 +1071,7 @@ std::string UnitType::toString() const {
 	result += " armor = " + intToStr(armor);
 
 	if(armorType != NULL) {
-		result += " armorType Name: [" + armorType->getName() + " id = " +  intToStr(armorType->getId());
+		result += " armorType Name: [" + armorType->getName(false) + " id = " +  intToStr(armorType->getId());
 	}
 
 	result += " light = " + intToStr(light);
@@ -1104,7 +1104,7 @@ std::string UnitType::toString() const {
 
 	result += " storedResources: [" + intToStr(storedResources.size()) + "]";
 	for(int i = 0; i < storedResources.size(); ++i) {
-		result += " i = " + intToStr(i) + " " + storedResources[i].getDescription();
+		result += " i = " + intToStr(i) + " " + storedResources[i].getDescription(false);
 	}
 
 	result += " levels: [" + intToStr(levels.size()) + "]";

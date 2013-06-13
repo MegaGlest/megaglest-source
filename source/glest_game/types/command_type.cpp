@@ -117,17 +117,17 @@ void StopCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameInde
 	unitUpdater->updateStop(unit, frameIndex);
 }
 
-string StopCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
+string StopCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const{
     string str;
 	Lang &lang= Lang::getInstance();
 
-    str= getName(true)+"\n";
+    str= getName(translatedValue)+"\n";
 	str+= lang.get("ReactionSpeed")+": "+ intToStr(stopSkillType->getSpeed())+"\n";
     if(stopSkillType->getEpCost()!=0)
         str+= lang.get("EpCost")+": "+intToStr(stopSkillType->getEpCost())+"\n";
  if(stopSkillType->getHpCost()!=0)
         str+= lang.get("HpCost")+": "+intToStr(stopSkillType->getHpCost())+"\n";
-	str+=stopSkillType->getBoostDesc();
+	str+=stopSkillType->getBoostDesc(translatedValue);
     return str;
 }
 
@@ -173,11 +173,11 @@ void MoveCommandType::load(int id, const XmlNode *n, const string &dir,
 	moveSkillType= static_cast<const MoveSkillType*>(ut.getSkillType(skillName, scMove));
 }
 
-string MoveCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
+string MoveCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const{
     string str;
 	Lang &lang= Lang::getInstance();
 
-    str=getName(true)+"\n";
+    str=getName(translatedValue)+"\n";
     str+= lang.get("WalkSpeed")+": "+ intToStr(moveSkillType->getSpeed());
 	if(totalUpgrade->getMoveSpeed(moveSkillType) != 0) {
         str+= "+" + intToStr(totalUpgrade->getMoveSpeed(moveSkillType));
@@ -189,7 +189,7 @@ string MoveCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 		if(moveSkillType->getHpCost()!=0){
         str+= lang.get("HpCost")+": "+intToStr(moveSkillType->getHpCost())+"\n";
 	}
-	str+=moveSkillType->getBoostDesc();
+	str+=moveSkillType->getBoostDesc(translatedValue);
     return str;
 }
 
@@ -229,11 +229,11 @@ void AttackCommandType::load(int id, const XmlNode *n, const string &dir,
 	attackSkillType= static_cast<const AttackSkillType*>(ut.getSkillType(skillName, scAttack));
 }
 
-string AttackCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
+string AttackCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const{
     string str;
 	Lang &lang= Lang::getInstance();
 
-    str=getName(true)+"\n";
+    str=getName(translatedValue)+"\n";
 	if(attackSkillType->getEpCost()!=0){
         str+= lang.get("EpCost") + ": " + intToStr(attackSkillType->getEpCost()) + "\n";
 	}
@@ -249,7 +249,7 @@ string AttackCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 	if(totalUpgrade->getAttackStrength(attackSkillType) != 0) {
         str+= "+"+intToStr(totalUpgrade->getAttackStrength(attackSkillType));
 	}
-	str+= " ("+ attackSkillType->getAttackType()->getName(true) +")";
+	str+= " ("+ attackSkillType->getAttackType()->getName(translatedValue) +")";
     str+= "\n";
 
     //splash radius
@@ -283,7 +283,7 @@ string AttackCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
     str+="\n";
 
     str+= lang.get("AttackSpeed")+": "+ intToStr(attackSkillType->getSpeed()) +"\n";
-	str+=attackSkillType->getBoostDesc();
+	str+=attackSkillType->getBoostDesc(translatedValue);
     return str;
 }
 
@@ -323,11 +323,11 @@ void AttackStoppedCommandType::load(int id, const XmlNode *n, const string &dir,
 	attackSkillType= static_cast<const AttackSkillType*>(ut.getSkillType(skillName, scAttack));
 }
 
-string AttackStoppedCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
+string AttackStoppedCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const{
     Lang &lang= Lang::getInstance();
 	string str;
 
-    str=getName(true)+"\n";
+    str=getName(translatedValue)+"\n";
 	if(attackSkillType->getEpCost()!=0){
         str+= lang.get("EpCost")+": "+intToStr(attackSkillType->getEpCost())+"\n";
 	}
@@ -342,7 +342,7 @@ string AttackStoppedCommandType::getDesc(const TotalUpgrade *totalUpgrade) const
     str+= intToStr(attackSkillType->getAttackStrength()+attackSkillType->getAttackVar());
     if(totalUpgrade->getAttackStrength(attackSkillType) != 0)
         str+= "+"+intToStr(totalUpgrade->getAttackStrength(attackSkillType));
-    str+= " ("+ attackSkillType->getAttackType()->getName(true) +")";
+    str+= " ("+ attackSkillType->getAttackType()->getName(translatedValue) +")";
     str+="\n";
 
     //splash radius
@@ -367,7 +367,7 @@ string AttackStoppedCommandType::getDesc(const TotalUpgrade *totalUpgrade) const
 		}
 	}
 	str+="\n";
-	str+=attackSkillType->getBoostDesc();
+	str+=attackSkillType->getBoostDesc(translatedValue);
     return str;
 }
 
@@ -458,11 +458,11 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-string BuildCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
+string BuildCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const{
     string str;
 	Lang &lang= Lang::getInstance();
 
-    str=getName(true)+"\n";
+    str=getName(translatedValue)+"\n";
     str+= lang.get("BuildSpeed")+": "+ intToStr(buildSkillType->getSpeed())+"\n";
 	if(buildSkillType->getEpCost()!=0){
         str+= lang.get("EpCost")+": "+intToStr(buildSkillType->getEpCost())+"\n";
@@ -470,7 +470,7 @@ string BuildCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 		if(buildSkillType->getHpCost()!=0){
         str+= lang.get("HpCost")+": "+intToStr(buildSkillType->getHpCost())+"\n";
 	}
-	str+=buildSkillType->getBoostDesc();
+	str+=buildSkillType->getBoostDesc(translatedValue);
     return str;
 }
 
@@ -531,12 +531,12 @@ void HarvestCommandType::load(int id, const XmlNode *n, const string &dir,
 	hitsPerUnit= n->getChild("hits-per-unit")->getAttribute("value")->getIntValue();
 }
 
-string HarvestCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
+string HarvestCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const{
 
 	Lang &lang= Lang::getInstance();
 	string str;
 
-    str=getName(true)+"\n";
+    str=getName(translatedValue)+"\n";
     str+= lang.get("HarvestSpeed")+": "+ intToStr(harvestSkillType->getSpeed()/hitsPerUnit)+"\n";
     str+= lang.get("MaxLoad")+": "+ intToStr(maxLoad)+"\n";
     str+= lang.get("LoadedSpeed")+": "+ intToStr(moveLoadedSkillType->getSpeed())+"\n";
@@ -548,9 +548,9 @@ string HarvestCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 	}
 	str+=lang.get("Resources")+":\n";
 	for(int i=0; i<getHarvestedResourceCount(); ++i){
-		str+= getHarvestedResource(i)->getName(true)+"\n";
+		str+= getHarvestedResource(i)->getName(translatedValue)+"\n";
 	}
-	str+=harvestSkillType->getBoostDesc();
+	str+=harvestSkillType->getBoostDesc(translatedValue);
     return str;
 }
 
@@ -586,12 +586,8 @@ void HarvestEmergencyReturnCommandType::load(int id, const XmlNode *n, const str
 //	CommandType::load(id, n, dir, tt, ft, ut, loadedFileList, parentLoader);
 }
 
-string HarvestEmergencyReturnCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
-
-	//Lang &lang= Lang::getInstance();
-	string str;
-
-    str=getName(true)+"\n";
+string HarvestEmergencyReturnCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const{
+	string str=getName(translatedValue)+"\n";
     return str;
 }
 
@@ -645,11 +641,11 @@ void RepairCommandType::load(int id, const XmlNode *n, const string &dir,
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-string RepairCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
+string RepairCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const{
     Lang &lang= Lang::getInstance();
 	string str;
 
-    str=getName(true)+"\n";
+    str=getName(translatedValue)+"\n";
     str+= lang.get("RepairSpeed")+": "+ intToStr(repairSkillType->getSpeed())+"\n";
 	if(repairSkillType->getEpCost()!=0){
         str+= lang.get("EpCost")+": "+intToStr(repairSkillType->getEpCost())+"\n";
@@ -659,9 +655,9 @@ string RepairCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 	}
     str+="\n"+lang.get("CanRepair")+":\n";
     for(int i=0; i<repairableUnits.size(); ++i){
-        str+= (static_cast<const UnitType*>(repairableUnits[i]))->getName(true)+"\n";
+        str+= (static_cast<const UnitType*>(repairableUnits[i]))->getName(translatedValue)+"\n";
     }
-	str+=repairSkillType->getBoostDesc();
+	str+=repairSkillType->getBoostDesc(translatedValue);
     return str;
 }
 
@@ -713,8 +709,8 @@ void ProduceCommandType::load(int id, const XmlNode *n, const string &dir,
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-string ProduceCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
-    string str=getName(true)+"\n";
+string ProduceCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const{
+    string str=getName(translatedValue)+"\n";
 	Lang &lang= Lang::getInstance();
 
     //prod speed
@@ -731,8 +727,8 @@ string ProduceCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
 	if(produceSkillType->getHpCost()!=0){
         str+= lang.get("hpCost")+": "+intToStr(produceSkillType->getHpCost())+"\n";
 	}
-    str+= "\n" + getProducedUnit()->getReqDesc();
-	str+=produceSkillType->getBoostDesc();
+    str+= "\n" + getProducedUnit()->getReqDesc(translatedValue);
+	str+=produceSkillType->getBoostDesc(translatedValue);
     return str;
 }
 
@@ -741,8 +737,8 @@ string ProduceCommandType::toString() const{
 	return lang.get("Produce");
 }
 
-string ProduceCommandType::getReqDesc() const{
-    return RequirableType::getReqDesc()+"\n"+getProducedUnit()->getReqDesc();
+string ProduceCommandType::getReqDesc(bool translatedValue) const{
+    return RequirableType::getReqDesc(translatedValue)+"\n"+getProducedUnit()->getReqDesc(translatedValue);
 }
 
 const ProducibleType *ProduceCommandType::getProduced() const{
@@ -780,18 +776,18 @@ void UpgradeCommandType::load(int id, const XmlNode *n, const string &dir,
 
 }
 
-string UpgradeCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
+string UpgradeCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const{
     string str;
 	Lang &lang= Lang::getInstance();
 
-    str=getName(true)+"\n";
+    str=getName(translatedValue)+"\n";
     str+= lang.get("UpgradeSpeed")+": "+ intToStr(upgradeSkillType->getSpeed())+"\n";
     if(upgradeSkillType->getEpCost()!=0)
         str+= lang.get("EpCost")+": "+intToStr(upgradeSkillType->getEpCost())+"\n";
 if(upgradeSkillType->getHpCost()!=0)
         str+= lang.get("HpCost")+": "+intToStr(upgradeSkillType->getHpCost())+"\n";
-    str+= "\n"+getProducedUpgrade()->getReqDesc();
-	str+=upgradeSkillType->getBoostDesc();
+    str+= "\n"+getProducedUpgrade()->getReqDesc(translatedValue);
+	str+=upgradeSkillType->getBoostDesc(translatedValue);
     return str;
 }
 
@@ -800,8 +796,8 @@ string UpgradeCommandType::toString() const{
 	return lang.get("Upgrade");
 }
 
-string UpgradeCommandType::getReqDesc() const{
-    return RequirableType::getReqDesc()+"\n"+getProducedUpgrade()->getReqDesc();
+string UpgradeCommandType::getReqDesc(bool translatedValue) const{
+    return RequirableType::getReqDesc(translatedValue)+"\n"+getProducedUpgrade()->getReqDesc(translatedValue);
 }
 
 const ProducibleType *UpgradeCommandType::getProduced() const{
@@ -852,8 +848,8 @@ void MorphCommandType::load(int id, const XmlNode *n, const string &dir,
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-string MorphCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
-    string str=getName(true)+"\n";
+string MorphCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const{
+    string str=getName(translatedValue)+"\n";
 	Lang &lang= Lang::getInstance();
 
     //prod speed
@@ -872,8 +868,8 @@ string MorphCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
         str+= lang.get("Discount")+": "+intToStr(discount)+"%\n";
 	}
 
-    str+= "\n"+getProduced()->getReqDesc(ignoreResourceRequirements);
-	str+=morphSkillType->getBoostDesc();
+    str+= "\n"+getProduced()->getReqDesc(ignoreResourceRequirements,translatedValue);
+	str+=morphSkillType->getBoostDesc(translatedValue);
 
     return str;
 }
@@ -883,8 +879,8 @@ string MorphCommandType::toString() const{
 	return lang.get("Morph");
 }
 
-string MorphCommandType::getReqDesc() const{
-    return RequirableType::getReqDesc() + "\n" + getProduced()->getReqDesc();
+string MorphCommandType::getReqDesc(bool translatedValue) const{
+    return RequirableType::getReqDesc(translatedValue) + "\n" + getProduced()->getReqDesc(translatedValue);
 }
 
 const ProducibleType *MorphCommandType::getProduced() const{
@@ -917,28 +913,8 @@ void SwitchTeamCommandType::load(int id, const XmlNode *n, const string &dir,
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-string SwitchTeamCommandType::getDesc(const TotalUpgrade *totalUpgrade) const{
-    string str= getName(true)+"\n";
-	//Lang &lang= Lang::getInstance();
-
-    //prod speed
-    //str+= lang.get("MorphSpeed")+": "+ intToStr(morphSkillType->getSpeed())+"\n";
-
-    //mpcost
-//	if(morphSkillType->getEpCost()!=0){
-//        str+= lang.get("EpCost")+": "+intToStr(morphSkillType->getEpCost())+"\n";
-//	}
-//		if(morphSkillType->getHpCost()!=0){
-//        str+= lang.get("HpCost")+": "+intToStr(morphSkillType->getHpCost())+"\n";
-//	}
-//
-//    //discount
-//	if(discount!=0){
-//        str+= lang.get("Discount")+": "+intToStr(discount)+"%\n";
-//	}
-//
-//    str+= "\n"+getProduced()->getReqDesc();
-
+string SwitchTeamCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const{
+    string str= getName(translatedValue)+"\n";
     return str;
 }
 

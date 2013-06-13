@@ -237,7 +237,7 @@ int UpgradeTypeBase::getProdSpeed(const SkillType *st) const {
 	}
 }
 
-string UpgradeTypeBase::getDesc() const{
+string UpgradeTypeBase::getDesc(bool translatedValue) const{
 
     string str="";
     string indent="->";
@@ -558,18 +558,18 @@ string UpgradeType::getName(bool translatedValue) const {
 	return lang.getTechTreeString("UpgradeTypeName_" + name,name.c_str());
 }
 
-string UpgradeType::getReqDesc() const{
+string UpgradeType::getReqDesc(bool translatedValue) const{
 	Lang &lang= Lang::getInstance();
-    string str= ProducibleType::getReqDesc();
+    string str= ProducibleType::getReqDesc(translatedValue);
     string indent="  ";
 	if(getEffectCount()>0){
 		str+= "\n"+ lang.get("Upgrades")+"\n";
 	}
-	str+=UpgradeTypeBase::getDesc();
+	str+=UpgradeTypeBase::getDesc(translatedValue);
 	if(getEffectCount()>0){
 		str+= lang.get("AffectedUnits")+"\n";
 		for(int i=0; i<getEffectCount(); ++i){
-					str+= indent+getEffect(i)->getName(true)+"\n";
+			str+= indent+getEffect(i)->getName(translatedValue)+"\n";
 		}
 	}
 	return str;

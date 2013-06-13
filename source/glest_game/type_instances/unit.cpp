@@ -866,15 +866,15 @@ const Level *Unit::getNextLevel() const{
 	return NULL;
 }
 
-string Unit::getFullName() const{
+string Unit::getFullName(bool translatedValue) const{
 	string str="";
 	if(level != NULL){
-		str += (level->getName(true) + " ");
+		str += (level->getName(translatedValue) + " ");
 	}
 	if(type == NULL) {
 	    throw megaglest_runtime_error("type == NULL in Unit::getFullName()!");
 	}
-	str += type->getName(true);
+	str += type->getName(translatedValue);
 	return str;
 }
 
@@ -1726,7 +1726,7 @@ void Unit::kill() {
 
 void Unit::undertake() {
 	try {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to undertake unit id = %d [%s] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->id, this->getFullName().c_str(),this->getDesc().c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to undertake unit id = %d [%s] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->id, this->getFullName(false).c_str(),this->getDesc(false).c_str());
 
 		// Remove any units that were previously in attack-boost range
 		if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.empty() == false && currentAttackBoostOriginatorEffect.skillType != NULL) {
@@ -2001,12 +2001,12 @@ int64 Unit::getUpdatedProgress(int64 currentProgress, int64 updateFPS, int64 spe
 void Unit::updateAttackBoostProgress(const Game* game) {
 	const bool debugBoost = false;
 	if(debugBoost) printf("===================== START Unit [%d - %s] skill: %s affected unit size: " MG_SIZE_T_SPECIFIER "\n",
-			this->id,this->getType()->getName().c_str(),currSkill->getBoostDesc().c_str(),
+			this->id,this->getType()->getName(false).c_str(),currSkill->getBoostDesc(false).c_str(),
 			currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size());
 
 	if (currSkill != currentAttackBoostOriginatorEffect.skillType) {
 
-		if(debugBoost) printf("Line: %d new [%s]\n",__LINE__,(currentAttackBoostOriginatorEffect.skillType != NULL ? currentAttackBoostOriginatorEffect.skillType->getBoostDesc().c_str() : ""));
+		if(debugBoost) printf("Line: %d new [%s]\n",__LINE__,(currentAttackBoostOriginatorEffect.skillType != NULL ? currentAttackBoostOriginatorEffect.skillType->getBoostDesc(false).c_str() : ""));
 
 		if (currentAttackBoostOriginatorEffect.currentAppliedEffect != NULL) {
 			delete currentAttackBoostOriginatorEffect.currentAppliedEffect;
@@ -2051,7 +2051,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 			vector<Unit *> candidates = unitUpdater->findUnitsInRange(this,
 					attackBoost->radius);
 
-			if(debugBoost) printf("Line: %d candidates unit size: " MG_SIZE_T_SPECIFIER " attackBoost: %s\n",__LINE__,candidates.size(),attackBoost->getDesc().c_str());
+			if(debugBoost) printf("Line: %d candidates unit size: " MG_SIZE_T_SPECIFIER " attackBoost: %s\n",__LINE__,candidates.size(),attackBoost->getDesc(false).c_str());
 
 			for (unsigned int i = 0; i < candidates.size(); ++i) {
 				Unit *affectedUnit = candidates[i];
@@ -2108,7 +2108,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 			vector<int> candidateValidIdList;
 			candidateValidIdList.reserve(candidates.size());
 
-			if(debugBoost) printf("Line: %d candidates unit size: " MG_SIZE_T_SPECIFIER " attackBoost: %s\n",__LINE__,candidates.size(),attackBoost->getDesc().c_str());
+			if(debugBoost) printf("Line: %d candidates unit size: " MG_SIZE_T_SPECIFIER " attackBoost: %s\n",__LINE__,candidates.size(),attackBoost->getDesc(false).c_str());
 
 			for (unsigned int i = 0; i < candidates.size(); ++i) {
 				Unit *affectedUnit = candidates[i];
@@ -2160,7 +2160,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 									this);
 
 							if(debugBoost) printf("Removed attack boost from Unit [%d - %s] since they are NO LONGER in range\n",
-									affectedUnit->id,affectedUnit->getType()->getName().c_str());
+									affectedUnit->id,affectedUnit->getType()->getName(false).c_str());
 
 						}
 						currentAttackBoostOriginatorEffect.currentAttackBoostUnits.erase(
@@ -2212,7 +2212,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 
 	if(debugBoost) {
 		if (currSkill->isAttackBoostEnabled() == true) {
-			printf("Unit [%d - %s] has attackboost enabled: %s\n",this->id,this->getType()->getName().c_str(),currSkill->getBoostDesc().c_str());
+			printf("Unit [%d - %s] has attackboost enabled: %s\n",this->id,this->getType()->getName(false).c_str(),currSkill->getBoostDesc(false).c_str());
 
 			if (currentAttackBoostOriginatorEffect.currentAttackBoostUnits.empty() == false) {
 				printf("Found affected units currentAttackBoostOriginatorEffect.skillType [%p]\n",currentAttackBoostOriginatorEffect.skillType);
@@ -2508,7 +2508,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 	}
 
 	if(shouldApplyAttackBoost == true) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("=== APPLYING ATTACK BOOST START to unit [%s - %d] from unit [%s - %d] hp: %d\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId(),hp);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("=== APPLYING ATTACK BOOST START to unit [%s - %d] from unit [%s - %d] hp: %d\n",this->getType()->getName(false).c_str(),this->getId(),source->getType()->getName(false).c_str(),source->getId(),hp);
 
 		UnitAttackBoostEffect *effect = new UnitAttackBoostEffect();
 		effect->boost = boost;
@@ -2617,7 +2617,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		//printf("APPLYING ATTACK BOOST END to unit [%s - %d] from unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId());
 	}
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("APPLIED ATTACK BOOST START to unit [%s - %d] from unit [%s - %d] hp: %d\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId(),hp);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("APPLIED ATTACK BOOST START to unit [%s - %d] from unit [%s - %d] hp: %d\n",this->getType()->getName(false).c_str(),this->getId(),source->getType()->getName(false).c_str(),source->getId(),hp);
 
 	return shouldApplyAttackBoost;
 }
@@ -2629,7 +2629,7 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("=== DE-APPLYING ATTACK BOOST START to unit [%s - %d] from unit [%s - %d] hp: %d\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId(),hp);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("=== DE-APPLYING ATTACK BOOST START to unit [%s - %d] from unit [%s - %d] hp: %d\n",this->getType()->getName(false).c_str(),this->getId(),source->getType()->getName(false).c_str(),source->getId(),hp);
 
 	bool wasAlive = alive;
 	int originalHp = hp;
@@ -2725,7 +2725,7 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		}
 	}
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("DE-APPLIED ATTACK BOOST START to unit [%s - %d] from unit [%s - %d] hp: %d\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId(),hp);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("DE-APPLIED ATTACK BOOST START to unit [%s - %d] from unit [%s - %d] hp: %d\n",this->getType()->getName(false).c_str(),this->getId(),source->getType()->getName(false).c_str(),source->getId(),hp);
 
 	//printf("DE-APPLYING ATTACK BOOST END to unit [%s - %d] from unit [%s - %d]\n",this->getType()->getName().c_str(),this->getId(),source->getType()->getName().c_str(),source->getId());
 }
@@ -2981,7 +2981,7 @@ bool Unit::decHp(int i) {
     return false;
 }
 
-string Unit::getDescExtension() const{
+string Unit::getDescExtension(bool translatedValue) const{
 	Lang &lang= Lang::getInstance();
 	string str= "\n";
 
@@ -2992,7 +2992,7 @@ string Unit::getDescExtension() const{
 			if(i == 0){
 				str+= "\n" + lang.get("OrdersOnQueue") + ": ";
 			}
-			str+= "\n#" + intToStr(i + 1) + " " + ct->getName(true);
+			str+= "\n#" + intToStr(i + 1) + " " + ct->getName(translatedValue);
 			++it;
 		}
 	}
@@ -3000,12 +3000,9 @@ string Unit::getDescExtension() const{
 	return str;
 }
 
-string Unit::getDesc() const {
+string Unit::getDesc(bool translatedValue) const {
 
     Lang &lang= Lang::getInstance();
-
-    //pos
-    //str+="Pos: "+v2iToStr(pos)+"\n";
 
 	//hp
 	string str= "\n";
@@ -3042,7 +3039,7 @@ string Unit::getDesc() const {
 	if(totalUpgrade.getArmor()!=0){
 		str+="+"+intToStr(totalUpgrade.getArmor());
 	}
-	str+= " ("+getType()->getArmorType()->getName(true)+")";
+	str+= " ("+getType()->getArmorType()->getName(translatedValue)+")";
 
 	//sight
 	str+="\n"+ lang.get("Sight")+ ": " + intToStr(getType()->getSight());
@@ -3055,7 +3052,7 @@ string Unit::getDesc() const {
 	if(enemyKills > 0 || nextLevel != NULL) {
 		str+= "\n" + lang.get("Kills") +": " + intToStr(enemyKills);
 		if(nextLevel != NULL) {
-			str+= " (" + nextLevel->getName(true) + ": " + intToStr(nextLevel->getKills()) + ")";
+			str+= " (" + nextLevel->getName(translatedValue) + ": " + intToStr(nextLevel->getKills()) + ")";
 		}
 	}
 
@@ -3063,7 +3060,7 @@ string Unit::getDesc() const {
 
 	//load
 	if(loadCount!=0){
-		str+= "\n" + lang.get("Load")+ ": " + intToStr(loadCount) +"  " + loadType->getName(true);
+		str+= "\n" + lang.get("Load")+ ": " + intToStr(loadCount) +"  " + loadType->getName(translatedValue);
 	}
 
 	//consumable production
@@ -3072,13 +3069,13 @@ string Unit::getDesc() const {
 		if(r->getType()->getClass() == rcConsumable) {
 			str+= "\n";
 			str+= r->getAmount() < 0 ? lang.get("Produce")+": ": lang.get("Consume")+": ";
-			str+= intToStr(abs(r->getAmount())) + " " + r->getType()->getName(true);
+			str+= intToStr(abs(r->getAmount())) + " " + r->getType()->getName(translatedValue);
 		}
 	}
 
 	//command info
     if(commands.empty() == false) {
-		str+= "\n" + commands.front()->getCommandType()->getName(true);
+		str+= "\n" + commands.front()->getCommandType()->getName(translatedValue);
 		if(commands.size() > 1) {
 			str+= "\n" + lang.get("OrdersOnQueue") + ": " + intToStr(commands.size());
 		}
@@ -3089,7 +3086,7 @@ string Unit::getDesc() const {
 			for(int i = 0; i < getType()->getStoredResourceCount(); ++i) {
 				const Resource *r= getType()->getStoredResource(i);
 				str+= "\n" + lang.get("Store") + ": ";
-				str+= intToStr(r->getAmount()) + " " + r->getType()->getName(true);
+				str+= intToStr(r->getAmount()) + " " + r->getType()->getName(translatedValue);
 			}
 		}
 	}
@@ -3403,7 +3400,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 			result.first = crFailReqs;
 
 			Lang &lang= Lang::getInstance();
-			result.second = " - " + lang.get("Reqs") + " : " + produced->getUnitAndUpgradeReqDesc(false);
+			result.second = " - " + lang.get("Reqs") + " : " + produced->getUnitAndUpgradeReqDesc(false,this->showTranslatedTechTree());
 			return result;
 		}
 
@@ -3413,7 +3410,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 			//printf("In [%s::%s Line: %d] command = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,command);
 			result.first = crFailRes;
 			Lang &lang= Lang::getInstance();
-			result.second = " - " + lang.get("Reqs") + " : " + produced->getResourceReqDesc(false);
+			result.second = " - " + lang.get("Reqs") + " : " + produced->getResourceReqDesc(false,this->showTranslatedTechTree());
 			return result;
 		}
 	}
@@ -3433,7 +3430,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 			//printf("In [%s::%s Line: %d] command = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,command);
 			result.first = crFailReqs;
 			Lang &lang= Lang::getInstance();
-			result.second = " - " + lang.get("Reqs") + " : " + builtUnit->getUnitAndUpgradeReqDesc(false);
+			result.second = " - " + lang.get("Reqs") + " : " + builtUnit->getUnitAndUpgradeReqDesc(false,this->showTranslatedTechTree());
 			return result;
 		}
 		if(faction->checkCosts(builtUnit,NULL) == false) {
@@ -3441,7 +3438,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 			//printf("In [%s::%s Line: %d] command = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,command);
 			result.first = crFailRes;
 			Lang &lang= Lang::getInstance();
-			result.second = " - " + lang.get("Reqs") + " : " + builtUnit->getResourceReqDesc(false);
+			result.second = " - " + lang.get("Reqs") + " : " + builtUnit->getResourceReqDesc(false,this->showTranslatedTechTree());
 			return result;
 		}
     }
@@ -3830,7 +3827,7 @@ void Unit::logSynchDataCommon(string file,int line,string source,bool threadedMo
 	    		"FrameCount [%d] Unit = %d [%s][%s] pos = %s, lastPos = %s, targetPos = %s, targetVec = %s, meetingPos = %s, progress [" MG_I64_SPECIFIER "], progress2 [%d]\nUnit Path [%s]\n",
 	    		getFrameCount(),
 	    		id,
-				getFullName().c_str(),
+				getFullName(false).c_str(),
 				faction->getType()->getName(false).c_str(),
 				//getDesc().c_str(),
 				pos.getString().c_str(),
@@ -4006,7 +4003,7 @@ Vec2i Unit::getPosWithCellMapSet() const {
 }
 
 string Unit::getUniquePickName() const {
-	string result = intToStr(id) + " - " + type->getName() + " : ";
+	string result = intToStr(id) + " - " + type->getName(false) + " : ";
 	result += pos.getString();
 	return result;
 }
@@ -4034,12 +4031,16 @@ void Unit::clearCaches() {
 	lastHarvestedResourcePos = Vec2i(0,0);
 }
 
+bool Unit::showTranslatedTechTree() const {
+	return (this->game != NULL ? this->game->showTranslatedTechTree() : true);
+}
+
 std::string Unit::toString() const {
 	std::string result = "";
 
 	result += "id = " + intToStr(this->id);
 	if(this->type != NULL) {
-		result += " name [" + this->type->getName() + "][" + intToStr(this->type->getId()) + "]";
+		result += " name [" + this->type->getName(false) + "][" + intToStr(this->type->getId()) + "]";
 	}
 
 	if(this->faction != NULL) {
@@ -4145,7 +4146,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 //	const int id;
 	unitNode->addAttribute("id",intToStr(id), mapTagReplacements);
 	// For info purposes only
-	unitNode->addAttribute("name",type->getName(), mapTagReplacements);
+	unitNode->addAttribute("name",type->getName(false), mapTagReplacements);
 
 //    int hp;
 	unitNode->addAttribute("hp",intToStr(hp), mapTagReplacements);
@@ -4206,9 +4207,9 @@ void Unit::saveGame(XmlNode *rootNode) {
 //	float rotationX;
 	unitNode->addAttribute("rotationX",floatToStr(rotationX,16), mapTagReplacements);
 //    const UnitType *type;
-	unitNode->addAttribute("type",type->getName(), mapTagReplacements);
+	unitNode->addAttribute("type",type->getName(false), mapTagReplacements);
 
-	unitNode->addAttribute("preMorph_type",(preMorph_type != NULL ? preMorph_type->getName() : ""), mapTagReplacements);
+	unitNode->addAttribute("preMorph_type",(preMorph_type != NULL ? preMorph_type->getName(false) : ""), mapTagReplacements);
 
 //    const ResourceType *loadType;
 	if(loadType != NULL) {

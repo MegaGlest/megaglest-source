@@ -167,7 +167,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 			if(unit->getCurrCommand() != NULL &&
 				unit->getCurrCommand()->getCommandType()->getClass() == ccAttackStopped) {
 				reQueueHoldPosition = true;
-				holdPositionName = unit->getCurrCommand()->getCommandType()->getName();
+				holdPositionName = unit->getCurrCommand()->getCommandType()->getName(false);
 			}
 
 			unit->setCurrSkill(scStop);
@@ -180,7 +180,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 					const CommandType* ct= ut->getCommandType(i);
 					if(ct != NULL && ct->getClass() == ccAttackStopped) {
 						const AttackStoppedCommandType *act= static_cast<const AttackStoppedCommandType*>(ct);
-						if(act != NULL && act->getName() == holdPositionName) {
+						if(act != NULL && act->getName(false) == holdPositionName) {
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 							//printf("Re-Queing hold pos = %d, ep = %d skillep = %d skillname [%s]\n ",unit->getFaction()->reqsOk(act),unit->getEp(),act->getAttackSkillType()->getEpCost(),act->getName().c_str());
@@ -300,7 +300,7 @@ void UnitUpdater::updateUnitCommand(Unit *unit, int frameIndex) {
 	//if unit has command process it
     bool hasCommand = (unit->anyCommand());
 
-    if((minorDebugPerformance && frameIndex > 0) && chrono.getMillis() >= 1) printf("UnitUpdate [%d - %s] #1-unit threaded updates on frame: %d took [%lld] msecs\n",unit->getId(),unit->getType()->getName().c_str(),frameIndex,(long long int)chrono.getMillis());
+    if((minorDebugPerformance && frameIndex > 0) && chrono.getMillis() >= 1) printf("UnitUpdate [%d - %s] #1-unit threaded updates on frame: %d took [%lld] msecs\n",unit->getId(),unit->getType()->getName(false).c_str(),frameIndex,(long long int)chrono.getMillis());
 
 	int64 elapsed1 = 0;
 	if(minorDebugPerformance && frameIndex > 0) elapsed1 = chrono.getMillis();
@@ -327,7 +327,7 @@ void UnitUpdater::updateUnitCommand(Unit *unit, int frameIndex) {
 
     	if((minorDebugPerformance && frameIndex > 0) && (chrono.getMillis() - elapsed1) >= 1) {
     		//CommandClass cc = unit->getCurrCommand()->getCommandType()->commandTypeClass;
-    		printf("UnitUpdate [%d - %s] #2-unit threaded updates on frame: %d commandUsesPathFinder = %d took [%lld] msecs\nCommand: %s\n",unit->getId(),unit->getType()->getName().c_str(),frameIndex,commandUsesPathFinder,(long long int)chrono.getMillis() - elapsed1,unit->getCurrCommand()->toString().c_str());
+    		printf("UnitUpdate [%d - %s] #2-unit threaded updates on frame: %d commandUsesPathFinder = %d took [%lld] msecs\nCommand: %s\n",unit->getId(),unit->getType()->getName(false).c_str(),frameIndex,commandUsesPathFinder,(long long int)chrono.getMillis() - elapsed1,unit->getCurrCommand()->toString().c_str());
     	}
 	}
 
@@ -348,7 +348,7 @@ void UnitUpdater::updateUnitCommand(Unit *unit, int frameIndex) {
 		}
     }
     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-    if((minorDebugPerformance && frameIndex > 0) && chrono.getMillis() >= 1) printf("UnitUpdate [%d - %s] #3-unit threaded updates on frame: %d took [%lld] msecs\n",unit->getId(),unit->getType()->getName().c_str(),frameIndex,(long long int)chrono.getMillis());
+    if((minorDebugPerformance && frameIndex > 0) && chrono.getMillis() >= 1) printf("UnitUpdate [%d - %s] #3-unit threaded updates on frame: %d took [%lld] msecs\n",unit->getId(),unit->getType()->getName(false).c_str(),frameIndex,(long long int)chrono.getMillis());
 }
 
 // ==================== updateStop ====================
@@ -438,7 +438,7 @@ void UnitUpdater::updateMove(Unit *unit, int frameIndex) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"[updateMove] pos [%s] unit [%d - %s] cmd [%s]",pos.getString().c_str(),unit->getId(),unit->getFullName().c_str(),command->toString().c_str());
+		snprintf(szBuf,8096,"[updateMove] pos [%s] unit [%d - %s] cmd [%s]",pos.getString().c_str(),unit->getId(),unit->getFullName(false).c_str(),command->toString().c_str());
 		unit->logSynchData(__FILE__,__LINE__,szBuf);
 	}
 //	else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
@@ -958,7 +958,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 					builtUnit->create();
 
 					if(builtUnitType->hasSkillClass(scBeBuilt) == false) {
-						throw megaglest_runtime_error("Unit [" + builtUnitType->getName() + "] has no be_built skill, producer was [" + intToStr(unit->getId()) + " - " + unit->getType()->getName() + "].");
+						throw megaglest_runtime_error("Unit [" + builtUnitType->getName(false) + "] has no be_built skill, producer was [" + intToStr(unit->getId()) + " - " + unit->getType()->getName(false) + "].");
 					}
 
 					builtUnit->setCurrSkill(scBeBuilt);
@@ -1762,7 +1762,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unit = %p\n",__FILE__,__FUNCTION__,__LINE__,unit);
 
 	//if(unit != NULL) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unit doing the repair [%s] - %d\n",__FILE__,__FUNCTION__,__LINE__,unit->getFullName().c_str(),unit->getId());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unit doing the repair [%s] - %d\n",__FILE__,__FUNCTION__,__LINE__,unit->getFullName(false).c_str(),unit->getId());
 	//}
 
     Command *command= unit->getCurrCommand();
@@ -1777,7 +1777,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 	}
 
 	if(repaired != NULL) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unit to repair [%s] - %d\n",__FILE__,__FUNCTION__,__LINE__,repaired->getFullName().c_str(),repaired->getId());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unit to repair [%s] - %d\n",__FILE__,__FUNCTION__,__LINE__,repaired->getFullName(false).c_str(),repaired->getId());
 	}
 
 	if(chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1786,7 +1786,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 	Unit *peerUnitBuilder = findPeerUnitBuilder(unit);
 
 	if(peerUnitBuilder != NULL) {
-		SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unit peer [%s] - %d\n",__FILE__,__FUNCTION__,__LINE__,peerUnitBuilder->getFullName().c_str(),peerUnitBuilder->getId());
+		SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unit peer [%s] - %d\n",__FILE__,__FUNCTION__,__LINE__,peerUnitBuilder->getFullName(false).c_str(),peerUnitBuilder->getId());
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1881,7 +1881,7 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 		}
 	}
 	else {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unit to repair[%s]\n",__FILE__,__FUNCTION__,__LINE__,repaired->getFullName().c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unit to repair[%s]\n",__FILE__,__FUNCTION__,__LINE__,repaired->getFullName(false).c_str());
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] repaired = %p, nextToRepaired = %d, unit->getCurrSkill()->getClass() = %d\n",__FILE__,__FUNCTION__,__LINE__,repaired,nextToRepaired,unit->getCurrSkill()->getClass());

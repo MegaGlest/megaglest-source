@@ -713,7 +713,7 @@ string Gui::computeDefaultInfoString() {
 	if(selection.isUniform()) {
 		if(selection.isObserver() || selection.isCommandable()) {
 			// default is the description extension
-			result = selection.getFrontUnit()->getDescExtension();
+			result = selection.getFrontUnit()->getDescExtension(game->showTranslatedTechTree());
 		}
 	}
 	return result;
@@ -744,7 +744,7 @@ void Gui::computeInfoString(int posDisplay){
 
 					if(ct!=NULL){
 						if(unit->getFaction()->reqsOk(ct)){
-							display.setInfoText(ct->getDesc(unit->getTotalUpgrade()));
+							display.setInfoText(ct->getDesc(unit->getTotalUpgrade(),game->showTranslatedTechTree()));
 						}
 						else{
 							if(ct->getClass()==ccUpgrade){
@@ -756,10 +756,10 @@ void Gui::computeInfoString(int posDisplay){
 								else if(unit->getFaction()->getUpgradeManager()->isUpgraded(uct->getProducedUpgrade())){
 									text=lang.get("AlreadyUpgraded")+"\n\n";
 								}
-								display.setInfoText(text+ct->getReqDesc());
+								display.setInfoText(text+ct->getReqDesc(game->showTranslatedTechTree()));
 							}
 							else{
-								display.setInfoText(ct->getReqDesc());
+								display.setInfoText(ct->getReqDesc(game->showTranslatedTechTree()));
 							}
 						}
 					}
@@ -782,7 +782,7 @@ void Gui::computeInfoString(int posDisplay){
 			else{
 				if(activeCommandType!=NULL && activeCommandType->getClass()==ccBuild){
 					const BuildCommandType *bct= static_cast<const BuildCommandType*>(activeCommandType);
-					display.setInfoText(bct->getBuilding(posDisplay)->getReqDesc());
+					display.setInfoText(bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
 				}
 			}
 		}
@@ -800,7 +800,7 @@ void Gui::computeDisplay(){
 	const Object *selectedResourceObject =getSelectedResourceObject();
 	if(selection.isEmpty() && selectedResourceObject != NULL && selectedResourceObject->getResource() != NULL) {
 		Resource *r = selectedResourceObject->getResource();
-		display.setTitle(r->getType()->getName(true));
+		display.setTitle(r->getType()->getName(game->showTranslatedTechTree()));
 		display.setText(lang.get("Amount")+ ": "+intToStr(r->getAmount())+" / "+intToStr(r->getType()->getDefResPerPatch()));
 		//display.setProgressBar(r->);
 		display.setUpImage(0, r->getType()->getImage());
@@ -808,8 +808,8 @@ void Gui::computeDisplay(){
 	else {
 		//title, text and progress bar
 		if(selection.getCount() == 1){
-			display.setTitle(selection.getFrontUnit()->getFullName());
-			display.setText(selection.getFrontUnit()->getDesc());
+			display.setTitle(selection.getFrontUnit()->getFullName(game->showTranslatedTechTree()));
+			display.setText(selection.getFrontUnit()->getDesc(game->showTranslatedTechTree()));
 			display.setProgressBar(selection.getFrontUnit()->getProductionPercent());
 		}
 
@@ -1267,12 +1267,12 @@ void Gui::saveGame(XmlNode *rootNode) const {
 //	const UnitType *choosenBuildingType;
 	if(choosenBuildingType != NULL) {
 		const Faction* thisFaction= world->getThisFaction();
-		guiNode->addAttribute("choosenBuildingType",choosenBuildingType->getName(), mapTagReplacements);
+		guiNode->addAttribute("choosenBuildingType",choosenBuildingType->getName(false), mapTagReplacements);
 		guiNode->addAttribute("choosenBuildingTypeFactionIndex",intToStr(thisFaction->getIndex()), mapTagReplacements);
 	}
 //	const CommandType *activeCommandType;
 	if(activeCommandType != NULL) {
-		guiNode->addAttribute("activeCommandType",activeCommandType->getName(), mapTagReplacements);
+		guiNode->addAttribute("activeCommandType",activeCommandType->getName(false), mapTagReplacements);
 	}
 
 //	CommandClass activeCommandClass;

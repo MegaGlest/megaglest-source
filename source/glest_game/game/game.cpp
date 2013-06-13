@@ -448,6 +448,10 @@ Game::~Game() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
+bool Game::showTranslatedTechTree() const {
+	return this->gameSettings.getNetworkAllowNativeLanguageTechtree();
+}
+
 bool Game::quitTriggered() {
 	return quitTriggeredIndicator;
 }
@@ -866,8 +870,11 @@ string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger,
 			logger->setState(Lang::getInstance().get("Loading"));
 
 			if(scenarioName.empty()) {
+				string scenarioDir = extractDirectoryPathFromFile(settings->getScenarioDir());
+				TechTree techTree(Config::getInstance().getPathListForType(ptTechs,scenarioDir));
+
 				logger->setSubtitle(formatString(mapName) + " - " +
-						formatString(tilesetName) + " - " + formatString(techName));
+						formatString(tilesetName) + " - " + formatString(techTree.getTranslatedName(techName)));
 			}
 			else {
 				logger->setSubtitle(formatString(scenarioName));

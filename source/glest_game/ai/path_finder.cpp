@@ -312,7 +312,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 	if(unit->getUsePathfinderExtendedMaxNodes() == true) {
 		const bool showConsoleDebugInfo = Config::getInstance().getBool("EnablePathfinderDistanceOutput","false");
 		if(showConsoleDebugInfo || SystemFlags::VERBOSE_MODE_ENABLED) {
-			printf("\n\n\n\n### Continued call to AStar with LARGE maxnodes for unit [%d - %s]\n\n",unit->getId(),unit->getFullName().c_str());
+			printf("\n\n\n\n### Continued call to AStar with LARGE maxnodes for unit [%d - %s]\n\n",unit->getId(),unit->getFullName(false).c_str());
 		}
 
 		maxNodeCount= PathFinder::pathFindNodesAbsoluteMax;
@@ -339,7 +339,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 
 	uint32 searched_node_count = 0;
 	minorDebugPathfinder = false;
-	if(minorDebugPathfinder) printf("Legacy Pathfind Unit [%d - %s] from = %s to = %s frameIndex = %d\n",unit->getId(),unit->getType()->getName().c_str(),unit->getPos().getString().c_str(),finalPos.getString().c_str(),frameIndex);
+	if(minorDebugPathfinder) printf("Legacy Pathfind Unit [%d - %s] from = %s to = %s frameIndex = %d\n",unit->getId(),unit->getType()->getName(false).c_str(),unit->getPos().getString().c_str(),finalPos.getString().c_str(),frameIndex);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 		char szBuf[8096]="";
@@ -370,7 +370,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				path->isStuck() == true) {
 
 				//printf("$$$$ Unit START BAILOUT ATTEMPT for [%d - %s]\n",unit->getId(),unit->getFullName().c_str());
-				if(minorDebugPathfinder) printf("Pathfind Unit [%d - %s] START BAILOUT ATTEMPT frameIndex = %d\n",unit->getId(),unit->getType()->getName().c_str(),frameIndex);
+				if(minorDebugPathfinder) printf("Pathfind Unit [%d - %s] START BAILOUT ATTEMPT frameIndex = %d\n",unit->getId(),unit->getType()->getName(false).c_str(),frameIndex);
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 					char szBuf[8096]="";
@@ -411,7 +411,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 
 					if(showConsoleDebugInfo && unitImmediatelyBlocked) {
 						printf("**Check if src blocked [%d], unit [%d - %s] from [%s] to [%s] unitImmediatelyBlocked = %d, failureCount = %d [%d]\n",
-								unitImmediatelyBlocked, unit->getId(),unit->getFullName().c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), unitImmediatelyBlocked,failureCount,cellCount);
+								unitImmediatelyBlocked, unit->getId(),unit->getFullName(false).c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), unitImmediatelyBlocked,failureCount,cellCount);
 					}
 
 					if(unitImmediatelyBlocked == false) {
@@ -521,7 +521,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 							unit->setCurrSkill(scStop);
 						}
 
-						if(minorDebugPathfinderPerformance && chrono.getMillis() >= 1) printf("Unit [%d - %s] astar #2 took [%lld] msecs, ts = %d searched_node_count = %d.\n",unit->getId(),unit->getType()->getName().c_str(),(long long int)chrono.getMillis(),ts,searched_node_count);
+						if(minorDebugPathfinderPerformance && chrono.getMillis() >= 1) printf("Unit [%d - %s] astar #2 took [%lld] msecs, ts = %d searched_node_count = %d.\n",unit->getId(),unit->getType()->getName(false).c_str(),(long long int)chrono.getMillis(),ts,searched_node_count);
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 							char szBuf[8096]="";
@@ -546,9 +546,9 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 							unit->setCurrSkill(scStop);
 						}
 
-						if(minorDebugPathfinder) printf("Pathfind Unit [%d - %s] INT BAILOUT ATTEMPT BLOCKED frameIndex = %d\n",unit->getId(),unit->getType()->getName().c_str(),frameIndex);
+						if(minorDebugPathfinder) printf("Pathfind Unit [%d - %s] INT BAILOUT ATTEMPT BLOCKED frameIndex = %d\n",unit->getId(),unit->getType()->getName(false).c_str(),frameIndex);
 
-						if(minorDebugPathfinderPerformance && chrono.getMillis() >= 1) printf("Unit [%d - %s] astar #3 took [%lld] msecs, ts = %d searched_node_count = %d.\n",unit->getId(),unit->getType()->getName().c_str(),(long long int)chrono.getMillis(),ts,searched_node_count);
+						if(minorDebugPathfinderPerformance && chrono.getMillis() >= 1) printf("Unit [%d - %s] astar #3 took [%lld] msecs, ts = %d searched_node_count = %d.\n",unit->getId(),unit->getType()->getName(false).c_str(),(long long int)chrono.getMillis(),ts,searched_node_count);
 						return tsBlocked;
 					}
 				}
@@ -559,7 +559,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			break;
 	}
 
-	if(minorDebugPathfinderPerformance && chrono.getMillis() >= 1) printf("Unit [%d - %s] astar took [%lld] msecs, ts = %d searched_node_count = %d.\n",unit->getId(),unit->getType()->getName().c_str(),(long long int)chrono.getMillis(),ts,searched_node_count);
+	if(minorDebugPathfinderPerformance && chrono.getMillis() >= 1) printf("Unit [%d - %s] astar took [%lld] msecs, ts = %d searched_node_count = %d.\n",unit->getId(),unit->getType()->getName(false).c_str(),(long long int)chrono.getMillis(),ts,searched_node_count);
 
 	return ts;
 }
@@ -1096,7 +1096,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	// Check the previous path find cache for the unit to see if its good to
 	// use
 	if(showConsoleDebugInfo || tryLastPathCache) {
-		if(showConsoleDebugInfo && dist > 60) printf("Distance from [%d - %s] to destination is %.2f tryLastPathCache = %d\n",unit->getId(),unit->getFullName().c_str(), dist,tryLastPathCache);
+		if(showConsoleDebugInfo && dist > 60) printf("Distance from [%d - %s] to destination is %.2f tryLastPathCache = %d\n",unit->getId(),unit->getFullName(false).c_str(), dist,tryLastPathCache);
 
 		if(tryLastPathCache == true && path != NULL) {
 			UnitPathBasic *basicPathFinder = dynamic_cast<UnitPathBasic *>(path);
@@ -1327,10 +1327,10 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 		}
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] **Check if dest blocked, distance for unit [%d - %s] from [%s] to [%s] is %.2f took msecs: %lld nodeLimitReached = %d, failureCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unit->getId(),unit->getFullName().c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,failureCount);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] **Check if dest blocked, distance for unit [%d - %s] from [%s] to [%s] is %.2f took msecs: %lld nodeLimitReached = %d, failureCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unit->getId(),unit->getFullName(false).c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,failureCount);
 		if(showConsoleDebugInfo && nodeLimitReached) {
 			printf("**Check if src blocked [%d - %d], unit [%d - %s] from [%s] to [%s] distance %.2f took msecs: %lld nodeLimitReached = %d, failureCount = %d [%d]\n",
-					nodeLimitReached, inBailout, unit->getId(),unit->getFullName().c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,failureCount,cellCount);
+					nodeLimitReached, inBailout, unit->getId(),unit->getFullName(false).c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,failureCount,cellCount);
 		}
 
 		if(nodeLimitReached == false) {
@@ -1360,10 +1360,10 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 			}
 
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] **Check if dest blocked, distance for unit [%d - %s] from [%s] to [%s] is %.2f took msecs: %lld nodeLimitReached = %d, failureCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unit->getId(),unit->getFullName().c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,failureCount);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] **Check if dest blocked, distance for unit [%d - %s] from [%s] to [%s] is %.2f took msecs: %lld nodeLimitReached = %d, failureCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unit->getId(),unit->getFullName(false).c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,failureCount);
 			if(showConsoleDebugInfo && nodeLimitReached) {
 				printf("**Check if dest blocked [%d - %d], unit [%d - %s] from [%s] to [%s] distance %.2f took msecs: %lld nodeLimitReached = %d, failureCount = %d [%d]\n",
-						nodeLimitReached, inBailout, unit->getId(),unit->getFullName().c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,failureCount,cellCount);
+						nodeLimitReached, inBailout, unit->getId(),unit->getFullName(false).c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,failureCount,cellCount);
 			}
 		}
 	}
@@ -1431,7 +1431,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				}
 
 				if(showConsoleDebugInfo || SystemFlags::VERBOSE_MODE_ENABLED) {
-					printf("\n\n\n\n$$$ Calling AStar with LARGE maxnodes for unit [%d - %s]\n\n",unit->getId(),unit->getFullName().c_str());
+					printf("\n\n\n\n$$$ Calling AStar with LARGE maxnodes for unit [%d - %s]\n\n",unit->getId(),unit->getFullName(false).c_str());
 				}
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
@@ -1465,7 +1465,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),nodeLimitReached,whileLoopCount,factions[unitFactionIndex].nodePoolCount);
 	if(showConsoleDebugInfo && chrono.getMillis() > 2) {
-		printf("Distance for unit [%d - %s] from [%s] to [%s] is %.2f took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d\n",unit->getId(),unit->getFullName().c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,whileLoopCount,factions[unitFactionIndex].nodePoolCount);
+		printf("Distance for unit [%d - %s] from [%s] to [%s] is %.2f took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d\n",unit->getId(),unit->getFullName(false).c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,whileLoopCount,factions[unitFactionIndex].nodePoolCount);
 	}
 
 	Node *lastNode= node;

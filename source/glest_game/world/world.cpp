@@ -1234,13 +1234,13 @@ void World::morphToUnit(int unitId,const string &morphName,bool ignoreRequiremen
 		for(int i = 0; i < unit->getType()->getCommandTypeCount(); ++i) {
 			const CommandType *ct = unit->getType()->getCommandType(i);
 			const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
-			if(mct != NULL && mct->getName() == morphName) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] comparing mct [%s]\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),mct->getName().c_str());
+			if(mct != NULL && mct->getName(false) == morphName) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] comparing mct [%s]\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),mct->getName(false).c_str());
 
 				std::pair<CommandResult,string> cr(crFailUndefined,"");
 				try {
 					if(unit->getFaction()->reqsOk(mct) == false && ignoreRequirements == true) {
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] comparing mct [%s] mct->getUpgradeReqCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),mct->getName().c_str(),mct->getUpgradeReqCount());
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] comparing mct [%s] mct->getUpgradeReqCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),mct->getName(false).c_str(),mct->getUpgradeReqCount());
 						unit->setIgnoreCheckCommand(true);
 					}
 
@@ -1261,7 +1261,7 @@ void World::morphToUnit(int unitId,const string &morphName,bool ignoreRequiremen
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				}
 
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] comparing mct [%s] returned = %d\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),mct->getName().c_str(),cr.first);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] comparing mct [%s] returned = %d\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),mct->getName(false).c_str(),cr.first);
 
 				break;
 			}
@@ -1412,9 +1412,9 @@ void World::givePositionCommand(int unitId, const string &commandName, const Vec
 		}
 
 		if(unit->getType()->getFirstCtOfClass(cc) == NULL) {
-			throw megaglest_runtime_error("Invalid commmand: [" + commandName + "] for unit: [" + unit->getType()->getName() + "] id [" + intToStr(unit->getId()) + "]");
+			throw megaglest_runtime_error("Invalid commmand: [" + commandName + "] for unit: [" + unit->getType()->getName(false) + "] id [" + intToStr(unit->getId()) + "]");
 		}
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] cc = %d Unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,cc,unit->getFullName().c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] cc = %d Unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,cc,unit->getFullName(false).c_str());
 		unit->giveCommand(new Command( unit->getType()->getFirstCtOfClass(cc), pos ));
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
@@ -1428,7 +1428,7 @@ void World::giveStopCommand(int unitId) {
 	if(unit != NULL) {
 		const CommandType *ct = unit->getType()->getFirstCtOfClass(ccStop);
 		if(ct != NULL) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Unit [%s] will stop\n",__FILE__,__FUNCTION__,__LINE__,unit->getFullName().c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Unit [%s] will stop\n",__FILE__,__FUNCTION__,__LINE__,unit->getFullName(false).c_str());
 			unit->giveCommand(new Command(ct));
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1488,7 +1488,7 @@ void World::giveAttackCommand(int unitId, int unitToAttackId) {
 		if(targetUnit != NULL) {
 			const CommandType *ct = unit->getType()->getFirstAttackCommand(targetUnit->getCurrField());
 			if(ct != NULL) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Unit [%s] is attacking [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->getFullName().c_str(),targetUnit->getFullName().c_str());
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Unit [%s] is attacking [%s]\n",__FILE__,__FUNCTION__,__LINE__,unit->getFullName(false).c_str(),targetUnit->getFullName(false).c_str());
 				unit->giveCommand(new Command(ct,targetUnit));
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			}
@@ -1523,7 +1523,7 @@ void World::giveProductionCommand(int unitId, const string &producedName) {
 			if(ct != NULL && ct->getClass() == ccProduce) {
 				const ProduceCommandType *pct= dynamic_cast<const ProduceCommandType*>(ct);
 				if(pct != NULL && pct->getProducedUnit() != NULL &&
-					pct->getProducedUnit()->getName() == producedName) {
+					pct->getProducedUnit()->getName(false) == producedName) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 					//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
@@ -1552,7 +1552,7 @@ void World::giveAttackStoppedCommand(int unitId, const string &itemName, bool ig
 			const CommandType* ct= ut->getCommandType(i);
 			if(ct != NULL && ct->getClass() == ccAttackStopped) {
 				const AttackStoppedCommandType *act= static_cast<const AttackStoppedCommandType*>(ct);
-				if(act != NULL && act->getName() == itemName) {
+				if(act != NULL && act->getName(false) == itemName) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 					try {
@@ -1643,10 +1643,10 @@ void World::moveToUnit(int unitId, int destUnitId) {
 	Unit* unit= findUnitById(unitId);
 	if(unit != NULL) {
 		CommandClass cc= ccMove;
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] cc = %d Unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,cc,unit->getFullName().c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] cc = %d Unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,cc,unit->getFullName(false).c_str());
 		Unit* destUnit = findUnitById(destUnitId);
 		if(destUnit != NULL) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] cc = %d Unit [%s] destUnit [%s]\n",__FILE__,__FUNCTION__,__LINE__,cc,unit->getFullName().c_str(),destUnit->getFullName().c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] cc = %d Unit [%s] destUnit [%s]\n",__FILE__,__FUNCTION__,__LINE__,cc,unit->getFullName(false).c_str(),destUnit->getFullName(false).c_str());
 			unit->giveCommand(new Command( unit->getType()->getFirstCtOfClass(cc), destUnit));
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
@@ -1845,7 +1845,7 @@ const string World::getUnitName(int unitId) {
 	if(unit == NULL) {
 		throw megaglest_runtime_error("Can not find Faction unit to get position unitId = " + intToStr(unitId));
 	}
-	return unit->getFullName();
+	return unit->getFullName(game->showTranslatedTechTree());
 }
 
 int World::getUnitCount(int factionIndex) {
@@ -1873,7 +1873,7 @@ int World::getUnitCountOfType(int factionIndex, const string &typeName) {
 
 		for(int i= 0; i< faction->getUnitCount(); ++i) {
 			const Unit* unit= faction->getUnit(i);
-			if(unit != NULL && unit->isAlive() && unit->getType()->getName() == typeName) {
+			if(unit != NULL && unit->isAlive() && unit->getType()->getName(false) == typeName) {
 				++count;
 			}
 		}
@@ -2118,7 +2118,7 @@ void World::initUnitsForScenario() {
 				//unit->born();
 			}
 			else {
-				string unitName = unit->getType()->getName();
+				string unitName = unit->getType()->getName(false);
 				delete unit;
 				unit = NULL;
 				throw megaglest_runtime_error("Unit: " + unitName + " can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #" + intToStr(i) + " name: " + ft->getName(false));
@@ -2144,7 +2144,7 @@ void World::placeUnitAtLocation(const Vec2i &location, int radius, Unit *unit, b
 		unit->born(NULL);
 	}
 	else {
-		string unitName = unit->getType()->getName();
+		string unitName = unit->getType()->getName(false);
 		string unitFactionName = unit->getFaction()->getType()->getName(false);
 		int unitFactionIndex = unit->getFactionIndex();
 
@@ -2818,7 +2818,7 @@ std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {
 			for(int j= unitCount - 1; j >= 0; j--){
 				Unit *unit= getFaction(i)->getUnit(j);
 				if(unit->getToBeUndertaken()) {
-					logFile << "Undertake unit index = " << j << unit->getFullName() << std::endl;
+					logFile << "Undertake unit index = " << j << unit->getFullName(false) << std::endl;
 				}
 			}
 		}

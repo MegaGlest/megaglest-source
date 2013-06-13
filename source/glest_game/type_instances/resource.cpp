@@ -57,10 +57,10 @@ void Resource::init(const ResourceType *rt, const Vec2i &pos) {
 	addItemToVault(&this->balance,this->balance);
 }
 
-string Resource::getDescription() const {
+string Resource::getDescription(bool translatedValue) const {
      string str;
 
-     str+= type->getName(true);
+     str+= type->getName(translatedValue);
      str+="\n";
      str+= intToStr(amount);
      str+="/";

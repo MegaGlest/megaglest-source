@@ -44,6 +44,7 @@ TechTree::TechTree(const vector<string> pathList) {
 	armorTypes.clear();
 	attackTypes.clear();
 	translatedTechNames.clear();
+	translatedTechFactionNames.clear();
 }
 
 string TechTree::getName(bool translatedValue) const {
@@ -53,14 +54,14 @@ string TechTree::getName(bool translatedValue) const {
 	return lang.getTechTreeString("TechTreeName",name.c_str());
 }
 
-string TechTree::getTranslatedName(string techName, bool forceLoad) {
+string TechTree::getTranslatedName(string techName, bool forceLoad, bool forceTechtreeActiveFile) {
 	string result = techName;
 
-	if(translatedTechNames.find(techName) != translatedTechNames.end()) {
+	if(forceTechtreeActiveFile == false &&
+			translatedTechNames.find(techName) != translatedTechNames.end()) {
 		result = translatedTechNames[techName];
 	}
 	else {
-		//TechTree techTree(pathList);
 		name = "";
 		string path = findPath(techName);
 		if(path != "") {
@@ -78,6 +79,24 @@ string TechTree::getTranslatedName(string techName, bool forceLoad) {
 		}
 
 	}
+	return result;
+}
+
+string TechTree::getTranslatedFactionName(string techName, string factionName) {
+	std::map<string,std::map<string,string> >::iterator iterMap = translatedTechFactionNames.find(techName);
+	if(iterMap != translatedTechFactionNames.end()) {
+		if(iterMap->second.find(factionName) != iterMap->second.end()) {
+			return iterMap->second.find(factionName)->second;
+		}
+	}
+
+	getTranslatedName(techName,false,true);
+	Lang &lang = Lang::getInstance();
+	string result = lang.getTechTreeString("FactionName_" + factionName,factionName.c_str());
+	translatedTechFactionNames[techName][factionName] = result;
+
+	//printf("Translated faction for Tech [%s] faction [%s] result [%s]\n",techName.c_str(),factionName.c_str(),result.c_str());
+
 	return result;
 }
 
@@ -248,7 +267,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		    		Lang::getInstance().get("Faction").c_str(),
 		    		i+1,
 		    		(int)factions.size(),
-		    		factionName.c_str());
+		    		this->getTranslatedFactionName(name,factionName).c_str());
 		    Logger &logger= Logger::getInstance();
 		    logger.setState(szBuf);
 		    logger.setProgress((int)((((double)i) / (double)factions.size()) * 100.0));
@@ -409,7 +428,7 @@ const ResourceType *TechTree::getResourceType(const string &name) const{
 
 const ArmorType *TechTree::getArmorType(const string &name) const{
 	for(int i=0; i<armorTypes.size(); ++i){
-		if(armorTypes[i].getName()==name){
+		if(armorTypes[i].getName(false)==name){
 			return &armorTypes[i];
 		}
 	}
@@ -419,7 +438,7 @@ const ArmorType *TechTree::getArmorType(const string &name) const{
 
 const AttackType *TechTree::getAttackType(const string &name) const{
 	for(int i=0; i<attackTypes.size(); ++i){
-		if(attackTypes[i].getName()==name){
+		if(attackTypes[i].getName(false)==name){
 			return &attackTypes[i];
 		}
 	}

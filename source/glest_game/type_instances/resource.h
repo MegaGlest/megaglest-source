@@ -56,7 +56,7 @@ public:
 
 	int getAmount() const;
 	int getBalance() const;
-	string getDescription() const;
+	string getDescription(bool translatedValue) const;
 
 	void setAmount(int amount);
 	void setBalance(int balance);

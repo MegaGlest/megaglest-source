@@ -545,7 +545,7 @@ public:
 	inline int getEnemyKills() const					{return enemyKills;}
 	inline const Level *getLevel() const				{return level;}
 	const Level *getNextLevel() const;
-	string getFullName() const;
+	string getFullName(bool translatedValue) const;
 	inline const UnitPathInterface *getPath() const	{return unitPath;}
 	inline UnitPathInterface *getPath()				{return unitPath;}
 	inline WaypointPath *getWaypointPath()				{return &waypointPath;}
@@ -645,8 +645,8 @@ public:
     //other
 	void resetHighlight();
 	const CommandType *computeCommandType(const Vec2i &pos, const Unit *targetUnit= NULL) const;
-	string getDesc() const;
-	string getDescExtension() const;
+	string getDesc(bool translatedValue) const;
+	string getDescExtension(bool translatedValue) const;
     bool computeEp();
     //bool computeHp();
     bool repair();
@@ -766,6 +766,7 @@ public:
 	static Unit * loadGame(const XmlNode *rootNode,GameSettings *settings,Faction *faction, World *world);
 
 	void clearCaches();
+	bool showTranslatedTechTree() const;
 
 private:
 	float computeHeight(const Vec2i &pos) const;

@@ -228,7 +228,7 @@ void Object::setVisible( bool visible)
 string Object::getUniquePickName() const {
 	string result = "";
 	if(resource != NULL) {
-		result += resource->getDescription() + " : ";
+		result += resource->getDescription(false) + " : ";
 	}
 	result += mapPos.getString();
 	return result;

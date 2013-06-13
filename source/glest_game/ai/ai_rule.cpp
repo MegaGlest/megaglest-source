@@ -667,10 +667,10 @@ void AiRuleProduce::execute() {
 	AiInterface *aiInterface= ai->getAiInterface();
 	if(produceTask!=NULL) {
 
-		if(ai->outputAIBehaviourToConsole()) printf("AiRuleProduce producing [%s]\n",(produceTask->getUnitType() != NULL ? produceTask->getUnitType()->getName().c_str() : "null"));
+		if(ai->outputAIBehaviourToConsole()) printf("AiRuleProduce producing [%s]\n",(produceTask->getUnitType() != NULL ? produceTask->getUnitType()->getName(false).c_str() : "null"));
 		if(aiInterface->isLogLevelEnabled(4) == true) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"AiRuleProduce producing [%s]",(produceTask->getUnitType() != NULL ? produceTask->getUnitType()->getName().c_str() : "null"));
+			snprintf(szBuf,8096,"AiRuleProduce producing [%s]",(produceTask->getUnitType() != NULL ? produceTask->getUnitType()->getName(false).c_str() : "null"));
 			aiInterface->printLog(4, szBuf);
 		}
 
@@ -761,7 +761,7 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 					const Resource *r= producedUnit->getCost(pt->getResourceType());
 
 					if(r != NULL) {
-						if(ai->outputAIBehaviourToConsole()) printf("produceGeneric r = [%s][%d] Testing AI RULE Name[%s]\n",r->getDescription().c_str(),r->getAmount(), this->getName().c_str());
+						if(ai->outputAIBehaviourToConsole()) printf("produceGeneric r = [%s][%d] Testing AI RULE Name[%s]\n",r->getDescription(false).c_str(),r->getAmount(), this->getName().c_str());
 					}
 
 					if(r != NULL && r->getAmount() < 0) {
@@ -1196,7 +1196,7 @@ bool AiRuleBuild::test(){
 
 void AiRuleBuild::execute() {
 	if(buildTask!=NULL) {
-		if(ai->outputAIBehaviourToConsole()) printf("BUILD AiRuleBuild Unit Name[%s]\n",(buildTask->getUnitType() != NULL ? buildTask->getUnitType()->getName().c_str() : "null"));
+		if(ai->outputAIBehaviourToConsole()) printf("BUILD AiRuleBuild Unit Name[%s]\n",(buildTask->getUnitType() != NULL ? buildTask->getUnitType()->getName(false).c_str() : "null"));
 
 		//generic build task, build random building that can be built
 		if(buildTask->getUnitType() == NULL) {
@@ -1457,7 +1457,7 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 }
 
 bool AiRuleBuild::isDefensive(const UnitType *building){
-	if(ai->outputAIBehaviourToConsole()) printf("BUILD isDefensive check for Unit Name[%s] result = %d\n",building->getName().c_str(),building->hasSkillClass(scAttack));
+	if(ai->outputAIBehaviourToConsole()) printf("BUILD isDefensive check for Unit Name[%s] result = %d\n",building->getName(false).c_str(),building->hasSkillClass(scAttack));
 
 	return building->hasSkillClass(scAttack);
 }
@@ -1465,12 +1465,12 @@ bool AiRuleBuild::isDefensive(const UnitType *building){
 bool AiRuleBuild::isResourceProducer(const UnitType *building){
 	for(int i= 0; i<building->getCostCount(); i++){
 		if(building->getCost(i)->getAmount()<0){
-			if(ai->outputAIBehaviourToConsole()) printf("BUILD isResourceProducer check for Unit Name[%s] result = true\n",building->getName().c_str());
+			if(ai->outputAIBehaviourToConsole()) printf("BUILD isResourceProducer check for Unit Name[%s] result = true\n",building->getName(false).c_str());
 
 			return true;
 		}
 	}
-	if(ai->outputAIBehaviourToConsole()) printf("BUILD isResourceProducer check for Unit Name[%s] result = false\n",building->getName().c_str());
+	if(ai->outputAIBehaviourToConsole()) printf("BUILD isResourceProducer check for Unit Name[%s] result = false\n",building->getName(false).c_str());
 
 	return false;
 }
@@ -1482,13 +1482,13 @@ bool AiRuleBuild::isWarriorProducer(const UnitType *building){
 			const UnitType *ut= static_cast<const ProduceCommandType*>(ct)->getProducedUnit();
 
 			if(ut->isOfClass(ucWarrior)){
-				if(ai->outputAIBehaviourToConsole()) printf("BUILD isWarriorProducer check for Unit Name[%s] result = true\n",building->getName().c_str());
+				if(ai->outputAIBehaviourToConsole()) printf("BUILD isWarriorProducer check for Unit Name[%s] result = true\n",building->getName(false).c_str());
 
 				return true;
 			}
 		}
 	}
-	if(ai->outputAIBehaviourToConsole()) printf("BUILD isWarriorProducer check for Unit Name[%s] result = false\n",building->getName().c_str());
+	if(ai->outputAIBehaviourToConsole()) printf("BUILD isWarriorProducer check for Unit Name[%s] result = false\n",building->getName(false).c_str());
 
 	return false;
 }

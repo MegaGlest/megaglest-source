@@ -106,7 +106,7 @@ public:
 	string name;
 
 	bool isAffected(const Unit *source, const Unit *dest) const;
-	virtual string getDesc() const;
+	virtual string getDesc(bool translatedValue) const;
 
 	virtual void saveGame(XmlNode *rootNode) const;
 };
@@ -188,7 +188,7 @@ public:
 	virtual int getTotalSpeed(const TotalUpgrade *) const	{return speed;}
 	static string skillClassToStr(SkillClass skillClass); 
 	static string fieldToStr(Field field);
-	virtual string getBoostDesc() const {return attackBoost.getDesc();}
+	virtual string getBoostDesc(bool translatedValue) const {return attackBoost.getDesc(translatedValue);}
 
 	virtual void saveGame(XmlNode *rootNode);
 };

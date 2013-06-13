@@ -134,7 +134,7 @@ std::string Command::toString() const {
 
 	if(unitType != NULL) {
 		result += ", unitTypeId = " + intToStr(unitType->getId());
-		result += ", unitTypeDesc = " + unitType->getReqDesc();
+		result += ", unitTypeDesc = " + unitType->getReqDesc(false);
 	}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
