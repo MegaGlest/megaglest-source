@@ -252,7 +252,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	//tileset listBox
 	listBoxTileset.registerGraphicComponent(containerName,"listBoxTileset");
 	listBoxTileset.init(xoffset+460, mapPos, 150);
-    //listBoxTileset.setItems(results);
+
 	setupTilesetList("");
 	Chrono seed(true);
 	srand((unsigned int)seed.getCurTicks());
@@ -4552,9 +4552,11 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 			results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
 		}
 
+		vector<string> translatedFactionNames;
 		factionFiles= results;
 		for(int i = 0; i < results.size(); ++i) {
 			results[i]= formatString(results[i]);
+			translatedFactionNames.push_back(techTree->getTranslatedFactionName(techTreeFiles[listBoxTechTree.getSelectedItemIndex()],factionFiles[i]));
 			//printf("FACTIONS i = %d results [%s]\n",i,results[i].c_str());
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",techTreeFiles[listBoxTechTree.getSelectedItemIndex()].c_str(),results[i].c_str());
@@ -4564,7 +4566,7 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 			int originalIndex = listBoxFactions[i].getSelectedItemIndex();
 			string originalValue = (listBoxFactions[i].getItemCount() > 0 ? listBoxFactions[i].getSelectedItem() : "");
 
-			listBoxFactions[i].setItems(results);
+			listBoxFactions[i].setItems(results,translatedFactionNames);
 			if( keepExistingSelectedItem == false ||
 				(checkBoxAllowObservers.getValue() == 0 &&
 						originalValue == formatString(GameConstants::OBSERVER_SLOTNAME)) ) {
