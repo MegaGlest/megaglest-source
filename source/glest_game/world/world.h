@@ -89,7 +89,6 @@ private:
 
 public:
 	static const int generationArea= 100;
-	static const float airHeight;
 	static const int indirectSightRange= 5;
 
 private:

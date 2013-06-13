@@ -412,6 +412,22 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 
 		//printf("==> Weather is: %d rnd = %f [sun: %f rainyProb: %f]",weather,rnd,sunnyProb,rainyProb);
 
+		//airHeight
+		if(parametersNode->hasChild("air-height")) {
+			const XmlNode *node= parametersNode->getChild("air-height");
+			airHeight= node->getAttribute("value")->getFloatValue();
+			// airHeight should not be lower than default
+			if( airHeight<Tileset::standardAirHeight){
+				airHeight=standardAirHeight;
+			}
+			// airHeight should not be bigger than 3 x default
+			if( airHeight>3*Tileset::standardAirHeight){
+				airHeight=3*Tileset::standardAirHeight;
+			}
+		}
+
+
+
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	}

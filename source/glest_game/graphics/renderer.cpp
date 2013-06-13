@@ -5232,10 +5232,10 @@ void Renderer::renderMorphEffects(){
 						Vec3f currVec= unit->getCurrVectorFlat();
 						currVec=Vec3f(currVec.x,currVec.y+0.3f,currVec.z);
 						if(mType->getField() == fAir && unit->getType()->getField()== fLand) {
-							currVec=Vec3f(currVec.x,currVec.y+World::airHeight,currVec.z);
+							currVec=Vec3f(currVec.x,currVec.y+game->getWorld()->getTileset()->getAirHeight(),currVec.z);
 						}
 						if(mType->getField() == fLand && unit->getType()->getField()== fAir) {
-							currVec=Vec3f(currVec.x,currVec.y-World::airHeight,currVec.z);
+							currVec=Vec3f(currVec.x,currVec.y-game->getWorld()->getTileset()->getAirHeight(),currVec.z);
 						}
 
 						float color=frameCycle*0.4f/40;
