@@ -43,6 +43,7 @@ TechTree::TechTree(const vector<string> pathList) {
     factionTypes.clear();
 	armorTypes.clear();
 	attackTypes.clear();
+	translatedTechNames.clear();
 }
 
 string TechTree::getName(bool translatedValue) const {
@@ -50,6 +51,34 @@ string TechTree::getName(bool translatedValue) const {
 
 	Lang &lang = Lang::getInstance();
 	return lang.getTechTreeString("TechTreeName",name.c_str());
+}
+
+string TechTree::getTranslatedName(string techName, bool forceLoad) {
+	string result = techName;
+
+	if(translatedTechNames.find(techName) != translatedTechNames.end()) {
+		result = translatedTechNames[techName];
+	}
+	else {
+		//TechTree techTree(pathList);
+		name = "";
+		string path = findPath(techName);
+		if(path != "") {
+			string currentPath = path;
+			endPathWithSlash(currentPath);
+			treePath = currentPath;
+			name= lastDir(currentPath);
+
+			Lang &lang = Lang::getInstance();
+			lang.loadTechTreeStrings(name,forceLoad);
+
+			result = getName(true);
+
+			translatedTechNames[techName] = result;
+		}
+
+	}
+	return result;
 }
 
 Checksum TechTree::loadTech(const string &techName,
@@ -98,7 +127,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 	name= lastDir(currentPath);
 
     Lang &lang = Lang::getInstance();
-    lang.loadTechTreeStrings(name);
+    lang.loadTechTreeStrings(name, true);
 
 	char szBuf[8096]="";
 	snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingTechtree","",true).c_str(),formatString(getName(true)).c_str());
@@ -321,7 +350,7 @@ std::vector<std::string> TechTree::validateResourceTypes() {
 
 FactionType *TechTree::getTypeByName(const string &name) {
     for(int i=0; i < factionTypes.size(); ++i) {
-          if(factionTypes[i].getName() == name) {
+          if(factionTypes[i].getName(false) == name) {
                return &factionTypes[i];
           }
     }
@@ -331,7 +360,7 @@ FactionType *TechTree::getTypeByName(const string &name) {
 
 const FactionType *TechTree::getType(const string &name) const {
     for(int i=0; i < factionTypes.size(); ++i) {
-          if(factionTypes[i].getName() == name) {
+          if(factionTypes[i].getName(false) == name) {
                return &factionTypes[i];
           }
     }

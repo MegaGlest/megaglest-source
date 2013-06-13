@@ -307,6 +307,8 @@ Game::Game(Program *program, const GameSettings *gameSettings,bool masterserverM
 	resetMembers();
 	this->gameSettings= *gameSettings;
 
+	Lang::getInstance().setAllowNativeLanguageTechtree(this->gameSettings.getNetworkAllowNativeLanguageTechtree());
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
@@ -435,6 +437,8 @@ Game::~Game() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	Unit::setGame(NULL);
+
+	Lang::getInstance().setAllowNativeLanguageTechtree(true);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== END GAME ==== getCurrentPixelByteCount() = %llu\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"==== END GAME ====\n");

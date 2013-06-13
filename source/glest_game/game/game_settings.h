@@ -127,6 +127,8 @@ private:
 
     int masterserver_admin_factionIndex;
 
+    bool networkAllowNativeLanguageTechtree;
+
 public:
 
     static string playerDisconnectedText;
@@ -171,6 +173,7 @@ public:
 		masterserver_admin = -1;
 		masterserver_admin_factionIndex = -1;
     	fallbackCpuMultiplier = 1.0f;
+    	networkAllowNativeLanguageTechtree = true;
     }
 
 	// default copy constructor will do fine, and will maintain itself ;)
@@ -480,17 +483,21 @@ public:
 
 	void setFactionCRCList(vector<pair<string,uint32> > value) { factionCRCList = value; }
 
-	int getAiAcceptSwitchTeamPercentChance() const 					{ return aiAcceptSwitchTeamPercentChance;}
-	void setAiAcceptSwitchTeamPercentChance(int value)				{ aiAcceptSwitchTeamPercentChance = value; }
+	int getAiAcceptSwitchTeamPercentChance() const 				{ return aiAcceptSwitchTeamPercentChance;}
+	void setAiAcceptSwitchTeamPercentChance(int value)			{ aiAcceptSwitchTeamPercentChance = value; }
 
 	int getFallbackCpuMultiplier() const 					{ return fallbackCpuMultiplier;}
-	void setFallbackCpuMultiplier(int value)					{ fallbackCpuMultiplier = value; }
+	void setFallbackCpuMultiplier(int value)				{ fallbackCpuMultiplier = value; }
 
-	int getMasterserver_admin() const 								{ return masterserver_admin;}
-	void setMasterserver_admin(int value)							{ masterserver_admin = value; }
+	int getMasterserver_admin() const 						{ return masterserver_admin;}
+	void setMasterserver_admin(int value)					{ masterserver_admin = value; }
 
-	int getMasterserver_admin_faction_index() const 								{ return masterserver_admin_factionIndex;}
-	void setMasterserver_admin_faction_index(int value)							{ masterserver_admin_factionIndex = value; }
+	int getMasterserver_admin_faction_index() const 		{ return masterserver_admin_factionIndex;}
+	void setMasterserver_admin_faction_index(int value)		{ masterserver_admin_factionIndex = value; }
+
+
+	bool getNetworkAllowNativeLanguageTechtree() const 		{ return networkAllowNativeLanguageTechtree;}
+	void setNetworkAllowNativeLanguageTechtree(bool value)	{ networkAllowNativeLanguageTechtree = value; }
 
 	string toString() const {
 		string result = "";
@@ -541,6 +548,7 @@ public:
 		result += "masterserver_admin = " + intToStr(masterserver_admin) + "\n";
 		result += "masterserver_admin_factionIndex = " + intToStr(masterserver_admin_factionIndex) + "\n";
 
+		result += "networkAllowNativeLanguageTechtree = " + intToStr(networkAllowNativeLanguageTechtree) + "\n";
 		return result;
 	}
 
@@ -669,6 +677,8 @@ public:
 		gameSettingsNode->addAttribute("masterserver_admin",intToStr(masterserver_admin), mapTagReplacements);
 
 		gameSettingsNode->addAttribute("masterserver_admin_factionIndex",intToStr(masterserver_admin_factionIndex), mapTagReplacements);
+
+		gameSettingsNode->addAttribute("networkAllowNativeLanguageTechtree",intToStr(networkAllowNativeLanguageTechtree), mapTagReplacements);
 	}
 
 	void loadGame(const XmlNode *rootNode) {
@@ -804,6 +814,10 @@ public:
 
 		if(gameSettingsNode->hasAttribute("masterserver_admin_factionIndex") == true) {
 			masterserver_admin_factionIndex = gameSettingsNode->getAttribute("masterserver_admin_factionIndex")->getIntValue();
+		}
+
+		if(gameSettingsNode->hasAttribute("networkAllowNativeLanguageTechtree") == true) {
+			networkAllowNativeLanguageTechtree = gameSettingsNode->getAttribute("networkAllowNativeLanguageTechtree")->getIntValue() != 0;
 		}
 	}
 

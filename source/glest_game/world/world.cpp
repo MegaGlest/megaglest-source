@@ -2122,7 +2122,7 @@ void World::initUnitsForScenario() {
 				string unitName = unit->getType()->getName();
 				delete unit;
 				unit = NULL;
-				throw megaglest_runtime_error("Unit: " + unitName + " can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #" + intToStr(i) + " name: " + ft->getName());
+				throw megaglest_runtime_error("Unit: " + unitName + " can't be placed, this error is caused because there\nis not enough room to put all units near their start location.\nmake a better/larger map. Faction: #" + intToStr(i) + " name: " + ft->getName(false));
 			}
 
 			if (unit->getType()->hasSkillClass(scBeBuilt)) {
@@ -2146,7 +2146,7 @@ void World::placeUnitAtLocation(const Vec2i &location, int radius, Unit *unit, b
 	}
 	else {
 		string unitName = unit->getType()->getName();
-		string unitFactionName = unit->getFaction()->getType()->getName();
+		string unitFactionName = unit->getFaction()->getType()->getName(false);
 		int unitFactionIndex = unit->getFactionIndex();
 
 		delete unit;
@@ -2784,7 +2784,7 @@ std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {
 			std::cout << "Faction detail for index: " << i << std::endl;
 			std::cout << "--------------------------" << std::endl;
 
-			std::cout << "FactionName = " << getFaction(i)->getType()->getName() << std::endl;
+			std::cout << "FactionName = " << getFaction(i)->getType()->getName(false) << std::endl;
 			std::cout << "FactionIndex = " << intToStr(getFaction(i)->getIndex()) << std::endl;
 			std::cout << "teamIndex = " << intToStr(getFaction(i)->getTeam()) << std::endl;
 			std::cout << "startLocationIndex = " << intToStr(getFaction(i)->getStartLocationIndex()) << std::endl;
@@ -2814,7 +2814,7 @@ std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {
 		//undertake the dead
 		logFile << "Undertake stats:" << std::endl;
 		for(int i = 0; i < getFactionCount(); ++i){
-			logFile << "Faction: " << getFaction(i)->getType()->getName() << std::endl;
+			logFile << "Faction: " << getFaction(i)->getType()->getName(false) << std::endl;
 			int unitCount = getFaction(i)->getUnitCount();
 			for(int j= unitCount - 1; j >= 0; j--){
 				Unit *unit= getFaction(i)->getUnit(j);

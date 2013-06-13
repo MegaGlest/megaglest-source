@@ -144,6 +144,9 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	needToLoadTextures=true;
 	this->dirList = Config::getInstance().getPathListForType(ptScenarios);
 
+    vector<string> techtreesList = Config::getInstance().getPathListForType(ptTechs);
+    techTree.reset(new TechTree(techtreesList));
+
 	vector<string> teamItems, controlItems, results, rMultiplier, playerStatuses;
 	int labelOffset=23;
 	int setupPos=590;
@@ -424,7 +427,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	//tileset listBox
 	setupTilesetList("");
 
-	int initialTechSelection = setupTechList("");
+	int initialTechSelection = setupTechList("",true);
 	listBoxTechTree.setSelectedItemIndex(initialTechSelection);
 
     labelScenario.registerGraphicComponent(containerName,"labelScenario");
@@ -502,7 +505,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
         }
 
         std::pair<string,string> techtreesPath;
-        vector<string> techtreesList = Config::getInstance().getPathListForType(ptTechs);
         if(techtreesList.empty() == false) {
         	techtreesPath.first = techtreesList[0];
             if(techtreesList.size() > 1) {
@@ -4016,11 +4018,15 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
             string scenarioDir = Scenario::getScenarioDir(dirList, gameSettings->getScenario());
             findDirs(Config::getInstance().getPathListForType(ptTechs,scenarioDir), techTreeFiles);
 
+            vector<string> translatedTechs;
             std::vector<string> techsFormatted = techTreeFiles;
         	for(int i= 0; i < techsFormatted.size(); i++){
         		techsFormatted.at(i)= formatString(techsFormatted.at(i));
+
+    			string txTech = techTree->getTranslatedName(techTreeFiles.at(i), true);
+    			translatedTechs.push_back(txTech);
         	}
-            listBoxTechTree.setItems(techsFormatted);
+            listBoxTechTree.setItems(techsFormatted,translatedTechs);
         }
         else {
             curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
@@ -4332,7 +4338,13 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 					clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 				}
 			}
-			listBoxTechTree.setItems(techtree);
+
+			vector<string> translatedTechs;
+			for(unsigned int i= 0; i < techTreeFiles.size(); i++) {
+				string txTech = techTree->getTranslatedName(techTreeFiles.at(i));
+				translatedTechs.push_back(txTech);
+			}
+			listBoxTechTree.setItems(techtree,translatedTechs);
 			listBoxTechTree.setSelectedItem(Lang::getInstance().get("DataMissing","",true));
 		}
 	}
@@ -4750,7 +4762,7 @@ int MenuStateConnectedGame::setupMapList(string scenario) {
 	return initialMapSelection;
 }
 
-int MenuStateConnectedGame::setupTechList(string scenario) {
+int MenuStateConnectedGame::setupTechList(string scenario, bool forceLoad) {
 	int initialTechSelection = 0;
 	try {
 		Config &config = Config::getInstance();
@@ -4773,7 +4785,13 @@ int MenuStateConnectedGame::setupTechList(string scenario) {
 			}
 		}
 
-		listBoxTechTree.setItems(results);
+		vector<string> translatedTechs;
+		for(unsigned int i= 0; i < techTreeFiles.size(); i++) {
+			string txTech = techTree->getTranslatedName(techTreeFiles.at(i), forceLoad);
+			translatedTechs.push_back(txTech);
+		}
+
+		listBoxTechTree.setItems(results,translatedTechs);
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";

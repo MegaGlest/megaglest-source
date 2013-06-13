@@ -29,6 +29,8 @@ namespace Shared { namespace Graphics {
 
 namespace Glest { namespace Game {
 
+class TechTree;
+
 enum JoinMenu {
 	jmSimple,
 	jmMasterserver,
@@ -225,6 +227,7 @@ private:
 	int lastGameSettingsReceivedCount;
 
 	bool launchingNewGame;
+	std::auto_ptr<TechTree> techTree;
 
 public:
 
@@ -278,7 +281,7 @@ private:
     void setupUIFromGameSettings(GameSettings *gameSettings, bool errorOnMissingData);
 
 	int setupMapList(string scenario);
-	int setupTechList(string scenario);
+	int setupTechList(string scenario, bool forceLoad=false);
 	void setupTilesetList(string scenario);
 
 	void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);

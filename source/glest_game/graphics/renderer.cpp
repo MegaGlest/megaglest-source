@@ -2972,11 +2972,12 @@ void Renderer::renderLabel(GraphicLabel *label,const Vec4f *color) {
 	glEnable(GL_BLEND);
 
 	vector<string> lines;
+	string renderTextString = (label->getTextNativeTranslation() != "" ? label->getTextNativeTranslation() : label->getText());
 	if(label->getWordWrap() == true) {
-		Tokenize(label->getText(),lines,"\n");
+		Tokenize(renderTextString,lines,"\n");
 	}
 	else {
-		lines.push_back(label->getText());
+		lines.push_back(renderTextString);
 	}
 
 	for(unsigned int i = 0; i < lines.size(); ++i) {
@@ -3475,6 +3476,7 @@ void Renderer::renderListBox(GraphicListBox *listBox) {
 	GraphicLabel label;
 	label.init(listBox->getX(), listBox->getY(), listBox->getW(), listBox->getH(), true,listBox->getTextColor());
 	label.setText(listBox->getText());
+	label.setTextNativeTranslation(listBox->getTextNativeTranslation());
 	label.setFont(listBox->getFont());
 	label.setFont3D(listBox->getFont3D());
 	renderLabel(&label);

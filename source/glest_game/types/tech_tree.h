@@ -53,6 +53,8 @@ private:
 	DamageMultiplierTable damageMultiplierTable;
 	Checksum checksumValue;
 
+	std::map<string,string> translatedTechNames;
+
 public:
     Checksum loadTech(const string &techName,
     		set<string> &factions, Checksum* checksum, std::map<string,vector<pair<string, string> > > &loadedFileList);
@@ -71,6 +73,8 @@ public:
 	const FactionType *getType(int i) const						{return &factionTypes[i];}
 	const ResourceType *getResourceType(int i) const			{return &resourceTypes[i];}
 	string getName(bool translatedValue=false) const;
+	string getTranslatedName(string techName, bool forceLoad=false);
+
 	vector<string> getPathList() const					{return pathList;}
     //const string &getDesc() const								{return desc;}
 
