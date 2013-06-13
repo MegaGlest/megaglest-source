@@ -94,6 +94,9 @@ public:
 
 	void clear();
 
+private:
+	void showNextHint();
+
 };
 
 }}//end namespace
