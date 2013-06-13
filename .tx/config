@@ -29,6 +29,27 @@ trans.zh_CN = data/glest_game/data/lang/chinese.lng
 [megaglest.megapack-language-file]
 source_file = data/glest_game/techs/megapack/lang/megapack_default.lng
 source_lang = en
+trans.af = data/glest_game/techs/megapack/lang/megapack_afrikaans.lng
+trans.ar = data/glest_game/techs/megapack/lang/megapack_arabic.lng
+trans.ca = data/glest_game/techs/megapack/lang/megapack_catalan.lng
+trans.cs = data/glest_game/techs/megapack/lang/megapack_czech.lng
+trans.da = data/glest_game/techs/megapack/lang/megapack_danish.lng
+trans.de = data/glest_game/techs/megapack/lang/megapack_german.lng
+trans.el = data/glest_game/techs/megapack/lang/megapack_greek.lng
+trans.es = data/glest_game/techs/megapack/lang/megapack_spanish.lng
+trans.fa = data/glest_game/techs/megapack/lang/megapack_persian.lng
+trans.fr = data/glest_game/techs/megapack/lang/megapack_french.lng
+trans.gd = data/glest_game/techs/megapack/lang/megapack_gaelic.lng
+trans.gl = data/glest_game/techs/megapack/lang/megapack_galician.lng
+trans.he = data/glest_game/techs/megapack/lang/megapack_hebrew.lng
+trans.it = data/glest_game/techs/megapack/lang/megapack_italian.lng
+trans.ja = data/glest_game/techs/megapack/lang/megapack_japanese.lng
+trans.nl = data/glest_game/techs/megapack/lang/megapack_dutch.lng
+trans.pl = data/glest_game/techs/megapack/lang/megapack_polish.lng
+trans.pt = data/glest_game/techs/megapack/lang/megapack_portuguese.lng
+trans.ru = data/glest_game/techs/megapack/lang/megapack_russian.lng
+trans.uk = data/glest_game/techs/megapack/lang/megapack_ukrainian.lng
+trans.zh_CN = data/glest_game/techs/megapack/lang/megapack_chinese.lng
 
 [megaglest.loading-screen-hints]
 source_file = data/glest_game/data/lang/hint/hint_english.lng
