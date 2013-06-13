@@ -3275,19 +3275,20 @@ float Unit::computeHeight(const Vec2i &pos) const {
 	float height= map->getCell(pos)->getHeight();
 
 	if(currField == fAir) {
-		height += World::airHeight;
+		const float airHeight=game->getWorld()->getTileset()->getAirHeight();
+		height += airHeight;
 		height = truncateDecimal<float>(height);
 
 		Unit *unit = map->getCell(pos)->getUnit(fLand);
-		if(unit != NULL && unit->getType()->getHeight() > World::airHeight) {
-			height += (std::min((float)unit->getType()->getHeight(),World::airHeight * 3) - World::airHeight);
+		if(unit != NULL && unit->getType()->getHeight() > airHeight) {
+			height += (std::min((float)unit->getType()->getHeight(),Tileset::standardAirHeight * 3) - airHeight);
 			height = truncateDecimal<float>(height);
 		}
 		else {
 			SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(pos));
 			if(sc != NULL && sc->getObject() != NULL && sc->getObject()->getType() != NULL) {
-				if(sc->getObject()->getType()->getHeight() > World::airHeight) {
-					height += (std::min((float)sc->getObject()->getType()->getHeight(),World::airHeight * 3) - World::airHeight);
+				if(sc->getObject()->getType()->getHeight() > airHeight) {
+					height += (std::min((float)sc->getObject()->getType()->getHeight(),Tileset::standardAirHeight * 3) - airHeight);
 					height = truncateDecimal<float>(height);
 				}
 			}

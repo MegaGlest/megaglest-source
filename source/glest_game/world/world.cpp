@@ -37,7 +37,6 @@ namespace Glest{ namespace Game{
 // 	class World
 // =====================================================
 
-const float World::airHeight= 5.f;
 // This limit is to keep RAM use under control while offering better performance.
 int MaxExploredCellsLookupItemCache = 9500;
 time_t ExploredCellsLookupItem::lastDebug = 0;

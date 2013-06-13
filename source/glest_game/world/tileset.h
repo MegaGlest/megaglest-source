@@ -120,6 +120,7 @@ public:
 	static const int surfCount= 6;
 	static const int objCount= 10;
 	static const int transitionVars= 2; //number or different transition textures
+	static const float standardAirHeight= 5.f;
 
 public:
 	typedef vector<float> SurfProbs;
@@ -145,6 +146,7 @@ private:
 	Vec3f sunLightColor;
 	Vec3f moonLightColor;
 	Weather weather;
+	float airHeight;
 
 	AmbientSounds ambientSounds;
 	Checksum checksumValue;
@@ -159,6 +161,7 @@ public:
 	    fogMode = 0;
 		fogDensity = 0.0f;
 		weather= wSunny;
+		airHeight= standardAirHeight;
 
 		for(int index = 0; index < surfCount; ++index) {
 			partsArray[index] = 0;
@@ -172,6 +175,7 @@ public:
 	Checksum * getChecksumValue() { return &checksumValue; }
 
     //get
+	float getAirHeight()const  {return airHeight;}
 	const SurfaceAtlas *getSurfaceAtlas() const		{return &surfaceAtlas;}
 	ObjectType *getObjectType(int i)				{return &objectTypes[i];}
 	float getSurfProb(int surf, int var) const		{return surfProbs[surf][var];}
