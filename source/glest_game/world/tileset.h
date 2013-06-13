@@ -120,7 +120,7 @@ public:
 	static const int surfCount= 6;
 	static const int objCount= 10;
 	static const int transitionVars= 2; //number or different transition textures
-	static const float standardAirHeight= 5.f;
+	static const float standardAirHeight;
 
 public:
 	typedef vector<float> SurfProbs;
