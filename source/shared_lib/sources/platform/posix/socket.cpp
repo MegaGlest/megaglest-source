@@ -2571,7 +2571,7 @@ int UPNP_Tools::upnp_init(void *param) {
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("UPnP device found: %s %s\n", dev->descURL, dev->st);
 
 				//printf("UPnP device found: [%s] [%s] lanaddr [%s]\n", dev->descURL, dev->st,lanaddr);
-#if !defined(MINIUPNPC_VERSION_PRE1_7) && !defined(MINIUPNPC_VERSION_PRE1_6)
+#if (defined(MINIUPNPC_API_VERSION)  && MINIUPNPC_API_VERSION >= 9) || (!defined(MINIUPNPC_VERSION_PRE1_7) && !defined(MINIUPNPC_VERSION_PRE1_6))
 				char *descXML = (char *)miniwget_getaddr(dev->descURL, &descXMLsize, lanaddr, (sizeof(lanaddr) / sizeof(lanaddr[0])),0);
 #else
 				char *descXML = (char *)miniwget_getaddr(dev->descURL, &descXMLsize, lanaddr, (sizeof(lanaddr) / sizeof(lanaddr[0])));
@@ -2582,7 +2582,7 @@ int UPNP_Tools::upnp_init(void *param) {
 					parserootdesc (descXML, descXMLsize, &data);
 					free (descXML); descXML = 0;
 
-#if !defined(MINIUPNPC_VERSION_PRE1_7) && !defined(MINIUPNPC_VERSION_PRE1_6)
+#if (defined(MINIUPNPC_API_VERSION)  && MINIUPNPC_API_VERSION >= 9) || (!defined(MINIUPNPC_VERSION_PRE1_7) && !defined(MINIUPNPC_VERSION_PRE1_6))
 					GetUPNPUrls (&urls, &data, dev->descURL,0);
 #else
 					GetUPNPUrls (&urls, &data, dev->descURL);
