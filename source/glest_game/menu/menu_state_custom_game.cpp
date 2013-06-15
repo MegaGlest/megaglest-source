@@ -3191,7 +3191,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 				Lang &lang= Lang::getInstance();
 				gameSettings->setNetworkPlayerLanguages(slotIndex, lang.getLanguage());
 			}
-			else if(serverInterface->getSlot(i) != NULL) {
+			else if(serverInterface != NULL && serverInterface->getSlot(i) != NULL) {
 				gameSettings->setNetworkPlayerLanguages(slotIndex, serverInterface->getSlot(i)->getNetworkPlayerLanguage());
 			}
 

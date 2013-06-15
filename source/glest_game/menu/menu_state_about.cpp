@@ -40,6 +40,12 @@ MenuStateAbout::MenuStateAbout(Program *program, MainMenu *mainMenu) :
 
 	adjustModelText = true;
 
+	customModTextureX = 0;
+	customModTextureY = 0;
+	customModTextureW = 0;
+	customModTextureH = 0;
+	customModTextureAlpha = 0.f;
+
 	string additionalCredits= loadAdditionalCredits();
 
 	//init

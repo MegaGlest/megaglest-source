@@ -2542,8 +2542,6 @@ void runTechTranslationExtractionForPath(string techPath, string techName,
 		}
 
 		if(factions.empty() == false) {
-			bool techtree_errors = false;
-
 			std::map<string,vector<pair<string, string> >  > loadedFileList;
 			//vector<string> pathList = config.getPathListForType(ptTechs,"");
 			vector<string> pathList;
@@ -2652,12 +2650,6 @@ void runTechTranslationExtraction(int argc, char** argv) {
 	//disableBacktrace=true;
 	printf("====== Started Translation Extraction ======\n");
 
-	bool purgeDuplicateFiles = false;
-	bool showDuplicateFiles = true;
-	bool purgeUnusedFiles = false;
-	bool svnPurgeFiles = false;
-
-	double purgedMegaBytes=0;
 	Config &config = Config::getInstance();
 
     // Did the user pass a specific list of factions to validate?
