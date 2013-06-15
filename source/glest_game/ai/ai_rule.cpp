@@ -591,13 +591,13 @@ bool AiRuleProduceResourceProducer::test(){
 		if(factionUsesResourceType == true && rt->getClass() == rcConsumable) {
 			// The consumable balance is negative
 			if(r->getBalance() < 0) {
-				interval= longInterval;
+				interval= shortInterval;
 				return true;
 			}
 			// If the consumable balance is down to 1/3 of what we need
 			else {
 				if(r->getBalance() * 3 + r->getAmount() < 0) {
-					interval= longInterval;
+					interval= shortInterval;
 					return true;
 				}
 			}
@@ -624,7 +624,7 @@ bool AiRuleProduceResourceProducer::test(){
 		if(rt->getClass() == rcStatic && r->getAmount() < targetStaticResourceCount) {
 			bool factionUsesResourceType = aiInterface->factionUsesResourceType(aiInterface->getMyFactionType(), rt);
 			if(factionUsesResourceType == true) {
-				interval= longInterval;
+				interval= shortInterval;
 				return true;
 			}
         }
@@ -633,7 +633,7 @@ bool AiRuleProduceResourceProducer::test(){
 	if(ai->outputAIBehaviourToConsole()) printf("STATIC returning FALSE\n");
 	if(aiInterface->isLogLevelEnabled(4) == true) aiInterface->printLog(4, "Static Resource check returning FALSE");
 
-	interval= shortInterval;
+	interval= longInterval;
 	return false;
 }
 
