@@ -11,7 +11,7 @@
 
 #include "components.h"
 
-#include <cassert>
+//#include <cassert>
 #include <algorithm>
 
 #include "metrics.h"
@@ -410,7 +410,10 @@ void GraphicListBox::setItems(const vector<string> &items, const vector<string> 
 }
 
 void GraphicListBox::setSelectedItemIndex(int index, bool errorOnMissing){
-    if(errorOnMissing == true) assert(index>=0 && index<items.size());
+    //if(errorOnMissing == true) assert(index>=0 && index<items.size());
+	if(errorOnMissing == true && (index < 0 || index >= items.size())) {
+		throw megaglest_runtime_error("Index not found on list box: " + intToStr(index) + " size: " + intToStr(items.size()));
+	}
     selectedItemIndex= index;
     setText(getSelectedItem());
 }
