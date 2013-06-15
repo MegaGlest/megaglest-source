@@ -551,7 +551,7 @@ void updatePathClimbingParts(string &path) {
 	if(pos != string::npos && pos != 0) {
 		string orig = path;
 		path.erase(pos,2);
-		pos--;
+		//pos--;
 
 		pos = path.find("/./");
 		if(pos != string::npos && pos != 0) {
@@ -564,7 +564,7 @@ void updatePathClimbingParts(string &path) {
 	if(pos != string::npos && pos != 0) {
 		string orig = path;
 		path.erase(pos,2);
-		pos--;
+		//pos--;
 
 		pos = path.find("\\.\\");
 		if(pos != string::npos && pos != 0) {

@@ -56,6 +56,8 @@ void NetworkInterface::init() {
 	networkGameDataSynchCheckOkTile=false;
 	networkGameDataSynchCheckOkTech=false;
 	receivedDataSynchCheck=false;
+
+	gameSettings = GameSettings();
 }
 
 NetworkInterface::~NetworkInterface() {

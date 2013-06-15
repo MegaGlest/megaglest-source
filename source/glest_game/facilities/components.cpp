@@ -379,7 +379,7 @@ void GraphicListBox::init(int x, int y, int w, int h, Vec3f textColor){
 }
 
 const string & GraphicListBox::getTextNativeTranslation() {
-	if(this->translated_items.size() == 0 ||
+	if(this->translated_items.empty() == true ||
 			this->selectedItemIndex < 0 ||
 			this->selectedItemIndex >= this->translated_items.size() ||
 			this->items.size() != this->translated_items.size()) {

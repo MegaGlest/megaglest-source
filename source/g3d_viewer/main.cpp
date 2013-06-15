@@ -423,7 +423,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	if(modelPath != "") {
 		fileDialog->SetPath(ToUnicode(modelPath));
 	}
-    string userData = Config::getInstance().getString("UserData_Root","");
+    string userData = config.getString("UserData_Root","");
     if(userData != "") {
     	endPathWithSlash(userData);
     }

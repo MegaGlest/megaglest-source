@@ -275,11 +275,10 @@ bool FactionThread::isSignalPathfinderCompleted(int frameIndex) {
 	if(getRunningStatus() == false) {
 		return true;
 	}
-	bool result = false;
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(triggerIdMutex,mutexOwnerId);
 	//bool result = (event != NULL ? event->eventCompleted : true);
-	result = (this->frameIndex.first == frameIndex && this->frameIndex.second == true);
+	bool result = (this->frameIndex.first == frameIndex && this->frameIndex.second == true);
 
 	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] worker thread this = %p, this->frameIndex.first = %d, this->frameIndex.second = %d\n",__FILE__,__FUNCTION__,__LINE__,this,this->frameIndex.first,this->frameIndex.second);
 
@@ -316,11 +315,10 @@ void FactionThread::execute() {
 				break;
 			}
 
-			int currentTriggeredFrameIndex = 0;
 			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
             MutexSafeWrapper safeMutex(triggerIdMutex,mutexOwnerId);
             bool executeTask = (this->frameIndex.first >= 0);
-			currentTriggeredFrameIndex = this->frameIndex.first;
+			int currentTriggeredFrameIndex = this->frameIndex.first;
 
             //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] frameIndex = %d this = %p executeTask = %d\n",__FILE__,__FUNCTION__,__LINE__,frameIndex.first, this, executeTask);
 
@@ -482,6 +480,8 @@ void Faction::init() {
 	control = ctClosed;
 
 	overridePersonalityType = fpt_EndCount;
+
+	upgradeManager = UpgradeManager();
 }
 
 Faction::~Faction() {

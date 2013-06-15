@@ -2219,7 +2219,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 
 				for(unsigned int i = 0; i < currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size(); ++i) {
 					int unitnum = currentAttackBoostOriginatorEffect.currentAttackBoostUnits[i];
-					printf("affected unit #: %d - %d\n",i,unitnum);
+					printf("affected unit #: %u - %d\n",i,unitnum);
 				}
 			}
 		}
@@ -3850,10 +3850,9 @@ void Unit::logSynchDataCommon(string file,int line,string source,bool threadedMo
 	    	lastFile = file;
 	    	lastSource = source;
 
-	    	string logDataText = "";
 	    	char szBufDataText[8096]="";
 	    	snprintf(szBufDataText,8096,"----------------------------------- START [FRAME %d UNIT: %d - %s] ------------------------------------------------\n",getFrameCount(),this->id,this->getType()->getName(false).c_str());
-	    	logDataText = szBufDataText;
+	    	string logDataText = szBufDataText;
 
 	    	snprintf(szBufDataText,8096,"[%s::%d]\n",extractFileFromDirectoryPath(file).c_str(),line);
 	    	logDataText += szBufDataText;
