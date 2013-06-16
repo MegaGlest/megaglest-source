@@ -4498,7 +4498,7 @@ int MenuStateCustomGame::setupTechList(string scenario, bool forceLoad) {
 				initialTechSelection= i;
 			}
 			string txTech = techTree->getTranslatedName(techTreeFiles.at(i), forceLoad);
-			translatedTechs.push_back(txTech);
+			translatedTechs.push_back(formatString(txTech));
 		}
 
 
@@ -4556,7 +4556,7 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 		factionFiles= results;
 		for(int i = 0; i < results.size(); ++i) {
 			results[i]= formatString(results[i]);
-			translatedFactionNames.push_back(techTree->getTranslatedFactionName(techTreeFiles[listBoxTechTree.getSelectedItemIndex()],factionFiles[i]));
+			translatedFactionNames.push_back(formatString(techTree->getTranslatedFactionName(techTreeFiles[listBoxTechTree.getSelectedItemIndex()],factionFiles[i])));
 			//printf("FACTIONS i = %d results [%s]\n",i,results[i].c_str());
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",techTreeFiles[listBoxTechTree.getSelectedItemIndex()].c_str(),results[i].c_str());
