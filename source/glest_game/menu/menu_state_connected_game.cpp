@@ -1882,7 +1882,7 @@ void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem, strin
     for(int i= 0; i<results.size(); ++i){
         results[i]= formatString(results[i]);
 
-        translatedFactionNames.push_back(techTree->getTranslatedFactionName(techTreeFiles[listBoxTechTree.getSelectedItemIndex()],factionFiles[i]));
+        translatedFactionNames.push_back(formatString(techTree->getTranslatedFactionName(techTreeFiles[listBoxTechTree.getSelectedItemIndex()],factionFiles[i])));
 
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",techTreeFiles[listBoxTechTree.getSelectedItemIndex()].c_str(),results[i].c_str());
     }
@@ -3354,7 +3354,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 			factionFiles = results;
 		    vector<string> translatedFactionNames;
 		    for(int i= 0; i < factionFiles.size(); ++i) {
-		        translatedFactionNames.push_back(techTree->getTranslatedFactionName(gameSettings->getTech(),factionFiles[i]));
+		        translatedFactionNames.push_back(formatString(techTree->getTranslatedFactionName(gameSettings->getTech(),factionFiles[i])));
 		    }
 
 			for(int i=0; i<GameConstants::maxPlayers; ++i){
@@ -3395,7 +3395,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 			factionFiles= results;
 		    vector<string> translatedFactionNames;
 		    for(int i= 0; i < factionFiles.size(); ++i) {
-		        translatedFactionNames.push_back(techTree->getTranslatedFactionName(gameSettings->getTech(),factionFiles[i]));
+		        translatedFactionNames.push_back(formatString(techTree->getTranslatedFactionName(gameSettings->getTech(),factionFiles[i])));
 		    }
 
 			for(int i= 0; i<results.size(); ++i){
@@ -4037,7 +4037,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
         		techsFormatted.at(i)= formatString(techsFormatted.at(i));
 
     			string txTech = techTree->getTranslatedName(techTreeFiles.at(i), true);
-    			translatedTechs.push_back(txTech);
+    			translatedTechs.push_back(formatString(txTech));
         	}
             listBoxTechTree.setItems(techsFormatted,translatedTechs);
         }
@@ -4801,7 +4801,7 @@ int MenuStateConnectedGame::setupTechList(string scenario, bool forceLoad) {
 		vector<string> translatedTechs;
 		for(unsigned int i= 0; i < techTreeFiles.size(); i++) {
 			string txTech = techTree->getTranslatedName(techTreeFiles.at(i), forceLoad);
-			translatedTechs.push_back(txTech);
+			translatedTechs.push_back(formatString(txTech));
 		}
 
 		listBoxTechTree.setItems(results,translatedTechs);

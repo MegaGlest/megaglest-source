@@ -267,7 +267,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		    		Lang::getInstance().get("Faction").c_str(),
 		    		i+1,
 		    		(int)factions.size(),
-		    		this->getTranslatedFactionName(name,factionName).c_str());
+		    		formatString(this->getTranslatedFactionName(name,factionName)).c_str());
 		    Logger &logger= Logger::getInstance();
 		    logger.setState(szBuf);
 		    logger.setProgress((int)((((double)i) / (double)factions.size()) * 100.0));
