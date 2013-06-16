@@ -1366,7 +1366,7 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 				//}
 
 				if(waitForData == false) {
-					printf("Client waiting for packet for frame: %d, copyCachedLastPendingFrameCount = %lld\n",frameCount,(long long int)copyCachedLastPendingFrameCount);
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Client waiting for packet for frame: %d, copyCachedLastPendingFrameCount = %lld\n",frameCount,(long long int)copyCachedLastPendingFrameCount);
 					chrono.start();
 				}
 				if(copyCachedLastPendingFrameCount > frameCount) {
@@ -1385,7 +1385,7 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 		}
 	}
 	if(waitForData == true) {
-		printf("Client waiting for packet FINISHED for frame: %d, copyCachedLastPendingFrameCount = %lld waitCount = %llu\n",frameCount,(long long int)copyCachedLastPendingFrameCount,(long long unsigned int)waitCount);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Client waiting for packet FINISHED for frame: %d, copyCachedLastPendingFrameCount = %lld waitCount = %llu\n",frameCount,(long long int)copyCachedLastPendingFrameCount,(long long unsigned int)waitCount);
 	}
 
 	return result;
