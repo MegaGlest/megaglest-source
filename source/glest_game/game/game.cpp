@@ -1836,9 +1836,9 @@ void Game::update() {
 				// calc time waiting for message in milliseconds to frames
 					int64 timeClientWaitedForLastMessage=clientInterface->getTimeClientWaitedForLastMessage();
 					if(timeClientWaitedForLastMessage>0){
-						printf("world.getFrameCount():%d index %d Client waited:%d ms\n",world.getFrameCount(),index,(int)timeClientWaitedForLastMessage);
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("world.getFrameCount():%d index %d Client waited:%d ms\n",world.getFrameCount(),index,(int)timeClientWaitedForLastMessage);
 						framesNeededToWaitForServerMessage[index]=timeClientWaitedForLastMessage*GameConstants::updateFps/1000;
-						printf("ClienttimeClientWaitedForLastMessage:%d ms  which is %d frames \n",(int)timeClientWaitedForLastMessage,framesNeededToWaitForServerMessage[index]);
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("ClienttimeClientWaitedForLastMessage:%d ms  which is %d frames \n",(int)timeClientWaitedForLastMessage,framesNeededToWaitForServerMessage[index]);
 					}
 					else {
 						framesNeededToWaitForServerMessage[index]=0;
@@ -1878,13 +1878,13 @@ void Game::update() {
 					framesToCatchUpAsClient=minimum-allowedMaxFallback;
 					framesToSlowDownAsClient=0;
 					cleanupStats=true;
-					printf("Worldframe %d : Client will speed up: %d frames\n",world.getFrameCount(),framesToCatchUpAsClient);
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Worldframe %d : Client will speed up: %d frames\n",world.getFrameCount(),framesToCatchUpAsClient);
 				}
 				else if(countOfMessagesReceivedTooLate>3){
 					framesToSlowDownAsClient=sumOfTooLateFrames/countOfMessagesReceivedTooLate;
 					framesToCatchUpAsClient=0;
 					cleanupStats=true;
-					printf("Worldframe %d : Client will slow down: %d frames\n",world.getFrameCount(),framesToSlowDownAsClient);
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Worldframe %d : Client will slow down: %d frames\n",world.getFrameCount(),framesToSlowDownAsClient);
 				}
 
 				if(cleanupStats==true) {
