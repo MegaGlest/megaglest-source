@@ -152,7 +152,9 @@ void ClientInterfaceThread::execute() {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		throw megaglest_runtime_error(ex.what());
+		if(clientInterface == NULL || clientInterface->getSocket(true) == NULL || clientInterface->getSocket(true)->isConnected() == true) {
+			throw megaglest_runtime_error(ex.what());
+		}
 	}
 	catch(...) {
 		char szBuf[8096]="";
@@ -225,7 +227,7 @@ void ClientInterface::shutdownNetworkCommandListThread(MutexSafeWrapper &safeMut
 		Chrono chronoElapsed(true);
 		for(;chronoElapsed.getMillis() <= 10000;) {
 			safeMutexWrapper.Lock();
-			if(networkCommandListThread->canShutdown(false) == false &&
+			if(networkCommandListThread != NULL && networkCommandListThread->canShutdown(false) == false &&
 				 networkCommandListThread->getRunningStatus() == true) {
 				safeMutexWrapper.ReleaseLock(true);
 				if(chronoElapsed.getMillis() % 1000 == 0) {
@@ -234,6 +236,7 @@ void ClientInterface::shutdownNetworkCommandListThread(MutexSafeWrapper &safeMut
 				}
 			}
 			else {
+				safeMutexWrapper.ReleaseLock(true);
 				break;
 			}
 			//printf("%s Line: %d\n",__FUNCTION__,__LINE__);
@@ -243,12 +246,17 @@ void ClientInterface::shutdownNetworkCommandListThread(MutexSafeWrapper &safeMut
 		//printf("A === shutdownNetworkCommandListThread\n");
 
 		//sleep(0);
-		if(networkCommandListThread->canShutdown(true)) {
+		safeMutexWrapper.Lock();
+		if(networkCommandListThread != NULL && networkCommandListThread->canShutdown(true)) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s Line: %d\n",__FUNCTION__,__LINE__);
 
 			delete networkCommandListThread;
 			networkCommandListThread = NULL;
 		}
+		else {
+			networkCommandListThread = NULL;
+		}
+		//safeMutexWrapper.ReleaseLock(true);
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s Line: %d\n",__FUNCTION__,__LINE__);
 		//printf("END === shutdownNetworkCommandListThread\n");
@@ -300,8 +308,8 @@ ClientInterface::~ClientInterface() {
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s Line: %d\n",__FUNCTION__,__LINE__);
 
-	delete clientSocket;
-	clientSocket = NULL;
+	//delete clientSocket;
+	//clientSocket = NULL;
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s Line: %d\n",__FUNCTION__,__LINE__);
 
@@ -1020,7 +1028,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 					clientSimulationLagStartTime = time(NULL);
 				}
 				if(difftime((long int)time(NULL),clientSimulationLagStartTime) <= Config::getInstance().getInt("SimulateClientLagDurationSeconds","0")) {
-					sleep(Config::getInstance().getInt("SimulateClientLag","0"));
+					sleep(simulateLag);
 				}
 			}
 			// END: Test simulating lag for the client
@@ -1039,6 +1047,13 @@ void ClientInterface::updateFrame(int *checkFrame) {
 					NetworkMessageCommandList networkMessageCommandList;
 					bool gotCmd = receiveMessage(&networkMessageCommandList);
 					if(gotCmd == false) {
+						SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] error retrieving nmtCommandList returned false!\n",__FILE__,__FUNCTION__,__LINE__);
+						if(isConnected() == false) {
+							setQuit(true);
+							close();
+							return;
+						}
+
 						throw megaglest_runtime_error("error retrieving nmtCommandList returned false!");
 					}
 
@@ -1111,6 +1126,13 @@ void ClientInterface::updateFrame(int *checkFrame) {
 	//				}
 					bool gotCmd = receiveMessage(&networkMessageQuit);
 					if(gotCmd == false) {
+						SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] error retrieving nmtQuit returned false!\n",__FILE__,__FUNCTION__,__LINE__);
+						if(isConnected() == false) {
+							setQuit(true);
+							close();
+							return;
+						}
+
 						throw megaglest_runtime_error("error retrieving nmtQuit returned false!");
 					}
 
@@ -1125,6 +1147,13 @@ void ClientInterface::updateFrame(int *checkFrame) {
 					NetworkMessageText networkMessageText;
 					bool gotCmd = receiveMessage(&networkMessageText);
 					if(gotCmd == false) {
+						SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] error retrieving nmtText returned false!\n",__FILE__,__FUNCTION__,__LINE__);
+						if(isConnected() == false) {
+							setQuit(true);
+							close();
+							return;
+						}
+
 						throw megaglest_runtime_error("error retrieving nmtText returned false!");
 					}
 
