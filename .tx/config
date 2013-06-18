@@ -22,6 +22,7 @@ trans.pl = data/glest_game/data/lang/polish.lng
 trans.pt = data/glest_game/data/lang/portuguese.lng
 trans.ru = data/glest_game/data/lang/russian.lng
 trans.uk = data/glest_game/data/lang/ukrainian.lng
+trans.vi = data/glest_game/data/lang/vietnamese.lng
 trans.zh_CN = data/glest_game/data/lang/chinese.lng
 
 [megaglest.megapack]
@@ -45,6 +46,7 @@ trans.pl = data/glest_game/techs/megapack/lang/megapack_polish.lng
 trans.pt = data/glest_game/techs/megapack/lang/megapack_portuguese.lng
 trans.ru = data/glest_game/techs/megapack/lang/megapack_russian.lng
 trans.uk = data/glest_game/techs/megapack/lang/megapack_ukrainian.lng
+trans.vi = data/glest_game/techs/megapack/lang/megapack_vietnamese.lng
 trans.zh_CN = data/glest_game/techs/megapack/lang/megapack_chinese.lng
 
 [megaglest.loading-screen-hints]
@@ -68,6 +70,7 @@ trans.pl = data/glest_game/data/lang/hint/hint_polish.lng
 trans.pt = data/glest_game/data/lang/hint/hint_portuguese.lng
 trans.ru = data/glest_game/data/lang/hint/hint_russian.lng
 trans.uk = data/glest_game/data/lang/hint/hint_ukrainian.lng
+trans.vi = data/glest_game/data/lang/hint/hint_vietnamese.lng
 trans.zh_CN = data/glest_game/data/lang/hint/hint_chinese.lng
 
 [megaglest.tutorials-1-very-basic-tutorial]
@@ -91,6 +94,7 @@ trans.pl = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial
 trans.pt = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_portuguese.lng
 trans.ru = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_russian.lng
 trans.uk = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_ukrainian.lng
+trans.vi = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_vietnamese.lng
 trans.zh_CN = data/glest_game/tutorials/1_very_basic_tutorial/1_very_basic_tutorial_chinese.lng
 
 [megaglest.tutorials-2-basic-tutorial]
@@ -114,6 +118,7 @@ trans.pl = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_polish.ln
 trans.pt = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_portuguese.lng
 trans.ru = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_russian.lng
 trans.uk = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_ukrainian.lng
+trans.vi = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_vietnamese.lng
 trans.zh_CN = data/glest_game/tutorials/2_basic_tutorial/2_basic_tutorial_chinese.lng
 
 [megaglest.tutorials-3-advanced-tutorial]
@@ -137,6 +142,7 @@ trans.pl = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_pol
 trans.pt = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_portuguese.lng
 trans.ru = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_russian.lng
 trans.uk = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_ukrainian.lng
+trans.vi = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_vietnamese.lng
 trans.zh_CN = data/glest_game/tutorials/3_advanced_tutorial/3_advanced_tutorial_chinese.lng
 
 [megaglest.scenarios-amazones]
@@ -160,6 +166,7 @@ trans.pl = data/glest_game/scenarios/amazones/amazones_polish.lng
 trans.pt = data/glest_game/scenarios/amazones/amazones_portuguese.lng
 trans.ru = data/glest_game/scenarios/amazones/amazones_russian.lng
 trans.uk = data/glest_game/scenarios/amazones/amazones_ukrainian.lng
+trans.vi = data/glest_game/scenarios/amazones/amazones_vietnamese.lng
 trans.zh_CN = data/glest_game/scenarios/amazones/amazones_chinese.lng
 
 [megaglest.scenarios-amazones-light]
@@ -183,6 +190,7 @@ trans.pl = data/glest_game/scenarios/amazones_light/amazones_light_polish.lng
 trans.pt = data/glest_game/scenarios/amazones_light/amazones_light_portuguese.lng
 trans.ru = data/glest_game/scenarios/amazones_light/amazones_light_russian.lng
 trans.uk = data/glest_game/scenarios/amazones_light/amazones_light_ukrainian.lng
+trans.vi = data/glest_game/scenarios/amazones_light/amazones_light_vietnamese.lng
 trans.zh_CN = data/glest_game/scenarios/amazones_light/amazones_light_chinese.lng
 
 [megaglest.scenarios-capture-enemy-flag]
@@ -206,6 +214,7 @@ trans.pl = data/glest_game/scenarios/capture_enemy_flag/capture_enemy_flag_polis
 trans.pt = data/glest_game/scenarios/capture_enemy_flag/capture_enemy_flag_portuguese.lng
 trans.ru = data/glest_game/scenarios/capture_enemy_flag/capture_enemy_flag_russian.lng
 trans.uk = data/glest_game/scenarios/capture_enemy_flag/capture_enemy_flag_ukrainian.lng
+trans.vi = data/glest_game/scenarios/capture_enemy_flag/capture_enemy_flag_vietnamese.lng
 trans.zh_CN = data/glest_game/scenarios/capture_enemy_flag/capture_enemy_flag_chinese.lng
 
 [megaglest.scenarios-storming]
@@ -229,4 +238,5 @@ trans.pl = data/glest_game/scenarios/storming/storming_polish.lng
 trans.pt = data/glest_game/scenarios/storming/storming_portuguese.lng
 trans.ru = data/glest_game/scenarios/storming/storming_russian.lng
 trans.uk = data/glest_game/scenarios/storming/storming_ukrainian.lng
+trans.vi = data/glest_game/scenarios/storming/storming_vietnamese.lng
 trans.zh_CN = data/glest_game/scenarios/storming/storming_chinese.lng
