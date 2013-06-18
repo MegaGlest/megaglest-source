@@ -40,7 +40,20 @@ protected:
 		MutexSafeWrapper safeMutex(&mutexPendingCleanupList);
 		if(pendingCleanupList.empty() == false) {
 			for(unsigned int index = 0; index < pendingCleanupList.size(); ++index) {
-				delete pendingCleanupList[index];
+				Thread *thread = pendingCleanupList[index];
+				if(thread != NULL) {
+					BaseThread *base_thread = dynamic_cast<BaseThread *>(thread);
+					if(base_thread != NULL &&
+							(base_thread->getRunningStatus() == true || base_thread->getExecutingTask() == true)) {
+						sleep(10);
+						if(base_thread->getRunningStatus() == true || base_thread->getExecutingTask() == true) {
+							char szBuf[8096]="";
+							snprintf(szBuf,8095,"In [%s::%s Line: %d] cannot delete active thread: getRunningStatus(): %d getExecutingTask: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,base_thread->getRunningStatus(),base_thread->getExecutingTask());
+							throw megaglest_runtime_error(szBuf);
+						}
+					}
+					delete thread;
+				}
 			}
 			pendingCleanupList.clear();
 			return true;
