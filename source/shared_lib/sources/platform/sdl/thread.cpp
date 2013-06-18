@@ -197,7 +197,11 @@ void Thread::queueAutoCleanThread() {
 			//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
 			cleanupThread.reset(new ThreadGarbageCollector());
 			cleanupThread->start();
-			sleep(0);
+			for(time_t elapsed = time(NULL);
+					cleanupThread->getRunningStatus() == false &&
+							difftime(time(NULL),elapsed) < 6;) {
+				sleep(5);
+			}
 		}
 		cleanupThread->addThread(this);
 		//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
