@@ -61,8 +61,7 @@ private:
 	bool cancelSelected;
 	GraphicButton buttonCancel;
 	Vec4f displayColor;
-
-	//bool masterserverMode;
+	GraphicButton buttonNextHint;
 
 private:
 	Logger();
