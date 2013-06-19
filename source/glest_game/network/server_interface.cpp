@@ -43,6 +43,7 @@ double maxFrameCountLagAllowedEver 						= 35;
 double maxClientLagTimeAllowedEver						= 45;
 double warnFrameCountLagPercent 						= 0.65;
 double LAG_CHECK_GRACE_PERIOD 							= 15;
+double LAG_CHECK_INTERVAL_PERIOD 						= 6;
 double MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE 				= 2;
 const int MAX_SLOT_THREAD_WAIT_TIME 					= 3;
 const int MASTERSERVER_HEARTBEAT_GAME_STATUS_SECONDS 	= 30;
@@ -1116,14 +1117,14 @@ void ServerInterface::checkForLaggingClients(std::map<int,bool> &mapSlotSignalle
 
 					try {
 						if(gameHasBeenInitiated == true &&
-							difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
+							difftime((long int)time(NULL),gameStartTime) >= LAG_CHECK_GRACE_PERIOD &&
+							difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_INTERVAL_PERIOD) {
 
 							//printf("\n\n\n^^^^^^^^^^^^^^ PART A\n\n\n");
 
 							// New lag check
 							std::pair<bool,bool> clientLagExceededOrWarned = std::make_pair(false,false);
-							if( gameHasBeenInitiated == true && connectionSlot != NULL &&
-								connectionSlot->isConnected() == true) {
+							if( connectionSlot != NULL && connectionSlot->isConnected() == true) {
 								//printf("\n\n\n^^^^^^^^^^^^^^ PART B\n\n\n");
 
 								lastGlobalLagCheckTimeUpdate = true;
@@ -1143,7 +1144,7 @@ void ServerInterface::checkForLaggingClients(std::map<int,bool> &mapSlotSignalle
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, clientLagExceededOrWarned.first = %d, clientLagExceededOrWarned.second = %d, difftime(time(NULL),waitForClientsElapsed) = %.2f, MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE = %.2f\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,clientLagExceededOrWarned.first,clientLagExceededOrWarned.second,difftime((long int)time(NULL),waitForClientsElapsed),MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE);
 
 									if(difftime((long int)time(NULL),waitForClientsElapsed) < MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE) {
-										if(connectionSlot != NULL) {
+										if( connectionSlot != NULL && connectionSlot->isConnected() == true) {
 											threadsDone = false;
 										}
 									}
@@ -1472,7 +1473,9 @@ void ServerInterface::update() {
 					dispatchPendingHighlightCellMessages(errorMsgList);
 
 					if(gameHasBeenInitiated == true &&
-							difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
+							difftime((long int)time(NULL),gameStartTime) >= LAG_CHECK_GRACE_PERIOD &&
+							difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_INTERVAL_PERIOD) {
+
 						std::map<int,bool> mapSlotSignalledList;
 						checkForLaggingClients(mapSlotSignalledList, eventList, socketTriggeredList,errorMsgList);
 					}
@@ -1480,7 +1483,9 @@ void ServerInterface::update() {
 					//printf("START Server update #7\n");
 				}
 				else if(gameHasBeenInitiated == true &&
-						difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
+						difftime((long int)time(NULL),gameStartTime) >= LAG_CHECK_GRACE_PERIOD &&
+						difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_INTERVAL_PERIOD) {
+
 					//printf("Skip network data process because hasData == false\n");
 					//printf("START Server update #8\n");
 
@@ -1494,7 +1499,9 @@ void ServerInterface::update() {
 				if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 			}
 			else if(gameHasBeenInitiated == true &&
-					difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
+					difftime((long int)time(NULL),gameStartTime) >= LAG_CHECK_GRACE_PERIOD &&
+					difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_INTERVAL_PERIOD) {
+
 				//printf("\nServerInterface::update -- E1\n");
 				//printf("START Server update #10\n");
 
@@ -1508,7 +1515,9 @@ void ServerInterface::update() {
 			if(miniDebugPerf && chrono.getMillis() > 10) printf("In [%s::%s Line: %d] took " MG_I64_SPECIFIER " msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		}
 		else if(gameHasBeenInitiated == true &&
-				difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_GRACE_PERIOD) {
+				difftime((long int)time(NULL),gameStartTime) >= LAG_CHECK_GRACE_PERIOD &&
+				difftime((long int)time(NULL),lastGlobalLagCheckTime) >= LAG_CHECK_INTERVAL_PERIOD) {
+
 			//printf("\nServerInterface::update -- F\n");
 
 			//printf("START Server update #12\n");
