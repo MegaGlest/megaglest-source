@@ -286,6 +286,16 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelTechTree.init(xoffset+620, mapHeadPos);
 	labelTechTree.setText(lang.get("TechTree"));
 
+	labelAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"labelAllowNativeLanguageTechtree");
+	labelAllowNativeLanguageTechtree.init(xoffset+620, mapHeadPos-45);
+	labelAllowNativeLanguageTechtree.setText(lang.get("AllowNativeLanguageTechtree"));
+
+	checkBoxAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"checkBoxAllowNativeLanguageTechtree");
+	checkBoxAllowNativeLanguageTechtree.init(xoffset+620, mapHeadPos-65);
+	checkBoxAllowNativeLanguageTechtree.setValue(false);
+	checkBoxAllowNativeLanguageTechtree.setEditable(false);
+	checkBoxAllowNativeLanguageTechtree.setEnabled(false);
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	xoffset=100;
@@ -676,6 +686,8 @@ void MenuStateConnectedGame::reloadUI() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	labelScenario.setText(lang.get("Scenario"));
+
+	labelAllowNativeLanguageTechtree.setText(lang.get("AllowNativeLanguageTechtree"));
 
 	buttonPlayNow.setText(lang.get("PlayNow"));
 	buttonRestoreLastSettings.setText(lang.get("ReloadLastGameSettings"));
@@ -2281,6 +2293,8 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
 	checkBoxScenario.mouseMove(x, y);
 	listBoxScenario.mouseMove(x, y);
 
+	checkBoxAllowNativeLanguageTechtree.mouseMove(x, y);
+
 	buttonPlayNow.mouseMove(x, y);
 	buttonRestoreLastSettings.mouseMove(x, y);
 }
@@ -2523,6 +2537,9 @@ void MenuStateConnectedGame::render() {
 		if(checkBoxScenario.getValue() == true) {
 			renderer.renderListBox(&listBoxScenario);
 		}
+
+		renderer.renderLabel(&labelAllowNativeLanguageTechtree);
+		renderer.renderCheckBox(&checkBoxAllowNativeLanguageTechtree);
 
         MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
@@ -4590,6 +4607,8 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 			}
 		}
 	}
+
+	checkBoxAllowNativeLanguageTechtree.setValue(gameSettings->getNetworkAllowNativeLanguageTechtree());
 }
 
 void MenuStateConnectedGame::initFactionPreview(const GameSettings *gameSettings) {
