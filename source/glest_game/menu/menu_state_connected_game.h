@@ -92,8 +92,10 @@ private:
 	int nonAdminPlayerStatusX;
 
 	GraphicLabel labelAllowObservers;
-	//GraphicListBox listBoxAllowObservers;
 	GraphicCheckBox checkBoxAllowObservers;
+
+	GraphicLabel labelAllowNativeLanguageTechtree;
+	GraphicCheckBox checkBoxAllowNativeLanguageTechtree;
 
 	GraphicLabel *activeInputLabel;
 
