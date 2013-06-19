@@ -38,7 +38,7 @@ const int Logger::logLineCount= 15;
 // ===================== PUBLIC ========================
 
 Logger::Logger() {
-	//masterserverMode = false;
+	string containerName = "Logger";
 	progress = 0;
 	string logs_path = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey);
 	if(logs_path != "") {
@@ -55,9 +55,12 @@ Logger::Logger() {
 	gameHintToShow="";
 	showProgressBar = false;
 
+	displayColor=Vec4f(1.f,1.f,1.f,0.1f);
+
 	cancelSelected = false;
 	buttonCancel.setEnabled(false);
-	displayColor=Vec4f(1.f,1.f,1.f,0.1f);
+
+	buttonNextHint.setEnabled(false);
 }
 
 Logger::~Logger() {
@@ -115,6 +118,9 @@ void Logger::loadLoadingScreen(string filepath) {
 		loadingTexture = Renderer::findTexture(filepath);
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
+
+	Lang &lang = Lang::getInstance();
+	buttonCancel.setText(lang.get("Cancel"));
 }
 
 void Logger::loadGameHints(string filePathEnglish,string filePathTranslation,bool clearList) {
@@ -128,6 +134,7 @@ void Logger::loadGameHints(string filePathEnglish,string filePathTranslation,boo
 		gameHints.load(filePathEnglish,clearList);
 		gameHintsTranslation.load(filePathTranslation,clearList);
 		showNextHint();
+
 		GraphicComponent::applyAllCustomProperties("Loading");
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
@@ -168,11 +175,13 @@ void Logger::clearHints() {
 }
 
 void Logger::handleMouseClick(int x, int y) {
-	showNextHint();
 	if(buttonCancel.getEnabled() == true) {
 		if(buttonCancel.mouseClick(x, y)) {
 			cancelSelected = true;
 		}
+	}
+	if(buttonNextHint.getEnabled() == true && buttonNextHint.mouseClick(x,y) == true) {
+		showNextHint();
 	}
 }
 
@@ -183,6 +192,10 @@ void Logger::renderLoadingScreen() {
 	Renderer &renderer= Renderer::getInstance();
 	CoreData &coreData= CoreData::getInstance();
 	const Metrics &metrics= Metrics::getInstance();
+
+	//3d
+	//renderer.reset3d();
+	//renderer.clearZBuffer();
 
 	renderer.reset2d();
 	renderer.clearBuffers();
@@ -252,8 +265,7 @@ void Logger::renderLoadingScreen() {
 	}
 
 	if(gameHintToShow != "") {
-		Lang &lang= Lang::getInstance();
-
+		Lang &lang = Lang::getInstance();
 		string hintText = lang.get("Hint","",true);
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,hintText.c_str(),gameHintToShow.c_str());
@@ -279,11 +291,22 @@ void Logger::renderLoadingScreen() {
 
 		}
 		//Show next Hint
+		if(buttonNextHint.getEnabled() == false) {
+			buttonNextHint.init((metrics.getVirtualW() / 2) - (300 / 2), 90 * metrics.getVirtualH() / 100 + 20,300);
+			buttonNextHint.setText(lang.get("ShowNextHint","",true));
+			buttonNextHint.setEnabled(true);
+			buttonNextHint.setVisible(true);
+			buttonNextHint.setEditable(true);
+		}
+
+		renderer.renderButton(&buttonNextHint);
+
+/*
 		if(Renderer::renderText3DEnabled) {
 			int xLocationHint =  (metrics.getVirtualW() / 2) - (coreData.getMenuFontBig3D()->getMetrics()->getTextWidth(hintText) / 2);
 
-			renderer.renderTextShadow3D(
-					lang.get("ShowNextHint","",true), coreData.getMenuFontNormal3D(), displayColor,
+			renderer.renderText3D(
+					lang.get("ShowNextHint","",true), coreData.getMenuFontNormal3D(), nextHintTitleColor,
 					//xLocation*1.5f,
 					xLocationHint,
 					93 * metrics.getVirtualH() / 100, false);
@@ -291,13 +314,15 @@ void Logger::renderLoadingScreen() {
 		else {
 			int xLocationHint =  (metrics.getVirtualW() / 2) - (coreData.getMenuFontBig()->getMetrics()->getTextWidth(hintText) / 2);
 
-			renderer.renderTextShadow(
-					lang.get("ShowNextHint","",true), coreData.getMenuFontNormal(), displayColor,
+			renderer.renderText(
+					lang.get("ShowNextHint","",true), coreData.getMenuFontNormal(), nextHintTitleColor,
 				//xLocation*1.5f,
 				xLocationHint,
 				93 * metrics.getVirtualH() / 100, false);
 
 		}
+*/
+
 	}
 
     if(buttonCancel.getEnabled() == true) {

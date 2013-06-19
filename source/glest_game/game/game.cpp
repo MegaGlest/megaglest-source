@@ -1016,6 +1016,9 @@ void Game::load(int loadTypes) {
 	}
 	else {
 		logger.loadGameHints(englishFile,languageFile,true);
+
+		Shared::Platform::Window::handleEvent();
+		SDL_PumpEvents();
 	}
 
 	if((loadTypes & lgt_FactionPreview) == lgt_FactionPreview) {
