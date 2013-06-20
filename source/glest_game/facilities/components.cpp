@@ -412,7 +412,7 @@ void GraphicListBox::setItems(const vector<string> &items, const vector<string> 
 void GraphicListBox::setSelectedItemIndex(int index, bool errorOnMissing){
 	if(errorOnMissing == true && (index < 0 || index >= items.size())) {
 	    char szBuf[8096]="";
-	    snprintf(szBuf,8096,"Index not found in listbox name: [%s] value index: %d",this->instanceName.c_str(),index,items.size());
+	    snprintf(szBuf,8096,"Index not found in listbox name: [%s] value index: %d size: %lu",this->instanceName.c_str(),index,(unsigned long)items.size());
 		throw megaglest_runtime_error(szBuf);
 	}
     selectedItemIndex= index;

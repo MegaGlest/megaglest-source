@@ -100,7 +100,7 @@ static int getFileAndLine(char *function, void *address, char *file, size_t flen
 						*p++ = 0;
 						// after file name follows line number
 						strcpy (file , buf);
-						sscanf (p,"%d", &line);
+						sscanf (p,"%10d", &line);
 					}
 					else {
 						strcpy (file,"unknown");
@@ -128,7 +128,7 @@ static int getFileAndLine(char *function, void *address, char *file, size_t flen
 				*p++ = 0;
 				// after file name follows line number
 				strcpy (file , buf);
-				sscanf (p,"%d", &line);
+				sscanf (p,"%10d", &line);
 			}
 			else {
 				strcpy (file,"unknown");
