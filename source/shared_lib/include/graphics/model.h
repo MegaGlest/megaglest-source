@@ -92,6 +92,8 @@ public:
 	void init();
 	void end();
 
+	void copyInto(Mesh *dest, bool ignoreInterpolationData, bool destinationOwnsTextures);
+
 	//maps
 	const Texture2D *getTexture(int i) const	{return textures[i];}
 
@@ -116,6 +118,11 @@ public:
 	const Vec3f *getTangents() const	{return tangents;}
 	const uint32 *getIndices() const 	{return indices;}
 
+	void setVertices(Vec3f *data, uint32 count);
+	void setNormals(Vec3f *data, uint32 count);
+	void setTexCoords(Vec2f *data, uint32 count);
+	void setIndices(uint32 *data, uint32 count);
+
 	//material
 	const Vec3f &getDiffuseColor() const	{return diffuseColor;}
 	const Vec3f &getSpecularColor() const	{return specularColor;}
@@ -127,11 +134,15 @@ public:
 	bool getCustomTexture() const	{return customColor;}
 	bool getNoSelect() const		{return noSelect;}
 
+	uint32 getTextureFlags() const { return textureFlags; }
+
 	//external data
 	const InterpolationData *getInterpolationData() const	{return interpolationData;}
 
 	//interpolation
 	void buildInterpolationData();
+	void cleanupInterpolationData();
+
 	void updateInterpolationData(float t, bool cycle);
 	void updateInterpolationVertices(float t, bool cycle);
 
@@ -225,6 +236,7 @@ public:
 
 private:
 	void buildInterpolationData() const;
+	void autoJoinMeshFrames();
 };
 
 class PixelBufferWrapper {
