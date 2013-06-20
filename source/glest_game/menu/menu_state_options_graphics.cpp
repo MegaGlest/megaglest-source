@@ -110,7 +110,7 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		labelScreenModes.setText(lang.get("Resolution"));
 
 		listBoxScreenModes.registerGraphicComponent(containerName,"listBoxScreenModes");
-		listBoxScreenModes.init(currentColumnStart, currentLine, 170);
+		listBoxScreenModes.init(currentColumnStart, currentLine, 200);
 
 		string currentResString = config.getString("ScreenWidth") + "x" +
 								  config.getString("ScreenHeight") + "-" +
@@ -145,7 +145,7 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		labelGammaCorrection.setText(lang.get("GammaCorrection"));
 
 		listBoxGammaCorrection.registerGraphicComponent(containerName,"listBoxGammaCorrection");
-		listBoxGammaCorrection.init(currentColumnStart, currentLine, 170);
+		listBoxGammaCorrection.init(currentColumnStart, currentLine, 200);
 		for (float f=0.5;f<3.0f;f=f+0.1f) {
 			listBoxGammaCorrection.pushBackItem(floatToStr(f));
 		}
@@ -161,7 +161,7 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		labelFilter.setText(lang.get("Filter"));
 
 		listBoxFilter.registerGraphicComponent(containerName,"listBoxFilter");
-		listBoxFilter.init(currentColumnStart, currentLine, 170);
+		listBoxFilter.init(currentColumnStart, currentLine, 200);
 		listBoxFilter.pushBackItem("Bilinear");
 		listBoxFilter.pushBackItem("Trilinear");
 		listBoxFilter.setSelectedItem(config.getString("Filter"));
@@ -173,12 +173,12 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		labelSelectionType.setText(lang.get("SelectionType"));
 
 		listBoxSelectionType.registerGraphicComponent(containerName,"listBoxSelectionType");
-		listBoxSelectionType.init(currentColumnStart, currentLine, 170);
-		listBoxSelectionType.pushBackItem("SelectBuffer");
-		listBoxSelectionType.pushBackItem("ColorPicking");
-		listBoxSelectionType.pushBackItem("FrustumPicking");
+		listBoxSelectionType.init(currentColumnStart, currentLine, 200);
+		listBoxSelectionType.pushBackItem("SelectBuffer (nvidia)");
+		listBoxSelectionType.pushBackItem("ColorPicking (default)");
+		listBoxSelectionType.pushBackItem("FrustumPicking (bad)");
 
-		const string selectionType=toLower(config.getString("SelectionType",Config::selectBufPicking));
+		const string selectionType=toLower(config.getString("SelectionType",Config::colorPicking));
 		if( selectionType==Config::colorPicking)
 			listBoxSelectionType.setSelectedItemIndex(1);
 		else if ( selectionType==Config::frustumPicking )
@@ -193,7 +193,7 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		labelShadows.setText(lang.get("Shadows"));
 
 		listBoxShadows.registerGraphicComponent(containerName,"listBoxShadows");
-		listBoxShadows.init(currentColumnStart, currentLine, 170);
+		listBoxShadows.init(currentColumnStart, currentLine, 200);
 		for(int i= 0; i<Renderer::sCount; ++i){
 			listBoxShadows.pushBackItem(lang.get(Renderer::shadowsToStr(static_cast<Renderer::Shadows>(i))));
 		}
@@ -207,7 +207,7 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		labelShadowTextureSize.setText(lang.get("ShadowTextureSize"));
 
 		listBoxShadowTextureSize.registerGraphicComponent(containerName,"listBoxShadowTextureSize");
-		listBoxShadowTextureSize.init(currentColumnStart, currentLine, 170);
+		listBoxShadowTextureSize.init(currentColumnStart, currentLine, 200);
 		listBoxShadowTextureSize.pushBackItem("256");
 		listBoxShadowTextureSize.pushBackItem("512");
 		listBoxShadowTextureSize.pushBackItem("1024");
