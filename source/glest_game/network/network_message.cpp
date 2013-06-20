@@ -1095,11 +1095,20 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 	}
 
 	data.scenario.nullTerminate();
+
+	//for(int i= 0; i < GameConstants::maxPlayers; ++i){
+	//	printf("Receive index: %d resource multiplier index: %d sizeof(data): %d\n",i,data.resourceMultiplierIndex[i],sizeof(data));
+	//}
+
 	return result;
 }
 
 void NetworkMessageLaunch::send(Socket* socket) {
 	//printf("Sending NetworkMessageLaunch\n");
+
+	//for(int i= 0; i < GameConstants::maxPlayers; ++i){
+	//	printf("Send index: %d resource multiplier index: %d sizeof(data): %d\n",i,data.resourceMultiplierIndex[i],sizeof(data));
+	//}
 
 	if(data.messageType == nmtLaunch) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] nmtLaunch\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);

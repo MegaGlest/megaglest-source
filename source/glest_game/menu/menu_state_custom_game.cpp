@@ -157,8 +157,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	lastNetworkPing				= 0;
 	soundConnectionCount=0;
 
-	vector<string> teamItems, controlItems, results , rMultiplier;
-
 	//create
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	buttonReturn.init(240, 180, 125);
@@ -292,6 +290,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	checkBoxAllowObservers.init(xoffset+310, aPos);
 	checkBoxAllowObservers.setValue(false);
 
+	vector<string> rMultiplier;
 	for(int i=0; i<45; ++i){
 		rMultiplier.push_back(floatToStr(0.5f+0.1f*i,1));
 	}
@@ -441,7 +440,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
     labelRMultiplier.registerGraphicComponent(containerName,"labelRMultiplier");
 	labelRMultiplier.init(xoffset+350, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
-	//labelRMultiplier.setText(lang.get("RMultiplier"));
 
 	labelFaction.registerGraphicComponent(containerName,"labelFaction");
     labelFaction.init(xoffset+430, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
@@ -466,6 +464,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	buttonPlayNow.setText(lang.get("PlayNow"));
 	buttonRestoreLastSettings.setText(lang.get("ReloadLastGameSettings"));
 
+	vector<string> controlItems;
     controlItems.push_back(lang.get("Closed"));
 	controlItems.push_back(lang.get("CpuEasy"));
 	controlItems.push_back(lang.get("Cpu"));
@@ -475,10 +474,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	controlItems.push_back(lang.get("NetworkUnassigned"));
 	controlItems.push_back(lang.get("Human"));
 
-	for(int i=0; i<45; ++i){
-		rMultiplier.push_back(floatToStr(0.5f+0.1f*i,1));
-	}
-
 	if(config.getBool("EnableNetworkCpu","false") == true) {
 		controlItems.push_back(lang.get("NetworkCpuEasy"));
 		controlItems.push_back(lang.get("NetworkCpu"));
@@ -486,6 +481,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	    controlItems.push_back(lang.get("NetworkCpuMega"));
 	}
 
+	vector<string> teamItems;
 	for(int i = 1; i <= GameConstants::maxPlayers; ++i) {
 		teamItems.push_back(intToStr(i));
 	}
@@ -679,7 +675,7 @@ void MenuStateCustomGame::reloadUI() {
 		labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getSVNRevisionString() + "]");
 	}
 
-	vector<string> teamItems, controlItems, results , rMultiplier;
+	//vector<string> teamItems, controlItems, results , rMultiplier;
 
 	string ipText = "none";
 	std::vector<std::string> ipList = Socket::getLocalIPAddressList();
@@ -771,6 +767,7 @@ void MenuStateCustomGame::reloadUI() {
 	buttonPlayNow.setText(lang.get("PlayNow"));
 	buttonRestoreLastSettings.setText(lang.get("ReloadLastGameSettings"));
 
+	vector<string> controlItems;
     controlItems.push_back(lang.get("Closed"));
 	controlItems.push_back(lang.get("CpuEasy"));
 	controlItems.push_back(lang.get("Cpu"));
@@ -1194,6 +1191,13 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 
 					// set multiplier
 					if(listBoxRMultiplier[i].mouseClick(x, y)) {
+						//printf("Line: %d multiplier index: %d i: %d itemcount: %d\n",__LINE__,listBoxRMultiplier[i].getSelectedItemIndex(),i,listBoxRMultiplier[i].getItemCount());
+
+						//for(int indexData = 0; indexData < listBoxRMultiplier[i].getItemCount(); ++indexData) {
+							//string item = listBoxRMultiplier[i].getItem(indexData);
+
+							//printf("Item index: %d value: %s\n",indexData,item.c_str());
+						//}
 					}
 
 					//ensure thet only 1 human player is present
@@ -1426,34 +1430,38 @@ void MenuStateCustomGame::updateAllResourceMultiplier() {
 }
 
 void MenuStateCustomGame::updateResourceMultiplier(const int index) {
-		ControlType ct= static_cast<ControlType>(listBoxControls[index].getSelectedItemIndex());
-		if(ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
-			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
-			listBoxRMultiplier[index].setEnabled(false);
-			//!!!listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
-		}
-		else if(ct == ctCpuEasy || ct == ctNetworkCpuEasy)
-		{
-			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::easyMultiplier-0.5f)*10);
-			listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
-		}
-		else if(ct == ctCpu || ct == ctNetworkCpu) {
-			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
-			listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
-		}
-		else if(ct == ctCpuUltra || ct == ctNetworkCpuUltra)
-		{
-			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::ultraMultiplier-0.5f)*10);
-			listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
-		}
-		else if(ct == ctCpuMega || ct == ctNetworkCpuMega)
-		{
-			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::megaMultiplier-0.5f)*10);
-			listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
-		}
-		listBoxRMultiplier[index].setEditable(listBoxRMultiplier[index].getEnabled());
-		listBoxRMultiplier[index].setVisible(ct != ctHuman && ct != ctNetwork && ct != ctClosed);
-		//listBoxRMultiplier[index].setVisible(ct != ctClosed);
+	//printf("Line: %d multiplier index: %d index: %d\n",__LINE__,listBoxRMultiplier[index].getSelectedItemIndex(),index);
+
+	ControlType ct= static_cast<ControlType>(listBoxControls[index].getSelectedItemIndex());
+	if(ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
+		listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
+		listBoxRMultiplier[index].setEnabled(false);
+		//!!!listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
+	}
+	else if(ct == ctCpuEasy || ct == ctNetworkCpuEasy)
+	{
+		listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::easyMultiplier-0.5f)*10);
+		listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
+	}
+	else if(ct == ctCpu || ct == ctNetworkCpu) {
+		listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
+		listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
+	}
+	else if(ct == ctCpuUltra || ct == ctNetworkCpuUltra)
+	{
+		listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::ultraMultiplier-0.5f)*10);
+		listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
+	}
+	else if(ct == ctCpuMega || ct == ctNetworkCpuMega)
+	{
+		listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::megaMultiplier-0.5f)*10);
+		listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
+	}
+	listBoxRMultiplier[index].setEditable(listBoxRMultiplier[index].getEnabled());
+	listBoxRMultiplier[index].setVisible(ct != ctHuman && ct != ctNetwork && ct != ctClosed);
+	//listBoxRMultiplier[index].setVisible(ct != ctClosed);
+
+	//printf("Line: %d multiplier index: %d index: %d\n",__LINE__,listBoxRMultiplier[index].getSelectedItemIndex(),index);
 }
 
 void MenuStateCustomGame::loadGameSettings(std::string fileName) {
@@ -3197,7 +3205,9 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 			//if(slotIndex == 0) printf("slotIndex = %d, i = %d, multiplier = %d\n",slotIndex,i,listBoxRMultiplier[i].getSelectedItemIndex());
 
+			//printf("Line: %d multiplier index: %d slotIndex: %d\n",__LINE__,listBoxRMultiplier[i].getSelectedItemIndex(),slotIndex);
 			gameSettings->setResourceMultiplierIndex(slotIndex, listBoxRMultiplier[i].getSelectedItemIndex());
+			//printf("Line: %d multiplier index: %d slotIndex: %d\n",__LINE__,gameSettings->getResourceMultiplierIndex(slotIndex),slotIndex);
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
 

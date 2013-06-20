@@ -426,6 +426,10 @@ public:
 			throw megaglest_runtime_error(szBuf);
 		}
 
+		//if(multiplierIndex >= 45) {
+		//	printf("gamesettings Line: %d multiplier index: %d factionIndex: %d\n",__LINE__,multiplierIndex,factionIndex);
+		//}
+
 		this->resourceMultiplierIndex[factionIndex]= multiplierIndex;
 	}
 
