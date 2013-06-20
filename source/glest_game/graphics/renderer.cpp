@@ -6645,7 +6645,7 @@ Vec3f Renderer::computeScreenPosition(const Vec3f &worldPos) {
 void Renderer::computeSelected(	Selection::UnitContainer &units, const Object *&obj,
 								const bool withObjectSelection,
 								const Vec2i &posDown, const Vec2i &posUp) {
-	const string selectionType=toLower(Config::getInstance().getString("SelectionType",Config::selectBufPicking));
+	const string selectionType=toLower(Config::getInstance().getString("SelectionType",Config::colorPicking));
 
 	if(selectionType==Config::colorPicking) {
 		selectUsingColorPicking(units,obj, withObjectSelection,posDown, posUp);
