@@ -691,7 +691,10 @@ void AiRuleProduce::execute() {
 
 void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 	typedef vector<const UnitType*> UnitTypes;
+	typedef vector<bool> UnitTypesGiveBack;
 	UnitTypes ableUnits;
+	UnitTypesGiveBack ableUnitsGiveBack;
+
 	AiInterface *aiInterface= ai->getAiInterface();
 
 	if(pt->getResourceType() != NULL) {
@@ -749,17 +752,15 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 			const CommandType *ct= ut->getCommandType(j);
 
 			//if the command is produce
+			bool produceIt= false;
 			if(ct->getClass() == ccProduce || ct->getClass()==ccMorph) {
-
 				const UnitType *producedUnit= static_cast<const UnitType*>(ct->getProduced());
-				bool produceIt= false;
 
 				if(ai->outputAIBehaviourToConsole()) printf("produceGeneric [%p] Testing AI RULE Name[%s]\n",pt->getResourceType(), this->getName().c_str());
 
 				//if the unit produces the resource
 				if(pt->getResourceType() != NULL) {
 					const Resource *r= producedUnit->getCost(pt->getResourceType());
-
 					if(r != NULL) {
 						if(ai->outputAIBehaviourToConsole()) printf("produceGeneric r = [%s][%d] Testing AI RULE Name[%s]\n",r->getDescription(false).c_str(),r->getAmount(), this->getName().c_str());
 					}
@@ -768,7 +769,6 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 						produceIt= true;
 					}
 				}
-
 				else {
 					//if the unit is from the right class
 					if(ai->outputAIBehaviourToConsole()) printf("produceGeneric right class = [%d] Testing AI RULE Name[%s]\n",producedUnit->isOfClass(pt->getUnitClass()), this->getName().c_str());
@@ -784,6 +784,28 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 					//if the unit is not already on the list
 					if(find(ableUnits.begin(), ableUnits.end(), producedUnit)==ableUnits.end()){
 						ableUnits.push_back(producedUnit);
+						ableUnitsGiveBack.push_back(false);
+					}
+				}
+			}
+
+			// Now check of the unit 'gives' the resource
+			if(produceIt == false) {
+				//if the unit produces the resource
+				if(pt->getResourceType() != NULL) {
+					const Resource *r= ut->getCost(pt->getResourceType());
+					if(r != NULL) {
+						if(ai->outputAIBehaviourToConsole()) printf("#2 produceGeneric r = [%s][%d] Testing AI RULE Name[%s]\n",r->getDescription(false).c_str(),r->getAmount(), this->getName().c_str());
+					}
+
+					if(r != NULL && r->getAmount() < 0) {
+						produceIt= true;
+
+						//if the unit is not already on the list
+						if(find(ableUnits.begin(), ableUnits.end(), ut)==ableUnits.end()){
+							ableUnits.push_back(ut);
+							ableUnitsGiveBack.push_back(true);
+						}
 					}
 				}
 			}
@@ -794,6 +816,29 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 	if(ableUnits.empty() == false) {
 
 		if(ai->outputAIBehaviourToConsole()) printf("produceGeneric !ableUnits.empty(), ableUnits.size() = [%d] Testing AI RULE Name[%s]\n",(int)ableUnits.size(), this->getName().c_str());
+
+		// Now check if we already have at least 2 produce or morph
+		// resource based units, if so prefer units that give back the resource
+		if(pt->getResourceType() != NULL) {
+			//priority for non produced units
+			UnitTypes newAbleUnits;
+			bool haveEnoughProducers = true;
+			bool haveNonProducers = false;
+			for(unsigned int i=0; i < ableUnits.size(); ++i) {
+				const UnitType *ut 	= ableUnits[i];
+				bool givesBack 		= ableUnitsGiveBack[i];
+				if(givesBack == false && ai->getCountOfType(ut) < 2) {
+					haveEnoughProducers = false;
+				}
+				else if(givesBack == true) {
+					haveNonProducers = true;
+					newAbleUnits.push_back(ut);
+				}
+			}
+			if(haveEnoughProducers == true && haveNonProducers == true) {
+				ableUnits = newAbleUnits;
+			}
+		}
 
 		//priority for non produced units
 		for(unsigned int i=0; i < ableUnits.size(); ++i) {
