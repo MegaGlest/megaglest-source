@@ -38,7 +38,6 @@ const int Logger::logLineCount= 15;
 // ===================== PUBLIC ========================
 
 Logger::Logger() {
-	string containerName = "Logger";
 	progress = 0;
 	string logs_path = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey);
 	if(logs_path != "") {
