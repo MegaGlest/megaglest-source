@@ -22,6 +22,8 @@
 #include "opengl.h"
 #include "platform_util.h"
 #include <memory>
+#include <map>
+#include <vector>
 #include "leak_dumper.h"
 
 using namespace Shared::Platform;
@@ -287,8 +289,7 @@ void Mesh::end() {
 	delete [] indices;
 	indices=NULL;
 
-	delete interpolationData;
-	interpolationData=NULL;
+	cleanupInterpolationData();
 
 	if(textureManager != NULL) {
 		for(int i = 0; i < meshTextureCount; ++i) {
@@ -309,6 +310,11 @@ void Mesh::buildInterpolationData(){
 		printf("**WARNING possible memory leak [Mesh::buildInterpolationData()]\n");
 	}
 	interpolationData= new InterpolationData(this);
+}
+
+void Mesh::cleanupInterpolationData() {
+	delete interpolationData;
+	interpolationData=NULL;
 }
 
 void Mesh::updateInterpolationData(float t, bool cycle) {
@@ -1292,6 +1298,8 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 		}
 
 		fclose(f);
+
+		autoJoinMeshFrames();
     }
     catch(megaglest_runtime_error& ex) {
     	//printf("1111111 ex.wantStackTrace() = %d\n",ex.wantStackTrace());
@@ -1368,6 +1376,338 @@ void Model::deletePixels() {
 		meshes[i].deletePixels();
 	}
 }
+
+class MeshContainer {
+protected:
+	int indexValue;
+	std::vector<Mesh *> meshes;
+
+public:
+
+	MeshContainer() {
+		this->indexValue = -1;
+	}
+	void add(int index, Mesh *mesh) {
+		if(this->indexValue < 0) {
+			this->indexValue = index;
+		}
+		meshes.push_back(mesh);
+	}
+	int index() {
+		return indexValue;
+	}
+	int size() {
+		return meshes.size();
+	}
+	std::vector<Mesh *>  get() {
+		return meshes;
+	}
+};
+
+void Mesh::setVertices(Vec3f *data, uint32 count) {
+	delete [] this->vertices;
+	this->vertices = data;
+
+	this->vertexCount = count;
+}
+void Mesh::setNormals(Vec3f *data, uint32 count) {
+	delete [] this->normals;
+	this->normals = data;
+
+	this->vertexCount = count;
+}
+
+void Mesh::setTexCoords(Vec2f *data, uint32 count) {
+	delete [] this->texCoords;
+	this->texCoords = data;
+
+	this->vertexCount = count;
+}
+
+void Mesh::setIndices(uint32 *data, uint32 count) {
+	delete [] this->indices;
+	this->indices = data;
+
+	this->indexCount = count;
+}
+
+void Mesh::copyInto(Mesh *dest, bool ignoreInterpolationData,
+								bool destinationOwnsTextures) {
+
+	for(int index = 0; index < meshTextureCount; ++index){
+		dest->textures[index] 		= this->textures[index];
+		dest->texturesOwned[index] 	= this->texturesOwned[index];
+		dest->texturePaths[index] 	= this->texturePaths[index];
+
+		if(destinationOwnsTextures == true) {
+			this->texturesOwned[index] = false;
+		}
+	}
+
+	dest->name = this->name;
+	//vertex data counts
+	dest->frameCount 			= this->frameCount;
+	dest->vertexCount 			= this->vertexCount;
+	dest->indexCount 			= this->indexCount;
+	dest->texCoordFrameCount 	= this->texCoordFrameCount;
+
+	//vertex data
+	if(dest->vertices != NULL) {
+		delete [] dest->vertices;
+		dest->vertices = NULL;
+	}
+	if(this->vertices != NULL) {
+		dest->vertices = new Vec3f[this->frameCount * this->vertexCount];
+		memcpy(&dest->vertices[0],&this->vertices[0],this->frameCount * this->vertexCount * sizeof(Vec3f));
+	}
+
+	if(dest->normals != NULL) {
+		delete [] dest->normals;
+		dest->normals = NULL;
+	}
+	if(this->normals != NULL) {
+		dest->normals = new Vec3f[this->frameCount * this->vertexCount];
+		memcpy(&dest->normals[0],&this->normals[0],this->frameCount * this->vertexCount * sizeof(Vec3f));
+	}
+
+	if(dest->texCoords != NULL) {
+		delete [] dest->texCoords;
+		dest->texCoords = NULL;
+	}
+	if(this->texCoords != NULL) {
+		dest->texCoords = new Vec2f[this->vertexCount];
+		memcpy(&dest->texCoords[0],&this->texCoords[0],this->vertexCount * sizeof(Vec2f));
+	}
+
+	if(dest->tangents != NULL) {
+		delete [] dest->tangents;
+		dest->tangents = NULL;
+	}
+	if(this->tangents != NULL) {
+		dest->tangents = new Vec3f[this->vertexCount];
+		memcpy(&dest->tangents[0],&this->tangents[0],this->vertexCount * sizeof(Vec3f));
+	}
+
+	if(dest->indices != NULL) {
+		delete [] dest->indices;
+		dest->indices = NULL;
+	}
+	if(this->indices != NULL) {
+		dest->indices = new uint32[this->indexCount];
+		memcpy(&dest->indices[0],&this->indices[0],this->indexCount * sizeof(uint32));
+	}
+
+	//material data
+	dest->diffuseColor 	= this->diffuseColor;
+	dest->specularColor = this->specularColor;
+	dest->specularPower = this->specularPower;
+	dest->opacity 		= this->opacity;
+
+	//properties
+	dest->twoSided 		= this->twoSided;
+	dest->customColor 	= this->customColor;
+	dest->noSelect 		= this->noSelect;
+
+	dest->textureFlags 	= this->textureFlags;
+
+	if(ignoreInterpolationData == false) {
+		dest->interpolationData = this->interpolationData;
+	}
+	dest->textureManager = this->textureManager;
+
+	// Vertex Buffer Object Names
+	dest->hasBuiltVBOs 		= this->hasBuiltVBOs;
+	dest->m_nVBOVertices 	= this-> m_nVBOVertices;
+	dest->m_nVBOTexCoords 	= this->m_nVBOTexCoords;
+	dest->m_nVBONormals 	= this->m_nVBONormals;
+	dest->m_nVBOIndexes 	= this->m_nVBOIndexes;
+}
+
+void Model::autoJoinMeshFrames() {
+
+/*
+	print "auto-joining compatible meshes..."
+        meshes = {}
+        for mesh in self.meshes:
+            key = (mesh.texture,mesh.frame_count,mesh.twoSided|mesh.customColour)
+            if key in meshes:
+                meshes[key].append(mesh)
+            else:
+                meshes[key] = [mesh]
+        for joinable in meshes.values():
+            if len(joinable) < 2: continue
+            base = joinable[0]
+            print "\tjoining to",base
+            for mesh in joinable[1:]:
+                if base.index_count+mesh.index_count > 0xffff:
+                    base = mesh
+                    print "\tjoining to",base
+                    continue
+                print "\t\t",mesh
+                for a,b in zip(base.frames,mesh.frames):
+                    a.vertices.extend(b.vertices)
+                    a.normals.extend(b.normals)
+                if base.texture:
+                    base.textures.extend(mesh.textures)
+                base.indices.extend(index+base.vertex_count for index in mesh.indices)
+                base.vertex_count += mesh.vertex_count
+                base.index_count += mesh.index_count
+                self.meshes.remove(mesh)
+*/
+
+
+
+	bool haveJoinedMeshes = false;
+
+	// First looks for meshes with same texture in the same frame
+	std::map<std::string,MeshContainer> joinedMeshes;
+	for(uint32 index = 0; index < meshCount; ++index) {
+		Mesh &mesh = meshes[index];
+
+		// Duplicate mesh vertices are considered to be those with the same
+		// 1. texture 2. framecount 3. twosided flag value 4. same custom texture color
+		string mesh_key = (mesh.getTextureFlags() & 1 ? mesh.getTexture(0)->getPath() : "none");
+		       mesh_key += string("_") + intToStr(mesh.getFrameCount()) +
+		    		       string("_") + intToStr(mesh.getTwoSided()) +
+				           string("_") + intToStr(mesh.getCustomTexture());
+
+		joinedMeshes[mesh_key].add(index,&mesh);
+		if(haveJoinedMeshes == false && joinedMeshes[mesh_key].size() > 1) {
+			haveJoinedMeshes = true;
+		}
+	}
+
+	if(haveJoinedMeshes == true) {
+		//printf("*** Detected Joined meshes for model [%s]\n",fileName.c_str());
+
+		// We have mesh data to join we now create a list in the same order
+		// as the original meshes but each index will have 1 or more meshes
+		// This is done to maintain original mesh ordering
+		std::map<int, std::vector<Mesh *> > orderedMeshes;
+		for(std::map<std::string,MeshContainer >::iterator iterMap = joinedMeshes.begin();
+				iterMap != joinedMeshes.end(); ++iterMap) {
+			orderedMeshes[iterMap->second.index()] = iterMap->second.get();
+
+			//if(iterMap->second.size() > 1) {
+			//	printf("Key [%s] joined meshes: %d\n",iterMap->first.c_str(),iterMap->second.size());
+			//}
+		}
+
+		// Now the real work of creating a new list of joined mesh data
+		Mesh *joinedMeshList = new Mesh[joinedMeshes.size()];
+
+		int index = 0;
+		for(std::map<int, std::vector<Mesh *> >::iterator iterMap = orderedMeshes.begin();
+				iterMap != orderedMeshes.end(); ++iterMap) {
+			//printf("Join index: %d joincount: %d\n",index,iterMap->second.size());
+
+			Mesh *base = &joinedMeshList[index];
+
+			// Deep copy mesh data
+			iterMap->second[0]->copyInto(base, true, true);
+
+			if(iterMap->second.size() > 1) {
+				// Time to join mesh data for this mesh
+				for(int joinIndex = 1;
+						joinIndex < iterMap->second.size(); ++joinIndex) {
+					Mesh *mesh = iterMap->second[joinIndex];
+					if(base->getIndexCount() + mesh->getIndexCount() > 0xffff) {
+						printf("Not exactly sure what this IF statement is for?\n");
+						mesh->copyInto(base, true, true);
+					}
+					else {
+						// Need to add verticies for each from from mesh to base
+						uint32 originalBaseVertexCount = base->getVertexCount();
+
+						uint32 newVertexCount =
+								base->getVertexCount() + mesh->getVertexCount();
+
+						uint32 newVertexFrameCount =
+								(base->getFrameCount() * newVertexCount);
+
+						Vec3f *joined_vertices = new Vec3f[newVertexFrameCount];
+						Vec3f *joined_normals = new Vec3f[newVertexFrameCount];
+						uint32 join_index = 0;
+
+						// Join mesh vertices and normals
+						for(int frameIndex = 0;
+								frameIndex < base->getFrameCount(); ++frameIndex) {
+							uint32 baseIndex = frameIndex * originalBaseVertexCount;
+							uint32 meshIndex = frameIndex * mesh->getVertexCount();
+							//uint32 appendBaseJoinIndex = frameIndex * newVertexCount;
+
+							// first original mesh values get copied
+							memcpy(&joined_vertices[join_index],
+									&base->getVertices()[baseIndex],
+									originalBaseVertexCount * sizeof(Vec3f));
+							memcpy(&joined_normals[join_index],
+									&base->getNormals()[baseIndex],
+									originalBaseVertexCount * sizeof(Vec3f));
+							join_index += originalBaseVertexCount;
+
+							// second joined mesh values get copied
+							memcpy(&joined_vertices[join_index],
+									&mesh->getVertices()[meshIndex],
+									mesh->getVertexCount() * sizeof(Vec3f));
+							memcpy(&joined_normals[join_index],
+									&mesh->getNormals()[meshIndex],
+									mesh->getVertexCount() * sizeof(Vec3f));
+							join_index += mesh->getVertexCount();
+						}
+
+						// update vertex and normal buffers with joined mesh data
+						base->setVertices(joined_vertices, newVertexCount);
+						base->setNormals(joined_normals, newVertexCount);
+
+						// If we have texture coords join them
+						if(base->getTextureFlags() & 1) {
+							Vec2f *joined_texCoords = new Vec2f[newVertexCount];
+
+							// update texture coord buffers with joined mesh data
+							memcpy(&joined_texCoords[0],
+									&base->getTexCoords()[0],
+									originalBaseVertexCount * sizeof(Vec2f));
+							memcpy(&joined_texCoords[originalBaseVertexCount],
+									&mesh->getTexCoords()[0],
+									mesh->getVertexCount() * sizeof(Vec2f));
+
+							base->setTexCoords(joined_texCoords, newVertexCount);
+						}
+
+						// update index buffers with joined mesh data
+						uint32 newindexCount = base->getIndexCount() + mesh->getIndexCount();
+						uint32 *joined_indexes = new uint32[newindexCount];
+
+						uint32 join_index_index = 0;
+						memcpy(&joined_indexes[join_index_index],
+								&base->getIndices()[0],
+								base->getIndexCount() * sizeof(uint32));
+						join_index_index += base->getIndexCount();
+
+						for(int meshIndex = 0;
+								meshIndex < mesh->getIndexCount(); ++meshIndex) {
+							uint32 index_value = mesh->getIndices()[meshIndex];
+
+							// join index values
+							joined_indexes[join_index_index] = index_value + originalBaseVertexCount;
+							join_index_index++;
+						}
+						base->setIndices(joined_indexes, newindexCount);
+					}
+				}
+			}
+			base->buildInterpolationData();
+
+			index++;
+		}
+
+		delete [] meshes;
+		meshes = joinedMeshList;
+		meshCount = joinedMeshes.size();
+	}
+}
+
+// ----------------------------------------------------------------------------
 
 bool PixelBufferWrapper::isPBOEnabled 	= false;
 int PixelBufferWrapper::index 			= 0;

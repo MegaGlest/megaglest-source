@@ -237,6 +237,8 @@ void ModelRendererGl::renderMesh(Mesh *mesh,int renderMode) {
 			glDisableClientState(GL_NORMAL_ARRAY);
 		}
 
+		assertGl();
+
 		//tex coords
 		if(renderTextures && mesh->getTexture(mtDiffuse) != NULL ) {
 			if(duplicateTexCoords) {
@@ -279,6 +281,8 @@ void ModelRendererGl::renderMesh(Mesh *mesh,int renderMode) {
 			glDisableClientState(GL_NORMAL_ARRAY);
 		}
 
+		assertGl();
+
 		//tex coords
 		if(renderTextures && mesh->getTexture(mtDiffuse)!=NULL ) {
 			if(duplicateTexCoords) {
@@ -302,15 +306,21 @@ void ModelRendererGl::renderMesh(Mesh *mesh,int renderMode) {
 	}
 
 	if(getVBOSupported() == true && mesh->getFrameCount() == 1) {
+		assertGl();
+
 		glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, mesh->getVBOIndexes() );
 		glDrawRangeElements(GL_TRIANGLES, 0, vertexCount-1, indexCount, GL_UNSIGNED_INT, (char *)NULL);
 		glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, 0 );
 		glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
 
 		//glDrawRangeElements(GL_TRIANGLES, 0, vertexCount-1, indexCount, GL_UNSIGNED_INT, mesh->getIndices());
+
+		assertGl();
 	}
 	else {
 		//draw model
+		assertGl();
+
 		glDrawRangeElements(GL_TRIANGLES, 0, vertexCount-1, indexCount, GL_UNSIGNED_INT, mesh->getIndices());
 	}
 
