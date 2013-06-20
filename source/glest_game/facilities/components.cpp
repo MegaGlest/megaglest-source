@@ -410,9 +410,10 @@ void GraphicListBox::setItems(const vector<string> &items, const vector<string> 
 }
 
 void GraphicListBox::setSelectedItemIndex(int index, bool errorOnMissing){
-    //if(errorOnMissing == true) assert(index>=0 && index<items.size());
 	if(errorOnMissing == true && (index < 0 || index >= items.size())) {
-		throw megaglest_runtime_error("Index not found on list box: " + intToStr(index) + " size: " + intToStr(items.size()));
+	    char szBuf[8096]="";
+	    snprintf(szBuf,8096,"Index not found in listbox name: [%s] value index: %d",this->instanceName.c_str(),index,items.size());
+		throw megaglest_runtime_error(szBuf);
 	}
     selectedItemIndex= index;
     setText(getSelectedItem());
@@ -456,7 +457,10 @@ void GraphicListBox::setSelectedItem(string item, bool errorOnMissing){
 			for(int idx = 0; idx < items.size(); idx++) {
 				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\ninstanceName [%s] idx = %d items[idx] = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,instanceName.c_str(),idx,items[idx].c_str());
 			}
-			throw megaglest_runtime_error("[" + instanceName +"] Value not found on list box: [" + item + "]");
+
+		    char szBuf[8096]="";
+		    snprintf(szBuf,8096,"Value not found in listbox name: [%s] value: %s",this->instanceName.c_str(),item.c_str());
+			throw megaglest_runtime_error(szBuf);
 		}
 	}
 	else {
