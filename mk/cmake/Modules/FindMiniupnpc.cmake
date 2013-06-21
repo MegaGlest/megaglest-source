@@ -33,9 +33,24 @@ if (MINIUPNP_INCLUDE_DIR AND MINIUPNP_LIBRARY)
   set(MINIUPNP_FIND_QUIETLY TRUE)
 endif (MINIUPNP_INCLUDE_DIR AND MINIUPNP_LIBRARY)
 
-find_path(MINIUPNP_INCLUDE_DIR miniupnpc.h
-   PATH_SUFFIXES miniupnpc)
-find_library(MINIUPNP_LIBRARY miniupnpc)
+SET(MINIUPNPC_DIR_SEARCH $ENV{MINIUPNPC_ROOT})
+
+#find_path(MINIUPNP_INCLUDE_DIR miniupnpc.h
+#   PATH_SUFFIXES miniupnpc)
+
+FIND_PATH(MINIUPNPC_INCLUDE_DIR miniupnpc.h 
+  ${MINIUPNPC_DIR_SEARCH}/include/miniupnpc
+  /usr/include/miniupnpc
+  /usr/local/include/miniupnpc) 
+
+#find_library(MINIUPNP_LIBRARY miniupnpc)
+
+FIND_LIBRARY(MINIUPNPC_LIBRARY NAMES miniupnpc
+  PATHS 
+  ${MINIUPNPC_DIR_SEARCH}/lib
+  /usr/${LIB_DESTINATION}
+  /usr/local/${LIB_DESTINATION}
+  /usr/lib)
 
 if (MINIUPNP_INCLUDE_DIR AND MINIUPNP_LIBRARY)
     set (MINIUPNP_FOUND TRUE)
@@ -175,5 +190,7 @@ else ()
     message (STATUS "Could not find miniupnp")
 endif ()
 
-MARK_AS_ADVANCED(MINIUPNP_INCLUDE_DIR MINIUPNP_LIBRARY)
+MARK_AS_ADVANCED(
+  MINIUPNPC_INCLUDE_DIR
+  MINIUPNPC_LIBRARY)
 
