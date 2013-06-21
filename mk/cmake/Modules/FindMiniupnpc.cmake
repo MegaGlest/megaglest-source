@@ -40,12 +40,12 @@ SET(MINIUPNPC_DIR_SEARCH $ENV{MINIUPNPC_ROOT})
 #find_path(MINIUPNP_INCLUDE_DIR miniupnpc.h
 #   PATH_SUFFIXES miniupnpc)
 
-FIND_PATH(MINIUPNPC_INCLUDE_DIR miniupnpc.h 
+FIND_PATH(MINIUPNP_INCLUDE_DIR miniupnpc.h 
   ${MINIUPNPC_DIR_SEARCH}/include/miniupnpc
   /usr/include/miniupnpc
   /usr/local/include/miniupnpc) 
 
-message(STATUS "Finding miniupnpc.h result: ${MINIUPNPC_INCLUDE_DIR}")
+message(STATUS "Finding miniupnpc.h result: ${MINIUPNP_INCLUDE_DIR}")
 
 #find_library(MINIUPNP_LIBRARY miniupnpc)
 
@@ -55,9 +55,9 @@ ELSE()
   set(MINIUPNPC_LIBRARY_NAMES ${MINIUPNPC_LIBRARY_DYNAMIC_NAME} libminiupnpc.so miniupnpc)
 ENDIF()
 
-FIND_LIBRARY(MINIUPNPC_LIBRARY NAMES ${MINIUPNPC_LIBRARY_NAMES})
+FIND_LIBRARY(MINIUPNP_LIBRARY NAMES ${MINIUPNPC_LIBRARY_NAMES})
 
-message(STATUS "Finding miniupnpc lib result: ${MINIUPNPC_LIBRARY}")
+message(STATUS "Finding miniupnpc lib result: ${MINIUPNP_LIBRARY}")
 
 if (MINIUPNP_INCLUDE_DIR AND MINIUPNP_LIBRARY)
     set (MINIUPNP_FOUND TRUE)
