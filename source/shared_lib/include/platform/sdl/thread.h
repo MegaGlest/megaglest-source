@@ -61,6 +61,7 @@ private:
 	bool deleteAfterExecute;
 	static Mutex mutexthreadList;
 	static vector<Thread *> threadList;
+	static bool enableVerboseMode;
 
 protected:
 	void addThreadToList();
@@ -70,6 +71,9 @@ protected:
 public:
 	Thread();
 	virtual ~Thread();
+
+	static void setEnableVerboseMode(bool value) { enableVerboseMode = value; }
+	static bool getEnableVerboseMode() { return enableVerboseMode; }
 
 	static std::vector<Thread *> getThreadList();
 	static void shutdownThreads();

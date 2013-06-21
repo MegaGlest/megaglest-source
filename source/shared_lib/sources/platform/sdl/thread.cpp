@@ -24,11 +24,19 @@ using namespace std;
 
 namespace Shared { namespace Platform {
 
+bool Thread::enableVerboseMode = false;
 Mutex Thread::mutexthreadList;
 vector<Thread *> Thread::threadList;
 
 auto_ptr<Mutex> Mutex::mutexMutexList(new Mutex(CODE_AT_LINE));
 vector<Mutex *> Mutex::mutexList;
+
+class ThreadGarbageCollector;
+class Mutex;
+class MutexSafeWrapper;
+
+static auto_ptr<ThreadGarbageCollector> cleanupThread;
+static auto_ptr<Mutex> cleanupThreadMutex(new Mutex());
 
 class ThreadGarbageCollector : public BaseThread
 {
@@ -41,34 +49,30 @@ protected:
 		if(pendingCleanupList.empty() == false) {
 			for(unsigned int index = 0; index < pendingCleanupList.size(); ++index) {
 				Thread *thread = pendingCleanupList[index];
-				if(thread != NULL) {
-					BaseThread *base_thread = dynamic_cast<BaseThread *>(thread);
-					if(base_thread != NULL &&
-							(base_thread->getRunningStatus() == true || base_thread->getExecutingTask() == true)) {
-						sleep(10);
-						if(base_thread->getRunningStatus() == true || base_thread->getExecutingTask() == true) {
-							char szBuf[8096]="";
-							snprintf(szBuf,8095,"In [%s::%s Line: %d] cannot delete active thread: getRunningStatus(): %d getExecutingTask: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,base_thread->getRunningStatus(),base_thread->getExecutingTask());
-							throw megaglest_runtime_error(szBuf);
-						}
-					}
-					delete thread;
-				}
+				cleanupPendingThread(thread);
 			}
 			pendingCleanupList.clear();
 			return true;
 		}
 		return false;
 	}
+
 public:
 	ThreadGarbageCollector() : BaseThread() {
+		if(Thread::getEnableVerboseMode()) printf("In %s Line: %d this: %p\n",__FUNCTION__,__LINE__,this);
 		uniqueID = "ThreadGarbageCollector";
 		removeThreadFromList();
 	}
 	virtual ~ThreadGarbageCollector() {
-		//printf("In ~ThreadAutoCleanup Line: %d\n",__LINE__);
+		if(Thread::getEnableVerboseMode()) {
+			printf("In %s Line: %d this: %p\n",__FUNCTION__,__LINE__,this);
+			string stack = PlatformExceptionHandler::getStackTrace();
+			printf("In %s Line: %d this: %p stack: %s\n",__FUNCTION__,__LINE__,this,stack.c_str());
+		}
 	}
     virtual void execute() {
+    	if(Thread::getEnableVerboseMode()) printf("In %s Line: %d this: %p\n",__FUNCTION__,__LINE__,this);
+
         RunningStatusSafeWrapper runningStatus(this);
         for(;getQuitStatus() == false;) {
 			if(cleanupPendingThreads() == false) {
@@ -77,16 +81,49 @@ public:
 				}
 			}
 		}
+
+        if(Thread::getEnableVerboseMode()) printf("In %s Line: %d this: %p\n",__FUNCTION__,__LINE__,this);
+
 		cleanupPendingThreads();
+
+		if(Thread::getEnableVerboseMode()) printf("In %s Line: %d this: %p\n",__FUNCTION__,__LINE__,this);
 	}
-    void addThread(Thread *thread) { 
+    void addThread(Thread *thread) {
+    	if(Thread::getEnableVerboseMode()) printf("In %s Line: %d this: %p\n",__FUNCTION__,__LINE__,this);
+
 		MutexSafeWrapper safeMutex(&mutexPendingCleanupList);
 		pendingCleanupList.push_back(thread);
 		safeMutex.ReleaseLock();
+
+		if(Thread::getEnableVerboseMode()) printf("In %s Line: %d this: %p\n",__FUNCTION__,__LINE__,this);
 	}
+
+	static void cleanupPendingThread(Thread *thread) {
+		if(thread != NULL) {
+			BaseThread *base_thread = dynamic_cast<BaseThread *>(thread);
+			if(base_thread != NULL &&
+					(base_thread->getRunningStatus() == true || base_thread->getExecutingTask() == true)) {
+				sleep(10);
+				if(base_thread->getRunningStatus() == true || base_thread->getExecutingTask() == true) {
+
+					if(Thread::getEnableVerboseMode()) printf("\n\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$ cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
+
+					char szBuf[8096]="";
+					snprintf(szBuf,8095,"In [%s::%s Line: %d] cannot delete active thread: getRunningStatus(): %d getExecutingTask: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,base_thread->getRunningStatus(),base_thread->getExecutingTask());
+					throw megaglest_runtime_error(szBuf);
+				}
+			}
+
+			if(Thread::getEnableVerboseMode()) printf("!!!! cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
+
+			delete thread;
+
+			if(Thread::getEnableVerboseMode()) printf("!!!! cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
+		}
+	}
+
 };
 
-static auto_ptr<ThreadGarbageCollector> cleanupThread;
 // =====================================
 //          Threads
 // =====================================
@@ -125,7 +162,7 @@ void Thread::shutdownThreads() {
 	}
 	safeMutex.ReleaseLock();
 
-	//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
+	if(Thread::getEnableVerboseMode()) printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
 	if(cleanupThread.get() != 0) {
 		//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
 		sleep(0);
@@ -139,24 +176,26 @@ void Thread::shutdownThreads() {
 		}
 		//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
 		//sleep(100);
+
+		MutexSafeWrapper safeMutex(cleanupThreadMutex.get());
 		cleanupThread.reset(0);
 		//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
 	}
 }
 
 Thread::~Thread() {
-	//printf("In ~Thread Line: %d [%p] thread = %p\n",__LINE__,this,thread);
+	if(Thread::getEnableVerboseMode()) printf("In ~Thread Line: %d [%p] thread = %p\n",__LINE__,this,thread);
 
 	if(thread != NULL) {
 		SDL_WaitThread(thread, NULL);
 		thread = NULL;
 	}
 
-	//printf("In ~Thread Line: %d [%p] thread = %p\n",__LINE__,this,thread);
+	if(Thread::getEnableVerboseMode()) printf("In ~Thread Line: %d [%p] thread = %p\n",__LINE__,this,thread);
 
 	removeThreadFromList();
 
-	//printf("In ~Thread Line: %d [%p] thread = %p\n",__LINE__,this,thread);
+	if(Thread::getEnableVerboseMode()) printf("In ~Thread Line: %d [%p] thread = %p\n",__LINE__,this,thread);
 }
 
 std::vector<Thread *> Thread::getThreadList() {
@@ -191,33 +230,81 @@ int Thread::beginExecution(void* data) {
 		snprintf(szBuf,8095,"In [%s::%s Line: %d] thread == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
-	//printf("In Thread::execute Line: %d thread = %p\n",__LINE__,thread);
+
+	BaseThread *base_thread = dynamic_cast<BaseThread *>(thread);
+	ThreadGarbageCollector *garbage_collector = dynamic_cast<ThreadGarbageCollector *>(thread);
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d thread = %p base_thread = %p [%s]\n",__LINE__,thread,base_thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
 
 	thread->execute();
 
-	//printf("In Thread::execute Line: %d thread = %p\n",__LINE__,thread);
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d thread = %p base_thread = %p [%s]\n",__LINE__,thread,base_thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
 
 	thread->queueAutoCleanThread();
+
+	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
 
 	return 0;
 }
 
 void Thread::queueAutoCleanThread() {
 	if(this->deleteAfterExecute == true) {
-		//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
+		if(Thread::getEnableVerboseMode()) printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
 
+		BaseThread *base_thread = dynamic_cast<BaseThread *>(this);
+		ThreadGarbageCollector *garbage_collector = dynamic_cast<ThreadGarbageCollector *>(this);
+		if(Thread::getEnableVerboseMode()) printf("In Thread::shutdownThreads Line: %d thread = %p base_thread = %p [%s]\n",__LINE__,this,base_thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
+
+		MutexSafeWrapper safeMutex(cleanupThreadMutex.get());
 		if(cleanupThread.get() == NULL) {
-			//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
+			if(Thread::getEnableVerboseMode()) printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
 			cleanupThread.reset(new ThreadGarbageCollector());
+
+			safeMutex.ReleaseLock();
 			cleanupThread->start();
-			for(time_t elapsed = time(NULL);
-					cleanupThread->getRunningStatus() == false &&
-							difftime(time(NULL),elapsed) < 6;) {
-				sleep(5);
+		}
+		else {
+			safeMutex.ReleaseLock();
+		}
+		for(time_t elapsed = time(NULL);
+				cleanupThread->getRunningStatus() == false &&
+					cleanupThread->getQuitStatus() == false &&
+						difftime(time(NULL),elapsed) < 3;) {
+			sleep(0);
+		}
+
+		if(cleanupThread->getQuitStatus() == true) {
+			//ThreadGarbageCollector::cleanupPendingThread(this);
+			if(cleanupThread->getRunningStatus() == false) {
+				if(Thread::getEnableVerboseMode()) printf("MANUAL DELETE In Thread::shutdownThreads Line: %d this [%p]\n",__LINE__,this);
+
+				cleanupThread->addThread(this);
+				cleanupThread->start();
+
+				if(Thread::getEnableVerboseMode()) printf("MANUAL DELETE In Thread::shutdownThreads Line: %d\n",__LINE__);
+				return;
+			}
+			else {
+				if(Thread::getEnableVerboseMode()) printf("In Thread::shutdownThreads Line: %d this [%p]\n",__LINE__,this);
+
+				for(time_t elapsed = time(NULL);
+						cleanupThread->getRunningStatus() == true &&
+							cleanupThread->getQuitStatus() == true &&
+								difftime(time(NULL),elapsed) < 3;) {
+					sleep(0);
+				}
+				sleep(0);
+
+				if(Thread::getEnableVerboseMode()) printf("In Thread::shutdownThreads Line: %d this [%p]\n",__LINE__,this);
+
+				cleanupThread->addThread(this);
+				cleanupThread->start();
 			}
 		}
-		cleanupThread->addThread(this);
-		//printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
+		else {
+			if(Thread::getEnableVerboseMode()) printf("In Thread::shutdownThreads Line: %d this [%p]\n",__LINE__,this);
+			cleanupThread->addThread(this);
+		}
+		if(Thread::getEnableVerboseMode()) printf("In Thread::shutdownThreads Line: %d this [%p]\n",__LINE__,this);
 	}
 }
 
