@@ -28,6 +28,8 @@
 # (To distributed this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
+message(STATUS "Looking for miniupnpc...")
+
 if (MINIUPNP_INCLUDE_DIR AND MINIUPNP_LIBRARY)
   # Already in cache, be silent
   set(MINIUPNP_FIND_QUIETLY TRUE)
@@ -43,14 +45,19 @@ FIND_PATH(MINIUPNPC_INCLUDE_DIR miniupnpc.h
   /usr/include/miniupnpc
   /usr/local/include/miniupnpc) 
 
+message(STATUS "Finding miniupnpc.h result: ${MINIUPNPC_INCLUDE_DIR}")
+
 #find_library(MINIUPNP_LIBRARY miniupnpc)
 
-FIND_LIBRARY(MINIUPNPC_LIBRARY NAMES miniupnpc
-  PATHS 
-  ${MINIUPNPC_DIR_SEARCH}/lib
-  /usr/${LIB_DESTINATION}
-  /usr/local/${LIB_DESTINATION}
-  /usr/lib)
+IF(WANT_STATIC_LIBS)
+  set(MINIUPNPC_LIBRARY_NAMES ${MINIUPNPC_LIBRARY_STATIC_NAME} libminiupnpc.a)
+ELSE()
+  set(MINIUPNPC_LIBRARY_NAMES ${MINIUPNPC_LIBRARY_DYNAMIC_NAME} libminiupnpc.so miniupnpc)
+ENDIF()
+
+FIND_LIBRARY(MINIUPNPC_LIBRARY NAMES ${MINIUPNPC_LIBRARY_NAMES})
+
+message(STATUS "Finding miniupnpc lib result: ${MINIUPNPC_LIBRARY}")
 
 if (MINIUPNP_INCLUDE_DIR AND MINIUPNP_LIBRARY)
     set (MINIUPNP_FOUND TRUE)
