@@ -375,7 +375,7 @@ option(ENABLE_FRIBIDI "Enable FriBIDi support" ON)
 		        SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/libircclient/src/libircclient.c)
 		        INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/libircclient/include)
 	        else()
-		        MESSAGE(STATUS "*** Using SHARED libircclient found in [${IRCCLIENT_INCLUDE_DIR}] IRCCLIENT_FOUND [${IRCCLIENT_FOUND}] IRCCLIENT_LIBRARY [${IRCCLIENT_LIBRARY}]")
+		        MESSAGE(STATUS "*** Using libircclient found in [${IRCCLIENT_INCLUDE_DIR}] IRCCLIENT_FOUND [${IRCCLIENT_FOUND}] IRCCLIENT_LIBRARY [${IRCCLIENT_LIBRARY}]")
 
 		        INCLUDE_DIRECTORIES(${IRCCLIENT_INCLUDE_DIR})
 		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${IRCCLIENT_LIBRARY})
