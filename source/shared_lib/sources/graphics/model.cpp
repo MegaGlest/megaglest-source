@@ -1608,7 +1608,7 @@ void Model::autoJoinMeshFrames() {
 
 			if(iterMap->second.size() > 1) {
 				// Time to join mesh data for this mesh
-				for(int joinIndex = 1;
+				for(unsigned int joinIndex = 1;
 						joinIndex < iterMap->second.size(); ++joinIndex) {
 					Mesh *mesh = iterMap->second[joinIndex];
 					if(base->getIndexCount() + mesh->getIndexCount() > 0xffff) {
@@ -1630,7 +1630,7 @@ void Model::autoJoinMeshFrames() {
 						uint32 join_index = 0;
 
 						// Join mesh vertices and normals
-						for(int frameIndex = 0;
+						for(unsigned int frameIndex = 0;
 								frameIndex < base->getFrameCount(); ++frameIndex) {
 							uint32 baseIndex = frameIndex * originalBaseVertexCount;
 							uint32 meshIndex = frameIndex * mesh->getVertexCount();
@@ -1684,7 +1684,7 @@ void Model::autoJoinMeshFrames() {
 								base->getIndexCount() * sizeof(uint32));
 						join_index_index += base->getIndexCount();
 
-						for(int meshIndex = 0;
+						for(unsigned int meshIndex = 0;
 								meshIndex < mesh->getIndexCount(); ++meshIndex) {
 							uint32 index_value = mesh->getIndices()[meshIndex];
 
