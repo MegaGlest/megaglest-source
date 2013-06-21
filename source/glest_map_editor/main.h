@@ -143,6 +143,8 @@ private:
 
 		miViewResetZoomAndPos,
 		miViewGrid,
+		miViewHeightMap,
+		miHideWater,
 		miViewAbout,
 		miViewHelp,
 
@@ -252,6 +254,8 @@ public:
 
 	void onMenuViewResetZoomAndPos(wxCommandEvent &event);
 	void onMenuViewGrid(wxCommandEvent &event);
+	void onMenuViewHeightMap(wxCommandEvent &event);
+	void onMenuHideWater(wxCommandEvent &event);
 	void onMenuViewAbout(wxCommandEvent &event);
 	void onMenuViewHelp(wxCommandEvent &event);
 

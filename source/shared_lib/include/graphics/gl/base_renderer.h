@@ -27,7 +27,7 @@ public:
 	virtual ~BaseRenderer() { }
 
 	virtual void initMapSurface(int clientW, int clientH);
-	virtual void renderMap(MapPreview *map, int x, int y, int clientW, int clientH, int cellSize, bool grid=false);
+	virtual void renderMap(MapPreview *map, int x, int y, int clientW, int clientH, int cellSize, bool grid=false, bool heightMap=false, bool hideWater=false);
 };
 
 }} // end namespace

@@ -98,6 +98,8 @@ private:
 	int ofsetX, ofsetY;
 	int cellSize;
 	bool grid; // show grid option
+	bool heightmap;
+	bool hideWater;
 	//static Map *map;
 	static MapPreview *map;
 	friend class UndoPoint;
@@ -168,6 +170,8 @@ public:
 	void incCellSize(int i);
 	void resetOfset();
 	bool setGridOnOff();
+	bool setHeightMapOnOff();
+	bool setHideWaterOnOff();
 
 	int getObject(int x, int y);
 	int getResource(int x, int y);

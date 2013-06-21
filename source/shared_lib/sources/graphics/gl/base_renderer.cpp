@@ -36,7 +36,7 @@ void BaseRenderer::initMapSurface(int clientW, int clientH) {
 }
 
 void BaseRenderer::renderMap(MapPreview *map, int x, int y,
-							 int clientW, int clientH, int cellSize, bool grid) {
+							 int clientW, int clientH, int cellSize, bool grid, bool heightMap, bool hideWater) {
 	float alt=0;
 	float showWater=0;
 
@@ -66,6 +66,9 @@ void BaseRenderer::renderMap(MapPreview *map, int x, int y,
 				alt = map->getHeight(i, j) / 20.f;
 				showWater = map->getWaterLevel()/ 20.f - alt;
 				showWater = (showWater > 0)? showWater:0;
+				if(hideWater){
+					showWater = 0;
+				}
 				Vec3f surfColor;
 				switch (map->getSurface(i, j)) {
 					case st_Grass: surfColor = Vec3f(0.0, 0.8f * alt, 0.f + showWater); break;
@@ -73,6 +76,9 @@ void BaseRenderer::renderMap(MapPreview *map, int x, int y,
 					case st_Road: surfColor = Vec3f(0.6f * alt, 0.3f * alt, 0.f + showWater); break;
 					case st_Stone: surfColor = Vec3f(0.7f * alt, 0.7f * alt, 0.7f * alt + showWater); break;
 					case st_Ground: surfColor = Vec3f(0.7f * alt, 0.5f * alt, 0.3f * alt + showWater); break;
+				}
+				if(heightMap){
+					surfColor = Vec3f(1.f * alt, 1.f * alt, 1.f * alt + showWater);
 				}
 				if(map->getCliffLevel()>0)
 				{// we maybe need to render cliff surfColor
@@ -89,7 +95,7 @@ void BaseRenderer::renderMap(MapPreview *map, int x, int y,
 				glVertex2i(i * cellSize + cellSize, clientH - j * cellSize - cellSize);
 				glVertex2i(i * cellSize + cellSize, clientH - j * cellSize);
 				glEnd();
-
+				if(!heightMap){
 				//objects
 				switch (map->getObject(i, j)) {
 					case 0: glColor3f(0.f, 0.f, 0.f); break;
@@ -116,6 +122,7 @@ void BaseRenderer::renderMap(MapPreview *map, int x, int y,
 
 				//height lines
 //				if (!found) {
+				
 					glColor3fv((surfColor*0.5f).ptr());
 					//left
 					if (grid || (i > 0 && map->getHeight(i - 1, j) > map->getHeight(i, j))) {
@@ -147,7 +154,6 @@ void BaseRenderer::renderMap(MapPreview *map, int x, int y,
 						glEnd();
 					}
 //				}
-
 				//resources
 				switch (map->getResource(i, j)) {
 					case 1: glColor3f(1.f, 1.f, 0.f); break;
@@ -165,6 +171,8 @@ void BaseRenderer::renderMap(MapPreview *map, int x, int y,
 					glVertex2i(i * cellSize + cellSize, clientH - j * cellSize - cellSize);
 					glEnd();
 				}
+				}
+
 			}
 		}
 	}
