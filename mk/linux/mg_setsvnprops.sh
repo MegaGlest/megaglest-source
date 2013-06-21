@@ -6,12 +6,16 @@
 
 CURRENTDIR="$(dirname $(readlink -f $0))"
 
-# lng files
+# LNG files
 #find ${CURRENTDIR}/../../data/glest_game/ -name "*\.lng" -exec echo {} \;
-find ${CURRENTDIR}/../../data/glest_game/ -name "*\.lng" -exec svn propset svn:mime-type text/plain {} \;
-find ${CURRENTDIR}/../../data/glest_game/ -name "*\.lng" -exec svn propset svn:eol-style native {} \;
+find ${CURRENTDIR}/../../data/glest_game/ -iname '*.lng' -exec svn propset svn:mime-type text/plain '{}' \;
+find ${CURRENTDIR}/../../data/glest_game/ -iname '*.lng' -exec svn propset svn:eol-style native '{}' \;
 
-# scripts
-find ${CURRENTDIR}/ -name "*\.sh" -exec svn propset svn:mime-type text/plain {} \;
-find ${CURRENTDIR}/ -name "*\.sh" -exec svn propset svn:eol-style native {} \;
+# XML files
+find ${CURRENTDIR}/../../data/glest_game/ -iname '*.xml' -exec svn propset svn:mime-type application/xml '{}' \;
+#find ${CURRENTDIR}/../../data/glest_game/ -iname '*.xml' -exec svn propset svn:eol-style native '{}' \;
+
+# shell scripts
+find ${CURRENTDIR}/ -iname '*.sh' -exec svn propset svn:mime-type text/plain '{}' \;
+find ${CURRENTDIR}/ -iname '*.sh' -exec svn propset svn:eol-style native '{}' \;
 
