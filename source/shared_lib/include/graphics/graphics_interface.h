@@ -43,7 +43,7 @@ public:
 class RendererMapInterface {
 public:
 	virtual void initMapSurface(int clientW, int clientH) = 0;
-	virtual void renderMap(MapPreview *map, int x, int y, int clientW, int clientH, int cellSize, bool grid) = 0;
+	virtual void renderMap(MapPreview *map, int x, int y, int clientW, int clientH, int cellSize, bool grid, bool heightMap, bool hideWater) = 0;
 
 	virtual ~RendererMapInterface() {}
 };

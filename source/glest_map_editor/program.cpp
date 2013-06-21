@@ -147,6 +147,8 @@ MapPreview *Program::map = NULL;
 Program::Program(int w, int h) {
 	cellSize = 6;
 	grid=false;
+	heightmap=false;
+	hideWater=false;
 	ofsetX = 0;
 	ofsetY = 0;
 	map = new MapPreview();
@@ -158,6 +160,8 @@ void Program::init() {
 	redoStack = ChangeStack();
 	cellSize = 6;
 	grid=false;
+	heightmap=false;
+	hideWater=false;
 	ofsetX = 0;
 	ofsetY = 0;
 	map = NULL;
@@ -250,7 +254,7 @@ bool Program::redo() {
 }
 
 void Program::renderMap(int w, int h) {
-	if(map) renderer.renderMap(map, ofsetX, ofsetY, w, h, cellSize, grid);
+	if(map) renderer.renderMap(map, ofsetX, ofsetY, w, h, cellSize, grid,heightmap,hideWater);
 }
 
 void Program::setRefAlt(int x, int y) {
@@ -628,6 +632,14 @@ void Program::resetOfset() {
 bool Program::setGridOnOff() {
     grid=!grid;
     return grid;
+}
+bool Program::setHeightMapOnOff() {
+    heightmap=!heightmap;
+    return heightmap;
+}
+bool Program::setHideWaterOnOff() {
+    hideWater=!hideWater;
+    return hideWater;
 }
 
 void Program::setMapAdvanced(int altFactor, int waterLevel, int cliffLevel , int cameraHeight) {

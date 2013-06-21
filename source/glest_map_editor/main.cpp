@@ -46,7 +46,7 @@ string getGameReadWritePath(string lookupKey) {
 
 namespace MapEditor {
 
-const string mapeditorVersionString = "v1.6.0";
+const string mapeditorVersionString = "v1.6.1";
 const string MainWindow::winHeader = "MegaGlest Map Editor " + mapeditorVersionString;
 
 // ===============================================
@@ -193,6 +193,8 @@ void MainWindow::init(string fname) {
 	menuView = new wxMenu();
 	menuView->Append(miViewResetZoomAndPos, wxT("&Reset zoom and pos"));
     menuView->AppendCheckItem(miViewGrid, wxT("&Grid"));
+	menuView->AppendCheckItem(miViewHeightMap, wxT("H&eightMap"));
+	menuView->AppendCheckItem(miHideWater, wxT("Hide&Water"));
 	menuView->AppendSeparator();
 	menuView->Append(miViewHelp, wxT("&Help..."));
 	menuView->Append(miViewAbout, wxT("&About..."));
@@ -528,7 +530,7 @@ void MainWindow::setExtension() {
 	if (extnsn == "gbm" || extnsn == "mgm") {
 		currentFile = cutLastExt(currentFile);
 	}
-	if (Program::getMap()->getMaxFactions() <= 4) {
+	if (Program::getMap()->getMaxFactions() <= 4 || Program::getMap()->getCliffLevel() == 0) {
 		SetStatusText(wxT(".gbm"), siFILE_TYPE);
 		currentFile += ".gbm";
 	}
@@ -1071,6 +1073,24 @@ void MainWindow::onMenuViewGrid(wxCommandEvent &event) {
 }
 
 
+void MainWindow::onMenuViewHeightMap(wxCommandEvent &event) {
+	if(program == NULL) {
+		return;
+	}
+
+	menuView->Check(miViewHeightMap, program->setHeightMapOnOff());    // miViewGrid event.GetId()
+	wxPaintEvent e;
+	onPaint(e);
+}
+void MainWindow::onMenuHideWater(wxCommandEvent &event) {
+	if(program == NULL) {
+		return;
+	}
+
+	menuView->Check(miHideWater, program->setHideWaterOnOff());    // miViewGrid event.GetId()
+	wxPaintEvent e;
+	onPaint(e);
+}
 void MainWindow::onMenuViewAbout(wxCommandEvent &event) {
 	MsgDialog(
 		this,
@@ -1373,6 +1393,8 @@ BEGIN_EVENT_TABLE(MainWindow, wxFrame)
 
 	EVT_MENU(miViewResetZoomAndPos, MainWindow::onMenuViewResetZoomAndPos)
 	EVT_MENU(miViewGrid, MainWindow::onMenuViewGrid)
+	EVT_MENU(miViewHeightMap, MainWindow::onMenuViewHeightMap)	
+	EVT_MENU(miHideWater, MainWindow::onMenuHideWater)
 	EVT_MENU(miViewAbout, MainWindow::onMenuViewAbout)
 	EVT_MENU(miViewHelp, MainWindow::onMenuViewHelp)
 
