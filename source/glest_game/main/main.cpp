@@ -5252,12 +5252,6 @@ int glestMain(int argc, char** argv) {
         //throw megaglest_runtime_error("test!");
         //ExceptionHandler::DisplayMessage("test!", false);
 
-		//Lang &lang= Lang::getInstance();
-		//string test = lang.get("ExitGameServer?");
-		//printf("[%s]",test.c_str());
-
-		//time_t lastTextureLoadEvent = time(NULL);
-
 		// Check for commands being input from stdin
 		string command="";
 
