@@ -767,7 +767,7 @@ void BattleEnd::keyDown(SDL_KeyboardEvent key){
 		}
 		else {
 			Lang &lang= Lang::getInstance();
-			showMessageBox(lang.get("ExitGame?"), "", true);
+			showMessageBox(lang.get("ExitGameMenu?"), "", true);
 		}
 	}
 	else if(isKeyPressed(SDLK_RETURN,key) && mainMessageBox.getEnabled()) {

@@ -1645,7 +1645,7 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 		}
 		//PopupMenu popupMenu;
 		std::vector<string> menuItems;
-		menuItems.push_back(lang.get("ExitGame?"));
+		menuItems.push_back(lang.get("ExitGameMenu?"));
 		exitGamePopupMenuIndex = menuItems.size()-1;
 
 		if((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching &&
@@ -1654,11 +1654,6 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 			joinTeamPopupMenuIndex = menuItems.size()-1;
 		}
 
-		//menuItems.push_back(lang.get("MarkCell"));
-		//markCellPopupMenuIndex = menuItems.size()-1;
-		//menuItems.push_back(lang.get("UnMarkCell"));
-		//unmarkCellPopupMenuIndex = menuItems.size()-1;
-
 		if(allowAdminMenuItems == true){
 			menuItems.push_back(lang.get("PauseResumeGame"));
 			pauseGamePopupMenuIndex= menuItems.size() - 1;
@@ -1666,15 +1661,7 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 			if(gameSettings.isNetworkGame() == false){
 				menuItems.push_back(lang.get("SaveGame"));
 				saveGamePopupMenuIndex= menuItems.size() - 1;
-
-//				menuItems.push_back(lang.get("LoadGame"));
-//				loadGamePopupMenuIndex= menuItems.size() - 1;
 			}
-
-			//printf("Checking disconnect menu: %d\n",gameSettings.isNetworkGame());
-			//for(int idx = 0; idx < GameConstants::maxPlayers; ++idx) {
-			//	printf("Faction Index: %d, control: %d\n",idx,gameSettings.getFactionControl(idx));
-			//}
 
 			if(gameSettings.isNetworkGame() == true){
 				menuItems.push_back(lang.get("DisconnectNetorkPlayer"));
@@ -3549,7 +3536,7 @@ void Game::mouseDownLeft(int x, int y) {
 
 			// Exit game
 			if(result.first == exitGamePopupMenuIndex) {
-				showMessageBox(Lang::getInstance().get("ExitGame?"), "", true);
+				showMessageBox(Lang::getInstance().get("ExitGameMenu?"), "", true);
 			}
 			else if(result.first == joinTeamPopupMenuIndex) {
 
@@ -4636,17 +4623,12 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				startCameraFollowUnit();
 			}
 			//exit
-			//else if(key == configKeys.getCharKey("ExitKey")) {
 			else if(isKeyPressed(configKeys.getSDLKey("ExitKey"),key, false) == true) {
-				//showMessageBox(lang.get("ExitGame?"), "", true);
-
 				popupMenu.setEnabled(!popupMenu.getEnabled());
 				popupMenu.setVisible(popupMenu.getEnabled());
 			}
 			//group
-			//else if(key>='0' && key<'0'+Selection::maxGroups){
 			else {
-				//printf("GAME KEYDOWN #3\n");
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key);
 
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("====== Check ingame custom grouping hotkeys ======\n");
@@ -5832,7 +5814,7 @@ void Game::showLoseMessageBox() {
 		showMessageBox(lang.get("YouLose")+" "+lang.get("ExitGameServer?"), lang.get("BattleOver"), false);
 	}
 	else {
-		showMessageBox(lang.get("YouLose")+" "+lang.get("ExitGame?"), lang.get("BattleOver"), false);
+		showMessageBox(lang.get("YouLose")+" "+lang.get("ExitGameMenu?"), lang.get("BattleOver"), false);
 	}
 }
 
@@ -5840,10 +5822,10 @@ void Game::showWinMessageBox() {
 	Lang &lang= Lang::getInstance();
 
 	if(this->masterserverMode == true || world.getThisFaction()->getPersonalityType() == fpt_Observer) {
-		showMessageBox(lang.get("GameOver")+" "+lang.get("ExitGame?"), lang.get("BattleOver"), false);
+		showMessageBox(lang.get("GameOver")+" "+lang.get("ExitGameMenu?"), lang.get("BattleOver"), false);
 	}
 	else {
-		showMessageBox(lang.get("YouWin")+" "+lang.get("ExitGame?"), lang.get("BattleOver"), false);
+		showMessageBox(lang.get("YouWin")+" "+lang.get("ExitGameMenu?"), lang.get("BattleOver"), false);
 	}
 }
 
