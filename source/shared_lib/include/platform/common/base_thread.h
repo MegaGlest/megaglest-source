@@ -52,10 +52,14 @@ protected:
 	bool hasBeginExecution;
 	bool deleteSelfOnExecutionDone;
 
+	Mutex mutexStarted;
+	bool started;
+
 	virtual void setQuitStatus(bool value);
 	void deleteSelfIfRequired();
 
 	void *genericData;
+
 
 public:
 	BaseThread();
@@ -65,6 +69,9 @@ public:
 	virtual void signalQuit();
 	virtual bool getQuitStatus();
 	virtual bool getRunningStatus();
+
+	virtual bool getStarted();
+	virtual void setStarted(bool value);
 
 	virtual bool getHasBeginExecution();
 	virtual void setHasBeginExecution(bool value);

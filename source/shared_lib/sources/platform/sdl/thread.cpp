@@ -103,6 +103,7 @@ public:
 			BaseThread *base_thread = dynamic_cast<BaseThread *>(thread);
 			if(base_thread != NULL &&
 					(base_thread->getRunningStatus() == true || base_thread->getExecutingTask() == true)) {
+				base_thread->signalQuit();
 				sleep(10);
 				if(base_thread->getRunningStatus() == true || base_thread->getExecutingTask() == true) {
 
@@ -127,7 +128,7 @@ public:
 // =====================================
 //          Threads
 // =====================================
-Thread::Thread() : thread(NULL), deleteAfterExecute(false) {
+Thread::Thread() : thread(NULL), deleteAfterExecute(false), mutexthreadAccessor(new Mutex()) {
 	addThreadToList();
 }
 
@@ -186,10 +187,12 @@ void Thread::shutdownThreads() {
 Thread::~Thread() {
 	if(Thread::getEnableVerboseMode()) printf("In ~Thread Line: %d [%p] thread = %p\n",__LINE__,this,thread);
 
+	MutexSafeWrapper safeMutex(mutexthreadAccessor.get());
 	if(thread != NULL) {
 		SDL_WaitThread(thread, NULL);
 		thread = NULL;
 	}
+	safeMutex.ReleaseLock();
 
 	if(Thread::getEnableVerboseMode()) printf("In ~Thread Line: %d [%p] thread = %p\n",__LINE__,this,thread);
 
@@ -207,15 +210,27 @@ std::vector<Thread *> Thread::getThreadList() {
 }
 
 void Thread::start() {
+	MutexSafeWrapper safeMutex(mutexthreadAccessor.get());
+
+	BaseThread *base_thread = dynamic_cast<BaseThread *>(this);
+	if(base_thread) base_thread->setStarted(true);
+
 	thread = SDL_CreateThread(beginExecution, this);
-	assert(thread != NULL);
+	//assert(thread != NULL);
 	if(thread == NULL) {
+		if(base_thread) base_thread->setStarted(false);
+
 		char szBuf[8096]="";
 		snprintf(szBuf,8095,"In [%s::%s Line: %d] thread == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
 
 	//printf("In Thread::start Line: %d [%p] thread = %p\n",__LINE__,this,thread);
+}
+
+bool Thread::threadObjectValid() {
+	MutexSafeWrapper safeMutex(mutexthreadAccessor.get());
+	return (thread != NULL);
 }
 
 void Thread::setPriority(Thread::Priority threadPriority) {
@@ -235,11 +250,15 @@ int Thread::beginExecution(void* data) {
 	ThreadGarbageCollector *garbage_collector = dynamic_cast<ThreadGarbageCollector *>(thread);
 	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d thread = %p base_thread = %p [%s]\n",__LINE__,thread,base_thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
 
-	thread->execute();
+	if(thread->threadObjectValid() == true) {
+		thread->execute();
+	}
 
 	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d thread = %p base_thread = %p [%s]\n",__LINE__,thread,base_thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
 
-	thread->queueAutoCleanThread();
+	if(thread->threadObjectValid() == true) {
+		thread->queueAutoCleanThread();
+	}
 
 	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
 
@@ -309,6 +328,7 @@ void Thread::queueAutoCleanThread() {
 }
 
 void Thread::kill() {
+	MutexSafeWrapper safeMutex(mutexthreadAccessor.get());
 	SDL_KillThread(thread);
 	thread = NULL;
 }
@@ -438,8 +458,11 @@ Mutex::~Mutex() {
 
 void Mutex::p() {
 	if(mutex == NULL) {
+
+		string stack = PlatformExceptionHandler::getStackTrace();
+
 		char szBuf[8096]="";
-		snprintf(szBuf,8095,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str());
+		snprintf(szBuf,8095,"In [%s::%s Line: %d] mutex == NULL refCount = %d owner [%s] deleteownerId [%s] stack: %s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,refCount,ownerId.c_str(),deleteownerId.c_str(),stack.c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 	std::auto_ptr<Chrono> chronoLockPerf;
