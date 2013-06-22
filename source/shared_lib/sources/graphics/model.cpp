@@ -1566,7 +1566,15 @@ void Model::autoJoinMeshFrames() {
 
 		// Duplicate mesh vertices are considered to be those with the same
 		// 1. texture 2. framecount 3. twosided flag value 4. same custom texture color
-		string mesh_key = (mesh.getTextureFlags() & 1 ? mesh.getTexture(0)->getPath() : "none");
+
+//		It's possible the texture is missing and will be NULL
+//		if(mesh.getTextureFlags() & 1) {
+//			printf("Mesh has textures:\n");
+//			for(unsigned int meshTexIndex = 0; meshTexIndex < meshTextureCount; ++meshTexIndex) {
+//				printf("Mesh texture index: %d [%p] [%s]\n",meshTexIndex,mesh.getTexture(meshTexIndex),(mesh.getTexture(meshTexIndex) != NULL ? mesh.getTexture(meshTexIndex)->getPath().c_str() : "n/a"));
+//			}
+//		}
+		string mesh_key = ((mesh.getTextureFlags() & 1) && mesh.getTexture(0) ? mesh.getTexture(0)->getPath() : "none");
 		       mesh_key += string("_") + intToStr(mesh.getFrameCount()) +
 		    		       string("_") + intToStr(mesh.getTwoSided()) +
 				           string("_") + intToStr(mesh.getCustomTexture());
