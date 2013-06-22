@@ -734,29 +734,11 @@ bool AiInterface::isResourceNear(const Vec2i &pos, const ResourceType *rt, Vec2i
 		if(result.x >= 0) {
 			resourcePos = result;
 
-		  	//char szBuf[4096]="";
-			//	    	sprintf(szBuf,"[%s::%s Line: %d] [isresourcenear] pos [%s] resourcePos [%s] fallbackToPeersHarvestingSameResource [%d] rt [%s]",
-			//	    			__FILE__,__FUNCTION__,__LINE__,pos.getString().c_str(),resourcePos.getString().c_str(),fallbackToPeersHarvestingSameResource,rt->getName().c_str());
-
-			//SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",faction->getFrameCount());
-			//SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s",szBuf);
-			//SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",faction->getFrameCount());
-
 			if(pos.dist(resourcePos) <= size) {
 				return true;
 			}
 		}
 	}
-
-	//if(faction != NULL) {
-	//	char szBuf[4096]="";
-	//				sprintf(szBuf,"[%s::%s Line: %d] [isresourcenear] pos [%s] resourcePos [%s] fallbackToPeersHarvestingSameResource [%d] rt [%s] getCacheResourceTargetListSize() [%d]",
-	//						__FILE__,__FUNCTION__,__LINE__,pos.getString().c_str(),resourcePos.getString().c_str(),fallbackToPeersHarvestingSameResource,rt->getName().c_str(),faction->getCacheResourceTargetListSize());
-
-	//	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"----------------------------------- START [%d] ------------------------------------------------\n",faction->getFrameCount());
-	//	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"%s",szBuf);
-	//	SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"------------------------------------ END [%d] -------------------------------------------------\n",faction->getFrameCount());
-	//}
 
 	return false;
 }
@@ -795,7 +777,6 @@ bool AiInterface::getNearestSightedResource(const ResourceType *rt, const Vec2i 
 
 	if(canUseResourceType == true) {
 		bool isResourceClose = isResourceNear(pos, rt, resultPos, faction, true);
-		//bool isResourceClose = false;
 
 		// Found a resource
 		if(isResourceClose == true || resultPos.x >= 0) {
@@ -803,8 +784,6 @@ bool AiInterface::getNearestSightedResource(const ResourceType *rt, const Vec2i 
 		}
 		else {
 			const Map *map		= world->getMap();
-			//Faction *faction 	= world->getFaction(factionIndex);
-
 			for(int i = 0; i < map->getW(); ++i) {
 				for(int j = 0; j < map->getH(); ++j) {
 					Vec2i resPos = Vec2i(i, j);
@@ -825,8 +804,6 @@ bool AiInterface::getNearestSightedResource(const ResourceType *rt, const Vec2i 
 									resultPos= resPos;
 								}
 							}
-
-							//faction->addResourceTargetToCache(resPos,false);
 						}
 					}
 				}

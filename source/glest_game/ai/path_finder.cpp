@@ -159,12 +159,6 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 	//printf("Unit Pathfind Unit [%d - %s] from = %s to = %s frameIndex = %d\n",unit->getId(),unit->getType()->getName().c_str(),unit->getPos().getString().c_str(),finalPos.getString().c_str(),frameIndex);
 
 	if(frameIndex >= 0) {
-//		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//			char szBuf[8096]="";
-//			snprintf(szBuf,8096,"[findPath] ");
-//			unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//		}
-
 		clearUnitPrecache(unit);
 	}
 	if(unit->getFaction()->canUnitsPathfind() == true) {
@@ -177,22 +171,9 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			snprintf(szBuf,8096,"canUnitsPathfind() == false");
 			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 		}
-//		else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//			char szBuf[8096]="";
-//			snprintf(szBuf,8096,"canUnitsPathfind() == false");
-//			unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//		}
 
 		return tsBlocked;
 	}
-
-//	if(frameIndex != factions[unit->getFactionIndex()].lastFromToNodeListFrame) {
-//		if(factions[unit->getFactionIndex()].mapFromToNodeList.size() > 0) {
-//			printf("clear duplicate list = " MG_SIZE_T_SPECIFIER " for faction = %d frameIndex = %d\n",factions[unit->getFactionIndex()].mapFromToNodeList.size(),unit->getFactionIndex(),frameIndex);
-//			factions[unit->getFactionIndex()].mapFromToNodeList.clear();
-//		}
-//		factions[unit->getFactionIndex()].lastFromToNodeListFrame = frameIndex;
-//	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 		char szBuf[8096]="";
@@ -225,12 +206,6 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			unit->setCurrentUnitTitle(szBuf);
 		}
 
-//		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//			char szBuf[8096]="";
-//			snprintf(szBuf,8096,"return tsArrived");
-//			unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//		}
-
 		return tsArrived;
 	}
 
@@ -253,12 +228,6 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 
 				}
 
-//				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//					char szBuf[8096]="";
-//					snprintf(szBuf,8096,"return tsMoving");
-//					unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//				}
-
 				return tsMoving;
 			}
 		}
@@ -271,12 +240,6 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 					advPath->pop();
 					unit->setTargetPos(pos);
 				}
-
-//				if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//					char szBuf[8096]="";
-//					snprintf(szBuf,8096,"return tsMoving");
-//					unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//				}
 
 				return tsMoving;
 			}
@@ -295,11 +258,6 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			snprintf(szBuf,8096,"path->isStuck() == true unit->getLastStuckPos() [%s] finalPos [%s] path->getBlockCount() [%d] tolerance: %d",unit->getLastStuckPos().getString().c_str(),finalPos.getString().c_str(),path->getBlockCount(),unit->isLastStuckFrameWithinCurrentFrameTolerance());
 			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 		}
-//		else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//			char szBuf[8096]="";
-//			snprintf(szBuf,8096,"path->isStuck() == true unit->getLastStuckPos() [%s] finalPos [%s] path->getBlockCount() [%d] tolerance: %d",unit->getLastStuckPos().getString().c_str(),finalPos.getString().c_str(),path->getBlockCount(),unit->isLastStuckFrameWithinCurrentFrameTolerance());
-//			unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//		}
 
 		//printf("$$$$ Unit STILL BLOCKED for [%d - %s]\n",unit->getId(),unit->getFullName().c_str());
 		return tsBlocked;
@@ -322,19 +280,12 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			snprintf(szBuf,8096,"maxNodeCount: %d",maxNodeCount);
 			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 		}
-//		else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//			char szBuf[8096]="";
-//			snprintf(szBuf,8096,"maxNodeCount: %d",maxNodeCount);
-//			unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//		}
-
 	}
 
 	//int unitFactionIndex = unit->getFactionIndex();
 
 	bool minorDebugPathfinderPerformance = false;
 	Chrono chrono;
-	//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 	if(minorDebugPathfinderPerformance) chrono.start();
 
 	uint32 searched_node_count = 0;
@@ -346,19 +297,8 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 		snprintf(szBuf,8096,"calling aStar()");
 		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 	}
-//	else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//		char szBuf[8096]="";
-//		snprintf(szBuf,8096,"calling aStar()");
-//		unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//	}
 
 	ts = aStar(unit, finalPos, false, frameIndex, maxNodeCount,&searched_node_count);
-
-//	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//		char szBuf[8096]="";
-//		snprintf(szBuf,8096,"called aStar() ts: %d",ts);
-//		unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//	}
 
 	//post actions
 	switch(ts) {
@@ -926,19 +866,14 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	}
 
 	const bool showConsoleDebugInfo = Config::getInstance().getBool("EnablePathfinderDistanceOutput","false");
-	//const bool tryLastPathCache = Config::getInstance().getBool("EnablePathfinderCache","false");
 	const bool tryLastPathCache = false;
 
 	if(maxNodeCount < 0) {
 		maxNodeCount = factions[unit->getFactionIndex()].useMaxNodeCount;
-
-		//printf("AStar set maxNodeCount = %d\n",maxNodeCount);
 	}
 
 	if(maxNodeCount >= 1 && unit->getPathfindFailedConsecutiveFrameCount() >= 3) {
-		//int orgmaxNodeCount = maxNodeCount;
 		maxNodeCount = 200;
-		//printf("AStar maxpath cut for unit [%d - %s]  to %d [orig: %d] [unit->getPathfindFailedConsecutiveFrameCount(): %d]\n",unit->getId(),unit->getFullName().c_str(), maxNodeCount,orgmaxNodeCount,unit->getPathfindFailedConsecutiveFrameCount());
 	}
 
 	UnitPathInterface *path= unit->getPath();
@@ -1011,11 +946,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 								 i < getPathFindExtendRefreshNodeCount(unitFactionIndex))) {
 							path->add(nodePos);
 						}
-						//else if(tryLastPathCache == false) {
-						//	break;
-						//}
-
-						//if(tryLastPathCache == true && basicPathFinder) {
 						if(basicPathFinder) {
 							basicPathFinder->addToLastPathCache(nodePos);
 						}
@@ -1027,21 +957,10 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						snprintf(szBuf,8096,"return factions[unitFactionIndex].precachedTravelState[unit->getId()];");
 						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 					}
-//					else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//						char szBuf[8096]="";
-//						snprintf(szBuf,8096,"return factions[unitFactionIndex].precachedTravelState[unit->getId()];");
-//						unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//					}
 
 					return factions[unitFactionIndex].precachedTravelState[unit->getId()];
 				}
 				else {
-//					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//						char szBuf[8096]="";
-//						snprintf(szBuf,8096,"clearUnitPrecache(unit);");
-//						unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//					}
-
 					clearUnitPrecache(unit);
 				}
 			}
@@ -1058,11 +977,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						snprintf(szBuf,8096,"return factions[unitFactionIndex].precachedTravelState[unit->getId()];");
 						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 					}
-//					else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//						char szBuf[8096]="";
-//						snprintf(szBuf,8096,"return factions[unitFactionIndex].precachedTravelState[unit->getId()];");
-//						unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//					}
 
 					return factions[unitFactionIndex].precachedTravelState[unit->getId()];
 				}
@@ -1070,12 +984,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		}
 	}
 	else {
-//		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//			char szBuf[8096]="";
-//			snprintf(szBuf,8096,"clearUnitPrecache(unit);");
-//			unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//		}
-
 		clearUnitPrecache(unit);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
@@ -1181,15 +1089,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 										snprintf(szBuf,8096,"return ts: %d",ts);
 										unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 									}
-//									else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//										char szBuf[8096]="";
-//										snprintf(szBuf,8096,"return ts: %d",ts);
-//										unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//									}
 
 									return ts;
 								}
-								//else if(j - i > pathFindRefresh) {
 								else if(j - i > unit->getPathFindRefreshCellCount()) {
 									//on the way
 									ts= tsMoving;
@@ -1214,7 +1116,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 											factions[unitFactionIndex].precachedPath[unit->getId()].push_back(cachedPath[k]);
 										}
 										else {
-											//if(pathCount < pathFindRefresh) {
 											if(pathCount < unit->getPathFindRefreshCellCount()) {
 												basicPathFinder->add(cachedPath[k]);
 											}
@@ -1253,11 +1154,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 										snprintf(szBuf,8096,"return ts: %d",ts);
 										unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 									}
-//									else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//										char szBuf[8096]="";
-//										snprintf(szBuf,8096,"return ts: %d",ts);
-//										unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//									}
 
 									return ts;
 								}
@@ -1377,16 +1273,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	//
 
 	// START
-	//Vec2i cameFrom= unit->getPos();
-	//Vec2i cameFrom(-1,-1);
 	std::map<std::pair<Vec2i,Vec2i> ,bool> canAddNode;
 	std::map<Vec2i,bool> closedNodes;
 	std::map<Vec2i,Vec2i> cameFrom;
 	cameFrom[unitPos] = Vec2i(-1,-1);
-	//cameFrom[unitPos] = unit->getPos();
 
 	// Do the a-star base pathfind work if required
-
 	int whileLoopCount = 0;
 	if(nodeLimitReached == false) {
 		//printf("\n\n\n====== START AStar-JPS Pathfinder start [%s] end [%s]\n",unitPos.getString().c_str(),finalPos.getString().c_str());
@@ -1439,11 +1331,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 					snprintf(szBuf,8096,"calling aStar()");
 					unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 				}
-//				else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//					char szBuf[8096]="";
-//					snprintf(szBuf,8096,"calling aStar()");
-//					unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//				}
 
 				return aStar(unit, targetPos, false, frameIndex, pathFindNodesAbsoluteMax);
 			}
@@ -1455,12 +1342,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			snprintf(szBuf,8096,"nodeLimitReached: %d",nodeLimitReached);
 			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 		}
-//		else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//			char szBuf[8096]="";
-//			snprintf(szBuf,8096,"nodeLimitReached: %d",nodeLimitReached);
-//			unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//		}
-
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),nodeLimitReached,whileLoopCount,factions[unitFactionIndex].nodePoolCount);
@@ -1571,17 +1452,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				factions[unitFactionIndex].precachedPath[unit->getId()].push_back(nodePos);
 			}
 			else {
-				//if(i < pathFindRefresh ||
 				if(i < unit->getPathFindRefreshCellCount() ||
 					(whileLoopCount >= pathFindExtendRefreshForNodeCount &&
 					 i < getPathFindExtendRefreshNodeCount(unitFactionIndex))) {
 					path->add(nodePos);
 				}
-				//else if(tryLastPathCache == false) {
-				//	break;
-				//}
-
-				//if(tryLastPathCache == true && basicPathFinder) {
 				if(basicPathFinder) {
 					basicPathFinder->addToLastPathCache(nodePos);
 				}
@@ -1643,11 +1518,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		snprintf(szBuf,8096,"return ts: %d",ts);
 		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 	}
-//	else if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
-//		char szBuf[8096]="";
-//		snprintf(szBuf,8096,"return ts: %d",ts);
-//		unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
-//	}
 
 	return ts;
 }
@@ -1756,141 +1626,45 @@ void PathFinder::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *pathfinderNode = rootNode->addChild("PathFinder");
 
-//	static int pathFindNodesMax;
 	pathfinderNode->addAttribute("pathFindNodesMax",intToStr(pathFindNodesMax), mapTagReplacements);
-//	static int pathFindNodesAbsoluteMax;
 	pathfinderNode->addAttribute("pathFindNodesAbsoluteMax",intToStr(pathFindNodesAbsoluteMax), mapTagReplacements);
-//	FactionStateList factions;
 	for(unsigned int i = 0; i < factions.size(); ++i) {
 		FactionState &factionState = factions[i];
 		XmlNode *factionsNode = pathfinderNode->addChild("factions");
 
-//		std::map<Vec2i, bool> openPosList;
-//		XmlNode *openPosListNode = factionsNode->addChild("openPosList");
-//		for(std::map<Vec2i, bool>::iterator iterMap = factionState.openPosList.begin();
-//				iterMap != factionState.openPosList.end(); ++iterMap) {
-//			openPosListNode->addAttribute("key",iterMap->first.getString(), mapTagReplacements);
-//			openPosListNode->addAttribute("value",intToStr(iterMap->second), mapTagReplacements);
-//		}
-////		std::map<float, Nodes> openNodesList;
-//		XmlNode *openNodesListNode = factionsNode->addChild("openNodesList");
-//		for(std::map<float, Nodes>::iterator iterMap = factionState.openNodesList.begin();
-//				iterMap != factionState.openNodesList.end(); ++iterMap) {
-//
-//			Nodes &nodeList = iterMap->second;
-//			for(unsigned int j = 0; j < nodeList.size(); ++j) {
-//				Node *curNode = nodeList[j];
-//				XmlNode *openNodesListNodeNode = factionsNode->addChild("openNodesListNode");
-//				openNodesListNodeNode->addAttribute("key",floatToStr(iterMap->first), mapTagReplacements);
-//
-////				Vec2i pos;
-//				openNodesListNodeNode->addAttribute("pos",curNode->pos.getString(), mapTagReplacements);
-////				Node *next;
-//				int nextIdx = findNodeIndex(curNode->next, nodeList);
-//				openNodesListNodeNode->addAttribute("next",intToStr(nextIdx), mapTagReplacements);
-////				Node *prev;
-//				int prevIdx = findNodeIndex(curNode->prev, nodeList);
-//				openNodesListNodeNode->addAttribute("prev",intToStr(nextIdx), mapTagReplacements);
-////				float heuristic;
-//				openNodesListNodeNode->addAttribute("heuristic",floatToStr(curNode->heuristic), mapTagReplacements);
-////				bool exploredCell;
-//				openNodesListNodeNode->addAttribute("exploredCell",intToStr(curNode->exploredCell), mapTagReplacements);
-//			}
-//		}
-//
-////		std::map<float, Nodes> closedNodesList;
-//		XmlNode *closedNodesListNode = factionsNode->addChild("closedNodesList");
-//		for(std::map<float, Nodes>::iterator iterMap = factionState.closedNodesList.begin();
-//				iterMap != factionState.closedNodesList.end(); ++iterMap) {
-//
-//			Nodes &nodeList = iterMap->second;
-//			for(unsigned int j = 0; j < nodeList.size(); ++j) {
-//				Node *curNode = nodeList[j];
-//				XmlNode *closedNodesListNodeNode = factionsNode->addChild("closedNodesListNode");
-//				closedNodesListNodeNode->addAttribute("key",floatToStr(iterMap->first), mapTagReplacements);
-//
-////				Vec2i pos;
-//				closedNodesListNodeNode->addAttribute("pos",curNode->pos.getString(), mapTagReplacements);
-////				Node *next;
-//				int nextIdx = findNodeIndex(curNode->next, nodeList);
-//				closedNodesListNodeNode->addAttribute("next",intToStr(nextIdx), mapTagReplacements);
-////				Node *prev;
-//				int prevIdx = findNodeIndex(curNode->prev, nodeList);
-//				closedNodesListNodeNode->addAttribute("prev",intToStr(nextIdx), mapTagReplacements);
-////				float heuristic;
-//				closedNodesListNodeNode->addAttribute("heuristic",floatToStr(curNode->heuristic), mapTagReplacements);
-////				bool exploredCell;
-//				closedNodesListNodeNode->addAttribute("exploredCell",intToStr(curNode->exploredCell), mapTagReplacements);
-//			}
-//		}
-
-//		std::vector<Node> nodePool;
 		for(unsigned int j = 0; j < factionState.nodePool.size(); ++j) {
 			Node *curNode = &factionState.nodePool[j];
 			XmlNode *nodePoolNode = factionsNode->addChild("nodePool");
-			//closedNodesListNodeNode->addAttribute("key",iterMap->first.getString(), mapTagReplacements);
 
-//				Vec2i pos;
 			nodePoolNode->addAttribute("pos",curNode->pos.getString(), mapTagReplacements);
-//				Node *next;
 			int nextIdx = findNodeIndex(curNode->next, factionState.nodePool);
 			nodePoolNode->addAttribute("next",intToStr(nextIdx), mapTagReplacements);
-//				Node *prev;
 			int prevIdx = findNodeIndex(curNode->prev, factionState.nodePool);
 			nodePoolNode->addAttribute("prev",intToStr(prevIdx), mapTagReplacements);
-//				float heuristic;
 			nodePoolNode->addAttribute("heuristic",floatToStr(curNode->heuristic,16), mapTagReplacements);
-//				bool exploredCell;
 			nodePoolNode->addAttribute("exploredCell",intToStr(curNode->exploredCell), mapTagReplacements);
 		}
 
-//		int nodePoolCount;
 		factionsNode->addAttribute("nodePoolCount",intToStr(factionState.nodePoolCount), mapTagReplacements);
-//		RandomGen random;
 		factionsNode->addAttribute("random",intToStr(factionState.random.getLastNumber()), mapTagReplacements);
-//		int useMaxNodeCount;
 		factionsNode->addAttribute("useMaxNodeCount",intToStr(factionState.useMaxNodeCount), mapTagReplacements);
-//
-//		std::map<int,TravelState> precachedTravelState;
-//		std::map<int,std::vector<Vec2i> > precachedPath;
-
 	}
-//	const Map *map;
-
 }
 
 void PathFinder::loadGame(const XmlNode *rootNode) {
 	const XmlNode *pathfinderNode = rootNode->getChild("PathFinder");
-
-	//attackWarnRange = unitupdaterNode->getAttribute("attackWarnRange")->getFloatValue();
-
-	//	static int pathFindNodesMax;
-//	pathFindNodesMax = pathfinderNode->getAttribute("pathFindNodesMax")->getIntValue();
-//	//	static int pathFindNodesAbsoluteMax;
-//	pathFindNodesAbsoluteMax = pathfinderNode->getAttribute("pathFindNodesAbsoluteMax")->getIntValue();
-//
-//	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-//		factions[i].nodePool.resize(pathFindNodesAbsoluteMax);
-//		factions[i].useMaxNodeCount = PathFinder::pathFindNodesMax;
-//	}
 
 	vector<XmlNode *> factionsNodeList = pathfinderNode->getChildList("factions");
 	for(unsigned int i = 0; i < factionsNodeList.size(); ++i) {
 		XmlNode *factionsNode = factionsNodeList[i];
 
 		FactionState &factionState = factions[i];
-	//		std::vector<Node> nodePool;
 		vector<XmlNode *> nodePoolListNode = factionsNode->getChildList("nodePool");
 		for(unsigned int j = 0; j < nodePoolListNode.size() && j < pathFindNodesAbsoluteMax; ++j) {
 			XmlNode *nodePoolNode = nodePoolListNode[j];
 
 			Node *curNode = &factionState.nodePool[j];
-
-			//closedNodesListNodeNode->addAttribute("key",iterMap->first.getString(), mapTagReplacements);
-
-	//				Vec2i pos;
 			curNode->pos = Vec2i::strToVec2(nodePoolNode->getAttribute("pos")->getValue());
-	//				Node *next;
 			int nextNode = nodePoolNode->getAttribute("next")->getIntValue();
 			if(nextNode >= 0) {
 				curNode->next = &factionState.nodePool[nextNode];
@@ -1899,7 +1673,6 @@ void PathFinder::loadGame(const XmlNode *rootNode) {
 				curNode->next = NULL;
 			}
 
-	//				Node *prev;
 			int prevNode = nodePoolNode->getAttribute("prev")->getIntValue();
 			if(prevNode >= 0) {
 				curNode->prev = &factionState.nodePool[prevNode];
@@ -1907,24 +1680,14 @@ void PathFinder::loadGame(const XmlNode *rootNode) {
 			else {
 				curNode->prev = NULL;
 			}
-	//				float heuristic;
 			curNode->heuristic = nodePoolNode->getAttribute("heuristic")->getFloatValue();
-	//				bool exploredCell;
 			curNode->exploredCell = nodePoolNode->getAttribute("exploredCell")->getIntValue() != 0;
 		}
 
-		//		int nodePoolCount;
 		factionState.nodePoolCount = factionsNode->getAttribute("nodePoolCount")->getIntValue();
-		//		RandomGen random;
 		factionState.random.setLastNumber(factionsNode->getAttribute("random")->getIntValue());
-		//		int useMaxNodeCount;
-		//factionState.useMaxNodeCount = factionsNode->getAttribute("useMaxNodeCount")->getIntValue();
 		factionState.useMaxNodeCount = PathFinder::pathFindNodesMax;
-		//
-		//		std::map<int,TravelState> precachedTravelState;
-		//		std::map<int,std::vector<Vec2i> > precachedPath;
 	}
-	//	const Map *map;
 }
 
 }} //end namespace
