@@ -187,7 +187,7 @@ void Thread::shutdownThreads() {
 Thread::~Thread() {
 	if(Thread::getEnableVerboseMode()) printf("In ~Thread Line: %d [%p] thread = %p\n",__LINE__,this,thread);
 
-	MutexSafeWrapper safeMutex(mutexthreadAccessor.get());
+	MutexSafeWrapper safeMutex(mutexthreadAccessor);
 	if(thread != NULL) {
 		SDL_WaitThread(thread, NULL);
 		thread = NULL;
@@ -198,6 +198,8 @@ Thread::~Thread() {
 
 	removeThreadFromList();
 
+	delete mutexthreadAccessor;
+	mutexthreadAccessor = NULL;
 	if(Thread::getEnableVerboseMode()) printf("In ~Thread Line: %d [%p] thread = %p\n",__LINE__,this,thread);
 }
 
@@ -210,7 +212,7 @@ std::vector<Thread *> Thread::getThreadList() {
 }
 
 void Thread::start() {
-	MutexSafeWrapper safeMutex(mutexthreadAccessor.get());
+	MutexSafeWrapper safeMutex(mutexthreadAccessor);
 
 	BaseThread *base_thread = dynamic_cast<BaseThread *>(this);
 	if(base_thread) base_thread->setStarted(true);
@@ -229,7 +231,7 @@ void Thread::start() {
 }
 
 bool Thread::threadObjectValid() {
-	MutexSafeWrapper safeMutex(mutexthreadAccessor.get());
+	MutexSafeWrapper safeMutex(mutexthreadAccessor);
 	return (thread != NULL);
 }
 
@@ -328,7 +330,7 @@ void Thread::queueAutoCleanThread() {
 }
 
 void Thread::kill() {
-	MutexSafeWrapper safeMutex(mutexthreadAccessor.get());
+	MutexSafeWrapper safeMutex(mutexthreadAccessor);
 	SDL_KillThread(thread);
 	thread = NULL;
 }
