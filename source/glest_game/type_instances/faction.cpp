@@ -1909,46 +1909,23 @@ void Faction::clearCaches() {
 	cachedCloseResourceTargetLookupList.clear();
 	mapSharedPathFinderCache.clear();
 
-	//Unit *firstUnit = NULL;
 	unsigned int unitCount = this->getUnitCount();
 	for(unsigned int i = 0; i < unitCount; ++i) {
 		Unit *unit = this->getUnit(i);
 		if(unit != NULL) {
-			//if(firstUnit == NULL) {
-			//	firstUnit = unit;
-			//}
 			unit->clearCaches();
-
-//			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
-//				char szBuf[8096]="";
-//				snprintf(szBuf,8096,"[clearCaches unit check]");
-//				if(firstUnit != NULL) {
-//					firstUnit->logSynchData(__FILE__,__LINE__,szBuf);
-//				}
-//			}
 		}
 	}
-
-//	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
-//		char szBuf[8096]="";
-//		snprintf(szBuf,8096,"[clearCaches] cacheResourceTargetList.size() [" MG_SIZE_T_SPECIFIER "] cacheResourceTargetList.size() [" MG_SIZE_T_SPECIFIER "] mapSharedPathFinderCache"  MG_SIZE_T_SPECIFIER "]",
-//				cacheResourceTargetList.size(),cacheResourceTargetList.size(),mapSharedPathFinderCache.size());
-//		if(firstUnit != NULL) {
-//			firstUnit->logSynchData(__FILE__,__LINE__,szBuf);
-//		}
-//	}
 }
 
 uint64 Faction::getCacheKBytes(uint64 *cache1Size, uint64 *cache2Size) {
 	uint64 cache1Count = 0;
 	uint64 cache2Count = 0;
 
-	//std::map<Vec2i,int> cacheResourceTargetList;
 	for(std::map<Vec2i,int>::iterator iterMap1 = cacheResourceTargetList.begin();
 		iterMap1 != cacheResourceTargetList.end(); ++iterMap1) {
 		cache1Count++;
 	}
-	//std::map<Vec2i,bool> cachedCloseResourceTargetLookupList;
 	for(std::map<Vec2i,bool>::iterator iterMap1 = cachedCloseResourceTargetLookupList.begin();
 		iterMap1 != cachedCloseResourceTargetLookupList.end(); ++iterMap1) {
 		cache2Count++;
@@ -1975,12 +1952,10 @@ string Faction::getCacheStats() {
 	int cache1Count = 0;
 	int cache2Count = 0;
 
-	//std::map<Vec2i,int> cacheResourceTargetList;
 	for(std::map<Vec2i,int>::iterator iterMap1 = cacheResourceTargetList.begin();
 		iterMap1 != cacheResourceTargetList.end(); ++iterMap1) {
 		cache1Count++;
 	}
-	//std::map<Vec2i,bool> cachedCloseResourceTargetLookupList;
 	for(std::map<Vec2i,bool>::iterator iterMap1 = cachedCloseResourceTargetLookupList.begin();
 		iterMap1 != cachedCloseResourceTargetLookupList.end(); ++iterMap1) {
 		cache2Count++;
