@@ -1577,7 +1577,8 @@ void Model::autoJoinMeshFrames() {
 		string mesh_key = ((mesh.getTextureFlags() & 1) && mesh.getTexture(0) ? mesh.getTexture(0)->getPath() : "none");
 		       mesh_key += string("_") + intToStr(mesh.getFrameCount()) +
 		    		       string("_") + intToStr(mesh.getTwoSided()) +
-				           string("_") + intToStr(mesh.getCustomTexture());
+				           string("_") + intToStr(mesh.getCustomTexture()) +
+				           string("_") + intToStr(mesh.getNoSelect());
 
 		joinedMeshes[mesh_key].add(index,&mesh);
 		if(haveJoinedMeshes == false && joinedMeshes[mesh_key].size() > 1) {
