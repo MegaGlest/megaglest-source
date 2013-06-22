@@ -97,6 +97,8 @@ public:
 
 public:
 	Vec2(){
+		x = 0;
+		y = 0;
 	};
 
 	explicit Vec2(T *p){
@@ -322,14 +324,17 @@ typedef Vec2<double> Vec2d;
 // =====================================================
 
 template<typename T>
-class Vec3{
+class Vec3 {
 public:
 	T x;
 	T y;
 	T z;
 
 public:
-	Vec3(){
+	Vec3() {
+		x = 0;
+		y = 0;
+		z = 0;
 	};
 
 	explicit Vec3(T *p){
@@ -576,7 +581,7 @@ typedef Vec3<double> Vec3d;
 // =====================================================
 
 template<typename T>
-class Vec4{
+class Vec4 {
 public:
 	T x;
 	T y;
@@ -584,6 +589,10 @@ public:
 	T w;
 public:
 	Vec4() {
+		x = 0;
+		y = 0;
+		z = 0;
+		w = 0;
 	};
 
 	explicit Vec4(const T *p){
