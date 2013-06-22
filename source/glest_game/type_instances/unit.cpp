@@ -4490,14 +4490,22 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 	try {
 		result->progress = unitNode->getAttribute("progress")->getIntValue();
 	}
+#ifdef WIN32
+	catch(const exception &) {
+#else
 	catch(const exception &ex) {
+#endif
 		result->progress = unitNode->getAttribute("progress")->getFloatValue();
 	}
 //	float lastAnimProgress;	//between 0 and 1
 	try {
 		result->lastAnimProgress = unitNode->getAttribute("lastAnimProgress")->getIntValue();
 	}
+#ifdef WIN32
+	catch(const exception &) {
+#else
 	catch(const exception &ex) {
+#endif
 		result->lastAnimProgress = unitNode->getAttribute("lastAnimProgress")->getFloatValue();
 	}
 
@@ -4505,7 +4513,11 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 	try {
 		result->animProgress = unitNode->getAttribute("animProgress")->getIntValue();
 	}
+#ifdef WIN32
+	catch(const exception &) {
+#else
 	catch(const exception &ex) {
+#endif
 		result->animProgress = unitNode->getAttribute("animProgress")->getFloatValue();
 	}
 

@@ -149,7 +149,7 @@ public:
 
 void cleanupCRCThread() {
 	if(preCacheThread != NULL) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		const double MAX_THREAD_WAIT = 60;
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("START - shutting down crc threads\n");
@@ -170,13 +170,13 @@ void cleanupCRCThread() {
 				preCacheThread=NULL;
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("C - shutting down crc threads\n");
 			}
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 		else {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("D - shutting down crc threads\n");
 
 			if(preCacheThread->canShutdown(false) == true) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				delete preCacheThread;
 				preCacheThread=NULL;
 
@@ -186,13 +186,13 @@ void cleanupCRCThread() {
 		}
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("F - shutting down crc threads\n");
 		preCacheThread = NULL;
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 static void cleanupProcessObjects() {
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		showCursor(true);
@@ -204,7 +204,7 @@ static void cleanupProcessObjects() {
 	//printf("In main IRCThreadcheck [%p]...\n",ircClient);
     if(ircClient != NULL) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 IRCCLient Cache SHUTDOWN\n");
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     	//printf("Closing IRC CLient %d\n",__LINE__);
     	ircClient->disconnect();
@@ -218,7 +218,7 @@ static void cleanupProcessObjects() {
         //printf("In main IRCThreadcheck [%p] signalled quit...\n",ircClient);
         printf("Closing IRC CLient %d\n",__LINE__);
         ircClient->signalQuit();
-        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         ircClient->disconnect();
         ircClient = NULL;
@@ -232,8 +232,8 @@ static void cleanupProcessObjects() {
     //printf("Closing IRC CLient %d\n",__LINE__);
 
     cleanupCRCThread();
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     //printf("Closing IRC CLient %d\n",__LINE__);
     if(Renderer::isEnded() == false) {
@@ -244,7 +244,7 @@ static void cleanupProcessObjects() {
 
     //printf("Closing IRC CLient %d\n",__LINE__);
 
-    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	SystemFlags::Close();
 	SystemFlags::SHUTDOWN_PROGRAM_MODE=true;
@@ -296,7 +296,7 @@ static void cleanupProcessObjects() {
 
 	//printf("Closing IRC CLient %d\n",__LINE__);
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 
 	SystemFlags::globalCleanupHTTP();
@@ -625,7 +625,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
     }
 
 	void ExceptionHandler::handleRuntimeError(const char *msg, bool getStackTraceString) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		static bool inErrorNow = false;
 		if(inErrorNow == true) {
@@ -639,13 +639,13 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 
 		logError(msg,true);
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] program = %p gameInitialized = %d msg [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,mainProgram,gameInitialized,msg);
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] [%s] gameInitialized = %d, program = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg,gameInitialized,mainProgram);
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s] gameInitialized = %d, program = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg,gameInitialized,mainProgram);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] program = %p gameInitialized = %d msg [%s]\n",__FILE__,__FUNCTION__,__LINE__,mainProgram,gameInitialized,msg);
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] [%s] gameInitialized = %d, program = %p\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,mainProgram);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s] gameInitialized = %d, program = %p\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized,mainProgram);
 
         string errMsg = (msg != NULL ? msg : "null");
 
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         bool gotStackTrace = false;
         if(getStackTraceString == true && disableBacktrace == false && sdl_quitCalled == false) {
@@ -654,27 +654,27 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
         	gotStackTrace = true;
         }
 
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         logError(errMsg.c_str(),false);
 
         if(gotStackTrace == true) {
-        	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,errMsg.c_str());
+        	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,errMsg.c_str());
         }
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,errMsg.c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,errMsg.c_str());
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//abort();
 
         if(mainProgram && gameInitialized == true) {
 			//printf("\nprogram->getState() [%p]\n",program->getState());
-        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			if(mainProgram->getState() != NULL) {
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				mainProgram->showMessage(errMsg.c_str());
-                if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+                if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				if(glActiveTexture != NULL) {
 					for(;GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && mainProgram->isMessageShowing();) {
@@ -694,9 +694,9 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 				}
 			}
 			else {
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				mainProgram->showMessage(errMsg.c_str());
-                if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+                if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				if(glActiveTexture != NULL) {
 					for(;GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && mainProgram->isMessageShowing();) {
@@ -715,10 +715,10 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 					}
 				}
 			}
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
         }
         else {
-        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
             string err = "#2 An error occurred and ";
             if(sdl_quitCalled == false) {
@@ -731,19 +731,19 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 #ifdef WIN32
             err += string(", attaching the generated ") + getCrashDumpFileName() + string(" file.");
 #endif
-            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			message(err);
         }
 
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         // Now try to shutdown threads if possible
         delete mainProgram;
         mainProgram = NULL;
         // END
 
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 #ifdef WIN32
 
@@ -756,20 +756,20 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 		inErrorNow = false;
 		throw runtimeErrorMsg;
 #endif
-		//printf("In [%s::%s Line: %d] [%s] gameInitialized = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg,gameInitialized);
+		//printf("In [%s::%s Line: %d] [%s] gameInitialized = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,gameInitialized);
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		cleanupProcessObjects();
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	    if(sdl_quitCalled == false) {
 	    	sdl_quitCalled = true;
 	    	SDL_Quit();
 	    }
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		inErrorNow = false;
 
@@ -777,22 +777,22 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 	}
 
 	int ExceptionHandler::DisplayMessage(const char *msg, bool exitApp) {
-		//printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg,exitApp);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg,exitApp);
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] msg [%s] exitApp = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg,exitApp);
+		//printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg,exitApp);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 
         if(mainProgram && gameInitialized == true) {
-        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg,exitApp);
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
         	mainProgram->showMessage(msg);
         }
         else {
-        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg,exitApp);
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
             message(msg);
         }
 
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg,exitApp);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 
         if(exitApp == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n",msg);
@@ -802,7 +802,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 		    mainProgram = NULL;
 		    // END
 
-		    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg,exitApp);
+		    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 		    cleanupProcessObjects();
 
 		    if(sdl_quitCalled == false) {
@@ -812,7 +812,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 		    exit(-1);
         }
 
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg,exitApp);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
 	    return 0;
 	}
 
@@ -830,10 +830,10 @@ MainWindow::MainWindow(Program *program) : WindowGl() {
 }
 
 MainWindow::~MainWindow(){
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	delete program;
 	program = NULL;
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
@@ -864,7 +864,7 @@ void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
 
 		return;
 	}
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	switch(mouseButton) {
 		case mbLeft:
@@ -880,7 +880,7 @@ void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
 			break;
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     ProgramState *programState = program->getState();
     if(programState != NULL) {
@@ -897,13 +897,13 @@ void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
 			default:
 				break;
 		}
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MainWindow::eventMouseUp(int x, int y, MouseButton mouseButton){
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     const Metrics &metrics = Metrics::getInstance();
     int vx = metrics.toVirtualX(x);
@@ -913,14 +913,14 @@ void MainWindow::eventMouseUp(int x, int y, MouseButton mouseButton){
     	throw megaglest_runtime_error("In [MainWindow::eventMouseUp] ERROR, program == NULL!");
     }
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     ProgramState *programState = program->getState();
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     if(programState != NULL) {
-    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		switch(mouseButton) {
 			case mbLeft:
@@ -935,13 +935,13 @@ void MainWindow::eventMouseUp(int x, int y, MouseButton mouseButton){
 			default:
 				break;
 		}
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MainWindow::eventMouseDoubleClick(int x, int y, MouseButton mouseButton) {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     const Metrics &metrics= Metrics::getInstance();
     int vx = metrics.toVirtualX(x);
@@ -951,14 +951,14 @@ void MainWindow::eventMouseDoubleClick(int x, int y, MouseButton mouseButton) {
     	throw megaglest_runtime_error("In [MainWindow::eventMouseDoubleClick] ERROR, program == NULL!");
     }
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     ProgramState *programState = program->getState();
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     if(programState != NULL) {
-    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		switch(mouseButton){
 			case mbLeft:
@@ -974,9 +974,9 @@ void MainWindow::eventMouseDoubleClick(int x, int y, MouseButton mouseButton) {
 				break;
 		}
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     }
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MainWindow::eventMouseMove(int x, int y, const MouseState *ms){
@@ -999,7 +999,7 @@ void MainWindow::eventMouseMove(int x, int y, const MouseState *ms){
 
 void MainWindow::eventMouseWheel(int x, int y, int zDelta) {
 
-    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	const Metrics &metrics= Metrics::getInstance();
 	int vx = metrics.toVirtualX(x);
@@ -1015,7 +1015,7 @@ void MainWindow::eventMouseWheel(int x, int y, int zDelta) {
     	programState->eventMouseWheel(vx, vy, zDelta);
     }
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MainWindow::render() {
@@ -1115,13 +1115,13 @@ void MainWindow::toggleLanguage(string language) {
 }
 
 void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key.keysym.sym);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym);
 
 	//SDL_keysym keystate = Window::getKeystate();
 	SDL_keysym keystate = key.keysym;
 	//printf("keystate.mod = %d key = %d lalt [%d] ralt [%d] alt [%d]\n",keystate.mod,key.keysym.unicode,(keystate.mod & KMOD_LALT),(keystate.mod & KMOD_RALT),(keystate.mod & KMOD_ALT));
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c][%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key,key);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c][%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
 
     if(program == NULL) {
     	throw megaglest_runtime_error("In [MainWindow::eventKeyDown] ERROR, program == NULL!");
@@ -1140,12 +1140,12 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 
 	program->keyDown(key);
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(keystate.mod & (KMOD_LALT | KMOD_RALT)) {
 		//if(key == vkReturn) {
 		if(isKeyPressed(SDLK_RETURN,key) == true) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ALT-ENTER pressed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ALT-ENTER pressed\n",__FILE__,__FUNCTION__,__LINE__);
 
 			// This stupidity only required in win32.
 			// We reload the textures so that the canvas paints textures properly
@@ -1156,12 +1156,12 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 			}
 #endif
 
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 	}
 
 	if(program != NULL && program->isInSpecialKeyCaptureEvent() == false) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     	vector<int> modifiersToCheck;
 		modifiersToCheck.push_back(KMOD_LCTRL);
@@ -1244,7 +1244,7 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 							snprintf(szBuf,8096,"Screenshot will be saved to: %s",path.c_str());
 						}
 
-						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,szBuf);
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
 						bool showScreenshotSavedMsg = Config::getInstance().getBool("DisableScreenshotConsoleText","false");
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Screenshot console showScreenshotSavedMsg = %d\n",showScreenshotSavedMsg);
@@ -1267,21 +1267,21 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 		}
 	}
 
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void MainWindow::eventKeyUp(SDL_KeyboardEvent key) {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key);
     if(program == NULL) {
     	throw megaglest_runtime_error("In [MainWindow::eventKeyUp] ERROR, program == NULL!");
     }
 
 	program->keyUp(key);
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key);
 }
 
 void MainWindow::eventKeyPress(SDL_KeyboardEvent c) {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,c);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
     if(program == NULL) {
     	throw megaglest_runtime_error("In [MainWindow::eventKeyPress] ERROR, program == NULL!");
     }
@@ -1289,12 +1289,12 @@ void MainWindow::eventKeyPress(SDL_KeyboardEvent c) {
 	program->keyPress(c);
 
 	if(program != NULL && program->isInSpecialKeyCaptureEvent() == false) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 		//if(c == configKeys.getCharKey("HotKeyToggleOSMouseEnabled")) {
 		if(isKeyPressed(configKeys.getSDLKey("HotKeyToggleOSMouseEnabled"),c) == true) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 			bool showCursorState = false;
 			int state = SDL_ShowCursor(SDL_QUERY);
@@ -1307,10 +1307,10 @@ void MainWindow::eventKeyPress(SDL_KeyboardEvent c) {
 			renderer.setNo2DMouseRendering(showCursorState);
 
 			Window::lastShowMouseState = SDL_ShowCursor(SDL_QUERY);
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::lastShowMouseState = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,Window::lastShowMouseState);
+			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::lastShowMouseState = %d\n",__FILE__,__FUNCTION__,__LINE__,Window::lastShowMouseState);
 		}
 	}
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,c);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c);
 }
 
 void MainWindow::eventActivate(bool active) {
@@ -4136,7 +4136,7 @@ int glestMain(int argc, char** argv) {
         // Setup debug logging etc
 		setupLogging(config, haveSpecialOutputCommandLineOption);
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, fontIsRightToLeft = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,Shared::Graphics::Font::charCount,Shared::Graphics::Font::fontTypeName.c_str(),Shared::Platform::charSet,Shared::Graphics::Font::fontIsMultibyte, Shared::Graphics::Font::fontIsRightToLeft);
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, fontIsRightToLeft = %d\n",__FILE__,__FUNCTION__,__LINE__,Shared::Graphics::Font::charCount,Shared::Graphics::Font::fontTypeName.c_str(),Shared::Platform::charSet,Shared::Graphics::Font::fontIsMultibyte, Shared::Graphics::Font::fontIsRightToLeft);
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 		MenuStateMasterserver::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
@@ -4147,7 +4147,7 @@ int glestMain(int argc, char** argv) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s, STREFLOP NOT enabled.\n",getNetworkVersionString().c_str());
 #endif
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"START\n");
 		SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"START\n");
 
@@ -4157,7 +4157,7 @@ int glestMain(int argc, char** argv) {
 				std::pair<string,string>(Config::glestkeys_ini_filename,Config::glestuserkeys_ini_filename),
 				std::pair<bool,bool>(true,false));
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_INI_SETTINGS]) == true) {
             ShowINISettings(argc,argv,config,configKeys);
@@ -4310,7 +4310,7 @@ int glestMain(int argc, char** argv) {
 	        }
     	}
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, Font::fontIsRightToLeft = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,Shared::Graphics::Font::charCount,Shared::Graphics::Font::fontTypeName.c_str(),Shared::Platform::charSet,Shared::Graphics::Font::fontIsMultibyte,Shared::Graphics::Font::fontIsRightToLeft);
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, Font::fontIsRightToLeft = %d\n",__FILE__,__FUNCTION__,__LINE__,Shared::Graphics::Font::charCount,Shared::Graphics::Font::fontTypeName.c_str(),Shared::Platform::charSet,Shared::Graphics::Font::fontIsMultibyte,Shared::Graphics::Font::fontIsRightToLeft);
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, Font::fontIsRightToLeft = %d\n",Shared::Graphics::Font::charCount,Shared::Graphics::Font::fontTypeName.c_str(),Shared::Platform::charSet,Shared::Graphics::Font::fontIsMultibyte,Shared::Graphics::Font::fontIsRightToLeft);
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_FONT]) == true) {
@@ -4342,7 +4342,7 @@ int glestMain(int argc, char** argv) {
 	        }
     	}
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]) == true) {
 			int foundParamIndIndex = -1;
@@ -4790,7 +4790,7 @@ int glestMain(int argc, char** argv) {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled == true) {
 			renderer.setAllowRenderUnitTitles(SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled);
-			SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"In [%s::%s Line: %d] renderer.setAllowRenderUnitTitles = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled);
+			SystemFlags::OutputDebug(SystemFlags::debugPathFinder,"In [%s::%s Line: %d] renderer.setAllowRenderUnitTitles = %d\n",__FILE__,__FUNCTION__,__LINE__,SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled);
 		}
 		renderer.setAllowRenderUnitTitles(true);
 
@@ -4818,13 +4818,13 @@ int glestMain(int argc, char** argv) {
         }
         // Cache Player textures - END
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		mainWindow= new MainWindow(program);
 
 		mainWindow->setUseDefaultCursorOnly(config.getBool("No2DMouseRendering","false"));
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         GameSettings startupGameSettings;
 
@@ -5039,11 +5039,11 @@ int glestMain(int argc, char** argv) {
 			program->initNormal(mainWindow);
 		}
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         // Initialize Renderer
 		//Renderer &renderer= Renderer::getInstance();
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] OpenGL Info:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderer.getGlInfo().c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] OpenGL Info:\n%s\n",__FILE__,__FUNCTION__,__LINE__,renderer.getGlInfo().c_str());
 
 		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) == true) {
 			//Renderer &renderer= Renderer::getInstance();
@@ -5213,11 +5213,11 @@ int glestMain(int argc, char** argv) {
 //        	endPathWithSlash(userData);
 //        }
 
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         CheckForDuplicateData();
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		//throw "BLAH!";
 
@@ -5226,8 +5226,8 @@ int glestMain(int argc, char** argv) {
         //printf("%d\n", *foo);       // causes segfault
         // END
         bool startCRCPrecacheThread = config.getBool("PreCacheCRCThread","true");
-        //printf("### In [%s::%s Line: %d] precache thread enabled = %d SystemFlags::VERBOSE_MODE_ENABLED = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,startCRCPrecacheThread,SystemFlags::VERBOSE_MODE_ENABLED);
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] precache thread enabled = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,startCRCPrecacheThread);
+        //printf("### In [%s::%s Line: %d] precache thread enabled = %d SystemFlags::VERBOSE_MODE_ENABLED = %d\n",__FILE__,__FUNCTION__,__LINE__,startCRCPrecacheThread,SystemFlags::VERBOSE_MODE_ENABLED);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] precache thread enabled = %d\n",__FILE__,__FUNCTION__,__LINE__,startCRCPrecacheThread);
 		if(startCRCPrecacheThread == true) {
 			vector<string> techDataPaths = config.getPathListForType(ptTechs);
 			static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
@@ -5397,7 +5397,7 @@ int glestMain(int argc, char** argv) {
 	    	printf("\nHeadless server is about to quit...\n");
 	    }
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] starting normal application shutdown\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] starting normal application shutdown\n",__FILE__,__FUNCTION__,__LINE__);
 
 		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 			soundThreadManager = program->getSoundThreadManager(true);
@@ -5409,11 +5409,11 @@ int glestMain(int argc, char** argv) {
 		}
 
 		cleanupCRCThread();
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	    showCursor(true);
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	catch(const megaglest_runtime_error &e) {
 		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
@@ -5480,25 +5480,25 @@ int glestMain(int argc, char** argv) {
 
 	cleanupCRCThread();
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//printf("Closing IRC CLient %d\n",__LINE__);
 
 	delete mainWindow;
 	mainWindow = NULL;
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     //showCursor(true);
     //restoreVideoMode(true);
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	GraphicComponent::clearRegisteredComponents();
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//printf("Closing IRC CLient %d\n",__LINE__);
 
@@ -5525,7 +5525,7 @@ int glestMain(int argc, char** argv) {
 #if defined(__GNUC__)  && !defined(__FreeBSD__) && !defined(BSD)
 void handleSIGSEGV(int sig) {
     char szBuf[8096]="";
-    snprintf(szBuf, 8096,"In [%s::%s Line: %d] Error detected: signal %d:\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__, sig);
+    snprintf(szBuf, 8096,"In [%s::%s Line: %d] Error detected: signal %d:\n",__FILE__,__FUNCTION__,__LINE__, sig);
     printf("%s",szBuf);
     //abort();
 
@@ -5623,17 +5623,17 @@ __try {
 	IRCThread::setGlobalCacheContainerName(GameConstants::ircClientCacheLookupKey);
 	int result = glestMain(argc, argv);
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	cleanupProcessObjects();
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
     if(sdl_quitCalled == false) {
     	sdl_quitCalled = true;
     	SDL_Quit();
     }
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	return result;
 #ifdef WIN32_STACK_TRACE
 } __except(stackdumper(0, GetExceptionInformation(),true), EXCEPTION_CONTINUE_SEARCH) { return 0; }
