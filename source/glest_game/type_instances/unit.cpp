@@ -423,6 +423,11 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	causeOfDeath = ucodNone;
 	pathfindFailedConsecutiveFrameCount = 0;
 
+	lastSynchDataString = "";
+	lastFile = "";
+	lastLine = 0;
+	lastSource = "";
+
 	targetRotationZ=.0f;
 	targetRotationX=.0f;
 	rotationZ=.0f;
