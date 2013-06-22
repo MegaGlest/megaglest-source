@@ -58,6 +58,9 @@ public:
 
 private:
 	SDL_Thread* thread;
+	std::auto_ptr<Mutex> mutexthreadAccessor;
+	bool threadObjectValid();
+
 	bool deleteAfterExecute;
 	static Mutex mutexthreadList;
 	static vector<Thread *> threadList;

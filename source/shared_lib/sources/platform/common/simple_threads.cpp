@@ -316,7 +316,7 @@ void FileCRCPreCacheThread::addPendingTexture(Texture2D *texture) {
 	if(texture == NULL) {
 		return;
 	}
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	static string mutexOwnerId = CODE_AT_LINE;
 	MutexSafeWrapper safeMutex(&mutexPendingTextureList,mutexOwnerId);
 	mutexPendingTextureList.setOwnerId(mutexOwnerId);
 	pendingTextureList.push_back(texture);
@@ -325,7 +325,7 @@ void FileCRCPreCacheThread::addPendingTexture(Texture2D *texture) {
 
 vector<Texture2D *> FileCRCPreCacheThread::getPendingTextureList(int maxTexturesToGet) {
 	vector<Texture2D *> result;
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	static string mutexOwnerId = CODE_AT_LINE;
 	MutexSafeWrapper safeMutex(&mutexPendingTextureList,mutexOwnerId);
 	mutexPendingTextureList.setOwnerId(mutexOwnerId);
 	unsigned int listCount = pendingTextureList.size();
@@ -359,13 +359,12 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 
 	setTaskSignalled(false);
 
-	//static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-	string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	string mutexOwnerId = CODE_AT_LINE;
 	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
 	mutexLastExecuteTimestamp.setOwnerId(mutexOwnerId);
 	lastExecuteTimestamp = time(NULL);
 
-	string mutexOwnerId1 = string(__FILE__) + string("_") + intToStr(__LINE__);
+	string mutexOwnerId1 = CODE_AT_LINE;
 	MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
 	if(this->simpleTaskInterfaceValid == true) {
 		safeMutex1.ReleaseLock();
@@ -392,7 +391,7 @@ void SimpleTaskThread::cleanup() {
 		this->overrideShutdownTask = NULL;
 	}
 	else if(this->simpleTaskInterface != NULL) {
-		string mutexOwnerId1 = string(__FILE__) + string("_") + intToStr(__LINE__);
+		string mutexOwnerId1 = CODE_AT_LINE;
 		MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
 		if(this->simpleTaskInterfaceValid == true) {
 			safeMutex1.ReleaseLock();
@@ -407,9 +406,7 @@ void SimpleTaskThread::setOverrideShutdownTask(taskFunctionCallback *ptr) {
 }
 
 bool SimpleTaskThread::isThreadExecutionLagging() {
-	//bool result = false;
-	//static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-	string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	string mutexOwnerId = CODE_AT_LINE;
 	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
 	mutexLastExecuteTimestamp.setOwnerId(mutexOwnerId);
 	bool result = (difftime(time(NULL),lastExecuteTimestamp) >= 5.0);
@@ -430,13 +427,13 @@ bool SimpleTaskThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 }
 
 bool SimpleTaskThread::getSimpleTaskInterfaceValid() {
-	string mutexOwnerId1 = string(__FILE__) + string("_") + intToStr(__LINE__);
+	string mutexOwnerId1 = CODE_AT_LINE;
 	MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
 
 	return this->simpleTaskInterfaceValid;
 }
 void SimpleTaskThread::setSimpleTaskInterfaceValid(bool value) {
-	string mutexOwnerId1 = string(__FILE__) + string("_") + intToStr(__LINE__);
+	string mutexOwnerId1 = CODE_AT_LINE;
 	MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
 
 	this->simpleTaskInterfaceValid = value;
@@ -460,7 +457,7 @@ void SimpleTaskThread::execute() {
 
             unsigned int idx = 0;
             for(;this->simpleTaskInterface != NULL;) {
-        		string mutexOwnerId1 = string(__FILE__) + string("_") + intToStr(__LINE__);
+        		string mutexOwnerId1 = CODE_AT_LINE;
         		MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
         		if(this->simpleTaskInterfaceValid == false) {
         			break;
@@ -486,8 +483,10 @@ void SimpleTaskThread::execute() {
                         this->simpleTaskInterface->simpleTask(this);
                         //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-                        //static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-                        string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+                        if(getQuitStatus() == true) {
+                        	break;
+                        }
+                        string mutexOwnerId = CODE_AT_LINE;
                         MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
                         mutexLastExecuteTimestamp.setOwnerId(mutexOwnerId);
                     	lastExecuteTimestamp = time(NULL);
@@ -538,8 +537,7 @@ void SimpleTaskThread::execute() {
 }
 
 void SimpleTaskThread::setTaskSignalled(bool value) {
-	//static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-	string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	string mutexOwnerId = CODE_AT_LINE;
 	MutexSafeWrapper safeMutex(&mutexTaskSignaller,mutexOwnerId);
 	mutexTaskSignaller.setOwnerId(mutexOwnerId);
 	taskSignalled = value;
@@ -547,9 +545,7 @@ void SimpleTaskThread::setTaskSignalled(bool value) {
 }
 
 bool SimpleTaskThread::getTaskSignalled() {
-	//bool retval = false;
-	//static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-	string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	string mutexOwnerId = CODE_AT_LINE;
 	MutexSafeWrapper safeMutex(&mutexTaskSignaller,mutexOwnerId);
 	mutexTaskSignaller.setOwnerId(mutexOwnerId);
 	bool retval = taskSignalled;
@@ -564,7 +560,7 @@ LogFileThread::LogFileThread() : BaseThread() {
 	uniqueID = "LogFileThread";
     logList.clear();
     lastSaveToDisk = time(NULL);
-    static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    static string mutexOwnerId = CODE_AT_LINE;
     mutexLogList.setOwnerId(mutexOwnerId);
 }
 
@@ -573,7 +569,7 @@ LogFileThread::~LogFileThread() {
 }
 
 void LogFileThread::addLogEntry(SystemFlags::DebugType type, string logEntry) {
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	static string mutexOwnerId = CODE_AT_LINE;
     MutexSafeWrapper safeMutex(&mutexLogList,mutexOwnerId);
     mutexLogList.setOwnerId(mutexOwnerId);
 	LogFileEntry entry;
@@ -652,7 +648,7 @@ void LogFileThread::execute() {
 }
 
 std::size_t LogFileThread::getLogEntryBufferCount() {
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	static string mutexOwnerId = CODE_AT_LINE;
     MutexSafeWrapper safeMutex(&mutexLogList,mutexOwnerId);
     mutexLogList.setOwnerId(mutexOwnerId);
     std::size_t logCount = logList.size();
@@ -672,7 +668,7 @@ bool LogFileThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 }
 
 void LogFileThread::saveToDisk(bool forceSaveAll,bool logListAlreadyLocked) {
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	static string mutexOwnerId = CODE_AT_LINE;
     MutexSafeWrapper safeMutex(NULL,mutexOwnerId);
     if(logListAlreadyLocked == false) {
         safeMutex.setMutex(&mutexLogList);
