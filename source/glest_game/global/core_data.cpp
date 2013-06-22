@@ -1078,7 +1078,7 @@ bool CoreData::loadGameSettingsFromFile(std::string fileName, GameSettings *game
 	gameSettings->setFactionCount(properties.getInt("FactionCount"));
 
 	if(properties.hasString("NetworkAllowNativeLanguageTechtree") == true) {
-		gameSettings->setNetworkAllowNativeLanguageTechtree(properties.getInt("NetworkAllowNativeLanguageTechtree"));
+		gameSettings->setNetworkAllowNativeLanguageTechtree(properties.getBool("NetworkAllowNativeLanguageTechtree"));
 	}
 	else {
 		gameSettings->setNetworkAllowNativeLanguageTechtree(false);
