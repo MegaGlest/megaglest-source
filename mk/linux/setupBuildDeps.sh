@@ -239,9 +239,12 @@ case $distribution in
 	Fedora) 
 		case $release in
 			13|14)
-				installcommand='yum groupinstall "Development Tools"; yum install subversion automake autoconf autogen cmake SDL-devel xerces-c-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-dev libircclient-dev glew-devel ftgl-devel fribidi-devel cppunit-devel'
+				installcommand='yum groupinstall development-tools'
 				$installcommand
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi
+
+				installcommand='yum install subversion automake autoconf autogen cmake SDL-devel xerces-c-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-dev libircclient-dev glew-devel ftgl-devel fribidi-devel cppunit-devel'
+				$installcommand
 				;;
 			*)
 				installcommand='yum groupinstall "Development Tools"; yum install subversion automake autoconf autogen cmake SDL-devel xerces-c-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-dev libircclient-dev glew-devel ftgl-devel fribidi-devel cppunit-devel'
