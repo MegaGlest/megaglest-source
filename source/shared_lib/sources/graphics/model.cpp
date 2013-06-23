@@ -1579,7 +1579,10 @@ void Model::autoJoinMeshFrames() {
 		    		       string("_") + intToStr(mesh.getTwoSided()) +
 				           string("_") + intToStr(mesh.getCustomTexture()) +
 				           string("_") + intToStr(mesh.getNoSelect()) +
-				           string("_") + floatToStr(mesh.getOpacity());
+				           string("_") + floatToStr(mesh.getOpacity()) +
+				           string("_") + mesh.getDiffuseColor().getString() +
+				           string("_") + mesh.getSpecularColor().getString() +
+				           string("_") + floatToStr(mesh.getSpecularPower());
 
 		joinedMeshes[mesh_key].add(index,&mesh);
 		if(haveJoinedMeshes == false && joinedMeshes[mesh_key].size() > 1) {
@@ -1621,11 +1624,11 @@ void Model::autoJoinMeshFrames() {
 				for(unsigned int joinIndex = 1;
 						joinIndex < iterMap->second.size(); ++joinIndex) {
 					Mesh *mesh = iterMap->second[joinIndex];
-					if(base->getIndexCount() + mesh->getIndexCount() > 0xffff) {
-						printf("Not exactly sure what this IF statement is for?\n");
-						mesh->copyInto(base, true, true);
-					}
-					else {
+					//if(base->getIndexCount() + mesh->getIndexCount() > 0xffff) {
+					//	printf("Not exactly sure what this IF statement is for?\n");
+					//	mesh->copyInto(base, true, true);
+					//}
+					//else {
 						// Need to add verticies for each from from mesh to base
 						uint32 originalBaseVertexCount = base->getVertexCount();
 
@@ -1703,7 +1706,7 @@ void Model::autoJoinMeshFrames() {
 							join_index_index++;
 						}
 						base->setIndices(joined_indexes, newindexCount);
-					}
+					//}
 				}
 			}
 			base->buildInterpolationData();
