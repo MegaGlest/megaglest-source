@@ -489,7 +489,7 @@ Texture2D * Renderer::getPlayerColorTexture(PlayerColor playerColor) {
 		customTexture= customTextureMagenta;
 		break;
 	default:
-		assert(false);
+		throw megaglest_runtime_error("Unknown playercolor: " + intToStr(playerColor));
 		break;
 	}
 

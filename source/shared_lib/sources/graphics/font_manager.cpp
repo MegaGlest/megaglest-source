@@ -15,16 +15,21 @@
 #include "graphics_factory.h"
 #include <stdexcept>
 #include "util.h"
+#include "platform_util.h"
 #include "leak_dumper.h"
 
+using namespace Shared::Platform;
 using namespace Shared::Util;
+
 namespace Shared { namespace Graphics {
 
 // =====================================================
 //	class FontManager
 // =====================================================
 FontManager::FontManager() {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
 	fonts.clear();
 }
 

@@ -86,7 +86,6 @@ ParticleSystem::ParticleSystem(int particleCount) {
 		memoryObjectList[this]++;
 	}
 
-	//assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
 	textureFileLoadDeferred = "";
 	textureFileLoadDeferredSystemId = 0;
 	textureFileLoadDeferredFormat = Texture::fAuto;
@@ -1850,7 +1849,6 @@ void SplashParticleSystem::loadGame(const XmlNode *rootNode) {
 // ===========================================================================
 
 ParticleManager::ParticleManager() {
-	//assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
 }
 
 ParticleManager::~ParticleManager() {

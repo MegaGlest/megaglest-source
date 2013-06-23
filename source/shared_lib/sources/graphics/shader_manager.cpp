@@ -26,7 +26,10 @@ namespace Shared{ namespace Graphics{
 // =====================================================
 
 ShaderManager::ShaderManager() {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
+
 }
 
 ShaderManager::~ShaderManager(){

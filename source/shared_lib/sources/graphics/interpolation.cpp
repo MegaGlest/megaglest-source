@@ -33,7 +33,9 @@ namespace Shared{ namespace Graphics{
 bool InterpolationData::enableCache = false;
 
 InterpolationData::InterpolationData(const Mesh *mesh) {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
 
 	vertices= NULL;
 	normals= NULL;

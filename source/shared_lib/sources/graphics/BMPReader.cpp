@@ -74,7 +74,9 @@ BMPReader::BMPReader(): FileReader<Pixmap2D>(getExtensionsBmp()) {}
   *Path is used for printing error messages
   *@return <code>NULL</code> if the Pixmap2D could not be read, else the pixmap*/
 Pixmap2D* BMPReader::read(ifstream& in, const string& path, Pixmap2D* ret) const {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
 
 	//read file header
 	BitmapFileHeader fileHeader;

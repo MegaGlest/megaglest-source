@@ -11,7 +11,6 @@
 
 #include "components.h"
 
-//#include <cassert>
 #include <algorithm>
 
 #include "metrics.h"

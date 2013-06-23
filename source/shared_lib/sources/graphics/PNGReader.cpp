@@ -63,7 +63,10 @@ static inline std::vector<string> getExtensionsPng() {
 PNGReader::PNGReader(): FileReader<Pixmap2D>(getExtensionsPng()) {}
 
 Pixmap2D* PNGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
+
 	//Read file
 	is.seekg(0, ios::end);
 	//size_t length = is.tellg();

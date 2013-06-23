@@ -216,7 +216,6 @@ private:
 
 	//Node * minHeuristicFastLookup(FactionState &faction);
 	inline static Node * minHeuristicFastLookup(FactionState &faction) {
-		assert(faction.openNodesList.empty() == false);
 		if(faction.openNodesList.empty() == true) {
 			throw megaglest_runtime_error("openNodesList.empty() == true");
 		}

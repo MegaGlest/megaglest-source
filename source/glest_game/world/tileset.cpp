@@ -227,15 +227,50 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			else {
 				// read single big texture and cut it into pieces
 				const XmlNode *textureNode= surfaceNode->getChild("texture", 0);
-				Pixmap2D *pixmap=new Pixmap2D();
-				pixmap->init(3);
-				pixmap->load(textureNode->getAttribute("path")->getRestrictedValue(currentPath));
-				loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,textureNode->getAttribute("path")->getRestrictedValue()));
-				int width=pixmap->getW();
-				int heith=pixmap->getW();
+
+				// There is no way to figure out parts without loading the texture
+				// unfortunately we must load it even for headless server
+				// to get width and height
+				bool switchOffNonGraphicalModeEnabled = GlobalStaticFlags::getIsNonGraphicalModeEnabled();
+				if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+					GlobalStaticFlags::setIsNonGraphicalModeEnabled(false);
+				}
+
+				string exceptionError = "";
+				Pixmap2D *pixmap 	= NULL;
+				int width 			= 0;
+				int heith 			= 0;
+
+				try {
+					pixmap=new Pixmap2D();
+					pixmap->init(3);
+					pixmap->load(textureNode->getAttribute("path")->getRestrictedValue(currentPath));
+					loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,textureNode->getAttribute("path")->getRestrictedValue()));
+
+					width = pixmap->getW();
+					heith = pixmap->getW();
+				}
+				catch(const exception &ex) {
+					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+
+					exceptionError = "Error: " + path + "\n" + ex.what();
+				}
+
+				if(switchOffNonGraphicalModeEnabled == true) {
+					GlobalStaticFlags::setIsNonGraphicalModeEnabled(true);
+
+					delete pixmap;
+					pixmap = NULL;
+				}
+
+				if(exceptionError != "") {
+					throw megaglest_runtime_error(exceptionError.c_str());
+				}
+
 				assert(width==heith);
 				assert(width%64==0);
 				assert(width%partsize==0);
+
 				int parts=width/partsize;
 				int numberOfPieces=parts*parts;
 				partsArray[i]=parts;
@@ -244,9 +279,11 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 				int j=0;
 				for(int x = 0; x < parts; ++x) {
 					for(int y = 0; y < parts; ++y) {
-						surfPixmaps[i][j] = new Pixmap2D();
-						surfPixmaps[i][j]->init(partsize,partsize,3);
-						surfPixmaps[i][j]->copyImagePart(x*partsize,y*partsize,pixmap);
+						if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+							surfPixmaps[i][j] = new Pixmap2D();
+							surfPixmaps[i][j]->init(partsize,partsize,3);
+							surfPixmaps[i][j]->copyImagePart(x*partsize,y*partsize,pixmap);
+						}
 						surfProbs[i][j]=-1;
 						j++;
 					}

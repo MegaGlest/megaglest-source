@@ -759,7 +759,10 @@ void PixmapIoJpg::write(uint8 *pixels) {
 // ===================== PUBLIC ========================
 
 Pixmap1D::Pixmap1D() {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
+
 
     w= -1;
 	components= -1;
@@ -767,13 +770,19 @@ Pixmap1D::Pixmap1D() {
 }
 
 Pixmap1D::Pixmap1D(int components) {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
+
 
 	init(components);
 }
 
 Pixmap1D::Pixmap1D(int w, int components) {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
+
 
 	init(w, components);
 }
@@ -885,7 +894,10 @@ void Pixmap1D::loadTga(const string &path) {
 // ===================== PUBLIC ========================
 
 Pixmap2D::Pixmap2D() {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
+
     h= -1;
     w= -1;
 	components= -1;
@@ -893,7 +905,10 @@ Pixmap2D::Pixmap2D() {
 }
 
 Pixmap2D::Pixmap2D(int components) {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
+
     h= -1;
     w= -1;
 	this->components= -1;
@@ -903,7 +918,10 @@ Pixmap2D::Pixmap2D(int components) {
 }
 
 Pixmap2D::Pixmap2D(int w, int h, int components) {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
+
     this->h= 0;
     this->w= -1;
     this->components= -1;
@@ -1323,7 +1341,10 @@ bool Pixmap2D::doDimensionsAgree(const Pixmap2D *pixmap){
 // =====================================================
 
 Pixmap3D::Pixmap3D() {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
+
 
 	w= -1;
 	h= -1;
@@ -1334,14 +1355,20 @@ Pixmap3D::Pixmap3D() {
 }
 
 Pixmap3D::Pixmap3D(int w, int h, int d, int components) {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
+
 	pixels = NULL;
 	slice=0;
 	init(w, h, d, components);
 }
 
 Pixmap3D::Pixmap3D(int d, int components) {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
+
 	pixels = NULL;
 	slice=0;
 	init(d, components);
@@ -1468,7 +1495,10 @@ void Pixmap3D::loadSliceTga(const string &path, int slice){
 //	class PixmapCube
 // =====================================================
 PixmapCube::PixmapCube() {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
+
 }
 
 PixmapCube::~PixmapCube() {

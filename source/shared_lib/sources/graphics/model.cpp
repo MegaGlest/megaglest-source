@@ -1067,7 +1067,10 @@ void Mesh::deletePixels() {
 // ==================== constructor & destructor ====================
 
 Model::Model() {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
+
 	meshCount		= 0;
 	meshes			= NULL;
 	textureManager	= NULL;
