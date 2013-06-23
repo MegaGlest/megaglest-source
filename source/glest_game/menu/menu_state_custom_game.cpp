@@ -98,6 +98,11 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
     lastCheckedCRCTilesetName					= "";
     lastCheckedCRCTechtreeName					= "";
     lastCheckedCRCMapName						= "";
+
+    last_Forced_CheckedCRCTilesetName			= "";
+    last_Forced_CheckedCRCTechtreeName			= "";
+    last_Forced_CheckedCRCMapName				= "";
+
     lastCheckedCRCTilesetValue					= -1;
     lastCheckedCRCTechtreeValue					= -1;
     lastCheckedCRCMapValue						= -1;
@@ -1492,6 +1497,40 @@ void MenuStateCustomGame::RestoreLastGameSettings() {
 	loadGameSettings(SAVED_GAME_FILENAME);
 }
 
+bool MenuStateCustomGame::checkNetworkPlayerDataSynch(bool checkMapCRC,
+		bool checkTileSetCRC, bool checkTechTreeCRC) {
+	ServerInterface* serverInterface = NetworkManager::getInstance().getServerInterface();
+
+	bool dataSynchCheckOk = true;
+	for(int i= 0; i < mapInfo.players; ++i) {
+		if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
+			ConnectionSlot *slot = serverInterface->getSlot(i);
+			if(	slot != NULL && slot->isConnected() &&
+				(slot->getAllowDownloadDataSynch() == true ||
+				 slot->getAllowGameDataSynchCheck() == true)) {
+
+				if(checkMapCRC == true &&
+						slot->getNetworkGameDataSynchCheckOkMap() == false) {
+					dataSynchCheckOk = false;
+					break;
+				}
+				if(checkTileSetCRC == true &&
+						slot->getNetworkGameDataSynchCheckOkTile() == false) {
+					dataSynchCheckOk = false;
+					break;
+				}
+				if(checkTechTreeCRC == true &&
+						slot->getNetworkGameDataSynchCheckOkTech() == false) {
+					dataSynchCheckOk = false;
+					break;
+				}
+			}
+		}
+	}
+
+	return dataSynchCheckOk;
+}
+
 void MenuStateCustomGame::PlayNow(bool saveGame) {
 	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 	if(saveGame == true) {
@@ -1575,22 +1614,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 	// Send the game settings to each client if we have at least one networked client
 	safeMutex.Lock();
 
-	bool dataSynchCheckOk = true;
-	for(int i= 0; i < mapInfo.players; ++i) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-		if(listBoxControls[i].getSelectedItemIndex() == ctNetwork) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			if(	serverInterface->getSlot(i) != NULL && serverInterface->getSlot(i)->isConnected() &&
-				(serverInterface->getSlot(i)->getAllowDownloadDataSynch() == true || serverInterface->getSlot(i)->getAllowGameDataSynchCheck() == true) &&
-				serverInterface->getSlot(i)->getNetworkGameDataSynchCheckOk() == false) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				dataSynchCheckOk = false;
-				break;
-			}
-		}
-	}
+	bool dataSynchCheckOk = checkNetworkPlayerDataSynch(true, true, true);
 
 	// Ensure we have no dangling network players
 	for(int i= 0; i < GameConstants::maxPlayers; ++i) {
@@ -3314,66 +3338,82 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	gameSettings->setNetworkFramePeriod(config.getInt("NetworkSendFrameCount","20"));
 	gameSettings->setNetworkPauseGameForLaggedClients(((checkBoxNetworkPauseGameForLaggedClients.getValue() == true)));
 
-	//if(hasNetworkGameSettings() == true) {
-	{
-		if( gameSettings->getTileset() != "") {
-			if(lastCheckedCRCTilesetName != gameSettings->getTileset()) {
-				//console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
-				lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
-				if(lastCheckedCRCTilesetValue == 0) {
-					lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL, true);
-				}
-				lastCheckedCRCTilesetName = gameSettings->getTileset();
-			}
-			gameSettings->setTilesetCRC(lastCheckedCRCTilesetValue);
+	if( gameSettings->getTileset() != "") {
+		// Check if client has different data, if so force a CRC refresh
+		if(checkNetworkPlayerDataSynch(false,true, false) == false &&
+				last_Forced_CheckedCRCTilesetName != gameSettings->getTileset()) {
+			lastCheckedCRCTilesetName = "";
+			last_Forced_CheckedCRCTilesetName = gameSettings->getTileset();
 		}
 
-		if(config.getBool("DisableServerLobbyTechtreeCRCCheck","false") == false) {
-			if(gameSettings->getTech() != "") {
-				if(lastCheckedCRCTechtreeName != gameSettings->getTech()) {
-					//console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
-					lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL);
-					if(lastCheckedCRCTechtreeValue == 0) {
-						lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL, true);
-					}
+		if(lastCheckedCRCTilesetName != gameSettings->getTileset()) {
+			//console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
+			lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
+			if(lastCheckedCRCTilesetValue == 0) {
+				lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL, true);
+			}
+			lastCheckedCRCTilesetName = gameSettings->getTileset();
+		}
+		gameSettings->setTilesetCRC(lastCheckedCRCTilesetValue);
+	}
 
-					reloadFactions(true,(checkBoxScenario.getValue() == true ? scenarioFiles[listBoxScenario.getSelectedItemIndex()] : ""));
-					factionCRCList.clear();
-					for(unsigned int factionIdx = 0; factionIdx < factionFiles.size(); ++factionIdx) {
-						string factionName = factionFiles[factionIdx];
-						if(factionName != GameConstants::RANDOMFACTION_SLOTNAME &&
-							factionName != GameConstants::OBSERVER_SLOTNAME) {
-							//factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
-							uint32 factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL);
-							if(factionCRC == 0) {
-								factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
-							}
-							factionCRCList.push_back(make_pair(factionName,factionCRC));
+	if(config.getBool("DisableServerLobbyTechtreeCRCCheck","false") == false) {
+		if(gameSettings->getTech() != "") {
+			// Check if client has different data, if so force a CRC refresh
+			if(checkNetworkPlayerDataSynch(false,false,true) == false &&
+					last_Forced_CheckedCRCTechtreeName != gameSettings->getTech()) {
+				lastCheckedCRCTechtreeName = "";
+				last_Forced_CheckedCRCTechtreeName = gameSettings->getTech();
+			}
+
+			if(lastCheckedCRCTechtreeName != gameSettings->getTech()) {
+				//console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
+				lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL);
+				if(lastCheckedCRCTechtreeValue == 0) {
+					lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL, true);
+				}
+
+				reloadFactions(true,(checkBoxScenario.getValue() == true ? scenarioFiles[listBoxScenario.getSelectedItemIndex()] : ""));
+				factionCRCList.clear();
+				for(unsigned int factionIdx = 0; factionIdx < factionFiles.size(); ++factionIdx) {
+					string factionName = factionFiles[factionIdx];
+					if(factionName != GameConstants::RANDOMFACTION_SLOTNAME &&
+						factionName != GameConstants::OBSERVER_SLOTNAME) {
+						//factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
+						uint32 factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL);
+						if(factionCRC == 0) {
+							factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
 						}
+						factionCRCList.push_back(make_pair(factionName,factionCRC));
 					}
-					//console.addLine("Found factions: " + intToStr(factionCRCList.size()));
-					lastCheckedCRCTechtreeName = gameSettings->getTech();
 				}
-
-				gameSettings->setFactionCRCList(factionCRCList);
-				gameSettings->setTechCRC(lastCheckedCRCTechtreeValue);
+				//console.addLine("Found factions: " + intToStr(factionCRCList.size()));
+				lastCheckedCRCTechtreeName = gameSettings->getTech();
 			}
-		}
 
-		if(gameSettings->getMap() != "") {
-			if(lastCheckedCRCMapName != gameSettings->getMap()) {
-				Checksum checksum;
-				string file = Map::getMapPath(gameSettings->getMap(),"",false);
-				//console.addLine("Checking map CRC [" + file + "]");
-				checksum.addFile(file);
-				lastCheckedCRCMapValue = checksum.getSum();
-				lastCheckedCRCMapName = gameSettings->getMap();
-			}
-			gameSettings->setMapCRC(lastCheckedCRCMapValue);
+			gameSettings->setFactionCRCList(factionCRCList);
+			gameSettings->setTechCRC(lastCheckedCRCTechtreeValue);
 		}
 	}
 
-	//printf("this->masterserverMode = %d\n",this->masterserverMode);
+	if(gameSettings->getMap() != "") {
+		// Check if client has different data, if so force a CRC refresh
+		if(checkNetworkPlayerDataSynch(true,false,false) == false &&
+				last_Forced_CheckedCRCMapName != gameSettings->getMap()) {
+			lastCheckedCRCMapName = "";
+			last_Forced_CheckedCRCMapName = gameSettings->getMap();
+		}
+
+		if(lastCheckedCRCMapName != gameSettings->getMap()) {
+			Checksum checksum;
+			string file = Map::getMapPath(gameSettings->getMap(),"",false);
+			//console.addLine("Checking map CRC [" + file + "]");
+			checksum.addFile(file);
+			lastCheckedCRCMapValue = checksum.getSum();
+			lastCheckedCRCMapName = gameSettings->getMap();
+		}
+		gameSettings->setMapCRC(lastCheckedCRCMapValue);
+	}
 
 	if(this->headlessServerMode == true) {
 		time_t clientConnectedTime = 0;

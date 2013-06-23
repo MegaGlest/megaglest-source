@@ -203,6 +203,11 @@ private:
     string lastCheckedCRCTilesetName;
     string lastCheckedCRCTechtreeName;
     string lastCheckedCRCMapName;
+
+    string last_Forced_CheckedCRCTilesetName;
+    string last_Forced_CheckedCRCTechtreeName;
+    string last_Forced_CheckedCRCMapName;
+
     uint32 lastCheckedCRCTilesetValue;
     uint32 lastCheckedCRCTechtreeValue;
     uint32 lastCheckedCRCMapValue;
@@ -291,6 +296,9 @@ private:
 	void setupTilesetList(string scenario);
 
 	void initFactionPreview(const GameSettings *gameSettings);
+
+	bool checkNetworkPlayerDataSynch(bool checkMapCRC,bool checkTileSetCRC, bool checkTechTreeCRC);
+
 };
 
 }}//end namespace
