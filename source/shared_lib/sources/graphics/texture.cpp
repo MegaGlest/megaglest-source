@@ -12,9 +12,11 @@
 #include "texture.h"
 #include "util.h"
 #include <SDL.h>
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
+using namespace Shared::Platform;
 
 namespace Shared{ namespace Graphics{
 
@@ -39,7 +41,10 @@ static int powerOfTwo(int input) {
 */
 
 Texture::Texture() {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
+
 
 	mipmap= true;
 	pixmapInit= true;

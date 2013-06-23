@@ -18,9 +18,11 @@
 #include "graphics_factory.h"
 
 #include "util.h"
+#include "platform_util.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
+using namespace Shared::Platform;
 
 namespace Shared{ namespace Graphics{
 
@@ -29,7 +31,10 @@ namespace Shared{ namespace Graphics{
 // =====================================================
 
 TextureManager::TextureManager() {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
+
 
 	textureFilter= Texture::fBilinear;
 	maxAnisotropy= 1;

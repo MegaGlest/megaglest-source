@@ -68,7 +68,10 @@ TGAReader3D::TGAReader3D(): FileReader<Pixmap3D>(getExtensionStrings()) {}
 Pixmap3D* TGAReader3D::read(ifstream& in, const string& path, Pixmap3D* ret) const {
 	//printf("In [%s] line: %d\n",__FILE__,__LINE__);
 //	try {
-		assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+			throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+		}
+
 		//read header
 		TargaFileHeader fileHeader;
 		in.read((char*)&fileHeader, sizeof(TargaFileHeader));

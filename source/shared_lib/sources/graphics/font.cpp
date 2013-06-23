@@ -218,7 +218,9 @@ string FontMetrics::wordWrapText(string text, int maxWidth) {
 // ===============================================
 
 Font::Font(FontTextHandlerType type) {
-	assert(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		throw megaglest_runtime_error("Loading graphics in headless server mode not allowed!");
+	}
 
 	inited		= false;
 	this->type	= fontTypeName;

@@ -11,7 +11,6 @@
 #include "path_finder.h"
 
 #include <algorithm>
-#include <cassert>
 
 #include "config.h"
 #include "map.h"
@@ -1173,7 +1172,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 	//a) push starting pos into openNodes
 	Node *firstNode= newNode(factions[unitFactionIndex],maxNodeCount);
-	assert(firstNode != NULL);
 	if(firstNode == NULL) {
 		throw megaglest_runtime_error("firstNode == NULL");
 	}
