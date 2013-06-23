@@ -1672,6 +1672,11 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
 
         	RestoreLastGameSettings();
         }
+        else if (checkBoxAllowNativeLanguageTechtree.mouseClick(x, y)) {
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+        	needToBroadcastServerSettings=true;
+        	broadcastServerSettingsDelayTimer=time(NULL);
+        }
         else if(listBoxMap.mouseClick(x, y,advanceToItemStartingWith)) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
@@ -1947,6 +1952,8 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 		gameSettings->setScenario("");
 		gameSettings->setScenarioDir("");
 	}
+
+	gameSettings->setNetworkAllowNativeLanguageTechtree(checkBoxAllowNativeLanguageTechtree.getValue());
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] listBoxMap.getSelectedItemIndex() = %d, mapFiles.size() = " MG_SIZE_T_SPECIFIER ", getCurrentMapFile() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxMap.getSelectedItemIndex(),mapFiles.size(),getCurrentMapFile().c_str());
 
@@ -2643,6 +2650,9 @@ void MenuStateConnectedGame::update() {
 	if(clientInterface != NULL && clientInterface->isConnected()) {
 		//printf("#2 admin key [%d] client key [%d]\n",settings->getMasterserver_admin(),clientInterface->getSessionKey());
 		broadCastGameSettingsToHeadlessServer(false);
+
+		checkBoxAllowNativeLanguageTechtree.setEditable(isHeadlessAdmin());
+		checkBoxAllowNativeLanguageTechtree.setEnabled(isHeadlessAdmin());
 
 		listBoxMap.setEditable(isHeadlessAdmin());
 		buttonPlayNow.setVisible(isHeadlessAdmin() ||
