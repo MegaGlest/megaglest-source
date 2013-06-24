@@ -2152,7 +2152,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 			if(lastCheckedCRCTilesetName != gameSettings->getTileset()) {
 				//console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
 				lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
-				if(lastCheckedCRCTilesetValue == 0) {
+				if(lastCheckedCRCTilesetValue == 0 || lastCheckedCRCTilesetValue != gameSettings->getTilesetCRC()) {
 					lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL, true);
 				}
 				lastCheckedCRCTilesetName = gameSettings->getTileset();
@@ -2165,7 +2165,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 				if(lastCheckedCRCTechtreeName != gameSettings->getTech()) {
 					//console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
 					lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL);
-					if(lastCheckedCRCTechtreeValue == 0) {
+					if(lastCheckedCRCTechtreeValue == 0 || lastCheckedCRCTechtreeValue != gameSettings->getTechCRC()) {
 						lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL, true);
 					}
 
@@ -2740,9 +2740,10 @@ void MenuStateConnectedGame::update() {
                 	gameSettings->getTileset() != "") {
 					//console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
                 	tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
-                	if(tilesetCRC == 0) {
+                	if(tilesetCRC == 0 || tilesetCRC != gameSettings->getTilesetCRC()) {
                 		tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL, true);
                 	}
+
 					// Test data synch
 					//tilesetCRC++;
 					lastCheckedCRCTilesetValue = tilesetCRC;
@@ -2756,7 +2757,7 @@ void MenuStateConnectedGame::update() {
 					techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
 					//clientInterface->sendTextMessage("#1 TechCRC = " + intToStr(techCRC) + " remoteCRC = " + intToStr(gameSettings->getTechCRC()),-1, true, "");
 
-					if(techCRC == 0) {
+					if(techCRC == 0 || tilesetCRC != gameSettings->getTechCRC()) {
 						techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL, true);
 						//clientInterface->sendTextMessage("#2 TechCRC = " + intToStr(techCRC) + " remoteCRC = " + intToStr(gameSettings->getTechCRC()),-1, true, "");
 					}
