@@ -5135,7 +5135,7 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 	// resources
 	for(int i = 0; i < world.getFactionCount(); ++i) {
 		string factionInfo = this->gameSettings.getNetworkPlayerName(i);
-		factionInfo += " [" + this->gameSettings.getNetworkPlayerUUID(i) + "]";
+		//factionInfo += " [" + this->gameSettings.getNetworkPlayerUUID(i) + "]";
 		switch(this->gameSettings.getFactionControl(i)) {
 			case ctCpuEasy:
 				factionInfo += " CPU Easy";
