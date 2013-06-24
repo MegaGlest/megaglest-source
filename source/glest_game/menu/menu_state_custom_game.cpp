@@ -3340,15 +3340,17 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 	if( gameSettings->getTileset() != "") {
 		// Check if client has different data, if so force a CRC refresh
+		bool forceRefresh = false;
 		if(checkNetworkPlayerDataSynch(false,true, false) == false &&
 				last_Forced_CheckedCRCTilesetName != gameSettings->getTileset()) {
 			lastCheckedCRCTilesetName = "";
+			forceRefresh = true;
 			last_Forced_CheckedCRCTilesetName = gameSettings->getTileset();
 		}
 
 		if(lastCheckedCRCTilesetName != gameSettings->getTileset()) {
 			//console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
-			lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
+			lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL,forceRefresh);
 			if(lastCheckedCRCTilesetValue == 0) {
 				lastCheckedCRCTilesetValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL, true);
 			}
@@ -3360,15 +3362,17 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	if(config.getBool("DisableServerLobbyTechtreeCRCCheck","false") == false) {
 		if(gameSettings->getTech() != "") {
 			// Check if client has different data, if so force a CRC refresh
+			bool forceRefresh = false;
 			if(checkNetworkPlayerDataSynch(false,false,true) == false &&
 					last_Forced_CheckedCRCTechtreeName != gameSettings->getTech()) {
 				lastCheckedCRCTechtreeName = "";
+				bool forceRefresh = true;
 				last_Forced_CheckedCRCTechtreeName = gameSettings->getTech();
 			}
 
 			if(lastCheckedCRCTechtreeName != gameSettings->getTech()) {
 				//console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
-				lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL);
+				lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL,forceRefresh);
 				if(lastCheckedCRCTechtreeValue == 0) {
 					lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL, true);
 				}
@@ -3398,9 +3402,11 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 	if(gameSettings->getMap() != "") {
 		// Check if client has different data, if so force a CRC refresh
+		bool forceRefresh = false;
 		if(checkNetworkPlayerDataSynch(true,false,false) == false &&
 				last_Forced_CheckedCRCMapName != gameSettings->getMap()) {
 			lastCheckedCRCMapName = "";
+			bool forceRefresh = true;
 			last_Forced_CheckedCRCMapName = gameSettings->getMap();
 		}
 
