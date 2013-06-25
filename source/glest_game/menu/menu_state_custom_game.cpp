@@ -1896,15 +1896,14 @@ void MenuStateCustomGame::render() {
 		    }
 		    // END
 
+		    ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		    if(hasNetworkGameSettings() == true) {
 		    	renderer.renderListBox(&listBoxPlayerStatus);
+		    	if( serverInterface != NULL &&
+		    		serverInterface->getServerSocket() != NULL ) {
+		    		renderer.renderButton(&buttonClearBlockedPlayers);
+		    	}
 		    }
-
-			ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-			if( serverInterface != NULL &&
-				serverInterface->getServerSocket() != NULL ) {
-				renderer.renderButton(&buttonClearBlockedPlayers);
-			}
 			for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		    	if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
 		    		//printf("Player #%d [%s] control = %d\n",i,labelPlayerNames[i].getText().c_str(),listBoxControls[i].getSelectedItemIndex());
