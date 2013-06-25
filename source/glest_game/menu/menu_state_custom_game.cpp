@@ -167,7 +167,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	buttonReturn.init(240, 180, 125);
 
 	buttonClearBlockedPlayers.registerGraphicComponent(containerName,"buttonClearBlockedPlayers");
-	buttonClearBlockedPlayers.init(427, 590, 125);
+	buttonClearBlockedPlayers.init(310, 620, 140);
 
 	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
 	buttonRestoreLastSettings.init(250+130, 180, 220);
@@ -1902,8 +1902,7 @@ void MenuStateCustomGame::render() {
 
 			ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 			if( serverInterface != NULL &&
-				serverInterface->getServerSocket() != NULL &&
-				serverInterface->getServerSocket()->hasBlockedIPAddresses() == true) {
+				serverInterface->getServerSocket() != NULL ) {
 				renderer.renderButton(&buttonClearBlockedPlayers);
 			}
 			for(int i = 0; i < GameConstants::maxPlayers; ++i) {
@@ -2200,6 +2199,10 @@ void MenuStateCustomGame::update() {
 		}
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		Lang& lang= Lang::getInstance();
+
+		if( serverInterface != NULL && serverInterface->getServerSocket() != NULL ){
+			buttonClearBlockedPlayers.setEditable( serverInterface->getServerSocket()->hasBlockedIPAddresses());
+		}
 
 		if(this->autoloadScenarioName != "") {
 			listBoxScenario.setSelectedItem(formatString(this->autoloadScenarioName),false);
