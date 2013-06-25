@@ -14,6 +14,7 @@
 #include "util.h"
 #include "renderer.h"
 #include "properties.h"
+#include "sound_renderer.h"
 #include "core_data.h"
 #include "metrics.h"
 #include "lang.h"
@@ -181,6 +182,10 @@ void Logger::handleMouseClick(int x, int y) {
 	}
 	if(buttonNextHint.getEnabled() == true && buttonNextHint.mouseClick(x,y) == true) {
 		showNextHint();
+		//buttonNextHint.setLighted(false);
+		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+		CoreData &coreData= CoreData::getInstance();
+		soundRenderer.playFx(coreData.getClickSoundC());
 	}
 }
 
@@ -291,7 +296,7 @@ void Logger::renderLoadingScreen() {
 		}
 		//Show next Hint
 		if(buttonNextHint.getEnabled() == false) {
-			buttonNextHint.init((metrics.getVirtualW() / 2) - (300 / 2), 90 * metrics.getVirtualH() / 100 + 20,300);
+			buttonNextHint.init((metrics.getVirtualW() / 2) - (300 / 2), 90 * metrics.getVirtualH() / 100 + 20,100);
 			buttonNextHint.setText(lang.get("ShowNextHint","",true));
 			buttonNextHint.setEnabled(true);
 			buttonNextHint.setVisible(true);
