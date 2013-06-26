@@ -31,6 +31,11 @@ After setting the correct verions in mg-version.sh you should call:
 
 This will update associated installers to use the correct version stamps
 
+To set the actual binary to the desired version you must manually edit 
+glest_game/facilities/game_util.cpp
+const string glestVersionString 	= "v3.8-dev";
+
+
 #1. The source archive:
 This archive contains source code for binary compilation of the application and 
 tools
