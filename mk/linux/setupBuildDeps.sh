@@ -31,11 +31,21 @@ architecture=`uname -m`
 if [ `which lsb_release`'x' = 'x' ]
 then
 	lsb=0
-	if [ -e /etc/debian_version ];   then distribution='Debian';   release='unknown release version'; codename=`cat /etc/debian_version`;   fi
-	if [ -e /etc/SuSE-release ];     then distribution='SuSE';     release='unknown release version'; codename=`cat /etc/SuSE-release`;     fi
-	if [ -e /etc/fedora-release ];   then distribution='Fedora';   release='unknown release version'; codename=`cat /etc/fedora-release`;   fi
-	if [ -e /etc/redhat-release ];   then distribution='Redhat';   release='unknown release version'; codename=`cat /etc/redhat-release`;   fi
-	if [ -e /etc/mandrake-release ]; then distribution='Mandrake'; release='unknown release version'; codename=`cat /etc/mandrake-release`; fi
+	if [ -e /etc/debian_version ]
+	then distribution='Debian';   release='unknown release version'; codename=`cat /etc/debian_version`
+	elif [ -e /etc/SuSE-release ]
+	then distribution='SuSE';     release='unknown release version'; codename=`cat /etc/SuSE-release`
+	elif [ -e /etc/redhat-release ]
+	then 
+		if [ -e /etc/fedora-release ]
+		then distribution='Fedora';   release='unknown release version'; codename=`cat /etc/fedora-release`
+		else distribution='Redhat';   release='unknown release version'; codename=`cat /etc/redhat-release`
+		fi
+	elif [ -e /etc/fedora-release ]
+	then distribution='Fedora';   release='unknown release version'; codename=`cat /etc/fedora-release`
+	elif [ -e /etc/mandrake-release ]
+	then distribution='Mandrake'; release='unknown release version'; codename=`cat /etc/mandrake-release`
+	fi
 else
 	lsb=1
 
