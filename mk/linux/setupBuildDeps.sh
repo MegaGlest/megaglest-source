@@ -248,7 +248,7 @@ case $distribution in
 
 	Fedora) 
 		case $release in
-			13|14)
+			13|14|15|16|17|18)
 				installcommand='yum groupinstall development-tools'
 				$installcommand
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi
