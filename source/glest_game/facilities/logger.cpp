@@ -296,7 +296,7 @@ void Logger::renderLoadingScreen() {
 		}
 		//Show next Hint
 		if(buttonNextHint.getEnabled() == false) {
-			buttonNextHint.init((metrics.getVirtualW() / 2) - (300 / 2), 90 * metrics.getVirtualH() / 100 + 20,100);
+			buttonNextHint.init((metrics.getVirtualW() / 2) - (300 / 2), 90 * metrics.getVirtualH() / 100 + 20,175);
 			buttonNextHint.setText(lang.get("ShowNextHint","",true));
 			buttonNextHint.setEnabled(true);
 			buttonNextHint.setVisible(true);
