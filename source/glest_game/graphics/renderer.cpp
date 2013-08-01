@@ -8353,44 +8353,10 @@ void Renderer::renderQuad(int x, int y, int w, int h, const Texture2D *texture) 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
-
-/* Revert back to 3.4.0 render logic due to issues on some ATI cards
- *
-
-	if(w < 0) {
-		w = texture->getPixmapConst()->getW();
+	if(texture == NULL) {
+		printf("\n**WARNING** detected a null texture to render in renderQuad!\n");
+		return;
 	}
-	if(h < 0) {
-		h = texture->getPixmapConst()->getH();
-	}
-
-	if(texture != NULL) {
-		glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(texture)->getHandle());
-	}
-
-	Vec2i texCoords[4];
-	Vec2i vertices[4];
-    texCoords[0] 	= Vec2i(0, 1);
-    vertices[0] 	= Vec2i(x, y+h);
-    texCoords[1] 	= Vec2i(0, 0);
-    vertices[1] 	= Vec2i(x, y);
-    texCoords[2] 	= Vec2i(1, 1);
-    vertices[2] 	= Vec2i(x+w, y+h);
-    texCoords[3] 	= Vec2i(1, 0);
-    vertices[3] 	= Vec2i(x+w, y);
-
-	//glClientActiveTexture(GL_TEXTURE0);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glTexCoordPointer(2, GL_INT, 0,&texCoords[0]);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(2, GL_INT, 0, &vertices[0]);
-
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-    glDisableClientState(GL_VERTEX_ARRAY);
-    //glClientActiveTexture(GL_TEXTURE0);
-    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-*/
 
 	if(w < 0) {
 		w = texture->getPixmapConst()->getW();
