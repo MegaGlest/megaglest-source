@@ -29,6 +29,7 @@ using Shared::Graphics::Vec2i;
 namespace Glest{ namespace Game{
 
 class Ai;
+class AiInterface;
 class Unit;
 class UnitType;
 class ProduceTask;
@@ -234,6 +235,9 @@ class AiRuleProduce: public AiRule{
 private:
 	const ProduceTask *produceTask;
 
+	typedef vector<const UnitType*> UnitTypes;
+	typedef vector<bool> UnitTypesGiveBack;
+
 public:
 	AiRuleProduce(Ai *ai);
 
@@ -246,6 +250,12 @@ public:
 private:
 	void produceGeneric(const ProduceTask *pt);
 	void produceSpecific(const ProduceTask *pt);
+	bool canUnitTypeOfferResourceType(const UnitType *ut, const ResourceType *rt);
+	bool setAIProduceTaskForResourceType(const ProduceTask* pt,
+			AiInterface* aiInterface);
+	void addUnitTypeToCandidates(const UnitType* producedUnit,
+			UnitTypes& ableUnits, UnitTypesGiveBack& ableUnitsGiveBack,
+			bool unitCanGiveBackResource);
 };
 // =====================================================
 //	class AiRuleBuild
