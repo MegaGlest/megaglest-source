@@ -689,27 +689,90 @@ void AiRuleProduce::execute() {
 	}
 }
 
+bool AiRuleProduce::canUnitTypeOfferResourceType(const UnitType *ut, const ResourceType *rt) {
+	bool unitTypeOffersResourceType = false;
+
+	AiInterface *aiInterface= ai->getAiInterface();
+	if(ut != NULL && rt != NULL && aiInterface != NULL && aiInterface->reqsOk(ut)) {
+		// Check of the unit 'gives' the resource
+		// if the unit produces the resource
+		const Resource *r= ut->getCost(rt);
+		if(r != NULL) {
+			if(ai->outputAIBehaviourToConsole()) printf("#2 produceGeneric r = [%s][%d] Testing AI RULE Name[%s]\n",r->getDescription(false).c_str(),r->getAmount(), this->getName().c_str());
+		}
+
+		if(r != NULL && r->getAmount() < 0) {
+			unitTypeOffersResourceType = true;
+		}
+		else {
+			// for each command check if we produce a unit that handles the resource
+			for(int commandIndex = 0; commandIndex < ut->getCommandTypeCount(); ++commandIndex) {
+				const CommandType *ct= ut->getCommandType(commandIndex);
+
+				//if the command is produce
+				if(ct->getClass() == ccProduce || ct->getClass()==ccMorph) {
+					const UnitType *producedUnit= static_cast<const UnitType*>(ct->getProduced());
+
+					if(ai->outputAIBehaviourToConsole()) printf("produceGeneric [%p] Testing AI RULE Name[%s]\n",rt, this->getName().c_str());
+
+					//if the unit produces the resource
+					const Resource *r = producedUnit->getCost(rt);
+					if(r != NULL) {
+						if(ai->outputAIBehaviourToConsole()) printf("produceGeneric r = [%s][%d] Testing AI RULE Name[%s]\n",r->getDescription(false).c_str(),r->getAmount(), this->getName().c_str());
+					}
+
+					if(r != NULL && r->getAmount() < 0) {
+						unitTypeOffersResourceType = true;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	return unitTypeOffersResourceType;
+}
+
+bool AiRuleProduce::setAIProduceTaskForResourceType(const ProduceTask* pt,
+		AiInterface* aiInterface) {
+	if (aiInterface->getMyFactionType()->getAIBehaviorUnits(
+			aibcResourceProducerUnits).size() > 0) {
+		const std::vector<FactionType::PairPUnitTypeInt>& unitList =
+				aiInterface->getMyFactionType()->getAIBehaviorUnits(
+						aibcResourceProducerUnits);
+		for (unsigned int i = 0; i < unitList.size(); ++i) {
+			const FactionType::PairPUnitTypeInt& priorityUnit = unitList[i];
+			const UnitType* ut = priorityUnit.first;
+			if (ai->getCountOfType(ut) < priorityUnit.second &&
+				canUnitTypeOfferResourceType(ut, pt->getResourceType()) == true &&
+				aiInterface->getMyFaction()->canCreateUnit(priorityUnit.first, false, true, true) == true) {
+				ai->addTask(new ProduceTask(priorityUnit.first));
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void AiRuleProduce::addUnitTypeToCandidates(const UnitType* producedUnit,
+		UnitTypes& ableUnits, UnitTypesGiveBack& ableUnitsGiveBack,
+		bool unitCanGiveBackResource) {
+	//if the unit is not already on the list
+	if (find(ableUnits.begin(), ableUnits.end(), producedUnit) == ableUnits.end()) {
+		ableUnits.push_back(producedUnit);
+		ableUnitsGiveBack.push_back(unitCanGiveBackResource);
+	}
+}
+
 void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
-	typedef vector<const UnitType*> UnitTypes;
-	typedef vector<bool> UnitTypesGiveBack;
 	UnitTypes ableUnits;
 	UnitTypesGiveBack ableUnitsGiveBack;
 
 	AiInterface *aiInterface= ai->getAiInterface();
 
 	if(pt->getResourceType() != NULL) {
-		if(aiInterface->getMyFactionType()->getAIBehaviorUnits(aibcResourceProducerUnits).size() > 0) {
-			const std::vector<FactionType::PairPUnitTypeInt> &unitList = aiInterface->getMyFactionType()->getAIBehaviorUnits(aibcResourceProducerUnits);
-			for(unsigned int i = 0; i < unitList.size(); ++i) {
-				const FactionType::PairPUnitTypeInt &priorityUnit = unitList[i];
-				if(ai->getCountOfType(priorityUnit.first) < priorityUnit.second &&
-					aiInterface->getMyFaction()->canCreateUnit(priorityUnit.first, false, true, true) == true) {
-					//if(ai->getRandom()->randRange(0, 1)==0) {
-					ai->addTask(new ProduceTask(priorityUnit.first));
-					return;
-					//}
-				}
-			}
+		if(setAIProduceTaskForResourceType(pt, aiInterface) == true) {
+			return;
 		}
 	}
 	else if(pt->getUnitClass() == ucWorker) {
@@ -719,10 +782,8 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 				const FactionType::PairPUnitTypeInt &priorityUnit = unitList[i];
 				if(ai->getCountOfType(priorityUnit.first) < priorityUnit.second &&
 					aiInterface->getMyFaction()->canCreateUnit(priorityUnit.first, false, true, true) == true) {
-					//if(ai->getRandom()->randRange(0, 1)==0) {
 					ai->addTask(new ProduceTask(priorityUnit.first));
 					return;
-					//}
 				}
 			}
 		}
@@ -734,10 +795,8 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 				const FactionType::PairPUnitTypeInt &priorityUnit = unitList[i];
 				if(ai->getCountOfType(priorityUnit.first) < priorityUnit.second &&
 					aiInterface->getMyFaction()->canCreateUnit(priorityUnit.first, false, true, true) == true) {
-					//if(ai->getRandom()->randRange(0, 1)==0) {
 					ai->addTask(new ProduceTask(priorityUnit.first));
 					return;
-					//}
 				}
 			}
 		}
@@ -748,6 +807,7 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 
 		//for each command
 		const UnitType *ut= aiInterface->getMyUnit(i)->getType();
+
 		for(int j = 0; j < ut->getCommandTypeCount(); ++j) {
 			const CommandType *ct= ut->getCommandType(j);
 
@@ -767,6 +827,7 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 
 					if(r != NULL && r->getAmount() < 0) {
 						produceIt= true;
+						addUnitTypeToCandidates(producedUnit, ableUnits,ableUnitsGiveBack, false);
 					}
 				}
 				else {
@@ -776,37 +837,22 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 					if(producedUnit->isOfClass(pt->getUnitClass())){
 						if(aiInterface->reqsOk(ct) && aiInterface->reqsOk(producedUnit)){
 							produceIt= true;
+							addUnitTypeToCandidates(producedUnit, ableUnits,ableUnitsGiveBack, false);
 						}
-					}
-				}
-
-				if(produceIt) {
-					//if the unit is not already on the list
-					if(find(ableUnits.begin(), ableUnits.end(), producedUnit)==ableUnits.end()){
-						ableUnits.push_back(producedUnit);
-						ableUnitsGiveBack.push_back(false);
 					}
 				}
 			}
 
 			// Now check of the unit 'gives' the resource
-			if(produceIt == false) {
-				//if the unit produces the resource
-				if(pt->getResourceType() != NULL) {
-					const Resource *r= ut->getCost(pt->getResourceType());
-					if(r != NULL) {
-						if(ai->outputAIBehaviourToConsole()) printf("#2 produceGeneric r = [%s][%d] Testing AI RULE Name[%s]\n",r->getDescription(false).c_str(),r->getAmount(), this->getName().c_str());
-					}
+			if(produceIt == false && pt->getResourceType() != NULL) {
+				const Resource *r= ut->getCost(pt->getResourceType());
+				if(r != NULL) {
+					if(ai->outputAIBehaviourToConsole()) printf("#2 produceGeneric r = [%s][%d] Testing AI RULE Name[%s]\n",r->getDescription(false).c_str(),r->getAmount(), this->getName().c_str());
+				}
 
-					if(r != NULL && r->getAmount() < 0) {
-						produceIt= true;
-
-						//if the unit is not already on the list
-						if(find(ableUnits.begin(), ableUnits.end(), ut)==ableUnits.end()){
-							ableUnits.push_back(ut);
-							ableUnitsGiveBack.push_back(true);
-						}
-					}
+				if(r != NULL && r->getAmount() < 0) {
+					produceIt= true;
+					addUnitTypeToCandidates(ut, ableUnits,ableUnitsGiveBack, true);
 				}
 			}
 		}
