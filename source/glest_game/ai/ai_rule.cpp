@@ -693,6 +693,7 @@ bool AiRuleProduce::canUnitTypeOfferResourceType(const UnitType *ut, const Resou
 	bool unitTypeOffersResourceType = false;
 
 	AiInterface *aiInterface= ai->getAiInterface();
+
 	if(ut != NULL && rt != NULL && aiInterface != NULL && aiInterface->reqsOk(ut)) {
 		// Check of the unit 'gives' the resource
 		// if the unit produces the resource
@@ -730,11 +731,18 @@ bool AiRuleProduce::canUnitTypeOfferResourceType(const UnitType *ut, const Resou
 		}
 	}
 
+	if(aiInterface->isLogLevelEnabled(4) == true) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"canUnitTypeOfferResourceType for unit type [%s] for resource type [%s] returned: %d",ut->getName(false).c_str(),rt->getName(false).c_str(),unitTypeOffersResourceType);
+		aiInterface->printLog(4, szBuf);
+	}
+
 	return unitTypeOffersResourceType;
 }
 
 bool AiRuleProduce::setAIProduceTaskForResourceType(const ProduceTask* pt,
-		AiInterface* aiInterface) {
+												AiInterface* aiInterface) {
+	bool taskAdded = false;
 	if (aiInterface->getMyFactionType()->getAIBehaviorUnits(
 			aibcResourceProducerUnits).size() > 0) {
 		const std::vector<FactionType::PairPUnitTypeInt>& unitList =
@@ -747,20 +755,36 @@ bool AiRuleProduce::setAIProduceTaskForResourceType(const ProduceTask* pt,
 				canUnitTypeOfferResourceType(ut, pt->getResourceType()) == true &&
 				aiInterface->getMyFaction()->canCreateUnit(priorityUnit.first, false, true, true) == true) {
 				ai->addTask(new ProduceTask(priorityUnit.first));
-				return true;
+				taskAdded = true;
+				break;
 			}
 		}
 	}
-	return false;
+
+	if(aiInterface->isLogLevelEnabled(4) == true) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"setAIProduceTaskForResourceType for resource type [%s] returned: %d",pt->getResourceType()->getName(false).c_str(),taskAdded);
+		aiInterface->printLog(4, szBuf);
+	}
+
+	return taskAdded;
 }
 
 void AiRuleProduce::addUnitTypeToCandidates(const UnitType* producedUnit,
 		UnitTypes& ableUnits, UnitTypesGiveBack& ableUnitsGiveBack,
 		bool unitCanGiveBackResource) {
-	//if the unit is not already on the list
+	// if the unit is not already on the list
 	if (find(ableUnits.begin(), ableUnits.end(), producedUnit) == ableUnits.end()) {
 		ableUnits.push_back(producedUnit);
 		ableUnitsGiveBack.push_back(unitCanGiveBackResource);
+
+		AiInterface *aiInterface= ai->getAiInterface();
+		if(aiInterface->isLogLevelEnabled(4) == true) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"addUnitTypeToCandidates for unit type [%s]",producedUnit->getName(false).c_str());
+			aiInterface->printLog(4, szBuf);
+		}
+
 	}
 }
 
@@ -881,6 +905,24 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 					newAbleUnits.push_back(ut);
 				}
 			}
+
+			if(aiInterface->isLogLevelEnabled(4) == true) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"haveEnoughProducers [%d] haveNonProducers [%d]",haveEnoughProducers,haveNonProducers);
+				aiInterface->printLog(4, szBuf);
+
+				for(unsigned int i = 0; i < ableUnits.size(); ++i) {
+					const UnitType *ut = ableUnits[i];
+					snprintf(szBuf,8096,"i: %d unit type [%s]",i,ut->getName(false).c_str());
+					aiInterface->printLog(4, szBuf);
+				}
+				for(unsigned int i = 0; i < newAbleUnits.size(); ++i) {
+					const UnitType *ut = newAbleUnits[i];
+					snprintf(szBuf,8096,"i: %d new unit type [%s]",i,ut->getName(false).c_str());
+					aiInterface->printLog(4, szBuf);
+				}
+			}
+
 			if(haveEnoughProducers == true && haveNonProducers == true) {
 				ableUnits = newAbleUnits;
 			}
@@ -889,7 +931,13 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 		//priority for non produced units
 		for(unsigned int i=0; i < ableUnits.size(); ++i) {
 			if(ai->getCountOfType(ableUnits[i]) == 0) {
-				if(ai->getRandom()->randRange(0, 1)==0){
+				if(ai->getRandom()->randRange(0, 1)==0) {
+					if(aiInterface->isLogLevelEnabled(4) == true) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"priority adding produce task for unit type [%s]",ableUnits[i]->getName(false).c_str());
+						aiInterface->printLog(4, szBuf);
+					}
+
 					ai->addTask(new ProduceTask(ableUnits[i]));
 					return;
 				}
@@ -897,7 +945,15 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 		}
 
 		//normal case
-		ai->addTask(new ProduceTask(ableUnits[ai->getRandom()->randRange(0, ableUnits.size()-1)]));
+		const UnitType *ut = ableUnits[ai->getRandom()->randRange(0, ableUnits.size()-1)];
+
+		if(aiInterface->isLogLevelEnabled(4) == true) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"normal adding produce task for unit type [%s]",ut->getName(false).c_str());
+			aiInterface->printLog(4, szBuf);
+		}
+
+		ai->addTask(new ProduceTask(ut));
 	}
 }
 
