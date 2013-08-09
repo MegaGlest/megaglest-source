@@ -445,12 +445,14 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
         return;
     }
 
-    // Get the current time.
-//    time_t curtime = time (NULL);
-    // Convert it to local time representation.
-    struct tm *loctime = localtime (&debugTime);
     char szBuf2[100]="";
-    strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
+    if (type != debugPathFinder && type != debugError && type != debugWorldSynch) {
+		// Get the current time.
+	//    time_t curtime = time (NULL);
+		// Convert it to local time representation.
+		struct tm *loctime = localtime (&debugTime);
+		strftime(szBuf2,100,"%Y-%m-%d %H:%M:%S",loctime);
+    }
 /*
     va_list argList;
     va_start(argList, fmt);
@@ -556,7 +558,8 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
         assert(currentDebugLog.fileStream != NULL);
 
         if(currentDebugLog.fileStream->is_open() == true) {
-			MutexSafeWrapper safeMutex(currentDebugLog.mutex,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
+        	static string mutexCodeLocation = string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__);
+			MutexSafeWrapper safeMutex(currentDebugLog.mutex,mutexCodeLocation);
 
 			// All items in the if clause we don't want timestamps
 			if (type != debugPathFinder && type != debugError && type != debugWorldSynch) {
