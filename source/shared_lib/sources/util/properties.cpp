@@ -22,13 +22,20 @@
 #include "randomgen.h"
 
 #ifdef WIN32
+
 #include <shlwapi.h>
 #include <shlobj.h>
+
+#endif
+
+#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 #endif
 
 #include "utf8.h"
 #include "font.h"
-
 #include "string_utils.h"
 
 #include "leak_dumper.h"
@@ -170,6 +177,22 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 #endif
 }
 
+string getUserHomeFromGLIBC() {
+	string home_folder = "";
+	char dateiname[512];
+	const char *homedir = getenv("HOME");
+	if (!homedir) {
+#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED
+		struct passwd *pw = getpwuid(getuid());
+		homedir = pw->pw_dir;
+#else
+		homedir = "";
+#endif
+	}
+	home_folder = homedir;
+	return home_folder;
+}
+
 std::map<string,string> Properties::getTagReplacementValues(std::map<string,string> *mapExtraTagReplacementValues) {
 	std::map<string,string> mapTagReplacementValues;
 
@@ -178,9 +201,10 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
 	// First add the standard tags
 	//
 #ifdef WIN32
-	char *homeDir = getenv("USERPROFILE");
+	const char *homeDir = getenv("USERPROFILE");
 #else
-	char *homeDir = getenv("HOME");
+	string home = getUserHomeFromGLIBC();
+	const char *homeDir = home.c_str();
 #endif
 
 	mapTagReplacementValues["~/"] = (homeDir != NULL ? homeDir : "");
@@ -279,9 +303,10 @@ bool Properties::applyTagsToValue(string &value, const std::map<string,string> *
 	}
 	else {
 #ifdef WIN32
-	char *homeDir = getenv("USERPROFILE");
+	const char *homeDir = getenv("USERPROFILE");
 #else
-	char *homeDir = getenv("HOME");
+	string home = getUserHomeFromGLIBC();
+	const char *homeDir = home.c_str();
 #endif
 
 	replaceAll(value, "~/", 			(homeDir != NULL ? homeDir : ""));
