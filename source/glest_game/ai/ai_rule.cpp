@@ -781,7 +781,7 @@ void AiRuleProduce::addUnitTypeToCandidates(const UnitType* producedUnit,
 		AiInterface *aiInterface= ai->getAiInterface();
 		if(aiInterface->isLogLevelEnabled(4) == true) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"addUnitTypeToCandidates for unit type [%s]",producedUnit->getName(false).c_str());
+			snprintf(szBuf,8096,"addUnitTypeToCandidates for unit type [%s] unitCanGiveBackResource = %d",producedUnit->getName(false).c_str(),unitCanGiveBackResource);
 			aiInterface->printLog(4, szBuf);
 		}
 
@@ -793,8 +793,13 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 	UnitTypesGiveBack ableUnitsGiveBack;
 
 	AiInterface *aiInterface= ai->getAiInterface();
-
 	if(pt->getResourceType() != NULL) {
+		if(aiInterface->isLogLevelEnabled(4) == true) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"****START: produceGeneric for resource type [%s]",pt->getResourceType()->getName(false).c_str());
+			aiInterface->printLog(4, szBuf);
+		}
+
 		if(setAIProduceTaskForResourceType(pt, aiInterface) == true) {
 			return;
 		}
@@ -832,11 +837,12 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 		//for each command
 		const UnitType *ut= aiInterface->getMyUnit(i)->getType();
 
+		bool produceIt= false;
 		for(int j = 0; j < ut->getCommandTypeCount(); ++j) {
 			const CommandType *ct= ut->getCommandType(j);
 
 			//if the command is produce
-			bool produceIt= false;
+			//bool produceIt= false;
 			if(ct->getClass() == ccProduce || ct->getClass()==ccMorph) {
 				const UnitType *producedUnit= static_cast<const UnitType*>(ct->getProduced());
 
@@ -850,8 +856,10 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 					}
 
 					if(r != NULL && r->getAmount() < 0) {
-						produceIt= true;
-						addUnitTypeToCandidates(producedUnit, ableUnits,ableUnitsGiveBack, false);
+						if(aiInterface->reqsOk(ct) && aiInterface->reqsOk(producedUnit)){
+							produceIt= true;
+							addUnitTypeToCandidates(producedUnit, ableUnits,ableUnitsGiveBack, false);
+						}
 					}
 				}
 				else {
@@ -866,20 +874,23 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 					}
 				}
 			}
-
-			// Now check of the unit 'gives' the resource
-			if(produceIt == false && pt->getResourceType() != NULL) {
-				const Resource *r= ut->getCost(pt->getResourceType());
-				if(r != NULL) {
-					if(ai->outputAIBehaviourToConsole()) printf("#2 produceGeneric r = [%s][%d] Testing AI RULE Name[%s]\n",r->getDescription(false).c_str(),r->getAmount(), this->getName().c_str());
-				}
-
-				if(r != NULL && r->getAmount() < 0) {
-					produceIt= true;
-					addUnitTypeToCandidates(ut, ableUnits,ableUnitsGiveBack, true);
-				}
-			}
 		}
+		// Now check of the unit 'gives' the resource
+// This is likely a unit that it BUILT by another and that is handled by a different AI task type: Build
+//		if(produceIt == false && pt->getResourceType() != NULL) {
+//			const Resource *r= ut->getCost(pt->getResourceType());
+//			if(r != NULL) {
+//				if(ai->outputAIBehaviourToConsole()) printf("#2 produceGeneric r = [%s][%d] Testing AI RULE Name[%s]\n",r->getDescription(false).c_str(),r->getAmount(), this->getName().c_str());
+//			}
+//
+//			if(r != NULL && r->getAmount() < 0) {
+//				if(aiInterface->reqsOk(ut)){
+//					produceIt= true;
+//					addUnitTypeToCandidates(ut, ableUnits,ableUnitsGiveBack, true);
+//				}
+//			}
+//		}
+
 	}
 
 	//add specific produce task
@@ -889,7 +900,7 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 
 		// Now check if we already have at least 2 produce or morph
 		// resource based units, if so prefer units that give back the resource
-		if(pt->getResourceType() != NULL) {
+		if(pt->getResourceType() != NULL && ableUnits.size() > 1) {
 			//priority for non produced units
 			UnitTypes newAbleUnits;
 			bool haveEnoughProducers = true;
@@ -904,6 +915,13 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 					haveNonProducers = true;
 					newAbleUnits.push_back(ut);
 				}
+
+				if(aiInterface->isLogLevelEnabled(4) == true) {
+					char szBuf[8096]="";
+					snprintf(szBuf,8096,"In produceGeneric for unit type [%s] givesBack: %d count of unit type: %d",ut->getName(false).c_str(),givesBack,ai->getCountOfType(ut));
+					aiInterface->printLog(4, szBuf);
+				}
+
 			}
 
 			if(aiInterface->isLogLevelEnabled(4) == true) {
@@ -934,7 +952,7 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 				if(ai->getRandom()->randRange(0, 1)==0) {
 					if(aiInterface->isLogLevelEnabled(4) == true) {
 						char szBuf[8096]="";
-						snprintf(szBuf,8096,"priority adding produce task for unit type [%s]",ableUnits[i]->getName(false).c_str());
+						snprintf(szBuf,8096,"In produceGeneric priority adding produce task: %d of " MG_SIZE_T_SPECIFIER " for unit type [%s]",i,ableUnits.size(),ableUnits[i]->getName(false).c_str());
 						aiInterface->printLog(4, szBuf);
 					}
 
@@ -945,11 +963,18 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 		}
 
 		//normal case
-		const UnitType *ut = ableUnits[ai->getRandom()->randRange(0, ableUnits.size()-1)];
+		int randomUnitTypeIndex = ai->getRandom()->randRange(0, ableUnits.size()-1);
+		if(aiInterface->isLogLevelEnabled(4) == true) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In produceGeneric randomUnitTypeIndex = %d of " MG_SIZE_T_SPECIFIER " equals unit type [%s]",randomUnitTypeIndex,ableUnits.size()-1,ableUnits[randomUnitTypeIndex]->getName(false).c_str());
+			aiInterface->printLog(4, szBuf);
+		}
+
+		const UnitType *ut = ableUnits[randomUnitTypeIndex];
 
 		if(aiInterface->isLogLevelEnabled(4) == true) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"normal adding produce task for unit type [%s]",ut->getName(false).c_str());
+			snprintf(szBuf,8096,"== END In produceGeneric normal adding produce task for unit type [%s]",ut->getName(false).c_str());
 			aiInterface->printLog(4, szBuf);
 		}
 
@@ -964,7 +989,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 	if(ai->outputAIBehaviourToConsole()) printf("produceSpecific aiInterface->reqsOk(pt->getUnitType()) = [%s][%d] Testing AI RULE Name[%s]\n",pt->getUnitType()->getName().c_str(),aiInterface->reqsOk(pt->getUnitType()), this->getName().c_str());
 	if(aiInterface->isLogLevelEnabled(4) == true) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"produceSpecific aiInterface->reqsOk(pt->getUnitType()) = [%s][%d] Testing AI RULE Name[%s]",pt->getUnitType()->getName().c_str(),aiInterface->reqsOk(pt->getUnitType()), this->getName().c_str());
+		snprintf(szBuf,8096,"== START produceSpecific aiInterface->reqsOk(pt->getUnitType()) = [%s][%d] Testing AI RULE Name[%s]",pt->getUnitType()->getName().c_str(),aiInterface->reqsOk(pt->getUnitType()), this->getName().c_str());
 		aiInterface->printLog(4, szBuf);
 	}
 
@@ -1363,6 +1388,13 @@ void AiRuleBuild::buildGeneric(const BuildTask *bt) {
 
 	//find buildings that can be built
 	AiInterface *aiInterface= ai->getAiInterface();
+
+	if(aiInterface->isLogLevelEnabled(4) == true) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"== START: buildGeneric for resource type [%s]",(bt->getResourceType() != NULL ? bt->getResourceType()->getName().c_str() : "null"));
+		aiInterface->printLog(4, szBuf);
+	}
+
 	typedef vector<const UnitType*> UnitTypes;
 	UnitTypes buildings;
 
@@ -1374,6 +1406,13 @@ void AiRuleBuild::buildGeneric(const BuildTask *bt) {
 				if(ai->getCountOfType(priorityUnit.first) < priorityUnit.second &&
 					aiInterface->getMyFaction()->canCreateUnit(priorityUnit.first, true, false, false) == true) {
 					//if(ai->getRandom()->randRange(0, 1)==0) {
+
+					if(aiInterface->isLogLevelEnabled(4) == true) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"In buildGeneric for resource type [%s] aibcResourceProducerUnits = " MG_SIZE_T_SPECIFIER " priorityUnit.first: [%s]\n",bt->getResourceType()->getName().c_str(),unitList.size(),priorityUnit.first->getName().c_str());
+						aiInterface->printLog(4, szBuf);
+					}
+
 					ai->addTask(new BuildTask(priorityUnit.first));
 					return;
 					//}
@@ -1389,6 +1428,13 @@ void AiRuleBuild::buildGeneric(const BuildTask *bt) {
 				if(ai->getCountOfType(priorityUnit.first) < priorityUnit.second &&
 					aiInterface->getMyFaction()->canCreateUnit(priorityUnit.first, true, false, false) == true) {
 					//if(ai->getRandom()->randRange(0, 1)==0) {
+
+					if(aiInterface->isLogLevelEnabled(4) == true) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"In buildGeneric for resource type [%s] aibcBuildingUnits = " MG_SIZE_T_SPECIFIER " priorityUnit.first: [%s]\n",bt->getResourceType()->getName().c_str(),unitList.size(),priorityUnit.first->getName().c_str());
+						aiInterface->printLog(4, szBuf);
+					}
+
 					ai->addTask(new BuildTask(priorityUnit.first));
 					return;
 					//}
@@ -1418,11 +1464,21 @@ void AiRuleBuild::buildGeneric(const BuildTask *bt) {
 						const ResourceType *rt= bt->getResourceType();
 						const Resource *cost= building->getCost(rt);
 						if(rt==NULL || (cost!=NULL && cost->getAmount()<0)){
-							buildings.push_back(building);
+							if (find(buildings.begin(), buildings.end(), building) == buildings.end()) {
+								buildings.push_back(building);
+							}
 						}
 					}
 				}
 			}
+		}
+	}
+
+	if(aiInterface->isLogLevelEnabled(4) == true) {
+		for(int i = 0; i < buildings.size(); ++i) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In buildGeneric i = %d unit type: [%s]\n",i,buildings[i]->getName().c_str());
+			aiInterface->printLog(4, szBuf);
 		}
 	}
 
@@ -1431,6 +1487,13 @@ void AiRuleBuild::buildGeneric(const BuildTask *bt) {
 }
 
 void AiRuleBuild::buildBestBuilding(const vector<const UnitType*> &buildings){
+
+	AiInterface *aiInterface= ai->getAiInterface();
+	if(aiInterface->isLogLevelEnabled(4) == true) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"==> START buildBestBuilding buildings.size = " MG_SIZE_T_SPECIFIER "\n",buildings.size());
+		aiInterface->printLog(4, szBuf);
+	}
 
 	if(!buildings.empty()){
 
@@ -1443,8 +1506,14 @@ void AiRuleBuild::buildBestBuilding(const vector<const UnitType*> &buildings){
 				//Defensive buildings have priority
 				for(int j=0; j<buildings.size() && !buildingFound; ++j){
 					const UnitType *building= buildings[j];
-					if(ai->getCountOfType(building)<=i+1 && isDefensive(building))
-					{
+					if(ai->getCountOfType(building)<=i+1 && isDefensive(building)) {
+
+						if(aiInterface->isLogLevelEnabled(4) == true) {
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"In buildBestBuilding defensive building unit type: [%s] i = %d j = %d\n",building->getName().c_str(),i,j);
+							aiInterface->printLog(4, szBuf);
+						}
+
 						ai->addTask(new BuildTask(building));
 						buildingFound= true;
 					}
@@ -1453,8 +1522,14 @@ void AiRuleBuild::buildBestBuilding(const vector<const UnitType*> &buildings){
 				//Warrior producers next
 				for(unsigned int j=0; j<buildings.size() && !buildingFound; ++j){
 					const UnitType *building= buildings[j];
-					if(ai->getCountOfType(building)<=i+1 && isWarriorProducer(building))
-					{
+					if(ai->getCountOfType(building)<=i+1 && isWarriorProducer(building)) {
+
+						if(aiInterface->isLogLevelEnabled(4) == true) {
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"In buildBestBuilding warriorproducer building unit type: [%s] i = %d j = %d\n",building->getName().c_str(),i,j);
+							aiInterface->printLog(4, szBuf);
+						}
+
 						ai->addTask(new BuildTask(building));
 						buildingFound= true;
 					}
@@ -1463,8 +1538,14 @@ void AiRuleBuild::buildBestBuilding(const vector<const UnitType*> &buildings){
 				//Resource producers next
 				for(unsigned int j=0; j<buildings.size() && !buildingFound; ++j){
 					const UnitType *building= buildings[j];
-					if(ai->getCountOfType(building)<=i+1 && isResourceProducer(building))
-					{
+					if(ai->getCountOfType(building)<=i+1 && isResourceProducer(building)) {
+
+						if(aiInterface->isLogLevelEnabled(4) == true) {
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"In buildBestBuilding resourceproducer building unit type: [%s] i = %d j = %d\n",building->getName().c_str(),i,j);
+							aiInterface->printLog(4, szBuf);
+						}
+
 						ai->addTask(new BuildTask(building));
 						buildingFound= true;
 					}
@@ -1474,23 +1555,48 @@ void AiRuleBuild::buildBestBuilding(const vector<const UnitType*> &buildings){
 			//Any building
 			for(unsigned int j=0; j<buildings.size() && !buildingFound; ++j){
 				const UnitType *building= buildings[j];
-				if(ai->getCountOfType(building)<=i)
-				{
+				if(ai->getCountOfType(building)<=i) {
+
+					if(aiInterface->isLogLevelEnabled(4) == true) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"In buildBestBuilding ANY building unit type: [%s] i = %d j = %d\n",building->getName().c_str(),i,j);
+						aiInterface->printLog(4, szBuf);
+					}
+
 					ai->addTask(new BuildTask(building));
 					buildingFound= true;
 				}
 			}
 		}
 	}
+
+	if(aiInterface->isLogLevelEnabled(4) == true) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"==> END buildBestBuilding buildings.size = " MG_SIZE_T_SPECIFIER "\n",buildings.size());
+		aiInterface->printLog(4, szBuf);
+	}
 }
 
 void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 	AiInterface *aiInterface= ai->getAiInterface();
+
+	if(aiInterface->isLogLevelEnabled(4) == true) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"== START: buildSpecific for resource type [%s] bt->getUnitType() [%s]",(bt->getResourceType() != NULL ? bt->getResourceType()->getName().c_str() : "null"),(bt->getUnitType() != NULL ? bt->getUnitType()->getName(false).c_str() : "null"));
+		aiInterface->printLog(4, szBuf);
+	}
+
 	//if reqs ok
 	if(aiInterface->reqsOk(bt->getUnitType())) {
 
 		//retry if not enough resources
 		if(aiInterface->checkCosts(bt->getUnitType(),NULL) == false) {
+			if(aiInterface->isLogLevelEnabled(4) == true) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"In buildSpecific for resource type [%s] checkcosts == false RETRYING",(bt->getResourceType() != NULL ? bt->getResourceType()->getName().c_str() : "null"));
+				aiInterface->printLog(4, szBuf);
+			}
+
 			ai->retryTask(bt);
 			return;
 		}
@@ -1600,6 +1706,14 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 				return;
 			}
 		}
+	}
+	else {
+		if(aiInterface->isLogLevelEnabled(4) == true) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In buildSpecific for resource type [%s] reqsok == false",(bt->getResourceType() != NULL ? bt->getResourceType()->getName().c_str() : "null"));
+			aiInterface->printLog(4, szBuf);
+		}
+
 	}
 }
 
