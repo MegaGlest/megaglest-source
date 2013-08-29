@@ -216,6 +216,7 @@ private:
 	static const int shortInterval= 5000;
 	const ResourceType *rt;
 	int interval;
+	bool newResourceBehaviour;
 
 public:
 	AiRuleProduceResourceProducer(Ai *ai);
@@ -237,6 +238,7 @@ private:
 
 	typedef vector<const UnitType*> UnitTypes;
 	typedef vector<bool> UnitTypesGiveBack;
+	bool newResourceBehaviour;
 
 public:
 	AiRuleProduce(Ai *ai);
@@ -249,6 +251,7 @@ public:
 
 private:
 	void produceGeneric(const ProduceTask *pt);
+	void produceGenericNew(const ProduceTask *pt);
 	void produceSpecific(const ProduceTask *pt);
 	bool canUnitTypeOfferResourceType(const UnitType *ut, const ResourceType *rt);
 	bool setAIProduceTaskForResourceType(const ProduceTask* pt,
