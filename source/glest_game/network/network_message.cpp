@@ -1215,6 +1215,9 @@ NetworkMessageCommandList::NetworkMessageCommandList(int32 frameCount) {
 	data.header.messageType= nmtCommandList;
 	data.header.frameCount= frameCount;
 	data.header.commandCount= 0;
+	for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+		data.header.networkPlayerFactionCRC[index]=0;
+	}
 }
 
 bool NetworkMessageCommandList::addCommand(const NetworkCommand* networkCommand){

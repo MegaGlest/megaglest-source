@@ -343,19 +343,19 @@ public:
 #endif
 
 private:
-	const int id;
-    int hp;
-    int ep;
-    int loadCount;
-    int deadCount;
+	const int32 id;
+	int32 hp;
+	int32 ep;
+	int32 loadCount;
+	int32 deadCount;
     //float progress;			//between 0 and 1
     int64 progress;			//between 0 and 1
 	int64 lastAnimProgress;	//between 0 and 1
 	int64 animProgress;		//between 0 and 1
 	float highlight;
-	int progress2;
-	int kills;
-	int enemyKills;
+	int32 progress2;
+	int32 kills;
+	int32 enemyKills;
 	bool morphFieldsBlocked;
 
 	UnitReference targetRef;
@@ -382,8 +382,8 @@ private:
     const UnitType *type;
     const ResourceType *loadType;
     const SkillType *currSkill;
-    int lastModelIndexForCurrSkillType;
-    int animationRandomCycleCount;
+    int32 lastModelIndexForCurrSkillType;
+    int32 animationRandomCycleCount;
 
     bool toBeUndertaken;
 	bool alive;
@@ -412,9 +412,9 @@ private:
 
 	std::string lastSynchDataString;
 	std::string lastFile;
-	int lastLine;
+	int32 lastLine;
 	std::string lastSource;
-	int lastRenderFrame;
+	int32 lastRenderFrame;
 	bool visible;
 
 	int retryCurrCommandCount;
@@ -445,7 +445,7 @@ private:
 	uint32 lastPathfindFailedFrame;
 	Vec2i lastPathfindFailedPos;
 	bool usePathfinderExtendedMaxNodes;
-	int maxQueuedCommandDisplayCount;
+	int32 maxQueuedCommandDisplayCount;
 
 	UnitAttackBoostEffectOriginator currentAttackBoostOriginatorEffect;
 
@@ -458,15 +458,15 @@ private:
 
 	bool changedActiveCommand;
 
-	int lastAttackerUnitId;
-	int lastAttackedUnitId;
+	int32 lastAttackerUnitId;
+	int32 lastAttackedUnitId;
 	CauseOfDeathType causeOfDeath;
 
 	uint32 pathfindFailedConsecutiveFrameCount;
 	Vec2i currentPathFinderDesiredFinalPos;
 
 	RandomGen random;
-	int pathFindRefreshCellCount;
+	int32 pathFindRefreshCellCount;
 
 	FowAlphaCellsLookupItem cachedFow;
 	Vec2i cachedFowPos;
@@ -767,6 +767,8 @@ public:
 
 	void clearCaches();
 	bool showTranslatedTechTree() const;
+
+	Checksum getCRC();
 
 private:
 	float computeHeight(const Vec2i &pos) const;

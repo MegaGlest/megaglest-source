@@ -140,11 +140,11 @@ void PathFinder::removeUnitPrecache(Unit *unit) {
 			clearPath = true;
 		}
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
-			char szBuf[8096]="";
-			snprintf(szBuf,8096,"[removeUnitPrecache] clearTravelState: %d clearPath: %d",clearTravelState,clearPath);
-			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
-		}
+//		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
+//			char szBuf[8096]="";
+//			snprintf(szBuf,8096,"[removeUnitPrecache] clearTravelState: %d clearPath: %d",clearTravelState,clearPath);
+//			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+//		}
 	}
 }
 

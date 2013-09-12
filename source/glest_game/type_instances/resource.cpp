@@ -129,4 +129,16 @@ void Resource::loadGame(const XmlNode *rootNode, int index,const TechTree *techT
 	}
 }
 
+Checksum Resource::getCRC() {
+	Checksum crcForResource;
+
+	crcForResource.addInt(amount);
+	crcForResource.addString(type->getName(false));
+	crcForResource.addInt(pos.x);
+	crcForResource.addInt(pos.y);
+	crcForResource.addInt(balance);
+
+	return crcForResource;
+}
+
 }}//end namespace

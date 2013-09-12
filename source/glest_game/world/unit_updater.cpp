@@ -359,11 +359,6 @@ void UnitUpdater::updateStop(Unit *unit, int frameIndex) {
 		clearUnitPrecache(unit);
 		return;
 	}
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"[updateStop]");
-		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
-	}
 
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
@@ -689,11 +684,6 @@ void UnitUpdater::updateAttackStopped(Unit *unit, int frameIndex) {
 		}
 		clearUnitPrecache(unit);
 		return;
-	}
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"[updateAttackStopped]");
-		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 	}
 
 	Chrono chrono;

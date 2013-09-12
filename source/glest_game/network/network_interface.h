@@ -188,6 +188,10 @@ protected:
 	Mutex *networkAccessMutex;
 
 	void init();
+
+	Mutex *networkPlayerFactionCRCMutex;
+	uint32 networkPlayerFactionCRC[GameConstants::maxPlayers];
+
 public:
 	static const int readyWaitTimeout;
 	GameSettings gameSettings;
@@ -204,6 +208,9 @@ public:
 		init();
 		throw megaglest_runtime_error("class NetworkInterface is NOT safe to assign!");
 	}
+
+	uint32 getNetworkPlayerFactionCRC(int index);
+	void setNetworkPlayerFactionCRC(int index, uint32 crc);
 
 	virtual Socket* getSocket(bool mutexLock=true)= 0;
 	virtual void close()= 0;

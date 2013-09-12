@@ -47,6 +47,8 @@ NetworkInterface::NetworkInterface() {
 	networkGameDataSynchCheckOkTile=false;
 	networkGameDataSynchCheckOkTech=false;
 	receivedDataSynchCheck=false;
+
+	networkPlayerFactionCRCMutex = new Mutex();
 }
 
 void NetworkInterface::init() {
@@ -63,6 +65,22 @@ void NetworkInterface::init() {
 NetworkInterface::~NetworkInterface() {
 	delete networkAccessMutex;
 	networkAccessMutex = NULL;
+
+	delete networkPlayerFactionCRCMutex;
+	networkPlayerFactionCRCMutex = NULL;
+}
+
+uint32 NetworkInterface::getNetworkPlayerFactionCRC(int index) {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkPlayerFactionCRCMutex,mutexOwnerId);
+
+	return networkPlayerFactionCRC[index];
+}
+void NetworkInterface::setNetworkPlayerFactionCRC(int index, uint32 crc) {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkPlayerFactionCRCMutex,mutexOwnerId);
+
+	networkPlayerFactionCRC[index]=crc;
 }
 
 void NetworkInterface::addChatInfo(const ChatMsgInfo &msg) {
