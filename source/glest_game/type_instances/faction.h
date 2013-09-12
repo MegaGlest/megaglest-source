@@ -369,6 +369,8 @@ public:
 
 	void clearCaches();
 
+	Checksum getCRC();
+
 private:
 	void init();
 	void resetResourceAmount(const ResourceType *rt);

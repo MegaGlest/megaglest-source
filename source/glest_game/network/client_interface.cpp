@@ -430,6 +430,9 @@ void ClientInterface::update() {
 
 	try {
 		NetworkMessageCommandList networkMessageCommandList(currentFrameCount);
+		for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+			networkMessageCommandList.setNetworkPlayerFactionCRC(index,this->getNetworkPlayerFactionCRC(index));
+		}
 
 		//send as many commands as we can
 		while(requestedCommands.empty() == false) {
@@ -1085,6 +1088,23 @@ void ClientInterface::updateFrame(int *checkFrame) {
 							close();
 							return;
 						}
+						for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+							printf("Frame: %d faction: %d local CRC: %u Remote CRC: %u\n",*checkFrame,index,getNetworkPlayerFactionCRC(index),networkMessageCommandList.getNetworkPlayerFactionCRC(index));
+
+							if(networkMessageCommandList.getNetworkPlayerFactionCRC(index) != getNetworkPlayerFactionCRC(index)) {
+								string sErr = "Player: " + getHumanPlayerName() +
+											  " got a Network CRC error, CRC's do not match, server CRC = " +
+											  uIntToStr(networkMessageCommandList.getNetworkPlayerFactionCRC(index)) + ", local CRC = " +
+											  uIntToStr(getNetworkPlayerFactionCRC(index));
+								sendTextMessage(sErr,-1, true,"");
+								DisplayErrorMessage(sErr);
+								sleep(1);
+
+								setQuit(true);
+								close();
+								return;
+							}
+						}
 					}
 
 					cachedPendingCommands[networkMessageCommandList.getFrameCount()].reserve(networkMessageCommandList.getCommandCount());
@@ -1093,6 +1113,13 @@ void ClientInterface::updateFrame(int *checkFrame) {
 					for(int i= 0; i < networkMessageCommandList.getCommandCount(); ++i) {
 						//pendingCommands.push_back(*networkMessageCommandList.getCommand(i));
 						cachedPendingCommands[networkMessageCommandList.getFrameCount()].push_back(*networkMessageCommandList.getCommand(i));
+
+						if(cachedPendingCommandCRCs.find(networkMessageCommandList.getFrameCount()) == cachedPendingCommandCRCs.end()) {
+							cachedPendingCommandCRCs[networkMessageCommandList.getFrameCount()].reserve(GameConstants::maxPlayers);
+							for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+								cachedPendingCommandCRCs[networkMessageCommandList.getFrameCount()].push_back(networkMessageCommandList.getNetworkPlayerFactionCRC(index));
+							}
+						}
 					}
 					safeMutex.ReleaseLock();
 
@@ -1377,6 +1404,30 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 					}
 					//cachedPendingCommands.erase(frameCount);
 					cachedPendingCommands[frameCount].clear();
+
+					if(frameCount >= 0) {
+						for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+							//printf("X**X Frame: %d faction: %d local CRC: %u Remote CRC: %u\n",frameCount,index,getNetworkPlayerFactionCRC(index),cachedPendingCommandCRCs[frameCount][index]);
+
+							if(cachedPendingCommandCRCs[frameCount][index] != getNetworkPlayerFactionCRC(index)) {
+
+								printf("X**X Frame: %d faction: %d local CRC: %u Remote CRC: %u\n",frameCount,index,getNetworkPlayerFactionCRC(index),cachedPendingCommandCRCs[frameCount][index]);
+
+								string sErr = "Player: " + getHumanPlayerName() +
+											  " got a Network CRC error, CRC's do not match, server CRC = " +
+											  uIntToStr(cachedPendingCommandCRCs[frameCount][index]) + ", local CRC = " +
+											  uIntToStr(getNetworkPlayerFactionCRC(index));
+								sendTextMessage(sErr,-1, true,"");
+								DisplayErrorMessage(sErr);
+								sleep(1);
+
+								setQuit(true);
+								close();
+								//return;
+							}
+						}
+					}
+					cachedPendingCommandCRCs.erase(frameCount);
 				}
 				if(waitForData == true) {
 					timeClientWaitedForLastMessage=chrono.getMillis();

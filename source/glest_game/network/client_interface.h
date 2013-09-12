@@ -87,6 +87,7 @@ private:
 
 	Mutex *networkCommandListThreadAccessor;
 	std::map<int,Commands> cachedPendingCommands;	//commands ready to be given
+	std::map<int,vector<uint32> > cachedPendingCommandCRCs;	//commands ready to be given
 	uint64 cachedPendingCommandsIndex;
 	uint64 cachedLastPendingFrameCount;
 	int64 timeClientWaitedForLastMessage;

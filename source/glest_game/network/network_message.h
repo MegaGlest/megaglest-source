@@ -348,6 +348,7 @@ private:
 		int8 messageType;
 		uint16 commandCount;
 		int32 frameCount;
+		uint32 networkPlayerFactionCRC[GameConstants::maxPlayers];
 	};
 
 	static const int32 commandListHeaderSize = sizeof(DataHeader);
@@ -388,9 +389,12 @@ public:
 
 	bool addCommand(const NetworkCommand* networkCommand);
 
-	void clear()									{data.header.commandCount= 0;}
-	int getCommandCount() const						{return data.header.commandCount;}
-	int getFrameCount() const						{return data.header.frameCount;}
+	void clear()										{data.header.commandCount= 0;}
+	int getCommandCount() const							{return data.header.commandCount;}
+	int getFrameCount() const							{return data.header.frameCount;}
+	uint32 getNetworkPlayerFactionCRC(int index) const  {return data.header.networkPlayerFactionCRC[index];}
+	void setNetworkPlayerFactionCRC(int index, uint32 crc) { data.header.networkPlayerFactionCRC[index]=crc;}
+
 	const NetworkCommand* getCommand(int i) const	{return &data.commands[i];}
 
 	virtual bool receive(Socket* socket);

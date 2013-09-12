@@ -1705,6 +1705,28 @@ void Game::update() {
 			perfList.push_back(perfBuf);
 		}
 
+		bool isNetworkGame = this->gameSettings.isNetworkGame();
+		if(isNetworkGame == true && NetworkManager::getInstance().getGameNetworkInterface() != NULL) {
+			GameSettings *settings = world.getGameSettingsPtr();
+			if(settings != NULL && (settings->getFlagTypes1() & ft1_network_synch_checks) == ft1_network_synch_checks) {
+				NetworkInterface *netIntf = NetworkManager::getInstance().getGameNetworkInterface();
+				for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+
+					if(index < world.getFactionCount()) {
+						Faction *faction = world.getFaction(index);
+						netIntf->setNetworkPlayerFactionCRC(index,faction->getCRC().getSum());
+					}
+					else {
+						netIntf->setNetworkPlayerFactionCRC(index,0);
+					}
+
+					//if(world.getFrameCount() % 40 == 0) {
+					//	printf("Frame #: %d Faction: %d CRC: %u\n",world.getFrameCount(),index,netIntf->getNetworkPlayerFactionCRC(index));
+					//}
+				}
+			}
+		}
+
 		Chrono chrono;
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
@@ -1771,7 +1793,7 @@ void Game::update() {
 
 		NetworkManager &networkManager= NetworkManager::getInstance();
 		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
-		bool isNetworkGame 				= this->gameSettings.isNetworkGame();
+		//bool isNetworkGame 				= this->gameSettings.isNetworkGame();
 		NetworkRole role 				= networkManager.getNetworkRole();
 
 		if(role == nrClient && updateLoops == 1 && world.getFrameCount() >= (gameSettings.getNetworkFramePeriod() * 2) ) {

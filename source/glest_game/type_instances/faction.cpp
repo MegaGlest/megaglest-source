@@ -2248,4 +2248,53 @@ void Faction::loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *s
 	}
 }
 
+Checksum Faction::getCRC() {
+	const bool consoleDebug = false;
+
+	Checksum crcForFaction;
+
+	// UpgradeManager upgradeManager;
+
+	for(unsigned int i = 0; i < resources.size(); ++i) {
+		Resource &resource = resources[i];
+		//crcForFaction.addSum(resource.getCRC().getSum());
+		uint32 crc = resource.getCRC().getSum();
+		crcForFaction.addBytes(&crc,sizeof(uint32));
+	}
+
+	if(consoleDebug) {
+		if(getWorld()->getFrameCount() % 40 == 0) {
+			printf("#1 Frame #: %d Faction: %d CRC: %u\n",getWorld()->getFrameCount(),index,crcForFaction.getSum());
+		}
+	}
+
+	for(unsigned int i = 0; i < store.size(); ++i) {
+		Resource &resource = store[i];
+		//crcForFaction.addSum(resource.getCRC().getSum());
+		uint32 crc = resource.getCRC().getSum();
+		crcForFaction.addBytes(&crc,sizeof(uint32));
+	}
+
+	if(consoleDebug) {
+		if(getWorld()->getFrameCount() % 40 == 0) {
+			printf("#2 Frame #: %d Faction: %d CRC: %u\n",getWorld()->getFrameCount(),index,crcForFaction.getSum());
+		}
+	}
+
+	for(unsigned int i = 0; i < units.size(); ++i) {
+		Unit *unit = units[i];
+		//crcForFaction.addSum(unit->getCRC().getSum());
+		uint32 crc = unit->getCRC().getSum();
+		crcForFaction.addBytes(&crc,sizeof(uint32));
+	}
+
+	if(consoleDebug) {
+		if(getWorld()->getFrameCount() % 40 == 0) {
+			printf("#3 Frame #: %d Faction: %d CRC: %u\n",getWorld()->getFrameCount(),index,crcForFaction.getSum());
+		}
+	}
+
+	return crcForFaction;
+}
+
 }}//end namespace

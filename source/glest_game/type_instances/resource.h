@@ -65,6 +65,8 @@ public:
 
     void saveGame(XmlNode *rootNode) const;
     void loadGame(const XmlNode *rootNode, int index,const TechTree *techTree);
+
+    Checksum getCRC();
 };
 
 }}// end namespace

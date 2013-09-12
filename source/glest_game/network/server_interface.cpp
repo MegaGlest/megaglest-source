@@ -1605,6 +1605,9 @@ void ServerInterface::updateKeyframe(int frameCount) {
 	currentFrameCount = frameCount;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] currentFrameCount = %d, requestedCommands.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentFrameCount,requestedCommands.size());
 	NetworkMessageCommandList networkMessageCommandList(frameCount);
+	for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+		networkMessageCommandList.setNetworkPlayerFactionCRC(index,this->getNetworkPlayerFactionCRC(index));
+	}
 
 	while(requestedCommands.empty() == false) {
 		if(networkMessageCommandList.addCommand(&requestedCommands.back())) {

@@ -4905,4 +4905,216 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
     return result;
 }
 
+Checksum Unit::getCRC() {
+	const bool consoleDebug = false;
+
+	Checksum crcForUnit;
+
+	crcForUnit.addInt(id);
+	crcForUnit.addInt(hp);
+	crcForUnit.addInt(ep);
+	crcForUnit.addInt(loadCount);
+	crcForUnit.addInt(deadCount);
+
+	if(consoleDebug) printf("#1 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	crcForUnit.addInt64(progress);
+	crcForUnit.addInt64(lastAnimProgress);
+	crcForUnit.addInt64(animProgress);
+
+	if(consoleDebug) printf("#2 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	//float highlight;
+	crcForUnit.addInt(progress2);
+	crcForUnit.addInt(kills);
+	crcForUnit.addInt(enemyKills);
+	crcForUnit.addInt(morphFieldsBlocked);
+
+	if(consoleDebug) printf("#3 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	//UnitReference targetRef;
+
+	crcForUnit.addInt(currField);
+	crcForUnit.addInt(targetField);
+
+	if(consoleDebug) printf("#4 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	//const Level *level;
+	if(level != NULL) {
+		crcForUnit.addString(level->getName(false));
+	}
+
+	if(consoleDebug) printf("#5 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	crcForUnit.addInt(pos.x);
+	crcForUnit.addInt(pos.y);
+	crcForUnit.addInt(lastPos.x);
+	crcForUnit.addInt(lastPos.y);
+	crcForUnit.addInt(targetPos.x);
+	crcForUnit.addInt(targetPos.y);
+
+	if(consoleDebug) printf("#6 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	//Vec3f targetVec;
+
+	crcForUnit.addInt(meetingPos.x);
+	crcForUnit.addInt(meetingPos.y);
+
+	if(consoleDebug) printf("#7 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	//float lastRotation;
+	//float targetRotation;
+	//float rotation;
+	//float targetRotationZ;
+	//float targetRotationX;
+	//float rotationZ;
+	//float rotationX;
+
+	//const UnitType *preMorph_type;
+	if(preMorph_type != NULL) {
+		crcForUnit.addString(preMorph_type->getName(false));
+	}
+
+	if(consoleDebug) printf("#8 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+    //const UnitType *type;
+	if(type != NULL) {
+		crcForUnit.addString(type->getName(false));
+	}
+
+    //const ResourceType *loadType;
+	if(loadType != NULL) {
+		crcForUnit.addString(loadType->getName(false));
+	}
+
+    //const SkillType *currSkill;
+	if(currSkill != NULL) {
+		crcForUnit.addString(currSkill->getName());
+	}
+
+	//printf("#9 Unit: %d CRC: %u lastModelIndexForCurrSkillType: %d\n",id,crcForUnit.getSum(),lastModelIndexForCurrSkillType);
+	//printf("#9a Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+	//crcForUnit.addInt(lastModelIndexForCurrSkillType);
+
+	if(consoleDebug) printf("#9 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	//crcForUnit.addInt(animationRandomCycleCount);
+	//printf("#9b Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	crcForUnit.addInt(toBeUndertaken);
+
+	if(consoleDebug) printf("#9c Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	crcForUnit.addInt(alive);
+	//bool showUnitParticles;
+
+	if(consoleDebug) printf("#10 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+    //Faction *faction;
+	//ParticleSystem *fire;
+	if(fire != NULL) {
+		crcForUnit.addInt(fire->getActive());
+	}
+
+	//TotalUpgrade totalUpgrade;
+	//Map *map;
+	//UnitPathInterface *unitPath;
+	//WaypointPath waypointPath;
+
+	if(consoleDebug) printf("#11 Unit: %d CRC: %u commands.size(): %ld\n",id,crcForUnit.getSum(),commands.size());
+
+    //Commands commands;
+	crcForUnit.addInt64((int64)commands.size());
+
+	//printf("#11 Unit: %d CRC: %u observers.size(): %ld\n",id,crcForUnit.getSum(),observers.size());
+
+	//Observers observers;
+	//crcForUnit.addInt64((int64)observers.size());
+
+	if(consoleDebug) printf("#11 Unit: %d CRC: %u damageParticleSystems.size(): %ld\n",id,crcForUnit.getSum(),damageParticleSystems.size());
+
+	//vector<UnitParticleSystem*> unitParticleSystems;
+	//vector<UnitParticleSystemType*> queuedUnitParticleSystemTypes;
+
+	//UnitParticleSystems damageParticleSystems;
+	crcForUnit.addInt64((int64)damageParticleSystems.size());
+
+	if(consoleDebug) printf("#12 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	//std::map<int, UnitParticleSystem *> damageParticleSystemsInUse;
+
+	//vector<ParticleSystem*> fireParticleSystems;
+	//vector<UnitParticleSystem*> smokeParticleSystems;
+
+	//CardinalDir modelFacing;
+	crcForUnit.addInt(modelFacing);
+
+	//std::string lastSynchDataString;
+	//std::string lastFile;
+	//int lastLine;
+	//std::string lastSource;
+	//int lastRenderFrame;
+	//bool visible;
+	crcForUnit.addInt(modelFacing);
+
+	//int retryCurrCommandCount;
+
+	//Vec3f screenPos;
+	//string currentUnitTitle;
+
+	if(consoleDebug) printf("#13 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	crcForUnit.addInt(inBailOutAttempt);
+
+	crcForUnit.addInt64((int64)badHarvestPosList.size());
+	//crcForUnit.addInt(lastHarvestResourceTarget.first());
+
+	if(consoleDebug) printf("#14 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	//static Game *game;
+	//bool ignoreCheckCommand;
+
+	//uint32 lastStuckFrame;
+	//Vec2i lastStuckPos;
+
+	//uint32 lastPathfindFailedFrame;
+	//Vec2i lastPathfindFailedPos;
+	//bool usePathfinderExtendedMaxNodes;
+	//int maxQueuedCommandDisplayCount;
+
+	//UnitAttackBoostEffectOriginator currentAttackBoostOriginatorEffect;
+	crcForUnit.addInt64((int64)currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size());
+
+	if(consoleDebug) printf("#15 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	//std::vector<UnitAttackBoostEffect *> currentAttackBoostEffects;
+
+	//Mutex *mutexCommands;
+
+	//bool changedActiveCommand;
+
+	//int lastAttackerUnitId;
+	//int lastAttackedUnitId;
+	//CauseOfDeathType causeOfDeath;
+
+	//uint32 pathfindFailedConsecutiveFrameCount;
+	//Vec2i currentPathFinderDesiredFinalPos;
+
+	crcForUnit.addInt(random.getLastNumber());
+
+	if(consoleDebug) printf("#16 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	//int pathFindRefreshCellCount;
+
+	//FowAlphaCellsLookupItem cachedFow;
+	//Vec2i cachedFowPos;
+
+	crcForUnit.addInt(lastHarvestedResourcePos.x);
+	crcForUnit.addInt(lastHarvestedResourcePos.y);
+
+	if(consoleDebug) printf("#17 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	return crcForUnit;
+}
+
 }}//end namespace
