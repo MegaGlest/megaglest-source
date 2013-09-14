@@ -70,6 +70,7 @@ void Display::setUpImage(int i, const Texture2D *image)
 
 //misc
 void Display::clear(){
+	downSelectedPos= invalidPos;
 	for(int i=0; i<upCellCount; ++i){
 		upImages[i]= NULL;
 	}
@@ -81,7 +82,6 @@ void Display::clear(){
 		commandClasses[i]= ccNull;
 	}
 
-	downSelectedPos= invalidPos;
 	title.clear();
 	text.clear();
 	progressBar= -1;
