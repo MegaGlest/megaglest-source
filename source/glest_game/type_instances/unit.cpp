@@ -4095,9 +4095,11 @@ std::string Unit::toString(bool crcMode) const {
 	result += " meetingPos = " + meetingPos.getString();
 	result += "\n";
 
-	result += " lastRotation = " + floatToStr(this->lastRotation,16);
-	result += " targetRotation = " + floatToStr(this->targetRotation,16);
-	result += " rotation = " + floatToStr(this->rotation,16);
+	if(crcMode == false) {
+		result += " lastRotation = " + floatToStr(this->lastRotation,16);
+		result += " targetRotation = " + floatToStr(this->targetRotation,16);
+		result += " rotation = " + floatToStr(this->rotation,16);
+	}
 
     if(loadType != NULL) {
     	result += " loadType = " + loadType->getName();
