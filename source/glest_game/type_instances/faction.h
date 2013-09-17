@@ -372,7 +372,7 @@ public:
 	void clearCaches();
 
 	Checksum getCRC();
-	void addCRC_DetailsForWorldFrame(int worldFrameCount);
+	void addCRC_DetailsForWorldFrame(int worldFrameCount,bool isNetworkServer);
 	string getCRC_DetailsForWorldFrame(int worldFrameCount);
 	std::pair<int,string> getCRC_DetailsForWorldFrameIndex(int worldFrameIndex);
 	string getCRC_DetailsForWorldFrames();
