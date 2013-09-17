@@ -1994,6 +1994,12 @@ int64 Unit::getUpdatedProgress(int64 currentProgress, int64 updateFPS, int64 spe
 	if(speed > 0 && diagonalFactor > 0 && heightFactor > 0 && progressIncrease == 0) {
 		progressIncrease = 1;
 	}
+
+	char szBuf[8096]="";
+	snprintf(szBuf,8095,"currentProgress = " MG_I64_SPECIFIER " updateFPS = " MG_I64_SPECIFIER " speed = " MG_I64_SPECIFIER " diagonalFactor = " MG_I64_SPECIFIER " heightFactor = " MG_I64_SPECIFIER " speedDenominator = " MG_I64_SPECIFIER " progressIncrease = " MG_I64_SPECIFIER " [" MG_I64_SPECIFIER "]",
+			currentProgress,updateFPS,speed,diagonalFactor,heightFactor,speedDenominator,progressIncrease,((speed * diagonalFactor * heightFactor) / speedDenominator));
+	networkCRCLogInfo = szBuf;
+
 	newProgress += progressIncrease;
 
 //	if(currSkill->getClass() == scMove || (currSkill->getClass() == scStop && this->loadCount > 0)) {
@@ -4065,6 +4071,8 @@ std::string Unit::toString(bool crcMode) const {
 	result += " loadCount = " + intToStr(this->loadCount);
 	result += " deadCount = " + intToStr(this->deadCount);
 	result += " progress = " + intToStr(this->progress);
+	result += "\n";
+	result += "networkCRCLogInfo = " + networkCRCLogInfo;
 	result += "\n";
 	result += " lastAnimProgress = " + intToStr(this->lastAnimProgress);
 	result += " animProgress = " + intToStr(this->animProgress);
