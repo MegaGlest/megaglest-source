@@ -169,6 +169,8 @@ private:
 
 	std::vector<string> worldSynchThreadedLogList;
 
+	std::map<int,string> crcWorldFrameDetails;
+
 public:
 	Faction();
 	~Faction();
@@ -362,7 +364,7 @@ public:
 	string getCacheStats();
 	uint64 getCacheKBytes(uint64 *cache1Size, uint64 *cache2Size);
 
-	std::string toString() const;
+	std::string toString(bool crcMode=false) const;
 
 	void saveGame(XmlNode *rootNode);
 	void loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *settings,World *world);
@@ -370,6 +372,11 @@ public:
 	void clearCaches();
 
 	Checksum getCRC();
+	void addCRC_DetailsForWorldFrame(int worldFrameCount);
+	string getCRC_DetailsForWorldFrame(int worldFrameCount);
+	std::pair<int,string> getCRC_DetailsForWorldFrameIndex(int worldFrameIndex);
+	string getCRC_DetailsForWorldFrames();
+	uint64 getCRC_DetailsForWorldFrameCount();
 
 private:
 	void init();

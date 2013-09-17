@@ -327,6 +327,8 @@ public:
 
 	bool showTranslatedTechTree() const;
 
+	void DumpCRCWorldLogIfRequired(string fileSuffix="");
+
 private:
 	//render
     void render3d();

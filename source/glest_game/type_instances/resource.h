@@ -66,6 +66,7 @@ public:
     void saveGame(XmlNode *rootNode) const;
     void loadGame(const XmlNode *rootNode, int index,const TechTree *techTree);
 
+    std::string toString() const;
     Checksum getCRC();
 };
 
