@@ -2300,7 +2300,7 @@ Checksum Faction::getCRC() {
 }
 
 void Faction::addCRC_DetailsForWorldFrame(int worldFrameCount) {
-	const int MAX_FRAME_CACHE = 5000;
+	const int MAX_FRAME_CACHE = 1500;
 	crcWorldFrameDetails[worldFrameCount] = this->toString(true);
 	//if(worldFrameCount <= 0) printf("Adding world frame: %d log entries: %lld\n",worldFrameCount,(long long int)crcWorldFrameDetails.size());
 
