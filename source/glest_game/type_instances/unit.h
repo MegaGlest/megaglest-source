@@ -473,6 +473,8 @@ private:
 
 	Vec2i lastHarvestedResourcePos;
 
+	string networkCRCLogInfo;
+
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
     virtual ~Unit();
