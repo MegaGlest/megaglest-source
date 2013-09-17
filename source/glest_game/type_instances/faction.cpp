@@ -1972,12 +1972,14 @@ string Faction::getCacheStats() {
 	return result;
 }
 
-std::string Faction::toString() const {
+std::string Faction::toString(bool crcMode) const {
 	std::string result = "FactionIndex = " + intToStr(this->index) + "\n";
     result += "teamIndex = " + intToStr(this->teamIndex) + "\n";
     result += "startLocationIndex = " + intToStr(this->startLocationIndex) + "\n";
-    result += "thisFaction = " + intToStr(this->thisFaction) + "\n";
-    result += "control = " + intToStr(this->control) + "\n";
+    if(crcMode == false) {
+    	result += "thisFaction = " + intToStr(this->thisFaction) + "\n";
+    	result += "control = " + intToStr(this->control) + "\n";
+    }
 
     if(this->factionType != NULL) {
     	result += this->factionType->toString() + "\n";
@@ -1987,12 +1989,12 @@ std::string Faction::toString() const {
 
 	result += "ResourceCount = " + intToStr(resources.size()) + "\n";
 	for(int idx = 0; idx < resources.size(); idx ++) {
-		result += "index = " + intToStr(idx) + " " + resources[idx].getDescription(false) + "\n";
+		result += "index = " + intToStr(idx) + " " + resources[idx].toString() + "\n";
 	}
 
 	result += "StoreCount = " + intToStr(store.size()) + "\n";
 	for(int idx = 0; idx < store.size(); idx ++) {
-		result += "index = " + intToStr(idx) + " " + store[idx].getDescription(false)  + "\n";
+		result += "index = " + intToStr(idx) + " " + store[idx].toString()  + "\n";
 	}
 
 	result += "Allies = " + intToStr(allies.size()) + "\n";
@@ -2002,7 +2004,7 @@ std::string Faction::toString() const {
 
 	result += "Units = " + intToStr(units.size()) + "\n";
 	for(int idx = 0; idx < units.size(); idx ++) {
-		result += units[idx]->toString() + "\n";
+		result += units[idx]->toString(crcMode) + "\n";
 	}
 
 	return result;
@@ -2295,6 +2297,51 @@ Checksum Faction::getCRC() {
 	}
 
 	return crcForFaction;
+}
+
+void Faction::addCRC_DetailsForWorldFrame(int worldFrameCount) {
+	const int MAX_FRAME_CACHE = 5000;
+	crcWorldFrameDetails[worldFrameCount] = this->toString(true);
+	//if(worldFrameCount <= 0) printf("Adding world frame: %d log entries: %lld\n",worldFrameCount,(long long int)crcWorldFrameDetails.size());
+
+	if(crcWorldFrameDetails.size() > MAX_FRAME_CACHE) {
+		printf("===> Removing older world frame log entries: %lld\n",(long long int)crcWorldFrameDetails.size());
+
+		for(std::map<int,string>::iterator iterMap = crcWorldFrameDetails.begin();
+				crcWorldFrameDetails.size() - MAX_FRAME_CACHE > 0;) {
+			crcWorldFrameDetails.erase(crcWorldFrameDetails.begin());
+		}
+	}
+}
+
+string Faction::getCRC_DetailsForWorldFrame(int worldFrameCount) {
+	if(crcWorldFrameDetails.empty()) {
+		return "";
+	}
+	return crcWorldFrameDetails[worldFrameCount];
+}
+
+std::pair<int,string> Faction::getCRC_DetailsForWorldFrameIndex(int worldFrameIndex) {
+	if(crcWorldFrameDetails.empty()) {
+		return make_pair<int,string>(0,"");
+	}
+	std::map<int,string>::iterator iterMap = crcWorldFrameDetails.begin();
+	std::advance( iterMap, worldFrameIndex );
+	return make_pair<int,string>(iterMap->first,iterMap->second);
+}
+
+string Faction::getCRC_DetailsForWorldFrames() {
+	string result = "";
+	for(std::map<int,string>::iterator iterMap = crcWorldFrameDetails.begin();
+			iterMap != crcWorldFrameDetails.end(); ++iterMap) {
+		result += string("============================================================================\n");
+		result += string("** world frame: ") + intToStr(iterMap->first) + string(" detail: ") + iterMap->second;
+	}
+	return result;
+}
+
+uint64 Faction:: getCRC_DetailsForWorldFrameCount() {
+	return crcWorldFrameDetails.size();
 }
 
 }}//end namespace

@@ -129,6 +129,17 @@ void Resource::loadGame(const XmlNode *rootNode, int index,const TechTree *techT
 	}
 }
 
+std::string Resource::toString() const {
+	std::string result = "resource name = " + this->getDescription(false) + "\n";
+    result += "amount = " + intToStr(this->amount) + "\n";
+    result += "type = " + this->type->getName(false) + "\n";
+    result += "type resources per patch = " + intToStr(type->getDefResPerPatch()) + "\n";
+    result += "pos = " + this->pos.getString() + "\n";
+    result += "balance = " + intToStr(this->balance) + "\n";
+
+    return result;
+}
+
 Checksum Resource::getCRC() {
 	Checksum crcForResource;
 

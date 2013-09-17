@@ -4039,7 +4039,7 @@ bool Unit::showTranslatedTechTree() const {
 	return (this->game != NULL ? this->game->showTranslatedTechTree() : true);
 }
 
-std::string Unit::toString() const {
+std::string Unit::toString(bool crcMode) const {
 	std::string result = "";
 
 	result += "id = " + intToStr(this->id);
@@ -4051,8 +4051,10 @@ std::string Unit::toString() const {
 	    result += "\nFactionIndex = " + intToStr(this->faction->getIndex()) + "\n";
 	    result += "teamIndex = " + intToStr(this->faction->getTeam()) + "\n";
 	    result += "startLocationIndex = " + intToStr(this->faction->getStartLocationIndex()) + "\n";
-	    result += "thisFaction = " + intToStr(this->faction->getThisFaction()) + "\n";
-	    result += "control = " + intToStr(this->faction->getControlType()) + "\n";
+	    if(crcMode == false) {
+	    	result += "thisFaction = " + intToStr(this->faction->getThisFaction()) + "\n";
+	    	result += "control = " + intToStr(this->faction->getControlType()) + "\n";
+	    }
 	    if(this->faction->getType() != NULL) {
 	    	result += "factionName = " + this->faction->getType()->getName(false) + "\n";
 	    }

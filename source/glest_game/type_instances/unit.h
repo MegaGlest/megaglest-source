@@ -731,7 +731,7 @@ public:
 	void logSynchData(string file,int line,string source="");
 	void logSynchDataThreaded(string file,int line,string source="");
 
-	std::string toString() const;
+	std::string toString(bool crcMode=false) const;
 	bool needToUpdate();
 	float getProgressAsFloat() const;
 	int64 getUpdateProgress();
