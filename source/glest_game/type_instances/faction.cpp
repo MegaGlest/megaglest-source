@@ -2299,8 +2299,11 @@ Checksum Faction::getCRC() {
 	return crcForFaction;
 }
 
-void Faction::addCRC_DetailsForWorldFrame(int worldFrameCount) {
-	const int MAX_FRAME_CACHE = 1500;
+void Faction::addCRC_DetailsForWorldFrame(int worldFrameCount,bool isNetworkServer) {
+	int MAX_FRAME_CACHE = 1500;
+	if(isNetworkServer == true) {
+		MAX_FRAME_CACHE += 700;
+	}
 	crcWorldFrameDetails[worldFrameCount] = this->toString(true);
 	//if(worldFrameCount <= 0) printf("Adding world frame: %d log entries: %lld\n",worldFrameCount,(long long int)crcWorldFrameDetails.size());
 

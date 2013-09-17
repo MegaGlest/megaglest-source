@@ -1709,13 +1709,15 @@ void Game::update() {
 		if(isNetworkGame == true && NetworkManager::getInstance().getGameNetworkInterface() != NULL) {
 			GameSettings *settings = world.getGameSettingsPtr();
 			if(settings != NULL && (settings->getFlagTypes1() & ft1_network_synch_checks) == ft1_network_synch_checks) {
-				NetworkInterface *netIntf = NetworkManager::getInstance().getGameNetworkInterface();
-				for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+				NetworkManager &networkManager = NetworkManager::getInstance();
+				NetworkRole role = networkManager.getNetworkRole();
 
+				NetworkInterface *netIntf = networkManager.getGameNetworkInterface();
+				for(int index = 0; index < GameConstants::maxPlayers; ++index) {
 					if(index < world.getFactionCount()) {
 						Faction *faction = world.getFaction(index);
 						netIntf->setNetworkPlayerFactionCRC(index,faction->getCRC().getSum());
-						faction->addCRC_DetailsForWorldFrame(world.getFrameCount());
+						faction->addCRC_DetailsForWorldFrame(world.getFrameCount(),role == nrServer);
 					}
 					else {
 						netIntf->setNetworkPlayerFactionCRC(index,0);
