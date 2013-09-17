@@ -2305,7 +2305,7 @@ void Faction::addCRC_DetailsForWorldFrame(int worldFrameCount) {
 	//if(worldFrameCount <= 0) printf("Adding world frame: %d log entries: %lld\n",worldFrameCount,(long long int)crcWorldFrameDetails.size());
 
 	if(crcWorldFrameDetails.size() > MAX_FRAME_CACHE) {
-		printf("===> Removing older world frame log entries: %lld\n",(long long int)crcWorldFrameDetails.size());
+		//printf("===> Removing older world frame log entries: %lld\n",(long long int)crcWorldFrameDetails.size());
 
 		for(std::map<int,string>::iterator iterMap = crcWorldFrameDetails.begin();
 				crcWorldFrameDetails.size() - MAX_FRAME_CACHE > 0;) {
