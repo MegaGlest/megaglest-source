@@ -86,7 +86,7 @@ endif (LIBVLC_INCLUDE_DIR AND LIBVLC_LIBRARY AND LIBVLCCORE_LIBRARY)
 
 if (LIBVLC_VERSION STRLESS "${LIBVLC_MIN_VERSION}")
     message(WARNING "LibVLC version not found: version searched: ${LIBVLC_MIN_VERSION}, found ${LIBVLC_VERSION}\nUnless you are on Windows this is bound to fail.")
-# only activate once version detection can be garunteed (which is currently not the case on windows)
+# only activate once version detection can be guaranteed (which is currently not the case on windows)
 #     set(LIBVLC_FOUND FALSE)
 endif (LIBVLC_VERSION STRLESS "${LIBVLC_MIN_VERSION}")
 
