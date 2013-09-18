@@ -330,12 +330,13 @@ private:
 	static std::map<Unit *,bool> mapMemoryList;
 #endif
 
+	static const float ANIMATION_SPEED_MULTIPLIER;
+	static const int64 PROGRESS_SPEED_MULTIPLIER;
+
 public:
 	static const int speedDivider;
 	static const int maxDeadCount;
 	static const int invalidId;
-	static const float ANIMATION_SPEED_MULTIPLIER;
-	static const float PROGRESS_SPEED_MULTIPLIER;
 
 #ifdef LEAK_CHECK_UNITS
 	static std::map<UnitPathInterface *,int> mapMemoryList2;
@@ -738,7 +739,7 @@ public:
 	float getProgressAsFloat() const;
 	int64 getUpdateProgress();
 	int64 getDiagonalFactor();
-	int64 getHeightFactor(float speedMultiplier=PROGRESS_SPEED_MULTIPLIER);
+	int64 getHeightFactor(int64 speedMultiplier=PROGRESS_SPEED_MULTIPLIER);
 	int64 getSpeedDenominator(int64 updateFPS);
 	bool isChangedActiveCommand() const { return changedActiveCommand; }
 
