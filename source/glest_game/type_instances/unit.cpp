@@ -389,7 +389,8 @@ void UnitAttackBoostEffectOriginator::saveGame(XmlNode *rootNode) {
 // =====================================================
 
 const float Unit::ANIMATION_SPEED_MULTIPLIER = 100000.f;
-const float Unit::PROGRESS_SPEED_MULTIPLIER  = 100000.f;
+//const float Unit::PROGRESS_SPEED_MULTIPLIER  = 100000.f;
+const int64 Unit::PROGRESS_SPEED_MULTIPLIER  = 100000;
 
 const int Unit::speedDivider= 100;
 const int Unit::maxDeadCount= 1000;	//time in until the corpse disapears - should be about 40 seconds
@@ -1377,7 +1378,7 @@ Vec3f Unit::getCurrVectorFlat() const{
 }
 
 float Unit::getProgressAsFloat() const {
-	float result = (static_cast<float>(progress) / PROGRESS_SPEED_MULTIPLIER);
+	float result = (static_cast<float>(progress) / static_cast<float>(PROGRESS_SPEED_MULTIPLIER));
 	result = truncateDecimal<float>(result);
 	return result;
 }
@@ -1895,7 +1896,7 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 int64 Unit::getUpdateProgress() {
 	if(progress > PROGRESS_SPEED_MULTIPLIER) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: progress > %f, progress = [" MG_I64_SPECIFIER "]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,PROGRESS_SPEED_MULTIPLIER,progress);
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: progress > " MG_I64_SPECIFIER ", progress = [" MG_I64_SPECIFIER "]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,PROGRESS_SPEED_MULTIPLIER,progress);
 		throw megaglest_runtime_error(szBuf);
 	}
 
@@ -1952,13 +1953,14 @@ int64 Unit::getDiagonalFactor() {
 		//if moving in diagonal move slower
 		Vec2i dest= pos - lastPos;
 		if(abs(dest.x) + abs(dest.y) == 2) {
-			diagonalFactor = 0.71f * PROGRESS_SPEED_MULTIPLIER;
+			//diagonalFactor = 0.71f * PROGRESS_SPEED_MULTIPLIER;
+			diagonalFactor = 71 * (PROGRESS_SPEED_MULTIPLIER / 100);
 		}
 	}
 	return diagonalFactor;
 }
 
-int64 Unit::getHeightFactor(float speedMultiplier) {
+int64 Unit::getHeightFactor(int64 speedMultiplier) {
 	int64 heightFactor = speedMultiplier;
 	if(currSkill->getClass() == scMove) {
 		//if moving to an higher cell move slower else move faster
@@ -1972,9 +1974,10 @@ int64 Unit::getHeightFactor(float speedMultiplier) {
 			throw megaglest_runtime_error("targetCell == NULL");
 		}
 
-		int64 heightDiff= (truncateDecimal<float>(unitCell->getHeight() * speedMultiplier,2) -
-				         truncateDecimal<float>(targetCell->getHeight() * speedMultiplier,2));
-		heightFactor= clamp(speedMultiplier + heightDiff / (5.f * speedMultiplier), 0.2f * speedMultiplier, 5.f * speedMultiplier);
+		int64 heightDiff= ((truncateDecimal<float>(unitCell->getHeight(),2) * speedMultiplier) -
+				         (truncateDecimal<float>(targetCell->getHeight(),2) * speedMultiplier));
+		//heightFactor= clamp(speedMultiplier + heightDiff / (5.f * speedMultiplier), 0.2f * speedMultiplier, 5.f * speedMultiplier);
+		heightFactor= clamp(speedMultiplier + heightDiff / (5 * speedMultiplier), (2 * (speedMultiplier / 10)), 5 * speedMultiplier);
 	}
 
 	return heightFactor;
