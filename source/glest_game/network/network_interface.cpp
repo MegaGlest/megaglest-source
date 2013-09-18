@@ -49,6 +49,9 @@ NetworkInterface::NetworkInterface() {
 	receivedDataSynchCheck=false;
 
 	networkPlayerFactionCRCMutex = new Mutex();
+	for(unsigned int index = 0; index < GameConstants::maxPlayers; ++index) {
+		networkPlayerFactionCRC[index] = 0;
+	}
 }
 
 void NetworkInterface::init() {
