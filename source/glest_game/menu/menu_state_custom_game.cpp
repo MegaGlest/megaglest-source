@@ -3183,6 +3183,8 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	}
 
 	if(Config::getInstance().getBool("EnableNetworkGameSynchChecks","false") == true) {
+		printf("*WARNING* - EnableNetworkGameSynchChecks is enabled\n");
+
         valueFlags1 |= ft1_network_synch_checks;
         gameSettings->setFlagTypes1(valueFlags1);
 
