@@ -1065,6 +1065,22 @@ bool CoreData::loadGameSettingsFromFile(std::string fileName, GameSettings *game
 
 	gameSettings->setAllowObservers(properties.getBool("AllowObservers","false"));
 	gameSettings->setFlagTypes1(properties.getInt("FlagTypes1","0"));
+
+	uint32 valueFlags1 = gameSettings->getFlagTypes1();
+	if(Config::getInstance().getBool("EnableNetworkGameSynchChecks","false") == true) {
+		printf("*WARNING* - EnableNetworkGameSynchChecks is enabled\n");
+
+        valueFlags1 |= ft1_network_synch_checks;
+        gameSettings->setFlagTypes1(valueFlags1);
+
+	}
+	else {
+        valueFlags1 &= ~ft1_network_synch_checks;
+        gameSettings->setFlagTypes1(valueFlags1);
+
+	}
+
+
 	gameSettings->setEnableObserverModeAtEndGame(properties.getBool("EnableObserverModeAtEndGame"));
 	gameSettings->setAiAcceptSwitchTeamPercentChance(properties.getInt("AiAcceptSwitchTeamPercentChance","30"));
 	gameSettings->setFallbackCpuMultiplier(properties.getInt("FallbackCpuMultiplier","1"));
