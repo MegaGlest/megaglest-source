@@ -568,7 +568,7 @@ AiRuleProduceResourceProducer::AiRuleProduceResourceProducer(Ai *ai):
 {
 	interval= shortInterval;
 	rt=NULL;
-	bool newResourceBehaviour=Config::getInstance().getBool("NewResourceBehaviour","false");;
+	newResourceBehaviour=Config::getInstance().getBool("NewResourceBehaviour","false");;
 }
 
 bool AiRuleProduceResourceProducer::test(){
@@ -886,7 +886,7 @@ void AiRuleProduce::produceGenericNew(const ProduceTask *pt) {
 
 					if(producedUnit->isOfClass(pt->getUnitClass())){
 						if(aiInterface->reqsOk(ct) && aiInterface->reqsOk(producedUnit)){
-							produceIt= true;
+							//produceIt= true;
 							addUnitTypeToCandidates(producedUnit, ableUnits,ableUnitsGiveBack, false);
 						}
 					}
@@ -949,12 +949,12 @@ void AiRuleProduce::produceGenericNew(const ProduceTask *pt) {
 
 				for(unsigned int i = 0; i < ableUnits.size(); ++i) {
 					const UnitType *ut = ableUnits[i];
-					snprintf(szBuf,8096,"i: %d unit type [%s]",i,ut->getName(false).c_str());
+					snprintf(szBuf,8096,"i: %u unit type [%s]",i,ut->getName(false).c_str());
 					aiInterface->printLog(4, szBuf);
 				}
 				for(unsigned int i = 0; i < newAbleUnits.size(); ++i) {
 					const UnitType *ut = newAbleUnits[i];
-					snprintf(szBuf,8096,"i: %d new unit type [%s]",i,ut->getName(false).c_str());
+					snprintf(szBuf,8096,"i: %u new unit type [%s]",i,ut->getName(false).c_str());
 					aiInterface->printLog(4, szBuf);
 				}
 			}
@@ -1665,7 +1665,7 @@ void AiRuleBuild::buildBestBuilding(const vector<const UnitType*> &buildings){
 
 						if(aiInterface->isLogLevelEnabled(4) == true) {
 							char szBuf[8096]="";
-							snprintf(szBuf,8096,"In buildBestBuilding warriorproducer building unit type: [%s] i = %d j = %d\n",building->getName().c_str(),i,j);
+							snprintf(szBuf,8096,"In buildBestBuilding warriorproducer building unit type: [%s] i = %d j = %u\n",building->getName().c_str(),i,j);
 							aiInterface->printLog(4, szBuf);
 						}
 
@@ -1681,7 +1681,7 @@ void AiRuleBuild::buildBestBuilding(const vector<const UnitType*> &buildings){
 
 						if(aiInterface->isLogLevelEnabled(4) == true) {
 							char szBuf[8096]="";
-							snprintf(szBuf,8096,"In buildBestBuilding resourceproducer building unit type: [%s] i = %d j = %d\n",building->getName().c_str(),i,j);
+							snprintf(szBuf,8096,"In buildBestBuilding resourceproducer building unit type: [%s] i = %d j = %u\n",building->getName().c_str(),i,j);
 							aiInterface->printLog(4, szBuf);
 						}
 
@@ -1698,7 +1698,7 @@ void AiRuleBuild::buildBestBuilding(const vector<const UnitType*> &buildings){
 
 					if(aiInterface->isLogLevelEnabled(4) == true) {
 						char szBuf[8096]="";
-						snprintf(szBuf,8096,"In buildBestBuilding ANY building unit type: [%s] i = %d j = %d\n",building->getName().c_str(),i,j);
+						snprintf(szBuf,8096,"In buildBestBuilding ANY building unit type: [%s] i = %d j = %u\n",building->getName().c_str(),i,j);
 						aiInterface->printLog(4, szBuf);
 					}
 

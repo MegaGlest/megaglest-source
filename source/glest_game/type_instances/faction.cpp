@@ -2310,8 +2310,7 @@ void Faction::addCRC_DetailsForWorldFrame(int worldFrameCount,bool isNetworkServ
 	if(crcWorldFrameDetails.size() > MAX_FRAME_CACHE) {
 		//printf("===> Removing older world frame log entries: %lld\n",(long long int)crcWorldFrameDetails.size());
 
-		for(std::map<int,string>::iterator iterMap = crcWorldFrameDetails.begin();
-				crcWorldFrameDetails.size() - MAX_FRAME_CACHE > 0;) {
+		for(;crcWorldFrameDetails.size() - MAX_FRAME_CACHE > 0;) {
 			crcWorldFrameDetails.erase(crcWorldFrameDetails.begin());
 		}
 	}
