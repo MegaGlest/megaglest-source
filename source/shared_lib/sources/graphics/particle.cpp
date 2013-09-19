@@ -1470,6 +1470,7 @@ void ProjectileParticleSystem::link(SplashParticleSystem *particleSystem){
 }
 
 void ProjectileParticleSystem::update(){
+	//printf("Projectile particle system updating...\n");
 	if(state == sPlay){
 
 		lastPos= pos;

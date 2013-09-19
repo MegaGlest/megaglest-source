@@ -560,6 +560,8 @@ Unit::~Unit() {
 		Renderer::getInstance().cleanupParticleSystems(fireParticleSystems,rsGame);
 		// Must set this to null of it will be used below in stopDamageParticles()
 
+		Renderer::getInstance().cleanupParticleSystems(attackParticleSystems,rsGame);
+
 		if(Renderer::getInstance().validateParticleSystemStillExists(this->fire,rsGame) == false) {
 			this->fire = NULL;
 		}
@@ -1252,6 +1254,10 @@ void Unit::setTargetPos(const Vec2i &targetPos) {
 	logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 }
 
+void Unit::addAttackParticleSystem(ParticleSystem *ps) {
+	attackParticleSystems.push_back(ps);
+}
+
 void Unit::setVisible(const bool visible) {
 	this->visible = visible;
 
@@ -1279,6 +1285,17 @@ void Unit::setVisible(const bool visible) {
 			}
 		}
 	}
+
+	if(attackParticleSystems.empty() == false) {
+		for(vector<ParticleSystem*>::iterator it= attackParticleSystems.begin(); it != attackParticleSystems.end(); ++it) {
+			if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
+				// Not sure this is a good idea since the unit be not be visible but the attack particle might be.
+				// This means you won't see the attacking projectile until the unit moves into view.
+				//(*it)->setVisible(visible);
+			}
+		}
+	}
+
 	if(currentAttackBoostEffects.empty() == false) {
 		for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
 			UnitAttackBoostEffect *effect = currentAttackBoostEffects[i];
