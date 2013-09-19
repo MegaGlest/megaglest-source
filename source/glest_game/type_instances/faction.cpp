@@ -2323,18 +2323,21 @@ string Faction::getCRC_DetailsForWorldFrame(int worldFrameCount) {
 	return crcWorldFrameDetails[worldFrameCount];
 }
 
-std::pair<int,string> Faction::getCRC_DetailsForWorldFrameIndex(int worldFrameIndex) {
+std::pair<int,string> Faction::getCRC_DetailsForWorldFrameIndex(int worldFrameIndex) const {
 	if(crcWorldFrameDetails.empty()) {
 		return make_pair<int,string>(0,"");
 	}
-	std::map<int,string>::iterator iterMap = crcWorldFrameDetails.begin();
+	std::map<int,string>::const_iterator iterMap = crcWorldFrameDetails.begin();
 	std::advance( iterMap, worldFrameIndex );
+	if(iterMap == crcWorldFrameDetails.end()) {
+		return make_pair<int,string>(0,"");
+	}
 	return make_pair<int,string>(iterMap->first,iterMap->second);
 }
 
-string Faction::getCRC_DetailsForWorldFrames() {
+string Faction::getCRC_DetailsForWorldFrames() const {
 	string result = "";
-	for(std::map<int,string>::iterator iterMap = crcWorldFrameDetails.begin();
+	for(std::map<int,string>::const_iterator iterMap = crcWorldFrameDetails.begin();
 			iterMap != crcWorldFrameDetails.end(); ++iterMap) {
 		result += string("============================================================================\n");
 		result += string("** world frame: ") + intToStr(iterMap->first) + string(" detail: ") + iterMap->second;
@@ -2342,7 +2345,7 @@ string Faction::getCRC_DetailsForWorldFrames() {
 	return result;
 }
 
-uint64 Faction:: getCRC_DetailsForWorldFrameCount() {
+uint64 Faction::getCRC_DetailsForWorldFrameCount() const {
 	return crcWorldFrameDetails.size();
 }
 

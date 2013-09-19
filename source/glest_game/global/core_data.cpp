@@ -1068,7 +1068,7 @@ bool CoreData::loadGameSettingsFromFile(std::string fileName, GameSettings *game
 
 	uint32 valueFlags1 = gameSettings->getFlagTypes1();
 	if(Config::getInstance().getBool("EnableNetworkGameSynchChecks","false") == true) {
-		printf("*WARNING* - EnableNetworkGameSynchChecks is enabled\n");
+		//printf("*WARNING* - EnableNetworkGameSynchChecks is enabled\n");
 
         valueFlags1 |= ft1_network_synch_checks;
         gameSettings->setFlagTypes1(valueFlags1);

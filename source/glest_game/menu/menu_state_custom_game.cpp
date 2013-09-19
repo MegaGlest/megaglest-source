@@ -3183,7 +3183,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	}
 
 	if(Config::getInstance().getBool("EnableNetworkGameSynchChecks","false") == true) {
-		printf("*WARNING* - EnableNetworkGameSynchChecks is enabled\n");
+		//printf("*WARNING* - EnableNetworkGameSynchChecks is enabled\n");
 
         valueFlags1 |= ft1_network_synch_checks;
         gameSettings->setFlagTypes1(valueFlags1);
@@ -3381,7 +3381,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 			if(checkNetworkPlayerDataSynch(false,false,true) == false &&
 					last_Forced_CheckedCRCTechtreeName != gameSettings->getTech()) {
 				lastCheckedCRCTechtreeName = "";
-				bool forceRefresh = true;
+				forceRefresh = true;
 				last_Forced_CheckedCRCTechtreeName = gameSettings->getTech();
 			}
 
@@ -3421,7 +3421,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 		if(checkNetworkPlayerDataSynch(true,false,false) == false &&
 				last_Forced_CheckedCRCMapName != gameSettings->getMap()) {
 			lastCheckedCRCMapName = "";
-			bool forceRefresh = true;
+			forceRefresh = true;
 			last_Forced_CheckedCRCMapName = gameSettings->getMap();
 		}
 

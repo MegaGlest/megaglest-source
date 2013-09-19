@@ -128,16 +128,16 @@ void PathFinder::removeUnitPrecache(Unit *unit) {
 	MutexSafeWrapper safeMutex(factionMutex,mutexOwnerId);
 
 	if(unit != NULL && factions.size() > unit->getFactionIndex()) {
-		bool clearTravelState = false;
-		bool clearPath = false;
+		//bool clearTravelState = false;
+		//bool clearPath = false;
 
 		if(factions[unit->getFactionIndex()].precachedTravelState.find(unit->getId()) != factions[unit->getFactionIndex()].precachedTravelState.end()) {
 			factions[unit->getFactionIndex()].precachedTravelState.erase(unit->getId());
-			clearTravelState = true;
+			//clearTravelState = true;
 		}
 		if(factions[unit->getFactionIndex()].precachedPath.find(unit->getId()) != factions[unit->getFactionIndex()].precachedPath.end()) {
 			factions[unit->getFactionIndex()].precachedPath.erase(unit->getId());
-			clearPath = true;
+			//clearPath = true;
 		}
 
 //		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {

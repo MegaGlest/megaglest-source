@@ -374,9 +374,9 @@ public:
 	Checksum getCRC();
 	void addCRC_DetailsForWorldFrame(int worldFrameCount,bool isNetworkServer);
 	string getCRC_DetailsForWorldFrame(int worldFrameCount);
-	std::pair<int,string> getCRC_DetailsForWorldFrameIndex(int worldFrameIndex);
-	string getCRC_DetailsForWorldFrames();
-	uint64 getCRC_DetailsForWorldFrameCount();
+	std::pair<int,string> getCRC_DetailsForWorldFrameIndex(int worldFrameIndex) const;
+	string getCRC_DetailsForWorldFrames() const;
+	uint64 getCRC_DetailsForWorldFrameCount() const;
 
 private:
 	void init();

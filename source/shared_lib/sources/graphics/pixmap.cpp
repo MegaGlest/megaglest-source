@@ -1062,29 +1062,64 @@ void Pixmap2D::savePng(const string &path) {
 
 void Pixmap2D::getPixel(int x, int y, uint8 *value) const {
 	for(int i=0; i<components; ++i){
-		value[i]= pixels[(w*y+x)*components+i];
+		int index = (w*y+x)*components+i;
+		if(index >= getPixelByteCount()) {
+			char szBuf[8096];
+			snprintf(szBuf,8096,"Invalid pixmap index: %d for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",index,path.c_str(),h,w,components,x,y);
+			throw megaglest_runtime_error(szBuf);
+		}
+
+		value[i]= pixels[index];
 	}
 }
 
 void Pixmap2D::getPixel(int x, int y, float32 *value) const {
 	for(int i=0; i<components; ++i) {
-		value[i]= pixels[(w*y+x)*components+i]/255.f;
+		int index = (w*y+x)*components+i;
+		if(index >= getPixelByteCount()) {
+			char szBuf[8096];
+			snprintf(szBuf,8096,"Invalid pixmap index: %d for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",index,path.c_str(),h,w,components,x,y);
+			throw megaglest_runtime_error(szBuf);
+		}
+
+		value[i]= pixels[index]/255.f;
 	}
 }
 
 void Pixmap2D::getComponent(int x, int y, int component, uint8 &value) const {
-	value= pixels[(w*y+x)*components+component];
+	int index = (w*y+x)*components+component;
+	if(index >= getPixelByteCount()) {
+		char szBuf[8096];
+		snprintf(szBuf,8096,"Invalid pixmap index: %d for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",index,path.c_str(),h,w,components,x,y);
+		throw megaglest_runtime_error(szBuf);
+	}
+
+	value= pixels[index];
 }
 
 void Pixmap2D::getComponent(int x, int y, int component, float32 &value) const {
-	value= pixels[(w*y+x)*components+component]/255.f;
+	int index = (w*y+x)*components+component;
+	if(index >= getPixelByteCount()) {
+		char szBuf[8096];
+		snprintf(szBuf,8096,"Invalid pixmap index: %d for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",index,path.c_str(),h,w,components,x,y);
+		throw megaglest_runtime_error(szBuf);
+	}
+
+	value= pixels[index]/255.f;
 }
 
 //vector get
 Vec4f Pixmap2D::getPixel4f(int x, int y) const {
 	Vec4f v(0.f);
 	for(int i=0; i<components && i<4; ++i){
-		v.ptr()[i]= pixels[(w*y+x)*components+i]/255.f;
+		int index = (w*y+x)*components+i;
+		if(index >= getPixelByteCount()) {
+			char szBuf[8096];
+			snprintf(szBuf,8096,"Invalid pixmap index: %d for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",index,path.c_str(),h,w,components,x,y);
+			throw megaglest_runtime_error(szBuf);
+		}
+
+		v.ptr()[i]= pixels[index]/255.f;
 	}
 	return v;
 }
@@ -1092,13 +1127,25 @@ Vec4f Pixmap2D::getPixel4f(int x, int y) const {
 Vec3f Pixmap2D::getPixel3f(int x, int y) const {
 	Vec3f v(0.f);
 	for(int i=0; i<components && i<3; ++i){
-		v.ptr()[i]= pixels[(w*y+x)*components+i]/255.f;
+		int index = (w*y+x)*components+i;
+		if(index >= getPixelByteCount()) {
+			char szBuf[8096];
+			snprintf(szBuf,8096,"Invalid pixmap index: %d for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",index,path.c_str(),h,w,components,x,y);
+			throw megaglest_runtime_error(szBuf);
+		}
+
+		v.ptr()[i]= pixels[index]/255.f;
 	}
 	return v;
 }
 
 float Pixmap2D::getPixelf(int x, int y) const {
 	int index = (w*y+x)*components;
+	if(index >= getPixelByteCount()) {
+		char szBuf[8096];
+		snprintf(szBuf,8096,"Invalid pixmap index: %d for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",index,path.c_str(),h,w,components,x,y);
+		throw megaglest_runtime_error(szBuf);
+	}
 	return pixels[index]/255.f;
 }
 
@@ -1111,6 +1158,12 @@ float Pixmap2D::getComponentf(int x, int y, int component) const {
 void Pixmap2D::setPixel(int x, int y, const uint8 *value) {
 	for(int i=0; i<components; ++i) {
 		int index = (w*y+x)*components+i;
+		if(index >= getPixelByteCount()) {
+			char szBuf[8096];
+			snprintf(szBuf,8096,"Invalid pixmap index: %d for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",index,path.c_str(),h,w,components,x,y);
+			throw megaglest_runtime_error(szBuf);
+		}
+
 		pixels[index]= value[i];
 	}
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
@@ -1119,6 +1172,11 @@ void Pixmap2D::setPixel(int x, int y, const uint8 *value) {
 void Pixmap2D::setPixel(int x, int y, const float32 *value) {
 	for(int i=0; i<components; ++i) {
 		int index = (w*y+x)*components+i;
+		if(index >= getPixelByteCount()) {
+			char szBuf[8096];
+			snprintf(szBuf,8096,"Invalid pixmap index: %d for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",index,path.c_str(),h,w,components,x,y);
+			throw megaglest_runtime_error(szBuf);
+		}
 		pixels[index]= static_cast<uint8>(value[i]*255.f);
 	}
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
@@ -1126,12 +1184,24 @@ void Pixmap2D::setPixel(int x, int y, const float32 *value) {
 
 void Pixmap2D::setComponent(int x, int y, int component, uint8 value) {
 	int index = (w*y+x)*components+component;
+	if(index >= getPixelByteCount()) {
+		char szBuf[8096];
+		snprintf(szBuf,8096,"Invalid pixmap index: %d for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",index,path.c_str(),h,w,components,x,y);
+		throw megaglest_runtime_error(szBuf);
+	}
+
 	pixels[index] = value;
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
 void Pixmap2D::setComponent(int x, int y, int component, float32 value) {
 	int index = (w*y+x)*components+component;
+	if(index >= getPixelByteCount()) {
+		char szBuf[8096];
+		snprintf(szBuf,8096,"Invalid pixmap index: %d for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",index,path.c_str(),h,w,components,x,y);
+		throw megaglest_runtime_error(szBuf);
+	}
+
 	pixels[index]= static_cast<uint8>(value*255.f);
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
@@ -1140,6 +1210,11 @@ void Pixmap2D::setComponent(int x, int y, int component, float32 value) {
 void Pixmap2D::setPixel(int x, int y, const Vec3f &p) {
 	for(int i = 0; i < components  && i < 3; ++i) {
 		int index = (w*y+x)*components+i;
+		if(index >= getPixelByteCount()) {
+			char szBuf[8096];
+			snprintf(szBuf,8096,"Invalid pixmap index: %d for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",index,path.c_str(),h,w,components,x,y);
+			throw megaglest_runtime_error(szBuf);
+		}
 		pixels[index]= static_cast<uint8>(p.ptr()[i]*255.f);
 	}
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
@@ -1148,6 +1223,11 @@ void Pixmap2D::setPixel(int x, int y, const Vec3f &p) {
 void Pixmap2D::setPixel(int x, int y, const Vec4f &p) {
 	for(int i = 0; i < components && i < 4; ++i) {
 		int index = (w*y+x)*components+i;
+		if(index >= getPixelByteCount()) {
+			char szBuf[8096];
+			snprintf(szBuf,8096,"Invalid pixmap index: %d for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",index,path.c_str(),h,w,components,x,y);
+			throw megaglest_runtime_error(szBuf);
+		}
 		pixels[index]= static_cast<uint8>(p.ptr()[i]*255.f);
 	}
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
@@ -1155,6 +1235,12 @@ void Pixmap2D::setPixel(int x, int y, const Vec4f &p) {
 
 void Pixmap2D::setPixel(int x, int y, float p) {
 	int index = (w*y+x)*components;
+	if(index >= getPixelByteCount()) {
+		char szBuf[8096];
+		snprintf(szBuf,8096,"Invalid pixmap index: %d for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",index,path.c_str(),h,w,components,x,y);
+		throw megaglest_runtime_error(szBuf);
+	}
+
 	pixels[index]= static_cast<uint8>(p*255.f);
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
