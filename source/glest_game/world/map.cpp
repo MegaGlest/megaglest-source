@@ -1188,6 +1188,13 @@ const Unit * Map::findClosestUnitToPos(const Selection *selection, Vec2i origina
 }
 
 Vec2i Map::findBestBuildApproach(const Unit *unit, Vec2i originalBuildPos,const UnitType *ut) const {
+	if(unit == NULL) {
+		throw megaglest_runtime_error("unit == NULL");
+	}
+	if(ut == NULL) {
+		throw megaglest_runtime_error("ut == NULL");
+	}
+
     Vec2i unitBuilderPos    = unit->getPosNotThreadSafe();
 	Vec2i pos               = originalBuildPos;
 
