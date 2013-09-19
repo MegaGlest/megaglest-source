@@ -1687,6 +1687,33 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 	}
 }
 
+void Game::processNetworkSynchChecksIfRequired() {
+	bool isNetworkGame = this->gameSettings.isNetworkGame();
+	if (isNetworkGame
+			== true&& NetworkManager::getInstance().getGameNetworkInterface() != NULL) {GameSettings *settings = world.getGameSettingsPtr();
+		if(settings != NULL && (settings->getFlagTypes1() & ft1_network_synch_checks) == ft1_network_synch_checks) {
+			NetworkManager &networkManager = NetworkManager::getInstance();
+			NetworkRole role = networkManager.getNetworkRole();
+
+			NetworkInterface *netIntf = networkManager.getGameNetworkInterface();
+			for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+				if(index < world.getFactionCount()) {
+					Faction *faction = world.getFaction(index);
+					netIntf->setNetworkPlayerFactionCRC(index,faction->getCRC().getSum());
+					faction->addCRC_DetailsForWorldFrame(world.getFrameCount(),role == nrServer);
+				}
+				else {
+					netIntf->setNetworkPlayerFactionCRC(index,0);
+				}
+
+				//if(world.getFrameCount() % 40 == 0) {
+				//	printf("Frame #: %d Faction: %d CRC: %u\n",world.getFrameCount(),index,netIntf->getNetworkPlayerFactionCRC(index));
+				//}
+			}
+		}
+	}
+}
+
 //update
 void Game::update() {
 	try {
@@ -1703,31 +1730,6 @@ void Game::update() {
 		if(showPerfStats) {
 			sprintf(perfBuf,"=============== FRAME: %d In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",world.getFrameCount(),extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
 			perfList.push_back(perfBuf);
-		}
-
-		bool isNetworkGame = this->gameSettings.isNetworkGame();
-		if(isNetworkGame == true && NetworkManager::getInstance().getGameNetworkInterface() != NULL) {
-			GameSettings *settings = world.getGameSettingsPtr();
-			if(settings != NULL && (settings->getFlagTypes1() & ft1_network_synch_checks) == ft1_network_synch_checks) {
-				NetworkManager &networkManager = NetworkManager::getInstance();
-				NetworkRole role = networkManager.getNetworkRole();
-
-				NetworkInterface *netIntf = networkManager.getGameNetworkInterface();
-				for(int index = 0; index < GameConstants::maxPlayers; ++index) {
-					if(index < world.getFactionCount()) {
-						Faction *faction = world.getFaction(index);
-						netIntf->setNetworkPlayerFactionCRC(index,faction->getCRC().getSum());
-						faction->addCRC_DetailsForWorldFrame(world.getFrameCount(),role == nrServer);
-					}
-					else {
-						netIntf->setNetworkPlayerFactionCRC(index,0);
-					}
-
-					//if(world.getFrameCount() % 40 == 0) {
-					//	printf("Frame #: %d Faction: %d CRC: %u\n",world.getFrameCount(),index,netIntf->getNetworkPlayerFactionCRC(index));
-					//}
-				}
-			}
 		}
 
 		Chrono chrono;
@@ -1940,6 +1942,7 @@ void Game::update() {
 
 		// Check to see if we are playing a network game and if any players
 		// have disconnected?
+		bool isNetworkGame = this->gameSettings.isNetworkGame();
 		ReplaceDisconnectedNetworkPlayersWithAI(isNetworkGame, role);
 		setupPopupMenus(true);
 
@@ -1975,7 +1978,7 @@ void Game::update() {
 
 					//AiInterface
 					if(commander.hasReplayCommandListForFrame() == false) {
-
+						processNetworkSynchChecksIfRequired();
 
 						/*
 						for(int j = 0; j < world.getFactionCount(); ++j) {
