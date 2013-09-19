@@ -408,6 +408,7 @@ private:
 
 	vector<ParticleSystem*> fireParticleSystems;
 	vector<UnitParticleSystem*> smokeParticleSystems;
+	vector<ParticleSystem*> attackParticleSystems;
 
 	CardinalDir modelFacing;
 
@@ -770,6 +771,8 @@ public:
 
 	void clearCaches();
 	bool showTranslatedTechTree() const;
+
+	void addAttackParticleSystem(ParticleSystem *ps);
 
 	Checksum getCRC();
 

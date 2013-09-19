@@ -2299,6 +2299,7 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 			psProj->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
 		}
 		renderer.manageParticleSystem(psProj, rsGame);
+		unit->addAttackParticleSystem(psProj);
 	}
 	else{
 		hit(unit);
@@ -2316,6 +2317,7 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 		if(pstProj!=NULL){
 			psProj->link(psSplash);
 		}
+		unit->addAttackParticleSystem(psSplash);
 	}
 }
 
