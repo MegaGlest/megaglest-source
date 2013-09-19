@@ -1544,7 +1544,7 @@ void ProjectileParticleSystem::update(){
 			}
 
 			if(nextParticleSystem != NULL){
-				nextParticleSystem->setVisible(true);
+				nextParticleSystem->setVisible(getVisible());
 				nextParticleSystem->setState(sPlay);
 				nextParticleSystem->setPos(endPos);
 			}
