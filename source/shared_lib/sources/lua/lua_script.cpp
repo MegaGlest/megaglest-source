@@ -421,7 +421,7 @@ void LuaScript::loadGame(const XmlNode *rootNode) {
 				lua_pushstring( luaState, node->getAttribute("value")->getValue().c_str() );
 				break;
 			case LUA_TNUMBER:
-				lua_pushnumber( luaState, node->getAttribute("value")->getIntValue() );
+				lua_pushnumber( luaState, node->getAttribute("value")->getFloatValue() );
 				break;
 			case LUA_TBOOLEAN:
 				lua_pushboolean( luaState, node->getAttribute("value")->getBoolValue() );
@@ -439,7 +439,7 @@ void LuaScript::loadGame(const XmlNode *rootNode) {
 								lua_pushstring( luaState, nodeTable->getAttribute("key")->getValue().c_str() );
 								break;
 							case LUA_TNUMBER:
-								lua_pushnumber( luaState, nodeTable->getAttribute("key")->getIntValue() );
+								lua_pushnumber( luaState, nodeTable->getAttribute("key")->getFloatValue() );
 								break;
 							case LUA_TBOOLEAN:
 								lua_pushboolean( luaState, nodeTable->getAttribute("key")->getIntValue() );
@@ -451,7 +451,7 @@ void LuaScript::loadGame(const XmlNode *rootNode) {
 								lua_pushstring( luaState, nodeTable->getAttribute("value")->getValue().c_str() );
 								break;
 							case LUA_TNUMBER:
-								lua_pushnumber( luaState, nodeTable->getAttribute("value")->getIntValue() );
+								lua_pushnumber( luaState, nodeTable->getAttribute("value")->getFloatValue() );
 								break;
 							case LUA_TBOOLEAN:
 								lua_pushboolean( luaState, nodeTable->getAttribute("value")->getIntValue() );
