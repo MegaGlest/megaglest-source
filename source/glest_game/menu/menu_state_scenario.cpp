@@ -300,11 +300,19 @@ void MenuStateScenario::update() {
 		return;
 	}
 	if(this->autoloadScenarioName != "") {
-		listBoxScenario.setSelectedItem(formatString(this->autoloadScenarioName),false);
+		loadScenarioInfo(Scenario::getScenarioPath(dirList, this->autoloadScenarioName), &scenarioInfo );
+		if(scenarioInfo.namei18n != "") {
+			this->autoloadScenarioName = scenarioInfo.namei18n;
+		}
+		else {
+			this->autoloadScenarioName = formatString(this->autoloadScenarioName);
+		}
 
-		if(listBoxScenario.getSelectedItem() != formatString(this->autoloadScenarioName)) {
+		listBoxScenario.setSelectedItem(this->autoloadScenarioName,false);
+
+		if(listBoxScenario.getSelectedItem() != this->autoloadScenarioName) {
 			mainMessageBoxState=1;
-			showMessageBox( "Could not find scenario name: " + formatString(this->autoloadScenarioName), "Scenario Missing", false);
+			showMessageBox( "Could not find scenario name: " + this->autoloadScenarioName, "Scenario Missing", false);
 			this->autoloadScenarioName = "";
 		}
 		else {
