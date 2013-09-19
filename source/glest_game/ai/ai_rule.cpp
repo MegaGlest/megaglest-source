@@ -875,7 +875,7 @@ void AiRuleProduce::produceGenericNew(const ProduceTask *pt) {
 
 					if(r != NULL && r->getAmount() < 0) {
 						if(aiInterface->reqsOk(ct) && aiInterface->reqsOk(producedUnit)){
-							produceIt= true;
+							//produceIt= true;
 							addUnitTypeToCandidates(producedUnit, ableUnits,ableUnitsGiveBack, false);
 						}
 					}
