@@ -3417,11 +3417,11 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 	if(gameSettings->getMap() != "") {
 		// Check if client has different data, if so force a CRC refresh
-		bool forceRefresh = false;
+		//bool forceRefresh = false;
 		if(checkNetworkPlayerDataSynch(true,false,false) == false &&
 				last_Forced_CheckedCRCMapName != gameSettings->getMap()) {
 			lastCheckedCRCMapName = "";
-			forceRefresh = true;
+			//forceRefresh = true;
 			last_Forced_CheckedCRCMapName = gameSettings->getMap();
 		}
 

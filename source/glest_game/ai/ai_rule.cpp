@@ -855,7 +855,7 @@ void AiRuleProduce::produceGenericNew(const ProduceTask *pt) {
 		//for each command
 		const UnitType *ut= aiInterface->getMyUnit(i)->getType();
 
-		bool produceIt= false;
+		//bool produceIt= false;
 		for(int j = 0; j < ut->getCommandTypeCount(); ++j) {
 			const CommandType *ct= ut->getCommandType(j);
 
