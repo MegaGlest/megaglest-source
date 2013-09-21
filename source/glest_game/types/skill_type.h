@@ -184,7 +184,7 @@ public:
 	//virtual string getDesc(const TotalUpgrade *totalUpgrade) const= 0;
 
 	//other
-	virtual string toString() const= 0;	
+	virtual string toString(bool translatedValue) const= 0;
 	virtual int getTotalSpeed(const TotalUpgrade *) const	{return speed;}
 	static string skillClassToStr(SkillClass skillClass); 
 	static string fieldToStr(Field field);
@@ -200,7 +200,7 @@ public:
 class StopSkillType: public SkillType{
 public:
     StopSkillType();
-    virtual string toString() const;
+    virtual string toString(bool translatedValue) const;
 };
 
 // ===============================
@@ -210,7 +210,7 @@ public:
 class MoveSkillType: public SkillType{
 public:
     MoveSkillType();
-    virtual string toString() const;
+    virtual string toString(bool translatedValue) const;
 
 	virtual int getTotalSpeed(const TotalUpgrade *totalUpgrade) const;
 };
@@ -245,7 +245,7 @@ public:
     virtual void load(const XmlNode *sn, const XmlNode *attackBoostsNode, const string &dir, const TechTree *tt,
     		const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
     		string parentLoader);
-	virtual string toString() const;
+	virtual string toString(bool translatedValue) const;
     
 	//get
 	inline int getAttackStrength() const				{return attackStrength;}
@@ -283,7 +283,7 @@ public:
 class BuildSkillType: public SkillType{
 public:
     BuildSkillType();
-    virtual string toString() const;
+    virtual string toString(bool translatedValue) const;
 };
 
 // ===============================
@@ -293,7 +293,7 @@ public:
 class HarvestSkillType: public SkillType{
 public:
     HarvestSkillType();
-	virtual string toString() const;
+	virtual string toString(bool translatedValue) const;
 };
 
 // ===============================
@@ -303,7 +303,7 @@ public:
 class RepairSkillType: public SkillType{
 public:
     RepairSkillType();
-    virtual string toString() const;
+    virtual string toString(bool translatedValue) const;
 };
 
 // ===============================
@@ -320,7 +320,7 @@ public:
     			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
     			string parentLoader);
 
-    virtual string toString() const;
+    virtual string toString(bool translatedValue) const;
 
 	virtual int getTotalSpeed(const TotalUpgrade *totalUpgrade) const;
 
@@ -341,7 +341,7 @@ public:
     			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
     			string parentLoader);
 
-	virtual string toString() const;
+	virtual string toString(bool translatedValue) const;
 
 	virtual int getTotalSpeed(const TotalUpgrade *totalUpgrade) const;
 
@@ -364,7 +364,7 @@ public:
     virtual void load(const XmlNode *sn, const XmlNode *attackBoostsNode, const string &dir, const TechTree *tt,
     			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
     			string parentLoader);
-    virtual string toString() const;
+    virtual string toString(bool translatedValue) const;
 
     virtual void saveGame(XmlNode *rootNode);
 };
@@ -385,7 +385,7 @@ public:
     			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
     			string parentLoader);
 
-    virtual string toString() const;
+    virtual string toString(bool translatedValue) const;
 	virtual int getTotalSpeed(const TotalUpgrade *totalUpgrade) const;
 
 	virtual void saveGame(XmlNode *rootNode);
@@ -406,7 +406,7 @@ public:
 	virtual void load(const XmlNode *sn, const XmlNode *attackBoostsNode, const string &dir, const TechTree *tt,
 			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader);
-	virtual string toString() const;
+	virtual string toString(bool translatedValue) const;
 
 	virtual void saveGame(XmlNode *rootNode);
 };
@@ -430,7 +430,7 @@ public:
 	virtual void load(const XmlNode *sn, const XmlNode *attackBoostsNode, const string &dir, const TechTree *tt,
 			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,
 			string parentLoader);
-	virtual string toString() const;
+	virtual string toString(bool translatedValue) const;
 
 	virtual void saveGame(XmlNode *rootNode);
 };

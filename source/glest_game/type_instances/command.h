@@ -91,7 +91,7 @@ public:
     inline void setUnitCommandGroupId(int value) 	{ unitCommandGroupId = value; }
     inline int getUnitCommandGroupId() const		{ return unitCommandGroupId; }
 
-    std::string toString() const;
+    std::string toString(bool translatedValue) const;
 
     void saveGame(XmlNode *rootNode, Faction *faction);
     static Command * loadGame(const XmlNode *rootNode,const UnitType *ut,World *world);

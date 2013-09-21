@@ -74,7 +74,7 @@ int RandomGen::randRange(int min, int max){
 //	int res = streflop::Random<true, false, float>(min, max); // streflop
 //#else
 	int diff= max-min;
-	int res= min + static_cast<int>(truncateDecimal<double>(static_cast<double>(diff+1))*RandomGen::rand() / m);
+	int res= min + static_cast<int>(truncateDecimal<double>(static_cast<double>(diff+1),2)*RandomGen::rand() / m);
 //#endif
 	assert(res>=min && res<=max);
 	if(res < min || res > max) {

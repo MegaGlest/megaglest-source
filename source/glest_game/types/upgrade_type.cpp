@@ -246,10 +246,10 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 
 	if(maxHp != 0) {
 		if(maxHpIsMultiplier) {
-			str += indent+lang.get("Hp") + " *" + intToStr(maxHp);
+			str += indent+lang.get("Hp",(translatedValue == true ? "" : "english")) + " *" + intToStr(maxHp);
 		}
 		else {
-			str += indent+lang.get("Hp") + " +" + intToStr(maxHp);
+			str += indent+lang.get("Hp",(translatedValue == true ? "" : "english")) + " +" + intToStr(maxHp);
 		}
 
 		if(maxHpRegeneration != 0) {
@@ -262,10 +262,10 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 			str += "\n";
 		}
 		if(sightIsMultiplier) {
-			str+= indent+lang.get("Sight") + " *" + intToStr(sight);
+			str+= indent+lang.get("Sight",(translatedValue == true ? "" : "english")) + " *" + intToStr(sight);
 		}
 		else {
-			str+= indent+lang.get("Sight") + " +" + intToStr(sight);
+			str+= indent+lang.get("Sight",(translatedValue == true ? "" : "english")) + " +" + intToStr(sight);
 		}
 	}
 	if(maxEp != 0) {
@@ -274,10 +274,10 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 		}
 
 		if(maxEpIsMultiplier) {
-			str+= indent+lang.get("Ep") + " *" + intToStr(maxEp);
+			str+= indent+lang.get("Ep",(translatedValue == true ? "" : "english")) + " *" + intToStr(maxEp);
 		}
 		else {
-			str+= indent+lang.get("Ep") + " +" + intToStr(maxEp);
+			str+= indent+lang.get("Ep",(translatedValue == true ? "" : "english")) + " +" + intToStr(maxEp);
 		}
 		if(maxEpRegeneration != 0) {
 			str += " [" + intToStr(maxEpRegeneration) + "]";
@@ -289,10 +289,10 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 		}
 
 		if(attackStrengthIsMultiplier) {
-			str+= indent+lang.get("AttackStrenght") + " *" + intToStr(attackStrength);
+			str+= indent+lang.get("AttackStrenght",(translatedValue == true ? "" : "english")) + " *" + intToStr(attackStrength);
 		}
 		else {
-			str+= indent+lang.get("AttackStrenght") + " +" + intToStr(attackStrength);
+			str+= indent+lang.get("AttackStrenght",(translatedValue == true ? "" : "english")) + " +" + intToStr(attackStrength);
 		}
 	}
 	if(attackRange != 0) {
@@ -301,10 +301,10 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 		}
 
 		if(attackRangeIsMultiplier) {
-			str+= indent+lang.get("AttackDistance") + " *" + intToStr(attackRange);
+			str+= indent+lang.get("AttackDistance",(translatedValue == true ? "" : "english")) + " *" + intToStr(attackRange);
 		}
 		else {
-			str+= indent+lang.get("AttackDistance") + " +" + intToStr(attackRange);
+			str+= indent+lang.get("AttackDistance",(translatedValue == true ? "" : "english")) + " +" + intToStr(attackRange);
 		}
 	}
 	if(armor != 0) {
@@ -313,10 +313,10 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 		}
 
 		if(armorIsMultiplier) {
-			str+= indent+lang.get("Armor") + " *" + intToStr(armor);
+			str+= indent+lang.get("Armor",(translatedValue == true ? "" : "english")) + " *" + intToStr(armor);
 		}
 		else {
-			str+= indent+lang.get("Armor") + " +" + intToStr(armor);
+			str+= indent+lang.get("Armor",(translatedValue == true ? "" : "english")) + " +" + intToStr(armor);
 		}
 	}
 	if(moveSpeed != 0) {
@@ -325,10 +325,10 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 		}
 
 		if(moveSpeedIsMultiplier) {
-			str+= indent+lang.get("WalkSpeed") + " *" + intToStr(moveSpeed);
+			str+= indent+lang.get("WalkSpeed",(translatedValue == true ? "" : "english")) + " *" + intToStr(moveSpeed);
 		}
 		else {
-			str+= indent+lang.get("WalkSpeed") + " +" + intToStr(moveSpeed);
+			str+= indent+lang.get("WalkSpeed",(translatedValue == true ? "" : "english")) + " +" + intToStr(moveSpeed);
 		}
 	}
 	if(prodSpeed != 0) {
@@ -337,10 +337,10 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 		}
 
 		if(prodSpeedIsMultiplier) {
-			str+= indent+lang.get("ProductionSpeed") + " *" + intToStr(prodSpeed);
+			str+= indent+lang.get("ProductionSpeed",(translatedValue == true ? "" : "english")) + " *" + intToStr(prodSpeed);
 		}
 		else {
-			str+= indent+lang.get("ProductionSpeed") + " +" + intToStr(prodSpeed);
+			str+= indent+lang.get("ProductionSpeed",(translatedValue == true ? "" : "english")) + " +" + intToStr(prodSpeed);
 		}
 	}
 	if(str != "") {
@@ -563,11 +563,11 @@ string UpgradeType::getReqDesc(bool translatedValue) const{
     string str= ProducibleType::getReqDesc(translatedValue);
     string indent="  ";
 	if(getEffectCount()>0){
-		str+= "\n"+ lang.get("Upgrades")+"\n";
+		str+= "\n"+ lang.get("Upgrades",(translatedValue == true ? "" : "english"))+"\n";
 	}
 	str+=UpgradeTypeBase::getDesc(translatedValue);
 	if(getEffectCount()>0){
-		str+= lang.get("AffectedUnits")+"\n";
+		str+= lang.get("AffectedUnits",(translatedValue == true ? "" : "english"))+"\n";
 		for(int i=0; i<getEffectCount(); ++i){
 			str+= indent+getEffect(i)->getName(translatedValue)+"\n";
 		}

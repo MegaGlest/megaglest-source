@@ -1024,7 +1024,7 @@ string UnitType::getCommandTypeListDesc() const {
 	string desc = "Commands: ";
 	for(int i=0; i<getCommandTypeCount(); ++i){
 		const CommandType* commandType= getCommandType(i);
-		desc += " id = " + intToStr(commandType->getId()); + " toString: " + commandType->toString();
+		desc += " id = " + intToStr(commandType->getId()); + " toString: " + commandType->toString(false);
 	}
 	return desc;
 
@@ -1094,12 +1094,12 @@ std::string UnitType::toString() const {
 
 	result += " skillTypes: [" + intToStr(skillTypes.size()) + "]";
 	for(int i = 0; i < skillTypes.size(); ++i) {
-		result += " i = " + intToStr(i) + " " + skillTypes[i]->toString();
+		result += " i = " + intToStr(i) + " " + skillTypes[i]->toString(false);
 	}
 
 	result += " commandTypes: [" + intToStr(commandTypes.size()) + "]";
 	for(int i = 0; i < commandTypes.size(); ++i) {
-		result += " i = " + intToStr(i) + " " + commandTypes[i]->toString();
+		result += " i = " + intToStr(i) + " " + commandTypes[i]->toString(false);
 	}
 
 	result += " storedResources: [" + intToStr(storedResources.size()) + "]";

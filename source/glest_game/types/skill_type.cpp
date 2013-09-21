@@ -686,7 +686,10 @@ StopSkillType::StopSkillType(){
     skillClass= scStop;
 }
 
-string StopSkillType::toString() const{
+string StopSkillType::toString(bool translatedValue) const{
+	if(translatedValue == false) {
+		return "Stop";
+	}
 	return Lang::getInstance().get("Stop");
 }
 
@@ -698,7 +701,11 @@ MoveSkillType::MoveSkillType(){
 	skillClass= scMove;
 }
 
-string MoveSkillType::toString() const{
+string MoveSkillType::toString(bool translatedValue) const{
+	if(translatedValue == false) {
+		return "Move";
+	}
+
 	return Lang::getInstance().get("Move");
 }
 
@@ -847,7 +854,11 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	}
 }
 
-string AttackSkillType::toString() const{
+string AttackSkillType::toString(bool translatedValue) const{
+	if(translatedValue == false) {
+		return "Attack";
+	}
+
 	return Lang::getInstance().get("Attack");
 }
 
@@ -918,7 +929,11 @@ BuildSkillType::BuildSkillType(){
     skillClass= scBuild;
 }
 
-string BuildSkillType::toString() const{
+string BuildSkillType::toString(bool translatedValue) const{
+	if(translatedValue == false) {
+		return "Build";
+	}
+
 	return Lang::getInstance().get("Build");
 }
 
@@ -930,7 +945,11 @@ HarvestSkillType::HarvestSkillType(){
     skillClass= scHarvest;
 }
 
-string HarvestSkillType::toString() const{
+string HarvestSkillType::toString(bool translatedValue) const{
+	if(translatedValue == false) {
+		return "Harvest";
+	}
+
 	return Lang::getInstance().get("Harvest");
 }
 
@@ -942,7 +961,11 @@ RepairSkillType::RepairSkillType(){
     skillClass= scRepair;
 }
 
-string RepairSkillType::toString() const{
+string RepairSkillType::toString(bool translatedValue) const{
+	if(translatedValue == false) {
+		return "Repair";
+	}
+
 	return Lang::getInstance().get("Repair");
 }
 
@@ -970,7 +993,11 @@ void ProduceSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 }
 
 
-string ProduceSkillType::toString() const{
+string ProduceSkillType::toString(bool translatedValue) const{
+	if(translatedValue == false) {
+		return "Produce";
+	}
+
 	return Lang::getInstance().get("Produce");
 }
 
@@ -1010,7 +1037,11 @@ void UpgradeSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	}
 }
 
-string UpgradeSkillType::toString() const{
+string UpgradeSkillType::toString(bool translatedValue) const{
+	if(translatedValue == false) {
+		return "Upgrade";
+	}
+
 	return Lang::getInstance().get("Upgrade");
 }
 
@@ -1055,7 +1086,11 @@ void BeBuiltSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 }
 
 
-string BeBuiltSkillType::toString() const{
+string BeBuiltSkillType::toString(bool translatedValue) const{
+	if(translatedValue == false) {
+		return "Be built";
+	}
+
 	return "Be built";
 }
 
@@ -1090,7 +1125,11 @@ void MorphSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	}
 }
 
-string MorphSkillType::toString() const{
+string MorphSkillType::toString(bool translatedValue) const{
+	if(translatedValue == false) {
+		return "Morph";
+	}
+
 	return "Morph";
 }
 
@@ -1126,7 +1165,11 @@ void DieSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	fade= sn->getChild("fade")->getAttribute("value")->getBoolValue();
 }
 
-string DieSkillType::toString() const{
+string DieSkillType::toString(bool translatedValue) const{
+	if(translatedValue == false) {
+		return "Die";
+	}
+
 	return "Die";
 }
 
@@ -1162,7 +1205,11 @@ void FogOfWarSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	durationTime = sn->getChild("duration")->getAttribute("value")->getFloatValue();
 }
 
-string FogOfWarSkillType::toString() const{
+string FogOfWarSkillType::toString(bool translatedValue) const{
+	if(translatedValue == false) {
+		return "FogOfWar";
+	}
+
 	return "FogOfWar";
 }
 

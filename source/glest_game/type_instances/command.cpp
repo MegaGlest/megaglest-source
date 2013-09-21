@@ -104,12 +104,12 @@ void Command::setUnit(Unit *unit){
      this->unitRef= unit;
 }
 
-std::string Command::toString() const {
+std::string Command::toString(bool translatedValue) const {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 
 	std::string result = "";
 	if(commandType != NULL) {
-		result = "commandType id = " + intToStr(commandType->getId()) + ", desc = " + commandType->toString();
+		result = "commandType id = " + intToStr(commandType->getId()) + ", desc = " + commandType->toString(translatedValue);
 	}
 	else {
 		result = "commandType = NULL";
@@ -134,7 +134,7 @@ std::string Command::toString() const {
 
 	if(unitType != NULL) {
 		result += ", unitTypeId = " + intToStr(unitType->getId());
-		result += ", unitTypeDesc = " + unitType->getReqDesc(false);
+		result += ", unitTypeDesc = " + unitType->getReqDesc(translatedValue);
 	}
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);

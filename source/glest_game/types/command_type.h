@@ -97,7 +97,7 @@ public:
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const= 0;
-	virtual string toString() const= 0;
+	virtual string toString(bool translatedValue) const= 0;
 	virtual const ProducibleType *getProduced() const	{return NULL;}
 	virtual Queueability isQueuable() const						{return qOnRequest;}
 	bool isQueuable(bool tryQueue) const {
@@ -137,7 +137,7 @@ public:
     		const FactionType *ft, const UnitType &ut, std::map<string,vector<pair<string, string> > > &loadedFileList,
     		string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString() const;
+	virtual string toString(bool translatedValue) const;
 	virtual Queueability isQueuable() const						{return qNever;}
 	virtual int getTypePriority() const							{return 100000;}
     //get
@@ -162,7 +162,7 @@ public:
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString() const;
+	virtual string toString(bool translatedValue) const;
 
     //get
 	const MoveSkillType *getMoveSkillType() const	{return moveSkillType;};
@@ -187,7 +187,7 @@ public:
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString() const;
+	virtual string toString(bool translatedValue) const;
 
 
     //get
@@ -213,7 +213,7 @@ public:
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString() const;
+	virtual string toString(bool translatedValue) const;
 
     //get
 	const StopSkillType * getStopSkillType() const		{return stopSkillType;}
@@ -243,7 +243,7 @@ public:
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString() const;
+	virtual string toString(bool translatedValue) const;
 
     //get
 	const MoveSkillType *getMoveSkillType() const	{return moveSkillType;}
@@ -278,7 +278,7 @@ public:
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString() const;
+	virtual string toString(bool translatedValue) const;
 	virtual Queueability isQueuable() const						{return qOnRequest;}
 
     //get
@@ -309,7 +309,7 @@ public:
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString() const;
+	virtual string toString(bool translatedValue) const;
 	virtual Queueability isQueuable() const						{return qOnRequest;}
 
     //get
@@ -335,7 +335,7 @@ public:
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString() const;
+	virtual string toString(bool translatedValue) const;
 
     //get
 	const MoveSkillType *getMoveSkillType() const			{return moveSkillType;};
@@ -366,7 +366,7 @@ public:
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
     virtual string getReqDesc(bool translatedValue) const;
-	virtual string toString() const;
+	virtual string toString(bool translatedValue) const;
 	virtual const ProducibleType *getProduced() const;
 	virtual Queueability isQueuable() const						{return qAlways;}
 	virtual int getTypePriority() const {return 15;}
@@ -395,7 +395,7 @@ public:
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString() const;
+	virtual string toString(bool translatedValue) const;
 	virtual string getReqDesc(bool translatedValue) const;
 	virtual const ProducibleType *getProduced() const;
 	virtual Queueability isQueuable() const						{return qAlways;}
@@ -426,7 +426,7 @@ public:
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString() const;
+	virtual string toString(bool translatedValue) const;
 	virtual string getReqDesc(bool translatedValue) const;
 	virtual const ProducibleType *getProduced() const;
 	Queueability isQueuable() const						{return qOnlyLast;} //After morph anything can happen
@@ -455,7 +455,7 @@ public:
     		const TechTree *tt, const FactionType *ft, const UnitType &ut,
     		std::map<string,vector<pair<string, string> > > &loadedFileList, string parentLoader);
     virtual string getDesc(const TotalUpgrade *totalUpgrade, bool translatedValue) const;
-	virtual string toString() const;
+	virtual string toString(bool translatedValue) const;
 
 	virtual bool usesPathfinder() const { return false; }
 };
