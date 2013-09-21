@@ -2489,8 +2489,10 @@ void Unit::updateTimedParticles() {
 			UnitParticleSystem *ps = unitParticleSystems[i];
 			if(ps != NULL) {
 				if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
-					double particleStartTime = truncateDecimal<double>(ps->getStartTime());
-					double particleEndTime = truncateDecimal<double>(ps->getEndTime());
+					float pst = ps->getStartTime();
+					float pet = ps->getEndTime();
+					double particleStartTime = truncateDecimal<double>(pst);
+					double particleEndTime = truncateDecimal<double>(pet);
 
 					if(particleStartTime != 0.0 || particleEndTime != 1.0) {
 						//printf("Checking for end particle system #%d [%d] [%f] [%f] [%f] [%f]\n",i,ps->shape,truncateDecimal<float>(ps->getStartTime()),truncateDecimal<float>(ps->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
@@ -4098,7 +4100,9 @@ std::string Unit::toString(bool crcMode) const {
 	result += "\n";
 	result += " lastAnimProgress = " + intToStr(this->lastAnimProgress);
 	result += " animProgress = " + intToStr(this->animProgress);
-	result += " highlight = " + floatToStr(this->highlight,16);
+	if(crcMode == false) {
+		result += " highlight = " + floatToStr(this->highlight,16);
+	}
 	result += " progress2 = " + intToStr(this->progress2);
 	result += " kills = " + intToStr(this->kills);
 	result += " enemyKills = " + intToStr(this->enemyKills);
@@ -5051,6 +5055,9 @@ Checksum Unit::getCRC() {
 	}
 
 	//TotalUpgrade totalUpgrade;
+	uint32 crc = totalUpgrade.getCRC().getSum();
+	crcForUnit.addBytes(&crc,sizeof(uint32));
+
 	//Map *map;
 	//UnitPathInterface *unitPath;
 	//WaypointPath waypointPath;
