@@ -125,26 +125,71 @@ public:
 		result += "sightIsMultiplier = " + intToStr(sightIsMultiplier);
 
 		result += " maxEp = " + intToStr(maxEp);
-		result += "maxEpIsMultiplier = " + intToStr(maxEpIsMultiplier);
+		result += " maxEpIsMultiplier = " + intToStr(maxEpIsMultiplier);
 		result += " maxEpRegeneration = " + intToStr(maxEpRegeneration);
 		//result += "maxEpRegenerationIsMultiplier = " + intToStr(maxEpRegenerationIsMultiplier);
 
 		result += " armor = " + intToStr(armor);
-		result += "armorIsMultiplier = " + intToStr(armorIsMultiplier);
+		result += " armorIsMultiplier = " + intToStr(armorIsMultiplier);
 		result += " attackStrength = " + intToStr(attackStrength);
-		result += "attackStrengthIsMultiplier = " + intToStr(attackStrengthIsMultiplier);
+		result += " attackStrengthIsMultiplier = " + intToStr(attackStrengthIsMultiplier);
 		result += " attackRange = " + intToStr(attackRange);
-		result += "attackRangeIsMultiplier = " + intToStr(attackRangeIsMultiplier);
+		result += " attackRangeIsMultiplier = " + intToStr(attackRangeIsMultiplier);
 		result += " moveSpeed = " + intToStr(moveSpeed);
-		result += "moveSpeedIsMultiplier = " + intToStr(moveSpeedIsMultiplier);
+		result += " moveSpeedIsMultiplier = " + intToStr(moveSpeedIsMultiplier);
 		result += " prodSpeed = " + intToStr(prodSpeed);
-		result += "prodSpeedIsMultiplier = " + intToStr(prodSpeedIsMultiplier);
+		result += " prodSpeedIsMultiplier = " + intToStr(prodSpeedIsMultiplier);
 
 		return result;
 	}
 
 	virtual void saveGame(XmlNode *rootNode) const;
 	static const UpgradeType * loadGame(const XmlNode *rootNode, Faction *faction);
+
+	Checksum getCRC() {
+		Checksum crcForUpgradeType;
+
+		crcForUpgradeType.addString(upgradename);
+		crcForUpgradeType.addInt(maxHp);
+		crcForUpgradeType.addInt(maxHpIsMultiplier);
+	    crcForUpgradeType.addInt(maxHpRegeneration);
+
+	    crcForUpgradeType.addInt(sight);
+	    crcForUpgradeType.addInt(sightIsMultiplier);
+
+	    crcForUpgradeType.addInt(maxEp);
+	    crcForUpgradeType.addInt(maxEpIsMultiplier);
+	    crcForUpgradeType.addInt(maxEpRegeneration);
+
+	    crcForUpgradeType.addInt(armor);
+	    crcForUpgradeType.addInt(armorIsMultiplier);
+
+	    crcForUpgradeType.addInt(attackStrength);
+	    crcForUpgradeType.addInt(attackStrengthIsMultiplier);
+	    //std::map<string,int> attackStrengthMultiplierValueList;
+	    crcForUpgradeType.addInt64((int64)attackStrengthMultiplierValueList.size());
+
+	    crcForUpgradeType.addInt(attackRange);
+	    crcForUpgradeType.addInt(attackRangeIsMultiplier);
+	    //std::map<string,int> attackRangeMultiplierValueList;
+	    crcForUpgradeType.addInt64((int64)attackRangeMultiplierValueList.size());
+
+	    crcForUpgradeType.addInt(moveSpeed);
+	    crcForUpgradeType.addInt(moveSpeedIsMultiplier);
+	    //std::map<string,int> moveSpeedIsMultiplierValueList;
+	    crcForUpgradeType.addInt64((int64)moveSpeedIsMultiplierValueList.size());
+
+	    crcForUpgradeType.addInt(prodSpeed);
+	    crcForUpgradeType.addInt(prodSpeedIsMultiplier);
+	    //std::map<string,int> prodSpeedProduceIsMultiplierValueList;
+	    crcForUpgradeType.addInt64((int64)prodSpeedProduceIsMultiplierValueList.size());
+	    //std::map<string,int> prodSpeedUpgradeIsMultiplierValueList;
+	    crcForUpgradeType.addInt64((int64)prodSpeedUpgradeIsMultiplierValueList.size());
+	    //std::map<string,int> prodSpeedMorphIsMultiplierValueList;
+	    crcForUpgradeType.addInt64((int64)prodSpeedMorphIsMultiplierValueList.size());
+
+		return crcForUpgradeType;
+	}
 };
 
 // ===============================
