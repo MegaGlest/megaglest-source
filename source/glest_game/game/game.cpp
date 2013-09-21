@@ -1689,27 +1689,33 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 
 void Game::processNetworkSynchChecksIfRequired() {
 	bool isNetworkGame = this->gameSettings.isNetworkGame();
-	if (isNetworkGame
-			== true&& NetworkManager::getInstance().getGameNetworkInterface() != NULL) {GameSettings *settings = world.getGameSettingsPtr();
-		if(settings != NULL && (settings->getFlagTypes1() & ft1_network_synch_checks) == ft1_network_synch_checks) {
-			NetworkManager &networkManager = NetworkManager::getInstance();
-			NetworkRole role = networkManager.getNetworkRole();
+	if (isNetworkGame == true && NetworkManager::getInstance().getGameNetworkInterface() != NULL) {
+		GameSettings *settings = world.getGameSettingsPtr();
 
-			NetworkInterface *netIntf = networkManager.getGameNetworkInterface();
-			for(int index = 0; index < GameConstants::maxPlayers; ++index) {
-				if(index < world.getFactionCount()) {
-					Faction *faction = world.getFaction(index);
-					netIntf->setNetworkPlayerFactionCRC(index,faction->getCRC().getSum());
+
+		NetworkManager &networkManager = NetworkManager::getInstance();
+		NetworkRole role = networkManager.getNetworkRole();
+
+		NetworkInterface *netIntf = networkManager.getGameNetworkInterface();
+		for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+			if(index < world.getFactionCount()) {
+				Faction *faction = world.getFaction(index);
+				netIntf->setNetworkPlayerFactionCRC(index,faction->getCRC().getSum());
+
+				if(settings != NULL && (settings->getFlagTypes1() & ft1_network_synch_checks) == ft1_network_synch_checks) {
 					faction->addCRC_DetailsForWorldFrame(world.getFrameCount(),role == nrServer);
 				}
-				else {
-					netIntf->setNetworkPlayerFactionCRC(index,0);
+				else if(world.getFrameCount() % 20 == 0) {
+					faction->addCRC_DetailsForWorldFrame(world.getFrameCount(),role == nrServer);
 				}
-
-				//if(world.getFrameCount() % 40 == 0) {
-				//	printf("Frame #: %d Faction: %d CRC: %u\n",world.getFrameCount(),index,netIntf->getNetworkPlayerFactionCRC(index));
-				//}
 			}
+			else {
+				netIntf->setNetworkPlayerFactionCRC(index,0);
+			}
+
+			//if(world.getFrameCount() % 40 == 0) {
+			//	printf("Frame #: %d Faction: %d CRC: %u\n",world.getFrameCount(),index,netIntf->getNetworkPlayerFactionCRC(index));
+			//}
 		}
 	}
 }
@@ -4909,12 +4915,11 @@ Stats Game::quitGame() {
 
 void Game::DumpCRCWorldLogIfRequired(string fileSuffix) {
 	bool isNetworkGame = this->gameSettings.isNetworkGame();
-
-	printf("Check save world CRC to log. isNetworkGame = %d fileSuffix = %s\n",isNetworkGame,fileSuffix.c_str());
-
 	if(isNetworkGame == true) {
+		printf("Check save world CRC to log. isNetworkGame = %d fileSuffix = %s\n",isNetworkGame,fileSuffix.c_str());
+
 		GameSettings *settings = world.getGameSettingsPtr();
-		if(settings != NULL && (settings->getFlagTypes1() & ft1_network_synch_checks) == ft1_network_synch_checks) {
+		//if(settings != NULL && (settings->getFlagTypes1() & ft1_network_synch_checks) == ft1_network_synch_checks) {
 			string debugCRCWorldLogFile = Config::getInstance().getString("DebugCRCWorldLogFile","debugCRCWorld.log");
 			debugCRCWorldLogFile += fileSuffix;
 
@@ -4962,7 +4967,7 @@ void Game::DumpCRCWorldLogIfRequired(string fileSuffix) {
 			}
 	#endif
 
-		}
+		//}
 	}
 }
 
