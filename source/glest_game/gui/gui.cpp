@@ -770,7 +770,7 @@ void Gui::computeInfoString(int posDisplay){
 					const UnitType *ut= selection.getFrontUnit()->getType();
 					CommandClass cc= display.getCommandClass(posDisplay);
 					if(cc!=ccNull){
-						display.setInfoText(lang.get("CommonCommand") + ": " + ut->getFirstCtOfClass(cc)->toString());
+						display.setInfoText(lang.get("CommonCommand") + ": " + ut->getFirstCtOfClass(cc)->toString(true));
 					}
 				}
 			}

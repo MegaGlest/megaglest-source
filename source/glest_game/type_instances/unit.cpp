@@ -1494,7 +1494,7 @@ int Unit::getCountOfProducedUnits(const UnitType *ut) const{
 
 //give one command (clear, and push back)
 std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueue) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"\n======================\nUnit Command tryQueue = %d\nUnit Info:\n%s\nCommand Info:\n%s\n",tryQueue,this->toString().c_str(),command->toString().c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"\n======================\nUnit Command tryQueue = %d\nUnit Info:\n%s\nCommand Info:\n%s\n",tryQueue,this->toString().c_str(),command->toString(false).c_str());
 
 	std::pair<CommandResult,string> result(crFailUndefined,"");
 	changedActiveCommand = false;
@@ -1527,7 +1527,7 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
 			for(list<Command*>::iterator i= commands.begin(); i != commands.end();){
 				if((*i)->getPriority() < command_priority){
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled)
-						SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Deleting lower priority command [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(*i)->toString().c_str());
+						SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Deleting lower priority command [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(*i)->toString(false).c_str());
 
 					static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 					MutexSafeWrapper safeMutex(mutexCommands,mutexOwnerId);
@@ -1547,7 +1547,7 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
 		//cancel current command if it is not queuable
 		if(commands.empty() == false &&
           commands.back()->getCommandType()->isQueueAppendable() == false) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Cancel command because last one is NOT queable [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,commands.back()->toString().c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Cancel command because last one is NOT queable [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,commands.back()->toString(false).c_str());
 
 		    cancelCommand();
 		}
@@ -4159,7 +4159,7 @@ std::string Unit::toString(bool crcMode) const {
     	result += " index = " + intToStr(cmdIdx) + " ";
     	const Command *cmd = *iterList;
     	if(cmd != NULL) {
-    		result += cmd->toString() + "\n";
+    		result += cmd->toString(false) + "\n";
     	}
     	cmdIdx++;
     }

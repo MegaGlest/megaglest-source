@@ -198,7 +198,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			string commandDesc = "none";
 			Command *command= unit->getCurrCommand();
 			if(command != NULL && command->getCommandType() != NULL) {
-				commandDesc = command->getCommandType()->toString();
+				commandDesc = command->getCommandType()->toString(false);
 			}
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"State: arrived#1 at pos: %s, command [%s]",finalPos.getString().c_str(),commandDesc.c_str());
@@ -1071,7 +1071,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 										string commandDesc = "none";
 										Command *command= unit->getCurrCommand();
 										if(command != NULL && command->getCommandType() != NULL) {
-											commandDesc = command->getCommandType()->toString();
+											commandDesc = command->getCommandType()->toString(false);
 										}
 
 										char szBuf[8096]="";
@@ -1136,7 +1136,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 										string commandDesc = "none";
 										Command *command= unit->getCurrCommand();
 										if(command != NULL && command->getCommandType() != NULL) {
-											commandDesc = command->getCommandType()->toString();
+											commandDesc = command->getCommandType()->toString(false);
 										}
 
 										char szBuf[8096]="";
@@ -1371,7 +1371,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			string commandDesc = "none";
 			Command *command= unit->getCurrCommand();
 			if(command != NULL && command->getCommandType() != NULL) {
-				commandDesc = command->getCommandType()->toString();
+				commandDesc = command->getCommandType()->toString(false);
 			}
 
 			std::pair<Vec2i,int> lastHarvest = unit->getLastHarvestResourceTarget();
@@ -1485,7 +1485,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			string commandDesc = "none";
 			Command *command= unit->getCurrCommand();
 			if(command != NULL && command->getCommandType() != NULL) {
-				commandDesc = command->getCommandType()->toString();
+				commandDesc = command->getCommandType()->toString(false);
 			}
 
 			char szBuf[8096]="";

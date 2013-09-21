@@ -78,7 +78,7 @@ string RequirableType::getReqDesc(bool translatedValue) const{
 
 	string str= getName(translatedValue);
 	if(anyReqs){
-		return str + " " + Lang::getInstance().get("Reqs") + ":\n" + reqString;
+		return str + " " + Lang::getInstance().get("Reqs",(translatedValue == true ? "" : "english")) + ":\n" + reqString;
 	}
 	else{
 		return str;
@@ -176,7 +176,7 @@ string ProducibleType::getUnitAndUpgradeReqDesc(bool lineBreaks, bool translated
 }   
 
 string ProducibleType::getReqDesc(bool ignoreResourceRequirements, bool translatedValue) const {
-    string str= getName(translatedValue) + " " + Lang::getInstance().get("Reqs") + ":\n";
+    string str= getName(translatedValue) + " " + Lang::getInstance().get("Reqs",(translatedValue == true ? "" : "english")) + ":\n";
     if(ignoreResourceRequirements == false) {
 		str+= getResourceReqDesc(true,translatedValue);
     }
