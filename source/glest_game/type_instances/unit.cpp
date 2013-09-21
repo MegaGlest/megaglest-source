@@ -2462,7 +2462,7 @@ void Unit::updateTimedParticles() {
 		for(int i = queuedUnitParticleSystemTypes.size() - 1; i >= 0; i--) {
 			UnitParticleSystemType *pst = queuedUnitParticleSystemTypes[i];
 			if(pst != NULL) {
-				if(truncateDecimal<float>(pst->getStartTime()) <= truncateDecimal<float>(getAnimProgressAsFloat())) {
+				if(truncateDecimal<double>(pst->getStartTime()) <= truncateDecimal<double>(getAnimProgressAsFloat())) {
 					//printf("STARTING queued particle system type [%s] [%f] [%f] [%f] [%f]\n",pst->getType().c_str(),truncateDecimal<float>(pst->getStartTime()),truncateDecimal<float>(pst->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
 
 					UnitParticleSystem *ups = new UnitParticleSystem(200);
@@ -2489,12 +2489,12 @@ void Unit::updateTimedParticles() {
 			UnitParticleSystem *ps = unitParticleSystems[i];
 			if(ps != NULL) {
 				if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
-					float particleStartTime = truncateDecimal<float>(ps->getStartTime());
-					float particleEndTime = truncateDecimal<float>(ps->getEndTime());
+					double particleStartTime = truncateDecimal<double>(ps->getStartTime());
+					double particleEndTime = truncateDecimal<double>(ps->getEndTime());
 
 					if(particleStartTime != 0.0 || particleEndTime != 1.0) {
 						//printf("Checking for end particle system #%d [%d] [%f] [%f] [%f] [%f]\n",i,ps->shape,truncateDecimal<float>(ps->getStartTime()),truncateDecimal<float>(ps->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
-						float animProgressTime = truncateDecimal<float>(getAnimProgressAsFloat());
+						double animProgressTime = truncateDecimal<double>(getAnimProgressAsFloat());
 						if(animProgressTime >= 0.99 || animProgressTime >= particleEndTime) {
 							//printf("ENDING particle system [%d]\n",ps->shape);
 
