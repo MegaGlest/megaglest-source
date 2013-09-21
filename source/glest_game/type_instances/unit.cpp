@@ -2489,11 +2489,13 @@ void Unit::updateTimedParticles() {
 			UnitParticleSystem *ps = unitParticleSystems[i];
 			if(ps != NULL) {
 				if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
-					if(truncateDecimal<float>(ps->getStartTime()) != 0.0 || truncateDecimal<float>(ps->getEndTime()) != 1.0) {
-						//printf("Checking for end particle system #%d [%d] [%f] [%f] [%f] [%f]\n",i,ps->shape,truncateDecimal<float>(ps->getStartTime()),truncateDecimal<float>(ps->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
+					float particleStartTime = truncateDecimal<float>(ps->getStartTime());
+					float particleEndTime = truncateDecimal<float>(ps->getEndTime());
 
-						if(truncateDecimal<float>(getAnimProgressAsFloat()) >= 0.99 ||
-								truncateDecimal<float>(getAnimProgressAsFloat()) >= truncateDecimal<float>(ps->getEndTime())) {
+					if(particleStartTime != 0.0 || particleEndTime != 1.0) {
+						//printf("Checking for end particle system #%d [%d] [%f] [%f] [%f] [%f]\n",i,ps->shape,truncateDecimal<float>(ps->getStartTime()),truncateDecimal<float>(ps->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
+						float animProgressTime = truncateDecimal<float>(getAnimProgressAsFloat());
+						if(animProgressTime >= 0.99 || animProgressTime >= particleEndTime) {
 							//printf("ENDING particle system [%d]\n",ps->shape);
 
 							ps->fade();
