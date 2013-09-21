@@ -15,9 +15,12 @@
 #include "util.h"
 #include <stdexcept>
 #include "platform_util.h"
+#include "math_util.h"
 #include "leak_dumper.h"
 
 using namespace std;
+using namespace Shared::Graphics;
+
 namespace Shared { namespace Util {
 
 // =====================================================
@@ -71,7 +74,7 @@ int RandomGen::randRange(int min, int max){
 //	int res = streflop::Random<true, false, float>(min, max); // streflop
 //#else
 	int diff= max-min;
-	int res= min + static_cast<int>(static_cast<float>(diff+1)*RandomGen::rand() / m);
+	int res= min + static_cast<int>(truncateDecimal<double>(static_cast<double>(diff+1))*RandomGen::rand() / m);
 //#endif
 	assert(res>=min && res<=max);
 	if(res < min || res > max) {
@@ -98,6 +101,7 @@ float RandomGen::randRange(float min, float max){
 //#else
 	float rand01= static_cast<float>(RandomGen::rand())/(m-1);
 	float res= min+(max-min)*rand01;
+	res = truncateDecimal<float>(res);
 //#endif
 
 	assert(res>=min && res<=max);
