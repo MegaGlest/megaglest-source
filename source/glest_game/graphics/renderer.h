@@ -248,7 +248,7 @@ private:
     bool photoMode;
 	int shadowTextureSize;
 	int shadowFrameSkip;
-	float shadowAlpha;
+	float shadowIntensity;
 	bool focusArrows;
 	bool textures3D;
 	Shadows shadows;

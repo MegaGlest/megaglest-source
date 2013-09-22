@@ -30,6 +30,7 @@ using namespace Shared::Graphics;
 namespace Glest{ namespace Game{
 
 const float Tileset::standardAirHeight= 5.0f;
+const float Tileset::standardShadowIntensity= 0.2f;
 // =====================================================
 // 	class AmbientSounds
 // =====================================================
@@ -420,6 +421,13 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 		moonLightColor.x= moonLightColorNode->getAttribute("red")->getFloatValue();
 		moonLightColor.y= moonLightColorNode->getAttribute("green")->getFloatValue();
 		moonLightColor.z= moonLightColorNode->getAttribute("blue")->getFloatValue();
+
+		if(parametersNode->hasChild("shadow-intensity")) {
+			const XmlNode *shadowIntenseNode= parametersNode->getChild("shadow-intensity");
+			shadowIntensity= shadowIntenseNode->getAttribute("value")->getFloatValue();
+		} else {
+			shadowIntensity=standardShadowIntensity;
+		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
