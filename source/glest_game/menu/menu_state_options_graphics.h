@@ -77,6 +77,9 @@ private:
 	GraphicLabel labelGammaCorrection;
 	GraphicListBox listBoxGammaCorrection;
 
+	GraphicLabel labelShadowIntensity;
+	GraphicListBox listBoxShadowIntensity;
+
 	GraphicLabel labelShadowTextureSize;
 	GraphicListBox listBoxShadowTextureSize;
 

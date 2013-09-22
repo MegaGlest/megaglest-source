@@ -151,7 +151,7 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		}
 		float gammaValue=config.getFloat("GammaValue","1.0");
 		if(gammaValue==0.0f) gammaValue=1.0f;
-		listBoxGammaCorrection.setSelectedItem(floatToStr(gammaValue));
+		listBoxGammaCorrection.setSelectedItem(floatToStr(gammaValue),false);
 
 		currentLine-=lineOffset;
 
@@ -213,6 +213,22 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		listBoxShadowTextureSize.pushBackItem("1024");
 		listBoxShadowTextureSize.setSelectedItemIndex(1,false);
 		listBoxShadowTextureSize.setSelectedItem(intToStr(config.getInt("ShadowTextureSize","512")),false);
+		currentLine-=lineOffset;
+
+		//shadows
+		labelShadowIntensity.registerGraphicComponent(containerName,"labelShadowIntensity");
+		labelShadowIntensity.init(currentLabelStart, currentLine);
+		labelShadowIntensity.setText(lang.get("ShadowIntensity"));
+
+		listBoxShadowIntensity.registerGraphicComponent(containerName,"listBoxShadowIntensity");
+		listBoxShadowIntensity.init(currentColumnStart, currentLine, 200);
+		for (float f=0.5f;f<3.0f;f=f+0.1f) {
+			listBoxShadowIntensity.pushBackItem(floatToStr(f));
+		}
+		float shadowIntensity=config.getFloat("ShadowIntensity","1.0");
+		if(shadowIntensity<=0.0f) shadowIntensity=1.0f;
+		listBoxShadowIntensity.setSelectedItem(floatToStr(shadowIntensity),false);
+
 		currentLine-=lineOffset;
 
 		//textures 3d
@@ -397,6 +413,13 @@ void MenuStateOptionsGraphics::reloadUI() {
 		listboxData.push_back(floatToStr(f));
 	}
 	listBoxGammaCorrection.setItems(listboxData);
+
+
+	listboxData.clear();
+	for (float f=0.5;f<3.0f;f=f+0.1f) {
+		listboxData.push_back(floatToStr(f));
+	}
+	listBoxShadowIntensity.setItems(listboxData);
 
 
 	labelShadows.setText(lang.get("Shadows"));
@@ -661,6 +684,7 @@ void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton)
 		listBoxShadows.mouseClick(x, y);
 		listBoxAnimatedTilesetObjects.mouseClick(x, y);
 		listBoxShadowTextureSize.mouseClick(x, y);
+		listBoxShadowIntensity.mouseClick(x, y);
 		listBoxFilter.mouseClick(x, y);
 		if(listBoxGammaCorrection.mouseClick(x, y)){
 			float gammaValue=strToFloat(listBoxGammaCorrection.getSelectedItem());
@@ -700,6 +724,7 @@ void MenuStateOptionsGraphics::mouseMove(int x, int y, const MouseState *ms){
 	buttonVideoInfo.mouseMove(x, y);
 	listBoxFilter.mouseMove(x, y);
 	listBoxGammaCorrection.mouseMove(x, y);
+	listBoxShadowIntensity.mouseMove(x, y);
 	listBoxSelectionType.mouseMove(x, y);
 	listBoxShadows.mouseMove(x, y);
 	checkBoxTextures3D.mouseMove(x, y);
@@ -775,6 +800,7 @@ void MenuStateOptionsGraphics::render(){
 		renderer.renderListBox(&listBoxLights);
 		renderer.renderListBox(&listBoxFilter);
 		renderer.renderListBox(&listBoxGammaCorrection);
+		renderer.renderListBox(&listBoxShadowIntensity);
 		renderer.renderLabel(&labelShadows);
 		renderer.renderLabel(&labelTextures3D);
 		renderer.renderLabel(&labelUnitParticles);
@@ -785,6 +811,7 @@ void MenuStateOptionsGraphics::render(){
 		renderer.renderLabel(&labelLights);
 		renderer.renderLabel(&labelFilter);
 		renderer.renderLabel(&labelGammaCorrection);
+		renderer.renderLabel(&labelShadowIntensity);
 		renderer.renderLabel(&labelScreenModes);
 		renderer.renderListBox(&listBoxScreenModes);
 		renderer.renderLabel(&labelFullscreenWindowed);
@@ -837,6 +864,7 @@ void MenuStateOptionsGraphics::saveConfig(){
 	config.setBool("Windowed", checkBoxFullscreenWindowed.getValue());
 	config.setString("Filter", listBoxFilter.getSelectedItem());
 	config.setFloat("GammaValue", strToFloat(listBoxGammaCorrection.getSelectedItem()));
+	config.setFloat("ShadowIntensity", strToFloat(listBoxShadowIntensity.getSelectedItem()));
 	config.setBool("Textures3D", checkBoxTextures3D.getValue());
 	config.setBool("UnitParticles", (checkBoxUnitParticles.getValue()));
 	config.setBool("TilesetParticles", (checkBoxTilesetParticles.getValue()));

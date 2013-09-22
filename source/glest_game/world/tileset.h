@@ -121,6 +121,7 @@ public:
 	static const int objCount= 10;
 	static const int transitionVars= 2; //number or different transition textures
 	static const float standardAirHeight;
+	static const float standardShadowIntensity;
 
 public:
 	typedef vector<float> SurfProbs;
@@ -145,6 +146,7 @@ private:
 	Vec3f fogColor;
 	Vec3f sunLightColor;
 	Vec3f moonLightColor;
+	float shadowIntensity;
 	Weather weather;
 	float airHeight;
 
@@ -162,6 +164,7 @@ public:
 		fogDensity = 0.0f;
 		weather= wSunny;
 		airHeight= standardAirHeight;
+		shadowIntensity= standardShadowIntensity;
 
 		for(int index = 0; index < surfCount; ++index) {
 			partsArray[index] = 0;
@@ -187,6 +190,7 @@ public:
 	const Vec3f &getFogColor() const				{return fogColor;}
 	const Vec3f &getSunLightColor() const			{return sunLightColor;}
 	const Vec3f &getMoonLightColor() const			{return moonLightColor;}
+	float getShadowIntense()const  {return shadowIntensity;}
 	Weather getWeather() const						{return weather;}
 	void setWeather(Weather value) { weather = value; }
 

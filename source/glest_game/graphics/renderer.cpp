@@ -168,7 +168,7 @@ Renderer::Renderer() : BaseRenderer() {
 	//assert(0==1);
 
 	Renderer::rendererEnded = false;
-	shadowAlpha = 0;
+	shadowIntensity = 0;
 	shadowFrameSkip = 0;
 	triangleCount = 0;
 	smoothedRenderFps = 0;
@@ -6957,7 +6957,11 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 				glClear(GL_DEPTH_BUFFER_BIT);
 			}
 			else {
-				float color= 1.0f-shadowAlpha;
+				float shadowIntensityToSet=shadowIntensity*game->getWorld()->getTileset()->getShadowIntense();
+				if(shadowIntensityToSet > 1.0f){
+					shadowIntensityToSet=1.0f;
+				}
+				float color= 1.0f-shadowIntensityToSet;
 				glColor3f(color, color, color);
 				glClearColor(1.f, 1.f, 1.f, 1.f);
 				glDisable(GL_DEPTH_TEST);
@@ -7256,7 +7260,7 @@ void Renderer::loadConfig() {
 	if(shadows==sProjected || shadows==sShadowMapping){
 		shadowTextureSize= config.getInt("ShadowTextureSize");
 		shadowFrameSkip= config.getInt("ShadowFrameSkip");
-		shadowAlpha= config.getFloat("ShadowAlpha");
+		shadowIntensity= config.getFloat("ShadowIntensity","1.0");
 	}
 
 	//load filter settings
