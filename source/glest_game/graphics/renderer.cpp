@@ -505,9 +505,19 @@ void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
 	//shadows
 	if(shadows == sProjected || shadows == sShadowMapping) {
 		static_cast<ModelRendererGl*>(modelRenderer)->setSecondaryTexCoordUnit(2);
+		Config &config= Config::getInstance();
 
 		glGenTextures(1, &shadowMapHandle);
 		shadowMapHandleValid=true;
+
+		shadowIntensity= config.getFloat("ShadowIntensity","1.0");
+		if(game!=NULL){
+			shadowIntensity=shadowIntensity*game->getWorld()->getTileset()->getShadowIntense();
+			if(shadowIntensity > 1.0f){
+				shadowIntensity=1.0f;
+			}
+		}
+
 		glBindTexture(GL_TEXTURE_2D, shadowMapHandle);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -738,6 +748,7 @@ void Renderer::endScenario() {
 void Renderer::endGame(bool isFinalEnd) {
 	this->game= NULL;
 	this->gameCamera = NULL;
+	Config &config= Config::getInstance();
 
 	try {
 		quadCache = VisibleQuadContainerCache();
@@ -777,6 +788,7 @@ void Renderer::endGame(bool isFinalEnd) {
 		glDeleteTextures(1, &shadowMapHandle);
 		shadowMapHandleValid=false;
 	}
+	shadowIntensity= config.getFloat("ShadowIntensity","1.0");
 
 	//if(list3dValid == true) {
 	//	glDeleteLists(list3d, 1);
@@ -6957,11 +6969,7 @@ void Renderer::renderShadowsToTexture(const int renderFps){
 				glClear(GL_DEPTH_BUFFER_BIT);
 			}
 			else {
-				float shadowIntensityToSet=shadowIntensity*game->getWorld()->getTileset()->getShadowIntense();
-				if(shadowIntensityToSet > 1.0f){
-					shadowIntensityToSet=1.0f;
-				}
-				float color= 1.0f-shadowIntensityToSet;
+				float color= 1.0f-shadowIntensity;
 				glColor3f(color, color, color);
 				glClearColor(1.f, 1.f, 1.f, 1.f);
 				glDisable(GL_DEPTH_TEST);
