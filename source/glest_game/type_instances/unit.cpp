@@ -2979,9 +2979,9 @@ bool Unit::repair(){
 
 //decrements HP and returns if dead
 bool Unit::decHp(int decrementValue) {
-	char szBuf[8096]="";
-	snprintf(szBuf,8095,"this->hp = %d, decrementValue = %d",this->hp,decrementValue);
-	addNetworkCRCDecHp(szBuf);
+//	char szBuf[8096]="";
+//	snprintf(szBuf,8095,"this->hp = %d, decrementValue = %d",this->hp,decrementValue);
+//	addNetworkCRCDecHp(szBuf);
 
 	if(this->hp == 0) {
 		return false;
@@ -4251,14 +4251,14 @@ std::string Unit::toString(bool crcMode) const {
 	result += "lastStuckFrame = " + uIntToStr(lastStuckFrame) + "\n";
 	result += "lastStuckPos = " + lastStuckPos.getString() + "\n";
 
-	if(attackParticleSystems.size() > 0) {
+	if(attackParticleSystems.empty() == false) {
 		result += "attackParticleSystems count = " + intToStr(attackParticleSystems.size()) + "\n";
 	}
 	if(networkCRCParticleLogInfo != "") {
 		result += "networkCRCParticleLogInfo = " + networkCRCParticleLogInfo + "\n";
 	}
 	result += "networkCRCParticleObserverLogInfo = " + networkCRCParticleObserverLogInfo + "\n";
-	if(networkCRCDecHpList.size() > 0) {
+	if(networkCRCDecHpList.empty() == false) {
 		result += "getNetworkCRCDecHpList() = " + getNetworkCRCDecHpList() + "\n";
 	}
 
