@@ -56,7 +56,7 @@ int RandomGen::rand(string lastCaller) {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] lastNumber = %d\n",__FILE__,__FUNCTION__,__LINE__,lastNumber);
 
 	this->lastNumber = (a*lastNumber + b) % m;
-	this->lastCaller.push_back(lastCaller);
+	//this->lastCaller.push_back(lastCaller);
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] lastNumber = %d\n",__FILE__,__FUNCTION__,__LINE__,lastNumber);
 
@@ -65,8 +65,10 @@ int RandomGen::rand(string lastCaller) {
 
 std::string RandomGen::getLastCaller() const {
 	std::string result = "";
-	for(unsigned int index = 0; index < lastCaller.size(); ++index) {
-		result += lastCaller[index] + " ";
+	if(lastCaller.empty() == false) {
+		for(unsigned int index = 0; index < lastCaller.size(); ++index) {
+			result += lastCaller[index] + " ";
+		}
 	}
 	return result;
 }
