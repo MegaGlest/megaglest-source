@@ -79,7 +79,7 @@ public:
 
 class DamageMultiplierTable {
 private:
-	float *values;
+	double *values;
 	int attackTypeCount;
 	int armorTypeCount;
 
@@ -88,8 +88,8 @@ public:
 	~DamageMultiplierTable();
 
 	void init(int attackTypeCount, int armorTypeCount);
-	float getDamageMultiplier(const AttackType *att, const ArmorType *art) const; 
-	void setDamageMultiplier(const AttackType *att, const ArmorType *art, float value);
+	double getDamageMultiplier(const AttackType *att, const ArmorType *art) const;
+	void setDamageMultiplier(const AttackType *att, const ArmorType *art, double value);
 
 	void saveGame(XmlNode *rootNode);
 };

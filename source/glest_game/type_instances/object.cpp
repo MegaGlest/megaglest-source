@@ -106,6 +106,7 @@ void Object::initParticlesFromTypes(const ModelParticleSystemTypes *particleType
 			particleTypes->empty() == false && unitParticleSystems.empty() == true) {
 		for(ObjectParticleSystemTypes::const_iterator it= particleTypes->begin(); it != particleTypes->end(); ++it){
 			UnitParticleSystem *ups= new UnitParticleSystem(200);
+			ups->setParticleOwner(this);
 			(*it)->setValues(ups);
 			ups->setPos(this->pos);
 			ups->setRotation(this->rotation);
@@ -114,6 +115,13 @@ void Object::initParticlesFromTypes(const ModelParticleSystemTypes *particleType
 			this->unitParticleSystems.push_back(ups);
 			Renderer::getInstance().manageParticleSystem(ups, rsGame);
 		}
+	}
+}
+
+void Object::end(ParticleSystem *particleSystem) {
+	vector<UnitParticleSystem *>::iterator iterFind = find(unitParticleSystems.begin(),unitParticleSystems.end(),particleSystem);
+	if(iterFind != unitParticleSystems.end()) {
+		unitParticleSystems.erase(iterFind);
 	}
 }
 

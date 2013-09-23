@@ -97,7 +97,7 @@ public:
 	int getAttackTypeCount() const { return attackTypes.size(); }
 	const AttackType * getAttackTypeByIndex(int index) const { return &attackTypes[index]; }
 
-	float getDamageMultiplier(const AttackType *att, const ArmorType *art) const;
+	double getDamageMultiplier(const AttackType *att, const ArmorType *art) const;
 	std::vector<std::string> validateFactionTypes();
 	std::vector<std::string> validateResourceTypes();
 

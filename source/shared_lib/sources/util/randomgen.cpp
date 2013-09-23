@@ -52,18 +52,26 @@ void RandomGen::init(int seed){
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] seed = %d, lastNumber = %d\n",__FILE__,__FUNCTION__,__LINE__,seed,lastNumber);
 }
 
-int RandomGen::rand() {
+int RandomGen::rand(string lastCaller) {
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] lastNumber = %d\n",__FILE__,__FUNCTION__,__LINE__,lastNumber);
 
-	lastNumber= (a*lastNumber + b) % m;
+	this->lastNumber = (a*lastNumber + b) % m;
+	this->lastCaller.push_back(lastCaller);
 
 	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] lastNumber = %d\n",__FILE__,__FUNCTION__,__LINE__,lastNumber);
 
 	return lastNumber;
 }
 
-int RandomGen::randRange(int min, int max){
-	assert(min<=max);
+std::string RandomGen::getLastCaller() const {
+	std::string result = "";
+	for(unsigned int index = 0; index < lastCaller.size(); ++index) {
+		result += lastCaller[index] + " ";
+	}
+	return result;
+}
+int RandomGen::randRange(int min, int max,string lastCaller) {
+	//assert(min<=max);
 	if(min > max) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] min > max, min = %d, max = %d",__FILE__,__FUNCTION__,__LINE__,min,max);
@@ -74,9 +82,12 @@ int RandomGen::randRange(int min, int max){
 //	int res = streflop::Random<true, false, float>(min, max); // streflop
 //#else
 	int diff= max-min;
-	int res= min + static_cast<int>(truncateDecimal<double>(static_cast<double>(diff+1),2)*RandomGen::rand() / m);
+	//int res= min + static_cast<int>(truncateDecimal<double>(static_cast<double>(diff+1),2)*RandomGen::rand() / m);
+	double numerator = static_cast<double>(diff + 1) * static_cast<double>(RandomGen::rand(lastCaller));
+	int res= min + static_cast<int>(truncateDecimal<double>(numerator / static_cast<double>(m)));
+	//int res= min + static_cast<int>(truncateDecimal<double>(static_cast<double>(diff+1 * RandomGen::rand()) / static_cast<double>(m)));
 //#endif
-	assert(res>=min && res<=max);
+	//assert(res>=min && res<=max);
 	if(res < min || res > max) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] res < min || res > max, min = %d, max = %d, res = %d",__FILE__,__FUNCTION__,__LINE__,min,max,res);
@@ -88,8 +99,8 @@ int RandomGen::randRange(int min, int max){
 	return res;
 }
 
-float RandomGen::randRange(float min, float max){
-	assert(min<=max);
+float RandomGen::randRange(float min, float max,string lastCaller) {
+	//assert(min<=max);
 	if(min > max) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] min > max, min = %f, max = %f",__FILE__,__FUNCTION__,__LINE__,min,max);
@@ -99,12 +110,12 @@ float RandomGen::randRange(float min, float max){
 //#ifdef USE_STREFLOP
 //	float res = streflop::Random<true, false, float>(min, max, randomState); // streflop
 //#else
-	float rand01= static_cast<float>(RandomGen::rand())/(m-1);
+	float rand01= static_cast<float>(RandomGen::rand(lastCaller))/(m-1);
 	float res= min+(max-min)*rand01;
 	res = truncateDecimal<float>(res);
 //#endif
 
-	assert(res>=min && res<=max);
+	//assert(res>=min && res<=max);
 	if(res < min || res > max) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] res < min || res > max, min = %f, max = %f, res = %f",__FILE__,__FUNCTION__,__LINE__,min,max,res);

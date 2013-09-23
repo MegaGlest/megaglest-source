@@ -207,6 +207,7 @@ const void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
 	// add instances of all children; some settings will cascade to all children
 	for(Children::iterator i=children.begin(); i!=children.end(); ++i){
 		UnitParticleSystem *child = new UnitParticleSystem();
+		child->setParticleOwner(ups->getParticleOwner());
 		(*i)->setValues(child);
 		ups->addChild(child);
 	}

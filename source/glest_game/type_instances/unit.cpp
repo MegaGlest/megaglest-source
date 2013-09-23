@@ -440,7 +440,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 
     //RandomGen random;
     random.init(id);
-	pathFindRefreshCellCount = random.randRange(10,20);
+	pathFindRefreshCellCount = random.randRange(10,20,intToStr(__LINE__));
 
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
 		throw megaglest_runtime_error("#2 Invalid path position = " + pos.getString());
@@ -498,7 +498,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	if (type->hasSkillClass(scBeBuilt) == false) {
 		float rot= 0.f;
 		random.init(id);
-		rot+= random.randRange(-5, 5);
+		rot+= random.randRange(-5, 5,intToStr(__LINE__));
 		rotation= rot;
 		lastRotation= rot;
 		targetRotation= rot;
@@ -560,8 +560,6 @@ Unit::~Unit() {
 		Renderer::getInstance().cleanupParticleSystems(fireParticleSystems,rsGame);
 		// Must set this to null of it will be used below in stopDamageParticles()
 
-		Renderer::getInstance().cleanupParticleSystems(attackParticleSystems,rsGame);
-
 		if(Renderer::getInstance().validateParticleSystemStillExists(this->fire,rsGame) == false) {
 			this->fire = NULL;
 		}
@@ -586,6 +584,8 @@ Unit::~Unit() {
 
 	delete currentAttackBoostOriginatorEffect.currentAppliedEffect;
 	currentAttackBoostOriginatorEffect.currentAppliedEffect = NULL;
+
+	Renderer::getInstance().cleanupParticleSystems(attackParticleSystems,rsGame);
 
 #ifdef LEAK_CHECK_UNITS
 	Unit::mapMemoryList2[this->unitPath] = this->getId();
@@ -1090,6 +1090,7 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 				//printf("Adding NON-queued particle system type [%s] [%f] [%f]\n",(*it)->getType().c_str(),(*it)->getStartTime(),(*it)->getEndTime());
 
 				UnitParticleSystem *ups = new UnitParticleSystem(200);
+				ups->setParticleOwner(this);
 				(*it)->setValues(ups);
 				ups->setPos(getCurrVector());
 				if(getFaction()->getTexture()) {
@@ -1286,15 +1287,15 @@ void Unit::setVisible(const bool visible) {
 		}
 	}
 
-	if(attackParticleSystems.empty() == false) {
-		for(vector<ParticleSystem*>::iterator it= attackParticleSystems.begin(); it != attackParticleSystems.end(); ++it) {
-			if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
+	//if(attackParticleSystems.empty() == false) {
+	//	for(vector<ParticleSystem*>::iterator it= attackParticleSystems.begin(); it != attackParticleSystems.end(); ++it) {
+	//		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
 				// Not sure this is a good idea since the unit be not be visible but the attack particle might be.
 				// This means you won't see the attacking projectile until the unit moves into view.
 				//(*it)->setVisible(visible);
-			}
-		}
-	}
+	//		}
+	//	}
+	//}
 
 	if(currentAttackBoostEffects.empty() == false) {
 		for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
@@ -2106,6 +2107,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 						//effect.upst = boost->unitParticleSystemTypeForAffectedUnit;
 
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups = new UnitParticleSystem(200);
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setParticleOwner(this);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->upst->setValues(
 								currentAttackBoostOriginatorEffect.currentAppliedEffect->ups);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(
@@ -2213,6 +2215,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 						//effect.upst = boost->unitParticleSystemTypeForAffectedUnit;
 
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups = new UnitParticleSystem(200);
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setParticleOwner(this);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->upst->setValues(
 								currentAttackBoostOriginatorEffect.currentAppliedEffect->ups);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(
@@ -2466,6 +2469,7 @@ void Unit::updateTimedParticles() {
 					//printf("STARTING queued particle system type [%s] [%f] [%f] [%f] [%f]\n",pst->getType().c_str(),truncateDecimal<float>(pst->getStartTime()),truncateDecimal<float>(pst->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
 
 					UnitParticleSystem *ups = new UnitParticleSystem(200);
+					ups->setParticleOwner(this);
 					pst->setValues(ups);
 					ups->setPos(getCurrVector());
 					if(getFaction()->getTexture()) {
@@ -2602,6 +2606,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 				//effect.upst = boost->unitParticleSystemTypeForAffectedUnit;
 
 				effect->ups = new UnitParticleSystem(200);
+				effect->ups->setParticleOwner(this);
 				effect->upst->setValues(effect->ups);
 				effect->ups->setPos(getCurrVector());
 				if(getFaction()->getTexture()) {
@@ -2973,14 +2978,18 @@ bool Unit::repair(){
 }
 
 //decrements HP and returns if dead
-bool Unit::decHp(int i) {
+bool Unit::decHp(int decrementValue) {
+	char szBuf[8096]="";
+	snprintf(szBuf,8095,"this->hp = %d, decrementValue = %d",this->hp,decrementValue);
+	addNetworkCRCDecHp(szBuf);
+
 	if(this->hp == 0) {
 		return false;
 	}
 
 	checkItemInVault(&this->hp,this->hp);
 	int original_hp = this->hp;
-	this->hp -= i;
+	this->hp -= decrementValue;
 	if(original_hp != this->hp) {
 		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
@@ -3724,6 +3733,7 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 					//printf("STARTING customized particle trigger by HP [%d to %d] current hp = %d\n",pst->getMinHp(),pst->getMaxHp(),hp);
 
 					UnitParticleSystem *ups = new UnitParticleSystem(200);
+					ups->setParticleOwner(this);
 					pst->setValues(ups);
 					ups->setPos(getCurrVector());
 					if(getFaction()->getTexture()) {
@@ -3748,6 +3758,7 @@ void Unit::startDamageParticles() {
 
 				if(pst->getMinmaxEnabled() == false && damageParticleSystemsInUse.find(i) == damageParticleSystemsInUse.end()) {
 					UnitParticleSystem *ups = new UnitParticleSystem(200);
+					ups->setParticleOwner(this);
 					pst->setValues(ups);
 					ups->setPos(getCurrVector());
 					if(getFaction()->getTexture()) {
@@ -3763,6 +3774,7 @@ void Unit::startDamageParticles() {
 		// start fire
 		if(type->getProperty(UnitType::pBurnable) && this->fire == NULL) {
 			FireParticleSystem *fps = new FireParticleSystem(200);
+			fps->setParticleOwner(this);
 			const Game *game = Renderer::getInstance().getGame();
 			fps->setSpeed(2.5f / game->getWorld()->getUpdateFps(this->getFactionIndex()));
 			fps->setPos(getCurrVector());
@@ -3776,6 +3788,7 @@ void Unit::startDamageParticles() {
 			if(showUnitParticles == true) {
 				// smoke
 				UnitParticleSystem *ups= new UnitParticleSystem(400);
+				ups->setParticleOwner(this);
 				ups->setColorNoEnergy(Vec4f(0.0f, 0.0f, 0.0f, 0.13f));
 				ups->setColor(Vec4f(0.115f, 0.115f, 0.115f, 0.22f));
 				ups->setPos(getCurrVector());
@@ -4017,15 +4030,25 @@ void Unit::setLastStuckFrameToCurrentFrame() {
 	lastStuckFrame = getFrameCount();
 }
 
-bool Unit::isLastStuckFrameWithinCurrentFrameTolerance() {
+bool Unit::isLastStuckFrameWithinCurrentFrameTolerance(bool evalMode) {
 	//const int MIN_FRAME_ELAPSED_RETRY = 300;
 	const int MAX_BLOCKED_FRAME_THRESHOLD = 25000;
 	int MIN_FRAME_ELAPSED_RETRY = 6;
 	if(lastStuckFrame < MAX_BLOCKED_FRAME_THRESHOLD) {
-		MIN_FRAME_ELAPSED_RETRY = random.randRange(2,6);
+		if(evalMode == true) {
+			MIN_FRAME_ELAPSED_RETRY = 4;
+		}
+		else {
+			MIN_FRAME_ELAPSED_RETRY = random.randRange(2,6,intToStr(__LINE__));
+		}
 	}
 	else {
-		MIN_FRAME_ELAPSED_RETRY = random.randRange(6,8);
+		if(evalMode == true) {
+			MIN_FRAME_ELAPSED_RETRY = 7;
+		}
+		else {
+			MIN_FRAME_ELAPSED_RETRY = random.randRange(6,8,intToStr(__LINE__));
+		}
 	}
 	bool result (getFrameCount() - lastStuckFrame <= (MIN_FRAME_ELAPSED_RETRY * 100));
 	return result;
@@ -4069,6 +4092,41 @@ bool Unit::showTranslatedTechTree() const {
 	return (this->game != NULL ? this->game->showTranslatedTechTree() : true);
 }
 
+void Unit::end(ParticleSystem *particleSystem) {
+	vector<ParticleSystem*>::iterator iterFind = find(attackParticleSystems.begin(),attackParticleSystems.end(),particleSystem);
+	if(iterFind != attackParticleSystems.end()) {
+		attackParticleSystems.erase(iterFind);
+	}
+	vector<UnitParticleSystem*>::iterator iterFind1 = find(smokeParticleSystems.begin(),smokeParticleSystems.end(),particleSystem);
+	if(iterFind1 != smokeParticleSystems.end()) {
+		smokeParticleSystems.erase(iterFind1);
+	}
+	iterFind = find(fireParticleSystems.begin(),fireParticleSystems.end(),particleSystem);
+	if(iterFind != fireParticleSystems.end()) {
+		fireParticleSystems.erase(iterFind);
+	}
+	iterFind1 = find(damageParticleSystems.begin(),damageParticleSystems.end(),particleSystem);
+	if(iterFind1 != damageParticleSystems.end()) {
+		damageParticleSystems.erase(iterFind1);
+	}
+
+	iterFind1 = find(unitParticleSystems.begin(),unitParticleSystems.end(),particleSystem);
+	if(iterFind1 != unitParticleSystems.end()) {
+		unitParticleSystems.erase(iterFind1);
+	}
+
+	if(particleSystem == fire) {
+		fire = NULL;
+	}
+}
+
+string Unit::getNetworkCRCDecHpList() const {
+	string result = "";
+	for(unsigned int index = 0; index < networkCRCDecHpList.size(); ++index) {
+		result += networkCRCDecHpList[index] + " ";
+	}
+	return result;
+}
 std::string Unit::toString(bool crcMode) const {
 	std::string result = "";
 
@@ -4165,6 +4223,17 @@ std::string Unit::toString(bool crcMode) const {
     }
     result += "\n";
 
+//    int obsIdx = 0;
+//    for(Observers::const_iterator iterList = observers.begin(); iterList != observers.end(); ++iterList) {
+//    	const UnitObserver *observer = *iterList;
+//    	if(observer != NULL) {
+//    	}
+//
+//    	obsIdx++;
+//    }
+
+    result += "\n";
+
     result += "modelFacing = " + intToStr(modelFacing.asInt()) + "\n";
 
     result += "retryCurrCommandCount = " + intToStr(retryCurrCommandCount) + "\n";
@@ -4176,7 +4245,31 @@ std::string Unit::toString(bool crcMode) const {
     result += "inBailOutAttempt = " + intToStr(inBailOutAttempt) + "\n";
 
     result += "random = " + intToStr(random.getLastNumber()) + "\n";
+    result += "randomlastCaller = " + random.getLastCaller() + "\n";
     result += "pathFindRefreshCellCount = " + intToStr(pathFindRefreshCellCount) + "\n";
+
+	result += "lastStuckFrame = " + uIntToStr(lastStuckFrame) + "\n";
+	result += "lastStuckPos = " + lastStuckPos.getString() + "\n";
+
+	if(attackParticleSystems.size() > 0) {
+		result += "attackParticleSystems count = " + intToStr(attackParticleSystems.size()) + "\n";
+	}
+	if(networkCRCParticleLogInfo != "") {
+		result += "networkCRCParticleLogInfo = " + networkCRCParticleLogInfo + "\n";
+	}
+	result += "networkCRCParticleObserverLogInfo = " + networkCRCParticleObserverLogInfo + "\n";
+	if(networkCRCDecHpList.size() > 0) {
+		result += "getNetworkCRCDecHpList() = " + getNetworkCRCDecHpList() + "\n";
+	}
+
+	for(unsigned int index = 0; index < attackParticleSystems.size(); ++index) {
+		ParticleSystem *ps = attackParticleSystems[index];
+		if(ps != NULL &&
+			Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
+
+			result += "attackParticleSystems #" + intToStr(index) + " = " + ps->toString() + "\n";
+		}
+	}
 
 	return result;
 }
@@ -4649,6 +4742,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 	if(unitNode->hasChild("FireParticleSystem") == true) {
 		XmlNode *fireNode = unitNode->getChild("FireParticleSystem");
 		result->fire = new FireParticleSystem();
+		result->fire->setParticleOwner(result);
 		result->fire->loadGame(fireNode);
 		//result->fire->setTexture(CoreData::getInstance().getFireTexture());
 		result->fireParticleSystems.push_back(result->fire);
@@ -4696,6 +4790,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 			XmlNode *node = unitParticleSystemNodeList[i];
 
 			UnitParticleSystem *ups = new UnitParticleSystem();
+			ups->setParticleOwner(result);
 			ups->loadGame(node);
 			result->unitParticleSystems.push_back(ups);
 
@@ -4722,6 +4817,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 			XmlNode *node = unitParticleSystemNodeList[i];
 
 			UnitParticleSystem *ups = new UnitParticleSystem();
+			ups->setParticleOwner(result);
 			ups->loadGame(node);
 			result->damageParticleSystems.push_back(ups);
 			result->damageParticleSystemsInUse[i]=ups;
@@ -4802,6 +4898,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 
 //			printf("Load Smoke particle i = %d\n",i);
 			UnitParticleSystem *ups = new UnitParticleSystem();
+			ups->setParticleOwner(result);
 			ups->loadGame(node);
 			//ups->setTexture(CoreData::getInstance().getFireTexture());
 			result->smokeParticleSystems.push_back(ups);
@@ -5066,6 +5163,10 @@ Checksum Unit::getCRC() {
 
     //Commands commands;
 	crcForUnit.addInt64((int64)commands.size());
+	for(Commands::const_iterator it= commands.begin(); it != commands.end(); ++it) {
+		uint32 crc = (*it)->getCRC().getSum();
+		crcForUnit.addBytes(&crc,sizeof(uint32));
+	}
 
 	//printf("#11 Unit: %d CRC: %u observers.size(): %ld\n",id,crcForUnit.getSum(),observers.size());
 
@@ -5116,7 +5217,10 @@ Checksum Unit::getCRC() {
 	//bool ignoreCheckCommand;
 
 	//uint32 lastStuckFrame;
+	crcForUnit.addInt(lastStuckFrame);
 	//Vec2i lastStuckPos;
+	crcForUnit.addInt(lastStuckPos.x);
+	crcForUnit.addInt(lastStuckPos.y);
 
 	//uint32 lastPathfindFailedFrame;
 	//Vec2i lastPathfindFailedPos;
@@ -5154,6 +5258,16 @@ Checksum Unit::getCRC() {
 	crcForUnit.addInt(lastHarvestedResourcePos.y);
 
 	if(consoleDebug) printf("#17 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	crcForUnit.addInt64((int64)attackParticleSystems.size());
+	for(unsigned int index = 0; index < attackParticleSystems.size(); ++index) {
+		ParticleSystem *ps = attackParticleSystems[index];
+		if(ps != NULL &&
+				Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
+			uint32 crc = ps->getCRC().getSum();
+			crcForUnit.addBytes(&crc,sizeof(uint32));
+		}
+	}
 
 	return crcForUnit;
 }

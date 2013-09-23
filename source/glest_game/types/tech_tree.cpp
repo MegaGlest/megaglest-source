@@ -238,7 +238,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 			const XmlNode *damageMultiplierNode= damageMultipliersNode->getChild("damage-multiplier", i);
 			const AttackType *attackType= getAttackType(damageMultiplierNode->getAttribute("attack")->getRestrictedValue());
 			const ArmorType *armorType= getArmorType(damageMultiplierNode->getAttribute("armor")->getRestrictedValue());
-			float multiplier= damageMultiplierNode->getAttribute("value")->getFloatValue();
+			double multiplier= damageMultiplierNode->getAttribute("value")->getFloatValue();
 			damageMultiplierTable.setDamageMultiplier(attackType, armorType, multiplier);
 
 			Window::handleEvent();
@@ -446,7 +446,7 @@ const AttackType *TechTree::getAttackType(const string &name) const{
 	throw megaglest_runtime_error("Attack Type not found: "+name);
 }
 
-float TechTree::getDamageMultiplier(const AttackType *att, const ArmorType *art) const{
+double TechTree::getDamageMultiplier(const AttackType *att, const ArmorType *art) const {
 	return damageMultiplierTable.getDamageMultiplier(att, art);
 }
 

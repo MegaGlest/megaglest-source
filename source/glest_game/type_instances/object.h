@@ -49,7 +49,7 @@ public:
 	virtual ~ObjectStateInterface() {}
 };
 
-class Object : public BaseColorPickEntity {
+class Object : public BaseColorPickEntity, public ParticleOwner {
 private:
 	typedef vector<UnitParticleSystem*> UnitParticleSystems;
 
@@ -109,6 +109,8 @@ public:
 	virtual string getUniquePickName() const;
 	void saveGame(XmlNode *rootNode);
 	void loadGame(const XmlNode *rootNode,const TechTree *techTree);
+
+	virtual void end(ParticleSystem *particleSystem);
 };
 
 }}//end namespace

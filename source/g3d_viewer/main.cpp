@@ -1450,7 +1450,7 @@ void MainWindow::loadProjectileParticle(string path) {
 			for(std::vector<ParticleSystemTypeProjectile *>::const_iterator it= projectileParticleSystemTypes.begin();
 					it != projectileParticleSystemTypes.end(); ++it) {
 
-				ProjectileParticleSystem *ps = (*it)->create();
+				ProjectileParticleSystem *ps = (*it)->create(NULL);
 
 				if(size > 0) {
 					Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);
@@ -1559,7 +1559,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
                                       //ParticleSystemTypeSplash
 			for(std::vector<ParticleSystemTypeSplash *>::const_iterator it= splashParticleSystemTypes.begin(); it != splashParticleSystemTypes.end(); ++it) {
 
-				SplashParticleSystem *ps = (*it)->create();
+				SplashParticleSystem *ps = (*it)->create(NULL);
 
 				if(size > 0) {
 					Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);

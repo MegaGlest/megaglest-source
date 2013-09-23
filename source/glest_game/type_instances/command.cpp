@@ -147,6 +147,26 @@ std::string Command::toString(bool translatedValue) const {
 	return result;
 }
 
+Checksum Command::getCRC() {
+	Checksum crcForCmd;
+
+	crcForCmd.addInt(commandType->getId());
+	crcForCmd.addInt(originalPos.x);
+	crcForCmd.addInt(originalPos.y);
+	crcForCmd.addInt(pos.x);
+	crcForCmd.addInt(pos.y);
+	crcForCmd.addInt(unitRef.getUnitId());
+	crcForCmd.addInt(facing);
+	if(unitType != NULL) {
+		crcForCmd.addInt(unitType->getId());
+	}
+	crcForCmd.addInt(stateType);
+	crcForCmd.addInt(stateValue);
+	crcForCmd.addInt(unitCommandGroupId);
+
+	return crcForCmd;
+}
+
 void Command::saveGame(XmlNode *rootNode, Faction *faction) {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *commandNode = rootNode->addChild("Command");

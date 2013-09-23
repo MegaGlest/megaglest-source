@@ -701,7 +701,7 @@ void World::updateAllFactionUnits() {
 
 			int unitBlockCount = unit->getPath()->getBlockCount();
 			bool isStuck = unit->getPath()->isStuck();
-			bool isStuckWithinTolerance = unit->isLastStuckFrameWithinCurrentFrameTolerance();
+			bool isStuckWithinTolerance = unit->isLastStuckFrameWithinCurrentFrameTolerance(false);
 			uint32 lastStuckFrame = unit->getLastStuckFrame();
 
 			if(unitUpdater.updateUnit(unit) == true) {

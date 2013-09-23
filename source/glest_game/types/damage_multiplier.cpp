@@ -70,19 +70,19 @@ void DamageMultiplierTable::init(int attackTypeCount, int armorTypeCount){
 	this->attackTypeCount= attackTypeCount;
 	this->armorTypeCount= armorTypeCount;
 	
-	int valueCount= attackTypeCount*armorTypeCount;
-	values= new float[valueCount];
+	int valueCount= attackTypeCount * armorTypeCount;
+	values= new double[valueCount];
 	for(int i=0; i<valueCount; ++i){
 		values[i]= 1.f;
 	}
 }
 
-float DamageMultiplierTable::getDamageMultiplier(const AttackType *att, const ArmorType *art) const{
-	return values[attackTypeCount*art->getId()+att->getId()];
+double DamageMultiplierTable::getDamageMultiplier(const AttackType *att, const ArmorType *art) const {
+	return values[attackTypeCount * art->getId() + att->getId()];
 }
 
-void DamageMultiplierTable::setDamageMultiplier(const AttackType *att, const ArmorType *art, float value){
-	values[attackTypeCount*art->getId()+att->getId()]= value;
+void DamageMultiplierTable::setDamageMultiplier(const AttackType *att, const ArmorType *art, double value) {
+	values[attackTypeCount * art->getId() + att->getId()] = value;
 }
 
 void DamageMultiplierTable::saveGame(XmlNode *rootNode) {
@@ -98,7 +98,7 @@ void DamageMultiplierTable::saveGame(XmlNode *rootNode) {
 	int valueCount= attackTypeCount * armorTypeCount;
 	for(unsigned int i=0; i < valueCount; ++i) {
 		XmlNode *valuesNode = damageMultiplierTableNode->addChild("values");
-		valuesNode->addAttribute("value",intToStr(values[i]), mapTagReplacements);
+		valuesNode->addAttribute("value",doubleToStr(values[i]), mapTagReplacements);
 	}
 }
 
