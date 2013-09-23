@@ -122,9 +122,11 @@ ParticleSystem::ParticleSystem(int particleCount) {
 	teamcolorEnergy= false;
 	alternations= 0;
 	particleSystemStartDelay= 0;
+
+	this->particleOwner = NULL;
 }
 
-ParticleSystem::~ParticleSystem(){
+ParticleSystem::~ParticleSystem() {
 	if(checkMemory) {
 		printf("-- Delete ParticleSystem [%p]\n",this);
 		memoryObjectList[this]--;
@@ -136,6 +138,49 @@ ParticleSystem::~ParticleSystem(){
 
 	delete particleObserver;
 	particleObserver = NULL;
+}
+
+void ParticleSystem::callParticleOwnerEnd(ParticleSystem *particleSystem) {
+	if(this->particleOwner != NULL) {
+		this->particleOwner->end(particleSystem);
+	}
+}
+Checksum ParticleSystem::getCRC() {
+	Checksum crcForParticleSystem;
+
+	//std::vector<Particle> particles;
+
+	crcForParticleSystem.addInt(random.getLastNumber());
+	crcForParticleSystem.addInt(blendMode);
+	crcForParticleSystem.addInt(state);
+	crcForParticleSystem.addInt(active);
+	crcForParticleSystem.addInt(visible);
+	crcForParticleSystem.addInt(aliveParticleCount);
+	crcForParticleSystem.addInt(particleCount);
+
+	//string textureFileLoadDeferred;
+	//int textureFileLoadDeferredSystemId;
+	//Texture::Format textureFileLoadDeferredFormat;
+	//int textureFileLoadDeferredComponents;
+
+	//Texture *texture;
+	//Vec3f pos;
+	//Vec4f color;
+	//Vec4f colorNoEnergy;
+	//float emissionRate;
+	//float emissionState;
+	crcForParticleSystem.addInt(maxParticleEnergy);
+	crcForParticleSystem.addInt(varParticleEnergy);
+	//float particleSize;
+	//float speed;
+	//Vec3f factionColor;
+	crcForParticleSystem.addInt(teamcolorNoEnergy);
+	crcForParticleSystem.addInt(teamcolorEnergy);
+	crcForParticleSystem.addInt(alternations);
+	crcForParticleSystem.addInt(particleSystemStartDelay);
+	//ParticleObserver *particleObserver;
+
+	return crcForParticleSystem;
 }
 
 // =============== VIRTUAL ======================
@@ -261,7 +306,7 @@ void ParticleSystem::setVisible(bool visible){
 }
 
 string ParticleSystem::toString() const {
-	string result = "";
+	string result = "ParticleSystem ";
 
 	result += "particles = " + intToStr(particles.size());
 
@@ -478,23 +523,28 @@ void ParticleSystem::loadGame(const XmlNode *rootNode) {
 void ParticleSystem::fade(){
 	//printf("**************Fading particle System:\n[%s]\n",this->toString().c_str());
 
+	bool alreadyFading = (state == sFade);
 	if(particleObserver != NULL){
 		if(state != sPlay) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"state != sPlay, state = [%d]",state);
+			snprintf(szBuf,8096,"state != sPlay, state = [%d]\n",state);
 			//throw megaglest_runtime_error(szBuf);
 			//printf(szBuf);
 			SystemFlags::OutputDebug(SystemFlags::debugError,"%s",szBuf);
 		}
-		assert(state == sPlay);
+		//assert(state == sPlay);
 	}
+
 	state= sFade;
-	if(particleObserver != NULL){
-		particleObserver->update(this);
-		particleObserver=NULL;
+	if(alreadyFading == false) {
+		if(particleObserver != NULL){
+			particleObserver->update(this);
+			particleObserver=NULL;
+		}
+		for(int i=getChildCount()-1; i>=0; i--) {
+			getChild(i)->fade();
+		}
 	}
-	for(int i=getChildCount()-1; i>=0; i--)
-		getChild(i)->fade();
 }
 
 int ParticleSystem::isEmpty() const{
@@ -648,6 +698,15 @@ void FireParticleSystem::updateParticle(Particle *p){
 
 }
 
+string FireParticleSystem::toString() const {
+	string result = ParticleSystem::toString();
+
+	result += "\nFireParticleSystem ";
+	result += "\nradius = " + floatToStr(radius);
+	result += "\nwindSpeed = " + windSpeed.getString();
+
+	return result;
+}
 // ================= SET PARAMS ====================
 
 void FireParticleSystem::setRadius(float radius){
@@ -686,6 +745,15 @@ void FireParticleSystem::loadGame(const XmlNode *rootNode) {
 	radius = fireParticleSystemNode->getAttribute("radius")->getFloatValue();
 //	Vec3f windSpeed;
 	windSpeed = Vec3f::strToVec3(fireParticleSystemNode->getAttribute("windSpeed")->getValue());
+}
+
+Checksum FireParticleSystem::getCRC() {
+	Checksum crcForParticleSystem = ParticleSystem::getCRC();
+
+	//float radius;
+	//Vec3f windSpeed;
+
+	return crcForParticleSystem;
 }
 
 // ===========================================================================
@@ -863,6 +931,7 @@ void GameParticleSystem::loadGame(const XmlNode *rootNode) {
 		XmlNode *node = childrenNodeList[i];
 
 		UnitParticleSystem *ups = new UnitParticleSystem();
+		//ups->setParticleOwner(!!!);
 		ups->loadGame(node);
 
 		//children.push_back(ups);
@@ -888,6 +957,29 @@ void GameParticleSystem::loadGame(const XmlNode *rootNode) {
 	direction = Vec3f::strToVec3(gameParticleSystemNode->getAttribute("direction")->getValue());
 	//	float tween;
 	tween = gameParticleSystemNode->getAttribute("tween")->getFloatValue();
+}
+
+Checksum GameParticleSystem::getCRC() {
+	Checksum crcForParticleSystem = ParticleSystem::getCRC();
+
+	return crcForParticleSystem;
+}
+
+string GameParticleSystem::toString() const {
+	string result = ParticleSystem::toString();
+
+	result += "\nGameParticleSystem ";
+	result += "\nchildren = " + intToStr(children.size());
+	result += "\nprimitive = " + intToStr(primitive);
+
+	//string modelFileLoadDeferred;
+	//Model *model;
+	result += "\nmodelCycle = " + floatToStr(modelCycle);
+	result += "\noffset = " + offset.getString();
+	result += "\ndirection = " + direction.getString();
+	result += "\ntween = " + floatToStr(tween);
+
+	return result;
 }
 
 // ===========================================================================
@@ -1291,11 +1383,50 @@ void UnitParticleSystem::loadGame(const XmlNode *rootNode) {
 	//}
 }
 
+Checksum UnitParticleSystem::getCRC() {
+	Checksum crcForParticleSystem = ParticleSystem::getCRC();
+
+	return crcForParticleSystem;
+}
+
+string UnitParticleSystem::toString() const {
+	string result = ParticleSystem::toString();
+
+	result += "\nUnitParticleSystem ";
+	result += "\nradius = " + floatToStr(radius);
+	result += "\nminRadius = " + floatToStr(minRadius);
+	result += "\nwindSpeed = " + windSpeed.getString();
+	result += "\ncRotation = " + cRotation.getString();
+	result += "\nfixedAddition = " + fixedAddition.getString();
+    result += "\noldPosition = " + oldPosition.getString();
+    result += "\nenergyUp = " + intToStr(energyUp);
+    result += "\nstartTime = " + floatToStr(startTime);
+    result += "\nendTime = " + floatToStr(endTime);
+	result += "\nrelative = " + intToStr(relative);
+	result += "\nrelativeDirection = " + intToStr(relativeDirection);
+    result += "\nfixed = " + intToStr(fixed);
+	result += "\nshape = " + intToStr(shape);
+
+	result += "\nangle = " + floatToStr(angle);
+	result += "\nsizeNoEnergy = " + floatToStr(sizeNoEnergy);
+	result += "\ngravity = " + floatToStr(gravity);
+	result += "\nrotation = " + floatToStr(rotation);
+	result += "\nisVisibleAtNight = " + intToStr(isVisibleAtNight);
+	result += "\nisVisibleAtDay = " + intToStr(isVisibleAtDay);
+	result += "\nisDaylightAffected = " + intToStr(isDaylightAffected);
+	result += "\nradiusBasedStartenergy = " + intToStr(radiusBasedStartenergy);
+	result += "\nstaticParticleCount = " + intToStr(staticParticleCount);
+	result += "\ndelay = " + intToStr(delay);
+	result += "\nlifetime = " + intToStr(lifetime);
+	result += "\nemissionRateFade = " + floatToStr(emissionRateFade);
+	//GameParticleSystem* parent;
+
+	return result;
+}
+
 // ===========================================================================
 //  RainParticleSystem
 // ===========================================================================
-
-
 RainParticleSystem::RainParticleSystem(int particleCount) :
 	ParticleSystem(particleCount){
 	setWind(0.0f, 0.0f);
@@ -1344,6 +1475,22 @@ void RainParticleSystem::setWind(float windAngle, float windSpeed){
 	this->windSpeed.y= 0.0f;
 	this->windSpeed.z= cosf(degToRad(windAngle)) * windSpeed;
 #endif
+}
+
+Checksum RainParticleSystem::getCRC() {
+	Checksum crcForParticleSystem = ParticleSystem::getCRC();
+
+	return crcForParticleSystem;
+}
+
+string RainParticleSystem::toString() const {
+	string result = ParticleSystem::toString();
+
+	result += "\nRainParticleSystem ";
+	result += "\nwindSpeed = " + windSpeed.getString();
+	result += "\nradius = " + floatToStr(radius);
+
+	return result;
 }
 
 // ===========================================================================
@@ -1397,6 +1544,22 @@ void SnowParticleSystem::setWind(float windAngle, float windSpeed){
 #endif
 }
 
+Checksum SnowParticleSystem::getCRC() {
+	Checksum crcForParticleSystem = ParticleSystem::getCRC();
+
+	return crcForParticleSystem;
+}
+
+string SnowParticleSystem::toString() const {
+	string result = ParticleSystem::toString();
+
+	result += "\nSnowParticleSystem ";
+	result += "\nwindSpeed = " + windSpeed.getString();
+	result += "\nradius = " + floatToStr(radius);
+
+	return result;
+}
+
 // ===========================================================================
 //  AttackParticleSystem
 // ===========================================================================
@@ -1431,6 +1594,22 @@ void AttackParticleSystem::loadGame(const XmlNode *rootNode) {
 	gravity = attackParticleSystemNode->getAttribute("gravity")->getFloatValue();
 }
 
+Checksum AttackParticleSystem::getCRC() {
+	Checksum crcForParticleSystem = ParticleSystem::getCRC();
+
+	return crcForParticleSystem;
+}
+
+string AttackParticleSystem::toString() const {
+	string result = ParticleSystem::toString();
+
+	result += "\nAttackParticleSystem ";
+	result += "\nsizeNoEnergy = " + floatToStr(sizeNoEnergy);
+	result += "\ngravity = " + floatToStr(gravity);
+
+	return result;
+}
+
 // ===========================================================================
 //  ProjectileParticleSystem
 // ===========================================================================
@@ -1452,7 +1631,7 @@ ProjectileParticleSystem::ProjectileParticleSystem(int particleCount) :
 	modelCycle=0.0f;
 
 	nextParticleSystem= NULL;
-
+	arriveDestinationDistance = 0.0f;
 	//printf("#aXX trajectorySpeed = %f\n",trajectorySpeed);
 }
 
@@ -1473,13 +1652,25 @@ void ProjectileParticleSystem::update(){
 	//printf("Projectile particle system updating...\n");
 	if(state == sPlay){
 
-		lastPos= pos;
-		flatPos+= zVector * trajectorySpeed;
-		Vec3f targetVector= endPos - startPos;
-		Vec3f currentVector= flatPos - startPos;
+		lastPos = pos;
+		flatPos += zVector * truncateDecimal<double>(trajectorySpeed);
+		flatPos.x = truncateDecimal<double>(flatPos.x);
+		flatPos.y = truncateDecimal<double>(flatPos.y);
+		flatPos.z = truncateDecimal<double>(flatPos.z);
+
+		Vec3f targetVector = endPos - startPos;
+		targetVector.x = truncateDecimal<double>(targetVector.x);
+		targetVector.y = truncateDecimal<double>(targetVector.y);
+		targetVector.z = truncateDecimal<double>(targetVector.z);
+
+		Vec3f currentVector = flatPos - startPos;
+		currentVector.x = truncateDecimal<double>(currentVector.x);
+		currentVector.y = truncateDecimal<double>(currentVector.y);
+		currentVector.z = truncateDecimal<double>(currentVector.z);
 
 		// ratio
-		float relative= clamp(currentVector.length() / targetVector.length(), 0.0f, 1.0f);
+		double relative= clamp(currentVector.length() / targetVector.length(), 0.0f, 1.0f);
+		relative = truncateDecimal<double>(relative);
 
 		//printf("Update particle targetVector [%s][%f] currentVector [%s][%f] relative = %f\n",targetVector.getString().c_str(),targetVector.length(),currentVector.getString().c_str(),currentVector.length(),relative);
 
@@ -1498,16 +1689,17 @@ void ProjectileParticleSystem::update(){
 		switch(trajectory) {
 			case tLinear: {
 				pos= flatPos;
-			}
+				}
 				break;
 
 			case tParabolic: {
-				float scaledT= 2.0f * (relative - 0.5f);
-				float paraboleY= (1.0f - scaledT * scaledT) * trajectoryScale;
+				double scaledT   = truncateDecimal<double>(2.0f * (relative - 0.5f));
+				double paraboleY = truncateDecimal<double>((1.0f - scaledT * scaledT) * trajectoryScale);
 
 				pos= flatPos;
-				pos.y+= paraboleY;
-			}
+				pos.y += paraboleY;
+				pos.y = truncateDecimal<double>(pos.y);
+				}
 				break;
 
 			case tSpiral: {
@@ -1519,6 +1711,9 @@ void ProjectileParticleSystem::update(){
 				pos+= xVector * cos(relative * trajectoryFrequency * targetVector.length()) * trajectoryScale;
 				pos+= yVector * sin(relative * trajectoryFrequency * targetVector.length()) * trajectoryScale;
 #endif
+				pos.x = truncateDecimal<double>(pos.x);
+				pos.y = truncateDecimal<double>(pos.y);
+				pos.z = truncateDecimal<double>(pos.z);
 			}
 				break;
 
@@ -1529,12 +1724,17 @@ void ProjectileParticleSystem::update(){
 
 		direction= pos - lastPos;
 		direction.normalize();
+		direction.x = truncateDecimal<double>(direction.x);
+		direction.y = truncateDecimal<double>(direction.y);
+		direction.z = truncateDecimal<double>(direction.z);
+
 		// trigger update of child particles
 		positionChildren(); 
 		rotateChildren();
 
 		//arrive destination
-		if(flatPos.dist(endPos) < 0.5f){
+		arriveDestinationDistance = truncateDecimal<double>(flatPos.dist(endPos));
+		if(arriveDestinationDistance < 0.5f) {
 			fade();
 			model= NULL;
 
@@ -1557,11 +1757,11 @@ void ProjectileParticleSystem::update(){
 void ProjectileParticleSystem::rotateChildren() {
 	//### only on horizontal plane :(
 #ifdef USE_STREFLOP
-	float rotation = streflop::atan2(static_cast<streflop::Simple>(direction.x), static_cast<streflop::Simple>(direction.z));
+	double rotation = truncateDecimal<double>(streflop::atan2(static_cast<streflop::Simple>(direction.x), static_cast<streflop::Simple>(direction.z)));
 #else
-	float rotation = atan2(direction.x, direction.z);
+	double rotation = truncateDecimal<double>(atan2(direction.x, direction.z));
 #endif	
-	rotation = radToDeg(rotation);
+	rotation = truncateDecimal<double>(radToDeg(rotation));
 	for(Children::iterator it = children.begin(); it != children.end(); ++it)
 		(*it)->setRotation(rotation);
 }
@@ -1570,7 +1770,8 @@ void ProjectileParticleSystem::initParticle(Particle *p, int particleIndex){
 
 	ParticleSystem::initParticle(p, particleIndex);
 
-	float t= static_cast<float> (particleIndex) / emissionRate;
+	double t= static_cast<double> (particleIndex) / emissionRate;
+	t = truncateDecimal<double>(t);
 
 	p->pos= pos + (lastPos - pos) * t;
 	p->lastPos= lastPos;
@@ -1582,7 +1783,8 @@ void ProjectileParticleSystem::initParticle(Particle *p, int particleIndex){
 }
 
 void ProjectileParticleSystem::updateParticle(Particle *p){
-	float energyRatio= clamp(static_cast<float> (p->energy) / maxParticleEnergy, 0.f, 1.f);
+	double energyRatio= clamp(static_cast<double> (p->energy) / maxParticleEnergy, 0.f, 1.f);
+	energyRatio = truncateDecimal<double>(energyRatio);
 
 	p->lastPos+= p->speed;
 	p->pos+= p->speed;
@@ -1688,6 +1890,7 @@ void ProjectileParticleSystem::loadGame(const XmlNode *rootNode) {
 	if(projectileParticleSystemNode->hasChild("SplashParticleSystem") == true) {
 		XmlNode *splashParticleSystemNode = projectileParticleSystemNode->getChild("SplashParticleSystem");
 		nextParticleSystem = new SplashParticleSystem();
+		nextParticleSystem->setParticleOwner(this->getParticleOwner());
 		nextParticleSystem->loadGame(splashParticleSystemNode);
 	}
 	//	Vec3f lastPos;
@@ -1716,6 +1919,39 @@ void ProjectileParticleSystem::loadGame(const XmlNode *rootNode) {
 	trajectoryFrequency = projectileParticleSystemNode->getAttribute("trajectoryFrequency")->getFloatValue();
 }
 
+Checksum ProjectileParticleSystem::getCRC() {
+	Checksum crcForParticleSystem = ParticleSystem::getCRC();
+
+	return crcForParticleSystem;
+}
+
+string ProjectileParticleSystem::toString() const {
+	string result = ParticleSystem::toString();
+
+	result += "\nProjectileParticleSystem ";
+	if(nextParticleSystem != NULL) {
+		//result += "\nnextParticleSystem = " + nextParticleSystem->toString() + "\n";
+		result += "\nnextParticleSystem = NOT NULL\n";
+	}
+	result += "\nlastPos = " + lastPos.getString();
+	result += "\nstartPos = " + startPos.getString();
+	result += "\nendPos = " + endPos.getString();
+	result += "\nflatPos = " + flatPos.getString();
+
+	result += "\nxVector = " + xVector.getString();
+	result += "\nyVector = " + yVector.getString();
+	result += "\nzVector = " + zVector.getString();
+
+	result += "\ntrajectory = " + intToStr(trajectory);
+	result += "\ntrajectorySpeed = " + doubleToStr(trajectorySpeed);
+	result += "\ntrajectoryScale = " + doubleToStr(trajectoryScale);
+	result += "\ntrajectoryFrequency = " + doubleToStr(trajectoryFrequency);
+
+	result += "\narriveDestinationDistance = " + doubleToStr(arriveDestinationDistance);
+
+	return result;
+}
+
 // ===========================================================================
 //  SplashParticleSystem
 // ===========================================================================
@@ -1730,7 +1966,7 @@ SplashParticleSystem::SplashParticleSystem(int particleCount) :
 
 	prevParticleSystem= NULL;
 
-	emissionRateFade= 1;
+	emissionRateFade= 1.0f;
 	verticalSpreadA= 1.0f;
 	verticalSpreadB= 0.0f;
 	horizontalSpreadA= 1.0f;
@@ -1751,9 +1987,11 @@ void SplashParticleSystem::initParticleSystem() {
 void SplashParticleSystem::update() {
 	ParticleSystem::update();
 	if(state != sPause) {
-		emissionRate-= emissionRateFade;
+		emissionRate -= emissionRateFade;
 
-		float t= 1.0f - ((emissionRate + startEmissionRate) / (startEmissionRate * 2.0f));
+		double t = 1.0f - ((emissionRate + startEmissionRate) / (startEmissionRate * 2.0f));
+		t = truncateDecimal<double>(t);
+
 		t= clamp(t, 0.0f, 1.0f);
 		setTween(t,t);
 
@@ -1802,18 +2040,18 @@ void SplashParticleSystem::saveGame(XmlNode *rootNode) {
 	}
 
 //	float emissionRateFade;
-	splashParticleSystemNode->addAttribute("emissionRateFade",floatToStr(emissionRateFade,16), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("emissionRateFade",doubleToStr(emissionRateFade,16), mapTagReplacements);
 //	float verticalSpreadA;
-	splashParticleSystemNode->addAttribute("verticalSpreadA",floatToStr(verticalSpreadA,16), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("verticalSpreadA",doubleToStr(verticalSpreadA,16), mapTagReplacements);
 //	float verticalSpreadB;
-	splashParticleSystemNode->addAttribute("verticalSpreadB",floatToStr(verticalSpreadB,16), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("verticalSpreadB",doubleToStr(verticalSpreadB,16), mapTagReplacements);
 //	float horizontalSpreadA;
-	splashParticleSystemNode->addAttribute("horizontalSpreadA",floatToStr(horizontalSpreadA,16), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("horizontalSpreadA",doubleToStr(horizontalSpreadA,16), mapTagReplacements);
 //	float horizontalSpreadB;
-	splashParticleSystemNode->addAttribute("horizontalSpreadB",floatToStr(horizontalSpreadB,16), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("horizontalSpreadB",doubleToStr(horizontalSpreadB,16), mapTagReplacements);
 //
 //	float startEmissionRate;
-	splashParticleSystemNode->addAttribute("startEmissionRate",floatToStr(startEmissionRate,16), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("startEmissionRate",doubleToStr(startEmissionRate,16), mapTagReplacements);
 }
 
 void SplashParticleSystem::loadGame(const XmlNode *rootNode) {
@@ -1828,6 +2066,7 @@ void SplashParticleSystem::loadGame(const XmlNode *rootNode) {
 	if(splashParticleSystemNode->hasChild("ProjectileParticleSystem") == true) {
 		XmlNode *projectileParticleSystemNode = splashParticleSystemNode->getChild("ProjectileParticleSystem");
 		prevParticleSystem = new ProjectileParticleSystem();
+		prevParticleSystem->setParticleOwner(this->getParticleOwner());
 		prevParticleSystem->loadGame(projectileParticleSystemNode);
 	}
 
@@ -1843,6 +2082,31 @@ void SplashParticleSystem::loadGame(const XmlNode *rootNode) {
 	horizontalSpreadB = splashParticleSystemNode->getAttribute("horizontalSpreadB")->getFloatValue();
 //	float startEmissionRate;
 	startEmissionRate = splashParticleSystemNode->getAttribute("startEmissionRate")->getFloatValue();
+}
+
+Checksum SplashParticleSystem::getCRC() {
+	Checksum crcForParticleSystem = ParticleSystem::getCRC();
+
+	return crcForParticleSystem;
+}
+
+string SplashParticleSystem::toString() const {
+	string result = ParticleSystem::toString();
+
+	result += "\nSplashParticleSystem ";
+	if(prevParticleSystem != NULL) {
+		//result += "\nprevParticleSystem = " + prevParticleSystem->toString() + "\n";
+		result += "\nprevParticleSystem = NOT NULL\n";
+	}
+
+	result += "\nemissionRateFade = " + doubleToStr(emissionRateFade);
+	result += "\nverticalSpreadA = " + doubleToStr(verticalSpreadA);
+	result += "\nverticalSpreadB = " + doubleToStr(verticalSpreadB);
+	result += "\nhorizontalSpreadA = " + doubleToStr(horizontalSpreadA);
+	result += "\nhorizontalSpreadB = " + doubleToStr(horizontalSpreadB);
+	result += "\nstartEmissionRate = " + doubleToStr(startEmissionRate);
+
+	return result;
 }
 
 // ===========================================================================
@@ -1910,14 +2174,13 @@ void ParticleManager::update(int renderFps){
 			currentParticleCount+= ps->getAliveParticleCount();
 
 			bool showParticle= true;
-			if(dynamic_cast<UnitParticleSystem *> (ps) != NULL || dynamic_cast<FireParticleSystem *> (ps) != NULL){
-				showParticle= ps->getVisible() || (ps->getState() == ParticleSystem::sFade);
+			if( dynamic_cast<UnitParticleSystem *> (ps) != NULL ||
+				dynamic_cast<FireParticleSystem *> (ps) != NULL) {
+				showParticle = ps->getVisible() || (ps->getState() == ParticleSystem::sFade);
 			}
 			if(showParticle == true){
 				ps->update();
-				if(ps->isEmpty() && ps->getState() == ParticleSystem::sFade){
-					//delete ps;
-					//*it= NULL;
+				if(ps->isEmpty() && ps->getState() == ParticleSystem::sFade) {
 					cleanupParticleSystemsList.push_back(ps);
 				}
 			}
@@ -1958,37 +2221,42 @@ void ParticleManager::cleanupParticleSystems(ParticleSystem *ps) {
 //		}
 //		deleteList[ps]++;
 
+		if(ps != NULL) {
+			ps->callParticleOwnerEnd(ps);
+		}
+
 		delete ps;
 		this->particleSystems.erase(this->particleSystems.begin() + index);
 	}
 }
 
-void ParticleManager::cleanupParticleSystems(vector<ParticleSystem *> &particleSystems){
+void ParticleManager::cleanupParticleSystems(vector<ParticleSystem *> &cleanupParticleSystemsList){
+	if(cleanupParticleSystemsList.empty() == false) {
+		for(int i= cleanupParticleSystemsList.size()-1; i >= 0; i--) {
+			ParticleSystem *ps= cleanupParticleSystemsList[i];
+			cleanupParticleSystems(ps);
+		}
 
-	for(int i= particleSystems.size()-1; i >= 0; i--){
-		ParticleSystem *ps= particleSystems[i];
-		cleanupParticleSystems(ps);
+		cleanupParticleSystemsList.clear();
 	}
-
-	particleSystems.clear();
-	//this->particleSystems.remove(NULL);
 }
 
-void ParticleManager::cleanupUnitParticleSystems(vector<UnitParticleSystem *> &particleSystems){
-
-	for(int i= particleSystems.size()-1; i >= 0; i--){
-		ParticleSystem *ps= particleSystems[i];
-		cleanupParticleSystems(ps);
+void ParticleManager::cleanupUnitParticleSystems(vector<UnitParticleSystem *> &cleanupParticleSystemsList){
+	if(cleanupParticleSystemsList.empty() == false) {
+		for(int i= cleanupParticleSystemsList.size()-1; i >= 0; i--) {
+			ParticleSystem *ps= cleanupParticleSystemsList[i];
+			cleanupParticleSystems(ps);
+		}
+		cleanupParticleSystemsList.clear();
 	}
-	particleSystems.clear();
-	//this->particleSystems.remove(NULL);
 }
 
 void ParticleManager::manage(ParticleSystem *ps){
 	assert((std::find(particleSystems.begin(),particleSystems.end(),ps) == particleSystems.end()) && "particle cannot be added twice");
 	particleSystems.push_back(ps);
-	for(int i=ps->getChildCount()-1; i>=0; i--)
+	for(int i = ps->getChildCount() - 1; i >= 0; i--) {
 		manage(ps->getChild(i));
+	}
 }
 
 void ParticleManager::end(){
@@ -2002,6 +2270,9 @@ void ParticleManager::end(){
 //		}
 //		deleteList[ps]++;
 
+		if(ps != NULL) {
+			ps->callParticleOwnerEnd(ps);
+		}
 		delete ps;
 		particleSystems.pop_back();
 	}

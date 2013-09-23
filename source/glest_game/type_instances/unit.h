@@ -320,7 +320,7 @@ public:
 	virtual void saveGame(XmlNode *rootNode);
 };
 
-class Unit : public BaseColorPickEntity, ValueCheckerVault {
+class Unit : public BaseColorPickEntity, ValueCheckerVault, public ParticleOwner {
 private:
     typedef list<Command*> Commands;
 	typedef list<UnitObserver*> Observers;
@@ -476,6 +476,11 @@ private:
 	Vec2i lastHarvestedResourcePos;
 
 	string networkCRCLogInfo;
+
+	string networkCRCParticleLogInfo;
+
+	string networkCRCParticleObserverLogInfo;
+	vector<string> networkCRCDecHpList;
 
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
@@ -744,7 +749,7 @@ public:
 	int64 getSpeedDenominator(int64 updateFPS);
 	bool isChangedActiveCommand() const { return changedActiveCommand; }
 
-	bool isLastStuckFrameWithinCurrentFrameTolerance();
+	bool isLastStuckFrameWithinCurrentFrameTolerance(bool evalMode);
 	inline uint32 getLastStuckFrame() const { return lastStuckFrame; }
 	inline void setLastStuckFrame(uint32 value) { lastStuckFrame = value; }
 	void setLastStuckFrameToCurrentFrame();
@@ -774,9 +779,19 @@ public:
 
 	void addAttackParticleSystem(ParticleSystem *ps);
 
+	void setNetworkCRCParticleLogInfo(string networkCRCParticleLogInfo) { this->networkCRCParticleLogInfo = networkCRCParticleLogInfo; }
+	void setNetworkCRCParticleObserverLogInfo(string networkCRCParticleObserverLogInfo) { this->networkCRCParticleObserverLogInfo = networkCRCParticleObserverLogInfo; }
+
+	void clearNetworkCRCDecHpList() { networkCRCDecHpList.clear(); }
+
 	Checksum getCRC();
 
+	virtual void end(ParticleSystem *particleSystem);
+
 private:
+	void addNetworkCRCDecHp(string info) { networkCRCDecHpList.push_back(info); }
+	string getNetworkCRCDecHpList() const;
+
 	float computeHeight(const Vec2i &pos) const;
 	void calculateXZRotation();
 	void updateTarget();

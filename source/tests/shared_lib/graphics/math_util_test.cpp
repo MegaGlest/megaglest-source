@@ -22,7 +22,7 @@
 using namespace Shared::Graphics;
 
 //
-// Tests for XmlIo
+// Tests for math_util
 //
 class MathUtilTest : public CppUnit::TestFixture {
 	// Register the suite of tests for this fixture

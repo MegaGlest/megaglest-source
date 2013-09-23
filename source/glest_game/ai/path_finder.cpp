@@ -250,11 +250,11 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 
 	if(path->isStuck() == true &&
 			(unit->getLastStuckPos() == finalPos || path->getBlockCount() > 500) &&
-		unit->isLastStuckFrameWithinCurrentFrameTolerance() == true) {
+		unit->isLastStuckFrameWithinCurrentFrameTolerance(frameIndex >= 0) == true) {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,"path->isStuck() == true unit->getLastStuckPos() [%s] finalPos [%s] path->getBlockCount() [%d] tolerance: %d",unit->getLastStuckPos().getString().c_str(),finalPos.getString().c_str(),path->getBlockCount(),unit->isLastStuckFrameWithinCurrentFrameTolerance());
+			snprintf(szBuf,8096,"path->isStuck() == true unit->getLastStuckPos() [%s] finalPos [%s] path->getBlockCount() [%d]",unit->getLastStuckPos().getString().c_str(),finalPos.getString().c_str(),path->getBlockCount());
 			unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 		}
 

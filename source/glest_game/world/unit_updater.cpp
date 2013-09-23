@@ -137,8 +137,16 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 	//start attack particle system
 	if(unit->getCurrSkill()->getClass() == scAttack) {
 		const AttackSkillType *ast= static_cast<const AttackSkillType*>(unit->getCurrSkill());
-		float attackStartTime= ast->getAttackStartTime();
-		if(attackStartTime>=unit->getLastAnimProgressAsFloat() && attackStartTime<unit->getAnimProgressAsFloat()){
+		double attackStartTime = truncateDecimal<double>(ast->getAttackStartTime());
+		double lastAnimProgress = truncateDecimal<double>(unit->getLastAnimProgressAsFloat());
+		double animProgress = truncateDecimal<double>(attackStartTime < unit->getAnimProgressAsFloat());
+		bool startAttackParticleSystemNow = (attackStartTime >= lastAnimProgress && attackStartTime < animProgress);
+
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"attackStartTime = %f, lastAnimProgress = %f, animProgress = %f startAttackParticleSystemNow = %d",attackStartTime,lastAnimProgress,animProgress,startAttackParticleSystemNow);
+		unit->setNetworkCRCParticleLogInfo(szBuf);
+
+		if(startAttackParticleSystemNow == true) {
 			startAttackParticleSystem(unit);
 		}
 	}
@@ -2184,30 +2192,33 @@ void UnitUpdater::updateSwitchTeam(Unit *unit, int frameIndex) {
 // ==================== attack ====================
 
 void UnitUpdater::hit(Unit *attacker){
-	hit(attacker, static_cast<const AttackSkillType*>(attacker->getCurrSkill()), attacker->getTargetPos(), attacker->getTargetField());
+	hit(attacker, dynamic_cast<const AttackSkillType*>(attacker->getCurrSkill()), attacker->getTargetPos(), attacker->getTargetField());
 }
 
 void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &targetPos, Field targetField){
 	//hit attack positions
-	if(ast->getSplash()){
+	if(ast != NULL && ast->getSplash()){
 		PosCircularIterator pci(map, targetPos, ast->getSplashRadius());
 		while(pci.next()) {
 			Unit *attacked= map->getCell(pci.getPos())->getUnit(targetField);
 			if(attacked != NULL) {
-				if(ast->getSplashDamageAll()
-					|| attacker->isAlly(attacked) == false
-					|| ( targetPos.x==pci.getPos().x && targetPos.y==pci.getPos().y )) {
+				if(ast->getSplashDamageAll() ||
+						attacker->isAlly(attacked) == false ||
+						( targetPos.x == pci.getPos().x && targetPos.y == pci.getPos().y )) {
+
 					attacker->setLastAttackedUnitId(attacked->getId());
 					scriptManager->onUnitAttacking(attacker);
 
-					damage(attacker, ast, attacked, pci.getPos().dist(targetPos));
+					double distance = pci.getPos().dist(targetPos);
+					distance = truncateDecimal<double>(distance);
+					damage(attacker, ast, attacked, distance);
 			  	}
 			}
 		}
 	}
 	else{
 		Unit *attacked= map->getCell(targetPos)->getUnit(targetField);
-		if(attacked!=NULL){
+		if(attacked != NULL) {
 			damage(attacker, ast, attacked, 0.f);
 		}
 	}
@@ -2229,22 +2240,25 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	int var					= ast->getAttackVar();
 	int armor				= attacked->getType()->getTotalArmor(attacked->getTotalUpgrade());
 	double damageMultiplier	= world->getTechTree()->getDamageMultiplier(ast->getAttackType(), attacked->getType()->getArmorType());
+	damageMultiplier = truncateDecimal<double>(damageMultiplier);
 
 	//compute damage
 	//damage += random.randRange(-var, var);
-	damage += attacker->getRandom()->randRange(-var, var);
+	damage += attacker->getRandom()->randRange(-var, var, string(__FILE__) + intToStr(__LINE__));
 	damage /= distance+1;
 	damage -= armor;
 	damage *= damageMultiplier;
+	damageMultiplier = truncateDecimal<double>(damageMultiplier);
 
 	if(damage < 1) {
 		damage= 1;
 	}
+	int damageVal = static_cast<int>(damage);
 
 	attacked->setLastAttackerUnitId(attacker->getId());
 
 	//damage the unit
-	if(attacked->decHp(static_cast<int>(damage))) {
+	if(attacked->decHp(damageVal)) {
 		world->getStats()->kill(attacker->getFactionIndex(), attacked->getFactionIndex(), attacker->getTeam() != attacked->getTeam(),attacked->getType()->getCountUnitDeathInStats(),attacked->getType()->getCountUnitKillInStats());
 		if(attacked->getType()->getCountKillForUnitUpgrade() == true){
 			attacker->incKills(attacked->getTeam());
@@ -2274,7 +2288,10 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 
 	ProjectileParticleSystem *psProj = 0;
 
-	const AttackSkillType *ast= static_cast<const AttackSkillType*>(unit->getCurrSkill());
+	const AttackSkillType *ast= dynamic_cast<const AttackSkillType*>(unit->getCurrSkill());
+	if(ast == NULL) {
+		throw megaglest_runtime_error("Start attack particle ast == NULL!");
+	}
 	ParticleSystemTypeProjectile *pstProj= ast->getProjParticleType();
 	ParticleSystemTypeSplash *pstSplash= ast->getSplashParticleType();
 
@@ -2291,7 +2308,7 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 
 	//projectile
 	if(pstProj!=NULL){
-		psProj= pstProj->create();
+		psProj= pstProj->create(unit);
 		psProj->setPath(startPos, endPos);
 		psProj->setObserver(new ParticleDamager(unit, this, gameCamera));
 		psProj->setVisible(visible);
@@ -2307,7 +2324,7 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 
 	//splash
 	if(pstSplash != NULL) {
-		SplashParticleSystem *psSplash= pstSplash->create();
+		SplashParticleSystem *psSplash= pstSplash->create(unit);
 		psSplash->setPos(endPos);
 		psSplash->setVisible(visible);
 		if(unit->getFaction()->getTexture()) {
@@ -2551,8 +2568,8 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
     	}
     }
 
-    if(isUltra || isMega) {
-    	if( attackingEnemySeen!=NULL && unit->getRandom()->randRange(0,2)!=2 ) {
+    if(evalMode == false && (isUltra || isMega)) {
+    	if( attackingEnemySeen!=NULL && unit->getRandom()->randRange(0,2,string(__FILE__) + intToStr(__LINE__)) != 2 ) {
     		*rangedPtr 	= attackingEnemySeen;
     		enemySeen 	= attackingEnemySeen;
     		//printf("Da hat er wen gefunden:%s\n",enemySeen->getType()->getName(false).c_str());
@@ -2837,7 +2854,13 @@ void ParticleDamager::update(ParticleSystem *particleSystem) {
 	Unit *attacker= attackerRef.getUnit();
 
 	if(attacker != NULL) {
+		//string auditBeforeHit = particleSystem->toString();
+
 		unitUpdater->hit(attacker, ast, targetPos, targetField);
+
+		//char szBuf[8096]="";
+		//snprintf(szBuf,8095,"ParticleDamager::update attacker particleSystem before: %s\nafter: %s",auditBeforeHit.c_str(),particleSystem->toString().c_str());
+		//attacker->setNetworkCRCParticleObserverLogInfo(szBuf);
 
 		//play sound
 		StaticSound *projSound= ast->getProjSound();

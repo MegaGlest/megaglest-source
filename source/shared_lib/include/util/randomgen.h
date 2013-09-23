@@ -13,6 +13,8 @@
 #ifndef _SHARED_UTIL_RANDOM_H_
 #define _SHARED_UTIL_RANDOM_H_
 
+#include <string>
+#include <vector>
 #include "leak_dumper.h"
 
 namespace Shared { namespace Util {
@@ -29,20 +31,25 @@ private:
 
 private:
 	int lastNumber;
+	std::vector<std::string> lastCaller;
 //#ifdef USE_STREFLOP
 //	streflop::RandomState randomState;
 //#endif
+
+	int rand(std::string lastCaller);
 
 public:
 	RandomGen();
 	void init(int seed);
 
-	int rand();
-	int randRange(int min, int max);
-	float randRange(float min, float max);
+	int randRange(int min, int max,std::string lastCaller="");
+	float randRange(float min, float max,std::string lastCaller="");
 
 	int getLastNumber() const { return lastNumber; }
 	void setLastNumber(int value) { lastNumber = value; }
+
+	std::string getLastCaller() const;
+	void clearLastCaller() { lastCaller.clear(); }
 };
 
 }}//end namespace

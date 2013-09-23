@@ -95,6 +95,8 @@ public:
 
     void saveGame(XmlNode *rootNode, Faction *faction);
     static Command * loadGame(const XmlNode *rootNode,const UnitType *ut,World *world);
+
+    Checksum getCRC();
 };   
 
 }}//end namespace

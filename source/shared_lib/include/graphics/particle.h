@@ -75,12 +75,17 @@ public:
 //	class ParticleObserver
 // =====================================================
 
-class ParticleObserver{
+class ParticleObserver {
 public:
 	virtual ~ParticleObserver(){};
 	virtual void update(ParticleSystem *particleSystem)= 0;
 	virtual void saveGame(XmlNode *rootNode) = 0;
 	virtual void loadGame(const XmlNode *rootNode, void *genericData) = 0;
+};
+
+class ParticleOwner {
+public:
+	virtual void end(ParticleSystem *particleSystem)= 0;
 };
 
 // =====================================================
@@ -145,6 +150,7 @@ protected:
 	int alternations;
 	int particleSystemStartDelay;
 	ParticleObserver *particleObserver;
+	ParticleOwner *particleOwner;
 
 public:
 	//conmstructor and destructor
@@ -198,14 +204,20 @@ public:
 	virtual void fade();
 	int isEmpty() const;
 	
+	virtual void setParticleOwner(ParticleOwner *particleOwner) { this->particleOwner = particleOwner;}
+	virtual ParticleOwner * getParticleOwner() { return this->particleOwner;}
+	virtual void callParticleOwnerEnd(ParticleSystem *particleSystem);
+
 	//children
 	virtual int getChildCount() { return 0; }
 	virtual ParticleSystem* getChild(int i);
 
-	string toString() const;
+	virtual string toString() const;
 
 	virtual void saveGame(XmlNode *rootNode);
 	virtual void loadGame(const XmlNode *rootNode);
+
+	virtual Checksum getCRC();
 
 protected:
 	//protected
@@ -242,6 +254,10 @@ public:
 
 	virtual void saveGame(XmlNode *rootNode);
 	virtual void loadGame(const XmlNode *rootNode);
+
+	virtual string toString() const;
+
+	virtual Checksum getCRC();
 };
 
 // =====================================================
@@ -278,6 +294,10 @@ public:
 
 	virtual void saveGame(XmlNode *rootNode);
 	virtual void loadGame(const XmlNode *rootNode);
+
+	virtual string toString() const;
+
+	virtual Checksum getCRC();
 
 protected:
 	typedef std::vector<UnitParticleSystem*> Children;
@@ -390,6 +410,10 @@ public:
 
 	virtual void saveGame(XmlNode *rootNode);
 	virtual void loadGame(const XmlNode *rootNode);
+
+	virtual string toString() const;
+
+	virtual Checksum getCRC();
 };
 
 // =====================================================
@@ -412,7 +436,11 @@ public:
 	virtual bool deathTest(Particle *p);
 
 	void setRadius(float radius);
-	void setWind(float windAngle, float windSpeed);	
+	void setWind(float windAngle, float windSpeed);
+
+	virtual string toString() const;
+
+	virtual Checksum getCRC();
 };
 
 // =====================================================
@@ -433,7 +461,11 @@ public:
 	virtual bool deathTest(Particle *p);
 
 	void setRadius(float radius);
-	void setWind(float windAngle, float windSpeed);	
+	void setWind(float windAngle, float windSpeed);
+
+	virtual string toString() const;
+
+	virtual Checksum getCRC();
 };
 
 // ===========================================================================
@@ -459,6 +491,10 @@ public:
 
 	virtual void saveGame(XmlNode *rootNode);
 	virtual void loadGame(const XmlNode *rootNode);
+
+	virtual string toString() const;
+
+	virtual Checksum getCRC();
 };
 
 // =====================================================
@@ -488,12 +524,13 @@ private:
 	Vec3f zVector;
 
 	Trajectory trajectory;
-	float trajectorySpeed;
+	double trajectorySpeed;
 
 	//parabolic
-	float trajectoryScale;
-	float trajectoryFrequency;
-	
+	double trajectoryScale;
+	double trajectoryFrequency;
+
+	double arriveDestinationDistance;
 	void rotateChildren();
 
 public:
@@ -509,9 +546,9 @@ public:
 	virtual void updateParticle(Particle *p);
 	
 	void setTrajectory(Trajectory trajectory)				{this->trajectory= trajectory;}
-	void setTrajectorySpeed(float trajectorySpeed)			{this->trajectorySpeed= trajectorySpeed;}
-	void setTrajectoryScale(float trajectoryScale)			{this->trajectoryScale= trajectoryScale;}
-	void setTrajectoryFrequency(float trajectoryFrequency)	{this->trajectoryFrequency= trajectoryFrequency;}
+	void setTrajectorySpeed(double trajectorySpeed)			{this->trajectorySpeed= trajectorySpeed;}
+	void setTrajectoryScale(double trajectoryScale)			{this->trajectoryScale= trajectoryScale;}
+	void setTrajectoryFrequency(double trajectoryFrequency)	{this->trajectoryFrequency= trajectoryFrequency;}
 
 	void setPath(Vec3f startPos, Vec3f endPos);
 
@@ -519,6 +556,10 @@ public:
 
 	virtual void saveGame(XmlNode *rootNode);
 	virtual void loadGame(const XmlNode *rootNode);
+
+	virtual string toString() const;
+
+	virtual Checksum getCRC();
 };
 
 // =====================================================
@@ -532,13 +573,13 @@ public:
 private:
 	ProjectileParticleSystem *prevParticleSystem;
 
-	float emissionRateFade;
-	float verticalSpreadA;
-	float verticalSpreadB;
-	float horizontalSpreadA;
-	float horizontalSpreadB;
+	double emissionRateFade;
+	double verticalSpreadA;
+	double verticalSpreadB;
+	double horizontalSpreadA;
+	double horizontalSpreadB;
 	
-	float startEmissionRate;
+	double startEmissionRate;
 
 public:
 	SplashParticleSystem(int particleCount= 1000);
@@ -550,15 +591,18 @@ public:
 	
 	virtual void initParticleSystem();
 
-	void setEmissionRateFade(float emissionRateFade)		{this->emissionRateFade= emissionRateFade;}
-	void setVerticalSpreadA(float verticalSpreadA)		{this->verticalSpreadA= verticalSpreadA;}
-	void setVerticalSpreadB(float verticalSpreadB)		{this->verticalSpreadB= verticalSpreadB;}
-	void setHorizontalSpreadA(float horizontalSpreadA)	{this->horizontalSpreadA= horizontalSpreadA;}
-	void setHorizontalSpreadB(float horizontalSpreadB)	{this->horizontalSpreadB= horizontalSpreadB;}
+	void setEmissionRateFade(double emissionRateFade)		{this->emissionRateFade= emissionRateFade;}
+	void setVerticalSpreadA(double verticalSpreadA)		{this->verticalSpreadA= verticalSpreadA;}
+	void setVerticalSpreadB(double verticalSpreadB)		{this->verticalSpreadB= verticalSpreadB;}
+	void setHorizontalSpreadA(double horizontalSpreadA)	{this->horizontalSpreadA= horizontalSpreadA;}
+	void setHorizontalSpreadB(double horizontalSpreadB)	{this->horizontalSpreadB= horizontalSpreadB;}
 
 	virtual void saveGame(XmlNode *rootNode);
 	virtual void loadGame(const XmlNode *rootNode);
+
+	virtual string toString() const;
 	
+	virtual Checksum getCRC();
 };
 
 // =====================================================

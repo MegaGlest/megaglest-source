@@ -2300,12 +2300,18 @@ Checksum Faction::getCRC() {
 }
 
 void Faction::addCRC_DetailsForWorldFrame(int worldFrameCount,bool isNetworkServer) {
-	int MAX_FRAME_CACHE = 1500;
+	int MAX_FRAME_CACHE = 250;
 	if(isNetworkServer == true) {
-		MAX_FRAME_CACHE += 700;
+		MAX_FRAME_CACHE += 250;
 	}
 	crcWorldFrameDetails[worldFrameCount] = this->toString(true);
 	//if(worldFrameCount <= 0) printf("Adding world frame: %d log entries: %lld\n",worldFrameCount,(long long int)crcWorldFrameDetails.size());
+
+	for(unsigned int i = 0; i < units.size(); ++i) {
+		Unit *unit = units[i];
+		unit->getRandom()->clearLastCaller();
+		unit->clearNetworkCRCDecHpList();
+	}
 
 	if(crcWorldFrameDetails.size() > MAX_FRAME_CACHE) {
 		//printf("===> Removing older world frame log entries: %lld\n",(long long int)crcWorldFrameDetails.size());

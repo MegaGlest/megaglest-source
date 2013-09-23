@@ -292,6 +292,7 @@ void ParticleSystemType::setValues(AttackParticleSystem *ats){
 	// add instances of all children; some settings will cascade to all children
 	for(Children::iterator i=children.begin(); i!=children.end(); ++i){
 		UnitParticleSystem *child = new UnitParticleSystem();
+		child->setParticleOwner(ats->getParticleOwner());
 		(*i)->setValues(child);
 		ats->addChild(child);
 		child->setState(ParticleSystem::sPlay);
@@ -439,9 +440,9 @@ void ParticleSystemTypeProjectile::load(const XmlNode* particleFileNode, const s
 	}
 }
 
-ProjectileParticleSystem *ParticleSystemTypeProjectile::create() {
+ProjectileParticleSystem *ParticleSystemTypeProjectile::create(ParticleOwner *owner) {
 	ProjectileParticleSystem *ps=  new ProjectileParticleSystem();
-
+	ps->setParticleOwner(owner);
 	ParticleSystemType::setValues(ps);
 
 	ps->setTrajectory(ProjectileParticleSystem::strToTrajectory(trajectory));
@@ -525,9 +526,9 @@ void ParticleSystemTypeSplash::load(const XmlNode* particleFileNode, const strin
 	}
 }
 
-SplashParticleSystem *ParticleSystemTypeSplash::create(){
+SplashParticleSystem *ParticleSystemTypeSplash::create(ParticleOwner *owner) {
 	SplashParticleSystem *ps=  new SplashParticleSystem();
-
+	ps->setParticleOwner(owner);
 	ParticleSystemType::setValues(ps);
 
 	ps->setEmissionRateFade(emissionRateFade);
