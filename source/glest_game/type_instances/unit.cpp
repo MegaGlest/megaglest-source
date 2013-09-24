@@ -585,7 +585,9 @@ Unit::~Unit() {
 	delete currentAttackBoostOriginatorEffect.currentAppliedEffect;
 	currentAttackBoostOriginatorEffect.currentAppliedEffect = NULL;
 
-	Renderer::getInstance().cleanupParticleSystems(attackParticleSystems,rsGame);
+	//Renderer::getInstance().cleanupParticleSystems(attackParticleSystems,rsGame);
+	Renderer::getInstance().removeParticleSystemsForParticleOwner(this,rsGame);
+
 
 #ifdef LEAK_CHECK_UNITS
 	Unit::mapMemoryList2[this->unitPath] = this->getId();
@@ -629,6 +631,34 @@ void Unit::dumpMemoryList() {
 	}
 }
 #endif
+
+void Unit::end(ParticleSystem *particleSystem) {
+	vector<ParticleSystem*>::iterator iterFind = find(attackParticleSystems.begin(),attackParticleSystems.end(),particleSystem);
+	if(iterFind != attackParticleSystems.end()) {
+		attackParticleSystems.erase(iterFind);
+	}
+	vector<UnitParticleSystem*>::iterator iterFind1 = find(smokeParticleSystems.begin(),smokeParticleSystems.end(),particleSystem);
+	if(iterFind1 != smokeParticleSystems.end()) {
+		smokeParticleSystems.erase(iterFind1);
+	}
+	iterFind = find(fireParticleSystems.begin(),fireParticleSystems.end(),particleSystem);
+	if(iterFind != fireParticleSystems.end()) {
+		fireParticleSystems.erase(iterFind);
+	}
+	iterFind1 = find(damageParticleSystems.begin(),damageParticleSystems.end(),particleSystem);
+	if(iterFind1 != damageParticleSystems.end()) {
+		damageParticleSystems.erase(iterFind1);
+	}
+
+	iterFind1 = find(unitParticleSystems.begin(),unitParticleSystems.end(),particleSystem);
+	if(iterFind1 != unitParticleSystems.end()) {
+		unitParticleSystems.erase(iterFind1);
+	}
+
+	if(particleSystem == fire) {
+		fire = NULL;
+	}
+}
 
 //bool Unit::isUnitDeleted(void *unit) {
 //	bool result = false;
@@ -4090,34 +4120,6 @@ void Unit::clearCaches() {
 
 bool Unit::showTranslatedTechTree() const {
 	return (this->game != NULL ? this->game->showTranslatedTechTree() : true);
-}
-
-void Unit::end(ParticleSystem *particleSystem) {
-	vector<ParticleSystem*>::iterator iterFind = find(attackParticleSystems.begin(),attackParticleSystems.end(),particleSystem);
-	if(iterFind != attackParticleSystems.end()) {
-		attackParticleSystems.erase(iterFind);
-	}
-	vector<UnitParticleSystem*>::iterator iterFind1 = find(smokeParticleSystems.begin(),smokeParticleSystems.end(),particleSystem);
-	if(iterFind1 != smokeParticleSystems.end()) {
-		smokeParticleSystems.erase(iterFind1);
-	}
-	iterFind = find(fireParticleSystems.begin(),fireParticleSystems.end(),particleSystem);
-	if(iterFind != fireParticleSystems.end()) {
-		fireParticleSystems.erase(iterFind);
-	}
-	iterFind1 = find(damageParticleSystems.begin(),damageParticleSystems.end(),particleSystem);
-	if(iterFind1 != damageParticleSystems.end()) {
-		damageParticleSystems.erase(iterFind1);
-	}
-
-	iterFind1 = find(unitParticleSystems.begin(),unitParticleSystems.end(),particleSystem);
-	if(iterFind1 != unitParticleSystems.end()) {
-		unitParticleSystems.erase(iterFind1);
-	}
-
-	if(particleSystem == fire) {
-		fire = NULL;
-	}
 }
 
 string Unit::getNetworkCRCDecHpList() const {
