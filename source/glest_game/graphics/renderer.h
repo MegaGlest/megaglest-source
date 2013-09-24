@@ -476,6 +476,7 @@ public:
 	void cleanupParticleSystems(vector<ParticleSystem *> &particleSystems,ResourceScope rs);
 	void cleanupUnitParticleSystems(vector<UnitParticleSystem *> &particleSystems,ResourceScope rs);
 	bool validateParticleSystemStillExists(ParticleSystem * particleSystem,ResourceScope rs) const;
+	void removeParticleSystemsForParticleOwner(ParticleOwner * particleOwner,ResourceScope rs);
 	void updateParticleManager(ResourceScope rs,int renderFps=-1);
 	void renderParticleManager(ResourceScope rs);
 	void swapBuffers();

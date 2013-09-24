@@ -625,6 +625,7 @@ public:
 	void cleanupUnitParticleSystems(vector<UnitParticleSystem *> &particleSystems);
 	int findParticleSystems(ParticleSystem *psFind, const vector<ParticleSystem *> &particleSystems) const;
 	bool validateParticleSystemStillExists(ParticleSystem * particleSystem) const;
+	void removeParticleSystemsForParticleOwner(ParticleOwner * particleOwner);
 	bool hasActiveParticleSystem(ParticleSystem::ParticleSystemType type) const;
 }; 
 

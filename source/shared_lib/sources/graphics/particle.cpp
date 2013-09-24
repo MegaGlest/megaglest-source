@@ -2198,6 +2198,22 @@ bool ParticleManager::validateParticleSystemStillExists(ParticleSystem * particl
 	return (index >= 0);
 }
 
+void ParticleManager::removeParticleSystemsForParticleOwner(ParticleOwner *particleOwner) {
+	if(particleOwner != NULL && particleSystems.empty() == false) {
+		vector<ParticleSystem *> cleanupParticleSystemsList;
+
+		for(unsigned int index = 0; index < particleSystems.size(); ++index) {
+			ParticleSystem *ps= particleSystems[index];
+			if(ps != NULL && ps->getParticleOwner() == particleOwner) {
+				cleanupParticleSystemsList.push_back(ps);
+			}
+		}
+		if(cleanupParticleSystemsList.empty() == false) {
+			cleanupParticleSystems(cleanupParticleSystemsList);
+		}
+	}
+}
+
 int ParticleManager::findParticleSystems(ParticleSystem *psFind, const vector<ParticleSystem *> &particleSystems) const{
 	int result= -1;
 	for(unsigned int i= 0; i < particleSystems.size(); i++){
@@ -2220,6 +2236,11 @@ void ParticleManager::cleanupParticleSystems(ParticleSystem *ps) {
 //			assert(deleteList.find(ps) == deleteList.end());
 //		}
 //		deleteList[ps]++;
+
+		// This code causes segfault on game end, no need to fade, just delete
+		//if(ps->getState() != ParticleSystem::sFade) {
+		//	ps->fade();
+		//}
 
 		if(ps != NULL) {
 			ps->callParticleOwnerEnd(ps);
