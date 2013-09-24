@@ -1571,6 +1571,13 @@ void Game::init(bool initForPreviewOnly) {
 		printf("New game has started...\n");
 	}
 
+	if(isFlagType1BitEnabled(gameSettings.getFlagTypes1(),ft1_network_synch_checks_verbose) == true) {
+		printf("*Note: Monitoring Network CRC VERBOSE synchronization...\n");
+	}
+	else if(isFlagType1BitEnabled(gameSettings.getFlagTypes1(),ft1_network_synch_checks) == true) {
+		printf("*Note: Monitoring Network CRC NORMAL synchronization...\n");
+	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== START GAME ==== getCurrentPixelByteCount() = %llu\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"=============================================\n");
@@ -1702,20 +1709,19 @@ void Game::processNetworkSynchChecksIfRequired() {
 				Faction *faction = world.getFaction(index);
 				netIntf->setNetworkPlayerFactionCRC(index,faction->getCRC().getSum());
 
-				if(settings != NULL && (settings->getFlagTypes1() & ft1_network_synch_checks) == ft1_network_synch_checks) {
-					faction->addCRC_DetailsForWorldFrame(world.getFrameCount(),role == nrServer);
-				}
-				else if(world.getFrameCount() % 20 == 0) {
-					faction->addCRC_DetailsForWorldFrame(world.getFrameCount(),role == nrServer);
+				if(settings != NULL) {
+					if(isFlagType1BitEnabled(settings->getFlagTypes1(),ft1_network_synch_checks_verbose) == true) {
+						faction->addCRC_DetailsForWorldFrame(world.getFrameCount(),role == nrServer);
+					}
+					else if(isFlagType1BitEnabled(settings->getFlagTypes1(),ft1_network_synch_checks) == true &&
+							world.getFrameCount() % 20 == 0) {
+						faction->addCRC_DetailsForWorldFrame(world.getFrameCount(),role == nrServer);
+					}
 				}
 			}
 			else {
 				netIntf->setNetworkPlayerFactionCRC(index,0);
 			}
-
-			//if(world.getFrameCount() % 40 == 0) {
-			//	printf("Frame #: %d Faction: %d CRC: %u\n",world.getFrameCount(),index,netIntf->getNetworkPlayerFactionCRC(index));
-			//}
 		}
 	}
 }
@@ -2985,7 +2991,9 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 				if(aiInterfaces[i] == NULL &&
 						server->isClientConnected(faction->getStartLocationIndex()) == false) {
 
-					DumpCRCWorldLogIfRequired("_faction_" + intToStr(i));
+					if(faction->getPersonalityType() != fpt_Observer) {
+						DumpCRCWorldLogIfRequired("_faction_" + intToStr(i));
+					}
 
 					faction->setFactionDisconnectHandled(true);
 
@@ -4919,7 +4927,9 @@ void Game::DumpCRCWorldLogIfRequired(string fileSuffix) {
 		printf("Check save world CRC to log. isNetworkGame = %d fileSuffix = %s\n",isNetworkGame,fileSuffix.c_str());
 
 		GameSettings *settings = world.getGameSettingsPtr();
-		//if(settings != NULL && (settings->getFlagTypes1() & ft1_network_synch_checks) == ft1_network_synch_checks) {
+		if(settings != NULL &&
+				(isFlagType1BitEnabled(settings->getFlagTypes1(),ft1_network_synch_checks_verbose)  == true ||
+				 isFlagType1BitEnabled(settings->getFlagTypes1(),ft1_network_synch_checks) 			== true)) {
 			string debugCRCWorldLogFile = Config::getInstance().getString("DebugCRCWorldLogFile","debugCRCWorld.log");
 			debugCRCWorldLogFile += fileSuffix;
 
@@ -4936,13 +4946,13 @@ void Game::DumpCRCWorldLogIfRequired(string fileSuffix) {
 
 			printf("Save to log debugCRCWorldLogFile = %s\n",debugCRCWorldLogFile.c_str());
 
-	#if defined(WIN32) && !defined(__MINGW32__)
+		#if defined(WIN32) && !defined(__MINGW32__)
 			FILE *fp = _wfopen(utf8_decode(debugCRCWorldLogFile).c_str(), L"w");
 			std::ofstream logFile(fp);
-	#else
+		#else
 			std::ofstream logFile;
 			logFile.open(debugCRCWorldLogFile.c_str(), ios_base::out | ios_base::trunc);
-	#endif
+		#endif
 			logFile << "World CRC debug information:"  << std::endl;
 			logFile << "============================"  << std::endl;
 			logFile << "Maximum framecount: " << world.getFaction(0)->getCRC_DetailsForWorldFrameCount() << std::endl;
@@ -4961,13 +4971,13 @@ void Game::DumpCRCWorldLogIfRequired(string fileSuffix) {
 			}
 
 			logFile.close();
-	#if defined(WIN32) && !defined(__MINGW32__)
+		#if defined(WIN32) && !defined(__MINGW32__)
 			if(fp) {
 				fclose(fp);
 			}
-	#endif
+		#endif
 
-		//}
+		}
 	}
 }
 
@@ -4979,14 +4989,6 @@ void Game::exitGameState(Program *program, Stats &endStats) {
 	//printf("game = %p\n",game);
 
 	if(game) {
-//		NetworkManager &networkManager= NetworkManager::getInstance();
-//		NetworkRole role = networkManager.getNetworkRole();
-//		string suffix = "_client";
-//		if(role == nrServer) {
-//			suffix = "_server";
-//		}
-//		game->DumpCRCWorldLogIfRequired(suffix);
-
 		game->setEndGameTeamWinnersAndLosers();
 		game->endGame();
 	}

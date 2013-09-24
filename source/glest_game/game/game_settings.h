@@ -61,13 +61,19 @@ public:
 // =====================================================
 
 enum FlagTypes1 {
-    ft1_none                	= 0x00,
-    ft1_show_map_resources  	= 0x01,
-    ft1_allow_team_switching  	= 0x02,
-    ft1_allow_in_game_joining 	= 0x04,
-    ft1_network_synch_checks 	= 0x08
-    //ft1_xx                  = 0x10,
+    ft1_none                			= 0x00,
+    ft1_show_map_resources  			= 0x01,
+    ft1_allow_team_switching  			= 0x02,
+    ft1_allow_in_game_joining 			= 0x04,
+    ft1_network_synch_checks_verbose 	= 0x08,
+    ft1_network_synch_checks 			= 0x10
+    //ft1_xx                  = 0x20,
+    //ft1_xx                  = 0x40,
 };
+
+static bool isFlagType1BitEnabled(uint32 flagValue,FlagTypes1 type) {
+	return ((flagValue & type) == type);
+}
 
 enum NetworkPlayerStatusType {
 	npst_None					= 0,
