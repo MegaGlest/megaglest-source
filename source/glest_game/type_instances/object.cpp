@@ -68,6 +68,7 @@ Object::~Object() {
 		}
 		unitParticleSystems.pop_back();
 	}
+	Renderer::getInstance().removeParticleSystemsForParticleOwner(this,rsGame);
 	renderer.removeObjectFromQuadCache(this);
 	if(stateCallback) {
 		stateCallback->removingObjectEvent(this);
