@@ -101,7 +101,7 @@ int RandomGen::randRange(int min, int max,string lastCaller) {
 	return res;
 }
 
-float RandomGen::randRange(float min, float max,string lastCaller) {
+double RandomGen::randRange(double min, double max,string lastCaller) {
 	//assert(min<=max);
 	if(min > max) {
 		char szBuf[8096]="";
@@ -112,9 +112,9 @@ float RandomGen::randRange(float min, float max,string lastCaller) {
 //#ifdef USE_STREFLOP
 //	float res = streflop::Random<true, false, float>(min, max, randomState); // streflop
 //#else
-	float rand01= static_cast<float>(RandomGen::rand(lastCaller))/(m-1);
-	float res= min+(max-min)*rand01;
-	res = truncateDecimal<float>(res);
+	double rand01= static_cast<double>(RandomGen::rand(lastCaller))/(m-1);
+	double res= min+(max-min)*rand01;
+	res = truncateDecimal<double>(res);
 //#endif
 
 	//assert(res>=min && res<=max);

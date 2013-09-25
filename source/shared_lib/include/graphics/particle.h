@@ -50,7 +50,7 @@ public:
 	Vec3f speed;
 	Vec3f accel;
 	Vec4f color;
-	float size;
+	double size;
 	int energy;
 
 public:
@@ -64,7 +64,7 @@ public:
 	Vec3f getSpeed() const		{return speed;}
 	Vec3f getAccel() const		{return accel;}
 	Vec4f getColor() const		{return color;}
-	float getSize() const		{return size;}
+	double getSize() const		{return size;}
 	int getEnergy()	const		{return energy;}
 
 	void saveGame(XmlNode *rootNode);
@@ -138,12 +138,12 @@ protected:
 	Vec3f pos;
 	Vec4f color;
 	Vec4f colorNoEnergy;
-	float emissionRate;
-	float emissionState;
+	double emissionRate;
+	double emissionState;
 	int maxParticleEnergy;
 	int varParticleEnergy;
-	float particleSize;
-	float speed;
+	double particleSize;
+	double speed;
 	Vec3f factionColor;
     bool teamcolorNoEnergy;
     bool teamcolorEnergy;
@@ -184,11 +184,11 @@ public:
 	virtual void setPos(Vec3f pos);
 	void setColor(Vec4f color);
 	void setColorNoEnergy(Vec4f color);
-	void setEmissionRate(float emissionRate);
+	void setEmissionRate(double emissionRate);
 	void setMaxParticleEnergy(int maxParticleEnergy);
 	void setVarParticleEnergy(int varParticleEnergy);
-	void setParticleSize(float particleSize);
-	void setSpeed(float speed);
+	void setParticleSize(double particleSize);
+	void setSpeed(double speed);
 	virtual void setActive(bool active);
 	void setObserver(ParticleObserver *particleObserver);
 	virtual void setVisible(bool visible);
@@ -236,7 +236,7 @@ protected:
 
 class FireParticleSystem: public ParticleSystem{
 private:
-	float radius;
+	double radius;
 	Vec3f windSpeed;
 
 public:
@@ -249,8 +249,8 @@ public:
 	virtual void updateParticle(Particle *p);
 
 	//set params
-	void setRadius(float radius);
-	void setWind(float windAngle, float windSpeed);
+	void setRadius(double radius);
+	void setWind(double windAngle, double windSpeed);
 
 	virtual void saveGame(XmlNode *rootNode);
 	virtual void loadGame(const XmlNode *rootNode);
@@ -284,13 +284,13 @@ public:
 	void setOffset(Vec3f offset);
 	void setModel(Model *model) {this->model= model;}
 	virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
-	float getTween() { return tween; }  // 0.0 -> 1.0 for animation of model
+	double getTween() { return tween; }  // 0.0 -> 1.0 for animation of model
 	Model *getModel() const {return model;}
 	virtual string getModelFileLoadDeferred();
 
 	void setPrimitive(Primitive primitive) {this->primitive= primitive;}
 	Vec3f getDirection() const {return direction;}
-	void setModelCycle(float modelCycle) {this->modelCycle= modelCycle;}
+	void setModelCycle(double modelCycle) {this->modelCycle= modelCycle;}
 
 	virtual void saveGame(XmlNode *rootNode);
 	virtual void loadGame(const XmlNode *rootNode);
@@ -306,14 +306,14 @@ protected:
 
 	string modelFileLoadDeferred;
 	Model *model;
-	float modelCycle;
+	double modelCycle;
 	Vec3f offset;
 	Vec3f direction;
-	float tween;
+	double tween;
 	
 	GameParticleSystem(int particleCount);
 	void positionChildren();
-	void setTween(float relative,float absolute);
+	void setTween(double relative,double absolute);
 };
 
 // =====================================================
@@ -325,15 +325,15 @@ public:
 	static bool isNight;
 	static Vec3f lightColor;
 private:
-	float radius;
-	float minRadius;
+	double radius;
+	double minRadius;
 	Vec3f windSpeed;
 	Vec3f cRotation;
 	Vec3f fixedAddition;
     Vec3f oldPosition;
     bool energyUp;
-	float startTime;
-	float endTime;
+    double startTime;
+    double endTime;
     
 public:
 	enum Shape{
@@ -345,10 +345,10 @@ public:
 	bool relativeDirection;
     bool fixed;
 	Shape shape;
-	float angle;
-	float sizeNoEnergy;
-	float gravity;
-	float rotation;
+	double angle;
+	double sizeNoEnergy;
+	double gravity;
+	double rotation;
 	bool isVisibleAtNight;
 	bool isVisibleAtDay;
 	bool isDaylightAffected;
@@ -356,7 +356,7 @@ public:
 	int staticParticleCount;
 	int delay;
 	int lifetime;
-	float emissionRateFade;
+	double emissionRateFade;
 	GameParticleSystem* parent;
 
 public:
@@ -373,22 +373,22 @@ public:
 	virtual void fade();
 	virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
 
-	virtual void setStartTime(float startTime) { this->startTime = startTime; }
-	virtual float getStartTime() const { return this->startTime; }
-	virtual void setEndTime(float endTime) { this->endTime = endTime; }
-	virtual float getEndTime() const { return this->endTime; }
+	virtual void setStartTime(double startTime) { this->startTime = startTime; }
+	virtual double getStartTime() const { return this->startTime; }
+	virtual void setEndTime(double endTime) { this->endTime = endTime; }
+	virtual double getEndTime() const { return this->endTime; }
 
 	//set params
-	void setRadius(float radius)					{this->radius= radius;}
-	void setMinRadius(float minRadius)				{this->minRadius= minRadius;}
-	void setEmissionRateFade(float emissionRateFade)		{this->emissionRateFade= emissionRateFade;}
+	void setRadius(double radius)					{this->radius= radius;}
+	void setMinRadius(double minRadius)				{this->minRadius= minRadius;}
+	void setEmissionRateFade(double emissionRateFade)		{this->emissionRateFade= emissionRateFade;}
 
-	void setWind(float windAngle, float windSpeed);
+	void setWind(double windAngle, double windSpeed);
 	
 	void setDirection(Vec3f direction)				{this->direction= direction;}
-	void setSizeNoEnergy(float sizeNoEnergy)			{this->sizeNoEnergy= sizeNoEnergy;}
-	void setGravity(float gravity)						{this->gravity= gravity;}
-	void setRotation(float rotation);
+	void setSizeNoEnergy(double sizeNoEnergy)			{this->sizeNoEnergy= sizeNoEnergy;}
+	void setGravity(double gravity)						{this->gravity= gravity;}
+	void setRotation(double rotation);
 	void setRelative(bool relative)						{this->relative= relative;}
 	void setRelativeDirection(bool relativeDirection)	{this->relativeDirection= relativeDirection;}
 	void setFixed(bool fixed)							{this->fixed= fixed;}
@@ -399,7 +399,7 @@ public:
 	void setIsVisibleAtDay(bool value)					{this->isVisibleAtDay= value;}
 	void setRadiusBasedStartenergy(bool value)			{this->radiusBasedStartenergy= value;}
 	void setShape(Shape shape)					{this->shape= shape;}
-	void setAngle(float angle)					{this->angle= angle;}
+	void setAngle(double angle)					{this->angle= angle;}
 	void setDelay(int delay) 					{this->delay= delay;}
 	void setLifetime(int lifetime)					{this->lifetime= lifetime;}
 	void setParent(GameParticleSystem* parent)			{this->parent= parent;}
@@ -423,7 +423,7 @@ public:
 class RainParticleSystem: public ParticleSystem{
 private:
 	Vec3f windSpeed;
-	float radius;
+	double radius;
 
 public:
 	RainParticleSystem(int particleCount= 4000);
@@ -435,8 +435,8 @@ public:
 	virtual void initParticle(Particle *p, int particleIndex);
 	virtual bool deathTest(Particle *p);
 
-	void setRadius(float radius);
-	void setWind(float windAngle, float windSpeed);
+	void setRadius(double radius);
+	void setWind(double windAngle, double windSpeed);
 
 	virtual string toString() const;
 
@@ -450,7 +450,7 @@ public:
 class SnowParticleSystem: public ParticleSystem{
 private:
 	Vec3f windSpeed;
-	float radius;
+	double radius;
 
 public:
 	SnowParticleSystem(int particleCount= 4000);
@@ -460,8 +460,8 @@ public:
 	virtual void initParticle(Particle *p, int particleIndex);
 	virtual bool deathTest(Particle *p);
 
-	void setRadius(float radius);
-	void setWind(float windAngle, float windSpeed);
+	void setRadius(double radius);
+	void setWind(double windAngle, double windSpeed);
 
 	virtual string toString() const;
 
@@ -477,15 +477,15 @@ public:
 class AttackParticleSystem: public GameParticleSystem {
 
 protected:
-	float sizeNoEnergy;
-	float gravity;
+	double sizeNoEnergy;
+	double gravity;
 public:
 	AttackParticleSystem(int particleCount);
 
 	virtual ParticleSystemType getParticleSystemType() const { return pst_ProjectileParticleSystem;}
 
-	void setSizeNoEnergy(float sizeNoEnergy)	{this->sizeNoEnergy= sizeNoEnergy;}
-	void setGravity(float gravity)				{this->gravity= gravity;}
+	void setSizeNoEnergy(double sizeNoEnergy)	{this->sizeNoEnergy= sizeNoEnergy;}
+	void setGravity(double gravity)				{this->gravity= gravity;}
 	
 	virtual void initParticleSystem() {} // opportunity to do any initialization when the system has been created and all settings set
 

@@ -43,7 +43,7 @@ public:
 	void init(int seed);
 
 	int randRange(int min, int max,std::string lastCaller="");
-	float randRange(float min, float max,std::string lastCaller="");
+	double randRange(double min, double max,std::string lastCaller="");
 
 	int getLastNumber() const { return lastNumber; }
 	void setLastNumber(int value) { lastNumber = value; }

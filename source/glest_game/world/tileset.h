@@ -120,8 +120,8 @@ public:
 	static const int surfCount= 6;
 	static const int objCount= 10;
 	static const int transitionVars= 2; //number or different transition textures
-	static const float standardAirHeight;
-	static const float standardShadowIntensity;
+	static const double standardAirHeight;
+	static const double standardShadowIntensity;
 
 public:
 	typedef vector<float> SurfProbs;
@@ -142,13 +142,13 @@ private:
     bool waterEffects;
     bool fog;
     int fogMode;
-	float fogDensity;
+    double fogDensity;
 	Vec3f fogColor;
 	Vec3f sunLightColor;
 	Vec3f moonLightColor;
-	float shadowIntensity;
+	double shadowIntensity;
 	Weather weather;
-	float airHeight;
+	double airHeight;
 
 	AmbientSounds ambientSounds;
 	Checksum checksumValue;
@@ -178,7 +178,7 @@ public:
 	Checksum * getChecksumValue() { return &checksumValue; }
 
     //get
-	float getAirHeight()const  {return airHeight;}
+	double getAirHeight()const  {return airHeight;}
 	const SurfaceAtlas *getSurfaceAtlas() const		{return &surfaceAtlas;}
 	ObjectType *getObjectType(int i)				{return &objectTypes[i];}
 	float getSurfProb(int surf, int var) const		{return surfProbs[surf][var];}
@@ -186,11 +186,11 @@ public:
 	bool getWaterEffects() const					{return waterEffects;}
 	bool getFog() const								{return fog;}
 	int getFogMode() const							{return fogMode;}
-	float getFogDensity() const						{return fogDensity;}
+	double getFogDensity() const						{return fogDensity;}
 	const Vec3f &getFogColor() const				{return fogColor;}
 	const Vec3f &getSunLightColor() const			{return sunLightColor;}
 	const Vec3f &getMoonLightColor() const			{return moonLightColor;}
-	float getShadowIntense()const  {return shadowIntensity;}
+	double getShadowIntense()const  {return shadowIntensity;}
 	Weather getWeather() const						{return weather;}
 	void setWeather(Weather value) { weather = value; }
 

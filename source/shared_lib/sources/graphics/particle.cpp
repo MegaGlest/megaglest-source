@@ -55,7 +55,7 @@ void Particle::saveGame(XmlNode *rootNode) {
 //	Vec4f color;
 	particleNode->addAttribute("color",color.getString(), mapTagReplacements);
 //	float size;
-	particleNode->addAttribute("size",floatToStr(size,16), mapTagReplacements);
+	particleNode->addAttribute("size",doubleToStr(size,16), mapTagReplacements);
 //	int energy;
 	particleNode->addAttribute("energy",intToStr(energy), mapTagReplacements);
 }
@@ -216,7 +216,7 @@ void ParticleSystem::update(){
 				Particle *p= createParticle();
 				initParticle(p, i);
 			}
-			emissionState= emissionState - (float) emissionIntValue;
+			emissionState = emissionState - (double) emissionIntValue;
 		}
 	}
 }
@@ -265,7 +265,7 @@ void ParticleSystem::setColorNoEnergy(Vec4f colorNoEnergy){
 	this->colorNoEnergy= colorNoEnergy;
 }
 
-void ParticleSystem::setEmissionRate(float emissionRate){
+void ParticleSystem::setEmissionRate(double emissionRate){
 	this->emissionRate= emissionRate;
 }
 
@@ -277,11 +277,11 @@ void ParticleSystem::setVarParticleEnergy(int varParticleEnergy){
 	this->varParticleEnergy= varParticleEnergy;
 }
 
-void ParticleSystem::setParticleSize(float particleSize){
+void ParticleSystem::setParticleSize(double particleSize){
 	this->particleSize= particleSize;
 }
 
-void ParticleSystem::setSpeed(float speed){
+void ParticleSystem::setSpeed(double speed){
 	this->speed= speed;
 }
 
@@ -329,17 +329,17 @@ string ParticleSystem::toString() const {
 	result += "\ntextureFileLoadDeferredComponents = " + intToStr(textureFileLoadDeferredComponents);
 
 	if(texture != NULL) {
-		result += "\ntexture = " + texture->getPath();
+		result += "\ntexture = " + extractFileFromDirectoryPath(texture->getPath());
 	}
 	result += "\npos = " + pos.getString();
 	result += "\ncolor = " + color.getString();
 	result += "\ncolorNoEnergy = " + colorNoEnergy.getString();
-	result += "\nemissionRate = " + floatToStr(emissionRate,16);
-	result += "\nemissionState = " + floatToStr(emissionState,16);
+	result += "\nemissionRate = " + doubleToStr(emissionRate,16);
+	result += "\nemissionState = " + doubleToStr(emissionState,16);
 	result += "\nmaxParticleEnergy = " + intToStr(maxParticleEnergy);
 	result += "\nvarParticleEnergy = " + intToStr(varParticleEnergy);
-	result += "\nparticleSize = " + floatToStr(particleSize,16);
-	result += "\nspeed = " + floatToStr(speed,16);
+	result += "\nparticleSize = " + doubleToStr(particleSize,16);
+	result += "\nspeed = " + doubleToStr(speed,16);
 	result += "\nfactionColor = " + factionColor.getString();
     result += "\nteamcolorNoEnergy = " + intToStr(teamcolorNoEnergy);
     result += "\nteamcolorEnergy = " + intToStr(teamcolorEnergy);
@@ -392,17 +392,17 @@ void ParticleSystem::saveGame(XmlNode *rootNode) {
 //	Vec4f colorNoEnergy;
 	particleSystemNode->addAttribute("colorNoEnergy",colorNoEnergy.getString(), mapTagReplacements);
 //	float emissionRate;
-	particleSystemNode->addAttribute("emissionRate",floatToStr(emissionRate,16), mapTagReplacements);
+	particleSystemNode->addAttribute("emissionRate",doubleToStr(emissionRate,16), mapTagReplacements);
 //	float emissionState;
-	particleSystemNode->addAttribute("emissionState",floatToStr(emissionState,16), mapTagReplacements);
+	particleSystemNode->addAttribute("emissionState",doubleToStr(emissionState,16), mapTagReplacements);
 //	int maxParticleEnergy;
 	particleSystemNode->addAttribute("maxParticleEnergy",intToStr(maxParticleEnergy), mapTagReplacements);
 //	int varParticleEnergy;
 	particleSystemNode->addAttribute("varParticleEnergy",intToStr(varParticleEnergy), mapTagReplacements);
 //	float particleSize;
-	particleSystemNode->addAttribute("particleSize",floatToStr(particleSize,16), mapTagReplacements);
+	particleSystemNode->addAttribute("particleSize",doubleToStr(particleSize,16), mapTagReplacements);
 //	float speed;
-	particleSystemNode->addAttribute("speed",floatToStr(speed,16), mapTagReplacements);
+	particleSystemNode->addAttribute("speed",doubleToStr(speed,16), mapTagReplacements);
 //	Vec3f factionColor;
 	particleSystemNode->addAttribute("factionColor",factionColor.getString(), mapTagReplacements);
 //    bool teamcolorNoEnergy;
@@ -656,21 +656,21 @@ FireParticleSystem::FireParticleSystem(int particleCount) :
 void FireParticleSystem::initParticle(Particle *p, int particleIndex){
 	ParticleSystem::initParticle(p, particleIndex);
 
-	float ang= random.randRange(-2.0f * pi, 2.0f * pi);
+	double ang= random.randRange(-2.0f * pi, 2.0f * pi);
 #ifdef USE_STREFLOP
-	float mod= streflop::fabsf(static_cast<streflop::Simple>(random.randRange(-radius, radius)));
+	double mod= streflop::fabsf(static_cast<streflop::Simple>(random.randRange(-radius, radius)));
 
-	float x= streflop::sinf(static_cast<streflop::Simple>(ang))*mod;
-	float y= streflop::cosf(static_cast<streflop::Simple>(ang))*mod;
+	double x= streflop::sinf(static_cast<streflop::Simple>(ang))*mod;
+	double y= streflop::cosf(static_cast<streflop::Simple>(ang))*mod;
 
-	float radRatio= streflop::sqrtf(static_cast<streflop::Simple>(mod/radius));
+	double radRatio= streflop::sqrtf(static_cast<streflop::Simple>(mod/radius));
 #else
-	float mod= fabsf(random.randRange(-radius, radius));
+	double mod= fabsf(random.randRange(-radius, radius));
 
-	float x= sinf(ang) * mod;
-	float y= cosf(ang) * mod;
+	double x= sinf(ang) * mod;
+	double y= cosf(ang) * mod;
 
-	float radRatio= sqrtf((mod / radius));
+	double radRatio= sqrtf((mod / radius));
 #endif
 
 	p->color= colorNoEnergy * 0.5f + colorNoEnergy * 0.5f * radRatio;
@@ -702,18 +702,18 @@ string FireParticleSystem::toString() const {
 	string result = ParticleSystem::toString();
 
 	result += "\nFireParticleSystem ";
-	result += "\nradius = " + floatToStr(radius);
+	result += "\nradius = " + doubleToStr(radius);
 	result += "\nwindSpeed = " + windSpeed.getString();
 
 	return result;
 }
 // ================= SET PARAMS ====================
 
-void FireParticleSystem::setRadius(float radius){
+void FireParticleSystem::setRadius(double radius){
 	this->radius= radius;
 }
 
-void FireParticleSystem::setWind(float windAngle, float windSpeed){
+void FireParticleSystem::setWind(double windAngle, double windSpeed) {
 #ifdef USE_STREFLOP
 	this->windSpeed.x= streflop::sinf(static_cast<streflop::Simple>(degToRad(windAngle)))*windSpeed;
 	this->windSpeed.y= 0.0f;
@@ -732,7 +732,7 @@ void FireParticleSystem::saveGame(XmlNode *rootNode) {
 	ParticleSystem::saveGame(fireParticleSystemNode);
 
 //	float radius;
-	fireParticleSystemNode->addAttribute("radius",floatToStr(radius,16), mapTagReplacements);
+	fireParticleSystemNode->addAttribute("radius",doubleToStr(radius,16), mapTagReplacements);
 //	Vec3f windSpeed;
 	fireParticleSystemNode->addAttribute("windSpeed",windSpeed.getString(), mapTagReplacements);
 }
@@ -845,7 +845,7 @@ void GameParticleSystem::render(ParticleRenderer *pr, ModelRenderer *mr){
 	}
 }
 
-void GameParticleSystem::setTween(float relative,float absolute) {
+void GameParticleSystem::setTween(double relative,double absolute) {
 	if(model) {
 		// animation?
 		//printf("#1 Particle model meshcount [%d] modelCycle = %f, relative = %f, absolute = %f\n",model->getMeshCount(),modelCycle,relative,absolute);
@@ -870,7 +870,7 @@ void GameParticleSystem::setTween(float relative,float absolute) {
 			}
 		}
 
-		truncateDecimal<float>(tween);
+		tween = truncateDecimal<double>(tween);
 		if(tween < 0.0f || tween > 1.0f) {
 			//printf("In [%s::%s Line: %d] WARNING setting tween to [%f] clamping tween, modelCycle [%f] absolute [%f] relative [%f]\n",__FILE__,__FUNCTION__,__LINE__,tween,modelCycle,absolute,relative);
 			//assert(tween >= 0.0f && tween <= 1.0f);
@@ -908,13 +908,13 @@ void GameParticleSystem::saveGame(XmlNode *rootNode) {
 		gameParticleSystemNode->addAttribute("model",model->getFileName(), mapTagReplacements);
 	}
 //	float modelCycle;
-	gameParticleSystemNode->addAttribute("modelCycle",floatToStr(modelCycle,16), mapTagReplacements);
+	gameParticleSystemNode->addAttribute("modelCycle",doubleToStr(modelCycle,16), mapTagReplacements);
 //	Vec3f offset;
 	gameParticleSystemNode->addAttribute("offset",offset.getString(), mapTagReplacements);
 //	Vec3f direction;
 	gameParticleSystemNode->addAttribute("direction",direction.getString(), mapTagReplacements);
 //	float tween;
-	gameParticleSystemNode->addAttribute("tween",floatToStr(tween,16), mapTagReplacements);
+	gameParticleSystemNode->addAttribute("tween",doubleToStr(tween,16), mapTagReplacements);
 }
 void GameParticleSystem::loadGame(const XmlNode *rootNode) {
 	const XmlNode *gameParticleSystemNode = rootNode->getChild("GameParticleSystem");
@@ -974,10 +974,10 @@ string GameParticleSystem::toString() const {
 
 	//string modelFileLoadDeferred;
 	//Model *model;
-	result += "\nmodelCycle = " + floatToStr(modelCycle);
+	result += "\nmodelCycle = " + doubleToStr(modelCycle);
 	result += "\noffset = " + offset.getString();
 	result += "\ndirection = " + direction.getString();
-	result += "\ntween = " + floatToStr(tween);
+	result += "\ntween = " + doubleToStr(tween);
 
 	return result;
 }
@@ -1018,7 +1018,7 @@ UnitParticleSystem::UnitParticleSystem(int particleCount) :
 	fixedAddition= Vec3f(0.0f, 0.0f, 0.0f);
 	//prepare system for given staticParticleCount
 	if(staticParticleCount > 0){
-		emissionState= (float) staticParticleCount;
+		emissionState= (double) staticParticleCount;
 	}
 	energyUp= false;
 	
@@ -1052,7 +1052,7 @@ void UnitParticleSystem::render(ParticleRenderer *pr, ModelRenderer *mr) {
 	GameParticleSystem::render(pr,mr);
 }
 
-void UnitParticleSystem::setRotation(float rotation){
+void UnitParticleSystem::setRotation(double rotation){
 	this->rotation= rotation;
 	for(Children::iterator it= children.begin(); it != children.end(); ++it)
 		(*it)->setRotation(rotation);
@@ -1082,13 +1082,13 @@ UnitParticleSystem::Shape UnitParticleSystem::strToShape(const string& str){
 void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	ParticleSystem::initParticle(p, particleIndex);
 
-	const float ang= random.randRange(-2.0f * pi, 2.0f * pi);
+	const double ang= random.randRange(-2.0f * pi, 2.0f * pi);
 #ifdef USE_STREFLOP	
-	const float mod= streflop::fabsf(static_cast<streflop::Simple>(random.randRange(-radius, radius)));
-	const float radRatio= streflop::sqrtf(static_cast<streflop::Simple>(mod/radius));
+	const double mod= streflop::fabsf(static_cast<streflop::Simple>(random.randRange(-radius, radius)));
+	const double radRatio= streflop::sqrtf(static_cast<streflop::Simple>(mod/radius));
 #else
-	const float mod= fabsf(random.randRange(-radius, radius));
-	const float radRatio= sqrtf(mod / radius);
+	const double mod= fabsf(random.randRange(-radius, radius));
+	const double radRatio= sqrtf(mod / radius);
 #endif
 	p->color= color;
 	if(isDaylightAffected==true)
@@ -1113,7 +1113,7 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	// work out where we start for our shape (set speed and pos)
 	switch(shape){
 	case sSpherical:
-		angle = (float)random.randRange(0,360);
+		angle = (double)random.randRange(0,360);
 		// fall through
 	case sConical:{
 		Vec2f horiz = Vec2f(1,0).rotate(ang);
@@ -1125,13 +1125,13 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	} break;
 	case sLinear:{
 	#ifdef USE_STREFLOP	
-		float x= streflop::sinf(static_cast<streflop::Simple>(ang))*mod;
-		float y= streflop::cosf(static_cast<streflop::Simple>(ang))*mod;
+		double x= streflop::sinf(static_cast<streflop::Simple>(ang))*mod;
+		double y= streflop::cosf(static_cast<streflop::Simple>(ang))*mod;
 	#else	
-		float x= sinf(ang) * mod;
-		float y= cosf(ang) * mod;	
+		double x= sinf(ang) * mod;
+		double y= cosf(ang) * mod;
 	#endif
-		const float rad= degToRad(rotation);
+		const double rad= degToRad(rotation);
 		if(!relative){
 			p->pos= Vec3f(pos.x + x + offset.x, pos.y + random.randRange(-radius / 2, radius / 2) + offset.y, pos.z + y
 				+ offset.z);
@@ -1182,10 +1182,10 @@ void UnitParticleSystem::update(){
 }
 
 void UnitParticleSystem::updateParticle(Particle *p){
-	float energyRatio;
+	double energyRatio;
 	if(alternations > 0){
 		int interval= (maxParticleEnergy / alternations);
-		float moduloValue= (float)((int)(static_cast<float> (p->energy)) % interval);
+		double moduloValue= (double)((int)(static_cast<double> (p->energy)) % interval);
 
 		if(moduloValue < interval / 2){
 			energyRatio= (interval - moduloValue) / interval;
@@ -1196,7 +1196,7 @@ void UnitParticleSystem::updateParticle(Particle *p){
 		energyRatio= clamp(energyRatio, 0.f, 1.f);
 	}
 	else{
-		energyRatio= clamp(static_cast<float> (p->energy) / maxParticleEnergy, 0.f, 1.f);
+		energyRatio= clamp(static_cast<double> (p->energy) / maxParticleEnergy, 0.f, 1.f);
 	}
 
 	p->lastPos+= p->speed;
@@ -1238,7 +1238,7 @@ void UnitParticleSystem::updateParticle(Particle *p){
 
 // ================= SET PARAMS ====================
 
-void UnitParticleSystem::setWind(float windAngle, float windSpeed){
+void UnitParticleSystem::setWind(double windAngle, double windSpeed){
 #ifdef USE_STREFLOP
 	this->windSpeed.x= streflop::sinf(static_cast<streflop::Simple>(degToRad(windAngle)))*windSpeed;
 	this->windSpeed.y= 0.0f;
@@ -1257,9 +1257,9 @@ void UnitParticleSystem::saveGame(XmlNode *rootNode) {
 	GameParticleSystem::saveGame(unitParticleSystemNode);
 
 //	float radius;
-	unitParticleSystemNode->addAttribute("radius",floatToStr(radius,16), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("radius",doubleToStr(radius,16), mapTagReplacements);
 //	float minRadius;
-	unitParticleSystemNode->addAttribute("minRadius",floatToStr(minRadius,16), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("minRadius",doubleToStr(minRadius,16), mapTagReplacements);
 //	Vec3f windSpeed;
 	unitParticleSystemNode->addAttribute("windSpeed",windSpeed.getString(), mapTagReplacements);
 //	Vec3f cRotation;
@@ -1271,9 +1271,9 @@ void UnitParticleSystem::saveGame(XmlNode *rootNode) {
 //    bool energyUp;
 	unitParticleSystemNode->addAttribute("energyUp",intToStr(energyUp), mapTagReplacements);
 //	float startTime;
-	unitParticleSystemNode->addAttribute("startTime",floatToStr(startTime,16), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("startTime",doubleToStr(startTime,16), mapTagReplacements);
 //	float endTime;
-	unitParticleSystemNode->addAttribute("endTime",floatToStr(endTime,16), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("endTime",doubleToStr(endTime,16), mapTagReplacements);
 //	bool relative;
 	unitParticleSystemNode->addAttribute("relative",intToStr(relative), mapTagReplacements);
 //	bool relativeDirection;
@@ -1283,13 +1283,13 @@ void UnitParticleSystem::saveGame(XmlNode *rootNode) {
 //	Shape shape;
 	unitParticleSystemNode->addAttribute("shape",intToStr(shape), mapTagReplacements);
 //	float angle;
-	unitParticleSystemNode->addAttribute("angle",floatToStr(angle,16), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("angle",doubleToStr(angle,16), mapTagReplacements);
 //	float sizeNoEnergy;
-	unitParticleSystemNode->addAttribute("sizeNoEnergy",floatToStr(sizeNoEnergy,16), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("sizeNoEnergy",doubleToStr(sizeNoEnergy,16), mapTagReplacements);
 //	float gravity;
-	unitParticleSystemNode->addAttribute("gravity",floatToStr(gravity,16), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("gravity",doubleToStr(gravity,16), mapTagReplacements);
 //	float rotation;
-	unitParticleSystemNode->addAttribute("rotation",floatToStr(rotation,16), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("rotation",doubleToStr(rotation,16), mapTagReplacements);
 //	bool isVisibleAtNight;
 	unitParticleSystemNode->addAttribute("isVisibleAtNight",intToStr(isVisibleAtNight), mapTagReplacements);
 //	bool isVisibleAtDay;
@@ -1305,7 +1305,7 @@ void UnitParticleSystem::saveGame(XmlNode *rootNode) {
 //	int lifetime;
 	unitParticleSystemNode->addAttribute("lifetime",intToStr(lifetime), mapTagReplacements);
 //	float emissionRateFade;
-	unitParticleSystemNode->addAttribute("emissionRateFade",floatToStr(emissionRateFade,16), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("emissionRateFade",doubleToStr(emissionRateFade,16), mapTagReplacements);
 //	GameParticleSystem* parent;
 	//if(parent != NULL) {
 	//	parent->saveGame(unitParticleSystemNode);
@@ -1393,24 +1393,24 @@ string UnitParticleSystem::toString() const {
 	string result = ParticleSystem::toString();
 
 	result += "\nUnitParticleSystem ";
-	result += "\nradius = " + floatToStr(radius);
-	result += "\nminRadius = " + floatToStr(minRadius);
+	result += "\nradius = " + doubleToStr(radius);
+	result += "\nminRadius = " + doubleToStr(minRadius);
 	result += "\nwindSpeed = " + windSpeed.getString();
 	result += "\ncRotation = " + cRotation.getString();
 	result += "\nfixedAddition = " + fixedAddition.getString();
     result += "\noldPosition = " + oldPosition.getString();
     result += "\nenergyUp = " + intToStr(energyUp);
-    result += "\nstartTime = " + floatToStr(startTime);
-    result += "\nendTime = " + floatToStr(endTime);
+    result += "\nstartTime = " + doubleToStr(startTime);
+    result += "\nendTime = " + doubleToStr(endTime);
 	result += "\nrelative = " + intToStr(relative);
 	result += "\nrelativeDirection = " + intToStr(relativeDirection);
     result += "\nfixed = " + intToStr(fixed);
 	result += "\nshape = " + intToStr(shape);
 
-	result += "\nangle = " + floatToStr(angle);
-	result += "\nsizeNoEnergy = " + floatToStr(sizeNoEnergy);
-	result += "\ngravity = " + floatToStr(gravity);
-	result += "\nrotation = " + floatToStr(rotation);
+	result += "\nangle = " + doubleToStr(angle);
+	result += "\nsizeNoEnergy = " + doubleToStr(sizeNoEnergy);
+	result += "\ngravity = " + doubleToStr(gravity);
+	result += "\nrotation = " + doubleToStr(rotation);
 	result += "\nisVisibleAtNight = " + intToStr(isVisibleAtNight);
 	result += "\nisVisibleAtDay = " + intToStr(isVisibleAtDay);
 	result += "\nisDaylightAffected = " + intToStr(isDaylightAffected);
@@ -1418,7 +1418,7 @@ string UnitParticleSystem::toString() const {
 	result += "\nstaticParticleCount = " + intToStr(staticParticleCount);
 	result += "\ndelay = " + intToStr(delay);
 	result += "\nlifetime = " + intToStr(lifetime);
-	result += "\nemissionRateFade = " + floatToStr(emissionRateFade);
+	result += "\nemissionRateFade = " + doubleToStr(emissionRateFade);
 	//GameParticleSystem* parent;
 
 	return result;
@@ -1445,8 +1445,8 @@ void RainParticleSystem::render(ParticleRenderer *pr, ModelRenderer *mr){
 void RainParticleSystem::initParticle(Particle *p, int particleIndex){
 	ParticleSystem::initParticle(p, particleIndex);
 
-	float x= random.randRange(-radius, radius);
-	float y= random.randRange(-radius, radius);
+	double x= random.randRange(-radius, radius);
+	double y= random.randRange(-radius, radius);
 
 	p->color= color;
 	p->energy= 10000;
@@ -1460,12 +1460,12 @@ bool RainParticleSystem::deathTest(Particle *p){
 	return p->pos.y < 0;
 }
 
-void RainParticleSystem::setRadius(float radius){
+void RainParticleSystem::setRadius(double radius) {
 	this->radius= radius;
 
 }
 
-void RainParticleSystem::setWind(float windAngle, float windSpeed){
+void RainParticleSystem::setWind(double windAngle, double windSpeed){
 #ifdef USE_STREFLOP
 	this->windSpeed.x= streflop::sinf(static_cast<streflop::Simple>(degToRad(windAngle)))*windSpeed;
 	this->windSpeed.y= 0.0f;
@@ -1488,7 +1488,7 @@ string RainParticleSystem::toString() const {
 
 	result += "\nRainParticleSystem ";
 	result += "\nwindSpeed = " + windSpeed.getString();
-	result += "\nradius = " + floatToStr(radius);
+	result += "\nradius = " + doubleToStr(radius);
 
 	return result;
 }
@@ -1512,8 +1512,8 @@ void SnowParticleSystem::initParticle(Particle *p, int particleIndex){
 
 	ParticleSystem::initParticle(p, particleIndex);
 
-	float x= random.randRange(-radius, radius);
-	float y= random.randRange(-radius, radius);
+	double x= random.randRange(-radius, radius);
+	double y= random.randRange(-radius, radius);
 
 	p->color= color;
 	p->energy= 10000;
@@ -1528,11 +1528,11 @@ bool SnowParticleSystem::deathTest(Particle *p){
 	return p->pos.y < 0;
 }
 
-void SnowParticleSystem::setRadius(float radius){
+void SnowParticleSystem::setRadius(double radius){
 	this->radius= radius;
 }
 
-void SnowParticleSystem::setWind(float windAngle, float windSpeed){
+void SnowParticleSystem::setWind(double windAngle, double windSpeed){
 #ifdef USE_STREFLOP
 	this->windSpeed.x= streflop::sinf(static_cast<streflop::Simple>(degToRad(windAngle)))*windSpeed;
 	this->windSpeed.y= 0.0f;
@@ -1555,7 +1555,7 @@ string SnowParticleSystem::toString() const {
 
 	result += "\nSnowParticleSystem ";
 	result += "\nwindSpeed = " + windSpeed.getString();
-	result += "\nradius = " + floatToStr(radius);
+	result += "\nradius = " + doubleToStr(radius);
 
 	return result;
 }
@@ -1578,9 +1578,9 @@ void AttackParticleSystem::saveGame(XmlNode *rootNode) {
 	GameParticleSystem::saveGame(attackParticleSystemNode);
 
 //	float sizeNoEnergy;
-	attackParticleSystemNode->addAttribute("sizeNoEnergy",floatToStr(sizeNoEnergy,16), mapTagReplacements);
+	attackParticleSystemNode->addAttribute("sizeNoEnergy",doubleToStr(sizeNoEnergy,16), mapTagReplacements);
 //	float gravity;
-	attackParticleSystemNode->addAttribute("gravity",floatToStr(gravity,16), mapTagReplacements);
+	attackParticleSystemNode->addAttribute("gravity",doubleToStr(gravity,16), mapTagReplacements);
 
 }
 void AttackParticleSystem::loadGame(const XmlNode *rootNode) {
@@ -1604,8 +1604,8 @@ string AttackParticleSystem::toString() const {
 	string result = ParticleSystem::toString();
 
 	result += "\nAttackParticleSystem ";
-	result += "\nsizeNoEnergy = " + floatToStr(sizeNoEnergy);
-	result += "\ngravity = " + floatToStr(gravity);
+	result += "\nsizeNoEnergy = " + doubleToStr(sizeNoEnergy);
+	result += "\ngravity = " + doubleToStr(gravity);
 
 	return result;
 }
@@ -1681,7 +1681,7 @@ void ProjectileParticleSystem::update(){
 //#endif
 
 		//printf("#a currentVector.length() = %f, targetVector.length() = %f, relative = %f, absolute = %f, trajectorySpeed = %f\n",currentVector.length(),targetVector.length(),relative,absolute,trajectorySpeed);
-		float absolute = relative;
+		double absolute = relative;
 
 		setTween(relative,absolute);
 
@@ -1870,12 +1870,12 @@ void ProjectileParticleSystem::saveGame(XmlNode *rootNode) {
 //	Trajectory trajectory;
 	projectileParticleSystemNode->addAttribute("trajectory",intToStr(trajectory), mapTagReplacements);
 //	float trajectorySpeed;
-	projectileParticleSystemNode->addAttribute("trajectorySpeed",floatToStr(trajectorySpeed,16), mapTagReplacements);
+	projectileParticleSystemNode->addAttribute("trajectorySpeed",doubleToStr(trajectorySpeed,16), mapTagReplacements);
 //	//parabolic
 //	float trajectoryScale;
-	projectileParticleSystemNode->addAttribute("trajectoryScale",floatToStr(trajectoryScale,16), mapTagReplacements);
+	projectileParticleSystemNode->addAttribute("trajectoryScale",doubleToStr(trajectoryScale,16), mapTagReplacements);
 //	float trajectoryFrequency;
-	projectileParticleSystemNode->addAttribute("trajectoryFrequency",floatToStr(trajectoryFrequency,16), mapTagReplacements);
+	projectileParticleSystemNode->addAttribute("trajectoryFrequency",doubleToStr(trajectoryFrequency,16), mapTagReplacements);
 }
 
 void ProjectileParticleSystem::loadGame(const XmlNode *rootNode) {
@@ -2018,7 +2018,7 @@ void SplashParticleSystem::initParticle(Particle *p, int particleIndex){
 }
 
 void SplashParticleSystem::updateParticle(Particle *p){
-	float energyRatio= clamp(static_cast<float> (p->energy) / maxParticleEnergy, 0.f, 1.f);
+	double energyRatio= clamp(static_cast<double> (p->energy) / maxParticleEnergy, 0.f, 1.f);
 
 	p->lastPos= p->pos;
 	p->pos= p->pos + p->speed;
