@@ -330,7 +330,7 @@ private:
 	static std::map<Unit *,bool> mapMemoryList;
 #endif
 
-	static const float ANIMATION_SPEED_MULTIPLIER;
+	static const double ANIMATION_SPEED_MULTIPLIER;
 	static const int64 PROGRESS_SPEED_MULTIPLIER;
 
 public:
@@ -353,7 +353,7 @@ private:
     int64 progress;			//between 0 and 1
 	int64 lastAnimProgress;	//between 0 and 1
 	int64 animProgress;		//between 0 and 1
-	float highlight;
+	double highlight;
 	int32 progress2;
 	int32 kills;
 	int32 enemyKills;
@@ -371,13 +371,13 @@ private:
 	Vec3f targetVec;
 	Vec2i meetingPos;
 
-	float lastRotation;		//in degrees
-	float targetRotation;
-	float rotation;
-	float targetRotationZ;
-	float targetRotationX;
-	float rotationZ;
-	float rotationX;
+	double lastRotation;		//in degrees
+	double targetRotation;
+	double rotation;
+	double targetRotationZ;
+	double targetRotationX;
+	double rotationZ;
+	double rotationX;
 
 	const UnitType *preMorph_type;
     const UnitType *type;
@@ -517,10 +517,10 @@ public:
 
     //inline int getLastAnimProgress() const			{return lastAnimProgress;}
     //inline int getAnimProgress() const				{return animProgress;}
-    inline float getLastAnimProgressAsFloat() const	{return static_cast<float>(lastAnimProgress) / ANIMATION_SPEED_MULTIPLIER;}
-    inline float getAnimProgressAsFloat() const		{return static_cast<float>(animProgress) / ANIMATION_SPEED_MULTIPLIER;}
+    inline double getLastAnimProgressAsFloat() const	{return static_cast<double>(lastAnimProgress) / ANIMATION_SPEED_MULTIPLIER;}
+    inline double getAnimProgressAsFloat() const		{return static_cast<double>(animProgress) / ANIMATION_SPEED_MULTIPLIER;}
 
-    inline float getHightlight() const					{return highlight;}
+    inline double getHightlight() const					{return highlight;}
     inline int getProgress2() const					{return progress2;}
 	inline int getFactionIndex() const {
 		return faction->getIndex();
@@ -531,9 +531,9 @@ public:
 	inline int getHp() const							{return hp;}
 	inline int getEp() const							{return ep;}
 	int getProductionPercent() const;
-	float getProgressRatio() const;
-	float getHpRatio() const;
-	float getEpRatio() const;
+	double getProgressRatio() const;
+	double getHpRatio() const;
+	double getEpRatio() const;
 	inline bool getToBeUndertaken() const				{return toBeUndertaken;}
 	inline Vec2i getTargetPos() const					{return targetPos;}
 	inline Vec3f getTargetVec() const					{return targetVec;}
@@ -546,9 +546,9 @@ public:
 
 	inline const SkillType *getCurrSkill() const		{return currSkill;}
 	inline const TotalUpgrade *getTotalUpgrade() const	{return &totalUpgrade;}
-	inline float getRotation() const					{return rotation;}
-	float getRotationX() const;
-	float getRotationZ() const;
+	inline double getRotation() const					{return rotation;}
+	double getRotationX() const;
+	double getRotationZ() const;
 	ParticleSystem *getFire() const;
 	inline int getKills() const						{return kills;}
 	inline int getEnemyKills() const					{return enemyKills;}
@@ -742,7 +742,7 @@ public:
 
 	std::string toString(bool crcMode=false) const;
 	bool needToUpdate();
-	float getProgressAsFloat() const;
+	double getProgressAsFloat() const;
 	int64 getUpdateProgress();
 	int64 getDiagonalFactor();
 	int64 getHeightFactor(int64 speedMultiplier=PROGRESS_SPEED_MULTIPLIER);
@@ -794,7 +794,7 @@ private:
 	void addNetworkCRCDecHp(string info) { }
 	string getNetworkCRCDecHpList() const;
 
-	float computeHeight(const Vec2i &pos) const;
+	double computeHeight(const Vec2i &pos) const;
 	void calculateXZRotation();
 	void updateTarget();
 	void clearCommands();

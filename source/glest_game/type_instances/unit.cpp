@@ -388,7 +388,7 @@ void UnitAttackBoostEffectOriginator::saveGame(XmlNode *rootNode) {
 // 	class Unit
 // =====================================================
 
-const float Unit::ANIMATION_SPEED_MULTIPLIER = 100000.f;
+const double Unit::ANIMATION_SPEED_MULTIPLIER = 100000.f;
 //const float Unit::PROGRESS_SPEED_MULTIPLIER  = 100000.f;
 const int64 Unit::PROGRESS_SPEED_MULTIPLIER  = 100000;
 
@@ -496,7 +496,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	alive= true;
 
 	if (type->hasSkillClass(scBeBuilt) == false) {
-		float rot= 0.f;
+		double rot= 0.f;
 		random.init(id);
 		rot+= random.randRange(-5, 5,intToStr(__LINE__));
 		rotation= rot;
@@ -726,15 +726,15 @@ Vec2i Unit::getCellPos() const {
 
 			//find nearest pos to center that is free
 			Vec2i centeredPos= getCenteredPos();
-			float nearestDist= -1.f;
+			double nearestDist= -1.f;
 			Vec2i nearestPos= pos;
 
 			for(int i=0; i<type->getSize(); ++i){
 				for(int j=0; j<type->getSize(); ++j){
 					if(type->getCellMapCell(i, j, modelFacing)){
 						Vec2i currPos= pos + Vec2i(i, j);
-						float dist= currPos.dist(centeredPos);
-						if(nearestDist==-1.f || dist<nearestDist){
+						double dist= currPos.dist(centeredPos);
+						if(nearestDist == -1.f || dist < nearestDist) {
 							nearestDist= dist;
 							nearestPos= currPos;
 						}
@@ -815,11 +815,11 @@ void Unit::calculateXZRotation(){
 	}
 }
 
-float Unit::getRotationZ() const{
+double Unit::getRotationZ() const{
 	return rotationZ;
 }
 
-float Unit::getRotationX() const{
+double Unit::getRotationX() const{
 	return rotationX;
 }
 
@@ -836,7 +836,7 @@ int Unit::getProductionPercent() const{
 	return -1;
 }
 
-float Unit::getProgressRatio() const{
+double Unit::getProgressRatio() const{
 	if(anyCommand()){
 		const ProducibleType *produced= commands.front()->getCommandType()->getProduced();
 		if(produced != NULL){
@@ -844,28 +844,28 @@ float Unit::getProgressRatio() const{
 				return 0.f;
 			}
 
-			float help = progress2;
+			double help = progress2;
 			return clamp(help / produced->getProductionTime(), 0.f, 1.f);
 		}
 	}
 	return -1;
 }
 
-float Unit::getHpRatio() const {
+double Unit::getHpRatio() const {
 	if(type == NULL) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	float maxHpAllowed = type->getTotalMaxHp(&totalUpgrade);
+	double maxHpAllowed = type->getTotalMaxHp(&totalUpgrade);
 	if(maxHpAllowed == 0.f) {
 		return 0.f;
 	}
-	return clamp(static_cast<float>(hp) / maxHpAllowed, 0.f, 1.f);
+	return clamp(static_cast<double>(hp) / maxHpAllowed, 0.f, 1.f);
 }
 
-float Unit::getEpRatio() const {
+double Unit::getEpRatio() const {
 	if(type == NULL) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
@@ -876,11 +876,11 @@ float Unit::getEpRatio() const {
 		return 0.f;
 	}
 	else {
-		float maxEpAllowed = type->getTotalMaxEp(&totalUpgrade);
+		double maxEpAllowed = type->getTotalMaxEp(&totalUpgrade);
 		if(maxEpAllowed == 0.f) {
 			return 0.f;
 		}
-		return clamp(static_cast<float>(ep) / maxEpAllowed, 0.f, 1.f);
+		return clamp(static_cast<double>(ep) / maxEpAllowed, 0.f, 1.f);
 	}
 }
 
@@ -1225,7 +1225,7 @@ FowAlphaCellsLookupItem Unit::getFogOfWarRadius(bool useCache) const {
 		Vec2i surfPos= Map::toSurfCoords(sightpos);
 
 		//compute max alpha
-		float maxAlpha= 0.0f;
+		double maxAlpha= 0.0f;
 		if(surfPos.x > 1 && surfPos.y > 1 && surfPos.x < map->getSurfaceW() -2 && surfPos.y < map->getSurfaceH() -2) {
 			maxAlpha= 1.f;
 		}
@@ -1234,8 +1234,8 @@ FowAlphaCellsLookupItem Unit::getFogOfWarRadius(bool useCache) const {
 		}
 
 		//compute alpha
-		float alpha = maxAlpha;
-		float dist = this->getPosNotThreadSafe().dist(sightpos);
+		double alpha = maxAlpha;
+		double dist = this->getPosNotThreadSafe().dist(sightpos);
 		if(dist > sightRange) {
 			alpha= clamp(1.f-(dist - sightRange) / (World::indirectSightRange), 0.f, maxAlpha);
 		}
@@ -1425,30 +1425,30 @@ Vec3f Unit::getCurrVectorFlat() const{
 	return getVectorFlat(lastPos, pos);
 }
 
-float Unit::getProgressAsFloat() const {
-	float result = (static_cast<float>(progress) / static_cast<float>(PROGRESS_SPEED_MULTIPLIER));
-	result = truncateDecimal<float>(result);
+double Unit::getProgressAsFloat() const {
+	double result = (static_cast<double>(progress) / static_cast<double>(PROGRESS_SPEED_MULTIPLIER));
+	result = truncateDecimal<double>(result);
 	return result;
 }
 
 Vec3f Unit::getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) const {
     Vec3f v;
 
-	float y1= computeHeight(lastPosValue);
-	float y2= computeHeight(curPosValue);
+    double y1= computeHeight(lastPosValue);
+    double y2= computeHeight(curPosValue);
 
     if(currSkill->getClass() == scMove) {
-        v.x= truncateDecimal<float>(lastPosValue.x + getProgressAsFloat() * (curPosValue.x - lastPosValue.x));
-        v.z= truncateDecimal<float>(lastPosValue.y + getProgressAsFloat() * (curPosValue.y - lastPosValue.y));
-		v.y= truncateDecimal<float>(y1 + getProgressAsFloat() * (y2-y1));
+        v.x= truncateDecimal<double>(lastPosValue.x + getProgressAsFloat() * (curPosValue.x - lastPosValue.x));
+        v.z= truncateDecimal<double>(lastPosValue.y + getProgressAsFloat() * (curPosValue.y - lastPosValue.y));
+		v.y= truncateDecimal<double>(y1 + getProgressAsFloat() * (y2-y1));
     }
     else {
-        v.x= static_cast<float>(curPosValue.x);
-        v.z= static_cast<float>(curPosValue.y);
+        v.x= static_cast<double>(curPosValue.x);
+        v.z= static_cast<double>(curPosValue.y);
         v.y= y2;
     }
-    v.x += truncateDecimal<float>(type->getSize() / 2.f - 0.5f);
-    v.z += truncateDecimal<float>(type->getSize() / 2.f - 0.5f);
+    v.x += truncateDecimal<double>(type->getSize() / 2.f - 0.5f);
+    v.z += truncateDecimal<double>(type->getSize() / 2.f - 0.5f);
 
     return v;
 }
@@ -2022,8 +2022,8 @@ int64 Unit::getHeightFactor(int64 speedMultiplier) {
 			throw megaglest_runtime_error("targetCell == NULL");
 		}
 
-		int64 heightDiff= ((truncateDecimal<float>(unitCell->getHeight(),2) * speedMultiplier) -
-				         (truncateDecimal<float>(targetCell->getHeight(),2) * speedMultiplier));
+		int64 heightDiff= ((truncateDecimal<double>(unitCell->getHeight(),2) * speedMultiplier) -
+				         (truncateDecimal<double>(targetCell->getHeight(),2) * speedMultiplier));
 		//heightFactor= clamp(speedMultiplier + heightDiff / (5.f * speedMultiplier), 0.2f * speedMultiplier, 5.f * speedMultiplier);
 		heightFactor= clamp(speedMultiplier + heightDiff / (5 * speedMultiplier), (2 * (speedMultiplier / 10)), 5 * speedMultiplier);
 	}
@@ -2327,7 +2327,7 @@ bool Unit::update() {
 	//printf("Test progress = %d for unit [%d - %s]\n",progress,id,getType()->getName().c_str());
 
 	if(isAnimProgressBound() == true) {
-		float targetProgress=0;
+		double targetProgress=0;
 		if(currSkill->getClass() == scBeBuilt) {
 			targetProgress = this->getHpRatio();
 		}
@@ -2341,10 +2341,10 @@ bool Unit::update() {
 			targetProgress = this->getProgressRatio();
 		}
 
-		float targetProgressIntValue = targetProgress * ANIMATION_SPEED_MULTIPLIER;
+		double targetProgressIntValue = targetProgress * ANIMATION_SPEED_MULTIPLIER;
 		if(this->animProgress < targetProgressIntValue) {
-			float diff = targetProgressIntValue - this->animProgress;
-			float progressIncrease = static_cast<float>(this->animProgress) + diff / static_cast<float>(GameConstants::updateFps);
+			double diff = targetProgressIntValue - this->animProgress;
+			double progressIncrease = static_cast<double>(this->animProgress) + diff / static_cast<double>(GameConstants::updateFps);
 			// Ensure we increment at least a value of 1 of the action will be stuck infinitely
 			if(diff > 0.f && GameConstants::updateFps > 0 && progressIncrease == 0.f) {
 				progressIncrease = 1.f;
@@ -2389,7 +2389,7 @@ bool Unit::update() {
 					rotation= lastRotation + (targetRotation - lastRotation) *
 							getProgressAsFloat() * rotFactor;
 				else {
-					float rotationTerm = targetRotation > lastRotation ? -360.f: +360.f;
+					double rotationTerm = targetRotation > lastRotation ? -360.f: +360.f;
 					rotation           = lastRotation + (targetRotation - lastRotation + rotationTerm) *
 							getProgressAsFloat() * rotFactor;
 				}
@@ -2523,8 +2523,8 @@ void Unit::updateTimedParticles() {
 			UnitParticleSystem *ps = unitParticleSystems[i];
 			if(ps != NULL) {
 				if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
-					float pst = ps->getStartTime();
-					float pet = ps->getEndTime();
+					double pst = ps->getStartTime();
+					double pet = ps->getEndTime();
 					double particleStartTime = truncateDecimal<double>(pst);
 					double particleEndTime = truncateDecimal<double>(pet);
 
@@ -3334,7 +3334,7 @@ bool Unit::morph(const MorphCommandType *mct) {
 
 // ==================== PRIVATE ====================
 
-float Unit::computeHeight(const Vec2i &pos) const {
+double Unit::computeHeight(const Vec2i &pos) const {
 	//printf("CRASHING FOR UNIT: %d alive = %d\n",this->getId(),this->isAlive());
 	//printf("[%s]\n",this->getType()->getName().c_str());
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
@@ -3343,24 +3343,24 @@ float Unit::computeHeight(const Vec2i &pos) const {
 		throw megaglest_runtime_error("#7 Invalid path position = " + pos.getString());
 	}
 
-	float height= map->getCell(pos)->getHeight();
+	double height= map->getCell(pos)->getHeight();
 
 	if(currField == fAir) {
-		const float airHeight=game->getWorld()->getTileset()->getAirHeight();
+		const double airHeight=game->getWorld()->getTileset()->getAirHeight();
 		height += airHeight;
-		height = truncateDecimal<float>(height);
+		height = truncateDecimal<double>(height);
 
 		Unit *unit = map->getCell(pos)->getUnit(fLand);
 		if(unit != NULL && unit->getType()->getHeight() > airHeight) {
-			height += (std::min((float)unit->getType()->getHeight(),Tileset::standardAirHeight * 3) - airHeight);
-			height = truncateDecimal<float>(height);
+			height += (std::min((double)unit->getType()->getHeight(),Tileset::standardAirHeight * 3) - airHeight);
+			height = truncateDecimal<double>(height);
 		}
 		else {
 			SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(pos));
 			if(sc != NULL && sc->getObject() != NULL && sc->getObject()->getType() != NULL) {
 				if(sc->getObject()->getType()->getHeight() > airHeight) {
-					height += (std::min((float)sc->getObject()->getType()->getHeight(),Tileset::standardAirHeight * 3) - airHeight);
-					height = truncateDecimal<float>(height);
+					height += (std::min((double)sc->getObject()->getType()->getHeight(),Tileset::standardAirHeight * 3) - airHeight);
+					height = truncateDecimal<double>(height);
 				}
 			}
 		}
@@ -4158,10 +4158,10 @@ std::string Unit::toString(bool crcMode) const {
 	result += "\n";
 	result += "networkCRCLogInfo = " + networkCRCLogInfo;
 	result += "\n";
-	result += " lastAnimProgress = " + intToStr(this->lastAnimProgress);
-	result += " animProgress = " + intToStr(this->animProgress);
 	if(crcMode == false) {
-		result += " highlight = " + floatToStr(this->highlight,16);
+		result += " lastAnimProgress = " + intToStr(this->lastAnimProgress);
+		result += " animProgress = " + intToStr(this->animProgress);
+		result += " highlight = " + doubleToStr(this->highlight,16);
 	}
 	result += " progress2 = " + intToStr(this->progress2);
 	result += " kills = " + intToStr(this->kills);
@@ -4190,9 +4190,9 @@ std::string Unit::toString(bool crcMode) const {
 	result += "\n";
 
 	if(crcMode == false) {
-		result += " lastRotation = " + floatToStr(this->lastRotation,16);
-		result += " targetRotation = " + floatToStr(this->targetRotation,16);
-		result += " rotation = " + floatToStr(this->rotation,16);
+		result += " lastRotation = " + doubleToStr(this->lastRotation,16);
+		result += " targetRotation = " + doubleToStr(this->targetRotation,16);
+		result += " rotation = " + doubleToStr(this->rotation,16);
 	}
 
     if(loadType != NULL) {
@@ -4300,7 +4300,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 //	float animProgress;		//between 0 and 1
 	unitNode->addAttribute("animProgress",intToStr(animProgress), mapTagReplacements);
 //	float highlight;
-	unitNode->addAttribute("highlight",floatToStr(highlight,16), mapTagReplacements);
+	unitNode->addAttribute("highlight",doubleToStr(highlight,16), mapTagReplacements);
 //	int progress2;
 	unitNode->addAttribute("progress2",intToStr(progress2), mapTagReplacements);
 //	int kills;
@@ -4330,19 +4330,19 @@ void Unit::saveGame(XmlNode *rootNode) {
 	unitNode->addAttribute("meetingPos",meetingPos.getString(), mapTagReplacements);
 //
 //	float lastRotation;		//in degrees
-	unitNode->addAttribute("lastRotation",floatToStr(lastRotation,16), mapTagReplacements);
+	unitNode->addAttribute("lastRotation",doubleToStr(lastRotation,16), mapTagReplacements);
 //	float targetRotation;
-	unitNode->addAttribute("targetRotation",floatToStr(targetRotation,16), mapTagReplacements);
+	unitNode->addAttribute("targetRotation",doubleToStr(targetRotation,16), mapTagReplacements);
 //	float rotation;
-	unitNode->addAttribute("rotation",floatToStr(rotation,16), mapTagReplacements);
+	unitNode->addAttribute("rotation",doubleToStr(rotation,16), mapTagReplacements);
 //	float targetRotationZ;
-	unitNode->addAttribute("targetRotationZ",floatToStr(targetRotationZ,16), mapTagReplacements);
+	unitNode->addAttribute("targetRotationZ",doubleToStr(targetRotationZ,16), mapTagReplacements);
 //	float targetRotationX;
-	unitNode->addAttribute("targetRotationX",floatToStr(targetRotationX,16), mapTagReplacements);
+	unitNode->addAttribute("targetRotationX",doubleToStr(targetRotationX,16), mapTagReplacements);
 //	float rotationZ;
-	unitNode->addAttribute("rotationZ",floatToStr(rotationZ,16), mapTagReplacements);
+	unitNode->addAttribute("rotationZ",doubleToStr(rotationZ,16), mapTagReplacements);
 //	float rotationX;
-	unitNode->addAttribute("rotationX",floatToStr(rotationX,16), mapTagReplacements);
+	unitNode->addAttribute("rotationX",doubleToStr(rotationX,16), mapTagReplacements);
 //    const UnitType *type;
 	unitNode->addAttribute("type",type->getName(false), mapTagReplacements);
 

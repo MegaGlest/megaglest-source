@@ -29,8 +29,8 @@ using namespace Shared::Graphics;
 
 namespace Glest{ namespace Game{
 
-const float Tileset::standardAirHeight= 5.0f;
-const float Tileset::standardShadowIntensity= 0.2f;
+const double Tileset::standardAirHeight= 5.0f;
+const double Tileset::standardShadowIntensity= 0.2f;
 // =====================================================
 // 	class AmbientSounds
 // =====================================================
@@ -433,15 +433,15 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 
 		//weather
 		const XmlNode *weatherNode= parametersNode->getChild("weather");
-		float sunnyProb= weatherNode->getAttribute("sun")->getFloatValue(0.f, 1.f);
-		float rainyProb= weatherNode->getAttribute("rain")->getFloatValue(0.f, 1.f) + sunnyProb;
+		double sunnyProb= weatherNode->getAttribute("sun")->getFloatValue(0.f, 1.f);
+		double rainyProb= weatherNode->getAttribute("rain")->getFloatValue(0.f, 1.f) + sunnyProb;
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 #ifdef USE_STREFLOP
-		float rnd= streflop::fabs(static_cast<streflop::Simple>(random.randRange(-1.f, 1.f)));
+		double rnd= streflop::fabs(static_cast<streflop::Simple>(random.randRange(-1.f, 1.f)));
 #else
-		float rnd= fabs(random.randRange(-1.f, 1.f));
+		double rnd= fabs(random.randRange(-1.f, 1.f));
 #endif
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -505,7 +505,7 @@ void Tileset::addSurfTex(int leftUp, int rightUp, int leftDown, int rightDown, V
 	//center textures
 	if(leftUp == rightUp && leftUp == leftDown && leftUp == rightDown) {
 		//texture variation according to probability
-		float r= random.randRange(0.f, 1.f);
+		double r= random.randRange(0.f, 1.f);
 		const Pixmap2D *pixmap = NULL;
 
 		if(surfProbs[leftUp][0] < 0) {
@@ -514,7 +514,7 @@ void Tileset::addSurfTex(int leftUp, int rightUp, int leftDown, int rightDown, V
 			pixmap = getSurfPixmap(leftUp, (mapY % parts) * parts + (mapX % parts));
 		}
 		else {
-			float max= 0.f;
+			double max= 0.f;
 			int var= 0;
 			for(int i=0; i < surfProbs[leftUp].size(); ++i) {
 				max += surfProbs[leftUp][i];
