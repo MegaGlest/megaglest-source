@@ -52,11 +52,11 @@ using Shared::Xml::XmlNode;
 class UnitParticleSystemType: public ParticleSystemType {
 protected:
 	UnitParticleSystem::Shape shape;
-	float angle;
-	float radius;
-	float minRadius;
-	float emissionRateFade;
-	Vec3f direction;
+	double angle;
+	double radius;
+	double minRadius;
+	double emissionRateFade;
+	Vec3d direction;
     bool relative;
     bool relativeDirection;
     bool fixed;
@@ -67,8 +67,8 @@ protected:
 	bool radiusBasedStartenergy;
 	int delay;
 	int lifetime;
-	float startTime;
-	float endTime;
+	double startTime;
+	double endTime;
 
 public:
 	UnitParticleSystemType();
@@ -81,10 +81,10 @@ public:
 			std::map<string,vector<pair<string, string> > > &loadedFileList,string parentLoader,
 			string techtreePath);
 
-	void setStartTime(float startTime) { this->startTime = startTime; }
-	float getStartTime() const { return this->startTime; }
-	void setEndTime(float endTime) { this->endTime = endTime; }
-	float getEndTime() const { return this->endTime; }
+	void setStartTime(double startTime) { this->startTime = startTime; }
+	double getStartTime() const { return this->startTime; }
+	void setEndTime(double endTime) { this->endTime = endTime; }
+	double getEndTime() const { return this->endTime; }
 
 	const void setValues (UnitParticleSystem *uts);
 	bool hasTexture() const { return(texture != NULL); }

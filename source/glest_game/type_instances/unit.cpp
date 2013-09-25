@@ -453,7 +453,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	this->map= map;
 	this->targetRef = NULL;
 	this->targetField = fLand;
-	this->targetVec   = Vec3f(0.0);
+	this->targetVec   = Vec3d(0.0);
 	this->targetPos   = Vec2i(0);
 	this->lastRenderFrame = 0;
 	this->visible = true;
@@ -700,7 +700,7 @@ Vec2i Unit::getCenteredPos() const {
     return pos + Vec2i(type->getSize()/2, type->getSize()/2);
 }
 
-Vec2f Unit::getFloatCenteredPos() const {
+Vec2d Unit::getFloatCenteredPos() const {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(mutexCommands,mutexOwnerId);
 
@@ -710,7 +710,7 @@ Vec2f Unit::getFloatCenteredPos() const {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	return Vec2f(pos.x-0.5f+type->getSize()/2.f, pos.y-0.5f+type->getSize()/2.f);
+	return Vec2d(pos.x-0.5f+type->getSize()/2.f, pos.y-0.5f+type->getSize()/2.f);
 }
 
 Vec2i Unit::getCellPos() const {
@@ -754,7 +754,7 @@ void Unit::calculateXZRotation(){
 	//if(currSkill->getClass()==scMove)
 	if(lastPos != pos){ // targetPosCalc ( maybe also sometimes needed if no move ? terrain flatting... )
 		SurfaceCell* sc= map->getSurfaceCell(Map::toSurfCoords(pos));
-		const Vec3f normal= sc->getNormal();
+		const Vec3d normal= Vec3d(sc->getNormal());
 
 #ifdef USE_STREFLOP
 		targetRotationZ= radToDeg(streflop::atan2(static_cast<streflop::Simple>(abs(normal.x)), static_cast<streflop::Simple>(abs(normal.y))));
@@ -1124,7 +1124,7 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 				(*it)->setValues(ups);
 				ups->setPos(getCurrVector());
 				if(getFaction()->getTexture()) {
-					ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+					ups->setFactionColor(Vec3d(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0)));
 				}
 				unitParticleSystems.push_back(ups);
 				Renderer::getInstance().manageParticleSystem(ups, rsGame);
@@ -1267,7 +1267,7 @@ void Unit::setTargetPos(const Vec2i &targetPos) {
 	Vec2i relPos= targetPos - pos;
 	//map->clampPos(relPos);
 
-	Vec2f relPosf= Vec2f((float)relPos.x, (float)relPos.y);
+	Vec2d relPosf= Vec2d((double)relPos.x, (double)relPos.y);
 #ifdef USE_STREFLOP
 	targetRotation= radToDeg(streflop::atan2(static_cast<streflop::Simple>(relPosf.x), static_cast<streflop::Simple>(relPosf.y)));
 #else
@@ -1411,17 +1411,17 @@ bool Unit::checkModelStateInfoForNewHpValue() {
 	return result;
 }
 
-Vec3f Unit::getCurrVector() const{
+Vec3d Unit::getCurrVector() const{
 	if(type == NULL) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	return getCurrVectorFlat() + Vec3f(0.f, truncateDecimal<float>(type->getHeight()/2.f), 0.f);
+	return getCurrVectorFlat() + Vec3d(0.f, truncateDecimal<double>(type->getHeight()/2.f), 0.f);
 }
 
-Vec3f Unit::getCurrVectorFlat() const{
+Vec3d Unit::getCurrVectorFlat() const{
 	return getVectorFlat(lastPos, pos);
 }
 
@@ -1431,8 +1431,8 @@ double Unit::getProgressAsFloat() const {
 	return result;
 }
 
-Vec3f Unit::getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) const {
-    Vec3f v;
+Vec3d Unit::getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) const {
+    Vec3d v;
 
     double y1= computeHeight(lastPosValue);
     double y2= computeHeight(curPosValue);
@@ -2145,9 +2145,9 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 						if (getFaction()->getTexture()) {
 							currentAttackBoostOriginatorEffect.
 									currentAppliedEffect->ups->setFactionColor(
-											getFaction()->getTexture()->
+											Vec3d(getFaction()->getTexture()->
 												getPixmapConst()->getPixel3f(
-															0, 0));
+															0, 0)));
 						}
 						Renderer::getInstance().manageParticleSystem(
 								currentAttackBoostOriginatorEffect.currentAppliedEffect->ups,
@@ -2252,8 +2252,8 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 								getCurrVector());
 						if (getFaction()->getTexture()) {
 							currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setFactionColor(
-									getFaction()->getTexture()->getPixmapConst()->getPixel3f(
-											0, 0));
+									Vec3d(getFaction()->getTexture()->getPixmapConst()->getPixel3f(
+											0, 0)));
 						}
 						Renderer::getInstance().manageParticleSystem(
 								currentAttackBoostOriginatorEffect.currentAppliedEffect->ups,
@@ -2503,7 +2503,7 @@ void Unit::updateTimedParticles() {
 					pst->setValues(ups);
 					ups->setPos(getCurrVector());
 					if(getFaction()->getTexture()) {
-						ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+						ups->setFactionColor(Vec3d(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0)));
 					}
 					unitParticleSystems.push_back(ups);
 					Renderer::getInstance().manageParticleSystem(ups, rsGame);
@@ -2640,7 +2640,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 				effect->upst->setValues(effect->ups);
 				effect->ups->setPos(getCurrVector());
 				if(getFaction()->getTexture()) {
-					effect->ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+					effect->ups->setFactionColor(Vec3d(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0)));
 				}
 				Renderer::getInstance().manageParticleSystem(effect->ups, rsGame);
 			}
@@ -3376,7 +3376,7 @@ void Unit::updateTarget(){
 		//update target pos
 		targetPos= target->getCellPos();
 		Vec2i relPos= targetPos - pos;
-		Vec2f relPosf= Vec2f((float)relPos.x, (float)relPos.y);
+		Vec2d relPosf= Vec2d((double)relPos.x, (double)relPos.y);
 #ifdef USE_STREFLOP
 		targetRotation= radToDeg(streflop::atan2(static_cast<streflop::Simple>(relPosf.x), static_cast<streflop::Simple>(relPosf.y)));
 #else
@@ -3767,7 +3767,7 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 					pst->setValues(ups);
 					ups->setPos(getCurrVector());
 					if(getFaction()->getTexture()) {
-						ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+						ups->setFactionColor(Vec3d(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0)));
 					}
 					damageParticleSystems.push_back(ups);
 					damageParticleSystemsInUse[i] = ups;
@@ -3792,7 +3792,7 @@ void Unit::startDamageParticles() {
 					pst->setValues(ups);
 					ups->setPos(getCurrVector());
 					if(getFaction()->getTexture()) {
-						ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+						ups->setFactionColor(Vec3d(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0)));
 					}
 					damageParticleSystems.push_back(ups);
 					damageParticleSystemsInUse[i] = ups;
@@ -3819,12 +3819,12 @@ void Unit::startDamageParticles() {
 				// smoke
 				UnitParticleSystem *ups= new UnitParticleSystem(400);
 				ups->setParticleOwner(this);
-				ups->setColorNoEnergy(Vec4f(0.0f, 0.0f, 0.0f, 0.13f));
-				ups->setColor(Vec4f(0.115f, 0.115f, 0.115f, 0.22f));
+				ups->setColorNoEnergy(Vec4d(0.0f, 0.0f, 0.0f, 0.13f));
+				ups->setColor(Vec4d(0.115f, 0.115f, 0.115f, 0.22f));
 				ups->setPos(getCurrVector());
 				ups->setBlendMode(ups->strToBlendMode("black"));
-				ups->setOffset(Vec3f(0,2,0));
-				ups->setDirection(Vec3f(0,1,-0.2f));
+				ups->setOffset(Vec3d(0,2,0));
+				ups->setDirection(Vec3d(0,1,-0.2f));
 				ups->setRadius(type->getSize()/3.f);
 				ups->setShape(Shared::Graphics::UnitParticleSystem::sLinear);
 				ups->setTexture(CoreData::getInstance().getFireTexture());
@@ -3845,7 +3845,7 @@ void Unit::startDamageParticles() {
 	checkCustomizedParticleTriggers(false);
 }
 
-void Unit::setTargetVec(const Vec3f &targetVec)	{
+void Unit::setTargetVec(const Vec3d &targetVec)	{
 	this->targetVec= targetVec;
 	logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 }
@@ -4687,7 +4687,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //    Vec2i targetPos;		//absolute target pos
 	result->targetPos = Vec2i::strToVec2(unitNode->getAttribute("targetPos")->getValue());
 //	Vec3f targetVec;
-	result->targetVec = Vec3f::strToVec3(unitNode->getAttribute("targetVec")->getValue());
+	result->targetVec = Vec3d::strToVec3(unitNode->getAttribute("targetVec")->getValue());
 //	Vec2i meetingPos;
 	result->meetingPos = Vec2i::strToVec2(unitNode->getAttribute("meetingPos")->getValue());
 //
@@ -4905,28 +4905,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 			//ups->setTexture(CoreData::getInstance().getFireTexture());
 			result->smokeParticleSystems.push_back(ups);
 
-//			UnitParticleSystem *ups= new UnitParticleSystem(400);
-//			ups->setColorNoEnergy(Vec4f(0.0f, 0.0f, 0.0f, 0.13f));
-//			ups->setColor(Vec4f(0.115f, 0.115f, 0.115f, 0.22f));
-//			ups->setPos(result->getCurrVector());
-//			ups->setBlendMode(ups->strToBlendMode("black"));
-//			ups->setOffset(Vec3f(0,2,0));
-//			ups->setDirection(Vec3f(0,1,-0.2f));
-//			ups->setRadius(result->type->getSize()/3.f);
-//			ups->setShape(Shared::Graphics::UnitParticleSystem::sLinear);
-//			ups->setTexture(CoreData::getInstance().getFireTexture());
-//			const Game *game = Renderer::getInstance().getGame();
-//			ups->setSpeed(2.0f / game->getWorld()->getUpdateFps(result->getFactionIndex()));
-//			ups->setGravity(0.0004f);
-//			ups->setEmissionRate(1);
-//			ups->setMaxParticleEnergy(150);
-//			ups->setSizeNoEnergy(result->type->getSize()*0.6f);
-//			ups->setParticleSize(result->type->getSize()*0.8f);
-//			result->smokeParticleSystems.push_back(ups);
-
-			//Renderer::getInstance().manageParticleSystem(result->fire, rsGame);
 			Renderer::getInstance().addToDeferredParticleSystemList(make_pair(ups, rsGame));
-
 			//printf("Loading smoke particles:\n[%s]\n",ups->toString().c_str());
 		}
 	}
