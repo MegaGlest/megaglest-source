@@ -1340,11 +1340,12 @@ void MainWindow::loadParticle(string path) {
                 (*it)->setValues(ups);
                 if(size > 0) {
                     //getCurrVectorFlat() + Vec3f(0.f, type->getHeight()/2.f, 0.f);
-                    Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);
+                    Vec3d vec = Vec3d(0.f, height / 2.f, 0.f);
                     ups->setPos(vec);
                 }
                 //ups->setFactionColor(getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
-                ups->setFactionColor(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0));
+                Vec3d factionColor(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0));
+                ups->setFactionColor(factionColor);
                 unitParticleSystems.push_back(ups);
                 renderer->manageParticleSystem(ups);
 
@@ -1457,9 +1458,9 @@ void MainWindow::loadProjectileParticle(string path) {
 					//ps->setPos(vec);
 
 					Vec3f vec2 = Vec3f(size * 2.f, height * 2.f, height * 2.f);
-					ps->setPath(vec, vec2);
+					ps->setPath(Vec3d(vec), Vec3d(vec2));
 				}
-				ps->setFactionColor(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0));
+				ps->setFactionColor(Vec3d(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0)));
 
 				projectileParticleSystems.push_back(ps);
 
@@ -1568,7 +1569,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 					//Vec3f vec2 = Vec3f(size * 2.f, height * 2.f, height * 2.f);   // <------- removed relative projectile
 					//ps->setPath(vec, vec2);                                       // <------- removed relative projectile
 				}
-				ps->setFactionColor(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0));
+				ps->setFactionColor(Vec3d(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0)));
 
 				splashParticleSystems.push_back(ps);
 

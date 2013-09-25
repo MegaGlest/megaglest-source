@@ -140,7 +140,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 		}
 
 		if(destUnitMightApply == true) {
-			float distance = source->getCenteredPos().dist(dest->getCenteredPos());
+			double distance = source->getCenteredPos().dist(dest->getCenteredPos());
 			if(distance <= radius) {
 				result = true;
 			}
@@ -516,7 +516,7 @@ const AnimationAttributes SkillType::getAnimationAttribute(int index) const {
 	return animationAttributes[index];
 }
 
-Model *SkillType::getAnimation(float animProgress, const Unit *unit,
+Model *SkillType::getAnimation(double animProgress, const Unit *unit,
 		int *lastAnimationIndex, int *animationRandomCycleCount) const {
 	int modelIndex = 0;
 	//printf("Count [%d] animProgress = [%f] for skill [%s] animationRandomCycleCount = %d\n",animations.size(),animProgress,name.c_str(),*animationRandomCycleCount);
@@ -665,7 +665,7 @@ void SkillType::saveGame(XmlNode *rootNode) {
 //
 //    SoundContainer sounds;
 //	float soundStartTime;
-	skillTypeNode->addAttribute("soundStartTime",floatToStr(soundStartTime,16), mapTagReplacements);
+	skillTypeNode->addAttribute("soundStartTime",doubleToStr(soundStartTime,16), mapTagReplacements);
 //	RandomGen random;
 	skillTypeNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
 //	AttackBoost attackBoost;
@@ -897,7 +897,7 @@ void AttackSkillType::saveGame(XmlNode *rootNode) {
 		attackFieldsNode->addAttribute("value",intToStr(attackFields[i]), mapTagReplacements);
 	}
 //	float attackStartTime;
-	attackSkillTypeNode->addAttribute("attackStartTime",floatToStr(attackStartTime,16), mapTagReplacements);
+	attackSkillTypeNode->addAttribute("attackStartTime",doubleToStr(attackStartTime,16), mapTagReplacements);
 //	string spawnUnit;
 	attackSkillTypeNode->addAttribute("spawnUnit",spawnUnit, mapTagReplacements);
 //	int spawnUnitcount;
@@ -1220,7 +1220,7 @@ void FogOfWarSkillType::saveGame(XmlNode *rootNode) {
 
 	fogSkillTypeNode->addAttribute("enable-fog",intToStr(fowEnable), mapTagReplacements);
 	fogSkillTypeNode->addAttribute("apply-team",intToStr(applyToTeam), mapTagReplacements);
-	fogSkillTypeNode->addAttribute("duration",floatToStr(durationTime,16), mapTagReplacements);
+	fogSkillTypeNode->addAttribute("duration",doubleToStr(durationTime,16), mapTagReplacements);
 }
 
 // =====================================================

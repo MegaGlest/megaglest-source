@@ -57,20 +57,20 @@ private:
 	ObjectType *objectType;
 	vector<UnitParticleSystem*> unitParticleSystems;
 	Resource *resource;
-	Vec3f pos;
-	float rotation;
+	Vec3d pos;
+	double rotation;
 	int variation;
 	int lastRenderFrame;
 	Vec2i mapPos;
 	bool visible;
 	bool animated;
-	float animProgress;
-	float highlight;
+	double animProgress;
+	double highlight;
 
 	static ObjectStateInterface *stateCallback;
 
 public:
-	Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos);
+	Object(ObjectType *objectType, const Vec3d &pos, const Vec2i &mapPos);
 	virtual ~Object();
 
 	void end(); //to kill particles
@@ -80,21 +80,21 @@ public:
 
 	const ObjectType *getType() const	{return objectType;}
 	Resource *getResource() const		{return resource;}
-	Vec3f getPos() const				{return pos;}
+	Vec3d getPos() const				{return pos;}
 	bool isVisible() const				{return visible;}
-	const Vec3f & getConstPos() const	{return pos;}
-	float getRotation() const			{return rotation;}
+	const Vec3d & getConstPos() const	{return pos;}
+	double getRotation() const			{return rotation;}
 	const Model *getModel() const;
 	Model *getModelPtr() const;
 	bool getWalkable() const;
 	bool isAnimated() const				{return animated;}
 
-	float getHightlight() const			{return highlight;}
+	double getHightlight() const			{return highlight;}
 	bool isHighlighted() const			{return highlight>0.f;}
 	void resetHighlight();
 
 	void setResource(const ResourceType *resourceType, const Vec2i &pos);
-	void setHeight(float height);
+	void setHeight(double height);
 	void setVisible(bool visible);
 
 	int getLastRenderFrame() const { return lastRenderFrame; }
@@ -104,7 +104,7 @@ public:
 
 	void updateHighlight();
 	void update();
-	float getAnimProgress() const { return animProgress;}
+	double getAnimProgress() const { return animProgress;}
 
 	virtual string getUniquePickName() const;
 	void saveGame(XmlNode *rootNode);

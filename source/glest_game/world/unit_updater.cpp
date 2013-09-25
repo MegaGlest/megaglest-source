@@ -119,11 +119,11 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 	//play skill sound
 	const SkillType *currSkill= unit->getCurrSkill();
 	if(currSkill->getSound() != NULL) {
-		float soundStartTime= currSkill->getSoundStartTime();
+		double soundStartTime= currSkill->getSoundStartTime();
 		if(soundStartTime >= unit->getLastAnimProgressAsFloat() && soundStartTime < unit->getAnimProgressAsFloat()) {
 			if(map->getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(world->getThisTeamIndex()) ||
 				(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
-				soundRenderer.playFx(currSkill->getSound(), unit->getCurrVector(), gameCamera->getPos());
+				soundRenderer.playFx(currSkill->getSound(), Vec3f(unit->getCurrVector()), gameCamera->getPos());
 			}
 		}
 	}
@@ -275,7 +275,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 				if(Config::getInstance().getBool("DisableWaterSounds","false") == false) {
 					soundRenderer.playFx(
 						CoreData::getInstance().getWaterSound(),
-						unit->getCurrVector(),
+						Vec3f(unit->getCurrVector()),
 						gameCamera->getPos()
 					);
 
@@ -930,7 +930,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 						(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
 						SoundRenderer::getInstance().playFx(
 							bct->getStartSound(),
-							unit->getCurrVector(),
+							Vec3f(unit->getCurrVector()),
 							gameCamera->getPos());
 					}
 
@@ -1022,7 +1022,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 					(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
 					SoundRenderer::getInstance().playFx(
 						bct->getBuiltSound(),
-						unit->getCurrVector(),
+						Vec3f(unit->getCurrVector()),
 						gameCamera->getPos());
 				}
 			}
@@ -2295,8 +2295,8 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 	ParticleSystemTypeProjectile *pstProj= ast->getProjParticleType();
 	ParticleSystemTypeSplash *pstSplash= ast->getSplashParticleType();
 
-	Vec3f startPos= unit->getCurrVector();
-	Vec3f endPos= unit->getTargetVec();
+	Vec3d startPos= unit->getCurrVector();
+	Vec3d endPos= unit->getTargetVec();
 
 	//make particle system
 	const SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unit->getPos()));
@@ -2313,7 +2313,7 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 		psProj->setObserver(new ParticleDamager(unit, this, gameCamera));
 		psProj->setVisible(visible);
 		if(unit->getFaction()->getTexture()) {
-			psProj->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+			psProj->setFactionColor(Vec3d(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0)));
 		}
 		renderer.manageParticleSystem(psProj, rsGame);
 		unit->addAttackParticleSystem(psProj);
@@ -2328,7 +2328,7 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 		psSplash->setPos(endPos);
 		psSplash->setVisible(visible);
 		if(unit->getFaction()->getTexture()) {
-			psSplash->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+			psSplash->setFactionColor(Vec3d(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0)));
 		}
 		renderer.manageParticleSystem(psSplash, rsGame);
 		if(pstProj!=NULL){
@@ -2489,7 +2489,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 	//aux vars
 	int size 			= unit->getType()->getSize();
 	Vec2i center 		= unit->getPos();
-	Vec2f floatCenter	= unit->getFloatCenteredPos();
+	Vec2d floatCenter	= unit->getFloatCenteredPos();
 
 	//bool foundInCache = true;
 	if(findCachedCellsEnemies(center,range,size,enemies,ast,
@@ -2501,9 +2501,9 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 			for(int j = center.y - range; j < center.y + range + size; ++j) {
 				//cells inside map and in range
 #ifdef USE_STREFLOP
-				if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2f((float)i, (float)j)))) <= (range+1)){
+				if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2d((double)i, (double)j)))) <= (range+1)){
 #else
-				if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
+				if(map->isInside(i, j) && floor(floatCenter.dist(Vec2d((double)i, (double)j))) <= (range+1)){
 #endif
 					Cell *cell = map->getCell(i,j);
 					findEnemiesForCell(ast,cell,unit,commandTarget,enemies);
@@ -2594,7 +2594,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 
 		if(evalMode == false && onlyEnemyUnits == false &&
 			enemyUnit->getTeam() != world->getThisTeamIndex()) {
-			Vec2f enemyFloatCenter	= enemyUnit->getFloatCenteredPos();
+			Vec2d enemyFloatCenter	= enemyUnit->getFloatCenteredPos();
 			// find nearest Attack and cleanup old dates
 			AttackWarningData *nearest	= NULL;
 			double currentDistance		= 0.f;
@@ -2683,7 +2683,7 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 	//aux vars
 	int size 			= unit->getType()->getSize();
 	Vec2i center 		= unit->getPosNotThreadSafe();
-	Vec2f floatCenter	= unit->getFloatCenteredPos();
+	Vec2d floatCenter	= unit->getFloatCenteredPos();
 
 	//bool foundInCache = true;
 	if(findCachedCellsEnemies(center,range,size,enemies,ast,
@@ -2695,9 +2695,9 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 			for(int j = center.y - range; j < center.y + range + size; ++j) {
 				//cells inside map and in range
 #ifdef USE_STREFLOP
-				if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2f((float)i, (float)j)))) <= (range+1)){
+				if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2d((double)i, (double)j)))) <= (range+1)){
 #else
-				if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
+				if(map->isInside(i, j) && floor(floatCenter.dist(Vec2d((double)i, (double)j))) <= (range+1)){
 #endif
 					Cell *cell = map->getCell(i,j);
 					findEnemiesForCell(ast,cell,unit,commandTarget,enemies);
@@ -2743,7 +2743,7 @@ vector<Unit*> UnitUpdater::findUnitsInRange(const Unit *unit, int radius) {
 	//aux vars
 	int size 			= unit->getType()->getSize();
 	Vec2i center 		= unit->getPosNotThreadSafe();
-	Vec2f floatCenter	= unit->getFloatCenteredPos();
+	Vec2d floatCenter	= unit->getFloatCenteredPos();
 
 	//nearby cells
 	//UnitRangeCellsLookupItem cacheItem;
@@ -2751,9 +2751,9 @@ vector<Unit*> UnitUpdater::findUnitsInRange(const Unit *unit, int radius) {
 		for(int j = center.y - range; j < center.y + range + size; ++j) {
 			//cells inside map and in range
 #ifdef USE_STREFLOP
-			if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2f((float)i, (float)j)))) <= (range+1)){
+			if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2d((double)i, (double)j)))) <= (range+1)){
 #else
-			if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
+			if(map->isInside(i, j) && floor(floatCenter.dist(Vec2d((double)i, (double)j))) <= (range+1)){
 #endif
 				Cell *cell = map->getCell(i,j);
 				findUnitsForCell(cell,unit,units);
@@ -2865,7 +2865,7 @@ void ParticleDamager::update(ParticleSystem *particleSystem) {
 		//play sound
 		StaticSound *projSound= ast->getProjSound();
 		if(particleSystem->getVisible() && projSound != NULL) {
-			SoundRenderer::getInstance().playFx(projSound, attacker->getCurrVector(), gameCamera->getPos());
+			SoundRenderer::getInstance().playFx(projSound, Vec3f(attacker->getCurrVector()), gameCamera->getPos());
 		}
 	}
 	particleSystem->setObserver(NULL);

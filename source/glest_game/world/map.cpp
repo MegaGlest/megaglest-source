@@ -481,7 +481,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 						sc->setObject(NULL);
 					}
 					else if(objNumber <= Tileset::objCount) {
-						Object *o= new Object(tileset->getObjectType(objNumber-1), sc->getVertex(),Vec2i(i, j));
+						Object *o= new Object(tileset->getObjectType(objNumber-1), Vec3d(sc->getVertex()),Vec2i(i, j));
 						sc->setObject(o);
 						for(int k = 0; k < techTree->getResourceTypeCount(); ++k) {
 							const ResourceType *rt= techTree->getResourceType(k);
@@ -492,7 +492,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 					}
 					else{
 						const ResourceType *rt= techTree->getTechResourceType(objNumber - Tileset::objCount) ;
-						Object *o= new Object(NULL, sc->getVertex(),Vec2i(i, j));
+						Object *o= new Object(NULL, Vec3d(sc->getVertex()),Vec2i(i, j));
 						o->setResource(rt, Vec2i(i, j));
 						sc->setObject(o);
 					}
@@ -1641,8 +1641,8 @@ void Map::smoothSurface(Tileset *tileset) {
 						}
 						if (formerObject == NULL) {
 							Object *o = new Object(tileset->getObjectType(9),
-									getSurfaceCell(i, j)->getVertex(), Vec2i(i,
-											j));
+									Vec3d(getSurfaceCell(i, j)->getVertex()),
+									Vec2i(i,j));
 							getSurfaceCell(i, j)->setObject(o);
 						}
 					}

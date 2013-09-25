@@ -137,7 +137,7 @@ protected:
     vector<AnimationAttributes> animationAttributes;
 
     SoundContainer sounds;
-	float soundStartTime;
+	double soundStartTime;
 	RandomGen random;
 	AttackBoost attackBoost;
 
@@ -175,9 +175,9 @@ public:
 	int getHpCost() const				{return hpCost;}
 	int getSpeed() const				{return speed;}
 	int getAnimSpeed() const			{return animSpeed;}
-	Model *getAnimation(float animProgress=0, const Unit *unit=NULL, int *lastAnimationIndex=NULL, int *animationRandomCycleCount=NULL) const;
+	Model *getAnimation(double animProgress=0, const Unit *unit=NULL, int *lastAnimationIndex=NULL, int *animationRandomCycleCount=NULL) const;
 	StaticSound *getSound() const		{return sounds.getRandSound();}
-	float getSoundStartTime() const		{return soundStartTime;}
+	double getSoundStartTime() const		{return soundStartTime;}
 	
 	bool isAttackBoostEnabled() const { return attackBoost.enabled; }
 	const AttackBoost * getAttackBoost() const { return &attackBoost; }
@@ -226,7 +226,7 @@ private:
     int attackRange;
 	const AttackType *attackType;
 	bool attackFields[fieldCount];
-	float attackStartTime;
+	double attackStartTime;
 
 	string spawnUnit;
 	int spawnUnitcount;
@@ -253,7 +253,7 @@ public:
 	inline int getAttackRange() const					{return attackRange;}
 	inline const AttackType *getAttackType() const		{return attackType;}
 	inline bool getAttackField(Field field) const		{return attackFields[field];}
-	inline float getAttackStartTime() const			{return attackStartTime;}
+	inline double getAttackStartTime() const			{return attackStartTime;}
 	inline string getSpawnUnit() const					{return spawnUnit;}
 	inline int getSpawnUnitCount() const				{return spawnUnitcount;}
 
@@ -419,13 +419,13 @@ class FogOfWarSkillType: public SkillType {
 private:
 	bool fowEnable;
 	bool applyToTeam;
-	float durationTime;
+	double durationTime;
 
 public:
 	FogOfWarSkillType();
     bool getFowEnable() const	{return fowEnable;}
     bool getApplyToTeam() const	{return applyToTeam;}
-    float getDurationTime() const	{return durationTime;}
+    double getDurationTime() const	{return durationTime;}
 
 	virtual void load(const XmlNode *sn, const XmlNode *attackBoostsNode, const string &dir, const TechTree *tt,
 			const FactionType *ft, std::map<string,vector<pair<string, string> > > &loadedFileList,

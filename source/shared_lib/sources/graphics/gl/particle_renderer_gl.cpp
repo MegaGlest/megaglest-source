@@ -109,8 +109,8 @@ void ParticleRendererGl::renderSystem(ParticleSystem *ps){
 	for(int i=0; i<ps->getAliveParticleCount(); ++i){
 		const Particle *particle= ps->getParticle(i);
 		float size= particle->getSize()/2.0f;
-		Vec3f pos= particle->getPos();
-		Vec4f color= particle->getColor();
+		Vec3f pos= particle->getPosAsFloat();
+		Vec4f color= particle->getColorAsFloat();
 
 		vertexBuffer[bufferIndex] = pos - (rightVector - upVector) * size;
 		vertexBuffer[bufferIndex+1] = pos - (rightVector + upVector) * size;
@@ -157,10 +157,10 @@ void ParticleRendererGl::renderSystemLine(ParticleSystem *ps){
 
 		for(int i=0; i<ps->getAliveParticleCount(); ++i){
 			particle= ps->getParticle(i);
-			Vec4f color= particle->getColor();
+			Vec4f color= particle->getColorAsFloat();
 
-			vertexBuffer[bufferIndex] = particle->getPos();
-			vertexBuffer[bufferIndex+1] = particle->getLastPos();
+			vertexBuffer[bufferIndex] = particle->getPosAsFloat();
+			vertexBuffer[bufferIndex+1] = particle->getLastPosAsFloat();
 
 			colorBuffer[bufferIndex]= color;
 			colorBuffer[bufferIndex+1]= color;
@@ -201,10 +201,10 @@ void ParticleRendererGl::renderSystemLineAlpha(ParticleSystem *ps){
 
 		for(int i=0; i<ps->getAliveParticleCount(); ++i){
 			particle= ps->getParticle(i);
-			Vec4f color= particle->getColor();
+			Vec4f color= particle->getColorAsFloat();
 
-			vertexBuffer[bufferIndex] = particle->getPos();
-			vertexBuffer[bufferIndex+1] = particle->getLastPos();
+			vertexBuffer[bufferIndex] = particle->getPosAsFloat();
+			vertexBuffer[bufferIndex+1] = particle->getLastPosAsFloat();
 
 			colorBuffer[bufferIndex]= color;
 			colorBuffer[bufferIndex+1]= color;
@@ -236,11 +236,11 @@ void ParticleRendererGl::renderModel(GameParticleSystem *ps, ModelRenderer *mr){
 		glPushMatrix();
 
 		//translate
-		Vec3f pos= ps->getPos();
+		Vec3f pos= ps->getPosAsFloat();
 		glTranslatef(pos.x, pos.y, pos.z);
 
 		//rotate
-		Vec3f direction= ps->getDirection();
+		Vec3f direction= ps->getDirectionAsFloat();
 		Vec3f flatDirection= Vec3f(direction.x, 0.f, direction.z);
 		Vec3f rotVector= Vec3f(0.f, 1.f, 0.f).cross(flatDirection);
 

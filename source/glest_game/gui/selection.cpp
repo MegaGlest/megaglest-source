@@ -186,7 +186,7 @@ bool Selection::isMeetable() const{
 		selectedUnits.front()->getType()->getMeetingPoint();
 }
 
-Vec3f Selection::getRefPos() const{
+Vec3d Selection::getRefPos() const{
 	return getFrontUnit()->getCurrVector();
 }
 
