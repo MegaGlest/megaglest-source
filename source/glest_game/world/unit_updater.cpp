@@ -137,9 +137,10 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 	//start attack particle system
 	if(unit->getCurrSkill()->getClass() == scAttack) {
 		const AttackSkillType *ast= static_cast<const AttackSkillType*>(unit->getCurrSkill());
-		double attackStartTime = truncateDecimal<double>(ast->getAttackStartTime());
-		double lastAnimProgress = truncateDecimal<double>(unit->getLastAnimProgressAsFloat());
-		double animProgress = truncateDecimal<double>(attackStartTime < unit->getAnimProgressAsFloat());
+
+		double attackStartTime = truncateDecimal<double>(ast->getAttackStartTime(),16);
+		double lastAnimProgress = truncateDecimal<double>(unit->getLastAnimProgressAsFloat(),16);
+		double animProgress = truncateDecimal<double>(unit->getAnimProgressAsFloat(),16);
 		bool startAttackParticleSystemNow = (attackStartTime >= lastAnimProgress && attackStartTime < animProgress);
 
 		char szBuf[8096]="";
