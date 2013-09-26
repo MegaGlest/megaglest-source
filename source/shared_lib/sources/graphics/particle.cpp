@@ -65,15 +65,15 @@ void Particle::loadGame(const XmlNode *rootNode) {
 
 	//particleNode = aiNode->getAttribute("startLoc")->getIntValue();
 	//	Vec3f pos;
-	pos = Vec3d::strToVec3(particleNode->getAttribute("pos")->getValue());
+	pos = Vec3f::strToVec3(particleNode->getAttribute("pos")->getValue());
 	//	Vec3f lastPos;
-	lastPos = Vec3d::strToVec3(particleNode->getAttribute("lastPos")->getValue());
+	lastPos = Vec3f::strToVec3(particleNode->getAttribute("lastPos")->getValue());
 	//	Vec3f speed;
-	speed = Vec3d::strToVec3(particleNode->getAttribute("speed")->getValue());
+	speed = Vec3f::strToVec3(particleNode->getAttribute("speed")->getValue());
 	//	Vec3f accel;
-	accel = Vec3d::strToVec3(particleNode->getAttribute("accel")->getValue());
+	accel = Vec3f::strToVec3(particleNode->getAttribute("accel")->getValue());
 	//	Vec4f color;
-	color = Vec4d::strToVec4(particleNode->getAttribute("color")->getValue());
+	color = Vec4f::strToVec4(particleNode->getAttribute("color")->getValue());
 	//	float size;
 	size = particleNode->getAttribute("size")->getFloatValue();
 	//	int energy;
@@ -112,9 +112,9 @@ ParticleSystem::ParticleSystem(int particleCount) {
 	//this->particleCount= particles.size();
 	maxParticleEnergy= 250;
 	varParticleEnergy= 50;
-	pos= Vec3d(0.0f);
-	color= Vec4d(1.0f);
-	colorNoEnergy= Vec4d(0.0f);
+	pos= Vec3f(0.0f);
+	color= Vec4f(1.0f);
+	colorNoEnergy= Vec4f(0.0f);
 	emissionRate= 15.0f;
 	emissionState= 1.0f; // initialized with 1 because we must have at least one particle in the beginning!
 	speed= 1.0f;
@@ -251,17 +251,17 @@ void ParticleSystem::setTexture(Texture *texture){
 	this->texture= texture;
 }
 
-void ParticleSystem::setPos(Vec3d pos){
+void ParticleSystem::setPos(Vec3f pos){
 	this->pos= pos;
 	for(int i=getChildCount()-1; i>=0; i--)
 		getChild(i)->setPos(pos);
 }
 
-void ParticleSystem::setColor(Vec4d color){
+void ParticleSystem::setColor(Vec4f color){
 	this->color= color;
 }
 
-void ParticleSystem::setColorNoEnergy(Vec4d colorNoEnergy){
+void ParticleSystem::setColorNoEnergy(Vec4f colorNoEnergy){
 	this->colorNoEnergy= colorNoEnergy;
 }
 
@@ -485,11 +485,11 @@ void ParticleSystem::loadGame(const XmlNode *rootNode) {
 	}
 
 	//	Vec3f pos;
-	pos = Vec3d::strToVec3(particleSystemNode->getAttribute("pos")->getValue());
+	pos = Vec3f::strToVec3(particleSystemNode->getAttribute("pos")->getValue());
 	//	Vec4f color;
-	color = Vec4d::strToVec4(particleSystemNode->getAttribute("color")->getValue());
+	color = Vec4f::strToVec4(particleSystemNode->getAttribute("color")->getValue());
 	//	Vec4f colorNoEnergy;
-	colorNoEnergy = Vec4d::strToVec4(particleSystemNode->getAttribute("colorNoEnergy")->getValue());
+	colorNoEnergy = Vec4f::strToVec4(particleSystemNode->getAttribute("colorNoEnergy")->getValue());
 	//	float emissionRate;
 	emissionRate = particleSystemNode->getAttribute("emissionRate")->getFloatValue();
 	//	float emissionState;
@@ -503,7 +503,7 @@ void ParticleSystem::loadGame(const XmlNode *rootNode) {
 	//	float speed;
 	speed = particleSystemNode->getAttribute("speed")->getFloatValue();
 	//	Vec3f factionColor;
-	factionColor = Vec3d::strToVec3(particleSystemNode->getAttribute("factionColor")->getValue());
+	factionColor = Vec3f::strToVec3(particleSystemNode->getAttribute("factionColor")->getValue());
 	//    bool teamcolorNoEnergy;
 	teamcolorNoEnergy = particleSystemNode->getAttribute("teamcolorNoEnergy")->getIntValue() != 0;
 	//    bool teamcolorEnergy;
@@ -601,9 +601,9 @@ Particle * ParticleSystem::createParticle(){
 void ParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->pos= pos;
 	p->lastPos= p->pos;
-	p->speed= Vec3d(0.0f);
-	p->accel= Vec3d(0.0f);
-	p->color= Vec4d(1.0f, 1.0f, 1.0f, 1.0);
+	p->speed= Vec3f(0.0f);
+	p->accel= Vec3f(0.0f);
+	p->color= Vec4f(1.0f, 1.0f, 1.0f, 1.0);
 	p->size= particleSize;
 	p->energy= maxParticleEnergy + random.randRange(-varParticleEnergy, varParticleEnergy);
 }
@@ -623,15 +623,15 @@ void ParticleSystem::killParticle(Particle *p){
 	aliveParticleCount--;
 }
 
-void ParticleSystem::setFactionColor(Vec3d factionColor){
+void ParticleSystem::setFactionColor(Vec3f factionColor){
 	this->factionColor= factionColor;
-	Vec3d tmpCol;
+	Vec3f tmpCol;
 
 	if(teamcolorEnergy){
-		this->color= Vec4d(factionColor.x, factionColor.y, factionColor.z, this->color.w);
+		this->color= Vec4f(factionColor.x, factionColor.y, factionColor.z, this->color.w);
 	}
 	if(teamcolorNoEnergy){
-		this->colorNoEnergy= Vec4d(factionColor.x, factionColor.y, factionColor.z, this->colorNoEnergy.w);
+		this->colorNoEnergy= Vec4f(factionColor.x, factionColor.y, factionColor.z, this->colorNoEnergy.w);
 	}
 	for(int i=getChildCount()-1; i>=0; i--)
 		getChild(i)->setFactionColor(factionColor);
@@ -647,10 +647,10 @@ FireParticleSystem::FireParticleSystem(int particleCount) :
 
 	radius= 0.5f;
 	speed= 0.01f;
-	windSpeed= Vec3d(0.0f);
+	windSpeed= Vec3f(0.0f);
 
 	setParticleSize(0.6f);
-	setColorNoEnergy(Vec4d(1.0f, 0.5f, 0.0f, 1.0f));
+	setColorNoEnergy(Vec4f(1.0f, 0.5f, 0.0f, 1.0f));
 }
 
 void FireParticleSystem::initParticle(Particle *p, int particleIndex){
@@ -676,10 +676,10 @@ void FireParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->color= colorNoEnergy * 0.5f + colorNoEnergy * 0.5f * radRatio;
 	p->energy= static_cast<int> (maxParticleEnergy * radRatio)
 	        + random.randRange(-varParticleEnergy, varParticleEnergy);
-	p->pos= Vec3d(pos.x + x, pos.y + random.randRange(-radius / 2, radius / 2), pos.z + y);
+	p->pos= Vec3f(pos.x + x, pos.y + random.randRange(-radius / 2, radius / 2), pos.z + y);
 	p->lastPos= pos;
 	p->size= particleSize;
-	p->speed= Vec3d(0, speed + speed * random.randRange(-0.5f, 0.5f), 0) + windSpeed;
+	p->speed= Vec3f(0, speed + speed * random.randRange(-0.5f, 0.5f), 0) + windSpeed;
 }
 
 void FireParticleSystem::updateParticle(Particle *p){
@@ -744,7 +744,7 @@ void FireParticleSystem::loadGame(const XmlNode *rootNode) {
 //	float radius;
 	radius = fireParticleSystemNode->getAttribute("radius")->getFloatValue();
 //	Vec3f windSpeed;
-	windSpeed = Vec3d::strToVec3(fireParticleSystemNode->getAttribute("windSpeed")->getValue());
+	windSpeed = Vec3f::strToVec3(fireParticleSystemNode->getAttribute("windSpeed")->getValue());
 }
 
 Checksum FireParticleSystem::getCRC() {
@@ -810,18 +810,18 @@ void GameParticleSystem::removeChild(UnitParticleSystem* child){
 	children.erase(it);
 }
 
-void GameParticleSystem::setPos(Vec3d pos){
+void GameParticleSystem::setPos(Vec3f pos){
 	this->pos= pos;
 	positionChildren();
 }
 
 void GameParticleSystem::positionChildren() {
-	Vec3d child_pos = pos - offset;
+	Vec3f child_pos = pos - offset;
 	for(int i=getChildCount()-1; i>=0; i--)
 		getChild(i)->setPos(child_pos);
 }
 
-void GameParticleSystem::setOffset(Vec3d offset){
+void GameParticleSystem::setOffset(Vec3f offset){
 	this->offset= offset;
 	positionChildren();
 }
@@ -952,9 +952,9 @@ void GameParticleSystem::loadGame(const XmlNode *rootNode) {
 	//gameParticleSystemNode->addAttribute("modelCycle",floatToStr(modelCycle), mapTagReplacements);
 	modelCycle = gameParticleSystemNode->getAttribute("modelCycle")->getFloatValue();
 	//	Vec3f offset;
-	offset = Vec3d::strToVec3(gameParticleSystemNode->getAttribute("offset")->getValue());
+	offset = Vec3f::strToVec3(gameParticleSystemNode->getAttribute("offset")->getValue());
 	//	Vec3f direction;
-	direction = Vec3d::strToVec3(gameParticleSystemNode->getAttribute("direction")->getValue());
+	direction = Vec3f::strToVec3(gameParticleSystemNode->getAttribute("direction")->getValue());
 	//	float tween;
 	tween = gameParticleSystemNode->getAttribute("tween")->getFloatValue();
 }
@@ -986,17 +986,17 @@ string GameParticleSystem::toString() const {
 //  UnitParticleSystem
 // ===========================================================================
 bool UnitParticleSystem::isNight= false;
-Vec3d UnitParticleSystem::lightColor=Vec3d(1.0f,1.0f,1.0f);
+Vec3f UnitParticleSystem::lightColor=Vec3f(1.0f,1.0f,1.0f);
 
 UnitParticleSystem::UnitParticleSystem(int particleCount) :
 		GameParticleSystem(particleCount),	parent(NULL) {
 	radius= 0.5f;
 	speed= 0.01f;
-	windSpeed= Vec3d(0.0f);
+	windSpeed= Vec3f(0.0f);
 	minRadius = 0.0;
 
 	setParticleSize(0.6f);
-	setColorNoEnergy(Vec4d(1.0f, 0.5f, 0.0f, 1.0f));
+	setColorNoEnergy(Vec4f(1.0f, 0.5f, 0.0f, 1.0f));
 	sizeNoEnergy=1.0f;
 
 	primitive= pQuad;
@@ -1014,8 +1014,8 @@ UnitParticleSystem::UnitParticleSystem(int particleCount) :
 	isVisibleAtDay= true;
 	isDaylightAffected= false;
 
-	cRotation= Vec3d(1.0f, 1.0f, 1.0f);
-	fixedAddition= Vec3d(0.0f, 0.0f, 0.0f);
+	cRotation= Vec3f(1.0f, 1.0f, 1.0f);
+	fixedAddition= Vec3f(0.0f, 0.0f, 0.0f);
 	//prepare system for given staticParticleCount
 	if(staticParticleCount > 0){
 		emissionState= (double) staticParticleCount;
@@ -1108,7 +1108,7 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->lastPos= pos;
 	oldPosition= pos;
 	p->size= particleSize;
-	p->accel= Vec3d(0.0f, -gravity, 0.0f);
+	p->accel= Vec3f(0.0f, -gravity, 0.0f);
 	
 	// work out where we start for our shape (set speed and pos)
 	switch(shape){
@@ -1116,9 +1116,9 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 		angle = (double)random.randRange(0,360);
 		// fall through
 	case sConical:{
-		Vec2d horiz = Vec2d(1,0).rotate(ang);
-		Vec2d vert = Vec2d(1,0).rotate(degToRad(angle));
-		Vec3d start = Vec3d(horiz.x*vert.y,vert.x,horiz.y).getNormalized(); // close enough
+		Vec2f horiz = Vec2f(1,0).rotate(ang);
+		Vec2f vert = Vec2f(1,0).rotate(degToRad(angle));
+		Vec3f start = Vec3f(horiz.x*vert.y,vert.x,horiz.y).getNormalized(); // close enough
 		p->speed = start * speed;
 		start = start * random.randRange(minRadius,radius);
 		p->pos = pos + offset + start;
@@ -1133,25 +1133,25 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	#endif
 		const double rad= degToRad(rotation);
 		if(!relative){
-			p->pos= Vec3d(pos.x + x + offset.x, pos.y + random.randRange(-radius / 2, radius / 2) + offset.y, pos.z + y
+			p->pos= Vec3f(pos.x + x + offset.x, pos.y + random.randRange(-radius / 2, radius / 2) + offset.y, pos.z + y
 				+ offset.z);
 		}
 		else{// rotate it according to rotation		
 	#ifdef USE_STREFLOP
-			p->pos= Vec3d(pos.x+x+offset.z*streflop::sinf(static_cast<streflop::Simple>(rad))+offset.x*streflop::cosf(static_cast<streflop::Simple>(rad)), pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*streflop::cosf(static_cast<streflop::Simple>(rad))-offset.x*streflop::sinf(static_cast<streflop::Simple>(rad))));
+			p->pos= Vec3f(pos.x+x+offset.z*streflop::sinf(static_cast<streflop::Simple>(rad))+offset.x*streflop::cosf(static_cast<streflop::Simple>(rad)), pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*streflop::cosf(static_cast<streflop::Simple>(rad))-offset.x*streflop::sinf(static_cast<streflop::Simple>(rad))));
 	#else
-			p->pos= Vec3d(pos.x + x + offset.z * sinf(rad) + offset.x * cosf(rad), pos.y + random.randRange(-radius / 2,
+			p->pos= Vec3f(pos.x + x + offset.z * sinf(rad) + offset.x * cosf(rad), pos.y + random.randRange(-radius / 2,
 				radius / 2) + offset.y, pos.z + y + (offset.z * cosf(rad) - offset.x * sinf(rad)));
 	#endif
 		}
-		p->speed= Vec3d(direction.x + direction.x * random.randRange(-0.5f, 0.5f), direction.y + direction.y
+		p->speed= Vec3f(direction.x + direction.x * random.randRange(-0.5f, 0.5f), direction.y + direction.y
 			* random.randRange(-0.5f, 0.5f), direction.z + direction.z * random.randRange(-0.5f, 0.5f));
 		p->speed= p->speed * speed;
 		if(relative && relativeDirection){
 	#ifdef USE_STREFLOP
-			p->speed=Vec3d(p->speed.z*streflop::sinf(static_cast<streflop::Simple>(rad))+p->speed.x*streflop::cosf(static_cast<streflop::Simple>(rad)),p->speed.y,(p->speed.z*streflop::cosf(static_cast<streflop::Simple>(rad))-p->speed.x*streflop::sinf(static_cast<streflop::Simple>(rad))));
+			p->speed=Vec3f(p->speed.z*streflop::sinf(static_cast<streflop::Simple>(rad))+p->speed.x*streflop::cosf(static_cast<streflop::Simple>(rad)),p->speed.y,(p->speed.z*streflop::cosf(static_cast<streflop::Simple>(rad))-p->speed.x*streflop::sinf(static_cast<streflop::Simple>(rad))));
 	#else
-			p->speed= Vec3d(p->speed.z * sinf(rad) + p->speed.x * cosf(rad), p->speed.y, (p->speed.z * cosf(rad)
+			p->speed= Vec3f(p->speed.z * sinf(rad) + p->speed.x * cosf(rad), p->speed.y, (p->speed.z * cosf(rad)
 				- p->speed.x * sinf(rad)));
 	#endif
 		}
@@ -1175,7 +1175,7 @@ void UnitParticleSystem::update(){
 		}
 	}
 	if(fixed){
-		fixedAddition= Vec3d(pos.x - oldPosition.x, pos.y - oldPosition.y, pos.z - oldPosition.z);
+		fixedAddition= Vec3f(pos.x - oldPosition.x, pos.y - oldPosition.y, pos.z - oldPosition.z);
 		oldPosition= pos;
 	}
 	ParticleSystem::update();
@@ -1323,13 +1323,13 @@ void UnitParticleSystem::loadGame(const XmlNode *rootNode) {
 //	float minRadius;
 	minRadius = unitParticleSystemNode->getAttribute("minRadius")->getFloatValue();
 //	Vec3f windSpeed;
-	windSpeed = Vec3d::strToVec3(unitParticleSystemNode->getAttribute("windSpeed")->getValue());
+	windSpeed = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("windSpeed")->getValue());
 //	Vec3f cRotation;
-	windSpeed = Vec3d::strToVec3(unitParticleSystemNode->getAttribute("cRotation")->getValue());
+	windSpeed = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("cRotation")->getValue());
 //	Vec3f fixedAddition;
-	fixedAddition = Vec3d::strToVec3(unitParticleSystemNode->getAttribute("fixedAddition")->getValue());
+	fixedAddition = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("fixedAddition")->getValue());
 //    Vec3f oldPosition;
-	oldPosition = Vec3d::strToVec3(unitParticleSystemNode->getAttribute("oldPosition")->getValue());
+	oldPosition = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("oldPosition")->getValue());
 //    bool energyUp;
 	energyUp = unitParticleSystemNode->getAttribute("energyUp")->getIntValue() != 0;
 //	float startTime;
@@ -1434,7 +1434,7 @@ RainParticleSystem::RainParticleSystem(int particleCount) :
 
 	setEmissionRate(25.0f);
 	setParticleSize(3.0f);
-	setColor(Vec4d(0.5f, 0.5f, 0.5f, 0.3f));
+	setColor(Vec4f(0.5f, 0.5f, 0.5f, 0.3f));
 	setSpeed(0.2f);
 }
 
@@ -1450,9 +1450,9 @@ void RainParticleSystem::initParticle(Particle *p, int particleIndex){
 
 	p->color= color;
 	p->energy= 10000;
-	p->pos= Vec3d(pos.x + x, pos.y, pos.z + y);
+	p->pos= Vec3f(pos.x + x, pos.y, pos.z + y);
 	p->lastPos= p->pos;
-	p->speed= Vec3d(random.randRange(-speed / 10, speed / 10), -speed, random.randRange(-speed / 10, speed / 10))
+	p->speed= Vec3f(random.randRange(-speed / 10, speed / 10), -speed, random.randRange(-speed / 10, speed / 10))
 	        + windSpeed;
 }
 
@@ -1504,7 +1504,7 @@ SnowParticleSystem::SnowParticleSystem(int particleCount) :
 
 	setEmissionRate(2.0f);
 	setParticleSize(0.2f);
-	setColor(Vec4d(0.8f, 0.8f, 0.8f, 0.8f));
+	setColor(Vec4f(0.8f, 0.8f, 0.8f, 0.8f));
 	setSpeed(0.05f);
 }
 
@@ -1517,9 +1517,9 @@ void SnowParticleSystem::initParticle(Particle *p, int particleIndex){
 
 	p->color= color;
 	p->energy= 10000;
-	p->pos= Vec3d(pos.x + x, pos.y, pos.z + y);
+	p->pos= Vec3f(pos.x + x, pos.y, pos.z + y);
 	p->lastPos= p->pos;
-	p->speed= Vec3d(0.0f, -speed, 0.0f) + windSpeed;
+	p->speed= Vec3f(0.0f, -speed, 0.0f) + windSpeed;
 	p->speed.x+= random.randRange(-0.005f, 0.005f);
 	p->speed.y+= random.randRange(-0.005f, 0.005f);
 }
@@ -1617,7 +1617,7 @@ string AttackParticleSystem::toString() const {
 ProjectileParticleSystem::ProjectileParticleSystem(int particleCount) :
 	AttackParticleSystem(particleCount){
 	setEmissionRate(20.0f);
-	setColor(Vec4d(1.0f, 0.3f, 0.0f, 0.5f));
+	setColor(Vec4f(1.0f, 0.3f, 0.0f, 0.5f));
 	setMaxParticleEnergy(100);
 	setVarParticleEnergy(50);
 	setParticleSize(0.4f);
@@ -1658,12 +1658,12 @@ void ProjectileParticleSystem::update(){
 		flatPos.y = truncateDecimal<double>(flatPos.y);
 		flatPos.z = truncateDecimal<double>(flatPos.z);
 
-		Vec3d targetVector = endPos - startPos;
+		Vec3f targetVector = endPos - startPos;
 		targetVector.x = truncateDecimal<double>(targetVector.x);
 		targetVector.y = truncateDecimal<double>(targetVector.y);
 		targetVector.z = truncateDecimal<double>(targetVector.z);
 
-		Vec3d currentVector = flatPos - startPos;
+		Vec3f currentVector = flatPos - startPos;
 		currentVector.x = truncateDecimal<double>(currentVector.x);
 		currentVector.y = truncateDecimal<double>(currentVector.y);
 		currentVector.z = truncateDecimal<double>(currentVector.z);
@@ -1775,9 +1775,9 @@ void ProjectileParticleSystem::initParticle(Particle *p, int particleIndex){
 
 	p->pos= pos + (lastPos - pos) * t;
 	p->lastPos= lastPos;
-	p->speed= Vec3d(random.randRange(-0.1f, 0.1f), random.randRange(-0.1f, 0.1f), random.randRange(-0.1f, 0.1f))
+	p->speed= Vec3f(random.randRange(-0.1f, 0.1f), random.randRange(-0.1f, 0.1f), random.randRange(-0.1f, 0.1f))
 	        * speed;
-	p->accel= Vec3d(0.0f, -gravity, 0.0f);
+	p->accel= Vec3f(0.0f, -gravity, 0.0f);
 
 	updateParticle(p);
 }
@@ -1794,12 +1794,12 @@ void ProjectileParticleSystem::updateParticle(Particle *p){
 	p->energy--;
 }
 
-void ProjectileParticleSystem::setPath(Vec3d startPos, Vec3d endPos){
+void ProjectileParticleSystem::setPath(Vec3f startPos, Vec3f endPos){
 
 	//compute axis
 	zVector= endPos - startPos;
 	zVector.normalize();
-	yVector= Vec3d(0.0f, 1.0f, 0.0f);
+	yVector= Vec3f(0.0f, 1.0f, 0.0f);
 	xVector= zVector.cross(yVector);
 
 	//apply offset
@@ -1814,7 +1814,7 @@ void ProjectileParticleSystem::setPath(Vec3d startPos, Vec3d endPos){
 	//recompute axis
 	zVector= endPos - startPos;
 	zVector.normalize();
-	yVector= Vec3d(0.0f, 1.0f, 0.0f);
+	yVector= Vec3f(0.0f, 1.0f, 0.0f);
 	xVector= zVector.cross(yVector);
 
 	// set members
@@ -1894,20 +1894,20 @@ void ProjectileParticleSystem::loadGame(const XmlNode *rootNode) {
 		nextParticleSystem->loadGame(splashParticleSystemNode);
 	}
 	//	Vec3f lastPos;
-	lastPos = Vec3d::strToVec3(projectileParticleSystemNode->getAttribute("lastPos")->getValue());
+	lastPos = Vec3f::strToVec3(projectileParticleSystemNode->getAttribute("lastPos")->getValue());
 	//	Vec3f startPos;
-	startPos = Vec3d::strToVec3(projectileParticleSystemNode->getAttribute("startPos")->getValue());
+	startPos = Vec3f::strToVec3(projectileParticleSystemNode->getAttribute("startPos")->getValue());
 	//	Vec3f endPos;
-	endPos = Vec3d::strToVec3(projectileParticleSystemNode->getAttribute("endPos")->getValue());
+	endPos = Vec3f::strToVec3(projectileParticleSystemNode->getAttribute("endPos")->getValue());
 	//	Vec3f flatPos;
-	flatPos = Vec3d::strToVec3(projectileParticleSystemNode->getAttribute("flatPos")->getValue());
+	flatPos = Vec3f::strToVec3(projectileParticleSystemNode->getAttribute("flatPos")->getValue());
 	//
 	//	Vec3f xVector;
-	xVector = Vec3d::strToVec3(projectileParticleSystemNode->getAttribute("xVector")->getValue());
+	xVector = Vec3f::strToVec3(projectileParticleSystemNode->getAttribute("xVector")->getValue());
 	//	Vec3f yVector;
-	yVector = Vec3d::strToVec3(projectileParticleSystemNode->getAttribute("yVector")->getValue());
+	yVector = Vec3f::strToVec3(projectileParticleSystemNode->getAttribute("yVector")->getValue());
 	//	Vec3f zVector;
-	zVector = Vec3d::strToVec3(projectileParticleSystemNode->getAttribute("zVector")->getValue());
+	zVector = Vec3f::strToVec3(projectileParticleSystemNode->getAttribute("zVector")->getValue());
 	//	Trajectory trajectory;
 	trajectory = static_cast<Trajectory>(projectileParticleSystemNode->getAttribute("trajectory")->getIntValue());
 	//	float trajectorySpeed;
@@ -1958,7 +1958,7 @@ string ProjectileParticleSystem::toString() const {
 
 SplashParticleSystem::SplashParticleSystem(int particleCount) :
 	AttackParticleSystem(particleCount){
-	setColor(Vec4d(1.0f, 0.3f, 0.0f, 0.8f));
+	setColor(Vec4f(1.0f, 0.3f, 0.0f, 0.8f));
 	setMaxParticleEnergy(100);
 	setVarParticleEnergy(50);
 	setParticleSize(1.0f);
@@ -2008,13 +2008,13 @@ void SplashParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->size= particleSize;
 	p->color= color;
 
-	p->speed= Vec3d(horizontalSpreadA * random.randRange(-1.0f, 1.0f) + horizontalSpreadB, verticalSpreadA
+	p->speed= Vec3f(horizontalSpreadA * random.randRange(-1.0f, 1.0f) + horizontalSpreadB, verticalSpreadA
 	        * random.randRange(-1.0f, 1.0f) + verticalSpreadB, horizontalSpreadA * random.randRange(-1.0f, 1.0f)
 	        + horizontalSpreadB);
 	p->speed.normalize();
 	p->speed= p->speed * speed;
 
-	p->accel= Vec3d(0.0f, -gravity, 0.0f);
+	p->accel= Vec3f(0.0f, -gravity, 0.0f);
 }
 
 void SplashParticleSystem::updateParticle(Particle *p){

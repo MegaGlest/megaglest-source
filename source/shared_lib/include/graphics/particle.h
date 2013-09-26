@@ -45,11 +45,11 @@ class Model;
 class Particle {
 public:	
 	//attributes
-	Vec3d pos;
-	Vec3d lastPos;
-	Vec3d speed;
-	Vec3d accel;
-	Vec4d color;
+	Vec3f pos;
+	Vec3f lastPos;
+	Vec3f speed;
+	Vec3f accel;
+	Vec4f color;
 	double size;
 	int energy;
 
@@ -59,14 +59,11 @@ public:
 		energy = 0;
 	}
 	//get
-	Vec3d getPos() const		{return pos;}
-	Vec3f getPosAsFloat() const	{return Vec3f(pos.x,pos.y,pos.z);}
-	Vec3d getLastPos() const	{return lastPos;}
-	Vec3f getLastPosAsFloat() const	{return Vec3f(lastPos.x,lastPos.y,lastPos.z);}
-	Vec3d getSpeed() const		{return speed;}
-	Vec3d getAccel() const		{return accel;}
-	Vec4d getColor() const		{return color;}
-	Vec4f getColorAsFloat() const {return Vec4f(color.x,color.y,color.z,color.w);}
+	Vec3f getPos() const		{return pos;}
+	Vec3f getLastPos() const	{return lastPos;}
+	Vec3f getSpeed() const		{return speed;}
+	Vec3f getAccel() const		{return accel;}
+	Vec4f getColor() const		{return color;}
 	double getSize() const		{return size;}
 	int getEnergy()	const		{return energy;}
 
@@ -88,7 +85,6 @@ public:
 
 class ParticleOwner {
 public:
-	virtual ~ParticleOwner() {};
 	virtual void end(ParticleSystem *particleSystem)= 0;
 };
 
@@ -97,6 +93,7 @@ public:
 // =====================================================
 
 class ParticleSystem {
+
 public:
 
 enum State {
@@ -138,16 +135,16 @@ protected:
 	int textureFileLoadDeferredComponents;
 
 	Texture *texture;
-	Vec3d pos;
-	Vec4d color;
-	Vec4d colorNoEnergy;
+	Vec3f pos;
+	Vec4f color;
+	Vec4f colorNoEnergy;
 	double emissionRate;
 	double emissionState;
 	int maxParticleEnergy;
 	int varParticleEnergy;
 	double particleSize;
 	double speed;
-	Vec3d factionColor;
+	Vec3f factionColor;
     bool teamcolorNoEnergy;
     bool teamcolorEnergy;
 	int alternations;
@@ -169,8 +166,7 @@ public:
 	State getState() const						{return state;}
 	BlendMode getBlendMode() const				{return blendMode;}
 	Texture *getTexture() const					{return texture;}
-	Vec3d getPos() const						{return pos;}
-	Vec3f getPosAsFloat() const	{return Vec3f(pos.x,pos.y,pos.z);}
+	Vec3f getPos() const						{return pos;}
 	Particle *getParticle(int i)				{return &particles[i];}
 	const Particle *getParticle(int i) const	{return &particles[i];}
 	int getAliveParticleCount() const			{return aliveParticleCount;}
@@ -185,9 +181,9 @@ public:
 	//set
 	virtual void setState(State state);
 	void setTexture(Texture *texture);
-	virtual void setPos(Vec3d pos);
-	void setColor(Vec4d color);
-	void setColorNoEnergy(Vec4d color);
+	virtual void setPos(Vec3f pos);
+	void setColor(Vec4f color);
+	void setColorNoEnergy(Vec4f color);
 	void setEmissionRate(double emissionRate);
 	void setMaxParticleEnergy(int maxParticleEnergy);
 	void setVarParticleEnergy(int varParticleEnergy);
@@ -201,7 +197,7 @@ public:
 	void setTeamcolorEnergy(bool teamcolorEnergy)		{this->teamcolorEnergy= teamcolorEnergy;}
 	void setAlternations(int alternations)				{this->alternations= alternations;}
 	void setParticleSystemStartDelay(int delay)			{this->particleSystemStartDelay= delay;}
-	virtual void setFactionColor(Vec3d factionColor);
+	virtual void setFactionColor(Vec3f factionColor);
 
 	static BlendMode strToBlendMode(const string &str);
 	//misc
@@ -241,7 +237,7 @@ protected:
 class FireParticleSystem: public ParticleSystem{
 private:
 	double radius;
-	Vec3d windSpeed;
+	Vec3f windSpeed;
 
 public:
 	FireParticleSystem(int particleCount= 2000);
@@ -284,8 +280,8 @@ public:
 	ParticleSystem* getChild(int i);
 	void addChild(UnitParticleSystem* child);
 	void removeChild(UnitParticleSystem* child);
-	void setPos(Vec3d pos);
-	void setOffset(Vec3d offset);
+	void setPos(Vec3f pos);
+	void setOffset(Vec3f offset);
 	void setModel(Model *model) {this->model= model;}
 	virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
 	double getTween() { return tween; }  // 0.0 -> 1.0 for animation of model
@@ -293,8 +289,7 @@ public:
 	virtual string getModelFileLoadDeferred();
 
 	void setPrimitive(Primitive primitive) {this->primitive= primitive;}
-	Vec3d getDirection() const {return direction;}
-	Vec3f getDirectionAsFloat() const {return Vec3f(direction.x, direction.y, direction.z);}
+	Vec3f getDirection() const {return direction;}
 	void setModelCycle(double modelCycle) {this->modelCycle= modelCycle;}
 
 	virtual void saveGame(XmlNode *rootNode);
@@ -312,8 +307,8 @@ protected:
 	string modelFileLoadDeferred;
 	Model *model;
 	double modelCycle;
-	Vec3d offset;
-	Vec3d direction;
+	Vec3f offset;
+	Vec3f direction;
 	double tween;
 	
 	GameParticleSystem(int particleCount);
@@ -328,14 +323,14 @@ protected:
 class UnitParticleSystem: public GameParticleSystem{
 public:
 	static bool isNight;
-	static Vec3d lightColor;
+	static Vec3f lightColor;
 private:
 	double radius;
 	double minRadius;
-	Vec3d windSpeed;
-	Vec3d cRotation;
-	Vec3d fixedAddition;
-    Vec3d oldPosition;
+	Vec3f windSpeed;
+	Vec3f cRotation;
+	Vec3f fixedAddition;
+    Vec3f oldPosition;
     bool energyUp;
     double startTime;
     double endTime;
@@ -390,7 +385,7 @@ public:
 
 	void setWind(double windAngle, double windSpeed);
 	
-	void setDirection(Vec3d direction)				{this->direction= direction;}
+	void setDirection(Vec3f direction)				{this->direction= direction;}
 	void setSizeNoEnergy(double sizeNoEnergy)			{this->sizeNoEnergy= sizeNoEnergy;}
 	void setGravity(double gravity)						{this->gravity= gravity;}
 	void setRotation(double rotation);
@@ -409,7 +404,7 @@ public:
 	void setLifetime(int lifetime)					{this->lifetime= lifetime;}
 	void setParent(GameParticleSystem* parent)			{this->parent= parent;}
 	GameParticleSystem* getParent() const				{return parent;}
-	void setParentDirection(Vec3d parentDirection);
+	void setParentDirection(Vec3f parentDirection);
 	
 	static Shape strToShape(const string& str);
 
@@ -427,7 +422,7 @@ public:
 
 class RainParticleSystem: public ParticleSystem{
 private:
-	Vec3d windSpeed;
+	Vec3f windSpeed;
 	double radius;
 
 public:
@@ -454,7 +449,7 @@ public:
 
 class SnowParticleSystem: public ParticleSystem{
 private:
-	Vec3d windSpeed;
+	Vec3f windSpeed;
 	double radius;
 
 public:
@@ -519,14 +514,14 @@ public:
 private:
 	SplashParticleSystem *nextParticleSystem;
 
-	Vec3d lastPos;
-	Vec3d startPos;
-	Vec3d endPos;
-	Vec3d flatPos;
+	Vec3f lastPos;
+	Vec3f startPos;
+	Vec3f endPos;
+	Vec3f flatPos;
 
-	Vec3d xVector;
-	Vec3d yVector;
-	Vec3d zVector;
+	Vec3f xVector;
+	Vec3f yVector;
+	Vec3f zVector;
 
 	Trajectory trajectory;
 	double trajectorySpeed;
@@ -555,7 +550,7 @@ public:
 	void setTrajectoryScale(double trajectoryScale)			{this->trajectoryScale= trajectoryScale;}
 	void setTrajectoryFrequency(double trajectoryFrequency)	{this->trajectoryFrequency= trajectoryFrequency;}
 
-	void setPath(Vec3d startPos, Vec3d endPos);
+	void setPath(Vec3f startPos, Vec3f endPos);
 
 	static Trajectory strToTrajectory(const string &str);
 

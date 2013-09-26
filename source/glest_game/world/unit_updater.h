@@ -55,7 +55,7 @@ public:
 
 class AttackWarningData {
 public:
-	Vec2d attackPosition;
+	Vec2f attackPosition;
 	int lastFrameCount;
 };
 
@@ -81,7 +81,7 @@ private:
 	Game *game;
 	//RandomGen random;
 	Mutex mutexAttackWarnings;
-	double attackWarnRange;
+	float attackWarnRange;
 	AttackWarnings attackWarnings;
 
 	Mutex mutexUnitRangeCellsLookupItemCache;
