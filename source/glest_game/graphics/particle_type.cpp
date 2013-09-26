@@ -327,7 +327,7 @@ void ParticleSystemType::saveGame(XmlNode *rootNode) {
 //	Texture2D *texture;
 //	Model *model;
 //	float modelCycle;
-	particleSystemTypeNode->addAttribute("modelCycle",doubleToStr(modelCycle,16), mapTagReplacements);
+	particleSystemTypeNode->addAttribute("modelCycle",floatToStr(modelCycle,16), mapTagReplacements);
 //	string primitive;
 	particleSystemTypeNode->addAttribute("primitive",primitive, mapTagReplacements);
 //	Vec3f offset;
@@ -337,15 +337,15 @@ void ParticleSystemType::saveGame(XmlNode *rootNode) {
 //	Vec4f colorNoEnergy;
 	particleSystemTypeNode->addAttribute("colorNoEnergy",colorNoEnergy.getString(), mapTagReplacements);
 //	float size;
-	particleSystemTypeNode->addAttribute("size",doubleToStr(size,16), mapTagReplacements);
+	particleSystemTypeNode->addAttribute("size",floatToStr(size,16), mapTagReplacements);
 //	float sizeNoEnergy;
-	particleSystemTypeNode->addAttribute("sizeNoEnergy",doubleToStr(sizeNoEnergy,16), mapTagReplacements);
+	particleSystemTypeNode->addAttribute("sizeNoEnergy",floatToStr(sizeNoEnergy,16), mapTagReplacements);
 //	float speed;
-	particleSystemTypeNode->addAttribute("speed",doubleToStr(speed,16), mapTagReplacements);
+	particleSystemTypeNode->addAttribute("speed",floatToStr(speed,16), mapTagReplacements);
 //	float gravity;
-	particleSystemTypeNode->addAttribute("gravity",doubleToStr(gravity,16), mapTagReplacements);
+	particleSystemTypeNode->addAttribute("gravity",floatToStr(gravity,16), mapTagReplacements);
 //	float emissionRate;
-	particleSystemTypeNode->addAttribute("emissionRate",doubleToStr(emissionRate,16), mapTagReplacements);
+	particleSystemTypeNode->addAttribute("emissionRate",floatToStr(emissionRate,16), mapTagReplacements);
 //	int energyMax;
 	particleSystemTypeNode->addAttribute("energyMax",intToStr(energyMax), mapTagReplacements);
 //	int energyVar;
@@ -408,18 +408,18 @@ void ParticleSystemTypeProjectile::load(const XmlNode* particleFileNode, const s
 		ParticleSystemType::load(particleSystemNode, dir, renderer, loadedFileList,parentLoader, techtreePath);
 
 		//trajectory values
-		const XmlNode *trajectoryNode= particleSystemNode->getChild("trajectory");
-		trajectory= trajectoryNode->getAttribute("type")->getRestrictedValue();
+		const XmlNode *tajectoryNode= particleSystemNode->getChild("trajectory");
+		trajectory= tajectoryNode->getAttribute("type")->getRestrictedValue();
 
 		//trajectory speed
-		const XmlNode *trajectorySpeedNode= trajectoryNode->getChild("speed");
-		trajectorySpeed= trajectorySpeedNode->getAttribute("value")->getFloatValue() / (double)GameConstants::updateFps;
+		const XmlNode *tajectorySpeedNode= tajectoryNode->getChild("speed");
+		trajectorySpeed= tajectorySpeedNode->getAttribute("value")->getFloatValue() / (float)GameConstants::updateFps;
 		//printf("[%s] trajectorySpeed = %f\n",path.c_str(),trajectorySpeed);
 
 		if(trajectory=="parabolic" || trajectory=="spiral"){
 			//trajectory scale
-			const XmlNode *trajectoryScaleNode= trajectoryNode->getChild("scale");
-			trajectoryScale= trajectoryScaleNode->getAttribute("value")->getFloatValue();
+			const XmlNode *tajectoryScaleNode= tajectoryNode->getChild("scale");
+			trajectoryScale= tajectoryScaleNode->getAttribute("value")->getFloatValue();
 		}
 		else{
 			trajectoryScale= 1.0f;
@@ -427,8 +427,8 @@ void ParticleSystemTypeProjectile::load(const XmlNode* particleFileNode, const s
 
 		if(trajectory=="spiral"){
 			//trajectory frequency
-			const XmlNode *trajectoryFrequencyNode= trajectoryNode->getChild("frequency");
-			trajectoryFrequency= trajectoryFrequencyNode->getAttribute("value")->getFloatValue();
+			const XmlNode *tajectoryFrequencyNode= tajectoryNode->getChild("frequency");
+			trajectoryFrequency= tajectoryFrequencyNode->getAttribute("value")->getFloatValue();
 		}
 		else{
 			trajectoryFrequency= 1.0f;
@@ -466,11 +466,11 @@ void ParticleSystemTypeProjectile::saveGame(XmlNode *rootNode) {
 //	string trajectory;
 	particleSystemTypeProjectileNode->addAttribute("trajectory",trajectory, mapTagReplacements);
 //	float trajectorySpeed;
-	particleSystemTypeProjectileNode->addAttribute("trajectorySpeed",doubleToStr(trajectorySpeed,16), mapTagReplacements);
+	particleSystemTypeProjectileNode->addAttribute("trajectorySpeed",floatToStr(trajectorySpeed,16), mapTagReplacements);
 //	float trajectoryScale;
-	particleSystemTypeProjectileNode->addAttribute("trajectoryScale",doubleToStr(trajectoryScale,16), mapTagReplacements);
+	particleSystemTypeProjectileNode->addAttribute("trajectoryScale",floatToStr(trajectoryScale,16), mapTagReplacements);
 //	float trajectoryFrequency;
-	particleSystemTypeProjectileNode->addAttribute("trajectoryFrequency",doubleToStr(trajectoryFrequency,16), mapTagReplacements);
+	particleSystemTypeProjectileNode->addAttribute("trajectoryFrequency",floatToStr(trajectoryFrequency,16), mapTagReplacements);
 }
 
 // ===========================================================
@@ -549,15 +549,15 @@ void ParticleSystemTypeSplash::saveGame(XmlNode *rootNode) {
 	XmlNode *particleSystemTypeSplashNode = rootNode->addChild("ParticleSystemTypeSplash");
 
 //	float emissionRateFade;
-	particleSystemTypeSplashNode->addAttribute("emissionRateFade",doubleToStr(emissionRateFade,16), mapTagReplacements);
+	particleSystemTypeSplashNode->addAttribute("emissionRateFade",floatToStr(emissionRateFade,16), mapTagReplacements);
 //	float verticalSpreadA;
-	particleSystemTypeSplashNode->addAttribute("verticalSpreadA",doubleToStr(verticalSpreadA,16), mapTagReplacements);
+	particleSystemTypeSplashNode->addAttribute("verticalSpreadA",floatToStr(verticalSpreadA,16), mapTagReplacements);
 //	float verticalSpreadB;
-	particleSystemTypeSplashNode->addAttribute("verticalSpreadB",doubleToStr(verticalSpreadB,16), mapTagReplacements);
+	particleSystemTypeSplashNode->addAttribute("verticalSpreadB",floatToStr(verticalSpreadB,16), mapTagReplacements);
 //	float horizontalSpreadA;
-	particleSystemTypeSplashNode->addAttribute("horizontalSpreadA",doubleToStr(horizontalSpreadA,16), mapTagReplacements);
+	particleSystemTypeSplashNode->addAttribute("horizontalSpreadA",floatToStr(horizontalSpreadA,16), mapTagReplacements);
 //	float horizontalSpreadB;
-	particleSystemTypeSplashNode->addAttribute("horizontalSpreadB",doubleToStr(horizontalSpreadB,16), mapTagReplacements);
+	particleSystemTypeSplashNode->addAttribute("horizontalSpreadB",floatToStr(horizontalSpreadB,16), mapTagReplacements);
 }
 
 }}//end mamespace

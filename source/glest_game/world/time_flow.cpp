@@ -74,7 +74,7 @@ void TimeFlow::update() {
 		}
 		UnitParticleSystem::isNight=false;
 	}
-	UnitParticleSystem::lightColor = Vec3d(computeLightColor());
+	UnitParticleSystem::lightColor=computeLightColor();
 
 	if((lastTime<dawn && time>=dawn) || firstTime){
 		
