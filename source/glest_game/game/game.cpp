@@ -1416,14 +1416,14 @@ void Game::init(bool initForPreviewOnly) {
 				logger.add(Lang::getInstance().get("LogScreenGameLoadingCreatingRainParticles","",true), true);
 				weatherParticleSystem= new RainParticleSystem();
 				weatherParticleSystem->setSpeed(12.f / GameConstants::updateFps);
-				weatherParticleSystem->setPos(gameCamera.getPos());
+				weatherParticleSystem->setPos(Vec3d(gameCamera.getPos()));
 				renderer.manageParticleSystem(weatherParticleSystem, rsGame);
 			}
 			else if(world.getTileset()->getWeather() == wSnowy) {
 				logger.add(Lang::getInstance().get("LogScreenGameLoadingCreatingSnowParticles","",true), true);
 				weatherParticleSystem= new SnowParticleSystem(1200);
 				weatherParticleSystem->setSpeed(1.5f / GameConstants::updateFps);
-				weatherParticleSystem->setPos(gameCamera.getPos());
+				weatherParticleSystem->setPos(Vec3d(gameCamera.getPos()));
 				weatherParticleSystem->setTexture(coreData.getSnowTexture());
 				renderer.manageParticleSystem(weatherParticleSystem, rsGame);
 			}
@@ -2141,24 +2141,16 @@ void Game::update() {
 					}
 
 					if(currentCameraFollowUnit!=NULL){
-						Vec3f c=currentCameraFollowUnit->getCurrVector();
+						Vec3d c=currentCameraFollowUnit->getCurrVector();
 						int rotation=currentCameraFollowUnit->getRotation();
-						float angle=rotation+180;
+						double angle=rotation+180;
 
-
-//#ifdef USE_STREFLOP
-//						c.z=c.z+4*streflop::cosf(static_cast<streflop::Simple>(degToRad(angle)));
-//						c.x=c.x+4*streflop::sinf(static_cast<streflop::Simple>(degToRad(angle)));
-//#else
-//						c.z=c.z+4*cosf(degToRad(angle));
-//						c.x=c.x+4*sinf(degToRad(angle));
-//#endif
 						c.z=c.z+4*std::cos(degToRad(angle));
 						c.x=c.x+4*std::sin(degToRad(angle));
 
 						c.y=c.y+currentCameraFollowUnit->getType()->getHeight()/2.f+2.0f;
 
-						getGameCameraPtr()->setPos(c);
+						getGameCameraPtr()->setPos(Vec3f(c));
 
 						rotation=(540-rotation)%360;
 						getGameCameraPtr()->rotateToVH(18.0f,rotation);
@@ -2198,7 +2190,7 @@ void Game::update() {
 
 					//Particle systems
 					if(weatherParticleSystem != NULL) {
-						weatherParticleSystem->setPos(gameCamera.getPos());
+						weatherParticleSystem->setPos(Vec3d(gameCamera.getPos()));
 					}
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [weather particle updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
@@ -4448,7 +4440,7 @@ void Game::startCameraFollowUnit() {
 		if(currentUnit != NULL) {
 			currentCameraFollowUnit = currentUnit;
 			getGameCameraPtr()->setState(GameCamera::sUnit);
-			getGameCameraPtr()->setPos(currentCameraFollowUnit->getCurrVector());
+			getGameCameraPtr()->setPos(Vec3f(currentCameraFollowUnit->getCurrVector()));
 
 			int rotation=currentCameraFollowUnit->getRotation();
 			getGameCameraPtr()->stop();

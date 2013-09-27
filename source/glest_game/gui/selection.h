@@ -85,7 +85,7 @@ public:
 	const Unit *getUnit(int i) const	{return selectedUnits[i];}
 	Unit *getUnitPtr(int i) 			{return selectedUnits[i];}
 	const Unit *getFrontUnit() const	{return selectedUnits.front();}
-	Vec3f getRefPos() const;
+	Vec3d getRefPos() const;
 	bool hasUnit(const Unit* unit) const;
 	
 	void assignGroup(int groupIndex,const UnitContainer *pUnits=NULL);

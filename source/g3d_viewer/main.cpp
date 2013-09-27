@@ -1340,7 +1340,7 @@ void MainWindow::loadParticle(string path) {
                 (*it)->setValues(ups);
                 if(size > 0) {
                     //getCurrVectorFlat() + Vec3f(0.f, type->getHeight()/2.f, 0.f);
-                    Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);
+                    Vec3d vec = Vec3d(0.f, height / 2.f, 0.f);
                     ups->setPos(vec);
                 }
                 //ups->setFactionColor(getFaction()->getTexture()->getPixmap()->getPixel3f(0,0));
@@ -1453,10 +1453,10 @@ void MainWindow::loadProjectileParticle(string path) {
 				ProjectileParticleSystem *ps = (*it)->create(NULL);
 
 				if(size > 0) {
-					Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);
+					Vec3d vec = Vec3d(0.f, height / 2.f, 0.f);
 					//ps->setPos(vec);
 
-					Vec3f vec2 = Vec3f(size * 2.f, height * 2.f, height * 2.f);
+					Vec3d vec2 = Vec3d(size * 2.f, height * 2.f, height * 2.f);
 					ps->setPath(vec, vec2);
 				}
 				ps->setFactionColor(renderer->getPlayerColorTexture(playerColor)->getPixmap()->getPixel3f(0,0));
