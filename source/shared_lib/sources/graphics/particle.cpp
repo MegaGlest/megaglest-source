@@ -677,9 +677,17 @@ void FireParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->energy= static_cast<int> (maxParticleEnergy * radRatio)
 	        + random.randRange(-varParticleEnergy, varParticleEnergy);
 	p->pos= Vec3d(pos.x + x, pos.y + random.randRange(-radius / 2, radius / 2), pos.z + y);
+	p->pos.x = truncateDecimal<double>(p->pos.x,16);
+	p->pos.y = truncateDecimal<double>(p->pos.y,16);
+	p->pos.z = truncateDecimal<double>(p->pos.z,16);
+
 	p->lastPos= pos;
 	p->size= particleSize;
 	p->speed= Vec3d(0, speed + speed * random.randRange(-0.5f, 0.5f), 0) + windSpeed;
+	p->speed.x = truncateDecimal<double>(p->speed.x,16);
+	p->speed.y = truncateDecimal<double>(p->speed.y,16);
+	p->speed.z = truncateDecimal<double>(p->speed.z,16);
+
 }
 
 void FireParticleSystem::updateParticle(Particle *p){
@@ -695,6 +703,9 @@ void FireParticleSystem::updateParticle(Particle *p){
 		p->color.w*= 0.98f;
 
 	p->speed.x*= 1.001f;
+	p->speed.x = truncateDecimal<double>(p->speed.x,16);
+	p->speed.y = truncateDecimal<double>(p->speed.y,16);
+	p->speed.z = truncateDecimal<double>(p->speed.z,16);
 
 }
 
@@ -723,6 +734,10 @@ void FireParticleSystem::setWind(double windAngle, double windSpeed) {
 	this->windSpeed.y= 0.0f;
 	this->windSpeed.z= cosf(degToRad(windAngle)) * windSpeed;
 #endif
+
+	this->windSpeed.x = truncateDecimal<double>(this->windSpeed.x,16);
+	this->windSpeed.y = truncateDecimal<double>(this->windSpeed.y,16);
+	this->windSpeed.z = truncateDecimal<double>(this->windSpeed.z,16);
 }
 
 void FireParticleSystem::saveGame(XmlNode *rootNode) {
@@ -1045,7 +1060,8 @@ bool UnitParticleSystem::getVisible() const{
 	else if((isNight==false) && (isVisibleAtDay==true)){
 		return visible;
 	}
-	else return false;
+	else
+		return false;
 }
 
 void UnitParticleSystem::render(ParticleRenderer *pr, ModelRenderer *mr) {
@@ -1091,24 +1107,28 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	const double radRatio= sqrtf(mod / radius);
 #endif
 	p->color= color;
-	if(isDaylightAffected==true)
-	{
+
+	if(isDaylightAffected==true) {
 		p->color.x=p->color.x*lightColor.x;
 		p->color.y=p->color.y*lightColor.y;
 		p->color.z=p->color.z*lightColor.z;
 	}
-	if(radiusBasedStartenergy == true){
-		p->energy= static_cast<int> (maxParticleEnergy * radRatio) + random.randRange(-varParticleEnergy,
-		        varParticleEnergy);
+	if(radiusBasedStartenergy == true) {
+		p->energy= static_cast<int> (maxParticleEnergy * radRatio) +
+				random.randRange(-varParticleEnergy,varParticleEnergy);
 	}
-	else{
-		p->energy= static_cast<int> (maxParticleEnergy) + random.randRange(-varParticleEnergy, varParticleEnergy);
+	else {
+		p->energy= static_cast<int> (maxParticleEnergy) +
+				random.randRange(-varParticleEnergy, varParticleEnergy);
 	}
 
 	p->lastPos= pos;
 	oldPosition= pos;
 	p->size= particleSize;
 	p->accel= Vec3d(0.0f, -gravity, 0.0f);
+	p->accel.x = truncateDecimal<double>(p->accel.x,16);
+	p->accel.y = truncateDecimal<double>(p->accel.y,16);
+	p->accel.z = truncateDecimal<double>(p->accel.z,16);
 	
 	// work out where we start for our shape (set speed and pos)
 	switch(shape){
@@ -1120,8 +1140,16 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 		Vec2d vert = Vec2d(1,0).rotate(degToRad(angle));
 		Vec3d start = Vec3d(horiz.x*vert.y,vert.x,horiz.y).getNormalized(); // close enough
 		p->speed = start * speed;
+		p->speed.x = truncateDecimal<double>(p->speed.x,16);
+		p->speed.y = truncateDecimal<double>(p->speed.y,16);
+		p->speed.z = truncateDecimal<double>(p->speed.z,16);
+
 		start = start * random.randRange(minRadius,radius);
 		p->pos = pos + offset + start;
+		p->pos.x = truncateDecimal<double>(p->pos.x,16);
+		p->pos.y = truncateDecimal<double>(p->pos.y,16);
+		p->pos.z = truncateDecimal<double>(p->pos.z,16);
+
 	} break;
 	case sLinear:{
 	#ifdef USE_STREFLOP	
@@ -1133,27 +1161,51 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	#endif
 		const double rad= degToRad(rotation);
 		if(!relative){
-			p->pos= Vec3d(pos.x + x + offset.x, pos.y + random.randRange(-radius / 2, radius / 2) + offset.y, pos.z + y
-				+ offset.z);
+			p->pos= Vec3d(pos.x + x + offset.x, pos.y +
+					random.randRange(-radius / 2, radius / 2) + offset.y,
+					pos.z + y + offset.z);
+			p->pos.x = truncateDecimal<double>(p->pos.x,16);
+			p->pos.y = truncateDecimal<double>(p->pos.y,16);
+			p->pos.z = truncateDecimal<double>(p->pos.z,16);
+
 		}
-		else{// rotate it according to rotation		
+		else {// rotate it according to rotation
 	#ifdef USE_STREFLOP
 			p->pos= Vec3d(pos.x+x+offset.z*streflop::sinf(static_cast<streflop::Simple>(rad))+offset.x*streflop::cosf(static_cast<streflop::Simple>(rad)), pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*streflop::cosf(static_cast<streflop::Simple>(rad))-offset.x*streflop::sinf(static_cast<streflop::Simple>(rad))));
 	#else
 			p->pos= Vec3d(pos.x + x + offset.z * sinf(rad) + offset.x * cosf(rad), pos.y + random.randRange(-radius / 2,
 				radius / 2) + offset.y, pos.z + y + (offset.z * cosf(rad) - offset.x * sinf(rad)));
 	#endif
+
+			p->pos.x = truncateDecimal<double>(p->pos.x,16);
+			p->pos.y = truncateDecimal<double>(p->pos.y,16);
+			p->pos.z = truncateDecimal<double>(p->pos.z,16);
+
 		}
 		p->speed= Vec3d(direction.x + direction.x * random.randRange(-0.5f, 0.5f), direction.y + direction.y
 			* random.randRange(-0.5f, 0.5f), direction.z + direction.z * random.randRange(-0.5f, 0.5f));
 		p->speed= p->speed * speed;
-		if(relative && relativeDirection){
+
+		p->speed.x = truncateDecimal<double>(p->speed.x,16);
+		p->speed.y = truncateDecimal<double>(p->speed.y,16);
+		p->speed.z = truncateDecimal<double>(p->speed.z,16);
+
+		if(relative && relativeDirection) {
 	#ifdef USE_STREFLOP
-			p->speed=Vec3d(p->speed.z*streflop::sinf(static_cast<streflop::Simple>(rad))+p->speed.x*streflop::cosf(static_cast<streflop::Simple>(rad)),p->speed.y,(p->speed.z*streflop::cosf(static_cast<streflop::Simple>(rad))-p->speed.x*streflop::sinf(static_cast<streflop::Simple>(rad))));
+			p->speed=Vec3d(p->speed.z*streflop::sinf(
+					static_cast<streflop::Simple>(rad)) + p->speed.x *
+					streflop::cosf(static_cast<streflop::Simple>(rad)),
+					p->speed.y, (p->speed.z * streflop::cosf(
+							static_cast<streflop::Simple>(rad)) - p->speed.x *
+							streflop::sinf(static_cast<streflop::Simple>(rad))));
 	#else
-			p->speed= Vec3d(p->speed.z * sinf(rad) + p->speed.x * cosf(rad), p->speed.y, (p->speed.z * cosf(rad)
-				- p->speed.x * sinf(rad)));
+			p->speed= Vec3d(p->speed.z * sinf(rad) + p->speed.x * cosf(rad),
+					p->speed.y, (p->speed.z * cosf(rad) - p->speed.x * sinf(rad)));
 	#endif
+
+			p->speed.x = truncateDecimal<double>(p->speed.x,16);
+			p->speed.y = truncateDecimal<double>(p->speed.y,16);
+			p->speed.z = truncateDecimal<double>(p->speed.z,16);
 		}
 	} break;
 	default: throw megaglest_runtime_error("bad shape");
@@ -1162,20 +1214,26 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 
 void UnitParticleSystem::update(){
 	// delay and timeline are only applicable for child particles
-	if(parent && delay>0 && delay--){
+	if(parent && delay > 0 && delay--) {
 		return;
 	}
-	if(parent && lifetime>0 && !--lifetime) {
+	if(parent && lifetime > 0 && !--lifetime) {
 		fade();
 	}
 	if(state != sPause) {
 		emissionRate-= emissionRateFade;
+		emissionRate = truncateDecimal<double>(emissionRate,16);
+
 		if(parent && emissionRate < 0.0f) {
 			fade();
 		}
 	}
-	if(fixed){
+	if(fixed) {
 		fixedAddition= Vec3d(pos.x - oldPosition.x, pos.y - oldPosition.y, pos.z - oldPosition.z);
+		fixedAddition.x = truncateDecimal<double>(fixedAddition.x,16);
+		fixedAddition.y = truncateDecimal<double>(fixedAddition.y,16);
+		fixedAddition.z = truncateDecimal<double>(fixedAddition.z,16);
+
 		oldPosition= pos;
 	}
 	ParticleSystem::update();
@@ -1199,21 +1257,43 @@ void UnitParticleSystem::updateParticle(Particle *p){
 		energyRatio= clamp(static_cast<double> (p->energy) / maxParticleEnergy, 0.f, 1.f);
 	}
 
-	p->lastPos+= p->speed;
-	p->pos+= p->speed;
-	if(fixed){
-		p->lastPos+= fixedAddition;
-		p->pos+= fixedAddition;
+	energyRatio = truncateDecimal<double>(energyRatio,16);
+
+	p->lastPos += p->speed;
+	p->lastPos.x = truncateDecimal<double>(p->lastPos.x,16);
+	p->lastPos.y = truncateDecimal<double>(p->lastPos.y,16);
+	p->lastPos.z = truncateDecimal<double>(p->lastPos.z,16);
+
+	p->pos += p->speed;
+	p->pos.x = truncateDecimal<double>(p->pos.x,16);
+	p->pos.y = truncateDecimal<double>(p->pos.y,16);
+	p->pos.z = truncateDecimal<double>(p->pos.z,16);
+
+	if(fixed) {
+		p->lastPos += fixedAddition;
+		p->lastPos.x = truncateDecimal<double>(p->lastPos.x,16);
+		p->lastPos.y = truncateDecimal<double>(p->lastPos.y,16);
+		p->lastPos.z = truncateDecimal<double>(p->lastPos.z,16);
+
+		p->pos += fixedAddition;
+		p->pos.x = truncateDecimal<double>(p->pos.x,16);
+		p->pos.y = truncateDecimal<double>(p->pos.y,16);
+		p->pos.z = truncateDecimal<double>(p->pos.z,16);
 	}
-	p->speed+= p->accel;
+	p->speed += p->accel;
+	p->speed.x = truncateDecimal<double>(p->speed.x,16);
+	p->speed.y = truncateDecimal<double>(p->speed.y,16);
+	p->speed.z = truncateDecimal<double>(p->speed.z,16);
+
 	p->color= color * energyRatio + colorNoEnergy * (1.0f - energyRatio);
-	if(isDaylightAffected==true)
-	{
+	if(isDaylightAffected==true) {
 		p->color.x=p->color.x*lightColor.x;
 		p->color.y=p->color.y*lightColor.y;
 		p->color.z=p->color.z*lightColor.z;
 	}
 	p->size= particleSize * energyRatio + sizeNoEnergy * (1.0f - energyRatio);
+	p->size = truncateDecimal<double>(p->size,16);
+
 	if(state == ParticleSystem::sFade || staticParticleCount < 1){
 		p->energy--;
 	}
@@ -1248,6 +1328,10 @@ void UnitParticleSystem::setWind(double windAngle, double windSpeed){
 	this->windSpeed.y= 0.0f;
 	this->windSpeed.z= cosf(degToRad(windAngle)) * windSpeed;
 #endif
+
+	this->windSpeed.x = truncateDecimal<double>(this->windSpeed.x,16);
+	this->windSpeed.y = truncateDecimal<double>(this->windSpeed.y,16);
+	this->windSpeed.z = truncateDecimal<double>(this->windSpeed.z,16);
 }
 
 void UnitParticleSystem::saveGame(XmlNode *rootNode) {
@@ -1451,9 +1535,16 @@ void RainParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->color= color;
 	p->energy= 10000;
 	p->pos= Vec3d(pos.x + x, pos.y, pos.z + y);
+	p->pos.x = truncateDecimal<double>(p->pos.x,16);
+	p->pos.y = truncateDecimal<double>(p->pos.y,16);
+	p->pos.z = truncateDecimal<double>(p->pos.z,16);
+
 	p->lastPos= p->pos;
-	p->speed= Vec3d(random.randRange(-speed / 10, speed / 10), -speed, random.randRange(-speed / 10, speed / 10))
-	        + windSpeed;
+	p->speed= Vec3d(random.randRange(-speed / 10, speed / 10), -speed,
+			random.randRange(-speed / 10, speed / 10)) + windSpeed;
+	p->speed.x = truncateDecimal<double>(p->speed.x,16);
+	p->speed.y = truncateDecimal<double>(p->speed.y,16);
+	p->speed.z = truncateDecimal<double>(p->speed.z,16);
 }
 
 bool RainParticleSystem::deathTest(Particle *p){
@@ -1462,7 +1553,6 @@ bool RainParticleSystem::deathTest(Particle *p){
 
 void RainParticleSystem::setRadius(double radius) {
 	this->radius= radius;
-
 }
 
 void RainParticleSystem::setWind(double windAngle, double windSpeed){
@@ -1475,6 +1565,10 @@ void RainParticleSystem::setWind(double windAngle, double windSpeed){
 	this->windSpeed.y= 0.0f;
 	this->windSpeed.z= cosf(degToRad(windAngle)) * windSpeed;
 #endif
+
+	this->windSpeed.x = truncateDecimal<double>(this->windSpeed.x,16);
+	this->windSpeed.y = truncateDecimal<double>(this->windSpeed.y,16);
+	this->windSpeed.z = truncateDecimal<double>(this->windSpeed.z,16);
 }
 
 Checksum RainParticleSystem::getCRC() {
@@ -1518,10 +1612,18 @@ void SnowParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->color= color;
 	p->energy= 10000;
 	p->pos= Vec3d(pos.x + x, pos.y, pos.z + y);
+	p->pos.x = truncateDecimal<double>(p->pos.x,16);
+	p->pos.y = truncateDecimal<double>(p->pos.y,16);
+	p->pos.z = truncateDecimal<double>(p->pos.z,16);
+
 	p->lastPos= p->pos;
 	p->speed= Vec3d(0.0f, -speed, 0.0f) + windSpeed;
 	p->speed.x+= random.randRange(-0.005f, 0.005f);
 	p->speed.y+= random.randRange(-0.005f, 0.005f);
+
+	p->speed.x = truncateDecimal<double>(p->speed.x,16);
+	p->speed.y = truncateDecimal<double>(p->speed.y,16);
+	p->speed.z = truncateDecimal<double>(p->speed.z,16);
 }
 
 bool SnowParticleSystem::deathTest(Particle *p){
@@ -1542,6 +1644,11 @@ void SnowParticleSystem::setWind(double windAngle, double windSpeed){
 	this->windSpeed.y= 0.0f;
 	this->windSpeed.z= cosf(degToRad(windAngle)) * windSpeed;
 #endif
+
+	this->windSpeed.x = truncateDecimal<double>(this->windSpeed.x,16);
+	this->windSpeed.y = truncateDecimal<double>(this->windSpeed.y,16);
+	this->windSpeed.z = truncateDecimal<double>(this->windSpeed.z,16);
+
 }
 
 Checksum SnowParticleSystem::getCRC() {
@@ -1774,10 +1881,21 @@ void ProjectileParticleSystem::initParticle(Particle *p, int particleIndex){
 	t = truncateDecimal<double>(t,16);
 
 	p->pos= pos + (lastPos - pos) * t;
+	p->pos.x = truncateDecimal<double>(p->pos.x,16);
+	p->pos.y = truncateDecimal<double>(p->pos.y,16);
+	p->pos.z = truncateDecimal<double>(p->pos.z,16);
+
 	p->lastPos= lastPos;
-	p->speed= Vec3d(random.randRange(-0.1f, 0.1f), random.randRange(-0.1f, 0.1f), random.randRange(-0.1f, 0.1f))
-	        * speed;
+	p->speed= Vec3d(random.randRange(-0.1f, 0.1f), random.randRange(-0.1f, 0.1f),
+			random.randRange(-0.1f, 0.1f)) * speed;
+	p->speed.x = truncateDecimal<double>(p->speed.x,16);
+	p->speed.y = truncateDecimal<double>(p->speed.y,16);
+	p->speed.z = truncateDecimal<double>(p->speed.z,16);
+
 	p->accel= Vec3d(0.0f, -gravity, 0.0f);
+	p->accel.x = truncateDecimal<double>(p->accel.x,16);
+	p->accel.y = truncateDecimal<double>(p->accel.y,16);
+	p->accel.z = truncateDecimal<double>(p->accel.z,16);
 
 	updateParticle(p);
 }
@@ -1786,11 +1904,24 @@ void ProjectileParticleSystem::updateParticle(Particle *p){
 	double energyRatio= clamp(static_cast<double> (p->energy) / maxParticleEnergy, 0.f, 1.f);
 	energyRatio = truncateDecimal<double>(energyRatio,16);
 
-	p->lastPos+= p->speed;
-	p->pos+= p->speed;
-	p->speed+= p->accel;
+	p->lastPos += p->speed;
+	p->lastPos.x = truncateDecimal<double>(p->lastPos.x,16);
+	p->lastPos.y = truncateDecimal<double>(p->lastPos.y,16);
+	p->lastPos.z = truncateDecimal<double>(p->lastPos.z,16);
+
+	p->pos += p->speed;
+	p->pos.x = truncateDecimal<double>(p->pos.x,16);
+	p->pos.y = truncateDecimal<double>(p->pos.y,16);
+	p->pos.z = truncateDecimal<double>(p->pos.z,16);
+
+	p->speed += p->accel;
+	p->speed.x = truncateDecimal<double>(p->speed.x,16);
+	p->speed.y = truncateDecimal<double>(p->speed.y,16);
+	p->speed.z = truncateDecimal<double>(p->speed.z,16);
+
 	p->color= color * energyRatio + colorNoEnergy * (1.0f - energyRatio);
-	p->size= particleSize * energyRatio + sizeNoEnergy * (1.0f - energyRatio);
+	p->size = particleSize * energyRatio + sizeNoEnergy * (1.0f - energyRatio);
+	p->size = truncateDecimal<double>(p->size,16);
 	p->energy--;
 }
 
@@ -2029,6 +2160,7 @@ void SplashParticleSystem::update() {
 	ParticleSystem::update();
 	if(state != sPause) {
 		emissionRate -= emissionRateFade;
+		emissionRate = truncateDecimal<double>(emissionRate,16);
 
 		double t = 1.0f - ((emissionRate + startEmissionRate) / (startEmissionRate * 2.0f));
 		t = truncateDecimal<double>(t,16);
@@ -2054,8 +2186,15 @@ void SplashParticleSystem::initParticle(Particle *p, int particleIndex){
 	        + horizontalSpreadB);
 	p->speed.normalize();
 	p->speed= p->speed * speed;
+	p->speed.x = truncateDecimal<double>(p->speed.x,16);
+	p->speed.y = truncateDecimal<double>(p->speed.y,16);
+	p->speed.z = truncateDecimal<double>(p->speed.z,16);
 
 	p->accel= Vec3d(0.0f, -gravity, 0.0f);
+	p->accel.x = truncateDecimal<double>(p->accel.x,16);
+	p->accel.y = truncateDecimal<double>(p->accel.y,16);
+	p->accel.z = truncateDecimal<double>(p->accel.z,16);
+
 }
 
 void SplashParticleSystem::updateParticle(Particle *p){
@@ -2063,10 +2202,19 @@ void SplashParticleSystem::updateParticle(Particle *p){
 
 	p->lastPos= p->pos;
 	p->pos= p->pos + p->speed;
+	p->pos.x = truncateDecimal<double>(p->pos.x,16);
+	p->pos.y = truncateDecimal<double>(p->pos.y,16);
+	p->pos.z = truncateDecimal<double>(p->pos.z,16);
+
 	p->speed= p->speed + p->accel;
+	p->speed.x = truncateDecimal<double>(p->speed.x,16);
+	p->speed.y = truncateDecimal<double>(p->speed.y,16);
+	p->speed.z = truncateDecimal<double>(p->speed.z,16);
+
 	p->energy--;
 	p->color= color * energyRatio + colorNoEnergy * (1.0f - energyRatio);
 	p->size= particleSize * energyRatio + sizeNoEnergy * (1.0f - energyRatio);
+	p->size = truncateDecimal<double>(p->size,16);
 }
 
 void SplashParticleSystem::saveGame(XmlNode *rootNode) {
