@@ -1414,7 +1414,12 @@ Vec3d Unit::getCurrVector() const{
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	return getCurrVectorFlat() + Vec3d(0.f, truncateDecimal<double>(type->getHeight()/2.f,16), 0.f);
+	Vec3d result = getCurrVectorFlat() + Vec3d(0.f, type->getHeight() /2.f, 0.f);
+	result.x = truncateDecimal<double>(result.x,16);
+	result.y = truncateDecimal<double>(result.y,16);
+	result.z = truncateDecimal<double>(result.z,16);
+
+	return result;
 }
 
 Vec3d Unit::getCurrVectorFlat() const{
@@ -1423,7 +1428,7 @@ Vec3d Unit::getCurrVectorFlat() const{
 
 double Unit::getProgressAsFloat() const {
 	double result = (static_cast<double>(progress) / static_cast<double>(PROGRESS_SPEED_MULTIPLIER));
-	result = truncateDecimal<double>(result);
+	result = truncateDecimal<double>(result,16);
 	return result;
 }
 
@@ -1434,17 +1439,21 @@ Vec3d Unit::getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) c
     double y2= computeHeight(curPosValue);
 
     if(currSkill->getClass() == scMove) {
-        v.x= truncateDecimal<double>(lastPosValue.x + getProgressAsFloat() * (curPosValue.x - lastPosValue.x),16);
-        v.z= truncateDecimal<double>(lastPosValue.y + getProgressAsFloat() * (curPosValue.y - lastPosValue.y),16);
-		v.y= truncateDecimal<double>(y1 + getProgressAsFloat() * (y2-y1),16);
+        v.x= lastPosValue.x + getProgressAsFloat() * (curPosValue.x - lastPosValue.x);
+        v.z= lastPosValue.y + getProgressAsFloat() * (curPosValue.y - lastPosValue.y);
+		v.y= y1 + getProgressAsFloat() * (y2-y1);
     }
     else {
         v.x= static_cast<double>(curPosValue.x);
         v.z= static_cast<double>(curPosValue.y);
         v.y= y2;
     }
-    v.x += truncateDecimal<double>(type->getSize() / 2.f - 0.5f,16);
-    v.z += truncateDecimal<double>(type->getSize() / 2.f - 0.5f,16);
+    v.x += type->getSize() / 2.f - 0.5f;
+    v.z += type->getSize() / 2.f - 0.5f;
+
+	v.x = truncateDecimal<double>(v.x,16);
+	v.y = truncateDecimal<double>(v.y,16);
+	v.z = truncateDecimal<double>(v.z,16);
 
     return v;
 }
@@ -2491,7 +2500,7 @@ void Unit::updateTimedParticles() {
 		for(int i = queuedUnitParticleSystemTypes.size() - 1; i >= 0; i--) {
 			UnitParticleSystemType *pst = queuedUnitParticleSystemTypes[i];
 			if(pst != NULL) {
-				if(truncateDecimal<double>(pst->getStartTime()) <= truncateDecimal<double>(getAnimProgressAsFloat())) {
+				if(truncateDecimal<double>(pst->getStartTime(),16) <= truncateDecimal<double>(getAnimProgressAsFloat(),16)) {
 					//printf("STARTING queued particle system type [%s] [%f] [%f] [%f] [%f]\n",pst->getType().c_str(),truncateDecimal<float>(pst->getStartTime()),truncateDecimal<float>(pst->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
 
 					UnitParticleSystem *ups = new UnitParticleSystem(200);
@@ -2521,12 +2530,12 @@ void Unit::updateTimedParticles() {
 				if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
 					double pst = ps->getStartTime();
 					double pet = ps->getEndTime();
-					double particleStartTime = truncateDecimal<double>(pst);
-					double particleEndTime = truncateDecimal<double>(pet);
+					double particleStartTime = truncateDecimal<double>(pst,16);
+					double particleEndTime = truncateDecimal<double>(pet,16);
 
 					if(particleStartTime != 0.0 || particleEndTime != 1.0) {
 						//printf("Checking for end particle system #%d [%d] [%f] [%f] [%f] [%f]\n",i,ps->shape,truncateDecimal<float>(ps->getStartTime()),truncateDecimal<float>(ps->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
-						double animProgressTime = truncateDecimal<double>(getAnimProgressAsFloat());
+						double animProgressTime = truncateDecimal<double>(getAnimProgressAsFloat(),16);
 						if(animProgressTime >= 0.99 || animProgressTime >= particleEndTime) {
 							//printf("ENDING particle system [%d]\n",ps->shape);
 

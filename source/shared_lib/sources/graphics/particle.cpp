@@ -1798,14 +1798,36 @@ void ProjectileParticleSystem::setPath(Vec3d startPos, Vec3d endPos){
 
 	//compute axis
 	zVector= endPos - startPos;
+	zVector.x = truncateDecimal<double>(zVector.x,16);
+	zVector.y = truncateDecimal<double>(zVector.y,16);
+	zVector.z = truncateDecimal<double>(zVector.z,16);
+
 	zVector.normalize();
+	zVector.x = truncateDecimal<double>(zVector.x,16);
+	zVector.y = truncateDecimal<double>(zVector.y,16);
+	zVector.z = truncateDecimal<double>(zVector.z,16);
+
 	yVector= Vec3d(0.0f, 1.0f, 0.0f);
 	xVector= zVector.cross(yVector);
+	xVector.x = truncateDecimal<double>(xVector.x,16);
+	xVector.y = truncateDecimal<double>(xVector.y,16);
+	xVector.z = truncateDecimal<double>(xVector.z,16);
 
 	//apply offset
-	startPos+= xVector * offset.x;
+	startPos += xVector * offset.x;
+	startPos.x = truncateDecimal<double>(startPos.x,16);
+	startPos.y = truncateDecimal<double>(startPos.y,16);
+	startPos.z = truncateDecimal<double>(startPos.z,16);
+
 	startPos+= yVector * offset.y;
+	startPos.x = truncateDecimal<double>(startPos.x,16);
+	startPos.y = truncateDecimal<double>(startPos.y,16);
+	startPos.z = truncateDecimal<double>(startPos.z,16);
+
 	startPos+= zVector * offset.z;
+	startPos.x = truncateDecimal<double>(startPos.x,16);
+	startPos.y = truncateDecimal<double>(startPos.y,16);
+	startPos.z = truncateDecimal<double>(startPos.z,16);
 
 	pos= startPos;
 	lastPos= startPos;
@@ -1813,9 +1835,20 @@ void ProjectileParticleSystem::setPath(Vec3d startPos, Vec3d endPos){
 
 	//recompute axis
 	zVector= endPos - startPos;
+	zVector.x = truncateDecimal<double>(zVector.x,16);
+	zVector.y = truncateDecimal<double>(zVector.y,16);
+	zVector.z = truncateDecimal<double>(zVector.z,16);
+
 	zVector.normalize();
+	zVector.x = truncateDecimal<double>(zVector.x,16);
+	zVector.y = truncateDecimal<double>(zVector.y,16);
+	zVector.z = truncateDecimal<double>(zVector.z,16);
+
 	yVector= Vec3d(0.0f, 1.0f, 0.0f);
 	xVector= zVector.cross(yVector);
+	xVector.x = truncateDecimal<double>(xVector.x,16);
+	xVector.y = truncateDecimal<double>(xVector.y,16);
+	xVector.z = truncateDecimal<double>(xVector.z,16);
 
 	// set members
 	this->startPos= startPos;
@@ -1823,7 +1856,15 @@ void ProjectileParticleSystem::setPath(Vec3d startPos, Vec3d endPos){
 	
 	// direction
 	direction = (endPos - lastPos);
+	direction.x = truncateDecimal<double>(direction.x,16);
+	direction.y = truncateDecimal<double>(direction.y,16);
+	direction.z = truncateDecimal<double>(direction.z,16);
+
 	direction.normalize();
+	direction.x = truncateDecimal<double>(direction.x,16);
+	direction.y = truncateDecimal<double>(direction.y,16);
+	direction.z = truncateDecimal<double>(direction.z,16);
+
 	rotateChildren();
 }
 
