@@ -55,7 +55,7 @@ public:
 
 class AttackWarningData {
 public:
-	Vec2f attackPosition;
+	Vec2d attackPosition;
 	int lastFrameCount;
 };
 

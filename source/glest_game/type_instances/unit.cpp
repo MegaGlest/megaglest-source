@@ -453,7 +453,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	this->map= map;
 	this->targetRef = NULL;
 	this->targetField = fLand;
-	this->targetVec   = Vec3f(0.0);
+	this->targetVec   = Vec3d(0.0);
 	this->targetPos   = Vec2i(0);
 	this->lastRenderFrame = 0;
 	this->visible = true;
@@ -700,7 +700,7 @@ Vec2i Unit::getCenteredPos() const {
     return pos + Vec2i(type->getSize()/2, type->getSize()/2);
 }
 
-Vec2f Unit::getFloatCenteredPos() const {
+Vec2d Unit::getFloatCenteredPos() const {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(mutexCommands,mutexOwnerId);
 
@@ -710,7 +710,7 @@ Vec2f Unit::getFloatCenteredPos() const {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	return Vec2f(pos.x-0.5f+type->getSize()/2.f, pos.y-0.5f+type->getSize()/2.f);
+	return Vec2d(pos.x-0.5f+type->getSize()/2.f, pos.y-0.5f+type->getSize()/2.f);
 }
 
 Vec2i Unit::getCellPos() const {
@@ -1275,10 +1275,6 @@ void Unit::setTargetPos(const Vec2i &targetPos) {
 #endif
 	targetRef= NULL;
 
-	//this->targetField = fLand;
-	//this->targetVec   = Vec3f(0.0);
-	//this->targetPos   = Vec2i(0);
-
 	this->targetPos= targetPos;
 	map->clampPos(this->targetPos);
 
@@ -1411,17 +1407,17 @@ bool Unit::checkModelStateInfoForNewHpValue() {
 	return result;
 }
 
-Vec3f Unit::getCurrVector() const{
+Vec3d Unit::getCurrVector() const{
 	if(type == NULL) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	return getCurrVectorFlat() + Vec3f(0.f, truncateDecimal<float>(type->getHeight()/2.f), 0.f);
+	return getCurrVectorFlat() + Vec3d(0.f, truncateDecimal<double>(type->getHeight()/2.f,16), 0.f);
 }
 
-Vec3f Unit::getCurrVectorFlat() const{
+Vec3d Unit::getCurrVectorFlat() const{
 	return getVectorFlat(lastPos, pos);
 }
 
@@ -1431,24 +1427,24 @@ double Unit::getProgressAsFloat() const {
 	return result;
 }
 
-Vec3f Unit::getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) const {
-    Vec3f v;
+Vec3d Unit::getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) const {
+    Vec3d v;
 
     double y1= computeHeight(lastPosValue);
     double y2= computeHeight(curPosValue);
 
     if(currSkill->getClass() == scMove) {
-        v.x= truncateDecimal<double>(lastPosValue.x + getProgressAsFloat() * (curPosValue.x - lastPosValue.x));
-        v.z= truncateDecimal<double>(lastPosValue.y + getProgressAsFloat() * (curPosValue.y - lastPosValue.y));
-		v.y= truncateDecimal<double>(y1 + getProgressAsFloat() * (y2-y1));
+        v.x= truncateDecimal<double>(lastPosValue.x + getProgressAsFloat() * (curPosValue.x - lastPosValue.x),16);
+        v.z= truncateDecimal<double>(lastPosValue.y + getProgressAsFloat() * (curPosValue.y - lastPosValue.y),16);
+		v.y= truncateDecimal<double>(y1 + getProgressAsFloat() * (y2-y1),16);
     }
     else {
         v.x= static_cast<double>(curPosValue.x);
         v.z= static_cast<double>(curPosValue.y);
         v.y= y2;
     }
-    v.x += truncateDecimal<double>(type->getSize() / 2.f - 0.5f);
-    v.z += truncateDecimal<double>(type->getSize() / 2.f - 0.5f);
+    v.x += truncateDecimal<double>(type->getSize() / 2.f - 0.5f,16);
+    v.z += truncateDecimal<double>(type->getSize() / 2.f - 0.5f,16);
 
     return v;
 }
@@ -3348,19 +3344,19 @@ double Unit::computeHeight(const Vec2i &pos) const {
 	if(currField == fAir) {
 		const double airHeight=game->getWorld()->getTileset()->getAirHeight();
 		height += airHeight;
-		height = truncateDecimal<double>(height);
+		height = truncateDecimal<double>(height,16);
 
 		Unit *unit = map->getCell(pos)->getUnit(fLand);
 		if(unit != NULL && unit->getType()->getHeight() > airHeight) {
 			height += (std::min((double)unit->getType()->getHeight(),Tileset::standardAirHeight * 3) - airHeight);
-			height = truncateDecimal<double>(height);
+			height = truncateDecimal<double>(height,16);
 		}
 		else {
 			SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(pos));
 			if(sc != NULL && sc->getObject() != NULL && sc->getObject()->getType() != NULL) {
 				if(sc->getObject()->getType()->getHeight() > airHeight) {
 					height += (std::min((double)sc->getObject()->getType()->getHeight(),Tileset::standardAirHeight * 3) - airHeight);
-					height = truncateDecimal<double>(height);
+					height = truncateDecimal<double>(height,16);
 				}
 			}
 		}
@@ -3376,7 +3372,7 @@ void Unit::updateTarget(){
 		//update target pos
 		targetPos= target->getCellPos();
 		Vec2i relPos= targetPos - pos;
-		Vec2f relPosf= Vec2f((float)relPos.x, (float)relPos.y);
+		Vec2d relPosf= Vec2d((float)relPos.x, (float)relPos.y);
 #ifdef USE_STREFLOP
 		targetRotation= radToDeg(streflop::atan2(static_cast<streflop::Simple>(relPosf.x), static_cast<streflop::Simple>(relPosf.y)));
 #else
@@ -3823,8 +3819,8 @@ void Unit::startDamageParticles() {
 				ups->setColor(Vec4f(0.115f, 0.115f, 0.115f, 0.22f));
 				ups->setPos(getCurrVector());
 				ups->setBlendMode(ups->strToBlendMode("black"));
-				ups->setOffset(Vec3f(0,2,0));
-				ups->setDirection(Vec3f(0,1,-0.2f));
+				ups->setOffset(Vec3d(0,2,0));
+				ups->setDirection(Vec3d(0,1,-0.2f));
 				ups->setRadius(type->getSize()/3.f);
 				ups->setShape(Shared::Graphics::UnitParticleSystem::sLinear);
 				ups->setTexture(CoreData::getInstance().getFireTexture());
@@ -3845,7 +3841,7 @@ void Unit::startDamageParticles() {
 	checkCustomizedParticleTriggers(false);
 }
 
-void Unit::setTargetVec(const Vec3f &targetVec)	{
+void Unit::setTargetVec(const Vec3d &targetVec)	{
 	this->targetVec= targetVec;
 	logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 }
@@ -4687,7 +4683,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //    Vec2i targetPos;		//absolute target pos
 	result->targetPos = Vec2i::strToVec2(unitNode->getAttribute("targetPos")->getValue());
 //	Vec3f targetVec;
-	result->targetVec = Vec3f::strToVec3(unitNode->getAttribute("targetVec")->getValue());
+	result->targetVec = Vec3d::strToVec3(unitNode->getAttribute("targetVec")->getValue());
 //	Vec2i meetingPos;
 	result->meetingPos = Vec2i::strToVec2(unitNode->getAttribute("meetingPos")->getValue());
 //
@@ -4905,26 +4901,6 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 			//ups->setTexture(CoreData::getInstance().getFireTexture());
 			result->smokeParticleSystems.push_back(ups);
 
-//			UnitParticleSystem *ups= new UnitParticleSystem(400);
-//			ups->setColorNoEnergy(Vec4f(0.0f, 0.0f, 0.0f, 0.13f));
-//			ups->setColor(Vec4f(0.115f, 0.115f, 0.115f, 0.22f));
-//			ups->setPos(result->getCurrVector());
-//			ups->setBlendMode(ups->strToBlendMode("black"));
-//			ups->setOffset(Vec3f(0,2,0));
-//			ups->setDirection(Vec3f(0,1,-0.2f));
-//			ups->setRadius(result->type->getSize()/3.f);
-//			ups->setShape(Shared::Graphics::UnitParticleSystem::sLinear);
-//			ups->setTexture(CoreData::getInstance().getFireTexture());
-//			const Game *game = Renderer::getInstance().getGame();
-//			ups->setSpeed(2.0f / game->getWorld()->getUpdateFps(result->getFactionIndex()));
-//			ups->setGravity(0.0004f);
-//			ups->setEmissionRate(1);
-//			ups->setMaxParticleEnergy(150);
-//			ups->setSizeNoEnergy(result->type->getSize()*0.6f);
-//			ups->setParticleSize(result->type->getSize()*0.8f);
-//			result->smokeParticleSystems.push_back(ups);
-
-			//Renderer::getInstance().manageParticleSystem(result->fire, rsGame);
 			Renderer::getInstance().addToDeferredParticleSystemList(make_pair(ups, rsGame));
 
 			//printf("Loading smoke particles:\n[%s]\n",ups->toString().c_str());

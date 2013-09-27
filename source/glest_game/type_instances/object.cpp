@@ -109,7 +109,7 @@ void Object::initParticlesFromTypes(const ModelParticleSystemTypes *particleType
 			UnitParticleSystem *ups= new UnitParticleSystem(200);
 			ups->setParticleOwner(this);
 			(*it)->setValues(ups);
-			ups->setPos(this->pos);
+			ups->setPos(Vec3d(this->pos));
 			ups->setRotation(this->rotation);
 			ups->setFactionColor(Vec3f(0, 0, 0));
 			ups->setVisible(false);
@@ -132,7 +132,7 @@ void Object::setHeight(float height) {
 	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
 		bool particleValid = Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame);
 		if(particleValid == true) {
-			(*it)->setPos(this->pos);
+			(*it)->setPos(Vec3d(this->pos));
 		}
 	}
 }

@@ -59,7 +59,7 @@ protected:
 	Model *model;
 	float modelCycle;
 	string primitive;
-	Vec3f offset;
+	Vec3d offset;
 	Vec4f color;
 	Vec4f colorNoEnergy;
 	float size;

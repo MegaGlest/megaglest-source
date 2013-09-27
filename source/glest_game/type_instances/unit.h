@@ -368,7 +368,7 @@ private:
     Vec2i pos;
 	Vec2i lastPos;
     Vec2i targetPos;		//absolute target pos
-	Vec3f targetVec;
+	Vec3d targetVec;
 	Vec2i meetingPos;
 
 	double lastRotation;		//in degrees
@@ -536,7 +536,7 @@ public:
 	double getEpRatio() const;
 	inline bool getToBeUndertaken() const				{return toBeUndertaken;}
 	inline Vec2i getTargetPos() const					{return targetPos;}
-	inline Vec3f getTargetVec() const					{return targetVec;}
+	inline Vec3d getTargetVec() const					{return targetVec;}
 	inline Field getTargetField() const				{return targetField;}
 	inline Vec2i getMeetingPos() const					{return meetingPos;}
 	inline Faction *getFaction() const					{return faction;}
@@ -574,7 +574,7 @@ public:
 	Vec2i getPosWithCellMapSet() const;
 	inline Vec2i getLastPos() const			{return lastPos;}
 	Vec2i getCenteredPos() const;
-    Vec2f getFloatCenteredPos() const;
+    Vec2d getFloatCenteredPos() const;
 	Vec2i getCellPos() const;
 
     //is
@@ -613,7 +613,7 @@ public:
 	void refreshPos();
 	void setTargetPos(const Vec2i &targetPos);
 	void setTarget(const Unit *unit);
-	void setTargetVec(const Vec3f &targetVec);
+	void setTargetVec(const Vec3d &targetVec);
 	void setMeetingPos(const Vec2i &meetingPos);
 	void setVisible(const bool visible);
 	inline bool getVisible() const { return visible; }
@@ -621,9 +621,9 @@ public:
 	//render related
     const Model *getCurrentModel();
     Model *getCurrentModelPtr();
-	Vec3f getCurrVector() const;
-	Vec3f getCurrVectorFlat() const;
-	Vec3f getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) const;
+	Vec3d getCurrVector() const;
+	Vec3d getCurrVectorFlat() const;
+	Vec3d getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) const;
 
     //command related
 	bool anyCommand(bool validateCommandtype=false) const;
