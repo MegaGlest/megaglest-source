@@ -93,7 +93,7 @@ void Cell::saveGame(XmlNode *rootNode, int index) const {
 		}
 
 	//	float height;
-		cellNode->addAttribute("height",floatToStr(getHeight(),16), mapTagReplacements);
+		cellNode->addAttribute("height",doubleToStr(getHeight(),16), mapTagReplacements);
 	}
 }
 
@@ -374,10 +374,10 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			heightFactor= header.heightFactor;
 			if(heightFactor>100){
 				heightFactor=heightFactor/100;
-				heightFactor = truncateDecimal<float>(heightFactor);
+				heightFactor = truncateDecimal<double>(heightFactor,16);
 			}
-			waterLevel= static_cast<float>((header.waterLevel-0.01f)/heightFactor);
-			waterLevel = truncateDecimal<float>(waterLevel);
+			waterLevel= static_cast<double>((header.waterLevel-0.01f)/heightFactor);
+			waterLevel = truncateDecimal<double>(waterLevel,16);
 			title= header.title;
 			maxPlayers= header.maxFactions;
 
@@ -395,8 +395,8 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			else if(header.version==2){
 				//desc = header.version2.short_desc;
 				if(header.version2.cliffLevel > 0  && header.version2.cliffLevel < 5000){
-					cliffLevel=static_cast<float>((header.version2.cliffLevel-0.01f)/(heightFactor));
-					cliffLevel = truncateDecimal<float>(cliffLevel);
+					cliffLevel=static_cast<double>((header.version2.cliffLevel-0.01f)/(heightFactor),16);
+					cliffLevel = truncateDecimal<double>(cliffLevel,16);
 				}
 				if(header.version2.cameraHeight > 0 && header.version2.cameraHeight < 5000) {
 					cameraHeight = header.version2.cameraHeight;
@@ -481,7 +481,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 						sc->setObject(NULL);
 					}
 					else if(objNumber <= Tileset::objCount) {
-						Object *o= new Object(tileset->getObjectType(objNumber-1), sc->getVertex(),Vec2i(i, j));
+						Object *o= new Object(tileset->getObjectType(objNumber-1), Vec3d(sc->getVertex()),Vec2i(i, j));
 						sc->setObject(o);
 						for(int k = 0; k < techTree->getResourceTypeCount(); ++k) {
 							const ResourceType *rt= techTree->getResourceType(k);
@@ -492,7 +492,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 					}
 					else{
 						const ResourceType *rt= techTree->getTechResourceType(objNumber - Tileset::objCount) ;
-						Object *o= new Object(NULL, sc->getVertex(),Vec2i(i, j));
+						Object *o= new Object(NULL, Vec3d(sc->getVertex()),Vec2i(i, j));
 						o->setResource(rt, Vec2i(i, j));
 						sc->setObject(o);
 					}
@@ -529,8 +529,8 @@ void Map::init(Tileset *tileset) {
 
 class FindBestPos  {
 public:
-	float distanceFromUnitNoAdjustment;
-	float distanceFromClickNoAdjustment;
+	double distanceFromUnitNoAdjustment;
+	double distanceFromClickNoAdjustment;
 	Vec2i resourcePosNoAdjustment;
 };
 
@@ -540,8 +540,8 @@ bool Map::isResourceNear(int frameIndex,const Vec2i &pos, const ResourceType *rt
 		Vec2i *resourceClickPos) const {
 
 	bool resourceNear = false;
-	float distanceFromUnit=-1;
-	float distanceFromClick=-1;
+	double distanceFromUnit=-1;
+	double distanceFromClick=-1;
 
 	if(resourceClickPos) {
 		//printf("+++++++++ unit [%s - %d] pos = [%s] resourceClickPos [%s]\n",unit->getFullName().c_str(),unit->getId(),pos.getString().c_str(),resourceClickPos->getString().c_str());
@@ -694,7 +694,7 @@ bool Map::isResourceNear(int frameIndex,const Vec2i &pos, const ResourceType *rt
 			}
 		}
 
-		float bestUnitDist = distanceFromUnit;
+		double bestUnitDist = distanceFromUnit;
 		for(unsigned int i = 0; i < bestPosList.size(); ++i) {
 			FindBestPos &bestPosItem = bestPosList[i];
 
@@ -1115,12 +1115,12 @@ Vec2i Map::computeDestPos(	const Vec2i &refUnitPos, const Vec2i &unitPos,
     return pos;
 }
 
-std::pair<float,Vec2i> Map::getUnitDistanceToPos(const Unit *unit,Vec2i pos,const UnitType *ut) {
+std::pair<double,Vec2i> Map::getUnitDistanceToPos(const Unit *unit,Vec2i pos,const UnitType *ut) {
 	if(unit == NULL) {
 		throw megaglest_runtime_error("unit == NULL");
 	}
 
-	std::pair<float,Vec2i> result(-1,Vec2i(0));
+	std::pair<double,Vec2i> result(-1,Vec2i(0));
 	//int unitId= unit->getId();
 	Vec2i unitPos= computeDestPos(unit->getPosNotThreadSafe(), unit->getPosNotThreadSafe(), pos);
 
@@ -1136,7 +1136,7 @@ std::pair<float,Vec2i> Map::getUnitDistanceToPos(const Unit *unit,Vec2i pos,cons
 			Vec2i testPos(i,j);
 
 			if(ut == NULL || isInUnitTypeCells(ut, pos,testPos) == false) {
-				float distance = unitPos.dist(testPos);
+				double distance = unitPos.dist(testPos);
 				if(result.first < 0 || result.first > distance) {
 					result.first = distance;
 					result.second = testPos;
@@ -1155,7 +1155,7 @@ const Unit * Map::findClosestUnitToPos(const Selection *selection, Vec2i origina
 
 	Vec2i pos = originalBuildPos;
 
-	float bestRange = -1;
+	double bestRange = -1;
 
 	Vec2i start = pos - Vec2i(1);
 	int unitTypeSize = 0;
@@ -1173,7 +1173,7 @@ const Unit * Map::findClosestUnitToPos(const Selection *selection, Vec2i origina
 			for(int j = start.y; j <= end.y; ++j){
 				Vec2i testPos(i,j);
 				if(isInUnitTypeCells(ut, originalBuildPos,testPos) == false) {
-					float distance = unitBuilderPos.dist(testPos);
+					double distance = unitBuilderPos.dist(testPos);
 					if(bestRange < 0 || bestRange > distance) {
 						bestRange = distance;
 						pos = testPos;
@@ -1198,7 +1198,7 @@ Vec2i Map::findBestBuildApproach(const Unit *unit, Vec2i originalBuildPos,const 
     Vec2i unitBuilderPos    = unit->getPosNotThreadSafe();
 	Vec2i pos               = originalBuildPos;
 
-	float bestRange = -1;
+	double bestRange = -1;
 
 	Vec2i start = pos - Vec2i(unit->getType()->getSize());
 	Vec2i end 	= pos + Vec2i(ut->getSize());
@@ -1207,7 +1207,7 @@ Vec2i Map::findBestBuildApproach(const Unit *unit, Vec2i originalBuildPos,const 
 		for(int j = start.y; j <= end.y; ++j) {
 			Vec2i testPos(i,j);
 			if(isInUnitTypeCells(ut, originalBuildPos,testPos) == false) {
-				float distance = unitBuilderPos.dist(testPos);
+				double distance = unitBuilderPos.dist(testPos);
 				if(bestRange < 0 || bestRange > distance) {
 				    // Check if the cell is occupied by another unit
 				    if(isFreeCellOrHasUnit(testPos, unit->getType()->getField(), unit) == true) {
@@ -1532,7 +1532,7 @@ void Map::prepareTerrain(const Unit *unit) {
 // ==================== compute ====================
 
 void Map::flatternTerrain(const Unit *unit){
-	float refHeight= getSurfaceCell(toSurfCoords(unit->getCenteredPos()))->getHeight();
+	double refHeight= getSurfaceCell(toSurfCoords(unit->getCenteredPos()))->getHeight();
 	for(int i=-1; i<=unit->getType()->getSize(); ++i){
         for(int j=-1; j<=unit->getType()->getSize(); ++j){
             Vec2i pos= unit->getPosNotThreadSafe()+Vec2i(i, j);
@@ -1641,8 +1641,8 @@ void Map::smoothSurface(Tileset *tileset) {
 						}
 						if (formerObject == NULL) {
 							Object *o = new Object(tileset->getObjectType(9),
-									getSurfaceCell(i, j)->getVertex(), Vec2i(i,
-											j));
+									Vec3d(getSurfaceCell(i, j)->getVertex()),
+									Vec2i(i,j));
 							getSurfaceCell(i, j)->setObject(o);
 						}
 					}
@@ -1733,11 +1733,11 @@ void Map::saveGame(XmlNode *rootNode) const {
 //	string title;
 	mapNode->addAttribute("title",title, mapTagReplacements);
 //	float waterLevel;
-	mapNode->addAttribute("waterLevel",floatToStr(waterLevel,16), mapTagReplacements);
+	mapNode->addAttribute("waterLevel",doubleToStr(waterLevel,16), mapTagReplacements);
 //	float heightFactor;
-	mapNode->addAttribute("heightFactor",floatToStr(heightFactor,16), mapTagReplacements);
+	mapNode->addAttribute("heightFactor",doubleToStr(heightFactor,16), mapTagReplacements);
 //	float cliffLevel;
-	mapNode->addAttribute("cliffLevel",floatToStr(cliffLevel,16), mapTagReplacements);
+	mapNode->addAttribute("cliffLevel",doubleToStr(cliffLevel,16), mapTagReplacements);
 //	int cameraHeight;
 	mapNode->addAttribute("cameraHeight",intToStr(cameraHeight), mapTagReplacements);
 //	int w;
@@ -1817,7 +1817,7 @@ void Map::saveGame(XmlNode *rootNode) const {
 //	Checksum checksumValue;
 //	mapNode->addAttribute("checksumValue",intToStr(checksumValue.getSum()), mapTagReplacements);
 //	float maxMapHeight;
-	mapNode->addAttribute("maxMapHeight",floatToStr(maxMapHeight,16), mapTagReplacements);
+	mapNode->addAttribute("maxMapHeight",doubleToStr(maxMapHeight,16), mapTagReplacements);
 //	string mapFile;
 	mapNode->addAttribute("mapFile",mapFile, mapTagReplacements);
 }

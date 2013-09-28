@@ -73,23 +73,15 @@ std::string RandomGen::getLastCaller() const {
 	return result;
 }
 int RandomGen::randRange(int min, int max,string lastCaller) {
-	//assert(min<=max);
 	if(min > max) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] min > max, min = %d, max = %d",__FILE__,__FUNCTION__,__LINE__,min,max);
 		throw megaglest_runtime_error(szBuf);
 	}
 
-//#ifdef USE_STREFLOP
-//	int res = streflop::Random<true, false, float>(min, max); // streflop
-//#else
 	int diff= max-min;
-	//int res= min + static_cast<int>(truncateDecimal<double>(static_cast<double>(diff+1),2)*RandomGen::rand() / m);
 	double numerator = static_cast<double>(diff + 1) * static_cast<double>(RandomGen::rand(lastCaller));
-	int res= min + static_cast<int>(truncateDecimal<double>(numerator / static_cast<double>(m)));
-	//int res= min + static_cast<int>(truncateDecimal<double>(static_cast<double>(diff+1 * RandomGen::rand()) / static_cast<double>(m)));
-//#endif
-	//assert(res>=min && res<=max);
+	int res= min + static_cast<int>(truncateDecimal<double>(numerator / static_cast<double>(m),16));
 	if(res < min || res > max) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] res < min || res > max, min = %d, max = %d, res = %d",__FILE__,__FUNCTION__,__LINE__,min,max,res);
@@ -102,22 +94,16 @@ int RandomGen::randRange(int min, int max,string lastCaller) {
 }
 
 double RandomGen::randRange(double min, double max,string lastCaller) {
-	//assert(min<=max);
 	if(min > max) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] min > max, min = %f, max = %f",__FILE__,__FUNCTION__,__LINE__,min,max);
 		throw megaglest_runtime_error(szBuf);
 	}
 
-//#ifdef USE_STREFLOP
-//	float res = streflop::Random<true, false, float>(min, max, randomState); // streflop
-//#else
-	double rand01= static_cast<double>(RandomGen::rand(lastCaller))/(m-1);
-	double res= min+(max-min)*rand01;
-	res = truncateDecimal<double>(res);
-//#endif
+	double rand01 = static_cast<double>(RandomGen::rand(lastCaller)) / (m-1);
+	double res= min + (max - min) * rand01;
+	res = truncateDecimal<double>(res,16);
 
-	//assert(res>=min && res<=max);
 	if(res < min || res > max) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] res < min || res > max, min = %f, max = %f, res = %f",__FILE__,__FUNCTION__,__LINE__,min,max,res);

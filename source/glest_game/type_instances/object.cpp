@@ -34,22 +34,22 @@ ObjectStateInterface *Object::stateCallback=NULL;
 // 	class Object
 // =====================================================
 
-Object::Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos) : BaseColorPickEntity() {
+Object::Object(ObjectType *objectType, const Vec3d &pos, const Vec2i &mapPos) : BaseColorPickEntity() {
 	RandomGen random;
 
-	random.init(static_cast<int>(pos.x*pos.z));
+	random.init(static_cast<int>(pos.x * pos.z));
 	this->lastRenderFrame = 0;
 	this->objectType= objectType;
 	resource= NULL;
 	highlight= 0.f;
 	animated= false;
 	this->mapPos = mapPos;
-	this->pos= pos + Vec3f(random.randRange(-0.6f, 0.6f), 0.0f, random.randRange(-0.6f, 0.6f));
+	this->pos= pos + Vec3d(random.randRange(-0.6f, 0.6f), 0.0f, random.randRange(-0.6f, 0.6f));
 	rotation= random.randRange(0.f, 360.f);
 	if(objectType!=NULL){
 		variation = random.randRange(0, objectType->getModelCount()-1);
 		TilesetModelType *tmt=objectType->getTilesetModelType(variation);
-		if(tmt->getRotationAllowed()!=true){
+		if(tmt->getRotationAllowed() != true) {
 			rotation=0;
 		}
 		animated=tmt->getAnimSpeed()>0;
@@ -109,7 +109,7 @@ void Object::initParticlesFromTypes(const ModelParticleSystemTypes *particleType
 			UnitParticleSystem *ups= new UnitParticleSystem(200);
 			ups->setParticleOwner(this);
 			(*it)->setValues(ups);
-			ups->setPos(Vec3d(this->pos));
+			ups->setPos(this->pos);
 			ups->setRotation(this->rotation);
 			ups->setFactionColor(Vec3f(0, 0, 0));
 			ups->setVisible(false);
@@ -126,13 +126,13 @@ void Object::end(ParticleSystem *particleSystem) {
 	}
 }
 
-void Object::setHeight(float height) {
-	pos.y=height;
+void Object::setHeight(double height) {
+	pos.y = height;
 
 	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
 		bool particleValid = Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame);
 		if(particleValid == true) {
-			(*it)->setPos(Vec3d(this->pos));
+			(*it)->setPos(this->pos);
 		}
 	}
 }
@@ -153,17 +153,17 @@ void Object::update() {
 //		printf("#1 Object updating [%s] Speed [%d] animProgress [%f]\n",this->objectType->getTilesetModelType(variation)->getModel()->getFileName().c_str(),objectType->getTilesetModelType(variation)->getAnimSpeed(),animProgress);
 
 		if(objectType != NULL && objectType->getTilesetModelType(variation) != NULL) {
-			float heightFactor   = 1.f;
-			const float speedDivider= 100.f;
-			float speedDenominator = (speedDivider * GameConstants::updateFps);
+			double heightFactor   = 1.f;
+			const double speedDivider= 100.f;
+			double speedDenominator = (speedDivider * GameConstants::updateFps);
 
 			// smooth TwoFrameanimations
-			float f=1.0f;
+			double f=1.0f;
 			if(objectType->getTilesetModelType(variation)->getSmoothTwoFrameAnim()==true){
 				f=abs(std::sin(animProgress*2*3.16))+0.4f;
 			}
 
-			float newAnimProgress = animProgress + f*(((float)objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator);
+			double newAnimProgress = animProgress + f*(((double)objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator);
 
 	//		printf("A [%f] B [%f] C [%f] D [%f] E [%f] F [%f]\n",
 	//				((float)objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor),
@@ -265,7 +265,7 @@ void Object::saveGame(XmlNode *rootNode) {
 //	Vec3f pos;
 	objectNode->addAttribute("pos",pos.getString(), mapTagReplacements);
 //	float rotation;
-	objectNode->addAttribute("rotation",floatToStr(rotation,16), mapTagReplacements);
+	objectNode->addAttribute("rotation",doubleToStr(rotation,16), mapTagReplacements);
 //	int variation;
 	objectNode->addAttribute("variation",intToStr(variation), mapTagReplacements);
 //	int lastRenderFrame;
@@ -297,7 +297,7 @@ void Object::loadGame(const XmlNode *rootNode,const TechTree *techTree) {
 		resource->loadGame(objectNode,0,techTree);
 	}
 	//	Vec3f pos;
-	pos = Vec3f::strToVec3(objectNode->getAttribute("pos")->getValue());
+	pos = Vec3d::strToVec3(objectNode->getAttribute("pos")->getValue());
 	//	float rotation;
 	rotation = objectNode->getAttribute("rotation")->getFloatValue();
 	//	int variation;
