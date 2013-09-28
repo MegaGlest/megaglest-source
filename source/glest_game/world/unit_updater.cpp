@@ -119,7 +119,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 	//play skill sound
 	const SkillType *currSkill= unit->getCurrSkill();
 	if(currSkill->getSound() != NULL) {
-		float soundStartTime= currSkill->getSoundStartTime();
+		double soundStartTime= currSkill->getSoundStartTime();
 		if(soundStartTime >= unit->getLastAnimProgressAsFloat() && soundStartTime < unit->getAnimProgressAsFloat()) {
 			if(map->getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(world->getThisTeamIndex()) ||
 				(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
@@ -2817,7 +2817,7 @@ void UnitUpdater::saveGame(XmlNode *rootNode) {
 //	RandomGen random;
 	//unitupdaterNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
 //	float attackWarnRange;
-	unitupdaterNode->addAttribute("attackWarnRange",floatToStr(attackWarnRange,16), mapTagReplacements);
+	unitupdaterNode->addAttribute("attackWarnRange",doubleToStr(attackWarnRange,16), mapTagReplacements);
 //	AttackWarnings attackWarnings;
 //
 //	Mutex mutexUnitRangeCellsLookupItemCache;
