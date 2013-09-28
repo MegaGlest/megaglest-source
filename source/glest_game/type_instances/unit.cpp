@@ -2509,7 +2509,6 @@ void Unit::updateTimedParticles() {
 			UnitParticleSystemType *pst = queuedUnitParticleSystemTypes[i];
 			if(pst != NULL) {
 				if(truncateDecimal<double>(pst->getStartTime(),16) <= truncateDecimal<double>(getAnimProgressAsFloat(),16)) {
-					//printf("STARTING queued particle system type [%s] [%f] [%f] [%f] [%f]\n",pst->getType().c_str(),truncateDecimal<float>(pst->getStartTime()),truncateDecimal<float>(pst->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
 
 					UnitParticleSystem *ups = new UnitParticleSystem(200);
 					ups->setParticleOwner(this);
@@ -2542,10 +2541,8 @@ void Unit::updateTimedParticles() {
 					double particleEndTime = truncateDecimal<double>(pet,16);
 
 					if(particleStartTime != 0.0 || particleEndTime != 1.0) {
-						//printf("Checking for end particle system #%d [%d] [%f] [%f] [%f] [%f]\n",i,ps->shape,truncateDecimal<float>(ps->getStartTime()),truncateDecimal<float>(ps->getEndTime()),truncateDecimal<float>(animProgress),truncateDecimal<float>(lastAnimProgress));
 						double animProgressTime = truncateDecimal<double>(getAnimProgressAsFloat(),16);
 						if(animProgressTime >= 0.99 || animProgressTime >= particleEndTime) {
-							//printf("ENDING particle system [%d]\n",ps->shape);
 
 							ps->fade();
 							unitParticleSystems.erase(unitParticleSystems.begin() + i);
@@ -3099,7 +3096,6 @@ string Unit::getDesc(bool translatedValue) const {
 		str += lang.get("MaxUnitCount")+ ": " + intToStr(faction->getCountForMaxUnitCount(type)) + "/" + intToStr(type->getMaxUnitCount());
 	}
 
-	//str += "\n"+lang.get("Hp")+ ": " + intToStr(hp) + "/" + intToStr(type->getTotalMaxHp(&totalUpgrade)) + " [" + floatToStr(getHpRatio()) + "] [" + floatToStr(animProgress) + "]";
 	str += "\n"+lang.get("Hp")+ ": " + intToStr(hp) + "/" + intToStr(type->getTotalMaxHp(&totalUpgrade));
 	if(type->getHpRegeneration() != 0 || totalUpgrade.getMaxHpRegeneration() != 0) {
 		str+= " (" + lang.get("Regeneration") + ": " + intToStr(type->getHpRegeneration());

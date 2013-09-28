@@ -682,7 +682,6 @@ void CoreData::loadFonts() {
 		if(displayFont) {
 			displayFont->setType(displayFontName,config.getString("FontDisplay",""),config.getString("FontDisplayFamily",""));
 			displayFont->setSize(displayFontSize);
-			//displayFont->setYOffsetFactor(config.getFloat("FontDisplayYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
 	}
 
@@ -695,7 +694,6 @@ void CoreData::loadFonts() {
 		if(displayFont3D) {
 			displayFont3D->setType(displayFontName,config.getString("FontDisplay",""),config.getString("FontDisplayFamily",""));
 			displayFont3D->setSize(displayFontSize);
-			//displayFont3D->setYOffsetFactor(config.getFloat("FontDisplayYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
 	}
 
@@ -727,7 +725,6 @@ void CoreData::loadFonts() {
 		if(displayFontSmall) {
 			displayFontSmall->setType(displayFontNameSmall,config.getString("FontSmallDisplay",""),config.getString("FontSmallDisplayFamily",""));
 			displayFontSmall->setSize(displayFontNameSmallSize);
-			//displayFontSmall->setYOffsetFactor(config.getFloat("FontSmallDisplayYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
 	}
 
@@ -740,7 +737,6 @@ void CoreData::loadFonts() {
 		if(displayFontSmall3D) {
 			displayFontSmall3D->setType(displayFontNameSmall,config.getString("FontSmallDisplay",""),config.getString("FontSmallDisplayFamily",""));
 			displayFontSmall3D->setSize(displayFontNameSmallSize);
-			//displayFontSmall3D->setYOffsetFactor(config.getFloat("FontSmallDisplayYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
 	}
 
@@ -774,7 +770,6 @@ void CoreData::loadFonts() {
 			menuFontNormal->setType(menuFontNameNormal,config.getString("FontMenuNormal",""),config.getString("FontMenuNormalFamily",""));
 			menuFontNormal->setSize(menuFontNameNormalSize);
 			menuFontNormal->setWidth(Font::wBold);
-			//menuFontNormal->setYOffsetFactor(config.getFloat("FontMenuNormalYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
 	}
 
@@ -788,7 +783,6 @@ void CoreData::loadFonts() {
 			menuFontNormal3D->setType(menuFontNameNormal,config.getString("FontMenuNormal",""),config.getString("FontMenuNormalFamily",""));
 			menuFontNormal3D->setSize(menuFontNameNormalSize);
 			menuFontNormal3D->setWidth(Font::wBold);
-			//menuFontNormal3D->setYOffsetFactor(config.getFloat("FontMenuNormalYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
 	}
 
@@ -819,7 +813,6 @@ void CoreData::loadFonts() {
 		if(menuFontBig) {
 			menuFontBig->setType(menuFontNameBig,config.getString("FontMenuBig",""),config.getString("FontMenuBigFamily",""));
 			menuFontBig->setSize(menuFontNameBigSize);
-			//menuFontBig->setYOffsetFactor(config.getFloat("FontMenuBigYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
 	}
 
@@ -832,7 +825,6 @@ void CoreData::loadFonts() {
 		if(menuFontBig3D) {
 			menuFontBig3D->setType(menuFontNameBig,config.getString("FontMenuBig",""),config.getString("FontMenuBigFamily",""));
 			menuFontBig3D->setSize(menuFontNameBigSize);
-			//menuFontBig3D->setYOffsetFactor(config.getFloat("FontMenuBigYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
 	}
 
@@ -863,7 +855,6 @@ void CoreData::loadFonts() {
 		if(menuFontVeryBig) {
 			menuFontVeryBig->setType(menuFontNameVeryBig,config.getString("FontMenuVeryBig",""),config.getString("FontMenuVeryBigFamily",""));
 			menuFontVeryBig->setSize(menuFontNameVeryBigSize);
-			//menuFontVeryBig->setYOffsetFactor(config.getFloat("FontMenuVeryBigYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
 	}
 
@@ -876,7 +867,6 @@ void CoreData::loadFonts() {
 		if(menuFontVeryBig3D) {
 			menuFontVeryBig3D->setType(menuFontNameVeryBig,config.getString("FontMenuVeryBig",""),config.getString("FontMenuVeryBigFamily",""));
 			menuFontVeryBig3D->setSize(menuFontNameVeryBigSize);
-			//menuFontVeryBig3D->setYOffsetFactor(config.getFloat("FontMenuVeryBigYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
 	}
 
@@ -910,7 +900,6 @@ void CoreData::loadFonts() {
 		if(consoleFont) {
 			consoleFont->setType(consoleFontName,config.getString("FontConsole",""),config.getString("FontConsoleFamily",""));
 			consoleFont->setSize(consoleFontNameSize);
-			//consoleFont->setYOffsetFactor(config.getFloat("FontConsoleYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
 	}
 
@@ -923,7 +912,6 @@ void CoreData::loadFonts() {
 		if(consoleFont3D) {
 			consoleFont3D->setType(consoleFontName,config.getString("FontConsole",""),config.getString("FontConsoleFamily",""));
 			consoleFont3D->setSize(consoleFontNameSize);
-			//consoleFont3D->setYOffsetFactor(config.getFloat("FontConsoleYOffsetFactor",floatToStr(FontMetrics::DEFAULT_Y_OFFSET_FACTOR).c_str()));
 		}
 	}
 
@@ -936,15 +924,6 @@ int CoreData::computeFontSize(int size) {
 	if(Font::forceLegacyFonts == true) {
 		int screenH = config.getInt("ScreenHeight");
 		rs = size * screenH / 1024;
-	}
-	else {
-		if(Renderer::renderText3DEnabled) {
-			//rs = ((float)size * 0.85);
-			//rs = 24;
-		}
-		//int screenH = config.getInt("ScreenHeight");
-		//rs = size * screenH / 1024;
-
 	}
 	//FontSizeAdjustment
 	rs += config.getInt("FontSizeAdjustment");

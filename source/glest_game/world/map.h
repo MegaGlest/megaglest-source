@@ -306,7 +306,6 @@ public:
 	inline bool getSubmerged(const Cell *c) const						{return c->getHeight()<waterLevel;}
 	inline bool getDeepSubmerged(const SurfaceCell *sc) const			{return sc->getHeight()<waterLevel-(1.5f/heightFactor);}
 	inline bool getDeepSubmerged(const Cell *c) const					{return c->getHeight()<waterLevel-(1.5f/heightFactor);}
-	//float getSurfaceHeight(const Vec2i &pos) const;
 
 	//is
 	inline bool isInside(int x, int y) const {
