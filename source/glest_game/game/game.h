@@ -207,6 +207,8 @@ private:
 	bool inJoinGameLoading;
 	bool initialResumeSpeedLoops;
 
+	bool quitGameCalled;
+
 public:
 	Game();
     Game(Program *program, const GameSettings *gameSettings, bool masterserverMode);
@@ -379,6 +381,7 @@ private:
 	bool switchSetupForSlots(ServerInterface *& serverInterface,
 			int startIndex, int endIndex, bool onlyNetworkUnassigned);
 	void processNetworkSynchChecksIfRequired();
+	Stats getEndGameStats();
 };
 
 }}//end namespace
