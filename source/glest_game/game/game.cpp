@@ -164,6 +164,7 @@ Game::Game() : ProgramState(NULL) {
 	lastworldFrameCountForReplay = -1;
 	lastNetworkPlayerConnectionCheck = time(NULL);
 	inJoinGameLoading = false;
+	quitGameCalled = false;
 
 	for( int i=0;i<GameConstants::networkSmoothInterval;i++){
 		receivedTooEarlyInFrames[i]=-1;
@@ -275,6 +276,7 @@ void Game::resetMembers() {
 	lastNetworkPlayerConnectionCheck = time(NULL);
 
 	inJoinGameLoading = false;
+	quitGameCalled = false;
 
 	for( int i=0;i<GameConstants::networkSmoothInterval;i++){
 		receivedTooEarlyInFrames[i]=-1;
@@ -4871,8 +4873,24 @@ void Game::keyPress(SDL_KeyboardEvent c) {
 	chatManager.keyPress(c);
 }
 
+Stats Game::getEndGameStats() {
+	Stats endStats;
+	endStats = *(world.getStats());
+	//NetworkManager &networkManager= NetworkManager::getInstance();
+	if (this->masterserverMode == true) {
+		endStats.setIsMasterserverMode(true);
+	}
+	return endStats;
+}
+
 Stats Game::quitGame() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	if(quitGameCalled == true) {
+		Stats endStats = getEndGameStats();
+		return endStats;
+	}
+	quitGameCalled = true;
 
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	NetworkRole role = networkManager.getNetworkRole();
@@ -4891,16 +4909,7 @@ Stats Game::quitGame() {
     	this->saveGame(GameConstants::saveGameFileAutoTestDefault);
     }
 
-	//Stats stats = *(world.getStats());
-	Stats endStats;
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-	endStats = *(world.getStats());
-	//NetworkManager &networkManager= NetworkManager::getInstance();
-	if(this->masterserverMode == true) {
-		endStats.setIsMasterserverMode(true);
-	}
+	Stats endStats = getEndGameStats();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
