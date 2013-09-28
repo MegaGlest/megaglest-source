@@ -4636,7 +4636,7 @@ void Renderer::renderObjects(const int renderFps) {
 
 		Model *objModel= o->getModelPtr();
 		//objModel->updateInterpolationData(o->getAnimProgress(), true);
-		const Vec3f &v= o->getConstPos();
+		const Vec3f v= Vec3f(o->getConstPos());
 
 		if(modelRenderStarted == false) {
 			modelRenderStarted = true;
@@ -5383,7 +5383,7 @@ void Renderer::renderSelectionEffects() {
 		int defaultValue= r->getType()->getDefResPerPatch();
 		float colorValue=static_cast<float>(r->getAmount())/static_cast<float>(defaultValue);
 		glColor4f(0.1f, 0.1f , colorValue, 0.4f);
-		renderSelectionCircle(selectedResourceObject->getPos(),2, selectionCircleRadius);
+		renderSelectionCircle(Vec3f(selectedResourceObject->getPos()),2, selectionCircleRadius);
 	}
 	//target arrow
 	if(selection->getCount() == 1) {
@@ -5481,7 +5481,7 @@ void Renderer::renderSelectionEffects() {
 		if(object->isHighlighted()) {
 			float highlight= object->getHightlight();
 			glColor4f(0.1f, 0.1f , 1.0f, highlight);
-			Vec3f v= object->getPos();
+			Vec3f v= Vec3f(object->getPos());
 			v.y+= 0.3f;
 			renderSelectionCircle(v, 2, 0.4f+0.4f*highlight );
 		}
@@ -7589,7 +7589,7 @@ vector<Object *>  Renderer::renderObjectsFast(bool renderingShadows, bool resour
 					//objModel->updateInterpolationData(o->getAnimProgress(), true);
 
 				//}
-				const Vec3f &v= o->getConstPos();
+				const Vec3f v= Vec3f(o->getConstPos());
 
 				if(colorPickingSelection == false) {
 					glPushName(OBJECT_SELECT_OFFSET+visibleIndex);

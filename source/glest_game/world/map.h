@@ -58,7 +58,7 @@ class Cell {
 private:
     Unit *units[fieldCount];	//units on this cell
     Unit *unitsWithEmptyCellMap[fieldCount];	//units with an empty cellmap on this cell
-	float height;
+    double height;
 
 private:
 	Cell(Cell&);
@@ -70,11 +70,11 @@ public:
 	//get
 	inline Unit *getUnit(int field) const		{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} return units[field];}
 	inline Unit *getUnitWithEmptyCellMap(int field) const		{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} return unitsWithEmptyCellMap[field];}
-	inline float getHeight() const				{return truncateDecimal<float>(height);}
+	inline double getHeight() const				{return truncateDecimal<double>(height,16);}
 
 	inline void setUnit(int field, Unit *unit)	{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} units[field]= unit;}
 	inline void setUnitWithEmptyCellMap(int field, Unit *unit)	{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} unitsWithEmptyCellMap[field]= unit;}
-	inline void setHeight(float height)		{this->height = truncateDecimal<float>(height);}
+	inline void setHeight(double height)		{this->height = truncateDecimal<double>(height,16);}
 
 	inline bool isFree(Field field) const {
 		Unit *unit = getUnit(field);
@@ -213,9 +213,9 @@ public:
 
 private:
 	string title;
-	float waterLevel;
-	float heightFactor;
-	float cliffLevel;
+	double waterLevel;
+	double heightFactor;
+	double cliffLevel;
 	int cameraHeight;
 	int w;
 	int h;
@@ -228,7 +228,7 @@ private:
 	SurfaceCell *surfaceCells;
 	Vec2i *startLocations;
 	Checksum checksumValue;
-	float maxMapHeight;
+	double maxMapHeight;
 	string mapFile;
 
 private:
@@ -296,11 +296,11 @@ public:
 	inline int getSurfaceW() const										{return surfaceW;}
 	inline int getSurfaceH() const										{return surfaceH;}
 	inline int getMaxPlayers() const									{return maxPlayers;}
-	inline float getHeightFactor() const								{return truncateDecimal<float>(heightFactor);}
-	inline float getWaterLevel() const									{return truncateDecimal<float>(waterLevel);}
-	inline float getCliffLevel() const									{return truncateDecimal<float>(cliffLevel);}
+	inline double getHeightFactor() const								{return truncateDecimal<double>(heightFactor,16);}
+	inline double getWaterLevel() const									{return truncateDecimal<double>(waterLevel,16);}
+	inline double getCliffLevel() const									{return truncateDecimal<double>(cliffLevel,16);}
 	inline int getCameraHeight() const									{return cameraHeight;}
-	inline float getMaxMapHeight() const								{return truncateDecimal<float>(maxMapHeight);}
+	inline double getMaxMapHeight() const								{return truncateDecimal<double>(maxMapHeight,16);}
 	Vec2i getStartLocation(int locationIndex) const;
 	inline bool getSubmerged(const SurfaceCell *sc) const				{return sc->getHeight()<waterLevel;}
 	inline bool getSubmerged(const Cell *c) const						{return c->getHeight()<waterLevel;}
@@ -347,7 +347,7 @@ public:
 	bool isInUnitTypeCells(const UnitType *ut, const Vec2i &pos,const Vec2i &testPos) const;
 	bool isNextToUnitTypeCells(const UnitType *ut, const Vec2i &pos,const Vec2i &testPos) const;
 	Vec2i findBestBuildApproach(const Unit *unit, Vec2i originalBuildPos,const UnitType *ut) const;
-	std::pair<float,Vec2i> getUnitDistanceToPos(const Unit *unit,Vec2i pos,const UnitType *ut);
+	std::pair<double,Vec2i> getUnitDistanceToPos(const Unit *unit,Vec2i pos,const UnitType *ut);
 
 	//misc
 	bool isNextTo(const Vec2i &pos, const Unit *unit) const;

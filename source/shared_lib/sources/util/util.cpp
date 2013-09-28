@@ -710,11 +710,11 @@ void copyStringToBuffer(char *buffer, int bufferSize, const string& s){
 
 // ==================== numeric fcs ====================
 
-float saturate(float value){
-	if (value<0.f){
+double saturate(double value) {
+	if (value < 0.f){
         return 0.f;
 	}
-	if (value>1.f){
+	if (value > 1.f){
         return 1.f;
 	}
     return value;
@@ -740,17 +740,17 @@ int64 clamp(int64 value, int64 min, int64 max){
     return value;
 }
 
-float clamp(float value, float min, float max){
-	if (value<min){
+double clamp(double value, double min, double max) {
+	if (value < min) {
         return min;
 	}
-	if (value>max){
+	if (value > max) {
         return max;
 	}
     return value;
 }
 
-int round(float f){
+int round(double f){
      return (int) f;
 }
 
