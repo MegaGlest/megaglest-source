@@ -1267,12 +1267,14 @@ void Unit::setTargetPos(const Vec2i &targetPos) {
 	Vec2i relPos= targetPos - pos;
 	//map->clampPos(relPos);
 
-	Vec2f relPosf= Vec2f((float)relPos.x, (float)relPos.y);
+	Vec2d relPosf= Vec2d((double)relPos.x, (double)relPos.y);
 #ifdef USE_STREFLOP
 	targetRotation= radToDeg(streflop::atan2(static_cast<streflop::Simple>(relPosf.x), static_cast<streflop::Simple>(relPosf.y)));
 #else
 	targetRotation= radToDeg(atan2(relPosf.x, relPosf.y));
 #endif
+	targetRotation = truncateDecimal<double>(targetRotation,16);
+
 	targetRef= NULL;
 
 	this->targetPos= targetPos;
@@ -1439,15 +1441,21 @@ Vec3d Unit::getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) c
     double y2= computeHeight(curPosValue);
 
     if(currSkill->getClass() == scMove) {
-        v.x= lastPosValue.x + getProgressAsFloat() * (curPosValue.x - lastPosValue.x);
-        v.z= lastPosValue.y + getProgressAsFloat() * (curPosValue.y - lastPosValue.y);
-		v.y= y1 + getProgressAsFloat() * (y2-y1);
+    	double progressAsDouble = getProgressAsFloat();
+
+        v.x= lastPosValue.x + progressAsDouble * (curPosValue.x - lastPosValue.x);
+        v.z= lastPosValue.y + progressAsDouble * (curPosValue.y - lastPosValue.y);
+		v.y= y1 + progressAsDouble * (y2-y1);
     }
     else {
         v.x= static_cast<double>(curPosValue.x);
         v.z= static_cast<double>(curPosValue.y);
         v.y= y2;
     }
+	v.x = truncateDecimal<double>(v.x,16);
+	v.y = truncateDecimal<double>(v.y,16);
+	v.z = truncateDecimal<double>(v.z,16);
+
     v.x += type->getSize() / 2.f - 0.5f;
     v.z += type->getSize() / 2.f - 0.5f;
 
@@ -3349,9 +3357,11 @@ double Unit::computeHeight(const Vec2i &pos) const {
 	}
 
 	double height= map->getCell(pos)->getHeight();
+	height = truncateDecimal<double>(height,16);
 
 	if(currField == fAir) {
 		const double airHeight=game->getWorld()->getTileset()->getAirHeight();
+
 		height += airHeight;
 		height = truncateDecimal<double>(height,16);
 
@@ -3381,12 +3391,13 @@ void Unit::updateTarget(){
 		//update target pos
 		targetPos= target->getCellPos();
 		Vec2i relPos= targetPos - pos;
-		Vec2d relPosf= Vec2d((float)relPos.x, (float)relPos.y);
+		Vec2d relPosf= Vec2d((double)relPos.x, (double)relPos.y);
 #ifdef USE_STREFLOP
 		targetRotation= radToDeg(streflop::atan2(static_cast<streflop::Simple>(relPosf.x), static_cast<streflop::Simple>(relPosf.y)));
 #else
 		targetRotation= radToDeg(atan2(relPosf.x, relPosf.y));
 #endif
+		targetRotation = truncateDecimal<double>(targetRotation,16);
 		//update target vec
 		targetVec= target->getCurrVector();
 

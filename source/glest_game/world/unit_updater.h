@@ -81,7 +81,7 @@ private:
 	Game *game;
 	//RandomGen random;
 	Mutex mutexAttackWarnings;
-	float attackWarnRange;
+	double attackWarnRange;
 	AttackWarnings attackWarnings;
 
 	Mutex mutexUnitRangeCellsLookupItemCache;
