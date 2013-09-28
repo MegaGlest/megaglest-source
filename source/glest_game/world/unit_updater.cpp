@@ -2211,7 +2211,7 @@ void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &t
 					scriptManager->onUnitAttacking(attacker);
 
 					double distance = pci.getPos().dist(targetPos);
-					distance = truncateDecimal<double>(distance);
+					distance = truncateDecimal<double>(distance,16);
 					damage(attacker, ast, attacked, distance);
 			  	}
 			}
@@ -2241,7 +2241,7 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	int var					= ast->getAttackVar();
 	int armor				= attacked->getType()->getTotalArmor(attacked->getTotalUpgrade());
 	double damageMultiplier	= world->getTechTree()->getDamageMultiplier(ast->getAttackType(), attacked->getType()->getArmorType());
-	damageMultiplier = truncateDecimal<double>(damageMultiplier);
+	damageMultiplier = truncateDecimal<double>(damageMultiplier,16);
 
 	//compute damage
 	//damage += random.randRange(-var, var);
@@ -2249,7 +2249,7 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	damage /= distance+1;
 	damage -= armor;
 	damage *= damageMultiplier;
-	damageMultiplier = truncateDecimal<double>(damageMultiplier);
+	damageMultiplier = truncateDecimal<double>(damageMultiplier,16);
 
 	if(damage < 1) {
 		damage= 1;
