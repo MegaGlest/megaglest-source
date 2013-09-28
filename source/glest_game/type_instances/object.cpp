@@ -165,16 +165,7 @@ void Object::update() {
 
 			double newAnimProgress = animProgress + f*(((double)objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator);
 
-	//		printf("A [%f] B [%f] C [%f] D [%f] E [%f] F [%f]\n",
-	//				((float)objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor),
-	//				speedDenominator,
-	//				((objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator),
-	//				(animProgress + ((objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator)),
-	//				animProgress,newAnimProgress);
-
 			animProgress = newAnimProgress;
-	//		printf("#2 new animProgress [%f]\n",animProgress);
-
 			if(animProgress > 1.f) {
 				animProgress = 0.f;
 			}

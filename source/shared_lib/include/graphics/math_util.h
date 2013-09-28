@@ -233,7 +233,7 @@ public:
 		}
 	}
 
-	float area(){
+	double area() {
 		Vec2i v0= p[3]-p[0];
 		Vec2i v1= p[1]-p[2];
 

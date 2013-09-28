@@ -1082,58 +1082,6 @@ void Renderer::setupLighting() {
 		}
 	}
 
-/*
-	if(timeFlow->isTotalNight()) {
-        for(int i = 0; i < world->getFactionCount() && lightCount < maxLights; ++i) {
-            for(int j = 0; j < world->getFaction(i)->getUnitCount() && lightCount < maxLights; ++j) {
-                Unit *unit= world->getFaction(i)->getUnit(j);
-				if(world->toRenderUnit(unit) &&
-					unit->getCurrVector().dist(gameCamera->getPos()) < maxLightDist &&
-                    unit->getType()->getLight() && unit->isOperative()){
-					//printf("$$$ Show light for faction: %s # %d / %d for Unit [%d - %s]\n",world->getFaction(i)->getType()->getName().c_str(),lightCount,maxLights,unit->getId(),unit->getFullName().c_str());
-
-					Vec4f pos= Vec4f(unit->getCurrVector());
-                    pos.y+=4.f;
-
-					GLenum lightEnum= GL_LIGHT0 + lightCount;
-
-					glEnable(lightEnum);
-					glLightfv(lightEnum, GL_POSITION, pos.ptr());
-					glLightfv(lightEnum, GL_AMBIENT, Vec4f(unit->getType()->getLightColor()).ptr());
-					glLightfv(lightEnum, GL_DIFFUSE, Vec4f(unit->getType()->getLightColor()).ptr());
-					glLightfv(lightEnum, GL_SPECULAR, Vec4f(unit->getType()->getLightColor()*0.3f).ptr());
-					glLightf(lightEnum, GL_QUADRATIC_ATTENUATION, 0.05f);
-
-                    ++lightCount;
-
-					const GameCamera *gameCamera= game->getGameCamera();
-
-					if(Vec3f(pos).dist(gameCamera->getPos())<Vec3f(nearestLightPos).dist(gameCamera->getPos())){
-						nearestLightPos= pos;
-					}
-                }
-            }
-        }
-    }
-*/
-
-//	else {
-//	    for(int i = 0; i < world->getFactionCount() && lightCount < maxLights; ++i) {
-//	            for(int j = 0; j < world->getFaction(i)->getUnitCount() && lightCount < maxLights; ++j) {
-//	                Unit *unit= world->getFaction(i)->getUnit(j);
-//					if(world->toRenderUnit(unit) == true) {
-//						float dist = unit->getCurrVector().dist(gameCamera->getPos());
-//						bool showUnitLight = dist < maxLightDist &&
-//											unit->getType()->getLight() && unit->isOperative();
-//
-//						if(showUnitLight == false && unit->getType()->getLight() == true) {
-//							printf("$$$ Show light for faction: %s # %d / %d for Unit [%d - %s] showUnitLight = %d dist = %f [%f] unit->getType()->getLight() = %d unit->isOperative() = %d\n",world->getFaction(i)->getType()->getName().c_str(),lightCount,maxLights,unit->getId(),unit->getFullName().c_str(),showUnitLight,dist,maxLightDist,unit->getType()->getLight(),unit->isOperative());
-//						}
-//					}
-//	            }
-//	    }
-//	}
-
 	assertGl();
 }
 

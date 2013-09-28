@@ -4259,36 +4259,23 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 		mouseY = y;
 
 		if (ms->get(mbCenter)) {
-			//if (input.isCtrlDown()) {
-			//	float speed = input.isShiftDown() ? 1.f : 0.125f;
-			//	float response = input.isShiftDown() ? 0.1875f : 0.0625f;
-			//	gameCamera.moveForwardH((y - lastMousePos.y) * speed, response);
-			//	gameCamera.moveSideH((x - lastMousePos.x) * speed, response);
-			//} else
 			mouseMoved = true;
-			{
-				//float ymult = Config::getInstance().getCameraInvertYAxis() ? -0.2f : 0.2f;
-				//float xmult = Config::getInstance().getCameraInvertXAxis() ? -0.2f : 0.2f;
+			if(currentCameraFollowUnit == NULL) {
+				float ymult = 0.2f;
+				float xmult = 0.2f;
 
-				//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				if(currentCameraFollowUnit==NULL){
-					float ymult = 0.2f;
-					float xmult = 0.2f;
-
-					Vec2i oldPos=Shared::Platform::Window::getOldMousePos();
-					int oldx= (oldPos.x * metrics.getVirtualW() / metrics.getScreenW());
-					int oldy= ((metrics.getScreenH()-oldPos.y) * metrics.getVirtualH()  /  metrics.getScreenH());
-					lastMousePos.x=oldx;
-					lastMousePos.y=oldy;
-					gameCamera.transitionVH(-(y - oldy) * ymult, (oldx - x) * xmult);
-				}
-				mouseX=lastMousePos.x;
-				mouseY=lastMousePos.y;
-				Shared::Platform::Window::revertMousePos();
-
-				//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				return;
+				Vec2i oldPos=Shared::Platform::Window::getOldMousePos();
+				int oldx= (oldPos.x * metrics.getVirtualW() / metrics.getScreenW());
+				int oldy= ((metrics.getScreenH()-oldPos.y) * metrics.getVirtualH()  /  metrics.getScreenH());
+				lastMousePos.x=oldx;
+				lastMousePos.y=oldy;
+				gameCamera.transitionVH(-(y - oldy) * ymult, (oldx - x) * xmult);
 			}
+			mouseX=lastMousePos.x;
+			mouseY=lastMousePos.y;
+			Shared::Platform::Window::revertMousePos();
+
+			return;
 		}
 		else if(currentCameraFollowUnit==NULL) {
 			//if(Window::isKeyDown() == false)
@@ -4412,10 +4399,7 @@ void Game::eventMouseWheel(int x, int y, int zDelta) {
 	}
 
 	try {
-		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		//gameCamera.transitionXYZ(0.0f, -(float)zDelta / 30.0f, 0.0f);
 		gameCamera.zoom((float)zDelta / 60.0f);
-		//gameCamera.setMoveY(1);
 	}
 	catch(const exception &ex) {
 		char szBuf[8096]="";
@@ -5175,7 +5159,7 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 	}
 
 	//intToStr(stats.getFramesToCalculatePlaytime()/GameConstants::updateFps/60
-	str+= "Time: "           + floatToStr(world.getTimeFlow()->getTime(),2) + " [" + floatToStr((float)world.getStats()->getFramesToCalculatePlaytime() / (float)GameConstants::updateFps / 60.0,2) + "]\n";
+	str+= "Time: "           + doubleToStr(world.getTimeFlow()->getTime(),2) + " [" + doubleToStr((double)world.getStats()->getFramesToCalculatePlaytime() / (double)GameConstants::updateFps / 60.0,2) + "]\n";
 
 	if(SystemFlags::getThreadedLoggerRunning() == true) {
 		str+= "Log buffer count: " + intToStr(SystemFlags::getLogEntryBufferCount())+"\n";
@@ -5219,7 +5203,7 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 	//		}
 		str+= "\n";
 
-		str+= "Visible quad area:        " + floatToStr(visibleQuad.area()) +"\n";
+		str+= "Visible quad area:        " + doubleToStr(visibleQuad.area()) +"\n";
 	//		str+= "Visible quad camera area: " + floatToStr(visibleQuadCamera.area()) +"\n";
 
 	//		Rect2i boundingRect= visibleQuad.computeBoundingRect();

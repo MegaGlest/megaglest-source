@@ -1164,7 +1164,7 @@ void World::addAttackEffects(const Unit *unit) {
 
 //returns the nearest unit that can store a type of resource given a position and a faction
 Unit *World::nearestStore(const Vec2i &pos, int factionIndex, const ResourceType *rt) {
-    float currDist= infinity;
+    double currDist = infinity;
     Unit *currUnit= NULL;
 
     if(factionIndex >= getFactionCount()) {
@@ -1174,7 +1174,7 @@ Unit *World::nearestStore(const Vec2i &pos, int factionIndex, const ResourceType
     for(int i=0; i < getFaction(factionIndex)->getUnitCount(); ++i) {
 		Unit *u= getFaction(factionIndex)->getUnit(i);
 		if(u != NULL) {
-			float tmpDist= u->getPos().dist(pos);
+			double tmpDist= u->getPos().dist(pos);
 			if(tmpDist < currDist &&  u->getType() != NULL && u->getType()->getStore(rt) > 0 && u->isOperative()) {
 				currDist= tmpDist;
 				currUnit= u;
