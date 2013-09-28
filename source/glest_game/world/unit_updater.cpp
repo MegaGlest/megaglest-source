@@ -2249,7 +2249,7 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	damage /= distance+1;
 	damage -= armor;
 	damage *= damageMultiplier;
-	damageMultiplier = truncateDecimal<double>(damageMultiplier,16);
+	damage = truncateDecimal<double>(damage,16);
 
 	if(damage < 1) {
 		damage= 1;
