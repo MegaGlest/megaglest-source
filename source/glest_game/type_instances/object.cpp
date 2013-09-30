@@ -256,7 +256,7 @@ void Object::saveGame(XmlNode *rootNode) {
 //	Vec3f pos;
 	objectNode->addAttribute("pos",pos.getString(), mapTagReplacements);
 //	float rotation;
-	objectNode->addAttribute("rotation",doubleToStr(rotation,16), mapTagReplacements);
+	objectNode->addAttribute("rotation",doubleToStr(rotation,10), mapTagReplacements);
 //	int variation;
 	objectNode->addAttribute("variation",intToStr(variation), mapTagReplacements);
 //	int lastRenderFrame;

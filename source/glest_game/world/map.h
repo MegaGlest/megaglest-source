@@ -70,11 +70,11 @@ public:
 	//get
 	inline Unit *getUnit(int field) const		{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} return units[field];}
 	inline Unit *getUnitWithEmptyCellMap(int field) const		{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} return unitsWithEmptyCellMap[field];}
-	inline double getHeight() const				{return truncateDecimal<double>(height,16);}
+	inline double getHeight() const				{return truncateDecimal<double>(height,10);}
 
 	inline void setUnit(int field, Unit *unit)	{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} units[field]= unit;}
 	inline void setUnitWithEmptyCellMap(int field, Unit *unit)	{ if(field >= fieldCount) { throw megaglest_runtime_error("Invalid field value" + intToStr(field));} unitsWithEmptyCellMap[field]= unit;}
-	inline void setHeight(double height)		{this->height = truncateDecimal<double>(height,16);}
+	inline void setHeight(double height)		{this->height = truncateDecimal<double>(height,10);}
 
 	inline bool isFree(Field field) const {
 		Unit *unit = getUnit(field);
@@ -296,11 +296,11 @@ public:
 	inline int getSurfaceW() const										{return surfaceW;}
 	inline int getSurfaceH() const										{return surfaceH;}
 	inline int getMaxPlayers() const									{return maxPlayers;}
-	inline double getHeightFactor() const								{return truncateDecimal<double>(heightFactor,16);}
-	inline double getWaterLevel() const									{return truncateDecimal<double>(waterLevel,16);}
-	inline double getCliffLevel() const									{return truncateDecimal<double>(cliffLevel,16);}
+	inline double getHeightFactor() const								{return truncateDecimal<double>(heightFactor,10);}
+	inline double getWaterLevel() const									{return truncateDecimal<double>(waterLevel,10);}
+	inline double getCliffLevel() const									{return truncateDecimal<double>(cliffLevel,10);}
 	inline int getCameraHeight() const									{return cameraHeight;}
-	inline double getMaxMapHeight() const								{return truncateDecimal<double>(maxMapHeight,16);}
+	inline double getMaxMapHeight() const								{return truncateDecimal<double>(maxMapHeight,10);}
 	Vec2i getStartLocation(int locationIndex) const;
 	inline bool getSubmerged(const SurfaceCell *sc) const				{return sc->getHeight()<waterLevel;}
 	inline bool getSubmerged(const Cell *c) const						{return c->getHeight()<waterLevel;}

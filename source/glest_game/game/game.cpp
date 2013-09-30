@@ -6242,7 +6242,7 @@ string Game::saveGame(string name, string path) {
 	//bool showFullConsole;
 	//bool mouseMoved;
 	//float scrollSpeed;
-	gameNode->addAttribute("scrollSpeed",floatToStr(scrollSpeed,16), mapTagReplacements);
+	gameNode->addAttribute("scrollSpeed",floatToStr(scrollSpeed,10), mapTagReplacements);
 	//bool camLeftButtonDown;
 	//bool camRightButtonDown;
 	//bool camUpButtonDown;
@@ -6336,8 +6336,8 @@ string Game::saveGame(string name, string path) {
 		HighlightSpecialUnitInfo &info = iterMap->second;
 		XmlNode *infoNode = unitHighlightListNode->addChild("info");
 		infoNode->addAttribute("unitid",intToStr(iterMap->first), mapTagReplacements);
-		infoNode->addAttribute("radius",floatToStr(info.radius,16), mapTagReplacements);
-		infoNode->addAttribute("thickness",floatToStr(info.thickness,16), mapTagReplacements);
+		infoNode->addAttribute("radius",floatToStr(info.radius,10), mapTagReplacements);
+		infoNode->addAttribute("thickness",floatToStr(info.thickness,10), mapTagReplacements);
 		infoNode->addAttribute("color",info.color.getString(), mapTagReplacements);
 	}
 
