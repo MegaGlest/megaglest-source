@@ -1988,8 +1988,11 @@ void runTechValidationForPath(string techPath, string techName,
 		bool purgeUnusedFiles,bool purgeDuplicateFiles, bool showDuplicateFiles,
 		bool svnPurgeFiles,double &purgedMegaBytes) {
 	//Config &config = Config::getInstance();
+
+	string techTreeFolder = techPath + techName;
+	string techTreeFactionFolder = techTreeFolder + "/factions/";
 	vector<string> factionsList;
-	findDirs(techPath + techName + "/factions/", factionsList, false, false);
+	findDirs(techTreeFactionFolder, factionsList, false, false);
 
 	if(factionsList.empty() == false) {
 		Checksum checksum;
@@ -2512,6 +2515,9 @@ void runTechValidationForPath(string techPath, string techName,
 			}
 		}
 		printf("----------------------------------------------------------------");
+	}
+	else if(folderExists(techTreeFolder) == true) {
+		printf("\nWarning, No factions were found for the techtree located in: [%s]\n",techTreeFolder.c_str());
 	}
 }
 
