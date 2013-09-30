@@ -300,13 +300,13 @@ void UnitParticleSystemType::saveGame(XmlNode *rootNode) {
 //	UnitParticleSystem::Shape shape;
 	unitParticleSystemTypeNode->addAttribute("shape",intToStr(shape), mapTagReplacements);
 //	float angle;
-	unitParticleSystemTypeNode->addAttribute("angle",doubleToStr(angle,16), mapTagReplacements);
+	unitParticleSystemTypeNode->addAttribute("angle",doubleToStr(angle,10), mapTagReplacements);
 //	float radius;
-	unitParticleSystemTypeNode->addAttribute("radius",doubleToStr(radius,16), mapTagReplacements);
+	unitParticleSystemTypeNode->addAttribute("radius",doubleToStr(radius,10), mapTagReplacements);
 //	float minRadius;
-	unitParticleSystemTypeNode->addAttribute("minRadius",doubleToStr(minRadius,16), mapTagReplacements);
+	unitParticleSystemTypeNode->addAttribute("minRadius",doubleToStr(minRadius,10), mapTagReplacements);
 //	float emissionRateFade;
-	unitParticleSystemTypeNode->addAttribute("emissionRateFade",doubleToStr(emissionRateFade,16), mapTagReplacements);
+	unitParticleSystemTypeNode->addAttribute("emissionRateFade",doubleToStr(emissionRateFade,10), mapTagReplacements);
 //	Vec3f direction;
 	unitParticleSystemTypeNode->addAttribute("direction",direction.getString(), mapTagReplacements);
 //    bool relative;
@@ -330,9 +330,9 @@ void UnitParticleSystemType::saveGame(XmlNode *rootNode) {
 //	int lifetime;
 	unitParticleSystemTypeNode->addAttribute("lifetime",intToStr(lifetime), mapTagReplacements);
 //	float startTime;
-	unitParticleSystemTypeNode->addAttribute("startTime",doubleToStr(startTime,16), mapTagReplacements);
+	unitParticleSystemTypeNode->addAttribute("startTime",doubleToStr(startTime,10), mapTagReplacements);
 //	float endTime;
-	unitParticleSystemTypeNode->addAttribute("endTime",doubleToStr(endTime,16), mapTagReplacements);
+	unitParticleSystemTypeNode->addAttribute("endTime",doubleToStr(endTime,10), mapTagReplacements);
 }
 
 }}//end mamespace

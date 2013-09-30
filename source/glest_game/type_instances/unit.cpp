@@ -1273,7 +1273,7 @@ void Unit::setTargetPos(const Vec2i &targetPos) {
 #else
 	targetRotation= radToDeg(atan2(relPosf.x, relPosf.y));
 #endif
-	targetRotation = truncateDecimal<double>(targetRotation,16);
+	targetRotation = truncateDecimal<double>(targetRotation,10);
 
 	targetRef= NULL;
 
@@ -1417,9 +1417,9 @@ Vec3d Unit::getCurrVector() const{
 	}
 
 	Vec3d result = getCurrVectorFlat() + Vec3d(0.f, type->getHeight() /2.f, 0.f);
-	result.x = truncateDecimal<double>(result.x,16);
-	result.y = truncateDecimal<double>(result.y,16);
-	result.z = truncateDecimal<double>(result.z,16);
+	result.x = truncateDecimal<double>(result.x,10);
+	result.y = truncateDecimal<double>(result.y,10);
+	result.z = truncateDecimal<double>(result.z,10);
 
 	return result;
 }
@@ -1430,7 +1430,7 @@ Vec3d Unit::getCurrVectorFlat() const{
 
 double Unit::getProgressAsFloat() const {
 	double result = (static_cast<double>(progress) / static_cast<double>(PROGRESS_SPEED_MULTIPLIER));
-	result = truncateDecimal<double>(result,16);
+	result = truncateDecimal<double>(result,10);
 	return result;
 }
 
@@ -1452,16 +1452,16 @@ Vec3d Unit::getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) c
         v.z= static_cast<double>(curPosValue.y);
         v.y= y2;
     }
-	v.x = truncateDecimal<double>(v.x,16);
-	v.y = truncateDecimal<double>(v.y,16);
-	v.z = truncateDecimal<double>(v.z,16);
+	v.x = truncateDecimal<double>(v.x,10);
+	v.y = truncateDecimal<double>(v.y,10);
+	v.z = truncateDecimal<double>(v.z,10);
 
     v.x += type->getSize() / 2.f - 0.5f;
     v.z += type->getSize() / 2.f - 0.5f;
 
-	v.x = truncateDecimal<double>(v.x,16);
-	v.y = truncateDecimal<double>(v.y,16);
-	v.z = truncateDecimal<double>(v.z,16);
+	v.x = truncateDecimal<double>(v.x,10);
+	v.y = truncateDecimal<double>(v.y,10);
+	v.z = truncateDecimal<double>(v.z,10);
 
     return v;
 }
@@ -2508,7 +2508,7 @@ void Unit::updateTimedParticles() {
 		for(int i = queuedUnitParticleSystemTypes.size() - 1; i >= 0; i--) {
 			UnitParticleSystemType *pst = queuedUnitParticleSystemTypes[i];
 			if(pst != NULL) {
-				if(truncateDecimal<double>(pst->getStartTime(),16) <= truncateDecimal<double>(getAnimProgressAsFloat(),16)) {
+				if(truncateDecimal<double>(pst->getStartTime(),10) <= truncateDecimal<double>(getAnimProgressAsFloat(),10)) {
 
 					UnitParticleSystem *ups = new UnitParticleSystem(200);
 					ups->setParticleOwner(this);
@@ -2537,11 +2537,11 @@ void Unit::updateTimedParticles() {
 				if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
 					double pst = ps->getStartTime();
 					double pet = ps->getEndTime();
-					double particleStartTime = truncateDecimal<double>(pst,16);
-					double particleEndTime = truncateDecimal<double>(pet,16);
+					double particleStartTime = truncateDecimal<double>(pst,10);
+					double particleEndTime = truncateDecimal<double>(pet,10);
 
 					if(particleStartTime != 0.0 || particleEndTime != 1.0) {
-						double animProgressTime = truncateDecimal<double>(getAnimProgressAsFloat(),16);
+						double animProgressTime = truncateDecimal<double>(getAnimProgressAsFloat(),10);
 						if(animProgressTime >= 0.99 || animProgressTime >= particleEndTime) {
 
 							ps->fade();
@@ -3353,25 +3353,25 @@ double Unit::computeHeight(const Vec2i &pos) const {
 	}
 
 	double height= map->getCell(pos)->getHeight();
-	height = truncateDecimal<double>(height,16);
+	height = truncateDecimal<double>(height,10);
 
 	if(currField == fAir) {
 		const double airHeight=game->getWorld()->getTileset()->getAirHeight();
 
 		height += airHeight;
-		height = truncateDecimal<double>(height,16);
+		height = truncateDecimal<double>(height,10);
 
 		Unit *unit = map->getCell(pos)->getUnit(fLand);
 		if(unit != NULL && unit->getType()->getHeight() > airHeight) {
 			height += (std::min((double)unit->getType()->getHeight(),Tileset::standardAirHeight * 3) - airHeight);
-			height = truncateDecimal<double>(height,16);
+			height = truncateDecimal<double>(height,10);
 		}
 		else {
 			SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(pos));
 			if(sc != NULL && sc->getObject() != NULL && sc->getObject()->getType() != NULL) {
 				if(sc->getObject()->getType()->getHeight() > airHeight) {
 					height += (std::min((double)sc->getObject()->getType()->getHeight(),Tileset::standardAirHeight * 3) - airHeight);
-					height = truncateDecimal<double>(height,16);
+					height = truncateDecimal<double>(height,10);
 				}
 			}
 		}
@@ -3393,7 +3393,7 @@ void Unit::updateTarget(){
 #else
 		targetRotation= radToDeg(atan2(relPosf.x, relPosf.y));
 #endif
-		targetRotation = truncateDecimal<double>(targetRotation,16);
+		targetRotation = truncateDecimal<double>(targetRotation,10);
 		//update target vec
 		targetVec= target->getCurrVector();
 
@@ -4173,7 +4173,7 @@ std::string Unit::toString(bool crcMode) const {
 	if(crcMode == false) {
 		result += " lastAnimProgress = " + intToStr(this->lastAnimProgress);
 		result += " animProgress = " + intToStr(this->animProgress);
-		result += " highlight = " + doubleToStr(this->highlight,16);
+		result += " highlight = " + doubleToStr(this->highlight,10);
 	}
 	result += " progress2 = " + intToStr(this->progress2);
 	result += " kills = " + intToStr(this->kills);
@@ -4202,9 +4202,9 @@ std::string Unit::toString(bool crcMode) const {
 	result += "\n";
 
 	if(crcMode == false) {
-		result += " lastRotation = " + doubleToStr(this->lastRotation,16);
-		result += " targetRotation = " + doubleToStr(this->targetRotation,16);
-		result += " rotation = " + doubleToStr(this->rotation,16);
+		result += " lastRotation = " + doubleToStr(this->lastRotation,10);
+		result += " targetRotation = " + doubleToStr(this->targetRotation,10);
+		result += " rotation = " + doubleToStr(this->rotation,10);
 	}
 
     if(loadType != NULL) {
@@ -4312,7 +4312,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 //	float animProgress;		//between 0 and 1
 	unitNode->addAttribute("animProgress",intToStr(animProgress), mapTagReplacements);
 //	float highlight;
-	unitNode->addAttribute("highlight",doubleToStr(highlight,16), mapTagReplacements);
+	unitNode->addAttribute("highlight",doubleToStr(highlight,10), mapTagReplacements);
 //	int progress2;
 	unitNode->addAttribute("progress2",intToStr(progress2), mapTagReplacements);
 //	int kills;
@@ -4342,19 +4342,19 @@ void Unit::saveGame(XmlNode *rootNode) {
 	unitNode->addAttribute("meetingPos",meetingPos.getString(), mapTagReplacements);
 //
 //	float lastRotation;		//in degrees
-	unitNode->addAttribute("lastRotation",doubleToStr(lastRotation,16), mapTagReplacements);
+	unitNode->addAttribute("lastRotation",doubleToStr(lastRotation,10), mapTagReplacements);
 //	float targetRotation;
-	unitNode->addAttribute("targetRotation",doubleToStr(targetRotation,16), mapTagReplacements);
+	unitNode->addAttribute("targetRotation",doubleToStr(targetRotation,10), mapTagReplacements);
 //	float rotation;
-	unitNode->addAttribute("rotation",doubleToStr(rotation,16), mapTagReplacements);
+	unitNode->addAttribute("rotation",doubleToStr(rotation,10), mapTagReplacements);
 //	float targetRotationZ;
-	unitNode->addAttribute("targetRotationZ",doubleToStr(targetRotationZ,16), mapTagReplacements);
+	unitNode->addAttribute("targetRotationZ",doubleToStr(targetRotationZ,10), mapTagReplacements);
 //	float targetRotationX;
-	unitNode->addAttribute("targetRotationX",doubleToStr(targetRotationX,16), mapTagReplacements);
+	unitNode->addAttribute("targetRotationX",doubleToStr(targetRotationX,10), mapTagReplacements);
 //	float rotationZ;
-	unitNode->addAttribute("rotationZ",doubleToStr(rotationZ,16), mapTagReplacements);
+	unitNode->addAttribute("rotationZ",doubleToStr(rotationZ,10), mapTagReplacements);
 //	float rotationX;
-	unitNode->addAttribute("rotationX",doubleToStr(rotationX,16), mapTagReplacements);
+	unitNode->addAttribute("rotationX",doubleToStr(rotationX,10), mapTagReplacements);
 //    const UnitType *type;
 	unitNode->addAttribute("type",type->getName(false), mapTagReplacements);
 

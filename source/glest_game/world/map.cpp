@@ -93,7 +93,7 @@ void Cell::saveGame(XmlNode *rootNode, int index) const {
 		}
 
 	//	float height;
-		cellNode->addAttribute("height",doubleToStr(getHeight(),16), mapTagReplacements);
+		cellNode->addAttribute("height",doubleToStr(getHeight(),10), mapTagReplacements);
 	}
 }
 
@@ -374,10 +374,10 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			heightFactor= header.heightFactor;
 			if(heightFactor>100){
 				heightFactor=heightFactor/100;
-				heightFactor = truncateDecimal<double>(heightFactor,16);
+				heightFactor = truncateDecimal<double>(heightFactor,10);
 			}
 			waterLevel= static_cast<double>((header.waterLevel-0.01f)/heightFactor);
-			waterLevel = truncateDecimal<double>(waterLevel,16);
+			waterLevel = truncateDecimal<double>(waterLevel,10);
 			title= header.title;
 			maxPlayers= header.maxFactions;
 
@@ -395,8 +395,8 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			else if(header.version==2){
 				//desc = header.version2.short_desc;
 				if(header.version2.cliffLevel > 0  && header.version2.cliffLevel < 5000){
-					cliffLevel=static_cast<double>((header.version2.cliffLevel-0.01f)/(heightFactor),16);
-					cliffLevel = truncateDecimal<double>(cliffLevel,16);
+					cliffLevel=static_cast<double>((header.version2.cliffLevel-0.01f)/(heightFactor),10);
+					cliffLevel = truncateDecimal<double>(cliffLevel,10);
 				}
 				if(header.version2.cameraHeight > 0 && header.version2.cameraHeight < 5000) {
 					cameraHeight = header.version2.cameraHeight;
@@ -1733,11 +1733,11 @@ void Map::saveGame(XmlNode *rootNode) const {
 //	string title;
 	mapNode->addAttribute("title",title, mapTagReplacements);
 //	float waterLevel;
-	mapNode->addAttribute("waterLevel",doubleToStr(waterLevel,16), mapTagReplacements);
+	mapNode->addAttribute("waterLevel",doubleToStr(waterLevel,10), mapTagReplacements);
 //	float heightFactor;
-	mapNode->addAttribute("heightFactor",doubleToStr(heightFactor,16), mapTagReplacements);
+	mapNode->addAttribute("heightFactor",doubleToStr(heightFactor,10), mapTagReplacements);
 //	float cliffLevel;
-	mapNode->addAttribute("cliffLevel",doubleToStr(cliffLevel,16), mapTagReplacements);
+	mapNode->addAttribute("cliffLevel",doubleToStr(cliffLevel,10), mapTagReplacements);
 //	int cameraHeight;
 	mapNode->addAttribute("cameraHeight",intToStr(cameraHeight), mapTagReplacements);
 //	int w;
@@ -1817,7 +1817,7 @@ void Map::saveGame(XmlNode *rootNode) const {
 //	Checksum checksumValue;
 //	mapNode->addAttribute("checksumValue",intToStr(checksumValue.getSum()), mapTagReplacements);
 //	float maxMapHeight;
-	mapNode->addAttribute("maxMapHeight",doubleToStr(maxMapHeight,16), mapTagReplacements);
+	mapNode->addAttribute("maxMapHeight",doubleToStr(maxMapHeight,10), mapTagReplacements);
 //	string mapFile;
 	mapNode->addAttribute("mapFile",mapFile, mapTagReplacements);
 }

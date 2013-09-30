@@ -138,9 +138,9 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 	if(unit->getCurrSkill()->getClass() == scAttack) {
 		const AttackSkillType *ast= static_cast<const AttackSkillType*>(unit->getCurrSkill());
 
-		double attackStartTime = truncateDecimal<double>(ast->getAttackStartTime(),16);
-		double lastAnimProgress = truncateDecimal<double>(unit->getLastAnimProgressAsFloat(),16);
-		double animProgress = truncateDecimal<double>(unit->getAnimProgressAsFloat(),16);
+		double attackStartTime = truncateDecimal<double>(ast->getAttackStartTime(),10);
+		double lastAnimProgress = truncateDecimal<double>(unit->getLastAnimProgressAsFloat(),10);
+		double animProgress = truncateDecimal<double>(unit->getAnimProgressAsFloat(),10);
 		bool startAttackParticleSystemNow = (attackStartTime >= lastAnimProgress && attackStartTime < animProgress);
 
 		char szBuf[8096]="";
@@ -2211,7 +2211,7 @@ void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &t
 					scriptManager->onUnitAttacking(attacker);
 
 					double distance = pci.getPos().dist(targetPos);
-					distance = truncateDecimal<double>(distance,16);
+					distance = truncateDecimal<double>(distance,10);
 					damage(attacker, ast, attacked, distance);
 			  	}
 			}
@@ -2241,7 +2241,7 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	int var					= ast->getAttackVar();
 	int armor				= attacked->getType()->getTotalArmor(attacked->getTotalUpgrade());
 	double damageMultiplier	= world->getTechTree()->getDamageMultiplier(ast->getAttackType(), attacked->getType()->getArmorType());
-	damageMultiplier = truncateDecimal<double>(damageMultiplier,16);
+	damageMultiplier = truncateDecimal<double>(damageMultiplier,10);
 
 	//compute damage
 	//damage += random.randRange(-var, var);
@@ -2249,7 +2249,7 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	damage /= distance+1;
 	damage -= armor;
 	damage *= damageMultiplier;
-	damage = truncateDecimal<double>(damage,16);
+	damage = truncateDecimal<double>(damage,10);
 
 	if(damage < 1) {
 		damage= 1;
@@ -2817,7 +2817,7 @@ void UnitUpdater::saveGame(XmlNode *rootNode) {
 //	RandomGen random;
 	//unitupdaterNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
 //	float attackWarnRange;
-	unitupdaterNode->addAttribute("attackWarnRange",doubleToStr(attackWarnRange,16), mapTagReplacements);
+	unitupdaterNode->addAttribute("attackWarnRange",doubleToStr(attackWarnRange,10), mapTagReplacements);
 //	AttackWarnings attackWarnings;
 //
 //	Mutex mutexUnitRangeCellsLookupItemCache;

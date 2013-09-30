@@ -466,18 +466,18 @@ void GameCamera::saveGame(XmlNode *rootNode) {
 	gamecameraNode->addAttribute("destPos",destPos.getString(), mapTagReplacements);
 //
 //    float hAng;	//YZ plane positive -Z axis
-	gamecameraNode->addAttribute("hAng",floatToStr(hAng,16), mapTagReplacements);
+	gamecameraNode->addAttribute("hAng",floatToStr(hAng,10), mapTagReplacements);
 //    float vAng;	//XZ plane positive +Z axis
-	gamecameraNode->addAttribute("vAng",floatToStr(vAng,16), mapTagReplacements);
+	gamecameraNode->addAttribute("vAng",floatToStr(vAng,10), mapTagReplacements);
 //	float lastHAng;
-	gamecameraNode->addAttribute("lastHAng",floatToStr(lastHAng,16), mapTagReplacements);
+	gamecameraNode->addAttribute("lastHAng",floatToStr(lastHAng,10), mapTagReplacements);
 
 //    float lastVAng;
-	gamecameraNode->addAttribute("lastVAng",floatToStr(lastVAng,16), mapTagReplacements);
+	gamecameraNode->addAttribute("lastVAng",floatToStr(lastVAng,10), mapTagReplacements);
 //	Vec2f destAng;
 	gamecameraNode->addAttribute("destAng",destAng.getString(), mapTagReplacements);
 //	float rotate;
-	gamecameraNode->addAttribute("rotate",floatToStr(rotate,16), mapTagReplacements);
+	gamecameraNode->addAttribute("rotate",floatToStr(rotate,10), mapTagReplacements);
 //	Vec3f move;
 	gamecameraNode->addAttribute("move",move.getString(), mapTagReplacements);
 //	State state;
@@ -488,24 +488,24 @@ void GameCamera::saveGame(XmlNode *rootNode) {
 	gamecameraNode->addAttribute("limitY",intToStr(limitY), mapTagReplacements);
 //	//config
 //	float speed;
-	gamecameraNode->addAttribute("speed",floatToStr(speed,16), mapTagReplacements);
+	gamecameraNode->addAttribute("speed",floatToStr(speed,10), mapTagReplacements);
 //	bool clampBounds;
 	gamecameraNode->addAttribute("clampBounds",intToStr(clampBounds), mapTagReplacements);
 //	//float maxRenderDistance;
 //	float maxHeight;
-	gamecameraNode->addAttribute("maxHeight",floatToStr(maxHeight,16), mapTagReplacements);
+	gamecameraNode->addAttribute("maxHeight",floatToStr(maxHeight,10), mapTagReplacements);
 //	float minHeight;
-	gamecameraNode->addAttribute("minHeight",floatToStr(minHeight,16), mapTagReplacements);
+	gamecameraNode->addAttribute("minHeight",floatToStr(minHeight,10), mapTagReplacements);
 //	//float maxCameraDist;
 //	//float minCameraDist;
 //	float minVAng;
-	gamecameraNode->addAttribute("minVAng",floatToStr(minVAng,16), mapTagReplacements);
+	gamecameraNode->addAttribute("minVAng",floatToStr(minVAng,10), mapTagReplacements);
 //	float maxVAng;
-	gamecameraNode->addAttribute("maxVAng",floatToStr(maxVAng,16), mapTagReplacements);
+	gamecameraNode->addAttribute("maxVAng",floatToStr(maxVAng,10), mapTagReplacements);
 //	float fov;
-	gamecameraNode->addAttribute("fov",floatToStr(fov,16), mapTagReplacements);
+	gamecameraNode->addAttribute("fov",floatToStr(fov,10), mapTagReplacements);
 //	float calculatedDefault;
-	gamecameraNode->addAttribute("calculatedDefault",floatToStr(calculatedDefault,16), mapTagReplacements);
+	gamecameraNode->addAttribute("calculatedDefault",floatToStr(calculatedDefault,10), mapTagReplacements);
 //	std::map<float, std::map<float, std::map<Vec3f, Quad2i> > > cacheVisibleQuad;
 //	int MaxVisibleQuadItemCache;
 	gamecameraNode->addAttribute("MaxVisibleQuadItemCache",intToStr(MaxVisibleQuadItemCache), mapTagReplacements);
