@@ -1639,7 +1639,7 @@ void PathFinder::saveGame(XmlNode *rootNode) {
 			nodePoolNode->addAttribute("next",intToStr(nextIdx), mapTagReplacements);
 			int prevIdx = findNodeIndex(curNode->prev, factionState.nodePool);
 			nodePoolNode->addAttribute("prev",intToStr(prevIdx), mapTagReplacements);
-			nodePoolNode->addAttribute("heuristic",doubleToStr(curNode->heuristic,10), mapTagReplacements);
+			nodePoolNode->addAttribute("heuristic",doubleToStr(curNode->heuristic,6), mapTagReplacements);
 			nodePoolNode->addAttribute("exploredCell",intToStr(curNode->exploredCell), mapTagReplacements);
 		}
 

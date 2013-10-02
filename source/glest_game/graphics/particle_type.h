@@ -57,16 +57,16 @@ protected:
 	string type;
 	Texture2D *texture;
 	Model *model;
-	double modelCycle;
+	float modelCycle;
 	string primitive;
-	Vec3d offset;
+	Vec3f offset;
 	Vec4f color;
 	Vec4f colorNoEnergy;
-	double size;
-	double sizeNoEnergy;
-	double speed;
-	double gravity;
-	double emissionRate;
+	int size;
+	int sizeNoEnergy;
+	float speed;
+	float gravity;
+	int emissionRate;
 	int energyMax;
 	int energyVar;
 	string mode;
@@ -123,9 +123,9 @@ protected:
 class ParticleSystemTypeProjectile: public ParticleSystemType{
 private:
 	string trajectory;
-	double trajectorySpeed;
-	double trajectoryScale;
-	double trajectoryFrequency;
+	float trajectorySpeed;
+	float trajectoryScale;
+	float trajectoryFrequency;
 
 public:
 	ParticleSystemTypeProjectile();
@@ -153,11 +153,11 @@ public:
 	virtual void saveGame(XmlNode *rootNode);
 
 private:
-	double emissionRateFade;
-	double verticalSpreadA;
-	double verticalSpreadB;
-	double horizontalSpreadA;
-	double horizontalSpreadB;
+	float emissionRateFade;
+	float verticalSpreadA;
+	float verticalSpreadB;
+	float horizontalSpreadA;
+	float horizontalSpreadB;
 };
 
 }}//end namespace

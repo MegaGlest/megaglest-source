@@ -123,7 +123,7 @@ private:
     int sight;
     int size;							//size in cells
     int height;
-    double rotatedBuildPos;
+    float rotatedBuildPos;
     bool rotationAllowed;
 
 	//cellmap
@@ -249,8 +249,8 @@ public:
 	const CommandType* findCommandTypeById(int id) const;
 	string getCommandTypeListDesc() const;
 
-	inline double getRotatedBuildPos() { return rotatedBuildPos; }
-	inline void setRotatedBuildPos(double value) { rotatedBuildPos = value; }
+	inline float getRotatedBuildPos() { return rotatedBuildPos; }
+	inline void setRotatedBuildPos(float value) { rotatedBuildPos = value; }
 
 	//other
     virtual string getReqDesc(bool translatedValue) const;

@@ -34,7 +34,7 @@ ObjectStateInterface *Object::stateCallback=NULL;
 // 	class Object
 // =====================================================
 
-Object::Object(ObjectType *objectType, const Vec3d &pos, const Vec2i &mapPos) : BaseColorPickEntity() {
+Object::Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos) : BaseColorPickEntity() {
 	RandomGen random;
 
 	random.init(static_cast<int>(pos.x * pos.z));
@@ -44,7 +44,7 @@ Object::Object(ObjectType *objectType, const Vec3d &pos, const Vec2i &mapPos) : 
 	highlight= 0.f;
 	animated= false;
 	this->mapPos = mapPos;
-	this->pos= pos + Vec3d(random.randRange(-0.6f, 0.6f), 0.0f, random.randRange(-0.6f, 0.6f));
+	this->pos= pos + Vec3f(random.randRange(-0.6f, 0.6f), 0.0f, random.randRange(-0.6f, 0.6f));
 	rotation= random.randRange(0.f, 360.f);
 	if(objectType!=NULL){
 		variation = random.randRange(0, objectType->getModelCount()-1);
@@ -126,7 +126,7 @@ void Object::end(ParticleSystem *particleSystem) {
 	}
 }
 
-void Object::setHeight(double height) {
+void Object::setHeight(float height) {
 	pos.y = height;
 
 	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
@@ -153,17 +153,17 @@ void Object::update() {
 //		printf("#1 Object updating [%s] Speed [%d] animProgress [%f]\n",this->objectType->getTilesetModelType(variation)->getModel()->getFileName().c_str(),objectType->getTilesetModelType(variation)->getAnimSpeed(),animProgress);
 
 		if(objectType != NULL && objectType->getTilesetModelType(variation) != NULL) {
-			double heightFactor   = 1.f;
-			const double speedDivider= 100.f;
-			double speedDenominator = (speedDivider * GameConstants::updateFps);
+			float heightFactor   = 1.f;
+			const float speedDivider= 100.f;
+			float speedDenominator = (speedDivider * GameConstants::updateFps);
 
 			// smooth TwoFrameanimations
-			double f=1.0f;
+			float f=1.0f;
 			if(objectType->getTilesetModelType(variation)->getSmoothTwoFrameAnim()==true){
 				f=abs(std::sin(animProgress*2*3.16))+0.4f;
 			}
 
-			double newAnimProgress = animProgress + f*(((double)objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator);
+			float newAnimProgress = animProgress + f*(((float)objectType->getTilesetModelType(variation)->getAnimSpeed() * heightFactor) / speedDenominator);
 
 			animProgress = newAnimProgress;
 			if(animProgress > 1.f) {
@@ -256,7 +256,7 @@ void Object::saveGame(XmlNode *rootNode) {
 //	Vec3f pos;
 	objectNode->addAttribute("pos",pos.getString(), mapTagReplacements);
 //	float rotation;
-	objectNode->addAttribute("rotation",doubleToStr(rotation,10), mapTagReplacements);
+	objectNode->addAttribute("rotation",floatToStr(rotation,6), mapTagReplacements);
 //	int variation;
 	objectNode->addAttribute("variation",intToStr(variation), mapTagReplacements);
 //	int lastRenderFrame;
@@ -288,7 +288,7 @@ void Object::loadGame(const XmlNode *rootNode,const TechTree *techTree) {
 		resource->loadGame(objectNode,0,techTree);
 	}
 	//	Vec3f pos;
-	pos = Vec3d::strToVec3(objectNode->getAttribute("pos")->getValue());
+	pos = Vec3f::strToVec3(objectNode->getAttribute("pos")->getValue());
 	//	float rotation;
 	rotation = objectNode->getAttribute("rotation")->getFloatValue();
 	//	int variation;

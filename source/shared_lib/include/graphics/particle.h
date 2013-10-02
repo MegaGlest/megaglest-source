@@ -45,12 +45,12 @@ class Model;
 class Particle {
 public:	
 	//attributes
-	Vec3d pos;
-	Vec3d lastPos;
-	Vec3d speed;
-	Vec3d accel;
+	Vec3f pos;
+	Vec3f lastPos;
+	Vec3f speed;
+	Vec3f accel;
 	Vec4f color;
-	double size;
+	float size;
 	int energy;
 
 public:
@@ -59,12 +59,12 @@ public:
 		energy = 0;
 	}
 	//get
-	Vec3d getPos() const		{return pos;}
-	Vec3d getLastPos() const	{return lastPos;}
-	Vec3d getSpeed() const		{return speed;}
-	Vec3d getAccel() const		{return accel;}
+	Vec3f getPos() const		{return pos;}
+	Vec3f getLastPos() const	{return lastPos;}
+	Vec3f getSpeed() const		{return speed;}
+	Vec3f getAccel() const		{return accel;}
 	Vec4f getColor() const		{return color;}
-	double getSize() const		{return size;}
+	float getSize() const		{return size;}
 	int getEnergy()	const		{return energy;}
 
 	void saveGame(XmlNode *rootNode);
@@ -135,15 +135,15 @@ protected:
 	int textureFileLoadDeferredComponents;
 
 	Texture *texture;
-	Vec3d pos;
+	Vec3f pos;
 	Vec4f color;
 	Vec4f colorNoEnergy;
-	double emissionRate;
-	double emissionState;
+	float emissionRate;
+	float emissionState;
 	int maxParticleEnergy;
 	int varParticleEnergy;
-	double particleSize;
-	double speed;
+	float particleSize;
+	float speed;
 	Vec3f factionColor;
     bool teamcolorNoEnergy;
     bool teamcolorEnergy;
@@ -166,7 +166,7 @@ public:
 	State getState() const						{return state;}
 	BlendMode getBlendMode() const				{return blendMode;}
 	Texture *getTexture() const					{return texture;}
-	Vec3d getPos() const						{return pos;}
+	Vec3f getPos() const						{return pos;}
 	Particle *getParticle(int i)				{return &particles[i];}
 	const Particle *getParticle(int i) const	{return &particles[i];}
 	int getAliveParticleCount() const			{return aliveParticleCount;}
@@ -181,14 +181,14 @@ public:
 	//set
 	virtual void setState(State state);
 	void setTexture(Texture *texture);
-	virtual void setPos(Vec3d pos);
+	virtual void setPos(Vec3f pos);
 	void setColor(Vec4f color);
 	void setColorNoEnergy(Vec4f color);
-	void setEmissionRate(double emissionRate);
+	void setEmissionRate(float emissionRate);
 	void setMaxParticleEnergy(int maxParticleEnergy);
 	void setVarParticleEnergy(int varParticleEnergy);
-	void setParticleSize(double particleSize);
-	void setSpeed(double speed);
+	void setParticleSize(float particleSize);
+	void setSpeed(float speed);
 	virtual void setActive(bool active);
 	void setObserver(ParticleObserver *particleObserver);
 	virtual void setVisible(bool visible);
@@ -236,8 +236,8 @@ protected:
 
 class FireParticleSystem: public ParticleSystem{
 private:
-	double radius;
-	Vec3d windSpeed;
+	float radius;
+	Vec3f windSpeed;
 
 public:
 	FireParticleSystem(int particleCount= 2000);
@@ -249,8 +249,8 @@ public:
 	virtual void updateParticle(Particle *p);
 
 	//set params
-	void setRadius(double radius);
-	void setWind(double windAngle, double windSpeed);
+	void setRadius(float radius);
+	void setWind(float windAngle, float windSpeed);
 
 	virtual void saveGame(XmlNode *rootNode);
 	virtual void loadGame(const XmlNode *rootNode);
@@ -280,17 +280,17 @@ public:
 	ParticleSystem* getChild(int i);
 	void addChild(UnitParticleSystem* child);
 	void removeChild(UnitParticleSystem* child);
-	void setPos(Vec3d pos);
-	void setOffset(Vec3d offset);
+	void setPos(Vec3f pos);
+	void setOffset(Vec3f offset);
 	void setModel(Model *model) {this->model= model;}
 	virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
-	double getTween() { return tween; }  // 0.0 -> 1.0 for animation of model
+	float getTween() { return tween; }  // 0.0 -> 1.0 for animation of model
 	Model *getModel() const {return model;}
 	virtual string getModelFileLoadDeferred();
 
 	void setPrimitive(Primitive primitive) {this->primitive= primitive;}
-	Vec3d getDirection() const {return direction;}
-	void setModelCycle(double modelCycle) {this->modelCycle= modelCycle;}
+	Vec3f getDirection() const {return direction;}
+	void setModelCycle(float modelCycle) {this->modelCycle= modelCycle;}
 
 	virtual void saveGame(XmlNode *rootNode);
 	virtual void loadGame(const XmlNode *rootNode);
@@ -306,14 +306,14 @@ protected:
 
 	string modelFileLoadDeferred;
 	Model *model;
-	double modelCycle;
-	Vec3d offset;
-	Vec3d direction;
-	double tween;
+	float modelCycle;
+	Vec3f offset;
+	Vec3f direction;
+	float tween;
 	
 	GameParticleSystem(int particleCount);
 	void positionChildren();
-	void setTween(double relative,double absolute);
+	void setTween(float relative,float absolute);
 };
 
 // =====================================================
@@ -325,15 +325,15 @@ public:
 	static bool isNight;
 	static Vec3f lightColor;
 private:
-	double radius;
-	double minRadius;
-	Vec3d windSpeed;
-	Vec3d cRotation;
-	Vec3d fixedAddition;
-    Vec3d oldPosition;
+	float radius;
+	float minRadius;
+	Vec3f windSpeed;
+	Vec3f cRotation;
+	Vec3f fixedAddition;
+    Vec3f oldPosition;
     bool energyUp;
-    double startTime;
-    double endTime;
+    float startTime;
+    float endTime;
     
 public:
 	enum Shape{
@@ -345,10 +345,10 @@ public:
 	bool relativeDirection;
     bool fixed;
 	Shape shape;
-	double angle;
-	double sizeNoEnergy;
-	double gravity;
-	double rotation;
+	float angle;
+	float sizeNoEnergy;
+	float gravity;
+	float rotation;
 	bool isVisibleAtNight;
 	bool isVisibleAtDay;
 	bool isDaylightAffected;
@@ -356,7 +356,7 @@ public:
 	int staticParticleCount;
 	int delay;
 	int lifetime;
-	double emissionRateFade;
+	float emissionRateFade;
 	GameParticleSystem* parent;
 
 public:
@@ -373,22 +373,22 @@ public:
 	virtual void fade();
 	virtual void render(ParticleRenderer *pr, ModelRenderer *mr);
 
-	virtual void setStartTime(double startTime) { this->startTime = startTime; }
-	virtual double getStartTime() const { return this->startTime; }
-	virtual void setEndTime(double endTime) { this->endTime = endTime; }
-	virtual double getEndTime() const { return this->endTime; }
+	virtual void setStartTime(float startTime) { this->startTime = startTime; }
+	virtual float getStartTime() const { return this->startTime; }
+	virtual void setEndTime(float endTime) { this->endTime = endTime; }
+	virtual float getEndTime() const { return this->endTime; }
 
 	//set params
-	void setRadius(double radius)					{this->radius= radius;}
-	void setMinRadius(double minRadius)				{this->minRadius= minRadius;}
-	void setEmissionRateFade(double emissionRateFade)		{this->emissionRateFade= emissionRateFade;}
+	void setRadius(float radius)					{this->radius= radius;}
+	void setMinRadius(float minRadius)				{this->minRadius= minRadius;}
+	void setEmissionRateFade(float emissionRateFade)		{this->emissionRateFade= emissionRateFade;}
 
-	void setWind(double windAngle, double windSpeed);
+	void setWind(float windAngle, float windSpeed);
 	
-	void setDirection(Vec3d direction)				{this->direction= direction;}
-	void setSizeNoEnergy(double sizeNoEnergy)			{this->sizeNoEnergy= sizeNoEnergy;}
-	void setGravity(double gravity)						{this->gravity= gravity;}
-	void setRotation(double rotation);
+	void setDirection(Vec3f direction)				{this->direction= direction;}
+	void setSizeNoEnergy(float sizeNoEnergy)			{this->sizeNoEnergy= sizeNoEnergy;}
+	void setGravity(float gravity)						{this->gravity= gravity;}
+	void setRotation(float rotation);
 	void setRelative(bool relative)						{this->relative= relative;}
 	void setRelativeDirection(bool relativeDirection)	{this->relativeDirection= relativeDirection;}
 	void setFixed(bool fixed)							{this->fixed= fixed;}
@@ -399,12 +399,12 @@ public:
 	void setIsVisibleAtDay(bool value)					{this->isVisibleAtDay= value;}
 	void setRadiusBasedStartenergy(bool value)			{this->radiusBasedStartenergy= value;}
 	void setShape(Shape shape)					{this->shape= shape;}
-	void setAngle(double angle)					{this->angle= angle;}
+	void setAngle(float angle)					{this->angle= angle;}
 	void setDelay(int delay) 					{this->delay= delay;}
 	void setLifetime(int lifetime)					{this->lifetime= lifetime;}
 	void setParent(GameParticleSystem* parent)			{this->parent= parent;}
 	GameParticleSystem* getParent() const				{return parent;}
-	void setParentDirection(Vec3d parentDirection);
+	void setParentDirection(Vec3f parentDirection);
 	
 	static Shape strToShape(const string& str);
 
@@ -422,8 +422,8 @@ public:
 
 class RainParticleSystem: public ParticleSystem{
 private:
-	Vec3d windSpeed;
-	double radius;
+	Vec3f windSpeed;
+	float radius;
 
 public:
 	RainParticleSystem(int particleCount= 4000);
@@ -435,8 +435,8 @@ public:
 	virtual void initParticle(Particle *p, int particleIndex);
 	virtual bool deathTest(Particle *p);
 
-	void setRadius(double radius);
-	void setWind(double windAngle, double windSpeed);
+	void setRadius(float radius);
+	void setWind(float windAngle, float windSpeed);
 
 	virtual string toString() const;
 
@@ -449,8 +449,8 @@ public:
 
 class SnowParticleSystem: public ParticleSystem{
 private:
-	Vec3d windSpeed;
-	double radius;
+	Vec3f windSpeed;
+	float radius;
 
 public:
 	SnowParticleSystem(int particleCount= 4000);
@@ -460,8 +460,8 @@ public:
 	virtual void initParticle(Particle *p, int particleIndex);
 	virtual bool deathTest(Particle *p);
 
-	void setRadius(double radius);
-	void setWind(double windAngle, double windSpeed);
+	void setRadius(float radius);
+	void setWind(float windAngle, float windSpeed);
 
 	virtual string toString() const;
 
@@ -477,15 +477,15 @@ public:
 class AttackParticleSystem: public GameParticleSystem {
 
 protected:
-	double sizeNoEnergy;
-	double gravity;
+	float sizeNoEnergy;
+	float gravity;
 public:
 	AttackParticleSystem(int particleCount);
 
 	virtual ParticleSystemType getParticleSystemType() const { return pst_ProjectileParticleSystem;}
 
-	void setSizeNoEnergy(double sizeNoEnergy)	{this->sizeNoEnergy= sizeNoEnergy;}
-	void setGravity(double gravity)				{this->gravity= gravity;}
+	void setSizeNoEnergy(float sizeNoEnergy)	{this->sizeNoEnergy= sizeNoEnergy;}
+	void setGravity(float gravity)				{this->gravity= gravity;}
 	
 	virtual void initParticleSystem() {} // opportunity to do any initialization when the system has been created and all settings set
 
@@ -514,23 +514,23 @@ public:
 private:
 	SplashParticleSystem *nextParticleSystem;
 
-	Vec3d lastPos;
-	Vec3d startPos;
-	Vec3d endPos;
-	Vec3d flatPos;
+	Vec3f lastPos;
+	Vec3f startPos;
+	Vec3f endPos;
+	Vec3f flatPos;
 
-	Vec3d xVector;
-	Vec3d yVector;
-	Vec3d zVector;
+	Vec3f xVector;
+	Vec3f yVector;
+	Vec3f zVector;
 
 	Trajectory trajectory;
-	double trajectorySpeed;
+	float trajectorySpeed;
 
 	//parabolic
-	double trajectoryScale;
-	double trajectoryFrequency;
+	float trajectoryScale;
+	float trajectoryFrequency;
 
-	double arriveDestinationDistance;
+	float arriveDestinationDistance;
 	void rotateChildren();
 
 public:
@@ -546,11 +546,11 @@ public:
 	virtual void updateParticle(Particle *p);
 	
 	void setTrajectory(Trajectory trajectory)				{this->trajectory= trajectory;}
-	void setTrajectorySpeed(double trajectorySpeed)			{this->trajectorySpeed= trajectorySpeed;}
-	void setTrajectoryScale(double trajectoryScale)			{this->trajectoryScale= trajectoryScale;}
-	void setTrajectoryFrequency(double trajectoryFrequency)	{this->trajectoryFrequency= trajectoryFrequency;}
+	void setTrajectorySpeed(float trajectorySpeed)			{this->trajectorySpeed= trajectorySpeed;}
+	void setTrajectoryScale(float trajectoryScale)			{this->trajectoryScale= trajectoryScale;}
+	void setTrajectoryFrequency(float trajectoryFrequency)	{this->trajectoryFrequency= trajectoryFrequency;}
 
-	void setPath(Vec3d startPos, Vec3d endPos);
+	void setPath(Vec3f startPos, Vec3f endPos);
 
 	static Trajectory strToTrajectory(const string &str);
 
@@ -573,13 +573,13 @@ public:
 private:
 	ProjectileParticleSystem *prevParticleSystem;
 
-	double emissionRateFade;
-	double verticalSpreadA;
-	double verticalSpreadB;
-	double horizontalSpreadA;
-	double horizontalSpreadB;
+	float emissionRateFade;
+	float verticalSpreadA;
+	float verticalSpreadB;
+	float horizontalSpreadA;
+	float horizontalSpreadB;
 	
-	double startEmissionRate;
+	float startEmissionRate;
 
 public:
 	SplashParticleSystem(int particleCount= 1000);
@@ -591,11 +591,11 @@ public:
 	
 	virtual void initParticleSystem();
 
-	void setEmissionRateFade(double emissionRateFade)		{this->emissionRateFade= emissionRateFade;}
-	void setVerticalSpreadA(double verticalSpreadA)		{this->verticalSpreadA= verticalSpreadA;}
-	void setVerticalSpreadB(double verticalSpreadB)		{this->verticalSpreadB= verticalSpreadB;}
-	void setHorizontalSpreadA(double horizontalSpreadA)	{this->horizontalSpreadA= horizontalSpreadA;}
-	void setHorizontalSpreadB(double horizontalSpreadB)	{this->horizontalSpreadB= horizontalSpreadB;}
+	void setEmissionRateFade(float emissionRateFade)		{this->emissionRateFade= emissionRateFade;}
+	void setVerticalSpreadA(float verticalSpreadA)		{this->verticalSpreadA= verticalSpreadA;}
+	void setVerticalSpreadB(float verticalSpreadB)		{this->verticalSpreadB= verticalSpreadB;}
+	void setHorizontalSpreadA(float horizontalSpreadA)	{this->horizontalSpreadA= horizontalSpreadA;}
+	void setHorizontalSpreadB(float horizontalSpreadB)	{this->horizontalSpreadB= horizontalSpreadB;}
 
 	virtual void saveGame(XmlNode *rootNode);
 	virtual void loadGame(const XmlNode *rootNode);
