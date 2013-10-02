@@ -175,6 +175,8 @@ public:
 
 	int getObject(int x, int y);
 	int getResource(int x, int y);
+	int getCellX(int x);
+	int getCellY(int y);
 	static const MapPreview *getMap() {return map;}
 };
 
