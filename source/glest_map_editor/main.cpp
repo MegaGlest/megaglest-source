@@ -612,7 +612,7 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 				+ " ("
 				+ intToStr(2*(program->getCellX(x)))
 				+ ","
-				+ intToStr(2*(program->getCellX(x)))
+				+ intToStr(2*(program->getCellY(y)))
 				+ ")"), siPOS_VALUE);
 //#ifdef WIN32
 		//repaint = true;
