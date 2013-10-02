@@ -62,8 +62,8 @@ protected:
 	Vec3f offset;
 	Vec4f color;
 	Vec4f colorNoEnergy;
-	int size;
-	int sizeNoEnergy;
+	float size;
+	float sizeNoEnergy;
 	float speed;
 	float gravity;
 	int emissionRate;
