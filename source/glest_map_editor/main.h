@@ -53,6 +53,7 @@ enum StatusItems {
 	siBRUSH_TYPE,
 	siBRUSH_VALUE,
 	siBRUSH_RADIUS,
+	siPOS_VALUE,
 	siCOUNT
 };
 

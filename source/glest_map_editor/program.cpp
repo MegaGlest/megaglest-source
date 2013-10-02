@@ -183,6 +183,14 @@ int Program::getObject(int x, int y) {
 	}
 }
 
+int Program::getCellX(int x) {
+	return (x - ofsetX) / cellSize;
+}
+
+int Program::getCellY(int y) {
+	return (y + ofsetY) / cellSize;
+}
+
 int Program::getResource(int x, int y) {
 	int i=(x - ofsetX) / cellSize;
 	int j= (y + ofsetY) / cellSize;

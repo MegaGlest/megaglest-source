@@ -298,12 +298,13 @@ void MainWindow::init(string fname) {
 	fileName = "New (unsaved) map";
 	int status_widths[siCOUNT] = {
 		10, // empty
-		-2, // File name
-		-1, // File type
-		-2, // Current Object
-		-2, // Brush Type
-		-2, // Brush 'Value'
-		-1, // Brush Radius
+		-25, // File name
+		-6, // File type
+		-20, // Current Object
+		-14, // Brush Type
+		-20, // Brush 'Value'
+		-10, // Brush Radius
+		-25, // Position
 	};
 	CreateStatusBar(siCOUNT);
 	GetStatusBar()->SetStatusWidths(siCOUNT, status_widths);
@@ -314,6 +315,7 @@ void MainWindow::init(string fname) {
 	SetStatusText(wxT("Brush: Height"), siBRUSH_TYPE);
 	SetStatusText(wxT("Value: 0"), siBRUSH_VALUE);
 	SetStatusText(wxT("Radius: 1"), siBRUSH_RADIUS);
+	SetStatusText(wxT("Pos (Ingame): 0"), siPOS_VALUE);
 
 	wxToolBar *toolbar = new MainToolBar(this->panel, wxID_ANY);
 	toolbar->AddTool(miEditUndo, _("undo"), wxBitmap(edit_undo), _("Undo"));
@@ -603,6 +605,15 @@ void MainWindow::onMouseMove(wxMouseEvent &event, int x, int y) {
 			objectUnderMouse = currObject;
 		}
 
+		SetStatusText(wxT("Pos (Ingame): ")
+				+ ToUnicode(intToStr(program->getCellX(x))
+				+ ","
+				+ intToStr(program->getCellY(y))
+				+ " ("
+				+ intToStr(2*(program->getCellX(x)))
+				+ ","
+				+ intToStr(2*(program->getCellX(x)))
+				+ ")"), siPOS_VALUE);
 //#ifdef WIN32
 		//repaint = true;
 //#endif
