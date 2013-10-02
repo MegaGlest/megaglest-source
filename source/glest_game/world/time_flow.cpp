@@ -160,12 +160,12 @@ void TimeFlow::saveGame(XmlNode *rootNode) {
 //	bool firstTime;
 //	Tileset *tileset;
 //	float time;
-	timeflowNode->addAttribute("time",floatToStr(time,10), mapTagReplacements);
+	timeflowNode->addAttribute("time",floatToStr(time,6), mapTagReplacements);
 //	float lastTime;
-	timeflowNode->addAttribute("lastTime",floatToStr(lastTime,10), mapTagReplacements);
+	timeflowNode->addAttribute("lastTime",floatToStr(lastTime,6), mapTagReplacements);
 //	float timeInc;
 	//printf("#2 timeInc = %f\n",timeInc);
-	timeflowNode->addAttribute("timeInc",floatToStr(timeInc,10), mapTagReplacements);
+	timeflowNode->addAttribute("timeInc",floatToStr(timeInc,6), mapTagReplacements);
 	//printf("#3 timeInc = %f\n",timeInc);
 }
 

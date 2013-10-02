@@ -179,7 +179,7 @@ void Stats::saveGame(XmlNode *rootNode) {
 //		ControlType control;
 		statsNodePlayer->addAttribute("control",intToStr(stat.control), mapTagReplacements);
 //		float resourceMultiplier;
-		statsNodePlayer->addAttribute("resourceMultiplier",floatToStr(stat.resourceMultiplier,10), mapTagReplacements);
+		statsNodePlayer->addAttribute("resourceMultiplier",floatToStr(stat.resourceMultiplier,6), mapTagReplacements);
 //		string factionTypeName;
 		statsNodePlayer->addAttribute("factionTypeName",stat.factionTypeName, mapTagReplacements);
 //		FactionPersonalityType personalityType;
@@ -211,7 +211,7 @@ void Stats::saveGame(XmlNode *rootNode) {
 	statsNode->addAttribute("thisFactionIndex",intToStr(thisFactionIndex), mapTagReplacements);
 //
 //	float worldTimeElapsed;
-	statsNode->addAttribute("worldTimeElapsed",floatToStr(worldTimeElapsed,10), mapTagReplacements);
+	statsNode->addAttribute("worldTimeElapsed",floatToStr(worldTimeElapsed,6), mapTagReplacements);
 //	int framesPlayed;
 	statsNode->addAttribute("framesPlayed",intToStr(framesPlayed), mapTagReplacements);
 //	int framesToCalculatePlaytime;

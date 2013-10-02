@@ -453,7 +453,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	this->map= map;
 	this->targetRef = NULL;
 	this->targetField = fLand;
-	this->targetVec   = Vec3d(0.0);
+	this->targetVec   = Vec3f(0.0);
 	this->targetPos   = Vec2i(0);
 	this->lastRenderFrame = 0;
 	this->visible = true;
@@ -496,9 +496,9 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	alive= true;
 
 	if (type->hasSkillClass(scBeBuilt) == false) {
-		double rot= 0.f;
+		float rot= 0.f;
 		random.init(id);
-		rot+= random.randRange(-5, 5,intToStr(__LINE__));
+		rot += random.randRange(-5, 5,intToStr(__LINE__));
 		rotation= rot;
 		lastRotation= rot;
 		targetRotation= rot;
@@ -700,7 +700,7 @@ Vec2i Unit::getCenteredPos() const {
     return pos + Vec2i(type->getSize()/2, type->getSize()/2);
 }
 
-Vec2d Unit::getFloatCenteredPos() const {
+Vec2f Unit::getFloatCenteredPos() const {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(mutexCommands,mutexOwnerId);
 
@@ -710,7 +710,7 @@ Vec2d Unit::getFloatCenteredPos() const {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	return Vec2d(pos.x-0.5f+type->getSize()/2.f, pos.y-0.5f+type->getSize()/2.f);
+	return Vec2f(pos.x-0.5f+type->getSize()/2.f, pos.y-0.5f+type->getSize()/2.f);
 }
 
 Vec2i Unit::getCellPos() const {
@@ -815,11 +815,11 @@ void Unit::calculateXZRotation(){
 	}
 }
 
-double Unit::getRotationZ() const{
+float Unit::getRotationZ() const{
 	return rotationZ;
 }
 
-double Unit::getRotationX() const{
+float Unit::getRotationX() const{
 	return rotationX;
 }
 
@@ -1267,13 +1267,13 @@ void Unit::setTargetPos(const Vec2i &targetPos) {
 	Vec2i relPos= targetPos - pos;
 	//map->clampPos(relPos);
 
-	Vec2d relPosf= Vec2d((double)relPos.x, (double)relPos.y);
+	Vec2f relPosf= Vec2f((float)relPos.x, (float)relPos.y);
 #ifdef USE_STREFLOP
 	targetRotation= radToDeg(streflop::atan2(static_cast<streflop::Simple>(relPosf.x), static_cast<streflop::Simple>(relPosf.y)));
 #else
 	targetRotation= radToDeg(atan2(relPosf.x, relPosf.y));
 #endif
-	targetRotation = truncateDecimal<double>(targetRotation,10);
+	targetRotation = truncateDecimal<float>(targetRotation,6);
 
 	targetRef= NULL;
 
@@ -1409,59 +1409,47 @@ bool Unit::checkModelStateInfoForNewHpValue() {
 	return result;
 }
 
-Vec3d Unit::getCurrVector() const{
+Vec3f Unit::getCurrVector() const{
 	if(type == NULL) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	Vec3d result = getCurrVectorFlat() + Vec3d(0.f, type->getHeight() /2.f, 0.f);
-	result.x = truncateDecimal<double>(result.x,10);
-	result.y = truncateDecimal<double>(result.y,10);
-	result.z = truncateDecimal<double>(result.z,10);
-
+	Vec3f result = getCurrVectorFlat() + Vec3f(0.f, type->getHeight() / 2.f, 0.f);
 	return result;
 }
 
-Vec3d Unit::getCurrVectorFlat() const{
+Vec3f Unit::getCurrVectorFlat() const{
 	return getVectorFlat(lastPos, pos);
 }
 
 double Unit::getProgressAsFloat() const {
 	double result = (static_cast<double>(progress) / static_cast<double>(PROGRESS_SPEED_MULTIPLIER));
-	result = truncateDecimal<double>(result,10);
+	result = truncateDecimal<double>(result,6);
 	return result;
 }
 
-Vec3d Unit::getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) const {
-    Vec3d v;
+Vec3f Unit::getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) const {
+    Vec3f v;
 
-    double y1= computeHeight(lastPosValue);
-    double y2= computeHeight(curPosValue);
+    float y1= computeHeight(lastPosValue);
+    float y2= computeHeight(curPosValue);
 
     if(currSkill->getClass() == scMove) {
-    	double progressAsDouble = getProgressAsFloat();
+    	float progressAsFloat = getProgressAsFloat();
 
-        v.x= lastPosValue.x + progressAsDouble * (curPosValue.x - lastPosValue.x);
-        v.z= lastPosValue.y + progressAsDouble * (curPosValue.y - lastPosValue.y);
-		v.y= y1 + progressAsDouble * (y2-y1);
+        v.x = lastPosValue.x + progressAsFloat * (curPosValue.x - lastPosValue.x);
+        v.z = lastPosValue.y + progressAsFloat * (curPosValue.y - lastPosValue.y);
+		v.y = y1 + progressAsFloat * (y2-y1);
     }
     else {
-        v.x= static_cast<double>(curPosValue.x);
-        v.z= static_cast<double>(curPosValue.y);
-        v.y= y2;
+        v.x = static_cast<float>(curPosValue.x);
+        v.z = static_cast<float>(curPosValue.y);
+        v.y = y2;
     }
-	v.x = truncateDecimal<double>(v.x,10);
-	v.y = truncateDecimal<double>(v.y,10);
-	v.z = truncateDecimal<double>(v.z,10);
-
     v.x += type->getSize() / 2.f - 0.5f;
     v.z += type->getSize() / 2.f - 0.5f;
-
-	v.x = truncateDecimal<double>(v.x,10);
-	v.y = truncateDecimal<double>(v.y,10);
-	v.z = truncateDecimal<double>(v.z,10);
 
     return v;
 }
@@ -2402,8 +2390,8 @@ bool Unit::update() {
 					rotation= lastRotation + (targetRotation - lastRotation) *
 							getProgressAsFloat() * rotFactor;
 				else {
-					double rotationTerm = targetRotation > lastRotation ? -360.f: +360.f;
-					rotation           = lastRotation + (targetRotation - lastRotation + rotationTerm) *
+					float rotationTerm = targetRotation > lastRotation ? -360.f: +360.f;
+					rotation = lastRotation + (targetRotation - lastRotation + rotationTerm) *
 							getProgressAsFloat() * rotFactor;
 				}
 			}
@@ -2508,7 +2496,7 @@ void Unit::updateTimedParticles() {
 		for(int i = queuedUnitParticleSystemTypes.size() - 1; i >= 0; i--) {
 			UnitParticleSystemType *pst = queuedUnitParticleSystemTypes[i];
 			if(pst != NULL) {
-				if(truncateDecimal<double>(pst->getStartTime(),10) <= truncateDecimal<double>(getAnimProgressAsFloat(),10)) {
+				if(truncateDecimal<float>(pst->getStartTime(),6) <= truncateDecimal<float>(getAnimProgressAsFloat(),6)) {
 
 					UnitParticleSystem *ups = new UnitParticleSystem(200);
 					ups->setParticleOwner(this);
@@ -2535,13 +2523,13 @@ void Unit::updateTimedParticles() {
 			UnitParticleSystem *ps = unitParticleSystems[i];
 			if(ps != NULL) {
 				if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
-					double pst = ps->getStartTime();
-					double pet = ps->getEndTime();
-					double particleStartTime = truncateDecimal<double>(pst,10);
-					double particleEndTime = truncateDecimal<double>(pet,10);
+					float pst = ps->getStartTime();
+					float pet = ps->getEndTime();
+					float particleStartTime = truncateDecimal<float>(pst,6);
+					float particleEndTime = truncateDecimal<float>(pet,6);
 
 					if(particleStartTime != 0.0 || particleEndTime != 1.0) {
-						double animProgressTime = truncateDecimal<double>(getAnimProgressAsFloat(),10);
+						float animProgressTime = truncateDecimal<float>(getAnimProgressAsFloat(),6);
 						if(animProgressTime >= 0.99 || animProgressTime >= particleEndTime) {
 
 							ps->fade();
@@ -3343,7 +3331,7 @@ bool Unit::morph(const MorphCommandType *mct) {
 
 // ==================== PRIVATE ====================
 
-double Unit::computeHeight(const Vec2i &pos) const {
+float Unit::computeHeight(const Vec2i &pos) const {
 	//printf("CRASHING FOR UNIT: %d alive = %d\n",this->getId(),this->isAlive());
 	//printf("[%s]\n",this->getType()->getName().c_str());
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
@@ -3352,26 +3340,25 @@ double Unit::computeHeight(const Vec2i &pos) const {
 		throw megaglest_runtime_error("#7 Invalid path position = " + pos.getString());
 	}
 
-	double height= map->getCell(pos)->getHeight();
-	height = truncateDecimal<double>(height,10);
+	float height= map->getCell(pos)->getHeight();
 
 	if(currField == fAir) {
-		const double airHeight=game->getWorld()->getTileset()->getAirHeight();
+		const float airHeight=game->getWorld()->getTileset()->getAirHeight();
 
 		height += airHeight;
-		height = truncateDecimal<double>(height,10);
+		height = truncateDecimal<float>(height,6);
 
 		Unit *unit = map->getCell(pos)->getUnit(fLand);
 		if(unit != NULL && unit->getType()->getHeight() > airHeight) {
-			height += (std::min((double)unit->getType()->getHeight(),Tileset::standardAirHeight * 3) - airHeight);
-			height = truncateDecimal<double>(height,10);
+			height += (std::min((float)unit->getType()->getHeight(),Tileset::standardAirHeight * 3) - airHeight);
+			height = truncateDecimal<float>(height,6);
 		}
 		else {
 			SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(pos));
 			if(sc != NULL && sc->getObject() != NULL && sc->getObject()->getType() != NULL) {
 				if(sc->getObject()->getType()->getHeight() > airHeight) {
-					height += (std::min((double)sc->getObject()->getType()->getHeight(),Tileset::standardAirHeight * 3) - airHeight);
-					height = truncateDecimal<double>(height,10);
+					height += (std::min((float)sc->getObject()->getType()->getHeight(),Tileset::standardAirHeight * 3) - airHeight);
+					height = truncateDecimal<float>(height,6);
 				}
 			}
 		}
@@ -3387,20 +3374,13 @@ void Unit::updateTarget(){
 		//update target pos
 		targetPos= target->getCellPos();
 		Vec2i relPos= targetPos - pos;
-		Vec2d relPosf= Vec2d((double)relPos.x, (double)relPos.y);
+		Vec2f relPosf= Vec2f((float)relPos.x, (float)relPos.y);
 #ifdef USE_STREFLOP
 		targetRotation= radToDeg(streflop::atan2(static_cast<streflop::Simple>(relPosf.x), static_cast<streflop::Simple>(relPosf.y)));
 #else
 		targetRotation= radToDeg(atan2(relPosf.x, relPosf.y));
 #endif
-		targetRotation = truncateDecimal<double>(targetRotation,10);
-		//update target vec
 		targetVec= target->getCurrVector();
-
-		//if(getFrameCount() % 40 == 0) {
-			//logSynchData(string(__FILE__) + string("::") + string(__FUNCTION__) + string(" Line: ") + intToStr(__LINE__));
-			//logSynchData();
-		//}
 	}
 }
 
@@ -3835,8 +3815,8 @@ void Unit::startDamageParticles() {
 				ups->setColor(Vec4f(0.115f, 0.115f, 0.115f, 0.22f));
 				ups->setPos(getCurrVector());
 				ups->setBlendMode(ups->strToBlendMode("black"));
-				ups->setOffset(Vec3d(0,2,0));
-				ups->setDirection(Vec3d(0,1,-0.2f));
+				ups->setOffset(Vec3f(0,2,0));
+				ups->setDirection(Vec3f(0,1,-0.2f));
 				ups->setRadius(type->getSize()/3.f);
 				ups->setShape(Shared::Graphics::UnitParticleSystem::sLinear);
 				ups->setTexture(CoreData::getInstance().getFireTexture());
@@ -3857,7 +3837,7 @@ void Unit::startDamageParticles() {
 	checkCustomizedParticleTriggers(false);
 }
 
-void Unit::setTargetVec(const Vec3d &targetVec)	{
+void Unit::setTargetVec(const Vec3f &targetVec)	{
 	this->targetVec= targetVec;
 	logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 }
@@ -4173,7 +4153,7 @@ std::string Unit::toString(bool crcMode) const {
 	if(crcMode == false) {
 		result += " lastAnimProgress = " + intToStr(this->lastAnimProgress);
 		result += " animProgress = " + intToStr(this->animProgress);
-		result += " highlight = " + doubleToStr(this->highlight,10);
+		result += " highlight = " + floatToStr(this->highlight,6);
 	}
 	result += " progress2 = " + intToStr(this->progress2);
 	result += " kills = " + intToStr(this->kills);
@@ -4202,9 +4182,9 @@ std::string Unit::toString(bool crcMode) const {
 	result += "\n";
 
 	if(crcMode == false) {
-		result += " lastRotation = " + doubleToStr(this->lastRotation,10);
-		result += " targetRotation = " + doubleToStr(this->targetRotation,10);
-		result += " rotation = " + doubleToStr(this->rotation,10);
+		result += " lastRotation = " + floatToStr(this->lastRotation,6);
+		result += " targetRotation = " + floatToStr(this->targetRotation,6);
+		result += " rotation = " + floatToStr(this->rotation,6);
 	}
 
     if(loadType != NULL) {
@@ -4312,7 +4292,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 //	float animProgress;		//between 0 and 1
 	unitNode->addAttribute("animProgress",intToStr(animProgress), mapTagReplacements);
 //	float highlight;
-	unitNode->addAttribute("highlight",doubleToStr(highlight,10), mapTagReplacements);
+	unitNode->addAttribute("highlight",floatToStr(highlight,6), mapTagReplacements);
 //	int progress2;
 	unitNode->addAttribute("progress2",intToStr(progress2), mapTagReplacements);
 //	int kills;
@@ -4342,19 +4322,19 @@ void Unit::saveGame(XmlNode *rootNode) {
 	unitNode->addAttribute("meetingPos",meetingPos.getString(), mapTagReplacements);
 //
 //	float lastRotation;		//in degrees
-	unitNode->addAttribute("lastRotation",doubleToStr(lastRotation,10), mapTagReplacements);
+	unitNode->addAttribute("lastRotation",floatToStr(lastRotation,6), mapTagReplacements);
 //	float targetRotation;
-	unitNode->addAttribute("targetRotation",doubleToStr(targetRotation,10), mapTagReplacements);
+	unitNode->addAttribute("targetRotation",floatToStr(targetRotation,6), mapTagReplacements);
 //	float rotation;
-	unitNode->addAttribute("rotation",doubleToStr(rotation,10), mapTagReplacements);
+	unitNode->addAttribute("rotation",floatToStr(rotation,6), mapTagReplacements);
 //	float targetRotationZ;
-	unitNode->addAttribute("targetRotationZ",doubleToStr(targetRotationZ,10), mapTagReplacements);
+	unitNode->addAttribute("targetRotationZ",floatToStr(targetRotationZ,6), mapTagReplacements);
 //	float targetRotationX;
-	unitNode->addAttribute("targetRotationX",doubleToStr(targetRotationX,10), mapTagReplacements);
+	unitNode->addAttribute("targetRotationX",floatToStr(targetRotationX,6), mapTagReplacements);
 //	float rotationZ;
-	unitNode->addAttribute("rotationZ",doubleToStr(rotationZ,10), mapTagReplacements);
+	unitNode->addAttribute("rotationZ",floatToStr(rotationZ,6), mapTagReplacements);
 //	float rotationX;
-	unitNode->addAttribute("rotationX",doubleToStr(rotationX,10), mapTagReplacements);
+	unitNode->addAttribute("rotationX",floatToStr(rotationX,6), mapTagReplacements);
 //    const UnitType *type;
 	unitNode->addAttribute("type",type->getName(false), mapTagReplacements);
 
@@ -4699,7 +4679,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //    Vec2i targetPos;		//absolute target pos
 	result->targetPos = Vec2i::strToVec2(unitNode->getAttribute("targetPos")->getValue());
 //	Vec3f targetVec;
-	result->targetVec = Vec3d::strToVec3(unitNode->getAttribute("targetVec")->getValue());
+	result->targetVec = Vec3f::strToVec3(unitNode->getAttribute("targetVec")->getValue());
 //	Vec2i meetingPos;
 	result->meetingPos = Vec2i::strToVec2(unitNode->getAttribute("meetingPos")->getValue());
 //

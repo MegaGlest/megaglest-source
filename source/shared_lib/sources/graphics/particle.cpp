@@ -55,7 +55,7 @@ void Particle::saveGame(XmlNode *rootNode) {
 //	Vec4f color;
 	particleNode->addAttribute("color",color.getString(), mapTagReplacements);
 //	float size;
-	particleNode->addAttribute("size",doubleToStr(size,10), mapTagReplacements);
+	particleNode->addAttribute("size",floatToStr(size,6), mapTagReplacements);
 //	int energy;
 	particleNode->addAttribute("energy",intToStr(energy), mapTagReplacements);
 }
@@ -65,13 +65,13 @@ void Particle::loadGame(const XmlNode *rootNode) {
 
 	//particleNode = aiNode->getAttribute("startLoc")->getIntValue();
 	//	Vec3f pos;
-	pos = Vec3d::strToVec3(particleNode->getAttribute("pos")->getValue());
+	pos = Vec3f::strToVec3(particleNode->getAttribute("pos")->getValue());
 	//	Vec3f lastPos;
-	lastPos = Vec3d::strToVec3(particleNode->getAttribute("lastPos")->getValue());
+	lastPos = Vec3f::strToVec3(particleNode->getAttribute("lastPos")->getValue());
 	//	Vec3f speed;
-	speed = Vec3d::strToVec3(particleNode->getAttribute("speed")->getValue());
+	speed = Vec3f::strToVec3(particleNode->getAttribute("speed")->getValue());
 	//	Vec3f accel;
-	accel = Vec3d::strToVec3(particleNode->getAttribute("accel")->getValue());
+	accel = Vec3f::strToVec3(particleNode->getAttribute("accel")->getValue());
 	//	Vec4f color;
 	color = Vec4f::strToVec4(particleNode->getAttribute("color")->getValue());
 	//	float size;
@@ -112,7 +112,7 @@ ParticleSystem::ParticleSystem(int particleCount) {
 	//this->particleCount= particles.size();
 	maxParticleEnergy= 250;
 	varParticleEnergy= 50;
-	pos= Vec3d(0.0f);
+	pos= Vec3f(0.0f);
 	color= Vec4f(1.0f);
 	colorNoEnergy= Vec4f(0.0f);
 	emissionRate= 15.0f;
@@ -216,8 +216,8 @@ void ParticleSystem::update() {
 				Particle *p= createParticle();
 				initParticle(p, i);
 			}
-			emissionState = emissionState - (double) emissionIntValue;
-			emissionState = truncateDecimal<double>(emissionState,10);
+			emissionState = emissionState - (float) emissionIntValue;
+			emissionState = truncateDecimal<float>(emissionState,6);
 		}
 	}
 }
@@ -252,7 +252,7 @@ void ParticleSystem::setTexture(Texture *texture){
 	this->texture= texture;
 }
 
-void ParticleSystem::setPos(Vec3d pos){
+void ParticleSystem::setPos(Vec3f pos){
 	this->pos= pos;
 	for(int i=getChildCount()-1; i>=0; i--)
 		getChild(i)->setPos(pos);
@@ -266,9 +266,9 @@ void ParticleSystem::setColorNoEnergy(Vec4f colorNoEnergy){
 	this->colorNoEnergy= colorNoEnergy;
 }
 
-void ParticleSystem::setEmissionRate(double emissionRate){
+void ParticleSystem::setEmissionRate(float emissionRate){
 	this->emissionRate= emissionRate;
-	this->emissionRate = truncateDecimal<double>(this->emissionRate,10);
+	this->emissionRate = truncateDecimal<float>(this->emissionRate,6);
 }
 
 void ParticleSystem::setMaxParticleEnergy(int maxParticleEnergy){
@@ -279,14 +279,14 @@ void ParticleSystem::setVarParticleEnergy(int varParticleEnergy){
 	this->varParticleEnergy= varParticleEnergy;
 }
 
-void ParticleSystem::setParticleSize(double particleSize){
+void ParticleSystem::setParticleSize(float particleSize){
 	this->particleSize= particleSize;
-	this->particleSize = truncateDecimal<double>(this->particleSize,10);
+	this->particleSize = truncateDecimal<float>(this->particleSize,6);
 }
 
-void ParticleSystem::setSpeed(double speed){
+void ParticleSystem::setSpeed(float speed){
 	this->speed= speed;
-	this->speed = truncateDecimal<double>(this->speed,10);
+	this->speed = truncateDecimal<float>(this->speed,6);
 }
 
 void ParticleSystem::setActive(bool active){
@@ -339,12 +339,12 @@ string ParticleSystem::toString() const {
 	result += "\npos = " + pos.getString();
 	result += "\ncolor = " + color.getString();
 	result += "\ncolorNoEnergy = " + colorNoEnergy.getString();
-	result += "\nemissionRate = " + doubleToStr(emissionRate,10);
-	result += "\nemissionState = " + doubleToStr(emissionState,10);
+	result += "\nemissionRate = " + floatToStr(emissionRate,6);
+	result += "\nemissionState = " + floatToStr(emissionState,6);
 	result += "\nmaxParticleEnergy = " + intToStr(maxParticleEnergy);
 	result += "\nvarParticleEnergy = " + intToStr(varParticleEnergy);
-	result += "\nparticleSize = " + doubleToStr(particleSize,10);
-	result += "\nspeed = " + doubleToStr(speed,10);
+	result += "\nparticleSize = " + floatToStr(particleSize,6);
+	result += "\nspeed = " + floatToStr(speed,6);
 	result += "\nfactionColor = " + factionColor.getString();
     result += "\nteamcolorNoEnergy = " + intToStr(teamcolorNoEnergy);
     result += "\nteamcolorEnergy = " + intToStr(teamcolorEnergy);
@@ -397,17 +397,17 @@ void ParticleSystem::saveGame(XmlNode *rootNode) {
 //	Vec4f colorNoEnergy;
 	particleSystemNode->addAttribute("colorNoEnergy",colorNoEnergy.getString(), mapTagReplacements);
 //	float emissionRate;
-	particleSystemNode->addAttribute("emissionRate",doubleToStr(emissionRate,10), mapTagReplacements);
+	particleSystemNode->addAttribute("emissionRate",floatToStr(emissionRate,6), mapTagReplacements);
 //	float emissionState;
-	particleSystemNode->addAttribute("emissionState",doubleToStr(emissionState,10), mapTagReplacements);
+	particleSystemNode->addAttribute("emissionState",floatToStr(emissionState,6), mapTagReplacements);
 //	int maxParticleEnergy;
 	particleSystemNode->addAttribute("maxParticleEnergy",intToStr(maxParticleEnergy), mapTagReplacements);
 //	int varParticleEnergy;
 	particleSystemNode->addAttribute("varParticleEnergy",intToStr(varParticleEnergy), mapTagReplacements);
 //	float particleSize;
-	particleSystemNode->addAttribute("particleSize",doubleToStr(particleSize,10), mapTagReplacements);
+	particleSystemNode->addAttribute("particleSize",floatToStr(particleSize,6), mapTagReplacements);
 //	float speed;
-	particleSystemNode->addAttribute("speed",doubleToStr(speed,10), mapTagReplacements);
+	particleSystemNode->addAttribute("speed",floatToStr(speed,6), mapTagReplacements);
 //	Vec3f factionColor;
 	particleSystemNode->addAttribute("factionColor",factionColor.getString(), mapTagReplacements);
 //    bool teamcolorNoEnergy;
@@ -490,7 +490,7 @@ void ParticleSystem::loadGame(const XmlNode *rootNode) {
 	}
 
 	//	Vec3f pos;
-	pos = Vec3d::strToVec3(particleSystemNode->getAttribute("pos")->getValue());
+	pos = Vec3f::strToVec3(particleSystemNode->getAttribute("pos")->getValue());
 	//	Vec4f color;
 	color = Vec4f::strToVec4(particleSystemNode->getAttribute("color")->getValue());
 	//	Vec4f colorNoEnergy;
@@ -585,11 +585,11 @@ Particle * ParticleSystem::createParticle() {
 void ParticleSystem::initParticle(Particle *p, int particleIndex) {
 	p->pos= pos;
 	p->lastPos= p->pos;
-	p->speed= Vec3d(0.0f);
-	p->accel= Vec3d(0.0f);
+	p->speed= Vec3f(0.0f);
+	p->accel= Vec3f(0.0f);
 	p->color= Vec4f(1.0f, 1.0f, 1.0f, 1.0);
 	p->size= particleSize;
-	p->size = truncateDecimal<double>(p->size,10);
+	p->size = truncateDecimal<float>(p->size,6);
 	p->energy= maxParticleEnergy + random.randRange(-varParticleEnergy, varParticleEnergy);
 }
 
@@ -632,7 +632,7 @@ FireParticleSystem::FireParticleSystem(int particleCount) :
 
 	radius= 0.5f;
 	speed= 0.01f;
-	windSpeed= Vec3d(0.0f);
+	windSpeed= Vec3f(0.0f);
 
 	setParticleSize(0.6f);
 	setColorNoEnergy(Vec4f(1.0f, 0.5f, 0.0f, 1.0f));
@@ -641,37 +641,37 @@ FireParticleSystem::FireParticleSystem(int particleCount) :
 void FireParticleSystem::initParticle(Particle *p, int particleIndex){
 	ParticleSystem::initParticle(p, particleIndex);
 
-	double ang= random.randRange(-2.0f * pi, 2.0f * pi);
+	float ang= random.randRange(-2.0f * pi, 2.0f * pi);
 #ifdef USE_STREFLOP
-	double mod= streflop::fabsf(static_cast<streflop::Simple>(random.randRange(-radius, radius)));
+	float mod= streflop::fabsf(static_cast<streflop::Simple>(random.randRange(-radius, radius)));
 
-	double x= streflop::sinf(static_cast<streflop::Simple>(ang))*mod;
-	double y= streflop::cosf(static_cast<streflop::Simple>(ang))*mod;
+	float x= streflop::sinf(static_cast<streflop::Simple>(ang))*mod;
+	float y= streflop::cosf(static_cast<streflop::Simple>(ang))*mod;
 
-	double radRatio= streflop::sqrtf(static_cast<streflop::Simple>(mod/radius));
+	float radRatio= streflop::sqrtf(static_cast<streflop::Simple>(mod/radius));
 #else
-	double mod= fabsf(random.randRange(-radius, radius));
+	float mod= fabsf(random.randRange(-radius, radius));
 
-	double x= sinf(ang) * mod;
-	double y= cosf(ang) * mod;
+	float x= sinf(ang) * mod;
+	float y= cosf(ang) * mod;
 
-	double radRatio= sqrtf((mod / radius));
+	float radRatio= sqrtf((mod / radius));
 #endif
 
 	p->color= colorNoEnergy * 0.5f + colorNoEnergy * 0.5f * radRatio;
 	p->energy= static_cast<int> (maxParticleEnergy * radRatio)
 	        + random.randRange(-varParticleEnergy, varParticleEnergy);
-	p->pos= Vec3d(pos.x + x, pos.y + random.randRange(-radius / 2, radius / 2), pos.z + y);
-	p->pos.x = truncateDecimal<double>(p->pos.x,10);
-	p->pos.y = truncateDecimal<double>(p->pos.y,10);
-	p->pos.z = truncateDecimal<double>(p->pos.z,10);
+	p->pos= Vec3f(pos.x + x, pos.y + random.randRange(-radius / 2, radius / 2), pos.z + y);
+	p->pos.x = truncateDecimal<float>(p->pos.x,6);
+	p->pos.y = truncateDecimal<float>(p->pos.y,6);
+	p->pos.z = truncateDecimal<float>(p->pos.z,6);
 
 	p->lastPos= pos;
 	p->size= particleSize;
-	p->speed= Vec3d(0, speed + speed * random.randRange(-0.5f, 0.5f), 0) + windSpeed;
-	p->speed.x = truncateDecimal<double>(p->speed.x,10);
-	p->speed.y = truncateDecimal<double>(p->speed.y,10);
-	p->speed.z = truncateDecimal<double>(p->speed.z,10);
+	p->speed= Vec3f(0, speed + speed * random.randRange(-0.5f, 0.5f), 0) + windSpeed;
+	p->speed.x = truncateDecimal<float>(p->speed.x,6);
+	p->speed.y = truncateDecimal<float>(p->speed.y,6);
+	p->speed.z = truncateDecimal<float>(p->speed.z,6);
 
 }
 
@@ -688,9 +688,9 @@ void FireParticleSystem::updateParticle(Particle *p){
 		p->color.w*= 0.98f;
 
 	p->speed.x*= 1.001f;
-	p->speed.x = truncateDecimal<double>(p->speed.x,10);
-	p->speed.y = truncateDecimal<double>(p->speed.y,10);
-	p->speed.z = truncateDecimal<double>(p->speed.z,10);
+	p->speed.x = truncateDecimal<float>(p->speed.x,6);
+	p->speed.y = truncateDecimal<float>(p->speed.y,6);
+	p->speed.z = truncateDecimal<float>(p->speed.z,6);
 
 }
 
@@ -698,18 +698,18 @@ string FireParticleSystem::toString() const {
 	string result = ParticleSystem::toString();
 
 	result += "\nFireParticleSystem ";
-	result += "\nradius = " + doubleToStr(radius);
+	result += "\nradius = " + floatToStr(radius);
 	result += "\nwindSpeed = " + windSpeed.getString();
 
 	return result;
 }
 // ================= SET PARAMS ====================
 
-void FireParticleSystem::setRadius(double radius){
+void FireParticleSystem::setRadius(float radius){
 	this->radius= radius;
 }
 
-void FireParticleSystem::setWind(double windAngle, double windSpeed) {
+void FireParticleSystem::setWind(float windAngle, float windSpeed) {
 #ifdef USE_STREFLOP
 	this->windSpeed.x= streflop::sinf(static_cast<streflop::Simple>(degToRad(windAngle)))*windSpeed;
 	this->windSpeed.y= 0.0f;
@@ -720,9 +720,9 @@ void FireParticleSystem::setWind(double windAngle, double windSpeed) {
 	this->windSpeed.z= cosf(degToRad(windAngle)) * windSpeed;
 #endif
 
-	this->windSpeed.x = truncateDecimal<double>(this->windSpeed.x,10);
-	this->windSpeed.y = truncateDecimal<double>(this->windSpeed.y,10);
-	this->windSpeed.z = truncateDecimal<double>(this->windSpeed.z,10);
+	this->windSpeed.x = truncateDecimal<float>(this->windSpeed.x,6);
+	this->windSpeed.y = truncateDecimal<float>(this->windSpeed.y,6);
+	this->windSpeed.z = truncateDecimal<float>(this->windSpeed.z,6);
 }
 
 void FireParticleSystem::saveGame(XmlNode *rootNode) {
@@ -732,7 +732,7 @@ void FireParticleSystem::saveGame(XmlNode *rootNode) {
 	ParticleSystem::saveGame(fireParticleSystemNode);
 
 //	float radius;
-	fireParticleSystemNode->addAttribute("radius",doubleToStr(radius,10), mapTagReplacements);
+	fireParticleSystemNode->addAttribute("radius",floatToStr(radius,6), mapTagReplacements);
 //	Vec3f windSpeed;
 	fireParticleSystemNode->addAttribute("windSpeed",windSpeed.getString(), mapTagReplacements);
 }
@@ -744,7 +744,7 @@ void FireParticleSystem::loadGame(const XmlNode *rootNode) {
 //	float radius;
 	radius = fireParticleSystemNode->getAttribute("radius")->getFloatValue();
 //	Vec3f windSpeed;
-	windSpeed = Vec3d::strToVec3(fireParticleSystemNode->getAttribute("windSpeed")->getValue());
+	windSpeed = Vec3f::strToVec3(fireParticleSystemNode->getAttribute("windSpeed")->getValue());
 }
 
 Checksum FireParticleSystem::getCRC() {
@@ -810,18 +810,18 @@ void GameParticleSystem::removeChild(UnitParticleSystem* child){
 	children.erase(it);
 }
 
-void GameParticleSystem::setPos(Vec3d pos){
+void GameParticleSystem::setPos(Vec3f pos){
 	this->pos= pos;
 	positionChildren();
 }
 
 void GameParticleSystem::positionChildren() {
-	Vec3d child_pos = pos - offset;
+	Vec3f child_pos = pos - offset;
 	for(int i=getChildCount()-1; i>=0; i--)
 		getChild(i)->setPos(child_pos);
 }
 
-void GameParticleSystem::setOffset(Vec3d offset){
+void GameParticleSystem::setOffset(Vec3f offset){
 	this->offset= offset;
 	positionChildren();
 }
@@ -845,7 +845,7 @@ void GameParticleSystem::render(ParticleRenderer *pr, ModelRenderer *mr){
 	}
 }
 
-void GameParticleSystem::setTween(double relative,double absolute) {
+void GameParticleSystem::setTween(float relative,float absolute) {
 	if(model) {
 		// animation?
 		//printf("#1 Particle model meshcount [%d] modelCycle = %f, relative = %f, absolute = %f\n",model->getMeshCount(),modelCycle,relative,absolute);
@@ -870,7 +870,7 @@ void GameParticleSystem::setTween(double relative,double absolute) {
 			}
 		}
 
-		tween = truncateDecimal<double>(tween,10);
+		tween = truncateDecimal<float>(tween,6);
 		if(tween < 0.0f || tween > 1.0f) {
 			//printf("In [%s::%s Line: %d] WARNING setting tween to [%f] clamping tween, modelCycle [%f] absolute [%f] relative [%f]\n",__FILE__,__FUNCTION__,__LINE__,tween,modelCycle,absolute,relative);
 			//assert(tween >= 0.0f && tween <= 1.0f);
@@ -908,13 +908,13 @@ void GameParticleSystem::saveGame(XmlNode *rootNode) {
 		gameParticleSystemNode->addAttribute("model",model->getFileName(), mapTagReplacements);
 	}
 //	float modelCycle;
-	gameParticleSystemNode->addAttribute("modelCycle",doubleToStr(modelCycle,10), mapTagReplacements);
+	gameParticleSystemNode->addAttribute("modelCycle",floatToStr(modelCycle,6), mapTagReplacements);
 //	Vec3f offset;
 	gameParticleSystemNode->addAttribute("offset",offset.getString(), mapTagReplacements);
 //	Vec3f direction;
 	gameParticleSystemNode->addAttribute("direction",direction.getString(), mapTagReplacements);
 //	float tween;
-	gameParticleSystemNode->addAttribute("tween",doubleToStr(tween,10), mapTagReplacements);
+	gameParticleSystemNode->addAttribute("tween",floatToStr(tween,6), mapTagReplacements);
 }
 void GameParticleSystem::loadGame(const XmlNode *rootNode) {
 	const XmlNode *gameParticleSystemNode = rootNode->getChild("GameParticleSystem");
@@ -952,9 +952,9 @@ void GameParticleSystem::loadGame(const XmlNode *rootNode) {
 	//gameParticleSystemNode->addAttribute("modelCycle",floatToStr(modelCycle), mapTagReplacements);
 	modelCycle = gameParticleSystemNode->getAttribute("modelCycle")->getFloatValue();
 	//	Vec3f offset;
-	offset = Vec3d::strToVec3(gameParticleSystemNode->getAttribute("offset")->getValue());
+	offset = Vec3f::strToVec3(gameParticleSystemNode->getAttribute("offset")->getValue());
 	//	Vec3f direction;
-	direction = Vec3d::strToVec3(gameParticleSystemNode->getAttribute("direction")->getValue());
+	direction = Vec3f::strToVec3(gameParticleSystemNode->getAttribute("direction")->getValue());
 	//	float tween;
 	tween = gameParticleSystemNode->getAttribute("tween")->getFloatValue();
 }
@@ -974,10 +974,10 @@ string GameParticleSystem::toString() const {
 
 	//string modelFileLoadDeferred;
 	//Model *model;
-	result += "\nmodelCycle = " + doubleToStr(modelCycle);
+	result += "\nmodelCycle = " + floatToStr(modelCycle);
 	result += "\noffset = " + offset.getString();
 	result += "\ndirection = " + direction.getString();
-	result += "\ntween = " + doubleToStr(tween);
+	result += "\ntween = " + floatToStr(tween);
 
 	return result;
 }
@@ -992,7 +992,7 @@ UnitParticleSystem::UnitParticleSystem(int particleCount) :
 		GameParticleSystem(particleCount),	parent(NULL) {
 	radius= 0.5f;
 	speed= 0.01f;
-	windSpeed= Vec3d(0.0f);
+	windSpeed= Vec3f(0.0f);
 	minRadius = 0.0;
 
 	setParticleSize(0.6f);
@@ -1014,11 +1014,11 @@ UnitParticleSystem::UnitParticleSystem(int particleCount) :
 	isVisibleAtDay= true;
 	isDaylightAffected= false;
 
-	cRotation= Vec3d(1.0f, 1.0f, 1.0f);
-	fixedAddition= Vec3d(0.0f, 0.0f, 0.0f);
+	cRotation= Vec3f(1.0f, 1.0f, 1.0f);
+	fixedAddition= Vec3f(0.0f, 0.0f, 0.0f);
 	//prepare system for given staticParticleCount
 	if(staticParticleCount > 0){
-		emissionState= (double) staticParticleCount;
+		emissionState= (float) staticParticleCount;
 	}
 	energyUp= false;
 	
@@ -1053,7 +1053,7 @@ void UnitParticleSystem::render(ParticleRenderer *pr, ModelRenderer *mr) {
 	GameParticleSystem::render(pr,mr);
 }
 
-void UnitParticleSystem::setRotation(double rotation){
+void UnitParticleSystem::setRotation(float rotation){
 	this->rotation= rotation;
 	for(Children::iterator it= children.begin(); it != children.end(); ++it)
 		(*it)->setRotation(rotation);
@@ -1083,13 +1083,13 @@ UnitParticleSystem::Shape UnitParticleSystem::strToShape(const string& str){
 void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	ParticleSystem::initParticle(p, particleIndex);
 
-	const double ang= random.randRange(-2.0f * pi, 2.0f * pi);
+	const float ang= random.randRange(-2.0f * pi, 2.0f * pi);
 #ifdef USE_STREFLOP	
-	const double mod= streflop::fabsf(static_cast<streflop::Simple>(random.randRange(-radius, radius)));
-	const double radRatio= streflop::sqrtf(static_cast<streflop::Simple>(mod/radius));
+	const float mod= streflop::fabsf(static_cast<streflop::Simple>(random.randRange(-radius, radius)));
+	const float radRatio= streflop::sqrtf(static_cast<streflop::Simple>(mod/radius));
 #else
-	const double mod= fabsf(random.randRange(-radius, radius));
-	const double radRatio= sqrtf(mod / radius);
+	const float mod= fabsf(random.randRange(-radius, radius));
+	const float radRatio= sqrtf(mod / radius);
 #endif
 	p->color= color;
 
@@ -1110,87 +1110,87 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->lastPos= pos;
 	oldPosition= pos;
 	p->size= particleSize;
-	p->accel= Vec3d(0.0f, -gravity, 0.0f);
-	p->accel.x = truncateDecimal<double>(p->accel.x,10);
-	p->accel.y = truncateDecimal<double>(p->accel.y,10);
-	p->accel.z = truncateDecimal<double>(p->accel.z,10);
+	p->accel= Vec3f(0.0f, -gravity, 0.0f);
+	p->accel.x = truncateDecimal<float>(p->accel.x,6);
+	p->accel.y = truncateDecimal<float>(p->accel.y,6);
+	p->accel.z = truncateDecimal<float>(p->accel.z,6);
 	
 	// work out where we start for our shape (set speed and pos)
 	switch(shape){
 	case sSpherical:
-		angle = (double)random.randRange(0,360);
+		angle = (float)random.randRange(0,360);
 		// fall through
 	case sConical:{
-		Vec2d horiz = Vec2d(1,0).rotate(ang);
-		Vec2d vert = Vec2d(1,0).rotate(degToRad(angle));
-		Vec3d start = Vec3d(horiz.x*vert.y,vert.x,horiz.y).getNormalized(); // close enough
+		Vec2f horiz = Vec2f(1,0).rotate(ang);
+		Vec2f vert = Vec2f(1,0).rotate(degToRad(angle));
+		Vec3f start = Vec3f(horiz.x*vert.y,vert.x,horiz.y).getNormalized(); // close enough
 		p->speed = start * speed;
-		p->speed.x = truncateDecimal<double>(p->speed.x,10);
-		p->speed.y = truncateDecimal<double>(p->speed.y,10);
-		p->speed.z = truncateDecimal<double>(p->speed.z,10);
+		p->speed.x = truncateDecimal<float>(p->speed.x,6);
+		p->speed.y = truncateDecimal<float>(p->speed.y,6);
+		p->speed.z = truncateDecimal<float>(p->speed.z,6);
 
 		start = start * random.randRange(minRadius,radius);
 		p->pos = pos + offset + start;
-		p->pos.x = truncateDecimal<double>(p->pos.x,10);
-		p->pos.y = truncateDecimal<double>(p->pos.y,10);
-		p->pos.z = truncateDecimal<double>(p->pos.z,10);
+		p->pos.x = truncateDecimal<float>(p->pos.x,6);
+		p->pos.y = truncateDecimal<float>(p->pos.y,6);
+		p->pos.z = truncateDecimal<float>(p->pos.z,6);
 
 	} break;
 	case sLinear:{
 	#ifdef USE_STREFLOP	
-		double x= streflop::sinf(static_cast<streflop::Simple>(ang))*mod;
-		double y= streflop::cosf(static_cast<streflop::Simple>(ang))*mod;
+		float x= streflop::sinf(static_cast<streflop::Simple>(ang))*mod;
+		float y= streflop::cosf(static_cast<streflop::Simple>(ang))*mod;
 	#else	
-		double x= sinf(ang) * mod;
-		double y= cosf(ang) * mod;
+		float x= sinf(ang) * mod;
+		float y= cosf(ang) * mod;
 	#endif
-		const double rad= degToRad(rotation);
+		const float rad= degToRad(rotation);
 		if(!relative){
-			p->pos= Vec3d(pos.x + x + offset.x, pos.y +
+			p->pos= Vec3f(pos.x + x + offset.x, pos.y +
 					random.randRange(-radius / 2, radius / 2) + offset.y,
 					pos.z + y + offset.z);
-			p->pos.x = truncateDecimal<double>(p->pos.x,10);
-			p->pos.y = truncateDecimal<double>(p->pos.y,10);
-			p->pos.z = truncateDecimal<double>(p->pos.z,10);
+			p->pos.x = truncateDecimal<float>(p->pos.x,6);
+			p->pos.y = truncateDecimal<float>(p->pos.y,6);
+			p->pos.z = truncateDecimal<float>(p->pos.z,6);
 
 		}
 		else {// rotate it according to rotation
 	#ifdef USE_STREFLOP
-			p->pos= Vec3d(pos.x+x+offset.z*streflop::sinf(static_cast<streflop::Simple>(rad))+offset.x*streflop::cosf(static_cast<streflop::Simple>(rad)), pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*streflop::cosf(static_cast<streflop::Simple>(rad))-offset.x*streflop::sinf(static_cast<streflop::Simple>(rad))));
+			p->pos= Vec3f(pos.x+x+offset.z*streflop::sinf(static_cast<streflop::Simple>(rad))+offset.x*streflop::cosf(static_cast<streflop::Simple>(rad)), pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*streflop::cosf(static_cast<streflop::Simple>(rad))-offset.x*streflop::sinf(static_cast<streflop::Simple>(rad))));
 	#else
-			p->pos= Vec3d(pos.x + x + offset.z * sinf(rad) + offset.x * cosf(rad), pos.y + random.randRange(-radius / 2,
+			p->pos= Vec3f(pos.x + x + offset.z * sinf(rad) + offset.x * cosf(rad), pos.y + random.randRange(-radius / 2,
 				radius / 2) + offset.y, pos.z + y + (offset.z * cosf(rad) - offset.x * sinf(rad)));
 	#endif
 
-			p->pos.x = truncateDecimal<double>(p->pos.x,10);
-			p->pos.y = truncateDecimal<double>(p->pos.y,10);
-			p->pos.z = truncateDecimal<double>(p->pos.z,10);
+			p->pos.x = truncateDecimal<float>(p->pos.x,6);
+			p->pos.y = truncateDecimal<float>(p->pos.y,6);
+			p->pos.z = truncateDecimal<float>(p->pos.z,6);
 
 		}
-		p->speed= Vec3d(direction.x + direction.x * random.randRange(-0.5f, 0.5f), direction.y + direction.y
+		p->speed= Vec3f(direction.x + direction.x * random.randRange(-0.5f, 0.5f), direction.y + direction.y
 			* random.randRange(-0.5f, 0.5f), direction.z + direction.z * random.randRange(-0.5f, 0.5f));
 		p->speed= p->speed * speed;
 
-		p->speed.x = truncateDecimal<double>(p->speed.x,10);
-		p->speed.y = truncateDecimal<double>(p->speed.y,10);
-		p->speed.z = truncateDecimal<double>(p->speed.z,10);
+		p->speed.x = truncateDecimal<float>(p->speed.x,6);
+		p->speed.y = truncateDecimal<float>(p->speed.y,6);
+		p->speed.z = truncateDecimal<float>(p->speed.z,6);
 
 		if(relative && relativeDirection) {
 	#ifdef USE_STREFLOP
-			p->speed=Vec3d(p->speed.z*streflop::sinf(
+			p->speed=Vec3f(p->speed.z*streflop::sinf(
 					static_cast<streflop::Simple>(rad)) + p->speed.x *
 					streflop::cosf(static_cast<streflop::Simple>(rad)),
 					p->speed.y, (p->speed.z * streflop::cosf(
 							static_cast<streflop::Simple>(rad)) - p->speed.x *
 							streflop::sinf(static_cast<streflop::Simple>(rad))));
 	#else
-			p->speed= Vec3d(p->speed.z * sinf(rad) + p->speed.x * cosf(rad),
+			p->speed= Vec3f(p->speed.z * sinf(rad) + p->speed.x * cosf(rad),
 					p->speed.y, (p->speed.z * cosf(rad) - p->speed.x * sinf(rad)));
 	#endif
 
-			p->speed.x = truncateDecimal<double>(p->speed.x,10);
-			p->speed.y = truncateDecimal<double>(p->speed.y,10);
-			p->speed.z = truncateDecimal<double>(p->speed.z,10);
+			p->speed.x = truncateDecimal<float>(p->speed.x,6);
+			p->speed.y = truncateDecimal<float>(p->speed.y,6);
+			p->speed.z = truncateDecimal<float>(p->speed.z,6);
 		}
 	} break;
 	default: throw megaglest_runtime_error("bad shape");
@@ -1207,17 +1207,17 @@ void UnitParticleSystem::update(){
 	}
 	if(state != sPause) {
 		emissionRate-= emissionRateFade;
-		emissionRate = truncateDecimal<double>(emissionRate,10);
+		emissionRate = truncateDecimal<float>(emissionRate,6);
 
 		if(parent && emissionRate < 0.0f) {
 			fade();
 		}
 	}
 	if(fixed) {
-		fixedAddition= Vec3d(pos.x - oldPosition.x, pos.y - oldPosition.y, pos.z - oldPosition.z);
-		fixedAddition.x = truncateDecimal<double>(fixedAddition.x,10);
-		fixedAddition.y = truncateDecimal<double>(fixedAddition.y,10);
-		fixedAddition.z = truncateDecimal<double>(fixedAddition.z,10);
+		fixedAddition= Vec3f(pos.x - oldPosition.x, pos.y - oldPosition.y, pos.z - oldPosition.z);
+		fixedAddition.x = truncateDecimal<float>(fixedAddition.x,6);
+		fixedAddition.y = truncateDecimal<float>(fixedAddition.y,6);
+		fixedAddition.z = truncateDecimal<float>(fixedAddition.z,6);
 
 		oldPosition= pos;
 	}
@@ -1225,10 +1225,10 @@ void UnitParticleSystem::update(){
 }
 
 void UnitParticleSystem::updateParticle(Particle *p){
-	double energyRatio;
+	float energyRatio;
 	if(alternations > 0){
 		int interval= (maxParticleEnergy / alternations);
-		double moduloValue= (double)((int)(static_cast<double> (p->energy)) % interval);
+		float moduloValue= (float)((int)(static_cast<float> (p->energy)) % interval);
 
 		if(moduloValue < interval / 2){
 			energyRatio= (interval - moduloValue) / interval;
@@ -1239,36 +1239,36 @@ void UnitParticleSystem::updateParticle(Particle *p){
 		energyRatio= clamp(energyRatio, 0.f, 1.f);
 	}
 	else{
-		energyRatio= clamp(static_cast<double> (p->energy) / maxParticleEnergy, 0.f, 1.f);
+		energyRatio= clamp(static_cast<float> (p->energy) / maxParticleEnergy, 0.f, 1.f);
 	}
 
-	energyRatio = truncateDecimal<double>(energyRatio,10);
+	energyRatio = truncateDecimal<float>(energyRatio,6);
 
 	p->lastPos += p->speed;
-	p->lastPos.x = truncateDecimal<double>(p->lastPos.x,10);
-	p->lastPos.y = truncateDecimal<double>(p->lastPos.y,10);
-	p->lastPos.z = truncateDecimal<double>(p->lastPos.z,10);
+	p->lastPos.x = truncateDecimal<float>(p->lastPos.x,6);
+	p->lastPos.y = truncateDecimal<float>(p->lastPos.y,6);
+	p->lastPos.z = truncateDecimal<float>(p->lastPos.z,6);
 
 	p->pos += p->speed;
-	p->pos.x = truncateDecimal<double>(p->pos.x,10);
-	p->pos.y = truncateDecimal<double>(p->pos.y,10);
-	p->pos.z = truncateDecimal<double>(p->pos.z,10);
+	p->pos.x = truncateDecimal<float>(p->pos.x,6);
+	p->pos.y = truncateDecimal<float>(p->pos.y,6);
+	p->pos.z = truncateDecimal<float>(p->pos.z,6);
 
 	if(fixed) {
 		p->lastPos += fixedAddition;
-		p->lastPos.x = truncateDecimal<double>(p->lastPos.x,10);
-		p->lastPos.y = truncateDecimal<double>(p->lastPos.y,10);
-		p->lastPos.z = truncateDecimal<double>(p->lastPos.z,10);
+		p->lastPos.x = truncateDecimal<float>(p->lastPos.x,6);
+		p->lastPos.y = truncateDecimal<float>(p->lastPos.y,6);
+		p->lastPos.z = truncateDecimal<float>(p->lastPos.z,6);
 
 		p->pos += fixedAddition;
-		p->pos.x = truncateDecimal<double>(p->pos.x,10);
-		p->pos.y = truncateDecimal<double>(p->pos.y,10);
-		p->pos.z = truncateDecimal<double>(p->pos.z,10);
+		p->pos.x = truncateDecimal<float>(p->pos.x,6);
+		p->pos.y = truncateDecimal<float>(p->pos.y,6);
+		p->pos.z = truncateDecimal<float>(p->pos.z,6);
 	}
 	p->speed += p->accel;
-	p->speed.x = truncateDecimal<double>(p->speed.x,10);
-	p->speed.y = truncateDecimal<double>(p->speed.y,10);
-	p->speed.z = truncateDecimal<double>(p->speed.z,10);
+	p->speed.x = truncateDecimal<float>(p->speed.x,6);
+	p->speed.y = truncateDecimal<float>(p->speed.y,6);
+	p->speed.z = truncateDecimal<float>(p->speed.z,6);
 
 	p->color= color * energyRatio + colorNoEnergy * (1.0f - energyRatio);
 	if(isDaylightAffected==true) {
@@ -1277,7 +1277,7 @@ void UnitParticleSystem::updateParticle(Particle *p){
 		p->color.z=p->color.z*lightColor.z;
 	}
 	p->size= particleSize * energyRatio + sizeNoEnergy * (1.0f - energyRatio);
-	p->size = truncateDecimal<double>(p->size,10);
+	p->size = truncateDecimal<float>(p->size,6);
 
 	if(state == ParticleSystem::sFade || staticParticleCount < 1){
 		p->energy--;
@@ -1303,7 +1303,7 @@ void UnitParticleSystem::updateParticle(Particle *p){
 
 // ================= SET PARAMS ====================
 
-void UnitParticleSystem::setWind(double windAngle, double windSpeed){
+void UnitParticleSystem::setWind(float windAngle, float windSpeed){
 #ifdef USE_STREFLOP
 	this->windSpeed.x= streflop::sinf(static_cast<streflop::Simple>(degToRad(windAngle)))*windSpeed;
 	this->windSpeed.y= 0.0f;
@@ -1314,9 +1314,9 @@ void UnitParticleSystem::setWind(double windAngle, double windSpeed){
 	this->windSpeed.z= cosf(degToRad(windAngle)) * windSpeed;
 #endif
 
-	this->windSpeed.x = truncateDecimal<double>(this->windSpeed.x,10);
-	this->windSpeed.y = truncateDecimal<double>(this->windSpeed.y,10);
-	this->windSpeed.z = truncateDecimal<double>(this->windSpeed.z,10);
+	this->windSpeed.x = truncateDecimal<float>(this->windSpeed.x,6);
+	this->windSpeed.y = truncateDecimal<float>(this->windSpeed.y,6);
+	this->windSpeed.z = truncateDecimal<float>(this->windSpeed.z,6);
 }
 
 void UnitParticleSystem::saveGame(XmlNode *rootNode) {
@@ -1326,9 +1326,9 @@ void UnitParticleSystem::saveGame(XmlNode *rootNode) {
 	GameParticleSystem::saveGame(unitParticleSystemNode);
 
 //	float radius;
-	unitParticleSystemNode->addAttribute("radius",doubleToStr(radius,10), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("radius",floatToStr(radius,6), mapTagReplacements);
 //	float minRadius;
-	unitParticleSystemNode->addAttribute("minRadius",doubleToStr(minRadius,10), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("minRadius",floatToStr(minRadius,6), mapTagReplacements);
 //	Vec3f windSpeed;
 	unitParticleSystemNode->addAttribute("windSpeed",windSpeed.getString(), mapTagReplacements);
 //	Vec3f cRotation;
@@ -1340,9 +1340,9 @@ void UnitParticleSystem::saveGame(XmlNode *rootNode) {
 //    bool energyUp;
 	unitParticleSystemNode->addAttribute("energyUp",intToStr(energyUp), mapTagReplacements);
 //	float startTime;
-	unitParticleSystemNode->addAttribute("startTime",doubleToStr(startTime,10), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("startTime",floatToStr(startTime,6), mapTagReplacements);
 //	float endTime;
-	unitParticleSystemNode->addAttribute("endTime",doubleToStr(endTime,10), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("endTime",floatToStr(endTime,6), mapTagReplacements);
 //	bool relative;
 	unitParticleSystemNode->addAttribute("relative",intToStr(relative), mapTagReplacements);
 //	bool relativeDirection;
@@ -1352,13 +1352,13 @@ void UnitParticleSystem::saveGame(XmlNode *rootNode) {
 //	Shape shape;
 	unitParticleSystemNode->addAttribute("shape",intToStr(shape), mapTagReplacements);
 //	float angle;
-	unitParticleSystemNode->addAttribute("angle",doubleToStr(angle,10), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("angle",floatToStr(angle,6), mapTagReplacements);
 //	float sizeNoEnergy;
-	unitParticleSystemNode->addAttribute("sizeNoEnergy",doubleToStr(sizeNoEnergy,10), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("sizeNoEnergy",floatToStr(sizeNoEnergy,6), mapTagReplacements);
 //	float gravity;
-	unitParticleSystemNode->addAttribute("gravity",doubleToStr(gravity,10), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("gravity",floatToStr(gravity,6), mapTagReplacements);
 //	float rotation;
-	unitParticleSystemNode->addAttribute("rotation",doubleToStr(rotation,10), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("rotation",floatToStr(rotation,6), mapTagReplacements);
 //	bool isVisibleAtNight;
 	unitParticleSystemNode->addAttribute("isVisibleAtNight",intToStr(isVisibleAtNight), mapTagReplacements);
 //	bool isVisibleAtDay;
@@ -1374,7 +1374,7 @@ void UnitParticleSystem::saveGame(XmlNode *rootNode) {
 //	int lifetime;
 	unitParticleSystemNode->addAttribute("lifetime",intToStr(lifetime), mapTagReplacements);
 //	float emissionRateFade;
-	unitParticleSystemNode->addAttribute("emissionRateFade",doubleToStr(emissionRateFade,10), mapTagReplacements);
+	unitParticleSystemNode->addAttribute("emissionRateFade",floatToStr(emissionRateFade,6), mapTagReplacements);
 //	GameParticleSystem* parent;
 	//if(parent != NULL) {
 	//	parent->saveGame(unitParticleSystemNode);
@@ -1392,13 +1392,13 @@ void UnitParticleSystem::loadGame(const XmlNode *rootNode) {
 //	float minRadius;
 	minRadius = unitParticleSystemNode->getAttribute("minRadius")->getFloatValue();
 //	Vec3f windSpeed;
-	windSpeed = Vec3d::strToVec3(unitParticleSystemNode->getAttribute("windSpeed")->getValue());
+	windSpeed = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("windSpeed")->getValue());
 //	Vec3f cRotation;
-	windSpeed = Vec3d::strToVec3(unitParticleSystemNode->getAttribute("cRotation")->getValue());
+	windSpeed = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("cRotation")->getValue());
 //	Vec3f fixedAddition;
-	fixedAddition = Vec3d::strToVec3(unitParticleSystemNode->getAttribute("fixedAddition")->getValue());
+	fixedAddition = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("fixedAddition")->getValue());
 //    Vec3f oldPosition;
-	oldPosition = Vec3d::strToVec3(unitParticleSystemNode->getAttribute("oldPosition")->getValue());
+	oldPosition = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("oldPosition")->getValue());
 //    bool energyUp;
 	energyUp = unitParticleSystemNode->getAttribute("energyUp")->getIntValue() != 0;
 //	float startTime;
@@ -1462,24 +1462,24 @@ string UnitParticleSystem::toString() const {
 	string result = ParticleSystem::toString();
 
 	result += "\nUnitParticleSystem ";
-	result += "\nradius = " + doubleToStr(radius);
-	result += "\nminRadius = " + doubleToStr(minRadius);
+	result += "\nradius = " + floatToStr(radius);
+	result += "\nminRadius = " + floatToStr(minRadius);
 	result += "\nwindSpeed = " + windSpeed.getString();
 	result += "\ncRotation = " + cRotation.getString();
 	result += "\nfixedAddition = " + fixedAddition.getString();
     result += "\noldPosition = " + oldPosition.getString();
     result += "\nenergyUp = " + intToStr(energyUp);
-    result += "\nstartTime = " + doubleToStr(startTime);
-    result += "\nendTime = " + doubleToStr(endTime);
+    result += "\nstartTime = " + floatToStr(startTime);
+    result += "\nendTime = " + floatToStr(endTime);
 	result += "\nrelative = " + intToStr(relative);
 	result += "\nrelativeDirection = " + intToStr(relativeDirection);
     result += "\nfixed = " + intToStr(fixed);
 	result += "\nshape = " + intToStr(shape);
 
-	result += "\nangle = " + doubleToStr(angle);
-	result += "\nsizeNoEnergy = " + doubleToStr(sizeNoEnergy);
-	result += "\ngravity = " + doubleToStr(gravity);
-	result += "\nrotation = " + doubleToStr(rotation);
+	result += "\nangle = " + floatToStr(angle);
+	result += "\nsizeNoEnergy = " + floatToStr(sizeNoEnergy);
+	result += "\ngravity = " + floatToStr(gravity);
+	result += "\nrotation = " + floatToStr(rotation);
 	result += "\nisVisibleAtNight = " + intToStr(isVisibleAtNight);
 	result += "\nisVisibleAtDay = " + intToStr(isVisibleAtDay);
 	result += "\nisDaylightAffected = " + intToStr(isDaylightAffected);
@@ -1487,7 +1487,7 @@ string UnitParticleSystem::toString() const {
 	result += "\nstaticParticleCount = " + intToStr(staticParticleCount);
 	result += "\ndelay = " + intToStr(delay);
 	result += "\nlifetime = " + intToStr(lifetime);
-	result += "\nemissionRateFade = " + doubleToStr(emissionRateFade);
+	result += "\nemissionRateFade = " + floatToStr(emissionRateFade);
 	//GameParticleSystem* parent;
 
 	return result;
@@ -1514,33 +1514,33 @@ void RainParticleSystem::render(ParticleRenderer *pr, ModelRenderer *mr){
 void RainParticleSystem::initParticle(Particle *p, int particleIndex){
 	ParticleSystem::initParticle(p, particleIndex);
 
-	double x= random.randRange(-radius, radius);
-	double y= random.randRange(-radius, radius);
+	float x= random.randRange(-radius, radius);
+	float y= random.randRange(-radius, radius);
 
 	p->color= color;
 	p->energy= 10000;
-	p->pos= Vec3d(pos.x + x, pos.y, pos.z + y);
-	p->pos.x = truncateDecimal<double>(p->pos.x,10);
-	p->pos.y = truncateDecimal<double>(p->pos.y,10);
-	p->pos.z = truncateDecimal<double>(p->pos.z,10);
+	p->pos= Vec3f(pos.x + x, pos.y, pos.z + y);
+	p->pos.x = truncateDecimal<float>(p->pos.x,6);
+	p->pos.y = truncateDecimal<float>(p->pos.y,6);
+	p->pos.z = truncateDecimal<float>(p->pos.z,6);
 
 	p->lastPos= p->pos;
-	p->speed= Vec3d(random.randRange(-speed / 10, speed / 10), -speed,
+	p->speed= Vec3f(random.randRange(-speed / 10, speed / 10), -speed,
 			random.randRange(-speed / 10, speed / 10)) + windSpeed;
-	p->speed.x = truncateDecimal<double>(p->speed.x,10);
-	p->speed.y = truncateDecimal<double>(p->speed.y,10);
-	p->speed.z = truncateDecimal<double>(p->speed.z,10);
+	p->speed.x = truncateDecimal<float>(p->speed.x,6);
+	p->speed.y = truncateDecimal<float>(p->speed.y,6);
+	p->speed.z = truncateDecimal<float>(p->speed.z,6);
 }
 
 bool RainParticleSystem::deathTest(Particle *p){
 	return p->pos.y < 0;
 }
 
-void RainParticleSystem::setRadius(double radius) {
+void RainParticleSystem::setRadius(float radius) {
 	this->radius= radius;
 }
 
-void RainParticleSystem::setWind(double windAngle, double windSpeed){
+void RainParticleSystem::setWind(float windAngle, float windSpeed){
 #ifdef USE_STREFLOP
 	this->windSpeed.x= streflop::sinf(static_cast<streflop::Simple>(degToRad(windAngle)))*windSpeed;
 	this->windSpeed.y= 0.0f;
@@ -1551,9 +1551,9 @@ void RainParticleSystem::setWind(double windAngle, double windSpeed){
 	this->windSpeed.z= cosf(degToRad(windAngle)) * windSpeed;
 #endif
 
-	this->windSpeed.x = truncateDecimal<double>(this->windSpeed.x,10);
-	this->windSpeed.y = truncateDecimal<double>(this->windSpeed.y,10);
-	this->windSpeed.z = truncateDecimal<double>(this->windSpeed.z,10);
+	this->windSpeed.x = truncateDecimal<float>(this->windSpeed.x,6);
+	this->windSpeed.y = truncateDecimal<float>(this->windSpeed.y,6);
+	this->windSpeed.z = truncateDecimal<float>(this->windSpeed.z,6);
 }
 
 Checksum RainParticleSystem::getCRC() {
@@ -1567,7 +1567,7 @@ string RainParticleSystem::toString() const {
 
 	result += "\nRainParticleSystem ";
 	result += "\nwindSpeed = " + windSpeed.getString();
-	result += "\nradius = " + doubleToStr(radius);
+	result += "\nradius = " + floatToStr(radius);
 
 	return result;
 }
@@ -1591,35 +1591,35 @@ void SnowParticleSystem::initParticle(Particle *p, int particleIndex){
 
 	ParticleSystem::initParticle(p, particleIndex);
 
-	double x= random.randRange(-radius, radius);
-	double y= random.randRange(-radius, radius);
+	float x= random.randRange(-radius, radius);
+	float y= random.randRange(-radius, radius);
 
 	p->color= color;
 	p->energy= 10000;
-	p->pos= Vec3d(pos.x + x, pos.y, pos.z + y);
-	p->pos.x = truncateDecimal<double>(p->pos.x,10);
-	p->pos.y = truncateDecimal<double>(p->pos.y,10);
-	p->pos.z = truncateDecimal<double>(p->pos.z,10);
+	p->pos= Vec3f(pos.x + x, pos.y, pos.z + y);
+	p->pos.x = truncateDecimal<float>(p->pos.x,6);
+	p->pos.y = truncateDecimal<float>(p->pos.y,6);
+	p->pos.z = truncateDecimal<float>(p->pos.z,6);
 
 	p->lastPos= p->pos;
-	p->speed= Vec3d(0.0f, -speed, 0.0f) + windSpeed;
+	p->speed= Vec3f(0.0f, -speed, 0.0f) + windSpeed;
 	p->speed.x+= random.randRange(-0.005f, 0.005f);
 	p->speed.y+= random.randRange(-0.005f, 0.005f);
 
-	p->speed.x = truncateDecimal<double>(p->speed.x,10);
-	p->speed.y = truncateDecimal<double>(p->speed.y,10);
-	p->speed.z = truncateDecimal<double>(p->speed.z,10);
+	p->speed.x = truncateDecimal<float>(p->speed.x,6);
+	p->speed.y = truncateDecimal<float>(p->speed.y,6);
+	p->speed.z = truncateDecimal<float>(p->speed.z,6);
 }
 
 bool SnowParticleSystem::deathTest(Particle *p){
 	return p->pos.y < 0;
 }
 
-void SnowParticleSystem::setRadius(double radius){
+void SnowParticleSystem::setRadius(float radius){
 	this->radius= radius;
 }
 
-void SnowParticleSystem::setWind(double windAngle, double windSpeed){
+void SnowParticleSystem::setWind(float windAngle, float windSpeed){
 #ifdef USE_STREFLOP
 	this->windSpeed.x= streflop::sinf(static_cast<streflop::Simple>(degToRad(windAngle)))*windSpeed;
 	this->windSpeed.y= 0.0f;
@@ -1630,9 +1630,9 @@ void SnowParticleSystem::setWind(double windAngle, double windSpeed){
 	this->windSpeed.z= cosf(degToRad(windAngle)) * windSpeed;
 #endif
 
-	this->windSpeed.x = truncateDecimal<double>(this->windSpeed.x,10);
-	this->windSpeed.y = truncateDecimal<double>(this->windSpeed.y,10);
-	this->windSpeed.z = truncateDecimal<double>(this->windSpeed.z,10);
+	this->windSpeed.x = truncateDecimal<float>(this->windSpeed.x,6);
+	this->windSpeed.y = truncateDecimal<float>(this->windSpeed.y,6);
+	this->windSpeed.z = truncateDecimal<float>(this->windSpeed.z,6);
 
 }
 
@@ -1647,7 +1647,7 @@ string SnowParticleSystem::toString() const {
 
 	result += "\nSnowParticleSystem ";
 	result += "\nwindSpeed = " + windSpeed.getString();
-	result += "\nradius = " + doubleToStr(radius);
+	result += "\nradius = " + floatToStr(radius);
 
 	return result;
 }
@@ -1670,9 +1670,9 @@ void AttackParticleSystem::saveGame(XmlNode *rootNode) {
 	GameParticleSystem::saveGame(attackParticleSystemNode);
 
 //	float sizeNoEnergy;
-	attackParticleSystemNode->addAttribute("sizeNoEnergy",doubleToStr(sizeNoEnergy,10), mapTagReplacements);
+	attackParticleSystemNode->addAttribute("sizeNoEnergy",floatToStr(sizeNoEnergy,6), mapTagReplacements);
 //	float gravity;
-	attackParticleSystemNode->addAttribute("gravity",doubleToStr(gravity,10), mapTagReplacements);
+	attackParticleSystemNode->addAttribute("gravity",floatToStr(gravity,6), mapTagReplacements);
 
 }
 void AttackParticleSystem::loadGame(const XmlNode *rootNode) {
@@ -1696,8 +1696,8 @@ string AttackParticleSystem::toString() const {
 	string result = ParticleSystem::toString();
 
 	result += "\nAttackParticleSystem ";
-	result += "\nsizeNoEnergy = " + doubleToStr(sizeNoEnergy);
-	result += "\ngravity = " + doubleToStr(gravity);
+	result += "\nsizeNoEnergy = " + floatToStr(sizeNoEnergy);
+	result += "\ngravity = " + floatToStr(gravity);
 
 	return result;
 }
@@ -1745,24 +1745,24 @@ void ProjectileParticleSystem::update(){
 	if(state == sPlay){
 
 		lastPos = pos;
-		flatPos += zVector * truncateDecimal<double>(trajectorySpeed,10);
-		flatPos.x = truncateDecimal<double>(flatPos.x,10);
-		flatPos.y = truncateDecimal<double>(flatPos.y,10);
-		flatPos.z = truncateDecimal<double>(flatPos.z,10);
+		flatPos += zVector * truncateDecimal<float>(trajectorySpeed,6);
+		flatPos.x = truncateDecimal<float>(flatPos.x,6);
+		flatPos.y = truncateDecimal<float>(flatPos.y,6);
+		flatPos.z = truncateDecimal<float>(flatPos.z,6);
 
-		Vec3d targetVector = endPos - startPos;
-		targetVector.x = truncateDecimal<double>(targetVector.x,10);
-		targetVector.y = truncateDecimal<double>(targetVector.y,10);
-		targetVector.z = truncateDecimal<double>(targetVector.z,10);
+		Vec3f targetVector = endPos - startPos;
+		targetVector.x = truncateDecimal<float>(targetVector.x,6);
+		targetVector.y = truncateDecimal<float>(targetVector.y,6);
+		targetVector.z = truncateDecimal<float>(targetVector.z,6);
 
-		Vec3d currentVector = flatPos - startPos;
-		currentVector.x = truncateDecimal<double>(currentVector.x,10);
-		currentVector.y = truncateDecimal<double>(currentVector.y,10);
-		currentVector.z = truncateDecimal<double>(currentVector.z,10);
+		Vec3f currentVector = flatPos - startPos;
+		currentVector.x = truncateDecimal<float>(currentVector.x,6);
+		currentVector.y = truncateDecimal<float>(currentVector.y,6);
+		currentVector.z = truncateDecimal<float>(currentVector.z,6);
 
 		// ratio
-		double relative= clamp(currentVector.length() / targetVector.length(), 0.0f, 1.0f);
-		relative = truncateDecimal<double>(relative,10);
+		float relative= clamp(currentVector.length() / targetVector.length(), 0.0f, 1.0f);
+		relative = truncateDecimal<float>(relative,6);
 
 		//printf("Update particle targetVector [%s][%f] currentVector [%s][%f] relative = %f\n",targetVector.getString().c_str(),targetVector.length(),currentVector.getString().c_str(),currentVector.length(),relative);
 
@@ -1773,7 +1773,7 @@ void ProjectileParticleSystem::update(){
 //#endif
 
 		//printf("#a currentVector.length() = %f, targetVector.length() = %f, relative = %f, absolute = %f, trajectorySpeed = %f\n",currentVector.length(),targetVector.length(),relative,absolute,trajectorySpeed);
-		double absolute = relative;
+		float absolute = relative;
 
 		setTween(relative,absolute);
 
@@ -1785,12 +1785,12 @@ void ProjectileParticleSystem::update(){
 				break;
 
 			case tParabolic: {
-				double scaledT   = truncateDecimal<double>(2.0f * (relative - 0.5f),10);
-				double paraboleY = truncateDecimal<double>((1.0f - scaledT * scaledT) * trajectoryScale,10);
+				float scaledT   = truncateDecimal<float>(2.0f * (relative - 0.5f),6);
+				float paraboleY = truncateDecimal<float>((1.0f - scaledT * scaledT) * trajectoryScale,6);
 
 				pos= flatPos;
 				pos.y += paraboleY;
-				pos.y = truncateDecimal<double>(pos.y,10);
+				pos.y = truncateDecimal<float>(pos.y,6);
 				}
 				break;
 
@@ -1803,9 +1803,9 @@ void ProjectileParticleSystem::update(){
 				pos+= xVector * cos(relative * trajectoryFrequency * targetVector.length()) * trajectoryScale;
 				pos+= yVector * sin(relative * trajectoryFrequency * targetVector.length()) * trajectoryScale;
 #endif
-				pos.x = truncateDecimal<double>(pos.x,10);
-				pos.y = truncateDecimal<double>(pos.y,10);
-				pos.z = truncateDecimal<double>(pos.z,10);
+				pos.x = truncateDecimal<float>(pos.x,6);
+				pos.y = truncateDecimal<float>(pos.y,6);
+				pos.z = truncateDecimal<float>(pos.z,6);
 			}
 				break;
 
@@ -1816,16 +1816,16 @@ void ProjectileParticleSystem::update(){
 
 		direction= pos - lastPos;
 		direction.normalize();
-		direction.x = truncateDecimal<double>(direction.x,10);
-		direction.y = truncateDecimal<double>(direction.y,10);
-		direction.z = truncateDecimal<double>(direction.z,10);
+		direction.x = truncateDecimal<float>(direction.x,6);
+		direction.y = truncateDecimal<float>(direction.y,6);
+		direction.z = truncateDecimal<float>(direction.z,6);
 
 		// trigger update of child particles
 		positionChildren(); 
 		rotateChildren();
 
 		//arrive destination
-		arriveDestinationDistance = truncateDecimal<double>(flatPos.dist(endPos),10);
+		arriveDestinationDistance = truncateDecimal<float>(flatPos.dist(endPos),6);
 		if(arriveDestinationDistance < 0.5f) {
 			fade();
 			model= NULL;
@@ -1849,11 +1849,11 @@ void ProjectileParticleSystem::update(){
 void ProjectileParticleSystem::rotateChildren() {
 	//### only on horizontal plane :(
 #ifdef USE_STREFLOP
-	double rotation = truncateDecimal<double>(streflop::atan2(static_cast<streflop::Simple>(direction.x), static_cast<streflop::Simple>(direction.z)),10);
+	float rotation = truncateDecimal<float>(streflop::atan2(static_cast<streflop::Simple>(direction.x), static_cast<streflop::Simple>(direction.z)),6);
 #else
-	double rotation = truncateDecimal<double>(atan2(direction.x, direction.z),10);
+	float rotation = truncateDecimal<float>(atan2(direction.x, direction.z),6);
 #endif	
-	rotation = truncateDecimal<double>(radToDeg(rotation),10);
+	rotation = truncateDecimal<float>(radToDeg(rotation),6);
 	for(Children::iterator it = children.begin(); it != children.end(); ++it)
 		(*it)->setRotation(rotation);
 }
@@ -1862,88 +1862,88 @@ void ProjectileParticleSystem::initParticle(Particle *p, int particleIndex){
 
 	ParticleSystem::initParticle(p, particleIndex);
 
-	double t= static_cast<double> (particleIndex) / emissionRate;
-	t = truncateDecimal<double>(t,10);
+	float t= static_cast<float> (particleIndex) / emissionRate;
+	t = truncateDecimal<float>(t,6);
 
 	p->pos= pos + (lastPos - pos) * t;
-	p->pos.x = truncateDecimal<double>(p->pos.x,10);
-	p->pos.y = truncateDecimal<double>(p->pos.y,10);
-	p->pos.z = truncateDecimal<double>(p->pos.z,10);
+	p->pos.x = truncateDecimal<float>(p->pos.x,6);
+	p->pos.y = truncateDecimal<float>(p->pos.y,6);
+	p->pos.z = truncateDecimal<float>(p->pos.z,6);
 
 	p->lastPos= lastPos;
-	p->speed= Vec3d(random.randRange(-0.1f, 0.1f), random.randRange(-0.1f, 0.1f),
+	p->speed= Vec3f(random.randRange(-0.1f, 0.1f), random.randRange(-0.1f, 0.1f),
 			random.randRange(-0.1f, 0.1f)) * speed;
-	p->speed.x = truncateDecimal<double>(p->speed.x,10);
-	p->speed.y = truncateDecimal<double>(p->speed.y,10);
-	p->speed.z = truncateDecimal<double>(p->speed.z,10);
+	p->speed.x = truncateDecimal<float>(p->speed.x,6);
+	p->speed.y = truncateDecimal<float>(p->speed.y,6);
+	p->speed.z = truncateDecimal<float>(p->speed.z,6);
 
-	p->accel= Vec3d(0.0f, -gravity, 0.0f);
-	p->accel.x = truncateDecimal<double>(p->accel.x,10);
-	p->accel.y = truncateDecimal<double>(p->accel.y,10);
-	p->accel.z = truncateDecimal<double>(p->accel.z,10);
+	p->accel= Vec3f(0.0f, -gravity, 0.0f);
+	p->accel.x = truncateDecimal<float>(p->accel.x,6);
+	p->accel.y = truncateDecimal<float>(p->accel.y,6);
+	p->accel.z = truncateDecimal<float>(p->accel.z,6);
 
 	updateParticle(p);
 }
 
 void ProjectileParticleSystem::updateParticle(Particle *p){
-	double energyRatio= clamp(static_cast<double> (p->energy) / maxParticleEnergy, 0.f, 1.f);
-	energyRatio = truncateDecimal<double>(energyRatio,10);
+	float energyRatio= clamp(static_cast<float> (p->energy) / maxParticleEnergy, 0.f, 1.f);
+	energyRatio = truncateDecimal<float>(energyRatio,6);
 
 	p->lastPos += p->speed;
-	p->lastPos.x = truncateDecimal<double>(p->lastPos.x,10);
-	p->lastPos.y = truncateDecimal<double>(p->lastPos.y,10);
-	p->lastPos.z = truncateDecimal<double>(p->lastPos.z,10);
+	p->lastPos.x = truncateDecimal<float>(p->lastPos.x,6);
+	p->lastPos.y = truncateDecimal<float>(p->lastPos.y,6);
+	p->lastPos.z = truncateDecimal<float>(p->lastPos.z,6);
 
 	p->pos += p->speed;
-	p->pos.x = truncateDecimal<double>(p->pos.x,10);
-	p->pos.y = truncateDecimal<double>(p->pos.y,10);
-	p->pos.z = truncateDecimal<double>(p->pos.z,10);
+	p->pos.x = truncateDecimal<float>(p->pos.x,6);
+	p->pos.y = truncateDecimal<float>(p->pos.y,6);
+	p->pos.z = truncateDecimal<float>(p->pos.z,6);
 
 	p->speed += p->accel;
-	p->speed.x = truncateDecimal<double>(p->speed.x,10);
-	p->speed.y = truncateDecimal<double>(p->speed.y,10);
-	p->speed.z = truncateDecimal<double>(p->speed.z,10);
+	p->speed.x = truncateDecimal<float>(p->speed.x,6);
+	p->speed.y = truncateDecimal<float>(p->speed.y,6);
+	p->speed.z = truncateDecimal<float>(p->speed.z,6);
 
 	p->color= color * energyRatio + colorNoEnergy * (1.0f - energyRatio);
 	p->size = particleSize * energyRatio + sizeNoEnergy * (1.0f - energyRatio);
-	p->size = truncateDecimal<double>(p->size,10);
+	p->size = truncateDecimal<float>(p->size,6);
 	p->energy--;
 }
 
-void ProjectileParticleSystem::setPath(Vec3d startPos, Vec3d endPos){
+void ProjectileParticleSystem::setPath(Vec3f startPos, Vec3f endPos) {
 
 	//compute axis
 	zVector= endPos - startPos;
-	zVector.x = truncateDecimal<double>(zVector.x,10);
-	zVector.y = truncateDecimal<double>(zVector.y,10);
-	zVector.z = truncateDecimal<double>(zVector.z,10);
+	zVector.x = truncateDecimal<float>(zVector.x,6);
+	zVector.y = truncateDecimal<float>(zVector.y,6);
+	zVector.z = truncateDecimal<float>(zVector.z,6);
 
 	zVector.normalize();
-	zVector.x = truncateDecimal<double>(zVector.x,10);
-	zVector.y = truncateDecimal<double>(zVector.y,10);
-	zVector.z = truncateDecimal<double>(zVector.z,10);
+	zVector.x = truncateDecimal<float>(zVector.x,6);
+	zVector.y = truncateDecimal<float>(zVector.y,6);
+	zVector.z = truncateDecimal<float>(zVector.z,6);
 
-	yVector= Vec3d(0.0f, 1.0f, 0.0f);
+	yVector= Vec3f(0.0f, 1.0f, 0.0f);
 	xVector= zVector.cross(yVector);
-	xVector.x = truncateDecimal<double>(xVector.x,10);
-	xVector.y = truncateDecimal<double>(xVector.y,10);
-	xVector.z = truncateDecimal<double>(xVector.z,10);
+	xVector.x = truncateDecimal<float>(xVector.x,6);
+	xVector.y = truncateDecimal<float>(xVector.y,6);
+	xVector.z = truncateDecimal<float>(xVector.z,6);
 
 	//apply offset
 	startPos += xVector * offset.x;
-	startPos.x = truncateDecimal<double>(startPos.x,10);
-	startPos.y = truncateDecimal<double>(startPos.y,10);
-	startPos.z = truncateDecimal<double>(startPos.z,10);
+	startPos.x = truncateDecimal<float>(startPos.x,6);
+	startPos.y = truncateDecimal<float>(startPos.y,6);
+	startPos.z = truncateDecimal<float>(startPos.z,6);
 
 	startPos+= yVector * offset.y;
-	startPos.x = truncateDecimal<double>(startPos.x,10);
-	startPos.y = truncateDecimal<double>(startPos.y,10);
-	startPos.z = truncateDecimal<double>(startPos.z,10);
+	startPos.x = truncateDecimal<float>(startPos.x,6);
+	startPos.y = truncateDecimal<float>(startPos.y,6);
+	startPos.z = truncateDecimal<float>(startPos.z,6);
 
 	startPos+= zVector * offset.z;
-	startPos.x = truncateDecimal<double>(startPos.x,10);
-	startPos.y = truncateDecimal<double>(startPos.y,10);
-	startPos.z = truncateDecimal<double>(startPos.z,10);
+	startPos.x = truncateDecimal<float>(startPos.x,6);
+	startPos.y = truncateDecimal<float>(startPos.y,6);
+	startPos.z = truncateDecimal<float>(startPos.z,6);
 
 	pos= startPos;
 	lastPos= startPos;
@@ -1951,20 +1951,20 @@ void ProjectileParticleSystem::setPath(Vec3d startPos, Vec3d endPos){
 
 	//recompute axis
 	zVector= endPos - startPos;
-	zVector.x = truncateDecimal<double>(zVector.x,10);
-	zVector.y = truncateDecimal<double>(zVector.y,10);
-	zVector.z = truncateDecimal<double>(zVector.z,10);
+	zVector.x = truncateDecimal<float>(zVector.x,6);
+	zVector.y = truncateDecimal<float>(zVector.y,6);
+	zVector.z = truncateDecimal<float>(zVector.z,6);
 
 	zVector.normalize();
-	zVector.x = truncateDecimal<double>(zVector.x,10);
-	zVector.y = truncateDecimal<double>(zVector.y,10);
-	zVector.z = truncateDecimal<double>(zVector.z,10);
+	zVector.x = truncateDecimal<float>(zVector.x,6);
+	zVector.y = truncateDecimal<float>(zVector.y,6);
+	zVector.z = truncateDecimal<float>(zVector.z,6);
 
-	yVector= Vec3d(0.0f, 1.0f, 0.0f);
+	yVector= Vec3f(0.0f, 1.0f, 0.0f);
 	xVector= zVector.cross(yVector);
-	xVector.x = truncateDecimal<double>(xVector.x,10);
-	xVector.y = truncateDecimal<double>(xVector.y,10);
-	xVector.z = truncateDecimal<double>(xVector.z,10);
+	xVector.x = truncateDecimal<float>(xVector.x,6);
+	xVector.y = truncateDecimal<float>(xVector.y,6);
+	xVector.z = truncateDecimal<float>(xVector.z,6);
 
 	// set members
 	this->startPos= startPos;
@@ -1972,14 +1972,14 @@ void ProjectileParticleSystem::setPath(Vec3d startPos, Vec3d endPos){
 	
 	// direction
 	direction = (endPos - lastPos);
-	direction.x = truncateDecimal<double>(direction.x,10);
-	direction.y = truncateDecimal<double>(direction.y,10);
-	direction.z = truncateDecimal<double>(direction.z,10);
+	direction.x = truncateDecimal<float>(direction.x,6);
+	direction.y = truncateDecimal<float>(direction.y,6);
+	direction.z = truncateDecimal<float>(direction.z,6);
 
 	direction.normalize();
-	direction.x = truncateDecimal<double>(direction.x,10);
-	direction.y = truncateDecimal<double>(direction.y,10);
-	direction.z = truncateDecimal<double>(direction.z,10);
+	direction.x = truncateDecimal<float>(direction.x,6);
+	direction.y = truncateDecimal<float>(direction.y,6);
+	direction.z = truncateDecimal<float>(direction.z,6);
 
 	rotateChildren();
 }
@@ -2027,12 +2027,12 @@ void ProjectileParticleSystem::saveGame(XmlNode *rootNode) {
 //	Trajectory trajectory;
 	projectileParticleSystemNode->addAttribute("trajectory",intToStr(trajectory), mapTagReplacements);
 //	float trajectorySpeed;
-	projectileParticleSystemNode->addAttribute("trajectorySpeed",doubleToStr(trajectorySpeed,10), mapTagReplacements);
+	projectileParticleSystemNode->addAttribute("trajectorySpeed",floatToStr(trajectorySpeed,6), mapTagReplacements);
 //	//parabolic
 //	float trajectoryScale;
-	projectileParticleSystemNode->addAttribute("trajectoryScale",doubleToStr(trajectoryScale,10), mapTagReplacements);
+	projectileParticleSystemNode->addAttribute("trajectoryScale",floatToStr(trajectoryScale,6), mapTagReplacements);
 //	float trajectoryFrequency;
-	projectileParticleSystemNode->addAttribute("trajectoryFrequency",doubleToStr(trajectoryFrequency,10), mapTagReplacements);
+	projectileParticleSystemNode->addAttribute("trajectoryFrequency",floatToStr(trajectoryFrequency,6), mapTagReplacements);
 }
 
 void ProjectileParticleSystem::loadGame(const XmlNode *rootNode) {
@@ -2051,20 +2051,20 @@ void ProjectileParticleSystem::loadGame(const XmlNode *rootNode) {
 		nextParticleSystem->loadGame(splashParticleSystemNode);
 	}
 	//	Vec3f lastPos;
-	lastPos = Vec3d::strToVec3(projectileParticleSystemNode->getAttribute("lastPos")->getValue());
+	lastPos = Vec3f::strToVec3(projectileParticleSystemNode->getAttribute("lastPos")->getValue());
 	//	Vec3f startPos;
-	startPos = Vec3d::strToVec3(projectileParticleSystemNode->getAttribute("startPos")->getValue());
+	startPos = Vec3f::strToVec3(projectileParticleSystemNode->getAttribute("startPos")->getValue());
 	//	Vec3f endPos;
-	endPos = Vec3d::strToVec3(projectileParticleSystemNode->getAttribute("endPos")->getValue());
+	endPos = Vec3f::strToVec3(projectileParticleSystemNode->getAttribute("endPos")->getValue());
 	//	Vec3f flatPos;
-	flatPos = Vec3d::strToVec3(projectileParticleSystemNode->getAttribute("flatPos")->getValue());
+	flatPos = Vec3f::strToVec3(projectileParticleSystemNode->getAttribute("flatPos")->getValue());
 	//
 	//	Vec3f xVector;
-	xVector = Vec3d::strToVec3(projectileParticleSystemNode->getAttribute("xVector")->getValue());
+	xVector = Vec3f::strToVec3(projectileParticleSystemNode->getAttribute("xVector")->getValue());
 	//	Vec3f yVector;
-	yVector = Vec3d::strToVec3(projectileParticleSystemNode->getAttribute("yVector")->getValue());
+	yVector = Vec3f::strToVec3(projectileParticleSystemNode->getAttribute("yVector")->getValue());
 	//	Vec3f zVector;
-	zVector = Vec3d::strToVec3(projectileParticleSystemNode->getAttribute("zVector")->getValue());
+	zVector = Vec3f::strToVec3(projectileParticleSystemNode->getAttribute("zVector")->getValue());
 	//	Trajectory trajectory;
 	trajectory = static_cast<Trajectory>(projectileParticleSystemNode->getAttribute("trajectory")->getIntValue());
 	//	float trajectorySpeed;
@@ -2100,11 +2100,11 @@ string ProjectileParticleSystem::toString() const {
 	result += "\nzVector = " + zVector.getString();
 
 	result += "\ntrajectory = " + intToStr(trajectory);
-	result += "\ntrajectorySpeed = " + doubleToStr(trajectorySpeed);
-	result += "\ntrajectoryScale = " + doubleToStr(trajectoryScale);
-	result += "\ntrajectoryFrequency = " + doubleToStr(trajectoryFrequency);
+	result += "\ntrajectorySpeed = " + floatToStr(trajectorySpeed);
+	result += "\ntrajectoryScale = " + floatToStr(trajectoryScale);
+	result += "\ntrajectoryFrequency = " + floatToStr(trajectoryFrequency);
 
-	result += "\narriveDestinationDistance = " + doubleToStr(arriveDestinationDistance);
+	result += "\narriveDestinationDistance = " + floatToStr(arriveDestinationDistance);
 
 	return result;
 }
@@ -2145,10 +2145,10 @@ void SplashParticleSystem::update() {
 	ParticleSystem::update();
 	if(state != sPause) {
 		emissionRate -= emissionRateFade;
-		emissionRate = truncateDecimal<double>(emissionRate,10);
+		emissionRate = truncateDecimal<float>(emissionRate,6);
 
-		double t = 1.0f - ((emissionRate + startEmissionRate) / (startEmissionRate * 2.0f));
-		t = truncateDecimal<double>(t,10);
+		float t = 1.0f - ((emissionRate + startEmissionRate) / (startEmissionRate * 2.0f));
+		t = truncateDecimal<float>(t,6);
 
 		t= clamp(t, 0.0f, 1.0f);
 		setTween(t,t);
@@ -2166,40 +2166,40 @@ void SplashParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->size= particleSize;
 	p->color= color;
 
-	p->speed= Vec3d(horizontalSpreadA * random.randRange(-1.0f, 1.0f) + horizontalSpreadB, verticalSpreadA
+	p->speed= Vec3f(horizontalSpreadA * random.randRange(-1.0f, 1.0f) + horizontalSpreadB, verticalSpreadA
 	        * random.randRange(-1.0f, 1.0f) + verticalSpreadB, horizontalSpreadA * random.randRange(-1.0f, 1.0f)
 	        + horizontalSpreadB);
 	p->speed.normalize();
 	p->speed= p->speed * speed;
-	p->speed.x = truncateDecimal<double>(p->speed.x,10);
-	p->speed.y = truncateDecimal<double>(p->speed.y,10);
-	p->speed.z = truncateDecimal<double>(p->speed.z,10);
+	p->speed.x = truncateDecimal<float>(p->speed.x,6);
+	p->speed.y = truncateDecimal<float>(p->speed.y,6);
+	p->speed.z = truncateDecimal<float>(p->speed.z,6);
 
-	p->accel= Vec3d(0.0f, -gravity, 0.0f);
-	p->accel.x = truncateDecimal<double>(p->accel.x,10);
-	p->accel.y = truncateDecimal<double>(p->accel.y,10);
-	p->accel.z = truncateDecimal<double>(p->accel.z,10);
+	p->accel= Vec3f(0.0f, -gravity, 0.0f);
+	p->accel.x = truncateDecimal<float>(p->accel.x,6);
+	p->accel.y = truncateDecimal<float>(p->accel.y,6);
+	p->accel.z = truncateDecimal<float>(p->accel.z,6);
 
 }
 
 void SplashParticleSystem::updateParticle(Particle *p){
-	double energyRatio= clamp(static_cast<double> (p->energy) / maxParticleEnergy, 0.f, 1.f);
+	float energyRatio= clamp(static_cast<float> (p->energy) / maxParticleEnergy, 0.f, 1.f);
 
 	p->lastPos= p->pos;
 	p->pos= p->pos + p->speed;
-	p->pos.x = truncateDecimal<double>(p->pos.x,10);
-	p->pos.y = truncateDecimal<double>(p->pos.y,10);
-	p->pos.z = truncateDecimal<double>(p->pos.z,10);
+	p->pos.x = truncateDecimal<float>(p->pos.x,6);
+	p->pos.y = truncateDecimal<float>(p->pos.y,6);
+	p->pos.z = truncateDecimal<float>(p->pos.z,6);
 
 	p->speed= p->speed + p->accel;
-	p->speed.x = truncateDecimal<double>(p->speed.x,10);
-	p->speed.y = truncateDecimal<double>(p->speed.y,10);
-	p->speed.z = truncateDecimal<double>(p->speed.z,10);
+	p->speed.x = truncateDecimal<float>(p->speed.x,6);
+	p->speed.y = truncateDecimal<float>(p->speed.y,6);
+	p->speed.z = truncateDecimal<float>(p->speed.z,6);
 
 	p->energy--;
 	p->color= color * energyRatio + colorNoEnergy * (1.0f - energyRatio);
 	p->size= particleSize * energyRatio + sizeNoEnergy * (1.0f - energyRatio);
-	p->size = truncateDecimal<double>(p->size,10);
+	p->size = truncateDecimal<float>(p->size,6);
 }
 
 void SplashParticleSystem::saveGame(XmlNode *rootNode) {
@@ -2214,18 +2214,18 @@ void SplashParticleSystem::saveGame(XmlNode *rootNode) {
 	}
 
 //	float emissionRateFade;
-	splashParticleSystemNode->addAttribute("emissionRateFade",doubleToStr(emissionRateFade,10), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("emissionRateFade",floatToStr(emissionRateFade,6), mapTagReplacements);
 //	float verticalSpreadA;
-	splashParticleSystemNode->addAttribute("verticalSpreadA",doubleToStr(verticalSpreadA,10), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("verticalSpreadA",floatToStr(verticalSpreadA,6), mapTagReplacements);
 //	float verticalSpreadB;
-	splashParticleSystemNode->addAttribute("verticalSpreadB",doubleToStr(verticalSpreadB,10), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("verticalSpreadB",floatToStr(verticalSpreadB,6), mapTagReplacements);
 //	float horizontalSpreadA;
-	splashParticleSystemNode->addAttribute("horizontalSpreadA",doubleToStr(horizontalSpreadA,10), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("horizontalSpreadA",floatToStr(horizontalSpreadA,6), mapTagReplacements);
 //	float horizontalSpreadB;
-	splashParticleSystemNode->addAttribute("horizontalSpreadB",doubleToStr(horizontalSpreadB,10), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("horizontalSpreadB",floatToStr(horizontalSpreadB,6), mapTagReplacements);
 //
 //	float startEmissionRate;
-	splashParticleSystemNode->addAttribute("startEmissionRate",doubleToStr(startEmissionRate,10), mapTagReplacements);
+	splashParticleSystemNode->addAttribute("startEmissionRate",floatToStr(startEmissionRate,6), mapTagReplacements);
 }
 
 void SplashParticleSystem::loadGame(const XmlNode *rootNode) {
@@ -2273,12 +2273,12 @@ string SplashParticleSystem::toString() const {
 		result += "\nprevParticleSystem = NOT NULL\n";
 	}
 
-	result += "\nemissionRateFade = " + doubleToStr(emissionRateFade);
-	result += "\nverticalSpreadA = " + doubleToStr(verticalSpreadA);
-	result += "\nverticalSpreadB = " + doubleToStr(verticalSpreadB);
-	result += "\nhorizontalSpreadA = " + doubleToStr(horizontalSpreadA);
-	result += "\nhorizontalSpreadB = " + doubleToStr(horizontalSpreadB);
-	result += "\nstartEmissionRate = " + doubleToStr(startEmissionRate);
+	result += "\nemissionRateFade = " + floatToStr(emissionRateFade);
+	result += "\nverticalSpreadA = " + floatToStr(verticalSpreadA);
+	result += "\nverticalSpreadB = " + floatToStr(verticalSpreadB);
+	result += "\nhorizontalSpreadA = " + floatToStr(horizontalSpreadA);
+	result += "\nhorizontalSpreadB = " + floatToStr(horizontalSpreadB);
+	result += "\nstartEmissionRate = " + floatToStr(startEmissionRate);
 
 	return result;
 }

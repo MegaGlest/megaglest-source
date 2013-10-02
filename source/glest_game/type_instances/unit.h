@@ -353,7 +353,7 @@ private:
     int64 progress;			//between 0 and 1
 	int64 lastAnimProgress;	//between 0 and 1
 	int64 animProgress;		//between 0 and 1
-	double highlight;
+	float highlight;
 	int32 progress2;
 	int32 kills;
 	int32 enemyKills;
@@ -368,16 +368,16 @@ private:
     Vec2i pos;
 	Vec2i lastPos;
     Vec2i targetPos;		//absolute target pos
-	Vec3d targetVec;
+	Vec3f targetVec;
 	Vec2i meetingPos;
 
-	double lastRotation;		//in degrees
-	double targetRotation;
-	double rotation;
-	double targetRotationZ;
-	double targetRotationX;
-	double rotationZ;
-	double rotationX;
+	float lastRotation;		//in degrees
+	float targetRotation;
+	float rotation;
+	float targetRotationZ;
+	float targetRotationX;
+	float rotationZ;
+	float rotationX;
 
 	const UnitType *preMorph_type;
     const UnitType *type;
@@ -520,7 +520,7 @@ public:
     inline double getLastAnimProgressAsFloat() const	{return static_cast<double>(lastAnimProgress) / ANIMATION_SPEED_MULTIPLIER;}
     inline double getAnimProgressAsFloat() const		{return static_cast<double>(animProgress) / ANIMATION_SPEED_MULTIPLIER;}
 
-    inline double getHightlight() const					{return highlight;}
+    inline float getHightlight() const					{return highlight;}
     inline int getProgress2() const					{return progress2;}
 	inline int getFactionIndex() const {
 		return faction->getIndex();
@@ -536,7 +536,7 @@ public:
 	double getEpRatio() const;
 	inline bool getToBeUndertaken() const				{return toBeUndertaken;}
 	inline Vec2i getTargetPos() const					{return targetPos;}
-	inline Vec3d getTargetVec() const					{return targetVec;}
+	inline Vec3f getTargetVec() const					{return targetVec;}
 	inline Field getTargetField() const				{return targetField;}
 	inline Vec2i getMeetingPos() const					{return meetingPos;}
 	inline Faction *getFaction() const					{return faction;}
@@ -546,9 +546,9 @@ public:
 
 	inline const SkillType *getCurrSkill() const		{return currSkill;}
 	inline const TotalUpgrade *getTotalUpgrade() const	{return &totalUpgrade;}
-	inline double getRotation() const					{return rotation;}
-	double getRotationX() const;
-	double getRotationZ() const;
+	inline float getRotation() const					{return rotation;}
+	float getRotationX() const;
+	float getRotationZ() const;
 	ParticleSystem *getFire() const;
 	inline int getKills() const						{return kills;}
 	inline int getEnemyKills() const					{return enemyKills;}
@@ -574,7 +574,7 @@ public:
 	Vec2i getPosWithCellMapSet() const;
 	inline Vec2i getLastPos() const			{return lastPos;}
 	Vec2i getCenteredPos() const;
-    Vec2d getFloatCenteredPos() const;
+    Vec2f getFloatCenteredPos() const;
 	Vec2i getCellPos() const;
 
     //is
@@ -613,7 +613,7 @@ public:
 	void refreshPos();
 	void setTargetPos(const Vec2i &targetPos);
 	void setTarget(const Unit *unit);
-	void setTargetVec(const Vec3d &targetVec);
+	void setTargetVec(const Vec3f &targetVec);
 	void setMeetingPos(const Vec2i &meetingPos);
 	void setVisible(const bool visible);
 	inline bool getVisible() const { return visible; }
@@ -621,9 +621,9 @@ public:
 	//render related
     const Model *getCurrentModel();
     Model *getCurrentModelPtr();
-	Vec3d getCurrVector() const;
-	Vec3d getCurrVectorFlat() const;
-	Vec3d getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) const;
+	Vec3f getCurrVector() const;
+	Vec3f getCurrVectorFlat() const;
+	Vec3f getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) const;
 
     //command related
 	bool anyCommand(bool validateCommandtype=false) const;
@@ -794,7 +794,7 @@ private:
 	void addNetworkCRCDecHp(string info) { }
 	string getNetworkCRCDecHpList() const;
 
-	double computeHeight(const Vec2i &pos) const;
+	float computeHeight(const Vec2i &pos) const;
 	void calculateXZRotation();
 	void updateTarget();
 	void clearCommands();

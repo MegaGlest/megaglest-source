@@ -1054,7 +1054,7 @@ void Renderer::setupLighting() {
 				Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 
 				if(world->toRenderUnit(unit) &&
-					unit->getCurrVector().dist(Vec3d(gameCamera->getPos())) < maxLightDist &&
+					unit->getCurrVector().dist(gameCamera->getPos()) < maxLightDist &&
 					unit->getType()->getLight() && unit->isOperative()) {
 					//printf("$$$ Show light for faction: %s # %d / %d for Unit [%d - %s]\n",world->getFaction(i)->getType()->getName().c_str(),lightCount,maxLights,unit->getId(),unit->getFullName().c_str());
 
@@ -6662,7 +6662,7 @@ void Renderer::selectUsingFrustumSelection(Selection::UnitContainer &units,
 				visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 			if(unit != NULL && unit->isAlive()) {
-				Vec3d unitPos = unit->getCurrVector();
+				Vec3f unitPos = unit->getCurrVector();
 				bool insideQuad = CubeInFrustum(quadSelectionCacheItem.frustumData,
 						unitPos.x, unitPos.y, unitPos.z, unit->getType()->getSize());
 				if(insideQuad == true) {

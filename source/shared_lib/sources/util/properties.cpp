@@ -519,7 +519,7 @@ void Properties::setBool(const string &key, bool value){
 }
 
 void Properties::setFloat(const string &key, float value){
-	setString(key, floatToStr(value,10));
+	setString(key, floatToStr(value,6));
 }
 
 void Properties::setString(const string &key, const string &value){

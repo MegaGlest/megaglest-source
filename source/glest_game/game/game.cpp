@@ -1418,14 +1418,14 @@ void Game::init(bool initForPreviewOnly) {
 				logger.add(Lang::getInstance().get("LogScreenGameLoadingCreatingRainParticles","",true), true);
 				weatherParticleSystem= new RainParticleSystem();
 				weatherParticleSystem->setSpeed(12.f / GameConstants::updateFps);
-				weatherParticleSystem->setPos(Vec3d(gameCamera.getPos()));
+				weatherParticleSystem->setPos(gameCamera.getPos());
 				renderer.manageParticleSystem(weatherParticleSystem, rsGame);
 			}
 			else if(world.getTileset()->getWeather() == wSnowy) {
 				logger.add(Lang::getInstance().get("LogScreenGameLoadingCreatingSnowParticles","",true), true);
 				weatherParticleSystem= new SnowParticleSystem(1200);
 				weatherParticleSystem->setSpeed(1.5f / GameConstants::updateFps);
-				weatherParticleSystem->setPos(Vec3d(gameCamera.getPos()));
+				weatherParticleSystem->setPos(gameCamera.getPos());
 				weatherParticleSystem->setTexture(coreData.getSnowTexture());
 				renderer.manageParticleSystem(weatherParticleSystem, rsGame);
 			}
@@ -2143,7 +2143,7 @@ void Game::update() {
 					}
 
 					if(currentCameraFollowUnit!=NULL){
-						Vec3d c=currentCameraFollowUnit->getCurrVector();
+						Vec3f c=currentCameraFollowUnit->getCurrVector();
 						int rotation=currentCameraFollowUnit->getRotation();
 						double angle=rotation+180;
 
@@ -2192,7 +2192,7 @@ void Game::update() {
 
 					//Particle systems
 					if(weatherParticleSystem != NULL) {
-						weatherParticleSystem->setPos(Vec3d(gameCamera.getPos()));
+						weatherParticleSystem->setPos(gameCamera.getPos());
 					}
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [weather particle updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
@@ -6242,7 +6242,7 @@ string Game::saveGame(string name, string path) {
 	//bool showFullConsole;
 	//bool mouseMoved;
 	//float scrollSpeed;
-	gameNode->addAttribute("scrollSpeed",floatToStr(scrollSpeed,10), mapTagReplacements);
+	gameNode->addAttribute("scrollSpeed",floatToStr(scrollSpeed,6), mapTagReplacements);
 	//bool camLeftButtonDown;
 	//bool camRightButtonDown;
 	//bool camUpButtonDown;
@@ -6336,8 +6336,8 @@ string Game::saveGame(string name, string path) {
 		HighlightSpecialUnitInfo &info = iterMap->second;
 		XmlNode *infoNode = unitHighlightListNode->addChild("info");
 		infoNode->addAttribute("unitid",intToStr(iterMap->first), mapTagReplacements);
-		infoNode->addAttribute("radius",floatToStr(info.radius,10), mapTagReplacements);
-		infoNode->addAttribute("thickness",floatToStr(info.thickness,10), mapTagReplacements);
+		infoNode->addAttribute("radius",floatToStr(info.radius,6), mapTagReplacements);
+		infoNode->addAttribute("thickness",floatToStr(info.thickness,6), mapTagReplacements);
 		infoNode->addAttribute("color",info.color.getString(), mapTagReplacements);
 	}
 

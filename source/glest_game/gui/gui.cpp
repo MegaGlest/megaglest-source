@@ -540,7 +540,7 @@ void Gui::giveTwoClickOrders(int x, int y , bool prepared) {
 
 void Gui::centerCameraOnSelection() {
 	if(selection.isEmpty() == false) {
-		Vec3d refPos= selection.getRefPos();
+		Vec3f refPos= selection.getRefPos();
 		gameCamera->centerXZ(refPos.x, refPos.z);
 	}
 }

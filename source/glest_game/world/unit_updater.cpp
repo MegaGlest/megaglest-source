@@ -119,7 +119,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 	//play skill sound
 	const SkillType *currSkill= unit->getCurrSkill();
 	if(currSkill->getSound() != NULL) {
-		double soundStartTime= currSkill->getSoundStartTime();
+		float soundStartTime= currSkill->getSoundStartTime();
 		if(soundStartTime >= unit->getLastAnimProgressAsFloat() && soundStartTime < unit->getAnimProgressAsFloat()) {
 			if(map->getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(world->getThisTeamIndex()) ||
 				(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
@@ -138,9 +138,9 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 	if(unit->getCurrSkill()->getClass() == scAttack) {
 		const AttackSkillType *ast= static_cast<const AttackSkillType*>(unit->getCurrSkill());
 
-		double attackStartTime = truncateDecimal<double>(ast->getAttackStartTime(),10);
-		double lastAnimProgress = truncateDecimal<double>(unit->getLastAnimProgressAsFloat(),10);
-		double animProgress = truncateDecimal<double>(unit->getAnimProgressAsFloat(),10);
+		float attackStartTime = truncateDecimal<float>(ast->getAttackStartTime(),6);
+		float lastAnimProgress = truncateDecimal<float>(unit->getLastAnimProgressAsFloat(),6);
+		float animProgress = truncateDecimal<float>(unit->getAnimProgressAsFloat(),6);
 		bool startAttackParticleSystemNow = (attackStartTime >= lastAnimProgress && attackStartTime < animProgress);
 
 		char szBuf[8096]="";
@@ -2211,7 +2211,7 @@ void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &t
 					scriptManager->onUnitAttacking(attacker);
 
 					double distance = pci.getPos().dist(targetPos);
-					distance = truncateDecimal<double>(distance,10);
+					distance = truncateDecimal<double>(distance,6);
 					damage(attacker, ast, attacked, distance);
 			  	}
 			}
@@ -2241,7 +2241,7 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	int var					= ast->getAttackVar();
 	int armor				= attacked->getType()->getTotalArmor(attacked->getTotalUpgrade());
 	double damageMultiplier	= world->getTechTree()->getDamageMultiplier(ast->getAttackType(), attacked->getType()->getArmorType());
-	damageMultiplier = truncateDecimal<double>(damageMultiplier,10);
+	damageMultiplier = truncateDecimal<double>(damageMultiplier,6);
 
 	//compute damage
 	//damage += random.randRange(-var, var);
@@ -2249,7 +2249,7 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	damage /= distance+1;
 	damage -= armor;
 	damage *= damageMultiplier;
-	damage = truncateDecimal<double>(damage,10);
+	damage = truncateDecimal<double>(damage,6);
 
 	if(damage < 1) {
 		damage= 1;
@@ -2296,8 +2296,8 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 	ParticleSystemTypeProjectile *pstProj= ast->getProjParticleType();
 	ParticleSystemTypeSplash *pstSplash= ast->getSplashParticleType();
 
-	Vec3d startPos= unit->getCurrVector();
-	Vec3d endPos= unit->getTargetVec();
+	Vec3f startPos= unit->getCurrVector();
+	Vec3f endPos= unit->getTargetVec();
 
 	//make particle system
 	const SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unit->getPos()));
@@ -2490,7 +2490,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 	//aux vars
 	int size 			= unit->getType()->getSize();
 	Vec2i center 		= unit->getPos();
-	Vec2d floatCenter	= unit->getFloatCenteredPos();
+	Vec2f floatCenter	= unit->getFloatCenteredPos();
 
 	//bool foundInCache = true;
 	if(findCachedCellsEnemies(center,range,size,enemies,ast,
@@ -2502,9 +2502,9 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 			for(int j = center.y - range; j < center.y + range + size; ++j) {
 				//cells inside map and in range
 #ifdef USE_STREFLOP
-				if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2d((double)i, (double)j)))) <= (range+1)){
+				if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2f((float)i, (float)j)))) <= (range+1)){
 #else
-				if(map->isInside(i, j) && floor(floatCenter.dist(Vec2d((double)i, (double)j))) <= (range+1)){
+				if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
 #endif
 					Cell *cell = map->getCell(i,j);
 					findEnemiesForCell(ast,cell,unit,commandTarget,enemies);
@@ -2595,7 +2595,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 
 		if(evalMode == false && onlyEnemyUnits == false &&
 			enemyUnit->getTeam() != world->getThisTeamIndex()) {
-			Vec2d enemyFloatCenter	= enemyUnit->getFloatCenteredPos();
+			Vec2f enemyFloatCenter	= enemyUnit->getFloatCenteredPos();
 			// find nearest Attack and cleanup old dates
 			AttackWarningData *nearest	= NULL;
 			double currentDistance		= 0.f;
@@ -2684,7 +2684,7 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 	//aux vars
 	int size 			= unit->getType()->getSize();
 	Vec2i center 		= unit->getPosNotThreadSafe();
-	Vec2d floatCenter	= unit->getFloatCenteredPos();
+	Vec2f floatCenter	= unit->getFloatCenteredPos();
 
 	//bool foundInCache = true;
 	if(findCachedCellsEnemies(center,range,size,enemies,ast,
@@ -2696,9 +2696,9 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 			for(int j = center.y - range; j < center.y + range + size; ++j) {
 				//cells inside map and in range
 #ifdef USE_STREFLOP
-				if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2d((double)i, (double)j)))) <= (range+1)){
+				if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2f((float)i, (float)j)))) <= (range+1)){
 #else
-				if(map->isInside(i, j) && floor(floatCenter.dist(Vec2d((double)i, (double)j))) <= (range+1)){
+				if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
 #endif
 					Cell *cell = map->getCell(i,j);
 					findEnemiesForCell(ast,cell,unit,commandTarget,enemies);
@@ -2744,7 +2744,7 @@ vector<Unit*> UnitUpdater::findUnitsInRange(const Unit *unit, int radius) {
 	//aux vars
 	int size 			= unit->getType()->getSize();
 	Vec2i center 		= unit->getPosNotThreadSafe();
-	Vec2d floatCenter	= unit->getFloatCenteredPos();
+	Vec2f floatCenter	= unit->getFloatCenteredPos();
 
 	//nearby cells
 	//UnitRangeCellsLookupItem cacheItem;
@@ -2752,9 +2752,9 @@ vector<Unit*> UnitUpdater::findUnitsInRange(const Unit *unit, int radius) {
 		for(int j = center.y - range; j < center.y + range + size; ++j) {
 			//cells inside map and in range
 #ifdef USE_STREFLOP
-			if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2d((double)i, (double)j)))) <= (range+1)){
+			if(map->isInside(i, j) && streflop::floor(static_cast<streflop::Simple>(floatCenter.dist(Vec2f((float)i, (float)j)))) <= (range+1)){
 #else
-			if(map->isInside(i, j) && floor(floatCenter.dist(Vec2d((double)i, (double)j))) <= (range+1)){
+			if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
 #endif
 				Cell *cell = map->getCell(i,j);
 				findUnitsForCell(cell,unit,units);
@@ -2817,7 +2817,7 @@ void UnitUpdater::saveGame(XmlNode *rootNode) {
 //	RandomGen random;
 	//unitupdaterNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
 //	float attackWarnRange;
-	unitupdaterNode->addAttribute("attackWarnRange",doubleToStr(attackWarnRange,10), mapTagReplacements);
+	unitupdaterNode->addAttribute("attackWarnRange",floatToStr(attackWarnRange,6), mapTagReplacements);
 //	AttackWarnings attackWarnings;
 //
 //	Mutex mutexUnitRangeCellsLookupItemCache;
