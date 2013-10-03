@@ -33,20 +33,6 @@ namespace Shared{ namespace Graphics{
 
 template<typename T>
 inline T truncateDecimal(const T &value, int precision=6) {
-
-/*
-	int iSigned = value >= 0 ? 1: -1;
-
-#ifdef USE_STREFLOP
-	unsigned int uiTemp = (unsigned int)(value * streflop::pow((streflop::Simple)10, (streflop::Simple)precision)) * iSigned; //Note I'm using unsigned int so that I can increase the precision of the truncate
-	T result = (((T)uiTemp) / streflop::pow((streflop::Simple)10,(streflop::Simple)precision) * iSigned);
-#else
-	unsigned int uiTemp = (value * pow((T)10, precision)) * iSigned; //Note I'm using unsigned int so that I can increase the precision of the truncate
-	T result = (((double)uiTemp) / pow((T)10,precision) * iSigned);
-#endif
-	return result;
-*/
-
 	T precNum = 0;
 	if(precision == 0) {
 		precNum = 1;
@@ -269,14 +255,6 @@ public:
 	}
 
 	inline float length() const {
-//#ifdef USE_STREFLOP
-//		if(requireAccuracy == true) {
-//			return static_cast<float>(streflop::sqrt(static_cast<streflop::Simple>(x*x + y*y)));
-//		}
-//		return static_cast<float>(std::sqrt(static_cast<float>(x*x + y*y)));
-//#else
-//		return static_cast<float>(sqrt(static_cast<float>(x*x + y*y)));
-//#endif
 		float len = static_cast<float>(std::sqrt(static_cast<float>(x*x + y*y)));
 		len = truncateDecimal<float>(len,6);
 		return len;
@@ -289,14 +267,6 @@ public:
 	}
 	
 	inline Vec2<T> rotate(float rad) {
-//		const float
-//#ifdef USE_STREFLOP
-//			c = streflop::cosf(rad),
-//			s = streflop::sinf(rad);
-//#else
-//			c = cosf(rad),
-//			s = sinf(rad);
-//#endif
 		float  c = std::cos(rad),
 			   s = std::sin(rad);
 
@@ -514,14 +484,6 @@ public:
 	}
 
 	inline float length() const {
-//#ifdef USE_STREFLOP
-//		if(requireAccuracy == true) {
-//			return static_cast<float>(streflop::sqrt(static_cast<streflop::Simple>(x*x + y*y + z*z)));
-//		}
-//		return static_cast<float>(std::sqrt(x*x + y*y + z*z));
-//#else
-//		return static_cast<float>(sqrt(x*x + y*y + z*z));
-//#endif
 		float len = static_cast<float>(std::sqrt(x*x + y*y + z*z));
 		len = truncateDecimal<float>(len,6);
 		return len;

@@ -1945,6 +1945,12 @@ string MenuStateMods::getPreviewImageFileForMod(const ModInfo *modInfo) {
 	    	endPathWithSlash(userData);
 	    }
 	    string tempPath = userData + "temp/";
+	    if(isdir(tempPath.c_str()) == false) {
+	    	createDirectoryPaths(tempPath);
+	    }
+
+	    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("### tempPath [%s] isdir = %d\n",tempPath.c_str(),isdir(tempPath.c_str()));
+
         if(isdir(tempPath.c_str()) == true) {
 			fileName = tempPath;
 			switch(modInfo->type) {
