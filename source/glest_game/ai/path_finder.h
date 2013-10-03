@@ -95,7 +95,7 @@ public:
 		Vec2i pos;
 		Node *next;
 		Node *prev;
-		double heuristic;
+		float heuristic;
 		bool exploredCell;
 	};
 	typedef vector<Node*> Nodes;
@@ -119,8 +119,8 @@ public:
 			//fa = NULL;
 		}
 		std::map<Vec2i, bool> openPosList;
-		std::map<double, Nodes> openNodesList;
-		std::map<double, Nodes> closedNodesList;
+		std::map<float, Nodes> openNodesList;
+		std::map<float, Nodes> closedNodesList;
 		std::vector<Node> nodePool;
 		int nodePoolCount;
 		RandomGen random;
@@ -201,7 +201,7 @@ private:
 
 	Vec2i computeNearestFreePos(const Unit *unit, const Vec2i &targetPos);
 	//float heuristic(const Vec2i &pos, const Vec2i &finalPos);
-	inline static double heuristic(const Vec2i &pos, const Vec2i &finalPos) {
+	inline static float heuristic(const Vec2i &pos, const Vec2i &finalPos) {
 		return pos.dist(finalPos);
 	}
 
@@ -277,7 +277,7 @@ private:
 		return result;
 	}
 
-	void processNearestFreePos(const Vec2i &finalPos, int i, int j, int size, Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, double &nearestDist);
+	void processNearestFreePos(const Vec2i &finalPos, int i, int j, int size, Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, float &nearestDist);
 	int getPathFindExtendRefreshNodeCount(int factionIndex);
 
 

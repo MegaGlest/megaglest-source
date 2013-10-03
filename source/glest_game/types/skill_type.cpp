@@ -140,7 +140,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 		}
 
 		if(destUnitMightApply == true) {
-			double distance = source->getCenteredPos().dist(dest->getCenteredPos());
+			float distance = source->getCenteredPos().dist(dest->getCenteredPos());
 			if(distance <= radius) {
 				result = true;
 			}
@@ -516,7 +516,7 @@ const AnimationAttributes SkillType::getAnimationAttribute(int index) const {
 	return animationAttributes[index];
 }
 
-Model *SkillType::getAnimation(double animProgress, const Unit *unit,
+Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 		int *lastAnimationIndex, int *animationRandomCycleCount) const {
 	int modelIndex = 0;
 	//printf("Count [%d] animProgress = [%f] for skill [%s] animationRandomCycleCount = %d\n",animations.size(),animProgress,name.c_str(),*animationRandomCycleCount);

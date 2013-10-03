@@ -995,7 +995,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	const Vec2i unitPos = unit->getPos();
 	const Vec2i finalPos= computeNearestFreePos(unit, targetPos);
 
-	double dist= unitPos.dist(finalPos);
+	float dist= unitPos.dist(finalPos);
 	factions[unitFactionIndex].useMaxNodeCount = PathFinder::pathFindNodesMax;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1352,7 +1352,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	//if consumed all nodes find best node (to avoid strange behaviour)
 	if(nodeLimitReached == true) {
 		if(factions[unitFactionIndex].closedNodesList.size() > 0) {
-			double bestHeuristic = factions[unitFactionIndex].closedNodesList.begin()->first;
+			float bestHeuristic = factions[unitFactionIndex].closedNodesList.begin()->first;
 			if(bestHeuristic < lastNode->heuristic) {
 				lastNode= factions[unitFactionIndex].closedNodesList.begin()->second[0];
 			}
@@ -1520,10 +1520,10 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	return ts;
 }
 
-void PathFinder::processNearestFreePos(const Vec2i &finalPos, int i, int j, int size, Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, double &nearestDist) {
+void PathFinder::processNearestFreePos(const Vec2i &finalPos, int i, int j, int size, Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, float &nearestDist) {
 	Vec2i currPos= finalPos + Vec2i(i, j);
 	if(map->isAproxFreeCells(currPos, size, field, teamIndex)) {
-		double dist= currPos.dist(finalPos);
+		float dist= currPos.dist(finalPos);
 
 		//if nearer from finalPos
 		if(dist < nearestDist){
@@ -1557,7 +1557,7 @@ Vec2i PathFinder::computeNearestFreePos(const Unit *unit, const Vec2i &finalPos)
 	//find nearest pos
 	Vec2i unitPos= unit->getPosNotThreadSafe();
 	Vec2i nearestPos= unitPos;
-	double nearestDist= unitPos.dist(finalPos);
+	float nearestDist= unitPos.dist(finalPos);
 
 	for(int i= -maxFreeSearchRadius; i <= maxFreeSearchRadius; ++i) {
 		for(int j= -maxFreeSearchRadius; j <= maxFreeSearchRadius; ++j) {
@@ -1639,7 +1639,7 @@ void PathFinder::saveGame(XmlNode *rootNode) {
 			nodePoolNode->addAttribute("next",intToStr(nextIdx), mapTagReplacements);
 			int prevIdx = findNodeIndex(curNode->prev, factionState.nodePool);
 			nodePoolNode->addAttribute("prev",intToStr(prevIdx), mapTagReplacements);
-			nodePoolNode->addAttribute("heuristic",doubleToStr(curNode->heuristic,6), mapTagReplacements);
+			nodePoolNode->addAttribute("heuristic",floatToStr(curNode->heuristic,6), mapTagReplacements);
 			nodePoolNode->addAttribute("exploredCell",intToStr(curNode->exploredCell), mapTagReplacements);
 		}
 

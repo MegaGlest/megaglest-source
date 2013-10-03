@@ -125,8 +125,8 @@ bool CommandGroupUnitSorter::compare(const Unit *l, const Unit *r) {
 			result = curCommandGroupId < commandPeer->getUnitCommandGroupId();
 		}
 		else {
-			double unitDist = l->getCenteredPos().dist(command->getPos());
-			double unitDistPeer = r->getCenteredPos().dist(commandPeer->getPos());
+			float unitDist = l->getCenteredPos().dist(command->getPos());
+			float unitDistPeer = r->getCenteredPos().dist(commandPeer->getPos());
 
 			// Closest unit in commandgroup
 			result = (unitDist < unitDistPeer);

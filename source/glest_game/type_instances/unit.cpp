@@ -388,7 +388,7 @@ void UnitAttackBoostEffectOriginator::saveGame(XmlNode *rootNode) {
 // 	class Unit
 // =====================================================
 
-const double Unit::ANIMATION_SPEED_MULTIPLIER = 100000.f;
+const float Unit::ANIMATION_SPEED_MULTIPLIER = 100000.f;
 //const float Unit::PROGRESS_SPEED_MULTIPLIER  = 100000.f;
 const int64 Unit::PROGRESS_SPEED_MULTIPLIER  = 100000;
 
@@ -726,14 +726,14 @@ Vec2i Unit::getCellPos() const {
 
 			//find nearest pos to center that is free
 			Vec2i centeredPos= getCenteredPos();
-			double nearestDist= -1.f;
+			float nearestDist= -1.f;
 			Vec2i nearestPos= pos;
 
 			for(int i=0; i<type->getSize(); ++i){
 				for(int j=0; j<type->getSize(); ++j){
 					if(type->getCellMapCell(i, j, modelFacing)){
 						Vec2i currPos= pos + Vec2i(i, j);
-						double dist= currPos.dist(centeredPos);
+						float dist= currPos.dist(centeredPos);
 						if(nearestDist == -1.f || dist < nearestDist) {
 							nearestDist= dist;
 							nearestPos= currPos;
@@ -836,7 +836,7 @@ int Unit::getProductionPercent() const{
 	return -1;
 }
 
-double Unit::getProgressRatio() const{
+float Unit::getProgressRatio() const{
 	if(anyCommand()){
 		const ProducibleType *produced= commands.front()->getCommandType()->getProduced();
 		if(produced != NULL){
@@ -844,28 +844,28 @@ double Unit::getProgressRatio() const{
 				return 0.f;
 			}
 
-			double help = progress2;
+			float help = progress2;
 			return clamp(help / produced->getProductionTime(), 0.f, 1.f);
 		}
 	}
 	return -1;
 }
 
-double Unit::getHpRatio() const {
+float Unit::getHpRatio() const {
 	if(type == NULL) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	double maxHpAllowed = type->getTotalMaxHp(&totalUpgrade);
+	float maxHpAllowed = type->getTotalMaxHp(&totalUpgrade);
 	if(maxHpAllowed == 0.f) {
 		return 0.f;
 	}
-	return clamp(static_cast<double>(hp) / maxHpAllowed, 0.f, 1.f);
+	return clamp(static_cast<float>(hp) / maxHpAllowed, 0.f, 1.f);
 }
 
-double Unit::getEpRatio() const {
+float Unit::getEpRatio() const {
 	if(type == NULL) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
@@ -876,11 +876,11 @@ double Unit::getEpRatio() const {
 		return 0.f;
 	}
 	else {
-		double maxEpAllowed = type->getTotalMaxEp(&totalUpgrade);
+		float maxEpAllowed = type->getTotalMaxEp(&totalUpgrade);
 		if(maxEpAllowed == 0.f) {
 			return 0.f;
 		}
-		return clamp(static_cast<double>(ep) / maxEpAllowed, 0.f, 1.f);
+		return clamp(static_cast<float>(ep) / maxEpAllowed, 0.f, 1.f);
 	}
 }
 
@@ -1225,7 +1225,7 @@ FowAlphaCellsLookupItem Unit::getFogOfWarRadius(bool useCache) const {
 		Vec2i surfPos= Map::toSurfCoords(sightpos);
 
 		//compute max alpha
-		double maxAlpha= 0.0f;
+		float maxAlpha= 0.0f;
 		if(surfPos.x > 1 && surfPos.y > 1 && surfPos.x < map->getSurfaceW() -2 && surfPos.y < map->getSurfaceH() -2) {
 			maxAlpha= 1.f;
 		}
@@ -1234,8 +1234,8 @@ FowAlphaCellsLookupItem Unit::getFogOfWarRadius(bool useCache) const {
 		}
 
 		//compute alpha
-		double alpha = maxAlpha;
-		double dist = this->getPosNotThreadSafe().dist(sightpos);
+		float alpha = maxAlpha;
+		float dist = this->getPosNotThreadSafe().dist(sightpos);
 		if(dist > sightRange) {
 			alpha= clamp(1.f-(dist - sightRange) / (World::indirectSightRange), 0.f, maxAlpha);
 		}
@@ -1424,9 +1424,9 @@ Vec3f Unit::getCurrVectorFlat() const{
 	return getVectorFlat(lastPos, pos);
 }
 
-double Unit::getProgressAsFloat() const {
-	double result = (static_cast<double>(progress) / static_cast<double>(PROGRESS_SPEED_MULTIPLIER));
-	result = truncateDecimal<double>(result,6);
+float Unit::getProgressAsFloat() const {
+	float result = (static_cast<float>(progress) / static_cast<float>(PROGRESS_SPEED_MULTIPLIER));
+	result = truncateDecimal<float>(result,6);
 	return result;
 }
 
@@ -2023,8 +2023,8 @@ int64 Unit::getHeightFactor(int64 speedMultiplier) {
 			throw megaglest_runtime_error("targetCell == NULL");
 		}
 
-		int64 heightDiff= ((truncateDecimal<double>(unitCell->getHeight(),2) * speedMultiplier) -
-				         (truncateDecimal<double>(targetCell->getHeight(),2) * speedMultiplier));
+		int64 heightDiff= ((truncateDecimal<float>(unitCell->getHeight(),2) * speedMultiplier) -
+				         (truncateDecimal<float>(targetCell->getHeight(),2) * speedMultiplier));
 		//heightFactor= clamp(speedMultiplier + heightDiff / (5.f * speedMultiplier), 0.2f * speedMultiplier, 5.f * speedMultiplier);
 		heightFactor= clamp(speedMultiplier + heightDiff / (5 * speedMultiplier), (2 * (speedMultiplier / 10)), 5 * speedMultiplier);
 	}
@@ -2328,7 +2328,7 @@ bool Unit::update() {
 	//printf("Test progress = %d for unit [%d - %s]\n",progress,id,getType()->getName().c_str());
 
 	if(isAnimProgressBound() == true) {
-		double targetProgress=0;
+		float targetProgress=0;
 		if(currSkill->getClass() == scBeBuilt) {
 			targetProgress = this->getHpRatio();
 		}
@@ -2342,10 +2342,10 @@ bool Unit::update() {
 			targetProgress = this->getProgressRatio();
 		}
 
-		double targetProgressIntValue = targetProgress * ANIMATION_SPEED_MULTIPLIER;
+		float targetProgressIntValue = targetProgress * ANIMATION_SPEED_MULTIPLIER;
 		if(this->animProgress < targetProgressIntValue) {
-			double diff = targetProgressIntValue - this->animProgress;
-			double progressIncrease = static_cast<double>(this->animProgress) + diff / static_cast<double>(GameConstants::updateFps);
+			float diff = targetProgressIntValue - this->animProgress;
+			float progressIncrease = static_cast<float>(this->animProgress) + diff / static_cast<float>(GameConstants::updateFps);
 			// Ensure we increment at least a value of 1 of the action will be stuck infinitely
 			if(diff > 0.f && GameConstants::updateFps > 0 && progressIncrease == 0.f) {
 				progressIncrease = 1.f;

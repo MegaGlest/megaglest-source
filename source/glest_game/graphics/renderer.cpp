@@ -1058,7 +1058,7 @@ void Renderer::setupLighting() {
 					unit->getType()->getLight() && unit->isOperative()) {
 					//printf("$$$ Show light for faction: %s # %d / %d for Unit [%d - %s]\n",world->getFaction(i)->getType()->getName().c_str(),lightCount,maxLights,unit->getId(),unit->getFullName().c_str());
 
-					Vec4f pos= Vec4f(Vec3f(unit->getCurrVector()));
+					Vec4f pos= Vec4f(unit->getCurrVector());
 					pos.y+=4.f;
 
 					GLenum lightEnum= GL_LIGHT0 + lightCount;
@@ -4584,7 +4584,7 @@ void Renderer::renderObjects(const int renderFps) {
 
 		Model *objModel= o->getModelPtr();
 		//objModel->updateInterpolationData(o->getAnimProgress(), true);
-		const Vec3f v= Vec3f(o->getConstPos());
+		const Vec3f v= o->getConstPos();
 
 		if(modelRenderStarted == false) {
 			modelRenderStarted = true;
@@ -4826,7 +4826,7 @@ void Renderer::renderTeamColorCircle(){
 		for(int visibleUnitIndex = 0;
 							visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 				Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
-				Vec3f currVec= Vec3f(unit->getCurrVectorFlat());
+				Vec3f currVec= unit->getCurrVectorFlat();
 				Vec3f color=unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0);
 				glColor4f(color.x, color.y, color.z, 0.7f);
 				renderSelectionCircle(currVec, unit->getType()->getSize(), 0.8f, 0.05f);
@@ -4881,7 +4881,7 @@ void Renderer::renderSpecialHighlightUnits(std::map<int,HighlightSpecialUnitInfo
 
 					glColor4f(color.x, color.y, color.z, alpha);
 
-					Vec3f currVec= Vec3f(unit->getCurrVectorFlat());
+					Vec3f currVec= unit->getCurrVectorFlat();
 					renderSelectionCircle(currVec, unit->getType()->getSize(), radius, thickness);
 				}
 		}
@@ -4905,7 +4905,7 @@ void Renderer::renderTeamColorPlane(){
 		for(int visibleUnitIndex = 0;
 				visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex){
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
-			Vec3f currVec= Vec3f(unit->getCurrVectorFlat());
+			Vec3f currVec= unit->getCurrVectorFlat();
 			renderTeamColorEffect(currVec,visibleUnitIndex,unit->getType()->getSize(),
 					unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0),texture);
 		}
@@ -5022,7 +5022,7 @@ void Renderer::renderUnits(const int renderFps) {
 			glPushMatrix();
 
 			//translate
-			Vec3f currVec= Vec3f(unit->getCurrVectorFlat());
+			Vec3f currVec= unit->getCurrVectorFlat();
 			glTranslatef(currVec.x, currVec.y, currVec.z);
 
 			//rotate
@@ -5193,7 +5193,7 @@ void Renderer::renderMorphEffects(){
 							initialized=true;
 						}
 
-						Vec3f currVec= Vec3f(unit->getCurrVectorFlat());
+						Vec3f currVec= unit->getCurrVectorFlat();
 						currVec=Vec3f(currVec.x,currVec.y+0.3f,currVec.z);
 						if(mType->getField() == fAir && unit->getType()->getField()== fLand) {
 							currVec=Vec3f(currVec.x,currVec.y+game->getWorld()->getTileset()->getAirHeight(),currVec.z);
@@ -5247,7 +5247,7 @@ void Renderer::renderSelectionEffects() {
 		const Unit *unit= selection->getUnit(i);
 		if(unit != NULL) {
 			//translate
-			Vec3f currVec= Vec3f(unit->getCurrVectorFlat());
+			Vec3f currVec= unit->getCurrVectorFlat();
 			currVec.y+= 0.3f;
 
 			//selection circle
@@ -5283,7 +5283,7 @@ void Renderer::renderSelectionEffects() {
 						if(i == 0) {
 							lastPosValue = curPosValue;
 						}
-						Vec3f currVec2 = Vec3f(unit->getVectorFlat(lastPosValue,curPosValue));
+						Vec3f currVec2 = unit->getVectorFlat(lastPosValue,curPosValue);
 						currVec2.y+= 0.3f;
 						renderSelectionCircle(currVec2, 1, selectionCircleRadius);
 						//renderSelectionCircle(currVec2, unit->getType()->getSize(), selectionCircleRadius);
@@ -5315,7 +5315,7 @@ void Renderer::renderSelectionEffects() {
 						int findUnitId = effect.currentAttackBoostUnits[i];
 						Unit *affectedUnit = game->getWorld()->findUnitById(findUnitId);
 						if(affectedUnit != NULL) {
-							Vec3f currVecBoost = Vec3f(affectedUnit->getCurrVectorFlat());
+							Vec3f currVecBoost = affectedUnit->getCurrVectorFlat();
 							currVecBoost.y += 0.3f;
 
 							renderSelectionCircle(currVecBoost, affectedUnit->getType()->getSize(), 1.f);
@@ -5331,7 +5331,7 @@ void Renderer::renderSelectionEffects() {
 		int defaultValue= r->getType()->getDefResPerPatch();
 		float colorValue=static_cast<float>(r->getAmount())/static_cast<float>(defaultValue);
 		glColor4f(0.1f, 0.1f , colorValue, 0.4f);
-		renderSelectionCircle(Vec3f(selectedResourceObject->getPos()),2, selectionCircleRadius);
+		renderSelectionCircle(selectedResourceObject->getPos(),2, selectionCircleRadius);
 	}
 	//target arrow
 	if(selection->getCount() == 1) {
@@ -5361,7 +5361,7 @@ void Renderer::renderSelectionEffects() {
 					Vec3f arrowTarget;
 					Command *c= unit->getCurrCommand();
 					if(c->getUnit() != NULL) {
-						arrowTarget= Vec3f(c->getUnit()->getCurrVectorFlat());
+						arrowTarget= c->getUnit()->getCurrVectorFlat();
 					}
 					else {
 						Vec2i pos= c->getPos();
@@ -5370,7 +5370,7 @@ void Renderer::renderSelectionEffects() {
 						arrowTarget= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
 					}
 
-					renderArrow(Vec3f(unit->getCurrVectorFlat()), arrowTarget, arrowColor, 0.3f);
+					renderArrow(unit->getCurrVectorFlat(), arrowTarget, arrowColor, 0.3f);
 				}
 			}
 
@@ -5380,7 +5380,7 @@ void Renderer::renderSelectionEffects() {
 				map->clampPos(pos);
 
 				Vec3f arrowTarget= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
-				renderArrow(Vec3f(unit->getCurrVectorFlat()), arrowTarget, Vec3f(0.f, 0.f, 1.f), 0.3f);
+				renderArrow(unit->getCurrVectorFlat(), arrowTarget, Vec3f(0.f, 0.f, 1.f), 0.3f);
 			}
 		}
 	}
@@ -5398,7 +5398,7 @@ void Renderer::renderSelectionEffects() {
 				glColor4f(1.f, 0.f, 0.f, highlight);
 			}
 
-			Vec3f v= Vec3f(unit->getCurrVectorFlat());
+			Vec3f v= unit->getCurrVectorFlat();
 			v.y+= 0.3f;
 			renderSelectionCircle(v, unit->getType()->getSize(), 0.5f+0.4f*highlight );
 		}
@@ -5429,7 +5429,7 @@ void Renderer::renderSelectionEffects() {
 		if(object->isHighlighted()) {
 			float highlight= object->getHightlight();
 			glColor4f(0.1f, 0.1f , 1.0f, highlight);
-			Vec3f v= Vec3f(object->getPos());
+			Vec3f v= object->getPos();
 			v.y+= 0.3f;
 			renderSelectionCircle(v, 2, 0.4f+0.4f*highlight );
 		}
@@ -7434,7 +7434,7 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 				glPushMatrix();
 
 				//translate
-				Vec3f currVec= Vec3f(unit->getCurrVectorFlat());
+				Vec3f currVec= unit->getCurrVectorFlat();
 				glTranslatef(currVec.x, currVec.y, currVec.z);
 
 				//rotate
@@ -7537,7 +7537,7 @@ vector<Object *>  Renderer::renderObjectsFast(bool renderingShadows, bool resour
 					//objModel->updateInterpolationData(o->getAnimProgress(), true);
 
 				//}
-				const Vec3f v= Vec3f(o->getConstPos());
+				const Vec3f v= o->getConstPos();
 
 				if(colorPickingSelection == false) {
 					glPushName(OBJECT_SELECT_OFFSET+visibleIndex);

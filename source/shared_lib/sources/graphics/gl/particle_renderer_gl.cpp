@@ -109,7 +109,7 @@ void ParticleRendererGl::renderSystem(ParticleSystem *ps){
 	for(int i=0; i<ps->getAliveParticleCount(); ++i){
 		const Particle *particle= ps->getParticle(i);
 		float size= particle->getSize()/2.0f;
-		Vec3f pos= Vec3f(particle->getPos());
+		Vec3f pos= particle->getPos();
 		Vec4f color= particle->getColor();
 
 		vertexBuffer[bufferIndex] = pos - (rightVector - upVector) * size;
@@ -159,8 +159,8 @@ void ParticleRendererGl::renderSystemLine(ParticleSystem *ps){
 			particle= ps->getParticle(i);
 			Vec4f color= particle->getColor();
 
-			vertexBuffer[bufferIndex] = Vec3f(particle->getPos());
-			vertexBuffer[bufferIndex+1] = Vec3f(particle->getLastPos());
+			vertexBuffer[bufferIndex] = particle->getPos();
+			vertexBuffer[bufferIndex+1] = particle->getLastPos();
 
 			colorBuffer[bufferIndex]= color;
 			colorBuffer[bufferIndex+1]= color;
@@ -203,8 +203,8 @@ void ParticleRendererGl::renderSystemLineAlpha(ParticleSystem *ps){
 			particle= ps->getParticle(i);
 			Vec4f color= particle->getColor();
 
-			vertexBuffer[bufferIndex] = Vec3f(particle->getPos());
-			vertexBuffer[bufferIndex+1] = Vec3f(particle->getLastPos());
+			vertexBuffer[bufferIndex] = particle->getPos();
+			vertexBuffer[bufferIndex+1] = particle->getLastPos();
 
 			colorBuffer[bufferIndex]= color;
 			colorBuffer[bufferIndex+1]= color;
@@ -236,11 +236,11 @@ void ParticleRendererGl::renderModel(GameParticleSystem *ps, ModelRenderer *mr){
 		glPushMatrix();
 
 		//translate
-		Vec3f pos= Vec3f(ps->getPos());
+		Vec3f pos= ps->getPos();
 		glTranslatef(pos.x, pos.y, pos.z);
 
 		//rotate
-		Vec3f direction= Vec3f(ps->getDirection());
+		Vec3f direction= ps->getDirection();
 		Vec3f flatDirection= Vec3f(direction.x, 0.f, direction.z);
 		Vec3f rotVector= Vec3f(0.f, 1.f, 0.f).cross(flatDirection);
 

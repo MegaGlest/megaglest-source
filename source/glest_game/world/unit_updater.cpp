@@ -123,7 +123,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 		if(soundStartTime >= unit->getLastAnimProgressAsFloat() && soundStartTime < unit->getAnimProgressAsFloat()) {
 			if(map->getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(world->getThisTeamIndex()) ||
 				(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
-				soundRenderer.playFx(currSkill->getSound(), Vec3f(unit->getCurrVector()), gameCamera->getPos());
+				soundRenderer.playFx(currSkill->getSound(), unit->getCurrVector(), gameCamera->getPos());
 			}
 		}
 	}
@@ -276,7 +276,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 				if(Config::getInstance().getBool("DisableWaterSounds","false") == false) {
 					soundRenderer.playFx(
 						CoreData::getInstance().getWaterSound(),
-						Vec3f(unit->getCurrVector()),
+						unit->getCurrVector(),
 						gameCamera->getPos()
 					);
 
@@ -713,7 +713,7 @@ void UnitUpdater::updateAttackStopped(Unit *unit, int frameIndex) {
     	return;
     }
 
-    double distToUnit=-1;
+    float distToUnit=-1;
     std::pair<bool,Unit *> result = make_pair(false,(Unit *)NULL);
     unitBeingAttacked(result, unit, asct->getAttackSkillType(), &distToUnit);
 	if(result.first == true) {
@@ -749,10 +749,10 @@ void UnitUpdater::updateAttackStopped(Unit *unit, int frameIndex) {
     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
-void UnitUpdater::unitBeingAttacked(std::pair<bool,Unit *> &result, const Unit *unit, const AttackSkillType *ast, double *currentDistToUnit) {
+void UnitUpdater::unitBeingAttacked(std::pair<bool,Unit *> &result, const Unit *unit, const AttackSkillType *ast, float *currentDistToUnit) {
 	//std::pair<bool,Unit *> result = make_pair(false,(Unit *)NULL);
 
-	double distToUnit = -1;
+	float distToUnit = -1;
 	if(currentDistToUnit != NULL) {
 		distToUnit = *currentDistToUnit;
 	}
@@ -787,7 +787,7 @@ void UnitUpdater::unitBeingAttacked(std::pair<bool,Unit *> &result, const Unit *
 std::pair<bool,Unit *> UnitUpdater::unitBeingAttacked(const Unit *unit) {
 	std::pair<bool,Unit *> result = make_pair(false,(Unit *)NULL);
 
-	double distToUnit = -1;
+	float distToUnit = -1;
 	for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
 		const SkillType *st = unit->getType()->getSkillType(i);
 		const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(st);
@@ -931,7 +931,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 						(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
 						SoundRenderer::getInstance().playFx(
 							bct->getStartSound(),
-							Vec3f(unit->getCurrVector()),
+							unit->getCurrVector(),
 							gameCamera->getPos());
 					}
 
@@ -1023,7 +1023,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 					(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
 					SoundRenderer::getInstance().playFx(
 						bct->getBuiltSound(),
-						Vec3f(unit->getCurrVector()),
+						unit->getCurrVector(),
 						gameCamera->getPos());
 				}
 			}
@@ -2210,8 +2210,8 @@ void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &t
 					attacker->setLastAttackedUnitId(attacked->getId());
 					scriptManager->onUnitAttacking(attacker);
 
-					double distance = pci.getPos().dist(targetPos);
-					distance = truncateDecimal<double>(distance,6);
+					float distance = pci.getPos().dist(targetPos);
+					distance = truncateDecimal<float>(distance,6);
 					damage(attacker, ast, attacked, distance);
 			  	}
 			}
@@ -2225,7 +2225,7 @@ void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &t
 	}
 }
 
-void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, double distance) {
+void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance) {
 	if(attacker == NULL) {
 		throw megaglest_runtime_error("attacker == NULL");
 	}
@@ -2237,11 +2237,11 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	}
 
 	//get vars
-	double damage			= ast->getTotalAttackStrength(attacker->getTotalUpgrade());
+	float damage			= ast->getTotalAttackStrength(attacker->getTotalUpgrade());
 	int var					= ast->getAttackVar();
 	int armor				= attacked->getType()->getTotalArmor(attacked->getTotalUpgrade());
-	double damageMultiplier	= world->getTechTree()->getDamageMultiplier(ast->getAttackType(), attacked->getType()->getArmorType());
-	damageMultiplier = truncateDecimal<double>(damageMultiplier,6);
+	float damageMultiplier	= world->getTechTree()->getDamageMultiplier(ast->getAttackType(), attacked->getType()->getArmorType());
+	damageMultiplier = truncateDecimal<float>(damageMultiplier,6);
 
 	//compute damage
 	//damage += random.randRange(-var, var);
@@ -2249,7 +2249,7 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	damage /= distance+1;
 	damage -= armor;
 	damage *= damageMultiplier;
-	damage = truncateDecimal<double>(damage,6);
+	damage = truncateDecimal<float>(damage,6);
 
 	if(damage < 1) {
 		damage= 1;
@@ -2524,10 +2524,10 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 	}
 
 	//attack enemies that can attack first
-	double distToUnit= -1;
+	float distToUnit= -1;
 	Unit* enemySeen= NULL;
 
-	double distToStandingUnit= -1;
+	float distToStandingUnit= -1;
 	Unit* attackingEnemySeen= NULL;
 	ControlType controlType= unit->getFaction()->getControlType();
 	bool isUltra= controlType == ctCpuUltra || controlType == ctNetworkCpuUltra;
@@ -2547,7 +2547,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 
     		// Attackers get first priority
     		if(enemy->getType()->hasSkillClass(scAttack) == true) {
-    			double currentDist = unit->getCenteredPos().dist(enemy->getCenteredPos());
+    			float currentDist = unit->getCenteredPos().dist(enemy->getCenteredPos());
 
     			// Select closest attacking unit
     			if(distToUnit < 0 ||  currentDist< distToUnit) {
@@ -2598,8 +2598,8 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 			Vec2f enemyFloatCenter	= enemyUnit->getFloatCenteredPos();
 			// find nearest Attack and cleanup old dates
 			AttackWarningData *nearest	= NULL;
-			double currentDistance		= 0.f;
-			double nearestDistance		= 0.f;
+			float currentDistance		= 0.f;
+			float nearestDistance		= 0.f;
 
 			MutexSafeWrapper safeMutex(&mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
 			for(int i = attackWarnings.size() - 1; i >= 0; --i) {
@@ -2866,7 +2866,7 @@ void ParticleDamager::update(ParticleSystem *particleSystem) {
 		//play sound
 		StaticSound *projSound= ast->getProjSound();
 		if(particleSystem->getVisible() && projSound != NULL) {
-			SoundRenderer::getInstance().playFx(projSound, Vec3f(attacker->getCurrVector()), gameCamera->getPos());
+			SoundRenderer::getInstance().playFx(projSound, attacker->getCurrVector(), gameCamera->getPos());
 		}
 	}
 	particleSystem->setObserver(NULL);

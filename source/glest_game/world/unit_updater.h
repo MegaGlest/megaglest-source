@@ -124,7 +124,7 @@ public:
 
 	inline unsigned int getAttackWarningCount() const { return attackWarnings.size(); }
 	std::pair<bool,Unit *> unitBeingAttacked(const Unit *unit);
-	void unitBeingAttacked(std::pair<bool,Unit *> &result, const Unit *unit, const AttackSkillType *ast,double *currentDistToUnit=NULL);
+	void unitBeingAttacked(std::pair<bool,Unit *> &result, const Unit *unit, const AttackSkillType *ast,float *currentDistToUnit=NULL);
 	vector<Unit*> enemyUnitsOnRange(const Unit *unit,const AttackSkillType *ast);
 	void findEnemiesForCell(const Vec2i pos, int size, int sightRange, const Faction *faction, vector<Unit*> &enemies, bool attackersOnly) const;
 
@@ -142,7 +142,7 @@ private:
     //attack
     void hit(Unit *attacker);
 	void hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &targetPos, Field targetField);
-	void damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, double distance);
+	void damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance);
 	void startAttackParticleSystem(Unit *unit);
 
 	//misc

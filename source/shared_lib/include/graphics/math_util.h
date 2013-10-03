@@ -233,7 +233,7 @@ public:
 		}
 	}
 
-	double area() {
+	float area() {
 		Vec2i v0= p[3]-p[0];
 		Vec2i v1= p[1]-p[2];
 
@@ -311,54 +311,6 @@ inline T radToDeg(T rad){
 //    return int32(floor(val+.5));
 //#endif
 //}
-
-template<typename T>
-inline T truncateDecimal(const T &value, int precision=6) {
-
-/*
-	int iSigned = value >= 0 ? 1: -1;
-
-#ifdef USE_STREFLOP
-	unsigned int uiTemp = (unsigned int)(value * streflop::pow((streflop::Simple)10, (streflop::Simple)precision)) * iSigned; //Note I'm using unsigned int so that I can increase the precision of the truncate
-	T result = (((T)uiTemp) / streflop::pow((streflop::Simple)10,(streflop::Simple)precision) * iSigned);
-#else
-	unsigned int uiTemp = (value * pow((T)10, precision)) * iSigned; //Note I'm using unsigned int so that I can increase the precision of the truncate
-	T result = (((double)uiTemp) / pow((T)10,precision) * iSigned);
-#endif
-	return result;
-*/
-
-	T precNum = 0;
-	if(precision == 0) {
-		precNum = 1;
-	}
-	else if(precision == 1) {
-		precNum = 10;
-	}
-	else if(precision == 2) {
-		precNum = 100;
-	}
-	else if(precision == 3) {
-		precNum = 1000;
-	}
-	else if(precision == 4) {
-		precNum = 10000;
-	}
-	else if(precision == 5) {
-		precNum = 100000;
-	}
-	else if(precision == 6) {
-		precNum = 1000000;
-	}
-	else  {
-		precNum = std::pow((T)10,(T)precision);
-	}
-
-	int64 resultInt = (T)value * (T)precNum;
-
-	T result = (long double)resultInt / precNum;
-	return result;
-}
 
 
 }}//end namespace

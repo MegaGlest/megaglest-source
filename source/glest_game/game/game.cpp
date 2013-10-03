@@ -2145,14 +2145,14 @@ void Game::update() {
 					if(currentCameraFollowUnit!=NULL){
 						Vec3f c=currentCameraFollowUnit->getCurrVector();
 						int rotation=currentCameraFollowUnit->getRotation();
-						double angle=rotation+180;
+						float angle=rotation+180;
 
 						c.z=c.z+4*std::cos(degToRad(angle));
 						c.x=c.x+4*std::sin(degToRad(angle));
 
 						c.y=c.y+currentCameraFollowUnit->getType()->getHeight()/2.f+2.0f;
 
-						getGameCameraPtr()->setPos(Vec3f(c));
+						getGameCameraPtr()->setPos(c);
 
 						rotation=(540-rotation)%360;
 						getGameCameraPtr()->rotateToVH(18.0f,rotation);
@@ -4426,7 +4426,7 @@ void Game::startCameraFollowUnit() {
 		if(currentUnit != NULL) {
 			currentCameraFollowUnit = currentUnit;
 			getGameCameraPtr()->setState(GameCamera::sUnit);
-			getGameCameraPtr()->setPos(Vec3f(currentCameraFollowUnit->getCurrVector()));
+			getGameCameraPtr()->setPos(currentCameraFollowUnit->getCurrVector());
 
 			int rotation=currentCameraFollowUnit->getRotation();
 			getGameCameraPtr()->stop();
@@ -5159,7 +5159,7 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 	}
 
 	//intToStr(stats.getFramesToCalculatePlaytime()/GameConstants::updateFps/60
-	str+= "Time: "           + doubleToStr(world.getTimeFlow()->getTime(),2) + " [" + doubleToStr((double)world.getStats()->getFramesToCalculatePlaytime() / (double)GameConstants::updateFps / 60.0,2) + "]\n";
+	str+= "Time: "           + floatToStr(world.getTimeFlow()->getTime(),2) + " [" + floatToStr((double)world.getStats()->getFramesToCalculatePlaytime() / (float)GameConstants::updateFps / 60.0,2) + "]\n";
 
 	if(SystemFlags::getThreadedLoggerRunning() == true) {
 		str+= "Log buffer count: " + intToStr(SystemFlags::getLogEntryBufferCount())+"\n";
@@ -5203,7 +5203,7 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 	//		}
 		str+= "\n";
 
-		str+= "Visible quad area:        " + doubleToStr(visibleQuad.area()) +"\n";
+		str+= "Visible quad area:        " + floatToStr(visibleQuad.area()) +"\n";
 	//		str+= "Visible quad camera area: " + floatToStr(visibleQuadCamera.area()) +"\n";
 
 	//		Rect2i boundingRect= visibleQuad.computeBoundingRect();

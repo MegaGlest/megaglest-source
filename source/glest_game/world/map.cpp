@@ -529,8 +529,8 @@ void Map::init(Tileset *tileset) {
 
 class FindBestPos  {
 public:
-	double distanceFromUnitNoAdjustment;
-	double distanceFromClickNoAdjustment;
+	float distanceFromUnitNoAdjustment;
+	float distanceFromClickNoAdjustment;
 	Vec2i resourcePosNoAdjustment;
 };
 
@@ -540,8 +540,8 @@ bool Map::isResourceNear(int frameIndex,const Vec2i &pos, const ResourceType *rt
 		Vec2i *resourceClickPos) const {
 
 	bool resourceNear = false;
-	double distanceFromUnit=-1;
-	double distanceFromClick=-1;
+	float distanceFromUnit=-1;
+	float distanceFromClick=-1;
 
 	if(resourceClickPos) {
 		//printf("+++++++++ unit [%s - %d] pos = [%s] resourceClickPos [%s]\n",unit->getFullName().c_str(),unit->getId(),pos.getString().c_str(),resourceClickPos->getString().c_str());
@@ -694,7 +694,7 @@ bool Map::isResourceNear(int frameIndex,const Vec2i &pos, const ResourceType *rt
 			}
 		}
 
-		double bestUnitDist = distanceFromUnit;
+		float bestUnitDist = distanceFromUnit;
 		for(unsigned int i = 0; i < bestPosList.size(); ++i) {
 			FindBestPos &bestPosItem = bestPosList[i];
 
@@ -1115,12 +1115,12 @@ Vec2i Map::computeDestPos(	const Vec2i &refUnitPos, const Vec2i &unitPos,
     return pos;
 }
 
-std::pair<double,Vec2i> Map::getUnitDistanceToPos(const Unit *unit,Vec2i pos,const UnitType *ut) {
+std::pair<float,Vec2i> Map::getUnitDistanceToPos(const Unit *unit,Vec2i pos,const UnitType *ut) {
 	if(unit == NULL) {
 		throw megaglest_runtime_error("unit == NULL");
 	}
 
-	std::pair<double,Vec2i> result(-1,Vec2i(0));
+	std::pair<float,Vec2i> result(-1,Vec2i(0));
 	//int unitId= unit->getId();
 	Vec2i unitPos= computeDestPos(unit->getPosNotThreadSafe(), unit->getPosNotThreadSafe(), pos);
 
@@ -1136,7 +1136,7 @@ std::pair<double,Vec2i> Map::getUnitDistanceToPos(const Unit *unit,Vec2i pos,con
 			Vec2i testPos(i,j);
 
 			if(ut == NULL || isInUnitTypeCells(ut, pos,testPos) == false) {
-				double distance = unitPos.dist(testPos);
+				float distance = unitPos.dist(testPos);
 				if(result.first < 0 || result.first > distance) {
 					result.first = distance;
 					result.second = testPos;
@@ -1155,7 +1155,7 @@ const Unit * Map::findClosestUnitToPos(const Selection *selection, Vec2i origina
 
 	Vec2i pos = originalBuildPos;
 
-	double bestRange = -1;
+	float bestRange = -1;
 
 	Vec2i start = pos - Vec2i(1);
 	int unitTypeSize = 0;
@@ -1173,7 +1173,7 @@ const Unit * Map::findClosestUnitToPos(const Selection *selection, Vec2i origina
 			for(int j = start.y; j <= end.y; ++j){
 				Vec2i testPos(i,j);
 				if(isInUnitTypeCells(ut, originalBuildPos,testPos) == false) {
-					double distance = unitBuilderPos.dist(testPos);
+					float distance = unitBuilderPos.dist(testPos);
 					if(bestRange < 0 || bestRange > distance) {
 						bestRange = distance;
 						pos = testPos;
@@ -1198,7 +1198,7 @@ Vec2i Map::findBestBuildApproach(const Unit *unit, Vec2i originalBuildPos,const 
     Vec2i unitBuilderPos    = unit->getPosNotThreadSafe();
 	Vec2i pos               = originalBuildPos;
 
-	double bestRange = -1;
+	float bestRange = -1;
 
 	Vec2i start = pos - Vec2i(unit->getType()->getSize());
 	Vec2i end 	= pos + Vec2i(ut->getSize());
@@ -1207,7 +1207,7 @@ Vec2i Map::findBestBuildApproach(const Unit *unit, Vec2i originalBuildPos,const 
 		for(int j = start.y; j <= end.y; ++j) {
 			Vec2i testPos(i,j);
 			if(isInUnitTypeCells(ut, originalBuildPos,testPos) == false) {
-				double distance = unitBuilderPos.dist(testPos);
+				float distance = unitBuilderPos.dist(testPos);
 				if(bestRange < 0 || bestRange > distance) {
 				    // Check if the cell is occupied by another unit
 				    if(isFreeCellOrHasUnit(testPos, unit->getType()->getField(), unit) == true) {
