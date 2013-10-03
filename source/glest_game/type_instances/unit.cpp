@@ -3007,9 +3007,9 @@ bool Unit::repair(){
 
 //decrements HP and returns if dead
 bool Unit::decHp(int decrementValue) {
-//	char szBuf[8096]="";
-//	snprintf(szBuf,8095,"this->hp = %d, decrementValue = %d",this->hp,decrementValue);
-//	addNetworkCRCDecHp(szBuf);
+	char szBuf[8096]="";
+	snprintf(szBuf,8095,"this->hp = %d, decrementValue = %d",this->hp,decrementValue);
+	addNetworkCRCDecHp(szBuf);
 
 	if(this->hp == 0) {
 		return false;
@@ -4116,8 +4116,10 @@ bool Unit::showTranslatedTechTree() const {
 
 string Unit::getNetworkCRCDecHpList() const {
 	string result = "";
-	for(unsigned int index = 0; index < networkCRCDecHpList.size(); ++index) {
-		result += networkCRCDecHpList[index] + " ";
+	if(networkCRCDecHpList.empty() == false) {
+		for(unsigned int index = 0; index < networkCRCDecHpList.size(); ++index) {
+			result += networkCRCDecHpList[index] + " ";
+		}
 	}
 	return result;
 }
