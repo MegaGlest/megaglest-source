@@ -3640,8 +3640,6 @@ int glestMain(int argc, char** argv) {
 		printf("\nSVN: [%s]",getSVNRevisionString().c_str());
 
 #ifdef USE_STREFLOP
-//#	define STREFLOP_NO_DENORMALS
-//	streflop_init<streflop::Simple>();
 
 #if defined(STREFLOP_SSE)
 		const char *instruction_set = "[SSE]";

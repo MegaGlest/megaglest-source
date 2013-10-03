@@ -32,9 +32,6 @@ private:
 private:
 	int lastNumber;
 	std::vector<std::string> lastCaller;
-//#ifdef USE_STREFLOP
-//	streflop::RandomState randomState;
-//#endif
 
 	int rand(std::string lastCaller);
 

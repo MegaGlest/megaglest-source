@@ -1954,7 +1954,6 @@ bool PosCircularIterator::next(){
 #else
 	while(floor(pos.dist(center)) >= (radius+1) || !map->isInside(pos) || !map->isInsideSurface(map->toSurfCoords(pos)) );
 #endif
-	//while(!(pos.dist(center) <= radius && map->isInside(pos)));
 
 	return true;
 }
