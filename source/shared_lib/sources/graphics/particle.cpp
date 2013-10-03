@@ -2306,7 +2306,8 @@ bool ParticleManager::hasActiveParticleSystem(ParticleSystem::ParticleSystemType
 			//currentParticleCount+= ps->getAliveParticleCount();
 
 			bool showParticle= true;
-			if(dynamic_cast<UnitParticleSystem *> (ps) != NULL || dynamic_cast<FireParticleSystem *> (ps) != NULL){
+			if(dynamic_cast<UnitParticleSystem *> (ps) != NULL ||
+			   dynamic_cast<FireParticleSystem *> (ps) != NULL) {
 				showParticle= ps->getVisible() || (ps->getState() == ParticleSystem::sFade);
 			}
 			if(showParticle == true){

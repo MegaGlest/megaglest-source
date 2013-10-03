@@ -782,16 +782,16 @@ public:
 	void setNetworkCRCParticleLogInfo(string networkCRCParticleLogInfo) { this->networkCRCParticleLogInfo = networkCRCParticleLogInfo; }
 	void setNetworkCRCParticleObserverLogInfo(string networkCRCParticleObserverLogInfo) { this->networkCRCParticleObserverLogInfo = networkCRCParticleObserverLogInfo; }
 
-	//void clearNetworkCRCDecHpList() { networkCRCDecHpList.clear(); }
-	void clearNetworkCRCDecHpList() { }
+	void clearNetworkCRCDecHpList() { networkCRCDecHpList.clear(); }
+	//void clearNetworkCRCDecHpList() { }
 
 	Checksum getCRC();
 
 	virtual void end(ParticleSystem *particleSystem);
 
 private:
-	//void addNetworkCRCDecHp(string info) { networkCRCDecHpList.push_back(info); }
-	void addNetworkCRCDecHp(string info) { }
+	void addNetworkCRCDecHp(string info) { networkCRCDecHpList.push_back(info); }
+	//void addNetworkCRCDecHp(string info) { }
 	string getNetworkCRCDecHpList() const;
 
 	float computeHeight(const Vec2i &pos) const;
