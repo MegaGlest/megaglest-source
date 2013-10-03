@@ -244,7 +244,7 @@ void ParticleRendererGl::renderModel(GameParticleSystem *ps, ModelRenderer *mr){
 		Vec3f flatDirection= Vec3f(direction.x, 0.f, direction.z);
 		Vec3f rotVector= Vec3f(0.f, 1.f, 0.f).cross(flatDirection);
 
-		float angleV= radToDeg(std::atan2(flatDirection.length(), (double)direction.y)) - 90.f;
+		float angleV= radToDeg(std::atan2(flatDirection.length(), (float)direction.y)) - 90.f;
 		glRotatef(angleV, rotVector.x, rotVector.y, rotVector.z);
 
 		float angleH= radToDeg(std::atan2(direction.x, direction.z));
