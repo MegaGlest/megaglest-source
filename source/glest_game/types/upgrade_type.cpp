@@ -102,10 +102,14 @@ void UpgradeTypeBase::load(const XmlNode *upgradeNode, string upgradename) {
 	}
 
 	attackStrengthIsMultiplier = false;
-	if(upgradeNode->hasChild("attack-strenght") == true) {
-		attackStrength= upgradeNode->getChild("attack-strenght")->getAttribute("value")->getIntValue();
-		if(upgradeNode->getChild("attack-strenght")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
-			attackStrengthIsMultiplier = upgradeNode->getChild("attack-strenght")->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
+
+	std::vector<string> attackStrengthXMLTags;
+	attackStrengthXMLTags.push_back("attack-strenght");
+	attackStrengthXMLTags.push_back("attack-strength");
+	if(upgradeNode->hasChildWithAliases(attackStrengthXMLTags) == true) {
+		attackStrength= upgradeNode->getChildWithAliases(attackStrengthXMLTags)->getAttribute("value")->getIntValue();
+		if(upgradeNode->getChildWithAliases(attackStrengthXMLTags)->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME,false) != NULL) {
+			attackStrengthIsMultiplier = upgradeNode->getChildWithAliases(attackStrengthXMLTags)->getAttribute(VALUE_PERCENT_MULTIPLIER_KEY_NAME)->getBoolValue();
 
 			//printf("Found attackStrengthIsMultiplier = %d\n",attackStrengthIsMultiplier);
 		}

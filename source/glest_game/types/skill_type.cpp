@@ -762,7 +762,10 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	endPathWithSlash(currentPath);
 
 	//misc
-	attackStrength= sn->getChild("attack-strenght")->getAttribute("value")->getIntValue();
+	std::vector<string> attackStrengthXMLTags;
+	attackStrengthXMLTags.push_back("attack-strenght");
+	attackStrengthXMLTags.push_back("attack-strength");
+	attackStrength= sn->getChildWithAliases(attackStrengthXMLTags)->getAttribute("value")->getIntValue();
     attackVar= sn->getChild("attack-var")->getAttribute("value")->getIntValue();
 
     if(attackVar < 0) {
