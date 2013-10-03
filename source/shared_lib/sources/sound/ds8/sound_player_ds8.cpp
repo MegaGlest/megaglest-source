@@ -520,7 +520,7 @@ bool SoundPlayerDs8::findStrBuffer(Sound *sound, int *bufferIndex){
 // =====================================================
 
 long dsVolume(float floatVolume){
-	float correctedVol= log10f(floatVolume*9.f+1.f);
+	float correctedVol= std::log10f(floatVolume*9.f+1.f);
 	long vol= static_cast<long>(DSBVOLUME_MIN+correctedVol*(DSBVOLUME_MAX-DSBVOLUME_MIN));
 	return clamp(vol, DSBVOLUME_MIN, DSBVOLUME_MAX);
 }
