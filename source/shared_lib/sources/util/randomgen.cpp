@@ -80,8 +80,8 @@ int RandomGen::randRange(int min, int max,string lastCaller) {
 	}
 
 	int diff= max-min;
-	double numerator = static_cast<double>(diff + 1) * static_cast<double>(RandomGen::rand(lastCaller));
-	int res= min + static_cast<int>(truncateDecimal<double>(numerator / static_cast<double>(m),6));
+	float numerator = static_cast<float>(diff + 1) * static_cast<float>(RandomGen::rand(lastCaller));
+	int res= min + static_cast<int>(truncateDecimal<float>(numerator / static_cast<float>(m),6));
 	if(res < min || res > max) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] res < min || res > max, min = %d, max = %d, res = %d",__FILE__,__FUNCTION__,__LINE__,min,max,res);
@@ -93,16 +93,16 @@ int RandomGen::randRange(int min, int max,string lastCaller) {
 	return res;
 }
 
-double RandomGen::randRange(double min, double max,string lastCaller) {
+float RandomGen::randRange(float min, float max,string lastCaller) {
 	if(min > max) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] min > max, min = %f, max = %f",__FILE__,__FUNCTION__,__LINE__,min,max);
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	double rand01 = static_cast<double>(RandomGen::rand(lastCaller)) / (m-1);
-	double res= min + (max - min) * rand01;
-	res = truncateDecimal<double>(res,6);
+	float rand01 = static_cast<float>(RandomGen::rand(lastCaller)) / (m-1);
+	float res= min + (max - min) * rand01;
+	res = truncateDecimal<float>(res,6);
 
 	if(res < min || res > max) {
 		char szBuf[8096]="";

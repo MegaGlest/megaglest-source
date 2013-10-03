@@ -231,10 +231,10 @@ void copyStringToBuffer(char *buffer, int bufferSize, const string& s);
 
 //numeric fcs
 int clamp(int value, int min, int max);
-double clamp(double value, double min, double max);
+float clamp(float value, float min, float max);
 int64 clamp(int64 value, int64 min, int64 max);
-double saturate(double value);
-int round(double f);
+float saturate(float value);
+int round(float f);
 
 //misc
 bool checkVersionComptability(string clientVersionString, string serverVersionString);

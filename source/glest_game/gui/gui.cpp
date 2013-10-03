@@ -305,7 +305,7 @@ void Gui::mouseUpLeftGraphics(int x, int y) {
 			if(selection.isCommandable() && random.randRange(0, 1)==0){
 				SoundRenderer::getInstance().playFx(
 					selection.getFrontUnit()->getType()->getSelectionSound(),
-					Vec3f(selection.getFrontUnit()->getCurrVector()),
+					selection.getFrontUnit()->getCurrVector(),
 					gameCamera->getPos());
 			}
 			selectionQuad.disable();
@@ -477,7 +477,7 @@ void Gui::giveDefaultOrders(int x, int y,const Unit *targetUnit, bool paintMouse
 		if(random.randRange(0, 1)==0){
 			SoundRenderer::getInstance().playFx(
 				selection.getFrontUnit()->getType()->getCommandSound(),
-				Vec3f(selection.getFrontUnit()->getCurrVector()),
+				selection.getFrontUnit()->getCurrVector(),
 				gameCamera->getPos());
 		}
 	}
@@ -532,7 +532,7 @@ void Gui::giveTwoClickOrders(int x, int y , bool prepared) {
 		if(random.randRange(0, 1) == 0) {
 			SoundRenderer::getInstance().playFx(
 				selection.getFrontUnit()->getType()->getCommandSound(),
-				Vec3f(selection.getFrontUnit()->getCurrVector()),
+				selection.getFrontUnit()->getCurrVector(),
 				gameCamera->getPos());
 		}
 	}

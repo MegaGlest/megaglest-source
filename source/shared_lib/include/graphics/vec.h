@@ -24,9 +24,60 @@
 //#include <tr1/unordered_map>
 //using namespace std::tr1;
 
+#include "data_types.h"
 #include "leak_dumper.h"
 
+using namespace Shared::Platform;
+
 namespace Shared{ namespace Graphics{
+
+template<typename T>
+inline T truncateDecimal(const T &value, int precision=6) {
+
+/*
+	int iSigned = value >= 0 ? 1: -1;
+
+#ifdef USE_STREFLOP
+	unsigned int uiTemp = (unsigned int)(value * streflop::pow((streflop::Simple)10, (streflop::Simple)precision)) * iSigned; //Note I'm using unsigned int so that I can increase the precision of the truncate
+	T result = (((T)uiTemp) / streflop::pow((streflop::Simple)10,(streflop::Simple)precision) * iSigned);
+#else
+	unsigned int uiTemp = (value * pow((T)10, precision)) * iSigned; //Note I'm using unsigned int so that I can increase the precision of the truncate
+	T result = (((double)uiTemp) / pow((T)10,precision) * iSigned);
+#endif
+	return result;
+*/
+
+	T precNum = 0;
+	if(precision == 0) {
+		precNum = 1;
+	}
+	else if(precision == 1) {
+		precNum = 10;
+	}
+	else if(precision == 2) {
+		precNum = 100;
+	}
+	else if(precision == 3) {
+		precNum = 1000;
+	}
+	else if(precision == 4) {
+		precNum = 10000;
+	}
+	else if(precision == 5) {
+		precNum = 100000;
+	}
+	else if(precision == 6) {
+		precNum = 1000000;
+	}
+	else  {
+		precNum = std::pow((T)10,(T)precision);
+	}
+
+	int64 resultInt = (T)value * (T)precNum;
+
+	T result = (long double)resultInt / precNum;
+	return result;
+}
 
 inline std::vector<std::string> TokenizeString(const std::string str,const std::string delimiters) {
 	std::vector<std::string> tokens;
@@ -206,8 +257,10 @@ public:
 		return x*v.x+y*v.y;
 	}
 
-	inline double dist(const Vec2<T> &v) const{
-		return Vec2<T>(v-*this).length();
+	inline float dist(const Vec2<T> &v) const{
+		float distance = Vec2<T>(v-*this).length();
+		distance = truncateDecimal<float>(distance,6);
+		return distance;
 	}
 
 	// strict week ordering, so Vec2<T> can be used as key for set<> or map<>
@@ -215,7 +268,7 @@ public:
 		return x < v.x || (x == v.x && y < v.y);
 	}
 
-	inline double length() const {
+	inline float length() const {
 //#ifdef USE_STREFLOP
 //		if(requireAccuracy == true) {
 //			return static_cast<float>(streflop::sqrt(static_cast<streflop::Simple>(x*x + y*y)));
@@ -224,7 +277,9 @@ public:
 //#else
 //		return static_cast<float>(sqrt(static_cast<float>(x*x + y*y)));
 //#endif
-		return static_cast<double>(std::sqrt(static_cast<double>(x*x + y*y)));
+		float len = static_cast<float>(std::sqrt(static_cast<float>(x*x + y*y)));
+		len = truncateDecimal<float>(len,6);
+		return len;
 	}
 
 	inline void normalize(){
@@ -233,7 +288,7 @@ public:
 		y/= m;
 	}
 	
-	inline Vec2<T> rotate(double rad) {
+	inline Vec2<T> rotate(float rad) {
 //		const float
 //#ifdef USE_STREFLOP
 //			c = streflop::cosf(rad),
@@ -242,13 +297,13 @@ public:
 //			c = cosf(rad),
 //			s = sinf(rad);
 //#endif
-		double c = std::cos(rad),
+		float  c = std::cos(rad),
 			   s = std::sin(rad);
 
 		return Vec2<T>(x*c-y*s,x*s+y*c);
 	}
 
-	inline Vec2<T> rotateAround(double rad,const Vec2<T>& pt){
+	inline Vec2<T> rotateAround(float rad,const Vec2<T>& pt) {
 		return pt+(*this-pt).rotate(rad);
 	}
 
@@ -452,11 +507,13 @@ public:
 		return x*v.x + y*v.y + z*v.z;
 	}
 
-	inline double dist(const Vec3<T> &v) const{
-		return Vec3<T>(v-*this).length();
+	inline float dist(const Vec3<T> &v) const {
+		float distance = Vec3<T>(v-*this).length();
+		distance = truncateDecimal<float>(distance,6);
+		return distance;
 	}
 
-	inline double length() const {
+	inline float length() const {
 //#ifdef USE_STREFLOP
 //		if(requireAccuracy == true) {
 //			return static_cast<float>(streflop::sqrt(static_cast<streflop::Simple>(x*x + y*y + z*z)));
@@ -465,7 +522,9 @@ public:
 //#else
 //		return static_cast<float>(sqrt(x*x + y*y + z*z));
 //#endif
-		return static_cast<double>(std::sqrt(x*x + y*y + z*z));
+		float len = static_cast<float>(std::sqrt(x*x + y*y + z*z));
+		len = truncateDecimal<float>(len,6);
+		return len;
 	}
 
 	inline void normalize() {

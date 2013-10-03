@@ -330,7 +330,7 @@ private:
 	static std::map<Unit *,bool> mapMemoryList;
 #endif
 
-	static const double ANIMATION_SPEED_MULTIPLIER;
+	static const float ANIMATION_SPEED_MULTIPLIER;
 	static const int64 PROGRESS_SPEED_MULTIPLIER;
 
 public:
@@ -517,8 +517,8 @@ public:
 
     //inline int getLastAnimProgress() const			{return lastAnimProgress;}
     //inline int getAnimProgress() const				{return animProgress;}
-    inline double getLastAnimProgressAsFloat() const	{return static_cast<double>(lastAnimProgress) / ANIMATION_SPEED_MULTIPLIER;}
-    inline double getAnimProgressAsFloat() const		{return static_cast<double>(animProgress) / ANIMATION_SPEED_MULTIPLIER;}
+    inline float getLastAnimProgressAsFloat() const	{return static_cast<float>(lastAnimProgress) / ANIMATION_SPEED_MULTIPLIER;}
+    inline float getAnimProgressAsFloat() const		{return static_cast<float>(animProgress) / ANIMATION_SPEED_MULTIPLIER;}
 
     inline float getHightlight() const					{return highlight;}
     inline int getProgress2() const					{return progress2;}
@@ -531,9 +531,9 @@ public:
 	inline int getHp() const							{return hp;}
 	inline int getEp() const							{return ep;}
 	int getProductionPercent() const;
-	double getProgressRatio() const;
-	double getHpRatio() const;
-	double getEpRatio() const;
+	float getProgressRatio() const;
+	float getHpRatio() const;
+	float getEpRatio() const;
 	inline bool getToBeUndertaken() const				{return toBeUndertaken;}
 	inline Vec2i getTargetPos() const					{return targetPos;}
 	inline Vec3f getTargetVec() const					{return targetVec;}
@@ -742,7 +742,7 @@ public:
 
 	std::string toString(bool crcMode=false) const;
 	bool needToUpdate();
-	double getProgressAsFloat() const;
+	float getProgressAsFloat() const;
 	int64 getUpdateProgress();
 	int64 getDiagonalFactor();
 	int64 getHeightFactor(int64 speedMultiplier=PROGRESS_SPEED_MULTIPLIER);
