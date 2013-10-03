@@ -178,9 +178,11 @@ public:
 
 	XmlNode *getChild(unsigned int i) const;
 	XmlNode *getChild(const string &childName, unsigned int childIndex=0) const;
+	XmlNode *getChildWithAliases(vector<string> childNameList, unsigned int childIndex=0) const;
 	vector<XmlNode *> getChildList(const string &childName) const;
 	bool hasChildAtIndex(const string &childName, int childIndex=0) const;
 	bool hasChild(const string &childName) const;
+	bool hasChildWithAliases(vector<string> childNameList) const;
 	int clearChild(const string &childName);
 
 

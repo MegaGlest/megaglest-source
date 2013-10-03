@@ -749,10 +749,11 @@ vector<XmlNode *> XmlNode::getChildList(const string &childName) const {
 	return list;
 }
 
-XmlNode *XmlNode::getChild(const string &childName, unsigned int i) const{
-	if(superNode && !hasChildNoSuper(childName))
+XmlNode *XmlNode::getChild(const string &childName, unsigned int i) const {
+	if(superNode && hasChildNoSuper(childName) == false) {
 		return superNode->getChild(childName,i);
-	if(i>=children.size()){
+	}
+	if(i >= children.size()) {
 		throw megaglest_runtime_error("\"" + name + "\" node doesn't have "+intToStr(i+1)+" children named \"" + childName + "\"\n\nTree: "+getTreeString());
 	}
 
@@ -767,6 +768,39 @@ XmlNode *XmlNode::getChild(const string &childName, unsigned int i) const{
 	}
 
 	throw megaglest_runtime_error("Node \""+getName()+"\" doesn't have "+intToStr(i+1)+" children named  \""+childName+"\"\n\nTree: "+getTreeString());
+}
+
+bool XmlNode::hasChildNoSuper(const string &childName) const {
+	//int count= 0;
+	for(unsigned int j = 0; j < children.size(); ++j) {
+		if(children[j]->getName() == childName) {
+            return true;
+		}
+	}
+	return false;
+}
+XmlNode * XmlNode::getChildWithAliases(vector<string> childNameList, unsigned int childIndex) const {
+	for(int aliasIndex = 0; aliasIndex < childNameList.size(); ++aliasIndex) {
+		const string &childName = childNameList[aliasIndex];
+		if(superNode && hasChildNoSuper(childName) == false) {
+			return superNode->getChild(childName,childIndex);
+		}
+		if(childIndex >= children.size()) {
+			throw megaglest_runtime_error("\"" + name + "\" node doesn't have "+intToStr(childIndex+1)+" children named \"" + childName + "\"\n\nTree: "+getTreeString());
+		}
+
+		int count= 0;
+		for(unsigned int j = 0; j < children.size(); ++j) {
+			if(children[j]->getName() == childName) {
+				if(count == childIndex) {
+					return children[j];
+				}
+				count++;
+			}
+		}
+	}
+
+	throw megaglest_runtime_error("Node \""+getName()+"\" doesn't have "+intToStr(childIndex+1)+" children named  \""+ (childNameList.empty() ? "???" : childNameList[0]) +"\"\n\nTree: "+getTreeString());
 }
 
 bool XmlNode::hasChildAtIndex(const string &childName, int i) const {
@@ -789,15 +823,17 @@ bool XmlNode::hasChildAtIndex(const string &childName, int i) const {
 bool XmlNode::hasChild(const string &childName) const {
 	return hasChildNoSuper(childName) || (superNode && superNode->hasChild(childName));
 }
-	
-bool XmlNode::hasChildNoSuper(const string &childName) const {
-	//int count= 0;
-	for(unsigned int j = 0; j < children.size(); ++j) {
-		if(children[j]->getName() == childName) {
-            return true;
+
+bool XmlNode::hasChildWithAliases(vector<string> childNameList) const {
+	bool result = false;
+	for(int aliasIndex = 0; aliasIndex < childNameList.size(); ++aliasIndex) {
+		const string &childName = childNameList[aliasIndex];
+		result = hasChild(childName);
+		if(result == true) {
+			break;
 		}
 	}
-	return false;
+	return result;
 }
 
 XmlNode *XmlNode::addChild(const string &name, const string text) {
