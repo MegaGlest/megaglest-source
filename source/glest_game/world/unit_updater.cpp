@@ -2198,7 +2198,11 @@ void UnitUpdater::hit(Unit *attacker){
 
 void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &targetPos, Field targetField){
 	//hit attack positions
-	if(ast != NULL && ast->getSplash()){
+	if(ast != NULL && ast->getSplash()) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"Unit hitting [UnitUpdater::hit] hasSplash = %d radius = %d damageall = %d",ast->getSplash(),ast->getSplashRadius(),ast->getSplashDamageAll());
+		attacker->addNetworkCRCDecHp(szBuf);
+
 		PosCircularIterator pci(map, targetPos, ast->getSplashRadius());
 		while(pci.next()) {
 			Unit *attacked= map->getCell(pci.getPos())->getUnit(targetField);
@@ -2217,8 +2221,13 @@ void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &t
 			}
 		}
 	}
-	else{
+	else {
 		Unit *attacked= map->getCell(targetPos)->getUnit(targetField);
+
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"Unit hitting [UnitUpdater::hit 2] attacked = %d",(attacked != NULL ? attacked->getId() : -1));
+		attacker->addNetworkCRCDecHp(szBuf);
+
 		if(attacked != NULL) {
 			damage(attacker, ast, attacked, 0.f);
 		}
@@ -2257,6 +2266,10 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	int damageVal = static_cast<int>(damage);
 
 	attacked->setLastAttackerUnitId(attacker->getId());
+
+	char szBuf[8096]="";
+	snprintf(szBuf,8095,"Unit hitting [UnitUpdater::damage] damageVal = %d",damageVal);
+	attacker->addNetworkCRCDecHp(szBuf);
 
 	//damage the unit
 	if(attacked->decHp(damageVal)) {
@@ -2308,7 +2321,7 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 	}
 
 	//projectile
-	if(pstProj!=NULL){
+	if(pstProj != NULL) {
 		psProj= pstProj->create(unit);
 		psProj->setPath(startPos, endPos);
 		psProj->setObserver(new ParticleDamager(unit, this, gameCamera));
@@ -2319,7 +2332,11 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 		renderer.manageParticleSystem(psProj, rsGame);
 		unit->addAttackParticleSystem(psProj);
 	}
-	else{
+	else {
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"Unit hitting [startAttackParticleSystem] no proj");
+		unit->addNetworkCRCDecHp(szBuf);
+
 		hit(unit);
 	}
 
@@ -2856,6 +2873,10 @@ void ParticleDamager::update(ParticleSystem *particleSystem) {
 
 	if(attacker != NULL) {
 		//string auditBeforeHit = particleSystem->toString();
+
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"Unit hitting [ParticleDamager::update] [%s] targetField = %d",targetPos.getString().c_str(),targetField);
+		attacker->addNetworkCRCDecHp(szBuf);
 
 		unitUpdater->hit(attacker, ast, targetPos, targetField);
 

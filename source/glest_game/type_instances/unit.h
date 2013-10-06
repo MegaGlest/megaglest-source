@@ -789,8 +789,10 @@ public:
 
 	virtual void end(ParticleSystem *particleSystem);
 
-private:
 	void addNetworkCRCDecHp(string info) { networkCRCDecHpList.push_back(info); }
+
+private:
+
 	//void addNetworkCRCDecHp(string info) { }
 	string getNetworkCRCDecHpList() const;
 
