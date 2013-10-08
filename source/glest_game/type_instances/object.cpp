@@ -52,6 +52,9 @@ Object::Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos) : 
 		if(tmt->getRotationAllowed() != true) {
 			rotation=0;
 		}
+		if(tmt->getRandomPositionEnabled() != true) {
+			this->pos = pos;
+		}
 		animated=tmt->getAnimSpeed()>0;
 	}
 	visible=false;

@@ -43,6 +43,7 @@ private:
 	ModelParticleSystemTypes particleTypes;
 	int height;
 	bool rotationAllowed;
+	bool randomPositionEnabled;
 	bool smoothTwoFrameAnim;
 
     int animSpeed;
@@ -64,6 +65,9 @@ public:
 
 	inline bool getRotationAllowed() const			{return rotationAllowed;}
 	inline void setRotationAllowed(bool rotationAllowed)	{this->rotationAllowed=rotationAllowed;}
+	
+	inline bool getRandomPositionEnabled() const			{return randomPositionEnabled;}
+	inline void setRandomPositionEnabled(bool randomPositionEnabled)	{this->randomPositionEnabled=randomPositionEnabled;}
 
 	inline bool getSmoothTwoFrameAnim() const			{return smoothTwoFrameAnim;}
 	inline void setSmoothTwoFrameAnim(bool smoothTwoFrameAnim)	{this->smoothTwoFrameAnim=smoothTwoFrameAnim;}

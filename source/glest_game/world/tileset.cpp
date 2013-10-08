@@ -349,6 +349,13 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 				else{
 					tmt->setRotationAllowed(true);
 				}
+				//randomPositionEnabled
+				if(modelNode->hasAttribute("randomPositionEnabled") == true) {
+					tmt->setRandomPositionEnabled(modelNode->getAttribute("randomPositionEnabled")->getBoolValue());
+				}
+				else{
+					tmt->setRandomPositionEnabled(true);
+				}
 
 				//smoothTwoFrameAnim
 				if(modelNode->hasAttribute("smoothTwoFrameAnim") == true) {
