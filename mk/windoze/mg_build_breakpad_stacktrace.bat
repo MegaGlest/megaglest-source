@@ -1,7 +1,7 @@
 @echo off
 
 if "%1." == "." goto NOTSET
-if NOT EXIST "%AppData%\megaglest\%1" goto NOTFOUND
+if NOT EXIST "%1" goto NOTFOUND
 
 ..\..\source\windows_deps\google-breakpad\trunk\src\minidump_stackwalk.exe "%1" .\windows_symbols
 goto END
