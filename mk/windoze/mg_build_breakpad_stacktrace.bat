@@ -3,15 +3,15 @@
 if "%1." == "." goto NOTSET
 if NOT EXIST "%AppData%\megaglest\%1" goto NOTFOUND
 
-..\..\source\windows_deps\google-breakpad\trunk\src\minidump_stackwalk.exe "%AppData%\megaglest\%1" .\windows_symbols
+..\..\source\windows_deps\google-breakpad\trunk\src\minidump_stackwalk.exe "%1" .\windows_symbols
 goto END
 
 :NOTSET
-echo "You need to pass the name of the DMP file (in %AppData%) to process as the first argument."
+echo You need to pass the full path to the DMP file to process (usually in %AppData%\megaglest) as first argument on the command line.
 goto END
 
 :NOTFOUND
-echo "File not found [%AppData%\megaglest\%1]"
+echo File not found [%1]
 goto END
 
 :END
