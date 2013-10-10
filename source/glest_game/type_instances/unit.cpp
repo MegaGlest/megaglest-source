@@ -5245,6 +5245,10 @@ Checksum Unit::getCRC() {
 		}
 	}
 
+	if(this->networkCRCParticleLogInfo != "") {
+		crcForUnit.addString(this->networkCRCParticleLogInfo);
+	}
+
 	return crcForUnit;
 }
 
