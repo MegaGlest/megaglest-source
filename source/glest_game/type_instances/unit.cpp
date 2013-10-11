@@ -1737,7 +1737,7 @@ void Unit::born(const CommandType *ct) {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	faction->addStore(type);
+	faction->addStore(type,false);
 	faction->applyStaticProduction(type,ct);
 	setCurrSkill(scStop);
 
@@ -3305,8 +3305,9 @@ bool Unit::morph(const MorphCommandType *mct) {
 		this->currField=morphUnitField;
 		computeTotalUpgrade();
 		map->putUnitCells(this, this->pos);
+
 		this->faction->applyDiscount(morphUnitType, mct->getDiscount());
-		this->faction->addStore(this->type);
+		this->faction->addStore(this->type,mct->getReplaceStorage());
 		this->faction->applyStaticProduction(morphUnitType,mct);
 
 		this->level= NULL;

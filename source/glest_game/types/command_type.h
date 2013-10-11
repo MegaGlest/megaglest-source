@@ -418,6 +418,7 @@ private:
     const UnitType* morphUnit;
 	int discount;
 	bool ignoreResourceRequirements;
+	bool replaceStorage;
 
 public:
     MorphCommandType();
@@ -436,6 +437,7 @@ public:
 	const UnitType *getMorphUnit() const				{return morphUnit;}
 	int getDiscount() const								{return discount;}
 	bool getIgnoreResourceRequirements() const			{return ignoreResourceRequirements;}
+	bool getReplaceStorage() const						{return replaceStorage;}
 
 	virtual bool usesPathfinder() const { return false; }
 };
