@@ -1177,14 +1177,25 @@ void Faction::removeUnit(Unit *unit){
 	//assert(false);
 }
 
-void Faction::addStore(const UnitType *unitType){
+void Faction::addStore(const UnitType *unitType, bool replaceStorage) {
 	assert(unitType != NULL);
-	for(int i=0; i<unitType->getStoredResourceCount(); ++i){
-		const Resource *r= unitType->getStoredResource(i);
-		for(int j=0; j<store.size(); ++j){
-			Resource *storedResource= &store[j];
-			if(storedResource->getType() == r->getType()){
-				storedResource->setAmount(storedResource->getAmount() + r->getAmount());
+	for(int newUnitStoredResourceIndex = 0;
+			newUnitStoredResourceIndex < unitType->getStoredResourceCount();
+			++newUnitStoredResourceIndex) {
+		const Resource *newUnitStoredResource = unitType->getStoredResource(newUnitStoredResourceIndex);
+
+		for(int currentStoredResourceIndex = 0;
+				currentStoredResourceIndex < store.size();
+				++currentStoredResourceIndex) {
+			Resource *storedResource= &store[currentStoredResourceIndex];
+
+			if(storedResource->getType() == newUnitStoredResource->getType()) {
+				if(replaceStorage == true) {
+					storedResource->setAmount(newUnitStoredResource->getAmount());
+				}
+				else {
+					storedResource->setAmount(storedResource->getAmount() + newUnitStoredResource->getAmount());
+				}
 			}
 		}
 	}
