@@ -83,7 +83,7 @@
 	foreach( $all_servers as $server )
 	{
 		# Filter by version if requested
-		if ( FILTER_VERSION == $server['glestVersion'] OR FILTER_VERSION == '' )
+		if ( FILTER_VERSION == $server['glestVersion'] or FILTER_VERSION == '' )
 		{
 			echo "\t\t\t" . '<tr>' . PHP_EOL;
 
