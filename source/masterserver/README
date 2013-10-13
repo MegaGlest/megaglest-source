@@ -1,0 +1,21 @@
+To install:
+
+1. Setup a MYSQL database server
+
+2. CREATE DATABASE 'megaglest-master' ENGINE=InnoDB;
+   CREATE USER 'megaglest-master'@'localhost' IDENTIFIED BY 'secret password';
+   GRANT ALL ON 'megaglest-master.*' TO 'megaglest-master';
+
+3. Connect the new user to the new database;
+   Execute the SQL statments in install/scheme_mysql.sql
+
+4. Copy all files (you can omit INSTALL and install/) to your webserver and
+   edit config.php to reflect the MySQL connection parameters and game title;
+   also replace the images in images/ by some which match your game title.
+
+To test and use this server with your MegaGlest engine based game, configure
+the "MasterserverURL" property in glest.ini.
+
+To add mods to the game mod menu, edit the database contents using your 
+favorite MySQL editor or develop a web based frontend to do so. In the latter
+case, please let us know about it and try to use a compatible license.
