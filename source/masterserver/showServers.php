@@ -58,7 +58,7 @@
 	echo '		<meta charset="UTF-8" />' . PHP_EOL;
 	echo '		<title>' . htmlspecialchars( PRODUCT_NAME ) . ' gameservers</title>' . PHP_EOL;
 	echo '		<link rel="stylesheet" type="text/css" href="style/screen.css" />' . PHP_EOL;
-	echo '		<link rel="shortcut icon" type="image/x-icon" href="' . htmlspecialchars( strtolower( PRODUCT_NAME ) ) . '.ico" />' . PHP_EOL;
+	echo '		<link rel="shortcut icon" type="image/x-icon" href="images/' . htmlspecialchars( strtolower( PRODUCT_NAME ) ) . '.ico" />' . PHP_EOL;
 	echo '	</head>' . PHP_EOL;
 	echo '	<body>' . PHP_EOL;
 	echo '		<h1><a href="' . htmlspecialchars( PRODUCT_URL ) . '">' . htmlspecialchars( PRODUCT_NAME ) . '</a> gameservers</h1>' . PHP_EOL;
@@ -193,6 +193,8 @@
 	echo '			<li>You can have this page auto <a href="?refresh=60" rel="nofollow">refresh every 60 seconds</a> by appending <code>?refresh=60</code> to the URL. Minimum refresh time is 10 seconds.</li>' . PHP_EOL;
 	echo '			<li>The parameters used by the masterserver API will display when you move your mouse pointer over any of the table headings.</li>' . PHP_EOL;
 	echo '		</ul>' . PHP_EOL;
+	echo '		<script src="scripts/json2.js"></script>' . PHP_EOL;
+	echo '		<script src="scripts/desktop_notifications.js"></script>' . PHP_EOL;
 	echo '	</body>' . PHP_EOL;
 	echo '</html>' . PHP_EOL;
 
