@@ -40,6 +40,7 @@ void RandomGen::init(int seed){
 }
 
 int RandomGen::rand(string lastCaller) {
+	this->lastCaller.push_back(lastCaller);
 	this->lastNumber = (a*lastNumber + b) % m;
 	return lastNumber;
 }
