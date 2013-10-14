@@ -46,8 +46,8 @@ public:
 	void setLastNumber(int value) { lastNumber = value; }
 
 	std::string getLastCaller() const;
-	//void clearLastCaller() { lastCaller.clear(); }
-	void clearLastCaller() {  }
+	void clearLastCaller() { lastCaller.clear(); }
+	//void clearLastCaller() {  }
 };
 
 }}//end namespace

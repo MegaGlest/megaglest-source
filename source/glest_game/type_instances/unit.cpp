@@ -5223,6 +5223,9 @@ Checksum Unit::getCRC() {
 	//Vec2i currentPathFinderDesiredFinalPos;
 
 	crcForUnit.addInt(random.getLastNumber());
+	if(this->random.getLastCaller() != "") {
+		crcForUnit.addString(this->random.getLastCaller());
+	}
 
 	if(consoleDebug) printf("#16 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
 
