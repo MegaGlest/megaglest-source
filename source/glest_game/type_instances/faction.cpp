@@ -2320,6 +2320,7 @@ void Faction::addCRC_DetailsForWorldFrame(int worldFrameCount,bool isNetworkServ
 
 	for(unsigned int i = 0; i < units.size(); ++i) {
 		Unit *unit = units[i];
+
 		unit->getRandom()->clearLastCaller();
 		unit->clearNetworkCRCDecHpList();
 	}

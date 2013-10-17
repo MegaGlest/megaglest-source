@@ -4242,7 +4242,9 @@ std::string Unit::toString(bool crcMode) const {
     result += "inBailOutAttempt = " + intToStr(inBailOutAttempt) + "\n";
 
     result += "random = " + intToStr(random.getLastNumber()) + "\n";
-    result += "randomlastCaller = " + random.getLastCaller() + "\n";
+    if(this->random.getLastCaller() != "") {
+    	result += "randomlastCaller = " + random.getLastCaller() + "\n";
+    }
     result += "pathFindRefreshCellCount = " + intToStr(pathFindRefreshCellCount) + "\n";
 
 	result += "lastStuckFrame = " + uIntToStr(lastStuckFrame) + "\n";

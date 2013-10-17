@@ -48,6 +48,7 @@ public:
 	std::string getLastCaller() const;
 	void clearLastCaller() { lastCaller.clear(); }
 	//void clearLastCaller() {  }
+	void addLastCaller(std::string text) { lastCaller.push_back(text); }
 };
 
 }}//end namespace
