@@ -4909,7 +4909,7 @@ Stats Game::quitGame() {
 void Game::DumpCRCWorldLogIfRequired(string fileSuffix) {
 	bool isNetworkGame = this->gameSettings.isNetworkGame();
 	if(isNetworkGame == true) {
-		printf("Check save world CRC to log. isNetworkGame = %d fileSuffix = %s\n",isNetworkGame,fileSuffix.c_str());
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Check save world CRC to log. isNetworkGame = %d fileSuffix = %s\n",isNetworkGame,fileSuffix.c_str());
 
 		GameSettings *settings = world.getGameSettingsPtr();
 		if(settings != NULL &&
