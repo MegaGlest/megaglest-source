@@ -40,7 +40,9 @@ void RandomGen::init(int seed){
 }
 
 int RandomGen::rand(string lastCaller) {
-	this->lastCaller.push_back(lastCaller);
+	if(lastCaller != "") {
+		this->lastCaller.push_back(lastCaller);
+	}
 	this->lastNumber = (a*lastNumber + b) % m;
 	return lastNumber;
 }
@@ -49,7 +51,7 @@ std::string RandomGen::getLastCaller() const {
 	std::string result = "";
 	if(lastCaller.empty() == false) {
 		for(unsigned int index = 0; index < lastCaller.size(); ++index) {
-			result += lastCaller[index] + " ";
+			result += lastCaller[index] + "|";
 		}
 	}
 	return result;
