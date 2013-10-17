@@ -128,6 +128,19 @@ uint32 Checksum::addInt(const int32 &value) {
 	return sum;
 }
 
+uint32 Checksum::addUInt(const uint32 &value) {
+	int8 byte 	= (value >>  0) & 0xFF;
+	addByte(byte);
+	byte  		= (value >>  8) & 0xFF;
+	addByte(byte);
+	byte 		= (value >> 16) & 0xFF;
+	addByte(byte);
+	byte 		= (value >> 24) & 0xFF;
+	addByte(byte);
+
+	return sum;
+}
+
 uint32 Checksum::addInt64(const int64 &value) {
 	int8 byte 	= (value >>  0) & 0xFF;
 	addByte(byte);

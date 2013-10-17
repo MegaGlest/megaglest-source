@@ -155,9 +155,13 @@ Vec2i UnitPathBasic::pop(bool removeFrontPos) {
 	return p;
 }
 std::string UnitPathBasic::toString() const {
-	std::string result = "unit path blockCount = " + intToStr(blockCount) + " pathQueue size = " + intToStr(pathQueue.size());
+	std::string result = "unit path blockCount = " + intToStr(blockCount) + "\npathQueue size = " + intToStr(pathQueue.size());
 	for(int idx = 0; idx < pathQueue.size(); ++idx) {
-		result += " index = " + intToStr(idx) + " " + pathQueue[idx].getString();
+		result += " index = " + intToStr(idx) + " value = " + pathQueue[idx].getString();
+	}
+	result += "\nlastPathCacheQueue size = " + intToStr(lastPathCacheQueue.size());
+	for(int idx = 0; idx < lastPathCacheQueue.size(); ++idx) {
+		result += " index = " + intToStr(idx) + " value = " + lastPathCacheQueue[idx].getString();
 	}
 
 	return result;
@@ -207,6 +211,16 @@ void UnitPathBasic::loadGame(const XmlNode *rootNode) {
 		Vec2i vec = Vec2i::strToVec2(node->getAttribute("vec")->getValue());
 		lastPathCacheQueue.push_back(vec);
 	}
+}
+
+Checksum UnitPathBasic::getCRC() {
+	Checksum crcForPath;
+
+	crcForPath.addInt(blockCount);
+	crcForPath.addInt(pathQueue.size());
+	crcForPath.addInt(lastPathCacheQueue.size());
+
+	return crcForPath;
 }
 
 // =====================================================
@@ -3858,11 +3872,14 @@ bool Unit::isMeetingPointSettable() const {
 	return (type != NULL ? type->getMeetingPoint() : false);
 }
 
-int Unit::getFrameCount() const {
-	int frameCount = 0;
-	const Game *game = Renderer::getInstance().getGame();
+uint32 Unit::getFrameCount() const {
+	uint32 frameCount = 0;
+	//const Game *game = Renderer::getInstance().getGame();
 	if(game != NULL && game->getWorld() != NULL) {
-		frameCount = game->getWorld()->getFrameCount();
+		int frameCountAsInt = game->getWorld()->getFrameCount();
+		if(frameCountAsInt >= 0) {
+			frameCount = frameCountAsInt;
+		}
 	}
 
 	return frameCount;
@@ -4522,7 +4539,7 @@ void Unit::saveGame(XmlNode *rootNode) {
 //	bool ignoreCheckCommand;
 	unitNode->addAttribute("ignoreCheckCommand",intToStr(ignoreCheckCommand), mapTagReplacements);
 //	uint32 lastStuckFrame;
-	unitNode->addAttribute("lastStuckFrame",intToStr(lastStuckFrame), mapTagReplacements);
+	unitNode->addAttribute("lastStuckFrame",uIntToStr(lastStuckFrame), mapTagReplacements);
 //	Vec2i lastStuckPos;
 	unitNode->addAttribute("lastStuckPos",lastStuckPos.getString(), mapTagReplacements);
 //	uint32 lastPathfindFailedFrame;
@@ -5136,6 +5153,10 @@ Checksum Unit::getCRC() {
 
 	//Map *map;
 	//UnitPathInterface *unitPath;
+	if(unitPath != NULL) {
+		uint32 crc = unitPath->getCRC().getSum();
+		crcForUnit.addBytes(&crc,sizeof(uint32));
+	}
 	//WaypointPath waypointPath;
 
 	if(consoleDebug) printf("#11 Unit: %d CRC: %u commands.size(): %ld\n",id,crcForUnit.getSum(),commands.size());
@@ -5196,7 +5217,7 @@ Checksum Unit::getCRC() {
 	//bool ignoreCheckCommand;
 
 	//uint32 lastStuckFrame;
-	crcForUnit.addInt(lastStuckFrame);
+	crcForUnit.addUInt(lastStuckFrame);
 	//Vec2i lastStuckPos;
 	crcForUnit.addInt(lastStuckPos.x);
 	crcForUnit.addInt(lastStuckPos.y);

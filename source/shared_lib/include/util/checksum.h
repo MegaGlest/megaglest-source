@@ -53,6 +53,7 @@ public:
 	uint32 addBytes(const void *_data, size_t _size);
 	void addString(const string &value);
 	uint32 addInt(const int32 &value);
+	uint32 addUInt(const uint32 &value);
 	uint32 addInt64(const int64 &value);
 	void addFile(const string &path);
 

@@ -701,8 +701,8 @@ void World::updateAllFactionUnits() {
 
 			int unitBlockCount = unit->getPath()->getBlockCount();
 			bool isStuck = unit->getPath()->isStuck();
-			bool isStuckWithinTolerance = unit->isLastStuckFrameWithinCurrentFrameTolerance(false);
-			uint32 lastStuckFrame = unit->getLastStuckFrame();
+			//bool isStuckWithinTolerance = unit->isLastStuckFrameWithinCurrentFrameTolerance(false);
+			//uint32 lastStuckFrame = unit->getLastStuckFrame();
 
 			if(unitUpdater.updateUnit(unit) == true) {
 				unitCountUpdated++;
@@ -716,7 +716,8 @@ void World::updateAllFactionUnits() {
 			totalUnitsChecked++;
 
 			if(showPerfStats && chronoPerfUnit.getMillis() >= 10) {
-				sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER " stuck: %d [%d] for unit:\n%sBEFORE unitBlockCount = %d, AFTER = %d, BEFORE lastStuckFrame = %u, AFTER: %u\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerfUnit.getMillis(),isStuck,isStuckWithinTolerance,unit->toString().c_str(),unitBlockCount,unit->getPath()->getBlockCount(),lastStuckFrame,unit->getLastStuckFrame());
+				//sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER " stuck: %d [%d] for unit:\n%sBEFORE unitBlockCount = %d, AFTER = %d, BEFORE lastStuckFrame = %u, AFTER: %u\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerfUnit.getMillis(),isStuck,isStuckWithinTolerance,unit->toString().c_str(),unitBlockCount,unit->getPath()->getBlockCount(),lastStuckFrame,unit->getLastStuckFrame());
+				sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER " stuck: %d for unit:\n%sBEFORE unitBlockCount = %d, AFTER = %d, BEFORE , AFTER: %u\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerfUnit.getMillis(),isStuck,unit->toString().c_str(),unitBlockCount,unit->getPath()->getBlockCount(),unit->getLastStuckFrame());
 				perfList.push_back(perfBuf);
 			}
 
