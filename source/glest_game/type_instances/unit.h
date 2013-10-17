@@ -164,6 +164,8 @@ public:
 	virtual void loadGame(const XmlNode *rootNode) = 0;
 
 	virtual void clearCaches() = 0;
+
+	virtual Checksum getCRC() = 0;
 };
 
 class UnitPathBasic : public UnitPathInterface {
@@ -214,6 +216,8 @@ public:
 	virtual void saveGame(XmlNode *rootNode);
 	virtual void loadGame(const XmlNode *rootNode);
 	virtual void clearCaches();
+
+	virtual Checksum getCRC();
 };
 
 // =====================================================
@@ -275,6 +279,8 @@ public:
 	virtual void saveGame(XmlNode *rootNode) {};
 	virtual void loadGame(const XmlNode *rootNode) {};
 	virtual void clearCaches() {};
+
+	virtual Checksum getCRC() { return Checksum(); };
 };
 
 class WaypointPath : public list<Vec2i> {
@@ -751,7 +757,7 @@ public:
 
 	bool isLastStuckFrameWithinCurrentFrameTolerance(bool evalMode);
 	inline uint32 getLastStuckFrame() const { return lastStuckFrame; }
-	inline void setLastStuckFrame(uint32 value) { lastStuckFrame = value; }
+	//inline void setLastStuckFrame(uint32 value) { lastStuckFrame = value; }
 	void setLastStuckFrameToCurrentFrame();
 
 	inline Vec2i getLastStuckPos() const { return lastStuckPos; }
@@ -805,7 +811,7 @@ private:
 	void stopDamageParticles(bool force);
 	void startDamageParticles();
 
-	int getFrameCount() const;
+	uint32 getFrameCount() const;
 	void checkCustomizedParticleTriggers(bool force);
 	bool checkModelStateInfoForNewHpValue();
 	void checkUnitLevel();
