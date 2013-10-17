@@ -395,7 +395,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			else if(header.version==2){
 				//desc = header.version2.short_desc;
 				if(header.version2.cliffLevel > 0  && header.version2.cliffLevel < 5000){
-					cliffLevel=static_cast<float>((header.version2.cliffLevel-0.01f)/(heightFactor),6);
+					cliffLevel=static_cast<float>((header.version2.cliffLevel-0.01f)/(heightFactor));
 					cliffLevel = truncateDecimal<float>(cliffLevel,6);
 				}
 				if(header.version2.cameraHeight > 0 && header.version2.cameraHeight < 5000) {
