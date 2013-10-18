@@ -185,6 +185,11 @@ void findAll(const vector<string> &paths, const string &fileFilter, vector<strin
 void findAll(const string &path, vector<string> &results, bool cutExtension=false, bool errorOnNotFound=true);
 vector<string> getFolderTreeContentsListRecursively(const string &path, const string &filterFileExt, bool includeFolders=false, vector<string> *recursiveMap=NULL);
 
+string getGameVersion();
+string getGameSVNVersion();
+void setGameVersion(string version);
+void setGameSVNVersion(string svn);
+
 string getCRCCacheFilePath();
 void setCRCCacheFilePath(string path);
 

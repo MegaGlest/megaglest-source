@@ -82,6 +82,9 @@ namespace Shared { namespace PlatformCommon {
 const time_t REFRESH_CRC_DAY_SECONDS = 60 * 60 * 24;
 static string crcCachePath = "";
 
+static string gameVersion = "";
+static string gameSVNVersion = "";
+
 namespace Private {
 
 bool shouldBeFullscreen = false;
@@ -632,6 +635,19 @@ void setCRCCacheFilePath(string path) {
 	crcCachePath = path;
 }
 
+string getGameVersion() {
+	return gameVersion;
+}
+string getGameSVNVersion() {
+	return gameSVNVersion;
+}
+void setGameVersion(string version) {
+	gameVersion = version;
+}
+void setGameSVNVersion(string svn) {
+	gameSVNVersion = svn;
+}
+
 string getCRCCacheFileName(std::pair<string,string> cacheKeys) {
 	string crcCacheFile = cacheKeys.first + cacheKeys.second;
 	return crcCacheFile;
@@ -680,10 +696,37 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, uint32 &value) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d for Cache file [%s]\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str());
 			}
 
-			int readbytes = fscanf(fp,"%20ld,%20u,%20ld",&refreshDate,&crcValue,&lastUpdateDate);
+//			string getGameVersion() {
+//				return gameVersion;
+//			}
+//			string getGameSVNVersion() {
+//				return gameSVNVersion;
+//			}
+//			void setGameVersion(string version) {
+//				gameVersion = version;
+//			}
+//			void setGameSVNVersion(string svn) {
+//				gameSVNVersion = svn;
+//			}
+
+			char gameVer[500]="";
+			char svnVer[500]="";
+			char actualFilePath[8096]="";
+			int readbytes = fscanf(fp,"%20ld,%20u,%20ld\n%s\n%s\n%s",
+					&refreshDate,
+					&crcValue,
+					&lastUpdateDate,
+					&gameVer[0],
+					&svnVer[0],
+					&actualFilePath[0]);
 			refreshDate = Shared::PlatformByteOrder::fromCommonEndian(refreshDate);
 			crcValue = Shared::PlatformByteOrder::fromCommonEndian(crcValue);
 			lastUpdateDate = Shared::PlatformByteOrder::fromCommonEndian(lastUpdateDate);
+			string readGameVer = Shared::PlatformByteOrder::fromCommonEndian(string(gameVer));
+			string readSvnVer = Shared::PlatformByteOrder::fromCommonEndian(string(svnVer));
+			string readActualFilePath = Shared::PlatformByteOrder::fromCommonEndian(string(actualFilePath));
+
+			printf("CRC readGameVer [%s] [%s]\n%s\n",readGameVer.c_str(),readSvnVer.c_str(),readActualFilePath.c_str());
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d for Cache file [%s] readbytes = %d\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),readbytes);
@@ -706,7 +749,8 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, uint32 &value) {
 			time_t tBadCRCDate = mktime( &future );
 
 			result.second = lastUpdateDate;
-			if(	refreshDate > 0 &&
+			if(	readGameVer != "" && readSvnVer != "" &&
+					refreshDate > 0 &&
 				refreshDate > tBadCRCDate &&
 				time(NULL) < refreshDate) {
 
@@ -776,7 +820,13 @@ void writeCachedFileCRCValue(string crcCacheFile, uint32 &crcValue, string actua
         char szBuf1[100]="";
         strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
 
-		fprintf(fp,"%ld,%u,%ld\n%s",Shared::PlatformByteOrder::toCommonEndian(refreshDate),Shared::PlatformByteOrder::toCommonEndian(crcValue),Shared::PlatformByteOrder::toCommonEndian(now),actualFileName.c_str());
+		fprintf(fp,"%20ld,%20u,%20ld\n%s\n%s\n%s",
+				Shared::PlatformByteOrder::toCommonEndian(refreshDate),
+				Shared::PlatformByteOrder::toCommonEndian(crcValue),
+				Shared::PlatformByteOrder::toCommonEndian(now),
+				Shared::PlatformByteOrder::toCommonEndian(gameVersion).c_str(),
+				Shared::PlatformByteOrder::toCommonEndian(gameSVNVersion).c_str(),
+				Shared::PlatformByteOrder::toCommonEndian(actualFileName).c_str());
 		fclose(fp);
 
 		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"========== Writing CRC Cache offset [%d] refreshDate = %ld [%s], crcValue = %u, file [%s]\n",offset,refreshDate,szBuf1,crcValue,crcCacheFile.c_str());

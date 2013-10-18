@@ -29,14 +29,20 @@ namespace Glest { namespace Game {
 const char *mailString				= " http://bugs.megaglest.org";
 const string glestVersionString 	= "v3.8.0-dev";
 #if defined(SVNVERSION)
+const string SVN_RawRev			= string(SVNVERSION);
 const string SVN_Rev 			= string("Rev: ") + string(SVNVERSION);
 #elif defined(SVNVERSIONHEADER)
 #include "svnversion.h"
+const string SVN_RawRev			= string(SVNVERSION);
 const string SVN_Rev 			= string("Rev: ") + string(SVNVERSION);
 #else
+const string SVN_RawRev			= "$4533$";
 const string SVN_Rev 			= "$Rev$";
 #endif
 
+string getRAWSVNRevisionString() {
+	return SVN_RawRev;
+}
 string getCrashDumpFileName(){
 	return "megaglest" + glestVersionString + ".dmp";
 }

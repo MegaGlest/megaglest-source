@@ -3661,6 +3661,9 @@ int glestMain(int argc, char** argv) {
 #endif
 	}
 
+    setGameVersion(glestVersionString);
+    setGameSVNVersion(getRAWSVNRevisionString());
+
 	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LUA_INFO]) 			== true ||
@@ -5229,6 +5232,7 @@ int glestMain(int argc, char** argv) {
         //int *foo = (int*)-1; // make a bad pointer
         //printf("%d\n", *foo);       // causes segfault
         // END
+
         bool startCRCPrecacheThread = config.getBool("PreCacheCRCThread","true");
         //printf("### In [%s::%s Line: %d] precache thread enabled = %d SystemFlags::VERBOSE_MODE_ENABLED = %d\n",__FILE__,__FUNCTION__,__LINE__,startCRCPrecacheThread,SystemFlags::VERBOSE_MODE_ENABLED);
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] precache thread enabled = %d\n",__FILE__,__FUNCTION__,__LINE__,startCRCPrecacheThread);

@@ -4940,8 +4940,9 @@ void Game::DumpCRCWorldLogIfRequired(string fileSuffix) {
 		#endif
 			logFile << "World CRC debug information:"  << std::endl;
 			logFile << "============================"  << std::endl;
-			logFile << "Maximum framecount: " << world.getFaction(0)->getCRC_DetailsForWorldFrameCount() << std::endl;
 			logFile << "Software version: " << glestVersionString << "-" << getCompilerNameString() << "-" << getSVNRevisionString() << std::endl;
+			logFile << "Maximum framecount: " << world.getFaction(0)->getCRC_DetailsForWorldFrameCount() << std::endl;
+
 
 			for(unsigned int worldFrameIndex = 0; worldFrameIndex < world.getFaction(0)->getCRC_DetailsForWorldFrameCount(); ++worldFrameIndex) {
 				//factions (and their related info)
