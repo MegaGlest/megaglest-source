@@ -632,21 +632,18 @@ void setCRCCacheFilePath(string path) {
 	crcCachePath = path;
 }
 
-string getFormattedCRCCacheFileName(std::pair<string,string> cacheKeys) {
+string getCRCCacheFileName(std::pair<string,string> cacheKeys) {
 	string crcCacheFile = cacheKeys.first + cacheKeys.second;
-	//replaceAll(crcCacheFile, "/", "_");
-	//replaceAll(crcCacheFile, "\\", "_");
-	//replaceAll(crcCacheFile, "*", "_");
-	//replaceAll(crcCacheFile, ".", "_");
-	//return getCRCCacheFilePath() + crcCacheFile;
+	return crcCacheFile;
+}
+string getFormattedCRCCacheFileName(std::pair<string,string> cacheKeys) {
+	string crcCacheFile = getCRCCacheFileName(cacheKeys);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cacheKeys.first = [%s] cacheKeys.second [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,cacheKeys.first.c_str(),cacheKeys.second.c_str());
 
 	Checksum checksum;
 	checksum.addString(crcCacheFile);
-	//checksum.addString(lastFile(crcCacheFile));
 	string result = getCRCCacheFilePath() + "CRC_CACHE_" + uIntToStr(checksum.getSum());
-	//printf("result [%s]\n",result.c_str());
 	return result;
 }
 std::pair<string,string> getFolderTreeContentsCheckSumCacheKey(vector<string> paths, string pathSearchString, const string &filterFileExt) {
@@ -758,7 +755,7 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, uint32 &value) {
 	return result;
 }
 
-void writeCachedFileCRCValue(string crcCacheFile, uint32 &crcValue) {
+void writeCachedFileCRCValue(string crcCacheFile, uint32 &crcValue, string actualFileName) {
 #ifdef WIN32
 		FILE *fp = _wfopen(utf8_decode(crcCacheFile).c_str(), L"w");
 #else
@@ -779,7 +776,7 @@ void writeCachedFileCRCValue(string crcCacheFile, uint32 &crcValue) {
         char szBuf1[100]="";
         strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
 
-		fprintf(fp,"%ld,%u,%ld",Shared::PlatformByteOrder::toCommonEndian(refreshDate),Shared::PlatformByteOrder::toCommonEndian(crcValue),Shared::PlatformByteOrder::toCommonEndian(now));
+		fprintf(fp,"%ld,%u,%ld\n%s",Shared::PlatformByteOrder::toCommonEndian(refreshDate),Shared::PlatformByteOrder::toCommonEndian(crcValue),Shared::PlatformByteOrder::toCommonEndian(now),actualFileName.c_str());
 		fclose(fp);
 
 		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"========== Writing CRC Cache offset [%d] refreshDate = %ld [%s], crcValue = %u, file [%s]\n",offset,refreshDate,szBuf1,crcValue,crcCacheFile.c_str());
@@ -894,7 +891,7 @@ uint32 getFolderTreeContentsCheckSumRecursively(vector<string> paths, string pat
 	uint32 result = checksum.getFinalFileListSum();
 	//if(forceNoCache == false) {
 	crcTreeCache[cacheKey] = result;
-	writeCachedFileCRCValue(crcCacheFile, crcTreeCache[cacheKey]);
+	writeCachedFileCRCValue(crcCacheFile, crcTreeCache[cacheKey],getCRCCacheFileName(cacheKeys));
 	//}
 	return result;
 }
@@ -1054,7 +1051,7 @@ uint32 getFolderTreeContentsCheckSumRecursively(const string &path, const string
 		//if(forceNoCache == false) {
 		crcTreeCache[cacheKey] = result;
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] scanning [%s] ending checksum = %d for cacheKey [%s] fileMatchCount = %d, fileLoopCount = %d\n",__FILE__,__FUNCTION__,path.c_str(),crcTreeCache[cacheKey],cacheKey.c_str(),fileMatchCount,fileLoopCount);
-		writeCachedFileCRCValue(crcCacheFile, crcTreeCache[cacheKey]);
+		writeCachedFileCRCValue(crcCacheFile, crcTreeCache[cacheKey],getCRCCacheFileName(cacheKeys));
 		//}
 
 		return result;
