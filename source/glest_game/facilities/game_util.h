@@ -35,6 +35,7 @@ void initSpecialStrings();
 string getCrashDumpFileName();
 string getPlatformNameString();
 string getSVNRevisionString();
+string getRAWSVNRevisionString();
 string getCompilerNameString();
 string getNetworkVersionString();
 string getNetworkVersionSVNString();
