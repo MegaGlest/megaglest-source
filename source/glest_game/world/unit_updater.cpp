@@ -2254,7 +2254,7 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 
 	//compute damage
 	//damage += random.randRange(-var, var);
-	damage += attacker->getRandom()->randRange(-var, var, string(__FILE__) + intToStr(__LINE__));
+	damage += attacker->getRandom()->randRange(-var, var, extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__));
 	damage /= distance+1;
 	damage -= armor;
 	damage *= damageMultiplier;
@@ -2550,6 +2550,8 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 	bool isUltra= controlType == ctCpuUltra || controlType == ctNetworkCpuUltra;
 	bool isMega= controlType == ctCpuMega || controlType == ctNetworkCpuMega;
 
+	string randomInfoData = "enemies.size() = " + intToStr(enemies.size());
+
 	//printf("unit %d has control:%d\n",unit->getId(),controlType);
     for(int i = 0; i< enemies.size(); ++i) {
     	Unit *enemy = enemies[i];
@@ -2562,9 +2564,13 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
                 result		= true;
     		}
 
+    		randomInfoData += " i = " + intToStr(i) + " alive = true result = " + intToStr(result);
+
     		// Attackers get first priority
     		if(enemy->getType()->hasSkillClass(scAttack) == true) {
     			float currentDist = unit->getCenteredPos().dist(enemy->getCenteredPos());
+
+    			randomInfoData += " currentDist = " + floatToStr(currentDist);
 
     			// Select closest attacking unit
     			if(distToUnit < 0 ||  currentDist< distToUnit) {
@@ -2587,7 +2593,9 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
     }
 
     if(evalMode == false && (isUltra || isMega)) {
-    	if( attackingEnemySeen!=NULL && unit->getRandom()->randRange(0,2,string(__FILE__) + intToStr(__LINE__)) != 2 ) {
+    	unit->getRandom()->addLastCaller(randomInfoData);
+
+    	if( attackingEnemySeen!=NULL && unit->getRandom()->randRange(0,2,extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__)) != 2 ) {
     		*rangedPtr 	= attackingEnemySeen;
     		enemySeen 	= attackingEnemySeen;
     		//printf("Da hat er wen gefunden:%s\n",enemySeen->getType()->getName(false).c_str());

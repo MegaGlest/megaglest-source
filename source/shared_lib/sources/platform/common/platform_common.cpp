@@ -726,7 +726,7 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, uint32 &value) {
 			string readSvnVer = Shared::PlatformByteOrder::fromCommonEndian(string(svnVer));
 			string readActualFilePath = Shared::PlatformByteOrder::fromCommonEndian(string(actualFilePath));
 
-			printf("CRC readGameVer [%s] [%s]\n%s\n",readGameVer.c_str(),readSvnVer.c_str(),readActualFilePath.c_str());
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CRC readGameVer [%s] [%s]\n%s\n",readGameVer.c_str(),readSvnVer.c_str(),readActualFilePath.c_str());
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d for Cache file [%s] readbytes = %d\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),readbytes);
