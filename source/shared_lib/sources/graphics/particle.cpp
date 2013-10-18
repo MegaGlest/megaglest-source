@@ -154,7 +154,7 @@ Checksum ParticleSystem::getCRC() {
 	crcForParticleSystem.addInt(blendMode);
 	crcForParticleSystem.addInt(state);
 	crcForParticleSystem.addInt(active);
-	crcForParticleSystem.addInt(visible);
+	//crcForParticleSystem.addInt(visible);
 	crcForParticleSystem.addInt(aliveParticleCount);
 	crcForParticleSystem.addInt(particleCount);
 
@@ -325,7 +325,7 @@ string ParticleSystem::toString() const {
 	result += "\nblendMode = " + intToStr(blendMode);
 	result += "\nstate = " + intToStr(state);
 	result += "\nactive = " + intToStr(active);
-	result += "\nvisible = " + intToStr(visible);
+	//result += "\nvisible = " + intToStr(visible);
 	result += "\naliveParticleCount = " + intToStr(aliveParticleCount);
 	result += "\nparticleCount = " + intToStr(particleCount);
 
@@ -1453,13 +1453,13 @@ void UnitParticleSystem::loadGame(const XmlNode *rootNode) {
 }
 
 Checksum UnitParticleSystem::getCRC() {
-	Checksum crcForParticleSystem = ParticleSystem::getCRC();
+	Checksum crcForParticleSystem = GameParticleSystem::getCRC();
 
 	return crcForParticleSystem;
 }
 
 string UnitParticleSystem::toString() const {
-	string result = ParticleSystem::toString();
+	string result = GameParticleSystem::toString();
 
 	result += "\nUnitParticleSystem ";
 	result += "\nradius = " + floatToStr(radius);
@@ -1687,13 +1687,13 @@ void AttackParticleSystem::loadGame(const XmlNode *rootNode) {
 }
 
 Checksum AttackParticleSystem::getCRC() {
-	Checksum crcForParticleSystem = ParticleSystem::getCRC();
+	Checksum crcForParticleSystem = GameParticleSystem::getCRC();
 
 	return crcForParticleSystem;
 }
 
 string AttackParticleSystem::toString() const {
-	string result = ParticleSystem::toString();
+	string result = GameParticleSystem::toString();
 
 	result += "\nAttackParticleSystem ";
 	result += "\nsizeNoEnergy = " + floatToStr(sizeNoEnergy);
@@ -2067,13 +2067,13 @@ void ProjectileParticleSystem::loadGame(const XmlNode *rootNode) {
 }
 
 Checksum ProjectileParticleSystem::getCRC() {
-	Checksum crcForParticleSystem = ParticleSystem::getCRC();
+	Checksum crcForParticleSystem = AttackParticleSystem::getCRC();
 
 	return crcForParticleSystem;
 }
 
 string ProjectileParticleSystem::toString() const {
-	string result = ParticleSystem::toString();
+	string result = AttackParticleSystem::toString();
 
 	result += "\nProjectileParticleSystem ";
 	if(nextParticleSystem != NULL) {
@@ -2249,13 +2249,13 @@ void SplashParticleSystem::loadGame(const XmlNode *rootNode) {
 }
 
 Checksum SplashParticleSystem::getCRC() {
-	Checksum crcForParticleSystem = ParticleSystem::getCRC();
+	Checksum crcForParticleSystem = AttackParticleSystem::getCRC();
 
 	return crcForParticleSystem;
 }
 
 string SplashParticleSystem::toString() const {
-	string result = ParticleSystem::toString();
+	string result = AttackParticleSystem::toString();
 
 	result += "\nSplashParticleSystem ";
 	if(prevParticleSystem != NULL) {
