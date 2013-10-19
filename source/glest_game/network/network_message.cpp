@@ -1227,7 +1227,7 @@ bool NetworkMessageCommandList::addCommand(const NetworkCommand* networkCommand)
 }
 
 const char * NetworkMessageCommandList::getPackedMessageFormatHeader() const {
-	return "cHl";
+	return "cHlLLLLLLLL";
 }
 
 unsigned int NetworkMessageCommandList::getPackedSizeHeader() {
@@ -1238,7 +1238,15 @@ unsigned int NetworkMessageCommandList::getPackedSizeHeader() {
 		result = pack(buf, getPackedMessageFormatHeader(),
 				packedData.header.messageType,
 				packedData.header.commandCount,
-				packedData.header.frameCount);
+				packedData.header.frameCount,
+				packedData.header.networkPlayerFactionCRC[0],
+				packedData.header.networkPlayerFactionCRC[1],
+				packedData.header.networkPlayerFactionCRC[2],
+				packedData.header.networkPlayerFactionCRC[3],
+				packedData.header.networkPlayerFactionCRC[4],
+				packedData.header.networkPlayerFactionCRC[5],
+				packedData.header.networkPlayerFactionCRC[6],
+				packedData.header.networkPlayerFactionCRC[7]);
 		delete [] buf;
 	}
 	return result;
@@ -1247,7 +1255,15 @@ void NetworkMessageCommandList::unpackMessageHeader(unsigned char *buf) {
 	unpack(buf, getPackedMessageFormatHeader(),
 			&data.header.messageType,
 			&data.header.commandCount,
-			&data.header.frameCount);
+			&data.header.frameCount,
+			&data.header.networkPlayerFactionCRC[0],
+			&data.header.networkPlayerFactionCRC[1],
+			&data.header.networkPlayerFactionCRC[2],
+			&data.header.networkPlayerFactionCRC[3],
+			&data.header.networkPlayerFactionCRC[4],
+			&data.header.networkPlayerFactionCRC[5],
+			&data.header.networkPlayerFactionCRC[6],
+			&data.header.networkPlayerFactionCRC[7]);
 }
 
 unsigned char * NetworkMessageCommandList::packMessageHeader() {
@@ -1255,7 +1271,15 @@ unsigned char * NetworkMessageCommandList::packMessageHeader() {
 	pack(buf, getPackedMessageFormatHeader(),
 			data.header.messageType,
 			data.header.commandCount,
-			data.header.frameCount);
+			data.header.frameCount,
+			data.header.networkPlayerFactionCRC[0],
+			data.header.networkPlayerFactionCRC[1],
+			data.header.networkPlayerFactionCRC[2],
+			data.header.networkPlayerFactionCRC[3],
+			data.header.networkPlayerFactionCRC[4],
+			data.header.networkPlayerFactionCRC[5],
+			data.header.networkPlayerFactionCRC[6],
+			data.header.networkPlayerFactionCRC[7]);
 	return buf;
 }
 
@@ -1479,6 +1503,9 @@ void NetworkMessageCommandList::toEndianHeader() {
 		data.header.messageType = Shared::PlatformByteOrder::toCommonEndian(data.header.messageType);
 		data.header.commandCount = Shared::PlatformByteOrder::toCommonEndian(data.header.commandCount);
 		data.header.frameCount = Shared::PlatformByteOrder::toCommonEndian(data.header.frameCount);
+		for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+			data.header.networkPlayerFactionCRC[index] = Shared::PlatformByteOrder::toCommonEndian(data.header.networkPlayerFactionCRC[index]);
+		}
 	}
 }
 void NetworkMessageCommandList::fromEndianHeader() {
@@ -1487,6 +1514,9 @@ void NetworkMessageCommandList::fromEndianHeader() {
 		data.header.messageType = Shared::PlatformByteOrder::fromCommonEndian(data.header.messageType);
 		data.header.commandCount = Shared::PlatformByteOrder::fromCommonEndian(data.header.commandCount);
 		data.header.frameCount = Shared::PlatformByteOrder::fromCommonEndian(data.header.frameCount);
+		for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+			data.header.networkPlayerFactionCRC[index] = Shared::PlatformByteOrder::fromCommonEndian(data.header.networkPlayerFactionCRC[index]);
+		}
 	}
 }
 
