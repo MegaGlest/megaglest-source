@@ -85,7 +85,9 @@ public:
 
 class ParticleOwner {
 public:
+	virtual ~ParticleOwner() {}
 	virtual void end(ParticleSystem *particleSystem)= 0;
+	virtual void logParticleInfo(string info)= 0;
 };
 
 // =====================================================

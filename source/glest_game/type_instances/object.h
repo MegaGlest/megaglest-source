@@ -73,7 +73,8 @@ public:
 	Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos);
 	virtual ~Object();
 
-	void end(); //to kill particles
+	virtual void end(); //to kill particles
+	virtual void logParticleInfo(string info) {};
 	void initParticles();
 	void initParticlesFromTypes(const ModelParticleSystemTypes *particleTypes);
 	static void setStateCallback(ObjectStateInterface *value) { stateCallback=value; }

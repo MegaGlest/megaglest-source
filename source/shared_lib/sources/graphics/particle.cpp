@@ -1816,6 +1816,13 @@ void ProjectileParticleSystem::update(){
 
 		//arrive destination
 		arriveDestinationDistance = truncateDecimal<float>(flatPos.dist(endPos),6);
+
+		if(this->particleOwner != NULL) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8095,"LINE: %d arriveDestinationDistance = %f",__LINE__,arriveDestinationDistance);
+			this->particleOwner->logParticleInfo(szBuf);
+		}
+
 		if(arriveDestinationDistance < 0.5f) {
 			fade();
 			model= NULL;
@@ -2142,6 +2149,12 @@ void SplashParticleSystem::update() {
 
 		t= clamp(t, 0.0f, 1.0f);
 		setTween(t,t);
+
+		if(this->particleOwner != NULL) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8095,"LINE: %d emissionRate = %f",__LINE__,emissionRate);
+			this->particleOwner->logParticleInfo(szBuf);
+		}
 
 		if(emissionRate < 0.0f) {//otherwise this system lives forever!
 			fade();
