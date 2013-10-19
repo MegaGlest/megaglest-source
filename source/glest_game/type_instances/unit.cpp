@@ -646,6 +646,19 @@ void Unit::dumpMemoryList() {
 }
 #endif
 
+void Unit::logParticleInfo(string info) {
+	networkCRCParticleInfoList.push_back(info);
+}
+string Unit::getParticleInfo() const {
+	string result = "";
+	if(networkCRCParticleInfoList.empty() == false) {
+		for(unsigned int index = 0; index < networkCRCParticleInfoList.size(); ++index) {
+			result += networkCRCParticleInfoList[index] + "|";
+		}
+	}
+	return result;
+}
+
 void Unit::end(ParticleSystem *particleSystem) {
 	vector<ParticleSystem*>::iterator iterFind = find(attackParticleSystems.begin(),attackParticleSystems.end(),particleSystem);
 	if(iterFind != attackParticleSystems.end()) {
@@ -4278,6 +4291,9 @@ std::string Unit::toString(bool crcMode) const {
 		result += "getNetworkCRCDecHpList() = " + getNetworkCRCDecHpList() + "\n";
 	}
 
+	if(getParticleInfo() != "") {
+		result += "getParticleInfo() = " + getParticleInfo() + "\n";
+	}
 	for(unsigned int index = 0; index < attackParticleSystems.size(); ++index) {
 		ParticleSystem *ps = attackParticleSystems[index];
 		if(ps != NULL &&
@@ -5261,6 +5277,10 @@ Checksum Unit::getCRC() {
 	crcForUnit.addInt(lastHarvestedResourcePos.y);
 
 	if(consoleDebug) printf("#17 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
+
+	if(getParticleInfo() != "") {
+		crcForUnit.addString(this->getParticleInfo());
+	}
 
 	crcForUnit.addInt64((int64)attackParticleSystems.size());
 	for(unsigned int index = 0; index < attackParticleSystems.size(); ++index) {

@@ -488,6 +488,8 @@ private:
 	string networkCRCParticleObserverLogInfo;
 	vector<string> networkCRCDecHpList;
 
+	vector<string> networkCRCParticleInfoList;
+
 public:
     Unit(int id, UnitPathInterface *path, const Vec2i &pos, const UnitType *type, Faction *faction, Map *map, CardinalDir placeFacing);
     virtual ~Unit();
@@ -794,6 +796,9 @@ public:
 	Checksum getCRC();
 
 	virtual void end(ParticleSystem *particleSystem);
+	virtual void logParticleInfo(string info);
+	void clearParticleInfo() { networkCRCParticleInfoList.clear(); }
+	string getParticleInfo() const;
 
 	void addNetworkCRCDecHp(string info) { networkCRCDecHpList.push_back(info); }
 
