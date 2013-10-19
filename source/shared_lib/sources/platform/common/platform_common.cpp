@@ -696,19 +696,6 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, uint32 &value) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d for Cache file [%s]\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str());
 			}
 
-//			string getGameVersion() {
-//				return gameVersion;
-//			}
-//			string getGameSVNVersion() {
-//				return gameSVNVersion;
-//			}
-//			void setGameVersion(string version) {
-//				gameVersion = version;
-//			}
-//			void setGameSVNVersion(string svn) {
-//				gameSVNVersion = svn;
-//			}
-
 			char gameVer[500]="";
 			char svnVer[500]="";
 			char actualFilePath[8096]="";
@@ -820,13 +807,20 @@ void writeCachedFileCRCValue(string crcCacheFile, uint32 &crcValue, string actua
         char szBuf1[100]="";
         strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
 
-		fprintf(fp,"%20ld,%20u,%20ld\n%s\n%s\n%s",
+		string writeGameVer = Shared::PlatformByteOrder::toCommonEndian(gameVersion);
+		string writeGameSVNVersion = Shared::PlatformByteOrder::toCommonEndian(gameSVNVersion);
+		string writeActualFileName = Shared::PlatformByteOrder::toCommonEndian(actualFileName);
+
+		fprintf(fp,"%20ld,%20u,%20ld",
 				Shared::PlatformByteOrder::toCommonEndian(refreshDate),
 				Shared::PlatformByteOrder::toCommonEndian(crcValue),
-				Shared::PlatformByteOrder::toCommonEndian(now),
-				Shared::PlatformByteOrder::toCommonEndian(gameVersion).c_str(),
-				Shared::PlatformByteOrder::toCommonEndian(gameSVNVersion).c_str(),
-				Shared::PlatformByteOrder::toCommonEndian(actualFileName).c_str());
+				Shared::PlatformByteOrder::toCommonEndian(now));
+
+		fprintf(fp,"\n%s\n%s\n%s",
+				writeGameVer.c_str(),
+				writeGameSVNVersion.c_str(),
+				writeActualFileName.c_str());
+
 		fclose(fp);
 
 		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"========== Writing CRC Cache offset [%d] refreshDate = %ld [%s], crcValue = %u, file [%s]\n",offset,refreshDate,szBuf1,crcValue,crcCacheFile.c_str());
