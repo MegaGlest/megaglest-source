@@ -95,17 +95,20 @@ if not "%SVNVERSION%" == "." echo #define SVNVERSION "%SVNVERSION%" > ..\..\sour
 
 set msBuildMaxCPU=
 SET BuildInParallel=false
-if %NUMBER_OF_PROCESSORS% GTR 2 (
+SET BuildInParallelCount=
+rem /m:%MultiprocMSBuildCount%
+if %NUMBER_OF_PROCESSORS% GTR 1 (
                 SET NumberOfProcessesToUseForBuild=2
                 SET BuildInParallel=true
+				SET BuildInParallelCount=/m:2
 				SET msBuildMaxCPU=/maxcpucount)
 
-ECHO Found CPU Count [%NUMBER_OF_PROCESSORS%]
+ECHO Found CPU Count [%NUMBER_OF_PROCESSORS%] BuildInParallel = [%BuildInParallel%]
 if "%2" == "rebuild" echo Doing a FULL REBUILD...
 rem if "%2" == "rebuild" msbuild /detailedsummary %msBuildMaxCPU% /p:BuildInParallel=%BuildInParallel% /p:Configuration=Release /t:Rebuild Glest_vc2010.sln
-if "%2" == "rebuild" msbuild %msBuildMaxCPU% /p:Configuration=Release /t:Rebuild Glest_vc2010.sln
+if "%2" == "rebuild" msbuild %msBuildMaxCPU% %BuildInParallelCount% /p:Configuration=Release /t:Rebuild Glest_vc2010.sln
 rem if not "%2" == "rebuild" msbuild /detailedsummary %msBuildMaxCPU% /p:BuildInParallel=%BuildInParallel% /p:Configuration=Release Glest_vc2010.sln
-if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /p:Configuration=Release Glest_vc2010.sln
+if not "%2" == "rebuild" msbuild %msBuildMaxCPU% %BuildInParallelCount% /p:Configuration=Release Glest_vc2010.sln
 
 rem pause execution so we can see the output before the batch file exits
 if not "%1" == "nopause" pause
