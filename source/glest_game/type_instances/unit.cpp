@@ -454,6 +454,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 
     //RandomGen random;
     random.init(id);
+    random.setDisableLastCallerTracking(isNetworkCRCEnabled() == false);
 	pathFindRefreshCellCount = random.randRange(10,20,intToStr(__LINE__));
 
 	if(map->isInside(pos) == false || map->isInsideSurface(map->toSurfCoords(pos)) == false) {
@@ -646,8 +647,41 @@ void Unit::dumpMemoryList() {
 }
 #endif
 
+bool Unit::isNetworkCRCEnabled() {
+	bool isNetworkCRCEnabled = false;
+
+	if(game != NULL && game->getGameSettings() != NULL) {
+		if(isFlagType1BitEnabled(game->getGameSettings()->getFlagTypes1(),ft1_network_synch_checks_verbose) == true) {
+			isNetworkCRCEnabled = true;
+		}
+		else if(isFlagType1BitEnabled(game->getGameSettings()->getFlagTypes1(),ft1_network_synch_checks) == true) {
+			isNetworkCRCEnabled = true;
+		}
+	}
+	return isNetworkCRCEnabled;
+}
+
+void Unit::clearNetworkCRCDecHpList() {
+	if(networkCRCDecHpList.empty() == false) {
+		networkCRCDecHpList.clear();
+	}
+}
+void Unit::clearParticleInfo() {
+	if(networkCRCParticleInfoList.empty() == false) {
+		networkCRCParticleInfoList.clear();
+	}
+}
+
+void Unit::addNetworkCRCDecHp(string info) {
+	if(isNetworkCRCEnabled() == true) {
+		networkCRCDecHpList.push_back(info);
+	}
+}
+
 void Unit::logParticleInfo(string info) {
-	networkCRCParticleInfoList.push_back(info);
+	if(isNetworkCRCEnabled() == true) {
+		networkCRCParticleInfoList.push_back(info);
+	}
 }
 string Unit::getParticleInfo() const {
 	string result = "";
@@ -4286,7 +4320,6 @@ std::string Unit::toString(bool crcMode) const {
 	if(networkCRCParticleLogInfo != "") {
 		result += "networkCRCParticleLogInfo = " + networkCRCParticleLogInfo + "\n";
 	}
-	result += "networkCRCParticleObserverLogInfo = " + networkCRCParticleObserverLogInfo + "\n";
 	if(networkCRCDecHpList.empty() == false) {
 		result += "getNetworkCRCDecHpList() = " + getNetworkCRCDecHpList() + "\n";
 	}

@@ -33,6 +33,7 @@ const int RandomGen::b= 150889;
 
 RandomGen::RandomGen(){
 	lastNumber= 0;
+	disableLastCallerTracking = false;
 }
 
 void RandomGen::init(int seed){
@@ -56,6 +57,18 @@ std::string RandomGen::getLastCaller() const {
 	}
 	return result;
 }
+
+void RandomGen::clearLastCaller() {
+	if(lastCaller.empty() == false) {
+		lastCaller.clear();
+	}
+}
+void RandomGen::addLastCaller(std::string text) {
+	if(disableLastCallerTracking == false) {
+		lastCaller.push_back(text);
+	}
+}
+
 int RandomGen::randRange(int min, int max,string lastCaller) {
 	if(min > max) {
 		char szBuf[8096]="";
@@ -71,9 +84,6 @@ int RandomGen::randRange(int min, int max,string lastCaller) {
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] res < min || res > max, min = %d, max = %d, res = %d",__FILE__,__FUNCTION__,__LINE__,min,max,res);
 		throw megaglest_runtime_error(szBuf);
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] min = %d, max = %d, res = %d\n",__FILE__,__FUNCTION__,__LINE__,min,max,res);
-
 	return res;
 }
 
@@ -93,9 +103,6 @@ float RandomGen::randRange(float min, float max,string lastCaller) {
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] res < min || res > max, min = %f, max = %f, res = %f",__FILE__,__FUNCTION__,__LINE__,min,max,res);
 		throw megaglest_runtime_error(szBuf);
 	}
-
-	//SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] min = %f, max = %f, res = %f\n",__FILE__,__FUNCTION__,__LINE__,min,max,res);
-
 	return res;
 }
 

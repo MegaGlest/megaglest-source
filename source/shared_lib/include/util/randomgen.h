@@ -32,6 +32,7 @@ private:
 private:
 	int lastNumber;
 	std::vector<std::string> lastCaller;
+	bool disableLastCallerTracking;
 
 	int rand(std::string lastCaller);
 
@@ -46,9 +47,9 @@ public:
 	void setLastNumber(int value) { lastNumber = value; }
 
 	std::string getLastCaller() const;
-	void clearLastCaller() { lastCaller.clear(); }
-	//void clearLastCaller() {  }
-	void addLastCaller(std::string text) { lastCaller.push_back(text); }
+	void clearLastCaller();
+	void addLastCaller(std::string text);
+	void setDisableLastCallerTracking(bool value) { disableLastCallerTracking = value; }
 };
 
 }}//end namespace
