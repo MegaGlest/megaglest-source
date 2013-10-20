@@ -482,12 +482,8 @@ private:
 	Vec2i lastHarvestedResourcePos;
 
 	string networkCRCLogInfo;
-
 	string networkCRCParticleLogInfo;
-
-	string networkCRCParticleObserverLogInfo;
 	vector<string> networkCRCDecHpList;
-
 	vector<string> networkCRCParticleInfoList;
 
 public:
@@ -787,25 +783,20 @@ public:
 
 	void addAttackParticleSystem(ParticleSystem *ps);
 
-	void setNetworkCRCParticleLogInfo(string networkCRCParticleLogInfo) { this->networkCRCParticleLogInfo = networkCRCParticleLogInfo; }
-	void setNetworkCRCParticleObserverLogInfo(string networkCRCParticleObserverLogInfo) { this->networkCRCParticleObserverLogInfo = networkCRCParticleObserverLogInfo; }
-
-	void clearNetworkCRCDecHpList() { networkCRCDecHpList.clear(); }
-	//void clearNetworkCRCDecHpList() { }
-
 	Checksum getCRC();
 
 	virtual void end(ParticleSystem *particleSystem);
 	virtual void logParticleInfo(string info);
-	void clearParticleInfo() { networkCRCParticleInfoList.clear(); }
-	string getParticleInfo() const;
-
-	void addNetworkCRCDecHp(string info) { networkCRCDecHpList.push_back(info); }
+	void setNetworkCRCParticleLogInfo(string networkCRCParticleLogInfo) { this->networkCRCParticleLogInfo = networkCRCParticleLogInfo; }
+	void clearParticleInfo();
+	void addNetworkCRCDecHp(string info);
+	void clearNetworkCRCDecHpList();
 
 private:
 
-	//void addNetworkCRCDecHp(string info) { }
+	bool isNetworkCRCEnabled();
 	string getNetworkCRCDecHpList() const;
+	string getParticleInfo() const;
 
 	float computeHeight(const Vec2i &pos) const;
 	void calculateXZRotation();
