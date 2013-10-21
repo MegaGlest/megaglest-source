@@ -2323,6 +2323,7 @@ void Faction::addCRC_DetailsForWorldFrame(int worldFrameCount,bool isNetworkServ
 
 		unit->getRandom()->clearLastCaller();
 		unit->clearNetworkCRCDecHpList();
+		unit->clearParticleInfo();
 	}
 
 	if(crcWorldFrameDetails.size() > MAX_FRAME_CACHE) {
