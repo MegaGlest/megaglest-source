@@ -68,28 +68,35 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
 
 	this->dirList = dirList;
 
-	int startY=100;
-	int startX=350;
-
-	labelInfo.registerGraphicComponent(containerName,"labelInfo");
-    labelInfo.init(startX, startY+330);
-	labelInfo.setFont(CoreData::getInstance().getMenuFontNormal());
-	labelInfo.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
+	int buttonStartY=50;
+	int buttonStartX=70;
 
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
-    buttonReturn.init(startX, startY, 125);
+    buttonReturn.init(buttonStartX, buttonStartY, 125);
+	buttonReturn.setText(lang.get("Return"));
 
     buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
-	buttonPlayNow.init(startX+175, startY, 125);
+	buttonPlayNow.init(buttonStartX+150, buttonStartY, 125);
+	buttonPlayNow.setText(lang.get("PlayNow"));
 
-	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
-    listBoxScenario.init(startX, startY+360, 190);
+	int startY=700;
+	int startX=50;
 
     labelScenario.registerGraphicComponent(containerName,"labelScenario");
-	labelScenario.init(startX, startY+390);
+	labelScenario.init(startX, startY);
 
-	buttonReturn.setText(lang.get("Return"));
-	buttonPlayNow.setText(lang.get("PlayNow"));
+	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
+    listBoxScenario.init(startX, startY-30, 290);
+
+	labelScenarioName.registerGraphicComponent(containerName,"labelScenarioName");
+	labelScenarioName.init(startX, startY-80);
+	labelScenarioName.setFont(CoreData::getInstance().getMenuFontBig());
+	labelScenarioName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+
+	labelInfo.registerGraphicComponent(containerName,"labelInfo");
+    labelInfo.init(startX, startY-110);
+	labelInfo.setFont(CoreData::getInstance().getMenuFontNormal());
+	labelInfo.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	if(this->isTutorialMode == true) {
 		labelScenario.setText(lang.get("Tutorial"));
@@ -115,36 +122,8 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
 	}
 
 	std::map<string,string> scenarioErrors;
-	for(unsigned int i = 0; i < results.size(); ++i) {
-		bool foundTranslatedName = false;
-		string current_scenario = results[i];
-
-		try {
-			if(current_scenario != "") {
-				//printf("current_scenario [%s]\n",current_scenario.c_str());
-				loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[i]), &scenarioInfo );
-
-				if(scenarioInfo.namei18n != "") {
-					current_scenario = scenarioInfo.namei18n;
-					foundTranslatedName = true;
-				}
-			}
-
-			if(foundTranslatedName == false) {
-				results[i] = formatString(current_scenario);
-			}
-			else {
-				results[i] = current_scenario;
-			}
-		}
-		catch(const std::exception &ex) {
-			char szBuf[8096]="";
-			snprintf(szBuf,8096,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
-			SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
-
-			scenarioErrors[current_scenario] = szBuf;
-		}
+	for(int i= 0; i<results.size(); ++i){
+			results[i] = formatString(results[i]);
 	}
     listBoxScenario.setItems(results);
 
@@ -154,6 +133,12 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
     	if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
     		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo );
     		labelInfo.setText(scenarioInfo.desc);
+    		if(scenarioInfo.namei18n != "") {
+    			labelScenarioName.setText(scenarioInfo.namei18n);
+    		}
+    		else {
+    			labelScenarioName.setText(listBoxScenario.getSelectedItem());
+    		}
     	}
 
         GraphicComponent::applyAllCustomProperties(containerName);
@@ -187,6 +172,9 @@ void MenuStateScenario::reloadUI() {
 	mainMessageBox.init(lang.get("Ok"));
 	labelInfo.setFont(CoreData::getInstance().getMenuFontNormal());
 	labelInfo.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
+
+	labelScenarioName.setFont(CoreData::getInstance().getMenuFontNormal());
+	labelScenarioName.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	buttonReturn.setText(lang.get("Return"));
 	buttonPlayNow.setText(lang.get("PlayNow"));
@@ -244,6 +232,12 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
         	if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
         		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
         		labelInfo.setText(scenarioInfo.desc);
+        		if(scenarioInfo.namei18n != "") {
+        			labelScenarioName.setText(scenarioInfo.namei18n);
+        		}
+        		else {
+        			labelScenarioName.setText(listBoxScenario.getSelectedItem());
+        		}
         	}
         }
         catch(const std::exception &ex) {
@@ -275,8 +269,8 @@ void MenuStateScenario::render(){
 	Renderer &renderer= Renderer::getInstance();
 
 	if(scenarioLogoTexture != NULL) {
-		//renderer.renderTextureQuad(300,350,400,300,scenarioLogoTexture,1.0f);
-		renderer.renderBackground(scenarioLogoTexture);
+		renderer.renderTextureQuad(450,200,533,400,scenarioLogoTexture,1.0f);
+		//renderer.renderBackground(scenarioLogoTexture);
 	}
 
 	if(mainMessageBox.getEnabled()) {
@@ -284,6 +278,8 @@ void MenuStateScenario::render(){
 	}
 	else {
 		renderer.renderLabel(&labelInfo);
+		renderer.renderLabel(&labelScenarioName);
+
 		renderer.renderLabel(&labelScenario);
 		renderer.renderListBox(&listBoxScenario);
 
@@ -321,6 +317,12 @@ void MenuStateScenario::update() {
 				if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
 					loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
 					labelInfo.setText(scenarioInfo.desc);
+	        		if(scenarioInfo.namei18n != "") {
+	        			labelScenarioName.setText(scenarioInfo.namei18n);
+	        		}
+	        		else {
+	        			labelScenarioName.setText(listBoxScenario.getSelectedItem());
+	        		}
 
 					SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 					CoreData &coreData= CoreData::getInstance();
