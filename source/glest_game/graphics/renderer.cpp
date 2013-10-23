@@ -2087,6 +2087,25 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,
 	glEnable(GL_BLEND);
 
 	if(showFullConsole) {
+		CoreData &coreData= CoreData::getInstance();
+
+	    int x= console->getXPos()-5;
+	    int y= console->getYPos()-5;
+	    int h= console->getLineHeight()*console->getStoredLineCount();
+	    int w= 1000;
+		//background
+		glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+		glEnable(GL_BLEND);
+
+		glColor4f(0.0f, 0.0f, 0.0f, 0.8f) ;
+
+		glBegin(GL_TRIANGLE_STRIP);
+			glVertex2i(x, y);
+			glVertex2i(x, y+h);
+			glVertex2i(x+w, y);
+			glVertex2i(x+w, y+h);
+		glEnd();
+
 		for(int i = 0; i < console->getStoredLineCount(); ++i) {
 			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
 			if(renderText3DEnabled == true) {
