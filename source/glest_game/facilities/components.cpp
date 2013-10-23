@@ -363,6 +363,7 @@ GraphicListBox::GraphicListBox(std::string containerName, std::string objName)
 : GraphicComponent(containerName, objName), graphButton1(), graphButton2() {
     selectedItemIndex = 0;
     lighted = false;
+    leftControlled = false;
 }
 
 void GraphicListBox::init(int x, int y, int w, int h, Vec3f textColor){
@@ -418,10 +419,55 @@ void GraphicListBox::setSelectedItemIndex(int index, bool errorOnMissing){
     setText(getSelectedItem());
 }
 
+void GraphicListBox::setLeftControlled(bool leftControlled) {
+	if(this->leftControlled!=leftControlled){
+		this->leftControlled= leftControlled;
+		if(leftControlled==true) {
+			graphButton2.setX(x+graphButton1.getW()-4);
+			graphButton2.setH(graphButton2.getH()-4);
+			graphButton2.setW(graphButton2.getW()-4);
+			graphButton1.setH(graphButton1.getH()-4);
+			graphButton1.setW(graphButton1.getW()-4);
+			graphButton2.setY(graphButton2.getY()+2);
+			graphButton1.setY(graphButton1.getY()+2);
+
+//			graphButton2.setX(x);
+//			graphButton2.setH(graphButton2.getH()/2);
+//			graphButton2.setW(graphButton2.getW()/2);
+//			graphButton1.setH(graphButton1.getH()/2);
+//			graphButton1.setW(graphButton1.getW()/2);
+//			graphButton2.setY(graphButton2.getY()+graphButton1.getH());
+
+		}
+		else {
+			graphButton2.setX(x+w-graphButton2.getW()+4);
+			graphButton2.setH(graphButton2.getH()+4);
+			graphButton2.setW(graphButton2.getW()+4);
+			graphButton1.setH(graphButton1.getH()+4);
+			graphButton1.setW(graphButton1.getW()+4);
+			graphButton2.setY(graphButton2.getY()-2);
+			graphButton1.setY(graphButton1.getY()-2);
+
+
+//			graphButton2.setY(graphButton2.getY()-graphButton1.getH());
+//			graphButton2.setH(graphButton2.getH()*2);
+//			graphButton2.setW(graphButton2.getW()*2);
+//			graphButton1.setH(graphButton1.getH()*2);
+//			graphButton1.setW(graphButton1.getW()*2);
+//			graphButton2.setX(x+w-graphButton2.getW());
+		}
+	}
+}
+
 void GraphicListBox::setX(int x) {
 	this->x= x;
 	graphButton1.setX(x);
-	graphButton2.setX(x+w-22);
+	if(leftControlled==true) {
+		graphButton2.setX(x+graphButton1.getW());
+	}
+	else {
+		graphButton2.setX(x+w-graphButton2.getW());
+	}
 }
 
 void GraphicListBox::setY(int y) {
@@ -491,7 +537,7 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 			bool bFound = false;
 			if(advanceToItemStartingWith != "") {
 				for(int i = selectedItemIndex - 1; i >= 0; --i) {
-					string item = items[i];
+					string item = translated_items[i];
 					if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
 						bFound = true;
 						selectedItemIndex = i;
@@ -499,8 +545,8 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 					}
 				}
 				if(bFound == false) {
-					for(int i = items.size() - 1; i >= selectedItemIndex; --i) {
-						string item = items[i];
+					for(int i = translated_items.size() - 1; i >= selectedItemIndex; --i) {
+						string item = translated_items[i];
 						//printf("Trying to match [%s] with item [%s]\n",advanceToItemStartingWith.c_str(),item.c_str());
 						if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
 							bFound = true;
@@ -520,8 +566,8 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 		else if(b2) {
 			bool bFound = false;
 			if(advanceToItemStartingWith != "") {
-				for(int i = selectedItemIndex + 1; i < items.size(); ++i) {
-					string item = items[i];
+				for(int i = selectedItemIndex + 1; i < translated_items.size(); ++i) {
+					string item = translated_items[i];
 					//printf("Trying to match [%s] with item [%s]\n",advanceToItemStartingWith.c_str(),item.c_str());
 					if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
 						bFound = true;
@@ -531,7 +577,7 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 				}
 				if(bFound == false) {
 					for(int i = 0; i <= selectedItemIndex; ++i) {
-						string item = items[i];
+						string item = translated_items[i];
 						//printf("Trying to match [%s] with item [%s]\n",advanceToItemStartingWith.c_str(),item.c_str());
 						if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
 							bFound = true;
