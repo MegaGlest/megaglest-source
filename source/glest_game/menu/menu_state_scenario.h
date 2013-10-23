@@ -30,6 +30,8 @@ private:
 	GraphicLabel labelInfo;
 	GraphicLabel labelScenario;
 	GraphicListBox listBoxScenario;
+	GraphicLabel labelScenarioName;
+
 
 	vector<string> scenarioFiles;
 
