@@ -2087,8 +2087,6 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,
 	glEnable(GL_BLEND);
 
 	if(showFullConsole) {
-		CoreData &coreData= CoreData::getInstance();
-
 	    int x= console->getXPos()-5;
 	    int y= console->getYPos()-5;
 	    int h= console->getLineHeight()*console->getStoredLineCount();
@@ -2106,6 +2104,7 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,
 	    		glVertex2i(x+w, y);
 	    		glVertex2i(x+w, y+h);
 	    	glEnd();
+	    	glPopAttrib();
 	    }
 		for(int i = 0; i < console->getStoredLineCount(); ++i) {
 			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
@@ -3390,7 +3389,28 @@ void Renderer::renderListBox(GraphicListBox *listBox) {
 	if(listBox->getVisible() == false) {
 		return;
 	}
+	//if(listBox->getLeftControlled()==true)
+	{
+	    int x= listBox->getX();
+	    int y= listBox->getY();
+	    int h= listBox->getH();
+	    int w= listBox->getW();
+	    if(h>0){
+	    	//background
+	    	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+	    	glEnable(GL_BLEND);
 
+	    	glColor4f(0.0f, 0.0f, 0.0f, 0.6f*listBox->getFade()) ;
+
+	    	glBegin(GL_TRIANGLE_STRIP);
+	    		glVertex2i(x, y);
+	    		glVertex2i(x, y+h);
+	    		glVertex2i(x+w, y);
+	    		glVertex2i(x+w, y+h);
+	    	glEnd();
+	    	glPopAttrib();
+	    }
+	}
 	renderButton(listBox->getButton1());
     renderButton(listBox->getButton2());
 
@@ -3398,7 +3418,12 @@ void Renderer::renderListBox(GraphicListBox *listBox) {
 	glEnable(GL_BLEND);
 
 	GraphicLabel label;
-	label.init(listBox->getX(), listBox->getY(), listBox->getW(), listBox->getH(), true,listBox->getTextColor());
+	if(listBox->getLeftControlled()==true){
+		label.init(listBox->getX()+listBox->getButton1()->getW()+listBox->getButton2()->getW()+2, listBox->getY(), listBox->getW(), listBox->getH(), false,listBox->getTextColor());
+	}
+	else {
+		label.init(listBox->getX(), listBox->getY(), listBox->getW(), listBox->getH(), true,listBox->getTextColor());
+	}
 	label.setText(listBox->getText());
 	label.setTextNativeTranslation(listBox->getTextNativeTranslation());
 	label.setFont(listBox->getFont());

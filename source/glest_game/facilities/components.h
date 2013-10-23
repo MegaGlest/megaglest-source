@@ -238,6 +238,7 @@ private:
     int selectedItemIndex;
     bool lighted;
 	Vec3f textColor;
+	bool leftControlled;
 	
 public:
 	GraphicListBox(std::string containerName="", std::string objName="");
@@ -251,6 +252,8 @@ public:
 	GraphicButton *getButton2() 			{return &graphButton2;}
 	bool getLighted() const					{return lighted;}
     void setLighted(bool lighted)			{this->lighted= lighted;}
+	bool getLeftControlled() const					{return leftControlled;}
+    void setLeftControlled(bool leftControlled);
 	Vec3f getTextColor() const				{return textColor;}
     void setTextColor(Vec3f color)			{this->textColor= color;}
 
