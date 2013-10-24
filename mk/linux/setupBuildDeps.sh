@@ -202,6 +202,12 @@ case $distribution in
 				$installcommand
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
 				;;
+			13.10)
+				installcommand='apt-get install build-essential subversion automake autoconf autogen cmake libsdl1.2-dev libtiff4-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libcppunit-dev'
+				$installcommand
+				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
+				;;
+
 			*)
 				installcommand='apt-get install build-essential subversion automake autoconf autogen cmake libsdl1.2-dev libxerces-c2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libcppunit-dev'
 				unsupported_release
