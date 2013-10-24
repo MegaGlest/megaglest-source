@@ -166,9 +166,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	buttonReturn.init(240, 180, 125);
 
-	buttonClearBlockedPlayers.registerGraphicComponent(containerName,"buttonClearBlockedPlayers");
-	buttonClearBlockedPlayers.init(310, 620, 140);
-
 	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
 	buttonRestoreLastSettings.init(250+130, 180, 220);
 
@@ -178,7 +175,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	techTree.reset(new TechTree(config.getPathListForType(ptTechs)));
 
 	int labelOffset=23;
-	int setupPos=590;
+	int setupPos=600;
 	int mapHeadPos=330;
 	int mapPos=mapHeadPos-labelOffset;
 	int aHeadPos=240;
@@ -402,56 +399,62 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	checkBoxNetworkPauseGameForLaggedClients.setValue(true);
 
 	//list boxes
-	xoffset=100;
+	xoffset=40;
 	int rowHeight=27;
     for(int i=0; i<GameConstants::maxPlayers; ++i){
-		labelPlayerStatus[i].registerGraphicComponent(containerName,"labelPlayerStatus" + intToStr(i));
-		labelPlayerStatus[i].init(10, setupPos-30-i*rowHeight, 60);
 
     	labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
-		labelPlayers[i].init(xoffset, setupPos-30-i*rowHeight);
+		labelPlayers[i].init(xoffset, setupPos-30-i*rowHeight+2);
+		labelPlayers[i].setFont(CoreData::getInstance().getMenuFontBig());
+		labelPlayers[i].setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
+		labelPlayerStatus[i].registerGraphicComponent(containerName,"labelPlayerStatus" + intToStr(i));
+		labelPlayerStatus[i].init(xoffset+15, setupPos-30-i*rowHeight, 60);
 		labelPlayerNames[i].registerGraphicComponent(containerName,"labelPlayerNames" + intToStr(i));
-		labelPlayerNames[i].init(xoffset+70,setupPos-30-i*rowHeight);
+		labelPlayerNames[i].init(xoffset+20,setupPos-30-i*rowHeight);
 
 		listBoxControls[i].registerGraphicComponent(containerName,"listBoxControls" + intToStr(i));
-        listBoxControls[i].init(xoffset+210, setupPos-30-i*rowHeight);
+        listBoxControls[i].init(xoffset+160, setupPos-30-i*rowHeight);
 
         buttonBlockPlayers[i].registerGraphicComponent(containerName,"buttonBlockPlayers" + intToStr(i));
         //buttonBlockPlayers[i].init(xoffset+355, setupPos-30-i*rowHeight, 70);
-        buttonBlockPlayers[i].init(xoffset+250, setupPos-30-i*rowHeight, 70);
+        buttonBlockPlayers[i].init(xoffset+200, setupPos-30-i*rowHeight, 70);
         buttonBlockPlayers[i].setText(lang.get("BlockPlayer"));
         buttonBlockPlayers[i].setFont(CoreData::getInstance().getDisplayFontSmall());
         buttonBlockPlayers[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
         listBoxRMultiplier[i].registerGraphicComponent(containerName,"listBoxRMultiplier" + intToStr(i));
-        listBoxRMultiplier[i].init(xoffset+350, setupPos-30-i*rowHeight,70);
+        listBoxRMultiplier[i].init(xoffset+300, setupPos-30-i*rowHeight,70);
 
         listBoxFactions[i].registerGraphicComponent(containerName,"listBoxFactions" + intToStr(i));
-        listBoxFactions[i].init(xoffset+430, setupPos-30-i*rowHeight, 150);
+        listBoxFactions[i].init(xoffset+380, setupPos-30-i*rowHeight, 250);
+        listBoxFactions[i].setLeftControlled(true);
 
         listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
-		listBoxTeams[i].init(xoffset+590, setupPos-30-i*rowHeight, 60);
+		listBoxTeams[i].init(xoffset+640, setupPos-30-i*rowHeight, 60);
 
 		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
-		labelNetStatus[i].init(xoffset+655, setupPos-30-i*rowHeight, 60);
+		labelNetStatus[i].init(xoffset+705, setupPos-30-i*rowHeight, 60);
 		labelNetStatus[i].setFont(CoreData::getInstance().getDisplayFontSmall());
 		labelNetStatus[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
     }
 
+	buttonClearBlockedPlayers.registerGraphicComponent(containerName,"buttonClearBlockedPlayers");
+	buttonClearBlockedPlayers.init(xoffset+160, setupPos-30-8*rowHeight, 140);
+
 	labelControl.registerGraphicComponent(containerName,"labelControl");
-	labelControl.init(xoffset+210, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+	labelControl.init(xoffset+160, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
 	labelControl.setText(lang.get("Control"));
 
     labelRMultiplier.registerGraphicComponent(containerName,"labelRMultiplier");
-	labelRMultiplier.init(xoffset+350, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+	labelRMultiplier.init(xoffset+300, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
 
 	labelFaction.registerGraphicComponent(containerName,"labelFaction");
-    labelFaction.init(xoffset+430, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelFaction.init(xoffset+380, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
     labelFaction.setText(lang.get("Faction"));
 
     labelTeam.registerGraphicComponent(containerName,"labelTeam");
-    labelTeam.init(xoffset+590, setupPos, 50, GraphicListBox::defH, true);
+    labelTeam.init(xoffset+640, setupPos, 50, GraphicListBox::defH, true);
     labelTeam.setText(lang.get("Team"));
 
     labelControl.setFont(CoreData::getInstance().getMenuFontBig());
@@ -462,6 +465,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelFaction.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	labelTeam.setFont(CoreData::getInstance().getMenuFontBig());
 	labelTeam.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+
+    xoffset=100;
 
 	//texts
 	buttonClearBlockedPlayers.setText(lang.get("BlockPlayerClear"));
@@ -504,7 +509,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	for(int i=0; i < GameConstants::maxPlayers; ++i) {
 		labelPlayerStatus[i].setText("");
 
-		labelPlayers[i].setText(lang.get("Player")+" "+intToStr(i));
+		//labelPlayers[i].setText(lang.get("Player")+" "+intToStr(i));
+		labelPlayers[i].setText(intToStr(i));
 		labelPlayerNames[i].setText("*");
 		labelPlayerNames[i].setMaxEditWidth(16);
 		labelPlayerNames[i].setMaxEditRenderWidth(135);
@@ -566,7 +572,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	updateAllResourceMultiplier();
 
 	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
-	listBoxPlayerStatus.init(10, 600, 150);
+	listBoxPlayerStatus.init(55, 600, 150);
 	vector<string> playerStatuses;
 	playerStatuses.push_back(lang.get("PlayerStatusSetup"));
 	playerStatuses.push_back(lang.get("PlayerStatusBeRightBack"));
@@ -959,9 +965,11 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
         else {
         	string advanceToItemStartingWith = "";
         	if(Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
-        		wchar_t lastKey = Shared::Platform::Window::extractLastKeyPressed();
-        		//printf("lastKey = %d [%c]\n",lastKey,lastKey);
-        		advanceToItemStartingWith = lastKey;
+        		const wchar_t lastKey = Shared::Platform::Window::extractLastKeyPressed();
+        		xxx:
+//        		string hehe=lastKey;
+//        		printf("lastKey = %d [%c] '%s'\n",lastKey,lastKey,hehe);
+        		advanceToItemStartingWith =  lastKey;
         	}
 
         	if(activeInputLabel!=NULL && !(activeInputLabel->mouseClick(x,y))){
@@ -2324,16 +2332,19 @@ void MenuStateCustomGame::update() {
 					if(listBoxControls[i].getSelectedItemIndex() == ctHuman) {
 						switch(gameSettings.getNetworkPlayerStatuses(slotIndex)) {
 							case npst_BeRightBack:
-								labelPlayerStatus[i].setText(lang.get("PlayerStatusBeRightBack"));
+								labelPlayerStatus[i].setText("#");
 								labelPlayerStatus[i].setTextColor(Vec3f(1.f, 0.8f, 0.f));
+								labelPlayerNames[i].setTextColor(Vec3f(1.f, 0.8f, 0.f));
 								break;
 							case npst_Ready:
-								labelPlayerStatus[i].setText(lang.get("PlayerStatusReady"));
+								labelPlayerStatus[i].setText("#");
 								labelPlayerStatus[i].setTextColor(Vec3f(0.f, 1.f, 0.f));
+								labelPlayerNames[i].setTextColor(Vec3f(0.f, 1.f, 0.f));
 								break;
 							case npst_PickSettings:
-								labelPlayerStatus[i].setText(lang.get("PlayerStatusSetup"));
+								labelPlayerStatus[i].setText("#");
 								labelPlayerStatus[i].setTextColor(Vec3f(1.f, 0.f, 0.f));
+								labelPlayerNames[i].setTextColor(Vec3f(1.f, 0.f, 0.f));
 								break;
 							case npst_Disconnected:
 								labelPlayerStatus[i].setText(lang.get("Closed"));
@@ -2365,17 +2376,20 @@ void MenuStateCustomGame::update() {
 					if(hasNetworkGameSettings() == true) {
 						switch(serverInterface->getSlot(i)->getNetworkPlayerStatus()) {
 							case npst_BeRightBack:
-								labelPlayerStatus[i].setText(lang.get("PlayerStatusBeRightBack"));
+								labelPlayerStatus[i].setText("#");
 								labelPlayerStatus[i].setTextColor(Vec3f(1.f, 0.8f, 0.f));
+								labelPlayerNames[i].setTextColor(Vec3f(1.f, 0.8f, 0.f));
 								break;
 							case npst_Ready:
-								labelPlayerStatus[i].setText(lang.get("PlayerStatusReady"));
+								labelPlayerStatus[i].setText("#");
 								labelPlayerStatus[i].setTextColor(Vec3f(0.f, 1.f, 0.f));
+								labelPlayerNames[i].setTextColor(Vec3f(0.f, 1.f, 0.f));
 								break;
 							case npst_PickSettings:
 							default:
-								labelPlayerStatus[i].setText(lang.get("PlayerStatusSetup"));
+								labelPlayerStatus[i].setText("#");
 								labelPlayerStatus[i].setTextColor(Vec3f(1.f, 0.f, 0.f));
+								labelPlayerNames[i].setTextColor(Vec3f(1.f, 0.f, 0.f));
 								break;
 						}
 					}
@@ -4639,7 +4653,7 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 		factionFiles= results;
 		for(int i = 0; i < results.size(); ++i) {
 			results[i]= formatString(results[i]);
-			translatedFactionNames.push_back(formatString(techTree->getTranslatedFactionName(techTreeFiles[listBoxTechTree.getSelectedItemIndex()],factionFiles[i])));
+			translatedFactionNames.push_back(formatString(results[i]+" ("+techTree->getTranslatedFactionName(techTreeFiles[listBoxTechTree.getSelectedItemIndex()],factionFiles[i])+")"));
 			//printf("FACTIONS i = %d results [%s]\n",i,results[i].c_str());
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",techTreeFiles[listBoxTechTree.getSelectedItemIndex()].c_str(),results[i].c_str());
