@@ -2863,6 +2863,30 @@ void Renderer::renderLabel(GraphicLabel *label) {
 		return;
 	}
 
+	if(label->getEditable() && label->getMaxEditRenderWidth()>0)
+	{
+	    int x= label->getX();
+	    int y= label->getY();
+	    int h= label->getH();
+	    int w= label->getMaxEditRenderWidth();
+	    if(h>0){
+	    	//background
+	    	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+	    	glEnable(GL_BLEND);
+
+	    	glColor4f(0.2f, 0.2f, 0.2f, 0.6f*label->getFade()) ;
+
+	    	glBegin(GL_TRIANGLE_STRIP);
+	    		glVertex2i(x, y);
+	    		glVertex2i(x, y+h);
+	    		glVertex2i(x+w, y);
+	    		glVertex2i(x+w, y+h);
+	    	glEnd();
+	    	glPopAttrib();
+	    }
+	}
+
+
 	Vec3f labelColor=label->getTextColor();
 	Vec4f colorWithAlpha = Vec4f(labelColor.x,labelColor.y,labelColor.z,GraphicComponent::getFade());
 	renderLabel(label,&colorWithAlpha);

@@ -152,6 +152,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		labelPlayerName.setText(config.getString("NetPlayerName",Socket::getHostName().c_str()));
 		labelPlayerName.setFont(CoreData::getInstance().getMenuFontBig());
 		labelPlayerName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+		labelPlayerName.setEditable(true);
 		labelPlayerName.setMaxEditWidth(16);
 		labelPlayerName.setMaxEditRenderWidth(200);
 		currentLine-=lineOffset;
@@ -271,35 +272,39 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		currentLine-=lineOffset;
 
 		labelTransifexUserLabel.registerGraphicComponent(containerName,"labelTransifexUserLabel");
-		labelTransifexUserLabel.init(currentLabelStart + 20,currentLine);
+		labelTransifexUserLabel.init(currentLabelStart,currentLine);
 		labelTransifexUserLabel.setText(lang.get("TransifexUserName"));
 
 		labelTransifexPwdLabel.registerGraphicComponent(containerName,"labelTransifexPwdLabel");
-		labelTransifexPwdLabel.init(currentLabelStart + 220 ,currentLine);
+		labelTransifexPwdLabel.init(currentLabelStart + 250 ,currentLine);
 		labelTransifexPwdLabel.setText(lang.get("TransifexPwd"));
 
 		labelTransifexI18NLabel.registerGraphicComponent(containerName,"labelTransifexI18NLabel");
-		labelTransifexI18NLabel.init(currentLabelStart + 380 ,currentLine);
+		labelTransifexI18NLabel.init(currentLabelStart + 500 ,currentLine);
 		labelTransifexI18NLabel.setText(lang.get("TransifexI18N"));
 
 		currentLine-=lineOffset;
 
 		labelTransifexUser.registerGraphicComponent(containerName,"labelTransifexUser");
-		labelTransifexUser.init(currentLabelStart + 20,currentLine);
-		labelTransifexUser.setMaxEditWidth(60);
-		labelTransifexUser.setMaxEditRenderWidth(120);
+		labelTransifexUser.init(currentLabelStart,currentLine);
+		labelTransifexUser.setEditable(true);
+		labelTransifexUser.setMaxEditWidth(30);
+		labelTransifexUser.setMaxEditRenderWidth(220);
 		labelTransifexUser.setText(config.getString("TranslationGetURLUser","<none>"));
 
 		labelTransifexPwd.registerGraphicComponent(containerName,"labelTransifexPwd");
-		labelTransifexPwd.init(currentLabelStart + 220 ,currentLine);
+		labelTransifexPwd.init(currentLabelStart + 250 ,currentLine);
 		labelTransifexPwd.setIsPassword(true);
-		labelTransifexPwd.setMaxEditWidth(60);
-		labelTransifexPwd.setMaxEditRenderWidth(120);
+		labelTransifexPwd.setEditable(true);
+		labelTransifexPwd.setMaxEditWidth(35);
+		labelTransifexPwd.setMaxEditRenderWidth(220);
 		labelTransifexPwd.setText(config.getString("TranslationGetURLPassword",""));
 
 		labelTransifexI18N.registerGraphicComponent(containerName,"labelTransifexI18N");
-		labelTransifexI18N.init(currentLabelStart + 380 ,currentLine);
+		labelTransifexI18N.init(currentLabelStart + 500 ,currentLine);
+		labelTransifexI18N.setEditable(true);
 		labelTransifexI18N.setMaxEditWidth(3);
+		labelTransifexI18N.setMaxEditRenderWidth(40);
 		labelTransifexI18N.setText(config.getString("TranslationGetURLLanguage","en"));
 		currentLine-=lineOffset;
 

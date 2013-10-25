@@ -135,6 +135,9 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp,int portNumberOverr
 
 	//server ip
 	labelServerIp.registerGraphicComponent(containerName,"labelServerIp");
+	labelServerIp.setEditable(true);
+	labelServerIp.setMaxEditWidth(15);
+	labelServerIp.setMaxEditRenderWidth(220);
 	labelServerIp.init(465, 460);
 
 	// server port
