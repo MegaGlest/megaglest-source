@@ -336,18 +336,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	checkBoxAllowNativeLanguageTechtree.init(xoffset+650, mapHeadPos-70);
 	checkBoxAllowNativeLanguageTechtree.setValue(false);
 
-	// Network Scenario
-	int scenarioX=810;
-	int scenarioY=140;
-    labelScenario.registerGraphicComponent(containerName,"labelScenario");
-    labelScenario.init(scenarioX, scenarioY);
-    labelScenario.setText(lang.get("Scenario"));
-	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
-    listBoxScenario.init(scenarioX, scenarioY-30,190);
-    checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
-    checkBoxScenario.init(scenarioX+90, scenarioY);
-    checkBoxScenario.setValue(false);
-
     // player status
 	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
 	listBoxPlayerStatus.init(810, buttony, 150);
@@ -360,6 +348,18 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
 	listBoxPlayerStatus.setLighted(false);
 	listBoxPlayerStatus.setVisible(true);
+
+	// Network Scenario
+	int scenarioX=810;
+	int scenarioY=140;
+    labelScenario.registerGraphicComponent(containerName,"labelScenario");
+    labelScenario.init(scenarioX, scenarioY);
+    labelScenario.setText(lang.get("Scenario"));
+	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
+    listBoxScenario.init(scenarioX, scenarioY-30,190);
+    checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
+    checkBoxScenario.init(scenarioX+90, scenarioY);
+    checkBoxScenario.setValue(false);
 
     //scenario listbox
     vector<string> resultsScenarios;
@@ -2347,7 +2347,7 @@ void MenuStateCustomGame::update() {
 								labelPlayerStatus[i].setTextColor(Vec3f(1.f, 0.f, 0.f));
 								break;
 							case npst_Disconnected:
-								labelPlayerStatus[i].setText(lang.get("Closed"));
+								labelPlayerStatus[i].setText("-");
 								break;
 
 							default:
@@ -4650,7 +4650,7 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 			results[i]= formatString(results[i]);
 			string translatedString=techTree->getTranslatedFactionName(techTreeFiles[listBoxTechTree.getSelectedItemIndex()],factionFiles[i]);
 			if(translatedString==results[i]){
-				translatedFactionNames.push_back(results[i]);
+				translatedFactionNames.push_back(formatString(results[i]));
 			}
 			else {
 				translatedFactionNames.push_back(formatString(results[i]+" ("+translatedString+")"));
