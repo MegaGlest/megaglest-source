@@ -67,7 +67,7 @@ public:
 private:
 
 	void clearSlots();
-	void deleteSlot(int i);
+	//void deleteSlot(int i);
 	void listFiles();
 
 	void showMessageBox(const string &text, const string &header, bool toggle);

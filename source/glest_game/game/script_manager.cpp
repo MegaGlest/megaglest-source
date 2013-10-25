@@ -30,10 +30,8 @@ ScriptManagerMessage::ScriptManagerMessage() : text(""), header("") {
 	this->teamIndex=-1;
 }
 
-ScriptManagerMessage::ScriptManagerMessage(string text, string header,
-		int factionIndex,int teamIndex) {
-	this->text			= text;
-	this->header		= header;
+ScriptManagerMessage::ScriptManagerMessage(string textIn, string headerIn,
+		int factionIndex,int teamIndex) : text(textIn), header(headerIn) {
 	this->factionIndex = factionIndex;
 	this->teamIndex    = teamIndex;
 }

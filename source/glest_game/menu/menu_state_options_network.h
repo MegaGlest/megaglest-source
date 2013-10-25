@@ -82,7 +82,7 @@ public:
 private:
 	void saveConfig();
 	void setActiveInputLable(GraphicLabel* newLable);
-	void showMessageBox(const string &text, const string &header, bool toggle);
+	//void showMessageBox(const string &text, const string &header, bool toggle);
 };
 
 }}//end namespace

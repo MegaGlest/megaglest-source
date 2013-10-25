@@ -438,14 +438,14 @@ bool fileExists(const string &path) {
 		fclose(file);
 		return true;
 	}
-	else {
+//	else {
 		//int fileErrno = errno;
-#ifdef WIN32
-        int fileErrno = errno;
-		DWORD error = GetLastError();
-		string strError = "[#6] Could not open file, result: " + intToStr(error) + " - " + intToStr(fileErrno) + " " + strerror(fileErrno) + " [" + path + "]";
-#endif
-	}
+//#ifdef WIN32
+        //int fileErrno = errno;
+		//DWORD error = GetLastError();
+		//string strError = "[#6] Could not open file, result: " + intToStr(error) + " - " + intToStr(fileErrno) + " " + strerror(fileErrno) + " [" + path + "]";
+//#endif
+//	}
 	return false;
 }
 
@@ -699,7 +699,7 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, uint32 &value) {
 			char gameVer[500]="";
 			char svnVer[500]="";
 			char actualFilePath[8096]="";
-			int readbytes = fscanf(fp,"%20ld,%20u,%20ld\n%s\n%s\n%s",
+			int readbytes = fscanf(fp,"%20ld,%20u,%20ld\n%499s\n%499s\n%8095s",
 					&refreshDate,
 					&crcValue,
 					&lastUpdateDate,

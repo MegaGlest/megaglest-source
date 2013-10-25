@@ -633,13 +633,12 @@ void World::updateAllFactionUnits() {
 			perfList.push_back(perfBuf);
 		}
 
-		bool workThreadsFinished = false;
 		Chrono chrono;
 		chrono.start();
 
 		const int MAX_FACTION_THREAD_WAIT_MILLISECONDS = 20000;
 		for(;chrono.getMillis() < MAX_FACTION_THREAD_WAIT_MILLISECONDS;) {
-			workThreadsFinished = true;
+			bool workThreadsFinished = true;
 			for(int i = 0; i < factionCount; ++i) {
 				Faction *faction = getFaction(i);
 				if(faction->isWorkerThreadSignalCompleted(frameCount) == false) {

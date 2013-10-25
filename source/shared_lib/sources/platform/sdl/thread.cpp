@@ -272,7 +272,7 @@ void Thread::queueAutoCleanThread() {
 		if(Thread::getEnableVerboseMode()) printf("In Thread::shutdownThreads Line: %d\n",__LINE__);
 
 		BaseThread *base_thread = dynamic_cast<BaseThread *>(this);
-		ThreadGarbageCollector *garbage_collector = dynamic_cast<ThreadGarbageCollector *>(this);
+		//ThreadGarbageCollector *garbage_collector = dynamic_cast<ThreadGarbageCollector *>(this);
 		if(Thread::getEnableVerboseMode()) printf("In Thread::shutdownThreads Line: %d thread = %p base_thread = %p [%s]\n",__LINE__,this,base_thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
 
 		MutexSafeWrapper safeMutex(cleanupThreadMutex.get());

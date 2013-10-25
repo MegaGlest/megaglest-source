@@ -1327,7 +1327,6 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						int lowestCommandCount=1000000;
 						int currentProducerIndex=backupProducers[randomstart];
 						int bestIndex=-1;
-						int currentCommandCount=0;
 						for(unsigned int i=randomstart; i<backupProducers.size()+randomstart; i++) {
 							int prIndex = i;
 							if(i >= backupProducers.size()) {
@@ -1349,7 +1348,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 								throw megaglest_runtime_error(szBuf);
 							}
 
-							currentCommandCount=aiInterface->getMyUnit(currentProducerIndex)->getCommandSize();
+							int currentCommandCount=aiInterface->getMyUnit(currentProducerIndex)->getCommandSize();
 							if( currentCommandCount==1 &&
 								aiInterface->getMyUnit(currentProducerIndex)->getCurrCommand()->getCommandType()->getClass()==ccStop)
 							{// special for non buildings

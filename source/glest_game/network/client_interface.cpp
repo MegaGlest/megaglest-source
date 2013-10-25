@@ -77,7 +77,7 @@ void ClientInterfaceThread::execute() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ****************** STARTING worker thread this = %p\n",__FILE__,__FUNCTION__,__LINE__,this);
 
-		bool minorDebugPerformance = false;
+		//bool minorDebugPerformance = false;
 		Chrono chrono;
 
 		// Set socket to blocking
@@ -1044,7 +1044,6 @@ void ClientInterface::updateFrame(int *checkFrame) {
 				case nmtCommandList:
 					{
 
-					int waitCount = 0;
 					//make sure we read the message
 					time_t receiveTimeElapsed = time(NULL);
 					NetworkMessageCommandList networkMessageCommandList;
@@ -1060,13 +1059,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 						throw megaglest_runtime_error("error retrieving nmtCommandList returned false!");
 					}
 
-	//				while(receiveMessage(&networkMessageCommandList) == false &&
-	//					  isConnected() == true &&
-	//					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 2000)) {
-	//					waitCount++;
-	//				}
-
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] receiveMessage took %lld msecs, waitCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),waitCount);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] receiveMessage took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
 					MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);

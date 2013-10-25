@@ -2090,8 +2090,9 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,
 	    int x= console->getXPos()-5;
 	    int y= console->getYPos()-5;
 	    int h= console->getLineHeight()*console->getStoredLineCount();
-	    int w= 1000;
-	    if(h>0){
+
+	    if(h > 0) {
+	    	int w= 1000;
 	    	//background
 	    	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
 	    	glEnable(GL_BLEND);
@@ -4312,8 +4313,6 @@ void Renderer::renderSurface(const int renderFps) {
 
 		}
 		else {
-		    int lastSurfaceDataIndex = -1;
-
 		    const bool useVBOs = false;
 		    const bool useSurfaceCache = false;
 
@@ -4349,6 +4348,7 @@ void Renderer::renderSurface(const int renderFps) {
 		    	}
 		    	surface->reserve(qCache.visibleScaledCellList.size());
 
+		    	int lastSurfaceDataIndex = -1;
 				for(int visibleIndex = 0;
 						visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
 					Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
@@ -4429,22 +4429,12 @@ void Renderer::renderSurface(const int renderFps) {
 					cellData->normals.push_back(tc10->getNormal());
 					cellData->bufferCount++;
 				}
-
-/*
-				if(useSurfaceCache == true) {
-					std::pair<Chrono, std::vector<SurfaceData> > &surfaceCacheEntity = mapSurfaceData[snapshotOfvisibleQuad.getString()];
-					surfaceCacheEntity.first.start();
-				}
-*/
 			}
-            //printf("\nsurface.size() = %d vs qCache.visibleScaledCellList.size() = %d snapshotOfvisibleQuad [%s]\n",surface.size(),qCache.visibleScaledCellList.size(),snapshotOfvisibleQuad.getString().c_str());
 
 		    std::vector<SurfaceData> *surface = &surfaceData;
 		    if(useSurfaceCache == true) {
 		    	std::pair<Chrono, std::vector<SurfaceData> > &surfaceCacheEntity = mapSurfaceData[snapshotOfvisibleQuad.getString()];
 		    	surface = &surfaceCacheEntity.second;
-
-		    	//printf("Surface Cache Size for Rendering using VA's = " MG_SIZE_T_SPECIFIER "\n",mapSurfaceData.size());
 		    }
 
 		    glEnableClientState(GL_VERTEX_ARRAY);

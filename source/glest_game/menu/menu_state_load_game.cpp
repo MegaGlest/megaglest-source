@@ -353,14 +353,11 @@ void MenuStateLoadGame::mouseUp(int x, int y, const MouseButton mouseButton){
     }
 }
 
-void MenuStateLoadGame::deleteSlot(int i){
-	if(selectedButton==slots[i]){
-		selectedButton=NULL;
-	}
-//	buttonToDelete=slots[i];
-//	slots.erase(i);
-//	slotsGB.erase(i);
-}
+//void MenuStateLoadGame::deleteSlot(int i){
+//	if(selectedButton==slots[i]){
+//		selectedButton=NULL;
+//	}
+//}
 
 void MenuStateLoadGame::mouseMove(int x, int y, const MouseState *ms){
 

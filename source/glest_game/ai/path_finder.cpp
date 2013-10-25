@@ -1599,7 +1599,6 @@ bool PathFinder::unitCannotMove(Unit *unit) {
 	bool unitImmediatelyBlocked = false;
 
 	// First check if unit currently blocked all around them, if so don't try to pathfind
-	const bool showConsoleDebugInfo = Config::getInstance().getBool("EnablePathfinderDistanceOutput","false");
 	const Vec2i unitPos = unit->getPos();
 	int failureCount = 0;
 	int cellCount = 0;

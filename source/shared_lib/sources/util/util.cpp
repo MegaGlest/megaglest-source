@@ -833,31 +833,17 @@ bool checkVersionComptability(string clientVersionString, string serverVersionSt
 		if(SystemFlags::VERBOSE_MODE_ENABLED) {
 			// debug version strings
 			for(unsigned int i = 0; i < tokensServer.size(); ++i) {
-				printf("Server version index = %d str [%s] IsNumeric = %d\n",i,tokensServer[i].c_str(),IsNumeric(tokensServer[i].c_str(),false));
+				printf("Server version index = %u str [%s] IsNumeric = %d\n",i,tokensServer[i].c_str(),IsNumeric(tokensServer[i].c_str(),false));
 			}
 			for(unsigned int i = 0; i < tokens.size(); ++i) {
-				printf("Client version index = %d str [%s] IsNumeric = %d\n",i,tokens[i].c_str(),IsNumeric(tokens[i].c_str(),false));
+				printf("Client version index = %u str [%s] IsNumeric = %d\n",i,tokens[i].c_str(),IsNumeric(tokens[i].c_str(),false));
 			}
 		}
 		// **NOTE:
 		// after of 3.7.0 we go to 2 digi version compatibility, check if both
 		// client and server are at least 3.7
-		bool compatiblePost3_7_0_Check = false;
 		bool compatiblePre3_7_0_1_Check = true;
 
-//		if(tokens.size() >= 3 && tokensServer.size() >= 3 &&
-//			tokensServer[0] != "" && IsNumeric(tokensServer[0].c_str(),false) && strToInt(tokensServer[0]) == 3 &&
-//			tokensServer[1] != "" && IsNumeric(tokensServer[1].c_str(),false) && strToInt(tokensServer[1]) == 7 &&
-//			(tokensServer[2][0] == '0' || tokensServer[2][0] == '1') &&
-//			tokens[0] != "" && IsNumeric(tokens[0].c_str(),false) && strToInt(tokens[0]) == 3 &&
-//			tokens[1] != "" && IsNumeric(tokens[1].c_str(),false) && strToInt(tokens[1]) == 7 &&
-//			(tokens[2][0] == '0' || tokens[2][0] == '1')) {
-//
-//			compatiblePost3_7_0_Check = false;
-//			compatiblePre3_7_0_1_Check = false;
-//			compatible = true;
-//		}
-//		else if(tokens.size() >= 2 && tokensServer.size() >= 2) {
 		if(tokens.size() >= 2 && tokensServer.size() >= 2) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -869,6 +855,7 @@ bool checkVersionComptability(string clientVersionString, string serverVersionSt
 
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+				bool compatiblePost3_7_0_Check = false;
 				// Both are at least 3.7.0, now check if both are > 3.7.0
 				if(tokens.size() >= 3 && tokensServer.size() >= 3) {
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);

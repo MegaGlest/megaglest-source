@@ -153,13 +153,13 @@ Pixmap2D* JPGReader::read(ifstream& is, const string& path, Pixmap2D* ret) const
 	//std::cout << "output width and height: " << cinfo.output_width <<" pixels and " << cinfo.output_height <<" pixels." << std::endl;
 	/* now actually read the jpeg into the raw buffer */
 	row_pointer[0] = new unsigned char[cinfo.output_width*cinfo.num_components];
-	size_t location = 0; //Current pixel
 	/* read one scan line at a time */
 	/* Again you need to invert the lines unfortunately*/
 	while( cinfo.output_scanline < cinfo.output_height )
 	{
 		jpeg_read_scanlines( &cinfo, row_pointer, 1 );
-		location = (cinfo.output_height - cinfo.output_scanline)*cinfo.output_width*picComponents;
+		//Current pixel
+		size_t location = (cinfo.output_height - cinfo.output_scanline) * cinfo.output_width * picComponents;
 		if (picComponents == cinfo.num_components) {
 			memcpy(pixels+location,row_pointer[0],cinfo.output_width*cinfo.num_components);
 		} else {
