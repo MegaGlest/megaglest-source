@@ -179,7 +179,6 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 
 string getUserHomeFromGLIBC() {
 	string home_folder = "";
-	char dateiname[512];
 	const char *homedir = getenv("HOME");
 	if (!homedir) {
 #if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED

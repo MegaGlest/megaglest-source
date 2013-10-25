@@ -466,7 +466,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelTeam.setFont(CoreData::getInstance().getMenuFontBig());
 	labelTeam.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
-    xoffset=100;
+    //xoffset=100;
 
 	//texts
 	buttonClearBlockedPlayers.setText(lang.get("BlockPlayerClear"));

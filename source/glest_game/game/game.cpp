@@ -2045,13 +2045,12 @@ void Game::update() {
 							if(hasAIPlayer == true) {
 								//sleep(0);
 
-								bool workThreadsFinished = false;
 								Chrono chronoAI;
 								chronoAI.start();
 
 								const int MAX_FACTION_THREAD_WAIT_MILLISECONDS = 20000;
 								for(;chronoAI.getMillis() < MAX_FACTION_THREAD_WAIT_MILLISECONDS;) {
-									workThreadsFinished = true;
+									bool workThreadsFinished = true;
 									for(int j = 0; j < world.getFactionCount(); ++j) {
 										Faction *faction = world.getFaction(j);
 										if(faction == NULL) {

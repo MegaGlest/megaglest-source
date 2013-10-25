@@ -96,9 +96,8 @@ void FileCRCPreCacheThread::execute() {
 
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] techsPerWorker = %u, MAX_FileCRCPreCacheThread_WORKER_THREADS = %d, techPaths.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,techsPerWorker,MAX_FileCRCPreCacheThread_WORKER_THREADS,(int)techPaths.size());
 
-					unsigned int consumedWorkers = 0;
-
 					try {
+						unsigned int consumedWorkers = 0;
 						for(unsigned int workerIdx = 0; workerIdx < MAX_FileCRCPreCacheThread_WORKER_THREADS; ++workerIdx) {
 							if(getQuitStatus() == true) {
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -162,9 +161,9 @@ void FileCRCPreCacheThread::execute() {
 
 					sleep(0);
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Waiting for Spawned CRC threads to complete, preCacheWorkerThreadList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,(int)preCacheWorkerThreadList.size());
-					bool hasRunningWorkerThread = true;
 
 					try {
+						bool hasRunningWorkerThread = true;
 						for(;hasRunningWorkerThread == true;) {
 							hasRunningWorkerThread = false;
 							for(unsigned int idx = 0; idx < preCacheWorkerThreadList.size(); idx++) {

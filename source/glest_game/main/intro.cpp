@@ -667,8 +667,6 @@ void Intro::render() {
 		return;
 	}
 
-	int difTime=0;
-
 	canRender();
 	incrementFps();
 
@@ -686,7 +684,7 @@ void Intro::render() {
 	for(int i = 0; i < texts.size(); ++i) {
 		Text *text= texts[i];
 
-		difTime= 1000 * timer / GameConstants::updateFps - text->getTime();
+		int difTime= 1000 * timer / GameConstants::updateFps - text->getTime();
 
 		if(difTime > 0 && difTime < appearTime + showTime + disapearTime) {
 			float alpha= 1.f;

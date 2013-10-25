@@ -23,6 +23,7 @@ TilesetModelType::TilesetModelType() {
 	height = 0;
 	rotationAllowed = false;
 	smoothTwoFrameAnim = false;
+	randomPositionEnabled = false;
 
 	animSpeed = 0;
 }

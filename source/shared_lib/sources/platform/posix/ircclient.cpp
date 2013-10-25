@@ -236,8 +236,6 @@ void event_privmsg (irc_session_t * session, const char * event, const char * or
 }
 
 void dcc_recv_callback (irc_session_t * session, irc_dcc_t id, int status, void * ctx, const char * data, unsigned int length) {
-	static int count = 1;
-	char buf[12]="";
 
 	switch (status)
 	{
@@ -252,6 +250,9 @@ void dcc_recv_callback (irc_session_t * session, irc_dcc_t id, int status, void 
 		}
 		else {
 			if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("DCC %d: %s\n", id, data);
+
+			static int count = 1;
+			char buf[12]="";
 			sprintf (buf, "DCC [%d]: %d", id, count++);
 			irc_dcc_msg	(session, id, buf);
 		}

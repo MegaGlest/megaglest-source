@@ -230,20 +230,20 @@ void MenuStateOptionsSound::reloadUI() {
 
 
 
-void MenuStateOptionsSound::showMessageBox(const string &text, const string &header, bool toggle){
-	if(!toggle){
-		mainMessageBox.setEnabled(false);
-	}
-
-	if(!mainMessageBox.getEnabled()){
-		mainMessageBox.setText(text);
-		mainMessageBox.setHeader(header);
-		mainMessageBox.setEnabled(true);
-	}
-	else{
-		mainMessageBox.setEnabled(false);
-	}
-}
+//void MenuStateOptionsSound::showMessageBox(const string &text, const string &header, bool toggle){
+//	if(!toggle){
+//		mainMessageBox.setEnabled(false);
+//	}
+//
+//	if(!mainMessageBox.getEnabled()){
+//		mainMessageBox.setText(text);
+//		mainMessageBox.setHeader(header);
+//		mainMessageBox.setEnabled(true);
+//	}
+//	else{
+//		mainMessageBox.setEnabled(false);
+//	}
+//}
 
 
 void MenuStateOptionsSound::mouseClick(int x, int y, MouseButton mouseButton){

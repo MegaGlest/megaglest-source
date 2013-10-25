@@ -123,7 +123,7 @@ void AiInterfaceThread::execute() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ****************** STARTING worker thread this = %p\n",__FILE__,__FUNCTION__,__LINE__,this);
 
-		bool minorDebugPerformance = false;
+		//bool minorDebugPerformance = false;
 		Chrono chrono;
 
 		//unsigned int idx = 0;
