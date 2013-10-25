@@ -59,7 +59,6 @@ private:
 	GraphicLabel labelLocalGameVersion;
 	GraphicLabel labelLocalIP;
 	GraphicLabel labelGameName;
-	GraphicLabel labelGameNameLabel;
 
 	GraphicListBox listBoxMap;
 	GraphicListBox listBoxFogOfWar;
@@ -294,6 +293,7 @@ private:
 	int setupTechList(string scenario, bool forceLoad=false);
 	void reloadFactions(bool keepExistingSelectedItem, string scenario);
 	void setupTilesetList(string scenario);
+	void setSlotHuman(int i);
 
 	void initFactionPreview(const GameSettings *gameSettings);
 

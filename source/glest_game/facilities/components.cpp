@@ -277,6 +277,7 @@ GraphicLabel::GraphicLabel() {
 	wordWrap = false;
 	centeredW = -1;
 	centeredH = 1;
+	editable = false;
 	editModeEnabled = false;
 	maxEditWidth = -1;
 	maxEditRenderWidth = -1;
@@ -299,6 +300,10 @@ bool GraphicLabel::mouseMove(int x, int y) {
 	if(text.length() > 0 && font3D != NULL) {
 		float lineWidth = (font3D->getTextHandler()->Advance(text.c_str()) * Shared::Graphics::Font::scaleFontValue);
 		useWidth = (int)lineWidth;
+	}
+
+	if(editable && useWidth<getMaxEditRenderWidth()){
+		useWidth = getMaxEditRenderWidth();
 	}
 
     return
