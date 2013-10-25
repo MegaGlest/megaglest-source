@@ -298,58 +298,60 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	xoffset=100;
+	xoffset=40;
 	int rowHeight=27;
     for(int i=0; i<GameConstants::maxPlayers; ++i){
-		labelPlayerStatus[i].registerGraphicComponent(containerName,"labelPlayerStatus" + intToStr(i));
-		labelPlayerStatus[i].init(10, setupPos-30-i*rowHeight, 60);
-
     	labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
-		labelPlayers[i].init(xoffset, setupPos-30-i*rowHeight);
+		labelPlayers[i].init(xoffset, setupPos-30-i*rowHeight+2);
+		labelPlayers[i].setFont(CoreData::getInstance().getMenuFontBig());
+		labelPlayers[i].setFont3D(CoreData::getInstance().getMenuFontBig3D());
 		labelPlayers[i].setEditable(false);
 
+		labelPlayerStatus[i].registerGraphicComponent(containerName,"labelPlayerStatus" + intToStr(i));
+		labelPlayerStatus[i].init(xoffset+12, setupPos-30-i*rowHeight, 60);
 		labelPlayerNames[i].registerGraphicComponent(containerName,"labelPlayerNames" + intToStr(i));
-		labelPlayerNames[i].init(xoffset+70,setupPos-30-i*rowHeight);
+		labelPlayerNames[i].init(xoffset+20,setupPos-30-i*rowHeight);
 
 		listBoxControls[i].registerGraphicComponent(containerName,"listBoxControls" + intToStr(i));
-        listBoxControls[i].init(xoffset+210, setupPos-30-i*rowHeight);
+        listBoxControls[i].init(xoffset+160, setupPos-30-i*rowHeight);
         listBoxControls[i].setEditable(false);
 
         listBoxRMultiplier[i].registerGraphicComponent(containerName,"listBoxRMultiplier" + intToStr(i));
-        listBoxRMultiplier[i].init(xoffset+350, setupPos-30-i*rowHeight,70);
-		listBoxRMultiplier[i].setEditable(false);
+        listBoxRMultiplier[i].init(xoffset+300, setupPos-30-i*rowHeight,70);
+        listBoxRMultiplier[i].setEditable(false);
 
         listBoxFactions[i].registerGraphicComponent(containerName,"listBoxFactions" + intToStr(i));
-        listBoxFactions[i].init(xoffset+430, setupPos-30-i*rowHeight);
+        listBoxFactions[i].init(xoffset+380, setupPos-30-i*rowHeight, 250);
+        listBoxFactions[i].setLeftControlled(true);
         listBoxFactions[i].setEditable(false);
 
         listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
-		listBoxTeams[i].init(xoffset+590, setupPos-30-i*rowHeight, 60);
+		listBoxTeams[i].init(xoffset+640, setupPos-30-i*rowHeight, 60);
 		listBoxTeams[i].setEditable(false);
 
 		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
-		labelNetStatus[i].init(xoffset+655, setupPos-30-i*rowHeight, 60);
+		labelNetStatus[i].init(xoffset+705, setupPos-30-i*rowHeight, 60);
 		labelNetStatus[i].setFont(CoreData::getInstance().getDisplayFontSmall());
 		labelNetStatus[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
 		grabSlotButton[i].registerGraphicComponent(containerName,"grabSlotButton" + intToStr(i));
-		grabSlotButton[i].init(xoffset+660, setupPos-30-i*rowHeight, 30);
+		grabSlotButton[i].init(xoffset+710, setupPos-30-i*rowHeight, 30);
 		grabSlotButton[i].setText(">");
     }
 
     labelControl.registerGraphicComponent(containerName,"labelControl");
-	labelControl.init(xoffset+210, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+	labelControl.init(xoffset+160, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
 	labelControl.setText(lang.get("Control"));
 
 	labelRMultiplier.registerGraphicComponent(containerName,"labelRMultiplier");
-	labelRMultiplier.init(xoffset+350, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+	labelRMultiplier.init(xoffset+300, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
 
 	labelFaction.registerGraphicComponent(containerName,"labelFaction");
-    labelFaction.init(xoffset+430, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelFaction.init(xoffset+380, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
     labelFaction.setText(lang.get("Faction"));
 
     labelTeam.registerGraphicComponent(containerName,"labelTeam");
-    labelTeam.init(xoffset+590, setupPos, 60, GraphicListBox::defH, true);
+    labelTeam.init(xoffset+640, setupPos, 60, GraphicListBox::defH, true);
 	labelTeam.setText(lang.get("Team"));
 
     labelControl.setFont(CoreData::getInstance().getMenuFontBig());
@@ -389,7 +391,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	for(int i=0; i<GameConstants::maxPlayers; ++i){
 		labelPlayerStatus[i].setText("");
 
-		labelPlayers[i].setText(lang.get("Player")+" "+intToStr(i));
+		labelPlayers[i].setText(intToStr(i));
 		labelPlayerNames[i].setText("");
 		labelPlayerNames[i].setMaxEditWidth(16);
 		labelPlayerNames[i].setMaxEditRenderWidth(135);
@@ -440,13 +442,15 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	int initialTechSelection = setupTechList("",true);
 	listBoxTechTree.setSelectedItemIndex(initialTechSelection);
 
+	int scenarioX=810;
+	int scenarioY=140;
     labelScenario.registerGraphicComponent(containerName,"labelScenario");
-    labelScenario.init(320, 670);
+    labelScenario.init(scenarioX, scenarioY);
     labelScenario.setText(lang.get("Scenario"));
 	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
-    listBoxScenario.init(320, 645);
+    listBoxScenario.init(scenarioX, scenarioY-30,190);
     checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
-    checkBoxScenario.init(410, 670);
+    checkBoxScenario.init(scenarioX+90, scenarioY);
     checkBoxScenario.setValue(false);
 
     //scenario listbox
@@ -680,7 +684,7 @@ void MenuStateConnectedGame::reloadUI() {
 	}
 
 	for(int i=0; i < GameConstants::maxPlayers; ++i) {
-		labelPlayers[i].setText(lang.get("Player") + " " + intToStr(i));
+		labelPlayers[i].setText(intToStr(i));
 		listBoxControls[i].setItems(controlItems);
     }
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1894,21 +1898,25 @@ void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem, strin
     	results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
     }
 
-    factionFiles= results;
-    vector<string> translatedFactionNames;
-    for(int i= 0; i<results.size(); ++i){
-        results[i]= formatString(results[i]);
+	vector<string> translatedFactionNames;
+	factionFiles= results;
+	for(int i = 0; i < results.size(); ++i) {
+		results[i]= formatString(results[i]);
+		string translatedString=techTree->getTranslatedFactionName(techTreeFiles[listBoxTechTree.getSelectedItemIndex()],factionFiles[i]);
+		if(translatedString==results[i]){
+			translatedFactionNames.push_back(results[i]);
+		}
+		else {
+			translatedFactionNames.push_back(formatString(results[i]+" ("+translatedString+")"));
+		}
+		//printf("FACTIONS i = %d results [%s]\n",i,results[i].c_str());
 
-        translatedFactionNames.push_back(formatString(techTree->getTranslatedFactionName(techTreeFiles[listBoxTechTree.getSelectedItemIndex()],factionFiles[i])));
-
-        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",techTreeFiles[listBoxTechTree.getSelectedItemIndex()].c_str(),results[i].c_str());
-    }
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",techTreeFiles[listBoxTechTree.getSelectedItemIndex()].c_str(),results[i].c_str());
+	}
 
     for(int i=0; i<GameConstants::maxPlayers; ++i){
-    	int originalIndex = listBoxFactions[i].getSelectedItemIndex();
-    	//printf("[a] i = %d, originalIndex = %d\n",i,originalIndex);
-
-    	string originalValue = (listBoxFactions[i].getItemCount() > 0 ? listBoxFactions[i].getSelectedItem() : "");
+		int originalIndex = listBoxFactions[i].getSelectedItemIndex();
+		string originalValue = (listBoxFactions[i].getItemCount() > 0 ? listBoxFactions[i].getSelectedItem() : "");
 
     	listBoxFactions[i].setItems(results,translatedFactionNames);
         if( keepExistingSelectedItem == false ||
@@ -3382,7 +3390,13 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 			factionFiles = results;
 		    vector<string> translatedFactionNames;
 		    for(int i= 0; i < factionFiles.size(); ++i) {
-		        translatedFactionNames.push_back(formatString(techTree->getTranslatedFactionName(gameSettings->getTech(),factionFiles[i])));
+				string translatedString=techTree->getTranslatedFactionName(gameSettings->getTech(),factionFiles[i]);
+				if(translatedString==results[i]){
+					translatedFactionNames.push_back(formatString(results[i]));
+				}
+				else {
+					translatedFactionNames.push_back(formatString(results[i]+" ("+translatedString+")"));
+				}
 		    }
 
 			for(int i=0; i<GameConstants::maxPlayers; ++i){
@@ -3423,7 +3437,13 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 			factionFiles= results;
 		    vector<string> translatedFactionNames;
 		    for(int i= 0; i < factionFiles.size(); ++i) {
-		        translatedFactionNames.push_back(formatString(techTree->getTranslatedFactionName(gameSettings->getTech(),factionFiles[i])));
+		    	string translatedString=techTree->getTranslatedFactionName(gameSettings->getTech(),factionFiles[i]);
+		    	if(translatedString==results[i]){
+		    		translatedFactionNames.push_back(formatString(results[i]));
+		    	}
+		    	else {
+		    		translatedFactionNames.push_back(formatString(results[i]+" ("+translatedString+")"));
+		    	}
 		    }
 
 			for(int i= 0; i<results.size(); ++i){
@@ -4514,6 +4534,13 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		for(int i=0; i < GameConstants::maxPlayers; ++i) {
 			int slot = gameSettings->getStartLocationIndex(i);
 
+			if(slot == clientInterface->getPlayerIndex()){
+				labelPlayerNames[slot].setEditable(true);
+			}
+			else {
+				labelPlayerNames[slot].setEditable(false);
+			}
+
 			if(i >= gameSettings->getFactionCount()) {
 				if( gameSettings->getFactionControl(i) != ctNetworkUnassigned) {
 					continue;
@@ -4528,19 +4555,19 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 				gameSettings->getFactionControl(i) == ctHuman) {
 				switch(gameSettings->getNetworkPlayerStatuses(i)) {
 					case npst_BeRightBack:
-						labelPlayerStatus[slot].setText(lang.get("PlayerStatusBeRightBack"));
+						labelPlayerStatus[slot].setText("#");
 						labelPlayerStatus[slot].setTextColor(Vec3f(1.f, 0.8f, 0.f));
 						break;
 					case npst_Ready:
-						labelPlayerStatus[slot].setText(lang.get("PlayerStatusReady"));
+						labelPlayerStatus[slot].setText("#");
 						labelPlayerStatus[slot].setTextColor(Vec3f(0.f, 1.f, 0.f));
 						break;
 					case npst_PickSettings:
-						labelPlayerStatus[slot].setText(lang.get("PlayerStatusSetup"));
+						labelPlayerStatus[slot].setText("#");
 						labelPlayerStatus[slot].setTextColor(Vec3f(1.f, 0.f, 0.f));
 						break;
 					case npst_Disconnected:
-						labelPlayerStatus[slot].setText(lang.get("Closed"));
+						labelPlayerStatus[slot].setText(lang.get("-"));
 						break;
 
 					default:
@@ -4821,18 +4848,19 @@ int MenuStateConnectedGame::setupTechList(string scenario, bool forceLoad) {
 
 		techTreeFiles= results;
 
+		vector<string> translatedTechs;
+
 		for(unsigned int i= 0; i < results.size(); i++) {
+			//printf("TECHS i = %d results [%s] scenario [%s]\n",i,results[i].c_str(),scenario.c_str());
+
 			results.at(i)= formatString(results.at(i));
 			if(config.getString("InitialTechTree", "Megapack") == results.at(i)) {
 				initialTechSelection= i;
 			}
-		}
-
-		vector<string> translatedTechs;
-		for(unsigned int i= 0; i < techTreeFiles.size(); i++) {
 			string txTech = techTree->getTranslatedName(techTreeFiles.at(i), forceLoad);
 			translatedTechs.push_back(formatString(txTech));
 		}
+
 
 		listBoxTechTree.setItems(results,translatedTechs);
 	}
