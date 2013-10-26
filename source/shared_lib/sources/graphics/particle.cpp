@@ -1788,9 +1788,17 @@ void ProjectileParticleSystem::update(){
 				pos= flatPos;
 #ifdef USE_STREFLOP
 				pos+= xVector * streflop::cos(static_cast<streflop::Simple>(relative * trajectoryFrequency * targetVector.length())) * trajectoryScale;
+				pos.x = truncateDecimal<float>(pos.x,6);
+				pos.y = truncateDecimal<float>(pos.y,6);
+				pos.z = truncateDecimal<float>(pos.z,6);
+
 				pos+= yVector * streflop::sin(static_cast<streflop::Simple>(relative * trajectoryFrequency * targetVector.length())) * trajectoryScale;
 #else
 				pos+= xVector * cos(relative * trajectoryFrequency * targetVector.length()) * trajectoryScale;
+				pos.x = truncateDecimal<float>(pos.x,6);
+				pos.y = truncateDecimal<float>(pos.y,6);
+				pos.z = truncateDecimal<float>(pos.z,6);
+
 				pos+= yVector * sin(relative * trajectoryFrequency * targetVector.length()) * trajectoryScale;
 #endif
 				pos.x = truncateDecimal<float>(pos.x,6);
@@ -1804,7 +1812,11 @@ void ProjectileParticleSystem::update(){
 				break;
 		}
 
-		direction= pos - lastPos;
+		direction= (pos - lastPos);
+		direction.x = truncateDecimal<float>(direction.x,6);
+		direction.y = truncateDecimal<float>(direction.y,6);
+		direction.z = truncateDecimal<float>(direction.z,6);
+
 		direction.normalize();
 		direction.x = truncateDecimal<float>(direction.x,6);
 		direction.y = truncateDecimal<float>(direction.y,6);
@@ -1908,6 +1920,13 @@ void ProjectileParticleSystem::updateParticle(Particle *p){
 }
 
 void ProjectileParticleSystem::setPath(Vec3f startPos, Vec3f endPos) {
+	startPos.x = truncateDecimal<float>(startPos.x,6);
+	startPos.y = truncateDecimal<float>(startPos.y,6);
+	startPos.z = truncateDecimal<float>(startPos.z,6);
+
+	endPos.x = truncateDecimal<float>(endPos.x,6);
+	endPos.y = truncateDecimal<float>(endPos.y,6);
+	endPos.z = truncateDecimal<float>(endPos.z,6);
 
 	//compute axis
 	zVector= endPos - startPos;
@@ -2172,7 +2191,15 @@ void SplashParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->speed= Vec3f(horizontalSpreadA * random.randRange(-1.0f, 1.0f) + horizontalSpreadB, verticalSpreadA
 	        * random.randRange(-1.0f, 1.0f) + verticalSpreadB, horizontalSpreadA * random.randRange(-1.0f, 1.0f)
 	        + horizontalSpreadB);
+	p->speed.x = truncateDecimal<float>(p->speed.x,6);
+	p->speed.y = truncateDecimal<float>(p->speed.y,6);
+	p->speed.z = truncateDecimal<float>(p->speed.z,6);
+
 	p->speed.normalize();
+	p->speed.x = truncateDecimal<float>(p->speed.x,6);
+	p->speed.y = truncateDecimal<float>(p->speed.y,6);
+	p->speed.z = truncateDecimal<float>(p->speed.z,6);
+
 	p->speed= p->speed * speed;
 	p->speed.x = truncateDecimal<float>(p->speed.x,6);
 	p->speed.y = truncateDecimal<float>(p->speed.y,6);

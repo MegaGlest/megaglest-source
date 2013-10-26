@@ -1478,6 +1478,10 @@ Vec3f Unit::getCurrVector() const{
 	}
 
 	Vec3f result = getCurrVectorFlat() + Vec3f(0.f, type->getHeight() / 2.f, 0.f);
+	result.x = truncateDecimal<float>(result.x,6);
+	result.y = truncateDecimal<float>(result.y,6);
+	result.z = truncateDecimal<float>(result.z,6);
+
 	return result;
 }
 
@@ -1503,14 +1507,25 @@ Vec3f Unit::getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) c
         v.x = lastPosValue.x + progressAsFloat * (curPosValue.x - lastPosValue.x);
         v.z = lastPosValue.y + progressAsFloat * (curPosValue.y - lastPosValue.y);
 		v.y = y1 + progressAsFloat * (y2-y1);
+
+		v.x = truncateDecimal<float>(v.x,6);
+		v.y = truncateDecimal<float>(v.y,6);
+		v.z = truncateDecimal<float>(v.z,6);
     }
     else {
         v.x = static_cast<float>(curPosValue.x);
         v.z = static_cast<float>(curPosValue.y);
         v.y = y2;
+
+		v.x = truncateDecimal<float>(v.x,6);
+		v.y = truncateDecimal<float>(v.y,6);
+		v.z = truncateDecimal<float>(v.z,6);
     }
     v.x += type->getSize() / 2.f - 0.5f;
     v.z += type->getSize() / 2.f - 0.5f;
+
+	v.x = truncateDecimal<float>(v.x,6);
+	v.z = truncateDecimal<float>(v.z,6);
 
     return v;
 }
@@ -3405,7 +3420,8 @@ float Unit::computeHeight(const Vec2i &pos) const {
 	float height= map->getCell(pos)->getHeight();
 
 	if(currField == fAir) {
-		const float airHeight=game->getWorld()->getTileset()->getAirHeight();
+		float airHeight = game->getWorld()->getTileset()->getAirHeight();
+		airHeight = truncateDecimal<float>(airHeight,6);
 
 		height += airHeight;
 		height = truncateDecimal<float>(height,6);
@@ -4310,6 +4326,8 @@ std::string Unit::toString(bool crcMode) const {
     	result += "randomlastCaller = " + random.getLastCaller() + "\n";
     }
     result += "pathFindRefreshCellCount = " + intToStr(pathFindRefreshCellCount) + "\n";
+
+    result += "currentPathFinderDesiredFinalPos = " + currentPathFinderDesiredFinalPos.getString() + "\n";
 
 	result += "lastStuckFrame = " + uIntToStr(lastStuckFrame) + "\n";
 	result += "lastStuckPos = " + lastStuckPos.getString() + "\n";
@@ -5292,7 +5310,7 @@ Checksum Unit::getCRC() {
 	//CauseOfDeathType causeOfDeath;
 
 	//uint32 pathfindFailedConsecutiveFrameCount;
-	//Vec2i currentPathFinderDesiredFinalPos;
+	crcForUnit.addString(this->currentPathFinderDesiredFinalPos.getString());
 
 	crcForUnit.addInt(random.getLastNumber());
 	if(this->random.getLastCaller() != "") {
