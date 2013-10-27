@@ -2886,7 +2886,36 @@ void Renderer::renderLabel(GraphicLabel *label) {
 	    }
 	}
 
+	if(label->getTexture()!=NULL )
+	{
+	    int x= label->getX();
+	    int y= label->getY();
+	    int h= label->getH();
+	    int w= label->getW();
+	    if(h>0){
+	    	//background
+			glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+			glEnable(GL_BLEND);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, static_cast<Texture2DGl*>( label->getTexture())->getHandle());
+	    	glColor4f(1.0f, 1.0f, 1.0f, 1.0f*label->getFade()) ;
+	    	glBegin(GL_TRIANGLE_STRIP);
+	    		glTexCoord2f(0.f, 0.f);
+	    		glVertex2f(x, y);
 
+	    		glTexCoord2f(0.f, 1.f);
+	    		glVertex2f(x, y+h);
+
+	    		glTexCoord2f(1.f, 0.f);
+	    		glVertex2f(x+w, y);
+
+	    		glTexCoord2f(1.f, 1.f);
+	    		glVertex2f(x+w, y+h);
+	    	glEnd();
+	    	glDisable(GL_TEXTURE_2D);
+	    	glPopAttrib();
+	    }
+	}
 	Vec3f labelColor=label->getTextColor();
 	Vec4f colorWithAlpha = Vec4f(labelColor.x,labelColor.y,labelColor.z,GraphicComponent::getFade());
 	renderLabel(label,&colorWithAlpha);

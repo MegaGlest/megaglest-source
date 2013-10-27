@@ -282,6 +282,7 @@ GraphicLabel::GraphicLabel() {
 	maxEditWidth = -1;
 	maxEditRenderWidth = -1;
 	isPassword = false;
+	texture = NULL;
 }
 
 void GraphicLabel::init(int x, int y, int w, int h, bool centered, Vec3f textColor, bool wordWrap) {

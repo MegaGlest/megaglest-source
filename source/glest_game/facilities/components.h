@@ -149,6 +149,7 @@ private:
 
 	vector<int> textCharLength;
 	bool isPassword;
+	Texture2D *texture;
 
 public:
 	GraphicLabel();
@@ -189,6 +190,8 @@ public:
 	void setMaxEditRenderWidth(int value) { maxEditRenderWidth = value; }
 	int getMaxEditRenderWidth() const { return maxEditRenderWidth; }
 
+	void setTexture(Texture2D *value) { texture = value; }
+	Texture2D *getTexture() const { return texture; }
 };
 
 // ===========================================================

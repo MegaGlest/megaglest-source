@@ -157,6 +157,15 @@ Texture2D *CoreData::getTextureBySystemId(TextureSystemType type) const {
 	case tsyst_onServerInstalledTexture:
 		result = onServerInstalledTexture;
 		break;
+	case tsyst_statusReadyTexture:
+		result = statusReadyTexture;
+		break;
+	case tsyst_statusNotReadyTexture:
+		result = statusNotReadyTexture;
+		break;
+	case tsyst_statusBRBTexture:
+		result = statusBRBTexture;
+		break;
 
     //std::vector<Texture2D *> miscTextureList;
 	}
@@ -205,6 +214,24 @@ void CoreData::load() {
 		snowTexture->getPixmap()->init(1);
 		snowTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/misc_textures/snow_particle.tga"));
 		snowTexture->setTextureSystemId(tsyst_snowTexture);
+	}
+
+    statusReadyTexture= renderer.newTexture2D(rsGlobal);
+	if(statusReadyTexture) {
+		statusReadyTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/status_ready.png"));
+		statusReadyTexture->setTextureSystemId(tsyst_statusReadyTexture);
+	}
+
+    statusNotReadyTexture= renderer.newTexture2D(rsGlobal);
+	if(statusNotReadyTexture) {
+		statusNotReadyTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/status_notready.png"));
+		statusNotReadyTexture->setTextureSystemId(tsyst_statusNotReadyTexture);
+	}
+
+    statusBRBTexture= renderer.newTexture2D(rsGlobal);
+	if(statusBRBTexture) {
+		statusBRBTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/status_brb.png"));
+		statusBRBTexture->setTextureSystemId(tsyst_statusBRBTexture);
 	}
 
 	customTexture= renderer.newTexture2D(rsGlobal);
