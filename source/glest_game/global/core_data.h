@@ -72,6 +72,9 @@ private:
     Texture2D *onServerDifferentTexture;
     Texture2D *onServerTexture;
     Texture2D *onServerInstalledTexture;
+    Texture2D *statusReadyTexture;
+    Texture2D *statusNotReadyTexture;
+    Texture2D *statusBRBTexture;
 
     std::vector<Texture2D *> miscTextureList;
 
@@ -125,7 +128,10 @@ public:
 		tsyst_notOnServerTexture,
 		tsyst_onServerDifferentTexture,
 		tsyst_onServerTexture,
-		tsyst_onServerInstalledTexture
+		tsyst_onServerInstalledTexture,
+		tsyst_statusReadyTexture,
+		tsyst_statusNotReadyTexture,
+		tsyst_statusBRBTexture
 
 	    //std::vector<Texture2D *> miscTextureList;
 	};
@@ -158,6 +164,9 @@ public:
 	Texture2D *getOnServerDifferentTexture() const			{return onServerDifferentTexture;}
 	Texture2D *getOnServerTexture() const			{return onServerTexture;}
 	Texture2D *getOnServerInstalledTexture() const			{return onServerInstalledTexture;}
+    Texture2D *getStatusReadyTexture() const			{return statusReadyTexture;}
+    Texture2D *getStatusNotReadyTexture() const			{return statusNotReadyTexture;}
+    Texture2D *getStatusBRBTexture() const			{return statusBRBTexture;}
 
 	Texture2D *getGameWinnerTexture() const		{return gameWinnerTexture;}
 

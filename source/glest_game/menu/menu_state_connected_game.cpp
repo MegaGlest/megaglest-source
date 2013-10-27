@@ -298,7 +298,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	xoffset=40;
+	xoffset=30;
 	int rowHeight=27;
     for(int i=0; i<GameConstants::maxPlayers; ++i){
     	labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
@@ -308,50 +308,50 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 		labelPlayers[i].setEditable(false);
 
 		labelPlayerStatus[i].registerGraphicComponent(containerName,"labelPlayerStatus" + intToStr(i));
-		labelPlayerStatus[i].init(xoffset+12, setupPos-30-i*rowHeight, 60);
+		labelPlayerStatus[i].init(xoffset+15, setupPos-30-i*rowHeight, 60);
 		labelPlayerNames[i].registerGraphicComponent(containerName,"labelPlayerNames" + intToStr(i));
-		labelPlayerNames[i].init(xoffset+20,setupPos-30-i*rowHeight);
+		labelPlayerNames[i].init(xoffset+30,setupPos-30-i*rowHeight);
 
 		listBoxControls[i].registerGraphicComponent(containerName,"listBoxControls" + intToStr(i));
-        listBoxControls[i].init(xoffset+160, setupPos-30-i*rowHeight);
+        listBoxControls[i].init(xoffset+170, setupPos-30-i*rowHeight);
         listBoxControls[i].setEditable(false);
 
         listBoxRMultiplier[i].registerGraphicComponent(containerName,"listBoxRMultiplier" + intToStr(i));
-        listBoxRMultiplier[i].init(xoffset+300, setupPos-30-i*rowHeight,70);
+        listBoxRMultiplier[i].init(xoffset+310, setupPos-30-i*rowHeight,70);
         listBoxRMultiplier[i].setEditable(false);
 
         listBoxFactions[i].registerGraphicComponent(containerName,"listBoxFactions" + intToStr(i));
-        listBoxFactions[i].init(xoffset+380, setupPos-30-i*rowHeight, 250);
+        listBoxFactions[i].init(xoffset+390, setupPos-30-i*rowHeight, 250);
         listBoxFactions[i].setLeftControlled(true);
         listBoxFactions[i].setEditable(false);
 
         listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
-		listBoxTeams[i].init(xoffset+640, setupPos-30-i*rowHeight, 60);
+		listBoxTeams[i].init(xoffset+650, setupPos-30-i*rowHeight, 60);
 		listBoxTeams[i].setEditable(false);
 
 		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
-		labelNetStatus[i].init(xoffset+705, setupPos-30-i*rowHeight, 60);
+		labelNetStatus[i].init(xoffset+715, setupPos-30-i*rowHeight, 60);
 		labelNetStatus[i].setFont(CoreData::getInstance().getDisplayFontSmall());
 		labelNetStatus[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
 		grabSlotButton[i].registerGraphicComponent(containerName,"grabSlotButton" + intToStr(i));
-		grabSlotButton[i].init(xoffset+710, setupPos-30-i*rowHeight, 30);
+		grabSlotButton[i].init(xoffset+720, setupPos-30-i*rowHeight, 30);
 		grabSlotButton[i].setText(">");
     }
 
     labelControl.registerGraphicComponent(containerName,"labelControl");
-	labelControl.init(xoffset+160, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+	labelControl.init(xoffset+170, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
 	labelControl.setText(lang.get("Control"));
 
 	labelRMultiplier.registerGraphicComponent(containerName,"labelRMultiplier");
-	labelRMultiplier.init(xoffset+300, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+	labelRMultiplier.init(xoffset+310, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
 
 	labelFaction.registerGraphicComponent(containerName,"labelFaction");
-    labelFaction.init(xoffset+380, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelFaction.init(xoffset+390, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
     labelFaction.setText(lang.get("Faction"));
 
     labelTeam.registerGraphicComponent(containerName,"labelTeam");
-    labelTeam.init(xoffset+640, setupPos, 60, GraphicListBox::defH, true);
+    labelTeam.init(xoffset+650, setupPos, 60, GraphicListBox::defH, true);
 	labelTeam.setText(lang.get("Team"));
 
     labelControl.setFont(CoreData::getInstance().getMenuFontBig());
@@ -390,8 +390,11 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	for(int i=0; i<GameConstants::maxPlayers; ++i){
 		labelPlayerStatus[i].setText("");
+		labelPlayerStatus[i].setTexture(NULL);
+		labelPlayerStatus[i].setH(16);
+		labelPlayerStatus[i].setW(12);
 
-		labelPlayers[i].setText(intToStr(i));
+		labelPlayers[i].setText(intToStr(i+1));
 		labelPlayerNames[i].setText("");
 		labelPlayerNames[i].setMaxEditWidth(16);
 		labelPlayerNames[i].setMaxEditRenderWidth(135);
@@ -684,7 +687,7 @@ void MenuStateConnectedGame::reloadUI() {
 	}
 
 	for(int i=0; i < GameConstants::maxPlayers; ++i) {
-		labelPlayers[i].setText(intToStr(i));
+		labelPlayers[i].setText(intToStr(i+1));
 		listBoxControls[i].setItems(controlItems);
     }
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -4523,7 +4526,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 			}
 		}
 
-		labelPlayerStatus[i].setText("");
+		labelPlayerStatus[i].setTexture(NULL);;
 	}
 
 	if(hasFactions == true && gameSettings != NULL) {
@@ -4555,23 +4558,20 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 				gameSettings->getFactionControl(i) == ctHuman) {
 				switch(gameSettings->getNetworkPlayerStatuses(i)) {
 					case npst_BeRightBack:
-						labelPlayerStatus[slot].setText("#");
-						labelPlayerStatus[slot].setTextColor(Vec3f(1.f, 0.8f, 0.f));
+						labelPlayerStatus[slot].setTexture(CoreData::getInstance().getStatusBRBTexture());
 						break;
 					case npst_Ready:
-						labelPlayerStatus[slot].setText("#");
-						labelPlayerStatus[slot].setTextColor(Vec3f(0.f, 1.f, 0.f));
+						labelPlayerStatus[slot].setTexture(CoreData::getInstance().getStatusReadyTexture());
 						break;
 					case npst_PickSettings:
-						labelPlayerStatus[slot].setText("#");
-						labelPlayerStatus[slot].setTextColor(Vec3f(1.f, 0.f, 0.f));
+						labelPlayerStatus[slot].setTexture(CoreData::getInstance().getStatusNotReadyTexture());
 						break;
 					case npst_Disconnected:
-						labelPlayerStatus[slot].setText(lang.get("-"));
+						labelPlayerStatus[slot].setTexture(NULL);
 						break;
 
 					default:
-						labelPlayerStatus[slot].setText("");
+						labelPlayerStatus[slot].setTexture(NULL);
 						break;
 				}
 			}
