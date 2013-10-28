@@ -102,8 +102,7 @@ std::string utf8_encode(const std::wstring &wstr);
 std::wstring utf8_decode(const std::string &str);
 std::string getRegKey(const std::string& location, const std::string& name);
 
-void message(string message);
-bool ask(string message);
+void message(string message, bool isNonGraphicalModeEnabled);
 void exceptionMessage(const exception &excp);
 string getCommandLine();
 void init_win32();
