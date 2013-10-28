@@ -78,24 +78,17 @@ bool showMessage(const std::string & warning) {
   return guiMessage;
 }
 
-void message(string message) {
-	showMessage(message);
-
+void message(string message, bool isNonGraphicalModeEnabled) {
 	std::cerr << "******************************************************\n";
 	std::cerr << "    " << message << "\n";
 	std::cerr << "******************************************************\n";
-}
 
-bool ask(string message) {
-	std::cerr << "Confirmation: " << message << "\n";
-	int res;
-	std::cin >> res;
-	return res != 0;
+	if(isNonGraphicalModeEnabled == false) {
+		showMessage(message);
+	}
 }
 
 void exceptionMessage(const exception &excp) {
-	//showMessage(excp.what());
-
 	std::cerr << "Exception: " << excp.what() << std::endl;
 }
 

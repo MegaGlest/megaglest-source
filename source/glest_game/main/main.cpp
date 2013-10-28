@@ -548,7 +548,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
         	mainProgram->showMessage(msg.c_str());
         }
 
-        message(msg.c_str());
+        message(msg.c_str(),GlobalStaticFlags::getIsNonGraphicalModeEnabled());
 }
 #endif
 
@@ -564,7 +564,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
         	mainProgram->showMessage(msg.c_str());
         }
 
-        message(msg.c_str());
+        message(msg.c_str(),GlobalStaticFlags::getIsNonGraphicalModeEnabled());
 	}
 
     void ExceptionHandler::logError(const char *msg, bool confirmToConsole) {
@@ -733,7 +733,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 #endif
             if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			message(err);
+			message(err,GlobalStaticFlags::getIsNonGraphicalModeEnabled());
         }
 
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -789,7 +789,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
         }
         else {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
-            message(msg);
+            message(msg,GlobalStaticFlags::getIsNonGraphicalModeEnabled());
         }
 
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
@@ -5434,7 +5434,7 @@ int glestMain(int argc, char** argv) {
 			if(program != NULL &&
 				program->getTryingRendererInit() == true &&
 				program->getRendererInitOk() == false) {
-				message(e.what());
+				message(e.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled());
 			}
 		}
 
@@ -5586,7 +5586,7 @@ static bool MinidumpCallback(const google_breakpad::MinidumpDescriptor& descript
 	  char szBuf[8096];
 	  snprintf(szBuf,8096,"An unhandled error was detected.\n\nA crash dump file has been created in the folder:\n%s\nCrash dump filename is: %s",descriptor.directory().c_str(),descriptor.path());
 	  //MessageBox(NULL, szBuf, "Unhandled error", MB_OK|MB_SYSTEMMODAL);
-	  message(szBuf);
+	  message(szBuf,GlobalStaticFlags::getIsNonGraphicalModeEnabled());
   }
 
   return succeeded;
