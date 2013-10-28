@@ -325,21 +325,16 @@ megaglest_runtime_error::megaglest_runtime_error(const string& __arg,bool noStac
 //	assert(dispChangeErr==DISP_CHANGE_SUCCESSFUL);
 //}
 
-void message(string message){
+void message(string message, bool isNonGraphicalModeEnabled) {
 	std::cerr << "******************************************************\n";
 	std::cerr << "    " << message << "\n";
 	std::cerr << "******************************************************\n";
 
-	LPWSTR wstr = Ansi2WideString(message.c_str());
-	MessageBox(NULL, wstr, L"Message", MB_OK | MB_SYSTEMMODAL);
-	if(wstr) delete [] wstr;
-}
-
-bool ask(string message){
-	LPWSTR wstr = Ansi2WideString(message.c_str());	
-	bool result = MessageBox(NULL, wstr, L"Confirmation", MB_YESNO | MB_SYSTEMMODAL) == IDYES;
-	if(wstr) delete [] wstr;
-	return result;
+	if(isNonGraphicalModeEnabled == false) {
+		LPWSTR wstr = Ansi2WideString(message.c_str());
+		MessageBox(NULL, wstr, L"Message", MB_OK | MB_SYSTEMMODAL);
+		if(wstr) delete [] wstr;
+	}
 }
 
 void exceptionMessage(const exception &excp){
