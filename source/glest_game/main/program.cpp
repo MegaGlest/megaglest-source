@@ -172,6 +172,9 @@ void Program::ShowMessageProgramState::update() {
 
 // ===================== PUBLIC ========================
 
+bool Program::rendererInitOk = false;
+bool Program::tryingRendererInit = false;
+
 Program::Program() {
 	//this->masterserverMode = false;
 	this->window = NULL;
@@ -785,7 +788,10 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//init renderer (load global textures)
+    tryingRendererInit = true;
 	renderer.init();
+	tryingRendererInit = false;
+	rendererInitOk = true;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 

@@ -5431,9 +5431,18 @@ int glestMain(int argc, char** argv) {
 				soundRenderer.stopAllSounds(shutdownFadeSoundMilliseconds);
 				chronoshutdownFadeSound.start();
 			}
+			if(program != NULL &&
+				program->getTryingRendererInit() == true &&
+				program->getRendererInitOk() == false) {
+				message(e.what());
+			}
 		}
 
-		ExceptionHandler::handleRuntimeError(e);
+		if(program == NULL || program->getTryingRendererInit() == false ||
+			(program->getTryingRendererInit() == true &&
+				program->getRendererInitOk() == true)) {
+			ExceptionHandler::handleRuntimeError(e);
+		}
 	}
 	catch(const exception &e) {
 		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {

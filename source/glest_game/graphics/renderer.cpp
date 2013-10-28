@@ -7589,12 +7589,12 @@ void Renderer::checkGlCaps() {
 	if(glActiveTexture == NULL) {
 		string message;
 
-		message += "Your system supports OpenGL version \"";
- 		message += getGlVersion() + string("\"\n");
+		message += "Your system supports OpenGL version [";
+ 		message += getGlVersion() + string("]\n");
  		message += "MegaGlest needs a version that supports\n";
  		message += "glActiveTexture (OpenGL 1.3) or the ARB_multitexture extension.";
 
- 		throw megaglest_runtime_error(message.c_str());
+ 		throw megaglest_runtime_error(message.c_str(),true);
 	}
 
 	//opengl 1.3
@@ -7602,12 +7602,12 @@ void Renderer::checkGlCaps() {
 	if(glewIsSupported("GL_VERSION_1_3") == false) {
 		string message;
 
-		message += "Your system supports OpenGL version \"";
- 		message += getGlVersion() + string("\"\n");
+		message += "Your system supports OpenGL version [";
+ 		message += getGlVersion() + string("]\n");
  		message += "MegaGlest needs at least version 1.3 to work\n";
  		message += "You may solve this problem by installing your latest video card drivers";
 
- 		throw megaglest_runtime_error(message.c_str());
+ 		throw megaglest_runtime_error(message.c_str(),true);
 	}
 
 	//opengl 1.4 or extension
