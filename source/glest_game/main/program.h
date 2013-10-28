@@ -159,11 +159,17 @@ private:
     bool shutdownApplicationEnabled;
     static bool wantShutdownApplicationAfterGame;
 
+    static bool tryingRendererInit;
+    static bool rendererInitOk;
+
 public:
     Program();
     virtual ~Program();
 
-    static Program *getInstance()	{return singleton;}
+    static bool getTryingRendererInit() { return tryingRendererInit; }
+    static bool getRendererInitOk() { return rendererInitOk; }
+
+    static Program *getInstance()	{ return singleton;      }
 
     static void setWantShutdownApplicationAfterGame(bool value) { wantShutdownApplicationAfterGame = value; }
     static bool getWantShutdownApplicationAfterGame() { return wantShutdownApplicationAfterGame; }

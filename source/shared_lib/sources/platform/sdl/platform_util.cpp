@@ -33,7 +33,54 @@ namespace Shared{ namespace Platform{
 string PlatformExceptionHandler::application_binary="";
 bool PlatformExceptionHandler::disableBacktrace = false;
 
+const char * getDialogCommand() {
+
+/*
+  if (::system(NULL)) {
+    if (::system("which gdialog") == 0)
+      return "gdialog";
+    else if (::system("which kdialog") == 0)
+      return "kdialog";
+  }
+*/
+
+  FILE *file = popen("which gdialog","r");
+  //printf("File #1 [%p]\n",file);
+  if (file != NULL) {
+	  pclose(file);
+	  return "gdialog";
+  }
+  file = popen("which kdialog","r");
+  //printf("File #2 [%p]\n",file);
+  if (file != NULL) {
+	  pclose(file);
+	  return "kdialog";
+  }
+
+  return NULL;
+}
+
+bool showMessage(const std::string & warning) {
+  bool guiMessage = false;
+  const char * dialogCommand = getDialogCommand();
+  if (dialogCommand) {
+    std::string command = dialogCommand;
+    command += " --title \"Error\" --msgbox \"`printf \"" + warning + "\"`\"";
+
+    //printf("\n\n\nzenity command [%s]\n\n\n",command.c_str());
+
+    FILE *fp = popen(command.c_str(),"r");
+    if (fp != 0)
+    	guiMessage = true;
+    	pclose(fp);
+  }
+
+  return guiMessage;
+}
+
 void message(string message) {
+	showMessage(message);
+
 	std::cerr << "******************************************************\n";
 	std::cerr << "    " << message << "\n";
 	std::cerr << "******************************************************\n";
@@ -47,6 +94,8 @@ bool ask(string message) {
 }
 
 void exceptionMessage(const exception &excp) {
+	//showMessage(excp.what());
+
 	std::cerr << "Exception: " << excp.what() << std::endl;
 }
 
