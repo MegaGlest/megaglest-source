@@ -694,30 +694,35 @@ string Unit::getParticleInfo() const {
 }
 
 void Unit::end(ParticleSystem *particleSystem) {
+	if(particleSystem == fire) {
+		fire = NULL;
+	}
+
 	vector<ParticleSystem*>::iterator iterFind = find(attackParticleSystems.begin(),attackParticleSystems.end(),particleSystem);
 	if(iterFind != attackParticleSystems.end()) {
 		attackParticleSystems.erase(iterFind);
+		return;
 	}
 	vector<UnitParticleSystem*>::iterator iterFind1 = find(smokeParticleSystems.begin(),smokeParticleSystems.end(),particleSystem);
 	if(iterFind1 != smokeParticleSystems.end()) {
 		smokeParticleSystems.erase(iterFind1);
+		return;
 	}
 	iterFind = find(fireParticleSystems.begin(),fireParticleSystems.end(),particleSystem);
 	if(iterFind != fireParticleSystems.end()) {
 		fireParticleSystems.erase(iterFind);
+		return;
 	}
 	iterFind1 = find(damageParticleSystems.begin(),damageParticleSystems.end(),particleSystem);
 	if(iterFind1 != damageParticleSystems.end()) {
 		damageParticleSystems.erase(iterFind1);
+		return;
 	}
 
 	iterFind1 = find(unitParticleSystems.begin(),unitParticleSystems.end(),particleSystem);
 	if(iterFind1 != unitParticleSystems.end()) {
 		unitParticleSystems.erase(iterFind1);
-	}
-
-	if(particleSystem == fire) {
-		fire = NULL;
+		return;
 	}
 }
 
@@ -5229,10 +5234,12 @@ Checksum Unit::getCRC() {
 	if(consoleDebug) printf("#11 Unit: %d CRC: %u commands.size(): %ld\n",id,crcForUnit.getSum(),commands.size());
 
     //Commands commands;
-	crcForUnit.addInt64((int64)commands.size());
-	for(Commands::const_iterator it= commands.begin(); it != commands.end(); ++it) {
-		uint32 crc = (*it)->getCRC().getSum();
-		crcForUnit.addBytes(&crc,sizeof(uint32));
+	if(commands.empty() == false) {
+		crcForUnit.addInt(commands.size());
+		for(Commands::const_iterator it= commands.begin(); it != commands.end(); ++it) {
+			uint32 crc = (*it)->getCRC().getSum();
+			crcForUnit.addBytes(&crc,sizeof(uint32));
+		}
 	}
 
 	//printf("#11 Unit: %d CRC: %u observers.size(): %ld\n",id,crcForUnit.getSum(),observers.size());
@@ -5246,7 +5253,7 @@ Checksum Unit::getCRC() {
 	//vector<UnitParticleSystemType*> queuedUnitParticleSystemTypes;
 
 	//UnitParticleSystems damageParticleSystems;
-	crcForUnit.addInt64((int64)damageParticleSystems.size());
+	crcForUnit.addInt(damageParticleSystems.size());
 
 	if(consoleDebug) printf("#12 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
 
@@ -5264,7 +5271,6 @@ Checksum Unit::getCRC() {
 	//std::string lastSource;
 	//int lastRenderFrame;
 	//bool visible;
-	crcForUnit.addInt(modelFacing);
 
 	//int retryCurrCommandCount;
 
@@ -5275,7 +5281,7 @@ Checksum Unit::getCRC() {
 
 	crcForUnit.addInt(inBailOutAttempt);
 
-	crcForUnit.addInt64((int64)badHarvestPosList.size());
+	crcForUnit.addInt(badHarvestPosList.size());
 	//crcForUnit.addInt(lastHarvestResourceTarget.first());
 
 	if(consoleDebug) printf("#14 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
@@ -5295,7 +5301,7 @@ Checksum Unit::getCRC() {
 	//int maxQueuedCommandDisplayCount;
 
 	//UnitAttackBoostEffectOriginator currentAttackBoostOriginatorEffect;
-	crcForUnit.addInt64((int64)currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size());
+	crcForUnit.addInt(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size());
 
 	if(consoleDebug) printf("#15 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
 
@@ -5329,17 +5335,19 @@ Checksum Unit::getCRC() {
 
 	if(consoleDebug) printf("#17 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
 
-	if(getParticleInfo() != "") {
+	if(this->getParticleInfo() != "") {
 		crcForUnit.addString(this->getParticleInfo());
 	}
 
-	crcForUnit.addInt64((int64)attackParticleSystems.size());
-	for(unsigned int index = 0; index < attackParticleSystems.size(); ++index) {
-		ParticleSystem *ps = attackParticleSystems[index];
-		if(ps != NULL &&
-				Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
-			uint32 crc = ps->getCRC().getSum();
-			crcForUnit.addBytes(&crc,sizeof(uint32));
+	crcForUnit.addInt(attackParticleSystems.size());
+	if(isNetworkCRCEnabled() == true) {
+		for(unsigned int index = 0; index < attackParticleSystems.size(); ++index) {
+			ParticleSystem *ps = attackParticleSystems[index];
+			if(ps != NULL &&
+					Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
+				uint32 crc = ps->getCRC().getSum();
+				crcForUnit.addBytes(&crc,sizeof(uint32));
+			}
 		}
 	}
 
