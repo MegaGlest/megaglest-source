@@ -32,20 +32,17 @@ using Shared::Util::Properties;
 
 class Lang {
 private:
-	string language;
-	bool is_utf8_language;
 
-	Properties gameStringsMainLanguage;
-	std::map<string,Properties> gameStringsOtherLanguages;
+	bool is_utf8_language;
+	string language;
+	std::map<string,Properties> gameStringsAllLanguages;
 
 	Properties scenarioStrings;
-
-	Properties techTreeStrings;
-	Properties techTreeStringsDefault;
 
 	Properties tilesetStrings;
 	Properties tilesetStringsDefault;
 
+	std::map<string, std::map<string, Properties> > techTreeStringsAllLanguages;
 	string techNameLoaded;
 	bool allowNativeLanguageTechtree;
 
