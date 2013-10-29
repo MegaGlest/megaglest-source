@@ -57,6 +57,7 @@ private:
 public:
 	static Lang &getInstance();    
 
+	string getTechNameLoaded() const { return techNameLoaded; }
 	bool getAllowNativeLanguageTechtree() const { return allowNativeLanguageTechtree; }
 	void setAllowNativeLanguageTechtree(bool value) { allowNativeLanguageTechtree = value; }
 

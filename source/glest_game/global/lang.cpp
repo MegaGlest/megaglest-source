@@ -276,6 +276,8 @@ void Lang::loadScenarioStrings(string scenarioDir, string scenarioName, bool isT
 void Lang::loadTechTreeStrings(string techTree,bool forceLoad) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] techTree = [%s]\n",__FILE__,__FUNCTION__,__LINE__,techTree.c_str());
 
+	//printf("Line: %d techTree = %s forceLoad = %d\n",__LINE__,techTree.c_str(),forceLoad);
+
 	if(forceLoad == false && techTree == techNameLoaded) {
 		return;
 	}
@@ -302,11 +304,20 @@ void Lang::loadTechTreeStrings(string techTree,bool forceLoad) {
 	//techTreeStrings.clear();
 	//techTreeStringsDefault.clear();
 
+	//printf("Line: %d techTree = %s this->language = %s forceLoad = %d path = %s\n",__LINE__,techTree.c_str(),this->language.c_str(),forceLoad,path.c_str());
+
 	//try to load the current language first
 	if(fileExists(path)) {
 		if(forceLoad == true ||
 			path != techTreeStringsAllLanguages[techTree][this->language].getpath()) {
+
+			//printf("Line: %d techTree = %s forceLoad = %d path = %s\n",__LINE__,techTree.c_str(),forceLoad,path.c_str());
+
 			techTreeStringsAllLanguages[techTree][this->language].load(path);
+			techNameLoaded = techTree;
+		}
+		else if(path == techTreeStringsAllLanguages[techTree][this->language].getpath() &&
+				techTree != techNameLoaded) {
 			techNameLoaded = techTree;
 		}
 	}
@@ -318,10 +329,18 @@ void Lang::loadTechTreeStrings(string techTree,bool forceLoad) {
 		path = techTreeFolder + "lang/" + techTree + "_" + default_language + ".lng";
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] path = [%s]\n",__FILE__,__FUNCTION__,__LINE__,path.c_str());
 
+		//printf("Line: %d techTree = %s forceLoad = %d path = %s\n",__LINE__,techTree.c_str(),forceLoad,path.c_str());
+
 		if(fileExists(path)) {
 			if(forceLoad == true ||
 				path != techTreeStringsAllLanguages[techTree][default_language].getpath()) {
+				//printf("Line: %d techTree = %s forceLoad = %d path = %s\n",__LINE__,techTree.c_str(),forceLoad,path.c_str());
+
 				techTreeStringsAllLanguages[techTree][default_language].load(path);
+				techNameLoaded = techTree;
+			}
+			else if(path == techTreeStringsAllLanguages[techTree][default_language].getpath() &&
+					techTree != techNameLoaded) {
 				techNameLoaded = techTree;
 			}
 		}
@@ -329,9 +348,18 @@ void Lang::loadTechTreeStrings(string techTree,bool forceLoad) {
 
 	if(fileExists(pathDefault)) {
 		string default_language = "default";
+
+		//printf("Line: %d techTree = %s forceLoad = %d default_language = %s\n",__LINE__,techTree.c_str(),forceLoad,default_language.c_str());
+
 		if(forceLoad == true ||
 			pathDefault != techTreeStringsAllLanguages[techTree][default_language].getpath()) {
+			//printf("Line: %d techTree = %s forceLoad = %d pathDefault = %s\n",__LINE__,techTree.c_str(),forceLoad,pathDefault.c_str());
+
 			techTreeStringsAllLanguages[techTree][default_language].load(pathDefault);
+			techNameLoaded = techTree;
+		}
+		else if(pathDefault == techTreeStringsAllLanguages[techTree][default_language].getpath() &&
+				techTree != techNameLoaded) {
 			techNameLoaded = techTree;
 		}
 	}
@@ -504,19 +532,30 @@ string Lang::getTechTreeString(const string &s,const char *defaultValue) {
 		string default_language = "default";
 		string result = "";
 
+		//printf("Line: %d techNameLoaded = %s s = %s this->language = %s\n",__LINE__,techNameLoaded.c_str(),s.c_str(),this->language.c_str());
+
 		if(allowNativeLanguageTechtree == true &&
 			(techTreeStringsAllLanguages[techNameLoaded][this->language].hasString(s) == true ||
 					defaultValue == NULL)) {
 			if(techTreeStringsAllLanguages[techNameLoaded][this->language].hasString(s) == false &&
 					techTreeStringsAllLanguages[techNameLoaded][default_language].hasString(s) == true) {
+
+				//printf("Line: %d techNameLoaded = %s s = %s this->language = %s\n",__LINE__,techNameLoaded.c_str(),s.c_str(),this->language.c_str());
+
 				result = techTreeStringsAllLanguages[techNameLoaded][default_language].getString(s);
 			}
 			else {
+
+				//printf("Line: %d techNameLoaded = %s s = %s this->language = %s\n",__LINE__,techNameLoaded.c_str(),s.c_str(),this->language.c_str());
+
 				result = techTreeStringsAllLanguages[techNameLoaded][this->language].getString(s);
 			}
 		}
 		else if(allowNativeLanguageTechtree == true &&
 				techTreeStringsAllLanguages[techNameLoaded][default_language].hasString(s) == true) {
+
+			//printf("Line: %d techNameLoaded = %s s = %s this->language = %s\n",__LINE__,techNameLoaded.c_str(),s.c_str(),this->language.c_str());
+
 			result = techTreeStringsAllLanguages[techNameLoaded][default_language].getString(s);
 		}
 		else if(defaultValue != NULL) {
