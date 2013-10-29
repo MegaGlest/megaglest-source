@@ -3202,7 +3202,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
         gameSettings->setFlagTypes1(valueFlags1);
 
 	}
-	if(Config::getInstance().getBool("EnableNetworkGameSynchMonitor","true") == true) {
+	if(Config::getInstance().getBool("EnableNetworkGameSynchMonitor","false") == true) {
 		//printf("*WARNING* - EnableNetworkGameSynchChecks is enabled\n");
 
         valueFlags1 |= ft1_network_synch_checks;

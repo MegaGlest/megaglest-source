@@ -1700,29 +1700,38 @@ void Game::processNetworkSynchChecksIfRequired() {
 	bool isNetworkGame = this->gameSettings.isNetworkGame();
 	if (isNetworkGame == true && NetworkManager::getInstance().getGameNetworkInterface() != NULL) {
 		GameSettings *settings = world.getGameSettingsPtr();
+		if(settings != NULL) {
+			bool calculateNetworkCRC = false;
 
+			if(isFlagType1BitEnabled(settings->getFlagTypes1(),ft1_network_synch_checks) == true ||
+				isFlagType1BitEnabled(settings->getFlagTypes1(),ft1_network_synch_checks_verbose) == true) {
+				calculateNetworkCRC = true;
+			}
 
-		NetworkManager &networkManager = NetworkManager::getInstance();
-		NetworkRole role = networkManager.getNetworkRole();
+			if(calculateNetworkCRC == true) {
+				NetworkManager &networkManager = NetworkManager::getInstance();
+				NetworkRole role = networkManager.getNetworkRole();
 
-		NetworkInterface *netIntf = networkManager.getGameNetworkInterface();
-		for(int index = 0; index < GameConstants::maxPlayers; ++index) {
-			if(index < world.getFactionCount()) {
-				Faction *faction = world.getFaction(index);
-				netIntf->setNetworkPlayerFactionCRC(index,faction->getCRC().getSum());
+				NetworkInterface *netIntf = networkManager.getGameNetworkInterface();
+				for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+					if(index < world.getFactionCount()) {
+						Faction *faction = world.getFaction(index);
+						netIntf->setNetworkPlayerFactionCRC(index,faction->getCRC().getSum());
 
-				if(settings != NULL) {
-					if(isFlagType1BitEnabled(settings->getFlagTypes1(),ft1_network_synch_checks_verbose) == true) {
-						faction->addCRC_DetailsForWorldFrame(world.getFrameCount(),role == nrServer);
+						if(settings != NULL) {
+							if(isFlagType1BitEnabled(settings->getFlagTypes1(),ft1_network_synch_checks_verbose) == true) {
+								faction->addCRC_DetailsForWorldFrame(world.getFrameCount(),role == nrServer);
+							}
+							else if(isFlagType1BitEnabled(settings->getFlagTypes1(),ft1_network_synch_checks) == true &&
+									world.getFrameCount() % 20 == 0) {
+								faction->addCRC_DetailsForWorldFrame(world.getFrameCount(),role == nrServer);
+							}
+						}
 					}
-					else if(isFlagType1BitEnabled(settings->getFlagTypes1(),ft1_network_synch_checks) == true &&
-							world.getFrameCount() % 20 == 0) {
-						faction->addCRC_DetailsForWorldFrame(world.getFrameCount(),role == nrServer);
+					else {
+						netIntf->setNetworkPlayerFactionCRC(index,0);
 					}
 				}
-			}
-			else {
-				netIntf->setNetworkPlayerFactionCRC(index,0);
 			}
 		}
 	}
