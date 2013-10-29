@@ -1906,7 +1906,7 @@ void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem, strin
 	for(int i = 0; i < results.size(); ++i) {
 		results[i]= formatString(results[i]);
 		string translatedString=techTree->getTranslatedFactionName(techTreeFiles[listBoxTechTree.getSelectedItemIndex()],factionFiles[i]);
-		if(translatedString==results[i]){
+		if(toLower(translatedString)==toLower(results[i])){
 			translatedFactionNames.push_back(results[i]);
 		}
 		else {
@@ -3394,7 +3394,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 		    vector<string> translatedFactionNames;
 		    for(int i= 0; i < factionFiles.size(); ++i) {
 				string translatedString=techTree->getTranslatedFactionName(gameSettings->getTech(),factionFiles[i]);
-				if(translatedString==results[i]){
+				if(toLower(translatedString)==toLower(formatString(results[i]))){
 					translatedFactionNames.push_back(formatString(results[i]));
 				}
 				else {
@@ -3441,7 +3441,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 		    vector<string> translatedFactionNames;
 		    for(int i= 0; i < factionFiles.size(); ++i) {
 		    	string translatedString=techTree->getTranslatedFactionName(gameSettings->getTech(),factionFiles[i]);
-		    	if(translatedString==results[i]){
+		    	if(toLower(translatedString)==toLower(formatString(results[i]))){
 		    		translatedFactionNames.push_back(formatString(results[i]));
 		    	}
 		    	else {
