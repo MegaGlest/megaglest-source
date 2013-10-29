@@ -845,22 +845,14 @@ void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
     	throw megaglest_runtime_error("In [MainWindow::eventMouseDown] ERROR, program == NULL!");
     }
 
-    //printf("eventMouseDown popupMenu.getVisible() = %d\n",popupMenu.getVisible());
 	if(popupMenu.getVisible() == true && popupMenu.mouseClick(vx, vy)) {
 		std::pair<int,string> result = popupMenu.mouseClickedMenuItem(vx, vy);
-		//printf("In popup callback menuItemSelected [%s] menuIndexSelected = %d\n",result.second.c_str(),result.first);
 
 		popupMenu.setEnabled(false);
 		popupMenu.setVisible(false);
 
-		//printf("result.first = %d [%s] cancelLanguageSelection = %d\n",result.first,result.second.c_str(),cancelLanguageSelection);
-
 		// Exit game
 		if(result.first != cancelLanguageSelection) {
-			//toggleLanguage(result.second);
-		    //this->triggerLanguageToggle = true;
-		    //this->triggerLanguage = result.second;
-
 			Lang &lang= Lang::getInstance();
 			map<string,string> languageList = lang.getDiscoveredLanguageList(true);
 			for(map<string,string>::iterator iterMap = languageList.begin();
@@ -1036,48 +1028,10 @@ void MainWindow::render() {
 	if(popupMenu.getVisible() == true) {
 		Renderer &renderer= Renderer::getInstance();
 		renderer.renderPopupMenu(&popupMenu);
-
-		//printf("Render lang popup\n");
 	}
 }
 
 void MainWindow::showLanguages() {
-
-/*
-	Lang &lang= Lang::getInstance();
-	std::vector<string> menuItems;
-
-	vector<string> langResults;
-    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-
-    string userDataPath = getGameCustomCoreDataPath(data_path, "");
-	findAll(userDataPath + "data/lang/*.lng", langResults, true, false);
-	for(unsigned int i = 0; i < langResults.size(); ++i) {
-		string testLanguage = langResults[i];
-		menuItems.push_back(testLanguage);
-	}
-
-	vector<string> langResults2;
-	findAll(data_path + "data/lang/*.lng", langResults2, true);
-	if(langResults2.empty() && langResults.empty()) {
-        throw megaglest_runtime_error("There are no lang files");
-	}
-	for(unsigned int i = 0; i < langResults2.size(); ++i) {
-		string testLanguage = langResults2[i];
-		if(std::find(menuItems.begin(),menuItems.end(),testLanguage) == menuItems.end()) {
-			menuItems.push_back(testLanguage);
-		}
-	}
-	menuItems.push_back(lang.getString("Exit"));
-	cancelLanguageSelection = menuItems.size()-1;
-
-	popupMenu.setW(100);
-	popupMenu.setH(100);
-	popupMenu.init(lang.getString("GameMenuTitle"),menuItems);
-	popupMenu.setEnabled(true);
-	popupMenu.setVisible(true);
-*/
-
 	Lang &lang= Lang::getInstance();
 	std::vector<string> menuItems;
 	map<string,string> languageList = lang.getDiscoveredLanguageList(true);
