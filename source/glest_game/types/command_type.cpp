@@ -122,11 +122,11 @@ string StopCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translate
 	Lang &lang= Lang::getInstance();
 
     str= getName(translatedValue)+"\n";
-	str+= lang.get("ReactionSpeed",(translatedValue == true ? "" : "english")) + ": " + intToStr(stopSkillType->getSpeed())+"\n";
+	str+= lang.getString("ReactionSpeed",(translatedValue == true ? "" : "english")) + ": " + intToStr(stopSkillType->getSpeed())+"\n";
     if(stopSkillType->getEpCost() != 0)
-        str += lang.get("EpCost",(translatedValue == true ? "" : "english")) + ": " + intToStr(stopSkillType->getEpCost())+"\n";
+        str += lang.getString("EpCost",(translatedValue == true ? "" : "english")) + ": " + intToStr(stopSkillType->getEpCost())+"\n";
     if(stopSkillType->getHpCost() != 0)
-        str+= lang.get("HpCost",(translatedValue == true ? "" : "english")) + ": " + intToStr(stopSkillType->getHpCost())+"\n";
+        str+= lang.getString("HpCost",(translatedValue == true ? "" : "english")) + ": " + intToStr(stopSkillType->getHpCost())+"\n";
 	str+=stopSkillType->getBoostDesc(translatedValue);
     return str;
 }
@@ -136,7 +136,7 @@ string StopCommandType::toString(bool translatedValue) const{
 		return "Stop";
 	}
 	Lang &lang= Lang::getInstance();
-	return lang.get("Stop");
+	return lang.getString("Stop");
 }
 
 void StopCommandType::load(int id, const XmlNode *n, const string &dir,
@@ -181,16 +181,16 @@ string MoveCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translate
 	Lang &lang= Lang::getInstance();
 
     str=getName(translatedValue)+"\n";
-    str+= lang.get("WalkSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(moveSkillType->getSpeed());
+    str+= lang.getString("WalkSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(moveSkillType->getSpeed());
 	if(totalUpgrade->getMoveSpeed(moveSkillType) != 0) {
         str+= "+" + intToStr(totalUpgrade->getMoveSpeed(moveSkillType));
 	}
     str+="\n";
 	if(moveSkillType->getEpCost()!=0){
-        str+= lang.get("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(moveSkillType->getEpCost())+"\n";
+        str+= lang.getString("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(moveSkillType->getEpCost())+"\n";
 	}
 	if(moveSkillType->getHpCost()!=0) {
-		str+= lang.get("HpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(moveSkillType->getHpCost())+"\n";
+		str+= lang.getString("HpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(moveSkillType->getHpCost())+"\n";
 	}
 	str+=moveSkillType->getBoostDesc(translatedValue);
     return str;
@@ -201,7 +201,7 @@ string MoveCommandType::toString(bool translatedValue) const{
 		return "Move";
 	}
 	Lang &lang= Lang::getInstance();
-	return lang.get("Move");
+	return lang.getString("Move");
 }
 
 // =====================================================
@@ -241,14 +241,14 @@ string AttackCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool transla
 
     str=getName(translatedValue)+"\n";
 	if(attackSkillType->getEpCost()!=0){
-        str+= lang.get("EpCost",(translatedValue == true ? "" : "english")) + ": " + intToStr(attackSkillType->getEpCost()) + "\n";
+        str+= lang.getString("EpCost",(translatedValue == true ? "" : "english")) + ": " + intToStr(attackSkillType->getEpCost()) + "\n";
 	}
 	if(attackSkillType->getHpCost()!=0){
-        str+= lang.get("HpCost",(translatedValue == true ? "" : "english")) + ": " + intToStr(attackSkillType->getHpCost()) + "\n";
+        str+= lang.getString("HpCost",(translatedValue == true ? "" : "english")) + ": " + intToStr(attackSkillType->getHpCost()) + "\n";
 	}
 
     //attack strength
-    str+= lang.get("AttackStrenght",(translatedValue == true ? "" : "english"))+": ";
+    str+= lang.getString("AttackStrenght",(translatedValue == true ? "" : "english"))+": ";
     str+= intToStr(attackSkillType->getAttackStrength()-attackSkillType->getAttackVar());
     str+= "...";
     str+= intToStr(attackSkillType->getAttackStrength()+attackSkillType->getAttackVar());
@@ -260,18 +260,18 @@ string AttackCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool transla
 
     //splash radius
 	if(attackSkillType->getSplashRadius()!=0){
-        str+= lang.get("SplashRadius",(translatedValue == true ? "" : "english"))+": "+intToStr(attackSkillType->getSplashRadius())+"\n";
+        str+= lang.getString("SplashRadius",(translatedValue == true ? "" : "english"))+": "+intToStr(attackSkillType->getSplashRadius())+"\n";
 	}
 
     //attack distance
-    str+= lang.get("AttackDistance",(translatedValue == true ? "" : "english"))+": "+intToStr(attackSkillType->getAttackRange());
+    str+= lang.getString("AttackDistance",(translatedValue == true ? "" : "english"))+": "+intToStr(attackSkillType->getAttackRange());
 	if(totalUpgrade->getAttackRange(attackSkillType) != 0) {
         str+= "+"+intToStr(totalUpgrade->getAttackRange(attackSkillType) != 0);
 	}
     str+="\n";
 
 	//attack fields
-	str+= lang.get("Fields") + ": ";
+	str+= lang.getString("Fields") + ": ";
 	for(int i= 0; i < fieldCount; i++){
 		Field field = static_cast<Field>(i);
 		if( attackSkillType->getAttackField(field) )
@@ -282,13 +282,13 @@ string AttackCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool transla
 	str+="\n";
 
     //movement speed
-    str+= lang.get("WalkSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(moveSkillType->getSpeed()) ;
+    str+= lang.getString("WalkSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(moveSkillType->getSpeed()) ;
 	if(totalUpgrade->getMoveSpeed(moveSkillType) != 0) {
         str+= "+"+intToStr(totalUpgrade->getMoveSpeed(moveSkillType));
 	}
     str+="\n";
 
-    str+= lang.get("AttackSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(attackSkillType->getSpeed()) +"\n";
+    str+= lang.getString("AttackSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(attackSkillType->getSpeed()) +"\n";
 	str+=attackSkillType->getBoostDesc(translatedValue);
     return str;
 }
@@ -298,7 +298,7 @@ string AttackCommandType::toString(bool translatedValue) const{
 		return "Attack";
 	}
 	Lang &lang= Lang::getInstance();
-		return lang.get("Attack");
+		return lang.getString("Attack");
 }
 
 
@@ -338,14 +338,14 @@ string AttackStoppedCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool 
 
     str=getName(translatedValue)+"\n";
 	if(attackSkillType->getEpCost()!=0){
-        str+= lang.get("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(attackSkillType->getEpCost())+"\n";
+        str+= lang.getString("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(attackSkillType->getEpCost())+"\n";
 	}
 	if(attackSkillType->getHpCost()!=0){
-        str+= lang.get("HpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(attackSkillType->getHpCost())+"\n";
+        str+= lang.getString("HpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(attackSkillType->getHpCost())+"\n";
 	}
 
     //attack strength
-    str+= lang.get("AttackStrenght",(translatedValue == true ? "" : "english"))+": ";
+    str+= lang.getString("AttackStrenght",(translatedValue == true ? "" : "english"))+": ";
     str+= intToStr(attackSkillType->getAttackStrength()-attackSkillType->getAttackVar());
     str+="...";
     str+= intToStr(attackSkillType->getAttackStrength()+attackSkillType->getAttackVar());
@@ -356,18 +356,18 @@ string AttackStoppedCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool 
 
     //splash radius
 	if(attackSkillType->getSplashRadius()!=0){
-        str+= lang.get("SplashRadius",(translatedValue == true ? "" : "english"))+": "+intToStr(attackSkillType->getSplashRadius())+"\n";
+        str+= lang.getString("SplashRadius",(translatedValue == true ? "" : "english"))+": "+intToStr(attackSkillType->getSplashRadius())+"\n";
 	}
 
     //attack distance
-    str+= lang.get("AttackDistance",(translatedValue == true ? "" : "english"))+": "+intToStr(attackSkillType->getAttackRange());
+    str+= lang.getString("AttackDistance",(translatedValue == true ? "" : "english"))+": "+intToStr(attackSkillType->getAttackRange());
 	if(totalUpgrade->getAttackRange(attackSkillType) != 0) {
         str+= "+"+intToStr(totalUpgrade->getAttackRange(attackSkillType) != 0);
 	}
     str+="\n";
 
 	//attack fields
-	str+= lang.get("Fields",(translatedValue == true ? "" : "english")) + ": ";
+	str+= lang.getString("Fields",(translatedValue == true ? "" : "english")) + ": ";
 	for(int i= 0; i < fieldCount; i++){
 		Field field = static_cast<Field>(i);
 		if( attackSkillType->getAttackField(field) )
@@ -385,7 +385,7 @@ string AttackStoppedCommandType::toString(bool translatedValue) const {
 		return "AttackStopped";
 	}
 	Lang &lang= Lang::getInstance();
-	return lang.get("AttackStopped");
+	return lang.getString("AttackStopped");
 }
 
 
@@ -475,12 +475,12 @@ string BuildCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translat
 	Lang &lang= Lang::getInstance();
 
     str=getName(translatedValue)+"\n";
-    str+= lang.get("BuildSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(buildSkillType->getSpeed())+"\n";
+    str+= lang.getString("BuildSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(buildSkillType->getSpeed())+"\n";
 	if(buildSkillType->getEpCost()!=0){
-        str+= lang.get("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(buildSkillType->getEpCost())+"\n";
+        str+= lang.getString("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(buildSkillType->getEpCost())+"\n";
 	}
 	if(buildSkillType->getHpCost()!=0){
-        str+= lang.get("HpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(buildSkillType->getHpCost())+"\n";
+        str+= lang.getString("HpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(buildSkillType->getHpCost())+"\n";
 	}
 	str+=buildSkillType->getBoostDesc(translatedValue);
     return str;
@@ -491,7 +491,7 @@ string BuildCommandType::toString(bool translatedValue) const{
 		return "Build";
 	}
 	Lang &lang= Lang::getInstance();
-	return lang.get("Build");
+	return lang.getString("Build");
 }
 
 // =====================================================
@@ -552,16 +552,16 @@ string HarvestCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool transl
 	string str;
 
     str=getName(translatedValue)+"\n";
-    str+= lang.get("HarvestSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(harvestSkillType->getSpeed()/hitsPerUnit)+"\n";
-    str+= lang.get("MaxLoad",(translatedValue == true ? "" : "english"))+": "+ intToStr(maxLoad)+"\n";
-    str+= lang.get("LoadedSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(moveLoadedSkillType->getSpeed())+"\n";
+    str+= lang.getString("HarvestSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(harvestSkillType->getSpeed()/hitsPerUnit)+"\n";
+    str+= lang.getString("MaxLoad",(translatedValue == true ? "" : "english"))+": "+ intToStr(maxLoad)+"\n";
+    str+= lang.getString("LoadedSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(moveLoadedSkillType->getSpeed())+"\n";
 	if(harvestSkillType->getEpCost()!=0){
-        str+= lang.get("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(harvestSkillType->getEpCost())+"\n";
+        str+= lang.getString("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(harvestSkillType->getEpCost())+"\n";
 	}
 	if(harvestSkillType->getHpCost()!=0){
-        str+= lang.get("HpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(harvestSkillType->getHpCost())+"\n";
+        str+= lang.getString("HpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(harvestSkillType->getHpCost())+"\n";
 	}
-	str+=lang.get("Resources",(translatedValue == true ? "" : "english"))+":\n";
+	str+=lang.getString("Resources",(translatedValue == true ? "" : "english"))+":\n";
 	for(int i=0; i<getHarvestedResourceCount(); ++i){
 		str+= getHarvestedResource(i)->getName(translatedValue)+"\n";
 	}
@@ -574,7 +574,7 @@ string HarvestCommandType::toString(bool translatedValue) const{
 		return "Harvest";
 	}
 	Lang &lang= Lang::getInstance();
-	return lang.get("Harvest");
+	return lang.getString("Harvest");
 }
 
 bool HarvestCommandType::canHarvest(const ResourceType *resourceType) const{
@@ -614,7 +614,7 @@ string HarvestEmergencyReturnCommandType::toString(bool translatedValue) const{
 		return "HarvestEmergencyReturn";
 	}
 	Lang &lang= Lang::getInstance();
-	return lang.get("Harvest");
+	return lang.getString("Harvest");
 }
 
 // =====================================================
@@ -667,14 +667,14 @@ string RepairCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool transla
 	string str;
 
     str=getName(translatedValue)+"\n";
-    str+= lang.get("RepairSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(repairSkillType->getSpeed())+"\n";
+    str+= lang.getString("RepairSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(repairSkillType->getSpeed())+"\n";
 	if(repairSkillType->getEpCost()!=0){
-        str+= lang.get("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(repairSkillType->getEpCost())+"\n";
+        str+= lang.getString("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(repairSkillType->getEpCost())+"\n";
 	}
 	if(repairSkillType->getHpCost()!=0){
-        str+= lang.get("HpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(repairSkillType->getHpCost())+"\n";
+        str+= lang.getString("HpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(repairSkillType->getHpCost())+"\n";
 	}
-    str+="\n"+lang.get("CanRepair",(translatedValue == true ? "" : "english"))+":\n";
+    str+="\n"+lang.getString("CanRepair",(translatedValue == true ? "" : "english"))+":\n";
     for(int i=0; i<repairableUnits.size(); ++i){
         str+= (static_cast<const UnitType*>(repairableUnits[i]))->getName(translatedValue)+"\n";
     }
@@ -687,7 +687,7 @@ string RepairCommandType::toString(bool translatedValue) const{
 		return "Repair";
 	}
 	Lang &lang= Lang::getInstance();
-	return lang.get("Repair");
+	return lang.getString("Repair");
 }
 
 //get
@@ -738,7 +738,7 @@ string ProduceCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool transl
 	Lang &lang= Lang::getInstance();
 
     //prod speed
-    str+= lang.get("ProductionSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(produceSkillType->getSpeed());
+    str+= lang.getString("ProductionSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(produceSkillType->getSpeed());
 	if(totalUpgrade->getProdSpeed(produceSkillType)!=0){
         str+="+" + intToStr(totalUpgrade->getProdSpeed(produceSkillType));
 	}
@@ -746,10 +746,10 @@ string ProduceCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool transl
 
     //mpcost
 	if(produceSkillType->getEpCost()!=0){
-        str+= lang.get("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(produceSkillType->getEpCost())+"\n";
+        str+= lang.getString("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(produceSkillType->getEpCost())+"\n";
 	}
 	if(produceSkillType->getHpCost()!=0){
-        str+= lang.get("hpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(produceSkillType->getHpCost())+"\n";
+        str+= lang.getString("hpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(produceSkillType->getHpCost())+"\n";
 	}
     str+= "\n" + getProducedUnit()->getReqDesc(translatedValue);
 	str+=produceSkillType->getBoostDesc(translatedValue);
@@ -761,7 +761,7 @@ string ProduceCommandType::toString(bool translatedValue) const{
 		return "Produce";
 	}
 	Lang &lang= Lang::getInstance();
-	return lang.get("Produce");
+	return lang.getString("Produce");
 }
 
 string ProduceCommandType::getReqDesc(bool translatedValue) const{
@@ -808,11 +808,11 @@ string UpgradeCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool transl
 	Lang &lang= Lang::getInstance();
 
     str=getName(translatedValue)+"\n";
-    str+= lang.get("UpgradeSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(upgradeSkillType->getSpeed())+"\n";
+    str+= lang.getString("UpgradeSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(upgradeSkillType->getSpeed())+"\n";
     if(upgradeSkillType->getEpCost()!=0)
-        str+= lang.get("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(upgradeSkillType->getEpCost())+"\n";
+        str+= lang.getString("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(upgradeSkillType->getEpCost())+"\n";
     if(upgradeSkillType->getHpCost()!=0)
-        str+= lang.get("HpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(upgradeSkillType->getHpCost())+"\n";
+        str+= lang.getString("HpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(upgradeSkillType->getHpCost())+"\n";
     str+= "\n"+getProducedUpgrade()->getReqDesc(translatedValue);
 	str+=upgradeSkillType->getBoostDesc(translatedValue);
     return str;
@@ -823,7 +823,7 @@ string UpgradeCommandType::toString(bool translatedValue) const{
 		return "Upgrade";
 	}
 	Lang &lang= Lang::getInstance();
-	return lang.get("Upgrade");
+	return lang.getString("Upgrade");
 }
 
 string UpgradeCommandType::getReqDesc(bool translatedValue) const{
@@ -889,19 +889,19 @@ string MorphCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool translat
 	Lang &lang= Lang::getInstance();
 
     //prod speed
-    str+= lang.get("MorphSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(morphSkillType->getSpeed())+"\n";
+    str+= lang.getString("MorphSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(morphSkillType->getSpeed())+"\n";
 
     //mpcost
 	if(morphSkillType->getEpCost()!=0){
-        str+= lang.get("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(morphSkillType->getEpCost())+"\n";
+        str+= lang.getString("EpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(morphSkillType->getEpCost())+"\n";
 	}
 		if(morphSkillType->getHpCost()!=0){
-        str+= lang.get("HpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(morphSkillType->getHpCost())+"\n";
+        str+= lang.getString("HpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(morphSkillType->getHpCost())+"\n";
 	}
 
     //discount
 	if(discount!=0){
-        str+= lang.get("Discount",(translatedValue == true ? "" : "english"))+": "+intToStr(discount)+"%\n";
+        str+= lang.getString("Discount",(translatedValue == true ? "" : "english"))+": "+intToStr(discount)+"%\n";
 	}
 
     str+= "\n"+getProduced()->getReqDesc(ignoreResourceRequirements,translatedValue);
@@ -916,7 +916,7 @@ string MorphCommandType::toString(bool translatedValue) const{
 		return "Morph";
 	}
 	Lang &lang= Lang::getInstance();
-	return lang.get("Morph");
+	return lang.getString("Morph");
 }
 
 string MorphCommandType::getReqDesc(bool translatedValue) const{
@@ -963,7 +963,7 @@ string SwitchTeamCommandType::toString(bool translatedValue) const{
 		return "SwitchTeam";
 	}
 	Lang &lang= Lang::getInstance();
-	return lang.get("SwitchTeam");
+	return lang.getString("SwitchTeam");
 }
 
 // =====================================================

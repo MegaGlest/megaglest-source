@@ -51,7 +51,7 @@ MenuStateAbout::MenuStateAbout(Program *program, MainMenu *mainMenu) :
 	//init
 	buttonReturn.registerGraphicComponent(containerName, "buttonReturn");
 	buttonReturn.init(460, 100, 125);
-	buttonReturn.setText(lang.get("Return"));
+	buttonReturn.setText(lang.getString("Return"));
 
 	labelAdditionalCredits.registerGraphicComponent(containerName, "labelAdditionalCredits");
 	labelAdditionalCredits.init(500, 700);
@@ -146,7 +146,7 @@ void MenuStateAbout::reloadUI() {
 	adjustModelText = true;
 	string additionalCredits= loadAdditionalCredits();
 
-	buttonReturn.setText(lang.get("Return"));
+	buttonReturn.setText(lang.getString("Return"));
 	labelAdditionalCredits.setText(additionalCredits);
 
 	//if(additionalCredits == "") {

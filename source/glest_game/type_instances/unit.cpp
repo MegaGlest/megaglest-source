@@ -3143,7 +3143,7 @@ string Unit::getDescExtension(bool translatedValue) const{
 		for(unsigned int i= 0; i < min((size_t) maxQueuedCommandDisplayCount, commands.size()); ++i){
 			const CommandType *ct= (*it)->getCommandType();
 			if(i == 0){
-				str+= "\n" + lang.get("OrdersOnQueue") + ": ";
+				str+= "\n" + lang.getString("OrdersOnQueue") + ": ";
 			}
 			str+= "\n#" + intToStr(i + 1) + " " + ct->getName(translatedValue);
 			++it;
@@ -3162,12 +3162,12 @@ string Unit::getDesc(bool translatedValue) const {
 
 	//maxUnitCount
 	if(type->getMaxUnitCount()>0){
-		str += lang.get("MaxUnitCount")+ ": " + intToStr(faction->getCountForMaxUnitCount(type)) + "/" + intToStr(type->getMaxUnitCount());
+		str += lang.getString("MaxUnitCount")+ ": " + intToStr(faction->getCountForMaxUnitCount(type)) + "/" + intToStr(type->getMaxUnitCount());
 	}
 
-	str += "\n"+lang.get("Hp")+ ": " + intToStr(hp) + "/" + intToStr(type->getTotalMaxHp(&totalUpgrade));
+	str += "\n"+lang.getString("Hp")+ ": " + intToStr(hp) + "/" + intToStr(type->getTotalMaxHp(&totalUpgrade));
 	if(type->getHpRegeneration() != 0 || totalUpgrade.getMaxHpRegeneration() != 0) {
-		str+= " (" + lang.get("Regeneration") + ": " + intToStr(type->getHpRegeneration());
+		str+= " (" + lang.getString("Regeneration") + ": " + intToStr(type->getHpRegeneration());
 		if(totalUpgrade.getMaxHpRegeneration() != 0) {
 			str+= "+" + intToStr(totalUpgrade.getMaxHpRegeneration());
 		}
@@ -3176,10 +3176,10 @@ string Unit::getDesc(bool translatedValue) const {
 
 	//ep
 	if(getType()->getMaxEp()!=0){
-		str+= "\n" + lang.get("Ep")+ ": " + intToStr(ep) + "/" + intToStr(type->getTotalMaxEp(&totalUpgrade));
+		str+= "\n" + lang.getString("Ep")+ ": " + intToStr(ep) + "/" + intToStr(type->getTotalMaxEp(&totalUpgrade));
 	}
 	if(type->getEpRegeneration() != 0 || totalUpgrade.getMaxEpRegeneration() != 0) {
-		str+= " (" + lang.get("Regeneration") + ": " + intToStr(type->getEpRegeneration());
+		str+= " (" + lang.getString("Regeneration") + ": " + intToStr(type->getEpRegeneration());
 		if(totalUpgrade.getMaxEpRegeneration() != 0) {
 			str += "+" + intToStr(totalUpgrade.getMaxEpRegeneration());
 		}
@@ -3187,14 +3187,14 @@ string Unit::getDesc(bool translatedValue) const {
 	}
 
 	//armor
-	str+= "\n" + lang.get("Armor")+ ": " + intToStr(getType()->getArmor());
+	str+= "\n" + lang.getString("Armor")+ ": " + intToStr(getType()->getArmor());
 	if(totalUpgrade.getArmor()!=0){
 		str+="+"+intToStr(totalUpgrade.getArmor());
 	}
 	str+= " ("+getType()->getArmorType()->getName(translatedValue)+")";
 
 	//sight
-	str+="\n"+ lang.get("Sight")+ ": " + intToStr(getType()->getSight());
+	str+="\n"+ lang.getString("Sight")+ ": " + intToStr(getType()->getSight());
 	if(totalUpgrade.getSight()!=0){
 		str+="+"+intToStr(totalUpgrade.getSight());
 	}
@@ -3202,7 +3202,7 @@ string Unit::getDesc(bool translatedValue) const {
 	//kills
 	const Level *nextLevel= getNextLevel();
 	if(enemyKills > 0 || nextLevel != NULL) {
-		str+= "\n" + lang.get("Kills") +": " + intToStr(enemyKills);
+		str+= "\n" + lang.getString("Kills") +": " + intToStr(enemyKills);
 		if(nextLevel != NULL) {
 			str+= " (" + nextLevel->getName(translatedValue) + ": " + intToStr(nextLevel->getKills()) + ")";
 		}
@@ -3212,7 +3212,7 @@ string Unit::getDesc(bool translatedValue) const {
 
 	//load
 	if(loadCount!=0){
-		str+= "\n" + lang.get("Load")+ ": " + intToStr(loadCount) +"  " + loadType->getName(translatedValue);
+		str+= "\n" + lang.getString("Load")+ ": " + intToStr(loadCount) +"  " + loadType->getName(translatedValue);
 	}
 
 	//consumable production
@@ -3220,7 +3220,7 @@ string Unit::getDesc(bool translatedValue) const {
 		const Resource *r= getType()->getCost(i);
 		if(r->getType()->getClass() == rcConsumable) {
 			str+= "\n";
-			str+= r->getAmount() < 0 ? lang.get("Produce")+": ": lang.get("Consume")+": ";
+			str+= r->getAmount() < 0 ? lang.getString("Produce")+": ": lang.getString("Consume")+": ";
 			str+= intToStr(abs(r->getAmount())) + " " + r->getType()->getName(translatedValue);
 		}
 	}
@@ -3229,7 +3229,7 @@ string Unit::getDesc(bool translatedValue) const {
     if(commands.empty() == false) {
 		str+= "\n" + commands.front()->getCommandType()->getName(translatedValue);
 		if(commands.size() > 1) {
-			str+= "\n" + lang.get("OrdersOnQueue") + ": " + intToStr(commands.size());
+			str+= "\n" + lang.getString("OrdersOnQueue") + ": " + intToStr(commands.size());
 		}
 	}
 	else{
@@ -3237,7 +3237,7 @@ string Unit::getDesc(bool translatedValue) const {
 		if(getType()->getStoredResourceCount() > 0) {
 			for(int i = 0; i < getType()->getStoredResourceCount(); ++i) {
 				const Resource *r= getType()->getStoredResource(i);
-				str+= "\n" + lang.get("Store") + ": ";
+				str+= "\n" + lang.getString("Store") + ": ";
 				str+= intToStr(r->getAmount()) + " " + r->getType()->getName(translatedValue);
 			}
 		}
@@ -3549,7 +3549,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 			result.first = crFailReqs;
 
 			Lang &lang= Lang::getInstance();
-			result.second = " - " + lang.get("Reqs") + " : " + produced->getUnitAndUpgradeReqDesc(false,this->showTranslatedTechTree());
+			result.second = " - " + lang.getString("Reqs") + " : " + produced->getUnitAndUpgradeReqDesc(false,this->showTranslatedTechTree());
 			return result;
 		}
 
@@ -3559,7 +3559,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 			//printf("In [%s::%s Line: %d] command = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,command);
 			result.first = crFailRes;
 			Lang &lang= Lang::getInstance();
-			result.second = " - " + lang.get("Reqs") + " : " + produced->getResourceReqDesc(false,this->showTranslatedTechTree());
+			result.second = " - " + lang.getString("Reqs") + " : " + produced->getResourceReqDesc(false,this->showTranslatedTechTree());
 			return result;
 		}
 	}
@@ -3579,7 +3579,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 			//printf("In [%s::%s Line: %d] command = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,command);
 			result.first = crFailReqs;
 			Lang &lang= Lang::getInstance();
-			result.second = " - " + lang.get("Reqs") + " : " + builtUnit->getUnitAndUpgradeReqDesc(false,this->showTranslatedTechTree());
+			result.second = " - " + lang.getString("Reqs") + " : " + builtUnit->getUnitAndUpgradeReqDesc(false,this->showTranslatedTechTree());
 			return result;
 		}
 		if(faction->checkCosts(builtUnit,NULL) == false) {
@@ -3587,7 +3587,7 @@ std::pair<CommandResult,string> Unit::checkCommand(Command *command) const {
 			//printf("In [%s::%s Line: %d] command = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,command);
 			result.first = crFailRes;
 			Lang &lang= Lang::getInstance();
-			result.second = " - " + lang.get("Reqs") + " : " + builtUnit->getResourceReqDesc(false,this->showTranslatedTechTree());
+			result.second = " - " + lang.getString("Reqs") + " : " + builtUnit->getResourceReqDesc(false,this->showTranslatedTechTree());
 			return result;
 		}
     }

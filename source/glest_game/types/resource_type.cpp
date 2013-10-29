@@ -71,7 +71,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 		name= lastDir(dir);
 
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingResourceType","",true).c_str(),formatString(getName(true)).c_str());
+		snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingResourceType","",true).c_str(),formatString(getName(true)).c_str());
 		Logger::getInstance().add(szBuf, true);
 
 		string currentPath = dir;

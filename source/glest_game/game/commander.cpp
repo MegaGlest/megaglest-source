@@ -611,7 +611,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 	    		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
 							char szMsg[8096]="";
 							if(lang.hasString("PlayerSwitchedTeam",languageList[i]) == true) {
-								snprintf(szMsg,8096,lang.get("PlayerSwitchedTeam",languageList[i]).c_str(),settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,newTeam);
+								snprintf(szMsg,8096,lang.getString("PlayerSwitchedTeam",languageList[i]).c_str(),settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,newTeam);
 							}
 							else {
 								snprintf(szMsg,8096,"Player %s switched from team# %d to team# %d.",settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,newTeam);
@@ -704,7 +704,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 	    		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
 							char szMsg[8096]="";
 							if(lang.hasString("PlayerSwitchedTeam",languageList[i]) == true) {
-								snprintf(szMsg,8096,lang.get("PlayerSwitchedTeam",languageList[i]).c_str(),settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,vote->newTeam);
+								snprintf(szMsg,8096,lang.getString("PlayerSwitchedTeam",languageList[i]).c_str(),settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,vote->newTeam);
 							}
 							else {
 								snprintf(szMsg,8096,"Player %s switched from team# %d to team# %d.",settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,vote->newTeam);
@@ -729,7 +729,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 	    		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
 							char szMsg[8096]="";
 							if(lang.hasString("PlayerSwitchedTeamDenied",languageList[i]) == true) {
-								snprintf(szMsg,8096,lang.get("PlayerSwitchedTeamDenied",languageList[i]).c_str(),settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,vote->newTeam);
+								snprintf(szMsg,8096,lang.getString("PlayerSwitchedTeamDenied",languageList[i]).c_str(),settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,vote->newTeam);
 							}
 							else {
 								snprintf(szMsg,8096,"Player %s was denied the request to switch from team# %d to team# %d.",settings->getNetworkPlayerName(factionIndex).c_str(),oldTeam,vote->newTeam);

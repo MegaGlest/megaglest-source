@@ -110,10 +110,10 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 			if (!inMenu) {
 				if (teamMode == true) {
 					teamMode = false;
-					console->addLine(lang.get("ChatMode") + ": " + lang.get("All"));
+					console->addLine(lang.getString("ChatMode") + ": " + lang.getString("All"));
 				} else {
 					teamMode = true;
-					console->addLine(lang.get("ChatMode") + ": " + lang.get("Team"));
+					console->addLine(lang.getString("ChatMode") + ": " + lang.getString("Team"));
 				}
 			}
 		}

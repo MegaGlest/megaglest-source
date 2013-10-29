@@ -34,7 +34,7 @@ MenuStateGraphicInfo::MenuStateGraphicInfo(Program *program, MainMenu *mainMenu)
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	buttonReturn.init(100, 540, 125);
 
-	buttonReturn.setText(lang.get("Return"));
+	buttonReturn.setText(lang.getString("Return"));
 
 	labelInfo.registerGraphicComponent(containerName,"labelInfo");
 	labelInfo.init(0, 730);
@@ -81,7 +81,7 @@ void MenuStateGraphicInfo::reloadUI() {
 	Lang &lang= Lang::getInstance();
 
 	console.resetFonts();
-	buttonReturn.setText(lang.get("Return"));
+	buttonReturn.setText(lang.getString("Return"));
 
 	labelMoreInfo.setFont(CoreData::getInstance().getDisplayFontSmall());
 	labelMoreInfo.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
@@ -150,7 +150,7 @@ void MenuStateGraphicInfo::keyDown(SDL_KeyboardEvent key) {
 	if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
 		GraphicComponent::saveAllCustomProperties(containerName);
 		//Lang &lang= Lang::getInstance();
-		//console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
+		//console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
 	}
 }
 

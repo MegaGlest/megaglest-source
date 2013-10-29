@@ -125,7 +125,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	this->dirList = Config::getInstance().getPathListForType(ptScenarios);
 
     mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
-	mainMessageBox.init(lang.get("Ok"));
+	mainMessageBox.init(lang.getString("Ok"));
 	mainMessageBox.setEnabled(false);
 	mainMessageBoxState=0;
 
@@ -206,7 +206,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	}
 	string serverPort=config.getString("PortServer", intToStr(GameConstants::serverPort).c_str());
 	string externalPort=config.getString("PortExternal", serverPort.c_str());
-	labelLocalIP.setText(lang.get("LanIP") + ipText + "  ( "+serverPort+" / "+externalPort+" )");
+	labelLocalIP.setText(lang.getString("LanIP") + ipText + "  ( "+serverPort+" / "+externalPort+" )");
 	ServerSocket::setExternalPort(strToInt(externalPort));
 
 	if(EndsWith(glestVersionString, "-dev") == false){
@@ -220,7 +220,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	// MapFilter
 	labelMapFilter.registerGraphicComponent(containerName,"labelMapFilter");
 	labelMapFilter.init(xoffset+310, mapHeadPos);
-	labelMapFilter.setText(lang.get("MapFilter")+":");
+	labelMapFilter.setText(lang.getString("MapFilter")+":");
 
 	listBoxMapFilter.registerGraphicComponent(containerName,"listBoxMapFilter");
 	listBoxMapFilter.init(xoffset+310, mapPos, 80);
@@ -233,7 +233,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	// Map
 	labelMap.registerGraphicComponent(containerName,"labelMap");
 	labelMap.init(xoffset+100, mapHeadPos);
-	labelMap.setText(lang.get("Map")+":");
+	labelMap.setText(lang.getString("Map")+":");
 
 	//map listBox
 	listBoxMap.registerGraphicComponent(containerName,"listBoxMap");
@@ -249,7 +249,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
     labelTileset.registerGraphicComponent(containerName,"labelTileset");
 	labelTileset.init(xoffset+460, mapHeadPos);
-	labelTileset.setText(lang.get("Tileset"));
+	labelTileset.setText(lang.getString("Tileset"));
 
 	//tileset listBox
 	listBoxTileset.registerGraphicComponent(containerName,"listBoxTileset");
@@ -270,25 +270,25 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
     labelTechTree.registerGraphicComponent(containerName,"labelTechTree");
 	labelTechTree.init(xoffset+650, mapHeadPos);
-	labelTechTree.setText(lang.get("TechTree"));
+	labelTechTree.setText(lang.getString("TechTree"));
 
 	// fog - o - war
 	// @350 ? 300 ?
 	labelFogOfWar.registerGraphicComponent(containerName,"labelFogOfWar");
 	labelFogOfWar.init(xoffset+100, aHeadPos, 130);
-	labelFogOfWar.setText(lang.get("FogOfWar"));
+	labelFogOfWar.setText(lang.getString("FogOfWar"));
 
 	listBoxFogOfWar.registerGraphicComponent(containerName,"listBoxFogOfWar");
 	listBoxFogOfWar.init(xoffset+100, aPos, 130);
-	listBoxFogOfWar.pushBackItem(lang.get("Enabled"));
-	listBoxFogOfWar.pushBackItem(lang.get("Explored"));
-	listBoxFogOfWar.pushBackItem(lang.get("Disabled"));
+	listBoxFogOfWar.pushBackItem(lang.getString("Enabled"));
+	listBoxFogOfWar.pushBackItem(lang.getString("Explored"));
+	listBoxFogOfWar.pushBackItem(lang.getString("Disabled"));
 	listBoxFogOfWar.setSelectedItemIndex(0);
 
 	// Allow Observers
 	labelAllowObservers.registerGraphicComponent(containerName,"labelAllowObservers");
 	labelAllowObservers.init(xoffset+310, aHeadPos, 80);
-	labelAllowObservers.setText(lang.get("AllowObservers"));
+	labelAllowObservers.setText(lang.getString("AllowObservers"));
 
 	checkBoxAllowObservers.registerGraphicComponent(containerName,"checkBoxAllowObservers");
 	checkBoxAllowObservers.init(xoffset+310, aPos);
@@ -301,7 +301,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	labelFallbackCpuMultiplier.registerGraphicComponent(containerName,"labelFallbackCpuMultiplier");
 	labelFallbackCpuMultiplier.init(xoffset+460, aHeadPos, 80);
-	labelFallbackCpuMultiplier.setText(lang.get("FallbackCpuMultiplier"));
+	labelFallbackCpuMultiplier.setText(lang.getString("FallbackCpuMultiplier"));
 
 	listBoxFallbackCpuMultiplier.registerGraphicComponent(containerName,"listBoxFallbackCpuMultiplier");
 	listBoxFallbackCpuMultiplier.init(xoffset+460, aPos, 80);
@@ -311,7 +311,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	// Allow Switch Team Mode
 	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
 	labelEnableSwitchTeamMode.init(xoffset+310, aHeadPos+45, 80);
-	labelEnableSwitchTeamMode.setText(lang.get("EnableSwitchTeamMode"));
+	labelEnableSwitchTeamMode.setText(lang.getString("EnableSwitchTeamMode"));
 
 	checkBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"checkBoxEnableSwitchTeamMode");
 	checkBoxEnableSwitchTeamMode.init(xoffset+310, aPos+45);
@@ -319,7 +319,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	labelAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"labelAISwitchTeamAcceptPercent");
 	labelAISwitchTeamAcceptPercent.init(xoffset+460, aHeadPos+45, 80);
-	labelAISwitchTeamAcceptPercent.setText(lang.get("AISwitchTeamAcceptPercent"));
+	labelAISwitchTeamAcceptPercent.setText(lang.getString("AISwitchTeamAcceptPercent"));
 
 	listBoxAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"listBoxAISwitchTeamAcceptPercent");
 	listBoxAISwitchTeamAcceptPercent.init(xoffset+460, aPos+45, 80);
@@ -330,7 +330,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	labelAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"labelAllowNativeLanguageTechtree");
 	labelAllowNativeLanguageTechtree.init(xoffset+650, mapHeadPos-50);
-	labelAllowNativeLanguageTechtree.setText(lang.get("AllowNativeLanguageTechtree"));
+	labelAllowNativeLanguageTechtree.setText(lang.getString("AllowNativeLanguageTechtree"));
 
 	checkBoxAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"checkBoxAllowNativeLanguageTechtree");
 	checkBoxAllowNativeLanguageTechtree.init(xoffset+650, mapHeadPos-70);
@@ -340,9 +340,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
 	listBoxPlayerStatus.init(810, buttony, 150);
 	vector<string> playerStatuses;
-	playerStatuses.push_back(lang.get("PlayerStatusSetup"));
-	playerStatuses.push_back(lang.get("PlayerStatusBeRightBack"));
-	playerStatuses.push_back(lang.get("PlayerStatusReady"));
+	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
+	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
+	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
 	listBoxPlayerStatus.setItems(playerStatuses);
 	listBoxPlayerStatus.setSelectedItemIndex(2,true);
 	listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
@@ -354,7 +354,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	int scenarioY=140;
     labelScenario.registerGraphicComponent(containerName,"labelScenario");
     labelScenario.init(scenarioX, scenarioY);
-    labelScenario.setText(lang.get("Scenario"));
+    labelScenario.setText(lang.getString("Scenario"));
 	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
     listBoxScenario.init(scenarioX, scenarioY-30,190);
     checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
@@ -407,7 +407,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	// Advanced Options
 	labelAdvanced.registerGraphicComponent(containerName,"labelAdvanced");
 	labelAdvanced.init(810, 80, 80);
-	labelAdvanced.setText(lang.get("AdvancedGameOptions"));
+	labelAdvanced.setText(lang.getString("AdvancedGameOptions"));
 
 	checkBoxAdvanced.registerGraphicComponent(containerName,"checkBoxAdvanced");
 	checkBoxAdvanced.init(810,  80-labelOffset);
@@ -419,7 +419,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	labelPublishServer.registerGraphicComponent(containerName,"labelPublishServer");
 	labelPublishServer.init(50, networkHeadPos, 100);
-	labelPublishServer.setText(lang.get("PublishServer"));
+	labelPublishServer.setText(lang.getString("PublishServer"));
 
 	checkBoxPublishServer.registerGraphicComponent(containerName,"checkBoxPublishServer");
 	checkBoxPublishServer.init(50, networkPos);
@@ -449,7 +449,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	bool allowInProgressJoin = Config::getInstance().getBool("EnableJoinInProgressGame","false");
 	labelAllowInGameJoinPlayer.registerGraphicComponent(containerName,"labelAllowInGameJoinPlayer");
 	labelAllowInGameJoinPlayer.init(xoffset+410, 670, 80);
-	labelAllowInGameJoinPlayer.setText(lang.get("AllowInGameJoinPlayer"));
+	labelAllowInGameJoinPlayer.setText(lang.getString("AllowInGameJoinPlayer"));
 	labelAllowInGameJoinPlayer.setVisible(allowInProgressJoin);
 
 	checkBoxAllowInGameJoinPlayer.registerGraphicComponent(containerName,"checkBoxAllowInGameJoinPlayer");
@@ -462,7 +462,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	// Network Pause for lagged clients
 	labelNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"labelNetworkPauseGameForLaggedClients");
 	labelNetworkPauseGameForLaggedClients.init(labelAllowInGameJoinPlayer.getX(), networkHeadPos, 80);
-	labelNetworkPauseGameForLaggedClients.setText(lang.get("NetworkPauseGameForLaggedClients"));
+	labelNetworkPauseGameForLaggedClients.setText(lang.getString("NetworkPauseGameForLaggedClients"));
 
 	checkBoxNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"checkBoxNetworkPauseGameForLaggedClients");
 	checkBoxNetworkPauseGameForLaggedClients.init(checkBoxAllowInGameJoinPlayer.getX(), networkHeadPos);
@@ -489,7 +489,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
         buttonBlockPlayers[i].registerGraphicComponent(containerName,"buttonBlockPlayers" + intToStr(i));
         //buttonBlockPlayers[i].init(xoffset+355, setupPos-30-i*rowHeight, 70);
         buttonBlockPlayers[i].init(xoffset+210, setupPos-30-i*rowHeight, 70);
-        buttonBlockPlayers[i].setText(lang.get("BlockPlayer"));
+        buttonBlockPlayers[i].setText(lang.getString("BlockPlayer"));
         buttonBlockPlayers[i].setFont(CoreData::getInstance().getDisplayFontSmall());
         buttonBlockPlayers[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
@@ -514,18 +514,18 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	labelControl.registerGraphicComponent(containerName,"labelControl");
 	labelControl.init(xoffset+170, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
-	labelControl.setText(lang.get("Control"));
+	labelControl.setText(lang.getString("Control"));
 
     labelRMultiplier.registerGraphicComponent(containerName,"labelRMultiplier");
 	labelRMultiplier.init(xoffset+310, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
 
 	labelFaction.registerGraphicComponent(containerName,"labelFaction");
     labelFaction.init(xoffset+390, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelFaction.setText(lang.get("Faction"));
+    labelFaction.setText(lang.getString("Faction"));
 
     labelTeam.registerGraphicComponent(containerName,"labelTeam");
     labelTeam.init(xoffset+650, setupPos, 50, GraphicListBox::defH, true);
-    labelTeam.setText(lang.get("Team"));
+    labelTeam.setText(lang.getString("Team"));
 
     labelControl.setFont(CoreData::getInstance().getMenuFontBig());
     labelControl.setFont3D(CoreData::getInstance().getMenuFontBig3D());
@@ -539,26 +539,26 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
     //xoffset=100;
 
 	//texts
-	buttonClearBlockedPlayers.setText(lang.get("BlockPlayerClear"));
-	buttonReturn.setText(lang.get("Return"));
-	buttonPlayNow.setText(lang.get("PlayNow"));
-	buttonRestoreLastSettings.setText(lang.get("ReloadLastGameSettings"));
+	buttonClearBlockedPlayers.setText(lang.getString("BlockPlayerClear"));
+	buttonReturn.setText(lang.getString("Return"));
+	buttonPlayNow.setText(lang.getString("PlayNow"));
+	buttonRestoreLastSettings.setText(lang.getString("ReloadLastGameSettings"));
 
 	vector<string> controlItems;
-    controlItems.push_back(lang.get("Closed"));
-	controlItems.push_back(lang.get("CpuEasy"));
-	controlItems.push_back(lang.get("Cpu"));
-    controlItems.push_back(lang.get("CpuUltra"));
-    controlItems.push_back(lang.get("CpuMega"));
-	controlItems.push_back(lang.get("Network"));
-	controlItems.push_back(lang.get("NetworkUnassigned"));
-	controlItems.push_back(lang.get("Human"));
+    controlItems.push_back(lang.getString("Closed"));
+	controlItems.push_back(lang.getString("CpuEasy"));
+	controlItems.push_back(lang.getString("Cpu"));
+    controlItems.push_back(lang.getString("CpuUltra"));
+    controlItems.push_back(lang.getString("CpuMega"));
+	controlItems.push_back(lang.getString("Network"));
+	controlItems.push_back(lang.getString("NetworkUnassigned"));
+	controlItems.push_back(lang.getString("Human"));
 
 	if(config.getBool("EnableNetworkCpu","false") == true) {
-		controlItems.push_back(lang.get("NetworkCpuEasy"));
-		controlItems.push_back(lang.get("NetworkCpu"));
-	    controlItems.push_back(lang.get("NetworkCpuUltra"));
-	    controlItems.push_back(lang.get("NetworkCpuMega"));
+		controlItems.push_back(lang.getString("NetworkCpuEasy"));
+		controlItems.push_back(lang.getString("NetworkCpu"));
+	    controlItems.push_back(lang.getString("NetworkCpuUltra"));
+	    controlItems.push_back(lang.getString("NetworkCpuMega"));
 	}
 
 	vector<string> teamItems;
@@ -582,7 +582,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		labelPlayerStatus[i].setH(16);
 		labelPlayerStatus[i].setW(12);
 
-		//labelPlayers[i].setText(lang.get("Player")+" "+intToStr(i));
+		//labelPlayers[i].setText(lang.getString("Player")+" "+intToStr(i));
 		labelPlayers[i].setText(intToStr(i+1));
 		labelPlayerNames[i].setText("*");
 		labelPlayerNames[i].setMaxEditWidth(16);
@@ -647,7 +647,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-	console.addLine(lang.get("ToSwitchOffMusicPress") + " - \"" + configKeys.getString("ToggleMusic") + "\"");
+	console.addLine(lang.getString("ToSwitchOffMusicPress") + " - \"" + configKeys.getString("ToggleMusic") + "\"");
 
 	chatManager.init(&console, -1,true);
 
@@ -684,7 +684,7 @@ void MenuStateCustomGame::reloadUI() {
     Config &config = Config::getInstance();
 
     console.resetFonts();
-	mainMessageBox.init(lang.get("Ok"));
+	mainMessageBox.init(lang.getString("Ok"));
 
 
 	if(EndsWith(glestVersionString, "-dev") == false){
@@ -711,42 +711,42 @@ void MenuStateCustomGame::reloadUI() {
 	string serverPort=config.getString("PortServer", intToStr(GameConstants::serverPort).c_str());
 	string externalPort=config.getString("PortExternal", serverPort.c_str());
 
-	labelLocalIP.setText(lang.get("LanIP") + ipText + "  ( "+serverPort+" / "+externalPort+" )");
+	labelLocalIP.setText(lang.getString("LanIP") + ipText + "  ( "+serverPort+" / "+externalPort+" )");
 
-	labelMap.setText(lang.get("Map")+":");
+	labelMap.setText(lang.getString("Map")+":");
 
-	labelMapFilter.setText(lang.get("MapFilter")+":");
+	labelMapFilter.setText(lang.getString("MapFilter")+":");
 
-	labelTileset.setText(lang.get("Tileset"));
+	labelTileset.setText(lang.getString("Tileset"));
 
-	labelTechTree.setText(lang.get("TechTree"));
+	labelTechTree.setText(lang.getString("TechTree"));
 
-	labelAllowNativeLanguageTechtree.setText(lang.get("AllowNativeLanguageTechtree"));
+	labelAllowNativeLanguageTechtree.setText(lang.getString("AllowNativeLanguageTechtree"));
 
-	labelFogOfWar.setText(lang.get("FogOfWar"));
+	labelFogOfWar.setText(lang.getString("FogOfWar"));
 
 	std::vector<std::string> listBoxData;
-	listBoxData.push_back(lang.get("Enabled"));
-	listBoxData.push_back(lang.get("Explored"));
-	listBoxData.push_back(lang.get("Disabled"));
+	listBoxData.push_back(lang.getString("Enabled"));
+	listBoxData.push_back(lang.getString("Explored"));
+	listBoxData.push_back(lang.getString("Disabled"));
 	listBoxFogOfWar.setItems(listBoxData);
 
 	// Allow Observers
-	labelAllowObservers.setText(lang.get("AllowObservers"));
+	labelAllowObservers.setText(lang.getString("AllowObservers"));
 
 	// Allow Switch Team Mode
-	labelEnableSwitchTeamMode.setText(lang.get("EnableSwitchTeamMode"));
+	labelEnableSwitchTeamMode.setText(lang.getString("EnableSwitchTeamMode"));
 
-	labelAllowInGameJoinPlayer.setText(lang.get("AllowInGameJoinPlayer"));
+	labelAllowInGameJoinPlayer.setText(lang.getString("AllowInGameJoinPlayer"));
 
-	labelAISwitchTeamAcceptPercent.setText(lang.get("AISwitchTeamAcceptPercent"));
+	labelAISwitchTeamAcceptPercent.setText(lang.getString("AISwitchTeamAcceptPercent"));
 
 	listBoxData.clear();
 
 	// Advanced Options
-	labelAdvanced.setText(lang.get("AdvancedGameOptions"));
+	labelAdvanced.setText(lang.getString("AdvancedGameOptions"));
 
-	labelPublishServer.setText(lang.get("PublishServer"));
+	labelPublishServer.setText(lang.getString("PublishServer"));
 
 	labelGameName.setFont(CoreData::getInstance().getMenuFontBig());
 	labelGameName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
@@ -757,17 +757,17 @@ void MenuStateCustomGame::reloadUI() {
 		labelGameName.setText("headless ("+defaultPlayerName+")");
 	}
 
-	labelNetworkPauseGameForLaggedClients.setText(lang.get("NetworkPauseGameForLaggedClients"));
+	labelNetworkPauseGameForLaggedClients.setText(lang.getString("NetworkPauseGameForLaggedClients"));
 
     for(int i=0; i < GameConstants::maxPlayers; ++i) {
-        buttonBlockPlayers[i].setText(lang.get("BlockPlayer"));
+        buttonBlockPlayers[i].setText(lang.getString("BlockPlayer"));
     }
 
-	labelControl.setText(lang.get("Control"));
+	labelControl.setText(lang.getString("Control"));
 
-    labelFaction.setText(lang.get("Faction"));
+    labelFaction.setText(lang.getString("Faction"));
 
-    labelTeam.setText(lang.get("Team"));
+    labelTeam.setText(lang.getString("Team"));
 
     labelControl.setFont(CoreData::getInstance().getMenuFontBig());
     labelControl.setFont3D(CoreData::getInstance().getMenuFontBig3D());
@@ -779,26 +779,26 @@ void MenuStateCustomGame::reloadUI() {
 	labelTeam.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
 	//texts
-	buttonClearBlockedPlayers.setText(lang.get("BlockPlayerClear"));
-	buttonReturn.setText(lang.get("Return"));
-	buttonPlayNow.setText(lang.get("PlayNow"));
-	buttonRestoreLastSettings.setText(lang.get("ReloadLastGameSettings"));
+	buttonClearBlockedPlayers.setText(lang.getString("BlockPlayerClear"));
+	buttonReturn.setText(lang.getString("Return"));
+	buttonPlayNow.setText(lang.getString("PlayNow"));
+	buttonRestoreLastSettings.setText(lang.getString("ReloadLastGameSettings"));
 
 	vector<string> controlItems;
-    controlItems.push_back(lang.get("Closed"));
-	controlItems.push_back(lang.get("CpuEasy"));
-	controlItems.push_back(lang.get("Cpu"));
-    controlItems.push_back(lang.get("CpuUltra"));
-    controlItems.push_back(lang.get("CpuMega"));
-	controlItems.push_back(lang.get("Network"));
-	controlItems.push_back(lang.get("NetworkUnassigned"));
-	controlItems.push_back(lang.get("Human"));
+    controlItems.push_back(lang.getString("Closed"));
+	controlItems.push_back(lang.getString("CpuEasy"));
+	controlItems.push_back(lang.getString("Cpu"));
+    controlItems.push_back(lang.getString("CpuUltra"));
+    controlItems.push_back(lang.getString("CpuMega"));
+	controlItems.push_back(lang.getString("Network"));
+	controlItems.push_back(lang.getString("NetworkUnassigned"));
+	controlItems.push_back(lang.getString("Human"));
 
 	if(config.getBool("EnableNetworkCpu","false") == true) {
-		controlItems.push_back(lang.get("NetworkCpuEasy"));
-		controlItems.push_back(lang.get("NetworkCpu"));
-	    controlItems.push_back(lang.get("NetworkCpuUltra"));
-	    controlItems.push_back(lang.get("NetworkCpuMega"));
+		controlItems.push_back(lang.getString("NetworkCpuEasy"));
+		controlItems.push_back(lang.getString("NetworkCpu"));
+	    controlItems.push_back(lang.getString("NetworkCpuUltra"));
+	    controlItems.push_back(lang.getString("NetworkCpuMega"));
 	}
 
 	for(int i=0; i < GameConstants::maxPlayers; ++i) {
@@ -807,22 +807,22 @@ void MenuStateCustomGame::reloadUI() {
 		listBoxControls[i].setItems(controlItems);
     }
 
-    labelFallbackCpuMultiplier.setText(lang.get("FallbackCpuMultiplier"));
+    labelFallbackCpuMultiplier.setText(lang.getString("FallbackCpuMultiplier"));
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	vector<string> playerStatuses;
-	playerStatuses.push_back(lang.get("PlayerStatusSetup"));
-	playerStatuses.push_back(lang.get("PlayerStatusBeRightBack"));
-	playerStatuses.push_back(lang.get("PlayerStatusReady"));
+	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
+	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
+	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
 	listBoxPlayerStatus.setItems(playerStatuses);
 
-	labelScenario.setText(lang.get("Scenario"));
+	labelScenario.setText(lang.getString("Scenario"));
 
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-	console.addLine(lang.get("ToSwitchOffMusicPress") + " - \"" + configKeys.getString("ToggleMusic") + "\"");
+	console.addLine(lang.getString("ToSwitchOffMusicPress") + " - \"" + configKeys.getString("ToggleMusic") + "\"");
 
 	chatManager.init(&console, -1,true);
 
@@ -1333,7 +1333,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 									for(unsigned int j = 0; j < languageList.size(); ++j) {
 										char szMsg[8096]="";
 										if(lang.hasString("BlockPlayerServerMsg",languageList[j]) == true) {
-											snprintf(szMsg,8096,lang.get("BlockPlayerServerMsg",languageList[j]).c_str(),serverInterface->getSlot(i)->getIpAddress().c_str());
+											snprintf(szMsg,8096,lang.getString("BlockPlayerServerMsg",languageList[j]).c_str(),serverInterface->getSlot(i)->getIpAddress().c_str());
 										}
 										else {
 											snprintf(szMsg,8096,"The server has temporarily blocked IP Address [%s] from this game.",serverInterface->getSlot(i)->getIpAddress().c_str());
@@ -1639,7 +1639,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 			Lang &lang= Lang::getInstance();
 			char szMsg[8096]="";
 			if(lang.hasString("NetworkSlotUnassignedErrorUI") == true) {
-				strcpy(szMsg,lang.get("NetworkSlotUnassignedErrorUI").c_str());
+				strcpy(szMsg,lang.getString("NetworkSlotUnassignedErrorUI").c_str());
 			}
 			else {
 				strcpy(szMsg,"Cannot start game.\nSome player(s) are not in a network game slot!");
@@ -1651,7 +1651,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 	    	for(unsigned int j = 0; j < languageList.size(); ++j) {
 				char szMsg[8096]="";
 				if(lang.hasString("NetworkSlotUnassignedError",languageList[j]) == true) {
-					strcpy(szMsg,lang.get("NetworkSlotUnassignedError").c_str());
+					strcpy(szMsg,lang.getString("NetworkSlotUnassignedError").c_str());
 				}
 				else {
 					strcpy(szMsg,"Cannot start game, some player(s) are not in a network game slot!");
@@ -1704,13 +1704,13 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 
 				Lang &lang= Lang::getInstance();
 				char szMsg[1024]="";
-				strcpy(szMsg,lang.get("NetworkSlotNoHumanErrorUI","",true).c_str());
+				strcpy(szMsg,lang.getString("NetworkSlotNoHumanErrorUI","",true).c_str());
 				showMessageBox(szMsg, "", false);
 
 		    	const vector<string> languageList = serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 		    	for(unsigned int j = 0; j < languageList.size(); ++j) {
 					char szMsg[1024]="";
-					strcpy(szMsg,lang.get("NetworkSlotNoHumanError","",true).c_str());
+					strcpy(szMsg,lang.getString("NetworkSlotNoHumanError","",true).c_str());
 
 					serverInterface->sendTextMessage(szMsg,-1, true,languageList[j]);
 		    	}
@@ -2113,7 +2113,7 @@ void MenuStateCustomGame::switchSetupForSlots(SwitchSetupRequest **switchSetupRe
 
 							if(switchSetupRequests[i]->getSelectedFactionName() != "" &&
 								(slot != NULL && switchSetupRequests[i]->getSelectedFactionName() !=
-										Lang::getInstance().get("DataMissing",slot->getNetworkPlayerLanguage(),true))) {
+										Lang::getInstance().getString("DataMissing",slot->getNetworkPlayerLanguage(),true))) {
 								listBoxFactions[newFactionIdx].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
 							}
 							if(switchSetupRequests[i]->getToTeam() != -1) {
@@ -2150,7 +2150,7 @@ void MenuStateCustomGame::switchSetupForSlots(SwitchSetupRequest **switchSetupRe
 
 						if(switchSetupRequests[i]->getSelectedFactionName() != "" &&
 							(slot != NULL && switchSetupRequests[i]->getSelectedFactionName() !=
-									Lang::getInstance().get("DataMissing",slot->getNetworkPlayerLanguage(),true))) {
+									Lang::getInstance().getString("DataMissing",slot->getNetworkPlayerLanguage(),true))) {
 							listBoxFactions[i].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
 						}
 						if(switchSetupRequests[i]->getToTeam() != -1) {
@@ -2260,19 +2260,19 @@ void MenuStateCustomGame::update() {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 			if(EndsWith(masterServererErrorToShow, "wrong router setup") == true) {
-				masterServererErrorToShow=lang.get("WrongRouterSetup");
+				masterServererErrorToShow=lang.getString("WrongRouterSetup");
 			}
 
 			Lang &lang= Lang::getInstance();
 			string publishText = " (disabling publish)";
 			if(lang.hasString("PublishDisabled") == true) {
-				publishText = lang.get("PublishDisabled");
+				publishText = lang.getString("PublishDisabled");
 			}
 
             masterServererErrorToShow += publishText;
 			showMasterserverError=false;
 			mainMessageBoxState=1;
-			showMessageBox( masterServererErrorToShow, lang.get("ErrorFromMasterserver"), false);
+			showMessageBox( masterServererErrorToShow, lang.getString("ErrorFromMasterserver"), false);
 
 			if(this->headlessServerMode == false) {
 				checkBoxPublishServer.setValue(false);
@@ -3327,7 +3327,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, playername is AI (blank)\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i);
 
 				Lang &lang= Lang::getInstance();
-				gameSettings->setNetworkPlayerName(slotIndex, lang.get("AI") + intToStr(AIPlayerCount));
+				gameSettings->setNetworkPlayerName(slotIndex, lang.getString("AI") + intToStr(AIPlayerCount));
 				labelPlayerNames[i].setText("");
 			}
 			if (listBoxControls[i].getSelectedItemIndex() == ctHuman) {
@@ -3661,7 +3661,7 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	//printf("In [%s::%s line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	checkBoxAllowObservers.setValue(gameSettings.getAllowObservers() == true ? true : false);
-	//listBoxEnableObserverMode.setSelectedItem(gameSettings.getEnableObserverModeAtEndGame() == true ? lang.get("Yes") : lang.get("No"));
+	//listBoxEnableObserverMode.setSelectedItem(gameSettings.getEnableObserverModeAtEndGame() == true ? lang.getString("Yes") : lang.getString("No"));
 
 	checkBoxEnableSwitchTeamMode.setValue((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching ? true : false);
 	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(gameSettings.getAiAcceptSwitchTeamPercentChance()));
@@ -3677,9 +3677,9 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 
 	//listBoxPathFinderType.setSelectedItemIndex(gameSettings.getPathFinderType());
 
-	//listBoxEnableServerControlledAI.setSelectedItem(gameSettings.getEnableServerControlledAI() == true ? lang.get("Yes") : lang.get("No"));
+	//listBoxEnableServerControlledAI.setSelectedItem(gameSettings.getEnableServerControlledAI() == true ? lang.getString("Yes") : lang.getString("No"));
 
-	//labelNetworkFramePeriod.setText(lang.get("NetworkFramePeriod"));
+	//labelNetworkFramePeriod.setText(lang.getString("NetworkFramePeriod"));
 
 	//listBoxNetworkFramePeriod.setSelectedItem(intToStr(gameSettings.getNetworkFramePeriod()/10*10));
 
@@ -3800,7 +3800,7 @@ bool MenuStateCustomGame::hasNetworkGameSettings() {
 void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview) {
 	try {
 		Lang &lang= Lang::getInstance();
-		if(MapPreview::loadMapInfo(file, mapInfo, lang.get("MaxPlayers"),lang.get("Size"),true) == true) {
+		if(MapPreview::loadMapInfo(file, mapInfo, lang.getString("MaxPlayers"),lang.getString("Size"),true) == true) {
 			ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 			for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 				if(serverInterface->getSlot(i) != NULL &&
@@ -3962,7 +3962,7 @@ void MenuStateCustomGame::updateNetworkSlots() {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 					showGeneralError=true;
 					if(serverInterface->isPortBound() == false) {
-						generalErrorToShow = Lang::getInstance().get("ErrorBindingPort") + " : " + intToStr(serverInterface->getBindPort());
+						generalErrorToShow = Lang::getInstance().getString("ErrorBindingPort") + " : " + intToStr(serverInterface->getBindPort());
 					}
 					else {
 						generalErrorToShow = ex.what();
@@ -4049,20 +4049,20 @@ void MenuStateCustomGame::keyDown(SDL_KeyboardEvent key) {
 				float currentVolume = CoreData::getInstance().getMenuMusic()->getVolume();
 				if(currentVolume > 0) {
 					CoreData::getInstance().getMenuMusic()->setVolume(0.f);
-					console.addLine(lang.get("GameMusic") + " " + lang.get("Off"));
+					console.addLine(lang.getString("GameMusic") + " " + lang.getString("Off"));
 				}
 				else {
 					CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
 					//If the config says zero, use the default music volume
 					//gameMusic->setVolume(configVolume ? configVolume : 0.9);
-					console.addLine(lang.get("GameMusic"));
+					console.addLine(lang.getString("GameMusic"));
 				}
 			}
 			//else if(key == configKeys.getCharKey("SaveGUILayout")) {
 			else if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
 				bool saved = GraphicComponent::saveAllCustomProperties(containerName);
 				Lang &lang= Lang::getInstance();
-				console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
+				console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
 			}
 		}
 	}

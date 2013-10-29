@@ -71,20 +71,20 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
     buttonExit.registerGraphicComponent(containerName,"buttonExit");
     buttonExit.init(425, yPos, 150);
 
-	buttonNewGame.setText(lang.get("NewGame"));
-	buttonLoadGame.setText(lang.get("LoadGame"));
-	buttonMods.setText(lang.get("Mods"));
-	buttonOptions.setText(lang.get("Options"));
-	buttonAbout.setText(lang.get("About"));
-	buttonExit.setText(lang.get("Exit"));
+	buttonNewGame.setText(lang.getString("NewGame"));
+	buttonLoadGame.setText(lang.getString("LoadGame"));
+	buttonMods.setText(lang.getString("Mods"));
+	buttonOptions.setText(lang.getString("Options"));
+	buttonAbout.setText(lang.getString("About"));
+	buttonExit.setText(lang.getString("Exit"));
 	
 	//mesage box
 	mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
-	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
+	mainMessageBox.init(lang.getString("Yes"), lang.getString("No"));
 	mainMessageBox.setEnabled(false);
 
 	errorMessageBox.registerGraphicComponent(containerName,"errorMessageBox");
-	errorMessageBox.init(lang.get("Ok"));
+	errorMessageBox.init(lang.getString("Ok"));
 	errorMessageBox.setEnabled(false);
 
 	//PopupMenu popupMenu;
@@ -113,15 +113,15 @@ void MenuStateRoot::reloadUI() {
 		labelVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getSVNRevisionString() + "]");
 	}
 
-	buttonNewGame.setText(lang.get("NewGame"));
-	buttonLoadGame.setText(lang.get("LoadGame"));
-	buttonMods.setText(lang.get("Mods"));
-	buttonOptions.setText(lang.get("Options"));
-	buttonAbout.setText(lang.get("About"));
-	buttonExit.setText(lang.get("Exit"));
+	buttonNewGame.setText(lang.getString("NewGame"));
+	buttonLoadGame.setText(lang.getString("LoadGame"));
+	buttonMods.setText(lang.getString("Mods"));
+	buttonOptions.setText(lang.getString("Options"));
+	buttonAbout.setText(lang.getString("About"));
+	buttonExit.setText(lang.getString("Exit"));
 
-	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
-	errorMessageBox.init(lang.get("Ok"));
+	mainMessageBox.init(lang.getString("Yes"), lang.getString("No"));
+	errorMessageBox.init(lang.getString("Ok"));
 	console.resetFonts();
 
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
@@ -319,7 +319,7 @@ void MenuStateRoot::keyDown(SDL_KeyboardEvent key) {
 	//if(key == configKeys.getCharKey("ExitKey")) {
 	if(isKeyPressed(configKeys.getSDLKey("ExitKey"),key) == true) {
 		Lang &lang= Lang::getInstance();
-		showMessageBox(lang.get("ExitGame?"), "", true);
+		showMessageBox(lang.getString("ExitGame?"), "", true);
 	}
 	//else if(mainMessageBox.getEnabled() == true && key == vkReturn) {
 	else if(mainMessageBox.getEnabled() == true && isKeyPressed(SDLK_RETURN,key) == true) {
@@ -339,7 +339,7 @@ void MenuStateRoot::keyDown(SDL_KeyboardEvent key) {
 	else if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
 		GraphicComponent::saveAllCustomProperties(containerName);
 		//Lang &lang= Lang::getInstance();
-		//console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
+		//console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
 	}
 
 }

@@ -95,7 +95,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	announcementLoaded=false;
 
 	mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
-	mainMessageBox.init(lang.get("Ok"));
+	mainMessageBox.init(lang.getString("Ok"));
 	mainMessageBox.setEnabled(false);
 	mainMessageBoxState=0;
 
@@ -120,10 +120,10 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	labelTitle.init(330, serverLinesYBase+40);
 	labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
 	labelTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	labelTitle.setText(lang.get("AvailableServers"));
+	labelTitle.setText(lang.getString("AvailableServers"));
 
 	if(Config::getInstance().getString("Masterserver","") == "") {
-		labelTitle.setText("*** " + lang.get("AvailableServers"));
+		labelTitle.setText("*** " + lang.getString("AvailableServers"));
 	}
 
 	// bottom
@@ -139,70 +139,70 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	//i+=10;
 	glestVersionLabel.registerGraphicComponent(containerName,"glestVersionLabel");
 	glestVersionLabel.init(i,startOffset-lineOffset);
-	glestVersionLabel.setText(lang.get("MGVersion"));
+	glestVersionLabel.setText(lang.getString("MGVersion"));
 
 	i+=70;
 	platformLabel.registerGraphicComponent(containerName,"platformLabel");
 	platformLabel.init(i,startOffset-lineOffset);
-	platformLabel.setText(lang.get("MGPlatform"));
+	platformLabel.setText(lang.getString("MGPlatform"));
 
 //	i+=50;
 //	binaryCompileDateLabel.registerGraphicComponent(containerName,"binaryCompileDateLabel");
 //	binaryCompileDateLabel.init(i,startOffset-lineOffset);
-//	binaryCompileDateLabel.setText(lang.get("MGBuildDateTime"));
+//	binaryCompileDateLabel.setText(lang.getString("MGBuildDateTime"));
 
 	//game info:
 	i+=130;
 	serverTitleLabel.registerGraphicComponent(containerName,"serverTitleLabel");
 	serverTitleLabel.init(i,startOffset-lineOffset);
-	serverTitleLabel.setText(lang.get("MGGameTitle"));
+	serverTitleLabel.setText(lang.getString("MGGameTitle"));
 
 	i+=150;
 	countryLabel.registerGraphicComponent(containerName,"countryLabel");
 	countryLabel.init(i,startOffset-lineOffset);
-	countryLabel.setText(lang.get("MGGameCountry"));
+	countryLabel.setText(lang.getString("MGGameCountry"));
 
 	i+=65;
 
 //	ipAddressLabel.registerGraphicComponent(containerName,"ipAddressLabel");
 //	ipAddressLabel.init(i,startOffset-lineOffset);
-//	ipAddressLabel.setText(lang.get("MGGameIP"));
+//	ipAddressLabel.setText(lang.getString("MGGameIP"));
 //	i+=100;
 
 	//game setup info:
 	techLabel.registerGraphicComponent(containerName,"techLabel");
 	techLabel.init(i,startOffset-lineOffset);
-	techLabel.setText(lang.get("TechTree"));
+	techLabel.setText(lang.getString("TechTree"));
 
 	i+=120;
 	mapLabel.registerGraphicComponent(containerName,"mapLabel");
 	mapLabel.init(i,startOffset-lineOffset);
-	mapLabel.setText(lang.get("Map"));
+	mapLabel.setText(lang.getString("Map"));
 
 	i+=120;
 //	tilesetLabel.registerGraphicComponent(containerName,"tilesetLabel");
 //	tilesetLabel.init(i,startOffset-lineOffset);
-//	tilesetLabel.setText(lang.get("Tileset"));
+//	tilesetLabel.setText(lang.getString("Tileset"));
 //	i+=100;
 
 	activeSlotsLabel.registerGraphicComponent(containerName,"activeSlotsLabel");
 	activeSlotsLabel.init(i,startOffset-lineOffset);
-	activeSlotsLabel.setText(lang.get("MGGameSlots"));
+	activeSlotsLabel.setText(lang.getString("MGGameSlots"));
 
 	i+=50;
 	externalConnectPort.registerGraphicComponent(containerName,"externalConnectPort");
 	externalConnectPort.init(i,startOffset-lineOffset);
-	externalConnectPort.setText(lang.get("Port"));
+	externalConnectPort.setText(lang.getString("Port"));
 
 	i+=60;
 	statusLabel.registerGraphicComponent(containerName,"statusLabel");
 	statusLabel.init(i,startOffset-lineOffset);
-	statusLabel.setText(lang.get("MGGameStatus"));
+	statusLabel.setText(lang.getString("MGGameStatus"));
 
 	i+=130;
 	selectButton.registerGraphicComponent(containerName,"selectButton");
 	selectButton.init(i, startOffset-lineOffset);
-	selectButton.setText(lang.get("MGJoinGameSlots"));
+	selectButton.setText(lang.getString("MGJoinGameSlots"));
 
 	// Titles for current games - END
 
@@ -215,17 +215,17 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     buttonRefresh.registerGraphicComponent(containerName,"buttonRefresh");
     buttonRefresh.init(550, buttonPos, 150);
 
-	buttonRefresh.setText(lang.get("RefreshList"));
-	buttonReturn.setText(lang.get("Return"));
-	buttonCreateGame.setText(lang.get("HostGame"));
-	labelAutoRefresh.setText(lang.get("AutoRefreshRate"));
+	buttonRefresh.setText(lang.getString("RefreshList"));
+	buttonReturn.setText(lang.getString("Return"));
+	buttonCreateGame.setText(lang.getString("HostGame"));
+	labelAutoRefresh.setText(lang.getString("AutoRefreshRate"));
 
 	labelAutoRefresh.registerGraphicComponent(containerName,"labelAutoRefresh");
 	labelAutoRefresh.init(800,buttonPos+30);
 
 	listBoxAutoRefresh.registerGraphicComponent(containerName,"listBoxAutoRefresh");
 	listBoxAutoRefresh.init(800,buttonPos);
-	listBoxAutoRefresh.pushBackItem(lang.get("Off"));
+	listBoxAutoRefresh.pushBackItem(lang.getString("Off"));
 	listBoxAutoRefresh.pushBackItem("10 s");
 	listBoxAutoRefresh.pushBackItem("20 s");
 	listBoxAutoRefresh.pushBackItem("30 s");
@@ -234,7 +234,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 
 	ircOnlinePeopleLabel.registerGraphicComponent(containerName,"ircOnlinePeopleLabel");
 	ircOnlinePeopleLabel.init(userButtonsXBase,userButtonsYBase+userButtonsLineHeight);
-	ircOnlinePeopleLabel.setText(lang.get("IRCPeopleOnline"));
+	ircOnlinePeopleLabel.setText(lang.getString("IRCPeopleOnline"));
 
 	ircOnlinePeopleStatusLabel.registerGraphicComponent(containerName,"ircOnlinePeopleStatusLabel");
 	ircOnlinePeopleStatusLabel.init(userButtonsXBase,userButtonsYBase+userButtonsLineHeight-20);
@@ -245,7 +245,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
 	NetworkManager::getInstance().end();
 	NetworkManager::getInstance().init(nrClient);
 
-	//console.addLine(lang.get("ToSwitchOffMusicPress")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
+	//console.addLine(lang.getString("ToSwitchOffMusicPress")+" - \""+configKeys.getCharKey("ToggleMusic")+"\"");
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 
@@ -339,7 +339,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     }
 
     if(netPlayerName=="newbie"){
-    	showMessageBox(lang.get("PlayerNameNotSetPrompt"),lang.get("PlayerNameNotSetTitle"),false);
+    	showMessageBox(lang.getString("PlayerNameNotSetPrompt"),lang.getString("PlayerNameNotSetTitle"),false);
     }
     //showMessageBox("Go back and set your name in the game options!\n\nAt the moment you are just called >>newbie<< !","Player name not set!",false);
 
@@ -353,7 +353,7 @@ void MenuStateMasterserver::reloadUI() {
 	consoleIRC.setFont(CoreData::getInstance().getMenuFontNormal());
 	consoleIRC.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
-	mainMessageBox.init(lang.get("Ok"));
+	mainMessageBox.init(lang.getString("Ok"));
 
     announcementLabel.setFont(CoreData::getInstance().getMenuFontBig());
     announcementLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
@@ -363,40 +363,40 @@ void MenuStateMasterserver::reloadUI() {
 
 	labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
 	labelTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	labelTitle.setText(lang.get("AvailableServers"));
+	labelTitle.setText(lang.getString("AvailableServers"));
 
 	if(Config::getInstance().getString("Masterserver","") == "") {
-		labelTitle.setText("*** " + lang.get("AvailableServers"));
+		labelTitle.setText("*** " + lang.getString("AvailableServers"));
 	}
 
-	glestVersionLabel.setText(lang.get("MGVersion"));
+	glestVersionLabel.setText(lang.getString("MGVersion"));
 
-	platformLabel.setText(lang.get("MGPlatform"));
+	platformLabel.setText(lang.getString("MGPlatform"));
 
-	serverTitleLabel.setText(lang.get("MGGameTitle"));
+	serverTitleLabel.setText(lang.getString("MGGameTitle"));
 
-	countryLabel.setText(lang.get("MGGameCountry"));
+	countryLabel.setText(lang.getString("MGGameCountry"));
 
-	techLabel.setText(lang.get("TechTree"));
+	techLabel.setText(lang.getString("TechTree"));
 
-	mapLabel.setText(lang.get("Map"));
+	mapLabel.setText(lang.getString("Map"));
 
-	activeSlotsLabel.setText(lang.get("MGGameSlots"));
+	activeSlotsLabel.setText(lang.getString("MGGameSlots"));
 
-	externalConnectPort.setText(lang.get("Port"));
+	externalConnectPort.setText(lang.getString("Port"));
 
-	statusLabel.setText(lang.get("MGGameStatus"));
+	statusLabel.setText(lang.getString("MGGameStatus"));
 
-	selectButton.setText(lang.get("MGJoinGameSlots"));
+	selectButton.setText(lang.getString("MGJoinGameSlots"));
 
 	// Titles for current games - END
 
-	buttonRefresh.setText(lang.get("RefreshList"));
-	buttonReturn.setText(lang.get("Return"));
-	buttonCreateGame.setText(lang.get("HostGame"));
-	labelAutoRefresh.setText(lang.get("AutoRefreshRate"));
+	buttonRefresh.setText(lang.getString("RefreshList"));
+	buttonReturn.setText(lang.getString("Return"));
+	buttonCreateGame.setText(lang.getString("HostGame"));
+	labelAutoRefresh.setText(lang.getString("AutoRefreshRate"));
 
-	ircOnlinePeopleLabel.setText(lang.get("IRCPeopleOnline"));
+	ircOnlinePeopleLabel.setText(lang.getString("IRCPeopleOnline"));
 
     chatManager.setFont(CoreData::getInstance().getMenuFontNormal());
     chatManager.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
@@ -747,8 +747,8 @@ void MenuStateMasterserver::render(){
         else {
             const Vec4f titleLabelColor = RED;
 
-            if(ircOnlinePeopleStatusLabel.getText() != lang.get("Connecting")) {
-            	ircOnlinePeopleStatusLabel.setText(lang.get("Connecting"));
+            if(ircOnlinePeopleStatusLabel.getText() != lang.getString("Connecting")) {
+            	ircOnlinePeopleStatusLabel.setText(lang.getString("Connecting"));
             }
 
             renderer.renderLabel(&ircOnlinePeopleLabel,&titleLabelColor);
@@ -987,7 +987,7 @@ void MenuStateMasterserver::simpleTask(BaseThread *callingThread) {
                 consoleIRC.addLine("---------------------------------------------");
                 // write hint to console:
                 Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-                consoleIRC.addLine(Lang::getInstance().get("ToSwitchOffMusicPress")+" - \""+configKeys.getString("ToggleMusic")+"\"");
+                consoleIRC.addLine(Lang::getInstance().getString("ToSwitchOffMusicPress")+" - \""+configKeys.getString("ToggleMusic")+"\"");
 
                 announcementLoaded=true;
             }
@@ -1047,10 +1047,10 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------> server [%s] serverEntities.size() = " MG_SIZE_T_SPECIFIER " MIN_FIELDS_EXPECTED = %d\n",server.c_str(),serverEntities.size(),MIN_FIELDS_EXPECTED);
 
 				if(serverEntities.size() >= MIN_FIELDS_EXPECTED) {
-					labelTitle.setText(lang.get("AvailableServers"));
+					labelTitle.setText(lang.getString("AvailableServers"));
 
 					if(Config::getInstance().getString("Masterserver","") == "") {
-						labelTitle.setText("*** " + lang.get("AvailableServers"));
+						labelTitle.setText("*** " + lang.getString("AvailableServers"));
 					}
 
 					MasterServerInfo *masterServerInfo=new MasterServerInfo();
@@ -1092,7 +1092,7 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 					Lang &lang= Lang::getInstance();
-					labelTitle.setText("*** " + lang.get("AvailableServers") + "[" + intToStr(serverEntities.size()) + "][" + intToStr(MIN_FIELDS_EXPECTED) + "] [" + serverInfo + "]");
+					labelTitle.setText("*** " + lang.getString("AvailableServers") + "[" + intToStr(serverEntities.size()) + "][" + intToStr(MIN_FIELDS_EXPECTED) + "] [" + serverInfo + "]");
 
 					if(masterserverParseErrorShown == false) {
 						masterserverParseErrorShown = true;
@@ -1108,7 +1108,7 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 
     }
 	catch(const exception &ex) {
-	    labelTitle.setText("*** " + lang.get("AvailableServers") + " [" + ex.what() + "]");
+	    labelTitle.setText("*** " + lang.getString("AvailableServers") + " [" + ex.what() + "]");
 	    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error during Internet game status update: [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 	}
 
@@ -1135,7 +1135,7 @@ bool MenuStateMasterserver::connectToServer(string ipString, int port) {
 
 		mainMessageBoxState=1;
 		Lang &lang= Lang::getInstance();
-		showMessageBox(lang.get("CouldNotConnect"), lang.get("ConnectionFailed"), false);
+		showMessageBox(lang.getString("CouldNotConnect"), lang.getString("ConnectionFailed"), false);
 		return false;
 
 		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] connection failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
@@ -1210,20 +1210,20 @@ void MenuStateMasterserver::keyDown(SDL_KeyboardEvent key) {
             float currentVolume = CoreData::getInstance().getMenuMusic()->getVolume();
             if(currentVolume > 0) {
                 CoreData::getInstance().getMenuMusic()->setVolume(0.f);
-                consoleIRC.addLine(lang.get("GameMusic") + " " + lang.get("Off"));
+                consoleIRC.addLine(lang.getString("GameMusic") + " " + lang.getString("Off"));
             }
             else {
                 CoreData::getInstance().getMenuMusic()->setVolume(configVolume);
                 //If the config says zero, use the default music volume
                 //gameMusic->setVolume(configVolume ? configVolume : 0.9);
-                consoleIRC.addLine(lang.get("GameMusic"));
+                consoleIRC.addLine(lang.getString("GameMusic"));
             }
         }
         //else if(key == configKeys.getCharKey("SaveGUILayout")) {
     	else if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
             bool saved = GraphicComponent::saveAllCustomProperties(containerName);
             Lang &lang= Lang::getInstance();
-            consoleIRC.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
+            consoleIRC.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
         }
     }
 }

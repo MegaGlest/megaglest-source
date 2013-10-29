@@ -188,7 +188,7 @@ Program::Program() {
 
 	//mesage box
 	Lang &lang= Lang::getInstance();
-	msgBox.init(lang.get("Ok"));
+	msgBox.init(lang.getString("Ok"));
 	msgBox.setEnabled(false);
 }
 
@@ -611,7 +611,7 @@ void Program::setState(ProgramState *programStateNew, bool cleanupOldState) {
 
 		//mesage box
 		Lang &lang= Lang::getInstance();
-		msgBox.init(lang.get("Ok"));
+		msgBox.init(lang.getString("Ok"));
 		msgBox.setEnabled(msgBoxEnabled);
 
 		fpsTimer.init(1, maxTimes);

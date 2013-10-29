@@ -62,7 +62,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		int tabButtonHeight=30;
 
 		mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
-		mainMessageBox.init(lang.get("Ok"));
+		mainMessageBox.init(lang.getString("Ok"));
 		mainMessageBox.setEnabled(false);
 		mainMessageBoxState=0;
 
@@ -70,33 +70,33 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		buttonAudioSection.init(0, 720,tabButtonWidth,tabButtonHeight);
 		buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-		buttonAudioSection.setText(lang.get("Audio"));
+		buttonAudioSection.setText(lang.getString("Audio"));
 		// Video Section
 		buttonVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
 		buttonVideoSection.init(200, 720,tabButtonWidth,tabButtonHeight);
 		buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-		buttonVideoSection.setText(lang.get("Video"));
+		buttonVideoSection.setText(lang.getString("Video"));
 		//currentLine-=lineOffset;
 		//MiscSection
 		buttonMiscSection.registerGraphicComponent(containerName,"labelMiscSection");
 		buttonMiscSection.init(400, 700,tabButtonWidth,tabButtonHeight+20);
 		buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-		buttonMiscSection.setText(lang.get("Misc"));
+		buttonMiscSection.setText(lang.getString("Misc"));
 		//NetworkSettings
 		buttonNetworkSettings.registerGraphicComponent(containerName,"labelNetworkSettingsSection");
 		buttonNetworkSettings.init(600, 720,tabButtonWidth,tabButtonHeight);
 		buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-		buttonNetworkSettings.setText(lang.get("Network"));
+		buttonNetworkSettings.setText(lang.getString("Network"));
 
 		//KeyboardSetup
 		buttonKeyboardSetup.registerGraphicComponent(containerName,"buttonKeyboardSetup");
 		buttonKeyboardSetup.init(800, 720,tabButtonWidth,tabButtonHeight);
 		buttonKeyboardSetup.setFont(CoreData::getInstance().getMenuFontVeryBig());
 		buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-		buttonKeyboardSetup.setText(lang.get("Keyboardsetup"));
+		buttonKeyboardSetup.setText(lang.getString("Keyboardsetup"));
 
 		int currentLine=650; // reset line pos
 		int currentLabelStart=leftLabelStart; // set to right side
@@ -105,7 +105,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		//lang
 		labelLang.registerGraphicComponent(containerName,"labelLang");
 		labelLang.init(currentLabelStart, currentLine);
-		labelLang.setText(lang.get("Language"));
+		labelLang.setText(lang.getString("Language"));
 
 		listBoxLang.registerGraphicComponent(containerName,"listBoxLang");
 		listBoxLang.init(currentColumnStart, currentLine, 320);
@@ -145,7 +145,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		//playerName
 		labelPlayerNameLabel.registerGraphicComponent(containerName,"labelPlayerNameLabel");
 		labelPlayerNameLabel.init(currentLabelStart,currentLine);
-		labelPlayerNameLabel.setText(lang.get("Playername"));
+		labelPlayerNameLabel.setText(lang.getString("Playername"));
 
 		labelPlayerName.registerGraphicComponent(containerName,"labelPlayerName");
 		labelPlayerName.init(currentColumnStart,currentLine);
@@ -160,7 +160,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		//FontSizeAdjustment
 		labelFontSizeAdjustment.registerGraphicComponent(containerName,"labelFontSizeAdjustment");
 		labelFontSizeAdjustment.init(currentLabelStart,currentLine);
-		labelFontSizeAdjustment.setText(lang.get("FontSizeAdjustment"));
+		labelFontSizeAdjustment.setText(lang.getString("FontSizeAdjustment"));
 
 		listFontSizeAdjustment.registerGraphicComponent(containerName,"listFontSizeAdjustment");
 		listFontSizeAdjustment.init(currentColumnStart, currentLine, 80);
@@ -173,7 +173,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		// Screenshot type flag
 		labelScreenShotType.registerGraphicComponent(containerName,"labelScreenShotType");
 		labelScreenShotType.init(currentLabelStart ,currentLine);
-		labelScreenShotType.setText(lang.get("ScreenShotFileType"));
+		labelScreenShotType.setText(lang.getString("ScreenShotFileType"));
 
 		listBoxScreenShotType.registerGraphicComponent(containerName,"listBoxScreenShotType");
 		listBoxScreenShotType.init(currentColumnStart ,currentLine, 80 );
@@ -187,7 +187,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 
 		labelDisableScreenshotConsoleText.registerGraphicComponent(containerName,"lavelDisableScreenshotConsoleText");
 		labelDisableScreenshotConsoleText.init(currentLabelStart ,currentLine);
-		labelDisableScreenshotConsoleText.setText(lang.get("ScreenShotConsoleText"));
+		labelDisableScreenshotConsoleText.setText(lang.getString("ScreenShotConsoleText"));
 
 		checkBoxDisableScreenshotConsoleText.registerGraphicComponent(containerName,"checkBoxDisableScreenshotConsoleText");
 		checkBoxDisableScreenshotConsoleText.init(currentColumnStart ,currentLine );
@@ -197,7 +197,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 
 		labelMouseMoveScrollsWorld.registerGraphicComponent(containerName,"labelMouseMoveScrollsWorld");
 		labelMouseMoveScrollsWorld.init(currentLabelStart ,currentLine);
-		labelMouseMoveScrollsWorld.setText(lang.get("MouseScrollsWorld"));
+		labelMouseMoveScrollsWorld.setText(lang.getString("MouseScrollsWorld"));
 
 		checkBoxMouseMoveScrollsWorld.registerGraphicComponent(containerName,"checkBoxMouseMoveScrollsWorld");
 		checkBoxMouseMoveScrollsWorld.init(currentColumnStart ,currentLine );
@@ -206,7 +206,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 
 		labelVisibleHud.registerGraphicComponent(containerName,"lavelVisibleHud");
 		labelVisibleHud.init(currentLabelStart ,currentLine);
-		labelVisibleHud.setText(lang.get("VisibleHUD"));
+		labelVisibleHud.setText(lang.getString("VisibleHUD"));
 
 		checkBoxVisibleHud.registerGraphicComponent(containerName,"checkBoxVisibleHud");
 		checkBoxVisibleHud.init(currentColumnStart ,currentLine );
@@ -216,7 +216,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 
 		labelChatStaysActive.registerGraphicComponent(containerName,"labelChatStaysActive");
 		labelChatStaysActive.init(currentLabelStart ,currentLine);
-		labelChatStaysActive.setText(lang.get("ChatStaysActive"));
+		labelChatStaysActive.setText(lang.getString("ChatStaysActive"));
 
 		checkBoxChatStaysActive.registerGraphicComponent(containerName,"checkBoxChatStaysActive");
 		checkBoxChatStaysActive.init(currentColumnStart ,currentLine );
@@ -226,7 +226,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 
 		labelTimeDisplay.registerGraphicComponent(containerName,"labelTimeDisplay");
 		labelTimeDisplay.init(currentLabelStart ,currentLine);
-		labelTimeDisplay.setText(lang.get("TimeDisplay"));
+		labelTimeDisplay.setText(lang.getString("TimeDisplay"));
 
 		checkBoxTimeDisplay.registerGraphicComponent(containerName,"checkBoxTimeDisplay");
 		checkBoxTimeDisplay.init(currentColumnStart ,currentLine );
@@ -236,14 +236,14 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 
 		labelLuaDisableSecuritySandbox.registerGraphicComponent(containerName,"labelLuaDisableSecuritySandbox");
 		labelLuaDisableSecuritySandbox.init(currentLabelStart ,currentLine);
-		labelLuaDisableSecuritySandbox.setText(lang.get("LuaDisableSecuritySandbox"));
+		labelLuaDisableSecuritySandbox.setText(lang.getString("LuaDisableSecuritySandbox"));
 
 		checkBoxLuaDisableSecuritySandbox.registerGraphicComponent(containerName,"checkBoxLuaDisableSecuritySandbox");
 		checkBoxLuaDisableSecuritySandbox.init(currentColumnStart ,currentLine );
 		checkBoxLuaDisableSecuritySandbox.setValue(config.getBool("DisableLuaSandbox","false"));
 
 		luaMessageBox.registerGraphicComponent(containerName,"luaMessageBox");
-		luaMessageBox.init(lang.get("Yes"),lang.get("No"));
+		luaMessageBox.init(lang.getString("Yes"),lang.getString("No"));
 		luaMessageBox.setEnabled(false);
 		luaMessageBoxState=0;
 
@@ -254,17 +254,17 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		// buttons
 		buttonOk.registerGraphicComponent(containerName,"buttonOk");
 		buttonOk.init(buttonStartPos, buttonRowPos, 100);
-		buttonOk.setText(lang.get("Save"));
+		buttonOk.setText(lang.getString("Save"));
 
 		buttonReturn.registerGraphicComponent(containerName,"buttonAbort");
 		buttonReturn.init(buttonStartPos+110, buttonRowPos, 100);
-		buttonReturn.setText(lang.get("Return"));
+		buttonReturn.setText(lang.getString("Return"));
 
 		// Transifex related UI
 		currentLine-=lineOffset*4;
 		labelCustomTranslation.registerGraphicComponent(containerName,"labelCustomTranslation");
 		labelCustomTranslation.init(currentLabelStart ,currentLine);
-		labelCustomTranslation.setText(lang.get("CustomTranslation"));
+		labelCustomTranslation.setText(lang.getString("CustomTranslation"));
 
 		checkBoxCustomTranslation.registerGraphicComponent(containerName,"checkBoxCustomTranslation");
 		checkBoxCustomTranslation.init(currentColumnStart ,currentLine );
@@ -273,15 +273,15 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 
 		labelTransifexUserLabel.registerGraphicComponent(containerName,"labelTransifexUserLabel");
 		labelTransifexUserLabel.init(currentLabelStart,currentLine);
-		labelTransifexUserLabel.setText(lang.get("TransifexUserName"));
+		labelTransifexUserLabel.setText(lang.getString("TransifexUserName"));
 
 		labelTransifexPwdLabel.registerGraphicComponent(containerName,"labelTransifexPwdLabel");
 		labelTransifexPwdLabel.init(currentLabelStart + 250 ,currentLine);
-		labelTransifexPwdLabel.setText(lang.get("TransifexPwd"));
+		labelTransifexPwdLabel.setText(lang.getString("TransifexPwd"));
 
 		labelTransifexI18NLabel.registerGraphicComponent(containerName,"labelTransifexI18NLabel");
 		labelTransifexI18NLabel.init(currentLabelStart + 500 ,currentLine);
-		labelTransifexI18NLabel.setText(lang.get("TransifexI18N"));
+		labelTransifexI18NLabel.setText(lang.getString("TransifexI18N"));
 
 		currentLine-=lineOffset;
 
@@ -310,11 +310,11 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 
 		buttonGetNewLanguageFiles.registerGraphicComponent(containerName,"buttonGetNewLanguageFiles");
 		buttonGetNewLanguageFiles.init(currentLabelStart+20, currentLine, 200);
-		buttonGetNewLanguageFiles.setText(lang.get("TransifexGetLanguageFiles"));
+		buttonGetNewLanguageFiles.setText(lang.getString("TransifexGetLanguageFiles"));
 
 		buttonDeleteNewLanguageFiles.registerGraphicComponent(containerName,"buttonDeleteNewLanguageFiles");
 		buttonDeleteNewLanguageFiles.init(currentLabelStart + 250, currentLine, 200);
-		buttonDeleteNewLanguageFiles.setText(lang.get("TransifexDeleteLanguageFiles"));
+		buttonDeleteNewLanguageFiles.setText(lang.getString("TransifexDeleteLanguageFiles"));
 
 		setupTransifexUI();
 
@@ -331,60 +331,60 @@ void MenuStateOptions::reloadUI() {
 
 	console.resetFonts();
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
-	mainMessageBox.init(lang.get("Ok"));
-	luaMessageBox.init(lang.get("Yes"),lang.get("No"));
+	mainMessageBox.init(lang.getString("Ok"));
+	luaMessageBox.init(lang.getString("Yes"),lang.getString("No"));
 
 	buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 	buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonAudioSection.setText(lang.get("Audio"));
+	buttonAudioSection.setText(lang.getString("Audio"));
 
 	buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 	buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonVideoSection.setText(lang.get("Video"));
+	buttonVideoSection.setText(lang.getString("Video"));
 
 	buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
 	buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonMiscSection.setText(lang.get("Misc"));
+	buttonMiscSection.setText(lang.getString("Misc"));
 
 	buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
 	buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonNetworkSettings.setText(lang.get("Network"));
+	buttonNetworkSettings.setText(lang.getString("Network"));
 
 	buttonKeyboardSetup.setFont(CoreData::getInstance().getMenuFontVeryBig());
 	buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonKeyboardSetup.setText(lang.get("Keyboardsetup"));
+	buttonKeyboardSetup.setText(lang.getString("Keyboardsetup"));
 
-	labelVisibleHud.setText(lang.get("VisibleHUD"));
-	labelChatStaysActive.setText(lang.get("ChatStaysActive"));
-	labelTimeDisplay.setText(lang.get("TimeDisplay"));
+	labelVisibleHud.setText(lang.getString("VisibleHUD"));
+	labelChatStaysActive.setText(lang.getString("ChatStaysActive"));
+	labelTimeDisplay.setText(lang.getString("TimeDisplay"));
 
-	labelLuaDisableSecuritySandbox.setText(lang.get("LuaDisableSecuritySandbox"));
+	labelLuaDisableSecuritySandbox.setText(lang.getString("LuaDisableSecuritySandbox"));
 
-	labelLang.setText(lang.get("Language"));
+	labelLang.setText(lang.getString("Language"));
 
-	labelPlayerNameLabel.setText(lang.get("Playername"));
+	labelPlayerNameLabel.setText(lang.getString("Playername"));
 
 	labelPlayerName.setFont(CoreData::getInstance().getMenuFontBig());
 	labelPlayerName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
-	labelFontSizeAdjustment.setText(lang.get("FontSizeAdjustment"));
+	labelFontSizeAdjustment.setText(lang.getString("FontSizeAdjustment"));
 
-	labelScreenShotType.setText(lang.get("ScreenShotFileType"));
+	labelScreenShotType.setText(lang.getString("ScreenShotFileType"));
 
-	labelDisableScreenshotConsoleText.setText(lang.get("ScreenShotConsoleText"));
+	labelDisableScreenshotConsoleText.setText(lang.getString("ScreenShotConsoleText"));
 
-	labelMouseMoveScrollsWorld.setText(lang.get("MouseScrollsWorld"));
+	labelMouseMoveScrollsWorld.setText(lang.getString("MouseScrollsWorld"));
 
 
-	buttonOk.setText(lang.get("Save"));
-	buttonReturn.setText(lang.get("Return"));
+	buttonOk.setText(lang.getString("Save"));
+	buttonReturn.setText(lang.getString("Return"));
 
-	labelCustomTranslation.setText(lang.get("CustomTranslation"));
-	buttonGetNewLanguageFiles.setText(lang.get("TransifexGetLanguageFiles"));
-	buttonDeleteNewLanguageFiles.setText(lang.get("TransifexDeleteLanguageFiles"));
-	labelTransifexUserLabel.setText(lang.get("TransifexUserName"));
-	labelTransifexPwdLabel.setText(lang.get("TransifexPwd"));
-	labelTransifexI18NLabel.setText(lang.get("TransifexI18N"));
+	labelCustomTranslation.setText(lang.getString("CustomTranslation"));
+	buttonGetNewLanguageFiles.setText(lang.getString("TransifexGetLanguageFiles"));
+	buttonDeleteNewLanguageFiles.setText(lang.getString("TransifexDeleteLanguageFiles"));
+	labelTransifexUserLabel.setText(lang.getString("TransifexUserName"));
+	labelTransifexPwdLabel.setText(lang.getString("TransifexPwd"));
+	labelTransifexI18NLabel.setText(lang.getString("TransifexI18N"));
 }
 
 void MenuStateOptions::setupTransifexUI() {
@@ -445,14 +445,14 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 					saveConfig();
 
 					Lang &lang= Lang::getInstance();
-					mainMessageBox.init(lang.get("Ok"));
+					mainMessageBox.init(lang.getString("Ok"));
 					mainMenu->setState(new MenuStateRoot(program, mainMenu));
 				}
 				else {
 					mainMessageBox.setEnabled(false);
 
 					Lang &lang= Lang::getInstance();
-					mainMessageBox.init(lang.get("Ok"));
+					mainMessageBox.init(lang.getString("Ok"));
 				}
 			}
 			else {
@@ -461,7 +461,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 					mainMessageBox.setEnabled(false);
 
 					Lang &lang= Lang::getInstance();
-					mainMessageBox.init(lang.get("Ok"));
+					mainMessageBox.init(lang.getString("Ok"));
 				}
 			}
 		}
@@ -485,7 +485,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 
 			luaMessageBoxState=1;
 			Lang &lang= Lang::getInstance();
-			showLuaMessageBox(lang.get("LuaDisableSecuritySandboxWarning"), lang.get("Question"), false);
+			showLuaMessageBox(lang.getString("LuaDisableSecuritySandboxWarning"), lang.getString("Question"), false);
 		}
 	}
 	else if(buttonOk.mouseClick(x, y)){
@@ -496,7 +496,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 		if(currentFontSizeAdjustment != selectedFontSizeAdjustment){
 			mainMessageBoxState=1;
 			Lang &lang= Lang::getInstance();
-			showMessageBox(lang.get("RestartNeeded"), lang.get("FontSizeAdjustmentChanged"), false);
+			showMessageBox(lang.getString("RestartNeeded"), lang.getString("FontSizeAdjustmentChanged"), false);
 			return;
 		}
 
@@ -679,13 +679,13 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 				}
 
 				if(lang.isLanguageLocal(toLower(language)) == true) {
-					lang.loadStrings(toLower(language));
+					lang.loadGameStrings(toLower(language));
 				}
 
 				if(foundFilesToDelete == true) {
 					mainMessageBoxState=0;
 					Lang &lang= Lang::getInstance();
-					showMessageBox(lang.get("TransifexDeleteSuccess"), lang.get("Notice"), false);
+					showMessageBox(lang.getString("TransifexDeleteSuccess"), lang.getString("Notice"), false);
 				}
 			}
 		}
@@ -873,14 +873,14 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 			if(reloadLanguage == true && langName != "") {
 				Lang &lang= Lang::getInstance();
 				if(lang.isLanguageLocal(toLower(langName)) == true) {
-					lang.loadStrings(toLower(langName));
+					lang.loadGameStrings(toLower(langName));
 				}
 			}
 
 			if(gotDownloads == true) {
 				mainMessageBoxState=0;
 				Lang &lang= Lang::getInstance();
-				showMessageBox(lang.get("TransifexDownloadSuccess") + "\n" + langName, lang.get("Notice"), false);
+				showMessageBox(lang.getString("TransifexDownloadSuccess") + "\n" + langName, lang.getString("Notice"), false);
 			}
 		}
 		return;
@@ -968,7 +968,7 @@ void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
 		if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),c) == true) {
 			GraphicComponent::saveAllCustomProperties(containerName);
 			//Lang &lang= Lang::getInstance();
-			//console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
+			//console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
 		}
 	}
 }
@@ -1051,7 +1051,7 @@ void MenuStateOptions::saveConfig(){
 	std::advance(iterMap, listBoxLang.getSelectedItemIndex());
 
 	config.setString("Lang", iterMap->first);
-	lang.loadStrings(config.getString("Lang"));
+	lang.loadGameStrings(config.getString("Lang"));
 
 	config.setString("FontSizeAdjustment", listFontSizeAdjustment.getSelectedItem());
     config.setString("ScreenShotFileType", listBoxScreenShotType.getSelectedItem());
@@ -1069,7 +1069,7 @@ void MenuStateOptions::saveConfig(){
 		LuaScript::setDisableSandbox(true);
 	}
 	Renderer::getInstance().loadConfig();
-	console.addLine(lang.get("SettingsSaved"));
+	console.addLine(lang.getString("SettingsSaved"));
 }
 
 void MenuStateOptions::setActiveInputLable(GraphicLabel *newLable) {

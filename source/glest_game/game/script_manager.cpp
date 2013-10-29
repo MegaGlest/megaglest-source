@@ -403,7 +403,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 //	luaScript.endCall();
 
 	//setup message box
-	messageBox.init( Lang::getInstance().get("Ok") );
+	messageBox.init( Lang::getInstance().getString("Ok") );
 	messageBox.setEnabled(false);
 	messageBox.setAutoWordWrap(false);
 

@@ -270,14 +270,14 @@ Intro::Intro(Program *program):
 			string lineText = "";
 
 			if(lang.hasString(introTagName,"",true) == true) {
-				lineText = lang.get(introTagName,"",true);
+				lineText = lang.getString(introTagName,"",true);
 			}
 
 			string showStartTime = "IntroStartMilliseconds" + intToStr(i);
 
 			int displayTime = appear;
 			if(lang.hasString(showStartTime,"",true) == true) {
-				displayTime = strToInt(lang.get(showStartTime,"",true));
+				displayTime = strToInt(lang.getString(showStartTime,"",true));
 			}
 			else {
 				if(i == 1) {
@@ -298,7 +298,7 @@ Intro::Intro(Program *program):
 				string introTagTextureWidthName 	= "IntroTextureWidth" + intToStr(i);
 				string introTagTextureHeightName 	= "IntroTextureHeight" + intToStr(i);
 
-				lineText = lang.get(introTagTextureName,"",true);
+				lineText = lang.getString(introTagTextureName,"",true);
 				Texture2D *logoTexture= renderer.newTexture2D(rsGlobal);
 				if(logoTexture) {
 					logoTexture->setMipmap(false);
@@ -313,7 +313,7 @@ Intro::Intro(Program *program):
 					textureWidth = logoTexture->getTextureWidth();
 				}
 				if(lang.hasString(introTagTextureWidthName,"",true) == true) {
-					textureWidth = strToInt(lang.get(introTagTextureWidthName,"",true));
+					textureWidth = strToInt(lang.getString(introTagTextureWidthName,"",true));
 				}
 
 				int textureHeight = 128;
@@ -321,7 +321,7 @@ Intro::Intro(Program *program):
 					textureHeight = logoTexture->getTextureHeight();
 				}
 				if(lang.hasString(introTagTextureHeightName,"",true) == true) {
-					textureHeight = strToInt(lang.get(introTagTextureHeightName,"",true));
+					textureHeight = strToInt(lang.getString(introTagTextureHeightName,"",true));
 				}
 
 				texts.push_back(new Text(logoTexture, Vec2i(w/2-(textureWidth/2), h/2-(textureHeight/2)), Vec2i(textureWidth, textureHeight), displayTime));
@@ -334,7 +334,7 @@ Intro::Intro(Program *program):
 
 				int textX = -1;
 				if(lang.hasString(introTagTextXName,"",true) == true) {
-					string value = lang.get(introTagTextXName,"",true);
+					string value = lang.getString(introTagTextXName,"",true);
 					if(value.length() > 0 &&
 							(value[0] == '+' || value[0] == '-')) {
 						textX = w/2 + strToInt(value);
@@ -346,7 +346,7 @@ Intro::Intro(Program *program):
 
 				int textY = -1;
 				if(lang.hasString(introTagTextYName,"",true) == true) {
-					string value = lang.get(introTagTextYName,"",true);
+					string value = lang.getString(introTagTextYName,"",true);
 					if(value.length() > 0 &&
 							(value[0] == '+' || value[0] == '-')) {
 						textY = h/2 + strToInt(value);
@@ -360,7 +360,7 @@ Intro::Intro(Program *program):
 				Font3D *font3d = coreData.getMenuFontVeryBig3D();
 
 				if(lang.hasString(introTagTextFontTypeName,"",true) == true) {
-					string value =lang.get(introTagTextFontTypeName,"",true);
+					string value =lang.getString(introTagTextFontTypeName,"",true);
 					if(value == "displaynormal") {
 						font = coreData.getDisplayFont();
 						font3d = coreData.getDisplayFont3D();
@@ -396,7 +396,7 @@ Intro::Intro(Program *program):
 	}
 	modelShowTime = disappear *(displayItemNumber);
 	if(lang.hasString("IntroModelStartMilliseconds","",true) == true) {
-		modelShowTime = strToInt(lang.get("IntroModelStartMilliseconds","",true));
+		modelShowTime = strToInt(lang.getString("IntroModelStartMilliseconds","",true));
 	}
 	else {
 		modelShowTime = disappear *(displayItemNumber);
@@ -495,7 +495,7 @@ Intro::Intro(Program *program):
 
 			int textureStartTime = disappear * displayItemNumber;
 			if(lang.hasString("IntroTextureStartMilliseconds","",true) == true) {
-				textureStartTime = strToInt(lang.get("IntroTextureStartMilliseconds","",true));
+				textureStartTime = strToInt(lang.getString("IntroTextureStartMilliseconds","",true));
 			}
 
 			texts.push_back(new Text(tex, texPlacement, Vec2i(tex->getTextureWidth(), tex->getTextureHeight()), textureStartTime +(showMiscTime*(i+1))));

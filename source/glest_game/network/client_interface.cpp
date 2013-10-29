@@ -289,7 +289,7 @@ ClientInterface::~ClientInterface() {
     	for(unsigned int i = 0; i < languageList.size(); ++i) {
 			string sQuitText = "has chosen to leave the game!";
 			if(lang.hasString("PlayerLeftGame",languageList[i]) == true) {
-				sQuitText = lang.get("PlayerLeftGame",languageList[i]);
+				sQuitText = lang.getString("PlayerLeftGame",languageList[i]);
 			}
 
 			if(clientSocket != NULL && clientSocket->isConnected() == true) {
@@ -400,7 +400,7 @@ void ClientInterface::reset() {
     	for(unsigned int i = 0; i < languageList.size(); ++i) {
 			string sQuitText = "has chosen to leave the game!";
 			if(lang.hasString("PlayerLeftGame",languageList[i]) == true) {
-				sQuitText = lang.get("PlayerLeftGame",languageList[i]);
+				sQuitText = lang.getString("PlayerLeftGame",languageList[i]);
 			}
 			sendTextMessage(sQuitText,-1,false,languageList[i]);
     	}
@@ -419,7 +419,7 @@ void ClientInterface::update() {
     	Lang &lang= Lang::getInstance();
 
 		char szBuf1[8096]="";
-		string statusTextFormat= lang.get("PlayerDisconnected");
+		string statusTextFormat= lang.getString("PlayerDisconnected");
 		snprintf(szBuf1,8096,statusTextFormat.c_str(),playerNameStr.c_str());
 
     	//string sErr = "Disconnected from server during intro handshake.";
@@ -1586,7 +1586,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 				if(receiveMessage(&networkMessageQuit)) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-					DisplayErrorMessage(lang.get("GameCancelledByUser"));
+					DisplayErrorMessage(lang.getString("GameCancelledByUser"));
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -1617,7 +1617,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 			    	for(unsigned int i = 0; i < languageList.size(); ++i) {
 			    		string sErr = "Timeout waiting for server";
 						if(lang.hasString("TimeoutWaitingForServer",languageList[i]) == true) {
-							sErr = lang.get("TimeoutWaitingForServer",languageList[i]);
+							sErr = lang.getString("TimeoutWaitingForServer",languageList[i]);
 						}
 						bool echoLocal = lang.isLanguageLocal(lang.getLanguage());
 						sendTextMessage(sErr,-1,echoLocal,languageList[i]);
@@ -1644,7 +1644,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 						char szBuf[8096]="";
 						string updateTextFormat = "Waiting for network: %lld seconds elapsed (maximum wait time: %d seconds)";
 						if(lang.hasString("NetworkGameClientLoadStatus") == true) {
-							updateTextFormat =  lang.get("NetworkGameClientLoadStatus");
+							updateTextFormat =  lang.getString("NetworkGameClientLoadStatus");
 						}
 
 						string waitForHosts = "";
@@ -1714,14 +1714,14 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 						}
 
 						if(waitForHosts == "") {
-							waitForHosts = lang.get("Server");
+							waitForHosts = lang.getString("Server");
 						}
 						snprintf(szBuf,8096,updateTextFormat.c_str(),(long long int)lastMillisCheck,int(readyWaitTimeout / 1000));
 
 						char szBuf1[8096]="";
 						string statusTextFormat =  "Waiting for players: %s";
 						if(lang.hasString("NetworkGameStatusWaiting") == true) {
-							statusTextFormat = lang.get("NetworkGameStatusWaiting");
+							statusTextFormat = lang.getString("NetworkGameStatusWaiting");
 						}
 						snprintf(szBuf1,8096,statusTextFormat.c_str(),waitForHosts.c_str());
 
@@ -1766,27 +1766,27 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
     	for(unsigned int i = 0; i < languageList.size(); ++i) {
     		string sErr = "Checksum error, you don't have the same data as the server";
 			if(lang.hasString("CheckSumGameLoadError",languageList[i]) == true) {
-				sErr = lang.get("CheckSumGameLoadError",languageList[i]);
+				sErr = lang.getString("CheckSumGameLoadError",languageList[i]);
 			}
 			bool echoLocal = lang.isLanguageLocal(lang.getLanguage());
 			sendTextMessage(sErr,-1,echoLocal,languageList[i]);
 
 			string playerNameStr = "Player with error is: " + getHumanPlayerName();
 			if(lang.hasString("CheckSumGameLoadPlayer",languageList[i]) == true) {
-				playerNameStr = lang.get("CheckSumGameLoadPlayer",languageList[i]) + " " + getHumanPlayerName();
+				playerNameStr = lang.getString("CheckSumGameLoadPlayer",languageList[i]) + " " + getHumanPlayerName();
 			}
 			sendTextMessage(playerNameStr,-1,echoLocal,languageList[i]);
 
     		string sErr1 = "Client Checksum: " + intToStr(checksum->getSum());
 			if(lang.hasString("CheckSumGameLoadClient",languageList[i]) == true) {
-				sErr1 = lang.get("CheckSumGameLoadClient",languageList[i]) + " " + intToStr(checksum->getSum());
+				sErr1 = lang.getString("CheckSumGameLoadClient",languageList[i]) + " " + intToStr(checksum->getSum());
 			}
 
 			sendTextMessage(sErr1,-1,echoLocal,languageList[i]);
 
     		string sErr2 = "Server Checksum: " + intToStr(networkMessageReady.getChecksum());
 			if(lang.hasString("CheckSumGameLoadServer",languageList[i]) == true) {
-				sErr2 = lang.get("CheckSumGameLoadServer",languageList[i]) + " " + intToStr(networkMessageReady.getChecksum());
+				sErr2 = lang.getString("CheckSumGameLoadServer",languageList[i]) + " " + intToStr(networkMessageReady.getChecksum());
 			}
 			sendTextMessage(sErr2,-1,echoLocal,languageList[i]);
 
@@ -1846,7 +1846,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
     	for(unsigned int i = 0; i < languageList.size(); ++i) {
 			string sText = "Player: %s is joining the game now.";
 			if(lang.hasString("JoinPlayerToCurrentGameLaunchDone",languageList[i]) == true) {
-				sText = lang.get("JoinPlayerToCurrentGameLaunchDone",languageList[i]);
+				sText = lang.getString("JoinPlayerToCurrentGameLaunchDone",languageList[i]);
 			}
 
 			if(clientSocket != NULL && clientSocket->isConnected() == true) {
@@ -1924,7 +1924,7 @@ void ClientInterface::sendPingMessage(int32 pingFrequency, int64 pingTime) {
 }
 
 string ClientInterface::getNetworkStatus() {
-	std::string label = Lang::getInstance().get("Server") + ": " + serverName;
+	std::string label = Lang::getInstance().getString("Server") + ": " + serverName;
 	//float pingTime = getThreadedPingMS(getServerIpAddress().c_str());
 	char szBuf[8096]="";
 	snprintf(szBuf,8096,"%s",label.c_str());
@@ -1979,7 +1979,7 @@ NetworkMessageType ClientInterface::waitForMessage(int waitMicroseconds)
 		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
 		    		string msg = "Timeout waiting for message.";
 		    		if(lang.hasString("TimeoutWaitingForMessage",languageList[i]) == true) {
-		    			msg = lang.get("TimeoutWaitingForMessage",languageList[i]);
+		    			msg = lang.getString("TimeoutWaitingForMessage",languageList[i]);
 		    		}
 
 					sendTextMessage(msg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
@@ -2032,7 +2032,7 @@ void ClientInterface::quitGame(bool userManuallyQuit)
     	for(unsigned int i = 0; i < languageList.size(); ++i) {
     		string msg = "has chosen to leave the game!";
     		if(lang.hasString("PlayerLeftGame",languageList[i]) == true) {
-    			msg = lang.get("PlayerLeftGame",languageList[i]);
+    			msg = lang.getString("PlayerLeftGame",languageList[i]);
     		}
 
 			sendTextMessage(msg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);

@@ -221,18 +221,18 @@ string getTeammateName(int i) {
 }
 
 string getTeammateRole(int i) {
-	Lang &l= Lang::getInstance();
+	Lang &lang = Lang::getInstance();
 
-	switch(i){
-	case 0: return l.get("Programming");
-	case 1: return l.get("SoundAndMusic");
-	case 2: return l.get("3dAnd2dArt");
-	case 3: return l.get("2dArtAndWeb");
-	case 4: return l.get("Animation");
-	case 5: return l.get("3dArt");
-	case 6: return l.get("LinuxPort");
-	case 7: return l.get("Megaglest3d2dProgramming");
-	case 8: return l.get("MegaglestProgramming");
+	switch(i) {
+	case 0: return lang.getString("Programming");
+	case 1: return lang.getString("SoundAndMusic");
+	case 2: return lang.getString("3dAnd2dArt");
+	case 3: return lang.getString("2dArtAndWeb");
+	case 4: return lang.getString("Animation");
+	case 5: return lang.getString("3dArt");
+	case 6: return lang.getString("LinuxPort");
+	case 7: return lang.getString("Megaglest3d2dProgramming");
+	case 8: return lang.getString("MegaglestProgramming");
 	}
 	return "";
 }

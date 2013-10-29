@@ -113,7 +113,7 @@ void Minimap::init(int w, int h, const World *world, bool fogOfWar) {
 }
 
 Minimap::~Minimap() {
-	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingMiniMap","",true), true);
+	Logger::getInstance().add(Lang::getInstance().getString("LogScreenGameUnLoadingMiniMap","",true), true);
 	delete fowPixmap0;
 	fowPixmap0=NULL;
 	delete fowPixmap0Copy;

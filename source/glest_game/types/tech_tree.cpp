@@ -149,7 +149,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
     lang.loadTechTreeStrings(name, true);
 
 	char szBuf[8096]="";
-	snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingTechtree","",true).c_str(),formatString(getName(true)).c_str());
+	snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingTechtree","",true).c_str(),formatString(getName(true)).c_str());
 	Logger::getInstance().add(szBuf, true);
 
 	vector<string> filenames;
@@ -263,8 +263,8 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 			string factionName = *it;
 
 		    char szBuf[8096]="";
-		    snprintf(szBuf,8096,"%s %s [%d / %d] - %s",Lang::getInstance().get("Loading").c_str(),
-		    		Lang::getInstance().get("Faction").c_str(),
+		    snprintf(szBuf,8096,"%s %s [%d / %d] - %s",Lang::getInstance().getString("Loading").c_str(),
+		    		Lang::getInstance().getString("Faction").c_str(),
 		    		i+1,
 		    		(int)factions.size(),
 		    		formatString(this->getTranslatedFactionName(name,factionName)).c_str());
@@ -300,7 +300,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 
 TechTree::~TechTree() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingTechtree","",true), true);
+	Logger::getInstance().add(Lang::getInstance().getString("LogScreenGameUnLoadingTechtree","",true), true);
 	resourceTypes.clear();
 	factionTypes.clear();
 	armorTypes.clear();
