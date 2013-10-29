@@ -3,21 +3,23 @@ MEGAGLEST CHANGELOG
 To see a timeline of detail changes please visit:
 http://sourceforge.net/apps/trac/megaglest/timeline
 
-v3.8.0-beta1
-- Greater ability to translate game content into your native language. (including techtrees)
-  - Added Hebrew, Arabic, Vietnamese.
-- better network game performance / management to handle slower clients.
-- performance improvements.
-- Enhanced AI behaviour.
-- new game content including maps and tilesets.
-- many bugfixes discovered in 3.7.1
-- added ability for stand alone mod's to customize more of the engine like about screen.
+v3.8.0-dev
+- we hopefully now really solved the last out of sync problems for cross platform games.
 - animated tileset object support.
-- easier ability to download game content from host.
-- many new lua functions for scenario modders.
+- new tileset texturing possibilities
+- new tilesets birchforest and desert4 using animated objects and new texture system
+- new maps
+- better network game performance / management to handle slower clients.
+- easier ability to download game content from host and masterserver( if available there ).
+- color picking is a lot improved and the default selection mode now
+- greater ability to translate game content into your native language. (including techtrees)
+  - Added Hebrew, Arabic, Vietnamese.
+- attack hotkey toggles through all attack types
 - addition of google-breakpad to better track down bugs.
-- color picking is now the default selection mode
-- 
+- many new lua functions for scenario modders.
+- added ability for stand alone mod's to customize more of the engine like about screen.
+- performance improvements.
+- and as always many bugs were fixed
 
 v3.7.1
 - bugfixes reported in the bugs forum since 3.7.0
