@@ -45,17 +45,26 @@ TechTree::TechTree(const vector<string> pathList) {
 	attackTypes.clear();
 	translatedTechNames.clear();
 	translatedTechFactionNames.clear();
+	languageUsedForCache = "";
 }
 
-string TechTree::getName(bool translatedValue) const {
-	if(translatedValue == false) return name;
+string TechTree::getNameUntranslated() const {
+	return name;
+}
+
+string TechTree::getName(bool translatedValue) {
+	if(translatedValue == false) {
+		return getNameUntranslated();
+	}
 
 	Lang &lang = Lang::getInstance();
-	if(lang.getTechNameLoaded() != name) {
+	if(lang.getTechNameLoaded() != name ||
+		lang.getLanguage() != languageUsedForCache) {
 		//printf("Line: %d Tech [%s]\n",__LINE__,name.c_str());
 
-		lang.loadTechTreeStrings(name,false);
-		//translatedTechFactionNames.erase(name);
+		lang.loadTechTreeStrings(name,lang.getLanguage() != languageUsedForCache);
+		languageUsedForCache = lang.getLanguage();
+		translatedTechFactionNames.erase(name);
 	}
 
 	return lang.getTechTreeString("TechTreeName",name.c_str());
@@ -66,8 +75,10 @@ string TechTree::getTranslatedName(string techName, bool forceLoad, bool forceTe
 
 	//printf("Line: %d Tech [%s] forceLoad = %d forceTechtreeActiveFile = %d\n",__LINE__,techName.c_str(),forceLoad,forceTechtreeActiveFile);
 
+	Lang &lang = Lang::getInstance();
 	if(forceTechtreeActiveFile == false &&
-			translatedTechNames.find(techName) != translatedTechNames.end()) {
+			translatedTechNames.find(techName) != translatedTechNames.end() &&
+			lang.getLanguage() != languageUsedForCache) {
 		result = translatedTechNames[techName];
 	}
 	else {
@@ -79,8 +90,8 @@ string TechTree::getTranslatedName(string techName, bool forceLoad, bool forceTe
 			treePath = currentPath;
 			name= lastDir(currentPath);
 
-			Lang &lang = Lang::getInstance();
-			lang.loadTechTreeStrings(name,forceLoad);
+			lang.loadTechTreeStrings(name,lang.getLanguage() != languageUsedForCache);
+			languageUsedForCache = lang.getLanguage();
 
 			translatedTechFactionNames.erase(name);
 
@@ -97,10 +108,13 @@ string TechTree::getTranslatedFactionName(string techName, string factionName) {
 	//printf("Line: %d Tech [%s] name [%s] factionName [%s]\n",__LINE__,techName.c_str(),name.c_str(),factionName.c_str());
 
 	Lang &lang = Lang::getInstance();
-	if(lang.getTechNameLoaded() != techName) {
+	if(lang.getTechNameLoaded() != techName ||
+		lang.getLanguage() != languageUsedForCache) {
 		//printf("Line: %d Tech [%s] name [%s] lang.getTechNameLoaded() [%s] factionName [%s]\n",__LINE__,techName.c_str(),name.c_str(),lang.getTechNameLoaded().c_str(),factionName.c_str());
 
-		lang.loadTechTreeStrings(techName,false);
+		lang.loadTechTreeStrings(techName,lang.getLanguage() != languageUsedForCache);
+		languageUsedForCache = lang.getLanguage();
+
 		translatedTechFactionNames.erase(techName);
 	}
 
@@ -172,6 +186,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 
     Lang &lang = Lang::getInstance();
     lang.loadTechTreeStrings(name, true);
+    languageUsedForCache = lang.getLanguage();
 
 	char szBuf[8096]="";
 	snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingTechtree","",true).c_str(),formatString(getName(true)).c_str());

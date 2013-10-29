@@ -43,7 +43,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	string techTreePath = techTree->getPath();
-	string techTreeName=techTree->getName();
+	string techTreeName=techTree->getNameUntranslated();
 	string currentPath = "";
 
 	//open xml file
