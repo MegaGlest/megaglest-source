@@ -858,8 +858,22 @@ void MainWindow::eventMouseDown(int x, int y, MouseButton mouseButton){
 		// Exit game
 		if(result.first != cancelLanguageSelection) {
 			//toggleLanguage(result.second);
-		    this->triggerLanguageToggle = true;
-		    this->triggerLanguage = result.second;
+		    //this->triggerLanguageToggle = true;
+		    //this->triggerLanguage = result.second;
+
+			Lang &lang= Lang::getInstance();
+			map<string,string> languageList = lang.getDiscoveredLanguageList(true);
+			for(map<string,string>::iterator iterMap = languageList.begin();
+				iterMap != languageList.end(); ++iterMap) {
+				string matchLanguage = iterMap->first + "-" + iterMap->second;
+				if(matchLanguage == result.second) {
+					this->triggerLanguageToggle = true;
+					this->triggerLanguage = iterMap->first;
+					//printf("Switching to lang [%s] [%s] [%s]\n",this->triggerLanguage.c_str(),iterMap->first.c_str(), iterMap->second.c_str());
+					break;
+				}
+			}
+
 		}
 
 		return;
@@ -1028,8 +1042,9 @@ void MainWindow::render() {
 }
 
 void MainWindow::showLanguages() {
+
+/*
 	Lang &lang= Lang::getInstance();
-	//PopupMenu popupMenu;
 	std::vector<string> menuItems;
 
 	vector<string> langResults;
@@ -1053,6 +1068,24 @@ void MainWindow::showLanguages() {
 			menuItems.push_back(testLanguage);
 		}
 	}
+	menuItems.push_back(lang.getString("Exit"));
+	cancelLanguageSelection = menuItems.size()-1;
+
+	popupMenu.setW(100);
+	popupMenu.setH(100);
+	popupMenu.init(lang.getString("GameMenuTitle"),menuItems);
+	popupMenu.setEnabled(true);
+	popupMenu.setVisible(true);
+*/
+
+	Lang &lang= Lang::getInstance();
+	std::vector<string> menuItems;
+	map<string,string> languageList = lang.getDiscoveredLanguageList(true);
+	for(map<string,string>::iterator iterMap = languageList.begin();
+		iterMap != languageList.end(); ++iterMap) {
+		menuItems.push_back(iterMap->first + "-" + iterMap->second);
+	}
+
 	menuItems.push_back(lang.getString("Exit"));
 	cancelLanguageSelection = menuItems.size()-1;
 
