@@ -11,6 +11,7 @@ v3.8.0-dev
 - new maps
 - better network game performance / management to handle slower clients.
 - easier ability to download game content from host and masterserver( if available there ).
+- menu gui improvements
 - color picking is a lot improved and the default selection mode now
 - greater ability to translate game content into your native language. (including techtrees)
   - Added Hebrew, Arabic, Vietnamese.
