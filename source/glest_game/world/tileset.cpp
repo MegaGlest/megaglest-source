@@ -164,7 +164,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 
 	try {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingTileset","",true).c_str(),formatString(name).c_str());
+		snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingTileset","",true).c_str(),formatString(name).c_str());
 		Logger::getInstance().add(szBuf, true);
 
 		Renderer &renderer= Renderer::getInstance();
@@ -500,7 +500,7 @@ Tileset::~Tileset() {
 		surfPixmaps[i].clear();
 	}
 
-	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingTileset","",true), true);
+	Logger::getInstance().add(Lang::getInstance().getString("LogScreenGameUnLoadingTileset","",true), true);
 }
 
 const Pixmap2D *Tileset::getSurfPixmap(int type, int var) const{

@@ -65,10 +65,10 @@ BattleEnd::BattleEnd(Program *program, const Stats *stats,ProgramState *originSt
 	int buttonWidth = 125;
 	int xLocation = (metrics.getVirtualW() / 2) - (buttonWidth / 2);
 	buttonExit.init(xLocation, 80, buttonWidth);
-	buttonExit.setText(lang.get("Exit"));
+	buttonExit.setText(lang.getString("Exit"));
 
 	//mesage box
-	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
+	mainMessageBox.init(lang.getString("Yes"), lang.getString("No"));
 	mainMessageBox.setEnabled(false);
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -82,8 +82,8 @@ BattleEnd::BattleEnd(Program *program, const Stats *stats,ProgramState *originSt
 void BattleEnd::reloadUI() {
 	Lang &lang= Lang::getInstance();
 
-	buttonExit.setText(lang.get("Exit"));
-	mainMessageBox.init(lang.get("Yes"), lang.get("No"));
+	buttonExit.setText(lang.getString("Exit"));
+	mainMessageBox.init(lang.getString("Yes"), lang.getString("No"));
 
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
@@ -266,11 +266,11 @@ void BattleEnd::initBackgroundMusic() {
 
 	if(stats.getTeam(stats.getThisFactionIndex()) != GameConstants::maxPlayers -1 + fpt_Observer) {
 		if(stats.getVictory(stats.getThisFactionIndex())){
-			//header += lang.get("Victory");
+			//header += lang.getString("Victory");
 			music = getBattleEndMusic(true);
 		}
 		else{
-			//header += lang.get("Defeat");
+			//header += lang.getString("Defeat");
 			music = getBattleEndMusic(false);
 		}
 
@@ -301,7 +301,7 @@ void BattleEnd::initBackgroundVideo() {
 
 		if(stats.getTeam(stats.getThisFactionIndex()) != GameConstants::maxPlayers -1 + fpt_Observer) {
 			if(stats.getVictory(stats.getThisFactionIndex())){
-				//header += lang.get("Victory");
+				//header += lang.getString("Victory");
 
 				//videoFile = CoreData::getInstance().getBattleEndVideoFilename(true);
 				//videoFileFallback = CoreData::getInstance().getBattleEndVideoFilenameFallback(true);
@@ -310,7 +310,7 @@ void BattleEnd::initBackgroundVideo() {
 				videoFileFallback = wonVideos.second;
 			}
 			else{
-				//header += lang.get("Defeat");
+				//header += lang.getString("Defeat");
 				//videoFile = CoreData::getInstance().getBattleEndVideoFilename(false);
 				//videoFileFallback = CoreData::getInstance().getBattleEndVideoFilenameFallback(false);
 				std::pair<string,string> lostVideos = getBattleEndVideo(false);
@@ -555,35 +555,35 @@ void BattleEnd::render() {
 			else {
 				switch(stats.getControl(i)) {
 				case ctCpuEasy:
-					controlString= lang.get("CpuEasy");
+					controlString= lang.getString("CpuEasy");
 					break;
 				case ctCpu:
-					controlString= lang.get("Cpu");
+					controlString= lang.getString("Cpu");
 					break;
 				case ctCpuUltra:
-					controlString= lang.get("CpuUltra");
+					controlString= lang.getString("CpuUltra");
 					break;
 				case ctCpuMega:
-					controlString= lang.get("CpuMega");
+					controlString= lang.getString("CpuMega");
 					break;
 				case ctNetwork:
-					controlString= lang.get("Network");
+					controlString= lang.getString("Network");
 					break;
 				case ctHuman:
-					controlString= lang.get("Human");
+					controlString= lang.getString("Human");
 					break;
 
 				case ctNetworkCpuEasy:
-					controlString= lang.get("NetworkCpuEasy");
+					controlString= lang.getString("NetworkCpuEasy");
 					break;
 				case ctNetworkCpu:
-					controlString= lang.get("NetworkCpu");
+					controlString= lang.getString("NetworkCpu");
 					break;
 				case ctNetworkCpuUltra:
-					controlString= lang.get("NetworkCpuUltra");
+					controlString= lang.getString("NetworkCpuUltra");
 					break;
 				case ctNetworkCpuMega:
-					controlString= lang.get("NetworkCpuMega");
+					controlString= lang.getString("NetworkCpuMega");
 					break;
 
 				default:
@@ -597,7 +597,7 @@ void BattleEnd::render() {
 				controlString += "\nx " + floatToStr(stats.getResourceMultiplier(i),1);
 			}
 			else if(stats.getPlayerLeftBeforeEnd(i)==true){
-				controlString += "\n" +lang.get("CpuUltra")+"\nx "+floatToStr(stats.getResourceMultiplier(i),1);
+				controlString += "\n" +lang.getString("CpuUltra")+"\nx "+floatToStr(stats.getResourceMultiplier(i),1);
 			}
 
 			if(score == bestScore && stats.getVictory(i)) {
@@ -616,7 +616,7 @@ void BattleEnd::render() {
 				textRenderer->render(textToRender.c_str(), textX, bm+400, false, &color);
 			}
 			else {
-				textRenderer->render((lang.get("Player") + " " + intToStr(i+1)).c_str(), textX, bm+400,false, &color);
+				textRenderer->render((lang.getString("Player") + " " + intToStr(i+1)).c_str(), textX, bm+400,false, &color);
 			}
 
 			Vec3f highliteColor = Vec3f(WHITE.x,WHITE.y,WHITE.z);
@@ -627,14 +627,14 @@ void BattleEnd::render() {
 			}
 
 			if(stats.getPersonalityType(i) == fpt_Observer) {
-				textRenderer->render(lang.get("GameOver").c_str(), textX, bm+360);
+				textRenderer->render(lang.getString("GameOver").c_str(), textX, bm+360);
 			}
 			else {
 				if(stats.getVictory(i)) {
-					textRenderer->render(stats.getVictory(i)? lang.get("Victory").c_str(): lang.get("Defeat").c_str(), textX, bm+360, false, &highliteColor);
+					textRenderer->render(stats.getVictory(i)? lang.getString("Victory").c_str(): lang.getString("Defeat").c_str(), textX, bm+360, false, &highliteColor);
 				}
 				else {
-					textRenderer->render(stats.getVictory(i)? lang.get("Victory").c_str(): lang.get("Defeat").c_str(), textX, bm+360);
+					textRenderer->render(stats.getVictory(i)? lang.getString("Victory").c_str(): lang.getString("Defeat").c_str(), textX, bm+360);
 				}
 			}
 
@@ -680,17 +680,17 @@ void BattleEnd::render() {
 			}
 		}
 
-		textRenderer->render("\n"+(lang.get("LeftAt")), lm, bm+400);
-		textRenderer->render(lang.get("Result"), lm, bm+360);
-		textRenderer->render(lang.get("Control"), lm, bm+320);
-		textRenderer->render(lang.get("Faction"), lm, bm+280);
-		textRenderer->render(lang.get("Team"), lm, bm+240);
-		textRenderer->render(lang.get("Kills"), lm, bm+200);
-		textRenderer->render(lang.get("EnemyKills"), lm, bm+180);
-		textRenderer->render(lang.get("Deaths"), lm, bm+160);
-		textRenderer->render(lang.get("UnitsProduced"), lm, bm+120);
-		textRenderer->render(lang.get("ResourcesHarvested"), lm, bm+80);
-		textRenderer->render(lang.get("Score"), lm, bm+20);
+		textRenderer->render("\n"+(lang.getString("LeftAt")), lm, bm+400);
+		textRenderer->render(lang.getString("Result"), lm, bm+360);
+		textRenderer->render(lang.getString("Control"), lm, bm+320);
+		textRenderer->render(lang.getString("Faction"), lm, bm+280);
+		textRenderer->render(lang.getString("Team"), lm, bm+240);
+		textRenderer->render(lang.getString("Kills"), lm, bm+200);
+		textRenderer->render(lang.getString("EnemyKills"), lm, bm+180);
+		textRenderer->render(lang.getString("Deaths"), lm, bm+160);
+		textRenderer->render(lang.getString("UnitsProduced"), lm, bm+120);
+		textRenderer->render(lang.getString("ResourcesHarvested"), lm, bm+80);
+		textRenderer->render(lang.getString("Score"), lm, bm+20);
 
 		textRenderer->end();
 
@@ -705,10 +705,10 @@ void BattleEnd::render() {
 
 		if(stats.getTeam(stats.getThisFactionIndex()) != GameConstants::maxPlayers -1 + fpt_Observer) {
 			if(stats.getVictory(stats.getThisFactionIndex())){
-				header += lang.get("Victory");
+				header += lang.getString("Victory");
 			}
 			else{
-				header += lang.get("Defeat");
+				header += lang.getString("Defeat");
 			}
 		}
 		else {
@@ -717,15 +717,15 @@ void BattleEnd::render() {
 		textRenderer->render(header, lm+250, bm+550);
 
 		//GameConstants::updateFps
-		//string header2 = lang.get("GameDurationTime","",true) + " " + floatToStr(stats.getWorldTimeElapsed() / 24.0,2);
+		//string header2 = lang.getString("GameDurationTime","",true) + " " + floatToStr(stats.getWorldTimeElapsed() / 24.0,2);
 
-		string header2 = lang.get("GameDurationTime","",true) + ": " + getTimeString(stats.getFramesToCalculatePlaytime());
+		string header2 = lang.getString("GameDurationTime","",true) + ": " + getTimeString(stats.getFramesToCalculatePlaytime());
 		textRenderer->render(header2, lm+250, bm+530);
 
-		header2 = lang.get("GameMaxConcurrentUnitCount") + ": " + intToStr(stats.getMaxConcurrentUnitCount());
+		header2 = lang.getString("GameMaxConcurrentUnitCount") + ": " + intToStr(stats.getMaxConcurrentUnitCount());
 		textRenderer->render(header2, lm+250, bm+510);
 
-		header2 = lang.get("GameTotalEndGameConcurrentUnitCount") + ": " + intToStr(stats.getTotalEndGameConcurrentUnitCount());
+		header2 = lang.getString("GameTotalEndGameConcurrentUnitCount") + ": " + intToStr(stats.getTotalEndGameConcurrentUnitCount());
 		textRenderer->render(header2, lm+250, bm+490);
 
 		textRenderer->end();
@@ -767,7 +767,7 @@ void BattleEnd::keyDown(SDL_KeyboardEvent key){
 		}
 		else {
 			Lang &lang= Lang::getInstance();
-			showMessageBox(lang.get("ExitGameMenu?"), "", true);
+			showMessageBox(lang.getString("ExitGameMenu?"), "", true);
 		}
 	}
 	else if(isKeyPressed(SDLK_RETURN,key) && mainMessageBox.getEnabled()) {

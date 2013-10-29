@@ -1053,12 +1053,12 @@ void MainWindow::showLanguages() {
 			menuItems.push_back(testLanguage);
 		}
 	}
-	menuItems.push_back(lang.get("Exit"));
+	menuItems.push_back(lang.getString("Exit"));
 	cancelLanguageSelection = menuItems.size()-1;
 
 	popupMenu.setW(100);
 	popupMenu.setH(100);
-	popupMenu.init(lang.get("GameMenuTitle"),menuItems);
+	popupMenu.init(lang.getString("GameMenuTitle"),menuItems);
 	popupMenu.setEnabled(true);
 	popupMenu.setVisible(true);
 }
@@ -1108,9 +1108,9 @@ void MainWindow::toggleLanguage(string language) {
 		}
 	}
 	if(newLanguageSelected != currentLanguage) {
-		lang.loadStrings(newLanguageSelected);
+		lang.loadGameStrings(newLanguageSelected);
 		program->reloadUI();
-		program->consoleAddLine(lang.get("Language") + " " + newLanguageSelected);
+		program->consoleAddLine(lang.getString("Language") + " " + newLanguageSelected);
 	}
 }
 
@@ -1237,8 +1237,8 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 					if(f == NULL) {
 						Lang &lang= Lang::getInstance();
 						char szBuf[8096]="";
-						if(lang.get("ScreenshotSavedTo").length() > 0 && lang.get("ScreenshotSavedTo")[0] != '?') {
-							snprintf(szBuf,8096,lang.get("ScreenshotSavedTo").c_str(),path.c_str());
+						if(lang.getString("ScreenshotSavedTo").length() > 0 && lang.getString("ScreenshotSavedTo")[0] != '?') {
+							snprintf(szBuf,8096,lang.getString("ScreenshotSavedTo").c_str(),path.c_str());
 						}
 						else {
 							snprintf(szBuf,8096,"Screenshot will be saved to: %s",path.c_str());
@@ -4287,7 +4287,7 @@ int glestMain(int argc, char** argv) {
 		}
 
     	Renderer &renderer= Renderer::getInstance();
-        lang.loadStrings(language,false, true);
+        lang.loadGameStrings(language,false, true);
 
         if(	lang.hasString("FONT_HEIGHT_TEXT")) {
         	Shared::Graphics::Font::langHeightText = config.getString("FONT_HEIGHT_TEXT",Shared::Graphics::Font::langHeightText.c_str());

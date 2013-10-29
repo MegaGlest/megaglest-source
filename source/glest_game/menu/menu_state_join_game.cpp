@@ -90,37 +90,37 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp,int portNumberOverr
 	//buttons
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	buttonReturn.init(300, 300, 125);
-	buttonReturn.setText(lang.get("Return"));
+	buttonReturn.setText(lang.getString("Return"));
 
 	buttonConnect.registerGraphicComponent(containerName,"buttonConnect");
 	buttonConnect.init(450, 300, 125);
-	buttonConnect.setText(lang.get("Connect"));
+	buttonConnect.setText(lang.getString("Connect"));
 
 	buttonCreateGame.registerGraphicComponent(containerName,"buttonCreateGame");
 	buttonCreateGame.init(450, 250, 125);
-	buttonCreateGame.setText(lang.get("HostGame"));
+	buttonCreateGame.setText(lang.getString("HostGame"));
 
 	buttonAutoFindServers.registerGraphicComponent(containerName,"buttonAutoFindServers");
 	buttonAutoFindServers.init(595, 300, 225);
-	buttonAutoFindServers.setText(lang.get("FindLANGames"));
+	buttonAutoFindServers.setText(lang.getString("FindLANGames"));
 	buttonAutoFindServers.setEnabled(true);
 
 	//server type label
 	labelServerType.registerGraphicComponent(containerName,"labelServerType");
 	labelServerType.init(330, 490);
-	labelServerType.setText(lang.get("ServerType") + ":");
+	labelServerType.setText(lang.getString("ServerType") + ":");
 
 	//server type list box
 	listBoxServerType.registerGraphicComponent(containerName,"listBoxServerType");
 	listBoxServerType.init(465, 490);
-	listBoxServerType.pushBackItem(lang.get("ServerTypeNew"));
-	listBoxServerType.pushBackItem(lang.get("ServerTypePrevious"));
-	listBoxServerType.pushBackItem(lang.get("ServerTypeFound"));
+	listBoxServerType.pushBackItem(lang.getString("ServerTypeNew"));
+	listBoxServerType.pushBackItem(lang.getString("ServerTypePrevious"));
+	listBoxServerType.pushBackItem(lang.getString("ServerTypeFound"));
 
 	//server label
 	labelServer.registerGraphicComponent(containerName,"labelServer");
 	labelServer.init(330, 460);
-	labelServer.setText(lang.get("Server") + ": ");
+	labelServer.setText(lang.getString("Server") + ": ");
 
 	//server listbox
 	listBoxServers.registerGraphicComponent(containerName,"listBoxServers");
@@ -143,7 +143,7 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp,int portNumberOverr
 	// server port
 	labelServerPortLabel.registerGraphicComponent(containerName,"labelServerPortLabel");
 	labelServerPortLabel.init(330,430);
-	labelServerPortLabel.setText(lang.get("ServerPort"));
+	labelServerPortLabel.setText(lang.getString("ServerPort"));
 
 	labelServerPort.registerGraphicComponent(containerName,"labelServerPort");
 	labelServerPort.init(465,430);
@@ -216,21 +216,21 @@ void MenuStateJoinGame::reloadUI() {
 
 	console.resetFonts();
 
-	buttonReturn.setText(lang.get("Return"));
-	buttonConnect.setText(lang.get("Connect"));
-	buttonCreateGame.setText(lang.get("HostGame"));
-	buttonAutoFindServers.setText(lang.get("FindLANGames"));
-	labelServerType.setText(lang.get("ServerType") + ":");
+	buttonReturn.setText(lang.getString("Return"));
+	buttonConnect.setText(lang.getString("Connect"));
+	buttonCreateGame.setText(lang.getString("HostGame"));
+	buttonAutoFindServers.setText(lang.getString("FindLANGames"));
+	labelServerType.setText(lang.getString("ServerType") + ":");
 
 	std::vector<string> listboxData;
-	listboxData.push_back(lang.get("ServerTypeNew"));
-	listboxData.push_back(lang.get("ServerTypePrevious"));
-	listboxData.push_back(lang.get("ServerTypeFound"));
+	listboxData.push_back(lang.getString("ServerTypeNew"));
+	listboxData.push_back(lang.getString("ServerTypePrevious"));
+	listboxData.push_back(lang.getString("ServerTypeFound"));
 	listBoxServerType.setItems(listboxData);
 
-	labelServer.setText(lang.get("Server") + ": ");
+	labelServer.setText(lang.getString("Server") + ": ");
 
-	labelServerPortLabel.setText(lang.get("ServerPort"));
+	labelServerPortLabel.setText(lang.getString("ServerPort"));
 
 	string host = labelServerIp.getText();
 	int portNumber = config.getInt("PortServer",intToStr(GameConstants::serverPort).c_str());
@@ -488,11 +488,11 @@ void MenuStateJoinGame::update()
 	//update status label
 	if(clientInterface->isConnected())
 	{
-		buttonConnect.setText(lang.get("Disconnect"));
+		buttonConnect.setText(lang.getString("Disconnect"));
 
 		if(clientInterface->getAllowDownloadDataSynch() == false)
 		{
-		    string label = lang.get("ConnectedToServer");
+		    string label = lang.getString("ConnectedToServer");
 
             if(!clientInterface->getServerName().empty())
             {
@@ -524,7 +524,7 @@ void MenuStateJoinGame::update()
 		}
 		else
 		{
-		    string label = lang.get("ConnectedToServer");
+		    string label = lang.getString("ConnectedToServer");
 
             if(!clientInterface->getServerName().empty())
             {
@@ -558,8 +558,8 @@ void MenuStateJoinGame::update()
 	}
 	else
 	{
-		buttonConnect.setText(lang.get("Connect"));
-		string connectedStatus = lang.get("NotConnected");
+		buttonConnect.setText(lang.getString("Connect"));
+		string connectedStatus = lang.getString("NotConnected");
 		if(buttonAutoFindServers.getEnabled() == false) {
 			connectedStatus += " - searching for servers, please wait...";
 		}
@@ -582,7 +582,7 @@ void MenuStateJoinGame::update()
 
 			//intro
 			if(clientInterface->getIntroDone()) {
-				labelInfo.setText(lang.get("WaitingHost"));
+				labelInfo.setText(lang.getString("WaitingHost"));
 
 				string host = labelServerIp.getText();
 				std::vector<std::string> hostPartsList;
@@ -653,7 +653,7 @@ void MenuStateJoinGame::keyDown(SDL_KeyboardEvent key) {
 		else if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
 			bool saved = GraphicComponent::saveAllCustomProperties(containerName);
 			Lang &lang= Lang::getInstance();
-			console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
+			console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
 		}
 	}
 	else {
@@ -668,7 +668,7 @@ void MenuStateJoinGame::keyDown(SDL_KeyboardEvent key) {
         	if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
 				bool saved = GraphicComponent::saveAllCustomProperties(containerName);
 				Lang &lang= Lang::getInstance();
-				console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
+				console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
 			}
         }
 	}

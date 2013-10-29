@@ -250,10 +250,10 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 
 	if(maxHp != 0) {
 		if(maxHpIsMultiplier) {
-			str += indent+lang.get("Hp",(translatedValue == true ? "" : "english")) + " *" + intToStr(maxHp);
+			str += indent+lang.getString("Hp",(translatedValue == true ? "" : "english")) + " *" + intToStr(maxHp);
 		}
 		else {
-			str += indent+lang.get("Hp",(translatedValue == true ? "" : "english")) + " +" + intToStr(maxHp);
+			str += indent+lang.getString("Hp",(translatedValue == true ? "" : "english")) + " +" + intToStr(maxHp);
 		}
 
 		if(maxHpRegeneration != 0) {
@@ -266,10 +266,10 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 			str += "\n";
 		}
 		if(sightIsMultiplier) {
-			str+= indent+lang.get("Sight",(translatedValue == true ? "" : "english")) + " *" + intToStr(sight);
+			str+= indent+lang.getString("Sight",(translatedValue == true ? "" : "english")) + " *" + intToStr(sight);
 		}
 		else {
-			str+= indent+lang.get("Sight",(translatedValue == true ? "" : "english")) + " +" + intToStr(sight);
+			str+= indent+lang.getString("Sight",(translatedValue == true ? "" : "english")) + " +" + intToStr(sight);
 		}
 	}
 	if(maxEp != 0) {
@@ -278,10 +278,10 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 		}
 
 		if(maxEpIsMultiplier) {
-			str+= indent+lang.get("Ep",(translatedValue == true ? "" : "english")) + " *" + intToStr(maxEp);
+			str+= indent+lang.getString("Ep",(translatedValue == true ? "" : "english")) + " *" + intToStr(maxEp);
 		}
 		else {
-			str+= indent+lang.get("Ep",(translatedValue == true ? "" : "english")) + " +" + intToStr(maxEp);
+			str+= indent+lang.getString("Ep",(translatedValue == true ? "" : "english")) + " +" + intToStr(maxEp);
 		}
 		if(maxEpRegeneration != 0) {
 			str += " [" + intToStr(maxEpRegeneration) + "]";
@@ -293,10 +293,10 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 		}
 
 		if(attackStrengthIsMultiplier) {
-			str+= indent+lang.get("AttackStrenght",(translatedValue == true ? "" : "english")) + " *" + intToStr(attackStrength);
+			str+= indent+lang.getString("AttackStrenght",(translatedValue == true ? "" : "english")) + " *" + intToStr(attackStrength);
 		}
 		else {
-			str+= indent+lang.get("AttackStrenght",(translatedValue == true ? "" : "english")) + " +" + intToStr(attackStrength);
+			str+= indent+lang.getString("AttackStrenght",(translatedValue == true ? "" : "english")) + " +" + intToStr(attackStrength);
 		}
 	}
 	if(attackRange != 0) {
@@ -305,10 +305,10 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 		}
 
 		if(attackRangeIsMultiplier) {
-			str+= indent+lang.get("AttackDistance",(translatedValue == true ? "" : "english")) + " *" + intToStr(attackRange);
+			str+= indent+lang.getString("AttackDistance",(translatedValue == true ? "" : "english")) + " *" + intToStr(attackRange);
 		}
 		else {
-			str+= indent+lang.get("AttackDistance",(translatedValue == true ? "" : "english")) + " +" + intToStr(attackRange);
+			str+= indent+lang.getString("AttackDistance",(translatedValue == true ? "" : "english")) + " +" + intToStr(attackRange);
 		}
 	}
 	if(armor != 0) {
@@ -317,10 +317,10 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 		}
 
 		if(armorIsMultiplier) {
-			str+= indent+lang.get("Armor",(translatedValue == true ? "" : "english")) + " *" + intToStr(armor);
+			str+= indent+lang.getString("Armor",(translatedValue == true ? "" : "english")) + " *" + intToStr(armor);
 		}
 		else {
-			str+= indent+lang.get("Armor",(translatedValue == true ? "" : "english")) + " +" + intToStr(armor);
+			str+= indent+lang.getString("Armor",(translatedValue == true ? "" : "english")) + " +" + intToStr(armor);
 		}
 	}
 	if(moveSpeed != 0) {
@@ -329,10 +329,10 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 		}
 
 		if(moveSpeedIsMultiplier) {
-			str+= indent+lang.get("WalkSpeed",(translatedValue == true ? "" : "english")) + " *" + intToStr(moveSpeed);
+			str+= indent+lang.getString("WalkSpeed",(translatedValue == true ? "" : "english")) + " *" + intToStr(moveSpeed);
 		}
 		else {
-			str+= indent+lang.get("WalkSpeed",(translatedValue == true ? "" : "english")) + " +" + intToStr(moveSpeed);
+			str+= indent+lang.getString("WalkSpeed",(translatedValue == true ? "" : "english")) + " +" + intToStr(moveSpeed);
 		}
 	}
 	if(prodSpeed != 0) {
@@ -341,10 +341,10 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 		}
 
 		if(prodSpeedIsMultiplier) {
-			str+= indent+lang.get("ProductionSpeed",(translatedValue == true ? "" : "english")) + " *" + intToStr(prodSpeed);
+			str+= indent+lang.getString("ProductionSpeed",(translatedValue == true ? "" : "english")) + " *" + intToStr(prodSpeed);
 		}
 		else {
-			str+= indent+lang.get("ProductionSpeed",(translatedValue == true ? "" : "english")) + " +" + intToStr(prodSpeed);
+			str+= indent+lang.getString("ProductionSpeed",(translatedValue == true ? "" : "english")) + " +" + intToStr(prodSpeed);
 		}
 	}
 	if(str != "") {
@@ -567,11 +567,11 @@ string UpgradeType::getReqDesc(bool translatedValue) const{
     string str= ProducibleType::getReqDesc(translatedValue);
     string indent="  ";
 	if(getEffectCount()>0){
-		str+= "\n"+ lang.get("Upgrades",(translatedValue == true ? "" : "english"))+"\n";
+		str+= "\n"+ lang.getString("Upgrades",(translatedValue == true ? "" : "english"))+"\n";
 	}
 	str+=UpgradeTypeBase::getDesc(translatedValue);
 	if(getEffectCount()>0){
-		str+= lang.get("AffectedUnits",(translatedValue == true ? "" : "english"))+"\n";
+		str+= lang.getString("AffectedUnits",(translatedValue == true ? "" : "english"))+"\n";
 		for(int i=0; i<getEffectCount(); ++i){
 			str+= indent+getEffect(i)->getName(translatedValue)+"\n";
 		}
@@ -589,7 +589,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	char szBuf[8096]="";
-	snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingUpgradeType","",true).c_str(),formatString(this->getName(true)).c_str());
+	snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingUpgradeType","",true).c_str(),formatString(this->getName(true)).c_str());
 	Logger::getInstance().add(szBuf, true);
 
 	string currentPath = dir;

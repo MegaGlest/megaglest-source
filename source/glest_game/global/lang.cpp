@@ -56,73 +56,69 @@ string Lang::getDefaultLanguage() const {
 	return DEFAULT_LANGUAGE;
 }
 
-void Lang::loadStrings(string uselanguage, bool loadFonts,
+void Lang::loadGameStrings(string uselanguage, bool loadFonts,
 		bool fallbackToDefault) {
 	if(uselanguage.length() == 2 || (uselanguage.length() == 5 && uselanguage[2] == '-')) {
 		uselanguage = getLanguageFile(uselanguage);
 	}
 	bool languageChanged = (uselanguage != this->language);
 	this->language= uselanguage;
-	loadStrings(uselanguage, strings, true, fallbackToDefault);
+	loadGameStringProperties(uselanguage, gameStringsMainLanguage, true, fallbackToDefault);
 
 	if(languageChanged == true) {
 		Font::resetToDefaults();
 		Lang &lang = Lang::getInstance();
 		if(	lang.hasString("FONT_BASE_SIZE")) {
-			Font::baseSize    = strToInt(lang.get("FONT_BASE_SIZE"));
+			Font::baseSize    = strToInt(lang.getString("FONT_BASE_SIZE"));
 		}
 
 		if(	lang.hasString("FONT_SCALE_SIZE")) {
-			Font::scaleFontValue = strToFloat(lang.get("FONT_SCALE_SIZE"));
+			Font::scaleFontValue = strToFloat(lang.getString("FONT_SCALE_SIZE"));
 		}
 		if(	lang.hasString("FONT_SCALE_CENTERH_FACTOR")) {
-			Font::scaleFontValueCenterHFactor = strToFloat(lang.get("FONT_SCALE_CENTERH_FACTOR"));
+			Font::scaleFontValueCenterHFactor = strToFloat(lang.getString("FONT_SCALE_CENTERH_FACTOR"));
 		}
 
 		if(	lang.hasString("FONT_CHARCOUNT")) {
 			// 256 for English
 			// 30000 for Chinese
-			Font::charCount    = strToInt(lang.get("FONT_CHARCOUNT"));
+			Font::charCount    = strToInt(lang.getString("FONT_CHARCOUNT"));
 		}
 		if(	lang.hasString("FONT_TYPENAME")) {
-			Font::fontTypeName = lang.get("FONT_TYPENAME");
+			Font::fontTypeName = lang.getString("FONT_TYPENAME");
 		}
 		if(	lang.hasString("FONT_CHARSET")) {
 			// Example values:
 			// DEFAULT_CHARSET (English) = 1
 			// GB2312_CHARSET (Chinese)  = 134
-			Shared::Platform::charSet = strToInt(lang.get("FONT_CHARSET"));
+			Shared::Platform::charSet = strToInt(lang.getString("FONT_CHARSET"));
 		}
 		if(	lang.hasString("FONT_MULTIBYTE")) {
-			Font::fontIsMultibyte 	= strToBool(lang.get("FONT_MULTIBYTE"));
+			Font::fontIsMultibyte 	= strToBool(lang.getString("FONT_MULTIBYTE"));
 		}
 
 		if(	lang.hasString("FONT_RIGHTTOLEFT")) {
-			Font::fontIsRightToLeft	= strToBool(lang.get("FONT_RIGHTTOLEFT"));
+			Font::fontIsRightToLeft	= strToBool(lang.getString("FONT_RIGHTTOLEFT"));
 		}
 
 		if(	lang.hasString("MEGAGLEST_FONT")) {
 			//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-japanese-gothic.ttf",0); // Japanese
 	#if defined(WIN32)
-			string newEnvValue = "MEGAGLEST_FONT=" + lang.get("MEGAGLEST_FONT");
+			string newEnvValue = "MEGAGLEST_FONT=" + lang.getString("MEGAGLEST_FONT");
 			_putenv(newEnvValue.c_str());
 	#else
-			setenv("MEGAGLEST_FONT",lang.get("MEGAGLEST_FONT").c_str(),0);
+			setenv("MEGAGLEST_FONT",lang.getString("MEGAGLEST_FONT").c_str(),0);
 	#endif
 		}
 
 		if(	lang.hasString("MEGAGLEST_FONT_FAMILY")) {
 	#if defined(WIN32)
-			string newEnvValue = "MEGAGLEST_FONT_FAMILY=" + lang.get("MEGAGLEST_FONT_FAMILY");
+			string newEnvValue = "MEGAGLEST_FONT_FAMILY=" + lang.getString("MEGAGLEST_FONT_FAMILY");
 			_putenv(newEnvValue.c_str());
 	#else
-			setenv("MEGAGLEST_FONT_FAMILY",lang.get("MEGAGLEST_FONT_FAMILY").c_str(),0);
+			setenv("MEGAGLEST_FONT_FAMILY",lang.getString("MEGAGLEST_FONT_FAMILY").c_str(),0);
 	#endif
 		}
-
-	//        if(	lang.hasString("FONT_YOFFSET_FACTOR")) {
-	//        	FontMetrics::DEFAULT_Y_OFFSET_FACTOR = strToFloat(lang.get("FONT_YOFFSET_FACTOR"));
-	//		}
 
 	#if defined(WIN32)
 		// Win32 overrides for fonts (just in case they must be different)
@@ -130,57 +126,53 @@ void Lang::loadStrings(string uselanguage, bool loadFonts,
 		if(	lang.hasString("FONT_BASE_SIZE_WINDOWS")) {
 			// 256 for English
 			// 30000 for Chinese
-			Font::baseSize    = strToInt(lang.get("FONT_BASE_SIZE_WINDOWS"));
+			Font::baseSize    = strToInt(lang.getString("FONT_BASE_SIZE_WINDOWS"));
 		}
 
 		if(	lang.hasString("FONT_SCALE_SIZE_WINDOWS")) {
-			Font::scaleFontValue = strToFloat(lang.get("FONT_SCALE_SIZE_WINDOWS"));
+			Font::scaleFontValue = strToFloat(lang.getString("FONT_SCALE_SIZE_WINDOWS"));
 		}
 		if(	lang.hasString("FONT_SCALE_CENTERH_FACTOR_WINDOWS")) {
-			Font::scaleFontValueCenterHFactor = strToFloat(lang.get("FONT_SCALE_CENTERH_FACTOR_WINDOWS"));
+			Font::scaleFontValueCenterHFactor = strToFloat(lang.getString("FONT_SCALE_CENTERH_FACTOR_WINDOWS"));
 		}
 
 		if(	lang.hasString("FONT_HEIGHT_TEXT_WINDOWS")) {
-			Font::langHeightText = lang.get("FONT_HEIGHT_TEXT_WINDOWS",Font::langHeightText.c_str());
+			Font::langHeightText = lang.getString("FONT_HEIGHT_TEXT_WINDOWS",Font::langHeightText.c_str());
 		}
 
 		if(	lang.hasString("FONT_CHARCOUNT_WINDOWS")) {
 			// 256 for English
 			// 30000 for Chinese
-			Font::charCount    = strToInt(lang.get("FONT_CHARCOUNT_WINDOWS"));
+			Font::charCount    = strToInt(lang.getString("FONT_CHARCOUNT_WINDOWS"));
 		}
 		if(	lang.hasString("FONT_TYPENAME_WINDOWS")) {
-			Font::fontTypeName = lang.get("FONT_TYPENAME_WINDOWS");
+			Font::fontTypeName = lang.getString("FONT_TYPENAME_WINDOWS");
 		}
 		if(	lang.hasString("FONT_CHARSET_WINDOWS")) {
 			// Example values:
 			// DEFAULT_CHARSET (English) = 1
 			// GB2312_CHARSET (Chinese)  = 134
-			Shared::Platform::charSet = strToInt(lang.get("FONT_CHARSET_WINDOWS"));
+			Shared::Platform::charSet = strToInt(lang.getString("FONT_CHARSET_WINDOWS"));
 		}
 		if(	lang.hasString("FONT_MULTIBYTE_WINDOWS")) {
-			Font::fontIsMultibyte 	= strToBool(lang.get("FONT_MULTIBYTE_WINDOWS"));
+			Font::fontIsMultibyte 	= strToBool(lang.getString("FONT_MULTIBYTE_WINDOWS"));
 		}
 		if(	lang.hasString("FONT_RIGHTTOLEFT_WINDOWS")) {
-			Font::fontIsRightToLeft	= strToBool(lang.get("FONT_RIGHTTOLEFT_WINDOWS"));
+			Font::fontIsRightToLeft	= strToBool(lang.getString("FONT_RIGHTTOLEFT_WINDOWS"));
 		}
 
 		if(	lang.hasString("MEGAGLEST_FONT_WINDOWS")) {
 			//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-japanese-gothic.ttf",0); // Japanese
-			string newEnvValue = "MEGAGLEST_FONT=" + lang.get("MEGAGLEST_FONT_WINDOWS");
+			string newEnvValue = "MEGAGLEST_FONT=" + lang.getString("MEGAGLEST_FONT_WINDOWS");
 			_putenv(newEnvValue.c_str());
 		}
-
-	//        if(	lang.hasString("FONT_YOFFSET_FACTOR_WINDOWS")) {
-	//        	FontMetrics::DEFAULT_Y_OFFSET_FACTOR = strToFloat(lang.get("FONT_YOFFSET_FACTOR_WINDOWS"));
-	//		}
 
 		// end win32
 	#endif
 
 
 		if(	lang.hasString("ALLOWED_SPECIAL_KEYS","",false)) {
-			string allowedKeys = lang.get("ALLOWED_SPECIAL_KEYS");
+			string allowedKeys = lang.getString("ALLOWED_SPECIAL_KEYS");
 			Window::addAllowedKeys(allowedKeys);
 		}
 		else {
@@ -194,7 +186,7 @@ void Lang::loadStrings(string uselanguage, bool loadFonts,
     }
 }
 
-void Lang::loadStrings(string uselanguage, Properties &properties, bool fileMustExist,
+void Lang::loadGameStringProperties(string uselanguage, Properties &properties, bool fileMustExist,
 		bool fallbackToDefault) {
 	properties.clear();
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
@@ -396,23 +388,23 @@ bool Lang::hasString(const string &s, string uselanguage, bool fallbackToDefault
 	try {
 		if(uselanguage != "") {
 			//printf("#a fallbackToDefault = %d [%s] uselanguage [%s] DEFAULT_LANGUAGE  [%s] this->language [%s]\n",fallbackToDefault,s.c_str(),uselanguage.c_str(),DEFAULT_LANGUAGE,this->language.c_str());
-			if(otherLanguageStrings.find(uselanguage) == otherLanguageStrings.end()) {
-				loadStrings(uselanguage, otherLanguageStrings[uselanguage], false);
+			if(gameStringsOtherLanguages.find(uselanguage) == gameStringsOtherLanguages.end()) {
+				loadGameStringProperties(uselanguage, gameStringsOtherLanguages[uselanguage], false);
 			}
 			//string result2 = otherLanguageStrings[uselanguage].getString(s);
-			otherLanguageStrings[uselanguage].getString(s);
+			gameStringsOtherLanguages[uselanguage].getString(s);
 			//printf("#b result2 [%s]\n",result2.c_str());
 
 			result = true;
 		}
 		else {
 			//string result2 = strings.getString(s);
-			strings.getString(s);
+			gameStringsMainLanguage.getString(s);
 			result = true;
 		}
 	}
 	catch(exception &ex) {
-		if(strings.getpath() != "") {
+		if(gameStringsMainLanguage.getpath() != "") {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] for uselanguage [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what(),uselanguage.c_str());
 		}
 
@@ -435,29 +427,29 @@ string Lang::parseResult(const string &key, const string &value) {
 	if(value != "$USE_DEFAULT_LANGUAGE_VALUE") {
 		return value;
 	}
-	string result = Lang::get(key, DEFAULT_LANGUAGE);
+	string result = Lang::getString(key, DEFAULT_LANGUAGE);
 	return result;
 }
-string Lang::get(const string &s, string uselanguage, bool fallbackToDefault) {
+string Lang::getString(const string &s, string uselanguage, bool fallbackToDefault) {
 	try {
 		string result = "";
 
 		if(uselanguage != "") {
-			if(otherLanguageStrings.find(uselanguage) == otherLanguageStrings.end()) {
-				loadStrings(uselanguage, otherLanguageStrings[uselanguage], false);
+			if(gameStringsOtherLanguages.find(uselanguage) == gameStringsOtherLanguages.end()) {
+				loadGameStringProperties(uselanguage, gameStringsOtherLanguages[uselanguage], false);
 			}
-			result = otherLanguageStrings[uselanguage].getString(s);
+			result = gameStringsOtherLanguages[uselanguage].getString(s);
 			replaceAll(result, "\\n", "\n");
 		}
 		else {
-			result = strings.getString(s);
+			result = gameStringsMainLanguage.getString(s);
 			replaceAll(result, "\\n", "\n");
 		}
 
 		return parseResult(s, result);;
 	}
 	catch(exception &ex) {
-		if(strings.getpath() != "") {
+		if(gameStringsMainLanguage.getpath() != "") {
 			if(fallbackToDefault == false || SystemFlags::VERBOSE_MODE_ENABLED) {
 				if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 					if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] uselanguage [%s] text [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what(),uselanguage.c_str(),s.c_str());
@@ -469,7 +461,7 @@ string Lang::get(const string &s, string uselanguage, bool fallbackToDefault) {
 
 		//if(fallbackToDefault == true && uselanguage != DEFAULT_LANGUAGE && this->language != DEFAULT_LANGUAGE) {
 		if( uselanguage != DEFAULT_LANGUAGE && this->language != DEFAULT_LANGUAGE) {
-			return get(s, DEFAULT_LANGUAGE, false);
+			return getString(s, DEFAULT_LANGUAGE, false);
 		}
 
 		return "???" + s + "???";

@@ -60,12 +60,12 @@ MenuStateNewGame::MenuStateNewGame(Program *program, MainMenu *mainMenu):
     buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
     buttonReturn.init(425, yPos, buttonWidth);
 
-	buttonCustomGame.setText(lang.get("CustomGame"));
-	buttonScenario.setText(lang.get("Scenario"));
-	buttonJoinGame.setText(lang.get("JoinGame"));
-	buttonMasterserverGame.setText(lang.get("JoinInternetGame"));
-	buttonTutorial.setText(lang.get("Tutorial"));
-	buttonReturn.setText(lang.get("Return"));
+	buttonCustomGame.setText(lang.getString("CustomGame"));
+	buttonScenario.setText(lang.getString("Scenario"));
+	buttonJoinGame.setText(lang.getString("JoinGame"));
+	buttonMasterserverGame.setText(lang.getString("JoinInternetGame"));
+	buttonTutorial.setText(lang.getString("Tutorial"));
+	buttonReturn.setText(lang.getString("Return"));
 
 	GraphicComponent::applyAllCustomProperties(containerName);
 
@@ -75,12 +75,12 @@ MenuStateNewGame::MenuStateNewGame(Program *program, MainMenu *mainMenu):
 void MenuStateNewGame::reloadUI() {
 	Lang &lang= Lang::getInstance();
 
-	buttonCustomGame.setText(lang.get("CustomGame"));
-	buttonScenario.setText(lang.get("Scenario"));
-	buttonJoinGame.setText(lang.get("JoinGame"));
-	buttonMasterserverGame.setText(lang.get("JoinInternetGame"));
-	buttonTutorial.setText(lang.get("Tutorial"));
-	buttonReturn.setText(lang.get("Return"));
+	buttonCustomGame.setText(lang.getString("CustomGame"));
+	buttonScenario.setText(lang.getString("Scenario"));
+	buttonJoinGame.setText(lang.getString("JoinGame"));
+	buttonMasterserverGame.setText(lang.getString("JoinInternetGame"));
+	buttonTutorial.setText(lang.getString("Tutorial"));
+	buttonReturn.setText(lang.getString("Return"));
 
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
@@ -155,7 +155,7 @@ void MenuStateNewGame::keyDown(SDL_KeyboardEvent key) {
 	if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
 		GraphicComponent::saveAllCustomProperties(containerName);
 		//Lang &lang= Lang::getInstance();
-		//console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
+		//console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
 	}
 }
 

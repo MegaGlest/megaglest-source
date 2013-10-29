@@ -1903,7 +1903,7 @@ void Renderer::renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, 
 				playerName = lineInfo->originalPlayerName;
 			}
 			if(playerName == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
-				playerName = lang.get("SystemUser");
+				playerName = lang.getString("SystemUser");
 			}
 			//printf("playerName [%s], line [%s]\n",playerName.c_str(),line.c_str());
 
@@ -1911,7 +1911,7 @@ void Renderer::renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, 
 			//string headerLine = playerName + ": ";
 			string headerLine = playerName;
 			if(lineInfo->teamMode == true) {
-				headerLine += " (" + lang.get("Team") + ")";
+				headerLine += " (" + lang.getString("Team") + ")";
 			}
 			headerLine += ": ";
 
@@ -1938,7 +1938,7 @@ void Renderer::renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, 
         //string headerLine = playerName + ": ";
 		string headerLine = playerName;
 		if(lineInfo->teamMode == true) {
-			headerLine += " (" + lang.get("Team") + ")";
+			headerLine += " (" + lang.getString("Team") + ")";
 		}
 		headerLine += ": ";
 
@@ -2015,7 +2015,7 @@ void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, in
 			//string headerLine = playerName + ": ";
 			string headerLine = playerName;
 			if(lineInfo->teamMode == true) {
-				headerLine += " (" + lang.get("Team") + ")";
+				headerLine += " (" + lang.getString("Team") + ")";
 			}
 			headerLine += ": ";
 
@@ -2040,7 +2040,7 @@ void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, in
         //string headerLine = playerName + ": ";
         string headerLine = playerName;
 		if(lineInfo->teamMode == true) {
-			headerLine += " (" + lang.get("Team") + ")";
+			headerLine += " (" + lang.getString("Team") + ")";
 		}
 		headerLine += ": ";
 
@@ -2163,16 +2163,16 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 		string text="";
 
 		if(chatManager->isInCustomInputMode() == true) {
-			text += lang.get("CellHint");
+			text += lang.getString("CellHint");
 		}
 		else if(chatManager->getInMenu()) {
-			text += lang.get("Chat");
+			text += lang.getString("Chat");
 		}
 		else if(chatManager->getTeamMode()) {
-			text += lang.get("Team");
+			text += lang.getString("Team");
 		}
 		else {
-			text += lang.get("All");
+			text += lang.getString("All");
 		}
 		text += ": " + chatManager->getText() + "_";
 
@@ -2202,7 +2202,7 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 	else
 	{
 		if (chatManager->getInMenu()) {
-			string text = ">> "+lang.get("PressEnterToChat")+" <<";
+			string text = ">> "+lang.getString("PressEnterToChat")+" <<";
 			fontColor = Vec4f(0.5f, 0.5f, 0.5f, 0.5f);
 
 			if(renderText3DEnabled == true) {
@@ -2238,7 +2238,7 @@ void Renderer::renderClock() {
 
 		Lang &lang= Lang::getInstance();
 		char szBuf[200]="";
-		snprintf(szBuf,200,"%s %.2d:%.2d",lang.get("GameTime","",true).c_str(),hours,minutes);
+		snprintf(szBuf,200,"%s %.2d:%.2d",lang.getString("GameTime","",true).c_str(),hours,minutes);
 		if(str != "") {
 			str += " ";
 		}
@@ -2253,7 +2253,7 @@ void Renderer::renderClock() {
 
 		Lang &lang= Lang::getInstance();
 		char szBuf[200]="";
-		snprintf(szBuf,200,"%s %s",lang.get("LocalTime","",true).c_str(),szBuf2);
+		snprintf(szBuf,200,"%s %s",lang.getString("LocalTime","",true).c_str(),szBuf2);
 		if(str != "") {
 			str += " ";
 		}
@@ -7107,22 +7107,22 @@ string Renderer::getGlInfo(){
 	Lang &lang= Lang::getInstance();
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
-		infoStr+= lang.get("OpenGlInfo")+":\n";
-		infoStr+= "   "+lang.get("OpenGlVersion")+": ";
+		infoStr+= lang.getString("OpenGlInfo")+":\n";
+		infoStr+= "   "+lang.getString("OpenGlVersion")+": ";
 		infoStr+= string((getGlVersion() != NULL ? getGlVersion() : "?"))+"\n";
-		infoStr+= "   "+lang.get("OpenGlRenderer")+": ";
+		infoStr+= "   "+lang.getString("OpenGlRenderer")+": ";
 		infoStr+= string((getGlVersion() != NULL ? getGlVersion() : "?"))+"\n";
-		infoStr+= "   "+lang.get("OpenGlVendor")+": ";
+		infoStr+= "   "+lang.getString("OpenGlVendor")+": ";
 		infoStr+= string((getGlVendor() != NULL ? getGlVendor() : "?"))+"\n";
-		infoStr+= "   "+lang.get("OpenGlMaxLights")+": ";
+		infoStr+= "   "+lang.getString("OpenGlMaxLights")+": ";
 		infoStr+= intToStr(getGlMaxLights())+"\n";
-		infoStr+= "   "+lang.get("OpenGlMaxTextureSize")+": ";
+		infoStr+= "   "+lang.getString("OpenGlMaxTextureSize")+": ";
 		infoStr+= intToStr(getGlMaxTextureSize())+"\n";
-		infoStr+= "   "+lang.get("OpenGlMaxTextureUnits")+": ";
+		infoStr+= "   "+lang.getString("OpenGlMaxTextureUnits")+": ";
 		infoStr+= intToStr(getGlMaxTextureUnits())+"\n";
-		infoStr+= "   "+lang.get("OpenGlModelviewStack")+": ";
+		infoStr+= "   "+lang.getString("OpenGlModelviewStack")+": ";
 		infoStr+= intToStr(getGlModelviewMatrixStackDepth())+"\n";
-		infoStr+= "   "+lang.get("OpenGlProjectionStack")+": ";
+		infoStr+= "   "+lang.getString("OpenGlProjectionStack")+": ";
 		infoStr+= intToStr(getGlProjectionMatrixStackDepth())+"\n";
 	}
 	return infoStr;
@@ -7134,7 +7134,7 @@ string Renderer::getGlMoreInfo(){
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		//gl extensions
-		infoStr+= lang.get("OpenGlExtensions")+":\n   ";
+		infoStr+= lang.getString("OpenGlExtensions")+":\n   ";
 
 		string extensions= getGlExtensions();
 		int charCount= 0;
@@ -7149,7 +7149,7 @@ string Renderer::getGlMoreInfo(){
 
 		//platform extensions
 		infoStr+= "\n\n";
-		infoStr+= lang.get("OpenGlPlatformExtensions")+":\n   ";
+		infoStr+= lang.getString("OpenGlPlatformExtensions")+":\n   ";
 
 		charCount= 0;
 		string platformExtensions= getGlPlatformExtensions();
@@ -9435,7 +9435,7 @@ void Renderer::renderVideoLoading(int progressPercent) {
 	setupRenderForVideo();
 
 	Lang &lang= Lang::getInstance();
-	string textToRender = lang.get("PleaseWait");
+	string textToRender = lang.getString("PleaseWait");
 	const Metrics &metrics= Metrics::getInstance();
 
 	static Chrono cycle(true);

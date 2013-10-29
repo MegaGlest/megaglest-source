@@ -181,7 +181,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 		//Lang &lang= Lang::getInstance();
 
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingUnitType","",true).c_str(),formatString(this->getName(true)).c_str());
+		snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingUnitType","",true).c_str(),formatString(this->getName(true)).c_str());
 		Logger::getInstance().add(szBuf, true);
 
 		//file load
@@ -613,7 +613,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 		const XmlNode *skillsNode= unitNode->getChild("skills");
 		skillTypes.resize(skillsNode->getChildCount());
 
-		snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingUnitTypeSkills","",true).c_str(),formatString(this->getName(true)).c_str(),skillTypes.size());
+		snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingUnitTypeSkills","",true).c_str(),formatString(this->getName(true)).c_str(),skillTypes.size());
 		Logger::getInstance().add(szBuf, true);
 
 		for(int i = 0; i < skillTypes.size(); ++i) {
@@ -1037,12 +1037,12 @@ string UnitType::getReqDesc(bool translatedValue) const{
 
 	checkItemInVault(&(this->maxUnitCount),this->maxUnitCount);
 	if(getMaxUnitCount() > 0) {
-		resultTxt += "\n" + lang.get("MaxUnitCount") + " " + intToStr(getMaxUnitCount());
+		resultTxt += "\n" + lang.getString("MaxUnitCount") + " " + intToStr(getMaxUnitCount());
 	}
 	if(resultTxt == "")
 		return ProducibleType::getReqDesc(translatedValue);
 	else
-		return ProducibleType::getReqDesc(translatedValue)+"\n" + lang.get("Limits") + " " + resultTxt;
+		return ProducibleType::getReqDesc(translatedValue)+"\n" + lang.getString("Limits") + " " + resultTxt;
 }
 
 string UnitType::getName(bool translatedValue) const {

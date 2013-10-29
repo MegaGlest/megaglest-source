@@ -35,21 +35,23 @@ private:
 	string language;
 	bool is_utf8_language;
 
-	Properties strings;
+	Properties gameStringsMainLanguage;
+	std::map<string,Properties> gameStringsOtherLanguages;
+
 	Properties scenarioStrings;
+
 	Properties techTreeStrings;
 	Properties techTreeStringsDefault;
+
 	Properties tilesetStrings;
 	Properties tilesetStringsDefault;
-
-	std::map<string,Properties> otherLanguageStrings;
 
 	string techNameLoaded;
 	bool allowNativeLanguageTechtree;
 
 private:
 	Lang();
-	void loadStrings(string language, Properties &properties, bool fileMustExist,bool fallbackToDefault=false);
+	void loadGameStringProperties(string language, Properties &properties, bool fileMustExist,bool fallbackToDefault=false);
 	bool fileMatchesISO630Code(string uselanguage, string testLanguageFile);
 	string getNativeLanguageName(string uselanguage, string testLanguageFile);
 
@@ -61,15 +63,17 @@ public:
 	bool getAllowNativeLanguageTechtree() const { return allowNativeLanguageTechtree; }
 	void setAllowNativeLanguageTechtree(bool value) { allowNativeLanguageTechtree = value; }
 
-	void loadStrings(string uselanguage, bool loadFonts=true, bool fallbackToDefault=false);
+	void loadGameStrings(string uselanguage, bool loadFonts=true, bool fallbackToDefault=false);
 	void loadScenarioStrings(string scenarioDir, string scenarioName, bool isTutorial);
 	void loadTechTreeStrings(string techTree, bool forceLoad=false);
 	void loadTilesetStrings(string tileset);
 
-	string get(const string &s,string uselanguage="", bool fallbackToDefault=false);
+	string getString(const string &s,string uselanguage="", bool fallbackToDefault=false);
 	bool hasString(const string &s, string uselanguage="", bool fallbackToDefault=false);
+
 	string getScenarioString(const string &s);
 	bool hasScenarioString(const string &s);
+
 	string getTechTreeString(const string &s, const char *defaultValue=NULL);
 	string getTilesetString(const string &s, const char *defaultValue=NULL);
 

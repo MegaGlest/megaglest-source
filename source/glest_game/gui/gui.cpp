@@ -731,10 +731,10 @@ void Gui::computeInfoString(int posDisplay){
 	if(posDisplay!=invalidPos && selection.isCommandable()){
 		if(!selectingBuilding){
 			if(posDisplay==cancelPos){
-				display.setInfoText(lang.get("Cancel"));
+				display.setInfoText(lang.getString("Cancel"));
 			}
 			else if(posDisplay==meetingPointPos){
-				display.setInfoText(lang.get("MeetingPoint"));
+				display.setInfoText(lang.getString("MeetingPoint"));
 			}
 			else{
 				//uniform selection
@@ -751,10 +751,10 @@ void Gui::computeInfoString(int posDisplay){
 								string text="";
 								const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(ct);
 								if(unit->getFaction()->getUpgradeManager()->isUpgrading(uct->getProducedUpgrade())){
-									text=lang.get("Upgrading")+"\n\n";
+									text=lang.getString("Upgrading")+"\n\n";
 								}
 								else if(unit->getFaction()->getUpgradeManager()->isUpgraded(uct->getProducedUpgrade())){
-									text=lang.get("AlreadyUpgraded")+"\n\n";
+									text=lang.getString("AlreadyUpgraded")+"\n\n";
 								}
 								display.setInfoText(text+ct->getReqDesc(game->showTranslatedTechTree()));
 							}
@@ -770,14 +770,14 @@ void Gui::computeInfoString(int posDisplay){
 					const UnitType *ut= selection.getFrontUnit()->getType();
 					CommandClass cc= display.getCommandClass(posDisplay);
 					if(cc!=ccNull){
-						display.setInfoText(lang.get("CommonCommand") + ": " + ut->getFirstCtOfClass(cc)->toString(true));
+						display.setInfoText(lang.getString("CommonCommand") + ": " + ut->getFirstCtOfClass(cc)->toString(true));
 					}
 				}
 			}
 		}
 		else{
 			if(posDisplay==cancelPos){
-				display.setInfoText(lang.get("Return"));
+				display.setInfoText(lang.getString("Return"));
 			}
 			else{
 				if(activeCommandType!=NULL && activeCommandType->getClass()==ccBuild){
@@ -801,7 +801,7 @@ void Gui::computeDisplay(){
 	if(selection.isEmpty() && selectedResourceObject != NULL && selectedResourceObject->getResource() != NULL) {
 		Resource *r = selectedResourceObject->getResource();
 		display.setTitle(r->getType()->getName(game->showTranslatedTechTree()));
-		display.setText(lang.get("Amount")+ ": "+intToStr(r->getAmount())+" / "+intToStr(r->getType()->getDefResPerPatch()));
+		display.setText(lang.getString("Amount")+ ": "+intToStr(r->getAmount())+" / "+intToStr(r->getType()->getDefResPerPatch()));
 		//display.setProgressBar(r->);
 		display.setUpImage(0, r->getType()->getImage());
 	}

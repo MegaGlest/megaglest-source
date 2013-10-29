@@ -156,37 +156,37 @@ string AttackBoost::getDesc(bool translatedValue) const{
     string indent="  ";
     if(enabled) {
     	if(boostUnitList.empty() == false) {
-    		str+= "\n"+ lang.get("Effects")+":\n";
+    		str+= "\n"+ lang.getString("Effects")+":\n";
     	}
 
-    	str += indent+lang.get("effectRadius") + ": " + intToStr(radius) +"\n";
+    	str += indent+lang.getString("effectRadius") + ": " + intToStr(radius) +"\n";
     	if(allowMultipleBoosts==false) {
-    		string allowIt=lang.get("No");
+    		string allowIt=lang.getString("No");
     		if(allowMultipleBoosts==true)
-    			allowIt=lang.get("False");
-    		str += indent+lang.get("allowMultiBoost") + ": " + allowIt +"\n";
+    			allowIt=lang.getString("False");
+    		str += indent+lang.getString("allowMultiBoost") + ": " + allowIt +"\n";
     	}
     	str+=boostUpgrade.getDesc(translatedValue);
 
     	if(targetType==abtAlly)
     	{
-    		str+= lang.get("AffectedUnitsFromTeam") +":\n";
+    		str+= lang.getString("AffectedUnitsFromTeam") +":\n";
     	}
     	else if(targetType==abtFoe)
     	{
-    		str+= lang.get("AffectedUnitsFromFoe") +":\n";
+    		str+= lang.getString("AffectedUnitsFromFoe") +":\n";
     	}
     	else if(targetType==abtFaction)
     	{
-    		str+= lang.get("AffectedUnitsFromYourFaction") +":\n";
+    		str+= lang.getString("AffectedUnitsFromYourFaction") +":\n";
     	}
     	else if(targetType==abtUnitTypes)
     	{
-    		str+= lang.get("AffectedUnitsFromAll") +":\n";
+    		str+= lang.getString("AffectedUnitsFromAll") +":\n";
     	}
     	else if(targetType==abtAll)
     	{
-    		str+= lang.get("AffectedUnitsFromAll") +":\n";
+    		str+= lang.getString("AffectedUnitsFromAll") +":\n";
     	}
 
     	if(boostUnitList.empty() == false) {
@@ -196,7 +196,7 @@ string AttackBoost::getDesc(bool translatedValue) const{
     	}
     	else
     	{
-    		str+= lang.get("All")+"\n";
+    		str+= lang.getString("All")+"\n";
     	}
 
     	return str;
@@ -617,7 +617,7 @@ string SkillType::fieldToStr(Field field) {
 	switch(field) {
 		case fLand:
 			if(lang.hasString("FieldLand") == true) {
-				fieldName = lang.get("FieldLand");
+				fieldName = lang.getString("FieldLand");
 			}
 			else {
 				fieldName = "Land";
@@ -627,7 +627,7 @@ string SkillType::fieldToStr(Field field) {
 
 		case fAir:
 			if(lang.hasString("FieldAir") == true) {
-				fieldName = lang.get("FieldAir");
+				fieldName = lang.getString("FieldAir");
 			}
 			else {
 				fieldName = "Air";
@@ -690,7 +690,7 @@ string StopSkillType::toString(bool translatedValue) const{
 	if(translatedValue == false) {
 		return "Stop";
 	}
-	return Lang::getInstance().get("Stop");
+	return Lang::getInstance().getString("Stop");
 }
 
 // =====================================================
@@ -706,7 +706,7 @@ string MoveSkillType::toString(bool translatedValue) const{
 		return "Move";
 	}
 
-	return Lang::getInstance().get("Move");
+	return Lang::getInstance().getString("Move");
 }
 
 int MoveSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
@@ -862,7 +862,7 @@ string AttackSkillType::toString(bool translatedValue) const{
 		return "Attack";
 	}
 
-	return Lang::getInstance().get("Attack");
+	return Lang::getInstance().getString("Attack");
 }
 
 //get totals
@@ -937,7 +937,7 @@ string BuildSkillType::toString(bool translatedValue) const{
 		return "Build";
 	}
 
-	return Lang::getInstance().get("Build");
+	return Lang::getInstance().getString("Build");
 }
 
 // =====================================================
@@ -953,7 +953,7 @@ string HarvestSkillType::toString(bool translatedValue) const{
 		return "Harvest";
 	}
 
-	return Lang::getInstance().get("Harvest");
+	return Lang::getInstance().getString("Harvest");
 }
 
 // =====================================================
@@ -969,7 +969,7 @@ string RepairSkillType::toString(bool translatedValue) const{
 		return "Repair";
 	}
 
-	return Lang::getInstance().get("Repair");
+	return Lang::getInstance().getString("Repair");
 }
 
 // =====================================================
@@ -1001,7 +1001,7 @@ string ProduceSkillType::toString(bool translatedValue) const{
 		return "Produce";
 	}
 
-	return Lang::getInstance().get("Produce");
+	return Lang::getInstance().getString("Produce");
 }
 
 int ProduceSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
@@ -1045,7 +1045,7 @@ string UpgradeSkillType::toString(bool translatedValue) const{
 		return "Upgrade";
 	}
 
-	return Lang::getInstance().get("Upgrade");
+	return Lang::getInstance().getString("Upgrade");
 }
 
 int UpgradeSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{

@@ -51,19 +51,19 @@ void Console::resetFonts() {
 
 void Console::addStdMessage(const string &s,bool clearOtherLines) {
 	if(clearOtherLines == true) {
-		addLineOnly(Lang::getInstance().get(s));
+		addLineOnly(Lang::getInstance().getString(s));
 	}
 	else {
-		addLine(Lang::getInstance().get(s));
+		addLine(Lang::getInstance().getString(s));
 	}
 }
 
 void Console::addStdMessage(const string &s,string failText, bool clearOtherLines) {
 	if(clearOtherLines == true) {
-		addLineOnly(Lang::getInstance().get(s) + failText);
+		addLineOnly(Lang::getInstance().getString(s) + failText);
 	}
 	else {
-		addLine(Lang::getInstance().get(s) + failText);
+		addLine(Lang::getInstance().getString(s) + failText);
 	}
 }
 

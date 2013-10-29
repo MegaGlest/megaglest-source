@@ -45,35 +45,35 @@ string PlayerStats::getStats() const {
 	else {
 		switch(control) {
 		case ctCpuEasy:
-			controlString= lang.get("CpuEasy");
+			controlString= lang.getString("CpuEasy");
 			break;
 		case ctCpu:
-			controlString= lang.get("Cpu");
+			controlString= lang.getString("Cpu");
 			break;
 		case ctCpuUltra:
-			controlString= lang.get("CpuUltra");
+			controlString= lang.getString("CpuUltra");
 			break;
 		case ctCpuMega:
-			controlString= lang.get("CpuMega");
+			controlString= lang.getString("CpuMega");
 			break;
 		case ctNetwork:
-			controlString= lang.get("Network");
+			controlString= lang.getString("Network");
 			break;
 		case ctHuman:
-			controlString= lang.get("Human");
+			controlString= lang.getString("Human");
 			break;
 
 		case ctNetworkCpuEasy:
-			controlString= lang.get("NetworkCpuEasy");
+			controlString= lang.getString("NetworkCpuEasy");
 			break;
 		case ctNetworkCpu:
-			controlString= lang.get("NetworkCpu");
+			controlString= lang.getString("NetworkCpu");
 			break;
 		case ctNetworkCpuUltra:
-			controlString= lang.get("NetworkCpuUltra");
+			controlString= lang.getString("NetworkCpuUltra");
 			break;
 		case ctNetworkCpuMega:
-			controlString= lang.get("NetworkCpuMega");
+			controlString= lang.getString("NetworkCpuMega");
 			break;
 
 		default:

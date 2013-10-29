@@ -120,7 +120,7 @@ void Logger::loadLoadingScreen(string filepath) {
 	}
 
 	Lang &lang = Lang::getInstance();
-	buttonCancel.setText(lang.get("Cancel"));
+	buttonCancel.setText(lang.getString("Cancel"));
 }
 
 void Logger::loadGameHints(string filePathEnglish,string filePathTranslation,bool clearList) {
@@ -270,7 +270,7 @@ void Logger::renderLoadingScreen() {
 
 	if(gameHintToShow != "") {
 		Lang &lang = Lang::getInstance();
-		string hintText = lang.get("Hint","",true);
+		string hintText = lang.getString("Hint","",true);
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,hintText.c_str(),gameHintToShow.c_str());
 		hintText = szBuf;
@@ -297,7 +297,7 @@ void Logger::renderLoadingScreen() {
 		//Show next Hint
 		if(buttonNextHint.getEnabled() == false) {
 			buttonNextHint.init((metrics.getVirtualW() / 2) - (300 / 2), 90 * metrics.getVirtualH() / 100 + 20,175);
-			buttonNextHint.setText(lang.get("ShowNextHint","",true));
+			buttonNextHint.setText(lang.getString("ShowNextHint","",true));
 			buttonNextHint.setEnabled(true);
 			buttonNextHint.setVisible(true);
 			buttonNextHint.setEditable(true);
@@ -310,7 +310,7 @@ void Logger::renderLoadingScreen() {
 			int xLocationHint =  (metrics.getVirtualW() / 2) - (coreData.getMenuFontBig3D()->getMetrics()->getTextWidth(hintText) / 2);
 
 			renderer.renderText3D(
-					lang.get("ShowNextHint","",true), coreData.getMenuFontNormal3D(), nextHintTitleColor,
+					lang.getString("ShowNextHint","",true), coreData.getMenuFontNormal3D(), nextHintTitleColor,
 					//xLocation*1.5f,
 					xLocationHint,
 					93 * metrics.getVirtualH() / 100, false);
@@ -319,7 +319,7 @@ void Logger::renderLoadingScreen() {
 			int xLocationHint =  (metrics.getVirtualW() / 2) - (coreData.getMenuFontBig()->getMetrics()->getTextWidth(hintText) / 2);
 
 			renderer.renderText(
-					lang.get("ShowNextHint","",true), coreData.getMenuFontNormal(), nextHintTitleColor,
+					lang.getString("ShowNextHint","",true), coreData.getMenuFontNormal(), nextHintTitleColor,
 				//xLocation*1.5f,
 				xLocationHint,
 				93 * metrics.getVirtualH() / 100, false);
@@ -342,7 +342,7 @@ void Logger::setCancelLoadingEnabled(bool value) {
 	//string containerName = "logger";
 	//buttonCancel.registerGraphicComponent(containerName,"buttonCancel");
 	buttonCancel.init((metrics.getVirtualW() / 2) - (125 / 2), 50 * metrics.getVirtualH() / 100, 125);
-	buttonCancel.setText(lang.get("Cancel"));
+	buttonCancel.setText(lang.getString("Cancel"));
 	buttonCancel.setEnabled(value);
 	//GraphicComponent::applyAllCustomProperties(containerName);
 }

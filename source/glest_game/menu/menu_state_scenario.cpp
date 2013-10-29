@@ -59,7 +59,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
 	}
 
 	mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
-	mainMessageBox.init(lang.get("Ok"));
+	mainMessageBox.init(lang.getString("Ok"));
 	mainMessageBox.setEnabled(false);
 	mainMessageBoxState=0;
 
@@ -73,11 +73,11 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
 
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
     buttonReturn.init(buttonStartX, buttonStartY, 125);
-	buttonReturn.setText(lang.get("Return"));
+	buttonReturn.setText(lang.getString("Return"));
 
     buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
 	buttonPlayNow.init(buttonStartX+150, buttonStartY, 125);
-	buttonPlayNow.setText(lang.get("PlayNow"));
+	buttonPlayNow.setText(lang.getString("PlayNow"));
 
 	int startY=700;
 	int startX=50;
@@ -99,10 +99,10 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
 	labelInfo.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	if(this->isTutorialMode == true) {
-		labelScenario.setText(lang.get("Tutorial"));
+		labelScenario.setText(lang.getString("Tutorial"));
 	}
 	else {
-		labelScenario.setText(lang.get("Scenario"));
+		labelScenario.setText(lang.getString("Scenario"));
 	}
 
     //scenario listbox
@@ -169,17 +169,17 @@ void MenuStateScenario::reloadUI() {
 	Lang &lang= Lang::getInstance();
 
 	console.resetFonts();
-	mainMessageBox.init(lang.get("Ok"));
+	mainMessageBox.init(lang.getString("Ok"));
 	labelInfo.setFont(CoreData::getInstance().getMenuFontNormal());
 	labelInfo.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
 	labelScenarioName.setFont(CoreData::getInstance().getMenuFontNormal());
 	labelScenarioName.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 
-	buttonReturn.setText(lang.get("Return"));
-	buttonPlayNow.setText(lang.get("PlayNow"));
+	buttonReturn.setText(lang.getString("Return"));
+	buttonPlayNow.setText(lang.getString("PlayNow"));
 
-    labelScenario.setText(lang.get("Scenario"));
+    labelScenario.setText(lang.getString("Scenario"));
 
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }

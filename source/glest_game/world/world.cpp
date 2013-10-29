@@ -152,7 +152,7 @@ World::~World() {
 
 void World::endScenario() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingWorld","",true), true);
+    Logger::getInstance().add(Lang::getInstance().getString("LogScreenGameUnLoadingWorld","",true), true);
 
     animatedTilesetObjectPosListLoaded = false;
 
@@ -171,7 +171,7 @@ void World::endScenario() {
 
 void World::end(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    Logger::getInstance().add(Lang::getInstance().get("LogScreenGameUnLoadingWorld","",true), true);
+    Logger::getInstance().add(Lang::getInstance().getString("LogScreenGameUnLoadingWorld","",true), true);
 
     animatedTilesetObjectPosListLoaded = false;
 
@@ -1892,7 +1892,7 @@ int World::getUnitCountOfType(int factionIndex, const string &typeName) {
 void World::initCells(bool fogOfWar) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameLoadingStateCells","",true), true);
+	Logger::getInstance().add(Lang::getInstance().getString("LogScreenGameLoadingStateCells","",true), true);
     for(int i=0; i< map.getSurfaceW(); ++i) {
         for(int j=0; j< map.getSurfaceH(); ++j) {
 
@@ -1960,7 +1960,7 @@ void World::initSplattedTextures() {
 //creates each faction looking at each faction name contained in GameSettings
 void World::initFactionTypes(GameSettings *gs) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameLoadingFactionTypes","",true), true);
+	Logger::getInstance().add(Lang::getInstance().getString("LogScreenGameLoadingFactionTypes","",true), true);
 
 	if(gs == NULL) {
 		throw megaglest_runtime_error("gs == NULL");
@@ -2092,14 +2092,14 @@ void World::initMinimap() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	minimap.init(map.getW(), map.getH(), this, game->getGameSettings()->getFogOfWar());
-	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameLoadingMinimapSurface","",true), true);
+	Logger::getInstance().add(Lang::getInstance().getString("LogScreenGameLoadingMinimapSurface","",true), true);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void World::initUnitsForScenario() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameLoadingGenerateGameElements","",true), true);
+	Logger::getInstance().add(Lang::getInstance().getString("LogScreenGameLoadingGenerateGameElements","",true), true);
 
 	//put starting units
 	for(int i = 0; i < getFactionCount(); ++i) {
@@ -2166,7 +2166,7 @@ void World::placeUnitAtLocation(const Vec2i &location, int radius, Unit *unit, b
 //place units randomly aroud start location
 void World::initUnits() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	Logger::getInstance().add(Lang::getInstance().get("LogScreenGameLoadingGenerateGameElements","",true), true);
+	Logger::getInstance().add(Lang::getInstance().getString("LogScreenGameLoadingGenerateGameElements","",true), true);
 
 	bool gotError = false;
 	bool skipStackTrace = false;

@@ -51,7 +51,7 @@ Checksum Scenario::load(const string &path) {
 		string name= cutLastExt(lastDir(path));
 
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingScenario","",true).c_str(),formatString(name).c_str());
+		snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingScenario","",true).c_str(),formatString(name).c_str());
 		Logger::getInstance().add(szBuf, true);
 
 		bool isTutorial = Scenario::isGameTutorial(path);
@@ -327,7 +327,7 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo, bool is
     }
 
 	//add player info
-    scenarioInfo->desc= lang.get("PlayerFaction") + ": ";
+    scenarioInfo->desc= lang.getString("PlayerFaction") + ": ";
 	for(int i=0; i<GameConstants::maxPlayers; ++i) {
 		if(scenarioInfo->factionControls[i] == ctHuman) {
 			scenarioInfo->desc+= formatString(scenarioInfo->factionTypeNames[i]);
@@ -339,10 +339,10 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo, bool is
 	string difficultyString = "Difficulty" + intToStr(scenarioInfo->difficulty);
 
 	scenarioInfo->desc+= "\n";
-    scenarioInfo->desc+= lang.get("Difficulty") + ": " + lang.get(difficultyString) +"\n";
-    scenarioInfo->desc+= lang.get("Map") + ": " + formatString(scenarioInfo->mapName) + "\n";
-    scenarioInfo->desc+= lang.get("Tileset") + ": " + formatString(scenarioInfo->tilesetName) + "\n";
-	scenarioInfo->desc+= lang.get("TechTree") + ": " + formatString(scenarioInfo->techTreeName) + "\n";
+    scenarioInfo->desc+= lang.getString("Difficulty") + ": " + lang.getString(difficultyString) +"\n";
+    scenarioInfo->desc+= lang.getString("Map") + ": " + formatString(scenarioInfo->mapName) + "\n";
+    scenarioInfo->desc+= lang.getString("Tileset") + ": " + formatString(scenarioInfo->tilesetName) + "\n";
+	scenarioInfo->desc+= lang.getString("TechTree") + ": " + formatString(scenarioInfo->techTreeName) + "\n";
 
 	
 	//look for description and append it
@@ -353,7 +353,7 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo, bool is
 		tmp_description = lang.getScenarioString("DESCRIPTION");
 	}
 	if( tmp_description != "") {
-		scenarioInfo->desc += lang.get("Description") + ": \n" + tmp_description + "\n";
+		scenarioInfo->desc += lang.getString("Description") + ": \n" + tmp_description + "\n";
 	}
 
 	scenarioInfo->namei18n = "";
@@ -426,35 +426,35 @@ string Scenario::controllerTypeToStr(const ControlType &ct) {
 	Lang &lang= Lang::getInstance();
 	switch(ct) {
 		case ctCpuEasy:
-			controlString= lang.get("CpuEasy");
+			controlString= lang.getString("CpuEasy");
 			break;
 		case ctCpu:
-			controlString= lang.get("Cpu");
+			controlString= lang.getString("Cpu");
 			break;
 		case ctCpuUltra:
-			controlString= lang.get("CpuUltra");
+			controlString= lang.getString("CpuUltra");
 			break;
 		case ctCpuMega:
-			controlString= lang.get("CpuMega");
+			controlString= lang.getString("CpuMega");
 			break;
 		case ctNetwork:
-			controlString= lang.get("Network");
+			controlString= lang.getString("Network");
 			break;
 		case ctHuman:
-			controlString= lang.get("Human");
+			controlString= lang.getString("Human");
 			break;
 
 		case ctNetworkCpuEasy:
-			controlString= lang.get("NetworkCpuEasy");
+			controlString= lang.getString("NetworkCpuEasy");
 			break;
 		case ctNetworkCpu:
-			controlString= lang.get("NetworkCpu");
+			controlString= lang.getString("NetworkCpu");
 			break;
 		case ctNetworkCpuUltra:
-			controlString= lang.get("NetworkCpuUltra");
+			controlString= lang.getString("NetworkCpuUltra");
 			break;
 		case ctNetworkCpuMega:
-			controlString= lang.get("NetworkCpuMega");
+			controlString= lang.getString("NetworkCpuMega");
 			break;
 
 		default:

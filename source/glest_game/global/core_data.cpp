@@ -179,7 +179,7 @@ void CoreData::load() {
 	}
 
 	//const string dir = data_path + "data/core";
-	Logger::getInstance().add(Lang::getInstance().get("LogScreenCoreDataLoading","",true));
+	Logger::getInstance().add(Lang::getInstance().getString("LogScreenCoreDataLoading","",true));
 
 	Renderer &renderer= Renderer::getInstance();
 
@@ -687,13 +687,13 @@ void CoreData::loadFonts() {
 	//printf("Checking if langfile has custom FontDisplayPostfix\n");
 
 	if(lang.hasString("FontDisplayPrefix") == true) {
-		displayFontNamePrefix = lang.get("FontDisplayPrefix");
+		displayFontNamePrefix = lang.getString("FontDisplayPrefix");
 	}
 	if(lang.hasString("FontDisplayPostfix") == true) {
-		displayFontNamePostfix = lang.get("FontDisplayPostfix");
+		displayFontNamePostfix = lang.getString("FontDisplayPostfix");
 	}
 	if(lang.hasString("FontDisplayBaseSize") == true) {
-		displayFontSize = computeFontSize(strToInt(lang.get("FontDisplayBaseSize")));
+		displayFontSize = computeFontSize(strToInt(lang.getString("FontDisplayBaseSize")));
 	}
 
 	//printf("displayFontNamePostfix [%s]\n",displayFontNamePostfix.c_str());
@@ -732,13 +732,13 @@ void CoreData::loadFonts() {
 	int displayFontNameSmallSize		= computeFontSize(config.getInt("FontDisplaySmallBaseSize"));
 
 	if(lang.hasString("FontDisplayPrefix") == true) {
-		displayFontNameSmallPrefix = lang.get("FontDisplayPrefix");
+		displayFontNameSmallPrefix = lang.getString("FontDisplayPrefix");
 	}
 	if(lang.hasString("FontDisplayPostfix") == true) {
-		displayFontNameSmallPostfix = lang.get("FontDisplayPostfix");
+		displayFontNameSmallPostfix = lang.getString("FontDisplayPostfix");
 	}
 	if(lang.hasString("FontDisplaySmallBaseSize") == true) {
-		displayFontNameSmallSize = computeFontSize(strToInt(lang.get("FontDisplaySmallBaseSize")));
+		displayFontNameSmallSize = computeFontSize(strToInt(lang.getString("FontDisplaySmallBaseSize")));
 	}
 
 	string displayFontNameSmall = displayFontNameSmallPrefix + intToStr(displayFontNameSmallSize) + displayFontNameSmallPostfix;
@@ -775,13 +775,13 @@ void CoreData::loadFonts() {
 	//printf("#1 menuFontNameNormalSize = %d\n",menuFontNameNormalSize);
 
 	if(lang.hasString("FontMenuNormalPrefix") == true) {
-		menuFontNameNormalPrefix = lang.get("FontMenuNormalPrefix");
+		menuFontNameNormalPrefix = lang.getString("FontMenuNormalPrefix");
 	}
 	if(lang.hasString("FontMenuNormalPostfix") == true) {
-		menuFontNameNormalPostfix = lang.get("FontMenuNormalPostfix");
+		menuFontNameNormalPostfix = lang.getString("FontMenuNormalPostfix");
 	}
 	if(lang.hasString("FontMenuNormalBaseSize") == true) {
-		menuFontNameNormalSize = computeFontSize(strToInt(lang.get("FontMenuNormalBaseSize")));
+		menuFontNameNormalSize = computeFontSize(strToInt(lang.getString("FontMenuNormalBaseSize")));
 		//printf("#2 menuFontNameNormalSize = %d\n",menuFontNameNormalSize);
 	}
 
@@ -820,13 +820,13 @@ void CoreData::loadFonts() {
 	int menuFontNameBigSize			= computeFontSize(config.getInt("FontMenuBigBaseSize"));
 
 	if(lang.hasString("FontMenuBigPrefix") == true) {
-		menuFontNameBigPrefix = lang.get("FontMenuBigPrefix");
+		menuFontNameBigPrefix = lang.getString("FontMenuBigPrefix");
 	}
 	if(lang.hasString("FontMenuBigPostfix") == true) {
-		menuFontNameBigPostfix = lang.get("FontMenuBigPostfix");
+		menuFontNameBigPostfix = lang.getString("FontMenuBigPostfix");
 	}
 	if(lang.hasString("FontMenuBigBaseSize") == true) {
-		menuFontNameBigSize = computeFontSize(strToInt(lang.get("FontMenuBigBaseSize")));
+		menuFontNameBigSize = computeFontSize(strToInt(lang.getString("FontMenuBigBaseSize")));
 	}
 
 	string menuFontNameBig= menuFontNameBigPrefix+intToStr(menuFontNameBigSize)+menuFontNameBigPostfix;
@@ -862,13 +862,13 @@ void CoreData::loadFonts() {
 	int menuFontNameVeryBigSize			= computeFontSize(config.getInt("FontMenuVeryBigBaseSize"));
 
 	if(lang.hasString("FontMenuBigPrefix") == true) {
-		menuFontNameVeryBigPrefix = lang.get("FontMenuBigPrefix");
+		menuFontNameVeryBigPrefix = lang.getString("FontMenuBigPrefix");
 	}
 	if(lang.hasString("FontMenuBigPostfix") == true) {
-		menuFontNameVeryBigPostfix = lang.get("FontMenuBigPostfix");
+		menuFontNameVeryBigPostfix = lang.getString("FontMenuBigPostfix");
 	}
 	if(lang.hasString("FontMenuVeryBigBaseSize") == true) {
-		menuFontNameVeryBigSize = computeFontSize(strToInt(lang.get("FontMenuVeryBigBaseSize")));
+		menuFontNameVeryBigSize = computeFontSize(strToInt(lang.getString("FontMenuVeryBigBaseSize")));
 	}
 
 	string menuFontNameVeryBig= menuFontNameVeryBigPrefix + intToStr(menuFontNameVeryBigSize) + menuFontNameVeryBigPostfix;
@@ -907,13 +907,13 @@ void CoreData::loadFonts() {
 	int consoleFontNameSize			= computeFontSize(config.getInt("FontConsoleBaseSize"));
 
 	if(lang.hasString("FontConsolePrefix") == true) {
-		consoleFontNamePrefix = lang.get("FontConsolePrefix");
+		consoleFontNamePrefix = lang.getString("FontConsolePrefix");
 	}
 	if(lang.hasString("FontConsolePostfix") == true) {
-		consoleFontNamePostfix = lang.get("FontConsolePostfix");
+		consoleFontNamePostfix = lang.getString("FontConsolePostfix");
 	}
 	if(lang.hasString("FontConsoleBaseSize") == true) {
-		consoleFontNameSize = computeFontSize(strToInt(lang.get("FontConsoleBaseSize")));
+		consoleFontNameSize = computeFontSize(strToInt(lang.getString("FontConsoleBaseSize")));
 	}
 
 	string consoleFontName= consoleFontNamePrefix + intToStr(consoleFontNameSize) + consoleFontNamePostfix;

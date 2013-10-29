@@ -116,7 +116,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 	}
 
 	char szBuf[8096]="";
-	snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingFactionType","",true).c_str(),formatString(this->getName()).c_str());
+	snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingFactionType","",true).c_str(),formatString(this->getName()).c_str());
 	Logger::getInstance().add(szBuf, true);
 
 	if(personalityType == fpt_Normal) {

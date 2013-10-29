@@ -459,7 +459,7 @@ void ServerInterface::removeSlot(int playerIndex, int lockedSlotIndex) {
 			for(unsigned int i = 0; i < languageList.size(); ++i) {
 				string msgTemplate = "Player %s, disconnected from the game.";
 				if(lang.hasString("PlayerDisconnected",languageList[i]) == true) {
-					msgTemplate = lang.get("PlayerDisconnected",languageList[i]);
+					msgTemplate = lang.getString("PlayerDisconnected",languageList[i]);
 				}
 #ifdef WIN32
 				_snprintf(szBuf,4095,msgTemplate.c_str(),slot->getName().c_str());
@@ -689,14 +689,14 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 
 						string msgTemplate = "DROPPING %s, exceeded max allowed LAG count of %f [time = %f], clientLag = %f [%f], disconnecting client.";
 						if(lang.hasString("ClientLagDropping") == true) {
-							msgTemplate = lang.get("ClientLagDropping",languageList[i]);
+							msgTemplate = lang.getString("ClientLagDropping",languageList[i]);
 						}
 						if(gameSettings.getNetworkPauseGameForLaggedClients() == true &&
 							((maxFrameCountLagAllowedEver <= 0 || clientLagCount <= maxFrameCountLagAllowedEver) &&
 							 (maxClientLagTimeAllowedEver <= 0 || clientLagTime <= maxClientLagTimeAllowedEver))) {
 							msgTemplate = "PAUSING GAME TEMPORARILY for %s, exceeded max allowed LAG count of %f [time = %f], clientLag = %f [%f], waiting for client to catch up...";
 							if(lang.hasString("ClientLagPausing") == true) {
-								msgTemplate = lang.get("ClientLagPausing",languageList[i]);
+								msgTemplate = lang.getString("ClientLagPausing",languageList[i]);
 							}
 						}
 #ifdef WIN32
@@ -742,7 +742,7 @@ std::pair<bool,bool> ServerInterface::clientLagCheck(ConnectionSlot *connectionS
 
 				    		string msgTemplate = "LAG WARNING for %s, may exceed max allowed LAG count of %f [time = %f], clientLag = %f [%f], WARNING...";
 							if(lang.hasString("ClientLagWarning") == true) {
-								msgTemplate = lang.get("ClientLagWarning",languageList[i]);
+								msgTemplate = lang.getString("ClientLagWarning",languageList[i]);
 							}
 
 		#ifdef WIN32
@@ -1884,7 +1884,7 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
 					string sErr = "Timeout waiting for clients.";
 					if(lang.hasString("TimeoutWaitingForClients") == true) {
-						sErr = lang.get("TimeoutWaitingForClients",languageList[i]);
+						sErr = lang.getString("TimeoutWaitingForClients",languageList[i]);
 					}
 					bool localEcho = lang.isLanguageLocal(languageList[i]);
 					sendTextMessage(sErr,-1, localEcho, languageList[i]);
@@ -1909,14 +1909,14 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 					}
 
 					char szBuf[8096]="";
-					string updateTextFormat = lang.get("NetworkGameServerLoadStatus");
+					string updateTextFormat = lang.getString("NetworkGameServerLoadStatus");
 					if(updateTextFormat == "" || updateTextFormat[0] == '?') {
 						updateTextFormat =  "Waiting for network: %lld seconds elapsed (maximum wait time: %d seconds)";
 					}
 					snprintf(szBuf,8096,updateTextFormat.c_str(),(long long int)(chrono.getMillis() / 1000),int(readyWaitTimeout / 1000));
 
 					char szBuf1[8096]="";
-					string statusTextFormat = lang.get("NetworkGameStatusWaiting");
+					string statusTextFormat = lang.getString("NetworkGameStatusWaiting");
 					if(statusTextFormat == "" || statusTextFormat[0] == '?') {
 						statusTextFormat =  "Waiting for players: %s";
 					}
@@ -2005,7 +2005,7 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
     	Lang &lang= Lang::getInstance();
     	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
     	for(unsigned int i = 0; i < languageList.size(); ++i) {
-			string sErr = lang.get("GameCancelledByUser",languageList[i]);
+			string sErr = lang.getString("GameCancelledByUser",languageList[i]);
 			bool localEcho = lang.isLanguageLocal(languageList[i]);
 			sendTextMessage(sErr,-1, localEcho,languageList[i]);
 			if(localEcho == true) {
@@ -2185,7 +2185,7 @@ string ServerInterface::getNetworkStatus() {
 			}
 		}
 		else {
-			str+= lang.get("NotConnected");
+			str+= lang.getString("NotConnected");
 		}
 
 		str+= '\n';

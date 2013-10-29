@@ -333,9 +333,9 @@ void Game::endGame() {
 
 	logger.clearHints();
 	logger.loadLoadingScreen("");
-	logger.setState(Lang::getInstance().get("Deleting"));
+	logger.setState(Lang::getInstance().getString("Deleting"));
 	//logger.add("Game", true);
-	logger.add(Lang::getInstance().get("LogScreenGameLoading","",true), false);
+	logger.add(Lang::getInstance().getString("LogScreenGameLoading","",true), false);
 	logger.hideProgress();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -396,9 +396,9 @@ Game::~Game() {
 	Renderer &renderer= Renderer::getInstance();
 
 	logger.loadLoadingScreen("");
-	logger.setState(Lang::getInstance().get("Deleting"));
+	logger.setState(Lang::getInstance().getString("Deleting"));
 	//logger.add("Game", true);
-	logger.add(Lang::getInstance().get("LogScreenGameLoading","",true), false);
+	logger.add(Lang::getInstance().getString("LogScreenGameLoading","",true), false);
 	logger.hideProgress();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -869,7 +869,7 @@ string Game::findFactionLogoFile(const GameSettings *settings, Logger *logger,
 		bool loadingImageUsed	= false;
 
 		if(logger != NULL) {
-			logger->setState(Lang::getInstance().get("Loading"));
+			logger->setState(Lang::getInstance().getString("Loading"));
 
 			if(scenarioName.empty()) {
 				string scenarioDir = extractDirectoryPathFromFile(settings->getScenarioDir());
@@ -1207,7 +1207,7 @@ void Game::init(bool initForPreviewOnly) {
 	Map *map= world.getMap();
 	NetworkManager &networkManager= NetworkManager::getInstance();
 
-	GameSettings::playerDisconnectedText = "*" + lang.get("AI") + "* ";
+	GameSettings::playerDisconnectedText = "*" + lang.getString("AI") + "* ";
 
 	if(map == NULL) {
 		throw megaglest_runtime_error("map == NULL");
@@ -1216,14 +1216,14 @@ void Game::init(bool initForPreviewOnly) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(initForPreviewOnly == false) {
-		logger.setState(lang.get("Initializing"));
+		logger.setState(lang.getString("Initializing"));
 
 		//mesage box
-		mainMessageBox.init(lang.get("Yes"), lang.get("No"));
+		mainMessageBox.init(lang.getString("Yes"), lang.getString("No"));
 		mainMessageBox.setEnabled(false);
 
 		//mesage box
-		errorMessageBox.init(lang.get("Ok"));
+		errorMessageBox.init(lang.getString("Ok"));
 		errorMessageBox.setEnabled(false);
 		errorMessageBox.setY(mainMessageBox.getY() - mainMessageBox.getH() - 10);
 
@@ -1383,7 +1383,7 @@ void Game::init(bool initForPreviewOnly) {
 					aiInterfaces[i]->loadGame(loadGameNode,faction);
 				}
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
+				snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
 				logger.add(szBuf, true);
 
 				slaveThreadList.push_back(aiInterfaces[i]->getWorkerThread());
@@ -1415,14 +1415,14 @@ void Game::init(bool initForPreviewOnly) {
 		if(withRainEffect) {
 			//weather particle systems
 			if(world.getTileset()->getWeather() == wRainy) {
-				logger.add(Lang::getInstance().get("LogScreenGameLoadingCreatingRainParticles","",true), true);
+				logger.add(Lang::getInstance().getString("LogScreenGameLoadingCreatingRainParticles","",true), true);
 				weatherParticleSystem= new RainParticleSystem();
 				weatherParticleSystem->setSpeed(12.f / GameConstants::updateFps);
 				weatherParticleSystem->setPos(gameCamera.getPos());
 				renderer.manageParticleSystem(weatherParticleSystem, rsGame);
 			}
 			else if(world.getTileset()->getWeather() == wSnowy) {
-				logger.add(Lang::getInstance().get("LogScreenGameLoadingCreatingSnowParticles","",true), true);
+				logger.add(Lang::getInstance().getString("LogScreenGameLoadingCreatingSnowParticles","",true), true);
 				weatherParticleSystem= new SnowParticleSystem(1200);
 				weatherParticleSystem->setSpeed(1.5f / GameConstants::updateFps);
 				weatherParticleSystem->setPos(gameCamera.getPos());
@@ -1444,7 +1444,7 @@ void Game::init(bool initForPreviewOnly) {
 
 	//init renderer state
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Initializing renderer\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
-	logger.add(Lang::getInstance().get("LogScreenGameLoadingInitRenderer","",true), true);
+	logger.add(Lang::getInstance().getString("LogScreenGameLoadingInitRenderer","",true), true);
 
 	//printf("Before renderer.initGame\n");
 	renderer.initGame(this,this->getGameCameraPtr());
@@ -1476,13 +1476,13 @@ void Game::init(bool initForPreviewOnly) {
 		SDL_PumpEvents();
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Waiting for network\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
-		logger.add(Lang::getInstance().get("LogScreenGameLoadingWaitForNetworkPlayers","",true), true);
+		logger.add(Lang::getInstance().getString("LogScreenGameLoadingWaitForNetworkPlayers","",true), true);
 		networkManager.getGameNetworkInterface()->waitUntilReady(&checksum);
 
 		//std::string worldLog = world.DumpWorldToLog(true);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Starting music stream\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		logger.add(Lang::getInstance().get("LogScreenGameLoadingStartingMusic","",true), true);
+		logger.add(Lang::getInstance().getString("LogScreenGameLoadingStartingMusic","",true), true);
 
 		if(this->masterserverMode == false) {
 			if(world.getThisFaction() == NULL) {
@@ -1506,7 +1506,7 @@ void Game::init(bool initForPreviewOnly) {
 
 		//rain
 		if(tileset->getWeather() == wRainy && ambientSounds->isEnabledRain()) {
-			logger.add(Lang::getInstance().get("LogScreenGameLoadingStartingAmbient","",true), true);
+			logger.add(Lang::getInstance().getString("LogScreenGameLoadingStartingAmbient","",true), true);
 			currentAmbientSound = ambientSounds->getRain();
 			//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentAmbientSound);
 			soundRenderer.playAmbient(currentAmbientSound);
@@ -1514,7 +1514,7 @@ void Game::init(bool initForPreviewOnly) {
 
 		//snow
 		if(tileset->getWeather() == wSnowy && ambientSounds->isEnabledSnow()) {
-			logger.add(Lang::getInstance().get("LogScreenGameLoadingStartingAmbient","",true), true);
+			logger.add(Lang::getInstance().getString("LogScreenGameLoadingStartingAmbient","",true), true);
 			currentAmbientSound = ambientSounds->getSnow();
 			//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentAmbientSound);
 			soundRenderer.playAmbient(currentAmbientSound);
@@ -1525,7 +1525,7 @@ void Game::init(bool initForPreviewOnly) {
 			soundRenderer.playMusic(gameMusic);
 		}
 
-		logger.add(Lang::getInstance().get("LogScreenGameLoadingLaunchGame","",true));
+		logger.add(Lang::getInstance().getString("LogScreenGameLoadingLaunchGame","",true));
 	}
 
 	if(showPerfStats) {
@@ -1654,37 +1654,37 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 		}
 		//PopupMenu popupMenu;
 		std::vector<string> menuItems;
-		menuItems.push_back(lang.get("ExitGameMenu?"));
+		menuItems.push_back(lang.getString("ExitGameMenu?"));
 		exitGamePopupMenuIndex = menuItems.size()-1;
 
 		if((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching &&
 			world.getThisFaction() != NULL && world.getThisFaction()->getPersonalityType() != fpt_Observer) {
-			menuItems.push_back(lang.get("JoinOtherTeam"));
+			menuItems.push_back(lang.getString("JoinOtherTeam"));
 			joinTeamPopupMenuIndex = menuItems.size()-1;
 		}
 
 		if(allowAdminMenuItems == true){
-			menuItems.push_back(lang.get("PauseResumeGame"));
+			menuItems.push_back(lang.getString("PauseResumeGame"));
 			pauseGamePopupMenuIndex= menuItems.size() - 1;
 
 			if(gameSettings.isNetworkGame() == false){
-				menuItems.push_back(lang.get("SaveGame"));
+				menuItems.push_back(lang.getString("SaveGame"));
 				saveGamePopupMenuIndex= menuItems.size() - 1;
 			}
 
 			if(gameSettings.isNetworkGame() == true){
-				menuItems.push_back(lang.get("DisconnectNetorkPlayer"));
+				menuItems.push_back(lang.getString("DisconnectNetorkPlayer"));
 				disconnectPlayerPopupMenuIndex= menuItems.size() - 1;
 			}
 		}
-		menuItems.push_back(lang.get("Keyboardsetup"));
+		menuItems.push_back(lang.getString("Keyboardsetup"));
 		keyboardSetupPopupMenuIndex = menuItems.size()-1;
 
-		menuItems.push_back(lang.get("Cancel"));
+		menuItems.push_back(lang.getString("Cancel"));
 
 		popupMenu.setW(100);
 		popupMenu.setH(100);
-		popupMenu.init(lang.get("GameMenuTitle"),menuItems);
+		popupMenu.init(lang.getString("GameMenuTitle"),menuItems);
 		popupMenu.setEnabled(false);
 		popupMenu.setVisible(false);
 
@@ -1786,14 +1786,14 @@ void Game::update() {
 
 				char szBuf[8096]="";
 				if(lang.hasString("AllowPlayerJoinTeam") == true) {
-					snprintf(szBuf,8096,lang.get("AllowPlayerJoinTeam").c_str(),settings->getNetworkPlayerName(vote->factionIndex).c_str(),vote->oldTeam,vote->newTeam);
+					snprintf(szBuf,8096,lang.getString("AllowPlayerJoinTeam").c_str(),settings->getNetworkPlayerName(vote->factionIndex).c_str(),vote->oldTeam,vote->newTeam);
 				}
 				else {
 					snprintf(szBuf,8096,"Allow player [%s] to join your team\n(changing from team# %d to team# %d)?",settings->getNetworkPlayerName(vote->factionIndex).c_str(),vote->oldTeam,vote->newTeam);
 				}
 
 				switchTeamConfirmMessageBox.setText(szBuf);
-				switchTeamConfirmMessageBox.init(lang.get("Yes"), lang.get("No"));
+				switchTeamConfirmMessageBox.init(lang.getString("Yes"), lang.getString("No"));
 				switchTeamConfirmMessageBox.setEnabled(true);
 
 				world.getThisFactionPtr()->setCurrentSwitchTeamVoteFactionIndex(vote->factionIndex);
@@ -2376,8 +2376,8 @@ void Game::update() {
 							this->gameSettings.getFactionControl(i) == ctNetwork &&
 							aiInterfaces[i] == NULL) {
 						faction->setFactionDisconnectHandled(false);
-						//this->gameSettings.setNetworkPlayerName(i,lang.get("AI") + intToStr(i+1));
-						//server->gameSettings.setNetworkPlayerName(i,lang.get("AI") + intToStr(i+1));
+						//this->gameSettings.setNetworkPlayerName(i,lang.getString("AI") + intToStr(i+1));
+						//server->gameSettings.setNetworkPlayerName(i,lang.getString("AI") + intToStr(i+1));
 					}
 				}
 
@@ -2472,7 +2472,7 @@ void Game::update() {
 
 						char szBuf[8096]="";
 						Lang &lang= Lang::getInstance();
-						snprintf(szBuf,8096,lang.get("GameSaved","",true).c_str(),file.c_str());
+						snprintf(szBuf,8096,lang.getString("GameSaved","",true).c_str(),file.c_str());
 						console.addLine(szBuf);
 
 						for(int i = 0; i < world.getFactionCount(); ++i) {
@@ -3006,7 +3006,7 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 					if(faction->getPersonalityType() != fpt_Observer) {
 						aiInterfaces[i] = new AiInterface(*this, i, faction->getTeam(), faction->getStartLocationIndex());
 
-						snprintf(szBuf,8096,Lang::getInstance().get("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
+						snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
 						logger.add(szBuf, true);
 
 						commander.tryNetworkPlayerDisconnected(i);
@@ -3023,14 +3023,14 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 						if(isPlayerObserver == false) {
 							string msg = "Player #%d [%s] has disconnected, switching player to AI mode!";
 							if(lang.hasString("GameSwitchPlayerToAI",languageList[j],true)) {
-								msg = lang.get("GameSwitchPlayerToAI",languageList[j],true);
+								msg = lang.getString("GameSwitchPlayerToAI",languageList[j],true);
 							}
 							snprintf(szBuf,8096,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 						}
 						else {
 							string msg = "Player #%d [%s] has disconnected, but player was only an observer!";
 							if(lang.hasString("GameSwitchPlayerObserverToAI",languageList[j],true)) {
-								msg = lang.get("GameSwitchPlayerObserverToAI",languageList[j],true);
+								msg = lang.getString("GameSwitchPlayerObserverToAI",languageList[j],true);
 							}
 							snprintf(szBuf,8096,msg.c_str(),i+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 						}
@@ -3424,7 +3424,7 @@ void Game::startMarkCell() {
 	}
 	else {
 		Lang &lang= Lang::getInstance();
-		console.addLine(lang.get("MaxMarkerCount") + " " + intToStr(MAX_MARKER_COUNT));
+		console.addLine(lang.getString("MaxMarkerCount") + " " + intToStr(MAX_MARKER_COUNT));
 	}
 }
 
@@ -3582,7 +3582,7 @@ void Game::mouseDownLeft(int x, int y) {
 
 			// Exit game
 			if(result.first == exitGamePopupMenuIndex) {
-				showMessageBox(Lang::getInstance().get("ExitGameMenu?"), "", true);
+				showMessageBox(Lang::getInstance().getString("ExitGameMenu?"), "", true);
 			}
 			else if(result.first == joinTeamPopupMenuIndex) {
 
@@ -3603,7 +3603,7 @@ void Game::mouseDownLeft(int x, int y) {
 						world.getThisFaction()->getTeam() != faction->getTeam()) {
 						char szBuf[8096]="";
 						if(lang.hasString("JoinPlayerTeam") == true) {
-							snprintf(szBuf,8096,lang.get("JoinPlayerTeam").c_str(),faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
+							snprintf(szBuf,8096,lang.getString("JoinPlayerTeam").c_str(),faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
 						}
 						else {
 							snprintf(szBuf,8096,"Join player #%d - %s on Team: %d",faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
@@ -3616,15 +3616,15 @@ void Game::mouseDownLeft(int x, int y) {
 				}
 
 				if(uniqueTeamNumbersUsed.size() < 8) {
-					menuItems.push_back(lang.get("CreateNewTeam"));
+					menuItems.push_back(lang.getString("CreateNewTeam"));
 					switchTeamIndexMap[menuItems.size()-1] = CREATE_NEW_TEAM;
 				}
-				menuItems.push_back(lang.get("Cancel"));
+				menuItems.push_back(lang.getString("Cancel"));
 				switchTeamIndexMap[menuItems.size()-1] = CANCEL_SWITCH_TEAM;
 
 				popupMenuSwitchTeams.setW(100);
 				popupMenuSwitchTeams.setH(100);
-				popupMenuSwitchTeams.init(lang.get("SwitchTeams"),menuItems);
+				popupMenuSwitchTeams.init(lang.getString("SwitchTeams"),menuItems);
 				popupMenuSwitchTeams.setEnabled(true);
 				popupMenuSwitchTeams.setVisible(true);
 			}
@@ -3664,7 +3664,7 @@ void Game::mouseDownLeft(int x, int y) {
 
 						char szBuf[8096]="";
 						if(lang.hasString("DisconnectNetorkPlayerIndex") == true) {
-							snprintf(szBuf,8096,lang.get("DisconnectNetorkPlayerIndex").c_str(),faction->getIndex()+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+							snprintf(szBuf,8096,lang.getString("DisconnectNetorkPlayerIndex").c_str(),faction->getIndex()+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 						}
 						else {
 							snprintf(szBuf,8096,"Disconnect player #%d - %s:",faction->getIndex()+1,this->gameSettings.getNetworkPlayerName(i).c_str());
@@ -3677,12 +3677,12 @@ void Game::mouseDownLeft(int x, int y) {
 					}
 				}
 
-				menuItems.push_back(lang.get("Cancel"));
+				menuItems.push_back(lang.getString("Cancel"));
 				disconnectPlayerIndexMap[menuItems.size()-1] = CANCEL_DISCONNECT_PLAYER;
 
 				popupMenuDisconnectPlayer.setW(100);
 				popupMenuDisconnectPlayer.setH(100);
-				popupMenuDisconnectPlayer.init(lang.get("DisconnectNetorkPlayer"),menuItems);
+				popupMenuDisconnectPlayer.init(lang.getString("DisconnectNetorkPlayer"),menuItems);
 				popupMenuDisconnectPlayer.setEnabled(true);
 				popupMenuDisconnectPlayer.setVisible(true);
 			}
@@ -3805,14 +3805,14 @@ void Game::mouseDownLeft(int x, int y) {
 
 					char szBuf[8096]="";
 					if(lang.hasString("DisconnectNetorkPlayerIndexConfirm") == true) {
-						snprintf(szBuf,8096,lang.get("DisconnectNetorkPlayerIndexConfirm").c_str(),factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
+						snprintf(szBuf,8096,lang.getString("DisconnectNetorkPlayerIndexConfirm").c_str(),factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
 					}
 					else {
 						snprintf(szBuf,8096,"Confirm disconnection for player #%d - %s?",factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
 					}
 
 					disconnectPlayerConfirmMessageBox.setText(szBuf);
-					disconnectPlayerConfirmMessageBox.init(lang.get("Yes"), lang.get("No"));
+					disconnectPlayerConfirmMessageBox.init(lang.getString("Yes"), lang.getString("No"));
 					disconnectPlayerConfirmMessageBox.setEnabled(true);
 
 					playerIndexDisconnect = world.getFaction(factionIndex)->getStartLocationIndex();
@@ -3824,7 +3824,7 @@ void Game::mouseDownLeft(int x, int y) {
 						for(unsigned int i = 0; i < languageList.size(); ++i) {
 							char szMsg[8096]="";
 							if(lang.hasString("DisconnectNetorkPlayerIndexConfirmed",languageList[i]) == true) {
-								snprintf(szMsg,8096,lang.get("DisconnectNetorkPlayerIndexConfirmed",languageList[i]).c_str(),factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
+								snprintf(szMsg,8096,lang.getString("DisconnectNetorkPlayerIndexConfirmed",languageList[i]).c_str(),factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
 							}
 							else {
 								snprintf(szMsg,8096,"Notice - Admin is warning to disconnect player #%d - %s!",factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
@@ -4529,12 +4529,12 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 						float currentVolume = gameMusic->getVolume();
 						if(currentVolume > 0) {
 							gameMusic->setVolume(0);
-							console.addLine(lang.get("GameMusic") + " " + lang.get("Off"));
+							console.addLine(lang.getString("GameMusic") + " " + lang.getString("Off"));
 						}
 						else {
 							//If the config says zero, use the default music volume
 							gameMusic->setVolume(configVolume ? configVolume : 0.9);
-							console.addLine(lang.get("GameMusic"));
+							console.addLine(lang.getString("GameMusic"));
 						}
 					}
 				}
@@ -4569,14 +4569,14 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				if(gameCamera.getState()==GameCamera::sFree)
 				{
 					gameCamera.setState(GameCamera::sGame);
-					string stateString= gameCamera.getState()==GameCamera::sGame? lang.get("GameCamera"): lang.get("FreeCamera");
-					console.addLine(lang.get("CameraModeSet")+" "+ stateString);
+					string stateString= gameCamera.getState()==GameCamera::sGame? lang.getString("GameCamera"): lang.getString("FreeCamera");
+					console.addLine(lang.getString("CameraModeSet")+" "+ stateString);
 				}
 				else if(gameCamera.getState()==GameCamera::sGame)
 				{
 					gameCamera.setState(GameCamera::sFree);
-					string stateString= gameCamera.getState()==GameCamera::sGame? lang.get("GameCamera"): lang.get("FreeCamera");
-					console.addLine(lang.get("CameraModeSet")+" "+ stateString);
+					string stateString= gameCamera.getState()==GameCamera::sGame? lang.getString("GameCamera"): lang.getString("FreeCamera");
+					console.addLine(lang.getString("CameraModeSet")+" "+ stateString);
 				}
 				//else ignore!
 			}
@@ -5761,7 +5761,7 @@ void Game::incSpeed() {
 		else {
 			this->speed++;
 		}
-		console.addLine(lang.get("GameSpeedSet")+" "+((this->speed == 0)?lang.get("Slow") : (this->speed == 1)?lang.get("Normal"):"x"+intToStr(this->speed)));
+		console.addLine(lang.getString("GameSpeedSet")+" "+((this->speed == 0)?lang.getString("Slow") : (this->speed == 1)?lang.getString("Normal"):"x"+intToStr(this->speed)));
 	}
 }
 
@@ -5769,7 +5769,7 @@ void Game::decSpeed() {
 	Lang &lang= Lang::getInstance();
 	if(this->speed > 0) {
 		this->speed--;
-		console.addLine(lang.get("GameSpeedSet")+" "+((this->speed == 0)?lang.get("Slow") : (this->speed == 1)?lang.get("Normal"):"x"+intToStr(this->speed)));
+		console.addLine(lang.getString("GameSpeedSet")+" "+((this->speed == 0)?lang.getString("Slow") : (this->speed == 1)?lang.getString("Normal"):"x"+intToStr(this->speed)));
 	}
 }
 
@@ -5801,7 +5801,7 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 					for(unsigned int i = 0; i < languageList.size(); ++i) {
 						char szMsg[8096]="";
 						if(lang.hasString("JoinPlayerToCurrentGameLaunch",languageList[i]) == true) {
-							snprintf(szMsg,8096,lang.get("JoinPlayerToCurrentGameLaunch",languageList[i]).c_str(), slot->getName().c_str());
+							snprintf(szMsg,8096,lang.getString("JoinPlayerToCurrentGameLaunch",languageList[i]).c_str(), slot->getName().c_str());
 						}
 						else {
 							snprintf(szMsg,8096,"Player: %s is about to join the game, please wait...",slot->getName().c_str());
@@ -5824,7 +5824,7 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 
 		Lang &lang= Lang::getInstance();
 		if(value == false) {
-			console.addLine(lang.get("GameResumed"));
+			console.addLine(lang.getString("GameResumed"));
 			paused= false;
 			pausedForJoinGame = false;
 			pausedBeforeJoinGame = false;
@@ -5855,7 +5855,7 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 			commander.setPauseNetworkCommands(false);
 		}
 		else {
-			console.addLine(lang.get("GamePaused"));
+			console.addLine(lang.getString("GamePaused"));
 
 			if(joinNetworkGame == true) {
 				pausedBeforeJoinGame = paused;
@@ -5921,10 +5921,10 @@ void Game::showLoseMessageBox() {
 
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	if(networkManager.isNetworkGame() == true && networkManager.getNetworkRole() == nrServer) {
-		showMessageBox(lang.get("YouLose")+" "+lang.get("ExitGameServer?"), lang.get("BattleOver"), false);
+		showMessageBox(lang.getString("YouLose")+" "+lang.getString("ExitGameServer?"), lang.getString("BattleOver"), false);
 	}
 	else {
-		showMessageBox(lang.get("YouLose")+" "+lang.get("ExitGameMenu?"), lang.get("BattleOver"), false);
+		showMessageBox(lang.getString("YouLose")+" "+lang.getString("ExitGameMenu?"), lang.getString("BattleOver"), false);
 	}
 }
 
@@ -5932,10 +5932,10 @@ void Game::showWinMessageBox() {
 	Lang &lang= Lang::getInstance();
 
 	if(this->masterserverMode == true || world.getThisFaction()->getPersonalityType() == fpt_Observer) {
-		showMessageBox(lang.get("GameOver")+" "+lang.get("ExitGameMenu?"), lang.get("BattleOver"), false);
+		showMessageBox(lang.getString("GameOver")+" "+lang.getString("ExitGameMenu?"), lang.getString("BattleOver"), false);
 	}
 	else {
-		showMessageBox(lang.get("YouWin")+" "+lang.get("ExitGameMenu?"), lang.get("BattleOver"), false);
+		showMessageBox(lang.getString("YouWin")+" "+lang.getString("ExitGameMenu?"), lang.getString("BattleOver"), false);
 	}
 }
 
@@ -6113,7 +6113,7 @@ void Game::saveGame(){
 	string file = this->saveGame(GameConstants::saveGameFilePattern);
 	char szBuf[8096]="";
 	Lang &lang= Lang::getInstance();
-	snprintf(szBuf,8096,lang.get("GameSaved","",true).c_str(),file.c_str());
+	snprintf(szBuf,8096,lang.getString("GameSaved","",true).c_str(),file.c_str());
 	console.addLine(szBuf);
 
 	Config &config= Config::getInstance();
@@ -6389,7 +6389,7 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 		string gameVer = versionNode->getAttribute("version")->getValue();
 		if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false) {
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
+			snprintf(szBuf,8096,lang.getString("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
 			throw megaglest_runtime_error(szBuf,true);
 		}
 
@@ -6450,7 +6450,7 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 	string gameVer = versionNode->getAttribute("version")->getValue();
 	if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
+		snprintf(szBuf,8096,lang.getString("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
 		throw megaglest_runtime_error(szBuf,true);
 	}
 

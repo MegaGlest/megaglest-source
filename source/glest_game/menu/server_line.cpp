@@ -111,7 +111,7 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 
 	wrongVersionLabel.init(i, baseY - lineOffset);
 	wrongVersionLabel.setTextColor(Vec3f(1.0f,0.0f,0.0f));
-	wrongVersionLabel.setText(lang.get("IncompatibleVersion"));
+	wrongVersionLabel.setText(lang.getString("IncompatibleVersion"));
 
 	//game setup info:
 	techLabel.init(i, baseY - lineOffset);
@@ -141,7 +141,7 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	i+= 60;
 	status.init(i, baseY - lineOffset);
 	status.setTextColor(color);
-	status.setText(lang.get("MGGameStatus" + intToStr(masterServerInfo.getStatus())));
+	status.setText(lang.getString("MGGameStatus" + intToStr(masterServerInfo.getStatus())));
 
 	i+= 130;
 	selectButton.init(i, baseY - lineOffset, 30);
@@ -165,7 +165,7 @@ void ServerLine::reloadUI() {
 
 	country.setText(masterServerInfo.getCountry());
 
-	wrongVersionLabel.setText(lang.get("IncompatibleVersion"));
+	wrongVersionLabel.setText(lang.getString("IncompatibleVersion"));
 
 	techLabel.setText(masterServerInfo.getTech());
 
@@ -175,7 +175,7 @@ void ServerLine::reloadUI() {
 
 	externalConnectPort.setText(intToStr(masterServerInfo.getExternalConnectPort()));
 
-	status.setText(lang.get("MGGameStatus" + intToStr(masterServerInfo.getStatus())));
+	status.setText(lang.getString("MGGameStatus" + intToStr(masterServerInfo.getStatus())));
 
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }

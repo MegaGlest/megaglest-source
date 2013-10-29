@@ -73,25 +73,25 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
 	headerLabel.init(400, 730);
 	headerLabel.setFont(CoreData::getInstance().getMenuFontBig());
 	headerLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	headerLabel.setText(lang.get("LoadGameMenu"));
+	headerLabel.setText(lang.getString("LoadGameMenu"));
 
 	noSavedGamesLabel.registerGraphicComponent(containerName,"noSavedGamesLabel");
 	noSavedGamesLabel.init(20, 400);
 	noSavedGamesLabel.setFont(CoreData::getInstance().getMenuFontBig());
 	noSavedGamesLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	noSavedGamesLabel.setText(lang.get("NoSavedGames"));
+	noSavedGamesLabel.setText(lang.getString("NoSavedGames"));
 
 	savedGamesLabel.registerGraphicComponent(containerName,"savedGamesLabel");
 	savedGamesLabel.init(120, slotLinesYBase+slotsLineHeight+10);
 	savedGamesLabel.setFont(CoreData::getInstance().getMenuFontBig());
 	savedGamesLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	savedGamesLabel.setText(lang.get("SavedGames"));
+	savedGamesLabel.setText(lang.getString("SavedGames"));
 
 	infoHeaderLabel.registerGraphicComponent(containerName,"infoHeaderLabel");
 	infoHeaderLabel.init(650, slotLinesYBase+slotsLineHeight+10);
 	infoHeaderLabel.setFont(CoreData::getInstance().getMenuFontBig());
 	infoHeaderLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	infoHeaderLabel.setText(lang.get("SavegameInfo"));
+	infoHeaderLabel.setText(lang.getString("SavegameInfo"));
 
 	infoTextLabel.registerGraphicComponent(containerName,"infoTextLabel");
 	infoTextLabel.init(550, 350);
@@ -102,15 +102,15 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
 
     abortButton.registerGraphicComponent(containerName,"abortButton");
     abortButton.init(xPos, yPos, buttonWidth);
-	abortButton.setText(lang.get("Abort"));
+	abortButton.setText(lang.getString("Abort"));
 	xPos+=buttonWidth+xSpacing;
     loadButton.registerGraphicComponent(containerName,"loadButton");
     loadButton.init(xPos, yPos, buttonWidth);
-    loadButton.setText(lang.get("LoadGame"));
+    loadButton.setText(lang.getString("LoadGame"));
 	xPos+=buttonWidth+xSpacing;
     deleteButton.registerGraphicComponent(containerName,"deleteButton");
     deleteButton.init(xPos, yPos, buttonWidth);
-    deleteButton.setText(lang.get("Delete"));
+    deleteButton.setText(lang.getString("Delete"));
 
     slotsScrollBar.init(500-20,slotLinesYBase-slotsLineHeight*(slotsToRender-1),false,slotWidth,20);
     slotsScrollBar.setLength(slotsLineHeight*slotsToRender);
@@ -122,7 +122,7 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
     slotsScrollBar.setElementCount(filenames.size());
 
     mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
-	mainMessageBox.init(lang.get("Ok"),450);
+	mainMessageBox.init(lang.getString("Ok"),450);
 	mainMessageBox.setEnabled(false);
 
 	GraphicComponent::applyAllCustomProperties(containerName);
@@ -183,11 +183,11 @@ void MenuStateLoadGame::listFiles() {
 void MenuStateLoadGame::reloadUI() {
 	Lang &lang= Lang::getInstance();
 
-	abortButton.setText(lang.get("Abort"));
-	deleteButton.setText(lang.get("Delete"));
-	loadButton.setText(lang.get("LoadGame"));
+	abortButton.setText(lang.getString("Abort"));
+	deleteButton.setText(lang.getString("Delete"));
+	loadButton.setText(lang.getString("LoadGame"));
 
-	mainMessageBox.init(lang.get("Ok"),450);
+	mainMessageBox.init(lang.getString("Ok"),450);
 
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
@@ -204,7 +204,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 			mainMessageBox.setEnabled(false);
 
 			Lang &lang= Lang::getInstance();
-			mainMessageBox.init(lang.get("Ok"),450);
+			mainMessageBox.init(lang.getString("Ok"),450);
 		}
 	}
     if(abortButton.mouseClick(x, y)) {
@@ -224,7 +224,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 			Lang &lang= Lang::getInstance();
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,lang.get("LoadGameDeletingFile","",true).c_str(),filename.c_str());
+			snprintf(szBuf,8096,lang.getString("LoadGameDeletingFile","",true).c_str(),filename.c_str());
 			console.addLineOnly(szBuf);
 
 			for(int i = 0; i < slots.size(); i++) {
@@ -258,14 +258,14 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 			Lang &lang= Lang::getInstance();
 			char szBuf[8096]="";
-			snprintf(szBuf,8096,lang.get("LoadGameLoadingFile","",true).c_str(),filename.c_str());
+			snprintf(szBuf,8096,lang.getString("LoadGameLoadingFile","",true).c_str(),filename.c_str());
 			console.addLineOnly(szBuf);
 
 			try {
 				Game::loadGame(filename,program,false);
 			}
 			catch(const megaglest_runtime_error &ex) {
-				showMessageBox(ex.what(), lang.get("Notice"), true);
+				showMessageBox(ex.what(), lang.getString("Notice"), true);
 			}
 			return;
 		}
@@ -314,7 +314,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 						string gameVer = versionNode->getAttribute("version")->getValue();
 						if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false) {
 							char szBuf[8096]="";
-							snprintf(szBuf,8096,lang.get("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
+							snprintf(szBuf,8096,lang.getString("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
 							infoTextLabel.setText(szBuf);
 						}
 						else {
@@ -324,7 +324,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 							//LoadSavedGameInfo=Map: %s\nTileset: %s\nTech: %s\nScenario: %s\n# players: %d\nFaction: %s
 							char szBuf[8096]="";
-							snprintf(szBuf,8096,lang.get("LoadSavedGameInfo").c_str(),
+							snprintf(szBuf,8096,lang.getString("LoadSavedGameInfo").c_str(),
 									newGameSettings.getMap().c_str(),
 									newGameSettings.getTileset().c_str(),
 									newGameSettings.getTech().c_str(),
@@ -442,7 +442,7 @@ void MenuStateLoadGame::keyDown(SDL_KeyboardEvent key) {
 	if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
 		GraphicComponent::saveAllCustomProperties(containerName);
 		//Lang &lang= Lang::getInstance();
-		//console.addLine(lang.get("GUILayoutSaved") + " [" + (saved ? lang.get("Yes") : lang.get("No"))+ "]");
+		//console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
 	}
 }
 

@@ -1087,7 +1087,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								    		char szBuf[4096]="";
 											string msgTemplate = "You must have have at least %d player(s) connected to start this game!";
 											if(lang.hasString("HeadlessAdminRequiresMorePlayers",languageList[i]) == true) {
-												msgTemplate = lang.get("HeadlessAdminRequiresMorePlayers",languageList[i]);
+												msgTemplate = lang.getString("HeadlessAdminRequiresMorePlayers",languageList[i]);
 											}
 					#ifdef WIN32
 											_snprintf(szBuf,4095,msgTemplate.c_str(),minHeadLessPlayersRequired);
