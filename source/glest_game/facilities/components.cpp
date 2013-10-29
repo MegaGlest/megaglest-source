@@ -543,7 +543,8 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 			bool bFound = false;
 			if(advanceToItemStartingWith != "") {
 				for(int i = selectedItemIndex - 1; i >= 0; --i) {
-					string item = translated_items[i];
+					string item = items[i];
+					if(translated_items.size()>i) item=translated_items[i];
 					if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
 						bFound = true;
 						selectedItemIndex = i;
@@ -551,8 +552,9 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 					}
 				}
 				if(bFound == false) {
-					for(int i = translated_items.size() - 1; i >= selectedItemIndex; --i) {
-						string item = translated_items[i];
+					for(int i = items.size() - 1; i >= selectedItemIndex; --i) {
+						string item = items[i];
+						if(translated_items.size()>i) item=translated_items[i];
 						//printf("Trying to match [%s] with item [%s]\n",advanceToItemStartingWith.c_str(),item.c_str());
 						if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
 							bFound = true;
@@ -572,8 +574,9 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 		else if(b2) {
 			bool bFound = false;
 			if(advanceToItemStartingWith != "") {
-				for(int i = selectedItemIndex + 1; i < translated_items.size(); ++i) {
-					string item = translated_items[i];
+				for(int i = selectedItemIndex + 1; i < items.size(); ++i) {
+					string item = items[i];
+					if(translated_items.size()>i) item=translated_items[i];
 					//printf("Trying to match [%s] with item [%s]\n",advanceToItemStartingWith.c_str(),item.c_str());
 					if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
 						bFound = true;
@@ -583,7 +586,8 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 				}
 				if(bFound == false) {
 					for(int i = 0; i <= selectedItemIndex; ++i) {
-						string item = translated_items[i];
+						string item = items[i];
+						if(translated_items.size()>i) item=translated_items[i];
 						//printf("Trying to match [%s] with item [%s]\n",advanceToItemStartingWith.c_str(),item.c_str());
 						if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
 							bFound = true;
