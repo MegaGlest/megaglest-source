@@ -51,11 +51,20 @@ string TechTree::getName(bool translatedValue) const {
 	if(translatedValue == false) return name;
 
 	Lang &lang = Lang::getInstance();
+	if(lang.getTechNameLoaded() != name) {
+		//printf("Line: %d Tech [%s]\n",__LINE__,name.c_str());
+
+		lang.loadTechTreeStrings(name,false);
+		//translatedTechFactionNames.erase(name);
+	}
+
 	return lang.getTechTreeString("TechTreeName",name.c_str());
 }
 
 string TechTree::getTranslatedName(string techName, bool forceLoad, bool forceTechtreeActiveFile) {
 	string result = techName;
+
+	//printf("Line: %d Tech [%s] forceLoad = %d forceTechtreeActiveFile = %d\n",__LINE__,techName.c_str(),forceLoad,forceTechtreeActiveFile);
 
 	if(forceTechtreeActiveFile == false &&
 			translatedTechNames.find(techName) != translatedTechNames.end()) {
@@ -73,6 +82,8 @@ string TechTree::getTranslatedName(string techName, bool forceLoad, bool forceTe
 			Lang &lang = Lang::getInstance();
 			lang.loadTechTreeStrings(name,forceLoad);
 
+			translatedTechFactionNames.erase(name);
+
 			result = getName(true);
 
 			translatedTechNames[techName] = result;
@@ -83,19 +94,33 @@ string TechTree::getTranslatedName(string techName, bool forceLoad, bool forceTe
 }
 
 string TechTree::getTranslatedFactionName(string techName, string factionName) {
+	//printf("Line: %d Tech [%s] name [%s] factionName [%s]\n",__LINE__,techName.c_str(),name.c_str(),factionName.c_str());
+
+	Lang &lang = Lang::getInstance();
+	if(lang.getTechNameLoaded() != techName) {
+		//printf("Line: %d Tech [%s] name [%s] lang.getTechNameLoaded() [%s] factionName [%s]\n",__LINE__,techName.c_str(),name.c_str(),lang.getTechNameLoaded().c_str(),factionName.c_str());
+
+		lang.loadTechTreeStrings(techName,false);
+		translatedTechFactionNames.erase(techName);
+	}
+
 	std::map<string,std::map<string,string> >::iterator iterMap = translatedTechFactionNames.find(techName);
 	if(iterMap != translatedTechFactionNames.end()) {
 		if(iterMap->second.find(factionName) != iterMap->second.end()) {
+			//printf("Line: %d Tech [%s] factionName [%s]\n",__LINE__,techName.c_str(),factionName.c_str());
+
 			return iterMap->second.find(factionName)->second;
 		}
 	}
 
+	//printf("Line: %d Tech [%s] factionName [%s]\n",__LINE__,techName.c_str(),factionName.c_str());
+
 	getTranslatedName(techName,false,true);
-	Lang &lang = Lang::getInstance();
+
 	string result = lang.getTechTreeString("FactionName_" + factionName,factionName.c_str());
 	translatedTechFactionNames[techName][factionName] = result;
 
-	//printf("Translated faction for Tech [%s] faction [%s] result [%s]\n",techName.c_str(),factionName.c_str(),result.c_str());
+	//printf("Line: %d Translated faction for Tech [%s] faction [%s] result [%s]\n",__LINE__,techName.c_str(),factionName.c_str(),result.c_str());
 
 	return result;
 }
