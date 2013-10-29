@@ -53,6 +53,7 @@ private:
 	DamageMultiplierTable damageMultiplierTable;
 	Checksum checksumValue;
 
+	string languageUsedForCache;
 	std::map<string,string> translatedTechNames;
 	std::map<string,std::map<string,string> > translatedTechFactionNames;
 
@@ -73,7 +74,8 @@ public:
 	int getTypeCount() const									{return factionTypes.size();}
 	const FactionType *getType(int i) const						{return &factionTypes[i];}
 	const ResourceType *getResourceType(int i) const			{return &resourceTypes[i];}
-	string getName(bool translatedValue=false) const;
+	string getName(bool translatedValue=false);
+	string getNameUntranslated() const;
 
 	string getTranslatedName(string techName, bool forceLoad=false, bool forceTechtreeActiveFile=false);
 	string getTranslatedFactionName(string techName, string factionName);

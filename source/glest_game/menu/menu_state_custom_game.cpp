@@ -819,6 +819,8 @@ void MenuStateCustomGame::reloadUI() {
 
 	labelScenario.setText(lang.getString("Scenario"));
 
+	reloadFactions(true,(checkBoxScenario.getValue() == true ? scenarioFiles[listBoxScenario.getSelectedItemIndex()] : ""));
+
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
