@@ -123,7 +123,7 @@
 					$status_class = 'unknown';
 			}
 
-                        if ($status_code == 3 && $server['gameUUID'] != "")
+                        if (($status_code == 2 || $status_code == 3) && $server['gameUUID'] != "")
                         {
                                 printf( "\t\t\t\t<td title=\"%s\" class=\"%s\"><a href='showGameStats.php?gameUUID=%s'>%s</a></td>%s", $server['status'], $status_class, $server['gameUUID'], htmlspecialchars( $status_title, ENT_QUOTES ), PHP_EOL );
                         }

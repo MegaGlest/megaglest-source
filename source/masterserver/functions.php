@@ -85,22 +85,22 @@
 	}
 
         function getTimeString($frames) {
-	        $framesleft = $frames;
+	        $framesleft = (int)$frames;
                 $updateFps = 40.0;
 
-	        $hours = ( int )$frames / ( float )$updateFps / 3600.0;
+	        $hours = (int)($frames / $updateFps / 3600.0);
 	        $framesleft = $framesleft - $hours * 3600 * $updateFps;
-	        $minutes = ( int )$framesleft / ( float )$updateFps / 60.0;
+	        $minutes = (int)($framesleft / $updateFps / 60.0);
 	        $framesleft = $framesleft - $minutes * 60 * $updateFps;
-	        $seconds = ( int )$framesleft / ( float )$updateFps;
+	        $seconds = (int)($framesleft / $updateFps);
 
-	        $hourstr = strval(( int )$hours);
+	        $hourstr = $hours;
 	        if($hours < 10) $hourstr = "0" . $hourstr;
 
-	        $minutestr = strval(( int )$minutes);
+	        $minutestr = $minutes;
 	        if($minutes < 10) $minutestr = "0" . $minutestr;
 
-	        $secondstr = strval(( int )$seconds);
+	        $secondstr = $seconds;
 	        if($seconds < 10) $secondstr = "0" . $secondstr;
 
 	        return $hourstr . ":" . $minutestr . ":" . $secondstr;
