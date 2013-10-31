@@ -102,7 +102,8 @@ string TechTree::getTranslatedName(string techName, bool forceLoad, bool forceTe
 
 			result = getName(true);
 
-			translatedTechNames[techName] = result;
+			printf("techName [%s] name [%s] result [%s]\n",techName.c_str(),name.c_str(),result.c_str());
+			translatedTechNames[name] = result;
 		}
 
 	}
