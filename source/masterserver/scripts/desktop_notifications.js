@@ -83,6 +83,7 @@ function timedRequest()
 			var jsonText = JSON.parse(request.responseText);
 			var newServerList = {};
 
+                        games_with_stats = 100;
 			// Repopulate table content
 			var table = "<tr>\n"
 			    + "	<th title=\"glestVersion\">Version</th>\n"
@@ -147,7 +148,16 @@ function timedRequest()
 							statusClass = 'unknown';
 					}
 
-					table += "<td title=\"" + jsonText[i].status + "\" class=\"" + statusClass + "\">" + escapeHtml(statusTitle) + "</td>";
+                                        //debugger;
+                                        if ((statusCode == "2" || statusCode == "3") && jsonText[i].gameUUID != "")
+                                        {
+                                                var specialColHTML = "<td title=\"" + jsonText[i].status + "\" class=\"" + statusClass + "\"><a id=\"gameStats_" + games_with_stats + "\" href=\"#\" gameuuid=\"" + jsonText[i].gameUUID + "\">" + escapeHtml(statusTitle) + "</a></td>";
+                                                table += specialColHTML;
+                                        }
+                                        else
+                                        {
+        					table += "<td title=\"" + jsonText[i].status + "\" class=\"" + statusClass + "\">" + escapeHtml(statusTitle) + "</td>";
+                                        }
 
 					/// Country
 					if(jsonText[i].country !== "")
@@ -195,6 +205,15 @@ function timedRequest()
 
 					table += "</tr>";
 
+                                        if ((statusCode == "2" || statusCode == "3") && jsonText[i].gameUUID != "")
+                                        {
+                                                table += "<tr width='100%%' class='fullyhide' id='content_row_" + jsonText[i].gameUUID + "'>";
+                                                table += "<td width='100%%' colspan='100'></td>";
+                                                table += "</tr>";
+
+                                                games_with_stats++;
+                                        }
+
 					////// DESKTOP NOTIFICATIONS SECTION
 
 					// Store data in an array keyed by the concatenation of the IP and port
@@ -228,6 +247,11 @@ function timedRequest()
 			// Write to actual table when done only, otherwise the browser trips as it tries to fix the partial table formatting
 			var tableDOM = document.getElementsByTagName("tbody");
 			tableDOM[0].innerHTML = table;
+
+                        //debugger;
+                        for(var gameIndex = 100; gameIndex < 200; ++gameIndex) {
+                                setupGameStatsLink(gameIndex);
+                        }
 
 			// Catch empty case
 			if(jsonText.length == 0)

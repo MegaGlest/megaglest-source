@@ -26,8 +26,7 @@ function asynchDone(url, target) {
   }
 }
 
-//debugger;
-for(var gameIndex = 1; gameIndex < 200; ++gameIndex) {
+function setupGameStatsLink(gameIndex) {
    if(document.getElementById('gameStats_' + gameIndex) ) {
        var link = document.getElementById('gameStats_' + gameIndex);
        link.onclick = function() {
@@ -48,3 +47,9 @@ for(var gameIndex = 1; gameIndex < 200; ++gameIndex) {
        };
    }
 }
+//debugger;
+
+for(var gameIndex = 1; gameIndex < 200; ++gameIndex) {
+        setupGameStatsLink(gameIndex);
+}
+
