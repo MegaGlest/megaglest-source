@@ -63,7 +63,7 @@ public:
 
 	void loadGameStrings(string uselanguage, bool loadFonts=true, bool fallbackToDefault=false);
 	void loadScenarioStrings(string scenarioDir, string scenarioName, bool isTutorial);
-	void loadTechTreeStrings(string techTree, bool forceLoad=false);
+	bool loadTechTreeStrings(string techTree, bool forceLoad=false);
 	void loadTilesetStrings(string tileset);
 
 	string getString(const string &s,string uselanguage="", bool fallbackToDefault=false);
