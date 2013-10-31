@@ -122,7 +122,15 @@
 					$status_title = 'unknown';
 					$status_class = 'unknown';
 			}
-			printf( "\t\t\t\t<td title=\"%s\" class=\"%s\">%s</td>%s", $server['status'], $status_class, htmlspecialchars( $status_title, ENT_QUOTES ), PHP_EOL );
+
+                        if ($status_code == 3 && $server['gameUUID'] != "")
+                        {
+                                printf( "\t\t\t\t<td title=\"%s\" class=\"%s\"><a href='showGameStats.php?gameUUID=%s'>%s</a></td>%s", $server['status'], $status_class, $server['gameUUID'], htmlspecialchars( $status_title, ENT_QUOTES ), PHP_EOL );
+                        }
+                        else
+                        {
+        			printf( "\t\t\t\t<td title=\"%s\" class=\"%s\">%s</td>%s", $server['status'], $status_class, htmlspecialchars( $status_title, ENT_QUOTES ), PHP_EOL );
+                        }
 
 			// country
 			if ( $server['country'] !== '' ) {
