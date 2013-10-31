@@ -48,3 +48,17 @@ th {
 .unknown {
 	background-color: Red;
 }
+
+.player_high_score {
+	background-color: LightGreen;
+}
+.player_losing_score {
+	background-color: Yellow;
+}
+.player_winner {
+	background-color: LightGreen;
+}
+.player_loser {
+	background-color: Red;
+}
+
