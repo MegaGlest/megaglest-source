@@ -1762,6 +1762,16 @@ void Game::update() {
 
 		// a) Updates non dependent on speed
 
+		// set game stats for host
+		NetworkManager &networkManager	= NetworkManager::getInstance();
+		NetworkRole role 				= networkManager.getNetworkRole();
+		if(role == nrServer) {
+			ServerInterface *server = NetworkManager::getInstance().getServerInterface(false);
+			if(server != NULL) {
+				server->setGameStats(world.getStats());
+			}
+		}
+
 		bool pendingQuitError = (quitPendingIndicator == true ||
 								 (NetworkManager::getInstance().getGameNetworkInterface() != NULL &&
 								  NetworkManager::getInstance().getGameNetworkInterface()->getQuit()));
@@ -1821,10 +1831,10 @@ void Game::update() {
 			//updateLoops = 80;
 		}
 
-		NetworkManager &networkManager= NetworkManager::getInstance();
+		//NetworkManager &networkManager= NetworkManager::getInstance();
 		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
 		//bool isNetworkGame 				= this->gameSettings.isNetworkGame();
-		NetworkRole role 				= networkManager.getNetworkRole();
+		//NetworkRole role 				= networkManager.getNetworkRole();
 
 		if(role == nrClient && updateLoops == 1 && world.getFrameCount() >= (gameSettings.getNetworkFramePeriod() * 2) ) {
 			ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
@@ -2282,9 +2292,6 @@ void Game::update() {
 		// START - Handle joining in progress games
 		if(role == nrServer) {
 			ServerInterface *server = NetworkManager::getInstance().getServerInterface();
-
-			server->setGameStats(world.getStats());
-
 			if(server->getPauseForInGameConnection() == true) {
 
 				bool clientNeedsGameSetup = false;
