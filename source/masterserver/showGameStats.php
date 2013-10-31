@@ -20,7 +20,7 @@
 	echo '		<link rel="shortcut icon" type="image/x-icon" href="images/' . htmlspecialchars( strtolower( PRODUCT_NAME ) ) . '.ico" />' . PHP_EOL;
 	echo '	</head>' . PHP_EOL;
 	echo '	<body>' . PHP_EOL;
-	echo '		<h1><a href="' . htmlspecialchars( PRODUCT_URL ) . '">' . htmlspecialchars( PRODUCT_NAME ) . '</a> game stats</h1>' . PHP_EOL;
+//	echo '		<h1>Game Stats</h1>' . PHP_EOL;
 	echo '		<table>' . PHP_EOL;
 	echo '			<tr>' . PHP_EOL;
 	echo '				<th title="gameDuration">Game Duration</th>' . PHP_EOL;

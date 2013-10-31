@@ -80,6 +80,7 @@
 	echo '				<th title="binaryCompileDate">Build date</th>' . PHP_EOL;
 	echo '			</tr>' . PHP_EOL;
 
+        $games_with_stats = 0;
 	foreach( $all_servers as $server )
 	{
 		# Filter by version if requested
@@ -125,7 +126,9 @@
 
                         if (($status_code == 2 || $status_code == 3) && $server['gameUUID'] != "")
                         {
-                                printf( "\t\t\t\t<td title=\"%s\" class=\"%s\"><a href='showGameStats.php?gameUUID=%s'>%s</a></td>%s", $server['status'], $status_class, $server['gameUUID'], htmlspecialchars( $status_title, ENT_QUOTES ), PHP_EOL );
+                                $games_with_stats++;
+                                printf( "\t\t\t\t<td title=\"%s\" class=\"%s\"><a id=\"gameStats_%d\" href=\"#\" gameuuid=\"%s\">%s</a>", $server['status'], $status_class, $games_with_stats, $server['gameUUID'], htmlspecialchars( $status_title, ENT_QUOTES ) );
+                                printf( "</td>%s", PHP_EOL );
                         }
                         else
                         {
@@ -179,6 +182,14 @@
 			printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['binaryCompileDate'],  ENT_QUOTES ), PHP_EOL );
 
 			echo "\t\t\t" . '</tr>' . PHP_EOL;
+
+                        if (($status_code == 2 || $status_code == 3) && $server['gameUUID'] != "")
+                        {
+                                //echo "\t\t\t" . '<tr>' . PHP_EOL;
+                                printf( "\t\t\t\t<tr width='100%%' class='fullyhide' id='content_row_%s'>%s", $server['gameUUID'], PHP_EOL );
+                                printf( "<td width='100%%' colspan='100'></td>%s", PHP_EOL );
+                                echo "\t\t\t" . '</tr>' . PHP_EOL;
+                        }
 		}
 	}
 
@@ -187,6 +198,8 @@
 	echo '		<p>' . PHP_EOL;
 	echo '			<br />' . PHP_EOL;
 	echo '		</p>' . PHP_EOL;
+
+        echo '		<script language="javascript" type="text/javascript" src="scripts/utils.js"></script>' . PHP_EOL;
 
 	if ( FILTER_VERSION != '' )
 	{
