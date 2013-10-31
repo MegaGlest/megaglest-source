@@ -65,6 +65,7 @@ string TechTree::getName(bool translatedValue) {
 		lang.loadTechTreeStrings(name,lang.getLanguage() != languageUsedForCache);
 		languageUsedForCache = lang.getLanguage();
 		translatedTechFactionNames.erase(name);
+		translatedTechNames.erase(name);
 	}
 
 	return lang.getTechTreeString("TechTreeName",name.c_str());
@@ -93,7 +94,8 @@ string TechTree::getTranslatedName(string techName, bool forceLoad, bool forceTe
 			lang.loadTechTreeStrings(name,lang.getLanguage() != languageUsedForCache);
 			languageUsedForCache = lang.getLanguage();
 
-			translatedTechFactionNames.erase(name);
+			translatedTechFactionNames.erase(techName);
+			translatedTechNames.erase(techName);
 
 			result = getName(true);
 
