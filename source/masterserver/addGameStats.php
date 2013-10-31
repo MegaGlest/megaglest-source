@@ -22,11 +22,11 @@
                 define( 'DB_LINK', db_connect() );
 
                 $gameUUID = (string) clean_str( $_GET['gameUUID'] );
-                $whereClause = 'gameUUID=\'' . mysql_real_escape_string( $gameUUID ) . '\';';
+                $whereClause = 'gameUUID=\'' . mysql_real_escape_string( $gameUUID ) . '\'';
 
-	        $stats_in_db = @mysql_query( 'SELECT COUNT(*) FROM glestgamestats WHERE ' . $whereClause );
+	        $stats_in_db = @mysql_query( 'SELECT COUNT(*) FROM glestgamestats WHERE ' . $whereClause . ';' );
                	$statsCount  = @mysql_fetch_row( $stats_in_db );
-	        $player_stats_in_db = @mysql_query( 'SELECT COUNT(*) FROM glestgameplayerstats WHERE ' . $whereClause );
+	        $player_stats_in_db = @mysql_query( 'SELECT COUNT(*) FROM glestgameplayerstats WHERE ' . $whereClause . ';');
                	$player_statsCount  = @mysql_fetch_row( $player_stats_in_db );
 
                 
@@ -73,7 +73,7 @@
 		                'totalEndGameConcurrentUnitCount=\''    . mysql_real_escape_string( $totalEndGameConcurrentUnitCount )           . '\', ' .
 		                'isHeadlessServer=\''                   . mysql_real_escape_string( $isHeadlessServer )       . '\', ' .
 		                'lasttime='            . 'now()'                                        .    ' ' .
-		                'WHERE ' . $whereClause);
+		                'WHERE ' . $whereClause . ';');
 
                         if (!$result) {
                                 die('part 1a: Invalid query: ' . mysql_error());
@@ -199,7 +199,7 @@
                                                 'quitBeforeGameEnd='      . $quitBeforeGameEnd  . ', ' .
                                                 'quitTime='               . $quitTime           . ', ' .
 	                                        'lasttime='               . 'now()'             . ' ' .
-	                                        'WHERE ' . $whereClause);
+	                                        'WHERE ' . $whereClause . ' AND factionIndex = ' . $factionIndex . ';');
 
                                 if (!$result) {
                                     die('part 1b: Invalid query: ' . mysql_error());
