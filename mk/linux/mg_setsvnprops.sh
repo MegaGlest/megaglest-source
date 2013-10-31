@@ -27,3 +27,11 @@ find ${CURRENTDIR}/../../source/masterserver -iname '*.php' -exec svn propset sv
 find ${CURRENTDIR}/../../source/masterserver -iname '*.sql' -exec svn propset svn:mime-type text/plain '{}' \;
 find ${CURRENTDIR}/../../source/masterserver -iname '*.sql' -exec svn propset svn:eol-style native '{}' \;
 
+# javascript scripts
+find ${CURRENTDIR}/../../source/masterserver -iname '*.js' -exec svn propset svn:mime-type text/plain '{}' \;
+find ${CURRENTDIR}/../../source/masterserver -iname '*.js' -exec svn propset svn:eol-style native '{}' \;
+
+# css scripts
+find ${CURRENTDIR}/../../source/masterserver -iname '*.css' -exec svn propset svn:mime-type text/plain '{}' \;
+find ${CURRENTDIR}/../../source/masterserver -iname '*.css' -exec svn propset svn:eol-style native '{}' \;
+
