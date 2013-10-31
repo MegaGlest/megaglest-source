@@ -187,8 +187,10 @@ public:
 	inline Faction *getFaction(int i) 						{return factions[i];}
 	inline const Minimap *getMinimap() const				{return &minimap;}
 	inline Minimap *getMiniMapObject() 					{return &minimap;}
+
 	inline const Stats *getStats() const					{return &stats;};
 	inline Stats *getStats()								{return &stats;};
+
 	inline const WaterEffects *getWaterEffects() const		{return &waterEffects;}
 	inline const WaterEffects *getAttackEffects() const		{return &attackEffects;}
 	int getNextUnitId(Faction *faction);

@@ -32,6 +32,7 @@
 #include "map_preview.h"
 #include "string_utils.h"
 #include "network_message.h"
+#include "gen_uuid.h"
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -67,6 +68,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	if(this->headlessServerMode == true) {
 		printf("Waiting for players to join and start a game...\n");
 	}
+
+	this->gameUUID = getUUIDAsString();
 
 	this->lastMasterServerSettingsUpdateCount = 0;
 	this->masterserverModeMinimalResources = true;
@@ -2886,6 +2889,7 @@ void MenuStateCustomGame::publishToMasterserver() {
 		publishToServerInfo["gameStatus"] = intToStr(game_status_waiting_for_start);
 	}
 
+	publishToServerInfo["gameUUID"] = gameSettings.getGameUUID();
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
@@ -2970,7 +2974,8 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
                 }
             }
 
-            //printf("the request is:\n%s\n",request.c_str());
+            if(SystemFlags::VERBOSE_MODE_ENABLED) printf("The Lobby request is:\n%s\n",request.c_str());
+
             if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] the request is:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,request.c_str());
             safeMutex.ReleaseLock(true);
             safeMutexThreadOwner.ReleaseLock();
@@ -3130,6 +3135,8 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 		gameSettings->setScenario("");
 		gameSettings->setScenarioDir("");
 	}
+
+	gameSettings->setGameUUID(this->gameUUID);
 
 	//printf("scenarioInfo.name [%s] [%s] [%s]\n",scenarioInfo.name.c_str(),listBoxMap.getSelectedItem().c_str(),getCurrentMapFile().c_str());
 

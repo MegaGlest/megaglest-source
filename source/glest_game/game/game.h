@@ -59,7 +59,8 @@ enum LoadGameItem {
 //
 //	Main game class
 // =====================================================
-class Game: public ProgramState, public FileCRCPreCacheThreadCallbackInterface, public CustomInputCallbackInterface {
+class Game: public ProgramState, public FileCRCPreCacheThreadCallbackInterface,
+            public CustomInputCallbackInterface {
 public:
 	static const float highlightTime;
 

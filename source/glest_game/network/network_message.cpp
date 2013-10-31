@@ -547,6 +547,7 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 	data.masterserver_admin_factionIndex = gameSettings->getMasterserver_admin_faction_index();
 
 	data.scenario = gameSettings->getScenario();
+	data.gameUUID = gameSettings->getGameUUID();
 
 	data.networkAllowNativeLanguageTechtree = gameSettings->getNetworkAllowNativeLanguageTechtree();
 }
@@ -606,6 +607,8 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
 
 	gameSettings->setScenario(data.scenario.getString());
 
+	gameSettings->setGameUUID(data.gameUUID.getString());
+
 	gameSettings->setNetworkAllowNativeLanguageTechtree(data.networkAllowNativeLanguageTechtree);
 }
 
@@ -621,7 +624,7 @@ vector<pair<string,uint32> > NetworkMessageLaunch::getFactionCRCList() const {
 }
 
 const char * NetworkMessageLaunch::getPackedMessageFormat() const {
-	return "c256s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sllllllll60s60s60s60s60s60s60s60sLLL60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sLLLLLLLLLLLLLLLLLLLLcccccccccccccccccccccccccccccccccccccccccCccLccll256s60s60s60s60s60s60s60s60sc";
+	return "c256s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sllllllll60s60s60s60s60s60s60s60sLLL60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sLLLLLLLLLLLLLLLLLLLLcccccccccccccccccccccccccccccccccccccccccCccLccll256s60s60s60s60s60s60s60s60sc60s";
 }
 
 unsigned int NetworkMessageLaunch::getPackedSize() {
@@ -768,7 +771,8 @@ unsigned int NetworkMessageLaunch::getPackedSize() {
 				packedData.networkPlayerUUID[5].getBuffer(),
 				packedData.networkPlayerUUID[6].getBuffer(),
 				packedData.networkPlayerUUID[7].getBuffer(),
-				packedData.networkAllowNativeLanguageTechtree
+				packedData.networkAllowNativeLanguageTechtree,
+				packedData.gameUUID.getBuffer()
 		);
 		delete [] buf;
 	}
@@ -914,7 +918,8 @@ void NetworkMessageLaunch::unpackMessage(unsigned char *buf) {
 			data.networkPlayerUUID[5].getBuffer(),
 			data.networkPlayerUUID[6].getBuffer(),
 			data.networkPlayerUUID[7].getBuffer(),
-			&data.networkAllowNativeLanguageTechtree
+			&data.networkAllowNativeLanguageTechtree,
+			data.gameUUID.getBuffer()
 	);
 }
 
@@ -1059,7 +1064,8 @@ unsigned char * NetworkMessageLaunch::packMessage() {
 			data.networkPlayerUUID[5].getBuffer(),
 			data.networkPlayerUUID[6].getBuffer(),
 			data.networkPlayerUUID[7].getBuffer(),
-			data.networkAllowNativeLanguageTechtree
+			data.networkAllowNativeLanguageTechtree,
+			data.gameUUID.getBuffer()
 			);
 	return buf;
 }
@@ -1095,6 +1101,8 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 	}
 
 	data.scenario.nullTerminate();
+
+	data.gameUUID.nullTerminate();
 
 	//for(int i= 0; i < GameConstants::maxPlayers; ++i){
 	//	printf("Receive index: %d resource multiplier index: %d sizeof(data): %d\n",i,data.resourceMultiplierIndex[i],sizeof(data));

@@ -31,6 +31,7 @@ namespace Shared {  namespace PlatformCommon {  class FTPServerThread;  }}
 
 namespace Glest{ namespace Game{
 
+class Stats;
 // =====================================================
 //	class ServerInterface
 // =====================================================
@@ -103,9 +104,14 @@ private:
 
 	time_t resumeGameStartTime;
 
+	Mutex *gameStatsThreadAccessor;
+	Stats *gameStats;
+
 public:
 	ServerInterface(bool publishEnabled);
 	virtual ~ServerInterface();
+
+	void setGameStats(Stats *gameStats);
 
 	virtual Socket* getSocket(bool mutexLock=true)				{return &serverSocket;}
 
@@ -240,7 +246,10 @@ private:
     bool shouldDiscardNetworkMessage(NetworkMessageType networkMessageType, ConnectionSlot *connectionSlot);
     void updateSlot(ConnectionSlotEvent *event);
     void validateConnectedClients();
+
     std::map<string,string> publishToMasterserver();
+    std::map<string,string> publishToMasterserverStats();
+
     int64 getNextEventId();
     void processTextMessageQueue();
     void processBroadCastMessageQueue();

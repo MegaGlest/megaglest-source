@@ -19,3 +19,11 @@ find ${CURRENTDIR}/../../data/glest_game/ -iname '*.xml' -exec svn propset svn:m
 find ${CURRENTDIR}/ -iname '*.sh' -exec svn propset svn:mime-type text/plain '{}' \;
 find ${CURRENTDIR}/ -iname '*.sh' -exec svn propset svn:eol-style native '{}' \;
 
+# php scripts
+find ${CURRENTDIR}/../../source/masterserver -iname '*.php' -exec svn propset svn:mime-type text/plain '{}' \;
+find ${CURRENTDIR}/../../source/masterserver -iname '*.php' -exec svn propset svn:eol-style native '{}' \;
+
+# sql scripts
+find ${CURRENTDIR}/../../source/masterserver -iname '*.sql' -exec svn propset svn:mime-type text/plain '{}' \;
+find ${CURRENTDIR}/../../source/masterserver -iname '*.sql' -exec svn propset svn:eol-style native '{}' \;
+

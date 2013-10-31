@@ -23,6 +23,7 @@
 #include "socket.h"
 #include "config.h"
 #include "platform_util.h"
+#include "gen_uuid.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Xml;
@@ -470,6 +471,11 @@ void Scenario::loadGameSettings(const vector<string> &dirList,
 		const ScenarioInfo *scenarioInfo, GameSettings *gameSettings,
 		string scenarioDescription) {
 	int factionCount= 0;
+
+	if(gameSettings->getGameUUID() == "") {
+		gameSettings->setGameUUID(getUUIDAsString());
+	}
+
 	gameSettings->setDescription(scenarioDescription);
 	gameSettings->setMap(scenarioInfo->mapName);
     gameSettings->setTileset(scenarioInfo->tilesetName);

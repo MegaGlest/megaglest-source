@@ -299,6 +299,7 @@ private:
 		NetworkString<maxSmallStringSize> networkPlayerUUID[GameConstants::maxPlayers];
 
 		int8 networkAllowNativeLanguageTechtree;
+		NetworkString<maxSmallStringSize> gameUUID;
 	};
 	void toEndian();
 	void fromEndian();

@@ -216,8 +216,6 @@ void Stats::saveGame(XmlNode *rootNode) {
 	statsNode->addAttribute("framesPlayed",intToStr(framesPlayed), mapTagReplacements);
 //	int framesToCalculatePlaytime;
 	statsNode->addAttribute("framesToCalculatePlaytime",intToStr(framesToCalculatePlaytime), mapTagReplacements);
-//	time_t timePlayed;
-	statsNode->addAttribute("timePlayed",intToStr(timePlayed), mapTagReplacements);
 //	int maxConcurrentUnitCount;
 	statsNode->addAttribute("maxConcurrentUnitCount",intToStr(maxConcurrentUnitCount), mapTagReplacements);
 //	int totalEndGameConcurrentUnitCount;
@@ -276,8 +274,6 @@ void Stats::loadGame(const XmlNode *rootNode) {
 	framesPlayed = statsNode->getAttribute("framesPlayed")->getIntValue();
 	//	int framesToCalculatePlaytime;
 	framesToCalculatePlaytime = statsNode->getAttribute("framesToCalculatePlaytime")->getIntValue();
-	//	time_t timePlayed;
-	timePlayed = statsNode->getAttribute("timePlayed")->getIntValue();
 	//	int maxConcurrentUnitCount;
 	maxConcurrentUnitCount = statsNode->getAttribute("maxConcurrentUnitCount")->getIntValue();
 	//	int totalEndGameConcurrentUnitCount;

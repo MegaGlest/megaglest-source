@@ -1567,6 +1567,8 @@ void Game::init(bool initForPreviewOnly) {
 		}
 	}
 
+	printf("Game unique identifier is: %s\n",this->gameSettings.getGameUUID().c_str());
+
 	gameStarted = true;
 
 	if(this->masterserverMode == true) {
@@ -2280,6 +2282,8 @@ void Game::update() {
 		// START - Handle joining in progress games
 		if(role == nrServer) {
 			ServerInterface *server = NetworkManager::getInstance().getServerInterface();
+
+			server->setGameStats(world.getStats());
 
 			if(server->getPauseForInGameConnection() == true) {
 
@@ -6521,6 +6525,7 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 	}
 
 	Game *newGame = new Game(programPtr, &newGameSettings, isMasterserverMode);
+
 	newGame->loadGameNode = gameNode;
 	newGame->inJoinGameLoading = (joinGameSettings != NULL);
 

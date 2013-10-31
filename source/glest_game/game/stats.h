@@ -69,7 +69,6 @@ private:
 	float worldTimeElapsed;
 	int framesPlayed;
 	int framesToCalculatePlaytime;
-	time_t timePlayed;
 	int maxConcurrentUnitCount;
 	int totalEndGameConcurrentUnitCount;
 	bool isMasterserverMode;
@@ -88,7 +87,6 @@ public:
 		maxConcurrentUnitCount			= 0;
 		totalEndGameConcurrentUnitCount	= 0;
 		isMasterserverMode				= false;
-		timePlayed						= 0;
 		//techName						= "";
 	}
 

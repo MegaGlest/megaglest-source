@@ -78,10 +78,19 @@
 	// Representation starts here (but it should really be starting much later, there is way too much logic behind this point)
 	header( 'Content-Type: text/plain; charset=utf-8' );
 
+        $gameUUID = "";
+        $whereClause = 'ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';';
+        if ( isset( $_GET['gameUUID'] ) ) {
+                $gameUUID  = (string) clean_str( $_GET['gameUUID'] );
+                $whereClause = 'gameUUID=\'' . mysql_real_escape_string( $gameUUID ) . '\';';
+        }
+
+        // echo '#1 ' . $whereClause;
+
 	if ( (version_compare($glestVersion,"v3.4.0-dev","<") && $connectedClients == $networkSlots)  || $gameCmd == "gameOver")   // game servers' slots are all full
 	{ // delete server; no checks are performed
-		mysql_query( 'DELETE FROM glestserver WHERE ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';' );
-		echo 'OK' ;	
+		mysql_query( 'DELETE FROM glestserver WHERE ' . $whereClause );
+		echo 'OK' ;
 	}                                                                      // game in progress
 	else if ( ($remote_ip == $server[0] && $service_port == $server[1]) || $status == 2 )    // this server is contained in the database
 	{ 
@@ -102,7 +111,7 @@
 			        'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
 			        'status=\''            . mysql_real_escape_string( $status )            . '\', ' .
 			        'lasttime='            . 'now()'                                        .    ' ' .
-			        'where ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';' );
+			        'WHERE ' . $whereClause);
 		        //updateServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots);
 		        echo 'OK';
                 }
@@ -120,13 +129,11 @@
 			                $country = '';
 		                }
 	                }
+
 	                // cleanup old entrys with same remote port and ip
 	                // I hope this fixes those double entrys of servers
-	                mysql_query( 'DELETE FROM glestserver WHERE '.
-	                'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
-	                ' AND ' .
-	                'ip=\''                . mysql_real_escape_string( $remote_ip )         . '\', '
-	                );
+	                mysql_query( 'DELETE FROM glestserver WHERE '. $whereClause );
+
 	                // insert new entry
 	                mysql_query( 'INSERT INTO glestserver SET ' .
 		                'glestVersion=\''      . mysql_real_escape_string( $glestVersion )      . '\', ' .
@@ -142,7 +149,8 @@
 		                'connectedClients=\''  . mysql_real_escape_string( $connectedClients )  . '\', ' .
 		                'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
 		                'country=\''           . mysql_real_escape_string( $country )           . '\', ' .
-		                'status=\''            . mysql_real_escape_string( $status )            . '\';'  
+		                'status=\''            . mysql_real_escape_string( $status )            . '\', ' .
+                                'gameUUID=\''          . mysql_real_escape_string( $gameUUID )     . '\';'
 	                );
 	                echo 'OK';
                 }
@@ -238,13 +246,10 @@
 					$country = '';
 				}
 			}
+
 			// cleanup old entrys with same remote port and ip
 			// I hope this fixes those double entrys of servers
-			mysql_query( 'DELETE FROM glestserver WHERE '.
-			'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
-			' AND ' .
-			'ip=\''                . mysql_real_escape_string( $remote_ip )         . '\', '
-			);
+			mysql_query( 'DELETE FROM glestserver WHERE '. $whereClause );
 			// insert new entry
 			mysql_query( 'INSERT INTO glestserver SET ' .
 				'glestVersion=\''      . mysql_real_escape_string( $glestVersion )      . '\', ' .
@@ -260,7 +265,8 @@
 				'connectedClients=\''  . mysql_real_escape_string( $connectedClients )  . '\', ' .
 				'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
 				'country=\''           . mysql_real_escape_string( $country )           . '\', ' .
-				'status=\''            . mysql_real_escape_string( $status )            . '\';'  
+				'status=\''            . mysql_real_escape_string( $status )            . '\', ' .
+                                'gameUUID=\''          . mysql_real_escape_string( $gameUUID )          . '\';'
 			);
 			echo 'OK';
 			//addLatestServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots);
