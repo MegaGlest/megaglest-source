@@ -273,14 +273,16 @@ void Lang::loadScenarioStrings(string scenarioDir, string scenarioName, bool isT
 	}
 }
 
-void Lang::loadTechTreeStrings(string techTree,bool forceLoad) {
+bool Lang::loadTechTreeStrings(string techTree,bool forceLoad) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] techTree = [%s]\n",__FILE__,__FUNCTION__,__LINE__,techTree.c_str());
 
 	//printf("Line: %d techTree = %s forceLoad = %d\n",__LINE__,techTree.c_str(),forceLoad);
 
 	if(forceLoad == false && techTree == techNameLoaded) {
-		return;
+		return true;
 	}
+
+	bool foundTranslation = false;
 
 	string currentPath = "";
 	Config &config = Config::getInstance();
@@ -308,6 +310,7 @@ void Lang::loadTechTreeStrings(string techTree,bool forceLoad) {
 
 	//try to load the current language first
 	if(fileExists(path)) {
+		foundTranslation = true;
 		if(forceLoad == true ||
 			path != techTreeStringsAllLanguages[techTree][this->language].getpath()) {
 
@@ -332,6 +335,7 @@ void Lang::loadTechTreeStrings(string techTree,bool forceLoad) {
 		//printf("Line: %d techTree = %s forceLoad = %d path = %s\n",__LINE__,techTree.c_str(),forceLoad,path.c_str());
 
 		if(fileExists(path)) {
+			foundTranslation = true;
 			if(forceLoad == true ||
 				path != techTreeStringsAllLanguages[techTree][default_language].getpath()) {
 				//printf("Line: %d techTree = %s forceLoad = %d path = %s\n",__LINE__,techTree.c_str(),forceLoad,path.c_str());
@@ -347,6 +351,7 @@ void Lang::loadTechTreeStrings(string techTree,bool forceLoad) {
 	}
 
 	if(fileExists(pathDefault)) {
+		foundTranslation = true;
 		string default_language = "default";
 
 		//printf("Line: %d techTree = %s forceLoad = %d default_language = %s\n",__LINE__,techTree.c_str(),forceLoad,default_language.c_str());
@@ -363,6 +368,8 @@ void Lang::loadTechTreeStrings(string techTree,bool forceLoad) {
 			techNameLoaded = techTree;
 		}
 	}
+
+	return foundTranslation;
 }
 
 void Lang::loadTilesetStrings(string tileset) {
