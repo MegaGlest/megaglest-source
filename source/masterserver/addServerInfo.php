@@ -71,25 +71,46 @@
 	// consider replacing this by a cron job
 	cleanupServerList();
 
-	$server_in_db = @mysql_query( 'SELECT ip, externalServerPort FROM glestserver WHERE ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' AND externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';' );
-       	$server       = @mysql_fetch_row( $server_in_db );
-
-
-	// Representation starts here (but it should really be starting much later, there is way too much logic behind this point)
-	header( 'Content-Type: text/plain; charset=utf-8' );
-
         $gameUUID = "";
         $whereClause = 'ip=\'' . mysql_real_escape_string( $remote_ip ) . '\' && externalServerPort=\'' . mysql_real_escape_string( $service_port ) . '\';';
         if ( isset( $_GET['gameUUID'] ) ) {
                 $gameUUID  = (string) clean_str( $_GET['gameUUID'] );
                 $whereClause = 'gameUUID=\'' . mysql_real_escape_string( $gameUUID ) . '\';';
         }
-
         // echo '#1 ' . $whereClause;
 
+	$server_in_db = @mysql_query( 'SELECT ip, externalServerPort FROM glestserver WHERE ' . $whereClause );
+       	$server       = @mysql_fetch_row( $server_in_db );
+
+	// Representation starts here (but it should really be starting much later, there is way too much logic behind this point)
+	header( 'Content-Type: text/plain; charset=utf-8' );
+
 	if ( (version_compare($glestVersion,"v3.4.0-dev","<") && $connectedClients == $networkSlots)  || $gameCmd == "gameOver")   // game servers' slots are all full
-	{ // delete server; no checks are performed
-		mysql_query( 'DELETE FROM glestserver WHERE ' . $whereClause );
+	{ 
+                if($gameCmd == "gameOver" && $gameUUID != "") 
+                {
+                        // update database info on this game server; no checks are performed
+		        mysql_query( 'UPDATE glestserver SET ' .
+			        'glestVersion=\''      . mysql_real_escape_string( $glestVersion )      . '\', ' .
+			        'platform=\''          . mysql_real_escape_string( $platform )          . '\', ' .
+			        'binaryCompileDate=\'' . mysql_real_escape_string( $binaryCompileDate ) . '\', ' .
+			        'serverTitle=\''       . mysql_real_escape_string( $serverTitle )       . '\', ' .
+			        'tech=\''              . mysql_real_escape_string( $tech )              . '\', ' .
+			        'map=\''               . mysql_real_escape_string( $map )               . '\', ' .
+			        'tileset=\''           . mysql_real_escape_string( $tileset )           . '\', ' .
+			        'activeSlots=\''       . mysql_real_escape_string( $activeSlots )       . '\', ' .
+			        'networkSlots=\''      . mysql_real_escape_string( $networkSlots )      . '\', ' .
+			        'connectedClients=\''  . mysql_real_escape_string( $connectedClients )  . '\', ' .
+			        'externalServerPort=\''. mysql_real_escape_string( $service_port )      . '\', ' .
+			        'status=\''            . mysql_real_escape_string( $status )            . '\', ' .
+			        'lasttime='            . 'now()'                                        .    ' ' .
+			        'WHERE ' . $whereClause);
+                }
+                else 
+                {
+                        // delete server; no checks are performed
+		        mysql_query( 'DELETE FROM glestserver WHERE ' . $whereClause );
+                }
 		echo 'OK' ;
 	}                                                                      // game in progress
 	else if ( ($remote_ip == $server[0] && $service_port == $server[1]) || $status == 2 )    // this server is contained in the database

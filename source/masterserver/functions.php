@@ -55,7 +55,7 @@
 	function cleanupServerList()
 	{
 		// on a busy server, this function should be invoked by cron in regular intervals instead (one SQL query less for the script)
-		return mysql_query( 'DELETE FROM glestserver WHERE lasttime<DATE_add(NOW(), INTERVAL -1 minute);' );
+		return mysql_query( 'DELETE FROM glestserver WHERE status <> 3 AND lasttime < DATE_add(NOW(), INTERVAL -1 minute);' );
 		//return mysql_query( 'UPDATE glestserver SET status=\'???\' WHERE lasttime<DATE_add(NOW(), INTERVAL -2 minute);' );
 	}
 
