@@ -41,9 +41,9 @@
 	        // consider replacing this by a cron job
 	        cleanupServerList();
 
-                $whereClause = 'gameUUID=\'' . mysql_real_escape_string( $gameUUID ) . '\';';
+                $whereClause = 'gameUUID=\'' . mysql_real_escape_string( $gameUUID ) . '\'';
 
-	        $stats_in_db = mysql_query( 'SELECT * FROM glestgamestats WHERE ' . $whereClause);
+	        $stats_in_db = mysql_query( 'SELECT * FROM glestgamestats WHERE ' . $whereClause . ';');
 	        $all_stats = array();
 	        while ( $stats = mysql_fetch_array( $stats_in_db ) )
 	        {
@@ -52,7 +52,7 @@
 	        unset( $stats_in_db );
 	        unset( $stats );
 
-	        $player_stats_in_db = mysql_query( 'SELECT * FROM glestgameplayerstats WHERE ' . $whereClause);
+	        $player_stats_in_db = mysql_query( 'SELECT * FROM glestgameplayerstats WHERE ' . $whereClause . ' ORDER BY factionIndex;');
 	        $all_player_stats = array();
 	        while ( $player_stats = mysql_fetch_array( $player_stats_in_db ) )
 	        {
@@ -181,7 +181,7 @@
                                 printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $player_stats['playerName'],        ENT_QUOTES ), PHP_EOL );
                                 printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $player_stats['quitBeforeGameEnd'],        ENT_QUOTES ), PHP_EOL );
 
-                                $quitTime = $stats['quitTime'];
+                                $quitTime = $player_stats['quitTime'];
                                 $quitTime = getTimeString($quitTime);
 
                                 printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $quitTime,        ENT_QUOTES ), PHP_EOL );
