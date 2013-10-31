@@ -68,7 +68,10 @@ string TechTree::getName(bool translatedValue) {
 		translatedTechNames.erase(name);
 	}
 
-	return lang.getTechTreeString("TechTreeName",name.c_str());
+	string result = lang.getTechTreeString("TechTreeName",name.c_str());
+
+	//printf("Line: %d Tech [%s] result [%s]\n",__LINE__,name.c_str(),result.c_str());
+	return result;
 }
 
 string TechTree::getTranslatedName(string techName, bool forceLoad, bool forceTechtreeActiveFile) {
@@ -79,7 +82,7 @@ string TechTree::getTranslatedName(string techName, bool forceLoad, bool forceTe
 	Lang &lang = Lang::getInstance();
 	if(forceTechtreeActiveFile == false &&
 			translatedTechNames.find(techName) != translatedTechNames.end() &&
-			lang.getLanguage() != languageUsedForCache) {
+			lang.getLanguage() == languageUsedForCache) {
 		result = translatedTechNames[techName];
 	}
 	else {
