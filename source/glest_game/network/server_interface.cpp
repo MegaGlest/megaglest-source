@@ -28,6 +28,7 @@
 #include <iostream>
 #include "map_preview.h"
 #include <iterator>
+#include "stats.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -118,6 +119,9 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	serverSocket.setBindPort(Config::getInstance().getInt("PortServer", intToStr(GameConstants::serverPort).c_str()));
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	gameStatsThreadAccessor  = new Mutex();
+	gameStats = NULL;
 
 	Config &config = Config::getInstance();
 	vector<string> results;
@@ -305,6 +309,12 @@ ServerInterface::~ServerInterface() {
 
 	delete switchSetupRequestsSynchAccessor;
 	switchSetupRequestsSynchAccessor = NULL;
+
+	delete gameStatsThreadAccessor;
+	gameStatsThreadAccessor = NULL;
+
+	delete gameStats;
+	gameStats = NULL;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
@@ -2781,8 +2791,65 @@ std::map<string,string> ServerInterface::publishToMasterserver() {
 		publishToServerInfo["gameCmd"]= "gameOver";
 		publishToServerInfo["gameStatus"] = intToStr(game_status_finished);
 	}
+
+	//printf("Host game id = %s\n",this->getGameSettings()->getGameUUID().c_str());
+	publishToServerInfo["gameUUID"] = this->getGameSettings()->getGameUUID();
+
+	//if(statsInterface != NULL) {
+	//
+	//}
+	// !!!
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	return publishToServerInfo;
+}
+
+std::map<string,string> ServerInterface::publishToMasterserverStats() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	MutexSafeWrapper safeMutex(gameStatsThreadAccessor,CODE_AT_LINE);
+	std::map < string, string > publishToServerInfo;
+	if(gameStats != NULL) {
+		publishToServerInfo["gameUUID"] = this->getGameSettings()->getGameUUID();
+		publishToServerInfo["tech"] = this->getGameSettings()->getTech();
+		publishToServerInfo["factionCount"] = intToStr(gameStats->getFactionCount());
+		publishToServerInfo["framesPlayed"] = intToStr(gameStats->getFramesPlayed());
+		publishToServerInfo["framesToCalculatePlaytime"] = intToStr(gameStats->getFramesToCalculatePlaytime());
+		publishToServerInfo["maxConcurrentUnitCount"] = intToStr(gameStats->getMaxConcurrentUnitCount());
+		publishToServerInfo["totalEndGameConcurrentUnitCount"] = intToStr(gameStats->getTotalEndGameConcurrentUnitCount());
+		publishToServerInfo["isHeadlessServer"] = intToStr(gameStats->getIsMasterserverMode());
+
+		for(int factionIndex = 0; factionIndex < gameStats->getFactionCount(); ++factionIndex) {
+			publishToServerInfo["factionIndex_" + intToStr(factionIndex)] 		= intToStr(factionIndex);
+			publishToServerInfo["controlType_" + intToStr(factionIndex)] 		= intToStr(gameStats->getControl(factionIndex));
+			publishToServerInfo["resourceMultiplier_" + intToStr(factionIndex)] = floatToStr(gameStats->getResourceMultiplier(factionIndex));
+			publishToServerInfo["factionTypeName_" + intToStr(factionIndex)] 	= gameStats->getFactionTypeName(factionIndex);
+			publishToServerInfo["personalityType_" + intToStr(factionIndex)] 	= intToStr(gameStats->getPersonalityType(factionIndex));
+			publishToServerInfo["teamIndex_" + intToStr(factionIndex)] 			= intToStr(gameStats->getTeam(factionIndex));
+			publishToServerInfo["wonGame_" + intToStr(factionIndex)] 			= intToStr(gameStats->getVictory(factionIndex));
+			publishToServerInfo["killCount_" + intToStr(factionIndex)] 			= intToStr(gameStats->getKills(factionIndex));
+			publishToServerInfo["enemyKillCount_" + intToStr(factionIndex)] 	= intToStr(gameStats->getEnemyKills(factionIndex));
+			publishToServerInfo["deathCount_" + intToStr(factionIndex)] 		= intToStr(gameStats->getDeaths(factionIndex));
+			publishToServerInfo["unitsProducedCount_" + intToStr(factionIndex)] = intToStr(gameStats->getUnitsProduced(factionIndex));
+			publishToServerInfo["resourceHarvestedCount_" + intToStr(factionIndex)] = intToStr(gameStats->getResourcesHarvested(factionIndex));
+			publishToServerInfo["playerName_" + intToStr(factionIndex)] 		= gameStats->getPlayerName(factionIndex);
+			publishToServerInfo["quitBeforeGameEnd_" + intToStr(factionIndex)] 	= intToStr(gameStats->getPlayerLeftBeforeEnd(factionIndex));
+			publishToServerInfo["quitTime_" + intToStr(factionIndex)] 			= intToStr(gameStats->getTimePlayerLeft(factionIndex));
+		}
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	}
+	return publishToServerInfo;
+}
+
+void ServerInterface::setGameStats(Stats *stats) {
+	if(stats == NULL) {
+		return;
+	}
+	MutexSafeWrapper safeMutex(gameStatsThreadAccessor,CODE_AT_LINE);
+	if(gameStats == NULL) {
+		gameStats = new Stats();
+	}
+	*gameStats = *stats;
 }
 
 void ServerInterface::simpleTask(BaseThread *callingThread) {
@@ -2811,12 +2878,39 @@ void ServerInterface::simpleTask(BaseThread *callingThread) {
 						request += "&";
 					}
 
-					//printf("the request is:\n%s\n",request.c_str());
+					//printf("The Host request is:\n%s\n",request.c_str());
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("The Host request is:\n%s\n",request.c_str());
+
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d] the request is:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,request.c_str());
 
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Calling masterserver [%s]...\n",request.c_str());
 
 					std::string serverInfo = SystemFlags::getHTTP(request,handle);
+					//printf("Result:\n%s\n",serverInfo .c_str());
+
+					string requestStats = Config::getInstance().getString("Masterserver") + "addGameStats.php?";
+					std::map<string,string> newPublishToServerInfoStats = publishToMasterserverStats();
+					if(newPublishToServerInfoStats.empty() == false) {
+						for(std::map<string,string>::const_iterator iterMap = newPublishToServerInfoStats.begin();
+							iterMap != newPublishToServerInfoStats.end(); ++iterMap) {
+
+							requestStats += iterMap->first;
+							requestStats += "=";
+							requestStats += SystemFlags::escapeURL(iterMap->second,handle);
+							requestStats += "&";
+						}
+
+						//printf("The Host stats request is:\n%s\n",requestStats.c_str());
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("The Host request is:\n%s\n",requestStats.c_str());
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d] the request is:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,requestStats.c_str());
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Calling masterserver [%s]...\n",requestStats.c_str());
+
+						std::string serverInfoStats = SystemFlags::getHTTP(requestStats,handle);
+						//printf("Result:\n%s\n",serverInfoStats .c_str());
+
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d] the result is:\n'%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,serverInfoStats.c_str());
+					}
+
 					SystemFlags::cleanupHTTP(&handle);
 
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Done Calling masterserver\n");

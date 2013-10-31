@@ -36,8 +36,6 @@ using namespace Shared::Platform;
 
 namespace Glest{ namespace Game{
 
-//class GameSettings;
-
 // =====================================================
 //	class NetworkInterface
 // =====================================================

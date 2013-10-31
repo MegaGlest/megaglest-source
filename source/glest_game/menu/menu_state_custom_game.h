@@ -219,6 +219,7 @@ private:
 
     std::auto_ptr<TechTree> techTree;
 
+    string gameUUID;
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,
 			bool openNetworkSlots= false, ParentMenuState parentMenuState=pNewGame,

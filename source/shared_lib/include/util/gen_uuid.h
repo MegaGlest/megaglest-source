@@ -103,11 +103,11 @@ typedef struct {
 
 /* some forward declarations.  kind of wimpy to do that but heck, we
    are all friends here right?  raj 20081024 */
-static uint16_t true_random(void);
+inline static uint16_t true_random(void);
 
 #ifdef WIN32
 
-static void get_system_time(uuid_time_t *uuid_time) {
+inline static void get_system_time(uuid_time_t *uuid_time) {
   ULARGE_INTEGER time;
 
   /* NT keeps time in FILETIME format which is 100ns ticks since
@@ -124,7 +124,7 @@ static void get_system_time(uuid_time_t *uuid_time) {
 }
 
 /* Sample code, not for use in production; see RFC 1750 */
-static void get_random_info(char seed[16]) {
+inline static void get_random_info(char seed[16]) {
   uint16_t myrand;
   int i;
 
@@ -138,7 +138,7 @@ static void get_random_info(char seed[16]) {
 
 #else
 
-static void get_system_time(uuid_time_t *uuid_time) {
+inline static void get_system_time(uuid_time_t *uuid_time) {
   struct timeval tp;
   gettimeofday(&tp, (struct timezone *)0);
 
@@ -151,7 +151,7 @@ static void get_system_time(uuid_time_t *uuid_time) {
 }
 
 /* Sample code, not for use in production; see RFC 1750 */
-static void get_random_info(char seed[16]) {
+inline static void get_random_info(char seed[16]) {
   FILE *fp;
   uint16_t myrand;
   int i;
@@ -182,7 +182,7 @@ static void get_random_info(char seed[16]) {
 
 /* true_random -- generate a crypto-quality random number.
 **This sample doesn't do that.** */
-static uint16_t true_random(void) {
+inline static uint16_t true_random(void) {
   static int inited = 0;
   uuid_time_t time_now;
 
@@ -197,7 +197,7 @@ static uint16_t true_random(void) {
 }
 
 /* puid -- print a UUID */
-void puid(uuid_t u) {
+inline void puid(uuid_t u) {
   int i;
 
   printf("%8.8x-%4.4x-%4.4x-%2.2x%2.2x-", u.time_low, u.time_mid,
@@ -209,7 +209,7 @@ void puid(uuid_t u) {
 }
 
 /* snpuid -- print a UUID in the supplied buffer */
-void snpuid(char *str, size_t size, uuid_t u) {
+inline void snpuid(char *str, size_t size, uuid_t u) {
   int i;
   char *tmp = str;
 
@@ -237,7 +237,7 @@ void snpuid(char *str, size_t size, uuid_t u) {
 /* get-current_time -- get time as 60-bit 100ns ticks since UUID epoch.
    Compensate for the fact that real clock resolution is
    less than 100ns. */
-static void get_current_time(uuid_time_t *timestamp) {
+inline static void get_current_time(uuid_time_t *timestamp) {
   static int inited = 0;
   static uuid_time_t time_last;
   static uint16_t uuids_this_tick;
@@ -273,7 +273,7 @@ static void get_current_time(uuid_time_t *timestamp) {
 /* system dependent call to get IEEE node ID.
    This sample implementation generates a random node ID. */
 /* netperf mod - don't bother trying to read or write the nodeid */
-static void get_ieee_node_identifier(uuid_node_t *node) {
+inline static void get_ieee_node_identifier(uuid_node_t *node) {
   static int inited = 0;
   static uuid_node_t saved_node;
   char seed[16];
@@ -290,7 +290,7 @@ static void get_ieee_node_identifier(uuid_node_t *node) {
 
 /* format_uuid_v1 -- make a UUID from the timestamp, clockseq,
    and node ID */
-static void format_uuid_v1(uuid_t* uuid, uint16_t clock_seq,
+inline static void format_uuid_v1(uuid_t* uuid, uint16_t clock_seq,
                     uuid_time_t timestamp, uuid_node_t node) {
   /* Construct a version 1 uuid with the information we've gathered
      plus a few constants. */
@@ -306,7 +306,7 @@ static void format_uuid_v1(uuid_t* uuid, uint16_t clock_seq,
 }
 
 /* uuid_create -- generator a UUID */
-int uuid_create(uuid_t *uuid) {
+inline int uuid_create(uuid_t *uuid) {
   uuid_time_t timestamp;
   uint16_t clockseq;
   uuid_node_t node;
@@ -323,13 +323,19 @@ int uuid_create(uuid_t *uuid) {
   return 1;
 }
 
-void get_uuid_string(char *uuid_str, size_t size) {
+inline void get_uuid_string(char *uuid_str, size_t size) {
   uuid_t u;
 
   uuid_create(&u);
   snpuid(uuid_str,size,u);
 
   return;
+}
+
+inline string getUUIDAsString() {
+	char  uuid_str[38];
+	get_uuid_string(uuid_str,sizeof(uuid_str));
+	return uuid_str;
 }
 
 //#ifdef NETPERF_STANDALONE_DEBUG

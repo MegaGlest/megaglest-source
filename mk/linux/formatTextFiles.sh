@@ -4,6 +4,7 @@
 # Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
 # Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+
 
+echo 'Requires tools from: sudo apt-get install tofrodos'
 cd ../../
 find -name "*\.cpp" -exec fromdos -d {} \;
 find -name "*\.c" -exec fromdos -d {} \;
@@ -13,4 +14,7 @@ find -name "*\.lng" -exec fromdos -d {} \;
 find -name "*\.xml" -exec fromdos -d {} \;
 find -name "*\.ini" -exec fromdos -d {} \;
 find -name "*\.sh" -exec fromdos -d {} \;
+find -name "*\.php" -exec fromdos -d {} \;
+find -name "*\.sql" -exec fromdos -d {} \;
+find -name "*\.pl" -exec fromdos -d {} \;
 

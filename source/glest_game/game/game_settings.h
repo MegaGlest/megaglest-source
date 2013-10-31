@@ -135,6 +135,8 @@ private:
 
     bool networkAllowNativeLanguageTechtree;
 
+    string gameUUID;
+
 public:
 
     static string playerDisconnectedText;
@@ -361,6 +363,8 @@ public:
 	uint32 getTechCRC() const { return techCRC; }
 	vector<pair<string,uint32> > getFactionCRCList() const { return factionCRCList; }
 
+	const string &getGameUUID() const								{return gameUUID;}
+
 	//set
 	void setDescription(const string& description)						{this->description= description;}
 	void setMap(const string& map)										{this->map= map;}
@@ -505,13 +509,15 @@ public:
 	int getMasterserver_admin_faction_index() const 		{ return masterserver_admin_factionIndex;}
 	void setMasterserver_admin_faction_index(int value)		{ masterserver_admin_factionIndex = value; }
 
-
 	bool getNetworkAllowNativeLanguageTechtree() const 		{ return networkAllowNativeLanguageTechtree;}
 	void setNetworkAllowNativeLanguageTechtree(bool value)	{ networkAllowNativeLanguageTechtree = value; }
+
+	void setGameUUID(const string& gameUUID)				{this->gameUUID= gameUUID;}
 
 	string toString() const {
 		string result = "";
 
+		result += "Game ID = " + gameUUID + "\n";
 		result += "description = " + description + "\n";
 		result += "mapFilterIndex = " + intToStr(mapFilterIndex) + "\n";
 		result += "map = " + map + "\n";
@@ -565,6 +571,8 @@ public:
 	void saveGame(XmlNode *rootNode) const {
 		std::map<string,string> mapTagReplacements;
 		XmlNode *gameSettingsNode = rootNode->addChild("GameSettings");
+
+		gameSettingsNode->addAttribute("gameUUID",gameUUID, mapTagReplacements);
 
 //		string description;
 		gameSettingsNode->addAttribute("description",description, mapTagReplacements);
@@ -693,6 +701,10 @@ public:
 
 	void loadGame(const XmlNode *rootNode) {
 		const XmlNode *gameSettingsNode = rootNode->getChild("GameSettings");
+
+		if(gameSettingsNode->hasAttribute("gameUUID") == true) {
+			gameUUID = gameSettingsNode->getAttribute("gameUUID")->getValue();
+		}
 
 //		string description;
 		description = gameSettingsNode->getAttribute("description")->getValue();
