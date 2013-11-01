@@ -62,7 +62,7 @@
 	function cleanupGameStats()
 	{
                 // Purge completed games that are less than x minutes in duration
-                mysql_query( 'DELETE FROM glestserver WHERE status = 3 AND gameUUID in (SELECT gameUUID from glestgamestats where framesToCalculatePlaytime / 40 / 60 < ' . MAX_MINS_OLD_COMPLETED_GAMES . ';');
+                mysql_query( 'DELETE FROM glestserver WHERE status = 3 AND gameUUID in (SELECT gameUUID from glestgamestats where framesToCalculatePlaytime / 40 / 60 < ' . MAX_MINS_OLD_COMPLETED_GAMES . ');');
 
                 // Cleanup game stats for games that are purged
                 mysql_query( 'DELETE FROM glestgamestats WHERE gameUUID NOT IN (SELECT gameUUID from glestserver);');
