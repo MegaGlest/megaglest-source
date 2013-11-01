@@ -31,7 +31,7 @@
 	// consider replacing this by a cron job
 	cleanupServerList();
 
-	$servers_in_db = mysql_query( 'SELECT * FROM glestserver WHERE status <> 3 OR (status = 3 AND lasttime > DATE_add(NOW(), INTERVAL - ' . MAX_HOURS_OLD_GAMES . ' hour)) ORDER BY status, lasttime DESC, connectedClients > 0 DESC, (networkSlots - connectedClients) , ip DESC;' );
+	$servers_in_db = mysql_query( 'SELECT a.*,b.framesToCalculatePlaytime FROM glestserver a LEFT JOIN glestgamestats b ON a.gameUUID = b.gameUUID WHERE status <> 3 OR (status = 3 AND a.lasttime > DATE_add(NOW(), INTERVAL - ' . MAX_HOURS_OLD_GAMES . ' hour)) ORDER BY status, a.lasttime DESC, connectedClients > 0 DESC, (networkSlots - connectedClients) , ip DESC;' );
 	$all_servers = array();
 	while ( $server = mysql_fetch_array( $servers_in_db ) )
 	{
@@ -66,6 +66,7 @@
 	echo '			<tr>' . PHP_EOL;
 	echo '				<th title="glestVersion">Version</th>' . PHP_EOL;
 	echo '				<th title="status">Status</th>' . PHP_EOL;
+        echo '				<th title="gameDuration">Game Duration</th>' . PHP_EOL;
 	echo '				<th title="country">Country</th>' . PHP_EOL;
 	echo '				<th title="serverTitle">Title</th>' . PHP_EOL;
 	echo '				<th title="tech">Techtree</th>' . PHP_EOL;
@@ -134,6 +135,11 @@
                         {
         			printf( "\t\t\t\t<td title=\"%s\" class=\"%s\">%s</td>%s", $server['status'], $status_class, htmlspecialchars( $status_title, ENT_QUOTES ), PHP_EOL );
                         }
+
+		        // Game Stats
+                        $gameDuration = $server['framesToCalculatePlaytime'];
+                        $gameDuration = getTimeString($gameDuration);
+                        printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $gameDuration,        ENT_QUOTES ), PHP_EOL );
 
 			// country
 			if ( $server['country'] !== '' ) {
