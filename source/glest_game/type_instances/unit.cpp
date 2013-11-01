@@ -2050,13 +2050,13 @@ int64 Unit::getUpdateProgress() {
 		int64 heightFactor   = getHeightFactor(PROGRESS_SPEED_MULTIPLIER);
 
 		//update progresses
-		const Game *game = Renderer::getInstance().getGame();
-		if(game == NULL) {
-			throw megaglest_runtime_error("game == NULL");
-		}
-		if(game->getWorld() == NULL) {
-			throw megaglest_runtime_error("game->getWorld() == NULL");
-		}
+//		const Game *game = Renderer::getInstance().getGame();
+//		if(game == NULL) {
+//			throw megaglest_runtime_error("game == NULL");
+//		}
+//		if(game->getWorld() == NULL) {
+//			throw megaglest_runtime_error("game->getWorld() == NULL");
+//		}
 
 		newProgress = getUpdatedProgress(progress, GameConstants::updateFps,
 				speed, diagonalFactor, heightFactor);
@@ -2128,10 +2128,12 @@ int64 Unit::getUpdatedProgress(int64 currentProgress, int64 updateFPS, int64 spe
 		progressIncrease = 1;
 	}
 
-	char szBuf[8096]="";
-	snprintf(szBuf,8095,"currentProgress = " MG_I64_SPECIFIER " updateFPS = " MG_I64_SPECIFIER " speed = " MG_I64_SPECIFIER " diagonalFactor = " MG_I64_SPECIFIER " heightFactor = " MG_I64_SPECIFIER " speedDenominator = " MG_I64_SPECIFIER " progressIncrease = " MG_I64_SPECIFIER " [" MG_I64_SPECIFIER "]",
-			currentProgress,updateFPS,speed,diagonalFactor,heightFactor,speedDenominator,progressIncrease,((speed * diagonalFactor * heightFactor) / speedDenominator));
-	networkCRCLogInfo = szBuf;
+	if(isNetworkCRCEnabled() == true) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8095,"currentProgress = " MG_I64_SPECIFIER " updateFPS = " MG_I64_SPECIFIER " speed = " MG_I64_SPECIFIER " diagonalFactor = " MG_I64_SPECIFIER " heightFactor = " MG_I64_SPECIFIER " speedDenominator = " MG_I64_SPECIFIER " progressIncrease = " MG_I64_SPECIFIER " [" MG_I64_SPECIFIER "]",
+				currentProgress,updateFPS,speed,diagonalFactor,heightFactor,speedDenominator,progressIncrease,((speed * diagonalFactor * heightFactor) / speedDenominator));
+		networkCRCLogInfo = szBuf;
+	}
 
 	newProgress += progressIncrease;
 
