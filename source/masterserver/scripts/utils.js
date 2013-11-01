@@ -31,7 +31,8 @@ function setupGameStatsLink(gameIndex) {
        var link = document.getElementById('gameStats_' + gameIndex);
        link.onclick = function() {
           var row = document.getElementById('content_row_' + this.getAttribute('gameuuid'));
-          if(row && row.className == 'fullyhide') {
+          //if(row && row.className == 'fullyhide') {
+          if(row) {
               row.className = 'fullyshow';
               row.innerHTML = '<td width=\'100%\' colspan=\'100\'><a id=\'hide_stats_' + this.getAttribute('gameuuid') + '\' href=\'#\'>Hide Stats</a><div width=\'100%\' id=\'content_' + this.getAttribute('gameuuid') + '\'></div></td>';
 
