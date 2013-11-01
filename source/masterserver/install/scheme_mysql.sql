@@ -58,6 +58,8 @@ CREATE TABLE `glestserver` (
   `status` int(11) NOT NULL DEFAULT '0',
   `gameUUID` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
   KEY `lasttime` (`lasttime`)
+  KEY `gameUUID` (`gameUUID`)
+  KEY `status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -77,6 +79,7 @@ CREATE TABLE `glestgamestats` (
   `isHeadlessServer` int(11) NOT NULL,
 
   KEY `gameUUID` (`gameUUID`)
+  KEY `framesToCalculatePlaytime` (`framesToCalculatePlaytime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -87,6 +90,7 @@ DROP TABLE IF EXISTS `glestgameplayerstats`;
 CREATE TABLE `glestgameplayerstats` (
   `lasttime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `gameUUID` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `playerUUID` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
   `factionIndex` int(11) NOT NULL,
   `controlType` int(11) NOT NULL,
   `resourceMultiplier` DECIMAL(10,6) NOT NULL,  
@@ -104,6 +108,7 @@ CREATE TABLE `glestgameplayerstats` (
   `quitTime` int(11) NOT NULL,
 
   KEY `gameUUID` (`gameUUID`)
+  KEY `playerUUID` (`playerUUID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --

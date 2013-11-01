@@ -2854,6 +2854,7 @@ std::map<string,string> ServerInterface::publishToMasterserverStats() {
 			publishToServerInfo["playerName_" + intToStr(factionIndex)] 		= gameStats->getPlayerName(factionIndex);
 			publishToServerInfo["quitBeforeGameEnd_" + intToStr(factionIndex)] 	= intToStr(gameStats->getPlayerLeftBeforeEnd(factionIndex));
 			publishToServerInfo["quitTime_" + intToStr(factionIndex)] 			= intToStr(gameStats->getTimePlayerLeft(factionIndex));
+			publishToServerInfo["playerUUID_" + intToStr(factionIndex)] 	    = this->getGameSettings()->getNetworkPlayerUUID(factionIndex);
 		}
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	}
@@ -2919,13 +2920,13 @@ void ServerInterface::simpleTask(BaseThread *callingThread) {
 							requestStats += "&";
 						}
 
-						//printf("The Host stats request is:\n%s\n",requestStats.c_str());
+						printf("The Host stats request is:\n%s\n",requestStats.c_str());
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("The Host request is:\n%s\n",requestStats.c_str());
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d] the request is:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,requestStats.c_str());
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Calling masterserver [%s]...\n",requestStats.c_str());
 
 						std::string serverInfoStats = SystemFlags::getHTTP(requestStats,handle);
-						//printf("Result:\n%s\n",serverInfoStats .c_str());
+						printf("Result:\n%s\n",serverInfoStats .c_str());
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d] the result is:\n'%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,serverInfoStats.c_str());
 					}
