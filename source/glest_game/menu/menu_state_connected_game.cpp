@@ -1633,11 +1633,7 @@ void MenuStateConnectedGame::broadCastGameSettingsToHeadlessServer(bool forceNow
 
 void MenuStateConnectedGame::updateResourceMultiplier(const int index) {
 		ControlType ct= static_cast<ControlType>(listBoxControls[index].getSelectedItemIndex());
-		if(ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
-			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
-			listBoxRMultiplier[index].setEnabled(false);
-		}
-		else if(ct == ctCpuEasy || ct == ctNetworkCpuEasy)
+		if(ct == ctCpuEasy || ct == ctNetworkCpuEasy)
 		{
 			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::easyMultiplier-0.5f)*10);
 			listBoxRMultiplier[index].setEnabled(true);
@@ -1656,6 +1652,11 @@ void MenuStateConnectedGame::updateResourceMultiplier(const int index) {
 			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::megaMultiplier-0.5f)*10);
 			listBoxRMultiplier[index].setEnabled(true);
 		}
+		else {
+			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
+			listBoxRMultiplier[index].setEnabled(false);
+		}
+
 		listBoxRMultiplier[index].setEditable(listBoxRMultiplier[index].getEnabled());
 		listBoxRMultiplier[index].setVisible(listBoxRMultiplier[index].getEnabled());
 }
@@ -2090,11 +2091,12 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 				gameSettings->setNetworkPlayerStatuses(slotIndex, getNetworkPlayerStatus());
 				Lang &lang= Lang::getInstance();
 				gameSettings->setNetworkPlayerLanguages(slotIndex, lang.getLanguage());
+
+				gameSettings->setResourceMultiplierIndex(slotIndex, (GameConstants::normalMultiplier-0.5f)*10);
 			}
-			//else if(serverInterface->getSlot(i) != NULL) {
-			//	gameSettings->setNetworkPlayerLanguages(slotIndex, serverInterface->getSlot(i)->getNetworkPlayerLanguage());
-			//}
-			gameSettings->setResourceMultiplierIndex(slotIndex, listBoxRMultiplier[i].getSelectedItemIndex());
+			else {
+				gameSettings->setResourceMultiplierIndex(slotIndex, listBoxRMultiplier[i].getSelectedItemIndex());
+			}
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
 
@@ -2140,7 +2142,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 			gameSettings->setStartLocationIndex(slotIndex, i);
 			//printf("!!! setStartLocationIndex #2 slotIndex = %d, i = %d\n",slotIndex, i);
 
-			gameSettings->setResourceMultiplierIndex(slotIndex, 10);
+			gameSettings->setResourceMultiplierIndex(slotIndex, (GameConstants::normalMultiplier-0.5f)*10);
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
 

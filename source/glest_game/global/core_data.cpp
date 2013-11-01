@@ -1101,7 +1101,7 @@ bool CoreData::loadGameSettingsFromFile(std::string fileName, GameSettings *game
 
 	gameSettings->setEnableObserverModeAtEndGame(properties.getBool("EnableObserverModeAtEndGame"));
 	gameSettings->setAiAcceptSwitchTeamPercentChance(properties.getInt("AiAcceptSwitchTeamPercentChance","30"));
-	gameSettings->setFallbackCpuMultiplier(properties.getInt("FallbackCpuMultiplier","1"));
+	gameSettings->setFallbackCpuMultiplier(properties.getInt("FallbackCpuMultiplier","5"));
 
 	gameSettings->setPathFinderType(static_cast<PathFinderType>(properties.getInt("PathFinderType",intToStr(pfBasic).c_str())));
 	gameSettings->setEnableServerControlledAI(properties.getBool("EnableServerControlledAI","true"));
