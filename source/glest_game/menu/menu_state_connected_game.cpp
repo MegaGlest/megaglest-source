@@ -4217,7 +4217,6 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 }
 
 void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings, bool errorOnMissingData) {
-	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	ClientInterface *clientInterface = networkManager.getClientInterface();
 
