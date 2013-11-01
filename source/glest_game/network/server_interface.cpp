@@ -2781,9 +2781,25 @@ std::map<string,string> ServerInterface::publishToMasterserver() {
 	publishToServerInfo["tech"] = this->getGameSettings()->getTech();
 	publishToServerInfo["map"] = this->getGameSettings()->getMap();
 	publishToServerInfo["tileset"] = this->getGameSettings()->getTileset();
-	publishToServerInfo["activeSlots"] = intToStr(slotCountUsed);
-	publishToServerInfo["networkSlots"] = intToStr(slotCountHumans);
-	publishToServerInfo["connectedClients"] = intToStr(slotCountConnectedPlayers);
+
+	bool updateSlots = true;
+	MutexSafeWrapper safeMutex2(gameStatsThreadAccessor,CODE_AT_LINE);
+	if(gameStats != NULL) {
+		for(int factionIndex = 0; factionIndex < gameStats->getFactionCount(); ++factionIndex) {
+			if(gameStats->getVictory(factionIndex) == true) {
+				updateSlots = false;
+				break;
+			}
+		}
+	}
+	safeMutex2.ReleaseLock();
+
+	if(updateSlots == true) {
+		publishToServerInfo["activeSlots"] = intToStr(slotCountUsed);
+		publishToServerInfo["networkSlots"] = intToStr(slotCountHumans);
+		publishToServerInfo["connectedClients"] = intToStr(slotCountConnectedPlayers);
+	}
+
 	string serverPort=config.getString("PortServer", intToStr(GameConstants::serverPort).c_str());
 	string externalPort=config.getString("PortExternal", serverPort.c_str());
 	publishToServerInfo["externalconnectport"] = externalPort;
