@@ -1572,6 +1572,8 @@ void Game::init(bool initForPreviewOnly) {
 	gameStarted = true;
 
 	if(this->masterserverMode == true) {
+		world.getStats()->setIsMasterserverMode(true);
+
 		printf("New game has started...\n");
 	}
 
