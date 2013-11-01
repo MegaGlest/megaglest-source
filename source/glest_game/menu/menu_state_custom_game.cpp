@@ -311,7 +311,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	listBoxFallbackCpuMultiplier.registerGraphicComponent(containerName,"listBoxFallbackCpuMultiplier");
 	listBoxFallbackCpuMultiplier.init(xoffset+460, aPos, 80);
 	listBoxFallbackCpuMultiplier.setItems(rMultiplier);
-	listBoxFallbackCpuMultiplier.setSelectedItemIndex(5);
+	listBoxFallbackCpuMultiplier.setSelectedItem("1.0");
 
 	// Allow Switch Team Mode
 	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
@@ -599,7 +599,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 		listBoxControls[i].setItems(controlItems);
 		listBoxRMultiplier[i].setItems(rMultiplier);
-		listBoxRMultiplier[i].setSelectedItemIndex(5);
+		listBoxRMultiplier[i].setSelectedItem("1.0");
 		labelNetStatus[i].setText("");
     }
 
@@ -1459,12 +1459,7 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 	//printf("Line: %d multiplier index: %d index: %d\n",__LINE__,listBoxRMultiplier[index].getSelectedItemIndex(),index);
 
 	ControlType ct= static_cast<ControlType>(listBoxControls[index].getSelectedItemIndex());
-	if(ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
-		listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
-		listBoxRMultiplier[index].setEnabled(false);
-		//!!!listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
-	}
-	else if(ct == ctCpuEasy || ct == ctNetworkCpuEasy)
+	if(ct == ctCpuEasy || ct == ctNetworkCpuEasy)
 	{
 		listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::easyMultiplier-0.5f)*10);
 		listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
@@ -1483,6 +1478,13 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 		listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::megaMultiplier-0.5f)*10);
 		listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
 	}
+	//if(ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
+	else {
+		listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
+		listBoxRMultiplier[index].setEnabled(false);
+		//!!!listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
+	}
+
 	listBoxRMultiplier[index].setEditable(listBoxRMultiplier[index].getEnabled());
 	listBoxRMultiplier[index].setVisible(ct != ctHuman && ct != ctNetwork && ct != ctClosed);
 	//listBoxRMultiplier[index].setVisible(ct != ctClosed);
@@ -2600,7 +2602,7 @@ void MenuStateCustomGame::update() {
 			checkBoxPublishServer.setValue(false);
 			checkBoxPublishServer.setEditable(false);
 			listBoxFallbackCpuMultiplier.setEditable(false);
-			listBoxFallbackCpuMultiplier.setSelectedItemIndex(5);
+			listBoxFallbackCpuMultiplier.setSelectedItem("1.0");
 
             ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
             serverInterface->setPublishEnabled(checkBoxPublishServer.getValue() == true);
@@ -3205,7 +3207,6 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	}
 	gameSettings->setAiAcceptSwitchTeamPercentChance(strToInt(listBoxAISwitchTeamAcceptPercent.getSelectedItem()));
 	gameSettings->setFallbackCpuMultiplier(listBoxFallbackCpuMultiplier.getSelectedItemIndex());
-
 
 	if(checkBoxAllowInGameJoinPlayer.getValue() == true) {
         valueFlags1 |= ft1_allow_in_game_joining;
