@@ -3233,6 +3233,9 @@ void CheckForDuplicateData() {
 
     string duplicateWarnings="";
 
+    try {
+
+
     {
   	//vector<string> results;
 
@@ -3243,7 +3246,7 @@ void CheckForDuplicateData() {
 	std::sort(maps.begin(),maps.end());
 
 	if(maps.empty() == true) {
-        throw megaglest_runtime_error("No maps were found!");
+        throw megaglest_runtime_error("No maps were found!",true);
     }
 	else if(invalidMapList.empty() == false) {
 		string errorMsg = "Warning invalid maps were detected (will be ignored):\n";
@@ -3290,7 +3293,7 @@ void CheckForDuplicateData() {
 			if(result != 0) {
 				char *errmsg = strerror(errno);
 				snprintf(szBuf,8096,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
-				throw megaglest_runtime_error(szBuf);
+				throw megaglest_runtime_error(szBuf,true);
 			}
 			else {
 				snprintf(szBuf,8096,"map [%s] in [%s]\nwas renamed to [%s]",duplicateMapsToRename[i].c_str(),oldFile.c_str(),newFile.c_str());
@@ -3308,7 +3311,7 @@ void CheckForDuplicateData() {
     findDirs(tilesetPaths, tileSets, false, true);
 
 	if (tileSets.empty()) {
-        throw megaglest_runtime_error("No tilesets were found!");
+        throw megaglest_runtime_error("No tilesets were found!",true);
     }
 
 	vector<string> duplicateTilesetsToRename;
@@ -3341,7 +3344,7 @@ void CheckForDuplicateData() {
 			if(result != 0) {
 				char *errmsg = strerror(errno);
 				snprintf(szBuf,8096,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
-				throw megaglest_runtime_error(szBuf);
+				throw megaglest_runtime_error(szBuf,true);
 			}
 			else {
 				snprintf(szBuf,8096,"tileset [%s] in [%s]\nwas renamed to [%s]",duplicateTilesetsToRename[i].c_str(),oldFile.c_str(),newFile.c_str());
@@ -3364,7 +3367,7 @@ void CheckForDuplicateData() {
     vector<string> techTrees;
     findDirs(techPaths, techTrees, false, true);
 	if(techTrees.empty()) {
-        throw megaglest_runtime_error("No tech-trees were found!");
+        throw megaglest_runtime_error("No tech-trees were found (dup)!",true);
 	}
 
 	vector<string> duplicateTechtreesToRename;
@@ -3397,7 +3400,7 @@ void CheckForDuplicateData() {
 			if(result != 0) {
 				char *errmsg = strerror(errno);
 				snprintf(szBuf,8096,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
-				throw megaglest_runtime_error(szBuf);
+				throw megaglest_runtime_error(szBuf,true);
 			}
 			else {
 				snprintf(szBuf,8096,"techtree [%s] in [%s]\nwas renamed to [%s]",duplicateTechtreesToRename[i].c_str(),oldFile.c_str(),newFile.c_str());
@@ -3413,6 +3416,14 @@ void CheckForDuplicateData() {
 		}
 		duplicateWarnings += errorMsg;
 	}
+    }
+
+    }
+    catch(const megaglest_runtime_error &ex) {
+		if(mainProgram) {
+			mainProgram->getState()->setForceMouseRender(true);
+		}
+		ExceptionHandler::DisplayMessage(ex.what(), false);
     }
 
     if(duplicateWarnings != "") {
