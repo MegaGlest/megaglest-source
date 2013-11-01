@@ -120,7 +120,11 @@ private:
 public:
 	Mutex(string ownerId="");
 	~Mutex();
-	void setOwnerId(string ownerId) { this->ownerId = ownerId; }
+	void setOwnerId(string ownerId) {
+		if(this->ownerId != ownerId) {
+			this->ownerId = ownerId;
+		}
+	}
 	void p();
 	void v();
 	int getRefCount() const { return refCount; }
@@ -140,7 +144,9 @@ public:
 
 	MutexSafeWrapper(Mutex *mutex,string ownerId="") {
 		this->mutex = mutex;
-		this->ownerId = ownerId;
+		if(this->ownerId != ownerId) {
+			this->ownerId = ownerId;
+		}
 		Lock();
 	}
 	~MutexSafeWrapper() {
@@ -149,7 +155,9 @@ public:
 
     void setMutex(Mutex *mutex,string ownerId="") {
 		this->mutex = mutex;
-		this->ownerId = ownerId;
+		if(this->ownerId != ownerId) {
+			this->ownerId = ownerId;
+		}
 		Lock();
     }
     bool isValidMutex() const {
@@ -159,8 +167,8 @@ public:
 	void Lock() {
 		if(this->mutex != NULL) {
 		    #ifdef DEBUG_MUTEXES
-            if(ownerId != "") {
-                printf("Locking Mutex [%s] refCount: %d\n",ownerId.c_str(),this->mutex->getRefCount());
+            if(this->ownerId != "") {
+                printf("Locking Mutex [%s] refCount: %d\n",this->ownerId.c_str(),this->mutex->getRefCount());
             }
             #endif
 
@@ -179,8 +187,8 @@ public:
 #endif
 
             #ifdef DEBUG_MUTEXES
-            if(ownerId != "") {
-                printf("Locked Mutex [%s] refCount: %d\n",ownerId.c_str(),this->mutex->getRefCount());
+            if(this->ownerId != "") {
+                printf("Locked Mutex [%s] refCount: %d\n",this->ownerId.c_str(),this->mutex->getRefCount());
             }
             #endif
 		}
@@ -188,8 +196,8 @@ public:
 	void ReleaseLock(bool keepMutex=false,bool deleteMutexOnRelease=false) {
 		if(this->mutex != NULL) {
 		    #ifdef DEBUG_MUTEXES
-            if(ownerId != "") {
-                printf("UnLocking Mutex [%s] refCount: %d\n",ownerId.c_str(),this->mutex->getRefCount());
+            if(this->ownerId != "") {
+                printf("UnLocking Mutex [%s] refCount: %d\n",this->ownerId.c_str(),this->mutex->getRefCount());
             }
             #endif
 
@@ -200,8 +208,8 @@ public:
 #endif
 
             #ifdef DEBUG_MUTEXES
-            if(ownerId != "") {
-                printf("UnLocked Mutex [%s] refCount: %d\n",ownerId.c_str(),this->mutex->getRefCount());
+            if(this->ownerId != "") {
+                printf("UnLocked Mutex [%s] refCount: %d\n",this->ownerId.c_str(),this->mutex->getRefCount());
             }
             #endif
 
@@ -249,7 +257,11 @@ public:
 	void UnLockWrite();
 
 	int maxReaders();
-	void setOwnerId(string ownerId) { this->ownerId = ownerId; }
+	void setOwnerId(string ownerId) {
+		if(this->ownerId != ownerId) {
+			this->ownerId = ownerId;
+		}
+	}
 
 private:
 	Semaphore semaphore;
@@ -274,8 +286,12 @@ public:
 
 	ReadWriteMutexSafeWrapper(ReadWriteMutex *mutex,bool isReadLock=true, string ownerId="") {
 		this->mutex = mutex;
-		this->isReadLock = isReadLock;
-		this->ownerId = ownerId;
+		if(this->isReadLock != isReadLock) {
+			this->isReadLock = isReadLock;
+		}
+		if(this->ownerId != ownerId) {
+			this->ownerId = ownerId;
+		}
 		Lock();
 	}
 	~ReadWriteMutexSafeWrapper() {
@@ -284,8 +300,12 @@ public:
 
     void setReadWriteMutex(ReadWriteMutex *mutex,bool isReadLock=true,string ownerId="") {
 		this->mutex = mutex;
-		this->isReadLock = isReadLock;
-		this->ownerId = ownerId;
+		if(this->isReadLock != isReadLock) {
+			this->isReadLock = isReadLock;
+		}
+		if(this->ownerId != ownerId) {
+			this->ownerId = ownerId;
+		}
 		Lock();
     }
     bool isValidReadWriteMutex() const {
@@ -295,8 +315,8 @@ public:
 	void Lock() {
 		if(this->mutex != NULL) {
 		    #ifdef DEBUG_MUTEXES
-            if(ownerId != "") {
-                printf("Locking Mutex [%s] refCount: %d\n",ownerId.c_str(),this->mutex->getRefCount());
+            if(this->ownerId != "") {
+                printf("Locking Mutex [%s] refCount: %d\n",this->ownerId.c_str(),this->mutex->getRefCount());
             }
             #endif
 
@@ -317,8 +337,8 @@ public:
 #endif
 
             #ifdef DEBUG_MUTEXES
-            if(ownerId != "") {
-                printf("Locked Mutex [%s] refCount: %d\n",ownerId.c_str(),this->mutex->getRefCount());
+            if(this->ownerId != "") {
+                printf("Locked Mutex [%s] refCount: %d\n",this->ownerId.c_str(),this->mutex->getRefCount());
             }
             #endif
 		}
@@ -326,8 +346,8 @@ public:
 	void ReleaseLock(bool keepMutex=false) {
 		if(this->mutex != NULL) {
 		    #ifdef DEBUG_MUTEXES
-            if(ownerId != "") {
-                printf("UnLocking Mutex [%s] refCount: %d\n",ownerId.c_str(),this->mutex->getRefCount());
+            if(this->ownerId != "") {
+                printf("UnLocking Mutex [%s] refCount: %d\n",this->ownerId.c_str(),this->mutex->getRefCount());
             }
             #endif
 
@@ -343,8 +363,8 @@ public:
 #endif
 
             #ifdef DEBUG_MUTEXES
-            if(ownerId != "") {
-                printf("UnLocked Mutex [%s] refCount: %d\n",ownerId.c_str(),this->mutex->getRefCount());
+            if(this->ownerId != "") {
+                printf("UnLocked Mutex [%s] refCount: %d\n",this->ownerId.c_str(),this->mutex->getRefCount());
             }
             #endif
 
