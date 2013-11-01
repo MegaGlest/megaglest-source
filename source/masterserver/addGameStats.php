@@ -35,12 +35,13 @@
                 {
 	                $game_completed = @mysql_query( 'SELECT COUNT(*) FROM glestserver WHERE ' . $whereClause . ' AND status=3;' );
                        	$game_completed_status  = @mysql_fetch_row( $game_completed );
-                        if( $game_completed_status > 0 )
+                        if( $game_completed_status[0] > 0 )
                         {
                                 mysql_query( 'DELETE FROM glestserver WHERE ' . $whereClause . ';');
                                 mysql_query( 'DELETE FROM glestgamestats WHERE ' . $whereClause . ';');
                                 mysql_query( 'DELETE FROM glestgameplayerstats WHERE ' . $whereClause . ';');
 
+                                echo 'OK - ' . $gameDuration;
                                 return;
                         }
                 }
@@ -196,6 +197,11 @@
                                 $quitTimer = clean_str( $_GET['quitTime_' . $factionNumber] );
                         }
 
+                        $playerUUID = "";
+                        if ( isset( $_GET['playerUUID_' . $factionNumber] ) ) {
+                                $playerUUID = (string) clean_str( $_GET['playerUUID_' . $factionNumber] );
+                        }
+
                         if($player_statsCount[0] > 0)
                         {
                                 $result = mysql_query( 'UPDATE glestgameplayerstats SET ' .
@@ -215,6 +221,7 @@
                                                 'playerName=\''           . mysql_real_escape_string( $playerName ) . '\', ' .
                                                 'quitBeforeGameEnd='      . $quitBeforeGameEnd  . ', ' .
                                                 'quitTime='               . $quitTime           . ', ' .
+                                                'playerUUID=\''           . mysql_real_escape_string( $playerUUID ) . '\', ' .
 	                                        'lasttime='               . 'now()'             . ' ' .
 	                                        'WHERE ' . $whereClause . ' AND factionIndex = ' . $factionIndex . ';');
 
@@ -243,7 +250,8 @@
                                         'resourceHarvestedCount=' . $resourceHarvestedCount . ', ' .
                                         'playerName=\''           . mysql_real_escape_string( $playerName ) . '\', ' .
                                         'quitBeforeGameEnd='      . $quitBeforeGameEnd  . ', ' .
-                                        'quitTime='               . $quitTime  . ';');
+                                        'quitTime='               . $quitTime           . ', ' .
+                                        'playerUUID=\''           . mysql_real_escape_string( $playerUUID ) . '\';');
 
                                 if (!$result) {
                                     die('part 2b: Invalid query: ' . mysql_error());
