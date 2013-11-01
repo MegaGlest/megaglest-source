@@ -1697,6 +1697,10 @@ void UnitUpdater::updateRepair(Unit *unit, int frameIndex) {
 	//}
 
     Command *command= unit->getCurrCommand();
+    if(command == NULL) {
+    	throw megaglest_runtime_error("command == NULL");
+    }
+
     const RepairCommandType *rct= static_cast<const RepairCommandType*>(command->getCommandType());
     const CommandType *ct = (command != NULL ? command->getCommandType() : NULL);
 
