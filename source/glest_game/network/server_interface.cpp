@@ -130,7 +130,8 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
   	vector<string> invalidMapList;
   	vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,true,&invalidMapList);
 	if (allMaps.empty()) {
-        throw megaglest_runtime_error("No maps were found!");
+        //throw megaglest_runtime_error("No maps were found!");
+		printf("No maps were found (srv)!\n");
 	}
 	std::sort(allMaps.begin(),allMaps.end());
 	results.clear();
@@ -140,14 +141,16 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	results.clear();
     findDirs(config.getPathListForType(ptTilesets), results);
 	if (results.empty()) {
-        throw megaglest_runtime_error("No tile-sets were found!");
+        //throw megaglest_runtime_error("No tile-sets were found!");
+		printf("No tile-sets were found (srv)!");
 	}
     tilesetFiles= results;
 
     results.clear();
     findDirs(config.getPathListForType(ptTechs), results);
 	if(results.empty()) {
-        throw megaglest_runtime_error("No tech-trees were found!");
+        //throw megaglest_runtime_error("No tech-trees were found!");
+		printf("No tech-trees were found (srv)!\n");
 	}
     techTreeFiles= results;
 

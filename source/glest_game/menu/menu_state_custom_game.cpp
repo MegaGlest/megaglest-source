@@ -269,7 +269,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	listBoxTechTree.registerGraphicComponent(containerName,"listBoxTechTree");
 	listBoxTechTree.init(xoffset+650, mapPos, 150);
-    listBoxTechTree.setSelectedItemIndex(initialTechSelection);
+	if(listBoxTechTree.getItemCount() > 0) {
+		listBoxTechTree.setSelectedItemIndex(initialTechSelection);
+	}
 
     labelTechTree.registerGraphicComponent(containerName,"labelTechTree");
 	labelTechTree.init(xoffset+650, mapHeadPos);
@@ -602,7 +604,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
     }
 
 	loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
-
 	labelMapInfo.setText(mapInfo.desc);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1552,6 +1553,18 @@ bool MenuStateCustomGame::checkNetworkPlayerDataSynch(bool checkMapCRC,
 }
 
 void MenuStateCustomGame::PlayNow(bool saveGame) {
+	if(listBoxTechTree.getItemCount() <= 0) {
+		mainMessageBoxState=1;
+
+		Lang &lang= Lang::getInstance();
+		char szMsg[8096]="";
+		strcpy(szMsg,"Cannot start game.\nThere are no tech-trees!\n");
+		printf("%s",szMsg);
+
+		showMessageBox(szMsg, "", false);
+		return;
+	}
+
 	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 	if(saveGame == true) {
 		saveGameSettingsToFile(SAVED_GAME_FILENAME);
@@ -1572,7 +1585,8 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 
 		// Check for random faction selection and choose the faction now
 		if(listBoxControls[i].getSelectedItemIndex() != ctClosed) {
-			if(listBoxFactions[i].getSelectedItem() == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
+			if(listBoxFactions[i].getSelectedItem() == formatString(GameConstants::RANDOMFACTION_SLOTNAME) &&
+				listBoxFactions[i].getItemCount() > 1) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i);
 
 				// Max 1000 tries to get a random, unused faction
@@ -3143,8 +3157,12 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	gameSettings->setMapFilterIndex(listBoxMapFilter.getSelectedItemIndex());
 	gameSettings->setDescription(formatString(getCurrentMapFile()));
 	gameSettings->setMap(getCurrentMapFile());
-    gameSettings->setTileset(tilesetFiles[listBoxTileset.getSelectedItemIndex()]);
-    gameSettings->setTech(techTreeFiles[listBoxTechTree.getSelectedItemIndex()]);
+	if(tilesetFiles.empty() == false) {
+		gameSettings->setTileset(tilesetFiles[listBoxTileset.getSelectedItemIndex()]);
+	}
+	if(techTreeFiles.empty() == false) {
+		gameSettings->setTech(techTreeFiles[listBoxTechTree.getSelectedItemIndex()]);
+	}
 
     if(autoStartSettings != NULL) {
     	gameSettings->setDefaultUnits(autoStartSettings->getDefaultUnits());
@@ -4161,7 +4179,10 @@ void MenuStateCustomGame::switchToNextMapGroup(const int direction){
 string MenuStateCustomGame::getCurrentMapFile(){
 	int i=listBoxMapFilter.getSelectedItemIndex();
 	int mapIndex=listBoxMap.getSelectedItemIndex();
-	return playerSortedMaps[i].at(mapIndex);
+	if(playerSortedMaps[i].empty() == false) {
+		return playerSortedMaps[i].at(mapIndex);
+	}
+	return "";
 }
 
 void MenuStateCustomGame::setActiveInputLabel(GraphicLabel *newLable) {
@@ -4582,7 +4603,8 @@ int MenuStateCustomGame::setupTechList(string scenario, bool forceLoad) {
 		findDirs(techPaths, results);
 
 		if(results.empty()) {
-			throw megaglest_runtime_error("No tech-trees were found!");
+			//throw megaglest_runtime_error("No tech-trees were found!");
+			printf("No tech-trees were found (custom)!\n");
 		}
 
 		techTreeFiles= results;
@@ -4625,23 +4647,30 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 
 		//printf("#1 techPaths.size() = %d scenarioDir [%s] [%s]\n",techPaths.size(),scenario.c_str(),scenarioDir.c_str());
 
-		for(int idx = 0; idx < techPaths.size(); idx++) {
-			string &techPath = techPaths[idx];
-			endPathWithSlash(techPath);
-			string factionPath = techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/";
-			findDirs(factionPath, results, false, false);
+		if(listBoxTechTree.getItemCount() > 0) {
+			for(int idx = 0; idx < techPaths.size(); idx++) {
+				string &techPath = techPaths[idx];
+				endPathWithSlash(techPath);
+				string factionPath = techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/";
+				findDirs(factionPath, results, false, false);
 
-			//printf("idx = %d factionPath [%s] results.size() = %d\n",idx,factionPath.c_str(),results.size());
+				//printf("idx = %d factionPath [%s] results.size() = %d\n",idx,factionPath.c_str(),results.size());
 
-			if(results.empty() == false) {
-				break;
+				if(results.empty() == false) {
+					break;
+				}
 			}
 		}
 
 		if(results.empty() == true) {
 			//throw megaglest_runtime_error("(2)There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]");
 			showGeneralError=true;
-			generalErrorToShow = "[#2] There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]";
+			if(listBoxTechTree.getItemCount() > 0) {
+				generalErrorToShow = "[#2] There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]";
+			}
+			else {
+				generalErrorToShow = "[#2] There are no factions since there is no tech tree!";
+			}
 		}
 
 		results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
@@ -4655,7 +4684,11 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 		factionFiles= results;
 		for(int i = 0; i < results.size(); ++i) {
 			results[i]= formatString(results[i]);
-			string translatedString=techTree->getTranslatedFactionName(techTreeFiles[listBoxTechTree.getSelectedItemIndex()],factionFiles[i]);
+
+			string translatedString = "";
+			if(listBoxTechTree.getItemCount() > 0) {
+				translatedString = techTree->getTranslatedFactionName(techTreeFiles[listBoxTechTree.getSelectedItemIndex()],factionFiles[i]);
+			}
 			//printf("translatedString=%s  formatString(results[i])=%s \n",translatedString.c_str(),formatString(results[i]).c_str() );
 			if(toLower(translatedString)==toLower(formatString(results[i]))){
 				translatedFactionNames.push_back(formatString(results[i]));
