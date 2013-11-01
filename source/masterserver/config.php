@@ -19,6 +19,9 @@
 	// http://php.net/manual/features.persistent-connections.php
 	define( 'MYSQL_LINK_PERSIST', false );
 
+        // Show games in the games list no older than x hours
+        define( 'MAX_HOURS_OLD_GAMES', 48 );
+
 	// How many recently seen servers to store
 	define( 'MAX_RECENT_SERVERS', 5 );
 

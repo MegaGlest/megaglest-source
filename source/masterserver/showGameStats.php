@@ -103,11 +103,27 @@
 	                echo '			</tr>' . PHP_EOL;
 
                         $best_score = 0;
+                        $best_score_enemyKillCount = 0;
+                        $best_score_unitsProducedCount = 0;
+                        $best_score_resourceHarvestedCount = 0;
 	                foreach( $all_player_stats as $player_stats )
 	                {
+                                if($best_score_enemyKillCount < $player_stats['enemyKillCount'])
+                                {
+                                        $best_score_enemyKillCount = $player_stats['enemyKillCount'];
+                                }
+                                if($best_score_unitsProducedCount < $player_stats['unitsProducedCount'])
+                                {
+                                        $best_score_unitsProducedCount = $player_stats['unitsProducedCount'];
+                                }
+                                if($best_score_resourceHarvestedCount < $player_stats['resourceHarvestedCount'])
+                                {
+                                        $best_score_resourceHarvestedCount = $player_stats['resourceHarvestedCount'];
+                                }
+
                                 $player_score = $player_stats['enemyKillCount'] * 100 + $player_stats['unitsProducedCount'] * 50 + $player_stats['resourceHarvestedCount'] / 10;
 
-                                if($best_score < $player_score) 
+                                if($best_score < $player_score)
                                 {
                                         $best_score = $player_score;
                                 }
@@ -176,10 +192,31 @@
 
                                 printf( "\t\t\t\t<td class='%s'>%s</td>%s", $wonGame_class, htmlspecialchars( $player_stats['wonGame'],        ENT_QUOTES ), PHP_EOL );
                                 printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $player_stats['killCount'],        ENT_QUOTES ), PHP_EOL );
-                                printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $player_stats['enemyKillCount'],        ENT_QUOTES ), PHP_EOL );
+
+                                $player_score_class = "player_losing_score";
+                                if($best_score_enemyKillCount == $player_stats['enemyKillCount'])
+                                {
+                                        $player_score_class = "player_high_score";
+                                }
+
+                                printf( "\t\t\t\t<td class='%s'>%s</td>%s", $player_score_class, htmlspecialchars( $player_stats['enemyKillCount'],        ENT_QUOTES ), PHP_EOL );
                                 printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $player_stats['deathCount'],        ENT_QUOTES ), PHP_EOL );
-                                printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $player_stats['unitsProducedCount'],        ENT_QUOTES ), PHP_EOL );
-                                printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $player_stats['resourceHarvestedCount'],        ENT_QUOTES ), PHP_EOL );
+
+                                $player_score_class = "player_losing_score";
+                                if($best_score_unitsProducedCount == $player_stats['unitsProducedCount'])
+                                {
+                                        $player_score_class = "player_high_score";
+                                }
+
+                                printf( "\t\t\t\t<td class='%s'>%s</td>%s", $player_score_class, htmlspecialchars( $player_stats['unitsProducedCount'],        ENT_QUOTES ), PHP_EOL );
+
+                                $player_score_class = "player_losing_score";
+                                if($best_score_resourceHarvestedCount == $player_stats['resourceHarvestedCount'])
+                                {
+                                        $player_score_class = "player_high_score";
+                                }
+
+                                printf( "\t\t\t\t<td class='%s'>%s</td>%s", $player_score_class, htmlspecialchars( $player_stats['resourceHarvestedCount'],        ENT_QUOTES ), PHP_EOL );
                                 printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $player_stats['playerName'],        ENT_QUOTES ), PHP_EOL );
 
                                 $player_score = $player_stats['enemyKillCount'] * 100 + $player_stats['unitsProducedCount'] * 50 + $player_stats['resourceHarvestedCount'] / 10;

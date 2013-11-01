@@ -12,7 +12,7 @@
 	// consider replacing this by a cron job
 	cleanupServerList();
 
-	$servers_in_db = mysql_query( 'SELECT * FROM glestserver WHERE status <> 3 OR (status = 3 AND lasttime > DATE_add(NOW(), INTERVAL -8 hour)) ORDER BY status, lasttime DESC, connectedClients > 0 DESC, (networkSlots - connectedClients), ip DESC;' );
+	$servers_in_db = mysql_query( 'SELECT * FROM glestserver WHERE status <> 3 OR (status = 3 AND lasttime > DATE_add(NOW(), INTERVAL - ' . MAX_HOURS_OLD_GAMES . ' hour)) ORDER BY status, lasttime DESC, connectedClients > 0 DESC, (networkSlots - connectedClients), ip DESC;' );
 	$all_servers = array();
 	while ( $server = mysql_fetch_array( $servers_in_db ) )
 	{
