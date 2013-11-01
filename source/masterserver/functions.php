@@ -55,9 +55,19 @@
 	function cleanupServerList()
 	{
 		// on a busy server, this function should be invoked by cron in regular intervals instead (one SQL query less for the script)
-		return mysql_query( 'DELETE FROM glestserver WHERE status <> 3 AND lasttime < DATE_add(NOW(), INTERVAL -1 minute);' );
+		mysql_query( 'DELETE FROM glestserver WHERE status <> 3 AND lasttime < DATE_add(NOW(), INTERVAL -1 minute);' );
 		//return mysql_query( 'UPDATE glestserver SET status=\'???\' WHERE lasttime<DATE_add(NOW(), INTERVAL -2 minute);' );
-	}
+        }
+
+	function cleanupGameStats()
+	{
+                // Purge completed games that are less than x minutes in duration
+                mysql_query( 'DELETE FROM glestserver WHERE status = 3 AND gameUUID in (SELECT gameUUID from glestgamestats where framesToCalculatePlaytime / 40 / 60 < ' . MAX_MINS_OLD_COMPLETED_GAMES . ';');
+
+                // Cleanup game stats for games that are purged
+                mysql_query( 'DELETE FROM glestgamestats WHERE gameUUID NOT IN (SELECT gameUUID from glestserver);');
+                mysql_query( 'DELETE FROM glestgameplayerstats WHERE gameUUID NOT IN (SELECT gameUUID from glestgamestats);');
+        }
 
 	function addLatestServer($remote_ip, $service_port, $serverTitle, $connectedClients, $networkSlots )
 	{

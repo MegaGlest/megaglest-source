@@ -22,6 +22,9 @@
         // Show games in the games list no older than x hours
         define( 'MAX_HOURS_OLD_GAMES', 48 );
 
+        // Purge Finished Games that are less than X minutes
+        define( 'MAX_MINS_OLD_COMPLETED_GAMES', 5 );
+
 	// How many recently seen servers to store
 	define( 'MAX_RECENT_SERVERS', 5 );
 
