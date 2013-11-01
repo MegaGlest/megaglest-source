@@ -1556,7 +1556,6 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 	if(listBoxTechTree.getItemCount() <= 0) {
 		mainMessageBoxState=1;
 
-		Lang &lang= Lang::getInstance();
 		char szMsg[8096]="";
 		strcpy(szMsg,"Cannot start game.\nThere are no tech-trees!\n");
 		printf("%s",szMsg);
