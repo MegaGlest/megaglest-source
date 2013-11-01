@@ -88,6 +88,7 @@ function timedRequest()
 			var table = "<tr>\n"
 			    + "	<th title=\"glestVersion\">Version</th>\n"
 			    + "	<th title=\"status\">Status</th>\n"
+                            + "	<th title=\"gameDuration\">Game Duration</th>\n"
 			    + "	<th title=\"country\">Country</th>\n"
 			    + "	<th title=\"serverTitle\">Title</th>\n"
 			    + "	<th title=\"tech\">Techtree</th>\n"
@@ -158,6 +159,9 @@ function timedRequest()
                                         {
         					table += "<td title=\"" + jsonText[i].status + "\" class=\"" + statusClass + "\">" + escapeHtml(statusTitle) + "</td>";
                                         }
+
+					/// Game Duration
+					table += "<td>" + escapeHtml(jsonText[i].gameDuration) + "</td>";
 
 					/// Country
 					if(jsonText[i].country !== "")
