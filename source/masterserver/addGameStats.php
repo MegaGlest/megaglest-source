@@ -24,6 +24,27 @@
                 $gameUUID = (string) clean_str( $_GET['gameUUID'] );
                 $whereClause = 'gameUUID=\'' . mysql_real_escape_string( $gameUUID ) . '\'';
 
+                $gameDuration = 0;
+                $framesToCalculatePlaytime = 0;
+                if ( isset( $_GET['framesToCalculatePlaytime'] ) ) {
+                        $framesToCalculatePlaytime = (string) clean_str( $_GET['framesToCalculatePlaytime'] );
+                        $gameDuration = $framesToCalculatePlaytime / 40 / 60;
+                }
+
+                if($gameDuration < MAX_MINS_OLD_COMPLETED_GAMES)
+                {
+	                $game_completed = @mysql_query( 'SELECT COUNT(*) FROM glestserver WHERE ' . $whereClause . ' AND status=3;' );
+                       	$game_completed_status  = @mysql_fetch_row( $game_completed );
+                        if( $game_completed_status > 0 )
+                        {
+                                mysql_query( 'DELETE FROM glestserver WHERE ' . $whereClause . ';');
+                                mysql_query( 'DELETE FROM glestgamestats WHERE ' . $whereClause . ';');
+                                mysql_query( 'DELETE FROM glestgameplayerstats WHERE ' . $whereClause . ';');
+
+                                return;
+                        }
+                }
+
 	        $stats_in_db = @mysql_query( 'SELECT COUNT(*) FROM glestgamestats WHERE ' . $whereClause . ';' );
                	$statsCount  = @mysql_fetch_row( $stats_in_db );
 	        $player_stats_in_db = @mysql_query( 'SELECT COUNT(*) FROM glestgameplayerstats WHERE ' . $whereClause . ';');
@@ -39,10 +60,6 @@
                 $framesPlayed = 0;
                 if ( isset( $_GET['framesPlayed'] ) ) {
                         $framesPlayed = (string) clean_str( $_GET['framesPlayed'] );
-                }
-                $framesToCalculatePlaytime = 0;
-                if ( isset( $_GET['framesToCalculatePlaytime'] ) ) {
-                        $framesToCalculatePlaytime = (string) clean_str( $_GET['framesToCalculatePlaytime'] );
                 }
                 $maxConcurrentUnitCount = 0;
                 if ( isset( $_GET['maxConcurrentUnitCount'] ) ) {
