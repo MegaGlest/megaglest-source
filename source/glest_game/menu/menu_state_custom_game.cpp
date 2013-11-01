@@ -3365,7 +3365,11 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 			gameSettings->setFactionControl(slotIndex, ct);
 			gameSettings->setTeam(slotIndex, listBoxTeams[i].getSelectedItemIndex());
 			gameSettings->setStartLocationIndex(slotIndex, i);
-			gameSettings->setResourceMultiplierIndex(slotIndex, 10);
+			//gameSettings->setResourceMultiplierIndex(slotIndex, 10);
+			listBoxRMultiplier[i].setSelectedItem("1.0");
+			gameSettings->setResourceMultiplierIndex(slotIndex, listBoxRMultiplier[i].getSelectedItemIndex());
+			//printf("Test multiplier = %s\n",listBoxRMultiplier[i].getSelectedItem().c_str());
+
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
 
