@@ -87,6 +87,8 @@
 	                echo '			<tr>' . PHP_EOL;
 	                echo '				<th title="factionIndex">Player #</th>' . PHP_EOL;
 	                echo '				<th title="controlType">Player Type</th>' . PHP_EOL;
+                        echo '				<th title="playerName">Player Name</th>' . PHP_EOL;
+                        echo '				<th title="playerPlatform">Platform</th>' . PHP_EOL;
 	                echo '				<th title="resourceMultiplier">Resource Multiplier</th>' . PHP_EOL;
 	                echo '				<th title="factionTypeName">Faction Type</th>' . PHP_EOL;
                         echo '				<th title="teamIndex">Team</th>' . PHP_EOL;
@@ -96,8 +98,6 @@
                         echo '				<th title="deathCount">Deaths</th>' . PHP_EOL;
                         echo '				<th title="unitsProducedCount">Units Produced</th>' . PHP_EOL;
                         echo '				<th title="resourceHarvestedCount">Resources Harvested</th>' . PHP_EOL;
-                        echo '				<th title="playerName">Player Name</th>' . PHP_EOL;
-                        echo '				<th title="playerPlatform">Platform</th>' . PHP_EOL;
                         echo '				<th title="playerScore">Score</th>' . PHP_EOL;
                         echo '				<th title="quitBeforeGameEnd">Quit Before Game Ended</th>' . PHP_EOL;
                         echo '				<th title="quitTime">Quit Time</th>' . PHP_EOL;
@@ -179,11 +179,12 @@
 					        $controlTypeTitle = 'unknown';
 			        }
 
-                                printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $controlTypeTitle,        ENT_QUOTES ), PHP_EOL );
-
-                                printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $player_stats['resourceMultiplier'],        ENT_QUOTES ), PHP_EOL );
-                                printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $player_stats['factionTypeName'],        ENT_QUOTES ), PHP_EOL );
-                                printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $player_stats['teamIndex']+1,        ENT_QUOTES ), PHP_EOL );
+                                printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $controlTypeTitle,                   ENT_QUOTES ), PHP_EOL );
+                                printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $player_stats['playerName'],         ENT_QUOTES ),     PHP_EOL );
+                                printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $player_stats['platform'],           ENT_QUOTES ),     PHP_EOL );
+                                printf( "\t\t\t\t<td>%s</td>%s", number_format(htmlspecialchars( $player_stats['resourceMultiplier'],  ENT_QUOTES ),2), PHP_EOL );
+                                printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $player_stats['factionTypeName'],    ENT_QUOTES ),     PHP_EOL );
+                                printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $player_stats['teamIndex']+1,        ENT_QUOTES ),     PHP_EOL );
 
                                 $wonGame_class = "player_loser";
                                 if($player_stats['wonGame'])
@@ -218,8 +219,6 @@
                                 }
 
                                 printf( "\t\t\t\t<td class='%s'>%s</td>%s", $player_score_class, htmlspecialchars( $player_stats['resourceHarvestedCount'],        ENT_QUOTES ), PHP_EOL );
-                                printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $player_stats['playerName'],        ENT_QUOTES ), PHP_EOL );
-                                printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $player_stats['platform'],        ENT_QUOTES ), PHP_EOL );
 
                                 $player_score = $player_stats['enemyKillCount'] * 100 + $player_stats['unitsProducedCount'] * 50 + $player_stats['resourceHarvestedCount'] / 10;
                                 $player_score_class = "player_losing_score";
