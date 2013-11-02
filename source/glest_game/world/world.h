@@ -173,7 +173,7 @@ public:
 	inline const Faction *getThisFaction() const			{return factions[thisFactionIndex];}
 	inline Faction *getThisFactionPtr() 					{return factions[thisFactionIndex];}
 
-	inline int getFactionCount() const						{return factions.size();}
+	inline int getFactionCount() const						{return (int)factions.size();}
 	inline const Map *getMap() const 						{return &map;}
 	inline Map *getMapPtr()  								{return &map;}
 

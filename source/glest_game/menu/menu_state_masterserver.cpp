@@ -861,7 +861,7 @@ void MenuStateMasterserver::update() {
 
 	                userButtons.push_back(button);
 	        }
-	        userScrollBar.setElementCount(userButtons.size());
+	        userScrollBar.setElementCount((int)userButtons.size());
 	        oldNickList = nickList;
 	        chatManager.setAutoCompleteTextList(oldNickList);
         }
@@ -878,7 +878,7 @@ void MenuStateMasterserver::update() {
     	serverInfoString="empty";
     }
 
-    serverScrollBar.setElementCount(serverLines.size());
+    serverScrollBar.setElementCount((int)serverLines.size());
 	if(serverScrollBar.getElementCount()!=0 ) {
 		for(int i = serverScrollBar.getVisibleStart(); i <= serverScrollBar.getVisibleEnd(); ++i) {
 			serverLines[i]->setY(serverLinesYBase-serverLinesLineHeight*(i-serverScrollBar.getVisibleStart()));
@@ -1025,7 +1025,7 @@ void MenuStateMasterserver::simpleTask(BaseThread *callingThread) {
 }
 
 void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
-	int numberOfOldServerLines=serverLines.size();
+	int numberOfOldServerLines = (int)serverLines.size();
 	clearServerLines();
     Lang &lang= Lang::getInstance();
     try {

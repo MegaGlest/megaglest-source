@@ -434,7 +434,7 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
 	//start sound
 	const XmlNode *startSoundNode= n->getChild("start-sound");
 	if(startSoundNode->getAttribute("enabled")->getBoolValue()){
-		startSounds.resize(startSoundNode->getChildCount());
+		startSounds.resize((int)startSoundNode->getChildCount());
 		for(int i=0; i<startSoundNode->getChildCount(); ++i){
 			const XmlNode *soundFileNode= startSoundNode->getChild("sound-file", i);
 			string currentPath = dir;
@@ -452,7 +452,7 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
 	//built sound
 	const XmlNode *builtSoundNode= n->getChild("built-sound");
 	if(builtSoundNode->getAttribute("enabled")->getBoolValue()){
-		builtSounds.resize(builtSoundNode->getChildCount());
+		builtSounds.resize((int)builtSoundNode->getChildCount());
 		for(int i=0; i<builtSoundNode->getChildCount(); ++i){
 			const XmlNode *soundFileNode= builtSoundNode->getChild("sound-file", i);
 			string currentPath = dir;

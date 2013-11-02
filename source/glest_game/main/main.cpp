@@ -392,11 +392,17 @@ void write_file_and_line(string & out, HANDLE process, DWORD64 program_counter) 
 }
 void generate_stack_trace(string &out, CONTEXT ctx, int skip) {
   STACKFRAME64 sf = {};
+#if !defined(_WIN64)
   sf.AddrPC.Offset    = ctx.Eip;
+#endif
   sf.AddrPC.Mode      = AddrModeFlat;
+#if !defined(_WIN64)
   sf.AddrStack.Offset = ctx.Esp;
+#endif
   sf.AddrStack.Mode   = AddrModeFlat;
+#if !defined(_WIN64)
   sf.AddrFrame.Offset = ctx.Ebp;
+#endif
   sf.AddrFrame.Mode   = AddrModeFlat;
 
   HANDLE process = GetCurrentProcess();
@@ -416,11 +422,17 @@ void generate_stack_trace(string &out, CONTEXT ctx, int skip) {
 		if(tryThreadContext == true) {
 			tryThreadContext = false;
 			if(GetThreadContext(thread, &threadContext) != 0) {
+#if !defined(_WIN64)
 			  sf.AddrPC.Offset    = threadContext.Eip;
+#endif
 			  sf.AddrPC.Mode      = AddrModeFlat;
+#if !defined(_WIN64)
 			  sf.AddrStack.Offset = threadContext.Esp;
+#endif
 			  sf.AddrStack.Mode   = AddrModeFlat;
+#if !defined(_WIN64)
 			  sf.AddrFrame.Offset = threadContext.Ebp;
+#endif
 			  sf.AddrFrame.Mode   = AddrModeFlat;
 			}
 			else {

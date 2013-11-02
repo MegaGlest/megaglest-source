@@ -217,8 +217,8 @@ Checksum UnitPathBasic::getCRC() {
 	Checksum crcForPath;
 
 	crcForPath.addInt(blockCount);
-	crcForPath.addInt(pathQueue.size());
-	crcForPath.addInt(lastPathCacheQueue.size());
+	crcForPath.addInt((int)pathQueue.size());
+	crcForPath.addInt((int)lastPathCacheQueue.size());
 
 	return crcForPath;
 }
@@ -1579,7 +1579,7 @@ void Unit::replaceCurrCommand(Command *cmd) {
 
 //returns the size of the commands
 unsigned int Unit::getCommandSize() const {
-	return commands.size();
+	return (unsigned int)commands.size();
 }
 
 //return current command, assert that there is always one command
@@ -2292,7 +2292,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 			// Now remove any units that were in the list of boosted units but
 			// are no longer in range
 			if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.empty() == false) {
-				for (int i = currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size() -1; i >= 0; --i) {
+				for (int i = (int)currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size() -1; i >= 0; --i) {
 					int findUnitId = currentAttackBoostOriginatorEffect.currentAttackBoostUnits[i];
 
 					std::vector<int>::iterator iterFound = std::find(
@@ -2576,7 +2576,7 @@ void Unit::updateTimedParticles() {
 	//!!!
 	// Start new particle systems based on start time
 	if(queuedUnitParticleSystemTypes.empty() == false) {
-		for(int i = queuedUnitParticleSystemTypes.size() - 1; i >= 0; i--) {
+		for(int i = (int)queuedUnitParticleSystemTypes.size() - 1; i >= 0; i--) {
 			UnitParticleSystemType *pst = queuedUnitParticleSystemTypes[i];
 			if(pst != NULL) {
 				if(truncateDecimal<float>(pst->getStartTime(),6) <= truncateDecimal<float>(getAnimProgressAsFloat(),6)) {
@@ -2602,7 +2602,7 @@ void Unit::updateTimedParticles() {
 
 	// End existing systems based on end time
 	if(unitParticleSystems.empty() == false) {
-		for(int i = unitParticleSystems.size() - 1; i >= 0; i--) {
+		for(int i = (int)unitParticleSystems.size() - 1; i >= 0; i--) {
 			UnitParticleSystem *ps = unitParticleSystems[i];
 			if(ps != NULL) {
 				if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
@@ -3314,7 +3314,7 @@ void Unit::checkUnitLevel() {
 void Unit::morphAttackBoosts(Unit *unit) {
 	// Remove any units that were previously in range
 	if(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.empty() == false && currentAttackBoostOriginatorEffect.skillType != NULL) {
-		for(int i = currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size() - 1; i >= 0; --i) {
+		for(int i = (int)currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size() - 1; i >= 0; --i) {
 			// Remove attack boost upgrades from unit
 
 			int findUnitId = currentAttackBoostOriginatorEffect.currentAttackBoostUnits[i];
@@ -3361,7 +3361,7 @@ bool Unit::morph(const MorphCommandType *mct) {
 
 		//printf("Now unapply attack-boost for unit [%d - %s]\n",this->getId(),this->getType()->getName().c_str());
 		// De apply attack boosts for morphed unit
-		for(int i = currentAttackBoostEffects.size() - 1; i >= 0; --i) {
+		for(int i = (int)currentAttackBoostEffects.size() - 1; i >= 0; --i) {
 			UnitAttackBoostEffect *effect = currentAttackBoostEffects[i];
 			if(effect != NULL) {
 				Unit *sourceUnit = game->getWorld()->findUnitById(effect->source->getId());
@@ -3719,7 +3719,7 @@ void Unit::stopDamageParticles(bool force) {
 		if(smokeParticleSystems.empty() == false) {
 			//printf("Checking to stop smokeparticles for unit [%s - %d] hp = %d\n",this->getType()->getName().c_str(),this->getId(),hp);
 
-			for(int i = smokeParticleSystems.size()-1; i >= 0; --i) {
+			for(int i = (int)smokeParticleSystems.size()-1; i >= 0; --i) {
 				UnitParticleSystem *ps = smokeParticleSystems[i];
 				if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
 					ps->fade();
@@ -3731,7 +3731,7 @@ void Unit::stopDamageParticles(bool force) {
 		if(damageParticleSystems.empty() == false) {
 			//printf("Checking to stop damageparticles for unit [%s - %d] hp = %d\n",this->getType()->getName().c_str(),this->getId(),hp);
 
-			for(int i = damageParticleSystems.size()-1; i >= 0; --i) {
+			for(int i = (int)damageParticleSystems.size()-1; i >= 0; --i) {
 				UnitParticleSystem *ps = damageParticleSystems[i];
 				UnitParticleSystemType *pst = NULL;
 				int foundParticleIndexType = -2;
@@ -3764,7 +3764,7 @@ void Unit::stopDamageParticles(bool force) {
 void Unit::checkCustomizedParticleTriggers(bool force) {
 	// Now check if we have special hp triggered particles
 	if(damageParticleSystems.empty() == false) {
-		for(int i = damageParticleSystems.size()-1; i >= 0; --i) {
+		for(int i = (int)damageParticleSystems.size()-1; i >= 0; --i) {
 			UnitParticleSystem *ps = damageParticleSystems[i];
 			UnitParticleSystemType *pst = NULL;
 			int foundParticleIndexType = -2;
@@ -5255,7 +5255,7 @@ Checksum Unit::getCRC() {
 	//vector<UnitParticleSystemType*> queuedUnitParticleSystemTypes;
 
 	//UnitParticleSystems damageParticleSystems;
-	crcForUnit.addInt(damageParticleSystems.size());
+	crcForUnit.addInt((int)damageParticleSystems.size());
 
 	if(consoleDebug) printf("#12 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
 
@@ -5283,7 +5283,7 @@ Checksum Unit::getCRC() {
 
 	crcForUnit.addInt(inBailOutAttempt);
 
-	crcForUnit.addInt(badHarvestPosList.size());
+	crcForUnit.addInt((int)badHarvestPosList.size());
 	//crcForUnit.addInt(lastHarvestResourceTarget.first());
 
 	if(consoleDebug) printf("#14 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
@@ -5303,7 +5303,7 @@ Checksum Unit::getCRC() {
 	//int maxQueuedCommandDisplayCount;
 
 	//UnitAttackBoostEffectOriginator currentAttackBoostOriginatorEffect;
-	crcForUnit.addInt(currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size());
+	crcForUnit.addInt((int)currentAttackBoostOriginatorEffect.currentAttackBoostUnits.size());
 
 	if(consoleDebug) printf("#15 Unit: %d CRC: %u\n",id,crcForUnit.getSum());
 
@@ -5341,7 +5341,7 @@ Checksum Unit::getCRC() {
 		crcForUnit.addString(this->getParticleInfo());
 	}
 
-	crcForUnit.addInt(attackParticleSystems.size());
+	crcForUnit.addInt((int)attackParticleSystems.size());
 	if(isNetworkCRCEnabled() == true) {
 		for(unsigned int index = 0; index < attackParticleSystems.size(); ++index) {
 			ParticleSystem *ps = attackParticleSystems[index];

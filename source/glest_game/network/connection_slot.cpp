@@ -126,7 +126,7 @@ void ConnectionSlotThread::setAllEventsCompleted() {
 void ConnectionSlotThread::purgeCompletedEvents() {
     MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
     //event->eventCompleted = true;
-    for(int i = eventList.size() - 1; i >= 0; i--) {
+    for(int i = (int)eventList.size() - 1; i >= 0; i--) {
         ConnectionSlotEvent &slotEvent = eventList[i];
         if(slotEvent.eventCompleted == true) {
             eventList.erase(eventList.begin() + i);
@@ -341,7 +341,7 @@ void ConnectionSlotThread::execute() {
 					}
 
 					MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
-					int eventCount = eventList.size();
+					int eventCount = (int)eventList.size();
 
 					//printf("Slot thread slotIndex: %d eventCount: %d\n",slotIndex,eventCount);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Slot thread slotIndex: %d eventCount: %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,eventCount);
@@ -1246,7 +1246,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 											//for(int i = 0; i < vctFileList.size(); i++)
 											//{
-											NetworkMessageSynchNetworkGameDataFileCRCCheck networkMessageSynchNetworkGameDataFileCRCCheck(vctFileList.size(), 1, vctFileList[0].second, vctFileList[0].first);
+											NetworkMessageSynchNetworkGameDataFileCRCCheck networkMessageSynchNetworkGameDataFileCRCCheck((int)vctFileList.size(), 1, vctFileList[0].second, vctFileList[0].first);
 											sendMessage(&networkMessageSynchNetworkGameDataFileCRCCheck);
 											//}
 										}
@@ -1290,7 +1290,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								if(receiveMessage(&networkMessageSynchNetworkGameDataFileCRCCheck))
 								{
 									int fileIndex = networkMessageSynchNetworkGameDataFileCRCCheck.getFileIndex();
-									NetworkMessageSynchNetworkGameDataFileCRCCheck networkMessageSynchNetworkGameDataFileCRCCheck(vctFileList.size(), fileIndex, vctFileList[fileIndex-1].second, vctFileList[fileIndex-1].first);
+									NetworkMessageSynchNetworkGameDataFileCRCCheck networkMessageSynchNetworkGameDataFileCRCCheck((int)vctFileList.size(), fileIndex, vctFileList[fileIndex-1].second, vctFileList[fileIndex-1].first);
 									sendMessage(&networkMessageSynchNetworkGameDataFileCRCCheck);
 								}
 								else {

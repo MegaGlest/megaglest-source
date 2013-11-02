@@ -578,7 +578,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 		//selection sounds
 		const XmlNode *selectionSoundNode= parametersNode->getChild("selection-sounds");
 		if(selectionSoundNode->getAttribute("enabled")->getBoolValue()){
-			selectionSounds.resize(selectionSoundNode->getChildCount());
+			selectionSounds.resize((int)selectionSoundNode->getChildCount());
 			for(int i = 0; i < selectionSounds.getSounds().size(); ++i) {
 				const XmlNode *soundNode= selectionSoundNode->getChild("sound", i);
 				string path= soundNode->getAttribute("path")->getRestrictedValue(currentPath);
@@ -592,7 +592,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 		//command sounds
 		const XmlNode *commandSoundNode= parametersNode->getChild("command-sounds");
 		if(commandSoundNode->getAttribute("enabled")->getBoolValue()) {
-			commandSounds.resize(commandSoundNode->getChildCount());
+			commandSounds.resize((int)commandSoundNode->getChildCount());
 			for(int i = 0; i < commandSoundNode->getChildCount(); ++i) {
 				const XmlNode *soundNode= commandSoundNode->getChild("sound", i);
 				string path= soundNode->getAttribute("path")->getRestrictedValue(currentPath);

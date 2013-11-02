@@ -286,7 +286,7 @@ public:
 		return result;
 	}
 	inline int getUnitCount() const {
-		int result = units.size();
+		int result = (int)units.size();
 		return result;
 	}
 	inline Mutex * getUnitMutex() {return unitsMutex;}
@@ -340,7 +340,7 @@ public:
 	Vec2i getClosestResourceTypeTargetFromCache(Unit *unit, const ResourceType *type,int frameIndex);
 	Vec2i getClosestResourceTypeTargetFromCache(const Vec2i &pos, const ResourceType *type);
 	void cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr,int frameIndex);
-	inline int getCacheResourceTargetListSize() const { return cacheResourceTargetList.size(); }
+	inline int getCacheResourceTargetListSize() const { return (int)cacheResourceTargetList.size(); }
 
 	Unit * findClosestUnitWithSkillClass(const Vec2i &pos,const CommandClass &cmdClass,
 										const std::vector<SkillClass> &skillClassList,

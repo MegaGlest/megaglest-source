@@ -67,7 +67,7 @@ public:
 			string parentLoader="");
 
 	inline TilesetModelType *getTilesetModelType(int i)			{return modeltypes[i];}
-	inline int getModelCount() const		{return modeltypes.size();}
+	inline int getModelCount() const		{return (int)modeltypes.size();}
 	inline const Vec3f &getColor() const	{return color;}
 	inline int getClass() const			{return objectClass;}
 	inline bool getWalkable() const		{return walkable;}

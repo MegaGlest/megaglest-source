@@ -81,7 +81,7 @@ public:
 	bool isCommandable() const;
 	bool isCancelable() const;
 	bool isMeetable() const;
-	int getCount() const				{return selectedUnits.size();}
+	int getCount() const				{return (int)selectedUnits.size();}
 	const Unit *getUnit(int i) const	{return selectedUnits[i];}
 	Unit *getUnitPtr(int i) 			{return selectedUnits[i];}
 	const Unit *getFrontUnit() const	{return selectedUnits.front();}

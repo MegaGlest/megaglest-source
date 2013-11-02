@@ -517,7 +517,7 @@ bool Commander::hasReplayCommandListForFrame() const {
 }
 
 int Commander::getReplayCommandListForFrameCount() const {
-	return replayCommandList.size();
+	return (int)replayCommandList.size();
 }
 
 void Commander::updateNetwork(Game *game) {

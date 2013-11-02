@@ -178,7 +178,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 				string currentAutoCompleteName = "";
 
 				int startPos = -1;
-				for(int i = text.size()-1; i >= 0; --i) {
+				for(int i = (int)text.size()-1; i >= 0; --i) {
 					if(text[i] != ' ') {
 						startPos = i;
 					}
@@ -292,7 +292,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 
 				if(autoCompleteResult != "") {
 					if(replaceCurrentAutoCompleteName >= 0) {
-						deleteText(currentAutoCompleteName.length(), false);
+						deleteText((int)currentAutoCompleteName.length(), false);
 
 						autoCompleteResult = autoCompleteName + autoCompleteResult;
 
@@ -355,8 +355,8 @@ void ChatManager::deleteText(int deleteCount,bool addToAutoCompleteBuffer) {
 			if(textCharLength.empty() == false) {
 				//printf("BEFORE DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
 
-				if(textCharLength[textCharLength.size()-1] > text.length()) {
-					textCharLength[textCharLength.size()-1] = text.length();
+				if(textCharLength[textCharLength.size()-1] > (int)text.length()) {
+					textCharLength[(int)textCharLength.size()-1] = (int)text.length();
 				}
 				for(unsigned int i = 0; i < textCharLength[textCharLength.size()-1]; ++i) {
 					text.erase(text.end() -1);
@@ -411,7 +411,7 @@ void ChatManager::appendText(const wchar_t *addText, bool validateChars, bool ad
 void ChatManager::updateAutoCompleteBuffer() {
 	if(text.empty() == false) {
 		int startPos = -1;
-		for(int i = text.size()-1; i >= 0; --i) {
+		for(int i = (int)text.size()-1; i >= 0; --i) {
 			if(text[i] != ' ') {
 				startPos = i;
 			}

@@ -77,8 +77,8 @@ protected:
 
 public:
 	//get
-	int getUpgradeReqCount() const						{return upgradeReqs.size();}
-	int getUnitReqCount() const							{return unitReqs.size();}
+	int getUpgradeReqCount() const						{return (int)upgradeReqs.size();}
+	int getUnitReqCount() const							{return (int)unitReqs.size();}
 	const UpgradeType *getUpgradeReq(int i) const		{return upgradeReqs[i];}
 	const UnitType *getUnitReq(int i) const				{return unitReqs[i];}
     
@@ -109,7 +109,7 @@ public:
 	virtual ~ProducibleType();
 
     //get
-	int getCostCount() const						{return costs.size();}
+	int getCostCount() const						{return (int)costs.size();}
 	const Resource *getCost(int i) const			{return &costs[i];}
 	const Resource *getCost(const ResourceType *rt) const;
 	int getProductionTime() const					{return productionTime;}

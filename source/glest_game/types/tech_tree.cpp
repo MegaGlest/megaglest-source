@@ -282,7 +282,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		}
 
 		//damage multipliers
-		damageMultiplierTable.init(attackTypes.size(), armorTypes.size());
+		damageMultiplierTable.init((int)attackTypes.size(), (int)armorTypes.size());
 		const XmlNode *damageMultipliersNode= techTreeNode->getChild("damage-multipliers");
 		for(int i = 0; i < damageMultipliersNode->getChildCount(); ++i) {
 			const XmlNode *damageMultiplierNode= damageMultipliersNode->getChild("damage-multiplier", i);
@@ -391,7 +391,7 @@ std::vector<std::string> TechTree::validateResourceTypes() {
 
 		// Check if the faction uses the resources in this techtree
 		// Now lets find a matching faction resource type for the unit
-		for(int j = resourceTypesNotUsed.size() -1; j >= 0; --j) {
+		for(int j = (int)resourceTypesNotUsed.size() -1; j >= 0; --j) {
 			const ResourceType &rt = resourceTypesNotUsed[j];
 			//printf("Validating [%d / %d] resourcetype [%s]\n",j,(int)resourceTypesNotUsed.size(),rt.getName().c_str());
 

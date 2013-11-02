@@ -247,7 +247,7 @@ public:
 	GraphicListBox(std::string containerName="", std::string objName="");
     void init(int x, int y, int w=defW, int h=defH, Vec3f textColor=GraphicComponent::customTextColor);
     
-	int getItemCount() const				{return items.size();}
+	int getItemCount() const				{return (int)items.size();}
 	string getItem(int index) const			{return items[index];}
 	int getSelectedItemIndex() const		{return selectedItemIndex;}
 	string getSelectedItem() const			{return items[selectedItemIndex];}
@@ -305,7 +305,7 @@ public:
 	bool getAutoWordWrap() const { return autoWordWrap; }
 	void setAutoWordWrap(bool value) { autoWordWrap = value; }
 
-	int getButtonCount() const				{return buttons.size();}
+	int getButtonCount() const				{return (int)buttons.size();}
 	GraphicButton *getButton(int index) 	{return buttons[index];}
 	string getHeader() const				{return header;}
 

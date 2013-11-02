@@ -630,7 +630,7 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 			button->setCustomTexture(CoreData::getInstance().getCustomTexture());
 			keyTechButtons.push_back(button);
 
-			int techFactionCount = factions.size();
+			int techFactionCount = (int)factions.size();
 			GraphicLabel *label=new GraphicLabel();
 			label->init(techInfoXPos + keyButtonsWidth+10,keyButtonsYBase,labelWidth,20);
 			label->setText(intToStr(techFactionCount));
@@ -785,25 +785,25 @@ void MenuStateMods::simpleTask(BaseThread *callingThread) {
 
 	keyTilesetScrollBar.init(tilesetInfoXPos + keyButtonsWidth,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyTilesetScrollBar.setLength(listBoxLength);
-	keyTilesetScrollBar.setElementCount(keyTilesetButtons.size());
+	keyTilesetScrollBar.setElementCount((int)keyTilesetButtons.size());
 	keyTilesetScrollBar.setVisibleSize(keyButtonsToRender);
 	keyTilesetScrollBar.setVisibleStart(0);
 
 	keyTechScrollBar.init(techInfoXPos + keyButtonsWidth + labelWidth + 20,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyTechScrollBar.setLength(listBoxLength);
-	keyTechScrollBar.setElementCount(keyTechButtons.size());
+	keyTechScrollBar.setElementCount((int)keyTechButtons.size());
 	keyTechScrollBar.setVisibleSize(keyButtonsToRender);
 	keyTechScrollBar.setVisibleStart(0);
 
 	keyMapScrollBar.init(mapInfoXPos + keyButtonsWidth + labelWidth + 20,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyMapScrollBar.setLength(listBoxLength);
-	keyMapScrollBar.setElementCount(keyMapButtons.size());
+	keyMapScrollBar.setElementCount((int)keyMapButtons.size());
 	keyMapScrollBar.setVisibleSize(keyButtonsToRender);
 	keyMapScrollBar.setVisibleStart(0);
 
 	keyScenarioScrollBar.init(scenarioInfoXPos + keyButtonsWidth,scrollListsYPos-listBoxLength+keyButtonsLineHeight,false,200,20);
 	keyScenarioScrollBar.setLength(listBoxLength);
-	keyScenarioScrollBar.setElementCount(keyScenarioButtons.size());
+	keyScenarioScrollBar.setElementCount((int)keyScenarioButtons.size());
 	keyScenarioScrollBar.setVisibleSize(keyButtonsToRender);
 	keyScenarioScrollBar.setVisibleStart(0);
 
@@ -1296,7 +1296,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 									delete button;
 									keyMapButtons.erase(keyMapButtons.begin() + i);
 									labelsMap.erase(labelsMap.begin() + i);
-									keyMapScrollBar.setElementCount(keyMapButtons.size());
+									keyMapScrollBar.setElementCount((int)keyMapButtons.size());
 									break;
 								}
 							}
@@ -1345,7 +1345,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 								if(button != NULL && button->getText() == selectedTilesetName) {
 									delete button;
 									keyTilesetButtons.erase(keyTilesetButtons.begin() + i);
-									keyTilesetScrollBar.setElementCount(keyTilesetButtons.size());
+									keyTilesetScrollBar.setElementCount((int)keyTilesetButtons.size());
 									break;
 								}
 							}
@@ -1403,7 +1403,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 									delete button;
 									keyTechButtons.erase(keyTechButtons.begin() + i);
 									labelsTech.erase(labelsTech.begin() + i);
-									keyTechScrollBar.setElementCount(keyTechButtons.size());
+									keyTechScrollBar.setElementCount((int)keyTechButtons.size());
 									break;
 								}
 							}
@@ -1462,7 +1462,7 @@ void MenuStateMods::mouseClick(int x, int y, MouseButton mouseButton) {
 								if(button != NULL && button->getText() == selectedScenarioName) {
 									delete button;
 									keyScenarioButtons.erase(keyScenarioButtons.begin() + i);
-									keyScenarioScrollBar.setElementCount(keyScenarioButtons.size());
+									keyScenarioScrollBar.setElementCount((int)keyScenarioButtons.size());
 									break;
 								}
 							}

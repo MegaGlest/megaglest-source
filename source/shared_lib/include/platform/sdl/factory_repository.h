@@ -22,7 +22,7 @@
 #ifdef WIN32
 
 #include "graphics_factory_gl2.h"
-#include "sound_factory_ds8.h"
+//#include "sound_factory_ds8.h"
 
 #endif
 
@@ -39,7 +39,7 @@ using Shared::Graphics::Gl::GraphicsFactoryGl;
 #ifdef WIN32
 
 using Shared::Graphics::Gl::GraphicsFactoryGl2;
-using Shared::Sound::Ds8::SoundFactoryDs8;
+//using Shared::Sound::Ds8::SoundFactoryDs8;
 
 #endif
 
@@ -64,7 +64,7 @@ private:
 #ifdef WIN32
 
 	GraphicsFactoryGl2 graphicsFactoryGl2;
-	SoundFactoryDs8 soundFactoryDs8;
+	//SoundFactoryDs8 soundFactoryDs8;
 
 #endif
 

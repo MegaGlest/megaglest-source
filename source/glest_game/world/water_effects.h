@@ -73,7 +73,7 @@ public:
 	float getAmin() const	{return anim;}
 
 	void addWaterSplash(const Vec2f &pos, int size);
-	int getWaterSplashCount() const					{return waterSplashes.size();}
+	int getWaterSplashCount() const					{return (int)waterSplashes.size();}
 	const WaterSplash *getWaterSplash(int i) const	{return &waterSplashes[i];}
 };
 

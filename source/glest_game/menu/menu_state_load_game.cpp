@@ -119,7 +119,7 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
     slotsScrollBar.setVisibleStart(0);
 
     listFiles();
-    slotsScrollBar.setElementCount(filenames.size());
+    slotsScrollBar.setElementCount((int)filenames.size());
 
     mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
 	mainMessageBox.init(lang.getString("Ok"),450);
@@ -167,7 +167,7 @@ void MenuStateLoadGame::listFiles() {
     findAll(paths, "*.xml", filenames, true, false, true);
     sort(filenames.begin(),filenames.end());
     //printf("filenames = %d\n",filenames.size());
-    for(int i = filenames.size()-1; i > -1; i--) {
+    for(int i = (int)filenames.size()-1; i > -1; i--) {
     	GraphicButton *button=new GraphicButton();
     	button->init( keyButtonsXBase, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
     	button->setText(filenames[i]);
@@ -237,7 +237,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 						previewTexture=NULL;
 						infoTextLabel.setText("");
 						listFiles();
-						slotsScrollBar.setElementCount(filenames.size());
+						slotsScrollBar.setElementCount((int)filenames.size());
 
 						selectedButton = NULL;
 					}

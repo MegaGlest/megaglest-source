@@ -2695,8 +2695,8 @@ string World::getExploredCellsLookupItemCacheStats() {
 			iterMap2 != iterMap1->second.end(); ++iterMap2) {
 			sightCount++;
 
-			exploredCellCount += iterMap2->second.exploredCellList.size();
-			visibleCellCount += iterMap2->second.visibleCellList.size();
+			exploredCellCount += (int)iterMap2->second.exploredCellList.size();
+			visibleCellCount += (int)iterMap2->second.visibleCellList.size();
 		}
 	}
 
@@ -2724,8 +2724,8 @@ string World::getFowAlphaCellsLookupItemCacheStats() {
 				const Unit *unit= faction->getUnit(j);
 				const FowAlphaCellsLookupItem &cache = unit->getCachedFow();
 
-				surfPosCount += cache.surfPosList.size();
-				alphaListCount += cache.alphaList.size();
+				surfPosCount += (int)cache.surfPosList.size();
+				alphaListCount += (int)cache.alphaList.size();
 			}
 		}
 	}

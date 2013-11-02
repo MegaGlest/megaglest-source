@@ -70,8 +70,8 @@ public:
     Checksum * getChecksumValue() { return &checksumValue; }
 
     //get
-	int getResourceTypeCount() const							{return resourceTypes.size();}
-	int getTypeCount() const									{return factionTypes.size();}
+	int getResourceTypeCount() const							{return (int)resourceTypes.size();}
+	int getTypeCount() const									{return (int)factionTypes.size();}
 	const FactionType *getType(int i) const						{return &factionTypes[i];}
 	const ResourceType *getResourceType(int i) const			{return &resourceTypes[i];}
 	string getName(bool translatedValue=false);
@@ -94,9 +94,9 @@ public:
     const ArmorType *getArmorType(const string &name) const;
 	const AttackType *getAttackType(const string &name) const;
 
-    int getArmorTypeCount() const { return armorTypes.size(); }
+    int getArmorTypeCount() const { return (int)armorTypes.size(); }
     const ArmorType * getArmorTypeByIndex(int index) const { return &armorTypes[index]; }
-	int getAttackTypeCount() const { return attackTypes.size(); }
+	int getAttackTypeCount() const { return (int)attackTypes.size(); }
 	const AttackType * getAttackTypeByIndex(int index) const { return &attackTypes[index]; }
 
 	double getDamageMultiplier(const AttackType *att, const ArmorType *art) const;

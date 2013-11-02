@@ -186,9 +186,9 @@ public:
 	const CommandType *getCommandType(int i) const;
 	inline const Level *getLevel(int i) const					{return &levels[i];}
 	const Level *getLevel(string name) const;
-	inline int getSkillTypeCount() const						{return skillTypes.size();}
-	inline int getCommandTypeCount() const						{return commandTypes.size();}
-	inline int getLevelCount() const							{return levels.size();}
+	inline int getSkillTypeCount() const						{return (int)skillTypes.size();}
+	inline int getCommandTypeCount() const						{return (int)commandTypes.size();}
+	inline int getLevelCount() const							{return (int)levels.size();}
 	inline bool getLight() const								{return light;}
 	inline bool getRotationAllowed() const						{return rotationAllowed;}
 	inline Vec3f getLightColor() const							{return lightColor;}
@@ -196,7 +196,7 @@ public:
 	inline int getSight() const								{return sight;}
 	inline int getSize() const									{return size;}
 	int getHeight() const								{return height;}
-	int getStoredResourceCount() const					{return storedResources.size();}
+	int getStoredResourceCount() const					{return (int)storedResources.size();}
 	inline const Resource *getStoredResource(int i) const		{return &storedResources[i];}
 	bool getCellMapCell(int x, int y, CardinalDir facing) const;
 	inline bool getMeetingPoint() const						{return meetingPoint;}

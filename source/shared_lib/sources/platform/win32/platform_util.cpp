@@ -199,9 +199,13 @@ string PlatformExceptionHandler::getStackTrace() {
     HANDLE hThread = GetCurrentThread();
     if (GetThreadContext(hThread, &context)) {
         STACKFRAME stackframe = { 0 };
+#if !defined(_WIN64)
         stackframe.AddrPC.Offset = context.Eip;
+#endif
         stackframe.AddrPC.Mode = AddrModeFlat;
+#if !defined(_WIN64)
         stackframe.AddrFrame.Offset = context.Ebp;
+#endif
         stackframe.AddrFrame.Mode = AddrModeFlat;
 
 		SymInitialize(hProcess, NULL, TRUE);
@@ -218,10 +222,14 @@ string PlatformExceptionHandler::getStackTrace() {
                                  NULL,
                                  NULL,
                                  NULL);
-
+#if !defined(_WIN64)
             DWORD dwDisplacement = 0;
+#else
+			DWORD64 dwDisplacement = 0;
+#endif
+			DWORD dwDisplacement2 = 0;
             SymGetSymFromAddr(hProcess, stackframe.AddrPC.Offset, &dwDisplacement, pSym);
-            SymGetLineFromAddr(hProcess, stackframe.AddrPC.Offset, &dwDisplacement, &line);
+            SymGetLineFromAddr(hProcess, stackframe.AddrPC.Offset, &dwDisplacement2, &line);
             SymGetModuleInfo(hProcess, stackframe.AddrPC.Offset, &module);
 
 			// RetAddr Arg1 Arg2 Arg3 module!funtion FileName(line)+offset
@@ -385,7 +393,9 @@ void init_win32() {
 #ifndef __MINGW32__
 	LONG iconPtr = (LONG)icon;
 
+#if !defined(_WIN64)
 	::SetClassLong(hwnd, GCL_HICON, iconPtr);
+#endif
 #endif
 
 	ontop_win32(0, 0);
