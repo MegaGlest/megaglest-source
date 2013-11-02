@@ -3281,6 +3281,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 				gameSettings->setThisFactionIndex(slotIndex);
 				gameSettings->setNetworkPlayerName(slotIndex, getHumanPlayerName(i));
 				gameSettings->setNetworkPlayerUUID(slotIndex,Config::getInstance().getString("PlayerId",""));
+				gameSettings->setNetworkPlayerPlatform(slotIndex,getPlatformNameString());
 				gameSettings->setNetworkPlayerStatuses(slotIndex, getNetworkPlayerStatus());
 				Lang &lang= Lang::getInstance();
 				gameSettings->setNetworkPlayerLanguages(slotIndex, lang.getLanguage());
@@ -3340,6 +3341,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 					gameSettings->setNetworkPlayerName(slotIndex, serverInterface->getSlot(i)->getName());
 					gameSettings->setNetworkPlayerUUID(i,serverInterface->getSlot(i)->getUUID());
+					gameSettings->setNetworkPlayerPlatform(i,serverInterface->getSlot(i)->getPlatform());
 					labelPlayerNames[i].setText(serverInterface->getSlot(i)->getName());
 				}
 				else {
@@ -3362,6 +3364,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 			}
 			if(serverInterface != NULL && serverInterface->getSlot(i) != NULL) {
 				gameSettings->setNetworkPlayerUUID(slotIndex,serverInterface->getSlot(i)->getUUID());
+				gameSettings->setNetworkPlayerPlatform(slotIndex,serverInterface->getSlot(i)->getPlatform());
 			}
 
 			factionCount++;
@@ -3394,6 +3397,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
 			gameSettings->setNetworkPlayerName(slotIndex, "Closed");
 			gameSettings->setNetworkPlayerUUID(slotIndex,"");
+			gameSettings->setNetworkPlayerPlatform(slotIndex,"");
 
 			closedCount++;
 		}

@@ -496,6 +496,7 @@ void Scenario::loadGameSettings(const vector<string> &dirList,
 					gameSettings->setNetworkPlayerName(i,Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()));
 				}
 				gameSettings->setNetworkPlayerUUID(i,Config::getInstance().getString("PlayerId",""));
+				gameSettings->setNetworkPlayerPlatform(i,getPlatformNameString());
 			}
 			else {
 				if(gameSettings->getNetworkPlayerName(i) == "") {

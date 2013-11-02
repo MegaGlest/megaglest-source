@@ -120,7 +120,8 @@ NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionSt
 										uint32 externalIp,
 										uint32 ftpPort,
 										const string &playerLanguage,
-										int gameInProgress, const string &playerUUID) {
+										int gameInProgress, const string &playerUUID,
+										const string &platform) {
 	data.messageType	= nmtIntro;
 	data.sessionId		= sessionId;
 	data.versionString	= versionString;
@@ -132,10 +133,11 @@ NetworkMessageIntro::NetworkMessageIntro(int32 sessionId,const string &versionSt
 	data.language		= playerLanguage;
 	data.gameInProgress = gameInProgress;
 	data.playerUUID		= playerUUID;
+	data.platform		= platform;
 }
 
 const char * NetworkMessageIntro::getPackedMessageFormat() const {
-	return "cl128s32shcLL60sc60s";
+	return "cl128s32shcLL60sc60s60s";
 }
 
 unsigned int NetworkMessageIntro::getPackedSize() {
@@ -154,7 +156,8 @@ unsigned int NetworkMessageIntro::getPackedSize() {
 				packedData.ftpPort,
 				packedData.language.getBuffer(),
 				data.gameInProgress,
-				packedData.playerUUID.getBuffer());
+				packedData.playerUUID.getBuffer(),
+				packedData.platform.getBuffer());
 		delete [] buf;
 	}
 	return result;
@@ -172,7 +175,8 @@ void NetworkMessageIntro::unpackMessage(unsigned char *buf) {
 			&data.ftpPort,
 			data.language.getBuffer(),
 			&data.gameInProgress,
-			data.playerUUID.getBuffer());
+			data.playerUUID.getBuffer(),
+			data.platform.getBuffer());
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s] unpacked data:\n%s\n",__FUNCTION__,this->toString().c_str());
 }
 
@@ -191,7 +195,8 @@ unsigned char * NetworkMessageIntro::packMessage() {
 			data.ftpPort,
 			data.language.getBuffer(),
 			data.gameInProgress,
-			data.playerUUID.getBuffer());
+			data.playerUUID.getBuffer(),
+			data.platform.getBuffer());
 	return buf;
 }
 
@@ -207,6 +212,7 @@ string NetworkMessageIntro::toString() const {
 	result += " language = " + data.language.getString();
 	result += " gameInProgress = " + uIntToStr(data.gameInProgress);
 	result += " playerUUID = " + data.playerUUID.getString();
+	result += " platform = " + data.platform.getString();
 
 	return result;
 }
@@ -229,6 +235,7 @@ bool NetworkMessageIntro::receive(Socket* socket) {
 	data.versionString.nullTerminate();
 	data.language.nullTerminate();
 	data.playerUUID.nullTerminate();
+	data.platform.nullTerminate();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] get nmtIntro, data.playerIndex = %d, data.sessionId = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.playerIndex,data.sessionId);
 	return result;
@@ -531,6 +538,7 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
 	for(int i= 0; i < GameConstants::maxPlayers; ++i) {
 		data.factionTypeNames[i]= gameSettings->getFactionTypeName(i);
 		data.networkPlayerNames[i]= gameSettings->getNetworkPlayerName(i);
+		data.networkPlayerPlatform[i]= gameSettings->getNetworkPlayerPlatform(i);
 		data.networkPlayerStatuses[i] = gameSettings->getNetworkPlayerStatuses(i);
 		data.networkPlayerLanguages[i] = gameSettings->getNetworkPlayerLanguages(i);
 		data.factionControls[i]= gameSettings->getFactionControl(i);
@@ -588,6 +596,7 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
 	for(int i= 0; i < GameConstants::maxPlayers; ++i) {
 		gameSettings->setFactionTypeName(i, data.factionTypeNames[i].getString());
 		gameSettings->setNetworkPlayerName(i,data.networkPlayerNames[i].getString());
+		gameSettings->setNetworkPlayerPlatform(i,data.networkPlayerPlatform[i].getString());
 		gameSettings->setNetworkPlayerStatuses(i, data.networkPlayerStatuses[i]);
 		gameSettings->setNetworkPlayerLanguages(i, data.networkPlayerLanguages[i].getString());
 		gameSettings->setFactionControl(i, static_cast<ControlType>(data.factionControls[i]));
@@ -596,6 +605,7 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
 		gameSettings->setStartLocationIndex(i, data.startLocationIndex[i]);
 
 		gameSettings->setNetworkPlayerUUID(i,data.networkPlayerUUID[i].getString());
+		gameSettings->setNetworkPlayerPlatform(i,data.networkPlayerPlatform[i].getString());
 		//printf("Build game settings for index: %d [%s]\n",i,data.networkPlayerUUID[i].getString().c_str());
 	}
 
@@ -624,7 +634,7 @@ vector<pair<string,uint32> > NetworkMessageLaunch::getFactionCRCList() const {
 }
 
 const char * NetworkMessageLaunch::getPackedMessageFormat() const {
-	return "c256s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sllllllll60s60s60s60s60s60s60s60sLLL60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sLLLLLLLLLLLLLLLLLLLLcccccccccccccccccccccccccccccccccccccccccCccLccll256s60s60s60s60s60s60s60s60sc60s";
+	return "c256s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sllllllll60s60s60s60s60s60s60s60sLLL60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60s60sLLLLLLLLLLLLLLLLLLLLcccccccccccccccccccccccccccccccccccccccccCccLccll256s60s60s60s60s60s60s60s60sc60s";
 }
 
 unsigned int NetworkMessageLaunch::getPackedSize() {
@@ -654,6 +664,14 @@ unsigned int NetworkMessageLaunch::getPackedSize() {
 				packedData.networkPlayerNames[5].getBuffer(),
 				packedData.networkPlayerNames[6].getBuffer(),
 				packedData.networkPlayerNames[7].getBuffer(),
+				packedData.networkPlayerPlatform[0].getBuffer(),
+				packedData.networkPlayerPlatform[1].getBuffer(),
+				packedData.networkPlayerPlatform[2].getBuffer(),
+				packedData.networkPlayerPlatform[3].getBuffer(),
+				packedData.networkPlayerPlatform[4].getBuffer(),
+				packedData.networkPlayerPlatform[5].getBuffer(),
+				packedData.networkPlayerPlatform[6].getBuffer(),
+				packedData.networkPlayerPlatform[7].getBuffer(),
 				packedData.networkPlayerStatuses[0],
 				packedData.networkPlayerStatuses[1],
 				packedData.networkPlayerStatuses[2],
@@ -801,6 +819,14 @@ void NetworkMessageLaunch::unpackMessage(unsigned char *buf) {
 			data.networkPlayerNames[5].getBuffer(),
 			data.networkPlayerNames[6].getBuffer(),
 			data.networkPlayerNames[7].getBuffer(),
+			data.networkPlayerPlatform[0].getBuffer(),
+			data.networkPlayerPlatform[1].getBuffer(),
+			data.networkPlayerPlatform[2].getBuffer(),
+			data.networkPlayerPlatform[3].getBuffer(),
+			data.networkPlayerPlatform[4].getBuffer(),
+			data.networkPlayerPlatform[5].getBuffer(),
+			data.networkPlayerPlatform[6].getBuffer(),
+			data.networkPlayerPlatform[7].getBuffer(),
 			&data.networkPlayerStatuses[0],
 			&data.networkPlayerStatuses[1],
 			&data.networkPlayerStatuses[2],
@@ -947,6 +973,14 @@ unsigned char * NetworkMessageLaunch::packMessage() {
 			data.networkPlayerNames[5].getBuffer(),
 			data.networkPlayerNames[6].getBuffer(),
 			data.networkPlayerNames[7].getBuffer(),
+			data.networkPlayerPlatform[0].getBuffer(),
+			data.networkPlayerPlatform[1].getBuffer(),
+			data.networkPlayerPlatform[2].getBuffer(),
+			data.networkPlayerPlatform[3].getBuffer(),
+			data.networkPlayerPlatform[4].getBuffer(),
+			data.networkPlayerPlatform[5].getBuffer(),
+			data.networkPlayerPlatform[6].getBuffer(),
+			data.networkPlayerPlatform[7].getBuffer(),
 			data.networkPlayerStatuses[0],
 			data.networkPlayerStatuses[1],
 			data.networkPlayerStatuses[2],
@@ -1092,6 +1126,7 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 	for(int i= 0; i < GameConstants::maxPlayers; ++i){
 		data.factionTypeNames[i].nullTerminate();
 		data.networkPlayerNames[i].nullTerminate();
+		data.networkPlayerPlatform[i].nullTerminate();
 		data.networkPlayerLanguages[i].nullTerminate();
 
 		data.networkPlayerUUID[i].nullTerminate();

@@ -422,6 +422,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->playerStatus		= npst_None;
 	this->playerLanguage	= "";
 	this->playerUUID		= "";
+	this->platform			= "";
 	this->currentFrameCount = 0;
 	this->currentLagCount	= 0;
 	this->gotLagCountWarning = false;
@@ -639,6 +640,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						this->playerStatus = npst_PickSettings;
 						this->playerLanguage = "";
 						this->playerUUID     = "";
+						this->platform		 = "";
 						this->ready = false;
 						this->vctFileList.clear();
 						this->receivedNetworkGameStatus = false;
@@ -684,7 +686,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								ServerSocket::getFTPServerPort(),
 								"",
 								serverInterface->getGameHasBeenInitiated(),
-								Config::getInstance().getString("PlayerId",""));
+								Config::getInstance().getString("PlayerId",""),
+								getPlatformNameString());
 						sendMessage(&networkMessageIntro);
 
 						if(this->serverInterface->getGameHasBeenInitiated() == true) {
@@ -922,6 +925,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								this->connectedRemoteIPAddress = networkMessageIntro.getExternalIp();
 								this->playerLanguage = networkMessageIntro.getPlayerLanguage();
 								this->playerUUID	  = networkMessageIntro.getPlayerUUID();
+								this->platform		  = networkMessageIntro.getPlayerPlatform();
 
 								//printf("Got uuid from client [%s]\n",this->playerUUID.c_str());
 
@@ -998,6 +1002,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									this->serverInterface->addClientToServerIPAddress(this->getSocket()->getConnectedIPAddress(this->getSocket()->getIpAddress()),this->connectedRemoteIPAddress);
 
 									this->serverInterface->gameSettings.setNetworkPlayerUUID(factionIndex,this->playerUUID);
+									this->serverInterface->gameSettings.setNetworkPlayerPlatform(factionIndex,this->platform);
 
 									if(serverInterface->getGameHasBeenInitiated() == true &&
 									   serverInterface->getAllowInGameConnections() == true) {
@@ -1128,6 +1133,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 											this->serverInterface->gameSettings.setFactionControl(factionIndex,ctNetwork);
 											this->serverInterface->gameSettings.setNetworkPlayerName(factionIndex,this->name);
 											this->serverInterface->gameSettings.setNetworkPlayerUUID(factionIndex,this->playerUUID);
+											this->serverInterface->gameSettings.setNetworkPlayerPlatform(factionIndex,this->platform);
 
 											if(this->serverInterface->gameSettings.getNetworkPlayerStatuses(factionIndex) == npst_Disconnected) {
 												this->serverInterface->gameSettings.setNetworkPlayerStatuses(factionIndex,npst_None);

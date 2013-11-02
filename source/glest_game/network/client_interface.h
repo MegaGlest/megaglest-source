@@ -82,6 +82,7 @@ private:
 	int serverFTPPort;
 
 	string serverUUID;
+	string serverPlatform;
 
 	ClientInterfaceThread *networkCommandListThread;
 

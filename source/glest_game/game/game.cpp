@@ -2326,11 +2326,13 @@ void Game::update() {
 							ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
 							server->gameSettings.setNetworkPlayerName(i,slot->getName());
 							server->gameSettings.setNetworkPlayerUUID(i,slot->getUUID());
+							server->gameSettings.setNetworkPlayerPlatform(i,slot->getPlatform());
 							server->gameSettings.setNetworkPlayerStatuses(i,npst_None);
 
 							this->gameSettings.setFactionControl(i,ctNetwork);
 							this->gameSettings.setNetworkPlayerName(i,server->gameSettings.getNetworkPlayerName(i));
 							this->gameSettings.setNetworkPlayerUUID(i,server->gameSettings.getNetworkPlayerUUID(i));
+							this->gameSettings.setNetworkPlayerPlatform(i,server->gameSettings.getNetworkPlayerPlatform(i));
 							this->gameSettings.setNetworkPlayerStatuses(i,npst_None);
 						}
 					}
@@ -2370,6 +2372,7 @@ void Game::update() {
 						this->gameSettings.setFactionControl(i,ctNetwork);
 						this->gameSettings.setNetworkPlayerName(i,server->gameSettings.getNetworkPlayerName(i));
 						this->gameSettings.setNetworkPlayerUUID(i,server->gameSettings.getNetworkPlayerUUID(i));
+						this->gameSettings.setNetworkPlayerPlatform(i,server->gameSettings.getNetworkPlayerPlatform(i));
 
 						if(this->gameSettings.getNetworkPlayerStatuses(i) == npst_Disconnected) {
 							this->gameSettings.setNetworkPlayerStatuses(i,npst_None);
@@ -2786,6 +2789,9 @@ bool Game::switchSetupForSlots(ServerInterface *& serverInterface,
 						serverInterface->gameSettings.setNetworkPlayerName(oldFactionIndex, "");
 						gameSettings.setNetworkPlayerUUID(oldFactionIndex, "");
 						serverInterface->gameSettings.setNetworkPlayerUUID(oldFactionIndex, "");
+
+						gameSettings.setNetworkPlayerPlatform(oldFactionIndex, "");
+						serverInterface->gameSettings.setNetworkPlayerPlatform(oldFactionIndex, "");
 
 						gameSettings.setFactionControl(newFactionIndex,ctNetwork);
 						serverInterface->gameSettings.setFactionControl(newFactionIndex,ctNetwork);

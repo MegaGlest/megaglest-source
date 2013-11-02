@@ -2855,6 +2855,7 @@ std::map<string,string> ServerInterface::publishToMasterserverStats() {
 			publishToServerInfo["quitBeforeGameEnd_" + intToStr(factionIndex)] 	= intToStr(gameStats->getPlayerLeftBeforeEnd(factionIndex));
 			publishToServerInfo["quitTime_" + intToStr(factionIndex)] 			= intToStr(gameStats->getTimePlayerLeft(factionIndex));
 			publishToServerInfo["playerUUID_" + intToStr(factionIndex)] 	    = this->getGameSettings()->getNetworkPlayerUUID(factionIndex);
+			publishToServerInfo["platform_" + intToStr(factionIndex)] 	    = this->getGameSettings()->getNetworkPlayerPlatform(factionIndex);
 		}
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	}

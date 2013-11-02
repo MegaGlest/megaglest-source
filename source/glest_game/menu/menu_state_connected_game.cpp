@@ -2088,6 +2088,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 				gameSettings->setThisFactionIndex(slotIndex);
 				gameSettings->setNetworkPlayerName(slotIndex, getHumanPlayerName());
 				gameSettings->setNetworkPlayerUUID(slotIndex,Config::getInstance().getString("PlayerId",""));
+				gameSettings->setNetworkPlayerPlatform(slotIndex,getPlatformNameString());
 				gameSettings->setNetworkPlayerStatuses(slotIndex, getNetworkPlayerStatus());
 				Lang &lang= Lang::getInstance();
 				gameSettings->setNetworkPlayerLanguages(slotIndex, lang.getLanguage());

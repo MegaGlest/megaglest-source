@@ -93,6 +93,7 @@ private:
 	string scenarioDir;
 	string factionTypeNames[GameConstants::maxPlayers]; //faction names
 	string networkPlayerNames[GameConstants::maxPlayers];
+	string networkPlayerPlatform[GameConstants::maxPlayers];
 	int    networkPlayerStatuses[GameConstants::maxPlayers];
 	string networkPlayerLanguages[GameConstants::maxPlayers];
 	int    networkPlayerGameStatus[GameConstants::maxPlayers];
@@ -160,6 +161,7 @@ public:
     	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
     		factionTypeNames[i] = "";
     		networkPlayerNames[i] = "";
+    		networkPlayerPlatform[i] = "";
     		networkPlayerStatuses[i] = npst_None;
     		networkPlayerLanguages[i] = DEFAULT_LANG;
     		factionControls[i] = ctClosed;
@@ -214,6 +216,17 @@ public:
 		}
 		return result;
 	}
+	string getNetworkPlayerPlatform(int factionIndex) const  {
+		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			throw megaglest_runtime_error(szBuf);
+		}
+
+		string result = networkPlayerPlatform[factionIndex];
+		return result;
+	}
+
 	const int    getNetworkPlayerStatuses(int factionIndex) const {
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
 			char szBuf[8096]="";
@@ -268,6 +281,17 @@ public:
 		}
 		return result;
 	}
+	const string getNetworkPlayerPlatformByPlayerIndex(int playerIndex) const  {
+		string result = "";
+		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+			if(startLocationIndex[i] == playerIndex) {
+				result = networkPlayerPlatform[i];
+				break;
+			}
+		}
+		return result;
+	}
+
 	ControlType getFactionControl(int factionIndex) const {
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
 			char szBuf[8096]="";
@@ -391,6 +415,16 @@ public:
 
 		this->networkPlayerNames[factionIndex]= playername;
 	}
+	void setNetworkPlayerPlatform(int factionIndex,const string& platform) {
+		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);
+			throw megaglest_runtime_error(szBuf);
+		}
+
+		this->networkPlayerPlatform[factionIndex]= platform;
+	}
+
 	void setNetworkPlayerStatuses(int factionIndex,int status) {
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
 			char szBuf[8096]="";
@@ -530,6 +564,7 @@ public:
 			result += "player index = " + intToStr(idx) + "\n";
 			result += "factionTypeName = " + factionTypeNames[idx] + "\n";
 			result += "networkPlayerName = " + networkPlayerNames[idx] + "\n";
+			result += "networkPlayerPlatform = " + networkPlayerPlatform[idx] + "\n";
 			result += "networkPlayerLanguage = " + networkPlayerLanguages[idx] + "\n";
 
 			result += "factionControl = " + intToStr(factionControls[idx]) + "\n";
@@ -596,6 +631,11 @@ public:
 		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
 			XmlNode *networkPlayerNamesNode = gameSettingsNode->addChild("networkPlayerNames");
 			networkPlayerNamesNode->addAttribute("name",networkPlayerNames[idx], mapTagReplacements);
+		}
+
+		for(int idx =0; idx < GameConstants::maxPlayers; idx++) {
+			XmlNode *networkPlayerNamesNode = gameSettingsNode->addChild("networkPlayerPlatform");
+			networkPlayerNamesNode->addAttribute("name",networkPlayerPlatform[idx], mapTagReplacements);
 		}
 
 //		int    networkPlayerStatuses[GameConstants::maxPlayers];
