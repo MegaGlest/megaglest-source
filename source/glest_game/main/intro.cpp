@@ -249,7 +249,7 @@ Intro::Intro(Program *program):
 				//printf("picIndex = %d list count = %d\n",picIndex,coreData.getMiscTextureList().size());
 				modelList.push_back(models[index]);
 				usedIndex[index]=true;
-				srand((unsigned int)seed.getCurTicks() / modelList.size());
+				srand((unsigned int)seed.getCurTicks() / (unsigned int)modelList.size());
 			}
 			models = modelList;
 		}
@@ -451,7 +451,7 @@ Intro::Intro(Program *program):
 				//printf("picIndex = %d list count = %d\n",picIndex,coreData.getMiscTextureList().size());
 				intoTexList.push_back(coreData.getMiscTextureList()[picIndex]);
 				usedIndex[picIndex]=true;
-				srand((unsigned int)seed.getCurTicks() / intoTexList.size());
+				srand((unsigned int)seed.getCurTicks() / (unsigned int)intoTexList.size());
 			}
 		}
 		else {
@@ -620,7 +620,7 @@ void Intro::renderModelBackground() {
 	if(models.empty() == false) {
 		int difTime= 1000 * timer / GameConstants::updateFps - modelShowTime;
 		int totalModelShowTime = Intro::introTime - modelShowTime;
-		int individualModelShowTime = totalModelShowTime / models.size();
+		int individualModelShowTime = totalModelShowTime / (int)models.size();
 
 		//printf("difTime = %d individualModelShowTime = %d modelIndex = %d\n",difTime,individualModelShowTime,modelIndex);
 

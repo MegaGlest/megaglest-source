@@ -619,7 +619,7 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
 
 	gameSettings->setGameUUID(data.gameUUID.getString());
 
-	gameSettings->setNetworkAllowNativeLanguageTechtree((bool)data.networkAllowNativeLanguageTechtree);
+	gameSettings->setNetworkAllowNativeLanguageTechtree((data.networkAllowNativeLanguageTechtree != 0));
 }
 
 vector<pair<string,uint32> > NetworkMessageLaunch::getFactionCRCList() const {

@@ -1053,7 +1053,7 @@ void MainWindow::showLanguages() {
 	}
 
 	menuItems.push_back(lang.getString("Exit"));
-	cancelLanguageSelection = menuItems.size()-1;
+	cancelLanguageSelection = (int)menuItems.size()-1;
 
 	popupMenu.setW(100);
 	popupMenu.setH(100);
@@ -3146,7 +3146,7 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
             }
 
             if(displayProperty == true) {
-                int requredTabs = (nameValue.first.length() / 8)+1;
+                int requredTabs = ((int)nameValue.first.length() / 8)+1;
                 if(nameValue.first.length() % 8) {
                     requredTabs++;
                 }
@@ -3169,7 +3169,7 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
             }
 
             if(displayProperty == true) {
-                int requredTabs = (nameValue.first.length() / 8)+1;
+                int requredTabs = ((int)nameValue.first.length() / 8)+1;
                 if(nameValue.first.length() % 8) {
                     requredTabs++;
                 }
@@ -3196,7 +3196,7 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
             if(displayProperty == true) {
                 printf("Property Name [%s]",nameValue.first.c_str());
 
-                int tabs = (nameValue.first.length() / 8) + 1;
+                int tabs = ((int)nameValue.first.length() / 8) + 1;
                 for(int j = 0; j < (tabCount - tabs); ++j) {
                     printf("\t");
                 }
@@ -3229,7 +3229,7 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
             if(displayProperty == true) {
                 printf("Property Name [%s]",nameValue.first.c_str());
 
-                int tabs = (nameValue.first.length() / 8) + 1;
+                int tabs = ((int)nameValue.first.length() / 8) + 1;
                 for(int j = 0; j < (tabCount - tabs); ++j) {
                     printf("\t");
                 }
