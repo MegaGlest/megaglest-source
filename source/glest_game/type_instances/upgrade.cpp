@@ -108,7 +108,7 @@ UpgradeManager::~UpgradeManager() {
 void UpgradeManager::startUpgrade(const UpgradeType *upgradeType, int factionIndex) {
 	Upgrade *upgrade = new Upgrade(upgradeType, factionIndex);
 	upgrades.push_back(upgrade);
-	upgradesLookup[upgradeType] = upgrades.size()-1;
+	upgradesLookup[upgradeType] = (int)upgrades.size()-1;
 }
 
 void UpgradeManager::cancelUpgrade(const UpgradeType *upgradeType) {
@@ -278,7 +278,7 @@ void UpgradeManager::loadGame(const XmlNode *rootNode,Faction *faction) {
 		XmlNode *node = upgradeNodeList[i];
 		Upgrade *newUpgrade = Upgrade::loadGame(node,faction);
 		upgrades.push_back(newUpgrade);
-		upgradesLookup[newUpgrade->getType()] = upgrades.size()-1;
+		upgradesLookup[newUpgrade->getType()] = (int)upgrades.size()-1;
 	}
 }
 

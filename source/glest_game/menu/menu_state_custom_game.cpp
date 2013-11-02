@@ -978,7 +978,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
         	string advanceToItemStartingWith = "";
         	if(Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
         		const wchar_t lastKey = Shared::Platform::Window::extractLastKeyPressed();
-        		xxx:
+//        		xxx:
 //        		string hehe=lastKey;
 //        		printf("lastKey = %d [%c] '%s'\n",lastKey,lastKey,hehe);
         		advanceToItemStartingWith =  lastKey;

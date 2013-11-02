@@ -981,7 +981,7 @@ void AiRuleProduce::produceGenericNew(const ProduceTask *pt) {
 		}
 
 		//normal case
-		int randomUnitTypeIndex = ai->getRandom()->randRange(0, ableUnits.size()-1);
+		int randomUnitTypeIndex = ai->getRandom()->randRange(0, (int)ableUnits.size()-1);
 		if(aiInterface->isLogLevelEnabled(4) == true) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"In produceGeneric randomUnitTypeIndex = %d of " MG_SIZE_T_SPECIFIER " equals unit type [%s]",randomUnitTypeIndex,ableUnits.size()-1,ableUnits[randomUnitTypeIndex]->getName(false).c_str());
@@ -1117,7 +1117,7 @@ void AiRuleProduce::produceGeneric(const ProduceTask *pt) {
 		}
 
 		//normal case
-		ai->addTask(new ProduceTask(ableUnits[ai->getRandom()->randRange(0, ableUnits.size()-1)]));
+		ai->addTask(new ProduceTask(ableUnits[ai->getRandom()->randRange(0, (int)ableUnits.size()-1)]));
 	}
 }
 
@@ -1257,7 +1257,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 			if(	aiInterface->getControlType() == ctCpuMega ||
 				aiInterface->getControlType() == ctNetworkCpuMega)
 			{// mega cpu trys to balance the commands to the producers
-				int randomstart=ai->getRandom()->randRange(0, producers.size()-1);
+				int randomstart=ai->getRandom()->randRange(0, (int)producers.size()-1);
 				int lowestCommandCount=1000000;
 				int currentProducerIndex=producers[randomstart];
 				int bestIndex=-1;
@@ -1266,7 +1266,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 				for(unsigned int i=randomstart; i<producers.size()+randomstart; i++) {
 					int prIndex = i;
 					if(i >= producers.size()) {
-						prIndex = (i - producers.size());
+						prIndex = (i - (int)producers.size());
 					}
 					currentProducerIndex=producers[prIndex];
 
@@ -1323,14 +1323,14 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						}
 					}
 					if(!backupProducers.empty()) {
-						int randomstart=ai->getRandom()->randRange(0, backupProducers.size()-1);
+						int randomstart=ai->getRandom()->randRange(0, (int)backupProducers.size()-1);
 						int lowestCommandCount=1000000;
 						int currentProducerIndex=backupProducers[randomstart];
 						int bestIndex=-1;
 						for(unsigned int i=randomstart; i<backupProducers.size()+randomstart; i++) {
 							int prIndex = i;
 							if(i >= backupProducers.size()) {
-								prIndex = (i - backupProducers.size());
+								prIndex = (i - (int)backupProducers.size());
 							}
 
 							currentProducerIndex=backupProducers[prIndex];
@@ -1375,7 +1375,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 								}
 							}
 						}
-						int commandIndex=productionCommandIndexes[ai->getRandom()->randRange(0, productionCommandIndexes.size()-1)];
+						int commandIndex=productionCommandIndexes[ai->getRandom()->randRange(0, (int)productionCommandIndexes.size()-1)];
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 						if(ai->outputAIBehaviourToConsole()) printf("mega #1 produceSpecific giveCommand to unit [%s] commandType [%s]\n",aiInterface->getMyUnit(bestIndex)->getType()->getName().c_str(),ut->getCommandType(commandIndex)->getName().c_str());
@@ -1392,7 +1392,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						defCt = NULL;
 						if(producersDefaultCommandType.find(bestIndex) != producersDefaultCommandType.end()) {
-							int bestCommandTypeCount = producersDefaultCommandType[bestIndex].size();
+							int bestCommandTypeCount = (int)producersDefaultCommandType[bestIndex].size();
 							int bestCommandTypeIndex = ai->getRandom()->randRange(0, bestCommandTypeCount-1);
 
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
@@ -1416,7 +1416,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						defCt = NULL;
 						if(producersDefaultCommandType.find(bestIndex) != producersDefaultCommandType.end()) {
 							//defCt = producersDefaultCommandType[bestIndex];
-							int bestCommandTypeCount = producersDefaultCommandType[bestIndex].size();
+							int bestCommandTypeCount = (int)producersDefaultCommandType[bestIndex].size();
 							int bestCommandTypeIndex = ai->getRandom()->randRange(0, bestCommandTypeCount-1);
 
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
@@ -1437,7 +1437,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 					defCt = NULL;
 					if(producersDefaultCommandType.find(bestIndex) != producersDefaultCommandType.end()) {
 						//defCt = producersDefaultCommandType[bestIndex];
-						int bestCommandTypeCount = producersDefaultCommandType[bestIndex].size();
+						int bestCommandTypeCount = (int)producersDefaultCommandType[bestIndex].size();
 						int bestCommandTypeIndex = ai->getRandom()->randRange(0, bestCommandTypeCount-1);
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
@@ -1455,12 +1455,12 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 				}
 			}
 			else {
-				int pIndex = ai->getRandom()->randRange(0, producers.size()-1);
+				int pIndex = ai->getRandom()->randRange(0, (int)producers.size()-1);
 				int producerIndex= producers[pIndex];
 				defCt = NULL;
 				if(producersDefaultCommandType.find(producerIndex) != producersDefaultCommandType.end()) {
 					//defCt = producersDefaultCommandType[producerIndex];
-					int bestCommandTypeCount = producersDefaultCommandType[producerIndex].size();
+					int bestCommandTypeCount = (int)producersDefaultCommandType[producerIndex].size();
 					int bestCommandTypeIndex = ai->getRandom()->randRange(0, bestCommandTypeCount-1);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
@@ -1781,7 +1781,7 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 
 		//use random builder to build
 		if(builders.empty() == false) {
-			int bIndex = ai->getRandom()->randRange(0, builders.size()-1);
+			int bIndex = ai->getRandom()->randRange(0, (int)builders.size()-1);
 			int builderIndex= builders[bIndex];
 			Vec2i pos;
 			Vec2i searchPos = bt->getForcePos()? bt->getPos(): ai->getRandomHomePosition();
@@ -1828,7 +1828,7 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 				defBct = NULL;
 				if(buildersDefaultCommandType.find(builderIndex) != buildersDefaultCommandType.end()) {
 					//defBct = buildersDefaultCommandType[builderIndex];
-					int bestCommandTypeCount = buildersDefaultCommandType[builderIndex].size();
+					int bestCommandTypeCount = (int)buildersDefaultCommandType[builderIndex].size();
 					int bestCommandTypeIndex = ai->getRandom()->randRange(0, bestCommandTypeCount-1);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
@@ -1991,7 +1991,7 @@ void AiRuleUpgrade::upgradeGeneric(const UpgradeTask *upgt){
 
 	//add specific upgrade task
 	if(!upgrades.empty()){
-		ai->addTask(new UpgradeTask(upgrades[ai->getRandom()->randRange(0, upgrades.size()-1)]));
+		ai->addTask(new UpgradeTask(upgrades[ai->getRandom()->randRange(0, (int)upgrades.size()-1)]));
 	}
 }
 

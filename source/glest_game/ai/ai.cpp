@@ -535,7 +535,7 @@ bool Ai::findAbleUnit(int *unitIndex, CommandClass ability, bool idleOnly){
 		return false;
 	}
 	else{
-		*unitIndex= units[random.randRange(0, units.size()-1)];
+		*unitIndex= units[random.randRange(0, (int)units.size()-1)];
 		return true;
 	}
 }
@@ -634,7 +634,7 @@ bool Ai::findAbleUnit(int *unitIndex, CommandClass ability, CommandClass current
 		return false;
 	}
 	else{
-		*unitIndex= units[random.randRange(0, units.size()-1)];
+		*unitIndex= units[random.randRange(0, (int)units.size()-1)];
 		return true;
 	}
 }
@@ -721,7 +721,7 @@ Vec2i Ai::getRandomHomePosition() {
 		return aiInterface->getHomeLocation();
 	}
 
-	return expansionPositions[random.randRange(0, expansionPositions.size()-1)];
+	return expansionPositions[random.randRange(0, (int)expansionPositions.size()-1)];
 }
 
 // ==================== actions ====================
@@ -781,7 +781,7 @@ void Ai::sendScoutPatrol(){
 
 	std::vector<Vec2i> warningEnemyList = aiInterface->getEnemyWarningPositionList();
 	if( (possibleTargetFound == false) && (warningEnemyList.empty() == false)) {
-		for(int i = warningEnemyList.size() - 1; i <= 0; --i) {
+		for(int i = (int)warningEnemyList.size() - 1; i <= 0; --i) {
 			Vec2i &checkPos = warningEnemyList[i];
 			if (random.randRange(0, 1) == 1 ) {
 				pos = checkPos;

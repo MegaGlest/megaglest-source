@@ -209,7 +209,7 @@ public:
     virtual string getName(bool translatedValue=false) const;
 
     //get all
-	int getEffectCount() const				{return effects.size();}
+	int getEffectCount() const				{return (int)effects.size();}
 	const UnitType * getEffect(int i) const	{return effects[i];}
 	bool isAffected(const UnitType *unitType) const;
 

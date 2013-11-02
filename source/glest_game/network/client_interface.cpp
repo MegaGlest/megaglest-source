@@ -541,7 +541,7 @@ void ClientInterface::updateLobby() {
 				serverFTPPort = networkMessageIntro.getFtpPort();
 
 				MutexSafeWrapper safeMutexFlags(flagAccessor,CODE_AT_LINE);
-				this->joinGameInProgress = networkMessageIntro.getGameInProgress();
+				this->joinGameInProgress = (networkMessageIntro.getGameInProgress() != 0);
 				this->joinGameInProgressLaunch = false;
 				safeMutexFlags.ReleaseLock();
 

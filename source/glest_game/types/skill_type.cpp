@@ -478,7 +478,7 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 		const XmlNode *soundNode= sn->getChild("sound");
 		if(soundNode->getAttribute("enabled")->getBoolValue()) {
 			soundStartTime= soundNode->getAttribute("start-time")->getFloatValue();
-			sounds.resize(soundNode->getChildCount());
+			sounds.resize((int)soundNode->getChildCount());
 			for(int i = 0; i < soundNode->getChildCount(); ++i) {
 				const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
 				string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
@@ -823,7 +823,7 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 		const XmlNode *soundNode= projectileNode->getChild("sound");
 		if(soundNode->getAttribute("enabled")->getBoolValue()){
 
-			projSounds.resize(soundNode->getChildCount());
+			projSounds.resize((int)soundNode->getChildCount());
 			for(int i=0; i<soundNode->getChildCount(); ++i){
 				const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
 				string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);

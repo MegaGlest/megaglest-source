@@ -205,7 +205,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 			}
 
 			if(partsize==0){
-				int childCount= surfaceNode->getChildCount();
+				int childCount= (int)surfaceNode->getChildCount();
 				surfPixmaps[i].resize(childCount);
 				surfProbs[i].resize(childCount);
 
@@ -298,7 +298,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 		const XmlNode *objectsNode= tilesetNode->getChild("objects");
 		for(int i=0; i<objCount; ++i){
 			const XmlNode *objectNode= objectsNode->getChild("object", i);
-			int childCount= objectNode->getChildCount();
+			int childCount= (int)objectNode->getChildCount();
 
 			int objectHeight = 0;
 			bool walkable = objectNode->getAttribute("walkable")->getBoolValue();
@@ -391,7 +391,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		int waterFrameCount= waterNode->getChildCount();
+		int waterFrameCount= (int)waterNode->getChildCount();
 		if(waterTex) {
 			waterTex->getPixmap()->init(waterFrameCount, 4);
 		}
@@ -504,7 +504,7 @@ Tileset::~Tileset() {
 }
 
 const Pixmap2D *Tileset::getSurfPixmap(int type, int var) const{
-	int vars= surfPixmaps[type].size();
+	int vars= (int)surfPixmaps[type].size();
 	return surfPixmaps[type][var % vars];
 }
 

@@ -172,7 +172,7 @@ void Faction::sortUnitsByCommandGroups() {
 
 	//printf("====== Done sorting for faction # %d [%s] unitCount = %d\n",this->getIndex(),this->getType()->getName().c_str(),units.size());
 
-	unsigned int originalUnitSize = units.size();
+	unsigned int originalUnitSize = (unsigned int)units.size();
 
 	std::vector<int> unitIds;
 	for(unsigned int i = 0; i < units.size(); ++i) {
@@ -559,7 +559,7 @@ void Faction::removeUnitFromMovingList(int unitId) {
 }
 
 int Faction::getUnitMovingListCount() {
-	return unitsMovingList.size();
+	return (int)unitsMovingList.size();
 }
 
 void Faction::addUnitToPathfindingList(int unitId) {
@@ -573,7 +573,7 @@ void Faction::removeUnitFromPathfindingList(int unitId) {
 
 int Faction::getUnitPathfindingListCount() {
 	//printf("GET Faction [%d - %s] threaded updates for [%d] units\n",this->getStartLocationIndex(),this->getType()->getName().c_str(),unitsPathfindingList.size());
-	return unitsPathfindingList.size();
+	return (int)unitsPathfindingList.size();
 }
 
 void Faction::clearUnitsPathfinding() {
@@ -2351,7 +2351,7 @@ std::pair<int,string> Faction::getCRC_DetailsForWorldFrameIndex(int worldFrameIn
 	if(iterMap == crcWorldFrameDetails.end()) {
 		return make_pair<int,string>(0,"");
 	}
-	return make_pair<int,string>(iterMap->first,iterMap->second);
+	return std::pair<int,string>(iterMap->first,iterMap->second);
 }
 
 string Faction::getCRC_DetailsForWorldFrames() const {

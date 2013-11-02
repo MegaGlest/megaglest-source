@@ -90,7 +90,7 @@ private:
 public:
 	~UpgradeManager();
 
-	int getUpgradeCount() const		{return upgrades.size();}
+	int getUpgradeCount() const		{return (int)upgrades.size();}
 
 	void startUpgrade(const UpgradeType *upgradeType, int factionIndex);
 	void cancelUpgrade(const UpgradeType *upgradeType);

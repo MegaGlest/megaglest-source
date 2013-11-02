@@ -186,7 +186,7 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 
 		keyScrollBar.init(keyButtonsXBase+keyButtonsWidth+labelWidth+20,200,false,200,20);
 		keyScrollBar.setLength(400);
-		keyScrollBar.setElementCount(keyButtons.size());
+		keyScrollBar.setElementCount((int)keyButtons.size());
 		keyScrollBar.setVisibleSize(keyButtonsToRender);
 		keyScrollBar.setVisibleStart(0);
 	}

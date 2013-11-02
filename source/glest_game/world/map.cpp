@@ -101,7 +101,7 @@ void Cell::loadGame(const XmlNode *rootNode, int index, World *world) {
 	if(rootNode->hasChild("Cell" + intToStr(index)) == true) {
 		const XmlNode *cellNode = rootNode->getChild("Cell" + intToStr(index));
 
-		int unitCount = cellNode->getChildCount();
+		int unitCount = (int)cellNode->getChildCount();
 		for(unsigned int i = 0; i < unitCount; ++i) {
 			if(cellNode->hasChildAtIndex("units",i) == true) {
 				const XmlNode *unitsNode = cellNode->getChild("units",i);

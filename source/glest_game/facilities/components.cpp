@@ -552,7 +552,7 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 					}
 				}
 				if(bFound == false) {
-					for(int i = items.size() - 1; i >= selectedItemIndex; --i) {
+					for(int i = (int)items.size() - 1; i >= selectedItemIndex; --i) {
 						string item = items[i];
 						if(translated_items.size()>i) item=translated_items[i];
 						//printf("Trying to match [%s] with item [%s]\n",advanceToItemStartingWith.c_str(),item.c_str());
@@ -568,7 +568,7 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 				selectedItemIndex--;
 			}
 			if(selectedItemIndex<0){
-				selectedItemIndex=items.size()-1;
+				selectedItemIndex = (int)items.size()-1;
 			}
 		}
 		else if(b2) {
@@ -1001,7 +1001,7 @@ void PopupMenu::init(string menuHeader,std::vector<string> menuItems) {
 	}
 
 	int offsetH = (yStartOffset - y);
-	int maxH = (offsetH + ((menuItems.size() -1 ) * (textHeight + textHeightSpacing)));
+	int maxH = (offsetH + (((int)menuItems.size() -1 ) * (textHeight + textHeightSpacing)));
 	if(maxH >= h) {
 		h = maxH;
 		y= (metrics.getVirtualH()-h)/2;

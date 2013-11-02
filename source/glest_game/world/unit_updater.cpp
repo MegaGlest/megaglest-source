@@ -2631,7 +2631,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 			float nearestDistance		= 0.f;
 
 			MutexSafeWrapper safeMutex(&mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
-			for(int i = attackWarnings.size() - 1; i >= 0; --i) {
+			for(int i = (int)attackWarnings.size() - 1; i >= 0; --i) {
 				if(world->getFrameCount() - attackWarnings[i]->lastFrameCount > 200) { //after 200 frames attack break we warn again
 					AttackWarningData *toDelete =attackWarnings[i];
 					attackWarnings.erase(attackWarnings.begin()+i);
@@ -2816,7 +2816,7 @@ string UnitUpdater::getUnitRangeCellsLookupItemCacheStats() {
 				iterMap3 != iterMap2->second.end(); ++iterMap3) {
 				rangeCount++;
 
-				rangeCountCellCount += iterMap3->second.rangeCellList.size();
+				rangeCountCellCount += (int)iterMap3->second.rangeCellList.size();
 			}
 		}
 	}

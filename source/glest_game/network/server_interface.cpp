@@ -2581,7 +2581,7 @@ void ServerInterface::validateGameSettings(GameSettings *serverGameSettings) {
 			{
 				printf("mapFile<gameSettings [%s] < [%s]\n",mapFile.c_str(),gameSettings.getMap().c_str());
 				int nextIndex=-1;
-				for (int i=mapFiles.size()-1 ;i>-1; i--) {
+				for (int i= (int)mapFiles.size()-1 ;i>-1; i--) {
 					string current=mapFiles[i];
 					if(current<mapFile)
 					{
@@ -2958,7 +2958,7 @@ void ServerInterface::simpleTask(BaseThread *callingThread) {
 				printf("Got status request connection, dumping info...\n");
 
 				string data = DumpStatsToLog(true);
-				cli->send(data.c_str(),data.length());
+				cli->send(data.c_str(),(int)data.length());
 				cli->disconnectSocket();
 			}
 		}

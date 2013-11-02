@@ -323,7 +323,7 @@ public:
 
 	//access functions
 	void requestCommand(const NetworkCommand *networkCommand, bool insertAtStart=false);
-	int getPendingCommandCount() const							{return pendingCommands.size();}
+	int getPendingCommandCount() const							{return (int)pendingCommands.size();}
 	NetworkCommand* getPendingCommand(int i) 		            {return &pendingCommands[i];}
 	void clearPendingCommands()									{pendingCommands.clear();}
 	bool getQuit() const										{return quit;}

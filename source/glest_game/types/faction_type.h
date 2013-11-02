@@ -109,13 +109,13 @@ public:
 
     //get
 	bool getIsLinked() const { return isLinked; }
-	int getUnitTypeCount() const						{return unitTypes.size();}
-	int getUpgradeTypeCount() const						{return upgradeTypes.size();}
+	int getUnitTypeCount() const						{return (int)unitTypes.size();}
+	int getUpgradeTypeCount() const						{return (int)upgradeTypes.size();}
 	virtual string getName(bool translatedValue=false) const;
 	const UnitType *getUnitType(int i) const			{return &unitTypes[i];}
 	const UpgradeType *getUpgradeType(int i) const		{return &upgradeTypes[i];}
 	StrSound *getMusic() const							{return music;}
-	int getStartingUnitCount() const					{return startingUnits.size();}
+	int getStartingUnitCount() const					{return (int)startingUnits.size();}
 	const UnitType *getStartingUnit(int i) const		{return startingUnits[i].first;}
 	int getStartingUnitAmount(int i) const				{return startingUnits[i].second;}
 

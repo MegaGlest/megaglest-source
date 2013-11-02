@@ -33,7 +33,7 @@ StaticSound *SoundContainer::getRandSound() const{
 	case 1:
 		return sounds[0];
 	default:
-		int soundIndex= random.randRange(0, sounds.size()-1);
+		int soundIndex= random.randRange(0, (int)sounds.size()-1);
 		if(soundIndex==lastSound){
 			soundIndex= (lastSound+1) % sounds.size();
 		}

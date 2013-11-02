@@ -130,7 +130,7 @@ public:
 	Checksum load(const string &path);
 	Checksum * getChecksumValue() { return &checksumValue; }
 
-	int getScriptCount() const				{return scripts.size();}
+	int getScriptCount() const				{return (int)scripts.size();}
 	const Script* getScript(int i) const	{return &scripts[i];}
 
 	ScenarioInfo getInfo() const { return info; }

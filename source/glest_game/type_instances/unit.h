@@ -201,9 +201,9 @@ public:
 	void addToLastPathCache(const Vec2i &path);
 	Vec2i pop(bool removeFrontPos=true);
 	virtual int getBlockCount() const { return blockCount; }
-	virtual int getQueueCount() const { return pathQueue.size(); }
+	virtual int getQueueCount() const { return (int)pathQueue.size(); }
 
-	int getLastPathCacheQueueCount() const { return lastPathCacheQueue.size(); }
+	int getLastPathCacheQueueCount() const { return (int)lastPathCacheQueue.size(); }
 	vector<Vec2i> getLastPathCacheQueue() const { return lastPathCacheQueue; }
 
 	virtual vector<Vec2i> getQueue() const { return pathQueue; }
@@ -241,7 +241,7 @@ public:
 	virtual bool isEmpty() const	{return list<Vec2i>::empty();}	/**< is path empty				  */
 	virtual bool isStuck() const	{return false; }
 
-	int  size() const		{return list<Vec2i>::size();}	/**< size of path				 */
+	int  size() const		{return (int)list<Vec2i>::size();}	/**< size of path				 */
 	virtual void clear()			{list<Vec2i>::clear(); blockCount = 0;} /**< clear the path		*/
 	virtual void clearBlockCount() { blockCount = 0; }
 	virtual void incBlockCount()	{++blockCount;}		   /**< increment block counter			   */

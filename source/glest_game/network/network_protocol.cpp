@@ -368,7 +368,7 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 
 		case 's': // string
 			s = va_arg(ap, char*);
-			len = strlen(s);
+			len = (uint16)strlen(s);
 			if (maxstrlen > 0 && len < maxstrlen)
 				len = maxstrlen - 1;
 

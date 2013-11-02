@@ -248,7 +248,7 @@ public:
     //get
 	const MoveSkillType *getMoveSkillType() const	{return moveSkillType;}
 	const BuildSkillType *getBuildSkillType() const	{return buildSkillType;}
-	int getBuildingCount() const					{return buildings.size();}
+	int getBuildingCount() const					{return (int)buildings.size();}
 	const UnitType * getBuilding(int i) const		{return buildings[i];}
 	StaticSound *getStartSound() const				{return startSounds.getRandSound();}
 	StaticSound *getBuiltSound() const				{return builtSounds.getRandSound();}
@@ -288,7 +288,7 @@ public:
 	const StopSkillType *getStopLoadedSkillType() const		{return stopLoadedSkillType;}
 	int getMaxLoad() const									{return maxLoad;}
 	int getHitsPerUnit() const								{return hitsPerUnit;}
-	int getHarvestedResourceCount() const					{return harvestedResources.size();}
+	int getHarvestedResourceCount() const					{return (int)harvestedResources.size();}
 	const ResourceType* getHarvestedResource(int i) const	{return harvestedResources[i];}
 	bool canHarvest(const ResourceType *resourceType) const;
 
@@ -342,7 +342,7 @@ public:
 	const RepairSkillType *getRepairSkillType() const		{return repairSkillType;};
     bool isRepairableUnitType(const UnitType *unitType) const;
 
-	int getRepairCount() const					{return repairableUnits.size();}
+	int getRepairCount() const					{return (int)repairableUnits.size();}
 	const UnitType * getRepair(int i) const		{return repairableUnits[i];}
 
 	virtual bool usesPathfinder() const { return true; }

@@ -635,7 +635,7 @@ public:
 
 	static Texture2D * findTexture(string logoFilename);
 	static Texture2D * preloadTexture(string logoFilename);
-	inline int getCachedSurfaceDataSize() const { return mapSurfaceData.size(); }
+	inline int getCachedSurfaceDataSize() const { return (int)mapSurfaceData.size(); }
 
 	//void setCustom3dMenuList(GLuint *customlist3dMenu) { this->customlist3dMenu = customlist3dMenu; }
 	//inline GLuint * getCustom3dMenuList() const { return this->customlist3dMenu; }

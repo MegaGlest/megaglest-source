@@ -80,8 +80,8 @@ private:
 public:
 	Console();
 
-	int getStoredLineCount() const		{return storedLines.size();}
-	int getLineCount() const			{return lines.size();}
+	int getStoredLineCount() const		{return (int)storedLines.size();}
+	int getLineCount() const			{return (int)lines.size();}
 	bool getOnlyChatMessagesInStoredLines() const { return onlyChatMessagesInStoredLines ;}
 	void setOnlyChatMessagesInStoredLines(bool value)	{this->onlyChatMessagesInStoredLines= value;}
 
