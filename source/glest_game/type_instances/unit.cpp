@@ -5237,7 +5237,7 @@ Checksum Unit::getCRC() {
 
     //Commands commands;
 	if(commands.empty() == false) {
-		crcForUnit.addInt(commands.size());
+		crcForUnit.addInt((int)commands.size());
 		for(Commands::const_iterator it= commands.begin(); it != commands.end(); ++it) {
 			uint32 crc = (*it)->getCRC().getSum();
 			crcForUnit.addBytes(&crc,sizeof(uint32));

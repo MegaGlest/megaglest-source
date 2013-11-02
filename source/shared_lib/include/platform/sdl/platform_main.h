@@ -488,11 +488,11 @@ bool hasCommandArgument(int argc, char** argv,const string argName, int *foundIn
 	if(foundIndex != NULL) {
 		*foundIndex = -1;
 	}
-	int compareLen = strlen(argName.c_str());
+	int compareLen = (int)strlen(argName.c_str());
 
 	for(int idx = startLookupIndex; idx < argc; idx++) {
 		if(useArgParamLen == true) {
-			compareLen = strlen(argv[idx]);
+			compareLen = (int)strlen(argv[idx]);
 		}
 		if(_strnicmp(argName.c_str(),argv[idx],compareLen) == 0) {
 			result = true;
