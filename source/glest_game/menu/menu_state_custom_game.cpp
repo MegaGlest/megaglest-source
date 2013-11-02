@@ -1238,7 +1238,9 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 
 					//printf("checkControTypeClicked = %d selectedControlItemIndex = %d i = %d\n",checkControTypeClicked,selectedControlItemIndex,i);
 
-					if(selectedControlItemIndex != ctHuman && checkControTypeClicked == true && listBoxControls[i].mouseClick(x, y)) {
+					if(selectedControlItemIndex != ctHuman &&
+							checkControTypeClicked == true &&
+							listBoxControls[i].mouseClick(x, y)) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 						//printf("listBoxControls[i].mouseClick(x, y) is TRUE i = %d newcontrol = %d\n",i,listBoxControls[i].getSelectedItemIndex());
 
@@ -1461,26 +1463,26 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 	ControlType ct= static_cast<ControlType>(listBoxControls[index].getSelectedItemIndex());
 	if(ct == ctCpuEasy || ct == ctNetworkCpuEasy)
 	{
-		listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::easyMultiplier-0.5f)*10);
+		listBoxRMultiplier[index].setSelectedItem(floatToStr(GameConstants::easyMultiplier,1));
 		listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
 	}
 	else if(ct == ctCpu || ct == ctNetworkCpu) {
-		listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
+		listBoxRMultiplier[index].setSelectedItem(floatToStr(GameConstants::normalMultiplier,1));
 		listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
 	}
 	else if(ct == ctCpuUltra || ct == ctNetworkCpuUltra)
 	{
-		listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::ultraMultiplier-0.5f)*10);
+		listBoxRMultiplier[index].setSelectedItem(floatToStr(GameConstants::ultraMultiplier,1));
 		listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
 	}
 	else if(ct == ctCpuMega || ct == ctNetworkCpuMega)
 	{
-		listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::megaMultiplier-0.5f)*10);
+		listBoxRMultiplier[index].setSelectedItem(floatToStr(GameConstants::megaMultiplier,1));
 		listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
 	}
 	//if(ct == ctHuman || ct == ctNetwork || ct == ctClosed) {
 	else {
-		listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
+		listBoxRMultiplier[index].setSelectedItem(floatToStr(GameConstants::normalMultiplier,1));
 		listBoxRMultiplier[index].setEnabled(false);
 		//!!!listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
 	}
@@ -4739,8 +4741,12 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 }
 
 void MenuStateCustomGame::setSlotHuman(int i) {
-	if(labelPlayerNames[i].getEditable()) return;
+	if(labelPlayerNames[i].getEditable()) {
+		return;
+	}
 	listBoxControls[i].setSelectedItemIndex(ctHuman);
+	listBoxRMultiplier[i].setSelectedItem("1.0");
+
 	labelPlayerNames[i].setText(getHumanPlayerName());
 	for(int j = 0; j < GameConstants::maxPlayers; ++j) {
 		labelPlayerNames[j].setEditable(false);

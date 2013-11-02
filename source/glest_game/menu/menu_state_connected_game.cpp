@@ -209,7 +209,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	listBoxFallbackCpuMultiplier.registerGraphicComponent(containerName,"listBoxFallbackCpuMultiplier");
 	listBoxFallbackCpuMultiplier.init(xoffset+460, aPos, 80);
 	listBoxFallbackCpuMultiplier.setItems(rMultiplier);
-	listBoxFallbackCpuMultiplier.setSelectedItemIndex(0);
+	listBoxFallbackCpuMultiplier.setSelectedItem("1.0");
 
 
 	// Allow Switch Team Mode
@@ -403,7 +403,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 		listBoxTeams[i].setSelectedItemIndex(i);
 		listBoxControls[i].setItems(controlItems);
 		listBoxRMultiplier[i].setItems(rMultiplier);
-		listBoxRMultiplier[i].setSelectedItemIndex(5);
+		listBoxRMultiplier[i].setSelectedItem("1.0");
 
 		labelNetStatus[i].setText("V");
     }
@@ -1635,25 +1635,25 @@ void MenuStateConnectedGame::updateResourceMultiplier(const int index) {
 		ControlType ct= static_cast<ControlType>(listBoxControls[index].getSelectedItemIndex());
 		if(ct == ctCpuEasy || ct == ctNetworkCpuEasy)
 		{
-			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::easyMultiplier-0.5f)*10);
+			listBoxRMultiplier[index].setSelectedItem(floatToStr(GameConstants::easyMultiplier,1));
 			listBoxRMultiplier[index].setEnabled(true);
 		}
 		else if(ct == ctCpu || ct == ctNetworkCpu) {
-			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
+			listBoxRMultiplier[index].setSelectedItem(floatToStr(GameConstants::normalMultiplier,1));
 			listBoxRMultiplier[index].setEnabled(true);
 		}
 		else if(ct == ctCpuUltra || ct == ctNetworkCpuUltra)
 		{
-			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::ultraMultiplier-0.5f)*10);
+			listBoxRMultiplier[index].setSelectedItem(floatToStr(GameConstants::ultraMultiplier,1));
 			listBoxRMultiplier[index].setEnabled(true);
 		}
 		else if(ct == ctCpuMega || ct == ctNetworkCpuMega)
 		{
-			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::megaMultiplier-0.5f)*10);
+			listBoxRMultiplier[index].setSelectedItem(floatToStr(GameConstants::megaMultiplier,1));
 			listBoxRMultiplier[index].setEnabled(true);
 		}
 		else {
-			listBoxRMultiplier[index].setSelectedItemIndex((GameConstants::normalMultiplier-0.5f)*10);
+			listBoxRMultiplier[index].setSelectedItem(floatToStr(GameConstants::normalMultiplier,1));
 			listBoxRMultiplier[index].setEnabled(false);
 		}
 
@@ -2093,7 +2093,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 				Lang &lang= Lang::getInstance();
 				gameSettings->setNetworkPlayerLanguages(slotIndex, lang.getLanguage());
 
-				gameSettings->setResourceMultiplierIndex(slotIndex, (GameConstants::normalMultiplier-0.5f)*10);
+				gameSettings->setResourceMultiplierIndex(slotIndex, 5);
 			}
 			else {
 				gameSettings->setResourceMultiplierIndex(slotIndex, listBoxRMultiplier[i].getSelectedItemIndex());
@@ -2143,7 +2143,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 			gameSettings->setStartLocationIndex(slotIndex, i);
 			//printf("!!! setStartLocationIndex #2 slotIndex = %d, i = %d\n",slotIndex, i);
 
-			gameSettings->setResourceMultiplierIndex(slotIndex, (GameConstants::normalMultiplier-0.5f)*10);
+			gameSettings->setResourceMultiplierIndex(slotIndex, 5);
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
 
