@@ -91,6 +91,7 @@ CREATE TABLE `glestgameplayerstats` (
   `lasttime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `gameUUID` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
   `playerUUID` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `platform` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
   `factionIndex` int(11) NOT NULL,
   `controlType` int(11) NOT NULL,
   `resourceMultiplier` DECIMAL(10,6) NOT NULL,  
@@ -109,6 +110,7 @@ CREATE TABLE `glestgameplayerstats` (
 
   KEY `gameUUID` (`gameUUID`)
   KEY `playerUUID` (`playerUUID`)
+  KEY `platform` (`platform`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --

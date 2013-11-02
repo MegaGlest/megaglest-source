@@ -202,6 +202,11 @@
                                 $playerUUID = (string) clean_str( $_GET['playerUUID_' . $factionNumber] );
                         }
 
+                        $playerPlatform = "";
+                        if ( isset( $_GET['platform_' . $factionNumber] ) ) {
+                                $playerPlatform = (string) clean_str( $_GET['platform_' . $factionNumber] );
+                        }
+
                         if($player_statsCount[0] > 0)
                         {
                                 $result = mysql_query( 'UPDATE glestgameplayerstats SET ' .
@@ -222,6 +227,7 @@
                                                 'quitBeforeGameEnd='      . $quitBeforeGameEnd  . ', ' .
                                                 'quitTime='               . $quitTime           . ', ' .
                                                 'playerUUID=\''           . mysql_real_escape_string( $playerUUID ) . '\', ' .
+                                                'platform=\''             . mysql_real_escape_string( $playerPlatform ) . '\', ' .
 	                                        'lasttime='               . 'now()'             . ' ' .
 	                                        'WHERE ' . $whereClause . ' AND factionIndex = ' . $factionIndex . ';');
 
@@ -251,6 +257,7 @@
                                         'playerName=\''           . mysql_real_escape_string( $playerName ) . '\', ' .
                                         'quitBeforeGameEnd='      . $quitBeforeGameEnd  . ', ' .
                                         'quitTime='               . $quitTime           . ', ' .
+                                        'platform=\''             . mysql_real_escape_string( $playerPlatform ) . '\', ' .
                                         'playerUUID=\''           . mysql_real_escape_string( $playerUUID ) . '\';');
 
                                 if (!$result) {

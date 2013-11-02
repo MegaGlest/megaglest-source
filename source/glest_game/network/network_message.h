@@ -113,6 +113,7 @@ private:
 		NetworkString<maxLanguageStringSize> language;
 		int8 gameInProgress;
 		NetworkString<maxSmallStringSize> playerUUID;
+		NetworkString<maxSmallStringSize> platform;
 	};
 	void toEndian();
 	void fromEndian();
@@ -127,7 +128,7 @@ public:
 	NetworkMessageIntro(int32 sessionId, const string &versionString,
 			const string &name, int playerIndex, NetworkGameStateType gameState,
 			uint32 externalIp, uint32 ftpPort, const string &playerLanguage,
-			int gameInProgress, const string &playerUUID);
+			int gameInProgress, const string &playerUUID, const string &platform);
 
 
 	virtual const char * getPackedMessageFormat() const;
@@ -149,6 +150,7 @@ public:
 	uint8 getGameInProgress() const				{ return data.gameInProgress; }
 
 	string getPlayerUUID() const				{ return data.playerUUID.getString();}
+	string getPlayerPlatform() const			{ return data.platform.getString();}
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket);
@@ -260,6 +262,7 @@ private:
 		NetworkString<maxSmallStringSize> tech;
 		NetworkString<maxSmallStringSize> factionTypeNames[GameConstants::maxPlayers]; //faction names
 		NetworkString<maxSmallStringSize> networkPlayerNames[GameConstants::maxPlayers]; //networkPlayerNames
+		NetworkString<maxSmallStringSize> networkPlayerPlatform[GameConstants::maxPlayers];
 		int32 networkPlayerStatuses[GameConstants::maxPlayers]; //networkPlayerStatuses
 		NetworkString<maxSmallStringSize> networkPlayerLanguages[GameConstants::maxPlayers];
 

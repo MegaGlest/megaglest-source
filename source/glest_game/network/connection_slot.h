@@ -151,6 +151,7 @@ private:
 	int playerStatus;
 	string playerLanguage;
 	string playerUUID;
+	string platform;
 
 	bool skipLagCheck;
 	bool joinGameInProgress;
@@ -193,6 +194,7 @@ public:
 	void setReady();
 	const string &getName() const	{return name;}
 	const string &getUUID() const	{return playerUUID;}
+	const string &getPlatform() const { return platform; }
 	void setName(string value)      {name = value;}
 	bool isReady() const			{return ready;}
 
