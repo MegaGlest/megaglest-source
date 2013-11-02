@@ -141,9 +141,12 @@ if %NUMBER_OF_PROCESSORS% GTR 2 (
 ECHO Found CPU Count [%NUMBER_OF_PROCESSORS%]
 if "%2" == "rebuild" echo Doing a FULL REBUILD...
 rem if "%2" == "rebuild" msbuild /detailedsummary %msBuildMaxCPU% /p:BuildInParallel=%BuildInParallel% /p:Configuration=Release /t:Rebuild Glest_vc2010.sln
-if "%2" == "rebuild" msbuild %msBuildMaxCPU% /p:Configuration=Release;Platform=Win32 /v:q /m /t:Rebuild /p:PlatformToolset=v110_xp;VisualStudioVersion=11.0 Glest_vc2012.sln
+rem if "%2" == "rebuild" msbuild %msBuildMaxCPU% /p:Configuration=Release;Platform=x64 /v:q /m /t:Rebuild /p:PlatformToolset=v110_xp;VisualStudioVersion=11.0 Glest_vc2012.sln
+if "%2" == "rebuild" msbuild %msBuildMaxCPU% /p:Configuration=Release;Platform=x64 /v:q /m /t:Rebuild /p:VisualStudioVersion=11.0 Glest_vc2012.sln
+
 rem if not "%2" == "rebuild" msbuild /detailedsummary %msBuildMaxCPU% /p:BuildInParallel=%BuildInParallel% /p:Configuration=Release Glest_vc2010.sln
-if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /p:Configuration=Release;Platform=Win32 /v:q /m /p:PlatformToolset=v110_xp Glest_vc2012.sln
+rem if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /p:Configuration=Release;Platform=x64 /v:q /m /p:PlatformToolset=v110_xp Glest_vc2012.sln
+if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /p:Configuration=Release;Platform=x64 /v:q /m Glest_vc2012.sln
 
 rem pause execution so we can see the output before the batch file exits
 if not "%1" == "nopause" pause
