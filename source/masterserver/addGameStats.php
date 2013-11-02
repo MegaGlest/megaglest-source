@@ -194,7 +194,7 @@
 
                         $quitTime = 0;
                         if ( isset( $_GET['quitTime_' . $factionNumber] ) ) {
-                                $quitTimer = clean_str( $_GET['quitTime_' . $factionNumber] );
+                                $quitTime = clean_str( $_GET['quitTime_' . $factionNumber] );
                         }
 
                         $playerUUID = "";
