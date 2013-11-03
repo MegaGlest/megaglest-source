@@ -19,6 +19,7 @@
 #include <iostream>
 #include <locale>
 #include "platform_util.h"
+#include <limits>
 #include "leak_dumper.h"
 
 using namespace std;
@@ -132,15 +133,27 @@ string boolToStr(bool b) {
 	}
 }
 
-string intToStr(int64 i) {
+string intToStr(const int64 &value) {
 	char str[strSize]="";
-	snprintf(str, strSize-1, "%lld", (long long int)i);
+	static int MAX_INT_VALUE = std::numeric_limits<int>::max();
+	if(value <= MAX_INT_VALUE) {
+		snprintf(str, strSize-1, "%d", (int)value);
+	}
+	else {
+		snprintf(str, strSize-1, "%lld", (long long int)value);
+	}
 	return (str[0] != '\0' ? str : "");
 }
 
-string uIntToStr(uint32 i) {
+string uIntToStr(const uint64 &value) {
 	char str[strSize]="";
-	snprintf(str, strSize-1, "%u", i);
+	static unsigned int MAX_UNSIGNED_INT_VALUE = std::numeric_limits<unsigned int>::max();
+	if(value <= MAX_UNSIGNED_INT_VALUE) {
+		snprintf(str, strSize-1, "%u", (int)value);
+	}
+	else {
+		snprintf(str, strSize-1, "%llu", (long long unsigned int)value);
+	}
 	return (str[0] != '\0' ? str : "");
 }
 

@@ -502,7 +502,7 @@ XmlTree::XmlTree(xml_engine_parser_type engine_type) {
 		break;
 
 		default:
-			throw megaglest_runtime_error("Invalid XML parser engine: " + intToStr(engine_type));
+			throw megaglest_runtime_error("Invalid XML parser engine: " + intToStr((int)engine_type));
 	}
 
 	this->engine_type = engine_type;
@@ -689,7 +689,7 @@ XmlNode::~XmlNode() {
 
 XmlAttribute *XmlNode::getAttribute(unsigned int i) const {
 	if(i >= attributes.size()) {
-		throw megaglest_runtime_error(getName()+" node doesn't have "+intToStr(i)+" attributes");
+		throw megaglest_runtime_error(getName()+" node doesn't have " + uIntToStr(i) + " attributes");
 	}
 	return attributes[i];
 }
@@ -733,7 +733,7 @@ int XmlNode::clearChild(const string &childName) {
 XmlNode *XmlNode::getChild(unsigned int i) const {
 	assert(!superNode);
 	if(i >= children.size()) {
-		throw megaglest_runtime_error("\"" + getName()+"\" node doesn't have "+intToStr(i+1)+" children");
+		throw megaglest_runtime_error("\"" + getName()+"\" node doesn't have "+ uIntToStr(i+1) + " children");
 	}
 	return children[i];
 }
@@ -754,7 +754,7 @@ XmlNode *XmlNode::getChild(const string &childName, unsigned int i) const {
 		return superNode->getChild(childName,i);
 	}
 	if(i >= children.size()) {
-		throw megaglest_runtime_error("\"" + name + "\" node doesn't have "+intToStr(i+1)+" children named \"" + childName + "\"\n\nTree: "+getTreeString());
+		throw megaglest_runtime_error("\"" + name + "\" node doesn't have " + uIntToStr(i+1) +" children named \"" + childName + "\"\n\nTree: "+getTreeString());
 	}
 
 	int count= 0;
@@ -767,7 +767,7 @@ XmlNode *XmlNode::getChild(const string &childName, unsigned int i) const {
 		}
 	}
 
-	throw megaglest_runtime_error("Node \""+getName()+"\" doesn't have "+intToStr(i+1)+" children named  \""+childName+"\"\n\nTree: "+getTreeString());
+	throw megaglest_runtime_error("Node \""+getName()+"\" doesn't have " + uIntToStr(i+1) + " children named  \""+childName+"\"\n\nTree: "+getTreeString());
 }
 
 bool XmlNode::hasChildNoSuper(const string &childName) const {
