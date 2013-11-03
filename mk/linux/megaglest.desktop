@@ -6,3 +6,5 @@ Icon=megaglest
 Exec=megaglest
 Terminal=false
 Type=Application
+Keywords=realtime;strategy;game;
+
