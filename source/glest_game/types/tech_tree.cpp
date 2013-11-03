@@ -73,6 +73,10 @@ string TechTree::getName(bool translatedValue) {
 	if(foundTranslation == true) {
 		result = lang.getTechTreeString("TechTreeName",name.c_str());
 	}
+	else {
+		result = formatString(result);
+	}
+
 
 	//printf("Line: %d Tech [%s] result [%s]\n",__LINE__,name.c_str(),result.c_str());
 	return result;
@@ -141,7 +145,8 @@ string TechTree::getTranslatedFactionName(string techName, string factionName) {
 
 	getTranslatedName(techName,false,true);
 
-	string result = lang.getTechTreeString("FactionName_" + factionName,factionName.c_str());
+	string result = lang.getTechTreeString("FactionName_" + factionName,formatString(factionName).c_str());
+	printf(">>result = %s\n",result.c_str());
 	translatedTechFactionNames[techName][factionName] = result;
 
 	//printf("Line: %d Translated faction for Tech [%s] faction [%s] result [%s]\n",__LINE__,techName.c_str(),factionName.c_str(),result.c_str());
