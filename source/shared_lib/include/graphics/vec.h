@@ -28,6 +28,7 @@
 #include "data_types.h"
 #include "leak_dumper.h"
 
+using namespace std;
 using namespace Shared::Platform;
 
 namespace Shared{ namespace Graphics{
@@ -61,7 +62,11 @@ inline T truncateDecimal(const T &value, int precision=6) {
 	}
 
 	// See if we can avoid using an int64 for speed
-	static int MAX_INT_VALUE = std::numeric_limits<int>::max();
+// To avoid stupid VC++ compiler error: illegal token on right side of '::'
+#ifdef WIN32 
+#undef max
+#endif
+	static int MAX_INT_VALUE = numeric_limits<int>::max();
 	if((T)value * (T)precNum <= MAX_INT_VALUE) {
 		int resultInt = (T)value * (T)precNum;
 		T result = (T)resultInt / precNum;
