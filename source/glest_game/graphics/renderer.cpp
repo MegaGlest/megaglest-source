@@ -3758,7 +3758,7 @@ template<typename T> void _loadVBO(GLuint &vbo,std::vector<T> buf,int target=GL_
 }
 
 void Renderer::MapRenderer::Layer::load_vbos(bool vboEnabled) {
-	indexCount = indices.size();
+	indexCount = (int)indices.size();
 	if(vboEnabled) {
 		_loadVBO(vbo_vertices,vertices);
 		_loadVBO(vbo_normals,normals);
@@ -3833,7 +3833,7 @@ void Renderer::MapRenderer::loadVisibleLayers(float coordStep,VisibleQuadContain
 		int index[4];
 		int loopIndexes[4] = { 2,0,3,1 };
 		for(int i=0; i < 4; i++) {
-			index[i] = layer->vertices.size();
+			index[i] = (int)layer->vertices.size();
 			SurfaceCell *corner = tc[loopIndexes[i]];
 
 			layer->vertices.push_back(corner->getVertex());
@@ -3904,7 +3904,7 @@ void Renderer::MapRenderer::load(float coordStep) {
 			int index[4];
 			int loopIndexes[4] = { 2,0,3,1 };
 			for(int i=0; i < 4; i++) {
-				index[i] = layer->vertices.size();
+				index[i] = (int)layer->vertices.size();
 				SurfaceCell *corner = tc[loopIndexes[i]];
 				layer->vertices.push_back(corner->getVertex());
 				layer->normals.push_back(corner->getNormal());
@@ -3921,7 +3921,7 @@ void Renderer::MapRenderer::load(float coordStep) {
 			layer->surfTexCoords.push_back(tc[0]->getSurfTexCoord()+Vec2f(coordStep,coordStep));
 			layer->surfTexCoords.push_back(tc[0]->getSurfTexCoord()+Vec2f(coordStep,0));
 
-			layer->cellToIndicesMap[Vec2i(x,y)] = layer->indices.size();
+			layer->cellToIndicesMap[Vec2i(x,y)] = (int)layer->indices.size();
 
 			// and make two triangles (no strip, we may be disjoint)
 			layer->indices.push_back(index[0]);
@@ -4449,7 +4449,7 @@ void Renderer::renderSurface(const int renderFps) {
 						newData.textureHandle = currTex;
 						surface->push_back(newData);
 
-						surfaceDataIndex = surface->size() - 1;
+						surfaceDataIndex = (int)surface->size() - 1;
 					}
 
 					lastSurfaceDataIndex = surfaceDataIndex;
@@ -4606,7 +4606,7 @@ void Renderer::renderObjects(const int renderFps) {
 	//			visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
 	// render from last to first object so animated objects which are on bottom of screen are
 	// rendered first which looks better for limited number of animated tileset objects
-	for(int visibleIndex = qCache.visibleObjectList.size()-1;
+	for(int visibleIndex = (int)qCache.visibleObjectList.size()-1;
 			visibleIndex >= 0 ; --visibleIndex) {
 		Object *o = qCache.visibleObjectList[visibleIndex];
 
@@ -7312,7 +7312,7 @@ void Renderer::saveScreen(const string &path,int w, int h) {
 
 unsigned int Renderer::getSaveScreenQueueSize() {
 	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
-	int queueSize = saveScreenQueue.size();
+	int queueSize = (int)saveScreenQueue.size();
 	safeMutex.ReleaseLock();
 
 	return queueSize;

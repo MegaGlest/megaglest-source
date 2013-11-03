@@ -279,7 +279,7 @@ bool compressFileToZIPFile(string inFile, string outFile, int compressionLevel) 
 	argv.push_back(inFile.c_str());
 	argv.push_back(outFile.c_str());
 
-	int result = zipfile_tool(argv.size(), &argv[0]);
+	int result = zipfile_tool((int)argv.size(), &argv[0]);
 	return(result == EXIT_SUCCESS ? true : false);
 }
 
@@ -290,7 +290,7 @@ bool extractFileFromZIPFile(string inFile, string outFile) {
 	argv.push_back(inFile.c_str());
 	argv.push_back(outFile.c_str());
 
-	int result = zipfile_tool(argv.size(), &argv[0]);
+	int result = zipfile_tool((int)argv.size(), &argv[0]);
 	return(result == EXIT_SUCCESS ? true : false);
 }
 

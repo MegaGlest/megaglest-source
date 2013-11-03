@@ -461,7 +461,7 @@ void removeFolder(const string &path) {
     // First delete files
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] DELETE FILES\n",__FILE__,__FUNCTION__,__LINE__);
 
-    for(int i = results.size() -1; i >= 0; --i) {
+    for(int i = (int)results.size() -1; i >= 0; --i) {
         string item = results[i];
 
         //if(item.find(".svn") != string::npos) {
@@ -476,7 +476,7 @@ void removeFolder(const string &path) {
     // Now delete folders
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] DELETE FOLDERS\n",__FILE__,__FUNCTION__,__LINE__);
 
-    for(int i = results.size() -1; i >= 0; --i) {
+    for(int i = (int)results.size() -1; i >= 0; --i) {
         string item = results[i];
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] item [%s] isdir(item.c_str()) = %d\n",__FILE__,__FUNCTION__,__LINE__,item.c_str(), isdir(item.c_str()));
         if(isdir(item.c_str()) == true) {
@@ -587,7 +587,7 @@ void updatePathClimbingParts(string &path) {
 			path.erase(pos,1);
 		}
 
-		for(int x = pos; x >= 0; --x) {
+		for(int x = (int)pos; x >= 0; --x) {
 			//printf("x [%d][%c] pos [%ld][%c] [%s]\n",x,path[x],(long int)pos,path[pos],path.substr(0,x+1).c_str());
 
 			if((path[x] == '/' || path[x] == '\\') && x != pos) {
@@ -1443,7 +1443,7 @@ string extractLastDirectoryFromPath(string Path) {
 			result = Path.erase( 0, lastDirectory + 1);
 		}
 		else {
-			for(int i = lastDirectory-1; i >= 0; --i) {
+			for(int i = (int)lastDirectory-1; i >= 0; --i) {
 				if((Path[i] == '/' || Path[i] == '\\') && i > 0) {
 					result = Path.erase( 0, i);
 					break;

@@ -1659,30 +1659,30 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 		//PopupMenu popupMenu;
 		std::vector<string> menuItems;
 		menuItems.push_back(lang.getString("ExitGameMenu?"));
-		exitGamePopupMenuIndex = menuItems.size()-1;
+		exitGamePopupMenuIndex = (int)menuItems.size()-1;
 
 		if((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching &&
 			world.getThisFaction() != NULL && world.getThisFaction()->getPersonalityType() != fpt_Observer) {
 			menuItems.push_back(lang.getString("JoinOtherTeam"));
-			joinTeamPopupMenuIndex = menuItems.size()-1;
+			joinTeamPopupMenuIndex = (int)menuItems.size()-1;
 		}
 
 		if(allowAdminMenuItems == true){
 			menuItems.push_back(lang.getString("PauseResumeGame"));
-			pauseGamePopupMenuIndex= menuItems.size() - 1;
+			pauseGamePopupMenuIndex= (int)menuItems.size() - 1;
 
 			if(gameSettings.isNetworkGame() == false){
 				menuItems.push_back(lang.getString("SaveGame"));
-				saveGamePopupMenuIndex= menuItems.size() - 1;
+				saveGamePopupMenuIndex= (int)menuItems.size() - 1;
 			}
 
 			if(gameSettings.isNetworkGame() == true){
 				menuItems.push_back(lang.getString("DisconnectNetorkPlayer"));
-				disconnectPlayerPopupMenuIndex= menuItems.size() - 1;
+				disconnectPlayerPopupMenuIndex= (int)menuItems.size() - 1;
 			}
 		}
 		menuItems.push_back(lang.getString("Keyboardsetup"));
-		keyboardSetupPopupMenuIndex = menuItems.size()-1;
+		keyboardSetupPopupMenuIndex = (int)menuItems.size()-1;
 
 		menuItems.push_back(lang.getString("Cancel"));
 
@@ -2709,7 +2709,7 @@ void Game::update() {
 		}
 
 		if(showPerfStats && chronoPerf.getMillis() >= 50) {
-			for(unsigned int x = 0; x < perfList.size(); ++x) {
+			for(unsigned int x = 0; x < (unsigned int)perfList.size(); ++x) {
 				printf("%s",perfList[x].c_str());
 			}
 		}
@@ -2883,7 +2883,7 @@ void Game::updateNetworkMarkedCells() {
 			gameNetworkInterface->getMarkedCellList(false).empty() == false) {
 
 			std::vector<MarkedCell> chatList = gameNetworkInterface->getMarkedCellList(true);
-			for(int idx = 0; idx < chatList.size(); idx++) {
+			for(int idx = 0; idx < (int)chatList.size(); idx++) {
 				MarkedCell mc = chatList[idx];
 				if(mc.getFactionIndex() >= 0) {
 					mc.setFaction((const Faction *)world.getFaction(mc.getFactionIndex()));
@@ -2912,7 +2912,7 @@ void Game::updateNetworkUnMarkedCells() {
 			//Lang &lang= Lang::getInstance();
 
 			std::vector<UnMarkedCell> chatList = gameNetworkInterface->getUnMarkedCellList(true);
-			for(int idx = 0; idx < chatList.size(); idx++) {
+			for(int idx = 0; idx < (int)chatList.size(); idx++) {
 				UnMarkedCell mc = chatList[idx];
 				mc.setFaction((const Faction *)world.getFaction(mc.getFactionIndex()));
 
@@ -2936,7 +2936,7 @@ void Game::updateNetworkHighligtedCells() {
 		GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 
 		//update the current entries
-		for(int idx = highlightedCells.size()-1; idx >= 0; idx--) {
+		for(int idx = (int)highlightedCells.size()-1; idx >= 0; idx--) {
 			MarkedCell *mc = &highlightedCells[idx];
 			mc->decrementAliveCount();
 			if(mc->getAliveCount() < 0) {
@@ -2948,7 +2948,7 @@ void Game::updateNetworkHighligtedCells() {
 				gameNetworkInterface->getHighlightedCellList(false).empty() == false) {
 			//Lang &lang= Lang::getInstance();
 			std::vector<MarkedCell> highlighList = gameNetworkInterface->getHighlightedCellList(true);
-			for(int idx = 0; idx < highlighList.size(); idx++) {
+			for(int idx = 0; idx < (int)highlighList.size(); idx++) {
 				MarkedCell mc = highlighList[idx]; // I want a copy here
 				if(mc.getFactionIndex() >= 0) {
 					mc.setFaction((const Faction *)world.getFaction(mc.getFactionIndex())); // set faction pointer
@@ -2967,7 +2967,7 @@ void Game::updateNetworkHighligtedCells() {
 
 void Game::addOrReplaceInHighlightedCells(MarkedCell mc){
 	if(mc.getFactionIndex() >= 0) {
-		for(int i = highlightedCells.size()-1; i >= 0; i--) {
+		for(int i = (int)highlightedCells.size()-1; i >= 0; i--) {
 			MarkedCell *currentMc = &highlightedCells[i];
 			if(currentMc->getFactionIndex() == mc.getFactionIndex()) {
 				highlightedCells.erase(highlightedCells.begin()+i);
@@ -3038,7 +3038,7 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 					}
 
 					const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
-					for(unsigned int j = 0; j < languageList.size(); ++j) {
+					for(unsigned int j = 0; j < (unsigned int)languageList.size(); ++j) {
 						if(isPlayerObserver == false) {
 							string msg = "Player #%d [%s] has disconnected, switching player to AI mode!";
 							if(lang.hasString("GameSwitchPlayerToAI",languageList[j],true)) {
@@ -3630,16 +3630,16 @@ void Game::mouseDownLeft(int x, int y) {
 
 						menuItems.push_back(szBuf);
 
-						switchTeamIndexMap[menuItems.size()-1] = faction->getTeam();
+						switchTeamIndexMap[(int)menuItems.size()-1] = faction->getTeam();
 					}
 				}
 
-				if(uniqueTeamNumbersUsed.size() < 8) {
+				if((int)uniqueTeamNumbersUsed.size() < 8) {
 					menuItems.push_back(lang.getString("CreateNewTeam"));
-					switchTeamIndexMap[menuItems.size()-1] = CREATE_NEW_TEAM;
+					switchTeamIndexMap[(int)menuItems.size()-1] = CREATE_NEW_TEAM;
 				}
 				menuItems.push_back(lang.getString("Cancel"));
-				switchTeamIndexMap[menuItems.size()-1] = CANCEL_SWITCH_TEAM;
+				switchTeamIndexMap[(int)menuItems.size()-1] = CANCEL_SWITCH_TEAM;
 
 				popupMenuSwitchTeams.setW(100);
 				popupMenuSwitchTeams.setH(100);
@@ -3692,12 +3692,12 @@ void Game::mouseDownLeft(int x, int y) {
 						menuItems.push_back(szBuf);
 
 						//disconnectPlayerIndexMap[menuItems.size()-1] = faction->getStartLocationIndex();
-						disconnectPlayerIndexMap[menuItems.size()-1] = faction->getIndex();
+						disconnectPlayerIndexMap[(int)menuItems.size()-1] = faction->getIndex();
 					}
 				}
 
 				menuItems.push_back(lang.getString("Cancel"));
-				disconnectPlayerIndexMap[menuItems.size()-1] = CANCEL_DISCONNECT_PLAYER;
+				disconnectPlayerIndexMap[(int)menuItems.size()-1] = CANCEL_DISCONNECT_PLAYER;
 
 				popupMenuDisconnectPlayer.setW(100);
 				popupMenuDisconnectPlayer.setH(100);
@@ -3840,7 +3840,7 @@ void Game::mouseDownLeft(int x, int y) {
 					if(gameNetworkInterface != NULL) {
 						Lang &lang= Lang::getInstance();
 						const vector<string> languageList = settings->getUniqueNetworkPlayerLanguages();
-						for(unsigned int i = 0; i < languageList.size(); ++i) {
+						for(unsigned int i = 0; i < (unsigned int)languageList.size(); ++i) {
 							char szMsg[8096]="";
 							if(lang.hasString("DisconnectNetorkPlayerIndexConfirmed",languageList[i]) == true) {
 								snprintf(szMsg,8096,lang.getString("DisconnectNetorkPlayerIndexConfirmed",languageList[i]).c_str(),factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
@@ -5251,10 +5251,10 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 	if(this->masterserverMode == false) {
 		Renderer &renderer= Renderer::getInstance();
 		VisibleQuadContainerCache &qCache =renderer.getQuadCache();
-		int visibleUnitCount = qCache.visibleQuadUnitList.size();
+		int visibleUnitCount = (int)qCache.visibleQuadUnitList.size();
 		str+= "Visible unit count: " + intToStr(visibleUnitCount) + " total: " + intToStr(totalUnitcount) + "\n";
 
-		int visibleObjectCount = qCache.visibleObjectList.size();
+		int visibleObjectCount = (int)qCache.visibleObjectList.size();
 		str+= "Visible object count: " + intToStr(visibleObjectCount) +"\n";
 	}
 	else {
@@ -5412,7 +5412,7 @@ void Game::render2d() {
         Tokenize(str,lineTokens,"\n");
         int fontHeightNormal = (Renderer::renderText3DEnabled == true ? coreData.getMenuFontNormal3D()->getMetrics()->getHeight("W") : coreData.getMenuFontNormal()->getMetrics()->getHeight("W"));
         int fontHeightBig 	 = (Renderer::renderText3DEnabled == true ? coreData.getMenuFontBig3D()->getMetrics()->getHeight("W") : coreData.getMenuFontBig()->getMetrics()->getHeight("W"));
-        int playerPosY = lineTokens.size() * fontHeightNormal;
+        int playerPosY = (int)lineTokens.size() * fontHeightNormal;
 
         //printf("lineTokens.size() = %d\n",lineTokens.size());
 

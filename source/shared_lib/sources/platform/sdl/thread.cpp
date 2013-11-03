@@ -737,7 +737,7 @@ void MasterSlaveThreadController::init(std::vector<SlaveThreadControllerInterfac
 	static string masterSlaveOwnerId = string(__FILE__) + string("_MasterSlaveThreadController");
 	this->mutex = new Mutex(masterSlaveOwnerId);
 	this->slaveTriggerSem = new Semaphore(0);
-	this->slaveTriggerCounter = newSlaveThreadList.size() + triggerBaseCount;
+	this->slaveTriggerCounter = (int)newSlaveThreadList.size() + triggerBaseCount;
 	setSlaves(newSlaveThreadList);
 }
 
@@ -787,7 +787,7 @@ void MasterSlaveThreadController::setSlaves(std::vector<SlaveThreadControllerInt
 void MasterSlaveThreadController::signalSlaves(void *userdata) {
 	if(debugMasterSlaveThreadController) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	slaveTriggerCounter = this->slaveThreadList.size() + triggerBaseCount;
+	slaveTriggerCounter = (int)this->slaveThreadList.size() + triggerBaseCount;
 
 	if(debugMasterSlaveThreadController) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 

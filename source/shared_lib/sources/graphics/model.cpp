@@ -1400,7 +1400,7 @@ public:
 		return indexValue;
 	}
 	int size() {
-		return meshes.size();
+		return (int)meshes.size();
 	}
 	std::vector<Mesh *>  get() {
 		return meshes;
@@ -1719,7 +1719,7 @@ void Model::autoJoinMeshFrames() {
 
 		delete [] meshes;
 		meshes = joinedMeshList;
-		meshCount = joinedMeshes.size();
+		meshCount = (uint32)joinedMeshes.size();
 	}
 }
 
@@ -1817,7 +1817,7 @@ void PixelBufferWrapper::end() {
 void PixelBufferWrapper::cleanup() {
 	if(PixelBufferWrapper::isPBOEnabled == true) {
 		if(pboIds.empty() == false) {
-			glDeleteBuffersARB(pboIds.size(), &pboIds[0]);
+			glDeleteBuffersARB((int)pboIds.size(), &pboIds[0]);
 			pboIds.clear();
 		}
 	}

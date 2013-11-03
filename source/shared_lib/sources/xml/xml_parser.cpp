@@ -720,7 +720,7 @@ bool XmlNode::hasAttribute(const string &name) const {
 
 int XmlNode::clearChild(const string &childName) {
 	int clearChildCount = 0;
-	for(int i = children.size()-1; i >= 0; --i) {
+	for(int i = (int)children.size()-1; i >= 0; --i) {
 		if(children[i]->getName() == childName) {
 			delete children[i];
 			children.erase(children.begin()+i);
