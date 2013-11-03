@@ -1911,7 +1911,7 @@ void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem, strin
 			translatedFactionNames.push_back(results[i]);
 		}
 		else {
-			translatedFactionNames.push_back(formatString(results[i]+" ("+translatedString+")"));
+			translatedFactionNames.push_back(results[i]+" ("+translatedString+")");
 		}
 		//printf("FACTIONS i = %d results [%s]\n",i,results[i].c_str());
 
@@ -3396,12 +3396,13 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 			factionFiles = results;
 		    vector<string> translatedFactionNames;
 		    for(int i= 0; i < factionFiles.size(); ++i) {
+		    	results[i]= formatString(results[i]);
 				string translatedString=techTree->getTranslatedFactionName(gameSettings->getTech(),factionFiles[i]);
-				if(toLower(translatedString)==toLower(formatString(results[i]))){
-					translatedFactionNames.push_back(formatString(results[i]));
+				if(toLower(translatedString)==toLower(results[i])){
+					translatedFactionNames.push_back(results[i]);
 				}
 				else {
-					translatedFactionNames.push_back(formatString(results[i]+" ("+translatedString+")"));
+					translatedFactionNames.push_back(results[i]+" ("+translatedString+")");
 				}
 		    }
 
@@ -3443,20 +3444,16 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 			factionFiles= results;
 		    vector<string> translatedFactionNames;
 		    for(int i= 0; i < factionFiles.size(); ++i) {
+		    	results[i]= formatString(results[i]);
 		    	string translatedString=techTree->getTranslatedFactionName(gameSettings->getTech(),factionFiles[i]);
-		    	if(toLower(translatedString)==toLower(formatString(results[i]))){
-		    		translatedFactionNames.push_back(formatString(results[i]));
+		    	if(toLower(translatedString)==toLower(results[i])){
+		    		translatedFactionNames.push_back(results[i]);
 		    	}
 		    	else {
-		    		translatedFactionNames.push_back(formatString(results[i]+" ("+translatedString+")"));
+		    		translatedFactionNames.push_back(results[i]+" ("+translatedString+")");
 		    	}
 		    }
 
-			for(int i= 0; i<results.size(); ++i){
-				results[i]= formatString(results[i]);
-
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",gameSettings->getTech().c_str(),results[i].c_str());
-			}
 			for(int i=0; i<GameConstants::maxPlayers; ++i){
 				listBoxFactions[i].setItems(results,translatedFactionNames);
 			}

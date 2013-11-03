@@ -4696,11 +4696,11 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 				translatedString = techTree->getTranslatedFactionName(techTreeFiles[listBoxTechTree.getSelectedItemIndex()],factionFiles[i]);
 			}
 			//printf("translatedString=%s  formatString(results[i])=%s \n",translatedString.c_str(),formatString(results[i]).c_str() );
-			if(toLower(translatedString)==toLower(formatString(results[i]))){
-				translatedFactionNames.push_back(formatString(results[i]));
+			if(toLower(translatedString)==toLower(results[i])){
+				translatedFactionNames.push_back(results[i]);
 			}
 			else {
-				translatedFactionNames.push_back(formatString(results[i]+" ("+translatedString+")"));
+				translatedFactionNames.push_back(results[i]+" ("+translatedString+")");
 			}
 			//printf("FACTIONS i = %d results [%s]\n",i,results[i].c_str());
 

@@ -146,7 +146,7 @@ string TechTree::getTranslatedFactionName(string techName, string factionName) {
 	getTranslatedName(techName,false,true);
 
 	string result = lang.getTechTreeString("FactionName_" + factionName,formatString(factionName).c_str());
-	printf(">>result = %s\n",result.c_str());
+	//printf(">>result = %s\n",result.c_str());
 	translatedTechFactionNames[techName][factionName] = result;
 
 	//printf("Line: %d Translated faction for Tech [%s] faction [%s] result [%s]\n",__LINE__,techName.c_str(),factionName.c_str(),result.c_str());
