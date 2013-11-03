@@ -266,7 +266,7 @@ int glob(   char const  *pattern
 
             //cch = lstrlenW(find_data.cFileName);
 			string sFileName = utf8_encode(find_data.cFileName);
-			cch = sFileName.length();
+			cch = (int)sFileName.length();
             if(NULL != file_part)
             {
                 cch += (int)(file_part - effectivePattern);

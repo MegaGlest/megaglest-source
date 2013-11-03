@@ -320,7 +320,7 @@ void Font::setSize(int size)	{
 void Font::bidi_cvt(string &str_) {
 #ifdef	HAVE_FRIBIDI
 	char		*c_str = const_cast<char *>(str_.c_str());	// fribidi forgot const...
-	FriBidiStrIndex	len = str_.length();
+	FriBidiStrIndex	len = (int)str_.length();
 	FriBidiChar	*bidi_logical = new FriBidiChar[len + 2];
 	FriBidiChar	*bidi_visual = new FriBidiChar[len + 2];
 	char		*utf8str = new char[4*len + 1];	//assume worst case here (all 4 Byte characters)

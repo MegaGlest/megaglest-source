@@ -790,7 +790,7 @@ GameParticleSystem::Primitive GameParticleSystem::strToPrimitive(const string &s
 }
 
 int GameParticleSystem::getChildCount(){
-	return children.size();
+	return (int)children.size();
 }
 
 ParticleSystem* GameParticleSystem::getChild(int i){
@@ -2458,7 +2458,7 @@ void ParticleManager::cleanupParticleSystems(ParticleSystem *ps) {
 
 void ParticleManager::cleanupParticleSystems(vector<ParticleSystem *> &cleanupParticleSystemsList){
 	if(cleanupParticleSystemsList.empty() == false) {
-		for(int i= cleanupParticleSystemsList.size()-1; i >= 0; i--) {
+		for(int i= (int)cleanupParticleSystemsList.size()-1; i >= 0; i--) {
 			ParticleSystem *ps= cleanupParticleSystemsList[i];
 			cleanupParticleSystems(ps);
 		}
@@ -2469,7 +2469,7 @@ void ParticleManager::cleanupParticleSystems(vector<ParticleSystem *> &cleanupPa
 
 void ParticleManager::cleanupUnitParticleSystems(vector<UnitParticleSystem *> &cleanupParticleSystemsList){
 	if(cleanupParticleSystemsList.empty() == false) {
-		for(int i= cleanupParticleSystemsList.size()-1; i >= 0; i--) {
+		for(int i= (int)cleanupParticleSystemsList.size()-1; i >= 0; i--) {
 			ParticleSystem *ps= cleanupParticleSystemsList[i];
 			cleanupParticleSystems(ps);
 		}

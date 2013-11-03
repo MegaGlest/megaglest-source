@@ -327,7 +327,7 @@ vector<Texture2D *> FileCRCPreCacheThread::getPendingTextureList(int maxTextures
 	static string mutexOwnerId = CODE_AT_LINE;
 	MutexSafeWrapper safeMutex(&mutexPendingTextureList,mutexOwnerId);
 	mutexPendingTextureList.setOwnerId(mutexOwnerId);
-	unsigned int listCount = pendingTextureList.size();
+	unsigned int listCount = (unsigned int)pendingTextureList.size();
 	if(listCount > 0) {
 		if(maxTexturesToGet >= 0) {
 			listCount = maxTexturesToGet;

@@ -99,7 +99,7 @@ namespace Shared { namespace Util {
 
     char* ConvertFromUTF8(const char* str) {
         const unsigned char *in = reinterpret_cast<const unsigned char*>(str);
-        int len = strlen(str);
+        int len = (int)strlen(str);
         char *out = new char[len*8];
         memset(out,0,len*8);
 		int outc;
@@ -280,7 +280,7 @@ namespace Shared { namespace Util {
 		if(p.length() > 0) {
 			//printf("In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__); fflush(stdout);
 
-			int bufSize = p.length()*4;
+			int bufSize = (int)p.length()*4;
 			char *szBuf = new char[bufSize];
 			memset(szBuf,0,bufSize);
 			strcpy(szBuf,p.c_str());
