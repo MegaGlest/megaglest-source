@@ -20,6 +20,7 @@
 #include <stdexcept>
 #include <stdlib.h>
 #include <stdio.h>
+#include <limits>
 #include "byte_order.h"
 //#include <tr1/unordered_map>
 //using namespace std::tr1;
@@ -59,8 +60,16 @@ inline T truncateDecimal(const T &value, int precision=6) {
 		precNum = std::pow((T)10,(T)precision);
 	}
 
-	int64 resultInt = (T)value * (T)precNum;
+	// See if we can avoid using an int64 for speed
+	static int MAX_INT_VALUE = std::numeric_limits<int>::max();
+	if((T)value * (T)precNum <= MAX_INT_VALUE) {
+		int resultInt = (T)value * (T)precNum;
+		T result = (T)resultInt / precNum;
+		return result;
+	}
 
+	// Must use an int64 since the result is large
+	int64 resultInt = (T)value * (T)precNum;
 	T result = (long double)resultInt / precNum;
 	return result;
 }
