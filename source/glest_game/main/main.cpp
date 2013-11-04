@@ -394,14 +394,20 @@ void generate_stack_trace(string &out, CONTEXT ctx, int skip) {
   STACKFRAME64 sf = {};
 #if !defined(_WIN64)
   sf.AddrPC.Offset    = ctx.Eip;
+#else
+  sf.AddrPC.Offset    = ctx.Rip;
 #endif
   sf.AddrPC.Mode      = AddrModeFlat;
 #if !defined(_WIN64)
   sf.AddrStack.Offset = ctx.Esp;
+#else
+  sf.AddrStack.Offset = ctx.Rsp;
 #endif
   sf.AddrStack.Mode   = AddrModeFlat;
 #if !defined(_WIN64)
   sf.AddrFrame.Offset = ctx.Ebp;
+#else
+  sf.AddrFrame.Offset = ctx.Rbp;
 #endif
   sf.AddrFrame.Mode   = AddrModeFlat;
 
@@ -415,8 +421,14 @@ void generate_stack_trace(string &out, CONTEXT ctx, int skip) {
 
   for (;;) {
     SetLastError(0);
-    BOOL stack_walk_ok = StackWalk64(IMAGE_FILE_MACHINE_I386, process, thread, &sf,
-                                     (tryThreadContext == false ? &threadContext : &ctx), 0, &SymFunctionTableAccess64,
+#if !defined(_WIN64)
+    BOOL stack_walk_ok = StackWalk64(IMAGE_FILE_MACHINE_I386, 
+#else
+	BOOL stack_walk_ok = StackWalk64(IMAGE_FILE_MACHINE_AMD64, 
+#endif
+									process, thread, &sf,
+                                     (tryThreadContext == false ? &threadContext : &ctx), 
+									 0, &SymFunctionTableAccess64,
                                      &SymGetModuleBase64, 0);
     if (!stack_walk_ok || !sf.AddrFrame.Offset) {
 		if(tryThreadContext == true) {
@@ -424,14 +436,20 @@ void generate_stack_trace(string &out, CONTEXT ctx, int skip) {
 			if(GetThreadContext(thread, &threadContext) != 0) {
 #if !defined(_WIN64)
 			  sf.AddrPC.Offset    = threadContext.Eip;
+#else
+				sf.AddrPC.Offset    = threadContext.Rip;
 #endif
 			  sf.AddrPC.Mode      = AddrModeFlat;
 #if !defined(_WIN64)
 			  sf.AddrStack.Offset = threadContext.Esp;
+#else
+			  sf.AddrStack.Offset = threadContext.Rsp;
 #endif
 			  sf.AddrStack.Mode   = AddrModeFlat;
 #if !defined(_WIN64)
 			  sf.AddrFrame.Offset = threadContext.Ebp;
+#else
+			  sf.AddrFrame.Offset = threadContext.Rbp;
 #endif
 			  sf.AddrFrame.Mode   = AddrModeFlat;
 			}
