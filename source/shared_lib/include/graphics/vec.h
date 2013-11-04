@@ -68,15 +68,15 @@ inline T truncateDecimal(const T &value, int precision=6) {
 #endif
 	static int MAX_INT_VALUE = numeric_limits<int>::max();
 	if((T)value * (T)precNum <= MAX_INT_VALUE) {
-		int resultInt = (T)value * (T)precNum;
+		int resultInt = (int)((T)value * (T)precNum);
 		T result = (T)resultInt / precNum;
 		//printf("=======================\nvalue = %.10f\nresultInt: %d\nprecision: %d\nbecame: %.10f\n----------\n",value,resultInt,precision,result);
 		return result;
 	}
 
 	// Must use an int64 since the result is large
-	int64 resultInt = (T)value * (T)precNum;
-	T result = (long double)resultInt / precNum;
+	int64 resultInt = (int64)((T)value * (T)precNum);
+	T result = (T)((long double)resultInt / precNum);
 	return result;
 }
 

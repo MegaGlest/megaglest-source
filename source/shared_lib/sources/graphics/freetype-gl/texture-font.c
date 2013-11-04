@@ -54,8 +54,8 @@ const struct {
 } FT_Errors[] =
 #include FT_ERRORS_H
 
-#define max(a,b) (a)>(b)?(a):(b)
-#define min(a,b) (a)<(b)?(a):(b)
+//#define max(a,b) (a)>(b)?(a):(b)
+//#define min(a,b) (a)<(b)?(a):(b)
 
 
 /* ------------------------------------------------------------------------- */
@@ -272,9 +272,9 @@ texture_font_cache_glyphs( TextureFont *self,
         slot = face->glyph;
 
         /* Gamma correction (sort of) */
-        for( x=0; x<slot->bitmap.width; ++x )
+        for( x=0; (int)x < slot->bitmap.width; ++x )
         {
-            for( y=0; y<slot->bitmap.rows; ++y )
+            for( y=0; (int)y < slot->bitmap.rows; ++y )
             {
                 c = *(unsigned char *)(slot->bitmap.buffer
                                        + y*slot->bitmap.pitch + x );
