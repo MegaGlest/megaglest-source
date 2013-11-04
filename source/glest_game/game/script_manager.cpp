@@ -3136,7 +3136,7 @@ void ScriptManager::saveGame(XmlNode *rootNode) {
 		XmlNode *unitTriggerEventListNode = scriptManagerNode->addChild("UnitTriggerEventList");
 
 		unitTriggerEventListNode->addAttribute("unitId",intToStr(iterMap->first), mapTagReplacements);
-		unitTriggerEventListNode->addAttribute("evenType",intToStr(iterMap->second), mapTagReplacements);
+		unitTriggerEventListNode->addAttribute("eventType",intToStr(iterMap->second), mapTagReplacements);
 	}
 	scriptManagerNode->addAttribute("lastUnitTriggerEventUnitId",intToStr(lastUnitTriggerEventUnitId), mapTagReplacements);
 	scriptManagerNode->addAttribute("lastUnitTriggerEventType",intToStr(lastUnitTriggerEventType), mapTagReplacements);
@@ -3262,9 +3262,15 @@ void ScriptManager::loadGame(const XmlNode *rootNode) {
 	for(unsigned int i = 0; i < unitTriggerEventListNodeList.size(); ++i) {
 		XmlNode *node = unitTriggerEventListNodeList[i];
 
+		UnitTriggerEventType eventType = utet_None;
 		int unitId = node->getAttribute("unitId")->getIntValue();
-		UnitTriggerEventType evenType = static_cast<UnitTriggerEventType>(node->getAttribute("eventType")->getIntValue());
-		UnitTriggerEventList[unitId] = evenType;
+		if(node->hasAttribute("eventType") == true) {
+			eventType = static_cast<UnitTriggerEventType>(node->getAttribute("eventType")->getIntValue());
+		}
+		else if(node->hasAttribute("evenType") == true) {
+			eventType = static_cast<UnitTriggerEventType>(node->getAttribute("evenType")->getIntValue());
+		}
+		UnitTriggerEventList[unitId] = eventType;
 	}
 	if(scriptManagerNode->hasAttribute("lastUnitTriggerEventUnitId") == true) {
 		lastUnitTriggerEventUnitId = scriptManagerNode->getAttribute("lastUnitTriggerEventUnitId")->getIntValue();

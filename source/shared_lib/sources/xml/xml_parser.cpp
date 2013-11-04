@@ -780,7 +780,7 @@ bool XmlNode::hasChildNoSuper(const string &childName) const {
 	return false;
 }
 XmlNode * XmlNode::getChildWithAliases(vector<string> childNameList, unsigned int childIndex) const {
-	for(int aliasIndex = 0; aliasIndex < childNameList.size(); ++aliasIndex) {
+	for(int aliasIndex = 0; aliasIndex < (int)childNameList.size(); ++aliasIndex) {
 		const string &childName = childNameList[aliasIndex];
 		if(superNode && hasChildNoSuper(childName) == false) {
 			return superNode->getChild(childName,childIndex);
@@ -826,7 +826,7 @@ bool XmlNode::hasChild(const string &childName) const {
 
 bool XmlNode::hasChildWithAliases(vector<string> childNameList) const {
 	bool result = false;
-	for(int aliasIndex = 0; aliasIndex < childNameList.size(); ++aliasIndex) {
+	for(int aliasIndex = 0; aliasIndex < (int)childNameList.size(); ++aliasIndex) {
 		const string &childName = childNameList[aliasIndex];
 		result = hasChild(childName);
 		if(result == true) {
