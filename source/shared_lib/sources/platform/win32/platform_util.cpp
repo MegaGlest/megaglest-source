@@ -201,10 +201,14 @@ string PlatformExceptionHandler::getStackTrace() {
         STACKFRAME stackframe = { 0 };
 #if !defined(_WIN64)
         stackframe.AddrPC.Offset = context.Eip;
+#else
+		stackframe.AddrPC.Offset = context.Rip;
 #endif
         stackframe.AddrPC.Mode = AddrModeFlat;
 #if !defined(_WIN64)
         stackframe.AddrFrame.Offset = context.Ebp;
+#else
+		stackframe.AddrFrame.Offset = context.Rbp;
 #endif
         stackframe.AddrFrame.Mode = AddrModeFlat;
 
@@ -213,7 +217,11 @@ string PlatformExceptionHandler::getStackTrace() {
 
         do
         {
+#if !defined(_WIN64)
             fSuccess = StackWalk(IMAGE_FILE_MACHINE_I386,
+#else
+			fSuccess = StackWalk(IMAGE_FILE_MACHINE_AMD64,
+#endif
                                  GetCurrentProcess(),
                                  GetCurrentThread(),
                                  &stackframe,
@@ -395,6 +403,8 @@ void init_win32() {
 
 #if !defined(_WIN64)
 	::SetClassLong(hwnd, GCL_HICON, iconPtr);
+#else
+	::SetClassLongPtr(hwnd, GCLP_HICON, (LONG_PTR)&iconPtr);
 #endif
 #endif
 
