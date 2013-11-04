@@ -38,7 +38,9 @@ FactionType::FactionType() {
 
 //load a faction, given a directory
 void FactionType::load(const string &factionName, const TechTree *techTree, Checksum* checksum,
-		Checksum *techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
+		Checksum *techtreeChecksum,
+		std::map<string,vector<pair<string, string> > > &loadedFileList,
+		bool validationMode) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -162,29 +164,49 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 			int progressBaseValue=logger.getProgress();
 			for(int i = 0; i < unitTypes.size(); ++i) {
 				string str= currentPath + "units/" + unitTypes[i].getName();
-				unitTypes[i].loaddd(i, str, techTree,techTreePath, this, checksum,techtreeChecksum,
-						loadedFileList);
-				logger.setProgress(progressBaseValue+(int)((((double)i + 1.0) / (double)unitTypes.size()) * 100.0/techTree->getTypeCount()));
-				SDL_PumpEvents();
+
+				try {
+					unitTypes[i].loaddd(i, str, techTree,techTreePath, this, checksum,techtreeChecksum,
+						loadedFileList,validationMode);
+					logger.setProgress(progressBaseValue+(int)((((double)i + 1.0) / (double)unitTypes.size()) * 100.0/techTree->getTypeCount()));
+					SDL_PumpEvents();
+				}
+				catch(megaglest_runtime_error& ex) {
+					if(validationMode == false) {
+						throw ex;
+					}
+					else {
+						SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+					}
+				}
 			}
 		}
 	    catch(megaglest_runtime_error& ex) {
-	    	//printf("1111111b ex.wantStackTrace() = %d\n",ex.wantStackTrace());
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
-			//printf("222222b\n");
-			throw megaglest_runtime_error("Error loading units: "+ currentPath + "\n" + ex.what(),!ex.wantStackTrace());
+			throw megaglest_runtime_error("Error loading units: "+ currentPath + "\nMessage: " + ex.what(),!ex.wantStackTrace());
 	    }
 		catch(const exception &e) {
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
-			throw megaglest_runtime_error("Error loading units: "+ currentPath + "\n" + e.what());
+			throw megaglest_runtime_error("Error loading units: "+ currentPath + "\nMessage: " + e.what());
 		}
 
 		// b2) load upgrades
 		try{
 			for(int i = 0; i < upgradeTypes.size(); ++i) {
 				string str= currentPath + "upgrades/" + upgradeTypes[i].getName();
-				upgradeTypes[i].load(str, techTree, this, checksum,techtreeChecksum,
-						loadedFileList);
+
+				try {
+					upgradeTypes[i].load(str, techTree, this, checksum,
+							techtreeChecksum,loadedFileList,validationMode);
+				}
+				catch(megaglest_runtime_error& ex) {
+					if(validationMode == false) {
+						throw ex;
+					}
+					else {
+						SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+					}
+				}
 
 				SDL_PumpEvents();
 			}
@@ -214,7 +236,18 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 			const XmlNode *resourceNode= startingResourcesNode->getChild("resource", i);
 			string name= resourceNode->getAttribute("name")->getRestrictedValue();
 			int amount= resourceNode->getAttribute("amount")->getIntValue();
-			startingResources[i].init(techTree->getResourceType(name), amount);
+
+			try {
+				startingResources[i].init(techTree->getResourceType(name), amount);
+			}
+			catch(megaglest_runtime_error& ex) {
+				if(validationMode == false) {
+					throw ex;
+				}
+				else {
+					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\nFor FactionType: %s for StartResource: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what(),this->name.c_str(),name.c_str());
+				}
+			}
 
 			SDL_PumpEvents();
 		}
@@ -858,29 +891,32 @@ void FactionType::deletePixels() {
 
 bool FactionType::factionUsesResourceType(const ResourceType *rt) const {
 	bool factionUsesResourceType = false;
-	for(unsigned int j = 0; factionUsesResourceType == false && j < this->getUnitTypeCount(); ++j) {
-		const UnitType *ut= this->getUnitType(j);
-		for(int k = 0; factionUsesResourceType == false && k < ut->getCostCount(); ++k) {
-			const Resource *costResource = ut->getCost(k);
-			//printf("#1 factionUsesResourceType, unit [%s] resource [%s] cost [%s]\n",ut->getName().c_str(),rt->getName().c_str(),costResource->getType()->getName().c_str());
+	if(rt != NULL) {
+		for(unsigned int j = 0; factionUsesResourceType == false && j < this->getUnitTypeCount(); ++j) {
+			const UnitType *ut= this->getUnitType(j);
+			for(int k = 0; factionUsesResourceType == false && k < ut->getCostCount(); ++k) {
+				const Resource *costResource = ut->getCost(k);
+				//printf("#1 factionUsesResourceType, unit [%s] resource [%s] cost [%s]\n",ut->getName().c_str(),rt->getName().c_str(),costResource->getType()->getName().c_str());
 
-			if(costResource != NULL && costResource->getType()->getName() == rt->getName()) {
-				factionUsesResourceType = true;
-				break;
+				if(costResource != NULL && costResource->getType() != NULL &&
+						costResource->getType()->getName() == rt->getName()) {
+					factionUsesResourceType = true;
+					break;
+				}
 			}
-		}
-		if(factionUsesResourceType == false) {
-			for(unsigned int k = 0; factionUsesResourceType == false && k < ut->getCommandTypeCount(); ++k) {
-				const CommandType *commandType = ut->getCommandType(k);
-				if(commandType != NULL && commandType->getClass() == ccHarvest) {
-					const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType *>(commandType);
-					if(hct != NULL && hct->getHarvestedResourceCount() > 0) {
-						for(unsigned int l = 0; factionUsesResourceType == false && l < hct->getHarvestedResourceCount(); ++l) {
-							//printf("#2 factionUsesResourceType, unit [%s] resource [%s] harvest [%s]\n",ut->getName().c_str(),rt->getName().c_str(),hct->getHarvestedResource(l)->getName().c_str());
+			if(factionUsesResourceType == false) {
+				for(unsigned int k = 0; factionUsesResourceType == false && k < ut->getCommandTypeCount(); ++k) {
+					const CommandType *commandType = ut->getCommandType(k);
+					if(commandType != NULL && commandType->getClass() == ccHarvest) {
+						const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType *>(commandType);
+						if(hct != NULL && hct->getHarvestedResourceCount() > 0) {
+							for(unsigned int l = 0; factionUsesResourceType == false && l < hct->getHarvestedResourceCount(); ++l) {
+								//printf("#2 factionUsesResourceType, unit [%s] resource [%s] harvest [%s]\n",ut->getName().c_str(),rt->getName().c_str(),hct->getHarvestedResource(l)->getName().c_str());
 
-							if(hct->getHarvestedResource(l)->getName() == rt->getName()) {
-								factionUsesResourceType = true;
-								break;
+								if(hct->getHarvestedResource(l)->getName() == rt->getName()) {
+									factionUsesResourceType = true;
+									break;
+								}
 							}
 						}
 					}
@@ -888,7 +924,6 @@ bool FactionType::factionUsesResourceType(const ResourceType *rt) const {
 			}
 		}
 	}
-
 	return factionUsesResourceType;
 }
 

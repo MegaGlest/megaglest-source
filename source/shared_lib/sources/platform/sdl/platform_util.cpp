@@ -60,12 +60,12 @@ const char * getDialogCommand() {
   return NULL;
 }
 
-bool showMessage(const std::string & warning) {
+bool showMessage(std::string warning) {
   bool guiMessage = false;
   const char * dialogCommand = getDialogCommand();
   if (dialogCommand) {
     std::string command = dialogCommand;
-    command += " --title \"Error\" --msgbox \"`printf \"" + warning + "\"`\"";
+    command += " --title \"Error\" --msgbox \"`printf \"" + warning.erase(4096,std::string::npos) + "\"`\"";
 
     //printf("\n\n\nzenity command [%s]\n\n\n",command.c_str());
 
@@ -79,9 +79,11 @@ bool showMessage(const std::string & warning) {
 }
 
 void message(string message, bool isNonGraphicalModeEnabled) {
+	std::cerr << "\n\n\n";
 	std::cerr << "******************************************************\n";
 	std::cerr << "    " << message << "\n";
 	std::cerr << "******************************************************\n";
+	std::cerr << "\n\n\n";
 
 	if(isNonGraphicalModeEnabled == false) {
 		showMessage(message);

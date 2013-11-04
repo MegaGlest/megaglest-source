@@ -454,14 +454,16 @@ Checksum World::loadTileset(const string &dir, Checksum *checksum, std::map<stri
 
 //load tech
 Checksum World::loadTech(const vector<string> pathList, const string &techName,
-		set<string> &factions, Checksum *checksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
+		set<string> &factions, Checksum *checksum,
+		std::map<string,vector<pair<string, string> > > &loadedFileList,
+		bool validationMode) {
 	Checksum techtreeChecksum;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	techTree = new TechTree(pathList);
 	techtreeChecksum = techTree->loadTech( techName, factions,
-			checksum,loadedFileList);
+			checksum,loadedFileList,validationMode);
 	return techtreeChecksum;
 }
 

@@ -164,9 +164,11 @@ void UnitType::preLoad(const string &dir) {
 	name= lastDir(dir);
 }
 
-void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const string &techTreePath,
-		const FactionType *factionType, Checksum* checksum,
-		Checksum* techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
+void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
+		const string &techTreePath, const FactionType *factionType,
+		Checksum* checksum, Checksum* techtreeChecksum,
+		std::map<string,vector<pair<string, string> > > &loadedFileList,
+		bool validationMode) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -281,7 +283,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 				const XmlNode *rowNode= cellMapNode->getChild("row", i);
 				string row= rowNode->getAttribute("value")->getRestrictedValue();
 				if(row.size()!=size){
-					throw megaglest_runtime_error("Cellmap row has not the same length as unit size");
+					throw megaglest_runtime_error("Cellmap row has not the same length as unit size",validationMode);
 				}
 				for(int j=0; j<row.size(); ++j){
 					cellMap[i*size+j]= row[j]=='0'? false: true;
@@ -294,6 +296,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 		levels.resize(levelsNode->getChildCount());
 		for(int i=0; i<levels.size(); ++i){
 			const XmlNode *levelNode= levelsNode->getChild("level", i);
+
 			levels[i].init(
 				levelNode->getAttribute("name")->getRestrictedValue(),
 				levelNode->getAttribute("kills")->getIntValue());
@@ -311,7 +314,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 				fields[fAir]= true;
 			}
 			else{
-				throw megaglest_runtime_error("Not a valid field: "+fieldName+": "+ path);
+				throw megaglest_runtime_error("Not a valid field: "+fieldName+": "+ path, validationMode);
 			}
 		}
 
@@ -322,7 +325,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 			field = fAir;
 		}
 		else {
-			throw megaglest_runtime_error("Unit has no field: " + path);
+			throw megaglest_runtime_error("Unit has no field: " + path, validationMode);
 		}
 
 		//properties
@@ -339,7 +342,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 				}
 			}
 			if(!found) {
-				throw megaglest_runtime_error("Unknown property: " + propertyName);
+				throw megaglest_runtime_error("Unknown property: " + propertyName, validationMode);
 			}
 		}
 		//damage-particles
@@ -353,17 +356,10 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 					string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 					UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
 
-					//Texture2D *newTexture = Renderer::getInstance().newTexture2D(rsGame);
-					//Texture2D *newTexture = NULL;
-
 					unitParticleSystemType->load(particleFileNode, dir, currentPath + path,
 							&Renderer::getInstance(),loadedFileList, sourceXMLFile,
 							techTree->getPath());
 					loadedFileList[currentPath + path].push_back(make_pair(sourceXMLFile,particleFileNode->getAttribute("path")->getRestrictedValue()));
-
-					//if(unitParticleSystemType->hasTexture() == false) {
-						//Renderer::getInstance().endLastTexture(rsGame,true);
-					//}
 
 					if(particleFileNode->getAttribute("minHp",false) != NULL && particleFileNode->getAttribute("maxHp",false) != NULL) {
 						unitParticleSystemType->setMinmaxEnabled(true);
@@ -374,7 +370,6 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 							unitParticleSystemType->setMinmaxIsPercent(particleFileNode->getAttribute("ispercentbased")->getBoolValue());
 						}
 
-						//printf("Found customized particle trigger by HP [%d to %d]\n",unitParticleSystemType->getMinHp(),unitParticleSystemType->getMaxHp());
 					}
 
 					damageParticleSystemTypes.push_back(unitParticleSystemType);
@@ -476,8 +471,18 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 		int index = 0;
 		for(std::map<string,int>::iterator iterMap = sortedItems.begin();
 				iterMap != sortedItems.end(); ++iterMap) {
-			costs[index].init(techTree->getResourceType(iterMap->first), iterMap->second);
-			index++;
+			try {
+				costs[index].init(techTree->getResourceType(iterMap->first), iterMap->second);
+				index++;
+			}
+			catch(megaglest_runtime_error& ex) {
+				if(validationMode == false) {
+					throw ex;
+				}
+				else {
+					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\nFor UnitType: %s Cost: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what(),name.c_str(),iterMap->second);
+				}
+			}
 		}
 		sortedItems.clear();
 		hasDup = false;
@@ -508,8 +513,18 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 		index = 0;
 		for(std::map<string,int>::iterator iterMap = sortedItems.begin();
 				iterMap != sortedItems.end(); ++iterMap) {
-			storedResources[index].init(techTree->getResourceType(iterMap->first), iterMap->second);
-			index++;
+			try {
+				storedResources[index].init(techTree->getResourceType(iterMap->first), iterMap->second);
+				index++;
+			}
+			catch(megaglest_runtime_error& ex) {
+				if(validationMode == false) {
+					throw ex;
+				}
+				else {
+					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\nFor UnitType: %s Store: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what(),name.c_str(),iterMap->second);
+				}
+			}
 		}
 		sortedItems.clear();
 
@@ -544,21 +559,24 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 		if(parametersNode->hasChild("count-unit-death-in-stats")){
 			const XmlNode *countUnitDeathInStatsNode= parametersNode->getChild("count-unit-death-in-stats");
 			countUnitDeathInStats= countUnitDeathInStatsNode->getAttribute("value")->getBoolValue();
-		} else {
+		}
+		else {
 			countUnitDeathInStats=true;
 		}
 		//countUnitProductionInStats
 		if(parametersNode->hasChild("count-unit-production-in-stats")){
 			const XmlNode *countUnitProductionInStatsNode= parametersNode->getChild("count-unit-production-in-stats");
 			countUnitProductionInStats= countUnitProductionInStatsNode->getAttribute("value")->getBoolValue();
-		} else {
+		}
+		else {
 			countUnitProductionInStats=true;
 		}
 		//countUnitKillInStats
 		if(parametersNode->hasChild("count-unit-kill-in-stats")){
 			const XmlNode *countUnitKillInStatsNode= parametersNode->getChild("count-unit-kill-in-stats");
 			countUnitKillInStats= countUnitKillInStatsNode->getAttribute("value")->getBoolValue();
-		} else {
+		}
+		else {
 			countUnitKillInStats=true;
 		}
 
@@ -622,9 +640,19 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 			string classId= typeNode->getAttribute("value")->getRestrictedValue();
 			SkillType *skillType= SkillTypeFactory::getInstance().newInstance(classId);
 
-			skillType->load(sn, attackBoostsNode, dir, techTree, factionType, loadedFileList,sourceXMLFile);
-			skillTypes[i]= skillType;
-
+			skillTypes[i]=NULL;
+			try {
+				skillType->load(sn, attackBoostsNode, dir, techTree, factionType, loadedFileList,sourceXMLFile);
+				skillTypes[i]= skillType;
+			}
+			catch(megaglest_runtime_error& ex) {
+				if(validationMode == false) {
+					throw ex;
+				}
+				else {
+					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\nFor UnitType: %s SkillType: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what(),name.c_str(),classId.c_str());
+				}
+			}
 		}
 
 		//commands
@@ -635,32 +663,42 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree, const 
 			const XmlNode *typeNode= commandNode->getChild("type");
 			string classId= typeNode->getAttribute("value")->getRestrictedValue();
 			CommandType *commandType= CommandTypeFactory::getInstance().newInstance(classId);
-			commandType->load(i, commandNode, dir, techTree, factionType, *this,
-					loadedFileList,sourceXMLFile);
-			commandTypes[i]= commandType;
+
+			commandTypes[i]=NULL;
+			try {
+				commandType->load(i, commandNode, dir, techTree, factionType, *this,
+						loadedFileList,sourceXMLFile);
+				commandTypes[i]= commandType;
+			}
+			catch(megaglest_runtime_error& ex) {
+				if(validationMode == false) {
+					throw ex;
+				}
+				else {
+					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\nFor UnitType: %s CommandType:%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what(),name.c_str(),classId.c_str());
+				}
+			}
 		}
 
 		computeFirstStOfClass();
 		computeFirstCtOfClass();
 
 		if(getFirstStOfClass(scStop)==NULL){
-			throw megaglest_runtime_error("Every unit must have at least one stop skill: "+ path);
+			throw megaglest_runtime_error("Every unit must have at least one stop skill: "+ path,validationMode);
 		}
 		if(getFirstStOfClass(scDie)==NULL){
-			throw megaglest_runtime_error("Every unit must have at least one die skill: "+ path);
+			throw megaglest_runtime_error("Every unit must have at least one die skill: "+ path,validationMode);
 		}
 
 	}
 	//Exception handling (conversions and so on);
     catch(megaglest_runtime_error& ex) {
-    	//printf("1111111a ex.wantStackTrace() = %d\n",ex.wantStackTrace());
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
-		//printf("222222a\n");
-		throw megaglest_runtime_error("Error loading UnitType: " + path + "\n" + ex.what(),!ex.wantStackTrace());
+		throw megaglest_runtime_error("Error loading UnitType: " + path + "\nMessage: " + ex.what(),!ex.wantStackTrace());
     }
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
-		throw megaglest_runtime_error("Error loading UnitType: " + path + "\n" + e.what());
+		throw megaglest_runtime_error("Error loading UnitType: " + path + "\nMessage: " + e.what());
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -976,7 +1014,7 @@ void UnitType::computeFirstStOfClass() {
 	for(int j= 0; j < scCount; ++j) {
         firstSkillTypeOfClass[j]= NULL;
         for(int i= 0; i < skillTypes.size(); ++i) {
-            if(skillTypes[i]->getClass()== SkillClass(j)) {
+            if(skillTypes[i] != NULL && skillTypes[i]->getClass()== SkillClass(j)) {
                 firstSkillTypeOfClass[j]= skillTypes[i];
                 break;
             }
@@ -988,7 +1026,7 @@ void UnitType::computeFirstCtOfClass() {
     for(int j = 0; j < ccCount; ++j) {
         firstCommandTypeOfClass[j]= NULL;
         for(int i = 0; i < commandTypes.size(); ++i) {
-            if(commandTypes[i]->getClass() == CommandClass(j)) {
+            if(commandTypes[i] != NULL && commandTypes[i]->getClass() == CommandClass(j)) {
                 firstCommandTypeOfClass[j] = commandTypes[i];
                 break;
             }

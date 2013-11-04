@@ -56,12 +56,17 @@ private:
 	string languageUsedForCache;
 	std::map<string,string> translatedTechNames;
 	std::map<string,std::map<string,string> > translatedTechFactionNames;
+	bool isValidationModeEnabled;
 
 public:
     Checksum loadTech(const string &techName,
-    		set<string> &factions, Checksum* checksum, std::map<string,vector<pair<string, string> > > &loadedFileList);
+    		set<string> &factions, Checksum* checksum,
+    		std::map<string,vector<pair<string, string> > > &loadedFileList,
+    		bool validationMode=false);
     void load(const string &dir, set<string> &factions, Checksum* checksum,
-    		Checksum *techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList);
+    		Checksum *techtreeChecksum,
+    		std::map<string,vector<pair<string, string> > > &loadedFileList,
+    		bool validationMode=false);
     string findPath(const string &techName) const;
     static string findPath(const string &techName, const vector<string> &pathTechList);
 
