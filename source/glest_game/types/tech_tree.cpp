@@ -46,6 +46,7 @@ TechTree::TechTree(const vector<string> pathList) {
 	translatedTechNames.clear();
 	translatedTechFactionNames.clear();
 	languageUsedForCache = "";
+	isValidationModeEnabled = false;
 }
 
 string TechTree::getNameUntranslated() const {
@@ -155,13 +156,17 @@ string TechTree::getTranslatedFactionName(string techName, string factionName) {
 }
 
 Checksum TechTree::loadTech(const string &techName,
-		set<string> &factions, Checksum* checksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
+		set<string> &factions, Checksum* checksum,
+		std::map<string,vector<pair<string, string> > > &loadedFileList,
+		bool validationMode) {
 	name = "";
+	isValidationModeEnabled = validationMode;
     Checksum techtreeChecksum;
     string path=findPath(techName);
     if(path!="") {
     	//printf(">>> path=%s\n",path.c_str());
-        load(path, factions, checksum, &techtreeChecksum, loadedFileList);
+        load(path, factions, checksum, &techtreeChecksum, loadedFileList,
+        		validationMode);
     }
     else {
     	printf(">>> techtree [%s] path not found.\n",techName.c_str());
@@ -191,7 +196,9 @@ string TechTree::findPath(const string &techName, const vector<string> &pathTech
 
 
 void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum,
-		Checksum *techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
+		Checksum *techtreeChecksum,
+		std::map<string,vector<pair<string, string> > > &loadedFileList,
+		bool validationMode) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	string currentPath = dir;
@@ -230,7 +237,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
     }
     catch(const exception &e){
     	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
-		throw megaglest_runtime_error("Error loading Resource Types in: [" + currentPath + "]\n" + e.what());
+		throw megaglest_runtime_error("Error loading Resource Types in: [" + currentPath + "]\n" + e.what(),isValidationModeEnabled);
     }
 
     // give CPU time to update other things to avoid apperance of hanging
@@ -302,7 +309,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
     }
     catch(const exception &e){
     	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
-		throw megaglest_runtime_error("Error loading Tech Tree: "+ currentPath + "\n" + e.what());
+		throw megaglest_runtime_error("Error loading Tech Tree: "+ currentPath + "\n" + e.what(),isValidationModeEnabled);
     }
 
     // give CPU time to update other things to avoid apperance of hanging
@@ -327,7 +334,8 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		    logger.setState(szBuf);
 		    logger.setProgress((int)((((double)i) / (double)factions.size()) * 100.0));
 
-			factionTypes[i++].load(factionName, this, checksum,&checksumValue,loadedFileList);
+			factionTypes[i++].load(factionName, this, checksum,&checksumValue,
+					loadedFileList,validationMode);
 
 		    // give CPU time to update other things to avoid apperance of hanging
 		    sleep(0);
@@ -336,14 +344,12 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
         }
     }
     catch(megaglest_runtime_error& ex) {
-    	//printf("1111111b ex.wantStackTrace() = %d\n",ex.wantStackTrace());
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
-		//printf("222222b\n");
-		throw megaglest_runtime_error("Error loading Faction Types: "+ currentPath + "\n" + ex.what(),!ex.wantStackTrace());
+		throw megaglest_runtime_error("Error loading Faction Types: "+ currentPath + "\nMessage: " + ex.what(),!ex.wantStackTrace() || isValidationModeEnabled);
     }
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
-		throw megaglest_runtime_error("Error loading Faction Types: "+ currentPath + "\n" + e.what());
+		throw megaglest_runtime_error("Error loading Faction Types: "+ currentPath + "\nMessage: " + e.what(),isValidationModeEnabled);
     }
 
     if(techtreeChecksum != NULL) {
@@ -429,7 +435,7 @@ FactionType *TechTree::getTypeByName(const string &name) {
           }
     }
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-    throw megaglest_runtime_error("Faction not found: "+name);
+    throw megaglest_runtime_error("Faction not found: " + name,isValidationModeEnabled);
 }
 
 const FactionType *TechTree::getType(const string &name) const {
@@ -439,7 +445,7 @@ const FactionType *TechTree::getType(const string &name) const {
           }
     }
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-    throw megaglest_runtime_error("Faction not found: "+name);
+    throw megaglest_runtime_error("Faction not found: " + name,isValidationModeEnabled);
 }
 
 const ResourceType *TechTree::getTechResourceType(int i) const{
@@ -466,8 +472,7 @@ const ResourceType *TechTree::getFirstTechResourceType() const{
 
      char szBuf[8096]="";
      snprintf(szBuf,8096,"The referenced tech tree [%s] is either missing or has no resources defined but at least one resource is required.",this->name.c_str());
-	 //throw megaglest_runtime_error("This tech tree has no resources defined, at least one is required");
-     throw megaglest_runtime_error(szBuf);
+     throw megaglest_runtime_error(szBuf,isValidationModeEnabled);
 }
 
 const ResourceType *TechTree::getResourceType(const string &name) const{
@@ -478,7 +483,7 @@ const ResourceType *TechTree::getResourceType(const string &name) const{
 		}
 	}
 
-	throw megaglest_runtime_error("Resource Type not found: "+name);
+	throw megaglest_runtime_error("Resource Type not found: " + name,isValidationModeEnabled);
 }
 
 const ArmorType *TechTree::getArmorType(const string &name) const{
@@ -488,7 +493,7 @@ const ArmorType *TechTree::getArmorType(const string &name) const{
 		}
 	}
 
-	throw megaglest_runtime_error("Armor Type not found: "+name);
+	throw megaglest_runtime_error("Armor Type not found: " + name,isValidationModeEnabled);
 }
 
 const AttackType *TechTree::getAttackType(const string &name) const{
@@ -498,7 +503,7 @@ const AttackType *TechTree::getAttackType(const string &name) const{
 		}
 	}
 
-	throw megaglest_runtime_error("Attack Type not found: "+name);
+	throw megaglest_runtime_error("Attack Type not found: " + name,isValidationModeEnabled);
 }
 
 double TechTree::getDamageMultiplier(const AttackType *att, const ArmorType *art) const {

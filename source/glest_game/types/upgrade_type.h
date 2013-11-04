@@ -204,7 +204,9 @@ public:
 	void preLoad(const string &dir);
     void load(const string &dir, const TechTree *techTree,
     		const FactionType *factionType, Checksum* checksum,
-    		Checksum* techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList);
+    		Checksum* techtreeChecksum,
+    		std::map<string,vector<pair<string, string> > > &loadedFileList,
+    		bool validationMode=false);
 
     virtual string getName(bool translatedValue=false) const;
 

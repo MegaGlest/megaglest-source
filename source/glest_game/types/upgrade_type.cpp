@@ -585,7 +585,9 @@ void UpgradeType::preLoad(const string &dir){
 
 void UpgradeType::load(const string &dir, const TechTree *techTree,
 		const FactionType *factionType, Checksum* checksum,
-		Checksum* techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList) {
+		Checksum* techtreeChecksum, std::map<string,
+		vector<pair<string, string> > > &loadedFileList,
+		bool validationMode) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	char szBuf[8096]="";
@@ -610,29 +612,9 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 
 		//image
 		image = NULL; // Not used for upgrade types
-//		const XmlNode *imageNode= upgradeNode->getChild("image");
-//		image= Renderer::getInstance().newTexture2D(rsGame);
-//		if(image) {
-//			image->load(imageNode->getAttribute("path")->getRestrictedValue(currentPath,true));
-//		}
-//		loadedFileList[imageNode->getAttribute("path")->getRestrictedValue(currentPath,true)].push_back(make_pair(sourceXMLFile,imageNode->getAttribute("path")->getRestrictedValue()));
-
-		//if(fileExists(imageNode->getAttribute("path")->getRestrictedValue(currentPath,true)) == false) {
-		//	printf("\n***ERROR MISSING FILE [%s]\n",imageNode->getAttribute("path")->getRestrictedValue(currentPath,true).c_str());
-		//}
 
 		//image cancel
 		cancelImage = NULL; // Not used for upgrade types
-//		const XmlNode *imageCancelNode= upgradeNode->getChild("image-cancel");
-//		cancelImage= Renderer::getInstance().newTexture2D(rsGame);
-//		if(cancelImage) {
-//			cancelImage->load(imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath,true));
-//		}
-//		loadedFileList[imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath,true)].push_back(make_pair(sourceXMLFile,imageCancelNode->getAttribute("path")->getRestrictedValue()));
-
-		//if(fileExists(imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath,true)) == false) {
-		//	printf("\n***ERROR MISSING FILE [%s]\n",imageCancelNode->getAttribute("path")->getRestrictedValue(currentPath,true).c_str());
-		//}
 
 		//upgrade time
 		const XmlNode *upgradeTimeNode= upgradeNode->getChild("time");
@@ -719,8 +701,19 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 		index = 0;
 		for(std::map<string,int>::iterator iterMap = sortedItems.begin();
 				iterMap != sortedItems.end(); ++iterMap) {
-			costs[index].init(techTree->getResourceType(iterMap->first), iterMap->second);
-			index++;
+			try {
+				costs[index].init(techTree->getResourceType(iterMap->first), iterMap->second);
+				index++;
+			}
+			catch(megaglest_runtime_error& ex) {
+				if(validationMode == false) {
+					throw ex;
+				}
+				else {
+					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\nFor UpgradeType: %s Cost: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what(),name.c_str(),iterMap->second);
+				}
+			}
+
 		}
 		sortedItems.clear();
 		hasDup = false;

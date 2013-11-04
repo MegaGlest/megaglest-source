@@ -163,9 +163,12 @@ public:
     UnitType();
     virtual ~UnitType();
 	void preLoad(const string &dir);
-    void loaddd(int id, const string &dir, const TechTree *techTree,const string &techTreePath,
+    void loaddd(int id, const string &dir, const TechTree *techTree,
+    		const string &techTreePath,
     		const FactionType *factionType, Checksum* checksum,
-    		Checksum* techtreeChecksum, std::map<string,vector<pair<string, string> > > &loadedFileList);
+    		Checksum* techtreeChecksum,
+    		std::map<string,vector<pair<string, string> > > &loadedFileList,
+    		bool validationMode=false);
 
     virtual string getName(bool translatedValue=false) const;
 

@@ -70,6 +70,7 @@ inline T truncateDecimal(const T &value, int precision=6) {
 	if((T)value * (T)precNum <= MAX_INT_VALUE) {
 		int resultInt = (T)value * (T)precNum;
 		T result = (T)resultInt / precNum;
+		//printf("=======================\nvalue = %.10f\nresultInt: %d\nprecision: %d\nbecame: %.10f\n----------\n",value,resultInt,precision,result);
 		return result;
 	}
 

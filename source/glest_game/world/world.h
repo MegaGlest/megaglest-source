@@ -205,7 +205,9 @@ public:
 			std::map<string,vector<pair<string, string> > > &loadedFileList);
 	void clearTileset();
 	Checksum loadTech(const vector<string> pathList, const string &techName,
-			set<string> &factions, Checksum* checksum,std::map<string,vector<pair<string, string> > > &loadedFileList);
+			set<string> &factions, Checksum* checksum,
+			std::map<string,vector<pair<string, string> > > &loadedFileList,
+			bool validationMode=false);
 	Checksum loadMap(const string &path, Checksum* checksum);
 	Checksum loadScenario(const string &path, Checksum* checksum,bool resetCurrentScenario=false,const XmlNode *rootNode=NULL);
 	void setQueuedScenario(string scenarioName,bool keepFactions);
