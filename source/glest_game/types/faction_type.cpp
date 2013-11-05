@@ -173,7 +173,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 				}
 				catch(megaglest_runtime_error& ex) {
 					if(validationMode == false) {
-						throw ex;
+						throw;
 					}
 					else {
 						SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
@@ -201,7 +201,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 				}
 				catch(megaglest_runtime_error& ex) {
 					if(validationMode == false) {
-						throw ex;
+						throw;
 					}
 					else {
 						SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
@@ -242,7 +242,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 			}
 			catch(megaglest_runtime_error& ex) {
 				if(validationMode == false) {
-					throw ex;
+					throw;
 				}
 				else {
 					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\nFor FactionType: %s for StartResource: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what(),this->name.c_str(),name.c_str());
