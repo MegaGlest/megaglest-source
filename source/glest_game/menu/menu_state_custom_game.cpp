@@ -4648,6 +4648,7 @@ int MenuStateCustomGame::setupTechList(string scenario, bool forceLoad) {
 void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string scenario) {
 	try {
 		Config &config = Config::getInstance();
+		Lang &lang= Lang::getInstance();
 
 		vector<string> results;
 		string scenarioDir = Scenario::getScenarioDir(dirList, scenario);
@@ -4681,12 +4682,12 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 			}
 		}
 
-		results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
-
-		// Add special Observer Faction
-		if(checkBoxAllowObservers.getValue() == 1) {
-			results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
-		}
+//		results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
+//
+//		// Add special Observer Faction
+//		if(checkBoxAllowObservers.getValue() == 1) {
+//			results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
+//		}
 
 		vector<string> translatedFactionNames;
 		factionFiles= results;
@@ -4707,6 +4708,16 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 			//printf("FACTIONS i = %d results [%s]\n",i,results[i].c_str());
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",techTreeFiles[listBoxTechTree.getSelectedItemIndex()].c_str(),results[i].c_str());
+		}
+		results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
+		factionFiles.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
+		translatedFactionNames.push_back("*"+lang.getString("Random","",true)+"*");
+
+		// Add special Observer Faction
+		if(checkBoxAllowObservers.getValue() == 1) {
+			results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
+			factionFiles.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
+			translatedFactionNames.push_back("*"+lang.getString("Observer","",true)+"*");
 		}
 
 		for(int i = 0; i < GameConstants::maxPlayers; ++i) {

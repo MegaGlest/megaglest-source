@@ -1874,6 +1874,7 @@ string MenuStateConnectedGame::getCurrentMapFile() {
 void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem, string scenario) {
 	vector<string> results;
     Config &config = Config::getInstance();
+	Lang &lang= Lang::getInstance();
 
     string scenarioDir = Scenario::getScenarioDir(dirList, scenario);
     vector<string> techPaths = config.getPathListForType(ptTechs,scenarioDir);
@@ -1895,13 +1896,6 @@ void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem, strin
 		//generalErrorToShow = "[#2] There are no factions for the tech tree [" + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "]";
     }
 
-    results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
-
-    // Add special Observer Faction
-    if(checkBoxAllowObservers.getValue() == false) {
-    	results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
-    }
-
 	vector<string> translatedFactionNames;
 	factionFiles= results;
 	for(int i = 0; i < results.size(); ++i) {
@@ -1916,6 +1910,17 @@ void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem, strin
 		//printf("FACTIONS i = %d results [%s]\n",i,results[i].c_str());
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"Tech [%s] has faction [%s]\n",techTreeFiles[listBoxTechTree.getSelectedItemIndex()].c_str(),results[i].c_str());
+	}
+
+	results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
+	factionFiles.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
+	translatedFactionNames.push_back("*"+lang.getString("Random","",true)+"*");
+
+	// Add special Observer Faction
+	if(checkBoxAllowObservers.getValue() == 1) {
+		results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
+		factionFiles.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
+		translatedFactionNames.push_back("*"+lang.getString("Observer","",true)+"*");
 	}
 
     for(int i=0; i<GameConstants::maxPlayers; ++i){
@@ -3363,6 +3368,7 @@ void MenuStateConnectedGame::update() {
 bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool errorOnNoFactions) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+	Lang &lang= Lang::getInstance();
 	bool foundFactions = false;
 	vector<string> results;
 
@@ -3435,11 +3441,6 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 		else {
 			lastMissingTechtree = "";
 			getMissingTechtreeFromFTPServer = "";
-			// Add special Observer Faction
-			if(gameSettings->getAllowObservers() == true) {
-				results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
-			}
-			results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
 
 			factionFiles= results;
 		    vector<string> translatedFactionNames;
@@ -3453,6 +3454,18 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 		    		translatedFactionNames.push_back(results[i]+" ("+translatedString+")");
 		    	}
 		    }
+
+			results.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
+			factionFiles.push_back(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
+			translatedFactionNames.push_back("*"+lang.getString("Random","",true)+"*");
+
+			// Add special Observer Faction
+			if(checkBoxAllowObservers.getValue() == 1) {
+				results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
+				factionFiles.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
+				translatedFactionNames.push_back("*"+lang.getString("Observer","",true)+"*");
+			}
+
 
 			for(int i=0; i<GameConstants::maxPlayers; ++i){
 				listBoxFactions[i].setItems(results,translatedFactionNames);
