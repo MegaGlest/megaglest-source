@@ -21,6 +21,11 @@
     #endif
 
 	typedef SOCKET PLATFORM_SOCKET;
+	#if defined(_WIN64)
+		#define PLATFORM_SOCKET_FORMAT_TYPE MG_I64U_SPECIFIER
+	#else
+		#define PLATFORM_SOCKET_FORMAT_TYPE "%d"
+	#endif
 #else
 	#include <unistd.h>
 	#include <sys/socket.h>
@@ -29,7 +34,7 @@
 	#include <netdb.h>
 
 	typedef int PLATFORM_SOCKET;
-
+	#define PLATFORM_SOCKET_FORMAT_TYPE "%d"
 #endif
 
 #include <string>

@@ -192,7 +192,7 @@
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions</EnableEnhancedInstructionSet>
       <PrecompiledHeader>
       </PrecompiledHeader>
       <PrecompiledHeaderFile>
