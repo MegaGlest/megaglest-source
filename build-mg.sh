@@ -2,7 +2,7 @@
 # Use this script to build MegaGlest using cmake
 # ----------------------------------------------------------------------------
 # Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
-# Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+
+# Copyright (c) 2011-2013 Mark Vejvoda under GNU GPL v3.0+
 
 LANG=C
 NUMCORES=`lscpu -p | grep -cv '^#'`
