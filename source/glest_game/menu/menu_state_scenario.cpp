@@ -200,6 +200,7 @@ void MenuStateScenario::cleanupPreviewTexture() {
 void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
 	CoreData &coreData= CoreData::getInstance();
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+	string advanceToItemStartingWith = "";
 
 	if(mainMessageBox.getEnabled()){
 		int button= 0;
@@ -214,8 +215,19 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
 				}
 			}
 		}
+		return;
 	}
-	else if(buttonReturn.mouseClick(x,y)){
+    else {
+    	if(Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
+    		const wchar_t lastKey = Shared::Platform::Window::extractLastKeyPressed();
+//        		xxx:
+//        		string hehe=lastKey;
+//        		printf("lastKey = %d [%c] '%s'\n",lastKey,lastKey,hehe);
+    		advanceToItemStartingWith =  lastKey;
+    	}
+    }
+
+	if(buttonReturn.mouseClick(x,y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
 		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
 		return;
@@ -225,7 +237,7 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
 		launchGame();
 		return;
 	}
-    else if(listBoxScenario.mouseClick(x, y)){
+    else if(listBoxScenario.mouseClick(x, y,advanceToItemStartingWith)){
         try {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
 
