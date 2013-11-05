@@ -477,7 +477,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 			}
 			catch(megaglest_runtime_error& ex) {
 				if(validationMode == false) {
-					throw ex;
+					throw;
 				}
 				else {
 					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\nFor UnitType: %s Cost: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what(),name.c_str(),iterMap->second);
@@ -519,7 +519,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 			}
 			catch(megaglest_runtime_error& ex) {
 				if(validationMode == false) {
-					throw ex;
+					throw;
 				}
 				else {
 					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\nFor UnitType: %s Store: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what(),name.c_str(),iterMap->second);
@@ -647,7 +647,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 			}
 			catch(megaglest_runtime_error& ex) {
 				if(validationMode == false) {
-					throw ex;
+					throw;
 				}
 				else {
 					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\nFor UnitType: %s SkillType: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what(),name.c_str(),classId.c_str());
@@ -672,7 +672,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 			}
 			catch(megaglest_runtime_error& ex) {
 				if(validationMode == false) {
-					throw ex;
+					throw;
 				}
 				else {
 					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\nFor UnitType: %s CommandType:%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what(),name.c_str(),classId.c_str());

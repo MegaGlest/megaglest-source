@@ -707,7 +707,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 			}
 			catch(megaglest_runtime_error& ex) {
 				if(validationMode == false) {
-					throw ex;
+					throw;
 				}
 				else {
 					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\nFor UpgradeType: %s Cost: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what(),name.c_str(),iterMap->second);
