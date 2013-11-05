@@ -566,7 +566,7 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
 				(*currentDebugLog.fileStream) << "[" << szBuf2 << "] " << debugEntry.c_str();
 			}
 			else if (type == debugError) {
-				(*currentDebugLog.fileStream) << "[" << szBuf2 << "] *ERROR* " << debugEntry.c_str();
+				(*currentDebugLog.fileStream) << " *ERROR* " << debugEntry.c_str();
 			}
 			else {
 				(*currentDebugLog.fileStream) << debugEntry.c_str();
@@ -587,7 +587,7 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
 			printf("[%s] %s", szBuf2, debugEntry.c_str());
 		}
 		else if (type == debugError) {
-			printf("[%s] *ERROR* %s", szBuf2, debugEntry.c_str());
+			printf("*ERROR* %s", debugEntry.c_str());
 		}
 		else {
 			printf("%s", debugEntry.c_str());
