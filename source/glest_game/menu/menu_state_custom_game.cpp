@@ -1242,18 +1242,21 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 							checkControTypeClicked == true &&
 							listBoxControls[i].mouseClick(x, y)) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-						//printf("listBoxControls[i].mouseClick(x, y) is TRUE i = %d newcontrol = %d\n",i,listBoxControls[i].getSelectedItemIndex());
 
+						ControlType currentControlType = static_cast<ControlType>(
+								listBoxControls[i].getSelectedItemIndex());
 						int slotsToChangeStart = i;
 						int slotsToChangeEnd = i;
 						// If control is pressed while changing player types then change all other slots to same type
-						if(Shared::Platform::Window::isKeyStateModPressed(KMOD_CTRL) == true) {
+						if(Shared::Platform::Window::isKeyStateModPressed(KMOD_CTRL) == true &&
+								currentControlType != ctHuman) {
 							slotsToChangeStart = 0;
 							slotsToChangeEnd = mapInfo.players-1;
 						}
 
 						for(int index = slotsToChangeStart; index <= slotsToChangeEnd; ++index) {
-							if(index != i) {
+							if(index != i && static_cast<ControlType>(
+									listBoxControls[index].getSelectedItemIndex()) != ctHuman) {
 								listBoxControls[index].setSelectedItemIndex(listBoxControls[i].getSelectedItemIndex());
 							}
 							// Skip over networkunassigned
@@ -1294,7 +1297,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 								string origPlayName = labelPlayerNames[closeSlotIndex].getText();
 
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] closeSlotIndex = %d, origPlayName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,closeSlotIndex,origPlayName.c_str());
-								//printf("humanIndex1 = %d humanIndex2 = %d i = %d closeSlotIndex = %d humanSlotIndex = %d\n",humanIndex1,humanIndex2,i,closeSlotIndex,humanSlotIndex);
 
 								listBoxControls[closeSlotIndex].setSelectedItemIndex(ctClosed);
 								setSlotHuman(humanSlotIndex);
