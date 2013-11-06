@@ -104,6 +104,7 @@ using namespace Shared;
 
 namespace Glest { namespace Game {
 
+static string tempDataLocation 			= getUserHome();
 static string mg_app_name 				= "";
 static string mailStringSupport 		= "";
 static bool sdl_quitCalled 			= false;
@@ -578,7 +579,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
         	mainProgram->showMessage(msg.c_str());
         }
 
-        message(msg.c_str(),GlobalStaticFlags::getIsNonGraphicalModeEnabled());
+        message(msg.c_str(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
 }
 #endif
 
@@ -594,7 +595,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
         	mainProgram->showMessage(msg.c_str());
         }
 
-        message(msg.c_str(),GlobalStaticFlags::getIsNonGraphicalModeEnabled());
+        message(msg.c_str(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
 	}
 
     void ExceptionHandler::logError(const char *msg, bool confirmToConsole) {
@@ -763,7 +764,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 #endif
             if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-			message(err,GlobalStaticFlags::getIsNonGraphicalModeEnabled());
+			message(err,GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
         }
 
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -819,7 +820,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
         }
         else {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
-            message(msg,GlobalStaticFlags::getIsNonGraphicalModeEnabled());
+            message(msg,GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
         }
 
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] msg [%s] exitApp = %d\n",__FILE__,__FUNCTION__,__LINE__,msg,exitApp);
@@ -3883,6 +3884,13 @@ int glestMain(int argc, char** argv) {
         	endPathWithSlash(userData);
         }
 
+        string data_path_check = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+        string userDataPath_check = getGameCustomCoreDataPath(data_path_check, "");
+        if(data_path_check == userDataPath_check) {
+        	printf("****WARNING**** your game data path and user data path are the same.\nThis will likely create problems: %s\n",data_path_check.c_str());
+        	throw megaglest_runtime_error("Regular and User data paths cannot have the same value [" + userDataPath_check + "]");
+        }
+
 	    if(userData != "") {
 	        if(isdir(userData.c_str()) == false) {
 	        	createDirectoryPaths(userData);
@@ -3901,10 +3909,12 @@ int glestMain(int argc, char** argv) {
         }
 
 	    string tempDataPath = userData + "temp/";
+	    tempDataLocation = tempDataPath;
         if(isdir(tempDataPath.c_str()) == true) {
         	removeFolder(tempDataPath);
         }
         createDirectoryPaths(tempDataPath);
+
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_PORTS]) == true) {
 			int foundParamIndIndex = -1;
@@ -5480,7 +5490,7 @@ int glestMain(int argc, char** argv) {
 				program->getRendererInitOk() == false) {
 				//printf("#2 MAIN ERROR \n");
 
-				message(e.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled());
+				message(e.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
 			}
 		}
 
@@ -5634,7 +5644,7 @@ static bool MinidumpCallback(const google_breakpad::MinidumpDescriptor& descript
 	  char szBuf[8096];
 	  snprintf(szBuf,8096,"An unhandled error was detected.\n\nA crash dump file has been created in the folder:\n%s\nCrash dump filename is: %s",descriptor.directory().c_str(),descriptor.path());
 	  //MessageBox(NULL, szBuf, "Unhandled error", MB_OK|MB_SYSTEMMODAL);
-	  message(szBuf,GlobalStaticFlags::getIsNonGraphicalModeEnabled());
+	  message(szBuf,GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
   }
 
   return succeeded;

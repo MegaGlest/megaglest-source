@@ -251,6 +251,8 @@ bool isKeyDown(int virtualKey);
 //bool isKeyDown(SDLKey key);
 string getCommandLine();
 
+string getUserHome();
+
 #define SPACES " "
 
 inline string trim_at_delim (const string & s, const string &t)  {

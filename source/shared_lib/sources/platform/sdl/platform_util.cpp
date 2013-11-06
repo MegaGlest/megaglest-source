@@ -44,7 +44,14 @@ const char * getDialogCommand() {
   }
 */
 
-  FILE *file = popen("which gdialog","r");
+  FILE *file = popen("which zenity","r");
+  //printf("File #1 [%p]\n",file);
+  if (file != NULL) {
+	  pclose(file);
+	  return "zenity";
+  }
+
+  file = popen("which gdialog","r");
   //printf("File #1 [%p]\n",file);
   if (file != NULL) {
 	  pclose(file);
@@ -60,14 +67,25 @@ const char * getDialogCommand() {
   return NULL;
 }
 
-bool showMessage(std::string warning) {
+bool showMessage(std::string warning,string writepath) {
   bool guiMessage = false;
   const char * dialogCommand = getDialogCommand();
   if (dialogCommand) {
     std::string command = dialogCommand;
-    command += " --title \"Error\" --msgbox \"`printf \"" + warning.erase(4096,std::string::npos) + "\"`\"";
 
-    //printf("\n\n\nzenity command [%s]\n\n\n",command.c_str());
+    string text_file = writepath + "/mg_dialog_text.txt";
+    {
+		FILE *fp = fopen(text_file.c_str(),"wt");
+		if (fp != NULL) {
+			fputs(warning.c_str(),fp);
+			fclose(fp);
+		}
+    }
+
+    //command += " --title \"Error\" --msgbox \"`printf \"" + warning + "\"`\"";
+    command += " --title \"Error\" --text-info --filename=" + text_file;
+
+    printf("\n\n\nzenity command [%s]\n\n\n",command.c_str());
 
     FILE *fp = popen(command.c_str(),"r");
     if (fp != 0)
@@ -78,7 +96,7 @@ bool showMessage(std::string warning) {
   return guiMessage;
 }
 
-void message(string message, bool isNonGraphicalModeEnabled) {
+void message(string message, bool isNonGraphicalModeEnabled,string writepath) {
 	std::cerr << "\n\n\n";
 	std::cerr << "******************************************************\n";
 	std::cerr << "    " << message << "\n";
@@ -86,7 +104,7 @@ void message(string message, bool isNonGraphicalModeEnabled) {
 	std::cerr << "\n\n\n";
 
 	if(isNonGraphicalModeEnabled == false) {
-		showMessage(message);
+		showMessage(message,writepath);
 	}
 }
 
