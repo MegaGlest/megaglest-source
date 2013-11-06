@@ -85,7 +85,7 @@ bool showMessage(std::string warning,string writepath) {
     //command += " --title \"Error\" --msgbox \"`printf \"" + warning + "\"`\"";
     command += " --title \"Error\" --text-info --filename=" + text_file;
 
-    printf("\n\n\nzenity command [%s]\n\n\n",command.c_str());
+    //printf("\n\n\nzenity command [%s]\n\n\n",command.c_str());
 
     FILE *fp = popen(command.c_str(),"r");
     if (fp != 0)

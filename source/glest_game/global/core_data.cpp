@@ -35,6 +35,7 @@ namespace Glest{ namespace Game{
 // 	class CoreData
 // =====================================================
 
+static string tempDataLocation 			= getUserHome();
 // ===================== PUBLIC ========================
 
 CoreData &CoreData::getInstance() {
@@ -172,6 +173,13 @@ Texture2D *CoreData::getTextureBySystemId(TextureSystemType type) const {
 	return result;
 }
 
+void CoreData::cleanupTexture(Texture2D **texture) {
+	Renderer &renderer= Renderer::getInstance();
+	renderer.endTexture(rsGlobal, *texture);
+	*texture=NULL;
+
+}
+
 void CoreData::load() {
 	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
 	if(data_path != "") {
@@ -187,24 +195,42 @@ void CoreData::load() {
 	backgroundTexture= renderer.newTexture2D(rsGlobal);
 	if(backgroundTexture) {
 		backgroundTexture->setMipmap(false);
-		backgroundTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/back.tga"));
-		backgroundTexture->setTextureSystemId(tsyst_backgroundTexture);
+		try {
+			backgroundTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/back.tga"));
+			backgroundTexture->setTextureSystemId(tsyst_backgroundTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&backgroundTexture);
+		}
 	}
 
 	fireTexture= renderer.newTexture2D(rsGlobal);
 	if(fireTexture) {
 		fireTexture->setFormat(Texture::fAlpha);
 		fireTexture->getPixmap()->init(1);
-		fireTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/misc_textures/fire_particle.tga"));
-		fireTexture->setTextureSystemId(tsyst_fireTexture);
+		try {
+			fireTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/misc_textures/fire_particle.tga"));
+			fireTexture->setTextureSystemId(tsyst_fireTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&fireTexture);
+		}
 	}
 
 	teamColorTexture= renderer.newTexture2D(rsGlobal);
 	if(teamColorTexture) {
 		teamColorTexture->setFormat(Texture::fAlpha);
 		teamColorTexture->getPixmap()->init(1);
-		teamColorTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/misc_textures/team_color_texture.tga"));
-		teamColorTexture->setTextureSystemId(tsyst_teamColorTexture);
+		try {
+			teamColorTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/misc_textures/team_color_texture.tga"));
+			teamColorTexture->setTextureSystemId(tsyst_teamColorTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&fireTexture);
+		}
 	}
 
 	snowTexture= renderer.newTexture2D(rsGlobal);
@@ -212,59 +238,120 @@ void CoreData::load() {
 		snowTexture->setMipmap(false);
 		snowTexture->setFormat(Texture::fAlpha);
 		snowTexture->getPixmap()->init(1);
-		snowTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/misc_textures/snow_particle.tga"));
-		snowTexture->setTextureSystemId(tsyst_snowTexture);
+		try {
+			snowTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/misc_textures/snow_particle.tga"));
+			snowTexture->setTextureSystemId(tsyst_snowTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&snowTexture);
+		}
 	}
 
     statusReadyTexture= renderer.newTexture2D(rsGlobal);
 	if(statusReadyTexture) {
-		statusReadyTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/status_ready.png"));
-		statusReadyTexture->setTextureSystemId(tsyst_statusReadyTexture);
+		try {
+			statusReadyTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/status_ready.png"));
+			statusReadyTexture->setTextureSystemId(tsyst_statusReadyTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&statusReadyTexture);
+		}
 	}
 
     statusNotReadyTexture= renderer.newTexture2D(rsGlobal);
 	if(statusNotReadyTexture) {
-		statusNotReadyTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/status_notready.png"));
-		statusNotReadyTexture->setTextureSystemId(tsyst_statusNotReadyTexture);
+		try {
+			statusNotReadyTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/status_notready.png"));
+			statusNotReadyTexture->setTextureSystemId(tsyst_statusNotReadyTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&statusNotReadyTexture);
+		}
 	}
 
     statusBRBTexture= renderer.newTexture2D(rsGlobal);
 	if(statusBRBTexture) {
-		statusBRBTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/status_brb.png"));
-		statusBRBTexture->setTextureSystemId(tsyst_statusBRBTexture);
+		try {
+			statusBRBTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/status_brb.png"));
+			statusBRBTexture->setTextureSystemId(tsyst_statusBRBTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&statusBRBTexture);
+		}
 	}
 
 	customTexture= renderer.newTexture2D(rsGlobal);
 	if(customTexture) {
-		customTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/custom_texture.tga"));
-		customTexture->setTextureSystemId(tsyst_customTexture);
+		try {
+			customTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/custom_texture.tga"));
+			customTexture->setTextureSystemId(tsyst_customTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&customTexture);
+		}
 	}
 
 	notOnServerTexture= renderer.newTexture2D(rsGlobal);
 	if(notOnServerTexture) {
-		notOnServerTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/not_on_server.tga"));
-		notOnServerTexture->setTextureSystemId(tsyst_notOnServerTexture);
+		try {
+			notOnServerTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/not_on_server.tga"));
+			notOnServerTexture->setTextureSystemId(tsyst_notOnServerTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&notOnServerTexture);
+		}
 	}
 
 	onServerDifferentTexture= renderer.newTexture2D(rsGlobal);
 	if(onServerDifferentTexture) {
-		onServerDifferentTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/on_server_different.tga"));
-		onServerDifferentTexture->setTextureSystemId(tsyst_onServerDifferentTexture);
+		try {
+			onServerDifferentTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/on_server_different.tga"));
+			onServerDifferentTexture->setTextureSystemId(tsyst_onServerDifferentTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&onServerDifferentTexture);
+		}
 
 		onServerTexture= renderer.newTexture2D(rsGlobal);
-		onServerTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/on_server.tga"));
-		onServerTexture->setTextureSystemId(tsyst_onServerTexture);
+		try {
+			onServerTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/on_server.tga"));
+			onServerTexture->setTextureSystemId(tsyst_onServerTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&onServerTexture);
+		}
 
 		onServerInstalledTexture= renderer.newTexture2D(rsGlobal);
-		onServerInstalledTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/on_server_installed.tga"));
-		onServerInstalledTexture->setTextureSystemId(tsyst_onServerInstalledTexture);
+
+		try {
+			onServerInstalledTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/on_server_installed.tga"));
+			onServerInstalledTexture->setTextureSystemId(tsyst_onServerInstalledTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&onServerInstalledTexture);
+		}
 	}
 
 	logoTexture= renderer.newTexture2D(rsGlobal);
 	if(logoTexture) {
 		logoTexture->setMipmap(false);
-		logoTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/logo.tga"));
-		logoTexture->setTextureSystemId(tsyst_logoTexture);
+		try {
+			logoTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/logo.tga"));
+			logoTexture->setTextureSystemId(tsyst_logoTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&logoTexture);
+		}
 	}
 
 	logoTextureList.clear();
@@ -279,8 +366,14 @@ void CoreData::load() {
     		Texture2D *logoTextureExtra= renderer.newTexture2D(rsGlobal);
     		if(logoTextureExtra) {
 				logoTextureExtra->setMipmap(true);
-				logoTextureExtra->getPixmap()->load(getGameCustomCoreDataPath(data_path, "") + "data/core/menu/textures/" + logo);
-				logoTextureList.push_back(logoTextureExtra);
+				try {
+					logoTextureExtra->getPixmap()->load(getGameCustomCoreDataPath(data_path, "") + "data/core/menu/textures/" + logo);
+					logoTextureList.push_back(logoTextureExtra);
+				}
+				catch(const megaglest_runtime_error &ex) {
+					message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+					cleanupTexture(&logoTextureExtra);
+				}
     		}
     	}
     }
@@ -295,8 +388,14 @@ void CoreData::load() {
 				Texture2D *logoTextureExtra= renderer.newTexture2D(rsGlobal);
 				if(logoTextureExtra) {
 					logoTextureExtra->setMipmap(true);
-					logoTextureExtra->getPixmap()->load(data_path + "data/core/menu/textures/" + logo);
-					logoTextureList.push_back(logoTextureExtra);
+					try {
+						logoTextureExtra->getPixmap()->load(data_path + "data/core/menu/textures/" + logo);
+						logoTextureList.push_back(logoTextureExtra);
+					}
+					catch(const megaglest_runtime_error &ex) {
+						message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+						cleanupTexture(&logoTextureExtra);
+					}
 				}
 			}
 		}
@@ -313,8 +412,14 @@ void CoreData::load() {
     		Texture2D *logoTextureExtra= renderer.newTexture2D(rsGlobal);
     		if(logoTextureExtra) {
 				logoTextureExtra->setMipmap(true);
-				logoTextureExtra->getPixmap()->load(getGameCustomCoreDataPath(data_path, "") + "data/core/menu/textures/" + logo);
-				miscTextureList.push_back(logoTextureExtra);
+				try {
+					logoTextureExtra->getPixmap()->load(getGameCustomCoreDataPath(data_path, "") + "data/core/menu/textures/" + logo);
+					miscTextureList.push_back(logoTextureExtra);
+				}
+				catch(const megaglest_runtime_error &ex) {
+					message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+					cleanupTexture(&logoTextureExtra);
+				}
     		}
     	//}
     }
@@ -328,8 +433,14 @@ void CoreData::load() {
 				Texture2D *logoTextureExtra= renderer.newTexture2D(rsGlobal);
 				if(logoTextureExtra) {
 					logoTextureExtra->setMipmap(true);
-					logoTextureExtra->getPixmap()->load(data_path + "data/core/menu/textures/" + logo);
-					miscTextureList.push_back(logoTextureExtra);
+					try {
+						logoTextureExtra->getPixmap()->load(data_path + "data/core/menu/textures/" + logo);
+						miscTextureList.push_back(logoTextureExtra);
+					}
+					catch(const megaglest_runtime_error &ex) {
+						message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+						cleanupTexture(&logoTextureExtra);
+					}
 				}
 			//}
 		}
@@ -339,68 +450,121 @@ void CoreData::load() {
 	if(waterSplashTexture) {
 		waterSplashTexture->setFormat(Texture::fAlpha);
 		waterSplashTexture->getPixmap()->init(1);
-		waterSplashTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/misc_textures/water_splash.tga"));
-		waterSplashTexture->setTextureSystemId(tsyst_waterSplashTexture);
+		try {
+			waterSplashTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/misc_textures/water_splash.tga"));
+			waterSplashTexture->setTextureSystemId(tsyst_waterSplashTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&waterSplashTexture);
+		}
 	}
 
 	buttonSmallTexture= renderer.newTexture2D(rsGlobal);
 	if(buttonSmallTexture) {
 		buttonSmallTexture->setForceCompressionDisabled(true);
-		buttonSmallTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/button_small.tga"));
-		buttonSmallTexture->setTextureSystemId(tsyst_buttonSmallTexture);
+		try {
+			buttonSmallTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/button_small.tga"));
+			buttonSmallTexture->setTextureSystemId(tsyst_buttonSmallTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&buttonSmallTexture);
+		}
 	}
 
 	buttonBigTexture= renderer.newTexture2D(rsGlobal);
 	if(buttonBigTexture) {
 		buttonBigTexture->setForceCompressionDisabled(true);
-		buttonBigTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/button_big.tga"));
-		buttonBigTexture->setTextureSystemId(tsyst_buttonBigTexture);
+		try {
+			buttonBigTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/button_big.tga"));
+			buttonBigTexture->setTextureSystemId(tsyst_buttonBigTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&buttonBigTexture);
+		}
 	}
 
 	horizontalLineTexture= renderer.newTexture2D(rsGlobal);
 	if(horizontalLineTexture) {
 		horizontalLineTexture->setForceCompressionDisabled(true);
-		horizontalLineTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/line_horizontal.tga"));
-		horizontalLineTexture->setTextureSystemId(tsyst_horizontalLineTexture);
+		try {
+			horizontalLineTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/line_horizontal.tga"));
+			horizontalLineTexture->setTextureSystemId(tsyst_horizontalLineTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&horizontalLineTexture);
+		}
 	}
 
 	verticalLineTexture= renderer.newTexture2D(rsGlobal);
 	if(verticalLineTexture) {
 		verticalLineTexture->setForceCompressionDisabled(true);
-		verticalLineTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/line_vertical.tga"));
-		verticalLineTexture->setTextureSystemId(tsyst_verticalLineTexture);
+		try {
+			verticalLineTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/line_vertical.tga"));
+			verticalLineTexture->setTextureSystemId(tsyst_verticalLineTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&verticalLineTexture);
+		}
 	}
 
 	checkBoxTexture= renderer.newTexture2D(rsGlobal);
 	if(checkBoxTexture) {
 		checkBoxTexture->setForceCompressionDisabled(true);
-		checkBoxTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/checkbox.tga"));
-		checkBoxTexture->setTextureSystemId(tsyst_checkBoxTexture);
+		try {
+			checkBoxTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/checkbox.tga"));
+			checkBoxTexture->setTextureSystemId(tsyst_checkBoxTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&checkBoxTexture);
+		}
 	}
 
 	checkedCheckBoxTexture= renderer.newTexture2D(rsGlobal);
 	if(checkedCheckBoxTexture) {
 		checkedCheckBoxTexture->setForceCompressionDisabled(true);
-		checkedCheckBoxTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/checkbox_checked.tga"));
-		checkedCheckBoxTexture->setTextureSystemId(tsyst_checkedCheckBoxTexture);
+		try {
+			checkedCheckBoxTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/menu/textures/checkbox_checked.tga"));
+			checkedCheckBoxTexture->setTextureSystemId(tsyst_checkedCheckBoxTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&checkedCheckBoxTexture);
+		}
 	}
 
 	gameWinnerTexture= renderer.newTexture2D(rsGlobal);
 	if(gameWinnerTexture) {
 		gameWinnerTexture->setForceCompressionDisabled(true);
-		gameWinnerTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/misc_textures/game_winner.png"));
-		gameWinnerTexture->setTextureSystemId(tsyst_gameWinnerTexture);
+		try {
+			gameWinnerTexture->getPixmap()->load(getGameCustomCoreDataPath(data_path, "data/core/misc_textures/game_winner.png"));
+			gameWinnerTexture->setTextureSystemId(tsyst_gameWinnerTexture);
+		}
+		catch(const megaglest_runtime_error &ex) {
+			message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			cleanupTexture(&gameWinnerTexture);
+		}
 	}
 
 	loadFonts();
 
 	//sounds
-	clickSoundA.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/click_a.wav"));
-	clickSoundB.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/click_b.wav"));
-	clickSoundC.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/click_c.wav"));
-	attentionSound.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/attention.wav"));
-	highlightSound.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/highlight.wav"));
-	markerSound.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/sonar.wav"));
+	try {
+		clickSoundA.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/click_a.wav"));
+		clickSoundB.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/click_b.wav"));
+		clickSoundC.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/click_c.wav"));
+		attentionSound.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/attention.wav"));
+		highlightSound.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/highlight.wav"));
+		markerSound.load(getGameCustomCoreDataPath(data_path, "data/core/menu/sound/sonar.wav"));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+	}
 
 	XmlTree xmlTree;
 	//string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
@@ -422,10 +586,15 @@ void CoreData::load() {
 		const XmlNode *menuMusicNode= introNode->getChild("menu-music");
 		menuMusicFile = menuMusicNode->getAttribute("value")->getRestrictedValue();
 	}
-	introMusic.open(getGameCustomCoreDataPath(data_path, "data/core/" + menuMusicPath + menuIntroMusicFile));
-	introMusic.setNext(&menuMusic);
-	menuMusic.open(getGameCustomCoreDataPath(data_path, "data/core/" + menuMusicPath + menuMusicFile));
-	menuMusic.setNext(&menuMusic);
+	try {
+		introMusic.open(getGameCustomCoreDataPath(data_path, "data/core/" + menuMusicPath + menuIntroMusicFile));
+		introMusic.setNext(&menuMusic);
+		menuMusic.open(getGameCustomCoreDataPath(data_path, "data/core/" + menuMusicPath + menuMusicFile));
+		menuMusic.setNext(&menuMusic);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+	}
 
 	cleanup();
 	waterSounds.resize(6);
@@ -433,7 +602,12 @@ void CoreData::load() {
 	for(int i=0; i<6; ++i){
 		waterSounds[i]= new StaticSound();
 		if(waterSounds[i]) {
-			waterSounds[i]->load(getGameCustomCoreDataPath(data_path, "data/core/water_sounds/water"+intToStr(i)+".wav"));
+			try {
+				waterSounds[i]->load(getGameCustomCoreDataPath(data_path, "data/core/water_sounds/water"+intToStr(i)+".wav"));
+			}
+			catch(const megaglest_runtime_error &ex) {
+				message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),tempDataLocation);
+			}
 		}
 	}
 

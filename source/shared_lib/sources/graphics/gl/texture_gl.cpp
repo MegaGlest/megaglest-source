@@ -930,7 +930,7 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 			if(error != GL_NO_ERROR) {
 				const char *errorString= reinterpret_cast<const char*>(gluErrorString(error));
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"Error creating texture 2D [%s], returned: %d [%s] (%X) [%s] w = %d, h = %d, glInternalFormat = %d, glFormat = %d, glCompressionFormat = %d",this->path.c_str(),error,errorString,error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),glInternalFormat,glFormat,glCompressionFormat);
+				snprintf(szBuf,8096,"Error creating texture 2D path [%s], returned: %d [%s] (%X) [%s] w = %d, h = %d, glInternalFormat = %d, glFormat = %d, glCompressionFormat = %d",this->path.c_str(),error,errorString,error,pixmap.getPath().c_str(),pixmap.getW(),pixmap.getH(),glInternalFormat,glFormat,glCompressionFormat);
 				throw megaglest_runtime_error(szBuf);
 			}
 		}
