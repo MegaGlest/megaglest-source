@@ -223,6 +223,7 @@ private:
     CoreData();
 
 	int computeFontSize(int size);
+	void cleanupTexture(Texture2D **texture);
 };
 
 }} //end namespace
