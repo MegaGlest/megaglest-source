@@ -224,6 +224,12 @@ private:
 
 	int computeFontSize(int size);
 	void cleanupTexture(Texture2D **texture);
+	void loadTextures(string data_path);
+	void loadSounds(string data_path);
+	void loadMusic(string data_path);
+	void loadIntroMedia(string data_path);
+	void loadMainMenuMedia(string data_path);
+	void loadBattleEndMedia(string data_path);
 };
 
 }} //end namespace
