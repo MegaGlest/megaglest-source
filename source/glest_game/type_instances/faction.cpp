@@ -287,6 +287,7 @@ bool FactionThread::isSignalPathfinderCompleted(int frameIndex) {
 }
 
 void FactionThread::execute() {
+	string codeLocation = "1";
     RunningStatusSafeWrapper runningStatus(this);
 	try {
 		//setRunningStatus(true);
@@ -296,6 +297,7 @@ void FactionThread::execute() {
 		bool minorDebugPerformance = false;
 		Chrono chrono;
 
+		codeLocation = "2";
 		//unsigned int idx = 0;
 		for(;this->faction != NULL;) {
 			if(getQuitStatus() == true) {
@@ -305,6 +307,7 @@ void FactionThread::execute() {
 
 			semTaskSignalled.waitTillSignalled();
 
+			codeLocation = "3";
 			//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 			static string masterSlaveOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 			MasterSlaveThreadControllerSafeWrapper safeMasterController(masterController,20000,masterSlaveOwnerId);
@@ -315,6 +318,7 @@ void FactionThread::execute() {
 				break;
 			}
 
+			codeLocation = "4";
 			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
             MutexSafeWrapper safeMutex(triggerIdMutex,mutexOwnerId);
             bool executeTask = (this->frameIndex.first >= 0);
@@ -324,9 +328,11 @@ void FactionThread::execute() {
 
             safeMutex.ReleaseLock();
 
+			codeLocation = "5";
             //printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
             if(executeTask == true) {
+				codeLocation = "6";
 				ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
 
 				if(this->faction == NULL) {
@@ -337,6 +343,7 @@ void FactionThread::execute() {
 					throw megaglest_runtime_error("world == NULL");
 				}
 
+				codeLocation = "7";
 				//Config &config= Config::getInstance();
 				//bool sortedUnitsAllowed = config.getBool("AllowGroupedUnitCommands","true");
 				bool sortedUnitsAllowed = false;
@@ -344,6 +351,7 @@ void FactionThread::execute() {
 					this->faction->sortUnitsByCommandGroups();
 				}
 
+				codeLocation = "8";
 				static string mutexOwnerId2 = string(__FILE__) + string("_") + intToStr(__LINE__);
 				MutexSafeWrapper safeMutex(faction->getUnitMutex(),mutexOwnerId2);
 
@@ -352,22 +360,28 @@ void FactionThread::execute() {
 
 				//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+				codeLocation = "9";
 				int unitCount = this->faction->getUnitCount();
 				for(int j = 0; j < unitCount; ++j) {
+					codeLocation = "10";
 					Unit *unit = this->faction->getUnit(j);
 					if(unit == NULL) {
 						throw megaglest_runtime_error("unit == NULL");
 					}
 
+					codeLocation = "11";
 					int64 elapsed1 = 0;
 					if(minorDebugPerformance) elapsed1 = chrono.getMillis();
 
 					bool update = unit->needToUpdate();
 
+					codeLocation = "12";
 					if(minorDebugPerformance && (chrono.getMillis() - elapsed1) >= 1) printf("Faction [%d - %s] #1-unit threaded updates on frame: %d for [%d] unit # %d, unitCount = %d, took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName(false).c_str(),currentTriggeredFrameIndex,faction->getUnitPathfindingListCount(),j,unitCount,(long long int)chrono.getMillis() - elapsed1);
 
 					//update = true;
-					if(update == true) {
+					if(update == true)
+					{
+						codeLocation = "13";
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 							int64 updateProgressValue = unit->getUpdateProgress();
 							int64 speed = unit->getCurrSkill()->getTotalSpeed(unit->getTotalUpgrade());
@@ -386,12 +400,14 @@ void FactionThread::execute() {
 						if(world->getUnitUpdater() == NULL) {
 							throw megaglest_runtime_error("world->getUnitUpdater() == NULL");
 						}
-
+						codeLocation = "14";
 						world->getUnitUpdater()->updateUnitCommand(unit,currentTriggeredFrameIndex);
 
+						codeLocation = "15";
 						if(minorDebugPerformance && (chrono.getMillis() - elapsed2) >= 1) printf("Faction [%d - %s] #2-unit threaded updates on frame: %d for [%d] unit # %d, unitCount = %d, took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName(false).c_str(),currentTriggeredFrameIndex,faction->getUnitPathfindingListCount(),j,unitCount,(long long int)chrono.getMillis() - elapsed2);
 					}
 					else {
+						codeLocation = "16";
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
 							int64 updateProgressValue = unit->getUpdateProgress();
 							int64 speed = unit->getCurrSkill()->getTotalSpeed(unit->getTotalUpgrade());
@@ -406,12 +422,14 @@ void FactionThread::execute() {
 					}
 				}
 
+				codeLocation = "17";
 				if(minorDebugPerformance && chrono.getMillis() >= 1) printf("Faction [%d - %s] threaded updates on frame: %d for [%d] units took [%lld] msecs\n",faction->getStartLocationIndex(),faction->getType()->getName(false).c_str(),currentTriggeredFrameIndex,faction->getUnitPathfindingListCount(),(long long int)chrono.getMillis());
 
 				//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				safeMutex.ReleaseLock();
 
+				codeLocation = "18";
 				//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 				setTaskCompleted(currentTriggeredFrameIndex);
@@ -421,6 +439,7 @@ void FactionThread::execute() {
 
             //printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+			codeLocation = "19";
 			if(getQuitStatus() == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
@@ -433,14 +452,14 @@ void FactionThread::execute() {
 	catch(const exception &ex) {
 		//setRunningStatus(false);
 
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Loc [%s] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str(),ex.what());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 		throw megaglest_runtime_error(ex.what());
 	}
 	catch(...) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s %d] UNKNOWN error\n",__FILE__,__FUNCTION__,__LINE__);
+		snprintf(szBuf,8096,"In [%s::%s %d] UNKNOWN error Loc [%s]\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str());
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		throw megaglest_runtime_error(szBuf);
 	}
