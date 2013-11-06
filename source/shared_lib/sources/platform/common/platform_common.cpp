@@ -65,11 +65,19 @@
 #include "platform_util.h"
 #include "utf8.h"
 #include "byte_order.h"
-#include "leak_dumper.h"
+
+#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
+#endif
 
 #ifdef __APPLE__
 #include <mach-o/dyld.h>
 #endif
+
+#include "leak_dumper.h"
+
 
 using namespace Shared::Platform;
 using namespace Shared::Util;
@@ -2389,5 +2397,19 @@ void ValueCheckerVault::checkItemInVault(const void *ptr,int value) const {
 
 }
 
+string getUserHome() {
+	string home_folder = "";
+	const char *homedir = getenv("HOME");
+	if (!homedir) {
+#if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED
+		struct passwd *pw = getpwuid(getuid());
+		homedir = pw->pw_dir;
+#else
+		homedir = "";
+#endif
+	}
+	home_folder = homedir;
+	return home_folder;
+}
 
 }}//end namespace
