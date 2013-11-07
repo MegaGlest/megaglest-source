@@ -263,6 +263,8 @@ public:
 
 	virtual bool getConnectHasHandshaked() const= 0;
 
+	void setLastPingInfo(const NetworkMessagePing &ping);
+	void setLastPingInfoToNow();
 	NetworkMessagePing getLastPingInfo();
 	double getLastPingLag();
 

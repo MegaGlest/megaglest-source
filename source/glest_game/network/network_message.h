@@ -195,6 +195,7 @@ public:
 	int32 getPingFrequency() const	{return data.pingFrequency;}
 	int64 getPingTime() const	{return data.pingTime;}
 	int64 getPingReceivedLocalTime() const { return pingReceivedLocalTime; }
+	void setPingReceivedLocalTime(int64 pingTime)  { pingReceivedLocalTime = pingTime; }
 
 	virtual bool receive(Socket* socket);
 	virtual void send(Socket* socket);

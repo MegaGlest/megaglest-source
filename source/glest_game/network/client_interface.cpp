@@ -663,7 +663,7 @@ void ClientInterface::updateLobby() {
 			NetworkMessagePing networkMessagePing;
 			if(receiveMessage(&networkMessagePing)) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				lastPingInfo = networkMessagePing;
+				this->setLastPingInfo(networkMessagePing);
 			}
 		}
 		break;
@@ -674,6 +674,8 @@ void ClientInterface::updateLobby() {
 
             if(receiveMessage(&networkMessageSynchNetworkGameData)) {
             	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got NetworkMessageSynchNetworkGameData, getTechCRCFileCount() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageSynchNetworkGameData.getTechCRCFileCount());
+
+            	this->setLastPingInfoToNow();
 
             	networkGameDataSynchCheckOkMap      = false;
             	networkGameDataSynchCheckOkTile     = false;
@@ -764,6 +766,8 @@ void ClientInterface::updateLobby() {
             NetworkMessageSynchNetworkGameDataFileCRCCheck networkMessageSynchNetworkGameDataFileCRCCheck;
             if(receiveMessage(&networkMessageSynchNetworkGameDataFileCRCCheck))
             {
+            	this->setLastPingInfoToNow();
+
                 Checksum checksum;
                 string file = networkMessageSynchNetworkGameDataFileCRCCheck.getFileName();
                 checksum.addFile(file);
@@ -809,6 +813,8 @@ void ClientInterface::updateLobby() {
             NetworkMessageText networkMessageText;
             if(receiveMessage(&networkMessageText))
             {
+            	this->setLastPingInfoToNow();
+
             	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtText\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
 
         		ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex(),networkMessageText.getTargetLanguage());
@@ -821,6 +827,7 @@ void ClientInterface::updateLobby() {
         {
         	NetworkMessageMarkCell networkMessageMarkCell;
             if(receiveMessage(&networkMessageMarkCell)) {
+            	this->setLastPingInfoToNow();
             	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtMarkCell\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
 
             	MarkedCell msg(networkMessageMarkCell.getTarget(),
@@ -835,6 +842,7 @@ void ClientInterface::updateLobby() {
         {
         	NetworkMessageUnMarkCell networkMessageMarkCell;
             if(receiveMessage(&networkMessageMarkCell)) {
+            	this->setLastPingInfoToNow();
             	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtMarkCell\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
 
             	UnMarkedCell msg(networkMessageMarkCell.getTarget(),
@@ -847,6 +855,7 @@ void ClientInterface::updateLobby() {
         {
         	NetworkMessageHighlightCell networkMessageHighlightCell;
             if(receiveMessage(&networkMessageHighlightCell)) {
+            	this->setLastPingInfoToNow();
             	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtHighlightCell\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
 
             	MarkedCell msg(networkMessageHighlightCell.getTarget(),
@@ -864,6 +873,8 @@ void ClientInterface::updateLobby() {
 
             NetworkMessageLaunch networkMessageLaunch;
             if(receiveMessage(&networkMessageLaunch)) {
+            	this->setLastPingInfoToNow();
+
             	if(networkMessageLaunch.getMessageType() == nmtLaunch) {
             		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtLaunch\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
             	}
@@ -919,6 +930,7 @@ void ClientInterface::updateLobby() {
 		{
 			PlayerIndexMessage playerIndexMessage(-1);
 			if(receiveMessage(&playerIndexMessage)) {
+				this->setLastPingInfoToNow();
 				playerIndex= playerIndexMessage.getPlayerIndex();
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtPlayerIndexMessage, playerIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playerIndex);
@@ -932,6 +944,7 @@ void ClientInterface::updateLobby() {
 		{
 			NetworkMessageReady networkMessageReady;
 			if(receiveMessage(&networkMessageReady)) {
+				this->setLastPingInfoToNow();
 				MutexSafeWrapper safeMutexFlags(flagAccessor,CODE_AT_LINE);
 				this->readyForInGameJoin = true;
 			}
@@ -950,6 +963,7 @@ void ClientInterface::updateLobby() {
 			if(gotCmd == false) {
 				throw megaglest_runtime_error("error retrieving nmtCommandList returned false!");
 			}
+			this->setLastPingInfoToNow();
 		}
 		break;
 
@@ -961,7 +975,7 @@ void ClientInterface::updateLobby() {
 				if(gotCmd == false) {
 					throw megaglest_runtime_error("error retrieving nmtQuit returned false!");
 				}
-
+				this->setLastPingInfoToNow();
 				setQuit(true);
 				close();
 		}
@@ -971,6 +985,7 @@ void ClientInterface::updateLobby() {
 			{
 				NetworkMessageLoadingStatus networkMessageLoadingStatus(nmls_NONE);
 				if(receiveMessage(&networkMessageLoadingStatus)) {
+					this->setLastPingInfoToNow();
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 				}
 			}
@@ -1131,7 +1146,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 					NetworkMessagePing networkMessagePing;
 					if(receiveMessage(&networkMessagePing)) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-						lastPingInfo = networkMessagePing;
+						this->setLastPingInfo(networkMessagePing);
 					}
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1157,7 +1172,6 @@ void ClientInterface::updateFrame(int *checkFrame) {
 
 						throw megaglest_runtime_error("error retrieving nmtQuit returned false!");
 					}
-
 					setQuit(true);
 					done= true;
 				}
@@ -1178,7 +1192,6 @@ void ClientInterface::updateFrame(int *checkFrame) {
 
 						throw megaglest_runtime_error("error retrieving nmtText returned false!");
 					}
-
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 					ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex(),networkMessageText.getTargetLanguage());
@@ -1237,6 +1250,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 
 					NetworkMessageLaunch networkMessageLaunch;
 					if(receiveMessage(&networkMessageLaunch)) {
+
 						if(networkMessageLaunch.getMessageType() == nmtLaunch) {
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtLaunch\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 						}
@@ -2118,7 +2132,7 @@ bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 			discard = true;
 			NetworkMessagePing msg = NetworkMessagePing();
 			this->receiveMessage(&msg);
-			lastPingInfo = msg;
+			this->setLastPingInfo(msg);
 			}
 			break;
 		case nmtLaunch:

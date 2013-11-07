@@ -166,6 +166,20 @@ bool NetworkInterface::isConnected(){
 	return result;
 }
 
+void NetworkInterface::setLastPingInfo(const NetworkMessagePing &ping) {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
+
+	this->lastPingInfo = ping;
+}
+
+void NetworkInterface::setLastPingInfoToNow() {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
+
+	this->lastPingInfo.setPingReceivedLocalTime(time(NULL));
+}
+
 NetworkMessagePing NetworkInterface::getLastPingInfo() {
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
