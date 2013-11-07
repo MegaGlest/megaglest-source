@@ -209,6 +209,7 @@ private:
 	bool initialResumeSpeedLoops;
 
 	bool quitGameCalled;
+	bool disableSpeedChange;
 
 public:
 	Game();
@@ -331,6 +332,9 @@ public:
 	bool showTranslatedTechTree() const;
 
 	void DumpCRCWorldLogIfRequired(string fileSuffix="");
+
+	bool getDisableSpeedChange() const { return disableSpeedChange; }
+	void setDisableSpeedChange(bool value) { disableSpeedChange = value; }
 
 private:
 	//render

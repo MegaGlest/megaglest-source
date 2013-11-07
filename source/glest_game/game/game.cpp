@@ -165,6 +165,7 @@ Game::Game() : ProgramState(NULL) {
 	lastNetworkPlayerConnectionCheck = time(NULL);
 	inJoinGameLoading = false;
 	quitGameCalled = false;
+	disableSpeedChange = false;
 
 	for( int i=0;i<GameConstants::networkSmoothInterval;i++){
 		receivedTooEarlyInFrames[i]=-1;
@@ -277,6 +278,7 @@ void Game::resetMembers() {
 
 	inJoinGameLoading = false;
 	quitGameCalled = false;
+	disableSpeedChange = false;
 
 	for( int i=0;i<GameConstants::networkSmoothInterval;i++){
 		receivedTooEarlyInFrames[i]=-1;
@@ -5771,6 +5773,10 @@ bool Game::hasBuilding(const Faction *faction) {
 }
 
 void Game::incSpeed() {
+	if(disableSpeedChange == true) {
+		return;
+	}
+
 	Lang &lang= Lang::getInstance();
 
 	if(this->speed < Config::getInstance().getInt("FastSpeedLoops")) {
@@ -5785,6 +5791,10 @@ void Game::incSpeed() {
 }
 
 void Game::decSpeed() {
+	if(disableSpeedChange == true) {
+		return;
+	}
+
 	Lang &lang= Lang::getInstance();
 	if(this->speed > 0) {
 		this->speed--;
@@ -6372,6 +6382,8 @@ string Game::saveGame(string name, string path) {
 
 	gameNode->addAttribute("timeDisplay",intToStr(timeDisplay), mapTagReplacements);
 
+	gameNode->addAttribute("disableSpeedChange",intToStr(disableSpeedChange), mapTagReplacements);
+
 	xmlTree.save(saveGameFile);
 
 	if(masterserverMode == false) {
@@ -6641,6 +6653,8 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 	}
 
 	newGame->timeDisplay = gameNode->getAttribute("timeDisplay")->getIntValue() != 0;
+
+	newGame->disableSpeedChange = gameNode->getAttribute("disableSpeedChange")->getIntValue() != 0;
 
 	//bool gameStarted;
 	//gameNode->addAttribute("gameStarted",intToStr(gameStarted), mapTagReplacements);
