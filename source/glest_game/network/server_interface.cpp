@@ -275,7 +275,7 @@ ServerInterface::~ServerInterface() {
 
 	lastMasterserverHeartbeatTime = 0;
 	if(needToRepublishToMasterserver == true) {
-		simpleTask(NULL);
+		simpleTask(NULL,NULL);
 	}
 
 	for(int i= 0; i < GameConstants::maxPlayers; ++i) {
@@ -2873,7 +2873,7 @@ void ServerInterface::setGameStats(Stats *stats) {
 	*gameStats = *stats;
 }
 
-void ServerInterface::simpleTask(BaseThread *callingThread) {
+void ServerInterface::simpleTask(BaseThread *callingThread,void *userdata) {
 	MutexSafeWrapper safeMutex(masterServerThreadAccessor,CODE_AT_LINE);
 
 	if(difftime((long int)time(NULL),lastMasterserverHeartbeatTime) >= MASTERSERVER_HEARTBEAT_GAME_STATUS_SECONDS) {

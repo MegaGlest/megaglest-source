@@ -56,6 +56,10 @@ struct FormatString {
 // =====================================================
 // 	class MenuStateCustomGame
 // =====================================================
+enum THREAD_NOTIFIER_TYPE {
+	tnt_MASTERSERVER = 1,
+	tnt_CLIENTS = 2
+};
 
 MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		bool openNetworkSlots,ParentMenuState parentMenuState, bool autostart,
@@ -111,6 +115,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
     lastCheckedCRCMapValue						= -1;
 
 	publishToMasterserverThread = NULL;
+	publishToClientsThread = NULL;
+
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
     Config &config = Config::getInstance();
@@ -658,9 +664,15 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	GraphicComponent::applyAllCustomProperties(containerName);
 
 	static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
-	publishToMasterserverThread = new SimpleTaskThread(this,0,200);
+	publishToMasterserverThread = new SimpleTaskThread(this,0,300,false,(void *)tnt_MASTERSERVER);
 	publishToMasterserverThread->setUniqueID(mutexOwnerId);
+
+	static string mutexOwnerId2 = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
+	publishToClientsThread = new SimpleTaskThread(this,0,200,false,(void *)tnt_CLIENTS,false);
+	publishToClientsThread->setUniqueID(mutexOwnerId2);
+
 	publishToMasterserverThread->start();
+	publishToClientsThread->start();
 
 	if(openNetworkSlots==true){
 		if(fileExists(DEFAULT_NETWORKGAME_FILENAME) == true)
@@ -835,69 +847,116 @@ void MenuStateCustomGame::reloadUI() {
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
 
-void MenuStateCustomGame::cleanup() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-    if(publishToMasterserverThread != NULL) {
+void MenuStateCustomGame::cleanupThread(SimpleTaskThread **thread) {
+	//printf("LINE: %d *thread = %p\n",__LINE__,*thread);
+
+    if(thread != NULL && *thread != NULL) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1 cleanupThread callingThread [%p]\n",*thread);
+
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+    	SimpleTaskThread *threadPtr = *thread;
+    	int value = threadPtr->getUserdataAsInt();
+    	THREAD_NOTIFIER_TYPE threadType = (THREAD_NOTIFIER_TYPE)value;
+
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1. cleanupThread callingThread [%p] value = %d\n",*thread,value);
 
         needToBroadcastServerSettings = false;
         needToRepublishToMasterserver = false;
         lastNetworkPing               = time(NULL);
-        publishToMasterserverThread->setThreadOwnerValid(false);
+        threadPtr->setThreadOwnerValid(false);
 
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1.. cleanupThread callingThread [%p] value = %d\n",*thread,value);
+
         if(forceWaitForShutdown == true) {
     		time_t elapsed = time(NULL);
-    		publishToMasterserverThread->signalQuit();
-    		for(;(publishToMasterserverThread->canShutdown(false) == false  ||
-    				publishToMasterserverThread->getRunningStatus() == true) &&
+    		threadPtr->signalQuit();
+
+    		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1a cleanupThread callingThread [%p]\n",*thread);
+
+    		for(;(threadPtr->canShutdown(false) == false  ||
+    				threadPtr->getRunningStatus() == true) &&
     			difftime((long int)time(NULL),elapsed) <= 15;) {
     			//sleep(150);
     		}
-    		if(publishToMasterserverThread->canShutdown(true) == true &&
-    				publishToMasterserverThread->getRunningStatus() == false) {
-    			delete publishToMasterserverThread;
+
+    		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1b cleanupThread callingThread [%p]\n",*thread);
+
+    		if(threadPtr->canShutdown(true) == true &&
+    				threadPtr->getRunningStatus() == false) {
+    			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1c cleanupThread callingThread [%p]\n",*thread);
+
+    			delete threadPtr;
+    			//printf("LINE: %d *thread = %p\n",__LINE__,*thread);
     			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     		}
     		else {
+    			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1d cleanupThread callingThread [%p]\n",*thread);
+
     			char szBuf[8096]="";
-    			snprintf(szBuf,8096,"In [%s::%s %d] Error cannot shutdown publishToMasterserverThread\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    			snprintf(szBuf,8096,"In [%s::%s %d] Error cannot shutdown thread\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     			//SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
     			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s",szBuf);
     			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
-    			publishToMasterserverThread->setOverrideShutdownTask(shutdownTaskStatic);
-    			publishToMasterserverThread->setDeleteSelfOnExecutionDone(true);
-    			publishToMasterserverThread->setDeleteAfterExecute(true);
-
-    			//publishToMasterserverThread->cleanup();
+    			if(threadType == tnt_MASTERSERVER) {
+    				threadPtr->setOverrideShutdownTask(shutdownTaskStatic);
+    			}
+    			threadPtr->setDeleteSelfOnExecutionDone(true);
+    			threadPtr->setDeleteAfterExecute(true);
+    			//printf("LINE: %d *thread = %p\n",__LINE__,*thread);
     		}
-    		publishToMasterserverThread = NULL;
+    		threadPtr = NULL;
+    		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1e cleanupThread callingThread [%p]\n",*thread);
         }
         else {
-        	publishToMasterserverThread->signalQuit();
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1f cleanupThread callingThread [%p]\n",*thread);
+        	threadPtr->signalQuit();
         	sleep(0);
-        	if(publishToMasterserverThread->canShutdown(true) == true &&
-        			publishToMasterserverThread->getRunningStatus() == false) {
-        		delete publishToMasterserverThread;
+        	if(threadPtr->canShutdown(true) == true &&
+        			threadPtr->getRunningStatus() == false) {
+        		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1g cleanupThread callingThread [%p]\n",*thread);
+        		delete threadPtr;
+        		//printf("LINE: %d *thread = %p\n",__LINE__,*thread);
         	}
     		else {
+    			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1h cleanupThread callingThread [%p]\n",*thread);
     			char szBuf[8096]="";
-    			snprintf(szBuf,8096,"In [%s::%s %d] Error cannot shutdown publishToMasterserverThread\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+    			snprintf(szBuf,8096,"In [%s::%s %d] Error cannot shutdown thread\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     			//SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
     			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s",szBuf);
     			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
-    			publishToMasterserverThread->setOverrideShutdownTask(shutdownTaskStatic);
-    			publishToMasterserverThread->setDeleteSelfOnExecutionDone(true);
-    			publishToMasterserverThread->setDeleteAfterExecute(true);
-    			//publishToMasterserverThread->cleanup();
+    			if(threadType == tnt_MASTERSERVER) {
+    				threadPtr->setOverrideShutdownTask(shutdownTaskStatic);
+    			}
+    			threadPtr->setDeleteSelfOnExecutionDone(true);
+    			threadPtr->setDeleteAfterExecute(true);
+    			//printf("LINE: %d *thread = %p\n",__LINE__,*thread);
     		}
         }
 
-        publishToMasterserverThread = NULL;
+        *thread = NULL;
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#2 cleanupThread callingThread [%p]\n",*thread);
     }
+    //printf("LINE: %d *thread = %p\n",__LINE__,*thread);
+}
+
+void MenuStateCustomGame::cleanup() {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	if(publishToMasterserverThread) {
+		//printf("LINE: %d\n",__LINE__);
+		cleanupThread(&publishToMasterserverThread);
+	}
+	if(publishToClientsThread) {
+		//printf("LINE: %d\n",__LINE__);
+		cleanupThread(&publishToClientsThread);
+	}
+
+	//printf("LINE: %d\n",__LINE__);
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -993,10 +1052,12 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 				soundRenderer.playFx(coreData.getClickSoundA());
 
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 				needToBroadcastServerSettings = false;
 				needToRepublishToMasterserver = false;
 				lastNetworkPing               = time(NULL);
 				safeMutex.ReleaseLock();
+				safeMutexCLI.ReleaseLock();
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -1018,6 +1079,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
 
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 				loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true);
 				labelMapInfo.setText(mapInfo.desc);
@@ -1037,6 +1099,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			//else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
 			else if (checkBoxAdvanced.getValue() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 				cleanupMapPreviewTexture();
 				if(checkBoxPublishServer.getValue() == true) {
@@ -1050,6 +1113,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else if (checkBoxAdvanced.getValue() == 1 && checkBoxAllowObservers.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
@@ -1064,6 +1128,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else if (checkBoxAllowInGameJoinPlayer.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
@@ -1080,6 +1145,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else if (checkBoxAllowNativeLanguageTechtree.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
@@ -1093,6 +1159,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else if (checkBoxAdvanced.getValue() == 1 && checkBoxEnableSwitchTeamMode.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
@@ -1106,6 +1173,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else if (checkBoxAdvanced.getValue() == 1 && listBoxAISwitchTeamAcceptPercent.getEnabled() && listBoxAISwitchTeamAcceptPercent.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
@@ -1119,6 +1187,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else if (checkBoxAdvanced.getValue() == 1 && listBoxFallbackCpuMultiplier.getEditable() == true && listBoxFallbackCpuMultiplier.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
@@ -1134,6 +1203,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else if(listBoxTileset.mouseClick(x, y,advanceToItemStartingWith)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
@@ -1148,6 +1218,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else if(listBoxMapFilter.mouseClick(x, y)){
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
 				switchToNextMapGroup(listBoxMapFilter.getSelectedItemIndex()-oldListBoxMapfilterIndex);
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
@@ -1171,6 +1243,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 				reloadFactions(listBoxTechTree.getItemCount() <= 1,(checkBoxScenario.getValue() == true ? scenarioFiles[listBoxScenario.getSelectedItemIndex()] : ""));
 
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
@@ -1184,6 +1257,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else if(checkBoxPublishServer.mouseClick(x, y) && checkBoxPublishServer.getEditable()) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
 				needToRepublishToMasterserver = true;
 				soundRenderer.playFx(coreData.getClickSoundC());
 
@@ -1195,6 +1270,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			}
 			else if(checkBoxAdvanced.getValue() == 1 && checkBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 				if(checkBoxPublishServer.getValue() == true) {
 					needToRepublishToMasterserver = true;
@@ -1213,6 +1289,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 			else {
 				for(int i = 0; i < mapInfo.players; ++i) {
 					MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+					MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 					// set multiplier
 					if(listBoxRMultiplier[i].mouseClick(x, y)) {
@@ -1509,6 +1586,7 @@ void MenuStateCustomGame::loadGameSettings(std::string fileName) {
 	serverInterface->setGameSettings(&gameSettings,false);
 
 	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 	if(checkBoxPublishServer.getValue() == true) {
 		needToRepublishToMasterserver = true;
@@ -1571,6 +1649,8 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 	}
 
 	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
 	if(saveGame == true) {
 		saveGameSettingsToFile(SAVED_GAME_FILENAME);
 	}
@@ -1644,6 +1724,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 	}
 
 	safeMutex.ReleaseLock(true);
+	safeMutexCLI.ReleaseLock(true);
 	GameSettings gameSettings;
 	loadGameSettings(&gameSettings, true);
 
@@ -1652,6 +1733,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 
 	// Send the game settings to each client if we have at least one networked client
 	safeMutex.Lock();
+	safeMutexCLI.Lock();
 
 	bool dataSynchCheckOk = checkNetworkPlayerDataSynch(true, true, true);
 
@@ -1685,6 +1767,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 	    	}
 
 			safeMutex.ReleaseLock();
+			safeMutexCLI.ReleaseLock();
 			return;
 		}
 	}
@@ -1695,6 +1778,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 		showMessageBox("You cannot start the game because\none or more clients do not have the same game data!", "Data Mismatch Error", false);
 
 		safeMutex.ReleaseLock();
+		safeMutexCLI.ReleaseLock();
 		return;
 	}
 	else {
@@ -1740,6 +1824,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 		    	}
 
 				safeMutex.ReleaseLock();
+				safeMutexCLI.ReleaseLock();
 				return;
 			}
 		}
@@ -1766,6 +1851,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 			needToRepublishToMasterserver = false;
 			lastNetworkPing               = time(NULL);
 			safeMutex.ReleaseLock();
+			safeMutexCLI.ReleaseLock();
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -1780,6 +1866,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 		}
 		else {
 			safeMutex.ReleaseLock();
+			safeMutexCLI.ReleaseLock();
 		}
 	}
 }
@@ -2214,6 +2301,7 @@ void MenuStateCustomGame::update() {
 	// END
 
 	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
 	try {
 		if(serverInitError == true) {
@@ -2335,6 +2423,7 @@ void MenuStateCustomGame::update() {
 		if(this->headlessServerMode == true && serverInterface->getMasterserverAdminRequestLaunch() == true) {
 			serverInterface->setMasterserverAdminRequestLaunch(false);
 			safeMutex.ReleaseLock();
+			safeMutexCLI.ReleaseLock();
 
 			PlayNow(false);
 			return;
@@ -2704,6 +2793,7 @@ void MenuStateCustomGame::update() {
 		if(autostart == true) {
 			autostart = false;
 			safeMutex.ReleaseLock();
+			safeMutexCLI.ReleaseLock();
 			if(autoStartSettings != NULL) {
 
 				setupUIFromGameSettings(*autoStartSettings);
@@ -2850,6 +2940,7 @@ void MenuStateCustomGame::publishToMasterserver() {
 	//string serverinfo="";
 
 	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
 	publishToServerInfo.clear();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -2912,29 +3003,62 @@ void MenuStateCustomGame::publishToMasterserver() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
-void MenuStateCustomGame::setupTask(BaseThread *callingThread) {
-	MenuStateCustomGame::setupTaskStatic(callingThread);
+void MenuStateCustomGame::setupTask(BaseThread *callingThread,void *userdata) {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nsetupTask callingThread [%p] userdata [%p]\n",callingThread,userdata);
+	if(userdata != NULL) {
+		int value = *((int*)&userdata);
+		THREAD_NOTIFIER_TYPE threadType = (THREAD_NOTIFIER_TYPE)value;
+		//printf("\n\nsetupTask callingThread [%p] userdata [%p]\n",callingThread,userdata);
+		if(threadType == tnt_MASTERSERVER) {
+			MenuStateCustomGame::setupTaskStatic(callingThread);
+		}
+	}
 }
-void MenuStateCustomGame::shutdownTask(BaseThread *callingThread) {
-	MenuStateCustomGame::shutdownTaskStatic(callingThread);
+void MenuStateCustomGame::shutdownTask(BaseThread *callingThread,void *userdata) {
+	//printf("\n\nshutdownTask callingThread [%p] userdata [%p]\n",callingThread,userdata);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\nshutdownTask callingThread [%p] userdata [%p]\n",callingThread,userdata);
+	if(userdata != NULL) {
+		int value = *((int*)&userdata);
+		THREAD_NOTIFIER_TYPE threadType = (THREAD_NOTIFIER_TYPE)value;
+		//printf("\n\nshutdownTask callingThread [%p] userdata [%p]\n",callingThread,userdata);
+		if(threadType == tnt_MASTERSERVER) {
+			MenuStateCustomGame::shutdownTaskStatic(callingThread);
+		}
+	}
 }
 void MenuStateCustomGame::setupTaskStatic(BaseThread *callingThread) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	CURL *handle = SystemFlags::initHTTP();
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	callingThread->setGenericData<CURL>(handle);
+
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 void MenuStateCustomGame::shutdownTaskStatic(BaseThread *callingThread) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	//printf("LINE: %d\n",__LINE__);
 	CURL *handle = callingThread->getGenericData<CURL>();
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	SystemFlags::cleanupHTTP(&handle);
+
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
-void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
+void MenuStateCustomGame::simpleTask(BaseThread *callingThread,void *userdata) {
+	//printf("\n\nSimple Task callingThread [%p] userdata [%p]\n",callingThread,userdata);
+	int value = *((int*)&userdata);
+	//printf("\n\nSimple Task callingThread [%p] userdata [%p] value = %d\n",callingThread,userdata,value);
 
+	THREAD_NOTIFIER_TYPE threadType = (THREAD_NOTIFIER_TYPE)value;
+	if(threadType == tnt_MASTERSERVER) {
+		simpleTaskForMasterServer(callingThread);
+	}
+	else if(threadType == tnt_CLIENTS) {
+		simpleTaskForClients(callingThread);
+	}
+}
+
+void MenuStateCustomGame::simpleTaskForMasterServer(BaseThread *callingThread) {
     try {
         //printf("-=-=-=-=- IN MenuStateCustomGame simpleTask - A\n");
 
@@ -2950,20 +3074,8 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
         needToRepublishToMasterserver                   = false;
         std::map<string,string> newPublishToServerInfo  = publishToServerInfo;
         publishToServerInfo.clear();
-        bool broadCastSettings                          = needToBroadcastServerSettings;
 
         //printf("simpleTask broadCastSettings = %d\n",broadCastSettings);
-
-        needToBroadcastServerSettings                   = false;
-        bool hasClientConnection                        = false;
-
-        if(broadCastSettings == true) {
-            ServerInterface *serverInterface = NetworkManager::getInstance().getServerInterface(false);
-            if(serverInterface != NULL) {
-                hasClientConnection = serverInterface->hasClientConnection();
-            }
-        }
-        bool needPing = (difftime((long int)time(NULL),lastNetworkPing) >= GameConstants::networkPingInterval);
 
         if(callingThread->getQuitStatus() == true) {
             return;
@@ -3038,6 +3150,65 @@ void MenuStateCustomGame::simpleTask(BaseThread *callingThread) {
         else {
             safeMutexThreadOwner.ReleaseLock();
         }
+
+        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+        //printf("-=-=-=-=- IN MenuStateCustomGame simpleTask - D\n");
+
+        safeMutex.ReleaseLock();
+
+        //printf("-=-=-=-=- IN MenuStateCustomGame simpleTask - F\n");
+    }
+	catch(const std::exception &ex) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d]\nError detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+		if(callingThread->getQuitStatus() == false) {
+            //throw megaglest_runtime_error(szBuf);
+            showGeneralError=true;
+            generalErrorToShow = ex.what();
+		}
+	}
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+}
+
+void MenuStateCustomGame::simpleTaskForClients(BaseThread *callingThread) {
+    try {
+        //printf("-=-=-=-=- IN MenuStateCustomGame simpleTask - A\n");
+
+        MutexSafeWrapper safeMutexThreadOwner(callingThread->getMutexThreadOwnerValid(),string(__FILE__) + "_" + intToStr(__LINE__));
+        if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+            return;
+        }
+
+        //printf("-=-=-=-=- IN MenuStateCustomGame simpleTask - B\n");
+
+        MutexSafeWrapper safeMutex(callingThread->getMutexThreadObjectAccessor(),string(__FILE__) + "_" + intToStr(__LINE__));
+        bool broadCastSettings                          = needToBroadcastServerSettings;
+
+        //printf("simpleTask broadCastSettings = %d\n",broadCastSettings);
+
+        needToBroadcastServerSettings                   = false;
+        bool hasClientConnection                        = false;
+
+        if(broadCastSettings == true) {
+            ServerInterface *serverInterface = NetworkManager::getInstance().getServerInterface(false);
+            if(serverInterface != NULL) {
+                hasClientConnection = serverInterface->hasClientConnection();
+            }
+        }
+        bool needPing = (difftime((long int)time(NULL),lastNetworkPing) >= GameConstants::networkPingInterval);
+
+        if(callingThread->getQuitStatus() == true) {
+            return;
+        }
+
+        //printf("-=-=-=-=- IN MenuStateCustomGame simpleTask - C\n");
+
+        safeMutexThreadOwner.ReleaseLock();
 
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -4059,6 +4230,8 @@ void MenuStateCustomGame::keyDown(SDL_KeyboardEvent key) {
 		bool handled = keyDownEditLabel(key, &activeInputLabel);
 		if(handled == true) {
 			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
 	        if(hasNetworkGameSettings() == true) {
 	            needToSetChangedGameSettings = true;
 	            lastSetChangedGameSettings   = time(NULL);
@@ -4116,6 +4289,8 @@ void MenuStateCustomGame::keyPress(SDL_KeyboardEvent c) {
 		bool handled = keyPressEditLabel(c, &activeInputLabel);
 		if(handled == true && &labelGameName != activeInputLabel) {
 			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
 			if(hasNetworkGameSettings() == true) {
 				needToSetChangedGameSettings = true;
 				lastSetChangedGameSettings   = time(NULL);
@@ -4435,6 +4610,8 @@ void MenuStateCustomGame::processScenario() {
 			updateNetworkSlots();
 
 			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
 			if(checkBoxPublishServer.getValue() == true) {
 				needToRepublishToMasterserver = true;
 			}

@@ -126,7 +126,7 @@ public:
     virtual void keyPress(SDL_KeyboardEvent c);
     virtual void keyUp(SDL_KeyboardEvent key);
 
-	virtual void simpleTask(BaseThread *callingThread);
+	virtual void simpleTask(BaseThread *callingThread,void *userdata);
 	virtual bool isInSpecialKeyCaptureEvent() { return chatManager.getEditEnabled(); }
 
 	static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }

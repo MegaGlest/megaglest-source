@@ -124,7 +124,7 @@ std::auto_ptr<google_breakpad::ExceptionHandler> errorHandlerPtr;
 #endif
 
 class NavtiveLanguageNameListCacheGenerator : public SimpleTaskCallbackInterface {
-	virtual void simpleTask(BaseThread *callingThread) {
+	virtual void simpleTask(BaseThread *callingThread,void *userdata) {
 		Lang &lang = Lang::getInstance();
 		lang.getDiscoveredLanguageList(true);
 	}

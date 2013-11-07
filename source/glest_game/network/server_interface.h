@@ -226,7 +226,7 @@ public:
         return serverSynchAccessor;
     }
 
-    virtual void simpleTask(BaseThread *callingThread);
+    virtual void simpleTask(BaseThread *callingThread,void *userdata);
     void addClientToServerIPAddress(uint32 clientIp, uint32 ServerIp);
     virtual int isValidClientType(uint32 clientIp);
     virtual int isClientAllowedToGetFile(uint32 clientIp, const char *username, const char *filename);

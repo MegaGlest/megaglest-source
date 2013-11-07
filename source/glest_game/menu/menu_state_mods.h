@@ -193,7 +193,7 @@ public:
     virtual void keyPress(SDL_KeyboardEvent c);
     virtual void keyUp(SDL_KeyboardEvent key);
 
-    virtual void simpleTask(BaseThread *callingThread);
+    virtual void simpleTask(BaseThread *callingThread,void *userdata);
 
     virtual void reloadUI();
 

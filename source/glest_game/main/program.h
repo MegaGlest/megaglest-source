@@ -206,7 +206,7 @@ public:
 	void init(WindowGl *window, bool initSound=true, bool toggleFullScreen=false);
 	void exit();
 
-	virtual void simpleTask(BaseThread *callingThread);
+	virtual void simpleTask(BaseThread *callingThread,void *userdata);
 
 	void mouseDownLeft(int x, int y);
 	void eventMouseMove(int x, int y, const MouseState *ms);

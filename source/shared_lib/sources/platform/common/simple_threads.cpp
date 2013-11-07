@@ -345,7 +345,8 @@ vector<Texture2D *> FileCRCPreCacheThread::getPendingTextureList(int maxTextures
 SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInterface,
 									unsigned int executionCount,
 									unsigned int millisecsBetweenExecutions,
-									bool needTaskSignal) : BaseThread(), 
+									bool needTaskSignal,
+									void *userdata, bool wantSetupAndShutdown) : BaseThread(),
 															simpleTaskInterface(NULL), 
 															overrideShutdownTask(NULL) {
 	uniqueID = "SimpleTaskThread";
@@ -355,6 +356,11 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 	this->millisecsBetweenExecutions = millisecsBetweenExecutions;
 	this->needTaskSignal			 = needTaskSignal;
 	this->overrideShutdownTask		 = NULL;
+	this->userdata					 = userdata;
+	this->wantSetupAndShutdown		 = wantSetupAndShutdown;
+	//if(this->userdata != NULL) {
+	//	printf("IN SImpleThread this->userdata [%p]\n",this->userdata);
+	//}
 
 	setTaskSignalled(false);
 
@@ -363,15 +369,18 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 	mutexLastExecuteTimestamp.setOwnerId(mutexOwnerId);
 	lastExecuteTimestamp = time(NULL);
 
-	string mutexOwnerId1 = CODE_AT_LINE;
-	MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
-	if(this->simpleTaskInterfaceValid == true) {
-		safeMutex1.ReleaseLock();
-		this->simpleTaskInterface->setupTask(this);
+	if(this->wantSetupAndShutdown == true) {
+		string mutexOwnerId1 = CODE_AT_LINE;
+		MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
+		if(this->simpleTaskInterfaceValid == true) {
+			safeMutex1.ReleaseLock();
+			this->simpleTaskInterface->setupTask(this,userdata);
+		}
 	}
 }
 
 SimpleTaskThread::~SimpleTaskThread() {
+	//printf("~SimpleTaskThread LINE: %d this = %p\n",__LINE__,this);
 	try {
 		cleanup();
 	}
@@ -382,22 +391,33 @@ SimpleTaskThread::~SimpleTaskThread() {
         throw megaglest_runtime_error(ex.what());
         //abort();
     }
+    //printf("~SimpleTaskThread LINE: %d this = %p\n",__LINE__,this);
 }
 
 void SimpleTaskThread::cleanup() {
-	if(this->overrideShutdownTask != NULL) {
-		this->overrideShutdownTask(this);
-		this->overrideShutdownTask = NULL;
-	}
-	else if(this->simpleTaskInterface != NULL) {
-		string mutexOwnerId1 = CODE_AT_LINE;
-		MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
-		if(this->simpleTaskInterfaceValid == true) {
-			safeMutex1.ReleaseLock();
-			this->simpleTaskInterface->shutdownTask(this);
-			this->simpleTaskInterface = NULL;
+	//printf("~SimpleTaskThread LINE: %d this = %p\n",__LINE__,this);
+	if(this->wantSetupAndShutdown == true) {
+		if(this->overrideShutdownTask != NULL) {
+			//printf("~SimpleTaskThread LINE: %d this = %p\n",__LINE__,this);
+			this->overrideShutdownTask(this);
+			this->overrideShutdownTask = NULL;
+		}
+		else if(this->simpleTaskInterface != NULL) {
+			//printf("~SimpleTaskThread LINE: %d this = %p\n",__LINE__,this);
+			string mutexOwnerId1 = CODE_AT_LINE;
+			MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
+			//printf("~SimpleTaskThread LINE: %d this = %p\n",__LINE__,this);
+			if(this->simpleTaskInterfaceValid == true) {
+				//printf("~SimpleTaskThread LINE: %d this = %p\n",__LINE__,this);
+				safeMutex1.ReleaseLock();
+				//printf("~SimpleTaskThread LINE: %d this = %p\n",__LINE__,this);
+				this->simpleTaskInterface->shutdownTask(this,userdata);
+				this->simpleTaskInterface = NULL;
+				//printf("~SimpleTaskThread LINE: %d this = %p\n",__LINE__,this);
+			}
 		}
 	}
+	//printf("~SimpleTaskThread LINE: %d this = %p\n",__LINE__,this);
 }
 
 void SimpleTaskThread::setOverrideShutdownTask(taskFunctionCallback *ptr) {
@@ -479,7 +499,7 @@ void SimpleTaskThread::execute() {
                     if(getQuitStatus() == false) {
                     	ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
                     	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-                        this->simpleTaskInterface->simpleTask(this);
+                        this->simpleTaskInterface->simpleTask(this,this->userdata);
                         //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
                         if(getQuitStatus() == true) {

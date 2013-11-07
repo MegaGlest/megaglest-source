@@ -156,6 +156,7 @@ private:
 	bool needToBroadcastServerSettings;
 	std::map<string,string> publishToServerInfo;
 	SimpleTaskThread *publishToMasterserverThread;
+	SimpleTaskThread *publishToClientsThread;
 
 	ParentMenuState parentMenuState;
 	int soundConnectionCount;
@@ -237,9 +238,9 @@ public:
     virtual void keyUp(SDL_KeyboardEvent key);
 
 
-    virtual void simpleTask(BaseThread *callingThread);
-	virtual void setupTask(BaseThread *callingThread);
-	virtual void shutdownTask(BaseThread *callingThread);
+    virtual void simpleTask(BaseThread *callingThread,void *userdata);
+	virtual void setupTask(BaseThread *callingThread,void *userdata);
+	virtual void shutdownTask(BaseThread *callingThread,void *userdata);
 	static void setupTaskStatic(BaseThread *callingThread);
 	static void shutdownTaskStatic(BaseThread *callingThread);
 
@@ -300,6 +301,9 @@ private:
 
 	bool checkNetworkPlayerDataSynch(bool checkMapCRC,bool checkTileSetCRC, bool checkTechTreeCRC);
 
+	void cleanupThread(SimpleTaskThread **thread);
+	void simpleTaskForMasterServer(BaseThread *callingThread);
+	void simpleTaskForClients(BaseThread *callingThread);
 };
 
 }}//end namespace
