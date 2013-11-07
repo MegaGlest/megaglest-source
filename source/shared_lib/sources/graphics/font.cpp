@@ -233,13 +233,6 @@ Font::Font(FontTextHandlerType type) {
 	if(Font::forceLegacyFonts == false) {
 		try {
 #if defined(USE_FREETYPEGL)
-			//if(Font::forceFTGLFonts == false) {
-			//	textHandler = NULL;
-			//	textHandler = new TextFreetypeGL(type);
-				//printf("TextFreetypeGL is ON\n");
-			//}
-
-			//else
 #endif
 			{
 				TextFTGL::faceResolution = Font::faceResolution;
@@ -247,7 +240,6 @@ Font::Font(FontTextHandlerType type) {
 
 				textHandler = NULL;
 				textHandler = new TextFTGL(type);
-				//printf("TextFTGL is ON\n");
 
 				TextFTGL::faceResolution = Font::faceResolution;
 				TextFTGL::langHeightText = Font::langHeightText;
@@ -403,7 +395,6 @@ string findFontFamily(const char* font, const char *fontFamily) {
 		if(fs) {
 			FcChar8* file;
 			if( FcPatternGetString (fs->fonts[0], FC_FILE, 0, &file) == FcResultMatch ) {
-				//CHECK_FONT_PATH((const char*)file,NULL)
 				resultFile = (const char*)file;
 			}
 			FcFontSetDestroy(fs);
@@ -423,33 +414,33 @@ string findFontFamily(const char* font, const char *fontFamily) {
 	return resultFile;
 }
 
+void CHECK_FONT_PATH(const char *filename,const char *fontFamily,const char **font,const char **path) {
+	*path = filename;
+	if( *font == NULL && *path != NULL && strlen(*path) > 0 && fileExists(*path) == true ) {
+		*font = strdup(*path);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 candidate font file exists [%s]\n",(*font != NULL ? *font : "null"));
+	}
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 Searching for font file [%s] result [%s]\n",(*path != NULL ? *path : "null"),(*font != NULL ? *font : "null"));
+	if( *font == NULL && fontFamily != NULL && strlen(fontFamily) > 0) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 Searching for font [%s] family [%s]\n",(*font != NULL ? *font : "null"),(fontFamily != NULL ? fontFamily : "null"));
+		string fileFound = findFontFamily(*font, fontFamily);
+		if(fileFound != "") {
+			*path = fileFound.c_str();
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 candidate font file found [%s]\n",fileFound.c_str());
+			if( *path != NULL && strlen(*path) > 0 && fileExists(*path) == true ) {
+				if(*font) free((void*)*font);
+				*font = strdup(*path);
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 candidate font file has been set[%s]\n",(*font != NULL ? *font : "null"));
+			}
+		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 Searching for font family [%s] result [%s]\n",(fontFamily != NULL ? fontFamily : "null"),(*font != NULL ? *font : "null"));
+	}
+}
+
 const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry) {
 	const char* font = NULL;
 	const char* path = NULL;
 
-	#define CHECK_FONT_PATH(filename,fontFamily) \
-	{ \
-		path = filename; \
-		if( font == NULL && path != NULL && strlen(path) > 0 && fileExists(path) == true ) { \
-			font = strdup(path); \
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 candidate font file exists [%s]\n",(font != NULL ? font : "null")); \
-		} \
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 Searching for font file [%s] result [%s]\n",(path != NULL ? path : "null"),(font != NULL ? font : "null")); \
-		if( font == NULL && fontFamily != NULL && strlen(fontFamily) > 0) { \
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 Searching for font [%s] family [%s]\n",(font != NULL ? font : "null"),(fontFamily != NULL ? fontFamily : "null")); \
-			string fileFound = findFontFamily(font, fontFamily); \
-			if(fileFound != "") { \
-				path = fileFound.c_str(); \
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 candidate font file found [%s]\n",fileFound.c_str()); \
-				if( path != NULL && strlen(path) > 0 && fileExists(path) == true ) { \
-					if(font) free((void*)font); \
-					font = strdup(path); \
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 candidate font file has been set[%s]\n",(font != NULL ? font : "null")); \
-				} \
-			} \
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 Searching for font family [%s] result [%s]\n",(fontFamily != NULL ? fontFamily : "null"),(font != NULL ? font : "null")); \
-		} \
-	}
 
 	string tryFont = "";
 	if(firstFontToTry != NULL || firstFontFamilyToTry != NULL) {
@@ -460,10 +451,10 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 			#endif
 
 
-			CHECK_FONT_PATH(tryFont.c_str(),firstFontFamilyToTry)
+			CHECK_FONT_PATH(tryFont.c_str(),firstFontFamilyToTry,&font,&path);
 		}
 		else {
-			CHECK_FONT_PATH(NULL,firstFontFamilyToTry)
+			CHECK_FONT_PATH(NULL,firstFontFamilyToTry,&font,&path);
 		}
 	}
 
@@ -480,10 +471,10 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 			  replaceAll(tryFont, "/", "\\");
 			#endif
 
-			CHECK_FONT_PATH(tryFont.c_str(),getenv("MEGAGLEST_FONT_FAMILY"))
+			CHECK_FONT_PATH(tryFont.c_str(),getenv("MEGAGLEST_FONT_FAMILY"),&font,&path);
 		}
 		else {
-			CHECK_FONT_PATH(NULL,getenv("MEGAGLEST_FONT_FAMILY"))
+			CHECK_FONT_PATH(NULL,getenv("MEGAGLEST_FONT_FAMILY"),&font,&path);
 		}
 	}
 
@@ -497,14 +488,14 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 	#ifdef WIN32
 	  replaceAll(tryFont, "/", "\\");
 	#endif
-	CHECK_FONT_PATH(tryFont.c_str(),"Linux Biolinum O:style=Bold")
+	CHECK_FONT_PATH(tryFont.c_str(),"Linux Biolinum O:style=Bold",&font,&path);
 
 	#ifdef FONT_PATH
 	// Get distro-specified font path
-	CHECK_FONT_PATH(FONT_PATH)
+	CHECK_FONT_PATH(FONT_PATH,NULL,&font,&path);
 	#endif
 
-	CHECK_FONT_PATH("/usr/share/fonts/truetype/uralic/gothub__.ttf","Gothic Uralic:style=Regular")
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/uralic/gothub__.ttf","Gothic Uralic:style=Regular",&font,&path);
 
 	// Check a couple of common paths for Gothic Uralic/bold as a last resort
 	// Debian
@@ -513,55 +504,55 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 	font that contains all the Unicode characters in use in	your translation.
 	If the font is available in Debian it should be the Debian path.
 	*/
-	CHECK_FONT_PATH("/usr/share/fonts/truetype/uralic/gothub__.ttf","Gothic Uralic:style=Regular")
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/uralic/gothub__.ttf","Gothic Uralic:style=Regular",&font,&path);
 	/*
 	TRANSLATORS: If using the FTGL backend, this should be the path of a
 	font that contains all the Unicode characters in use in	your translation.
 	If the font is available in Debian it should be the Debian path.
 	*/
-	CHECK_FONT_PATH("/usr/share/fonts/truetype/uralic/gothu___.ttf","Gothic Uralic:style=Regular")
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/uralic/gothu___.ttf","Gothic Uralic:style=Regular",&font,&path);
 	// Mandrake
 	/*
 	TRANSLATORS: If using the FTGL backend, this should be the path of a bold
 	font that contains all the Unicode characters in use in	your translation.
 	If the font is available in Mandrake it should be the Mandrake path.
 	*/
-	CHECK_FONT_PATH("/usr/share/fonts/TTF/uralic/GOTHUB__.TTF","Gothic Uralic:style=Bold")
+	CHECK_FONT_PATH("/usr/share/fonts/TTF/uralic/GOTHUB__.TTF","Gothic Uralic:style=Bold",&font,&path);
 	/*
 	TRANSLATORS: If using the FTGL backend, this should be the path of a
 	font that contains all the Unicode characters in use in	your translation.
 	If the font is available in Mandrake it should be the Mandrake path.
 	*/
-	CHECK_FONT_PATH("/usr/share/fonts/TTF/uralic/GOTHU___.TTF","Gothic Uralic:style=Regular")
+	CHECK_FONT_PATH("/usr/share/fonts/TTF/uralic/GOTHU___.TTF","Gothic Uralic:style=Regular",&font,&path);
 
 	// Check the non-translated versions of the above
-	CHECK_FONT_PATH("/usr/share/fonts/truetype/uralic/gothub__.ttf","Gothic Uralic:style=Regular")
-	CHECK_FONT_PATH("/usr/share/fonts/truetype/uralic/gothu___.ttf","Gothic Uralic:style=Regular")
-	CHECK_FONT_PATH("/usr/share/fonts/TTF/uralic/GOTHUB__.TTF","Gothic Uralic:style=Regular")
-	CHECK_FONT_PATH("/usr/share/fonts/TTF/uralic/GOTHU___.TTF","Gothic Uralic:style=Regular")
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/uralic/gothub__.ttf","Gothic Uralic:style=Regular",&font,&path);
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/uralic/gothu___.ttf","Gothic Uralic:style=Regular",&font,&path);
+	CHECK_FONT_PATH("/usr/share/fonts/TTF/uralic/GOTHUB__.TTF","Gothic Uralic:style=Regular",&font,&path);
+	CHECK_FONT_PATH("/usr/share/fonts/TTF/uralic/GOTHU___.TTF","Gothic Uralic:style=Regular",&font,&path);
 
-	CHECK_FONT_PATH("/usr/share/fonts/truetype/linux-libertine/LinLibertine_Re.ttf","Linux Libertine O:style=Regular")
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/linux-libertine/LinLibertine_Re.ttf","Linux Libertine O:style=Regular",&font,&path);
 
-	CHECK_FONT_PATH("/usr/share/fonts/truetype/freefont/FreeSerif.ttf","FreeSerif")
-	CHECK_FONT_PATH("/usr/share/fonts/truetype/freefont/FreeSans.ttf","FreeSans")
-	CHECK_FONT_PATH("/usr/share/fonts/truetype/freefont/FreeMono.ttf","FreeMono")
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/freefont/FreeSerif.ttf","FreeSerif",&font,&path);
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/freefont/FreeSans.ttf","FreeSans",&font,&path);
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/freefont/FreeMono.ttf","FreeMono",&font,&path);
 
 	//openSUSE
-	CHECK_FONT_PATH("/usr/share/fonts/truetype/LinBiolinum_RB.otf","Bold")
-	CHECK_FONT_PATH("/usr/share/fonts/truetype/FreeSerif.ttf","FreeSerif")
-	CHECK_FONT_PATH("/usr/share/fonts/truetype/FreeSans.ttf","FreeSans")
-	CHECK_FONT_PATH("/usr/share/fonts/truetype/FreeMono.ttf","FreeMono")
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/LinBiolinum_RB.otf","Bold",&font,&path);
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/FreeSerif.ttf","FreeSerif",&font,&path);
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/FreeSans.ttf","FreeSans",&font,&path);
+	CHECK_FONT_PATH("/usr/share/fonts/truetype/FreeMono.ttf","FreeMono",&font,&path);
 
 	// gentoo paths
-	CHECK_FONT_PATH("/usr/share/fonts/freefont-ttf/FreeSerif.ttf","FreeSerif")
-	CHECK_FONT_PATH("/usr/share/fonts/freefont-ttf/FreeSans.ttf","FreeSans")
-	CHECK_FONT_PATH("/usr/share/fonts/freefont-ttf/FreeMono.ttf","FreeMono")
+	CHECK_FONT_PATH("/usr/share/fonts/freefont-ttf/FreeSerif.ttf","FreeSerif",&font,&path);
+	CHECK_FONT_PATH("/usr/share/fonts/freefont-ttf/FreeSans.ttf","FreeSans",&font,&path);
+	CHECK_FONT_PATH("/usr/share/fonts/freefont-ttf/FreeMono.ttf","FreeMono",&font,&path);
 
 #ifdef _WIN32
-	CHECK_FONT_PATH("c:\\windows\\fonts\\verdana.ttf",NULL)
-	CHECK_FONT_PATH("c:\\windows\\fonts\\tahoma.ttf",NULL)
-	CHECK_FONT_PATH("c:\\windows\\fonts\\arial.ttf",NULL)
-	CHECK_FONT_PATH("\\windows\\fonts\\arial.ttf",NULL)
+	CHECK_FONT_PATH("c:\\windows\\fonts\\verdana.ttf",NULL,&font,&path);
+	CHECK_FONT_PATH("c:\\windows\\fonts\\tahoma.ttf",NULL,&font,&path);
+	CHECK_FONT_PATH("c:\\windows\\fonts\\arial.ttf",NULL,&font,&path);
+	CHECK_FONT_PATH("\\windows\\fonts\\arial.ttf",NULL,&font,&path);
 #endif
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Final selection of font file is [%s]\n",(font != NULL ? font : "null")); \
