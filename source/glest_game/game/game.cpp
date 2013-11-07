@@ -6654,7 +6654,9 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 
 	newGame->timeDisplay = gameNode->getAttribute("timeDisplay")->getIntValue() != 0;
 
-	newGame->disableSpeedChange = gameNode->getAttribute("disableSpeedChange")->getIntValue() != 0;
+	if(gameNode->hasAttribute("disableSpeedChange") == true) {
+		newGame->disableSpeedChange = gameNode->getAttribute("disableSpeedChange")->getIntValue() != 0;
+	}
 
 	//bool gameStarted;
 	//gameNode->addAttribute("gameStarted",intToStr(gameStarted), mapTagReplacements);
