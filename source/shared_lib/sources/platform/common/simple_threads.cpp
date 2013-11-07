@@ -89,7 +89,7 @@ void FileCRCPreCacheThread::execute() {
 
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] Found megapack techtree and placing it at the TOP of the list\n",__FILE__,__FUNCTION__,__LINE__);
 					}
-					unsigned int techsPerWorker = (techPaths.size() / MAX_FileCRCPreCacheThread_WORKER_THREADS);
+					unsigned int techsPerWorker = ((unsigned int)techPaths.size() / (unsigned int)MAX_FileCRCPreCacheThread_WORKER_THREADS);
 					if(techPaths.size() % MAX_FileCRCPreCacheThread_WORKER_THREADS != 0) {
 						techsPerWorker++;
 					}
@@ -104,7 +104,7 @@ void FileCRCPreCacheThread::execute() {
 								break;
 							}
 
-							unsigned int currentWorkerMax = (techPaths.size() - consumedWorkers);
+							unsigned int currentWorkerMax = ((unsigned int)techPaths.size() - consumedWorkers);
 							if(currentWorkerMax > techsPerWorker) {
 								currentWorkerMax = techsPerWorker;
 							}
