@@ -171,8 +171,9 @@ protected:
 	string networkGameDataSynchCheckTechMismatchReport;
 	bool receivedDataSynchCheck;
 
-	std::vector<ChatMsgInfo> chatTextList;
 	NetworkMessagePing lastPingInfo;
+
+	std::vector<ChatMsgInfo> chatTextList;
 	std::vector<MarkedCell> markedCellList;
 	std::vector<UnMarkedCell> unmarkedCellList;
 
@@ -262,10 +263,8 @@ public:
 
 	virtual bool getConnectHasHandshaked() const= 0;
 
-	NetworkMessagePing getLastPingInfo() const { return lastPingInfo; }
-	double getLastPingLag() const {
-		return difftime((long int)time(NULL),lastPingInfo.getPingReceivedLocalTime());
-	}
+	NetworkMessagePing getLastPingInfo();
+	double getLastPingLag();
 
 	std::string getIpAddress();
 	float getThreadedPingMS(std::string host);

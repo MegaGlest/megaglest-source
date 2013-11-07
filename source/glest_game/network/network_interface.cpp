@@ -166,6 +166,19 @@ bool NetworkInterface::isConnected(){
 	return result;
 }
 
+NetworkMessagePing NetworkInterface::getLastPingInfo() {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
+
+	return lastPingInfo;
+}
+double NetworkInterface::getLastPingLag() {
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
+
+	return difftime((long int)time(NULL),lastPingInfo.getPingReceivedLocalTime());
+}
+
 void NetworkInterface::DisplayErrorMessage(string sErr, bool closeSocket) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] sErr [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sErr.c_str());
 	SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] sErr [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sErr.c_str());
