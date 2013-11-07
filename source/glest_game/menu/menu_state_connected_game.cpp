@@ -40,6 +40,7 @@ using namespace Shared::CompressionUtil;
 
 namespace Glest{ namespace Game{
 
+static const int MAX_PING_LAG_COUNT		= 6;
 static const double REPROMPT_DOWNLOAD_SECONDS		= 7;
 //static const string ITEM_MISSING 					= "***missing***";
 // above replaced with Lang::getInstance().getString("DataMissing","",true)
@@ -2704,19 +2705,19 @@ void MenuStateConnectedGame::update() {
 
 			// Starting checking timeout after sending at least 3 pings to server
 			if(clientInterface->isConnected() &&
-				pingCount >= 3 && clientInterface->getLastPingLag() >= (GameConstants::networkPingInterval * 3)) {
+				pingCount >= MAX_PING_LAG_COUNT && clientInterface->getLastPingLag() >= (GameConstants::networkPingInterval * MAX_PING_LAG_COUNT)) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 				clientInterface->updateLobby();
 
 				if(clientInterface->isConnected() && clientInterface->getJoinGameInProgress() == false &&
-					pingCount >= 3 && clientInterface->getLastPingLag() >= (GameConstants::networkPingInterval * 3)) {
+					pingCount >= MAX_PING_LAG_COUNT && clientInterface->getLastPingLag() >= (GameConstants::networkPingInterval * MAX_PING_LAG_COUNT)) {
 					MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 					if(fileFTPProgressList.empty() == true) {
 						Lang &lang= Lang::getInstance();
 						const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 						for(unsigned int i = 0; i < languageList.size(); ++i) {
-							clientInterface->sendTextMessage(lang.getString("ConnectionTimedOut",languageList[i]),-1,false,languageList[i]);
+							clientInterface->sendTextMessage(lang.getString("ConnectionTimedOut",languageList[i]) + " : " + doubleToStr(clientInterface->getLastPingLag(),2),-1,false,languageList[i]);
 							sleep(1);
 							clientInterface->close();
 						}
