@@ -1003,8 +1003,6 @@ void CoreData::load() {
 	//const string dir = data_path + "data/core";
 	Logger::getInstance().add(Lang::getInstance().getString("LogScreenCoreDataLoading","",true));
 
-	Renderer &renderer= Renderer::getInstance();
-
 	// textures
 	loadTextures(data_path);
 
@@ -1018,10 +1016,9 @@ void CoreData::load() {
 	loadMusic(data_path);
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
-			Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+		Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
 
 		string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-		Config &config= Config::getInstance();
 
 		loadIntroMedia(data_path);
 
