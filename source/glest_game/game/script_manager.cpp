@@ -377,6 +377,9 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(getLastUnitTriggerEventType, "lastUnitTriggerEventType");
 	luaScript.registerFunction(getUnitProperty, "getUnitProperty");
 	luaScript.registerFunction(getUnitPropertyName, "getUnitPropertyName");
+	luaScript.registerFunction(disableSpeedChange, "disableSpeedChange");
+	luaScript.registerFunction(enableSpeedChange, "enableSpeedChange");
+	luaScript.registerFunction(getSpeedChangeEnabled, "getSpeedChangeEnabled");
 
 	//load code
 	for(int i= 0; i<scenario->getScriptCount(); ++i){
@@ -1926,6 +1929,26 @@ float ScriptManager::getTimeOfDay() {
 	return tf->getTime();
 }
 
+void ScriptManager::disableSpeedChange() {
+	if(world->getGame() == NULL) {
+		throw megaglest_runtime_error("world->getGame() == NULL");
+	}
+	world->getGame()->setDisableSpeedChange(true);
+}
+void ScriptManager::enableSpeedChange() {
+	if(world->getGame() == NULL) {
+		throw megaglest_runtime_error("world->getGame() == NULL");
+	}
+	world->getGame()->setDisableSpeedChange(false);
+}
+
+bool ScriptManager::getSpeedChangeEnabled() {
+	if(world->getGame() == NULL) {
+		throw megaglest_runtime_error("world->getGame() == NULL");
+	}
+	return world->getGame()->getDisableSpeedChange();
+}
+
 // ========================== lua callbacks ===============================================
 
 int ScriptManager::showMessage(LuaHandle* luaHandle){
@@ -3025,6 +3048,21 @@ int ScriptManager::getUnitPropertyName(LuaHandle* luaHandle) {
 	return luaArguments.getReturnCount();
 }
 
+int ScriptManager::disableSpeedChange(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->disableSpeedChange();
+	return luaArguments.getReturnCount();
+}
+int ScriptManager::enableSpeedChange(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	thisScriptManager->enableSpeedChange();
+	return luaArguments.getReturnCount();
+}
+int ScriptManager::getSpeedChangeEnabled(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	luaArguments.returnInt(thisScriptManager->getSpeedChangeEnabled());
+	return luaArguments.getReturnCount();
+}
 
 void ScriptManager::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;

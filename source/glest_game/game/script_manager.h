@@ -412,6 +412,10 @@ private:
 	int getUnitProperty(int unitId, UnitTriggerEventType type);
 	const string getUnitPropertyName(int unitId, UnitTriggerEventType type);
 
+	void disableSpeedChange();
+	void enableSpeedChange();
+	bool getSpeedChangeEnabled();
+
 	//callbacks, commands
 	static int networkShowMessageForFaction(LuaHandle* luaHandle);
 	static int networkShowMessageForTeam(LuaHandle* luaHandle);
@@ -572,6 +576,9 @@ private:
 	static int getUnitProperty(LuaHandle* luaHandle);
 	static int getUnitPropertyName(LuaHandle* luaHandle);
 
+	static int disableSpeedChange(LuaHandle* luaHandle);
+	static int enableSpeedChange(LuaHandle* luaHandle);
+	static int getSpeedChangeEnabled(LuaHandle* luaHandle);
 };
 
 }}//end namespace
