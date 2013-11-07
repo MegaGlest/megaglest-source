@@ -898,7 +898,7 @@ void MenuStateMasterserver::update() {
 	}
 }
 
-void MenuStateMasterserver::simpleTask(BaseThread *callingThread) {
+void MenuStateMasterserver::simpleTask(BaseThread *callingThread,void *userdata) {
 	if(callingThread->getQuitStatus() == true) {
 		return;
 	}

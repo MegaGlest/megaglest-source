@@ -351,7 +351,7 @@ Renderer::~Renderer() {
 	}
 }
 
-void Renderer::simpleTask(BaseThread *callingThread) {
+void Renderer::simpleTask(BaseThread *callingThread,void *userdata) {
 	// This code reads pixmaps from a queue and saves them to disk
 	Pixmap2D *savePixMapBuffer=NULL;
 	string path="";

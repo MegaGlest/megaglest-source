@@ -915,7 +915,7 @@ string MenuStateConnectedGame::refreshMapModInfo(string mapInfo) {
 	return "";
 }
 
-void MenuStateConnectedGame::simpleTask(BaseThread *callingThread) {
+void MenuStateConnectedGame::simpleTask(BaseThread *callingThread,void *userdata) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);

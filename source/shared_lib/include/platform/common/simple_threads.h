@@ -71,10 +71,10 @@ typedef void taskFunctionCallback(BaseThread *callingThread);
 //
 class SimpleTaskCallbackInterface {
 public:
-	virtual void simpleTask(BaseThread *callingThread) = 0;
+	virtual void simpleTask(BaseThread *callingThread,void *userdata) = 0;
 
-	virtual void setupTask(BaseThread *callingThread) { }
-	virtual void shutdownTask(BaseThread *callingThread) { }
+	virtual void setupTask(BaseThread *callingThread,void *userdata) { }
+	virtual void shutdownTask(BaseThread *callingThread,void *userdata) { }
 
 	virtual ~SimpleTaskCallbackInterface() {}
 };
@@ -97,14 +97,26 @@ protected:
 	time_t lastExecuteTimestamp;
 
 	taskFunctionCallback *overrideShutdownTask;
+	void *userdata;
+	bool wantSetupAndShutdown;
 
 public:
 	SimpleTaskThread(SimpleTaskCallbackInterface *simpleTaskInterface,
 					 unsigned int executionCount=0,
 					 unsigned int millisecsBetweenExecutions=0,
-					 bool needTaskSignal = false);
+					 bool needTaskSignal = false,
+					 void *userdata=NULL,
+					 bool wantSetupAndShutdown=true);
 	virtual ~SimpleTaskThread();
 
+	virtual void * getUserdata() { return userdata; }
+	virtual int getUserdataAsInt() {
+		int value = 0;
+		if(userdata) {
+			value = *((int*)&userdata);
+		}
+		return value;
+	}
     virtual void execute();
     virtual bool canShutdown(bool deleteSelfIfShutdownDelayed=false);
 

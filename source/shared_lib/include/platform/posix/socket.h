@@ -164,8 +164,6 @@ public:
 	static int DEFAULT_SOCKET_SENDBUF_SIZE;
 	static int DEFAULT_SOCKET_RECVBUF_SIZE;
 
-	//virtual void simpleTask(BaseThread *callingThread);
-
 	static int getBroadCastPort() 			{ return broadcast_portno; }
 	static void setBroadCastPort(int value) { broadcast_portno = value; }
 	static std::vector<std::string> getLocalIPAddressList();

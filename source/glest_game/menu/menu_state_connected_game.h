@@ -289,7 +289,7 @@ private:
 	void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
 	void initFactionPreview(const GameSettings *gameSettings);
 
-	virtual void simpleTask(BaseThread *callingThread);
+	virtual void simpleTask(BaseThread *callingThread,void *userdata);
 	string refreshTilesetModInfo(string tilesetInfo);
 	string refreshTechModInfo(string techInfo);
 	string refreshMapModInfo(string mapInfo);

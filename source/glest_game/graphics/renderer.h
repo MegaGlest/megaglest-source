@@ -684,7 +684,7 @@ private:
 	void renderTile(const Vec2i &pos);
 	void renderQuad(int x, int y, int w, int h, const Texture2D *texture);
 
-	void simpleTask(BaseThread *callingThread);
+	void simpleTask(BaseThread *callingThread,void *userdata);
 
 	//static
     static Texture2D::Filter strToTextureFilter(const string &s);
