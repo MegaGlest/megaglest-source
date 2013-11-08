@@ -309,7 +309,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 		labelPlayers[i].setEditable(false);
 
 		labelPlayerStatus[i].registerGraphicComponent(containerName,"labelPlayerStatus" + intToStr(i));
-		labelPlayerStatus[i].init(xoffset+15, setupPos-30-i*rowHeight, 60);
+		labelPlayerStatus[i].init(xoffset+15, setupPos-30-i*rowHeight+2, 60);
 		labelPlayerNames[i].registerGraphicComponent(containerName,"labelPlayerNames" + intToStr(i));
 		labelPlayerNames[i].init(xoffset+30,setupPos-30-i*rowHeight);
 
