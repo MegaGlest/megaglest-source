@@ -131,7 +131,10 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
 
     	if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
-    		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo );
+    		string scenarioPath = Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]);
+    		//printf("scenarioPath [%s]\n",scenarioPath.c_str());
+
+    		loadScenarioInfo(scenarioPath, &scenarioInfo );
     		labelInfo.setText(scenarioInfo.desc);
     		if(scenarioInfo.namei18n != "") {
     			labelScenarioName.setText(scenarioInfo.namei18n);

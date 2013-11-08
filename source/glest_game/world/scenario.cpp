@@ -141,19 +141,24 @@ string Scenario::getScenarioPath(const vector<string> dirList, const string &sce
     	endPathWithSlash(currentPath);
     	scenarioFile = currentPath + scenarioName + "/" + scenarioName + ".xml";
 
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n[%s:%s] Line: %d scenarioName [%s] scenarioFile [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioName.c_str(),scenarioFile.c_str());
     	//printf("\n[%s:%s] Line: %d scenarioName [%s] scenarioFile [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioName.c_str(),scenarioFile.c_str());
 
         if(fileExists(scenarioFile) == true) {
+        	//printf("\n[%s:%s] Line: %d scenarioName [%s] scenarioFile [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioName.c_str(),scenarioFile.c_str());
+
 			if(getMatchingRootScenarioPathOnly == true) {
+				//printf("\n[%s:%s] Line: %d scenarioName [%s] scenarioFile [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioName.c_str(),scenarioFile.c_str());
 				scenarioFile = dirList[idx];
 			}
             break;
         }
 		else {
+			//printf("\n[%s:%s] Line: %d scenarioName [%s] scenarioFile [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioName.c_str(),scenarioFile.c_str());
 			scenarioFile = "";
 		}
     }
-
+    //printf("\n[%s:%s] Line: %d scenarioName [%s] scenarioFile [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioName.c_str(),scenarioFile.c_str());
     return scenarioFile;
 }
 

@@ -101,8 +101,10 @@ public:
 	typedef vector<Node*> Nodes;
 
 	class FactionState {
+	protected:
+		Mutex *factionMutex;
 	public:
-		FactionState() {
+		FactionState() : factionMutex(new Mutex()) {
 			openPosList.clear();
 			openNodesList.clear();
 			closedNodesList.clear();
@@ -117,28 +119,64 @@ public:
 		}
 		~FactionState() {
 			//fa = NULL;
+			delete factionMutex;
+			factionMutex = NULL;
+		}
+		Mutex * getMutex() {
+			return factionMutex;
 		}
 		std::map<Vec2i, bool> openPosList;
 		std::map<float, Nodes> openNodesList;
 		std::map<float, Nodes> closedNodesList;
 		std::vector<Node> nodePool;
+
 		int nodePoolCount;
 		RandomGen random;
 		int useMaxNodeCount;
 
 		std::map<int,TravelState> precachedTravelState;
 		std::map<int,std::vector<Vec2i> > precachedPath;
-
-		//int lastFromToNodeListFrame;
-		//std::map<int, std::map<Vec2i,std::map<Vec2i, bool> > > mapFromToNodeList;
-
 		std::map<int,std::map<Field,BadUnitNodeList> > badCellList;
 	};
-	typedef vector<FactionState> FactionStateList;
+
+	class FactionStateManager {
+	protected:
+		typedef vector<FactionState *> FactionStateList;
+		FactionStateList factions;
+
+		void init() {
+			for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+				factions.push_back(new FactionState());
+			}
+		}
+
+	public:
+		FactionStateManager() {
+			init();
+		}
+		~FactionStateManager() {
+			clear();
+		}
+
+		FactionState & getFactionState(int index) {
+			FactionState *faction = factions[index];
+			return *faction;
+		}
+		void clear() {
+			for(unsigned int index = 0; index < (unsigned int)factions.size(); ++index) {
+				delete factions[index];
+			}
+
+			factions.clear();
+		}
+		int size() {
+			return (int)factions.size();
+		}
+	};
 
 public:
 	static const int maxFreeSearchRadius;
-	//static const int pathFindRefresh;
+
 	static const int pathFindBailoutRadius;
 	static const int pathFindExtendRefreshForNodeCount;
 	static const int pathFindExtendRefreshNodeCountMin;
@@ -149,8 +187,8 @@ private:
 	static int pathFindNodesMax;
 	static int pathFindNodesAbsoluteMax;
 
-	Mutex *factionMutex;
-	FactionStateList factions;
+
+	FactionStateManager factions;
 	const Map *map;
 	bool minorDebugPathfinder;
 
@@ -186,7 +224,6 @@ private:
 	void init();
 
 	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex, int maxNodeCount=-1,uint32 *searched_node_count=NULL);
-	//Node *newNode(FactionState &faction,int maxNodeCount);
 	inline static Node *newNode(FactionState &faction, int maxNodeCount) {
 		if( faction.nodePoolCount < faction.nodePool.size() &&
 			//faction.nodePoolCount < faction.useMaxNodeCount) {
@@ -229,42 +266,33 @@ private:
 	}
 
 
-	//bool processNode(Unit *unit, Node *node,const Vec2i finalPos, int i, int j, bool &nodeLimitReached, int maxNodeCount);
-	inline bool processNode(Unit *unit, Node *node,const Vec2i finalPos, int i, int j, bool &nodeLimitReached,int maxNodeCount) {
+	inline bool processNode(Unit *unit, Node *node,const Vec2i finalPos,
+			int i, int j, bool &nodeLimitReached,int maxNodeCount) {
 		bool result = false;
 		Vec2i sucPos= node->pos + Vec2i(i, j);
 
 		int unitFactionIndex = unit->getFactionIndex();
-	//	std::map<int, std::map<Vec2i,std::map<Vec2i, bool> > >::iterator iterFind1 = factions[unitFactionIndex].mapFromToNodeList.find(unit->getType()->getId());
-	//	if(iterFind1 != factions[unitFactionIndex].mapFromToNodeList.end()) {
-	//		std::map<Vec2i,std::map<Vec2i, bool> >::iterator iterFind2 = iterFind1->second.find(node->pos);
-	//		if(iterFind2 != iterFind1->second.end()) {
-	//			std::map<Vec2i, bool>::iterator iterFind3 = iterFind2->second.find(sucPos);
-	//			if(iterFind3 != iterFind2->second.end()) {
-	//				//printf("found duplicate check in processNode\n");
-	//				return iterFind3->second;
-	//			}
-	//		}
-	//	}
 
-		//bool canUnitMoveToCell = map->aproxCanMove(unit, node->pos, sucPos);
-		//bool canUnitMoveToCell = map->aproxCanMoveSoon(unit, node->pos, sucPos);
-		if(openPos(sucPos, factions[unitFactionIndex]) == false &&
+		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+		FactionState &faction = factions.getFactionState(unitFactionIndex);
+		MutexSafeWrapper safeMutex(faction.getMutex(),mutexOwnerId);
+
+		if(openPos(sucPos, faction) == false &&
 				canUnitMoveSoon(unit, node->pos, sucPos) == true) {
 			//if node is not open and canMove then generate another node
-			Node *sucNode= newNode(factions[unitFactionIndex],maxNodeCount);
+			Node *sucNode= newNode(faction,maxNodeCount);
 			if(sucNode != NULL) {
 				sucNode->pos= sucPos;
 				sucNode->heuristic= heuristic(sucNode->pos, finalPos);
 				sucNode->prev= node;
 				sucNode->next= NULL;
-				sucNode->exploredCell= map->getSurfaceCell(Map::toSurfCoords(sucPos))->isExplored(unit->getTeam());
-				if(factions[unitFactionIndex].openNodesList.find(sucNode->heuristic) == factions[unitFactionIndex].openNodesList.end()) {
-					factions[unitFactionIndex].openNodesList[sucNode->heuristic].clear();
-					//factions[unitFactionIndex].openNodesList[sucNode->heuristic].reserve(PathFinder::pathFindNodesMax);
+				sucNode->exploredCell = map->getSurfaceCell(
+						Map::toSurfCoords(sucPos))->isExplored(unit->getTeam());
+				if(faction.openNodesList.find(sucNode->heuristic) == faction.openNodesList.end()) {
+					faction.openNodesList[sucNode->heuristic].clear();
 				}
-				factions[unitFactionIndex].openNodesList[sucNode->heuristic].push_back(sucNode);
-				factions[unitFactionIndex].openPosList[sucNode->pos] = true;
+				faction.openNodesList[sucNode->heuristic].push_back(sucNode);
+				faction.openPosList[sucNode->pos] = true;
 
 				result = true;
 			}
@@ -273,12 +301,11 @@ private:
 			}
 		}
 
-	//	factions[unitFactionIndex].mapFromToNodeList[unit->getType()->getId()][node->pos][sucPos] = result;
 		return result;
 	}
 
 	void processNearestFreePos(const Vec2i &finalPos, int i, int j, int size, Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, float &nearestDist);
-	int getPathFindExtendRefreshNodeCount(int factionIndex);
+	int getPathFindExtendRefreshNodeCount(FactionState &faction, bool mutexLock);
 
 	inline bool canUnitMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) {
 		bool result = map->aproxCanMoveSoon(unit, pos1, pos2);
@@ -292,68 +319,46 @@ private:
 			bool> canAddNode, Unit *& unit, int & maxNodeCount, int curFrameIndex)  {
 
 		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-		MutexSafeWrapper safeMutexFaction(factionMutex,mutexOwnerId);
-
-		FactionState &factionState = factions[unitFactionIndex];
-
-		safeMutexFaction.ReleaseLock(true);
+		FactionState &faction = factions.getFactionState(unitFactionIndex);
+		MutexSafeWrapper safeMutex(faction.getMutex(),mutexOwnerId);
+		safeMutex.ReleaseLock(true);
 
 		while(nodeLimitReached == false) {
 			whileLoopCount++;
 
-			safeMutexFaction.Lock();
-			if(factionState.openNodesList.empty() == true) {
-				safeMutexFaction.ReleaseLock(true);
+			safeMutex.Lock();
+			if(faction.openNodesList.empty() == true) {
+				safeMutex.ReleaseLock(true);
 				pathFound = false;
 				break;
 			}
-			node = minHeuristicFastLookup(factionState);
+			node = minHeuristicFastLookup(faction);
 			if(node->pos == finalPos || node->exploredCell == false) {
-				safeMutexFaction.ReleaseLock(true);
+				safeMutex.ReleaseLock(true);
 				pathFound = true;
 				break;
 			}
-			// Attempt to speed up pathfinding, only count up found path nodes
-			// to the # we need till we will refresh anyways
-//			else {
-//				//build next pointers
-//				int currentPathNodeCount = 0;
-//				Node *currNode= node;
-//				while(currNode->prev != NULL) {
-//					currentPathNodeCount++;
-//					currNode->prev->next= currNode;
-//					currNode= currNode->prev;
-//				}
-//
-//				if(currentPathNodeCount > (PathFinder::pathFindRefresh * 2)) {
-//					pathFound = true;
-//					break;
-//				}
-//			}
 
-			if(factionState.closedNodesList.find(node->heuristic) == factionState.closedNodesList.end()) {
-				factionState.closedNodesList[node->heuristic].clear();
-				//factionState.closedNodesList[node->heuristic].reserve(PathFinder::pathFindNodesMax);
+			if(faction.closedNodesList.find(node->heuristic) == faction.closedNodesList.end()) {
+				faction.closedNodesList[node->heuristic].clear();
 			}
-			factionState.closedNodesList[node->heuristic].push_back(node);
-			factionState.openPosList[node->pos] = true;
-			safeMutexFaction.ReleaseLock(true);
+			faction.closedNodesList[node->heuristic].push_back(node);
+			faction.openPosList[node->pos] = true;
+			safeMutex.ReleaseLock(true);
 
 			int failureCount 	= 0;
 			int cellCount 		= 0;
 
-			safeMutexFaction.Lock();
-			int tryDirection 	= factionState.random.randRange(0, 3);
-			safeMutexFaction.ReleaseLock(true);
+			safeMutex.Lock();
+			int tryDirection 	= faction.random.randRange(0, 3);
+			safeMutex.ReleaseLock(true);
 
 			if(tryDirection == 3) {
 				for(int i = 1;i >= -1 && nodeLimitReached == false;--i) {
 					for(int j = -1;j <= 1 && nodeLimitReached == false;++j) {
-						safeMutexFaction.Lock();
 						if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
 							failureCount++;
 						}
-						safeMutexFaction.ReleaseLock(true);
 						cellCount++;
 					}
 				}
@@ -361,11 +366,9 @@ private:
 			else if(tryDirection == 2) {
 				for(int i = -1;i <= 1 && nodeLimitReached == false;++i) {
 					for(int j = 1;j >= -1 && nodeLimitReached == false;--j) {
-						safeMutexFaction.Lock();
 						if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
 							failureCount++;
 						}
-						safeMutexFaction.ReleaseLock(true);
 						cellCount++;
 					}
 				}
@@ -373,11 +376,9 @@ private:
 			else if(tryDirection == 1) {
 				for(int i = -1;i <= 1 && nodeLimitReached == false;++i) {
 					for(int j = -1;j <= 1 && nodeLimitReached == false;++j) {
-						safeMutexFaction.Lock();
 						if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
 							failureCount++;
 						}
-						safeMutexFaction.ReleaseLock(true);
 						cellCount++;
 					}
 				}
@@ -385,11 +386,9 @@ private:
 			else {
 				for(int i = 1;i >= -1 && nodeLimitReached == false;--i) {
 					for(int j = 1;j >= -1 && nodeLimitReached == false;--j) {
-						safeMutexFaction.Lock();
 						if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
 							failureCount++;
 						}
-						safeMutexFaction.ReleaseLock(true);
 						cellCount++;
 					}
 				}
