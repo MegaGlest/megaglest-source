@@ -185,7 +185,6 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 
 	flagAccessor = new Mutex(CODE_AT_LINE);
 
-	this->readyForInGameJoin = false;
 	clientSocket= NULL;
 	sessionKey = 0;
 	launchGame= false;
@@ -193,6 +192,8 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 
 	this->joinGameInProgress = false;
 	this->joinGameInProgressLaunch = false;
+	this->readyForInGameJoin = false;
+	this->resumeInGameJoin = false;
 
 	quitThreadAccessor = new Mutex(CODE_AT_LINE);
 	setQuitThread(false);
@@ -210,6 +211,7 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 	networkGameDataSynchCheckOkTech = false;
 	this->setNetworkGameDataSynchCheckTechMismatchReport("");
 	this->setReceivedDataSynchCheck(false);
+
 }
 
 void ClientInterface::shutdownNetworkCommandListThread(MutexSafeWrapper &safeMutexWrapper) {
