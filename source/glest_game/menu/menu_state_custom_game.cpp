@@ -490,7 +490,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		labelPlayers[i].setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
 		labelPlayerStatus[i].registerGraphicComponent(containerName,"labelPlayerStatus" + intToStr(i));
-		labelPlayerStatus[i].init(xoffset+15, setupPos-30-i*rowHeight, 60);
+		labelPlayerStatus[i].init(xoffset+15, setupPos-30-i*rowHeight+2, 60);
 		labelPlayerNames[i].registerGraphicComponent(containerName,"labelPlayerNames" + intToStr(i));
 		labelPlayerNames[i].init(xoffset+30,setupPos-30-i*rowHeight);
 
