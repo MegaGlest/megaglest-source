@@ -2983,26 +2983,35 @@ void UnitUpdater::findEnemiesForCell(const Vec2i pos, int size, int sightRange, 
 //if the unit has any enemy on range
 bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 							  const AttackSkillType *ast,bool evalMode) {
-    vector<Unit*> enemies;
-    enemies.reserve(100);
 	bool result=false;
+
+	string codeLocation = "1";
+	try {
+	vector<Unit*> enemies;
+    enemies.reserve(100);
+
+    codeLocation = "2";
 	//we check command target
 	const Unit *commandTarget = NULL;
 	if(unit->anyCommand() && unit->getCurrCommand() != NULL) {
 		commandTarget = static_cast<const Unit*>(unit->getCurrCommand()->getUnit());
 	}
+	codeLocation = "3";
 	if(commandTarget != NULL && commandTarget->isDead()) {
 		commandTarget = NULL;
 	}
-
+	codeLocation = "4";
 	//aux vars
 	int size 			= unit->getType()->getSize();
 	Vec2i center 		= unit->getPos();
 	Vec2f floatCenter	= unit->getFloatCenteredPos();
 
+	codeLocation = "5";
 	//bool foundInCache = true;
 	if(findCachedCellsEnemies(center,range,size,enemies,ast,
 							  unit,commandTarget) == false) {
+		codeLocation = "6";
+
 		//foundInCache = false;
 		//nearby cells
 		UnitRangeCellsLookupItem cacheItem;
@@ -3022,6 +3031,8 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 			}
 		}
 
+		codeLocation = "7";
+
 		// Ok update our caches with the latest info
 		if(cacheItem.rangeCellList.empty() == false) {
 			MutexSafeWrapper safeMutex(&mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
@@ -3031,6 +3042,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 		}
 	}
 
+	codeLocation = "8";
 	//attack enemies that can attack first
 	float distToUnit= -1;
 	Unit* enemySeen= NULL;
@@ -3041,13 +3053,19 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 	bool isUltra= controlType == ctCpuUltra || controlType == ctNetworkCpuUltra;
 	bool isMega= controlType == ctCpuMega || controlType == ctNetworkCpuMega;
 
+	codeLocation = "9";
+
 	string randomInfoData = "enemies.size() = " + intToStr(enemies.size());
 
 	//printf("unit %d has control:%d\n",unit->getId(),controlType);
     for(int i = 0; i< enemies.size(); ++i) {
     	Unit *enemy = enemies[i];
 
+    	codeLocation = "10";
+
     	if(enemy != NULL && enemy->isAlive() == true) {
+    		codeLocation = "11";
+
     		// Here we default to first enemy if no attackers found
     		if(enemySeen == NULL) {
                 *rangedPtr 	= enemy;
@@ -3055,13 +3073,15 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
                 result		= true;
     		}
 
-    		randomInfoData += " i = " + intToStr(i) + " alive = true result = " + intToStr(result);
+    		//randomInfoData += " i = " + intToStr(i) + " alive = true result = " + intToStr(result);
 
     		// Attackers get first priority
     		if(enemy->getType()->hasSkillClass(scAttack) == true) {
+    			codeLocation = "12";
+
     			float currentDist = unit->getCenteredPos().dist(enemy->getCenteredPos());
 
-    			randomInfoData += " currentDist = " + floatToStr(currentDist);
+    			//randomInfoData += " currentDist = " + floatToStr(currentDist);
 
     			// Select closest attacking unit
     			if(distToUnit < 0 ||  currentDist< distToUnit) {
@@ -3072,6 +3092,8 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
     			}
 
     			if(isUltra || isMega) {
+    				codeLocation = "13";
+
         			if(distToStandingUnit < 0 || currentDist< distToStandingUnit) {
         			    if(enemies[i]->getCurrSkill()!=NULL && enemies[i]->getCurrSkill()->getClass()==scAttack) {
         			    	distToStandingUnit = currentDist;
@@ -3083,7 +3105,10 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
     	}
     }
 
+    codeLocation = "14";
     if(evalMode == false && (isUltra || isMega)) {
+    	codeLocation = "15";
+
     	unit->getRandom()->addLastCaller(randomInfoData);
 
     	if( attackingEnemySeen!=NULL && unit->getRandom()->randRange(0,2,extractFileFromDirectoryPath(__FILE__) + intToStr(__LINE__)) != 2 ) {
@@ -3093,7 +3118,10 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
     	}
     }
 
+    codeLocation = "16";
 	if(result == true) {
+		codeLocation = "17";
+
 		//const Unit* teamUnit	= NULL;
 		const Unit* enemyUnit	= NULL;
 		bool onlyEnemyUnits		= true;
@@ -3109,13 +3137,18 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 			onlyEnemyUnits	= false;
 		}
 
+		codeLocation = "18";
 		if(evalMode == false && onlyEnemyUnits == false &&
 			enemyUnit->getTeam() != world->getThisTeamIndex()) {
+			codeLocation = "19";
+
 			Vec2f enemyFloatCenter	= enemyUnit->getFloatCenteredPos();
 			// find nearest Attack and cleanup old dates
 			AttackWarningData *nearest	= NULL;
 			float currentDistance		= 0.f;
 			float nearestDistance		= 0.f;
+
+			codeLocation = "20";
 
 			MutexSafeWrapper safeMutex(&mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
 			for(int i = (int)attackWarnings.size() - 1; i >= 0; --i) {
@@ -3144,7 +3177,10 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 				}
 	    	}
 
+			codeLocation = "21";
 	    	if(nearest != NULL) {
+	    		codeLocation = "22";
+
 	    		// does it fit?
 	    		if(nearestDistance < attackWarnRange) {
 	    			// update entry with current values
@@ -3157,37 +3193,68 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 	    			nearest=NULL;  //set to null to force a new entry in next step
 	    		}
 	    	}
+	    	codeLocation = "23";
 	    	// add new attack
 	    	if(nearest == NULL) {
 	    		// no else!
-
+	    		codeLocation = "24";
 	    		AttackWarningData* awd= new AttackWarningData();
 	    		awd->lastFrameCount=world->getFrameCount();
 	    		awd->attackPosition.x=enemyFloatCenter.x;
 	    		awd->attackPosition.y=enemyFloatCenter.y;
 
+	    		codeLocation = "25";
 				MutexSafeWrapper safeMutex(&mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
 	    		attackWarnings.push_back(awd);
 
+	    		codeLocation = "26";
 	    		if(world->getAttackWarningsEnabled() == true) {
+	    			codeLocation = "27";
+
 	    			SoundRenderer::getInstance().playFx(CoreData::getInstance().getAttentionSound());
 	    			world->addAttackEffects(enemyUnit);
 	    		}
+	    		codeLocation = "28";
 	    	}
 		}
 	}
+
+	}
+	catch(const exception &ex) {
+		//setRunningStatus(false);
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Loc [%s] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str(),ex.what());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		throw megaglest_runtime_error(ex.what());
+	}
+	catch(...) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] UNKNOWN error Loc [%s]\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		throw megaglest_runtime_error(szBuf);
+	}
+
     return result;
 }
 
 
 //if the unit has any enemy on range
 vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillType *ast) {
-	int range = unit->getType()->getSight();
-	if(ast != NULL) {
-		range = ast->getTotalAttackRange(unit->getTotalUpgrade());
-	}
 	vector<Unit*> enemies;
 	enemies.reserve(100);
+
+	string codeLocation = "1";
+	try {
+
+
+	int range = unit->getType()->getSight();
+	if(ast != NULL) {
+		codeLocation = "2";
+
+		range = ast->getTotalAttackRange(unit->getTotalUpgrade());
+	}
+	codeLocation = "3";
 	//we check command target
 	const Unit *commandTarget = NULL;
 //	if(unit->anyCommand()) {
@@ -3202,9 +3269,12 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 	Vec2i center 		= unit->getPosNotThreadSafe();
 	Vec2f floatCenter	= unit->getFloatCenteredPos();
 
+	codeLocation = "4";
 	//bool foundInCache = true;
 	if(findCachedCellsEnemies(center,range,size,enemies,ast,
 							  unit,commandTarget) == false) {
+		codeLocation = "5";
+
 		//foundInCache = false;
 		//nearby cells
 		UnitRangeCellsLookupItem cacheItem;
@@ -3224,6 +3294,7 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 			}
 		}
 
+		codeLocation = "6";
 		// Ok update our caches with the latest info
 		if(cacheItem.rangeCellList.empty() == false) {
 			MutexSafeWrapper safeMutex(&mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
@@ -3231,6 +3302,23 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 			//cacheItem.UnitRangeCellsLookupItemCacheTimerCountIndex = UnitRangeCellsLookupItemCacheTimerCount++;
 			UnitRangeCellsLookupItemCache[center][size][range] = cacheItem;
 		}
+		codeLocation = "7";
+	}
+
+	}
+	catch(const exception &ex) {
+		//setRunningStatus(false);
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Loc [%s] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str(),ex.what());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		throw megaglest_runtime_error(ex.what());
+	}
+	catch(...) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] UNKNOWN error Loc [%s]\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		throw megaglest_runtime_error(szBuf);
 	}
 
 	return enemies;
