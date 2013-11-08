@@ -280,72 +280,36 @@ private:
 	void processNearestFreePos(const Vec2i &finalPos, int i, int j, int size, Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, float &nearestDist);
 	int getPathFindExtendRefreshNodeCount(int factionIndex);
 
-
-	void astarJPS(std::map<Vec2i,Vec2i> cameFrom, Node *& node,
-			const Vec2i & finalPos, std::map<Vec2i,bool> closedNodes,
-			std::map<std::pair<Vec2i,Vec2i> ,bool> canAddNode, Unit *& unit,
-			bool & nodeLimitReached, int & maxNodeCount);
-
-	bool contained(Vec2i c);
-	direction directionOfMove(Vec2i to, Vec2i from) const;
-	direction directionWeCameFrom(Vec2i node, Vec2i nodeFrom) const;
-	bool isEnterable(Vec2i coord);
-	Vec2i adjustInDirection(Vec2i c, int dir);
-	bool directionIsDiagonal(direction dir) const;
-	directionset forcedNeighbours(Vec2i coord,direction dir);
-	bool implies(bool a, bool b) const;
-	directionset addDirectionToSet(directionset dirs, direction dir) const;
-	directionset naturalNeighbours(direction dir) const;
-	direction nextDirectionInSet(directionset *dirs) const;
-	Vec2i jump(Vec2i dest, direction dir, Vec2i start,std::vector<Vec2i> &path,int pathLength);
-	bool addToOpenSet(Unit *unit, Node *node,const Vec2i finalPos, Vec2i sucPos, bool &nodeLimitReached,int maxNodeCount,Node **newNodeAdded,bool bypassChecks);
-
-	//bool canUnitMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2);
 	inline bool canUnitMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) {
-		//bool result = true;
-
-	//	std::map<int,std::map<Field,BadUnitNodeList> > &badCellList = factions[unit->getFactionIndex()].badCellList;
-	//	if(badCellList.find(unit->getType()->getSize()) != badCellList.end()) {
-	//		std::map<Field,BadUnitNodeList> &badFieldList = badCellList[unit->getType()->getSize()];
-	//		if(badFieldList.find(unit->getCurrField()) != badFieldList.end()) {
-	//			BadUnitNodeList &badList = badFieldList[unit->getCurrField()];
-	//			if(badList.isPosBad(pos1,pos2) == true) {
-	//				result = false;
-	//			}
-	//		}
-	//	}
-	//	if(result == true) {
-	//		//bool canUnitMoveToCell = map->canMove(unit, unitPos, pos);
-	//		//bool canUnitMoveToCell = map->aproxCanMove(unit, unitPos, pos);
-	//		result = map->aproxCanMoveSoon(unit, pos1, pos2);
-	//		if(result == false) {
-	//			badCellList[unit->getType()->getSize()][unit->getCurrField()].badPosList[pos1][pos2]=false;
-	//		}
-	//	}
-
 		bool result = map->aproxCanMoveSoon(unit, pos1, pos2);
 		return result;
 	}
 
 	inline void doAStarPathSearch(bool & nodeLimitReached, int & whileLoopCount,
 			int & unitFactionIndex, bool & pathFound, Node *& node, const Vec2i & finalPos,
-			const bool tryJPSPathfinder, std::map<Vec2i,bool> closedNodes,
+			std::map<Vec2i,bool> closedNodes,
 			std::map<Vec2i,Vec2i> cameFrom, std::map<std::pair<Vec2i,Vec2i> ,
 			bool> canAddNode, Unit *& unit, int & maxNodeCount, int curFrameIndex)  {
 
-		//Chrono chrono;
-		//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
-		//chrono.start();
+		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+		MutexSafeWrapper safeMutexFaction(factionMutex,mutexOwnerId);
 
 		FactionState &factionState = factions[unitFactionIndex];
+
+		safeMutexFaction.ReleaseLock(true);
+
 		while(nodeLimitReached == false) {
 			whileLoopCount++;
+
+			safeMutexFaction.Lock();
 			if(factionState.openNodesList.empty() == true) {
+				safeMutexFaction.ReleaseLock(true);
 				pathFound = false;
 				break;
 			}
 			node = minHeuristicFastLookup(factionState);
 			if(node->pos == finalPos || node->exploredCell == false) {
+				safeMutexFaction.ReleaseLock(true);
 				pathFound = true;
 				break;
 			}
@@ -367,71 +331,70 @@ private:
 //				}
 //			}
 
-			if(tryJPSPathfinder == true) {
-				closedNodes[node->pos] = true;
-			}
 			if(factionState.closedNodesList.find(node->heuristic) == factionState.closedNodesList.end()) {
 				factionState.closedNodesList[node->heuristic].clear();
 				//factionState.closedNodesList[node->heuristic].reserve(PathFinder::pathFindNodesMax);
 			}
 			factionState.closedNodesList[node->heuristic].push_back(node);
 			factionState.openPosList[node->pos] = true;
-			if(tryJPSPathfinder == true) {
-				astarJPS(cameFrom, node, finalPos, closedNodes, canAddNode, unit, nodeLimitReached, maxNodeCount);
+			safeMutexFaction.ReleaseLock(true);
+
+			int failureCount 	= 0;
+			int cellCount 		= 0;
+
+			safeMutexFaction.Lock();
+			int tryDirection 	= factionState.random.randRange(0, 3);
+			safeMutexFaction.ReleaseLock(true);
+
+			if(tryDirection == 3) {
+				for(int i = 1;i >= -1 && nodeLimitReached == false;--i) {
+					for(int j = -1;j <= 1 && nodeLimitReached == false;++j) {
+						safeMutexFaction.Lock();
+						if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
+							failureCount++;
+						}
+						safeMutexFaction.ReleaseLock(true);
+						cellCount++;
+					}
+				}
+			}
+			else if(tryDirection == 2) {
+				for(int i = -1;i <= 1 && nodeLimitReached == false;++i) {
+					for(int j = 1;j >= -1 && nodeLimitReached == false;--j) {
+						safeMutexFaction.Lock();
+						if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
+							failureCount++;
+						}
+						safeMutexFaction.ReleaseLock(true);
+						cellCount++;
+					}
+				}
+			}
+			else if(tryDirection == 1) {
+				for(int i = -1;i <= 1 && nodeLimitReached == false;++i) {
+					for(int j = -1;j <= 1 && nodeLimitReached == false;++j) {
+						safeMutexFaction.Lock();
+						if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
+							failureCount++;
+						}
+						safeMutexFaction.ReleaseLock(true);
+						cellCount++;
+					}
+				}
 			}
 			else {
-				int failureCount 	= 0;
-				int cellCount 		= 0;
-				int tryDirection 	= factionState.random.randRange(0, 3);
-
-				if(tryDirection == 3) {
-					for(int i = 1;i >= -1 && nodeLimitReached == false;--i) {
-						for(int j = -1;j <= 1 && nodeLimitReached == false;++j) {
-							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
-								failureCount++;
-							}
-							cellCount++;
+				for(int i = 1;i >= -1 && nodeLimitReached == false;--i) {
+					for(int j = 1;j >= -1 && nodeLimitReached == false;--j) {
+						safeMutexFaction.Lock();
+						if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
+							failureCount++;
 						}
-					}
-				}
-				else if(tryDirection == 2) {
-					for(int i = -1;i <= 1 && nodeLimitReached == false;++i) {
-						for(int j = 1;j >= -1 && nodeLimitReached == false;--j) {
-							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
-								failureCount++;
-							}
-							cellCount++;
-						}
-					}
-				}
-				else if(tryDirection == 1) {
-					for(int i = -1;i <= 1 && nodeLimitReached == false;++i) {
-						for(int j = -1;j <= 1 && nodeLimitReached == false;++j) {
-							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
-								failureCount++;
-							}
-							cellCount++;
-						}
-					}
-				}
-				else {
-					for(int i = 1;i >= -1 && nodeLimitReached == false;--i) {
-						for(int j = 1;j >= -1 && nodeLimitReached == false;--j) {
-							if(processNode(unit, node, finalPos, i, j, nodeLimitReached, maxNodeCount) == false) {
-								failureCount++;
-							}
-							cellCount++;
-						}
+						safeMutexFaction.ReleaseLock(true);
+						cellCount++;
 					}
 				}
 			}
 		}
-
-		//!!!
-		//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis(),nodeLimitReached,whileLoopCount,factionState.nodePoolCount);
-		//if(chrono.getMillis() > 1) {
-			//printf("AStar for unit [%d - %s] took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d curFrameIndex = %d travel distance = %f\n",unit->getId(),unit->getFullName().c_str(), (long long int)chrono.getMillis(),nodeLimitReached,whileLoopCount,factionState.nodePoolCount,curFrameIndex,unit->getPos().dist(finalPos));
-		//}
 	}
 
 };
