@@ -149,22 +149,30 @@ void PathFinder::removeUnitPrecache(Unit *unit) {
 }
 
 TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStuck, int frameIndex) {
+	TravelState ts = tsImpossible;
+
+	string codeLocation = "1";
+	try {
+
 	if(map == NULL) {
 		throw megaglest_runtime_error("map == NULL");
 	}
 
 	unit->setCurrentPathFinderDesiredFinalPos(finalPos);
 
+	codeLocation = "2";
 	//printf("Unit Pathfind Unit [%d - %s] from = %s to = %s frameIndex = %d\n",unit->getId(),unit->getType()->getName().c_str(),unit->getPos().getString().c_str(),finalPos.getString().c_str(),frameIndex);
 
 	if(frameIndex >= 0) {
+		codeLocation = "2";
 		clearUnitPrecache(unit);
 	}
 	if(unit->getFaction()->canUnitsPathfind() == true) {
+		codeLocation = "3";
 		unit->getFaction()->addUnitToPathfindingList(unit->getId());
 	}
 	else {
-
+		codeLocation = "4";
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"canUnitsPathfind() == false");
@@ -183,7 +191,9 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 
 	//route cache
 	if(finalPos == unit->getPos()) {
+		codeLocation = "5";
 		if(frameIndex < 0) {
+			codeLocation = "6";
 			//if arrived
 			unit->setCurrSkill(scStop);
 
@@ -208,15 +218,20 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 		return tsArrived;
 	}
 
+	codeLocation = "7";
 	UnitPathInterface *path= unit->getPath();
 	if(path->isEmpty() == false) {
+		codeLocation = "8";
 		if(dynamic_cast<UnitPathBasic *>(path) != NULL) {
+			codeLocation = "9";
 			//route cache
 			UnitPathBasic *basicPath = dynamic_cast<UnitPathBasic *>(path);
 			Vec2i pos= basicPath->pop(frameIndex < 0);
 
 			if(map->canMove(unit, unit->getPos(), pos)) {
+				codeLocation = "10";
 				if(frameIndex < 0) {
+					codeLocation = "11";
 					unit->setTargetPos(pos);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {
@@ -231,10 +246,12 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			}
 		}
 		else if(dynamic_cast<UnitPath *>(path) != NULL) {
+			codeLocation = "12";
 			UnitPath *advPath = dynamic_cast<UnitPath *>(path);
 			//route cache
 			Vec2i pos= advPath->peek();
 			if(map->canMove(unit, unit->getPos(), pos)) {
+				codeLocation = "13";
 				if(frameIndex < 0) {
 					advPath->pop();
 					unit->setTargetPos(pos);
@@ -248,10 +265,11 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 		}
 	}
 
+	codeLocation = "14";
 	if(path->isStuck() == true &&
 			(unit->getLastStuckPos() == finalPos || path->getBlockCount() > 500) &&
 		unit->isLastStuckFrameWithinCurrentFrameTolerance(frameIndex >= 0) == true) {
-
+		codeLocation = "15";
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"path->isStuck() == true unit->getLastStuckPos() [%s] finalPos [%s] path->getBlockCount() [%d]",unit->getLastStuckPos().getString().c_str(),finalPos.getString().c_str(),path->getBlockCount());
@@ -262,11 +280,11 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 		return tsBlocked;
 	}
 
-	TravelState ts = tsImpossible;
 	//route cache miss
-
+	codeLocation = "16";
 	int maxNodeCount=-1;
 	if(unit->getUsePathfinderExtendedMaxNodes() == true) {
+		codeLocation = "17";
 		const bool showConsoleDebugInfo = Config::getInstance().getBool("EnablePathfinderDistanceOutput","false");
 		if(showConsoleDebugInfo || SystemFlags::VERBOSE_MODE_ENABLED) {
 			printf("\n\n\n\n### Continued call to AStar with LARGE maxnodes for unit [%d - %s]\n\n",unit->getId(),unit->getFullName(false).c_str());
@@ -282,7 +300,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 	}
 
 	//int unitFactionIndex = unit->getFactionIndex();
-
+	codeLocation = "18";
 	bool minorDebugPathfinderPerformance = false;
 	Chrono chrono;
 	if(minorDebugPathfinderPerformance) chrono.start();
@@ -297,17 +315,19 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 	}
 
+	codeLocation = "19";
 	ts = aStar(unit, finalPos, false, frameIndex, maxNodeCount,&searched_node_count);
-
+	codeLocation = "20";
 	//post actions
 	switch(ts) {
 		case tsBlocked:
 		case tsArrived:
+			codeLocation = "21";
 			// The unit is stuck (not only blocked but unable to go anywhere for a while)
 			// We will try to bail out of the immediate area
 			if( ts == tsBlocked && unit->getInBailOutAttempt() == false &&
 				path->isStuck() == true) {
-
+				codeLocation = "22";
 				//printf("$$$$ Unit START BAILOUT ATTEMPT for [%d - %s]\n",unit->getId(),unit->getFullName().c_str());
 				if(minorDebugPathfinder) printf("Pathfind Unit [%d - %s] START BAILOUT ATTEMPT frameIndex = %d\n",unit->getId(),unit->getType()->getName(false).c_str(),frameIndex);
 
@@ -323,6 +343,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				}
 				unit->setInBailOutAttempt(true);
 
+				codeLocation = "23";
 				//bool useBailoutRadius = Config::getInstance().getBool("EnableBailoutPathfinding","true");
 				bool useBailoutRadius = true;
 				if(useBailoutRadius == true) {
@@ -334,6 +355,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 					int failureCount = 0;
 					int cellCount = 0;
 
+					codeLocation = "24";
 					for(int i = -1; i <= 1; ++i) {
 						for(int j = -1; j <= 1; ++j) {
 							Vec2i pos = unitPos + Vec2i(i, j);
@@ -354,12 +376,14 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 					}
 
 					if(unitImmediatelyBlocked == false) {
+						codeLocation = "25";
 						int tryRadius = factions[unit->getFactionIndex()].random.randRange(0,1);
 
 						// Try to bail out up to PathFinder::pathFindBailoutRadius cells away
 						if(tryRadius > 0) {
 							for(int bailoutX = -PathFinder::pathFindBailoutRadius; bailoutX <= PathFinder::pathFindBailoutRadius && ts == tsBlocked; ++bailoutX) {
 								for(int bailoutY = -PathFinder::pathFindBailoutRadius; bailoutY <= PathFinder::pathFindBailoutRadius && ts == tsBlocked; ++bailoutY) {
+									codeLocation = "26";
 									const Vec2i newFinalPos = finalPos + Vec2i(bailoutX,bailoutY);
 									bool canUnitMove = map->canMove(unit, unit->getPos(), newFinalPos);
 
@@ -371,6 +395,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 									}
 
 									if(canUnitMove) {
+										codeLocation = "27";
 										//printf("$$$$ Unit BAILOUT(1) ASTAR ATTEMPT for [%d - %s] newFinalPos = [%s]\n",unit->getId(),unit->getFullName().c_str(),newFinalPos.getString().c_str());
 
 										int maxBailoutNodeCount = (PathFinder::pathFindBailoutRadius * 2);
@@ -382,13 +407,16 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 										}
 
 										ts= aStar(unit, newFinalPos, true, frameIndex, maxBailoutNodeCount,&searched_node_count);
+										codeLocation = "28";
 									}
 								}
 							}
 						}
 						else {
+							codeLocation = "29";
 							for(int bailoutX = PathFinder::pathFindBailoutRadius; bailoutX >= -PathFinder::pathFindBailoutRadius && ts == tsBlocked; --bailoutX) {
 								for(int bailoutY = PathFinder::pathFindBailoutRadius; bailoutY >= -PathFinder::pathFindBailoutRadius && ts == tsBlocked; --bailoutY) {
+									codeLocation = "30";
 									const Vec2i newFinalPos = finalPos + Vec2i(bailoutX,bailoutY);
 									bool canUnitMove = map->canMove(unit, unit->getPos(), newFinalPos);
 
@@ -400,6 +428,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 									}
 
 									if(canUnitMove) {
+										codeLocation = "31";
 										//printf("$$$$ Unit BAILOUT(1) ASTAR ATTEMPT for [%d - %s] newFinalPos = [%s]\n",unit->getId(),unit->getFullName().c_str(),newFinalPos.getString().c_str());
 										int maxBailoutNodeCount = (PathFinder::pathFindBailoutRadius * 2);
 
@@ -410,36 +439,43 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 										}
 
 										ts= aStar(unit, newFinalPos, true, frameIndex, maxBailoutNodeCount,&searched_node_count);
+										codeLocation = "32";
 									}
 								}
 							}
 						}
 					}
 				}
+				codeLocation = "33";
 				unit->setInBailOutAttempt(false);
 
 				//printf("$$$$ Unit END BAILOUT ATTEMPT for [%d - %s] ts = %d\n",unit->getId(),unit->getFullName().c_str(),ts);
 
 				if(ts == tsBlocked) {
+					codeLocation = "34";
 					unit->setLastStuckFrameToCurrentFrame();
 					unit->setLastStuckPos(finalPos);
 				}
 			}
 			if(ts == tsArrived || ts == tsBlocked) {
 				if(frameIndex < 0) {
+					codeLocation = "35";
 					unit->setCurrSkill(scStop);
 				}
 			}
 			break;
 		case tsMoving:
 			{
+				codeLocation = "36";
 				if(dynamic_cast<UnitPathBasic *>(path) != NULL) {
 					UnitPathBasic *basicPath = dynamic_cast<UnitPathBasic *>(path);
 					Vec2i pos;
 					if(frameIndex < 0) {
+						codeLocation = "37";
 						pos = basicPath->pop(frameIndex < 0);
 					}
 					else {
+						codeLocation = "38";
 						static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 						MutexSafeWrapper safeMutex(factionMutex,mutexOwnerId);
 
@@ -448,15 +484,21 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 						}
 
 						pos = factions[unit->getFactionIndex()].precachedPath[unit->getId()][0];
+
+						codeLocation = "39";
 					}
 
+					codeLocation = "40";
 					if(map->canMove(unit, unit->getPos(), pos)) {
 						if(frameIndex < 0) {
+							codeLocation = "41";
 							unit->setTargetPos(pos);
 						}
 					}
 					else {
+						codeLocation = "42";
 						if(frameIndex < 0) {
+							codeLocation = "43";
 							unit->setCurrSkill(scStop);
 						}
 
@@ -472,16 +514,19 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 					}
 				}
 				else if(dynamic_cast<UnitPath *>(path) != NULL) {
+					codeLocation = "44";
 					UnitPath *advPath = dynamic_cast<UnitPath *>(path);
 					Vec2i pos= advPath->peek();
 					if(map->canMove(unit, unit->getPos(), pos)) {
 						if(frameIndex < 0) {
+							codeLocation = "45";
 							advPath->pop();
 							unit->setTargetPos(pos);
 						}
 					}
 					else {
 						if(frameIndex < 0) {
+							codeLocation = "46";
 							unit->setCurrSkill(scStop);
 						}
 
@@ -497,8 +542,24 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 			}
 			break;
 	}
-
+	codeLocation = "47";
 	if(minorDebugPathfinderPerformance && chrono.getMillis() >= 1) printf("Unit [%d - %s] astar took [%lld] msecs, ts = %d searched_node_count = %d.\n",unit->getId(),unit->getType()->getName(false).c_str(),(long long int)chrono.getMillis(),ts,searched_node_count);
+
+	}
+	catch(const exception &ex) {
+		//setRunningStatus(false);
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Loc [%s] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str(),ex.what());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		throw megaglest_runtime_error(ex.what());
+	}
+	catch(...) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] UNKNOWN error Loc [%s]\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		throw megaglest_runtime_error(szBuf);
+	}
 
 	return ts;
 }
@@ -850,6 +911,11 @@ void PathFinder::astarJPS(std::map<Vec2i,Vec2i> cameFrom, Node *& node,
 //route a unit using A* algorithm
 TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout,
 		int frameIndex, int maxNodeCount, uint32 *searched_node_count) {
+	TravelState ts = tsImpossible;
+
+	string codeLocation = "1";
+	try {
+
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
 		char szBuf[8096]="";
@@ -864,10 +930,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		throw megaglest_runtime_error("map == NULL");
 	}
 
+	codeLocation = "2";
 	const bool showConsoleDebugInfo = Config::getInstance().getBool("EnablePathfinderDistanceOutput","false");
 	const bool tryLastPathCache = false;
 
 	if(maxNodeCount < 0) {
+		codeLocation = "3";
 		maxNodeCount = factions[unit->getFactionIndex()].useMaxNodeCount;
 	}
 
@@ -875,6 +943,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		maxNodeCount = 200;
 	}
 
+	codeLocation = "4";
 	UnitPathInterface *path= unit->getPath();
 	int unitFactionIndex = unit->getFactionIndex();
 
@@ -883,11 +952,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	factions[unitFactionIndex].openPosList.clear();
 	factions[unitFactionIndex].closedNodesList.clear();
 
-	TravelState ts = tsImpossible;
-
+	codeLocation = "5";
 	// check the pre-cache to see if we can re-use a cached path
 	if(frameIndex < 0) {
+		codeLocation = "6";
 		if(factions[unitFactionIndex].precachedTravelState.find(unit->getId()) != factions[unitFactionIndex].precachedTravelState.end()) {
+			codeLocation = "7";
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 				char szBuf[8096]="";
@@ -896,6 +966,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			}
 
 			if(factions[unitFactionIndex].precachedTravelState[unit->getId()] == tsMoving) {
+				codeLocation = "8";
 				bool canMoveToCells = true;
 
 				Vec2i lastPos = unit->getPos();
@@ -904,6 +975,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				MutexSafeWrapper safeMutex(factionMutex,mutexOwnerId);
 
 				for(int i=0; i < factions[unitFactionIndex].precachedPath[unit->getId()].size(); i++) {
+					codeLocation = "9";
 					Vec2i nodePos = factions[unitFactionIndex].precachedPath[unit->getId()][i];
 					if(map->isInside(nodePos) == false || map->isInsideSurface(map->toSurfCoords(nodePos)) == false) {
 						throw megaglest_runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
@@ -913,6 +985,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 					if(i < unit->getPathFindRefreshCellCount() ||
 						(factions[unitFactionIndex].precachedPath[unit->getId()].size() >= pathFindExtendRefreshForNodeCount &&
 						 i < getPathFindExtendRefreshNodeCount(unitFactionIndex))) {
+						codeLocation = "10";
 						//!!! Test MV
 						if(canUnitMoveSoon(unit, lastPos, nodePos) == false) {
 							canMoveToCells = false;
@@ -926,7 +999,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				}
 				safeMutex.ReleaseLock();
 
+				codeLocation = "11";
 				if(canMoveToCells == true) {
+					codeLocation = "12";
 					path->clear();
 					UnitPathBasic *basicPathFinder = dynamic_cast<UnitPathBasic *>(path);
 
@@ -934,6 +1009,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 					MutexSafeWrapper safeMutex1(factionMutex,mutexOwnerId);
 
 					for(int i=0; i < factions[unitFactionIndex].precachedPath[unit->getId()].size(); i++) {
+						codeLocation = "13";
 						Vec2i nodePos = factions[unitFactionIndex].precachedPath[unit->getId()][i];
 						if(map->isInside(nodePos) == false || map->isInsideSurface(map->toSurfCoords(nodePos)) == false) {
 							throw megaglest_runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
@@ -943,12 +1019,15 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						if(i < unit->getPathFindRefreshCellCount() ||
 								(factions[unitFactionIndex].precachedPath[unit->getId()].size() >= pathFindExtendRefreshForNodeCount &&
 								 i < getPathFindExtendRefreshNodeCount(unitFactionIndex))) {
+							codeLocation = "14";
 							path->add(nodePos);
 						}
 						if(basicPathFinder) {
+							codeLocation = "15";
 							basicPathFinder->addToLastPathCache(nodePos);
 						}
 					}
+					codeLocation = "16";
 					unit->setUsePathfinderExtendedMaxNodes(false);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
@@ -957,17 +1036,21 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 					}
 
+					codeLocation = "17";
 					return factions[unitFactionIndex].precachedTravelState[unit->getId()];
 				}
 				else {
+					codeLocation = "18";
 					clearUnitPrecache(unit);
 				}
 			}
 			else {
+				codeLocation = "19";
 				static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 				MutexSafeWrapper safeMutex1(factionMutex,mutexOwnerId);
 
 				if(factions[unitFactionIndex].precachedTravelState[unit->getId()] == tsBlocked) {
+					codeLocation = "20";
 					path->incBlockCount();
 					unit->setUsePathfinderExtendedMaxNodes(false);
 
@@ -977,12 +1060,14 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 					}
 
+					codeLocation = "21";
 					return factions[unitFactionIndex].precachedTravelState[unit->getId()];
 				}
 			}
 		}
 	}
 	else {
+		codeLocation = "22";
 		clearUnitPrecache(unit);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
@@ -992,9 +1077,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		}
 	}
 
+	codeLocation = "23";
 	const Vec2i unitPos = unit->getPos();
 	const Vec2i finalPos= computeNearestFreePos(unit, targetPos);
 
+	codeLocation = "24";
 	float dist= unitPos.dist(finalPos);
 	factions[unitFactionIndex].useMaxNodeCount = PathFinder::pathFindNodesMax;
 
@@ -1003,6 +1090,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	// Check the previous path find cache for the unit to see if its good to
 	// use
 	if(showConsoleDebugInfo || tryLastPathCache) {
+		codeLocation = "25";
 		if(showConsoleDebugInfo && dist > 60) printf("Distance from [%d - %s] to destination is %.2f tryLastPathCache = %d\n",unit->getId(),unit->getFullName(false).c_str(), dist,tryLastPathCache);
 
 		if(tryLastPathCache == true && path != NULL) {
@@ -1169,6 +1257,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	}
 
 	//path find algorithm
+	codeLocation = "26";
 
 	//a) push starting pos into openNodes
 	Node *firstNode= newNode(factions[unitFactionIndex],maxNodeCount);
@@ -1187,6 +1276,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	factions[unitFactionIndex].openNodesList[firstNode->heuristic].push_back(firstNode);
 	factions[unitFactionIndex].openPosList[firstNode->pos] = true;
 
+	codeLocation = "27";
 	//b) loop
 	bool pathFound			= true;
 	bool nodeLimitReached	= false;
@@ -1196,6 +1286,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 	// First check if unit currently blocked all around them, if so don't try to pathfind
 	if(inBailout == false && unitPos != finalPos) {
+		codeLocation = "28";
 		int failureCount = 0;
 		int cellCount = 0;
 
@@ -1227,7 +1318,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 					nodeLimitReached, inBailout, unit->getId(),unit->getFullName(false).c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,failureCount,cellCount);
 		}
 
+		codeLocation = "29";
 		if(nodeLimitReached == false) {
+			codeLocation = "30";
 			// First check if final destination blocked
 			failureCount = 0;
 			cellCount = 0;
@@ -1270,6 +1363,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	}
 	//
 
+	codeLocation = "31";
 	// START
 	std::map<std::pair<Vec2i,Vec2i> ,bool> canAddNode;
 	std::map<Vec2i,bool> closedNodes;
@@ -1279,6 +1373,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	// Do the a-star base pathfind work if required
 	int whileLoopCount = 0;
 	if(nodeLimitReached == false) {
+		codeLocation = "32";
 		//printf("\n\n\n====== START AStar-JPS Pathfinder start [%s] end [%s]\n",unitPos.getString().c_str(),finalPos.getString().c_str());
 
 		const bool tryJPSPathfinder = false;
@@ -1294,18 +1389,22 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 							pathFound, node, finalPos, tryJPSPathfinder,
 							closedNodes, cameFrom, canAddNode, unit, maxNodeCount,frameIndex);
 
+		codeLocation = "33";
 		if(searched_node_count != NULL) {
 			*searched_node_count = whileLoopCount;
 		}
 
 		// Now see if the unit is eligble for pathfind max nodes boost?
 		if(nodeLimitReached == true) {
+			codeLocation = "34";
 			unit->incrementPathfindFailedConsecutiveFrameCount();
 		}
 		else {
+			codeLocation = "35";
 			unit->resetPathfindFailedConsecutiveFrameCount();
 		}
 
+		codeLocation = "36";
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"Calling doAStarPathSearch nodeLimitReached: %d whileLoopCount: %d unitFactionIndex: %d pathFound: %d finalPos [%s] maxNodeCount: %d pathFindNodesAbsoluteMax: %d frameIndex: %d",nodeLimitReached, whileLoopCount, unitFactionIndex,
@@ -1314,8 +1413,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		}
 
 		if(nodeLimitReached == true && maxNodeCount != pathFindNodesAbsoluteMax) {
+			codeLocation = "37";
 			if(unit->isLastPathfindFailedFrameWithinCurrentFrameTolerance() == true) {
+				codeLocation = "38";
 				if(frameIndex < 0) {
+					codeLocation = "39";
 					unit->setLastPathfindFailedFrameToCurrentFrame();
 					unit->setLastPathfindFailedPos(finalPos);
 				}
@@ -1342,6 +1444,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		}
 	}
 
+	codeLocation = "40";
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),nodeLimitReached,whileLoopCount,factions[unitFactionIndex].nodePoolCount);
 	if(showConsoleDebugInfo && chrono.getMillis() > 2) {
 		printf("Distance for unit [%d - %s] from [%s] to [%s] is %.2f took msecs: %lld nodeLimitReached = %d whileLoopCount = %d nodePoolCount = %d\n",unit->getId(),unit->getFullName(false).c_str(), unitPos.getString().c_str(), finalPos.getString().c_str(), dist,(long long int)chrono.getMillis(),nodeLimitReached,whileLoopCount,factions[unitFactionIndex].nodePoolCount);
@@ -1351,9 +1454,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 	//if consumed all nodes find best node (to avoid strange behaviour)
 	if(nodeLimitReached == true) {
+		codeLocation = "41";
 		if(factions[unitFactionIndex].closedNodesList.size() > 0) {
+			codeLocation = "42";
 			float bestHeuristic = factions[unitFactionIndex].closedNodesList.begin()->first;
 			if(bestHeuristic < lastNode->heuristic) {
+				codeLocation = "43";
 				lastNode= factions[unitFactionIndex].closedNodesList.begin()->second[0];
 			}
 		}
@@ -1361,9 +1467,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
+	codeLocation = "44";
 	//check results of path finding
 	ts = tsImpossible;
 	if(pathFound == false || lastNode == firstNode) {
+		codeLocation = "45";
 		if(minorDebugPathfinder) printf("Legacy Pathfind Unit [%d - %s] NOT FOUND PATH count = %d frameIndex = %d\n",unit->getId(),unit->getType()->getName().c_str(),whileLoopCount,frameIndex);
 
 		//blocked
@@ -1382,11 +1490,13 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		}
 
 		if(frameIndex < 0) {
+			codeLocation = "46";
 			unit->setUsePathfinderExtendedMaxNodes(false);
 		}
 
 		ts= tsBlocked;
 		if(frameIndex < 0) {
+			codeLocation = "47";
 			path->incBlockCount();
 		}
 
@@ -1400,6 +1510,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 	}
 	else {
+		codeLocation = "48";
 		if(minorDebugPathfinder) printf("Legacy Pathfind Unit [%d - %s] FOUND PATH count = %d frameIndex = %d\n",unit->getId(),unit->getType()->getName().c_str(),whileLoopCount,frameIndex);
 		//on the way
 		ts= tsMoving;
@@ -1411,19 +1522,24 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			currNode= currNode->prev;
 		}
 
+		codeLocation = "49";
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 		if(frameIndex < 0) {
+			codeLocation = "50";
 			if(maxNodeCount == pathFindNodesAbsoluteMax) {
+				codeLocation = "51";
 				unit->setUsePathfinderExtendedMaxNodes(true);
 			}
 			else {
+				codeLocation = "52";
 				unit->setUsePathfinderExtendedMaxNodes(false);
 			}
 		}
 
 		//store path
 		if(frameIndex < 0) {
+			codeLocation = "53";
 			path->clear();
 		}
 
@@ -1431,10 +1547,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			//printf("FULL PATH FOUND from [%s] to [%s]\n",unitPos.getString().c_str(),finalPos.getString().c_str());
 		}
 
+		codeLocation = "54";
 		UnitPathBasic *basicPathFinder = dynamic_cast<UnitPathBasic *>(path);
 
 		currNode= firstNode;
 		for(int i=0; currNode->next != NULL; currNode= currNode->next, i++) {
+			codeLocation = "55";
 			Vec2i nodePos = currNode->next->pos;
 			if(map->isInside(nodePos) == false || map->isInsideSurface(map->toSurfCoords(nodePos)) == false) {
 				throw megaglest_runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
@@ -1444,18 +1562,22 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			if(minorDebugPathfinder) printf("nodePos [%s]\n",nodePos.getString().c_str());
 
 			if(frameIndex >= 0) {
+				codeLocation = "56";
 				static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 				MutexSafeWrapper safeMutex(factionMutex,mutexOwnerId);
 
 				factions[unitFactionIndex].precachedPath[unit->getId()].push_back(nodePos);
 			}
 			else {
+				codeLocation = "57";
 				if(i < unit->getPathFindRefreshCellCount() ||
 					(whileLoopCount >= pathFindExtendRefreshForNodeCount &&
 					 i < getPathFindExtendRefreshNodeCount(unitFactionIndex))) {
+					codeLocation = "58";
 					path->add(nodePos);
 				}
 				if(basicPathFinder) {
+					codeLocation = "59";
 					basicPathFinder->addToLastPathCache(nodePos);
 				}
 			}
@@ -1496,6 +1618,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 	}
 
+	codeLocation = "60";
 	factions[unitFactionIndex].openNodesList.clear();
 	factions[unitFactionIndex].openPosList.clear();
 	factions[unitFactionIndex].closedNodesList.clear();
@@ -1503,6 +1626,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 	if(frameIndex >= 0) {
+		codeLocation = "61";
 		factions[unitFactionIndex].precachedTravelState[unit->getId()] = ts;
 	}
 	else {
@@ -1517,53 +1641,128 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 	}
 
+	}
+	catch(const exception &ex) {
+		//setRunningStatus(false);
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Loc [%s] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str(),ex.what());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		throw megaglest_runtime_error(ex.what());
+	}
+	catch(...) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] UNKNOWN error Loc [%s]\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		throw megaglest_runtime_error(szBuf);
+	}
+
 	return ts;
 }
 
 void PathFinder::processNearestFreePos(const Vec2i &finalPos, int i, int j, int size, Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, float &nearestDist) {
+	string codeLocation = "1";
+
+	try {
 	Vec2i currPos= finalPos + Vec2i(i, j);
+
+	codeLocation = "2";
 	if(map->isAproxFreeCells(currPos, size, field, teamIndex)) {
+		codeLocation = "3";
 		float dist= currPos.dist(finalPos);
 
+		codeLocation = "4";
 		//if nearer from finalPos
 		if(dist < nearestDist){
+			codeLocation = "5";
 			nearestPos= currPos;
 			nearestDist= dist;
 		}
 		//if the distance is the same compare distance to unit
 		else if(dist == nearestDist){
+			codeLocation = "6";
 			if(currPos.dist(unitPos) < nearestPos.dist(unitPos)) {
+				codeLocation = "7";
 				nearestPos= currPos;
 			}
 		}
+		codeLocation = "8";
 	}
+
+	}
+	catch(const exception &ex) {
+		//setRunningStatus(false);
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Loc [%s] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str(),ex.what());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		throw megaglest_runtime_error(ex.what());
+	}
+	catch(...) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] UNKNOWN error Loc [%s]\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		throw megaglest_runtime_error(szBuf);
+	}
+
 }
 
 Vec2i PathFinder::computeNearestFreePos(const Unit *unit, const Vec2i &finalPos) {
+	string codeLocation = "1";
+
+	Vec2i nearestPos(0,0);
+	try {
+
 	if(map == NULL) {
 		throw megaglest_runtime_error("map == NULL");
 	}
 	
+	codeLocation = "2";
 	//unit data
 	int size= unit->getType()->getSize();
 	Field field= unit->getCurrField();
 	int teamIndex= unit->getTeam();
 
+	codeLocation = "3";
 	//if finalPos is free return it
 	if(map->isAproxFreeCells(finalPos, size, field, teamIndex)) {
+		codeLocation = "4";
 		return finalPos;
 	}
 
+	codeLocation = "5";
 	//find nearest pos
 	Vec2i unitPos= unit->getPosNotThreadSafe();
-	Vec2i nearestPos= unitPos;
+	nearestPos= unitPos;
+
+	codeLocation = "6";
 	float nearestDist= unitPos.dist(finalPos);
 
+	codeLocation = "7";
 	for(int i= -maxFreeSearchRadius; i <= maxFreeSearchRadius; ++i) {
 		for(int j= -maxFreeSearchRadius; j <= maxFreeSearchRadius; ++j) {
+			codeLocation = "8";
 			processNearestFreePos(finalPos, i, j, size, field, teamIndex, unitPos, nearestPos, nearestDist);
 		}
 	}
+
+	codeLocation = "9";
+	}
+	catch(const exception &ex) {
+		//setRunningStatus(false);
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Loc [%s] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str(),ex.what());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		throw megaglest_runtime_error(ex.what());
+	}
+	catch(...) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] UNKNOWN error Loc [%s]\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		throw megaglest_runtime_error(szBuf);
+	}
+
 	return nearestPos;
 }
 
@@ -1598,15 +1797,20 @@ int PathFinder::findNodeIndex(Node *node, std::vector<Node> &nodeList) {
 bool PathFinder::unitCannotMove(Unit *unit) {
 	bool unitImmediatelyBlocked = false;
 
+	string codeLocation = "1";
+	try {
 	// First check if unit currently blocked all around them, if so don't try to pathfind
 	const Vec2i unitPos = unit->getPos();
 	int failureCount = 0;
 	int cellCount = 0;
 
+	codeLocation = "2";
 	for(int i = -1; i <= 1; ++i) {
 		for(int j = -1; j <= 1; ++j) {
+			codeLocation = "3";
 			Vec2i pos = unitPos + Vec2i(i, j);
 			if(pos != unitPos) {
+				codeLocation = "4";
 				bool canUnitMoveToCell = map->aproxCanMove(unit, unitPos, pos);
 				if(canUnitMoveToCell == false) {
 					failureCount++;
@@ -1615,7 +1819,25 @@ bool PathFinder::unitCannotMove(Unit *unit) {
 			}
 		}
 	}
+	codeLocation = "5";
 	unitImmediatelyBlocked = (failureCount == cellCount);
+
+	}
+	catch(const exception &ex) {
+		//setRunningStatus(false);
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Loc [%s] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str(),ex.what());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		throw megaglest_runtime_error(ex.what());
+	}
+	catch(...) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s %d] UNKNOWN error Loc [%s]\n",__FILE__,__FUNCTION__,__LINE__,codeLocation.c_str());
+		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		throw megaglest_runtime_error(szBuf);
+	}
+
 	return unitImmediatelyBlocked;
 }
 
