@@ -36,19 +36,30 @@ INSTALLATION
    · MySQL Community Server/Edition 5.1 (Oracle)
    · MySQL Server 5.5 (Percona)
 
-2. CREATE DATABASE 'megaglest-master' ENGINE=InnoDB;
+2. Create a new MySQL database and a user who has has all standard permissions
+   to work on this database after authentication.
+   Example:
+   CREATE DATABASE 'megaglest-master' ENGINE=InnoDB;
    CREATE USER 'megaglest-master'@'localhost' IDENTIFIED BY 'secret password';
    GRANT ALL ON 'megaglest-master.*' TO 'megaglest-master';
 
-3. Connect the new user to the new database;
-   Execute the SQL statments in install/scheme_mysql.sql
-
-4. Copy all files (you can omit INSTALL and install/) to your webserver and
+3. Copy all files (you can omit INSTALL and install/) to your webserver and
    edit config.php to reflect the MySQL connection parameters and game title;
    also replace the images in images/ by some which match your game title.
 
+4. Connect the new user to the new database, then execute the SQL statments in
+   install/scheme_mysql.sql.
+   Example:
+   mysql -u megaglest-master -p megaglest-master < install/scheme_mysql.sql
+
+5. Set up the webserver to allow access to, and set up PHP to execute, the
+   PHP files you placed on your webserver. Practically you may want to create
+   a new "VirtualHost"/"Server" and make sure it points to where you placed
+   the files and can run PHP.
+
 To test and use this server with your MegaGlest engine based game, configure
-the "MasterserverURL" property in glest.ini.
+the "Masterserver" property in glestuser.ini (if it's MegaGlest) or glest.ini
+(if it's a different game).
 
 To add mods to the game mod menu, edit the database contents using your 
 favorite MySQL editor or develop a web based frontend to do so. In the latter
