@@ -330,7 +330,10 @@ pair<FTP_Client_ResultType,string> FTPClientThread::getMapFromServer(pair<string
 
 
         // Max 10 minutes to transfer
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 600);
+        //curl_easy_setopt(curl, CURLOPT_TIMEOUT, 600);
+        // Max 60 minutes to transfer
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3600L);
+        curl_easy_setopt(curl, CURLOPT_FTP_RESPONSE_TIMEOUT, 120L);
 
         /* Switch on full protocol/debug output */
         if(SystemFlags::VERBOSE_MODE_ENABLED) curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
@@ -987,7 +990,10 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileFromServer(FTP_Clien
         curl_easy_setopt(curl, CURLOPT_PROGRESSDATA, &ftpfile);
 
         // Max 10 minutes to transfer
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 600);
+        //curl_easy_setopt(curl, CURLOPT_TIMEOUT, 600);
+        // Max 60 minutes to transfer
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 3600L);
+        curl_easy_setopt(curl, CURLOPT_FTP_RESPONSE_TIMEOUT, 120L);
 
         // Switch on full protocol/debug output
         if(SystemFlags::VERBOSE_MODE_ENABLED) curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
