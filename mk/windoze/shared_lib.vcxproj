@@ -194,9 +194,6 @@
     <ClCompile Include="..\..\source\shared_lib\sources\platform\win32\glob.cpp" />
     <ClCompile Include="..\..\source\shared_lib\sources\libircclient\src\libircclient.c" />
     <ClCompile Include="..\..\source\shared_lib\sources\map\map_preview.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\Random.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\SMath.cpp" />
-    <ClCompile Include="..\..\source\shared_lib\sources\streflop\streflopC.cpp" />
     <ClCompile Include="..\..\source\shared_lib\sources\graphics\BMPReader.cpp" />
     <ClCompile Include="..\..\source\shared_lib\sources\graphics\buffer.cpp" />
     <ClCompile Include="..\..\source\shared_lib\sources\graphics\camera.cpp" />
@@ -270,7 +267,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\source\shared_lib\include\compression\compression_utils.h" />
-    <ClInclude Include="..\..\source\shared_lib\include\streflop\FPUSettings.h" />
     <ClInclude Include="..\..\source\shared_lib\include\feathery_ftp\ftp.h" />
     <ClInclude Include="..\..\source\shared_lib\include\feathery_ftp\ftpConfig.h" />
     <ClInclude Include="..\..\source\shared_lib\include\feathery_ftp\ftpIfc.h" />
@@ -278,13 +274,7 @@
     <ClInclude Include="..\..\source\shared_lib\include\feathery_ftp\ftpTypes.h" />
     <ClInclude Include="..\..\source\shared_lib\include\streflop\IntegerTypes.h" />
     <ClInclude Include="..\..\source\shared_lib\include\map\map_preview.h" />
-    <ClInclude Include="..\..\source\shared_lib\include\streflop\Random.h" />
-    <ClInclude Include="..\..\source\shared_lib\include\streflop\SMath.h" />
-    <ClInclude Include="..\..\source\shared_lib\include\streflop\streflop.h" />
-    <ClInclude Include="..\..\source\shared_lib\include\streflop\streflop_cond.h" />
-    <ClInclude Include="..\..\source\shared_lib\include\streflop\streflopC.h" />
     <ClInclude Include="..\..\source\shared_lib\include\streflop\System.h" />
-    <ClInclude Include="..\..\source\shared_lib\include\streflop\X87DenormalSquasher.h" />
     <ClInclude Include="..\..\source\shared_lib\include\graphics\gl\base_renderer.h" />
     <ClInclude Include="..\..\source\shared_lib\include\graphics\BMPReader.h" />
     <ClInclude Include="..\..\source\shared_lib\include\graphics\buffer.h" />
