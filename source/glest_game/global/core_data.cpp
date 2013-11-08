@@ -74,6 +74,9 @@ CoreData::CoreData() {
     onServerDifferentTexture=NULL;
     onServerTexture=NULL;
     onServerInstalledTexture=NULL;
+    statusReadyTexture=NULL;
+    statusNotReadyTexture=NULL;
+    statusBRBTexture=NULL;
 
     miscTextureList.clear();
 
