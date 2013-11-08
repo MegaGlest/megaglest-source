@@ -947,10 +947,15 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	UnitPathInterface *path= unit->getPath();
 	int unitFactionIndex = unit->getFactionIndex();
 
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutexFaction(factionMutex,mutexOwnerId);
+
 	factions[unitFactionIndex].nodePoolCount= 0;
 	factions[unitFactionIndex].openNodesList.clear();
 	factions[unitFactionIndex].openPosList.clear();
 	factions[unitFactionIndex].closedNodesList.clear();
+
+	safeMutexFaction.ReleaseLock(true);
 
 	codeLocation = "5";
 	// check the pre-cache to see if we can re-use a cached path
@@ -1083,7 +1088,10 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 	codeLocation = "24";
 	float dist= unitPos.dist(finalPos);
+
+	safeMutexFaction.Lock();
 	factions[unitFactionIndex].useMaxNodeCount = PathFinder::pathFindNodesMax;
+	safeMutexFaction.ReleaseLock(true);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -1260,6 +1268,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	codeLocation = "26";
 
 	//a) push starting pos into openNodes
+	safeMutexFaction.Lock();
 	Node *firstNode= newNode(factions[unitFactionIndex],maxNodeCount);
 	if(firstNode == NULL) {
 		throw megaglest_runtime_error("firstNode == NULL");
@@ -1275,6 +1284,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	}
 	factions[unitFactionIndex].openNodesList[firstNode->heuristic].push_back(firstNode);
 	factions[unitFactionIndex].openPosList[firstNode->pos] = true;
+
+	safeMutexFaction.ReleaseLock(true);
 
 	codeLocation = "27";
 	//b) loop
@@ -1619,6 +1630,8 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	}
 
 	codeLocation = "60";
+
+	safeMutexFaction.Lock();
 	factions[unitFactionIndex].openNodesList.clear();
 	factions[unitFactionIndex].openPosList.clear();
 	factions[unitFactionIndex].closedNodesList.clear();
@@ -1632,7 +1645,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	else {
 		if(SystemFlags::VERBOSE_MODE_ENABLED && chrono.getMillis() >= 5) printf("In [%s::%s Line: %d] astar took [%lld] msecs, ts = %d.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),ts);
 	}
-
+	safeMutexFaction.ReleaseLock();
 	//printf("$$$$ Path for Unit [%d - %s] return value = %d inBailout = %d\n",unit->getId(),unit->getFullName().c_str(),ts,inBailout);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
