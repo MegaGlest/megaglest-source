@@ -197,7 +197,6 @@ public:
 	virtual void clearBlockCount() { blockCount = 0; }
 	virtual void incBlockCount();
 	virtual void add(const Vec2i &path);
-	void addToLastPathCache(const Vec2i &path);
 	Vec2i pop(bool removeFrontPos=true);
 	virtual int getBlockCount() const { return blockCount; }
 	virtual int getQueueCount() const { return (int)pathQueue.size(); }

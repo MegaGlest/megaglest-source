@@ -662,10 +662,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 							codeLocation = "14";
 							path->add(nodePos);
 						}
-						if(basicPathFinder) {
-							codeLocation = "15";
-							basicPathFinder->addToLastPathCache(nodePos);
-						}
 					}
 					codeLocation = "16";
 					unit->setUsePathfinderExtendedMaxNodes(false);
@@ -1020,10 +1016,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 					 i < getPathFindExtendRefreshNodeCount(faction,true))) {
 					codeLocation = "58";
 					path->add(nodePos);
-				}
-				if(basicPathFinder) {
-					codeLocation = "59";
-					basicPathFinder->addToLastPathCache(nodePos);
 				}
 			}
 		}

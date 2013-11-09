@@ -122,17 +122,6 @@ void UnitPathBasic::add(const Vec2i &path) {
 	pathQueue.push_back(path);
 }
 
-void UnitPathBasic::addToLastPathCache(const Vec2i &path) {
-	if(this->map != NULL) {
-		if(this->map->isInside(path) == false) {
-			throw megaglest_runtime_error("Invalid map path position = " + path.getString() + " map w x h = " + intToStr(map->getW()) + " " + intToStr(map->getH()));
-		}
-		else if(this->map->isInsideSurface(this->map->toSurfCoords(path)) == false) {
-			throw megaglest_runtime_error("Invalid map surface path position = " + path.getString() + " map surface w x h = " + intToStr(map->getSurfaceW()) + " " + intToStr(map->getSurfaceH()));
-		}
-	}
-}
-
 Vec2i UnitPathBasic::pop(bool removeFrontPos) {
 	if(pathQueue.empty() == true) {
 		throw megaglest_runtime_error("pathQueue.size() = " + intToStr(pathQueue.size()));
