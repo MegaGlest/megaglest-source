@@ -4020,10 +4020,10 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
 				char szMsg[8096]="";
 	            if(lang.hasString("DataMissingTilesetFailDownload",languageList[i]) == true) {
-	            	snprintf(szMsg,8096,lang.getString("DataMissingTilesetFailDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            	snprintf(szMsg,8096,lang.getString("DataMissingTilesetFailDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),(itemName+"(.7z)").c_str(),curlVersion->version);
 	            }
 	            else {
-	            	snprintf(szMsg,8096,"Player: %s FAILED to download the tileset: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            	snprintf(szMsg,8096,"Player: %s FAILED to download the tileset: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),(itemName+"(.7z)").c_str(),curlVersion->version);
 	            }
 	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 
@@ -4114,10 +4114,10 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
 				char szMsg[8096]="";
 	            if(lang.hasString("DataMissingTechtreeFailDownload",languageList[i]) == true) {
-	            	snprintf(szMsg,8096,lang.getString("DataMissingTechtreeFailDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            	snprintf(szMsg,8096,lang.getString("DataMissingTechtreeFailDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),(itemName+"(.7z)").c_str(),curlVersion->version);
 	            }
 	            else {
-	            	snprintf(szMsg,8096,"Player: %s FAILED to download the techtree: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),itemName.c_str(),curlVersion->version);
+	            	snprintf(szMsg,8096,"Player: %s FAILED to download the techtree: [%s] using CURL version [%s]",getHumanPlayerName().c_str(),(itemName+"(.7z)").c_str(),curlVersion->version);
 	            }
 	            clientInterface->sendTextMessage(szMsg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
 
