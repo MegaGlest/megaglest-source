@@ -602,16 +602,24 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 		MutexSafeWrapper safeMutex2(faction.getMutex(),mutexOwnerId);
 
-		if(faction.precachedTravelState.find(unit->getId()) != faction.precachedTravelState.end()) {
+		MutexSafeWrapper safeMutexPrecache(faction.getMutexPreCache(),mutexOwnerId);
+		bool foundPrecacheTravelState = (faction.precachedTravelState.find(unit->getId()) != faction.precachedTravelState.end());
+		safeMutexPrecache.ReleaseLock(true);
+
+		if(foundPrecacheTravelState == true) {
 			codeLocation = "7";
 
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-				char szBuf[8096]="";
-				snprintf(szBuf,8096,"factions[unitFactionIndex].precachedTravelState[unit->getId()]: %d",faction.precachedTravelState[unit->getId()]);
-				unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
-			}
+//			if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+//				char szBuf[8096]="";
+//				snprintf(szBuf,8096,"factions[unitFactionIndex].precachedTravelState[unit->getId()]: %d",faction.precachedTravelState[unit->getId()]);
+//				unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+//			}
 
-			if(faction.precachedTravelState[unit->getId()] == tsMoving) {
+			safeMutexPrecache.Lock();
+			bool foundPrecacheTravelStateIsMoving = (faction.precachedTravelState[unit->getId()] == tsMoving);
+			safeMutexPrecache.ReleaseLock(true);
+
+			if(foundPrecacheTravelStateIsMoving == true) {
 				codeLocation = "8";
 				bool canMoveToCells = true;
 
@@ -665,13 +673,14 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 					codeLocation = "16";
 					unit->setUsePathfinderExtendedMaxNodes(false);
 
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-						char szBuf[8096]="";
-						snprintf(szBuf,8096,"return factions[unitFactionIndex].precachedTravelState[unit->getId()];");
-						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
-					}
+//					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+//						char szBuf[8096]="";
+//						snprintf(szBuf,8096,"return factions[unitFactionIndex].precachedTravelState[unit->getId()];");
+//						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+//					}
 
 					codeLocation = "17";
+					safeMutexPrecache.Lock();
 					return faction.precachedTravelState[unit->getId()];
 				}
 				else {
@@ -682,18 +691,23 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			else {
 				codeLocation = "19";
 
-				if(faction.precachedTravelState[unit->getId()] == tsBlocked) {
+				safeMutexPrecache.Lock();
+				bool foundPrecacheTravelStateIsBlocked = (faction.precachedTravelState[unit->getId()] == tsBlocked);
+				safeMutexPrecache.ReleaseLock(true);
+
+				if(foundPrecacheTravelStateIsBlocked == true) {
 					codeLocation = "20";
 					path->incBlockCount();
 					unit->setUsePathfinderExtendedMaxNodes(false);
 
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
-						char szBuf[8096]="";
-						snprintf(szBuf,8096,"return factions[unitFactionIndex].precachedTravelState[unit->getId()];");
-						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
-					}
+//					if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
+//						char szBuf[8096]="";
+//						snprintf(szBuf,8096,"return factions[unitFactionIndex].precachedTravelState[unit->getId()];");
+//						unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
+//					}
 
 					codeLocation = "21";
+					safeMutexPrecache.Lock();
 					return faction.precachedTravelState[unit->getId()];
 				}
 			}
@@ -1062,6 +1076,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 	if(frameIndex >= 0) {
 		codeLocation = "61";
+
+		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+		FactionState &faction = factions.getFactionState(factionIndex);
+		MutexSafeWrapper safeMutexPrecache(faction.getMutexPreCache(),mutexOwnerId);
+
 		faction.precachedTravelState[unit->getId()] = ts;
 	}
 	else {
