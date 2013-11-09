@@ -22,6 +22,7 @@ v3.8.0-dev
 - addition of google-breakpad to better track down bugs.
 - many new lua functions for scenario modders.
 - cell coordinates are shown show mapeditor
+- tilesets can set default air unit heights
 - added ability for stand alone mod's to customize more of the engine like about screen.
 - performance improvements.
 - and as always many bugs were fixed
