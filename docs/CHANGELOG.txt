@@ -11,13 +11,17 @@ v3.8.0-dev
 - new maps
 - better network game performance / management to handle slower clients.
 - easier ability to download game content from host and masterserver( if available there ).
+- new arranged options menu with serveral sub menus
 - menu gui improvements
+- attack hotkey toggles through all attack types
+- game can be speeded up a lot in several steps now . 
 - color picking is a lot improved and the default selection mode now
 - greater ability to translate game content into your native language. (including techtrees)
-  - Added Hebrew, Arabic, Vietnamese.
-- attack hotkey toggles through all attack types
+- Added Hebrew, Arabic, Vietnamese.
+- screenshots for savegames without annoying menu in screenshot.
 - addition of google-breakpad to better track down bugs.
 - many new lua functions for scenario modders.
+- cell coordinates are shown show mapeditor
 - added ability for stand alone mod's to customize more of the engine like about screen.
 - performance improvements.
 - and as always many bugs were fixed
