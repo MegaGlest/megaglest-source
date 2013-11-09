@@ -783,6 +783,7 @@ Socket::Socket(PLATFORM_SOCKET sock) {
 	dataSynchAccessorRead = new Mutex();
 	dataSynchAccessorWrite = new Mutex();
 	inSocketDestructorSynchAccessor = new Mutex();
+	lastSocketError = 0;
 
 	MutexSafeWrapper safeMutexSocketDestructorFlag(inSocketDestructorSynchAccessor,CODE_AT_LINE);
 	inSocketDestructorSynchAccessor->setOwnerId(CODE_AT_LINE);
@@ -805,6 +806,7 @@ Socket::Socket() {
 	dataSynchAccessorRead = new Mutex();
 	dataSynchAccessorWrite = new Mutex();
 	inSocketDestructorSynchAccessor = new Mutex();
+	lastSocketError = 0;
 
 	MutexSafeWrapper safeMutexSocketDestructorFlag(inSocketDestructorSynchAccessor,CODE_AT_LINE);
 	inSocketDestructorSynchAccessor->setOwnerId(CODE_AT_LINE);
@@ -1747,13 +1749,17 @@ bool Socket::isWritable(struct timeval *timeVal, bool lockMutex) {
 	bool result = false;
 	if(i < 0 ) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,i,getLastSocketErrorFormattedText().c_str());
+
 		SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET DISCONNECTED In [%s::%s Line: %d] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,i,getLastSocketErrorFormattedText().c_str());
 	}
 	else if(i == 0) {
 		//SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] TIMEOUT while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,i,getLastSocketErrorFormattedText().c_str());
 		// Assume we are still connected, write buffer could be very busy
 		result = true;
-		SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET WRITE TIMEOUT In [%s::%s Line: %d] i = %d sock = %d\n",__FILE__,__FUNCTION__,__LINE__,i,sock);
+		if(difftime(time(NULL),lastSocketError) > 1) {
+			lastSocketError = time(NULL);
+			SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET WRITE TIMEOUT In [%s::%s Line: %d] i = %d sock = %d\n",__FILE__,__FUNCTION__,__LINE__,i,sock);
+		}
 	}
 	else {
 		result = true;

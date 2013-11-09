@@ -150,6 +150,7 @@ protected:
 	bool inSocketDestructor;
 
 	bool isSocketBlocking;
+	time_t lastSocketError;
 
 public:
 	Socket(PLATFORM_SOCKET sock);
