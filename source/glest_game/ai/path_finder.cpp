@@ -911,7 +911,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		codeLocation = "41";
 
 		safeMutex.Lock();
-		if(faction.closedNodesList.size() > 0) {
+		if(faction.closedNodesList.empty() == false) {
 			codeLocation = "42";
 			float bestHeuristic = faction.closedNodesList.begin()->first;
 			if(bestHeuristic < lastNode->heuristic) {
