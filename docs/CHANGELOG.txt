@@ -7,7 +7,7 @@ v3.8.0-dev
 - we hopefully now really solved the last out of sync problems for cross platform games.
 - animated tileset object support.
 - new tileset texturing possibilities
-- new tilesets birchforest and desert4 using animated objects and new texture system
+- new tilesets birchforest, desert4 and updated mediterran using animated objects and new texture system
 - new maps
 - better network game performance / management to handle slower clients.
 - easier ability to download game content from host and masterserver( if available there ).
