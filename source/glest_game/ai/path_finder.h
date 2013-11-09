@@ -89,25 +89,37 @@ public:
 	class FactionState {
 	protected:
 		Mutex *factionMutex;
+		Mutex *factionMutexPrecache;
 	public:
-		FactionState() : factionMutex(new Mutex()) {
+		FactionState() :
+			//factionMutex(new Mutex()),
+			factionMutex(NULL),
+			factionMutexPrecache(new Mutex) {
+
 			openPosList.clear();
 			openNodesList.clear();
 			closedNodesList.clear();
 			nodePool.clear();
 			nodePoolCount = 0;
 			useMaxNodeCount = 0;
+
 			precachedTravelState.clear();
 			precachedPath.clear();
-			badCellList.clear();
 		}
 		~FactionState() {
 			delete factionMutex;
 			factionMutex = NULL;
+
+			delete factionMutexPrecache;
+			factionMutexPrecache = NULL;
 		}
 		Mutex * getMutex() {
 			return factionMutex;
 		}
+		Mutex * getMutexPreCache() {
+			return factionMutexPrecache;
+		}
+
 		std::map<Vec2i, bool> openPosList;
 		std::map<float, Nodes> openNodesList;
 		std::map<float, Nodes> closedNodesList;
@@ -119,7 +131,6 @@ public:
 
 		std::map<int,TravelState> precachedTravelState;
 		std::map<int,std::vector<Vec2i> > precachedPath;
-		std::map<int,std::map<Field,BadUnitNodeList> > badCellList;
 	};
 
 	class FactionStateManager {

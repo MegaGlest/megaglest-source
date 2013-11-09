@@ -97,11 +97,10 @@ void PathFinder::clearCaches() {
 	for(int factionIndex = 0; factionIndex < GameConstants::maxPlayers; ++factionIndex) {
 		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 		FactionState &faction = factions.getFactionState(factionIndex);
-		MutexSafeWrapper safeMutex(faction.getMutex(),mutexOwnerId);
+		MutexSafeWrapper safeMutex(faction.getMutexPreCache(),mutexOwnerId);
 
 		faction.precachedTravelState.clear();
 		faction.precachedPath.clear();
-		faction.badCellList.clear();
 	}
 }
 
@@ -110,11 +109,10 @@ void PathFinder::clearUnitPrecache(Unit *unit) {
 		int factionIndex = unit->getFactionIndex();
 		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 		FactionState &faction = factions.getFactionState(factionIndex);
-		MutexSafeWrapper safeMutex(faction.getMutex(),mutexOwnerId);
+		MutexSafeWrapper safeMutex(faction.getMutexPreCache(),mutexOwnerId);
 
 		faction.precachedTravelState[unit->getId()] = tsImpossible;
 		faction.precachedPath[unit->getId()].clear();
-		faction.badCellList.clear();
 	}
 }
 
@@ -123,7 +121,7 @@ void PathFinder::removeUnitPrecache(Unit *unit) {
 		int factionIndex = unit->getFactionIndex();
 		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 		FactionState &faction = factions.getFactionState(factionIndex);
-		MutexSafeWrapper safeMutex(faction.getMutex(),mutexOwnerId);
+		MutexSafeWrapper safeMutex(faction.getMutexPreCache(),mutexOwnerId);
 
 		if(faction.precachedTravelState.find(unit->getId()) != faction.precachedTravelState.end()) {
 			faction.precachedTravelState.erase(unit->getId());
@@ -451,13 +449,14 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 						int factionIndex = unit->getFactionIndex();
 						static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 						FactionState &faction = factions.getFactionState(factionIndex);
-						MutexSafeWrapper safeMutex(faction.getMutex(),mutexOwnerId);
+						MutexSafeWrapper safeMutexPreCache(faction.getMutexPreCache(),mutexOwnerId);
 
 						if(faction.precachedPath[unit->getId()].size() <= 0) {
 							throw megaglest_runtime_error("factions[unit->getFactionIndex()].precachedPath[unit->getId()].size() <= 0!");
 						}
 
 						pos = faction.precachedPath[unit->getId()][0];
+						safeMutexPreCache.ReleaseLock();
 
 						codeLocation = "39";
 					}
