@@ -227,7 +227,7 @@
                                         $player_score_class = "player_high_score";
                                 }
 
-                                printf( "\t\t\t\t<td class='%s'>%s</td>%s", $player_score_class, htmlspecialchars( $player_score,        ENT_QUOTES ), PHP_EOL );
+                                printf( "\t\t\t\t<td class='%s'>%s</td>%s", $player_score_class, number_format(htmlspecialchars( $player_score,        ENT_QUOTES ),0), PHP_EOL );
 
                                 printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( ($player_stats['quitBeforeGameEnd'] ? "yes" : "no"),        ENT_QUOTES ), PHP_EOL );
 
