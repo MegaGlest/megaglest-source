@@ -1758,7 +1758,7 @@ bool Socket::isWritable(struct timeval *timeVal, bool lockMutex) {
 		result = true;
 		if(difftime(time(NULL),lastSocketError) > 1) {
 			lastSocketError = time(NULL);
-			SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET WRITE TIMEOUT In [%s::%s Line: %d] i = %d sock = %d\n",__FILE__,__FUNCTION__,__LINE__,i,sock);
+			SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET WRITE TIMEOUT In [%s::%s Line: %d] i = %d sock = %d [%s]\n",__FILE__,__FUNCTION__,__LINE__,i,sock,ipAddress.c_str());
 		}
 	}
 	else {
