@@ -316,6 +316,10 @@ option(ENABLE_FRIBIDI "Enable FriBIDi support" ON)
                    add_definitions (-D_BSD_SOURCE -D_POSIX_C_SOURCE=1)
                 endif()
 
+                if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+                   add_definitions (-DMACOSX -D_DARWIN_C_SOURCE)
+                endif ()
+
 		SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/miniupnpc)
 	else()
 		MESSAGE(STATUS "*** Using miniupnpc lib found in [${MINIUPNP_INCLUDE_DIR}] MINIUPNP_FOUND [${MINIUPNP_FOUND}] MINIUPNP_LIBRARY [${MINIUPNP_LIBRARY}]")
