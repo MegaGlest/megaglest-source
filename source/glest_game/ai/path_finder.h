@@ -25,24 +25,12 @@
 #include "map.h"
 #include "unit.h"
 
-//#include <tr1/unordered_map>
-//using namespace std::tr1;
-
 #include "leak_dumper.h"
 
 using std::vector;
 using Shared::Graphics::Vec2i;
 
 namespace Glest { namespace Game {
-
-//class Map;
-//class Unit;
-
-// The order of directions is:
-// N, NE, E, SE, S, SW, W, NW
-typedef unsigned char direction;
-#define NO_DIRECTION 8
-typedef unsigned char directionset;
 
 // =====================================================
 // 	class PathFinder
@@ -56,11 +44,9 @@ public:
 	public:
 		BadUnitNodeList() {
 			unitSize = -1;
-			//teamIndex = -1;
 			field = fLand;
 		}
 		int unitSize;
-		//int teamIndex;
 		Field field;
 		std::map<Vec2i, std::map<Vec2i,bool> > badPosList;
 
@@ -113,12 +99,9 @@ public:
 			useMaxNodeCount = 0;
 			precachedTravelState.clear();
 			precachedPath.clear();
-			//mapFromToNodeList.clear();
-			//lastFromToNodeListFrame = -100;
 			badCellList.clear();
 		}
 		~FactionState() {
-			//fa = NULL;
 			delete factionMutex;
 			factionMutex = NULL;
 		}
@@ -226,7 +209,6 @@ private:
 	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex, int maxNodeCount=-1,uint32 *searched_node_count=NULL);
 	inline static Node *newNode(FactionState &faction, int maxNodeCount) {
 		if( faction.nodePoolCount < faction.nodePool.size() &&
-			//faction.nodePoolCount < faction.useMaxNodeCount) {
 			faction.nodePoolCount < maxNodeCount) {
 			Node *node= &(faction.nodePool[faction.nodePoolCount]);
 			node->clear();
@@ -237,12 +219,10 @@ private:
 	}
 
 	Vec2i computeNearestFreePos(const Unit *unit, const Vec2i &targetPos);
-	//float heuristic(const Vec2i &pos, const Vec2i &finalPos);
 	inline static float heuristic(const Vec2i &pos, const Vec2i &finalPos) {
 		return pos.dist(finalPos);
 	}
 
-	//bool openPos(const Vec2i &sucPos,FactionState &faction);
 	inline static bool openPos(const Vec2i &sucPos, FactionState &faction) {
 		if(faction.openPosList.find(sucPos) == faction.openPosList.end()) {
 			return false;
@@ -250,8 +230,6 @@ private:
 		return true;
 	}
 
-
-	//Node * minHeuristicFastLookup(FactionState &faction);
 	inline static Node * minHeuristicFastLookup(FactionState &faction) {
 		if(faction.openNodesList.empty() == true) {
 			throw megaglest_runtime_error("openNodesList.empty() == true");
@@ -264,7 +242,6 @@ private:
 		}
 		return result;
 	}
-
 
 	inline bool processNode(Unit *unit, Node *node,const Vec2i finalPos,
 			int i, int j, bool &nodeLimitReached,int maxNodeCount) {
@@ -304,7 +281,8 @@ private:
 		return result;
 	}
 
-	void processNearestFreePos(const Vec2i &finalPos, int i, int j, int size, Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, float &nearestDist);
+	void processNearestFreePos(const Vec2i &finalPos, int i, int j, int size,
+			Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, float &nearestDist);
 	int getPathFindExtendRefreshNodeCount(FactionState &faction, bool mutexLock);
 
 	inline bool canUnitMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) {
