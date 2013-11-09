@@ -180,7 +180,6 @@ private:
 private:
 	int blockCount;
 	vector<Vec2i> pathQueue;
-	vector<Vec2i> lastPathCacheQueue;
 
 public:
 	UnitPathBasic();
@@ -202,9 +201,6 @@ public:
 	Vec2i pop(bool removeFrontPos=true);
 	virtual int getBlockCount() const { return blockCount; }
 	virtual int getQueueCount() const { return (int)pathQueue.size(); }
-
-	int getLastPathCacheQueueCount() const { return (int)lastPathCacheQueue.size(); }
-	vector<Vec2i> getLastPathCacheQueue() const { return lastPathCacheQueue; }
 
 	virtual vector<Vec2i> getQueue() const { return pathQueue; }
 

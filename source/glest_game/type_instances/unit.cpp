@@ -55,14 +55,12 @@ UnitPathBasic::UnitPathBasic() : UnitPathInterface() {
 
 	this->blockCount = 0;
 	this->pathQueue.clear();
-	this->lastPathCacheQueue.clear();
 	this->map = NULL;
 }
 
 UnitPathBasic::~UnitPathBasic() {
 	this->blockCount = 0;
 	this->pathQueue.clear();
-	this->lastPathCacheQueue.clear();
 	this->map = NULL;
 
 #ifdef LEAK_CHECK_UNITS
@@ -87,7 +85,6 @@ void UnitPathBasic::dumpMemoryList() {
 void UnitPathBasic::clearCaches() {
 	this->blockCount = 0;
 	this->pathQueue.clear();
-	this->lastPathCacheQueue.clear();
 }
 
 bool UnitPathBasic::isEmpty() const {
@@ -104,13 +101,11 @@ bool UnitPathBasic::isStuck() const {
 
 void UnitPathBasic::clear() {
 	pathQueue.clear();
-	lastPathCacheQueue.clear();
 	blockCount= 0;
 }
 
 void UnitPathBasic::incBlockCount() {
 	pathQueue.clear();
-	lastPathCacheQueue.clear();
 	blockCount++;
 }
 
@@ -136,12 +131,6 @@ void UnitPathBasic::addToLastPathCache(const Vec2i &path) {
 			throw megaglest_runtime_error("Invalid map surface path position = " + path.getString() + " map surface w x h = " + intToStr(map->getSurfaceW()) + " " + intToStr(map->getSurfaceH()));
 		}
 	}
-
-	//const bool tryLastPathCache = Config::getInstance().getBool("EnablePathfinderCache","false");
-	const bool tryLastPathCache = false;
-	if(tryLastPathCache == true) {
-		lastPathCacheQueue.push_back(path);
-	}
 }
 
 Vec2i UnitPathBasic::pop(bool removeFrontPos) {
@@ -158,10 +147,6 @@ std::string UnitPathBasic::toString() const {
 	std::string result = "unit path blockCount = " + intToStr(blockCount) + "\npathQueue size = " + intToStr(pathQueue.size());
 	for(int idx = 0; idx < pathQueue.size(); ++idx) {
 		result += " index = " + intToStr(idx) + " value = " + pathQueue[idx].getString();
-	}
-	result += "\nlastPathCacheQueue size = " + intToStr(lastPathCacheQueue.size());
-	for(int idx = 0; idx < lastPathCacheQueue.size(); ++idx) {
-		result += " index = " + intToStr(idx) + " value = " + lastPathCacheQueue[idx].getString();
 	}
 
 	return result;
@@ -180,13 +165,6 @@ void UnitPathBasic::saveGame(XmlNode *rootNode) {
 		XmlNode *pathQueueNode = unitPathBasicNode->addChild("pathQueue");
 		pathQueueNode->addAttribute("vec",vec.getString(), mapTagReplacements);
 	}
-//	vector<Vec2i> lastPathCacheQueue;
-	for(unsigned int i = 0; i < lastPathCacheQueue.size(); ++i) {
-		Vec2i &vec = lastPathCacheQueue[i];
-
-		XmlNode *lastPathCacheQueueNode = unitPathBasicNode->addChild("lastPathCacheQueue");
-		lastPathCacheQueueNode->addAttribute("vec",vec.getString(), mapTagReplacements);
-	}
 }
 
 void UnitPathBasic::loadGame(const XmlNode *rootNode) {
@@ -202,15 +180,6 @@ void UnitPathBasic::loadGame(const XmlNode *rootNode) {
 		Vec2i vec = Vec2i::strToVec2(node->getAttribute("vec")->getValue());
 		pathQueue.push_back(vec);
 	}
-
-	lastPathCacheQueue.clear();
-	vector<XmlNode *> lastpathqueueNodeList = unitPathBasicNode->getChildList("lastPathCacheQueue");
-	for(unsigned int i = 0; i < lastpathqueueNodeList.size(); ++i) {
-		XmlNode *node = lastpathqueueNodeList[i];
-
-		Vec2i vec = Vec2i::strToVec2(node->getAttribute("vec")->getValue());
-		lastPathCacheQueue.push_back(vec);
-	}
 }
 
 Checksum UnitPathBasic::getCRC() {
@@ -218,7 +187,6 @@ Checksum UnitPathBasic::getCRC() {
 
 	crcForPath.addInt(blockCount);
 	crcForPath.addInt((int)pathQueue.size());
-	crcForPath.addInt((int)lastPathCacheQueue.size());
 
 	return crcForPath;
 }

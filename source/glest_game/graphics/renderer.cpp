@@ -5303,7 +5303,7 @@ void Renderer::renderSelectionEffects() {
 
 				const UnitPathInterface *path= unit->getPath();
 				if(path != NULL && dynamic_cast<const UnitPathBasic *>(path)) {
-					vector<Vec2i> pathList = dynamic_cast<const UnitPathBasic *>(path)->getLastPathCacheQueue();
+					vector<Vec2i> pathList = dynamic_cast<const UnitPathBasic *>(path)->getQueue();
 
 					Vec2i lastPosValue;
 					for(int i = 0; i < pathList.size(); ++i) {
@@ -5314,11 +5314,6 @@ void Renderer::renderSelectionEffects() {
 						Vec3f currVec2 = unit->getVectorFlat(lastPosValue,curPosValue);
 						currVec2.y+= 0.3f;
 						renderSelectionCircle(currVec2, 1, selectionCircleRadius);
-						//renderSelectionCircle(currVec2, unit->getType()->getSize(), selectionCircleRadius);
-
-						//SurfaceCell *cell= map->getSurfaceCell(currVec2.x, currVec2.y);
-						//currVec2.z = cell->getHeight() + 2.0;
-						//renderSelectionCircle(currVec2, unit->getType()->getSize(), selectionCircleRadius);
 					}
 				}
 			}
