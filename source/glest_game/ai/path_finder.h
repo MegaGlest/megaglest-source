@@ -91,7 +91,8 @@ public:
 		Mutex *factionMutexPrecache;
 	public:
 		FactionState() :
-			factionMutexPrecache(new Mutex) {
+			//factionMutexPrecache(new Mutex) {
+			factionMutexPrecache(NULL) {
 
 			openPosList.clear();
 			openNodesList.clear();
