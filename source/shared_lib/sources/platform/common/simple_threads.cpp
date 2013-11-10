@@ -16,6 +16,7 @@
 #include <algorithm>
 #include "conversion.h"
 #include "platform_util.h"
+#include "cache_manager.h"
 #include "leak_dumper.h"
 
 using namespace std;
@@ -26,6 +27,7 @@ namespace Shared { namespace PlatformCommon {
 
 const static int MAX_FileCRCPreCacheThread_WORKER_THREADS 	= 3;
 const static double PAUSE_SECONDS_BETWEEN_WORKERS 			= 15;
+string FileCRCPreCacheThread::preCacheThreadCacheLookupKey	= "";
 
 FileCRCPreCacheThread::FileCRCPreCacheThread() : BaseThread() {
 	techDataPaths.clear();
@@ -43,6 +45,14 @@ FileCRCPreCacheThread::FileCRCPreCacheThread(vector<string> techDataPaths,
 	preCacheWorkerThreadList.clear();
 	this->processTechCB 				= processTechCB;
 	uniqueID = "FileCRCPreCacheThread";
+}
+
+FileCRCPreCacheThread::~FileCRCPreCacheThread() {
+	bool threadControllerMode = (workerThreadTechPaths.size() == 0);
+	FileCRCPreCacheThread * &preCacheCRCThreadPtr = CacheManager::getCachedItem< FileCRCPreCacheThread * >(preCacheThreadCacheLookupKey);
+	if(preCacheCRCThreadPtr != NULL && threadControllerMode == true) {
+		preCacheCRCThreadPtr = NULL;
+	}
 }
 
 void FileCRCPreCacheThread::setPauseForGame(bool pauseForGame) {
