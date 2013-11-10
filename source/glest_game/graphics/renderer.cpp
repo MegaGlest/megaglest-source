@@ -2223,7 +2223,9 @@ void Renderer::renderClock() {
 	}
 
 	Config &config= Config::getInstance();
-	if(config.getBool("InGameClock","true") == false && config.getBool("InGameLocalClock","true") == false) {
+	if(config.getBool("InGameClock","true") == false &&
+		config.getBool("InGameLocalClock","true") == false &&
+		config.getBool("InGameFrameCounter","false") == false) {
 		return;
 	}
 
@@ -2254,6 +2256,15 @@ void Renderer::renderClock() {
 		Lang &lang= Lang::getInstance();
 		char szBuf[200]="";
 		snprintf(szBuf,200,"%s %s",lang.getString("LocalTime","",true).c_str(),szBuf2);
+		if(str != "") {
+			str += " ";
+		}
+		str += szBuf;
+	}
+
+	if(config.getBool("InGameFrameCounter","false") == true) {
+		char szBuf[200]="";
+		snprintf(szBuf,200,"Frame: %d",game->getWorld()->getFrameCount() / 20);
 		if(str != "") {
 			str += " ";
 		}
