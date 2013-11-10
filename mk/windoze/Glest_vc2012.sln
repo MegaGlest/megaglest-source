@@ -14,6 +14,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "g3d_viewer", "vc2012\g3d_viewer.vcxproj", "{FE5C7C7C-F109-44F5-8329-25A4E24F162C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "megaglest_tests", "vc2012\megaglest_tests.vcxproj", "{9A3DE527-6000-40BB-B971-F0FCAD9FF519}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8DAA0C24-95CD-4F66-B4C5-19ABDD771746} = {8DAA0C24-95CD-4F66-B4C5-19ABDD771746}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
