@@ -88,12 +88,9 @@ public:
 
 	class FactionState {
 	protected:
-		Mutex *factionMutex;
 		Mutex *factionMutexPrecache;
 	public:
 		FactionState() :
-			//factionMutex(new Mutex()),
-			factionMutex(NULL),
 			factionMutexPrecache(new Mutex) {
 
 			openPosList.clear();
@@ -107,14 +104,9 @@ public:
 			precachedPath.clear();
 		}
 		~FactionState() {
-			delete factionMutex;
-			factionMutex = NULL;
 
 			delete factionMutexPrecache;
 			factionMutexPrecache = NULL;
-		}
-		Mutex * getMutex() {
-			return factionMutex;
 		}
 		Mutex * getMutexPreCache() {
 			return factionMutexPrecache;
@@ -260,10 +252,7 @@ private:
 		Vec2i sucPos= node->pos + Vec2i(i, j);
 
 		int unitFactionIndex = unit->getFactionIndex();
-
-		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 		FactionState &faction = factions.getFactionState(unitFactionIndex);
-		MutexSafeWrapper safeMutex(faction.getMutex(),mutexOwnerId);
 
 		if(openPos(sucPos, faction) == false &&
 				canUnitMoveSoon(unit, node->pos, sucPos) == true) {
@@ -307,23 +296,16 @@ private:
 			std::map<Vec2i,Vec2i> cameFrom, std::map<std::pair<Vec2i,Vec2i> ,
 			bool> canAddNode, Unit *& unit, int & maxNodeCount, int curFrameIndex)  {
 
-		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 		FactionState &faction = factions.getFactionState(unitFactionIndex);
-		MutexSafeWrapper safeMutex(faction.getMutex(),mutexOwnerId);
-		safeMutex.ReleaseLock(true);
 
 		while(nodeLimitReached == false) {
 			whileLoopCount++;
-
-			safeMutex.Lock();
 			if(faction.openNodesList.empty() == true) {
-				safeMutex.ReleaseLock(true);
 				pathFound = false;
 				break;
 			}
 			node = minHeuristicFastLookup(faction);
 			if(node->pos == finalPos || node->exploredCell == false) {
-				safeMutex.ReleaseLock(true);
 				pathFound = true;
 				break;
 			}
@@ -333,15 +315,11 @@ private:
 			}
 			faction.closedNodesList[node->heuristic].push_back(node);
 			faction.openPosList[node->pos] = true;
-			safeMutex.ReleaseLock(true);
 
 			int failureCount 	= 0;
 			int cellCount 		= 0;
 
-			safeMutex.Lock();
 			int tryDirection 	= faction.random.randRange(0, 3);
-			safeMutex.ReleaseLock(true);
-
 			if(tryDirection == 3) {
 				for(int i = 1;i >= -1 && nodeLimitReached == false;--i) {
 					for(int j = -1;j <= 1 && nodeLimitReached == false;++j) {
