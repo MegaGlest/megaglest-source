@@ -311,7 +311,11 @@ void MenuStateScenario::update() {
 		return;
 	}
 	if(this->autoloadScenarioName != "") {
-		loadScenarioInfo(Scenario::getScenarioPath(dirList, this->autoloadScenarioName), &scenarioInfo );
+		string scenarioPath = Scenario::getScenarioPath(dirList, this->autoloadScenarioName);
+
+		//printf("[%s:%s] Line: %d this->autoloadScenarioName [%s] scenarioPath [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->autoloadScenarioName.c_str(),scenarioPath.c_str());
+
+		loadScenarioInfo(scenarioPath, &scenarioInfo );
 		if(scenarioInfo.namei18n != "") {
 			this->autoloadScenarioName = scenarioInfo.namei18n;
 		}
@@ -385,6 +389,9 @@ void MenuStateScenario::setScenario(int i) {
 
 void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
 	bool isTutorial = Scenario::isGameTutorial(file);
+
+	//printf("[%s:%s] Line: %d file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str());
+
 	Scenario::loadScenarioInfo(file, scenarioInfo, isTutorial);
 
 	cleanupPreviewTexture();

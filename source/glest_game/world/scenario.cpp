@@ -201,10 +201,12 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo, bool is
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str());
 	//printf("In [%s::%s Line: %d] file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,file.c_str());
 
+	//printf("[%s:%s] Line: %d file [%s]\n",__FILE__,__FUNCTION__,__LINE__,file.c_str());
     Lang &lang= Lang::getInstance();
 	string scenarioDir = cutLastFile(formatPath(file));
 	string scenarioName = extractLastDirectoryFromPath(scenarioDir);
 	scenarioDir = cutLastFile(scenarioDir);
+	//printf("[%s:%s] Line: %d scenarioDir [%s] scenarioName [%s]\n",__FILE__,__FUNCTION__,__LINE__,scenarioDir.c_str(),scenarioName.c_str());
 
     XmlTree xmlTree;
 	xmlTree.load(file,Properties::getTagReplacementValues());
