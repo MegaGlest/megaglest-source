@@ -209,7 +209,8 @@ public:
 private:
 	void init();
 
-	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout, int frameIndex, int maxNodeCount=-1,uint32 *searched_node_count=NULL);
+	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout,
+			int frameIndex, int maxNodeCount=-1,uint32 *searched_node_count=NULL);
 	inline static Node *newNode(FactionState &faction, int maxNodeCount) {
 		if( faction.nodePoolCount < faction.nodePool.size() &&
 			faction.nodePoolCount < maxNodeCount) {
@@ -283,7 +284,7 @@ private:
 
 	void processNearestFreePos(const Vec2i &finalPos, int i, int j, int size,
 			Field field, int teamIndex,Vec2i unitPos, Vec2i &nearestPos, float &nearestDist);
-	int getPathFindExtendRefreshNodeCount(FactionState &faction, bool mutexLock);
+	int getPathFindExtendRefreshNodeCount(FactionState &faction);
 
 	inline bool canUnitMoveSoon(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2) {
 		bool result = map->aproxCanMoveSoon(unit, pos1, pos2);
