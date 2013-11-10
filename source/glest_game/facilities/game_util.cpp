@@ -36,7 +36,7 @@ const string SVN_Rev 			= string("Rev: ") + string(SVNVERSION);
 const string SVN_RawRev			= string(SVNVERSION);
 const string SVN_Rev 			= string("Rev: ") + string(SVNVERSION);
 #else
-const string SVN_RawRev			= "$4704$";
+const string SVN_RawRev			= "$4761$";
 const string SVN_Rev 			= "$Rev$";
 #endif
 

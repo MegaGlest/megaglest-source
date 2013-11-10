@@ -608,7 +608,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				Vec2i lastPos = unit->getPos();
 
 				safeMutexPrecache.Lock();
-				int unitPrecachePathSize = faction.precachedPath[unit->getId()].size();
+				int unitPrecachePathSize = (int)faction.precachedPath[unit->getId()].size();
 				safeMutexPrecache.ReleaseLock(true);
 
 				for(int i=0; i < unitPrecachePathSize; i++) {
@@ -645,7 +645,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 					UnitPathBasic *basicPathFinder = dynamic_cast<UnitPathBasic *>(path);
 
 					safeMutexPrecache.Lock();
-					int unitPrecachePathSize = faction.precachedPath[unit->getId()].size();
+					int unitPrecachePathSize = (int)faction.precachedPath[unit->getId()].size();
 					safeMutexPrecache.ReleaseLock(true);
 
 					for(int i=0; i < unitPrecachePathSize; i++) {
