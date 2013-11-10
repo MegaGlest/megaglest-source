@@ -50,7 +50,7 @@ PathFinder::PathFinder() {
 	map=NULL;
 }
 
-int PathFinder::getPathFindExtendRefreshNodeCount(FactionState &faction, bool mutexLock) {
+int PathFinder::getPathFindExtendRefreshNodeCount(FactionState &faction) {
 	int refreshNodeCount = faction.random.randRange(PathFinder::pathFindExtendRefreshNodeCountMin,PathFinder::pathFindExtendRefreshNodeCountMax);
 	return refreshNodeCount;
 }
@@ -131,6 +131,11 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 
 	string codeLocation = "1";
 	try {
+
+	int factionIndex = unit->getFactionIndex();
+	FactionState &faction = factions.getFactionState(factionIndex);
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+	MutexSafeWrapper safeMutexPrecache(faction.getMutexPreCache(),mutexOwnerId);
 
 	if(map == NULL) {
 		throw megaglest_runtime_error("map == NULL");
@@ -436,17 +441,12 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 					}
 					else {
 						codeLocation = "38";
-						int factionIndex = unit->getFactionIndex();
-						static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-						FactionState &faction = factions.getFactionState(factionIndex);
-						MutexSafeWrapper safeMutexPreCache(faction.getMutexPreCache(),mutexOwnerId);
 
 						if(faction.precachedPath[unit->getId()].size() <= 0) {
 							throw megaglest_runtime_error("factions[unit->getFactionIndex()].precachedPath[unit->getId()].size() <= 0!");
 						}
 
 						pos = faction.precachedPath[unit->getId()][0];
-						safeMutexPreCache.ReleaseLock();
 
 						codeLocation = "39";
 					}
@@ -537,6 +537,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	string codeLocation = "1";
 	try {
 
+	int unitFactionIndex = unit->getFactionIndex();
+	int factionIndex = unit->getFactionIndex();
+	FactionState &faction = factions.getFactionState(factionIndex);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex >= 0) {
 		char szBuf[8096]="";
@@ -568,10 +571,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 	codeLocation = "4";
 	UnitPathInterface *path= unit->getPath();
-	int unitFactionIndex = unit->getFactionIndex();
-
-	int factionIndex = unit->getFactionIndex();
-	FactionState &faction = factions.getFactionState(factionIndex);
 
 	faction.nodePoolCount= 0;
 	faction.openNodesList.clear();
@@ -583,11 +582,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	if(frameIndex < 0) {
 		codeLocation = "6";
 
-		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-		MutexSafeWrapper safeMutexPrecache(faction.getMutexPreCache(),mutexOwnerId);
 		bool foundPrecacheTravelState = (faction.precachedTravelState.find(unit->getId()) != faction.precachedTravelState.end());
-		safeMutexPrecache.ReleaseLock(true);
-
 		if(foundPrecacheTravelState == true) {
 			codeLocation = "7";
 
@@ -597,26 +592,19 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 //				unit->logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 //			}
 
-			safeMutexPrecache.Lock();
 			bool foundPrecacheTravelStateIsMoving = (faction.precachedTravelState[unit->getId()] == tsMoving);
-			safeMutexPrecache.ReleaseLock(true);
-
 			if(foundPrecacheTravelStateIsMoving == true) {
 				codeLocation = "8";
 				bool canMoveToCells = true;
 
 				Vec2i lastPos = unit->getPos();
 
-				safeMutexPrecache.Lock();
 				int unitPrecachePathSize = (int)faction.precachedPath[unit->getId()].size();
-				safeMutexPrecache.ReleaseLock(true);
 
 				for(int i=0; i < unitPrecachePathSize; i++) {
 					codeLocation = "9";
 
-					safeMutexPrecache.Lock();
 					Vec2i nodePos = faction.precachedPath[unit->getId()][i];
-					safeMutexPrecache.ReleaseLock(true);
 
 					if(map->isInside(nodePos) == false || map->isInsideSurface(map->toSurfCoords(nodePos)) == false) {
 						throw megaglest_runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
@@ -624,7 +612,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 					if(i < unit->getPathFindRefreshCellCount() ||
 						(unitPrecachePathSize >= pathFindExtendRefreshForNodeCount &&
-						 i < getPathFindExtendRefreshNodeCount(faction,false))) {
+						 i < getPathFindExtendRefreshNodeCount(faction))) {
 						codeLocation = "10";
 
 						if(canUnitMoveSoon(unit, lastPos, nodePos) == false) {
@@ -644,16 +632,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 					path->clear();
 					UnitPathBasic *basicPathFinder = dynamic_cast<UnitPathBasic *>(path);
 
-					safeMutexPrecache.Lock();
 					int unitPrecachePathSize = (int)faction.precachedPath[unit->getId()].size();
-					safeMutexPrecache.ReleaseLock(true);
 
 					for(int i=0; i < unitPrecachePathSize; i++) {
 						codeLocation = "13";
 
-						safeMutexPrecache.Lock();
 						Vec2i nodePos = faction.precachedPath[unit->getId()][i];
-						safeMutexPrecache.ReleaseLock(true);
 
 						if(map->isInside(nodePos) == false || map->isInsideSurface(map->toSurfCoords(nodePos)) == false) {
 							throw megaglest_runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
@@ -662,7 +646,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 						//if(i < pathFindRefresh ||
 						if(i < unit->getPathFindRefreshCellCount() ||
 								(unitPrecachePathSize >= pathFindExtendRefreshForNodeCount &&
-								 i < getPathFindExtendRefreshNodeCount(faction,false))) {
+								 i < getPathFindExtendRefreshNodeCount(faction))) {
 							codeLocation = "14";
 							path->add(nodePos);
 						}
@@ -677,7 +661,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 //					}
 
 					codeLocation = "17";
-					safeMutexPrecache.Lock();
 					return faction.precachedTravelState[unit->getId()];
 				}
 				else {
@@ -688,9 +671,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			else {
 				codeLocation = "19";
 
-				safeMutexPrecache.Lock();
 				bool foundPrecacheTravelStateIsBlocked = (faction.precachedTravelState[unit->getId()] == tsBlocked);
-				safeMutexPrecache.ReleaseLock(true);
 
 				if(foundPrecacheTravelStateIsBlocked == true) {
 					codeLocation = "20";
@@ -704,7 +685,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 //					}
 
 					codeLocation = "21";
-					safeMutexPrecache.Lock();
 					return faction.precachedTravelState[unit->getId()];
 				}
 			}
@@ -997,10 +977,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 		currNode= firstNode;
 
-		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-		MutexSafeWrapper safeMutexPreCache(faction.getMutexPreCache(),mutexOwnerId);
-		safeMutexPreCache.ReleaseLock(true);
-
 		for(int i=0; currNode->next != NULL; currNode= currNode->next, i++) {
 			codeLocation = "55";
 			Vec2i nodePos = currNode->next->pos;
@@ -1013,15 +989,13 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			if(frameIndex >= 0) {
 				codeLocation = "56";
 
-				safeMutexPreCache.Lock();
 				faction.precachedPath[unit->getId()].push_back(nodePos);
-				safeMutexPreCache.ReleaseLock(true);
 			}
 			else {
 				codeLocation = "57";
 				if(i < unit->getPathFindRefreshCellCount() ||
 					(whileLoopCount >= pathFindExtendRefreshForNodeCount &&
-					 i < getPathFindExtendRefreshNodeCount(faction,true))) {
+					 i < getPathFindExtendRefreshNodeCount(faction))) {
 					codeLocation = "58";
 					path->add(nodePos);
 				}
@@ -1071,10 +1045,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	if(frameIndex >= 0) {
 		codeLocation = "61";
 
-		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 		FactionState &faction = factions.getFactionState(factionIndex);
-		MutexSafeWrapper safeMutexPrecache(faction.getMutexPreCache(),mutexOwnerId);
-
 		faction.precachedTravelState[unit->getId()] = ts;
 	}
 	else {
