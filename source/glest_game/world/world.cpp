@@ -2762,6 +2762,13 @@ string World::getAllFactionsCacheStats() {
 	return result;
 }
 
+bool World::factionLostGame(int factionIndex) {
+	if(this->game != NULL) {
+		return this->game->factionLostGame(factionIndex);
+	}
+	return false;
+}
+
 std::string World::DumpWorldToLog(bool consoleBasicInfoOnly) const {
 
 	string debugWorldLogFile = Config::getInstance().getString("DebugWorldLogFile","debugWorld.log");

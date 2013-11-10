@@ -355,17 +355,24 @@ void Ai::update() {
 		voteResult->allowSwitchTeam = false;
 
 		const GameSettings *settings =  aiInterface->getWorld()->getGameSettings();
-		// Can only ask the AI player 2 times max per game
-		if(factionSwitchTeamRequestCountCurrent <= 2) {
-			// x% chance the AI will answer yes
-			if(settings->getAiAcceptSwitchTeamPercentChance() >= 100) {
-				voteResult->allowSwitchTeam = true;
-			}
-			else if(settings->getAiAcceptSwitchTeamPercentChance() <= 0) {
-				voteResult->allowSwitchTeam = false;
-			}
-			else {
-				voteResult->allowSwitchTeam = (allowJoinTeam >= (100 - settings->getAiAcceptSwitchTeamPercentChance()));
+
+		// If AI player already lost game they cannot vote
+		if(aiInterface->getWorld()->factionLostGame(aiInterface->getFactionIndex()) == true) {
+			voteResult->allowSwitchTeam = true;
+		}
+		else {
+			// Can only ask the AI player 2 times max per game
+			if(factionSwitchTeamRequestCountCurrent <= 2) {
+				// x% chance the AI will answer yes
+				if(settings->getAiAcceptSwitchTeamPercentChance() >= 100) {
+					voteResult->allowSwitchTeam = true;
+				}
+				else if(settings->getAiAcceptSwitchTeamPercentChance() <= 0) {
+					voteResult->allowSwitchTeam = false;
+				}
+				else {
+					voteResult->allowSwitchTeam = (allowJoinTeam >= (100 - settings->getAiAcceptSwitchTeamPercentChance()));
+				}
 			}
 		}
 

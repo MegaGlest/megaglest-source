@@ -327,6 +327,7 @@ public:
 	void clearCaches();
 	void refreshAllUnitExplorations();
 
+	bool factionLostGame(int factionIndex);
 private:
 
 	void initCells(bool fogOfWar);
