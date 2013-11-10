@@ -5289,9 +5289,14 @@ int glestMain(int argc, char** argv) {
         //printf("### In [%s::%s Line: %d] precache thread enabled = %d SystemFlags::VERBOSE_MODE_ENABLED = %d\n",__FILE__,__FUNCTION__,__LINE__,startCRCPrecacheThread,SystemFlags::VERBOSE_MODE_ENABLED);
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] precache thread enabled = %d\n",__FILE__,__FUNCTION__,__LINE__,startCRCPrecacheThread);
 		if(startCRCPrecacheThread == true) {
-			vector<string> techDataPaths = config.getPathListForType(ptTechs);
 			static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
-			preCacheThread = new FileCRCPreCacheThread();
+			vector<string> techDataPaths = config.getPathListForType(ptTechs);
+
+			FileCRCPreCacheThread * &preCacheCRCThreadPtr = CacheManager::getCachedItem< FileCRCPreCacheThread * >(GameConstants::preCacheThreadCacheLookupKey);
+			if(preCacheCRCThreadPtr == NULL) {
+				preCacheCRCThreadPtr = new FileCRCPreCacheThread();
+			}
+			preCacheThread = preCacheCRCThreadPtr;
 			preCacheThread->setUniqueID(mutexOwnerId);
 			preCacheThread->setTechDataPaths(techDataPaths);
 			//preCacheThread->setFileCRCPreCacheThreadCallbackInterface(&preCacheThreadGame);

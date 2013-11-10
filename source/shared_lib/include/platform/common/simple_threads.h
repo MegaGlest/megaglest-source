@@ -47,6 +47,10 @@ protected:
 	Mutex mutexPendingTextureList;
 	vector<Texture2D *> pendingTextureList;
 
+	Mutex mutexPauseForGame;
+	bool pauseForGame;
+	std::vector<FileCRCPreCacheThread *> preCacheWorkerThreadList;
+
 	void addPendingTexture(Texture2D *texture);
 	void addPendingTextureList(vector<Texture2D *> textureList);
 
@@ -60,6 +64,9 @@ public:
     vector<Texture2D *> getPendingTextureList(int maxTexturesToGet);
 
 	virtual bool canShutdown(bool deleteSelfIfShutdownDelayed);
+
+	void setPauseForGame(bool pauseForGame);
+	bool getPauseForGame();
 };
 
 // =====================================================

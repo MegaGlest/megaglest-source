@@ -153,6 +153,7 @@ public:
 	static const char *OBSERVER_SLOTNAME;
 	static const char *RANDOMFACTION_SLOTNAME;
 
+	static const char *preCacheThreadCacheLookupKey;
 	static const char *playerTextureCacheLookupKey;
 	static const char *ircClientCacheLookupKey;
 	static const char *factionPreviewTextureCacheLookupKey;

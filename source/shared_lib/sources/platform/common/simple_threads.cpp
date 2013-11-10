@@ -30,6 +30,7 @@ const static double PAUSE_SECONDS_BETWEEN_WORKERS 			= 15;
 FileCRCPreCacheThread::FileCRCPreCacheThread() : BaseThread() {
 	techDataPaths.clear();
 	workerThreadTechPaths.clear();
+	preCacheWorkerThreadList.clear();
 	processTechCB = NULL;
 	uniqueID = "FileCRCPreCacheThread";
 }
@@ -39,8 +40,28 @@ FileCRCPreCacheThread::FileCRCPreCacheThread(vector<string> techDataPaths,
 											FileCRCPreCacheThreadCallbackInterface *processTechCB) {
 	this->techDataPaths					= techDataPaths;
 	this->workerThreadTechPaths 		= workerThreadTechPaths;
+	preCacheWorkerThreadList.clear();
 	this->processTechCB 				= processTechCB;
 	uniqueID = "FileCRCPreCacheThread";
+}
+
+void FileCRCPreCacheThread::setPauseForGame(bool pauseForGame) {
+	static string mutexOwnerId = CODE_AT_LINE;
+	MutexSafeWrapper safeMutex(&mutexPauseForGame,mutexOwnerId);
+	this->pauseForGame = pauseForGame;
+
+	for(unsigned int index = 0; index < preCacheWorkerThreadList.size(); ++index) {
+		FileCRCPreCacheThread *worker = preCacheWorkerThreadList[index];
+		if(worker != NULL) {
+			worker->setPauseForGame(this->pauseForGame);
+		}
+	}
+}
+
+bool FileCRCPreCacheThread::getPauseForGame() {
+	static string mutexOwnerId = CODE_AT_LINE;
+	MutexSafeWrapper safeMutex(&mutexPauseForGame,mutexOwnerId);
+	return this->pauseForGame;
 }
 
 bool FileCRCPreCacheThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
@@ -70,7 +91,6 @@ void FileCRCPreCacheThread::execute() {
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"FILE CRC PreCache thread is running threadControllerMode = %d\n",threadControllerMode);
 
         try	{
-        	std::vector<FileCRCPreCacheThread *> preCacheWorkerThreadList;
         	if(threadControllerMode == true) {
         		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("********************** CRC Controller thread START **********************\n");
         		time_t elapsedTime = time(NULL);
@@ -121,6 +141,8 @@ void FileCRCPreCacheThread::execute() {
 							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] workerIdx = %u, currentWorkerMax = %u, endConsumerIndex = %u\n",__FILE__,__FUNCTION__,__LINE__,workerIdx,currentWorkerMax,endConsumerIndex);
 
 							// Pause before launching this worker thread
+							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("About to process CRC for factions waiting...\n");
+
 							time_t pauseTime = time(NULL);
 							while(getQuitStatus() == false &&
 									difftime(time(NULL),pauseTime) <= PAUSE_SECONDS_BETWEEN_WORKERS) {
@@ -131,6 +153,7 @@ void FileCRCPreCacheThread::execute() {
 								break;
 							}
 
+							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Starting CRC for faction workers...\n");
 
 							FileCRCPreCacheThread *workerThread =
 									new FileCRCPreCacheThread(techDataPaths,
@@ -138,7 +161,12 @@ void FileCRCPreCacheThread::execute() {
 											this->processTechCB);
 							static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 							workerThread->setUniqueID(mutexOwnerId);
+							workerThread->setPauseForGame(this->getPauseForGame());
+							static string mutexOwnerId2 = CODE_AT_LINE;
+							MutexSafeWrapper safeMutexPause(&mutexPauseForGame,mutexOwnerId2);
 							preCacheWorkerThreadList.push_back(workerThread);
+							safeMutexPause.ReleaseLock();
+
 							workerThread->start();
 
 							consumedWorkers += currentWorkerMax;
@@ -181,16 +209,22 @@ void FileCRCPreCacheThread::execute() {
 										}
 									}
 									else if(workerThread->getRunningStatus() == false) {
-										sleep(10);
+										sleep(25);
+
+										static string mutexOwnerId2 = CODE_AT_LINE;
+										MutexSafeWrapper safeMutexPause(&mutexPauseForGame,mutexOwnerId2);
+
 										delete workerThread;
 										preCacheWorkerThreadList[idx] = NULL;
+
+										safeMutexPause.ReleaseLock();
 									}
 								}
 							}
 
 							if(	getQuitStatus() == false &&
 								hasRunningWorkerThread == true) {
-								sleep(10);
+								sleep(25);
 							}
 							else if(getQuitStatus() == true) {
 								for(unsigned int idx = 0; idx < preCacheWorkerThreadList.size(); idx++) {
@@ -216,6 +250,8 @@ void FileCRCPreCacheThread::execute() {
             }
         	else {
         		try {
+        			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\tStarting CRC for faction worker thread for techs: %d...\n",(int)workerThreadTechPaths.size());
+
 					for(unsigned int idx = 0; idx < workerThreadTechPaths.size(); idx++) {
 						string techName = this->workerThreadTechPaths[idx];
 						if(getQuitStatus() == true) {
@@ -238,6 +274,18 @@ void FileCRCPreCacheThread::execute() {
 
 						//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread running for tech [%s] ---------------------------\n",techName.c_str());
 						if(getQuitStatus() == false) {
+							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\t\tAbout to process CRC for techName [%s]\n",techName.c_str());
+
+							// Do not process CRC's while game in progress
+							if(getPauseForGame() == true) {
+								if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\t\tGame in progress so waiting to process CRC for techName [%s]\n",techName.c_str());
+								for(;getPauseForGame() == true &&
+								 	 getQuitStatus() == false;) {
+									sleep(25);
+								}
+							}
+							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\t\tStart Processing CRC for techName [%s]\n",techName.c_str());
+
 							int32 techCRC = getFolderTreeContentsCheckSumRecursively(techDataPaths, string("/") + techName + string("/*"), ".xml", NULL, true);
 
 							//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
@@ -253,10 +301,27 @@ void FileCRCPreCacheThread::execute() {
 								}
 							}
 
+							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\t\tStarting CRC for faction worker thread for results: %d...\n",(int)results.size());
 							if(results.empty() == true) {
-								for(unsigned int factionIdx = 0; factionIdx < results.size(); ++factionIdx) {
+								for(unsigned int factionIdx = 0;
+										factionIdx < results.size();
+										++factionIdx) {
 									string factionName = results[factionIdx];
+									if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\t\t\tAbout to process CRC for factionName [%s]\n",factionName.c_str());
+
+									// Do not process CRC's while game in progress
+									if(getPauseForGame() == true) {
+										if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\t\t\tGame in progress so waiting to process CRC for factionName [%s]\n",factionName.c_str());
+										for(;getPauseForGame() == true &&
+										 	 getQuitStatus() == false;) {
+											sleep(25);
+										}
+									}
+									if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\t\t\tStart Processing CRC for factionName [%s]\n",factionName.c_str());
+
 									int32 factionCRC   = getFolderTreeContentsCheckSumRecursively(techDataPaths, "/" + techName + "/factions/" + factionName + "/*", ".xml", NULL, true);
+
+									if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\t\t\tDone Processing CRC for factionName [%s]\n",factionName.c_str());
 								}
 							}
 

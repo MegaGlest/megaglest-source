@@ -26,6 +26,7 @@
 #include "menu_state_keysetup.h"
 #include "video_player.h"
 #include "compression_utils.h"
+#include "cache_manager.h"
 
 #include "leak_dumper.h"
 
@@ -375,6 +376,11 @@ void Game::endGame() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== END GAME ==== getCurrentPixelByteCount() = %llu\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"==== END GAME ====\n");
 
+	FileCRCPreCacheThread * &preCacheCRCThreadPtr = CacheManager::getCachedItem< FileCRCPreCacheThread * >(GameConstants::preCacheThreadCacheLookupKey);
+	if(preCacheCRCThreadPtr != NULL) {
+		preCacheCRCThreadPtr->setPauseForGame(false);
+	}
+
 	//this->program->reInitGl();
 	//renderer.reinitAll();
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -443,6 +449,11 @@ Game::~Game() {
 	Unit::setGame(NULL);
 
 	Lang::getInstance().setAllowNativeLanguageTechtree(true);
+
+	FileCRCPreCacheThread * &preCacheCRCThreadPtr = CacheManager::getCachedItem< FileCRCPreCacheThread * >(GameConstants::preCacheThreadCacheLookupKey);
+	if(preCacheCRCThreadPtr != NULL) {
+		preCacheCRCThreadPtr->setPauseForGame(false);
+	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== END GAME ==== getCurrentPixelByteCount() = %llu\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(long long unsigned int)renderer.getCurrentPixelByteCount());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"==== END GAME ====\n");
@@ -974,6 +985,11 @@ void Game::load(int loadTypes) {
 	if(showPerfStats) {
 		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
 		perfList.push_back(perfBuf);
+	}
+
+	FileCRCPreCacheThread * &preCacheCRCThreadPtr = CacheManager::getCachedItem< FileCRCPreCacheThread * >(GameConstants::preCacheThreadCacheLookupKey);
+	if(preCacheCRCThreadPtr != NULL) {
+		preCacheCRCThreadPtr->setPauseForGame(true);
 	}
 
 	std::map<string,vector<pair<string, string> > > loadedFileList;
