@@ -5292,6 +5292,7 @@ int glestMain(int argc, char** argv) {
 			static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 			vector<string> techDataPaths = config.getPathListForType(ptTechs);
 
+			FileCRCPreCacheThread::setPreCacheThreadCacheLookupKey(GameConstants::preCacheThreadCacheLookupKey);
 			FileCRCPreCacheThread * &preCacheCRCThreadPtr = CacheManager::getCachedItem< FileCRCPreCacheThread * >(GameConstants::preCacheThreadCacheLookupKey);
 			if(preCacheCRCThreadPtr == NULL) {
 				preCacheCRCThreadPtr = new FileCRCPreCacheThread();

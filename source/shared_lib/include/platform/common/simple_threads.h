@@ -47,6 +47,7 @@ protected:
 	Mutex mutexPendingTextureList;
 	vector<Texture2D *> pendingTextureList;
 
+	static string preCacheThreadCacheLookupKey;
 	Mutex mutexPauseForGame;
 	bool pauseForGame;
 	std::vector<FileCRCPreCacheThread *> preCacheWorkerThreadList;
@@ -57,6 +58,10 @@ protected:
 public:
 	FileCRCPreCacheThread();
 	FileCRCPreCacheThread(vector<string> techDataPaths,vector<string> workerThreadTechPaths,FileCRCPreCacheThreadCallbackInterface *processTechCB);
+	virtual ~FileCRCPreCacheThread();
+
+	static void setPreCacheThreadCacheLookupKey(string value) { preCacheThreadCacheLookupKey = value; }
+
     virtual void execute();
     void setTechDataPaths(vector<string> value) { this->techDataPaths = value; }
     void setWorkerThreadTechPaths(vector<string> value) { this->workerThreadTechPaths = value; }
