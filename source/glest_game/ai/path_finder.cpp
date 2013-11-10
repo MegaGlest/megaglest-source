@@ -51,8 +51,6 @@ PathFinder::PathFinder() {
 }
 
 int PathFinder::getPathFindExtendRefreshNodeCount(FactionState &faction, bool mutexLock) {
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-	MutexSafeWrapper safeMutex((mutexLock == true ? faction.getMutex() : NULL),mutexOwnerId);
 	int refreshNodeCount = faction.random.randRange(PathFinder::pathFindExtendRefreshNodeCountMin,PathFinder::pathFindExtendRefreshNodeCountMax);
 	return refreshNodeCount;
 }
@@ -66,9 +64,7 @@ PathFinder::PathFinder(const Map *map) {
 
 void PathFinder::init(const Map *map) {
 	for(int factionIndex = 0; factionIndex < GameConstants::maxPlayers; ++factionIndex) {
-		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 		FactionState &faction = factions.getFactionState(factionIndex);
-		MutexSafeWrapper safeMutex(faction.getMutex(),mutexOwnerId);
 
 		faction.nodePool.resize(pathFindNodesAbsoluteMax);
 		faction.useMaxNodeCount = PathFinder::pathFindNodesMax;
@@ -83,9 +79,7 @@ void PathFinder::init() {
 
 PathFinder::~PathFinder() {
 	for(int factionIndex = 0; factionIndex < GameConstants::maxPlayers; ++factionIndex) {
-		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 		FactionState &faction = factions.getFactionState(factionIndex);
-		MutexSafeWrapper safeMutex(faction.getMutex(),mutexOwnerId);
 
 		faction.nodePool.clear();
 	}
@@ -346,13 +340,9 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 					codeLocation = "25";
 
 					int factionIndex = unit->getFactionIndex();
-					static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 					FactionState &faction = factions.getFactionState(factionIndex);
-					MutexSafeWrapper safeMutex(faction.getMutex(),mutexOwnerId);
 
 					int tryRadius = faction.random.randRange(0,1);
-
-					safeMutex.ReleaseLock(true);
 
 					// Try to bail out up to PathFinder::pathFindBailoutRadius cells away
 					if(tryRadius > 0) {
@@ -567,9 +557,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		codeLocation = "3";
 
 		int factionIndex = unit->getFactionIndex();
-		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 		FactionState &faction = factions.getFactionState(factionIndex);
-		MutexSafeWrapper safeMutex(faction.getMutex(),mutexOwnerId);
 
 		maxNodeCount = faction.useMaxNodeCount;
 	}
@@ -583,16 +571,12 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	int unitFactionIndex = unit->getFactionIndex();
 
 	int factionIndex = unit->getFactionIndex();
-	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	FactionState &faction = factions.getFactionState(factionIndex);
-	MutexSafeWrapper safeMutex(faction.getMutex(),mutexOwnerId);
 
 	faction.nodePoolCount= 0;
 	faction.openNodesList.clear();
 	faction.openPosList.clear();
 	faction.closedNodesList.clear();
-
-	safeMutex.ReleaseLock(true);
 
 	codeLocation = "5";
 	// check the pre-cache to see if we can re-use a cached path
@@ -600,8 +584,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		codeLocation = "6";
 
 		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
-		MutexSafeWrapper safeMutex2(faction.getMutex(),mutexOwnerId);
-
 		MutexSafeWrapper safeMutexPrecache(faction.getMutexPreCache(),mutexOwnerId);
 		bool foundPrecacheTravelState = (faction.precachedTravelState.find(unit->getId()) != faction.precachedTravelState.end());
 		safeMutexPrecache.ReleaseLock(true);
@@ -625,19 +607,26 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 				Vec2i lastPos = unit->getPos();
 
-				for(int i=0; i < faction.precachedPath[unit->getId()].size(); i++) {
+				safeMutexPrecache.Lock();
+				int unitPrecachePathSize = faction.precachedPath[unit->getId()].size();
+				safeMutexPrecache.ReleaseLock(true);
+
+				for(int i=0; i < unitPrecachePathSize; i++) {
 					codeLocation = "9";
+
+					safeMutexPrecache.Lock();
 					Vec2i nodePos = faction.precachedPath[unit->getId()][i];
+					safeMutexPrecache.ReleaseLock(true);
+
 					if(map->isInside(nodePos) == false || map->isInsideSurface(map->toSurfCoords(nodePos)) == false) {
 						throw megaglest_runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
 					}
 
-					//if(i < pathFindRefresh ||
 					if(i < unit->getPathFindRefreshCellCount() ||
-						(faction.precachedPath[unit->getId()].size() >= pathFindExtendRefreshForNodeCount &&
+						(unitPrecachePathSize >= pathFindExtendRefreshForNodeCount &&
 						 i < getPathFindExtendRefreshNodeCount(faction,false))) {
 						codeLocation = "10";
-						//!!! Test MV
+
 						if(canUnitMoveSoon(unit, lastPos, nodePos) == false) {
 							canMoveToCells = false;
 							break;
@@ -655,16 +644,24 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 					path->clear();
 					UnitPathBasic *basicPathFinder = dynamic_cast<UnitPathBasic *>(path);
 
-					for(int i=0; i < faction.precachedPath[unit->getId()].size(); i++) {
+					safeMutexPrecache.Lock();
+					int unitPrecachePathSize = faction.precachedPath[unit->getId()].size();
+					safeMutexPrecache.ReleaseLock(true);
+
+					for(int i=0; i < unitPrecachePathSize; i++) {
 						codeLocation = "13";
+
+						safeMutexPrecache.Lock();
 						Vec2i nodePos = faction.precachedPath[unit->getId()][i];
+						safeMutexPrecache.ReleaseLock(true);
+
 						if(map->isInside(nodePos) == false || map->isInsideSurface(map->toSurfCoords(nodePos)) == false) {
 							throw megaglest_runtime_error("Pathfinder invalid node path position = " + nodePos.getString() + " i = " + intToStr(i));
 						}
 
 						//if(i < pathFindRefresh ||
 						if(i < unit->getPathFindRefreshCellCount() ||
-								(faction.precachedPath[unit->getId()].size() >= pathFindExtendRefreshForNodeCount &&
+								(unitPrecachePathSize >= pathFindExtendRefreshForNodeCount &&
 								 i < getPathFindExtendRefreshNodeCount(faction,false))) {
 							codeLocation = "14";
 							path->add(nodePos);
@@ -731,9 +728,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	codeLocation = "24";
 	float dist= unitPos.dist(finalPos);
 
-	safeMutex.Lock();
 	faction.useMaxNodeCount = PathFinder::pathFindNodesMax;
-	safeMutex.ReleaseLock(true);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -741,7 +736,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	codeLocation = "26";
 
 	//a) push starting pos into openNodes
-	safeMutex.Lock();
 	Node *firstNode= newNode(faction,maxNodeCount);
 	if(firstNode == NULL) {
 		throw megaglest_runtime_error("firstNode == NULL");
@@ -757,8 +751,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	}
 	faction.openNodesList[firstNode->heuristic].push_back(firstNode);
 	faction.openPosList[firstNode->pos] = true;
-
-	safeMutex.ReleaseLock(true);
 
 	codeLocation = "27";
 	//b) loop
@@ -919,7 +911,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	if(nodeLimitReached == true) {
 		codeLocation = "41";
 
-		safeMutex.Lock();
 		if(faction.closedNodesList.empty() == false) {
 			codeLocation = "42";
 			float bestHeuristic = faction.closedNodesList.begin()->first;
@@ -928,7 +919,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 				lastNode= faction.closedNodesList.begin()->second[0];
 			}
 		}
-		safeMutex.ReleaseLock(true);
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled == true && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1006,6 +996,11 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 		UnitPathBasic *basicPathFinder = dynamic_cast<UnitPathBasic *>(path);
 
 		currNode= firstNode;
+
+		static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+		MutexSafeWrapper safeMutexPreCache(faction.getMutexPreCache(),mutexOwnerId);
+		safeMutexPreCache.ReleaseLock(true);
+
 		for(int i=0; currNode->next != NULL; currNode= currNode->next, i++) {
 			codeLocation = "55";
 			Vec2i nodePos = currNode->next->pos;
@@ -1018,9 +1013,9 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			if(frameIndex >= 0) {
 				codeLocation = "56";
 
-				safeMutex.Lock();
+				safeMutexPreCache.Lock();
 				faction.precachedPath[unit->getId()].push_back(nodePos);
-				safeMutex.ReleaseLock();
+				safeMutexPreCache.ReleaseLock(true);
 			}
 			else {
 				codeLocation = "57";
@@ -1067,7 +1062,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 	codeLocation = "60";
 
-	safeMutex.Lock();
 	faction.openNodesList.clear();
 	faction.openPosList.clear();
 	faction.closedNodesList.clear();
@@ -1086,7 +1080,6 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 	else {
 		if(SystemFlags::VERBOSE_MODE_ENABLED && chrono.getMillis() >= 5) printf("In [%s::%s Line: %d] astar took [%lld] msecs, ts = %d.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(long long int)chrono.getMillis(),ts);
 	}
-	safeMutex.ReleaseLock();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true && frameIndex < 0) {
 		char szBuf[8096]="";
