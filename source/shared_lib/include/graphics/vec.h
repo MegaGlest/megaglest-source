@@ -63,16 +63,16 @@ inline T truncateDecimal(const T &value, int precision=6) {
 
 	// See if we can avoid using an int64 for speed
 // To avoid stupid VC++ compiler error: illegal token on right side of '::'
-#ifdef WIN32 
-#undef max
-#endif
-	static int MAX_INT_VALUE = numeric_limits<int>::max();
-	if((T)value * (T)precNum <= MAX_INT_VALUE) {
-		int resultInt = (int)((T)value * (T)precNum);
-		T result = (T)resultInt / precNum;
-		//printf("=======================\nvalue = %.10f\nresultInt: %d\nprecision: %d\nbecame: %.10f\n----------\n",value,resultInt,precision,result);
-		return result;
-	}
+//#ifdef WIN32
+//#undef max
+//#endif
+//	static int MAX_INT_VALUE = numeric_limits<int>::max();
+//	if((T)value * (T)precNum <= MAX_INT_VALUE) {
+//		int resultInt = (int)((T)value * (T)precNum);
+//		T result = (T)resultInt / precNum;
+//		//printf("=======================\nvalue = %.10f\nresultInt: %d\nprecision: %d\nbecame: %.10f\n----------\n",value,resultInt,precision,result);
+//		return result;
+//	}
 
 	// Must use an int64 since the result is large
 	int64 resultInt = (int64)((T)value * (T)precNum);
