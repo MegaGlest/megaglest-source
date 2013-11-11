@@ -54,9 +54,6 @@ World::World() {
 	ExploredCellsLookupItemCache.clear();
 	ExploredCellsLookupItemCacheTimer.clear();
 	ExploredCellsLookupItemCacheTimerCount = 0;
-	// Disable this cache as it takes too much RAM (not sure if its worth the performance gain)
-	//enableFowAlphaCellsLookupItemCache = config.getBool("EnableFowCache","true");
-	enableFowAlphaCellsLookupItemCache = true;
 
 	nextCommandGroupId = 0;
 	techTree = NULL;
@@ -2566,23 +2563,13 @@ void World::computeFow() {
 				faction->getTeam() == thisTeamIndex &&
 					unit->isOperative() == true) {
 
-				if(enableFowAlphaCellsLookupItemCache == true) {
-					const FowAlphaCellsLookupItem &cellList = unit->getCachedFow();
-					for(int cellIndex = 0; cellIndex < cellList.surfPosList.size(); ++cellIndex) {
-						const Vec2i &surfPos = cellList.surfPosList[cellIndex];
-						const float &alpha = cellList.alphaList[cellIndex];
+				const FowAlphaCellsLookupItem &cellList = unit->getCachedFow();
+				for(std::map<Vec2i,float>::const_iterator iterMap = cellList.surfPosAlphaList.begin();
+					iterMap != cellList.surfPosAlphaList.end(); ++iterMap) {
+					const Vec2i &surfPos = iterMap->first;
+					const float &alpha = iterMap->second;
 
-						minimap.incFowTextureAlphaSurface(surfPos, alpha, true);
-					}
-				}
-				else {
-					const FowAlphaCellsLookupItem cellList = unit->getFogOfWarRadius(false);
-					for(int cellIndex = 0; cellIndex < cellList.surfPosList.size(); ++cellIndex) {
-						const Vec2i &surfPos = cellList.surfPosList[cellIndex];
-						const float &alpha = cellList.alphaList[cellIndex];
-
-						minimap.incFowTextureAlphaSurface(surfPos, alpha, true);
-					}
+					minimap.incFowTextureAlphaSurface(surfPos, alpha, true);
 				}
 			}
 		}
@@ -2687,28 +2674,26 @@ string World::getExploredCellsLookupItemCacheStats() {
 string World::getFowAlphaCellsLookupItemCacheStats() {
 	string result = "";
 
-	int surfPosCount = 0;
-	int alphaListCount = 0;
+	int surfPosAlphaCount = 0;
 
-	for(int i=0; i<getFactionCount(); ++i) {
-		Faction *faction= getFaction(i);
+	for(int factionIndex = 0; factionIndex < getFactionCount(); ++factionIndex) {
+		Faction *faction= getFaction(factionIndex);
 		if(faction->getTeam() == thisTeamIndex) {
-			for(int j=0; j<faction->getUnitCount(); ++j) {
-				const Unit *unit= faction->getUnit(j);
+			for(int unitIndex = 0; unitIndex < faction->getUnitCount(); ++unitIndex) {
+				const Unit *unit= faction->getUnit(unitIndex);
 				const FowAlphaCellsLookupItem &cache = unit->getCachedFow();
 
-				surfPosCount += (int)cache.surfPosList.size();
-				alphaListCount += (int)cache.alphaList.size();
+				surfPosAlphaCount += (int)cache.surfPosAlphaList.size();
 			}
 		}
 	}
-	uint64 totalBytes = surfPosCount * sizeof(Vec2i);
-	totalBytes += alphaListCount * sizeof(float);
+	uint64 totalBytes = surfPosAlphaCount * sizeof(Vec2i);
+	totalBytes += surfPosAlphaCount * sizeof(float);
 
 	totalBytes /= 1000;
 
 	char szBuf[8096]="";
-	snprintf(szBuf,8096,"surface count [%d] alpha count [%d] total KB: %s",surfPosCount,alphaListCount,formatNumber(totalBytes).c_str());
+	snprintf(szBuf,8096,"surface count [%d] total KB: %s",surfPosAlphaCount,formatNumber(totalBytes).c_str());
 	result = szBuf;
 	return result;
 }

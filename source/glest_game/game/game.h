@@ -212,6 +212,7 @@ private:
 	bool quitGameCalled;
 	bool disableSpeedChange;
 
+	std::map<int,FowAlphaCellsLookupItem> teamFowAlphaCellsLookupItem;
 	std::map<string,int64> gamePerformanceCounts;
 
 public:

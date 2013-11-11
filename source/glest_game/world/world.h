@@ -84,9 +84,6 @@ private:
 	std::map<int,ExploredCellsLookupKey> ExploredCellsLookupItemCacheTimer;
 	int ExploredCellsLookupItemCacheTimerCount;
 
-	bool enableFowAlphaCellsLookupItemCache;
-	//std::map<Vec2i, std::map<int, FowAlphaCellsLookupItem > > FowAlphaCellsLookupItemCache;
-
 public:
 	static const int generationArea= 100;
 	static const int indirectSightRange= 5;
@@ -95,7 +92,6 @@ private:
 
 	Map map;
 	Tileset tileset;
-	//TechTree techTree;
 	TechTree *techTree;
 	TimeFlow timeFlow;
 	Scenario scenario;
@@ -115,7 +111,6 @@ private:
 	int thisFactionIndex;
 	int thisTeamIndex;
 	int frameCount;
-	//int nextUnitId;
 	Mutex mutexFactionNextUnitId;
 	std::map<int,int> mapFactionNextUnitId;
 

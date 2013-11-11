@@ -1278,18 +1278,15 @@ FowAlphaCellsLookupItem Unit::getFogOfWarRadius(bool useCache) const {
 		if(dist > sightRange) {
 			alpha= clamp(1.f-(dist - sightRange) / (World::indirectSightRange), 0.f, maxAlpha);
 		}
-		result.surfPosList.push_back(surfPos);
-		result.alphaList.push_back(alpha);
+		result.surfPosAlphaList[surfPos] = alpha;
 	}
 	return result;
 }
 
 void Unit::calculateFogOfWarRadius() {
 	if(game->getWorld()->getFogOfWar() == true) {
-		//if(Config::getInstance().getBool("EnableFowCache","true") == true && this->pos != this->cachedFowPos) {
 		if(this->pos != this->cachedFowPos) {
 			cachedFow = getFogOfWarRadius(false);
-
 			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 			MutexSafeWrapper safeMutex(mutexCommands,mutexOwnerId);
 			this->cachedFowPos = this->pos;
@@ -4160,8 +4157,7 @@ Vec2i Unit::getPos() {
 }
 
 void Unit::clearCaches() {
-	cachedFow.alphaList.clear();
-	cachedFow.surfPosList.clear();
+	cachedFow.surfPosAlphaList.clear();
 	cachedFowPos = Vec2i(0,0);
 
 	if(unitPath != NULL) {
