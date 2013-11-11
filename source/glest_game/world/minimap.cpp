@@ -137,14 +137,14 @@ Minimap::~Minimap() {
 void Minimap::incFowTextureAlphaSurface(const Vec2i &sPos, float alpha,
 		bool isIncrementalUpdate) {
 	if(fowPixmap1) {
-		assert(sPos.x<fowPixmap1->getW() && sPos.y<fowPixmap1->getH());
+		assert(sPos.x < fowPixmap1->getW() && sPos.y < fowPixmap1->getH());
 
-		if(fowPixmap1->getPixelf(sPos.x, sPos.y)<alpha){
+		if(fowPixmap1->getPixelf(sPos.x, sPos.y) < alpha){
 			fowPixmap1->setPixel(sPos.x, sPos.y, alpha);
 		}
 
 		if(fowPixmap1Copy != NULL && isIncrementalUpdate == true) {
-			if(fowPixmap1Copy->getPixelf(sPos.x, sPos.y)<alpha){
+			if(fowPixmap1Copy->getPixelf(sPos.x, sPos.y) < alpha){
 				fowPixmap1Copy->setPixel(sPos.x, sPos.y, alpha);
 			}
 		}

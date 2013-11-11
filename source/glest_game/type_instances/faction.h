@@ -54,10 +54,7 @@ class GameSettings;
 class FowAlphaCellsLookupItem {
 public:
 
-	std::vector<Vec2i> surfPosList;
-	std::vector<float> alphaList;
-
-	static time_t lastDebug;
+	std::map<Vec2i,float> surfPosAlphaList;
 };
 
 // =====================================================
