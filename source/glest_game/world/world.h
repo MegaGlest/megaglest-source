@@ -151,6 +151,9 @@ private:
 	bool animatedTilesetObjectPosListLoaded;
 	std::vector<Vec2i> animatedTilesetObjectPosList;
 
+	bool cacheFowAlphaTexture;
+	bool cacheFowAlphaTextureFogOfWarValue;
+
 public:
 	World();
 	~World();

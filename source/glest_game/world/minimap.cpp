@@ -34,8 +34,10 @@ const float Minimap::exploredAlpha= 0.5f;
 Minimap::Minimap() {
 	fowPixmap0= NULL;
 	fowPixmap1= NULL;
+	fowPixmap1_default=NULL;
 	fowPixmap0Copy = NULL;
 	fowPixmap1Copy = NULL;
+	fowPixmap1Copy_default = NULL;
 	fogOfWar= true;
 	gameSettings= NULL;
 	tex=NULL;
@@ -63,7 +65,9 @@ void Minimap::init(int w, int h, const World *world, bool fogOfWar) {
 		fowPixmap0 = new Pixmap2D(potW, potH, 1);
 		fowPixmap0Copy = new Pixmap2D(potW, potH, 1);
 		fowPixmap1 = new Pixmap2D(potW, potH, 1);
+		fowPixmap1_default = new Pixmap2D(potW, potH, 1);
 		fowPixmap1Copy = new Pixmap2D(potW, potH, 1);
+		fowPixmap1Copy_default = new Pixmap2D(potW, potH, 1);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -120,8 +124,12 @@ Minimap::~Minimap() {
 	fowPixmap0Copy = NULL;
 	delete fowPixmap1;
 	fowPixmap1=NULL;
+	delete fowPixmap1_default;
+	fowPixmap1_default = NULL;
 	delete fowPixmap1Copy;
 	fowPixmap1Copy=NULL;
+	delete fowPixmap1Copy_default;
+	fowPixmap1Copy_default = NULL;
 }
 
 // ==================== set ====================
@@ -141,6 +149,15 @@ void Minimap::incFowTextureAlphaSurface(const Vec2i &sPos, float alpha,
 			}
 		}
 	}
+}
+
+void Minimap::copyFowTexAlphaSurface() {
+	fowPixmap1_default->copy(fowPixmap1);
+	fowPixmap1Copy_default->copy(fowPixmap1Copy);
+}
+void Minimap::restoreFowTexAlphaSurface() {
+	fowPixmap1->copy(fowPixmap1_default);
+	fowPixmap1Copy->copy(fowPixmap1Copy_default);
 }
 
 void Minimap::setFogOfWar(bool value) {
