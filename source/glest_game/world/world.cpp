@@ -84,6 +84,8 @@ World::World() {
 	disableAttackEffects = false;
 
 	loadWorldNode = NULL;
+	cacheFowAlphaTexture = false;
+	cacheFowAlphaTextureFogOfWarValue = false;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -160,6 +162,8 @@ void World::endScenario() {
 	fogOfWarOverride = false;
 	originalGameFogOfWar = fogOfWar;
 	fogOfWarSkillTypeValue = -1;
+	cacheFowAlphaTexture = false;
+	cacheFowAlphaTextureFogOfWarValue = false;
 
 	map.end();
 
@@ -197,6 +201,8 @@ void World::end(){
 	fogOfWarSkillTypeValue = -1;
 
 	map.end();
+	cacheFowAlphaTexture = false;
+	cacheFowAlphaTextureFogOfWarValue = false;
 
 	//stats will be deleted by BattleEnd
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -2446,14 +2452,6 @@ bool World::showWorldForPlayer(int factionIndex, bool excludeFogOfWarCheck) cons
 void World::computeFow() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
 
-	//bool showPerfStats = Config::getInstance().getBool("ShowPerfStats","false");
-	//Chrono chronoPerf;
-	//char perfBuf[8096]="";
-	//std::vector<string> perfList;
-	//if(showPerfStats) chronoPerf.start();
-
-	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
-
 	Chrono chronoGamePerformanceCounts;
 	if(this->game) chronoGamePerformanceCounts.start();
 
@@ -2461,16 +2459,21 @@ void World::computeFow() {
 
 	if(this->game) this->game->addPerformanceCount("world minimap.resetFowTex",chronoGamePerformanceCounts.getMillis());
 
-//	if(showPerfStats) {
-//		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
-//		perfList.push_back(perfBuf);
-//	}
-
 	// reset cells
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
 
 	if(this->game) chronoGamePerformanceCounts.start();
 
+	// Once we have calculated fog of war texture alpha, they are cached so we
+	// restore the default texture in one shot for speed
+	if(cacheFowAlphaTexture == true) {
+		if(cacheFowAlphaTextureFogOfWarValue != fogOfWar) {
+			cacheFowAlphaTexture = false;
+		}
+		else {
+			minimap.restoreFowTexAlphaSurface();
+		}
+	}
 	int resetFowAlphaFactionCount = 0;
 	for(int indexFaction = 0;
 			indexFaction < GameConstants::maxPlayers + GameConstants::specialFactions;
@@ -2483,9 +2486,13 @@ void World::computeFow() {
 
 			for(int indexSurfaceW = 0; indexSurfaceW < map.getSurfaceW(); ++indexSurfaceW) {
 				for(int indexSurfaceH = 0; indexSurfaceH < map.getSurfaceH(); ++indexSurfaceH) {
+					// set all cells to not visible
 					map.getSurfaceCell(indexSurfaceW, indexSurfaceH)->setVisible(indexFaction, false);
 
-					if(showWorldForFaction == true && resetFowAlphaFactionCount <= 1) {
+					// reset fog of ware texture alpha values
+					if(cacheFowAlphaTexture == false &&
+						showWorldForFaction == true &&
+							resetFowAlphaFactionCount <= 1) {
 						const Vec2i surfPos(indexSurfaceW,indexSurfaceH);
 
 						//compute max alpha
@@ -2501,7 +2508,7 @@ void World::computeFow() {
 							maxAlpha= 0.3f;
 						}
 
-						//compute alpha
+						// compute alpha
 						float alpha = maxAlpha;
 						minimap.incFowTextureAlphaSurface(surfPos, alpha);
 					}
@@ -2511,13 +2518,17 @@ void World::computeFow() {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
 	}
 
+	// Once we have calculated fog of war texture alpha, will we cache it so that we
+	// can restore it later
+	if(cacheFowAlphaTexture == false) {
+		cacheFowAlphaTexture = true;
+		cacheFowAlphaTextureFogOfWarValue = fogOfWar;
+		minimap.copyFowTexAlphaSurface();
+	}
+
 	if(this->game) this->game->addPerformanceCount("world reset cells",chronoGamePerformanceCounts.getMillis());
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
-//	if(showPerfStats) {
-//		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
-//		perfList.push_back(perfBuf);
-//	}
 
 	//compute cells
 	if(this->game) chronoGamePerformanceCounts.start();
@@ -2575,17 +2586,6 @@ void World::computeFow() {
 	}
 
 	if(this->game) this->game->addPerformanceCount("world compute cells",chronoGamePerformanceCounts.getMillis());
-
-//	if(showPerfStats) {
-//		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
-//		perfList.push_back(perfBuf);
-//	}
-//
-//	if(showPerfStats && chronoPerf.getMillis() >= 50) {
-//		for(unsigned int x = 0; x < perfList.size(); ++x) {
-//			printf("%s",perfList[x].c_str());
-//		}
-//	}
 }
 
 GameSettings * World::getGameSettingsPtr() {

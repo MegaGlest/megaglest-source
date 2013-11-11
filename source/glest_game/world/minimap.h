@@ -50,8 +50,10 @@ class Minimap{
 private:
 	Pixmap2D *fowPixmap0;
 	Pixmap2D *fowPixmap1;
+	Pixmap2D *fowPixmap1_default;
 	Pixmap2D *fowPixmap0Copy;
 	Pixmap2D *fowPixmap1Copy;
+	Pixmap2D *fowPixmap1Copy_default;
 
 	Texture2D *tex;
 	Texture2D *fowTex;    //Fog Of War Texture2D
@@ -76,6 +78,9 @@ public:
 
 	void copyFowTex();
 	void restoreFowTex();
+
+	void copyFowTexAlphaSurface();
+	void restoreFowTexAlphaSurface();
 
 	void saveGame(XmlNode *rootNode);
 	void loadGame(const XmlNode *rootNode);
