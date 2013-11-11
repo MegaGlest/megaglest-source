@@ -171,6 +171,10 @@ private:
 
 	std::map<int,string> crcWorldFrameDetails;
 
+	std::map<int,const Unit *> aliveUnitList;
+	std::map<int,const Unit *> mobileUnitList;
+	std::map<int,const Unit *> beingBuiltUnitList;
+
 public:
 	Faction();
 	~Faction();
@@ -183,6 +187,11 @@ public:
 		init();
 		throw megaglest_runtime_error("class Faction is NOT safe to assign!");
 	}
+
+	void notifyUnitAliveStatusChange(const Unit *unit);
+	void notifyUnitTypeChange(const Unit *unit, const UnitType *newType);
+	void notifyUnitSkillTypeChange(const Unit *unit, const SkillType *newType);
+	bool hasAliveUnits(bool filterMobileUnits, bool filterBuiltUnits) const;
 
 	inline void addWorldSynchThreadedLogList(const string &data) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled == true) {

@@ -65,6 +65,9 @@ protected:
     int lastFps;
 
 public:
+
+    static const char *MAIN_PROGRAM_RENDER_KEY;
+
 	ProgramState(Program *program);
 	virtual ~ProgramState(){};
 
@@ -105,6 +108,7 @@ public:
 	virtual void consoleAddLine(string line) { };
 
 	virtual void reloadUI() {};
+	virtual void addPerformanceCount(string key,int64 value) {};
 
 protected:
 	virtual void incrementFps();

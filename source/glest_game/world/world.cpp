@@ -47,8 +47,6 @@ World::World() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Config &config= Config::getInstance();
 
-	//staggeredFactionUpdates = config.getBool("StaggeredFactionUpdates","false");
-	staggeredFactionUpdates = false;
 	unitParticlesEnabled=config.getBool("UnitParticles","true");
 
 	animatedTilesetObjectPosListLoaded = false;
@@ -762,42 +760,33 @@ void World::updateAllFactionUnits() {
 void World::underTakeDeadFactionUnits() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	int factionIdxToTick = -1;
-	if(staggeredFactionUpdates == true) {
-		factionIdxToTick = tickFactionIndex();
-		if(factionIdxToTick < 0) {
-			return;
-		}
-	}
-
 	int factionCount = getFactionCount();
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] factionIdxToTick = %d, factionCount = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdxToTick,factionCount);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] factionCount = %d\n",__FILE__,__FUNCTION__,__LINE__,factionCount);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//undertake the dead
 	for(int i = 0; i< factionCount; ++i) {
-		if(factionIdxToTick == -1 || factionIdxToTick == i) {
-			Faction *faction = getFaction(i);
-			int unitCount = faction->getUnitCount();
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] factionIdxToTick = %d, i = %d, unitCount = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdxToTick,i,unitCount);
+		Faction *faction = getFaction(i);
+		int unitCount = faction->getUnitCount();
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] i = %d, unitCount = %d\n",__FILE__,__FUNCTION__,__LINE__,i,unitCount);
 
-			for(int j= unitCount - 1; j >= 0; j--) {
-				Unit *unit= faction->getUnit(j);
+		for(int j= unitCount - 1; j >= 0; j--) {
+			Unit *unit= faction->getUnit(j);
 
-				if(unit == NULL) {
-					throw megaglest_runtime_error("unit == NULL");
-				}
-
-				if(unit->getToBeUndertaken() == true) {
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-					unit->undertake();
-					delete unit;
-
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				}
+			if(unit == NULL) {
+				throw megaglest_runtime_error("unit == NULL");
 			}
-		}
+
+			if(unit->getToBeUndertaken() == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+				unit->undertake();
+				delete unit;
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			}
+			}
+
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
@@ -860,7 +849,7 @@ void World::update() {
 
 	updateAllTilesetObjects();
 
-	if(this->game) this->game->addGamePerformanceCount("updateAllTilesetObjects",chronoGamePerformanceCounts.getMillis());
+	if(this->game) this->game->addPerformanceCount("updateAllTilesetObjects",chronoGamePerformanceCounts.getMillis());
 
 	if(showPerfStats) {
 		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
@@ -873,7 +862,7 @@ void World::update() {
 
 		updateAllFactionUnits();
 
-		if(this->game) this->game->addGamePerformanceCount("updateAllFactionUnits",chronoGamePerformanceCounts.getMillis());
+		if(this->game) this->game->addPerformanceCount("updateAllFactionUnits",chronoGamePerformanceCounts.getMillis());
 
 		if(showPerfStats) {
 			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
@@ -885,7 +874,7 @@ void World::update() {
 
 		underTakeDeadFactionUnits();
 
-		if(this->game) this->game->addGamePerformanceCount("underTakeDeadFactionUnits",chronoGamePerformanceCounts.getMillis());
+		if(this->game) this->game->addPerformanceCount("underTakeDeadFactionUnits",chronoGamePerformanceCounts.getMillis());
 
 		if(showPerfStats) {
 			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
@@ -899,7 +888,7 @@ void World::update() {
 
 		updateAllFactionConsumableCosts();
 
-		if(this->game) this->game->addGamePerformanceCount("updateAllFactionConsumableCosts",chronoGamePerformanceCounts.getMillis());
+		if(this->game) this->game->addPerformanceCount("updateAllFactionConsumableCosts",chronoGamePerformanceCounts.getMillis());
 
 		if(showPerfStats) {
 			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
@@ -914,7 +903,7 @@ void World::update() {
 			float fogFactor= static_cast<float>(frameCount % GameConstants::updateFps) / GameConstants::updateFps;
 			minimap.updateFowTex(clamp(fogFactor, 0.f, 1.f));
 
-			if(this->game) this->game->addGamePerformanceCount("minimap.updateFowTex",chronoGamePerformanceCounts.getMillis());
+			if(this->game) this->game->addPerformanceCount("minimap.updateFowTex",chronoGamePerformanceCounts.getMillis());
 		}
 
 		if(showPerfStats) {
@@ -939,7 +928,7 @@ void World::update() {
 
 			tick();
 
-			if(this->game) this->game->addGamePerformanceCount("tick",chronoGamePerformanceCounts.getMillis());
+			if(this->game) this->game->addPerformanceCount("world->tick",chronoGamePerformanceCounts.getMillis());
 		}
 
 		if(showPerfStats) {
@@ -959,10 +948,6 @@ void World::update() {
 bool World::canTickWorld() const {
 	//tick
 	bool needToTick = (frameCount % GameConstants::updateFps == 0);
-	if(staggeredFactionUpdates == true) {
-		needToTick = (frameCount % (GameConstants::updateFps / GameConstants::maxPlayers) == 0);
-	}
-
 	return needToTick;
 }
 
@@ -979,20 +964,6 @@ bool World::canTickFaction(int factionIdx) {
 	return result;
 }
 
-int World::tickFactionIndex() {
-	int factionIdxToTick = -1;
-	for(int i=0; i<getFactionCount(); ++i) {
-		if(canTickFaction(i) == true) {
-			factionIdxToTick = i;
-			break;
-		}
-	}
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] factionIdxToTick = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdxToTick);
-
-	return factionIdxToTick;
-}
-
 void World::tick() {
 	bool showPerfStats = Config::getInstance().getBool("ShowPerfStats","false");
 	Chrono chronoPerf;
@@ -1000,30 +971,29 @@ void World::tick() {
 	std::vector<string> perfList;
 	if(showPerfStats) chronoPerf.start();
 
-	int factionIdxToTick = -1;
-	if(staggeredFactionUpdates == true) {
-		factionIdxToTick = tickFactionIndex();
-		if(factionIdxToTick < 0) {
-			return;
-		}
-	}
-
 	if(showPerfStats) {
 		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
 		perfList.push_back(perfBuf);
 	}
 
-	computeFow(factionIdxToTick);
+	Chrono chronoGamePerformanceCounts;
+	if(this->game) chronoGamePerformanceCounts.start();
+
+	computeFow();
+
+	if(this->game) this->game->addPerformanceCount("world->computeFow",chronoGamePerformanceCounts.getMillis());
 
 	if(showPerfStats) {
 		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER " fogOfWar: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis(),fogOfWar);
 		perfList.push_back(perfBuf);
 	}
 
-	if(factionIdxToTick == -1 || factionIdxToTick == 0) {
-		if(fogOfWarSmoothing == false) {
-			minimap.updateFowTex(1.f);
-		}
+	if(fogOfWarSmoothing == false) {
+		if(this->game) chronoGamePerformanceCounts.start();
+
+		minimap.updateFowTex(1.f);
+
+		if(this->game) this->game->addPerformanceCount("minimap.updateFowTex",chronoGamePerformanceCounts.getMillis());
 	}
 
 	if(showPerfStats) {
@@ -1032,22 +1002,23 @@ void World::tick() {
 	}
 
 	//increase hp
+	if(this->game) chronoGamePerformanceCounts.start();
+
 	int factionCount = getFactionCount();
-	for(int i = 0; i < factionCount; ++i) {
-		if(factionIdxToTick == -1 || i == factionIdxToTick) {
-			Faction *faction = getFaction(i);
-			int unitCount = faction->getUnitCount();
+	for(int factionIndex = 0; factionIndex < factionCount; ++factionIndex) {
+		Faction *faction = getFaction(factionIndex);
+		int unitCount = faction->getUnitCount();
 
-			for(int j = 0; j < unitCount; ++j) {
-				Unit *unit = faction->getUnit(j);
-				if(unit == NULL) {
-					throw megaglest_runtime_error("unit == NULL");
-				}
-
-				unit->tick();
+		for(int unitIndex = 0; unitIndex < unitCount; ++unitIndex) {
+			Unit *unit = faction->getUnit(unitIndex);
+			if(unit == NULL) {
+				throw megaglest_runtime_error("unit == NULL");
 			}
+
+			unit->tick();
 		}
 	}
+	if(this->game) this->game->addPerformanceCount("world unit->tick()",chronoGamePerformanceCounts.getMillis());
 
 	if(showPerfStats) {
 		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
@@ -1055,34 +1026,48 @@ void World::tick() {
 	}
 
 	//compute resources balance
+	if(this->game) chronoGamePerformanceCounts.start();
+
+	std::map<const UnitType *, std::map<const ResourceType *, const Resource *> > resourceCostCache;
 	factionCount = getFactionCount();
-	for(int k = 0; k < factionCount; ++k) {
-		if(factionIdxToTick == -1 || k == factionIdxToTick) {
-			Faction *faction= getFaction(k);
+	for(int factionIndex = 0; factionIndex < factionCount; ++factionIndex) {
+		Faction *faction = getFaction(factionIndex);
 
-			//for each resource
-			for(int i = 0; i < techTree->getResourceTypeCount(); ++i) {
-				const ResourceType *rt= techTree->getResourceType(i);
+		//for each resource
+		for(int resourceTypeIndex = 0;
+				resourceTypeIndex < techTree->getResourceTypeCount(); ++resourceTypeIndex) {
+			const ResourceType *rt= techTree->getResourceType(resourceTypeIndex);
 
-				//if consumable
-				if(rt != NULL && rt->getClass()==rcConsumable) {
-					int balance= 0;
-					for(int j = 0; j < faction->getUnitCount(); ++j) {
+			//if consumable
+			if(rt != NULL && rt->getClass() == rcConsumable) {
+				int balance= 0;
+				for(int unitIndex = 0;
+						unitIndex < faction->getUnitCount(); ++unitIndex) {
 
-						//if unit operative and has this cost
-						const Unit *u=  faction->getUnit(j);
-						if(u != NULL && u->isOperative()) {
-							const Resource *r= u->getType()->getCost(rt);
-							if(r != NULL) {
-								balance -= u->getType()->getCost(rt)->getAmount();
-							}
+					//if unit operative and has this cost
+					const Unit *unit = faction->getUnit(unitIndex);
+					if(unit != NULL && unit->isOperative()) {
+						const UnitType *ut = unit->getType();
+						const Resource *resource = NULL;
+						std::map<const UnitType *, std::map<const ResourceType *, const Resource *> >::iterator iterFind = resourceCostCache.find(ut);
+						if(iterFind != resourceCostCache.end() &&
+								iterFind->second.find(rt) != iterFind->second.end()) {
+							resource = iterFind->second.find(rt)->second;
+						}
+						else {
+							resource = ut->getCost(rt);
+							resourceCostCache[ut][rt] = resource;
+						}
+						if(resource != NULL) {
+							balance -= resource->getAmount();
 						}
 					}
-					faction->setResourceBalance(rt, balance);
 				}
+				faction->setResourceBalance(rt, balance);
 			}
 		}
 	}
+	if(this->game) this->game->addPerformanceCount("world faction->setResourceBalance()",chronoGamePerformanceCounts.getMillis());
 
 	if(showPerfStats) {
 		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
@@ -2093,8 +2078,6 @@ void World::initFactionTypes(GameSettings *gs) {
 	//
 	//	bool unitParticlesEnabled;
 		unitParticlesEnabled = loadWorldNode->getAttribute("unitParticlesEnabled")->getIntValue() != 0;
-	//	bool staggeredFactionUpdates;
-		staggeredFactionUpdates = loadWorldNode->getAttribute("staggeredFactionUpdates")->getIntValue() != 0;
 	//	std::map<string,StaticSound *> staticSoundList;
 	//	std::map<string,StrSound *> streamSoundList;
 	//
@@ -2414,7 +2397,8 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
 bool World::showWorldForPlayer(int factionIndex, bool excludeFogOfWarCheck) const {
     bool ret = false;
 
-	if(excludeFogOfWarCheck == false && fogOfWarSkillTypeValue == 0 && fogOfWarOverride == true) {
+	if(excludeFogOfWarCheck == false &&
+		fogOfWarSkillTypeValue == 0 && fogOfWarOverride == true) {
 		ret = true;
 	}
 	else if(factionIndex == thisFactionIndex && game != NULL) {
@@ -2439,13 +2423,18 @@ bool World::showWorldForPlayer(int factionIndex, bool excludeFogOfWarCheck) cons
             if(getStats()->getVictory(factionIndex) == false) {
                 // If the player has at least 1 Unit alive that is mobile (can move)
                 // then we cannot turn off fog of war
-                for(int i = 0; i < getFaction(factionIndex)->getUnitCount(); ++i) {
-                    Unit *unit = getFaction(factionIndex)->getUnit(i);
-                    if(unit != NULL && unit->isAlive() && unit->getType()->isMobile() == true) {
-                        ret = false;
-                        break;
-                    }
-                }
+
+            	const Faction *faction = getFaction(factionIndex);
+//                for(int i = 0; i < faction->getUnitCount(); ++i) {
+//                    Unit *unit = getFaction(factionIndex)->getUnit(i);
+//                    if(unit != NULL && unit->isAlive() && unit->getType()->isMobile() == true) {
+//                        ret = false;
+//                        break;
+//                    }
+//                }
+            	if(faction->hasAliveUnits(true,false) == true) {
+            		ret = false;
+            	}
             }
         }
     }
@@ -2454,94 +2443,67 @@ bool World::showWorldForPlayer(int factionIndex, bool excludeFogOfWarCheck) cons
 }
 
 //computes the fog of war texture, contained in the minimap
-void World::computeFow(int factionIdxToTick) {
+void World::computeFow() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
 
-	bool showPerfStats = Config::getInstance().getBool("ShowPerfStats","false");
-	Chrono chronoPerf;
-	char perfBuf[8096]="";
-	std::vector<string> perfList;
-	if(showPerfStats) chronoPerf.start();
+	//bool showPerfStats = Config::getInstance().getBool("ShowPerfStats","false");
+	//Chrono chronoPerf;
+	//char perfBuf[8096]="";
+	//std::vector<string> perfList;
+	//if(showPerfStats) chronoPerf.start();
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
+	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
+
+	Chrono chronoGamePerformanceCounts;
+	if(this->game) chronoGamePerformanceCounts.start();
 
 	minimap.resetFowTex();
 
-	if(showPerfStats) {
-		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
-		perfList.push_back(perfBuf);
-	}
+	if(this->game) this->game->addPerformanceCount("world minimap.resetFowTex",chronoGamePerformanceCounts.getMillis());
 
+//	if(showPerfStats) {
+//		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+//		perfList.push_back(perfBuf);
+//	}
+
+	// reset cells
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
-	//reset cells
-	if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
-		for(int i = 0; i < map.getSurfaceW(); ++i) {
-			for(int j = 0; j < map.getSurfaceH(); ++j) {
-				for(int k = 0; k < GameConstants::maxPlayers + GameConstants::specialFactions; ++k) {
-					if(fogOfWar || k != thisTeamIndex) {
-						map.getSurfaceCell(i, j)->setVisible(k, false);
-						if(showWorldForPlayer(k) == true) {
-							const Vec2i pos(i,j);
-							Vec2i surfPos= pos;
 
-							//compute max alpha
-							float maxAlpha= 0.0f;
-							if(surfPos.x > 1 && surfPos.y > 1 &&
-                               surfPos.x < map.getSurfaceW() - 2 &&
-                               surfPos.y < map.getSurfaceH() - 2) {
-								maxAlpha= 1.f;
-							}
-							else if(surfPos.x > 0 && surfPos.y > 0 &&
-                                    surfPos.x < map.getSurfaceW() - 1 &&
-                                    surfPos.y < map.getSurfaceH() - 1){
-								maxAlpha= 0.3f;
-							}
+	if(this->game) chronoGamePerformanceCounts.start();
 
-							//compute alpha
-							float alpha=maxAlpha;
-							minimap.incFowTextureAlphaSurface(surfPos, alpha);
-						}
-						//else {
-						//	map.getSurfaceCell(i, j)->setVisible(k, false);
-						//}
-					}
-				}
+	int resetFowAlphaFactionCount = 0;
+	for(int indexFaction = 0;
+			indexFaction < GameConstants::maxPlayers + GameConstants::specialFactions;
+			++indexFaction) {
+		if(fogOfWar || indexFaction != thisTeamIndex) {
+			bool showWorldForFaction = showWorldForPlayer(indexFaction);
+			if(showWorldForFaction == true) {
+				resetFowAlphaFactionCount++;
 			}
-		}
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
-	}
-	else {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
-		// Deal with observers
-		for(int i = 0; i < map.getSurfaceW(); ++i) {
-			for(int j = 0; j < map.getSurfaceH(); ++j) {
-				for(int k = 0; k < GameConstants::maxPlayers + GameConstants::specialFactions; ++k) {
-					if(fogOfWar || k != thisTeamIndex) {
-						if(k == thisTeamIndex && thisTeamIndex == GameConstants::maxPlayers -1 + fpt_Observer) {
-							//map.getSurfaceCell(i, j)->setVisible(k, true);
-							//map.getSurfaceCell(i, j)->setExplored(k, true);
 
-							const Vec2i pos(i,j);
-							Vec2i surfPos= pos;
+			for(int indexSurfaceW = 0; indexSurfaceW < map.getSurfaceW(); ++indexSurfaceW) {
+				for(int indexSurfaceH = 0; indexSurfaceH < map.getSurfaceH(); ++indexSurfaceH) {
+					map.getSurfaceCell(indexSurfaceW, indexSurfaceH)->setVisible(indexFaction, false);
 
-							//compute max alpha
-							float maxAlpha= 0.0f;
-							if(surfPos.x > 1 && surfPos.y > 1 &&
-                               surfPos.x < map.getSurfaceW() - 2 &&
-                               surfPos.y < map.getSurfaceH() - 2) {
-								maxAlpha= 1.f;
-							}
-							else if(surfPos.x > 0 && surfPos.y > 0 &&
-                                    surfPos.x < map.getSurfaceW() - 1 &&
-                                    surfPos.y < map.getSurfaceH() - 1){
-								maxAlpha= 0.3f;
-							}
+					if(showWorldForFaction == true && resetFowAlphaFactionCount <= 1) {
+						const Vec2i surfPos(indexSurfaceW,indexSurfaceH);
 
-							//compute alpha
-							float alpha=maxAlpha;
-							minimap.incFowTextureAlphaSurface(surfPos, alpha);
+						//compute max alpha
+						float maxAlpha= 0.0f;
+						if(surfPos.x > 1 && surfPos.y > 1 &&
+						   surfPos.x < map.getSurfaceW() - 2 &&
+						   surfPos.y < map.getSurfaceH() - 2) {
+							maxAlpha= 1.f;
 						}
+						else if(surfPos.x > 0 && surfPos.y > 0 &&
+								surfPos.x < map.getSurfaceW() - 1 &&
+								surfPos.y < map.getSurfaceH() - 1){
+							maxAlpha= 0.3f;
+						}
+
+						//compute alpha
+						float alpha = maxAlpha;
+						minimap.incFowTextureAlphaSurface(surfPos, alpha);
 					}
 				}
 			}
@@ -2549,103 +2511,81 @@ void World::computeFow(int factionIdxToTick) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
 	}
 
+	if(this->game) this->game->addPerformanceCount("world reset cells",chronoGamePerformanceCounts.getMillis());
+
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s] Line: %d in frame: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,getFrameCount());
-	if(showPerfStats) {
-		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
-		perfList.push_back(perfBuf);
-	}
+//	if(showPerfStats) {
+//		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+//		perfList.push_back(perfBuf);
+//	}
 
 	//compute cells
-	for(int i=0; i<getFactionCount(); ++i) {
-		if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
-			for(int j=0; j<getFaction(i)->getUnitCount(); ++j) {
-				Unit *unit= getFaction(i)->getUnit(j);
+	if(this->game) chronoGamePerformanceCounts.start();
 
-				//exploration
-				unit->exploreCells();
-			}
-		}
-	}
+	for(int factionIndex = 0; factionIndex < getFactionCount(); ++factionIndex) {
+		Faction *faction = getFaction(factionIndex);
+		bool cellVisibleForFaction = showWorldForPlayer(thisFactionIndex);
+		int unitCount = faction->getUnitCount();
+		for(int unitIndex = 0; unitIndex < unitCount; ++unitIndex) {
+			Unit *unit= faction->getUnit(unitIndex);
 
-	if(showPerfStats) {
-		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
-		perfList.push_back(perfBuf);
-	}
+			// exploration
+			unit->exploreCells();
 
-	//fire
-	for(int i=0; i<getFactionCount(); ++i) {
-		if(factionIdxToTick == -1 || factionIdxToTick == this->thisFactionIndex) {
-			bool cellVisibleForFaction = showWorldForPlayer(thisFactionIndex);
-			for(int j=0; j<getFaction(i)->getUnitCount(); ++j){
-				Unit *unit= getFaction(i)->getUnit(j);
-
-				//fire
-				ParticleSystem *fire= unit->getFire();
-				if(fire != NULL) {
-					bool cellVisible = cellVisibleForFaction;
-				    if(cellVisible == false) {
-						Vec2i sCoords = Map::toSurfCoords(unit->getPos());
-						SurfaceCell *sc = map.getSurfaceCell(sCoords);
-						if(sc != NULL) {
-							cellVisible = sc->isVisible(thisTeamIndex);
-						}
-				    }
-
-					fire->setActive(cellVisible);
+			// fire particle visible
+			ParticleSystem *fire = unit->getFire();
+			if(fire != NULL) {
+				bool cellVisible = cellVisibleForFaction;
+				if(cellVisible == false) {
+					Vec2i sCoords = Map::toSurfCoords(unit->getPos());
+					SurfaceCell *sc = map.getSurfaceCell(sCoords);
+					if(sc != NULL) {
+						cellVisible = sc->isVisible(thisTeamIndex);
+					}
 				}
+
+				fire->setActive(cellVisible);
 			}
-		}
-	}
 
-	if(showPerfStats) {
-		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
-		perfList.push_back(perfBuf);
-	}
+			// compute fog of war render texture
+			if(fogOfWar == true &&
+				faction->getTeam() == thisTeamIndex &&
+					unit->isOperative() == true) {
 
-	//compute texture
-	if(fogOfWar == true) {
-		for(int i=0; i<getFactionCount(); ++i) {
-			Faction *faction= getFaction(i);
-			if(faction->getTeam() == thisTeamIndex) {
-				for(int j=0; j<faction->getUnitCount(); ++j){
-					const Unit *unit= faction->getUnit(j);
-					if(unit->isOperative()){
-						//int sightRange= unit->getType()->getSight();
+				if(enableFowAlphaCellsLookupItemCache == true) {
+					const FowAlphaCellsLookupItem &cellList = unit->getCachedFow();
+					for(int cellIndex = 0; cellIndex < cellList.surfPosList.size(); ++cellIndex) {
+						const Vec2i &surfPos = cellList.surfPosList[cellIndex];
+						const float &alpha = cellList.alphaList[cellIndex];
 
-						if(enableFowAlphaCellsLookupItemCache == true) {
-							const FowAlphaCellsLookupItem &cellList = unit->getCachedFow();
-							for(int k = 0; k < cellList.surfPosList.size(); ++k) {
-								const Vec2i &surfPos = cellList.surfPosList[k];
-								const float &alpha = cellList.alphaList[k];
+						minimap.incFowTextureAlphaSurface(surfPos, alpha, true);
+					}
+				}
+				else {
+					const FowAlphaCellsLookupItem cellList = unit->getFogOfWarRadius(false);
+					for(int cellIndex = 0; cellIndex < cellList.surfPosList.size(); ++cellIndex) {
+						const Vec2i &surfPos = cellList.surfPosList[cellIndex];
+						const float &alpha = cellList.alphaList[cellIndex];
 
-								minimap.incFowTextureAlphaSurface(surfPos, alpha, true);
-							}
-						}
-						else {
-							const FowAlphaCellsLookupItem cellList = unit->getFogOfWarRadius(false);
-							for(int k = 0; k < cellList.surfPosList.size(); ++k) {
-								const Vec2i &surfPos = cellList.surfPosList[k];
-								const float &alpha = cellList.alphaList[k];
-
-								minimap.incFowTextureAlphaSurface(surfPos, alpha, true);
-							}
-						}
+						minimap.incFowTextureAlphaSurface(surfPos, alpha, true);
 					}
 				}
 			}
 		}
 	}
 
-	if(showPerfStats) {
-		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
-		perfList.push_back(perfBuf);
-	}
+	if(this->game) this->game->addPerformanceCount("world compute cells",chronoGamePerformanceCounts.getMillis());
 
-	if(showPerfStats && chronoPerf.getMillis() >= 50) {
-		for(unsigned int x = 0; x < perfList.size(); ++x) {
-			printf("%s",perfList[x].c_str());
-		}
-	}
+//	if(showPerfStats) {
+//		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+//		perfList.push_back(perfBuf);
+//	}
+//
+//	if(showPerfStats && chronoPerf.getMillis() >= 50) {
+//		for(unsigned int x = 0; x < perfList.size(); ++x) {
+//			printf("%s",perfList[x].c_str());
+//		}
+//	}
 }
 
 GameSettings * World::getGameSettingsPtr() {
@@ -2945,8 +2885,6 @@ void World::saveGame(XmlNode *rootNode) {
 //
 //	bool unitParticlesEnabled;
 	worldNode->addAttribute("unitParticlesEnabled",intToStr(unitParticlesEnabled), mapTagReplacements);
-//	bool staggeredFactionUpdates;
-	worldNode->addAttribute("staggeredFactionUpdates",intToStr(staggeredFactionUpdates), mapTagReplacements);
 //	std::map<string,StaticSound *> staticSoundList;
 //	std::map<string,StrSound *> streamSoundList;
 //

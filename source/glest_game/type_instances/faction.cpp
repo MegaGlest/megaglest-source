@@ -558,6 +558,64 @@ void Faction::end() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void Faction::notifyUnitAliveStatusChange(const Unit *unit) {
+	if(unit != NULL) {
+		if(unit->isAlive() == true) {
+			aliveUnitList[unit->getId()] = unit;
+
+			if(unit->getType()->isMobile() == true) {
+				mobileUnitList[unit->getId()] = unit;
+			}
+		}
+		else {
+			aliveUnitList.erase(unit->getId());
+
+			if(unit->getType()->isMobile() == true) {
+				mobileUnitList.erase(unit->getId());
+			}
+		}
+	}
+}
+
+void Faction::notifyUnitTypeChange(const Unit *unit, const UnitType *newType) {
+	if(unit != NULL) {
+		if(unit->getType()->isMobile() == true) {
+			mobileUnitList.erase(unit->getId());
+		}
+
+		if(newType != NULL && newType->isMobile() == true) {
+			mobileUnitList[unit->getId()] = unit;
+		}
+	}
+}
+
+void Faction::notifyUnitSkillTypeChange(const Unit *unit, const SkillType *newType) {
+	if(unit != NULL) {
+		if(unit->isBeingBuilt() == true) {
+			beingBuiltUnitList.erase(unit->getId());
+		}
+		if(newType != NULL && newType->getClass() == scBeBuilt) {
+			beingBuiltUnitList[unit->getId()] = unit;
+		}
+	}
+}
+
+bool Faction::hasAliveUnits(bool filterMobileUnits, bool filterBuiltUnits) const {
+	bool result = false;
+	if(aliveUnitList.empty() == false) {
+		if(filterMobileUnits == true) {
+			result = (mobileUnitList.empty() == false);
+		}
+		else {
+			result = true;
+		}
+
+		if(result == true && filterBuiltUnits == true) {
+			result = (beingBuiltUnitList.empty() == true);
+		}
+	}
+	return result;
+}
 
 FactionPersonalityType Faction::getPersonalityType() const {
 	if(overridePersonalityType != fpt_EndCount) {

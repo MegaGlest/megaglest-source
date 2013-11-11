@@ -45,6 +45,7 @@ Program *Program::singleton = NULL;
 const int SOUND_THREAD_UPDATE_MILLISECONDS = 25;
 
 bool Program::wantShutdownApplicationAfterGame = false;
+const char *ProgramState::MAIN_PROGRAM_RENDER_KEY = "MEGAGLEST.RENDER";
 
 // =====================================================
 // 	class Program::CrashProgramState
@@ -386,6 +387,8 @@ void Program::loopWorker() {
 		}
 	}
 
+	Chrono chronoPerformanceCounts;
+
 	bool showPerfStats = Config::getInstance().getBool("ShowPerfStats","false");
 	Chrono chronoPerf;
 	char perfBuf[8096]="";
@@ -422,7 +425,12 @@ void Program::loopWorker() {
 	}
 
     assert(programState != NULL);
+
+    chronoPerformanceCounts.start();
+
     programState->render();
+
+    programState->addPerformanceCount(ProgramState::MAIN_PROGRAM_RENDER_KEY,chronoPerformanceCounts.getMillis());
 
 	if(showPerfStats) {
 		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
@@ -434,9 +442,14 @@ void Program::loopWorker() {
 
 	//update camera
     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
-	while(updateCameraTimer.isTime()){
+
+    chronoPerformanceCounts.start();
+
+    while(updateCameraTimer.isTime()) {
 		programState->updateCamera();
 	}
+
+    programState->addPerformanceCount("programState->updateCamera()",chronoPerformanceCounts.getMillis());
 
 	if(showPerfStats) {
 		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
@@ -459,6 +472,7 @@ void Program::loopWorker() {
 
 		GraphicComponent::update();
 		programState->update();
+
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chronoUpdateLoop.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] programState->update took msecs: %lld, updateCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoUpdateLoop.getMillis(),updateCount);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chronoUpdateLoop.getMillis() > 0) chronoUpdateLoop.start();
 
@@ -468,6 +482,8 @@ void Program::loopWorker() {
 		}
 
 		if(prevState == this->programState) {
+			chronoPerformanceCounts.start();
+
 			if(soundThreadManager == NULL || soundThreadManager->isThreadExecutionLagging()) {
 				if(soundThreadManager != NULL) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] ERROR / WARNING soundThreadManager->isThreadExecutionLagging is TRUE\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -478,12 +494,19 @@ void Program::loopWorker() {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chronoUpdateLoop.getMillis() > 0) chronoUpdateLoop.start();
 			}
 
+			programState->addPerformanceCount("SoundRenderer::getInstance().update()",chronoPerformanceCounts.getMillis());
+
 			if(showPerfStats) {
 				sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER " updateCount: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis(),updateCount);
 				perfList.push_back(perfBuf);
 			}
 
+			chronoPerformanceCounts.start();
+
 			NetworkManager::getInstance().update();
+
+			programState->addPerformanceCount("NetworkManager::getInstance().update()",chronoPerformanceCounts.getMillis());
+
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chronoUpdateLoop.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] NetworkManager::getInstance().update() took msecs: %lld, updateCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoUpdateLoop.getMillis(),updateCount);
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chronoUpdateLoop.getMillis() > 0) chronoUpdateLoop.start();
 
@@ -507,10 +530,14 @@ void Program::loopWorker() {
 
 	if(prevState == this->programState) {
 		//fps timer
+		chronoPerformanceCounts.start();
+
 		chrono.start();
 		while(fpsTimer.isTime()) {
 			programState->tick();
 		}
+
+		programState->addPerformanceCount("programState->tick()",chronoPerformanceCounts.getMillis());
 
 		if(showPerfStats) {
 			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());

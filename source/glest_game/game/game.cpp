@@ -1959,7 +1959,7 @@ void Game::update() {
 			}
 		}
 
-		addGamePerformanceCount("CalculateNetworkUpdateLoops",chronoGamePerformanceCounts.getMillis());
+		addPerformanceCount("CalculateNetworkUpdateLoops",chronoGamePerformanceCounts.getMillis());
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		if(showPerfStats) {
@@ -1981,7 +1981,7 @@ void Game::update() {
 
 		ReplaceDisconnectedNetworkPlayersWithAI(isNetworkGame, role);
 
-		addGamePerformanceCount("ReplaceDisconnectedNetworkPlayersWithAI",chronoGamePerformanceCounts.getMillis());
+		addPerformanceCount("ReplaceDisconnectedNetworkPlayersWithAI",chronoGamePerformanceCounts.getMillis());
 
 		setupPopupMenus(true);
 
@@ -2021,7 +2021,7 @@ void Game::update() {
 
 						processNetworkSynchChecksIfRequired();
 
-						addGamePerformanceCount("CalculateNetworkCRCSynchChecks",chronoGamePerformanceCounts.getMillis());
+						addPerformanceCount("CalculateNetworkCRCSynchChecks",chronoGamePerformanceCounts.getMillis());
 
 						const bool newThreadManager = Config::getInstance().getBool("EnableNewThreadManager","false");
 						if(newThreadManager == true) {
@@ -2085,7 +2085,7 @@ void Game::update() {
 								}
 							}
 
-							addGamePerformanceCount("ProcessAIWorkerThreads",chronoGamePerformanceCounts.getMillis());
+							addPerformanceCount("ProcessAIWorkerThreads",chronoGamePerformanceCounts.getMillis());
 						}
 
 						if(showPerfStats) {
@@ -2150,7 +2150,7 @@ void Game::update() {
 
 					if(pendingQuitError == false) world.update();
 
-					addGamePerformanceCount("ProcessWorldUpdate",chronoGamePerformanceCounts.getMillis());
+					addPerformanceCount("ProcessWorldUpdate",chronoGamePerformanceCounts.getMillis());
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [world update i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
@@ -2191,7 +2191,7 @@ void Game::update() {
 
 					if(pendingQuitError == false) commander.signalNetworkUpdate(this);
 
-					addGamePerformanceCount("ProcessNetworkUpdate",chronoGamePerformanceCounts.getMillis());
+					addPerformanceCount("ProcessNetworkUpdate",chronoGamePerformanceCounts.getMillis());
 
 					if(showPerfStats) {
 						sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
@@ -2206,7 +2206,7 @@ void Game::update() {
 
 					gui.update();
 
-					addGamePerformanceCount("ProcessGUIUpdate",chronoGamePerformanceCounts.getMillis());
+					addPerformanceCount("ProcessGUIUpdate",chronoGamePerformanceCounts.getMillis());
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [gui updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
@@ -2235,7 +2235,7 @@ void Game::update() {
 
 					renderer.updateParticleManager(rsGame,avgRenderFps);
 
-					addGamePerformanceCount("ProcessParticleManager",chronoGamePerformanceCounts.getMillis());
+					addPerformanceCount("ProcessParticleManager",chronoGamePerformanceCounts.getMillis());
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [particle manager updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
@@ -2303,7 +2303,7 @@ void Game::update() {
 			perfList.push_back(perfBuf);
 		}
 
-		addGamePerformanceCount("ProcessMiscNetwork",chronoGamePerformanceCounts.getMillis());
+		addPerformanceCount("ProcessMiscNetwork",chronoGamePerformanceCounts.getMillis());
 
 		// START - Handle joining in progress games
 		if(role == nrServer) {
@@ -2752,7 +2752,7 @@ void Game::update() {
 	}
 }
 
-void Game::addGamePerformanceCount(string key,int64 value) {
+void Game::addPerformanceCount(string key,int64 value) {
 	gamePerformanceCounts[key] = value + gamePerformanceCounts[key] / 2;
 }
 
@@ -2762,12 +2762,18 @@ string Game::getGamePerformanceCounts(bool displayWarnings) const {
 	}
 
 	bool displayWarningHeader 	= true;
-	int WARNING_MILLIS 			= Config::getInstance().getInt("PerformanceWarningMillis","10");
+	int WARNING_MILLIS 			= Config::getInstance().getInt("PerformanceWarningMillis","7");
+	int WARNING_RENDER_MILLIS 	= Config::getInstance().getInt("PerformanceWarningRenderMillis","40");
 
 	string result = "";
 	for(std::map<string,int64>::const_iterator iterMap = gamePerformanceCounts.begin();
 			iterMap != gamePerformanceCounts.end(); ++iterMap) {
-		if(iterMap->second < WARNING_MILLIS) {
+		if(iterMap->first == ProgramState::MAIN_PROGRAM_RENDER_KEY) {
+			if(iterMap->second < WARNING_RENDER_MILLIS) {
+				continue;
+			}
+		}
+		else if(iterMap->second < WARNING_MILLIS) {
 			continue;
 		}
 

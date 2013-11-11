@@ -340,7 +340,7 @@ public:
 	void setDisableSpeedChange(bool value) { disableSpeedChange = value; }
 
 	string getGamePerformanceCounts(bool displayWarnings) const;
-	void addGamePerformanceCount(string key,int64 value);
+	virtual void addPerformanceCount(string key,int64 value);
 	bool getRenderInGamePerformance() const { return renderInGamePerformance; }
 
 private:
