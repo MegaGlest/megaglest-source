@@ -2520,7 +2520,7 @@ void World::computeFow() {
 
 	// Once we have calculated fog of war texture alpha, will we cache it so that we
 	// can restore it later
-	if(cacheFowAlphaTexture == false) {
+	if(cacheFowAlphaTexture == false && resetFowAlphaFactionCount > 0) {
 		cacheFowAlphaTexture = true;
 		cacheFowAlphaTextureFogOfWarValue = fogOfWar;
 		minimap.copyFowTexAlphaSurface();
