@@ -494,7 +494,6 @@ public:
     void setCurrentPathFinderDesiredFinalPos(const Vec2i &finalPos) { currentPathFinderDesiredFinalPos = finalPos; }
     Vec2i getCurrentPathFinderDesiredFinalPos() const { return currentPathFinderDesiredFinalPos; }
 
-    //const std::pair<const SkillType *,std::vector<Unit *> > & getCurrentAttackBoostUnits() const { return currentAttackBoostUnits; }
     const UnitAttackBoostEffectOriginator & getAttackBoostOriginatorEffect() const { return currentAttackBoostOriginatorEffect; }
     bool unitHasAttackBoost(const AttackBoost *boost, const Unit *source) const;
 
@@ -540,7 +539,9 @@ public:
 	inline Vec2i getMeetingPos() const					{return meetingPos;}
 	inline Faction *getFaction() const					{return faction;}
 	inline const ResourceType *getLoadType() const		{return loadType;}
+
 	inline const UnitType *getType() const				{return type;}
+	void setType(const UnitType *newType);
 	inline const UnitType *getPreMorphType() const		{return preMorph_type;}
 
 	inline const SkillType *getCurrSkill() const		{return currSkill;}
@@ -813,6 +814,8 @@ private:
 
 	void logSynchDataCommon(string file,int line,string source="",bool threadedMode=false);
 	void updateAttackBoostProgress(const Game* game);
+
+	void setAlive(bool value);
 };
 
 }}// end namespace

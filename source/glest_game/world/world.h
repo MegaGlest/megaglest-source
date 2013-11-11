@@ -131,7 +131,6 @@ private:
 	bool perfTimerEnabled;
 
 	bool unitParticlesEnabled;
-	bool staggeredFactionUpdates;
 	std::map<string,StaticSound *> staticSoundList;
 	std::map<string,StrSound *> streamSoundList;
 
@@ -297,9 +296,6 @@ public:
 
 	inline int getUpdateFps(int factionIndex) const {
 		int result = GameConstants::updateFps;
-		//if(factionIndex != -1 && staggeredFactionUpdates == true) {
-		//	result = (GameConstants::updateFps / GameConstants::maxPlayers);
-		//}
 		return result;
 	}
 	bool canTickWorld() const;
@@ -336,13 +332,11 @@ private:
 	void initMinimap();
 	void initUnits();
 	void initMap();
-	//void initExplorationState();
 
 	//misc
 	void tick();
 	bool canTickFaction(int factionIdx);
-	int tickFactionIndex();
-	void computeFow(int factionIdxToTick=-1);
+	void computeFow();
 
 	void updateAllTilesetObjects();
 	void updateAllFactionUnits();

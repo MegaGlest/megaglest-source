@@ -419,9 +419,12 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	}
 
 	this->pos=pos;
-	this->preMorph_type = NULL;
-	this->type=type;
+
     this->faction=faction;
+    this->preMorph_type = NULL;
+    this->type=type;
+	setType(this->type);
+
 	this->map= map;
 	this->targetRef = NULL;
 	this->targetField = fLand;
@@ -465,7 +468,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 
 	highlight= 0.f;
 	meetingPos= pos;
-	alive= true;
+	setAlive(true);
 
 	if (type->hasSkillClass(scBeBuilt) == false) {
 		float rot= 0.f;
@@ -490,6 +493,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	this->lastModelIndexForCurrSkillType = -1;
 	this->animationRandomCycleCount = 0;
 	this->currSkill = getType()->getFirstStOfClass(scStop);
+	this->setCurrSkill(this->currSkill);
 	this->currentAttackBoostOriginatorEffect.skillType = this->currSkill;
 
 	this->faction->addLivingUnits(id);
@@ -592,6 +596,16 @@ ParticleSystem * Unit::getFire() const	{
 		return NULL;
 	}
 	return this->fire;
+}
+
+void Unit::setType(const UnitType *newType) {
+	this->faction->notifyUnitTypeChange(this, newType);
+	this->type = newType;
+}
+
+void Unit::setAlive(bool value) {
+	this->alive = value;
+	this->faction->notifyUnitAliveStatusChange(this);
 }
 
 #ifdef LEAK_CHECK_UNITS
@@ -1164,6 +1178,8 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 		this->lastModelIndexForCurrSkillType = -1;
 		this->animationRandomCycleCount = 0;
 	}
+
+	if(faction != NULL) faction->notifyUnitSkillTypeChange(this, currSkill);
 	const SkillType *original_skill = this->currSkill;
 	this->currSkill= currSkill;
 
@@ -2694,7 +2710,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 
 			//stop DamageParticles on death
 			if(this->hp <= 0) {
-				this->alive= false;
+				setAlive(false);
 				this->hp=0;
 				//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 				game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
@@ -2790,7 +2806,7 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 
 		//stop DamageParticles on death
 		if(this->hp <= 0) {
-			this->alive= false;
+			setAlive(false);
 			this->hp=0;
 			//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 			game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
@@ -3078,7 +3094,7 @@ bool Unit::decHp(int decrementValue) {
 
 	//stop DamageParticles on death
     if(this->hp <= 0) {
-    	this->alive = false;
+    	setAlive(false);
 		this->hp = 0;
 		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
         game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
@@ -3340,7 +3356,7 @@ bool Unit::morph(const MorphCommandType *mct) {
 		checkModelStateInfoForNewHpValue();
 
 		this->preMorph_type = this->type;
-		this->type= morphUnitType;
+		this->setType(morphUnitType);
 		Field original_field = this->currField;
 		this->currField=morphUnitField;
 		computeTotalUpgrade();
@@ -4768,6 +4784,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 		string skillTypeName = unitNode->getAttribute("currSkillName")->getValue();
 		SkillClass skillClass = static_cast<SkillClass>(unitNode->getAttribute("currSkillClass")->getIntValue());
 		result->currSkill = ut->getSkillType(skillTypeName,skillClass);
+		result->setCurrSkill(result->currSkill);
 	}
 
 //    int lastModelIndexForCurrSkillType;
@@ -4778,7 +4795,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //    bool toBeUndertaken;
 	result->toBeUndertaken = unitNode->getAttribute("toBeUndertaken")->getIntValue() != 0;
 //	bool alive;
-	result->alive = unitNode->getAttribute("alive")->getIntValue() != 0;
+	result->setAlive(unitNode->getAttribute("alive")->getIntValue() != 0);
 //	bool showUnitParticles;
 	result->showUnitParticles = unitNode->getAttribute("showUnitParticles")->getIntValue() != 0;
 //    Faction *faction;
