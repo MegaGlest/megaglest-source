@@ -655,6 +655,9 @@ void World::updateAllFactionUnits() {
 			if(workThreadsFinished == true) {
 				break;
 			}
+			if(chrono.getMillis() % 5 == 0) {
+				sleep(0);
+			}
 		}
 
 		if(showPerfStats) {
