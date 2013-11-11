@@ -2045,7 +2045,7 @@ void Game::update() {
 
 						processNetworkSynchChecksIfRequired();
 
-						gamePerformanceCounts["CalculateNetorkCRCSynchChecks"] = chronoGamePerformanceCounts.getMillis() + gamePerformanceCounts["CalculateNetorkCRCSynchChecks"] / 2;
+						gamePerformanceCounts["CalculateNetworkCRCSynchChecks"] = chronoGamePerformanceCounts.getMillis() + gamePerformanceCounts["CalculateNetworkCRCSynchChecks"] / 2;
 						chronoGamePerformanceCounts.stop();
 
 						/*
@@ -2802,17 +2802,34 @@ void Game::update() {
 	}
 }
 
-string Game::getGamePerformanceCounts() const {
+string Game::getGamePerformanceCounts(bool displayWarnings) const {
 	if(gamePerformanceCounts.empty() == true) {
 		return "";
 	}
+
+	bool displayWarningHeader = true;
+
 	string result = "";
 	for(std::map<string,int64>::const_iterator iterMap = gamePerformanceCounts.begin();
 			iterMap != gamePerformanceCounts.end(); ++iterMap) {
 		if(result != "") {
 			result += "\n";
 		}
-		result += iterMap->first + " = avg millis: " + intToStr(iterMap->second);
+		string perfStat = iterMap->first + " = avg millis: " + intToStr(iterMap->second);
+
+		if(displayWarnings == true) {
+			int WARNING_MILLIS = Config::getInstance().getInt("PerformanceWarningMillis","10");
+			if(iterMap->second >= WARNING_MILLIS) {
+				if(displayWarningHeader == true) {
+					displayWarningHeader = false;
+					printf("=====================================\nPERFORMANCE WARNINGS for World Frame: %d\n",world.getFrameCount());
+				}
+
+				printf("*PERFORMANCE WARNING* %s\n",perfStat.c_str());
+			}
+		}
+
+		result += perfStat;
 	}
 
 	return result;
@@ -5477,6 +5494,14 @@ void Game::render2d() {
 
 	if(this->getRenderInGamePerformance() == true) {
 		renderer.renderPerformanceStats();
+	}
+	else {
+		static time_t lastGamePerfCheck = time(NULL);
+		if(difftime((long int)time(NULL),lastGamePerfCheck) > 3) {
+			lastGamePerfCheck = time(NULL);
+
+			getGamePerformanceCounts(true);
+		}
 	}
 
 	if(renderer.getShowDebugUI() == true) {
