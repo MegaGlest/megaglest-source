@@ -502,6 +502,7 @@ public:
 
 	void renderChatManager(const ChatManager *chatManager);
 	void renderClock();
+	void renderPerformanceStats();
 	void renderResourceStatus();
 	void renderSelectionQuad();
 	void renderText(const string &text, Font2D *font, float alpha, int x, int y, bool centered= false);

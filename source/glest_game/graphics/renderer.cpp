@@ -2217,6 +2217,50 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 	}
 }
 
+
+void Renderer::renderPerformanceStats() {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
+	Config &config= Config::getInstance();
+	if(config.getBool("ShowInGamePerformance","false") == false) {
+		return;
+	}
+
+	const Metrics &metrics = Metrics::getInstance();
+	const World *world = game->getWorld();
+	const Vec4f fontColor = game->getGui()->getDisplay()->getColor();
+
+	char szBuf[200]="";
+	snprintf(szBuf,200,"Frame: %d",game->getWorld()->getFrameCount() / 20);
+	string str = string(szBuf) + string("\n");
+
+	static time_t lastGamePerfCheck = time(NULL);
+	static string gamePerfStats = "";
+	if(difftime((long int)time(NULL),lastGamePerfCheck) > 3) {
+		lastGamePerfCheck = time(NULL);
+		gamePerfStats = game->getGamePerformanceCounts();
+	}
+
+	if(gamePerfStats != "") {
+		str += gamePerfStats + "\n";
+	}
+
+	if(renderText3DEnabled == true) {
+		renderTextShadow3D(
+			str, CoreData::getInstance().getDisplayFontSmall3D(),
+			fontColor,
+			10, metrics.getVirtualH()-180, false);
+	}
+	else {
+		renderTextShadow(
+			str, CoreData::getInstance().getDisplayFontSmall(),
+			fontColor,
+			10, metrics.getVirtualH()-180, false);
+	}
+}
+
 void Renderer::renderClock() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;

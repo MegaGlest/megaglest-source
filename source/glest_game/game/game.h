@@ -211,6 +211,8 @@ private:
 	bool quitGameCalled;
 	bool disableSpeedChange;
 
+	std::map<string,int64> gamePerformanceCounts;
+
 public:
 	Game();
     Game(Program *program, const GameSettings *gameSettings, bool masterserverMode);
@@ -335,6 +337,8 @@ public:
 
 	bool getDisableSpeedChange() const { return disableSpeedChange; }
 	void setDisableSpeedChange(bool value) { disableSpeedChange = value; }
+
+	string getGamePerformanceCounts() const;
 
 private:
 	//render
