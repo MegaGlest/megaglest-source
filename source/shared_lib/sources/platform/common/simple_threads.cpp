@@ -293,6 +293,9 @@ void FileCRCPreCacheThread::execute() {
 								 	 getQuitStatus() == false;) {
 									sleep(25);
 								}
+								if(getQuitStatus() == true) {
+									break;
+								}
 							}
 							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\t\tStart Processing CRC for techName [%s]\n",techName.c_str());
 
@@ -325,6 +328,9 @@ void FileCRCPreCacheThread::execute() {
 										for(;getPauseForGame() == true &&
 										 	 getQuitStatus() == false;) {
 											sleep(25);
+										}
+										if(getQuitStatus() == true) {
+											break;
 										}
 									}
 									if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\t\t\tStart Processing CRC for factionName [%s]\n",factionName.c_str());

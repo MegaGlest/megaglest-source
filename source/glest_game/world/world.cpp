@@ -824,11 +824,14 @@ void World::updateAllFactionConsumableCosts() {
 void World::update() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	bool showPerfStats = Config::getInstance().getBool("ShowPerfStats","false");
 	Chrono chronoPerf;
 	char perfBuf[8096]="";
 	std::vector<string> perfList;
 	if(showPerfStats) chronoPerf.start();
+
+	Chrono chronoGamePerformanceCounts;
 
 	++frameCount;
 
@@ -853,7 +856,11 @@ void World::update() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	// objects on the map from tilesets
+	if(this->game) chronoGamePerformanceCounts.start();
+
 	updateAllTilesetObjects();
+
+	if(this->game) this->game->addGamePerformanceCount("updateAllTilesetObjects",chronoGamePerformanceCounts.getMillis());
 
 	if(showPerfStats) {
 		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
@@ -862,7 +869,11 @@ void World::update() {
 
 	//units
 	if(getFactionCount() > 0) {
+		if(this->game) chronoGamePerformanceCounts.start();
+
 		updateAllFactionUnits();
+
+		if(this->game) this->game->addGamePerformanceCount("updateAllFactionUnits",chronoGamePerformanceCounts.getMillis());
 
 		if(showPerfStats) {
 			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
@@ -870,8 +881,11 @@ void World::update() {
 		}
 
 		//undertake the dead
+		if(this->game) chronoGamePerformanceCounts.start();
+
 		underTakeDeadFactionUnits();
-		//}
+
+		if(this->game) this->game->addGamePerformanceCount("underTakeDeadFactionUnits",chronoGamePerformanceCounts.getMillis());
 
 		if(showPerfStats) {
 			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
@@ -879,8 +893,13 @@ void World::update() {
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 		//food costs
+		if(this->game) chronoGamePerformanceCounts.start();
+
 		updateAllFactionConsumableCosts();
+
+		if(this->game) this->game->addGamePerformanceCount("updateAllFactionConsumableCosts",chronoGamePerformanceCounts.getMillis());
 
 		if(showPerfStats) {
 			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
@@ -889,9 +908,13 @@ void World::update() {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		//fow smoothing
-		if(fogOfWarSmoothing && ((frameCount+1) % (fogOfWarSmoothingFrameSkip+1))==0) {
+		if(fogOfWarSmoothing && ((frameCount+1) % (fogOfWarSmoothingFrameSkip+1)) == 0) {
+			if(this->game) chronoGamePerformanceCounts.start();
+
 			float fogFactor= static_cast<float>(frameCount % GameConstants::updateFps) / GameConstants::updateFps;
 			minimap.updateFowTex(clamp(fogFactor, 0.f, 1.f));
+
+			if(this->game) this->game->addGamePerformanceCount("minimap.updateFowTex",chronoGamePerformanceCounts.getMillis());
 		}
 
 		if(showPerfStats) {
@@ -911,7 +934,12 @@ void World::update() {
 		if(needToTick == true) {
 			//printf("=========== World is about to be updated, current frameCount = %d\n",frameCount);
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+			if(this->game) chronoGamePerformanceCounts.start();
+
 			tick();
+
+			if(this->game) this->game->addGamePerformanceCount("tick",chronoGamePerformanceCounts.getMillis());
 		}
 
 		if(showPerfStats) {
