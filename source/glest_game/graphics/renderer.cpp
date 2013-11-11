@@ -2235,7 +2235,7 @@ void Renderer::renderPerformanceStats() {
 	static string gamePerfStats = "";
 	if(difftime((long int)time(NULL),lastGamePerfCheck) > 3) {
 		lastGamePerfCheck = time(NULL);
-		gamePerfStats = game->getGamePerformanceCounts();
+		gamePerfStats = game->getGamePerformanceCounts(true);
 	}
 
 	if(gamePerfStats != "") {

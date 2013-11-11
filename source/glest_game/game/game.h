@@ -339,7 +339,7 @@ public:
 	bool getDisableSpeedChange() const { return disableSpeedChange; }
 	void setDisableSpeedChange(bool value) { disableSpeedChange = value; }
 
-	string getGamePerformanceCounts() const;
+	string getGamePerformanceCounts(bool displayWarnings) const;
 	bool getRenderInGamePerformance() const { return renderInGamePerformance; }
 
 private:
