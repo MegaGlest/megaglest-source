@@ -91,6 +91,7 @@ Game::Game() : ProgramState(NULL) {
 	pauseStateChanged=false;
 	gameOver=false;
 	renderNetworkStatus=false;
+	renderInGamePerformance=false;
 	showFullConsole=false;
 	setMarker=false;
 	cameraDragAllowed=false;
@@ -260,6 +261,7 @@ void Game::resetMembers() {
 	pauseStateChanged=false;
 	gameOver= false;
 	renderNetworkStatus= false;
+	renderInGamePerformance=false;
 	this->speed= 1;
 	showFullConsole= false;
 	setMarker = false;
@@ -4591,8 +4593,12 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				configKeys.getSDLKey("SetMarker") == SDLK_LALT) {
 				setMarkerKeyAllowsModifier = true;
 			}
+
+			if(isKeyPressed(configKeys.getSDLKey("RenderInGamePerformance"),key, false) == true) {
+				renderInGamePerformance = !renderInGamePerformance;
+			}
 			//if(key == configKeys.getCharKey("RenderNetworkStatus")) {
-			if(isKeyPressed(configKeys.getSDLKey("RenderNetworkStatus"),key, false) == true) {
+			else if(isKeyPressed(configKeys.getSDLKey("RenderNetworkStatus"),key, false) == true) {
 				renderNetworkStatus= !renderNetworkStatus;
 			}
 			//else if(key == configKeys.getCharKey("ShowFullConsole")) {
@@ -5469,12 +5475,18 @@ void Game::render2d() {
 		str = getDebugStats(factionDebugInfo);
 	}
 
+	if(this->getRenderInGamePerformance() == true) {
+		renderer.renderPerformanceStats();
+	}
+
 	if(renderer.getShowDebugUI() == true) {
 		const Metrics &metrics= Metrics::getInstance();
-		//int mx= metrics.getMinimapX();
-		//int my= metrics.getMinimapY();
-		//int mw= metrics.getMinimapW();
 		int mh= metrics.getMinimapH();
+
+		if(this->getRenderInGamePerformance() == true) {
+			mh = mh + (gamePerformanceCounts.size() * 14);
+		}
+
 		const Vec4f fontColor=getGui()->getDisplay()->getColor();
 
 		if(Renderer::renderText3DEnabled == true) {
@@ -5559,8 +5571,6 @@ void Game::render2d() {
 	if(photoModeEnabled == false && timeDisplay == true) {
 		renderer.renderClock();
 	}
-
-	renderer.renderPerformanceStats();
 
     //resource info
 	if(photoModeEnabled == false) {

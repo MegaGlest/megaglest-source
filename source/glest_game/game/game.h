@@ -103,6 +103,7 @@ private:
 
 	bool gameOver;
 	bool renderNetworkStatus;
+	bool renderInGamePerformance;
 	bool showFullConsole;
 	bool setMarker;
 	bool cameraDragAllowed;
@@ -339,6 +340,7 @@ public:
 	void setDisableSpeedChange(bool value) { disableSpeedChange = value; }
 
 	string getGamePerformanceCounts() const;
+	bool getRenderInGamePerformance() const { return renderInGamePerformance; }
 
 private:
 	//render
