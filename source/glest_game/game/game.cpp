@@ -1799,14 +1799,10 @@ void Game::update() {
 								 (NetworkManager::getInstance().getGameNetworkInterface() != NULL &&
 								  NetworkManager::getInstance().getGameNetworkInterface()->getQuit()));
 
-		//if(pendingQuitError) printf("#1 pendingQuitError = %d, quitPendingIndicator = %d, errorMessageBox.getEnabled() = %d\n",pendingQuitError,quitPendingIndicator,errorMessageBox.getEnabled());
-
 		if(pendingQuitError == true &&
 		   (this->masterserverMode == true ||
 		    (mainMessageBox.getEnabled() == false && errorMessageBox.getEnabled() == false))) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			//printf("#2 pendingQuitError = %d, quitPendingIndicator = %d, errorMessageBox.getEnabled() = %d\n",pendingQuitError,quitPendingIndicator,errorMessageBox.getEnabled());
 
 			quitTriggeredIndicator = true;
 			return;
@@ -1846,7 +1842,6 @@ void Game::update() {
 		int updateLoops= getUpdateLoops();
 
 		// Temp speed boost when player first joins an in progress game
-		//if(this->initialResumeSpeedLoops == true && updateLoops == 1) {
 		if(this->initialResumeSpeedLoops == true) {
 			printf("Resume In Progress Game: %d\n",__LINE__);
 
@@ -1855,34 +1850,12 @@ void Game::update() {
 		}
 
 		chronoGamePerformanceCounts.start();
-		//NetworkManager &networkManager= NetworkManager::getInstance();
 		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
-		//bool isNetworkGame 				= this->gameSettings.isNetworkGame();
-		//NetworkRole role 				= networkManager.getNetworkRole();
 
 		if(role == nrClient && updateLoops == 1 && world.getFrameCount() >= (gameSettings.getNetworkFramePeriod() * 2) ) {
 			ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
 			if(clientInterface != NULL) {
 				uint64 lastNetworkFrameFromServer = clientInterface->getCachedLastPendingFrameCount();
-////				if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > (world.getFrameCount() + gameSettings.getNetworkFramePeriod())+1) {
-////				//if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount()) {
-////					int frameDifference = ((lastNetworkFrameFromServer - world.getFrameCount()) / gameSettings.getNetworkFramePeriod()) * gameSettings.getNetworkFramePeriod();
-////
-////					//int frameDifference = lastNetworkFrameFromServer - world.getFrameCount();
-//				if(framesToCatchUpAsClient==0){
-//					if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > (world.getFrameCount() + gameSettings.getNetworkFramePeriod()/4)) {
-//						//if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount()) {
-//						int frameDifference = lastNetworkFrameFromServer - world.getFrameCount();
-//						printf("Client will speed up: %d frames lastNetworkFrameFromServer: %lld world.getFrameCount() = %d updateLoops = %d\n",frameDifference,(long long int)lastNetworkFrameFromServer,world.getFrameCount(),updateLoops);
-//						framesToCatchUpAsClient=frameDifference;
-//						// done below now: updateLoops += frameDifference;
-//					}
-//				}
-////				//If client is ahead maybe this fixes it ( by titi ):
-//				if(updateLoops!=0 && lastNetworkFrameFromServer > 0 && world.getFrameCount() > lastNetworkFrameFromServer && (world.getFrameCount()%GameConstants::updateFps)>38 ){
-//						printf("Client will slow down because no message has arrived yet. currentFrame=%d \n",world.getFrameCount());
-//						updateLoops = 0;
-//				}
 
 				/////////////////////////////////
 				// TTTT new attempt to make things smoother:
@@ -1909,7 +1882,7 @@ void Game::update() {
 					}
 				}
 				if(framesNeededToWaitForServerMessage[index]==-1){
-				// calc time waiting for message in milliseconds to frames
+					// calc time waiting for message in milliseconds to frames
 					int64 timeClientWaitedForLastMessage=clientInterface->getTimeClientWaitedForLastMessage();
 					if(timeClientWaitedForLastMessage>0){
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("world.getFrameCount():%d index %d Client waited:%d ms\n",world.getFrameCount(),index,(int)timeClientWaitedForLastMessage);
@@ -1933,7 +1906,6 @@ void Game::update() {
 				int countOfMessagesReceivedTooLate=0;
 				int sumOfTooLateFrames=0;
 				bool cleanupStats=false;
-
 
 				for( int i=0;i<GameConstants::networkSmoothInterval;i++){
 					if(receivedTooEarlyInFrames[i]>allowedMaxFallback){
@@ -1987,9 +1959,7 @@ void Game::update() {
 			}
 		}
 
-
-		gamePerformanceCounts["CalculateNetorkUpdateLoops"] = chronoGamePerformanceCounts.getMillis() + gamePerformanceCounts["CalculateNetorkUpdateLoops"] / 2;
-		chronoGamePerformanceCounts.stop();
+		addGamePerformanceCount("CalculateNetworkUpdateLoops",chronoGamePerformanceCounts.getMillis());
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		if(showPerfStats) {
@@ -2006,7 +1976,13 @@ void Game::update() {
 		// Check to see if we are playing a network game and if any players
 		// have disconnected?
 		bool isNetworkGame = this->gameSettings.isNetworkGame();
+
+		chronoGamePerformanceCounts.start();
+
 		ReplaceDisconnectedNetworkPlayersWithAI(isNetworkGame, role);
+
+		addGamePerformanceCount("ReplaceDisconnectedNetworkPlayersWithAI",chronoGamePerformanceCounts.getMillis());
+
 		setupPopupMenus(true);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after ReplaceDisconnectedNetworkPlayersWithAI]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -2045,27 +2021,7 @@ void Game::update() {
 
 						processNetworkSynchChecksIfRequired();
 
-						gamePerformanceCounts["CalculateNetworkCRCSynchChecks"] = chronoGamePerformanceCounts.getMillis() + gamePerformanceCounts["CalculateNetworkCRCSynchChecks"] / 2;
-						chronoGamePerformanceCounts.stop();
-
-						/*
-						for(int j = 0; j < world.getFactionCount(); ++j) {
-							Faction *faction = world.getFaction(j);
-
-							//printf("Faction Index = %d enableServerControlledAI = %d, isNetworkGame = %d, role = %d isCPU player = %d scriptManager.getPlayerModifiers(j)->getAiEnabled() = %d\n",j,enableServerControlledAI,isNetworkGame,role,faction->getCpuControl(enableServerControlledAI,isNetworkGame,role),scriptManager.getPlayerModifiers(j)->getAiEnabled());
-
-							if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
-								scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
-
-								if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [before AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
-
-								//printf("Faction Index = %d telling AI to do something pendingQuitError = %d\n",j,pendingQuitError);
-								if(pendingQuitError == false) aiInterfaces[j]->update();
-
-								if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [after AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
-							}
-						}
-						*/
+						addGamePerformanceCount("CalculateNetworkCRCSynchChecks",chronoGamePerformanceCounts.getMillis());
 
 						const bool newThreadManager = Config::getInstance().getBool("EnableNewThreadManager","false");
 						if(newThreadManager == true) {
@@ -2129,8 +2085,7 @@ void Game::update() {
 								}
 							}
 
-							gamePerformanceCounts["ProcessAIWorkerThreads"] = chronoGamePerformanceCounts.getMillis() + gamePerformanceCounts["ProcessAIWorkerThreads"] / 2;
-							chronoGamePerformanceCounts.stop();
+							addGamePerformanceCount("ProcessAIWorkerThreads",chronoGamePerformanceCounts.getMillis());
 						}
 
 						if(showPerfStats) {
@@ -2195,8 +2150,7 @@ void Game::update() {
 
 					if(pendingQuitError == false) world.update();
 
-					gamePerformanceCounts["ProcessWorldUpdate"] = chronoGamePerformanceCounts.getMillis() + gamePerformanceCounts["ProcessWorldUpdate"] / 2;
-					chronoGamePerformanceCounts.stop();
+					addGamePerformanceCount("ProcessWorldUpdate",chronoGamePerformanceCounts.getMillis());
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [world update i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
@@ -2237,8 +2191,7 @@ void Game::update() {
 
 					if(pendingQuitError == false) commander.signalNetworkUpdate(this);
 
-					gamePerformanceCounts["ProcessNetworkUpdate"] = chronoGamePerformanceCounts.getMillis() + gamePerformanceCounts["ProcessNetworkUpdate"] / 2;
-					chronoGamePerformanceCounts.stop();
+					addGamePerformanceCount("ProcessNetworkUpdate",chronoGamePerformanceCounts.getMillis());
 
 					if(showPerfStats) {
 						sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
@@ -2253,8 +2206,7 @@ void Game::update() {
 
 					gui.update();
 
-					gamePerformanceCounts["ProcessGUIUpdate"] = chronoGamePerformanceCounts.getMillis() + gamePerformanceCounts["ProcessGUIUpdate"] / 2;
-					chronoGamePerformanceCounts.stop();
+					addGamePerformanceCount("ProcessGUIUpdate",chronoGamePerformanceCounts.getMillis());
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [gui updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
@@ -2283,8 +2235,7 @@ void Game::update() {
 
 					renderer.updateParticleManager(rsGame,avgRenderFps);
 
-					gamePerformanceCounts["ProcessParticleManager"] = chronoGamePerformanceCounts.getMillis() + gamePerformanceCounts["ProcessParticleManager"] / 2;
-					chronoGamePerformanceCounts.stop();
+					addGamePerformanceCount("ProcessParticleManager",chronoGamePerformanceCounts.getMillis());
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [particle manager updating i = %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),i);
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
@@ -2352,8 +2303,7 @@ void Game::update() {
 			perfList.push_back(perfBuf);
 		}
 
-		gamePerformanceCounts["ProcessMiscNetwork"] = chronoGamePerformanceCounts.getMillis() + gamePerformanceCounts["ProcessMiscNetwork"] / 2;
-		chronoGamePerformanceCounts.stop();
+		addGamePerformanceCount("ProcessMiscNetwork",chronoGamePerformanceCounts.getMillis());
 
 		// START - Handle joining in progress games
 		if(role == nrServer) {
@@ -2802,31 +2752,39 @@ void Game::update() {
 	}
 }
 
+void Game::addGamePerformanceCount(string key,int64 value) {
+	gamePerformanceCounts[key] = value + gamePerformanceCounts[key] / 2;
+}
+
 string Game::getGamePerformanceCounts(bool displayWarnings) const {
 	if(gamePerformanceCounts.empty() == true) {
 		return "";
 	}
 
-	bool displayWarningHeader = true;
+	bool displayWarningHeader 	= true;
+	int WARNING_MILLIS 			= Config::getInstance().getInt("PerformanceWarningMillis","10");
 
 	string result = "";
 	for(std::map<string,int64>::const_iterator iterMap = gamePerformanceCounts.begin();
 			iterMap != gamePerformanceCounts.end(); ++iterMap) {
+		if(iterMap->second < WARNING_MILLIS) {
+			continue;
+		}
+
 		if(result != "") {
 			result += "\n";
 		}
 		string perfStat = iterMap->first + " = avg millis: " + intToStr(iterMap->second);
 
 		if(displayWarnings == true) {
-			int WARNING_MILLIS = Config::getInstance().getInt("PerformanceWarningMillis","10");
-			if(iterMap->second >= WARNING_MILLIS) {
-				if(displayWarningHeader == true) {
-					displayWarningHeader = false;
-					printf("=====================================\nPERFORMANCE WARNINGS for World Frame: %d\n",world.getFrameCount());
-				}
-
-				printf("*PERFORMANCE WARNING* %s\n",perfStat.c_str());
+			//if(iterMap->second >= WARNING_MILLIS) {
+			if(displayWarningHeader == true) {
+				displayWarningHeader = false;
+				printf("=====================================\nPERFORMANCE WARNINGS for World Frame: %d\n",world.getFrameCount());
 			}
+
+			printf("*PERFORMANCE WARNING* %s\n",perfStat.c_str());
+			//}
 		}
 
 		result += perfStat;
