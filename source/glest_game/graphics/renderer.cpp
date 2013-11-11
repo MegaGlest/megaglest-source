@@ -2223,11 +2223,6 @@ void Renderer::renderPerformanceStats() {
 		return;
 	}
 
-	Config &config= Config::getInstance();
-	if(config.getBool("ShowInGamePerformance","false") == false) {
-		return;
-	}
-
 	const Metrics &metrics = Metrics::getInstance();
 	const World *world = game->getWorld();
 	const Vec4f fontColor = game->getGui()->getDisplay()->getColor();
