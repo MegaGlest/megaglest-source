@@ -183,33 +183,42 @@ void Minimap::resetFowTex() {
 		// Could turn off ONLY fog of war by setting below to false
 		bool overridefogOfWarValue = fogOfWar;
 
-		for(int i=0; i<fowTex->getPixmap()->getW(); ++i){
-			for(int j=0; j<fowTex->getPixmap()->getH(); ++j){
+		for(int indexPixelWidth = 0;
+				indexPixelWidth < fowTex->getPixmap()->getW();
+				++indexPixelWidth){
+			for(int indexPixelHeight = 0;
+					indexPixelHeight < fowTex->getPixmap()->getH();
+					++indexPixelHeight){
 				if ((fogOfWar == false && overridefogOfWarValue == false) &&
 					(gameSettings->getFlagTypes1() & ft1_show_map_resources) != ft1_show_map_resources) {
-					float p0 = fowPixmap0->getPixelf(i, j);
-					float p1 = fowPixmap1->getPixelf(i, j);
+					//printf("Line: %d\n",__LINE__);
+
+					float p0 = fowPixmap0->getPixelf(indexPixelWidth, indexPixelHeight);
+					float p1 = fowPixmap1->getPixelf(indexPixelWidth, indexPixelHeight);
 					if (p0 > p1) {
-						fowPixmap1->setPixel(i, j, p0);
+						fowPixmap1->setPixel(indexPixelWidth, indexPixelHeight, p0);
 					}
 					else {
-						fowPixmap1->setPixel(i, j, p1);
+						fowPixmap1->setPixel(indexPixelWidth, indexPixelHeight, p1);
 					}
 				}
 				else if((fogOfWar && overridefogOfWarValue) ||
 					(gameSettings->getFlagTypes1() & ft1_show_map_resources) != ft1_show_map_resources) {
-					float p0= fowPixmap0->getPixelf(i, j);
-					float p1= fowPixmap1->getPixelf(i, j);
+					//printf("Line: %d\n",__LINE__);
 
-					if(p1>exploredAlpha){
-						fowPixmap1->setPixel(i, j, exploredAlpha);
+					float p0= fowPixmap0->getPixelf(indexPixelWidth, indexPixelHeight);
+					float p1= fowPixmap1->getPixelf(indexPixelWidth, indexPixelHeight);
+
+					if(p1 > exploredAlpha) {
+						fowPixmap1->setPixel(indexPixelWidth, indexPixelHeight, exploredAlpha);
 					}
-					if(p0>p1){
-						fowPixmap1->setPixel(i, j, p0);
+					if(p0 > p1) {
+						fowPixmap1->setPixel(indexPixelWidth, indexPixelHeight, p0);
 					}
 				}
-				else{
-					fowPixmap1->setPixel(i, j, 1.f);
+				else {
+					//printf("Line: %d\n",__LINE__);
+					fowPixmap1->setPixel(indexPixelWidth, indexPixelHeight, 1.f);
 				}
 			}
 		}
@@ -218,12 +227,17 @@ void Minimap::resetFowTex() {
 
 void Minimap::updateFowTex(float t) {
 	if(fowPixmap0 && fowTex) {
-		for(int i=0; i<fowPixmap0->getW(); ++i){
-			for(int j=0; j<fowPixmap0->getH(); ++j){
-				float p1= fowPixmap1->getPixelf(i, j);
-				if(p1!=fowTex->getPixmap()->getPixelf(i, j)){
-					float p0= fowPixmap0->getPixelf(i, j);
-					fowTex->getPixmap()->setPixel(i, j, p0+(t*(p1-p0)));
+		for(int indexPixelWidth = 0;
+				indexPixelWidth < fowPixmap0->getW();
+				++indexPixelWidth){
+			for(int indexPixelHeight = 0;
+					indexPixelHeight < fowPixmap0->getH();
+					++indexPixelHeight){
+				float p1 = fowPixmap1->getPixelf(indexPixelWidth, indexPixelHeight);
+				float p2 = fowTex->getPixmap()->getPixelf(indexPixelWidth, indexPixelHeight);
+				if(p1 != p2) {
+					float p0 = fowPixmap0->getPixelf(indexPixelWidth, indexPixelHeight);
+					fowTex->getPixmap()->setPixel(indexPixelWidth, indexPixelHeight, p0+(t*(p1-p0)));
 				}
 			}
 		}
