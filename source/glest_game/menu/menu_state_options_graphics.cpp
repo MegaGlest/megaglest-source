@@ -425,6 +425,9 @@ void MenuStateOptionsGraphics::reloadUI() {
 	labelShadows.setText(lang.getString("Shadows"));
 	labelShadowTextureSize.setText(lang.getString("ShadowTextureSize"));
 
+	labelShadowIntensity.setText(lang.getString("ShadowIntensity"));
+	labelGammaCorrection.setText(lang.getString("GammaCorrection"));
+
 	listboxData.clear();
 	for(int i= 0; i<Renderer::sCount; ++i){
 		listboxData.push_back(lang.getString(Renderer::shadowsToStr(static_cast<Renderer::Shadows>(i))));
@@ -445,7 +448,7 @@ void MenuStateOptionsGraphics::reloadUI() {
 	labelEnableTextureCompression.setText(lang.getString("EnableTextureCompression"));
 
 
-	labelRainEffect.setText(lang.getString("RainEffect"));
+	labelRainEffect.setText(lang.getString("RainEffectMenuGame"));
 
 	labelVideos.setText(lang.getString("EnableVideos"));
 

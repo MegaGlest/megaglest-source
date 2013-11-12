@@ -1019,6 +1019,7 @@ bool Socket::hasDataToRead(std::map<PLATFORM_SOCKET,bool> &socketTriggeredList)
             }
             if(retval < 0) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, ERROR SELECTING SOCKET DATA retval = %d error = %s, socketDebugList [%s]\n",__FILE__,__FUNCTION__,__LINE__,retval,getLastSocketErrorFormattedText().c_str(),socketDebugList.c_str());
+				printf("In [%s::%s] Line: %d, ERROR SELECTING SOCKET DATA retval = %d error = %s\n",__FILE__,__FUNCTION__,__LINE__,retval,getLastSocketErrorFormattedText().c_str());
             }
             else if(retval) {
                 bResult = true;
@@ -1068,7 +1069,11 @@ bool Socket::hasDataToRead(PLATFORM_SOCKET socket)
         	//MutexSafeWrapper safeMutex(&dataSynchAccessor);
         	retval = select((int)socket + 1, &rfds, NULL, NULL, &tv);
         }
-        if(retval)
+        if(retval < 0) {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, ERROR SELECTING SOCKET DATA retval = %d error = %s\n",__FILE__,__FUNCTION__,__LINE__,retval,getLastSocketErrorFormattedText().c_str());
+			printf("In [%s::%s] Line: %d, ERROR SELECTING SOCKET DATA retval = %d error = %s\n",__FILE__,__FUNCTION__,__LINE__,retval,getLastSocketErrorFormattedText().c_str());
+        }
+        else if(retval)
         {
             if (FD_ISSET(socket, &rfds))
             {
@@ -1108,6 +1113,11 @@ bool Socket::hasDataToReadWithWait(PLATFORM_SOCKET socket,int waitMicroseconds) 
         	//MutexSafeWrapper safeMutex(&dataSynchAccessor);
         	retval = select((int)socket + 1, &rfds, NULL, NULL, &tv);
         }
+		if(retval < 0) {
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d, ERROR SELECTING SOCKET DATA retval = %d error = %s\n",__FILE__,__FUNCTION__,__LINE__,retval,getLastSocketErrorFormattedText().c_str());
+			printf("In [%s::%s] Line: %d, ERROR SELECTING SOCKET DATA retval = %d error = %s\n",__FILE__,__FUNCTION__,__LINE__,retval,getLastSocketErrorFormattedText().c_str());
+		}
+
         if(retval)
         {
             if (FD_ISSET(socket, &rfds))
@@ -1700,6 +1710,7 @@ bool Socket::isReadable(bool lockMutex) {
 	}
 	if(i < 0) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s] error while selecting socket data, err = %d, error = %s\n",__FILE__,__FUNCTION__,i,getLastSocketErrorFormattedText().c_str());
+		printf("In [%s::%s] Line: %d, ERROR SELECTING SOCKET DATA retval = %d error = %s\n",__FILE__,__FUNCTION__,__LINE__,i,getLastSocketErrorFormattedText().c_str());
 	}
 
 	bool result = (i == 1);
