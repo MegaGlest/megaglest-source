@@ -592,7 +592,8 @@ Unit::~Unit() {
 }
 
 ParticleSystem * Unit::getFire() const	{
-	if(Renderer::getInstance().validateParticleSystemStillExists(this->fire,rsGame) == false) {
+	if(this->fire != NULL &&
+		Renderer::getInstance().validateParticleSystemStillExists(this->fire,rsGame) == false) {
 		return NULL;
 	}
 	return this->fire;

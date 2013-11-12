@@ -310,11 +310,12 @@ void Font::setSize(int size)	{
 }
 
 void Font::bidi_cvt(string &str_) {
+
 #ifdef	HAVE_FRIBIDI
 	char		*c_str = const_cast<char *>(str_.c_str());	// fribidi forgot const...
 	FriBidiStrIndex	len = (int)str_.length();
-	FriBidiChar	*bidi_logical = new FriBidiChar[len + 2];
-	FriBidiChar	*bidi_visual = new FriBidiChar[len + 2];
+	FriBidiChar	*bidi_logical = new FriBidiChar[len * 4];
+	FriBidiChar	*bidi_visual = new FriBidiChar[len * 4];
 	char		*utf8str = new char[4*len + 1];	//assume worst case here (all 4 Byte characters)
 	FriBidiCharType	base_dir = FRIBIDI_TYPE_ON;
 	FriBidiStrIndex n;
@@ -325,21 +326,98 @@ void Font::bidi_cvt(string &str_) {
 #else
 	n = fribidi_charset_to_unicode(FRIBIDI_CHAR_SET_UTF8, c_str, len, bidi_logical);
 #endif
-	fribidi_log2vis(bidi_logical, n, &base_dir, bidi_visual, NULL, NULL, NULL);
+	fribidi_boolean log2vis = fribidi_log2vis(bidi_logical, n, &base_dir, bidi_visual, NULL, NULL, NULL);
+	// If convertion was successful
+	//if (log2vis == true) {
+		// Remove bidi marks (that we don't need) from the output text
+		//n = fribidi_remove_bidi_marks (bidi_visual, n, NULL, NULL, NULL);
+
+		// Convert unicode string back to the encoding the input string was in
+		//fribidi_unicode_to_charset (char_set_num, visual, len, op);
 #ifdef	OLD_FRIBIDI
-	fribidi_unicode_to_utf8 (bidi_visual, n, utf8str);
+		fribidi_unicode_to_utf8 (bidi_visual, n, utf8str);
 #else
-	fribidi_unicode_to_charset(FRIBIDI_CHAR_SET_UTF8, bidi_visual, n, utf8str);
+		fribidi_unicode_to_charset(FRIBIDI_CHAR_SET_UTF8, bidi_visual, n, utf8str);
 #endif
+
+		// Insert the output string into the output QString
+		str_ = std::string(utf8str);
+	//}
 	//is_rtl_ = base_dir == FRIBIDI_TYPE_RTL;
 	//fontIsRightToLeft = base_dir == FRIBIDI_TYPE_RTL;
 	fontIsRightToLeft = false;
 
-	str_ = std::string(utf8str);
 	delete[] bidi_logical;
 	delete[] bidi_visual;
 	delete[] utf8str;
 #endif
+
+
+/*
+	string out = "" ;
+
+	// FriBidi C string holding the originall text (that is probably with logicall hebrew)
+	FriBidiChar * logical = NULL;
+	// FriBidi C string for the output text (that should be visual hebrew)
+	FriBidiChar * visual = NULL;
+
+	// C string holding the originall text (not nnecessarily as unicode)
+	char  * ip = NULL;
+	// C string for the output text
+	char  * op = NULL;
+
+	// Size to allocate for the char arrays
+	int  size = str_.size () + 2;
+
+	// Allocate memory:
+	// It's probably way too much, but at least it's not too little
+	logical = new  FriBidiChar [size * 3];
+	visual = new  FriBidiChar [size * 3];
+	ip = new  char [size * 3];
+	op = new  char [size * 3];
+
+	FriBidiCharType base;
+	size_t  len, Orig_len;
+
+	// A bool type to see if conversion succeded
+	fribidi_boolean log2vis;
+
+	// Holds information telling fribidi to use UTF-8
+	FriBidiCharSet char_set_num;
+	char_set_num = fribidi_parse_charset ( "UTF-8" );
+
+	// Copy the string into the given string ip
+	strcpy (ip, str_.c_str ());
+
+	// Find length of originall text
+	Orig_len = len = strlen (ip);
+
+	// Insert IP to logical as unicode (and find it's size now)
+	len = fribidi_charset_to_unicode (char_set_num, ip, len, logical);
+
+	base = FRIBIDI_TYPE_ON;
+	// Convert text to visual logical
+	log2vis = fribidi_log2vis (logical, len, & base, visual, NULL, NULL, NULL);
+
+	// If convertion was successful
+	if (log2vis)
+	{
+		// Remove bidi marks (that we don't need) from the output text
+		len = fribidi_remove_bidi_marks (visual, len, NULL, NULL, NULL);
+
+		// Convert unicode string back to the encoding the input string was in
+		fribidi_unicode_to_charset (char_set_num, visual, len, op);
+
+		// Insert the output string into the output QString
+		str_ = op;
+	}
+
+	// Free allocated memory
+	delete  [] visual;
+	delete  [] logical;
+	delete  [] ip;
+	delete  [] op;
+*/
 }
 
 // ===============================================
