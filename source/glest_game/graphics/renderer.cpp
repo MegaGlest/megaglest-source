@@ -2224,7 +2224,6 @@ void Renderer::renderPerformanceStats() {
 	}
 
 	const Metrics &metrics = Metrics::getInstance();
-	const World *world = game->getWorld();
 	const Vec4f fontColor = game->getGui()->getDisplay()->getColor();
 
 	char szBuf[200]="";
