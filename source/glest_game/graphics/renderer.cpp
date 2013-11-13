@@ -6239,7 +6239,7 @@ void Renderer::renderDisplay() {
 			coreData.getDisplayFont3D(),
 			display->getColor(),
 			metrics.getDisplayX() -1,
-			metrics.getDisplayY() + metrics.getDisplayH() - 56);
+			metrics.getDisplayY() + metrics.getDisplayH() - 60);
 
 		//progress Bar
 		if(display->getProgressBar() != -1) {
