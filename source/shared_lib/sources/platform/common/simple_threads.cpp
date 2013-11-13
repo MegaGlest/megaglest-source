@@ -34,6 +34,7 @@ FileCRCPreCacheThread::FileCRCPreCacheThread() : BaseThread() {
 	workerThreadTechPaths.clear();
 	preCacheWorkerThreadList.clear();
 	processTechCB = NULL;
+	pauseForGame = false;
 	uniqueID = "FileCRCPreCacheThread";
 }
 
@@ -44,6 +45,7 @@ FileCRCPreCacheThread::FileCRCPreCacheThread(vector<string> techDataPaths,
 	this->workerThreadTechPaths 		= workerThreadTechPaths;
 	preCacheWorkerThreadList.clear();
 	this->processTechCB 				= processTechCB;
+	pauseForGame = false;
 	uniqueID = "FileCRCPreCacheThread";
 }
 

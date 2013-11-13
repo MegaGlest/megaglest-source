@@ -685,6 +685,7 @@ void Font::bidi_cvt(string &str_) {
 
 		//Free allocated memory
 		delete [] ltov;
+		delete [] vtol;
 		delete [] visual;
 		delete [] logical;
 		delete [] ip;

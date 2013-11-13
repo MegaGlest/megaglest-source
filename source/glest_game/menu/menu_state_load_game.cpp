@@ -45,17 +45,10 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
 	slotLinesYBase=650;
 	slotsLineHeight=30;
 	previewTexture=NULL;
-	needsToBeFreedTexture=NULL;
 	buttonToDelete=NULL;
 
 	selectedButton=NULL;
 
-//	string userData = Config::getInstance().getString("UserData_Root","");
-//	    if(userData != "") {
-//	    	endPathWithSlash(userData);
-//	    }
-//	saveGameDir = userData +"saved";
-//	endPathWithSlash(saveGameDir);
     string userData = Config::getInstance().getString("UserData_Root","");
 	if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
 		userData = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey);
@@ -67,7 +60,6 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
 
 	lines[0].init(0,slotLinesYBase+slotsLineHeight);
 	lines[1].init(0, slotLinesYBase-(slotsToRender-1)*slotsLineHeight-5);
-	//lines[1].setHorizontal(false);
 
 	headerLabel.registerGraphicComponent(containerName,"headerLabel");
 	headerLabel.init(400, 730);
@@ -95,9 +87,6 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
 
 	infoTextLabel.registerGraphicComponent(containerName,"infoTextLabel");
 	infoTextLabel.init(550, 350);
-//	infoTextLabel.setFont(CoreData::getInstance().getMenuFontBig());
-//	infoTextLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	//infoTextLabel.setText("Info block for the current slot, maybe screenshot above \ntest\ntest2");
 	infoTextLabel.setText("");
 
     abortButton.registerGraphicComponent(containerName,"abortButton");
@@ -131,18 +120,18 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
 MenuStateLoadGame::~MenuStateLoadGame() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	clearSlots();
-	if(needsToBeFreedTexture!=NULL){
-		needsToBeFreedTexture->end();
-		delete needsToBeFreedTexture;
-		needsToBeFreedTexture=NULL;
-	}
-	if(previewTexture!=NULL){
-		previewTexture->end();
-		delete previewTexture;
-		previewTexture=NULL;
-	}
+
+	cleanupTexture(&previewTexture);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] END\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+}
+
+void MenuStateLoadGame::cleanupTexture(Texture2D **texture) {
+	if(texture != NULL && *texture != NULL) {
+		(*texture)->end();
+		delete *texture;
+		*texture=NULL;
+	}
 }
 
 void MenuStateLoadGame::clearSlots() {
@@ -166,13 +155,10 @@ void MenuStateLoadGame::listFiles() {
     filenames.clear();
     findAll(paths, "*.xml", filenames, true, false, true);
     sort(filenames.begin(),filenames.end());
-    //printf("filenames = %d\n",filenames.size());
     for(int i = (int)filenames.size()-1; i > -1; i--) {
     	GraphicButton *button=new GraphicButton();
     	button->init( keyButtonsXBase, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
     	button->setText(filenames[i]);
-//    	button->setCustomTexture(CoreData::getInstance().getCustomTexture());
-//    	button->setUseCustomTexture(true);
 
     	slots.push_back(button);
     	slotsGB.push_back(button);
@@ -182,6 +168,11 @@ void MenuStateLoadGame::listFiles() {
 
 void MenuStateLoadGame::reloadUI() {
 	Lang &lang= Lang::getInstance();
+
+	infoHeaderLabel.setText(lang.getString("SavegameInfo"));
+	savedGamesLabel.setText(lang.getString("SavedGames"));
+	noSavedGamesLabel.setText(lang.getString("NoSavedGames"));
+	headerLabel.setText(lang.getString("LoadGameMenu"));
 
 	abortButton.setText(lang.getString("Abort"));
 	deleteButton.setText(lang.getString("Delete"));
@@ -229,12 +220,11 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 			for(int i = 0; i < slots.size(); i++) {
 				if(slots[i] == selectedButton) {
-					//deleteSlot(i);
 					if(removeFile(filename) == true) {
 						removeFile(jpgfilename);
 						removeFile(replayfilename);
-						needsToBeFreedTexture=previewTexture;
-						previewTexture=NULL;
+						cleanupTexture(&previewTexture);
+
 						infoTextLabel.setText("");
 						listFiles();
 						slotsScrollBar.setElementCount((int)filenames.size());
@@ -245,7 +235,6 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 				}
 			}
 		}
-		//mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
     else if(loadButton.mouseClick(x, y)) {
 		soundRenderer.playFx(coreData.getClickSoundB());
@@ -269,7 +258,6 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 			}
 			return;
 		}
-		//mainMenu->setState(new MenuStateRoot(program, mainMenu));
     }
 	else if(slotsScrollBar.mouseClick(x, y)){
 		soundRenderer.playFx(coreData.getClickSoundA());
@@ -280,11 +268,11 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 				if(slots[i]->mouseClick(x, y) && selectedButton != slots[i]) {
 					soundRenderer.playFx(coreData.getClickSoundB());
 
-					needsToBeFreedTexture = previewTexture;
+					cleanupTexture(&previewTexture);
 					selectedButton = slots[i];
 					string filename	= saveGameDir + selectedButton->getText()+".xml";
 					string screenShotFilename = filename + ".jpg";
-					if(fileExists(screenShotFilename)) {
+					if(fileExists(screenShotFilename) == true) {
 						previewTexture = GraphicsInterface::getInstance().getFactory()->newTexture2D();
 						if(previewTexture) {
 							previewTexture->setMipmap(true);
@@ -296,7 +284,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 						previewTexture=NULL;
 					}
 
-					if(fileExists(filename)) {
+					if(fileExists(filename) == true) {
 						Lang &lang= Lang::getInstance();
 
 						XmlTree	xmlTree(XML_RAPIDXML_ENGINE);
@@ -322,7 +310,6 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 							GameSettings newGameSettings;
 							newGameSettings.loadGame(gameNode);
 
-							//LoadSavedGameInfo=Map: %s\nTileset: %s\nTech: %s\nScenario: %s\n# players: %d\nFaction: %s
 							char szBuf[8096]="";
 							snprintf(szBuf,8096,lang.getString("LoadSavedGameInfo").c_str(),
 									newGameSettings.getMap().c_str(),
@@ -347,20 +334,13 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
     }
 }
 
-void MenuStateLoadGame::mouseUp(int x, int y, const MouseButton mouseButton){
+void MenuStateLoadGame::mouseUp(int x, int y, const MouseButton mouseButton) {
     if (mouseButton == mbLeft) {
         slotsScrollBar.mouseUp(x, y);
     }
 }
 
-//void MenuStateLoadGame::deleteSlot(int i){
-//	if(selectedButton==slots[i]){
-//		selectedButton=NULL;
-//	}
-//}
-
-void MenuStateLoadGame::mouseMove(int x, int y, const MouseState *ms){
-
+void MenuStateLoadGame::mouseMove(int x, int y, const MouseState *ms) {
     abortButton.mouseMove(x, y);
     deleteButton.mouseMove(x, y);
     loadButton.mouseMove(x, y);
@@ -370,10 +350,9 @@ void MenuStateLoadGame::mouseMove(int x, int y, const MouseState *ms){
 		}
 	}
 	slotsScrollBar.mouseMove(x,y);
-
 }
 
-void MenuStateLoadGame::render(){
+void MenuStateLoadGame::render() {
 	Renderer &renderer= Renderer::getInstance();
 
 	renderer.renderLabel(&headerLabel);
@@ -415,16 +394,6 @@ void MenuStateLoadGame::render(){
 
 	renderer.renderConsole(&console,false,false);
 	if(program != NULL) program->renderProgramMsgBox();
-
-	if(needsToBeFreedTexture!=NULL){
-		needsToBeFreedTexture->end();
-		delete needsToBeFreedTexture;
-		needsToBeFreedTexture=NULL;
-	}
-//	if(buttonToDelete!=NULL){
-//		delete buttonToDelete;
-//		buttonToDelete=NULL;
-//	}
 }
 
 void MenuStateLoadGame::update(){
@@ -438,11 +407,8 @@ void MenuStateLoadGame::update(){
 
 void MenuStateLoadGame::keyDown(SDL_KeyboardEvent key) {
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-	//if(key == configKeys.getCharKey("SaveGUILayout")) {
 	if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),key) == true) {
 		GraphicComponent::saveAllCustomProperties(containerName);
-		//Lang &lang= Lang::getInstance();
-		//console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
 	}
 }
 
