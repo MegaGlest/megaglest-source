@@ -35,7 +35,6 @@ private:
 	GraphicButton* buttonToDelete;
 
 	Texture2D *previewTexture;
-	Texture2D *needsToBeFreedTexture;
 
 	GraphicLabel headerLabel;
 	GraphicLabel noSavedGamesLabel;
@@ -67,10 +66,11 @@ public:
 private:
 
 	void clearSlots();
-	//void deleteSlot(int i);
 	void listFiles();
 
 	void showMessageBox(const string &text, const string &header, bool toggle);
+
+	void cleanupTexture(Texture2D **texture);
 };
 
 

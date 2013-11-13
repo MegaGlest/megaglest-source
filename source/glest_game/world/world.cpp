@@ -63,10 +63,7 @@ World::World() {
 	fogOfWarSmoothing= config.getBool("FogOfWarSmoothing");
 	fogOfWarSmoothingFrameSkip= config.getInt("FogOfWarSmoothingFrameSkip");
 
-	//MaxExploredCellsLookupItemCache= config.getInt("MaxExploredCellsLookupItemCache",intToStr(MaxExploredCellsLookupItemCache).c_str());
-
 	frameCount= 0;
-	//nextUnitId= 0;
 
 	scriptManager= NULL;
 	this->game = NULL;
