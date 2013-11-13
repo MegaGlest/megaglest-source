@@ -2273,18 +2273,26 @@ void World::initMap() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void World::exploreCells(int teamIndex, ExploredCellsLookupItem &exploredCellsCache) {
+	std::vector<SurfaceCell*> &cellList = exploredCellsCache.exploredCellList;
+	for (int idx2 = 0; idx2 < cellList.size(); ++idx2) {
+		SurfaceCell* sc = cellList[idx2];
+		sc->setExplored(teamIndex, true);
+	}
+	cellList = exploredCellsCache.visibleCellList;
+	for (int idx2 = 0; idx2 < cellList.size(); ++idx2) {
+		SurfaceCell* sc = cellList[idx2];
+		sc->setVisible(teamIndex, true);
+	}
+}
+
 // ==================== exploration ====================
 
-void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
-	//bool cacheLookupPosResult 	= false;
-	//bool cacheLookupSightResult = false;
-
+ExploredCellsLookupItem World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
 	// cache lookup of previously calculated cells + sight range
-	//if(MaxExploredCellsLookupItemCache > 0 && game->isMasterserverMode() == false) {
 	if(MaxExploredCellsLookupItemCache > 0) {
 		if(difftime(time(NULL),ExploredCellsLookupItem::lastDebug) >= 10) {
 			ExploredCellsLookupItem::lastDebug = time(NULL);
-			//printf("In [%s::%s Line: %d] ExploredCellsLookupItemCache.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,ExploredCellsLookupItemCache.size());
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ExploredCellsLookupItemCache.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,ExploredCellsLookupItemCache.size());
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] ExploredCellsLookupItemCache.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,ExploredCellsLookupItemCache.size());
 		}
@@ -2299,7 +2307,7 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
 
 			ExploredCellsLookupItemCache[purgeItem->second.pos].erase(purgeItem->second.sightRange);
 
-			if(ExploredCellsLookupItemCache[purgeItem->second.pos].size() == 0) {
+			if(ExploredCellsLookupItemCache[purgeItem->second.pos].empty() == true) {
 				ExploredCellsLookupItemCache.erase(purgeItem->second.pos);
 			}
 
@@ -2310,57 +2318,49 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
 		// cache if already found
 		std::map<Vec2i, std::map<int, ExploredCellsLookupItem> >::iterator iterFind = ExploredCellsLookupItemCache.find(newPos);
 		if(iterFind != ExploredCellsLookupItemCache.end()) {
-			//cacheLookupPosResult = true;
 
 			std::map<int, ExploredCellsLookupItem>::iterator iterFind2 = iterFind->second.find(sightRange);
 			if(iterFind2 != iterFind->second.end()) {
-				//cacheLookupSightResult = true;
 
-				std::vector<SurfaceCell *> &cellList = iterFind2->second.exploredCellList;
-				for(int idx2 = 0; idx2 < cellList.size(); ++idx2) {
-					SurfaceCell *sc = cellList[idx2];
-					sc->setExplored(teamIndex, true);
-				}
-				cellList = iterFind2->second.visibleCellList;
-				for(int idx2 = 0; idx2 < cellList.size(); ++idx2) {
-					SurfaceCell *sc = cellList[idx2];
-					sc->setVisible(teamIndex, true);
-				}
+				ExploredCellsLookupItem &exploredCellsCache = iterFind2->second;
+				exploreCells(teamIndex, exploredCellsCache);
 
 				// Only start worrying about updating the cache timer if we
 				// have hit the threshold
 				if(MaxExploredCellsLookupItemCacheTriggered == true) {
 					// Remove the old timer entry since the search key id is stale
-					ExploredCellsLookupItemCacheTimer.erase(iterFind2->second.ExploredCellsLookupItemCacheTimerCountIndex);
-					iterFind2->second.ExploredCellsLookupItemCacheTimerCountIndex = ExploredCellsLookupItemCacheTimerCount++;
+					ExploredCellsLookupItemCacheTimer.erase(exploredCellsCache.ExploredCellsLookupItemCacheTimerCountIndex);
+					exploredCellsCache.ExploredCellsLookupItemCacheTimerCountIndex = ExploredCellsLookupItemCacheTimerCount++;
 
 					ExploredCellsLookupKey lookupKey;
 					lookupKey.pos = newPos;
 					lookupKey.sightRange = sightRange;
 					lookupKey.teamIndex = teamIndex;
 
-					// Add a new search key since we just used this item
-					ExploredCellsLookupItemCacheTimer[iterFind2->second.ExploredCellsLookupItemCacheTimerCountIndex] = lookupKey;
+					// Add a new search key since we just used this exploredCellsCache
+					ExploredCellsLookupItemCacheTimer[exploredCellsCache.ExploredCellsLookupItemCacheTimerCountIndex] = lookupKey;
 				}
 
-				return;
+				return exploredCellsCache;
 			}
 		}
 	}
 
 	Vec2i newSurfPos= Map::toSurfCoords(newPos);
-	int surfSightRange= sightRange/Map::cellScale+1;
+	int surfSightRange= sightRange / Map::cellScale+1;
 
 	// Explore, this code is quite expensive when we have lots of units
-	ExploredCellsLookupItem item;
+	ExploredCellsLookupItem exploredCellsCache;
+	exploredCellsCache.exploredCellList.reserve(surfSightRange + indirectSightRange * 4);
+	exploredCellsCache.visibleCellList.reserve(surfSightRange + indirectSightRange * 4);
 
-	int loopCount = 0;
+	//int loopCount = 0;
     for(int i = -surfSightRange - indirectSightRange -1; i <= surfSightRange + indirectSightRange +1; ++i) {
         for(int j = -surfSightRange - indirectSightRange -1; j <= surfSightRange + indirectSightRange +1; ++j) {
-        	loopCount++;
+        	//loopCount++;
         	Vec2i currRelPos= Vec2i(i, j);
             Vec2i currPos= newSurfPos + currRelPos;
-            if(map.isInsideSurface(currPos)){
+            if(map.isInsideSurface(currPos) == true){
 				SurfaceCell *sc= map.getSurfaceCell(currPos);
 				if(sc == NULL) {
 					throw megaglest_runtime_error("sc == NULL");
@@ -2368,17 +2368,15 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
 
 				//explore
 				float posLength = currRelPos.length();
-				//if(Vec2i(0).dist(currRelPos) < surfSightRange + indirectSightRange + 1) {
 				if(posLength < surfSightRange + indirectSightRange + 1) {
                     sc->setExplored(teamIndex, true);
-                    item.exploredCellList.push_back(sc);
+                    exploredCellsCache.exploredCellList.push_back(sc);
 				}
 
 				//visible
-				//if(Vec2i(0).dist(currRelPos) < surfSightRange) {
 				if(posLength < surfSightRange) {
 					sc->setVisible(teamIndex, true);
-					item.visibleCellList.push_back(sc);
+					exploredCellsCache.visibleCellList.push_back(sc);
 				}
             }
         }
@@ -2386,18 +2384,18 @@ void World::exploreCells(const Vec2i &newPos, int sightRange, int teamIndex) {
 
     // Ok update our caches with the latest info for this position, sight and team
     if(MaxExploredCellsLookupItemCache > 0) {
-		if(item.exploredCellList.empty() == false || item.visibleCellList.empty() == false) {
-			//ExploredCellsLookupItemCache.push_back(item);
-			item.ExploredCellsLookupItemCacheTimerCountIndex = ExploredCellsLookupItemCacheTimerCount++;
-			ExploredCellsLookupItemCache[newPos][sightRange] = item;
+		if(exploredCellsCache.exploredCellList.empty() == false || exploredCellsCache.visibleCellList.empty() == false) {
+			exploredCellsCache.ExploredCellsLookupItemCacheTimerCountIndex = ExploredCellsLookupItemCacheTimerCount++;
+			ExploredCellsLookupItemCache[newPos][sightRange] = exploredCellsCache;
 
 			ExploredCellsLookupKey lookupKey;
 			lookupKey.pos 			= newPos;
 			lookupKey.sightRange 	= sightRange;
 			lookupKey.teamIndex 	= teamIndex;
-			ExploredCellsLookupItemCacheTimer[item.ExploredCellsLookupItemCacheTimerCountIndex] = lookupKey;
+			ExploredCellsLookupItemCacheTimer[exploredCellsCache.ExploredCellsLookupItemCacheTimerCountIndex] = lookupKey;
 		}
     }
+    return exploredCellsCache;
 }
 
 bool World::showWorldForPlayer(int factionIndex, bool excludeFogOfWarCheck) const {

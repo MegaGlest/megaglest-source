@@ -66,16 +66,6 @@ public:
 	int teamIndex;
 };
 
-class ExploredCellsLookupItem {
-public:
-
-	int ExploredCellsLookupItemCacheTimerCountIndex;
-	std::vector<SurfaceCell *> exploredCellList;
-	std::vector<SurfaceCell *> visibleCellList;
-
-	static time_t lastDebug;
-};
-
 class World {
 private:
 	typedef vector<Faction *> Factions;
@@ -298,7 +288,8 @@ public:
 	}
 	bool canTickWorld() const;
 
-	void exploreCells(const Vec2i &newPos, int sightRange, int teamIndex);
+	ExploredCellsLookupItem exploreCells(const Vec2i &newPos, int sightRange, int teamIndex);
+	void exploreCells(int teamIndex,ExploredCellsLookupItem &exploredCellsCache);
 	bool showWorldForPlayer(int factionIndex, bool excludeFogOfWarCheck=false) const;
 
 	inline UnitUpdater * getUnitUpdater() { return &unitUpdater; }
@@ -341,6 +332,7 @@ private:
 	void underTakeDeadFactionUnits();
 	void updateAllFactionConsumableCosts();
 	void restoreExploredFogOfWarCells();
+
 };
 
 }}//end namespace
