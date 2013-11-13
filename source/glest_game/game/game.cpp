@@ -2769,7 +2769,7 @@ string Game::getGamePerformanceCounts(bool displayWarnings) const {
 	for(std::map<string,int64>::const_iterator iterMap = gamePerformanceCounts.begin();
 			iterMap != gamePerformanceCounts.end(); ++iterMap) {
 		if(iterMap->first == ProgramState::MAIN_PROGRAM_RENDER_KEY) {
-			if(iterMap->second < WARNING_RENDER_MILLIS) {
+			if(iterMap->second > WARNING_RENDER_MILLIS) {
 				continue;
 			}
 		}
