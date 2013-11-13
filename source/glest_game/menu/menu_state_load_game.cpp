@@ -268,16 +268,23 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 				if(slots[i]->mouseClick(x, y) && selectedButton != slots[i]) {
 					soundRenderer.playFx(coreData.getClickSoundB());
 
+					Lang &lang= Lang::getInstance();
 					cleanupTexture(&previewTexture);
 					selectedButton = slots[i];
 					string filename	= saveGameDir + selectedButton->getText()+".xml";
 					string screenShotFilename = filename + ".jpg";
 					if(fileExists(screenShotFilename) == true) {
-						previewTexture = GraphicsInterface::getInstance().getFactory()->newTexture2D();
-						if(previewTexture) {
-							previewTexture->setMipmap(true);
-							previewTexture->load(screenShotFilename);
-							previewTexture->init();
+						try {
+							previewTexture = GraphicsInterface::getInstance().getFactory()->newTexture2D();
+							if(previewTexture) {
+								previewTexture->setMipmap(true);
+								previewTexture->load(screenShotFilename);
+								previewTexture->init();
+							}
+						}
+						catch(const megaglest_runtime_error &ex) {
+							cleanupTexture(&previewTexture);
+							showMessageBox(ex.what(), lang.getString("Notice"), true);
 						}
 					}
 					else {
@@ -285,8 +292,6 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 					}
 
 					if(fileExists(filename) == true) {
-						Lang &lang= Lang::getInstance();
-
 						// Xerces is infinitely slower than rapidxml
 						// XmlTree	xmlTree(XML_XERCES_ENGINE);
 						XmlTree	xmlTree(XML_RAPIDXML_ENGINE);
