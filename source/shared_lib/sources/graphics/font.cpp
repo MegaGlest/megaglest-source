@@ -55,6 +55,7 @@ bool Font::fontIsMultibyte 					= false;
 bool Font::forceLegacyFonts					= false;
 bool Font::fontIsRightToLeft				= false;
 bool Font::forceFTGLFonts					= false;
+bool Font::fontSupportMixedRightToLeft		= false;
 
 // This value is used to scale the font text rendering
 // in 3D render mode
@@ -76,7 +77,7 @@ void Font::resetToDefaults() {
 	Font::fontIsMultibyte 			= false;
 	//Font::forceLegacyFonts			= false;
 	Font::fontIsRightToLeft			= false;
-
+	Font::fontSupportMixedRightToLeft = false;
 	// This value is used to scale the font text rendering
 	// in 3D render mode
 	Font::scaleFontValue					= 0.80f;
@@ -309,8 +310,225 @@ void Font::setSize(int size)	{
 	}
 }
 
+bool is_non_ASCII(const int &c) {
+	return (c < 0) || (c >= 128);
+}
+bool is_ASCII(const int &c) {
+	return !is_non_ASCII(c);
+}
+
+bool prev_word_is_ASCII(const string &str_,int end_index) {
+	bool result = false;
+	if(end_index < 0) {
+		//printf("Line: %d str [%s] end_index: %d\n",__LINE__,str_.substr(end_index).c_str(),end_index);
+		return result;
+	}
+	int start_index = end_index;
+
+	//printf("Line: %d str [%s] end_index: %d word [%s]\n",__LINE__,str_.c_str(),end_index,str_.substr(end_index).c_str());
+
+	for (; start_index >= 0; --start_index) {
+		if(str_[start_index] == ' ') {
+			start_index++;
+			break;
+		}
+//		if(str_.substr(start_index,2) == "\\n") {
+//			start_index+=2;
+//			break;
+//		}
+	}
+	if(start_index < 0) {
+		start_index = 0;
+	}
+	//printf("Line: %d start_index: %d end_index: %d\n",__LINE__,start_index,end_index);
+	if(end_index >= 0) {
+		if(start_index == end_index) {
+			// another space
+			// !!! not sure what to do!
+			//printf("Line: %d [%s]\n",__LINE__,str_.substr(start_index).c_str());
+
+			if(str_[start_index] == ' ') {
+				return prev_word_is_ASCII(str_,start_index-1);
+			}
+			else {
+				return isalnum(str_[start_index]);
+			}
+		}
+		else {
+			int length = end_index-start_index+1;
+			string word = str_.substr(start_index,length);
+			//printf("Line: %d word [%s] length: %d\n",__LINE__,word.c_str(),length);
+			for(int index = 0; index < word.size(); ++index) {
+				//printf("%c = %d,",word[index],isalnum(word[index]));
+				if(isalnum(word[index])) {
+					//printf("Prev %c = %d [%d] [%s],",word[index],isalnum(word[index]),index,(index > 0 ? word.substr(index-1,2).c_str() : "n/a"));
+//					if(index > 0 && word.substr(index-1,2) == "\\n") {
+//						continue;
+//					}
+
+					result = true;
+					break;
+				}
+			}
+			//printf("Line: %d result = %d\n",__LINE__,result);
+		}
+	}
+	return result;
+}
+
+bool next_word_is_ASCII(const string &str_,int start_index) {
+	bool result = false;
+	if(start_index >= str_.size()) {
+		//printf("Line: %d str [%s] start_index: %d\n",__LINE__,str_.substr(start_index).c_str(),start_index);
+		return result;
+	}
+
+	int end_index = start_index;
+
+	//printf("Line: %d str [%s] start_index: %d\n",__LINE__,str_.c_str(),start_index);
+
+	for (; end_index < str_.size(); ++end_index) {
+		if(str_[end_index] == ' ') {
+			end_index--;
+			break;
+		}
+//		if(str_.substr(end_index,2) == "\\n") {
+//			end_index-=2;
+//			break;
+//		}
+
+	}
+	if(end_index >= str_.size()) {
+		end_index = str_.size()-1;
+	}
+
+	//printf("Line: %d start_index: %d end_index: %d\n",__LINE__,start_index,end_index);
+	if(start_index >= 0) {
+		if(start_index == end_index) {
+			// another space
+			// !!! not sure what to do!
+			//printf("Line: %d [%s]\n",__LINE__,str_.substr(start_index).c_str());
+
+			if(str_[start_index] == ' ') {
+				return next_word_is_ASCII(str_,end_index+1);
+			}
+			else {
+				return isalnum(str_[start_index]);
+			}
+
+		}
+		else {
+			int length = end_index-start_index+1;
+			string word = str_.substr(start_index,length);
+			//printf("Line: %d word [%s] length: %d\n",__LINE__,word.c_str(),length);
+			int alphaCount = 0;
+			for(int index = 0; index < word.size(); ++index) {
+				//printf("%c = %d,",word[index],isalnum(word[index]));
+				if(isalnum(word[index])) {
+					//printf("Next %c = %d [%d] [%s],",word[index],isalnum(word[index]),index,(index > 0 ? word.substr(index-1,2).c_str() : "n/a"));
+//					if(index > 0 && word.substr(index-1,2) == "\\n") {
+//						continue;
+//					}
+					result = true;
+					break;
+				}
+			}
+			//printf("Line: %d result = %d\n",__LINE__,result);
+		}
+	}
+	return result;
+}
+
+vector<pair<char, int> > Font::extract_mixed_LTR_RTL_map(string &str_) {
+    vector<pair<char, int> > ascii_char_map;
+
+//    replaceAll(str_, "\\n", " \\n ");
+    for (int index = 0; index < str_.size(); ++index) {
+    	if(is_ASCII(str_[index]) == true) {
+    		if(str_[index] == ' ') {
+    			// Check both sides of the space to see what to do with it
+    			if(prev_word_is_ASCII(str_,index-1) == false) {
+    				//printf("#1 Prev Skip %d [%s]\n",index,str_.substr(index).c_str());
+
+    				if(next_word_is_ASCII(str_,index+1) == false) {
+    					//printf("#2 Prev Skip %d [%s]\n",index,str_.substr(index).c_str());
+    					//printf("#1 Keep %d [%s]\n",index,str_.substr(index).c_str());
+    					continue;
+    				}
+    			}
+//    			if(next_word_is_ASCII(str_,index+1) == false) {
+//    				//printf("Next Skip %d [%s]\n",index,str_.substr(index).c_str());
+//    				//printf("#2 Keep %d [%s]\n",index,str_.substr(index).c_str());
+//    				continue;
+//    			}
+    		}
+//    		else if(str_.substr(index,2) == "\\n" ||
+//    				(index-1 >= 0 && str_.substr(index-1,2) == "\\n")) {
+////
+////					//printf("Next Skip %d [%s]\n",index,str_.substr(index).c_str());
+////					//printf("#3 Keep %d [%s]\n",index,str_.substr(index).c_str());
+////
+//    			//printf("Newline Skip %d [%s]\n",index,str_.substr(index).c_str());
+//    			continue;
+//    		}
+    		// previous character is a space
+    		else if(index-1 >= 0 && str_[index-1]== ' ') {
+    			if(index+1 < str_.size() && str_[index+1] != ' ' &&
+    				next_word_is_ASCII(str_,index+1) == false) {
+					//printf("Next Skip %d [%s]\n",index,str_.substr(index).c_str());
+					//printf("#3 Keep %d [%s]\n",index,str_.substr(index).c_str());
+					continue;
+				}
+    		}
+    		// next character is a space
+    		else if(index+1 < str_.size() && str_[index+1] == ' ') {
+    			if(index-1 >= 0 && str_[index-1] != ' ' &&
+    					prev_word_is_ASCII(str_,index-1) == false) {
+					//printf("Next Skip %d [%s]\n",index,str_.substr(index).c_str());
+					//printf("#4 Keep %d [%s]\n",index,str_.substr(index).c_str());
+					continue;
+				}
+    		}
+    		else if(index-1 >= 0 && prev_word_is_ASCII(str_,index-1) == false) {
+//					//printf("Next Skip %d [%s]\n",index,str_.substr(index).c_str());
+				//printf("#5 Keep %d [%s] alpha: %d\n",index,str_.substr(index).c_str(),isalnum(str_[index-1]));
+				if(index+1 < str_.size() && next_word_is_ASCII(str_,index+1) == false) {
+					continue;
+				}
+				else if(index+1 >= str_.size()) {
+					continue;
+				}
+    		}
+    		else if(index+1 < str_.size() && next_word_is_ASCII(str_,index+1) == false) {
+//
+//					//printf("Next Skip %d [%s]\n",index,str_.substr(index).c_str());
+				//printf("#6 Keep %d [%s] alpha: %d\n",index,str_.substr(index).c_str(),isalnum(str_[index+1]));
+				if(index-1 >= 0 && prev_word_is_ASCII(str_,index-1) == false) {
+					continue;
+				}
+				else if(index-1 < 0) {
+					continue;
+				}
+    		}
+    	}
+    	else {
+    		//printf("#5 Keep %d [%s]\n",index,str_.substr(index).c_str());
+    		continue;
+    	}
+    	//printf("Removal %d [%s]\n",index,str_.substr(index).c_str());
+    	ascii_char_map.push_back(make_pair(str_[index],index));
+    }
+
+    for (int index = ascii_char_map.size()-1; index >= 0; --index) {
+    	str_.erase(ascii_char_map[index].second,1);
+    }
+
+    return ascii_char_map;
+}
+
 void Font::bidi_cvt(string &str_) {
 
+/*
 #ifdef	HAVE_FRIBIDI
 	char		*c_str = const_cast<char *>(str_.c_str());	// fribidi forgot const...
 	FriBidiStrIndex	len = (int)str_.length();
@@ -351,7 +569,133 @@ void Font::bidi_cvt(string &str_) {
 	delete[] bidi_visual;
 	delete[] utf8str;
 #endif
+*/
 
+#ifdef	HAVE_FRIBIDI
+
+	//printf("BEFORE:   [%s]\n",str_.c_str());
+
+	string new_value = "";
+	bool hasSoftNewLines = false;
+	bool hasHardNewLines = false;
+	vector<string> lines;
+
+	if(str_.find("\\n") != str_.npos) {
+		Tokenize(str_,lines,"\\n");
+		hasSoftNewLines = true;
+	}
+	else if(str_.find("\n") != str_.npos) {
+		Tokenize(str_,lines,"\n");
+		hasHardNewLines = true;
+	}
+	else {
+		lines.push_back(str_);
+	}
+
+	for(int lineIndex = 0; lineIndex < lines.size(); ++lineIndex) {
+		if(new_value != "") {
+			if(hasSoftNewLines == true) {
+				new_value += "\\n";
+			}
+			else if(hasHardNewLines == true) {
+				new_value += "\n";
+			}
+		}
+		str_ = lines[lineIndex];
+		//printf("Line: %d [%s]\n",lineIndex,str_.c_str());
+
+		vector<pair<char, int> > ascii_char_map;
+		if(Font::fontSupportMixedRightToLeft == true) {
+			ascii_char_map = extract_mixed_LTR_RTL_map(str_);
+		}
+
+		//FriBidi C string holding the original text (that is probably with logical hebrew)
+		FriBidiChar *logical = NULL;
+		//FriBidi C string for the output text (that should be visual hebrew)
+		FriBidiChar *visual = NULL;
+
+		FriBidiStrIndex *ltov = NULL;
+		FriBidiStrIndex *vtol = NULL;
+
+		//C string holding the originall text (not nnecessarily as unicode)
+		char *ip = NULL;
+		//C string for the output text (not necessarily as unicode)
+		char *op = NULL;
+
+		//Size to allocate for the char arrays
+		int size = str_.size() + 2;
+
+		//Allocate memory:
+		//It's probably way too much, but at least it's not too little
+		logical = new FriBidiChar[size * 3];
+		visual = new FriBidiChar[size * 3];
+		ip = new char[size * 3];
+		op = new char[size * 3];
+
+		ltov = new FriBidiStrIndex[size * 3];
+		vtol = new FriBidiStrIndex[size * 3];
+
+		FriBidiCharType base;
+		size_t len, orig_len;
+
+		//A bool type to see if conversion succeded
+		fribidi_boolean log2vis;
+
+		//Holds information telling fribidi to use UTF-8
+		FriBidiCharSet char_set_num;
+		char_set_num = fribidi_parse_charset ("UTF-8");
+
+		//Copy the given to string into the ip string
+		strcpy(ip, str_.c_str());
+
+		//Find length of originall text
+		orig_len = len = strlen( ip );
+
+		//Insert ip to logical as unicode (and find it's size now)
+		len = fribidi_charset_to_unicode (char_set_num, ip, len, logical);
+
+		base = FRIBIDI_TYPE_ON;
+
+		//printf("STRIPPED: [%s]\n",str_.c_str());
+
+		//Convert logical text to visual
+		log2vis = fribidi_log2vis (logical, len, &base, /* output: */ visual, ltov, vtol, NULL);
+
+		//If convertion was successful
+		if(log2vis)
+		{
+			//Remove bidi marks (that we don't need) from the output text
+			len = fribidi_remove_bidi_marks (visual, len, ltov, vtol, NULL);
+
+			//Convert unicode string back to the encoding the input string was in
+			fribidi_unicode_to_charset ( char_set_num, visual, len ,op);
+
+			//Insert the output string into the result
+			str_ = op;
+
+			//printf("LOG2VIS:  [%s]\n",str_.c_str());
+
+			if(ascii_char_map.empty() == false) {
+				for (int index = 0; index < (int)ascii_char_map.size(); ++index) {
+					str_.insert(ascii_char_map[index].second,1,ascii_char_map[index].first);
+				}
+			}
+			//printf("AFTER:    [%s]\n",str_.c_str());
+		}
+
+		//Free allocated memory
+		delete [] ltov;
+		delete [] visual;
+		delete [] logical;
+		delete [] ip;
+		delete [] op;
+
+		new_value += str_;
+	}
+	str_ = new_value;
+	//printf("NEW:      [%s]\n",str_.c_str());
+
+#endif
 
 /*
 	string out = "" ;

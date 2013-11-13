@@ -261,7 +261,7 @@ void Tokenize(const string& str,vector<string>& tokens,const string& delimiters)
 			break;
 		}
 		tokens.push_back( string( textLine.substr( pos, nextPos - pos ) ) );
-		pos = nextPos + 1;
+		pos = nextPos + delimiters.size();
 	}
 
 }
