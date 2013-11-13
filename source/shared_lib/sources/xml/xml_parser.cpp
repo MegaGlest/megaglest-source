@@ -289,21 +289,11 @@ XmlIoRapid::XmlIoRapid() {
 
 void XmlIoRapid::init() {
 	try{
-		//printf("XmlIo init\n");
-
 		XmlIoRapid::initialized= true;
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error initializing XML system, msg %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		throw megaglest_runtime_error("Error initializing XML system");
-	}
-
-	try {
-		doc = new xml_document<>();
-	}
-	catch(const DOMException &ex) {
-		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Exception while creating XML parser, msg: %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.getMessage());
-		throw megaglest_runtime_error("Exception while creating XML parser");
 	}
 }
 
@@ -323,9 +313,6 @@ XmlIoRapid &XmlIoRapid::getInstance() {
 void XmlIoRapid::cleanup() {
 	if(XmlIoRapid::initialized == true) {
 		XmlIoRapid::initialized= false;
-		//printf("XmlIo cleanup\n");
-		delete doc;
-		doc = NULL;
 	}
 }
 
@@ -394,11 +381,12 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
 
         if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
-        doc->parse<parse_no_data_nodes>(&buffer.front());
+        xml_document<> doc;
+        doc.parse<parse_no_data_nodes>(&buffer.front());
 
         if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
-		rootNode= new XmlNode(doc->first_node(),mapTagReplacementValues);
+		rootNode= new XmlNode(doc.first_node(),mapTagReplacementValues);
 
 		if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -521,6 +509,8 @@ static string loadStackCacheName = string(__FILE__) + string("_loadStackCacheNam
 void XmlTree::load(const string &path, const std::map<string,string> &mapTagReplacementValues, bool noValidation,bool skipStackCheck) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s] skipStackCheck = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),skipStackCheck);
 
+	clearRootNode();
+
 	this->skipStackCheck = skipStackCheck;
 	if(this->skipStackCheck == false) {
 		//printf("XmlTree::load p [%p]\n",this);
@@ -540,6 +530,7 @@ void XmlTree::load(const string &path, const std::map<string,string> &mapTagRepl
 	}
 
 	loadPath = path;
+
 	if(this->engine_type == XML_XERCES_ENGINE) {
 		this->rootNode= XmlIo::getInstance().load(path, mapTagReplacementValues, noValidation);
 	}

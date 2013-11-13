@@ -97,7 +97,6 @@ public:
 class XmlIoRapid {
 private:
 	static bool initialized;
-	xml_document<> *doc;
 
 private:
 	XmlIoRapid();
