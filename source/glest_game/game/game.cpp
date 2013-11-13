@@ -6457,8 +6457,6 @@ string Game::saveGame(string name, string path) {
 		infoNode->addAttribute("color",info.color.getString(), mapTagReplacements);
 	}
 
-	gameNode->addAttribute("timeDisplay",intToStr(timeDisplay), mapTagReplacements);
-
 	gameNode->addAttribute("disableSpeedChange",intToStr(disableSpeedChange), mapTagReplacements);
 
 	xmlTree.save(saveGameFile);

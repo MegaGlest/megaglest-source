@@ -287,15 +287,25 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 					if(fileExists(filename) == true) {
 						Lang &lang= Lang::getInstance();
 
+						// Xerces is infinitely slower than rapidxml
+						// XmlTree	xmlTree(XML_XERCES_ENGINE);
 						XmlTree	xmlTree(XML_RAPIDXML_ENGINE);
+
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Before load of XML\n");
 						std::map<string,string> mapExtraTagReplacementValues;
 						xmlTree.load(filename, Properties::getTagReplacementValues(&mapExtraTagReplacementValues),true);
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("After load of XML\n");
 
 						const XmlNode *rootNode= xmlTree.getRootNode();
-						if(rootNode->hasChild("megaglest-saved-game") == true) {
+						if(rootNode != NULL && rootNode->hasChild("megaglest-saved-game") == true) {
 							rootNode = rootNode->getChild("megaglest-saved-game");
+						}
+
+						if(rootNode == NULL) {
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"Invalid XML saved game file: [%s]",filename.c_str());
+							infoTextLabel.setText(szBuf);
+							return;
 						}
 
 						const XmlNode *versionNode= rootNode;
