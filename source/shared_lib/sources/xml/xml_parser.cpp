@@ -400,10 +400,6 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
 
 		rootNode= new XmlNode(doc->first_node(),mapTagReplacementValues);
 
-		//doc->clear();
-		cleanup();
-		init();
-
 		if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 #if defined(WIN32) && !defined(__MINGW32__)
