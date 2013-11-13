@@ -561,18 +561,16 @@ void Faction::end() {
 void Faction::notifyUnitAliveStatusChange(const Unit *unit) {
 	if(unit != NULL) {
 		if(unit->isAlive() == true) {
-			aliveUnitList[unit->getId()] = unit;
+			aliveUnitListCache[unit->getId()] = unit;
 
 			if(unit->getType()->isMobile() == true) {
-				mobileUnitList[unit->getId()] = unit;
+				mobileUnitListCache[unit->getId()] = unit;
 			}
 		}
 		else {
-			aliveUnitList.erase(unit->getId());
-
-			if(unit->getType()->isMobile() == true) {
-				mobileUnitList.erase(unit->getId());
-			}
+			aliveUnitListCache.erase(unit->getId());
+			mobileUnitListCache.erase(unit->getId());
+			beingBuiltUnitListCache.erase(unit->getId());
 		}
 	}
 }
@@ -580,11 +578,11 @@ void Faction::notifyUnitAliveStatusChange(const Unit *unit) {
 void Faction::notifyUnitTypeChange(const Unit *unit, const UnitType *newType) {
 	if(unit != NULL) {
 		if(unit->getType()->isMobile() == true) {
-			mobileUnitList.erase(unit->getId());
+			mobileUnitListCache.erase(unit->getId());
 		}
 
 		if(newType != NULL && newType->isMobile() == true) {
-			mobileUnitList[unit->getId()] = unit;
+			mobileUnitListCache[unit->getId()] = unit;
 		}
 	}
 }
@@ -592,26 +590,26 @@ void Faction::notifyUnitTypeChange(const Unit *unit, const UnitType *newType) {
 void Faction::notifyUnitSkillTypeChange(const Unit *unit, const SkillType *newType) {
 	if(unit != NULL) {
 		if(unit->isBeingBuilt() == true) {
-			beingBuiltUnitList.erase(unit->getId());
+			beingBuiltUnitListCache.erase(unit->getId());
 		}
 		if(newType != NULL && newType->getClass() == scBeBuilt) {
-			beingBuiltUnitList[unit->getId()] = unit;
+			beingBuiltUnitListCache[unit->getId()] = unit;
 		}
 	}
 }
 
 bool Faction::hasAliveUnits(bool filterMobileUnits, bool filterBuiltUnits) const {
 	bool result = false;
-	if(aliveUnitList.empty() == false) {
+	if(aliveUnitListCache.empty() == false) {
 		if(filterMobileUnits == true) {
-			result = (mobileUnitList.empty() == false);
+			result = (mobileUnitListCache.empty() == false);
 		}
 		else {
 			result = true;
 		}
 
 		if(result == true && filterBuiltUnits == true) {
-			result = (beingBuiltUnitList.empty() == true);
+			result = (beingBuiltUnitListCache.empty() == true);
 		}
 	}
 	return result;
@@ -1995,7 +1993,10 @@ bool Faction::canCreateUnit(const UnitType *ut, bool checkBuild, bool checkProdu
 void Faction::clearCaches() {
 	cacheResourceTargetList.clear();
 	cachedCloseResourceTargetLookupList.clear();
-	mapSharedPathFinderCache.clear();
+
+	//aliveUnitListCache.clear();
+	//mobileUnitListCache.clear();
+	//beingBuiltUnitListCache.clear();
 
 	unsigned int unitCount = this->getUnitCount();
 	for(unsigned int i = 0; i < unitCount; ++i) {
@@ -2006,9 +2007,12 @@ void Faction::clearCaches() {
 	}
 }
 
-uint64 Faction::getCacheKBytes(uint64 *cache1Size, uint64 *cache2Size) {
+uint64 Faction::getCacheKBytes(uint64 *cache1Size, uint64 *cache2Size, uint64 *cache3Size, uint64 *cache4Size, uint64 *cache5Size) {
 	uint64 cache1Count = 0;
 	uint64 cache2Count = 0;
+	uint64 cache3Count = 0;
+	uint64 cache4Count = 0;
+	uint64 cache5Count = 0;
 
 	for(std::map<Vec2i,int>::iterator iterMap1 = cacheResourceTargetList.begin();
 		iterMap1 != cacheResourceTargetList.end(); ++iterMap1) {
@@ -2018,6 +2022,18 @@ uint64 Faction::getCacheKBytes(uint64 *cache1Size, uint64 *cache2Size) {
 		iterMap1 != cachedCloseResourceTargetLookupList.end(); ++iterMap1) {
 		cache2Count++;
 	}
+	for(std::map<int,const Unit *>::iterator iterMap1 = aliveUnitListCache.begin();
+		iterMap1 != aliveUnitListCache.end(); ++iterMap1) {
+		cache3Count++;
+	}
+	for(std::map<int,const Unit *>::iterator iterMap1 = mobileUnitListCache.begin();
+		iterMap1 != mobileUnitListCache.end(); ++iterMap1) {
+		cache4Count++;
+	}
+	for(std::map<int,const Unit *>::iterator iterMap1 = beingBuiltUnitListCache.begin();
+		iterMap1 != beingBuiltUnitListCache.end(); ++iterMap1) {
+		cache5Count++;
+	}
 
 	if(cache1Size) {
 		*cache1Size = cache1Count;
@@ -2025,9 +2041,21 @@ uint64 Faction::getCacheKBytes(uint64 *cache1Size, uint64 *cache2Size) {
 	if(cache2Size) {
 		*cache2Size = cache2Count;
 	}
+	if(cache3Size) {
+		*cache3Size = cache3Count;
+	}
+	if(cache4Size) {
+		*cache4Size = cache4Count;
+	}
+	if(cache5Size) {
+		*cache5Size = cache5Count;
+	}
 
 	uint64 totalBytes = cache1Count * sizeof(int);
 	totalBytes += cache2Count * sizeof(bool);
+	totalBytes += cache3Count * (sizeof(int) + sizeof(const Unit *));
+	totalBytes += cache4Count * (sizeof(int) + sizeof(const Unit *));
+	totalBytes += cache5Count * (sizeof(int) + sizeof(const Unit *));
 
 	totalBytes /= 1000;
 

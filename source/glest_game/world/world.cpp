@@ -599,7 +599,6 @@ void World::updateAllFactionUnits() {
 	for(int i = 0; i < factionCount; ++i) {
 		Faction *faction = getFaction(i);
 		faction->clearUnitsPathfinding();
-		faction->clearAproxCanMoveSoonCached();
 		faction->clearWorldSynchThreadedLogList();
 	}
 
@@ -2702,16 +2701,28 @@ string World::getAllFactionsCacheStats() {
 	uint64 totalBytes = 0;
 	uint64 totalCache1Size = 0;
 	uint64 totalCache2Size = 0;
+	uint64 totalCache3Size = 0;
+	uint64 totalCache4Size = 0;
+	uint64 totalCache5Size = 0;
 	for(int i = 0; i < getFactionCount(); ++i) {
 		uint64 cache1Size = 0;
 		uint64 cache2Size = 0;
-		totalBytes += getFaction(i)->getCacheKBytes(&cache1Size, &cache2Size);
+		uint64 cache3Size = 0;
+		uint64 cache4Size = 0;
+		uint64 cache5Size = 0;
+
+		totalBytes += getFaction(i)->getCacheKBytes(&cache1Size,&cache2Size,&cache3Size,&cache4Size,&cache5Size);
 		totalCache1Size += cache1Size;
 		totalCache2Size += cache2Size;
+		totalCache3Size += cache3Size;
+		totalCache4Size += cache4Size;
+		totalCache5Size += cache5Size;
 	}
 
 	char szBuf[8096]="";
-	snprintf(szBuf,8096,"totalCache1Size [%llu] totalCache1Size [%llu] total KB: %s",(long long unsigned)totalCache1Size,(long long unsigned)totalCache2Size,formatNumber(totalBytes).c_str());
+	snprintf(szBuf,8096,"Cache1 [%llu] Cache2 [%llu] Cache3 [%llu] Cache4 [%llu] Cache5 [%llu] total KB: %s",
+			(long long unsigned)totalCache1Size,(long long unsigned)totalCache2Size,(long long unsigned)totalCache3Size,
+			(long long unsigned)totalCache4Size,(long long unsigned)totalCache5Size,formatNumber(totalBytes).c_str());
 	result = szBuf;
 	return result;
 }

@@ -173,15 +173,13 @@ private:
 	TechTree *techTree;
 	const XmlNode *loadWorldNode;
 
-	std::map<int,std::map<Field, std::map<Vec2i,bool> > > mapSharedPathFinderCache;
-
 	std::vector<string> worldSynchThreadedLogList;
 
 	std::map<int,string> crcWorldFrameDetails;
 
-	std::map<int,const Unit *> aliveUnitList;
-	std::map<int,const Unit *> mobileUnitList;
-	std::map<int,const Unit *> beingBuiltUnitList;
+	std::map<int,const Unit *> aliveUnitListCache;
+	std::map<int,const Unit *> mobileUnitListCache;
+	std::map<int,const Unit *> beingBuiltUnitListCache;
 
 public:
 	Faction();
@@ -220,27 +218,6 @@ public:
 				worldSynchThreadedLogList.clear();
 			}
 		}
-	}
-
-	inline const bool * aproxCanMoveSoonCached(int size, Field field, const Vec2i &pos1, const Vec2i &pos2) const {
-		const bool *result = NULL;
-//		std::map<int,std::map<Field, std::map<Vec2i,bool> > >::const_iterator iterFind1 = mapSharedPathFinderCache.find(size);
-//		if(iterFind1 != mapSharedPathFinderCache.end()) {
-//			std::map<Field, std::map<Vec2i,bool> >::const_iterator iterFind2 = iterFind1->second.find(field);
-//			if(iterFind2 != iterFind1->second.end()) {
-//				std::map<Vec2i,bool>::const_iterator iterFind3 = iterFind2->second.find(pos2);
-//				if(iterFind3 != iterFind2->second.end()) {
-//					result = &iterFind3->second;
-//				}
-//			}
-//		}
-		return result;
-	}
-	inline void addAproxCanMoveSoonCached(int size, Field field, const Vec2i &pos1, const Vec2i &pos2,bool result) {
-		//mapSharedPathFinderCache[size][field][pos2]=result;
-	}
-	inline void clearAproxCanMoveSoonCached() {
-		//mapSharedPathFinderCache.clear();
 	}
 
 	inline void addLivingUnits(int id) { livingUnits.insert(id); }
@@ -379,7 +356,7 @@ public:
 	bool canCreateUnit(const UnitType *ut, bool checkBuild, bool checkProduce, bool checkMorph) const;
 
 	string getCacheStats();
-	uint64 getCacheKBytes(uint64 *cache1Size, uint64 *cache2Size);
+	uint64 getCacheKBytes(uint64 *cache1Size, uint64 *cache2Size, uint64 *cache3Size, uint64 *cache4Size, uint64 *cache5Size);
 
 	std::string toString(bool crcMode=false) const;
 
