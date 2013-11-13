@@ -101,6 +101,10 @@ void Lang::loadGameStrings(string uselanguage, bool loadFonts,
 			Font::fontIsRightToLeft	= strToBool(lang.getString("FONT_RIGHTTOLEFT"));
 		}
 
+		if(	lang.hasString("FONT_RIGHTTOLEFT_MIXED_SUPPORT")) {
+			Font::fontSupportMixedRightToLeft = strToBool(lang.getString("FONT_RIGHTTOLEFT_MIXED_SUPPORT"));
+		}
+
 		if(	lang.hasString("MEGAGLEST_FONT")) {
 			//setenv("MEGAGLEST_FONT","/usr/share/fonts/truetype/ttf-japanese-gothic.ttf",0); // Japanese
 	#if defined(WIN32)

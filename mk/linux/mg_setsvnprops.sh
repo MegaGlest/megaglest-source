@@ -6,6 +6,14 @@
 
 CURRENTDIR="$(dirname $(readlink -f $0))"
 
+# cpp /.c / .h files
+find ${CURRENTDIR}/../../source/ -iname '*.cpp' -exec svn propset svn:mime-type text/plain '{}' \;
+find ${CURRENTDIR}/../../source/ -iname '*.cpp' -exec svn propset svn:eol-style native '{}' \;
+find ${CURRENTDIR}/../../source/ -iname '*.c' -exec svn propset svn:mime-type text/plain '{}' \;
+find ${CURRENTDIR}/../../source/ -iname '*.c' -exec svn propset svn:eol-style native '{}' \;
+find ${CURRENTDIR}/../../source/ -iname '*.h' -exec svn propset svn:mime-type text/plain '{}' \;
+find ${CURRENTDIR}/../../source/ -iname '*.h' -exec svn propset svn:eol-style native '{}' \;
+
 # LNG files
 #find ${CURRENTDIR}/../../data/glest_game/ -name "*\.lng" -exec echo {} \;
 find ${CURRENTDIR}/../../data/glest_game/ -iname '*.lng' -exec svn propset svn:mime-type text/plain '{}' \;

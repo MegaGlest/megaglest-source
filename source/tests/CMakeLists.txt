@@ -21,6 +21,17 @@ IF(BUILD_MEGAGLEST_TESTS)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${SDL_LIBRARY})
 	ENDIF()
 
+	find_package( FriBiDi )
+	if(ENABLE_FRIBIDI AND FRIBIDI_LIBRARIES)
+	        add_definitions(-DHAVE_FRIBIDI)
+
+        	include_directories( ${FRIBIDI_INCLUDE_DIR} )
+                SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${FRIBIDI_LIBRARIES})
+
+	elseif(ENABLE_FRIBIDI AND NOT FRIBIDI_LIBRARIES)
+		message("Could not find FriBiDi. Disabling FriBiDi support.")
+	endif()
+
 	#########################################################################################
 	# megaglest test code
 

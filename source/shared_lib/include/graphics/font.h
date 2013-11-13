@@ -13,6 +13,7 @@
 #define _SHARED_GRAPHICS_FONT_H_
 
 #include <string>
+#include <vector>
 #include "font_text.h"
 #include "leak_dumper.h"
 
@@ -69,6 +70,7 @@ public:
 	static bool forceLegacyFonts;
 	static bool forceFTGLFonts;
 	static bool fontIsRightToLeft;
+	static bool fontSupportMixedRightToLeft;
 	static float scaleFontValue;
 	static float scaleFontValueCenterHFactor;
 	static int baseSize;
@@ -110,6 +112,7 @@ public:
 	int getSize() const;
 	void setSize(int size);
 
+	static std::vector<std::pair<char, int> > extract_mixed_LTR_RTL_map(string &str_);
 	static void bidi_cvt(string &str_);
 
 	static void resetToDefaults();

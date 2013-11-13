@@ -4173,6 +4173,7 @@ int glestMain(int argc, char** argv) {
 		Shared::Graphics::Font::scaleFontValue				= config.getFloat("FONT_SCALE_SIZE",floatToStr(Shared::Graphics::Font::scaleFontValue).c_str());
 		Shared::Graphics::Font::scaleFontValueCenterHFactor	= config.getFloat("FONT_SCALE_CENTERH_FACTOR",floatToStr(Shared::Graphics::Font::scaleFontValueCenterHFactor).c_str());
 		Shared::Graphics::Font::langHeightText				= config.getString("FONT_HEIGHT_TEXT",Shared::Graphics::Font::langHeightText.c_str());
+		Shared::Graphics::Font::fontSupportMixedRightToLeft = config.getBool("FONT_RIGHTTOLEFT_MIXED_SUPPORT",intToStr(Shared::Graphics::Font::fontSupportMixedRightToLeft).c_str());
 
 		// Example values:
 		// DEFAULT_CHARSET (English) = 1
