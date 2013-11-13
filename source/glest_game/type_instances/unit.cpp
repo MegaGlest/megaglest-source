@@ -1251,25 +1251,29 @@ void Unit::refreshPos() {
 }
 
 FowAlphaCellsLookupItem Unit::getFogOfWarRadius(bool useCache) const {
-	//if(useCache == true && Config::getInstance().getBool("EnableFowCache","true") == true) {
 	if(useCache == true) {
 		return cachedFow;
 	}
 
-	FowAlphaCellsLookupItem result;
 	//iterate through all cells
 	int sightRange= this->getType()->getSight();
-	PosCircularIterator pci(map, this->getPosNotThreadSafe(), sightRange + World::indirectSightRange);
+	int radius = sightRange + World::indirectSightRange;
+	PosCircularIterator pci(map, this->getPosNotThreadSafe(), radius);
+	FowAlphaCellsLookupItem result;
 	while(pci.next()){
 		const Vec2i sightpos= pci.getPos();
 		Vec2i surfPos= Map::toSurfCoords(sightpos);
 
 		//compute max alpha
 		float maxAlpha= 0.0f;
-		if(surfPos.x > 1 && surfPos.y > 1 && surfPos.x < map->getSurfaceW() -2 && surfPos.y < map->getSurfaceH() -2) {
+		if(surfPos.x > 1 && surfPos.y > 1 &&
+			surfPos.x < map->getSurfaceW() -2 &&
+				surfPos.y < map->getSurfaceH() -2) {
 			maxAlpha= 1.f;
 		}
-		else if(surfPos.x > 0 && surfPos.y > 0 && surfPos.x < map->getSurfaceW() -1 && surfPos.y < map->getSurfaceH() -1) {
+		else if(surfPos.x > 0 && surfPos.y > 0 &&
+				surfPos.x < map->getSurfaceW() -1 &&
+				surfPos.y < map->getSurfaceH() -1) {
 			maxAlpha= 0.3f;
 		}
 
@@ -3927,10 +3931,10 @@ uint32 Unit::getFrameCount() const {
 }
 
 void Unit::exploreCells() {
-	if(this->isOperative()) {
+	if(this->isOperative() == true) {
 		const Vec2i &newPos = this->getCenteredPos();
-		int sightRange = this->getType()->getSight();
-		int teamIndex = this->getTeam();
+		int sightRange 		= this->getType()->getSight();
+		int teamIndex 		= this->getTeam();
 
 		if(game == NULL) {
 			throw megaglest_runtime_error("game == NULL");
@@ -3939,7 +3943,19 @@ void Unit::exploreCells() {
 			throw megaglest_runtime_error("game->getWorld() == NULL");
 		}
 
-		game->getWorld()->exploreCells(newPos, sightRange, teamIndex);
+		// Try the local unit exploration cache
+		if(cacheExploredCellsKey.first == newPos &&
+			cacheExploredCellsKey.second == sightRange) {
+			game->getWorld()->exploreCells(teamIndex, cacheExploredCells);
+		}
+		else {
+			// Try the world exploration scan or possible cache
+			cacheExploredCells = game->getWorld()->exploreCells(newPos, sightRange, teamIndex);
+
+			// Cache the result for this unit
+			cacheExploredCellsKey.first = newPos;
+			cacheExploredCellsKey.second = sightRange;
+		}
 	}
 }
 

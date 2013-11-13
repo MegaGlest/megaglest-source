@@ -50,11 +50,22 @@ class ScriptManager;
 class World;
 class Faction;
 class GameSettings;
+class SurfaceCell;
 
 class FowAlphaCellsLookupItem {
 public:
 
 	std::map<Vec2i,float> surfPosAlphaList;
+};
+
+class ExploredCellsLookupItem {
+public:
+
+	int ExploredCellsLookupItemCacheTimerCountIndex;
+	std::vector<SurfaceCell *> exploredCellList;
+	std::vector<SurfaceCell *> visibleCellList;
+
+	static time_t lastDebug;
 };
 
 // =====================================================

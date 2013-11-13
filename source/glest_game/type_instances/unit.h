@@ -474,6 +474,9 @@ private:
 	FowAlphaCellsLookupItem cachedFow;
 	Vec2i cachedFowPos;
 
+	ExploredCellsLookupItem cacheExploredCells;
+	std::pair<Vec2i, int> cacheExploredCellsKey;
+
 	Vec2i lastHarvestedResourcePos;
 
 	string networkCRCLogInfo;
