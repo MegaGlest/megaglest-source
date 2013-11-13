@@ -4177,6 +4177,11 @@ void Unit::clearCaches() {
 	cachedFow.surfPosAlphaList.clear();
 	cachedFowPos = Vec2i(0,0);
 
+	cacheExploredCells.exploredCellList.clear();
+	cacheExploredCells.visibleCellList.clear();
+	cacheExploredCellsKey.first = Vec2i(-1,-1);
+	cacheExploredCellsKey.second = -1;
+
 	if(unitPath != NULL) {
 		unitPath->clearCaches();
 	}
