@@ -2762,6 +2762,7 @@ string Game::getGamePerformanceCounts(bool displayWarnings) const {
 	}
 
 	bool displayWarningHeader 	= true;
+	bool WARN_TO_CONSOLE 		= Config::getInstance().getBool("PerformanceWarningEnabled","false");
 	int WARNING_MILLIS 			= Config::getInstance().getInt("PerformanceWarningMillis","7");
 	int WARNING_RENDER_MILLIS 	= Config::getInstance().getInt("PerformanceWarningRenderMillis","40");
 
@@ -2782,15 +2783,13 @@ string Game::getGamePerformanceCounts(bool displayWarnings) const {
 		}
 		string perfStat = iterMap->first + " = avg millis: " + intToStr(iterMap->second);
 
-		if(displayWarnings == true) {
-			//if(iterMap->second >= WARNING_MILLIS) {
+		if(displayWarnings == true && WARN_TO_CONSOLE == true) {
 			if(displayWarningHeader == true) {
 				displayWarningHeader = false;
 				printf("=====================================\nPERFORMANCE WARNINGS for World Frame: %d\n",world.getFrameCount());
 			}
 
 			printf("*PERFORMANCE WARNING* %s\n",perfStat.c_str());
-			//}
 		}
 
 		result += perfStat;
@@ -4577,6 +4576,8 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 
 			if(isKeyPressed(configKeys.getSDLKey("RenderInGamePerformance"),key, false) == true) {
 				renderInGamePerformance = !renderInGamePerformance;
+
+				Config::getInstance().setBool("PerformanceWarningEnabled",renderInGamePerformance, true);
 			}
 			//if(key == configKeys.getCharKey("RenderNetworkStatus")) {
 			else if(isKeyPressed(configKeys.getSDLKey("RenderNetworkStatus"),key, false) == true) {
