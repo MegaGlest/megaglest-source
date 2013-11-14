@@ -39,7 +39,6 @@ class FontTest : public CppUnit::TestFixture {
 public:
 
 	void test_bidi_newline_handling() {
-
 		string text = "\n\nHP: 9000/9000\nArmor: 0 (Stone)\nSight: 15\nProduce Slave";
 		string expected = text;
 #ifdef	HAVE_FRIBIDI
@@ -47,7 +46,6 @@ public:
 		//printf("Expected: [%s] result[%s]\n",expected.c_str(),text.c_str());
 		CPPUNIT_ASSERT_EQUAL( expected,text );
 #endif
-
 	}
 	void test_LTR_RTL_Mixed() {
 		Font::fontSupportMixedRightToLeft = true;
@@ -56,14 +54,11 @@ public:
 		string expected = IntroText1;
 		CPPUNIT_ASSERT_EQUAL( 45,(int)IntroText1.size() );
 
-		std::vector<std::pair<char, int> > result = Font::extract_mixed_LTR_RTL_map(IntroText1);
-		CPPUNIT_ASSERT_EQUAL( 30, (int)result.size() );
-
 #ifdef	HAVE_FRIBIDI
 		IntroText1 = expected;
 		Font::bidi_cvt(IntroText1);
 
-		CPPUNIT_ASSERT_EQUAL( 45,(int)IntroText1.size() );
+		//CPPUNIT_ASSERT_EQUAL( 45,(int)IntroText1.size() );
 		CPPUNIT_ASSERT_EQUAL( string("לע ססובמ"),IntroText1.substr(0, 15) );
 		CPPUNIT_ASSERT_EQUAL( string("\"award-winning classic Glest\""),IntroText1.substr(16) );
 #endif
@@ -74,9 +69,6 @@ public:
 		//printf("Result1: [%s]\n",LuaDisableSecuritySandbox.c_str());
 		string expected2 = LuaDisableSecuritySandbox;
 		CPPUNIT_ASSERT_EQUAL( 44,(int)LuaDisableSecuritySandbox.size() );
-
-		result = Font::extract_mixed_LTR_RTL_map(LuaDisableSecuritySandbox);
-		CPPUNIT_ASSERT_EQUAL( 4, (int)result.size() );
 
 		//printf("Result: [%s]\n",LuaDisableSecuritySandbox.c_str());
 
@@ -129,17 +121,19 @@ public:
 #endif
 
 		// This test still failing: xx IP xx
-		string LanIP = "כתובות IP מקומי:192.168.0.150  ( 61357 / 61357 )";
+		string LanIP = "כתובות IP מקומי:192.168.0.150 ( 61357 / 61357 )";
 		string expected5 = LanIP;
-		CPPUNIT_ASSERT_EQUAL( 59,(int)LanIP.size() );
+		//printf("LanIP [%s]\n",LanIP.c_str());
+
+		CPPUNIT_ASSERT_EQUAL( 58,(int)LanIP.size() );
 
 #ifdef	HAVE_FRIBIDI
-//		Font::bidi_cvt(LanIP);
-//
-//		CPPUNIT_ASSERT_EQUAL( 59,(int)LanIP.size() );
-//		string expected_result5 = "abc";
-//
-//		CPPUNIT_ASSERT_EQUAL( expected_result5,LanIP );
+		Font::bidi_cvt(LanIP);
+
+		CPPUNIT_ASSERT_EQUAL( 58,(int)LanIP.size() );
+		string expected_result5 = "192.168.0.150:ימוקמ תובותכ IP ( 61357 / 61357 )";
+
+		CPPUNIT_ASSERT_EQUAL( expected_result5,LanIP );
 #endif
 	}
 };
