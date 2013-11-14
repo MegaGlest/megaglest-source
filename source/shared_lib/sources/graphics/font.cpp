@@ -404,9 +404,14 @@ void Font::bidi_cvt(string &str_) {
 		//printf("Line: %d [%s]\n",lineIndex,str_.c_str());
 
 		vector<string> words;
-		if(str_.find(" ") != str_.npos) {
-			Tokenize(str_,words," ");
+		if(Font::fontSupportMixedRightToLeft == true) {
+			if(str_.find(" ") != str_.npos) {
+				Tokenize(str_,words," ");
 
+			}
+			else {
+				words.push_back(str_);
+			}
 		}
 		else {
 			words.push_back(str_);
