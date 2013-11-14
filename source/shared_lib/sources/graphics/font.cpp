@@ -421,7 +421,7 @@ bool next_word_is_ASCII(const string &str_,int start_index) {
 			int length = end_index-start_index+1;
 			string word = str_.substr(start_index,length);
 			//printf("Line: %d word [%s] length: %d\n",__LINE__,word.c_str(),length);
-			int alphaCount = 0;
+			//int alphaCount = 0;
 			for(int index = 0; index < word.size(); ++index) {
 				//printf("%c = %d,",word[index],isalnum(word[index]));
 				if(isalnum(word[index]) != 0) {
@@ -644,7 +644,7 @@ void Font::bidi_cvt(string &str_) {
 		vtol = new FriBidiStrIndex[size * 3];
 
 		FriBidiCharType base;
-		size_t len, orig_len;
+		size_t len;
 
 		//A bool type to see if conversion succeded
 		fribidi_boolean log2vis;
@@ -657,7 +657,7 @@ void Font::bidi_cvt(string &str_) {
 		strcpy(ip, str_.c_str());
 
 		//Find length of originall text
-		orig_len = len = strlen( ip );
+		len = strlen( ip );
 
 		//Insert ip to logical as unicode (and find it's size now)
 		len = fribidi_charset_to_unicode (char_set_num, ip, (FriBidiStrIndex)len, logical);

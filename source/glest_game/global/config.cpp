@@ -111,8 +111,6 @@ Config::Config() {
 	fileName.second 			= "";
 	fileNameParameter.first 	= "";
 	fileNameParameter.second 	= "";
-	fileLoaded.first 			= false;
-	fileLoaded.second 			= false;
 }
 
 bool Config::tryCustomPath(std::pair<ConfigType,ConfigType> &type, std::pair<string,string> &file, string custom_path) {
