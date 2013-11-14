@@ -47,7 +47,7 @@ svn export --force ..\..\data\glest_game\data %RELEASEDIR%\data\
 mkdir %RELEASEDIR%\docs\
 svn export --force ..\..\data\glest_game\docs %RELEASEDIR%\docs\
 svn export --force ..\..\data\glest_game\docs\CHANGELOG.txt %RELEASEDIR%\docs\CHANGELOG.txt
-svn export --force ..\..\data\glest_game\README.txt %RELEASEDIR%\docs\README.txt
+svn export --force ..\..\data\glest_game\docs\README.txt %RELEASEDIR%\docs\README.txt
 mkdir %RELEASEDIR%\maps\
 svn export --force ..\..\data\glest_game\maps %RELEASEDIR%\maps\
 mkdir %RELEASEDIR%\scenarios\
