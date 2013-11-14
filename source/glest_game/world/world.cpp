@@ -953,19 +953,6 @@ bool World::canTickWorld() const {
 	return needToTick;
 }
 
-bool World::canTickFaction(int factionIdx) {
-	int factionUpdateInterval = (GameConstants::updateFps / GameConstants::maxPlayers);
-	int expectedFactionIdx = (frameCount / factionUpdateInterval) -1;
-	if(expectedFactionIdx >= GameConstants::maxPlayers) {
-		expectedFactionIdx = expectedFactionIdx % GameConstants::maxPlayers;
-	}
-	bool result = (expectedFactionIdx == factionIdx);
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] factionIdx = %d, frameCount = %d, GameConstants::updateFps = %d, expectedFactionIdx = %d, factionUpdateInterval = %d, result = %d\n",__FILE__,__FUNCTION__,__LINE__,factionIdx,frameCount,GameConstants::updateFps,expectedFactionIdx,factionUpdateInterval,result);
-
-	return result;
-}
-
 void World::tick() {
 	bool showPerfStats = Config::getInstance().getBool("ShowPerfStats","false");
 	Chrono chronoPerf;
