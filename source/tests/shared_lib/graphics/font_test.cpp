@@ -57,7 +57,7 @@ public:
 		CPPUNIT_ASSERT_EQUAL( 45,(int)IntroText1.size() );
 
 		std::vector<std::pair<char, int> > result = Font::extract_mixed_LTR_RTL_map(IntroText1);
-		//CPPUNIT_ASSERT_EQUAL( 30, (int)result.size() );
+		CPPUNIT_ASSERT_EQUAL( 30, (int)result.size() );
 
 #ifdef	HAVE_FRIBIDI
 		IntroText1 = expected;
@@ -76,7 +76,7 @@ public:
 		CPPUNIT_ASSERT_EQUAL( 44,(int)LuaDisableSecuritySandbox.size() );
 
 		result = Font::extract_mixed_LTR_RTL_map(LuaDisableSecuritySandbox);
-		//CPPUNIT_ASSERT_EQUAL( 7, (int)result.size() );
+		CPPUNIT_ASSERT_EQUAL( 4, (int)result.size() );
 
 		//printf("Result: [%s]\n",LuaDisableSecuritySandbox.c_str());
 

@@ -104,7 +104,7 @@ public:
 		CPPUNIT_ASSERT_EQUAL( false, newInstance.isInitialized() );
 	}
 	void test_load_file_missing() {
-		XmlNode *rootNode = XmlIo::getInstance().load("/some/path/that/does/not exist", std::map<string,string>());
+		XmlIo::getInstance().load("/some/path/that/does/not exist", std::map<string,string>());
 	}
 	void test_load_file_valid() {
 		const string test_filename = "xml_test_valid.xml";
@@ -121,7 +121,7 @@ public:
 		createMalformedXMLTestFile(test_filename);
 		SafeRemoveTestFile deleteFile(test_filename);
 
-		XmlNode *rootNode = XmlIo::getInstance().load(test_filename, std::map<string,string>());
+		XmlIo::getInstance().load(test_filename, std::map<string,string>());
 	}
 
 	void test_save_file_null_node() {
@@ -174,7 +174,7 @@ public:
 		CPPUNIT_ASSERT_EQUAL( false, newInstance.isInitialized() );
 	}
 	void test_load_file_missing() {
-		XmlNode *rootNode = XmlIoRapid::getInstance().load("/some/path/that/does/not exist", std::map<string,string>());
+		XmlIoRapid::getInstance().load("/some/path/that/does/not exist", std::map<string,string>());
 	}
 	void test_load_file_valid() {
 		const string test_filename = "xml_test_valid.xml";
@@ -190,7 +190,7 @@ public:
 		const string test_filename = "xml_test_malformed.xml";
 		createMalformedXMLTestFile(test_filename);
 		SafeRemoveTestFile deleteFile(test_filename);
-		XmlNode *rootNode = XmlIoRapid::getInstance().load(test_filename, std::map<string,string>());
+		XmlIoRapid::getInstance().load(test_filename, std::map<string,string>());
 	}
 
 	void test_save_file_null_node() {
@@ -548,7 +548,7 @@ public:
 		CPPUNIT_ASSERT_EQUAL( string(""),attr.getValue() );
 
 		attr.setValue("-123456");
-		int value = attr.getIntValue(1, 10);
+		attr.getIntValue(1, 10);
 	}
 	void test_node_attributes_float_outofrange() {
 		const string test_filename = "xml_test_valid.xml";
@@ -562,7 +562,7 @@ public:
 		XmlAttribute attr(node, mapTagReplacementValues);
 
 		attr.setValue("-123456.01");
-		float value = attr.getFloatValue(-123456.999f, -123456.123456f);
+		attr.getFloatValue(-123456.999f, -123456.123456f);
 	}
 };
 

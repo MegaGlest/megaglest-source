@@ -269,7 +269,7 @@ static void cleanupProcessObjects() {
 
 				for(int i = 0; i < Thread::getThreadList().size(); ++i) {
 					BaseThread *baseThread = dynamic_cast<BaseThread *>(Thread::getThreadList()[i]);
-					printf("Thread index: %d ptr [%p] isBaseThread: %d, Name: [%s]\n",i,baseThread,(baseThread != NULL),(baseThread != NULL ? baseThread->getUniqueID().c_str() : "<na>"));
+					printf("Thread index: %d ptr [%p] isBaseThread: %d, Name: [%s]\n",i,baseThread,(baseThread != NULL ? 1 : 0),(baseThread != NULL ? baseThread->getUniqueID().c_str() : "<na>"));
 				}
 			}
     	}

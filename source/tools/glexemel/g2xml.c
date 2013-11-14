@@ -188,10 +188,10 @@ int g3d2xml(FILE *infile, FILE *outfile)
 		
 		/* write out XML mesh header */
 		fprintf(outfile, "\t<Mesh name=\"%s\" ", meshHeader.name);
-		fprintf(outfile, "frameCount=\"%d\" ", meshHeader.frameCount);
-		fprintf(outfile, "vertexCount=\"%d\" ",
+		fprintf(outfile, "frameCount=\"%u\" ", meshHeader.frameCount);
+		fprintf(outfile, "vertexCount=\"%u\" ",
 			meshHeader.vertexCount);
-		fprintf(outfile, "indexCount=\"%d\" ", meshHeader.indexCount);
+		fprintf(outfile, "indexCount=\"%u\" ", meshHeader.indexCount);
 		fprintf(outfile, "specularPower=\"%f\" ",
 			meshHeader.specularPower);
 		fprintf(outfile, "opacity=\"%f\" ", meshHeader.opacity);
@@ -352,7 +352,7 @@ int g3d2xml(FILE *infile, FILE *outfile)
 		fprintf(outfile, "\t\t<Indices>\n");
 		for (kk=0; kk < meshHeader.indexCount; kk++)
 		{
-			fprintf(outfile, "\t\t\t<Ix i=\"%d\"/>\n",
+			fprintf(outfile, "\t\t\t<Ix i=\"%u\"/>\n",
 				idata[kk]);
 		}
 		fprintf(outfile, "\t\t</Indices>\n");

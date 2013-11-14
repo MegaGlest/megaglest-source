@@ -87,8 +87,6 @@ private:
 private:
 	vector<Text *> texts;
 	int timer;
-	int mouseX;
-	int mouseY;
 	int mouse2d;
 
 	//Model *mainModel;

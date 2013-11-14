@@ -39,8 +39,6 @@ private:
 	Stats stats;
 
 	GraphicButton buttonExit;
-	int mouseX;
-	int mouseY;
 	int mouse2d;
 	GraphicMessageBox mainMessageBox;
 	Texture2D *renderToTexture;
