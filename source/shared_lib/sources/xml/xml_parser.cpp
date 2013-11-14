@@ -208,7 +208,7 @@ DOMNode *XmlIo::loadDOMNode(const string &path, bool noValidation) {
 	return NULL;
 }
 
-XmlNode *XmlIo::load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation) {
+XmlNode *XmlIo::load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation,bool skipStackTrace) {
 	//printf("Load file using Xerces engine [%s]\n",path.c_str());
 
 	try {
@@ -222,10 +222,15 @@ XmlNode *XmlIo::load(const string &path, const std::map<string,string> &mapTagRe
 	}
 	catch(const DOMException &ex) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] Exception while loading: [%s], msg:\n%s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(ex.msg));
+		if(skipStackTrace == false) {
+			snprintf(szBuf,8096,"In [%s::%s Line: %d] Exception while loading: [%s], msg:\n%s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),XMLString::transcode(ex.msg));
+		}
+		else {
+			snprintf(szBuf,8096,"Error loading: [%s], msg:\n%s",path.c_str(),XMLString::transcode(ex.msg));
+		}
 		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
 
-		throw megaglest_runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf,skipStackTrace);
 	}
 	return NULL;
 }
@@ -320,7 +325,7 @@ XmlIoRapid::~XmlIoRapid() {
 	cleanup();
 }
 
-XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation,bool skipStackCheck) {
+XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation,bool skipStackTrace) {
 	bool showPerfStats = SystemFlags::VERBOSE_MODE_ENABLED;
 	Chrono chrono;
 	chrono.start();
@@ -398,10 +403,16 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
 	}
 	catch(const exception &ex) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"In [%s::%s Line: %d] Exception while loading: [%s], msg:\n%s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),ex.what());
+
+		if(skipStackTrace == false) {
+			snprintf(szBuf,8096,"In [%s::%s Line: %d] Exception while loading: [%s], msg:\n%s",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),ex.what());
+		}
+		else {
+			snprintf(szBuf,8096,"Error loading: [%s], msg:\n%s",path.c_str(),ex.what());
+		}
 		SystemFlags::OutputDebug(SystemFlags::debugError,"%s\n",szBuf);
 
-		throw megaglest_runtime_error(szBuf);
+		throw megaglest_runtime_error(szBuf,skipStackTrace);
 	}
 
 	//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] took msecs: %ld for file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),path.c_str());
@@ -506,7 +517,7 @@ typedef std::vector<XmlTree*> LoadStack;
 //static LoadStack loadStack;
 static string loadStackCacheName = string(__FILE__) + string("_loadStackCacheName");
 
-void XmlTree::load(const string &path, const std::map<string,string> &mapTagReplacementValues, bool noValidation,bool skipStackCheck) {
+void XmlTree::load(const string &path, const std::map<string,string> &mapTagReplacementValues, bool noValidation,bool skipStackCheck,bool skipStackTrace) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s] skipStackCheck = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),skipStackCheck);
 
 	clearRootNode();
@@ -532,10 +543,10 @@ void XmlTree::load(const string &path, const std::map<string,string> &mapTagRepl
 	loadPath = path;
 
 	if(this->engine_type == XML_XERCES_ENGINE) {
-		this->rootNode= XmlIo::getInstance().load(path, mapTagReplacementValues, noValidation);
+		this->rootNode= XmlIo::getInstance().load(path, mapTagReplacementValues, noValidation,skipStackTrace);
 	}
 	else {
-		this->rootNode= XmlIoRapid::getInstance().load(path, mapTagReplacementValues, noValidation,this->skipStackCheck);
+		this->rootNode= XmlIoRapid::getInstance().load(path, mapTagReplacementValues, noValidation,skipStackTrace);
 	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());

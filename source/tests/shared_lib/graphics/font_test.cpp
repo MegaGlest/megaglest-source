@@ -44,7 +44,7 @@ public:
 		string expected = text;
 #ifdef	HAVE_FRIBIDI
 		Font::bidi_cvt(text);
-		printf("Expected: [%s] result[%s]\n",expected.c_str(),text.c_str());
+		//printf("Expected: [%s] result[%s]\n",expected.c_str(),text.c_str());
 		CPPUNIT_ASSERT_EQUAL( expected,text );
 #endif
 
