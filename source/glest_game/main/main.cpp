@@ -3488,7 +3488,6 @@ void CheckForDuplicateData() {
     }
 }
 
-
 int handleCreateDataArchivesCommand(int argc, char** argv) {
 	int return_value = 1;
 	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CREATE_DATA_ARCHIVES]) == true) {
@@ -3626,6 +3625,468 @@ int handleCreateDataArchivesCommand(int argc, char** argv) {
 
 			return_value = 1;
 		}
+	}
+
+	return return_value;
+}
+
+int handleShowCRCValuesCommand(int argc, char** argv) {
+	int return_value = 1;
+	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]) == true) {
+		int foundParamIndIndex = -1;
+		hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]) + string("="),&foundParamIndIndex);
+		if(foundParamIndIndex < 0) {
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]),&foundParamIndIndex);
+		}
+		string paramValue = argv[foundParamIndIndex];
+		vector<string> paramPartTokens;
+		Tokenize(paramValue,paramPartTokens,"=");
+		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+			string itemName = paramPartTokens[1];
+
+			string file = Map::getMapPath(itemName,"",false);
+			if(file != "") {
+				Checksum checksum;
+				checksum.addFile(file);
+				uint32 crcValue = checksum.getSum();
+
+				printf("CRC value for map [%s] file [%s] is [%u]\n",itemName.c_str(),file.c_str(),crcValue);
+
+				return_value = 0;
+			}
+			else {
+				printf("Map [%s] was NOT FOUND\n",itemName.c_str());
+				return_value = 1;
+			}
+		}
+		else {
+			printf("\nInvalid missing map specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+			//printParameterHelp(argv[0],false);
+
+			return_value = 1;
+		}
+	}
+
+	else if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]) == true) {
+		int foundParamIndIndex = -1;
+		hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]) + string("="),&foundParamIndIndex);
+		if(foundParamIndIndex < 0) {
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]),&foundParamIndIndex);
+		}
+		string paramValue = argv[foundParamIndIndex];
+		vector<string> paramPartTokens;
+		Tokenize(paramValue,paramPartTokens,"=");
+		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+			string itemName = paramPartTokens[1];
+
+			Config &config = Config::getInstance();
+			uint32 crcValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
+			if(crcValue != 0) {
+				printf("CRC value for tileset [%s] is [%u]\n",itemName.c_str(),crcValue);
+
+				return_value = 0;
+			}
+			else {
+				printf("Tileset [%s] was NOT FOUND\n",itemName.c_str());
+				return_value = 1;
+			}
+		}
+		else {
+			printf("\nInvalid missing tileset specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+			//printParameterHelp(argv[0],false);
+
+			return_value = 1;
+		}
+	}
+
+	else if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]) == true) {
+		int foundParamIndIndex = -1;
+		hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]) + string("="),&foundParamIndIndex);
+		if(foundParamIndIndex < 0) {
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]),&foundParamIndIndex);
+		}
+		string paramValue = argv[foundParamIndIndex];
+		vector<string> paramPartTokens;
+		Tokenize(paramValue,paramPartTokens,"=");
+		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+			string itemName = paramPartTokens[1];
+
+			Config &config = Config::getInstance();
+			uint32 crcValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + itemName + "/*", ".xml", NULL, true);
+			if(crcValue != 0) {
+				printf("CRC value for techtree [%s] is [%u]\n",itemName.c_str(),crcValue);
+
+				return_value = 0;
+			}
+			else {
+				printf("Techtree [%s] was NOT FOUND\n",itemName.c_str());
+
+				return_value = 1;
+			}
+		}
+		else {
+			printf("\nInvalid missing techtree specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+			//printParameterHelp(argv[0],false);
+
+			return_value = 1;
+		}
+	}
+
+	else if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]) == true) {
+		int foundParamIndIndex = -1;
+		hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]) + string("="),&foundParamIndIndex);
+		if(foundParamIndIndex < 0) {
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]),&foundParamIndIndex);
+		}
+		string paramValue = argv[foundParamIndIndex];
+		vector<string> paramPartTokens;
+		Tokenize(paramValue,paramPartTokens,"=");
+		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+			string itemName = paramPartTokens[1];
+
+			Config &config = Config::getInstance();
+			uint32 crcValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptScenarios,""), "/" + itemName + "/*", ".xml", NULL, true);
+			if(crcValue != 0) {
+				printf("CRC value for scenario [%s] is [%u]\n",itemName.c_str(),crcValue);
+
+				return_value = 0;
+			}
+			else {
+				printf("Scenario [%s] was NOT FOUND\n",itemName.c_str());
+				return_value = 1;
+			}
+		}
+		else {
+			printf("\nInvalid missing scenario specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+			//printParameterHelp(argv[0],false);
+
+			return_value = 0;
+		}
+	}
+
+	else if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]) == true) {
+		int foundParamIndIndex = -1;
+		hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]) + string("="),&foundParamIndIndex);
+		if(foundParamIndIndex < 0) {
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]),&foundParamIndIndex);
+		}
+
+		string paramValue = argv[foundParamIndIndex];
+		vector<string> paramPartTokens;
+		Tokenize(paramValue,paramPartTokens,"=");
+		if(paramPartTokens.size() >= 3 && paramPartTokens[1].length() > 0) {
+			string itemName = paramPartTokens[1];
+			string itemNameFilter = paramPartTokens[2];
+			//printf("\n\nitemName [%s] itemNameFilter [%s]\n",itemName.c_str(),itemNameFilter.c_str());
+			uint32 crcValue = getFolderTreeContentsCheckSumRecursively(itemName, itemNameFilter, NULL, true);
+
+			printf("CRC value for path [%s] filter [%s] is [%u]\n",itemName.c_str(),itemNameFilter.c_str(),crcValue);
+
+			return_value = 0;
+		}
+		else {
+			if(paramPartTokens.size() < 2) {
+				printf("\nInvalid missing path and filter specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+			}
+			if(paramPartTokens.size() < 3) {
+				printf("\nInvalid missing filter specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 3 ? paramPartTokens[2].c_str() : NULL));
+			}
+
+			//printParameterHelp(argv[0],false);
+
+			return_value = 1;
+		}
+	}
+
+	return return_value;
+}
+
+int handleListDataCommand(int argc, char** argv) {
+	int return_value = 1;
+	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) == true) {
+		int foundParamIndIndex = -1;
+		hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_MAPS]) + string("="),&foundParamIndIndex);
+		if(foundParamIndIndex < 0) {
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_MAPS]),&foundParamIndIndex);
+		}
+
+		Config &config = Config::getInstance();
+	  	vector<string> pathList = config.getPathListForType(ptMaps,"");
+	  	vector<string> maps = MapPreview::findAllValidMaps(pathList,"",false,true);
+		std::sort(maps.begin(),maps.end());
+
+		string paramValue = argv[foundParamIndIndex];
+		vector<string> paramPartTokens;
+		Tokenize(paramValue,paramPartTokens,"=");
+		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+			string itemNameFilter = paramPartTokens[1];
+			printf("Using filter for maps list [%s]\n",itemNameFilter.c_str());
+
+			vector<string> filteredMaps;
+			for(unsigned int i = 0; i < maps.size(); ++i) {
+				string mapName = maps[i];
+				if(itemNameFilter.find("*") != itemNameFilter.npos) {
+					if(StartsWith(mapName, itemNameFilter.substr(0,itemNameFilter.find("*"))) == true) {
+						filteredMaps.push_back(mapName);
+					}
+				}
+				else if(mapName == itemNameFilter) {
+					filteredMaps.push_back(mapName);
+				}
+			}
+			maps = filteredMaps;
+		}
+
+		printf("Maps found:\n===========================================\n");
+		for(unsigned int i = 0; i < maps.size(); ++i) {
+			string mapName = maps[i];
+			printf("%s\n",mapName.c_str());
+		}
+		printf("===========================================\nTotal: " MG_SIZE_T_SPECIFIER "\n",maps.size());
+
+		return_value = 0;
+	}
+
+	else if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) == true) {
+		int foundParamIndIndex = -1;
+		hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) + string("="),&foundParamIndIndex);
+		if(foundParamIndIndex < 0) {
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TECHTRESS]),&foundParamIndIndex);
+		}
+
+		Config &config = Config::getInstance();
+	  	vector<string> pathList = config.getPathListForType(ptTechs,"");
+	  	vector<string> results;
+	  	findDirs(pathList, results);
+
+	  	bool showfactions=false;
+		string paramValue = argv[foundParamIndIndex];
+		vector<string> paramPartTokens;
+		Tokenize(paramValue,paramPartTokens,"=");
+		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+			string cmd = paramPartTokens[1];
+			if(cmd == "showfactions") {
+				showfactions = true;
+			}
+			else {
+				throw megaglest_runtime_error("unknown command for techtreelist [" + cmd + "]");
+			}
+			printf("Using special command for techtree list [%s]\n",cmd.c_str());
+		}
+
+		printf("Techtrees found:\n===========================================\n");
+		for(unsigned int i = 0; i < results.size(); ++i) {
+			string name = results[i];
+
+			for(unsigned int j = 0; j < pathList.size(); ++j) {
+				string techPath = pathList[j];
+				if(techPath != "") {
+					endPathWithSlash(techPath);
+				}
+				vector<string> results2;
+				findDirs(techPath + name + "/factions", results2, false,true);
+				if(results2.empty() == false) {
+					string downloadArchive = techPath + name + ".7z";
+					//printf("dl [%s] [%s]\n",name.c_str(),downloadArchive.c_str());
+					if(fileExists(downloadArchive) == true) {
+						off_t fileSize = getFileSize(downloadArchive);
+						// convert to MB
+						double megaBytes = ((double)fileSize / 1048576.0);
+						printf("%s [download archive %.2fMB]\n",name.c_str(),megaBytes);
+					}
+					else {
+						printf("%s\n",name.c_str());
+					}
+
+					if(showfactions == true) {
+						printf("--> Factions:\n");
+						for(unsigned int k = 0; k < results2.size(); ++k) {
+							string name2 = results2[k];
+							printf("--> %s\n",name2.c_str());
+						}
+						printf("--> Total Factions: " MG_SIZE_T_SPECIFIER "\n",results2.size());
+						break;
+					}
+				}
+			}
+		}
+		printf("===========================================\nTotal Techtrees: " MG_SIZE_T_SPECIFIER "\n",results.size());
+
+		return_value = 0;
+	}
+
+	else if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) == true) {
+		int foundParamIndIndex = -1;
+		hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) + string("="),&foundParamIndIndex);
+		if(foundParamIndIndex < 0) {
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_SCENARIOS]),&foundParamIndIndex);
+		}
+
+		Config &config = Config::getInstance();
+	  	vector<string> pathList = config.getPathListForType(ptScenarios,"");
+	  	vector<string> results;
+	  	findDirs(pathList, results);
+
+		string paramValue = argv[foundParamIndIndex];
+		vector<string> paramPartTokens;
+		Tokenize(paramValue,paramPartTokens,"=");
+		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+			string itemNameFilter = paramPartTokens[1];
+			printf("Using filter for scenarios list [%s]\n",itemNameFilter.c_str());
+
+			vector<string> filtered;
+			for(unsigned int i = 0; i < results.size(); ++i) {
+				string name = results[i];
+				if(itemNameFilter.find("*") != itemNameFilter.npos) {
+					if(StartsWith(name, itemNameFilter.substr(0,itemNameFilter.find("*"))) == true) {
+						filtered.push_back(name);
+					}
+				}
+				else if(name == itemNameFilter) {
+					filtered.push_back(name);
+				}
+			}
+			results = filtered;
+		}
+
+		printf("Scenarios found:\n===========================================\n");
+		for(unsigned int i = 0; i < results.size(); ++i) {
+			string name = results[i];
+			printf("%s\n",name.c_str());
+		}
+		printf("===========================================\nTotal: " MG_SIZE_T_SPECIFIER "\n",results.size());
+
+		return_value = 0;
+	}
+
+	else if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TILESETS]) == true) {
+		int foundParamIndIndex = -1;
+		hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TILESETS]) + string("="),&foundParamIndIndex);
+		if(foundParamIndIndex < 0) {
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TILESETS]),&foundParamIndIndex);
+		}
+
+		Config &config = Config::getInstance();
+	  	vector<string> pathList = config.getPathListForType(ptTilesets,"");
+	  	vector<string> results;
+	  	findDirs(pathList, results);
+
+		string paramValue = argv[foundParamIndIndex];
+		vector<string> paramPartTokens;
+		Tokenize(paramValue,paramPartTokens,"=");
+		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+			string itemNameFilter = paramPartTokens[1];
+			printf("Using filter for tilesets list [%s]\n",itemNameFilter.c_str());
+
+			vector<string> filtered;
+			for(unsigned int i = 0; i < results.size(); ++i) {
+				string name = results[i];
+				if(itemNameFilter.find("*") != itemNameFilter.npos) {
+					if(StartsWith(name, itemNameFilter.substr(0,itemNameFilter.find("*"))) == true) {
+						filtered.push_back(name);
+					}
+				}
+				else if(name == itemNameFilter) {
+					filtered.push_back(name);
+				}
+			}
+			results = filtered;
+		}
+
+		printf("Tilesets found:\n===========================================\n");
+		for(unsigned int i = 0; i < results.size(); ++i) {
+			string name = results[i];
+
+			for(unsigned int j = 0; j < pathList.size(); ++j) {
+				string tilesetPath = pathList[j];
+				if(tilesetPath != "") {
+					endPathWithSlash(tilesetPath);
+				}
+				if(fileExists(tilesetPath + name + "/" + name + ".xml") == true) {
+					string downloadArchive = tilesetPath + name + ".7z";
+					//printf("dl [%s] [%s]\n",name.c_str(),downloadArchive.c_str());
+					if(fileExists(downloadArchive) == true) {
+						off_t fileSize = getFileSize(downloadArchive);
+						// convert to MB
+						double megaBytes = ((double)fileSize / 1048576.0);
+						printf("%s [download archive %.2fMB]\n",name.c_str(),megaBytes);
+					}
+					else {
+						printf("%s\n",name.c_str());
+					}
+
+					break;
+				}
+			}
+		}
+		printf("===========================================\nTotal: " MG_SIZE_T_SPECIFIER "\n",results.size());
+
+		return_value = 0;
+	}
+
+	else if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) == true) {
+		int foundParamIndIndex = -1;
+		hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) + string("="),&foundParamIndIndex);
+		if(foundParamIndIndex < 0) {
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TUTORIALS]),&foundParamIndIndex);
+		}
+
+		Config &config = Config::getInstance();
+	  	vector<string> pathList = config.getPathListForType(ptTutorials,"");
+	  	vector<string> results;
+	  	findDirs(pathList, results);
+
+		string paramValue = argv[foundParamIndIndex];
+		vector<string> paramPartTokens;
+		Tokenize(paramValue,paramPartTokens,"=");
+		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+			string itemNameFilter = paramPartTokens[1];
+			printf("Using filter for tutorials list [%s]\n",itemNameFilter.c_str());
+
+			vector<string> filtered;
+			for(unsigned int i = 0; i < results.size(); ++i) {
+				string name = results[i];
+				if(itemNameFilter.find("*") != itemNameFilter.npos) {
+					if(StartsWith(name, itemNameFilter.substr(0,itemNameFilter.find("*"))) == true) {
+						filtered.push_back(name);
+					}
+				}
+				else if(name == itemNameFilter) {
+					filtered.push_back(name);
+				}
+			}
+			results = filtered;
+		}
+
+		printf("Tutorials found:\n===========================================\n");
+		for(unsigned int i = 0; i < results.size(); ++i) {
+			string name = results[i];
+
+			for(unsigned int j = 0; j < pathList.size(); ++j) {
+				string tutorialsPath = pathList[j];
+				if(tutorialsPath != "") {
+					endPathWithSlash(tutorialsPath);
+				}
+				if(fileExists(tutorialsPath + name + "/" + name + ".xml") == true) {
+					string downloadArchive = tutorialsPath + name + ".7z";
+					//printf("dl [%s] [%s]\n",name.c_str(),downloadArchive.c_str());
+					if(fileExists(downloadArchive) == true) {
+						off_t fileSize = getFileSize(downloadArchive);
+						// convert to MB
+						double megaBytes = ((double)fileSize / 1048576.0);
+						printf("%s [download archive %.2fMB]\n",name.c_str(),megaBytes);
+					}
+					else {
+						printf("%s\n",name.c_str());
+					}
+
+					break;
+				}
+			}
+		}
+		printf("===========================================\nTotal: " MG_SIZE_T_SPECIFIER "\n",results.size());
+
+		return_value = 0;
 	}
 
 	return return_value;
@@ -4561,446 +5022,21 @@ int glestMain(int argc, char** argv) {
     		return handleCreateDataArchivesCommand(argc, argv);
     	}
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]) == true) {
-			int foundParamIndIndex = -1;
-			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]) + string("="),&foundParamIndIndex);
-			if(foundParamIndIndex < 0) {
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]),&foundParamIndIndex);
-			}
-			string paramValue = argv[foundParamIndIndex];
-			vector<string> paramPartTokens;
-			Tokenize(paramValue,paramPartTokens,"=");
-			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-				string itemName = paramPartTokens[1];
-
-				string file = Map::getMapPath(itemName,"",false);
-				if(file != "") {
-					Checksum checksum;
-					checksum.addFile(file);
-					uint32 crcValue = checksum.getSum();
-
-					printf("CRC value for map [%s] file [%s] is [%u]\n",itemName.c_str(),file.c_str(),crcValue);
-				}
-				else {
-					printf("Map [%s] was NOT FOUND\n",itemName.c_str());
-					return 1;
-				}
-
-				return 0;
-			}
-	        else {
-	            printf("\nInvalid missing map specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-	            //printParameterHelp(argv[0],false);
-
-	            return 1;
-	        }
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_MAP_CRC]) == true ||
+    		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]) == true ||
+    		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]) == true ||
+    		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]) == true ||
+    		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]) == true) {
+    		return handleShowCRCValuesCommand(argc, argv);
     	}
 
-    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]) == true) {
-			int foundParamIndIndex = -1;
-			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]) + string("="),&foundParamIndIndex);
-			if(foundParamIndIndex < 0) {
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_TILESET_CRC]),&foundParamIndIndex);
-			}
-			string paramValue = argv[foundParamIndIndex];
-			vector<string> paramPartTokens;
-			Tokenize(paramValue,paramPartTokens,"=");
-			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-				string itemName = paramPartTokens[1];
-				uint32 crcValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
-				if(crcValue != 0) {
-					printf("CRC value for tileset [%s] is [%u]\n",itemName.c_str(),crcValue);
-				}
-				else {
-					printf("Tileset [%s] was NOT FOUND\n",itemName.c_str());
-					return 1;
-				}
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) == true ||
+    		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) == true ||
+    		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) == true ||
+    		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TILESETS]) == true ||
+    		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) == true) {
+    		return handleListDataCommand(argc, argv);
 
-				return 0;
-			}
-	        else {
-	            printf("\nInvalid missing tileset specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-	            //printParameterHelp(argv[0],false);
-
-	            return 0;
-	        }
-    	}
-
-    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]) == true) {
-			int foundParamIndIndex = -1;
-			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]) + string("="),&foundParamIndIndex);
-			if(foundParamIndIndex < 0) {
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_TECHTREE_CRC]),&foundParamIndIndex);
-			}
-			string paramValue = argv[foundParamIndIndex];
-			vector<string> paramPartTokens;
-			Tokenize(paramValue,paramPartTokens,"=");
-			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-				string itemName = paramPartTokens[1];
-				uint32 crcValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + itemName + "/*", ".xml", NULL, true);
-				if(crcValue != 0) {
-					printf("CRC value for techtree [%s] is [%u]\n",itemName.c_str(),crcValue);
-				}
-				else {
-					printf("Techtree [%s] was NOT FOUND\n",itemName.c_str());
-					return 1;
-				}
-
-				return 0;
-			}
-	        else {
-	            printf("\nInvalid missing techtree specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-	            //printParameterHelp(argv[0],false);
-
-	            return 0;
-	        }
-    	}
-
-    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]) == true) {
-			int foundParamIndIndex = -1;
-			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]) + string("="),&foundParamIndIndex);
-			if(foundParamIndIndex < 0) {
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_SCENARIO_CRC]),&foundParamIndIndex);
-			}
-			string paramValue = argv[foundParamIndIndex];
-			vector<string> paramPartTokens;
-			Tokenize(paramValue,paramPartTokens,"=");
-			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-				string itemName = paramPartTokens[1];
-				uint32 crcValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptScenarios,""), "/" + itemName + "/*", ".xml", NULL, true);
-				if(crcValue != 0) {
-					printf("CRC value for scenario [%s] is [%u]\n",itemName.c_str(),crcValue);
-				}
-				else {
-					printf("Scenario [%s] was NOT FOUND\n",itemName.c_str());
-					return 1;
-				}
-
-				return 0;
-			}
-	        else {
-	            printf("\nInvalid missing scenario specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-	            //printParameterHelp(argv[0],false);
-
-	            return 0;
-	        }
-    	}
-
-    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]) == true) {
-			int foundParamIndIndex = -1;
-			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]) + string("="),&foundParamIndIndex);
-			if(foundParamIndIndex < 0) {
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_SHOW_PATH_CRC]),&foundParamIndIndex);
-			}
-
-			string paramValue = argv[foundParamIndIndex];
-			vector<string> paramPartTokens;
-			Tokenize(paramValue,paramPartTokens,"=");
-			if(paramPartTokens.size() >= 3 && paramPartTokens[1].length() > 0) {
-				string itemName = paramPartTokens[1];
-				string itemNameFilter = paramPartTokens[2];
-				//printf("\n\nitemName [%s] itemNameFilter [%s]\n",itemName.c_str(),itemNameFilter.c_str());
-				uint32 crcValue = getFolderTreeContentsCheckSumRecursively(itemName, itemNameFilter, NULL, true);
-
-				printf("CRC value for path [%s] filter [%s] is [%u]\n",itemName.c_str(),itemNameFilter.c_str(),crcValue);
-
-				return 0;
-			}
-	        else {
-	        	if(paramPartTokens.size() < 2) {
-	        		printf("\nInvalid missing path and filter specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
-	        	}
-	        	if(paramPartTokens.size() < 3) {
-	        		printf("\nInvalid missing filter specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 3 ? paramPartTokens[2].c_str() : NULL));
-	        	}
-
-	            //printParameterHelp(argv[0],false);
-
-	            return 1;
-	        }
-    	}
-
-    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) == true) {
-			int foundParamIndIndex = -1;
-			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_MAPS]) + string("="),&foundParamIndIndex);
-			if(foundParamIndIndex < 0) {
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_MAPS]),&foundParamIndIndex);
-			}
-
-		  	vector<string> pathList = config.getPathListForType(ptMaps,"");
-		  	vector<string> maps = MapPreview::findAllValidMaps(pathList,"",false,true);
-			std::sort(maps.begin(),maps.end());
-
-			string paramValue = argv[foundParamIndIndex];
-			vector<string> paramPartTokens;
-			Tokenize(paramValue,paramPartTokens,"=");
-			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-				string itemNameFilter = paramPartTokens[1];
-				printf("Using filter for maps list [%s]\n",itemNameFilter.c_str());
-
-				vector<string> filteredMaps;
-				for(unsigned int i = 0; i < maps.size(); ++i) {
-					string mapName = maps[i];
-					if(itemNameFilter.find("*") != itemNameFilter.npos) {
-						if(StartsWith(mapName, itemNameFilter.substr(0,itemNameFilter.find("*"))) == true) {
-							filteredMaps.push_back(mapName);
-						}
-					}
-					else if(mapName == itemNameFilter) {
-						filteredMaps.push_back(mapName);
-					}
-				}
-				maps = filteredMaps;
-			}
-
-			printf("Maps found:\n===========================================\n");
-			for(unsigned int i = 0; i < maps.size(); ++i) {
-				string mapName = maps[i];
-				printf("%s\n",mapName.c_str());
-			}
-			printf("===========================================\nTotal: " MG_SIZE_T_SPECIFIER "\n",maps.size());
-
-            return 0;
-    	}
-
-    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) == true) {
-			int foundParamIndIndex = -1;
-			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) + string("="),&foundParamIndIndex);
-			if(foundParamIndIndex < 0) {
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TECHTRESS]),&foundParamIndIndex);
-			}
-
-		  	vector<string> pathList = config.getPathListForType(ptTechs,"");
-		  	vector<string> results;
-		  	findDirs(pathList, results);
-
-		  	bool showfactions=false;
-			string paramValue = argv[foundParamIndIndex];
-			vector<string> paramPartTokens;
-			Tokenize(paramValue,paramPartTokens,"=");
-			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-				string cmd = paramPartTokens[1];
-				if(cmd == "showfactions") {
-					showfactions = true;
-				}
-				else {
-					throw megaglest_runtime_error("unknown command for techtreelist [" + cmd + "]");
-				}
-				printf("Using special command for techtree list [%s]\n",cmd.c_str());
-			}
-
-			printf("Techtrees found:\n===========================================\n");
-			for(unsigned int i = 0; i < results.size(); ++i) {
-				string name = results[i];
-
-				for(unsigned int j = 0; j < pathList.size(); ++j) {
-					string techPath = pathList[j];
-					if(techPath != "") {
-						endPathWithSlash(techPath);
-					}
-					vector<string> results2;
-					findDirs(techPath + name + "/factions", results2, false,true);
-					if(results2.empty() == false) {
-						string downloadArchive = techPath + name + ".7z";
-						//printf("dl [%s] [%s]\n",name.c_str(),downloadArchive.c_str());
-						if(fileExists(downloadArchive) == true) {
-							off_t fileSize = getFileSize(downloadArchive);
-							// convert to MB
-							double megaBytes = ((double)fileSize / 1048576.0);
-							printf("%s [download archive %.2fMB]\n",name.c_str(),megaBytes);
-						}
-						else {
-							printf("%s\n",name.c_str());
-						}
-
-						if(showfactions == true) {
-							printf("--> Factions:\n");
-							for(unsigned int k = 0; k < results2.size(); ++k) {
-								string name2 = results2[k];
-								printf("--> %s\n",name2.c_str());
-							}
-							printf("--> Total Factions: " MG_SIZE_T_SPECIFIER "\n",results2.size());
-							break;
-						}
-					}
-				}
-			}
-			printf("===========================================\nTotal Techtrees: " MG_SIZE_T_SPECIFIER "\n",results.size());
-
-            return 0;
-    	}
-
-    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) == true) {
-			int foundParamIndIndex = -1;
-			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) + string("="),&foundParamIndIndex);
-			if(foundParamIndIndex < 0) {
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_SCENARIOS]),&foundParamIndIndex);
-			}
-
-		  	vector<string> pathList = config.getPathListForType(ptScenarios,"");
-		  	vector<string> results;
-		  	findDirs(pathList, results);
-
-			string paramValue = argv[foundParamIndIndex];
-			vector<string> paramPartTokens;
-			Tokenize(paramValue,paramPartTokens,"=");
-			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-				string itemNameFilter = paramPartTokens[1];
-				printf("Using filter for scenarios list [%s]\n",itemNameFilter.c_str());
-
-				vector<string> filtered;
-				for(unsigned int i = 0; i < results.size(); ++i) {
-					string name = results[i];
-					if(itemNameFilter.find("*") != itemNameFilter.npos) {
-						if(StartsWith(name, itemNameFilter.substr(0,itemNameFilter.find("*"))) == true) {
-							filtered.push_back(name);
-						}
-					}
-					else if(name == itemNameFilter) {
-						filtered.push_back(name);
-					}
-				}
-				results = filtered;
-			}
-
-			printf("Scenarios found:\n===========================================\n");
-			for(unsigned int i = 0; i < results.size(); ++i) {
-				string name = results[i];
-				printf("%s\n",name.c_str());
-			}
-			printf("===========================================\nTotal: " MG_SIZE_T_SPECIFIER "\n",results.size());
-
-            return 0;
-    	}
-
-    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TILESETS]) == true) {
-			int foundParamIndIndex = -1;
-			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TILESETS]) + string("="),&foundParamIndIndex);
-			if(foundParamIndIndex < 0) {
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TILESETS]),&foundParamIndIndex);
-			}
-
-		  	vector<string> pathList = config.getPathListForType(ptTilesets,"");
-		  	vector<string> results;
-		  	findDirs(pathList, results);
-
-			string paramValue = argv[foundParamIndIndex];
-			vector<string> paramPartTokens;
-			Tokenize(paramValue,paramPartTokens,"=");
-			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-				string itemNameFilter = paramPartTokens[1];
-				printf("Using filter for tilesets list [%s]\n",itemNameFilter.c_str());
-
-				vector<string> filtered;
-				for(unsigned int i = 0; i < results.size(); ++i) {
-					string name = results[i];
-					if(itemNameFilter.find("*") != itemNameFilter.npos) {
-						if(StartsWith(name, itemNameFilter.substr(0,itemNameFilter.find("*"))) == true) {
-							filtered.push_back(name);
-						}
-					}
-					else if(name == itemNameFilter) {
-						filtered.push_back(name);
-					}
-				}
-				results = filtered;
-			}
-
-			printf("Tilesets found:\n===========================================\n");
-			for(unsigned int i = 0; i < results.size(); ++i) {
-				string name = results[i];
-
-				for(unsigned int j = 0; j < pathList.size(); ++j) {
-					string tilesetPath = pathList[j];
-					if(tilesetPath != "") {
-						endPathWithSlash(tilesetPath);
-					}
-					if(fileExists(tilesetPath + name + "/" + name + ".xml") == true) {
-						string downloadArchive = tilesetPath + name + ".7z";
-						//printf("dl [%s] [%s]\n",name.c_str(),downloadArchive.c_str());
-						if(fileExists(downloadArchive) == true) {
-							off_t fileSize = getFileSize(downloadArchive);
-							// convert to MB
-							double megaBytes = ((double)fileSize / 1048576.0);
-							printf("%s [download archive %.2fMB]\n",name.c_str(),megaBytes);
-						}
-						else {
-							printf("%s\n",name.c_str());
-						}
-
-						break;
-					}
-				}
-			}
-			printf("===========================================\nTotal: " MG_SIZE_T_SPECIFIER "\n",results.size());
-
-            return 0;
-    	}
-
-    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) == true) {
-			int foundParamIndIndex = -1;
-			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) + string("="),&foundParamIndIndex);
-			if(foundParamIndIndex < 0) {
-				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_LIST_TUTORIALS]),&foundParamIndIndex);
-			}
-
-		  	vector<string> pathList = config.getPathListForType(ptTutorials,"");
-		  	vector<string> results;
-		  	findDirs(pathList, results);
-
-			string paramValue = argv[foundParamIndIndex];
-			vector<string> paramPartTokens;
-			Tokenize(paramValue,paramPartTokens,"=");
-			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-				string itemNameFilter = paramPartTokens[1];
-				printf("Using filter for tutorials list [%s]\n",itemNameFilter.c_str());
-
-				vector<string> filtered;
-				for(unsigned int i = 0; i < results.size(); ++i) {
-					string name = results[i];
-					if(itemNameFilter.find("*") != itemNameFilter.npos) {
-						if(StartsWith(name, itemNameFilter.substr(0,itemNameFilter.find("*"))) == true) {
-							filtered.push_back(name);
-						}
-					}
-					else if(name == itemNameFilter) {
-						filtered.push_back(name);
-					}
-				}
-				results = filtered;
-			}
-
-			printf("Tutorials found:\n===========================================\n");
-			for(unsigned int i = 0; i < results.size(); ++i) {
-				string name = results[i];
-
-				for(unsigned int j = 0; j < pathList.size(); ++j) {
-					string tutorialsPath = pathList[j];
-					if(tutorialsPath != "") {
-						endPathWithSlash(tutorialsPath);
-					}
-					if(fileExists(tutorialsPath + name + "/" + name + ".xml") == true) {
-						string downloadArchive = tutorialsPath + name + ".7z";
-						//printf("dl [%s] [%s]\n",name.c_str(),downloadArchive.c_str());
-						if(fileExists(downloadArchive) == true) {
-							off_t fileSize = getFileSize(downloadArchive);
-							// convert to MB
-							double megaBytes = ((double)fileSize / 1048576.0);
-							printf("%s [download archive %.2fMB]\n",name.c_str(),megaBytes);
-						}
-						else {
-							printf("%s\n",name.c_str());
-						}
-
-						break;
-					}
-				}
-			}
-			printf("===========================================\nTotal: " MG_SIZE_T_SPECIFIER "\n",results.size());
-
-            return 0;
     	}
 
 		program= new Program();
