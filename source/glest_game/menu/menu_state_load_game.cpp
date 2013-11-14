@@ -302,7 +302,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 					if(fileExists(filename) == true) {
 						// Xerces is infinitely slower than rapidxml
 						xml_engine_parser_type engine_type = XML_RAPIDXML_ENGINE;
-						if(Config::getInstance().getBool("ForceXMLLoadGameUsingXerces") == true) {
+						if(Config::getInstance().getBool("ForceXMLLoadGameUsingXerces","false") == true) {
 							engine_type = XML_XERCES_ENGINE;
 						}
 						// XmlTree	xmlTree(XML_XERCES_ENGINE);
