@@ -31,12 +31,24 @@ class FontTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( FontTest );
 
 	CPPUNIT_TEST( test_LTR_RTL_Mixed );
+	CPPUNIT_TEST( test_bidi_newline_handling );
 
 	CPPUNIT_TEST_SUITE_END();
 	// End of Fixture registration
 
 public:
 
+	void test_bidi_newline_handling() {
+
+		string text = "\n\nHP: 9000/9000\nArmor: 0 (Stone)\nSight: 15\nProduce Slave";
+		string expected = text;
+#ifdef	HAVE_FRIBIDI
+		Font::bidi_cvt(text);
+		printf("Expected: [%s] result[%s]\n",expected.c_str(),text.c_str());
+		CPPUNIT_ASSERT_EQUAL( expected,text );
+#endif
+
+	}
 	void test_LTR_RTL_Mixed() {
 		Font::fontSupportMixedRightToLeft = true;
 
