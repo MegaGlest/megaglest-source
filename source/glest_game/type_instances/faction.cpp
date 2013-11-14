@@ -318,7 +318,6 @@ void FactionThread::execute() {
 				break;
 			}
 
-			codeLocation = "4";
 			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
             MutexSafeWrapper safeMutex(triggerIdMutex,mutexOwnerId);
             bool executeTask = (this->frameIndex.first >= 0);
@@ -400,7 +399,7 @@ void FactionThread::execute() {
 						if(world->getUnitUpdater() == NULL) {
 							throw megaglest_runtime_error("world->getUnitUpdater() == NULL");
 						}
-						codeLocation = "14";
+
 						world->getUnitUpdater()->updateUnitCommand(unit,currentTriggeredFrameIndex);
 
 						codeLocation = "15";

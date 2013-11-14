@@ -3528,7 +3528,7 @@ int handleCreateDataArchivesCommand(int argc, char** argv) {
 						vector<string> results2;
 						findDirs(techPath + name + "/factions", results2, false,true);
 						if(results2.empty() == false) {
-							string downloadArchive = techPath + name + ".7z";
+							string downloadArchive = techPath + name + fileArchiveExtension;
 
 							//printf("Test downloadArchive [%s]\n",downloadArchive.c_str());
 
@@ -3577,7 +3577,7 @@ int handleCreateDataArchivesCommand(int argc, char** argv) {
 							endPathWithSlash(tilesetPath);
 						}
 						if(fileExists(tilesetPath + name + "/" + name + ".xml") == true) {
-							string downloadArchive = tilesetPath + name + ".7z";
+							string downloadArchive = tilesetPath + name + fileArchiveExtension;
 
 							//printf("Test downloadArchive [%s]\n",downloadArchive.c_str());
 
