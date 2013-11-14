@@ -324,7 +324,6 @@ private:
 
 	//misc
 	void tick();
-	bool canTickFaction(int factionIdx);
 	void computeFow();
 
 	void updateAllTilesetObjects();
