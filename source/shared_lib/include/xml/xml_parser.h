@@ -90,7 +90,7 @@ public:
 	static bool isInitialized();
 	void cleanup();
 
-	XmlNode *load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation=false);
+	XmlNode *load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation=false,bool skipStackTrace=false);
 	void save(const string &path, const XmlNode *node);
 };
 
@@ -109,7 +109,7 @@ public:
 	static bool isInitialized();
 	void cleanup();
 
-	XmlNode *load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation=false,bool skipStackCheck=false);
+	XmlNode *load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation=false,bool skipStackTrace=false);
 	void save(const string &path, const XmlNode *node);
 };
 
@@ -133,7 +133,7 @@ public:
 	~XmlTree();
 
 	void init(const string &name);
-	void load(const string &path, const std::map<string,string> &mapTagReplacementValues, bool noValidation=false,bool skipStackCheck=false);
+	void load(const string &path, const std::map<string,string> &mapTagReplacementValues, bool noValidation=false,bool skipStackCheck=false,bool skipStackTrace=false);
 	void save(const string &path);
 
 	XmlNode *getRootNode() const	{return rootNode;}

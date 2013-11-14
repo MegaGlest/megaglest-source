@@ -254,7 +254,11 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 				Game::loadGame(filename,program,false);
 			}
 			catch(const megaglest_runtime_error &ex) {
-				showMessageBox(ex.what(), lang.getString("Notice"), true);
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"In [%s::%s Line: %d]\nError [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+				SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+
+				showMessageBox(ex.what(), lang.getString("Notice"), false);
 			}
 			return;
 		}
@@ -283,8 +287,12 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 							}
 						}
 						catch(const megaglest_runtime_error &ex) {
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,"In [%s::%s Line: %d]\nError [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+							SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+
 							cleanupTexture(&previewTexture);
-							showMessageBox(ex.what(), lang.getString("Notice"), true);
+							showMessageBox(ex.what(), lang.getString("Notice"), false);
 						}
 					}
 					else {
@@ -302,44 +310,54 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Before load of XML\n");
 						std::map<string,string> mapExtraTagReplacementValues;
-						xmlTree.load(filename, Properties::getTagReplacementValues(&mapExtraTagReplacementValues),true);
-						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("After load of XML\n");
+						try {
+							xmlTree.load(filename, Properties::getTagReplacementValues(&mapExtraTagReplacementValues),true,false,true);
 
-						const XmlNode *rootNode= xmlTree.getRootNode();
-						if(rootNode != NULL && rootNode->hasChild("megaglest-saved-game") == true) {
-							rootNode = rootNode->getChild("megaglest-saved-game");
+							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("After load of XML\n");
+
+							const XmlNode *rootNode= xmlTree.getRootNode();
+							if(rootNode != NULL && rootNode->hasChild("megaglest-saved-game") == true) {
+								rootNode = rootNode->getChild("megaglest-saved-game");
+							}
+
+							if(rootNode == NULL) {
+								char szBuf[8096]="";
+								snprintf(szBuf,8096,"Invalid XML saved game file: [%s]",filename.c_str());
+								infoTextLabel.setText(szBuf);
+								return;
+							}
+
+							const XmlNode *versionNode= rootNode;
+							string gameVer = versionNode->getAttribute("version")->getValue();
+							if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false) {
+								char szBuf[8096]="";
+								snprintf(szBuf,8096,lang.getString("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
+								infoTextLabel.setText(szBuf);
+							}
+							else {
+								XmlNode *gameNode = rootNode->getChild("Game");
+								GameSettings newGameSettings;
+								newGameSettings.loadGame(gameNode);
+
+								char szBuf[8096]="";
+								snprintf(szBuf,8096,lang.getString("LoadSavedGameInfo").c_str(),
+										newGameSettings.getMap().c_str(),
+										newGameSettings.getTileset().c_str(),
+										newGameSettings.getTech().c_str(),
+										newGameSettings.getScenario().c_str(),
+										newGameSettings.getFactionCount(),
+										(newGameSettings.getThisFactionIndex() >= 0 &&
+										 newGameSettings.getThisFactionIndex() < newGameSettings.getFactionCount() ?
+										newGameSettings.getFactionTypeName(newGameSettings.getThisFactionIndex()).c_str() : ""));
+								infoTextLabel.setText(szBuf);
+							}
 						}
-
-						if(rootNode == NULL) {
+						catch(const megaglest_runtime_error &ex) {
 							char szBuf[8096]="";
-							snprintf(szBuf,8096,"Invalid XML saved game file: [%s]",filename.c_str());
-							infoTextLabel.setText(szBuf);
-							return;
-						}
+							snprintf(szBuf,8096,"In [%s::%s Line: %d]\nError [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+							SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 
-						const XmlNode *versionNode= rootNode;
-						string gameVer = versionNode->getAttribute("version")->getValue();
-						if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false) {
-							char szBuf[8096]="";
-							snprintf(szBuf,8096,lang.getString("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
-							infoTextLabel.setText(szBuf);
-						}
-						else {
-							XmlNode *gameNode = rootNode->getChild("Game");
-							GameSettings newGameSettings;
-							newGameSettings.loadGame(gameNode);
-
-							char szBuf[8096]="";
-							snprintf(szBuf,8096,lang.getString("LoadSavedGameInfo").c_str(),
-									newGameSettings.getMap().c_str(),
-									newGameSettings.getTileset().c_str(),
-									newGameSettings.getTech().c_str(),
-									newGameSettings.getScenario().c_str(),
-									newGameSettings.getFactionCount(),
-									(newGameSettings.getThisFactionIndex() >= 0 &&
-									 newGameSettings.getThisFactionIndex() < newGameSettings.getFactionCount() ?
-									newGameSettings.getFactionTypeName(newGameSettings.getThisFactionIndex()).c_str() : ""));
-							infoTextLabel.setText(szBuf);
+							showMessageBox(ex.what(), lang.getString("Notice"), false);
 						}
 					}
 					else {
