@@ -351,7 +351,7 @@ bool prev_word_is_ASCII(const string &str_,int end_index) {
 				return prev_word_is_ASCII(str_,start_index-1);
 			}
 			else {
-				return isalnum(str_[start_index]);
+				return isalnum(str_[start_index]) != 0;
 			}
 		}
 		else {
@@ -360,7 +360,7 @@ bool prev_word_is_ASCII(const string &str_,int end_index) {
 			//printf("Line: %d word [%s] length: %d\n",__LINE__,word.c_str(),length);
 			for(int index = 0; index < word.size(); ++index) {
 				//printf("%c = %d,",word[index],isalnum(word[index]));
-				if(isalnum(word[index])) {
+				if(isalnum(word[index]) != 0) {
 					//printf("Prev %c = %d [%d] [%s],",word[index],isalnum(word[index]),index,(index > 0 ? word.substr(index-1,2).c_str() : "n/a"));
 //					if(index > 0 && word.substr(index-1,2) == "\\n") {
 //						continue;
@@ -399,7 +399,7 @@ bool next_word_is_ASCII(const string &str_,int start_index) {
 
 	}
 	if(end_index >= str_.size()) {
-		end_index = str_.size()-1;
+		end_index = (int)str_.size()-1;
 	}
 
 	//printf("Line: %d start_index: %d end_index: %d\n",__LINE__,start_index,end_index);
@@ -413,7 +413,7 @@ bool next_word_is_ASCII(const string &str_,int start_index) {
 				return next_word_is_ASCII(str_,end_index+1);
 			}
 			else {
-				return isalnum(str_[start_index]);
+				return isalnum(str_[start_index]) != 0;
 			}
 
 		}
@@ -424,7 +424,7 @@ bool next_word_is_ASCII(const string &str_,int start_index) {
 			int alphaCount = 0;
 			for(int index = 0; index < word.size(); ++index) {
 				//printf("%c = %d,",word[index],isalnum(word[index]));
-				if(isalnum(word[index])) {
+				if(isalnum(word[index]) != 0) {
 					//printf("Next %c = %d [%d] [%s],",word[index],isalnum(word[index]),index,(index > 0 ? word.substr(index-1,2).c_str() : "n/a"));
 //					if(index > 0 && word.substr(index-1,2) == "\\n") {
 //						continue;
@@ -519,7 +519,7 @@ vector<pair<char, int> > Font::extract_mixed_LTR_RTL_map(string &str_) {
     	ascii_char_map.push_back(make_pair(str_[index],index));
     }
 
-    for (int index = ascii_char_map.size()-1; index >= 0; --index) {
+    for (int index = (int)ascii_char_map.size()-1; index >= 0; --index) {
     	str_.erase(ascii_char_map[index].second,1);
     }
 
@@ -631,7 +631,7 @@ void Font::bidi_cvt(string &str_) {
 		char *op = NULL;
 
 		//Size to allocate for the char arrays
-		int size = str_.size() + 2;
+		int size = (int)str_.size() + 2;
 
 		//Allocate memory:
 		//It's probably way too much, but at least it's not too little
@@ -660,23 +660,23 @@ void Font::bidi_cvt(string &str_) {
 		orig_len = len = strlen( ip );
 
 		//Insert ip to logical as unicode (and find it's size now)
-		len = fribidi_charset_to_unicode (char_set_num, ip, len, logical);
+		len = fribidi_charset_to_unicode (char_set_num, ip, (FriBidiStrIndex)len, logical);
 
 		base = FRIBIDI_TYPE_ON;
 
 		//printf("STRIPPED: [%s]\n",str_.c_str());
 
 		//Convert logical text to visual
-		log2vis = fribidi_log2vis (logical, len, &base, visual, ltov, vtol, NULL);
+		log2vis = fribidi_log2vis (logical, (FriBidiStrIndex)len, &base, visual, ltov, vtol, NULL);
 
 		//If convertion was successful
 		if(log2vis)
 		{
 			//Remove bidi marks (that we don't need) from the output text
-			len = fribidi_remove_bidi_marks (visual, len, ltov, vtol, NULL);
+			len = fribidi_remove_bidi_marks (visual, (FriBidiStrIndex)len, ltov, vtol, NULL);
 
 			//Convert unicode string back to the encoding the input string was in
-			fribidi_unicode_to_charset ( char_set_num, visual, len ,op);
+			fribidi_unicode_to_charset ( char_set_num, visual, (FriBidiStrIndex)len ,op);
 
 			//Insert the output string into the result
 			str_ = op;
