@@ -3501,12 +3501,21 @@ int handleCreateDataArchivesCommand(int argc, char** argv) {
 		Tokenize(paramValue,paramPartTokens,"=");
 		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 			string compress_item = paramPartTokens[1];
+			bool includeMainData = false;
+			if(paramPartTokens.size() >= 3 && paramPartTokens[2] == "include_main") {
+				includeMainData = true;
+			}
 
 			Config &config = Config::getInstance();
 			string fileArchiveExtension = config.getString("FileArchiveExtension","");
 			string fileArchiveCompressCommand = config.getString("FileArchiveCompressCommand","");
 			string fileArchiveCompressCommandParameters = config.getString("FileArchiveCompressCommandParameters","");
 			int32 fileArchiveCompressCommandSuccessResult = config.getInt("FileArchiveCompressCommandSuccessResult","0");
+
+		    string userData = config.getString("UserData_Root","");
+		    if(userData != "") {
+		    	endPathWithSlash(userData);
+		    }
 
 			int typesSelected = 0;
 			if(compress_item == "techtrees" || compress_item == "all") {
@@ -3525,10 +3534,20 @@ int handleCreateDataArchivesCommand(int argc, char** argv) {
 						if(techPath != "") {
 							endPathWithSlash(techPath);
 						}
+
 						vector<string> results2;
 						findDirs(techPath + name + "/factions", results2, false,true);
 						if(results2.empty() == false) {
-							string downloadArchive = techPath + name + fileArchiveExtension;
+							string techtreePath = techPath + name;
+							if(includeMainData == false) {
+								//printf("userData [%s] techPath [%s]\n",userData.c_str(),techtreePath.c_str());
+								if(techtreePath.find(userData) == techPath.npos) {
+									printf("Skipping techtree: [%s]\n",techtreePath.c_str());
+									continue;
+								}
+							}
+
+							string downloadArchive = techtreePath + fileArchiveExtension;
 
 							//printf("Test downloadArchive [%s]\n",downloadArchive.c_str());
 
@@ -3541,7 +3560,7 @@ int handleCreateDataArchivesCommand(int argc, char** argv) {
 							string compressCmd = getFullFileArchiveCompressCommand(
 									fileArchiveCompressCommand,
 									fileArchiveCompressCommandParameters,
-									downloadArchive,techPath + name );
+									downloadArchive,techtreePath );
 
 							printf("Running compression command: %s\n",compressCmd.c_str());
 
@@ -3576,8 +3595,17 @@ int handleCreateDataArchivesCommand(int argc, char** argv) {
 						if(tilesetPath != "") {
 							endPathWithSlash(tilesetPath);
 						}
+
 						if(fileExists(tilesetPath + name + "/" + name + ".xml") == true) {
-							string downloadArchive = tilesetPath + name + fileArchiveExtension;
+							string tilesetDataPath = tilesetPath + name;
+							if(includeMainData == false) {
+								if(tilesetPath.find(userData) == tilesetPath.npos) {
+									printf("Skipping tileset data: [%s]\n",tilesetDataPath.c_str());
+									continue;
+								}
+							}
+
+							string downloadArchive = tilesetDataPath + fileArchiveExtension;
 
 							//printf("Test downloadArchive [%s]\n",downloadArchive.c_str());
 
@@ -3590,7 +3618,7 @@ int handleCreateDataArchivesCommand(int argc, char** argv) {
 							string compressCmd = getFullFileArchiveCompressCommand(
 									fileArchiveCompressCommand,
 									fileArchiveCompressCommandParameters,
-									downloadArchive,tilesetPath + name );
+									downloadArchive,tilesetDataPath );
 
 							printf("Running compression command: %s\n",compressCmd.c_str());
 
