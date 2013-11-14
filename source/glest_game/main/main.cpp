@@ -2142,11 +2142,20 @@ void runTechValidationForPath(string techPath, string techName,
 						replaceAll(file, "//", "/");
 						replaceAll(file, "\\\\", "\\");
 
+						// ignore loading screen, preview screen and hud
 						if(	file.find(GameConstants::LOADING_SCREEN_FILE) != string::npos ||
 								file.find(GameConstants::PREVIEW_SCREEN_FILE) != string::npos ||
 								file.find(GameConstants::HUD_SCREEN_FILE) != string::npos) {
 							continue;
 						}
+
+						// ignore commondata since we are not loading all factions
+						if(filteredFactionList.size() > 0) {
+							if(	file.find("/commondata/") != string::npos) {
+								continue;
+							}
+						}
+
 						if(file.find("/factions/") != string::npos) {
 							bool includeFaction = false;
 							for ( set<string>::iterator it = factions.begin(); it != factions.end(); ++it ) {
@@ -3594,10 +3603,11 @@ int glestMain(int argc, char** argv) {
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TILESET]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_TRANSLATE_TECHTREES]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) 			== true ||
-		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) 	== true ||
-		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) 	== true ||
-		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TILESETS]) 	== true ||
-		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) 	== true) {
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) 		== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) 		== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TILESETS]) 		== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) 		== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CREATE_DATA_ARCHIVES]) == true) {
 		haveSpecialOutputCommandLineOption = true;
 	}
 
@@ -3720,10 +3730,11 @@ int glestMain(int argc, char** argv) {
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VALIDATE_TILESET]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_TRANSLATE_TECHTREES]) 	== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_MAPS]) 			== true ||
-		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) 	== true ||
-		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) 	== true ||
-		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TILESETS]) 	== true ||
-		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) 	== true) {
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) 		== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) 		== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TILESETS]) 		== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) 		== true ||
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CREATE_DATA_ARCHIVES]) == true) {
 		VideoPlayer::setDisabled(true);
 	}
 
@@ -3781,7 +3792,8 @@ int glestMain(int argc, char** argv) {
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TECHTRESS]) 	== false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_SCENARIOS]) 	== false &&
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TILESETS]) 	== false &&
-		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) 	== false) {
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LIST_TUTORIALS]) 	== false &&
+		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CREATE_DATA_ARCHIVES]) == false) {
 		return 0;
 	}
 
@@ -4401,6 +4413,143 @@ int glestMain(int argc, char** argv) {
 	            return 1;
 	        }
     	}
+
+    	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_CREATE_DATA_ARCHIVES]) == true) {
+			int foundParamIndIndex = -1;
+			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CREATE_DATA_ARCHIVES]) + string("="),&foundParamIndIndex);
+			if(foundParamIndIndex < 0) {
+				hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_CREATE_DATA_ARCHIVES]),&foundParamIndIndex);
+			}
+			string paramValue = argv[foundParamIndIndex];
+			vector<string> paramPartTokens;
+			Tokenize(paramValue,paramPartTokens,"=");
+			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
+				string compress_item = paramPartTokens[1];
+
+		        string fileArchiveExtension = config.getString("FileArchiveExtension","");
+		        string fileArchiveCompressCommand = config.getString("FileArchiveCompressCommand","");
+		        string fileArchiveCompressCommandParameters = config.getString("FileArchiveCompressCommandParameters","");
+		        int32 fileArchiveCompressCommandSuccessResult = config.getInt("FileArchiveCompressCommandSuccessResult","0");
+
+		        int typesSelected = 0;
+				if(compress_item == "techtrees" || compress_item == "all") {
+					typesSelected++;
+
+				  	vector<string> pathList = config.getPathListForType(ptTechs,"");
+				  	vector<string> results;
+				  	findDirs(pathList, results);
+
+					printf("Techtrees found:\n===========================================\n");
+					for(unsigned int i = 0; i < results.size(); ++i) {
+						string name = results[i];
+
+						for(unsigned int j = 0; j < pathList.size(); ++j) {
+							string techPath = pathList[j];
+							if(techPath != "") {
+								endPathWithSlash(techPath);
+							}
+							vector<string> results2;
+							findDirs(techPath + name + "/factions", results2, false,true);
+							if(results2.empty() == false) {
+								string downloadArchive = techPath + name + ".7z";
+
+								//printf("Test downloadArchive [%s]\n",downloadArchive.c_str());
+
+								if(fileExists(downloadArchive) == true) {
+									bool removed = removeFile(downloadArchive);
+									if(removed == false) {
+										printf("Error could not remove old file: [%s]\n",downloadArchive.c_str());
+									}
+								}
+								string compressCmd = getFullFileArchiveCompressCommand(
+										fileArchiveCompressCommand,
+										fileArchiveCompressCommandParameters,
+										downloadArchive,techPath + name );
+
+								printf("Running compression command: %s\n",compressCmd.c_str());
+
+								if(executeShellCommand(compressCmd,fileArchiveCompressCommandSuccessResult) == false) {
+									printf("Error could not create new file: [%s]\n",downloadArchive.c_str());
+								}
+
+								if(fileExists(downloadArchive) == true) {
+									off_t fileSize = getFileSize(downloadArchive);
+									// convert to MB
+									double megaBytes = ((double)fileSize / 1048576.0);
+									printf("%s [download archive %.2fMB]\n",name.c_str(),megaBytes);
+								}
+							}
+						}
+					}
+					printf("===========================================\nTotal: " MG_SIZE_T_SPECIFIER "\n",results.size());
+				}
+				if(compress_item == "tilesets" || compress_item == "all") {
+					typesSelected++;
+
+				  	vector<string> pathList = config.getPathListForType(ptTilesets,"");
+				  	vector<string> results;
+				  	findDirs(pathList, results);
+
+					printf("Tilesets found:\n===========================================\n");
+					for(unsigned int i = 0; i < results.size(); ++i) {
+						string name = results[i];
+
+						for(unsigned int j = 0; j < pathList.size(); ++j) {
+							string tilesetPath = pathList[j];
+							if(tilesetPath != "") {
+								endPathWithSlash(tilesetPath);
+							}
+							if(fileExists(tilesetPath + name + "/" + name + ".xml") == true) {
+								string downloadArchive = tilesetPath + name + ".7z";
+
+								//printf("Test downloadArchive [%s]\n",downloadArchive.c_str());
+
+								if(fileExists(downloadArchive) == true) {
+									bool removed = removeFile(downloadArchive);
+									if(removed == false) {
+										printf("Error could not remove old file: [%s]\n",downloadArchive.c_str());
+									}
+								}
+								string compressCmd = getFullFileArchiveCompressCommand(
+										fileArchiveCompressCommand,
+										fileArchiveCompressCommandParameters,
+										downloadArchive,tilesetPath + name );
+
+								printf("Running compression command: %s\n",compressCmd.c_str());
+
+								if(executeShellCommand(compressCmd,fileArchiveCompressCommandSuccessResult) == false) {
+									printf("Error could not create new file: [%s]\n",downloadArchive.c_str());
+								}
+
+								if(fileExists(downloadArchive) == true) {
+									off_t fileSize = getFileSize(downloadArchive);
+									// convert to MB
+									double megaBytes = ((double)fileSize / 1048576.0);
+									printf("%s [download archive %.2fMB]\n",name.c_str(),megaBytes);
+								}
+
+								break;
+							}
+						}
+					}
+					printf("===========================================\nTotal: " MG_SIZE_T_SPECIFIER "\n",results.size());
+
+				}
+				if(typesSelected == 0) {
+					printf("Compress item [%s] is not valid!\n",compress_item.c_str());
+					return 1;
+				}
+
+				return 0;
+			}
+	        else {
+	            printf("\nInvalid missing map specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
+	            //printParameterHelp(argv[0],false);
+
+	            return 1;
+	        }
+    	}
+
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
