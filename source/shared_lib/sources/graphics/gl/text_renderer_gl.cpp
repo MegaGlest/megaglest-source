@@ -248,7 +248,7 @@ void TextRenderer2DGl::render(const string &text, float x, float y, bool centere
 			}
 
 			glListBase(font->getHandle());
-			glCallLists(renderText.length(), GL_UNSIGNED_SHORT, &utext[0]);
+			glCallLists((GLsizei)renderText.length(), GL_UNSIGNED_SHORT, &utext[0]);
 
 			//std::locale loc("");
 			//wstring wText = widen(text);
@@ -664,7 +664,7 @@ void TextRenderer3DGl::internalRender(const string &text, float  x, float y, boo
 
 			string utfText = renderText;
 			glListBase(font->getHandle());
-			glCallLists(renderText.length(), GL_UNSIGNED_SHORT, &utext[0]);
+			glCallLists((GLsizei)renderText.length(), GL_UNSIGNED_SHORT, &utext[0]);
 
 			//std::locale loc("");
 			//wstring wText = widen(text);

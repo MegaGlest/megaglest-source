@@ -5474,7 +5474,7 @@ void Game::render2d() {
 		int mh= metrics.getMinimapH();
 
 		if(this->getRenderInGamePerformance() == true) {
-			mh = mh + (gamePerformanceCounts.size() * 14);
+			mh = mh + ((int)gamePerformanceCounts.size() * 14);
 		}
 
 		const Vec4f fontColor=getGui()->getDisplay()->getColor();

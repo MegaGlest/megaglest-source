@@ -870,7 +870,7 @@ Vec2i LuaArguments::getVec2i(int argumentIndex) const{
 	//printf("xa = %s argumentIndex = %d\n",lua_tostring(luaState, argumentIndex),argumentIndex);
 
 	//v.x= luaL_checkint(luaState, argumentIndex);
-	v.x= lua_tointeger(luaState, argumentIndex);
+	v.x= (int)lua_tointeger(luaState, argumentIndex);
 	lua_pop(luaState, 1);
 
 	//printf("X = %d\n",v.x);
@@ -879,7 +879,7 @@ Vec2i LuaArguments::getVec2i(int argumentIndex) const{
 	//printf("ya = %s\n",lua_tostring(luaState, argumentIndex));
 
 	//v.y= luaL_checkint(luaState, argumentIndex);
-	v.y= lua_tointeger(luaState, argumentIndex);
+	v.y= (int)lua_tointeger(luaState, argumentIndex);
 	lua_pop(luaState, 1);
 
 	//printf("Y = %d\n",v.y);
