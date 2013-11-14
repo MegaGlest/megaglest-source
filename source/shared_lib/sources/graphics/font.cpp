@@ -530,6 +530,8 @@ void Font::bidi_cvt(string &str_) {
 
 /*
 #ifdef	HAVE_FRIBIDI
+	printf("BEFORE:   [%s]\n",str_.c_str());
+
 	char		*c_str = const_cast<char *>(str_.c_str());	// fribidi forgot const...
 	FriBidiStrIndex	len = (int)str_.length();
 	FriBidiChar	*bidi_logical = new FriBidiChar[len * 4];
@@ -568,8 +570,12 @@ void Font::bidi_cvt(string &str_) {
 	delete[] bidi_logical;
 	delete[] bidi_visual;
 	delete[] utf8str;
+
+	printf("NEW:      [%s]\n",str_.c_str());
+
 #endif
 */
+
 
 #ifdef	HAVE_FRIBIDI
 
@@ -592,8 +598,10 @@ void Font::bidi_cvt(string &str_) {
 		lines.push_back(str_);
 	}
 
+	//printf("Lines: %d\n",(int)lines.size());
+
 	for(int lineIndex = 0; lineIndex < lines.size(); ++lineIndex) {
-		if(new_value != "") {
+		if(lineIndex > 0) {
 			if(hasSoftNewLines == true) {
 				new_value += "\\n";
 			}
@@ -659,7 +667,7 @@ void Font::bidi_cvt(string &str_) {
 		//printf("STRIPPED: [%s]\n",str_.c_str());
 
 		//Convert logical text to visual
-		log2vis = fribidi_log2vis (logical, len, &base, /* output: */ visual, ltov, vtol, NULL);
+		log2vis = fribidi_log2vis (logical, len, &base, visual, ltov, vtol, NULL);
 
 		//If convertion was successful
 		if(log2vis)
@@ -698,71 +706,6 @@ void Font::bidi_cvt(string &str_) {
 
 #endif
 
-/*
-	string out = "" ;
-
-	// FriBidi C string holding the originall text (that is probably with logicall hebrew)
-	FriBidiChar * logical = NULL;
-	// FriBidi C string for the output text (that should be visual hebrew)
-	FriBidiChar * visual = NULL;
-
-	// C string holding the originall text (not nnecessarily as unicode)
-	char  * ip = NULL;
-	// C string for the output text
-	char  * op = NULL;
-
-	// Size to allocate for the char arrays
-	int  size = str_.size () + 2;
-
-	// Allocate memory:
-	// It's probably way too much, but at least it's not too little
-	logical = new  FriBidiChar [size * 3];
-	visual = new  FriBidiChar [size * 3];
-	ip = new  char [size * 3];
-	op = new  char [size * 3];
-
-	FriBidiCharType base;
-	size_t  len, Orig_len;
-
-	// A bool type to see if conversion succeded
-	fribidi_boolean log2vis;
-
-	// Holds information telling fribidi to use UTF-8
-	FriBidiCharSet char_set_num;
-	char_set_num = fribidi_parse_charset ( "UTF-8" );
-
-	// Copy the string into the given string ip
-	strcpy (ip, str_.c_str ());
-
-	// Find length of originall text
-	Orig_len = len = strlen (ip);
-
-	// Insert IP to logical as unicode (and find it's size now)
-	len = fribidi_charset_to_unicode (char_set_num, ip, len, logical);
-
-	base = FRIBIDI_TYPE_ON;
-	// Convert text to visual logical
-	log2vis = fribidi_log2vis (logical, len, & base, visual, NULL, NULL, NULL);
-
-	// If convertion was successful
-	if (log2vis)
-	{
-		// Remove bidi marks (that we don't need) from the output text
-		len = fribidi_remove_bidi_marks (visual, len, NULL, NULL, NULL);
-
-		// Convert unicode string back to the encoding the input string was in
-		fribidi_unicode_to_charset (char_set_num, visual, len, op);
-
-		// Insert the output string into the output QString
-		str_ = op;
-	}
-
-	// Free allocated memory
-	delete  [] visual;
-	delete  [] logical;
-	delete  [] ip;
-	delete  [] op;
-*/
 }
 
 // ===============================================
