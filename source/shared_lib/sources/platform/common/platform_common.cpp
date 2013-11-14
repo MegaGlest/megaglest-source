@@ -2005,6 +2005,30 @@ string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
 	return result;
 }
 
+string getFullFileArchiveCompressCommand(string fileArchiveCompressCommand,
+		string fileArchiveCompressCommandParameters,
+		string archivename, string archivefiles) {
+	string parsedArchivename = archivename;
+	string parsedArchivefiles = archivefiles;
+
+// This is required for execution on win32
+#if defined(WIN32)
+	replaceAll(parsedArchivename, "\\\\", "\\");
+	replaceAll(parsedArchivename, "/", "\\");
+	replaceAll(parsedArchivefiles, "\\\\", "\\");
+	replaceAll(parsedArchivefiles, "/", "\\");
+
+#endif
+
+	string result = fileArchiveCompressCommand;
+	result += " ";
+	string args = replaceAll(fileArchiveCompressCommandParameters, "{archivename}", parsedArchivename);
+	args = replaceAll(args, "{archivefiles}", parsedArchivefiles);
+	result += args;
+
+	return result;
+}
+
 bool executeShellCommand(string cmd, int expectedResult, ShellCommandOutputCallbackInterface *cb) {
 	bool result = false;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"About to run [%s]", cmd.c_str());

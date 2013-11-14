@@ -291,6 +291,9 @@ inline string trim (const string & s, const string & t = SPACES) {
 
 string getFullFileArchiveExtractCommand(string fileArchiveExtractCommand,
 		string fileArchiveExtractCommandParameters, string outputpath, string archivename);
+string getFullFileArchiveCompressCommand(string fileArchiveCompressCommand,
+		string fileArchiveCompressCommandParameters, string archivename, string archivefiles);
+
 bool executeShellCommand(string cmd,int expectedResult=IGNORE_CMD_RESULT_VALUE,ShellCommandOutputCallbackInterface *cb=NULL);
 string executable_path(string exeName,bool includeExeNameInPath=false);
 
