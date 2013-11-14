@@ -475,20 +475,26 @@ void FTPClientThread::getTilesetFromServer(pair<string,string> tileSetName) {
 			this->fileArchiveExtractCommandSuccessResult);
 
 	pair<FTP_Client_ResultType,string> result = make_pair(ftp_crt_FAIL,"");
-	if(tileSetName.second != "") {
-		result = getTilesetFromServer(tileSetName, "", "", "", findArchive);
-	}
-	else {
-		result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD, findArchive);
-		if(result.first == ftp_crt_FAIL && this->getQuitStatus() == false) {
-			if(findArchive == true) {
-				result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD, false);
-			}
+	if(findArchive == true) {
+		if(tileSetName.second != "") {
+			//result = getTilesetFromServer(tileSetName, "", "", "", findArchive);
+			result = getTilesetFromServer(tileSetName, "", "", "", true);
+		}
+		else {
+			//result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD, findArchive);
+			result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD, true);
 			if(result.first == ftp_crt_FAIL && this->getQuitStatus() == false) {
-				result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_USERNAME, FTP_COMMON_PASSWORD, findArchive);
+				//if(findArchive == true) {
+					//result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD, false);
+				result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_CUSTOM_USERNAME, FTP_COMMON_PASSWORD, true);
+				//}
+				if(result.first == ftp_crt_FAIL && this->getQuitStatus() == false) {
+				//	result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_USERNAME, FTP_COMMON_PASSWORD, findArchive);
+					result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_USERNAME, FTP_COMMON_PASSWORD, true);
 
-				if(findArchive == true) {
-					result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_USERNAME, FTP_COMMON_PASSWORD, false);
+				//	if(findArchive == true) {
+				//		result = getTilesetFromServer(tileSetName, "", FTP_TILESETS_USERNAME, FTP_COMMON_PASSWORD, false);
+				//	}
 				}
 			}
 		}
