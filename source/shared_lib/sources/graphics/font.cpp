@@ -40,6 +40,7 @@ using namespace Shared::Graphics::Gl;
 #include <fribidi.h>
 #endif
 
+#include <iterator>
 #include "leak_dumper.h"
 
 using namespace std;
@@ -391,7 +392,7 @@ void Font::bidi_cvt(string &str_) {
 
 	//printf("Lines: %d\n",(int)lines.size());
 
-	for(int lineIndex = 0; lineIndex < lines.size(); ++lineIndex) {
+	for(int lineIndex = 0; lineIndex < (int)lines.size(); ++lineIndex) {
 		if(lineIndex > 0) {
 			if(hasSoftNewLines == true) {
 				new_value += "\\n";
@@ -422,7 +423,7 @@ void Font::bidi_cvt(string &str_) {
 		vector<string> nonASCIIWordList;
 		nonASCIIWordList.reserve(words.size());
 
-		for(int wordIndex = 0; wordIndex < words.size(); ++wordIndex) {
+		for(int wordIndex = 0; wordIndex < (int)words.size(); ++wordIndex) {
 			//if(wordIndex > 0) {
 			//	new_value += " ";
 			//}
@@ -552,7 +553,7 @@ void Font::bidi_cvt(string &str_) {
 		}
 
 		//printf("Building New Line: %d [%s]\n",lineIndex,new_value.c_str());
-		for(int wordIndex = 0; wordIndex < wordList.size(); ++wordIndex) {
+		for(int wordIndex = 0; wordIndex < (int)wordList.size(); ++wordIndex) {
 			//printf("wordIndex: %d [%s]\n",wordIndex,wordList[wordIndex].c_str());
 			if(wordIndex > 0) {
 				new_value += " ";
