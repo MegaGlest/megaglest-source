@@ -103,6 +103,9 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">megaglest</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">megaglest</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IntDir>$(Platform)\$(Configuration)\$(TargetName)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
