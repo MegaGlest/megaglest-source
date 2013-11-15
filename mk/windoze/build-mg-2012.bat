@@ -132,6 +132,7 @@ del ..\..\source\glest_game\facilities\svnversion.h
 if not "%SVNVERSION%" == "." set CL=/DSVNVERSIONHEADER
 if not "%SVNVERSION%" == "."  echo building with CL [%CL%]
 if not "%SVNVERSION%" == "." echo #define SVNVERSION "%SVNVERSION%" > ..\..\source\glest_game\facilities\svnversion.h
+if not "%SVNVERSION%" == "." copy /b ..\..\source\glest_game\facilities\game_util.cpp +,,
 
 rem set VisualStudioVersion=11.0
 set msBuildMaxCPU=
