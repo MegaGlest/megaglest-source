@@ -915,6 +915,7 @@ void ServerInterface::signalClientsToRecieveData(std::map<PLATFORM_SOCKET,bool> 
 				}
 			}
 		}
+		sleep(0);
 	}
 }
 
@@ -1019,6 +1020,7 @@ void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSigna
 
 				//printf("===> END slot %d - About to checkForCompletedClients\n",i);
 			}
+			sleep(0);
 		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
