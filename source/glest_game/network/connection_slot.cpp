@@ -291,7 +291,7 @@ void ConnectionSlotThread::execute() {
 					//bool socketHasReadData = socket->hasDataToRead();;
 					// Avoid mutex locking
 					//bool socketHasReadData = Socket::hasDataToRead(socket->getSocketId());
-					bool socketHasReadData = Socket::hasDataToReadWithWait(socket->getSocketId(),100000);
+					bool socketHasReadData = Socket::hasDataToReadWithWait(socket->getSocketId(),20000);
 
 					ConnectionSlotEvent eventCopy;
 					eventCopy.eventType = eReceiveSocketData;
