@@ -648,6 +648,7 @@ void World::updateAllFactionUnits() {
 			if(workThreadsFinished == true) {
 				break;
 			}
+			// WARNING... Sleep in here causes the server to lag a bit
 			//if(chrono.getMillis() % 5 == 0) {
 			//	sleep(0);
 			//}
