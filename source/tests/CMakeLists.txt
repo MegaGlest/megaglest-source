@@ -135,9 +135,9 @@ IF(BUILD_MEGAGLEST_TESTS)
         OPTION(WANT_DEV_OUTPATH "use developer friendly output paths" OFF)
         IF(WANT_DEV_OUTPATH)
 	        IF(UNIX AND NOT APPLE)
-		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux)
+		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux/)
 	        ELSE()
-		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game)
+		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game/)
 	        ENDIF()
         ENDIF()
 
@@ -163,12 +163,12 @@ IF(BUILD_MEGAGLEST_TESTS)
 		MESSAGE("***-- Found xvfb-run: ${XVFB_EXEC} will run tests with it.")
 
 	  	add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-	    		COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}
+	    		COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME}
                         COMMENT "***-- Found megaglest test runner: ${TARGET_NAME} about to run unit tests via xvfb...")
 
 	ELSE()
 	  	add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-	    		COMMAND ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}
+	    		COMMAND ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME}
                         COMMENT "***-- Found megaglest test runner: ${TARGET_NAME} about to run unit tests...")
 	ENDIF()
 
