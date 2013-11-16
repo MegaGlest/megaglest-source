@@ -97,9 +97,9 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     lastCheckedCRCTilesetName					= "";
     lastCheckedCRCTechtreeName					= "";
     lastCheckedCRCMapName						= "";
-    lastCheckedCRCTilesetValue					= -1;
-    lastCheckedCRCTechtreeValue					= -1;
-    lastCheckedCRCMapValue						= -1;
+    lastCheckedCRCTilesetValue					= 0;
+    lastCheckedCRCTechtreeValue					= 0;
+    lastCheckedCRCMapValue						= 0;
 
     mapPreviewTexture=NULL;
 	currentFactionLogo = "";
