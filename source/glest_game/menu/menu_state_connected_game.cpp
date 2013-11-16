@@ -4898,12 +4898,15 @@ void MenuStateConnectedGame::setupTilesetList(string scenario) {
 		vector<string> results;
 		findDirs(config.getPathListForType(ptTilesets,scenarioDir), results);
 		if (results.empty()) {
-			throw megaglest_runtime_error("No tile-sets were found!");
+			//throw megaglest_runtime_error("No tile-sets were found!");
+			showMessageBox( "No tile-sets were found!", "Error", false);
 		}
-		tilesetFiles= results;
-		std::for_each(results.begin(), results.end(), FormatString());
+		else {
+			tilesetFiles= results;
+			std::for_each(results.begin(), results.end(), FormatString());
 
-		listBoxTileset.setItems(results);
+			listBoxTileset.setItems(results);
+		}
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
