@@ -2223,8 +2223,9 @@ void MenuStateCustomGame::switchSetupForSlots(SwitchSetupRequest **switchSetupRe
 							ConnectionSlot *slot = serverInterface->getSlot(newFactionIdx);
 
 							if(switchSetupRequests[i]->getSelectedFactionName() != "" &&
-								(slot != NULL && switchSetupRequests[i]->getSelectedFactionName() !=
-										Lang::getInstance().getString("DataMissing",slot->getNetworkPlayerLanguage(),true))) {
+								(slot != NULL &&
+								 switchSetupRequests[i]->getSelectedFactionName() != Lang::getInstance().getString("DataMissing",slot->getNetworkPlayerLanguage(),true) &&
+								 switchSetupRequests[i]->getSelectedFactionName() != "???DataMissing???")) {
 								listBoxFactions[newFactionIdx].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
 							}
 							if(switchSetupRequests[i]->getToTeam() != -1) {
@@ -2260,8 +2261,9 @@ void MenuStateCustomGame::switchSetupForSlots(SwitchSetupRequest **switchSetupRe
 						ConnectionSlot *slot = serverInterface->getSlot(factionIdx);
 
 						if(switchSetupRequests[i]->getSelectedFactionName() != "" &&
-							(slot != NULL && switchSetupRequests[i]->getSelectedFactionName() !=
-									Lang::getInstance().getString("DataMissing",slot->getNetworkPlayerLanguage(),true))) {
+							(slot != NULL &&
+							 switchSetupRequests[i]->getSelectedFactionName() != Lang::getInstance().getString("DataMissing",slot->getNetworkPlayerLanguage(),true) &&
+							 switchSetupRequests[i]->getSelectedFactionName() != "???DataMissing???")) {
 							listBoxFactions[i].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
 						}
 						if(switchSetupRequests[i]->getToTeam() != -1) {
