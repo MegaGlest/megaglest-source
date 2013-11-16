@@ -779,14 +779,14 @@ bool checkVersionComptability(string clientVersionString, string serverVersionSt
 					StartsWith(tokensSpecialVersionTags[1],"alpha") == true ||
 					StartsWith(tokensSpecialVersionTags[1],"beta") == true) {
 
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND SPECIAL SERVER VERSION TAG [%s] [%s] tokensSpecialVersionTags.size() = " MG_SIZE_T_SPECIFIER "\n",tokensSpecialVersionTags[0].c_str(),tokensSpecialVersionTags[1].c_str(),tokensSpecialVersionTags.size());
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Line Ref: %d FOUND SPECIAL SERVER VERSION TAG [%s] [%s] tokensSpecialVersionTags.size() = " MG_SIZE_T_SPECIFIER "\n",__LINE__,tokensSpecialVersionTags[0].c_str(),tokensSpecialVersionTags[1].c_str(),tokensSpecialVersionTags.size());
 
 					// Chop off platform specific version info
 					if(tokensSpecialVersionTags.size() > 2) {
 						string trimRightDelim = "-" + tokensSpecialVersionTags[2];
 						string newVersionText = trim_at_delim(serverVersionString, trimRightDelim);
 
-						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("NEW SERVER VERSION TAG [%s] OLD TAG [%s] delim [%s]\n",newVersionText.c_str(),serverVersionString.c_str(),trimRightDelim.c_str());
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Line Ref: %d NEW SERVER VERSION TAG [%s] OLD TAG [%s] delim [%s]\n",__LINE__,newVersionText.c_str(),serverVersionString.c_str(),trimRightDelim.c_str());
 						serverVersionString = newVersionText;
 
 						tokensServer.clear();
@@ -806,14 +806,14 @@ bool checkVersionComptability(string clientVersionString, string serverVersionSt
 					StartsWith(tokensSpecialVersionTags[1],"alpha") == true ||
 					StartsWith(tokensSpecialVersionTags[1],"beta") == true) {
 
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("FOUND SPECIAL CLIENT VERSION TAG [%s] [%s] tokensSpecialVersionTags.size() = " MG_SIZE_T_SPECIFIER "\n",tokensSpecialVersionTags[0].c_str(),tokensSpecialVersionTags[1].c_str(),tokensSpecialVersionTags.size());
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Line Ref: %d FOUND SPECIAL CLIENT VERSION TAG [%s] [%s] tokensSpecialVersionTags.size() = " MG_SIZE_T_SPECIFIER "\n",__LINE__,tokensSpecialVersionTags[0].c_str(),tokensSpecialVersionTags[1].c_str(),tokensSpecialVersionTags.size());
 
 					// Chop off platform specific version info
 					if(tokensSpecialVersionTags.size() > 2) {
 						string trimRightDelim = "-" + tokensSpecialVersionTags[2];
 						string newVersionText = trim_at_delim(clientVersionString, trimRightDelim);
 
-						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("NEW CLIENT VERSION TAG [%s] OLD TAG [%s] delim [%s]\n",newVersionText.c_str(),clientVersionString.c_str(),trimRightDelim.c_str());
+						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Line Ref: %d NEW CLIENT VERSION TAG [%s] OLD TAG [%s] delim [%s]\n",__LINE__,newVersionText.c_str(),clientVersionString.c_str(),trimRightDelim.c_str());
 						clientVersionString = newVersionText;
 
 						tokens.clear();
@@ -833,10 +833,10 @@ bool checkVersionComptability(string clientVersionString, string serverVersionSt
 		if(SystemFlags::VERBOSE_MODE_ENABLED) {
 			// debug version strings
 			for(unsigned int i = 0; i < tokensServer.size(); ++i) {
-				printf("Server version index = %u str [%s] IsNumeric = %d\n",i,tokensServer[i].c_str(),IsNumeric(tokensServer[i].c_str(),false));
+				printf("Line Ref: %d Server version index = %u str [%s] IsNumeric = %d\n",__LINE__,i,tokensServer[i].c_str(),IsNumeric(tokensServer[i].c_str(),false));
 			}
 			for(unsigned int i = 0; i < tokens.size(); ++i) {
-				printf("Client version index = %u str [%s] IsNumeric = %d\n",i,tokens[i].c_str(),IsNumeric(tokens[i].c_str(),false));
+				printf("Line Ref: %d Client version index = %u str [%s] IsNumeric = %d\n",__LINE__,i,tokens[i].c_str(),IsNumeric(tokens[i].c_str(),false));
 			}
 		}
 		// **NOTE:
@@ -913,7 +913,7 @@ bool checkVersionComptability(string clientVersionString, string serverVersionSt
 				if(compatiblePost3_7_0_Check == true) {
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					compatiblePre3_7_0_1_Check = false;
-					// only check the first 2 sections with . to compare makor versions #'s
+					// only check the first 2 sections with . to compare major versions #'s
 					compatible = (tokens.size() >= 2 && tokensServer.size() >= 2);
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] clientVersionString [%s], serverVersionString [%s] compatible [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,clientVersionString.c_str(),serverVersionString.c_str(),compatible);
