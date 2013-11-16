@@ -1,3 +1,14 @@
+// ==============================================================
+//	This file is part of MegaGlest Unit Tests (www.megaglest.org)
+//
+//	Copyright (C) 2013 Mark Vejvoda
+//
+//	You can redistribute this code and/or modify it under
+//	the terms of the GNU General Public License as published
+//	by the Free Software Foundation; either version 2 of the
+//	License, or (at your option) any later version
+// ==============================================================
+
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
 #include <cppunit/ui/text/TestRunner.h>
