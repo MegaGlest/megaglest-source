@@ -110,9 +110,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
     last_Forced_CheckedCRCTechtreeName			= "";
     last_Forced_CheckedCRCMapName				= "";
 
-    lastCheckedCRCTilesetValue					= -1;
-    lastCheckedCRCTechtreeValue					= -1;
-    lastCheckedCRCMapValue						= -1;
+    lastCheckedCRCTilesetValue					= 0;
+    lastCheckedCRCTechtreeValue					= 0;
+    lastCheckedCRCMapValue						= 0;
 
 	publishToMasterserverThread = NULL;
 	publishToClientsThread = NULL;

@@ -3110,7 +3110,7 @@ void runTilesetValidationReport(int argc, char** argv) {
             double purgedMegaBytes=0;
     		bool showDuplicateFiles = true;
 
-            //std::vector<string> filteredFactionList;
+            bool tilesetFound = false;
 
             vector<string> tilesetPaths = config.getPathListForType(ptTilesets);
             for(int idx = 0; idx < tilesetPaths.size(); idx++) {
@@ -3122,6 +3122,7 @@ void runTilesetValidationReport(int argc, char** argv) {
                 for(int idx2 = 0; idx2 < tilesetList.size(); idx2++) {
                     string &tilesetName = tilesetList[idx2];
                     if(tilesetName == validateTilesetName) {
+                    	tilesetFound = true;
 						runTilesetValidationForPath(tilesetPath, tilesetName,
 									world, 	purgeUnusedFiles, showDuplicateFiles,
 									false, false, purgedMegaBytes);
@@ -3129,6 +3130,9 @@ void runTilesetValidationReport(int argc, char** argv) {
                 }
             }
 
+            if(tilesetFound == false) {
+            	printf("*ERROR The specified tileset [%s] was NOT FOUND!\n",validateTilesetName.c_str());
+            }
             printf("\n====== Finished Validation ======\n");
             }
             return;

@@ -843,14 +843,6 @@ void MenuStateMods::getTechsLocalList() {
 		string path = config.getPathListForType(ptTechs)[1];
 		endPathWithSlash(path);
 		findDirs(path, techTreeFilesUserData, false, false);
-
-		//for(unsigned int i = 0; i < techTreeFilesUserData.size(); ++i) {
-			//string itemPath = config.getPathListForType(ptTechs,"")[1] + "/" + techTreeFilesUserData[i] + string("/*");
-			//bool forceRefresh = (mapCRCUpdateList.find(itemPath) == mapCRCUpdateList.end());
-			//mapCRCUpdateList[itemPath] = getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL,forceRefresh);
-			//mapCRCUpdateList[itemPath] = getFolderTreeContentsCheckSumRecursively(itemPath, "", NULL,false);
-			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] local CRC for techtree [%s] is [%d]\n",__FILE__,__FUNCTION__,__LINE__,itemPath.c_str(),mapCRCUpdateList[itemPath]);
-		//}
 	}
 }
 
