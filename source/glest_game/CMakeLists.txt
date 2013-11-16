@@ -217,9 +217,9 @@ IF(BUILD_MEGAGLEST)
         OPTION(WANT_DEV_OUTPATH "use developer friendly output paths" OFF)
         IF(WANT_DEV_OUTPATH)
 	        IF(UNIX AND NOT APPLE)
-		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux)
+		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux/)
 	        ELSE()
-		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game)
+		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game/)
 	        ENDIF()
         ENDIF()
 
@@ -257,7 +257,7 @@ IF(BUILD_MEGAGLEST)
 	TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
 
 	IF(EXISTS ${HELP2MAN})
-		MESSAGE("***-- Found help2man: ${HELP2MAN} about to build manpage in [${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME_MANPAGE}]")
+		MESSAGE("***-- Found help2man: ${HELP2MAN} about to build manpage in [${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME_MANPAGE}]")
 
                 SET(MG_MANPAGE_DESCRIPTION "3D multi-player real time strategy game")
 
@@ -265,11 +265,11 @@ IF(BUILD_MEGAGLEST)
 			MESSAGE("***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
 
 		  	add_custom_target(${TARGET_NAME_MANPAGE} ALL
-		    		COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${HELP2MAN} --name='${MG_MANPAGE_DESCRIPTION}' --section=6 -N -o ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME_MANPAGE} ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}
+		    		COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${HELP2MAN} --name='${MG_MANPAGE_DESCRIPTION}' --section=6 -N -o ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME_MANPAGE} ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME}
 		    	DEPENDS ${TARGET_NAME})
 		ELSE()
 		  	add_custom_target(${TARGET_NAME_MANPAGE} ALL
-		    		COMMAND ${HELP2MAN} --name='${MG_MANPAGE_DESCRIPTION}' --section=6 -N -o ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME_MANPAGE} ${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME}
+		    		COMMAND ${HELP2MAN} --name='${MG_MANPAGE_DESCRIPTION}' --section=6 -N -o ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME_MANPAGE} ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME}
 		    	DEPENDS ${TARGET_NAME})
 		ENDIF()
 	ENDIF()
@@ -288,7 +288,7 @@ IF(BUILD_MEGAGLEST)
 
 		        # Installation of the program manpage file
 		        INSTALL(FILES 
-		          "${EXECUTABLE_OUTPUT_PATH}/${TARGET_NAME_MANPAGE}"
+		          "${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME_MANPAGE}"
 		          DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
 	        ENDIF()
 
