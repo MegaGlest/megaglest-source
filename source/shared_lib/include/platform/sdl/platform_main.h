@@ -317,7 +317,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     %s %s=desert2",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_TILESET]);
 
 	printf("\n%s=x",GAME_ARGS[GAME_ARG_TRANSLATE_TECHTREES]);
-	printf("\n                     \t\tProduces a deafult lng file for the specified techtree");
+	printf("\n                     \t\tProduces a default lng file for the specified techtree");
 	printf("\n                     \t\tto prepare for translation into other languages.");
 	printf("\n                     \t\tWhere x is a techtree name");
 
