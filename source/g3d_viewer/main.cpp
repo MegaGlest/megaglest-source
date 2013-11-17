@@ -302,7 +302,7 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	glCanvas = new GlCanvas(this, args);
 
 #if wxCHECK_VERSION(2, 9, 1)
-	//glCanvas->setCurrentGLContext();
+
 #else
 	glCanvas->SetCurrent();
 #endif
@@ -579,7 +579,9 @@ void MainWindow::init() {
 void MainWindow::onPaint(wxPaintEvent &event) {
 	if(!IsShown()) return;
 	
-#if wxCHECK_VERSION(2, 9, 1)
+#if wxCHECK_VERSION(2, 9, 3)
+
+#elif wxCHECK_VERSION(2, 9, 1)
 	glCanvas->setCurrentGLContext();
 #endif
 
@@ -1984,7 +1986,7 @@ void translateCoords(wxWindow *wnd, int &x, int &y) {
 GlCanvas::GlCanvas(MainWindow *	mainWindow, int *args)
 #if wxCHECK_VERSION(2, 9, 1)
 		: wxGLCanvas(mainWindow, -1, args, wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas")) {
-	this->context = new wxGLContext(this);
+	this->context = NULL;
 #else
 		: wxGLCanvas(mainWindow, -1, wxDefaultPosition, wxDefaultSize, 0, wxT("GLCanvas"), args) {
 	this->context = NULL;
@@ -1999,6 +2001,12 @@ GlCanvas::~GlCanvas() {
 
 void GlCanvas::setCurrentGLContext() {
 #ifndef __APPLE__
+
+#if wxCHECK_VERSION(2, 9, 1)
+	if(this->context == NULL) {
+		this->context = new wxGLContext(this);
+	}
+#endif
 	//printf("Set ctx [%p]\n",this->context);
 	if(this->context) {
 		wxGLCanvas::SetCurrent(*this->context);
@@ -2041,13 +2049,11 @@ END_EVENT_TABLE()
 // ===============================================
 
 bool App::OnInit() {
-	//InterpolationData::setEnableCache(false);
-
 	SystemFlags::VERBOSE_MODE_ENABLED  = false;
-	//Renderer::windowW = 1920;
-	//Renderer::windowH = 1440;
-	//Renderer::windowX= 0;
-	//Renderer::windowY= 0;
+
+#if defined(wxMAJOR_VERSION) && defined(wxMINOR_VERSION) && defined(wxRELEASE_NUMBER) && defined(wxSUBRELEASE_NUMBER)
+	printf("Using wxWidgets version [%d.%d.%d.%d]\n",wxMAJOR_VERSION,wxMINOR_VERSION,wxRELEASE_NUMBER,wxSUBRELEASE_NUMBER);
+#endif
 
 	string modelPath="";
 	string particlePath="";
