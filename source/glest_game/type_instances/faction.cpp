@@ -389,7 +389,7 @@ void FactionThread::execute() {
 							bool changedActiveCommand = unit->isChangedActiveCommand();
 
 							char szBuf[8096]="";
-							snprintf(szBuf,8096,"unit->needToUpdate() returned: %d updateProgressValue: " MG_I64_SPECIFIER " speed: " MG_I64_SPECIFIER " changedActiveCommand: %d df: " MG_I64_SPECIFIER " hf: " MG_I64_SPECIFIER,update,updateProgressValue,speed,changedActiveCommand,df,hf);
+							snprintf(szBuf,8096,"unit->needToUpdate() returned: %d updateProgressValue: %lld speed: %lld changedActiveCommand: %d df: %lld hf: %lld",update,updateProgressValue,speed,changedActiveCommand,df,hf);
 							unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
 						}
 
@@ -415,7 +415,7 @@ void FactionThread::execute() {
 							bool changedActiveCommand = unit->isChangedActiveCommand();
 
 							char szBuf[8096]="";
-							snprintf(szBuf,8096,"unit->needToUpdate() returned: %d updateProgressValue: " MG_I64_SPECIFIER " speed: " MG_I64_SPECIFIER " changedActiveCommand: %d df: " MG_I64_SPECIFIER " hf: " MG_I64_SPECIFIER,update,updateProgressValue,speed,changedActiveCommand,df,hf);
+							snprintf(szBuf,8096,"unit->needToUpdate() returned: %d updateProgressValue: %lld speed: %lld changedActiveCommand: %d df: %lld hf: %lld",update,updateProgressValue,speed,changedActiveCommand,df,hf);
 							unit->logSynchDataThreaded(__FILE__,__LINE__,szBuf);
 						}
 					}
