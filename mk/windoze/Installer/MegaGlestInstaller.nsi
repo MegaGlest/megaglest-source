@@ -203,6 +203,8 @@ noViewReadme:
 
 noLaunch:
 
+  Delete "$PLUGINSDIR'\megaglestinstallscreen.jpg"
+
 FunctionEnd
 
 ; The stuff to install
