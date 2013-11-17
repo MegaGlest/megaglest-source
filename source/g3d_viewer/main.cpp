@@ -611,7 +611,7 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	int viewportH = GetSize().y;
 #endif
 
-	printf("%d x %d\n",viewportW,viewportH);
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%d x %d\n",viewportW,viewportH);
 
 #if defined(WIN32)
 	renderer->reset(viewportW, viewportH, playerColor);
