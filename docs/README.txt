@@ -44,7 +44,7 @@ Software requirements:
 
 The MegaGlest Team currently provides builds and Installers for Linux and
 Windows. The Linux version is available in 32 and 64 bit variants which have
-been reported to run on Ubuntu 8.04 to 11.10, various versions of Debian,
+been reported to run on Ubuntu 8.04 to 13.10, various versions of Debian,
 OpenSuSE 11.1 to 11.3, and many other distributions. The Windows version runs
 on 32 and 64 bit variants of Windows and has been reported to run on Windows
 versions up to and including Windows 7.
