@@ -602,16 +602,19 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	// notice that we use GetSize() here and not GetClientSize() because
 	// the latter doesn't return correct results for the minimized windows
 	// (at least not under Windows)
-
-#if defined(WIN32)
 	int viewportW = GetClientSize().x;
 	int viewportH = GetClientSize().y;
-#else
-	int viewportW = GetSize().x;
-	int viewportH = GetSize().y;
-#endif
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%d x %d\n",viewportW,viewportH);
+
+	if(viewportW == 0 && viewportH == 0) {
+		printf("#1 %d x %d\n",viewportW,viewportH);
+
+		viewportW = GetSize().x;
+		viewportH = GetSize().y;
+
+		printf("#2 %d x %d\n",viewportW,viewportH);
+	}
 
 #if defined(WIN32)
 	renderer->reset(viewportW, viewportH, playerColor);
@@ -659,6 +662,8 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	glCanvas->SwapBuffers();
 
 	if(autoScreenShotAndExit == true && viewportW == 0 && viewportH == 0) {
+		printf("Auto exiting desired but waiting for w x h > 0...\n");
+
 		return;
 	}
 	if((modelPathList.empty() == false) && resetAnimation && haveLoadedParticles) {
