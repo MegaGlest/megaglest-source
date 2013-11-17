@@ -98,11 +98,11 @@ if ( $cfg_file = shift @ARGV ) {
 	}
 }
 else {
-	$cfg_file ="glest.ini";
+	$cfg_file ="megapack.ini";
 }
 
 if ( ! -e $cfg_file ) {
-	die "\nusage: $0 [glest.ini]\n\n";
+	die "\nusage: $0 [megapack.ini]\n\n";
 }
 
 $cfg = new Config::IniFiles( -file => "./$cfg_file", -allowcontinue => 1 );
