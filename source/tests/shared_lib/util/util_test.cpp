@@ -88,7 +88,22 @@ public:
 		// -------- START
 
 		// 3 digit version checks
-		bool result = checkVersionComptability("v3.8.1", "v3.8.2");
+		bool result = checkVersionComptability("v3.9.0", "v3.9.1");
+		CPPUNIT_ASSERT_EQUAL( true,result );
+
+		result = checkVersionComptability("v3.9.0-dev", "v3.9.0");
+		CPPUNIT_ASSERT_EQUAL( true,result );
+
+		result = checkVersionComptability("v3.8.0-beta2", "v3.9.0");
+		CPPUNIT_ASSERT_EQUAL( false,result );
+
+		result = checkVersionComptability("v3.8.0-beta1", "v3.9.0");
+		CPPUNIT_ASSERT_EQUAL( false,result );
+
+		result = checkVersionComptability("v3.8.0-dev", "v3.9.0");
+		CPPUNIT_ASSERT_EQUAL( false,result );
+
+		result = checkVersionComptability("v3.8.1", "v3.8.2");
 		CPPUNIT_ASSERT_EQUAL( true,result );
 
 		result = checkVersionComptability("v3.8.0-beta2", "v3.8.0");
