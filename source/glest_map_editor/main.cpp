@@ -634,7 +634,9 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 		return;
 	}
 
-#if wxCHECK_VERSION(2, 9, 1)
+#if wxCHECK_VERSION(2, 9, 3)
+
+#elif wxCHECK_VERSION(2, 9, 1)
 	glCanvas->setCurrentGLContext();
 #endif
 
@@ -1445,6 +1447,13 @@ GlCanvas::~GlCanvas() {
 
 void GlCanvas::setCurrentGLContext() {
 #ifndef __APPLE__
+
+#if wxCHECK_VERSION(2, 9, 1)
+	if(this->context == NULL) {
+		this->context = new wxGLContext(this);
+	}
+#endif
+
 	if(this->context) { 
 		this->SetCurrent(*this->context);
 	}
