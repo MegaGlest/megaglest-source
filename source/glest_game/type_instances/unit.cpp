@@ -5225,7 +5225,7 @@ Checksum Unit::getCRC() {
 	}
 	//WaypointPath waypointPath;
 
-	if(consoleDebug) printf("#11 Unit: %d CRC: %u commands.size(): %ld\n",id,crcForUnit.getSum(),commands.size());
+	if(consoleDebug) printf("#11 Unit: %d CRC: %u commands.size(): " MG_SIZE_T_SPECIFIER "\n",id,crcForUnit.getSum(),commands.size());
 
     //Commands commands;
 	if(commands.empty() == false) {
@@ -5241,7 +5241,7 @@ Checksum Unit::getCRC() {
 	//Observers observers;
 	//crcForUnit.addInt64((int64)observers.size());
 
-	if(consoleDebug) printf("#11 Unit: %d CRC: %u damageParticleSystems.size(): %ld\n",id,crcForUnit.getSum(),damageParticleSystems.size());
+	if(consoleDebug) printf("#11 Unit: %d CRC: %u damageParticleSystems.size(): " MG_SIZE_T_SPECIFIER "\n",id,crcForUnit.getSum(),damageParticleSystems.size());
 
 	//vector<UnitParticleSystem*> unitParticleSystems;
 	//vector<UnitParticleSystemType*> queuedUnitParticleSystemTypes;
