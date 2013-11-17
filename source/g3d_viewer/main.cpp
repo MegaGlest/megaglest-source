@@ -602,14 +602,24 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	// notice that we use GetSize() here and not GetClientSize() because
 	// the latter doesn't return correct results for the minimized windows
 	// (at least not under Windows)
+
+#if defined(WIN32)
 	int viewportW = GetClientSize().x;
 	int viewportH = GetClientSize().y;
+#else
+	int viewportW = GetSize().x;
+	int viewportH = GetSize().y;
+#endif
+
+	printf("%d x %d\n",viewportW,viewportH);
 
 #if defined(WIN32)
 	renderer->reset(viewportW, viewportH, playerColor);
 #else
 	renderer->reset(viewportW, viewportH, playerColor);
 #endif
+
+
 
 	renderer->transform(rotX, rotY, zoom);
 	renderer->renderGrid();
@@ -636,7 +646,7 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	
 	bool haveLoadedParticles = (particleProjectilePathList.empty() == false || particleSplashPathList.empty() == false);
 
-	if(autoScreenShotAndExit == true) {
+	if(autoScreenShotAndExit == true && viewportW > 0 && viewportH > 0) {
 		printf("Auto exiting app...\n");
 		fflush(stdout);
 
@@ -648,6 +658,9 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	
 	glCanvas->SwapBuffers();
 
+	if(autoScreenShotAndExit == true && viewportW == 0 && viewportH == 0) {
+		return;
+	}
 	if((modelPathList.empty() == false) && resetAnimation && haveLoadedParticles) {
 		if(anim >= resetAnim && resetAnim > 0) {
 			printf("RESETTING EVERYTHING [%f][%f]...\n",anim,resetAnim);
