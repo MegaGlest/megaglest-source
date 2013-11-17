@@ -6,7 +6,7 @@
 
 OLD_MG_VERSION=3.7.1
 OLD_MG_VERSION_BINARY=3.7.1
-MG_VERSION=3.9
+MG_VERSION=3.9.0
 
 if [ "$1" = "--oldversion" ]; then
   echo "$OLD_MG_VERSION"

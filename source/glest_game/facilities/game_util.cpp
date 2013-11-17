@@ -27,7 +27,7 @@ using namespace Shared::Platform;
 namespace Glest { namespace Game {
 
 const char *mailString				= " http://bugs.megaglest.org";
-const string glestVersionString 	= "v3.9-dev";
+const string glestVersionString 	= "v3.9.0";
 #if defined(SVNVERSION)
 const string SVN_RawRev			= string(SVNVERSION);
 const string SVN_Rev 			= string("Rev: ") + string(SVNVERSION);
