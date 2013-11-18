@@ -188,7 +188,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 
 		        # Installation of the program manpage file
 		        INSTALL(FILES 
-		          "${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}"
+		          "${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME_MANPAGE}"
 		          DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
 	        ENDIF()
 
