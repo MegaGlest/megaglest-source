@@ -3,7 +3,7 @@ MEGAGLEST CHANGELOG
 To see a timeline of detail changes please visit:
 http://sourceforge.net/apps/trac/megaglest/timeline
 
-v3.8.0-dev
+v3.9.0
 - we hopefully now really solved the last out of sync problems for cross platform games.
 - animated tileset object support.
 - new tileset texturing possibilities
@@ -27,6 +27,9 @@ v3.8.0-dev
 - added ability for stand alone mod's to customize more of the engine like about screen.
 - performance improvements.
 - and as always many bugs were fixed
+
+v3.8.0
+(This version was never released, only as a beta.)
 
 v3.7.1
 - bugfixes reported in the bugs forum since 3.7.0
