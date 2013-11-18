@@ -122,7 +122,7 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 
         SET(HELP2MAN_OUT_PATH ${EXECUTABLE_OUTPUT_PATH})
         IF("${EXECUTABLE_OUTPUT_PATH}" STREQUAL "")
-                SET(HELP2MAN_OUT_PATH "./")
+                SET(HELP2MAN_OUT_PATH "${CMAKE_CURRENT_BINARY_DIR}/")
         ENDIF()
 
         MESSAGE(STATUS "***Note: The final output path for Megaglest Map Editor will be [${HELP2MAN_OUT_PATH}]")
@@ -184,7 +184,7 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 
 		        # Installation of the program manpage file
 		        INSTALL(FILES 
-		          "${EXECUTABLE_OUTPUT_PATH}{TARGET_NAME_MANPAGE}"
+		          "${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}"
 		          DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
 	        ENDIF()
 
