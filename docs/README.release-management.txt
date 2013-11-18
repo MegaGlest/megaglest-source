@@ -100,9 +100,9 @@ These will produce archives in the release folder name:
 megaglest-binary-*
 megaglest-standalone-data-*
 
-To stamp a snapshot in svn for a rleease we use the following (substitute version #'s of course):
-svn copy https://megaglest.svn.sourceforge.net/svnroot/megaglest/trunk https://megaglest.svn.sourceforge.net/svnroot/megaglest/tags/release-3.7.1 -m "Tagging the 3.7.1 release of MegaGlest"
-svn copy https://megaglest.svn.sourceforge.net/svnroot/megaglest/trunk-data-source https://megaglest.svn.sourceforge.net/svnroot/megaglest/tags/release-data-source-3.7.1 -m "Tagging the 3.7.1 release of MegaGlest"
+To stamp a snapshot in svn for a release we use the following (substitute version #'s of course):
+svn copy https://svn.code.sf.net/p/megaglest/code/trunk https://svn.code.sf.net/p/megaglest/code/tags/release-3.9.0 -m "Tagging the 3.9.0 release of MegaGlest"
+svn copy https://svn.code.sf.net/p/megaglest/code/trunk-data-source https://svn.code.sf.net/p/megaglest/code/tags/release-data-source-3.9.0 -m "Tagging the 3.9.0 release of MegaGlest"
 
 Linux Installer(s):
 =========================
