@@ -363,7 +363,7 @@ private:
 		data_ref.header.messageType = 0;
 		data_ref.header.commandCount = 0;
 		data_ref.header.frameCount = 0;
-		for(unsigned int index = 0; index < GameConstants::maxPlayers; ++index) {
+		for(int index = 0; index < GameConstants::maxPlayers; ++index) {
 			data_ref.header.networkPlayerFactionCRC[index] = 0;
 		}
 	}

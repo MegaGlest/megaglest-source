@@ -2863,7 +2863,7 @@ void BroadCastSocketThread::execute() {
 
     // Subnet, IP Address
     std::vector<std::string> ipSubnetMaskList;
-	for(unsigned int idx = 0; idx < ipList.size() && idx < MAX_NIC_COUNT; idx++) {
+	for(unsigned int idx = 0; idx < (unsigned int)ipList.size() && idx < (unsigned int)MAX_NIC_COUNT; idx++) {
 		string broadCastAddress = getNetworkInterfaceBroadcastAddress(ipList[idx]);
 		//printf("idx = %d broadCastAddress [%s]\n",idx,broadCastAddress.c_str());
 
@@ -2876,7 +2876,7 @@ void BroadCastSocketThread::execute() {
 	port = htons( Socket::getBroadCastPort() );
 
 	//for(unsigned int idx = 0; idx < ipList.size() && idx < MAX_NIC_COUNT; idx++) {
-	for(unsigned int idx = 0; idx < ipSubnetMaskList.size(); idx++) {
+	for(unsigned int idx = 0; idx < (unsigned int)ipSubnetMaskList.size(); idx++) {
 		// Create the broadcast socket
 		memset( &bcLocal[idx], 0, sizeof( struct sockaddr_in));
 		bcLocal[idx].sin_family			= AF_INET;

@@ -479,7 +479,7 @@ const ResourceType *Ai::getNeededResource(int unitIndex) {
 			const int maxUnitsToHarvestResource = 5;
 
 			vector<int> unitsGettingResource = findUnitsHarvestingResourceType(rt);
-			if(unitsGettingResource.size() <= maxUnitsToHarvestResource) {
+			if((int)unitsGettingResource.size() <= maxUnitsToHarvestResource) {
 				// Now MAKE SURE the unit has a harvest command for this resource
 				// AND that the resource is within eye-sight to avoid units
 				// standing around doing nothing.

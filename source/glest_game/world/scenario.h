@@ -48,7 +48,7 @@ class ScenarioInfo {
 public:
 	ScenarioInfo() {
 		difficulty = 0;
-		for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
+		for(unsigned int i = 0; i < (unsigned int)GameConstants::maxPlayers; ++i) {
 			factionControls[i] = ctClosed;
 			teams[i] = 0;
 			factionTypeNames[i] = "";

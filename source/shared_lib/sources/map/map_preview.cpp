@@ -755,10 +755,10 @@ void toEndianMapFileHeader(MapFileHeader &header) {
 	header.height = Shared::PlatformByteOrder::toCommonEndian(header.height);
 	header.heightFactor = Shared::PlatformByteOrder::toCommonEndian(header.heightFactor);
 	header.waterLevel = Shared::PlatformByteOrder::toCommonEndian(header.waterLevel);
-	for(unsigned int i =0; i < MAX_TITLE_LENGTH; ++i) {
+	for(unsigned int i =0; i < (unsigned int)MAX_TITLE_LENGTH; ++i) {
 		header.title[i] = Shared::PlatformByteOrder::toCommonEndian(header.title[i]);
 	}
-	for(unsigned int i =0; i < MAX_DESCRIPTION_LENGTH; ++i) {
+	for(unsigned int i =0; i < (unsigned int)MAX_DESCRIPTION_LENGTH; ++i) {
 		header.description[i] = Shared::PlatformByteOrder::toCommonEndian(header.description[i]);
 	}
 }
@@ -769,10 +769,10 @@ void fromEndianMapFileHeader(MapFileHeader &header) {
 	header.height = Shared::PlatformByteOrder::fromCommonEndian(header.height);
 	header.heightFactor = Shared::PlatformByteOrder::fromCommonEndian(header.heightFactor);
 	header.waterLevel = Shared::PlatformByteOrder::fromCommonEndian(header.waterLevel);
-	for(unsigned int i =0; i < MAX_TITLE_LENGTH; ++i) {
+	for(unsigned int i =0; i < (unsigned int)MAX_TITLE_LENGTH; ++i) {
 		header.title[i] = Shared::PlatformByteOrder::fromCommonEndian(header.title[i]);
 	}
-	for(unsigned int i =0; i < MAX_DESCRIPTION_LENGTH; ++i) {
+	for(unsigned int i =0; i < (unsigned int)MAX_DESCRIPTION_LENGTH; ++i) {
 		header.description[i] = Shared::PlatformByteOrder::fromCommonEndian(header.description[i]);
 	}
 }
