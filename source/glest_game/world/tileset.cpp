@@ -125,7 +125,7 @@ Checksum Tileset::loadTileset(const vector<string> pathList, const string &tiles
     Checksum tilesetChecksum;
 
     bool found = false;
-    for(int idx = 0; idx < pathList.size(); idx++) {
+    for(int idx = 0; idx < (int)pathList.size(); idx++) {
 		string currentPath = pathList[idx];
 		endPathWithSlash(currentPath);
         string path = currentPath + tilesetName;
@@ -240,7 +240,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 				string exceptionError = "";
 				Pixmap2D *pixmap 	= NULL;
 				int width 			= 0;
-				int heith 			= 0;
+				int height 			= 0;
 
 				try {
 					pixmap=new Pixmap2D();
@@ -248,8 +248,8 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 					pixmap->load(textureNode->getAttribute("path")->getRestrictedValue(currentPath));
 					loadedFileList[textureNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(sourceXMLFile,textureNode->getAttribute("path")->getRestrictedValue()));
 
-					width = pixmap->getW();
-					heith = pixmap->getW();
+					width  = pixmap->getW();
+					height = pixmap->getW();
 				}
 				catch(const exception &ex) {
 					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
@@ -268,9 +268,15 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 					throw megaglest_runtime_error(exceptionError.c_str());
 				}
 
-				assert(width==heith);
-				assert(width%64==0);
-				assert(width%partsize==0);
+				if(width != height) {
+					throw megaglest_runtime_error("width != height");
+				}
+				if(width % 64 != 0) {
+					throw megaglest_runtime_error("width % 64 != 0");
+				}
+				if(width % partsize != 0) {
+					throw megaglest_runtime_error("width % partsize != 0");
+				}
 
 				int parts=width/partsize;
 				int numberOfPieces=parts*parts;
@@ -325,7 +331,7 @@ void Tileset::load(const string &dir, Checksum *checksum, Checksum *tilesetCheck
 					const XmlNode *particleNode= modelNode->getChild("particles");
 					bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
 					if(particleEnabled){
-						for(int k=0; k<particleNode->getChildCount(); ++k){
+						for(int k=0; k < (int)particleNode->getChildCount(); ++k){
 							const XmlNode *particleFileNode= particleNode->getChild("particle-file", k);
 							string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 							ObjectParticleSystemType *objectParticleSystemType= new ObjectParticleSystemType();
@@ -523,7 +529,7 @@ void Tileset::addSurfTex(int leftUp, int rightUp, int leftDown, int rightDown, V
 		else {
 			float max= 0.f;
 			int var= 0;
-			for(int i=0; i < surfProbs[leftUp].size(); ++i) {
+			for(int i=0; i < (int)surfProbs[leftUp].size(); ++i) {
 				max += surfProbs[leftUp][i];
 				if(r <= max) {
 					var= i;

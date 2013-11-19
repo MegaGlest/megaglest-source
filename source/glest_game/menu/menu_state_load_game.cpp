@@ -218,7 +218,7 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 			snprintf(szBuf,8096,lang.getString("LoadGameDeletingFile","",true).c_str(),filename.c_str());
 			console.addLineOnly(szBuf);
 
-			for(int i = 0; i < slots.size(); i++) {
+			for(int i = 0; i < (int)slots.size(); i++) {
 				if(slots[i] == selectedButton) {
 					if(removeFile(filename) == true) {
 						removeFile(jpgfilename);
@@ -401,7 +401,7 @@ void MenuStateLoadGame::render() {
 	renderer.renderButton(&deleteButton);
 	renderer.renderButton(&loadButton);
 
-    for(int i=0; i<sizeof(lines) / sizeof(lines[0]); ++i){
+    for(int i = 0; i < (int)sizeof(lines) / (int)sizeof(lines[0]); ++i){
     	renderer.renderLine(&lines[i]);
     }
 

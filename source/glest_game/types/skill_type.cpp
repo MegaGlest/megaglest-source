@@ -190,7 +190,7 @@ string AttackBoost::getDesc(bool translatedValue) const{
     	}
 
     	if(boostUnitList.empty() == false) {
-			for(int i=0; i<boostUnitList.size(); ++i){
+			for(int i=0; i < (int)boostUnitList.size(); ++i){
 				str+= "  "+boostUnitList[i]->getName(translatedValue)+"\n";
 			}
     	}
@@ -258,7 +258,7 @@ const XmlNode * SkillType::findAttackBoostDetails(string attackBoostName,
 	const XmlNode *result = attackBoostNode;
 
 	if(attackBoostsNode != NULL && attackBoostName != "") {
-		for(int i = 0; i < attackBoostsNode->getChildCount(); ++i) {
+		for(int i = 0; i < (int)attackBoostsNode->getChildCount(); ++i) {
 			const XmlNode *abn= attackBoostsNode->getChild("attack-boost", i);
 
 			string sharedName = abn->getAttribute("name")->getRestrictedValue();
@@ -303,35 +303,35 @@ void SkillType::loadAttackBoost(const XmlNode *attackBoostsNode, const XmlNode *
 
     if(targetType == "ally") {
         attackBoost.targetType = abtAlly;
-        for(int i = 0;i < attackBoostNode->getChild("target")->getChildCount();++i) {
+        for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
             const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
             attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
         }
     }
     else if(targetType == "foe") {
 		attackBoost.targetType = abtFoe;
-		for(int i = 0;i < attackBoostNode->getChild("target")->getChildCount();++i) {
+		for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
 			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
 			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
 		}
 	}
 	else if(targetType == "faction") {
 		attackBoost.targetType = abtFaction;
-		for(int i = 0;i < attackBoostNode->getChild("target")->getChildCount();++i) {
+		for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
 			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
 			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
 		}
 	}
 	else if(targetType == "unit-types") {
 		attackBoost.targetType = abtUnitTypes;
-		for(int i = 0;i < attackBoostNode->getChild("target")->getChildCount();++i) {
+		for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
 			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
 			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
 		}
 	}
 	else if(targetType == "all") {
 		attackBoost.targetType = abtAll;
-		for(int i = 0;i < attackBoostNode->getChild("target")->getChildCount();++i) {
+		for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
 			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
 			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
 		}
@@ -451,7 +451,7 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 		const XmlNode *particleNode= sn->getChild("particles");
 		bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
 		if(particleEnabled) {
-			for(int i = 0; i < particleNode->getChildCount(); ++i) {
+			for(int i = 0; i < (int)particleNode->getChildCount(); ++i) {
 				const XmlNode *particleFileNode= particleNode->getChild("particle-file", i);
 				string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 				UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
@@ -479,7 +479,7 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 		if(soundNode->getAttribute("enabled")->getBoolValue()) {
 			soundStartTime= soundNode->getAttribute("start-time")->getFloatValue();
 			sounds.resize((int)soundNode->getChildCount());
-			for(int i = 0; i < soundNode->getChildCount(); ++i) {
+			for(int i = 0; i < (int)soundNode->getChildCount(); ++i) {
 				const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
 				string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
 
@@ -789,7 +789,7 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	}
 	//attack fields
 	const XmlNode *attackFieldsNode= sn->getChild("attack-fields");
-	for(int i=0; i<attackFieldsNode->getChildCount(); ++i){
+	for(int i=0; i < (int)attackFieldsNode->getChildCount(); ++i){
 		const XmlNode *fieldNode= attackFieldsNode->getChild("field", i);
 		string fieldName= fieldNode->getAttribute("value")->getRestrictedValue();
 		if(fieldName=="land"){
@@ -824,7 +824,7 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 		if(soundNode->getAttribute("enabled")->getBoolValue()){
 
 			projSounds.resize((int)soundNode->getChildCount());
-			for(int i=0; i<soundNode->getChildCount(); ++i){
+			for(int i=0; i < (int)soundNode->getChildCount(); ++i){
 				const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
 				string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
 				//printf("\n\n\n\n!@#$ ---> parentLoader [%s] path [%s] nodeValue [%s] i = %d",parentLoader.c_str(),path.c_str(),soundFileNode->getAttribute("path")->getRestrictedValue().c_str(),i);

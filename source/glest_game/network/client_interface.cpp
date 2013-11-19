@@ -959,7 +959,7 @@ void ClientInterface::updateLobby() {
 			{
 
 			//make sure we read the message
-			time_t receiveTimeElapsed = time(NULL);
+			//time_t receiveTimeElapsed = time(NULL);
 			NetworkMessageCommandList networkMessageCommandList;
 			bool gotCmd = receiveMessage(&networkMessageCommandList);
 			if(gotCmd == false) {
@@ -971,7 +971,7 @@ void ClientInterface::updateLobby() {
 
 		case nmtQuit:
 			{
-				time_t receiveTimeElapsed = time(NULL);
+				//time_t receiveTimeElapsed = time(NULL);
 				NetworkMessageQuit networkMessageQuit;
 				bool gotCmd = receiveMessage(&networkMessageQuit);
 				if(gotCmd == false) {
@@ -1064,7 +1064,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 					{
 
 					//make sure we read the message
-					time_t receiveTimeElapsed = time(NULL);
+					//time_t receiveTimeElapsed = time(NULL);
 					NetworkMessageCommandList networkMessageCommandList;
 					bool gotCmd = receiveMessage(&networkMessageCommandList);
 					if(gotCmd == false) {
@@ -1157,7 +1157,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 
 				case nmtQuit:
 				{
-					time_t receiveTimeElapsed = time(NULL);
+					//time_t receiveTimeElapsed = time(NULL);
 					NetworkMessageQuit networkMessageQuit;
 	//				while(receiveMessage(&networkMessageQuit) == false &&
 	//					  isConnected() == true &&
@@ -1410,7 +1410,7 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 			if(cachedPendingCommands.find(frameCount) != cachedPendingCommands.end()) {
 				Commands &frameCmdList = cachedPendingCommands[frameCount];
 				if(frameCmdList.size() > 0) {
-					for(int i= 0; i < frameCmdList.size(); ++i) {
+					for(int i= 0; i < (int)frameCmdList.size(); ++i) {
 						pendingCommands.push_back(frameCmdList[i]);
 					}
 					//cachedPendingCommands.erase(frameCount);
@@ -1460,7 +1460,7 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Client waiting for packet for frame: %d, copyCachedLastPendingFrameCount = %lld\n",frameCount,(long long int)copyCachedLastPendingFrameCount);
 					chrono.start();
 				}
-				if(copyCachedLastPendingFrameCount > frameCount) {
+				if(copyCachedLastPendingFrameCount > (uint64)frameCount) {
 					break;
 				}
 
@@ -1495,7 +1495,7 @@ void ClientInterface::updateKeyframe(int frameCount) {
 		if(testThreaded == false) {
 			updateFrame(&frameCount);
 			Commands &frameCmdList = cachedPendingCommands[frameCount];
-			for(int i= 0; i < frameCmdList.size(); ++i) {
+			for(int i= 0; i < (int)frameCmdList.size(); ++i) {
 				pendingCommands.push_back(frameCmdList[i]);
 			}
 			cachedPendingCommands.erase(frameCount);
@@ -1619,7 +1619,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 			else if(networkMessageType == nmtCommandList) {
 				//int waitCount = 0;
 				//make sure we read the message
-				time_t receiveTimeElapsed = time(NULL);
+				//time_t receiveTimeElapsed = time(NULL);
 				NetworkMessageCommandList networkMessageCommandList;
 				bool gotCmd = receiveMessage(&networkMessageCommandList);
 				if(gotCmd == false) {

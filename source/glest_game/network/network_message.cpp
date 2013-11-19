@@ -90,7 +90,7 @@ void NetworkMessage::dump_packet(string label, const void* data, int dataSize) {
 		printf("%s",label.c_str());
 
 		const char *buf = static_cast<const char *>(data);
-		for(unsigned int i = 0; i < dataSize; ++i) {
+		for(unsigned int i = 0; i < (unsigned int)dataSize; ++i) {
 			printf("%u[%X][%d] ",i,buf[i],buf[i]);
 			if(i % 10 == 0) {
 				printf("\n");
@@ -1277,6 +1277,7 @@ unsigned int NetworkMessageCommandList::getPackedSizeHeader() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		init(packedData);
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormatHeader(),
 				packedData.header.messageType,
@@ -1333,7 +1334,7 @@ const char * NetworkMessageCommandList::getPackedMessageFormatDetail() const {
 unsigned int NetworkMessageCommandList::getPackedSizeDetail(int count) {
 	unsigned int result = 0;
 	if(result == 0) {
-		for(unsigned int i = 0; i < count; ++i) {
+		for(unsigned int i = 0; i < (unsigned int)count; ++i) {
 			NetworkCommand packedData;
 			unsigned char *buf = new unsigned char[sizeof(NetworkCommand)*3];
 			result += pack(buf, getPackedMessageFormatDetail(),
@@ -1361,7 +1362,7 @@ void NetworkMessageCommandList::unpackMessageDetail(unsigned char *buf,int count
 	data.commands.resize(count);
 	//unsigned int bytes_processed_total = 0;
 	unsigned char *bufMove = buf;
-	for(unsigned int i = 0; i < count; ++i) {
+	for(unsigned int i = 0; i < (unsigned int)count; ++i) {
 		unsigned int bytes_processed = unpack(bufMove, getPackedMessageFormatDetail(),
 				&data.commands[i].networkCommandType,
 				&data.commands[i].unitId,
@@ -1831,7 +1832,7 @@ NetworkMessageSynchNetworkGameData::NetworkMessageSynchNetworkGameData(const Gam
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] vctFileList.size() = %d, maxFileCRCCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__, vctFileList.size(),maxFileCRCCount);
 
-	for(int idx =0; idx < data.header.techCRCFileCount; ++idx) {
+	for(int idx =0; idx < (int)data.header.techCRCFileCount; ++idx) {
 		const std::pair<string,uint32> &fileInfo = vctFileList[idx];
 		data.detail.techCRCFileList[idx] = fileInfo.first;
 		data.detail.techCRCFileCRCList[idx] = fileInfo.second;
@@ -1855,11 +1856,11 @@ string NetworkMessageSynchNetworkGameData::getTechCRCFileMismatchReport(vector<s
 		result = result + "Remote player has no files.\n";
 	}
 	else {
-		for(int idx = 0; idx < vctFileList.size(); ++idx) {
+		for(int idx = 0; idx < (int)vctFileList.size(); ++idx) {
 			std::pair<string,uint32> &fileInfo = vctFileList[idx];
 			bool fileFound = false;
 			uint32 remoteCRC = 0;
-			for(int j = 0; j < data.header.techCRCFileCount; ++j) {
+			for(int j = 0; j < (int)data.header.techCRCFileCount; ++j) {
 				string networkFile = data.detail.techCRCFileList[j].getString();
 				uint32 &networkFileCRC = data.detail.techCRCFileCRCList[j];
 				if(fileInfo.first == networkFile) {
@@ -1877,12 +1878,12 @@ string NetworkMessageSynchNetworkGameData::getTechCRCFileMismatchReport(vector<s
 			}
 		}
 
-		for(int i = 0; i < data.header.techCRCFileCount; ++i) {
+		for(int i = 0; i < (int)data.header.techCRCFileCount; ++i) {
 			string networkFile = data.detail.techCRCFileList[i].getString();
 			uint32 &networkFileCRC = data.detail.techCRCFileCRCList[i];
 			bool fileFound = false;
 			uint32 localCRC = 0;
-			for(int idx = 0; idx < vctFileList.size(); ++idx) {
+			for(int idx = 0; idx < (int)vctFileList.size(); ++idx) {
 				std::pair<string,uint32> &fileInfo = vctFileList[idx];
 				if(networkFile == fileInfo.first) {
 					fileFound = true;
@@ -2042,7 +2043,7 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
             // Wait a max of x seconds for this message
 			result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[packetIndex], packetDetail1DataSize, true);
 			if(result == true) {
-				for(int i = 0; i < data.header.techCRCFileCount; ++i) {
+				for(unsigned int i = 0; i < data.header.techCRCFileCount; ++i) {
 					data.detail.techCRCFileList[i].nullTerminate();
 				}
 
@@ -2138,7 +2139,7 @@ NetworkMessageSynchNetworkGameDataStatus::NetworkMessageSynchNetworkGameDataStat
 	data.header.mapCRC         = mapCRC;
 
 	data.header.techCRCFileCount = min((int)vctFileList.size(),(int)maxFileCRCCount);
-	for(int idx =0; idx < data.header.techCRCFileCount; ++idx) {
+	for(unsigned int idx =0; idx < data.header.techCRCFileCount; ++idx) {
 		const std::pair<string,uint32> &fileInfo = vctFileList[idx];
 		data.detail.techCRCFileList[idx] = fileInfo.first;
 		data.detail.techCRCFileCRCList[idx] = fileInfo.second;
@@ -2154,11 +2155,11 @@ string NetworkMessageSynchNetworkGameDataStatus::getTechCRCFileMismatchReport(st
 		result = result + "Remote player has no files.\n";
 	}
 	else {
-		for(int idx = 0; idx < vctFileList.size(); ++idx) {
+		for(int idx = 0; idx < (int)vctFileList.size(); ++idx) {
 			std::pair<string,uint32> &fileInfo = vctFileList[idx];
 			bool fileFound = false;
 			uint32 remoteCRC = 0;
-			for(int j = 0; j < data.header.techCRCFileCount; ++j) {
+			for(int j = 0; j < (int)data.header.techCRCFileCount; ++j) {
 				string networkFile = data.detail.techCRCFileList[j].getString();
 				uint32 &networkFileCRC = data.detail.techCRCFileCRCList[j];
 				if(fileInfo.first == networkFile) {
@@ -2176,12 +2177,12 @@ string NetworkMessageSynchNetworkGameDataStatus::getTechCRCFileMismatchReport(st
 			}
 		}
 
-		for(int i = 0; i < data.header.techCRCFileCount; ++i) {
+		for(int i = 0; i < (int)data.header.techCRCFileCount; ++i) {
 			string networkFile = data.detail.techCRCFileList[i].getString();
 			uint32 &networkFileCRC = data.detail.techCRCFileCRCList[i];
 			bool fileFound = false;
 			uint32 localCRC = 0;
-			for(int idx = 0; idx < vctFileList.size(); ++idx) {
+			for(int idx = 0; idx < (int)vctFileList.size(); ++idx) {
 				std::pair<string,uint32> &fileInfo = vctFileList[idx];
 
 				if(networkFile == fileInfo.first) {
@@ -2231,7 +2232,7 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 
 			result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount),true);
 			if(result == true) {
-				for(int i = 0; i < data.header.techCRCFileCount; ++i) {
+				for(int i = 0; i < (int)data.header.techCRCFileCount; ++i) {
 					data.detail.techCRCFileList[i].nullTerminate();
 				}
 

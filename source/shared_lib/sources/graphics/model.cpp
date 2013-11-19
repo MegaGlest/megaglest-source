@@ -1982,7 +1982,7 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
 		map<unsigned char,map<unsigned char, map<unsigned char,bool> > > colorAlreadyPickedList;
 
 		int skipSteps=4;
-		unsigned char *oldpixel = &pixelBuffer[0];
+		//unsigned char *oldpixel = &pixelBuffer[0];
 
 		// now we check the screenshot if we find pixels in color of unit identity
 		// to speedup we only check every "skipSteps" line and pixel in a row if we find such a color.

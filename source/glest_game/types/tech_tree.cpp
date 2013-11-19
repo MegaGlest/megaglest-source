@@ -222,7 +222,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
         findAll(str, filenames);
 		resourceTypes.resize(filenames.size());
 
-        for(int i=0; i<filenames.size(); ++i){
+        for(int i = 0; i < (int)filenames.size(); ++i){
             str= currentPath + "resources/" + filenames[i];
             resourceTypes[i].load(str, checksum, &checksumValue, loadedFileList,
             					treePath);
@@ -231,7 +231,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
         }
 
         // Cleanup pixmap memory
-        for(int i = 0; i < filenames.size(); ++i) {
+        for(int i = 0; i < (int)filenames.size(); ++i) {
         	resourceTypes[i].deletePixels();
         }
     }
@@ -268,7 +268,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		//attack types
 		const XmlNode *attackTypesNode= techTreeNode->getChild("attack-types");
 		attackTypes.resize(attackTypesNode->getChildCount());
-		for(int i = 0; i < attackTypes.size(); ++i) {
+		for(int i = 0; i < (int)attackTypes.size(); ++i) {
 			const XmlNode *attackTypeNode= attackTypesNode->getChild("attack-type", i);
 			attackTypes[i].setName(attackTypeNode->getAttribute("name")->getRestrictedValue());
 			attackTypes[i].setId(i);
@@ -284,7 +284,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		//armor types
 		const XmlNode *armorTypesNode= techTreeNode->getChild("armor-types");
 		armorTypes.resize(armorTypesNode->getChildCount());
-		for(int i = 0; i < armorTypes.size(); ++i) {
+		for(int i = 0; i < (int)armorTypes.size(); ++i) {
 			const XmlNode *armorTypeNode= armorTypesNode->getChild("armor-type", i);
 			armorTypes[i].setName(armorTypeNode->getAttribute("name")->getRestrictedValue());
 			armorTypes[i].setId(i);
@@ -296,7 +296,7 @@ void TechTree::load(const string &dir, set<string> &factions, Checksum* checksum
 		//damage multipliers
 		damageMultiplierTable.init((int)attackTypes.size(), (int)armorTypes.size());
 		const XmlNode *damageMultipliersNode= techTreeNode->getChild("damage-multipliers");
-		for(int i = 0; i < damageMultipliersNode->getChildCount(); ++i) {
+		for(int i = 0; i < (int)damageMultipliersNode->getChildCount(); ++i) {
 			const XmlNode *damageMultiplierNode= damageMultipliersNode->getChild("damage-multiplier", i);
 			const AttackType *attackType= getAttackType(damageMultiplierNode->getAttribute("attack")->getRestrictedValue());
 			const ArmorType *armorType= getArmorType(damageMultiplierNode->getAttribute("armor")->getRestrictedValue());
@@ -370,7 +370,7 @@ TechTree::~TechTree() {
 
 std::vector<std::string> TechTree::validateFactionTypes() {
 	std::vector<std::string> results;
-	for (int i = 0; i < factionTypes.size(); ++i) {
+	for (int i = 0; i < (int)factionTypes.size(); ++i) {
 		std::vector<std::string> factionResults = factionTypes[i].validateFactionType();
 		if(factionResults.empty() == false) {
 			results.insert(results.end(), factionResults.begin(), factionResults.end());
@@ -429,7 +429,7 @@ std::vector<std::string> TechTree::validateResourceTypes() {
 // ==================== get ====================
 
 FactionType *TechTree::getTypeByName(const string &name) {
-    for(int i=0; i < factionTypes.size(); ++i) {
+    for(int i=0; i < (int)factionTypes.size(); ++i) {
           if(factionTypes[i].getName(false) == name) {
                return &factionTypes[i];
           }
@@ -439,7 +439,7 @@ FactionType *TechTree::getTypeByName(const string &name) {
 }
 
 const FactionType *TechTree::getType(const string &name) const {
-    for(int i=0; i < factionTypes.size(); ++i) {
+    for(int i=0; i < (int)factionTypes.size(); ++i) {
           if(factionTypes[i].getName(false) == name) {
                return &factionTypes[i];
           }
@@ -477,7 +477,7 @@ const ResourceType *TechTree::getFirstTechResourceType() const{
 
 const ResourceType *TechTree::getResourceType(const string &name) const{
 
-	for(int i=0; i<resourceTypes.size(); ++i){
+	for(int i=0; i < (int)resourceTypes.size(); ++i){
 		if(resourceTypes[i].getName()==name){
 			return &resourceTypes[i];
 		}
@@ -487,7 +487,7 @@ const ResourceType *TechTree::getResourceType(const string &name) const{
 }
 
 const ArmorType *TechTree::getArmorType(const string &name) const{
-	for(int i=0; i<armorTypes.size(); ++i){
+	for(int i=0; i < (int)armorTypes.size(); ++i){
 		if(armorTypes[i].getName(false)==name){
 			return &armorTypes[i];
 		}
@@ -497,7 +497,7 @@ const ArmorType *TechTree::getArmorType(const string &name) const{
 }
 
 const AttackType *TechTree::getAttackType(const string &name) const{
-	for(int i=0; i<attackTypes.size(); ++i){
+	for(int i=0; i < (int)attackTypes.size(); ++i){
 		if(attackTypes[i].getName(false)==name){
 			return &attackTypes[i];
 		}

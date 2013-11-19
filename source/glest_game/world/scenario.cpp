@@ -82,7 +82,7 @@ Checksum Scenario::load(const string &path) {
 		const XmlNode *scenarioNode= xmlTree.getRootNode();
 		const XmlNode *scriptsNode= scenarioNode->getChild("scripts");
 
-		for(int i= 0; i<scriptsNode->getChildCount(); ++i){
+		for(int i= 0; i < (int)scriptsNode->getChildCount(); ++i){
 			const XmlNode *scriptNode = scriptsNode->getChild(i);
 
 			scripts.push_back(Script(getFunctionName(scriptNode), scriptNode->getText()));
@@ -103,7 +103,7 @@ Checksum Scenario::load(const string &path) {
 
 int Scenario::getScenarioPathIndex(const vector<string> dirList, const string &scenarioName) {
     int iIndex = 0;
-    for(int idx = 0; idx < dirList.size(); idx++) {
+    for(int idx = 0; idx < (int)dirList.size(); idx++) {
     	string currentPath = dirList[idx];
     	endPathWithSlash(currentPath);
         string scenarioFile = currentPath + scenarioName + "/" + scenarioName + ".xml";
@@ -118,7 +118,7 @@ int Scenario::getScenarioPathIndex(const vector<string> dirList, const string &s
 
 string Scenario::getScenarioDir(const vector<string> dir, const string &scenarioName) {
     string scenarioDir = "";
-    for(int idx = 0; idx < dir.size(); idx++) {
+    for(int idx = 0; idx < (int)dir.size(); idx++) {
     	string currentPath = dir[idx];
     	endPathWithSlash(currentPath);
     	string scenarioFile = currentPath + scenarioName + "/" + scenarioName + ".xml";
@@ -136,7 +136,7 @@ string Scenario::getScenarioDir(const vector<string> dir, const string &scenario
 
 string Scenario::getScenarioPath(const vector<string> dirList, const string &scenarioName, bool getMatchingRootScenarioPathOnly){
     string scenarioFile = "";
-    for(int idx = 0; idx < dirList.size(); idx++) {
+    for(int idx = 0; idx < (int)dirList.size(); idx++) {
     	string currentPath = dirList[idx];
     	endPathWithSlash(currentPath);
     	scenarioFile = currentPath + scenarioName + "/" + scenarioName + ".xml";
@@ -172,7 +172,7 @@ string Scenario::getScenarioPath(const string &dir, const string &scenarioName){
 string Scenario::getFunctionName(const XmlNode *scriptNode){
 	string name= scriptNode->getName();
 
-	for(int i= 0; i<scriptNode->getAttributeCount(); ++i){
+	for(int i= 0; i < (int)scriptNode->getAttributeCount(); ++i){
 		name+= "_" + scriptNode->getAttribute(i)->getValue();
 	}
 	return name;

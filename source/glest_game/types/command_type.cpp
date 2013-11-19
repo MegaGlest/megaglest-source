@@ -64,7 +64,7 @@ void CommandType::load(int id, const XmlNode *n, const string &dir,
 
 	//unit requirements
 	const XmlNode *unitRequirementsNode= n->getChild("unit-requirements");
-	for(int i = 0; i < unitRequirementsNode->getChildCount(); ++i) {
+	for(int i = 0; i < (int)unitRequirementsNode->getChildCount(); ++i) {
 		const XmlNode *unitNode= 	unitRequirementsNode->getChild("unit", i);
 		string name= unitNode->getAttribute("name")->getRestrictedValue();
 		unitReqs.push_back(ft->getUnitType(name));
@@ -72,7 +72,7 @@ void CommandType::load(int id, const XmlNode *n, const string &dir,
 
 	//upgrade requirements
 	const XmlNode *upgradeRequirementsNode= n->getChild("upgrade-requirements");
-	for(int i = 0; i < upgradeRequirementsNode->getChildCount(); ++i) {
+	for(int i = 0; i < (int)upgradeRequirementsNode->getChildCount(); ++i) {
 		const XmlNode *upgradeReqNode= upgradeRequirementsNode->getChild("upgrade", i);
 		string name= upgradeReqNode->getAttribute("name")->getRestrictedValue();
 		upgradeReqs.push_back(ft->getUpgradeType(name));
@@ -425,7 +425,7 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
 
 	//buildings built
 	const XmlNode *buildingsNode= n->getChild("buildings");
-	for(int i=0; i<buildingsNode->getChildCount(); ++i){
+	for(int i=0; i < (int)buildingsNode->getChildCount(); ++i){
 		const XmlNode *buildingNode= buildingsNode->getChild("building", i);
 		string name= buildingNode->getAttribute("name")->getRestrictedValue();
 		buildings.push_back(ft->getUnitType(name));
@@ -435,7 +435,7 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
 	const XmlNode *startSoundNode= n->getChild("start-sound");
 	if(startSoundNode->getAttribute("enabled")->getBoolValue()){
 		startSounds.resize((int)startSoundNode->getChildCount());
-		for(int i=0; i<startSoundNode->getChildCount(); ++i){
+		for(int i=0; i < (int)startSoundNode->getChildCount(); ++i){
 			const XmlNode *soundFileNode= startSoundNode->getChild("sound-file", i);
 			string currentPath = dir;
 			endPathWithSlash(currentPath);
@@ -453,7 +453,7 @@ void BuildCommandType::load(int id, const XmlNode *n, const string &dir,
 	const XmlNode *builtSoundNode= n->getChild("built-sound");
 	if(builtSoundNode->getAttribute("enabled")->getBoolValue()){
 		builtSounds.resize((int)builtSoundNode->getChildCount());
-		for(int i=0; i<builtSoundNode->getChildCount(); ++i){
+		for(int i=0; i < (int)builtSoundNode->getChildCount(); ++i){
 			const XmlNode *soundFileNode= builtSoundNode->getChild("sound-file", i);
 			string currentPath = dir;
 			endPathWithSlash(currentPath);
@@ -537,7 +537,7 @@ void HarvestCommandType::load(int id, const XmlNode *n, const string &dir,
 
 	//resources can harvest
 	const XmlNode *resourcesNode= n->getChild("harvested-resources");
-	for(int i=0; i<resourcesNode->getChildCount(); ++i){
+	for(int i=0; i < (int)resourcesNode->getChildCount(); ++i){
 		const XmlNode *resourceNode= resourcesNode->getChild("resource", i);
 		harvestedResources.push_back(tt->getResourceType(resourceNode->getAttribute("name")->getRestrictedValue()));
 	}
@@ -654,7 +654,7 @@ void RepairCommandType::load(int id, const XmlNode *n, const string &dir,
 
 	//repaired units
 	const XmlNode *unitsNode= n->getChild("repaired-units");
-	for(int i=0; i<unitsNode->getChildCount(); ++i){
+	for(int i=0; i < (int)unitsNode->getChildCount(); ++i){
 		const XmlNode *unitNode= unitsNode->getChild("unit", i);
 		repairableUnits.push_back(ft->getUnitType(unitNode->getAttribute("name")->getRestrictedValue()));
 	}
@@ -675,7 +675,7 @@ string RepairCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool transla
         str+= lang.getString("HpCost",(translatedValue == true ? "" : "english"))+": "+intToStr(repairSkillType->getHpCost())+"\n";
 	}
     str+="\n"+lang.getString("CanRepair",(translatedValue == true ? "" : "english"))+":\n";
-    for(int i=0; i<repairableUnits.size(); ++i){
+    for(int i=0; i < (int)repairableUnits.size(); ++i){
         str+= (static_cast<const UnitType*>(repairableUnits[i]))->getName(translatedValue)+"\n";
     }
 	str+=repairSkillType->getBoostDesc(translatedValue);
@@ -692,7 +692,7 @@ string RepairCommandType::toString(bool translatedValue) const{
 
 //get
 bool RepairCommandType::isRepairableUnitType(const UnitType *unitType) const {
-	for(int i = 0; i < repairableUnits.size(); ++i) {
+	for(int i = 0; i < (int)repairableUnits.size(); ++i) {
 		const UnitType *curUnitType = static_cast<const UnitType*>(repairableUnits[i]);
 		//printf("Lookup index = %d Can repair unittype [%s][%p] looking for [%s][%p] lookup found result = %d\n",i,curUnitType->getName().c_str(),curUnitType,unitType->getName().c_str(),unitType,(curUnitType == unitType));
 		if(curUnitType == unitType) {

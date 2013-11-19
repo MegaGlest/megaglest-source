@@ -120,7 +120,7 @@ ProducibleType::~ProducibleType(){
 }
 
 const Resource *ProducibleType::getCost(const ResourceType *rt) const{
-	for(int i=0; i<costs.size(); ++i){
+	for(int i=0; i < (int)costs.size(); ++i){
 		if(costs[i].getType()==rt){
 			return &costs[i];
 		}

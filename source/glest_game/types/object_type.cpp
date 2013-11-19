@@ -53,7 +53,7 @@ TilesetModelType* ObjectType::loadModel(const string &path, std::map<string,vect
 }
 
 void ObjectType::deletePixels() {
-	for(int i = 0; i < modeltypes.size(); ++i) {
+	for(int i = 0; i < (int)modeltypes.size(); ++i) {
 		TilesetModelType *model = modeltypes[i];
 		if(model->getModel() != NULL) {
 			model->getModel()->deletePixels();

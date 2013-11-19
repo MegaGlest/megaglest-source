@@ -120,7 +120,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 					const XmlNode *particleNode= modelNode->getChild("particles");
 					bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
 					if(particleEnabled == true) {
-						for(int k= 0; k < particleNode->getChildCount(); ++k) {
+						for(int k= 0; k < (int)particleNode->getChildCount(); ++k) {
 							const XmlNode *particleFileNode= particleNode->getChild("particle-file", k);
 							string particlePath= particleFileNode->getAttribute("path")->getRestrictedValue();
 

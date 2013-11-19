@@ -301,10 +301,10 @@ void FileCRCPreCacheThread::execute() {
 							}
 							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\t\tStart Processing CRC for techName [%s]\n",techName.c_str());
 
-							int32 techCRC = getFolderTreeContentsCheckSumRecursively(techDataPaths, string("/") + techName + string("/*"), ".xml", NULL, true);
+							uint32 techCRC = getFolderTreeContentsCheckSumRecursively(techDataPaths, string("/") + techName + string("/*"), ".xml", NULL, true);
 
 							//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%u] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
 
 							vector<string> results;
 							for(unsigned int idx = 0; idx < techDataPaths.size(); idx++) {
@@ -337,9 +337,9 @@ void FileCRCPreCacheThread::execute() {
 									}
 									if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\t\t\tStart Processing CRC for factionName [%s]\n",factionName.c_str());
 
-									int32 factionCRC   = getFolderTreeContentsCheckSumRecursively(techDataPaths, "/" + techName + "/factions/" + factionName + "/*", ".xml", NULL, true);
+									uint32 factionCRC   = getFolderTreeContentsCheckSumRecursively(techDataPaths, "/" + techName + "/factions/" + factionName + "/*", ".xml", NULL, true);
 
-									if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\t\t\tDone Processing CRC for factionName [%s]\n",factionName.c_str());
+									if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\t\t\tDone Processing CRC for factionName [%s] CRC [%d]\n",factionName.c_str(),factionCRC);
 								}
 							}
 

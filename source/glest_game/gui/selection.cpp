@@ -41,14 +41,14 @@ bool Selection::select(Unit *unit) {
 	bool result = false;
 	//check size
 	//if(selectedUnits.size() >= maxUnits){
-	if(selectedUnits.size() >= Config::getInstance().getInt("MaxUnitSelectCount",intToStr(maxUnits).c_str())) {
+	if((int)selectedUnits.size() >= Config::getInstance().getInt("MaxUnitSelectCount",intToStr(maxUnits).c_str())) {
 		return result;
 	}
 
 	// Fix Bug reported on sourceforge.net: Glest::Game::Selection::select crash with NULL pointer - ID: 3608835
 	if(unit != NULL) {
 		//check if already selected
-		for(int i=0; i < selectedUnits.size(); ++i) {
+		for(int i=0; i < (int)selectedUnits.size(); ++i) {
 			if(selectedUnits[i ]== unit) {
 				return true;
 			}
@@ -85,7 +85,7 @@ bool Selection::select(Unit *unit) {
 
 		int unitTypeId=unit->getType()->getId();
 		bool inserted=false;
-		for(int i=0; i < selectedUnits.size(); ++i) {
+		for(int i=0; i < (int)selectedUnits.size(); ++i) {
 			int currentTypeId=selectedUnits[i]->getType()->getId();
 
 			if(unitTypeId<=currentTypeId) {
@@ -120,8 +120,8 @@ void Selection::unSelect(const UnitContainer &units){
 
 	//add units to gui
 	for(UnitIterator it= units.begin(); it!=units.end(); ++it){
-		for(int i=0; i<selectedUnits.size(); ++i){
-			if(selectedUnits[i]==*it){
+		for(int i = 0; i < (int)selectedUnits.size(); ++i) {
+			if(selectedUnits[i] == *it) {
 				unSelect(i);
 			}
 		}
@@ -146,7 +146,7 @@ bool Selection::isUniform() const{
 
 	const UnitType *ut= selectedUnits.front()->getType();
 
-	for(int i=0; i<selectedUnits.size(); ++i){
+	for(int i = 0; i < (int)selectedUnits.size(); ++i) {
 		if(selectedUnits[i]->getType()!=ut){
             return false;
 		}
@@ -249,7 +249,7 @@ void Selection::recallGroup(int groupIndex){
 	}
 
 	clear();
-	for(int i=0; i<groups[groupIndex].size(); ++i) {
+	for(int i = 0; i < (int)groups[groupIndex].size(); ++i) {
 		select(groups[groupIndex][i]);
 	}
 }
@@ -259,7 +259,7 @@ void Selection::unitEvent(UnitObserver::Event event, const Unit *unit) {
 	if(event==UnitObserver::eKill){
 
 		//remove from selection
-		for(int i=0; i<selectedUnits.size(); ++i){
+		for(int i = 0; i < (int)selectedUnits.size(); ++i) {
 			if(selectedUnits[i]==unit){
 				selectedUnits.erase(selectedUnits.begin()+i);
 				break;
@@ -268,7 +268,7 @@ void Selection::unitEvent(UnitObserver::Event event, const Unit *unit) {
 
 		//remove from groups
 		for(int i=0; i<maxGroups; ++i){
-			for(int j=0; j<groups[i].size(); ++j){
+			for(int j = 0; j < (int)groups[i].size(); ++j) {
 				if(groups[i][j]==unit){
 					groups[i].erase(groups[i].begin()+j);
 					break;

@@ -162,6 +162,7 @@ inline static void get_random_info(char seed[16]) {
 
   if (NULL != fp) {
     size_t bytes = fread(seed,sizeof(char),16,fp);
+    if(bytes <= 0) { }
     fclose(fp);
     return;
   }

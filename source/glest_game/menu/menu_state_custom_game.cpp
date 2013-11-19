@@ -205,7 +205,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	std::vector<std::string> ipList = Socket::getLocalIPAddressList();
 	if(ipList.empty() == false) {
 		ipText = "";
-		for(int idx = 0; idx < ipList.size(); idx++) {
+		for(int idx = 0; idx < (int)ipList.size(); idx++) {
 			string ip = ipList[idx];
 			if(ipText != "") {
 				ipText += ", ";
@@ -376,7 +376,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
     vector<string> resultsScenarios;
 	findDirs(dirList, resultsScenarios);
 	// Filter out only scenarios with no network slots
-	for(int i= 0; i < resultsScenarios.size(); ++i) {
+	for(int i= 0; i < (int)resultsScenarios.size(); ++i) {
 		string scenario = resultsScenarios[i];
 		string file = Scenario::getScenarioPath(dirList, scenario);
 
@@ -408,7 +408,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		}
 	}
 	resultsScenarios.clear();
-	for(int i = 0; i < scenarioFiles.size(); ++i) {
+	for(int i = 0; i < (int)scenarioFiles.size(); ++i) {
 		resultsScenarios.push_back(formatString(scenarioFiles[i]));
 	}
     listBoxScenario.setItems(resultsScenarios);
@@ -716,7 +716,7 @@ void MenuStateCustomGame::reloadUI() {
 	std::vector<std::string> ipList = Socket::getLocalIPAddressList();
 	if(ipList.empty() == false) {
 		ipText = "";
-		for(int idx = 0; idx < ipList.size(); idx++) {
+		for(int idx = 0; idx < (int)ipList.size(); idx++) {
 			string ip = ipList[idx];
 			if(ipText != "") {
 				ipText += ", ";
@@ -2578,7 +2578,7 @@ void MenuStateCustomGame::update() {
 										serverInterface->sendTextMessage("techtree CRC mismatch",-1,true,"");
 										vector<string> reportLineTokens;
 										Tokenize(report,reportLineTokens,"\n");
-										for(int reportLine = 0; reportLine < reportLineTokens.size(); ++reportLine) {
+										for(int reportLine = 0; reportLine < (int)reportLineTokens.size(); ++reportLine) {
 											serverInterface->sendTextMessage(reportLineTokens[reportLine],-1,true,"");
 										}
 									}
@@ -3102,7 +3102,7 @@ void MenuStateCustomGame::simpleTaskForMasterServer(BaseThread *callingThread) {
                 request += SystemFlags::escapeURL(iterMap->second,handle);
 
                 paramIndex++;
-                if(paramIndex < newPublishToServerInfo.size()) {
+                if(paramIndex < (int)newPublishToServerInfo.size()) {
                 	request += "&";
                 }
             }
@@ -3703,7 +3703,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 		if(masterserver_admin_found == false ) {
 			for(int i=mapInfo.players; i < GameConstants::maxPlayers; ++i) {
 				ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-				ConnectionSlot *slot = serverInterface->getSlot(i);
+				//ConnectionSlot *slot = serverInterface->getSlot(i);
 
 				if(	serverInterface->getSlot(i) != NULL && serverInterface->getSlot(i)->isConnected()) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -4734,7 +4734,7 @@ int MenuStateCustomGame::setupMapList(string scenario) {
 		std::for_each(formattedPlayerSortedMaps[0].begin(), formattedPlayerSortedMaps[0].end(), FormatString());
 		//printf("#5\n");
 
-		for(int i= 0; i < mapFiles.size(); i++){// fetch info and put map in right list
+		for(int i= 0; i < (int)mapFiles.size(); i++){// fetch info and put map in right list
 			loadMapInfo(Map::getMapPath(mapFiles.at(i), scenarioDir, false), &mapInfo, false);
 
 			if(GameConstants::maxPlayers+1 <= mapInfo.players) {
@@ -4836,7 +4836,7 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 		//printf("#1 techPaths.size() = %d scenarioDir [%s] [%s]\n",techPaths.size(),scenario.c_str(),scenarioDir.c_str());
 
 		if(listBoxTechTree.getItemCount() > 0) {
-			for(int idx = 0; idx < techPaths.size(); idx++) {
+			for(int idx = 0; idx < (int)techPaths.size(); idx++) {
 				string &techPath = techPaths[idx];
 				endPathWithSlash(techPath);
 				string factionPath = techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/";
@@ -4870,7 +4870,7 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 
 		vector<string> translatedFactionNames;
 		factionFiles= results;
-		for(int i = 0; i < results.size(); ++i) {
+		for(int i = 0; i < (int)results.size(); ++i) {
 			results[i]= formatString(results[i]);
 
 			string translatedString = "";
@@ -4917,7 +4917,7 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 					}
 				}
 			}
-			else if(originalIndex < results.size()) {
+			else if(originalIndex < (int)results.size()) {
 				listBoxFactions[i].setSelectedItemIndex(originalIndex);
 			}
 		}

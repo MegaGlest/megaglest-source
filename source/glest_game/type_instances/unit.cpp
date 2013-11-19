@@ -134,7 +134,7 @@ Vec2i UnitPathBasic::pop(bool removeFrontPos) {
 }
 std::string UnitPathBasic::toString() const {
 	std::string result = "unit path blockCount = " + intToStr(blockCount) + "\npathQueue size = " + intToStr(pathQueue.size());
-	for(int idx = 0; idx < pathQueue.size(); ++idx) {
+	for(int idx = 0; idx < (int)pathQueue.size(); ++idx) {
 		result += " index = " + intToStr(idx) + " value = " + pathQueue[idx].getString();
 	}
 
@@ -1229,7 +1229,7 @@ void Unit::setPos(const Vec2i &pos, bool clearPathFinder) {
 	if(clearPathFinder == true && this->unitPath != NULL) {
 		this->unitPath->clear();
 	}
-	Vec2i oldLastPos = this->lastPos;
+	//Vec2i oldLastPos = this->lastPos;
 	this->lastPos= this->pos;
 	this->pos= pos;
 
@@ -1948,8 +1948,8 @@ const CommandType *Unit::computeCommandType(const Vec2i &pos, const Unit *target
 			//printf("Line: %d Unit::computeCommandType pos [%s] targetUnit [%s] commandType [%p]\n",__LINE__,pos.getString().c_str(),(targetUnit != NULL ? targetUnit->getType()->getName().c_str() : "(null)"),commandType);
 
 			if(commandType == NULL && targetUnit != NULL) {
-				Command *command= this->getCurrCommand();
-			    const HarvestCommandType *hct= dynamic_cast<const HarvestCommandType*>((command != NULL ? command->getCommandType() : NULL));
+				//Command *command= this->getCurrCommand();
+			    //const HarvestCommandType *hct= dynamic_cast<const HarvestCommandType*>((command != NULL ? command->getCommandType() : NULL));
 
 				// Check if we can return whatever resources we have
 				if(targetUnit->getFactionIndex() == this->getFactionIndex() &&
@@ -4045,7 +4045,7 @@ void Unit::removeBadHarvestPos(const Vec2i &value) {
 }
 
 void Unit::cleanupOldBadHarvestPos() {
-	const int cleanupInterval = (GameConstants::updateFps * 5);
+	const unsigned int cleanupInterval = (GameConstants::updateFps * 5);
 	bool needToCleanup = (getFrameCount() % cleanupInterval == 0);
 
 	//printf("========================> cleanupOldBadHarvestPos() [%d] badHarvestPosList.size [%ld] cleanupInterval [%d] getFrameCount() [%d] needToCleanup [%d]\n",getFrameCount(),badHarvestPosList.size(),cleanupInterval,getFrameCount(),needToCleanup);
@@ -4066,7 +4066,7 @@ void Unit::cleanupOldBadHarvestPos() {
 			snprintf(szBuf,8096,"[cleaning old bad harvest targets] purgeList.size() [" MG_SIZE_T_SPECIFIER "]",purgeList.size());
 			logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__,szBuf);
 
-			for(int i = 0; i < purgeList.size(); ++i) {
+			for(int i = 0; i < (int)purgeList.size(); ++i) {
 				const Vec2i &item = purgeList[i];
 				badHarvestPosList.erase(item);
 			}
@@ -4091,7 +4091,7 @@ void Unit::setLastHarvestResourceTarget(const Vec2i *pos) {
 		else {
 			// If we cannot harvest for > 10 seconds tag the position
 			// as a bad one
-			const int addInterval = (GameConstants::updateFps * 5);
+			const unsigned int addInterval = (GameConstants::updateFps * 5);
 			if(lastHarvestResourceTarget.second - getFrameCount() >= addInterval) {
 				//printf("-----------------------> setLastHarvestResourceTarget() [%d][%d]\n",getFrameCount(),lastHarvestResourceTarget.second);
 				addBadHarvestPos(resourceLocation);
@@ -4130,7 +4130,7 @@ void Unit::setLastStuckFrameToCurrentFrame() {
 bool Unit::isLastStuckFrameWithinCurrentFrameTolerance(bool evalMode) {
 	//const int MIN_FRAME_ELAPSED_RETRY = 300;
 	const int MAX_BLOCKED_FRAME_THRESHOLD = 25000;
-	int MIN_FRAME_ELAPSED_RETRY = 6;
+	unsigned int MIN_FRAME_ELAPSED_RETRY = 6;
 	if(lastStuckFrame < MAX_BLOCKED_FRAME_THRESHOLD) {
 		if(evalMode == true) {
 			MIN_FRAME_ELAPSED_RETRY = 4;
@@ -4951,7 +4951,7 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 		}
 
 		vector<XmlNode *> unitParticleSystemNodeList = fireParticleSystemsNode->getChildList("FireParticleSystem");
-		for(unsigned int i = 0; i < unitParticleSystemNodeList.size(); ++i) {
+		for(int i = 0; i < (int)unitParticleSystemNodeList.size(); ++i) {
 			XmlNode *node = unitParticleSystemNodeList[i];
 
 			FireParticleSystem *ups = new FireParticleSystem();

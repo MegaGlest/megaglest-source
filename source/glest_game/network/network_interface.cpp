@@ -127,7 +127,7 @@ NetworkMessageType NetworkInterface::getNextMessageType(int waitMilliseconds)
          (waitMilliseconds > 0 && socket->hasDataToReadWithWait(waitMilliseconds) == true))) {
         //peek message type
 		int dataSize = socket->getDataToRead();
-		if(dataSize >= sizeof(messageType)) {
+		if(dataSize >= (int)sizeof(messageType)) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket->getDataToRead() dataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,dataSize);
 
 			int iPeek = socket->peek(&messageType, sizeof(messageType));
@@ -317,7 +317,7 @@ void NetworkInterface::setHighlightedCell(const MarkedCell &msg){
 	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 	MutexSafeWrapper safeMutex(networkAccessMutex,mutexOwnerId);
 
-	for(int idx = 0; idx < highlightedCellList.size(); idx++) {
+	for(int idx = 0; idx < (int)highlightedCellList.size(); idx++) {
 		MarkedCell mc = highlightedCellList[idx];
 		if(mc.getFactionIndex()==msg.getFactionIndex()){
 			highlightedCellList.erase(highlightedCellList.begin()+ idx);

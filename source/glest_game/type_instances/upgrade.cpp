@@ -114,7 +114,7 @@ void UpgradeManager::startUpgrade(const UpgradeType *upgradeType, int factionInd
 void UpgradeManager::cancelUpgrade(const UpgradeType *upgradeType) {
 	map<const UpgradeType *,int>::iterator iterFind = upgradesLookup.find(upgradeType);
 	if(iterFind != upgradesLookup.end()) {
-		if(iterFind->second >= upgrades.size()) {
+		if(iterFind->second >= (int)upgrades.size()) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"Error canceling upgrade, iterFind->second >= upgrades.size() - [%d] : [%d]",iterFind->second,(int)upgrades.size());
 			throw megaglest_runtime_error("Error canceling upgrade, upgrade not found in upgrade manager");
@@ -125,7 +125,7 @@ void UpgradeManager::cancelUpgrade(const UpgradeType *upgradeType) {
 
 		for(map<const UpgradeType *,int>::iterator iterMap = upgradesLookup.begin();
 			iterMap != upgradesLookup.end(); ++iterMap) {
-			if(iterMap->second >= upgrades.size()) {
+			if(iterMap->second >= (int)upgrades.size()) {
 				iterMap->second--;
 			}
 			if(iterMap->second < 0) {
@@ -250,7 +250,7 @@ void UpgradeManager::computeTotalUpgrade(const Unit *unit, TotalUpgrade *totalUp
 
 std::string UpgradeManager::toString() const {
 	std::string result = "UpgradeCount: " + intToStr(this->getUpgradeCount());
-	for(int idx = 0; idx < upgrades.size(); idx++) {
+	for(int idx = 0; idx < (int)upgrades.size(); idx++) {
 		result += " index = " + intToStr(idx) + " " + upgrades[idx]->toString();
 	}
 	return result;

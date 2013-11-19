@@ -433,7 +433,7 @@ std::pair<CommandResult,string> Commander::computeResult(const CommandResultCont
         case 1:
             return results.front();
         default:
-            for(int i = 0; i < results.size(); ++i) {
+            for(int i = 0; i < (int)results.size(); ++i) {
                 if(results[i].first != crSuccess) {
                 	return std::pair<CommandResult,string>(crSomeFailed,results[i].second);
                 }
@@ -502,7 +502,7 @@ bool Commander::getReplayCommandListForFrame(int worldFrameCount) {
 			replayCommandList.erase(replayCommandList.begin(),replayCommandList.begin() + replayList.size());
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("worldFrameCount = %d GIVING COMMANDS replayList.size() = " MG_SIZE_T_SPECIFIER "\n",worldFrameCount,replayList.size());
-			for(int i= 0; i < replayList.size(); ++i){
+			for(int i= 0; i < (int)replayList.size(); ++i){
 				giveNetworkCommand(&replayList[i]);
 			}
 			GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();

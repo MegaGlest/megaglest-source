@@ -122,7 +122,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
 	}
 
 	std::map<string,string> scenarioErrors;
-	for(int i= 0; i<results.size(); ++i){
+	for(int i= 0; i < (int)results.size(); ++i){
 			results[i] = formatString(results[i]);
 	}
     listBoxScenario.setItems(results);
@@ -130,7 +130,7 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
     try {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
 
-    	if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
+    	if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < (int)scenarioFiles.size()) {
     		string scenarioPath = Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]);
     		//printf("scenarioPath [%s]\n",scenarioPath.c_str());
 
@@ -244,7 +244,7 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
         try {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
 
-        	if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
+        	if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < (int)scenarioFiles.size()) {
         		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
         		labelInfo.setText(scenarioInfo.desc);
         		if(scenarioInfo.namei18n != "") {
@@ -333,7 +333,7 @@ void MenuStateScenario::update() {
 		else {
 			try {
 				this->autoloadScenarioName = "";
-				if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
+				if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < (int)scenarioFiles.size()) {
 					loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
 					labelInfo.setText(scenarioInfo.desc);
 	        		if(scenarioInfo.namei18n != "") {
@@ -402,7 +402,7 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
 void MenuStateScenario::loadScenarioPreviewTexture(){
 	if(enableScenarioTexturePreview == true) {
 		//if(listBoxScenario.getSelectedItemIndex() >= 0) {
-		if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < scenarioFiles.size()) {
+		if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < (int)scenarioFiles.size()) {
 			GameSettings gameSettings;
 			loadGameSettings(&scenarioInfo, &gameSettings);
 
@@ -431,7 +431,7 @@ void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameS
 		snprintf(szBuf,8096,"listBoxScenario.getSelectedItemIndex() < 0, = %d",listBoxScenario.getSelectedItemIndex());
 		throw megaglest_runtime_error(szBuf);
 	}
-	else if(listBoxScenario.getSelectedItemIndex() >= scenarioFiles.size()) {
+	else if(listBoxScenario.getSelectedItemIndex() >= (int)scenarioFiles.size()) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"listBoxScenario.getSelectedItemIndex() >= scenarioFiles.size(), = [%d][%d]",listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
 		throw megaglest_runtime_error(szBuf);

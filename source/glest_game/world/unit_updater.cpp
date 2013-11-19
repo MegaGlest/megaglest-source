@@ -898,7 +898,7 @@ std::pair<bool,Unit *> UnitUpdater::unitBeingAttacked(const Unit *unit) {
 	std::pair<bool,Unit *> result = make_pair(false,(Unit *)NULL);
 
 	float distToUnit = -1;
-	for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+	for(unsigned int i = 0; i < (unsigned int)unit->getType()->getSkillTypeCount(); ++i) {
 		const SkillType *st = unit->getType()->getSkillType(i);
 		const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(st);
 		unitBeingAttacked(result, unit, ast, &distToUnit);
@@ -1281,7 +1281,7 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
     const HarvestCommandType *hct= dynamic_cast<const HarvestCommandType*>(command->getCommandType());
 	Vec2i targetPos(-1);
 
-	TravelState tsValue = tsImpossible;
+	//TravelState tsValue = tsImpossible;
 	//UnitPathInterface *path= unit->getPath();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
@@ -2667,7 +2667,7 @@ bool UnitUpdater::findCachedCellsEnemies(Vec2i center, int range, int size, vect
 					result = true;
 
 					std::vector<Cell *> &cellList = iterFind4->second.rangeCellList;
-					for(int idx = 0; idx < cellList.size(); ++idx) {
+					for(int idx = 0; idx < (int)cellList.size(); ++idx) {
 						Cell *cell = cellList[idx];
 
 						findEnemiesForCell(ast,cell,unit,commandTarget,enemies);
@@ -2805,7 +2805,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 	string randomInfoData = "enemies.size() = " + intToStr(enemies.size());
 
 	//printf("unit %d has control:%d\n",unit->getId(),controlType);
-    for(int i = 0; i< enemies.size(); ++i) {
+    for(int i = 0; i< (int)enemies.size(); ++i) {
     	Unit *enemy = enemies[i];
 
 

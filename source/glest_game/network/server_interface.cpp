@@ -301,7 +301,7 @@ ServerInterface::~ServerInterface() {
 	delete serverSocketAdmin;
 	serverSocketAdmin = NULL;
 
-	for(int i = 0; i < broadcastMessageQueue.size(); ++i) {
+	for(int i = 0; i < (int)broadcastMessageQueue.size(); ++i) {
 		pair<NetworkMessage *,int> &item = broadcastMessageQueue[i];
 		if(item.first != NULL) {
 			delete item.first;
@@ -942,7 +942,7 @@ void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSigna
 					std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
 					// Collect any collected errors from threads
 					if(errorList.empty() == false) {
-						for(int iErrIdx = 0; iErrIdx < errorList.size(); ++iErrIdx) {
+						for(int iErrIdx = 0; iErrIdx < (int)errorList.size(); ++iErrIdx) {
 							string &sErr = errorList[iErrIdx];
 							if(sErr != "") {
 								errorMsgList.push_back(sErr);
@@ -990,7 +990,7 @@ void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSigna
 						std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
 						// Collect any collected errors from threads
 						if(errorList.empty() == false) {
-							for(int iErrIdx = 0; iErrIdx < errorList.size(); ++iErrIdx) {
+							for(int iErrIdx = 0; iErrIdx < (int)errorList.size(); ++iErrIdx) {
 								string &sErr = errorList[iErrIdx];
 								if(sErr != "") {
 									errorMsgList.push_back(sErr);
@@ -1055,7 +1055,7 @@ void ServerInterface::checkForLaggingClients(std::map<int,bool> &mapSlotSignalle
 						std::vector<std::string> errorList = connectionSlot->getThreadErrorList();
 						// Show any collected errors from threads
 						if(errorList.empty() == false) {
-							for(int iErrIdx = 0; iErrIdx < errorList.size(); ++iErrIdx) {
+							for(int iErrIdx = 0; iErrIdx < (int)errorList.size(); ++iErrIdx) {
 								string &sErr = errorList[iErrIdx];
 								if(sErr != "") {
 									errorMsgList.push_back(sErr);
@@ -1189,7 +1189,7 @@ void ServerInterface::executeNetworkCommandsFromClients() {
 			if(connectionSlot != NULL && connectionSlot->isConnected() == true) {
 				vector<NetworkCommand> pendingList = connectionSlot->getPendingNetworkCommandList(true);
 				if(pendingList.empty() == false) {
-					for(int idx = 0; exitServer == false && idx < pendingList.size(); ++idx) {
+					for(int idx = 0; exitServer == false && idx < (int)pendingList.size(); ++idx) {
 						NetworkCommand &cmd = pendingList[idx];
 						this->requestCommand(&cmd);
 					}
@@ -1211,7 +1211,7 @@ void ServerInterface::dispatchPendingChatMessages(std::vector <string> &errorMsg
 				std::vector<ChatMsgInfo> chatText = connectionSlot->getChatTextList(true);
 				for(int chatIdx = 0;
 					exitServer == false && slots[i] != NULL &&
-					chatIdx < chatText.size(); chatIdx++) {
+					chatIdx < (int)chatText.size(); chatIdx++) {
 					connectionSlot= slots[i];
 					if(connectionSlot != NULL) {
 						ChatMsgInfo msg(chatText[chatIdx]);
@@ -1259,7 +1259,7 @@ void ServerInterface::dispatchPendingMarkCellMessages(std::vector <string> &erro
 				std::vector<MarkedCell> chatText = connectionSlot->getMarkedCellList(true);
 				for(int chatIdx = 0;
 					exitServer == false && slots[i] != NULL &&
-					chatIdx < chatText.size(); chatIdx++) {
+					chatIdx < (int)chatText.size(); chatIdx++) {
 					connectionSlot= slots[i];
 					if(connectionSlot != NULL) {
 						MarkedCell msg(chatText[chatIdx]);
@@ -1297,7 +1297,7 @@ void ServerInterface::dispatchPendingHighlightCellMessages(std::vector <string> 
 				std::vector<MarkedCell> highlightedCells = connectionSlot->getHighlightedCellList(true);
 				for(int chatIdx = 0;
 					exitServer == false && slots[i] != NULL &&
-					chatIdx < highlightedCells.size(); chatIdx++) {
+					chatIdx < (int)highlightedCells.size(); chatIdx++) {
 					connectionSlot= slots[i];
 					if(connectionSlot != NULL) {
 						MarkedCell msg(highlightedCells[chatIdx]);
@@ -1334,7 +1334,7 @@ void ServerInterface::dispatchPendingUnMarkCellMessages(std::vector <string> &er
 				std::vector<UnMarkedCell> chatText = connectionSlot->getUnMarkedCellList(true);
 				for(int chatIdx = 0;
 					exitServer == false && slots[i] != NULL &&
-					chatIdx < chatText.size(); chatIdx++) {
+					chatIdx < (int)chatText.size(); chatIdx++) {
 					connectionSlot= slots[i];
 					if(connectionSlot != NULL) {
 						UnMarkedCell msg(chatText[chatIdx]);
@@ -1600,7 +1600,7 @@ void ServerInterface::update() {
 		errorMsgList.push_back(ex.what());
 	}
 	if(errorMsgList.empty() == false){
-		for(int iErrIdx = 0;iErrIdx < errorMsgList.size();++iErrIdx){
+		for(int iErrIdx = 0;iErrIdx < (int)errorMsgList.size();++iErrIdx){
 			string & sErr = errorMsgList[iErrIdx];
 			if(sErr != ""){
 				DisplayErrorMessage(sErr);
@@ -1914,7 +1914,7 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 					lastStatusUpdate = chrono.getMillis();
 
 					string waitForHosts = "";
-					for(int i = 0; i < waitingForHosts.size(); i++) {
+					for(int i = 0; i < (int)waitingForHosts.size(); i++) {
 						if(waitForHosts != "") {
 							waitForHosts += ", ";
 						}
@@ -2060,7 +2060,7 @@ void ServerInterface::processBroadCastMessageQueue() {
 	MutexSafeWrapper safeMutexSlot(broadcastMessageQueueThreadAccessor,CODE_AT_LINE);
 	if(broadcastMessageQueue.empty() == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] broadcastMessageQueue.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,broadcastMessageQueue.size());
-	for(int i = 0; i < broadcastMessageQueue.size(); ++i) {
+	for(int i = 0; i < (int)broadcastMessageQueue.size(); ++i) {
 		pair<NetworkMessage *,int> &item = broadcastMessageQueue[i];
 		if(item.first != NULL) {
 			this->broadcastMessage(item.first,item.second);
@@ -2084,7 +2084,7 @@ void ServerInterface::processTextMessageQueue() {
 	MutexSafeWrapper safeMutexSlot(textMessageQueueThreadAccessor,CODE_AT_LINE);
 	if(textMessageQueue.empty() == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] textMessageQueue.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,textMessageQueue.size());
-		for(int i = 0; i < textMessageQueue.size(); ++i) {
+		for(int i = 0; i < (int)textMessageQueue.size(); ++i) {
 			TextMessageQueue &item = textMessageQueue[i];
 			sendTextMessage(item.text, item.teamIndex, item.echoLocal, item.targetLanguage);
 		}
@@ -2366,7 +2366,7 @@ void ServerInterface::broadcastGameSetup(GameSettings *gameSettingsBuffer, bool 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(gameSettingsBuffer != NULL) {
-		for(unsigned int i = 0; i < gameSettingsBuffer->getFactionCount(); ++i) {
+		for(unsigned int i = 0; i < (unsigned int)gameSettingsBuffer->getFactionCount(); ++i) {
 			int slotIndex = gameSettingsBuffer->getStartLocationIndex(i);
 			if(gameSettingsBuffer->getFactionControl(i) == ctNetwork &&
 				isClientConnected(slotIndex) == false) {
@@ -2545,7 +2545,7 @@ void ServerInterface::validateGameSettings(GameSettings *serverGameSettings) {
 		printf("map not found on this server\n");
 		int currentIndex=-1;
 		string currentMap=gameSettings.getMap();
-		for (int i=0 ;i<mapFiles.size(); i++) {
+		for (int i=0 ;i < (int)mapFiles.size(); i++) {
 			string current=mapFiles[i];
 			if(current==currentMap)
 			{
@@ -2560,7 +2560,7 @@ void ServerInterface::validateGameSettings(GameSettings *serverGameSettings) {
 				printf("mapFile>gameSettings [%s] > [%s]\n",mapFile.c_str(),gameSettings.getMap().c_str());
 
 				int nextIndex=-1;
-				for (int i=0 ;i<mapFiles.size(); i++) {
+				for (int i=0 ;i < (int)mapFiles.size(); i++) {
 					string current=mapFiles[i];
 					if(current>mapFile)
 					{

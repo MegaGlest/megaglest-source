@@ -101,7 +101,7 @@ void Cell::loadGame(const XmlNode *rootNode, int index, World *world) {
 	if(rootNode->hasChild("Cell" + intToStr(index)) == true) {
 		const XmlNode *cellNode = rootNode->getChild("Cell" + intToStr(index));
 
-		int unitCount = (int)cellNode->getChildCount();
+		unsigned int unitCount = (unsigned int)cellNode->getChildCount();
 		for(unsigned int i = 0; i < unitCount; ++i) {
 			if(cellNode->hasChildAtIndex("units",i) == true) {
 				const XmlNode *unitsNode = cellNode->getChild("units",i);
@@ -844,7 +844,7 @@ bool Map::canOccupy(const Vec2i &pos, Field field, const UnitType *ut, CardinalD
 					}
 				}
 				else {
-					false;
+					return false;
 				}
 			}
 		}
@@ -1702,7 +1702,7 @@ string Map::getMapPath(const string &mapName, string scenarioDir, bool errorOnNo
     Config &config = Config::getInstance();
     vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
 
-    for(int idx = 0; idx < pathList.size(); idx++) {
+    for(int idx = 0; idx < (int)pathList.size(); idx++) {
         string map_path = pathList[idx];
     	endPathWithSlash(map_path);
 
@@ -1760,7 +1760,7 @@ void Map::saveGame(XmlNode *rootNode) const {
 	string exploredList = "";
 	string visibleList = "";
 
-	for(unsigned int i = 0; i < getSurfaceCellArraySize(); ++i) {
+	for(unsigned int i = 0; i < (unsigned int)getSurfaceCellArraySize(); ++i) {
 		SurfaceCell &surfaceCell = surfaceCells[i];
 
 		if(exploredList != "") {
@@ -1808,7 +1808,7 @@ void Map::saveGame(XmlNode *rootNode) const {
 	}
 
 //	Vec2i *startLocations;
-	for(unsigned int i = 0; i < maxPlayers; ++i) {
+	for(unsigned int i = 0; i < (unsigned int)maxPlayers; ++i) {
 		XmlNode *startLocationsNode = mapNode->addChild("startLocations");
 		startLocationsNode->addAttribute("location",startLocations[i].getString(), mapTagReplacements);
 	}
@@ -1841,7 +1841,7 @@ void Map::loadGame(const XmlNode *rootNode, World *world) {
 //	}
 
 //	printf("getSurfaceCellArraySize() = %d\n",getSurfaceCellArraySize());
-	for(unsigned int i = 0; i < getSurfaceCellArraySize(); ++i) {
+	for(unsigned int i = 0; i < (unsigned int)getSurfaceCellArraySize(); ++i) {
 		SurfaceCell &surfaceCell = surfaceCells[i];
 		surfaceCell.loadGame(mapNode,i,world);
 	}

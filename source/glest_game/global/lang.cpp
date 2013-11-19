@@ -91,7 +91,7 @@ void Lang::loadGameStrings(string uselanguage, bool loadFonts,
 			// Example values:
 			// DEFAULT_CHARSET (English) = 1
 			// GB2312_CHARSET (Chinese)  = 134
-			Shared::Platform::charSet = strToInt(lang.getString("FONT_CHARSET"));
+			Shared::Platform::PlatformContextGl::charSet = strToInt(lang.getString("FONT_CHARSET"));
 		}
 		if(	lang.hasString("FONT_MULTIBYTE")) {
 			Font::fontIsMultibyte 	= strToBool(lang.getString("FONT_MULTIBYTE"));
@@ -291,7 +291,7 @@ bool Lang::loadTechTreeStrings(string techTree,bool forceLoad) {
 	string currentPath = "";
 	Config &config = Config::getInstance();
     vector<string> techPaths = config.getPathListForType(ptTechs);
-    for(int idx = 0; idx < techPaths.size(); idx++) {
+    for(int idx = 0; idx < (int)techPaths.size(); idx++) {
         string &techPath = techPaths[idx];
 		endPathWithSlash(techPath);
 
@@ -382,7 +382,7 @@ void Lang::loadTilesetStrings(string tileset) {
 	string currentPath = "";
 	Config &config = Config::getInstance();
     vector<string> tilesetPaths = config.getPathListForType(ptTilesets);
-    for(int idx = 0; idx < tilesetPaths.size(); idx++) {
+    for(int idx = 0; idx < (int)tilesetPaths.size(); idx++) {
         string &tilesetPath = tilesetPaths[idx];
 		endPathWithSlash(tilesetPath);
 

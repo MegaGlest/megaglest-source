@@ -625,7 +625,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 		//unit requirements
 		bool hasDup = false;
 		const XmlNode *unitRequirementsNode= upgradeNode->getChild("unit-requirements");
-		for(int i = 0; i < unitRequirementsNode->getChildCount(); ++i) {
+		for(int i = 0; i < (int)unitRequirementsNode->getChildCount(); ++i) {
 			const XmlNode *unitNode= 	unitRequirementsNode->getChild("unit", i);
 			string name= unitNode->getAttribute("name")->getRestrictedValue();
 
@@ -649,7 +649,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 
 		//upgrade requirements
 		const XmlNode *upgradeRequirementsNode= upgradeNode->getChild("upgrade-requirements");
-		for(int i = 0; i < upgradeRequirementsNode->getChildCount(); ++i) {
+		for(int i = 0; i < (int)upgradeRequirementsNode->getChildCount(); ++i) {
 			const XmlNode *upgradeReqNode= upgradeRequirementsNode->getChild("upgrade", i);
 			string name= upgradeReqNode->getAttribute("name")->getRestrictedValue();
 
@@ -676,7 +676,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 		const XmlNode *resourceRequirementsNode= upgradeNode->getChild("resource-requirements");
 
 		costs.resize(resourceRequirementsNode->getChildCount());
-		for(int i = 0; i < costs.size(); ++i) {
+		for(int i = 0; i < (int)costs.size(); ++i) {
 			const XmlNode *resourceNode= 	resourceRequirementsNode->getChild("resource", i);
 			string name= resourceNode->getAttribute("name")->getRestrictedValue();
 			int amount= resourceNode->getAttribute("amount")->getIntValue();
@@ -720,7 +720,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 
 		//effects
 		const XmlNode *effectsNode= upgradeNode->getChild("effects");
-		for(int i = 0; i < effectsNode->getChildCount(); ++i) {
+		for(int i = 0; i < (int)effectsNode->getChildCount(); ++i) {
 			const XmlNode *unitNode= effectsNode->getChild("unit", i);
 			string name= unitNode->getAttribute("name")->getRestrictedValue();
 
@@ -877,7 +877,7 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
 	}
 
 	if(ut->getAttackStrengthIsMultiplier() == true) {
-		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+		for(unsigned int i = 0; i < (unsigned int)unit->getType()->getSkillTypeCount(); ++i) {
 			const SkillType *skillType = unit->getType()->getSkillType(i);
 			const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(skillType);
 			if(ast != NULL) {
@@ -890,7 +890,7 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
 	}
 
 	if(ut->getAttackRangeIsMultiplier() == true) {
-		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+		for(unsigned int i = 0; i < (unsigned int)unit->getType()->getSkillTypeCount(); ++i) {
 			const SkillType *skillType = unit->getType()->getSkillType(i);
 			const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(skillType);
 			if(ast != NULL) {
@@ -905,7 +905,7 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
 	if(ut->getMoveSpeedIsMultiplier() == true) {
 		//printf("BEFORE Applying moveSpeedIsMultiplier\n");
 
-		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+		for(unsigned int i = 0; i < (unsigned int)unit->getType()->getSkillTypeCount(); ++i) {
 			const SkillType *skillType = unit->getType()->getSkillType(i);
 			const MoveSkillType *mst = dynamic_cast<const MoveSkillType *>(skillType);
 			if(mst != NULL) {
@@ -922,7 +922,7 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
 	}
 
 	if(ut->getProdSpeedIsMultiplier() == true) {
-		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+		for(unsigned int i = 0; i < (unsigned int)unit->getType()->getSkillTypeCount(); ++i) {
 			const SkillType *skillType = unit->getType()->getSkillType(i);
 			const ProduceSkillType *pst = dynamic_cast<const ProduceSkillType *>(skillType);
 			if(pst != NULL) {
@@ -1007,7 +1007,7 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 	enforceMinimumValue(0,armor);
 
 	if(ut->getAttackStrengthIsMultiplier() == true) {
-		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+		for(unsigned int i = 0; i < (unsigned int)unit->getType()->getSkillTypeCount(); ++i) {
 			const SkillType *skillType = unit->getType()->getSkillType(i);
 			const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(skillType);
 			if(ast != NULL) {
@@ -1023,7 +1023,7 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 
 
 	if(ut->getAttackRangeIsMultiplier() == true) {
-		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+		for(unsigned int i = 0; i < (unsigned int)unit->getType()->getSkillTypeCount(); ++i) {
 			const SkillType *skillType = unit->getType()->getSkillType(i);
 			const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(skillType);
 			if(ast != NULL) {
@@ -1040,7 +1040,7 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 	if(ut->getMoveSpeedIsMultiplier() == true) {
 		//printf("BEFORE Applying moveSpeedIsMultiplier, moveSpeed = %d, ut->getMoveSpeed() = %d\n",moveSpeed,ut->getMoveSpeed());
 
-		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+		for(unsigned int i = 0; i < (unsigned int)unit->getType()->getSkillTypeCount(); ++i) {
 			const SkillType *skillType = unit->getType()->getSkillType(i);
 			const MoveSkillType *mst = dynamic_cast<const MoveSkillType *>(skillType);
 			if(mst != NULL) {
@@ -1057,7 +1057,7 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 	}
 
 	if(ut->getProdSpeedIsMultiplier() == true) {
-		for(unsigned int i = 0; i < unit->getType()->getSkillTypeCount(); ++i) {
+		for(unsigned int i = 0; i < (unsigned int)unit->getType()->getSkillTypeCount(); ++i) {
 			const SkillType *skillType = unit->getType()->getSkillType(i);
 			const ProduceSkillType *pst = dynamic_cast<const ProduceSkillType *>(skillType);
 			if(pst != NULL) {

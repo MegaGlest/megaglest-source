@@ -131,7 +131,7 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mai
 
 		string currentPort=config.getString("PortServer", intToStr(GameConstants::serverPort).c_str());
 		int portSelectionIndex=0;
-		for(int idx = 0; idx < portList.size(); idx++) {
+		for(int idx = 0; idx < (int)portList.size(); idx++) {
 			if(portList[idx] != "" && IsNumeric(portList[idx].c_str(),false)) {
 				listBoxServerPort.pushBackItem(portList[idx]);
 				if(currentPort==portList[idx])

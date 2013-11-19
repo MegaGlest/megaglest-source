@@ -1034,7 +1034,7 @@ vector<int> extractKeyPressedUnicodeLength(string text) {
 		wchar_t keyW = c;
 		wchar_t textAppend[] = { keyW, 0 };
 
-		if(textAppend) {
+		if(*textAppend) {
 			wchar_t newKey = textAppend[0];
 			if (newKey < 0x80) {
 				result.push_back(1);

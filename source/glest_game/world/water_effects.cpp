@@ -51,13 +51,13 @@ void WaterEffects::update(float speed){
 	if(anim>1.f){
 		anim= 0;
 	}
-	for(int i=0; i<waterSplashes.size(); ++i){
+	for(int i=0; i < (int)waterSplashes.size(); ++i){
 		waterSplashes[i].update(speed/GameConstants::updateFps);
 	}
 }
 
 void WaterEffects::addWaterSplash(const Vec2f &pos, int size){
-	for(int i=0; i<waterSplashes.size(); ++i){
+	for(int i=0; i < (int)waterSplashes.size(); ++i){
 		if(!waterSplashes[i].getEnabled()){
 			waterSplashes[i]= WaterSplash(pos,size);
 			return;

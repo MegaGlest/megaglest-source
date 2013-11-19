@@ -206,7 +206,7 @@ Intro::Intro(Program *program):
 		string introPath = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/main_model/intro*.g3d";
 		vector<string> introModels;
 		findAll(introPath, introModels, false, false);
-		for(int i = 0; i < introModels.size(); ++i) {
+		for(int i = 0; i < (int)introModels.size(); ++i) {
 			string logo = introModels[i];
 			Model *model= renderer.newModel(rsMenu);
 			if(model) {
@@ -220,7 +220,7 @@ Intro::Intro(Program *program):
 			introPath = data_path + "data/core/menu/main_model/intro*.g3d";
 			//vector<string> introModels;
 			findAll(introPath, introModels, false, false);
-			for(int i = 0; i < introModels.size(); ++i) {
+			for(int i = 0; i < (int)introModels.size(); ++i) {
 				string logo = introModels[i];
 				Model *model= renderer.newModel(rsMenu);
 				if(model) {
@@ -429,7 +429,7 @@ Intro::Intro(Program *program):
 			srand((unsigned int)seed.getCurTicks());
 			int failedLookups=0;
 			std::map<int,bool> usedIndex;
-			for(;intoTexList.size() < showIntroPics;) {
+			for(;(int)intoTexList.size() < showIntroPics;) {
 				int picIndex = rand() % coreData.getMiscTextureList().size();
 				if(usedIndex.find(picIndex) != usedIndex.end()) {
 					failedLookups++;
@@ -456,8 +456,8 @@ Intro::Intro(Program *program):
 		}
 		else {
 			for(unsigned int i = 0;
-					i < coreData.getMiscTextureList().size() &&
-					i < showIntroPics; ++i) {
+					i < (unsigned int)coreData.getMiscTextureList().size() &&
+					i < (unsigned int)showIntroPics; ++i) {
 				Texture2D *tex = coreData.getMiscTextureList()[i];
 				intoTexList.push_back(tex);
 			}
@@ -628,7 +628,7 @@ void Intro::renderModelBackground() {
 		if(difTime > 0) {
 			if(difTime > ((modelIndex+1) * individualModelShowTime)) {
 				//int oldmodelIndex = modelIndex;
-				if(modelIndex+1 < models.size()) {
+				if(modelIndex + 1 < (int)models.size()) {
 					modelIndex++;
 
 					//position
@@ -681,7 +681,7 @@ void Intro::render() {
 
 	renderer.reset2d();
 
-	for(int i = 0; i < texts.size(); ++i) {
+	for(int i = 0; i < (int)texts.size(); ++i) {
 		Text *text= texts[i];
 
 		int difTime= 1000 * timer / GameConstants::updateFps - text->getTime();

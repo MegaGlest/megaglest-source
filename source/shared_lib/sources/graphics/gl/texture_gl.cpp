@@ -631,7 +631,7 @@ TextureGl::~TextureGl() {
 // =====================================================
 //	class Texture1DGl
 // =====================================================
-Texture1DGl::Texture1DGl() : TextureGl(), Texture1D() {}
+Texture1DGl::Texture1DGl() : Texture1D(), TextureGl() {}
 
 Texture1DGl::~Texture1DGl() {
 	end();
@@ -753,7 +753,7 @@ void Texture1DGl::end(bool deletePixelBuffer) {
 //	class Texture2DGl
 // =====================================================
 
-Texture2DGl::Texture2DGl() : TextureGl(), Texture2D() {}
+Texture2DGl::Texture2DGl() : Texture2D(), TextureGl() {}
 
 Texture2DGl::~Texture2DGl() {
 	end();
@@ -959,7 +959,7 @@ void Texture2DGl::end(bool deletePixelBuffer) {
 //	class Texture3DGl
 // =====================================================
 
-Texture3DGl::Texture3DGl() : TextureGl(), Texture3D() {}
+Texture3DGl::Texture3DGl() : Texture3D(), TextureGl() {}
 
 Texture3DGl::~Texture3DGl() {
 	end();
@@ -1068,7 +1068,7 @@ void Texture3DGl::end(bool deletePixelBuffer) {
 //	class TextureCubeGl
 // =====================================================
 
-TextureCubeGl::TextureCubeGl() : TextureGl(), TextureCube() {}
+TextureCubeGl::TextureCubeGl() : TextureCube(), TextureGl() {}
 
 TextureCubeGl::~TextureCubeGl() {
 	end();

@@ -213,7 +213,7 @@ private:
 	TravelState aStar(Unit *unit, const Vec2i &finalPos, bool inBailout,
 			int frameIndex, int maxNodeCount=-1,uint32 *searched_node_count=NULL);
 	inline static Node *newNode(FactionState &faction, int maxNodeCount) {
-		if( faction.nodePoolCount < faction.nodePool.size() &&
+		if( faction.nodePoolCount < (int)faction.nodePool.size() &&
 			faction.nodePoolCount < maxNodeCount) {
 			Node *node= &(faction.nodePool[faction.nodePoolCount]);
 			node->clear();

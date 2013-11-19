@@ -242,14 +242,14 @@ void MenuStateRoot::render() {
 		coreData.getLogoTexture(), GraphicComponent::getFade());
 
 	int maxLogoWidth=0;
-	for(int idx = 0; idx < coreData.getLogoTextureExtraCount(); ++idx) {
+	for(int idx = 0; idx < (int)coreData.getLogoTextureExtraCount(); ++idx) {
 		Texture2D *extraLogo = coreData.getLogoTextureExtra(idx);
 		maxLogoWidth += extraLogo->getPixmap()->getW();
 	}
 
 	int currentX = (metrics.getVirtualW()-maxLogoWidth)/2;
 	int currentY = 50;
-	for(int idx = 0; idx < coreData.getLogoTextureExtraCount(); ++idx) {
+	for(int idx = 0; idx < (int)coreData.getLogoTextureExtraCount(); ++idx) {
 		Texture2D *extraLogo = coreData.getLogoTextureExtra(idx);
 
 		logoMainX = currentX;

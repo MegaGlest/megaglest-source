@@ -74,7 +74,7 @@ void GraphicComponent::clearRegisterGraphicComponent(std::string containerName, 
 }
 
 void GraphicComponent::clearRegisterGraphicComponent(std::string containerName, std::vector<std::string> objNameList) {
-	for(int idx = 0; idx < objNameList.size(); ++idx) {
+	for(int idx = 0; idx < (int)objNameList.size(); ++idx) {
 		GraphicComponent::clearRegisterGraphicComponent(containerName, objNameList[idx]);
 	}
 }
@@ -387,7 +387,7 @@ void GraphicListBox::init(int x, int y, int w, int h, Vec3f textColor){
 const string & GraphicListBox::getTextNativeTranslation() {
 	if(this->translated_items.empty() == true ||
 			this->selectedItemIndex < 0 ||
-			this->selectedItemIndex >= this->translated_items.size() ||
+			this->selectedItemIndex >= (int)this->translated_items.size() ||
 			this->items.size() != this->translated_items.size()) {
 		return this->text;
 	}
@@ -416,7 +416,7 @@ void GraphicListBox::setItems(const vector<string> &items, const vector<string> 
 }
 
 void GraphicListBox::setSelectedItemIndex(int index, bool errorOnMissing){
-	if(errorOnMissing == true && (index < 0 || index >= items.size())) {
+	if(errorOnMissing == true && (index < 0 || index >= (int)items.size())) {
 	    char szBuf[8096]="";
 	    snprintf(szBuf,8096,"Index not found in listbox name: [%s] value index: %d size: %lu",this->instanceName.c_str(),index,(unsigned long)items.size());
 		throw megaglest_runtime_error(szBuf);
@@ -505,7 +505,7 @@ void GraphicListBox::setSelectedItem(string item, bool errorOnMissing){
 
 	if(iter==items.end()) {
 		if(errorOnMissing == true) {
-			for(int idx = 0; idx < items.size(); idx++) {
+			for(int idx = 0; idx < (int)items.size(); idx++) {
 				SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\ninstanceName [%s] idx = %d items[idx] = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,instanceName.c_str(),idx,items[idx].c_str());
 			}
 
@@ -544,7 +544,7 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 			if(advanceToItemStartingWith != "") {
 				for(int i = selectedItemIndex - 1; i >= 0; --i) {
 					string item = items[i];
-					if(translated_items.size()>i) item=translated_items[i];
+					if((int)translated_items.size() > i) item = translated_items[i];
 					if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
 						bFound = true;
 						selectedItemIndex = i;
@@ -554,7 +554,7 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 				if(bFound == false) {
 					for(int i = (int)items.size() - 1; i >= selectedItemIndex; --i) {
 						string item = items[i];
-						if(translated_items.size()>i) item=translated_items[i];
+						if((int)translated_items.size() > i) item = translated_items[i];
 						//printf("Trying to match [%s] with item [%s]\n",advanceToItemStartingWith.c_str(),item.c_str());
 						if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
 							bFound = true;
@@ -574,9 +574,9 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 		else if(b2) {
 			bool bFound = false;
 			if(advanceToItemStartingWith != "") {
-				for(int i = selectedItemIndex + 1; i < items.size(); ++i) {
+				for(int i = selectedItemIndex + 1; i < (int)items.size(); ++i) {
 					string item = items[i];
-					if(translated_items.size()>i) item=translated_items[i];
+					if((int)translated_items.size() > i) item = translated_items[i];
 					//printf("Trying to match [%s] with item [%s]\n",advanceToItemStartingWith.c_str(),item.c_str());
 					if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
 						bFound = true;
@@ -587,7 +587,7 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 				if(bFound == false) {
 					for(int i = 0; i <= selectedItemIndex; ++i) {
 						string item = items[i];
-						if(translated_items.size()>i) item=translated_items[i];
+						if((int)translated_items.size() > i) item = translated_items[i];
 						//printf("Trying to match [%s] with item [%s]\n",advanceToItemStartingWith.c_str(),item.c_str());
 						if(StartsWith(toLower(item),toLower(advanceToItemStartingWith)) == true) {
 							bFound = true;
@@ -600,7 +600,7 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 			if(bFound == false) {
 				selectedItemIndex++;
 			}
-			if(selectedItemIndex>=items.size()){
+			if(selectedItemIndex >= (int)items.size()) {
 				selectedItemIndex=0;
 			}
 		}
@@ -789,11 +789,14 @@ bool GraphicCheckBox::mouseMove(int x, int y){
 
 bool GraphicCheckBox::mouseClick(int x, int y){
 	bool result=GraphicComponent::mouseClick( x,  y);
-	if(result)
-    	if(value) 
+	if(result == true) {
+    	if(value) {
     		value=false;
-    	else
+    	}
+    	else {
     		value=true;
+    	}
+	}
     return result;
 }
 

@@ -1049,7 +1049,7 @@ void Renderer::setupLighting() {
 		if(qCache.visibleQuadUnitList.empty() == false) {
 			//bool modelRenderStarted = false;
 			for(int visibleUnitIndex = 0;
-					visibleUnitIndex < qCache.visibleQuadUnitList.size() && lightCount < maxLights;
+					visibleUnitIndex < (int)qCache.visibleQuadUnitList.size() && lightCount < maxLights;
 					++visibleUnitIndex) {
 				Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 
@@ -1405,7 +1405,7 @@ bool Renderer::PointInFrustum(vector<vector<float> > &frustum, float x, float y,
 
 bool Renderer::SphereInFrustum(vector<vector<float> > &frustum,  float x, float y, float z, float radius) {
 	// Go through all the sides of the frustum
-	for(int i = 0; i < frustum.size(); i++ ) {
+	for(int i = 0; i < (int)frustum.size(); i++ ) {
 		// If the center of the sphere is farther away from the plane than the radius
 		if(frustum[i][0] * x + frustum[i][1] * y + frustum[i][2] * z + frustum[i][3] <= -radius ) {
 			// The distance was greater than the radius so the sphere is outside of the frustum
@@ -3216,7 +3216,7 @@ void Renderer::renderCheckBox(const GraphicCheckBox *box) {
     int h= box->getH();
     int w= box->getW();
 
-	const Vec3f disabledTextColor= Vec3f(0.25f,0.25f,0.25f);
+	//const Vec3f disabledTextColor= Vec3f(0.25f,0.25f,0.25f);
 
 	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT);
 
@@ -3316,7 +3316,7 @@ void Renderer::renderLine(const GraphicLine *line) {
     int h= line->getH();
     int w= line->getW();
 
-	const Vec3f disabledTextColor= Vec3f(0.25f,0.25f,0.25f);
+	//const Vec3f disabledTextColor= Vec3f(0.25f,0.25f,0.25f);
 
 	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT);
 
@@ -3362,7 +3362,7 @@ void Renderer::renderScrollBar(const GraphicScrollBar *sb) {
     int h= sb->getH();
     int w= sb->getW();
 
-	const Vec3f disabledTextColor= Vec3f(0.25f,0.25f,0.25f);
+	//const Vec3f disabledTextColor= Vec3f(0.25f,0.25f,0.25f);
 
 	glPushAttrib(GL_CURRENT_BIT | GL_ENABLE_BIT);
 	/////////////////////
@@ -3840,7 +3840,7 @@ void Renderer::MapRenderer::loadVisibleLayers(float coordStep,VisibleQuadContain
 	int totalCellCount = 0;
 	// we create a layer for each visible texture in the map
 	for(int visibleIndex = 0;
-			visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
+			visibleIndex < (int)qCache.visibleScaledCellList.size(); ++visibleIndex) {
 		Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
 
 		totalCellCount++;
@@ -4064,7 +4064,7 @@ void Renderer::MapRenderer::Layer::render(VisibleQuadContainerCache &qCache) {
 			int lastValidIndex = -1;
 
 			for(int visibleIndex = 0;
-					visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
+					visibleIndex < (int)qCache.visibleScaledCellList.size(); ++visibleIndex) {
 				Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
 
 				if(cellToIndicesMap.find(pos) != cellToIndicesMap.end()) {
@@ -4293,7 +4293,7 @@ void Renderer::renderSurface(const int renderFps) {
 
 		    std::map<int,int> uniqueVisibleTextures;
 			for(int visibleIndex = 0;
-					visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
+					visibleIndex < (int)qCache.visibleScaledCellList.size(); ++visibleIndex) {
 				Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
 				SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
 				int cellTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
@@ -4304,7 +4304,7 @@ void Renderer::renderSurface(const int renderFps) {
 			//printf("Current renders = %d possible = %d\n",qCache.visibleScaledCellList.size(),uniqueVisibleTextures.size());
 
 			for(int visibleIndex = 0;
-					visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
+					visibleIndex < (int)qCache.visibleScaledCellList.size(); ++visibleIndex) {
 				Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
 
 				SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
@@ -4452,7 +4452,7 @@ void Renderer::renderSurface(const int renderFps) {
 
 		    	int lastSurfaceDataIndex = -1;
 				for(int visibleIndex = 0;
-						visibleIndex < qCache.visibleScaledCellList.size(); ++visibleIndex) {
+						visibleIndex < (int)qCache.visibleScaledCellList.size(); ++visibleIndex) {
 					Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
 
 					SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
@@ -4542,7 +4542,7 @@ void Renderer::renderSurface(const int renderFps) {
 		    glEnableClientState(GL_VERTEX_ARRAY);
 		    glEnableClientState(GL_NORMAL_ARRAY);
 
-			for(int i = 0; i < surface->size(); ++i) {
+			for(int i = 0; i < (int)surface->size(); ++i) {
 				SurfaceData &data = (*surface)[i];
 
 				if(useVBOs == true) {
@@ -4636,7 +4636,7 @@ void Renderer::renderObjects(const int renderFps) {
 	}
 
 	const World *world= game->getWorld();
-	const Map *map= world->getMap();
+	//const Map *map= world->getMap();
 
 	Config &config= Config::getInstance();
 	int tilesetObjectsToAnimate=config.getInt("AnimatedTilesetObjects","-1");
@@ -4901,7 +4901,7 @@ void Renderer::renderTeamColorCircle(){
 		glLineWidth(2.f);
 
 		for(int visibleUnitIndex = 0;
-							visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
+							visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 				Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 				Vec3f currVec= unit->getCurrVectorFlat();
 				Vec3f color=unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0);
@@ -4930,7 +4930,7 @@ void Renderer::renderSpecialHighlightUnits(std::map<int,HighlightSpecialUnitInfo
 		glLineWidth(2.f);
 
 		for(int visibleUnitIndex = 0;
-							visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
+							visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 				Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 
 				std::map<int,HighlightSpecialUnitInfo>::iterator iterFindSpecialUnit = unitHighlightList.find(unit->getId());
@@ -4980,7 +4980,7 @@ void Renderer::renderTeamColorPlane(){
 		glEnable(GL_COLOR_MATERIAL);
 		const Texture2D *texture=CoreData::getInstance().getTeamColorTexture();
 		for(int visibleUnitIndex = 0;
-				visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex){
+				visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex){
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 			Vec3f currVec= unit->getCurrVectorFlat();
 			renderTeamColorEffect(currVec,visibleUnitIndex,unit->getType()->getSize(),
@@ -5068,7 +5068,7 @@ void Renderer::renderUnits(const int renderFps) {
 	if(qCache.visibleQuadUnitList.empty() == false) {
 		bool modelRenderStarted = false;
 		for(int visibleUnitIndex = 0;
-				visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
+				visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 
 			meshCallbackTeamColor.setTeamTexture(unit->getFaction()->getTexture());
@@ -5187,7 +5187,7 @@ void Renderer::renderUnitsToBuild(const int renderFps) {
 		modelRenderer->begin(true, true, false, false);
 
 		for(int visibleUnitIndex = 0;
-				visibleUnitIndex < qCache.visibleQuadUnitBuildList.size(); ++visibleUnitIndex) {
+				visibleUnitIndex < (int)qCache.visibleQuadUnitBuildList.size(); ++visibleUnitIndex) {
 			const UnitBuildInfo &buildUnit = qCache.visibleQuadUnitBuildList[visibleUnitIndex];
 			//Vec4f modelColor= Vec4f(0.f, 1.f, 0.f, 0.5f);
 			const Vec3f teamColor = buildUnit.unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0);
@@ -5245,7 +5245,7 @@ void Renderer::renderMorphEffects(){
 		bool initialized=false;
 		int frameCycle=0;
 		for(int visibleUnitIndex = 0;
-							visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
+							visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 			if(unit->getCurrSkill() != NULL && unit->getCurrSkill()->getClass() == scMorph) {
 				Command *command= unit->getCurrCommand();
@@ -5355,7 +5355,7 @@ void Renderer::renderSelectionEffects() {
 					vector<Vec2i> pathList = dynamic_cast<const UnitPathBasic *>(path)->getQueue();
 
 					Vec2i lastPosValue;
-					for(int i = 0; i < pathList.size(); ++i) {
+					for(int i = 0; i < (int)pathList.size(); ++i) {
 						Vec2i curPosValue = pathList[i];
 						if(i == 0) {
 							lastPosValue = curPosValue;
@@ -5857,9 +5857,9 @@ void Renderer::renderMinimap(){
 		visibleUnitList.clear();
 
 		const World *world= game->getWorld();
-		for(unsigned int i = 0; i < world->getFactionCount(); ++i) {
+		for(unsigned int i = 0; i < (unsigned int)world->getFactionCount(); ++i) {
 			const Faction *faction = world->getFaction(i);
-			for(unsigned int j = 0; j < faction->getUnitCount(); ++j) {
+			for(unsigned int j = 0; j < (unsigned int)faction->getUnitCount(); ++j) {
 				Unit *unit = faction->getUnit(j);
 				visibleUnitList.push_back(unit);
 			}
@@ -5874,7 +5874,7 @@ void Renderer::renderMinimap(){
 		unit_colors.resize(visibleUnitList.size()*4);
 
 		for(int visibleIndex = 0;
-				visibleIndex < visibleUnitList.size(); ++visibleIndex) {
+				visibleIndex < (int)visibleUnitList.size(); ++visibleIndex) {
 			Unit *unit = visibleUnitList[visibleIndex];
 			if (unit->isAlive() == false) {
 				continue;
@@ -5981,7 +5981,7 @@ void Renderer::renderHighlightedCellsOnMinimap() {
 			static_cast<float>(mw)/ pixmap->getW()/2,
 			static_cast<float>(mh)/ pixmap->getH()/2);
 
-		for(int i = 0;i < highlightedCells->size(); i++) {
+		for(int i = 0;i < (int)highlightedCells->size(); i++) {
 			const MarkedCell *mc=&highlightedCells->at(i);
 			if(mc->getFaction() == NULL || (mc->getFaction()->getTeam() == game->getWorld()->getThisFaction()->getTeam())) {
 				const Texture2D *texture= game->getHighlightCellTexture();
@@ -6717,7 +6717,7 @@ void Renderer::selectUsingFrustumSelection(Selection::UnitContainer &units,
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	if(qCache.visibleQuadUnitList.empty() == false) {
 		for(int visibleUnitIndex = 0;
-				visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
+				visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 			if(unit != NULL && unit->isAlive()) {
 				Vec3f unitPos = unit->getCurrVector();
@@ -6733,7 +6733,7 @@ void Renderer::selectUsingFrustumSelection(Selection::UnitContainer &units,
 	if(withObjectSelection == true) {
 		if(qCache.visibleObjectList.empty() == false) {
 			for(int visibleIndex = 0;
-					visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
+					visibleIndex < (int)qCache.visibleObjectList.size(); ++visibleIndex) {
 				Object *object = qCache.visibleObjectList[visibleIndex];
 				if(object != NULL) {
 					bool insideQuad = CubeInFrustum(quadSelectionCacheItem.frustumData,
@@ -6913,7 +6913,7 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 				int index = pickedList[i];
 				//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d units = %d objects = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,index,rendererUnits.size(),rendererObjects.size());
 
-				if(rendererUnits.empty() == false && index < rendererUnits.size()) {
+				if(rendererUnits.empty() == false && index < (int)rendererUnits.size()) {
 					Unit *unit = rendererUnits[index];
 					if(unit != NULL && unit->isAlive()) {
 						unitFound=true;
@@ -6941,7 +6941,7 @@ void Renderer::selectUsingColorPicking(Selection::UnitContainer &units,
 					int index = pickedList[i];
 					//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d units = %d objects = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,index,rendererUnits.size(),rendererObjects.size());
 
-					if(rendererObjects.empty() == false && index < rendererObjects.size()) {
+					if(rendererObjects.empty() == false && index < (int)rendererObjects.size()) {
 						Object *object = rendererObjects[index];
 						//printf("In [%s::%s] Line: %d searching for selected object i = %d index = %d [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,index,object);
 
@@ -7182,7 +7182,7 @@ string Renderer::getGlMoreInfo(){
 
 		string extensions= getGlExtensions();
 		int charCount= 0;
-		for(int i=0; i<extensions.size(); ++i){
+		for(int i = 0; i < (int)extensions.size(); ++i) {
 			infoStr+= extensions[i];
 			if(charCount>120 && extensions[i]==' '){
 				infoStr+= "\n   ";
@@ -7197,7 +7197,7 @@ string Renderer::getGlMoreInfo(){
 
 		charCount= 0;
 		string platformExtensions= getGlPlatformExtensions();
-		for(int i=0; i<platformExtensions.size(); ++i){
+		for(int i = 0; i < (int)platformExtensions.size(); ++i) {
 			infoStr+= platformExtensions[i];
 			if(charCount>120 && platformExtensions[i]==' '){
 				infoStr+= "\n   ";
@@ -7402,7 +7402,7 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 	}
 
 	assert(game != NULL);
-	const World *world= game->getWorld();
+	//const World *world= game->getWorld();
 	assert(world != NULL);
 
 	VisibleQuadContainerCache &qCache = getQuadCache();
@@ -7424,7 +7424,7 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 				renderOnlyBuildings=false;
 			}
 			for(int visibleUnitIndex = 0;
-					visibleUnitIndex < qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
+					visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 				Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 
 				if(renderOnlyBuildings==true && unit->getType()->hasSkillClass(scMove)){
@@ -7539,7 +7539,7 @@ vector<Object *>  Renderer::renderObjectsFast(bool renderingShadows, bool resour
 
 		bool modelRenderStarted = false;
 		for(int visibleIndex = 0;
-				visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
+				visibleIndex < (int)qCache.visibleObjectList.size(); ++visibleIndex) {
 			Object *o = qCache.visibleObjectList[visibleIndex];
 
 			if(modelRenderStarted == false) {
@@ -8440,7 +8440,7 @@ void Renderer::renderUnitTitles3D(Font3D *font, Vec3f color) {
 	if(visibleFrameUnitList.empty() == false) {
 		//printf("Render Unit titles ON\n");
 
-		for(int idx = 0; idx < visibleFrameUnitList.size(); idx++) {
+		for(int idx = 0; idx < (int)visibleFrameUnitList.size(); idx++) {
 			const Unit *unit = visibleFrameUnitList[idx];
 			if(unit != NULL) {
 				if(unit->getVisible() == true) {
@@ -8494,7 +8494,7 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 	if(visibleFrameUnitList.empty() == false) {
 		//printf("Render Unit titles ON\n");
 
-		for(int idx = 0; idx < visibleFrameUnitList.size(); idx++) {
+		for(int idx = 0; idx < (int)visibleFrameUnitList.size(); idx++) {
 			const Unit *unit = visibleFrameUnitList[idx];
 			if(unit != NULL) {
 				if(unit->getCurrentUnitTitle() != "") {
@@ -8539,7 +8539,7 @@ void Renderer::renderUnitTitles(Font2D *font, Vec3f color) {
 void Renderer::removeObjectFromQuadCache(const Object *o) {
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	for(int visibleIndex = 0;
-			visibleIndex < qCache.visibleObjectList.size(); ++visibleIndex) {
+			visibleIndex < (int)qCache.visibleObjectList.size(); ++visibleIndex) {
 		Object *currentObj = qCache.visibleObjectList[visibleIndex];
 		if(currentObj == o) {
 			qCache.visibleObjectList.erase(qCache.visibleObjectList.begin() + visibleIndex);
@@ -8551,7 +8551,7 @@ void Renderer::removeObjectFromQuadCache(const Object *o) {
 void Renderer::removeUnitFromQuadCache(const Unit *unit) {
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	for(int visibleIndex = 0;
-			visibleIndex < qCache.visibleQuadUnitList.size(); ++visibleIndex) {
+			visibleIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleIndex) {
 		Unit *currentUnit = qCache.visibleQuadUnitList[visibleIndex];
 		if(currentUnit == unit) {
 			qCache.visibleQuadUnitList.erase(qCache.visibleQuadUnitList.begin() + visibleIndex);
@@ -8559,7 +8559,7 @@ void Renderer::removeUnitFromQuadCache(const Unit *unit) {
 		}
 	}
 	for(int visibleIndex = 0;
-			visibleIndex < qCache.visibleUnitList.size(); ++visibleIndex) {
+			visibleIndex < (int)qCache.visibleUnitList.size(); ++visibleIndex) {
 		Unit *currentUnit = qCache.visibleUnitList[visibleIndex];
 		if(currentUnit == unit) {
 			qCache.visibleUnitList.erase(qCache.visibleUnitList.begin() + visibleIndex);
@@ -8678,7 +8678,7 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 				const Map *map= world->getMap();
 				// clear visibility of old objects
 				for(int visibleIndex = 0;
-					visibleIndex < quadCache.visibleObjectList.size(); ++visibleIndex){
+					visibleIndex < (int)quadCache.visibleObjectList.size(); ++visibleIndex){
 					quadCache.visibleObjectList[visibleIndex]->setVisible(false);
 				}
 				quadCache.clearNonVolatileCacheData();
@@ -9260,7 +9260,7 @@ uint64 Renderer::getCurrentPixelByteCount(ResourceScope rs) const {
 	for(int i = (rs == rsCount ? 0 : rs); i < rsCount; ++i) {
 		if(textureManager[i] != NULL) {
 			const Shared::Graphics::TextureContainer &textures = textureManager[i]->getTextures();
-			for(int j = 0; j < textures.size(); ++j) {
+			for(int j = 0; j < (int)textures.size(); ++j) {
 				const Texture *texture = textures[j];
 				result += texture->getPixelByteCount();
 			}

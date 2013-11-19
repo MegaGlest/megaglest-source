@@ -252,14 +252,14 @@ void MenuStateAbout::render() {
 
 			for(int i= 0; i < teammateCount; ++i) {
 				int characterPos = (i % teammateTopLineCount);
-				if(characterPos < characterMenuScreenPositionListCache.size()) {
+				if(characterPos < (int)characterMenuScreenPositionListCache.size()) {
 					adjustModelText = false;
 
 					int xPos = characterMenuScreenPositionListCache[characterPos].x;
-					if(i == 7 && characterPos+1 < characterMenuScreenPositionListCache.size()) {
+					if(i == 7 && characterPos+1 < (int)characterMenuScreenPositionListCache.size()) {
 						xPos += ((characterMenuScreenPositionListCache[characterPos+1].x - characterMenuScreenPositionListCache[characterPos].x) / 2);
 					}
-					else if(i == 8 && characterPos+1 < characterMenuScreenPositionListCache.size()) {
+					else if(i == 8 && characterPos+1 < (int)characterMenuScreenPositionListCache.size()) {
 						xPos = characterMenuScreenPositionListCache[characterPos+1].x;
 					}
 

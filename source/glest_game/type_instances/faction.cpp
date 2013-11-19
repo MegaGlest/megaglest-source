@@ -37,14 +37,14 @@ bool CommandGroupUnitSorterId::operator()(const int l, const int r) {
 	if(!lUnit) {
 		printf("Error lUnit == NULL for id = %d factionIndex = %d\n",l,faction->getIndex());
 
-		for(unsigned int i = 0; i < faction->getUnitCount(); ++i) {
+		for(unsigned int i = 0; i < (unsigned int)faction->getUnitCount(); ++i) {
 			printf("%u / %d id = %d [%s]\n",i,faction->getUnitCount(),faction->getUnit(i)->getId(),faction->getUnit(i)->getType()->getName(false).c_str());
 		}
 	}
 	if(!rUnit) {
 		printf("Error rUnit == NULL for id = %d factionIndex = %d\n",r,faction->getIndex());
 
-		for(unsigned int i = 0; i < faction->getUnitCount(); ++i) {
+		for(unsigned int i = 0; i < (unsigned int)faction->getUnitCount(); ++i) {
 			printf("%u / %d id = %d [%s]\n",i,faction->getUnitCount(),faction->getUnit(i)->getId(),faction->getUnit(i)->getType()->getName(false).c_str());
 		}
 	}
@@ -172,7 +172,7 @@ void Faction::sortUnitsByCommandGroups() {
 
 	//printf("====== Done sorting for faction # %d [%s] unitCount = %d\n",this->getIndex(),this->getType()->getName().c_str(),units.size());
 
-	unsigned int originalUnitSize = (unsigned int)units.size();
+	//unsigned int originalUnitSize = (unsigned int)units.size();
 
 	std::vector<int> unitIds;
 	for(unsigned int i = 0; i < units.size(); ++i) {
@@ -751,13 +751,13 @@ void Faction::init(
 // ================== get ==================
 
 const Resource *Faction::getResource(const ResourceType *rt) const{
-	for(int i=0; i<resources.size(); ++i){
+	for(int i = 0; i < (int)resources.size(); ++i){
 		if(rt==resources[i].getType()){
 			return &resources[i];
 		}
 	}
 	printf("ERROR cannot find resource type [%s] in list:\n",(rt != NULL ? rt->getName().c_str() : "null"));
-	for(int i=0; i<resources.size(); ++i){
+	for(int i=0; i < (int)resources.size(); ++i){
 		printf("Index %d [%s]",i,resources[i].getType()->getName().c_str());
 	}
 
@@ -766,13 +766,13 @@ const Resource *Faction::getResource(const ResourceType *rt) const{
 }
 
 int Faction::getStoreAmount(const ResourceType *rt) const{
-	for(int i=0; i<store.size(); ++i){
+	for(int i=0; i < (int)store.size(); ++i){
 		if(rt==store[i].getType()){
 			return store[i].getAmount();
 		}
 	}
 	printf("ERROR cannot find store type [%s] in list:\n",(rt != NULL ? rt->getName().c_str() : "null"));
-	for(int i=0; i<store.size(); ++i){
+	for(int i=0; i < (int)store.size(); ++i){
 		printf("Index %d [%s]",i,store[i].getType()->getName().c_str());
 	}
 
@@ -1133,7 +1133,7 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 				// Apply consequences to consumer units of this resource type
 				std::vector<Unit *> &resourceConsumers = iter->second.second;
 
-				for(int i = 0; i < resourceConsumers.size(); ++i) {
+				for(int i = 0; i < (int)resourceConsumers.size(); ++i) {
 					Unit *unit = resourceConsumers[i];
 
 					//decrease unit hp
@@ -1194,7 +1194,7 @@ bool Faction::isAlly(const Faction *faction) {
 // ================== misc ==================
 
 void Faction::incResourceAmount(const ResourceType *rt, int amount) {
-	for(int i=0; i<resources.size(); ++i) {
+	for(int i=0; i < (int)resources.size(); ++i) {
 		Resource *r= &resources[i];
 		if(r->getType()==rt) {
 			r->setAmount(r->getAmount()+amount);
@@ -1208,7 +1208,7 @@ void Faction::incResourceAmount(const ResourceType *rt, int amount) {
 }
 
 void Faction::setResourceBalance(const ResourceType *rt, int balance){
-	for(int i=0; i<resources.size(); ++i){
+	for(int i=0; i < (int)resources.size(); ++i){
 		Resource *r= &resources[i];
 		if(r->getType()==rt){
 			r->setBalance(balance);
@@ -1238,7 +1238,7 @@ void Faction::removeUnit(Unit *unit){
 	assert(units.size()==unitMap.size());
 
 	int unitId = unit->getId();
-	for(int i=0; i<units.size(); ++i) {
+	for(int i=0; i < (int)units.size(); ++i) {
 		if(units[i]->getId() == unitId) {
 			units.erase(units.begin()+i);
 			unitMap.erase(unitId);
@@ -1259,7 +1259,7 @@ void Faction::addStore(const UnitType *unitType, bool replaceStorage) {
 		const Resource *newUnitStoredResource = unitType->getStoredResource(newUnitStoredResourceIndex);
 
 		for(int currentStoredResourceIndex = 0;
-				currentStoredResourceIndex < store.size();
+				currentStoredResourceIndex < (int)store.size();
 				++currentStoredResourceIndex) {
 			Resource *storedResource= &store[currentStoredResourceIndex];
 
@@ -1279,7 +1279,7 @@ void Faction::removeStore(const UnitType *unitType){
 	assert(unitType != NULL);
 	for(int i=0; i<unitType->getStoredResourceCount(); ++i){
 		const Resource *r= unitType->getStoredResource(i);
-		for(int j=0; j<store.size(); ++j){
+		for(int j=0; j < (int)store.size(); ++j){
 			Resource *storedResource= &store[j];
 			if(storedResource->getType() == r->getType()){
 				storedResource->setAmount(storedResource->getAmount() - r->getAmount());
@@ -1290,7 +1290,7 @@ void Faction::removeStore(const UnitType *unitType){
 }
 
 void Faction::limitResourcesToStore() {
-	for(int i=0; i<resources.size(); ++i) {
+	for(int i=0; i < (int)resources.size(); ++i) {
 		Resource *r= &resources[i];
 		Resource *s= &store[i];
 		if(r->getType()->getClass() != rcStatic && r->getAmount()>s->getAmount()) {
@@ -1300,7 +1300,7 @@ void Faction::limitResourcesToStore() {
 }
 
 void Faction::resetResourceAmount(const ResourceType *rt){
-	for(int i=0; i<resources.size(); ++i){
+	for(int i=0; i < (int)resources.size(); ++i){
 		if(resources[i].getType()==rt){
 			resources[i].setAmount(0);
 			return;
@@ -1694,7 +1694,7 @@ void Faction::cleanupResourceTypeTargetCache(std::vector<Vec2i> *deleteListPtr,i
 						}
 					}
 
-					for(int i = 0; i < deleteList.size(); ++i) {
+					for(int i = 0; i < (int)deleteList.size(); ++i) {
 						Vec2i &cache = deleteList[i];
 						cacheResourceTargetList.erase(cache);
 					}
@@ -1872,7 +1872,7 @@ Unit * Faction::findClosestUnitWithSkillClass(	const Vec2i &pos,const CommandCla
 			if(isUnitPossibleCandidate == true && skillClassList.empty() == false) {
 				isUnitPossibleCandidate = false;
 
-				for(int j = 0; j < skillClassList.size(); ++j) {
+				for(int j = 0; j < (int)skillClassList.size(); ++j) {
 					SkillClass skValue = skillClassList[j];
 					if(curUnit->getCurrSkill()->getClass() == skValue) {
 						isUnitPossibleCandidate = true;
@@ -2103,22 +2103,22 @@ std::string Faction::toString(bool crcMode) const {
 	result += this->upgradeManager.toString() + "\n";
 
 	result += "ResourceCount = " + intToStr(resources.size()) + "\n";
-	for(int idx = 0; idx < resources.size(); idx ++) {
+	for(int idx = 0; idx < (int)resources.size(); idx ++) {
 		result += "index = " + intToStr(idx) + " " + resources[idx].toString() + "\n";
 	}
 
 	result += "StoreCount = " + intToStr(store.size()) + "\n";
-	for(int idx = 0; idx < store.size(); idx ++) {
+	for(int idx = 0; idx < (int)store.size(); idx ++) {
 		result += "index = " + intToStr(idx) + " " + store[idx].toString()  + "\n";
 	}
 
 	result += "Allies = " + intToStr(allies.size()) + "\n";
-	for(int idx = 0; idx < allies.size(); idx ++) {
+	for(int idx = 0; idx < (int)allies.size(); idx ++) {
 		result += "index = " + intToStr(idx) + " name: " + allies[idx]->factionType->getName(false) + " factionindex = " + intToStr(allies[idx]->index)  + "\n";
 	}
 
 	result += "Units = " + intToStr(units.size()) + "\n";
-	for(int idx = 0; idx < units.size(); idx ++) {
+	for(int idx = 0; idx < (int)units.size(); idx ++) {
 		result += units[idx]->toString(crcMode) + "\n";
 	}
 
@@ -2415,7 +2415,7 @@ Checksum Faction::getCRC() {
 }
 
 void Faction::addCRC_DetailsForWorldFrame(int worldFrameCount,bool isNetworkServer) {
-	int MAX_FRAME_CACHE = 250;
+	unsigned int MAX_FRAME_CACHE = 250;
 	if(isNetworkServer == true) {
 		MAX_FRAME_CACHE += 250;
 	}
@@ -2430,10 +2430,10 @@ void Faction::addCRC_DetailsForWorldFrame(int worldFrameCount,bool isNetworkServ
 		unit->clearParticleInfo();
 	}
 
-	if(crcWorldFrameDetails.size() > MAX_FRAME_CACHE) {
+	if((unsigned int)crcWorldFrameDetails.size() > MAX_FRAME_CACHE) {
 		//printf("===> Removing older world frame log entries: %lld\n",(long long int)crcWorldFrameDetails.size());
 
-		for(;crcWorldFrameDetails.size() - MAX_FRAME_CACHE > 0;) {
+		for(;(unsigned int)crcWorldFrameDetails.size() - MAX_FRAME_CACHE > 0;) {
 			crcWorldFrameDetails.erase(crcWorldFrameDetails.begin());
 		}
 	}

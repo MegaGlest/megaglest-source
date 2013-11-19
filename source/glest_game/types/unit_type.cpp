@@ -282,10 +282,10 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 			for(int i=0; i<size; ++i){
 				const XmlNode *rowNode= cellMapNode->getChild("row", i);
 				string row= rowNode->getAttribute("value")->getRestrictedValue();
-				if(row.size()!=size){
+				if((int)row.size() != size){
 					throw megaglest_runtime_error("Cellmap row has not the same length as unit size",validationMode);
 				}
-				for(int j=0; j<row.size(); ++j){
+				for(int j=0; j < (int)row.size(); ++j){
 					cellMap[i*size+j]= row[j]=='0'? false: true;
 				}
 			}
@@ -294,7 +294,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		//levels
 		const XmlNode *levelsNode= parametersNode->getChild("levels");
 		levels.resize(levelsNode->getChildCount());
-		for(int i=0; i<levels.size(); ++i){
+		for(int i=0; i < (int)levels.size(); ++i){
 			const XmlNode *levelNode= levelsNode->getChild("level", i);
 
 			levels[i].init(
@@ -304,7 +304,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 
 		//fields
 		const XmlNode *fieldsNode= parametersNode->getChild("fields");
-		for(int i=0; i<fieldsNode->getChildCount(); ++i){
+		for(int i=0; i < (int)fieldsNode->getChildCount(); ++i){
 			const XmlNode *fieldNode= fieldsNode->getChild("field", i);
 			string fieldName= fieldNode->getAttribute("value")->getRestrictedValue();
 			if(fieldName=="land"){
@@ -330,7 +330,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 
 		//properties
 		const XmlNode *propertiesNode= parametersNode->getChild("properties");
-		for(int i = 0; i < propertiesNode->getChildCount(); ++i) {
+		for(int i = 0; i < (int)propertiesNode->getChildCount(); ++i) {
 			const XmlNode *propertyNode= propertiesNode->getChild("property", i);
 			string propertyName= propertyNode->getAttribute("value")->getRestrictedValue();
 			bool found= false;
@@ -351,7 +351,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 			bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
 
 			if(particleEnabled) {
-				for(int i = 0; i < particleNode->getChildCount(); ++i) {
+				for(int i = 0; i < (int)particleNode->getChildCount(); ++i) {
 					const XmlNode *particleFileNode= particleNode->getChild("particle-file", i);
 					string path= particleFileNode->getAttribute("path")->getRestrictedValue();
 					UnitParticleSystemType *unitParticleSystemType= new UnitParticleSystemType();
@@ -401,7 +401,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		//unit requirements
 		bool hasDup = false;
 		const XmlNode *unitRequirementsNode= parametersNode->getChild("unit-requirements");
-		for(int i=0; i<unitRequirementsNode->getChildCount(); ++i){
+		for(int i=0; i < (int)unitRequirementsNode->getChildCount(); ++i){
 			const XmlNode *unitNode= 	unitRequirementsNode->getChild("unit", i);
 			string name= unitNode->getAttribute("name")->getRestrictedValue();
 
@@ -424,7 +424,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 
 		//upgrade requirements
 		const XmlNode *upgradeRequirementsNode= parametersNode->getChild("upgrade-requirements");
-		for(int i=0; i<upgradeRequirementsNode->getChildCount(); ++i){
+		for(int i=0; i < (int)upgradeRequirementsNode->getChildCount(); ++i){
 			const XmlNode *upgradeReqNode= upgradeRequirementsNode->getChild("upgrade", i);
 			string name= upgradeReqNode->getAttribute("name")->getRestrictedValue();
 
@@ -449,7 +449,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		//resource requirements
 		const XmlNode *resourceRequirementsNode= parametersNode->getChild("resource-requirements");
 		costs.resize(resourceRequirementsNode->getChildCount());
-		for(int i = 0; i < costs.size(); ++i) {
+		for(int i = 0; i < (int)costs.size(); ++i) {
 			const XmlNode *resourceNode= resourceRequirementsNode->getChild("resource", i);
 			string name= resourceNode->getAttribute("name")->getRestrictedValue();
 			int amount= resourceNode->getAttribute("amount")->getIntValue();
@@ -490,7 +490,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		//resources stored
 		const XmlNode *resourcesStoredNode= parametersNode->getChild("resources-stored");
 		storedResources.resize(resourcesStoredNode->getChildCount());
-		for(int i=0; i<storedResources.size(); ++i){
+		for(int i=0; i < (int)storedResources.size(); ++i){
 			const XmlNode *resourceNode= resourcesStoredNode->getChild("resource", i);
 			string name= resourceNode->getAttribute("name")->getRestrictedValue();
 			int amount= resourceNode->getAttribute("amount")->getIntValue();
@@ -597,7 +597,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		const XmlNode *selectionSoundNode= parametersNode->getChild("selection-sounds");
 		if(selectionSoundNode->getAttribute("enabled")->getBoolValue()){
 			selectionSounds.resize((int)selectionSoundNode->getChildCount());
-			for(int i = 0; i < selectionSounds.getSounds().size(); ++i) {
+			for(int i = 0; i < (int)selectionSounds.getSounds().size(); ++i) {
 				const XmlNode *soundNode= selectionSoundNode->getChild("sound", i);
 				string path= soundNode->getAttribute("path")->getRestrictedValue(currentPath);
 				StaticSound *sound= new StaticSound();
@@ -611,7 +611,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		const XmlNode *commandSoundNode= parametersNode->getChild("command-sounds");
 		if(commandSoundNode->getAttribute("enabled")->getBoolValue()) {
 			commandSounds.resize((int)commandSoundNode->getChildCount());
-			for(int i = 0; i < commandSoundNode->getChildCount(); ++i) {
+			for(int i = 0; i < (int)commandSoundNode->getChildCount(); ++i) {
 				const XmlNode *soundNode= commandSoundNode->getChild("sound", i);
 				string path= soundNode->getAttribute("path")->getRestrictedValue(currentPath);
 				StaticSound *sound= new StaticSound();
@@ -634,7 +634,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingUnitTypeSkills","",true).c_str(),formatString(this->getName(true)).c_str(),skillTypes.size());
 		Logger::getInstance().add(szBuf, true);
 
-		for(int i = 0; i < skillTypes.size(); ++i) {
+		for(int i = 0; i < (int)skillTypes.size(); ++i) {
 			const XmlNode *sn= skillsNode->getChild("skill", i);
 			const XmlNode *typeNode= sn->getChild("type");
 			string classId= typeNode->getAttribute("value")->getRestrictedValue();
@@ -658,7 +658,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		//commands
 		const XmlNode *commandsNode= unitNode->getChild("commands");
 		commandTypes.resize(commandsNode->getChildCount());
-		for(int i = 0; i < commandTypes.size(); ++i) {
+		for(int i = 0; i < (int)commandTypes.size(); ++i) {
 			const XmlNode *commandNode= commandsNode->getChild("command", i);
 			const XmlNode *typeNode= commandNode->getChild("type");
 			string classId= typeNode->getAttribute("value")->getRestrictedValue();
@@ -755,7 +755,7 @@ const SkillType *UnitType::getFirstStOfClass(SkillClass skillClass) const{
 }
 
 const HarvestCommandType *UnitType::getFirstHarvestCommand(const ResourceType *resourceType, const Faction *faction) const {
-	for(int i = 0; i < commandTypes.size(); ++i) {
+	for(int i = 0; i < (int)commandTypes.size(); ++i) {
 		if(commandTypes[i]->getClass() == ccHarvest) {
 			const HarvestCommandType *hct = static_cast<const HarvestCommandType*>(commandTypes[i]);
 
@@ -779,7 +779,7 @@ const HarvestEmergencyReturnCommandType *UnitType::getFirstHarvestEmergencyRetur
 const AttackCommandType *UnitType::getFirstAttackCommand(Field field) const{
 	//printf("$$$ Unit [%s] commandTypes.size() = %d\n",this->getName().c_str(),(int)commandTypes.size());
 
-	for(int i = 0; i < commandTypes.size(); ++i){
+	for(int i = 0; i < (int)commandTypes.size(); ++i){
 		if(commandTypes[i] == NULL) {
 			throw megaglest_runtime_error("commandTypes[i] == NULL");
 		}
@@ -800,7 +800,7 @@ const AttackCommandType *UnitType::getFirstAttackCommand(Field field) const{
 const AttackStoppedCommandType *UnitType::getFirstAttackStoppedCommand(Field field) const{
 	//printf("$$$ Unit [%s] commandTypes.size() = %d\n",this->getName().c_str(),(int)commandTypes.size());
 
-	for(int i = 0; i < commandTypes.size(); ++i){
+	for(int i = 0; i < (int)commandTypes.size(); ++i){
 		if(commandTypes[i] == NULL) {
 			throw megaglest_runtime_error("commandTypes[i] == NULL");
 		}
@@ -819,7 +819,7 @@ const AttackStoppedCommandType *UnitType::getFirstAttackStoppedCommand(Field fie
 }
 
 const RepairCommandType *UnitType::getFirstRepairCommand(const UnitType *repaired) const{
-	for(int i=0; i<commandTypes.size(); ++i){
+	for(int i=0; i < (int)commandTypes.size(); ++i){
 		if(commandTypes[i]->getClass()== ccRepair){
 			const RepairCommandType *rct= static_cast<const RepairCommandType*>(commandTypes[i]);
 			if(rct->isRepairableUnitType(repaired)){
@@ -895,7 +895,7 @@ bool UnitType::getCellMapCell(int x, int y, CardinalDir facing) const {
 }
 
 int UnitType::getStore(const ResourceType *rt) const{
-    for(int i=0; i<storedResources.size(); ++i){
+    for(int i=0; i < (int)storedResources.size(); ++i){
 		if(storedResources[i].getType()==rt){
             return storedResources[i].getAmount();
 		}
@@ -904,7 +904,7 @@ int UnitType::getStore(const ResourceType *rt) const{
 }
 
 const SkillType *UnitType::getSkillType(const string &skillName, SkillClass skillClass) const{
-	for(int i=0; i<skillTypes.size(); ++i){
+	for(int i=0; i < (int)skillTypes.size(); ++i){
 		if(skillTypes[i]->getName()==skillName){
 			if(skillTypes[i]->getClass()==skillClass){
 				return skillTypes[i];
@@ -975,7 +975,7 @@ bool UnitType::hasCommandType(const CommandType *commandType) const {
 		return true;
 	}
 
-    for(int i=0; i<commandTypes.size(); ++i) {
+    for(int i=0; i < (int)commandTypes.size(); ++i) {
         if(commandTypes[i]==commandType) {
             return true;
         }
@@ -985,7 +985,7 @@ bool UnitType::hasCommandType(const CommandType *commandType) const {
 
 bool UnitType::hasSkillType(const SkillType *skillType) const {
     assert(skillType!=NULL);
-    for(int i=0; i<skillTypes.size(); ++i) {
+    for(int i=0; i < (int)skillTypes.size(); ++i) {
         if(skillTypes[i]==skillType) {
             return true;
         }
@@ -1013,7 +1013,7 @@ bool UnitType::isOfClass(UnitClass uc) const{
 void UnitType::computeFirstStOfClass() {
 	for(int j= 0; j < scCount; ++j) {
         firstSkillTypeOfClass[j]= NULL;
-        for(int i= 0; i < skillTypes.size(); ++i) {
+        for(int i= 0; i < (int)skillTypes.size(); ++i) {
             if(skillTypes[i] != NULL && skillTypes[i]->getClass()== SkillClass(j)) {
                 firstSkillTypeOfClass[j]= skillTypes[i];
                 break;
@@ -1025,7 +1025,7 @@ void UnitType::computeFirstStOfClass() {
 void UnitType::computeFirstCtOfClass() {
     for(int j = 0; j < ccCount; ++j) {
         firstCommandTypeOfClass[j]= NULL;
-        for(int i = 0; i < commandTypes.size(); ++i) {
+        for(int i = 0; i < (int)commandTypes.size(); ++i) {
             if(commandTypes[i] != NULL && commandTypes[i]->getClass() == CommandClass(j)) {
                 firstCommandTypeOfClass[j] = commandTypes[i];
                 break;
@@ -1050,7 +1050,7 @@ const CommandType* UnitType::findCommandTypeById(int id) const{
 }
 
 const CommandType *UnitType::getCommandType(int i) const {
-	if(i >= commandTypes.size()) {
+	if(i >= (int)commandTypes.size()) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] i >= commandTypes.size(), i = %d, commandTypes.size() = " MG_SIZE_T_SPECIFIER "",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,commandTypes.size());
 		throw megaglest_runtime_error(szBuf);
@@ -1131,22 +1131,22 @@ std::string UnitType::toString() const {
 	}
 
 	result += " skillTypes: [" + intToStr(skillTypes.size()) + "]";
-	for(int i = 0; i < skillTypes.size(); ++i) {
+	for(int i = 0; i < (int)skillTypes.size(); ++i) {
 		result += " i = " + intToStr(i) + " " + skillTypes[i]->toString(false);
 	}
 
 	result += " commandTypes: [" + intToStr(commandTypes.size()) + "]";
-	for(int i = 0; i < commandTypes.size(); ++i) {
+	for(int i = 0; i < (int)commandTypes.size(); ++i) {
 		result += " i = " + intToStr(i) + " " + commandTypes[i]->toString(false);
 	}
 
 	result += " storedResources: [" + intToStr(storedResources.size()) + "]";
-	for(int i = 0; i < storedResources.size(); ++i) {
+	for(int i = 0; i < (int)storedResources.size(); ++i) {
 		result += " i = " + intToStr(i) + " " + storedResources[i].getDescription(false);
 	}
 
 	result += " levels: [" + intToStr(levels.size()) + "]";
-	for(int i = 0; i < levels.size(); ++i) {
+	for(int i = 0; i < (int)levels.size(); ++i) {
 		result += " i = " + intToStr(i) + " " + levels[i].getName();
 	}
 
