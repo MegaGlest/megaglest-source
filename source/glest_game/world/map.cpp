@@ -1767,7 +1767,7 @@ void Map::saveGame(XmlNode *rootNode) const {
 			exploredList += ",";
 		}
 
-		for(unsigned int j = 0; j < GameConstants::maxPlayers; ++j) {
+		for(unsigned int j = 0; j < (unsigned int)GameConstants::maxPlayers; ++j) {
 			if(j > 0) {
 				exploredList += "|";
 			}
@@ -1779,7 +1779,7 @@ void Map::saveGame(XmlNode *rootNode) const {
 			visibleList += ",";
 		}
 
-		for(unsigned int j = 0; j < GameConstants::maxPlayers; ++j) {
+		for(unsigned int j = 0; j < (unsigned int)GameConstants::maxPlayers; ++j) {
 			if(j > 0) {
 				visibleList += "|";
 			}
