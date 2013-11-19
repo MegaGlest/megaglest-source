@@ -301,9 +301,9 @@ void Selection::saveGame(XmlNode *rootNode) const {
 		selectedUnitsNode->addAttribute("unitId",intToStr(unit->getId()), mapTagReplacements);
 	}
 //	UnitContainer groups[maxGroups];
-	for(unsigned int x = 0; x < maxGroups; ++x) {
+	for(unsigned int x = 0; x < (unsigned int)maxGroups; ++x) {
 		XmlNode *groupsNode = selectionNode->addChild("groups");
-		for(unsigned int i = 0; i < groups[x].size(); ++i) {
+		for(unsigned int i = 0; i < (unsigned int)groups[x].size(); ++i) {
 			Unit *unit = groups[x][i];
 
 			XmlNode *selectedUnitsNode = groupsNode->addChild("selectedUnits");

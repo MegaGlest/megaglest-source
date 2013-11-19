@@ -330,7 +330,8 @@ unsigned int pack(unsigned char *buf, const char *format, ...) {
 			packi64(buf, q);
 			buf += 8;
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack int64 = " MG_I64_SPECIFIER " [%X] q = " MG_I64_SPECIFIER " [%lX] buf pos = %lu\n",(int64)*(buf-8),*(buf-8),q,q,(unsigned long)(buf - bufStart));
+			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack int64 = " MG_I64_SPECIFIER " [%X] q = " MG_I64_SPECIFIER " [%lX] buf pos = %lu\n",(int64)*(buf-8),*(buf-8),q,q,(unsigned long)(buf - bufStart));
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("pack int64 = " MG_I64_SPECIFIER " [%X] q = " MG_I64_SPECIFIER " buf pos = %lu\n",(int64)*(buf-8),*(buf-8),q,(unsigned long)(buf - bufStart));
 			break;
 
 		case 'Q': // 64-bit unsigned
