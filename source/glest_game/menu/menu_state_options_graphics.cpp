@@ -47,7 +47,7 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		this->console.setOnlyChatMessagesInStoredLines(false);
 		screenModeChangedTimer= time(NULL); // just init
 		//modeinfos=list<ModeInfo> ();
-		Shared::PlatformCommon::getFullscreenVideoModes(&modeInfos,!config.getBool("Windowed"));
+		::Shared::PlatformCommon::getFullscreenVideoModes(&modeInfos,!config.getBool("Windowed"));
 
 		int leftLabelStart=50;
 		int leftColumnStart=leftLabelStart+280;

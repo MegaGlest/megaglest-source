@@ -21,6 +21,7 @@ MESSAGE(STATUS "Build type for this compile will be: ${CMAKE_BUILD_TYPE}")
 
 IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         SET(CMAKE_COMPILER_IS_GNUCXX "YES")
+        ADD_DEFINITIONS("-Qunused-arguments -Wno-switch")
 ENDIF()
 
 FUNCTION(Subversion_IS_WC FOLDER RESULT_VAR)

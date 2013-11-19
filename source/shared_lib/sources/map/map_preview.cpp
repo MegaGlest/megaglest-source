@@ -52,6 +52,7 @@ MapPreview::MapPreview() {
 	title = "";
 	desc = "";
 	author = "";
+	maxFactions = 0;
 	refAlt = DEFAULT_MAP_CELL_HEIGHT;
 	hasChanged = false;
 }
@@ -561,7 +562,7 @@ void MapPreview::reset(int w, int h, float alt, MapSurfaceType surf) {
 
 	this->w = w;
 	this->h = h;
-	this->maxFactions = maxFactions;
+	//this->maxFactions = maxFactions;
 
 	//cells = new Cell*[w];
 	cells.resize(w);
@@ -608,7 +609,7 @@ void MapPreview::resize(int w, int h, float alt, MapSurfaceType surf) {
 	int oldH = this->h;
 	this->w = w;
 	this->h = h;
-	this->maxFactions = maxFactions;
+	//this->maxFactions = maxFactions;
 
 	//create new cells
 	//Cell **oldCells = cells;

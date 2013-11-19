@@ -71,7 +71,7 @@ private:
 	time_t lastMasterserverHeartbeatTime;
 	bool needToRepublishToMasterserver;
 
-    Shared::PlatformCommon::FTPServerThread *ftpServer;
+    ::Shared::PlatformCommon::FTPServerThread *ftpServer;
     bool exitServer;
     int64 nextEventId;
 

@@ -37,7 +37,7 @@ using namespace Shared::PlatformCommon;
 
 namespace Shared { namespace Graphics {
 	class VideoPlayer;
-}}
+}};
 
 namespace Glest{ namespace Game{
 
@@ -197,7 +197,7 @@ private:
 	std::vector<std::pair<int,NetworkCommand> > replayCommandList;
 
 	std::vector<string> streamingVideos;
-	Shared::Graphics::VideoPlayer *videoPlayer;
+	::Shared::Graphics::VideoPlayer *videoPlayer;
 	bool playingStaticVideo;
 
 	Unit *currentCameraFollowUnit;

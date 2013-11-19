@@ -27,11 +27,11 @@
 
 namespace Glest{ namespace Game{
 
-using Shared::Sound::StrSound;
-using Shared::Sound::StaticSound;
-using Shared::Sound::SoundPlayer;
-using Shared::Graphics::Vec3f;
-using namespace Shared::PlatformCommon;
+using ::Shared::Sound::StrSound;
+using ::Shared::Sound::StaticSound;
+using ::Shared::Sound::SoundPlayer;
+using ::Shared::Graphics::Vec3f;
+using namespace ::Shared::PlatformCommon;
 
 // =====================================================
 // 	class SoundRenderer

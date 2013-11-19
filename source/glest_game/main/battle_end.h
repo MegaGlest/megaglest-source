@@ -46,7 +46,7 @@ private:
 	ProgramState *originState;
 	const char *containerName;
 
-	Shared::Graphics::VideoPlayer *menuBackgroundVideo;
+	::Shared::Graphics::VideoPlayer *menuBackgroundVideo;
 	GameSettings *gameSettings;
 	StrSound battleEndMusic;
 

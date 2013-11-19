@@ -51,7 +51,7 @@ private:
 	//shared
 	GameSettings gameSettings;
 	MenuBackground menuBackground;
-	Shared::Graphics::VideoPlayer *menuBackgroundVideo;
+	::Shared::Graphics::VideoPlayer *menuBackgroundVideo;
 
 	MenuState *state;
 

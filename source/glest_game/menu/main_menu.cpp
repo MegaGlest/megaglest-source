@@ -113,7 +113,7 @@ void MainMenu::init() {
 
 void MainMenu::initBackgroundVideo() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
-		Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true &&
+		::Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true &&
 		CoreData::getInstance().hasMainMenuVideoFilename() == true) {
 		string introVideoFile = CoreData::getInstance().getMainMenuVideoFilename();
 		string introVideoFileFallback = CoreData::getInstance().getMainMenuVideoFilenameFallback();

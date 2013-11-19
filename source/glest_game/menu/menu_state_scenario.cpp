@@ -25,7 +25,7 @@
 
 namespace Glest{ namespace Game{
 
-using namespace	Shared::Xml;
+using namespace	::Shared::Xml;
 
 // =====================================================
 // 	class MenuStateScenario
@@ -221,8 +221,8 @@ void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
 		return;
 	}
     else {
-    	if(Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
-    		const wchar_t lastKey = Shared::Platform::Window::extractLastKeyPressed();
+    	if(::Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
+    		const wchar_t lastKey = ::Shared::Platform::Window::extractLastKeyPressed();
 //        		xxx:
 //        		string hehe=lastKey;
 //        		printf("lastKey = %d [%c] '%s'\n",lastKey,lastKey,hehe);

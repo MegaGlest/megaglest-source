@@ -26,12 +26,12 @@
 
 namespace Glest{ namespace Game{
 
-using Shared::Graphics::Texture2D;
-using Shared::Graphics::Texture3D;
-using Shared::Graphics::Font2D;
-using Shared::Graphics::Font3D;
-using Shared::Sound::StrSound;
-using Shared::Sound::StaticSound;
+using ::Shared::Graphics::Texture2D;
+using ::Shared::Graphics::Texture3D;
+using ::Shared::Graphics::Font2D;
+using ::Shared::Graphics::Font3D;
+using ::Shared::Sound::StrSound;
+using ::Shared::Sound::StaticSound;
 
 // =====================================================
 // 	class CoreData  
@@ -47,7 +47,7 @@ private:
     StrSound menuMusic;
 	StaticSound clickSoundA;
     StaticSound clickSoundB;
-    StaticSound clickSoundC;    
+    StaticSound clickSoundC;
     StaticSound attentionSound;
     StaticSound highlightSound;
     StaticSound markerSound;
