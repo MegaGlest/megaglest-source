@@ -2213,7 +2213,7 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 		fromEndianHeader();
 		// Here we loop possibly multiple times
 		int packetLoopCount = 1;
-		if(data.header.techCRCFileCount > NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount) {
+		if(data.header.techCRCFileCount > (uint32)NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount) {
 			packetLoopCount = (data.header.techCRCFileCount / NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount);
 			if(data.header.techCRCFileCount % NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount > 0) {
 				packetLoopCount++;
@@ -2258,7 +2258,7 @@ void NetworkMessageSynchNetworkGameDataStatus::send(Socket* socket) {
 	if(totalFileCount > 0) {
 		// Here we loop possibly multiple times
 		int packetLoopCount = 1;
-		if(totalFileCount > NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount) {
+		if(totalFileCount > (uint32)NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount) {
 			packetLoopCount = (totalFileCount / NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount);
 			if(totalFileCount % NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount > 0) {
 				packetLoopCount++;
