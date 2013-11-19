@@ -471,7 +471,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 				Scenario::loadScenarioInfo(file, &scenarioInfo, isTutorial);
 
 				bool isNetworkScenario = false;
-				for(unsigned int j = 0; isNetworkScenario == false && j < GameConstants::maxPlayers; ++j) {
+				for(unsigned int j = 0; isNetworkScenario == false && j < (unsigned int)GameConstants::maxPlayers; ++j) {
 					if(scenarioInfo.factionControls[j] == ctNetwork) {
 						isNetworkScenario = true;
 					}
@@ -2687,7 +2687,7 @@ void MenuStateConnectedGame::update() {
 		checkBoxAllowObservers.setEditable(isHeadlessAdmin());
 
 		if(isHeadlessAdmin() == true) {
-			for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
+			for(unsigned int i = 0; i < (unsigned int)GameConstants::maxPlayers; ++i) {
 				listBoxControls[i].setEditable(isHeadlessAdmin());
 				listBoxRMultiplier[i].setEditable(isHeadlessAdmin());
 				listBoxFactions[i].setEditable(isHeadlessAdmin());
@@ -2967,7 +2967,7 @@ void MenuStateConnectedGame::update() {
 									}
 
 									if(foundFaction == false) {
-										if(mismatchedFactionText.length() > MAX_CHAT_TEXT_LINE_LENGTH) {
+										if((int)mismatchedFactionText.length() > MAX_CHAT_TEXT_LINE_LENGTH) {
 											mismatchedFactionTextList.push_back(mismatchedFactionText);
 											mismatchedFactionText = "";
 										}
@@ -3007,7 +3007,7 @@ void MenuStateConnectedGame::update() {
 									}
 
 									if(foundFaction == false) {
-										if(mismatchedFactionText.length() > MAX_CHAT_TEXT_LINE_LENGTH) {
+										if((int)mismatchedFactionText.length() > MAX_CHAT_TEXT_LINE_LENGTH) {
 											mismatchedFactionTextList.push_back(mismatchedFactionText);
 											mismatchedFactionText = "";
 										}

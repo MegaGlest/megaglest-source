@@ -386,7 +386,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 				Scenario::loadScenarioInfo(file, &scenarioInfo, isTutorial);
 
 				bool isNetworkScenario = false;
-				for(unsigned int j = 0; isNetworkScenario == false && j < GameConstants::maxPlayers; ++j) {
+				for(unsigned int j = 0; isNetworkScenario == false && j < (unsigned int)GameConstants::maxPlayers; ++j) {
 					if(scenarioInfo.factionControls[j] == ctNetwork) {
 						isNetworkScenario = true;
 					}

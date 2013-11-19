@@ -49,7 +49,7 @@ NetworkInterface::NetworkInterface() {
 	receivedDataSynchCheck=false;
 
 	networkPlayerFactionCRCMutex = new Mutex();
-	for(unsigned int index = 0; index < GameConstants::maxPlayers; ++index) {
+	for(unsigned int index = 0; index < (unsigned int)GameConstants::maxPlayers; ++index) {
 		networkPlayerFactionCRC[index] = 0;
 	}
 }
@@ -65,7 +65,7 @@ void NetworkInterface::init() {
 	gameSettings = GameSettings();
 
 	networkPlayerFactionCRCMutex = NULL;
-	for(unsigned int index = 0; index < GameConstants::maxPlayers; ++index) {
+	for(unsigned int index = 0; index < (unsigned int)GameConstants::maxPlayers; ++index) {
 		networkPlayerFactionCRC[index] = 0;
 	}
 }

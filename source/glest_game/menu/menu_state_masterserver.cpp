@@ -1046,7 +1046,7 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------> server [%s] serverEntities.size() = " MG_SIZE_T_SPECIFIER " MIN_FIELDS_EXPECTED = %d\n",server.c_str(),serverEntities.size(),MIN_FIELDS_EXPECTED);
 
-				if(serverEntities.size() >= MIN_FIELDS_EXPECTED) {
+				if((int)serverEntities.size() >= MIN_FIELDS_EXPECTED) {
 					labelTitle.setText(lang.getString("AvailableServers"));
 
 					if(Config::getInstance().getString("Masterserver","") == "") {
