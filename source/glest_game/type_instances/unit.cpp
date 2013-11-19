@@ -4117,7 +4117,7 @@ bool Unit::isLastPathfindFailedFrameWithinCurrentFrameTolerance() const {
 	static const bool enablePathfinderEnlargeMaxNodes = false;
 	bool result = enablePathfinderEnlargeMaxNodes;
 	if(enablePathfinderEnlargeMaxNodes) {
-		const int MIN_FRAME_ELAPSED_RETRY = 960;
+		const uint32 MIN_FRAME_ELAPSED_RETRY = 960;
 		result = (getFrameCount() - lastPathfindFailedFrame >= MIN_FRAME_ELAPSED_RETRY);
 	}
 	return result;
@@ -4129,8 +4129,8 @@ void Unit::setLastStuckFrameToCurrentFrame() {
 
 bool Unit::isLastStuckFrameWithinCurrentFrameTolerance(bool evalMode) {
 	//const int MIN_FRAME_ELAPSED_RETRY = 300;
-	const int MAX_BLOCKED_FRAME_THRESHOLD = 25000;
-	unsigned int MIN_FRAME_ELAPSED_RETRY = 6;
+	const uint32 MAX_BLOCKED_FRAME_THRESHOLD = 25000;
+	uint32 MIN_FRAME_ELAPSED_RETRY = 6;
 	if(lastStuckFrame < MAX_BLOCKED_FRAME_THRESHOLD) {
 		if(evalMode == true) {
 			MIN_FRAME_ELAPSED_RETRY = 4;

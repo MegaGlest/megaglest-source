@@ -488,7 +488,7 @@ void NetworkMessageReady::fromEndian() {
 
 NetworkMessageLaunch::NetworkMessageLaunch() {
 	data.messageType=-1;
-	for(unsigned int i = 0; i < maxFactionCRCCount; ++i) {
+	for(unsigned int i = 0; i < (unsigned int)maxFactionCRCCount; ++i) {
 		data.factionNameList[i] = "";
 		data.factionCRCList[i] = 0;
 	}
@@ -505,13 +505,13 @@ NetworkMessageLaunch::NetworkMessageLaunch(const GameSettings *gameSettings,int8
     data.tilesetCRC = gameSettings->getTilesetCRC();
     data.techCRC    = gameSettings->getTechCRC();
 
-	for(unsigned int i = 0; i < maxFactionCRCCount; ++i) {
+	for(unsigned int i = 0; i < (unsigned int)maxFactionCRCCount; ++i) {
 		data.factionNameList[i] = "";
 		data.factionCRCList[i] = 0;
 	}
 
 	vector<pair<string,uint32> > factionCRCList = gameSettings->getFactionCRCList();
-	for(unsigned int i = 0; i < factionCRCList.size() && i < maxFactionCRCCount; ++i) {
+	for(unsigned int i = 0; i < factionCRCList.size() && i < (unsigned int)maxFactionCRCCount; ++i) {
 		data.factionNameList[i] = factionCRCList[i].first;
 		data.factionCRCList[i] = factionCRCList[i].second;
 	}
@@ -585,7 +585,7 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
     gameSettings->setTechCRC(data.techCRC);
 
 	vector<pair<string,uint32> > factionCRCList;
-	for(unsigned int i = 0; i < maxFactionCRCCount; ++i) {
+	for(unsigned int i = 0; i < (unsigned int)maxFactionCRCCount; ++i) {
 		if(data.factionNameList[i].getString() != "") {
 			factionCRCList.push_back(make_pair(data.factionNameList[i].getString(),data.factionCRCList[i]));
 		}
@@ -625,7 +625,7 @@ void NetworkMessageLaunch::buildGameSettings(GameSettings *gameSettings) const {
 vector<pair<string,uint32> > NetworkMessageLaunch::getFactionCRCList() const {
 
 	vector<pair<string,uint32> > factionCRCList;
-	for(unsigned int i = 0; i < maxFactionCRCCount; ++i) {
+	for(unsigned int i = 0; i < (unsigned int)maxFactionCRCCount; ++i) {
 		if(data.factionNameList[i].getString() != "") {
 			factionCRCList.push_back(make_pair(data.factionNameList[i].getString(),data.factionCRCList[i]));
 		}
@@ -1131,7 +1131,7 @@ bool NetworkMessageLaunch::receive(Socket* socket) {
 
 		data.networkPlayerUUID[i].nullTerminate();
 	}
-	for(unsigned int i = 0; i < maxFactionCRCCount; ++i) {
+	for(unsigned int i = 0; i < (unsigned int)maxFactionCRCCount; ++i) {
 		data.factionNameList[i].nullTerminate();
 	}
 
@@ -1594,7 +1594,7 @@ void NetworkMessageCommandList::fromEndianDetail() {
 
 NetworkMessageText::NetworkMessageText(const string &text, int teamIndex, int playerIndex,
 										const string targetLanguage) {
-	if(text.length() >= maxTextStringSize) {
+	if((int)text.length() >= maxTextStringSize) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR - text [%s] length = %d, max = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,text.c_str(),text.length(),maxTextStringSize);
 	}
 
@@ -1958,12 +1958,12 @@ unsigned int NetworkMessageSynchNetworkGameData::getPackedSizeDetail() {
 		DataDetail packedData;
 		unsigned char *buf = new unsigned char[sizeof(DataDetail)*3];
 
-		for(unsigned int i = 0; i < maxFileCRCCount; ++i) {
+		for(unsigned int i = 0; i < (unsigned int)maxFileCRCCount; ++i) {
 			result += pack(buf, "255s",
 					packedData.techCRCFileList[i].getBuffer());
 			buf += result;
 		}
-		for(unsigned int i = 0; i < maxFileCRCCount; ++i) {
+		for(unsigned int i = 0; i < (unsigned int)maxFileCRCCount; ++i) {
 			result += pack(buf, "L",
 					packedData.techCRCFileCRCList[i]);
 			buf += result;
@@ -1974,12 +1974,12 @@ unsigned int NetworkMessageSynchNetworkGameData::getPackedSizeDetail() {
 	return result;
 }
 void NetworkMessageSynchNetworkGameData::unpackMessageDetail(unsigned char *buf) {
-	for(unsigned int i = 0; i < maxFileCRCCount; ++i) {
+	for(unsigned int i = 0; i < (unsigned int)maxFileCRCCount; ++i) {
 		unsigned int bytes_processed = unpack(buf, "255s",
 				data.detail.techCRCFileList[i].getBuffer());
 		buf += bytes_processed;
 	}
-	for(unsigned int i = 0; i < maxFileCRCCount; ++i) {
+	for(unsigned int i = 0; i < (unsigned int)maxFileCRCCount; ++i) {
 		unsigned int bytes_processed = unpack(buf, "L",
 				&data.detail.techCRCFileCRCList[i]);
 		buf += bytes_processed;
@@ -1989,12 +1989,12 @@ void NetworkMessageSynchNetworkGameData::unpackMessageDetail(unsigned char *buf)
 unsigned char * NetworkMessageSynchNetworkGameData::packMessageDetail() {
 	unsigned char *buf = new unsigned char[sizeof(DataDetail)*3 +1];
 	unsigned char *bufMove = buf;
-	for(unsigned int i = 0; i < maxFileCRCCount; ++i) {
+	for(unsigned int i = 0; i < (unsigned int)maxFileCRCCount; ++i) {
 		unsigned int bytes_processed = pack(bufMove, "255s",
 				data.detail.techCRCFileList[i].getBuffer());
 		bufMove += bytes_processed;
 	}
-	for(unsigned int i = 0; i < maxFileCRCCount; ++i) {
+	for(unsigned int i = 0; i < (unsigned int)maxFileCRCCount; ++i) {
 		unsigned int bytes_processed = pack(bufMove, "L",
 				data.detail.techCRCFileCRCList[i]);
 		bufMove += bytes_processed;
@@ -2021,7 +2021,7 @@ bool NetworkMessageSynchNetworkGameData::receive(Socket* socket) {
 
 		// Here we loop possibly multiple times
 		int packetLoopCount = 1;
-		if(data.header.techCRCFileCount > NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount) {
+		if(data.header.techCRCFileCount > (uint32)NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount) {
 			packetLoopCount = (data.header.techCRCFileCount / NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount);
 			if(data.header.techCRCFileCount % NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount > 0) {
 				packetLoopCount++;
@@ -2066,7 +2066,7 @@ void NetworkMessageSynchNetworkGameData::send(Socket* socket) {
 	if(totalFileCount > 0) {
 		// Here we loop possibly multiple times
 		int packetLoopCount = 1;
-		if(totalFileCount > NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount) {
+		if(totalFileCount > (uint32)NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount) {
 			packetLoopCount = (totalFileCount / NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount);
 			if(totalFileCount % NetworkMessageSynchNetworkGameData::maxFileCRCPacketCount > 0) {
 				packetLoopCount++;
@@ -2844,7 +2844,7 @@ void NetworkMessageLoadingStatus::fromEndian() {
 // =====================================================
 
 NetworkMessageMarkCell::NetworkMessageMarkCell(Vec2i target, int factionIndex, const string &text, int playerIndex) {
-	if(text.length() >= maxTextStringSize) {
+	if((int)text.length() >= maxTextStringSize) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR - text [%s] length = %d, max = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,text.c_str(),text.length(),maxTextStringSize);
 	}
 

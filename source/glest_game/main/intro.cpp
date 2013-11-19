@@ -259,7 +259,7 @@ Intro::Intro(Program *program):
 	int appear= Intro::appearTime;
 	int disappear= Intro::showTime+Intro::appearTime+(Intro::disapearTime * 2);
 
-	const int maxIntroLines = 100;
+	const unsigned int maxIntroLines = 100;
 	Lang &lang= Lang::getInstance();
 	for(unsigned int i = 1; i < maxIntroLines; ++i) {
 		string introTagName 		= "IntroText" + intToStr(i);

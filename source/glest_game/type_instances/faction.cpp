@@ -205,7 +205,7 @@ void Faction::sortUnitsByCommandGroups() {
 		units.push_back(this->findUnit(unitId));
 	}
 
-	assert(originalUnitSize == units.size());
+	//assert(originalUnitSize == units.size());
 }
 
 // =====================================================
