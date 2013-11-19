@@ -52,7 +52,7 @@ public:
 	static uint64 getFlags() { return flags; }
 
 	static void setFlag(GlobalStaticFlagTypes flag) { flags |= flag; }
-	static bool isFlagSet(GlobalStaticFlagTypes flag) { return (flags & flag) == flag; }
+	static bool isFlagSet(GlobalStaticFlagTypes flag) { return (flags & (unsigned int)flag) == flag; }
 
 protected:
 	static bool isNonGraphicalMode;
