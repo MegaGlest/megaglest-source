@@ -71,7 +71,7 @@ enum FlagTypes1 {
     //ft1_xx                  = 0x40,
 };
 
-static bool isFlagType1BitEnabled(uint32 flagValue,FlagTypes1 type) {
+inline static bool isFlagType1BitEnabled(uint32 flagValue,FlagTypes1 type) {
 	return ((flagValue & type) == type);
 }
 

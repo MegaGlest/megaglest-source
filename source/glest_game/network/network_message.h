@@ -346,9 +346,6 @@ public:
 class NetworkMessageCommandList: public NetworkMessage {
 
 private:
-	//static const int maxCommandCount = 2496; // can be as large as 65535
-
-private:
 	struct DataHeader {
 		int8 messageType;
 		uint16 commandCount;
@@ -360,9 +357,16 @@ private:
 
 	struct Data {
 		DataHeader header;
-		//NetworkCommand commands[maxCommandCount];
 		std::vector<NetworkCommand> commands;
 	};
+	void init(Data &data_ref) {
+		data_ref.header.messageType = 0;
+		data_ref.header.commandCount = 0;
+		data_ref.header.frameCount = 0;
+		for(unsigned int index = 0; index < GameConstants::maxPlayers; ++index) {
+			data_ref.header.networkPlayerFactionCRC[index] = 0;
+		}
+	}
 	void toEndianHeader();
 	void fromEndianHeader();
 	void toEndianDetail(uint16 totalCommand);

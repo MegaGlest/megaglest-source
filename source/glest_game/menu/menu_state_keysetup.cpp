@@ -150,7 +150,7 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 
 		//throw megaglest_runtime_error("Test!");
 
-		for(int i = 0; i < mergedProperties.size(); ++i) {
+		for(int i = 0; i < (int)mergedProperties.size(); ++i) {
 
 			string keyName = mergedProperties[i].second;
 			if(keyName.length() > 0) {
@@ -544,7 +544,7 @@ void MenuStateKeysetup::keyUp(SDL_KeyboardEvent key) {
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key.keysym.sym);
 
-			SDLKey keysym = SDLK_UNKNOWN;
+			//SDLKey keysym = SDLK_UNKNOWN;
 			if(keyName == "unknown key" || keyName == "") {
 //				Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 //				keysym = configKeys.translateSpecialStringToSDLKey(hotkeyChar);
@@ -569,7 +569,7 @@ void MenuStateKeysetup::keyUp(SDL_KeyboardEvent key) {
 
 				pair<string,string> &nameValuePair = mergedProperties[hotkeyIndex];
 				bool isNewUserKeyEntry = true;
-				for(int i = 0; i < userProperties.size(); ++i) {
+				for(int i = 0; i < (int)userProperties.size(); ++i) {
 					string hotKeyName = userProperties[i].first;
 					if(nameValuePair.first == hotKeyName) {
 //						if(keysym <= SDLK_ESCAPE || keysym > 255) {

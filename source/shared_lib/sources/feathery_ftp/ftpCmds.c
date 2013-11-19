@@ -201,7 +201,7 @@ LOCAL int ftpCmdSyst(int sessionId, const char* args, int len)
 }
 LOCAL int ftpCmdPort(int sessionId, const char* args, int len)
 {
-	char clientIp[16];
+	//char clientIp[16]="";
 	uint16_t clientPort=0;
 
 	int commaCnt = 0;
@@ -215,13 +215,13 @@ LOCAL int ftpCmdPort(int sessionId, const char* args, int len)
 			if(args[n] == ',')
 			{
 				commaCnt++;
-				if(commaCnt < 4)
-					clientIp[n] = '.';
-				else
-					clientIp[n] = '\0';
+//				if(commaCnt < 4)
+//					clientIp[n] = '.';
+//				else
+//					clientIp[n] = '\0';
 			}
-			else
-				clientIp[n] = args[n];
+//			else
+//				clientIp[n] = args[n];
 		}
 		else				// Port-Nummer
 		{
@@ -957,7 +957,7 @@ int execFtpCmd(int sessionId, const char* cmd, int cmdlen)
 	//if(VERBOSE_MODE_ENABLED) printf("In execFtpCmd ARRAY_SIZE(cmds) = %lu for sessionId = %d\n",ARRAY_SIZE(cmds),sessionId);
 	if(VERBOSE_MODE_ENABLED) printf("In execFtpCmd cmd [%s] for sessionId = %d\n",cmd,sessionId);
 
-	for(n = 0; n < ARRAY_SIZE(cmds); n++)
+	for(n = 0; n < (int)ARRAY_SIZE(cmds); n++)
 	{
 		if(!strncmp(cmds[n].cmdToken, cmd, cmds[n].tokLen))
 		{

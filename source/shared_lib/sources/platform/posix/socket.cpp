@@ -349,6 +349,7 @@ void Ip::Inet_NtoA(uint32 addr, char * ipbuf)
    sprintf(ipbuf, "%d.%d.%d.%d", (addr>>24)&0xFF, (addr>>16)&0xFF, (addr>>8)&0xFF, (addr>>0)&0xFF);
 }
 
+#if defined(WIN32)
 // convert a string represenation of an IP address into its numeric equivalent
 static uint32 Inet_AtoN(const char * buf)
 {
@@ -369,6 +370,7 @@ static uint32 Inet_AtoN(const char * buf)
    }
    return ret;
 }
+#endif
 
 /*
 static void PrintNetworkInterfaceInfos()
@@ -702,7 +704,7 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 	intfTypes.push_back("br-lan");
 	intfTypes.push_back("br-gest");
 
-	for(int intfIdx = 0; intfIdx < intfTypes.size(); intfIdx++) {
+	for(int intfIdx = 0; intfIdx < (int)intfTypes.size(); intfIdx++) {
 		string intfName = intfTypes[intfIdx];
 		for(int idx = 0; idx < 10; ++idx) {
 			PLATFORM_SOCKET fd = socket(AF_INET, SOCK_DGRAM, 0);

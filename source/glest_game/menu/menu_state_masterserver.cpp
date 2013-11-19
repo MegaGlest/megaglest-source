@@ -756,7 +756,7 @@ void MenuStateMasterserver::render(){
         }
         safeMutexIRCPtr.ReleaseLock();
 
-        const Vec4f titleLabelColorList = YELLOW;
+        //const Vec4f titleLabelColorList = YELLOW;
 
 		if(serverScrollBar.getElementCount()!=0 ) {
 			for(int i = serverScrollBar.getVisibleStart(); i <= serverScrollBar.getVisibleEnd(); ++i) {
@@ -765,7 +765,7 @@ void MenuStateMasterserver::render(){
 		}
 		renderer.renderScrollBar(&serverScrollBar);
 
-	    for(int i=0; i<sizeof(lines) / sizeof(lines[0]); ++i){
+	    for(int i = 0; i < (int)sizeof(lines) / (int)sizeof(lines[0]); ++i){
 	    	renderer.renderLine(&lines[i]);
 	    }
 	    renderer.renderButton(&buttonRefresh);
@@ -845,7 +845,7 @@ void MenuStateMasterserver::update() {
 
         if(isNew) {
 	        clearUserButtons();
-	        for(int i = 0; i < nickList.size(); ++i) {
+	        for(int i = 0; i < (int)nickList.size(); ++i) {
 	                GraphicButton *button=new GraphicButton();
 	                button->init(userButtonsXBase,userButtonsYBase,userButtonsWidth,userButtonsHeight);
 	                //button->init(userButtonsXBase,userButtonsYBase-userButtonsLineHeight*i,userButtonsWidth,userButtonsHeight);
@@ -1035,7 +1035,7 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 
 			std::vector<std::string> serverList;
 			Tokenize(serverInfo,serverList,"\n");
-			for(int i=0; i < serverList.size(); i++) {
+			for(int i = 0; i < (int)serverList.size(); i++) {
 				string &server = serverList[i];
 				if(trim(server) == "") {
 					continue;
@@ -1112,8 +1112,8 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 	    SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line %d] error during Internet game status update: [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
 	}
 
-	if(serverLines.size()>numberOfOldServerLines) {
-		playServerFoundSound=true;
+	if((int)serverLines.size() > numberOfOldServerLines) {
+		playServerFoundSound = true;
 	}
 }
 

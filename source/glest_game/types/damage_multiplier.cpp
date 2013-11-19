@@ -96,7 +96,7 @@ void DamageMultiplierTable::saveGame(XmlNode *rootNode) {
 	damageMultiplierTableNode->addAttribute("armorTypeCount",intToStr(armorTypeCount), mapTagReplacements);
 
 	int valueCount= attackTypeCount * armorTypeCount;
-	for(unsigned int i=0; i < valueCount; ++i) {
+	for(int i=0; i < valueCount; ++i) {
 		XmlNode *valuesNode = damageMultiplierTableNode->addChild("values");
 		valuesNode->addAttribute("value",doubleToStr(values[i]), mapTagReplacements);
 	}

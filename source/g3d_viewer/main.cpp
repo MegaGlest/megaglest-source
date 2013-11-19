@@ -285,10 +285,16 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
     :	wxFrame(NULL, -1, ToUnicode(winHeader),
     	        wxPoint(Renderer::windowX, Renderer::windowY),
 		        wxSize(Renderer::windowW, Renderer::windowH)),
-		        model(NULL), glCanvas(NULL), renderer(NULL),
-		        initTextureManager(true), timer(NULL),
-		        startupSettingsInited(false),
-		        fileDialog(NULL),colorPicker(NULL)
+		        glCanvas(NULL),
+		        renderer(NULL),
+		        timer(NULL),
+		        menu(NULL),
+		        fileDialog(NULL),
+		        colorPicker(NULL),
+		        model(NULL),
+		        initTextureManager(true),
+		        startupSettingsInited(false)
+
 {
 	this->appPath = appPath;
 	Properties::setApplicationPath(executable_path(appPath));
@@ -599,6 +605,10 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 //		dc.DestroyClippingRegion();
 //	}
 
+	static float autoScreenshotRender = -1;
+	if(autoScreenShotAndExit == true && autoScreenshotRender >= 0) {
+		anim = autoScreenshotRender;
+	}
 	// notice that we use GetSize() here and not GetClientSize() because
 	// the latter doesn't return correct results for the minimized windows
 	// (at least not under Windows)
@@ -613,6 +623,11 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 		viewportW = GetSize().x;
 		viewportH = GetSize().y;
 
+		if(viewportH > 0) {
+			//viewportH -= menu->GetSize().y;
+			viewportH -= 22;
+		}
+
 		printf("#2 %d x %d\n",viewportW,viewportH);
 	}
 
@@ -621,8 +636,6 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 #else
 	renderer->reset(viewportW, viewportH, playerColor);
 #endif
-
-
 
 	renderer->transform(rotX, rotY, zoom);
 	renderer->renderGrid();
@@ -654,6 +667,7 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 		fflush(stdout);
 
 		autoScreenShotAndExit = false;
+
 		saveScreenshot();
 		Close();
 		return;
@@ -662,6 +676,8 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 	glCanvas->SwapBuffers();
 
 	if(autoScreenShotAndExit == true && viewportW == 0 && viewportH == 0) {
+		autoScreenshotRender = anim;
+
 		printf("Auto exiting desired but waiting for w x h > 0...\n");
 
 		return;
@@ -1161,7 +1177,7 @@ void MainWindow::loadUnit(string path, string skillName) {
 				const XmlNode *skillsNode= unitNode->getChild("skills");
 				for(unsigned int i = 0; foundSkillName == false && i < skillsNode->getChildCount(); ++i) {
 					const XmlNode *sn= skillsNode->getChild("skill", i);
-					const XmlNode *typeNode= sn->getChild("type");
+					//const XmlNode *typeNode= sn->getChild("type");
 					const XmlNode *nameNode= sn->getChild("name");
 					string skillXmlName = nameNode->getAttribute("value")->getRestrictedValue();
 					if(skillXmlName == lookipForSkillName) {
@@ -1545,7 +1561,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 			std::string unitXML = dir + folderDelimiter + extractFileFromDirectoryPath(dir) + ".xml";
 
 			int size   = 1;
-			int height = 1;
+			//int height = 1;
 
 			if(fileExists(unitXML) == true) {
 				XmlTree xmlTree;
@@ -1555,7 +1571,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 				//size
 				size= parametersNode->getChild("size")->getAttribute("value")->getIntValue();
 				//height
-				height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
+				//height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
 			}
 
 			// std::cout << "About to load [" << particlePath << "] from [" << dir << "] unit [" << unitXML << "]" << std::endl;
@@ -1582,7 +1598,7 @@ void MainWindow::loadSplashParticle(string path) {  // uses ParticleSystemTypeSp
 				SplashParticleSystem *ps = (*it)->create(NULL);
 
 				if(size > 0) {
-					Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);
+					//Vec3f vec = Vec3f(0.f, height / 2.f, 0.f);
 					//ps->setPos(vec);
 
 					//Vec3f vec2 = Vec3f(size * 2.f, height * 2.f, height * 2.f);   // <------- removed relative projectile

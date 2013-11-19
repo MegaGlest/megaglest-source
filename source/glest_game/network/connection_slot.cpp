@@ -94,7 +94,7 @@ void ConnectionSlotThread::setTaskCompleted(int eventId) {
 	if(eventId > 0) {
 		MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
 		//event->eventCompleted = true;
-		for(int i = 0; i < eventList.size(); ++i) {
+		for(int i = 0; i < (int)eventList.size(); ++i) {
 		    ConnectionSlotEvent &slotEvent = eventList[i];
 		    if(slotEvent.eventId == eventId) {
                 //eventList.erase(eventList.begin() + i);
@@ -114,7 +114,7 @@ void ConnectionSlotThread::purgeAllEvents() {
 
 void ConnectionSlotThread::setAllEventsCompleted() {
     MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
-    for(int i = 0; i < eventList.size(); ++i) {
+    for(int i = 0; i < (int)eventList.size(); ++i) {
         ConnectionSlotEvent &slotEvent = eventList[i];
         if(slotEvent.eventCompleted == false) {
             slotEvent.eventCompleted = true;
@@ -150,7 +150,7 @@ bool ConnectionSlotThread::isSignalCompleted(ConnectionSlotEvent *event) {
 	MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
 	bool result = false;
     if(event != NULL) {
-        for(int i = 0; i < eventList.size(); ++i) {
+        for(int i = 0; i < (int)eventList.size(); ++i) {
             ConnectionSlotEvent &slotEvent = eventList[i];
             if(slotEvent.eventId == event->eventId) {
                 result = slotEvent.eventCompleted;
@@ -350,7 +350,7 @@ void ConnectionSlotThread::execute() {
 						ConnectionSlotEvent eventCopy;
 						eventCopy.eventId = -1;
 
-						for(int i = 0; i < eventList.size(); ++i) {
+						for(int i = 0; i < (int)eventList.size(); ++i) {
 							ConnectionSlotEvent &slotEvent = eventList[i];
 							if(slotEvent.eventCompleted == false) {
 								eventCopy = slotEvent;

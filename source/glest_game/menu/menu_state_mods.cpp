@@ -885,7 +885,7 @@ string MenuStateMods::refreshTechModInfo(string techInfo) {
 
 void MenuStateMods::refreshTechs() {
 	getTechsLocalList();
-	for(int i=0; i < techListRemote.size(); i++) {
+	for(int i=0; i < (int)techListRemote.size(); i++) {
 		refreshTechModInfo(techListRemote[i]);
 	}
 }
@@ -947,7 +947,7 @@ string MenuStateMods::refreshTilesetModInfo(string tilesetInfo) {
 
 void MenuStateMods::refreshTilesets() {
 	getTilesetsLocalList();
-	for(int i=0; i < tilesetListRemote.size(); i++) {
+	for(int i=0; i < (int)tilesetListRemote.size(); i++) {
 		refreshTilesetModInfo(tilesetListRemote[i]);
 	}
 }
@@ -1058,7 +1058,7 @@ string MenuStateMods::getMapCRC(string mapName) {
 
 void MenuStateMods::refreshMaps() {
 	getMapsLocalList();
-	for(int i=0; i < mapListRemote.size(); i++) {
+	for(int i=0; i < (int)mapListRemote.size(); i++) {
 		refreshMapModInfo(mapListRemote[i]);
 	}
 }
@@ -1115,7 +1115,7 @@ string MenuStateMods::refreshScenarioModInfo(string scenarioInfo) {
 
 void MenuStateMods::refreshScenarios() {
 	getScenariosLocalList();
-	for(int i=0; i < scenarioListRemote.size(); i++) {
+	for(int i=0; i < (int)scenarioListRemote.size(); i++) {
 		refreshScenarioModInfo(scenarioListRemote[i]);
 	}
 }
@@ -2302,7 +2302,7 @@ void MenuStateMods::render() {
 		if(keyScenarioScrollBar.getElementCount() != 0) {
 			for(int i = keyScenarioScrollBar.getVisibleStart();
 					i <= keyScenarioScrollBar.getVisibleEnd(); ++i) {
-				if(i >= keyScenarioButtons.size()) {
+				if(i >= (int)keyScenarioButtons.size()) {
 					char szBuf[8096]="";
 					snprintf(szBuf,8096,"i >= keyScenarioButtons.size(), i = %d keyScenarioButtons.size() = %d",i,(int)keyScenarioButtons.size());
 					throw megaglest_runtime_error(szBuf);
@@ -2443,7 +2443,7 @@ void MenuStateMods::update() {
 	if (keyTechScrollBar.getElementCount() != 0) {
 		for (int i = keyTechScrollBar.getVisibleStart();
 				i <= keyTechScrollBar.getVisibleEnd(); ++i) {
-			if(i >= keyTechButtons.size()) {
+			if(i >= (int)keyTechButtons.size()) {
 				char szBuf[8096]="";
 				snprintf(szBuf,8096,"i >= keyTechButtons.size(), i = %d, keyTechButtons.size() = %d",i,(int)keyTechButtons.size());
 				throw megaglest_runtime_error(szBuf);
@@ -2460,7 +2460,7 @@ void MenuStateMods::update() {
 	if (keyTilesetScrollBar.getElementCount() != 0) {
 		for (int i = keyTilesetScrollBar.getVisibleStart();
 				i <= keyTilesetScrollBar.getVisibleEnd(); ++i) {
-			if(i >= keyTilesetButtons.size()) {
+			if(i >= (int)keyTilesetButtons.size()) {
 				char szBuf[8096]="";
 				snprintf(szBuf,8096,"i >= keyTilesetButtons.size(), i = %d, keyTilesetButtons.size() = %d",i,(int)keyTilesetButtons.size());
 				throw megaglest_runtime_error(szBuf);
@@ -2476,7 +2476,7 @@ void MenuStateMods::update() {
 	if (keyMapScrollBar.getElementCount() != 0) {
 		for (int i = keyMapScrollBar.getVisibleStart();
 				i <= keyMapScrollBar.getVisibleEnd(); ++i) {
-			if(i >= keyMapButtons.size()) {
+			if(i >= (int)keyMapButtons.size()) {
 				char szBuf[8096]="";
 				snprintf(szBuf,8096,"i >= keyMapButtons.size(), i = %d, keyMapButtons.size() = %d",i,(int)keyMapButtons.size());
 				throw megaglest_runtime_error(szBuf);
@@ -2493,7 +2493,7 @@ void MenuStateMods::update() {
 	if (keyScenarioScrollBar.getElementCount() != 0) {
 		for (int i = keyScenarioScrollBar.getVisibleStart();
 				i <= keyScenarioScrollBar.getVisibleEnd(); ++i) {
-			if(i >= keyScenarioButtons.size()) {
+			if(i >= (int)keyScenarioButtons.size()) {
 				char szBuf[8096]="";
 				snprintf(szBuf,8096,"i >= keyScenarioButtons.size(), i = %d, keyScenarioButtons.size() = %d",i,(int)keyScenarioButtons.size());
 				throw megaglest_runtime_error(szBuf);
@@ -2680,7 +2680,7 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
 
             // Refresh CRC
             Config &config = Config::getInstance();
-            uint32 CRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
+            getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
             safeMutexFTPProgress.ReleaseLock();
 
         	refreshTechs();
@@ -2726,7 +2726,7 @@ void MenuStateMods::FTPClient_CallbackEvent(string itemName,
 
             // Refresh CRC
             Config &config = Config::getInstance();
-            uint32 CRCScenarioValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptScenarios,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
+            getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptScenarios,""), string("/") + itemName + string("/*"), ".xml", NULL, true);
             safeMutexFTPProgress.ReleaseLock();
 
             refreshScenarios();

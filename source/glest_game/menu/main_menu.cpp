@@ -416,7 +416,7 @@ bool MenuState::keyPressEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInpu
 		//if((c>='0' && c<='9') || (c>='a' && c<='z') || (c>='A' && c<='Z') ||
 		//   (c=='-') || (c=='(') || (c==')')) {
 		if(isAllowedInputTextKey(key)) {
-			if(activeInputLabel->getText().size() < maxTextSize) {
+			if((int)activeInputLabel->getText().size() < maxTextSize) {
 				string text= activeInputLabel->getText();
 
 				wchar_t keyW = extractKeyPressedUnicode(c);
@@ -540,7 +540,7 @@ bool MenuState::keyDownEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInput
 						//}
 
 						//for(unsigned int i = 0; i < textCharLength[textCharLength.size()-2]; ++i) {
-						for(unsigned int i = 0; i < activeInputLabel->getTextCharLengthList()[activeInputLabel->getTextCharLengthList().size()-2]; ++i) {
+						for(unsigned int i = 0; i < (unsigned int)activeInputLabel->getTextCharLengthList()[activeInputLabel->getTextCharLengthList().size()-2]; ++i) {
 							//printf("erase A1 i = %d [%s]\n",i,text.c_str());
 							text.erase(text.end() -2);
 							//printf("erase A2 i = %d [%s]\n",i,text.c_str());
@@ -556,7 +556,7 @@ bool MenuState::keyDownEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInput
 				}
 				else {
 					//for(unsigned int i = 0; i < textCharLength[textCharLength.size()-1]; ++i) {
-					for(unsigned int i = 0; i < activeInputLabel->getTextCharLengthList()[activeInputLabel->getTextCharLengthList().size()-1]; ++i) {
+					for(unsigned int i = 0; i < (unsigned int)activeInputLabel->getTextCharLengthList()[activeInputLabel->getTextCharLengthList().size()-1]; ++i) {
 						//printf("erase B1 i = %d [%s]\n",i,text.c_str());
 						text.erase(text.end() -1);
 						//printf("erase B2 i = %d [%s]\n",i,text.c_str());

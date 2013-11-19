@@ -163,31 +163,31 @@ static inline void loadTexture(class ctx *ctx) {
    glTexImage2D(GL_TEXTURE_2D, 0, 4, ctx->width, ctx->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, (Uint8 *) rawData);
 }
 
-static void *lock(void *data, void **p_pixels) {
-    class ctx *ctx = (class ctx *)data;
-    if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
-
-    SDL_LockMutex(ctx->mutex);
-    SDL_LockSurface(ctx->surf);
-    *p_pixels = ctx->surf->pixels;
-
-    return NULL; /* picture identifier, not needed here */
-}
-
-static void unlock(void *data, void *id, void *const *p_pixels) {
-    class ctx *ctx = (class ctx *)data;
-    if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
-
-    /* VLC just rendered the video, but we can also render stuff */
-    SDL_UnlockSurface(ctx->surf);
-    SDL_UnlockMutex(ctx->mutex);
-}
-
-static void display(void *data, void *id) {
-    // VLC wants to display the video
-    class ctx *ctx = (class ctx *)data;
-    if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
-}
+//static void *lock(void *data, void **p_pixels) {
+//    class ctx *ctx = (class ctx *)data;
+//    if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
+//
+//    SDL_LockMutex(ctx->mutex);
+//    SDL_LockSurface(ctx->surf);
+//    *p_pixels = ctx->surf->pixels;
+//
+//    return NULL; /* picture identifier, not needed here */
+//}
+//
+//static void unlock(void *data, void *id, void *const *p_pixels) {
+//    class ctx *ctx = (class ctx *)data;
+//    if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
+//
+//    /* VLC just rendered the video, but we can also render stuff */
+//    SDL_UnlockSurface(ctx->surf);
+//    SDL_UnlockMutex(ctx->mutex);
+//}
+//
+//static void display(void *data, void *id) {
+//    // VLC wants to display the video
+//    class ctx *ctx = (class ctx *)data;
+//    if(ctx->verboseEnabled) printf("In [%s] Line: %d\n",__FUNCTION__,__LINE__);
+//}
 
 #if defined(HAS_LIBVLC) && defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_0)
 static void catchError(libvlc_exception_t *ex) {

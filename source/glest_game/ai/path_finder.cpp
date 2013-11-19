@@ -457,6 +457,9 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				}
 			}
 			break;
+
+		default:
+			break;
 	}
 	if(minorDebugPathfinderPerformance && chrono.getMillis() >= 1) printf("Unit [%d - %s] astar took [%lld] msecs, ts = %d searched_node_count = %d.\n",unit->getId(),unit->getType()->getName(false).c_str(),(long long int)chrono.getMillis(),ts,searched_node_count);
 
@@ -570,7 +573,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 				if(canMoveToCells == true) {
 					path->clear();
-					UnitPathBasic *basicPathFinder = dynamic_cast<UnitPathBasic *>(path);
+					//UnitPathBasic *basicPathFinder = dynamic_cast<UnitPathBasic *>(path);
 
 					int unitPrecachePathSize = (int)faction.precachedPath[unit->getId()].size();
 
@@ -873,7 +876,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 			path->clear();
 		}
 
-		UnitPathBasic *basicPathFinder = dynamic_cast<UnitPathBasic *>(path);
+		//UnitPathBasic *basicPathFinder = dynamic_cast<UnitPathBasic *>(path);
 
 		currNode= firstNode;
 
@@ -1133,11 +1136,11 @@ void PathFinder::saveGame(XmlNode *rootNode) {
 
 	pathfinderNode->addAttribute("pathFindNodesMax",intToStr(pathFindNodesMax), mapTagReplacements);
 	pathfinderNode->addAttribute("pathFindNodesAbsoluteMax",intToStr(pathFindNodesAbsoluteMax), mapTagReplacements);
-	for(unsigned int i = 0; i < factions.size(); ++i) {
+	for(unsigned int i = 0; i < (unsigned int)factions.size(); ++i) {
 		FactionState &factionState = factions.getFactionState(i);
 		XmlNode *factionsNode = pathfinderNode->addChild("factions");
 
-		for(unsigned int j = 0; j < factionState.nodePool.size(); ++j) {
+		for(unsigned int j = 0; j < (unsigned int)factionState.nodePool.size(); ++j) {
 			Node *curNode = &factionState.nodePool[j];
 			XmlNode *nodePoolNode = factionsNode->addChild("nodePool");
 
@@ -1160,12 +1163,12 @@ void PathFinder::loadGame(const XmlNode *rootNode) {
 	const XmlNode *pathfinderNode = rootNode->getChild("PathFinder");
 
 	vector<XmlNode *> factionsNodeList = pathfinderNode->getChildList("factions");
-	for(unsigned int i = 0; i < factionsNodeList.size(); ++i) {
+	for(unsigned int i = 0; i < (unsigned int)factionsNodeList.size(); ++i) {
 		XmlNode *factionsNode = factionsNodeList[i];
 
 		FactionState &factionState = factions.getFactionState(i);
 		vector<XmlNode *> nodePoolListNode = factionsNode->getChildList("nodePool");
-		for(unsigned int j = 0; j < nodePoolListNode.size() && j < pathFindNodesAbsoluteMax; ++j) {
+		for(unsigned int j = 0; j < (unsigned int)nodePoolListNode.size() && j < (unsigned int)pathFindNodesAbsoluteMax; ++j) {
 			XmlNode *nodePoolNode = nodePoolListNode[j];
 
 			Node *curNode = &factionState.nodePool[j];

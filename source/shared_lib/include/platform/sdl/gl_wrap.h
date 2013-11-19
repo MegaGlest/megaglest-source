@@ -48,6 +48,16 @@ protected:
 	SDL_Surface *screen;
 
 public:
+	// Example values:
+	// DEFAULT_CHARSET (English) = 1
+	// GB2312_CHARSET (Chinese)  = 134
+	#ifdef WIN32
+	static DWORD charSet;
+	#else
+	static int charSet;
+	#endif
+
+public:
 	PlatformContextGl();
 	virtual ~PlatformContextGl();
 
@@ -67,15 +77,6 @@ public:
 // =====================================================
 //	Global Fcs
 // =====================================================
-
-// Example values:
-// DEFAULT_CHARSET (English) = 1
-// GB2312_CHARSET (Chinese)  = 134
-#ifdef WIN32
-static DWORD charSet = DEFAULT_CHARSET;
-#else
-static int charSet = 1;
-#endif
 
 #if defined(__APPLE__)
 void createGlFontBitmaps(uint32 &base, const string &type, int size, int width, int charCount, FontMetrics &metrics);

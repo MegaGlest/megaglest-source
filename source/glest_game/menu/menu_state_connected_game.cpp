@@ -461,7 +461,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
     vector<string> resultsScenarios;
 	findDirs(dirList, resultsScenarios);
 	// Filter out only scenarios with no network slots
-	for(int i= 0; i < resultsScenarios.size(); ++i) {
+	for(int i= 0; i < (int)resultsScenarios.size(); ++i) {
 		string scenario = resultsScenarios[i];
 		string file = Scenario::getScenarioPath(dirList, scenario);
 
@@ -492,7 +492,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 		}
 	}
 	resultsScenarios.clear();
-	for(int i = 0; i < scenarioFiles.size(); ++i) {
+	for(int i = 0; i < (int)scenarioFiles.size(); ++i) {
 		resultsScenarios.push_back(formatString(scenarioFiles[i]));
 	}
     listBoxScenario.setItems(resultsScenarios);
@@ -1879,11 +1879,11 @@ void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem, strin
 
     string scenarioDir = Scenario::getScenarioDir(dirList, scenario);
     vector<string> techPaths = config.getPathListForType(ptTechs,scenarioDir);
-    for(int idx = 0; idx < techPaths.size(); idx++) {
+    for(int idx = 0; idx < (int)techPaths.size(); idx++) {
         string &techPath = techPaths[idx];
         endPathWithSlash(techPath);
 
-        if(listBoxTechTree.getSelectedItemIndex() >= 0 && listBoxTechTree.getSelectedItemIndex() < techTreeFiles.size()) {
+        if(listBoxTechTree.getSelectedItemIndex() >= 0 && listBoxTechTree.getSelectedItemIndex() < (int)techTreeFiles.size()) {
 			findDirs(techPath + techTreeFiles[listBoxTechTree.getSelectedItemIndex()] + "/factions/", results, false, false);
         }
         if(results.empty() == false) {
@@ -1899,7 +1899,7 @@ void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem, strin
 
 	vector<string> translatedFactionNames;
 	factionFiles= results;
-	for(int i = 0; i < results.size(); ++i) {
+	for(int i = 0; i < (int)results.size(); ++i) {
 		results[i]= formatString(results[i]);
 		string translatedString=techTree->getTranslatedFactionName(techTreeFiles[listBoxTechTree.getSelectedItemIndex()],factionFiles[i]);
 		if(toLower(translatedString)==toLower(results[i])){
@@ -1941,7 +1941,7 @@ void MenuStateConnectedGame::reloadFactions(bool keepExistingSelectedItem, strin
     			}
         	}
         }
-        else if(originalIndex < results.size()) {
+        else if(originalIndex < (int)results.size()) {
         	listBoxFactions[i].setSelectedItemIndex(originalIndex);
         }
     }
@@ -1975,7 +1975,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] listBoxMap.getSelectedItemIndex() = %d, mapFiles.size() = " MG_SIZE_T_SPECIFIER ", getCurrentMapFile() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxMap.getSelectedItemIndex(),mapFiles.size(),getCurrentMapFile().c_str());
 
-	if(listBoxMap.getSelectedItemIndex() >= 0 && listBoxMap.getSelectedItemIndex() < mapFiles.size()) {
+	if(listBoxMap.getSelectedItemIndex() >= 0 && listBoxMap.getSelectedItemIndex() < (int)mapFiles.size()) {
 		gameSettings->setDescription(formatString(getCurrentMapFile()));
 		gameSettings->setMap(getCurrentMapFile());
 	}
@@ -1997,7 +1997,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
     	}
 	}
 
-	if(listBoxTileset.getSelectedItemIndex() >= 0 && listBoxTileset.getSelectedItemIndex() < tilesetFiles.size()) {
+	if(listBoxTileset.getSelectedItemIndex() >= 0 && listBoxTileset.getSelectedItemIndex() < (int)tilesetFiles.size()) {
 		gameSettings->setTileset(tilesetFiles[listBoxTileset.getSelectedItemIndex()]);
 	}
 	else {
@@ -2019,7 +2019,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 			clientInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
     	}
 	}
-	if(listBoxTechTree.getSelectedItemIndex() >= 0 && listBoxTechTree.getSelectedItemIndex() < techTreeFiles.size()) {
+	if(listBoxTechTree.getSelectedItemIndex() >= 0 && listBoxTechTree.getSelectedItemIndex() < (int)techTreeFiles.size()) {
 		gameSettings->setTech(techTreeFiles[listBoxTechTree.getSelectedItemIndex()]);
 	}
 	else {
@@ -2787,7 +2787,7 @@ void MenuStateConnectedGame::update() {
                     	listBoxTechTree.getSelectedItemIndex() >= 0 &&
                     	listBoxTechTree.getSelectedItem() != Lang::getInstance().getString("DataMissing","",true)) {
 
-                    	time_t now = time(NULL);
+                    	//time_t now = time(NULL);
                     	time_t lastUpdateDate = getFolderTreeContentsCheckSumRecursivelyLastGenerated(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml");
 
                     	const time_t REFRESH_CRC_DAY_SECONDS = 60 * 60 * 1;
@@ -2812,7 +2812,7 @@ void MenuStateConnectedGame::update() {
 	    					factionName != Lang::getInstance().getString("DataMissing","",true)) {
 
 	    					uint32 factionCRC   = 0;
-	                    	time_t now = time(NULL);
+	                    	//time_t now = time(NULL);
 	                    	time_t lastUpdateDate = getFolderTreeContentsCheckSumRecursivelyLastGenerated(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml");
 
 	                    	const time_t REFRESH_CRC_DAY_SECONDS = 60 * 60 * 24;
@@ -3100,7 +3100,7 @@ void MenuStateConnectedGame::update() {
 							clientInterface->sendTextMessage("techtree CRC mismatch",-1,true,"");
 							vector<string> reportLineTokens;
 							Tokenize(report,reportLineTokens,"\n");
-							for(int reportLine = 0; reportLine < reportLineTokens.size(); ++reportLine) {
+							for(int reportLine = 0; reportLine < (int)reportLineTokens.size(); ++reportLine) {
 								clientInterface->sendTextMessage(reportLineTokens[reportLine],-1,true,"");
 							}
 						}
@@ -3378,7 +3378,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 		Config &config = Config::getInstance();
 
 		vector<string> techPaths = config.getPathListForType(ptTechs,scenarioDir);
-		for(int idx = 0; idx < techPaths.size(); idx++) {
+		for(int idx = 0; idx < (int)techPaths.size(); idx++) {
 			string &techPath = techPaths[idx];
 			endPathWithSlash(techPath);
 			//findAll(techPath + gameSettings->getTech() + "/factions/*.", results, false, false);
@@ -3402,7 +3402,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 			results.push_back(Lang::getInstance().getString("DataMissing","",true));
 			factionFiles = results;
 		    vector<string> translatedFactionNames;
-		    for(int i= 0; i < factionFiles.size(); ++i) {
+		    for(int i= 0; i < (int)factionFiles.size(); ++i) {
 		    	results[i]= formatString(results[i]);
 				string translatedString=techTree->getTranslatedFactionName(gameSettings->getTech(),factionFiles[i]);
 				if(toLower(translatedString)==toLower(results[i])){
@@ -3445,7 +3445,7 @@ bool MenuStateConnectedGame::loadFactions(const GameSettings *gameSettings, bool
 
 			factionFiles= results;
 		    vector<string> translatedFactionNames;
-		    for(int i= 0; i < factionFiles.size(); ++i) {
+		    for(int i= 0; i < (int)factionFiles.size(); ++i) {
 		    	results[i]= formatString(results[i]);
 		    	string translatedString=techTree->getTranslatedFactionName(gameSettings->getTech(),factionFiles[i]);
 		    	if(toLower(translatedString)==toLower(results[i])){
@@ -4098,7 +4098,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 
             vector<string> translatedTechs;
             std::vector<string> techsFormatted = techTreeFiles;
-        	for(int i= 0; i < techsFormatted.size(); i++){
+        	for(int i= 0; i < (int)techsFormatted.size(); i++){
         		techsFormatted.at(i)= formatString(techsFormatted.at(i));
 
     			string txTech = techTree->getTranslatedName(techTreeFiles.at(i), true);
@@ -4111,7 +4111,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 
 	    	Lang &lang= Lang::getInstance();
 	    	const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
-	    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+	    	for(unsigned int i = 0; i < (unsigned int)languageList.size(); ++i) {
 				char szMsg[8096]="";
 	            if(lang.hasString("DataMissingTechtreeFailDownload",languageList[i]) == true) {
 	            	snprintf(szMsg,8096,lang.getString("DataMissingTechtreeFailDownload",languageList[i]).c_str(),getHumanPlayerName().c_str(),(itemName+"(.7z)").c_str(),curlVersion->version);
@@ -4157,7 +4157,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 
         NetworkManager &networkManager= NetworkManager::getInstance();
         ClientInterface* clientInterface= networkManager.getClientInterface();
-        const GameSettings *gameSettings = clientInterface->getGameSettings();
+        //const GameSettings *gameSettings = clientInterface->getGameSettings();
 
         if(result.first == ftp_crt_SUCCESS) {
 	    	Lang &lang= Lang::getInstance();
@@ -4806,7 +4806,7 @@ int MenuStateConnectedGame::setupMapList(string scenario) {
 		std::for_each(formattedPlayerSortedMaps[0].begin(), formattedPlayerSortedMaps[0].end(), FormatString());
 
 		formattedMapFiles.clear();
-		for(int i= 0; i < mapFiles.size(); i++){// fetch info and put map in right list
+		for(int i= 0; i < (int)mapFiles.size(); i++){// fetch info and put map in right list
 			loadMapInfo(Map::getMapPath(mapFiles.at(i), scenarioDir, false), &mapInfo, false);
 
 			if(GameConstants::maxPlayers+1 <= mapInfo.players) {

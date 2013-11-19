@@ -759,7 +759,7 @@ XmlNode *XmlNode::getChild(const string &childName, unsigned int i) const {
 		throw megaglest_runtime_error("\"" + name + "\" node doesn't have " + uIntToStr(i+1) +" children named \"" + childName + "\"\n\nTree: "+getTreeString());
 	}
 
-	int count= 0;
+	unsigned int count= 0;
 	for(unsigned int j = 0; j < children.size(); ++j) {
 		if(children[j]->getName() == childName) {
 			if(count == i) {
@@ -791,7 +791,7 @@ XmlNode * XmlNode::getChildWithAliases(vector<string> childNameList, unsigned in
 			throw megaglest_runtime_error("\"" + name + "\" node doesn't have "+intToStr(childIndex+1)+" children named \"" + childName + "\"\n\nTree: "+getTreeString());
 		}
 
-		int count= 0;
+		unsigned int count= 0;
 		for(unsigned int j = 0; j < children.size(); ++j) {
 			if(children[j]->getName() == childName) {
 				if(count == childIndex) {

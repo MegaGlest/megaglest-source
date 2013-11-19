@@ -765,9 +765,9 @@ GameParticleSystem::GameParticleSystem(int particleCount):
 	primitive(pQuad),
 	model(NULL),
 	modelCycle(0.0f),
-	tween(0.0f),
 	offset(0.0f),
-	direction(0.0f, 1.0f, 0.0f)
+	direction(0.0f, 1.0f, 0.0f),
+	tween(0.0f)
 {}
 
 GameParticleSystem::~GameParticleSystem(){

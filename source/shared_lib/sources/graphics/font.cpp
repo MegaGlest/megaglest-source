@@ -166,7 +166,7 @@ float FontMetrics::getTextWidth(const string &str) {
 				width+= (widths[97]); // This is the letter a which is a normal wide character and good to use for spacing
 			}
 			else {
-				width+= widths[longestLine[i]];
+				width+= widths[(int)longestLine[i]];
 			}
 		}
 		return width;
@@ -522,7 +522,7 @@ void Font::bidi_cvt(string &str_) {
 				if(is_converted == true) {
 					nonASCIIWordList.push_back(str_);
 
-					if(wordIndex+1 == words.size()) {
+					if(wordIndex+1 == (int)words.size()) {
 						if(nonASCIIWordList.size() > 1) {
 							std::reverse(nonASCIIWordList.begin(),nonASCIIWordList.end());
 							copy(nonASCIIWordList.begin(), nonASCIIWordList.end(), std::inserter(wordList, wordList.begin()));

@@ -67,7 +67,14 @@ wxString ToUnicode(const string& str) {
 
 MainWindow::MainWindow(string appPath)
 		: wxFrame(NULL, -1,  ToUnicode(winHeader), wxPoint(0,0), wxSize(1024, 768))
-		, lastX(0), lastY(0)
+		, glCanvas(NULL)
+		, program(NULL)
+		, lastX(0)
+		, lastY(0)
+		, panel(NULL)
+		, menuBar(NULL)
+		, fileDialog(NULL)
+
 		, currentBrush(btHeight)
 		, height(0)
 		, surface(1)
@@ -77,11 +84,8 @@ MainWindow::MainWindow(string appPath)
 		, startLocation(1)
 		, enabledGroup(ctHeight)
 		, fileModified(false)
-		, menuBar(NULL)
-		, panel(NULL)
-        , glCanvas(NULL)
-		, fileDialog(NULL)
-        , program(NULL), boxsizer(NULL), startupSettingsInited(false) {
+        , boxsizer(NULL)
+        ,startupSettingsInited(false) {
 
 	menuFile=NULL;
 	menuEdit=NULL;

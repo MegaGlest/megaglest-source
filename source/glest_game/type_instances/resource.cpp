@@ -119,7 +119,7 @@ void Resource::saveGame(XmlNode *rootNode) const {
 void Resource::loadGame(const XmlNode *rootNode, int index,const TechTree *techTree) {
 	vector<XmlNode *> resourceNodeList = rootNode->getChildList("Resource");
 
-	if(index < resourceNodeList.size()) {
+	if(index < (int)resourceNodeList.size()) {
 		XmlNode *resourceNode = resourceNodeList[index];
 
 		amount = resourceNode->getAttribute("amount")->getIntValue();

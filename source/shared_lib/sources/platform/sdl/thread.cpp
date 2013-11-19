@@ -128,7 +128,7 @@ public:
 // =====================================
 //          Threads
 // =====================================
-Thread::Thread() : thread(NULL), deleteAfterExecute(false), mutexthreadAccessor(new Mutex()) {
+Thread::Thread() : thread(NULL), mutexthreadAccessor(new Mutex()), deleteAfterExecute(false) {
 	addThreadToList();
 }
 
@@ -249,7 +249,7 @@ int Thread::beginExecution(void* data) {
 	}
 
 	BaseThread *base_thread = dynamic_cast<BaseThread *>(thread);
-	ThreadGarbageCollector *garbage_collector = dynamic_cast<ThreadGarbageCollector *>(thread);
+	//ThreadGarbageCollector *garbage_collector = dynamic_cast<ThreadGarbageCollector *>(thread);
 	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d thread = %p base_thread = %p [%s]\n",__LINE__,thread,base_thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
 
 	if(thread->threadObjectValid() == true) {

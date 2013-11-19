@@ -1236,7 +1236,7 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 
 Unit* Gui::getRelevantObjectFromSelection(Selection::UnitContainer *uc){
 	Unit *resultUnit=NULL;
-	for(int i= 0; i < uc->size(); ++i){
+	for(int i= 0; i < (int)uc->size(); ++i) {
 		resultUnit= uc->at(i);
 		if(resultUnit->getType()->hasSkillClass(scMove)){// moving units are more relevant than non moving ones
 			break;

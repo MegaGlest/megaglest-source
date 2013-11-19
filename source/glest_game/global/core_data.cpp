@@ -395,7 +395,7 @@ void CoreData::loadTextures(string data_path) {
 			+ CORE_MENU_TEXTURES_PATH + "logo*.*";
 	vector<string> logoFilenames;
 	findAll(logosPath, logoFilenames, false, false);
-	for (int i = 0; i < logoFilenames.size(); ++i) {
+	for (int i = 0; i < (int)logoFilenames.size(); ++i) {
 		string logo = logoFilenames[i];
 		if (strcmp("logo.tga", logo.c_str()) != 0) {
 			Texture2D* logoTextureExtra = renderer.newTexture2D(rsGlobal);
@@ -419,7 +419,7 @@ void CoreData::loadTextures(string data_path) {
 		logosPath = data_path + CORE_MENU_TEXTURES_PATH + "logo*.*";
 		vector<string> logoFilenames;
 		findAll(logosPath, logoFilenames, false, false);
-		for (int i = 0; i < logoFilenames.size(); ++i) {
+		for (int i = 0; i < (int)logoFilenames.size(); ++i) {
 			string logo = logoFilenames[i];
 			if (strcmp("logo.tga", logo.c_str()) != 0) {
 				Texture2D* logoTextureExtra = renderer.newTexture2D(rsGlobal);
@@ -444,7 +444,7 @@ void CoreData::loadTextures(string data_path) {
 			+ CORE_MENU_TEXTURES_PATH + "intro*.*";
 	vector<string> introFilenames;
 	findAll(introPath, introFilenames, false, false);
-	for (int i = 0; i < introFilenames.size(); ++i) {
+	for (int i = 0; i < (int)introFilenames.size(); ++i) {
 		string logo = introFilenames[i];
 		//if(strcmp("logo.tga",logo.c_str()) != 0) {
 		Texture2D* logoTextureExtra = renderer.newTexture2D(rsGlobal);
@@ -468,7 +468,7 @@ void CoreData::loadTextures(string data_path) {
 		introPath = data_path + CORE_MENU_TEXTURES_PATH + "intro*.*";
 		vector<string> introFilenames;
 		findAll(introPath, introFilenames, false, false);
-		for (int i = 0; i < introFilenames.size(); ++i) {
+		for (int i = 0; i < (int)introFilenames.size(); ++i) {
 			string logo = introFilenames[i];
 			//if(strcmp("logo.tga",logo.c_str()) != 0) {
 			Texture2D* logoTextureExtra = renderer.newTexture2D(rsGlobal);
@@ -708,7 +708,7 @@ void CoreData::loadIntroMedia(string data_path) {
 				+ CORE_MENU_VIDEOS_PATH + "intro.*";
 		vector<string> introVideos;
 		findAll(introVideoPath, introVideos, false, false);
-		for (int i = 0; i < introVideos.size(); ++i) {
+		for (int i = 0; i < (int)introVideos.size(); ++i) {
 			string video = getGameCustomCoreDataPath(data_path, "")
 					+ CORE_MENU_VIDEOS_PATH + introVideos[i];
 			if (SystemFlags::VERBOSE_MODE_ENABLED)
@@ -727,7 +727,7 @@ void CoreData::loadIntroMedia(string data_path) {
 			introVideoPath = data_path + CORE_MENU_VIDEOS_PATH + "intro.*";
 			introVideos.clear();
 			findAll(introVideoPath, introVideos, false, false);
-			for (int i = 0; i < introVideos.size(); ++i) {
+			for (int i = 0; i < (int)introVideos.size(); ++i) {
 				string video = data_path + CORE_MENU_VIDEOS_PATH
 						+ introVideos[i];
 				if (SystemFlags::VERBOSE_MODE_ENABLED)
@@ -758,7 +758,7 @@ void CoreData::loadMainMenuMedia(string data_path) {
 				+ CORE_MENU_VIDEOS_PATH + "main.*";
 		vector<string> mainVideos;
 		findAll(mainVideoPath, mainVideos, false, false);
-		for (int i = 0; i < mainVideos.size(); ++i) {
+		for (int i = 0; i < (int)mainVideos.size(); ++i) {
 			string video = getGameCustomCoreDataPath(data_path, "")
 					+ CORE_MENU_VIDEOS_PATH + mainVideos[i];
 			if (SystemFlags::VERBOSE_MODE_ENABLED)
@@ -778,7 +778,7 @@ void CoreData::loadMainMenuMedia(string data_path) {
 			mainVideoPath = data_path + CORE_MENU_VIDEOS_PATH + "main.*";
 			mainVideos.clear();
 			findAll(mainVideoPath, mainVideos, false, false);
-			for (int i = 0; i < mainVideos.size(); ++i) {
+			for (int i = 0; i < (int)mainVideos.size(); ++i) {
 				string video = data_path + CORE_MENU_VIDEOS_PATH
 						+ mainVideos[i];
 				if (SystemFlags::VERBOSE_MODE_ENABLED)
@@ -809,7 +809,7 @@ void CoreData::loadBattleEndMedia(string data_path) {
 				+ CORE_MENU_VIDEOS_PATH + "battle_end_win.*";
 		vector<string> battleEndWinVideos;
 		findAll(battleEndWinVideoPath, battleEndWinVideos, false, false);
-		for (int i = 0; i < battleEndWinVideos.size(); ++i) {
+		for (int i = 0; i < (int)battleEndWinVideos.size(); ++i) {
 			string video = getGameCustomCoreDataPath(data_path, "")
 					+ CORE_MENU_VIDEOS_PATH + battleEndWinVideos[i];
 			if (SystemFlags::VERBOSE_MODE_ENABLED)
@@ -831,7 +831,7 @@ void CoreData::loadBattleEndMedia(string data_path) {
 					+ "battle_end_win.*";
 			battleEndWinVideos.clear();
 			findAll(battleEndWinVideoPath, battleEndWinVideos, false, false);
-			for (int i = 0; i < battleEndWinVideos.size(); ++i) {
+			for (int i = 0; i < (int)battleEndWinVideos.size(); ++i) {
 				string video = data_path + CORE_MENU_VIDEOS_PATH
 						+ battleEndWinVideos[i];
 				if (SystemFlags::VERBOSE_MODE_ENABLED)
@@ -857,7 +857,7 @@ void CoreData::loadBattleEndMedia(string data_path) {
 				+ CORE_MENU_MUSIC_PATH + "battle_end_win.*";
 		vector<string> battleEndWinMusic;
 		findAll(battleEndWinPath, battleEndWinMusic, false, false);
-		for (int i = 0; i < battleEndWinMusic.size(); ++i) {
+		for (int i = 0; i < (int)battleEndWinMusic.size(); ++i) {
 			string music = getGameCustomCoreDataPath(data_path, "")
 					+ CORE_MENU_MUSIC_PATH + battleEndWinMusic[i];
 			if (SystemFlags::VERBOSE_MODE_ENABLED)
@@ -879,7 +879,7 @@ void CoreData::loadBattleEndMedia(string data_path) {
 					+ "battle_end_win.*";
 			battleEndWinMusic.clear();
 			findAll(battleEndWinPath, battleEndWinMusic, false, false);
-			for (int i = 0; i < battleEndWinMusic.size(); ++i) {
+			for (int i = 0; i < (int)battleEndWinMusic.size(); ++i) {
 				string music = data_path + CORE_MENU_MUSIC_PATH
 						+ battleEndWinMusic[i];
 				if (SystemFlags::VERBOSE_MODE_ENABLED)
@@ -906,7 +906,7 @@ void CoreData::loadBattleEndMedia(string data_path) {
 				+ CORE_MENU_VIDEOS_PATH + "battle_end_lose.*";
 		vector<string> battleEndLoseVideos;
 		findAll(battleEndLoseVideoPath, battleEndLoseVideos, false, false);
-		for (int i = 0; i < battleEndLoseVideos.size(); ++i) {
+		for (int i = 0; i < (int)battleEndLoseVideos.size(); ++i) {
 			string video = getGameCustomCoreDataPath(data_path, "")
 					+ CORE_MENU_VIDEOS_PATH + battleEndLoseVideos[i];
 			if (SystemFlags::VERBOSE_MODE_ENABLED)
@@ -928,7 +928,7 @@ void CoreData::loadBattleEndMedia(string data_path) {
 					+ "battle_end_lose.*";
 			battleEndLoseVideos.clear();
 			findAll(battleEndLoseVideoPath, battleEndLoseVideos, false, false);
-			for (int i = 0; i < battleEndLoseVideos.size(); ++i) {
+			for (int i = 0; i < (int)battleEndLoseVideos.size(); ++i) {
 				string video = data_path + CORE_MENU_VIDEOS_PATH
 						+ battleEndLoseVideos[i];
 				if (SystemFlags::VERBOSE_MODE_ENABLED)
@@ -954,7 +954,7 @@ void CoreData::loadBattleEndMedia(string data_path) {
 				+ CORE_MENU_MUSIC_PATH + "battle_end_lose.*";
 		vector<string> battleEndLoseMusic;
 		findAll(battleEndLosePath, battleEndLoseMusic, false, false);
-		for (int i = 0; i < battleEndLoseMusic.size(); ++i) {
+		for (int i = 0; i < (int)battleEndLoseMusic.size(); ++i) {
 			string music = getGameCustomCoreDataPath(data_path, "")
 					+ CORE_MENU_MUSIC_PATH + battleEndLoseMusic[i];
 			if (SystemFlags::VERBOSE_MODE_ENABLED)
@@ -976,7 +976,7 @@ void CoreData::loadBattleEndMedia(string data_path) {
 					+ "battle_end_lose.*";
 			battleEndLoseMusic.clear();
 			findAll(battleEndLosePath, battleEndLoseMusic, false, false);
-			for (int i = 0; i < battleEndLoseMusic.size(); ++i) {
+			for (int i = 0; i < (int)battleEndLoseMusic.size(); ++i) {
 				string music = data_path + CORE_MENU_MUSIC_PATH
 						+ battleEndLoseMusic[i];
 				if (SystemFlags::VERBOSE_MODE_ENABLED)

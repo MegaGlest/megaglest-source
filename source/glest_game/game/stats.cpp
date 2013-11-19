@@ -157,10 +157,10 @@ string Stats::getStats() const {
 	result += "Max Concurrent Units: " + intToStr(maxConcurrentUnitCount) + "\n";
 	result += "Total EndGame Concurrent Unit Count: " + intToStr(totalEndGameConcurrentUnitCount) + "\n";
 
-	for(unsigned int i = 0; i < factionCount; ++i) {
+	for(unsigned int i = 0; i < (unsigned int)factionCount; ++i) {
 		const PlayerStats &player = playerStats[i];
 
-		result += "player #" + intToStr(i) + " " + player.getStats() + "\n";
+		result += "player #" + uIntToStr(i) + " " + player.getStats() + "\n";
 	}
 
 	return result;

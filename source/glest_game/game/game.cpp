@@ -618,8 +618,8 @@ string Game::extractFactionLogoFile(bool &loadingImageUsed, string factionName,
 	}
 	else {
 		Config &config = Config::getInstance();
-		vector<string> pathList=config.getPathListForType(ptTechs,scenarioDir);
-		for(int idx = 0; idx < pathList.size(); idx++) {
+		vector<string> pathList = config.getPathListForType(ptTechs,scenarioDir);
+		for(int idx = 0; idx < (int)pathList.size(); idx++) {
 			string currentPath = pathList[idx];
 			endPathWithSlash(currentPath);
 			//string path = currentPath + techName + "/" + "factions" + "/" + settings->getFactionTypeName(i);
@@ -642,7 +642,7 @@ string Game::extractFactionLogoFile(bool &loadingImageUsed, string factionName,
 						int bestMinHeightDiff = INT_MAX;
 						// Now find the best texture for our screen
 						// Texture2D *result = preloadTexture(logoFilename);
-						for(unsigned int logoIndex = 0; logoIndex < loadScreenList.size(); ++logoIndex) {
+						for(unsigned int logoIndex = 0; logoIndex < (unsigned int)loadScreenList.size(); ++logoIndex) {
 							string factionLogo = path + loadScreenList[logoIndex];
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] looking for loading screen '%s'\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,factionLogo.c_str());
 
@@ -786,7 +786,7 @@ string Game::extractTechLogoFile(string scenarioDir, string techName,
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Searching for tech loading screen\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
     Config &config = Config::getInstance();
     vector<string> pathList = config.getPathListForType(ptTechs, scenarioDir);
-    for(int idx = 0; idx < pathList.size(); idx++) {
+    for(int idx = 0; idx < (int)pathList.size(); idx++) {
 		string currentPath = pathList[idx];
 		endPathWithSlash(currentPath);
 		string path = currentPath + techName;
@@ -838,7 +838,7 @@ void Game::loadHudTexture(const GameSettings *settings)
 		bool hudFound = false;
 		Config &config= Config::getInstance();
 		vector<string> pathList= config.getPathListForType(ptTechs, scenarioDir);
-		for(int idx= 0; hudFound == false && idx < pathList.size(); idx++){
+		for(int idx= 0; hudFound == false && idx < (int)pathList.size(); idx++){
 			string currentPath= pathList[idx];
 			endPathWithSlash(currentPath);
 
@@ -847,7 +847,7 @@ void Game::loadHudTexture(const GameSettings *settings)
 			endPathWithSlash(path);
 			findAll(path + GameConstants::HUD_SCREEN_FILE_FILTER, hudList, false, false);
 			if(hudList.empty() == false){
-				for(unsigned int hudIdx = 0; hudFound == false && hudIdx < hudList.size(); ++hudIdx) {
+				for(unsigned int hudIdx = 0; hudFound == false && hudIdx < (unsigned int)hudList.size(); ++hudIdx) {
 					string hudImageFileName= path + hudList[hudIdx];
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] looking for a HUD [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,hudImageFileName.c_str());
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
@@ -934,13 +934,13 @@ vector<Texture2D *> Game::processTech(string techName) {
 
 		vector<string> factions;
 		vector<string> techPaths = Config::getInstance().getPathListForType(ptTechs);
-		for(int idx = 0; idx < techPaths.size(); idx++) {
+		for(int idx = 0; idx < (int)techPaths.size(); idx++) {
 			string &techPath = techPaths[idx];
 			endPathWithSlash(techPath);
 			findAll(techPath + techName + "/factions/*.", factions, false, false);
 
 			if(factions.empty() == false) {
-				for(unsigned int factionIdx = 0; factionIdx < factions.size(); ++factionIdx) {
+				for(unsigned int factionIdx = 0; factionIdx < (unsigned int)factions.size(); ++factionIdx) {
 					bool loadingImageUsed = false;
 					string currentFactionName_factionPreview = factions[factionIdx];
 
@@ -1877,7 +1877,7 @@ void Game::update() {
 
 				if(receivedTooEarlyInFrames[index]==-1){
 					// we need to check if we already received something for next frame
-					if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > world.getFrameCount()) {
+					if(lastNetworkFrameFromServer > 0 && lastNetworkFrameFromServer > (uint64)world.getFrameCount()) {
 						receivedTooEarlyInFrames[index]= lastNetworkFrameFromServer-world.getFrameCount();
 					}
 				}
@@ -3426,7 +3426,7 @@ void Game::tick() {
 
 int Game::getFirstUnusedTeamNumber() {
 	std::map<int,bool> uniqueTeamNumbersUsed;
-	for(unsigned int i = 0; i < world.getFactionCount(); ++i) {
+	for(unsigned int i = 0; i < (unsigned int)world.getFactionCount(); ++i) {
 		Faction *faction = world.getFaction(i);
 		uniqueTeamNumbersUsed[faction->getTeam()]=true;
 	}
@@ -3669,7 +3669,7 @@ void Game::mouseDownLeft(int x, int y) {
 				switchTeamIndexMap.clear();
 				std::map<int,bool> uniqueTeamNumbersUsed;
 				std::vector<string> menuItems;
-				for(unsigned int i = 0; i < world.getFactionCount(); ++i) {
+				for(unsigned int i = 0; i < (unsigned int)world.getFactionCount(); ++i) {
 					Faction *faction = world.getFaction(i);
 
 					if(faction->getPersonalityType() != fpt_Observer &&
@@ -3718,7 +3718,7 @@ void Game::mouseDownLeft(int x, int y) {
 				}
 				disconnectPlayerIndexMap.clear();
 				std::vector<string> menuItems;
-				for(unsigned int i = 0; i < world.getFactionCount(); ++i) {
+				for(unsigned int i = 0; i < (unsigned int)world.getFactionCount(); ++i) {
 					Faction *faction = world.getFaction(i);
 
 					//printf("faction->getPersonalityType() = %d index [%d,%d] control [%d] networkstatus [%d]\n",faction->getPersonalityType(),world.getThisFaction()->getIndex(),faction->getIndex(),faction->getControlType(),this->gameSettings.getNetworkPlayerStatuses(i));
@@ -4058,7 +4058,7 @@ void Game::mouseDownLeft(int x, int y) {
 					Vec2i screenPos(x,y-60);
 					Renderer &renderer= Renderer::getInstance();
 					renderer.computePosition(screenPos, targetPos);
-					Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
+					//Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
 
 
 					MarkedCell mc(targetPos,world.getThisFaction(),"none",world.getThisFaction()->getStartLocationIndex());
@@ -5285,7 +5285,7 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 	if(this->masterserverMode == false) {
 		Renderer &renderer= Renderer::getInstance();
 		Quad2i visibleQuad= renderer.getVisibleQuad();
-		Quad2i visibleQuadCamera= renderer.getVisibleQuadFromCamera();
+		//Quad2i visibleQuadCamera= renderer.getVisibleQuadFromCamera();
 
 		str+= "Visible quad:        ";
 		for(int i= 0; i<4; ++i){
@@ -6577,7 +6577,7 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 		minimapNode->clearChild("fowPixmap1");
 
 		NetworkManager &networkManager= NetworkManager::getInstance();
-		NetworkRole role = networkManager.getNetworkRole();
+		//NetworkRole role = networkManager.getNetworkRole();
 		ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
 
 		for(int i= 0; i<newGameSettings.getFactionCount(); ++i) {

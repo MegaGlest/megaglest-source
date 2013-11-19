@@ -717,7 +717,7 @@ void Ai::addExpansion(const Vec2i &pos) {
 	expansionPositions.push_front(pos);
 
 	//remove expansion if queue is list is full
-	if(expansionPositions.size() > maxExpansions){
+	if((int)expansionPositions.size() > maxExpansions){
 		expansionPositions.pop_back();
 	}
 }

@@ -1276,7 +1276,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						snprintf(szBuf,8096,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %u, i = %u,producers.size() = " MG_SIZE_T_SPECIFIER "",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,producers.size());
 						throw megaglest_runtime_error(szBuf);
 					}
-					if(prIndex >= producers.size()) {
+					if(prIndex >= (int)producers.size()) {
 						char szBuf[8096]="";
 						printf("In [%s::%s Line: %d] prIndex >= producers.size(), currentProducerIndex = %d, i = %u,producers.size() = " MG_SIZE_T_SPECIFIER " \n",__FILE__,__FUNCTION__,__LINE__,prIndex,i,producers.size());
 						snprintf(szBuf,8096,"In [%s::%s Line: %d] currentProducerIndex >= producers.size(), currentProducerIndex = %d, i = %u,producers.size() = " MG_SIZE_T_SPECIFIER "",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,producers.size());
@@ -1341,7 +1341,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 								snprintf(szBuf,8096,"In [%s::%s Line: %d] currentProducerIndex >= aiInterface->getMyUnitCount(), currentProducerIndex = %d, aiInterface->getMyUnitCount() = %d, i = %u,backupProducers.size() = " MG_SIZE_T_SPECIFIER "",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,aiInterface->getMyUnitCount(),i,backupProducers.size());
 								throw megaglest_runtime_error(szBuf);
 							}
-							if(prIndex >= backupProducers.size()) {
+							if(prIndex >= (int)backupProducers.size()) {
 								char szBuf[8096]="";
 								printf("In [%s::%s Line: %d] prIndex >= backupProducers.size(), currentProducerIndex = %d, i = %u,backupProducers.size() = " MG_SIZE_T_SPECIFIER " \n",__FILE__,__FUNCTION__,__LINE__,prIndex,i,backupProducers.size());
 								snprintf(szBuf,8096,"In [%s::%s Line: %d] currentProducerIndex >= backupProducers.size(), currentProducerIndex = %d, i = %u,backupProducers.size() = " MG_SIZE_T_SPECIFIER "",__FILE__,__FUNCTION__,__LINE__,currentProducerIndex,i,backupProducers.size());
@@ -1613,7 +1613,7 @@ void AiRuleBuild::buildGeneric(const BuildTask *bt) {
 	}
 
 	if(aiInterface->isLogLevelEnabled(4) == true) {
-		for(int i = 0; i < buildings.size(); ++i) {
+		for(int i = 0; i < (int)buildings.size(); ++i) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"In buildGeneric i = %d unit type: [%s]\n",i,buildings[i]->getName().c_str());
 			aiInterface->printLog(4, szBuf);
@@ -1642,7 +1642,7 @@ void AiRuleBuild::buildBestBuilding(const vector<const UnitType*> &buildings){
 			if(i>0){
 
 				//Defensive buildings have priority
-				for(int j=0; j<buildings.size() && !buildingFound; ++j){
+				for(int j=0; j < (int)buildings.size() && buildingFound == false; ++j){
 					const UnitType *building= buildings[j];
 					if(ai->getCountOfType(building)<=i+1 && isDefensive(building)) {
 

@@ -365,7 +365,7 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 		}
 	}
 	else {
-		for(int i = 0; i < globbuf.gl_pathc; ++i) {
+		for(int i = 0; i < (int)globbuf.gl_pathc; ++i) {
 			const char* p = globbuf.gl_pathv[i];
 			const char* begin = p;
 			for( ; *p != 0; ++p) {
@@ -598,7 +598,7 @@ void updatePathClimbingParts(string &path) {
 		for(int x = (int)pos; x >= 0; --x) {
 			//printf("x [%d][%c] pos [%ld][%c] [%s]\n",x,path[x],(long int)pos,path[pos],path.substr(0,x+1).c_str());
 
-			if((path[x] == '/' || path[x] == '\\') && x != pos) {
+			if((path[x] == '/' || path[x] == '\\') && x != (int)pos) {
 				path.erase(x,pos-x);
 				break;
 			}
@@ -1034,7 +1034,7 @@ uint32 getFolderTreeContentsCheckSumRecursively(const string &path, const string
 
 	int fileLoopCount = 0;
 	int fileMatchCount = 0;
-	for(int i = 0; i < globbuf.gl_pathc; ++i) {
+	for(int i = 0; i < (int)globbuf.gl_pathc; ++i) {
 		const char* p = globbuf.gl_pathv[i];
 		//printf("Line: %d p [%s]\n",__LINE__,p);
 
@@ -1072,7 +1072,7 @@ uint32 getFolderTreeContentsCheckSumRecursively(const string &path, const string
 	}
 #endif
 
-	for(int i = 0; i < globbuf.gl_pathc; ++i) {
+	for(int i = 0; i < (int)globbuf.gl_pathc; ++i) {
 #if defined(__APPLE__) || defined(__FreeBSD__)
 		struct stat statStruct;
 		// only process if dir..
@@ -1212,7 +1212,7 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 		throw megaglest_runtime_error(msg.str());
 	}
 #endif
-	for(int i = 0; i < globbuf.gl_pathc; ++i) {
+	for(int i = 0; i < (int)globbuf.gl_pathc; ++i) {
 		const char* p = globbuf.gl_pathv[i];
 
 		bool skipItem = (EndsWith(p, ".") == true || EndsWith(p, "..") == true);
@@ -1253,7 +1253,7 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 	}
 #endif
 
-	for(int i = 0; i < globbuf.gl_pathc; ++i) {
+	for(int i = 0; i < (int)globbuf.gl_pathc; ++i) {
 #if defined(__APPLE__) || defined(__FreeBSD__)
 		struct stat statStruct;
 		// only get if dir..
@@ -1354,7 +1354,7 @@ vector<std::pair<string,uint32> > getFolderTreeContentsCheckSumListRecursively(c
 	}
 #endif
 
-	for(int i = 0; i < globbuf.gl_pathc; ++i) {
+	for(int i = 0; i < (int)globbuf.gl_pathc; ++i) {
 		const char* p = globbuf.gl_pathv[i];
 
 		if(isdir(p) == false) {
@@ -1392,7 +1392,7 @@ vector<std::pair<string,uint32> > getFolderTreeContentsCheckSumListRecursively(c
 	}
 #endif
 
-	for(int i = 0; i < globbuf.gl_pathc; ++i) {
+	for(int i = 0; i < (int)globbuf.gl_pathc; ++i) {
 #if defined(__APPLE__) || defined(__FreeBSD__)
 		struct stat statStruct;
 		// only get if dir..

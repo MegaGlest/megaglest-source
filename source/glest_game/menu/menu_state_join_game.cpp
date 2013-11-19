@@ -280,7 +280,7 @@ void MenuStateJoinGame::DiscoveredServers(std::vector<string> serverList) {
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		for(int idx = 0; idx < serverList.size(); idx++) {
+		for(int idx = 0; idx < (int)serverList.size(); idx++) {
 
 			vector<string> paramPartPortsTokens;
 			Tokenize(serverList[idx],paramPartPortsTokens,":");
@@ -687,7 +687,7 @@ void MenuStateJoinGame::keyPress(SDL_KeyboardEvent c) {
 		//if(c>='0' && c<='9') {
 		if( (key >= SDLK_0 && key <= SDLK_9) ||
 			(key >= SDLK_KP0 && key <= SDLK_KP9)) {
-			if(labelServerIp.getText().size() < maxTextSize) {
+			if((int)labelServerIp.getText().size() < maxTextSize) {
 				string text= labelServerIp.getText();
 				//text.insert(text.end()-1, key);
 				char szCharText[20]="";
@@ -707,7 +707,7 @@ void MenuStateJoinGame::keyPress(SDL_KeyboardEvent c) {
 		}
 		//else if (c=='.') {
 		else if (key == SDLK_PERIOD) {
-			if(labelServerIp.getText().size() < maxTextSize) {
+			if((int)labelServerIp.getText().size() < maxTextSize) {
 				string text= labelServerIp.getText();
 				if(text.size() > 0) {
 					text.insert(text.end() -1, '.');

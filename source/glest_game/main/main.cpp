@@ -239,7 +239,7 @@ static void cleanupProcessObjects() {
 
 				printf("Waiting for the following threads to exit [" MG_SIZE_T_SPECIFIER "]:\n",Thread::getThreadList().size());
 
-				for(int i = 0; i < Thread::getThreadList().size(); ++i) {
+				for(int i = 0; i < (int)Thread::getThreadList().size(); ++i) {
 					BaseThread *baseThread = dynamic_cast<BaseThread *>(Thread::getThreadList()[i]);
 					printf("Thread index: %d ptr [%p] isBaseThread: %d, Name: [%s]\n",i,baseThread,(baseThread != NULL ? 1 : 0),(baseThread != NULL ? baseThread->getUniqueID().c_str() : "<na>"));
 				}
@@ -1870,7 +1870,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 						string duplicateFile = fileList[idx];
 						string fileExt = extractExtension(duplicateFile);
 						if(fileExt == "wav" || fileExt == "ogg") {
-							off_t fileSize = getFileSize(duplicateFile);
+							//off_t fileSize = getFileSize(duplicateFile);
 							if(idx == 0) {
 								newCommonFileName = "$COMMONDATAPATH/sounds/" + extractFileFromDirectoryPath(duplicateFile);
 								break;
@@ -1932,7 +1932,7 @@ void runTechValidationForPath(string techPath, string techName,
 	if(factionsList.empty() == false) {
 		Checksum checksum;
 		set<string> factions;
-		for(int j = 0; j < factionsList.size(); ++j) {
+		for(int j = 0; j < (int)factionsList.size(); ++j) {
 			if(	filteredFactionList.empty() == true ||
 				std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
 				factions.insert(factionsList[j]);
@@ -1941,7 +1941,7 @@ void runTechValidationForPath(string techPath, string techName,
 
 		printf("\n----------------------------------------------------------------");
 		printf("\nChecking techPath [%s] techName [%s] total faction count = %d\n",techPath.c_str(), techName.c_str(),(int)factionsList.size());
-		for(int j = 0; j < factionsList.size(); ++j) {
+		for(int j = 0; j < (int)factionsList.size(); ++j) {
 			if(	filteredFactionList.empty() == true ||
 				std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
 				printf("Using faction [%s]\n",factionsList[j].c_str());
@@ -2008,7 +2008,7 @@ void runTechValidationForPath(string techPath, string techName,
 					techtree_errors = true;
 					// Display the validation errors
 					string errorText = "\nErrors were detected:\n=====================\n";
-					for(int i = 0; i < resultErrors.size(); ++i) {
+					for(int i = 0; i < (int)resultErrors.size(); ++i) {
 						if(i > 0) {
 							errorText += "\n";
 						}
@@ -2030,7 +2030,7 @@ void runTechValidationForPath(string techPath, string techName,
 					techtree_errors = true;
 					// Display the validation errors
 					string errorText = "\nErrors were detected:\n=====================\n";
-					for(int i = 0; i < resultErrors.size(); ++i) {
+					for(int i = 0; i < (int)resultErrors.size(); ++i) {
 						if(i > 0) {
 							errorText += "\n";
 						}
@@ -2352,7 +2352,7 @@ void runTechValidationForPath(string techPath, string techName,
 									string duplicateFile = fileList[idx];
 									string fileExt = extractExtension(duplicateFile);
 									if(fileExt == "wav" || fileExt == "ogg") {
-										off_t fileSize = getFileSize(duplicateFile);
+										//off_t fileSize = getFileSize(duplicateFile);
 										if(idx == 0) {
 											newCommonFileName = "$COMMONDATAPATH/sounds/" + extractFileFromDirectoryPath(duplicateFile);
 											break;
@@ -2440,7 +2440,7 @@ void runTechTranslationExtractionForPath(string techPath, string techName,
 	if(factionsList.empty() == false) {
 		Checksum checksum;
 		set<string> factions;
-		for(int j = 0; j < factionsList.size(); ++j) {
+		for(int j = 0; j < (int)factionsList.size(); ++j) {
 			if(	filteredFactionList.empty() == true ||
 				std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
 				factions.insert(factionsList[j]);
@@ -2449,7 +2449,7 @@ void runTechTranslationExtractionForPath(string techPath, string techName,
 
 		printf("\n----------------------------------------------------------------");
 		printf("\nChecking techPath [%s] techName [%s] total faction count = %d\n",techPath.c_str(), techName.c_str(),(int)factionsList.size());
-		for(int j = 0; j < factionsList.size(); ++j) {
+		for(int j = 0; j < (int)factionsList.size(); ++j) {
 			if(	filteredFactionList.empty() == true ||
 				std::find(filteredFactionList.begin(),filteredFactionList.end(),factionsList[j]) != filteredFactionList.end()) {
 				printf("Using faction [%s]\n",factionsList[j].c_str());
@@ -2488,21 +2488,21 @@ void runTechTranslationExtractionForPath(string techPath, string techName,
 
 						txFile << "; --------------" << std::endl;
 						txFile << "; Types of Armor" << std::endl;
-						for(unsigned int index = 0; index < techtree->getArmorTypeCount(); ++index) {
+						for(int index = 0; index < techtree->getArmorTypeCount(); ++index) {
 							const ArmorType *at = techtree->getArmorTypeByIndex(index);
 							txFile << "ArmorTypeName_" << at->getName(false) << "=" << at->getName(false) << std::endl;
 						}
 
 						txFile << "; -------------- " << std::endl;
 						txFile << "; Types of Attack" << std::endl;
-						for(unsigned int index = 0; index < techtree->getAttackTypeCount(); ++index) {
+						for(int index = 0; index < techtree->getAttackTypeCount(); ++index) {
 							const AttackType *at = techtree->getAttackTypeByIndex(index);
 							txFile << "AttackTypeName_" << at->getName(false) << "=" << at->getName(false) << std::endl;
 						}
 
 						txFile << "; ------------------" << std::endl;
 						txFile << "; Types of Resources" << std::endl;
-						for(unsigned int index = 0; index < techtree->getResourceTypeCount(); ++index) {
+						for(int index = 0; index < techtree->getResourceTypeCount(); ++index) {
 							const ResourceType *rt = techtree->getResourceType(index);
 							txFile << "ResourceTypeName_" << rt->getName(false) << "=" << rt->getName(false) << std::endl;
 						}
@@ -2512,33 +2512,33 @@ void runTechTranslationExtractionForPath(string techPath, string techName,
 						txFile << "FactionName_" << GameConstants::OBSERVER_SLOTNAME << "=" << GameConstants::OBSERVER_SLOTNAME << std::endl;
 						txFile << "FactionName_" << GameConstants::RANDOMFACTION_SLOTNAME << "=" << GameConstants::RANDOMFACTION_SLOTNAME << std::endl;
 
-						for(unsigned int index = 0; index < techtree->getTypeCount(); ++index) {
+						for(int index = 0; index < techtree->getTypeCount(); ++index) {
 							const FactionType *ft = techtree->getType(index);
 							txFile << "FactionName_" << ft->getName(false) << "=" << ft->getName(false) << std::endl;
 
 							txFile << "; ----------------------------------" << std::endl;
 							txFile << "; Types of Upgrades for this Faction" << std::endl;
-							for(unsigned int upgradeIndex = 0; upgradeIndex < ft->getUpgradeTypeCount(); ++upgradeIndex) {
+							for(int upgradeIndex = 0; upgradeIndex < ft->getUpgradeTypeCount(); ++upgradeIndex) {
 								const UpgradeType *upt = ft->getUpgradeType(upgradeIndex);
 								txFile << "UpgradeTypeName_" << upt->getName(false) << "=" << upt->getName(false) << std::endl;
 							}
 
 							txFile << "; -------------------------------" << std::endl;
 							txFile << "; Types of Units for this Faction" << std::endl;
-							for(unsigned int unitIndex = 0; unitIndex < ft->getUnitTypeCount(); ++unitIndex) {
+							for(int unitIndex = 0; unitIndex < ft->getUnitTypeCount(); ++unitIndex) {
 								const UnitType *ut = ft->getUnitType(unitIndex);
 								txFile << "UnitTypeName_" << ut->getName(false) << "=" << ut->getName(false) << std::endl;
 
 								txFile << "; --------------------" << std::endl;
 								txFile << "; Levels for this Unit" << std::endl;
-								for(unsigned int levelIndex = 0; levelIndex < ut->getLevelCount(); ++levelIndex) {
+								for(int levelIndex = 0; levelIndex < ut->getLevelCount(); ++levelIndex) {
 									const Level *level = ut->getLevel(levelIndex);
 									txFile << "LevelName_" << level->getName(false) << "=" << level->getName(false) << std::endl;
 								}
 
 								txFile << "; -------------------------------" << std::endl;
 								txFile << "; Types of Commands for this Unit" << std::endl;
-								for(unsigned int commandIndex = 0; commandIndex < ut->getCommandTypeCount(); ++commandIndex) {
+								for(int commandIndex = 0; commandIndex < ut->getCommandTypeCount(); ++commandIndex) {
 									const CommandType *ct = ut->getCommandType(commandIndex);
 									txFile << "CommandName_" << ct->getName(false) << "=" << ct->getName(false) << std::endl;
 								}
@@ -2592,7 +2592,7 @@ void runTechTranslationExtraction(int argc, char** argv) {
 
             if(filteredTechTreeList.empty() == false) {
                 printf("Filtering techtrees and only looking for the following:\n");
-                for(int idx = 0; idx < filteredTechTreeList.size(); ++idx) {
+                for(int idx = 0; idx < (int)filteredTechTreeList.size(); ++idx) {
                     filteredTechTreeList[idx] = trim(filteredTechTreeList[idx]);
                     printf("%s\n",filteredTechTreeList[idx].c_str());
                 }
@@ -2605,11 +2605,11 @@ void runTechTranslationExtraction(int argc, char** argv) {
     World world;
 
     vector<string> techPaths = config.getPathListForType(ptTechs);
-    for(int idx = 0; idx < techPaths.size(); idx++) {
+    for(int idx = 0; idx < (int)techPaths.size(); idx++) {
         string &techPath = techPaths[idx];
 		endPathWithSlash(techPath);
 
-        for(int idx2 = 0; idx2 < techTreeFiles.size(); idx2++) {
+        for(int idx2 = 0; idx2 < (int)techTreeFiles.size(); idx2++) {
             string &techName = techTreeFiles[idx2];
 
             if(	filteredTechTreeList.empty() == true ||
@@ -2668,13 +2668,13 @@ void runTechValidationReport(int argc, char** argv) {
             std::vector<string> filteredFactionList;
 
             vector<string> scenarioPaths = config.getPathListForType(ptScenarios);
-            for(int idx = 0; idx < scenarioPaths.size(); idx++) {
+            for(int idx = 0; idx < (int)scenarioPaths.size(); idx++) {
                 string &scenarioPath = scenarioPaths[idx];
         		endPathWithSlash(scenarioPath);
 
         		vector<string> scenarioList;
         		findDirs(scenarioPath, scenarioList, false, false);
-                for(int idx2 = 0; idx2 < scenarioList.size(); idx2++) {
+                for(int idx2 = 0; idx2 < (int)scenarioList.size(); idx2++) {
                     string &scenarioName = scenarioList[idx2];
 
                     if(scenarioName == validateScenarioName) {
@@ -2701,7 +2701,7 @@ void runTechValidationReport(int argc, char** argv) {
                     	}
                     	else {
                     	    vector<string> techPaths = config.getPathListForType(ptTechs);
-                    	    for(int idx = 0; idx < techPaths.size(); idx++) {
+                    	    for(int idx = 0; idx < (int)techPaths.size(); idx++) {
                     	        string &techPath = techPaths[idx];
                     			endPathWithSlash(techPath);
                     			scenarioTechtree = techPath + "/" + techName + "/" + techName + ".xml";
@@ -2747,7 +2747,7 @@ void runTechValidationReport(int argc, char** argv) {
 
             if(filteredFactionList.empty() == false) {
                 printf("Filtering factions and only looking for the following:\n");
-                for(int idx = 0; idx < filteredFactionList.size(); ++idx) {
+                for(int idx = 0; idx < (int)filteredFactionList.size(); ++idx) {
                     filteredFactionList[idx] = trim(filteredFactionList[idx]);
                     printf("%s\n",filteredFactionList[idx].c_str());
                 }
@@ -2778,7 +2778,7 @@ void runTechValidationReport(int argc, char** argv) {
 
             if(filteredTechTreeList.empty() == false) {
                 printf("Filtering techtrees and only looking for the following:\n");
-                for(int idx = 0; idx < filteredTechTreeList.size(); ++idx) {
+                for(int idx = 0; idx < (int)filteredTechTreeList.size(); ++idx) {
                     filteredTechTreeList[idx] = trim(filteredTechTreeList[idx]);
                     printf("%s\n",filteredTechTreeList[idx].c_str());
                 }
@@ -2846,11 +2846,11 @@ void runTechValidationReport(int argc, char** argv) {
     World world;
 
     vector<string> techPaths = config.getPathListForType(ptTechs);
-    for(int idx = 0; idx < techPaths.size(); idx++) {
+    for(int idx = 0; idx < (int)techPaths.size(); idx++) {
         string &techPath = techPaths[idx];
 		endPathWithSlash(techPath);
 
-        for(int idx2 = 0; idx2 < techTreeFiles.size(); idx2++) {
+        for(int idx2 = 0; idx2 < (int)techTreeFiles.size(); idx2++) {
             string &techName = techTreeFiles[idx2];
 
             if(	filteredTechTreeList.empty() == true ||
@@ -2905,13 +2905,13 @@ void runTilesetValidationReport(int argc, char** argv) {
             bool tilesetFound = false;
 
             vector<string> tilesetPaths = config.getPathListForType(ptTilesets);
-            for(int idx = 0; idx < tilesetPaths.size(); idx++) {
+            for(int idx = 0; idx < (int)tilesetPaths.size(); idx++) {
                 string &tilesetPath = tilesetPaths[idx];
         		endPathWithSlash(tilesetPath);
 
         		vector<string> tilesetList;
         		findDirs(tilesetPath, tilesetList, false, false);
-                for(int idx2 = 0; idx2 < tilesetList.size(); idx2++) {
+                for(int idx2 = 0; idx2 < (int)tilesetList.size(); idx2++) {
                     string &tilesetName = tilesetList[idx2];
                     if(tilesetName == validateTilesetName) {
                     	tilesetFound = true;
@@ -2955,7 +2955,7 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
 
                 if(filteredPropertyList.empty() == false) {
                     printf("Filtering properties and only looking for the following:\n");
-                    for(int idx = 0; idx < filteredPropertyList.size(); ++idx) {
+                    for(int idx = 0; idx < (int)filteredPropertyList.size(); ++idx) {
                         filteredPropertyList[idx] = trim(filteredPropertyList[idx]);
                         printf("%s\n",filteredPropertyList[idx].c_str());
                     }
@@ -2970,7 +2970,7 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
 
         // Figure out the max # of tabs we need to format display nicely
         int tabCount = 1;
-        for(int i = 0; i < mergedMainSettings.size(); ++i) {
+        for(int i = 0; i < (int)mergedMainSettings.size(); ++i) {
             const pair<string,string> &nameValue = mergedMainSettings[i];
 
             bool displayProperty = false;
@@ -2993,7 +2993,7 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
                 }
             }
         }
-        for(int i = 0; i < mergedKeySettings.size(); ++i) {
+        for(int i = 0; i < (int)mergedKeySettings.size(); ++i) {
             const pair<string,string> &nameValue = mergedKeySettings[i];
 
             bool displayProperty = false;
@@ -3018,7 +3018,7 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
         }
 
         // Output the properties
-        for(int i = 0; i < mergedMainSettings.size(); ++i) {
+        for(int i = 0; i < (int)mergedMainSettings.size(); ++i) {
             const pair<string,string> &nameValue = mergedMainSettings[i];
 
             bool displayProperty = false;
@@ -3051,7 +3051,7 @@ void ShowINISettings(int argc, char **argv,Config &config,Config &configKeys) {
         printf("\n\nMain key binding settings report\n");
         printf("====================================\n");
 
-        for(int i = 0; i < mergedKeySettings.size(); ++i) {
+        for(int i = 0; i < (int)mergedKeySettings.size(); ++i) {
             const pair<string,string> &nameValue = mergedKeySettings[i];
 
             bool displayProperty = false;
@@ -3099,7 +3099,7 @@ void CheckForDuplicateData() {
     }
 	else if(invalidMapList.empty() == false) {
 		string errorMsg = "Warning invalid maps were detected (will be ignored):\n";
-		for(int i = 0; i < invalidMapList.size(); ++i) {
+		for(int i = 0; i < (int)invalidMapList.size(); ++i) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"map [%s]\n",invalidMapList[i].c_str());
 
@@ -3109,9 +3109,9 @@ void CheckForDuplicateData() {
 	}
 
 	vector<string> duplicateMapsToRename;
-	for(int i = 0; i < maps.size(); ++i) {
+	for(int i = 0; i < (int)maps.size(); ++i) {
 	    string map1 = maps[i];
-	    for(int j = 0; j < maps.size(); ++j) {
+	    for(int j = 0; j < (int)maps.size(); ++j) {
 	        if(i != j) {
                 string map2 = maps[j];
 
@@ -3125,7 +3125,7 @@ void CheckForDuplicateData() {
 	}
 	if(duplicateMapsToRename.empty() == false) {
 		string errorMsg = "Warning duplicate maps were detected and renamed:\n";
-		for(int i = 0; i < duplicateMapsToRename.size(); ++i) {
+		for(int i = 0; i < (int)duplicateMapsToRename.size(); ++i) {
 			string currentPath = pathList[1];
 			endPathWithSlash(currentPath);
 
@@ -3162,9 +3162,9 @@ void CheckForDuplicateData() {
     }
 
 	vector<string> duplicateTilesetsToRename;
-	for(int i = 0; i < tileSets.size(); ++i) {
+	for(int i = 0; i < (int)tileSets.size(); ++i) {
 	    string tileSet1 = tileSets[i];
-	    for(int j = 0; j < tileSets.size(); ++j) {
+	    for(int j = 0; j < (int)tileSets.size(); ++j) {
 	        if(i != j) {
                 string tileSet2= tileSets[j];
                 if(tileSet1 == tileSet2) {
@@ -3178,7 +3178,7 @@ void CheckForDuplicateData() {
 	if(duplicateTilesetsToRename.empty() == false) {
 		string errorMsg = "Warning duplicate tilesets were detected and renamed:\n";
 
-		for(int i = 0; i < duplicateTilesetsToRename.size(); ++i) {
+		for(int i = 0; i < (int)duplicateTilesetsToRename.size(); ++i) {
 			string currentPath = tilesetPaths[1];
 			endPathWithSlash(currentPath);
 
@@ -3217,9 +3217,9 @@ void CheckForDuplicateData() {
 	}
 
 	vector<string> duplicateTechtreesToRename;
-	for(int i = 0; i < techTrees.size(); ++i) {
+	for(int i = 0; i < (int)techTrees.size(); ++i) {
 	    string techtree1 = techTrees[i];
-	    for(int j = 0; j < techTrees.size(); ++j) {
+	    for(int j = 0; j < (int)techTrees.size(); ++j) {
 	        if(i != j) {
                 string techtree2 = techTrees[j];
                 if(techtree1 == techtree2) {
@@ -3233,7 +3233,7 @@ void CheckForDuplicateData() {
 	if(duplicateTechtreesToRename.empty() == false) {
 		string errorMsg = "Warning duplicate techtrees were detected and renamed:\n";
 
-		for(int i = 0; i < duplicateTechtreesToRename.size(); ++i) {
+		for(int i = 0; i < (int)duplicateTechtreesToRename.size(); ++i) {
 			string currentPath = techPaths[1];
 			endPathWithSlash(currentPath);
 
@@ -4587,7 +4587,7 @@ int glestMain(int argc, char** argv) {
 		// Example values:
 		// DEFAULT_CHARSET (English) = 1
 		// GB2312_CHARSET (Chinese)  = 134
-		Shared::Platform::charSet = config.getInt("FONT_CHARSET",intToStr(Shared::Platform::charSet).c_str());
+		Shared::Platform::PlatformContextGl::charSet = config.getInt("FONT_CHARSET",intToStr(Shared::Platform::PlatformContextGl::charSet).c_str());
 		if(config.getBool("No2DMouseRendering","false") == false) {
 			showCursor(false);
 		}
@@ -4605,7 +4605,7 @@ int glestMain(int argc, char** argv) {
         // Setup debug logging etc
 		setupLogging(config, haveSpecialOutputCommandLineOption);
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, fontIsRightToLeft = %d\n",__FILE__,__FUNCTION__,__LINE__,Shared::Graphics::Font::charCount,Shared::Graphics::Font::fontTypeName.c_str(),Shared::Platform::charSet,Shared::Graphics::Font::fontIsMultibyte, Shared::Graphics::Font::fontIsRightToLeft);
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, fontIsRightToLeft = %d\n",__FILE__,__FUNCTION__,__LINE__,Shared::Graphics::Font::charCount,Shared::Graphics::Font::fontTypeName.c_str(),Shared::Platform::PlatformContextGl::charSet,Shared::Graphics::Font::fontIsMultibyte, Shared::Graphics::Font::fontIsRightToLeft);
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 		MenuStateMasterserver::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
@@ -4774,8 +4774,8 @@ int glestMain(int argc, char** argv) {
 	        }
     	}
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, Font::fontIsRightToLeft = %d\n",__FILE__,__FUNCTION__,__LINE__,Shared::Graphics::Font::charCount,Shared::Graphics::Font::fontTypeName.c_str(),Shared::Platform::charSet,Shared::Graphics::Font::fontIsMultibyte,Shared::Graphics::Font::fontIsRightToLeft);
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, Font::fontIsRightToLeft = %d\n",Shared::Graphics::Font::charCount,Shared::Graphics::Font::fontTypeName.c_str(),Shared::Platform::charSet,Shared::Graphics::Font::fontIsMultibyte,Shared::Graphics::Font::fontIsRightToLeft);
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::PlatformContextGl::charSet = %d, Font::fontIsMultibyte = %d, Font::fontIsRightToLeft = %d\n",__FILE__,__FUNCTION__,__LINE__,Shared::Graphics::Font::charCount,Shared::Graphics::Font::fontTypeName.c_str(),Shared::Platform::PlatformContextGl::charSet,Shared::Graphics::Font::fontIsMultibyte,Shared::Graphics::Font::fontIsRightToLeft);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::PlatformContextGl::charSet = %d, Font::fontIsMultibyte = %d, Font::fontIsRightToLeft = %d\n",Shared::Graphics::Font::charCount,Shared::Graphics::Font::fontTypeName.c_str(),Shared::Platform::PlatformContextGl::charSet,Shared::Graphics::Font::fontIsMultibyte,Shared::Graphics::Font::fontIsRightToLeft);
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_FONT]) == true) {
 			int foundParamIndIndex = -1;

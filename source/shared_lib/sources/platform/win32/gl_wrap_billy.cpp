@@ -56,7 +56,7 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 		LOGFONT lf;
 		//POSITION pos;
 		//lf.lfCharSet = ANSI_CHARSET;
-		lf.lfCharSet = (BYTE)charSet;
+		lf.lfCharSet = (BYTE)PlatformContextGl::charSet;
 		lf.lfFaceName[0]='\0';
 		
 		//HGLRC hdRC =wglGetCurrentContext();
@@ -94,7 +94,7 @@ void createGlFontBitmaps(uint32 &base, const string &type, int size, int width,
 
 	LPWSTR wstr = Ansi2WideString(useRealFontName.c_str());
 	HFONT font= CreateFont(
-						   size, 0, 0, 0, width, FALSE, FALSE, FALSE, charSet,
+						   size, 0, 0, 0, width, FALSE, FALSE, FALSE, PlatformContextGl::charSet,
 						   OUT_TT_ONLY_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY,
 						   DEFAULT_PITCH| (useRealFontName.c_str() ? FF_DONTCARE:FF_SWISS), wstr);
 	if(wstr) delete [] wstr;

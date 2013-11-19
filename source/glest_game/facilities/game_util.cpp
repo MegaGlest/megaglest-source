@@ -245,7 +245,7 @@ string formatString(string str) {
 	}
 
 	bool afterSeparator= false;
-	for(int i= 0; i<str.size(); ++i){
+	for(int i= 0; i < (int)str.size(); ++i){
 		if(outStr[i]=='_'){
 			outStr[i]= ' ';
 		}

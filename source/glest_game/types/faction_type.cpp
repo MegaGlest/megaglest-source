@@ -136,7 +136,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 
 		unitTypes.resize(unitFilenames.size());
 
-		for(int i = 0; i < unitTypes.size(); ++i) {
+		for(int i = 0; i < (int)unitTypes.size(); ++i) {
 			string str= currentPath + "units/" + unitFilenames[i];
 			unitTypes[i].preLoad(str);
 
@@ -151,7 +151,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 		findDirs(upgradesPath, upgradeFilenames,false,false);
 
 		upgradeTypes.resize(upgradeFilenames.size());
-		for(int i = 0; i < upgradeTypes.size(); ++i) {
+		for(int i = 0; i < (int)upgradeTypes.size(); ++i) {
 			string str= currentPath + "upgrades/" + upgradeFilenames[i];
 			upgradeTypes[i].preLoad(str);
 
@@ -162,7 +162,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 		try {
 			Logger &logger= Logger::getInstance();
 			int progressBaseValue=logger.getProgress();
-			for(int i = 0; i < unitTypes.size(); ++i) {
+			for(int i = 0; i < (int)unitTypes.size(); ++i) {
 				string str= currentPath + "units/" + unitTypes[i].getName();
 
 				try {
@@ -192,7 +192,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 
 		// b2) load upgrades
 		try{
-			for(int i = 0; i < upgradeTypes.size(); ++i) {
+			for(int i = 0; i < (int)upgradeTypes.size(); ++i) {
 				string str= currentPath + "upgrades/" + upgradeTypes[i].getName();
 
 				try {
@@ -232,7 +232,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 		const XmlNode *startingResourcesNode= factionNode->getChild("starting-resources");
 
 		startingResources.resize(startingResourcesNode->getChildCount());
-		for(int i = 0; i < startingResources.size(); ++i) {
+		for(int i = 0; i < (int)startingResources.size(); ++i) {
 			const XmlNode *resourceNode= startingResourcesNode->getChild("resource", i);
 			string name= resourceNode->getAttribute("name")->getRestrictedValue();
 			int amount= resourceNode->getAttribute("amount")->getIntValue();
@@ -254,7 +254,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 
 		//read starting units
 		const XmlNode *startingUnitsNode= factionNode->getChild("starting-units");
-		for(int i = 0; i < startingUnitsNode->getChildCount(); ++i) {
+		for(int i = 0; i < (int)startingUnitsNode->getChildCount(); ++i) {
 			const XmlNode *unitNode= startingUnitsNode->getChild("unit", i);
 			string name= unitNode->getAttribute("name")->getRestrictedValue();
 			int amount= unitNode->getAttribute("amount")->getIntValue();
@@ -281,7 +281,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 
 			if(aiNode->hasChild("static-values") == true) {
 				const XmlNode *aiNodeUnits= aiNode->getChild("static-values");
-				for(int i = 0; i < aiNodeUnits->getChildCount(); ++i) {
+				for(int i = 0; i < (int)aiNodeUnits->getChildCount(); ++i) {
 					const XmlNode *unitNode= aiNodeUnits->getChild("static", i);
 					AIBehaviorStaticValueCategory type  = aibsvcMaxBuildRadius;
 					if(unitNode->hasAttribute("type") == true) {
@@ -302,7 +302,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 
 			if(aiNode->hasChild("worker-units") == true) {
 				const XmlNode *aiNodeUnits= aiNode->getChild("worker-units");
-				for(int i = 0; i < aiNodeUnits->getChildCount(); ++i) {
+				for(int i = 0; i < (int)aiNodeUnits->getChildCount(); ++i) {
 					const XmlNode *unitNode= aiNodeUnits->getChild("unit", i);
 					string name= unitNode->getAttribute("name")->getRestrictedValue();
 					int minimum= unitNode->getAttribute("minimum")->getIntValue();
@@ -312,7 +312,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 			}
 			if(aiNode->hasChild("warrior-units") == true) {
 				const XmlNode *aiNodeUnits= aiNode->getChild("warrior-units");
-				for(int i = 0; i < aiNodeUnits->getChildCount(); ++i) {
+				for(int i = 0; i < (int)aiNodeUnits->getChildCount(); ++i) {
 					const XmlNode *unitNode= aiNodeUnits->getChild("unit", i);
 					string name= unitNode->getAttribute("name")->getRestrictedValue();
 					int minimum= unitNode->getAttribute("minimum")->getIntValue();
@@ -322,7 +322,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 			}
 			if(aiNode->hasChild("resource-producer-units") == true) {
 				const XmlNode *aiNodeUnits= aiNode->getChild("resource-producer-units");
-				for(int i = 0; i < aiNodeUnits->getChildCount(); ++i) {
+				for(int i = 0; i < (int)aiNodeUnits->getChildCount(); ++i) {
 					const XmlNode *unitNode= aiNodeUnits->getChild("unit", i);
 					string name= unitNode->getAttribute("name")->getRestrictedValue();
 					int minimum= unitNode->getAttribute("minimum")->getIntValue();
@@ -332,7 +332,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 			}
 			if(aiNode->hasChild("building-units") == true) {
 				const XmlNode *aiNodeUnits= aiNode->getChild("building-units");
-				for(int i = 0; i < aiNodeUnits->getChildCount(); ++i) {
+				for(int i = 0; i < (int)aiNodeUnits->getChildCount(); ++i) {
 					const XmlNode *unitNode= aiNodeUnits->getChild("unit", i);
 					string name= unitNode->getAttribute("name")->getRestrictedValue();
 					int minimum= unitNode->getAttribute("minimum")->getIntValue();
@@ -343,7 +343,7 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 
 			if(aiNode->hasChild("upgrades") == true) {
 				const XmlNode *aiNodeUpgrades= aiNode->getChild("upgrades");
-				for(int i = 0; i < aiNodeUpgrades->getChildCount(); ++i) {
+				for(int i = 0; i < (int)aiNodeUpgrades->getChildCount(); ++i) {
 					const XmlNode *upgradeNode= aiNodeUpgrades->getChild("upgrade", i);
 					string name= upgradeNode->getAttribute("name")->getRestrictedValue();
 
@@ -389,10 +389,10 @@ std::vector<std::string> FactionType::validateFactionType() {
 		results.push_back(szBuf);
 	}
 
-    for(int i=0; i<unitTypes.size(); ++i){
+    for(int i=0; i < (int)unitTypes.size(); ++i){
     	UnitType &unitType = unitTypes[i];
 
-    	for(int i = 0; i < unitType.getSelectionSounds().getSounds().size(); ++i) {
+    	for(int i = 0; i < (int)unitType.getSelectionSounds().getSounds().size(); ++i) {
     		StaticSound *sound = unitType.getSelectionSounds().getSounds()[i];
     		if(sound != NULL && sound->getInfo()->getBitRate() > MAX_BITRATE_WARNING) {
 				char szBuf[8096]="";
@@ -400,7 +400,7 @@ std::vector<std::string> FactionType::validateFactionType() {
 				results.push_back(szBuf);
     		}
     	}
-    	for(int i = 0; i < unitType.getCommandSounds().getSounds().size(); ++i) {
+    	for(int i = 0; i < (int)unitType.getCommandSounds().getSounds().size(); ++i) {
     		StaticSound *sound = unitType.getCommandSounds().getSounds()[i];
     		if(sound != NULL && sound->getInfo()->getBitRate() > MAX_BITRATE_WARNING) {
 				char szBuf[8096]="";
@@ -410,7 +410,7 @@ std::vector<std::string> FactionType::validateFactionType() {
     	}
 
     	int morphCommandCount = 0;
-    	for(int j = 0; j < unitType.getCommandTypeCount(); ++j) {
+    	for(int j = 0; j < (int)unitType.getCommandTypeCount(); ++j) {
     		const CommandType *cmdType = unitType.getCommandType(j);
     		if(cmdType != NULL) {
     	    	// Check every unit's commands to validate that for every upgrade-requirements
@@ -421,7 +421,7 @@ std::vector<std::string> FactionType::validateFactionType() {
 					if(upgradeType != NULL) {
 						// Now lets find a unit that can produced-upgrade this upgrade
 						bool foundUpgraderUnit = false;
-						for(int l=0; l<unitTypes.size() && foundUpgraderUnit == false; ++l){
+						for(int l=0; l < (int)unitTypes.size() && foundUpgraderUnit == false; ++l){
 							UnitType &unitType2 = unitTypes[l];
 							for(int m = 0; m < unitType2.getCommandTypeCount() && foundUpgraderUnit == false; ++m) {
 								const CommandType *cmdType2 = unitType2.getCommandType(m);
@@ -453,7 +453,7 @@ std::vector<std::string> FactionType::validateFactionType() {
 
 						// Now lets find the unit that we should be able to build
 						bool foundUnit = false;
-						for(int l=0; l<unitTypes.size() && foundUnit == false; ++l){
+						for(int l=0; l < (int)unitTypes.size() && foundUnit == false; ++l){
 							UnitType &unitType2 = unitTypes[l];
 							if(unitType2.getName() == buildUnit->getName()) {
 								foundUnit = true;
@@ -486,7 +486,7 @@ std::vector<std::string> FactionType::validateFactionType() {
 
 						// Now lets find the unit that we should be able to repair
 						bool foundUnit = false;
-						for(int l=0; l<unitTypes.size() && foundUnit == false; ++l){
+						for(int l=0; l < (int)unitTypes.size() && foundUnit == false; ++l){
 							UnitType &unitType2 = unitTypes[l];
 							if(unitType2.getName() == repairUnit->getName()) {
 								 foundUnit = true;
@@ -512,7 +512,7 @@ std::vector<std::string> FactionType::validateFactionType() {
 						// Now lets find the unit that we should be able to morph
 						// to
 						bool foundUnit = false;
-						for(int l=0; l<unitTypes.size() && foundUnit == false; ++l){
+						for(int l=0; l < (int)unitTypes.size() && foundUnit == false; ++l){
 							UnitType &unitType2 = unitTypes[l];
 							if(unitType2.getName() == morphUnit->getName()) {
 								 foundUnit = true;
@@ -544,7 +544,7 @@ std::vector<std::string> FactionType::validateFactionType() {
 			if(unitType2 != NULL) {
 				// Now lets find the required unit
 				bool foundUnit = false;
-				for(int l=0; l<unitTypes.size() && foundUnit == false; ++l){
+				for(int l=0; l < (int)unitTypes.size() && foundUnit == false; ++l){
 					UnitType &unitType3 = unitTypes[l];
 
 					if(unitType2->getName() == unitType3.getName()) {
@@ -563,7 +563,7 @@ std::vector<std::string> FactionType::validateFactionType() {
 
 		// Now check that at least 1 other unit can produce, build or morph this unit
 		bool foundUnit = false;
-		for(int l=0; l<unitTypes.size() && foundUnit == false; ++l){
+		for(int l=0; l < (int)unitTypes.size() && foundUnit == false; ++l){
 			UnitType &unitType2 = unitTypes[l];
 
 	    	for(int j = 0; j < unitType2.getCommandTypeCount() && foundUnit == false; ++j) {
@@ -680,7 +680,7 @@ std::vector<std::string> FactionType::validateFactionType() {
 std::vector<std::string> FactionType::validateFactionTypeResourceTypes(vector<ResourceType> &resourceTypes) {
 	std::vector<std::string> results;
 
-    for(int i=0; i<unitTypes.size(); ++i) {
+    for(int i=0; i < (int)unitTypes.size(); ++i) {
     	UnitType &unitType = unitTypes[i];
 
 		// Check every unit's required resources to validate that for every resource-requirements
@@ -690,7 +690,7 @@ std::vector<std::string> FactionType::validateFactionTypeResourceTypes(vector<Re
     		if(r != NULL && r->getType() != NULL) {
     			bool foundResourceType = false;
     			// Now lets find a matching faction resource type for the unit
-    			for(int k=0; k<resourceTypes.size(); ++k){
+    			for(int k=0; k < (int)resourceTypes.size(); ++k){
     				ResourceType &rt = resourceTypes[k];
 
 					if(r->getType()->getName() == rt.getName()) {
@@ -714,7 +714,7 @@ std::vector<std::string> FactionType::validateFactionTypeResourceTypes(vector<Re
 			if(r != NULL && r->getType() != NULL) {
 				bool foundResourceType = false;
 				// Now lets find a matching faction resource type for the unit
-				for(int k=0; k<resourceTypes.size(); ++k){
+				for(int k=0; k < (int)resourceTypes.size(); ++k){
 					ResourceType &rt = resourceTypes[k];
 
 					if(r->getType()->getName() == rt.getName()) {
@@ -743,7 +743,7 @@ std::vector<std::string> FactionType::validateFactionTypeResourceTypes(vector<Re
 
 						bool foundResourceType = false;
 						// Now lets find a matching faction resource type for the unit
-						for(int k=0; k<resourceTypes.size(); ++k){
+						for(int k=0; k < (int)resourceTypes.size(); ++k){
 							ResourceType &rt = resourceTypes[k];
 
 							if(harvestResource->getName() == rt.getName()) {
@@ -771,12 +771,12 @@ std::vector<std::string> FactionType::validateFactionTypeUpgradeTypes() {
 
 	// For each upgrade type make sure there is at least 1 unit that can produce
 	// the upgrade
-	for(int i = 0; i < upgradeTypes.size(); ++i) {
+	for(int i = 0; i < (int)upgradeTypes.size(); ++i) {
 		const UpgradeType &upgradeType = upgradeTypes[i];
 
 		// First find a unit with a command type to upgrade to this Upgrade type
 		bool foundUnit = false;
-	    for(int j=0; j<unitTypes.size() && foundUnit == false; ++j){
+	    for(int j=0; j < (int)unitTypes.size() && foundUnit == false; ++j){
 	    	UnitType &unitType = unitTypes[j];
 	    	for(int k = 0; k < unitType.getCommandTypeCount() && foundUnit == false; ++k) {
 				const CommandType *cmdType = unitType.getCommandType(k);
@@ -811,19 +811,19 @@ std::vector<std::string> FactionType::validateFactionTypeUpgradeTypes() {
 // ==================== get ====================
 
 const UnitType *FactionType::getUnitType(const string &name) const{
-    for(int i=0; i<unitTypes.size();i++){
+    for(int i=0; i < (int)unitTypes.size();i++){
 		if(unitTypes[i].getName(false)==name){
             return &unitTypes[i];
 		}
     }
 
     printf("In [%s::%s Line: %d] scanning [%s] size = " MG_SIZE_T_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
-    for(int i=0; i<unitTypes.size();i++){
+    for(int i=0; i < (int)unitTypes.size();i++){
     	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName(false).c_str());
     }
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] size = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
-    for(int i=0; i<unitTypes.size();i++){
+    for(int i=0; i < (int)unitTypes.size();i++){
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName(false).c_str());
     }
 
@@ -831,19 +831,19 @@ const UnitType *FactionType::getUnitType(const string &name) const{
 }
 
 const UnitType *FactionType::getUnitTypeById(int id) const{
-    for(int i=0; i<unitTypes.size();i++){
+    for(int i=0; i < (int)unitTypes.size();i++){
 		if(unitTypes[i].getId() == id) {
             return &unitTypes[i];
 		}
     }
 
     printf("In [%s::%s Line: %d] scanning [%d] size = " MG_SIZE_T_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,id,unitTypes.size());
-    for(int i=0; i<unitTypes.size();i++){
+    for(int i=0; i < (int)unitTypes.size();i++){
     	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s][%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName(false).c_str(),unitTypes[i].getId());
     }
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] size = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
-    for(int i=0; i<unitTypes.size();i++){
+    for(int i=0; i < (int)unitTypes.size();i++){
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,unitTypes[i].getName(false).c_str());
     }
 
@@ -851,19 +851,19 @@ const UnitType *FactionType::getUnitTypeById(int id) const{
 }
 
 const UpgradeType *FactionType::getUpgradeType(const string &name) const{
-    for(int i=0; i<upgradeTypes.size();i++){
+    for(int i=0; i < (int)upgradeTypes.size();i++){
 		if(upgradeTypes[i].getName()==name){
             return &upgradeTypes[i];
 		}
     }
 
     printf("In [%s::%s Line: %d] scanning [%s] size = " MG_SIZE_T_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
-    for(int i=0; i<upgradeTypes.size();i++){
+    for(int i=0; i < (int)upgradeTypes.size();i++){
     	printf("In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,upgradeTypes[i].getName().c_str());
     }
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] size = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),unitTypes.size());
-    for(int i=0; i<upgradeTypes.size();i++){
+    for(int i=0; i < (int)upgradeTypes.size();i++){
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scanning [%s] idx = %d [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,name.c_str(),i,upgradeTypes[i].getName().c_str());
     }
 
@@ -871,7 +871,7 @@ const UpgradeType *FactionType::getUpgradeType(const string &name) const{
 }
 
 int FactionType::getStartingResourceAmount(const ResourceType *resourceType) const{
-	for(int i=0; i<startingResources.size(); ++i){
+	for(int i=0; i < (int)startingResources.size(); ++i){
 		if(startingResources[i].getType()==resourceType){
 			return startingResources[i].getAmount();
 		}
@@ -880,7 +880,7 @@ int FactionType::getStartingResourceAmount(const ResourceType *resourceType) con
 }
 
 void FactionType::deletePixels() {
-	for(int i = 0; i <unitTypes.size(); ++i) {
+	for(int i = 0; i < (int)unitTypes.size(); ++i) {
 		UnitType &unitType = unitTypes[i];
 		Texture2D *texture = unitType.getMeetingPointImage();
 		if(texture != NULL) {
@@ -892,7 +892,7 @@ void FactionType::deletePixels() {
 bool FactionType::factionUsesResourceType(const ResourceType *rt) const {
 	bool factionUsesResourceType = false;
 	if(rt != NULL) {
-		for(unsigned int j = 0; factionUsesResourceType == false && j < this->getUnitTypeCount(); ++j) {
+		for(unsigned int j = 0; factionUsesResourceType == false && j < (unsigned int)this->getUnitTypeCount(); ++j) {
 			const UnitType *ut= this->getUnitType(j);
 			for(int k = 0; factionUsesResourceType == false && k < ut->getCostCount(); ++k) {
 				const Resource *costResource = ut->getCost(k);
@@ -905,12 +905,12 @@ bool FactionType::factionUsesResourceType(const ResourceType *rt) const {
 				}
 			}
 			if(factionUsesResourceType == false) {
-				for(unsigned int k = 0; factionUsesResourceType == false && k < ut->getCommandTypeCount(); ++k) {
+				for(unsigned int k = 0; factionUsesResourceType == false && k < (unsigned int)ut->getCommandTypeCount(); ++k) {
 					const CommandType *commandType = ut->getCommandType(k);
 					if(commandType != NULL && commandType->getClass() == ccHarvest) {
 						const HarvestCommandType *hct = dynamic_cast<const HarvestCommandType *>(commandType);
 						if(hct != NULL && hct->getHarvestedResourceCount() > 0) {
-							for(unsigned int l = 0; factionUsesResourceType == false && l < hct->getHarvestedResourceCount(); ++l) {
+							for(unsigned int l = 0; factionUsesResourceType == false && l < (unsigned int)hct->getHarvestedResourceCount(); ++l) {
 								//printf("#2 factionUsesResourceType, unit [%s] resource [%s] harvest [%s]\n",ut->getName().c_str(),rt->getName().c_str(),hct->getHarvestedResource(l)->getName().c_str());
 
 								if(hct->getHarvestedResource(l)->getName() == rt->getName()) {
@@ -931,12 +931,12 @@ std::string FactionType::toString() const {
 	std::string result = "Faction Name: " + name + "\n";
 
 	result += "Unit Type List count = " + intToStr(this->getUnitTypeCount()) + "\n";
-    for(int i=0; i<unitTypes.size();i++) {
+    for(int i=0; i < (int)unitTypes.size();i++) {
 		result += unitTypes[i].toString() + "\n";
     }
 
 	result += "Upgrade Type List count = " + intToStr(this->getUpgradeTypeCount()) + "\n";
-    for(int i=0; i<upgradeTypes.size();i++) {
+    for(int i=0; i < (int)upgradeTypes.size();i++) {
 		result += "index: " + intToStr(i) + " " + upgradeTypes[i].getReqDesc(false) + "\n";
     }
 

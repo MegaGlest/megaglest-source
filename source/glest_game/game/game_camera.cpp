@@ -237,7 +237,7 @@ Quad2i GameCamera::computeVisibleQuad() {
 
 		result = Quad2i(p1, p2, p3, p4);
 		if(MaxVisibleQuadItemCache != 0 &&
-		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
+		   (MaxVisibleQuadItemCache < 0 || (int)cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
 			cacheVisibleQuad[fov][hAng][pos] = result;
 		}
 	}
@@ -246,7 +246,7 @@ Quad2i GameCamera::computeVisibleQuad() {
 
 		result = Quad2i(p3, p1, p4, p2);
 		if(MaxVisibleQuadItemCache != 0 &&
-		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
+		   (MaxVisibleQuadItemCache < 0 || (int)cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
 			cacheVisibleQuad[fov][hAng][pos] = result;
 		}
 	}
@@ -255,7 +255,7 @@ Quad2i GameCamera::computeVisibleQuad() {
 
 		result = Quad2i(p2, p4, p1, p3);
 		if(MaxVisibleQuadItemCache != 0 &&
-		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
+		   (MaxVisibleQuadItemCache < 0 || (int)cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
 			cacheVisibleQuad[fov][hAng][pos] = result;
 		}
 	}
@@ -264,7 +264,7 @@ Quad2i GameCamera::computeVisibleQuad() {
 
 		result = Quad2i(p4, p3, p2, p1);
 		if(MaxVisibleQuadItemCache != 0 &&
-		   (MaxVisibleQuadItemCache < 0 || cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
+		   (MaxVisibleQuadItemCache < 0 || (int)cacheVisibleQuad[fov][hAng].size() <= MaxVisibleQuadItemCache)) {
 			cacheVisibleQuad[fov][hAng][pos] = Quad2i(p4, p3, p2, p1);
 		}
 	}

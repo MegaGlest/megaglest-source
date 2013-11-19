@@ -886,18 +886,18 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 
 // ========================== lua wrappers ===============================================
 
-string ScriptManager::wrapString(const string &str, int wrapCount){
+string ScriptManager::wrapString(const string &str, int wrapCount) {
 	string returnString;
 
 	int letterCount= 0;
-	for(int i= 0; i<str.size(); ++i){
-		if(letterCount>wrapCount && str[i]==' '){
-			returnString+= '\n';
+	for(int i= 0; i < (int)str.size(); ++i){
+		if(letterCount>wrapCount && str[i]==' ') {
+			returnString += '\n';
 			letterCount= 0;
 		}
 		else
 		{
-			returnString+= str[i];
+			returnString += str[i];
 		}
 		++letterCount;
 	}
@@ -1296,7 +1296,7 @@ void ScriptManager::unregisterCellTriggerEvent(int eventId) {
 
 	if(inCellTriggerEvent == false) {
 		if(unRegisterCellTriggerEventList.empty() == false) {
-			for(int i = 0; i < unRegisterCellTriggerEventList.size(); ++i) {
+			for(int i = 0; i < (int)unRegisterCellTriggerEventList.size(); ++i) {
 				int delayedEventId = unRegisterCellTriggerEventList[i];
 				if(CellTriggerEventList.find(delayedEventId) != CellTriggerEventList.end()) {
 					CellTriggerEventList.erase(delayedEventId);

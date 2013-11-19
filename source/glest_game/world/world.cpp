@@ -95,13 +95,13 @@ void World::cleanup() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	for(int i= 0; i<factions.size(); ++i){
+	for(int i= 0; i < (int)factions.size(); ++i){
 		factions[i]->end();
 	}
 
 	masterController.clearSlaves(true);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	for(int i= 0; i<factions.size(); ++i){
+	for(int i= 0; i < (int)factions.size(); ++i){
 		delete factions[i];
 	}
 	factions.clear();
@@ -174,12 +174,12 @@ void World::end(){
     ExploredCellsLookupItemCache.clear();
     ExploredCellsLookupItemCacheTimer.clear();
 
-	for(int i= 0; i<factions.size(); ++i){
+	for(int i= 0; i < (int)factions.size(); ++i){
 		factions[i]->end();
 	}
 
 	masterController.clearSlaves(true);
-	for(int i= 0; i<factions.size(); ++i){
+	for(int i= 0; i < (int)factions.size(); ++i){
 		delete factions[i];
 	}
 	factions.clear();
@@ -709,7 +709,7 @@ void World::updateAllFactionUnits() {
 			if(unitUpdater.updateUnit(unit) == true) {
 				unitCountUpdated++;
 
-				if(unit->getLastStuckFrame() == frameCount) {
+				if(unit->getLastStuckFrame() == (unsigned int)frameCount) {
 					unitCountStuck++;
 				}
 				mapCommandCount[unitCommandClass] = mapCommandCount[unitCommandClass] + 1;
@@ -1280,7 +1280,7 @@ void World::morphToUnit(int unitId,const string &morphName,bool ignoreRequiremen
 void World::createUnit(const string &unitName, int factionIndex, const Vec2i &pos, bool spaciated) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] unitName [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,unitName.c_str(),factionIndex);
 
-	if(factionIndex < factions.size()) {
+	if(factionIndex < (int)factions.size()) {
 		Faction* faction= factions[factionIndex];
 
 		if(faction->getIndex() != factionIndex) {
@@ -1324,7 +1324,7 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 }
 
 void World::giveResource(const string &resourceName, int factionIndex, int amount) {
-	if(factionIndex < factions.size()) {
+	if(factionIndex < (int)factions.size()) {
 		Faction* faction= factions[factionIndex];
 		const ResourceType* rt= techTree->getResourceType(resourceName);
 		faction->incResourceAmount(rt, amount);
@@ -1728,7 +1728,7 @@ void World::giveUpgradeCommand(int unitId, const string &upgradeName) {
 
 
 int World::getResourceAmount(const string &resourceName, int factionIndex) {
-	if(factionIndex < factions.size()) {
+	if(factionIndex < (int)factions.size()) {
 		Faction* faction= factions[factionIndex];
 		const ResourceType* rt= techTree->getResourceType(resourceName);
 		return faction->getResource(rt)->getAmount();
@@ -1739,7 +1739,7 @@ int World::getResourceAmount(const string &resourceName, int factionIndex) {
 }
 
 Vec2i World::getStartLocation(int factionIndex) {
-	if(factionIndex < factions.size()) {
+	if(factionIndex < (int)factions.size()) {
 		Faction* faction= factions[factionIndex];
 		return map.getStartLocation(faction->getStartLocationIndex());
 	}
@@ -1854,7 +1854,7 @@ const string World::getUnitName(int unitId) {
 }
 
 int World::getUnitCount(int factionIndex) {
-	if(factionIndex < factions.size()) {
+	if(factionIndex < (int)factions.size()) {
 		Faction* faction= factions[factionIndex];
 		int count= 0;
 
@@ -1872,7 +1872,7 @@ int World::getUnitCount(int factionIndex) {
 }
 
 int World::getUnitCountOfType(int factionIndex, const string &typeName) {
-	if(factionIndex < factions.size()) {
+	if(factionIndex < (int)factions.size()) {
 		Faction* faction= factions[factionIndex];
 		int count= 0;
 
@@ -1992,7 +1992,7 @@ void World::initFactionTypes(GameSettings *gs) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] factions.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,factions.size());
 
-	for(int i=0; i < factions.size(); ++i) {
+	for(int i=0; i < (int)factions.size(); ++i) {
 		FactionType *ft= techTree->getTypeByName(gs->getFactionTypeName(i));
 		if(ft == NULL) {
 			throw megaglest_runtime_error("ft == NULL");
@@ -2241,10 +2241,10 @@ void World::initUnits() {
 }
 
 void World::refreshAllUnitExplorations() {
-	for(unsigned int i = 0; i < getFactionCount(); ++i) {
+	for(unsigned int i = 0; i < (unsigned int)getFactionCount(); ++i) {
 		Faction *faction = factions[i];
 
-		for(unsigned int j = 0; j < faction->getUnitCount(); ++j) {
+		for(unsigned int j = 0; j < (unsigned int)faction->getUnitCount(); ++j) {
 			Unit *unit = faction->getUnit(j);
 			unit->refreshPos();
 		}
@@ -2259,12 +2259,12 @@ void World::initMap() {
 
 void World::exploreCells(int teamIndex, ExploredCellsLookupItem &exploredCellsCache) {
 	std::vector<SurfaceCell*> &cellList = exploredCellsCache.exploredCellList;
-	for (int idx2 = 0; idx2 < cellList.size(); ++idx2) {
+	for (int idx2 = 0; idx2 < (int)cellList.size(); ++idx2) {
 		SurfaceCell* sc = cellList[idx2];
 		sc->setExplored(teamIndex, true);
 	}
 	cellList = exploredCellsCache.visibleCellList;
-	for (int idx2 = 0; idx2 < cellList.size(); ++idx2) {
+	for (int idx2 = 0; idx2 < (int)cellList.size(); ++idx2) {
 		SurfaceCell* sc = cellList[idx2];
 		sc->setVisible(teamIndex, true);
 	}
@@ -2284,7 +2284,7 @@ ExploredCellsLookupItem World::exploreCells(const Vec2i &newPos, int sightRange,
 		// Ok we limit the cache size due to possible RAM constraints when
 		// the threshold is met
 		bool MaxExploredCellsLookupItemCacheTriggered = false;
-		if(ExploredCellsLookupItemCache.size() >= MaxExploredCellsLookupItemCache) {
+		if((int)ExploredCellsLookupItemCache.size() >= MaxExploredCellsLookupItemCache) {
 			MaxExploredCellsLookupItemCacheTriggered = true;
 			// Snag the oldest entry in the list
 			std::map<int,ExploredCellsLookupKey>::reverse_iterator purgeItem = ExploredCellsLookupItemCacheTimer.rbegin();
@@ -2616,7 +2616,7 @@ void World::stopAllVideo() {
 }
 
 void World::removeResourceTargetFromCache(const Vec2i &pos) {
-	for(int i= 0; i < factions.size(); ++i) {
+	for(int i= 0; i < (int)factions.size(); ++i) {
 		factions[i]->removeResourceTargetFromCache(pos);
 	}
 }

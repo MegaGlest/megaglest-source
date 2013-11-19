@@ -202,7 +202,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 
 				GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 				const GameSettings *settings = gameNetworkInterface->getGameSettings();
-				for(unsigned int factionIndex = 0; factionIndex < settings->getFactionCount(); ++factionIndex) {
+				for(unsigned int factionIndex = 0; factionIndex < (unsigned int)settings->getFactionCount(); ++factionIndex) {
 					string playerName = settings->getNetworkPlayerName(factionIndex);
 					if(playerName.length() > autoCompleteName.length() &&
 						StartsWith(toLower(playerName), toLower(autoCompleteName)) == true) {
@@ -217,7 +217,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 				}
 				if(matchedIndexes.empty() == false) {
 					int newMatchedIndex = -1;
-					for(unsigned int index = 0; index < matchedIndexes.size(); ++index) {
+					for(unsigned int index = 0; index < (unsigned int)matchedIndexes.size(); ++index) {
 						int possibleMatchIndex = matchedIndexes[index];
 						if(replaceCurrentAutoCompleteName < 0 ||
 							(replaceCurrentAutoCompleteName >= 0 && possibleMatchIndex > replaceCurrentAutoCompleteName)) {
@@ -226,7 +226,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 						}
 					}
 					if(newMatchedIndex < 0) {
-						for(unsigned int index = 0; index < matchedIndexes.size(); ++index) {
+						for(unsigned int index = 0; index < (unsigned int)matchedIndexes.size(); ++index) {
 							int possibleMatchIndex = matchedIndexes[index];
 							if(replaceCurrentAutoCompleteName < 0 ||
 								(replaceCurrentAutoCompleteName >= 0 && possibleMatchIndex < replaceCurrentAutoCompleteName)) {
@@ -244,7 +244,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 				if(autoCompleteResult == "") {
 					replaceCurrentAutoCompleteName = -1;
 					matchedIndexes.clear();
-					for(unsigned int index = 0; index < autoCompleteTextList.size(); ++index) {
+					for(unsigned int index = 0; index < (unsigned int)autoCompleteTextList.size(); ++index) {
 						string autoText = autoCompleteTextList[index];
 
 						//printf("CHECKING #2 autoText.length() = %d [%s] autoCompleteName.length() = %d [%s]\n",autoText.length(),autoText.c_str(),autoCompleteName.length(),currentAutoCompleteName.c_str());
@@ -265,7 +265,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 					}
 					if(matchedIndexes.empty() == false) {
 						int newMatchedIndex = -1;
-						for(unsigned int index = 0; index < matchedIndexes.size(); ++index) {
+						for(unsigned int index = 0; index < (unsigned int)matchedIndexes.size(); ++index) {
 							int possibleMatchIndex = matchedIndexes[index];
 							if(replaceCurrentAutoCompleteName < 0 ||
 								(replaceCurrentAutoCompleteName >= 0 && possibleMatchIndex > replaceCurrentAutoCompleteName)) {
@@ -274,7 +274,7 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 							}
 						}
 						if(newMatchedIndex < 0) {
-							for(unsigned int index = 0; index < matchedIndexes.size(); ++index) {
+							for(unsigned int index = 0; index < (unsigned int)matchedIndexes.size(); ++index) {
 								int possibleMatchIndex = matchedIndexes[index];
 								if(replaceCurrentAutoCompleteName < 0 ||
 									(replaceCurrentAutoCompleteName >= 0 && possibleMatchIndex < replaceCurrentAutoCompleteName)) {
@@ -327,7 +327,7 @@ void ChatManager::keyPress(SDL_KeyboardEvent c) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
 
 	int maxTextLenAllowed = (customCB != NULL ? this->maxCustomTextLength : maxTextLenght);
-	if(editEnabled && text.size() < maxTextLenAllowed) {
+	if(editEnabled && (int)text.size() < maxTextLenAllowed) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
 		//space is the first meaningful code
 		wchar_t key = extractKeyPressedUnicode(c);
@@ -350,15 +350,15 @@ void ChatManager::switchOnEdit(CustomInputCallbackInterface *customCB,int maxCus
 }
 
 void ChatManager::deleteText(int deleteCount,bool addToAutoCompleteBuffer) {
-	if(text.empty() == false) {
-		for(unsigned int i = 0; i < deleteCount; ++i) {
+	if(text.empty() == false && deleteCount >= 0) {
+		for(unsigned int i = 0; i < (unsigned int)deleteCount; ++i) {
 			if(textCharLength.empty() == false) {
 				//printf("BEFORE DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
 
 				if(textCharLength[textCharLength.size()-1] > (int)text.length()) {
 					textCharLength[(int)textCharLength.size()-1] = (int)text.length();
 				}
-				for(unsigned int i = 0; i < textCharLength[textCharLength.size()-1]; ++i) {
+				for(unsigned int i = 0; i < (unsigned int)textCharLength[textCharLength.size()-1]; ++i) {
 					text.erase(text.end() -1);
 				}
 				//printf("AFTER DEL textCharLength.size() = %d textCharLength[textCharLength.size()-1] = %d text.length() = %d\n",textCharLength.size(),textCharLength[textCharLength.size()-1],text.length());
@@ -428,7 +428,7 @@ void ChatManager::updateAutoCompleteBuffer() {
 
 void ChatManager::addText(string text) {
 	int maxTextLenAllowed = (customCB != NULL ? this->maxCustomTextLength : maxTextLenght);
-	if(editEnabled && text.size() + this->text.size() < maxTextLenAllowed) {
+	if(editEnabled && (int)text.size() + (int)this->text.size() < maxTextLenAllowed) {
 		this->text += text;
 	}
 }
@@ -447,7 +447,7 @@ void ChatManager::updateNetwork() {
 			Lang &lang= Lang::getInstance();
 
 			std::vector<ChatMsgInfo> chatList = gameNetworkInterface->getChatTextList(true);
-			for(int idx = 0; idx < chatList.size(); idx++) {
+			for(int idx = 0; idx < (int)chatList.size(); idx++) {
 				const ChatMsgInfo msg = chatList[idx];
 				int teamIndex= msg.chatTeamIndex;
 
