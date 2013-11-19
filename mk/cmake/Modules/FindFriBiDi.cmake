@@ -32,6 +32,8 @@ IF(WANT_STATIC_LIBS)
 	SET(FRIBIDI_NAMES fribidi.a libfribidi.a ${FRIBIDI_NAMES})
 ENDIF()
 
+MESSAGE(STATUS "** Searching for library names: [${FRIBIDI_NAMES}] ...")
+
 FIND_LIBRARY(FRIBIDI_LIBRARY
   NAMES ${FRIBIDI_NAMES}
   PATHS /usr/lib /usr/local/lib
@@ -40,40 +42,20 @@ FIND_LIBRARY(FRIBIDI_LIBRARY
 IF (FRIBIDI_LIBRARY AND FRIBIDI_INCLUDE_DIR)
   SET(CMAKE_REQUIRED_INCLUDES ${FRIBIDI_INCLUDE_DIR})
   SET(CMAKE_REQUIRED_LIBRARIES ${FRIBIDI_LIBRARY})
-  CHECK_SYMBOL_EXISTS(fribidi_utf8_to_unicode fribidi.h FOUND_fribidi_utf8_to_unicode)
-  CHECK_SYMBOL_EXISTS(fribidi_charset_to_unicode fribidi.h FOUND_fribidi_charset_to_unicode)
-  CHECK_SYMBOL_EXISTS(FRIBIDI_CHAR_SET_UTF8 fribidi.h FOUND_FRIBIDI_CHAR_SET_UTF8)
+  FIND_PACKAGE(GLIB2 REQUIRED)
 
-  # FriBiDi provides both fribidi_utf8_to_unicode and fribidi_charset_to_unicode.
-  # The difference is that
-  #  1. fribidi >= 0.10.5 has FRIBIDI_CHAR_SET_UTF8.
-  #  2. fribidi <= 0.10.4 has FRIBIDI_CHARSET_UTF8.
+  CHECK_LIBRARY_EXISTS(fribidi fribidi_utf8_to_unicode "" FOUND_fribidi_utf8_to_unicode)
+  CHECK_LIBRARY_EXISTS(fribidi fribidi_charset_to_unicode "" FOUND_fribidi_charset_to_unicode)
 
-  # Newer versions of fribidi (not tested the initial version which has the
-  # issue, but at least 0.19.2 has the issue) no longer have the symbol
-  # FRIBIDI_CHAR_SET_UTF8.  But the symbol is build with some macros confusing
-  # cmake. To test for that case let the compiler give its verdict.
-  if(FOUND_fribidi_charset_to_unicode AND NOT FOUND_FRIBIDI_CHAR_SET_UTF8)
-	file(WRITE "${CMAKE_BINARY_DIR}/fribidi_test.c"
-			"#include <fribidi.h>\nint main(){FriBidiCharSet s = FRIBIDI_CHAR_SET_UTF8;}"
-	)
-	try_compile(FOUND_FRIBIDI_CHAR_SET_UTF8
-			"${CMAKE_BINARY_DIR}"
-			"${CMAKE_BINARY_DIR}/fribidi_test.c"
-			CMAKE_FLAGS "-DINCLUDE_DIRECTORIES:STRING=${FRIBIDI_INCLUDE_DIR}"
-	)
-
-	file(REMOVE "${CMAKE_BINARY_DIR}/fribidi_test.c")
-
-  endif(FOUND_fribidi_charset_to_unicode AND NOT FOUND_FRIBIDI_CHAR_SET_UTF8)
-
-  if(FOUND_fribidi_charset_to_unicode AND FOUND_FRIBIDI_CHAR_SET_UTF8)
+  if(FOUND_fribidi_charset_to_unicode)
     # fribidi >= 0.10.5
-    SET(FRIBIDI_LIBRARIES ${FRIBIDI_LIBRARY})
+	SET(FRIBIDI_INCLUDE_DIR ${FRIBIDI_INCLUDE_DIR} ${GLIB2_INCLUDE_DIRS})
+	SET(FRIBIDI_LIBRARIES ${FRIBIDI_LIBRARY} ${GLIB2_LIBRARIES})
     SET(FRIBIDI_FOUND "YES")
   elseif(FOUND_fribidi_utf8_to_unicode)
     # fribidi <= 0.10.4
-    SET(FRIBIDI_LIBRARIES ${FRIBIDI_LIBRARY})
+	SET(FRIBIDI_INCLUDE_DIR ${FRIBIDI_INCLUDE_DIR} ${GLIB2_INCLUDE_DIRS})
+    SET(FRIBIDI_LIBRARIES ${FRIBIDI_LIBRARY} ${GLIB2_LIBRARIES})
     SET(FRIBIDI_FOUND "YES")
     add_definitions(-DOLD_FRIBIDI)
     MESSAGE(STATUS "Legacy FriBiDi: ${FRIBIDI_LIBRARY}")

@@ -4,6 +4,7 @@
 # Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
 # Copyright (c) 2011-2013 Mark Vejvoda under GNU GPL v3.0+
 
+WANT_CLANG=NO
 LANG=C
 NUMCORES=`lscpu -p | grep -cv '^#'`
 if [ "$NUMCORES" = '' ]; then NUMCORES=1; fi
@@ -110,6 +111,16 @@ esac
 #exit 1;
 
 CURRENTDIR="$(dirname $(readlink -f $0))"
+
+if [ "$WANT_CLANG" = 'YES' ]; then 
+        export CC=/usr/bin/clang
+        export CXX=/usr/bin/clang++
+        EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -D_CMAKE_TOOLCHAIN_PREFIX=llvm-"
+        echo "USER WANTS to use CLANG / LLVM compiler! EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
+#exit 1;
+fi
+
+echo "Calling cmake with EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
 cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON -DWANT_STATIC_LIBS=ON -DBUILD_MEGAGLEST_TESTS=ON -DBREAKPAD_ROOT=${CURRENTDIR}/../google-breakpad/ ${EXTRA_CMAKE_OPTIONS} ..
 if [ $? -ne 0 ]; then 
   echo 'ERROR: CMAKE failed.' >&2; exit 1
