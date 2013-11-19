@@ -171,7 +171,7 @@ void Stats::saveGame(XmlNode *rootNode) {
 	XmlNode *statsNode = rootNode->addChild("Stats");
 
 //	PlayerStats playerStats[GameConstants::maxPlayers];
-	for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
+	for(unsigned int i = 0; i < (unsigned int)GameConstants::maxPlayers; ++i) {
 		PlayerStats &stat = playerStats[i];
 
 		XmlNode *statsNodePlayer = statsNode->addChild("Player");

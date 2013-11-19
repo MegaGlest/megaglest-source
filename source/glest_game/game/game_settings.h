@@ -72,7 +72,7 @@ enum FlagTypes1 {
 };
 
 inline static bool isFlagType1BitEnabled(uint32 flagValue,FlagTypes1 type) {
-	return ((flagValue & type) == type);
+	return ((flagValue & (uint32)type) == (uint32)type);
 }
 
 enum NetworkPlayerStatusType {
@@ -359,7 +359,7 @@ public:
 			throw megaglest_runtime_error(szBuf);
 		}
 
-		for(unsigned int i =0; i < GameConstants::maxPlayers; ++i) {
+		for(int i =0; i < GameConstants::maxPlayers; ++i) {
 			if(startLocationIndex[i] == startIndex) {
 				return i;
 			}

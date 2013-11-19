@@ -7403,7 +7403,7 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 
 	assert(game != NULL);
 	//const World *world= game->getWorld();
-	assert(world != NULL);
+	//assert(world != NULL);
 
 	VisibleQuadContainerCache &qCache = getQuadCache();
 	if(qCache.visibleQuadUnitList.empty() == false) {

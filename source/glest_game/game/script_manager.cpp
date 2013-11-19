@@ -3131,7 +3131,7 @@ void ScriptManager::saveGame(XmlNode *rootNode) {
 //	bool gameWon;
 	scriptManagerNode->addAttribute("gameWon",intToStr(gameWon), mapTagReplacements);
 //	PlayerModifiers playerModifiers[GameConstants::maxPlayers];
-	for(unsigned int i = 0; i < GameConstants::maxPlayers; ++i) {
+	for(unsigned int i = 0; i < (unsigned int)GameConstants::maxPlayers; ++i) {
 		PlayerModifiers &player = playerModifiers[i];
 		player.saveGame(scriptManagerNode);
 	}

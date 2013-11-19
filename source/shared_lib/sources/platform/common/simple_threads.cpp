@@ -130,7 +130,7 @@ void FileCRCPreCacheThread::execute() {
 
 					try {
 						unsigned int consumedWorkers = 0;
-						for(unsigned int workerIdx = 0; workerIdx < MAX_FileCRCPreCacheThread_WORKER_THREADS; ++workerIdx) {
+						for(unsigned int workerIdx = 0; workerIdx < (unsigned int)MAX_FileCRCPreCacheThread_WORKER_THREADS; ++workerIdx) {
 							if(getQuitStatus() == true) {
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 								break;
