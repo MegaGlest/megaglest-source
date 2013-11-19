@@ -162,6 +162,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>wsock32.lib;libxml2_a.lib;%(AdditionalDependencies)</AdditionalDependencies>

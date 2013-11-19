@@ -206,6 +206,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <FloatingPointModel>Fast</FloatingPointModel>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <AdditionalDependencies>wxbase29u.lib;wxbase29u_net.lib;wxbase29u_xml.lib;wxexpat.lib;wxjpeg.lib;wxtiff.lib;wxmsw29u_adv.lib;wxmsw29u_aui.lib;wxmsw29u_core.lib;wxmsw29u_gl.lib;wxmsw29u_html.lib;wxmsw29u_media.lib;wxmsw29u_qa.lib;wxmsw29u_richtext.lib;wxmsw29u_xrc.lib;wxregexu.lib;winmm.lib;rpcrt4.lib;kernel32.lib;user32.lib;gdi32.lib;ole32.lib;oleaut32.lib;comctl32.lib;comdlg32.lib;uuid.lib;advapi32.lib;shell32.lib;libglest.lib;Dbghelp.lib;sdl.lib;sdlmain.lib;dxguid.lib;libcurl.lib;ws2_32.lib;xerces-c_static_3.lib;libpng15.lib;jpeg.lib;ftgl_static.lib;freetype244MT.lib;glew32s.lib;zlibstat.lib;%(AdditionalDependencies)</AdditionalDependencies>
