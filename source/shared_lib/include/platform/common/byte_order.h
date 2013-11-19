@@ -32,7 +32,7 @@ template<class T> T EndianReverse(T t) {
     return t;
 }
 
-static bool isBigEndian() {
+inline static bool isBigEndian() {
 	short n = 0x1;
 	return (*(char*)(&n) == 0x0);
 }

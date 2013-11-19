@@ -55,8 +55,8 @@ enum DebugUILevelType {
 
 namespace Glest{ namespace Game{
 
-using namespace Shared::Graphics;
-using namespace Shared::PlatformCommon;
+using namespace ::Shared::Graphics;
+using namespace ::Shared::PlatformCommon;
 
 //non shared classes
 class Config;
@@ -466,7 +466,7 @@ public:
 	Texture3D *newTexture3D(ResourceScope rs);
 	Font2D *newFont(ResourceScope rs);
 	Font3D *newFont3D(ResourceScope rs);
-	void endFont(Shared::Graphics::Font *font, ResourceScope rs, bool mustExistInList=false);
+	void endFont(::Shared::Graphics::Font *font, ResourceScope rs, bool mustExistInList=false);
 	void resetFontManager(ResourceScope rs);
 
 	inline TextRenderer2D *getTextRenderer() const	{return textRenderer;}

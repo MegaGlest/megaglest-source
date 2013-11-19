@@ -1124,8 +1124,8 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 	string advanceToItemStartingWith = "";
 	if(mainMessageBox.getEnabled() == false) {
-    	if(Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
-    		wchar_t lastKey = Shared::Platform::Window::extractLastKeyPressed();
+    	if(::Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
+    		wchar_t lastKey = ::Shared::Platform::Window::extractLastKeyPressed();
     		//printf("lastKey = %d [%c]\n",lastKey,lastKey);
     		advanceToItemStartingWith = lastKey;
     	}
@@ -2367,7 +2367,7 @@ void MenuStateConnectedGame::render() {
 			}
 			else {
 				if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
-					Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+					::Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
 					if(factionVideo != NULL) {
 						factionVideo->closePlayer();
 						delete factionVideo;
@@ -3536,7 +3536,7 @@ void MenuStateConnectedGame::keyDown(SDL_KeyboardEvent key) {
 			chatManager.keyDown(key);
 		}
 		if(chatManager.getEditEnabled() == false &&
-				(Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == false)) {
+				(::Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == false)) {
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
 			if(isKeyPressed(configKeys.getSDLKey("ShowFullConsole"),key) == true) {
@@ -4693,7 +4693,7 @@ void MenuStateConnectedGame::initFactionPreview(const GameSettings *gameSettings
 		if(currentFactionLogo != factionVideoUrl) {
 			currentFactionLogo = factionVideoUrl;
 			if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
-				Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+				::Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
 
 				if(factionVideo != NULL) {
 					factionVideo->closePlayer();

@@ -28,7 +28,7 @@
 
 namespace Glest{ namespace Game{
 
-using namespace Shared::Util;
+using namespace ::Shared::Util;
 
 struct FormatString {
 	void operator()(string &s) {

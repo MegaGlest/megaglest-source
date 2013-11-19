@@ -413,7 +413,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 					snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
-				x = Shared::PlatformByteOrder::fromCommonEndian(x);
+				x = ::Shared::PlatformByteOrder::fromCommonEndian(x);
 
 				readBytes = fread(&y, sizeof(int32), 1, f);
 				if(readBytes != 1) {
@@ -421,7 +421,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 					snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
 					throw megaglest_runtime_error(szBuf);
 				}
-				y = Shared::PlatformByteOrder::fromCommonEndian(y);
+				y = ::Shared::PlatformByteOrder::fromCommonEndian(y);
 
 				startLocations[i]= Vec2i(x, y)*cellScale;
 			}
@@ -440,7 +440,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 						snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
 						throw megaglest_runtime_error(szBuf);
 					}
-					alt = Shared::PlatformByteOrder::fromCommonEndian(alt);
+					alt = ::Shared::PlatformByteOrder::fromCommonEndian(alt);
 
 					SurfaceCell *sc= getSurfaceCell(i, j);
 					sc->setVertex(Vec3f(i*mapScale, alt / heightFactor, j*mapScale));
@@ -457,7 +457,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 						snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
 						throw megaglest_runtime_error(szBuf);
 					}
-					surf = Shared::PlatformByteOrder::fromCommonEndian(surf);
+					surf = ::Shared::PlatformByteOrder::fromCommonEndian(surf);
 
 					getSurfaceCell(i, j)->setSurfaceType(surf-1);
 				}
@@ -474,7 +474,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 						snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " on line: %d.",readBytes,__LINE__);
 						throw megaglest_runtime_error(szBuf);
 					}
-					objNumber = Shared::PlatformByteOrder::fromCommonEndian(objNumber);
+					objNumber = ::Shared::PlatformByteOrder::fromCommonEndian(objNumber);
 
 					SurfaceCell *sc= getSurfaceCell(toSurfCoords(Vec2i(i, j)));
 					if(objNumber == 0) {

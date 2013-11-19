@@ -119,13 +119,13 @@ void World::cleanup() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	for(std::map<string,StaticSound *>::iterator iterMap = staticSoundList.begin();
+	for(std::map<string,::Shared::Sound::StaticSound *>::iterator iterMap = staticSoundList.begin();
 		iterMap != staticSoundList.end(); ++iterMap) {
 		delete iterMap->second;
 	}
 	staticSoundList.clear();
 
-	for(std::map<string,StrSound *>::iterator iterMap = streamSoundList.begin();
+	for(std::map<string,::Shared::Sound::StrSound *>::iterator iterMap = streamSoundList.begin();
 		iterMap != streamSoundList.end(); ++iterMap) {
 		delete iterMap->second;
 	}

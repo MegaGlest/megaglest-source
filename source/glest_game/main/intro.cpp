@@ -96,7 +96,7 @@ Intro::Intro(Program *program):
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
-		(Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == false ||
+		(::Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == false ||
 		CoreData::getInstance().hasIntroVideoFilename() == false)) {
 		soundRenderer.playMusic(CoreData::getInstance().getIntroMusic());
 	}
@@ -509,7 +509,7 @@ Intro::Intro(Program *program):
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
-		Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true &&
+		::Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true &&
 		CoreData::getInstance().hasIntroVideoFilename() == true) {
 		string introVideoFile = CoreData::getInstance().getIntroVideoFilename();
 		string introVideoFileFallback = CoreData::getInstance().getIntroVideoFilenameFallback();
@@ -521,7 +521,7 @@ Intro::Intro(Program *program):
 
 		string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 		//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
-		Shared::Graphics::VideoPlayer player(
+		::Shared::Graphics::VideoPlayer player(
 				&Renderer::getInstance(),
 				introVideoFile,
 				introVideoFileFallback,

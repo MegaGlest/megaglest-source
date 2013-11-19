@@ -288,7 +288,7 @@ void BattleEnd::initBackgroundMusic() {
 
 void BattleEnd::initBackgroundVideo() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
-		Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+		::Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
 
 		if(menuBackgroundVideo != NULL) {
 			menuBackgroundVideo->closePlayer();

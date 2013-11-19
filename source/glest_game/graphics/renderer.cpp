@@ -941,7 +941,7 @@ Font3D *Renderer::newFont3D(ResourceScope rs){
 	return fontManager[rs]->newFont3D();
 }
 
-void Renderer::endFont(Shared::Graphics::Font *font, ResourceScope rs, bool mustExistInList) {
+void Renderer::endFont(::Shared::Graphics::Font *font, ResourceScope rs, bool mustExistInList) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
@@ -2576,7 +2576,7 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
 			for(int i = 0; i < useWidth; ++i) {
 				temp += DEFAULT_CHAR_FOR_WIDTH_CALC;
 			}
-			float lineWidth = (font->getTextHandler()->Advance(temp.c_str()) * Shared::Graphics::Font::scaleFontValue);
+			float lineWidth = (font->getTextHandler()->Advance(temp.c_str()) * ::Shared::Graphics::Font::scaleFontValue);
 			useWidth = (int)lineWidth;
 
 			maxEditWidth = useWidth;
@@ -2642,7 +2642,7 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 			throw megaglest_runtime_error("font->getTextHandler() == NULL (5)");
 		}
 
-		float lineWidth = (font->getTextHandler()->Advance(text.c_str()) * Shared::Graphics::Font::scaleFontValue);
+		float lineWidth = (font->getTextHandler()->Advance(text.c_str()) * ::Shared::Graphics::Font::scaleFontValue);
 		if(lineWidth < w) {
 			pos.x += ((w / 2.f) - (lineWidth / 2.f));
 		}
@@ -2658,7 +2658,7 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 
 		//const Metrics &metrics= Metrics::getInstance();
 		//float lineHeight = (font->getTextHandler()->LineHeight(text.c_str()) * Font::scaleFontValue);
-		float lineHeight = (font->getTextHandler()->LineHeight(text.c_str()) * Shared::Graphics::Font::scaleFontValue);
+		float lineHeight = (font->getTextHandler()->LineHeight(text.c_str()) * ::Shared::Graphics::Font::scaleFontValue);
 		//lineHeight=metrics.toVirtualY(lineHeight);
 		//lineHeight= lineHeight / (2.f + 0.2f * FontMetrics::DEFAULT_Y_OFFSET_FACTOR);
 		//pos.y += (h / 2.f) - (lineHeight / 2.f);
@@ -2671,7 +2671,7 @@ Vec2f Renderer::getCentered3DPos(const string &text, Font3D *font, Vec2f &pos, i
 			//if(Font::forceFTGLFonts == true) {
 				// First go to top of bounding box
 				pos.y += (h - lineHeight);
-				pos.y -= ((h - lineHeight) / Shared::Graphics::Font::scaleFontValueCenterHFactor);
+				pos.y -= ((h - lineHeight) / ::Shared::Graphics::Font::scaleFontValueCenterHFactor);
 //			}
 //			else {
 //				pos.y += (float)(((float)h) / 2.0);
@@ -2718,7 +2718,7 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
 			for(int i = 0; i < useWidth; ++i) {
 				temp += DEFAULT_CHAR_FOR_WIDTH_CALC;
 			}
-			float lineWidth = (font->getTextHandler()->Advance(temp.c_str()) * Shared::Graphics::Font::scaleFontValue);
+			float lineWidth = (font->getTextHandler()->Advance(temp.c_str()) * ::Shared::Graphics::Font::scaleFontValue);
 			useWidth = (int)lineWidth;
 
 			maxEditWidth = useWidth;
@@ -2794,7 +2794,7 @@ void Renderer::renderTextBoundingBox3D(const string &text, Font3D *font,
 			for(int i = 0; i < useWidth; ++i) {
 				temp += DEFAULT_CHAR_FOR_WIDTH_CALC;
 			}
-			float lineWidth = (font->getTextHandler()->Advance(temp.c_str()) * Shared::Graphics::Font::scaleFontValue);
+			float lineWidth = (font->getTextHandler()->Advance(temp.c_str()) * ::Shared::Graphics::Font::scaleFontValue);
 			useWidth = (int)lineWidth;
 
 			maxEditWidth = useWidth;
@@ -9259,7 +9259,7 @@ uint64 Renderer::getCurrentPixelByteCount(ResourceScope rs) const {
 	uint64 result = 0;
 	for(int i = (rs == rsCount ? 0 : rs); i < rsCount; ++i) {
 		if(textureManager[i] != NULL) {
-			const Shared::Graphics::TextureContainer &textures = textureManager[i]->getTextures();
+			const ::Shared::Graphics::TextureContainer &textures = textureManager[i]->getTextures();
 			for(int j = 0; j < (int)textures.size(); ++j) {
 				const Texture *texture = textures[j];
 				result += texture->getPixelByteCount();

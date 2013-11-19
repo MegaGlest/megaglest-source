@@ -1039,7 +1039,7 @@ void Game::load(int loadTypes) {
 	else {
 		logger.loadGameHints(englishFile,languageFile,true);
 
-		Shared::Platform::Window::handleEvent();
+		::Shared::Platform::Window::handleEvent();
 		SDL_PumpEvents();
 	}
 
@@ -1047,7 +1047,7 @@ void Game::load(int loadTypes) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		Game::findFactionLogoFile(&gameSettings, &logger);
 
-		Shared::Platform::Window::handleEvent();
+		::Shared::Platform::Window::handleEvent();
 		SDL_PumpEvents();
 	}
 
@@ -1097,7 +1097,7 @@ void Game::load(int loadTypes) {
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-    Shared::Platform::Window::handleEvent();
+    ::Shared::Platform::Window::handleEvent();
 	SDL_PumpEvents();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1145,7 +1145,7 @@ void Game::load(int loadTypes) {
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-    Shared::Platform::Window::handleEvent();
+    ::Shared::Platform::Window::handleEvent();
 	SDL_PumpEvents();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1163,7 +1163,7 @@ void Game::load(int loadTypes) {
 
     // give CPU time to update other things to avoid apperance of hanging
     sleep(0);
-    Shared::Platform::Window::handleEvent();
+    ::Shared::Platform::Window::handleEvent();
 	SDL_PumpEvents();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1252,7 +1252,7 @@ void Game::init(bool initForPreviewOnly) {
 
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
-		Shared::Platform::Window::handleEvent();
+		::Shared::Platform::Window::handleEvent();
 		SDL_PumpEvents();
 	}
 
@@ -1302,7 +1302,7 @@ void Game::init(bool initForPreviewOnly) {
 	if(initForPreviewOnly == false) {
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
-		Shared::Platform::Window::handleEvent();
+		::Shared::Platform::Window::handleEvent();
 		SDL_PumpEvents();
 
 		gui.init(this);
@@ -1370,7 +1370,7 @@ void Game::init(bool initForPreviewOnly) {
 	if(initForPreviewOnly == false) {
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
-		Shared::Platform::Window::handleEvent();
+		::Shared::Platform::Window::handleEvent();
 		SDL_PumpEvents();
 
 		scriptManager.init(&world, &gameCamera,loadGameNode);
@@ -1425,7 +1425,7 @@ void Game::init(bool initForPreviewOnly) {
 
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
-		Shared::Platform::Window::handleEvent();
+		::Shared::Platform::Window::handleEvent();
 		SDL_PumpEvents();
 
 		if(world.getFactionCount() == 1 && world.getFaction(0)->getPersonalityType() == fpt_Observer) {
@@ -1492,7 +1492,7 @@ void Game::init(bool initForPreviewOnly) {
 
 		// give CPU time to update other things to avoid apperance of hanging
 		sleep(0);
-		Shared::Platform::Window::handleEvent();
+		::Shared::Platform::Window::handleEvent();
 		SDL_PumpEvents();
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Waiting for network\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
@@ -4351,7 +4351,7 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 				float ymult = 0.2f;
 				float xmult = 0.2f;
 
-				Vec2i oldPos=Shared::Platform::Window::getOldMousePos();
+				Vec2i oldPos = ::Shared::Platform::Window::getOldMousePos();
 				int oldx= (oldPos.x * metrics.getVirtualW() / metrics.getScreenW());
 				int oldy= ((metrics.getScreenH()-oldPos.y) * metrics.getVirtualH()  /  metrics.getScreenH());
 				lastMousePos.x=oldx;
@@ -4360,7 +4360,7 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 			}
 			mouseX=lastMousePos.x;
 			mouseY=lastMousePos.y;
-			Shared::Platform::Window::revertMousePos();
+			::Shared::Platform::Window::revertMousePos();
 
 			return;
 		}
@@ -6120,7 +6120,7 @@ void Game::renderVideoPlayer() {
 
 void Game::playStaticVideo(const string &playVideo) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
-		Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+			::Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
 
 		//togglePauseGame(true,true);
 		tryPauseToggle(true);
@@ -6151,13 +6151,13 @@ void Game::playStaticVideo(const string &playVideo) {
 void Game::playStreamingVideo(const string &playVideo) {
 	if(videoPlayer == NULL) {
 		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
-			Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+				::Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
 			Context *c= GraphicsInterface::getInstance().getCurrentContext();
 			SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
 
 			string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 
-			videoPlayer = new Shared::Graphics::VideoPlayer(
+			videoPlayer = new ::Shared::Graphics::VideoPlayer(
 					&Renderer::getInstance(),
 					playVideo,
 					"",
@@ -6177,13 +6177,13 @@ void Game::playStreamingVideo(const string &playVideo) {
 			videoPlayer = NULL;
 
 			if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
-				Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+					::Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
 				Context *c= GraphicsInterface::getInstance().getCurrentContext();
 				SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
 
 				string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 
-				videoPlayer = new Shared::Graphics::VideoPlayer(
+				videoPlayer = new ::Shared::Graphics::VideoPlayer(
 						&Renderer::getInstance(),
 						playVideo,
 						"",

@@ -45,7 +45,6 @@ enum xml_engine_parser_type {
 	XML_RAPIDXML_ENGINE = 1
 } ;
 
-static xml_engine_parser_type DEFAULT_XML_ENGINE = XML_RAPIDXML_ENGINE;
 const int strSize= 8094;
 
 class XmlIo;
@@ -129,7 +128,7 @@ private:
 	void clearRootNode();
 
 public:
-	XmlTree(xml_engine_parser_type engine_type = DEFAULT_XML_ENGINE);
+	XmlTree(xml_engine_parser_type engine_type = XML_RAPIDXML_ENGINE);
 	~XmlTree();
 
 	void init(const string &name);

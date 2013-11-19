@@ -37,7 +37,7 @@
 
 namespace Glest{ namespace Game{
 
-using namespace Shared::Util;
+using namespace ::Shared::Util;
 
 const int MASTERSERVER_BROADCAST_MAX_WAIT_RESPONSE_SECONDS   	= 15;
 const int MASTERSERVER_BROADCAST_PUBLISH_SECONDS   			= 6;
@@ -1035,8 +1035,8 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
         }
         else {
         	string advanceToItemStartingWith = "";
-        	if(Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
-        		const wchar_t lastKey = Shared::Platform::Window::extractLastKeyPressed();
+        	if(::Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
+        		const wchar_t lastKey = ::Shared::Platform::Window::extractLastKeyPressed();
 //        		xxx:
 //        		string hehe=lastKey;
 //        		printf("lastKey = %d [%c] '%s'\n",lastKey,lastKey,hehe);
@@ -1325,7 +1325,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 						int slotsToChangeStart = i;
 						int slotsToChangeEnd = i;
 						// If control is pressed while changing player types then change all other slots to same type
-						if(Shared::Platform::Window::isKeyStateModPressed(KMOD_CTRL) == true &&
+						if(::Shared::Platform::Window::isKeyStateModPressed(KMOD_CTRL) == true &&
 								currentControlType != ctHuman) {
 							slotsToChangeStart = 0;
 							slotsToChangeEnd = mapInfo.players-1;
@@ -1956,7 +1956,7 @@ void MenuStateCustomGame::render() {
 			}
 			else {
 				if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
-					Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+						::Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
 					if(factionVideo != NULL) {
 						factionVideo->closePlayer();
 						delete factionVideo;
@@ -2867,7 +2867,7 @@ void MenuStateCustomGame::initFactionPreview(const GameSettings *gameSettings) {
 		if(currentFactionLogo != factionVideoUrl) {
 			currentFactionLogo = factionVideoUrl;
 			if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
-				Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
+					::Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
 
 				if(factionVideo != NULL) {
 					factionVideo->closePlayer();
@@ -4246,7 +4246,7 @@ void MenuStateCustomGame::keyDown(SDL_KeyboardEvent key) {
 			chatManager.keyDown(key);
 		}
 		if(chatManager.getEditEnabled() == false &&
-				(Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == false)	) {
+				(::Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == false)	) {
 			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
 			//if(key == configKeys.getCharKey("ShowFullConsole")) {

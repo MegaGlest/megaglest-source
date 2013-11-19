@@ -4,7 +4,12 @@
 # Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
 # Copyright (c) 2011-2013 Mark Vejvoda under GNU GPL v3.0+
 
+# to enable clang compilation: 
+# 1. sudo apt-get install clang
+# 2. Set the two vars below, WANT_CLANG=YES and CLANG_BIN_PATH=<path to the clang binary>
 WANT_CLANG=NO
+CLANG_BIN_PATH=/usr/bin/
+
 LANG=C
 NUMCORES=`lscpu -p | grep -cv '^#'`
 if [ "$NUMCORES" = '' ]; then NUMCORES=1; fi
@@ -113,9 +118,7 @@ esac
 CURRENTDIR="$(dirname $(readlink -f $0))"
 
 if [ "$WANT_CLANG" = 'YES' ]; then 
-        export CC=/usr/bin/clang
-        export CXX=/usr/bin/clang++
-        EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -D_CMAKE_TOOLCHAIN_PREFIX=llvm-"
+        EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_C_COMPILER=${CLANG_BIN_PATH}clang -DCMAKE_CXX_COMPILER=${CLANG_BIN_PATH}clang++"
         echo "USER WANTS to use CLANG / LLVM compiler! EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
 #exit 1;
 fi

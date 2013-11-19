@@ -29,10 +29,10 @@ namespace Shared { namespace Xml {
 
 namespace Glest{ namespace Game{
 
-using Shared::Graphics::Quad2i;
-using Shared::Graphics::Vec3f;
-using Shared::Graphics::Vec2f;
-using Shared::Xml::XmlNode;
+using ::Shared::Graphics::Quad2i;
+using ::Shared::Graphics::Vec3f;
+using ::Shared::Graphics::Vec2f;
+using ::Shared::Xml::XmlNode;
 
 class Config;
 

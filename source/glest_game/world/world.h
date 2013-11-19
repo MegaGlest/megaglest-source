@@ -49,8 +49,11 @@ class Config;
 class Game;
 class GameSettings;
 class ScriptManager;
+
+namespace Shared{ namespace Sound{
 class StaticSound;
 class StrSound;
+}};
 
 // =====================================================
 // 	class World
@@ -116,8 +119,8 @@ private:
 	bool perfTimerEnabled;
 
 	bool unitParticlesEnabled;
-	std::map<string,StaticSound *> staticSoundList;
-	std::map<string,StrSound *> streamSoundList;
+	std::map<string,::Shared::Sound::StaticSound *> staticSoundList;
+	std::map<string,::Shared::Sound::StrSound *> streamSoundList;
 
 	uint32 nextCommandGroupId;
 

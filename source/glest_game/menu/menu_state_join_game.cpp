@@ -31,7 +31,7 @@
 
 namespace Glest{ namespace Game{
 
-using namespace Shared::Util;
+using namespace ::Shared::Util;
 
 // ===============================
 // 	class MenuStateJoinGame

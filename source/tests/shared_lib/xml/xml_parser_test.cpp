@@ -232,13 +232,13 @@ public:
 
 	void test_invalid_xml_engine_lowerbound() {
 		xml_engine_parser_type testType = static_cast<xml_engine_parser_type>(XML_XERCES_ENGINE - 1);
-		if(testType == XML_XERCES_ENGINE - 1) {
+		if((int)testType == (int)(XML_XERCES_ENGINE - 1)) {
 			XmlTree xml(testType);
 		}
 	}
 	void test_invalid_xml_engine_upperbound() {
 		xml_engine_parser_type testType = static_cast<xml_engine_parser_type>(XML_RAPIDXML_ENGINE + 1);
-		if(testType == XML_RAPIDXML_ENGINE + 1) {
+		if((int)testType == (int)(XML_RAPIDXML_ENGINE + 1)) {
 			XmlTree xml(testType);
 		}
 	}
