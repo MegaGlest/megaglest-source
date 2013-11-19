@@ -4605,7 +4605,7 @@ int glestMain(int argc, char** argv) {
         // Setup debug logging etc
 		setupLogging(config, haveSpecialOutputCommandLineOption);
 
-        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::charSet = %d, Font::fontIsMultibyte = %d, fontIsRightToLeft = %d\n",__FILE__,__FUNCTION__,__LINE__,Shared::Graphics::Font::charCount,Shared::Graphics::Font::fontTypeName.c_str(),Shared::Platform::PlatformContextGl::charSet,Shared::Graphics::Font::fontIsMultibyte, Shared::Graphics::Font::fontIsRightToLeft);
+        SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Font::charCount = %d, Font::fontTypeName [%s] Shared::Platform::PlatformContextGl::charSet = %d, Font::fontIsMultibyte = %d, fontIsRightToLeft = %d\n",__FILE__,__FUNCTION__,__LINE__,Shared::Graphics::Font::charCount,Shared::Graphics::Font::fontTypeName.c_str(),Shared::Platform::PlatformContextGl::charSet,Shared::Graphics::Font::fontIsMultibyte, Shared::Graphics::Font::fontIsRightToLeft);
 
 		NetworkInterface::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);
 		MenuStateMasterserver::setDisplayMessageFunction(ExceptionHandler::DisplayMessage);

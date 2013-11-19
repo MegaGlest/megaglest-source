@@ -156,7 +156,7 @@ void Lang::loadGameStrings(string uselanguage, bool loadFonts,
 			// Example values:
 			// DEFAULT_CHARSET (English) = 1
 			// GB2312_CHARSET (Chinese)  = 134
-			Shared::Platform::charSet = strToInt(lang.getString("FONT_CHARSET_WINDOWS"));
+			Shared::Platform::PlatformContextGl::charSet = strToInt(lang.getString("FONT_CHARSET_WINDOWS"));
 		}
 		if(	lang.hasString("FONT_MULTIBYTE_WINDOWS")) {
 			Font::fontIsMultibyte 	= strToBool(lang.getString("FONT_MULTIBYTE_WINDOWS"));
