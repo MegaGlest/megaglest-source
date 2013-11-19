@@ -18,6 +18,10 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/mk/cmake/Modules)
 
 MESSAGE(STATUS "Build type for this compile will be: ${CMAKE_BUILD_TYPE}")
 
+IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        SET(CMAKE_COMPILER_IS_GNUCXX "YES")
+ENDIF()
+
 FUNCTION(Subversion_IS_WC FOLDER RESULT_VAR)
     IF(Subversion_FOUND)
     
@@ -102,7 +106,9 @@ endif()
 
 ## Compiler flags
 IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
-	IF(CMAKE_COMPILER_IS_GNUCXX)
+        IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+                MESSAGE(STATUS "Detected CLANG Compiler...")
+	ELSEIF(CMAKE_COMPILER_IS_GNUCXX)
 		MESSAGE(STATUS "Detected GNUC Compiler...")
 	ELSEIF(MINGW)
 		MESSAGE(STATUS "Detected MINGW Compiler...")
