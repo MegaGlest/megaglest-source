@@ -220,7 +220,7 @@ AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex,
 	//clear log file
 	if(logLevel > 0) {
 #ifdef WIN32
-		fp = _wfopen(Shared::Platform::utf8_decode(aiLogFile).c_str(), L"wt");
+		fp = _wfopen(::Shared::Platform::utf8_decode(aiLogFile).c_str(), L"wt");
 #else
 		fp = fopen(aiLogFile.c_str(), "wt");
 #endif
