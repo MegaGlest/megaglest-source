@@ -14,6 +14,7 @@ if(NOT DEFINED CMAKE_BUILD_TYPE)
 endif(NOT DEFINED CMAKE_BUILD_TYPE)
 
 # add additional CMake modules
+MESSAGE(STATUS "CMAKE_SOURCE_DIR = ${CMAKE_SOURCE_DIR}")
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/mk/cmake/Modules)
 
 MESSAGE(STATUS "Build type for this compile will be: ${CMAKE_BUILD_TYPE}")
