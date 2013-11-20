@@ -370,8 +370,8 @@ void Font::bidi_cvt(string &str_) {
 
 
 #ifdef	HAVE_FRIBIDI
-
-	//printf("BEFORE:   [%s]\n",str_.c_str());
+	const bool debugFribidi = false;
+	if(debugFribidi == true) printf("BEFORE:   [%s]\n",str_.c_str());
 
 	string new_value = "";
 	bool hasSoftNewLines = false;
@@ -390,7 +390,7 @@ void Font::bidi_cvt(string &str_) {
 		lines.push_back(str_);
 	}
 
-	//printf("Lines: %d\n",(int)lines.size());
+	if(debugFribidi == true) printf("Lines: %d\n",(int)lines.size());
 
 	for(int lineIndex = 0; lineIndex < (int)lines.size(); ++lineIndex) {
 		if(lineIndex > 0) {
@@ -402,7 +402,7 @@ void Font::bidi_cvt(string &str_) {
 			}
 		}
 		str_ = lines[lineIndex];
-		//printf("Line: %d [%s]\n",lineIndex,str_.c_str());
+		if(debugFribidi == true) printf("Line: %d [%s] Font::fontSupportMixedRightToLeft = %d\n",lineIndex,str_.c_str(),Font::fontSupportMixedRightToLeft);
 
 		vector<string> words;
 		if(Font::fontSupportMixedRightToLeft == true) {
@@ -424,12 +424,9 @@ void Font::bidi_cvt(string &str_) {
 		nonASCIIWordList.reserve(words.size());
 
 		for(int wordIndex = 0; wordIndex < (int)words.size(); ++wordIndex) {
-			//if(wordIndex > 0) {
-			//	new_value += " ";
-			//}
 			str_ = words[wordIndex];
 
-			//printf("Word: %d [%s]\n",wordIndex,str_.c_str());
+			if(debugFribidi == true) printf("Word: %d [%s]\n",wordIndex,str_.c_str());
 
 			//FriBidi C string holding the original text (that is probably with logical hebrew)
 			FriBidiChar *logical = NULL;
@@ -499,14 +496,7 @@ void Font::bidi_cvt(string &str_) {
 				//Insert the output string into the result
 				str_ = op;
 
-				//printf("LOG2VIS:  [%s]\n",str_.c_str());
-
-	//			if(ascii_char_map.empty() == false) {
-	//				for (int index = 0; index < (int)ascii_char_map.size(); ++index) {
-	//					str_.insert(ascii_char_map[index].second,1,ascii_char_map[index].first);
-	//				}
-	//			}
-				//printf("AFTER:    [%s]\n",str_.c_str());
+				if(debugFribidi == true) printf("LOG2VIS:  [%s]\n",str_.c_str());
 			}
 			//printf("AFTER:    [%s]\n",str_.c_str());
 
@@ -552,18 +542,18 @@ void Font::bidi_cvt(string &str_) {
 			}
 		}
 
-		//printf("Building New Line: %d [%s]\n",lineIndex,new_value.c_str());
+		if(debugFribidi == true) printf("Building New Line: %d [%s]\n",lineIndex,new_value.c_str());
 		for(int wordIndex = 0; wordIndex < (int)wordList.size(); ++wordIndex) {
-			//printf("wordIndex: %d [%s]\n",wordIndex,wordList[wordIndex].c_str());
+			if(debugFribidi == true) printf("wordIndex: %d [%s]\n",wordIndex,wordList[wordIndex].c_str());
 			if(wordIndex > 0) {
 				new_value += " ";
 			}
 			new_value += wordList[wordIndex];
 		}
-		//printf("New Line: %d [%s]\n",lineIndex,new_value.c_str());
+		if(debugFribidi == true) printf("New Line: %d [%s]\n",lineIndex,new_value.c_str());
 	}
 	str_ = new_value;
-	//printf("NEW:      [%s]\n",str_.c_str());
+	if(debugFribidi == true) printf("NEW:      [%s]\n",str_.c_str());
 
 #endif
 

@@ -39,6 +39,7 @@ class FontTest : public CppUnit::TestFixture {
 public:
 
 	void test_bidi_newline_handling() {
+
 		string text = "\n\nHP: 9000/9000\nArmor: 0 (Stone)\nSight: 15\nProduce Slave";
 		string expected = text;
 #ifdef	HAVE_FRIBIDI
@@ -46,6 +47,7 @@ public:
 		//printf("Expected: [%s] result[%s]\n",expected.c_str(),text.c_str());
 		CPPUNIT_ASSERT_EQUAL( expected,text );
 #endif
+
 	}
 	void test_LTR_RTL_Mixed() {
 		Font::fontSupportMixedRightToLeft = true;
@@ -120,7 +122,6 @@ public:
 		CPPUNIT_ASSERT_EQUAL( expected_result4,FactionName_indian );
 #endif
 
-		// This test still failing: xx IP xx
 		string LanIP = "כתובות IP מקומי:192.168.0.150 ( 61357 / 61357 )";
 		string expected5 = LanIP;
 		//printf("LanIP [%s]\n",LanIP.c_str());
@@ -135,6 +136,39 @@ public:
 
 		CPPUNIT_ASSERT_EQUAL( expected_result5,LanIP );
 #endif
+
+		string IntroText1_ar = "مبني على الحاصلة على جائزة Glest الكلاسيكية";
+		//printf("START IntroText1_ar [%s]\n",IntroText1_ar.c_str());
+		string expected6 = IntroText1_ar;
+		//printf("LanIP [%s]\n",LanIP.c_str());
+
+		CPPUNIT_ASSERT_EQUAL( 75,(int)IntroText1_ar.size() );
+
+#ifdef	HAVE_FRIBIDI
+		//printf("Before IntroText1_ar [%s]\n",IntroText1_ar.c_str());
+		Font::bidi_cvt(IntroText1_ar);
+		//printf("After IntroText1_ar [%s]\n",IntroText1_ar.c_str());
+
+		CPPUNIT_ASSERT_EQUAL( 104,(int)IntroText1_ar.size() );
+		string expected_result6 = "ﺓﺰﺋﺎﺟ ﻰﻠﻋ ﺔﻠﺻﺎﺤﻟﺍ ﻰﻠﻋ ﻲﻨﺒﻣ Glest ﺔﻴﻜﻴﺳﻼﻜﻟﺍ";
+
+		CPPUNIT_ASSERT_EQUAL( expected_result6,IntroText1_ar );
+#endif
+
+		string IntroText2 = "فريق MegaGlest يقدم";
+		string expected7 = IntroText2;
+
+		CPPUNIT_ASSERT_EQUAL( 27,(int)IntroText2.size() );
+
+#ifdef	HAVE_FRIBIDI
+		Font::bidi_cvt(IntroText2);
+
+		CPPUNIT_ASSERT_EQUAL( 35,(int)IntroText2.size() );
+		string expected_result7 = "ﻖﻳﺮﻓ MegaGlest ﻡﺪﻘﻳ";
+
+		CPPUNIT_ASSERT_EQUAL( expected_result7,IntroText2 );
+#endif
+
 	}
 };
 
