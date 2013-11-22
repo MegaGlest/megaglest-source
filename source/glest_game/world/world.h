@@ -160,8 +160,8 @@ public:
 	inline int getThisTeamIndex() const					{return thisTeamIndex;}
 	inline void setThisTeamIndex(int team) 				{ thisTeamIndex=team;}
 
-	inline const Faction *getThisFaction() const			{return factions[thisFactionIndex];}
-	inline Faction *getThisFactionPtr() 					{return factions[thisFactionIndex];}
+	inline const Faction *getThisFaction() const			{return (thisFactionIndex >= 0 ? factions[thisFactionIndex] : NULL);}
+	inline Faction *getThisFactionPtr() 					{return (thisFactionIndex >= 0 ? factions[thisFactionIndex] : NULL);}
 
 	inline int getFactionCount() const						{return (int)factions.size();}
 	inline const Map *getMap() const 						{return &map;}

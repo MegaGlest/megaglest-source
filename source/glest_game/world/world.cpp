@@ -1978,12 +1978,20 @@ void World::initFactionTypes(GameSettings *gs) {
 	//create stats
 	//printf("World gs->getThisFactionIndex() = %d\n",gs->getThisFactionIndex());
 
-	stats.init(gs->getFactionCount(), gs->getThisFactionIndex(), gs->getDescription(),gs->getTech());
+	if(this->game->isMasterserverMode() == true) {
+		this->thisFactionIndex = -1;
+	}
+	else {
+		this->thisFactionIndex= gs->getThisFactionIndex();
+	}
+
+	stats.init(gs->getFactionCount(), this->thisFactionIndex, gs->getDescription(),gs->getTech());
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	//create factions
-	this->thisFactionIndex= gs->getThisFactionIndex();
+	//printf("this->thisFactionIndex = %d\n",this->thisFactionIndex);
+
 	//factions.resize(gs->getFactionCount());
 	for(int i= 0; i < gs->getFactionCount(); ++i){
 		Faction *newFaction = new Faction();
@@ -2086,7 +2094,12 @@ void World::initFactionTypes(GameSettings *gs) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(factions.empty() == false) {
-		thisTeamIndex= getFaction(thisFactionIndex)->getTeam();
+		if(this->game->isMasterserverMode() == true) {
+			thisTeamIndex = -1;
+		}
+		else {
+			thisTeamIndex = getFaction(thisFactionIndex)->getTeam();
+		}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -2384,49 +2397,49 @@ ExploredCellsLookupItem World::exploreCells(const Vec2i &newPos, int sightRange,
 
 bool World::showWorldForPlayer(int factionIndex, bool excludeFogOfWarCheck) const {
     bool ret = false;
+    if(factionIndex >= 0) {
+		if(excludeFogOfWarCheck == false &&
+			fogOfWarSkillTypeValue == 0 && fogOfWarOverride == true) {
+			ret = true;
+		}
+		else if(factionIndex == thisFactionIndex && game != NULL) {
+			// Player is an Observer
+			if(thisTeamIndex == GameConstants::maxPlayers -1 + fpt_Observer) {
+				ret = true;
+			}
+			// Game over and not a network game
+			else if(game->getGameOver() == true &&
+					game->getGameSettings()->isNetworkGame() == false) {
+				ret = true;
+			}
+			// Game is over but playing a Network game so check if we can
+			// turn off fog of war?
+			else if(game->getGameOver() == true &&
+					game->getGameSettings()->isNetworkGame() == true &&
+					game->getGameSettings()->getEnableObserverModeAtEndGame() == true) {
+				ret = true;
 
-	if(excludeFogOfWarCheck == false &&
-		fogOfWarSkillTypeValue == 0 && fogOfWarOverride == true) {
-		ret = true;
-	}
-	else if(factionIndex == thisFactionIndex && game != NULL) {
-        // Player is an Observer
-        if(thisTeamIndex == GameConstants::maxPlayers -1 + fpt_Observer) {
-            ret = true;
-        }
-        // Game over and not a network game
-        else if(game->getGameOver() == true &&
-                game->getGameSettings()->isNetworkGame() == false) {
-            ret = true;
-        }
-        // Game is over but playing a Network game so check if we can
-        // turn off fog of war?
-        else if(game->getGameOver() == true &&
-                game->getGameSettings()->isNetworkGame() == true &&
-                game->getGameSettings()->getEnableObserverModeAtEndGame() == true) {
-            ret = true;
+				// If the faction is NOT on the winning team, don't let them see the map
+				// until all mobile units are dead
+				if(getStats()->getVictory(factionIndex) == false) {
+					// If the player has at least 1 Unit alive that is mobile (can move)
+					// then we cannot turn off fog of war
 
-            // If the faction is NOT on the winning team, don't let them see the map
-            // until all mobile units are dead
-            if(getStats()->getVictory(factionIndex) == false) {
-                // If the player has at least 1 Unit alive that is mobile (can move)
-                // then we cannot turn off fog of war
-
-            	const Faction *faction = getFaction(factionIndex);
-//                for(int i = 0; i < faction->getUnitCount(); ++i) {
-//                    Unit *unit = getFaction(factionIndex)->getUnit(i);
-//                    if(unit != NULL && unit->isAlive() && unit->getType()->isMobile() == true) {
-//                        ret = false;
-//                        break;
-//                    }
-//                }
-            	if(faction->hasAliveUnits(true,false) == true) {
-            		ret = false;
-            	}
-            }
-        }
+					const Faction *faction = getFaction(factionIndex);
+	//                for(int i = 0; i < faction->getUnitCount(); ++i) {
+	//                    Unit *unit = getFaction(factionIndex)->getUnit(i);
+	//                    if(unit != NULL && unit->isAlive() && unit->getType()->isMobile() == true) {
+	//                        ret = false;
+	//                        break;
+	//                    }
+	//                }
+					if(faction->hasAliveUnits(true,false) == true) {
+						ret = false;
+					}
+				}
+			}
+		}
     }
-
     return ret;
 }
 

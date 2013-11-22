@@ -196,6 +196,10 @@ public:
 	const string &getScenario() const								{return scenario;}
 	const string &getScenarioDir() const							{return scenarioDir;}
 	const string &getFactionTypeName(int factionIndex) const {
+		if(factionIndex == -1) {
+			static string HEADLESS_FACTION = "headless-server";
+			return HEADLESS_FACTION;
+		}
 		if(factionIndex < 0 || factionIndex >= GameConstants::maxPlayers) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"In [%s] Invalid factionIndex = %d\n",__FUNCTION__,factionIndex);

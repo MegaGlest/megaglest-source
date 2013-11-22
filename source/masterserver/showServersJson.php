@@ -30,6 +30,7 @@
 	db_disconnect( DB_LINK );
 	unset( $linkid );
 
+        header('Content-type: application/json');
 	echo json_encode($all_servers);
 	unset( $all_servers );
 ?>
