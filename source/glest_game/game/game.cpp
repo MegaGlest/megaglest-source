@@ -3489,11 +3489,13 @@ void Game::tryPauseToggle(bool pauseValue) {
 
 void Game::startMarkCell() {
 	int totalMarkedCellsForPlayer = 0;
-	for(std::map<Vec2i, MarkedCell>::iterator iterMap = mapMarkedCellList.begin();
-			iterMap != mapMarkedCellList.end(); ++iterMap) {
-		MarkedCell &bm = iterMap->second;
-		if(bm.getPlayerIndex() == world.getThisFaction()->getStartLocationIndex()) {
-			totalMarkedCellsForPlayer++;
+	if(world.getThisFaction() != NULL) {
+		for(std::map<Vec2i, MarkedCell>::iterator iterMap = mapMarkedCellList.begin();
+				iterMap != mapMarkedCellList.end(); ++iterMap) {
+			MarkedCell &bm = iterMap->second;
+			if(bm.getPlayerIndex() == world.getThisFaction()->getStartLocationIndex()) {
+				totalMarkedCellsForPlayer++;
+			}
 		}
 	}
 
@@ -5677,9 +5679,17 @@ void Game::checkWinnerStandard() {
 
 		// did some team win
 		if(teamsAlive.size() <= 1) {
+			if(this->masterserverMode == true) {
+				printf("Game finished...\n");
+			}
 			for(int i=0; i< world.getFactionCount(); ++i) {
-				if(i != world.getThisFactionIndex() && teamsAlive.find(world.getFaction(i)->getTeam()) != teamsAlive.end()) {
+				Faction *faction = world.getFaction(i);
+
+				if(i != world.getThisFactionIndex() && teamsAlive.find(faction->getTeam()) != teamsAlive.end()) {
 					world.getStats()->setVictorious(i);
+					if(this->masterserverMode == true) {
+						printf("Player: %s is on the winning team #: %d\n",this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
+					}
 				}
 			}
 			gameOver= true;
@@ -5811,13 +5821,18 @@ void Game::checkWinnerScripted() {
 			// END
 		}
 
-		scriptManager.onGameOver(scriptManager.getPlayerModifiers(world.getThisFactionIndex())->getWinner());
-
-		if(scriptManager.getPlayerModifiers(world.getThisFactionIndex())->getWinner()){
+		if(this->masterserverMode == true || world.getThisFaction()->getPersonalityType() == fpt_Observer) {
 			showWinMessageBox();
 		}
-		else{
-			showLoseMessageBox();
+		else {
+			scriptManager.onGameOver(scriptManager.getPlayerModifiers(world.getThisFactionIndex())->getWinner());
+
+			if(scriptManager.getPlayerModifiers(world.getThisFactionIndex())->getWinner()){
+				showWinMessageBox();
+			}
+			else{
+				showLoseMessageBox();
+			}
 		}
 	}
 }
@@ -5827,24 +5842,28 @@ bool Game::factionLostGame(int factionIndex) {
 }
 
 bool Game::factionLostGame(const Faction *faction) {
-	for(int i=0; i<faction->getUnitCount(); ++i) {
-		const UnitType *ut = faction->getUnit(i)->getType();
-		if(ut->getCountInVictoryConditions() == ucvcNotSet) {
-			if(faction->getUnit(i)->getType()->hasSkillClass(scBeBuilt)) {
+	if(faction != NULL) {
+		for(int i=0; i<faction->getUnitCount(); ++i) {
+			const UnitType *ut = faction->getUnit(i)->getType();
+			if(ut->getCountInVictoryConditions() == ucvcNotSet) {
+				if(faction->getUnit(i)->getType()->hasSkillClass(scBeBuilt)) {
+					return false;
+				}
+			}
+			else if(ut->getCountInVictoryConditions() == ucvcTrue) {
 				return false;
 			}
-		}
-		else if(ut->getCountInVictoryConditions() == ucvcTrue) {
-			return false;
 		}
 	}
 	return true;
 }
 
 bool Game::hasBuilding(const Faction *faction) {
-	for(int i=0; i<faction->getUnitCount(); ++i) {
-		if(faction->getUnit(i)->getType()->hasSkillClass(scBeBuilt)) {
-			return true;
+	if(faction != NULL) {
+		for(int i=0; i<faction->getUnitCount(); ++i) {
+			if(faction->getUnit(i)->getType()->hasSkillClass(scBeBuilt)) {
+				return true;
+			}
 		}
 	}
 	return false;
