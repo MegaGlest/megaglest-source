@@ -66,6 +66,7 @@ cp mk/linux/megaglest_g3dviewer "$RELEASEDIR/"
 cp mk/linux/start_megaglest "$RELEASEDIR/"
 cp mk/linux/start_megaglest_mapeditor "$RELEASEDIR/"
 cp mk/linux/start_megaglest_g3dviewer "$RELEASEDIR/"
+cp mk/linux/start_megaglest_gameserver "$RELEASEDIR/"
 
 echo "creating $PACKAGE"
 cd $CURRENTDIR
