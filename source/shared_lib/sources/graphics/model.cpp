@@ -1830,6 +1830,7 @@ PixelBufferWrapper::~PixelBufferWrapper() {
 //unsigned char BaseColorPickEntity::nextColorID[COLOR_COMPONENTS] = {1, 1, 1, 1};
 unsigned char BaseColorPickEntity::nextColorID[COLOR_COMPONENTS] = { 1, 1, 1 };
 vector<vector<unsigned char> > BaseColorPickEntity::nextColorIDReuseList;
+map<string,bool> BaseColorPickEntity::usedColorIDList;
 Mutex BaseColorPickEntity::mutexNextColorID;
 auto_ptr<PixelBufferWrapper> BaseColorPickEntity::pbo;
 
@@ -1841,6 +1842,16 @@ void BaseColorPickEntity::recycleUniqueColor() {
 	reUseColor.push_back(uniqueColorID[1]);
 	reUseColor.push_back(uniqueColorID[2]);
 	nextColorIDReuseList.push_back(reUseColor);
+
+	if(usedColorIDList.size() > 0) {
+		string color_key = getColorDescription();
+		if(usedColorIDList.find(color_key) != usedColorIDList.end()) {
+			usedColorIDList.erase(color_key);
+		}
+		else {
+			printf("Line ref: %d *WARNING* color [%s] used count: %d NOT FOUND in history list!\n",__LINE__,color_key.c_str(),(int)usedColorIDList.size());
+		}
+	}
 }
 
 void BaseColorPickEntity::resetUniqueColors() {
@@ -1850,17 +1861,30 @@ void BaseColorPickEntity::resetUniqueColors() {
 	BaseColorPickEntity::nextColorID[1] = 1;
 	BaseColorPickEntity::nextColorID[2] = 1;
 	nextColorIDReuseList.clear();
+	usedColorIDList.clear();
 }
 
 BaseColorPickEntity::BaseColorPickEntity() {
 	 MutexSafeWrapper safeMutex(&mutexNextColorID);
+	 assign_color();
+}
 
+void BaseColorPickEntity::assign_color() {
 	 if(nextColorIDReuseList.empty() == false) {
 		 uniqueColorID[0] = nextColorIDReuseList.back()[0];
 		 uniqueColorID[1] = nextColorIDReuseList.back()[1];
 		 uniqueColorID[2] = nextColorIDReuseList.back()[2];
 
 		 nextColorIDReuseList.pop_back();
+
+		 string color_key = getColorDescription();
+		 if(usedColorIDList.find(color_key) == usedColorIDList.end()) {
+			 usedColorIDList[color_key] = true;
+		 }
+		 else {
+			 printf("Line ref: %d *WARNING* color [%s] ALREADY FOUND in history list!\n",__LINE__,color_key.c_str());
+			 assign_color();
+		 }
 	 }
 	 else {
 		 uniqueColorID[0] = nextColorID[0];
@@ -1903,6 +1927,15 @@ BaseColorPickEntity::BaseColorPickEntity() {
 	//               }
 			   }
 			}
+		 }
+
+		 string color_key = getColorDescription();
+		 if(usedColorIDList.find(color_key) == usedColorIDList.end()) {
+			 usedColorIDList[color_key] = true;
+		 }
+		 else {
+			 printf("Line ref: %d *WARNING* color [%s] ALREADY FOUND in history list!\n",__LINE__,color_key.c_str());
+			 assign_color();
 		 }
 	 }
 }

@@ -1121,6 +1121,12 @@ void Game::load(int loadTypes) {
 		world.loadTech(	config.getPathListForType(ptTechs,scenarioDir), techName,
 						factions, &checksum,loadedFileList);
 
+		if(world.getTechTree() == NULL || world.getTechTree()->getNameUntranslated() == "") {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"Line ref: %d, ERROR: Cannot find techtree: [%s]",__LINE__,techName.c_str());
+
+			throw megaglest_runtime_error(szBuf, true);
+		}
 		// Validate the faction setup to ensure we don't have any bad associations
 		/*
 		std::vector<std::string> results = world.validateFactionTypes();
