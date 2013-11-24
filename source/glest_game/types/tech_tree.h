@@ -68,7 +68,9 @@ public:
     		std::map<string,vector<pair<string, string> > > &loadedFileList,
     		bool validationMode=false);
     string findPath(const string &techName) const;
+
     static string findPath(const string &techName, const vector<string> &pathTechList);
+    static bool exists(const string &techName, const vector<string> &pathTechList);
 
     TechTree(const vector<string> pathList);
     ~TechTree();

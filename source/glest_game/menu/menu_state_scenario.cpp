@@ -378,7 +378,20 @@ void MenuStateScenario::launchGame() {
 	if(scenarioInfo.file != "" && scenarioInfo.tilesetName != "" && scenarioInfo.mapName != "" && scenarioInfo.techTreeName != "") {
 		GameSettings gameSettings;
 		loadGameSettings(&scenarioInfo, &gameSettings);
+
+		const vector<string> pathTechList = Config::getInstance().getPathListForType(ptTechs,gameSettings.getScenarioDir());
+		if(TechTree::exists(gameSettings.getTech(), pathTechList) == false) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"Line ref: %d Error: cannot find techtree [%s]\n",__LINE__,scenarioInfo.techTreeName.c_str());
+			SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+
+	        mainMessageBoxState=1;
+	        showMessageBox( szBuf, "Error detected", false);
+
+			return;
+		}
 		program->setState(new Game(program, &gameSettings, false));
+		return;
 	}
 }
 

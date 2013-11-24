@@ -286,9 +286,12 @@ private:
 
     static unsigned char nextColorID[COLOR_COMPONENTS];
     static vector<vector<unsigned char> > nextColorIDReuseList;
+    static map<string,bool> usedColorIDList;
     static Mutex mutexNextColorID;
 
     static auto_ptr<PixelBufferWrapper> pbo;
+
+    void assign_color();
 };
 
 }}//end namespace
