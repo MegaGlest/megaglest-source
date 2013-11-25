@@ -1003,6 +1003,8 @@ void Game::load(int loadTypes) {
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 	soundRenderer.stopAllSounds(fadeMusicMilliseconds);
 
+	BaseColorPickEntity::resetUniqueColors();
+
 	Config &config = Config::getInstance();
 	Logger &logger= Logger::getInstance();
 
