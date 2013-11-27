@@ -275,19 +275,13 @@ public:
     string getColorDescription() const;
     virtual string getUniquePickName() const = 0;
 
-    static void resetUniqueColors();
-
-protected:
-
-    void recycleUniqueColor();
-
 private:
 	unsigned char uniqueColorID[COLOR_COMPONENTS];
 
-    static unsigned char nextColorID[COLOR_COMPONENTS];
-    static vector<vector<unsigned char> > nextColorIDReuseList;
-    static map<string,bool> usedColorIDList;
-    static Mutex mutexNextColorID;
+    static const int p = 64007, k = 43067;
+    static int nextColorID;
+    
+    static Mutex mutexNextColorID; // guards nextColorID state
 
     static auto_ptr<PixelBufferWrapper> pbo;
 

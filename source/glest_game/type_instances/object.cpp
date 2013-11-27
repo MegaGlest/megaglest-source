@@ -78,8 +78,6 @@ Object::~Object() {
 	}
 	delete resource;
 	resource = NULL;
-
-	recycleUniqueColor();
 }
 
 void Object::end() {
