@@ -1,0 +1,10 @@
+.*
+*~
+/data
+/build/
+# binaries for linux
+/mk/linux/megaglest
+/mk/linux/megaglest_*
+/source/tools/glexemel/g2xml
+/source/tools/glexemel/xml2g
+# TODO: binaries for windows etc
