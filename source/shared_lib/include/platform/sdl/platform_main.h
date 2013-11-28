@@ -73,6 +73,7 @@ const char  *GAME_ARGS[] = {
 	"--disable-backtrace",
 	"--disable-sigsegv-handler",
 	"--disable-vbo",
+	"--disable-vertex-interpolation",
 	"--disable-sound",
 	"--enable-legacyfonts",
 	"--force-ftglfonts",
@@ -152,6 +153,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_DISABLE_BACKTRACE,
 	GAME_ARG_DISABLE_SIGSEGV_HANDLER,
 	GAME_ARG_DISABLE_VBO,
+	GAME_ARG_DISABLE_VERTEX_INTERPOLATION,
 	GAME_ARG_DISABLE_SOUND,
 	GAME_ARG_ENABLE_LEGACYFONTS,
 	GAME_ARG_FORCE_FTGLFONTS,
@@ -426,6 +428,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 
 
 	printf("\n%s\t\t\tdisables trying to use Vertex Buffer Objects.",GAME_ARGS[GAME_ARG_DISABLE_VBO]);
+	printf("\n%s\t\t\tdisables interpolating animations to make them smoother.",GAME_ARGS[GAME_ARG_DISABLE_VERTEX_INTERPOLATION]);
 	printf("\n%s\t\t\tdisables the sound system.",GAME_ARGS[GAME_ARG_DISABLE_SOUND]);
 
 	printf("\n%s\t\tenables using the legacy font system.",GAME_ARGS[GAME_ARG_ENABLE_LEGACYFONTS]);

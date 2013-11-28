@@ -338,7 +338,7 @@ void Mesh::BuildVBOs() {
 			glGenBuffersARB( 1,(GLuint*) &m_nVBOVertices );					// Get A Valid Name
 			glBindBufferARB( GL_ARRAY_BUFFER_ARB, m_nVBOVertices );			// Bind The Buffer
 			// Load The Data
-			glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f)*frameCount*vertexCount, getInterpolationData()->getVertices(), GL_STATIC_DRAW_ARB );
+			glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f)*frameCount*vertexCount, vertices, GL_STATIC_DRAW_ARB );
 			glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 			// Generate And Bind The Texture Coordinate Buffer
@@ -352,7 +352,7 @@ void Mesh::BuildVBOs() {
 			glGenBuffersARB( 1, (GLuint*)&m_nVBONormals );					// Get A Valid Name
 			glBindBufferARB( GL_ARRAY_BUFFER_ARB, m_nVBONormals );			// Bind The Buffer
 			// Load The Data
-			glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f)*frameCount*vertexCount, getInterpolationData()->getNormals(), GL_STATIC_DRAW_ARB );
+			glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f)*frameCount*vertexCount, normals, GL_STATIC_DRAW_ARB );
 			glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 			// Generate And Bind The Index Buffer
