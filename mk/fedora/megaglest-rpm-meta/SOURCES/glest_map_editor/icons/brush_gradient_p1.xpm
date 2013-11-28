@@ -1,0 +1,25 @@
+/* XPM */
+static const char *brush_gradient_p1[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 3 1",
+"  c #000000",
+". c #FF0000",
+"X c None",
+/* pixels */
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXX XX",
+"XXXXXXXXXXXXX XX",
+"XXXXXXXXXXXXX XX",
+"XXXXXXXXXXXXX XX",
+"XXXXXXXXXXXXX XX",
+"XXXXXXXXXXXXXXXX",
+"XXXXXXXXXXXXXXXX",
+"XXX       XXXXXX",
+"   .......      ",
+"................",
+"................",
+"................",
+"................",
+"................",
+"................"
+};

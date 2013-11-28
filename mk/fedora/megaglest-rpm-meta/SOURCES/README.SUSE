@@ -1,0 +1,34 @@
+Save/Load game feature
+----------------------
+F4 - Save game
+F3 - Load game
+
+Configuration of MegaGlest
+----------------------
+
+For detailed configuration of megaglest please edit
+
+  $HOME/.megaglest/glest.ini.
+
+Have a lot of fun!
+
+Warning
+-------
+
+Glest is known to work only with OpenGL drivers by ATI
+("fglrx") or NVIDIA. If your graphics board is based on
+an ATI or NVIDIA chip, please install one of these OpenGL
+drivers first. Please be aware that not all ATI chips are
+supported by the ATI ("fglrx") driver. Among these are
+Mach64, Rage128 and Radeon 7x00 (7000,7200,7500) chips.
+
+ATI ("fglrx") OpenGL driver
+---------------------------
+
+  http://www.suse.de/~sndirsch/ati-installer-HOWTO.html
+
+NVIDIA OpenGL driver
+--------------------
+
+  http://www.suse.de/~sndirsch/nvidia-installer-HOWTO.html
+

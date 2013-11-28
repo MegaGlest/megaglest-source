@@ -1,0 +1,29 @@
+* text=auto
+*.bat -text
+*.vcproj -text
+*.nsi -text
+*.sln -text
+*.vbs -text
+
+*.ttc -text -diff
+*.ttf -text -diff
+*.otf -text -diff
+*.tga -text -diff
+*.png -text -diff
+*.jpg -text -diff
+*.bmp -text -diff
+*.xpm -text -diff
+*.gif -text -diff
+*.svg -text -diff
+*.ico -text -diff
+*.icns -text -diff
+*.g3d -text -diff
+*.mp4 -text -diff
+*.ogg -text -diff
+*.wav -text -diff
+*.mp3 -text -diff
+*.gbm -text -diff
+*.mgm -text -diff
+*.xcf -text -diff
+*.blend -text -diff
+*.blend1 -text -diff

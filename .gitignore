@@ -1,0 +1,76 @@
+## Linux
+.*
+*~
+# Gimp
+*.xcf
+# Vim
+*.un~
+Session.vim
+.netrwhist
+
+## OSX
+.DS_Store
+.DS_Store?
+.AppleDouble
+.LSOverride
+Icon
+# Thumbnails
+._*
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
+
+## Windows
+# Windows image file caches
+Thumbs.db
+thumbs.db
+ehthumbs.db
+# Folder config file
+Desktop.ini
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+# Visual studio
+*.suo
+*.ncb
+
+## Packages
+# it's better to unpack these files and commit the raw source git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+*.bz2
+
+## Logs and databases
+*.log
+*.sql
+*.sqlite
+
+## Git
+!.git
+!.gitignore
+!.gitattributes
+!.gitmodules
+
+## Repo
+*.blend
+*.blend1
+# Linux_build
+build/
+# Windows_build
+*.dll
+*.exe
+*.pdb
+*.exp
+*.lib
+*.map
+*.dmp
+*.dat
+data/glest_game/lua/
+#
+
+

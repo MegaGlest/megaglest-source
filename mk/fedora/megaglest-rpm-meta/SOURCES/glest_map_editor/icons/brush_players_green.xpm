@@ -1,0 +1,26 @@
+/* XPM */
+static const char *brush_players_green[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 4 1",
+"  c #000000",
+". c #008000",
+"X c #00FF00",
+"o c None",
+/* pixels */
+"oo            oo",
+"oo .X.X..X.X. oo",
+"oo .X.X..X.X. oo",
+"oo .X.X..X.X. oo",
+"oo .X.X..X.X. oo",
+"oo .X.X..X.X. oo",
+"oo .X.X..X.X. oo",
+"oo .X.X..X.X. oo",
+"oo .X.X..X.X. oo",
+"oo .......... oo",
+"oo .XXX..XXX. oo",
+"oo ...X..X... oo",
+"ooo ..XXXX.. ooo",
+"ooo ........ ooo",
+"oooo  ....  oooo",
+"oooooo    oooooo"
+};
