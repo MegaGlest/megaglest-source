@@ -13,14 +13,14 @@ Tooltip: 'Imports and Exports the Glest fileformat V3/V4 (.g3d)'
 # Updated Jan 2011 by Mark Vejvoda (SoftCoder) to properly import animations
 # from G3D into Blender
 #
-# Started Date: 07 June 2005  Put Public 20 June 2005   
+# Started Date: 07 June 2005  Put Public 20 June 2005
 # Ver: 0.01 Beta  Exporter ripped off because work in Progress
 #  Distributed under the GNU PUBLIC LICENSE for www.megaglest.org and glest.org
 ###########################################################################
 #NOTE:
 #       Copy this Script AND g3d_logo.png into .Blender\scripts
 #       directory then start inside blender Scripts window
-#       "Update Menus" after that this Script here is accesible 
+#       "Update Menus" after that this Script here is accesible
 #       as 'Wizards' G3d Fileformat Im/Exporter
 #ToDo:
 #Exporter Bughunt he will be rejoined next release
@@ -64,7 +64,7 @@ Code:
 struct ModelHeader{
    uint16 meshCount;
    uint8 type;
-};           
+};
 meshCount: number of meshes in this model
 type: must be 0
 ================================
@@ -159,7 +159,7 @@ class G3DModelHeaderv4:                     #Read Modelheader: Number of Meshes 
 	data = struct.unpack(self.binary_format,temp)
         self.meshcount = data[0]
 	self.mtype = data[1]
-		
+
 class G3DMeshHeaderv3:                      #Read Meshheader
     binary_format = "<7I64c"
     def __init__(self,fileID):
@@ -186,7 +186,7 @@ class G3DMeshHeaderv3:                      #Read Meshheader
             self.customalpha = True
         else:
             self.customalpha = False
-        
+
 class G3DMeshHeaderv4:                      #Read Meshheader
     binary_format = "<64c3I8f2I"
     texname_format = "<64c"
@@ -292,7 +292,7 @@ def createMesh(filename,header,data):               #Create a Mesh inside Blende
         if header.hastexture:                       ###Have to Check this per Vertex UV### may not be needed
             vertex.uvco[0] = data.texturecoords[y]  ###but seems to do no harm :-)###
             vertex.uvco[1] = data.texturecoords[y+1]
-        mesh.verts.append(vertex)			
+        mesh.verts.append(vertex)
         y= y+2
     for i in xrange(0,len(data.indices),3):         #Build Faces into Mesh
         face = NMesh.Face()
@@ -366,7 +366,7 @@ def G3DLoader(filename):            #Main Import Routine
         print "Number of Meshes      : " + str(modelheader.meshcount)
         for x in xrange(modelheader.meshcount):
             meshheader = G3DMeshHeaderv3(fileID)
-            meshheader.isv4 = False    
+            meshheader.isv4 = False
             print "\nMesh Number           : " + str(x+1)
             print "framecount            : " + str(meshheader.framecount)
 	    print "normalframecount      : " + str(meshheader.normalframecount)
@@ -398,7 +398,7 @@ def G3DLoader(filename):            #Main Import Routine
         print "Number of Meshes      : " + str(modelheader.meshcount)
         for x in xrange(modelheader.meshcount):
             meshheader = G3DMeshHeaderv4(fileID)
-            meshheader.isv4 = False    
+            meshheader.isv4 = False
             print "\nMesh Number           : " + str(x+1)
 	    print "meshname              : " + str(meshheader.meshname)
 	    print "framecount            : " + str(meshheader.framecount)
@@ -502,6 +502,6 @@ def gui():
     #Button("Save G3D V4",EVENT_SAVEG3DV4 , xmiddle, 10, 100, 40)
     Button("Exit",EVENT_EXIT , xmiddle+40, 10, 100, 40)
 ###########################################################################
-# Registering GUI events (Activating GUI)  THE END 
+# Registering GUI events (Activating GUI)  THE END
 ###########################################################################
 Register(gui, event, button_event)

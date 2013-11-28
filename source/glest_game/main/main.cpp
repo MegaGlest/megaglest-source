@@ -232,7 +232,7 @@ static void cleanupProcessObjects() {
 	int lastLazyThreadDump = 0;
     for(;Thread::getThreadList().size() > 0 &&
     	 difftime((long int)time(NULL),elapsed) <= 10;) {
-		
+
     	if(difftime((long int)time(NULL),elapsed) > 1) {
 			if(lastLazyThreadDump != (int)difftime((long int)time(NULL),elapsed)) {
 				lastLazyThreadDump = difftime((long int)time(NULL),elapsed);
@@ -372,7 +372,7 @@ void generate_stack_trace(string &out, CONTEXT ctx, int skip) {
 
   HANDLE process = GetCurrentProcess();
   HANDLE thread = GetCurrentThread();
-  
+
   bool tryThreadContext = true;
   CONTEXT threadContext;
   memset(&threadContext, 0, sizeof(CONTEXT));
@@ -381,12 +381,12 @@ void generate_stack_trace(string &out, CONTEXT ctx, int skip) {
   for (;;) {
     SetLastError(0);
 #if !defined(_WIN64)
-    BOOL stack_walk_ok = StackWalk64(IMAGE_FILE_MACHINE_I386, 
+    BOOL stack_walk_ok = StackWalk64(IMAGE_FILE_MACHINE_I386,
 #else
-	BOOL stack_walk_ok = StackWalk64(IMAGE_FILE_MACHINE_AMD64, 
+	BOOL stack_walk_ok = StackWalk64(IMAGE_FILE_MACHINE_AMD64,
 #endif
 									process, thread, &sf,
-                                     (tryThreadContext == false ? &threadContext : &ctx), 
+                                     (tryThreadContext == false ? &threadContext : &ctx),
 									 0, &SymFunctionTableAccess64,
                                      &SymGetModuleBase64, 0);
     if (!stack_walk_ok || !sf.AddrFrame.Offset) {
@@ -423,7 +423,7 @@ void generate_stack_trace(string &out, CONTEXT ctx, int skip) {
 
     if (skip) {
 		--skip;
-    } 
+    }
 	else {
       // write the address
 		out += intToStr(sf.AddrPC.Offset) + "|";
@@ -485,7 +485,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
          if (std::exception * e = exception_cast<std::exception>(ue)) {
 			const std::type_info & ti = typeid(*e);
 			out += string(ti.name()) + ":" + string(e->what());
-         } 
+         }
 		 else {
 			out += "Unknown C++ exception thrown.";
          }
@@ -5304,10 +5304,10 @@ int glestMain(int argc, char** argv) {
 			cinfd[0].events = POLLIN;
 #else
 			h = GetStdHandle(STD_INPUT_HANDLE);
-			//DWORD dwMode; 
-			//GetConsoleMode(h, &dwMode); 
-			//SetConsoleMode(h, dwMode & ~ENABLE_MOUSE_INPUT); 
-			FlushConsoleInputBuffer(h); 
+			//DWORD dwMode;
+			//GetConsoleMode(h, &dwMode);
+			//SetConsoleMode(h, dwMode & ~ENABLE_MOUSE_INPUT);
+			FlushConsoleInputBuffer(h);
 #endif
 		}
 
@@ -5357,7 +5357,7 @@ int glestMain(int argc, char** argv) {
 						DWORD nNumberOfCharsToRead = 1024;
 						DWORD nRead = 0;
 						INPUT_RECORD irInRec[1025];
-						
+
 						PeekConsoleInput(h,&irInRec[0],nNumberOfCharsToRead,&nRead);
 						for(int i = 0; i < nRead; ++i) {
 							INPUT_RECORD &inr = irInRec[i];
@@ -5614,22 +5614,22 @@ static bool MinidumpCallback(const google_breakpad::MinidumpDescriptor& descript
 #endif
 
 #ifdef WIN32
-void EnableCrashingOnCrashes() { 
-    typedef BOOL (WINAPI *tGetPolicy)(LPDWORD lpFlags); 
-    typedef BOOL (WINAPI *tSetPolicy)(DWORD dwFlags); 
+void EnableCrashingOnCrashes() {
+    typedef BOOL (WINAPI *tGetPolicy)(LPDWORD lpFlags);
+    typedef BOOL (WINAPI *tSetPolicy)(DWORD dwFlags);
     const DWORD EXCEPTION_SWALLOWING = 0x1;
 
     HMODULE kernel32 = LoadLibraryA("kernel32.dll");
 	if(kernel32 != 0) {
-		tGetPolicy pGetPolicy = (tGetPolicy)GetProcAddress(kernel32, "GetProcessUserModeExceptionPolicy"); 
-		tSetPolicy pSetPolicy = (tSetPolicy)GetProcAddress(kernel32, "SetProcessUserModeExceptionPolicy"); 
-		if (pGetPolicy && pSetPolicy) { 
-			DWORD dwFlags; 
-			if (pGetPolicy(&dwFlags)) { 
-				// Turn off the filter 
-				pSetPolicy(dwFlags & ~EXCEPTION_SWALLOWING); 
-			} 
-		} 
+		tGetPolicy pGetPolicy = (tGetPolicy)GetProcAddress(kernel32, "GetProcessUserModeExceptionPolicy");
+		tSetPolicy pSetPolicy = (tSetPolicy)GetProcAddress(kernel32, "SetProcessUserModeExceptionPolicy");
+		if (pGetPolicy && pSetPolicy) {
+			DWORD dwFlags;
+			if (pGetPolicy(&dwFlags)) {
+				// Turn off the filter
+				pSetPolicy(dwFlags & ~EXCEPTION_SWALLOWING);
+			}
+		}
 	}
 }
 #endif
@@ -5706,7 +5706,7 @@ int glestMainWrapper(int argc, char** argv) {
 #if defined(WIN32)
 	wstring dumpfilepath = utf8_decode(".");
 	//google_breakpad::ExceptionHandler handler(dumpfilepath, NULL, MinidumpCallback, NULL, true);
-	errorHandlerPtr.reset(new google_breakpad::ExceptionHandler(dumpfilepath, NULL, MinidumpCallback, 
+	errorHandlerPtr.reset(new google_breakpad::ExceptionHandler(dumpfilepath, NULL, MinidumpCallback,
 											  NULL, google_breakpad::ExceptionHandler::HANDLER_ALL));
 #else
 	google_breakpad::MinidumpDescriptor descriptor(".");

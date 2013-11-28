@@ -12,7 +12,7 @@
 #
 # extended by Yggdrasil
 #
-# Started Date: 07 June 2005  Put Public 20 June 2005   
+# Started Date: 07 June 2005  Put Public 20 June 2005
 #  Distributed under the GNU PUBLIC LICENSE
 #"""
 #Here an explanation of the V4 Format found at www.glest.org
@@ -50,7 +50,7 @@
 #struct ModelHeader{
 #   uint16 meshCount;
 #   uint8 type;
-#};		   
+#};
 #meshCount: number of meshes in this model
 #type: must be 0
 #================================
@@ -161,7 +161,7 @@ class G3DModelHeaderv4:					 #Read Modelheader: Number of Meshes and Meshtype (m
 		data = struct.unpack(self.binary_format,temp)
 		self.meshcount = data[0]
 		self.mtype = data[1]
-		
+
 class G3DMeshHeaderv3:										 #Read Meshheader
 	binary_format = "<7I64c"
 	def __init__(self,fileID):
@@ -188,7 +188,7 @@ class G3DMeshHeaderv3:										 #Read Meshheader
 			self.customalpha = True
 		else:
 			self.customalpha = False
-		
+
 class G3DMeshHeaderv4:										 #Read Meshheader
 	binary_format = "<64c3I8f2I"
 	texname_format = "<64c"
@@ -277,7 +277,7 @@ def createMesh(filename,header,data):						  #Create a Mesh inside Blender
 		image = bpy.data.images.load(texturefile) #load_image(texturefile, dirname(filename))
 		for x in range(0,len(data.texturecoords),2): #Prepare the UV
 			uvcoords.append([data.texturecoords[x],data.texturecoords[x+1]])
-	
+
 	vertsCO = []
 	vertsNormal = []
 	for x in range(0,header.vertexcount*3,3):	   #Get the Vertices and Normals into empty Mesh
@@ -288,12 +288,12 @@ def createMesh(filename,header,data):						  #Create a Mesh inside Blender
 	mesh.vertices.add(len(vertsCO))
 	mesh.vertices.foreach_set("co", unpack_list(vertsCO))
 	mesh.vertices.foreach_set("normal", unpack_list(vertsNormal))
-	
+
 	faces = []
 	faceuv = []
 	for i in range(0,len(data.indices),3):			  #Build Faces into Mesh
 		faces.extend([data.indices[i], data.indices[i+1], data.indices[i+2], 0])
-		if header.hastexture:	   
+		if header.hastexture:
 			uv = []
 			u0 = uvcoords[data.indices[i]][0]
 			v0 = uvcoords[data.indices[i]][1]
@@ -320,7 +320,7 @@ def createMesh(filename,header,data):						  #Create a Mesh inside Blender
 	#===================================================================================================
 	#Material Setup
 	#===================================================================================================
-	if header.hastexture:	   
+	if header.hastexture:
 		materialname = "pskmat"
 		materials = []
 		texture = bpy.data.textures.new(name=header.texturefilename,type='IMAGE')
@@ -405,7 +405,7 @@ def G3DLoader(filepath):			#Main Import Routine
 		print ("Number of Meshes  : " + str(modelheader.meshcount))
 		for x in range(modelheader.meshcount):
 			meshheader = G3DMeshHeaderv3(fileID)
-			meshheader.isv4 = False	
+			meshheader.isv4 = False
 			print ("\nMesh Number         : " + str(x+1))
 			print ("framecount            : " + str(meshheader.framecount))
 			print ("normalframecount      : " + str(meshheader.normalframecount))
@@ -437,7 +437,7 @@ def G3DLoader(filepath):			#Main Import Routine
 		print ("Number of Meshes  : " + str(modelheader.meshcount))
 		for x in range(modelheader.meshcount):
 			meshheader = G3DMeshHeaderv4(fileID)
-			meshheader.isv4 = True	  
+			meshheader.isv4 = True
 			print ("\nMesh Number   : " + str(x+1))
 			print ("meshname        : " + str(meshheader.meshname))
 			print ("framecount      : " + str(meshheader.framecount))
@@ -456,7 +456,7 @@ def G3DLoader(filepath):			#Main Import Routine
 			meshdata = G3DMeshdataV4(fileID,meshheader)
 			createMesh(filepath,meshheader,meshdata)
 		fileID.close
-		
+
 		bpy.context.scene.frame_start=1
 		bpy.context.scene.frame_end=maxframe
 		bpy.context.scene.frame_current=1
@@ -515,7 +515,7 @@ def G3DSaver(filepath, context, operator):
 				diffuseColor = material.diffuse_color
 				specularColor = material.specular_color
 				if material.alpha == 0 : #ignore the opacity if it is 0 . in this case its set to 1.0 to make it visible
-					opacity = 1.0 
+					opacity = 1.0
 				else:
 					opacity = material.alpha
 				textures = 1
