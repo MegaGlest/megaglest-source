@@ -30,7 +30,7 @@ namespace Shared{ namespace Graphics{
 //	class InterpolationData
 // =====================================================
 
-bool InterpolationData::enableCache = false;
+bool InterpolationData::enableInterpolation = true;
 
 InterpolationData::InterpolationData(const Mesh *mesh) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
@@ -40,15 +40,9 @@ InterpolationData::InterpolationData(const Mesh *mesh) {
 	vertices= NULL;
 	normals= NULL;
 	
+	raw_frame_ofs = 0;
+	
 	this->mesh= mesh;
-
-	if(mesh->getFrameCount()>1) {
-		vertices= new Vec3f[mesh->getVertexCount()];
-		normals= new Vec3f[mesh->getVertexCount()];
-	}
-
-	cacheVertices.clear();
-	cacheNormals.clear();
 }
 
 InterpolationData::~InterpolationData(){
@@ -56,24 +50,6 @@ InterpolationData::~InterpolationData(){
 	vertices=NULL;
 	delete [] normals;
 	normals=NULL;
-
-	for(std::map<float, std::map<bool, Vec3f *> >::iterator iterVert = cacheVertices.begin();
-		iterVert != cacheVertices.end(); ++iterVert) {
-		for(std::map<bool, Vec3f *>::iterator iterVert2 = iterVert->second.begin();
-			iterVert2 != iterVert->second.end(); ++iterVert2) {
-			delete [] iterVert2->second;
-		}
-	}
-	cacheVertices.clear();
-
-	for(std::map<float, std::map<bool, Vec3f *> >::iterator iterVert = cacheNormals.begin();
-		iterVert != cacheNormals.end(); ++iterVert) {
-		for(std::map<bool, Vec3f *>::iterator iterVert2 = iterVert->second.begin();
-			iterVert2 != iterVert->second.end(); ++iterVert2) {
-			delete [] iterVert2->second;
-		}
-	}
-	cacheNormals.clear();
 }
 
 void InterpolationData::update(float t, bool cycle){
@@ -82,6 +58,15 @@ void InterpolationData::update(float t, bool cycle){
 }
 
 void InterpolationData::updateVertices(float t, bool cycle) {
+	update(mesh->getVertices(), vertices, t, cycle);
+}
+
+void InterpolationData::updateNormals(float t, bool cycle) {
+	update(mesh->getNormals(), normals, t, cycle);
+}
+
+void InterpolationData::update(const Vec3f* src, Vec3f* &dest, float t, bool cycle) {
+
 	if(t <0.0f || t>1.0f) {
 		printf("ERROR t = [%f] for cycle [%d] f [%d] v [%d]\n",t,cycle,mesh->getFrameCount(),mesh->getVertexCount());
 	}
@@ -96,20 +81,6 @@ void InterpolationData::updateVertices(float t, bool cycle) {
 	uint32 vertexCount= mesh->getVertexCount();
 
 	if(frameCount > 1) {
-		if(enableCache == true) {
-			std::map<float, std::map<bool, Vec3f *> >::iterator iterFind = cacheVertices.find(t);
-			if(iterFind != cacheVertices.end()) {
-				std::map<bool, Vec3f *>::iterator iterFind2 = iterFind->second.find(cycle);
-				if(iterFind2 != iterFind->second.end()) {
-					memcpy(vertices,iterFind2->second,sizeof(Vec3f) * vertexCount);
-					return;
-				}
-			}
-			cacheVertices[t][cycle] = new Vec3f[vertexCount];
-		}
-
-		const Vec3f *meshVertices= mesh->getVertices();
-
 		//misc vars
 		uint32 prevFrame;
 		uint32 nextFrame;
@@ -133,74 +104,16 @@ void InterpolationData::updateVertices(float t, bool cycle) {
 		//assertions
 		assert(prevFrame<frameCount);
 		assert(nextFrame<frameCount);
-
-		//interpolate vertices
-		for(uint32 j=0; j<vertexCount; ++j){
-			vertices[j]= meshVertices[prevFrameBase+j].lerp(localT, meshVertices[nextFrameBase+j]);
-
-			if(enableCache == true) {
-				cacheVertices[t][cycle][j] = vertices[j];
+		
+		if(enableInterpolation) {
+			if(!dest) { // not previously allocated
+			      dest = new Vec3f[vertexCount];
 			}
-		}
-	}
-}
-
-void InterpolationData::updateNormals(float t, bool cycle){
-	if(t < 0.0f || t > 1.0f) {
-		throw megaglest_runtime_error("t < 0.0f || t > 1.0f t = [" + floatToStr(t,16) + "]");
-
-		assert(t>=0.0f && t<=1.0f);
-	}
-
-	uint32 frameCount= mesh->getFrameCount();
-	uint32 vertexCount= mesh->getVertexCount();
-
-	if(frameCount > 1) {
-		if(enableCache == true) {
-			std::map<float, std::map<bool, Vec3f *> >::iterator iterFind = cacheNormals.find(t);
-			if(iterFind != cacheNormals.end()) {
-				std::map<bool, Vec3f *>::iterator iterFind2 = iterFind->second.find(cycle);
-				if(iterFind2 != iterFind->second.end()) {
-					memcpy(normals,iterFind2->second,sizeof(Vec3f) * vertexCount);
-					return;
-				}
+			for(uint32 j=0; j<vertexCount; ++j){
+				dest[j]= src[prevFrameBase+j].lerp(localT, src[nextFrameBase+j]);
 			}
-			cacheNormals[t][cycle] = new Vec3f[vertexCount];
-		}
-
-		const Vec3f *meshNormals= mesh->getNormals();
-
-		//misc vars
-		uint32 prevFrame;
-		uint32 nextFrame;
-		float localT;
-
-		if(cycle == true) {
-			prevFrame= min<uint32>(static_cast<uint32>(t*frameCount), frameCount-1);
-			nextFrame= (prevFrame+1) % frameCount;
-			localT= t*frameCount - prevFrame;
-		}
-		else {
-			prevFrame= min<uint32> (static_cast<uint32> (t * (frameCount-1)), frameCount - 2);
-			nextFrame= min(prevFrame + 1, frameCount - 1);
-			localT= t * (frameCount-1) - prevFrame;
-			//printf(" prevFrame=%d nextFrame=%d localT=%f\n",prevFrame,nextFrame,localT);
-		}
-
-		uint32 prevFrameBase= prevFrame*vertexCount;
-		uint32 nextFrameBase= nextFrame*vertexCount;
-
-		//assertions
-		assert(prevFrame<frameCount);
-		assert(nextFrame<frameCount);
-
-		//interpolate vertices
-		for(uint32 j=0; j<vertexCount; ++j){
-			normals[j]= meshNormals[prevFrameBase+j].lerp(localT, meshNormals[nextFrameBase+j]);
-
-			if(enableCache == true) {
-				cacheNormals[t][cycle][j] = normals[j];
-			}
+		} else {
+			raw_frame_ofs = prevFrameBase;
 		}
 	}
 }

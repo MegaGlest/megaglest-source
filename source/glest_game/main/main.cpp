@@ -54,6 +54,7 @@
 #include "string_utils.h"
 #include "auto_test.h"
 #include "lua_script.h"
+#include "interpolation.h"
 
 // To handle signal catching
 #if defined(__GNUC__) && !defined(__MINGW32__) && !defined(__FreeBSD__) && !defined(BSD)
@@ -4636,8 +4637,14 @@ int glestMain(int argc, char** argv) {
         // Explicitly disable VBO's
         if(config.getBool("DisableVBO","false") == true || hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DISABLE_VBO]) == true) {
         	setVBOSupported(false);
-        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**WARNING** Disabling VBO's\n");
+        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**INFO** Disabling VBOs\n");
         }
+        
+	if(config.getBool("DisableVertexInterpolation","false") || hasCommandArgument(argc, argv, GAME_ARGS[GAME_ARG_DISABLE_VERTEX_INTERPOLATION])) {
+		InterpolationData::setEnableInterpolation(false);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("**INFO** Disabling Interpolation\n");
+	}
+
 
         if(config.getBool("EnableVSynch","false") == true) {
         	::Shared::Platform::Window::setTryVSynch(true);
