@@ -338,7 +338,7 @@ void Mesh::BuildVBOs() {
 			glGenBuffersARB( 1,(GLuint*) &m_nVBOVertices );					// Get A Valid Name
 			glBindBufferARB( GL_ARRAY_BUFFER_ARB, m_nVBOVertices );			// Bind The Buffer
 			// Load The Data
-			glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f)*frameCount*vertexCount, getInterpolationData()->getVertices(), GL_STATIC_DRAW_ARB );
+			glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f)*frameCount*vertexCount, vertices, GL_STATIC_DRAW_ARB );
 			glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 			// Generate And Bind The Texture Coordinate Buffer
@@ -352,7 +352,7 @@ void Mesh::BuildVBOs() {
 			glGenBuffersARB( 1, (GLuint*)&m_nVBONormals );					// Get A Valid Name
 			glBindBufferARB( GL_ARRAY_BUFFER_ARB, m_nVBONormals );			// Bind The Buffer
 			// Load The Data
-			glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f)*frameCount*vertexCount, getInterpolationData()->getNormals(), GL_STATIC_DRAW_ARB );
+			glBufferDataARB( GL_ARRAY_BUFFER_ARB,  sizeof(Vec3f)*frameCount*vertexCount, normals, GL_STATIC_DRAW_ARB );
 			glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 			// Generate And Bind The Index Buffer
@@ -1592,7 +1592,6 @@ void Model::autoJoinMeshFrames() {
 			haveJoinedMeshes = true;
 		}
 	}
-
 	if(haveJoinedMeshes == true) {
 		//printf("*** Detected Joined meshes for model [%s]\n",fileName.c_str());
 
@@ -1827,117 +1826,33 @@ PixelBufferWrapper::~PixelBufferWrapper() {
 	cleanup();
 }
 
-//unsigned char BaseColorPickEntity::nextColorID[COLOR_COMPONENTS] = {1, 1, 1, 1};
-unsigned char BaseColorPickEntity::nextColorID[COLOR_COMPONENTS] = { 1, 1, 1 };
-vector<vector<unsigned char> > BaseColorPickEntity::nextColorIDReuseList;
-map<string,bool> BaseColorPickEntity::usedColorIDList;
+const int BaseColorPickEntity::p = 64007;
+const int BaseColorPickEntity::k = 43067;
+int BaseColorPickEntity::nextColorID = BaseColorPickEntity::k;
 Mutex BaseColorPickEntity::mutexNextColorID;
 auto_ptr<PixelBufferWrapper> BaseColorPickEntity::pbo;
 
-void BaseColorPickEntity::recycleUniqueColor() {
-	MutexSafeWrapper safeMutex(&mutexNextColorID);
-
-	vector<unsigned char> reUseColor;
-	reUseColor.push_back(uniqueColorID[0]);
-	reUseColor.push_back(uniqueColorID[1]);
-	reUseColor.push_back(uniqueColorID[2]);
-	nextColorIDReuseList.push_back(reUseColor);
-
-	if(usedColorIDList.size() > 0) {
-		string color_key = getColorDescription();
-		if(usedColorIDList.find(color_key) != usedColorIDList.end()) {
-			usedColorIDList.erase(color_key);
-		}
-		else {
-			printf("Line ref: %d *WARNING* color [%s] used count: %d NOT FOUND in history list!\n",__LINE__,color_key.c_str(),(int)usedColorIDList.size());
-		}
-	}
-}
-
-void BaseColorPickEntity::resetUniqueColors() {
-	MutexSafeWrapper safeMutex(&mutexNextColorID);
-
-	BaseColorPickEntity::nextColorID[0] = 1;
-	BaseColorPickEntity::nextColorID[1] = 1;
-	BaseColorPickEntity::nextColorID[2] = 1;
-	nextColorIDReuseList.clear();
-	usedColorIDList.clear();
-}
-
 BaseColorPickEntity::BaseColorPickEntity() {
-	 MutexSafeWrapper safeMutex(&mutexNextColorID);
 	 assign_color();
 }
 
 void BaseColorPickEntity::assign_color() {
-	 if(nextColorIDReuseList.empty() == false) {
-		 uniqueColorID[0] = nextColorIDReuseList.back()[0];
-		 uniqueColorID[1] = nextColorIDReuseList.back()[1];
-		 uniqueColorID[2] = nextColorIDReuseList.back()[2];
-
-		 nextColorIDReuseList.pop_back();
-
-		 string color_key = getColorDescription();
-		 if(usedColorIDList.find(color_key) == usedColorIDList.end()) {
-			 usedColorIDList[color_key] = true;
-		 }
-		 else {
-			 printf("Line ref: %d *WARNING* color [%s] ALREADY FOUND in history list!\n",__LINE__,color_key.c_str());
-			 assign_color();
-		 }
-	 }
-	 else {
-		 uniqueColorID[0] = nextColorID[0];
-		 uniqueColorID[1] = nextColorID[1];
-		 uniqueColorID[2] = nextColorID[2];
-		 //uniqueColorID[3] = nextColorID[3];
-
-		 const int colorSpacing = 8;
-
-		 if((int)(nextColorID[0] + colorSpacing) <= 255) {
-			 nextColorID[0] += colorSpacing;
-		 }
-		 else {
-			 nextColorID[0] = 1;
-			 if((int)(nextColorID[1] + colorSpacing) <= 255) {
-				 nextColorID[1] += colorSpacing;
-			 }
-			 else {
-			   nextColorID[1] = 1;
-			   if((int)(nextColorID[2] + colorSpacing) <= 255) {
-				   nextColorID[2] += colorSpacing;
-			   }
-			   else {
-
-				   //printf("Color rolled over on 3rd level!\n");
-
-				   nextColorID[0] = 1;
-				   nextColorID[1] = 1;
-				   nextColorID[2] = 1;
-
-
-	//          	   nextColorID[2] = 1;
-	//          	   nextColorID[3]+=colorSpacing;
-	//
-	//               if(nextColorID[3] > 255) {
-	//              	   nextColorID[0] = 1;
-	//              	   nextColorID[1] = 1;
-	//              	   nextColorID[2] = 1;
-	//              	   nextColorID[3] = 1;
-	//               }
-			   }
-			}
-		 }
-
-		 string color_key = getColorDescription();
-		 if(usedColorIDList.find(color_key) == usedColorIDList.end()) {
-			 usedColorIDList[color_key] = true;
-		 }
-		 else {
-			 printf("Line ref: %d *WARNING* color [%s] ALREADY FOUND in history list!\n",__LINE__,color_key.c_str());
-			 assign_color();
-		 }
-	 }
+	
+	 MutexSafeWrapper safeMutex(&mutexNextColorID);
+	 
+	 nextColorID = (nextColorID * k) % p;
+	 
+	 // nextColorID is a 16-bit (hi)colour (for players with 16-bit display depths)
+	 // we expand it to true-color for use with OpenGL
+	 
+	 const int
+	 	r = (nextColorID >> 11) & ((1<<6)-1),
+	 	b = (nextColorID >> 5) & ((1<<7)-1),
+	 	g = nextColorID & ((1<<6)-1);
+	 	
+	 uniqueColorID[0] = r << 3;
+	 uniqueColorID[1] = g << 2;
+	 uniqueColorID[2] = b << 3;
 }
 
 void BaseColorPickEntity::init(int bufferSize) {
@@ -1959,9 +1874,10 @@ void BaseColorPickEntity::beginPicking() {
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//reset current background. This is neeeded to get a proper black background!
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	glPushAttrib(GL_ENABLE_BIT);
+	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_FOG);
 	glDisable(GL_LIGHTING);
@@ -1998,7 +1914,7 @@ vector<int> BaseColorPickEntity::getPickedList(int x,int y,int w,int h,
 	if(rendererModels.empty() == false) {
 		if(PixelBufferWrapper::getIsPBOEnable() == true) {
 				Pixmap2D *pixmapScreenShot = BaseColorPickEntity::pbo->getPixelBufferFor(x,y,w,h, COLOR_COMPONENTS);
-				//pixmapScreenShot->saveTga("/tmp/toll.tga");
+				//pixmapScreenShot->saveTga("/tmp/toll.tga"); //### for debugging
 				cachedPixels.reset(pixmapScreenShot);
 		}
 		else {

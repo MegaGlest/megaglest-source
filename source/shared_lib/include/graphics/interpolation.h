@@ -30,21 +30,20 @@ private:
 	Vec3f *vertices;
 	Vec3f *normals;
 
-	//std::map<std::string, Vec3f *> cacheVertices;
-	//std::map<std::string, Vec3f *> cacheNormals;
+	int raw_frame_ofs;
 
-	std::map<float, std::map<bool, Vec3f *> > cacheVertices;
-	std::map<float, std::map<bool, Vec3f *> > cacheNormals;
-	static bool enableCache;
+	static bool enableInterpolation;
+	
+	void update(const Vec3f* src, Vec3f* &dest, float t, bool cycle);
 
 public:
 	InterpolationData(const Mesh *mesh);
 	~InterpolationData();
 
-	static void setEnableCache(bool enabled) { enableCache = enabled; }
+	static void setEnableInterpolation(bool enabled) { enableInterpolation = enabled; }
 
-	const Vec3f *getVertices() const	{return vertices==NULL? mesh->getVertices(): vertices;}
-	const Vec3f *getNormals() const		{return normals==NULL? mesh->getNormals(): normals;}
+	const Vec3f *getVertices() const	{return !vertices || !enableInterpolation? mesh->getVertices()+raw_frame_ofs: vertices;}
+	const Vec3f *getNormals() const		{return !normals || !enableInterpolation? mesh->getNormals()+raw_frame_ofs: normals;}
 	
 	void update(float t, bool cycle);
 	void updateVertices(float t, bool cycle);
