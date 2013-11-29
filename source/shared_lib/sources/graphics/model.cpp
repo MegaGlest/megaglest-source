@@ -1874,10 +1874,11 @@ void BaseColorPickEntity::beginPicking() {
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//reset current background. This is neeeded to get a proper black background!
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	glPushAttrib(GL_ENABLE_BIT);
-	glEnable(GL_DEPTH_TEST);
+	//glEnable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_FOG);
 	glDisable(GL_LIGHTING);
