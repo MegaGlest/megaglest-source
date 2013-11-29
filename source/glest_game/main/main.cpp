@@ -4099,7 +4099,7 @@ int glestMain(int argc, char** argv) {
 			printf("\nSwitchSetupRequest sizeof = " MG_SIZE_T_SPECIFIER "",SwitchSetupRequest().getDataSize());
 		}
 
-		printf("\nSVN: [%s]",getSVNRevisionString().c_str());
+		printf("\nGIT: [%s]",getGITRevisionString().c_str());
 
 #ifdef USE_STREFLOP
 
@@ -4124,7 +4124,7 @@ int glestMain(int argc, char** argv) {
 	}
 
     setGameVersion(glestVersionString);
-    setGameSVNVersion(getRAWSVNRevisionString());
+    setGameGITVersion(getRAWGITRevisionString());
 
 	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) 			== true ||

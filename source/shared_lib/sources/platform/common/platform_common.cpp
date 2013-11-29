@@ -91,7 +91,7 @@ const time_t REFRESH_CRC_DAY_SECONDS = 60 * 60 * 24;
 static string crcCachePath = "";
 
 static string gameVersion = "";
-static string gameSVNVersion = "";
+static string gameGITVersion = "";
 
 namespace Private {
 
@@ -373,7 +373,7 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 				if(*p == '/')
 					begin = p+1;
 			}
-			if(!(strcmp(".", begin)==0 || strcmp("..", begin)==0 || strcmp(".svn", begin)==0)) {
+			if(!(strcmp(".", begin)==0 || strcmp("..", begin)==0 || strcmp(".git", begin)==0)) {
 				results.push_back(begin);
 			}
 			else {
@@ -472,7 +472,7 @@ void removeFolder(const string &path) {
     for(int i = (int)results.size() -1; i >= 0; --i) {
         string item = results[i];
 
-        //if(item.find(".svn") != string::npos) {
+        //if(item.find(".git") != string::npos) {
         //	printf("!!!!!!!!!!!!!!!!!! FOUND SPECIAL FOLDER [%s] in [%s]\n",item.c_str(),path.c_str());
         //}
 
@@ -646,14 +646,14 @@ void setCRCCacheFilePath(string path) {
 string getGameVersion() {
 	return gameVersion;
 }
-string getGameSVNVersion() {
-	return gameSVNVersion;
+string getGameGITVersion() {
+	return gameGITVersion;
 }
 void setGameVersion(string version) {
 	gameVersion = version;
 }
-void setGameSVNVersion(string svn) {
-	gameSVNVersion = svn;
+void setGameGITVersion(string git) {
+	gameGITVersion = git;
 }
 
 string getCRCCacheFileName(std::pair<string,string> cacheKeys) {
@@ -705,23 +705,23 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, uint32 &value) {
 			}
 
 			char gameVer[500]="";
-			char svnVer[500]="";
+			char gitVer[500]="";
 			char actualFilePath[8096]="";
 			int readbytes = fscanf(fp,"%20ld,%20u,%20ld\n%499s\n%499s\n%8095s",
 					&refreshDate,
 					&crcValue,
 					&lastUpdateDate,
 					&gameVer[0],
-					&svnVer[0],
+					&gitVer[0],
 					&actualFilePath[0]);
 			refreshDate = Shared::PlatformByteOrder::fromCommonEndian(refreshDate);
 			crcValue = Shared::PlatformByteOrder::fromCommonEndian(crcValue);
 			lastUpdateDate = Shared::PlatformByteOrder::fromCommonEndian(lastUpdateDate);
 			string readGameVer = Shared::PlatformByteOrder::fromCommonEndian(string(gameVer));
-			string readSvnVer = Shared::PlatformByteOrder::fromCommonEndian(string(svnVer));
+			string readGitVer = Shared::PlatformByteOrder::fromCommonEndian(string(gitVer));
 			string readActualFilePath = Shared::PlatformByteOrder::fromCommonEndian(string(actualFilePath));
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CRC readGameVer [%s] [%s]\n%s\n",readGameVer.c_str(),readSvnVer.c_str(),readActualFilePath.c_str());
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CRC readGameVer [%s] [%s]\n%s\n",readGameVer.c_str(),readGitVer.c_str(),readActualFilePath.c_str());
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) {
 				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d for Cache file [%s] readbytes = %d\n",__FILE__,__FUNCTION__,__LINE__,crcCacheFile.c_str(),readbytes);
@@ -744,7 +744,7 @@ pair<bool,time_t> hasCachedFileCRCValue(string crcCacheFile, uint32 &value) {
 			time_t tBadCRCDate = mktime( &future );
 
 			result.second = lastUpdateDate;
-			if(	readGameVer != "" && readSvnVer != "" &&
+			if(	readGameVer != "" && readGitVer != "" &&
 					refreshDate > 0 &&
 				refreshDate > tBadCRCDate &&
 				time(NULL) < refreshDate) {
@@ -816,7 +816,7 @@ void writeCachedFileCRCValue(string crcCacheFile, uint32 &crcValue, string actua
         strftime(szBuf1,100,"%Y-%m-%d %H:%M:%S",loctime);
 
 		string writeGameVer = Shared::PlatformByteOrder::toCommonEndian(gameVersion);
-		string writeGameSVNVersion = Shared::PlatformByteOrder::toCommonEndian(gameSVNVersion);
+		string writeGameGITVersion = Shared::PlatformByteOrder::toCommonEndian(gameGITVersion);
 		string writeActualFileName = Shared::PlatformByteOrder::toCommonEndian(actualFileName);
 
 		fprintf(fp,"%20ld,%20u,%20ld",
@@ -826,7 +826,7 @@ void writeCachedFileCRCValue(string crcCacheFile, uint32 &crcValue, string actua
 
 		fprintf(fp,"\n%s\n%s\n%s",
 				writeGameVer.c_str(),
-				writeGameSVNVersion.c_str(),
+				writeGameGITVersion.c_str(),
 				writeActualFileName.c_str());
 
 		fclose(fp);
@@ -1040,7 +1040,7 @@ uint32 getFolderTreeContentsCheckSumRecursively(const string &path, const string
 
 		if(isdir(p) == false) {
             bool addFile = true;
-            if(EndsWith(p, ".") == true || EndsWith(p, "..") == true || EndsWith(p, ".svn") == true) {
+            if(EndsWith(p, ".") == true || EndsWith(p, "..") == true || EndsWith(p, ".git") == true) {
             	addFile = false;
             }
             else if(filterFileExt != "") {
@@ -1359,7 +1359,7 @@ vector<std::pair<string,uint32> > getFolderTreeContentsCheckSumListRecursively(c
 
 		if(isdir(p) == false) {
             bool addFile = true;
-            if(EndsWith(p, ".") == true || EndsWith(p, "..") == true || EndsWith(p, ".svn") == true) {
+            if(EndsWith(p, ".") == true || EndsWith(p, "..") == true || EndsWith(p, ".git") == true) {
             	addFile = false;
             }
             else if(filterFileExt != "") {

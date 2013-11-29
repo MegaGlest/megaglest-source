@@ -2775,7 +2775,7 @@ std::map<string,string> ServerInterface::publishToMasterserver() {
 	}
 	publishToServerInfo["uuid"] = Config::getInstance().getString("PlayerId","");
 	publishToServerInfo["glestVersion"] = glestVersionString;
-	publishToServerInfo["platform"] = getPlatformNameString() + "-" + getSVNRevisionString();
+	publishToServerInfo["platform"] = getPlatformNameString() + "-" + getGITRevisionString();
 	publishToServerInfo["binaryCompileDate"] = getCompileDateTime();
 	publishToServerInfo["serverTitle"] = getHumanPlayerName() + "'s game";
 	publishToServerInfo["tech"] = this->getGameSettings()->getTech();

@@ -5037,7 +5037,7 @@ void Game::DumpCRCWorldLogIfRequired(string fileSuffix) {
 		#endif
 			logFile << "World CRC debug information:"  << std::endl;
 			logFile << "============================"  << std::endl;
-			logFile << "Software version: " << glestVersionString << "-" << getCompilerNameString() << "-" << getSVNRevisionString() << std::endl;
+			logFile << "Software version: " << glestVersionString << "-" << getCompilerNameString() << "-" << getGITRevisionString() << std::endl;
 			logFile << "Maximum framecount: " << world.getFaction(0)->getCRC_DetailsForWorldFrameCount() << std::endl;
 
 

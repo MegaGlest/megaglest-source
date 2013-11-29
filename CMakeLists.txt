@@ -24,28 +24,6 @@ IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         ADD_DEFINITIONS("-Qunused-arguments -Wno-switch")
 ENDIF()
 
-FUNCTION(Subversion_IS_WC FOLDER RESULT_VAR)
-    IF(Subversion_FOUND)
-    
-        # SVN info does not like .. as paths, so be sure that we use a full path
-        GET_FILENAME_COMPONENT(ABS_FOLDER ${FOLDER} ABSOLUTE)
-        EXECUTE_PROCESS(COMMAND ${Subversion_SVN_EXECUTABLE} info ${ABS_FOLDER}
-                        RESULT_VARIABLE INFO_RESULT
-                        OUTPUT_VARIABLE IGNORED
-                        ERROR_VARIABLE IGNORED)
-        IF(INFO_RESULT EQUAL 0)
-            SET(${RESULT_VAR} TRUE PARENT_SCOPE)
-        ELSE()
-            SET(${RESULT_VAR} FALSE PARENT_SCOPE)
-        ENDIF()
-    
-    ELSE()
-        MESSAGE(STATUS "Cannot check whether folder ${FOLDER} is a svn working copy because svn was not found. Returning FALSE.")
-        SET(${RESULT_VAR} FALSE PARENT_SCOPE)
-    ENDIF()
-
-ENDFUNCTION()
-
 OPTION(BUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS "Build model import/export tools" ON)
 OPTION(BUILD_MEGAGLEST_MODEL_VIEWER "Build model viewer" ON)
 OPTION(BUILD_MEGAGLEST_MAP_EDITOR "Build map editor" ON)
@@ -207,30 +185,42 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 	SET(CMAKE_CXX_FLAGS_MINSIZEREL "-O3 ${CMAKE_CXX_FLAGS_MINSIZEREL} -O3 ")
 	SET(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} -s")  ## Strip binary 
 
-	SET(HAS_SVN "FALSE") 
+        # Get the git revision info for the binary
+	SET(HAS_GIT "FALSE") 
 
-	OPTION(WANT_SVN_STAMP "use svn stamp" ON)
-	IF(WANT_SVN_STAMP)
-		# The stuff below gets SVN Global Revision # but ONLY when calling cmake!
-		# the FindSubversion.cmake module is part of the standard distribution
-		include(FindSubversion)
+	OPTION(WANT_GIT_STAMP "use git revision stamp" ON)
+	IF(WANT_GIT_STAMP)
+		# The stuff below gets GIT Global Revision # but ONLY when calling cmake!
+		# the FindGit.cmake module is part of the standard distribution
+		include(FindGit)
 	
-		Subversion_IS_WC(${PROJECT_SOURCE_DIR} HAS_SVN)
-		IF(${HAS_SVN} STREQUAL "TRUE")
-                        MESSAGE(STATUS "Found SVN and using SVN version stamping...")
-			# extract working copy information for SOURCE_DIR into MY_XXX variables
-			Subversion_WC_INFO(${PROJECT_SOURCE_DIR} MG)
-			#add_definitions(-DSVNVERSION="${MG_WC_REVISION}")
+		IF(GIT_FOUND)
+                        SET(HAS_GIT "TRUE") 
+                        MESSAGE(STATUS "Found GIT and using GIT version stamping...")
+
+                        # Get the current commit SHA1
+                        execute_process(
+                          COMMAND git log -1 --format=%h
+                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                          OUTPUT_VARIABLE GIT_SHA1
+                          OUTPUT_STRIP_TRAILING_WHITESPACE
+                        )
+
+                        # Get the current version counter
+                        execute_process(
+                          COMMAND git rev-list HEAD --count
+                          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+                          OUTPUT_VARIABLE GIT_COMMIT_COUNT
+                          OUTPUT_STRIP_TRAILING_WHITESPACE
+                        )
+
+                        MESSAGE(STATUS "Using GIT revision stamp: [${GIT_COMMIT_COUNT}.${GIT_SHA1}]")
+                        
 		ENDIF()
 	ENDIF()
 
-	SET(SVN_VERSION_CMD "-DSVNVERSION='\\\"${MG_WC_REVISION}\\\"'")
+	SET(GIT_VERSION_CMD "-DGITVERSION='\\\"${GIT_COMMIT_COUNT}.${GIT_SHA1}\\\"'")
 
-	IF(UNIX AND NOT APPLE AND ${HAS_SVN} STREQUAL "TRUE")
-		# We do some funky character escaping to get the right stuff written out to 
-		# the final Makefile so we get the SVN Global Revsion #
-		SET(SVN_VERSION_CMD "-DSVNVERSION='\\\"`svnversion -n ${PROJECT_SOURCE_DIR}`\\\"'")
-	ENDIF()
 
 	IF(CMAKE_INSTALL_PREFIX STREQUAL "")
 		MESSAGE(STATUS "*NOTE: NOT USING a Custom Data Install Path...")
@@ -262,13 +252,13 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 		MESSAGE(STATUS "*NOTE: Custom Data Install Path is [${CUSTOM_DATA_INSTALL_PATH}]")
 	ENDIF()
 
-	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${SVN_VERSION_CMD} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
-	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${SVN_VERSION_CMD} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
-	SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${SVN_VERSION_CMD} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
-	SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} ${SVN_VERSION_CMD} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
+	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${GIT_VERSION_CMD} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
+	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${GIT_VERSION_CMD} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
+	SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${GIT_VERSION_CMD} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
+	SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} ${GIT_VERSION_CMD} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
 
 	# We do some funky character escaping to get the right stuff written out to 
-	# the final Makefile so we get the SVN Global Revsion #
+	# the final Makefile so we get the GIT Global Revsion #
 	string(REPLACE "'" "\"" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 	string(REPLACE "'" "\"" CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE}")
 	string(REPLACE "'" "\"" CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")

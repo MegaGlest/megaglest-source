@@ -297,9 +297,9 @@ IF(BUILD_MEGAGLEST)
 		          DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
 	        ENDIF()
 
-	        # Check if we are running from an SVN folder structure or tarballs
+	        # Check if we are running from an GIT folder structure or tarballs
 	        IF(EXISTS "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.desktop")
-		        MESSAGE(STATUS "**Source package detected svn folder structure.")
+		        MESSAGE(STATUS "**Source package detected git folder structure.")
 
 		        # Installation of the program desktop file
 		        INSTALL(FILES 

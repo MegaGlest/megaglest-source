@@ -222,7 +222,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		labelLocalGameVersion.setText(glestVersionString);
 	}
 	else {
-		labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getSVNRevisionString() + "]");
+		labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
 	}
 
 	xoffset=70;
@@ -707,7 +707,7 @@ void MenuStateCustomGame::reloadUI() {
 		labelLocalGameVersion.setText(glestVersionString);
 	}
 	else {
-		labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getSVNRevisionString() + "]");
+		labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
 	}
 
 	//vector<string> teamItems, controlItems, results , rMultiplier;
@@ -2970,7 +2970,7 @@ void MenuStateCustomGame::publishToMasterserver() {
 
 	//?status=waiting&system=linux&info=titus
 	publishToServerInfo["glestVersion"] = glestVersionString;
-	publishToServerInfo["platform"] = getPlatformNameString() + "-" + getSVNRevisionString();
+	publishToServerInfo["platform"] = getPlatformNameString() + "-" + getGITRevisionString();
     publishToServerInfo["binaryCompileDate"] = getCompileDateTime();
 
 	//game info:

@@ -28,20 +28,20 @@ namespace Glest { namespace Game {
 
 const char *mailString				= " http://bugs.megaglest.org";
 const string glestVersionString 	= "v3.9.0";
-#if defined(SVNVERSION)
-const string SVN_RawRev			= string(SVNVERSION);
-const string SVN_Rev 			= string("Rev: ") + string(SVNVERSION);
-#elif defined(SVNVERSIONHEADER)
-#include "svnversion.h"
-const string SVN_RawRev			= string(SVNVERSION);
-const string SVN_Rev 			= string("Rev: ") + string(SVNVERSION);
+#if defined(GITVERSION)
+const string GIT_RawRev			= string(GITVERSION);
+const string GIT_Rev 			= string("Rev: ") + string(GITVERSION);
+#elif defined(GITVERSIONHEADER)
+#include "gitversion.h"
+const string GIT_RawRev			= string(GITVERSION);
+const string GIT_Rev 			= string("Rev: ") + string(GITVERSION);
 #else
-const string SVN_RawRev			= "$4790$";
-const string SVN_Rev 			= "$Rev$";
+const string GIT_RawRev			= "$4790$";
+const string GIT_Rev 			= "$Rev$";
 #endif
 
-string getRAWSVNRevisionString() {
-	return SVN_RawRev;
+string getRAWGITRevisionString() {
+	return GIT_RawRev;
 }
 string getCrashDumpFileName(){
 	return "megaglest" + glestVersionString + ".dmp";
@@ -110,8 +110,8 @@ string getPlatformNameString() {
 	return platform;
 }
 
-string getSVNRevisionString() {
-	return SVN_Rev;
+string getGITRevisionString() {
+	return GIT_Rev;
 }
 
 string getCompilerNameString() {
@@ -162,10 +162,10 @@ string getNetworkVersionString() {
 	return version;
 }
 
-string getNetworkVersionSVNString() {
+string getNetworkVersionGITString() {
 	static string version = "";
 	if(version == "") {
-			version = glestVersionString + "-" + getCompilerNameString() + "-" + getSVNRevisionString();
+			version = glestVersionString + "-" + getCompilerNameString() + "-" + getGITRevisionString();
 	}
 	return version;
 }
@@ -185,7 +185,7 @@ string getNetworkPlatformFreeVersionString() {
 string getAboutString1(int i) {
 	switch(i) {
 	case 0: return "MegaGlest " + glestVersionString + " (" + "Shared Library " + sharedLibVersionString + ")";
-	case 1: return "Built: " + string(__DATE__) + " " + SVN_Rev;
+	case 1: return "Built: " + string(__DATE__) + " " + GIT_Rev;
 	case 2: return "Copyright 2001-2012 The MegaGlest Team";
 	}
 	return "";
@@ -333,10 +333,10 @@ string getGameReadWritePath(string lookupKey) {
 void initSpecialStrings() {
 	getCrashDumpFileName();
 	getPlatformNameString();
-	getSVNRevisionString();
+	getGITRevisionString();
 	getCompilerNameString();
 	getNetworkVersionString();
-	getNetworkVersionSVNString();
+	getNetworkVersionGITString();
 	getNetworkPlatformFreeVersionString();
 	getCompileDateTime();
 }

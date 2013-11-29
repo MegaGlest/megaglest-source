@@ -186,9 +186,9 @@ void findAll(const string &path, vector<string> &results, bool cutExtension=fals
 vector<string> getFolderTreeContentsListRecursively(const string &path, const string &filterFileExt, bool includeFolders=false, vector<string> *recursiveMap=NULL);
 
 string getGameVersion();
-string getGameSVNVersion();
+string getGameGITVersion();
 void setGameVersion(string version);
-void setGameSVNVersion(string svn);
+void setGameGITVersion(string git);
 
 string getCRCCacheFilePath();
 void setCRCCacheFilePath(string path);

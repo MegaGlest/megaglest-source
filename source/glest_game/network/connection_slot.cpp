@@ -678,7 +678,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 						NetworkMessageIntro networkMessageIntro(
 								sessionKey,
-								getNetworkVersionSVNString(),
+								getNetworkVersionGITString(),
 								getHostName(),
 								playerIndex,
 								nmgstOk,
@@ -954,7 +954,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									//check consistency
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-									bool compatible = checkVersionComptability(getNetworkVersionSVNString(), networkMessageIntro.getVersionString());
+									bool compatible = checkVersionComptability(getNetworkVersionGITString(), networkMessageIntro.getVersionString());
 
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -967,12 +967,12 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 										if(strncmp(platformFreeVersion.c_str(),networkMessageIntro.getVersionString().c_str(),strlen(platformFreeVersion.c_str())) != 0) {
 											string playerNameStr = name;
-											sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " +  getNetworkVersionSVNString() +
+											sErr = "Server and client binary mismatch!\nYou have to use the exactly same binaries!\n\nServer: " +  getNetworkVersionGITString() +
 													"\nClient: " + networkMessageIntro.getVersionString() + " player [" + playerNameStr + "]";
 											printf("%s\n",sErr.c_str());
 
 											serverInterface->sendTextMessage("Server and client binary mismatch!!",-1, true,"",lockedSlotIndex);
-											serverInterface->sendTextMessage(" Server:" + getNetworkVersionSVNString(),-1, true,"",lockedSlotIndex);
+											serverInterface->sendTextMessage(" Server:" + getNetworkVersionGITString(),-1, true,"",lockedSlotIndex);
 											serverInterface->sendTextMessage(" Client: "+ networkMessageIntro.getVersionString(),-1, true,"",lockedSlotIndex);
 											serverInterface->sendTextMessage(" Client player [" + playerNameStr + "]",-1, true,"",lockedSlotIndex);
 										}
@@ -980,7 +980,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 											versionMatched = true;
 
 											string playerNameStr = name;
-											sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " +  getNetworkVersionSVNString() +
+											sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " +  getNetworkVersionGITString() +
 													"\nClient: " + networkMessageIntro.getVersionString() + " player [" + playerNameStr + "]";
 											//printf("%s\n",sErr.c_str());
 											if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,sErr.c_str());
