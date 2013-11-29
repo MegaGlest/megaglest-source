@@ -152,12 +152,20 @@ void Minimap::incFowTextureAlphaSurface(const Vec2i &sPos, float alpha,
 }
 
 void Minimap::copyFowTexAlphaSurface() {
-	fowPixmap1_default->copy(fowPixmap1);
-	fowPixmap1Copy_default->copy(fowPixmap1Copy);
+	if(fowPixmap1_default != NULL && fowPixmap1 != NULL) {
+		fowPixmap1_default->copy(fowPixmap1);
+	}
+	if(fowPixmap1Copy_default != NULL && fowPixmap1Copy != NULL) {
+		fowPixmap1Copy_default->copy(fowPixmap1Copy);
+	}
 }
 void Minimap::restoreFowTexAlphaSurface() {
-	fowPixmap1->copy(fowPixmap1_default);
-	fowPixmap1Copy->copy(fowPixmap1Copy_default);
+	if(fowPixmap1 != NULL && fowPixmap1_default != NULL) {
+		fowPixmap1->copy(fowPixmap1_default);
+	}
+	if(fowPixmap1Copy != NULL && fowPixmap1Copy_default != NULL) {
+		fowPixmap1Copy->copy(fowPixmap1Copy_default);
+	}
 }
 
 void Minimap::setFogOfWar(bool value) {
@@ -166,16 +174,24 @@ void Minimap::setFogOfWar(bool value) {
 }
 
 void Minimap::copyFowTex() {
-	fowPixmap0Copy->copy(fowPixmap0);
-	fowPixmap1Copy->copy(fowPixmap1);
+	if(fowPixmap0Copy != NULL && fowPixmap0 != NULL) {
+		fowPixmap0Copy->copy(fowPixmap0);
+	}
+	if(fowPixmap1Copy != NULL && fowPixmap1 != NULL) {
+		fowPixmap1Copy->copy(fowPixmap1);
+	}
 }
 void Minimap::restoreFowTex() {
-	fowPixmap0->copy(fowPixmap0Copy);
-	fowPixmap1->copy(fowPixmap1Copy);
+	if(fowPixmap0 != NULL && fowPixmap0Copy != NULL) {
+		fowPixmap0->copy(fowPixmap0Copy);
+	}
+	if(fowPixmap1 != NULL && fowPixmap1Copy != NULL) {
+		fowPixmap1->copy(fowPixmap1Copy);
+	}
 }
 
 void Minimap::resetFowTex() {
-	if(fowTex) {
+	if(fowTex && fowPixmap0 && fowPixmap1) {
 		Pixmap2D *tmpPixmap= fowPixmap0;
 		fowPixmap0= fowPixmap1;
 		fowPixmap1= tmpPixmap;
@@ -226,7 +242,7 @@ void Minimap::resetFowTex() {
 }
 
 void Minimap::updateFowTex(float t) {
-	if(fowPixmap0 && fowTex) {
+	if(fowTex && fowPixmap0 && fowPixmap1) {
 		for(int indexPixelWidth = 0;
 				indexPixelWidth < fowPixmap0->getW();
 				++indexPixelWidth){
