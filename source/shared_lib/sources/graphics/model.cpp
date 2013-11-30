@@ -1889,9 +1889,9 @@ void BaseColorPickEntity::assign_color_using_prime(unsigned char *assign_to) {
 //		b = (nextColorRGB >> 5) & ((1<<7)-1),
 //		g = nextColorRGB & ((1<<6)-1);
 	 const int
-	 	 r = (nextColorRGB >> 11) & ((1<<5)-1),
-	 	 g = (nextColorRGB >> 5) & ((1<<6)-1),
-	 	 b = nextColorRGB & ((1<<5)-1);
+	 	r = (nextColorRGB >> 11) & ((1<<5)-1),
+	 	g = (nextColorRGB >> 5) & ((1<<6)-1),
+	 	b = nextColorRGB & ((1<<5)-1);
 
 	 assign_to[0] = r << 3;
 	 assign_to[1] = g << 2;
