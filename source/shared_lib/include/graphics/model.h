@@ -263,7 +263,8 @@ public:
     BaseColorPickEntity();
     virtual ~BaseColorPickEntity() {}
 
-    static const int COLOR_COMPONENTS = 4;
+    //static const int COLOR_COMPONENTS = 4;
+    static const int COLOR_COMPONENTS = 3;
     static void init(int bufferSize);
     static void beginPicking();
     static void endPicking();
@@ -275,16 +276,39 @@ public:
     string getColorDescription() const;
     virtual string getUniquePickName() const = 0;
 
-private:
-	unsigned char uniqueColorID[COLOR_COMPONENTS];
+    static void resetUniqueColors();
 
-    static int nextColorID;
+    static void setUsingLoopMethod(bool value) { using_loop_method = value; }
+
+    static void setTrackColorUse(bool value) { trackColorUse = value; }
+    unsigned char * getUniqueColorID() { return &uniqueColorID[0]; }
+    bool get_next_assign_color(unsigned char *assign_to);
+
+protected:
+
+    void recycleUniqueColor();
+
+private:
+    unsigned char uniqueColorID[COLOR_COMPONENTS];
+
+	static unsigned char nextColorID[COLOR_COMPONENTS];
+    static int nextColorRGB;
     static const int k, p;
     static Mutex mutexNextColorID;
+
+    static bool using_loop_method;
+
+    static bool trackColorUse;
+    static map<string,bool> usedColorIDList;
+
+    static vector<vector<unsigned char> > nextColorIDReuseList;
 
     static auto_ptr<PixelBufferWrapper> pbo;
 
     void assign_color();
+
+    void assign_color_using_prime(unsigned char *assign_to);
+    void assign_color_using_loop(unsigned char *assign_to);
 };
 
 }}//end namespace
