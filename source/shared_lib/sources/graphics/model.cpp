@@ -1846,9 +1846,9 @@ void BaseColorPickEntity::assign_color() {
 	 // we expand it to true-color for use with OpenGL
 	 
 	 const int
-	 	r = (nextColorID >> 11) & ((1<<6)-1),
-	 	b = (nextColorID >> 5) & ((1<<7)-1),
-	 	g = nextColorID & ((1<<6)-1);
+	 	r = (nextColorID >> 11) & ((1<<5)-1),
+	 	g = (nextColorID >> 5) & ((1<<6)-1),
+	 	b = nextColorID & ((1<<5)-1);
 	 	
 	 uniqueColorID[0] = r << 3;
 	 uniqueColorID[1] = g << 2;
