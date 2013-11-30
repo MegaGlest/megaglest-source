@@ -278,8 +278,8 @@ public:
 private:
 	unsigned char uniqueColorID[COLOR_COMPONENTS];
 
-    static int nextColorID;
-    static const int k, p;
+    static unsigned nextColorID;
+    static const unsigned k, p;
     static Mutex mutexNextColorID;
 
     static auto_ptr<PixelBufferWrapper> pbo;

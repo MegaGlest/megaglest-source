@@ -1826,9 +1826,9 @@ PixelBufferWrapper::~PixelBufferWrapper() {
 	cleanup();
 }
 
-const int BaseColorPickEntity::p = 64007;
-const int BaseColorPickEntity::k = 43067;
-int BaseColorPickEntity::nextColorID = BaseColorPickEntity::k;
+const unsigned BaseColorPickEntity::p = 64007;
+const unsigned BaseColorPickEntity::k = 43067;
+unsigned BaseColorPickEntity::nextColorID = BaseColorPickEntity::k;
 Mutex BaseColorPickEntity::mutexNextColorID;
 auto_ptr<PixelBufferWrapper> BaseColorPickEntity::pbo;
 
@@ -1845,7 +1845,7 @@ void BaseColorPickEntity::assign_color() {
 	 // nextColorID is a 16-bit (hi)colour (for players with 16-bit display depths)
 	 // we expand it to true-color for use with OpenGL
 	 
-	 const int
+	 const unsigned
 	 	r = (nextColorID >> 11) & ((1<<5)-1),
 	 	g = (nextColorID >> 5) & ((1<<6)-1),
 	 	b = nextColorID & ((1<<5)-1);
