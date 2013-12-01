@@ -261,10 +261,12 @@ class BaseColorPickEntity {
 
 public:
     BaseColorPickEntity();
-    virtual ~BaseColorPickEntity() {}
+    virtual ~BaseColorPickEntity() {
+    	recycleUniqueColor();
+    }
 
-    //static const int COLOR_COMPONENTS = 4;
-    static const int COLOR_COMPONENTS = 3;
+    //static const int COLOR_COMPONENTS = 3;
+    static const int COLOR_COMPONENTS = 4;
     static void init(int bufferSize);
     static void beginPicking();
     static void endPicking();
@@ -284,17 +286,14 @@ public:
     unsigned char * getUniqueColorID() { return &uniqueColorID[0]; }
     bool get_next_assign_color(unsigned char *assign_to);
 
-protected:
-
-    void recycleUniqueColor();
-
 private:
+
     unsigned char uniqueColorID[COLOR_COMPONENTS];
 
 	static unsigned char nextColorID[COLOR_COMPONENTS];
-    static int nextColorRGB;
-    static const int k, p;
-    static Mutex mutexNextColorID;
+    static unsigned int nextColorRGB;
+    static const unsigned int k, p;
+    //static Mutex mutexNextColorID;
 
     static bool using_loop_method;
 
@@ -309,6 +308,8 @@ private:
 
     void assign_color_using_prime(unsigned char *assign_to);
     void assign_color_using_loop(unsigned char *assign_to);
+
+    void recycleUniqueColor();
 };
 
 }}//end namespace

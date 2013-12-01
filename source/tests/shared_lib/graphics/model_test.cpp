@@ -80,7 +80,7 @@ public:
 
 		TestBaseColorPickEntity colorPicker;
 		// This is the max color count this algorithm supports
-		const int MAX_SUPPORTED_COLORS_USING_THIS_METHOD = 472;
+		const int MAX_SUPPORTED_COLORS_USING_THIS_METHOD = 64005;
 		for(unsigned int i = 0; i < MAX_SUPPORTED_COLORS_USING_THIS_METHOD; ++i) {
 			bool duplicate = colorPicker.get_next_assign_color(colorPicker.getUniqueColorID());
 			CPPUNIT_ASSERT_EQUAL( false,duplicate );
@@ -90,7 +90,7 @@ public:
 
 		TestBaseColorPickEntity colorPicker2;
 		// This is a test to prove when the algorithm fails
-		const int MAX_SUPPORTED_COLORS_USING_THIS_METHOD_FAIL = 473;
+		const int MAX_SUPPORTED_COLORS_USING_THIS_METHOD_FAIL = 64006;
 		for(unsigned int i = 0; i < MAX_SUPPORTED_COLORS_USING_THIS_METHOD_FAIL; ++i) {
 			bool duplicate = colorPicker2.get_next_assign_color(colorPicker2.getUniqueColorID());
 			CPPUNIT_ASSERT_EQUAL( (i+1 >= MAX_SUPPORTED_COLORS_USING_THIS_METHOD_FAIL),duplicate );
