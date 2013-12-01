@@ -286,6 +286,8 @@ public:
     unsigned char * getUniqueColorID() { return &uniqueColorID[0]; }
     bool get_next_assign_color(unsigned char *assign_to);
 
+    static int getUsedColorIDListSize() { return (int)usedColorIDList.size(); }
+
 private:
 
     unsigned char uniqueColorID[COLOR_COMPONENTS];

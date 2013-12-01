@@ -5275,7 +5275,12 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 	str+= "ExploredCellsLookupItemCache: " 	+ world.getExploredCellsLookupItemCacheStats()+"\n";
 	str+= "FowAlphaCellsLookupItemCache: "  + world.getFowAlphaCellsLookupItemCacheStats()+"\n";
 
-	str += "Selection type: "+toLower(Config::getInstance().getString("SelectionType",Config::colorPicking))+"\n";
+	const string selectionType = toLower(Config::getInstance().getString("SelectionType",Config::colorPicking));
+	str += "Selection type: " + toLower(selectionType) + "\n";
+
+	if(selectionType == Config::colorPicking) {
+		str += "Color picking used color list size: " + intToStr(BaseColorPickEntity::getUsedColorIDListSize()) +"\n";
+	}
 
 	//str+= "AllFactionsCacheStats: "			+ world.getAllFactionsCacheStats()+"\n";
 	//str+= "AttackWarningCount: " + intToStr(world.getUnitUpdater()->getAttackWarningCount()) + "\n";
