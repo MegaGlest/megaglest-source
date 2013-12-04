@@ -1826,35 +1826,183 @@ PixelBufferWrapper::~PixelBufferWrapper() {
 	cleanup();
 }
 
-const unsigned BaseColorPickEntity::p = 64007;
-const unsigned BaseColorPickEntity::k = 43067;
-unsigned BaseColorPickEntity::nextColorID = BaseColorPickEntity::k;
-Mutex BaseColorPickEntity::mutexNextColorID;
+// ---------------------------------------------------------------------------
+
+const unsigned int BaseColorPickEntity::p = 64007;
+const unsigned int BaseColorPickEntity::k = 43067;
+unsigned int BaseColorPickEntity::nextColorRGB = BaseColorPickEntity::k;
+
+//Mutex BaseColorPickEntity::mutexNextColorID;
+unsigned char BaseColorPickEntity::nextColorID[COLOR_COMPONENTS] = { 1, 1, 1, 0 };
 auto_ptr<PixelBufferWrapper> BaseColorPickEntity::pbo;
 
+map<string,bool> BaseColorPickEntity::usedColorIDList;
+bool BaseColorPickEntity::trackColorUse = true;
+
+vector<vector<unsigned char> > BaseColorPickEntity::nextColorIDReuseList;
+
+bool BaseColorPickEntity::using_loop_method = false;
+
 BaseColorPickEntity::BaseColorPickEntity() {
-	 assign_color();
+	uniqueColorID[0] = 0;
+	uniqueColorID[1] = 0;
+	uniqueColorID[2] = 0;
+	uniqueColorID[3] = 0;
+	assign_color();
+}
+
+bool BaseColorPickEntity::get_next_assign_color(unsigned char *assign_to) {
+	 //MutexSafeWrapper safeMutex(&mutexNextColorID);
+	 
+	 if(assign_to == NULL) {
+		 throw megaglest_runtime_error("assign_to == NULL");
+	 }
+
+	 if(BaseColorPickEntity::using_loop_method == true) {
+		 assign_color_using_loop(assign_to);
+	 }
+	 else {
+		 assign_color_using_prime(assign_to);
+	 }
+
+	 bool isDuplicate = false;
+	 if(BaseColorPickEntity::trackColorUse == true) {
+		 string color_key = getColorDescription();
+		 //printf("Assigned color [%s]\n",color_key.c_str());
+
+		 if(usedColorIDList.find(color_key) == usedColorIDList.end()) {
+			 usedColorIDList[color_key] = true;
+
+			 //printf("Color added to used list [%s] usedColorIDList = %d nextColorIDReuseList = %d!\n",color_key.c_str(),(int)usedColorIDList.size(),(int)nextColorIDReuseList.size());
+		 }
+		 else {
+			 isDuplicate = true;
+			 printf("Line ref: %d *WARNING* color [%s] used count: %d using_loop: %d ALREADY in history list!\n",__LINE__,color_key.c_str(),(int)usedColorIDList.size(),BaseColorPickEntity::using_loop_method);
+		 }
+	 }
+	 return isDuplicate;
 }
 
 void BaseColorPickEntity::assign_color() {
-	
-	 MutexSafeWrapper safeMutex(&mutexNextColorID);
-	 
-	 nextColorID = (nextColorID * k) % p;
+	get_next_assign_color(&uniqueColorID[0]);
+}
+
+void BaseColorPickEntity::assign_color_using_prime(unsigned char *assign_to) {
+	 nextColorRGB = (nextColorRGB * k) % p;
 	 
 	 // nextColorID is a 16-bit (hi)colour (for players with 16-bit display depths)
 	 // we expand it to true-color for use with OpenGL
 	 
-	 const unsigned
-	 	r = (nextColorID >> 11) & ((1<<5)-1),
-	 	g = (nextColorID >> 5) & ((1<<6)-1),
-	 	b = nextColorID & ((1<<5)-1);
-	 	
-	 uniqueColorID[0] = r << 3;
-	 uniqueColorID[1] = g << 2;
-	 uniqueColorID[2] = b << 3;
+	 const unsigned int
+	 	r = (nextColorRGB >> 11) & ((1<<5)-1),
+	 	g = (nextColorRGB >> 5) & ((1<<6)-1),
+	 	b = nextColorRGB & ((1<<5)-1);
+
+	 assign_to[0] = r << 3;
+	 assign_to[1] = g << 2;
+	 assign_to[2] = b << 3;
 }
 
+void BaseColorPickEntity::assign_color_using_loop(unsigned char *assign_to) {
+	if(nextColorIDReuseList.empty() == false) {
+		//printf("Color being reused [%u.%u.%u] usedColorIDList = %d nextColorIDReuseList = %d!\n",nextColorIDReuseList.back()[0],nextColorIDReuseList.back()[1],nextColorIDReuseList.back()[2],(int)usedColorIDList.size(),(int)nextColorIDReuseList.size());
+
+		assign_to[0] = nextColorIDReuseList.back()[0];
+		assign_to[1] = nextColorIDReuseList.back()[1];
+		assign_to[2] = nextColorIDReuseList.back()[2];
+
+		nextColorIDReuseList.pop_back();
+
+		string color_key = getColorDescription();
+		if(usedColorIDList.find(color_key) == usedColorIDList.end()) {
+			//usedColorIDList[color_key] = true;
+			//printf("Color added to used list [%s] usedColorIDList = %d nextColorIDReuseList = %d!\n",color_key.c_str(),(int)usedColorIDList.size(),(int)nextColorIDReuseList.size());
+		}
+		else {
+			printf("Line ref: %d *WARNING* color [%s] ALREADY FOUND in history list!\n",__LINE__,color_key.c_str());
+			assign_color_using_loop(assign_to);
+		}
+	}
+	else {
+		assign_to[0] = nextColorID[0];
+		assign_to[1] = nextColorID[1];
+		assign_to[2] = nextColorID[2];
+
+		const int colorSpacing = 8;
+
+		if((int)(nextColorID[0] + colorSpacing) <= 255) {
+			nextColorID[0] += colorSpacing;
+		}
+		else {
+			nextColorID[0] = 1;
+			if((int)(nextColorID[1] + colorSpacing) <= 255) {
+				nextColorID[1] += colorSpacing;
+			}
+			else {
+				nextColorID[1] = 1;
+				if((int)(nextColorID[2] + colorSpacing) <= 255) {
+					nextColorID[2] += colorSpacing;
+				}
+				else {
+
+					printf("Color rolled over on 3rd level usedColorIDList = %d!\n",(int)usedColorIDList.size());
+
+					nextColorID[0] = 1;
+					nextColorID[1] = 1;
+					nextColorID[2] = 1;
+
+
+				//               nextColorID[2] = 1;
+				//               nextColorID[3]+=colorSpacing;
+				//
+				//               if(nextColorID[3] > 255) {
+				//                   nextColorID[0] = 1;
+				//                   nextColorID[1] = 1;
+				//                   nextColorID[2] = 1;
+				//                   nextColorID[3] = 1;
+				//               }
+				}
+			}
+		}
+	}
+}
+
+void BaseColorPickEntity::recycleUniqueColor() {
+	//MutexSafeWrapper safeMutex(&mutexNextColorID);
+
+	vector<unsigned char> reUseColor;
+	reUseColor.push_back(uniqueColorID[0]);
+	reUseColor.push_back(uniqueColorID[1]);
+	reUseColor.push_back(uniqueColorID[2]);
+	nextColorIDReuseList.push_back(reUseColor);
+
+	//printf("RECYCLE Color [%u.%u.%u] usedColorIDList = %d nextColorIDReuseList = %d!\n",reUseColor[0],reUseColor[1],reUseColor[2],(int)usedColorIDList.size(),(int)nextColorIDReuseList.size());
+
+	if(usedColorIDList.empty() == false) {
+		string color_key = getColorDescription();
+		if(usedColorIDList.find(color_key) != usedColorIDList.end()) {
+			usedColorIDList.erase(color_key);
+
+			//printf("REMOVING used Color [%s] usedColorIDList = %d nextColorIDReuseList = %d!\n",color_key.c_str(),(int)usedColorIDList.size(),(int)nextColorIDReuseList.size());
+		}
+		else {
+			printf("Line ref: %d *WARNING* color [%s] used count: %d NOT FOUND in history list!\n",__LINE__,color_key.c_str(),(int)usedColorIDList.size());
+		}
+	}
+}
+
+void BaseColorPickEntity::resetUniqueColors() {
+   //MutexSafeWrapper safeMutex(&mutexNextColorID);
+
+   BaseColorPickEntity::nextColorRGB = BaseColorPickEntity::k;
+
+   BaseColorPickEntity::nextColorID[0] = 1;
+   BaseColorPickEntity::nextColorID[1] = 1;
+   BaseColorPickEntity::nextColorID[2] = 1;
+
+   usedColorIDList.clear();
+   nextColorIDReuseList.clear();
+}
 void BaseColorPickEntity::init(int bufferSize) {
 	 if(BaseColorPickEntity::pbo.get() == NULL) {
 		 BaseColorPickEntity::pbo.reset(new PixelBufferWrapper(2,bufferSize));

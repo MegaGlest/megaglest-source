@@ -395,6 +395,9 @@ private:
 			int startIndex, int endIndex, bool onlyNetworkUnassigned);
 	void processNetworkSynchChecksIfRequired();
 	Stats getEndGameStats();
+	void checkWinnerStandardHeadlessOrObserver();
+	void checkWinnerStandardPlayer();
+	std::map<int, int> getTeamsAlive();
 };
 
 }}//end namespace

@@ -36,7 +36,7 @@ const string glestVersionString 	= "v3.9.0";
     const string GIT_RawRev			= string(GITVERSION);
     const string GIT_Rev 			= string("Rev: ") + string(GITVERSION);
 #else
-const string GIT_RawRev			= "$4790$";
+const string GIT_RawRev			= "$4446.1a8673f$";
 const string GIT_Rev 			= "$Rev$";
 #endif
 
