@@ -85,6 +85,10 @@ else()
 endif()
 
 ## Compiler flags
+IF(APPLE)
+  SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
+ENDIF(APPLE)
+
 IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
         IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
                 MESSAGE(STATUS "Detected CLANG Compiler...")
@@ -219,8 +223,11 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 		ENDIF()
 	ENDIF()
 
-	SET(GIT_VERSION_CMD "-DGITVERSION='\\\"${GIT_COMMIT_COUNT}.${GIT_SHA1}\\\"'")
-
+IF(APPLE)
+	SET(GIT_VERSION_CMD "-DGITVERSION='\\\\'${GIT_COMMIT_COUNT}.${GIT_SHA1}\\\\''")
+ELSE()
+        SET(GIT_VERSION_CMD "-DGITVERSION='\\\"${GIT_COMMIT_COUNT}.${GIT_SHA1}\\\"'")
+ENDIF()
 
 	IF(CMAKE_INSTALL_PREFIX STREQUAL "")
 		MESSAGE(STATUS "*NOTE: NOT USING a Custom Data Install Path...")
@@ -242,7 +249,11 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 		ENDIF()
 
 		IF(NOT CUSTOM_DATA_INSTALL_PATH)
-			SET(CUSTOM_DATA_INSTALL_PATH "'\\\"${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_DATA_INSTALL_PATH}\\\"'" CACHE STRING "The FULL installation path for data files (this is build automatically by combining CMAKE_INSTALL_PREFIX and MEGAGLEST_DATA_INSTALL_PATH)")
+                        IF(APPLE)
+			        SET(CUSTOM_DATA_INSTALL_PATH "'\\\\'${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_DATA_INSTALL_PATH}\\\\''" CACHE STRING "The FULL installation path for data files (this is build automatically by combining CMAKE_INSTALL_PREFIX and MEGAGLEST_DATA_INSTALL_PATH)")
+                        ELSE()
+                                SET(CUSTOM_DATA_INSTALL_PATH "'\\\"${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_DATA_INSTALL_PATH}\\\"'" CACHE STRING "The FULL installation path for data files (this is build automatically by combining CMAKE_INSTALL_PREFIX and MEGAGLEST_DATA_INSTALL_PATH)")
+                        ENDIF()
 		ENDIF()
 		SET(CUSTOM_DATA_INSTALL_PATH_VALUE "-DCUSTOM_DATA_INSTALL_PATH=${CUSTOM_DATA_INSTALL_PATH}")
 
