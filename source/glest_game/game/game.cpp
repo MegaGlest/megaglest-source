@@ -430,6 +430,8 @@ Game::~Game() {
 
 	world.end();	//must die before selection because of referencers
 
+	BaseColorPickEntity::resetUniqueColors();
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] aiInterfaces.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,aiInterfaces.size());
 
 	delete videoPlayer;
@@ -1000,6 +1002,8 @@ void Game::load(int loadTypes) {
 
 	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 	soundRenderer.stopAllSounds(fadeMusicMilliseconds);
+
+	BaseColorPickEntity::resetUniqueColors();
 
 	Config &config = Config::getInstance();
 	Logger &logger= Logger::getInstance();
@@ -2608,6 +2612,8 @@ void Game::update() {
 				aiInterfaces.clear();
 				gui.end();		//selection must be cleared before deleting units
 				world.end();	//must die before selection because of referencers
+
+				BaseColorPickEntity::resetUniqueColors();
 				// MUST DO THIS LAST!!!! Because objects above have pointers to things like
 				// unit particles and fade them out etc and this end method deletes the original
 				// object pointers.
@@ -2632,6 +2638,7 @@ void Game::update() {
 				soundRenderer.stopAllSounds(fadeMusicMilliseconds);
 
 				world.endScenario();
+				BaseColorPickEntity::resetUniqueColors();
 
 				Renderer &renderer= Renderer::getInstance();
 				renderer.endScenario();
@@ -5268,7 +5275,12 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 	str+= "ExploredCellsLookupItemCache: " 	+ world.getExploredCellsLookupItemCacheStats()+"\n";
 	str+= "FowAlphaCellsLookupItemCache: "  + world.getFowAlphaCellsLookupItemCacheStats()+"\n";
 
-	str += "Selection type: "+toLower(Config::getInstance().getString("SelectionType",Config::colorPicking))+"\n";
+	const string selectionType = toLower(Config::getInstance().getString("SelectionType",Config::colorPicking));
+	str += "Selection type: " + toLower(selectionType) + "\n";
+
+	if(selectionType == Config::colorPicking) {
+		str += "Color picking used color list size: " + intToStr(BaseColorPickEntity::getUsedColorIDListSize()) +"\n";
+	}
 
 	//str+= "AllFactionsCacheStats: "			+ world.getAllFactionsCacheStats()+"\n";
 	//str+= "AttackWarningCount: " + intToStr(world.getUnitUpdater()->getAttackWarningCount()) + "\n";
@@ -5588,7 +5600,10 @@ void Game::render2d() {
 // ==================== misc ====================
 
 void Game::checkWinner() {
-	if(gameOver == false) {
+	// lookup int is team #, value is players alive on team
+	std::map<int, int> teamsAlive = getTeamsAlive();
+
+	if(gameOver == false || teamsAlive.size() > 1) {
 		if(gameSettings.getDefaultVictoryConditions()) {
 			checkWinnerStandard();
 		}
@@ -5663,55 +5678,62 @@ void Game::setEndGameTeamWinnersAndLosers() {
 	}
 }
 
-void Game::checkWinnerStandard() {
-	if(world.getFactionCount() <= 0) {
-		return;
+std::map<int, int> Game::getTeamsAlive() {
+	std::map<int, int> teamsAlive;
+	for (int factionIndex = 0; factionIndex < world.getFactionCount(); ++factionIndex) {
+		if (factionIndex != world.getThisFactionIndex()) {
+			//if(hasBuilding(world.getFaction(i))) {
+			if (factionLostGame(world.getFaction(factionIndex)) == false) {
+				teamsAlive[world.getFaction(factionIndex)->getTeam()] =
+						teamsAlive[world.getFaction(factionIndex)->getTeam()] + 1;
+			}
+		}
 	}
-	if(this->masterserverMode == true || world.getThisFaction()->getPersonalityType() == fpt_Observer) {
-		// lookup int is team #, value is players alive on team
-		std::map<int,int> teamsAlive;
-		for(int i = 0; i < world.getFactionCount(); ++i) {
-			if(i != world.getThisFactionIndex()) {
-				//if(hasBuilding(world.getFaction(i))) {
-				if(factionLostGame(world.getFaction(i)) == false) {
-					teamsAlive[world.getFaction(i)->getTeam()] = teamsAlive[world.getFaction(i)->getTeam()] + 1;
+	// did some team win
+	return teamsAlive;
+}
+
+void Game::checkWinnerStandardHeadlessOrObserver() {
+	// lookup int is team #, value is players alive on team
+	std::map<int, int> teamsAlive = getTeamsAlive();
+
+	// did some team win
+	if (teamsAlive.size() <= 1) {
+		if (this->masterserverMode == true) {
+			printf("Game finished...\n");
+		}
+		for (int factionIndex = 0; factionIndex < world.getFactionCount(); ++factionIndex) {
+			Faction* faction = world.getFaction(factionIndex);
+			if (factionIndex != world.getThisFactionIndex() &&
+					teamsAlive.find(faction->getTeam()) != teamsAlive.end()) {
+				world.getStats()->setVictorious(factionIndex);
+				if (this->masterserverMode == true) {
+					printf("Player: %s is on the winning team #: %d\n",
+							this->gameSettings.getNetworkPlayerName(factionIndex).c_str(),
+							faction->getTeam());
 				}
 			}
 		}
+		bool wasGameOverAlready = gameOver;
+		gameOver = true;
 
-		// did some team win
-		if(teamsAlive.size() <= 1) {
-			if(this->masterserverMode == true) {
-				printf("Game finished...\n");
-			}
-			for(int i=0; i< world.getFactionCount(); ++i) {
-				Faction *faction = world.getFaction(i);
-
-				if(i != world.getThisFactionIndex() && teamsAlive.find(faction->getTeam()) != teamsAlive.end()) {
-					world.getStats()->setVictorious(i);
-					if(this->masterserverMode == true) {
-						printf("Player: %s is on the winning team #: %d\n",this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
-					}
-				}
-			}
-			gameOver= true;
-			if( this->gameSettings.isNetworkGame() == false ||
-				this->gameSettings.getEnableObserverModeAtEndGame() == true) {
+		// Only need to process this once
+		if(wasGameOverAlready == false) {
+			if (this->gameSettings.isNetworkGame() == false ||
+				this->gameSettings.getEnableObserverModeAtEndGame()
+							== true) {
 				// Let the happy winner view everything left in the world
-
 				// This caused too much LAG for network games
-				if(this->gameSettings.isNetworkGame() == false) {
+				if (this->gameSettings.isNetworkGame() == false) {
 					Renderer::getInstance().setPhotoMode(true);
 					gameCamera.setMaxHeight(PHOTO_MODE_MAXHEIGHT);
 				}
 				// END
 			}
-
 			scriptManager.onGameOver(true);
-
-			if(world.getFactionCount() == 1 && world.getFaction(0)->getPersonalityType() == fpt_Observer) {
+			if (world.getFactionCount() == 1 &&
+					world.getFaction(0)->getPersonalityType() == fpt_Observer) {
 				//printf("!!!!!!!!!!!!!!!!!!!!");
-
 				//gameCamera.setMoveY(100.0);
 				gameCamera.zoom(-300);
 				//gameCamera.update();
@@ -5721,23 +5743,121 @@ void Game::checkWinnerStandard() {
 			}
 		}
 	}
-	else {
-		//lose
-		bool lose= false;
-		//if(hasBuilding(world.getThisFaction()) == false) {
-		if(factionLostGame(world.getThisFaction()) == true) {
-			lose= true;
-			for(int i=0; i<world.getFactionCount(); ++i) {
-				if(world.getFaction(i)->getPersonalityType() != fpt_Observer) {
-					if(world.getFaction(i)->isAlly(world.getThisFaction()) == false) {
-						world.getStats()->setVictorious(i);
+}
+
+void Game::checkWinnerStandardPlayer() {
+	//lose
+	bool lose = false;
+	//if(hasBuilding(world.getThisFaction()) == false) {
+	if (factionLostGame(world.getThisFaction()) == true) {
+		lose = true;
+		for (int factionIndex = 0; factionIndex < world.getFactionCount(); ++factionIndex) {
+			if (world.getFaction(factionIndex)->getPersonalityType() != fpt_Observer) {
+				if (world.getFaction(factionIndex)->isAlly(world.getThisFaction()) == false) {
+					world.getStats()->setVictorious(factionIndex);
+				}
+			}
+		}
+		bool wasGameOverAlready = gameOver;
+		gameOver = true;
+
+		// Only need to process losing once
+		if(wasGameOverAlready == false) {
+			if (this->gameSettings.isNetworkGame() == false ||
+				this->gameSettings.getEnableObserverModeAtEndGame()
+							== true) {
+				// Let the poor user watch everything unfold
+				// This caused too much LAG for network games
+				if (this->gameSettings.isNetworkGame() == false) {
+					Renderer::getInstance().setPhotoMode(true);
+					gameCamera.setMaxHeight(PHOTO_MODE_MAXHEIGHT);
+				}
+				// END
+				// but don't let him cheat via teamchat
+				chatManager.setDisableTeamMode(true);
+			}
+			scriptManager.onGameOver(!lose);
+			showLoseMessageBox();
+		}
+	}
+	//win
+	if (lose == false) {
+		bool win = true;
+		for (int factionIndex = 0; factionIndex < world.getFactionCount(); ++factionIndex) {
+			if (factionIndex != world.getThisFactionIndex()) {
+				if (world.getFaction(factionIndex)->getPersonalityType() != fpt_Observer) {
+					//if(hasBuilding(world.getFaction(i)) &&
+					if (factionLostGame(world.getFaction(factionIndex)) == false &&
+						world.getFaction(factionIndex)->isAlly(world.getThisFaction()) == false) {
+						win = false;
 					}
 				}
 			}
-			gameOver= true;
+		}
+		//if win
+		if (win) {
+			for (int factionIndex = 0; factionIndex < world.getFactionCount(); ++factionIndex) {
+				if (world.getFaction(factionIndex)->getPersonalityType() != fpt_Observer) {
+					if (world.getFaction(factionIndex)->isAlly(world.getThisFaction())) {
+						world.getStats()->setVictorious(factionIndex);
+					}
+				}
+			}
+
+			bool wasGameOverAlready = gameOver;
+			gameOver = true;
+
+			// Only need to process winning once
+			if(wasGameOverAlready == false) {
+				if (this->gameSettings.isNetworkGame() == false ||
+					this->gameSettings.getEnableObserverModeAtEndGame() == true) {
+					// Let the happy winner view everything left in the world
+					//world.setFogOfWar(false);
+					// This caused too much LAG for network games
+					if (this->gameSettings.isNetworkGame() == false) {
+						Renderer::getInstance().setPhotoMode(true);
+						gameCamera.setMaxHeight(PHOTO_MODE_MAXHEIGHT);
+					}
+					// END
+				}
+				scriptManager.onGameOver(win);
+				showWinMessageBox();
+			}
+		}
+	}
+}
+
+void Game::checkWinnerStandard() {
+	if(world.getFactionCount() <= 0) {
+		return;
+	}
+	if(this->masterserverMode == true ||
+		world.getThisFaction()->getPersonalityType() == fpt_Observer) {
+		checkWinnerStandardHeadlessOrObserver();
+	}
+	else {
+		checkWinnerStandardPlayer();
+	}
+}
+
+void Game::checkWinnerScripted() {
+	if(scriptManager.getIsGameOver()) {
+		bool wasGameOverAlready = gameOver;
+		gameOver= true;
+
+
+		for(int i= 0; i<world.getFactionCount(); ++i) {
+			if(scriptManager.getPlayerModifiers(i)->getWinner()) {
+				world.getStats()->setVictorious(i);
+			}
+		}
+
+		// Only need to process winning once
+		if(wasGameOverAlready == false) {
 			if( this->gameSettings.isNetworkGame() == false ||
 				this->gameSettings.getEnableObserverModeAtEndGame() == true) {
-				// Let the poor user watch everything unfold
+				// Let the happy winner view everything left in the world
+				//world.setFogOfWar(false);
 
 				// This caused too much LAG for network games
 				if(this->gameSettings.isNetworkGame() == false) {
@@ -5745,95 +5865,20 @@ void Game::checkWinnerStandard() {
 					gameCamera.setMaxHeight(PHOTO_MODE_MAXHEIGHT);
 				}
 				// END
-
-				// but don't let him cheat via teamchat
-				chatManager.setDisableTeamMode(true);
 			}
 
-			scriptManager.onGameOver(!lose);
-
-			showLoseMessageBox();
-		}
-
-		//win
-		if(lose == false) {
-			bool win= true;
-			for(int i = 0; i < world.getFactionCount(); ++i) {
-				if(i != world.getThisFactionIndex()) {
-					if(world.getFaction(i)->getPersonalityType() != fpt_Observer) {
-						//if(hasBuilding(world.getFaction(i)) &&
-						if(factionLostGame(world.getFaction(i)) == false &&
-								world.getFaction(i)->isAlly(world.getThisFaction()) == false) {
-							win= false;
-						}
-					}
-				}
-			}
-
-			//if win
-			if(win) {
-				for(int i=0; i< world.getFactionCount(); ++i) {
-					if(world.getFaction(i)->getPersonalityType() != fpt_Observer) {
-						if(world.getFaction(i)->isAlly(world.getThisFaction())) {
-							world.getStats()->setVictorious(i);
-						}
-					}
-				}
-				gameOver= true;
-				if( this->gameSettings.isNetworkGame() == false ||
-					this->gameSettings.getEnableObserverModeAtEndGame() == true) {
-					// Let the happy winner view everything left in the world
-					//world.setFogOfWar(false);
-
-					// This caused too much LAG for network games
-					if(this->gameSettings.isNetworkGame() == false) {
-						Renderer::getInstance().setPhotoMode(true);
-						gameCamera.setMaxHeight(PHOTO_MODE_MAXHEIGHT);
-					}
-					// END
-				}
-
-				scriptManager.onGameOver(win);
-
+			if(this->masterserverMode == true || world.getThisFaction()->getPersonalityType() == fpt_Observer) {
 				showWinMessageBox();
 			}
-		}
-	}
-}
+			else {
+				scriptManager.onGameOver(scriptManager.getPlayerModifiers(world.getThisFactionIndex())->getWinner());
 
-void Game::checkWinnerScripted() {
-	if(scriptManager.getIsGameOver()) {
-		gameOver= true;
-		for(int i= 0; i<world.getFactionCount(); ++i) {
-			if(scriptManager.getPlayerModifiers(i)->getWinner()) {
-				world.getStats()->setVictorious(i);
-			}
-		}
-
-		if( this->gameSettings.isNetworkGame() == false ||
-			this->gameSettings.getEnableObserverModeAtEndGame() == true) {
-			// Let the happy winner view everything left in the world
-			//world.setFogOfWar(false);
-
-			// This caused too much LAG for network games
-			if(this->gameSettings.isNetworkGame() == false) {
-				Renderer::getInstance().setPhotoMode(true);
-				gameCamera.setMaxHeight(PHOTO_MODE_MAXHEIGHT);
-			}
-			// END
-		}
-
-		if(this->masterserverMode == true || world.getThisFaction()->getPersonalityType() == fpt_Observer) {
-			showWinMessageBox();
-		}
-		else {
-			scriptManager.onGameOver(scriptManager.getPlayerModifiers(world.getThisFactionIndex())->getWinner());
-
-			if(scriptManager.getPlayerModifiers(world.getThisFactionIndex())->getWinner()){
-				showWinMessageBox();
-			}
-			else{
-				showLoseMessageBox();
+				if(scriptManager.getPlayerModifiers(world.getThisFactionIndex())->getWinner()){
+					showWinMessageBox();
+				}
+				else {
+					showLoseMessageBox();
+				}
 			}
 		}
 	}
@@ -5845,10 +5890,10 @@ bool Game::factionLostGame(int factionIndex) {
 
 bool Game::factionLostGame(const Faction *faction) {
 	if(faction != NULL) {
-		for(int i=0; i<faction->getUnitCount(); ++i) {
-			const UnitType *ut = faction->getUnit(i)->getType();
+		for(int factionIndex=0; factionIndex<faction->getUnitCount(); ++factionIndex) {
+			const UnitType *ut = faction->getUnit(factionIndex)->getType();
 			if(ut->getCountInVictoryConditions() == ucvcNotSet) {
-				if(faction->getUnit(i)->getType()->hasSkillClass(scBeBuilt)) {
+				if(faction->getUnit(factionIndex)->getType()->hasSkillClass(scBeBuilt)) {
 					return false;
 				}
 			}

@@ -261,8 +261,11 @@ class BaseColorPickEntity {
 
 public:
     BaseColorPickEntity();
-    virtual ~BaseColorPickEntity() {}
+    virtual ~BaseColorPickEntity() {
+    	recycleUniqueColor();
+    }
 
+    //static const int COLOR_COMPONENTS = 3;
     static const int COLOR_COMPONENTS = 4;
     static void init(int bufferSize);
     static void beginPicking();
@@ -275,16 +278,40 @@ public:
     string getColorDescription() const;
     virtual string getUniquePickName() const = 0;
 
-private:
-	unsigned char uniqueColorID[COLOR_COMPONENTS];
+    static void resetUniqueColors();
 
-    static unsigned nextColorID;
-    static const unsigned k, p;
-    static Mutex mutexNextColorID;
+    static void setUsingLoopMethod(bool value) { using_loop_method = value; }
+
+    static void setTrackColorUse(bool value) { trackColorUse = value; }
+    unsigned char * getUniqueColorID() { return &uniqueColorID[0]; }
+    bool get_next_assign_color(unsigned char *assign_to);
+
+    static int getUsedColorIDListSize() { return (int)usedColorIDList.size(); }
+
+private:
+
+    unsigned char uniqueColorID[COLOR_COMPONENTS];
+
+    static unsigned char nextColorID[COLOR_COMPONENTS];
+    static unsigned int nextColorRGB;
+    static const unsigned int k, p;
+    //static Mutex mutexNextColorID;
+
+    static bool using_loop_method;
+
+    static bool trackColorUse;
+    static map<string,bool> usedColorIDList;
+
+    static vector<vector<unsigned char> > nextColorIDReuseList;
 
     static auto_ptr<PixelBufferWrapper> pbo;
 
     void assign_color();
+
+    void assign_color_using_prime(unsigned char *assign_to);
+    void assign_color_using_loop(unsigned char *assign_to);
+
+    void recycleUniqueColor();
 };
 
 }}//end namespace
