@@ -121,55 +121,60 @@ static int getFileAndLine(char *function, void *address, char *file, size_t flen
 
 			// prepare command to be executed
 			// our program need to be passed after the -e parameter
+#if __APPLE_CC__
+			snprintf(buf, 8096,"xcrun atos -v -o %s %p",PlatformExceptionHandler::application_binary.c_str(),address);
+            fprintf(stderr,"> %s\n",buf);
+#else
 			snprintf(buf, 8096,"addr2line -C -e %s -f -i %p",PlatformExceptionHandler::application_binary.c_str(),address);
-
+#endif
 			FILE* f = popen (buf, "r");
 			if (f == NULL) {
 				perror (buf);
 				return 0;
 			}
+#if __APPLE_CC__
+            //### TODO Will: still working this out
+            int len = fread(buf,1,maxbufSize,f);
+            buf[len] = 0;
+            fprintf(stderr,"< %s",buf);
+            return -1;
+#endif
+            for(;function != NULL && function[0] != '\0';) {
+                // get function name
+                char *ret = fgets (buf, maxbufSize, f);
+                if(ret == NULL) {
+                    pclose(f);
+                    return line;
+                }
+                //printf("Looking for [%s] Found [%s]\n",function,ret);
+                if(strstr(ret,function) != NULL) {
+                    break;
+                }
+                // get file and line
+                ret = fgets (buf, maxbufSize, f);
+                if(ret == NULL) {
+                    pclose(f);
+                    return line;
+                }
 
-			if(function != NULL && function[0] != '\0') {
-				line = 0;
-				for(;function != NULL && function[0] != '\0';) {
-					// get function name
-					char *ret = fgets (buf, maxbufSize, f);
-					if(ret == NULL) {
-						pclose(f);
-						return line;
-					}
-					//printf("Looking for [%s] Found [%s]\n",function,ret);
-					if(strstr(ret,function) != NULL) {
-						break;
-					}
+                if(strlen(buf) > 0 && buf[0] != '?') {
+                    //int l;
+                    char *p = buf;
+                    // file name is until ':'
+                    while(*p != 0 && *p != ':') {
+                        p++;
+                    }
 
-					// get file and line
-					ret = fgets (buf, maxbufSize, f);
-					if(ret == NULL) {
-						pclose(f);
-						return line;
-					}
-
-					if(strlen(buf) > 0 && buf[0] != '?') {
-						//int l;
-						char *p = buf;
-
-						// file name is until ':'
-						while(*p != 0 && *p != ':') {
-							p++;
-						}
-
-						*p++ = 0;
-						// after file name follows line number
-						strcpy (file , buf);
-						sscanf (p,"%10d", &line);
-					}
-					else {
-						strcpy (file,"unknown");
-						line = 0;
-					}
-				}
-			}
+                    *p++ = 0;
+                    // after file name follows line number
+                    strcpy (file , buf);
+                    sscanf (p,"%10d", &line);
+                }
+                else {
+                    strcpy (file,"unknown");
+                    line = 0;
+                }
+            }
 
 			// get file and line
 			char *ret = fgets (buf, maxbufSize, f);

@@ -1280,9 +1280,8 @@ void MainWindow::loadModel(string path) {
 
             if(timer) timer->Stop();
             delete model;
-            Model *tmpModel= new ModelGl();
-            if(renderer) renderer->loadTheModel(tmpModel, modelPath);
-            model= tmpModel;
+            model = NULL;
+            model = renderer? renderer->newModel(rsGlobal, modelPath): NULL;
 
             statusbarText = getModelInfo();
             string statusTextValue = statusbarText + " animation speed: " + floatToStr(speed * 1000.0) + " anim value: " + floatToStr(anim) + " zoom: " + floatToStr(zoom) + " rotX: " + floatToStr(rotX) + " rotY: " + floatToStr(rotY);

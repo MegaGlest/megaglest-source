@@ -208,10 +208,9 @@ Intro::Intro(Program *program):
 		findAll(introPath, introModels, false, false);
 		for(int i = 0; i < (int)introModels.size(); ++i) {
 			string logo = introModels[i];
-			Model *model= renderer.newModel(rsMenu);
-			if(model) {
-				model->load(getGameCustomCoreDataPath(data_path, "") + "data/core/menu/main_model/" + logo);
-				models.push_back(model);
+			Model *model= renderer.newModel(rsMenu, getGameCustomCoreDataPath(data_path, "") + "data/core/menu/main_model/" + logo);
+            if(model) {
+                models.push_back(model);
 				//printf("#1 Intro model [%s]\n",model->getFileName().c_str());
 			}
 		}
@@ -222,9 +221,8 @@ Intro::Intro(Program *program):
 			findAll(introPath, introModels, false, false);
 			for(int i = 0; i < (int)introModels.size(); ++i) {
 				string logo = introModels[i];
-				Model *model= renderer.newModel(rsMenu);
-				if(model) {
-					model->load(data_path + "data/core/menu/main_model/" + logo);
+				Model *model= renderer.newModel(rsMenu, data_path + "data/core/menu/main_model/" + logo);
+                if(model) {
 					models.push_back(model);
 					//printf("#2 Intro model [%s]\n",model->getFileName().c_str());
 				}

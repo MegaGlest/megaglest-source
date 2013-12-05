@@ -98,23 +98,17 @@ MenuBackground::MenuBackground() : rps(NULL) {
 		degToRad(startRotation.z))));
 
 	//load main model
-	mainModel= renderer.newModel(rsMenu);
-	if(mainModel) {
-		string mainModelFile = "data/core/menu/main_model/menu_main.g3d";
-		if(menuNode->hasChild("menu-background-model") == true) {
-			//mainModel->load(data_path + "data/core/menu/main_model/menu_main.g3d");
-			const XmlNode *mainMenuModelNode= menuNode->getChild("menu-background-model");
-			mainModelFile = mainMenuModelNode->getAttribute("value")->getRestrictedValue();
-		}
-		mainModel->load(getGameCustomCoreDataPath(data_path, mainModelFile));
-	}
+    string mainModelFile = "data/core/menu/main_model/menu_main.g3d";
+    if(menuNode->hasChild("menu-background-model") == true) {
+        //mainModel->load(data_path + "data/core/menu/main_model/menu_main.g3d");
+        const XmlNode *mainMenuModelNode= menuNode->getChild("menu-background-model");
+        mainModelFile = mainMenuModelNode->getAttribute("value")->getRestrictedValue();
+    }
+    mainModel = renderer.newModel(rsMenu, getGameCustomCoreDataPath(data_path, mainModelFile));
 
 	//models
-	for(int i=0; i<5; ++i){
-		characterModels[i]= renderer.newModel(rsMenu);
-		if(characterModels[i]) {
-			characterModels[i]->load(getGameCustomCoreDataPath(data_path, "data/core/menu/about_models/character"+intToStr(i)+".g3d"));
-		}
+	for(int i=0; i<5; ++i) {
+		characterModels[i] = renderer.newModel(rsMenu, getGameCustomCoreDataPath(data_path, "data/core/menu/about_models/character"+intToStr(i)+".g3d"));
 	}
 
 	//about position

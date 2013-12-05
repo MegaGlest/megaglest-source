@@ -47,7 +47,7 @@ public:
 	//models
 	virtual ModelManager *newModelManager()			{return new ModelManager();}
 	virtual ModelRenderer *newModelRenderer()		{return new ModelRendererGl();}
-	virtual Model *newModel()						{return new ModelGl();}
+	virtual Model *newModel(const string &path,bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList, string *sourceLoader)						{ return new ModelGl(path,deletePixMapAfterLoad,loadedFileList,sourceLoader); }
 
 	//text
 	virtual FontManager *newFontManager()			{return new FontManager();}

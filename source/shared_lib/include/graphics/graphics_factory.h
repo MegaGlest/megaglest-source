@@ -13,6 +13,11 @@
 #define _SHARED_GRAPHICS_GRAPHICSFACTORY_H_
 
 #include <cstdlib>
+#include <string>
+#include <map>
+#include <vector>
+using std::string;
+
 #include "leak_dumper.h"
 
 namespace Shared{ namespace Graphics{
@@ -64,7 +69,7 @@ public:
 	//models
 	virtual ModelManager *newModelManager()			{return NULL;}
 	virtual ModelRenderer *newModelRenderer()		{return NULL;}
-	virtual Model *newModel()						{return NULL;}
+	virtual Model *newModel(const string &path,bool deletePixMapAfterLoad,std::map<string,std::vector<std::pair<string, string> > > *loadedFileList, string *sourceLoader)						{return NULL;}
 
 	//text
 	virtual FontManager *newFontManager()			{return NULL;}

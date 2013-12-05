@@ -458,7 +458,7 @@ public:
 	void endTexture(ResourceScope rs, Texture *texture,bool mustExistInList=false);
 	void endLastTexture(ResourceScope rs, bool mustExistInList=false);
 
-	Model *newModel(ResourceScope rs);
+	Model *newModel(ResourceScope rs,const string &path,bool deletePixMapAfterLoad=false,std::map<string,vector<pair<string, string> > > *loadedFileList=NULL, string *sourceLoader=NULL);
 	void endModel(ResourceScope rs, Model *model, bool mustExistInList=false);
 	void endLastModel(ResourceScope rs, bool mustExistInList=false);
 

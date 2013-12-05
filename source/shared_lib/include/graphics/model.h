@@ -221,9 +221,7 @@ public:
 	uint32 getVertexCount() const;
 
 	//io
-	void load(const string &path,bool deletePixMapAfterLoad=false,std::map<string,vector<pair<string, string> > > *loadedFileList=NULL, string *sourceLoader=NULL);
 	void save(const string &path, string convertTextureToFormat,bool keepsmallest);
-	void loadG3d(const string &path,bool deletePixMapAfterLoad=false,std::map<string,vector<pair<string, string> > > *loadedFileList=NULL, string sourceLoader="");
 	void saveG3d(const string &path, string convertTextureToFormat,bool keepsmallest);
 
 	void setTextureManager(TextureManager *textureManager)	{this->textureManager= textureManager;}
@@ -234,6 +232,11 @@ public:
 	void toEndian();
 	void fromEndian();
 
+protected:
+    void load(const string &path,bool deletePixMapAfterLoad=false,std::map<string,vector<pair<string, string> > > *loadedFileList=NULL, string *sourceLoader=NULL);
+	void loadG3d(const string &path,bool deletePixMapAfterLoad=false,std::map<string,vector<pair<string, string> > > *loadedFileList=NULL, string sourceLoader="");
+
+    
 private:
 	void buildInterpolationData() const;
 	void autoJoinMeshFrames();

@@ -22,6 +22,9 @@ namespace Shared{ namespace Graphics{ namespace Gl{
 // =====================================================
 
 class ModelGl: public Model{
+    friend class GraphicsFactoryGl;
+protected:
+    ModelGl(const string &path,bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList, string *sourceLoader);
 public:
 	virtual void init(){}
 	virtual void end(){}

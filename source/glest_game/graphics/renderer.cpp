@@ -598,12 +598,10 @@ void Renderer::manageDeferredParticleSystems() {
 		if(dynamic_cast<GameParticleSystem *>(ps) != NULL) {
 			GameParticleSystem *gps = dynamic_cast<GameParticleSystem *>(ps);
 			if(gps->getModelFileLoadDeferred() != "" && gps->getModel() == NULL) {
-				Model *model= newModel(rsGame);
-				if(model) {
-					std::map<string,vector<pair<string, string> > > loadedFileList;
-					model->load(gps->getModelFileLoadDeferred(), false, &loadedFileList, NULL);
-					gps->setModel(model);
-				}
+                std::map<string,vector<pair<string, string> > > loadedFileList;
+                Model *model= newModel(rsGame, gps->getModelFileLoadDeferred(), false, &loadedFileList, NULL);
+                if(model)
+                    gps->setModel(model);
 			}
 		}
 		manageParticleSystem(ps, rs);
@@ -886,12 +884,12 @@ void Renderer::endLastTexture(ResourceScope rs, bool mustExistInList) {
 	textureManager[rs]->endLastTexture(mustExistInList);
 }
 
-Model *Renderer::newModel(ResourceScope rs){
+Model *Renderer::newModel(ResourceScope rs,const string &path,bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList, string *sourceLoader){
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return NULL;
 	}
 
-	return modelManager[rs]->newModel();
+	return modelManager[rs]->newModel(path,deletePixMapAfterLoad,loadedFileList,sourceLoader);
 }
 
 void Renderer::endModel(ResourceScope rs, Model *model,bool mustExistInList) {
