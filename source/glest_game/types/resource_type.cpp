@@ -110,10 +110,7 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
                 const XmlNode *modelNode= typeNode->getChild("model");
                 string modelPath= modelNode->getAttribute("path")->getRestrictedValue(currentPath);
 
-                model= renderer.newModel(rsGame);
-                if(model) {
-                	model->load(modelPath, false, &loadedFileList, &sourceXMLFile);
-                }
+                model= renderer.newModel(rsGame, modelPath, false, &loadedFileList, &sourceXMLFile);
                 loadedFileList[modelPath].push_back(make_pair(sourceXMLFile,modelNode->getAttribute("path")->getRestrictedValue()));
 
                 if(modelNode->hasChild("particles")){

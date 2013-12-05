@@ -29,12 +29,12 @@ namespace Glest { namespace Game {
 const char *mailString				= " http://bugs.megaglest.org";
 const string glestVersionString 	= "v3.9.0";
 #if defined(GITVERSION)
-const string GIT_RawRev			= string(GITVERSION);
-const string GIT_Rev 			= string("Rev: ") + string(GITVERSION);
+    const string GIT_RawRev			= string(GITVERSION);
+    const string GIT_Rev 			= string("Rev: ") + string(GITVERSION);
 #elif defined(GITVERSIONHEADER)
 #include "gitversion.h"
-const string GIT_RawRev			= string(GITVERSION);
-const string GIT_Rev 			= string("Rev: ") + string(GITVERSION);
+    const string GIT_RawRev			= string(GITVERSION);
+    const string GIT_Rev 			= string("Rev: ") + string(GITVERSION);
 #else
 const string GIT_RawRev			= "$4446.1a8673f$";
 const string GIT_Rev 			= "$Rev$";

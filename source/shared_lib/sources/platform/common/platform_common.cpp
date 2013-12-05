@@ -74,6 +74,7 @@
 
 #ifdef __APPLE__
 #include <mach-o/dyld.h>
+#include <sys/param.h>
 #endif
 
 #include "leak_dumper.h"

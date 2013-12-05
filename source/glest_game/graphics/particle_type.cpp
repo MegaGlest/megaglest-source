@@ -170,10 +170,7 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 			endPathWithSlash(currentPath);
 
 			string path= modelNode->getAttribute("path")->getRestrictedValue(currentPath);
-			model= renderer->newModel(rsGame);
-			if(model) {
-				model->load(path, false, &loadedFileList, &parentLoader);
-			}
+			model= renderer->newModel(rsGame,path, false, &loadedFileList, &parentLoader);
 			loadedFileList[path].push_back(make_pair(parentLoader,modelNode->getAttribute("path")->getRestrictedValue()));
 			
 			if(modelNode->hasChild("cycles")) {

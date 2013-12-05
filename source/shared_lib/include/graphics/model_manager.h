@@ -38,7 +38,7 @@ public:
 	ModelManager();
 	virtual ~ModelManager();
 
-	Model *newModel();
+	Model *newModel(const string &path,bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList, string *sourceLoader);
 
 	void init();
 	void end();

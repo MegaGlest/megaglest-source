@@ -419,10 +419,7 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 		for(unsigned int i = 0; i < animationList.size(); ++i) {
 			string path= animationList[i]->getAttribute("path")->getRestrictedValue(currentPath);
 			if(fileExists(path) == true) {
-				Model *animation= Renderer::getInstance().newModel(rsGame);
-				if(animation) {
-					animation->load(path, false, &loadedFileList, &parentLoader);
-				}
+				Model *animation= Renderer::getInstance().newModel(rsGame, path, false, &loadedFileList, &parentLoader);
 				loadedFileList[path].push_back(make_pair(parentLoader,animationList[i]->getAttribute("path")->getRestrictedValue()));
 
 				animations.push_back(animation);

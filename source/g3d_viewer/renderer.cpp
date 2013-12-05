@@ -196,9 +196,8 @@ Texture2D * Renderer::getNewTexture2D() {
 	return newTexture;
 }
 
-Model * Renderer::getNewModel() {
-	Model *newModel = modelManager->newModel();
-	return newModel;
+Model * Renderer::newModel(ResourceScope rs,const string &path,bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList, string *sourceLoader) {
+    return modelManager->newModel(path,deletePixMapAfterLoad,loadedFileList,sourceLoader);
 }
 
 void Renderer::init() {
@@ -414,13 +413,6 @@ void Renderer::toggleWireframe() {
 
 void Renderer::toggleGrid() {
 	grid= grid? false: true;
-}
-
-void Renderer::loadTheModel(Model *model, string file) {
-	model->setTextureManager(textureManager);
-	model->loadG3d(file);
-	textureManager->init();
-	modelManager->init();
 }
 
 void Renderer::renderTheModel(Model *model, float f) {
