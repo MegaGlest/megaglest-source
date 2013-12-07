@@ -30,11 +30,11 @@ namespace Shared{ namespace Platform{
 // Example values:
 // DEFAULT_CHARSET (English) = 1
 // GB2312_CHARSET (Chinese)  = 134
-#ifdef WIN32
-DWORD PlatformContextGl::charSet = DEFAULT_CHARSET;
-#else
-int PlatformContextGl::charSet = 1;
-#endif
+//#ifdef WIN32
+//DWORD PlatformContextGl::charSet = DEFAULT_CHARSET;
+//#else
+//int PlatformContextGl::charSet = 1;
+//#endif
 
 // ======================================
 //	Global Fcs
