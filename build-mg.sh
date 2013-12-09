@@ -14,6 +14,7 @@ CLANG_BIN_PATH=/usr/bin/
 LANG=C
 NUMCORES=`lscpu -p | grep -cv '^#'`
 if [ "$NUMCORES" = '' ]; then NUMCORES=1; fi
+if [ "$1" = '1core' ]; then NUMCORES=1; fi
 
 mkdir -p build
 cd build
@@ -144,6 +145,7 @@ if [ $? -ne 0 ]; then
   echo 'ERROR: CMAKE failed.' >&2; exit 1
 fi
 
+echo "==================> About to call make with $NUMCORES cores... <=================="
 make -j$NUMCORES
 if [ $? -ne 0 ]; then
   echo 'ERROR: MAKE failed.' >&2; exit 2
@@ -159,3 +161,4 @@ echo 'To launch MegaGlest from the current directory, use:'
 echo '  mk/linux/megaglest --ini-path=mk/linux/ --data-path=mk/linux/'
 echo 'Or change into mk/linux and run it from there:'
 echo '  ./megaglest --ini-path=./ --data-path=./'
+
