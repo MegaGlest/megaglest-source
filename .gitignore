@@ -60,9 +60,9 @@ $RECYCLE.BIN/
 *.blend
 *.blend1
 # Linux_build
-build/
-google-breakpad
-mk/linux/megaglest.6
+/build/
+/google-breakpad
+/mk/linux/megaglest.6
 # Windows_build
 *.dll
 *.exe
@@ -72,9 +72,8 @@ mk/linux/megaglest.6
 *.map
 *.dmp
 *.dat
-data/glest_game/lua/
+/data/glest_game/lua/
 #
-
 
 /source/windows_deps_2012
 /source/windows_deps_2010

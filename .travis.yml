@@ -1,16 +1,16 @@
 language: cpp
 compiler:
   - gcc
-  #- clang
+  - clang
 before_install:
  - sudo apt-get update -qq # UPDATE REPOS
- - free -m
- - df -h
+ #- free -m
+ #- df -h
  - sudo mk/linux/setupBuildDeps.sh --quiet # INSTALL DEPENDENCIES HERE
 script:
 # ALL THE BUILD COMMANDS HERE
  - ./build-mg.sh 1core
- - dmesg
+ #- dmesg
 notifications:
   irc:
     channels:
