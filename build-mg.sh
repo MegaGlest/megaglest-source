@@ -7,6 +7,7 @@
 # to enable clang compilation: 
 # 1. sudo apt-get install clang
 # 2. Set the two vars below, WANT_CLANG=YES and CLANG_BIN_PATH=<path to the clang binary>
+#    OR: set both the CC and CXX environment variables to point to clang and clang++ respectively
 WANT_CLANG=NO
 CLANG_BIN_PATH=/usr/bin/
 
@@ -117,8 +118,22 @@ esac
 
 CURRENTDIR="$(dirname $(readlink -f $0))"
 
-if [ "$WANT_CLANG" = 'YES' ]; then 
+if [ "$WANT_CLANG" = 'YES' -o "`echo $CXX | grep -Fq 'clang'`" = 'clang' ]; then 
         EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_C_COMPILER=${CLANG_BIN_PATH}clang -DCMAKE_CXX_COMPILER=${CLANG_BIN_PATH}clang++"
+        echo "USER WANTS to use CLANG / LLVM compiler! EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
+#exit 1;
+elif [ "`echo $CC | grep -Fq 'clang'`" = 'clang' -a "`echo $CXX | grep -Fq 'clang'`" = 'clang' ]; then
+	if [ `echo $CC | grep -Fq '/'` = '/' ]; then
+		CLANG_CC=$CC
+	else
+		CLANG_CC=`which $CC`
+	fi
+	if [ `echo $CXX | grep -Fq '/'` = '/' ]; then
+		CLANG_CXX=$CXX
+	else
+		CLANG_CXX=`which $CXX`
+	fi
+        EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_C_COMPILER=${CLANG_CC} -DCMAKE_CXX_COMPILER=${CLANG_CXX}"
         echo "USER WANTS to use CLANG / LLVM compiler! EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
 #exit 1;
 fi

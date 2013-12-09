@@ -1,0 +1,21 @@
+language: cpp
+compiler:
+  - gcc
+  #- clang
+before_install:
+ - sudo apt-get update -qq # UPDATE REPOS
+ - free -m
+ - df -h
+ - sudo mk/linux/setupBuildDeps.sh --quiet # INSTALL DEPENDENCIES HERE
+script:
+# ALL THE BUILD COMMANDS HERE
+ - ./build-mg.sh
+ - dmesg
+notifications:
+  irc:
+    channels:
+      - "irc.freenode.org#megaglest"
+    template:
+      - "[%{commit} : %{author}] %{message}"
+      - "%{build_url}"
+    skip_join: true

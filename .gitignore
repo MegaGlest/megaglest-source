@@ -61,6 +61,8 @@ $RECYCLE.BIN/
 *.blend1
 # Linux_build
 build/
+google-breakpad
+mk/linux/megaglest.6
 # Windows_build
 *.dll
 *.exe
