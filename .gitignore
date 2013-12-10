@@ -69,3 +69,6 @@ $RECYCLE.BIN/
 /source/windows_deps_2012
 /source/windows_deps_2010
 /source/windows_deps_2010_old
+
+/mk/linux/mydata
+/mk/linux/release
