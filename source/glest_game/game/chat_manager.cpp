@@ -428,8 +428,11 @@ void ChatManager::updateAutoCompleteBuffer() {
 
 void ChatManager::addText(string text) {
 	int maxTextLenAllowed = (customCB != NULL ? this->maxCustomTextLength : maxTextLenght);
-	if(editEnabled && (int)text.size() + (int)this->text.size() < maxTextLenAllowed) {
+	if(editEnabled && (int)text.size() + (int)this->text.size() <= maxTextLenAllowed) {
 		this->text += text;
+		for(int i= 0; i<(int)text.size() ; i++){
+			textCharLength.push_back(1);
+		}
 	}
 }
 
