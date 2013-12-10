@@ -44,7 +44,7 @@ EXTRA_CMAKE_OPTIONS=
 NUMCORES=`lscpu -p | grep -cv '^#'`
 echo "CPU cores detected: $NUMCORES"
 if [ "$NUMCORES" = '' ]; then NUMCORES=1; fi
-if [ "$1" = '1core' ]; then NUMCORES=1; fi
+if [ "$1." != '.' ]; then NUMCORES=$1; fi
 echo "CPU cores to be used: $NUMCORES"
 
 # ----------------------------------------------------------------------------
