@@ -5160,8 +5160,7 @@ int glestMain(int argc, char** argv) {
 				char szTextBuf[8096]="";
 				for(unsigned int i =0; i < models.size(); ++i) {
 					string &file = models[i];
-					bool modelLoadedOk = false;
-
+					
 					renderer.clearBuffers();
 					renderer.clearZBuffer();
 					renderer.reset2d();
@@ -5187,23 +5186,18 @@ int glestMain(int argc, char** argv) {
 				    ::Shared::Platform::Window::handleEvent();
 					SDL_PumpEvents();
 
-					Model *model = renderer.newModel(rsGlobal);
 					try {
 						printf("About to load model [%s] [%u of " MG_SIZE_T_SPECIFIER "]\n",file.c_str(),i,models.size());
-						model->load(file);
-						modelLoadedOk = true;
+						Model *model = renderer.newModel(rsGlobal, file);
+						printf("About to save converted model [%s]\n",file.c_str());
+						model->save(file,textureFormat,keepsmallest);
+                        Renderer::getInstance().endModel(rsGlobal, model);
 					}
 					catch(const exception &ex) {
 						result = 1;
 						printf("ERROR loading model [%s] message [%s]\n",file.c_str(),ex.what());
-					}
-
-					if(modelLoadedOk == true) {
-						printf("About to save converted model [%s]\n",file.c_str());
-						model->save(file,textureFormat,keepsmallest);
-					}
-
-					Renderer::getInstance().endModel(rsGlobal, model);
+                    }
+					
 				}
 
 				delete mainWindow;

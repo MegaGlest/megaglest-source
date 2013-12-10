@@ -40,9 +40,8 @@ ModelManager::~ModelManager(){
 	end();
 }
 
-Model *ModelManager::newModel(){
-	Model *model= GraphicsInterface::getInstance().getFactory()->newModel();
-	model->setTextureManager(textureManager);
+Model *ModelManager::newModel(const string &path,bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList, string *sourceLoader){
+	Model *model= GraphicsInterface::getInstance().getFactory()->newModel(path,textureManager,deletePixMapAfterLoad,loadedFileList,sourceLoader);
 	models.push_back(model);
 	return model;
 }

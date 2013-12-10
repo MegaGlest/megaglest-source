@@ -6,19 +6,10 @@
 # Vim
 *.un~
 Session.vim
-.netrwhist
+MegaGlest.kdev4
 
 ## OSX
-.DS_Store
-.DS_Store?
-.AppleDouble
-.LSOverride
 Icon
-# Thumbnails
-._*
-# Files that might appear on external disk
-.Spotlight-V100
-.Trashes
 
 ## Windows
 # Windows image file caches

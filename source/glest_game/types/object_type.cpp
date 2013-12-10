@@ -37,10 +37,7 @@ ObjectType::~ObjectType(){
 
 TilesetModelType* ObjectType::loadModel(const string &path, std::map<string,vector<pair<string, string> > > *loadedFileList,
 		string parentLoader) {
-	Model *model= Renderer::getInstance().newModel(rsGame);
-	if(model) {
-		model->load(path, false, loadedFileList, &parentLoader);
-	}
+	Model *model= Renderer::getInstance().newModel(rsGame, path, false, loadedFileList, &parentLoader);
 	color= Vec3f(0.f);
 	if(model && model->getMeshCount()>0 && model->getMesh(0)->getTexture(0) != NULL) {
 		const Pixmap2D *p= model->getMesh(0)->getTexture(0)->getPixmapConst();

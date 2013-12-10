@@ -33,7 +33,7 @@ public:
 	virtual TextRenderer3D *newTextRenderer3D()	{return new TextRenderer3DGl();}
 	virtual ModelRenderer *newModelRenderer()	{return new ModelRendererGl();}
 	virtual Context *newContext()				{return new ContextGl();}
-	virtual Model *newModel()					{return new ModelGl();}
+	virtual Model *newModel(const string &path,TextureManager* textureManager,bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList, string *sourceLoader) { return new ModelGl(path,textureManager,deletePixMapAfterLoad,loadedFileList,sourceLoader); }
 	virtual Texture2D *newTexture2D()			{return new Texture2DGl();}
 	virtual Font2D *newFont2D()					{return new Font2DGl();}
 	virtual Font3D *newFont3D()					{return new Font3DGl();}

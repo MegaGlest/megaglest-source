@@ -512,7 +512,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 	}
 	fromEndianVecArray<Vec3f>(normals, frameCount*vertexCount);
 
-	if(textures[mtDiffuse] != NULL) {
+	if(textureFlags & (1<<mtDiffuse)) {
 		readBytes = fread(texCoords, sizeof(Vec2f)*vertexCount, 1, f);
 		if(readBytes != 1 && vertexCount != 0) {
 			char szBuf[8096]="";
@@ -650,7 +650,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 	}
 	fromEndianVecArray<Vec3f>(normals, frameCount*vertexCount);
 
-	if(textures[mtDiffuse] != NULL) {
+	if(textureFlags & (1<<mtDiffuse)) {
 		for(unsigned int i=0; i<meshHeader.texCoordFrameCount; ++i){
 			readBytes = fread(texCoords, sizeof(Vec2f)*vertexCount, 1, f);
 			if(readBytes != 1 && vertexCount != 0) {
@@ -744,7 +744,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 				bool deletePixMapAfterLoad,std::map<string,vector<pair<string, string> > > *loadedFileList,
 				string sourceLoader,string modelFile) {
 	this->textureManager = textureManager;
-
+	
 	//read header
 	MeshHeader meshHeader;
 	size_t readBytes = fread(&meshHeader, sizeof(MeshHeader), 1, f);
@@ -788,7 +788,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 	//maps
 	uint32 flag= 1;
 	for(int i = 0; i < meshTextureCount; ++i) {
-		if((meshHeader.textures & flag) && textureManager != NULL) {
+		if(meshHeader.textures & flag) {
 			uint8 cMapPath[mapPathSize];
 			readBytes = fread(cMapPath, mapPathSize, 1, f);
 			if(readBytes != 1 && mapPathSize != 0) {
@@ -804,13 +804,14 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 
 			string mapFullPath= dir;
 			if(mapFullPath != "") {
-                endPathWithSlash(mapFullPath);
+				endPathWithSlash(mapFullPath);
 			}
 			mapFullPath += mapPath;
-
-			textures[i] = loadMeshTexture(meshIndex, i, textureManager, mapFullPath,
-					meshTextureChannelCount[i],texturesOwned[i],
-					deletePixMapAfterLoad, loadedFileList, sourceLoader,modelFile);
+			if(textureManager) {
+				textures[i] = loadMeshTexture(meshIndex, i, textureManager, mapFullPath,
+						meshTextureChannelCount[i],texturesOwned[i],
+						deletePixMapAfterLoad, loadedFileList, sourceLoader,modelFile);
+			}
 		}
 		flag *= 2;
 	}
