@@ -18,4 +18,5 @@ notifications:
     template:
       - "[%{commit} : %{author}] %{message}"
       - "%{build_url}"
+    use_notice: true
     skip_join: true
