@@ -1082,7 +1082,6 @@ void Game::load(int loadTypes) {
 		perfList.push_back(perfBuf);
 	}
 
-	//throw megaglest_runtime_error("Test!");
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//tileset
@@ -1129,21 +1128,6 @@ void Game::load(int loadTypes) {
 
 			throw megaglest_runtime_error(szBuf, true);
 		}
-		// Validate the faction setup to ensure we don't have any bad associations
-		/*
-		std::vector<std::string> results = world.validateFactionTypes();
-		if(results.size() > 0) {
-			// Display the validation errors
-			string errorText = "Errors were detected:\n";
-			for(int i = 0; i < results.size(); ++i) {
-				if(i > 0) {
-					errorText += "\n";
-				}
-				errorText += results[i];
-			}
-			throw megaglest_runtime_error(errorText);
-		}
-		*/
     }
 
 	if(showPerfStats) {
@@ -3047,17 +3031,20 @@ void Game::addOrReplaceInHighlightedCells(MarkedCell mc){
 		mc.setAliveCount(200);
 	}
 	highlightedCells.push_back(mc);
-	CoreData &coreData= CoreData::getInstance();
-	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
-	const Faction *faction = mc.getFaction();
-	if(getWorld()->getThisFaction() == NULL) {
-		throw megaglest_runtime_error("getWorld()->getThisFaction() == NULL");
-	}
-	//printf("faction [%p][%s]\n",faction,(faction != NULL ? faction->getType()->getName().c_str() : ""));
-	if((faction == NULL) ||
-			(faction->getTeam() == getWorld()->getThisFaction()->getTeam())) {
-		soundRenderer.playFx(coreData.getMarkerSound());
+	if (this->masterserverMode == false) {
+		CoreData &coreData= CoreData::getInstance();
+		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+
+		const Faction *faction = mc.getFaction();
+		if(getWorld()->getThisFaction() == NULL) {
+			throw megaglest_runtime_error("getWorld()->getThisFaction() == NULL");
+		}
+		//printf("faction [%p][%s]\n",faction,(faction != NULL ? faction->getType()->getName().c_str() : ""));
+		if((faction == NULL) ||
+				(faction->getTeam() == getWorld()->getThisFaction()->getTeam())) {
+			soundRenderer.playFx(coreData.getMarkerSound());
+		}
 	}
 }
 
@@ -4817,8 +4804,6 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				saveGame();
 			}
 		}
-
-		//throw megaglest_runtime_error("Test Error!");
 	}
 	catch(const exception &ex) {
 		char szBuf[8096]="";
