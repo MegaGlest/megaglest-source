@@ -163,6 +163,7 @@ static Simple zero=  0.0000000000e+00f;
 	GET_FLOAT_WORD(hx,x);
 
     /* purge off +-inf, NaN, +-0, and negative arguments */
+        nadj = 0;
 	*signgamp = 1;
 	ix = hx&0x7fffffff;
 	if(ix>=0x7f800000) return x*x;

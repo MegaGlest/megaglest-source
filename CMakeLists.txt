@@ -191,6 +191,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 
         # Get the git revision info for the binary
 	SET(HAS_GIT "FALSE") 
+        SET(GIT_LIVE_REV_CMD "") 
 
 	OPTION(WANT_GIT_STAMP "use git revision stamp" ON)
 	IF(WANT_GIT_STAMP)
@@ -218,16 +219,19 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
                           OUTPUT_STRIP_TRAILING_WHITESPACE
                         )
 
-                        MESSAGE(STATUS "Using GIT revision stamp: [${GIT_COMMIT_COUNT}.${GIT_SHA1}]")
+                        SET(GIT_LIVE_REV_CMD "`git log -1 --format=%h`.`git rev-list HEAD --count`")
+
+                        MESSAGE(STATUS "Using GIT revision stamp: [${GIT_COMMIT_COUNT}.${GIT_SHA1}] CMD [${GIT_LIVE_REV_CMD}]")
                         
 		ENDIF()
 	ENDIF()
 
-IF(APPLE AND NOT CMAKE_COMPILER_IS_GNUCXX)
-	SET(GIT_VERSION_CMD "-DGITVERSION='\\\\'${GIT_COMMIT_COUNT}.${GIT_SHA1}\\\\''")
-ELSE()
-        SET(GIT_VERSION_CMD "-DGITVERSION='\\\"${GIT_COMMIT_COUNT}.${GIT_SHA1}\\\"'")
-ENDIF()
+        IF(APPLE AND NOT CMAKE_COMPILER_IS_GNUCXX)
+	        SET(GIT_VERSION_CMD "-DGITVERSION='\\\\'${GIT_LIVE_REV_CMD}\\\\''")
+        ELSE()
+                SET(GIT_VERSION_CMD "-DGITVERSION='\\\"${GIT_LIVE_REV_CMD}\\\"'")
+#                SET(SVN_VERSION_CMD "-DSVNVERSION='\\\"`svnversion -n ${PROJECT_SOURCE_DIR}`\\\"'")
+        ENDIF()
 
 	IF(CMAKE_INSTALL_PREFIX STREQUAL "")
 		MESSAGE(STATUS "*NOTE: NOT USING a Custom Data Install Path...")
