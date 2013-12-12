@@ -1230,11 +1230,11 @@ void Game::init(bool initForPreviewOnly) {
 	if(initForPreviewOnly == false) {
 		logger.setState(lang.getString("Initializing"));
 
-		//mesage box
+		//message box
 		mainMessageBox.init(lang.getString("Yes"), lang.getString("No"));
 		mainMessageBox.setEnabled(false);
 
-		//mesage box
+		//message box
 		errorMessageBox.init(lang.getString("Ok"));
 		errorMessageBox.setEnabled(false);
 		errorMessageBox.setY(mainMessageBox.getY() - mainMessageBox.getH() - 10);
