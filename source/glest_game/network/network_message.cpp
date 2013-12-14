@@ -660,10 +660,10 @@ unsigned int NetworkMessageLaunch::getPackedSize() {
 		packedData.defaultVictoryConditions = 0;
 		packedData.enableObserverModeAtEndGame = 0;
 		packedData.enableServerControlledAI = 0;
-		for(unsigned int index =0; index < maxFactionCRCCount; ++index) {
+		for(unsigned int index =0; index < (unsigned int)maxFactionCRCCount; ++index) {
 			packedData.factionCRCList[index] = 0;
 		}
-		for(unsigned int index =0; index < GameConstants::maxPlayers; ++index) {
+		for(unsigned int index =0; index < (unsigned int)GameConstants::maxPlayers; ++index) {
 			packedData.factionControls[index] = 0;
 			packedData.networkPlayerStatuses[index] = 0;
 			packedData.resourceMultiplierIndex[index] = 0;
@@ -2003,7 +2003,7 @@ unsigned int NetworkMessageSynchNetworkGameData::getPackedSizeDetail() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		DataDetail packedData;
-		for(unsigned int index = 0; index < maxFileCRCCount; ++index) {
+		for(unsigned int index = 0; index < (unsigned int)maxFileCRCCount; ++index) {
 			packedData.techCRCFileCRCList[index] = 0;
 		}
 		unsigned char *buf = new unsigned char[sizeof(DataDetail)*3];
