@@ -108,7 +108,7 @@ std::pair<SDL_Surface*,unsigned char*> Texture2D::CreateSDLSurface(bool newPixel
 		delete[] surfData;
 		result.second = NULL;
 	}
-
+	else {
 //	SDL_Surface *prepGLTexture(SDL_Surface *surface, GLfloat *texCoords = NULL, const bool
 //	freeSource = false) {
 	        /* Use the surface width and height expanded to powers of 2 */
@@ -208,6 +208,7 @@ std::pair<SDL_Surface*,unsigned char*> Texture2D::CreateSDLSurface(bool newPixel
 
 	        result.first = image;
 //	}
+	}
 
 	return result;
 }

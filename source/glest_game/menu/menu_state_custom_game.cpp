@@ -909,7 +909,7 @@ void MenuStateCustomGame::cleanupThread(SimpleTaskThread **thread) {
     			//printf("LINE: %d *thread = %p\n",__LINE__,*thread);
     		}
     		threadPtr = NULL;
-    		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1e cleanupThread callingThread [%p]\n",*thread);
+    		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1e cleanupThread callingThread [%p]\n",*thread);
         }
         else {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n#1f cleanupThread callingThread [%p]\n",*thread);
@@ -2406,6 +2406,9 @@ void MenuStateCustomGame::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
+		if(this->headlessServerMode == true && serverInterface == NULL) {
+			throw megaglest_runtime_error("serverInterface == NULL");
+		}
 		if(this->headlessServerMode == true && serverInterface->getGameSettingsUpdateCount() > lastMasterServerSettingsUpdateCount &&
 				serverInterface->getGameSettings() != NULL) {
 			const GameSettings *settings = serverInterface->getGameSettings();
@@ -3434,8 +3437,9 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 		ControlType ct= static_cast<ControlType>(listBoxControls[i].getSelectedItemIndex());
 
 		if(forceCloseUnusedSlots == true && (ct == ctNetworkUnassigned || ct == ctNetwork)) {
-			if(serverInterface->getSlot(i) == NULL ||
-               serverInterface->getSlot(i)->isConnected() == false) {
+			if(serverInterface != NULL &&
+			   (serverInterface->getSlot(i) == NULL ||
+               serverInterface->getSlot(i)->isConnected() == false)) {
 				if(checkBoxScenario.getValue() == false) {
 				//printf("Closed A [%d] [%s]\n",i,labelPlayerNames[i].getText().c_str());
 

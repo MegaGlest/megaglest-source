@@ -913,7 +913,7 @@ bool Map::canMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, std::m
 		}
 	//}
 
-	if(unit == NULL || isBadHarvestPos == true) {
+	if(isBadHarvestPos == true) {
 		if(lookupCache != NULL) {
 			(*lookupCache)[pos1][pos2][size][field]=false;
 		}
@@ -1084,8 +1084,13 @@ bool Map::aproxCanMove(const Unit *unit, const Vec2i &pos1, const Vec2i &pos2, s
 
 Vec2i Map::computeRefPos(const Selection *selection) const {
     Vec2i total= Vec2i(0);
+
+	if(selection == NULL) {
+		throw megaglest_runtime_error("selection == NULL");
+	}
+
     for(int i = 0; i < selection->getCount(); ++i) {
-    	if(selection == NULL || selection->getUnit(i) == NULL) {
+    	if(selection->getUnit(i) == NULL) {
     		throw megaglest_runtime_error("selection == NULL || selection->getUnit(i) == NULL");
     	}
         total = total + selection->getUnit(i)->getPosNotThreadSafe();

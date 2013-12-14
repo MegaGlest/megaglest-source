@@ -61,6 +61,9 @@ public:
 class ExploredCellsLookupItem {
 public:
 
+	ExploredCellsLookupItem() {
+		ExploredCellsLookupItemCacheTimerCountIndex = 0;
+	}
 	int ExploredCellsLookupItemCacheTimerCountIndex;
 	std::vector<SurfaceCell *> exploredCellList;
 	std::vector<SurfaceCell *> visibleCellList;

@@ -212,7 +212,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 		else if(unit->getCommandSize() > 0) {
 			Command *command= unit->getCurrCommand();
 			if(command != NULL) {
-				const CommandType *ct = (command != NULL ? command->getCommandType() : NULL);
+				const CommandType *ct = command->getCommandType();
 
 				const AttackCommandType *act= dynamic_cast<const AttackCommandType*>(command->getCommandType());
 				if( act != NULL && act->getAttackSkillType() != NULL &&
@@ -1279,6 +1279,9 @@ void UnitUpdater::updateHarvest(Unit *unit, int frameIndex) {
 	}
 
     const HarvestCommandType *hct= dynamic_cast<const HarvestCommandType*>(command->getCommandType());
+    if(hct == NULL) {
+    	throw megaglest_runtime_error("hct == NULL");
+    }
 	Vec2i targetPos(-1);
 
 	//TravelState tsValue = tsImpossible;

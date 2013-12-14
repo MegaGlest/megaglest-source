@@ -788,8 +788,9 @@ void Ai::sendScoutPatrol(){
 
 	std::vector<Vec2i> warningEnemyList = aiInterface->getEnemyWarningPositionList();
 	if( (possibleTargetFound == false) && (warningEnemyList.empty() == false)) {
-		for(int i = (int)warningEnemyList.size() - 1; i <= 0; --i) {
-			Vec2i &checkPos = warningEnemyList[i];
+		//for(int i = (int)warningEnemyList.size() - 1; i <= 0; --i) {
+			//Vec2i &checkPos = warningEnemyList[i];
+			Vec2i &checkPos = warningEnemyList[0];
 			if (random.randRange(0, 1) == 1 ) {
 				pos = checkPos;
 				possibleTargetFound = true;
@@ -797,8 +798,8 @@ void Ai::sendScoutPatrol(){
 			} else {
 				aiInterface->removeEnemyWarningPositionFromList(checkPos);
 			}
-			break;
-		}
+			//break;
+		//}
 	}
 
 	if(possibleTargetFound == false){

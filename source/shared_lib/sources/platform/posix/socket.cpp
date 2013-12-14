@@ -809,6 +809,8 @@ Socket::Socket() {
 	dataSynchAccessorWrite = new Mutex();
 	inSocketDestructorSynchAccessor = new Mutex();
 	lastSocketError = 0;
+	lastDebugEvent = 0;
+	lastThreadedPing = 0;
 
 	MutexSafeWrapper safeMutexSocketDestructorFlag(inSocketDestructorSynchAccessor,CODE_AT_LINE);
 	inSocketDestructorSynchAccessor->setOwnerId(CODE_AT_LINE);
@@ -1466,6 +1468,7 @@ int Socket::receive(void *data, int dataSize, bool tryReceiveUntilDataSizeMet) {
 
 SafeSocketBlockToggleWrapper::SafeSocketBlockToggleWrapper(Socket *socket, bool toggle) {
 	this->socket = socket;
+
 	if(this->socket != NULL) {
 		this->originallyBlocked = socket->getBlock();
 		this->newBlocked = toggle;
@@ -1473,6 +1476,10 @@ SafeSocketBlockToggleWrapper::SafeSocketBlockToggleWrapper(Socket *socket, bool 
 		if(this->originallyBlocked != this->newBlocked) {
 			socket->setBlock(this->newBlocked);
 		}
+	}
+	else {
+		this->originallyBlocked = false;
+		this->newBlocked = false;
 	}
 }
 
@@ -2068,15 +2075,15 @@ void BroadCastClientSocketThread::execute() {
 
 		int val = 1;
 #ifndef WIN32
-		setsockopt(bcfd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+		int opt_result = setsockopt(bcfd, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
 #else
-		setsockopt(bcfd, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
+		int opt_result = setsockopt(bcfd, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
 #endif
 		if(::bind( bcfd,  (struct sockaddr *)&bcaddr, sizeof(bcaddr) ) < 0 )	{
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"bind failed: %s\n", Socket::getLastSocketErrorFormattedText().c_str());
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"bind failed: %s opt_result = %d\n", Socket::getLastSocketErrorFormattedText().c_str(),opt_result);
 		}
 		else {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] opt_result = %d\n",__FILE__,__FUNCTION__,__LINE__,opt_result);
 
 			Socket::setBlock(false, bcfd);
 
@@ -2314,19 +2321,20 @@ void ServerSocket::bind(int port) {
 		addr.sin_addr.s_addr= INADDR_ANY;
 	}
 	addr.sin_port= htons(port);
+	addr.sin_zero[0] = 0;
 
 	int val = 1;
 
 #ifndef WIN32
-	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
+	int opt_result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &val, sizeof(val));
 #else
-	setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
+	int opt_result = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
 #endif
 
 	int err= ::bind(sock, reinterpret_cast<sockaddr*>(&addr), sizeof(addr));
 	if(err < 0) {
 	    char szBuf[8096]="";
-	    snprintf(szBuf, 8096,"In [%s::%s] Error binding socket sock = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s\n",__FILE__,__FUNCTION__,sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str());
+	    snprintf(szBuf, 8096,"In [%s::%s] Error binding socket sock = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s opt_result = %d\n",__FILE__,__FUNCTION__,sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str(),opt_result);
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"%s",szBuf);
 
 	    snprintf(szBuf, 8096,"Error binding socket sock = %d, address [%s] port = %d err = %d, error = %s\n",sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str());
@@ -2399,8 +2407,8 @@ Socket *ServerSocket::accept(bool errorOnFail) {
 
 	PLATFORM_SOCKET newSock=0;
 	char client_host[100]="";
-	const int max_attempts = 100;
-	for(int attempt = 0; attempt < max_attempts; ++attempt) {
+	//const int max_attempts = 100;
+	//for(int attempt = 0; attempt < max_attempts; ++attempt) {
 		struct sockaddr_in cli_addr;
 		socklen_t clilen = sizeof(cli_addr);
 		client_host[0]='\0';
@@ -2415,12 +2423,12 @@ Socket *ServerSocket::accept(bool errorOnFail) {
 
 			int lastSocketError = getLastSocketError();
 			if(lastSocketError == PLATFORM_SOCKET_TRY_AGAIN) {
-				if(attempt+1 >= max_attempts) {
-					return NULL;
-				}
-				else {
+				//if(attempt+1 >= max_attempts) {
+				//	return NULL;
+				//}
+				//else {
 					sleep(0);
-				}
+				//}
 			}
 			if(errorOnFail == true) {
 				throwException(szBuf);
@@ -2448,8 +2456,8 @@ Socket *ServerSocket::accept(bool errorOnFail) {
 			return NULL;
 		}
 
-		break;
-	}
+		//break;
+	//}
 	Socket *result = new Socket(newSock);
 	result->setIpAddress((client_host[0] != '\0' ? client_host : ""));
 	return result;

@@ -40,7 +40,9 @@ NetworkCommand::NetworkCommand(World *world, int networkCommandType, int unitId,
 		, wantQueue(wantQueue)
 		, commandStateType(commandStateType)
 		, commandStateValue(commandStateValue)
-		, unitCommandGroupId(unitCommandGroupId) {
+		, unitCommandGroupId(unitCommandGroupId)
+		, unitFactionUnitCount(0)
+		, unitFactionIndex(0) {
 
 	assert(targetId == -1 || facing == -1);
 	this->targetId = targetId >= 0 ? targetId : facing;

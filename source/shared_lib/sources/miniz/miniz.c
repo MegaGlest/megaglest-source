@@ -3264,8 +3264,10 @@ mz_bool mz_zip_reader_init_file(mz_zip_archive *pZip, const char *pFilename, mz_
   MZ_FILE *pFile = MZ_FOPEN(pFilename, "rb");
   if (!pFile)
     return MZ_FALSE;
-  if (MZ_FSEEK64(pFile, 0, SEEK_END))
+  if (MZ_FSEEK64(pFile, 0, SEEK_END)) {
+	MZ_FCLOSE(pFile);
     return MZ_FALSE;
+  }
   file_size = MZ_FTELL64(pFile);
   if (!mz_zip_reader_init_internal(pZip, flags))
   {
@@ -4379,8 +4381,10 @@ mz_bool mz_zip_writer_add_file(mz_zip_archive *pZip, const char *pArchive_name, 
   if (uncomp_size <= 3)
     level = 0;
 
-  if (!mz_zip_writer_write_zeros(pZip, cur_archive_file_ofs, num_alignment_padding_bytes + sizeof(local_dir_header)))
-    return MZ_FALSE;
+  if (!mz_zip_writer_write_zeros(pZip, cur_archive_file_ofs, num_alignment_padding_bytes + sizeof(local_dir_header))) {
+	MZ_FCLOSE(pSrc_file);
+	return MZ_FALSE;
+  }
   local_dir_header_ofs += num_alignment_padding_bytes;
   if (pZip->m_file_offset_alignment) { MZ_ASSERT((local_dir_header_ofs & (pZip->m_file_offset_alignment - 1)) == 0); }
   cur_archive_file_ofs += num_alignment_padding_bytes + sizeof(local_dir_header);

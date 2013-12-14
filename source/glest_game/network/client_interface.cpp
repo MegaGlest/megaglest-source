@@ -199,7 +199,13 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 	setQuitThread(false);
 
 	playerIndex= -1;
+	gameSettingsReceivedCount=0;
 	setGameSettingsReceived(false);
+	gameSettingsReceivedCount=0;
+	connectedTime = 0;
+	port = 0;
+	serverFTPPort = 0;
+
 	gotIntro = false;
 	lastNetworkCommandListSendTime = 0;
 	currentFrameCount = 0;
@@ -211,7 +217,6 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 	networkGameDataSynchCheckOkTech = false;
 	this->setNetworkGameDataSynchCheckTechMismatchReport("");
 	this->setReceivedDataSynchCheck(false);
-
 }
 
 void ClientInterface::shutdownNetworkCommandListThread(MutexSafeWrapper &safeMutexWrapper) {
@@ -1491,16 +1496,16 @@ void ClientInterface::updateKeyframe(int frameCount) {
 
 	if(getQuit() == false && getQuitThread() == false) {
 		//bool testThreaded = Config::getInstance().getBool("ThreadedNetworkClient","true");
-		bool testThreaded = true;
-		if(testThreaded == false) {
-			updateFrame(&frameCount);
-			Commands &frameCmdList = cachedPendingCommands[frameCount];
-			for(int i= 0; i < (int)frameCmdList.size(); ++i) {
-				pendingCommands.push_back(frameCmdList[i]);
-			}
-			cachedPendingCommands.erase(frameCount);
-		}
-		else {
+//		bool testThreaded = true;
+//		if(testThreaded == false) {
+//			updateFrame(&frameCount);
+//			Commands &frameCmdList = cachedPendingCommands[frameCount];
+//			for(int i= 0; i < (int)frameCmdList.size(); ++i) {
+//				pendingCommands.push_back(frameCmdList[i]);
+//			}
+//			cachedPendingCommands.erase(frameCount);
+//		}
+//		else {
 			if(networkCommandListThread == NULL) {
 				static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 //				networkCommandListThread = new SimpleTaskThread(this,0,0);
@@ -1514,7 +1519,7 @@ void ClientInterface::updateKeyframe(int frameCount) {
 			}
 
 			getNetworkCommand(frameCount,cachedPendingCommandsIndex);
-		}
+		//}
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -1556,6 +1561,9 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 	uint64 waitLoopIterationCount = 0;
 	uint64 MAX_LOOP_COUNT_BEFORE_SLEEP = 100;
 	MAX_LOOP_COUNT_BEFORE_SLEEP = Config::getInstance().getInt("NetworkClientLoopGameLoadingCap",intToStr(MAX_LOOP_COUNT_BEFORE_SLEEP).c_str());
+	if(MAX_LOOP_COUNT_BEFORE_SLEEP == 0) {
+		MAX_LOOP_COUNT_BEFORE_SLEEP = 1;
+	}
 	int sleepMillis = Config::getInstance().getInt("NetworkClientLoopGameLoadingCapSleepMillis","10");
 
 	//wait until we get a ready message from the server

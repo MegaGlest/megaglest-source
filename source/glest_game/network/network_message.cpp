@@ -144,6 +144,14 @@ unsigned int NetworkMessageIntro::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.externalIp = 0;
+		packedData.ftpPort = 0;
+		packedData.gameInProgress = 0;
+		packedData.gameState = 0;
+		packedData.messageType = nmtIntro;
+		packedData.playerIndex = 0;
+		packedData.sessionId = 0;
+
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
@@ -290,7 +298,9 @@ void NetworkMessageIntro::fromEndian() {
 // =====================================================
 
 NetworkMessagePing::NetworkMessagePing(){
-	data.messageType= nmtPing;
+	data.messageType = nmtPing;
+	data.pingFrequency = 0;
+	data.pingTime = 0;
 	pingReceivedLocalTime = 0;
 }
 
@@ -395,6 +405,7 @@ void NetworkMessagePing::fromEndian() {
 
 NetworkMessageReady::NetworkMessageReady() {
 	data.messageType= nmtReady;
+	data.checksum= 0;
 }
 
 NetworkMessageReady::NetworkMessageReady(uint32 checksum) {
@@ -641,6 +652,39 @@ unsigned int NetworkMessageLaunch::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.aiAcceptSwitchTeamPercentChance = 0;
+		packedData.allowObservers = 0;
+		packedData.cpuReplacementMultiplier = 0;
+		packedData.defaultResources = 0;
+		packedData.defaultUnits = 0;
+		packedData.defaultVictoryConditions = 0;
+		packedData.enableObserverModeAtEndGame = 0;
+		packedData.enableServerControlledAI = 0;
+		for(unsigned int index =0; index < maxFactionCRCCount; ++index) {
+			packedData.factionCRCList[index] = 0;
+		}
+		for(unsigned int index =0; index < GameConstants::maxPlayers; ++index) {
+			packedData.factionControls[index] = 0;
+			packedData.networkPlayerStatuses[index] = 0;
+			packedData.resourceMultiplierIndex[index] = 0;
+			packedData.startLocationIndex[index] = 0;
+			packedData.teams[index] = 0;
+		}
+		packedData.factionCount = 0;
+		packedData.flagTypes1 = 0;
+		packedData.fogOfWar = 0;
+		packedData.mapCRC = 0;
+		packedData.masterserver_admin = 0;
+		packedData.masterserver_admin_factionIndex = 0;
+		packedData.messageType = 0;
+		packedData.networkAllowNativeLanguageTechtree = 0;
+		packedData.networkFramePeriod = 0;
+		packedData.networkPauseGameForLaggedClients = 0;
+		packedData.pathFinderType = 0;
+		packedData.techCRC = 0;
+		packedData.thisFactionIndex = 0;
+		packedData.tilesetCRC = 0;
+
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
@@ -1619,6 +1663,9 @@ unsigned int NetworkMessageText::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.messageType = nmtText;
+		packedData.playerIndex = 0;
+		packedData.teamIndex = 0;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
@@ -1956,6 +2003,9 @@ unsigned int NetworkMessageSynchNetworkGameData::getPackedSizeDetail() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		DataDetail packedData;
+		for(unsigned int index = 0; index < maxFileCRCCount; ++index) {
+			packedData.techCRCFileCRCList[index] = 0;
+		}
 		unsigned char *buf = new unsigned char[sizeof(DataDetail)*3];
 
 		for(unsigned int i = 0; i < (unsigned int)maxFileCRCCount; ++i) {
@@ -2325,7 +2375,8 @@ void NetworkMessageSynchNetworkGameDataStatus::fromEndianDetail() {
 //	class NetworkMessageSynchNetworkGameDataFileCRCCheck
 // =====================================================
 
-NetworkMessageSynchNetworkGameDataFileCRCCheck::NetworkMessageSynchNetworkGameDataFileCRCCheck(uint32 totalFileCount, uint32 fileIndex, uint32 fileCRC, const string fileName)
+NetworkMessageSynchNetworkGameDataFileCRCCheck::NetworkMessageSynchNetworkGameDataFileCRCCheck(
+		uint32 totalFileCount, uint32 fileIndex, uint32 fileCRC, const string fileName)
 {
 	data.messageType= nmtSynchNetworkGameDataFileCRCCheck;
 
@@ -2343,6 +2394,11 @@ unsigned int NetworkMessageSynchNetworkGameDataFileCRCCheck::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.fileCRC = 0;
+		packedData.fileIndex = 0;
+		packedData.messageType = nmtSynchNetworkGameDataFileCRCCheck;
+		packedData.totalFileCount = 0;
+
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
@@ -2445,6 +2501,7 @@ unsigned int NetworkMessageSynchNetworkGameDataFileGet::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.messageType = nmtSynchNetworkGameDataFileGet;
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
@@ -2554,6 +2611,13 @@ unsigned int SwitchSetupRequest::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.currentSlotIndex = 0;
+		packedData.messageType = nmtSwitchSetupRequest;
+		packedData.networkPlayerStatus = 0;
+		packedData.switchFlags = 0;
+		packedData.toSlotIndex = 0;
+		packedData.toTeam = 0;
+
 		unsigned char *buf = new unsigned char[sizeof(Data)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
@@ -2870,6 +2934,12 @@ unsigned int NetworkMessageMarkCell::getPackedSize() {
 	static unsigned int result = 0;
 	if(result == 0) {
 		Data packedData;
+		packedData.factionIndex = 0;
+		packedData.messageType = nmtMarkCell;
+		packedData.playerIndex = 0;
+		packedData.targetX = 0;
+		packedData.targetY = 0;
+
 		unsigned char *buf = new unsigned char[sizeof(packedData)*3];
 		result = pack(buf, getPackedMessageFormat(),
 				packedData.messageType,
@@ -2965,6 +3035,13 @@ void NetworkMessageMarkCell::fromEndian() {
 // =====================================================
 //	class NetworkMessageUnMarkCell
 // =====================================================
+
+NetworkMessageUnMarkCell::NetworkMessageUnMarkCell() {
+	data.messageType = nmtUnMarkCell;
+	data.targetX		= 0;
+	data.targetY		= 0;
+	data.factionIndex 	= 0;
+}
 
 NetworkMessageUnMarkCell::NetworkMessageUnMarkCell(Vec2i target, int factionIndex) {
 	data.messageType	= nmtUnMarkCell;
@@ -3078,8 +3155,14 @@ void NetworkMessageUnMarkCell::fromEndian() {
 //	class NetworkMessageHighlightCell
 // =====================================================
 
-NetworkMessageHighlightCell::NetworkMessageHighlightCell(Vec2i target, int factionIndex) {
+NetworkMessageHighlightCell::NetworkMessageHighlightCell() {
+	data.messageType	= nmtHighlightCell;
+	data.targetX		= 0;
+	data.targetY		= 0;
+	data.factionIndex 	= 0;
+}
 
+NetworkMessageHighlightCell::NetworkMessageHighlightCell(Vec2i target, int factionIndex) {
 	data.messageType	= nmtHighlightCell;
 	data.targetX		= target.x;
 	data.targetY		= target.y;

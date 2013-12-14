@@ -378,7 +378,10 @@ void SystemFlags::Close() {
 		SystemFlags::lockFileCountIndex = -1;
 
 		if(SystemFlags::lockfilename != "") {
-			remove(SystemFlags::lockfilename.c_str());
+			bool remove_result = remove(SystemFlags::lockfilename.c_str());
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] remove_result = %d for file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,remove_result,SystemFlags::lockfilename.c_str());
+
 			SystemFlags::lockfilename = "";
 		}
 	}
@@ -468,18 +471,20 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
 
         	// If the file is already open (shared) by another debug type
         	// do not over-write the file but share the stream pointer
-        	for(std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>::iterator iterMap = SystemFlags::debugLogFileList->begin();
-        		iterMap != SystemFlags::debugLogFileList->end(); ++iterMap) {
-        		SystemFlags::SystemFlagsType &currentDebugLog2 = iterMap->second;
+        	if(SystemFlags::debugLogFileList != NULL) {
+				for(std::map<SystemFlags::DebugType,SystemFlags::SystemFlagsType>::iterator iterMap = SystemFlags::debugLogFileList->begin();
+					iterMap != SystemFlags::debugLogFileList->end(); ++iterMap) {
+					SystemFlags::SystemFlagsType &currentDebugLog2 = iterMap->second;
 
-        		if(	iterMap->first != type &&
-        			currentDebugLog.debugLogFileName == currentDebugLog2.debugLogFileName &&
-        			currentDebugLog2.fileStream != NULL) {
-					currentDebugLog.fileStream = currentDebugLog2.fileStream;
-					currentDebugLog.fileStreamOwner = false;
-					currentDebugLog.mutex			= currentDebugLog2.mutex;
-        			break;
-        		}
+					if(	iterMap->first != type &&
+						currentDebugLog.debugLogFileName == currentDebugLog2.debugLogFileName &&
+						currentDebugLog2.fileStream != NULL) {
+						currentDebugLog.fileStream = currentDebugLog2.fileStream;
+						currentDebugLog.fileStreamOwner = false;
+						currentDebugLog.mutex			= currentDebugLog2.mutex;
+						break;
+					}
+				}
         	}
 
         	string debugLog = currentDebugLog.debugLogFileName;

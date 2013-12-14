@@ -851,6 +851,8 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
 
 	if(ut->getMaxEpIsMultiplier() == true) {
 		maxEp += ((double)unit->getEp() * ((double)ut->getMaxEp() / (double)100));
+		// TODO: SoftCoder - Fix the bug below on next major release
+		// if(ut->getMaxEpRegeneration() != 0) {
 		if(ut->getMaxHpRegeneration() != 0) {
 			maxEpRegeneration += ((double)unit->getType()->getEpRegeneration() + ((double)max(maxEp,unit->getEp()) * ((double)ut->getMaxEpRegeneration() / (double)100)));
 		}

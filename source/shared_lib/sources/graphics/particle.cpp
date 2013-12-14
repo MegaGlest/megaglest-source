@@ -124,6 +124,7 @@ ParticleSystem::ParticleSystem(int particleCount) {
 	particleSystemStartDelay= 0;
 
 	this->particleOwner = NULL;
+	this->particleSize = 0.0f;
 }
 
 ParticleSystem::~ParticleSystem() {

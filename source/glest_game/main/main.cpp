@@ -3256,7 +3256,10 @@ void CheckForDuplicateData() {
 				oldFile = newFile + "/" + tilesetName + ".xml";
 				newFile = newFile + "/" + tilesetName + "_custom.xml";
 
-				rename(oldFile.c_str(),newFile.c_str());
+				bool rename_result = rename(oldFile.c_str(),newFile.c_str());
+				if(rename_result == false) {
+					printf("Error renaming [%s] to [%s]\n",oldFile.c_str(),newFile.c_str());
+				}
 			}
 			errorMsg += szBuf;
 		}
@@ -4712,7 +4715,7 @@ int glestMain(int argc, char** argv) {
     		printf("Running in auto test mode\n");
     	}
 		if(hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTO_TEST])) == true) {
-			Config::getInstance().setBool("AutoTest","true",true);
+			Config::getInstance().setBool("AutoTest",true,true);
 
 			int foundParamIndIndex = -1;
 			hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_AUTO_TEST]) + string("="),&foundParamIndIndex);

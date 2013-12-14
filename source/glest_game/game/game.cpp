@@ -5350,14 +5350,14 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 		factionInfo +=	" [" + formatString(this->gameSettings.getFactionTypeName(i)) +
 				" team: " + intToStr(this->gameSettings.getTeam(i)) + "]";
 
-		bool showResourceDebugInfo = false;
-		if(showResourceDebugInfo == true) {
-			factionInfo +=" res: ";
-			for(int j = 0; j < world.getTechTree()->getResourceTypeCount(); ++j) {
-				factionInfo += intToStr(world.getFaction(i)->getResource(j)->getAmount());
-				factionInfo += " ";
-			}
-		}
+//		bool showResourceDebugInfo = false;
+//		if(showResourceDebugInfo == true) {
+//			factionInfo +=" res: ";
+//			for(int j = 0; j < world.getTechTree()->getResourceTypeCount(); ++j) {
+//				factionInfo += intToStr(world.getFaction(i)->getResource(j)->getAmount());
+//				factionInfo += " ";
+//			}
+//		}
 
 		factionDebugInfo[i] = factionInfo;
 	}

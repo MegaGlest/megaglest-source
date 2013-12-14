@@ -87,13 +87,17 @@ public:
 
 	void begin() {
 		if(this->renderer != NULL) {
-			if(dynamic_cast<TextRenderer2DGl *>(renderer) != NULL) {
-				dynamic_cast<TextRenderer2DGl *>(renderer)->begin(dynamic_cast<Font2D *>(this->font));
+			TextRenderer2DGl *txtrender2d = dynamic_cast<TextRenderer2DGl *>(renderer);
+			if(txtrender2d != NULL) {
+				txtrender2d->begin(dynamic_cast<Font2D *>(this->font));
 				mustEnd = true;
 			}
-			if(dynamic_cast<TextRenderer3DGl *>(renderer) != NULL) {
-				mustEnd = true;
-				dynamic_cast<TextRenderer3DGl *>(renderer)->begin(dynamic_cast<Font3D *>(this->font));
+			else {
+				TextRenderer3DGl *txtrender3d = dynamic_cast<TextRenderer3DGl *>(renderer);
+				if(txtrender3d != NULL) {
+					mustEnd = true;
+					txtrender3d->begin(dynamic_cast<Font3D *>(this->font));
+				}
 			}
 		}
 	}

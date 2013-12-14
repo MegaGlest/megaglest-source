@@ -57,6 +57,9 @@ Object::Object(ObjectType *objectType, const Vec3f &pos, const Vec2i &mapPos) : 
 		}
 		animated=tmt->getAnimSpeed()>0;
 	}
+	else {
+		variation=0;
+	}
 	visible=false;
 	animProgress=0.0f;
 }

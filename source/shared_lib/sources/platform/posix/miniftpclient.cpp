@@ -1203,7 +1203,7 @@ void FTPClientThread::execute() {
                     getTempFileFromServer(file);
                 }
                 else {
-                    safeMutex5.ReleaseLock();
+                    safeMutex6.ReleaseLock();
                 }
 
                 if(this->getQuitStatus() == false) {

@@ -802,7 +802,7 @@ void Pixmap1D::init(int w, int components){
 }
 
 uint64 Pixmap1D::getPixelByteCount() const {
-	return (w * components);
+	return ((uint64)w * (uint64)components);
 }
 
 void Pixmap1D::deletePixels() {
@@ -955,7 +955,7 @@ void Pixmap2D::init(int w, int h, int components) {
 }
 
 uint64 Pixmap2D::getPixelByteCount() const {
-	return (h * w * components);
+	return ((uint64)h * (uint64)w * (uint64)components);
 }
 
 void Pixmap2D::deletePixels() {
@@ -1456,7 +1456,7 @@ void Pixmap3D::init(int w, int h, int d, int components){
 }
 
 uint64 Pixmap3D::getPixelByteCount() const {
-	return (h * w * d * components);
+	return ((uint64)h * (uint64)w * (uint64)d * (uint64)components);
 }
 
 void Pixmap3D::init(int d, int components){

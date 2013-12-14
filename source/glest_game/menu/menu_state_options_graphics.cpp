@@ -592,7 +592,9 @@ void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton)
 					selectedMode = &(*it);
 				}
 			}
-
+			if(selectedMode == NULL) {
+				throw megaglest_runtime_error("selectedMode == NULL");
+			}
 			WindowGl *window = this->program->getWindow();
 			window->ChangeVideoMode(true,
 					selectedMode->width,

@@ -427,10 +427,12 @@ std::vector<std::string> FactionType::validateFactionType() {
 								const CommandType *cmdType2 = unitType2.getCommandType(m);
 								if(cmdType2 != NULL && dynamic_cast<const UpgradeCommandType *>(cmdType2) != NULL) {
 									const UpgradeCommandType *uct = dynamic_cast<const UpgradeCommandType *>(cmdType2);
-									const UpgradeType *upgradeType2 = uct->getProducedUpgrade();
-									if(upgradeType2 != NULL && upgradeType2->getName() == upgradeType->getName()) {
-										 foundUpgraderUnit = true;
-										 break;
+									if(uct != NULL) {
+										const UpgradeType *upgradeType2 = uct->getProducedUpgrade();
+										if(upgradeType2 != NULL && upgradeType2->getName() == upgradeType->getName()) {
+											 foundUpgraderUnit = true;
+											 break;
+										}
 									}
 								}
 							}
@@ -481,6 +483,9 @@ std::vector<std::string> FactionType::validateFactionType() {
 				// exist in this faction
 				if(cmdType->getClass() == ccRepair) {
 					const RepairCommandType *repair = dynamic_cast<const RepairCommandType *>(cmdType);
+					if(repair == NULL) {
+						throw megaglest_runtime_error("repair == NULL");
+					}
 					for(int k = 0; k < repair->getRepairCount(); ++k) {
 						const UnitType *repairUnit = repair->getRepair(k);
 
@@ -586,6 +591,9 @@ std::vector<std::string> FactionType::validateFactionType() {
 	    			// Check if this is a build command
 					if(cmdType->getClass() == ccBuild) {
 						const BuildCommandType *build = dynamic_cast<const BuildCommandType *>(cmdType);
+						if(build == NULL) {
+							throw megaglest_runtime_error("build == NULL");
+						}
 						for(int k = 0; k < build->getBuildingCount() && foundUnit == false; ++k) {
 							const UnitType *buildUnit = build->getBuilding(k);
 
@@ -603,6 +611,9 @@ std::vector<std::string> FactionType::validateFactionType() {
 					// Check if this is a morph command
 					if(cmdType->getClass() == ccMorph) {
 							const MorphCommandType *morph = dynamic_cast<const MorphCommandType *>(cmdType);
+							if(morph == NULL) {
+								throw megaglest_runtime_error("morph == NULL");
+							}
 							const UnitType *morphUnit = morph->getMorphUnit();
 
 							if( morphUnit != NULL &&
@@ -644,7 +655,7 @@ std::vector<std::string> FactionType::validateFactionType() {
                 const SkillType *st = unitType.getSkillType(j);
                 if(st != NULL && dynamic_cast<const AttackSkillType *>(st) != NULL) {
                     const AttackSkillType *ast = dynamic_cast<const AttackSkillType *>(st);
-                    if(ast->getAttackVar() < 0) {
+                    if(ast != NULL && ast->getAttackVar() < 0) {
                         char szBuf[8096]="";
                         snprintf(szBuf,8096,"The Unit [%s] in Faction [%s] has the skill [%s] with an INVALID attack var value which is < 0 [%d]!",unitType.getName().c_str(),this->getName().c_str(),ast->getName().c_str(),ast->getAttackVar());
                         results.push_back(szBuf);
@@ -738,6 +749,9 @@ std::vector<std::string> FactionType::validateFactionTypeResourceTypes(vector<Re
 				// exist in this faction
 				if(cmdType->getClass() == ccHarvest) {
 					const HarvestCommandType *harvest = dynamic_cast<const HarvestCommandType *>(cmdType);
+					if(harvest == NULL) {
+						throw megaglest_runtime_error("harvest == NULL");
+					}
 					for(int k = 0; k < harvest->getHarvestedResourceCount(); ++k) {
 						const ResourceType *harvestResource = harvest->getHarvestedResource(k);
 

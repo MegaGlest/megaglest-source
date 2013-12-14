@@ -1087,6 +1087,7 @@ void MenuStateMasterserver::rebuildServerLines(const string &serverInfo) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 					serverLines.push_back(new ServerLine( masterServerInfo, i, serverLinesYBase, serverLinesLineHeight, containerName));
+					delete masterServerInfo;
 				}
 				else {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);

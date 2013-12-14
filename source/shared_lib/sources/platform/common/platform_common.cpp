@@ -145,7 +145,7 @@ Chrono::Chrono(bool autoStart) {
 	lastResult = 0;
 	lastMultiplier = 0;
 	lastStopped = false;
-
+	startCount = 0;
 	if(autoStart == true) {
 		start();
 	}
@@ -204,11 +204,11 @@ int64 Chrono::queryCounter(int multiplier) {
 
 	int64 result = 0;
 	if(stopped) {
-		result = multiplier*accumCount/freq;
+		result = (int64)multiplier * (int64)(accumCount / freq);
 	}
 	else {
 		Uint32 endCount = SDL_GetTicks();
-		result = multiplier*(accumCount+endCount-startCount)/freq;
+		result = (int64)multiplier * (int64)((accumCount + endCount - startCount) / freq);
 		lastTickCount = endCount;
 	}
 

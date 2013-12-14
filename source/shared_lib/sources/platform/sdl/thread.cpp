@@ -107,7 +107,7 @@ public:
 				sleep(10);
 				if(base_thread->getRunningStatus() == true || base_thread->getExecutingTask() == true) {
 
-					if(Thread::getEnableVerboseMode()) printf("\n\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$ cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
+					if(Thread::getEnableVerboseMode()) printf("\n\n\n$$$$$$$$$$$$$$$$$$$$$$$$$$$ cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,base_thread->getUniqueID().c_str());
 
 					char szBuf[8096]="";
 					snprintf(szBuf,8095,"In [%s::%s Line: %d] cannot delete active thread: getRunningStatus(): %d getExecutingTask: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,base_thread->getRunningStatus(),base_thread->getExecutingTask());
@@ -118,8 +118,9 @@ public:
 			if(Thread::getEnableVerboseMode()) printf("!!!! cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
 
 			delete thread;
+			thread = NULL;
 
-			if(Thread::getEnableVerboseMode()) printf("!!!! cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
+			if(Thread::getEnableVerboseMode()) printf("!!!! cleanupPendingThread Line: %d thread = NULL [%s]\n",__LINE__,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
 		}
 	}
 

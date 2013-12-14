@@ -3338,6 +3338,9 @@ bool Unit::morph(const MorphCommandType *mct) {
 			UnitAttackBoostEffect *effect = currentAttackBoostEffects[i];
 			if(effect != NULL) {
 				Unit *sourceUnit = game->getWorld()->findUnitById(effect->source->getId());
+				if(sourceUnit == NULL) {
+					throw megaglest_runtime_error("sourceUnit == NULL");
+				}
 				sourceUnit->morphAttackBoosts(this);
 			}
 		}

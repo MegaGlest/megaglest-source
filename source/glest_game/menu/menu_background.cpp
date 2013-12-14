@@ -116,7 +116,7 @@ MenuBackground::MenuBackground() : rps(NULL) {
 	aboutPosition.x= positionNode->getAttribute("x")->getFloatValue();
 	aboutPosition.y= positionNode->getAttribute("y")->getFloatValue();
 	aboutPosition.z= positionNode->getAttribute("z")->getFloatValue();
-	rotationNode= cameraNode->getChild("about-rotation");
+	//rotationNode= cameraNode->getChild("about-rotation");
 
 	targetCamera= NULL;
 	t= 0.f;

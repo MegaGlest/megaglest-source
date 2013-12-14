@@ -597,7 +597,7 @@ void Renderer::manageDeferredParticleSystems() {
 		}
 		if(dynamic_cast<GameParticleSystem *>(ps) != NULL) {
 			GameParticleSystem *gps = dynamic_cast<GameParticleSystem *>(ps);
-			if(gps->getModelFileLoadDeferred() != "" && gps->getModel() == NULL) {
+			if(gps != NULL && gps->getModelFileLoadDeferred() != "" && gps->getModel() == NULL) {
                 std::map<string,vector<pair<string, string> > > loadedFileList;
                 Model *model= newModel(rsGame, gps->getModelFileLoadDeferred(), false, &loadedFileList, NULL);
                 if(model)
@@ -3988,12 +3988,14 @@ void Renderer::MapRenderer::load(float coordStep) {
 }
 
 template<typename T> void* _bindVBO(GLuint vbo,std::vector<T> buf,int target=GL_ARRAY_BUFFER_ARB) {
+	void* result = NULL;
 	if(vbo) {
 		glBindBuffer(target,vbo);
-		return NULL;
-	} else {
-		return &buf[0];
 	}
+	else {
+		result = &buf[0];
+	}
+	return result;
 }
 
 void Renderer::MapRenderer::Layer::renderVisibleLayer() {
@@ -4273,13 +4275,13 @@ void Renderer::renderSurface(const int renderFps) {
 	else if(qCache.visibleScaledCellList.empty() == false) {
 
 		int lastTex=-1;
-		int currTex=-1;
+		//int currTex=-1;
 
 		Quad2i snapshotOfvisibleQuad = visibleQuad;
 
 		//bool useVertexArrayRendering = getVBOSupported();
-		bool useVertexArrayRendering = false;
-		if(useVertexArrayRendering == false) {
+		//bool useVertexArrayRendering = false;
+		//if(useVertexArrayRendering == false) {
 		    //printf("\LEGACY qCache.visibleScaledCellList.size() = %d \n",qCache.visibleScaledCellList.size());
 
 			Vec2f texCoords[4];
@@ -4330,7 +4332,7 @@ void Renderer::renderSurface(const int renderFps) {
 				if(tc00->getSurfaceTexture() == NULL) {
 					throw megaglest_runtime_error("tc00->getSurfaceTexture() == NULL");
 				}
-				currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
+				int currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
 				if(currTex != lastTex) {
 					lastTex = currTex;
 					//glBindTexture(GL_TEXTURE_2D, lastTex);
@@ -4411,204 +4413,204 @@ void Renderer::renderSurface(const int renderFps) {
 			glDisableClientState(GL_NORMAL_ARRAY);
 			glDisableClientState(GL_VERTEX_ARRAY);
 
-		}
-		else {
-		    const bool useVBOs = false;
-		    const bool useSurfaceCache = false;
-
-		    std::vector<SurfaceData> surfaceData;
-		    bool recalcSurface = false;
-
-		    if(useSurfaceCache == true) {
-				std::map<string,std::pair<Chrono, std::vector<SurfaceData> > >::iterator iterFind = mapSurfaceData.find(snapshotOfvisibleQuad.getString());
-				if(iterFind == mapSurfaceData.end()) {
-					recalcSurface = true;
-					//printf("#1 Calculating surface for Rendering using VA's [%s]\n",snapshotOfvisibleQuad.getString().c_str());
-				}
-/*
-				else if(iterFind->second.first.getMillis() >= 250) {
-					recalcSurface = true;
-					mapSurfaceData.erase(snapshotOfvisibleQuad.getString());
-					//printf("#2 RE-Calculating surface for Rendering using VA's [%s]\n",snapshotOfvisibleQuad.getString().c_str());
-				}
-*/
-		    }
-		    else {
-		    	recalcSurface = true;
-		    }
-
-		    if(recalcSurface == true) {
-				//printf("Calculating surface for Rendering using VA's [%s]\n",snapshotOfvisibleQuad.getString().c_str());
-
-		    	std::vector<SurfaceData> *surface = &surfaceData;
-		    	if(useSurfaceCache == true) {
-					std::pair<Chrono, std::vector<SurfaceData> > &surfaceCacheEntity = mapSurfaceData[snapshotOfvisibleQuad.getString()];
-					surface = &surfaceCacheEntity.second;
-					//surface.reserve(qCache.visibleScaledCellList.size());
-		    	}
-		    	surface->reserve(qCache.visibleScaledCellList.size());
-
-		    	int lastSurfaceDataIndex = -1;
-				for(int visibleIndex = 0;
-						visibleIndex < (int)qCache.visibleScaledCellList.size(); ++visibleIndex) {
-					Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
-
-					SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
-					SurfaceCell *tc10= map->getSurfaceCell(pos.x+1, pos.y);
-					SurfaceCell *tc01= map->getSurfaceCell(pos.x, pos.y+1);
-					SurfaceCell *tc11= map->getSurfaceCell(pos.x+1, pos.y+1);
-
-					if(tc00 == NULL) {
-						throw megaglest_runtime_error("tc00 == NULL");
-					}
-					if(tc10 == NULL) {
-						throw megaglest_runtime_error("tc10 == NULL");
-					}
-					if(tc01 == NULL) {
-						throw megaglest_runtime_error("tc01 == NULL");
-					}
-					if(tc11 == NULL) {
-						throw megaglest_runtime_error("tc11 == NULL");
-					}
-
-					triangleCount+= 2;
-					pointCount+= 4;
-
-					//set texture
-					if(tc00->getSurfaceTexture() == NULL) {
-						throw megaglest_runtime_error("tc00->getSurfaceTexture() == NULL");
-					}
-
-					int surfaceDataIndex = -1;
-					currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
-					if(currTex != lastTex) {
-						lastTex = currTex;
-					}
-					else {
-						surfaceDataIndex = lastSurfaceDataIndex;
-					}
-
-					if(surfaceDataIndex < 0) {
-						SurfaceData newData;
-						newData.uniqueId = SurfaceData::nextUniqueId;
-						SurfaceData::nextUniqueId++;
-						newData.bufferCount=0;
-						newData.textureHandle = currTex;
-						surface->push_back(newData);
-
-						surfaceDataIndex = (int)surface->size() - 1;
-					}
-
-					lastSurfaceDataIndex = surfaceDataIndex;
-
-					SurfaceData *cellData = &(*surface)[surfaceDataIndex];
-
-					const Vec2f &surfCoord= tc00->getSurfTexCoord();
-
-					cellData->texCoords.push_back(tc01->getFowTexCoord());
-					cellData->texCoordsSurface.push_back(Vec2f(surfCoord.x, surfCoord.y + coordStep));
-					cellData->vertices.push_back(tc01->getVertex());
-					cellData->normals.push_back(tc01->getNormal());
-					cellData->bufferCount++;
-
-					cellData->texCoords.push_back(tc00->getFowTexCoord());
-					cellData->texCoordsSurface.push_back(Vec2f(surfCoord.x, surfCoord.y));
-					cellData->vertices.push_back(tc00->getVertex());
-					cellData->normals.push_back(tc00->getNormal());
-					cellData->bufferCount++;
-
-					cellData->texCoords.push_back(tc11->getFowTexCoord());
-					cellData->texCoordsSurface.push_back(Vec2f(surfCoord.x+coordStep, surfCoord.y+coordStep));
-					cellData->vertices.push_back(tc11->getVertex());
-					cellData->normals.push_back(tc11->getNormal());
-					cellData->bufferCount++;
-
-					cellData->texCoords.push_back(tc10->getFowTexCoord());
-					cellData->texCoordsSurface.push_back(Vec2f(surfCoord.x+coordStep, surfCoord.y));
-					cellData->vertices.push_back(tc10->getVertex());
-					cellData->normals.push_back(tc10->getNormal());
-					cellData->bufferCount++;
-				}
-			}
-
-		    std::vector<SurfaceData> *surface = &surfaceData;
-		    if(useSurfaceCache == true) {
-		    	std::pair<Chrono, std::vector<SurfaceData> > &surfaceCacheEntity = mapSurfaceData[snapshotOfvisibleQuad.getString()];
-		    	surface = &surfaceCacheEntity.second;
-		    }
-
-		    glEnableClientState(GL_VERTEX_ARRAY);
-		    glEnableClientState(GL_NORMAL_ARRAY);
-
-			for(int i = 0; i < (int)surface->size(); ++i) {
-				SurfaceData &data = (*surface)[i];
-
-				if(useVBOs == true) {
-					VisibleQuadContainerVBOCache *vboCache = GetSurfaceVBOs(&data);
-
-					//glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(fowTex)->getHandle());
-					glClientActiveTexture(fowTexUnit);
-					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-					glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache->m_nVBOFowTexCoords);
-					glTexCoordPointer(2, GL_FLOAT, 0,(char *) NULL);
-
-					glBindTexture(GL_TEXTURE_2D, data.textureHandle);
-					glClientActiveTexture(baseTexUnit);
-					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-					glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache->m_nVBOSurfaceTexCoords);
-					glTexCoordPointer(2, GL_FLOAT, 0, (char *) NULL);
-
-					glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache->m_nVBOVertices);
-					glVertexPointer(3, GL_FLOAT, 0, (char *) NULL);
-
-					glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache->m_nVBONormals);
-					glNormalPointer(GL_FLOAT, 0, (char *) NULL);
-
-					glDrawArrays(GL_TRIANGLE_STRIP, 0, data.bufferCount);
-
-					glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
-
-					glClientActiveTexture(fowTexUnit);
-					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-					glClientActiveTexture(baseTexUnit);
-					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-				}
-				else {
-					Vec2f *texCoords		= &data.texCoords[0];
-					Vec2f *texCoordsSurface	= &data.texCoordsSurface[0];
-					Vec3f *vertices			= &data.vertices[0];
-					Vec3f *normals			= &data.normals[0];
-
-					//glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(fowTex)->getHandle());
-					glClientActiveTexture(fowTexUnit);
-					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-					glTexCoordPointer(2, GL_FLOAT, 0,texCoords);
-
-					glBindTexture(GL_TEXTURE_2D, data.textureHandle);
-					glClientActiveTexture(baseTexUnit);
-					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-					glTexCoordPointer(2, GL_FLOAT, 0, texCoordsSurface);
-
-					glVertexPointer(3, GL_FLOAT, 0, vertices);
-					glNormalPointer(GL_FLOAT, 0, normals);
-
-					glDrawArrays(GL_TRIANGLE_STRIP, 0, data.bufferCount);
-
-					glClientActiveTexture(fowTexUnit);
-					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-					glClientActiveTexture(baseTexUnit);
-					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-				}
-			}
-
-			glDisableClientState(GL_NORMAL_ARRAY);
-			glDisableClientState(GL_VERTEX_ARRAY);
-
-			//printf("Surface Render before [%d] after [%d]\n",qCache.visibleScaledCellList.size(),surface.size());
-		}
+//		}
+//		else {
+//		    const bool useVBOs = false;
+//		    const bool useSurfaceCache = false;
+//
+//		    std::vector<SurfaceData> surfaceData;
+//		    bool recalcSurface = false;
+//
+//		    if(useSurfaceCache == true) {
+//				std::map<string,std::pair<Chrono, std::vector<SurfaceData> > >::iterator iterFind = mapSurfaceData.find(snapshotOfvisibleQuad.getString());
+//				if(iterFind == mapSurfaceData.end()) {
+//					recalcSurface = true;
+//					//printf("#1 Calculating surface for Rendering using VA's [%s]\n",snapshotOfvisibleQuad.getString().c_str());
+//				}
+///*
+//				else if(iterFind->second.first.getMillis() >= 250) {
+//					recalcSurface = true;
+//					mapSurfaceData.erase(snapshotOfvisibleQuad.getString());
+//					//printf("#2 RE-Calculating surface for Rendering using VA's [%s]\n",snapshotOfvisibleQuad.getString().c_str());
+//				}
+//*/
+//		    }
+//		    else {
+//		    	recalcSurface = true;
+//		    }
+//
+//		    if(recalcSurface == true) {
+//				//printf("Calculating surface for Rendering using VA's [%s]\n",snapshotOfvisibleQuad.getString().c_str());
+//
+//		    	std::vector<SurfaceData> *surface = &surfaceData;
+//		    	if(useSurfaceCache == true) {
+//					std::pair<Chrono, std::vector<SurfaceData> > &surfaceCacheEntity = mapSurfaceData[snapshotOfvisibleQuad.getString()];
+//					surface = &surfaceCacheEntity.second;
+//					//surface.reserve(qCache.visibleScaledCellList.size());
+//		    	}
+//		    	surface->reserve(qCache.visibleScaledCellList.size());
+//
+//		    	int lastSurfaceDataIndex = -1;
+//				for(int visibleIndex = 0;
+//						visibleIndex < (int)qCache.visibleScaledCellList.size(); ++visibleIndex) {
+//					Vec2i &pos = qCache.visibleScaledCellList[visibleIndex];
+//
+//					SurfaceCell *tc00= map->getSurfaceCell(pos.x, pos.y);
+//					SurfaceCell *tc10= map->getSurfaceCell(pos.x+1, pos.y);
+//					SurfaceCell *tc01= map->getSurfaceCell(pos.x, pos.y+1);
+//					SurfaceCell *tc11= map->getSurfaceCell(pos.x+1, pos.y+1);
+//
+//					if(tc00 == NULL) {
+//						throw megaglest_runtime_error("tc00 == NULL");
+//					}
+//					if(tc10 == NULL) {
+//						throw megaglest_runtime_error("tc10 == NULL");
+//					}
+//					if(tc01 == NULL) {
+//						throw megaglest_runtime_error("tc01 == NULL");
+//					}
+//					if(tc11 == NULL) {
+//						throw megaglest_runtime_error("tc11 == NULL");
+//					}
+//
+//					triangleCount+= 2;
+//					pointCount+= 4;
+//
+//					//set texture
+//					if(tc00->getSurfaceTexture() == NULL) {
+//						throw megaglest_runtime_error("tc00->getSurfaceTexture() == NULL");
+//					}
+//
+//					int surfaceDataIndex = -1;
+//					currTex= static_cast<const Texture2DGl*>(tc00->getSurfaceTexture())->getHandle();
+//					if(currTex != lastTex) {
+//						lastTex = currTex;
+//					}
+//					else {
+//						surfaceDataIndex = lastSurfaceDataIndex;
+//					}
+//
+//					if(surfaceDataIndex < 0) {
+//						SurfaceData newData;
+//						newData.uniqueId = SurfaceData::nextUniqueId;
+//						SurfaceData::nextUniqueId++;
+//						newData.bufferCount=0;
+//						newData.textureHandle = currTex;
+//						surface->push_back(newData);
+//
+//						surfaceDataIndex = (int)surface->size() - 1;
+//					}
+//
+//					lastSurfaceDataIndex = surfaceDataIndex;
+//
+//					SurfaceData *cellData = &(*surface)[surfaceDataIndex];
+//
+//					const Vec2f &surfCoord= tc00->getSurfTexCoord();
+//
+//					cellData->texCoords.push_back(tc01->getFowTexCoord());
+//					cellData->texCoordsSurface.push_back(Vec2f(surfCoord.x, surfCoord.y + coordStep));
+//					cellData->vertices.push_back(tc01->getVertex());
+//					cellData->normals.push_back(tc01->getNormal());
+//					cellData->bufferCount++;
+//
+//					cellData->texCoords.push_back(tc00->getFowTexCoord());
+//					cellData->texCoordsSurface.push_back(Vec2f(surfCoord.x, surfCoord.y));
+//					cellData->vertices.push_back(tc00->getVertex());
+//					cellData->normals.push_back(tc00->getNormal());
+//					cellData->bufferCount++;
+//
+//					cellData->texCoords.push_back(tc11->getFowTexCoord());
+//					cellData->texCoordsSurface.push_back(Vec2f(surfCoord.x+coordStep, surfCoord.y+coordStep));
+//					cellData->vertices.push_back(tc11->getVertex());
+//					cellData->normals.push_back(tc11->getNormal());
+//					cellData->bufferCount++;
+//
+//					cellData->texCoords.push_back(tc10->getFowTexCoord());
+//					cellData->texCoordsSurface.push_back(Vec2f(surfCoord.x+coordStep, surfCoord.y));
+//					cellData->vertices.push_back(tc10->getVertex());
+//					cellData->normals.push_back(tc10->getNormal());
+//					cellData->bufferCount++;
+//				}
+//			}
+//
+//		    std::vector<SurfaceData> *surface = &surfaceData;
+//		    if(useSurfaceCache == true) {
+//		    	std::pair<Chrono, std::vector<SurfaceData> > &surfaceCacheEntity = mapSurfaceData[snapshotOfvisibleQuad.getString()];
+//		    	surface = &surfaceCacheEntity.second;
+//		    }
+//
+//		    glEnableClientState(GL_VERTEX_ARRAY);
+//		    glEnableClientState(GL_NORMAL_ARRAY);
+//
+//			for(int i = 0; i < (int)surface->size(); ++i) {
+//				SurfaceData &data = (*surface)[i];
+//
+//				if(useVBOs == true) {
+//					VisibleQuadContainerVBOCache *vboCache = GetSurfaceVBOs(&data);
+//
+//					//glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(fowTex)->getHandle());
+//					glClientActiveTexture(fowTexUnit);
+//					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//
+//					glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache->m_nVBOFowTexCoords);
+//					glTexCoordPointer(2, GL_FLOAT, 0,(char *) NULL);
+//
+//					glBindTexture(GL_TEXTURE_2D, data.textureHandle);
+//					glClientActiveTexture(baseTexUnit);
+//					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//
+//					glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache->m_nVBOSurfaceTexCoords);
+//					glTexCoordPointer(2, GL_FLOAT, 0, (char *) NULL);
+//
+//					glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache->m_nVBOVertices);
+//					glVertexPointer(3, GL_FLOAT, 0, (char *) NULL);
+//
+//					glBindBufferARB( GL_ARRAY_BUFFER_ARB, vboCache->m_nVBONormals);
+//					glNormalPointer(GL_FLOAT, 0, (char *) NULL);
+//
+//					glDrawArrays(GL_TRIANGLE_STRIP, 0, data.bufferCount);
+//
+//					glBindBufferARB( GL_ARRAY_BUFFER_ARB, 0 );
+//
+//					glClientActiveTexture(fowTexUnit);
+//					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+//					glClientActiveTexture(baseTexUnit);
+//					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+//
+//				}
+//				else {
+//					Vec2f *texCoords		= &data.texCoords[0];
+//					Vec2f *texCoordsSurface	= &data.texCoordsSurface[0];
+//					Vec3f *vertices			= &data.vertices[0];
+//					Vec3f *normals			= &data.normals[0];
+//
+//					//glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(fowTex)->getHandle());
+//					glClientActiveTexture(fowTexUnit);
+//					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//					glTexCoordPointer(2, GL_FLOAT, 0,texCoords);
+//
+//					glBindTexture(GL_TEXTURE_2D, data.textureHandle);
+//					glClientActiveTexture(baseTexUnit);
+//					glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//					glTexCoordPointer(2, GL_FLOAT, 0, texCoordsSurface);
+//
+//					glVertexPointer(3, GL_FLOAT, 0, vertices);
+//					glNormalPointer(GL_FLOAT, 0, normals);
+//
+//					glDrawArrays(GL_TRIANGLE_STRIP, 0, data.bufferCount);
+//
+//					glClientActiveTexture(fowTexUnit);
+//					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+//					glClientActiveTexture(baseTexUnit);
+//					glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+//				}
+//			}
+//
+//			glDisableClientState(GL_NORMAL_ARRAY);
+//			glDisableClientState(GL_VERTEX_ARRAY);
+//
+//			//printf("Surface Render before [%d] after [%d]\n",qCache.visibleScaledCellList.size(),surface.size());
+//		}
 	}
 
 	//Restore
@@ -4619,7 +4621,10 @@ void Renderer::renderSurface(const int renderFps) {
 	glPopAttrib();
 
 	//assert
-	glGetError();	//remove when first mtex problem solved
+	GLenum glresult = glGetError();	//remove when first mtex problem solved
+	if(glresult) {
+		assertGl();
+	}
 	assertGl();
 
 	IF_DEBUG_EDITION(
@@ -5349,8 +5354,9 @@ void Renderer::renderSelectionEffects() {
 				(showDebugUILevel & debugui_unit_titles) == debugui_unit_titles) {
 
 				const UnitPathInterface *path= unit->getPath();
-				if(path != NULL && dynamic_cast<const UnitPathBasic *>(path)) {
-					vector<Vec2i> pathList = dynamic_cast<const UnitPathBasic *>(path)->getQueue();
+				const UnitPathBasic *pathfinder = (path == NULL ? NULL : dynamic_cast<const UnitPathBasic *>(path));
+				if(pathfinder != NULL) {
+					vector<Vec2i> pathList = pathfinder->getQueue();
 
 					Vec2i lastPosValue;
 					for(int i = 0; i < (int)pathList.size(); ++i) {

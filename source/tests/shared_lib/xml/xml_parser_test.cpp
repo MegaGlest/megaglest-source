@@ -104,7 +104,8 @@ public:
 		CPPUNIT_ASSERT_EQUAL( false, newInstance.isInitialized() );
 	}
 	void test_load_file_missing() {
-		XmlIo::getInstance().load("/some/path/that/does/not exist", std::map<string,string>());
+		XmlNode *rootNode = XmlIo::getInstance().load("/some/path/that/does/not exist", std::map<string,string>());
+		delete rootNode;
 	}
 	void test_load_file_valid() {
 		const string test_filename = "xml_test_valid.xml";
@@ -115,13 +116,16 @@ public:
 
 		CPPUNIT_ASSERT( rootNode != NULL );
 		CPPUNIT_ASSERT_EQUAL( string("menu"), rootNode->getName() );
+
+		delete rootNode;
 	}
 	void test_load_file_malformed_content() {
 		const string test_filename = "xml_test_malformed.xml";
 		createMalformedXMLTestFile(test_filename);
 		SafeRemoveTestFile deleteFile(test_filename);
 
-		XmlIo::getInstance().load(test_filename, std::map<string,string>());
+		XmlNode *rootNode = XmlIo::getInstance().load(test_filename, std::map<string,string>());
+		delete rootNode;
 	}
 
 	void test_save_file_null_node() {
@@ -139,6 +143,8 @@ public:
 
 		XmlIo::getInstance().save(test_filename_save,rootNode);
 		SafeRemoveTestFile deleteFile2(test_filename_save);
+
+		delete rootNode;
 	}
 };
 
@@ -174,7 +180,8 @@ public:
 		CPPUNIT_ASSERT_EQUAL( false, newInstance.isInitialized() );
 	}
 	void test_load_file_missing() {
-		XmlIoRapid::getInstance().load("/some/path/that/does/not exist", std::map<string,string>());
+		XmlNode *rootNode = XmlIoRapid::getInstance().load("/some/path/that/does/not exist", std::map<string,string>());
+		delete rootNode;
 	}
 	void test_load_file_valid() {
 		const string test_filename = "xml_test_valid.xml";
@@ -185,12 +192,15 @@ public:
 
 		CPPUNIT_ASSERT( rootNode != NULL );
 		CPPUNIT_ASSERT_EQUAL( string("menu"), rootNode->getName() );
+
+		delete rootNode;
 	}
 	void test_load_file_malformed_content() {
 		const string test_filename = "xml_test_malformed.xml";
 		createMalformedXMLTestFile(test_filename);
 		SafeRemoveTestFile deleteFile(test_filename);
-		XmlIoRapid::getInstance().load(test_filename, std::map<string,string>());
+		XmlNode *rootNode = XmlIoRapid::getInstance().load(test_filename, std::map<string,string>());
+		delete rootNode;
 	}
 
 	void test_save_file_null_node() {
@@ -208,6 +218,8 @@ public:
 
 		XmlIoRapid::getInstance().save(test_filename_save,rootNode);
 		SafeRemoveTestFile deleteFile2(test_filename_save);
+
+		delete rootNode;
 	}
 };
 

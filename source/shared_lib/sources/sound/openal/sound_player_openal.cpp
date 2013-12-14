@@ -182,6 +182,7 @@ StreamSoundSource::StreamSoundSource()
 	sound = 0;
 	fadeState = NoFading;
 	format = 0;
+	fade = 0;
 	alGenBuffers(STREAMFRAGMENTS, buffers);
 	SoundPlayerOpenAL::checkAlError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
 }

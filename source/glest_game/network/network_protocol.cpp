@@ -58,7 +58,7 @@ unsigned long long int pack754(long double f, unsigned bits, unsigned expbits)
 	significand = fnorm * ((1LL<<significandbits) + 0.5f);
 
 	// get the biased exponent
-	exp = shift + ((1<<(expbits-1)) - 1); // shift + bias
+	exp = (long long)shift + ((1<<(expbits-1)) - 1); // shift + bias
 
 	// return the final answer
 	return (sign<<(bits-1)) | (exp<<(bits-expbits-1)) | significand;

@@ -605,7 +605,7 @@ string findFontFamily(const char* font, const char *fontFamily) {
 		fs = FcFontSetCreate();
 		match = FcFontMatch(0, pat, &result);
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Trying fontconfig for fontfamily [%s]\n",(fontFamily != NULL ? fontFamily : "null"));
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Trying fontconfig for fontfamily [%s]\n",fontFamily);
 
 		if (match) FcFontSetAdd(fs, match);
 		if (pat) FcPatternDestroy(pat);
@@ -649,8 +649,9 @@ void CHECK_FONT_PATH(const char *filename,const char *fontFamily,const char **fo
 				*font = strdup(*path);
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 candidate font file has been set[%s]\n",(*font != NULL ? *font : "null"));
 			}
+			*path = NULL;
 		}
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 Searching for font family [%s] result [%s]\n",(fontFamily != NULL ? fontFamily : "null"),(*font != NULL ? *font : "null"));
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 Searching for font family [%s] result [%s]\n",fontFamily,(*font != NULL ? *font : "null"));
 	}
 }
 

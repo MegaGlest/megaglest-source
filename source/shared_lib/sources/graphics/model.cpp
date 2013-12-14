@@ -537,7 +537,12 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 	}
 	opacity = Shared::PlatformByteOrder::fromCommonEndian(opacity);
 
-	fseek(f, sizeof(Vec4f)*(meshHeader.colorFrameCount-1), SEEK_CUR);
+	int seek_result = fseek(f, sizeof(Vec4f)*(meshHeader.colorFrameCount-1), SEEK_CUR);
+	if(seek_result != 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"fseek returned failure = %d [%u] on line: %d.",seek_result,indexCount,__LINE__);
+		throw megaglest_runtime_error(szBuf);
+	}
 	readBytes = fread(indices, sizeof(uint32)*indexCount, 1, f);
 	if(readBytes != 1 && indexCount != 0) {
 		char szBuf[8096]="";
@@ -677,7 +682,13 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 	}
 	opacity = Shared::PlatformByteOrder::fromCommonEndian(opacity);
 
-	fseek(f, sizeof(Vec4f)*(meshHeader.colorFrameCount-1), SEEK_CUR);
+	int seek_result = fseek(f, sizeof(Vec4f)*(meshHeader.colorFrameCount-1), SEEK_CUR);
+	if(seek_result != 0) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"fseek returned failure = %d [%u] on line: %d.",seek_result,indexCount,__LINE__);
+		throw megaglest_runtime_error(szBuf);
+	}
+
 	readBytes = fread(indices, sizeof(uint32)*indexCount, 1, f);
 	if(readBytes != 1 && indexCount != 0) {
 		char szBuf[8096]="";
@@ -798,7 +809,10 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 			}
 			Shared::PlatformByteOrder::fromEndianTypeArray<uint8>(cMapPath, mapPathSize);
 
-			string mapPath= toLower(reinterpret_cast<char*>(cMapPath));
+			char mapPathString[mapPathSize+1]="";
+			memset(&mapPathString[0],0,mapPathSize);
+			memcpy(&mapPathString[0],reinterpret_cast<char*>(cMapPath),mapPathSize);
+			string mapPath= toLower(mapPathString);
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("mapPath [%s] meshHeader.textures = %d flag = %d (meshHeader.textures & flag) = %d meshIndex = %d i = %d\n",mapPath.c_str(),meshHeader.textures,flag,(meshHeader.textures & flag),meshIndex,i);
 
@@ -1074,6 +1088,7 @@ Model::Model() {
 
 	meshCount		= 0;
 	meshes			= NULL;
+	fileVersion		= 0;
 	textureManager	= NULL;
 	lastTData		= -1;
 	lastCycleData	= false;
@@ -1199,7 +1214,10 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 		if(strncmp(reinterpret_cast<char*>(fileHeader.id), "G3D", 3) != 0) {
 			fclose(f);
 			f = NULL;
-		    printf("In [%s::%s] file = [%s] fileheader.id = [%s][%c]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,path.c_str(),reinterpret_cast<char*>(fileHeader.id),fileHeader.id[0]);
+			char fileType[4]="";
+			memset(&fileType[0],0,4);
+			memcpy(&fileType[0],fileHeader.id,4);
+		    printf("In [%s::%s] file = [%s] fileheader.id = [%s][%c]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,path.c_str(),fileType,fileHeader.id[0]);
 			throw megaglest_runtime_error("Not a valid G3D model",true);
 		}
 		fileVersion= fileHeader.version;
@@ -1833,7 +1851,6 @@ const unsigned int BaseColorPickEntity::p = 64007;
 const unsigned int BaseColorPickEntity::k = 43067;
 unsigned int BaseColorPickEntity::nextColorRGB = BaseColorPickEntity::k;
 
-//Mutex BaseColorPickEntity::mutexNextColorID;
 unsigned char BaseColorPickEntity::nextColorID[COLOR_COMPONENTS] = { 1, 1, 1, 0 };
 auto_ptr<PixelBufferWrapper> BaseColorPickEntity::pbo;
 
@@ -1853,7 +1870,6 @@ BaseColorPickEntity::BaseColorPickEntity() {
 }
 
 bool BaseColorPickEntity::get_next_assign_color(unsigned char *assign_to) {
-	 //MutexSafeWrapper safeMutex(&mutexNextColorID);
 	 
 	 if(assign_to == NULL) {
 		 throw megaglest_runtime_error("assign_to == NULL");
@@ -1969,7 +1985,6 @@ void BaseColorPickEntity::assign_color_using_loop(unsigned char *assign_to) {
 }
 
 void BaseColorPickEntity::recycleUniqueColor() {
-	//MutexSafeWrapper safeMutex(&mutexNextColorID);
 
 	vector<unsigned char> reUseColor;
 	reUseColor.push_back(uniqueColorID[0]);
@@ -1993,8 +2008,6 @@ void BaseColorPickEntity::recycleUniqueColor() {
 }
 
 void BaseColorPickEntity::resetUniqueColors() {
-   //MutexSafeWrapper safeMutex(&mutexNextColorID);
-
    BaseColorPickEntity::nextColorRGB = BaseColorPickEntity::k;
 
    BaseColorPickEntity::nextColorID[0] = 1;

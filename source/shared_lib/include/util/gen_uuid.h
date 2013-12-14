@@ -176,7 +176,7 @@ inline static void get_random_info(char seed[16]) {
     seed[i++] = myrand >> 8;
   } while (i < 14);
 
-  fclose(fp);
+  if(fp != NULL) fclose(fp);
 }
 
 #endif

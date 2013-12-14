@@ -1844,6 +1844,9 @@ void ServerInterface::waitUntilReady(Checksum *checksum) {
 	uint64 waitLoopIterationCount = 0;
 	uint64 MAX_LOOP_COUNT_BEFORE_SLEEP = 10;
 	MAX_LOOP_COUNT_BEFORE_SLEEP = Config::getInstance().getInt("NetworkServerLoopGameLoadingCap",intToStr(MAX_LOOP_COUNT_BEFORE_SLEEP).c_str());
+	if(MAX_LOOP_COUNT_BEFORE_SLEEP == 0) {
+		MAX_LOOP_COUNT_BEFORE_SLEEP = 1;
+	}
 	int sleepMillis = Config::getInstance().getInt("NetworkServerLoopGameLoadingCapSleepMillis","10");
 
 	int64 lastStatusUpdate = 0;
@@ -2365,19 +2368,17 @@ void ServerInterface::checkListenerSlots() {
 void ServerInterface::broadcastGameSetup(GameSettings *gameSettingsBuffer, bool setGameSettingsBuffer) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	if(gameSettingsBuffer != NULL) {
-		for(unsigned int i = 0; i < (unsigned int)gameSettingsBuffer->getFactionCount(); ++i) {
-			int slotIndex = gameSettingsBuffer->getStartLocationIndex(i);
-			if(gameSettingsBuffer->getFactionControl(i) == ctNetwork &&
-				isClientConnected(slotIndex) == false) {
-				gameSettingsBuffer->setNetworkPlayerName(i,GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME);
-			}
+	if(gameSettingsBuffer == NULL) {
+		throw megaglest_runtime_error("gameSettingsBuffer == NULL");
+	}
+	for(unsigned int i = 0; i < (unsigned int)gameSettingsBuffer->getFactionCount(); ++i) {
+		int slotIndex = gameSettingsBuffer->getStartLocationIndex(i);
+		if(gameSettingsBuffer->getFactionControl(i) == ctNetwork &&
+			isClientConnected(slotIndex) == false) {
+			gameSettingsBuffer->setNetworkPlayerName(i,GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME);
 		}
 	}
 	if(setGameSettingsBuffer == true) {
-		if(gameSettingsBuffer == NULL) {
-			throw megaglest_runtime_error("gameSettingsBuffer == NULL");
-		}
 		validateGameSettings(gameSettingsBuffer);
 		//setGameSettings(gameSettingsBuffer,false);
 		MutexSafeWrapper safeMutex(serverSynchAccessor,CODE_AT_LINE);
@@ -2398,8 +2399,10 @@ void ServerInterface::broadcastMessage(NetworkMessage *networkMessage, int exclu
 	    if(inBroadcastMessage == true && dynamic_cast<NetworkMessageText *>(networkMessage) != NULL) {
 	    	safeMutexSlotBroadCastAccessor.ReleaseLock();
 	    	NetworkMessageText *txtMsg = dynamic_cast<NetworkMessageText *>(networkMessage);
-	    	NetworkMessageText *msgCopy = txtMsg->getCopy();
-	    	queueBroadcastMessage(msgCopy, excludeSlot);
+	    	if(txtMsg != NULL) {
+	    		NetworkMessageText *msgCopy = txtMsg->getCopy();
+	    		queueBroadcastMessage(msgCopy, excludeSlot);
+	    	}
 	    	return;
 	    }
 	    else {
@@ -3132,7 +3135,6 @@ bool ServerInterface::getPauseForInGameConnection() {
 
 bool ServerInterface::getUnPauseForInGameConnection() {
 
-	bool allResumeClientsReady = false;
 	bool result = false;
 	for(int i= 0; exitServer == false && i < GameConstants::maxPlayers; ++i) {
 		if(slots[i] != NULL) {
@@ -3153,9 +3155,8 @@ bool ServerInterface::getUnPauseForInGameConnection() {
 			}
 		}
 	}
-	if(allResumeClientsReady == true) {
+	if(result == true) {
 		resumeGameStartTime = time(NULL);
-		result = true;
 	}
 	return result;
 }

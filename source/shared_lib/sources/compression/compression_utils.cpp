@@ -254,6 +254,9 @@ int zipfile_tool(int argc, const char *argv[]) {
   }
   else {
 	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Invalid mode!\n");
+
+	  if(pInfile) fclose(pInfile);
+	  if(pOutfile) fclose(pOutfile);
 	  return EXIT_FAILURE;
   }
 

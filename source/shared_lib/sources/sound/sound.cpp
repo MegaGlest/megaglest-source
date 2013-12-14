@@ -81,16 +81,16 @@ void StaticSound::load(const string &path) {
 	string ext= path.substr(path.find_last_of('.')+1);
 	soundFileLoader= SoundFileLoaderFactory::getInstance()->newInstance(ext);
 
+	if(soundFileLoader == NULL) {
+		throw megaglest_runtime_error("soundFileLoader == NULL");
+	}
 	soundFileLoader->open(path, &info);
 	samples= new int8[info.getSize()];
 	soundFileLoader->read(samples, info.getSize());
 	soundFileLoader->close();
 
-	if(soundFileLoader!=NULL){
-		soundFileLoader->close();
-		delete soundFileLoader;
-		soundFileLoader= NULL;
-	}
+	delete soundFileLoader;
+	soundFileLoader= NULL;
 }
 
 // =====================================================

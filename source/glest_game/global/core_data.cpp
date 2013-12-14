@@ -242,7 +242,7 @@ void CoreData::loadTextures(string data_path) {
 			message(ex.what(),
 					GlobalStaticFlags::getIsNonGraphicalModeEnabled(),
 					tempDataLocation);
-			cleanupTexture (&fireTexture);
+			cleanupTexture (&teamColorTexture);
 		}
 	}
 	snowTexture = renderer.newTexture2D(rsGlobal);

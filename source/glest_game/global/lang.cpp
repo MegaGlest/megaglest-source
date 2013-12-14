@@ -505,7 +505,7 @@ string Lang::getString(const string &s, string uselanguage, bool fallbackToDefau
 			return getString(s, DEFAULT_LANGUAGE, false);
 		}
 
-		return "???" + s + "???";
+		//return "???" + s + "???";
 	}
 	return "???" + s + "???";
 }
@@ -540,8 +540,8 @@ bool Lang::hasScenarioString(const string &s) {
 
 string Lang::getTechTreeString(const string &s,const char *defaultValue) {
 	try{
-		string default_language = "default";
 		string result = "";
+		string default_language = "default";
 
 		//printf("Line: %d techNameLoaded = %s s = %s this->language = %s\n",__LINE__,techNameLoaded.c_str(),s.c_str(),this->language.c_str());
 
@@ -579,7 +579,7 @@ string Lang::getTechTreeString(const string &s,const char *defaultValue) {
 		if(techTreeStringsAllLanguages[techNameLoaded][this->language].getpath() != "") {
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		}
-		return "???" + s + "???";
+		//return "???" + s + "???";
 	}
 	return "???" + s + "???";
 }
@@ -609,7 +609,7 @@ string Lang::getTilesetString(const string &s,const char *defaultValue) {
 		if(tilesetStrings.getpath() != "") {
 			SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		}
-		return "???" + s + "???";
+		//return "???" + s + "???";
 	}
 	return "???" + s + "???";
 }

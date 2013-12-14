@@ -99,7 +99,8 @@ void Minimap::init(int w, int h, const World *world, bool fogOfWar) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scaledW = %d, scaledH = %d, potW = %d, potH = %d\n",__FILE__,__FUNCTION__,__LINE__,scaledW,scaledH,potW,potH);
 
 		fowTex->getPixmap()->init(potW, potH, 1);
-		fowTex->getPixmap()->setPixels(&f);
+		const float *fPtr = &f;
+		fowTex->getPixmap()->setPixels(fPtr);
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

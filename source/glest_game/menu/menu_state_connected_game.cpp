@@ -1287,7 +1287,9 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
             getMissingTechtreeFromFTPServerLastPrompted	= 0;
 
             ClientInterface *clientInterface = networkManager.getClientInterface();
-
+            if(clientInterface == NULL) {
+            	throw megaglest_runtime_error("clientInterface == NULL");
+            }
             if(getInProgressSavedGameFromFTPServerInProgress == true) {
             	if(clientInterface != NULL) {
             		clientInterface->close();
@@ -2777,7 +2779,7 @@ void MenuStateConnectedGame::update() {
 					techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
 					//clientInterface->sendTextMessage("#1 TechCRC = " + intToStr(techCRC) + " remoteCRC = " + intToStr(gameSettings->getTechCRC()),-1, true, "");
 
-					if(techCRC == 0 || tilesetCRC != gameSettings->getTechCRC()) {
+					if(techCRC == 0 || techCRC != gameSettings->getTechCRC()) {
 						techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL, true);
 						//clientInterface->sendTextMessage("#2 TechCRC = " + intToStr(techCRC) + " remoteCRC = " + intToStr(gameSettings->getTechCRC()),-1, true, "");
 					}

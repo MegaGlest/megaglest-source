@@ -70,11 +70,12 @@ TextFTGL::TextFTGL(FontTextHandlerType type) : Text(type) {
 	}
 
 	if(ftFont->Error())	{
-		printf("FTGL: error loading font: %s\n", fontFile);
+		string fontFileName = (fontFile != NULL ? fontFile : "n/a");
+		printf("FTGL: error loading font: %s\n", fontFileName.c_str());
 		delete ftFont; ftFont = NULL;
-		free((void*)fontFile);
+		if(fontFile != NULL) free((void*)fontFile);
 		fontFile = NULL;
-		throw megaglest_runtime_error(string("FTGL: error loading font: ") + string(fontFile));
+		throw megaglest_runtime_error(string("FTGL: error loading font: ") + fontFileName);
 	}
 	free((void*)fontFile);
 	fontFile = NULL;

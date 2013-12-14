@@ -909,7 +909,9 @@ bool Faction::applyCosts(const ProducibleType *p,const CommandType *ct) {
 	bool ignoreResourceCosts = false;
 	if(ct != NULL && ct->getClass() == ccMorph) {
 		const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
-		ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+		if(mct != NULL) {
+			ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+		}
 	}
 
 	if(ignoreResourceCosts == false) {
@@ -935,8 +937,7 @@ bool Faction::applyCosts(const ProducibleType *p,const CommandType *ct) {
 				throw megaglest_runtime_error(szBuf);
 			}
 			int cost= r->getAmount();
-			if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable)
-			{
+			if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable) {
 				incResourceAmount(rt, -(cost));
 			}
 
@@ -968,7 +969,9 @@ void Faction::applyStaticCosts(const ProducibleType *p,const CommandType *ct) {
 	bool ignoreResourceCosts = false;
 	if(ct != NULL && ct->getClass() == ccMorph) {
 		const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
-		ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+		if(mct != NULL) {
+			ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+		}
 	}
 
 	if(ignoreResourceCosts == false) {
@@ -996,7 +999,9 @@ void Faction::applyStaticProduction(const ProducibleType *p,const CommandType *c
 	bool ignoreResourceCosts = false;
 	if(ct != NULL && ct->getClass() == ccMorph) {
 		const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
-		ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+		if(mct != NULL) {
+			ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+		}
 	}
 
 	if(ignoreResourceCosts == false) {
@@ -1021,7 +1026,9 @@ void Faction::deApplyCosts(const ProducibleType *p,const CommandType *ct) {
 	bool ignoreResourceCosts = false;
 	if(ct != NULL && ct->getClass() == ccMorph) {
 		const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
-		ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+		if(mct != NULL) {
+			ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+		}
 	}
 
 	if(ignoreResourceCosts == false) {
@@ -1044,7 +1051,9 @@ void Faction::deApplyStaticCosts(const ProducibleType *p,const CommandType *ct) 
 	bool ignoreResourceCosts = false;
 	if(ct != NULL && ct->getClass() == ccMorph) {
 		const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
-		ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+		if(mct != NULL) {
+			ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+		}
 	}
 
 	if(ignoreResourceCosts == false) {
@@ -1069,7 +1078,9 @@ void Faction::deApplyStaticConsumption(const ProducibleType *p,const CommandType
 	bool ignoreResourceCosts = false;
 	if(ct != NULL && ct->getClass() == ccMorph) {
 		const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
-		ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+		if(mct != NULL) {
+			ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+		}
 	}
 
 	if(ignoreResourceCosts == false) {
@@ -1162,7 +1173,9 @@ bool Faction::checkCosts(const ProducibleType *pt,const CommandType *ct) {
 	bool ignoreResourceCosts = false;
 	if(ct != NULL && ct->getClass() == ccMorph) {
 		const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
-		ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+		if(mct != NULL) {
+			ignoreResourceCosts = mct->getIgnoreResourceRequirements();
+		}
 		//printf("Checking costs = %d for commandtype:\n%s\n",ignoreResourceCosts,mct->getDesc(NULL).c_str());
 	}
 
@@ -1959,27 +1972,31 @@ bool Faction::canCreateUnit(const UnitType *ut, bool checkBuild, bool checkProdu
 				// Check if this is a build command
 				else if(checkBuild == true && cmdType->getClass() == ccBuild) {
 					const BuildCommandType *build = dynamic_cast<const BuildCommandType *>(cmdType);
-					for(int k = 0; k < build->getBuildingCount() && foundUnit == false; ++k) {
-						const UnitType *buildUnit = build->getBuilding(k);
+					if(build != NULL) {
+						for(int k = 0; k < build->getBuildingCount() && foundUnit == false; ++k) {
+							const UnitType *buildUnit = build->getBuilding(k);
 
-						if( buildUnit != NULL &&
-							ut->getId() != unitType2->getId() &&
-							ut->getName(false) == buildUnit->getName(false)) {
-							 foundUnit = true;
-							 break;
+							if( buildUnit != NULL &&
+								ut->getId() != unitType2->getId() &&
+								ut->getName(false) == buildUnit->getName(false)) {
+								 foundUnit = true;
+								 break;
+							}
 						}
 					}
 				}
 				// Check if this is a morph command
 				else if(checkMorph == true && cmdType->getClass() == ccMorph) {
 					const MorphCommandType *morph = dynamic_cast<const MorphCommandType *>(cmdType);
-					const UnitType *morphUnit = morph->getMorphUnit();
+					if(morph != NULL) {
+						const UnitType *morphUnit = morph->getMorphUnit();
 
-					if( morphUnit != NULL &&
-						ut->getId() != unitType2->getId() &&
-						ut->getName(false) == morphUnit->getName(false)) {
-						 foundUnit = true;
-						 break;
+						if( morphUnit != NULL &&
+							ut->getId() != unitType2->getId() &&
+							ut->getName(false) == morphUnit->getName(false)) {
+							 foundUnit = true;
+							 break;
+						}
 					}
 				}
 			}

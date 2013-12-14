@@ -426,15 +426,16 @@ int Properties::getInt(const string &key, int min, int max,const char *defaultVa
 }
 
 float Properties::getFloat(const string &key, const char *defaultValueIfNotFound) const{
+	float result = 0.0;
 	try{
-		return strToFloat(getString(key,defaultValueIfNotFound));
+		result = strToFloat(getString(key,defaultValueIfNotFound));
 	}
 	catch(exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		//throw megaglest_runtime_error("Error accessing value: " + key + " in: " + path + "\n[" + e.what() + "]");
 		throw runtime_error("Error accessing value: " + key + " in: " + path + "\n[" + e.what() + "]");
 	}
-	return 0.0;
+	return result;
 }
 
 float Properties::getFloat(const string &key, float min, float max, const char *defaultValueIfNotFound) const{
@@ -543,15 +544,16 @@ int Properties::getInt(const char *key,const char *defaultValueIfNotFound) const
 }
 
 float Properties::getFloat(const char *key, const char *defaultValueIfNotFound) const{
+	float result = 0.0;
 	try{
-		return strToFloat(getString(key,defaultValueIfNotFound));
+		result = strToFloat(getString(key,defaultValueIfNotFound));
 	}
 	catch(exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what());
 		//throw megaglest_runtime_error("Error accessing value: " + string(key) + " in: " + path + "\n[" + e.what() + "]");
 		throw runtime_error("Error accessing value: " + string(key) + " in: " + path + "\n[" + e.what() + "]");
 	}
-	return 0.0;
+	return result;
 }
 
 const string Properties::getString(const char *key, const char *defaultValueIfNotFound) const{

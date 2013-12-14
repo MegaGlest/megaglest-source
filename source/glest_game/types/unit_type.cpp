@@ -787,7 +787,7 @@ const AttackCommandType *UnitType::getFirstAttackCommand(Field field) const{
 		//printf("$$$ Unit [%s] i = %d, commandTypes[i] [%s]\n",this->getName().c_str(),(int)i, commandTypes[i]->toString().c_str());
 		if(commandTypes[i]->getClass()== ccAttack){
 			const AttackCommandType *act= dynamic_cast<const AttackCommandType*>(commandTypes[i]);
-			if(act->getAttackSkillType()->getAttackField(field)) {
+			if(act != NULL && act->getAttackSkillType()->getAttackField(field)) {
 				//printf("## Unit [%s] i = %d, is found\n",this->getName().c_str(),(int)i);
 				return act;
 			}
@@ -808,7 +808,7 @@ const AttackStoppedCommandType *UnitType::getFirstAttackStoppedCommand(Field fie
 		//printf("$$$ Unit [%s] i = %d, commandTypes[i] [%s]\n",this->getName().c_str(),(int)i, commandTypes[i]->toString().c_str());
 		if(commandTypes[i]->getClass()== ccAttackStopped){
 			const AttackStoppedCommandType *act= dynamic_cast<const AttackStoppedCommandType*>(commandTypes[i]);
-			if(act->getAttackSkillType()->getAttackField(field)) {
+			if(act != NULL && act->getAttackSkillType()->getAttackField(field)) {
 				//printf("## Unit [%s] i = %d, is found\n",this->getName().c_str(),(int)i);
 				return act;
 			}
@@ -1036,13 +1036,13 @@ void UnitType::computeFirstCtOfClass() {
 
 const CommandType* UnitType::findCommandTypeById(int id) const{
 	const HarvestEmergencyReturnCommandType *result = dynamic_cast<const HarvestEmergencyReturnCommandType *>(ctHarvestEmergencyReturnCommandType.get());
-	if(id == result->getId()) {
+	if(result != NULL && id == result->getId()) {
 		return result;
 	}
 
-	for(int i=0; i<getCommandTypeCount(); ++i){
-		const CommandType* commandType= getCommandType(i);
-		if(commandType->getId()==id){
+	for(int i=0; i < getCommandTypeCount(); ++i) {
+		const CommandType *commandType= getCommandType(i);
+		if(commandType->getId() == id){
 			return commandType;
 		}
 	}

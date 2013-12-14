@@ -1011,7 +1011,7 @@ protected:
 	virtual unsigned char * packMessage();
 
 public:
-	NetworkMessageUnMarkCell(){}
+	NetworkMessageUnMarkCell();
 	NetworkMessageUnMarkCell(Vec2i target, int factionIndex);
 
 	virtual size_t getDataSize() const { return sizeof(Data); }
@@ -1058,7 +1058,7 @@ protected:
 	virtual unsigned char * packMessage();
 
 public:
-	NetworkMessageHighlightCell(){}
+	NetworkMessageHighlightCell();
 	NetworkMessageHighlightCell(Vec2i target, int factionIndex);
 
 	virtual size_t getDataSize() const { return sizeof(Data); }

@@ -298,7 +298,6 @@ private:
     static unsigned char nextColorID[COLOR_COMPONENTS];
     static unsigned int nextColorRGB;
     static const unsigned int k, p;
-    //static Mutex mutexNextColorID;
 
     static bool using_loop_method;
 

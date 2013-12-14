@@ -592,24 +592,30 @@ bool AiRuleProduceResourceProducer::test(){
 		if(factionUsesResourceType == true && rt->getClass() == rcConsumable) {
 			// The consumable balance is negative
 			if(r->getBalance() < 0) {
-				if(newResourceBehaviour==true)
+				if(newResourceBehaviour == true) {
 					interval = shortInterval;
-				else
+				}
+				else {
 					interval = longInterval;
+				}
+
 				return true;
 			}
 			// If the consumable balance is down to 1/3 of what we need
 			else {
 				if(r->getBalance() * 3 + r->getAmount() < 0) {
-				if(newResourceBehaviour==true)
-					interval = shortInterval;
-				else
-					interval = longInterval;
+					if(newResourceBehaviour == true) {
+						interval = shortInterval;
+					}
+					else {
+						interval = longInterval;
+					}
+
 					return true;
 				}
 			}
-        }
-    }
+		}
+	}
 
 	int targetStaticResourceCount = minStaticResources;
 	if(aiInterface->getMyFactionType()->getAIBehaviorStaticOverideValue(aibsvcMinStaticResourceCount) != INT_MAX) {
@@ -749,9 +755,9 @@ bool AiRuleProduce::canUnitTypeOfferResourceType(const UnitType *ut, const Resou
 		}
 	}
 
-	if(aiInterface->isLogLevelEnabled(4) == true) {
+	if(aiInterface != NULL && aiInterface->isLogLevelEnabled(4) == true) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"canUnitTypeOfferResourceType for unit type [%s] for resource type [%s] returned: %d",ut->getName(false).c_str(),rt->getName(false).c_str(),unitTypeOffersResourceType);
+		snprintf(szBuf,8096,"canUnitTypeOfferResourceType for unit type [%s] for resource type [%s] returned: %d",(ut != NULL ? ut->getName(false).c_str() : "n/a"),(rt != NULL ? rt->getName(false).c_str() : "n/a"),unitTypeOffersResourceType);
 		aiInterface->printLog(4, szBuf);
 	}
 
@@ -1157,6 +1163,9 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 							if(ctypeForCostCheck == NULL || ct->getClass() == ccMorph) {
 								if(ctypeForCostCheck != NULL && ct->getClass() == ccMorph) {
 									const MorphCommandType *mct = dynamic_cast<const MorphCommandType *>(ct);
+									if(mct == NULL) {
+										throw megaglest_runtime_error("mct == NULL");
+									}
 									if(mct->getIgnoreResourceRequirements() == true) {
 										ctypeForCostCheck= ct;
 									}

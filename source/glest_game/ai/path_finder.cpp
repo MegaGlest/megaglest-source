@@ -398,7 +398,7 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 				if(dynamic_cast<UnitPathBasic *>(path) != NULL) {
 					UnitPathBasic *basicPath = dynamic_cast<UnitPathBasic *>(path);
 					Vec2i pos;
-					if(frameIndex < 0) {
+					if(frameIndex < 0 && basicPath != NULL) {
 						pos = basicPath->pop(frameIndex < 0);
 					}
 					else {
@@ -809,7 +809,7 @@ TravelState PathFinder::aStar(Unit *unit, const Vec2i &targetPos, bool inBailout
 
 		if(faction.closedNodesList.empty() == false) {
 			float bestHeuristic = faction.closedNodesList.begin()->first;
-			if(bestHeuristic < lastNode->heuristic) {
+			if(lastNode != NULL && bestHeuristic < lastNode->heuristic) {
 				lastNode= faction.closedNodesList.begin()->second[0];
 			}
 		}
