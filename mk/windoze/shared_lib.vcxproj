@@ -185,6 +185,7 @@
     <ClCompile Include="..\..\source\shared_lib\sources\graphics\freetype-gl\vertex-buffer.c" />
     <ClCompile Include="..\..\source\shared_lib\sources\graphics\gl\font_textFTGL.cpp" />
     <ClCompile Include="..\..\source\shared_lib\sources\graphics\gl\font_text_freetypegl.cpp" />
+    <ClCompile Include="..\..\source\shared_lib\sources\graphics\gl\model_gl.cpp" />
     <ClCompile Include="..\..\source\shared_lib\sources\graphics\video_player.cpp" />
     <ClCompile Include="..\..\source\shared_lib\sources\platform\common\byte_order.cpp" />
     <ClCompile Include="..\..\source\shared_lib\sources\platform\miniupnpc\connecthostport.c" />

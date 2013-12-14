@@ -378,7 +378,7 @@ void SystemFlags::Close() {
 		SystemFlags::lockFileCountIndex = -1;
 
 		if(SystemFlags::lockfilename != "") {
-			bool remove_result = remove(SystemFlags::lockfilename.c_str());
+			int remove_result = remove(SystemFlags::lockfilename.c_str());
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] remove_result = %d for file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,remove_result,SystemFlags::lockfilename.c_str());
 
