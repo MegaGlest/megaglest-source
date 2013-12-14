@@ -500,9 +500,12 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			}
 		}
 		else {
+			if(f) fclose(f);
+			f = NULL;
+
 			throw megaglest_runtime_error("Can't open file");
 		}
-		fclose(f);
+		if(f) fclose(f);
 	}
 	catch(const exception &e){
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,e.what());

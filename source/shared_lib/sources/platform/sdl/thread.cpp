@@ -118,7 +118,6 @@ public:
 			if(Thread::getEnableVerboseMode()) printf("!!!! cleanupPendingThread Line: %d thread = %p [%s]\n",__LINE__,thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
 
 			delete thread;
-			thread = NULL;
 
 			if(Thread::getEnableVerboseMode()) printf("!!!! cleanupPendingThread Line: %d thread = NULL [%s]\n",__LINE__,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
 		}
