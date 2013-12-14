@@ -96,7 +96,8 @@ rem Update from GIT to latest rev
 ECHO --------------------------------
 Echo Updating Code from GIT to latest Revision...
 cd ..\..\
-git pull --recurse-submodules
+git pull
+git submodule foreach git pull
 
 set GITVERSION_SHA1=.
 set GITVERSION_REV=.
