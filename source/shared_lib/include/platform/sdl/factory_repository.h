@@ -14,8 +14,8 @@
 
 #include <string>
 #include "graphics_factory.h"
-#include "sound_factory.h"
 #include "graphics_factory_gl.h"
+#include "sound_factory.h"
 #include "sound_factory_openal.h"
 #include "sound_factory_none.h"
 #include "leak_dumper.h"
@@ -23,8 +23,8 @@
 using std::string;
 
 using Shared::Graphics::GraphicsFactory;
-using Shared::Sound::SoundFactory;
 using Shared::Graphics::Gl::GraphicsFactoryGl;
+using Shared::Sound::SoundFactory;
 using Shared::Sound::OpenAL::SoundFactoryOpenAL;
 using Shared::Sound::SoundFactoryNone;
 
