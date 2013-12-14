@@ -16,15 +16,7 @@
 
 #include "graphics_factory.h"
 #include "sound_factory.h"
-
 #include "graphics_factory_gl.h"
-
-#ifdef WIN32
-
-#include "graphics_factory_gl2.h"
-//#include "sound_factory_ds8.h"
-
-#endif
 
 #include "sound_factory_openal.h"
 #include "sound_factory_none.h"
@@ -36,23 +28,16 @@ using Shared::Graphics::GraphicsFactory;
 using Shared::Sound::SoundFactory;
 using Shared::Graphics::Gl::GraphicsFactoryGl;
 
-#ifdef WIN32
-
-using Shared::Graphics::Gl::GraphicsFactoryGl2;
-//using Shared::Sound::Ds8::SoundFactoryDs8;
-
-#endif
-
 using Shared::Sound::OpenAL::SoundFactoryOpenAL;
 using Shared::Sound::SoundFactoryNone;
 
-namespace Shared{ namespace Platform{
+namespace Shared { namespace Platform {
 
 // =====================================================
 //	class FactoryRepository
 // =====================================================
 
-class FactoryRepository{
+class FactoryRepository {
 private:
 	FactoryRepository(){};
 	FactoryRepository(const FactoryRepository& );
@@ -60,13 +45,6 @@ private:
 
 private:
 	GraphicsFactoryGl graphicsFactoryGl;
-
-#ifdef WIN32
-
-	GraphicsFactoryGl2 graphicsFactoryGl2;
-	//SoundFactoryDs8 soundFactoryDs8;
-
-#endif
 
 	SoundFactoryOpenAL soundFactoryOpenAL;
 	SoundFactoryNone soundFactoryNone;
