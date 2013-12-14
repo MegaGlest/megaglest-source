@@ -255,7 +255,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\t\tdisplays your CURL version information.",GAME_ARGS[GAME_ARG_CURL_INFO]);
 	printf("\n%s\t\t\tdisplays your XERCES version information.",GAME_ARGS[GAME_ARG_XERCES_INFO]);
 
-	printf("\n%s=x=purgeunused=purgeduplicates=svndelete=hideduplicates",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
+	printf("\n%s=x=purgeunused=purgeduplicates=gitdelete=hideduplicates",GAME_ARGS[GAME_ARG_VALIDATE_TECHTREES]);
 	printf("\n                     \t\tdisplay a report detailing any known problems");
 	printf("\n                     \t\trelated to your selected techtrees game data.");
 	printf("\n                     \t\tWhere x is a comma-delimited list of techtrees");
@@ -267,9 +267,9 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\tWhere purgeduplicates is an optional parameter");
 	printf("\n                     \t\t      telling the validation to merge");
 	printf("\n                     \t\t      duplicate files in the techtree.");
-	printf("\n                     \t\tWhere svndelete is an optional parameter");
+	printf("\n                     \t\tWhere gitdelete is an optional parameter");
 	printf("\n                     \t\t      telling the validation to call");
-	printf("\n                     \t\t      svn delete on duplicate / unused");
+	printf("\n                     \t\t      git rm on duplicate / unused");
 	printf("\n                     \t\t      files in the techtree.");
 	printf("\n                     \t\tWhere hideduplicates is an optional parameter");
 	printf("\n                     \t\t      telling the validation to NOT SHOW");
@@ -298,7 +298,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\texample:");
 	printf("\n                     %s %s=tech,egypt",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_FACTIONS]);
 
-	printf("\n%s=x=purgeunused=svndelete",GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]);
+	printf("\n%s=x=purgeunused=gitdelete",GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]);
 	printf("\n                     \t\tdisplay a report detailing any known problems");
 	printf("\n                     \t\trelated to your selected scenario game data.");
 	printf("\n                     \t\tWhere x is a single scenario to validate.");
@@ -308,7 +308,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n                     \t\texample:");
 	printf("\n                     %s %s=stranded",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_VALIDATE_SCENARIO]);
 
-	printf("\n%s=x=purgeunused=svndelete",GAME_ARGS[GAME_ARG_VALIDATE_TILESET]);
+	printf("\n%s=x=purgeunused=gitdelete",GAME_ARGS[GAME_ARG_VALIDATE_TILESET]);
 	printf("\n                     \t\tdisplay a report detailing any known problems");
 	printf("\n                     \t\trelated to your selected tileset game data.");
 	printf("\n                     \t\tWhere x is a single tileset to validate.");

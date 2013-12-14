@@ -1584,7 +1584,7 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
 
 void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 		World &world, bool purgeUnusedFiles,bool purgeDuplicateFiles,
-		bool showDuplicateFiles, bool svnPurgeFiles,double &purgedMegaBytes) {
+		bool showDuplicateFiles, bool gitPurgeFiles,double &purgedMegaBytes) {
 	Checksum checksum;
 
 	bool techtree_errors = false;
@@ -1690,11 +1690,11 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 				purgedMegaBytes += ((double)fileSize / 1048576.0);
 				purgeCount++;
 
-				if(svnPurgeFiles == true) {
+				if(gitPurgeFiles == true) {
 					char szBuf[8096]="";
-					snprintf(szBuf,8096,"svn delete \"%s\"",foundFile.c_str());
-					bool svnOk = executeShellCommand(szBuf,0);
-					if(svnOk == false) {
+					snprintf(szBuf,8096,"git rm \"%s\"",foundFile.c_str());
+					bool gitOk = executeShellCommand(szBuf,0);
+					if(gitOk == false) {
 						throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
 					}
 				}
@@ -1790,16 +1790,16 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 								replaceAll(expandedNewCommonFileName, "//", "/");
 								createDirectoryPaths(extractDirectoryPathFromFile(expandedNewCommonFileName));
 
-								if(svnPurgeFiles == true) {
+								if(gitPurgeFiles == true) {
 									copyFileTo(duplicateFile, expandedNewCommonFileName);
 
 									char szBuf[8096]="";
-									snprintf(szBuf,8096,"svn delete \"%s\"",duplicateFile.c_str());
-									bool svnOk = executeShellCommand(szBuf,0);
-									if(svnOk == false) {
+									snprintf(szBuf,8096,"git rm \"%s\"",duplicateFile.c_str());
+									bool gitOk = executeShellCommand(szBuf,0);
+									if(gitOk == false) {
 										throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
 									}
-									printf("*** Duplicate file:\n[%s]\nwas svn deleted and copied to:\n[%s]\n",duplicateFile.c_str(),expandedNewCommonFileName.c_str());
+									printf("*** Duplicate file:\n[%s]\nwas git rm and copied to:\n[%s]\n",duplicateFile.c_str(),expandedNewCommonFileName.c_str());
 								}
 								else {
 									//int result = 0;
@@ -1816,14 +1816,14 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 								}
 							}
 							else {
-								if(svnPurgeFiles == true) {
+								if(gitPurgeFiles == true) {
 									char szBuf[8096]="";
-									snprintf(szBuf,8096,"svn delete \"%s\"",duplicateFile.c_str());
-									bool svnOk = executeShellCommand(szBuf,0);
-									if(svnOk == false) {
+									snprintf(szBuf,8096,"git rm \"%s\"",duplicateFile.c_str());
+									bool gitOk = executeShellCommand(szBuf,0);
+									if(gitOk == false) {
 										throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
 									}
-									printf("*** Duplicate file:\n[%s]\nwas svn deleted\n",duplicateFile.c_str());
+									printf("*** Duplicate file:\n[%s]\nwas git rm\n",duplicateFile.c_str());
 								}
 								else {
 									removeFile(duplicateFile);
@@ -1923,7 +1923,7 @@ void runTilesetValidationForPath(string tilesetPath, string tilesetName,
 void runTechValidationForPath(string techPath, string techName,
 		const std::vector<string> &filteredFactionList, World &world,
 		bool purgeUnusedFiles,bool purgeDuplicateFiles, bool showDuplicateFiles,
-		bool svnPurgeFiles,double &purgedMegaBytes) {
+		bool gitPurgeFiles,double &purgedMegaBytes) {
 
 	string techTreeFolder = techPath + techName;
 	string techTreeFactionFolder = techTreeFolder + "/factions/";
@@ -2121,11 +2121,11 @@ void runTechValidationForPath(string techPath, string techName,
 							purgedMegaBytes += ((double)fileSize / 1048576.0);
 							purgeCount++;
 
-							if(svnPurgeFiles == true) {
+							if(gitPurgeFiles == true) {
 								char szBuf[8096]="";
-								snprintf(szBuf,8096,"svn delete \"%s\"",foundFile.c_str());
-								bool svnOk = executeShellCommand(szBuf,0);
-								if(svnOk == false) {
+								snprintf(szBuf,8096,"git rm \"%s\"",foundFile.c_str());
+								bool gitOk = executeShellCommand(szBuf,0);
+								if(gitOk == false) {
 									throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
 								}
 							}
@@ -2249,16 +2249,16 @@ void runTechValidationForPath(string techPath, string techName,
 											replaceAll(expandedNewCommonFileName, "//", "/");
 											createDirectoryPaths(extractDirectoryPathFromFile(expandedNewCommonFileName));
 
-											if(svnPurgeFiles == true) {
+											if(gitPurgeFiles == true) {
 												copyFileTo(duplicateFile, expandedNewCommonFileName);
 
 												char szBuf[8096]="";
-												snprintf(szBuf,8096,"svn delete \"%s\"",duplicateFile.c_str());
-												bool svnOk = executeShellCommand(szBuf,0);
-												if(svnOk == false) {
+												snprintf(szBuf,8096,"git rm \"%s\"",duplicateFile.c_str());
+												bool gitOk = executeShellCommand(szBuf,0);
+												if(gitOk == false) {
 													throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
 												}
-												printf("*** Duplicate file:\n[%s]\nwas svn deleted and copied to:\n[%s]\n",duplicateFile.c_str(),expandedNewCommonFileName.c_str());
+												printf("*** Duplicate file:\n[%s]\nwas git rm and copied to:\n[%s]\n",duplicateFile.c_str(),expandedNewCommonFileName.c_str());
 											}
 											else {
 												printf("moving duplicate [%s] to common data [%s] expanded to [%s]\n",duplicateFile.c_str(),newCommonFileName.c_str(),expandedNewCommonFileName.c_str());
@@ -2276,14 +2276,14 @@ void runTechValidationForPath(string techPath, string techName,
 											}
 										}
 										else {
-											if(svnPurgeFiles == true) {
+											if(gitPurgeFiles == true) {
 												char szBuf[8096]="";
-												snprintf(szBuf,8096,"svn delete \"%s\"",duplicateFile.c_str());
-												bool svnOk = executeShellCommand(szBuf,0);
-												if(svnOk == false) {
+												snprintf(szBuf,8096,"git rm \"%s\"",duplicateFile.c_str());
+												bool gitOk = executeShellCommand(szBuf,0);
+												if(gitOk == false) {
 													throw megaglest_runtime_error("Call to command failed [" + string(szBuf) + "]");
 												}
-												printf("*** Duplicate file:\n[%s]\nwas svn deleted\n",duplicateFile.c_str());
+												printf("*** Duplicate file:\n[%s]\nwas git rm\n",duplicateFile.c_str());
 											}
 											else {
 												printf("removing duplicate [%s]\n",duplicateFile.c_str());
@@ -2634,7 +2634,7 @@ void runTechValidationReport(int argc, char** argv) {
 	bool purgeDuplicateFiles = false;
 	bool showDuplicateFiles = true;
 	bool purgeUnusedFiles = false;
-	bool svnPurgeFiles = false;
+	bool gitPurgeFiles = false;
 
 	double purgedMegaBytes=0;
 	Config &config = Config::getInstance();
@@ -2794,9 +2794,9 @@ void runTechValidationReport(int argc, char** argv) {
             		purgeDuplicateFiles = true;
             		printf("*NOTE All duplicate techtree files will be merged!\n");
             	}
-            	else if(paramPartTokens[2] == "svndelete") {
-            		svnPurgeFiles = true;
-            		printf("*NOTE All unused / duplicate techtree files will be removed from svn!\n");
+            	else if(paramPartTokens[2] == "gitdelete") {
+            		gitPurgeFiles = true;
+            		printf("*NOTE All unused / duplicate techtree files will be removed from git!\n");
             	}
             	else if(paramPartTokens[2] == "hideduplicates") {
             		showDuplicateFiles = false;
@@ -2812,9 +2812,9 @@ void runTechValidationReport(int argc, char** argv) {
             		purgeDuplicateFiles = true;
             		printf("*NOTE All duplicate techtree files will be merged!\n");
             	}
-            	else if(paramPartTokens[3] == "svndelete") {
-            		svnPurgeFiles = true;
-            		printf("*NOTE All unused / duplicate techtree files will be removed from svn!\n");
+            	else if(paramPartTokens[3] == "gitdelete") {
+            		gitPurgeFiles = true;
+            		printf("*NOTE All unused / duplicate techtree files will be removed from git!\n");
             	}
             	else if(paramPartTokens[3] == "hideduplicates") {
             		showDuplicateFiles = false;
@@ -2830,9 +2830,9 @@ void runTechValidationReport(int argc, char** argv) {
             		purgeDuplicateFiles = true;
             		printf("*NOTE All duplicate techtree files will be merged!\n");
             	}
-            	else if(paramPartTokens[4] == "svndelete") {
-            		svnPurgeFiles = true;
-            		printf("*NOTE All unused / duplicate techtree files will be removed from svn!\n");
+            	else if(paramPartTokens[4] == "gitdelete") {
+            		gitPurgeFiles = true;
+            		printf("*NOTE All unused / duplicate techtree files will be removed from git!\n");
             	}
             	else if(paramPartTokens[4] == "hideduplicates") {
             		showDuplicateFiles = false;
@@ -2859,7 +2859,7 @@ void runTechValidationReport(int argc, char** argv) {
 
             	runTechValidationForPath(techPath, techName, filteredFactionList,
             			world, 	purgeUnusedFiles,purgeDuplicateFiles,
-            			showDuplicateFiles,svnPurgeFiles,purgedMegaBytes);
+            			showDuplicateFiles,gitPurgeFiles,purgedMegaBytes);
             }
         }
     }
@@ -3256,8 +3256,8 @@ void CheckForDuplicateData() {
 				oldFile = newFile + "/" + tilesetName + ".xml";
 				newFile = newFile + "/" + tilesetName + "_custom.xml";
 
-				bool rename_result = rename(oldFile.c_str(),newFile.c_str());
-				if(rename_result == false) {
+				int rename_result = rename(oldFile.c_str(),newFile.c_str());
+				if(rename_result != 0) {
 					printf("Error renaming [%s] to [%s]\n",oldFile.c_str(),newFile.c_str());
 				}
 			}
