@@ -73,3 +73,7 @@ $RECYCLE.BIN/
 /mk/linux/mydata
 /mk/linux/release
 /mk/linux/linux_symbols
+
+# Coverity
+/cov-int
+/cov-int/.*
