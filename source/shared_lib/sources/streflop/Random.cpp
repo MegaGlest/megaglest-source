@@ -215,7 +215,7 @@ inline void init_genrand(SizedUnsignedInteger<64>::Type seed, RandomState& state
 /* generates a random number on [0, 2^64-1]-interval */
 inline SizedUnsignedInteger<64>::Type genrand_int(RandomState& state)
 {
-    int i;
+
     SizedUnsignedInteger<64>::Type x;
     static SizedUnsignedInteger<64>::Type mag01[2]={0ULL, MATRIX_A};
 
@@ -225,7 +225,7 @@ inline SizedUnsignedInteger<64>::Type genrand_int(RandomState& state)
         /* a default initial seed is used     */
         //if (state.mti == NN+1)
             //init_genrand64(5489ULL, state);
-
+    	int i = 0;
         for (i=0;i<NN-MM;i++) {
             x = (state.mt[i]&UM)|(state.mt[i+1]&LM);
             state.mt[i] = state.mt[i+MM] ^ (x>>1) ^ mag01[(int)(x&1ULL)];

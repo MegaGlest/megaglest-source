@@ -1280,7 +1280,6 @@ void MainWindow::loadModel(string path) {
 
             if(timer) timer->Stop();
             delete model;
-            model = NULL;
             model = renderer? renderer->newModel(rsGlobal, modelPath): NULL;
 
             statusbarText = getModelInfo();

@@ -376,7 +376,7 @@ void ChatManager::deleteText(int deleteCount,bool addToAutoCompleteBuffer) {
 void ChatManager::appendText(const wchar_t *addText, bool validateChars, bool addToAutoCompleteBuffer) {
 	for(unsigned int i = 0; i < wcslen(addText); ++i) {
 		wchar_t key = addText[i];
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("appendText key [%d]\n\n",key);
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("appendText key [%d]\n\n",(int)key);
 
 		if(validateChars == false ||
 			(isAllowedInputTextKey(key) == true && key != 10)) {

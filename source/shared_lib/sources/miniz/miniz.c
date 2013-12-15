@@ -4594,7 +4594,7 @@ mz_bool mz_zip_writer_add_from_zip_reader(mz_zip_archive *pZip, mz_zip_archive *
       return MZ_FALSE;
     }
 
-    cur_src_file_ofs += n;
+    //cur_src_file_ofs += n;
     cur_dst_file_ofs += n;
   }
   pZip->m_pFree(pZip->m_pAlloc_opaque, pBuf);
