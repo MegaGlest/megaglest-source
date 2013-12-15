@@ -245,7 +245,7 @@ int processMesh(xmlNode *n, FILE *outfile)
 	float32 color[3];
 	
 	struct MeshHeader mh;
-	uint8 texname[NAMESIZE];
+	uint8 texname[NAMESIZE+1];
 
 	int foundFlag = FALSE;
 	xmlNode *texn = NULL;
@@ -304,7 +304,7 @@ int processMesh(xmlNode *n, FILE *outfile)
 			printf("Could not find <Texture> element!\n");
 			return FALSE;
 		}
-		memset(texname, 0, NAMESIZE);
+		memset(texname, 0, NAMESIZE+1);
 		strncpy((char*)texname, 
 			(char*)xmlGetProp(texn, (xmlChar*)"name"), NAMESIZE);
 		fwrite(texname, NAMESIZE, 1, outfile);

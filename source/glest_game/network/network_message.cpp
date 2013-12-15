@@ -2262,32 +2262,32 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 	if(result == true && data.header.techCRCFileCount > 0) {
 		fromEndianHeader();
 		// Here we loop possibly multiple times
-		int packetLoopCount = 1;
+		uint32 packetLoopCount = 1;
 		if(data.header.techCRCFileCount > (uint32)NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount) {
-			packetLoopCount = (data.header.techCRCFileCount / NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount);
-			if(data.header.techCRCFileCount % NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount > 0) {
+			packetLoopCount = (data.header.techCRCFileCount / (uint32)NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount);
+			if(data.header.techCRCFileCount % (uint32)NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount > 0) {
 				packetLoopCount++;
 			}
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] packetLoopCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,packetLoopCount);
 
-		for(int iPacketLoop = 0; iPacketLoop < packetLoopCount; ++iPacketLoop) {
+		for(uint32 iPacketLoop = 0; iPacketLoop < packetLoopCount; ++iPacketLoop) {
 
-			int packetIndex = iPacketLoop * NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount;
-			int maxFileCountPerPacket = maxFileCRCPacketCount;
-			int packetFileCount = min((uint32)maxFileCountPerPacket,data.header.techCRCFileCount - packetIndex);
+			uint32 packetIndex = iPacketLoop * (uint32)NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount;
+			uint32 maxFileCountPerPacket = (uint32)maxFileCRCPacketCount;
+			uint32 packetFileCount = min((uint32)maxFileCountPerPacket,data.header.techCRCFileCount - packetIndex);
 
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] iPacketLoop = %d, packetIndex = %d, packetFileCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,iPacketLoop,packetIndex,packetFileCount);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] iPacketLoop = %u, packetIndex = %u, packetFileCount = %u\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,iPacketLoop,packetIndex,packetFileCount);
 
-			result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[packetIndex], (DetailSize1 * packetFileCount),true);
+			result = NetworkMessage::receive(socket, &data.detail.techCRCFileList[packetIndex], ((uint32)DetailSize1 * packetFileCount),true);
 			if(result == true) {
 				for(int i = 0; i < (int)data.header.techCRCFileCount; ++i) {
 					data.detail.techCRCFileList[i].nullTerminate();
 				}
 
                 // Wait a max of x seconds for this message
-				result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[packetIndex], (DetailSize2 * packetFileCount),true);
+				result = NetworkMessage::receive(socket, &data.detail.techCRCFileCRCList[packetIndex], ((uint32)DetailSize2 * packetFileCount),true);
 			}
 		}
 		fromEndianDetail();

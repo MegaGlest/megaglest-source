@@ -35,9 +35,9 @@
  */
 typedef struct
 {
-	char name[MAXLEN_USERNAME];		///< user name
-	char passw[MAXLEN_PASSWORD];	///< password of the account
-	char ftpRoot[MAX_PATH_LEN];		///< root path of the user account on the server
+	char name[MAXLEN_USERNAME+1];		///< user name
+	char passw[MAXLEN_PASSWORD+1];	///< password of the account
+	char ftpRoot[MAX_PATH_LEN+1];		///< root path of the user account on the server
 	int  ftpRootLen;				///< length of ftpRoot
 	int  accRights;					///< access rights of a account
 

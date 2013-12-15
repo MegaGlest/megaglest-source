@@ -1216,7 +1216,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 			f = NULL;
 			char fileType[4]="";
 			memset(&fileType[0],0,4);
-			memcpy(&fileType[0],fileHeader.id,4);
+			memcpy(&fileType[0],fileHeader.id,3);
 		    printf("In [%s::%s] file = [%s] fileheader.id = [%s][%c]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,path.c_str(),fileType,fileHeader.id[0]);
 			throw megaglest_runtime_error("Not a valid G3D model",true);
 		}
@@ -1270,7 +1270,7 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 			}
 			meshCount = Shared::PlatformByteOrder::fromCommonEndian(meshCount);
 
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("meshCount = %d\n",meshCount);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("meshCount = %u\n",meshCount);
 
 			try {
 				meshes= new Mesh[meshCount];

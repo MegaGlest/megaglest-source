@@ -130,7 +130,7 @@ int g3d2xml(FILE *infile, FILE *outfile)
 	struct ModelHeader modelHeader;
 	struct MeshHeader meshHeader;
 	size_t nBytes;
-	uint8 textureName[NAMESIZE];
+	uint8 textureName[NAMESIZE+1];
 	float32 *fdata;
 	uint32 *idata;
 	unsigned int ii, jj, kk;
@@ -226,7 +226,8 @@ int g3d2xml(FILE *infile, FILE *outfile)
 		/* read / write the texture name if present */
 		if (meshHeader.textures)
 		{
-			nBytes = sizeof(textureName);
+			memset(&textureName[0],0,NAMESIZE+1);
+			nBytes = NAMESIZE;
 			if (fread(&textureName, nBytes, 1, infile) != 1)
 			{
 				printf("Could not read texture name!\n");

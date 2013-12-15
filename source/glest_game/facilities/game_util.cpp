@@ -318,8 +318,8 @@ string getGameReadWritePath(string lookupKey) {
         }
 	}
 
-    if(path == "" && getenv("GLESTHOME") != NULL) {
-        path = getenv("GLESTHOME");
+    if(path == "") {
+        path = safeCharPtrCopy(getenv("GLESTHOME"),8095);
         if(path != "" && EndsWith(path, "/") == false && EndsWith(path, "\\") == false) {
             path += "/";
         }

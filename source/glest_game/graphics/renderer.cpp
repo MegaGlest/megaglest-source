@@ -3987,7 +3987,7 @@ void Renderer::MapRenderer::load(float coordStep) {
 	//printf("Total # of layers for this map = %d totalCellCount = %d overall render reduction ratio = %d times\n",layers.size(),totalCellCount,(totalCellCount / layers.size()));
 }
 
-template<typename T> void* _bindVBO(GLuint vbo,std::vector<T> buf,int target=GL_ARRAY_BUFFER_ARB) {
+template<typename T> void* _bindVBO(GLuint vbo,std::vector<T> &buf,int target=GL_ARRAY_BUFFER_ARB) {
 	void* result = NULL;
 	if(vbo) {
 		glBindBuffer(target,vbo);
@@ -4025,25 +4025,6 @@ void Renderer::MapRenderer::Layer::renderVisibleLayer() {
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glClientActiveTexture(Renderer::baseTexUnit);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-
-
-
-
-//	glVertexPointer(3,GL_FLOAT,0,_bindVBO(vbo_vertices,vertices));
-//	glNormalPointer(GL_FLOAT,0,_bindVBO(vbo_normals,normals));
-//
-//	glClientActiveTexture(Renderer::fowTexUnit);
-//	glTexCoordPointer(2,GL_FLOAT,0,_bindVBO(vbo_fowTexCoords,fowTexCoords));
-//
-//	glClientActiveTexture(Renderer::baseTexUnit);
-//	glBindTexture(GL_TEXTURE_2D,textureHandle);
-//	glTexCoordPointer(2,GL_FLOAT,0,_bindVBO(vbo_surfTexCoords,surfTexCoords));
-//
-//	//glDrawElements(GL_TRIANGLES,indexCount,GL_UNSIGNED_INT,_bindVBO(vbo_indices,indices,GL_ELEMENT_ARRAY_BUFFER_ARB));
-//	glDrawArrays(GL_TRIANGLE_STRIP, 0, vertices.size());
-//	//unsigned short faceIndices[4] = {0, 1, 2, 3};
-//	//glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_SHORT, &faceIndices[0]);
-
 }
 
 void Renderer::MapRenderer::Layer::render(VisibleQuadContainerCache &qCache) {

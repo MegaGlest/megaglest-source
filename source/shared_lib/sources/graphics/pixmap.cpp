@@ -1154,9 +1154,14 @@ float Pixmap2D::getComponentf(int x, int y, int component) const {
 	return c;
 }
 
-void Pixmap2D::setPixel(int x, int y, const uint8 *value) {
-	for(int i=0; i<components; ++i) {
-		int index = (w*y+x)*components+i;
+void Pixmap2D::setPixel(int x, int y, const uint8 *value, int arraySize) {
+	if(arraySize > components) {
+		char szBuf[8096];
+		snprintf(szBuf,8096,"Invalid pixmap arraySize: %d for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",arraySize,path.c_str(),h,w,components,x,y);
+		throw megaglest_runtime_error(szBuf);
+	}
+	for(int i = 0; i < components; ++i) {
+		int index = (w * y + x) * components + i;
 		if(index < 0 || (unsigned int)index >= getPixelByteCount()) {
 			char szBuf[8096];
 			snprintf(szBuf,8096,"Invalid pixmap index: %d for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",index,path.c_str(),h,w,components,x,y);
@@ -1168,8 +1173,14 @@ void Pixmap2D::setPixel(int x, int y, const uint8 *value) {
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
-void Pixmap2D::setPixel(int x, int y, const float32 *value) {
-	for(int i=0; i<components; ++i) {
+void Pixmap2D::setPixel(int x, int y, const float32 *value, int arraySize) {
+	if(arraySize > components) {
+		char szBuf[8096];
+		snprintf(szBuf,8096,"Invalid pixmap arraySize: %d for [%s], h = %d, w = %d, components = %d x = %d y = %d\n",arraySize,path.c_str(),h,w,components,x,y);
+		throw megaglest_runtime_error(szBuf);
+	}
+
+	for(int i = 0; i < components; ++i) {
 		int index = (w*y+x)*components+i;
 		if(index < 0 || (unsigned int)index >= getPixelByteCount()) {
 			char szBuf[8096];
@@ -1244,19 +1255,19 @@ void Pixmap2D::setPixel(int x, int y, float p) {
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
-void Pixmap2D::setPixels(const uint8 *value){
-	for(int i=0; i<w; ++i){
-		for(int j=0; j<h; ++j){
-			setPixel(i, j, value);
+void Pixmap2D::setPixels(const uint8 *value, int arraySize) {
+	for(int i = 0; i < w; ++i) {
+		for(int j = 0; j < h; ++j) {
+			setPixel(i, j, value, arraySize);
 		}
 	}
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
 }
 
-void Pixmap2D::setPixels(const float32 *value){
-	for(int i=0; i<w; ++i){
-		for(int j=0; j<h; ++j){
-			setPixel(i, j, value);
+void Pixmap2D::setPixels(const float32 *value, int arraySize) {
+	for(int i = 0; i < w; ++i) {
+		for(int j = 0; j < h; ++j) {
+			setPixel(i, j, value, arraySize);
 		}
 	}
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
@@ -1372,10 +1383,10 @@ void Pixmap2D::subCopy(int x, int y, const Pixmap2D *sourcePixmap){
 
 	uint8 *pixel= new uint8[components];
 
-	for(int i=0; i<sourcePixmap->getW(); ++i){
-		for(int j=0; j<sourcePixmap->getH(); ++j){
+	for(int i = 0; i < sourcePixmap->getW(); ++i) {
+		for(int j = 0; j < sourcePixmap->getH(); ++j) {
 			sourcePixmap->getPixel(i, j, pixel);
-			setPixel(i+x, j+y, pixel);
+			setPixel(i+x, j+y, pixel, components);
 		}
 	}
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);
@@ -1393,10 +1404,10 @@ void Pixmap2D::copyImagePart(int x, int y, const Pixmap2D *sourcePixmap){
 
 	uint8 *pixel= new uint8[components];
 
-	for(int i=x; i<x+w; ++i){
-		for(int j=y; j<y+h; ++j){
+	for(int i = x; i < x + w; ++i) {
+		for(int j = y; j < y + h; ++j) {
 			sourcePixmap->getPixel(i, j, pixel);
-			setPixel(i-x, j-y, pixel);
+			setPixel(i-x, j-y, pixel, components);
 		}
 	}
 	CalculatePixelsCRC(pixels,getPixelByteCount(), crc);

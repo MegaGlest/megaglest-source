@@ -639,14 +639,14 @@ void CHECK_FONT_PATH(const char *filename,const char *fontFamily,const char **fo
 	}
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 Searching for font file [%s] result [%s]\n",(*path != NULL ? *path : "null"),(*font != NULL ? *font : "null"));
 	if( *font == NULL && fontFamily != NULL && strlen(fontFamily) > 0) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 Searching for font [%s] family [%s]\n",(*font != NULL ? *font : "null"),(fontFamily != NULL ? fontFamily : "null"));
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 Searching for font [%s] family [%s]\n",(*font != NULL ? *font : "null"),fontFamily);
 		string fileFound = findFontFamily(*font, fontFamily);
 		if(fileFound != "") {
-			*path = fileFound.c_str();
+			//*path = fileFound.c_str();
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 candidate font file found [%s]\n",fileFound.c_str());
-			if( *path != NULL && strlen(*path) > 0 && fileExists(*path) == true ) {
+			if( fileFound.length() > 0 && fileExists(fileFound) == true ) {
 				if(*font) free((void*)*font);
-				*font = strdup(*path);
+				*font = strdup(fileFound.c_str());
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 candidate font file has been set[%s]\n",(*font != NULL ? *font : "null"));
 			}
 			*path = NULL;
@@ -677,10 +677,11 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 	}
 
 	// Get user-specified font path
-	if(getenv("MEGAGLEST_FONT") != NULL || getenv("MEGAGLEST_FONT_FAMILY") != NULL) {
-
-		if(getenv("MEGAGLEST_FONT") != NULL) {
-			tryFont = getenv("MEGAGLEST_FONT");
+	string megaglest_font = safeCharPtrCopy(getenv("MEGAGLEST_FONT"),8095);
+	string megaglest_font_family = safeCharPtrCopy(getenv("MEGAGLEST_FONT_FAMILY"),8095);
+	if(megaglest_font != "" || megaglest_font_family != "") {
+		if(megaglest_font != "") {
+			tryFont = megaglest_font;
 
 			if(Text::DEFAULT_FONT_PATH_ABSOLUTE != "") {
 				tryFont = Text::DEFAULT_FONT_PATH_ABSOLUTE + "/" + extractFileFromDirectoryPath(tryFont);
@@ -689,10 +690,10 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 			  replaceAll(tryFont, "/", "\\");
 			#endif
 
-			CHECK_FONT_PATH(tryFont.c_str(),getenv("MEGAGLEST_FONT_FAMILY"),&font,&path);
+			CHECK_FONT_PATH(tryFont.c_str(),megaglest_font_family.c_str(),&font,&path);
 		}
 		else {
-			CHECK_FONT_PATH(NULL,getenv("MEGAGLEST_FONT_FAMILY"),&font,&path);
+			CHECK_FONT_PATH(NULL,megaglest_font_family.c_str(),&font,&path);
 		}
 	}
 

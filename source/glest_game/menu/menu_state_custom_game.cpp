@@ -1757,7 +1757,8 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 	    	for(unsigned int j = 0; j < languageList.size(); ++j) {
 				char szMsg[8096]="";
 				if(lang.hasString("NetworkSlotUnassignedError",languageList[j]) == true) {
-					strcpy(szMsg,lang.getString("NetworkSlotUnassignedError").c_str());
+					string msg_string = lang.getString("NetworkSlotUnassignedError");
+					strncpy(szMsg,msg_string.c_str(),std::min((int)msg_string.length(),8095));
 				}
 				else {
 					strcpy(szMsg,"Cannot start game, some player(s) are not in a network game slot!");
@@ -3512,8 +3513,10 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 			gameSettings->setTeam(slotIndex, listBoxTeams[i].getSelectedItemIndex());
 			gameSettings->setStartLocationIndex(slotIndex, i);
 
-			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork || listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
-				if(serverInterface->getSlot(i) != NULL &&
+			if(listBoxControls[i].getSelectedItemIndex() == ctNetwork ||
+				listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
+				if(serverInterface != NULL &&
+					serverInterface->getSlot(i) != NULL &&
                    serverInterface->getSlot(i)->isConnected()) {
 
 					gameSettings->setNetworkPlayerStatuses(slotIndex,serverInterface->getSlot(i)->getNetworkPlayerStatus());

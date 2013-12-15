@@ -205,6 +205,7 @@ int zipfile_tool(int argc, const char *argv[]) {
 
     if (inflateInit(&stream)) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("inflateInit() failed!\n");
+    	if(pInfile) fclose(pInfile);
     	return EXIT_FAILURE;
     }
 
@@ -243,6 +244,7 @@ int zipfile_tool(int argc, const char *argv[]) {
       }
       else if (status != Z_OK) {
     	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("inflate() failed with status %i!\n", status);
+    	  if(pOutfile) fclose(pOutfile);
     	  return EXIT_FAILURE;
       }
     }

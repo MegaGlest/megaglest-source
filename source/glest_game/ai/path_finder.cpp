@@ -195,10 +195,10 @@ TravelState PathFinder::findPath(Unit *unit, const Vec2i &finalPos, bool *wasStu
 
 	UnitPathInterface *path= unit->getPath();
 	if(path->isEmpty() == false) {
-		if(dynamic_cast<UnitPathBasic *>(path) != NULL) {
+		UnitPathBasic *basic_path = dynamic_cast<UnitPathBasic *>(path);
+		if(basic_path != NULL) {
 			//route cache
-			UnitPathBasic *basicPath = dynamic_cast<UnitPathBasic *>(path);
-			Vec2i pos= basicPath->pop(frameIndex < 0);
+			Vec2i pos= basic_path->pop(frameIndex < 0);
 
 			if(map->canMove(unit, unit->getPos(), pos)) {
 				if(frameIndex < 0) {

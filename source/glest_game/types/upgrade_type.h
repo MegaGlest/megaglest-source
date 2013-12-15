@@ -81,6 +81,26 @@ protected:
     std::map<string,int> prodSpeedMorphIsMultiplierValueList;
 
 public:
+    UpgradeTypeBase() {
+        maxHp = 0;;
+        maxHpIsMultiplier = false;
+    	maxHpRegeneration = 0;
+        sight = 0;
+        sightIsMultiplier = false;
+        maxEp = 0;;
+        maxEpIsMultiplier = false;
+    	maxEpRegeneration = 0;
+        armor = 0;
+        armorIsMultiplier = false;
+        attackStrength = 0;
+        attackStrengthIsMultiplier = false;
+        attackRange = 0;
+        attackRangeIsMultiplier = false;
+        moveSpeed = 0;
+        moveSpeedIsMultiplier = false;
+        prodSpeed = 0;
+        prodSpeedIsMultiplier = false;
+    }
     virtual ~UpgradeTypeBase() {}
 
 	int getMaxHp() const			{return maxHp;}

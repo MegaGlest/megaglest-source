@@ -97,7 +97,7 @@ void* ftpOpenDir(const char* path)
 	if(p)
 	{
 		p->findHandle = INVALID_HANDLE_VALUE;
-		strcpy(p->path, path);
+		strncpy(p->path, path,strlen(path));
 	}
 	return p;
 }
@@ -281,7 +281,7 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port, int ses
 	BOOL on = 1;
 	unsigned len;
 	dataSocket = socket(AF_INET, SOCK_STREAM, 0);
-	if(dataSocket < 0)
+	if(dataSocket == INVALID_SOCKET)
 		return -1;
 
 	if(!passive)
@@ -308,6 +308,8 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port, int ses
 		clientAddr.sin_family      = AF_INET;
 		clientAddr.sin_addr.s_addr = htonl(*ip);
 		clientAddr.sin_port        = htons(*port);
+		clientAddr.sin_zero[0] = 0;
+
 		if(connect(dataSocket, (struct sockaddr *)&clientAddr, sizeof(clientAddr)))
 		{
 			if(VERBOSE_MODE_ENABLED) printf("In ftpEstablishDataConnection #3 about to Close socket = %d, for sessionId = %d\n",dataSocket, sessionId);
@@ -325,6 +327,7 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port, int ses
 		myAddr.sin_family = AF_INET;
 		myAddr.sin_addr.s_addr = INADDR_ANY;
 		myAddr.sin_port = htons(passivePort);
+		myAddr.sin_zero[0] = 0;
 		//myAddr.sin_port = htons(ftpGetPassivePort() + sessionId);
 
 		if(setsockopt(dataSocket, SOL_SOCKET, SO_REUSEADDR, (const char *)&on, sizeof(on)))
@@ -388,10 +391,10 @@ socket_t ftpAcceptDataConnection(socket_t listner)
     len = sizeof(clientinfo);
 
 	dataSocket = accept(listner, (struct sockaddr *)&clientinfo, &len);
-	if(dataSocket < 0)
+	if(dataSocket == INVALID_SOCKET)
 	{
 		if(VERBOSE_MODE_ENABLED) printf("ERROR In ftpAcceptDataConnection accept failed, dataSocket = %d, listner = %d\n", dataSocket,listner);
-		dataSocket = -1;
+		//dataSocket = -1;
 	}
 	else
 	{
@@ -410,7 +413,7 @@ socket_t ftpAcceptDataConnection(socket_t listner)
 
 		ftpUntrackSocket(dataSocket);
 		ftpCloseSocket(&dataSocket);
-        dataSocket = -1;
+        dataSocket = INVALID_SOCKET;
     }
 
 	return (socket_t)dataSocket;
@@ -424,28 +427,27 @@ socket_t ftpCreateServerSocket(int portNumber)
 	int val = 1;
 
 	theServer = socket(AF_INET, SOCK_STREAM, 0);
-	if(theServer < 0)
+	if(theServer == INVALID_SOCKET)
 		return -1;
 
 	serverinfo.sin_family = AF_INET;
 	serverinfo.sin_addr.s_addr = INADDR_ANY;
 	serverinfo.sin_port = htons(portNumber);
+	serverinfo.sin_zero[0] = 0;
 	len = sizeof(serverinfo);
 
-	setsockopt(theServer, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
+	int opt_result = setsockopt(theServer, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
 
-	if(bind(theServer, (struct sockaddr *)&serverinfo, len))
-	{
-		if(VERBOSE_MODE_ENABLED) printf("\nERROR In ftpCreateServerSocket bind FAILED about to close listener socket = %d\n",theServer);
+	if(bind(theServer, (struct sockaddr *)&serverinfo, len)) {
+		if(VERBOSE_MODE_ENABLED) printf("\nERROR In ftpCreateServerSocket bind FAILED about to close listener socket = %d opt_result = %d\n",theServer,opt_result);
 
 		ftpUntrackSocket(theServer);
 		ftpCloseSocket(&theServer);
 		return -2;
 	}
 
-	if(listen(theServer, 100))
-	{
-		if(VERBOSE_MODE_ENABLED) printf("\nERROR In ftpCreateServerSocket listen FAILED about to close listener socket = %d\n",theServer);
+	if(listen(theServer, 100)) {
+		if(VERBOSE_MODE_ENABLED) printf("\nERROR In ftpCreateServerSocket listen FAILED about to close listener socket = %d opt_result = %d\n",theServer,opt_result);
 
 		ftpUntrackSocket(theServer);
 		ftpCloseSocket(&theServer);

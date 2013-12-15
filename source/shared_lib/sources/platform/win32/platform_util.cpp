@@ -260,6 +260,10 @@ string PlatformExceptionHandler::getStackTrace() {
         SymCleanup(hProcess);
 	}
 #endif
+
+#ifndef __MINGW32__
+    delete [] pSym;
+#endif
 	return result;
 }
 

@@ -272,8 +272,8 @@ public:
 	float getComponentf(int x, int y, int component) const;
 
 	//set data
-	void setPixel(int x, int y, const uint8 *value);
-	void setPixel(int x, int y, const float32 *value);
+	void setPixel(int x, int y, const uint8 *value, int arraySize);
+	void setPixel(int x, int y, const float32 *value, int arraySize);
 	void setComponent(int x, int y, int component, uint8 value);
 	void setComponent(int x, int y, int component, float32 value);
 
@@ -283,8 +283,8 @@ public:
 	void setPixel(int x, int y, float p);
 	
 	//mass set
-	void setPixels(const uint8 *value);
-	void setPixels(const float32 *value);
+	void setPixels(const uint8 *value, int arraySize);
+	void setPixels(const float32 *value, int arraySize);
 	void setComponents(int component, uint8 value);
 	void setComponents(int component, float32 value);
 

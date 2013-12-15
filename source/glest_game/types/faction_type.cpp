@@ -450,6 +450,9 @@ std::vector<std::string> FactionType::validateFactionType() {
 				// exist in this faction
 				if(cmdType->getClass() == ccBuild) {
 					const BuildCommandType *build = dynamic_cast<const BuildCommandType *>(cmdType);
+					if(build == NULL) {
+						throw megaglest_runtime_error("build == NULL");
+					}
 					for(int k = 0; k < build->getBuildingCount(); ++k) {
 						const UnitType *buildUnit = build->getBuilding(k);
 

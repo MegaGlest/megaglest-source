@@ -71,19 +71,19 @@ void Minimap::init(int w, int h, const World *world, bool fogOfWar) {
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		fowPixmap0->setPixels(&f);
+		fowPixmap0->setPixels(&f,1);
 		if((this->gameSettings->getFlagTypes1() & ft1_show_map_resources) == ft1_show_map_resources) {
 			f = 0.f;
-			fowPixmap1->setPixels(&f);
+			fowPixmap1->setPixels(&f,1);
 			f = 0.5f;
 			for (int y=1; y < scaledH - 1; ++y) {
 				for (int x=1; x < scaledW - 1; ++x) {
-					fowPixmap1->setPixel(x, y, &f);
+					fowPixmap1->setPixel(x, y, &f,1);
 				}
 			}
 		}
 		else {
-			fowPixmap1->setPixels(&f);
+			fowPixmap1->setPixels(&f,1);
 		}
 	}
 
@@ -99,8 +99,7 @@ void Minimap::init(int w, int h, const World *world, bool fogOfWar) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] scaledW = %d, scaledH = %d, potW = %d, potH = %d\n",__FILE__,__FUNCTION__,__LINE__,scaledW,scaledH,potW,potH);
 
 		fowTex->getPixmap()->init(potW, potH, 1);
-		const float *fPtr = &f;
-		fowTex->getPixmap()->setPixels(fPtr);
+		fowTex->getPixmap()->setPixels(&f,1);
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -269,7 +268,7 @@ void Minimap::computeTexture(const World *world) {
 	const Map *map= world->getMap();
 
 	if(tex) {
-		tex->getPixmap()->setPixels(Vec4f(1.f, 1.f, 1.f, 0.1f).ptr());
+		tex->getPixmap()->setPixels(Vec4f(1.f, 1.f, 1.f, 0.1f).ptr(),tex->getPixmap()->getComponents());
 
 		for(int j=0; j<tex->getPixmap()->getH(); ++j){
 			for(int i=0; i<tex->getPixmap()->getW(); ++i){

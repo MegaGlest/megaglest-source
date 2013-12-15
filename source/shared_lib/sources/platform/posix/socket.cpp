@@ -549,17 +549,16 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
    MIB_IPADDRTABLE * ipTable = NULL;
    {
       ULONG bufLen = 0;
-      for (int i=0; i<5; i++)
-      {
+      for (int i = 0; i < 5; i++) {
          DWORD ipRet = GetIpAddrTable(ipTable, &bufLen, false);
-         if (ipRet == ERROR_INSUFFICIENT_BUFFER)
-         {
+         if (ipRet == ERROR_INSUFFICIENT_BUFFER) {
             free(ipTable);  // in case we had previously allocated it
             ipTable = (MIB_IPADDRTABLE *) malloc(bufLen);
          }
-         else if (ipRet == NO_ERROR) break;
-         else
-         {
+         else if(ipRet == NO_ERROR) {
+        	 break;
+         }
+         else {
             free(ipTable);
             ipTable = NULL;
             break;
@@ -567,8 +566,7 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
      }
    }
 
-   if (ipTable)
-   {
+   if (ipTable) {
       // Try to get the Adapters-info table, so we can given useful names to the IP
       // addresses we are returning.  Gotta call GetAdaptersInfo() up to 5 times to handle
       // the potential race condition between the size-query call and the get-data call.
@@ -576,17 +574,16 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
       IP_ADAPTER_INFO * pAdapterInfo = NULL;
       {
          ULONG bufLen = 0;
-         for (int i=0; i<5; i++)
-         {
+         for (int i = 0; i < 5; i++) {
             DWORD apRet = GetAdaptersInfo(pAdapterInfo, &bufLen);
-            if (apRet == ERROR_BUFFER_OVERFLOW)
-            {
+            if (apRet == ERROR_BUFFER_OVERFLOW) {
                free(pAdapterInfo);  // in case we had previously allocated it
                pAdapterInfo = (IP_ADAPTER_INFO *) malloc(bufLen);
             }
-            else if (apRet == ERROR_SUCCESS) break;
-            else
-            {
+            else if(apRet == ERROR_SUCCESS) {
+            	break;
+            }
+            else {
                free(pAdapterInfo);
                pAdapterInfo = NULL;
                break;
@@ -594,23 +591,18 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
          }
       }
 
-      for (DWORD i=0; i<ipTable->dwNumEntries; i++)
-      {
+      for (DWORD i = 0; i < ipTable->dwNumEntries; i++) {
          const MIB_IPADDRROW & row = ipTable->table[i];
 
          // Now lookup the appropriate adaptor-name in the pAdaptorInfos, if we can find it
          const char * name = NULL;
          //const char * desc = NULL;
-         if (pAdapterInfo)
-         {
+         if (pAdapterInfo) {
             IP_ADAPTER_INFO * next = pAdapterInfo;
-            while((next)&&(name==NULL))
-            {
+            while((next)&&(name==NULL)) {
                IP_ADDR_STRING * ipAddr = &next->IpAddressList;
-               while(ipAddr)
-               {
-                  if (Inet_AtoN(ipAddr->IpAddress.String) == ntohl(row.dwAddr))
-                  {
+               while(ipAddr) {
+                  if (Inet_AtoN(ipAddr->IpAddress.String) == ntohl(row.dwAddr)) {
                      name = next->AdapterName;
                      //desc = next->Description;
                      break;
@@ -620,19 +612,23 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
                next = next->Next;
             }
          }
-         if (name == NULL)
-         {
+         if (name == NULL) {
             name = "";
          }
 
          uint32 ipAddr  = ntohl(row.dwAddr);
          uint32 netmask = ntohl(row.dwMask);
          uint32 baddr   = ipAddr & netmask;
-         if (row.dwBCastAddr) baddr |= ~netmask;
+         if (row.dwBCastAddr) {
+        	 baddr |= ~netmask;
+         }
 
-         char ifaAddrStr[32];  Ip::Inet_NtoA(ipAddr,  ifaAddrStr);
-         char maskAddrStr[32]; Ip::Inet_NtoA(netmask, maskAddrStr);
-         char dstAddrStr[32];  Ip::Inet_NtoA(baddr,   dstAddrStr);
+         char ifaAddrStr[32];
+         Ip::Inet_NtoA(ipAddr,  ifaAddrStr);
+         char maskAddrStr[32];
+         Ip::Inet_NtoA(netmask, maskAddrStr);
+         char dstAddrStr[32];
+         Ip::Inet_NtoA(baddr,   dstAddrStr);
          //printf("  Found interface:  name=[%s] desc=[%s] address=[%s] netmask=[%s] broadcastAddr=[%s]\n", name, desc?desc:"unavailable", ifaAddrStr, maskAddrStr, dstAddrStr);
 		 if(strcmp(ifaAddrStr,ipAddress.c_str()) == 0) {
 			broadCastAddress = dstAddrStr;
@@ -2434,6 +2430,9 @@ Socket *ServerSocket::accept(bool errorOnFail) {
 				throwException(szBuf);
 			}
 			else {
+				::close(newSock);
+				newSock = INVALID_SOCKET;
+
 				return NULL;
 			}
 
@@ -2925,7 +2924,8 @@ void BroadCastSocketThread::execute() {
 						strcat(buff,":");
 						strcat(buff,ipList[idx1].c_str());
 						strcat(buff,":");
-						strcat(buff,intToStr(this->boundPort).c_str());
+						string port_string = intToStr(this->boundPort);
+						strncat(buff,port_string.c_str(),std::min((int)port_string.length(),100));
 					}
 
 					if(difftime((long int)time(NULL),elapsed) >= 1 && getQuitStatus() == false) {

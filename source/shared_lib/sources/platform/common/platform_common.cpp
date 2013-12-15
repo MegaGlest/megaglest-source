@@ -348,8 +348,8 @@ void findAll(const string &path, vector<string> &results, bool cutExtension, boo
 	/** Stupid win32 is searching for all files without extension when *. is
 	 * specified as wildcard
 	 */
-	if(mypath.size() >= 2 && mypath.compare(max((size_t)0,mypath.size() - 2), 2, "*.") == 0) {
-		mypath = mypath.substr(0, max((size_t)0,mypath.size() - 2));
+	if((int)mypath.size() >= 2 && mypath.compare(max((int)0,(int)mypath.size() - 2), 2, "*.") == 0) {
+		mypath = mypath.substr(0, max((int)0,(int)mypath.size() - 2));
 		mypath += "*";
 	}
 
@@ -525,7 +525,7 @@ bool EndsWith(const string &str, const string& key)
 {
     bool result = false;
     if (str.length() >= key.length()) {
-    	result = (0 == str.compare(max((size_t)0,str.length() - key.length()), key.length(), key));
+    	result = (0 == str.compare(max((int)0,(int)str.length() - (int)key.length()), key.length(), key));
     }
 
     return result;
@@ -1017,8 +1017,8 @@ uint32 getFolderTreeContentsCheckSumRecursively(const string &path, const string
 	// Stupid win32 is searching for all files without extension when *. is
 	// specified as wildcard
 	//
-	if(mypath.size() >= 2 && mypath.compare(max((size_t)0,mypath.size() - 2), 2, "*.") == 0) {
-		mypath = mypath.substr(0, max((size_t)0,mypath.size() - 2));
+	if((int)mypath.size() >= 2 && mypath.compare(max((int)0,(int)mypath.size() - 2), 2, "*.") == 0) {
+		mypath = mypath.substr(0, max((int)0,(int)mypath.size() - 2));
 		mypath += "*";
 	}
 
@@ -1187,8 +1187,8 @@ vector<string> getFolderTreeContentsListRecursively(const string &path, const st
 	/** Stupid win32 is searching for all files without extension when *. is
 	 * specified as wildcard
 	 */
-	if(mypath.size() >= 2 && mypath.compare(max((size_t)0,mypath.size() - 2), 2, "*.") == 0) {
-		mypath = mypath.substr(0, max((size_t)0,mypath.size() - 2));
+	if((int)mypath.size() >= 2 && mypath.compare(max((int)0,(int)mypath.size() - 2), 2, "*.") == 0) {
+		mypath = mypath.substr(0, max((int)0,(int)mypath.size() - 2));
 		mypath += "*";
 	}
 
@@ -1338,8 +1338,8 @@ vector<std::pair<string,uint32> > getFolderTreeContentsCheckSumListRecursively(c
 	/** Stupid win32 is searching for all files without extension when *. is
 	 * specified as wildcard
 	 */
-	if(mypath.size() >= 2 && mypath.compare(max((size_t)0,mypath.size() - 2), 2, "*.") == 0) {
-		mypath = mypath.substr(0, max((size_t)0,mypath.size() - 2));
+	if((int)mypath.size() >= 2 && mypath.compare(max((int)0,(int)mypath.size() - 2), 2, "*.") == 0) {
+		mypath = mypath.substr(0, max((int)0,(int)mypath.size() - 2));
 		mypath += "*";
 	}
 
@@ -2424,17 +2424,29 @@ void ValueCheckerVault::checkItemInVault(const void *ptr,int value) const {
 
 string getUserHome() {
 	string home_folder = "";
-	const char *homedir = getenv("HOME");
-	if (!homedir) {
+	home_folder = safeCharPtrCopy(getenv("HOME"),8095);
+	if(home_folder == "") {
 #if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED
 		struct passwd *pw = getpwuid(getuid());
-		homedir = pw->pw_dir;
-#else
-		homedir = "";
+		home_folder = safeCharPtrCopy(pw->pw_dir,8095);
 #endif
 	}
-	home_folder = homedir;
 	return home_folder;
 }
+
+string safeCharPtrCopy(const char *ptr,int maxLength) {
+	if(ptr == NULL) {
+		return "";
+	}
+	if(maxLength <= 0) {
+		maxLength = 8096;
+	}
+
+	char *pBuffer = new char[maxLength+1];
+	memset(pBuffer,0,maxLength+1);
+	memcpy(pBuffer,ptr,std::min((int)strlen(ptr),maxLength));
+	return pBuffer;
+}
+
 
 }}//end namespace

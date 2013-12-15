@@ -303,6 +303,8 @@ bool valid_utf8_file(const char* file_name);
 
 string getFileTextContents(string path);
 
+string safeCharPtrCopy(const char *ptr, int maxLength=-1);
+
 class ValueCheckerVault {
 
 protected:
