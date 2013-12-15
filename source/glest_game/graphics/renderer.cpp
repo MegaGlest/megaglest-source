@@ -4258,7 +4258,7 @@ void Renderer::renderSurface(const int renderFps) {
 		int lastTex=-1;
 		//int currTex=-1;
 
-		Quad2i snapshotOfvisibleQuad = visibleQuad;
+		//Quad2i snapshotOfvisibleQuad = visibleQuad;
 
 		//bool useVertexArrayRendering = getVBOSupported();
 		//bool useVertexArrayRendering = false;
