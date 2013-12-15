@@ -1,0 +1,61 @@
+rem @echo off
+rem
+rem Upload Coverity s
+rem Requires:
+rem - data\glest_game\curl.exe, built with SSL support: http://curl.haxx.se/download.html
+rem - ..\..\data\glest_game\wget.exe (should get installed automatically during a build)
+rem - ..\..\data\glest_game\7z.exe (should get installed automatically during a build)
+rem - Coverity Scan Build Tool installed and in %PATH%
+rem
+
+rem Project name (case sensitive)
+set PROJECT=MegaGlest
+
+rem Coverity Scan project token as listed on the Coverity Scan project page
+set TOKEN=FIXME
+
+rem E-Mail address of registered Coverity Scan user with project access
+set EMAIL=FIXME
+
+rem Description of this build (can be any string)
+set DESCRIPTION=Windows-32_%COMPUTERNAME%
+
+rem Where to store the data gathered by the Coverity Scan Build Tool
+set BUILDTOOL=cov-int
+
+rem ------------------------------------------------------------------------------
+
+set GITVERSION_SHA1=.
+set GITVERSION_REV=.
+set GET_GIT_SHA1="git log -1 --format=%%h"
+for /f "delims=" %%a in ('%GET_GIT_SHA1%') do @set GITVERSION_SHA1=%%a
+for /f "delims=" %%a in ('git rev-list HEAD --count') do @set GITVERSION_REV=%%a
+
+set VERSION=%GITVERSION_REV%.%GITVERSION_SHA1%
+
+set FILENAME=%PROJECT%_%DESCRIPTION%_%VERSION%
+
+rem Untested! Requires modification.
+rem ..\..\data\glest_game\wget.exe --no-check-certificate https://scan.coverity.com/download/win-32 --post-data "token=%TOKEN%&project=%PROJECT%" -O %TEMP%\coverity_tool.zip
+rem ..\..\data\glest_game\7z.exe x %TEMP%\coverity_tool.zip
+rem set PATH=%PATH%;C:\build\megaglest-source\mk\windoze\cov-analysis-win32-6.6.1\bin\
+
+
+cov-build --dir %BUILDTOOL% build-mg-2010.bat nopause rebuild
+..\..\data\glest_game\7z.exe a %FILENAME%.tar %BUILDTOOL%\
+..\..\data\glest_game\7z.exe a %FILENAME%.tar.gz %FILENAME%.tar
+del /Q /F %FILENAME%.tar
+rem echo Running curl
+..\..\data\glest_game\curl.exe --insecure --form "project=%PROJECT%" --form "token=%TOKEN%" --form "email=%EMAIL%" --form "version=%VERSION%" --form "description=%DESCRIPTION%" --form "file=@%FILENAME%.tar.gz" https://scan5.coverity.com/cgi-bin/upload.py
+if ERRORLEVEL 1 GOTO ERROR
+GOTO CLEANUP
+
+:CLEANUP
+del /Q /F %FILENAME%.tar.gz
+rd /Q /S %BUILDTOOL%\
+GOTO END
+
+:ERROR
+echo An error occurred.
+
+:END
