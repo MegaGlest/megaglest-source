@@ -2444,7 +2444,11 @@ string safeCharPtrCopy(const char *ptr,int maxLength) {
 
 	char *pBuffer = new char[maxLength+1];
 	memset(pBuffer,0,maxLength+1);
+#ifdef WIN32
+	memcpy(pBuffer,ptr,min((int)strlen(ptr),maxLength));
+#else
 	memcpy(pBuffer,ptr,std::min((int)strlen(ptr),maxLength));
+#endif
 	return pBuffer;
 }
 

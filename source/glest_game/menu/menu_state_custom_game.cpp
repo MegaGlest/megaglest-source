@@ -1758,7 +1758,11 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 				char szMsg[8096]="";
 				if(lang.hasString("NetworkSlotUnassignedError",languageList[j]) == true) {
 					string msg_string = lang.getString("NetworkSlotUnassignedError");
+#ifdef WIN32
+					strncpy(szMsg,msg_string.c_str(),min((int)msg_string.length(),8095));
+#else
 					strncpy(szMsg,msg_string.c_str(),std::min((int)msg_string.length(),8095));
+#endif
 				}
 				else {
 					strcpy(szMsg,"Cannot start game, some player(s) are not in a network game slot!");

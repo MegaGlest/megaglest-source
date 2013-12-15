@@ -75,7 +75,11 @@ void dump_event (irc_session_t * session, const char * event, const char * origi
 		if ( cnt ) {
 			strcat (buf, "|");
         }
+#ifdef WIN32
+		strncat (buf, params[cnt],min((int)strlen(params[cnt]),511));
+#else
 		strncat (buf, params[cnt],std::min((int)strlen(params[cnt]),511));
+#endif
 	}
 
 	addlog ("Event \"%s\", origin: \"%s\", params: %d [%s]", event, origin ? origin : "NULL", cnt, buf);

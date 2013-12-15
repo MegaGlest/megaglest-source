@@ -425,6 +425,7 @@ socket_t ftpCreateServerSocket(int portNumber)
 	struct sockaddr_in serverinfo;
 	unsigned len;
 	int val = 1;
+	int opt_result = 0;
 
 	theServer = socket(AF_INET, SOCK_STREAM, 0);
 	if(theServer == INVALID_SOCKET)
@@ -436,7 +437,7 @@ socket_t ftpCreateServerSocket(int portNumber)
 	serverinfo.sin_zero[0] = 0;
 	len = sizeof(serverinfo);
 
-	int opt_result = setsockopt(theServer, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
+	opt_result = setsockopt(theServer, SOL_SOCKET, SO_REUSEADDR, (char *)&val, sizeof(val));
 
 	if(bind(theServer, (struct sockaddr *)&serverinfo, len)) {
 		if(VERBOSE_MODE_ENABLED) printf("\nERROR In ftpCreateServerSocket bind FAILED about to close listener socket = %d opt_result = %d\n",theServer,opt_result);

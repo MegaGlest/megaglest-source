@@ -2430,8 +2430,13 @@ Socket *ServerSocket::accept(bool errorOnFail) {
 				throwException(szBuf);
 			}
 			else {
-				::close(newSock);
-				newSock = INVALID_SOCKET;
+	#ifndef WIN32
+			::close(newSock);
+			newSock = INVALID_SOCKET;
+	#else
+			::closesocket(newSock);
+			newSock = INVALID_SOCKET;
+	#endif
 
 				return NULL;
 			}
@@ -2925,7 +2930,11 @@ void BroadCastSocketThread::execute() {
 						strcat(buff,ipList[idx1].c_str());
 						strcat(buff,":");
 						string port_string = intToStr(this->boundPort);
+#ifdef WIN32
+						strncat(buff,port_string.c_str(),min((int)port_string.length(),100));
+#else
 						strncat(buff,port_string.c_str(),std::min((int)port_string.length(),100));
+#endif
 					}
 
 					if(difftime((long int)time(NULL),elapsed) >= 1 && getQuitStatus() == false) {
