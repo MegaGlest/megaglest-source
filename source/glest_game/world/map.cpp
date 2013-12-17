@@ -1704,34 +1704,6 @@ void Map::computeCellColors(){
 	}
 }
 
-// static
-string Map::getMapPath(const string &mapName, string scenarioDir, bool errorOnNotFound) {
-
-    Config &config = Config::getInstance();
-    vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
-
-    for(int idx = 0; idx < (int)pathList.size(); idx++) {
-        string map_path = pathList[idx];
-    	endPathWithSlash(map_path);
-
-        const string mega = map_path + mapName + ".mgm";
-        const string glest = map_path + mapName + ".gbm";
-        if (fileExists(mega)) {
-            return mega;
-        }
-        else if (fileExists(glest)) {
-            return glest;
-        }
-    }
-
-	if(errorOnNotFound == true) {
-		//abort();
-		throw megaglest_runtime_error("Map not found [" + mapName + "]\nScenario [" + scenarioDir + "]");
-	}
-
-	return "";
-}
-
 void Map::saveGame(XmlNode *rootNode) const {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *mapNode = rootNode->addChild("Map");

@@ -13,22 +13,23 @@
 
 #include <stdexcept>
 
+#include "window.h"
+#include "logger.h"
+
 #include "platform_util.h"
 #include "conversion.h"
 #include "config.h"
 #include "lang.h"
-#include "logger.h"
-#include <time.h>
 #include "util.h"
 #include "game_util.h"
-#include "map.h"
 #include "miniftpserver.h"
-#include "window.h"
+#include "map_preview.h"
+#include "stats.h"
+#include <time.h>
 #include <set>
 #include <iostream>
-#include "map_preview.h"
 #include <iterator>
-#include "stats.h"
+
 #include "leak_dumper.h"
 
 using namespace std;
@@ -2606,7 +2607,7 @@ void ServerInterface::validateGameSettings(GameSettings *serverGameSettings) {
 		serverGameSettings->setMapFilterIndex(gameSettings.getMapFilterIndex());
 
 		Checksum checksum;
-		string file = Map::getMapPath(serverGameSettings->getMap(),"",false);
+		string file = Config::getMapPath(serverGameSettings->getMap(),"",false);
 		checksum.addFile(file);
 		serverGameSettings->setMapCRC(checksum.getSum());
 	}

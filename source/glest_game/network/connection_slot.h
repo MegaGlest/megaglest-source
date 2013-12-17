@@ -12,11 +12,12 @@
 #ifndef _GLEST_GAME_CONNECTIONSLOT_H_
 #define _GLEST_GAME_CONNECTIONSLOT_H_
 
-#include <vector>
 #include "socket.h"
 #include "network_interface.h"
-#include <time.h>
 #include "base_thread.h"
+#include <time.h>
+#include <vector>
+
 #include "leak_dumper.h"
 
 using Shared::Platform::ServerSocket;

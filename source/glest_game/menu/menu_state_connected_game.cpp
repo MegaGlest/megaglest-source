@@ -1692,7 +1692,7 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
 
-            if(loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true) == true) {
+            if(loadMapInfo(Config::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true) == true) {
             	labelMapInfo.setText(mapInfo.desc);
             }
             else {
@@ -2217,7 +2217,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 		if(gameSettings->getMap() != "") {
 			if(lastCheckedCRCMapName != gameSettings->getMap()) {
 				Checksum checksum;
-				string file = Map::getMapPath(gameSettings->getMap(),"",false);
+				string file = Config::getMapPath(gameSettings->getMap(),"",false);
 				//console.addLine("Checking map CRC [" + file + "]");
 				checksum.addFile(file);
 				lastCheckedCRCMapValue = checksum.getSum();
@@ -2852,7 +2852,7 @@ void MenuStateConnectedGame::update() {
                 if(lastCheckedCRCMapName != gameSettings->getMap() &&
                 	gameSettings->getMap() != "") {
 					Checksum checksum;
-					string file = Map::getMapPath(gameSettings->getMap(),"",false);
+					string file = Config::getMapPath(gameSettings->getMap(),"",false);
 					//console.addLine("Checking map CRC [" + file + "]");
 					checksum.addFile(file);
 					mapCRC = checksum.getSum();
@@ -3889,7 +3889,7 @@ void MenuStateConnectedGame::FTPClient_CallbackEvent(string itemName,
 
         if(result.first == ftp_crt_SUCCESS) {
             // Clear the CRC file Cache
-    		string file = Map::getMapPath(itemName,"",false);
+    		string file = Config::getMapPath(itemName,"",false);
 
     		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got map itemName [%s] file [%s] lastCheckedCRCMapName [%s] gameSettings->getMap() [%s]\n",
     				itemName.c_str(),file.c_str(),lastCheckedCRCMapName.c_str(),gameSettings->getMap().c_str());
@@ -4451,7 +4451,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		if(currentMap != gameSettings->getMap()) {// load the setup again
 			currentMap = gameSettings->getMap();
 		}
-		bool mapLoaded = loadMapInfo(Map::getMapPath(currentMap,scenarioDir,false), &mapInfo, true);
+		bool mapLoaded = loadMapInfo(Config::getMapPath(currentMap,scenarioDir,false), &mapInfo, true);
 		if(mapLoaded == true) {
 			if(find(maps.begin(),maps.end(),formatString(gameSettings->getMap())) == maps.end()) {
 				maps.push_back(formatString(gameSettings->getMap()));
@@ -4809,11 +4809,11 @@ int MenuStateConnectedGame::setupMapList(string scenario) {
 
 		formattedMapFiles.clear();
 		for(int i= 0; i < (int)mapFiles.size(); i++){// fetch info and put map in right list
-			loadMapInfo(Map::getMapPath(mapFiles.at(i), scenarioDir, false), &mapInfo, false);
+			loadMapInfo(Config::getMapPath(mapFiles.at(i), scenarioDir, false), &mapInfo, false);
 
 			if(GameConstants::maxPlayers+1 <= mapInfo.players) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"Sorted map list [%d] does not match\ncurrent map playercount [%d]\nfor file [%s]\nmap [%s]",GameConstants::maxPlayers+1,mapInfo.players,Map::getMapPath(mapFiles.at(i), "", false).c_str(),mapInfo.desc.c_str());
+				snprintf(szBuf,8096,"Sorted map list [%d] does not match\ncurrent map playercount [%d]\nfor file [%s]\nmap [%s]",GameConstants::maxPlayers+1,mapInfo.players,Config::getMapPath(mapFiles.at(i), "", false).c_str(),mapInfo.desc.c_str());
 				throw megaglest_runtime_error(szBuf);
 			}
 			playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
@@ -4828,7 +4828,7 @@ int MenuStateConnectedGame::setupMapList(string scenario) {
 			string file = Scenario::getScenarioPath(dirList, scenario);
 			loadScenarioInfo(file, &scenarioInfo);
 
-			loadMapInfo(Map::getMapPath(scenarioInfo.mapName, scenarioDir, true), &mapInfo, false);
+			loadMapInfo(Config::getMapPath(scenarioInfo.mapName, scenarioDir, true), &mapInfo, false);
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] listBoxMap.getSelectedItemIndex() = %d, mapFiles.size() = " MG_SIZE_T_SPECIFIER ", mapInfo.players = %d, formattedPlayerSortedMaps[mapInfo.players].size() = " MG_SIZE_T_SPECIFIER ", scenarioInfo.mapName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxMap.getSelectedItemIndex(),mapFiles.size(),mapInfo.players,formattedPlayerSortedMaps[mapInfo.players].size(),scenarioInfo.mapName.c_str());
 			listBoxMap.setItems(formattedPlayerSortedMaps[mapInfo.players]);

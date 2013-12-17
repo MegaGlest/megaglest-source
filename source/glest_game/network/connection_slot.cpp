@@ -11,17 +11,15 @@
 
 #include "connection_slot.h"
 
-#include <stdexcept>
-
 #include "conversion.h"
 #include "game_util.h"
 #include "config.h"
 #include "server_interface.h"
 #include "network_message.h"
-#include "leak_dumper.h"
-
 #include "platform_util.h"
-#include "map.h"
+#include <stdexcept>
+
+#include "leak_dumper.h"
 
 using namespace std;
 using namespace Shared::Util;
@@ -1190,7 +1188,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									uint32 tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,scenarioDir), string("/") + serverInterface->getGameSettings()->getTileset() + string("/*"), ".xml", NULL);
 									uint32 techCRC    = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,scenarioDir), "/" + serverInterface->getGameSettings()->getTech() + "/*", ".xml", NULL);
 									Checksum checksum;
-									string file = Map::getMapPath(serverInterface->getGameSettings()->getMap(),scenarioDir,false);
+									string file = Config::getMapPath(serverInterface->getGameSettings()->getMap(),scenarioDir,false);
 									checksum.addFile(file);
 									uint32 mapCRC = checksum.getSum();
 
@@ -1247,7 +1245,7 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 												this->setNetworkGameDataSynchCheckTechMismatchReport(report);
 											}
 											if(networkGameDataSynchCheckOkMap == false) {
-												vctFileList.push_back(std::pair<string,uint32>(Map::getMapPath(serverInterface->getGameSettings()->getMap(),scenarioDir,false),mapCRC));
+												vctFileList.push_back(std::pair<string,uint32>(Config::getMapPath(serverInterface->getGameSettings()->getMap(),scenarioDir,false),mapCRC));
 											}
 
 											//for(int i = 0; i < vctFileList.size(); i++)

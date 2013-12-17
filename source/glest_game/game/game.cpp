@@ -1145,7 +1145,7 @@ void Game::load(int loadTypes) {
     //map
     if((loadTypes & lgt_Map) == lgt_Map) {
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-    	world.loadMap(Map::getMapPath(mapName,scenarioDir), &checksum);
+    	world.loadMap(Config::getMapPath(mapName,scenarioDir), &checksum);
     }
 
 	if(showPerfStats) {
@@ -2763,9 +2763,12 @@ string Game::getGamePerformanceCounts(bool displayWarnings) const {
 	for(std::map<string,int64>::const_iterator iterMap = gamePerformanceCounts.begin();
 			iterMap != gamePerformanceCounts.end(); ++iterMap) {
 		if(iterMap->first == ProgramState::MAIN_PROGRAM_RENDER_KEY) {
-			if(iterMap->second > WARNING_RENDER_MILLIS) {
+			if(iterMap->second < WARNING_RENDER_MILLIS) {
 				continue;
 			}
+			//else {
+			//	printf("iterMap->second: " MG_I64_SPECIFIER " WARNING_RENDER_MILLIS = %d\n",iterMap->second,WARNING_RENDER_MILLIS);
+			//}
 		}
 		else if(iterMap->second < WARNING_MILLIS) {
 			continue;

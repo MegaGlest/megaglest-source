@@ -609,7 +609,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		labelNetStatus[i].setText("");
     }
 
-	loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
+	loadMapInfo(Config::getMapPath(getCurrentMapFile()), &mapInfo, true);
 	labelMapInfo.setText(mapInfo.desc);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1081,7 +1081,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 
-				loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true);
+				loadMapInfo(Config::getMapPath(getCurrentMapFile(),"",false), &mapInfo, true);
 				labelMapInfo.setText(mapInfo.desc);
 				updateControlers();
 				updateNetworkSlots();
@@ -1224,7 +1224,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s\n", getCurrentMapFile().c_str());
 
-				loadMapInfo(Map::getMapPath(getCurrentMapFile()), &mapInfo, true);
+				loadMapInfo(Config::getMapPath(getCurrentMapFile()), &mapInfo, true);
 				labelMapInfo.setText(mapInfo.desc);
 				updateControlers();
 				updateNetworkSlots();
@@ -3672,7 +3672,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 		if(lastCheckedCRCMapName != gameSettings->getMap()) {
 			Checksum checksum;
-			string file = Map::getMapPath(gameSettings->getMap(),"",false);
+			string file = Config::getMapPath(gameSettings->getMap(),"",false);
 			//console.addLine("Checking map CRC [" + file + "]");
 			checksum.addFile(file);
 			lastCheckedCRCMapValue = checksum.getSum();
@@ -3821,7 +3821,7 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 		//loadScenarioInfo(file, &scenarioInfo);
 
 		//printf("#6.1 about to load map [%s]\n",scenarioInfo.mapName.c_str());
-		//loadMapInfo(Map::getMapPath(scenarioInfo.mapName, scenarioDir, true), &mapInfo, false);
+		//loadMapInfo(Config::getMapPath(scenarioInfo.mapName, scenarioDir, true), &mapInfo, false);
 		//printf("#6.2\n");
 
 		listBoxMapFilter.setSelectedItemIndex(0);
@@ -3845,7 +3845,7 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 		mapFile = formatString(mapFile);
 		listBoxMap.setSelectedItem(mapFile);
 
-		loadMapInfo(Map::getMapPath(getCurrentMapFile(),scenarioDir,true), &mapInfo, true);
+		loadMapInfo(Config::getMapPath(getCurrentMapFile(),scenarioDir,true), &mapInfo, true);
 		labelMapInfo.setText(mapInfo.desc);
 	}
 
@@ -4509,7 +4509,7 @@ void MenuStateCustomGame::processScenario() {
 
 			setupMapList(scenarioInfo.name);
 			listBoxMap.setSelectedItem(formatString(scenarioInfo.mapName));
-			loadMapInfo(Map::getMapPath(getCurrentMapFile(),scenarioDir,true), &mapInfo, true);
+			loadMapInfo(Config::getMapPath(getCurrentMapFile(),scenarioDir,true), &mapInfo, true);
 			labelMapInfo.setText(mapInfo.desc);
 
 			//printf("scenarioInfo.name [%s] [%s]\n",scenarioInfo.name.c_str(),listBoxMap.getSelectedItem().c_str());
@@ -4638,7 +4638,7 @@ void MenuStateCustomGame::processScenario() {
 		else {
 			setupMapList("");
 			listBoxMap.setSelectedItem(formatString(formattedPlayerSortedMaps[0][0]));
-			loadMapInfo(Map::getMapPath(getCurrentMapFile(),"",true), &mapInfo, true);
+			loadMapInfo(Config::getMapPath(getCurrentMapFile(),"",true), &mapInfo, true);
 			labelMapInfo.setText(mapInfo.desc);
 
 			setupTechList("", false);
@@ -4746,11 +4746,11 @@ int MenuStateCustomGame::setupMapList(string scenario) {
 		//printf("#5\n");
 
 		for(int i= 0; i < (int)mapFiles.size(); i++){// fetch info and put map in right list
-			loadMapInfo(Map::getMapPath(mapFiles.at(i), scenarioDir, false), &mapInfo, false);
+			loadMapInfo(Config::getMapPath(mapFiles.at(i), scenarioDir, false), &mapInfo, false);
 
 			if(GameConstants::maxPlayers+1 <= mapInfo.players) {
 				char szBuf[8096]="";
-				snprintf(szBuf,8096,"Sorted map list [%d] does not match\ncurrent map playercount [%d]\nfor file [%s]\nmap [%s]",GameConstants::maxPlayers+1,mapInfo.players,Map::getMapPath(mapFiles.at(i), "", false).c_str(),mapInfo.desc.c_str());
+				snprintf(szBuf,8096,"Sorted map list [%d] does not match\ncurrent map playercount [%d]\nfor file [%s]\nmap [%s]",GameConstants::maxPlayers+1,mapInfo.players,Config::getMapPath(mapFiles.at(i), "", false).c_str(),mapInfo.desc.c_str());
 				throw megaglest_runtime_error(szBuf);
 			}
 			playerSortedMaps[mapInfo.players].push_back(mapFiles.at(i));
@@ -4766,7 +4766,7 @@ int MenuStateCustomGame::setupMapList(string scenario) {
 			loadScenarioInfo(file, &scenarioInfo);
 
 			//printf("#6.1 about to load map [%s]\n",scenarioInfo.mapName.c_str());
-			loadMapInfo(Map::getMapPath(scenarioInfo.mapName, scenarioDir, true), &mapInfo, false);
+			loadMapInfo(Config::getMapPath(scenarioInfo.mapName, scenarioDir, true), &mapInfo, false);
 			//printf("#6.2\n");
 			listBoxMapFilter.setSelectedItem(intToStr(mapInfo.players));
 			listBoxMap.setItems(formattedPlayerSortedMaps[mapInfo.players]);

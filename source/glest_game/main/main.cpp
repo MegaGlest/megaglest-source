@@ -3461,7 +3461,7 @@ int handleShowCRCValuesCommand(int argc, char** argv) {
 		if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 			string itemName = paramPartTokens[1];
 
-			string file = Map::getMapPath(itemName,"",false);
+			string file = Config::getMapPath(itemName,"",false);
 			if(file != "") {
 				Checksum checksum;
 				checksum.addFile(file);

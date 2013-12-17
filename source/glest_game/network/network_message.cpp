@@ -11,19 +11,16 @@
 
 #include "network_message.h"
 
-#include <cassert>
-#include <stdexcept>
-
 #include "data_types.h"
 #include "util.h"
 #include "game_settings.h"
-
 #include "checksum.h"
-#include "map.h"
 #include "platform_util.h"
 #include "config.h"
-#include <algorithm>
 #include "network_protocol.h"
+#include <algorithm>
+#include <cassert>
+#include <stdexcept>
 
 #include "leak_dumper.h"
 
@@ -1887,7 +1884,7 @@ NetworkMessageSynchNetworkGameData::NetworkMessageSynchNetworkGameData(const Gam
 
     //map
     Checksum checksum;
-    string file = Map::getMapPath(gameSettings->getMap(),scenarioDir,false);
+    string file = Config::getMapPath(gameSettings->getMap(),scenarioDir,false);
 	checksum.addFile(file);
 	data.header.mapCRC = checksum.getSum();
 

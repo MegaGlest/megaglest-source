@@ -362,7 +362,6 @@ public:
 	//static
 	inline static Vec2i toSurfCoords(const Vec2i &unitPos)		{return unitPos / cellScale;}
 	inline static Vec2i toUnitCoords(const Vec2i &surfPos)		{return surfPos * cellScale;}
-	static string getMapPath(const string &mapName, string scenarioDir="", bool errorOnNotFound=true);
 
 	inline bool isFreeCellOrMightBeFreeSoon(Vec2i originPos, const Vec2i &pos, Field field) const {
 		return

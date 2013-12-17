@@ -11,18 +11,18 @@
 
 #include "client_interface.h"
 
-#include <stdexcept>
-#include <cassert>
+#include "logger.h"
+#include "window.h"
 
 #include "platform_util.h"
 #include "game_util.h"
 #include "conversion.h"
 #include "config.h"
 #include "lang.h"
-#include "map.h"
 #include "config.h"
-#include "logger.h"
-#include "window.h"
+#include <stdexcept>
+#include <cassert>
+
 #include "leak_dumper.h"
 
 using namespace std;
@@ -741,7 +741,7 @@ void ClientInterface::updateLobby() {
 
 					//map
 					Checksum checksum;
-					string file = Map::getMapPath(networkMessageSynchNetworkGameData.getMap(),scenarioDir, false);
+					string file = Config::getMapPath(networkMessageSynchNetworkGameData.getMap(),scenarioDir, false);
 					if(file != "") {
 						checksum.addFile(file);
 						mapCRC = checksum.getSum();

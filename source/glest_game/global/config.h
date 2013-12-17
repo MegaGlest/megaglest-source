@@ -121,6 +121,8 @@ public:
 	static void setCustomRuntimeProperty(string key, string value) 	{ customRuntimeProperties[key] = value; }
 
 	static string findValidLocalFileFromPath(string fileName);
+
+	static string getMapPath(const string &mapName, string scenarioDir="", bool errorOnNotFound=true);
 };
 
 }}//end namespace

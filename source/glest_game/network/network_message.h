@@ -16,6 +16,7 @@
 #include "game_constants.h"
 #include "network_types.h"
 #include "byte_order.h"
+
 #include "leak_dumper.h"
 
 using Shared::Platform::Socket;
