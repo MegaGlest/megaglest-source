@@ -377,6 +377,18 @@ bool SoundPlayerOpenAL::init(const SoundPlayerParams* params) {
 	this->params = *params;
 
 	try {
+
+		if(context != 0) {
+			alcMakeContextCurrent( NULL );
+			alcDestroyContext(context);
+			context = 0;
+		}
+
+		if(device != 0) {
+			alcCloseDevice(device);
+			device = 0;
+		}
+
 		// Allows platforms to specify which sound device to use
 		// using the environment variable: MEGAGLEST_SOUND_DEVICE
 		char *deviceName = getenv("MEGAGLEST_SOUND_DEVICE");
