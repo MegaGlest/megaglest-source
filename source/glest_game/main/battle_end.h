@@ -65,7 +65,6 @@ public:
 	virtual void reloadUI();
 
 private:
-	const string getTimeString(int frames);
 
 	void initBackgroundVideo();
 	std::pair<string,string> getBattleEndVideo(bool won);

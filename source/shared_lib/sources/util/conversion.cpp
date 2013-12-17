@@ -215,4 +215,31 @@ string formatNumber(uint64 f) {
 	return out.str();
 }
 
+string getTimeDuationString(int frames, int updateFps) {
+	int framesleft = frames;
+	int hours = (int) frames / (float)updateFps / 3600.0;
+	framesleft = framesleft - hours * 3600 * updateFps;
+	int minutes = (int) framesleft / (float)updateFps / 60.0;
+	framesleft = framesleft - minutes * 60 * updateFps;
+	int seconds = (int) framesleft / (float)updateFps;
+	//framesleft=framesleft-seconds*GameConstants::updateFps;
+
+	string hourstr = intToStr(hours);
+	if(hours < 10) {
+		hourstr = "0" + hourstr;
+	}
+
+	string minutestr = intToStr(minutes);
+	if(minutes < 10) {
+		minutestr = "0" + minutestr;
+	}
+
+	string secondstr = intToStr(seconds);
+	if(seconds < 10) {
+		secondstr = "0" + secondstr;
+	}
+
+	return hourstr + ":" + minutestr + ":" + secondstr;
+}
+
 }}//end namespace

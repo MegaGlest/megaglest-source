@@ -2271,12 +2271,14 @@ void Renderer::renderClock() {
 	const Vec4f fontColor = game->getGui()->getDisplay()->getColor();
 
 	if(config.getBool("InGameClock","true") == true) {
-		int hours = world->getTimeFlow()->getTime();
-		int minutes = (world->getTimeFlow()->getTime() - hours) * 100 * 0.6; // scale 100 to 60
-
 		Lang &lang= Lang::getInstance();
-		char szBuf[200]="";
-		snprintf(szBuf,200,"%s %.2d:%.2d",lang.getString("GameTime","",true).c_str(),hours,minutes);
+		char szBuf[501]="";
+
+		//int hours = world->getTimeFlow()->getTime();
+		//int minutes = (world->getTimeFlow()->getTime() - hours) * 100 * 0.6; // scale 100 to 60
+		//snprintf(szBuf,200,"%s %.2d:%.2d",lang.getString("GameTime","",true).c_str(),hours,minutes);
+		// string header2 = lang.getString("GameDurationTime","",true) + ": " + getTimeString(stats.getFramesToCalculatePlaytime());
+		snprintf(szBuf,500,"%s %s",lang.getString("GameDurationTime","",true).c_str(),getTimeDuationString(world->getFrameCount(),GameConstants::updateFps).c_str());
 		if(str != "") {
 			str += " ";
 		}

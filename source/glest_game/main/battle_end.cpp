@@ -347,27 +347,6 @@ void BattleEnd::initBackgroundVideo() {
 	}
 }
 
-const string BattleEnd::getTimeString(int frames) {
-	int framesleft=frames;
-	int hours=(int) frames / (float)GameConstants::updateFps / 3600.0;
-	framesleft=framesleft-hours*3600*GameConstants::updateFps;
-	int minutes=(int) framesleft / (float)GameConstants::updateFps / 60.0;
-	framesleft=framesleft-minutes*60*GameConstants::updateFps;
-	int seconds=(int) framesleft / (float)GameConstants::updateFps;
-	//framesleft=framesleft-seconds*GameConstants::updateFps;
-
-	string hourstr=intToStr(hours);
-	if(hours<10) hourstr="0"+hourstr;
-
-	string minutestr=intToStr(minutes);
-	if(minutes<10) minutestr="0"+minutestr;
-
-	string secondstr=intToStr(seconds);
-	if(seconds<10) secondstr="0"+secondstr;
-
-	return hourstr+":"+minutestr+":"+secondstr;
-}
-
 void BattleEnd::update() {
 	if(Config::getInstance().getBool("AutoTest")){
 		AutoTest::getInstance().updateBattleEnd(program);
@@ -610,7 +589,7 @@ void BattleEnd::render() {
 			if(stats.getPlayerName(i) != "") {
 				string textToRender=stats.getPlayerName(i);
 				if(stats.getPlayerLeftBeforeEnd(i)==true){
-					textToRender+="\n("+getTimeString(stats.getTimePlayerLeft(i))+")";
+					textToRender+="\n("+getTimeDuationString(stats.getTimePlayerLeft(i),GameConstants::updateFps) + ")";
 				}
 
 				textRenderer->render(textToRender.c_str(), textX, bm+400, false, &color);
@@ -719,7 +698,7 @@ void BattleEnd::render() {
 		//GameConstants::updateFps
 		//string header2 = lang.getString("GameDurationTime","",true) + " " + floatToStr(stats.getWorldTimeElapsed() / 24.0,2);
 
-		string header2 = lang.getString("GameDurationTime","",true) + ": " + getTimeString(stats.getFramesToCalculatePlaytime());
+		string header2 = lang.getString("GameDurationTime","",true) + ": " + getTimeDuationString(stats.getFramesToCalculatePlaytime(),GameConstants::updateFps);
 		textRenderer->render(header2, lm+250, bm+530);
 
 		header2 = lang.getString("GameMaxConcurrentUnitCount") + ": " + intToStr(stats.getMaxConcurrentUnitCount());
