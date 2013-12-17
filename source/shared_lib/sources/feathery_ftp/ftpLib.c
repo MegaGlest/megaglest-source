@@ -166,6 +166,6 @@ char *ftpStrcpy(char *dest, const char *src)
      char       *d = dest;     
      const char *s = src;
 
-     while (*d++ = *s++);
+     while ((*d++ = *s++));
      return dest;
 }
