@@ -2435,21 +2435,31 @@ string getUserHome() {
 }
 
 string safeCharPtrCopy(const char *ptr,int maxLength) {
+	string result = "";
 	if(ptr == NULL) {
-		return "";
+		return result;
 	}
 	if(maxLength <= 0) {
 		maxLength = 8096;
 	}
 
-	char *pBuffer = new char[maxLength+1];
-	memset(pBuffer,0,maxLength+1);
+	int ptrLength = (int)strlen(ptr);
+	if(ptrLength >= maxLength) {
+		char *pBuffer = new char[maxLength+1];
+		memset(pBuffer,0,maxLength+1);
 #ifdef WIN32
-	memcpy(pBuffer,ptr,min((int)strlen(ptr),maxLength));
+		memcpy(pBuffer,ptr,min((int)strlen(ptr),maxLength));
 #else
-	memcpy(pBuffer,ptr,std::min((int)strlen(ptr),maxLength));
+		memcpy(pBuffer,ptr,std::min((int)strlen(ptr),maxLength));
 #endif
-	return pBuffer;
+
+		result = pBuffer;
+		delete [] pBuffer;
+	}
+	else {
+		result = ptr;
+	}
+	return result;
 }
 
 
