@@ -11,15 +11,6 @@
 	// Representation starts here
 	header( 'Content-Type: text/html; charset=utf-8' );
 
-	echo '<!DOCTYPE HTML>' . PHP_EOL;
-	echo '<html>' . PHP_EOL;
-	echo '	<head>' . PHP_EOL;
-	echo '		<meta charset="UTF-8" />' . PHP_EOL;
-	echo '		<title>' . htmlspecialchars( PRODUCT_NAME ) . ' game stats</title>' . PHP_EOL;
-	echo '		<link rel="stylesheet" type="text/css" href="style/screen.css" />' . PHP_EOL;
-	echo '		<link rel="shortcut icon" type="image/x-icon" href="images/' . htmlspecialchars( strtolower( PRODUCT_NAME ) ) . '.ico" />' . PHP_EOL;
-	echo '	</head>' . PHP_EOL;
-	echo '	<body>' . PHP_EOL;
 //	echo '		<h1>Game Stats</h1>' . PHP_EOL;
 	echo '		<table>' . PHP_EOL;
 	echo '			<tr>' . PHP_EOL;
@@ -79,9 +70,9 @@
                         printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $stats['isHeadlessServer'],        ENT_QUOTES ), PHP_EOL );
 
 		        echo "\t\t\t" . '</tr>' . PHP_EOL;
+                        echo '		</table>' . PHP_EOL;
 
                         // Player stats for Game
-                        echo "\t\t\t" . '<tr>' . PHP_EOL;
 
                         echo '		<table>' . PHP_EOL;
 	                echo '			<tr>' . PHP_EOL;
@@ -249,10 +240,7 @@
 
 	echo '		</table>' . PHP_EOL;
 
-	echo '		<p>' . PHP_EOL;
-	echo '			<br />' . PHP_EOL;
-	echo '		</p>' . PHP_EOL;
-
-	echo '	</body>' . PHP_EOL;
-	echo '</html>' . PHP_EOL;
+	//echo '		<p>' . PHP_EOL;
+	//echo '			<br />' . PHP_EOL;
+	//echo '		</p>' . PHP_EOL;
 ?>
