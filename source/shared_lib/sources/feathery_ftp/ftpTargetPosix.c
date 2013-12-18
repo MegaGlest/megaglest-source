@@ -458,7 +458,7 @@ socket_t ftpAcceptServerConnection(socket_t server, ip_t *remoteIP, port_t *remo
 	if(!ownIp)	// kennen wir schon die eigene IP?
 	{
 		len = sizeof(sockinfo);
-		if(getsockname(clientSocket, (struct sockaddr *)&sockinfo, &len))
+		if(clientSocket >= 0 && getsockname(clientSocket, (struct sockaddr *)&sockinfo, &len))
 		{
 if(VERBOSE_MODE_ENABLED) printf("getsockname error\n");
 		}

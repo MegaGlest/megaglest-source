@@ -724,7 +724,7 @@ std::vector<std::string> Socket::getLocalIPAddressList() {
 
 			int result_ifaddrr = ioctl(fd, SIOCGIFADDR, &ifr);
 			ioctl(fd, SIOCGIFFLAGS, &ifrA);
-			close(fd);
+			if(fd >= 0) close(fd);
 
 			if(result_ifaddrr >= 0) {
 				struct sockaddr_in *pSockAddr = (struct sockaddr_in *)&ifr.ifr_addr;
@@ -2147,10 +2147,10 @@ void BroadCastClientSocketThread::execute() {
     }
 
 #ifndef WIN32
-    ::close(bcfd);
+    if(bcfd >= 0) ::close(bcfd);
     bcfd = INVALID_SOCKET;
 #else
-    ::closesocket(bcfd);
+    if(bcfd >= 0) ::closesocket(bcfd);
     bcfd = INVALID_SOCKET;
 #endif
 
