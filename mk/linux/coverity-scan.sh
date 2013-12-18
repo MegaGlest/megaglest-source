@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Use this script to build MegaGlest using coverity analysis tool
 # ----------------------------------------------------------------------------
 # Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
@@ -25,10 +25,10 @@ echo "Script path [${CURRENTDIR}]"
 PROJECT=MegaGlest
 
 # Coverity Scan project token as listed on the Coverity Scan project page
-# TOKEN=iTRBOPAgypWFuP9a9u0LtQ
+# TOKEN=x
 
 # E-Mail address of registered Coverity Scan user with project access
-# EMAIL=softcoder@megaglest.org
+# EMAIL=x
 
 # read in config settings
 if [ ! -f ${CURRENTDIR}/.coverity-submit ] ; then
