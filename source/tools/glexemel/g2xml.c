@@ -185,7 +185,7 @@ int g3d2xml(FILE *infile, FILE *outfile)
 			printf("Could not read mesh header!\n");
 			return FALSE;
 		}
-		
+		meshHeader.name[NAMESIZE-1] = 0;
 		/* write out XML mesh header */
 		fprintf(outfile, "\t<Mesh name=\"%s\" ", meshHeader.name);
 		fprintf(outfile, "frameCount=\"%u\" ", meshHeader.frameCount);

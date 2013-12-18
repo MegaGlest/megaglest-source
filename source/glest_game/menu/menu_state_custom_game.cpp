@@ -1816,16 +1816,14 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 				mainMessageBoxState=1;
 
 				Lang &lang= Lang::getInstance();
-				char szMsg[1024]="";
-				strcpy(szMsg,lang.getString("NetworkSlotNoHumanErrorUI","",true).c_str());
-				showMessageBox(szMsg, "", false);
+				string sMsg = lang.getString("NetworkSlotNoHumanErrorUI","",true);
+				showMessageBox(sMsg, "", false);
 
 		    	const vector<string> languageList = serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 		    	for(unsigned int j = 0; j < languageList.size(); ++j) {
-					char szMsg[1024]="";
-					strcpy(szMsg,lang.getString("NetworkSlotNoHumanError","",true).c_str());
+					sMsg = lang.getString("NetworkSlotNoHumanError","",true);
 
-					serverInterface->sendTextMessage(szMsg,-1, true,languageList[j]);
+					serverInterface->sendTextMessage(sMsg,-1, true,languageList[j]);
 		    	}
 
 				safeMutex.ReleaseLock();
