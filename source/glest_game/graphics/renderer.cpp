@@ -5107,8 +5107,8 @@ void Renderer::renderUnits(const int renderFps) {
 				glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, Vec4f(1.0f, 1.0f, 1.0f, alpha).ptr());
 			}
 			else {
+				glEnable(GL_COLOR_MATERIAL);
 				//this only needs to be done in render fast for selection and shadow calculation. No need to do this in real render
-				//glEnable(GL_COLOR_MATERIAL);
 				//glAlphaFunc(GL_GREATER, 0.4f);
 			}
 
