@@ -69,10 +69,10 @@ if ERRORLEVEL 1 GOTO ERROR
 del /Q /F %FILENAME%.tar
 dir %FILENAME%.tar.gz
 
-Echo **About to run: ..\..\data\glest_game\curl.exe --insecure --form "project=%PROJECT%" --form "token=%TOKEN%" --form "email=%EMAIL%" --form "version=%VERSION%" --form "description=%DESCRIPTION%" --form "file=@%FILENAME%.tar.gz" https://scan5.coverity.com/cgi-bin/upload.py
+Echo **About to run: ..\..\data\glest_game\curl.exe --progress-bar --insecure --form "project=%PROJECT%" --form "token=%TOKEN%" --form "email=%EMAIL%" --form "version=%VERSION%" --form "description=%DESCRIPTION%" --form "file=@%FILENAME%.tar.gz" https://scan5.coverity.com/cgi-bin/upload.py
 rem pause
 rem echo Running curl
-..\..\data\glest_game\curl.exe --insecure --form "project=%PROJECT%" --form "token=%TOKEN%" --form "email=%EMAIL%" --form "version=%VERSION%" --form "description=%DESCRIPTION%" --form "file=@%FILENAME%.tar.gz" https://scan5.coverity.com/cgi-bin/upload.py
+..\..\data\glest_game\curl.exe --progress-bar --insecure --form "project=%PROJECT%" --form "token=%TOKEN%" --form "email=%EMAIL%" --form "version=%VERSION%" --form "description=%DESCRIPTION%" --form "file=@%FILENAME%.tar.gz" https://scan5.coverity.com/cgi-bin/upload.py
 if ERRORLEVEL 1 GOTO ERROR
 GOTO CLEANUP
 
