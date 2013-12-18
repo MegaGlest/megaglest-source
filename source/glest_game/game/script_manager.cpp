@@ -1012,7 +1012,10 @@ void ScriptManager::destroyUnit(int unitId){
 	Unit *unit = world->findUnitById(unitId);
 	if(unit != NULL) {
 		// Make sure they die
-		unit->decHp(unit->getHp() * unit->getHp());
+		bool unit_dead = unit->decHp(unit->getHp() * unit->getHp());
+		if(unit_dead == false) {
+			throw megaglest_runtime_error("unit_dead == false");
+		}
 		unit->kill();
 		// If called from an existing die event we get a stack overflow
 		//onUnitDied(unit);

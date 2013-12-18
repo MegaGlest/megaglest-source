@@ -151,6 +151,7 @@ int zipfile_tool(int argc, const char *argv[]) {
 
     if (deflateInit(&stream, level) != Z_OK) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("deflateInit() failed!\n");
+    	if(pInfile) fclose(pInfile);
     	return EXIT_FAILURE;
     }
 
@@ -217,6 +218,7 @@ int zipfile_tool(int argc, const char *argv[]) {
 
         if (fread(s_inbuf, 1, n, pInfile) != n) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed reading from input file!\n");
+        	if(pOutfile) fclose(pOutfile);
         	return EXIT_FAILURE;
         }
 

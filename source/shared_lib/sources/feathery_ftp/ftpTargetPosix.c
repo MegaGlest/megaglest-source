@@ -272,6 +272,7 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port, int ses
 		myAddr.sin_family      = AF_INET;
 		myAddr.sin_addr.s_addr = INADDR_ANY;
 		myAddr.sin_port        = htons(20);
+		myAddr.sin_zero[0]	   = 0;
 		if(bind(dataSocket, (struct sockaddr *)&myAddr, sizeof(myAddr)))
 		{
 			if(VERBOSE_MODE_ENABLED) printf("In ftpEstablishDataConnection #2 about to Close socket = %d, for sessionId = %d\n",dataSocket, sessionId);
@@ -283,6 +284,8 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port, int ses
 		clientAddr.sin_family      = AF_INET;
 		clientAddr.sin_addr.s_addr = htonl(*ip);
 		clientAddr.sin_port        = htons(*port);
+		clientAddr.sin_zero[0]	   = 0;
+
 		if(connect(dataSocket, (struct sockaddr *)&clientAddr, sizeof(clientAddr)))
 		{
 			if(VERBOSE_MODE_ENABLED) printf("In ftpEstablishDataConnection #3 about to Close socket = %d, for sessionId = %d\n",dataSocket, sessionId);

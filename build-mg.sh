@@ -13,14 +13,46 @@
 # Default to English language output so we can understand your bug reports
 export LANG=C
 
+CPU_COUNT=-1
+CMAKE_ONLY=0
+MAKE_ONLY=0
+CLANG_FORCED=0
+
+while getopts "c:m:n:f:" option; do
+   case "${option}" in
+        c) 
+           CPU_COUNT=${OPTARG}
+#           echo "${option} value: ${OPTARG}"
+        ;;
+        m) 
+           CMAKE_ONLY=${OPTARG}
+#           echo "${option} value: ${OPTARG}"
+        ;;
+        n) 
+           MAKE_ONLY=${OPTARG}
+#           echo "${option} value: ${OPTARG}"
+        ;;
+
+        f) 
+           CLANG_FORCED=${OPTARG}
+#           echo "${option} value: ${OPTARG}"
+        ;;
+   esac
+done
+
+#echo "CPU_COUNT = ${CPU_COUNT} CMAKE_ONLY = ${CMAKE_ONLY} CLANG_FORCED = ${CLANG_FORCED}"
+#exit;
+
 # Compiler selection
 # Unless both the CC and CXX environment variables point to clang and clang++
 # respectively, we use GCC. To enforce clang compilation: 
 # 1. Install clang (sudo apt-get install clang)
 # 2. Set the two vars below:
 #    WANT_CLANG=YES and CLANG_BIN_PATH=<path_to_the_clang_binary>
-WANT_CLANG=NO
 CLANG_BIN_PATH=/usr/bin/
+
+SCRIPTDIR="$(dirname $(readlink -f $0))"
+cd ${SCRIPTDIR}
 
 # Google breakpad integration (cross platform memory dumps) - OPTIONAL
 # Set this to the root path of your Google breakpad subversion working copy.
@@ -44,17 +76,21 @@ EXTRA_CMAKE_OPTIONS=
 NUMCORES=`lscpu -p | grep -cv '^#'`
 echo "CPU cores detected: $NUMCORES"
 if [ "$NUMCORES" = '' ]; then NUMCORES=1; fi
-if [ "$1." != '.' ]; then NUMCORES=$1; fi
+if [ $CPU_COUNT != -1 ]; then NUMCORES=$CPU_COUNT; fi
 echo "CPU cores to be used: $NUMCORES"
 
 # ----------------------------------------------------------------------------
 
-mkdir -p build
+if [ $MAKE_ONLY = 0 ]; then 
+        mkdir -p build
+fi
+
 cd build
 CURRENTDIR="$(dirname $(readlink -f $0))"
 
-if [ -f 'CMakeCache.txt' ]; then rm -f 'CMakeCache.txt'; fi
-
+if [ $MAKE_ONLY = 0 ]; then 
+        if [ -f 'CMakeCache.txt' ]; then rm -f 'CMakeCache.txt'; fi
+fi
 
 # Get distribution and architecture details
 if [ `which lsb_release`'x' = 'x' ]
@@ -144,7 +180,7 @@ esac
 
 # If, in the configuration section on top of this script, the user has 
 # indicated they want to use clang in favor of the default of GCC, use clang.
-if [ "$WANT_CLANG" = 'YES' ]; then 
+if [ $CLANG_FORCED = 1 ]; then 
         EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_C_COMPILER=${CLANG_BIN_PATH}clang -DCMAKE_CXX_COMPILER=${CLANG_BIN_PATH}clang++"
         echo "USER WANTS to use CLANG / LLVM compiler! EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
 #exit 1;
@@ -166,24 +202,29 @@ elif [ "`echo $CC | grep -Fq 'clang'`" = 'clang' -a "`echo $CXX | grep -Fq 'clan
 #exit 1;
 fi
 
-echo "Calling cmake with EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
-cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON -DWANT_STATIC_LIBS=ON -DBUILD_MEGAGLEST_TESTS=ON -DBREAKPAD_ROOT=$BREAKPAD_ROOT $EXTRA_CMAKE_OPTIONS ..
-if [ $? -ne 0 ]; then 
-  echo 'ERROR: CMAKE failed.' >&2; exit 1
+if [ $MAKE_ONLY = 0 ]; then 
+        echo "Calling cmake with EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
+        cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON -DWANT_STATIC_LIBS=ON -DBUILD_MEGAGLEST_TESTS=ON -DBREAKPAD_ROOT=$BREAKPAD_ROOT $EXTRA_CMAKE_OPTIONS ..
+        if [ $? -ne 0 ]; then 
+          echo 'ERROR: CMAKE failed.' >&2; exit 1
+        fi
 fi
 
-echo "==================> About to call make with $NUMCORES cores... <=================="
-make -j$NUMCORES
-if [ $? -ne 0 ]; then
-  echo 'ERROR: MAKE failed.' >&2; exit 2
+if [ $CMAKE_ONLY = 1 ]; then 
+        echo "==================> You may now call make with $NUMCORES cores... <=================="
+else
+        echo "==================> About to call make with $NUMCORES cores... <=================="
+        make -j$NUMCORES
+        if [ $? -ne 0 ]; then
+          echo 'ERROR: MAKE failed.' >&2; exit 2
+        fi
+
+        cd ..
+        echo ''
+        echo 'BUILD COMPLETE.'
+        echo ''
+        echo 'To launch MegaGlest from the current directory, use:'
+        echo '  mk/linux/megaglest --ini-path=mk/linux/ --data-path=mk/linux/'
+        echo 'Or change into mk/linux and run it from there:'
+        echo '  ./megaglest --ini-path=./ --data-path=./'
 fi
-
-cd ..
-echo ''
-echo 'BUILD COMPLETE.'
-echo ''
-echo 'To launch MegaGlest from the current directory, use:'
-echo '  mk/linux/megaglest --ini-path=mk/linux/ --data-path=mk/linux/'
-echo 'Or change into mk/linux and run it from there:'
-echo '  ./megaglest --ini-path=./ --data-path=./'
-

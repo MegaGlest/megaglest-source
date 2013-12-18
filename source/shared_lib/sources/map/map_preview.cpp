@@ -920,7 +920,9 @@ void MapPreview::saveToFile(const string &path) {
 		header.heightFactor = heightFactor;
 		header.waterLevel = waterLevel;
 		strncpy(header.title, title.c_str(), MAX_TITLE_LENGTH);
+		header.title[MAX_TITLE_LENGTH-1] = 0;
 		strncpy(header.author, author.c_str(), MAX_AUTHOR_LENGTH);
+		header.author[MAX_AUTHOR_LENGTH-1] = 0;
 		strncpy(header.version2.short_desc, desc.c_str(), MAX_DESCRIPTION_LENGTH_VERSION2);
 		header.version2.short_desc[MAX_DESCRIPTION_LENGTH_VERSION2-1] = 0;
 		header.version2.magic= 0x01020304;

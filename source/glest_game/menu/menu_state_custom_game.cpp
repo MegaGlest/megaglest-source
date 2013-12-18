@@ -1743,15 +1743,15 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 			mainMessageBoxState=1;
 
 			Lang &lang= Lang::getInstance();
-			char szMsg[8096]="";
+			string sMsg = "";
 			if(lang.hasString("NetworkSlotUnassignedErrorUI") == true) {
-				strcpy(szMsg,lang.getString("NetworkSlotUnassignedErrorUI").c_str());
+				sMsg = lang.getString("NetworkSlotUnassignedErrorUI");
 			}
 			else {
-				strcpy(szMsg,"Cannot start game.\nSome player(s) are not in a network game slot!");
+				sMsg = "Cannot start game.\nSome player(s) are not in a network game slot!";
 			}
 
-			showMessageBox(szMsg, "", false);
+			showMessageBox(sMsg, "", false);
 
 	    	const vector<string> languageList = serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
 	    	for(unsigned int j = 0; j < languageList.size(); ++j) {

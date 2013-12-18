@@ -800,8 +800,10 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 	uint32 flag= 1;
 	for(int i = 0; i < meshTextureCount; ++i) {
 		if(meshHeader.textures & flag) {
-			uint8 cMapPath[mapPathSize];
+			uint8 cMapPath[mapPathSize+1];
+			memset(&cMapPath[0],0,mapPathSize+1);
 			readBytes = fread(cMapPath, mapPathSize, 1, f);
+			cMapPath[mapPathSize] = 0;
 			if(readBytes != 1 && mapPathSize != 0) {
 				char szBuf[8096]="";
 				snprintf(szBuf,8096,"fread returned wrong size = " MG_SIZE_T_SPECIFIER " [%u] on line: %d.",readBytes,mapPathSize,__LINE__);
@@ -810,7 +812,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 			Shared::PlatformByteOrder::fromEndianTypeArray<uint8>(cMapPath, mapPathSize);
 
 			char mapPathString[mapPathSize+1]="";
-			memset(&mapPathString[0],0,mapPathSize);
+			memset(&mapPathString[0],0,mapPathSize+1);
 			memcpy(&mapPathString[0],reinterpret_cast<char*>(cMapPath),mapPathSize);
 			string mapPath= toLower(mapPathString);
 
@@ -1211,13 +1213,14 @@ void Model::loadG3d(const string &path, bool deletePixMapAfterLoad,
 		}
 		fromEndianFileHeader(fileHeader);
 
-		if(strncmp(reinterpret_cast<char*>(fileHeader.id), "G3D", 3) != 0) {
+		char fileId[4] = "";
+		memset(&fileId[0],0,4);
+		memcpy(&fileId[0],reinterpret_cast<char*>(fileHeader.id),3);
+
+		if(strncmp(fileId, "G3D", 3) != 0) {
 			fclose(f);
 			f = NULL;
-			char fileType[4]="";
-			memset(&fileType[0],0,4);
-			memcpy(&fileType[0],fileHeader.id,3);
-		    printf("In [%s::%s] file = [%s] fileheader.id = [%s][%c]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,path.c_str(),fileType,fileHeader.id[0]);
+		    printf("In [%s::%s] file = [%s] fileheader.id = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,path.c_str(),fileId);
 			throw megaglest_runtime_error("Not a valid G3D model",true);
 		}
 		fileVersion= fileHeader.version;

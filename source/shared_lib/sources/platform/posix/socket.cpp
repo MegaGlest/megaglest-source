@@ -2144,16 +2144,15 @@ void BroadCastClientSocketThread::execute() {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] unknown error\n",__FILE__,__FUNCTION__,__LINE__);
 			}
 		}
+    }
 
 #ifndef WIN32
-        ::close(bcfd);
-        bcfd = INVALID_SOCKET;
+    ::close(bcfd);
+    bcfd = INVALID_SOCKET;
 #else
-        ::closesocket(bcfd);
-        bcfd = INVALID_SOCKET;
+    ::closesocket(bcfd);
+    bcfd = INVALID_SOCKET;
 #endif
-
-    }
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -2866,6 +2865,15 @@ void BroadCastSocketThread::execute() {
     //char subnetmask[MAX_NIC_COUNT][100];       // Subnet mask to broadcast to
     //struct hostent* myhostent=NULL;
 
+    for(unsigned int idx = 0; idx < (unsigned int)MAX_NIC_COUNT; idx++) {
+    	memset( &bcLocal[idx], 0, sizeof( struct sockaddr_in));
+
+#ifdef WIN32
+		bcfd[idx] = INVALID_SOCKET;
+#else
+		bcfd[idx] = INVALID_SOCKET;
+#endif
+    }
     /* get my host name */
     gethostname(myhostname,100);
     //struct hostent*myhostent = gethostbyname(myhostname);
@@ -2926,15 +2934,16 @@ void BroadCastSocketThread::execute() {
 					// Send this machine's host name and address in hostname:n.n.n.n format
 					snprintf(buff,1024,"%s",myhostname);
 					for(unsigned int idx1 = 0; idx1 < ipList.size(); idx1++) {
-						strcat(buff,":");
-						strcat(buff,ipList[idx1].c_str());
-						strcat(buff,":");
-						string port_string = intToStr(this->boundPort);
-#ifdef WIN32
-						strncat(buff,port_string.c_str(),min((int)port_string.length(),100));
-#else
-						strncat(buff,port_string.c_str(),std::min((int)port_string.length(),100));
-#endif
+//						strcat(buff,":");
+//						strcat(buff,ipList[idx1].c_str());
+//						strcat(buff,":");
+//						string port_string = intToStr(this->boundPort);
+//#ifdef WIN32
+//						strncat(buff,port_string.c_str(),min((int)port_string.length(),100));
+//#else
+//						strncat(buff,port_string.c_str(),std::min((int)port_string.length(),100));
+//#endif
+						snprintf(buff,1024,"%s:%s:%d",buff,ipList[idx1].c_str(),this->boundPort);
 					}
 
 					if(difftime((long int)time(NULL),elapsed) >= 1 && getQuitStatus() == false) {

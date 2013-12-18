@@ -114,6 +114,10 @@ std::pair<SDL_Surface*,unsigned char*> Texture2D::CreateSDLSurface(bool newPixel
 	        /* Use the surface width and height expanded to powers of 2 */
 	        //int w = powerOfTwo(surface->w);
 	        //int h = powerOfTwo(surface->h);
+			if(result.first == NULL) {
+				throw megaglest_runtime_error("result.first == NULL");
+			}
+
 	        int w = result.first->w;
 	        int h = result.first->h;
 

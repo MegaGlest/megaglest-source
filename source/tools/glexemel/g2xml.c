@@ -228,11 +228,11 @@ int g3d2xml(FILE *infile, FILE *outfile)
 		{
 			memset(&textureName[0],0,NAMESIZE+1);
 			nBytes = NAMESIZE;
-			if (fread(&textureName, nBytes, 1, infile) != 1)
-			{
+			if (fread(&textureName, nBytes, 1, infile) != 1) {
 				printf("Could not read texture name!\n");
 				return FALSE;
 			}
+			textureName[NAMESIZE] = 0;
 			fprintf(outfile, "\t\t<Texture name=\"%s\"/>\n",
 				textureName);
 		}

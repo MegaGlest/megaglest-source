@@ -3201,7 +3201,14 @@ void CheckForDuplicateData() {
 				oldFile = newFile + "/" + tilesetName + ".xml";
 				newFile = newFile + "/" + tilesetName + "_custom.xml";
 
-				rename(oldFile.c_str(),newFile.c_str());
+				result = rename(oldFile.c_str(),newFile.c_str());
+
+				if(result != 0) {
+					char *errmsg = strerror(errno);
+					snprintf(szBuf,8096,"Error [%s]\nCould not rename [%s] to [%s]!",errmsg,oldFile.c_str(),newFile.c_str());
+					throw megaglest_runtime_error(szBuf,true);
+				}
+
 			}
 			errorMsg += szBuf;
 		}

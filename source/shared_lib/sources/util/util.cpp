@@ -506,6 +506,16 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
             		int idx = 1;
             		for(idx = 1; idx <= 100; ++idx) {
 						newlockfile = lockfile + intToStr(idx);
+
+						if(SystemFlags::lockFile != -1) {
+#ifndef WIN32
+							close(SystemFlags::lockFile);
+#else
+							_close(SystemFlags::lockFile);
+#endif
+							SystemFlags::lockFile = -1;
+							SystemFlags::lockFileCountIndex = -1;
+						}
 						//SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT | O_EXCL, S_IRUSR|S_IWUSR);
 #ifndef WIN32
 	                    SystemFlags::lockFile = open(newlockfile.c_str(), O_WRONLY | O_CREAT, S_IREAD | S_IWRITE);
