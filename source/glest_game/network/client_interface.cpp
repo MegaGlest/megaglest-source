@@ -44,8 +44,8 @@ const bool debugClientInterfacePerf = false;
 // =====================================================
 
 ClientInterfaceThread::ClientInterfaceThread(ClientInterface *client) : BaseThread() {
-	this->clientInterface = client;
-	uniqueID = "ClientInterfaceThread";
+	this->clientInterface 	= client;
+	this->uniqueID 			= "ClientInterfaceThread";
 }
 
 ClientInterfaceThread::~ClientInterfaceThread() {
@@ -77,22 +77,15 @@ void ClientInterfaceThread::execute() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ****************** STARTING worker thread this = %p\n",__FILE__,__FUNCTION__,__LINE__,this);
 
-		//bool minorDebugPerformance = false;
-		Chrono chrono;
-
-		// Set socket to blocking
-//		if(clientInterface != NULL && clientInterface->getSocket(true) != NULL) {
-//			clientInterface->getSocket(true)->setBlock(true);
-//		}
+		// Set socket to non blocking
 		if(clientInterface != NULL && clientInterface->getSocket(true) != NULL) {
 			clientInterface->getSocket(true)->setBlock(false);
 		}
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("ClientInterfaceThread::exec Line: %d\n",__LINE__);
 
+		Chrono chrono;
 		for(;this->clientInterface != NULL;) {
-
-			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("ClientInterfaceThread::exec Line: %d\n",__LINE__);
 
 			if(getQuitStatus() == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -106,11 +99,11 @@ void ClientInterfaceThread::execute() {
 			//printf("ClientInterfaceThread::exec Line: %d\n",__LINE__);
 
 			uint64 loopCount = 0;
-			Chrono chrono;
 			if(debugClientInterfacePerf == true) {
 				chrono.start();
 			}
-			while(this->getQuitStatus() == false && clientInterface != NULL) {
+			while(	this->getQuitStatus() == false &&
+					clientInterface != NULL) {
 				//printf("ClientInterfaceThread::exec Line: %d this->getQuitStatus(): %d\n",__LINE__,this->getQuitStatus());
 
 				clientInterface->updateNetworkFrame();
@@ -129,10 +122,11 @@ void ClientInterfaceThread::execute() {
 				}
 			}
 
-			if(debugClientInterfacePerf == true)printf("END === Client thread\n");
+			if(debugClientInterfacePerf == true) {
+				printf("END === Client thread\n");
+			}
 
 			//printf("ClientInterfaceThread::exec Line: %d\n",__LINE__);
-			//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 			if(getQuitStatus() == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -143,7 +137,6 @@ void ClientInterfaceThread::execute() {
 		}
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("ClientInterfaceThread::exec Line: %d\n",__LINE__);
-
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] ****************** ENDING worker thread this = %p\n",__FILE__,__FUNCTION__,__LINE__,this);
 	}
@@ -170,51 +163,51 @@ void ClientInterfaceThread::execute() {
 //	class ClientInterface
 // =====================================================
 
-const int ClientInterface::messageWaitTimeout= 10000;	//10 seconds
-const int ClientInterface::waitSleepTime= 10;
-const int ClientInterface::maxNetworkCommandListSendTimeWait = 4;
+const int ClientInterface::messageWaitTimeout					= 10000;	//10 seconds
+const int ClientInterface::waitSleepTime						= 10;
+const int ClientInterface::maxNetworkCommandListSendTimeWait 	= 4;
 
 ClientInterface::ClientInterface() : GameNetworkInterface() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] constructor for %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this);
 
-	networkCommandListThreadAccessor = new Mutex(CODE_AT_LINE);
-	networkCommandListThread = NULL;
-	cachedPendingCommandsIndex = 0;
-	cachedLastPendingFrameCount = 0;
-	timeClientWaitedForLastMessage = 0;
+	networkCommandListThreadAccessor 	= new Mutex(CODE_AT_LINE);
+	networkCommandListThread 			= NULL;
+	cachedPendingCommandsIndex 			= 0;
+	cachedLastPendingFrameCount 		= 0;
+	timeClientWaitedForLastMessage 		= 0;
 
-	flagAccessor = new Mutex(CODE_AT_LINE);
+	flagAccessor 						= new Mutex(CODE_AT_LINE);
 
-	clientSocket= NULL;
-	sessionKey = 0;
-	launchGame= false;
-	introDone= false;
+	clientSocket						= NULL;
+	sessionKey 							= 0;
+	launchGame							= false;
+	introDone							= false;
 
-	this->joinGameInProgress = false;
-	this->joinGameInProgressLaunch = false;
-	this->readyForInGameJoin = false;
-	this->resumeInGameJoin = false;
+	this->joinGameInProgress 			= false;
+	this->joinGameInProgressLaunch 		= false;
+	this->readyForInGameJoin 			= false;
+	this->resumeInGameJoin 				= false;
 
-	quitThreadAccessor = new Mutex(CODE_AT_LINE);
+	quitThreadAccessor 					= new Mutex(CODE_AT_LINE);
 	setQuitThread(false);
 
-	playerIndex= -1;
-	gameSettingsReceivedCount=0;
+	playerIndex							= -1;
+	gameSettingsReceivedCount			= 0;
 	setGameSettingsReceived(false);
-	gameSettingsReceivedCount=0;
-	connectedTime = 0;
-	port = 0;
-	serverFTPPort = 0;
+	gameSettingsReceivedCount			= 0;
+	connectedTime 						= 0;
+	port 								= 0;
+	serverFTPPort 						= 0;
 
-	gotIntro = false;
-	lastNetworkCommandListSendTime = 0;
-	currentFrameCount = 0;
-	lastSentFrameCount = 0;
-	clientSimulationLagStartTime = 0;
+	gotIntro 							= false;
+	lastNetworkCommandListSendTime 		= 0;
+	currentFrameCount 					= 0;
+	lastSentFrameCount 					= 0;
+	clientSimulationLagStartTime 		= 0;
 
-	networkGameDataSynchCheckOkMap  = false;
-	networkGameDataSynchCheckOkTile = false;
-	networkGameDataSynchCheckOkTech = false;
+	networkGameDataSynchCheckOkMap  	= false;
+	networkGameDataSynchCheckOkTile 	= false;
+	networkGameDataSynchCheckOkTech 	= false;
 	this->setNetworkGameDataSynchCheckTechMismatchReport("");
 	this->setReceivedDataSynchCheck(false);
 }
@@ -222,7 +215,6 @@ ClientInterface::ClientInterface() : GameNetworkInterface() {
 void ClientInterface::shutdownNetworkCommandListThread(MutexSafeWrapper &safeMutexWrapper) {
 	if(networkCommandListThread != NULL) {
 		//printf("START === shutdownNetworkCommandListThread\n");
-
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s Line: %d\n",__FUNCTION__,__LINE__);
 
 		setQuitThread(true);
@@ -234,8 +226,10 @@ void ClientInterface::shutdownNetworkCommandListThread(MutexSafeWrapper &safeMut
 		Chrono chronoElapsed(true);
 		for(;chronoElapsed.getMillis() <= 10000;) {
 			safeMutexWrapper.Lock();
-			if(networkCommandListThread != NULL && networkCommandListThread->canShutdown(false) == false &&
+			if(networkCommandListThread != NULL &&
+				networkCommandListThread->canShutdown(false) == false &&
 				 networkCommandListThread->getRunningStatus() == true) {
+
 				safeMutexWrapper.ReleaseLock(true);
 				if(chronoElapsed.getMillis() % 1000 == 0) {
 					sleep(1);
@@ -252,9 +246,10 @@ void ClientInterface::shutdownNetworkCommandListThread(MutexSafeWrapper &safeMut
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s Line: %d\n chronoElapsed.getMillis(): %lld",__FUNCTION__,__LINE__,(long long int)chronoElapsed.getMillis());
 		//printf("A === shutdownNetworkCommandListThread\n");
 
-		//sleep(0);
 		safeMutexWrapper.Lock();
-		if(networkCommandListThread != NULL && networkCommandListThread->canShutdown(true)) {
+		if(networkCommandListThread != NULL &&
+			networkCommandListThread->canShutdown(true)) {
+
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s Line: %d\n",__FUNCTION__,__LINE__);
 
 			delete networkCommandListThread;
@@ -263,7 +258,6 @@ void ClientInterface::shutdownNetworkCommandListThread(MutexSafeWrapper &safeMut
 		else {
 			networkCommandListThread = NULL;
 		}
-		//safeMutexWrapper.ReleaseLock(true);
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s Line: %d\n",__FUNCTION__,__LINE__);
 		//printf("END === shutdownNetworkCommandListThread\n");
@@ -272,7 +266,6 @@ void ClientInterface::shutdownNetworkCommandListThread(MutexSafeWrapper &safeMut
 
 ClientInterface::~ClientInterface() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] destructor for %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this);
-
 	//printf("START === Client destructor\n");
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s Line: %d\n",__FUNCTION__,__LINE__);
@@ -286,21 +279,24 @@ ClientInterface::~ClientInterface() {
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s Line: %d\n",__FUNCTION__,__LINE__);
 
-    if(clientSocket != NULL && clientSocket->isConnected() == true) {
+    if(clientSocket != NULL &&
+    	clientSocket->isConnected() == true) {
+
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s Line: %d\n",__FUNCTION__,__LINE__);
 
     	Lang &lang= Lang::getInstance();
     	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
-    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+    	for(unsigned int langIndex = 0; langIndex < languageList.size(); ++langIndex) {
+
 			string sQuitText = "has chosen to leave the game!";
-			if(lang.hasString("PlayerLeftGame",languageList[i]) == true) {
-				sQuitText = lang.getString("PlayerLeftGame",languageList[i]);
+			if(lang.hasString("PlayerLeftGame",languageList[langIndex]) == true) {
+				sQuitText = lang.getString("PlayerLeftGame",languageList[langIndex]);
 			}
 
 			if(clientSocket != NULL && clientSocket->isConnected() == true) {
-				sendTextMessage(sQuitText,-1,false,languageList[i]);
+				sendTextMessage(sQuitText,-1,false,languageList[langIndex]);
 			}
     	}
     }
@@ -310,19 +306,17 @@ ClientInterface::~ClientInterface() {
     //printf("B === Client destructor\n");
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
     close(false);
+
     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s Line: %d\n",__FUNCTION__,__LINE__);
-
-	//delete clientSocket;
-	//clientSocket = NULL;
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s Line: %d\n",__FUNCTION__,__LINE__);
 
 	//printf("C === Client destructor\n");
 
-	//Mutex *tempMutexPtr = networkCommandListThreadAccessor;
 	networkCommandListThreadAccessor = NULL;
 	safeMutex.ReleaseLock(false,true);
 
@@ -336,7 +330,6 @@ ClientInterface::~ClientInterface() {
 	quitThreadAccessor = NULL;
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s Line: %d\n",__FUNCTION__,__LINE__);
-
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
@@ -391,7 +384,7 @@ void ClientInterface::connect(const Ip &ip, int port) {
 
 	safeMutex.ReleaseLock();
 
-	clientSocket= new ClientSocket();
+	clientSocket = new ClientSocket();
 	clientSocket->setBlock(false);
 	clientSocket->connect(ip, port);
 	connectedTime = time(NULL);
@@ -404,23 +397,22 @@ void ClientInterface::reset() {
     if(getSocket() != NULL) {
     	Lang &lang= Lang::getInstance();
     	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
-    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+    	for(unsigned int langIndex = 0; langIndex < languageList.size(); ++langIndex) {
+
 			string sQuitText = "has chosen to leave the game!";
-			if(lang.hasString("PlayerLeftGame",languageList[i]) == true) {
-				sQuitText = lang.getString("PlayerLeftGame",languageList[i]);
+			if(lang.hasString("PlayerLeftGame",languageList[langIndex]) == true) {
+				sQuitText = lang.getString("PlayerLeftGame",languageList[langIndex]);
 			}
-			sendTextMessage(sQuitText,-1,false,languageList[i]);
+			sendTextMessage(sQuitText,-1,false,languageList[langIndex]);
     	}
         close();
     }
 }
 
 void ClientInterface::update() {
-	Chrono chrono;
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
-
 	bool wasConnected = this->isConnected();
-	if(gotIntro == true && wasConnected == false) {
+	if(gotIntro == true &&
+		wasConnected == false) {
 		string playerNameStr = getHumanPlayerName();
 
     	Lang &lang= Lang::getInstance();
@@ -429,7 +421,6 @@ void ClientInterface::update() {
 		string statusTextFormat= lang.getString("PlayerDisconnected");
 		snprintf(szBuf1,8096,statusTextFormat.c_str(),playerNameStr.c_str());
 
-    	//string sErr = "Disconnected from server during intro handshake.";
 		DisplayErrorMessage(szBuf1);
         setQuit(true);
         return;
@@ -452,9 +443,6 @@ void ClientInterface::update() {
 		}
 
 		double lastSendElapsed = difftime((long int)time(NULL),lastNetworkCommandListSendTime);
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
-
 		//printf("#1 Client send currentFrameCount = %d lastSendElapsed = %f\n",currentFrameCount,lastSendElapsed);
 
 		// If we are on a frame that should send packets or we have commands
@@ -464,9 +452,8 @@ void ClientInterface::update() {
 				networkMessageCommandList.getCommandCount() > 0) {
 
 			//printf("#2 Client send currentFrameCount = %d lastSendElapsed = %f\n",currentFrameCount,lastSendElapsed);
-
 			if(lastSentFrameCount < currentFrameCount ||
-					networkMessageCommandList.getCommandCount() > 0) {
+				networkMessageCommandList.getCommandCount() > 0) {
 				//printf("#3 Client send currentFrameCount = %d lastSentFrameCount = %d\n",currentFrameCount,lastSentFrameCount );
 
 				lastSentFrameCount = currentFrameCount;
@@ -474,34 +461,26 @@ void ClientInterface::update() {
 				lastNetworkCommandListSendTime = time(NULL);
 				lastSendElapsed = difftime((long int)time(NULL),lastNetworkCommandListSendTime);
 			}
-
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		}
+
 		// If we have not sent anything for maxNetworkCommandListSendTimeWait
 		// seconds, send one now.
 		if(lastNetworkCommandListSendTime > 0 &&
-				lastSendElapsed >= ClientInterface::maxNetworkCommandListSendTimeWait) {
-			//printf("#4 Client send currentFrameCount = %d lastSendElapsed = %f\n",currentFrameCount,lastSendElapsed);
+			lastSendElapsed >= ClientInterface::maxNetworkCommandListSendTimeWait) {
 
 			lastSentFrameCount = currentFrameCount;
 			sendMessage(&networkMessageCommandList);
 			lastNetworkCommandListSendTime = time(NULL);
-			//lastSendElapsed = difftime((long int)time(NULL),lastNetworkCommandListSendTime);
-
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		}
 
 		// Possible cause of out of synch since we have more commands that need
 		// to be sent in this frame
 		if(requestedCommands.empty() == false) {
-			//char szBuf[4096]="";
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] WARNING / ERROR, requestedCommands.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,requestedCommands.size());
 
 			string sMsg = "may go out of synch: client requestedCommands.size() = " + intToStr(requestedCommands.size());
 			sendTextMessage(sMsg,-1, true,"");
 			sleep(1);
-
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		}
 	}
 	catch(const megaglest_runtime_error &ex) {
@@ -520,8 +499,6 @@ void ClientInterface::update() {
 			throw megaglest_runtime_error(ex.what());
 		}
 	}
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 std::string ClientInterface::getServerIpAddress() {
@@ -539,18 +516,22 @@ void ClientInterface::updateLobby() {
         {
             NetworkMessageIntro networkMessageIntro;
             if(receiveMessage(&networkMessageIntro)) {
-            	gotIntro = true;
-            	sessionKey = networkMessageIntro.getSessionId();
-            	versionString = networkMessageIntro.getVersionString();
-				playerIndex= networkMessageIntro.getPlayerIndex();
-				serverName= networkMessageIntro.getName();
-				serverUUID = networkMessageIntro.getPlayerUUID();
-				serverPlatform = networkMessageIntro.getPlayerPlatform();
-				serverFTPPort = networkMessageIntro.getFtpPort();
+            	gotIntro 		= true;
+            	sessionKey 		= networkMessageIntro.getSessionId();
+            	versionString 	= networkMessageIntro.getVersionString();
+				playerIndex		= networkMessageIntro.getPlayerIndex();
+				serverName		= networkMessageIntro.getName();
+				serverUUID 		= networkMessageIntro.getPlayerUUID();
+				serverPlatform 	= networkMessageIntro.getPlayerPlatform();
+				serverFTPPort 	= networkMessageIntro.getFtpPort();
+
+				if(playerIndex < 0 || playerIndex >= GameConstants::maxPlayers) {
+					throw megaglest_runtime_error("playerIndex < 0 || playerIndex >= GameConstants::maxPlayers");
+				}
 
 				MutexSafeWrapper safeMutexFlags(flagAccessor,CODE_AT_LINE);
-				this->joinGameInProgress = (networkMessageIntro.getGameInProgress() != 0);
-				this->joinGameInProgressLaunch = false;
+				this->joinGameInProgress 		= (networkMessageIntro.getGameInProgress() != 0);
+				this->joinGameInProgressLaunch 	= false;
 				safeMutexFlags.ReleaseLock();
 
 				//printf("Client got intro playerIndex = %d\n",playerIndex);
@@ -563,12 +544,11 @@ void ClientInterface::updateLobby() {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got NetworkMessageIntro, networkMessageIntro.getGameState() = %d, versionString [%s], sessionKey = %d, playerIndex = %d, serverFTPPort = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageIntro.getGameState(),versionString.c_str(),sessionKey,playerIndex,serverFTPPort);
 
 				if(compatible == false) {
-                //if(networkMessageIntro.getVersionString() != getNetworkVersionString()) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-                	bool versionMatched = false;
-                	string platformFreeVersion = getNetworkPlatformFreeVersionString();
-                	string sErr = "";
+                	bool versionMatched 		= false;
+                	string platformFreeVersion 	= getNetworkPlatformFreeVersionString();
+                	string sErr 				= "";
 
                 	if(strncmp(platformFreeVersion.c_str(),networkMessageIntro.getVersionString().c_str(),strlen(platformFreeVersion.c_str())) != 0) {
 						string playerNameStr = getHumanPlayerName();
@@ -582,16 +562,17 @@ void ClientInterface::updateLobby() {
 						sendTextMessage(" Client player [" + playerNameStr + "]",-1, true,"");
                 	}
                 	else {
-                		versionMatched = true;
-
-						string playerNameStr = getHumanPlayerName();
+                		versionMatched 			= true;
+						string playerNameStr 	= getHumanPlayerName();
 						sErr = "Warning, Server and client are using the same version but different platforms.\n\nServer: " + networkMessageIntro.getVersionString() +
 								"\nClient: " + getNetworkVersionGITString() + " player [" + playerNameStr + "]";
 						//printf("%s\n",sErr.c_str());
                 	}
 
+                	// error message and disconnect only if checked
 					if(Config::getInstance().getBool("PlatformConsistencyChecks","true") &&
-					   versionMatched == false) { // error message and disconnect only if checked
+					   versionMatched == false) {
+
 						DisplayErrorMessage(sErr);
 						sleep(1);
 
@@ -625,7 +606,9 @@ void ClientInterface::updateLobby() {
 
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-					if(clientSocket == NULL || clientSocket->isConnected() == false) {
+					if(clientSocket == NULL ||
+						clientSocket->isConnected() == false) {
+
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	                	string sErr = "Disconnected from server during intro handshake.";
@@ -639,8 +622,7 @@ void ClientInterface::updateLobby() {
 					else {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-						assert(playerIndex>=0 && playerIndex<GameConstants::maxPlayers);
-						introDone= true;
+						introDone = true;
 					}
                 }
                 else if(networkMessageIntro.getGameState() == nmgstNoSlots) {
@@ -690,15 +672,16 @@ void ClientInterface::updateLobby() {
                 this->setNetworkGameDataSynchCheckTechMismatchReport("");
                 this->setReceivedDataSynchCheck(false);
 
-				uint32 tilesetCRC = 0;
-				uint32 techCRC	 = 0;
-				uint32 mapCRC	 = 0;
+				uint32 tilesetCRC 	= 0;
+				uint32 techCRC	 	= 0;
+				uint32 mapCRC	 	= 0;
 				vector<std::pair<string,uint32> > vctFileList;
 
 				try {
 					Config &config = Config::getInstance();
 					string scenarioDir = "";
 					if(gameSettings.getScenarioDir() != "") {
+
 						scenarioDir = gameSettings.getScenarioDir();
 						if(EndsWith(scenarioDir, ".xml") == true) {
 							scenarioDir = scenarioDir.erase(scenarioDir.size() - 4, 4);
@@ -712,10 +695,8 @@ void ClientInterface::updateLobby() {
 					tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,scenarioDir), string("/") + networkMessageSynchNetworkGameData.getTileset() + string("/*"), ".xml", NULL);
 
 					this->setNetworkGameDataSynchCheckOkTile((tilesetCRC == networkMessageSynchNetworkGameData.getTilesetCRC()));
-					//if(this->getNetworkGameDataSynchCheckOkTile() == false)
-					//{
+
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] tilesetCRC info, local = %d, remote = %d, networkMessageSynchNetworkGameData.getTileset() = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,tilesetCRC,networkMessageSynchNetworkGameData.getTilesetCRC(),networkMessageSynchNetworkGameData.getTileset().c_str());
-					//}
 
 					//tech, load before map because of resources
 					techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,scenarioDir), string("/") + networkMessageSynchNetworkGameData.getTech() + string("/*"), ".xml", NULL);
@@ -723,6 +704,7 @@ void ClientInterface::updateLobby() {
 					this->setNetworkGameDataSynchCheckOkTech((techCRC == networkMessageSynchNetworkGameData.getTechCRC()));
 
 					if(this->getNetworkGameDataSynchCheckOkTech() == false) {
+
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 						string pathSearchString = "/" + networkMessageSynchNetworkGameData.getTech() + "/*";
@@ -734,10 +716,7 @@ void ClientInterface::updateLobby() {
 						this->setNetworkGameDataSynchCheckTechMismatchReport(report);
 
 					}
-					//if(this->getNetworkGameDataSynchCheckOkTech() == false)
-					//{
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] techCRC info, local = %d, remote = %d, networkMessageSynchNetworkGameData.getTech() = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,techCRC,networkMessageSynchNetworkGameData.getTechCRC(),networkMessageSynchNetworkGameData.getTech().c_str());
-					//}
 
 					//map
 					Checksum checksum;
@@ -749,10 +728,7 @@ void ClientInterface::updateLobby() {
 					this->setNetworkGameDataSynchCheckOkMap((mapCRC == networkMessageSynchNetworkGameData.getMapCRC()));
 					this->setReceivedDataSynchCheck(true);
 
-					//if(this->getNetworkGameDataSynchCheckOkMap() == false)
-					//{
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] mapCRC info, local = %d, remote = %d, file = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,mapCRC,networkMessageSynchNetworkGameData.getMapCRC(),file.c_str());
-					//}
 				}
 				catch(const runtime_error &ex) {
 					SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
@@ -771,8 +747,7 @@ void ClientInterface::updateLobby() {
         case nmtSynchNetworkGameDataFileCRCCheck:
         {
             NetworkMessageSynchNetworkGameDataFileCRCCheck networkMessageSynchNetworkGameDataFileCRCCheck;
-            if(receiveMessage(&networkMessageSynchNetworkGameDataFileCRCCheck))
-            {
+            if(receiveMessage(&networkMessageSynchNetworkGameDataFileCRCCheck)) {
             	this->setLastPingInfoToNow();
 
                 Checksum checksum;
@@ -780,8 +755,7 @@ void ClientInterface::updateLobby() {
                 checksum.addFile(file);
                 uint32 fileCRC = checksum.getSum();
 
-                if(fileCRC != networkMessageSynchNetworkGameDataFileCRCCheck.getFileCRC())
-                {
+                if(fileCRC != networkMessageSynchNetworkGameDataFileCRCCheck.getFileCRC()) {
                 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtSynchNetworkGameDataFileCRCCheck localCRC = %d, remoteCRC = %d, file [%s]\n",
                         extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,fileCRC,
                         networkMessageSynchNetworkGameDataFileCRCCheck.getFileCRC(),
@@ -818,8 +792,7 @@ void ClientInterface::updateLobby() {
         case nmtText:
         {
             NetworkMessageText networkMessageText;
-            if(receiveMessage(&networkMessageText))
-            {
+            if(receiveMessage(&networkMessageText)) {
             	this->setLastPingInfoToNow();
 
             	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got nmtText\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
@@ -902,30 +875,30 @@ void ClientInterface::updateLobby() {
 
                 if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got networkMessageLaunch.getMessageType() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageLaunch.getMessageType());
                 //replace server player by network
-                for(int i= 0; i<gameSettings.getFactionCount(); ++i) {
+                for(int factionIndex = 0; factionIndex<gameSettings.getFactionCount(); ++factionIndex) {
 
-                	//printf("Faction = %d start location = %d faction name = %s\n",i,gameSettings.getStartLocationIndex(i),gameSettings.getFactionTypeName(i).c_str());
+                	//printf("Faction = %d start location = %d faction name = %s\n",i,gameSettings.getStartLocationIndex(factionIndex),gameSettings.getFactionTypeName(factionIndex).c_str());
 
                     //replace by network
-                    if(gameSettings.getFactionControl(i)==ctHuman) {
-                        gameSettings.setFactionControl(i, ctNetwork);
+                    if(gameSettings.getFactionControl(factionIndex) == ctHuman) {
+                        gameSettings.setFactionControl(factionIndex, ctNetwork);
                     }
 
-					//printf("i = %d gameSettings.getStartLocationIndex(i) = %d playerIndex = %d, gameSettings.getFactionControl(i) = %d\n",i,gameSettings.getStartLocationIndex(i),playerIndex,gameSettings.getFactionControl(i));
+					//printf("factionIndex = %d gameSettings.getStartLocationIndex(factionIndex) = %d playerIndex = %d, gameSettings.getFactionControl(factionIndex) = %d\n",factionIndex,gameSettings.getStartLocationIndex(factionIndex),playerIndex,gameSettings.getFactionControl(i));
 
 					//set the faction index
-					if(gameSettings.getStartLocationIndex(i) == playerIndex) {
+					if(gameSettings.getStartLocationIndex(factionIndex) == playerIndex) {
 						//printf("Setting my factionindex to: %d for playerIndex: %d\n",i,playerIndex);
 
-                        gameSettings.setThisFactionIndex(i);
+                        gameSettings.setThisFactionIndex(factionIndex);
 
-                        //printf("Client got game settings playerIndex = %d factionIndex = %d control = %d name = %s\n",playerIndex,i,gameSettings.getFactionControl(i),gameSettings.getFactionTypeName(i).c_str());
-                        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] gameSettings.getThisFactionIndex(i) = %d, playerIndex = %d, i = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,gameSettings.getThisFactionIndex(),playerIndex,i);
+                        //printf("Client got game settings playerIndex = %d factionIndex = %d control = %d name = %s\n",playerIndex,factionIndex,gameSettings.getFactionControl(factionIndex),gameSettings.getFactionTypeName(i).c_str());
+                        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] gameSettings.getThisFactionIndex(factionIndex) = %d, playerIndex = %d, factionIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,gameSettings.getThisFactionIndex(),playerIndex,factionIndex);
                     }
                 }
 
                 if(networkMessageLaunch.getMessageType() == nmtLaunch) {
-                	launchGame= true;
+                	launchGame = true;
                 }
                 else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
                 	setGameSettingsReceived(true);
@@ -1034,14 +1007,10 @@ void ClientInterface::updateFrame(int *checkFrame) {
 			chronoPerf.start();
 		}
 
-		Chrono chrono;
-		chrono.start();
-
 		int waitMicroseconds = (checkFrame == NULL ? 10 : 0);
 		int simulateLag = Config::getInstance().getInt("SimulateClientLag","0");
 		bool done= false;
 		while(done == false && getQuitThread() == false) {
-
 			//printf("BEFORE Client get networkMessageType\n");
 
 			//wait for the next message
@@ -1082,9 +1051,6 @@ void ClientInterface::updateFrame(int *checkFrame) {
 
 						throw megaglest_runtime_error("error retrieving nmtCommandList returned false!");
 					}
-
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] receiveMessage took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
 					MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
 					cachedLastPendingFrameCount = networkMessageCommandList.getFrameCount();
@@ -1140,9 +1106,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 					}
 					safeMutex.ReleaseLock();
 
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] transfer network commands took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
-
-					done= true;
+					done = true;
 				}
 				break;
 
@@ -1155,19 +1119,12 @@ void ClientInterface::updateFrame(int *checkFrame) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 						this->setLastPingInfo(networkMessagePing);
 					}
-
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 				}
 				break;
 
 				case nmtQuit:
 				{
-					//time_t receiveTimeElapsed = time(NULL);
 					NetworkMessageQuit networkMessageQuit;
-	//				while(receiveMessage(&networkMessageQuit) == false &&
-	//					  isConnected() == true &&
-	//					  difftime(time(NULL),receiveTimeElapsed) <= (messageWaitTimeout / 2000)) {
-	//				}
 					bool gotCmd = receiveMessage(&networkMessageQuit);
 					if(gotCmd == false) {
 						SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] error retrieving nmtQuit returned false!\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1180,18 +1137,19 @@ void ClientInterface::updateFrame(int *checkFrame) {
 						throw megaglest_runtime_error("error retrieving nmtQuit returned false!");
 					}
 					setQuit(true);
-					done= true;
+					done = true;
 				}
 				break;
 
 				case nmtText:
 				{
-					//time_t receiveTimeElapsed = time(NULL);
 					NetworkMessageText networkMessageText;
 					bool gotCmd = receiveMessage(&networkMessageText);
 					if(gotCmd == false) {
+
 						SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] error retrieving nmtText returned false!\n",__FILE__,__FUNCTION__,__LINE__);
 						if(isConnected() == false) {
+
 							setQuit(true);
 							close();
 							return;
@@ -1199,12 +1157,9 @@ void ClientInterface::updateFrame(int *checkFrame) {
 
 						throw megaglest_runtime_error("error retrieving nmtText returned false!");
 					}
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
 					ChatMsgInfo msg(networkMessageText.getText().c_str(),networkMessageText.getTeamIndex(),networkMessageText.getPlayerIndex(),networkMessageText.getTargetLanguage());
 					this->addChatInfo(msg);
-
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 				}
 				break;
 
@@ -1292,13 +1247,6 @@ void ClientInterface::updateFrame(int *checkFrame) {
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] gameSettings.getThisFactionIndex(i) = %d, playerIndex = %d, i = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,gameSettings.getThisFactionIndex(),playerIndex,i);
 							}
 						}
-
-						//if(networkMessageLaunch.getMessageType() == nmtLaunch) {
-							//launchGame= true;
-						//}
-						//else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
-						//	setGameSettingsReceived(true);
-						//}
 					}
 				}
 				break;
@@ -1318,7 +1266,7 @@ void ClientInterface::updateFrame(int *checkFrame) {
 
 					setQuit(true);
 					close();
-					done= true;
+					done = true;
 					}
 					break;
 			}
@@ -1326,10 +1274,6 @@ void ClientInterface::updateFrame(int *checkFrame) {
 			if(isConnected() == false && getQuit() == true) {
 				done = true;
 			}
-			// Sleep ever second we wait to let other threads work
-//			else if(chrono.getMillis() % 25 == 0) {
-//				sleep(1);
-//			}
 
 			if(debugClientInterfacePerf == true) {
 				loopCount++;
@@ -1347,10 +1291,6 @@ void ClientInterface::updateFrame(int *checkFrame) {
 			MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
 			cachedPendingCommandsIndex++;
 		}
-		else if(checkFrame == NULL) {
-			//sleep(15);
-			//sleep(0);
-		}
 	}
 	//printf("#3 ClientInterface::updateFrame\n");
 }
@@ -1358,53 +1298,30 @@ void ClientInterface::updateFrame(int *checkFrame) {
 uint64 ClientInterface::getCachedLastPendingFrameCount() {
 	MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
 	uint64 result = cachedLastPendingFrameCount;
-	safeMutex.ReleaseLock();
-
 	return result;
 }
 
 int64 ClientInterface::getTimeClientWaitedForLastMessage() {
 	MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
 	uint64 result = timeClientWaitedForLastMessage;
-	safeMutex.ReleaseLock();
-
 	return result;
 }
 
-
-
-//void ClientInterface::simpleTask(BaseThread *callingThread) {
-//	Chrono chrono;
-//	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
-//
-//	//printf("START === Client thread ended\n");
-//
-//	while(callingThread->getQuitStatus() == false && this->quitThread == false) {
-//		updateFrame(NULL);
-//	}
-//
-//	//printf("END === Client thread ended\n");
-//
-//	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
-//}
-
 bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPendingCommandsIndex) {
-	bool result = false;
-
-	bool waitForData = false;
-	uint64 copyCachedLastPendingFrameCount = 0;
-	uint64 waitCount = 0;
-	Chrono chrono;
-	timeClientWaitedForLastMessage = 0;
+	bool result 							= false;
+	bool waitForData 						= false;
+	uint64 copyCachedLastPendingFrameCount 	= 0;
+	uint64 waitCount 						= 0;
+	uint64 frameCountAsUInt64				= frameCount;
+	timeClientWaitedForLastMessage 			= 0;
 
 	if(getQuit() == false && getQuitThread() == false) {
-		//MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
-		//safeMutex.ReleaseLock(true);
+
+		Chrono chrono;
 		MutexSafeWrapper safeMutex(NULL,CODE_AT_LINE);
 
 		for(;getQuit() == false && getQuitThread() == false;) {
-			//MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
-			//safeMutex.Lock();
+
 			if(safeMutex.isValidMutex() == false) {
 				safeMutex.setMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
 			}
@@ -1412,13 +1329,14 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 				safeMutex.Lock();
 			}
 			copyCachedLastPendingFrameCount = cachedLastPendingFrameCount;
+
 			if(cachedPendingCommands.find(frameCount) != cachedPendingCommands.end()) {
+
 				Commands &frameCmdList = cachedPendingCommands[frameCount];
-				if(frameCmdList.size() > 0) {
-					for(int i= 0; i < (int)frameCmdList.size(); ++i) {
-						pendingCommands.push_back(frameCmdList[i]);
+				if(frameCmdList.empty() == false) {
+					for(int index = 0; index < (int)frameCmdList.size(); ++index) {
+						pendingCommands.push_back(frameCmdList[index]);
 					}
-					//cachedPendingCommands.erase(frameCount);
 					cachedPendingCommands[frameCount].clear();
 
 					if(frameCount >= 0) {
@@ -1439,14 +1357,13 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 
 								setQuit(true);
 								close();
-								//return;
 							}
 						}
 					}
 					cachedPendingCommandCRCs.erase(frameCount);
 				}
 				if(waitForData == true) {
-					timeClientWaitedForLastMessage=chrono.getMillis();
+					timeClientWaitedForLastMessage = chrono.getMillis();
 					chrono.stop();
 				}
 				safeMutex.ReleaseLock(true);
@@ -1457,15 +1374,11 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 			else {
 				safeMutex.ReleaseLock(true);
 				// No data for this frame
-				//if(cachedPendingCommandsIndex > currentCachedPendingCommandsIndex) {
-				//	break;
-				//}
-
 				if(waitForData == false) {
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Client waiting for packet for frame: %d, copyCachedLastPendingFrameCount = %lld\n",frameCount,(long long int)copyCachedLastPendingFrameCount);
 					chrono.start();
 				}
-				if(copyCachedLastPendingFrameCount > (uint64)frameCount) {
+				if(copyCachedLastPendingFrameCount > frameCountAsUInt64) {
 					break;
 				}
 
@@ -1475,7 +1388,6 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 				}
 
 				waitCount++;
-
 				//printf("Client waiting for packet for frame: %d, currentCachedPendingCommandsIndex = %d, cachedPendingCommandsIndex = %lld\n",frameCount,currentCachedPendingCommandsIndex,(long long int)cachedPendingCommandsIndex);
 			}
 		}
@@ -1490,40 +1402,18 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 void ClientInterface::updateKeyframe(int frameCount) {
 	currentFrameCount = frameCount;
 
-	Chrono chrono;
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
-	//chrono.start();
-
 	if(getQuit() == false && getQuitThread() == false) {
-		//bool testThreaded = Config::getInstance().getBool("ThreadedNetworkClient","true");
-//		bool testThreaded = true;
-//		if(testThreaded == false) {
-//			updateFrame(&frameCount);
-//			Commands &frameCmdList = cachedPendingCommands[frameCount];
-//			for(int i= 0; i < (int)frameCmdList.size(); ++i) {
-//				pendingCommands.push_back(frameCmdList[i]);
-//			}
-//			cachedPendingCommands.erase(frameCount);
-//		}
-//		else {
-			if(networkCommandListThread == NULL) {
-				static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
-//				networkCommandListThread = new SimpleTaskThread(this,0,0);
-//				networkCommandListThread->setUniqueID(mutexOwnerId);
-//				networkCommandListThread->start();
-				networkCommandListThread = new ClientInterfaceThread(this);
-				networkCommandListThread->setUniqueID(mutexOwnerId);
-				networkCommandListThread->start();
+		if(networkCommandListThread == NULL) {
+			static string mutexOwnerId 	= string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
+			networkCommandListThread 	= new ClientInterfaceThread(this);
+			networkCommandListThread->setUniqueID(mutexOwnerId);
+			networkCommandListThread->start();
 
-				sleep(0);
-			}
+			sleep(0);
+		}
 
-			getNetworkCommand(frameCount,cachedPendingCommandsIndex);
-		//}
+		getNetworkCommand(frameCount,cachedPendingCommandsIndex);
 	}
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
-	//printf("In [%s::%s Line: %d] took %lld msecs\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 bool ClientInterface::isMasterServerAdminOverride() {
@@ -1535,7 +1425,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 
 	MutexSafeWrapper safeMutexFlags(flagAccessor,CODE_AT_LINE);
 	bool signalServerWhenReadyToStartJoinedGame = this->readyForInGameJoin;
-	this->readyForInGameJoin = false;
+	this->readyForInGameJoin 					= false;
 	safeMutexFlags.ReleaseLock();
 
     Logger &logger= Logger::getInstance();
@@ -1556,11 +1446,11 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 	NetworkMessageLoadingStatus networkMessageLoadingStatus(nmls_NONE);
 
 	Lang &lang= Lang::getInstance();
-    int64 lastMillisCheck = 0;
 
-	uint64 waitLoopIterationCount = 0;
-	uint64 MAX_LOOP_COUNT_BEFORE_SLEEP = 100;
-	MAX_LOOP_COUNT_BEFORE_SLEEP = Config::getInstance().getInt("NetworkClientLoopGameLoadingCap",intToStr(MAX_LOOP_COUNT_BEFORE_SLEEP).c_str());
+    int64 lastMillisCheck 				= 0;
+	uint64 waitLoopIterationCount 		= 0;
+	uint64 MAX_LOOP_COUNT_BEFORE_SLEEP 	= 100;
+	MAX_LOOP_COUNT_BEFORE_SLEEP 		= Config::getInstance().getInt("NetworkClientLoopGameLoadingCap",intToStr(MAX_LOOP_COUNT_BEFORE_SLEEP).c_str());
 	if(MAX_LOOP_COUNT_BEFORE_SLEEP == 0) {
 		MAX_LOOP_COUNT_BEFORE_SLEEP = 1;
 	}
@@ -1572,7 +1462,8 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 		//sleep(2000);
 
 		waitLoopIterationCount++;
-		if(waitLoopIterationCount > 0 && waitLoopIterationCount % MAX_LOOP_COUNT_BEFORE_SLEEP == 0) {
+		if(waitLoopIterationCount > 0 &&
+			waitLoopIterationCount % MAX_LOOP_COUNT_BEFORE_SLEEP == 0) {
 			sleep(sleepMillis);
 			waitLoopIterationCount = 0;
 		}
@@ -1625,9 +1516,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 				}
 			}
 			else if(networkMessageType == nmtCommandList) {
-				//int waitCount = 0;
 				//make sure we read the message
-				//time_t receiveTimeElapsed = time(NULL);
 				NetworkMessageCommandList networkMessageCommandList;
 				bool gotCmd = receiveMessage(&networkMessageCommandList);
 				if(gotCmd == false) {
@@ -1663,7 +1552,6 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 					return;
 				}
 				else {
-					//if(chrono.getMillis() / 1000 > lastMillisCheck) {
 					if(chrono.getMillis() % 100 == 0) {
 						lastMillisCheck = (chrono.getMillis() / 1000);
 
@@ -1784,37 +1672,40 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//check checksum
-	if(getJoinGameInProgress() == false && networkMessageReady.getChecksum() != checksum->getSum()) {
+	if(getJoinGameInProgress() == false &&
+		networkMessageReady.getChecksum() != checksum->getSum()) {
+
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     	Lang &lang= Lang::getInstance();
     	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
-    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+    	for(unsigned int langIndex = 0; langIndex < languageList.size(); ++langIndex) {
+
     		string sErr = "Checksum error, you don't have the same data as the server";
-			if(lang.hasString("CheckSumGameLoadError",languageList[i]) == true) {
-				sErr = lang.getString("CheckSumGameLoadError",languageList[i]);
+			if(lang.hasString("CheckSumGameLoadError",languageList[langIndex]) == true) {
+				sErr = lang.getString("CheckSumGameLoadError",languageList[langIndex]);
 			}
 			bool echoLocal = lang.isLanguageLocal(lang.getLanguage());
-			sendTextMessage(sErr,-1,echoLocal,languageList[i]);
+			sendTextMessage(sErr,-1,echoLocal,languageList[langIndex]);
 
 			string playerNameStr = "Player with error is: " + getHumanPlayerName();
-			if(lang.hasString("CheckSumGameLoadPlayer",languageList[i]) == true) {
-				playerNameStr = lang.getString("CheckSumGameLoadPlayer",languageList[i]) + " " + getHumanPlayerName();
+			if(lang.hasString("CheckSumGameLoadPlayer",languageList[langIndex]) == true) {
+				playerNameStr = lang.getString("CheckSumGameLoadPlayer",languageList[langIndex]) + " " + getHumanPlayerName();
 			}
-			sendTextMessage(playerNameStr,-1,echoLocal,languageList[i]);
+			sendTextMessage(playerNameStr,-1,echoLocal,languageList[langIndex]);
 
     		string sErr1 = "Client Checksum: " + intToStr(checksum->getSum());
-			if(lang.hasString("CheckSumGameLoadClient",languageList[i]) == true) {
-				sErr1 = lang.getString("CheckSumGameLoadClient",languageList[i]) + " " + intToStr(checksum->getSum());
+			if(lang.hasString("CheckSumGameLoadClient",languageList[langIndex]) == true) {
+				sErr1 = lang.getString("CheckSumGameLoadClient",languageList[langIndex]) + " " + intToStr(checksum->getSum());
 			}
 
-			sendTextMessage(sErr1,-1,echoLocal,languageList[i]);
+			sendTextMessage(sErr1,-1,echoLocal,languageList[langIndex]);
 
     		string sErr2 = "Server Checksum: " + intToStr(networkMessageReady.getChecksum());
-			if(lang.hasString("CheckSumGameLoadServer",languageList[i]) == true) {
-				sErr2 = lang.getString("CheckSumGameLoadServer",languageList[i]) + " " + intToStr(networkMessageReady.getChecksum());
+			if(lang.hasString("CheckSumGameLoadServer",languageList[langIndex]) == true) {
+				sErr2 = lang.getString("CheckSumGameLoadServer",languageList[langIndex]) + " " + intToStr(networkMessageReady.getChecksum());
 			}
-			sendTextMessage(sErr2,-1,echoLocal,languageList[i]);
+			sendTextMessage(sErr2,-1,echoLocal,languageList[langIndex]);
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d %s %s %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sErr.c_str(),sErr1.c_str(),sErr2.c_str());
 
@@ -1829,27 +1720,9 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 			}
     	}
 
-//		string sErr = "Checksum error, you don't have the same data as the server";
-//		CheckSumGameLoadError
-//        sendTextMessage(sErr,-1, true);
-//
-//		string playerNameStr = "Player with error is [" + getHumanPlayerName() + "]";
-//		sendTextMessage(playerNameStr,-1, true);
-//
-//		string sErr1 = "Client Checksum: " + intToStr(checksum->getSum());
-//        sendTextMessage(sErr1,-1, true);
-//
-//		string sErr2 = "Server Checksum: " + intToStr(networkMessageReady.getChecksum());
-//        sendTextMessage(sErr2,-1, true);
-
-//        if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d %s %s %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sErr.c_str(),sErr1.c_str(),sErr2.c_str());
-
 		if(Config::getInstance().getBool("NetworkConsistencyChecks")) {
 			// error message and disconnect only if checked
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			//string niceError = sErr + string("\n") + sErr1 + string("\n") + sErr2;
-			//DisplayErrorMessage(niceError);
 
 			sleep(1);
 			setQuit(true);
@@ -1862,17 +1735,19 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 	}
 
 	MutexSafeWrapper safeMutexFlags2(flagAccessor,CODE_AT_LINE);
-	this->joinGameInProgress = false;
-	this->joinGameInProgressLaunch = false;
+	this->joinGameInProgress 		= false;
+	this->joinGameInProgressLaunch 	= false;
 
 	//printf("Client signalServerWhenReadyToStartJoinedGame = %d\n",signalServerWhenReadyToStartJoinedGame);
 	if(signalServerWhenReadyToStartJoinedGame == true) {
+
     	Lang &lang= Lang::getInstance();
     	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
-    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+    	for(unsigned int langIndex = 0; langIndex < languageList.size(); ++langIndex) {
+
 			string sText = "Player: %s is joining the game now.";
-			if(lang.hasString("JoinPlayerToCurrentGameLaunchDone",languageList[i]) == true) {
-				sText = lang.getString("JoinPlayerToCurrentGameLaunchDone",languageList[i]);
+			if(lang.hasString("JoinPlayerToCurrentGameLaunchDone",languageList[langIndex]) == true) {
+				sText = lang.getString("JoinPlayerToCurrentGameLaunchDone",languageList[langIndex]);
 			}
 
 			if(clientSocket != NULL && clientSocket->isConnected() == true) {
@@ -1880,7 +1755,7 @@ void ClientInterface::waitUntilReady(Checksum* checksum) {
 				char szBuf[8096]="";
 				snprintf(szBuf,8096,sText.c_str(),playerNameStr.c_str());
 
-				sendTextMessage(szBuf,-1,false,languageList[i]);
+				sendTextMessage(szBuf,-1,false,languageList[langIndex]);
 			}
     	}
 
@@ -1979,8 +1854,9 @@ NetworkMessageType ClientInterface::waitForMessage(int waitMicroseconds)
 	chrono.start();
 
 	NetworkMessageType msg = nmtInvalid;
-	//uint64 waitLoopCount = 0;
-	while(msg == nmtInvalid && getQuitThread() == false) {
+	while(	msg == nmtInvalid &&
+			getQuitThread() == false) {
+
 		msg = getNextMessageType(waitMicroseconds);
 		if(msg == nmtInvalid) {
 			if(chrono.getMillis() % 250 == 0 && isConnected() == false) {
@@ -1995,24 +1871,23 @@ NetworkMessageType ClientInterface::waitForMessage(int waitMicroseconds)
 			}
 
 			if(chrono.getMillis() > messageWaitTimeout) {
-			//if(1) {
-				//throw megaglest_runtime_error("Timeout waiting for message");
-
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 				Lang &lang= Lang::getInstance();
 		    	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
-		    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+		    	for(unsigned int langIndex = 0; langIndex < languageList.size(); ++langIndex) {
+
 		    		string msg = "Timeout waiting for message.";
-		    		if(lang.hasString("TimeoutWaitingForMessage",languageList[i]) == true) {
-		    			msg = lang.getString("TimeoutWaitingForMessage",languageList[i]);
+		    		if(lang.hasString("TimeoutWaitingForMessage",languageList[langIndex]) == true) {
+		    			msg = lang.getString("TimeoutWaitingForMessage",languageList[langIndex]);
 		    		}
 
-					sendTextMessage(msg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
-					if(lang.isLanguageLocal(languageList[i]) == true) {
+					sendTextMessage(msg,-1, lang.isLanguageLocal(languageList[langIndex]),languageList[langIndex]);
+					if(lang.isLanguageLocal(languageList[langIndex]) == true) {
 						DisplayErrorMessage(msg);
 					}
 		    	}
+
 		    	sleep(1);
 		    	setQuit(true);
 				close();
@@ -2022,10 +1897,7 @@ NetworkMessageType ClientInterface::waitForMessage(int waitMicroseconds)
 			else if(chrono.getMillis() % 20 == 0) {
 				sleep(5);
 			}
-
-			//sleep(waitSleepTime);
 		}
-		//waitLoopCount++;
 
 		if(debugClientInterfacePerf == true) {
 			loopCount++;
@@ -2033,13 +1905,11 @@ NetworkMessageType ClientInterface::waitForMessage(int waitMicroseconds)
 				printf("Client waitForMessage loopCount = %llu\n",(long long unsigned int)loopCount);
 
 				loopCount = 0;
-				//sleep(0);
 				chronoPerf.start();
 			}
 		}
 	}
 
-	//if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] waiting took %lld msecs, waitLoopCount = %ull, msg = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),waitLoopCount,msg);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 1) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] waiting took %lld msecs, msg = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis(),msg);
 
 	return msg;
@@ -2049,19 +1919,19 @@ void ClientInterface::quitGame(bool userManuallyQuit)
 {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] userManuallyQuit = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,userManuallyQuit);
 
-    if(clientSocket != NULL && userManuallyQuit == true)
-    {
+    if(clientSocket != NULL && userManuallyQuit == true) {
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		Lang &lang= Lang::getInstance();
     	const vector<string> languageList = this->gameSettings.getUniqueNetworkPlayerLanguages();
-    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+    	for(unsigned int langIndex = 0; langIndex < languageList.size(); ++langIndex) {
+
     		string msg = "has chosen to leave the game!";
-    		if(lang.hasString("PlayerLeftGame",languageList[i]) == true) {
-    			msg = lang.getString("PlayerLeftGame",languageList[i]);
+    		if(lang.hasString("PlayerLeftGame",languageList[langIndex]) == true) {
+    			msg = lang.getString("PlayerLeftGame",languageList[langIndex]);
     		}
 
-			sendTextMessage(msg,-1, lang.isLanguageLocal(languageList[i]),languageList[i]);
+			sendTextMessage(msg,-1, lang.isLanguageLocal(languageList[langIndex]),languageList[langIndex]);
     	}
     	sleep(1);
         close();
@@ -2080,7 +1950,7 @@ void ClientInterface::close(bool lockMutex) {
 	shutdownNetworkCommandListThread(safeMutex);
 
 	delete clientSocket;
-	clientSocket= NULL;
+	clientSocket = NULL;
 
 	safeMutex.ReleaseLock();
 
@@ -2088,9 +1958,9 @@ void ClientInterface::close(bool lockMutex) {
 	gotIntro = false;
 
 	MutexSafeWrapper safeMutexFlags(flagAccessor,CODE_AT_LINE);
-	this->joinGameInProgress = false;
-	this->joinGameInProgressLaunch = false;
-	this->readyForInGameJoin = false;
+	this->joinGameInProgress 		= false;
+	this->joinGameInProgressLaunch 	= false;
+	this->readyForInGameJoin 		= false;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] END\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
@@ -2119,9 +1989,9 @@ void ClientInterface::sendSwitchSetupRequest(string selectedFactionName, int8 cu
 											int8 networkPlayerStatus, int8 flags,
 											string language) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] networkPlayerName [%s] flags = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkPlayerName.c_str(),flags);
-	SwitchSetupRequest message=SwitchSetupRequest(selectedFactionName,
-			currentSlotIndex, toSlotIndex,toTeam,networkPlayerName,
-			networkPlayerStatus, flags,language);
+	SwitchSetupRequest message = SwitchSetupRequest(selectedFactionName,
+							currentSlotIndex, toSlotIndex,toTeam,networkPlayerName,
+							networkPlayerStatus, flags,language);
 	sendMessage(&message);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
@@ -2261,8 +2131,6 @@ bool ClientInterface::shouldDiscardNetworkMessage(NetworkMessageType networkMess
 string ClientInterface::getHumanPlayerName(int index) {
 	string  result = Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str());
 
-	//printf("Client getHumanPlayerName index = %d, gameSettings.getThisFactionIndex() = %d\n",index,gameSettings.getThisFactionIndex());
-
 	if(index >= 0 || gameSettings.getThisFactionIndex() >= 0) {
 		if(index < 0) {
 			index = gameSettings.getThisFactionIndex();
@@ -2275,20 +2143,20 @@ string ClientInterface::getHumanPlayerName(int index) {
 	return result;
 }
 
-
 void ClientInterface::setGameSettings(GameSettings *serverGameSettings) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] START\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
-	//MutexSafeWrapper safeMutex(&serverSynchAccessor,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
+
 	gameSettings = *serverGameSettings;
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__);
 }
 
 void ClientInterface::broadcastGameSetup(const GameSettings *gameSettings) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	//MutexSafeWrapper safeMutex(&serverSynchAccessor,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
+
 	NetworkMessageLaunch networkMessageLaunch(gameSettings, nmtBroadCastSetup);
-	//broadcastMessage(&networkMessageLaunch);
 	sendMessage(&networkMessageLaunch);
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 

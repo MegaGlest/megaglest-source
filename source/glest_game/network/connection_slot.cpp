@@ -31,30 +31,28 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 ConnectionSlotThread::ConnectionSlotThread(int slotIndex) : BaseThread() {
-	this->masterController = NULL;
-	this->triggerIdMutex = new Mutex();
-	this->slotIndex = slotIndex;
-	this->slotInterface = NULL;
-	uniqueID = "ConnectionSlotThread";
-	//this->event = NULL;
+	this->masterController 	= NULL;
+	this->triggerIdMutex 	= new Mutex();
+	this->slotIndex 		= slotIndex;
+	this->slotInterface 	= NULL;
+	uniqueID 				= "ConnectionSlotThread";
 	eventList.clear();
-	eventList.reserve(100);
+	eventList.reserve(1000);
 
-	triggerGameStarted = new Mutex();
-	gameStarted = false;
+	triggerGameStarted 		= new Mutex();
+	gameStarted 			= false;
 }
 
 ConnectionSlotThread::ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex) : BaseThread() {
-	this->masterController = NULL;
-	this->triggerIdMutex = new Mutex();
-	this->slotIndex = slotIndex;
-	this->slotInterface = slotInterface;
-	uniqueID = "ConnectionSlotThread";
-	//this->event = NULL;
+	this->masterController 	= NULL;
+	this->triggerIdMutex 	= new Mutex();
+	this->slotIndex 		= slotIndex;
+	this->slotInterface 	= slotInterface;
+	uniqueID 				= "ConnectionSlotThread";
 	eventList.clear();
 
-	triggerGameStarted = new Mutex();
-	gameStarted = false;
+	triggerGameStarted 		= new Mutex();
+	gameStarted 			= false;
 }
 
 ConnectionSlotThread::~ConnectionSlotThread() {
@@ -80,7 +78,6 @@ void ConnectionSlotThread::signalUpdate(ConnectionSlotEvent *event) {
 	if(event != NULL) {
 		MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
 		eventList.push_back(*event);
-		safeMutex.ReleaseLock();
 	}
 	if(getGameStarted() == true && getQuitStatus() == true) {
 		return;
@@ -91,46 +88,39 @@ void ConnectionSlotThread::signalUpdate(ConnectionSlotEvent *event) {
 void ConnectionSlotThread::setTaskCompleted(int eventId) {
 	if(eventId > 0) {
 		MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
-		//event->eventCompleted = true;
-		for(int i = 0; i < (int)eventList.size(); ++i) {
-		    ConnectionSlotEvent &slotEvent = eventList[i];
+		for(int index = 0; index < (int)eventList.size(); ++index) {
+		    ConnectionSlotEvent &slotEvent = eventList[index];
 		    if(slotEvent.eventId == eventId) {
-                //eventList.erase(eventList.begin() + i);
                 slotEvent.eventCompleted = true;
                 break;
 		    }
 		}
-		safeMutex.ReleaseLock();
 	}
 }
 
 void ConnectionSlotThread::purgeAllEvents() {
     MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
     eventList.clear();
-    safeMutex.ReleaseLock();
 }
 
 void ConnectionSlotThread::setAllEventsCompleted() {
     MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
-    for(int i = 0; i < (int)eventList.size(); ++i) {
-        ConnectionSlotEvent &slotEvent = eventList[i];
+    for(int index = 0; index < (int)eventList.size(); ++index) {
+        ConnectionSlotEvent &slotEvent = eventList[index];
         if(slotEvent.eventCompleted == false) {
             slotEvent.eventCompleted = true;
         }
     }
-    safeMutex.ReleaseLock();
 }
 
 void ConnectionSlotThread::purgeCompletedEvents() {
     MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
-    //event->eventCompleted = true;
-    for(int i = (int)eventList.size() - 1; i >= 0; i--) {
-        ConnectionSlotEvent &slotEvent = eventList[i];
+    for(int index = (int)eventList.size() - 1; index >= 0; index--) {
+        ConnectionSlotEvent &slotEvent = eventList[index];
         if(slotEvent.eventCompleted == true) {
-            eventList.erase(eventList.begin() + i);
+            eventList.erase(eventList.begin() + index);
         }
     }
-    safeMutex.ReleaseLock();
 }
 
 bool ConnectionSlotThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
@@ -145,43 +135,32 @@ bool ConnectionSlotThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 }
 
 bool ConnectionSlotThread::isSignalCompleted(ConnectionSlotEvent *event) {
-	MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
 	bool result = false;
     if(event != NULL) {
-        for(int i = 0; i < (int)eventList.size(); ++i) {
-            ConnectionSlotEvent &slotEvent = eventList[i];
+    	MutexSafeWrapper safeMutex(triggerIdMutex,CODE_AT_LINE);
+        for(int index = 0; index < (int)eventList.size(); ++index) {
+            ConnectionSlotEvent &slotEvent = eventList[index];
             if(slotEvent.eventId == event->eventId) {
                 result = slotEvent.eventCompleted;
                 break;
             }
         }
     }
-	//safeMutex.ReleaseLock();
 	return result;
 }
 
 void ConnectionSlotThread::slotUpdateTask(ConnectionSlotEvent *event) {
-	if(event != NULL) {
+	if(event != NULL && event->connectionSlot != NULL) {
 		if(event->eventType == eSendSocketData) {
-			if(event->connectionSlot != NULL) {
-				event->connectionSlot->sendMessage(event->networkMessage);
-			}
+			event->connectionSlot->sendMessage(event->networkMessage);
 		}
 		else if(event->eventType == eReceiveSocketData) {
-			//updateSlot(event);
-			if(event->connectionSlot != NULL) {
-				event->connectionSlot->updateSlot(event);
-			}
-		}
-		else {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			event->connectionSlot->updateSlot(event);
 		}
 	}
 }
 
 void ConnectionSlotThread::signalSlave(void *userdata) {
-
-	//ConnectionSlotEvent &event = eventList[i];
 	std::map<int,ConnectionSlotEvent> *eventList = (std::map<int,ConnectionSlotEvent> *)userdata;
 	ConnectionSlotEvent &event = (*eventList)[slotIndex];
 	signalUpdate(&event);
@@ -193,16 +172,11 @@ bool ConnectionSlotThread::getGameStarted() {
 }
 void ConnectionSlotThread::setGameStarted(bool value) {
 	MutexSafeWrapper safeMutexGameStarted(triggerGameStarted,CODE_AT_LINE);
-
 	if(gameStarted != value) {
 		gameStarted = value;
 
 		if(gameStarted == true) {
-			//printf("Signal game has started for slot: %d\n",slotIndex);
 			semTaskSignalled.signal();
-		}
-		else {
-			//printf("Signal game has NOT started for slot: %d\n",slotIndex);
 		}
 	}
 }
@@ -210,19 +184,18 @@ void ConnectionSlotThread::setGameStarted(bool value) {
 void ConnectionSlotThread::execute() {
     RunningStatusSafeWrapper runningStatus(this);
 	try {
-		//setRunningStatus(true);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 		//printf("Starting client SLOT thread: %d\n",slotIndex);
 
-		//unsigned int idx = 0;
 		for(;this->slotInterface != NULL;) {
 			if(getQuitStatus() == true) {
 				SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 				break;
 			}
 
-			if(this->slotInterface->getAllowInGameConnections() == true &&
+			// Does this game allow joining in progress play and is this slot
+			// not already connected to a client?
+			if( this->slotInterface->getAllowInGameConnections() == true &&
 				this->slotInterface->isClientConnected(slotIndex) == false) {
 				//printf("#1 Non connected slot: %d waiting for client connection..\n",slotIndex);
 				sleep(100);
@@ -233,37 +206,21 @@ void ConnectionSlotThread::execute() {
 				}
 
 				//printf("Slot thread slotIndex: %d eventCount: %d\n",slotIndex,eventCount);
-				//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Slot thread slotIndex: %d eventCount: %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,eventCount);
 
-				//if(eventCount > 0) {
 				ConnectionSlotEvent eventCopy;
-				eventCopy.eventType = eReceiveSocketData;
-				eventCopy.connectionSlot = this->slotInterface->getSlot(slotIndex);
-				eventCopy.eventId = -1;
+				eventCopy.eventType 		= eReceiveSocketData;
+				eventCopy.connectionSlot 	= this->slotInterface->getSlot(slotIndex);
 
 				if(getQuitStatus() == true) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 					break;
 				}
 
-				//if(eventCopy.eventId > 0) {
 				ExecutingTaskSafeWrapper safeExecutingTaskMutex(this);
-
-				//if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,eventCount,(int)eventCopy.eventId);
-				//printf("#1 Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",slotIndex,eventCount,(int)eventCopy.eventId);
-				//this->slotInterface->slotUpdateTask(&eventCopy);
-
-				//printf("#2 Non connected slot: %d waiting for client connection..\n",slotIndex);
 				this->slotUpdateTask(&eventCopy);
-				//setTaskCompleted(eventCopy.eventId);
-					//printf("#2 Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",slotIndex,eventCount,(int)eventCopy.eventId);
-				//}
-				//}
-				//else {
-				//	safeMutex.ReleaseLock();
-				//}
 			}
 			else {
+				// If the game already started?
 				if(getGameStarted() == true) {
 					//printf("#A Checking action for slot: %d\n",slotIndex);
 
@@ -285,54 +242,42 @@ void ConnectionSlotThread::execute() {
 						break;
 					}
 
-					//bool socketHasReadData = socket->hasDataToReadWithWait(1000);
-					//bool socketHasReadData = socket->hasDataToRead();;
 					// Avoid mutex locking
 					//bool socketHasReadData = Socket::hasDataToRead(socket->getSocketId());
 					bool socketHasReadData = Socket::hasDataToReadWithWait(socket->getSocketId(),150000);
 
 					ConnectionSlotEvent eventCopy;
-					eventCopy.eventType = eReceiveSocketData;
-					eventCopy.connectionSlot = slot;
-					eventCopy.eventId = slotIndex;
-					eventCopy.socketTriggered = socketHasReadData;
-					//eventCopy.socketTriggered =  true;
+					eventCopy.eventType 		= eReceiveSocketData;
+					eventCopy.connectionSlot 	= slot;
+					eventCopy.eventId 			= slotIndex;
+					eventCopy.socketTriggered 	= socketHasReadData;
 
 					if(getQuitStatus() == true) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						break;
 					}
 
-					//printf("#C Checking action for slot: %d\n",slotIndex);
 					this->slotUpdateTask(&eventCopy);
-					//printf("#D Checking action for slot: %d\n",slotIndex);
-
-					//if(socketHasReadData == false && getQuitStatus() == false) {
-					//	sleep(10);
-					//}
 				}
+				// Game has not yet started
 				else {
 					//printf("#1 Checking action for slot: %d\n",slotIndex);
 
 					if(getGameStarted() == true) {
 						continue;
 					}
-
 					//printf("#2 Checking action for slot: %d\n",slotIndex);
 
 					semTaskSignalled.waitTillSignalled();
-
 					//printf("#3 Checking action for slot: %d\n",slotIndex);
 
 					if(getGameStarted() == true) {
 						continue;
 					}
-
 					//printf("#4 Checking action for slot: %d\n",slotIndex);
 
 					static string masterSlaveOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 					MasterSlaveThreadControllerSafeWrapper safeMasterController(masterController,20000,masterSlaveOwnerId);
-
 					if(getQuitStatus() == true) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 						break;
@@ -346,8 +291,6 @@ void ConnectionSlotThread::execute() {
 
 					if(eventCount > 0) {
 						ConnectionSlotEvent eventCopy;
-						eventCopy.eventId = -1;
-
 						for(int i = 0; i < (int)eventList.size(); ++i) {
 							ConnectionSlotEvent &slotEvent = eventList[i];
 							if(slotEvent.eventCompleted == false) {
@@ -355,7 +298,6 @@ void ConnectionSlotThread::execute() {
 								break;
 							}
 						}
-
 						safeMutex.ReleaseLock();
 
 						if(getQuitStatus() == true) {
@@ -368,14 +310,12 @@ void ConnectionSlotThread::execute() {
 
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",__FILE__,__FUNCTION__,__LINE__,slotIndex,eventCount,(int)eventCopy.eventId);
 							//printf("#1 Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",slotIndex,eventCount,(int)eventCopy.eventId);
-							//this->slotInterface->slotUpdateTask(&eventCopy);
+
 							this->slotUpdateTask(&eventCopy);
 							setTaskCompleted(eventCopy.eventId);
+
 							//printf("#2 Slot thread slotIndex: %d eventCount: %d eventCopy.eventId: %d\n",slotIndex,eventCount,(int)eventCopy.eventId);
 						}
-					}
-					else {
-						safeMutex.ReleaseLock();
 					}
 				}
 			}
@@ -391,7 +331,6 @@ void ConnectionSlotThread::execute() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 	catch(const exception &ex) {
-		//setRunningStatus(false);
 
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -408,51 +347,51 @@ void ConnectionSlotThread::execute() {
 ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-	this->mutexSocket = new Mutex();
-	this->socket = NULL;
-	this->mutexCloseConnection = new Mutex();
-	this->mutexPendingNetworkCommandList = new Mutex();
-	this->socketSynchAccessor = new Mutex();
-    this->connectedRemoteIPAddress = 0;
-	this->sessionKey 		= 0;
-	this->serverInterface	= serverInterface;
-	this->playerIndex		= playerIndex;
-	this->playerStatus		= npst_None;
-	this->playerLanguage	= "";
-	this->playerUUID		= "";
-	this->platform			= "";
-	this->currentFrameCount = 0;
-	this->currentLagCount	= 0;
-	this->gotLagCountWarning = false;
-	this->lastReceiveCommandListTime	= 0;
-	this->receivedNetworkGameStatus = false;
+	this->mutexSocket 						= new Mutex();
+	this->socket 							= NULL;
+	this->mutexCloseConnection 				= new Mutex();
+	this->mutexPendingNetworkCommandList 	= new Mutex();
+	this->socketSynchAccessor 				= new Mutex();
+    this->connectedRemoteIPAddress 			= 0;
+	this->sessionKey 						= 0;
+	this->serverInterface					= serverInterface;
+	this->playerIndex						= playerIndex;
+	this->playerStatus						= npst_None;
+	this->playerLanguage					= "";
+	this->playerUUID						= "";
+	this->platform							= "";
+	this->currentFrameCount 				= 0;
+	this->currentLagCount					= 0;
+	this->gotLagCountWarning 				= false;
+	this->lastReceiveCommandListTime		= 0;
+	this->receivedNetworkGameStatus 		= false;
 
-	this->skipLagCheck = false;
-	this->joinGameInProgress = false;
-	this->canAcceptConnections = true;
-	this->startInGameConnectionLaunch = false;
-	this->pauseForInGameConnection = false;
-	this->unPauseForInGameConnection = false;
-	this->sentSavedGameInfo = false;
+	this->skipLagCheck 						= false;
+	this->joinGameInProgress 				= false;
+	this->canAcceptConnections 				= true;
+	this->startInGameConnectionLaunch 		= false;
+	this->pauseForInGameConnection 			= false;
+	this->unPauseForInGameConnection 		= false;
+	this->sentSavedGameInfo 				= false;
 
-	this->setSocket(NULL);
-	this->slotThreadWorker 	= NULL;
-	static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
-	this->slotThreadWorker 	= new ConnectionSlotThread(this->serverInterface,playerIndex);
-	this->slotThreadWorker->setUniqueID(mutexOwnerId);
-	this->slotThreadWorker->start();
+	this->ready								= false;
+	this->gotIntro 							= false;
+	this->connectedTime 					= 0;
 
-	this->ready		= false;
-	this->gotIntro 	= false;
-	this->connectedTime = 0;
-
-	networkGameDataSynchCheckOkMap      = false;
-	networkGameDataSynchCheckOkTile     = false;
-	networkGameDataSynchCheckOkTech     = false;
+	this->networkGameDataSynchCheckOkMap    = false;
+	this->networkGameDataSynchCheckOkTile   = false;
+	this->networkGameDataSynchCheckOkTech   = false;
 	this->setNetworkGameDataSynchCheckTechMismatchReport("");
 	this->setReceivedDataSynchCheck(false);
 
 	this->clearChatInfo();
+
+	this->setSocket(NULL);
+	this->slotThreadWorker 					= NULL;
+	static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
+	this->slotThreadWorker 					= new ConnectionSlotThread(this->serverInterface,playerIndex);
+	this->slotThreadWorker->setUniqueID(mutexOwnerId);
+	this->slotThreadWorker->start();
 }
 
 ConnectionSlot::~ConnectionSlot() {
@@ -469,20 +408,26 @@ ConnectionSlot::~ConnectionSlot() {
 	if(slotThreadWorker != NULL) {
 		slotThreadWorker->signalQuit();
 	}
-	if(slotThreadWorker != NULL && slotThreadWorker->canShutdown(false) == true  &&
+	if( slotThreadWorker != NULL &&
+		slotThreadWorker->canShutdown(false) == true &&
 		slotThreadWorker->getRunningStatus() == false) {
 		//printf("#2 Ending client SLOT: %d\n",playerIndex);
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-        delete slotThreadWorker;
+
+		delete slotThreadWorker;
+
         if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
-	//else if(BaseThread::shutdownAndWait(slotThreadWorker) == true) {
-	else if(slotThreadWorker != NULL && slotThreadWorker->canShutdown(true) == true) {
+	else if(slotThreadWorker != NULL &&
+			slotThreadWorker->canShutdown(true) == true) {
+
 		if(slotThreadWorker->getRunningStatus() == false) {
 			//printf("#3 Ending client SLOT: %d\n",playerIndex);
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
 			delete slotThreadWorker;
+
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		}
 		else {
@@ -537,61 +482,28 @@ void ConnectionSlot::setReady()	{
 }
 
 void ConnectionSlot::updateSlot(ConnectionSlotEvent *event) {
-	Chrono chrono;
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
-
-	//if(serverInterface->getGameHasBeenInitiated() == true &&
-	   //serverInterface->getAllowInGameConnections() == true) {
-		//printf("Checking updateSlot event = %p\n",event);
-	//}
-
 	if(event != NULL) {
 		bool &socketTriggered = event->socketTriggered;
 		bool checkForNewClients =
 				(serverInterface->getGameHasBeenInitiated() == false ||
 					serverInterface->getAllowInGameConnections() == true);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
+		//if((serverInterface->getGameHasBeenInitiated() == false ||
+		//	(serverInterface->getAllowInGameConnections() == true && this->isConnected() == false) ||
+		//	socketTriggered == true)) {
+		if(socketTriggered == true ||
+			((serverInterface->getGameHasBeenInitiated() == false ||
+			  serverInterface->getAllowInGameConnections() == true) &&
+				this->isConnected() == false)) {
 
-		//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
-
-		//if(serverInterface->getGameHasBeenInitiated() == true &&
-		   //serverInterface->getAllowInGameConnections() == true) {
-			//printf("Checking for new client connection on slot, checkForNewClients: %d this->canAcceptConnections: %d\n",checkForNewClients,this->canAcceptConnections);
-		//}
-
-		if((serverInterface->getGameHasBeenInitiated() == false ||
-				(serverInterface->getAllowInGameConnections() == true && this->isConnected() == false) ||
-			//(this->getSocket() != NULL && socketTriggered == true))) {
-			socketTriggered == true)) {
-			if(socketTriggered == true ||
-				((serverInterface->getGameHasBeenInitiated() == false ||
-				  serverInterface->getAllowInGameConnections() == true) &&
-					this->isConnected() == false)) {
-
-				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
-
-				this->update(checkForNewClients,event->triggerId);
-
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 4) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-
-				//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
-
-				// This means no clients are trying to connect at the moment
-				//if(this->getSocket() == NULL) {
-				//	checkForNewClients = false;
-				//}
-			}
-			//if(chrono.getMillis() > 1) printf("In [%s::%s Line: %d] MUTEX LOCK held for msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,(long long int)chrono.getMillis());
+			this->update(checkForNewClients,event->triggerId);
 		}
+		//}
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took %lld msecs\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 }
 
 void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
-	//Chrono chrono;
-	//chrono.start();
 	try {
 		clearThreadErrorList();
 
@@ -612,11 +524,11 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] BEFORE accept new client connection, serverInterface->getOpenSlotCount() = %d\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getOpenSlotCount());
 
 				//printf("Checking for new connections...\n");
-				bool hasData = (serverInterface->getServerSocket() != NULL && serverInterface->getServerSocket()->hasDataToRead() == true);
+				bool hasData = (serverInterface->getServerSocket() != NULL &&
+								serverInterface->getServerSocket()->hasDataToRead() == true);
 				//printf("Server socket hasData: %d\n",hasData);
 
 				if(hasData == true) {
-
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] about to accept new client connection playerIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,playerIndex);
 
 					Socket *newSocket = serverInterface->getServerSocket()->accept(false);
@@ -736,19 +648,17 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 							// client REQUIRES a ping before completing intro
 							// authentication
-							//if(gotIntro == true) {
-								NetworkMessagePing networkMessagePing;
-								if(receiveMessage(&networkMessagePing)) {
-									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-									lastPingInfo = networkMessagePing;
-								}
-								else {
-									if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
-									this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
-									close();
-									return;
-								}
-							//}
+							NetworkMessagePing networkMessagePing;
+							if(receiveMessage(&networkMessagePing)) {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+								lastPingInfo = networkMessagePing;
+							}
+							else {
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d]\nInvalid message type before intro handshake [%d]\nDisconnecting socket for slot: %d [%s].\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,networkMessageType,this->playerIndex,this->getIpAddress().c_str());
+								this->serverInterface->notifyBadClientConnectAttempt(this->getIpAddress());
+								close();
+								return;
+							}
 						}
 						break;
 
@@ -873,15 +783,11 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtCommandList gotIntro = %d\n",__FILE__,__FUNCTION__,__LINE__,gotIntro);
 
-							//throw megaglest_runtime_error("test");
-
 							if(gotIntro == true) {
 								NetworkMessageCommandList networkMessageCommandList;
 								if(receiveMessage(&networkMessageCommandList)) {
 									currentFrameCount = networkMessageCommandList.getFrameCount();
 									lastReceiveCommandListTime = time(NULL);
-
-									//printf("#1 Server slot got currentFrameCount = %d\n",currentFrameCount);
 
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] currentFrameCount = %d\n",__FILE__,__FUNCTION__,__LINE__,currentFrameCount);
 
@@ -889,7 +795,6 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									for(int i = 0; i < networkMessageCommandList.getCommandCount(); ++i) {
 										vctPendingNetworkCommandList.push_back(*networkMessageCommandList.getCommand(i));
 									}
-									safeMutexSlot.ReleaseLock();
 									//printf("Got commands from client frame: %d count: %d\n",currentFrameCount,vctPendingNetworkCommandList.size());
 
 									//printf("#2 Server slot got currentFrameCount = %d\n",currentFrameCount);
@@ -926,8 +831,6 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								this->platform		  = networkMessageIntro.getPlayerPlatform();
 
 								//printf("Got uuid from client [%s]\n",this->playerUUID.c_str());
-
-								//printf("\n\n\n ##### GOT this->playerLanguage [%s]\n\n\n",this->playerLanguage.c_str());
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] got name [%s] versionString [%s], msgSessionId = %d\n",__FILE__,__FUNCTION__,name.c_str(),versionString.c_str(),msgSessionId);
 
 								if(msgSessionId != sessionKey) {
@@ -1004,7 +907,6 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 									if(serverInterface->getGameHasBeenInitiated() == true &&
 									   serverInterface->getAllowInGameConnections() == true) {
-										//int factionIndex = this->serverInterface->gameSettings.getFactionIndexForStartLocation(playerIndex);
 										this->serverInterface->gameSettings.setNetworkPlayerStatuses(factionIndex,npst_None);
 									}
 
@@ -1066,7 +968,6 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 								if(receiveMessage(&networkMessageLaunch)) {
 									if(networkMessageLaunch.getMessageType() == nmtLaunch) {
 										if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Lined: %d] got nmtLaunch\n",__FILE__,__FUNCTION__,__LINE__);
-
 										//printf("Got launch request from client joinGameInProgress = %d joinGameInProgress = %d!\n",joinGameInProgress,joinGameInProgress);
 									}
 									else if(networkMessageLaunch.getMessageType() == nmtBroadCastSetup) {
@@ -1081,16 +982,18 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									}
 
 									int minHeadLessPlayersRequired = Config::getInstance().getInt("MinHeadlessPlayersRequired","2");
-									if(this->joinGameInProgress == false && networkMessageLaunch.getMessageType() == nmtLaunch &&
-											this->ready == false &&
-											this->serverInterface->getConnectedSlotCount(true) < minHeadLessPlayersRequired) {
+									if(this->joinGameInProgress == false &&
+										networkMessageLaunch.getMessageType() == nmtLaunch &&
+										this->ready == false &&
+										this->serverInterface->getConnectedSlotCount(true) < minHeadLessPlayersRequired) {
+
 								    	Lang &lang= Lang::getInstance();
 								    	const vector<string> languageList = this->serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
-								    	for(unsigned int i = 0; i < languageList.size(); ++i) {
+								    	for(unsigned int index = 0; index < languageList.size(); ++index) {
 								    		char szBuf[4096]="";
 											string msgTemplate = "You must have have at least %d player(s) connected to start this game!";
-											if(lang.hasString("HeadlessAdminRequiresMorePlayers",languageList[i]) == true) {
-												msgTemplate = lang.getString("HeadlessAdminRequiresMorePlayers",languageList[i]);
+											if(lang.hasString("HeadlessAdminRequiresMorePlayers",languageList[index]) == true) {
+												msgTemplate = lang.getString("HeadlessAdminRequiresMorePlayers",languageList[index]);
 											}
 					#ifdef WIN32
 											_snprintf(szBuf,4095,msgTemplate.c_str(),minHeadLessPlayersRequired);
@@ -1100,10 +1003,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 											if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
 											string sMsg = szBuf;
-											bool echoLocal = lang.isLanguageLocal(languageList[i]);
-											this->serverInterface->sendTextMessage(sMsg,-1, echoLocal, languageList[i], this->getPlayerIndex());
-
-											//printf("Lang [%s] msgTemplate [%s] echoLocal = %d\n",languageList[i].c_str(),msgTemplate.c_str(),echoLocal);
+											bool echoLocal = lang.isLanguageLocal(languageList[index]);
+											this->serverInterface->sendTextMessage(sMsg,-1, echoLocal, languageList[index], this->getPlayerIndex());
 								    	}
 									}
 									else {
@@ -1114,18 +1015,17 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 											//printf("Connection slot got networkMessageLaunch.getMessageType() = %d, got map [%s]\n",networkMessageLaunch.getMessageType(),gameSettings.getMap().c_str());
 											//printf("\n\n\n\n=====Connection slot got settings:\n%s\n",gameSettings.toString().c_str());
 
-											//this->serverInterface->setGameSettings(&gameSettingsBuffer,false);
 											this->serverInterface->broadcastGameSetup(&gameSettingsBuffer, true);
 										}
 
-										if(this->joinGameInProgress == false && networkMessageLaunch.getMessageType() == nmtLaunch) {
+										if(this->joinGameInProgress == false &&
+											networkMessageLaunch.getMessageType() == nmtLaunch) {
+
 											this->serverInterface->setMasterserverAdminRequestLaunch(true);
 										}
-										else if(this->joinGameInProgress == true && networkMessageLaunch.getMessageType() == nmtLaunch) {
+										else if(this->joinGameInProgress == true &&
+												networkMessageLaunch.getMessageType() == nmtLaunch) {
 											//printf("!!! setStartInGameConnectionLaunch for client joinGameInProgress = %d!\n",joinGameInProgress);
-
-											//GameSettings gameSettingsBuffer;
-											//networkMessageLaunch.buildGameSettings(&gameSettingsBuffer);
 
 											int factionIndex = this->serverInterface->gameSettings.getFactionIndexForStartLocation(playerIndex);
 											this->serverInterface->gameSettings.setFactionControl(factionIndex,ctNetwork);
@@ -1248,11 +1148,8 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 												vctFileList.push_back(std::pair<string,uint32>(Config::getMapPath(serverInterface->getGameSettings()->getMap(),scenarioDir,false),mapCRC));
 											}
 
-											//for(int i = 0; i < vctFileList.size(); i++)
-											//{
 											NetworkMessageSynchNetworkGameDataFileCRCCheck networkMessageSynchNetworkGameDataFileCRCCheck((int)vctFileList.size(), 1, vctFileList[0].second, vctFileList[0].first);
 											sendMessage(&networkMessageSynchNetworkGameDataFileCRCCheck);
-											//}
 										}
 										else {
 											if(networkGameDataSynchCheckOkTech == false) {
@@ -1349,7 +1246,6 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 						case nmtSwitchSetupRequest:
 						{
 							//printf("Got nmtSwitchSetupRequest A gotIntro = %d\n",gotIntro);
-
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got nmtSwitchSetupRequest gotIntro = %d\n",__FILE__,__FUNCTION__,__LINE__,gotIntro);
 
 							if(gotIntro == true) {
@@ -1361,7 +1257,6 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 
 									int slotIdx = switchSetupRequest.getCurrentSlotIndex();
 									//int newSlotIdx = switchSetupRequest.getToSlotIndex();
-
 									//printf("slotIdx = %d newSlotIdx = %d\n",slotIdx,newSlotIdx);
 
 									if(serverInterface->getSwitchSetupRequests(slotIdx) == NULL) {
@@ -1379,7 +1274,6 @@ void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 									//printf("In [%s::%s Line %d] networkPlayerName [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getSwitchSetupRequests()[factionIdx]->getNetworkPlayerName().c_str());
 
 									if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] networkPlayerName [%s]\n",__FILE__,__FUNCTION__,__LINE__,serverInterface->getSwitchSetupRequests()[slotIdx]->getNetworkPlayerName().c_str());
-
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] factionIdx = %d, switchSetupRequest.getNetworkPlayerName() [%s] switchSetupRequest.getNetworkPlayerStatus() = %d, switchSetupRequest.getSwitchFlags() = %d\n",__FILE__,__FUNCTION__,__LINE__,slotIdx,switchSetupRequest.getNetworkPlayerName().c_str(),switchSetupRequest.getNetworkPlayerStatus(),switchSetupRequest.getSwitchFlags());
 								}
 								else {
@@ -1540,18 +1434,18 @@ void ConnectionSlot::validateConnection() {
 }
 
 void ConnectionSlot::resetJoinGameInProgressFlags() {
-	this->gotIntro = false;
-	this->skipLagCheck = false;
-	this->joinGameInProgress = false;
-	this->ready= false;
+	this->gotIntro 				= false;
+	this->skipLagCheck 			= false;
+	this->joinGameInProgress 	= false;
+	this->ready					= false;
 }
 
 void ConnectionSlot::setJoinGameInProgressFlags() {
-	this->gotIntro = true;
-	this->skipLagCheck = true;
-	this->joinGameInProgress = true;
-	this->ready= false;
-	this->sentSavedGameInfo = false;
+	this->gotIntro 				= true;
+	this->skipLagCheck 			= true;
+	this->joinGameInProgress 	= true;
+	this->ready					= false;
+	this->sentSavedGameInfo 	= false;
 }
 
 void ConnectionSlot::close() {
@@ -1561,17 +1455,16 @@ void ConnectionSlot::close() {
 	//if(serverInterface->getAllowInGameConnections() == true) {
 		//printf("Closing connection slot!\n");
 	//}
-
 	//printf("ConnectionSlot::close() #1 this->getSocket() = %p\n",this->getSocket());
 
-	this->gotIntro = false;
-	this->skipLagCheck = false;
-	this->joinGameInProgress = false;
-	this->sentSavedGameInfo = false;
-	this->pauseForInGameConnection = false;
-	this->unPauseForInGameConnection = false;
-	this->ready= false;
-	this->connectedTime = 0;
+	this->gotIntro 						= false;
+	this->skipLagCheck 					= false;
+	this->joinGameInProgress 			= false;
+	this->sentSavedGameInfo 			= false;
+	this->pauseForInGameConnection 		= false;
+	this->unPauseForInGameConnection 	= false;
+	this->ready							= false;
+	this->connectedTime 				= 0;
 
 	if(this->slotThreadWorker != NULL) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1584,7 +1477,6 @@ void ConnectionSlot::close() {
 	//printf("ConnectionSlot::close() #2 this->getSocket() = %p\n",this->getSocket());
 
 	MutexSafeWrapper safeMutex(mutexCloseConnection,CODE_AT_LINE);
-
 	bool updateServerListener = (this->getSocket() != NULL);
 
 	//printf("ConnectionSlot::close() #3 this->getSocket() = %p updateServerListener = %d\n",this->getSocket(),updateServerListener);
@@ -1593,17 +1485,12 @@ void ConnectionSlot::close() {
 	safeMutex.ReleaseLock();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
 	//printf("Closing slot for playerIndex = %d updateServerListener = %d ready = %d\n",playerIndex,updateServerListener,ready);
 
     if(updateServerListener == true) {
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s LINE: %d]\n",__FILE__,__FUNCTION__,__LINE__);
     	serverInterface->updateListen();
     }
-
-    //ready = false;
-    //gotIntro = false;
-
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
@@ -1613,7 +1500,6 @@ Mutex * ConnectionSlot::getServerSynchAccessor() {
 }
 
 void ConnectionSlot::signalUpdate(ConnectionSlotEvent *event) {
-	//assert(slotThreadWorker != NULL);
     if(slotThreadWorker != NULL) {
         slotThreadWorker->signalUpdate(event);
     }
@@ -1635,7 +1521,6 @@ void ConnectionSlot::sendMessage(NetworkMessage* networkMessage) {
 	NetworkMessageText *textMsg = dynamic_cast<NetworkMessageText *>(networkMessage);
 	if(textMsg != NULL) {
 		//printf("\n\n\n~~~ SERVER HAS NetworkMessageText target [%s] player [%s] msg[%s]\n\n\n",textMsg->getTargetLanguage().c_str(),this->getNetworkPlayerLanguage().c_str(), textMsg->getText().c_str());
-
 		if(textMsg->getTargetLanguage() != "" &&
 			textMsg->getTargetLanguage() != this->getNetworkPlayerLanguage()) {
 			return;
@@ -1658,7 +1543,6 @@ vector<NetworkCommand> ConnectionSlot::getPendingNetworkCommandList(bool clearLi
 			vctPendingNetworkCommandList.clear();
 		}
     }
-    safeMutexSlot.ReleaseLock();
 
     return ret;
 }
@@ -1668,12 +1552,9 @@ void ConnectionSlot::clearPendingNetworkCommandList() {
 	if(vctPendingNetworkCommandList.empty() == false) {
 		vctPendingNetworkCommandList.clear();
 	}
-    safeMutexSlot.ReleaseLock();
 }
 
 bool ConnectionSlot::hasValidSocketId() {
-    //bool result = (this->getSocket() != NULL && this->getSocket()->getSocketId() > 0);
-    //return result;
     bool result = false;
     MutexSafeWrapper safeMutexSlot(mutexSocket,CODE_AT_LINE);
     if(socket != NULL && socket->getSocketId() > 0) {
@@ -1733,17 +1614,10 @@ void ConnectionSlot::deleteSocket() {
 bool ConnectionSlot::hasDataToRead() {
     bool result = false;
 
-    //printf("==> #1 Slot hasDataToRead()\n");
-
     MutexSafeWrapper safeMutexSlot(mutexSocket,CODE_AT_LINE);
-
-    //printf("==> #2 Slot hasDataToRead()\n");
-
 	if(socket != NULL && socket->hasDataToRead() == true) {
 		result = true;
 	}
-
-	//printf("==> #3 Slot hasDataToRead()\n");
 
 	return result;
 }

@@ -2943,7 +2943,8 @@ void BroadCastSocketThread::execute() {
 //#else
 //						strncat(buff,port_string.c_str(),std::min((int)port_string.length(),100));
 //#endif
-						snprintf(buff,1024,"%s:%s:%d",buff,ipList[idx1].c_str(),this->boundPort);
+						string buffCopy = buff;
+						snprintf(buff,1024,"%s:%s:%d",buffCopy.c_str(),ipList[idx1].c_str(),this->boundPort);
 					}
 
 					if(difftime((long int)time(NULL),elapsed) >= 1 && getQuitStatus() == false) {
