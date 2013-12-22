@@ -1095,6 +1095,26 @@ const UnitType* World::findUnitTypeById(const FactionType* factionType, int id) 
 	return NULL;
 }
 
+const UnitType * World::findUnitTypeByName(const string factionName, const string unitTypeName) {
+	const UnitType *unitTypeResult = NULL;
+
+	for(int index = 0; unitTypeResult == NULL && index < getFactionCount(); ++index) {
+		const Faction *faction = getFaction(index);
+		if(factionName == "" || factionName == faction->getType()->getName(false)) {
+			for(int unitIndex = 0;
+				unitTypeResult == NULL && unitIndex < faction->getType()->getUnitTypeCount(); ++unitIndex) {
+
+				const UnitType *unitType = faction->getType()->getUnitType(unitIndex);
+				if(unitType != NULL && unitType->getName(false) == unitTypeName) {
+					unitTypeResult = unitType;
+					break;
+				}
+			}
+		}
+	}
+	return unitTypeResult;
+}
+
 //looks for a place for a unit around a start location, returns true if succeded
 bool World::placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spaciated) {
     if(unit == NULL) {

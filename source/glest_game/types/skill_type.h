@@ -109,6 +109,7 @@ public:
 	virtual string getDesc(bool translatedValue) const;
 
 	virtual void saveGame(XmlNode *rootNode) const;
+	virtual void loadGame(const XmlNode *rootNode, Faction *faction, const SkillType *skillType);
 };
 
 class AnimationAttributes {

@@ -295,17 +295,25 @@ public:
 // ===============================
 
 class UnitAttackBoostEffect {
+private:
+	int unitId;
+	const Unit *unitPtr;
+
+	const Unit *source;
 public:
 
 	UnitAttackBoostEffect();
 	virtual ~UnitAttackBoostEffect();
 
 	const AttackBoost *boost;
-	const Unit *source;
+	//const Unit *source;
+	const Unit * getSource();
+	void setSource(const Unit *unit);
 	UnitParticleSystem *ups;
 	UnitParticleSystemType *upst;
 
 	virtual void saveGame(XmlNode *rootNode);
+	virtual void loadGame(const XmlNode *rootNode, Unit *unit, const SkillType *skillType);
 };
 
 class UnitAttackBoostEffectOriginator {
@@ -319,6 +327,7 @@ public:
 	UnitAttackBoostEffect *currentAppliedEffect;
 
 	virtual void saveGame(XmlNode *rootNode);
+	virtual void loadGame(const XmlNode *rootNode, Unit *unit);
 };
 
 class Unit : public BaseColorPickEntity, ValueCheckerVault, public ParticleOwner {
@@ -498,7 +507,7 @@ public:
     Vec2i getCurrentPathFinderDesiredFinalPos() const { return currentPathFinderDesiredFinalPos; }
 
     const UnitAttackBoostEffectOriginator & getAttackBoostOriginatorEffect() const { return currentAttackBoostOriginatorEffect; }
-    bool unitHasAttackBoost(const AttackBoost *boost, const Unit *source) const;
+    bool unitHasAttackBoost(const AttackBoost *boost, const Unit *source);
 
     inline uint32 getPathfindFailedConsecutiveFrameCount() const { return pathfindFailedConsecutiveFrameCount; }
     inline void incrementPathfindFailedConsecutiveFrameCount() { pathfindFailedConsecutiveFrameCount++; }

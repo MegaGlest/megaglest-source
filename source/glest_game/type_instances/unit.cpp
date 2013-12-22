@@ -273,6 +273,8 @@ UnitAttackBoostEffect::UnitAttackBoostEffect() {
 		printf("++ Create UnitAttackBoostEffect [%p] after count = %d\n",this,memoryObjectList[this]);
 	}
 
+	unitId = -1;
+	unitPtr = NULL;
 	boost = NULL;
 	source = NULL;
 	ups = NULL;
@@ -301,6 +303,51 @@ UnitAttackBoostEffect::~UnitAttackBoostEffect() {
 
 	delete upst;
 	upst = NULL;
+}
+
+const Unit * UnitAttackBoostEffect::getSource() {
+	if(source == NULL && unitPtr != NULL && unitId > 0) {
+		source = unitPtr->getFaction()->findUnit(unitId);
+	}
+	return source;
+}
+
+void UnitAttackBoostEffect::setSource(const Unit *unit) {
+	source = unit;
+}
+
+void UnitAttackBoostEffect::loadGame(const XmlNode *rootNode, Unit *unit, const SkillType *skillType) {
+	//const XmlNode *unitAttackBoostEffectOriginatorNode = rootNode->getChild("UnitAttackBoostEffect");
+	const XmlNode *unitAttackBoostEffectOriginatorNode = rootNode;
+
+	AttackBoost *load_boost = new AttackBoost();
+	load_boost->loadGame(unitAttackBoostEffectOriginatorNode,unit->getFaction(),skillType);
+	boost = load_boost;
+
+	if(unitAttackBoostEffectOriginatorNode->hasAttribute("source") == true) {
+		unitId = unitAttackBoostEffectOriginatorNode->getAttribute("source")->getIntValue();
+		unitPtr = unit;
+		source = unit->getFaction()->findUnit(unitId);
+	}
+
+	if(unitAttackBoostEffectOriginatorNode->hasChild("UnitParticleSystemType") == true) {
+		//const XmlNode *node = unitAttackBoostEffectOriginatorNode->getChild("UnitParticleSystemType");
+
+		upst = new UnitParticleSystemType();
+		upst->loadGame(unitAttackBoostEffectOriginatorNode);
+	}
+
+	if(unitAttackBoostEffectOriginatorNode->hasChild("UnitParticleSystem") == true) {
+		const XmlNode *node = unitAttackBoostEffectOriginatorNode->getChild("UnitParticleSystem");
+
+		ups = new UnitParticleSystem(200);
+		ups->loadGame(node);
+
+		ups->setParticleOwner(unit);
+		upst->setValues(ups);
+
+		Renderer::getInstance().addToDeferredParticleSystemList(make_pair(ups, rsGame));
+	}
 }
 
 void UnitAttackBoostEffect::saveGame(XmlNode *rootNode) {
@@ -336,6 +383,43 @@ UnitAttackBoostEffectOriginator::~UnitAttackBoostEffectOriginator() {
 	currentAppliedEffect = NULL;
 }
 
+void UnitAttackBoostEffectOriginator::loadGame(const XmlNode *rootNode, Unit *unit) {
+	const XmlNode *unitAttackBoostEffectOriginatorNode = rootNode->getChild("UnitAttackBoostEffectOriginator");
+
+	SkillClass skillClass = scStop;
+	string skillTypeName = unitAttackBoostEffectOriginatorNode->getAttribute("skillType")->getValue();
+	if(unitAttackBoostEffectOriginatorNode->hasAttribute("skillClass") == false) {
+		int skillCount = unit->getType()->getSkillTypeCount();
+		for(int index = 0; index < skillCount; ++index) {
+			const SkillType *st = unit->getType()->getSkillType(index);
+			if(st->getName() == skillTypeName) {
+				skillClass = st->getClass();
+				break;
+			}
+		}
+	}
+	else {
+		skillClass = static_cast<SkillClass>(unitAttackBoostEffectOriginatorNode->getAttribute("skillClass")->getIntValue());
+	}
+
+	this->skillType = unit->getType()->getSkillType(skillTypeName,skillClass);
+
+	if(unitAttackBoostEffectOriginatorNode->hasChild("currentAttackBoostUnits") == true) {
+		vector<XmlNode *> currentAttackBoostUnitsNodeList = unitAttackBoostEffectOriginatorNode->getChildList("currentAttackBoostUnits");
+		for(unsigned int i = 0; i < currentAttackBoostUnitsNodeList.size(); ++i) {
+			XmlNode *node = currentAttackBoostUnitsNodeList[i];
+
+			int unitId = node->getAttribute("value")->getIntValue();
+			currentAttackBoostUnits.push_back(unitId);
+		}
+	}
+
+	if(unitAttackBoostEffectOriginatorNode->hasChild("UnitAttackBoostEffect") == true) {
+		currentAppliedEffect = new UnitAttackBoostEffect();
+		currentAppliedEffect->loadGame(unitAttackBoostEffectOriginatorNode, unit,this->skillType);
+	}
+}
+
 void UnitAttackBoostEffectOriginator::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *unitAttackBoostEffectOriginatorNode = rootNode->addChild("UnitAttackBoostEffectOriginator");
@@ -343,6 +427,7 @@ void UnitAttackBoostEffectOriginator::saveGame(XmlNode *rootNode) {
 //	const SkillType *skillType;
 	if(skillType != NULL) {
 		unitAttackBoostEffectOriginatorNode->addAttribute("skillType",skillType->getName(), mapTagReplacements);
+		unitAttackBoostEffectOriginatorNode->addAttribute("skillClass",intToStr(skillType->getClass()), mapTagReplacements);
 	}
 //	std::vector<int> currentAttackBoostUnits;
 	for(unsigned int i = 0; i < currentAttackBoostUnits.size(); ++i) {
@@ -2598,12 +2683,12 @@ void Unit::updateTimedParticles() {
 	}
 }
 
-bool Unit::unitHasAttackBoost(const AttackBoost *boost, const Unit *source) const {
+bool Unit::unitHasAttackBoost(const AttackBoost *boost, const Unit *source) {
 	bool result = false;
 	for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
-		const UnitAttackBoostEffect *effect = currentAttackBoostEffects[i];
+		UnitAttackBoostEffect *effect = currentAttackBoostEffects[i];
 		if( effect != NULL && effect->boost->name == boost->name &&
-			effect->source->getType()->getId() == source->getType()->getId()) {
+			effect->getSource()->getType()->getId() == source->getType()->getId()) {
 			result = true;
 			break;
 		}
@@ -2635,7 +2720,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 
 		UnitAttackBoostEffect *effect = new UnitAttackBoostEffect();
 		effect->boost = boost;
-		effect->source = source;
+		effect->setSource(source);
 
 		bool wasAlive = alive;
 		int originalHp = hp;
@@ -2842,7 +2927,7 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 
 	for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
 		UnitAttackBoostEffect *effect = currentAttackBoostEffects[i];
-		if(effect != NULL && effect->boost == boost && effect->source == source) {
+		if(effect != NULL && effect->boost == boost && effect->getSource() == source) {
 			delete effect;
 			currentAttackBoostEffects.erase(currentAttackBoostEffects.begin() + i);
 			break;
@@ -3337,7 +3422,7 @@ bool Unit::morph(const MorphCommandType *mct) {
 		for(int i = (int)currentAttackBoostEffects.size() - 1; i >= 0; --i) {
 			UnitAttackBoostEffect *effect = currentAttackBoostEffects[i];
 			if(effect != NULL) {
-				Unit *sourceUnit = game->getWorld()->findUnitById(effect->source->getId());
+				Unit *sourceUnit = game->getWorld()->findUnitById(effect->getSource()->getId());
 				if(sourceUnit == NULL) {
 					throw megaglest_runtime_error("sourceUnit == NULL");
 				}
@@ -5054,12 +5139,29 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 //	int maxQueuedCommandDisplayCount;
 	result->maxQueuedCommandDisplayCount = unitNode->getAttribute("maxQueuedCommandDisplayCount")->getIntValue();
 //	UnitAttackBoostEffectOriginator currentAttackBoostOriginatorEffect;
-//	currentAttackBoostOriginatorEffect.saveGame(unitNode);
+
+	// !!! TODO: Softcoder - in progress work to load attack boosts, not working properly yet
+	//result->currentAttackBoostOriginatorEffect.loadGame(unitNode,result);
+
 //	std::vector<UnitAttackBoostEffect *> currentAttackBoostEffects;
 //	for(unsigned int i = 0; i < currentAttackBoostEffects.size(); ++i) {
 //		UnitAttackBoostEffect *uabe= currentAttackBoostEffects[i];
 //		uabe->saveGame(unitNode);
 //	}
+
+	// !!! TODO: Softcoder - in progress work to load attack boosts, not working properly yet
+//	if(unitNode->hasChild("UnitAttackBoostEffect") == true) {
+//		vector<XmlNode *> unitParticleSystemNodeList = unitNode->getChildList("UnitAttackBoostEffect");
+//		for(unsigned int i = 0; i < unitParticleSystemNodeList.size(); ++i) {
+//			XmlNode *node = unitParticleSystemNodeList[i];
+//
+//			UnitAttackBoostEffect *attackBoostEffect = new UnitAttackBoostEffect();
+//			attackBoostEffect->loadGame(node,result,result->getCurrSkill());
+//
+//			result->currentAttackBoostEffects.push_back(attackBoostEffect);
+//		}
+//	}
+
 
 //	Mutex *mutexCommands;
 //

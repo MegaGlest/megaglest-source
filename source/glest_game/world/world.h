@@ -209,6 +209,7 @@ public:
 	void update();
 	Unit* findUnitById(int id) const;
 	const UnitType* findUnitTypeById(const FactionType* factionType, int id);
+	const UnitType *findUnitTypeByName(const string factionName, const string unitTypeName);
 	bool placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spaciated= false);
 	void moveUnitCells(Unit *unit);
 

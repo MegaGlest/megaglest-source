@@ -291,6 +291,31 @@ void UnitParticleSystemType::load(const XmlNode *particleFileNode, const string 
 	}
 }
 
+void UnitParticleSystemType::loadGame(const XmlNode *rootNode) {
+	ParticleSystemType::loadGame(rootNode);
+
+	const XmlNode *unitParticleSystemTypeNode = rootNode->getChild("UnitParticleSystemType");
+
+	shape = static_cast<UnitParticleSystem::Shape>(unitParticleSystemTypeNode->getAttribute("shape")->getIntValue());
+	angle = unitParticleSystemTypeNode->getAttribute("angle")->getFloatValue();
+	radius = unitParticleSystemTypeNode->getAttribute("radius")->getFloatValue();
+	minRadius = unitParticleSystemTypeNode->getAttribute("minRadius")->getFloatValue();
+	emissionRateFade = unitParticleSystemTypeNode->getAttribute("emissionRateFade")->getFloatValue();
+	direction = Vec3f::strToVec3(unitParticleSystemTypeNode->getAttribute("direction")->getValue());
+	relative = unitParticleSystemTypeNode->getAttribute("relative")->getIntValue();
+	relativeDirection = unitParticleSystemTypeNode->getAttribute("relativeDirection")->getIntValue();
+	fixed = unitParticleSystemTypeNode->getAttribute("fixed")->getIntValue();
+	staticParticleCount = unitParticleSystemTypeNode->getAttribute("staticParticleCount")->getIntValue();
+	isVisibleAtNight = unitParticleSystemTypeNode->getAttribute("isVisibleAtNight")->getIntValue();
+	isVisibleAtDay = unitParticleSystemTypeNode->getAttribute("isVisibleAtDay")->getIntValue();
+	isDaylightAffected = unitParticleSystemTypeNode->getAttribute("isDaylightAffected")->getIntValue();
+	radiusBasedStartenergy = unitParticleSystemTypeNode->getAttribute("radiusBasedStartenergy")->getIntValue();
+	delay = unitParticleSystemTypeNode->getAttribute("delay")->getIntValue();
+	lifetime = unitParticleSystemTypeNode->getAttribute("lifetime")->getIntValue();
+	startTime = unitParticleSystemTypeNode->getAttribute("startTime")->getFloatValue();
+	endTime = unitParticleSystemTypeNode->getAttribute("endTime")->getFloatValue();
+}
+
 void UnitParticleSystemType::saveGame(XmlNode *rootNode) {
 	ParticleSystemType::saveGame(rootNode);
 

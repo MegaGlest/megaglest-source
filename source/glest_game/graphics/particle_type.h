@@ -111,6 +111,7 @@ public:
     string getType() const { return type; };
 
     virtual void saveGame(XmlNode *rootNode);
+    virtual void loadGame(const XmlNode *rootNode);
 
 protected:
 
