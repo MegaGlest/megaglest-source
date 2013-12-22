@@ -151,7 +151,9 @@ int zipfile_tool(int argc, const char *argv[]) {
 
     if (deflateInit(&stream, level) != Z_OK) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("deflateInit() failed!\n");
+
     	if(pInfile) fclose(pInfile);
+  	    if(pOutfile) fclose(pOutfile);
     	return EXIT_FAILURE;
     }
 
@@ -163,6 +165,9 @@ int zipfile_tool(int argc, const char *argv[]) {
 
         if (fread(s_inbuf, 1, n, pInfile) != n) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed reading from input file!\n");
+
+        	if(pInfile) fclose(pInfile);
+      	    if(pOutfile) fclose(pOutfile);
         	return EXIT_FAILURE;
         }
 
@@ -180,6 +185,9 @@ int zipfile_tool(int argc, const char *argv[]) {
         uint n = BUF_SIZE - stream.avail_out;
         if (fwrite(s_outbuf, 1, n, pOutfile) != n) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed writing to output file!\n");
+
+        	if(pInfile) fclose(pInfile);
+      	    if(pOutfile) fclose(pOutfile);
         	return EXIT_FAILURE;
         }
         stream.next_out = s_outbuf;
@@ -191,6 +199,7 @@ int zipfile_tool(int argc, const char *argv[]) {
       }
       else if (status != Z_OK) {
     	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("deflate() failed with status %i!\n", status);
+
     	  if(pInfile) fclose(pInfile);
     	  if(pOutfile) fclose(pOutfile);
     	  return EXIT_FAILURE;
@@ -199,6 +208,9 @@ int zipfile_tool(int argc, const char *argv[]) {
 
     if (deflateEnd(&stream) != Z_OK) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("deflateEnd() failed!\n");
+
+    	if(pInfile) fclose(pInfile);
+  	    if(pOutfile) fclose(pOutfile);
     	return EXIT_FAILURE;
     }
   }
@@ -208,6 +220,7 @@ int zipfile_tool(int argc, const char *argv[]) {
 
     if (inflateInit(&stream)) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("inflateInit() failed!\n");
+
     	if(pInfile) fclose(pInfile);
     	if(pOutfile) fclose(pOutfile);
     	return EXIT_FAILURE;
@@ -221,6 +234,7 @@ int zipfile_tool(int argc, const char *argv[]) {
 
         if (fread(s_inbuf, 1, n, pInfile) != n) {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed reading from input file!\n");
+
         	if(pInfile) fclose(pInfile);
         	if(pOutfile) fclose(pOutfile);
         	return EXIT_FAILURE;
@@ -250,6 +264,7 @@ int zipfile_tool(int argc, const char *argv[]) {
       }
       else if (status != Z_OK) {
     	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("inflate() failed with status %i!\n", status);
+
     	  if(pInfile) fclose(pInfile);
     	  if(pOutfile) fclose(pOutfile);
     	  return EXIT_FAILURE;
@@ -258,6 +273,9 @@ int zipfile_tool(int argc, const char *argv[]) {
 
     if (inflateEnd(&stream) != Z_OK) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("inflateEnd() failed!\n");
+
+    	if(pInfile) fclose(pInfile);
+  	    if(pOutfile) fclose(pOutfile);
         return EXIT_FAILURE;
     }
   }
@@ -269,7 +287,7 @@ int zipfile_tool(int argc, const char *argv[]) {
 	  return EXIT_FAILURE;
   }
 
-  fclose(pInfile);
+  fclose(pInfile); pInfile = 0;
   if (EOF == fclose(pOutfile)) {
 	  if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Failed writing to output file!\n");
 	  return EXIT_FAILURE;
