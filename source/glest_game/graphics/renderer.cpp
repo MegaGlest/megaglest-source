@@ -4747,6 +4747,8 @@ void Renderer::renderWater() {
     glDisable(GL_TEXTURE_2D);
 
 	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	if(textures3D) {
 		Texture3D *waterTex= world->getTileset()->getWaterTex();
 		if(waterTex == NULL) {
@@ -5030,7 +5032,7 @@ void Renderer::renderGhostModel(const UnitType *building, const Vec2i pos,Cardin
 	glPopMatrix();
 }
 
-void Renderer::renderUnits(const int renderFps) {
+void Renderer::renderUnits(bool airUnits, const int renderFps) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
@@ -5057,6 +5059,9 @@ void Renderer::renderUnits(const int renderFps) {
 				visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 
+			if(( airUnits==false && unit->getType()->getField()==fAir) || ( airUnits==true && unit->getType()->getField()!=fAir)){
+				continue;
+			}
 			meshCallbackTeamColor.setTeamTexture(unit->getFaction()->getTexture());
 
 			if(modelRenderStarted == false) {
@@ -5108,8 +5113,8 @@ void Renderer::renderUnits(const int renderFps) {
 			}
 			else {
 				glEnable(GL_COLOR_MATERIAL);
-				//this only needs to be done in render fast for selection and shadow calculation. No need to do this in real render
-				//glAlphaFunc(GL_GREATER, 0.4f);
+				// we cut off a tiny bit here to avoid problems with fully transparent texture parts cutting units in background rendered later.
+				glAlphaFunc(GL_GREATER, 0.02f);
 			}
 
 			//render

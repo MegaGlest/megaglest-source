@@ -545,7 +545,7 @@ public:
 	void renderObjects(const int renderFps);
 
 	void renderWater();
-    void renderUnits(const int renderFps);
+    void renderUnits(bool airUnits, const int renderFps);
     void renderUnitsToBuild(const int renderFps);
 
 	void renderSelectionEffects();
