@@ -566,6 +566,11 @@ void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
 }
 
 void Renderer::manageDeferredParticleSystems() {
+
+//	if(deferredParticleSystems.empty() == false) {
+//		printf("deferredParticleSystems.size() = %d\n",(int)deferredParticleSystems.size());
+//	}
+
 	for(unsigned int i = 0; i < deferredParticleSystems.size(); ++i) {
 		std::pair<ParticleSystem *, ResourceScope> &deferredParticleSystem = deferredParticleSystems[i];
 		ParticleSystem *ps = deferredParticleSystem.first;
@@ -605,6 +610,7 @@ void Renderer::manageDeferredParticleSystems() {
 			}
 		}
 		manageParticleSystem(ps, rs);
+		//printf("Managing ps [%p]\n",ps);
 	}
 	deferredParticleSystems.clear();
 	//printf("After deferredParticleSystems.size() = %d\n",deferredParticleSystems.size());

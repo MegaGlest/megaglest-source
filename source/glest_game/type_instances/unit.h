@@ -300,6 +300,8 @@ private:
 	const Unit *unitPtr;
 
 	const Unit *source;
+
+	void applyLoadedAttackBoostParticles(UnitParticleSystemType *upstPtr,const XmlNode* node, Unit* unit);
 public:
 
 	UnitAttackBoostEffect();
@@ -313,7 +315,7 @@ public:
 	UnitParticleSystemType *upst;
 
 	virtual void saveGame(XmlNode *rootNode);
-	virtual void loadGame(const XmlNode *rootNode, Unit *unit, const SkillType *skillType);
+	virtual void loadGame(const XmlNode *rootNode, Unit *unit, World *world, bool applyToOriginator);
 };
 
 class UnitAttackBoostEffectOriginator {
@@ -327,7 +329,7 @@ public:
 	UnitAttackBoostEffect *currentAppliedEffect;
 
 	virtual void saveGame(XmlNode *rootNode);
-	virtual void loadGame(const XmlNode *rootNode, Unit *unit);
+	virtual void loadGame(const XmlNode *rootNode, Unit *unit, World *world);
 };
 
 class Unit : public BaseColorPickEntity, ValueCheckerVault, public ParticleOwner {
