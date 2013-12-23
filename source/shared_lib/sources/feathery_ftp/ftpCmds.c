@@ -108,7 +108,7 @@ int ftpExecTransmission(int sessionId)
 		}
 		else
 		{
-			if(VERBOSE_MODE_ENABLED) printf("ERROR in ftpExecTransmission ftpReadFile returned = %d for sessionId = %d\n",len,sessionId);
+			if(VERBOSE_MODE_ENABLED) printf("ERROR in ftpExecTransmission ftpReadFile returned = %d for sessionId = %d\n",(int)len,sessionId);
 	    	ftpSendMsg(MSG_NORMAL, sessionId, 451, ftpMsg001);
 	    	finished = TRUE;
 		}
@@ -139,9 +139,9 @@ int ftpExecTransmission(int sessionId)
 		if(rxLen > 0)
         {
 			size_t res = ftpWriteFile(scratchBuf, 1, rxLen, pTrans->fsHandle);
-	        if(res != rxLen)
+	        if(res != (size_t)rxLen)
 			{
-	        	if(VERBOSE_MODE_ENABLED) printf("ERROR in ftpExecTransmission ftpWriteFile returned = %d for sessionId = %d\n",res,sessionId);
+	        	if(VERBOSE_MODE_ENABLED) printf("ERROR in ftpExecTransmission ftpWriteFile returned = %d for sessionId = %d\n",(int)res,sessionId);
 
 		    	ftpSendMsg(MSG_NORMAL, sessionId, 451, ftpMsg001);
     	    	finished = TRUE;
