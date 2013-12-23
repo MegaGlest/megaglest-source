@@ -259,7 +259,7 @@ const char* ftpGetRealPath(int id, const char* path, int normalize)
 
 	const char *ftp_rootget = ftpGetRoot(sessions[id].userId, &len);
 	snprintf(ftpRoot,2047,"%s",ftp_rootget);
-	ftpRootLen = strlen(ftpRoot);
+	ftpRootLen = (int)strlen(ftpRoot);
 	if(ftpRootLen > 0 && ftpRoot[ftpRootLen-1] != '/') {
 		strcat(ftpRoot,"/");
 	}

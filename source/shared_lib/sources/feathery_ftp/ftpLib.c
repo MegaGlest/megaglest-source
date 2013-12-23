@@ -36,7 +36,7 @@
  */
 int ftpRemoveTrailingSlash(char* path)
 {
-	int len = strlen(path);
+	size_t len = strlen(path);
 
 	if(len > 1)
 	{
@@ -44,7 +44,7 @@ int ftpRemoveTrailingSlash(char* path)
 		if(path[len] == '/')
 			path[len] = '\0';
 	}
-	return len;
+	return (int)len;
 }
 
 /**

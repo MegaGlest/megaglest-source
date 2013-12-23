@@ -60,7 +60,7 @@ LOCAL uint8_t scratchBuf[LEN_SCRATCHBUF];
 int ftpSendMsg(msgmode_E mode, int sessionId, int ret, const char* msg)
 {
 	int sentlen = 0;
-	int len = strlen(msg);
+	int len = (int)strlen(msg);
 	char buf[6];
 
 	if(mode == MSG_QUOTE)
@@ -86,7 +86,7 @@ if(VERBOSE_MODE_ENABLED) printf("%02d <-- %s%s\n", sessionId, buf, msg);
 int ftpExecTransmission(int sessionId)
 {
 	int finished = FALSE;
-	int len;
+	size_t len;
     ftpSession_S *pSession = ftpGetSession(sessionId);
 	transmission_S *pTrans = &pSession->activeTrans;
 	int rxLen;
@@ -99,8 +99,8 @@ int ftpExecTransmission(int sessionId)
         len = ftpReadFile(scratchBuf, 1, LEN_SCRATCHBUF, pTrans->fsHandle);
 		if(len > 0)
         {
-			pTrans->fileSize -= len;
-            if(ftpSend(pTrans->dataSocket, scratchBuf, len))
+			pTrans->fileSize -= (uint32_t)len;
+            if(ftpSend(pTrans->dataSocket, scratchBuf, (int)len))
 			{
     	    	ftpSendMsg(MSG_NORMAL, sessionId, 426, ftpMsg000);
     	    	finished = TRUE;
@@ -133,12 +133,12 @@ int ftpExecTransmission(int sessionId)
 				break;
 			}
 
-			rxLen += len;
+			rxLen += (int)len;
 		} while(rxLen < LEN_SCRATCHBUF);
 
 		if(rxLen > 0)
         {
-			int res = ftpWriteFile(scratchBuf, 1, rxLen, pTrans->fsHandle);
+			size_t res = ftpWriteFile(scratchBuf, 1, rxLen, pTrans->fsHandle);
 	        if(res != rxLen)
 			{
 	        	if(VERBOSE_MODE_ENABLED) printf("ERROR in ftpExecTransmission ftpWriteFile returned = %d for sessionId = %d\n",res,sessionId);
@@ -999,7 +999,7 @@ int execFtpCmd(int sessionId, const char* cmd, int cmdlen)
 
 			if(VERBOSE_MODE_ENABLED) printf("About to execute cmds[n].cmdToken [%s] command [%s] for sessionId = %d\n",cmds[n].cmdToken,&cmd[i],sessionId);
 
-			ret = cmds[n].handler(sessionId, &cmd[i], strlen(&cmd[i]));	// execute command
+			ret = cmds[n].handler(sessionId, &cmd[i], (int)strlen(&cmd[i]));	// execute command
 
 			if(VERBOSE_MODE_ENABLED) printf("Executed cmds[n].cmdToken [%s] command [%s] ret = %d for sessionId = %d\n",cmds[n].cmdToken,&cmd[i],ret,sessionId);
 

@@ -88,7 +88,7 @@ namespace Shared { namespace Util {
 
     char* ConvertToUTF8(const char* s) {
 		if (NULL != s && *s != '\0')
-			return ConvertToUTF8(s, strlen(s));
+			return ConvertToUTF8(s, (Shared::Platform::uint32)strlen(s));
 		char* ret = new char[1];
 		//LOG_ASSERT(NULL != ret);
 		assert(NULL != ret);

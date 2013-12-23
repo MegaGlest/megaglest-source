@@ -99,7 +99,7 @@ int ftpCreateAccount(const char* name, const char* passw, const char* root, int 
 			strncpy(ftpUsers[n].name, name, MAXLEN_USERNAME);
 			strncpy(ftpUsers[n].passw, passw, MAXLEN_PASSWORD);
 			strncpy(ftpUsers[n].ftpRoot, root, MAX_PATH_LEN);
-			ftpUsers[n].ftpRootLen = strlen(root);
+			ftpUsers[n].ftpRootLen = (int)strlen(root);
 			ftpUsers[n].accRights = acc;
 			return 0;
 		}
