@@ -333,8 +333,8 @@ void ParticleSystemType::loadGame(const XmlNode *rootNode) {
 	energyMax = particleSystemTypeNode->getAttribute("energyMax")->getIntValue();
 	energyVar = particleSystemTypeNode->getAttribute("energyVar")->getIntValue();
 	mode = particleSystemTypeNode->getAttribute("mode")->getValue();
-	teamcolorNoEnergy = particleSystemTypeNode->getAttribute("teamcolorNoEnergy")->getIntValue();
-	teamcolorEnergy = particleSystemTypeNode->getAttribute("teamcolorEnergy")->getIntValue();
+	teamcolorNoEnergy = (particleSystemTypeNode->getAttribute("teamcolorNoEnergy")->getIntValue() != 0);
+	teamcolorEnergy = (particleSystemTypeNode->getAttribute("teamcolorEnergy")->getIntValue() != 0);
 	alternations = particleSystemTypeNode->getAttribute("alternations")->getIntValue();
 	particleSystemStartDelay = particleSystemTypeNode->getAttribute("particleSystemStartDelay")->getIntValue();
 
@@ -349,10 +349,10 @@ void ParticleSystemType::loadGame(const XmlNode *rootNode) {
 		}
 	}
 
-	minmaxEnabled = particleSystemTypeNode->getAttribute("minmaxEnabled")->getIntValue();
+	minmaxEnabled = (particleSystemTypeNode->getAttribute("minmaxEnabled")->getIntValue() != 0);
 	minHp = particleSystemTypeNode->getAttribute("minHp")->getIntValue();
 	maxHp = particleSystemTypeNode->getAttribute("maxHp")->getIntValue();
-	minmaxIsPercent = particleSystemTypeNode->getAttribute("minmaxIsPercent")->getIntValue();
+	minmaxIsPercent = (particleSystemTypeNode->getAttribute("minmaxIsPercent")->getIntValue() != 0);
 }
 
 void ParticleSystemType::saveGame(XmlNode *rootNode) {
