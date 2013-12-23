@@ -2332,7 +2332,7 @@ void ServerSocket::bind(int port) {
 	    snprintf(szBuf, 8096,"In [%s::%s] Error binding socket sock = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s opt_result = %d\n",__FILE__,__FUNCTION__,sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str(),opt_result);
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"%s",szBuf);
 
-	    snprintf(szBuf, 8096,"Error binding socket sock = %d, address [%s] port = %d err = %d, error = %s\n",sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str());
+	    snprintf(szBuf, 8096,"Error binding socket sock = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s\n",sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str());
 	    throw megaglest_runtime_error(szBuf);
 	}
 	portBound = true;
@@ -2413,7 +2413,7 @@ Socket *ServerSocket::accept(bool errorOnFail) {
 
 		if(isSocketValid(&newSock) == false) {
 			char szBuf[8096]="";
-			snprintf(szBuf, 8096,"In [%s::%s Line: %d] Error accepting socket connection sock = " PLATFORM_SOCKET_FORMAT_TYPE ", err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,sock,newSock,getLastSocketErrorFormattedText().c_str());
+			snprintf(szBuf, 8096,"In [%s::%s Line: %d] Error accepting socket connection sock = " PLATFORM_SOCKET_FORMAT_TYPE ", err = " PLATFORM_SOCKET_FORMAT_TYPE ", error = %s\n",__FILE__,__FUNCTION__,__LINE__,sock,newSock,getLastSocketErrorFormattedText().c_str());
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
 			int lastSocketError = getLastSocketError();
