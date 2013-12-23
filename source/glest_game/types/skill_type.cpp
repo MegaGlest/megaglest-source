@@ -208,8 +208,8 @@ string AttackBoost::getDesc(bool translatedValue) const{
 void AttackBoost::loadGame(const XmlNode *rootNode, Faction *faction, const SkillType *skillType) {
 	const XmlNode *attackBoostNode = rootNode->getChild("AttackBoost");
 
-	enabled = attackBoostNode->getAttribute("enabled")->getIntValue();
-	allowMultipleBoosts = attackBoostNode->getAttribute("allowMultipleBoosts")->getIntValue();
+	enabled = (attackBoostNode->getAttribute("enabled")->getIntValue() != 0);
+	allowMultipleBoosts = (attackBoostNode->getAttribute("allowMultipleBoosts")->getIntValue() != 0);
 	radius = attackBoostNode->getAttribute("radius")->getIntValue();
 	targetType = static_cast<AttackBoostTargetType>(attackBoostNode->getAttribute("targetType")->getIntValue());
 
@@ -234,7 +234,7 @@ void AttackBoost::loadGame(const XmlNode *rootNode, Faction *faction, const Skil
 	unitParticleSystemTypeForAffectedUnit = new UnitParticleSystemType();
 	unitParticleSystemTypeForAffectedUnit->loadGame(attackBoostNode);
 
-	includeSelf = attackBoostNode->getAttribute("includeSelf")->getIntValue();
+	includeSelf = (attackBoostNode->getAttribute("includeSelf")->getIntValue() != 0);
 	name = attackBoostNode->getAttribute("name")->getValue();
 }
 

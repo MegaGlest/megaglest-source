@@ -501,9 +501,6 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 			if(f) fclose(f);
 		}
 		else {
-			if(f) fclose(f);
-			f = NULL;
-
 			throw megaglest_runtime_error("Can't open file");
 		}
 	}
