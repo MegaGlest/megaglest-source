@@ -78,7 +78,7 @@ int pot(int x) {
 	return val;
 }
 
-const uint64 MIN_BYTES_TO_COMPRESS = 12;
+const std::size_t MIN_BYTES_TO_COMPRESS = 12;
 
 static std::string getSupportCompressedTextureFormatString(int format) {
 	std::string result = intToStr(format) + "[" + intToHex(format) + "]";
@@ -1261,7 +1261,7 @@ void TextureCubeGl::end(bool deletePixelBuffer) {
 	}
 }
 
-void TextureGl::OutputTextureDebugInfo(Texture::Format format, int components,const string path,uint64 rawSize,GLenum texType) {
+void TextureGl::OutputTextureDebugInfo(Texture::Format format, int components,const string path,std::size_t rawSize,GLenum texType) {
 	if(Texture::useTextureCompression == true) {
 		GLint glFormat= toFormatGl(format, components);
 

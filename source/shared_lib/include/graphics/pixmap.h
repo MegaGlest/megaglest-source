@@ -26,7 +26,6 @@ using Shared::Platform::int16;
 using Shared::Platform::uint16;
 using Shared::Platform::int32;
 using Shared::Platform::uint32;
-using Shared::Platform::uint64;
 using Shared::Platform::float32;
 using Shared::Util::Checksum;
 
@@ -212,7 +211,7 @@ public:
 	uint8 *getPixels() const	{return pixels;}
 	void deletePixels();
 	string getPath() const		{ return path;}
-	uint64 getPixelByteCount() const;
+	std::size_t getPixelByteCount() const;
 
 	Checksum * getCRC() { return &crc; }
 };
@@ -295,7 +294,7 @@ public:
 	void subCopy(int x, int y, const Pixmap2D *sourcePixmap);
 	void copyImagePart(int x, int y, const Pixmap2D *sourcePixmap);
 	string getPath() const		{ return path;}
-	uint64 getPixelByteCount() const;
+	std::size_t getPixelByteCount() const;
 
 	Checksum * getCRC() { return &crc; }
 
@@ -343,7 +342,7 @@ public:
 	uint8 *getPixels() const	{return pixels;}
 	void deletePixels();
 	string getPath() const		{ return path;}
-	uint64 getPixelByteCount() const;
+	std::size_t getPixelByteCount() const;
 
 	Checksum * getCRC() { return &crc; }
 };
@@ -386,7 +385,7 @@ public:
 	const Pixmap2D *getFace(int face) const	{return &faces[face];}
 	void deletePixels();
 	string getPath(int face) const		{ return path[face];}
-	uint64 getPixelByteCount() const;
+	std::size_t getPixelByteCount() const;
 
 	Checksum * getCRC() { return &crc; }
 };

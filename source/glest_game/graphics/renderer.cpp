@@ -3831,17 +3831,6 @@ void Renderer::MapRenderer::Layer::load_vbos(bool vboEnabled) {
 	}
 }
 
-//int32 CalculatePixelsCRC(const Texture2DGl *texture) {
-//	const uint8 *pixels = static_cast<const Pixmap2D *>(texture->getPixmapConst())->getPixels();
-//	uint64 pixelByteCount = static_cast<const Pixmap2D *>(texture->getPixmapConst())->getPixelByteCount();
-//	Checksum crc;
-//	for(uint64 i = 0; i < pixelByteCount; ++i) {
-//		crc.addByte(pixels[i]);
-//	}
-//
-//	return crc.getSum();
-//}
-
 void Renderer::MapRenderer::loadVisibleLayers(float coordStep,VisibleQuadContainerCache &qCache) {
 	int totalCellCount = 0;
 	// we create a layer for each visible texture in the map
@@ -9254,8 +9243,8 @@ void Renderer::setLastRenderFps(int value) {
 		}
 }
 
-uint64 Renderer::getCurrentPixelByteCount(ResourceScope rs) const {
-	uint64 result = 0;
+std::size_t Renderer::getCurrentPixelByteCount(ResourceScope rs) const {
+	std::size_t result = 0;
 	for(int i = (rs == rsCount ? 0 : rs); i < rsCount; ++i) {
 		if(textureManager[i] != NULL) {
 			const ::Shared::Graphics::TextureContainer &textures = textureManager[i]->getTextures();

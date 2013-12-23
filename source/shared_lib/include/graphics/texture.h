@@ -19,7 +19,6 @@
 
 using std::string;
 using Shared::Platform::uint8;
-using Shared::Platform::uint64;
 
 struct SDL_Surface;
 
@@ -90,7 +89,7 @@ public:
 	virtual void end(bool deletePixelBuffer=true)=0;
 	virtual string getPath() const = 0;
 	virtual void deletePixels() = 0;
-	virtual uint64 getPixelByteCount() const = 0;
+	virtual std::size_t getPixelByteCount() const = 0;
 
 	virtual void reseInitState() { inited = false; }
 
@@ -116,7 +115,7 @@ public:
 	const Pixmap1D *getPixmap() const	{return &pixmap;}
 	virtual string getPath() const;
 	virtual void deletePixels();
-	virtual uint64 getPixelByteCount() const {return pixmap.getPixelByteCount();}
+	virtual std::size_t getPixelByteCount() const {return pixmap.getPixelByteCount();}
 
 	virtual int getTextureWidth() const {return pixmap.getW();}
 	virtual int getTextureHeight() const {return -1;}
@@ -139,7 +138,7 @@ public:
 	const Pixmap2D *getPixmapConst() const	{return &pixmap;}
 	virtual string getPath() const;
 	virtual void deletePixels();
-	virtual uint64 getPixelByteCount() const {return pixmap.getPixelByteCount();}
+	virtual std::size_t getPixelByteCount() const {return pixmap.getPixelByteCount();}
 
 	virtual int getTextureWidth() const {return pixmap.getW();}
 	virtual int getTextureHeight() const {return pixmap.getH();}
@@ -164,7 +163,7 @@ public:
 	const Pixmap3D *getPixmap() const	{return &pixmap;}
 	virtual string getPath() const;
 	virtual void deletePixels();
-	virtual uint64 getPixelByteCount() const {return pixmap.getPixelByteCount();}
+	virtual std::size_t getPixelByteCount() const {return pixmap.getPixelByteCount();}
 
 	virtual int getTextureWidth() const {return pixmap.getW();}
 	virtual int getTextureHeight() const {return pixmap.getH();}
@@ -187,7 +186,7 @@ public:
 	const PixmapCube *getPixmap() const	{return &pixmap;}
 	virtual string getPath() const;
 	virtual void deletePixels();
-	virtual uint64 getPixelByteCount() const {return pixmap.getPixelByteCount();}
+	virtual std::size_t getPixelByteCount() const {return pixmap.getPixelByteCount();}
 
 	virtual int getTextureWidth() const {return -1;}
 	virtual int getTextureHeight() const {return -1;}

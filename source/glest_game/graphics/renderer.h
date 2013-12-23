@@ -627,7 +627,7 @@ public:
 	void removeObjectFromQuadCache(const Object *o);
 	void removeUnitFromQuadCache(const Unit *unit);
 
-	uint64 getCurrentPixelByteCount(ResourceScope rs=rsGame) const;
+	std::size_t getCurrentPixelByteCount(ResourceScope rs=rsGame) const;
 	unsigned int getSaveScreenQueueSize();
 
 	Texture2D *saveScreenToTexture(int x, int y, int width, int height);
