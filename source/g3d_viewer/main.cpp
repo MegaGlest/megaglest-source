@@ -68,7 +68,7 @@ namespace Glest { namespace Game {
 string getGameReadWritePath(string lookupKey) {
 	string path = "";
     if(path == "" && getenv("GLESTHOME") != NULL) {
-        path = getenv("GLESTHOME");
+        path = safeCharPtrCopy(getenv("GLESTHOME"),8096);
         if(path != "" && EndsWith(path, "/") == false && EndsWith(path, "\\") == false) {
             path += "/";
         }

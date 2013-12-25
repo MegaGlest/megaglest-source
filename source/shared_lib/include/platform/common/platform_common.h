@@ -123,7 +123,7 @@ private:
 	Uint32 lastStartCount;
 	Uint32 lastTickCount;
 	int64  lastResult;
-	int32 lastMultiplier;
+	int64 lastMultiplier;
 	bool lastStopped;
 
 public:
@@ -140,7 +140,7 @@ public:
     static int64 getCurMillis();
 
 private:
-	int64 queryCounter(int32 multiplier);
+	int64 queryCounter(int64 multiplier);
 };
 
 // =====================================================

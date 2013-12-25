@@ -4739,7 +4739,7 @@ int glestMain(int argc, char** argv) {
 					string newMaxSeconds = paramPartTokens2[0];
 					time_t newTimeMaxSeconds = strToInt(newMaxSeconds);
 					AutoTest::setMaxGameTime(newTimeMaxSeconds);
-					printf("Forcing maximum game time to [%ld] seconds (%.2f minutes)\n",newTimeMaxSeconds,((double)newTimeMaxSeconds / 60.0));
+					printf("Forcing maximum game time to [%ld] seconds (%.2f minutes)\n",(long int)newTimeMaxSeconds,((double)newTimeMaxSeconds / 60.0));
 				}
 				if(paramPartTokens2.size() >= 3 && paramPartTokens2[2].length() > 0) {
 					string autoTestCmd = paramPartTokens2[2];

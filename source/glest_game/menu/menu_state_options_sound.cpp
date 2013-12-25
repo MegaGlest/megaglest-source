@@ -109,10 +109,6 @@ MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMen
 		listBoxSoundFactory.init(currentColumnStart, currentLine, 100);
 		listBoxSoundFactory.pushBackItem("None");
 		listBoxSoundFactory.pushBackItem("OpenAL");
-	// deprecated as of 3.6.1
-	//#ifdef WIN32
-		//listBoxSoundFactory.pushBackItem("DirectSound8");
-	//#endif
 
 		listBoxSoundFactory.setSelectedItem(config.getString("FactorySound"));
 		currentLine-=lineOffset;
@@ -207,10 +203,6 @@ void MenuStateOptionsSound::reloadUI() {
 	std::vector<string> listboxData;
 	listboxData.push_back("None");
 	listboxData.push_back("OpenAL");
-// deprecated as of 3.6.1
-//#ifdef WIN32
-//	listboxData.push_back("DirectSound8");
-//#endif
 
 	listBoxSoundFactory.setItems(listboxData);
 

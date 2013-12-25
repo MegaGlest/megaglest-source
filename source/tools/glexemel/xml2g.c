@@ -256,7 +256,7 @@ int processMesh(xmlNode *n, FILE *outfile)
 
 	/* populate the MeshHeader structure appropriately */
 	memset(&mh, 0, sizeof(struct MeshHeader));
-	strncpy((char*)mh.name, (char*)xmlGetProp(n, name), NAMESIZE);
+	strncpy((char*)mh.name, (char*)xmlGetProp(n, name), NAMESIZE-1);
 	mh.frameCount    = (uint32)atoi((char*)xmlGetProp(n, frameCount));
 	mh.vertexCount   = (uint32)atoi((char*)xmlGetProp(n, vertexCount));
 	mh.indexCount    = (uint32)atoi((char*)xmlGetProp(n, indexCount));

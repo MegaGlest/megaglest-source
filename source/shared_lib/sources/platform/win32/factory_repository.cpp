@@ -33,10 +33,6 @@ GraphicsFactory *FactoryRepository::getGraphicsFactory(const string &name){
 }
 
 SoundFactory *FactoryRepository::getSoundFactory(const string &name){
-	// deprecated as of 3.6.1
-	//if(name == "DirectSound8"){
-	//	return &soundFactoryDs8;
-	//}
 	if(name == "OpenAL") {
 		return &soundFactoryOpenAL;
 	}

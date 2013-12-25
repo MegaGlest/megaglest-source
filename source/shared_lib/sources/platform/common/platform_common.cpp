@@ -189,7 +189,7 @@ int64 Chrono::getSeconds() {
 	return queryCounter(1);
 }
 
-int64 Chrono::queryCounter(int32 multiplier) {
+int64 Chrono::queryCounter(int64 multiplier) {
 
 	if(	multiplier == lastMultiplier &&
 		stopped == lastStopped &&

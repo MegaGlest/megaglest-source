@@ -297,6 +297,7 @@ socket_t ftpEstablishDataConnection(int passive, ip_t *ip, port_t *port, int ses
 		myAddr.sin_family      = AF_INET;
 		myAddr.sin_addr.s_addr = INADDR_ANY;
 		myAddr.sin_port        = htons(20);
+		myAddr.sin_zero[0]	   = 0;
 		if(bind(dataSocket, (struct sockaddr *)&myAddr, sizeof(myAddr)))
 		{
 			if(VERBOSE_MODE_ENABLED) printf("In ftpEstablishDataConnection #2 about to Close socket = %d, for sessionId = %d\n",dataSocket, sessionId);

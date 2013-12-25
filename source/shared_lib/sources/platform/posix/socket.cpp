@@ -546,14 +546,21 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
    // Adapted from example code at http://msdn2.microsoft.com/en-us/library/aa365917.aspx
    // Now get Windows' IPv4 addresses table.  Once again, we gotta call GetIpAddrTable()
    // multiple times in order to deal with potential race conditions properly.
-   MIB_IPADDRTABLE * ipTable = NULL;
+   PMIB_IPADDRTABLE * ipTable = NULL;
+   // Before calling AddIPAddress we use GetIpAddrTable to get
+   // an adapter to which we can add the IP.
+   ipTable = (MIB_IPADDRTABLE *) MALLOC(sizeof (MIB_IPADDRTABLE));
+   ipTable->dwNumEntries = 0;
+
    {
       ULONG bufLen = 0;
       for (int i = 0; i < 5; i++) {
+
          DWORD ipRet = GetIpAddrTable(ipTable, &bufLen, false);
          if (ipRet == ERROR_INSUFFICIENT_BUFFER) {
             free(ipTable);  // in case we had previously allocated it
             ipTable = (MIB_IPADDRTABLE *) malloc(bufLen);
+            ipTable->dwNumEntries = 0;
          }
          else if(ipRet == NO_ERROR) {
         	 break;
@@ -635,8 +642,8 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
 		 }
       }
 
-      free(pAdapterInfo);
-      free(ipTable);
+      if(AdapterInfo) free(pAdapterInfo);
+      if(ipTable) free(ipTable);
    }
 #else
    // Dunno what we're running on here!
@@ -2150,7 +2157,7 @@ void BroadCastClientSocketThread::execute() {
     if(bcfd >= 0) ::close(bcfd);
     bcfd = -1;
 #else
-    if(bcfd >= 0) ::closesocket(bcfd);
+    if(bcfd != INVALID_SOCKET) ::closesocket(bcfd);
     bcfd = INVALID_SOCKET;
 #endif
 

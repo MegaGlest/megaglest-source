@@ -393,10 +393,6 @@ void MenuStateOptionsGraphics::reloadUI() {
 	std::vector<string> listboxData;
 	listboxData.push_back("None");
 	listboxData.push_back("OpenAL");
-// deprecated as of 3.6.1
-//#ifdef WIN32
-//	listboxData.push_back("DirectSound8");
-//#endif
 
 	labelScreenModes.setText(lang.getString("Resolution"));
 
