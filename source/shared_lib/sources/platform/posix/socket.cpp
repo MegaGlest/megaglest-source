@@ -546,10 +546,10 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
    // Adapted from example code at http://msdn2.microsoft.com/en-us/library/aa365917.aspx
    // Now get Windows' IPv4 addresses table.  Once again, we gotta call GetIpAddrTable()
    // multiple times in order to deal with potential race conditions properly.
-   PMIB_IPADDRTABLE * ipTable = NULL;
+   PMIB_IPADDRTABLE ipTable = NULL;
    // Before calling AddIPAddress we use GetIpAddrTable to get
    // an adapter to which we can add the IP.
-   ipTable = (MIB_IPADDRTABLE *) MALLOC(sizeof (MIB_IPADDRTABLE));
+   ipTable = (PMIB_IPADDRTABLE) malloc(sizeof (MIB_IPADDRTABLE));
    ipTable->dwNumEntries = 0;
 
    {
@@ -642,7 +642,7 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
 		 }
       }
 
-      if(AdapterInfo) free(pAdapterInfo);
+      if(pAdapterInfo) free(pAdapterInfo);
       if(ipTable) free(ipTable);
    }
 #else
