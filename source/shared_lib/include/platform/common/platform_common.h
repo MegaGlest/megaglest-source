@@ -122,8 +122,8 @@ private:
 
 	Uint32 lastStartCount;
 	Uint32 lastTickCount;
-	int64  lastResult;
-	int lastMultiplier;
+	int32  lastResult;
+	int32 lastMultiplier;
 	bool lastStopped;
 
 public:
@@ -135,11 +135,12 @@ public:
 	int64 getMillis();
 	int64 getSeconds();
 
+	bool isStarted() const;
     static int64 getCurTicks();
     static int64 getCurMillis();
 
 private:
-	int64 queryCounter(int multiplier);
+	int64 queryCounter(int32 multiplier);
 };
 
 // =====================================================

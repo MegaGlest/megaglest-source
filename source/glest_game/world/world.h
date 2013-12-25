@@ -104,7 +104,7 @@ private:
 	int thisFactionIndex;
 	int thisTeamIndex;
 	int frameCount;
-	Mutex mutexFactionNextUnitId;
+	Mutex *mutexFactionNextUnitId;
 	std::map<int,int> mapFactionNextUnitId;
 
 	//config

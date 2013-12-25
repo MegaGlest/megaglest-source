@@ -318,7 +318,7 @@ private:
 	std::vector<std::pair<ParticleSystem *, ResourceScope> > deferredParticleSystems;
 
 	SimpleTaskThread *saveScreenShotThread;
-	Mutex saveScreenShotThreadAccessor;
+	Mutex *saveScreenShotThreadAccessor;
 	std::list<std::pair<string,Pixmap2D *> > saveScreenQueue;
 
 	std::map<Vec3f,Vec3f> worldToScreenPosCache;

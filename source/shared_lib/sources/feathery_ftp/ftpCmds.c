@@ -125,7 +125,7 @@ int ftpExecTransmission(int sessionId)
 		{
         	len = ftpReceive(pTrans->dataSocket, &scratchBuf[rxLen], LEN_SCRATCHBUF - rxLen);
 
-			if(len <= 0) {
+			if(len < 1) {
 				int errorNumber = getLastSocketError();
 				const char *errText = getLastSocketErrorText(&errorNumber);
 				if(VERBOSE_MODE_ENABLED) printf("ftpExecTransmission ERROR ON RECEIVE for socket = %d, data len = %d, error = %d [%s]\n",pTrans->dataSocket,(LEN_SCRATCHBUF - rxLen),errorNumber,errText);
@@ -148,7 +148,7 @@ int ftpExecTransmission(int sessionId)
 			}
 		}
 
-		if(len <= 0)
+		if(len < 1)
 		{
 	    	ftpSendMsg(MSG_NORMAL, sessionId, 226, ftpMsg003);
 	    	finished = TRUE;

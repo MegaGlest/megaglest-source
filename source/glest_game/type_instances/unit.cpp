@@ -511,7 +511,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	Unit::mapMemoryList[this]=true;
 #endif
 
-	mutexCommands = new Mutex();
+	mutexCommands = new Mutex(CODE_AT_LINE);
 	changedActiveCommand = false;
 	lastSynchDataString="";
 	modelFacing = CardinalDir::NORTH;

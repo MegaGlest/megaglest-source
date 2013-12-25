@@ -36,7 +36,7 @@ class Mutex;
 class MutexSafeWrapper;
 
 static auto_ptr<ThreadGarbageCollector> cleanupThread;
-static auto_ptr<Mutex> cleanupThreadMutex(new Mutex());
+static auto_ptr<Mutex> cleanupThreadMutex(new Mutex(CODE_AT_LINE));
 
 class ThreadGarbageCollector : public BaseThread
 {
@@ -128,7 +128,7 @@ public:
 // =====================================
 //          Threads
 // =====================================
-Thread::Thread() : thread(NULL), mutexthreadAccessor(new Mutex()), deleteAfterExecute(false) {
+Thread::Thread() : thread(NULL), mutexthreadAccessor(new Mutex(CODE_AT_LINE)), deleteAfterExecute(false) {
 	addThreadToList();
 }
 
@@ -386,28 +386,30 @@ public:
 	}
 };
 
-const bool debugMutexLock = false;
-const int debugMutexLockMillisecondThreshold = 2000;
+const bool debugMutexLock 						= false;
+const int debugMutexLockMillisecondThreshold 	= 2000;
 
 Mutex::Mutex(string ownerId) {
-	isStaticMutexListMutex = false;
-	mutexAccessor  = SDL_CreateMutex();
+	this->isStaticMutexListMutex 	= false;
+	this->mutexAccessor 			= SDL_CreateMutex();
+
 	SDLMutexSafeWrapper safeMutex(&mutexAccessor);
-    refCount=0;
-    this->ownerId = ownerId;
-    this->lastownerId = "";
-	mutex = SDL_CreateMutex();
-	assert(mutex != NULL);
-	if(mutex == NULL) {
+
+	this->maxRefCount 				= 0;
+	this->refCount					= 0;
+    this->ownerId 					= ownerId;
+    this->lastownerId 				= "";
+    this->mutex 					= SDL_CreateMutex();
+	if(this->mutex == NULL) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8095,"In [%s::%s Line: %d] mutex == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		throw megaglest_runtime_error(szBuf);
 	}
-	deleteownerId = "";
+	this->deleteownerId 			= "";
 
-	chronoPerf = NULL;
+	this->chronoPerf 				= NULL;
 	if(debugMutexLock == true) {
-		chronoPerf = new Chrono();
+		this->chronoPerf = new Chrono();
 	}
 
 	if(Mutex::mutexMutexList.get()) {
@@ -416,7 +418,7 @@ Mutex::Mutex(string ownerId) {
 		safeMutexX.ReleaseLock();
 	}
 	else {
-		isStaticMutexListMutex = true;
+		this->isStaticMutexListMutex = true;
 	}
 }
 
@@ -456,6 +458,10 @@ Mutex::~Mutex() {
 		SDL_DestroyMutex(mutex);
 		mutex=NULL;
 	}
+
+//	if(maxRefCount <= 1) {
+//		printf("***> MUTEX candidate for removal ownerId [%s] deleteownerId [%s] lastownerId [%s]\n",ownerId.c_str(),deleteownerId.c_str(),lastownerId.c_str());
+//	}
 }
 
 void Mutex::p() {
@@ -473,6 +479,7 @@ void Mutex::p() {
 		chronoLockPerf->start();
 	}
 
+//	maxRefCount = max(maxRefCount,refCount+1);
 	SDL_mutexP(mutex);
 	refCount++;
 
@@ -734,10 +741,9 @@ MasterSlaveThreadController::MasterSlaveThreadController(std::vector<SlaveThread
 }
 
 void MasterSlaveThreadController::init(std::vector<SlaveThreadControllerInterface *> &newSlaveThreadList) {
-	static string masterSlaveOwnerId = string(__FILE__) + string("_MasterSlaveThreadController");
-	this->mutex = new Mutex(masterSlaveOwnerId);
-	this->slaveTriggerSem = new Semaphore(0);
-	this->slaveTriggerCounter = (int)newSlaveThreadList.size() + triggerBaseCount;
+	this->mutex 				= new Mutex(CODE_AT_LINE);
+	this->slaveTriggerSem 		= new Semaphore(0);
+	this->slaveTriggerCounter 	= (int)newSlaveThreadList.size() + triggerBaseCount;
 	setSlaves(newSlaveThreadList);
 }
 

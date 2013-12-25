@@ -103,7 +103,7 @@ private:
 	std::string threadedErrorMsg;
 
     std::vector<string> ircArgs;
-	Mutex mutexIRCClient;
+	Mutex *mutexIRCClient;
 	IRCThread *ircClient;
 	std::vector<string> oldNickList;
 

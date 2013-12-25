@@ -53,7 +53,6 @@ private:
     World *world;
 	Chrono perfTimer;
 
-	Mutex commandMutex;
 	std::vector<std::pair<int,NetworkCommand> > replayCommandList;
 
 	bool pauseNetworkCommands;

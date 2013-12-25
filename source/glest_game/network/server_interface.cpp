@@ -56,16 +56,16 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 	allowInGameConnections 				= false;
 	gameLaunched 						= false;
 
-	serverSynchAccessor 				= new Mutex();
-	switchSetupRequestsSynchAccessor 	= new Mutex();
+	serverSynchAccessor 				= new Mutex(CODE_AT_LINE);
+	switchSetupRequestsSynchAccessor 	= new Mutex(CODE_AT_LINE);
 
 	for(int index = 0; index < GameConstants::maxPlayers; ++index) {
-		slotAccessorMutexes[index] 		= new Mutex();
+		slotAccessorMutexes[index] 		= new Mutex(CODE_AT_LINE);
 	}
-	masterServerThreadAccessor 			= new Mutex();
-	textMessageQueueThreadAccessor 		= new Mutex();
-	broadcastMessageQueueThreadAccessor = new Mutex();
-	inBroadcastMessageThreadAccessor 	= new Mutex();
+	masterServerThreadAccessor 			= new Mutex(CODE_AT_LINE);
+	textMessageQueueThreadAccessor 		= new Mutex(CODE_AT_LINE);
+	broadcastMessageQueueThreadAccessor = new Mutex(CODE_AT_LINE);
+	inBroadcastMessageThreadAccessor 	= new Mutex(CODE_AT_LINE);
 
 	serverSocketAdmin				= NULL;
 	nextEventId 					= 1;
@@ -123,7 +123,7 @@ ServerInterface::ServerInterface(bool publishEnabled) :GameNetworkInterface() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	gameStatsThreadAccessor 	= new Mutex();
+	gameStatsThreadAccessor 	= new Mutex(CODE_AT_LINE);
 	gameStats 					= NULL;
 
 	Config &config 			= Config::getInstance();

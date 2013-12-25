@@ -162,7 +162,7 @@ bool VisibleQuadContainerCache::enableFrustumCalcs = true;
 
 // ==================== constructor and destructor ====================
 
-Renderer::Renderer() : BaseRenderer() {
+Renderer::Renderer() : BaseRenderer(), saveScreenShotThreadAccessor(new Mutex(CODE_AT_LINE)) {
 	//this->masterserverMode = masterserverMode;
 	//printf("this->masterserverMode = %d\n",this->masterserverMode);
 	//assert(0==1);
@@ -287,7 +287,7 @@ void Renderer::cleanupScreenshotThread() {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] FORCING MEMORY CLEANUP and NOT SAVING screenshots, saveScreenQueue.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,saveScreenQueue.size());
 
 			static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
-			MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,mutexOwnerId);
+			MutexSafeWrapper safeMutex(saveScreenShotThreadAccessor,mutexOwnerId);
 			for(std::list<std::pair<string,Pixmap2D *> >::iterator iter = saveScreenQueue.begin();
 				iter != saveScreenQueue.end(); ++iter) {
 				delete iter->second;
@@ -340,6 +340,9 @@ Renderer::~Renderer() {
 		this->menu = NULL;
 		this->game = NULL;
 		this->gameCamera = NULL;
+
+		delete saveScreenShotThreadAccessor;
+		saveScreenShotThreadAccessor = NULL;
 	}
 	catch(const exception &e) {
 		char szBuf[8096]="";
@@ -356,7 +359,7 @@ void Renderer::simpleTask(BaseThread *callingThread,void *userdata) {
 	Pixmap2D *savePixMapBuffer=NULL;
 	string path="";
 	static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
-	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,mutexOwnerId);
+	MutexSafeWrapper safeMutex(saveScreenShotThreadAccessor,mutexOwnerId);
 	if(saveScreenQueue.empty() == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] saveScreenQueue.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,saveScreenQueue.size());
 
@@ -7335,7 +7338,7 @@ void Renderer::saveScreen(const string &path,int w, int h) {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	// Signal the threads queue to add a screenshot save request
-	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutex(saveScreenShotThreadAccessor,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 	saveScreenQueue.push_back(make_pair(path,pixmapScreenShot));
 	safeMutex.ReleaseLock();
 
@@ -7343,7 +7346,7 @@ void Renderer::saveScreen(const string &path,int w, int h) {
 }
 
 unsigned int Renderer::getSaveScreenQueueSize() {
-	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutex(saveScreenShotThreadAccessor,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 	int queueSize = (int)saveScreenQueue.size();
 	safeMutex.ReleaseLock();
 

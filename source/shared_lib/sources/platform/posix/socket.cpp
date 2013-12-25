@@ -778,9 +778,9 @@ bool Socket::isSocketValid(const PLATFORM_SOCKET *validateSocket) {
 }
 
 Socket::Socket(PLATFORM_SOCKET sock) {
-	dataSynchAccessorRead = new Mutex();
-	dataSynchAccessorWrite = new Mutex();
-	inSocketDestructorSynchAccessor = new Mutex();
+	dataSynchAccessorRead = new Mutex(CODE_AT_LINE);
+	dataSynchAccessorWrite = new Mutex(CODE_AT_LINE);
+	inSocketDestructorSynchAccessor = new Mutex(CODE_AT_LINE);
 	lastSocketError = 0;
 
 	MutexSafeWrapper safeMutexSocketDestructorFlag(inSocketDestructorSynchAccessor,CODE_AT_LINE);
@@ -801,9 +801,9 @@ Socket::Socket(PLATFORM_SOCKET sock) {
 }
 
 Socket::Socket() {
-	dataSynchAccessorRead = new Mutex();
-	dataSynchAccessorWrite = new Mutex();
-	inSocketDestructorSynchAccessor = new Mutex();
+	dataSynchAccessorRead = new Mutex(CODE_AT_LINE);
+	dataSynchAccessorWrite = new Mutex(CODE_AT_LINE);
+	inSocketDestructorSynchAccessor = new Mutex(CODE_AT_LINE);
 	lastSocketError = 0;
 	lastDebugEvent = 0;
 	lastThreadedPing = 0;
@@ -2807,7 +2807,7 @@ void UPNP_Tools::NETremRedirects(int ext_port) {
 //
 BroadCastSocketThread::BroadCastSocketThread(int boundPort) : BaseThread() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	mutexPauseBroadcast = new Mutex();
+	mutexPauseBroadcast = new Mutex(CODE_AT_LINE);
 	setPauseBroadcast(false);
 	this->boundPort = boundPort;
 	uniqueID = "BroadCastSocketThread";

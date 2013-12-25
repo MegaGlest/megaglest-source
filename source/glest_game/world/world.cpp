@@ -43,7 +43,7 @@ time_t ExploredCellsLookupItem::lastDebug = 0;
 
 // ===================== PUBLIC ========================
 
-World::World() {
+World::World() : mutexFactionNextUnitId(new Mutex(CODE_AT_LINE)) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Config &config= Config::getInstance();
 
@@ -140,6 +140,9 @@ World::~World() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	cleanup();
+
+	delete mutexFactionNextUnitId;
+	mutexFactionNextUnitId = NULL;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -2061,7 +2064,7 @@ void World::initFactionTypes(GameSettings *gs) {
 
 		//printf("**LOAD World thisFactionIndex = %d\n",thisFactionIndex);
 
-		MutexSafeWrapper safeMutex(&mutexFactionNextUnitId,string(__FILE__) + "_" + intToStr(__LINE__));
+		MutexSafeWrapper safeMutex(mutexFactionNextUnitId,string(__FILE__) + "_" + intToStr(__LINE__));
 	//	std::map<int,int> mapFactionNextUnitId;
 //		for(std::map<int,int>::iterator iterMap = mapFactionNextUnitId.begin();
 //				iterMap != mapFactionNextUnitId.end(); ++iterMap) {
@@ -2608,7 +2611,7 @@ const GameSettings * World::getGameSettings() const {
 // Calculates the unit unit ID for each faction
 //
 int World::getNextUnitId(Faction *faction)	{
-	MutexSafeWrapper safeMutex(&mutexFactionNextUnitId,string(__FILE__) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutex(mutexFactionNextUnitId,string(__FILE__) + "_" + intToStr(__LINE__));
 	if(mapFactionNextUnitId.find(faction->getIndex()) == mapFactionNextUnitId.end()) {
 		mapFactionNextUnitId[faction->getIndex()] = faction->getIndex() * 100000;
 	}
@@ -2875,7 +2878,7 @@ void World::saveGame(XmlNode *rootNode) {
 	worldNode->addAttribute("frameCount",intToStr(frameCount), mapTagReplacements);
 //	//int nextUnitId;
 //	Mutex mutexFactionNextUnitId;
-	MutexSafeWrapper safeMutex(&mutexFactionNextUnitId,string(__FILE__) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutex(mutexFactionNextUnitId,string(__FILE__) + "_" + intToStr(__LINE__));
 //	std::map<int,int> mapFactionNextUnitId;
 	for(std::map<int,int>::iterator iterMap = mapFactionNextUnitId.begin();
 			iterMap != mapFactionNextUnitId.end(); ++iterMap) {

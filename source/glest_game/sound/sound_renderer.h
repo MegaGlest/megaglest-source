@@ -51,7 +51,7 @@ private:
 	float musicVolume;
 	float ambientVolume;
 
-	Mutex mutex;
+	Mutex *mutex;
 	bool runThreadSafe;
 
 private:

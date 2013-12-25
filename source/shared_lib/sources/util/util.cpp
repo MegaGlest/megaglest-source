@@ -553,7 +553,7 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
             	currentDebugLog.fileStream->open(debugLog.c_str(), ios_base::out | ios_base::trunc);
 #endif
 				currentDebugLog.fileStreamOwner = true;
-				currentDebugLog.mutex			= new Mutex();
+				currentDebugLog.mutex			= new Mutex(CODE_AT_LINE);
             }
 
             if(SystemFlags::haveSpecialOutputCommandLineOption == false) {

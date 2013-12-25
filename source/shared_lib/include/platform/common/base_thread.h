@@ -29,17 +29,17 @@ namespace Shared { namespace PlatformCommon {
 class BaseThread : public Thread
 {
 protected:
-	Mutex mutexRunning;
-	Mutex mutexQuit;
-	Mutex mutexBeginExecution;
-	Mutex mutexDeleteSelfOnExecutionDone;
+	Mutex *mutexRunning;
+	Mutex *mutexQuit;
+	Mutex *mutexBeginExecution;
+	Mutex *mutexDeleteSelfOnExecutionDone;
 
-    Mutex mutexThreadObjectAccessor;
+    Mutex *mutexThreadObjectAccessor;
 
     bool threadOwnerValid;
-    Mutex mutexThreadOwnerValid;
+    Mutex *mutexThreadOwnerValid;
 
-	Mutex mutexExecutingTask;
+	Mutex *mutexExecutingTask;
 	bool executingTask;
 
 	void *ptr;
@@ -52,7 +52,7 @@ protected:
 	bool hasBeginExecution;
 	bool deleteSelfOnExecutionDone;
 
-	Mutex mutexStarted;
+	Mutex *mutexStarted;
 	bool started;
 
 	virtual void setQuitStatus(bool value);
@@ -96,7 +96,7 @@ public:
     bool getThreadOwnerValid();
     Mutex * getMutexThreadOwnerValid();
 
-    Mutex * getMutexThreadObjectAccessor() { return &mutexThreadObjectAccessor; }
+    Mutex * getMutexThreadObjectAccessor();
 
 	template <typename T>
 	T * getGenericData() { 
