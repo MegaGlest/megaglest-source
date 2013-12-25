@@ -966,7 +966,7 @@ void Socket::disconnectSocket() {
         ::shutdown(sock,2);
 #ifndef WIN32
         ::close(sock);
-        sock = INVALID_SOCKET;
+        sock = -1;
 #else
         ::closesocket(sock);
         sock = INVALID_SOCKET;
@@ -2148,7 +2148,7 @@ void BroadCastClientSocketThread::execute() {
 
 #ifndef WIN32
     if(bcfd >= 0) ::close(bcfd);
-    bcfd = INVALID_SOCKET;
+    bcfd = -1;
 #else
     if(bcfd >= 0) ::closesocket(bcfd);
     bcfd = INVALID_SOCKET;
@@ -2431,7 +2431,7 @@ Socket *ServerSocket::accept(bool errorOnFail) {
 			else {
 	#ifndef WIN32
 			::close(newSock);
-			newSock = INVALID_SOCKET;
+			newSock = -1;
 	#else
 			::closesocket(newSock);
 			newSock = INVALID_SOCKET;
@@ -2450,7 +2450,7 @@ Socket *ServerSocket::accept(bool errorOnFail) {
 
 	#ifndef WIN32
 			::close(newSock);
-			newSock = INVALID_SOCKET;
+			newSock = -1;
 	#else
 			::closesocket(newSock);
 			newSock = INVALID_SOCKET;
@@ -2871,7 +2871,7 @@ void BroadCastSocketThread::execute() {
 #ifdef WIN32
 		bcfd[idx] = INVALID_SOCKET;
 #else
-		bcfd[idx] = INVALID_SOCKET;
+		bcfd[idx] = -1;
 #endif
     }
     /* get my host name */
@@ -2905,7 +2905,7 @@ void BroadCastSocketThread::execute() {
 #ifdef WIN32
 		bcfd[idx] = INVALID_SOCKET;
 #else
-		bcfd[idx] = INVALID_SOCKET;
+		bcfd[idx] = -1;
 #endif
 		//if(strlen(subnetmask[idx]) > 0) {
 		bcfd[idx] = socket( AF_INET, SOCK_DGRAM, 0 );
@@ -3003,7 +3003,7 @@ void BroadCastSocketThread::execute() {
 		if( Socket::isSocketValid(&bcfd[idx]) == true ) {
 #ifndef WIN32
         ::close(bcfd[idx]);
-        bcfd[idx] = INVALID_SOCKET;
+        bcfd[idx] = -1;
 #else
         ::closesocket(bcfd[idx]);
         bcfd[idx] = INVALID_SOCKET;

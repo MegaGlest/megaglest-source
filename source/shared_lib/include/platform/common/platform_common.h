@@ -122,7 +122,7 @@ private:
 
 	Uint32 lastStartCount;
 	Uint32 lastTickCount;
-	int32  lastResult;
+	int64  lastResult;
 	int32 lastMultiplier;
 	bool lastStopped;
 
