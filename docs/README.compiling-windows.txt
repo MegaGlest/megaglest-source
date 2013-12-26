@@ -13,15 +13,16 @@ Developed on Windows with Microsoft Visual C++ 2010 Express (free version),
 little endian CPU. Compiling using the mingw32 toolset is experimental, which
 also allows for cross compiling.
 
-On debian systems please find license information in: /usr/share/common-licenses
+On Debian GNU/Linux systems please find license information in: 
+/usr/share/common-licenses
+
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 2. Building and Installation
 
 2.1 Prerequesites
 
-The game depends on some tools and libraries to be present, before you can
-start compiling it. Here's a list of them:
+To build the game, the following tools and libraries must be present:
 
 * Microsoft Visual C++ Express 2010
 OR
@@ -46,9 +47,9 @@ And many more.
 
 2.2 Building
 
-To build and install the game use the following steps:
+To build and install the game proceed as follows:
 
-Option A) (recommended) Automatic Building through commandline: 
+Option A) (recommended) Automated build on the command line: 
 
 1. Open a command prompt and navigate to the root folder where you have acquired the source code.
 
@@ -64,28 +65,28 @@ Option A) (recommended) Automatic Building through commandline:
 
 7. megaglest.exe
 
-Option B) USing VC++ IDE:
+Option B) Using VC++ IDE:
 
 1. Download the dependencies archive listed above and decompress its contents
    into the 'source' directory (where you see glest_game, g3d_viewer, etc).
    This should create a subdirectory called "win32_deps" with many files and
    subdirectories in it.
 
-2. Open the VC++ 2010 Solution file in trunk\mk\windoze called Glest-2010.sln within
-   the Visual C++ IDE.
+2. Start the Visual C++ 2010 IDE and open the solution file:
+   \mk\windoze\Glest-2010.sln
 
-3. Right Click on the top level Glest node in Solution Explorer and select
+3. Right Click on the top level 'Glest' node in Solution Explorer and select
    'Rebuild All'.
 
-If you had no errors all binaries will be created in trunk\data\glest_game.
-Before running MegaGlest you must run the CopyWindowsRuntimeDlls_2010.bat batch.
-You should now be able to just run glest_game.exe.
+If you had no errors all binaries will be created in \data\glest_game.
+Before running MegaGlest you must run CopyWindowsRuntimeDlls_2010.bat.
+You should now be able to just run megaglest.exe.
 
 
 2.3 Installation
 
 We provide NSIS based installation packages. By default, these will create a
-system-wide installation below Program Files and setup Desktop icons for
+system-wide installation below %ProgramFiles% and setup Desktop icons for
 simplified access. User specific configuration will be stored within the
 directory tree the %AppData% environment variable points to.
 

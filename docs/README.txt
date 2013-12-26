@@ -24,7 +24,7 @@
 1. System requirements
 
 Hardware requirements:
-* 6th generation x86 CPU with 1.5 GHz or better
+* >= 6th generation x86 CPU with 1.5 GHz or better
   (modern CPU series with at least two cores of at least 1.5 Ghz recommended)
 * 1.0 GB RAM
   (2.0 GB recommended)
@@ -42,16 +42,17 @@ Software requirements:
 * A file archiving utility which provides a command line interface and can
   decompress 7-zip archives
 
-The MegaGlest Team currently provides builds and Installers for Linux and
+The MegaGlest Team currently provides builds and installers for Linux and
 Windows. The Linux version is available in 32 and 64 bit variants which have
 been reported to run on Ubuntu 8.04 to 13.10, various versions of Debian,
-OpenSuSE 11.1 to 11.3, and many other distributions. The Windows version runs
+OpenSuSE 11.1 to 13.1, and many other distributions. The Windows version runs
 on 32 and 64 bit variants of Windows and has been reported to run on Windows
-versions up to and including Windows 7.
+versions up to and including Windows 8.1.
 
 There are also packages available for several Linux and BSD distributions and 
 OS X, maintained by these distributions or the wider MegaGlest community. 
-Please see the website, forums and wiki for details.
+Please see the MegaGlest website, forums and wiki, as well as the package 
+directories these distributions provide for details.
 
 Graphics hardware and drivers:
 Current dedicated Nvidia and ATI hardware with up to date vendor-supplied 
@@ -63,8 +64,8 @@ many current and legacy GPUs, and may help with the proprietary drivers'
 shortcomings.
 
 Next to standard dedicated gaming video cards, MegaGlest also runs fine on most
-integrated Intel GMA, Nvidia and ATI GPUs, but you will feel an urge to reduce
-visual effects.
+integrated Intel GMA, Nvidia and AMD/ATI APUs, but you will feel an urge to 
+reduce visual effects. See http://faq.megaglest.org for more hints.
 
 To run MegaGlest in headless mode, neither video nor audio hardware and driver
 support are neccessary. For a good user experience, please ensure your system
@@ -242,6 +243,7 @@ megaglest --headless-server-mode     => start a headless server, the first
                                         connecting user will manage it
 megaglest --client ServerIp          => start game connecting to a server
 
+For a complete list, run: megaglest --help
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -269,14 +271,14 @@ their own by reading up on available documentation before getting in touch.
 
 - Post to the forums:
   If you are reporting a bug, please be sure to read the bug reporting guide.
-  http://forums.megaglest.org
+  http://forum.megaglest.org
 
 - Contact us on IRC:
   Network: irc.freenode.net
   Channel: #megaglest
   Or use the webchat at http://chat.megaglest.org/
 
-On debian systems please find license information in: 
+On Debian GNU/Linux systems please find license information in: 
 /usr/share/common-licenses/GPL
 /usr/share/common-licenses/GPL-2
 /usr/share/common-licenses/GPL-2+

@@ -12,7 +12,7 @@
 Developed on Linux with glibc, little endian CPU. While MacIntel builds exist
 (for some versions of the game), MegaGlest does not currently work on big
 endian CPUs like PPC (though some unfinished patches for vanilla Glest float
-around on the forums, e.g. https://forum.megaglest.org/index.php?topic=1426#).
+around on the forums, e.g. http://forum.megaglest.org/?topic=1426#).
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -81,8 +81,11 @@ start compiling it:
 
 * libdl
 
-If the configure script can't find some of the libraries, make sure that you
-also have the -dev packages installed that some distributions provide.
+NOTE: We have produced a script that tries to install build dependencies on many
+Linux distros. The script is located in mk/linux/setupBuildDeps.sh
+
+If CMake reports that it cannot find some of the libraries, make sure that you
+also have the ...-dev(el) packages installed that some distributions provide.
 
 At this point we would like to thank all the authors of these helpful libraries 
 who made our development easy and straight forward.
@@ -94,8 +97,6 @@ To build the game simply invoke the build script:
 
 ./build-mg.sh
 
-*NOTE: We have produced a script that tries to install build dependencies
-on many Linux distros. The script is located in mk/linux/setupBuildDeps.sh
 
 2.3 Installation
 
@@ -119,7 +120,7 @@ In General:
   configuration: http://supertux.lethargik.org/wiki/OpenAL_Configuration
 
 Compiling:
-* If configure fails make sure you have read the Building section above
+* If CMake fails make sure you have read all of section 2.1 above.
 
 Sound/Audio errors when starting:
 * If the game doesn't start because of audio/sound errors:
@@ -132,15 +133,19 @@ Sound/Audio errors when starting:
 The game complains about OpenGL 1.3 not available, is missing OpenGL extensions
 or works very slowly:
 * Look at glxinfo and make sure the system is using the drivers you want to
-  use. Often the proprietary ATI or NVIDIA drivers work better, but for Intel,
-  Mesa drivers ("glxinfo | grep -i mesa") can work, too (but slowly since these
-  GPUs are lacking on hardware acceleration support).
+  use. If you have a NVIDIA or AMD/ATI graphics card then consider using the
+  proprietary drivers (where available), which usually provide much better 
+  performance than the open source drivers most distributions use by default.
+  Most Intel graphics chips use an open source driver on Linux, based on Mesa
+  ("glxinfo | grep -i mesa"). This hardware is much slower than any dedicated
+  graphics cards produced during the past few years. The same holds true for
+  AMD APUs, the graphics chips embedded into AMD processors.
 
 The game crashes:
 * Check the forums at http://forums.megaglest.org/
-* It would be nice if you could report any other crashes and freezes that are
-  not yet described on the forums, preferably with a gdb backtrace from a
-  debugging enabled build (cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo)
+* It would be nice if you could report any crashes and freezes that are not yet
+  described on the forums, preferably with a gdb backtrace from a debugging 
+  enabled build (cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo)
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -154,7 +159,7 @@ The game crashes:
   http://wiki.megaglest.org/
 
 * Forums
-  http://forums.megaglest.org/
+  http://forum.megaglest.org/
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -181,5 +186,5 @@ Linux port by:
 Please also refer to the copyright file.
 
 
-On Debian systems please find license information in: 
+On Debian GNU/Linux systems please find license information in: 
 /usr/share/common-licenses
