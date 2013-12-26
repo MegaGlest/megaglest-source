@@ -5,6 +5,14 @@
 # Copyright (c) 2013 Mark Vejvoda under GNU GPL v3.0+
 
 # ----------------------------------------------------------------------------
+#
+# Requires:
+# - curl, built with SSL support, in $PATH
+# - wget, built with SSL support, in $PATH
+# - 7z (command line utility of 7-zip), in $PATH
+# - Coverity Scan Build Tool, in $PATH
+# 
+
 
 # Default to English language output so we can understand your bug reports
 export LANG=C
@@ -12,14 +20,8 @@ export LANG=C
 CURRENTDIR="$(dirname $(readlink -f $0))"
 echo "Script path [${CURRENTDIR}]"
 
-# 
-# Upload Coverity s
-# Requires:
-# - data\glest_game\curl.exe, built with SSL support: http://curl.haxx.se/download.html
-# - ..\..\data\glest_game\wget.exe (should get installed automatically during a build)
-# - ..\..\data\glest_game\7z.exe (should get installed automatically during a build)
-# - Coverity Scan Build Tool installed and in %PATH%
-# 
+# Load shared functions
+. $CURRENTDIR/mg_shared.sh
 
 # Project name (case sensitive)
 PROJECT=MegaGlest
@@ -42,36 +44,10 @@ fi
 # echo "Read config values: TOKEN [$TOKEN] EMAIL [$EMAIL] COVERITY_ANALYSIS_ROOT [$COVERITY_ANALYSIS_ROOT] NUMCORES [${NUMCORES}]"
 # exit 1
 
-# Description of this build (can be any string)
-# Determine distro title, release, codename
-LSB_PATH=$(which lsb_release)
-if [ '${LSB_PATH}x' = 'x' ] ; then
-	lsb=0
-	if [ -e /etc/debian_version ]
-	        then distribution='Debian';   release='unknown release version'; codename=`cat /etc/debian_version`
-	elif [ -e /etc/SuSE-release ]
-	        then distribution='SuSE';     release='unknown release version'; codename=`cat /etc/SuSE-release`
-	elif [ -e /etc/redhat-release ]
-	        then 
-		if [ -e /etc/fedora-release ]
-		then distribution='Fedora';   release='unknown release version'; codename=`cat /etc/fedora-release`
-		else distribution='Redhat';   release='unknown release version'; codename=`cat /etc/redhat-release`
-		fi
-	elif [ -e /etc/fedora-release ]
-	        then distribution='Fedora';   release='unknown release version'; codename=`cat /etc/fedora-release`
-	elif [ -e /etc/mandrake-release ]
-	        then distribution='Mandrake'; release='unknown release version'; codename=`cat /etc/mandrake-release`
-	fi
-else
-	lsb=1
-
-	distribution=$(lsb_release -i | awk -F':' '{ gsub(/^[ \t]*/,"",$2); print $2 }')
-	release=$(lsb_release -r | awk -F':' '{ gsub(/^[  \t]*/,"",$2); print $2 }')
-	codename=$(lsb_release -c | awk -F':' '{ gsub(/^[ \t]*/,"",$2); print $2 }')
-fi
+# Included from shared functions
+detect_system
 
 computername=$(hostname)
-architecture=$(uname -m)
 #DESCRIPTION=${distribution}-${release}-${architecture}_${computername}
 DESCRIPTION=${distribution}-${architecture}_${computername}
 

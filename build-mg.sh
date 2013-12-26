@@ -61,7 +61,7 @@ cd ${SCRIPTDIR}
 # will warn about it later.
 # Instead of editing this variable, consider creating a symbolic link:
 #   ln -s ../../google-breakpad google-breakpad
-BREAKPAD_ROOT="$(dirname $(readlink -f $0))/google-breakpad/"
+BREAKPAD_ROOT="$SCRIPTDIR/google-breakpad/"
 
 # CMake options
 # The default configuration works fine for regular developers and is also used 
@@ -71,8 +71,7 @@ BREAKPAD_ROOT="$(dirname $(readlink -f $0))/google-breakpad/"
 EXTRA_CMAKE_OPTIONS=
 
 # Build threads
-# By default we use all available CPU cores to build.
-# Pass '1core' as first command line argument to use only one.
+# By default we use all physical CPU cores to build.
 NUMCORES=`lscpu -p | grep -cv '^#'`
 echo "CPU cores detected: $NUMCORES"
 if [ "$NUMCORES" = '' ]; then NUMCORES=1; fi
@@ -81,76 +80,24 @@ echo "CPU cores to be used: $NUMCORES"
 
 # ----------------------------------------------------------------------------
 
+# Load shared functions
+
+. $SCRIPTDIR/mk/linux/mg_shared.sh
+
+# ----------------------------------------------------------------------------
+
 if [ $MAKE_ONLY = 0 ]; then 
         mkdir -p build
 fi
 
 cd build
-CURRENTDIR="$(dirname $(readlink -f $0))"
 
 if [ $MAKE_ONLY = 0 ]; then 
         if [ -f 'CMakeCache.txt' ]; then rm -f 'CMakeCache.txt'; fi
 fi
 
-# Get distribution and architecture details
-if [ `which lsb_release`'x' = 'x' ]
-then
-	lsb=0
-	if [ -e /etc/debian_version ];   then distribution='Debian';   release='unknown release version'; codename=`cat /etc/debian_version`;   fi
-	if [ -e /etc/SuSE-release ];     then distribution='SuSE';     release='unknown release version'; codename=`cat /etc/SuSE-release`;     fi
-	if [ -e /etc/fedora-release ];   then distribution='Fedora';   release='unknown release version'; codename=`cat /etc/fedora-release`;   fi
-	if [ -e /etc/redhat-release ];   then distribution='Redhat';   release='unknown release version'; codename=`cat /etc/redhat-release`;   fi
-	if [ -e /etc/mandrake-release ]; then distribution='Mandrake'; release='unknown release version'; codename=`cat /etc/mandrake-release`; fi
-else
-	lsb=1
-
-	# lsb_release output by example:
-        #
-	# $ lsb_release -i
-	# Distributor ID:       Ubuntu
-	#
-	# $ lsb_release -d
-	# Description:  Ubuntu 12.04 LTS
-	#
-	# $ lsb_release -r
-	# Release:      12.04
-	#
-	# $ lsb_release -c
-	# Codename:     precise
-
-	distribution=`lsb_release -i | awk -F':' '{ gsub(/^[ \t]*/,"",$2); print $2 }'`
-	release=`lsb_release -r | awk -F':' '{ gsub(/^[  \t]*/,"",$2); print $2 }'`
-	codename=`lsb_release -c | awk -F':' '{ gsub(/^[ \t]*/,"",$2); print $2 }'`
-
-	# Some distribution examples:
-	#
-	# OpenSuSE 11.4
-	#LSB Version:    n/a
-	#Distributor ID: SUSE LINUX
-	#Description:    openSUSE 11.4 (x86_64)
-	#Release:        11.4
-	#Codename:       Celadon
-	#
-	# OpenSuSE 12.1
-	#LSB support:  1
-	#Distribution: SUSE LINUX
-	#Release:      12.1
-	#Codename:     Asparagus
-	#
-	# Arch
-	#LSB Version:    n/a
-	#Distributor ID: archlinux
-	#Description:    Arch Linux
-	#Release:        rolling
-	#Codename:       n/a
-	#
-	# Ubuntu 12.04
-	#Distributor ID: Ubuntu
-	#Description:	 Ubuntu 12.04 LTS
-	#Release:	 12.04
-	#Codename:	 precise
-fi
-architecture=`uname -m`
+# Included from shared functions
+detect_system
 
 echo 'We have detected the following system:'
 echo ' [ '"$distribution"' ] [ '"$release"' ] [ '"$codename"' ] [ '"$architecture"' ]'
