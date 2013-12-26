@@ -41,7 +41,8 @@ namespace Glest{ namespace Game{
 
 // ===================== PUBLIC ========================
 
-UnitUpdater::UnitUpdater() {
+UnitUpdater::UnitUpdater() : mutexAttackWarnings(new Mutex(CODE_AT_LINE)),
+		mutexUnitRangeCellsLookupItemCache(new Mutex(CODE_AT_LINE)) {
     this->game= NULL;
 	this->gui= NULL;
 	this->gameCamera= NULL;
@@ -95,12 +96,20 @@ UnitUpdater::~UnitUpdater() {
 	delete pathFinder;
 	pathFinder = NULL;
 
-	MutexSafeWrapper safeMutex(&mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutex(mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
 	while(attackWarnings.empty() == false) {
-		AttackWarningData* awd=attackWarnings.back();
+		AttackWarningData* awd = attackWarnings.back();
 		attackWarnings.pop_back();
 		delete awd;
 	}
+
+	safeMutex.ReleaseLock();
+
+	delete mutexAttackWarnings;
+	mutexAttackWarnings = NULL;
+
+	delete mutexUnitRangeCellsLookupItemCache;
+	mutexUnitRangeCellsLookupItemCache = NULL;
 }
 
 // ==================== progress skills ====================
@@ -2655,30 +2664,24 @@ bool UnitUpdater::findCachedCellsEnemies(Vec2i center, int range, int size, vect
 										 const AttackSkillType *ast, const Unit *unit,
 										 const Unit *commandTarget) {
 	bool result = false;
-	//return result;
+	MutexSafeWrapper safeMutex(mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
+	std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > >::iterator iterFind = UnitRangeCellsLookupItemCache.find(center);
 
-	//if(game->isMasterserverMode() == false) {
-	{
-		MutexSafeWrapper safeMutex(&mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
-		std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > >::iterator iterFind = UnitRangeCellsLookupItemCache.find(center);
+	if(iterFind != UnitRangeCellsLookupItemCache.end()) {
+		std::map<int, std::map<int, UnitRangeCellsLookupItem > >::iterator iterFind3 = iterFind->second.find(size);
+		if(iterFind3 != iterFind->second.end()) {
+			std::map<int, UnitRangeCellsLookupItem>::iterator iterFind4 = iterFind3->second.find(range);
+			if(iterFind4 != iterFind3->second.end()) {
+				result = true;
 
-		if(iterFind != UnitRangeCellsLookupItemCache.end()) {
-			std::map<int, std::map<int, UnitRangeCellsLookupItem > >::iterator iterFind3 = iterFind->second.find(size);
-			if(iterFind3 != iterFind->second.end()) {
-				std::map<int, UnitRangeCellsLookupItem>::iterator iterFind4 = iterFind3->second.find(range);
-				if(iterFind4 != iterFind3->second.end()) {
-					result = true;
+				std::vector<Cell *> &cellList = iterFind4->second.rangeCellList;
+				for(int idx = 0; idx < (int)cellList.size(); ++idx) {
+					Cell *cell = cellList[idx];
 
-					std::vector<Cell *> &cellList = iterFind4->second.rangeCellList;
-					for(int idx = 0; idx < (int)cellList.size(); ++idx) {
-						Cell *cell = cellList[idx];
-
-						findEnemiesForCell(ast,cell,unit,commandTarget,enemies);
-					}
+					findEnemiesForCell(ast,cell,unit,commandTarget,enemies);
 				}
 			}
 		}
-		safeMutex.ReleaseLock();
 	}
 
 	return result;
@@ -2787,9 +2790,8 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 
 		// Ok update our caches with the latest info
 		if(cacheItem.rangeCellList.empty() == false) {
-			MutexSafeWrapper safeMutex(&mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutex(mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
 
-			//cacheItem.UnitRangeCellsLookupItemCacheTimerCountIndex = UnitRangeCellsLookupItemCacheTimerCount++;
 			UnitRangeCellsLookupItemCache[center][size][range] = cacheItem;
 		}
 	}
@@ -2889,7 +2891,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 			float nearestDistance		= 0.f;
 
 
-			MutexSafeWrapper safeMutex(&mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutex(mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
 			for(int i = (int)attackWarnings.size() - 1; i >= 0; --i) {
 				if(world->getFrameCount() - attackWarnings[i]->lastFrameCount > 200) { //after 200 frames attack break we warn again
 					AttackWarningData *toDelete =attackWarnings[i];
@@ -2938,7 +2940,7 @@ bool UnitUpdater::unitOnRange(Unit *unit, int range, Unit **rangedPtr,
 	    		awd->attackPosition.x=enemyFloatCenter.x;
 	    		awd->attackPosition.y=enemyFloatCenter.y;
 
-				MutexSafeWrapper safeMutex(&mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutex(mutexAttackWarnings,string(__FILE__) + "_" + intToStr(__LINE__));
 	    		attackWarnings.push_back(awd);
 
 	    		if(world->getAttackWarningsEnabled() == true) {
@@ -3022,9 +3024,8 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 
 		// Ok update our caches with the latest info
 		if(cacheItem.rangeCellList.empty() == false) {
-			MutexSafeWrapper safeMutex(&mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutex(mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
 
-			//cacheItem.UnitRangeCellsLookupItemCacheTimerCountIndex = UnitRangeCellsLookupItemCacheTimerCount++;
 			UnitRangeCellsLookupItemCache[center][size][range] = cacheItem;
 		}
 	}
@@ -3101,8 +3102,7 @@ string UnitUpdater::getUnitRangeCellsLookupItemCacheStats() {
 	int rangeCount = 0;
 	int rangeCountCellCount = 0;
 
-	MutexSafeWrapper safeMutex(&mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
-	//std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > > UnitRangeCellsLookupItemCache;
+	MutexSafeWrapper safeMutex(mutexUnitRangeCellsLookupItemCache,string(__FILE__) + "_" + intToStr(__LINE__));
 	for(std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > >::iterator iterMap1 = UnitRangeCellsLookupItemCache.begin();
 		iterMap1 != UnitRangeCellsLookupItemCache.end(); ++iterMap1) {
 		posCount++;
@@ -3148,8 +3148,6 @@ void UnitUpdater::saveGame(XmlNode *rootNode) {
 	unitupdaterNode->addAttribute("attackWarnRange",floatToStr(attackWarnRange,6), mapTagReplacements);
 //	AttackWarnings attackWarnings;
 //
-//	Mutex mutexUnitRangeCellsLookupItemCache;
-//	std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > > UnitRangeCellsLookupItemCache;
 }
 
 void UnitUpdater::clearCaches() {

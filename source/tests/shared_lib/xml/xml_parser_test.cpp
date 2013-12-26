@@ -115,7 +115,7 @@ public:
 		XmlNode *rootNode = XmlIo::getInstance().load(test_filename, std::map<string,string>());
 
 		CPPUNIT_ASSERT( rootNode != NULL );
-		CPPUNIT_ASSERT_EQUAL( string("menu"), rootNode->getName() );
+		CPPUNIT_ASSERT_EQUAL( string("menu"), (rootNode != NULL ? rootNode->getName() : string("")) );
 
 		delete rootNode;
 	}
@@ -191,7 +191,7 @@ public:
 		XmlNode *rootNode = XmlIoRapid::getInstance().load(test_filename, std::map<string,string>());
 
 		CPPUNIT_ASSERT( rootNode != NULL );
-		CPPUNIT_ASSERT_EQUAL( string("menu"), rootNode->getName() );
+		CPPUNIT_ASSERT_EQUAL( string("menu"), (rootNode != NULL ? rootNode->getName() : string("")) );
 
 		delete rootNode;
 	}

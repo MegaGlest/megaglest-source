@@ -162,7 +162,7 @@ bool VisibleQuadContainerCache::enableFrustumCalcs = true;
 
 // ==================== constructor and destructor ====================
 
-Renderer::Renderer() : BaseRenderer() {
+Renderer::Renderer() : BaseRenderer(), saveScreenShotThreadAccessor(new Mutex(CODE_AT_LINE)) {
 	//this->masterserverMode = masterserverMode;
 	//printf("this->masterserverMode = %d\n",this->masterserverMode);
 	//assert(0==1);
@@ -287,7 +287,7 @@ void Renderer::cleanupScreenshotThread() {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] FORCING MEMORY CLEANUP and NOT SAVING screenshots, saveScreenQueue.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,saveScreenQueue.size());
 
 			static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
-			MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,mutexOwnerId);
+			MutexSafeWrapper safeMutex(saveScreenShotThreadAccessor,mutexOwnerId);
 			for(std::list<std::pair<string,Pixmap2D *> >::iterator iter = saveScreenQueue.begin();
 				iter != saveScreenQueue.end(); ++iter) {
 				delete iter->second;
@@ -340,6 +340,9 @@ Renderer::~Renderer() {
 		this->menu = NULL;
 		this->game = NULL;
 		this->gameCamera = NULL;
+
+		delete saveScreenShotThreadAccessor;
+		saveScreenShotThreadAccessor = NULL;
 	}
 	catch(const exception &e) {
 		char szBuf[8096]="";
@@ -356,7 +359,7 @@ void Renderer::simpleTask(BaseThread *callingThread,void *userdata) {
 	Pixmap2D *savePixMapBuffer=NULL;
 	string path="";
 	static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
-	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,mutexOwnerId);
+	MutexSafeWrapper safeMutex(saveScreenShotThreadAccessor,mutexOwnerId);
 	if(saveScreenQueue.empty() == false) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] saveScreenQueue.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,saveScreenQueue.size());
 
@@ -566,6 +569,11 @@ void Renderer::initGame(const Game *game, GameCamera *gameCamera) {
 }
 
 void Renderer::manageDeferredParticleSystems() {
+
+//	if(deferredParticleSystems.empty() == false) {
+//		printf("deferredParticleSystems.size() = %d\n",(int)deferredParticleSystems.size());
+//	}
+
 	for(unsigned int i = 0; i < deferredParticleSystems.size(); ++i) {
 		std::pair<ParticleSystem *, ResourceScope> &deferredParticleSystem = deferredParticleSystems[i];
 		ParticleSystem *ps = deferredParticleSystem.first;
@@ -605,6 +613,7 @@ void Renderer::manageDeferredParticleSystems() {
 			}
 		}
 		manageParticleSystem(ps, rs);
+		//printf("Managing ps [%p]\n",ps);
 	}
 	deferredParticleSystems.clear();
 	//printf("After deferredParticleSystems.size() = %d\n",deferredParticleSystems.size());
@@ -3825,17 +3834,6 @@ void Renderer::MapRenderer::Layer::load_vbos(bool vboEnabled) {
 	}
 }
 
-//int32 CalculatePixelsCRC(const Texture2DGl *texture) {
-//	const uint8 *pixels = static_cast<const Pixmap2D *>(texture->getPixmapConst())->getPixels();
-//	uint64 pixelByteCount = static_cast<const Pixmap2D *>(texture->getPixmapConst())->getPixelByteCount();
-//	Checksum crc;
-//	for(uint64 i = 0; i < pixelByteCount; ++i) {
-//		crc.addByte(pixels[i]);
-//	}
-//
-//	return crc.getSum();
-//}
-
 void Renderer::MapRenderer::loadVisibleLayers(float coordStep,VisibleQuadContainerCache &qCache) {
 	int totalCellCount = 0;
 	// we create a layer for each visible texture in the map
@@ -4747,6 +4745,8 @@ void Renderer::renderWater() {
     glDisable(GL_TEXTURE_2D);
 
 	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	if(textures3D) {
 		Texture3D *waterTex= world->getTileset()->getWaterTex();
 		if(waterTex == NULL) {
@@ -5030,7 +5030,7 @@ void Renderer::renderGhostModel(const UnitType *building, const Vec2i pos,Cardin
 	glPopMatrix();
 }
 
-void Renderer::renderUnits(const int renderFps) {
+void Renderer::renderUnits(bool airUnits, const int renderFps) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
@@ -5057,6 +5057,9 @@ void Renderer::renderUnits(const int renderFps) {
 				visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 
+			if(( airUnits==false && unit->getType()->getField()==fAir) || ( airUnits==true && unit->getType()->getField()!=fAir)){
+				continue;
+			}
 			meshCallbackTeamColor.setTeamTexture(unit->getFaction()->getTexture());
 
 			if(modelRenderStarted == false) {
@@ -5108,8 +5111,8 @@ void Renderer::renderUnits(const int renderFps) {
 			}
 			else {
 				glEnable(GL_COLOR_MATERIAL);
-				//this only needs to be done in render fast for selection and shadow calculation. No need to do this in real render
-				//glAlphaFunc(GL_GREATER, 0.4f);
+				// we cut off a tiny bit here to avoid problems with fully transparent texture parts cutting units in background rendered later.
+				glAlphaFunc(GL_GREATER, 0.02f);
 			}
 
 			//render
@@ -7335,7 +7338,7 @@ void Renderer::saveScreen(const string &path,int w, int h) {
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
 	// Signal the threads queue to add a screenshot save request
-	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutex(saveScreenShotThreadAccessor,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 	saveScreenQueue.push_back(make_pair(path,pixmapScreenShot));
 	safeMutex.ReleaseLock();
 
@@ -7343,7 +7346,7 @@ void Renderer::saveScreen(const string &path,int w, int h) {
 }
 
 unsigned int Renderer::getSaveScreenQueueSize() {
-	MutexSafeWrapper safeMutex(&saveScreenShotThreadAccessor,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutex(saveScreenShotThreadAccessor,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 	int queueSize = (int)saveScreenQueue.size();
 	safeMutex.ReleaseLock();
 
@@ -9243,8 +9246,8 @@ void Renderer::setLastRenderFps(int value) {
 		}
 }
 
-uint64 Renderer::getCurrentPixelByteCount(ResourceScope rs) const {
-	uint64 result = 0;
+std::size_t Renderer::getCurrentPixelByteCount(ResourceScope rs) const {
+	std::size_t result = 0;
 	for(int i = (rs == rsCount ? 0 : rs); i < rsCount; ++i) {
 		if(textureManager[i] != NULL) {
 			const ::Shared::Graphics::TextureContainer &textures = textureManager[i]->getTextures();

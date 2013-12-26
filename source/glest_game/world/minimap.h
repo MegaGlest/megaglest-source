@@ -71,7 +71,7 @@ public:
 	const Texture2D *getFowTexture() const	{return fowTex;}
 	const Texture2D *getTexture() const		{return tex;}
 
-	void incFowTextureAlphaSurface(const Vec2i &sPos, float alpha, bool isIncrementalUpdate=false);
+	void incFowTextureAlphaSurface(const Vec2i sPos, float alpha, bool isIncrementalUpdate=false);
 	void resetFowTex();
 	void updateFowTex(float t);
 	void setFogOfWar(bool value);

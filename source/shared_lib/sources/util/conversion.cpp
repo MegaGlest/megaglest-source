@@ -217,11 +217,11 @@ string formatNumber(uint64 f) {
 
 string getTimeDuationString(int frames, int updateFps) {
 	int framesleft = frames;
-	int hours = (int) frames / (float)updateFps / 3600.0;
+	int hours = (int)((int) frames / (float)updateFps / 3600.0f);
 	framesleft = framesleft - hours * 3600 * updateFps;
-	int minutes = (int) framesleft / (float)updateFps / 60.0;
+	int minutes = (int)((int) framesleft / (float)updateFps / 60.0f);
 	framesleft = framesleft - minutes * 60 * updateFps;
-	int seconds = (int) framesleft / (float)updateFps;
+	int seconds = (int)((int) framesleft / (float)updateFps);
 	//framesleft=framesleft-seconds*GameConstants::updateFps;
 
 	string hourstr = intToStr(hours);

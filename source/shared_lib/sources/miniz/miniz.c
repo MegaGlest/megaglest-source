@@ -1470,7 +1470,7 @@ tinfl_status tinfl_decompress(tinfl_decompressor *r, const mz_uint8 *pIn_buf_nex
         MZ_CLEAR_OBJ(r->m_tables[2].m_code_size); for (counter = 0; counter < r->m_table_sizes[2]; counter++) { mz_uint s; TINFL_GET_BITS(14, s, 3); r->m_tables[2].m_code_size[s_length_dezigzag[counter]] = (mz_uint8)s; }
         r->m_table_sizes[2] = 19;
       }
-      for ( ; (int)r->m_type >= 0; r->m_type--)
+      for ( ; ; )
       {
         int tree_next, tree_cur; tinfl_huff_table *pTable;
         mz_uint i, j, used_syms, total, sym_index, next_code[17], total_syms[16]; pTable = &r->m_tables[r->m_type]; MZ_CLEAR_OBJ(total_syms); MZ_CLEAR_OBJ(pTable->m_look_up); MZ_CLEAR_OBJ(pTable->m_tree);
@@ -1512,6 +1512,13 @@ tinfl_status tinfl_decompress(tinfl_decompressor *r, const mz_uint8 *pIn_buf_nex
             TINFL_CR_RETURN_FOREVER(21, TINFL_STATUS_FAILED);
           }
           TINFL_MEMCPY(r->m_tables[0].m_code_size, r->m_len_codes, r->m_table_sizes[0]); TINFL_MEMCPY(r->m_tables[1].m_code_size, r->m_len_codes + r->m_table_sizes[0], r->m_table_sizes[1]);
+        }
+
+        if(r->m_type == 0) {
+        	break;
+        }
+        else {
+        	r->m_type--;
         }
       }
       for ( ; ; )

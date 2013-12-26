@@ -32,26 +32,26 @@ namespace Glest{ namespace Game{
 
 ConnectionSlotThread::ConnectionSlotThread(int slotIndex) : BaseThread() {
 	this->masterController 	= NULL;
-	this->triggerIdMutex 	= new Mutex();
+	this->triggerIdMutex 	= new Mutex(CODE_AT_LINE);
 	this->slotIndex 		= slotIndex;
 	this->slotInterface 	= NULL;
 	uniqueID 				= "ConnectionSlotThread";
 	eventList.clear();
 	eventList.reserve(1000);
 
-	triggerGameStarted 		= new Mutex();
+	triggerGameStarted 		= new Mutex(CODE_AT_LINE);
 	gameStarted 			= false;
 }
 
 ConnectionSlotThread::ConnectionSlotThread(ConnectionSlotCallbackInterface *slotInterface,int slotIndex) : BaseThread() {
 	this->masterController 	= NULL;
-	this->triggerIdMutex 	= new Mutex();
+	this->triggerIdMutex 	= new Mutex(CODE_AT_LINE);
 	this->slotIndex 		= slotIndex;
 	this->slotInterface 	= slotInterface;
 	uniqueID 				= "ConnectionSlotThread";
 	eventList.clear();
 
-	triggerGameStarted 		= new Mutex();
+	triggerGameStarted 		= new Mutex(CODE_AT_LINE);
 	gameStarted 			= false;
 }
 
@@ -347,11 +347,11 @@ void ConnectionSlotThread::execute() {
 ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 
-	this->mutexSocket 						= new Mutex();
+	this->mutexSocket 						= new Mutex(CODE_AT_LINE);
 	this->socket 							= NULL;
-	this->mutexCloseConnection 				= new Mutex();
-	this->mutexPendingNetworkCommandList 	= new Mutex();
-	this->socketSynchAccessor 				= new Mutex();
+	this->mutexCloseConnection 				= new Mutex(CODE_AT_LINE);
+	this->mutexPendingNetworkCommandList 	= new Mutex(CODE_AT_LINE);
+	this->socketSynchAccessor 				= new Mutex(CODE_AT_LINE);
     this->connectedRemoteIPAddress 			= 0;
 	this->sessionKey 						= 0;
 	this->serverInterface					= serverInterface;

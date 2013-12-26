@@ -1807,7 +1807,7 @@ Pixmap2D *PixelBufferWrapper::getPixelBufferFor(int x,int y,int w,int h, int col
 		GLubyte* src = (GLubyte*)glMapBufferARB(GL_PIXEL_PACK_BUFFER_ARB, GL_READ_ONLY_ARB);
 		if(src) {
 			pixmapScreenShot = new Pixmap2D(w, h, colorComponents);
-			memcpy(pixmapScreenShot->getPixels(),src,(size_t)pixmapScreenShot->getPixelByteCount());
+			memcpy(pixmapScreenShot->getPixels(),src,pixmapScreenShot->getPixelByteCount());
 			glUnmapBufferARB(GL_PIXEL_PACK_BUFFER_ARB);     // release pointer to the mapped buffer
 			//pixmapScreenShot->save("debugPBO.png");
 		}

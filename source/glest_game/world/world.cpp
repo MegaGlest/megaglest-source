@@ -43,7 +43,7 @@ time_t ExploredCellsLookupItem::lastDebug = 0;
 
 // ===================== PUBLIC ========================
 
-World::World() {
+World::World() : mutexFactionNextUnitId(new Mutex(CODE_AT_LINE)) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	Config &config= Config::getInstance();
 
@@ -140,6 +140,9 @@ World::~World() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	cleanup();
+
+	delete mutexFactionNextUnitId;
+	mutexFactionNextUnitId = NULL;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
@@ -1095,6 +1098,26 @@ const UnitType* World::findUnitTypeById(const FactionType* factionType, int id) 
 	return NULL;
 }
 
+const UnitType * World::findUnitTypeByName(const string factionName, const string unitTypeName) {
+	const UnitType *unitTypeResult = NULL;
+
+	for(int index = 0; unitTypeResult == NULL && index < getFactionCount(); ++index) {
+		const Faction *faction = getFaction(index);
+		if(factionName == "" || factionName == faction->getType()->getName(false)) {
+			for(int unitIndex = 0;
+				unitTypeResult == NULL && unitIndex < faction->getType()->getUnitTypeCount(); ++unitIndex) {
+
+				const UnitType *unitType = faction->getType()->getUnitType(unitIndex);
+				if(unitType != NULL && unitType->getName(false) == unitTypeName) {
+					unitTypeResult = unitType;
+					break;
+				}
+			}
+		}
+	}
+	return unitTypeResult;
+}
+
 //looks for a place for a unit around a start location, returns true if succeded
 bool World::placeUnit(const Vec2i &startLoc, int radius, Unit *unit, bool spaciated) {
     if(unit == NULL) {
@@ -2041,7 +2064,7 @@ void World::initFactionTypes(GameSettings *gs) {
 
 		//printf("**LOAD World thisFactionIndex = %d\n",thisFactionIndex);
 
-		MutexSafeWrapper safeMutex(&mutexFactionNextUnitId,string(__FILE__) + "_" + intToStr(__LINE__));
+		MutexSafeWrapper safeMutex(mutexFactionNextUnitId,string(__FILE__) + "_" + intToStr(__LINE__));
 	//	std::map<int,int> mapFactionNextUnitId;
 //		for(std::map<int,int>::iterator iterMap = mapFactionNextUnitId.begin();
 //				iterMap != mapFactionNextUnitId.end(); ++iterMap) {
@@ -2588,7 +2611,7 @@ const GameSettings * World::getGameSettings() const {
 // Calculates the unit unit ID for each faction
 //
 int World::getNextUnitId(Faction *faction)	{
-	MutexSafeWrapper safeMutex(&mutexFactionNextUnitId,string(__FILE__) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutex(mutexFactionNextUnitId,string(__FILE__) + "_" + intToStr(__LINE__));
 	if(mapFactionNextUnitId.find(faction->getIndex()) == mapFactionNextUnitId.end()) {
 		mapFactionNextUnitId[faction->getIndex()] = faction->getIndex() * 100000;
 	}
@@ -2855,7 +2878,7 @@ void World::saveGame(XmlNode *rootNode) {
 	worldNode->addAttribute("frameCount",intToStr(frameCount), mapTagReplacements);
 //	//int nextUnitId;
 //	Mutex mutexFactionNextUnitId;
-	MutexSafeWrapper safeMutex(&mutexFactionNextUnitId,string(__FILE__) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutex(mutexFactionNextUnitId,string(__FILE__) + "_" + intToStr(__LINE__));
 //	std::map<int,int> mapFactionNextUnitId;
 	for(std::map<int,int>::iterator iterMap = mapFactionNextUnitId.begin();
 			iterMap != mapFactionNextUnitId.end(); ++iterMap) {

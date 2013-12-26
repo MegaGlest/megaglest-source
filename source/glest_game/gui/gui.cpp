@@ -345,17 +345,19 @@ void Gui::groupKey(int groupIndex) {
 	else{
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] groupIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,groupIndex);
 
-		Config &config = Config::getInstance();
-		int recallGroupCenterCameraTimeout = config.getInt("RecallGroupCenterCameraTimeoutMilliseconds","1500");
+		int recallGroupCenterCameraTimeout = Config::getInstance().getInt("RecallGroupCenterCameraTimeoutMilliseconds","1500");
+
 		if(lastGroupRecall == groupIndex &&
 			lastGroupRecallTime.getMillis() > 0 &&
 			lastGroupRecallTime.getMillis() <= recallGroupCenterCameraTimeout) {
+
 			selection.recallGroup(groupIndex);
 			centerCameraOnSelection();
 		}
 		else {
 			selection.recallGroup(groupIndex);
 		}
+
 		lastGroupRecallTime.start();
 		lastGroupRecall = groupIndex;
 	}

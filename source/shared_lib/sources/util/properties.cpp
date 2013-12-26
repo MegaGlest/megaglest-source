@@ -179,18 +179,20 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
 	// First add the standard tags
 	//
 #ifdef WIN32
-	const char *homeDir = getenv("USERPROFILE");
+	const char *homeDirX = getenv("USERPROFILE");
 #else
 	string home = getUserHome();
-	const char *homeDir = home.c_str();
+	const char *homeDirX = home.c_str();
 #endif
 
-	mapTagReplacementValues["~/"] = (homeDir != NULL ? homeDir : "");
-	mapTagReplacementValues["$HOME"] = (homeDir != NULL ? homeDir : "");
-	mapTagReplacementValues["%%HOME%%"] = (homeDir != NULL ? homeDir : "");
-	mapTagReplacementValues["%%USERPROFILE%%"] = (homeDir != NULL ? homeDir : "");
-	mapTagReplacementValues["%%HOMEPATH%%"] = (homeDir != NULL ? homeDir : "");
-	mapTagReplacementValues["{HOMEPATH}"] = (homeDir != NULL ? homeDir : "");
+	string homeDir = safeCharPtrCopy(homeDirX, 8096);
+
+	mapTagReplacementValues["~/"] 				= homeDir;
+	mapTagReplacementValues["$HOME"] 			= homeDir;
+	mapTagReplacementValues["%%HOME%%"] 		= homeDir;
+	mapTagReplacementValues["%%USERPROFILE%%"] 	= homeDir;
+	mapTagReplacementValues["%%HOMEPATH%%"] 	= homeDir;
+	mapTagReplacementValues["{HOMEPATH}"] 		= homeDir;
 
 	// For win32 we allow use of the appdata variable since that is the recommended
 	// place for application data in windows platform
@@ -281,18 +283,20 @@ bool Properties::applyTagsToValue(string &value, const std::map<string,string> *
 	}
 	else {
 #ifdef WIN32
-	const char *homeDir = getenv("USERPROFILE");
+	const char *homeDirX = getenv("USERPROFILE");
 #else
 	string home = getUserHome();
-	const char *homeDir = home.c_str();
+	const char *homeDirX = home.c_str();
 #endif
 
-	replaceAll(value, "~/", 			(homeDir != NULL ? homeDir : ""));
-	replaceAll(value, "$HOME", 			(homeDir != NULL ? homeDir : ""));
-	replaceAll(value, "%%HOME%%", 		(homeDir != NULL ? homeDir : ""));
-	replaceAll(value, "%%USERPROFILE%%",(homeDir != NULL ? homeDir : ""));
-	replaceAll(value, "%%HOMEPATH%%",	(homeDir != NULL ? homeDir : ""));
-	replaceAll(value, "{HOMEPATH}",		(homeDir != NULL ? homeDir : ""));
+	string homeDir = safeCharPtrCopy(homeDirX, 8096);
+
+	replaceAll(value, "~/", 			homeDir);
+	replaceAll(value, "$HOME", 			homeDir);
+	replaceAll(value, "%%HOME%%", 		homeDir);
+	replaceAll(value, "%%USERPROFILE%%",homeDir);
+	replaceAll(value, "%%HOMEPATH%%",	homeDir);
+	replaceAll(value, "{HOMEPATH}",		homeDir);
 
 	// For win32 we allow use of the appdata variable since that is the recommended
 	// place for application data in windows platform

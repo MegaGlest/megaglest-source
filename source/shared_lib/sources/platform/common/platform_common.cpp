@@ -106,29 +106,29 @@ int ScreenHeight = 600;
 //          PerformanceTimer
 // =====================================
 
-void PerformanceTimer::init(float fps, int maxTimes){
-	times= 0;
-	this->maxTimes= maxTimes;
-
-	lastTicks= SDL_GetTicks();
-
-	updateTicks= static_cast<int>(1000./fps);
+void PerformanceTimer::init(float fps, int maxTimes) {
+	this->times			= 0;
+	this->maxTimes		= maxTimes;
+	this->lastTicks		= SDL_GetTicks();
+	this->updateTicks	= static_cast<int>(1000.0f / fps);
 }
 
-bool PerformanceTimer::isTime(){
+bool PerformanceTimer::isTime() {
 	Uint32 thisTicks = SDL_GetTicks();
 
-	if((thisTicks-lastTicks)>=updateTicks && times<maxTimes){
-		lastTicks+= updateTicks;
+	if((thisTicks - lastTicks) >= updateTicks &&
+		times < maxTimes) {
+
+		lastTicks += updateTicks;
 		times++;
 		return true;
 	}
-	times= 0;
+	times = 0;
 	return false;
 }
 
-void PerformanceTimer::reset(){
-	lastTicks= SDL_GetTicks();
+void PerformanceTimer::reset() {
+	lastTicks = SDL_GetTicks();
 }
 
 // =====================================
@@ -136,41 +136,45 @@ void PerformanceTimer::reset(){
 // =====================================
 
 Chrono::Chrono(bool autoStart) {
-	freq = 1000;
-	stopped= true;
-	accumCount= 0;
+	freq 			= 1000;
+	stopped			= true;
+	accumCount		= 0;
 
-	lastStartCount = 0;
-	lastTickCount = 0;
-	lastResult = 0;
-	lastMultiplier = 0;
-	lastStopped = false;
-	startCount = 0;
+	lastStartCount 	= 0;
+	lastTickCount 	= 0;
+	lastResult 		= 0;
+	lastMultiplier 	= 0;
+	lastStopped 	= false;
+	startCount 		= 0;
+
 	if(autoStart == true) {
 		start();
 	}
 }
 
+bool Chrono::isStarted() const {
+	return (stopped == false);
+}
+
 void Chrono::start() {
-	stopped= false;
-	startCount = SDL_GetTicks();
+	stopped		= false;
+	startCount 	= SDL_GetTicks();
 }
 
 void Chrono::stop() {
-	Uint32 endCount;
-	endCount = SDL_GetTicks();
-	accumCount += endCount-startCount;
-	stopped= true;
+	Uint32 endCount	= SDL_GetTicks();
+	accumCount 		+= endCount - startCount;
+	stopped			= true;
 }
 
 void Chrono::reset() {
-	accumCount = 0;
-	lastStartCount = 0;
-	lastTickCount = 0;
-	lastResult = 0;
-	lastMultiplier = 0;
+	accumCount 		= 0;
+	lastStartCount 	= 0;
+	lastTickCount 	= 0;
+	lastResult 		= 0;
+	lastMultiplier 	= 0;
 
-	startCount = SDL_GetTicks();
+	startCount 		= SDL_GetTicks();
 }
 
 int64 Chrono::getMicros() {
@@ -185,13 +189,13 @@ int64 Chrono::getSeconds() {
 	return queryCounter(1);
 }
 
-int64 Chrono::queryCounter(int multiplier) {
+int64 Chrono::queryCounter(int64 multiplier) {
 
 	if(	multiplier == lastMultiplier &&
 		stopped == lastStopped &&
 		lastStartCount == startCount) {
 
-		if(stopped) {
+		if(stopped == true) {
 			return lastResult;
 		}
 		else {
@@ -203,19 +207,19 @@ int64 Chrono::queryCounter(int multiplier) {
 	}
 
 	int64 result = 0;
-	if(stopped) {
-		result = (int64)multiplier * (int64)(accumCount / freq);
+	if(stopped == true) {
+		result = multiplier * accumCount / freq;
 	}
 	else {
 		Uint32 endCount = SDL_GetTicks();
-		result = (int64)multiplier * (int64)((accumCount + endCount - startCount) / freq);
+		result = multiplier * (accumCount + endCount - startCount) / freq;
 		lastTickCount = endCount;
 	}
 
-	lastStartCount = startCount;
-	lastResult = result;
-	lastMultiplier = multiplier;
-	lastStopped = stopped;
+	lastStartCount 	= startCount;
+	lastResult 		= result;
+	lastMultiplier 	= multiplier;
+	lastStopped 	= stopped;
 
 	return result;
 }

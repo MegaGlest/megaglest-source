@@ -49,7 +49,7 @@ protected:
 	template <typename T>
 	static Mutex & manageCachedItemMutex(string cacheKey) {
 		if(itemCacheMutexList.find(cacheKey) == itemCacheMutexList.end()) {
-			itemCacheMutexList[cacheKey] = new Mutex();
+			itemCacheMutexList[cacheKey] = new Mutex(CODE_AT_LINE);
 		}
 		Mutex *mutex = itemCacheMutexList[cacheKey];
 		return *mutex;

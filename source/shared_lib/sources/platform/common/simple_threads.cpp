@@ -29,7 +29,9 @@ const static int MAX_FileCRCPreCacheThread_WORKER_THREADS 	= 3;
 const static double PAUSE_SECONDS_BETWEEN_WORKERS 			= 15;
 string FileCRCPreCacheThread::preCacheThreadCacheLookupKey	= "";
 
-FileCRCPreCacheThread::FileCRCPreCacheThread() : BaseThread() {
+FileCRCPreCacheThread::FileCRCPreCacheThread() : BaseThread(),
+		mutexPauseForGame(new Mutex(CODE_AT_LINE)) {
+
 	techDataPaths.clear();
 	workerThreadTechPaths.clear();
 	preCacheWorkerThreadList.clear();
@@ -40,7 +42,9 @@ FileCRCPreCacheThread::FileCRCPreCacheThread() : BaseThread() {
 
 FileCRCPreCacheThread::FileCRCPreCacheThread(vector<string> techDataPaths,
 											vector<string> workerThreadTechPaths,
-											FileCRCPreCacheThreadCallbackInterface *processTechCB) {
+											FileCRCPreCacheThreadCallbackInterface *processTechCB) :
+			mutexPauseForGame(new Mutex(CODE_AT_LINE)) {
+
 	this->techDataPaths					= techDataPaths;
 	this->workerThreadTechPaths 		= workerThreadTechPaths;
 	preCacheWorkerThreadList.clear();
@@ -55,11 +59,14 @@ FileCRCPreCacheThread::~FileCRCPreCacheThread() {
 	if(preCacheCRCThreadPtr != NULL && threadControllerMode == true) {
 		preCacheCRCThreadPtr = NULL;
 	}
+
+	delete mutexPauseForGame;
+	mutexPauseForGame = NULL;
 }
 
 void FileCRCPreCacheThread::setPauseForGame(bool pauseForGame) {
 	static string mutexOwnerId = CODE_AT_LINE;
-	MutexSafeWrapper safeMutex(&mutexPauseForGame,mutexOwnerId);
+	MutexSafeWrapper safeMutex(mutexPauseForGame,mutexOwnerId);
 	this->pauseForGame = pauseForGame;
 
 	for(unsigned int index = 0; index < preCacheWorkerThreadList.size(); ++index) {
@@ -72,7 +79,7 @@ void FileCRCPreCacheThread::setPauseForGame(bool pauseForGame) {
 
 bool FileCRCPreCacheThread::getPauseForGame() {
 	static string mutexOwnerId = CODE_AT_LINE;
-	MutexSafeWrapper safeMutex(&mutexPauseForGame,mutexOwnerId);
+	MutexSafeWrapper safeMutex(mutexPauseForGame,mutexOwnerId);
 	return this->pauseForGame;
 }
 
@@ -175,7 +182,7 @@ void FileCRCPreCacheThread::execute() {
 							workerThread->setUniqueID(mutexOwnerId);
 							workerThread->setPauseForGame(this->getPauseForGame());
 							static string mutexOwnerId2 = CODE_AT_LINE;
-							MutexSafeWrapper safeMutexPause(&mutexPauseForGame,mutexOwnerId2);
+							MutexSafeWrapper safeMutexPause(mutexPauseForGame,mutexOwnerId2);
 							preCacheWorkerThreadList.push_back(workerThread);
 							safeMutexPause.ReleaseLock();
 
@@ -210,8 +217,6 @@ void FileCRCPreCacheThread::execute() {
 								FileCRCPreCacheThread *workerThread = preCacheWorkerThreadList[idx];
 
 								if(workerThread != NULL) {
-									//vector<Texture2D *> textureList = workerThread->getPendingTextureList(-1);
-									//addPendingTextureList(textureList);
 
 									if(workerThread->getRunningStatus() == true) {
 										hasRunningWorkerThread = true;
@@ -224,7 +229,7 @@ void FileCRCPreCacheThread::execute() {
 										sleep(25);
 
 										static string mutexOwnerId2 = CODE_AT_LINE;
-										MutexSafeWrapper safeMutexPause(&mutexPauseForGame,mutexOwnerId2);
+										MutexSafeWrapper safeMutexPause(mutexPauseForGame,mutexOwnerId2);
 
 										delete workerThread;
 										preCacheWorkerThreadList[idx] = NULL;
@@ -347,15 +352,6 @@ void FileCRCPreCacheThread::execute() {
 							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] cached CRC value for Tech [%s] is [%d] took %.3f seconds.\n",__FILE__,__FUNCTION__,__LINE__,techName.c_str(),techCRC,difftime(time(NULL),elapsedTime));
 						}
 
-	//					if(processTechCB) {
-	//						vector<Texture2D *> files = processTechCB->processTech(techName);
-	//						for(unsigned int logoIdx = 0; logoIdx < files.size(); ++logoIdx) {
-	//							addPendingTexture(files[logoIdx]);
-	//
-	//							if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread added texture [%s] for tech [%s] ---------------------------\n",files[logoIdx]->getPath().c_str(),techName.c_str());
-	//						}
-	//					}
-
 						if(SystemFlags::VERBOSE_MODE_ENABLED) printf("--------------------- CRC worker thread END for tech [%s] ---------------------------\n",techName.c_str());
 
 						if(getQuitStatus() == true) {
@@ -388,50 +384,17 @@ void FileCRCPreCacheThread::execute() {
 	deleteSelfIfRequired();
 }
 
-void FileCRCPreCacheThread::addPendingTextureList(vector<Texture2D *> textureList) {
-	for(unsigned int textureIdx = 0; textureIdx < textureList.size(); ++textureIdx) {
-		this->addPendingTexture(textureList[textureIdx]);
-	}
-}
-
-void FileCRCPreCacheThread::addPendingTexture(Texture2D *texture) {
-	if(texture == NULL) {
-		return;
-	}
-	static string mutexOwnerId = CODE_AT_LINE;
-	MutexSafeWrapper safeMutex(&mutexPendingTextureList,mutexOwnerId);
-	mutexPendingTextureList.setOwnerId(mutexOwnerId);
-	pendingTextureList.push_back(texture);
-	safeMutex.ReleaseLock();
-}
-
-vector<Texture2D *> FileCRCPreCacheThread::getPendingTextureList(int maxTexturesToGet) {
-	vector<Texture2D *> result;
-	static string mutexOwnerId = CODE_AT_LINE;
-	MutexSafeWrapper safeMutex(&mutexPendingTextureList,mutexOwnerId);
-	mutexPendingTextureList.setOwnerId(mutexOwnerId);
-	unsigned int listCount = (unsigned int)pendingTextureList.size();
-	if(listCount > 0) {
-		if(maxTexturesToGet >= 0) {
-			listCount = maxTexturesToGet;
-		}
-		for(unsigned int i = 0; i < listCount; ++i) {
-			result.push_back(pendingTextureList[i]);
-		}
-		pendingTextureList.erase(pendingTextureList.begin() + 0, pendingTextureList.begin() + listCount);
-	}
-	safeMutex.ReleaseLock();
-
-	return result;
-}
-
 SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInterface,
 									unsigned int executionCount,
 									unsigned int millisecsBetweenExecutions,
 									bool needTaskSignal,
 									void *userdata, bool wantSetupAndShutdown) : BaseThread(),
-															simpleTaskInterface(NULL), 
-															overrideShutdownTask(NULL) {
+	simpleTaskInterface(NULL),
+	overrideShutdownTask(NULL),
+	mutexSimpleTaskInterfaceValid(new Mutex(CODE_AT_LINE)),
+	mutexTaskSignaller(new Mutex(CODE_AT_LINE)),
+	mutexLastExecuteTimestamp(new Mutex(CODE_AT_LINE)) {
+
 	uniqueID = "SimpleTaskThread";
 	this->simpleTaskInterface		 = simpleTaskInterface;
 	this->simpleTaskInterfaceValid	 = (this->simpleTaskInterface != NULL);
@@ -448,13 +411,13 @@ SimpleTaskThread::SimpleTaskThread(	SimpleTaskCallbackInterface *simpleTaskInter
 	setTaskSignalled(false);
 
 	string mutexOwnerId = CODE_AT_LINE;
-	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
-	mutexLastExecuteTimestamp.setOwnerId(mutexOwnerId);
+	MutexSafeWrapper safeMutex(mutexLastExecuteTimestamp,mutexOwnerId);
+	mutexLastExecuteTimestamp->setOwnerId(mutexOwnerId);
 	lastExecuteTimestamp = time(NULL);
 
 	if(this->wantSetupAndShutdown == true) {
 		string mutexOwnerId1 = CODE_AT_LINE;
-		MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
+		MutexSafeWrapper safeMutex1(mutexSimpleTaskInterfaceValid,mutexOwnerId1);
 		if(this->simpleTaskInterfaceValid == true) {
 			safeMutex1.ReleaseLock();
 			this->simpleTaskInterface->setupTask(this,userdata);
@@ -466,6 +429,16 @@ SimpleTaskThread::~SimpleTaskThread() {
 	//printf("~SimpleTaskThread LINE: %d this = %p\n",__LINE__,this);
 	try {
 		cleanup();
+
+		delete mutexSimpleTaskInterfaceValid;
+		mutexSimpleTaskInterfaceValid = NULL;
+
+		delete mutexTaskSignaller;
+		mutexTaskSignaller = NULL;
+
+		delete mutexLastExecuteTimestamp;
+		mutexLastExecuteTimestamp = NULL;
+
 	}
     catch(const exception &ex) {
         SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s]\n",__FILE__,__FUNCTION__,__LINE__,ex.what());
@@ -488,7 +461,7 @@ void SimpleTaskThread::cleanup() {
 		else if(this->simpleTaskInterface != NULL) {
 			//printf("~SimpleTaskThread LINE: %d this = %p\n",__LINE__,this);
 			string mutexOwnerId1 = CODE_AT_LINE;
-			MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
+			MutexSafeWrapper safeMutex1(mutexSimpleTaskInterfaceValid,mutexOwnerId1);
 			//printf("~SimpleTaskThread LINE: %d this = %p\n",__LINE__,this);
 			if(this->simpleTaskInterfaceValid == true) {
 				//printf("~SimpleTaskThread LINE: %d this = %p\n",__LINE__,this);
@@ -509,8 +482,8 @@ void SimpleTaskThread::setOverrideShutdownTask(taskFunctionCallback *ptr) {
 
 bool SimpleTaskThread::isThreadExecutionLagging() {
 	string mutexOwnerId = CODE_AT_LINE;
-	MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
-	mutexLastExecuteTimestamp.setOwnerId(mutexOwnerId);
+	MutexSafeWrapper safeMutex(mutexLastExecuteTimestamp,mutexOwnerId);
+	mutexLastExecuteTimestamp->setOwnerId(mutexOwnerId);
 	bool result = (difftime(time(NULL),lastExecuteTimestamp) >= 5.0);
 	safeMutex.ReleaseLock();
 
@@ -530,13 +503,13 @@ bool SimpleTaskThread::canShutdown(bool deleteSelfIfShutdownDelayed) {
 
 bool SimpleTaskThread::getSimpleTaskInterfaceValid() {
 	string mutexOwnerId1 = CODE_AT_LINE;
-	MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
+	MutexSafeWrapper safeMutex1(mutexSimpleTaskInterfaceValid,mutexOwnerId1);
 
 	return this->simpleTaskInterfaceValid;
 }
 void SimpleTaskThread::setSimpleTaskInterfaceValid(bool value) {
 	string mutexOwnerId1 = CODE_AT_LINE;
-	MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
+	MutexSafeWrapper safeMutex1(mutexSimpleTaskInterfaceValid,mutexOwnerId1);
 
 	this->simpleTaskInterfaceValid = value;
 }
@@ -560,7 +533,7 @@ void SimpleTaskThread::execute() {
             unsigned int idx = 0;
             for(;this->simpleTaskInterface != NULL;) {
         		string mutexOwnerId1 = CODE_AT_LINE;
-        		MutexSafeWrapper safeMutex1(&mutexSimpleTaskInterfaceValid,mutexOwnerId1);
+        		MutexSafeWrapper safeMutex1(mutexSimpleTaskInterfaceValid,mutexOwnerId1);
         		if(this->simpleTaskInterfaceValid == false) {
         			break;
         		}
@@ -589,8 +562,8 @@ void SimpleTaskThread::execute() {
                         	break;
                         }
                         string mutexOwnerId = CODE_AT_LINE;
-                        MutexSafeWrapper safeMutex(&mutexLastExecuteTimestamp,mutexOwnerId);
-                        mutexLastExecuteTimestamp.setOwnerId(mutexOwnerId);
+                        MutexSafeWrapper safeMutex(mutexLastExecuteTimestamp,mutexOwnerId);
+                        mutexLastExecuteTimestamp->setOwnerId(mutexOwnerId);
                     	lastExecuteTimestamp = time(NULL);
                     	safeMutex.ReleaseLock();
                     }
@@ -640,16 +613,16 @@ void SimpleTaskThread::execute() {
 
 void SimpleTaskThread::setTaskSignalled(bool value) {
 	string mutexOwnerId = CODE_AT_LINE;
-	MutexSafeWrapper safeMutex(&mutexTaskSignaller,mutexOwnerId);
-	mutexTaskSignaller.setOwnerId(mutexOwnerId);
+	MutexSafeWrapper safeMutex(mutexTaskSignaller,mutexOwnerId);
+	mutexTaskSignaller->setOwnerId(mutexOwnerId);
 	taskSignalled = value;
 	safeMutex.ReleaseLock();
 }
 
 bool SimpleTaskThread::getTaskSignalled() {
 	string mutexOwnerId = CODE_AT_LINE;
-	MutexSafeWrapper safeMutex(&mutexTaskSignaller,mutexOwnerId);
-	mutexTaskSignaller.setOwnerId(mutexOwnerId);
+	MutexSafeWrapper safeMutex(mutexTaskSignaller,mutexOwnerId);
+	mutexTaskSignaller->setOwnerId(mutexOwnerId);
 	bool retval = taskSignalled;
 	safeMutex.ReleaseLock();
 
@@ -658,22 +631,26 @@ bool SimpleTaskThread::getTaskSignalled() {
 
 // -------------------------------------------------
 
-LogFileThread::LogFileThread() : BaseThread() {
+LogFileThread::LogFileThread() : BaseThread(), mutexLogList(new Mutex(CODE_AT_LINE)) {
 	uniqueID = "LogFileThread";
     logList.clear();
     lastSaveToDisk = time(NULL);
     static string mutexOwnerId = CODE_AT_LINE;
-    mutexLogList.setOwnerId(mutexOwnerId);
+    mutexLogList->setOwnerId(mutexOwnerId);
 }
 
 LogFileThread::~LogFileThread() {
+
+	delete mutexLogList;
+	mutexLogList = NULL;
+
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 In [%s::%s Line: %d] LogFile thread is deleting\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
 void LogFileThread::addLogEntry(SystemFlags::DebugType type, string logEntry) {
 	static string mutexOwnerId = CODE_AT_LINE;
-    MutexSafeWrapper safeMutex(&mutexLogList,mutexOwnerId);
-    mutexLogList.setOwnerId(mutexOwnerId);
+    MutexSafeWrapper safeMutex(mutexLogList,mutexOwnerId);
+    mutexLogList->setOwnerId(mutexOwnerId);
 	LogFileEntry entry;
 	entry.type = type;
 	entry.entry = logEntry;
@@ -751,8 +728,8 @@ void LogFileThread::execute() {
 
 std::size_t LogFileThread::getLogEntryBufferCount() {
 	static string mutexOwnerId = CODE_AT_LINE;
-    MutexSafeWrapper safeMutex(&mutexLogList,mutexOwnerId);
-    mutexLogList.setOwnerId(mutexOwnerId);
+    MutexSafeWrapper safeMutex(mutexLogList,mutexOwnerId);
+    mutexLogList->setOwnerId(mutexOwnerId);
     std::size_t logCount = logList.size();
     safeMutex.ReleaseLock();
     return logCount;
@@ -773,8 +750,8 @@ void LogFileThread::saveToDisk(bool forceSaveAll,bool logListAlreadyLocked) {
 	static string mutexOwnerId = CODE_AT_LINE;
     MutexSafeWrapper safeMutex(NULL,mutexOwnerId);
     if(logListAlreadyLocked == false) {
-        safeMutex.setMutex(&mutexLogList);
-        mutexLogList.setOwnerId(mutexOwnerId);
+        safeMutex.setMutex(mutexLogList);
+        mutexLogList->setOwnerId(mutexOwnerId);
     }
 
     std::size_t logCount = logList.size();

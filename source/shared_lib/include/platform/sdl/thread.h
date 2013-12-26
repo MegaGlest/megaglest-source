@@ -111,6 +111,7 @@ private:
 	SDL_mutex* mutexAccessor;
 	string lastownerId;
 
+	int maxRefCount;
 	Shared::PlatformCommon::Chrono *chronoPerf;
 
 	bool isStaticMutexListMutex;

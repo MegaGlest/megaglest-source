@@ -56,7 +56,7 @@ public:
 	virtual int getTextureWidth() const  = 0;
 	virtual int getTextureHeight() const = 0;
 
-	void OutputTextureDebugInfo(Texture::Format format, int components, const string path,uint64 rawSize,GLenum texType);
+	void OutputTextureDebugInfo(Texture::Format format, int components, const string path,std::size_t rawSize,GLenum texType);
 };
 
 // =====================================================

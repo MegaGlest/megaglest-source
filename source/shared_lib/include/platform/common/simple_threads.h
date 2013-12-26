@@ -44,16 +44,10 @@ protected:
 	vector<string> workerThreadTechPaths;
 	FileCRCPreCacheThreadCallbackInterface *processTechCB;
 
-	Mutex mutexPendingTextureList;
-	vector<Texture2D *> pendingTextureList;
-
 	static string preCacheThreadCacheLookupKey;
-	Mutex mutexPauseForGame;
+	Mutex *mutexPauseForGame;
 	bool pauseForGame;
 	std::vector<FileCRCPreCacheThread *> preCacheWorkerThreadList;
-
-	void addPendingTexture(Texture2D *texture);
-	void addPendingTextureList(vector<Texture2D *> textureList);
 
 public:
 	FileCRCPreCacheThread();
@@ -66,7 +60,6 @@ public:
     void setTechDataPaths(vector<string> value) { this->techDataPaths = value; }
     void setWorkerThreadTechPaths(vector<string> value) { this->workerThreadTechPaths = value; }
     void setFileCRCPreCacheThreadCallbackInterface(FileCRCPreCacheThreadCallbackInterface *value) { processTechCB = value; }
-    vector<Texture2D *> getPendingTextureList(int maxTexturesToGet);
 
 	virtual bool canShutdown(bool deleteSelfIfShutdownDelayed);
 
@@ -95,17 +88,17 @@ class SimpleTaskThread : public BaseThread
 {
 protected:
 
-	Mutex mutexSimpleTaskInterfaceValid;
+	Mutex *mutexSimpleTaskInterfaceValid;
 	bool simpleTaskInterfaceValid;
 	SimpleTaskCallbackInterface *simpleTaskInterface;
 	unsigned int executionCount;
 	unsigned int millisecsBetweenExecutions;
 
-	Mutex mutexTaskSignaller;
+	Mutex *mutexTaskSignaller;
 	bool taskSignalled;
 	bool needTaskSignal;
 
-	Mutex mutexLastExecuteTimestamp;
+	Mutex *mutexLastExecuteTimestamp;
 	time_t lastExecuteTimestamp;
 
 	taskFunctionCallback *overrideShutdownTask;
@@ -160,7 +153,7 @@ class LogFileThread : public BaseThread
 {
 protected:
 
-    Mutex mutexLogList;
+    Mutex *mutexLogList;
 	vector<LogFileEntry> logList;
 	time_t lastSaveToDisk;
 

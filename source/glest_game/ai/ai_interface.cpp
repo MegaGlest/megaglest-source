@@ -38,7 +38,7 @@ namespace Glest{ namespace Game{
 
 AiInterfaceThread::AiInterfaceThread(AiInterface *aiIntf) : BaseThread() {
 	this->masterController = NULL;
-	this->triggerIdMutex = new Mutex();
+	this->triggerIdMutex = new Mutex(CODE_AT_LINE);
 	this->aiIntf = aiIntf;
 	uniqueID = "AiInterfaceThread";
 }
@@ -187,7 +187,7 @@ AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex,
 		int useStartLocation) : fp(NULL) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-	this->aiMutex = new Mutex();
+	this->aiMutex = new Mutex(CODE_AT_LINE);
 	this->workerThread = NULL;
 	this->world= game.getWorld();
 	this->commander= game.getCommander();

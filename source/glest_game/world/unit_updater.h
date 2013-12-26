@@ -80,11 +80,11 @@ private:
 	PathFinder *pathFinder;
 	Game *game;
 	//RandomGen random;
-	Mutex mutexAttackWarnings;
+	Mutex *mutexAttackWarnings;
 	float attackWarnRange;
 	AttackWarnings attackWarnings;
 
-	Mutex mutexUnitRangeCellsLookupItemCache;
+	Mutex *mutexUnitRangeCellsLookupItemCache;
 	std::map<Vec2i, std::map<int, std::map<int, UnitRangeCellsLookupItem > > > UnitRangeCellsLookupItemCache;
 	//std::map<int,ExploredCellsLookupKey> ExploredCellsLookupItemCacheTimer;
 	//int UnitRangeCellsLookupItemCacheTimerCount;

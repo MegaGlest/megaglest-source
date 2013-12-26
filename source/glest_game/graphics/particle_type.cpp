@@ -315,6 +315,46 @@ void ParticleSystemType::setValues(AttackParticleSystem *ats){
 	ats->setBlendMode(ParticleSystem::strToBlendMode(mode));
 }
 
+void ParticleSystemType::loadGame(const XmlNode *rootNode) {
+	const XmlNode *particleSystemTypeNode = rootNode->getChild("ParticleSystemType");
+
+	type = particleSystemTypeNode->getAttribute("type")->getIntValue();
+
+	modelCycle = particleSystemTypeNode->getAttribute("modelCycle")->getFloatValue();
+	primitive = particleSystemTypeNode->getAttribute("primitive")->getValue();
+	offset = Vec3f::strToVec3(particleSystemTypeNode->getAttribute("offset")->getValue());
+	color = Vec4f::strToVec4(particleSystemTypeNode->getAttribute("color")->getValue());
+	colorNoEnergy = Vec4f::strToVec4(particleSystemTypeNode->getAttribute("colorNoEnergy")->getValue());
+	size = particleSystemTypeNode->getAttribute("size")->getFloatValue();
+	sizeNoEnergy = particleSystemTypeNode->getAttribute("sizeNoEnergy")->getFloatValue();
+	speed = particleSystemTypeNode->getAttribute("speed")->getFloatValue();
+	gravity = particleSystemTypeNode->getAttribute("gravity")->getFloatValue();
+	emissionRate = particleSystemTypeNode->getAttribute("emissionRate")->getFloatValue();
+	energyMax = particleSystemTypeNode->getAttribute("energyMax")->getIntValue();
+	energyVar = particleSystemTypeNode->getAttribute("energyVar")->getIntValue();
+	mode = particleSystemTypeNode->getAttribute("mode")->getValue();
+	teamcolorNoEnergy = (particleSystemTypeNode->getAttribute("teamcolorNoEnergy")->getIntValue() != 0);
+	teamcolorEnergy = (particleSystemTypeNode->getAttribute("teamcolorEnergy")->getIntValue() != 0);
+	alternations = particleSystemTypeNode->getAttribute("alternations")->getIntValue();
+	particleSystemStartDelay = particleSystemTypeNode->getAttribute("particleSystemStartDelay")->getIntValue();
+
+	if(particleSystemTypeNode->hasChild("UnitParticleSystemType")) {
+		vector<XmlNode *> particleSystemTypeNodeList = particleSystemTypeNode->getChildList("UnitParticleSystemType");
+		for(unsigned int i = 0; i < particleSystemTypeNodeList.size(); ++i) {
+			XmlNode *node = particleSystemTypeNodeList[i];
+
+			UnitParticleSystemType *child = new UnitParticleSystemType();
+			child->loadGame(node);
+			children.push_back(child);
+		}
+	}
+
+	minmaxEnabled = (particleSystemTypeNode->getAttribute("minmaxEnabled")->getIntValue() != 0);
+	minHp = particleSystemTypeNode->getAttribute("minHp")->getIntValue();
+	maxHp = particleSystemTypeNode->getAttribute("maxHp")->getIntValue();
+	minmaxIsPercent = (particleSystemTypeNode->getAttribute("minmaxIsPercent")->getIntValue() != 0);
+}
+
 void ParticleSystemType::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *particleSystemTypeNode = rootNode->addChild("ParticleSystemType");

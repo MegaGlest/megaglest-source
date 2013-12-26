@@ -134,7 +134,7 @@ Minimap::~Minimap() {
 
 // ==================== set ====================
 
-void Minimap::incFowTextureAlphaSurface(const Vec2i &sPos, float alpha,
+void Minimap::incFowTextureAlphaSurface(const Vec2i sPos, float alpha,
 		bool isIncrementalUpdate) {
 	if(fowPixmap1) {
 		assert(sPos.x < fowPixmap1->getW() && sPos.y < fowPixmap1->getH());
@@ -301,11 +301,11 @@ void Minimap::saveGame(XmlNode *rootNode) {
 	XmlNode *minimapNode = rootNode->addChild("Minimap");
 
 	if(fowPixmap1 != NULL) {
-		for(unsigned int i = 0; i < fowPixmap1->getPixelByteCount(); ++i) {
-			if(fowPixmap1->getPixels()[i] != 0) {
+		for(std::size_t index = 0; index < fowPixmap1->getPixelByteCount(); ++index) {
+			if(fowPixmap1->getPixels()[index] != 0) {
 				XmlNode *fowPixmap1Node = minimapNode->addChild("fowPixmap1");
-				fowPixmap1Node->addAttribute("index",intToStr(i), mapTagReplacements);
-				fowPixmap1Node->addAttribute("pixel",intToStr(fowPixmap1->getPixels()[i]), mapTagReplacements);
+				fowPixmap1Node->addAttribute("index",intToStr(index), mapTagReplacements);
+				fowPixmap1Node->addAttribute("pixel",intToStr(fowPixmap1->getPixels()[index]), mapTagReplacements);
 			}
 		}
 	}

@@ -2260,9 +2260,9 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 		fromEndianHeader();
 		// Here we loop possibly multiple times
 		uint32 packetLoopCount = 1;
-		if(data.header.techCRCFileCount > (uint32)NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount) {
-			packetLoopCount = (data.header.techCRCFileCount / (uint32)NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount);
-			if(data.header.techCRCFileCount % (uint32)NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount > 0) {
+		if(data.header.techCRCFileCount > NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount) {
+			packetLoopCount = (data.header.techCRCFileCount / NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount);
+			if(data.header.techCRCFileCount % NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount > 0) {
 				packetLoopCount++;
 			}
 		}
@@ -2271,8 +2271,8 @@ bool NetworkMessageSynchNetworkGameDataStatus::receive(Socket* socket) {
 
 		for(uint32 iPacketLoop = 0; iPacketLoop < packetLoopCount; ++iPacketLoop) {
 
-			uint32 packetIndex = iPacketLoop * (uint32)NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount;
-			uint32 maxFileCountPerPacket = (uint32)maxFileCRCPacketCount;
+			uint32 packetIndex = iPacketLoop * NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount;
+			uint32 maxFileCountPerPacket = maxFileCRCPacketCount;
 			uint32 packetFileCount = min((uint32)maxFileCountPerPacket,data.header.techCRCFileCount - packetIndex);
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] iPacketLoop = %u, packetIndex = %u, packetFileCount = %u\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,iPacketLoop,packetIndex,packetFileCount);
@@ -2305,7 +2305,7 @@ void NetworkMessageSynchNetworkGameDataStatus::send(Socket* socket) {
 	if(totalFileCount > 0) {
 		// Here we loop possibly multiple times
 		int packetLoopCount = 1;
-		if(totalFileCount > (uint32)NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount) {
+		if(totalFileCount > NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount) {
 			packetLoopCount = (totalFileCount / NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount);
 			if(totalFileCount % NetworkMessageSynchNetworkGameDataStatus::maxFileCRCPacketCount > 0) {
 				packetLoopCount++;

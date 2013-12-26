@@ -318,7 +318,7 @@ private:
 	std::vector<std::pair<ParticleSystem *, ResourceScope> > deferredParticleSystems;
 
 	SimpleTaskThread *saveScreenShotThread;
-	Mutex saveScreenShotThreadAccessor;
+	Mutex *saveScreenShotThreadAccessor;
 	std::list<std::pair<string,Pixmap2D *> > saveScreenQueue;
 
 	std::map<Vec3f,Vec3f> worldToScreenPosCache;
@@ -545,7 +545,7 @@ public:
 	void renderObjects(const int renderFps);
 
 	void renderWater();
-    void renderUnits(const int renderFps);
+    void renderUnits(bool airUnits, const int renderFps);
     void renderUnitsToBuild(const int renderFps);
 
 	void renderSelectionEffects();
@@ -627,7 +627,7 @@ public:
 	void removeObjectFromQuadCache(const Object *o);
 	void removeUnitFromQuadCache(const Unit *unit);
 
-	uint64 getCurrentPixelByteCount(ResourceScope rs=rsGame) const;
+	std::size_t getCurrentPixelByteCount(ResourceScope rs=rsGame) const;
 	unsigned int getSaveScreenQueueSize();
 
 	Texture2D *saveScreenToTexture(int x, int y, int width, int height);

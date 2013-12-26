@@ -35,8 +35,8 @@ namespace Glest{ namespace Game{
 // 	class Commander
 // =====================================================
 Commander::Commander() {
-	this->world=NULL;
-	this->pauseNetworkCommands = false;
+	this->world					= NULL;
+	this->pauseNetworkCommands 	= false;
 }
 
 Commander::~Commander() {

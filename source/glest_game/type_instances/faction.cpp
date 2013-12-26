@@ -213,7 +213,7 @@ void Faction::sortUnitsByCommandGroups() {
 // =====================================================
 
 FactionThread::FactionThread(Faction *faction) : BaseThread() {
-	this->triggerIdMutex = new Mutex();
+	this->triggerIdMutex = new Mutex(CODE_AT_LINE);
 	this->faction = faction;
 	this->masterController = NULL;
 	uniqueID = "FactionThread";
@@ -476,7 +476,7 @@ Faction::Faction() {
 }
 
 void Faction::init() {
-	unitsMutex = new Mutex();
+	unitsMutex = new Mutex(CODE_AT_LINE);
 	texture = NULL;
 	//lastResourceTargettListPurge = 0;
 	cachingDisabled=false;

@@ -546,14 +546,21 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
    // Adapted from example code at http://msdn2.microsoft.com/en-us/library/aa365917.aspx
    // Now get Windows' IPv4 addresses table.  Once again, we gotta call GetIpAddrTable()
    // multiple times in order to deal with potential race conditions properly.
-   MIB_IPADDRTABLE * ipTable = NULL;
+   PMIB_IPADDRTABLE ipTable = NULL;
+   // Before calling AddIPAddress we use GetIpAddrTable to get
+   // an adapter to which we can add the IP.
+   ipTable = (PMIB_IPADDRTABLE) malloc(sizeof (MIB_IPADDRTABLE));
+   ipTable->dwNumEntries = 0;
+
    {
       ULONG bufLen = 0;
       for (int i = 0; i < 5; i++) {
+
          DWORD ipRet = GetIpAddrTable(ipTable, &bufLen, false);
          if (ipRet == ERROR_INSUFFICIENT_BUFFER) {
             free(ipTable);  // in case we had previously allocated it
             ipTable = (MIB_IPADDRTABLE *) malloc(bufLen);
+            ipTable->dwNumEntries = 0;
          }
          else if(ipRet == NO_ERROR) {
         	 break;
@@ -635,8 +642,8 @@ string getNetworkInterfaceBroadcastAddress(string ipAddress)
 		 }
       }
 
-      free(pAdapterInfo);
-      free(ipTable);
+      if(pAdapterInfo) free(pAdapterInfo);
+      if(ipTable) free(ipTable);
    }
 #else
    // Dunno what we're running on here!
@@ -778,9 +785,9 @@ bool Socket::isSocketValid(const PLATFORM_SOCKET *validateSocket) {
 }
 
 Socket::Socket(PLATFORM_SOCKET sock) {
-	dataSynchAccessorRead = new Mutex();
-	dataSynchAccessorWrite = new Mutex();
-	inSocketDestructorSynchAccessor = new Mutex();
+	dataSynchAccessorRead = new Mutex(CODE_AT_LINE);
+	dataSynchAccessorWrite = new Mutex(CODE_AT_LINE);
+	inSocketDestructorSynchAccessor = new Mutex(CODE_AT_LINE);
 	lastSocketError = 0;
 
 	MutexSafeWrapper safeMutexSocketDestructorFlag(inSocketDestructorSynchAccessor,CODE_AT_LINE);
@@ -801,9 +808,9 @@ Socket::Socket(PLATFORM_SOCKET sock) {
 }
 
 Socket::Socket() {
-	dataSynchAccessorRead = new Mutex();
-	dataSynchAccessorWrite = new Mutex();
-	inSocketDestructorSynchAccessor = new Mutex();
+	dataSynchAccessorRead = new Mutex(CODE_AT_LINE);
+	dataSynchAccessorWrite = new Mutex(CODE_AT_LINE);
+	inSocketDestructorSynchAccessor = new Mutex(CODE_AT_LINE);
 	lastSocketError = 0;
 	lastDebugEvent = 0;
 	lastThreadedPing = 0;
@@ -966,7 +973,7 @@ void Socket::disconnectSocket() {
         ::shutdown(sock,2);
 #ifndef WIN32
         ::close(sock);
-        sock = INVALID_SOCKET;
+        sock = -1;
 #else
         ::closesocket(sock);
         sock = INVALID_SOCKET;
@@ -2148,9 +2155,9 @@ void BroadCastClientSocketThread::execute() {
 
 #ifndef WIN32
     if(bcfd >= 0) ::close(bcfd);
-    bcfd = INVALID_SOCKET;
+    bcfd = -1;
 #else
-    if(bcfd >= 0) ::closesocket(bcfd);
+    if(bcfd != INVALID_SOCKET) ::closesocket(bcfd);
     bcfd = INVALID_SOCKET;
 #endif
 
@@ -2332,7 +2339,7 @@ void ServerSocket::bind(int port) {
 	    snprintf(szBuf, 8096,"In [%s::%s] Error binding socket sock = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s opt_result = %d\n",__FILE__,__FUNCTION__,sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str(),opt_result);
 	    if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"%s",szBuf);
 
-	    snprintf(szBuf, 8096,"Error binding socket sock = %d, address [%s] port = %d err = %d, error = %s\n",sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str());
+	    snprintf(szBuf, 8096,"Error binding socket sock = " PLATFORM_SOCKET_FORMAT_TYPE ", address [%s] port = %d err = %d, error = %s\n",sock,this->bindSpecificAddress.c_str(),port,err,getLastSocketErrorFormattedText().c_str());
 	    throw megaglest_runtime_error(szBuf);
 	}
 	portBound = true;
@@ -2413,7 +2420,7 @@ Socket *ServerSocket::accept(bool errorOnFail) {
 
 		if(isSocketValid(&newSock) == false) {
 			char szBuf[8096]="";
-			snprintf(szBuf, 8096,"In [%s::%s Line: %d] Error accepting socket connection sock = " PLATFORM_SOCKET_FORMAT_TYPE ", err = %d, error = %s\n",__FILE__,__FUNCTION__,__LINE__,sock,newSock,getLastSocketErrorFormattedText().c_str());
+			snprintf(szBuf, 8096,"In [%s::%s Line: %d] Error accepting socket connection sock = " PLATFORM_SOCKET_FORMAT_TYPE ", err = " PLATFORM_SOCKET_FORMAT_TYPE ", error = %s\n",__FILE__,__FUNCTION__,__LINE__,sock,newSock,getLastSocketErrorFormattedText().c_str());
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] %s\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
 			int lastSocketError = getLastSocketError();
@@ -2431,7 +2438,7 @@ Socket *ServerSocket::accept(bool errorOnFail) {
 			else {
 	#ifndef WIN32
 			::close(newSock);
-			newSock = INVALID_SOCKET;
+			newSock = -1;
 	#else
 			::closesocket(newSock);
 			newSock = INVALID_SOCKET;
@@ -2450,7 +2457,7 @@ Socket *ServerSocket::accept(bool errorOnFail) {
 
 	#ifndef WIN32
 			::close(newSock);
-			newSock = INVALID_SOCKET;
+			newSock = -1;
 	#else
 			::closesocket(newSock);
 			newSock = INVALID_SOCKET;
@@ -2807,7 +2814,7 @@ void UPNP_Tools::NETremRedirects(int ext_port) {
 //
 BroadCastSocketThread::BroadCastSocketThread(int boundPort) : BaseThread() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	mutexPauseBroadcast = new Mutex();
+	mutexPauseBroadcast = new Mutex(CODE_AT_LINE);
 	setPauseBroadcast(false);
 	this->boundPort = boundPort;
 	uniqueID = "BroadCastSocketThread";
@@ -2871,7 +2878,7 @@ void BroadCastSocketThread::execute() {
 #ifdef WIN32
 		bcfd[idx] = INVALID_SOCKET;
 #else
-		bcfd[idx] = INVALID_SOCKET;
+		bcfd[idx] = -1;
 #endif
     }
     /* get my host name */
@@ -2905,7 +2912,7 @@ void BroadCastSocketThread::execute() {
 #ifdef WIN32
 		bcfd[idx] = INVALID_SOCKET;
 #else
-		bcfd[idx] = INVALID_SOCKET;
+		bcfd[idx] = -1;
 #endif
 		//if(strlen(subnetmask[idx]) > 0) {
 		bcfd[idx] = socket( AF_INET, SOCK_DGRAM, 0 );
@@ -3003,7 +3010,7 @@ void BroadCastSocketThread::execute() {
 		if( Socket::isSocketValid(&bcfd[idx]) == true ) {
 #ifndef WIN32
         ::close(bcfd[idx]);
-        bcfd[idx] = INVALID_SOCKET;
+        bcfd[idx] = -1;
 #else
         ::closesocket(bcfd[idx]);
         bcfd[idx] = INVALID_SOCKET;

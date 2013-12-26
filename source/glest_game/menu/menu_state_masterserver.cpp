@@ -40,8 +40,8 @@ static string IRC_CHANNEL  = "#megaglest-lobby";
 // 	class MenuStateMasterserver
 // =====================================================
 
-MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMenu):
-	MenuState(program, mainMenu, "masterserver")
+MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMenu) :
+	MenuState(program, mainMenu, "masterserver"), mutexIRCClient(new Mutex(CODE_AT_LINE))
 {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\n\n\n\n******************** ENTERING MASTERSERVER MENU\n\n\n\n\n");
 
@@ -306,7 +306,7 @@ MenuStateMasterserver::MenuStateMasterserver(Program *program, MainMenu *mainMen
     	ircArgs.push_back("");
     }
 
-    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
+    MutexSafeWrapper safeMutexIRCPtr(mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 IRCCLient Cache check\n");
     IRCThread * &ircThread = CacheManager::getCachedItem< IRCThread * >(GameConstants::ircClientCacheLookupKey);
@@ -419,7 +419,7 @@ void MenuStateMasterserver::setButtonLinePosition(int pos){
 }
 
 void MenuStateMasterserver::IRC_CallbackEvent(IRCEventType evt, const char* origin, const char **params, unsigned int count) {
-    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
+    MutexSafeWrapper safeMutexIRCPtr(mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
     if(ircClient != NULL) {
         if(evt == IRC_evt_exitThread) {
         	ircClient->leaveChannel();
@@ -492,7 +492,7 @@ void MenuStateMasterserver::cleanup() {
 	clearServerLines();
 	clearUserButtons();
 
-    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
+    MutexSafeWrapper safeMutexIRCPtr(mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
     if(ircClient != NULL) {
     	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -508,7 +508,12 @@ void MenuStateMasterserver::cleanup() {
 
 MenuStateMasterserver::~MenuStateMasterserver() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	cleanup();
+
+	delete mutexIRCClient;
+	mutexIRCClient = NULL;
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] END\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
@@ -731,7 +736,7 @@ void MenuStateMasterserver::render(){
 		renderer.renderLabel(&selectButton,&titleLabelColor);
 
 		Lang &lang= Lang::getInstance();
-		MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
+		MutexSafeWrapper safeMutexIRCPtr(mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
         if(ircClient != NULL &&
            ircClient->isConnected() == true &&
            ircClient->getHasJoinedChannel() == true) {
@@ -820,7 +825,7 @@ void MenuStateMasterserver::update() {
     //console
     consoleIRC.update();
 
-    MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
+    MutexSafeWrapper safeMutexIRCPtr(mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
     if(ircClient != NULL) {
         std::vector<string> nickList = ircClient->getNickList();
 
@@ -1192,7 +1197,7 @@ void MenuStateMasterserver::keyDown(SDL_KeyboardEvent key) {
 		//chatmanger only if connected to irc!
 		if (chatManager.getEditEnabled() == true) {
 			//printf("keyDown key [%d] chatManager.getText() [%s]\n",key,chatManager.getText().c_str());
-			MutexSafeWrapper safeMutexIRCPtr(&mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutexIRCPtr(mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 			//if (key == vkReturn && ircClient != NULL) {
 			if(isKeyPressed(SDLK_RETURN,key) == true && ircClient != NULL) {
 				ircClient->SendIRCCmdMessage(IRC_CHANNEL, chatManager.getText());

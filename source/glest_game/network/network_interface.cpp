@@ -41,14 +41,14 @@ DisplayMessageFunction NetworkInterface::pCB_DisplayMessage = NULL;
 Vec3f MarkedCell::static_system_marker_color(MAGENTA.x,MAGENTA.y,MAGENTA.z);
 
 NetworkInterface::NetworkInterface() {
-	networkAccessMutex = new Mutex();
+	networkAccessMutex = new Mutex(CODE_AT_LINE);
 
 	networkGameDataSynchCheckOkMap=false;
 	networkGameDataSynchCheckOkTile=false;
 	networkGameDataSynchCheckOkTech=false;
 	receivedDataSynchCheck=false;
 
-	networkPlayerFactionCRCMutex = new Mutex();
+	networkPlayerFactionCRCMutex = new Mutex(CODE_AT_LINE);
 	for(unsigned int index = 0; index < (unsigned int)GameConstants::maxPlayers; ++index) {
 		networkPlayerFactionCRC[index] = 0;
 	}
@@ -360,15 +360,11 @@ void GameNetworkInterface::requestCommand(const NetworkCommand *networkCommand, 
 
     if(insertAtStart == false) {
     	MutexSafeWrapper safeMutex(mutex,string(__FILE__) + "_" + intToStr(__LINE__));
-    	//if(mutex != NULL) mutex->p();
         requestedCommands.push_back(*networkCommand);
-        //if(mutex != NULL) mutex->v();
     }
     else {
     	MutexSafeWrapper safeMutex(mutex,string(__FILE__) + "_" + intToStr(__LINE__));
-    	//if(mutex != NULL) mutex->p();
         requestedCommands.insert(requestedCommands.begin(),*networkCommand);
-        //if(mutex != NULL) mutex->v();
     }
 }
 
@@ -388,7 +384,6 @@ void FileTransferSocketThread::execute()
     if(info.hostType == eServer)
     {
         ServerSocket serverSocket;
-        //serverSocket.setBlock(false);
         serverSocket.bind(this->info.serverPort);
         serverSocket.listen(1);
         Socket *clientSocket = serverSocket.accept();
@@ -465,7 +460,6 @@ void FileTransferSocketThread::execute()
     {
         Ip ip(this->info.serverIP);
         ClientSocket clientSocket;
-        //clientSocket.setBlock(false);
         clientSocket.connect(this->info.serverIP, this->info.serverPort);
 
         if(clientSocket.isConnected() == true)

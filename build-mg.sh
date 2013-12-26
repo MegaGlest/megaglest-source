@@ -18,7 +18,7 @@ CMAKE_ONLY=0
 MAKE_ONLY=0
 CLANG_FORCED=0
 
-while getopts "c:m:n:f:" option; do
+while getopts "c:m:n:f:h" option; do
    case "${option}" in
         c) 
            CPU_COUNT=${OPTARG}
@@ -37,6 +37,18 @@ while getopts "c:m:n:f:" option; do
            CLANG_FORCED=${OPTARG}
 #           echo "${option} value: ${OPTARG}"
         ;;
+        h) 
+                echo "Usage: $0 <option>"
+                echo "       where <option> can be: -c=x, -m=1, -n=1, -f=1, -h"
+                echo "       option descriptions:"
+                echo "       -c=x : Force the cpu / cores count to x - example: -c=4"
+                echo "       -m=1 : Force running CMAKE only to create Make files (do not compile)"
+                echo "       -n=1 : Force running MAKE only to compile (assume CMAKE already built make files)"
+                echo "       -f=1 : Force using CLANG compiler"
+                echo "       -h   : Display this help usage"
+        	exit 1        
+        ;;
+
    esac
 done
 

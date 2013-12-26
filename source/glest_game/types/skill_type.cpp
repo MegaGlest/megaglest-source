@@ -205,6 +205,39 @@ string AttackBoost::getDesc(bool translatedValue) const{
     	return "";
 }
 
+void AttackBoost::loadGame(const XmlNode *rootNode, Faction *faction, const SkillType *skillType) {
+	const XmlNode *attackBoostNode = rootNode->getChild("AttackBoost");
+
+	enabled = (attackBoostNode->getAttribute("enabled")->getIntValue() != 0);
+	allowMultipleBoosts = (attackBoostNode->getAttribute("allowMultipleBoosts")->getIntValue() != 0);
+	radius = attackBoostNode->getAttribute("radius")->getIntValue();
+	targetType = static_cast<AttackBoostTargetType>(attackBoostNode->getAttribute("targetType")->getIntValue());
+
+	if(attackBoostNode->hasChild("UnitType") == true) {
+		vector<XmlNode *> attackBoostNodeList = attackBoostNode->getChildList("UnitType");
+		for(unsigned int i = 0; i < attackBoostNodeList.size(); ++i) {
+			XmlNode *node = attackBoostNodeList[i];
+
+			string unitTypeName = node->getAttribute("name")->getValue();
+			const UnitType *unitType = faction->getType()->getUnitType(unitTypeName);
+			if(unitType != NULL) {
+				boostUnitList.push_back(unitType);
+			}
+		}
+	}
+	//boostUpgrade.loadGame(attackBoostNode,faction);
+	boostUpgrade = skillType->getAttackBoost()->boostUpgrade;
+
+	unitParticleSystemTypeForSourceUnit = new UnitParticleSystemType();
+	unitParticleSystemTypeForSourceUnit->loadGame(attackBoostNode);
+
+	unitParticleSystemTypeForAffectedUnit = new UnitParticleSystemType();
+	unitParticleSystemTypeForAffectedUnit->loadGame(attackBoostNode);
+
+	includeSelf = (attackBoostNode->getAttribute("includeSelf")->getIntValue() != 0);
+	name = attackBoostNode->getAttribute("name")->getValue();
+}
+
 void AttackBoost::saveGame(XmlNode *rootNode) const {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *attackBoostNode = rootNode->addChild("AttackBoost");

@@ -219,7 +219,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
                           OUTPUT_STRIP_TRAILING_WHITESPACE
                         )
 
-                        SET(GIT_LIVE_REV_CMD "`git log -1 --format=%h`.`git rev-list HEAD --count`")
+                        SET(GIT_LIVE_REV_CMD "`git rev-list HEAD --count`.`git log -1 --format=%h`")
 
                         MESSAGE(STATUS "Using GIT revision stamp: [${GIT_COMMIT_COUNT}.${GIT_SHA1}] CMD [${GIT_LIVE_REV_CMD}]")
                         
