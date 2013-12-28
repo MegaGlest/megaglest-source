@@ -206,33 +206,35 @@ void CoreData::loadTextureIfRequired(Texture2D **tex,string data_path,
 			itemLoadAttempted[texSystemId] 	= true;
 		}
 
-		Renderer &renderer = Renderer::getInstance();
-		*tex = renderer.newTexture2D(rsGlobal);
-		if (*tex) {
+		if(attemptToLoadTexture == true) {
+			Renderer &renderer = Renderer::getInstance();
+			*tex = renderer.newTexture2D(rsGlobal);
+			if (*tex) {
 
-			(*tex)->setForceCompressionDisabled(compressionDisabled);
-			(*tex)->setMipmap(setMipMap);
-			if(setAlpha == true) {
+				(*tex)->setForceCompressionDisabled(compressionDisabled);
+				(*tex)->setMipmap(setMipMap);
+				if(setAlpha == true) {
 
-				(*tex)->setFormat(Texture::fAlpha);
-				(*tex)->getPixmap()->init(1);
-			}
-
-			try {
-				string fileToLoad = uniqueFilePath;
-				if(loadUniqueFilePath == false) {
-
-					fileToLoad = getGameCustomCoreDataPath(data_path,uniqueFilePath);
+					(*tex)->setFormat(Texture::fAlpha);
+					(*tex)->getPixmap()->init(1);
 				}
-				(*tex)->getPixmap()->load(fileToLoad);
-				(*tex)->setTextureSystemId(texSystemId);
 
-				renderer.initTexture(rsGlobal,*tex);
-			}
-			catch (const megaglest_runtime_error& ex) {
-				message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),
-						tempDataLocation);
-				cleanupTexture (tex);
+				try {
+					string fileToLoad = uniqueFilePath;
+					if(loadUniqueFilePath == false) {
+
+						fileToLoad = getGameCustomCoreDataPath(data_path,uniqueFilePath);
+					}
+					(*tex)->getPixmap()->load(fileToLoad);
+					(*tex)->setTextureSystemId(texSystemId);
+
+					renderer.initTexture(rsGlobal,*tex);
+				}
+				catch (const megaglest_runtime_error& ex) {
+					message(ex.what(),GlobalStaticFlags::getIsNonGraphicalModeEnabled(),
+							tempDataLocation);
+					cleanupTexture (tex);
+				}
 			}
 		}
 	}
