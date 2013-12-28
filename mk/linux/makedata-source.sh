@@ -14,6 +14,7 @@ PACKAGE="$RELEASENAME-$VERSION.tar.xz"
 CURRENTDIR="$(dirname $(readlink -f $0))"
 RELEASEDIR="$CURRENTDIR/release/$RELEASENAME-$VERSION/megaglest-$VERSION"
 SOURCEDIR="$CURRENTDIR/../../source/"
+REPODIR="$CURRENTDIR/../../../git-data-source/"
 
 echo "Creating data package in $RELEASEDIR"
 
@@ -22,17 +23,22 @@ mkdir -p "$RELEASEDIR"
 
 project_parent_dir="$(basename $(readlink -f -- "$(dirname -- "$0")/../../") )"
 # echo "$project_parent_dir"
-if [[ $project_parent_dir == trunk* ]] ;
+if [[ $project_parent_dir == git* ]] ;
 then
-    	echo 'this is the trunk!'
+    	echo 'This is the master branch'
 else
-	echo '*NOTE: This script currently only works on the trunk, aborting!'
+	echo '*NOTE: This script currently only works on the master HEAD, aborting!'
 	exit
 fi
 
-# copy data
-svn export --force "$CURRENTDIR/../../../trunk-data-source" "$RELEASEDIR/data-source/"
 
+# copy data
+mkdir -p "$RELEASEDIR/data-source"
+cd "$RELEASEDIR/data-source"
+#svn export --force "$CURRENTDIR/../../../git-data-source" "$RELEASEDIR/data-source/"
+git archive --remote ${REPODIR}/megaglest-data-source/ HEAD: | tar x
+
+cd "$CURRENTDIR"
 echo "creating $PACKAGE"
 [[ -f "$release/$PACKAGE" ]] && rm "release/$PACKAGE"
 #tar cJf "release/$PACKAGE" -C "$CURRENTDIR/release/" "$RELEASENAME-$VERSION"

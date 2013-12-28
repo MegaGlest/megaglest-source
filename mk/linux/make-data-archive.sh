@@ -15,6 +15,7 @@ CURRENTDIR="$(dirname $(readlink -f $0))"
 #RELEASEDIR="$CURRENTDIR/release/$RELEASENAME-$VERSION/megaglest-$VERSION"
 RELEASEDIR="$CURRENTDIR/release/$RELEASENAME-$VERSION"
 PROJDIR="$CURRENTDIR/../../"
+REPODIR="$CURRENTDIR/../../"
 
 echo "Creating data package in $RELEASEDIR"
 
@@ -38,25 +39,56 @@ echo "copying data ..."
 #svn export --force "$CURRENTDIR/../../data/glest_game/glestkeys.ini" "$RELEASEDIR/glestkeys.ini"
 
 mkdir -p "$RELEASEDIR/data/"
-svn export --force "$CURRENTDIR/../../data/glest_game/data" "$RELEASEDIR/data/"
+cd "$RELEASEDIR/data/"
+#svn export --force "$CURRENTDIR/../../data/glest_game/data" "$RELEASEDIR/data/"
+git archive --remote ${REPODIR}/data/glest_game/ HEAD:data | tar x
+
+cd "$RELEASEDIR"
 mkdir -p "$RELEASEDIR/docs/"
-svn export --force "$CURRENTDIR/../../data/glest_game/docs" "$RELEASEDIR/docs/"
-svn export --force "$CURRENTDIR/../../docs/CHANGELOG.txt" "$RELEASEDIR/docs/CHANGELOG.txt"
-svn export --force "$CURRENTDIR/../../docs/README.txt" "$RELEASEDIR/docs/README.txt"
+cd "$RELEASEDIR/docs/"
+#svn export --force "$CURRENTDIR/../../data/glest_game/docs" "$RELEASEDIR/docs/"
+#svn export --force "$CURRENTDIR/../../docs/CHANGELOG.txt" "$RELEASEDIR/docs/CHANGELOG.txt"
+#svn export --force "$CURRENTDIR/../../docs/README.txt" "$RELEASEDIR/docs/README.txt"
+git archive --remote ${REPODIR}/data/glest_game/ HEAD:docs | tar x
+git archive --remote ${REPODIR} HEAD:docs/ CHANGELOG.txt | tar x
+git archive --remote ${REPODIR} HEAD:docs/ README.txt | tar x
+
+cd "$RELEASEDIR"
 mkdir -p "$RELEASEDIR/maps/"
-svn export --force "$CURRENTDIR/../../data/glest_game/maps" "$RELEASEDIR/maps/"
+cd "$RELEASEDIR/maps/"
+#svn export --force "$CURRENTDIR/../../data/glest_game/maps" "$RELEASEDIR/maps/"
+git archive --remote ${REPODIR}/data/glest_game/ HEAD:maps | tar x
+
+cd "$RELEASEDIR"
 mkdir -p "$RELEASEDIR/scenarios/"
-svn export --force "$CURRENTDIR/../../data/glest_game/scenarios" "$RELEASEDIR/scenarios/"
+cd "$RELEASEDIR/scenarios/"
+#svn export --force "$CURRENTDIR/../../data/glest_game/scenarios" "$RELEASEDIR/scenarios/"
+git archive --remote ${REPODIR}/data/glest_game/ HEAD:scenarios | tar x
+
+cd "$RELEASEDIR"
 mkdir -p "$RELEASEDIR/techs/"
-svn export --force "$CURRENTDIR/../../data/glest_game/techs" "$RELEASEDIR/techs/"
+cd "$RELEASEDIR/techs/"
+#svn export --force "$CURRENTDIR/../../data/glest_game/techs" "$RELEASEDIR/techs/"
+git archive --remote ${REPODIR}/data/glest_game/ HEAD:techs | tar x
+
+cd "$RELEASEDIR"
 mkdir -p "$RELEASEDIR/tilesets/"
-svn export --force "$CURRENTDIR/../../data/glest_game/tilesets" "$RELEASEDIR/tilesets/"
+cd "$RELEASEDIR/tilesets/"
+#svn export --force "$CURRENTDIR/../../data/glest_game/tilesets" "$RELEASEDIR/tilesets/"
+git archive --remote ${REPODIR}/data/glest_game/ HEAD:tilesets | tar x
+
+cd "$RELEASEDIR"
 mkdir -p "$RELEASEDIR/tutorials/"
-svn export --force "$CURRENTDIR/../../data/glest_game/tutorials" "$RELEASEDIR/tutorials/"
+cd "$RELEASEDIR/tutorials/"
+#svn export --force "$CURRENTDIR/../../data/glest_game/tutorials" "$RELEASEDIR/tutorials/"
+git archive --remote ${REPODIR}/data/glest_game/ HEAD:tutorials | tar x
 
 # special export for flag images
+cd "$RELEASEDIR"
 mkdir -p "$RELEASEDIR/data/core/misc_textures/flags/"
-svn export --force "$CURRENTDIR/../../source/masterserver/flags" "$RELEASEDIR/data/core/misc_textures/flags/"
+cd "$RELEASEDIR/data/core/misc_textures/flags/"
+# svn export --force "$CURRENTDIR/../../source/masterserver/flags" "$RELEASEDIR/data/core/misc_textures/flags/"
+git archive --remote ${REPODIR}/source/masterserver/ HEAD:flags | tar x
 
 #svn export --force "$CURRENTDIR/../../data/glest_game/CMakeLists.txt" "$RELEASEDIR/CMakeLists.txt"
 
@@ -65,6 +97,7 @@ svn export --force "$CURRENTDIR/../../source/masterserver/flags" "$RELEASEDIR/da
 #rm -rf "$RELEASEDIR/data/core/fonts"
 # END
 
+cd "$CURRENTDIR"
 echo "creating data archive: $PACKAGE"
 [[ -f "$release/$PACKAGE" ]] && rm "release/$PACKAGE"
 #tar cJf "release/$PACKAGE" -C "$CURRENTDIR/release/" "$RELEASENAME-$VERSION"
