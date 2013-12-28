@@ -883,7 +883,7 @@ void MapPreview::loadFromFile(const string &path) {
 			}
 		}
 
-		fclose(f1);
+		if(f1) fclose(f1);
 
 		fileLoaded = true;
 		mapFileLoaded = path;
@@ -964,7 +964,7 @@ void MapPreview::saveToFile(const string &path) {
 			}
 		}
 
-		fclose(f1);
+		if(f1) fclose(f1);
 
 		hasChanged = false;
 	}

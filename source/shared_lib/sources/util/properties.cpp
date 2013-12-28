@@ -376,7 +376,7 @@ void Properties::save(const string &path){
 
 	fileStream.close();
 #if defined(WIN32) && !defined(__MINGW32__)
-	fclose(fp);
+	if(fp) fclose(fp);
 #endif
 }
 

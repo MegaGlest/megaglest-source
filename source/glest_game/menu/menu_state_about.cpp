@@ -200,7 +200,7 @@ string MenuStateAbout::loadAdditionalCredits(){
 		std::cout << buffer << std::endl;
 		file.close();
 #if defined(WIN32) && !defined(__MINGW32__)
-		fclose(fp);
+		if(fp) fclose(fp);
 #endif
 	}
 	return result;

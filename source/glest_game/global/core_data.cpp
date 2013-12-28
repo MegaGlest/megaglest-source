@@ -1470,7 +1470,7 @@ void CoreData::saveGameSettingsToFile(std::string fileName, GameSettings *gameSe
     }
 
 #if defined(WIN32) && !defined(__MINGW32__)
-	fclose(fp);
+	if(fp) fclose(fp);
 #endif
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",__FILE__,__FUNCTION__,__LINE__);
 }
