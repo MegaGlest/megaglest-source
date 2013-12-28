@@ -763,6 +763,7 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 	assertGl();
 
 	if(inited == false) {
+		assertGl();
 		//params
 		GLint wrap= toWrapModeGl(wrapMode);
 		GLint glFormat= toFormatGl(format, pixmap.getComponents());
@@ -772,6 +773,7 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 			glCompressionFormat = glInternalFormat;
 		}
 
+		assertGl();
 		//pixel init var
 		const uint8* pixels= pixmapInit? pixmap.getPixels(): NULL;
 
@@ -793,7 +795,7 @@ void Texture2DGl::init(Filter filter, int maxAnisotropy) {
 		}
 
 		if(mipmap) {
-			GLuint glFilter= filter==fTrilinear? GL_LINEAR_MIPMAP_LINEAR: GL_LINEAR_MIPMAP_NEAREST;
+			GLuint glFilter= (filter == fTrilinear ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR_MIPMAP_NEAREST);
 
 			//build mipmaps
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, glFilter);

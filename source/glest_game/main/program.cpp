@@ -834,7 +834,7 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
         // END
 
         if(initOk == false) {
-        	string sError = "Sound System could not be initialzed!";
+        	string sError = "Sound System could not be initialized!";
         	this->showMessage(sError.c_str());
         }
 

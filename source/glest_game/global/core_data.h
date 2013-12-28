@@ -43,6 +43,8 @@ class GameSettings;
 
 class CoreData {
 private:
+	std::map<int,bool> itemLoadAttempted;
+
     StrSound introMusic;
     StrSound menuMusic;
 	StaticSound clickSoundA;
@@ -131,8 +133,9 @@ public:
 		tsyst_onServerInstalledTexture,
 		tsyst_statusReadyTexture,
 		tsyst_statusNotReadyTexture,
-		tsyst_statusBRBTexture
+		tsyst_statusBRBTexture,
 
+		tsyst_COUNT
 	    //std::vector<Texture2D *> miscTextureList;
 	};
 
@@ -145,46 +148,49 @@ public:
     void cleanup();
     void loadFonts();
 
+    // Textures
     Texture2D *getTextureBySystemId(TextureSystemType type) const;
 
-	Texture2D *getBackgroundTexture() const		{return backgroundTexture;}
-	Texture2D *getFireTexture() const			{return fireTexture;}
-	Texture2D *getTeamColorTexture() const		{return teamColorTexture;}
-	Texture2D *getSnowTexture() const			{return snowTexture;}
-	Texture2D *getLogoTexture() const			{return logoTexture;}
-	Texture2D *getWaterSplashTexture() const	{return waterSplashTexture;}
-	Texture2D *getCustomTexture() const			{return customTexture;}
-	Texture2D *getButtonSmallTexture() const	{return buttonSmallTexture;}
-	Texture2D *getButtonBigTexture() const		{return buttonBigTexture;}
-	Texture2D *getHorizontalLineTexture() const	{return horizontalLineTexture;}
-	Texture2D *getVerticalLineTexture() const	{return verticalLineTexture;}
-	Texture2D *getCheckBoxTexture() const		{return checkBoxTexture;}
-	Texture2D *getCheckedCheckBoxTexture() const	{return checkedCheckBoxTexture;}
-	Texture2D *getNotOnServerTexture() const			{return notOnServerTexture;}
-	Texture2D *getOnServerDifferentTexture() const			{return onServerDifferentTexture;}
-	Texture2D *getOnServerTexture() const			{return onServerTexture;}
-	Texture2D *getOnServerInstalledTexture() const			{return onServerInstalledTexture;}
-    Texture2D *getStatusReadyTexture() const			{return statusReadyTexture;}
-    Texture2D *getStatusNotReadyTexture() const			{return statusNotReadyTexture;}
-    Texture2D *getStatusBRBTexture() const			{return statusBRBTexture;}
+	Texture2D *getBackgroundTexture();
+	Texture2D *getFireTexture();
+	Texture2D *getTeamColorTexture();
+	Texture2D *getSnowTexture();
+	Texture2D *getLogoTexture();
+	Texture2D *getWaterSplashTexture();
+	Texture2D *getCustomTexture();
+	Texture2D *getButtonSmallTexture();
+	Texture2D *getButtonBigTexture();
+	Texture2D *getHorizontalLineTexture();
+	Texture2D *getVerticalLineTexture();
+	Texture2D *getCheckBoxTexture();
+	Texture2D *getCheckedCheckBoxTexture();
+	Texture2D *getNotOnServerTexture();
+	Texture2D *getOnServerDifferentTexture();
+	Texture2D *getOnServerTexture();
+	Texture2D *getOnServerInstalledTexture();
+    Texture2D *getStatusReadyTexture();
+    Texture2D *getStatusNotReadyTexture();
+    Texture2D *getStatusBRBTexture();
+	Texture2D *getGameWinnerTexture();
 
-	Texture2D *getGameWinnerTexture() const		{return gameWinnerTexture;}
+	size_t getLogoTextureExtraCount();
+	Texture2D *getLogoTextureExtra(int idx);
 
-	size_t getLogoTextureExtraCount() const {return logoTextureList.size();}
-	Texture2D *getLogoTextureExtra(int idx) const {return logoTextureList[idx];}
+	std::vector<Texture2D *> & getMiscTextureList();
 
-	std::vector<Texture2D *> & getMiscTextureList() { return miscTextureList; }
+	// Sounds and Music
+	StrSound *getIntroMusic();
+	StrSound *getMenuMusic();
 
-	StrSound *getIntroMusic() 				{return &introMusic;}
-	StrSound *getMenuMusic() 				{return &menuMusic;}
-    StaticSound *getClickSoundA()			{return &clickSoundA;}
-    StaticSound *getClickSoundB()			{return &clickSoundB;}
-    StaticSound *getClickSoundC()			{return &clickSoundC;}
-    StaticSound *getAttentionSound()		{return &attentionSound;}
-    StaticSound *getHighlightSound()		{return &highlightSound;}
-    StaticSound *getMarkerSound()		    {return &markerSound;}
-	StaticSound *getWaterSound()			{return waterSounds.getRandSound();}
+    StaticSound *getClickSoundA();
+    StaticSound *getClickSoundB();
+    StaticSound *getClickSoundC();
+    StaticSound *getAttentionSound();
+    StaticSound *getHighlightSound();
+    StaticSound *getMarkerSound();
+	StaticSound *getWaterSound();
 
+	// Fonts
 	Font2D *getDisplayFont() const			{return displayFont;}
     Font2D *getDisplayFontSmall() const		{return displayFontSmall;}
     Font2D *getMenuFontNormal() const		{return menuFontNormal;}
@@ -199,27 +205,29 @@ public:
 	Font3D *getMenuFontVeryBig3D() const		{return menuFontVeryBig3D;}
     Font3D *getConsoleFont3D() const			{return consoleFont3D;}
 
-    string getMainMenuVideoFilename() const { return mainMenuVideoFilename; }
+    // Helper functions
+    string getMainMenuVideoFilename() const 					{ return mainMenuVideoFilename; }
     bool hasMainMenuVideoFilename() const;
-    string getMainMenuVideoFilenameFallback() const { return mainMenuVideoFilenameFallback; }
+    string getMainMenuVideoFilenameFallback() const 			{ return mainMenuVideoFilenameFallback; }
     bool hasMainMenuVideoFilenameFallback() const;
 
-    string getIntroVideoFilename() const { return introVideoFilename; }
+    string getIntroVideoFilename() const 						{ return introVideoFilename; }
     bool hasIntroVideoFilename() const;
-    string getIntroVideoFilenameFallback() const { return introVideoFilenameFallback; }
+    string getIntroVideoFilenameFallback() const 				{ return introVideoFilenameFallback; }
     bool hasIntroVideoFilenameFallback() const;
 
-    string getBattleEndVideoFilename(bool won) const { return won == true ? battleEndWinVideoFilename : battleEndLoseVideoFilename; }
+    string getBattleEndVideoFilename(bool won) const 			{ return won == true ? battleEndWinVideoFilename : battleEndLoseVideoFilename; }
     bool hasBattleEndVideoFilename(bool won) const;
-    string getBattleEndVideoFilenameFallback(bool won) const { return won == true ? battleEndWinVideoFilenameFallback : battleEndLoseVideoFilenameFallback; }
+    string getBattleEndVideoFilenameFallback(bool won) const 	{ return won == true ? battleEndWinVideoFilenameFallback : battleEndLoseVideoFilenameFallback; }
     bool hasBattleEndVideoFilenameFallback(bool won) const;
 
-    string getBattleEndMusicFilename(bool won) const { return won == true ? battleEndWinMusicFilename : battleEndLoseMusicFilename; }
+    string getBattleEndMusicFilename(bool won) const 			{ return won == true ? battleEndWinMusicFilename : battleEndLoseMusicFilename; }
 
     void saveGameSettingsToFile(std::string fileName, GameSettings *gameSettings,int advancedIndex=0);
     bool loadGameSettingsFromFile(std::string fileName, GameSettings *gameSettings);
 
 private:
+
     CoreData();
 
 	int computeFontSize(int size);
@@ -230,6 +238,18 @@ private:
 	void loadIntroMedia(string data_path);
 	void loadMainMenuMedia(string data_path);
 	void loadBattleEndMedia(string data_path);
+
+	string getDataPath();
+	void loadTextureIfRequired(Texture2D **tex,string data_path,
+						string uniqueFilePath, int texSystemId, bool setMipMap,
+						bool setAlpha, bool loadUniqueFilePath,
+						bool compressionDisabled = false);
+
+	void loadLogoTextureExtraIfRequired();
+	void loadMiscTextureListIfRequired();
+
+	void loadWaterSoundsIfRequired();
+	void loadMusicIfRequired();
 };
 
 }} //end namespace
