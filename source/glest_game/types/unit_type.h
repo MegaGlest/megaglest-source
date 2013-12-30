@@ -122,6 +122,7 @@ private:
     bool multiSelect;
     int sight;
     int size;							//size in cells
+    int renderSize;						//size to render in cells
     int height;
     float rotatedBuildPos;
     bool rotationAllowed;
@@ -198,6 +199,7 @@ public:
 	inline bool getMultiSelect() const							{return multiSelect;}
 	inline int getSight() const								{return sight;}
 	inline int getSize() const									{return size;}
+	inline int getRenderSize() const								{return renderSize;}
 	int getHeight() const								{return height;}
 	int getStoredResourceCount() const					{return (int)storedResources.size();}
 	inline const Resource *getStoredResource(int i) const		{return &storedResources[i];}

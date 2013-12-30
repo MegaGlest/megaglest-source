@@ -214,6 +214,10 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		//checkItemInVault(&(this->size),this->size);
 		size= parametersNode->getChild("size")->getAttribute("value")->getIntValue();
 		addItemToVault(&(this->size),this->size);
+		renderSize=size;
+		if(parametersNode->hasChild("render-size")){
+			renderSize=parametersNode->getChild("render-size")->getAttribute("value")->getIntValue();
+		}
 
 		//height
 		//checkItemInVault(&(this->height),this->height);

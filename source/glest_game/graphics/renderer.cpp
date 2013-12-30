@@ -6713,7 +6713,7 @@ void Renderer::selectUsingFrustumSelection(Selection::UnitContainer &units,
 			if(unit != NULL && unit->isAlive()) {
 				Vec3f unitPos = unit->getCurrVector();
 				bool insideQuad = CubeInFrustum(quadSelectionCacheItem.frustumData,
-						unitPos.x, unitPos.y, unitPos.z, unit->getType()->getSize());
+						unitPos.x, unitPos.y, unitPos.z, unit->getType()->getRenderSize());
 				if(insideQuad == true) {
 					units.push_back(unit);
 				}
@@ -8588,7 +8588,7 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 					bool unitCheckedForRender = false;
 					if(VisibleQuadContainerCache::enableFrustumCalcs == true) {
 						//bool insideQuad 	= PointInFrustum(quadCache.frustumData, unit->getCurrVector().x, unit->getCurrVector().y, unit->getCurrVector().z );
-						bool insideQuad 	= CubeInFrustum(quadCache.frustumData, unit->getCurrVector().x, unit->getCurrVector().y, unit->getCurrVector().z, unit->getType()->getSize());
+						bool insideQuad 	= CubeInFrustum(quadCache.frustumData, unit->getCurrVector().x, unit->getCurrVector().y, unit->getCurrVector().z, unit->getType()->getRenderSize());
 						bool renderInMap 	= world->toRenderUnit(unit);
 						if(insideQuad == false || renderInMap == false) {
 							unit->setVisible(false);
@@ -8630,7 +8630,7 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 						if(VisibleQuadContainerCache::enableFrustumCalcs == true) {
 							Vec3f pos3f= Vec3f(pos.x, map->getCell(pos)->getHeight(), pos.y);
 							//bool insideQuad 	= PointInFrustum(quadCache.frustumData, unit->getCurrVector().x, unit->getCurrVector().y, unit->getCurrVector().z );
-							bool insideQuad 	= CubeInFrustum(quadCache.frustumData, pos3f.x, pos3f.y, pos3f.z, pendingUnit.buildUnit->getSize());
+							bool insideQuad 	= CubeInFrustum(quadCache.frustumData, pos3f.x, pos3f.y, pos3f.z, pendingUnit.buildUnit->getRenderSize());
 							bool renderInMap 	= world->toRenderUnit(pendingUnit);
 							if(insideQuad == false || renderInMap == false) {
 								if(renderInMap == true) {
