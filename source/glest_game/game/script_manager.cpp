@@ -26,14 +26,17 @@ using namespace Shared::Util;
 namespace Glest{ namespace Game{
 
 ScriptManagerMessage::ScriptManagerMessage() : text(""), header("") {
-	this->factionIndex=-1;
-	this->teamIndex=-1;
+	this->factionIndex			= -1;
+	this->teamIndex				= -1;
+	this->messageNotTranslated 	= true;
 }
 
 ScriptManagerMessage::ScriptManagerMessage(string textIn, string headerIn,
-		int factionIndex,int teamIndex) : text(textIn), header(headerIn) {
-	this->factionIndex = factionIndex;
-	this->teamIndex    = teamIndex;
+		int factionIndex,int teamIndex, bool messageNotTranslated) :
+				text(textIn), header(headerIn) {
+	this->factionIndex 			= factionIndex;
+	this->teamIndex    			= teamIndex;
+	this->messageNotTranslated 	= messageNotTranslated;
 }
 
 void ScriptManagerMessage::saveGame(XmlNode *rootNode) {
@@ -46,6 +49,7 @@ void ScriptManagerMessage::saveGame(XmlNode *rootNode) {
 	scriptManagerMessageNode->addAttribute("header",header, mapTagReplacements);
 	scriptManagerMessageNode->addAttribute("factionIndex",intToStr(factionIndex), mapTagReplacements);
 	scriptManagerMessageNode->addAttribute("teamIndex",intToStr(teamIndex), mapTagReplacements);
+	scriptManagerMessageNode->addAttribute("messageNotTranslated",intToStr(messageNotTranslated), mapTagReplacements);
 }
 
 void ScriptManagerMessage::loadGame(const XmlNode *rootNode) {
@@ -55,6 +59,11 @@ void ScriptManagerMessage::loadGame(const XmlNode *rootNode) {
 	header = scriptManagerMessageNode->getAttribute("header")->getValue();
 	factionIndex = scriptManagerMessageNode->getAttribute("factionIndex")->getIntValue();
 	teamIndex = scriptManagerMessageNode->getAttribute("teamIndex")->getIntValue();
+
+	messageNotTranslated = true;
+	if(scriptManagerMessageNode->hasAttribute("messageNotTranslated") == true) {
+		messageNotTranslated = (scriptManagerMessageNode->getAttribute("messageNotTranslated")->getIntValue() != 0);
+	}
 }
 
 // =====================================================
@@ -453,7 +462,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -466,7 +475,7 @@ void ScriptManager::onMessageBoxOk(bool popFront) {
 
 	Lang &lang= Lang::getInstance();
 
-	for(int i = 0;messageQueue.empty() == false;++i) {
+	for(int index = 0; messageQueue.empty() == false; ++index) {
 		//printf("i = %d messageQueue.size() = %d popFront = %d\n",i,messageQueue.size(),popFront);
 		if(popFront == true) {
 			messageQueue.pop_front();
@@ -480,9 +489,17 @@ void ScriptManager::onMessageBoxOk(bool popFront) {
 			if((messageQueue.front().getFactionIndex() < 0 && messageQueue.front().getTeamIndex() < 0) ||
 				messageQueue.front().getFactionIndex() == this->world->getThisFactionIndex() ||
 				messageQueue.front().getTeamIndex() == this->world->getThisTeamIndex()) {
+
 				messageBox.setEnabled(true);
-				messageBox.setText(wrapString(lang.getScenarioString(messageQueue.front().getText()), messageWrapCount));
-				messageBox.setHeader(lang.getScenarioString(messageQueue.front().getHeader()));
+
+				string msgText = messageQueue.front().getText();
+				string msgHeader = messageQueue.front().getHeader();
+				if(messageQueue.front().getMessageNotTranslated() == false) {
+					msgText 	= lang.getScenarioString(messageQueue.front().getText());
+					msgHeader = lang.getScenarioString(messageQueue.front().getHeader());
+				}
+				messageBox.setText(wrapString(msgText, messageWrapCount));
+				messageBox.setHeader(msgHeader);
 				break;
 			}
 			popFront = true;
@@ -1979,7 +1996,7 @@ int ScriptManager::networkShowMessageForFaction(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2000,7 +2017,7 @@ int ScriptManager::networkShowMessageForTeam(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2021,7 +2038,7 @@ int ScriptManager::networkSetCameraPositionForFaction(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2042,7 +2059,7 @@ int ScriptManager::networkSetCameraPositionForTeam(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2064,7 +2081,7 @@ int ScriptManager::setDisplayText(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2085,7 +2102,7 @@ int ScriptManager::addConsoleText(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2106,7 +2123,7 @@ int ScriptManager::clearDisplayText(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2127,7 +2144,7 @@ int ScriptManager::setCameraPosition(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2153,7 +2170,7 @@ int ScriptManager::createUnit(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2179,7 +2196,7 @@ int ScriptManager::createUnitNoSpacing(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2202,7 +2219,7 @@ int ScriptManager::destroyUnit(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2224,7 +2241,7 @@ int ScriptManager::giveKills(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2247,7 +2264,7 @@ int ScriptManager::morphToUnit(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2270,7 +2287,7 @@ int ScriptManager::moveToUnit(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2292,7 +2309,7 @@ int ScriptManager::playStaticSound(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2314,7 +2331,7 @@ int ScriptManager::playStreamingSound(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2336,7 +2353,7 @@ int ScriptManager::stopStreamingSound(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2358,7 +2375,7 @@ int ScriptManager::stopAllSound(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2380,7 +2397,7 @@ int ScriptManager::playStaticVideo(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2402,7 +2419,7 @@ int ScriptManager::playStreamingVideo(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2424,7 +2441,7 @@ int ScriptManager::stopStreamingVideo(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2447,7 +2464,7 @@ int ScriptManager::stopAllVideo(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2469,7 +2486,7 @@ int ScriptManager::togglePauseGame(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2488,7 +2505,7 @@ int ScriptManager::giveResource(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2511,7 +2528,7 @@ int ScriptManager::givePositionCommand(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2533,7 +2550,7 @@ int ScriptManager::giveAttackCommand(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2555,7 +2572,7 @@ int ScriptManager::giveProductionCommand(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2577,7 +2594,7 @@ int ScriptManager::giveUpgradeCommand(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2600,7 +2617,7 @@ int ScriptManager::giveAttackStoppedCommand(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2620,7 +2637,7 @@ int ScriptManager::disableAi(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2640,7 +2657,7 @@ int ScriptManager::enableAi(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2661,7 +2678,7 @@ int ScriptManager::getAiEnabled(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2681,7 +2698,7 @@ int ScriptManager::disableConsume(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2701,7 +2718,7 @@ int ScriptManager::enableConsume(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2722,7 +2739,7 @@ int ScriptManager::getConsumeEnabled(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2743,7 +2760,7 @@ int ScriptManager::registerCellTriggerEventForUnitToUnit(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2764,7 +2781,7 @@ int ScriptManager::registerCellTriggerEventForUnitToLocation(LuaHandle* luaHandl
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2785,7 +2802,7 @@ int ScriptManager::registerCellAreaTriggerEventForUnitToLocation(LuaHandle* luaH
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2806,7 +2823,7 @@ int ScriptManager::registerCellTriggerEventForFactionToUnit(LuaHandle* luaHandle
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2827,7 +2844,7 @@ int ScriptManager::registerCellTriggerEventForFactionToLocation(LuaHandle* luaHa
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2848,7 +2865,7 @@ int ScriptManager::registerCellAreaTriggerEventForFactionToLocation(LuaHandle* l
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2869,7 +2886,7 @@ int ScriptManager::registerCellAreaTriggerEvent(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2890,7 +2907,7 @@ int ScriptManager::getCellTriggerEventCount(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2910,7 +2927,7 @@ int ScriptManager::unregisterCellTriggerEvent(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2931,7 +2948,7 @@ int ScriptManager::startTimerEvent(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2952,7 +2969,7 @@ int ScriptManager::startEfficientTimerEvent(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2973,7 +2990,7 @@ int ScriptManager::stopTimerEvent(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -2994,7 +3011,7 @@ int ScriptManager::resetTimerEvent(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3015,7 +3032,7 @@ int ScriptManager::getTimerEventSecondsElapsed(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3035,7 +3052,7 @@ int ScriptManager::setPlayerAsWinner(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3055,7 +3072,7 @@ int ScriptManager::endGame(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3075,7 +3092,7 @@ int ScriptManager::startPerformanceTimer(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3095,7 +3112,7 @@ int ScriptManager::endPerformanceTimer(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3116,7 +3133,7 @@ int ScriptManager::getPerformanceTimerResults(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3137,7 +3154,7 @@ int ScriptManager::getStartLocation(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3158,7 +3175,7 @@ int ScriptManager::getUnitPosition(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3178,7 +3195,7 @@ int ScriptManager::setUnitPosition(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3217,7 +3234,7 @@ int ScriptManager::addCellMarker(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3241,7 +3258,7 @@ int ScriptManager::removeCellMarker(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3281,7 +3298,7 @@ int ScriptManager::showMarker(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3302,7 +3319,7 @@ int ScriptManager::getUnitFaction(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3322,7 +3339,7 @@ int ScriptManager::getUnitName(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3342,7 +3359,7 @@ int ScriptManager::getResourceAmount(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3362,7 +3379,7 @@ int ScriptManager::getLastCreatedUnitName(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3382,7 +3399,7 @@ int ScriptManager::getLastCreatedUnitId(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3402,7 +3419,7 @@ int ScriptManager::getCellTriggeredEventId(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3422,7 +3439,7 @@ int ScriptManager::getTimerTriggeredEventId(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3442,7 +3459,7 @@ int ScriptManager::getCellTriggeredEventAreaEntryUnitId(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3462,7 +3479,7 @@ int ScriptManager::getCellTriggeredEventAreaExitUnitId(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3482,7 +3499,7 @@ int ScriptManager::getCellTriggeredEventUnitId(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3502,7 +3519,7 @@ int ScriptManager::setRandomGenInit(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3522,7 +3539,7 @@ int ScriptManager::getRandomGen(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3542,7 +3559,7 @@ int ScriptManager::getWorldFrameCount(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3562,7 +3579,7 @@ int ScriptManager::getLastDeadUnitName(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3582,7 +3599,7 @@ int ScriptManager::getLastDeadUnitId(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3602,7 +3619,7 @@ int ScriptManager::getLastDeadUnitCauseOfDeath(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3622,7 +3639,7 @@ int ScriptManager::getLastDeadUnitKillerName(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3642,7 +3659,7 @@ int ScriptManager::getLastDeadUnitKillerId(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3662,7 +3679,7 @@ int ScriptManager::getLastAttackedUnitName(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3682,7 +3699,7 @@ int ScriptManager::getLastAttackedUnitId(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3702,7 +3719,7 @@ int ScriptManager::getLastAttackingUnitName(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3722,7 +3739,7 @@ int ScriptManager::getLastAttackingUnitId(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3742,7 +3759,7 @@ int ScriptManager::getSystemMacroValue(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3762,7 +3779,7 @@ int ScriptManager::scenarioDir(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3782,7 +3799,7 @@ int ScriptManager::getPlayerName(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3802,7 +3819,7 @@ int ScriptManager::getUnitCount(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3822,7 +3839,7 @@ int ScriptManager::getUnitCountOfType(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -3917,7 +3934,7 @@ int ScriptManager::DisplayFormattedText(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4040,7 +4057,7 @@ int ScriptManager::addConsoleLangText(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4136,7 +4153,7 @@ int ScriptManager::DisplayFormattedLangText(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4156,7 +4173,7 @@ int ScriptManager::getGameWon(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4176,7 +4193,7 @@ int ScriptManager::getIsGameOver(LuaHandle* luaHandle){
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4196,7 +4213,7 @@ int ScriptManager::loadScenario(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4217,7 +4234,7 @@ int ScriptManager::getUnitsForFaction(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4238,7 +4255,7 @@ int ScriptManager::getUnitCurrentField(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4258,7 +4275,7 @@ int ScriptManager::getIsUnitAlive(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4284,7 +4301,7 @@ int ScriptManager::isFreeCellsOrHasUnit(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4310,7 +4327,7 @@ int ScriptManager::isFreeCells(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4331,7 +4348,7 @@ int ScriptManager::getHumanFactionId(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4351,7 +4368,7 @@ int ScriptManager::highlightUnit(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4371,7 +4388,7 @@ int ScriptManager::unhighlightUnit(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4391,7 +4408,7 @@ int ScriptManager::giveStopCommand(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4411,7 +4428,7 @@ int ScriptManager::selectUnit(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4431,7 +4448,7 @@ int ScriptManager::unselectUnit(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4451,7 +4468,7 @@ int ScriptManager::addUnitToGroupSelection(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4471,7 +4488,7 @@ int ScriptManager::recallGroupSelection(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4491,7 +4508,7 @@ int ScriptManager::removeUnitFromGroupSelection(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4511,7 +4528,7 @@ int ScriptManager::setAttackWarningsEnabled(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4530,7 +4547,7 @@ int ScriptManager::getAttackWarningsEnabled(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4550,7 +4567,7 @@ int ScriptManager::getIsDayTime(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4569,7 +4586,7 @@ int ScriptManager::getIsNightTime(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4588,7 +4605,7 @@ int ScriptManager::getTimeOfDay(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4608,7 +4625,7 @@ int ScriptManager::registerDayNightEvent(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4627,7 +4644,7 @@ int ScriptManager::unregisterDayNightEvent(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4647,7 +4664,7 @@ int ScriptManager::registerUnitTriggerEvent(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4666,7 +4683,7 @@ int ScriptManager::unregisterUnitTriggerEvent(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4685,7 +4702,7 @@ int ScriptManager::getLastUnitTriggerEventUnitId(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4704,7 +4721,7 @@ int ScriptManager::getLastUnitTriggerEventType(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4725,7 +4742,7 @@ int ScriptManager::getUnitProperty(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4745,7 +4762,7 @@ int ScriptManager::getUnitPropertyName(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4765,7 +4782,7 @@ int ScriptManager::disableSpeedChange(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4784,7 +4801,7 @@ int ScriptManager::enableSpeedChange(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 
@@ -4803,7 +4820,7 @@ int ScriptManager::getSpeedChangeEnabled(LuaHandle* luaHandle) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
 		thisScriptManager->onMessageBoxOk(false);
 	}
 

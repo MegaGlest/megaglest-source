@@ -51,14 +51,16 @@ private:
 	string header;
 	int factionIndex;
 	int teamIndex;
+	bool messageNotTranslated;
 
 public:
 	ScriptManagerMessage();
-	ScriptManagerMessage(string text, string header, int factionIndex=-1,int teamIndex=-1);
+	ScriptManagerMessage(string text, string header, int factionIndex=-1,int teamIndex=-1,bool messageNotTranslated=false);
 	const string &getText() const	{return text;}
 	const string &getHeader() const	{return header;}
 	int getFactionIndex() const	{return factionIndex;}
 	int getTeamIndex() const	{return teamIndex;}
+	bool getMessageNotTranslated() const { return messageNotTranslated; }
 
 	void saveGame(XmlNode *rootNode);
 	void loadGame(const XmlNode *rootNode);
