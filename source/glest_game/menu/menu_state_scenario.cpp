@@ -379,6 +379,8 @@ void MenuStateScenario::launchGame() {
 		GameSettings gameSettings;
 		loadGameSettings(&scenarioInfo, &gameSettings);
 
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] gameSettings.getScenarioDir() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,gameSettings.getScenarioDir().c_str());
+
 		const vector<string> pathTechList = Config::getInstance().getPathListForType(ptTechs,gameSettings.getScenarioDir());
 		if(TechTree::exists(gameSettings.getTech(), pathTechList) == false) {
 			char szBuf[8096]="";
