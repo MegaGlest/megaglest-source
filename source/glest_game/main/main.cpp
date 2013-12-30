@@ -3925,6 +3925,7 @@ int glestMain(int argc, char** argv) {
     if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERBOSE_MODE]) == true) {
         SystemFlags::VERBOSE_MODE_ENABLED  = true;
         Thread::setEnableVerboseMode(true);
+        LuaScript::setDebugModeEnabled(true);
     }
     // DEbug testing threads
     //Thread::setEnableVerboseMode(true);

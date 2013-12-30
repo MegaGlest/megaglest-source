@@ -47,6 +47,7 @@ private:
 	string sandboxCode;
 
 	static bool disableSandbox;
+	static bool debugModeEnabled;
 
 	void DumpGlobals();
 
@@ -54,6 +55,7 @@ public:
 	LuaScript();
 	~LuaScript();
 
+	static void setDebugModeEnabled(bool value) { debugModeEnabled = value; }
 	static void setDisableSandbox(bool value) { disableSandbox = value; }
 
 	void loadCode(string code, string name);

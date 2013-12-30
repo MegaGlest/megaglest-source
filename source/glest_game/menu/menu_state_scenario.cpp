@@ -313,15 +313,17 @@ void MenuStateScenario::update() {
 	if(this->autoloadScenarioName != "") {
 		string scenarioPath = Scenario::getScenarioPath(dirList, this->autoloadScenarioName);
 
-		//printf("[%s:%s] Line: %d this->autoloadScenarioName [%s] scenarioPath [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->autoloadScenarioName.c_str(),scenarioPath.c_str());
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("[%s:%s] Line: %d this->autoloadScenarioName [%s] scenarioPath [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->autoloadScenarioName.c_str(),scenarioPath.c_str());
 
 		loadScenarioInfo(scenarioPath, &scenarioInfo );
-		if(scenarioInfo.namei18n != "") {
-			this->autoloadScenarioName = scenarioInfo.namei18n;
-		}
-		else {
-			this->autoloadScenarioName = formatString(this->autoloadScenarioName);
-		}
+		//if(scenarioInfo.namei18n != "") {
+		//	this->autoloadScenarioName = scenarioInfo.namei18n;
+		//}
+		//else {
+		this->autoloadScenarioName = formatString(this->autoloadScenarioName);
+		//}
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("[%s:%s] Line: %d this->autoloadScenarioName [%s] scenarioPath [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->autoloadScenarioName.c_str(),scenarioPath.c_str());
 
 		listBoxScenario.setSelectedItem(this->autoloadScenarioName,false);
 

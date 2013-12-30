@@ -1683,12 +1683,12 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 			menuItems.push_back(lang.getString("PauseResumeGame"));
 			pauseGamePopupMenuIndex= (int)menuItems.size() - 1;
 
-			if(gameSettings.isNetworkGame() == false){
+			if(gameSettings.isNetworkGame() == false || gameSettings.getScenario() != "") {
 				menuItems.push_back(lang.getString("SaveGame"));
 				saveGamePopupMenuIndex= (int)menuItems.size() - 1;
 			}
 
-			if(gameSettings.isNetworkGame() == true){
+			if(gameSettings.isNetworkGame() == true) {
 				menuItems.push_back(lang.getString("DisconnectNetorkPlayer"));
 				disconnectPlayerPopupMenuIndex= (int)menuItems.size() - 1;
 			}

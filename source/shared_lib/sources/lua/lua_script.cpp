@@ -46,6 +46,7 @@ public:
 // =====================================================
 
 bool LuaScript::disableSandbox = false;
+bool LuaScript::debugModeEnabled = false;
 
 LuaScript::LuaScript() {
 	Lua_STREFLOP_Wrapper streflopWrapper;
@@ -211,7 +212,7 @@ void LuaScript::DumpGlobals()
 void LuaScript::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;
 
-	const bool debugLuaDump = false;
+	bool debugLuaDump = LuaScript::debugModeEnabled;
 	//try{
 	LuaHandle *L = luaState;
 	// push the first key (nil = beginning of table)
@@ -257,6 +258,7 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 		// get the key as a string
 		string key_string = lua_tostring(L, -2); // no copy required - we already know this is a string
 
+		if(debugLuaDump == true) printf("key_string [%s]\n",key_string.c_str());
 		// do not support variables that start with '_'
 		// lua has some predefined values like _VERSION. They all start with underscore
 
@@ -300,7 +302,7 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 				int tableKeyType = lua_type(L, -2);
 				int tableValueType = lua_type(L, -1);
 
-				if(debugLuaDump == true) printf("LUA TABLE loop item type [%s]\n",lua_typename(L, tableValueType));
+				if(debugLuaDump == true) printf("LUA TABLE loop item type [%s] key: %d value type: %d\n",lua_typename(L, tableValueType),tableKeyType,tableValueType);
 
 				switch (tableValueType) {
 					case LUA_TSTRING:
@@ -321,7 +323,12 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 
 						if(debugLuaDump == true) printf("LUA TABLE loop C\n");
 
-						value = lua_tostring (L, -1);
+						if(tableValueType == LUA_TBOOLEAN ) {
+							value = lua_toboolean(L, -1) == 0 ? "false" : "true";
+						}
+						else {
+							value = lua_tostring (L, -1);
+						}
 
 						if(debugLuaDump == true) printf("LUA TABLE loop D\n");
 
@@ -409,12 +416,20 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 }
 
 void LuaScript::loadGame(const XmlNode *rootNode) {
+	bool debugLuaDump = LuaScript::debugModeEnabled;
+	if(debugLuaDump) printf("START [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	vector<XmlNode *> luaScriptNodeList = rootNode->getChildList("LuaScript");
+
+	if(debugLuaDump) printf("luaScriptNodeList.size(): %d\n",(int)luaScriptNodeList.size());
+
 	for(unsigned int i = 0; i < luaScriptNodeList.size(); ++i) {
 		XmlNode *node = luaScriptNodeList[i];
 
 		string variable = node->getAttribute("variable")->getValue();
 		int value_type = node->getAttribute("value_type")->getIntValue();
+
+		if(debugLuaDump) printf("i: %d [%s] [%d]\n",i,variable.c_str(),value_type);
 
 		switch (value_type) {
 			case LUA_TSTRING:
@@ -430,6 +445,9 @@ void LuaScript::loadGame(const XmlNode *rootNode) {
 				{
 					lua_newtable(luaState);    /* We will pass a table */
 					vector<XmlNode *> luaScriptTableNode = node->getChildList("Table");
+
+					if(debugLuaDump) printf("luaScriptTableNode.size(): %d\n",(int)luaScriptTableNode.size());
+
 					for(unsigned int j = 0; j < luaScriptTableNode.size(); ++j) {
 						XmlNode *nodeTable = luaScriptTableNode[j];
 
@@ -442,7 +460,7 @@ void LuaScript::loadGame(const XmlNode *rootNode) {
 								lua_pushnumber( luaState, nodeTable->getAttribute("key")->getFloatValue() );
 								break;
 							case LUA_TBOOLEAN:
-								lua_pushboolean( luaState, nodeTable->getAttribute("key")->getIntValue() );
+								lua_pushboolean( luaState, nodeTable->getAttribute("key")->getBoolValue() );
 								break;
 						}
 						int value_type = nodeTable->getAttribute("value_type")->getIntValue();
@@ -454,7 +472,7 @@ void LuaScript::loadGame(const XmlNode *rootNode) {
 								lua_pushnumber( luaState, nodeTable->getAttribute("value")->getFloatValue() );
 								break;
 							case LUA_TBOOLEAN:
-								lua_pushboolean( luaState, nodeTable->getAttribute("value")->getIntValue() );
+								lua_pushboolean( luaState, nodeTable->getAttribute("value")->getBoolValue() );
 								break;
 						}
 
