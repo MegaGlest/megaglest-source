@@ -455,9 +455,10 @@ void SoundPlayerOpenAL::end() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled) SystemFlags::OutputDebug(SystemFlags::debugSound,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-    alcMakeContextCurrent( NULL );
-    SoundPlayerOpenAL::checkAlcError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
-
+	if(context != 0) {
+		alcMakeContextCurrent( NULL );
+		SoundPlayerOpenAL::checkAlcError(string(__FILE__) + string(" ") + string(__FUNCTION__) + string(" ") + intToStr(__LINE__));
+	}
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled) SystemFlags::OutputDebug(SystemFlags::debugSound,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(context != 0) {

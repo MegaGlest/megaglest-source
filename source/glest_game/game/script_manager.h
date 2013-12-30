@@ -230,6 +230,7 @@ public:
 	void init(World* world, GameCamera *gameCamera,const XmlNode *rootNode);
 
 	//message box functions
+	void addMessageToQueue(ScriptManagerMessage msg);
 	bool getMessageBoxEnabled() const									{return !messageQueue.empty();}
 	GraphicMessageBox* getMessageBox()									{return &messageBox;}
 	string getDisplayText() const										{return displayText;}

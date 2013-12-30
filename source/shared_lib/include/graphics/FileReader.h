@@ -171,14 +171,14 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 		if (ret != NULL) {
 			file.close();
 #if defined(WIN32) && !defined(__MINGW32__)
-			fclose(fp);
+			if(fp) fclose(fp);
 #endif
 			return ret;
 		}
 	}
 	file.close();
 #if defined(WIN32) && !defined(__MINGW32__)
-	fclose(fp);
+	if(fp) fclose(fp);
 #endif
 
 	return NULL;
@@ -223,14 +223,14 @@ static inline T* readFromFileReaders(vector<FileReader<T> const *>* readers, con
 		if (ret != NULL) {
 			file.close();
 #if defined(WIN32) && !defined(__MINGW32__)
-			fclose(fp);
+			if(fp) fclose(fp);
 #endif
 			return ret;
 		}
 	}
 	file.close();
 #if defined(WIN32) && !defined(__MINGW32__)
-	fclose(fp);
+	if(fp) fclose(fp);
 #endif
 	return NULL;
 }
@@ -368,7 +368,7 @@ T* FileReader<T>::read(const string& filepath) const {
 	T* ret = read(file,filepath);
 	file.close();
 #if defined(WIN32) && !defined(__MINGW32__)
-	fclose(fp);
+	if(fp) fclose(fp);
 #endif
 
 	return ret;
@@ -393,7 +393,7 @@ T* FileReader<T>::read(const string& filepath, T* object) const {
 	T* ret = read(file,filepath,object);
 	file.close();
 #if defined(WIN32) && !defined(__MINGW32__)
-	fclose(fp);
+	if(fp) fclose(fp);
 #endif
 
 	return ret;

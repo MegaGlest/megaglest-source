@@ -5509,7 +5509,7 @@ void Renderer::renderWaterEffects(){
 	const World *world= game->getWorld();
 	const WaterEffects *we= world->getWaterEffects();
 	const Map *map= world->getMap();
-	const CoreData &coreData= CoreData::getInstance();
+	CoreData &coreData= CoreData::getInstance();
 	float height= map->getWaterLevel()+0.001f;
 
 	assertGl();

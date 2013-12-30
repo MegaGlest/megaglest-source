@@ -27,3 +27,6 @@
 *.xcf -text -diff
 *.blend -text -diff
 *.blend1 -text -diff
+.gitattributes export-ignore  
+.gitignore export-ignore
+.gitmodules export-ignore

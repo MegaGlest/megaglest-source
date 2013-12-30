@@ -748,6 +748,10 @@ vector<string> Config::getPathListForType(PathType type, string scenarioDir) {
         }
     }
     if(scenarioDir != "") {
+		if(EndsWith(scenarioDir, ".xml") == true) {
+			scenarioDir = extractDirectoryPathFromFile(scenarioDir);
+		}
+
     	//string scenarioLocation = data_path + scenarioDir;
     	string scenarioLocation = scenarioDir;
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Scenario path [%s]\n",scenarioLocation.c_str());

@@ -203,9 +203,9 @@ ScriptManager::~ScriptManager() {
 }
 
 void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *rootNode) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	//printf("In [%s::%s Line: %d] rootNode [%p][%s]\n",__FILE__,__FUNCTION__,__LINE__,rootNode,(rootNode != NULL ? rootNode->getName().c_str() : "none"));
+	//printf("In [%s::%s Line: %d] rootNode [%p][%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,rootNode,(rootNode != NULL ? rootNode->getName().c_str() : "none"));
 	this->rootNode = rootNode;
 	const Scenario*	scenario= world->getScenario();
 
@@ -215,12 +215,12 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	//set static instance
 	thisScriptManager= this;
 
-	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	currentEventId = 1;
 	CellTriggerEventList.clear();
 	TimerTriggerEventList.clear();
 
-	//printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	//printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//register functions
 	luaScript.registerFunction(networkShowMessageForFaction, "networkShowMessageForFaction");
@@ -426,7 +426,7 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	gameOver= false;
 	gameWon = false;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	try {
 		// Setup global functions and vars here
@@ -447,22 +447,22 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 		//string sErrBuf = "";
 		//if(ex.wantStackTrace() == true) {
 		char szErrBuf[8096]="";
-		snprintf(szErrBuf,8096,"In [%s::%s %d]",__FILE__,__FUNCTION__,__LINE__);
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
 		//}
 		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
 
-		messageQueue.push_back(ScriptManagerMessage(sErrBuf.c_str(), "error"));
-		onMessageBoxOk(false);
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
 	}
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
 // ========================== events ===============================================
 
 void ScriptManager::onMessageBoxOk(bool popFront) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	Lang &lang= Lang::getInstance();
 
@@ -491,7 +491,7 @@ void ScriptManager::onMessageBoxOk(bool popFront) {
 }
 
 void ScriptManager::onResourceHarvested(){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(this->rootNode == NULL) {
 		luaScript.beginCall("resourceHarvested");
@@ -500,7 +500,7 @@ void ScriptManager::onResourceHarvested(){
 }
 
 void ScriptManager::onUnitCreated(const Unit* unit){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(this->rootNode == NULL) {
 		lastCreatedUnitName= unit->getType()->getName(false);
@@ -513,7 +513,7 @@ void ScriptManager::onUnitCreated(const Unit* unit){
 }
 
 void ScriptManager::onUnitDied(const Unit* unit){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(this->rootNode == NULL) {
 		if(unit->getLastAttackerUnitId() >= 0) {
@@ -545,7 +545,7 @@ void ScriptManager::onUnitDied(const Unit* unit){
 }
 
 void ScriptManager::onUnitAttacked(const Unit* unit) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(this->rootNode == NULL) {
 		lastAttackedUnitName= unit->getType()->getName(false);
@@ -556,7 +556,7 @@ void ScriptManager::onUnitAttacked(const Unit* unit) {
 }
 
 void ScriptManager::onUnitAttacking(const Unit* unit) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(this->rootNode == NULL) {
 		lastAttackingUnitName= unit->getType()->getName(false);
@@ -567,7 +567,7 @@ void ScriptManager::onUnitAttacking(const Unit* unit) {
 }
 
 void ScriptManager::onGameOver(bool won) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	gameWon = won;
 	luaScript.beginCall("gameOver");
@@ -581,7 +581,7 @@ void ScriptManager::onTimerTriggerEvent() {
 	if(this->rootNode != NULL) {
 		return;
 	}
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,TimerTriggerEventList.size());
 
 	for(std::map<int,TimerTriggerEvent>::iterator iterMap = TimerTriggerEventList.begin();
 		iterMap != TimerTriggerEventList.end(); ++iterMap) {
@@ -592,7 +592,7 @@ void ScriptManager::onTimerTriggerEvent() {
 													__FILE__,__FUNCTION__,__LINE__,event.running,(long long int)event.startFrame,(long long int)event.endFrame,(event.endFrame - event.startFrame));
 
 		if(event.running == true) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 			// If using an efficient timer, check if its time to trigger
 			// on the elapsed check
@@ -622,7 +622,7 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 		return;
 	}
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] movingUnit = %p, CellTriggerEventList.size() = %d\n",__FILE__,__FUNCTION__,__LINE__,movingUnit,CellTriggerEventList.size());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] movingUnit = %p, CellTriggerEventList.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,movingUnit,CellTriggerEventList.size());
 
 	// remove any delayed removals
 	unregisterCellTriggerEvent(-1);
@@ -654,7 +654,7 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 													__FILE__,__FUNCTION__,__LINE__,movingUnit->getId(), event.type,movingUnit->getPos().getString().c_str(),event.sourceId,event.destId, event.destPos.getString().c_str(), destUnit->getPos().getString().c_str(),srcInDst);
 
 						if(srcInDst == true) {
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 						}
 						else {
 							srcInDst = world->getMap()->isNextToUnitTypeCells(destUnit->getType(), destUnit->getPos(),movingUnit->getPos());
@@ -677,7 +677,7 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 														__FILE__,__FUNCTION__,__LINE__,movingUnit->getId(),event.type,movingUnit->getPos().getString().c_str(),event.sourceId,event.destId,event.destPos.getString().c_str(),srcInDst);
 
 					if(srcInDst == true) {
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					}
 					triggerEvent = srcInDst;
 
@@ -717,7 +717,7 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 					}
 
 					if(srcInDst == true) {
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					}
 					triggerEvent = srcInDst;
 					if(triggerEvent == true) {
@@ -737,7 +737,7 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 														__FILE__,__FUNCTION__,__LINE__,movingUnit->getId(),event.type,movingUnit->getPos().getString().c_str(),event.sourceId,event.destId,event.destPos.getString().c_str(),srcInDst);
 
 					if(srcInDst == true) {
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					}
 					else {
 						srcInDst = world->getMap()->isNextToUnitTypeCells(destUnit->getType(), destUnit->getPos(),movingUnit->getPos());
@@ -759,7 +759,7 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 
 					bool srcInDst = world->getMap()->isInUnitTypeCells(movingUnit->getType(), event.destPos,movingUnit->getPos());
 					if(srcInDst == true) {
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					}
 					triggerEvent = srcInDst;
 					if(triggerEvent == true) {
@@ -793,7 +793,7 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 
 								srcInDst = world->getMap()->isInUnitTypeCells(movingUnit->getType(), Vec2i(x,y),movingUnit->getPos());
 								if(srcInDst == true) {
-									if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+									if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 								}
 							}
 						}
@@ -822,7 +822,7 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 
 							srcInDst = world->getMap()->isInUnitTypeCells(movingUnit->getType(), Vec2i(x,y),movingUnit->getPos());
 							if(srcInDst == true) {
-								if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 								currentCellTriggeredEventAreaEntryUnitId = movingUnit->getId();
 								event.eventStateInfo[movingUnit->getId()] = Vec2i(x,y).getString();
@@ -842,7 +842,7 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 
 							srcInDst = world->getMap()->isInUnitTypeCells(movingUnit->getType(), Vec2i(x,y),movingUnit->getPos());
 							if(srcInDst == true) {
-								if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 								//event.eventStateInfo[movingUnit->getId()] = Vec2i(x,y);
 							}
@@ -865,7 +865,7 @@ void ScriptManager::onCellTriggerEvent(Unit *movingUnit) {
 			}
 
 			if(triggerEvent == true) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 				currentCellTriggeredEventId = iterMap->first;
 				event.triggerCount++;
@@ -907,17 +907,17 @@ string ScriptManager::wrapString(const string &str, int wrapCount) {
 
 void ScriptManager::networkShowMessageForFaction(const string &text, const string &header,int factionIndex) {
 	messageQueue.push_back(ScriptManagerMessage(text, header, factionIndex));
-	onMessageBoxOk(false);
+	thisScriptManager->onMessageBoxOk(false);
 }
 void ScriptManager::networkShowMessageForTeam(const string &text, const string &header,int teamIndex) {
 	// Team indexes are 0 based internally (but 1 based in the lua script) so convert
 	teamIndex--;
 	messageQueue.push_back(ScriptManagerMessage(text, header, -1, teamIndex));
-	onMessageBoxOk(false);
+	thisScriptManager->onMessageBoxOk(false);
 }
 
 void ScriptManager::networkSetCameraPositionForFaction(int factionIndex, const Vec2i &pos) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(factionIndex == this->world->getThisFactionIndex()) {
 		gameCamera->centerXZ(pos.x, pos.y);
@@ -925,7 +925,7 @@ void ScriptManager::networkSetCameraPositionForFaction(int factionIndex, const V
 }
 
 void ScriptManager::networkSetCameraPositionForTeam(int teamIndex, const Vec2i &pos) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(teamIndex == this->world->getThisTeamIndex()) {
 		gameCamera->centerXZ(pos.x, pos.y);
@@ -934,7 +934,7 @@ void ScriptManager::networkSetCameraPositionForTeam(int teamIndex, const Vec2i &
 
 void ScriptManager::showMessage(const string &text, const string &header){
 	messageQueue.push_back(ScriptManagerMessage(text, header));
-	onMessageBoxOk(false);
+	thisScriptManager->onMessageBoxOk(false);
 }
 
 void ScriptManager::clearDisplayText(){
@@ -949,7 +949,7 @@ void ScriptManager::addConsoleText(const string &text){
 	world->addConsoleText(text);
 }
 void ScriptManager::addConsoleLangText(const char *fmt, ...){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	
     va_list argList;
     va_start(argList, fmt);
@@ -964,7 +964,7 @@ void ScriptManager::addConsoleLangText(const char *fmt, ...){
 }
 
 void ScriptManager::DisplayFormattedText(const char *fmt, ...) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     va_list argList;
     va_start(argList, fmt);
@@ -978,7 +978,7 @@ void ScriptManager::DisplayFormattedText(const char *fmt, ...) {
 	va_end(argList);
 }
 void ScriptManager::DisplayFormattedLangText(const char *fmt, ...) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
     va_list argList;
     va_start(argList, fmt);
@@ -992,23 +992,23 @@ void ScriptManager::DisplayFormattedLangText(const char *fmt, ...) {
 	va_end(argList);
 }
 void ScriptManager::setCameraPosition(const Vec2i &pos){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	gameCamera->centerXZ(pos.x, pos.y);
 }
 
 void ScriptManager::createUnit(const string &unitName, int factionIndex, Vec2i pos){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,unitName.c_str(),factionIndex);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unitName.c_str(),factionIndex);
 	world->createUnit(unitName, factionIndex, pos);
 }
 
 void ScriptManager::createUnitNoSpacing(const string &unitName, int factionIndex, Vec2i pos){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,unitName.c_str(),factionIndex);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unitName.c_str(),factionIndex);
 	world->createUnit(unitName, factionIndex, pos, false);
 }
 
 void ScriptManager::destroyUnit(int unitId){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d]\n",__FILE__,__FUNCTION__,__LINE__,unitId);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unitId);
 	Unit *unit = world->findUnitById(unitId);
 	if(unit != NULL) {
 		// Make sure they die
@@ -1022,7 +1022,7 @@ void ScriptManager::destroyUnit(int unitId){
 	}
 }
 void ScriptManager::giveKills (int unitId, int amount){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d]\n",__FILE__,__FUNCTION__,__LINE__,unitId);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unitId);
 	Unit *unit = world->findUnitById(unitId);
 	if(unit != NULL) {
 		for(int i = 1; i <= amount; i++) {
@@ -1032,98 +1032,98 @@ void ScriptManager::giveKills (int unitId, int amount){
 }
 
 void ScriptManager::playStaticSound(const string &playSound) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playSound [%s]\n",__FILE__,__FUNCTION__,__LINE__,playSound.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playSound [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playSound.c_str());
 	world->playStaticSound(playSound);
 }
 void ScriptManager::playStreamingSound(const string &playSound) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playSound [%s]\n",__FILE__,__FUNCTION__,__LINE__,playSound.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playSound [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playSound.c_str());
 	world->playStreamingSound(playSound);
 }
 
 void ScriptManager::stopStreamingSound(const string &playSound) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playSound [%s]\n",__FILE__,__FUNCTION__,__LINE__,playSound.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playSound [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playSound.c_str());
 	world->stopStreamingSound(playSound);
 }
 
 void ScriptManager::stopAllSound() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	world->stopAllSound();
 }
 
 void ScriptManager::playStaticVideo(const string &playVideo) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playVideo [%s]\n",__FILE__,__FUNCTION__,__LINE__,playVideo.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playVideo [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playVideo.c_str());
 	world->playStaticVideo(playVideo);
 }
 void ScriptManager::playStreamingVideo(const string &playVideo) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playVideo [%s]\n",__FILE__,__FUNCTION__,__LINE__,playVideo.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playVideo [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playVideo.c_str());
 	world->playStreamingVideo(playVideo);
 }
 
 void ScriptManager::stopStreamingVideo(const string &playVideo) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playVideo [%s]\n",__FILE__,__FUNCTION__,__LINE__,playVideo.c_str());
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] playVideo [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,playVideo.c_str());
 	world->stopStreamingVideo(playVideo);
 }
 
 void ScriptManager::stopAllVideo() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	world->stopAllVideo();
 }
 
 void ScriptManager::togglePauseGame(int pauseStatus) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] pauseStatus = %d\n",__FILE__,__FUNCTION__,__LINE__,pauseStatus);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] pauseStatus = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,pauseStatus);
 	world->togglePauseGame((pauseStatus != 0),true);
 }
 
 void ScriptManager::morphToUnit(int unitId,const string &morphName, int ignoreRequirements) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] forceUpgradesIfRequired = %d\n",__FILE__,__FUNCTION__,__LINE__,unitId,morphName.c_str(),ignoreRequirements);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] forceUpgradesIfRequired = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unitId,morphName.c_str(),ignoreRequirements);
 
 	world->morphToUnit(unitId,morphName,(ignoreRequirements == 1));
 }
 
 void ScriptManager::moveToUnit(int unitId,int destUnitId) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] destUnitId [%d]\n",__FILE__,__FUNCTION__,__LINE__,unitId,destUnitId);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] destUnitId [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unitId,destUnitId);
 
 	world->moveToUnit(unitId,destUnitId);
 }
 
 void ScriptManager::giveResource(const string &resourceName, int factionIndex, int amount){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	world->giveResource(resourceName, factionIndex, amount);
 }
 
 void ScriptManager::givePositionCommand(int unitId, const string &commandName, const Vec2i &pos){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	world->givePositionCommand(unitId, commandName, pos);
 }
 
 void ScriptManager::giveAttackCommand(int unitId, int unitToAttackId) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	world->giveAttackCommand(unitId, unitToAttackId);
 }
 
 void ScriptManager::giveProductionCommand(int unitId, const string &producedName){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	world->giveProductionCommand(unitId, producedName);
 }
 
 void ScriptManager::giveUpgradeCommand(int unitId, const string &producedName){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	world->giveUpgradeCommand(unitId, producedName);
 }
 
 void ScriptManager::giveAttackStoppedCommand(int unitId, const string &itemName,int ignoreRequirements) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	world->giveAttackStoppedCommand(unitId, itemName, (ignoreRequirements == 1));
 }
 
 void ScriptManager::disableAi(int factionIndex){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(factionIndex<GameConstants::maxPlayers){
 		playerModifiers[factionIndex].disableAi();
@@ -1132,7 +1132,7 @@ void ScriptManager::disableAi(int factionIndex){
 }
 
 void ScriptManager::enableAi(int factionIndex){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(factionIndex<GameConstants::maxPlayers){
 		playerModifiers[factionIndex].enableAi();
@@ -1148,7 +1148,7 @@ bool ScriptManager::getAiEnabled(int factionIndex){
 }
 
 void ScriptManager::disableConsume(int factionIndex){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(factionIndex<GameConstants::maxPlayers){
 		playerModifiers[factionIndex].disableConsume();
@@ -1156,7 +1156,7 @@ void ScriptManager::disableConsume(int factionIndex){
 }
 
 void ScriptManager::enableConsume(int factionIndex){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	if(factionIndex<GameConstants::maxPlayers){
 		playerModifiers[factionIndex].enableConsume();
@@ -1180,7 +1180,7 @@ int ScriptManager::registerCellTriggerEventForUnitToUnit(int sourceUnitId, int d
 	int eventId = currentEventId++;
 	CellTriggerEventList[eventId] = trigger;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] Unit: %d will trigger cell event when reaching unit: %d, eventId = %d\n",__FILE__,__FUNCTION__,__LINE__,sourceUnitId,destUnitId,eventId);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] Unit: %d will trigger cell event when reaching unit: %d, eventId = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sourceUnitId,destUnitId,eventId);
 
 	return eventId;
 }
@@ -1194,7 +1194,7 @@ int ScriptManager::registerCellTriggerEventForUnitToLocation(int sourceUnitId, c
 	int eventId = currentEventId++;
 	CellTriggerEventList[eventId] = trigger;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] Unit: %d will trigger cell event when reaching pos: %s, eventId = %d\n",__FILE__,__FUNCTION__,__LINE__,sourceUnitId,pos.getString().c_str(),eventId);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] Unit: %d will trigger cell event when reaching pos: %s, eventId = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sourceUnitId,pos.getString().c_str(),eventId);
 
 	return eventId;
 }
@@ -1211,7 +1211,7 @@ int ScriptManager::registerCellAreaTriggerEventForUnitToLocation(int sourceUnitI
 	int eventId = currentEventId++;
 	CellTriggerEventList[eventId] = trigger;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] Unit: %d will trigger cell event when reaching pos: %s, eventId = %d\n",__FILE__,__FUNCTION__,__LINE__,sourceUnitId,pos.getString().c_str(),eventId);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] Unit: %d will trigger cell event when reaching pos: %s, eventId = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sourceUnitId,pos.getString().c_str(),eventId);
 
 	return eventId;
 }
@@ -1225,7 +1225,7 @@ int ScriptManager::registerCellTriggerEventForFactionToUnit(int sourceFactionId,
 	int eventId = currentEventId++;
 	CellTriggerEventList[eventId] = trigger;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] Faction: %d will trigger cell event when reaching unit: %d, eventId = %d\n",__FILE__,__FUNCTION__,__LINE__,sourceFactionId,destUnitId,eventId);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] Faction: %d will trigger cell event when reaching unit: %d, eventId = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sourceFactionId,destUnitId,eventId);
 
 	return eventId;
 }
@@ -1239,7 +1239,7 @@ int ScriptManager::registerCellTriggerEventForFactionToLocation(int sourceFactio
 	int eventId = currentEventId++;
 	CellTriggerEventList[eventId] = trigger;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]Faction: %d will trigger cell event when reaching pos: %s, eventId = %d\n",__FILE__,__FUNCTION__,__LINE__,sourceFactionId,pos.getString().c_str(),eventId);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]Faction: %d will trigger cell event when reaching pos: %s, eventId = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sourceFactionId,pos.getString().c_str(),eventId);
 
 	return eventId;
 }
@@ -1256,7 +1256,7 @@ int ScriptManager::registerCellAreaTriggerEventForFactionToLocation(int sourceFa
 	int eventId = currentEventId++;
 	CellTriggerEventList[eventId] = trigger;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]Faction: %d will trigger cell event when reaching pos: %s, eventId = %d\n",__FILE__,__FUNCTION__,__LINE__,sourceFactionId,pos.getString().c_str(),eventId);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]Faction: %d will trigger cell event when reaching pos: %s, eventId = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sourceFactionId,pos.getString().c_str(),eventId);
 
 	return eventId;
 }
@@ -1273,7 +1273,7 @@ int ScriptManager::registerCellAreaTriggerEvent(const Vec4i &pos) {
 	int eventId = currentEventId++;
 	CellTriggerEventList[eventId] = trigger;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] trigger cell event when reaching pos: %s, eventId = %d\n",__FILE__,__FUNCTION__,__LINE__,pos.getString().c_str(),eventId);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] trigger cell event when reaching pos: %s, eventId = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,pos.getString().c_str(),eventId);
 
 	return eventId;
 }
@@ -1321,7 +1321,7 @@ int ScriptManager::startTimerEvent() {
 	int eventId = currentEventId++;
 	TimerTriggerEventList[eventId] = trigger;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d, eventId = %d, trigger.startTime = %lld, trigger.endTime = %lld\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size(),eventId,(long long int)trigger.startFrame,(long long int)trigger.endFrame);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d, eventId = %d, trigger.startTime = %lld, trigger.endTime = %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,TimerTriggerEventList.size(),eventId,(long long int)trigger.startFrame,(long long int)trigger.endFrame);
 
 	return eventId;
 }
@@ -1338,7 +1338,7 @@ int ScriptManager::startEfficientTimerEvent(int triggerSecondsElapsed) {
 	int eventId = currentEventId++;
 	TimerTriggerEventList[eventId] = trigger;
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d, eventId = %d, trigger.startTime = %lld, trigger.endTime = %lld\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size(),eventId,(long long int)trigger.startFrame,(long long int)trigger.endFrame);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d, eventId = %d, trigger.startTime = %lld, trigger.endTime = %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,TimerTriggerEventList.size(),eventId,(long long int)trigger.startFrame,(long long int)trigger.endFrame);
 
 	return eventId;
 }
@@ -1355,7 +1355,7 @@ int ScriptManager::resetTimerEvent(int eventId) {
 		trigger.endFrame = 0;
 		trigger.running = true;
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d, eventId = %d, trigger.startTime = %lld, trigger.endTime = %lld, result = %d\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size(),eventId,(long long int)trigger.startFrame,(long long int)trigger.endFrame,result);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d, eventId = %d, trigger.startTime = %lld, trigger.endTime = %lld, result = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,TimerTriggerEventList.size(),eventId,(long long int)trigger.startFrame,(long long int)trigger.endFrame,result);
 	}
 	return result;
 }
@@ -1369,7 +1369,7 @@ int ScriptManager::stopTimerEvent(int eventId) {
 		trigger.running = false;
 		result = getTimerEventSecondsElapsed(eventId);
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d, eventId = %d, trigger.startTime = %lld, trigger.endTime = %lld, result = %d\n",__FILE__,__FUNCTION__,__LINE__,TimerTriggerEventList.size(),eventId,(long long int)trigger.startFrame,(long long int)trigger.endFrame,result);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] TimerTriggerEventList.size() = %d, eventId = %d, trigger.startTime = %lld, trigger.endTime = %lld, result = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,TimerTriggerEventList.size(),eventId,(long long int)trigger.startFrame,(long long int)trigger.endFrame,result);
 	}
 
 	return result;
@@ -1395,7 +1395,7 @@ int ScriptManager::getTimerEventSecondsElapsed(int eventId) {
 }
 
 void ScriptManager::setPlayerAsWinner(int factionIndex) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 
 	if(factionIndex<GameConstants::maxPlayers){
@@ -1404,7 +1404,7 @@ void ScriptManager::setPlayerAsWinner(int factionIndex) {
 }
 
 void ScriptManager::endGame() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	gameOver= true;
 }
@@ -1436,14 +1436,14 @@ Vec2i ScriptManager::getPerformanceTimerResults() {
 }
 
 Vec2i ScriptManager::getStartLocation(int factionIndex) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return world->getStartLocation(factionIndex);
 }
 
 
 Vec2i ScriptManager::getUnitPosition(int unitId) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	Vec2i result = world->getUnitPosition(unitId);
 
@@ -1453,54 +1453,54 @@ Vec2i ScriptManager::getUnitPosition(int unitId) {
 }
 
 void ScriptManager::setUnitPosition(int unitId, Vec2i pos) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return world->setUnitPosition(unitId,pos);
 }
 
 void ScriptManager::addCellMarker(Vec2i pos, int factionIndex, const string &note, const string &textureFile) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	world->addCellMarker(pos,factionIndex, note, textureFile);
 }
 
 void ScriptManager::removeCellMarker(Vec2i pos, int factionIndex) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return world->removeCellMarker(pos,factionIndex);
 }
 
 void ScriptManager::showMarker(Vec2i pos, int factionIndex, const string &note, const string &textureFile, int flashCount) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	world->showMarker(pos,factionIndex, note, textureFile, flashCount);
 }
 
 int ScriptManager::getIsUnitAlive(int unitId) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return world->getIsUnitAlive(unitId);
 }
 
 int ScriptManager::getUnitFaction(int unitId) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return world->getUnitFactionIndex(unitId);
 }
 const string ScriptManager::getUnitName(int unitId) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return world->getUnitName(unitId);
 }
 
 int ScriptManager::getResourceAmount(const string &resourceName, int factionIndex) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return world->getResourceAmount(resourceName, factionIndex);
 }
 
 const string &ScriptManager::getLastCreatedUnitName() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return lastCreatedUnitName;
 }
@@ -1556,112 +1556,112 @@ bool ScriptManager::getIsGameOver() const {
 }
 
 int ScriptManager::getLastCreatedUnitId() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return lastCreatedUnitId;
 }
 
 const string &ScriptManager::getLastDeadUnitName() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return lastDeadUnitName;
 }
 
 int ScriptManager::getLastDeadUnitId() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return lastDeadUnitId;
 }
 
 int ScriptManager::getLastDeadUnitCauseOfDeath() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return lastDeadUnitCauseOfDeath;
 }
 
 const string &ScriptManager::getLastDeadUnitKillerName() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return lastDeadUnitKillerName;
 }
 
 int ScriptManager::getLastDeadUnitKillerId() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return lastDeadUnitKillerId;
 }
 
 const string &ScriptManager::getLastAttackedUnitName() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return lastAttackedUnitName;
 }
 
 int ScriptManager::getLastAttackedUnitId() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return lastAttackedUnitId;
 }
 
 const string &ScriptManager::getLastAttackingUnitName() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return lastAttackingUnitName;
 }
 
 int ScriptManager::getLastAttackingUnitId() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return lastAttackingUnitId;
 }
 
 int ScriptManager::getUnitCount(int factionIndex) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return world->getUnitCount(factionIndex);
 }
 
 int ScriptManager::getUnitCountOfType(int factionIndex, const string &typeName) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return world->getUnitCountOfType(factionIndex, typeName);
 }
 
 const string ScriptManager::getSystemMacroValue(const string &key) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return world->getSystemMacroValue(key);
 }
 
 const string ScriptManager::getPlayerName(int factionIndex) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return world->getPlayerName(factionIndex);
 }
 
 void ScriptManager::loadScenario(const string &name, bool keepFactions) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 
 	world->setQueuedScenario(name,keepFactions);
 }
 
 vector<int> ScriptManager::getUnitsForFaction(int factionIndex,const string& commandTypeName, int field) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 
 	return world->getUnitsForFaction(factionIndex,commandTypeName, field);
 }
 
 int ScriptManager::getUnitCurrentField(int unitId) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 
 	return world->getUnitCurrentField(unitId);
 }
 
 int ScriptManager::isFreeCellsOrHasUnit(int field, int unitId, Vec2i pos) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 
 	Unit* unit= world->findUnitById(unitId);
@@ -1676,7 +1676,7 @@ int ScriptManager::isFreeCellsOrHasUnit(int field, int unitId, Vec2i pos) {
 }
 
 int ScriptManager::isFreeCells(int unitSize, int field, Vec2i pos) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 
 	int result = world->getMap()->isFreeCellsOrHasUnit(pos,unitSize,static_cast<Field>(field),NULL,NULL,true);
@@ -1687,67 +1687,67 @@ int ScriptManager::isFreeCells(int unitSize, int field, Vec2i pos) {
 }
 
 int ScriptManager::getHumanFactionId() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return this->world->getThisFactionIndex();
 }
 
 void ScriptManager::highlightUnit(int unitId, float radius, float thickness, Vec4f color) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 
 	world->highlightUnit(unitId, radius, thickness, color);
 }
 
 void ScriptManager::unhighlightUnit(int unitId) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 
 	world->unhighlightUnit(unitId);
 }
 
 void ScriptManager::giveStopCommand(int unitId) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	world->giveStopCommand(unitId);
 }
 
 bool ScriptManager::selectUnit(int unitId) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return world->selectUnit(unitId);
 }
 
 void ScriptManager::unselectUnit(int unitId) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	world->unselectUnit(unitId);
 }
 
 void ScriptManager::addUnitToGroupSelection(int unitId,int groupIndex) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	world->addUnitToGroupSelection(unitId,groupIndex);
 }
 void ScriptManager::recallGroupSelection(int groupIndex) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	world->recallGroupSelection(groupIndex);
 }
 void ScriptManager::removeUnitFromGroupSelection(int unitId,int groupIndex) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	world->removeUnitFromGroupSelection(unitId,groupIndex);
 }
 
 void ScriptManager::setAttackWarningsEnabled(bool enabled) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	world->setAttackWarningsEnabled(enabled);
 }
 
 bool ScriptManager::getAttackWarningsEnabled() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	return world->getAttackWarningsEnabled();
 }
@@ -1902,7 +1902,7 @@ void ScriptManager::onDayNightTriggerEvent() {
 }
 
 int ScriptManager::getIsDayTime() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 
 	const TimeFlow *tf= world->getTimeFlow();
@@ -1912,7 +1912,7 @@ int ScriptManager::getIsDayTime() {
 	return tf->isDay();
 }
 int ScriptManager::getIsNightTime() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 
 	const TimeFlow *tf= world->getTimeFlow();
@@ -1924,7 +1924,7 @@ int ScriptManager::getIsNightTime() {
 float ScriptManager::getTimeOfDay() {
 	//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 
 	const TimeFlow *tf= world->getTimeFlow();
@@ -1955,6 +1955,9 @@ bool ScriptManager::getSpeedChangeEnabled() {
 	return world->getGame()->getDisableSpeedChange();
 }
 
+void ScriptManager::addMessageToQueue(ScriptManagerMessage msg) {
+	messageQueue.push_back(msg);
+}
 // ========================== lua callbacks ===============================================
 
 int ScriptManager::showMessage(LuaHandle* luaHandle){
@@ -1965,715 +1968,1961 @@ int ScriptManager::showMessage(LuaHandle* luaHandle){
 
 int ScriptManager::networkShowMessageForFaction(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->networkShowMessageForFaction(luaArguments.getString(-3), luaArguments.getString(-2), luaArguments.getInt(-1));
+
+	try {
+		thisScriptManager->networkShowMessageForFaction(luaArguments.getString(-3), luaArguments.getString(-2), luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::networkShowMessageForTeam(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->networkShowMessageForTeam(luaArguments.getString(-3), luaArguments.getString(-2), luaArguments.getInt(-1));
+
+	try {
+		thisScriptManager->networkShowMessageForTeam(luaArguments.getString(-3), luaArguments.getString(-2), luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::networkSetCameraPositionForFaction(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->networkSetCameraPositionForFaction(luaArguments.getInt(-2), luaArguments.getVec2i(-1));
+
+	try {
+		thisScriptManager->networkSetCameraPositionForFaction(luaArguments.getInt(-2), luaArguments.getVec2i(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::networkSetCameraPositionForTeam(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->networkSetCameraPositionForTeam(luaArguments.getInt(-2), luaArguments.getVec2i(-1));
+
+	try {
+		thisScriptManager->networkSetCameraPositionForTeam(luaArguments.getInt(-2), luaArguments.getVec2i(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 
 int ScriptManager::setDisplayText(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->setDisplayText(luaArguments.getString(-1));
+
+	try {
+		thisScriptManager->setDisplayText(luaArguments.getString(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::addConsoleText(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->addConsoleText(luaArguments.getString(-1));
+
+	try {
+		thisScriptManager->addConsoleText(luaArguments.getString(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::clearDisplayText(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->clearDisplayText();
+
+	try {
+		thisScriptManager->clearDisplayText();
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::setCameraPosition(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->setCameraPosition(Vec2i(luaArguments.getVec2i(-1)));
+
+	try {
+		thisScriptManager->setCameraPosition(Vec2i(luaArguments.getVec2i(-1)));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::createUnit(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-3).c_str(),luaArguments.getInt(-2));
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,luaArguments.getString(-3).c_str(),luaArguments.getInt(-2));
 
-	thisScriptManager->createUnit(
-		luaArguments.getString(-3),
-		luaArguments.getInt(-2),
-		luaArguments.getVec2i(-1));
+	try {
+		thisScriptManager->createUnit(
+			luaArguments.getString(-3),
+			luaArguments.getInt(-2),
+			luaArguments.getVec2i(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::createUnitNoSpacing(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-3).c_str(),luaArguments.getInt(-2));
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%s] factionIndex = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,luaArguments.getString(-3).c_str(),luaArguments.getInt(-2));
 
-	thisScriptManager->createUnitNoSpacing(
-		luaArguments.getString(-3),
-		luaArguments.getInt(-2),
-		luaArguments.getVec2i(-1));
+	try {
+		thisScriptManager->createUnitNoSpacing(
+			luaArguments.getString(-3),
+			luaArguments.getInt(-2),
+			luaArguments.getVec2i(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::destroyUnit(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getInt(-1));
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,luaArguments.getInt(-1));
 
-	thisScriptManager->destroyUnit(luaArguments.getInt(-1));
+	try {
+		thisScriptManager->destroyUnit(luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 int ScriptManager::giveKills(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getInt(-1));
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,luaArguments.getInt(-1));
 
-	thisScriptManager->giveKills(luaArguments.getInt(-2),luaArguments.getInt(-1));
+	try {
+		thisScriptManager->giveKills(luaArguments.getInt(-2),luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::morphToUnit(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] forceUpgrade = %d\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getInt(-3),luaArguments.getString(-2).c_str(),luaArguments.getInt(-1));
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] morphName [%s] forceUpgrade = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,luaArguments.getInt(-3),luaArguments.getString(-2).c_str(),luaArguments.getInt(-1));
 
-	thisScriptManager->morphToUnit(luaArguments.getInt(-3),luaArguments.getString(-2),luaArguments.getInt(-1));
+	try {
+		thisScriptManager->morphToUnit(luaArguments.getInt(-3),luaArguments.getString(-2),luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::moveToUnit(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] dest unit [%d]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getInt(-2),luaArguments.getInt(-1));
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d] dest unit [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,luaArguments.getInt(-2),luaArguments.getInt(-1));
 
-	thisScriptManager->moveToUnit(luaArguments.getInt(-2),luaArguments.getInt(-1));
+	try {
+		thisScriptManager->moveToUnit(luaArguments.getInt(-2),luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::playStaticSound(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
-	thisScriptManager->playStaticSound(luaArguments.getString(-1));
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
+
+	try {
+		thisScriptManager->playStaticSound(luaArguments.getString(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::playStreamingSound(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
-	thisScriptManager->playStreamingSound(luaArguments.getString(-1));
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
+
+	try {
+		thisScriptManager->playStreamingSound(luaArguments.getString(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::stopStreamingSound(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
-	thisScriptManager->stopStreamingSound(luaArguments.getString(-1));
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
+
+	try {
+		thisScriptManager->stopStreamingSound(luaArguments.getString(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::stopAllSound(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	thisScriptManager->stopAllSound();
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	try {
+		thisScriptManager->stopAllSound();
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
-
-
 int ScriptManager::playStaticVideo(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
-	thisScriptManager->playStaticVideo(luaArguments.getString(-1));
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
+
+	try {
+		thisScriptManager->playStaticVideo(luaArguments.getString(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::playStreamingVideo(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
-	thisScriptManager->playStreamingVideo(luaArguments.getString(-1));
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
+
+	try {
+		thisScriptManager->playStreamingVideo(luaArguments.getString(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::stopStreamingVideo(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
-	thisScriptManager->stopStreamingVideo(luaArguments.getString(-1));
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] sound [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,luaArguments.getString(-1).c_str());
+
+	try {
+		thisScriptManager->stopStreamingVideo(luaArguments.getString(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::stopAllVideo(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	thisScriptManager->stopAllVideo();
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	try {
+		thisScriptManager->stopAllVideo();
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
-
-
 int ScriptManager::togglePauseGame(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] value = %d\n",__FILE__,__FUNCTION__,__LINE__,luaArguments.getInt(-1));
-	thisScriptManager->togglePauseGame(luaArguments.getInt(-1));
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] value = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,luaArguments.getInt(-1));
+
+	try {
+		thisScriptManager->togglePauseGame(luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 int ScriptManager::giveResource(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->giveResource(luaArguments.getString(-3), luaArguments.getInt(-2), luaArguments.getInt(-1));
+	try {
+		thisScriptManager->giveResource(luaArguments.getString(-3), luaArguments.getInt(-2), luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::givePositionCommand(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->givePositionCommand(
-		luaArguments.getInt(-3),
-		luaArguments.getString(-2),
-		luaArguments.getVec2i(-1));
+	try {
+		thisScriptManager->givePositionCommand(
+			luaArguments.getInt(-3),
+			luaArguments.getString(-2),
+			luaArguments.getVec2i(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::giveAttackCommand(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->giveAttackCommand(
-		luaArguments.getInt(-2),
-		luaArguments.getInt(-1));
+	try {
+		thisScriptManager->giveAttackCommand(
+			luaArguments.getInt(-2),
+			luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::giveProductionCommand(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->giveProductionCommand(
-		luaArguments.getInt(-2),
-		luaArguments.getString(-1));
+	try {
+		thisScriptManager->giveProductionCommand(
+			luaArguments.getInt(-2),
+			luaArguments.getString(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::giveUpgradeCommand(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->giveUpgradeCommand(
-		luaArguments.getInt(-2),
-		luaArguments.getString(-1));
+	try {
+		thisScriptManager->giveUpgradeCommand(
+			luaArguments.getInt(-2),
+			luaArguments.getString(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::giveAttackStoppedCommand(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->giveAttackStoppedCommand(
-		luaArguments.getInt(-3),
-		luaArguments.getString(-2),
-		luaArguments.getInt(-1));
+	try {
+		thisScriptManager->giveAttackStoppedCommand(
+			luaArguments.getInt(-3),
+			luaArguments.getString(-2),
+			luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::disableAi(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->disableAi(luaArguments.getInt(-1));
+	try {
+		thisScriptManager->disableAi(luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::enableAi(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->enableAi(luaArguments.getInt(-1));
+	try {
+		thisScriptManager->enableAi(luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getAiEnabled(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	bool result = thisScriptManager->getAiEnabled(luaArguments.getInt(-1));
-	luaArguments.returnInt(result);
+	try {
+		bool result = thisScriptManager->getAiEnabled(luaArguments.getInt(-1));
+		luaArguments.returnInt(result);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::disableConsume(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->disableConsume(luaArguments.getInt(-1));
+	try {
+		thisScriptManager->disableConsume(luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::enableConsume(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->enableConsume(luaArguments.getInt(-1));
+	try {
+		thisScriptManager->enableConsume(luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getConsumeEnabled(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	bool result = thisScriptManager->getConsumeEnabled(luaArguments.getInt(-1));
-	luaArguments.returnInt(result);
+	try {
+		bool result = thisScriptManager->getConsumeEnabled(luaArguments.getInt(-1));
+		luaArguments.returnInt(result);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::registerCellTriggerEventForUnitToUnit(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	int result = thisScriptManager->registerCellTriggerEventForUnitToUnit(luaArguments.getInt(-2),luaArguments.getInt(-1));
-	luaArguments.returnInt(result);
+	try {
+		int result = thisScriptManager->registerCellTriggerEventForUnitToUnit(luaArguments.getInt(-2),luaArguments.getInt(-1));
+		luaArguments.returnInt(result);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::registerCellTriggerEventForUnitToLocation(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	int result = thisScriptManager->registerCellTriggerEventForUnitToLocation(luaArguments.getInt(-2),luaArguments.getVec2i(-1));
-	luaArguments.returnInt(result);
+	try {
+		int result = thisScriptManager->registerCellTriggerEventForUnitToLocation(luaArguments.getInt(-2),luaArguments.getVec2i(-1));
+		luaArguments.returnInt(result);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::registerCellAreaTriggerEventForUnitToLocation(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	int result = thisScriptManager->registerCellAreaTriggerEventForUnitToLocation(luaArguments.getInt(-2),luaArguments.getVec4i(-1));
-	luaArguments.returnInt(result);
+	try {
+		int result = thisScriptManager->registerCellAreaTriggerEventForUnitToLocation(luaArguments.getInt(-2),luaArguments.getVec4i(-1));
+		luaArguments.returnInt(result);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::registerCellTriggerEventForFactionToUnit(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	int result = thisScriptManager->registerCellTriggerEventForFactionToUnit(luaArguments.getInt(-2),luaArguments.getInt(-1));
-	luaArguments.returnInt(result);
+	try {
+		int result = thisScriptManager->registerCellTriggerEventForFactionToUnit(luaArguments.getInt(-2),luaArguments.getInt(-1));
+		luaArguments.returnInt(result);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::registerCellTriggerEventForFactionToLocation(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	int result = thisScriptManager->registerCellTriggerEventForFactionToLocation(luaArguments.getInt(-2),luaArguments.getVec2i(-1));
-	luaArguments.returnInt(result);
+	try {
+		int result = thisScriptManager->registerCellTriggerEventForFactionToLocation(luaArguments.getInt(-2),luaArguments.getVec2i(-1));
+		luaArguments.returnInt(result);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::registerCellAreaTriggerEventForFactionToLocation(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	int result = thisScriptManager->registerCellAreaTriggerEventForFactionToLocation(luaArguments.getInt(-2),luaArguments.getVec4i(-1));
-	luaArguments.returnInt(result);
+	try {
+		int result = thisScriptManager->registerCellAreaTriggerEventForFactionToLocation(luaArguments.getInt(-2),luaArguments.getVec4i(-1));
+		luaArguments.returnInt(result);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::registerCellAreaTriggerEvent(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	int result = thisScriptManager->registerCellAreaTriggerEvent(luaArguments.getVec4i(-1));
-	luaArguments.returnInt(result);
+	try {
+		int result = thisScriptManager->registerCellAreaTriggerEvent(luaArguments.getVec4i(-1));
+		luaArguments.returnInt(result);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getCellTriggerEventCount(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	int result = thisScriptManager->getCellTriggerEventCount(luaArguments.getInt(-1));
-	luaArguments.returnInt(result);
+	try {
+		int result = thisScriptManager->getCellTriggerEventCount(luaArguments.getInt(-1));
+		luaArguments.returnInt(result);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::unregisterCellTriggerEvent(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->unregisterCellTriggerEvent(luaArguments.getInt(-1));
+	try {
+		thisScriptManager->unregisterCellTriggerEvent(luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::startTimerEvent(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	int result = thisScriptManager->startTimerEvent();
-	luaArguments.returnInt(result);
+	try {
+		int result = thisScriptManager->startTimerEvent();
+		luaArguments.returnInt(result);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::startEfficientTimerEvent(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	int result = thisScriptManager->startEfficientTimerEvent(luaArguments.getInt(-1));
-	luaArguments.returnInt(result);
+	try {
+		int result = thisScriptManager->startEfficientTimerEvent(luaArguments.getInt(-1));
+		luaArguments.returnInt(result);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::stopTimerEvent(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	int result = thisScriptManager->stopTimerEvent(luaArguments.getInt(-1));
-	luaArguments.returnInt(result);
+	try {
+		int result = thisScriptManager->stopTimerEvent(luaArguments.getInt(-1));
+		luaArguments.returnInt(result);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::resetTimerEvent(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	int result = thisScriptManager->resetTimerEvent(luaArguments.getInt(-1));
-	luaArguments.returnInt(result);
+	try {
+		int result = thisScriptManager->resetTimerEvent(luaArguments.getInt(-1));
+		luaArguments.returnInt(result);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getTimerEventSecondsElapsed(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	int result = thisScriptManager->getTimerEventSecondsElapsed(luaArguments.getInt(-1));
-	luaArguments.returnInt(result);
+	try {
+		int result = thisScriptManager->getTimerEventSecondsElapsed(luaArguments.getInt(-1));
+		luaArguments.returnInt(result);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::setPlayerAsWinner(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->setPlayerAsWinner(luaArguments.getInt(-1));
+	try {
+		thisScriptManager->setPlayerAsWinner(luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::endGame(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->endGame();
+	try {
+		thisScriptManager->endGame();
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::startPerformanceTimer(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->startPerformanceTimer();
+	try {
+		thisScriptManager->startPerformanceTimer();
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::endPerformanceTimer(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->endPerformanceTimer();
+	try {
+		thisScriptManager->endPerformanceTimer();
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getPerformanceTimerResults(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	Vec2i results= thisScriptManager->getPerformanceTimerResults();
-	luaArguments.returnVec2i(results);
+	try {
+		Vec2i results= thisScriptManager->getPerformanceTimerResults();
+		luaArguments.returnVec2i(results);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getStartLocation(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	Vec2i pos= thisScriptManager->getStartLocation(luaArguments.getInt(-1));
-	luaArguments.returnVec2i(pos);
+	try {
+		Vec2i pos= thisScriptManager->getStartLocation(luaArguments.getInt(-1));
+		luaArguments.returnVec2i(pos);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getUnitPosition(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	Vec2i pos= thisScriptManager->getUnitPosition(luaArguments.getInt(-1));
-	luaArguments.returnVec2i(pos);
+	try {
+		Vec2i pos= thisScriptManager->getUnitPosition(luaArguments.getInt(-1));
+		luaArguments.returnVec2i(pos);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::setUnitPosition(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->setUnitPosition(luaArguments.getInt(-2),luaArguments.getVec2i(-1));
+	try {
+		thisScriptManager->setUnitPosition(luaArguments.getInt(-2),luaArguments.getVec2i(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::addCellMarker(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 
-	//printf("LUA addCellMarker --> START\n");
+	try {
+		//printf("LUA addCellMarker --> START\n");
 
-	int factionIndex = luaArguments.getInt(-4);
+		int factionIndex = luaArguments.getInt(-4);
 
-	//printf("LUA addCellMarker --> START 1\n");
+		//printf("LUA addCellMarker --> START 1\n");
 
-	Vec2i pos = luaArguments.getVec2i(-1);
+		Vec2i pos = luaArguments.getVec2i(-1);
 
-	//printf("LUA addCellMarker --> START 2\n");
+		//printf("LUA addCellMarker --> START 2\n");
 
-	string note = luaArguments.getString(-3);
+		string note = luaArguments.getString(-3);
 
-	//printf("LUA addCellMarker --> START 3\n");
+		//printf("LUA addCellMarker --> START 3\n");
 
-	string texture = luaArguments.getString(-2);
+		string texture = luaArguments.getString(-2);
 
-	//printf("LUA addCellMarker --> faction [%d] pos [%s] note [%s] texture [%s]\n",factionIndex,pos.getString().c_str(),note.c_str(),texture.c_str());
+		//printf("LUA addCellMarker --> faction [%d] pos [%s] note [%s] texture [%s]\n",factionIndex,pos.getString().c_str(),note.c_str(),texture.c_str());
 
-	thisScriptManager->addCellMarker(pos,factionIndex,note,texture);
+		thisScriptManager->addCellMarker(pos,factionIndex,note,texture);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::removeCellMarker(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 
-	int factionIndex = luaArguments.getInt(-2);
-	Vec2i pos = luaArguments.getVec2i(-1);
+	try {
+		int factionIndex = luaArguments.getInt(-2);
+		Vec2i pos = luaArguments.getVec2i(-1);
 
-	thisScriptManager->removeCellMarker(pos,factionIndex);
+		thisScriptManager->removeCellMarker(pos,factionIndex);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::showMarker(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 
-	int flashCount = luaArguments.getInt(-5);
-	//printf("LUA addCellMarker --> START\n");
+	try {
+		int flashCount = luaArguments.getInt(-5);
+		//printf("LUA addCellMarker --> START\n");
 
-	int factionIndex = luaArguments.getInt(-4);
+		int factionIndex = luaArguments.getInt(-4);
 
-	//printf("LUA addCellMarker --> START 1\n");
+		//printf("LUA addCellMarker --> START 1\n");
 
-	Vec2i pos = luaArguments.getVec2i(-1);
+		Vec2i pos = luaArguments.getVec2i(-1);
 
-	//printf("LUA addCellMarker --> START 2\n");
+		//printf("LUA addCellMarker --> START 2\n");
 
-	string note = luaArguments.getString(-3);
+		string note = luaArguments.getString(-3);
 
-	//printf("LUA addCellMarker --> START 3\n");
+		//printf("LUA addCellMarker --> START 3\n");
 
-	string texture = luaArguments.getString(-2);
+		string texture = luaArguments.getString(-2);
 
-	//printf("LUA addCellMarker --> faction [%d] pos [%s] note [%s] texture [%s]\n",factionIndex,pos.getString().c_str(),note.c_str(),texture.c_str());
+		//printf("LUA addCellMarker --> faction [%d] pos [%s] note [%s] texture [%s]\n",factionIndex,pos.getString().c_str(),note.c_str(),texture.c_str());
 
-	thisScriptManager->showMarker(pos,factionIndex,note,texture,flashCount);
+		thisScriptManager->showMarker(pos,factionIndex,note,texture,flashCount);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getUnitFaction(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	int factionIndex= thisScriptManager->getUnitFaction(luaArguments.getInt(-1));
-	luaArguments.returnInt(factionIndex);
+	try {
+		int factionIndex= thisScriptManager->getUnitFaction(luaArguments.getInt(-1));
+		luaArguments.returnInt(factionIndex);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 int ScriptManager::getUnitName(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	const string unitname = thisScriptManager->getUnitName(luaArguments.getInt(-1));
-	luaArguments.returnString(unitname);
+	try {
+		const string unitname = thisScriptManager->getUnitName(luaArguments.getInt(-1));
+		luaArguments.returnString(unitname);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getResourceAmount(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getResourceAmount(luaArguments.getString(-2), luaArguments.getInt(-1)));
+	try {
+		luaArguments.returnInt(thisScriptManager->getResourceAmount(luaArguments.getString(-2), luaArguments.getInt(-1)));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getLastCreatedUnitName(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnString(thisScriptManager->getLastCreatedUnitName());
+	try {
+		luaArguments.returnString(thisScriptManager->getLastCreatedUnitName());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getLastCreatedUnitId(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getLastCreatedUnitId());
+	try {
+		luaArguments.returnInt(thisScriptManager->getLastCreatedUnitId());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getCellTriggeredEventId(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getCellTriggeredEventId());
+	try {
+		luaArguments.returnInt(thisScriptManager->getCellTriggeredEventId());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getTimerTriggeredEventId(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getTimerTriggeredEventId());
+	try {
+		luaArguments.returnInt(thisScriptManager->getTimerTriggeredEventId());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getCellTriggeredEventAreaEntryUnitId(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getCellTriggeredEventAreaEntryUnitId());
+	try {
+		luaArguments.returnInt(thisScriptManager->getCellTriggeredEventAreaEntryUnitId());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getCellTriggeredEventAreaExitUnitId(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getCellTriggeredEventAreaExitUnitId());
+	try {
+		luaArguments.returnInt(thisScriptManager->getCellTriggeredEventAreaExitUnitId());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getCellTriggeredEventUnitId(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getCellTriggeredEventUnitId());
+	try {
+		luaArguments.returnInt(thisScriptManager->getCellTriggeredEventUnitId());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::setRandomGenInit(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->setRandomGenInit(luaArguments.getInt(-1));
+	try {
+		thisScriptManager->setRandomGenInit(luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getRandomGen(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getRandomGen(luaArguments.getInt(-2),luaArguments.getInt(-1)));
+	try {
+		luaArguments.returnInt(thisScriptManager->getRandomGen(luaArguments.getInt(-2),luaArguments.getInt(-1)));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getWorldFrameCount(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getWorldFrameCount());
+	try {
+		luaArguments.returnInt(thisScriptManager->getWorldFrameCount());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getLastDeadUnitName(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnString(thisScriptManager->getLastDeadUnitName());
+	try {
+		luaArguments.returnString(thisScriptManager->getLastDeadUnitName());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getLastDeadUnitId(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getLastDeadUnitId());
+	try {
+		luaArguments.returnInt(thisScriptManager->getLastDeadUnitId());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getLastDeadUnitCauseOfDeath(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getLastDeadUnitCauseOfDeath());
+	try {
+		luaArguments.returnInt(thisScriptManager->getLastDeadUnitCauseOfDeath());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getLastDeadUnitKillerName(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnString(thisScriptManager->getLastDeadUnitKillerName());
+	try {
+		luaArguments.returnString(thisScriptManager->getLastDeadUnitKillerName());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getLastDeadUnitKillerId(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getLastDeadUnitKillerId());
+	try {
+		luaArguments.returnInt(thisScriptManager->getLastDeadUnitKillerId());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getLastAttackedUnitName(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnString(thisScriptManager->getLastAttackedUnitName());
+	try {
+		luaArguments.returnString(thisScriptManager->getLastAttackedUnitName());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getLastAttackedUnitId(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getLastAttackedUnitId());
+	try {
+		luaArguments.returnInt(thisScriptManager->getLastAttackedUnitId());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getLastAttackingUnitName(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnString(thisScriptManager->getLastAttackingUnitName());
+	try {
+		luaArguments.returnString(thisScriptManager->getLastAttackingUnitName());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getLastAttackingUnitId(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getLastAttackingUnitId());
+	try {
+		luaArguments.returnInt(thisScriptManager->getLastAttackingUnitId());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getSystemMacroValue(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnString(thisScriptManager->getSystemMacroValue(luaArguments.getString(-1)));
+	try {
+		luaArguments.returnString(thisScriptManager->getSystemMacroValue(luaArguments.getString(-1)));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::scenarioDir(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnString(thisScriptManager->getSystemMacroValue("$SCENARIO_PATH"));
+	try {
+		luaArguments.returnString(thisScriptManager->getSystemMacroValue("$SCENARIO_PATH"));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getPlayerName(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnString(thisScriptManager->getPlayerName(luaArguments.getInt(-1)));
+	try {
+		luaArguments.returnString(thisScriptManager->getPlayerName(luaArguments.getInt(-1)));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getUnitCount(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getUnitCount(luaArguments.getInt(-1)));
+	try {
+		luaArguments.returnInt(thisScriptManager->getUnitCount(luaArguments.getInt(-1)));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getUnitCountOfType(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getUnitCountOfType(luaArguments.getInt(-2), luaArguments.getString(-1)));
+	try {
+		luaArguments.returnInt(thisScriptManager->getUnitCountOfType(luaArguments.getInt(-2), luaArguments.getString(-1)));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::DisplayFormattedText(LuaHandle* luaHandle) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	  //const char *ret;
-	  //lua_lock(luaHandle);
-	  //luaC_checkGC(luaHandle);
+	try {
+		//const char *ret;
+		//lua_lock(luaHandle);
+		//luaC_checkGC(luaHandle);
 
-	  int args = lua_gettop(luaHandle);
-	  if(lua_checkstack(luaHandle, args+1)) {
-		LuaArguments luaArguments(luaHandle);
-		string fmt = luaArguments.getString(-args);
-	    //va_list argList;
-	    //va_start(argList, fmt.c_str() );
+		int args = lua_gettop(luaHandle);
+		if(lua_checkstack(luaHandle, args+1)) {
+			LuaArguments luaArguments(luaHandle);
+			string fmt = luaArguments.getString(-args);
+			//va_list argList;
+			//va_start(argList, fmt.c_str() );
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"DisplayFormattedText args = %d!\n",args);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"DisplayFormattedText args = %d!\n",args);
 
-		const int max_args_allowed = 8;
-		if(args == 1) {
-			thisScriptManager->DisplayFormattedText(fmt.c_str());
-		}
-		else if(args == 2) {
-			thisScriptManager->DisplayFormattedText(fmt.c_str(),
-					luaArguments.getGenericData(-args+1));
-		}
-		else if(args == 3) {
-			thisScriptManager->DisplayFormattedText(fmt.c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2));
-		}
-		else if(args == 4) {
-			thisScriptManager->DisplayFormattedText(fmt.c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2),
-					luaArguments.getGenericData(-args+3));
-		}
-		else if(args == 5) {
-			thisScriptManager->DisplayFormattedText(fmt.c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2),
-					luaArguments.getGenericData(-args+3),
-					luaArguments.getGenericData(-args+4));
-		}
-		else if(args == 6) {
-			thisScriptManager->DisplayFormattedText(fmt.c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2),
-					luaArguments.getGenericData(-args+3),
-					luaArguments.getGenericData(-args+4),
-					luaArguments.getGenericData(-args+5));
-		}
-		else if(args == 7) {
-			thisScriptManager->DisplayFormattedText(fmt.c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2),
-					luaArguments.getGenericData(-args+3),
-					luaArguments.getGenericData(-args+4),
-					luaArguments.getGenericData(-args+5),
-					luaArguments.getGenericData(-args+6));
-		}
-		else if(args == max_args_allowed) {
-			thisScriptManager->DisplayFormattedText(fmt.c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2),
-					luaArguments.getGenericData(-args+3),
-					luaArguments.getGenericData(-args+4),
-					luaArguments.getGenericData(-args+5),
-					luaArguments.getGenericData(-args+6),
-					luaArguments.getGenericData(-args+7));
-		}
-		else {
-			char szBuf[8096]="";
-			snprintf(szBuf,8096,"Invalid parameter count in method [%s] args = %d [argument count must be between 1 and %d]",__FUNCTION__,args,max_args_allowed);
-			throw megaglest_runtime_error(szBuf);
-		}
+			const int max_args_allowed = 8;
+			if(args == 1) {
+				thisScriptManager->DisplayFormattedText(fmt.c_str());
+			}
+			else if(args == 2) {
+				thisScriptManager->DisplayFormattedText(fmt.c_str(),
+						luaArguments.getGenericData(-args+1));
+			}
+			else if(args == 3) {
+				thisScriptManager->DisplayFormattedText(fmt.c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2));
+			}
+			else if(args == 4) {
+				thisScriptManager->DisplayFormattedText(fmt.c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2),
+						luaArguments.getGenericData(-args+3));
+			}
+			else if(args == 5) {
+				thisScriptManager->DisplayFormattedText(fmt.c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2),
+						luaArguments.getGenericData(-args+3),
+						luaArguments.getGenericData(-args+4));
+			}
+			else if(args == 6) {
+				thisScriptManager->DisplayFormattedText(fmt.c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2),
+						luaArguments.getGenericData(-args+3),
+						luaArguments.getGenericData(-args+4),
+						luaArguments.getGenericData(-args+5));
+			}
+			else if(args == 7) {
+				thisScriptManager->DisplayFormattedText(fmt.c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2),
+						luaArguments.getGenericData(-args+3),
+						luaArguments.getGenericData(-args+4),
+						luaArguments.getGenericData(-args+5),
+						luaArguments.getGenericData(-args+6));
+			}
+			else if(args == max_args_allowed) {
+				thisScriptManager->DisplayFormattedText(fmt.c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2),
+						luaArguments.getGenericData(-args+3),
+						luaArguments.getGenericData(-args+4),
+						luaArguments.getGenericData(-args+5),
+						luaArguments.getGenericData(-args+6),
+						luaArguments.getGenericData(-args+7));
+			}
+			else {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"Invalid parameter count in method [%s] args = %d [argument count must be between 1 and %d]",__FUNCTION__,args,max_args_allowed);
+				throw megaglest_runtime_error(szBuf);
+			}
 
-	    //va_end(argList);
-  	  }
-	  //lua_unlock(luaHandle);
-	  return 1;
+			//va_end(argList);
+		}
+		//lua_unlock(luaHandle);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
+	return 1;
 
 /*
 	int args=lua_gettop(luaHandle);
@@ -2703,370 +3952,862 @@ int ScriptManager::DisplayFormattedText(LuaHandle* luaHandle) {
 		return 0;
 */
 }
+
 int ScriptManager::addConsoleLangText(LuaHandle* luaHandle){
-if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	  //const char *ret;
-	  //lua_lock(luaHandle);
-	  //luaC_checkGC(luaHandle);
+	try {
+		//const char *ret;
+		//lua_lock(luaHandle);
+		//luaC_checkGC(luaHandle);
 
-	  int args = lua_gettop(luaHandle);
-	  if(lua_checkstack(luaHandle, args+1)) {
-		LuaArguments luaArguments(luaHandle);
-		string fmt = luaArguments.getString(-args);
-	    //va_list argList;
-	    //va_start(argList, fmt.c_str() );
+		int args = lua_gettop(luaHandle);
+		if(lua_checkstack(luaHandle, args+1)) {
+			LuaArguments luaArguments(luaHandle);
+			string fmt = luaArguments.getString(-args);
+			//va_list argList;
+			//va_start(argList, fmt.c_str() );
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"DisplayFormattedText args = %d!\n",args);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"DisplayFormattedText args = %d!\n",args);
 
-		const int max_args_allowed = 8;
-		if(args == 1) {
-			thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str());
-		}
-		else if(args == 2) {
-			thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
-					luaArguments.getGenericData(-args+1));
-		}
-		else if(args == 3) {
-			thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2));
-		}
-		else if(args == 4) {
-			thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2),
-					luaArguments.getGenericData(-args+3));
-		}
-		else if(args == 5) {
-			thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2),
-					luaArguments.getGenericData(-args+3),
-					luaArguments.getGenericData(-args+4));
-		}
-		else if(args == 6) {
-			thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2),
-					luaArguments.getGenericData(-args+3),
-					luaArguments.getGenericData(-args+4),
-					luaArguments.getGenericData(-args+5));
-		}
-		else if(args == 7) {
-			thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2),
-					luaArguments.getGenericData(-args+3),
-					luaArguments.getGenericData(-args+4),
-					luaArguments.getGenericData(-args+5),
-					luaArguments.getGenericData(-args+6));
-		}
-		else if(args == max_args_allowed) {
-			thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2),
-					luaArguments.getGenericData(-args+3),
-					luaArguments.getGenericData(-args+4),
-					luaArguments.getGenericData(-args+5),
-					luaArguments.getGenericData(-args+6),
-					luaArguments.getGenericData(-args+7));
-		}
-		else {
-			char szBuf[8096]="";
-			snprintf(szBuf,8096,"Invalid parameter count in method [%s] args = %d [argument count must be between 1 and %d]",__FUNCTION__,args,max_args_allowed);
-			throw megaglest_runtime_error(szBuf);
-		}
+			const int max_args_allowed = 8;
+			if(args == 1) {
+				thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str());
+			}
+			else if(args == 2) {
+				thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+						luaArguments.getGenericData(-args+1));
+			}
+			else if(args == 3) {
+				thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2));
+			}
+			else if(args == 4) {
+				thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2),
+						luaArguments.getGenericData(-args+3));
+			}
+			else if(args == 5) {
+				thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2),
+						luaArguments.getGenericData(-args+3),
+						luaArguments.getGenericData(-args+4));
+			}
+			else if(args == 6) {
+				thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2),
+						luaArguments.getGenericData(-args+3),
+						luaArguments.getGenericData(-args+4),
+						luaArguments.getGenericData(-args+5));
+			}
+			else if(args == 7) {
+				thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2),
+						luaArguments.getGenericData(-args+3),
+						luaArguments.getGenericData(-args+4),
+						luaArguments.getGenericData(-args+5),
+						luaArguments.getGenericData(-args+6));
+			}
+			else if(args == max_args_allowed) {
+				thisScriptManager->addConsoleLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2),
+						luaArguments.getGenericData(-args+3),
+						luaArguments.getGenericData(-args+4),
+						luaArguments.getGenericData(-args+5),
+						luaArguments.getGenericData(-args+6),
+						luaArguments.getGenericData(-args+7));
+			}
+			else {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"Invalid parameter count in method [%s] args = %d [argument count must be between 1 and %d]",__FUNCTION__,args,max_args_allowed);
+				throw megaglest_runtime_error(szBuf);
+			}
 
-	    //va_end(argList);
-  	  }
-	  //lua_unlock(luaHandle);
-	  return 1;
+			//va_end(argList);
+		}
+		//lua_unlock(luaHandle);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
 
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
+	return 1;
 }
+
 int ScriptManager::DisplayFormattedLangText(LuaHandle* luaHandle) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	  //const char *ret;
-	  //lua_lock(luaHandle);
-	  //luaC_checkGC(luaHandle);
+	try {
+		//const char *ret;
+		//lua_lock(luaHandle);
+		//luaC_checkGC(luaHandle);
 
-	  int args = lua_gettop(luaHandle);
-	  if(lua_checkstack(luaHandle, args+1)) {
-		LuaArguments luaArguments(luaHandle);
-		string fmt = luaArguments.getString(-args);
-	    //va_list argList;
-	    //va_start(argList, fmt.c_str() );
+		int args = lua_gettop(luaHandle);
+		if(lua_checkstack(luaHandle, args+1)) {
+			LuaArguments luaArguments(luaHandle);
+			string fmt = luaArguments.getString(-args);
+			//va_list argList;
+			//va_start(argList, fmt.c_str() );
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"DisplayFormattedText args = %d!\n",args);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"DisplayFormattedText args = %d!\n",args);
 
-		const int max_args_allowed = 8;
-		if(args == 1) {
-			thisScriptManager->DisplayFormattedLangText(Lang::getInstance().getScenarioString(fmt).c_str());
-		}
-		else if(args == 2) {
-			thisScriptManager->DisplayFormattedLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
-					luaArguments.getGenericData(-args+1));
-		}
-		else if(args == 3) {
-			thisScriptManager->DisplayFormattedLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2));
-		}
-		else if(args == 4) {
-			thisScriptManager->DisplayFormattedLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2),
-					luaArguments.getGenericData(-args+3));
-		}
-		else if(args == 5) {
-			thisScriptManager->DisplayFormattedLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2),
-					luaArguments.getGenericData(-args+3),
-					luaArguments.getGenericData(-args+4));
-		}
-		else if(args == 6) {
-			thisScriptManager->DisplayFormattedLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2),
-					luaArguments.getGenericData(-args+3),
-					luaArguments.getGenericData(-args+4),
-					luaArguments.getGenericData(-args+5));
-		}
-		else if(args == 7) {
-			thisScriptManager->DisplayFormattedLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2),
-					luaArguments.getGenericData(-args+3),
-					luaArguments.getGenericData(-args+4),
-					luaArguments.getGenericData(-args+5),
-					luaArguments.getGenericData(-args+6));
-		}
-		else if(args == max_args_allowed) {
-			thisScriptManager->DisplayFormattedLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
-					luaArguments.getGenericData(-args+1),
-					luaArguments.getGenericData(-args+2),
-					luaArguments.getGenericData(-args+3),
-					luaArguments.getGenericData(-args+4),
-					luaArguments.getGenericData(-args+5),
-					luaArguments.getGenericData(-args+6),
-					luaArguments.getGenericData(-args+7));
-		}
-		else {
-			char szBuf[8096]="";
-			snprintf(szBuf,8096,"Invalid parameter count in method [%s] args = %d [argument count must be between 1 and %d]",__FUNCTION__,args,max_args_allowed);
-			throw megaglest_runtime_error(szBuf);
-		}
+			const int max_args_allowed = 8;
+			if(args == 1) {
+				thisScriptManager->DisplayFormattedLangText(Lang::getInstance().getScenarioString(fmt).c_str());
+			}
+			else if(args == 2) {
+				thisScriptManager->DisplayFormattedLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+						luaArguments.getGenericData(-args+1));
+			}
+			else if(args == 3) {
+				thisScriptManager->DisplayFormattedLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2));
+			}
+			else if(args == 4) {
+				thisScriptManager->DisplayFormattedLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2),
+						luaArguments.getGenericData(-args+3));
+			}
+			else if(args == 5) {
+				thisScriptManager->DisplayFormattedLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2),
+						luaArguments.getGenericData(-args+3),
+						luaArguments.getGenericData(-args+4));
+			}
+			else if(args == 6) {
+				thisScriptManager->DisplayFormattedLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2),
+						luaArguments.getGenericData(-args+3),
+						luaArguments.getGenericData(-args+4),
+						luaArguments.getGenericData(-args+5));
+			}
+			else if(args == 7) {
+				thisScriptManager->DisplayFormattedLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2),
+						luaArguments.getGenericData(-args+3),
+						luaArguments.getGenericData(-args+4),
+						luaArguments.getGenericData(-args+5),
+						luaArguments.getGenericData(-args+6));
+			}
+			else if(args == max_args_allowed) {
+				thisScriptManager->DisplayFormattedLangText(Lang::getInstance().getScenarioString(fmt).c_str(),
+						luaArguments.getGenericData(-args+1),
+						luaArguments.getGenericData(-args+2),
+						luaArguments.getGenericData(-args+3),
+						luaArguments.getGenericData(-args+4),
+						luaArguments.getGenericData(-args+5),
+						luaArguments.getGenericData(-args+6),
+						luaArguments.getGenericData(-args+7));
+			}
+			else {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"Invalid parameter count in method [%s] args = %d [argument count must be between 1 and %d]",__FUNCTION__,args,max_args_allowed);
+				throw megaglest_runtime_error(szBuf);
+			}
 
-	    //va_end(argList);
-  	  }
-	  //lua_unlock(luaHandle);
-	  return 1;
+			//va_end(argList);
+		}
+		//lua_unlock(luaHandle);
 
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
+	return 1;
 }
+
 int ScriptManager::getGameWon(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getGameWon());
+	try {
+		luaArguments.returnInt(thisScriptManager->getGameWon());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getIsGameOver(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getIsGameOver());
+	try {
+		luaArguments.returnInt(thisScriptManager->getIsGameOver());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::loadScenario(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->loadScenario(luaArguments.getString(-2),luaArguments.getInt(-1) != 0);
+	try {
+		thisScriptManager->loadScenario(luaArguments.getString(-2),luaArguments.getInt(-1) != 0);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getUnitsForFaction(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	vector<int> units= thisScriptManager->getUnitsForFaction(luaArguments.getInt(-3),luaArguments.getString(-2), luaArguments.getInt(-1));
-	luaArguments.returnVectorInt(units);
+	try {
+		vector<int> units= thisScriptManager->getUnitsForFaction(luaArguments.getInt(-3),luaArguments.getString(-2), luaArguments.getInt(-1));
+		luaArguments.returnVectorInt(units);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 
 }
 
 int ScriptManager::getUnitCurrentField(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getUnitCurrentField(luaArguments.getInt(-1)));
+	try {
+		luaArguments.returnInt(thisScriptManager->getUnitCurrentField(luaArguments.getInt(-1)));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getIsUnitAlive(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getIsUnitAlive(luaArguments.getInt(-1)));
+	try {
+		luaArguments.returnInt(thisScriptManager->getIsUnitAlive(luaArguments.getInt(-1)));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::isFreeCellsOrHasUnit(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 
-	int result= thisScriptManager->isFreeCellsOrHasUnit(
-			luaArguments.getInt(-3),
-			luaArguments.getInt(-2),
-			luaArguments.getVec2i(-1));
+	try {
+		int result= thisScriptManager->isFreeCellsOrHasUnit(
+				luaArguments.getInt(-3),
+				luaArguments.getInt(-2),
+				luaArguments.getVec2i(-1));
 
-	luaArguments.returnInt(result);
+		luaArguments.returnInt(result);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::isFreeCells(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
 
-	int result= thisScriptManager->isFreeCells(
-			luaArguments.getInt(-3),
-			luaArguments.getInt(-2),
-			luaArguments.getVec2i(-1));
+	try {
+		int result= thisScriptManager->isFreeCells(
+				luaArguments.getInt(-3),
+				luaArguments.getInt(-2),
+				luaArguments.getVec2i(-1));
 
-	luaArguments.returnInt(result);
+		luaArguments.returnInt(result);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getHumanFactionId(LuaHandle* luaHandle) {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getHumanFactionId());
+	try {
+		luaArguments.returnInt(thisScriptManager->getHumanFactionId());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::highlightUnit(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->highlightUnit(luaArguments.getInt(-4), luaArguments.getFloat(-3), luaArguments.getFloat(-2), luaArguments.getVec4f(-1));
+	try {
+		thisScriptManager->highlightUnit(luaArguments.getInt(-4), luaArguments.getFloat(-3), luaArguments.getFloat(-2), luaArguments.getVec4f(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::unhighlightUnit(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->unhighlightUnit(luaArguments.getInt(-1));
+	try {
+		thisScriptManager->unhighlightUnit(luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::giveStopCommand(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->giveStopCommand(luaArguments.getInt(-1));
+	try {
+		thisScriptManager->giveStopCommand(luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::selectUnit(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->selectUnit(luaArguments.getInt(-1)));
+	try {
+		luaArguments.returnInt(thisScriptManager->selectUnit(luaArguments.getInt(-1)));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::unselectUnit(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->unselectUnit(luaArguments.getInt(-1));
+	try {
+		thisScriptManager->unselectUnit(luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::addUnitToGroupSelection(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->addUnitToGroupSelection(luaArguments.getInt(-2),luaArguments.getInt(-1));
+	try {
+		thisScriptManager->addUnitToGroupSelection(luaArguments.getInt(-2),luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::recallGroupSelection(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->recallGroupSelection(luaArguments.getInt(-1));
+	try {
+		thisScriptManager->recallGroupSelection(luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::removeUnitFromGroupSelection(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->removeUnitFromGroupSelection(luaArguments.getInt(-2),luaArguments.getInt(-1));
+	try {
+		thisScriptManager->removeUnitFromGroupSelection(luaArguments.getInt(-2),luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::setAttackWarningsEnabled(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->setAttackWarningsEnabled((luaArguments.getInt(-1) == 0 ? false : true));
+	try {
+		thisScriptManager->setAttackWarningsEnabled((luaArguments.getInt(-1) == 0 ? false : true));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 int ScriptManager::getAttackWarningsEnabled(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getAttackWarningsEnabled());
+	try {
+		luaArguments.returnInt(thisScriptManager->getAttackWarningsEnabled());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getIsDayTime(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getIsDayTime());
+	try {
+		luaArguments.returnInt(thisScriptManager->getIsDayTime());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 int ScriptManager::getIsNightTime(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getIsNightTime());
+	try {
+		luaArguments.returnInt(thisScriptManager->getIsNightTime());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 int ScriptManager::getTimeOfDay(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnFloat(thisScriptManager->getTimeOfDay());
+	try {
+		luaArguments.returnFloat(thisScriptManager->getTimeOfDay());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::registerDayNightEvent(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->registerDayNightEvent();
+	try {
+		thisScriptManager->registerDayNightEvent();
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 int ScriptManager::unregisterDayNightEvent(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->unregisterDayNightEvent();
+	try {
+		thisScriptManager->unregisterDayNightEvent();
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::registerUnitTriggerEvent(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->registerUnitTriggerEvent(luaArguments.getInt(-1));
+	try {
+		thisScriptManager->registerUnitTriggerEvent(luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 int ScriptManager::unregisterUnitTriggerEvent(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->unregisterUnitTriggerEvent(luaArguments.getInt(-1));
+	try {
+		thisScriptManager->unregisterUnitTriggerEvent(luaArguments.getInt(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 int ScriptManager::getLastUnitTriggerEventUnitId(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getLastUnitTriggerEventUnitId());
+	try {
+		luaArguments.returnInt(thisScriptManager->getLastUnitTriggerEventUnitId());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 int ScriptManager::getLastUnitTriggerEventType(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(static_cast<int>(thisScriptManager->getLastUnitTriggerEventType()));
+	try {
+		luaArguments.returnInt(static_cast<int>(thisScriptManager->getLastUnitTriggerEventType()));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::getUnitProperty(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	int value = thisScriptManager->getUnitProperty(luaArguments.getInt(-2),static_cast<UnitTriggerEventType>(luaArguments.getInt(-1)));
-	luaArguments.returnInt(value);
+	try {
+		int value = thisScriptManager->getUnitProperty(luaArguments.getInt(-2),static_cast<UnitTriggerEventType>(luaArguments.getInt(-1)));
+		luaArguments.returnInt(value);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 int ScriptManager::getUnitPropertyName(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	const string unitname = thisScriptManager->getUnitPropertyName(luaArguments.getInt(-2),static_cast<UnitTriggerEventType>(luaArguments.getInt(-1)));
-	luaArguments.returnString(unitname);
+	try {
+		const string unitname = thisScriptManager->getUnitPropertyName(luaArguments.getInt(-2),static_cast<UnitTriggerEventType>(luaArguments.getInt(-1)));
+		luaArguments.returnString(unitname);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 
 int ScriptManager::disableSpeedChange(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->disableSpeedChange();
+	try {
+		thisScriptManager->disableSpeedChange();
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 int ScriptManager::enableSpeedChange(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	thisScriptManager->enableSpeedChange();
+	try {
+		thisScriptManager->enableSpeedChange();
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 int ScriptManager::getSpeedChangeEnabled(LuaHandle* luaHandle) {
 	LuaArguments luaArguments(luaHandle);
-	luaArguments.returnInt(thisScriptManager->getSpeedChangeEnabled());
+	try {
+		luaArguments.returnInt(thisScriptManager->getSpeedChangeEnabled());
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error"));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
 	return luaArguments.getReturnCount();
 }
 

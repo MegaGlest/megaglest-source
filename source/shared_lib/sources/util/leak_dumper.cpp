@@ -63,7 +63,7 @@ void AllocRegistry::dump(const char *path) {
 	fprintf(f, "Total allocations: %d, " MG_SIZE_T_SPECIFIER " bytes\n", allocCount, allocBytes);
 	fprintf(f, "Not monitored allocations: %d, " MG_SIZE_T_SPECIFIER " bytes\n", nonMonitoredCount, nonMonitoredBytes);
 
-	fclose(f);
+	if(f) fclose(f);
 
 	printf("Memory leak dump summary at: %s\n",szBuf2);
 	printf("Total leaks: %d, " MG_SIZE_T_SPECIFIER " bytes\n", leakCount, leakBytes);
