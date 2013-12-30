@@ -294,7 +294,7 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 			break;
 		case LUA_TTABLE:
 			{
-			if(LuaScript::debugModeEnabled == true) printf("LUA TABLE DETECTED - START\n");
+			if(LuaScript::debugModeEnabled == true) printf("================ LUA TABLE DETECTED - START =================\n");
 			for (lua_pushnil(L); lua_next(L, -2) ;) {
 				if(LuaScript::debugModeEnabled == true) printf("LUA TABLE loop A\n");
 
@@ -363,6 +363,7 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 					lua_pop(L, 1);
 				}
 			}
+			if(LuaScript::debugModeEnabled == true) printf("---------------------------- LUA TABLE DETECTED - END ----------------------------\n");
 			}
 			break;
 		}
@@ -429,20 +430,25 @@ void LuaScript::loadGame(const XmlNode *rootNode) {
 		string variable = node->getAttribute("variable")->getValue();
 		int value_type = node->getAttribute("value_type")->getIntValue();
 
-		if(LuaScript::debugModeEnabled) printf("i: %d [%s] [%d]\n",i,variable.c_str(),value_type);
+		if(LuaScript::debugModeEnabled) printf("  index #: %d [%s] [%d]\n",i,variable.c_str(),value_type);
 
 		switch (value_type) {
 			case LUA_TSTRING:
+				if(LuaScript::debugModeEnabled) printf("  value [%s]\n",node->getAttribute("value")->getValue().c_str());
 				lua_pushstring( luaState, node->getAttribute("value")->getValue().c_str() );
 				break;
 			case LUA_TNUMBER:
+				if(LuaScript::debugModeEnabled) printf("  value [%s]\n",node->getAttribute("value")->getValue().c_str());
 				lua_pushnumber( luaState, node->getAttribute("value")->getFloatValue() );
 				break;
 			case LUA_TBOOLEAN:
+				if(LuaScript::debugModeEnabled) printf("  value [%s]\n",node->getAttribute("value")->getValue().c_str());
 				lua_pushboolean( luaState, node->getAttribute("value")->getBoolValue() );
 				break;
 			case LUA_TTABLE:
 				{
+					if(LuaScript::debugModeEnabled == true) printf("================ LUA TABLE DETECTED - START =================\n");
+
 					lua_newtable(luaState);    /* We will pass a table */
 					vector<XmlNode *> luaScriptTableNode = node->getChildList("Table");
 
@@ -452,32 +458,44 @@ void LuaScript::loadGame(const XmlNode *rootNode) {
 						XmlNode *nodeTable = luaScriptTableNode[j];
 
 						int key_type = nodeTable->getAttribute("key_type")->getIntValue();
+						if(LuaScript::debugModeEnabled == true) printf("Table item key_type: %d [%s]\n",key_type,lua_typename(luaState, key_type));
+
 						switch (key_type) {
 							case LUA_TSTRING:
+								if(LuaScript::debugModeEnabled) printf("  table item key [%s]\n",nodeTable->getAttribute("key")->getValue().c_str());
 								lua_pushstring( luaState, nodeTable->getAttribute("key")->getValue().c_str() );
 								break;
 							case LUA_TNUMBER:
+								if(LuaScript::debugModeEnabled) printf("  table item key [%s]\n",nodeTable->getAttribute("key")->getValue().c_str());
 								lua_pushnumber( luaState, nodeTable->getAttribute("key")->getFloatValue() );
 								break;
 							case LUA_TBOOLEAN:
+								if(LuaScript::debugModeEnabled) printf("  table item key [%s]\n",nodeTable->getAttribute("key")->getValue().c_str());
 								lua_pushboolean( luaState, nodeTable->getAttribute("key")->getBoolValue() );
 								break;
 						}
+
 						int value_type = nodeTable->getAttribute("value_type")->getIntValue();
+						if(LuaScript::debugModeEnabled == true) printf("Table item value_type: %d [%s]\n",value_type,lua_typename(luaState, value_type));
+
 						switch (value_type) {
 							case LUA_TSTRING:
+								if(LuaScript::debugModeEnabled) printf("  table item value [%s]\n",nodeTable->getAttribute("value")->getValue().c_str());
 								lua_pushstring( luaState, nodeTable->getAttribute("value")->getValue().c_str() );
 								break;
 							case LUA_TNUMBER:
+								if(LuaScript::debugModeEnabled) printf("  table item value [%s]\n",nodeTable->getAttribute("value")->getValue().c_str());
 								lua_pushnumber( luaState, nodeTable->getAttribute("value")->getFloatValue() );
 								break;
 							case LUA_TBOOLEAN:
+								if(LuaScript::debugModeEnabled) printf("  table item value [%s]\n",nodeTable->getAttribute("value")->getValue().c_str());
 								lua_pushboolean( luaState, nodeTable->getAttribute("value")->getBoolValue() );
 								break;
 						}
 
 						lua_rawset(luaState, -3);      /* Stores the pair in the table */
 					}
+					if(LuaScript::debugModeEnabled == true) printf("----------------- LUA TABLE DETECTED - END -----------------\n");
 				}
 				break;
 
