@@ -140,6 +140,10 @@ case $distribution in
 				;;
 		esac
 		;;
+	Arch)
+	echo 'Turning ON dynamic LIBS ...'
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DWANT_STATIC_LIBS=OFF"
+	;;
 esac
 
 #exit 1;
