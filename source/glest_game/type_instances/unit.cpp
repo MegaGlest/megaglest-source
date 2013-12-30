@@ -1719,8 +1719,12 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
 	Chrono chrono;
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
-    assert(command != NULL);
-    assert(command->getCommandType() != NULL);
+    if(command == NULL) {
+    	throw megaglest_runtime_error("command == NULL");
+    }
+    if(command->getCommandType() == NULL) {
+    	throw megaglest_runtime_error("command->getCommandType() == NULL");
+    }
 
     const int command_priority = command->getPriority();
 
@@ -1739,7 +1743,7 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
 			// we just queue it!
 
 		}
-		else{
+		else {
 			//Delete all lower-prioirty commands
 			for(list<Command*>::iterator i= commands.begin(); i != commands.end();){
 				if((*i)->getPriority() < command_priority){
@@ -1754,7 +1758,7 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
 
 					safeMutex.ReleaseLock();
 				}
-				else{
+				else {
 					++i;
 				}
 			}

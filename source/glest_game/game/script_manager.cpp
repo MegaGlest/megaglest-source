@@ -1014,7 +1014,7 @@ void ScriptManager::destroyUnit(int unitId){
 		// Make sure they die
 		bool unit_dead = unit->decHp(unit->getHp() * unit->getHp());
 		if(unit_dead == false) {
-			throw megaglest_runtime_error("unit_dead == false");
+			throw megaglest_runtime_error("unit_dead == false",true);
 		}
 		unit->kill();
 		// If called from an existing die event we get a stack overflow
@@ -1025,8 +1025,8 @@ void ScriptManager::giveKills (int unitId, int amount){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d] unit [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,unitId);
 	Unit *unit = world->findUnitById(unitId);
 	if(unit != NULL) {
-		for(int i = 1; i <= amount; i++) {
-		unit->incKills(-1);
+		for(int index = 1; index <= amount; ++index) {
+			unit->incKills(-1);
 		}
 	}
 }
@@ -1125,7 +1125,7 @@ void ScriptManager::giveAttackStoppedCommand(int unitId, const string &itemName,
 void ScriptManager::disableAi(int factionIndex){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	if(factionIndex<GameConstants::maxPlayers){
+	if(factionIndex >= 0 && factionIndex < GameConstants::maxPlayers) {
 		playerModifiers[factionIndex].disableAi();
 		disableConsume(factionIndex); // by this we stay somehow compatible with old behaviour
 	}
@@ -1134,38 +1134,38 @@ void ScriptManager::disableAi(int factionIndex){
 void ScriptManager::enableAi(int factionIndex){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	if(factionIndex<GameConstants::maxPlayers){
+	if(factionIndex >= 0 && factionIndex < GameConstants::maxPlayers) {
 		playerModifiers[factionIndex].enableAi();
 	}
 }
 
-bool ScriptManager::getAiEnabled(int factionIndex){
+bool ScriptManager::getAiEnabled(int factionIndex) {
 
-	if(factionIndex<GameConstants::maxPlayers){
+	if(factionIndex >= 0 && factionIndex < GameConstants::maxPlayers) {
 		return playerModifiers[factionIndex].getAiEnabled();
 	}
 	return false;
 }
 
-void ScriptManager::disableConsume(int factionIndex){
+void ScriptManager::disableConsume(int factionIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	if(factionIndex<GameConstants::maxPlayers){
+	if(factionIndex >= 0 && factionIndex < GameConstants::maxPlayers) {
 		playerModifiers[factionIndex].disableConsume();
 	}
 }
 
-void ScriptManager::enableConsume(int factionIndex){
+void ScriptManager::enableConsume(int factionIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	if(factionIndex<GameConstants::maxPlayers){
+	if(factionIndex >= 0 && factionIndex < GameConstants::maxPlayers) {
 		playerModifiers[factionIndex].enableConsume();
 	}
 }
 
-bool ScriptManager::getConsumeEnabled(int factionIndex){
+bool ScriptManager::getConsumeEnabled(int factionIndex) {
 
-	if(factionIndex < GameConstants::maxPlayers){
+	if(factionIndex >= 0 && factionIndex < GameConstants::maxPlayers) {
 		return playerModifiers[factionIndex].getConsumeEnabled();
 	}
 	return false;
@@ -1398,7 +1398,7 @@ void ScriptManager::setPlayerAsWinner(int factionIndex) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 
-	if(factionIndex<GameConstants::maxPlayers){
+	if(factionIndex >= 0 && factionIndex < GameConstants::maxPlayers) {
 		playerModifiers[factionIndex].setAsWinner();
 	}
 }
@@ -1412,7 +1412,7 @@ void ScriptManager::endGame() {
 void ScriptManager::startPerformanceTimer() {
 
 	if(world->getGame() == NULL) {
-		throw megaglest_runtime_error("world->getGame() == NULL");
+		throw megaglest_runtime_error("#1 world->getGame() == NULL",true);
 	}
 	world->getGame()->startPerformanceTimer();
 
@@ -1421,7 +1421,7 @@ void ScriptManager::startPerformanceTimer() {
 void ScriptManager::endPerformanceTimer() {
 
 	if(world->getGame() == NULL) {
-		throw megaglest_runtime_error("world->getGame() == NULL");
+		throw megaglest_runtime_error("#2 world->getGame() == NULL",true);
 	}
 	world->getGame()->endPerformanceTimer();
 
@@ -1430,7 +1430,7 @@ void ScriptManager::endPerformanceTimer() {
 Vec2i ScriptManager::getPerformanceTimerResults() {
 
 	if(world->getGame() == NULL) {
-		throw megaglest_runtime_error("world->getGame() == NULL");
+		throw megaglest_runtime_error("#3 world->getGame() == NULL",true);
 	}
 	return world->getGame()->getPerformanceTimerResults();
 }
@@ -1666,7 +1666,7 @@ int ScriptManager::isFreeCellsOrHasUnit(int field, int unitId, Vec2i pos) {
 
 	Unit* unit= world->findUnitById(unitId);
 	if(unit == NULL) {
-		throw megaglest_runtime_error("unit == NULL");
+		throw megaglest_runtime_error("unit == NULL",true);
 	}
 	int result = world->getMap()->isFreeCellsOrHasUnit(pos,unit->getType()->getSize(),static_cast<Field>(field),unit,NULL,true);
 
@@ -1677,7 +1677,6 @@ int ScriptManager::isFreeCellsOrHasUnit(int field, int unitId, Vec2i pos) {
 
 int ScriptManager::isFreeCells(int unitSize, int field, Vec2i pos) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
 
 	int result = world->getMap()->isFreeCellsOrHasUnit(pos,unitSize,static_cast<Field>(field),NULL,NULL,true);
 
@@ -1907,7 +1906,7 @@ int ScriptManager::getIsDayTime() {
 
 	const TimeFlow *tf= world->getTimeFlow();
 	if(tf == NULL) {
-		throw megaglest_runtime_error("tf == NULL");
+		throw megaglest_runtime_error("#1 tf == NULL",true);
 	}
 	return tf->isDay();
 }
@@ -1917,7 +1916,7 @@ int ScriptManager::getIsNightTime() {
 
 	const TimeFlow *tf= world->getTimeFlow();
 	if(tf == NULL) {
-		throw megaglest_runtime_error("tf == NULL");
+		throw megaglest_runtime_error("#2 tf == NULL",true);
 	}
 	return tf->isNight();
 }
@@ -1929,7 +1928,7 @@ float ScriptManager::getTimeOfDay() {
 
 	const TimeFlow *tf= world->getTimeFlow();
 	if(tf == NULL) {
-		throw megaglest_runtime_error("tf == NULL");
+		throw megaglest_runtime_error("#3 tf == NULL",true);
 	}
 	//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 	return tf->getTime();
@@ -1937,20 +1936,20 @@ float ScriptManager::getTimeOfDay() {
 
 void ScriptManager::disableSpeedChange() {
 	if(world->getGame() == NULL) {
-		throw megaglest_runtime_error("world->getGame() == NULL");
+		throw megaglest_runtime_error("#4 world->getGame() == NULL");
 	}
 	world->getGame()->setDisableSpeedChange(true);
 }
 void ScriptManager::enableSpeedChange() {
 	if(world->getGame() == NULL) {
-		throw megaglest_runtime_error("world->getGame() == NULL");
+		throw megaglest_runtime_error("#5 world->getGame() == NULL");
 	}
 	world->getGame()->setDisableSpeedChange(false);
 }
 
 bool ScriptManager::getSpeedChangeEnabled() {
 	if(world->getGame() == NULL) {
-		throw megaglest_runtime_error("world->getGame() == NULL");
+		throw megaglest_runtime_error("#6 world->getGame() == NULL");
 	}
 	return world->getGame()->getDisableSpeedChange();
 }
