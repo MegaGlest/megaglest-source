@@ -454,6 +454,8 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 			loadGame(this->rootNode);
 			this->rootNode = NULL;
 
+			if(LuaScript::getDebugModeEnabled() == true) printf("Calling onLoad luaSavedGameData.size() = %d\n",(int)luaSavedGameData.size());
+
 			luaScript.beginCall("onLoad");
 			luaScript.endCall();
 		}
@@ -1983,11 +1985,18 @@ void ScriptManager::addMessageToQueue(ScriptManagerMessage msg) {
 }
 
 void ScriptManager::storeSaveGameData(string name, string value) {
+
+	if(LuaScript::getDebugModeEnabled() == true) printf("storeSaveGameData name [%s] value [%s]\n",name.c_str(),value.c_str());
+
 	luaSavedGameData[name] = value;
 }
 
 string ScriptManager::loadSaveGameData(string name) {
-	return luaSavedGameData[name];
+	string value = luaSavedGameData[name];
+
+	if(LuaScript::getDebugModeEnabled() == true) printf("loadSaveGameData result name [%s] value [%s]\n",name.c_str(),value.c_str());
+
+	return value;
 }
 
 // ========================== lua callbacks ===============================================
@@ -4895,6 +4904,8 @@ void ScriptManager::saveGame(XmlNode *rootNode) {
 
 	luaScript.beginCall("onSave");
 	luaScript.endCall();
+
+	if(LuaScript::getDebugModeEnabled() == true) printf("After onSave luaSavedGameData.size() = %d\n",(int)luaSavedGameData.size());
 	for(std::map<string, string>::iterator iterMap = luaSavedGameData.begin();
 			iterMap != luaSavedGameData.end(); ++iterMap) {
 
@@ -5021,6 +5032,9 @@ void ScriptManager::loadGame(const XmlNode *rootNode) {
 //	LuaScript luaScript;
 
 	vector<XmlNode *> savedGameDataItemNodeList = scriptManagerNode->getChildList("SavedGameDataItem");
+
+	if(LuaScript::getDebugModeEnabled() == true) printf("In loadGame savedGameDataItemNodeList.size() = %d\n",(int)savedGameDataItemNodeList.size());
+
 	for(unsigned int i = 0; i < savedGameDataItemNodeList.size(); ++i) {
 		XmlNode *node = savedGameDataItemNodeList[i];
 		string key = node->getAttribute("key")->getValue();

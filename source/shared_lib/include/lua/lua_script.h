@@ -56,6 +56,8 @@ public:
 	~LuaScript();
 
 	static void setDebugModeEnabled(bool value) { debugModeEnabled = value; }
+	static bool getDebugModeEnabled() { return debugModeEnabled; }
+
 	static void setDisableSandbox(bool value) { disableSandbox = value; }
 
 	void loadCode(string code, string name);
