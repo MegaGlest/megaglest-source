@@ -212,7 +212,6 @@ void LuaScript::DumpGlobals()
 void LuaScript::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;
 
-	bool debugLuaDump = LuaScript::debugModeEnabled;
 	//try{
 	LuaHandle *L = luaState;
 	// push the first key (nil = beginning of table)
@@ -237,7 +236,7 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 		int key_type = lua_type(L, -2);
 		int value_type = lua_type(L, -1);
 
-		if(debugLuaDump == true) printf("LUA save key_type = %d, value_type = %d for var [%s]\n",key_type,value_type,lua_tostring(L, -2));
+		if(LuaScript::debugModeEnabled == true) printf("LUA save key_type = %d, value_type = %d for var [%s]\n",key_type,value_type,lua_tostring(L, -2));
 
 		// support only string keys
 		// globals aren't likely to have a non-string key, but just to be certain ...
@@ -258,7 +257,7 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 		// get the key as a string
 		string key_string = lua_tostring(L, -2); // no copy required - we already know this is a string
 
-		if(debugLuaDump == true) printf("key_string [%s]\n",key_string.c_str());
+		if(LuaScript::debugModeEnabled == true) printf("key_string [%s]\n",key_string.c_str());
 		// do not support variables that start with '_'
 		// lua has some predefined values like _VERSION. They all start with underscore
 
@@ -295,14 +294,14 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 			break;
 		case LUA_TTABLE:
 			{
-			if(debugLuaDump == true) printf("LUA TABLE DETECTED - START\n");
+			if(LuaScript::debugModeEnabled == true) printf("LUA TABLE DETECTED - START\n");
 			for (lua_pushnil(L); lua_next(L, -2) ;) {
-				if(debugLuaDump == true) printf("LUA TABLE loop A\n");
+				if(LuaScript::debugModeEnabled == true) printf("LUA TABLE loop A\n");
 
 				int tableKeyType = lua_type(L, -2);
 				int tableValueType = lua_type(L, -1);
 
-				if(debugLuaDump == true) printf("LUA TABLE loop item type [%s] key: %d value type: %d\n",lua_typename(L, tableValueType),tableKeyType,tableValueType);
+				if(LuaScript::debugModeEnabled == true) printf("LUA TABLE loop item type [%s] key: %d value type: %d\n",lua_typename(L, tableValueType),tableKeyType,tableValueType);
 
 				switch (tableValueType) {
 					case LUA_TSTRING:
@@ -317,11 +316,11 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 					// Stack: value, key, table
 					std :: string value = "";
 					if(!lua_isnil(L, -1)) {
-						if(debugLuaDump == true) printf("LUA TABLE loop B\n");
+						if(LuaScript::debugModeEnabled == true) printf("LUA TABLE loop B\n");
 
 						lua_pushvalue(L, -1);
 
-						if(debugLuaDump == true) printf("LUA TABLE loop C\n");
+						if(LuaScript::debugModeEnabled == true) printf("LUA TABLE loop C\n");
 
 						if(tableValueType == LUA_TBOOLEAN ) {
 							value = lua_toboolean(L, -1) == 0 ? "false" : "true";
@@ -330,13 +329,13 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 							value = lua_tostring (L, -1);
 						}
 
-						if(debugLuaDump == true) printf("LUA TABLE loop D\n");
+						if(LuaScript::debugModeEnabled == true) printf("LUA TABLE loop D\n");
 
 						lua_pop (L, 1);
 					}
 					lua_pop (L, 1);
 
-					if(debugLuaDump == true) printf("LUA TABLE value [%s]\n",value.c_str());
+					if(LuaScript::debugModeEnabled == true) printf("LUA TABLE value [%s]\n",value.c_str());
 
 					// Stack: key, table
 					lua_pushvalue(L, -1);
@@ -347,7 +346,7 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 
 					// Stack: key, table
 					//std :: cout << key << "" << value << "\ n";
-					if(debugLuaDump == true) printf("[%s] [%s]\n",key.c_str(),value.c_str());
+					if(LuaScript::debugModeEnabled == true) printf("[%s] [%s]\n",key.c_str(),value.c_str());
 
 					if(value_string != "") {
 						value_string += "|||";
@@ -359,6 +358,8 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 					tableList.push_back(make_pair(make_pair(tableKeyType,key),make_pair(tableValueType,value)));
 				}
 				else {
+					if(LuaScript::debugModeEnabled == true) printf("***WARNING*** SKIPPING LUA TABLE because it has an unsupported embedded type: %d [%s]\n",tableValueType, lua_typename(L, tableValueType));
+
 					lua_pop(L, 1);
 				}
 			}
@@ -372,7 +373,7 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 		//}
 
 		if(skipTable == true) {
-			if(debugLuaDump == true) printf("#2 SKIPPING TABLE\n");
+			if(LuaScript::debugModeEnabled == true) printf("#2 SKIPPING TABLE\n");
 		}
 		else {
 			//vector<pair<pair<int,string>, pair<int,string>> > tableList;
@@ -416,12 +417,11 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 }
 
 void LuaScript::loadGame(const XmlNode *rootNode) {
-	bool debugLuaDump = LuaScript::debugModeEnabled;
-	if(debugLuaDump) printf("START [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	if(LuaScript::debugModeEnabled) printf("START [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	vector<XmlNode *> luaScriptNodeList = rootNode->getChildList("LuaScript");
 
-	if(debugLuaDump) printf("luaScriptNodeList.size(): %d\n",(int)luaScriptNodeList.size());
+	if(LuaScript::debugModeEnabled) printf("luaScriptNodeList.size(): %d\n",(int)luaScriptNodeList.size());
 
 	for(unsigned int i = 0; i < luaScriptNodeList.size(); ++i) {
 		XmlNode *node = luaScriptNodeList[i];
@@ -429,7 +429,7 @@ void LuaScript::loadGame(const XmlNode *rootNode) {
 		string variable = node->getAttribute("variable")->getValue();
 		int value_type = node->getAttribute("value_type")->getIntValue();
 
-		if(debugLuaDump) printf("i: %d [%s] [%d]\n",i,variable.c_str(),value_type);
+		if(LuaScript::debugModeEnabled) printf("i: %d [%s] [%d]\n",i,variable.c_str(),value_type);
 
 		switch (value_type) {
 			case LUA_TSTRING:
@@ -446,7 +446,7 @@ void LuaScript::loadGame(const XmlNode *rootNode) {
 					lua_newtable(luaState);    /* We will pass a table */
 					vector<XmlNode *> luaScriptTableNode = node->getChildList("Table");
 
-					if(debugLuaDump) printf("luaScriptTableNode.size(): %d\n",(int)luaScriptTableNode.size());
+					if(LuaScript::debugModeEnabled) printf("luaScriptTableNode.size(): %d\n",(int)luaScriptTableNode.size());
 
 					for(unsigned int j = 0; j < luaScriptTableNode.size(); ++j) {
 						XmlNode *nodeTable = luaScriptTableNode[j];

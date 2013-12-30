@@ -42,6 +42,7 @@ const char  *GAME_ARGS[] = {
 	"--opengl-info",
 	"--sdl-info",
 	"--lua-info",
+	"--lua-debug",
 	"--curl-info",
 	"--xerces-info",
 
@@ -120,6 +121,7 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_OPENGL_INFO,
 	GAME_ARG_SDL_INFO,
 	GAME_ARG_LUA_INFO,
+	GAME_ARG_LUA_DEBUG,
 	GAME_ARG_CURL_INFO,
 	GAME_ARG_XERCES_INFO,
 
@@ -252,6 +254,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\t\tdisplays your video driver's OpenGL info.",GAME_ARGS[GAME_ARG_OPENGL_INFO]);
 	printf("\n%s\t\t\tdisplays your SDL version information.",GAME_ARGS[GAME_ARG_SDL_INFO]);
 	printf("\n%s\t\t\tdisplays your LUA version information.",GAME_ARGS[GAME_ARG_LUA_INFO]);
+	printf("\n%s\t\t\tdisplays LUA debug information.",GAME_ARGS[GAME_ARG_LUA_DEBUG]);
 	printf("\n%s\t\t\tdisplays your CURL version information.",GAME_ARGS[GAME_ARG_CURL_INFO]);
 	printf("\n%s\t\t\tdisplays your XERCES version information.",GAME_ARGS[GAME_ARG_XERCES_INFO]);
 

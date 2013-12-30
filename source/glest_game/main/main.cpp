@@ -1428,6 +1428,7 @@ void setupLogging(Config &config, bool haveSpecialOutputCommandLineOption) {
     SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled  	= config.getBool("DebugUnitCommands","false");
     SystemFlags::getSystemSettingType(SystemFlags::debugPathFinder).enabled  	= config.getBool("DebugPathFinder","false");
     SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled  			= config.getBool("DebugLUA","false");
+    LuaScript::setDebugModeEnabled(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled);
     SystemFlags::getSystemSettingType(SystemFlags::debugSound).enabled  		= config.getBool("DebugSound","false");
     SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled  		= config.getBool("DebugError","true");
 
@@ -3925,7 +3926,7 @@ int glestMain(int argc, char** argv) {
     if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERBOSE_MODE]) == true) {
         SystemFlags::VERBOSE_MODE_ENABLED  = true;
         Thread::setEnableVerboseMode(true);
-        LuaScript::setDebugModeEnabled(true);
+        //LuaScript::setDebugModeEnabled(true);
     }
     // DEbug testing threads
     //Thread::setEnableVerboseMode(true);
@@ -4612,6 +4613,12 @@ int glestMain(int argc, char** argv) {
 
 		if(config.getBool("noTeamColors","false") == true) {
 			MeshCallbackTeamColor::noTeamColors = true;
+		}
+
+
+		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LUA_DEBUG]) == true) {
+			printf("Forcing LUA debugging enabled!\n");
+			config.setBool("DebugLUA","true", true);
 		}
 
         // Setup debug logging etc

@@ -17,13 +17,19 @@ CPU_COUNT=-1
 CMAKE_ONLY=0
 MAKE_ONLY=0
 CLANG_FORCED=0
+WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
 
-while getopts "c:m:n:f:h" option; do
+while getopts "c:d:m:n:f:h" option; do
    case "${option}" in
         c) 
            CPU_COUNT=${OPTARG}
 #           echo "${option} value: ${OPTARG}"
         ;;
+        d) 
+           WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF"
+#           echo "${option} value: ${OPTARG}"
+        ;;
+
         m) 
            CMAKE_ONLY=${OPTARG}
 #           echo "${option} value: ${OPTARG}"
@@ -39,9 +45,10 @@ while getopts "c:m:n:f:h" option; do
         ;;
         h) 
                 echo "Usage: $0 <option>"
-                echo "       where <option> can be: -c=x, -m=1, -n=1, -f=1, -h"
+                echo "       where <option> can be: -c=x, -d=1, -f=1, -m=1, -n=1, -h"
                 echo "       option descriptions:"
                 echo "       -c=x : Force the cpu / cores count to x - example: -c=4"
+                echo "       -d=1 : Force DYNAMIC compile (do not want static libs)"
                 echo "       -m=1 : Force running CMAKE only to create Make files (do not compile)"
                 echo "       -n=1 : Force running MAKE only to compile (assume CMAKE already built make files)"
                 echo "       -f=1 : Force using CLANG compiler"
@@ -163,7 +170,7 @@ fi
 
 if [ $MAKE_ONLY = 0 ]; then 
         echo "Calling cmake with EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
-        cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON -DWANT_STATIC_LIBS=ON -DBUILD_MEGAGLEST_TESTS=ON -DBREAKPAD_ROOT=$BREAKPAD_ROOT $EXTRA_CMAKE_OPTIONS ..
+        cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON $WANT_STATIC_LIBS -DBUILD_MEGAGLEST_TESTS=ON -DBREAKPAD_ROOT=$BREAKPAD_ROOT $EXTRA_CMAKE_OPTIONS ..
         if [ $? -ne 0 ]; then 
           echo 'ERROR: CMAKE failed.' >&2; exit 1
         fi
