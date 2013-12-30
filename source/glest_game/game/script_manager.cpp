@@ -390,6 +390,9 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(enableSpeedChange, "enableSpeedChange");
 	luaScript.registerFunction(getSpeedChangeEnabled, "getSpeedChangeEnabled");
 
+	luaScript.registerFunction(storeSaveGameData, "storeSaveGameData");
+	luaScript.registerFunction(loadSaveGameData, "loadSaveGameData");
+
 	//load code
 	for(int i= 0; i<scenario->getScriptCount(); ++i){
 		const Script* script= scenario->getScript(i);
@@ -450,6 +453,9 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 		else {
 			loadGame(this->rootNode);
 			this->rootNode = NULL;
+
+			luaScript.beginCall("onLoad");
+			luaScript.endCall();
 		}
 	}
 	catch(const megaglest_runtime_error &ex) {
@@ -1975,6 +1981,15 @@ bool ScriptManager::getSpeedChangeEnabled() {
 void ScriptManager::addMessageToQueue(ScriptManagerMessage msg) {
 	messageQueue.push_back(msg);
 }
+
+void ScriptManager::storeSaveGameData(string name, string value) {
+	luaSavedGameData[name] = value;
+}
+
+string ScriptManager::loadSaveGameData(string name) {
+	return luaSavedGameData[name];
+}
+
 // ========================== lua callbacks ===============================================
 
 int ScriptManager::showMessage(LuaHandle* luaHandle){
@@ -4828,6 +4843,47 @@ int ScriptManager::getSpeedChangeEnabled(LuaHandle* luaHandle) {
 	return luaArguments.getReturnCount();
 }
 
+int ScriptManager::storeSaveGameData(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	try {
+		thisScriptManager->storeSaveGameData(luaArguments.getString(-2),luaArguments.getString(-1));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::loadSaveGameData(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	try {
+		luaArguments.returnString(thisScriptManager->loadSaveGameData(luaArguments.getString(-1)));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
+	return luaArguments.getReturnCount();
+}
+
+
 void ScriptManager::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *scriptManagerNode = rootNode->addChild("ScriptManager");
@@ -4836,7 +4892,18 @@ void ScriptManager::saveGame(XmlNode *rootNode) {
 //	string code;
 	scriptManagerNode->addAttribute("code",code, mapTagReplacements);
 //	LuaScript luaScript;
-//
+
+	luaScript.beginCall("onSave");
+	luaScript.endCall();
+	for(std::map<string, string>::iterator iterMap = luaSavedGameData.begin();
+			iterMap != luaSavedGameData.end(); ++iterMap) {
+
+		XmlNode *savedGameDataItemNode = scriptManagerNode->addChild("SavedGameDataItem");
+
+		savedGameDataItemNode->addAttribute("key",iterMap->first, mapTagReplacements);
+		savedGameDataItemNode->addAttribute("value",iterMap->second, mapTagReplacements);
+	}
+
 //	//world
 //	World *world;
 //	GameCamera *gameCamera;
@@ -4952,7 +5019,16 @@ void ScriptManager::loadGame(const XmlNode *rootNode) {
 //	string code;
 	code = scriptManagerNode->getAttribute("code")->getValue();
 //	LuaScript luaScript;
-//
+
+	vector<XmlNode *> savedGameDataItemNodeList = scriptManagerNode->getChildList("SavedGameDataItem");
+	for(unsigned int i = 0; i < savedGameDataItemNodeList.size(); ++i) {
+		XmlNode *node = savedGameDataItemNodeList[i];
+		string key = node->getAttribute("key")->getValue();
+		string value = node->getAttribute("value")->getValue();
+
+		luaSavedGameData[key] = value;
+	}
+
 //	//world
 //	World *world;
 //	GameCamera *gameCamera;

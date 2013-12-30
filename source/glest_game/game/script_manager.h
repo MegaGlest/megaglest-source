@@ -218,6 +218,8 @@ private:
 	RandomGen random;
 	const XmlNode *rootNode;
 
+	std::map<string, string> luaSavedGameData;
+
 private:
 	static ScriptManager* thisScriptManager;
 
@@ -418,6 +420,10 @@ private:
 	void disableSpeedChange();
 	void enableSpeedChange();
 	bool getSpeedChangeEnabled();
+	void storeSaveGameData(string name, string value);
+	string loadSaveGameData(string name);
+
+	// -----------------------------------------------------------------------
 
 	//callbacks, commands
 	static int networkShowMessageForFaction(LuaHandle* luaHandle);
@@ -582,6 +588,9 @@ private:
 	static int disableSpeedChange(LuaHandle* luaHandle);
 	static int enableSpeedChange(LuaHandle* luaHandle);
 	static int getSpeedChangeEnabled(LuaHandle* luaHandle);
+
+	static int storeSaveGameData(LuaHandle* luaHandle);
+	static int loadSaveGameData(LuaHandle* luaHandle);
 };
 
 }}//end namespace
