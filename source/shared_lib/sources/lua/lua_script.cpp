@@ -294,8 +294,12 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 			break;
 		case LUA_TTABLE:
 			{
+
+			int tableItemCount = 0;
 			if(LuaScript::debugModeEnabled == true) printf("================ LUA TABLE DETECTED - START =================\n");
 			for (lua_pushnil(L); lua_next(L, -2) ;) {
+				tableItemCount++;
+
 				if(LuaScript::debugModeEnabled == true) printf("LUA TABLE loop A\n");
 
 				int tableKeyType = lua_type(L, -2);
@@ -362,6 +366,11 @@ void LuaScript::saveGame(XmlNode *rootNode) {
 
 					lua_pop(L, 1);
 				}
+			}
+			if(tableItemCount < 1) {
+				if(LuaScript::debugModeEnabled == true) printf("Skipping lua table tableItemCount = %d\n",tableItemCount);
+
+				skipTable = true;
 			}
 			if(LuaScript::debugModeEnabled == true) printf("---------------------------- LUA TABLE DETECTED - END ----------------------------\n");
 			}
