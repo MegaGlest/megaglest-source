@@ -46,6 +46,17 @@ namespace Shared { namespace Platform {
 class Mutex;
 //class uint32;
 
+enum ThreadState {
+	thrsNew,
+	thrsStarting,
+	thrsExecuteStart,
+	thrsExecuting,
+	thrsExecuted,
+	thrsExecuteAutoClean,
+	thrsExecuteComplete
+
+};
+
 class Thread {
 public:
 	enum Priority {
@@ -60,6 +71,7 @@ private:
 	SDL_Thread* thread;
 	//std::auto_ptr<Mutex> mutexthreadAccessor;
 	Mutex *mutexthreadAccessor;
+	ThreadState currentState;
 	bool threadObjectValid();
 
 	bool deleteAfterExecute;
@@ -71,6 +83,7 @@ protected:
 	void addThreadToList();
 	void removeThreadFromList();
 	void queueAutoCleanThread();
+	bool isThreadExecuteCompleteStatus();
 
 public:
 	Thread();

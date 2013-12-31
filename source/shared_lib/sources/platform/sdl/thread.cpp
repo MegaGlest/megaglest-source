@@ -128,7 +128,9 @@ public:
 // =====================================
 //          Threads
 // =====================================
-Thread::Thread() : thread(NULL), mutexthreadAccessor(new Mutex(CODE_AT_LINE)), deleteAfterExecute(false) {
+Thread::Thread() : thread(NULL),
+		mutexthreadAccessor(new Mutex(CODE_AT_LINE)),
+		deleteAfterExecute(false), currentState(thrsNew) {
 	addThreadToList();
 }
 
@@ -184,15 +186,43 @@ void Thread::shutdownThreads() {
 	}
 }
 
+bool Thread::isThreadExecuteCompleteStatus() {
+	MutexSafeWrapper safeMutex(mutexthreadAccessor);
+	return (currentState == thrsExecuteComplete);
+}
 Thread::~Thread() {
 	if(Thread::getEnableVerboseMode()) printf("In ~Thread Line: %d [%p] thread = %p\n",__LINE__,this,thread);
 
 	MutexSafeWrapper safeMutex(mutexthreadAccessor);
 	if(thread != NULL) {
-		SDL_WaitThread(thread, NULL);
+
+		safeMutex.ReleaseLock();
+
+		if(isThreadExecuteCompleteStatus() == false) {
+			printf("**WARNING** thread destructor delayed, trying to exit...\n");
+
+			time_t elapsed = time(NULL);
+			for(;difftime((long int)time(NULL),elapsed) <= 5;) {
+				sleep(0);
+
+				if(isThreadExecuteCompleteStatus() == true) {
+					break;
+				}
+			}
+		}
+
+		if(isThreadExecuteCompleteStatus() == false) {
+			printf("**WARNING** thread destructor will KILL thread [%p]...\n",thread);
+			SDL_KillThread(thread);
+		}
+		else {
+			SDL_WaitThread(thread, NULL);
+		}
 		thread = NULL;
 	}
-	safeMutex.ReleaseLock();
+	else {
+		safeMutex.ReleaseLock();
+	}
 
 	if(Thread::getEnableVerboseMode()) printf("In ~Thread Line: %d [%p] thread = %p\n",__LINE__,this,thread);
 
@@ -213,12 +243,12 @@ std::vector<Thread *> Thread::getThreadList() {
 
 void Thread::start() {
 	MutexSafeWrapper safeMutex(mutexthreadAccessor);
+	currentState = thrsStarting;
 
 	BaseThread *base_thread = dynamic_cast<BaseThread *>(this);
 	if(base_thread) base_thread->setStarted(true);
 
 	thread = SDL_CreateThread(beginExecution, this);
-	//assert(thread != NULL);
 	if(thread == NULL) {
 		if(base_thread) base_thread->setStarted(false);
 
@@ -241,28 +271,47 @@ void Thread::setPriority(Thread::Priority threadPriority) {
 
 int Thread::beginExecution(void* data) {
 	Thread* thread = static_cast<Thread*> (data);
-	assert(thread != NULL);
 	if(thread == NULL) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8095,"In [%s::%s Line: %d] thread == NULL",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		printf("%s",szBuf);
+
 		throw megaglest_runtime_error(szBuf);
 	}
+
+	MutexSafeWrapper safeMutex(thread->mutexthreadAccessor);
+	thread->currentState = thrsExecuteStart;
+	safeMutex.ReleaseLock(true);
 
 	BaseThread *base_thread = dynamic_cast<BaseThread *>(thread);
 	//ThreadGarbageCollector *garbage_collector = dynamic_cast<ThreadGarbageCollector *>(thread);
 	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d thread = %p base_thread = %p [%s]\n",__LINE__,thread,base_thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
 
 	if(thread->threadObjectValid() == true) {
+		safeMutex.Lock();
+		thread->currentState = thrsExecuting;
+		safeMutex.ReleaseLock(true);
+
 		thread->execute();
+
+		safeMutex.Lock();
+		thread->currentState = thrsExecuted;
+		safeMutex.ReleaseLock(true);
 	}
 
 	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d thread = %p base_thread = %p [%s]\n",__LINE__,thread,base_thread,(base_thread != NULL ? base_thread->getUniqueID().c_str() : "n/a"));
 
 	if(thread->threadObjectValid() == true) {
+		safeMutex.Lock();
+		thread->currentState = thrsExecuteAutoClean;
+		safeMutex.ReleaseLock(true);
 		thread->queueAutoCleanThread();
 	}
 
 	if(Thread::getEnableVerboseMode()) printf("In Thread::execute Line: %d\n",__LINE__);
+	safeMutex.Lock();
+	thread->currentState = thrsExecuteComplete;
+	safeMutex.ReleaseLock();
 
 	return 0;
 }
