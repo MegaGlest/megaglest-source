@@ -18,11 +18,34 @@ IF(LUA_INCLUDE_DIR AND LUA_LIBRARIES)
 	#SET(LUA_FIND_QUIETLY TRUE)
 ENDIF(LUA_INCLUDE_DIR AND LUA_LIBRARIES)
 
+IF(FORCE_LUA_5_2)
+        MESSAGE(STATUS "Trying to FORCE LUA 5.2 ...")
+
+        SET(LUA_FIND_INCLUDE_PATHS  /usr/include/lua5.2
+                                    /usr/include
+   			            /usr/include/lua )
+        SET(LUA_FIND_STATIC_LIB_NAMES liblua5.2.a lua5.2 liblua.a lua )
+        SET(LUA_FIND_DYNAMIC_LIB_NAMES lua5.2 lua )
+
+ELSEIF(FORCE_LUA_5_1)
+        MESSAGE(STATUS "Trying to FORCE LUA 5.1 ...")
+
+        SET(LUA_FIND_INCLUDE_PATHS /usr/include/lua5.1
+                                   /usr/include
+                                   /usr/include/lua )
+        SET(LUA_FIND_STATIC_LIB_NAMES liblua5.1.a lua5.1 liblua.a lua )
+        SET(LUA_FIND_DYNAMIC_LIB_NAMES lua5.1 lua )
+ELSE()
+        SET(LUA_FIND_INCLUDE_PATHS /usr/include
+                                /usr/include/lua5.2
+			        /usr/include/lua
+			        /usr/include/lua5.1 )
+        SET(LUA_FIND_STATIC_LIB_NAMES liblua5.2.a liblua.a liblua5.1.a lua5.2 lua lua5.1 )
+        SET(LUA_FIND_DYNAMIC_LIB_NAMES lua5.2 lua lua5.1 )
+ENDIF()
+
 FIND_PATH(LUA_INCLUDE_DIR NAMES lua.hpp 
-		PATHS 	/usr/include
-                        /usr/include/lua5.2
-			/usr/include/lua
-			/usr/include/lua5.1
+		PATHS 	${LUA_FIND_INCLUDE_PATHS}
 		IF(FreeBSD)
                 	SET(PATHS "/usr/local/include/lua51")
                 ENDIF()
@@ -30,7 +53,7 @@ FIND_PATH(LUA_INCLUDE_DIR NAMES lua.hpp
 		)
 
 IF (LUA_STATIC AND NOT LUA_LIBRARIES)
-	FIND_LIBRARY(LUA_LIBRARIES NAMES liblua5.2.a liblua.a liblua5.1.a lua5.2 lua lua5.1
+	FIND_LIBRARY(LUA_LIBRARIES NAMES ${LUA_FIND_STATIC_LIB_NAMES}
 		PATHS 
                 IF(FreeBSD)
                        SET(PATHS "/usr/local/lib/lua51")
@@ -38,7 +61,7 @@ IF (LUA_STATIC AND NOT LUA_LIBRARIES)
                 $ENV{LUA_HOME})
 
 ELSE()
-	FIND_LIBRARY(LUA_LIBRARIES NAMES lua5.2 lua lua5.1 
+	FIND_LIBRARY(LUA_LIBRARIES NAMES ${LUA_FIND_DYNAMIC_LIB_NAMES}
 		PATHS 
                 IF(FreeBSD)
                        SET(PATHS "/usr/local/lib/lua51")
@@ -69,3 +92,4 @@ ELSE(LUA_FOUND)
 ENDIF(LUA_FOUND)
 
 MARK_AS_ADVANCED(LUA_INCLUDE_DIR LUA_LIBRARIES)
+

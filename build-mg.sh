@@ -18,8 +18,9 @@ CMAKE_ONLY=0
 MAKE_ONLY=0
 CLANG_FORCED=0
 WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
+LUA_FORCED_VERSION=0
 
-while getopts "c:d:m:n:f:h" option; do
+while getopts "c:dfhl:mn" option; do
    case "${option}" in
         c) 
            CPU_COUNT=${OPTARG}
@@ -29,33 +30,40 @@ while getopts "c:d:m:n:f:h" option; do
            WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF"
 #           echo "${option} value: ${OPTARG}"
         ;;
-
-        m) 
-           CMAKE_ONLY=${OPTARG}
-#           echo "${option} value: ${OPTARG}"
-        ;;
-        n) 
-           MAKE_ONLY=${OPTARG}
-#           echo "${option} value: ${OPTARG}"
-        ;;
-
         f) 
-           CLANG_FORCED=${OPTARG}
+           CLANG_FORCED=1
 #           echo "${option} value: ${OPTARG}"
         ;;
         h) 
                 echo "Usage: $0 <option>"
-                echo "       where <option> can be: -c=x, -d=1, -f=1, -m=1, -n=1, -h"
+                echo "       where <option> can be: -c x, -d, -f, -m, -n, -h, -l x"
                 echo "       option descriptions:"
-                echo "       -c=x : Force the cpu / cores count to x - example: -c=4"
-                echo "       -d=1 : Force DYNAMIC compile (do not want static libs)"
-                echo "       -m=1 : Force running CMAKE only to create Make files (do not compile)"
-                echo "       -n=1 : Force running MAKE only to compile (assume CMAKE already built make files)"
-                echo "       -f=1 : Force using CLANG compiler"
+                echo "       -c x : Force the cpu / cores count to x - example: -c 4"
+                echo "       -d   : Force DYNAMIC compile (do not want static libs)"
+                echo "       -f   : Force using CLANG compiler"
+                echo "       -l x : Force using LUA version x - example: -l 51"                
+                echo "       -m   : Force running CMAKE only to create Make files (do not compile)"
+                echo "       -n   : Force running MAKE only to compile (assume CMAKE already built make files)"
                 echo "       -h   : Display this help usage"
+
         	exit 1        
         ;;
-
+        l) 
+           LUA_FORCED_VERSION=${OPTARG}
+#           echo "${option} value: ${OPTARG} LUA_FORCED_VERSION [${LUA_FORCED_VERSION}]"
+        ;;
+        m) 
+           CMAKE_ONLY=1
+#           echo "${option} value: ${OPTARG}"
+        ;;
+        n) 
+           MAKE_ONLY=1
+#           echo "${option} value: ${OPTARG}"
+        ;;
+        \?)
+              echo "Script Invalid option: -$OPTARG" >&2
+              exit 1
+        ;;
    esac
 done
 
@@ -170,6 +178,17 @@ elif [ "`echo $CC | grep -Fq 'clang'`" = 'clang' -a "`echo $CXX | grep -Fq 'clan
         EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_C_COMPILER=${CLANG_CC} -DCMAKE_CXX_COMPILER=${CLANG_CXX}"
         echo "USER WANTS to use CLANG / LLVM compiler! EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
 #exit 1;
+fi
+
+LUA_FORCED_CMAKE=
+if [ $LUA_FORCED_VERSION != 0 ]; then
+        if [ $LUA_FORCED_VERSION = 52 ]; then  
+                EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_5_2=ON"
+                echo "USER WANTS TO FORCE USE of LUA 5.2"
+        elif [ $LUA_FORCED_VERSION = 51 ]; then 
+                EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_5_1=ON"
+                echo "USER WANTS TO FORCE USE of LUA 5.1"
+        fi
 fi
 
 if [ $MAKE_ONLY = 0 ]; then 
