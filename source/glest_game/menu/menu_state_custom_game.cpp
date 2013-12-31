@@ -47,6 +47,11 @@ static const char *SAVED_GAME_FILENAME 				= "lastCustomGameSettings.mgg";
 static const char *DEFAULT_GAME_FILENAME 			= "data/defaultGameSetup.mgg";
 static const char *DEFAULT_NETWORKGAME_FILENAME 	= "data/defaultNetworkGameSetup.mgg";
 
+const int mapPreviewTexture_X = 5;
+const int mapPreviewTexture_Y = 185;
+const int mapPreviewTexture_W = 150;
+const int mapPreviewTexture_H = 150;
+
 struct FormatString {
 	void operator()(string &s) {
 		s = formatString(s);
@@ -74,6 +79,11 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	}
 
 	this->gameUUID = getUUIDAsString();
+
+	this->render_mapPreviewTexture_X = mapPreviewTexture_X;
+	this->render_mapPreviewTexture_Y = mapPreviewTexture_Y;
+	this->render_mapPreviewTexture_W = mapPreviewTexture_W;
+	this->render_mapPreviewTexture_H = mapPreviewTexture_H;
 
 	this->lastMasterServerSettingsUpdateCount = 0;
 	this->masterserverModeMinimalResources = true;
@@ -1043,6 +1053,40 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
         		advanceToItemStartingWith =  lastKey;
         	}
 
+        	if(mapPreviewTexture != NULL) {
+//        		printf("X: %d Y: %d      [%d, %d, %d, %d]\n",
+//        				x, y,
+//        				this->render_mapPreviewTexture_X, this->render_mapPreviewTexture_X + this->render_mapPreviewTexture_W,
+//        				this->render_mapPreviewTexture_Y, this->render_mapPreviewTexture_Y + this->render_mapPreviewTexture_H);
+
+				if( x >= this->render_mapPreviewTexture_X && x <= this->render_mapPreviewTexture_X + this->render_mapPreviewTexture_W &&
+					y >= this->render_mapPreviewTexture_Y && y <= this->render_mapPreviewTexture_Y + this->render_mapPreviewTexture_H) {
+
+					if( this->render_mapPreviewTexture_X == mapPreviewTexture_X &&
+						this->render_mapPreviewTexture_Y == mapPreviewTexture_Y &&
+						this->render_mapPreviewTexture_W == mapPreviewTexture_W &&
+						this->render_mapPreviewTexture_H == mapPreviewTexture_H) {
+
+						const Metrics &metrics= Metrics::getInstance();
+
+						this->render_mapPreviewTexture_X = 0;
+						this->render_mapPreviewTexture_Y = 0;
+						this->render_mapPreviewTexture_W = metrics.getVirtualW();
+						this->render_mapPreviewTexture_H = metrics.getVirtualH();
+
+						cleanupMapPreviewTexture();
+					}
+					else {
+						this->render_mapPreviewTexture_X = mapPreviewTexture_X;
+						this->render_mapPreviewTexture_Y = mapPreviewTexture_Y;
+						this->render_mapPreviewTexture_W = mapPreviewTexture_W;
+						this->render_mapPreviewTexture_H = mapPreviewTexture_H;
+
+						cleanupMapPreviewTexture();
+					}
+				}
+        	}
+
         	if(activeInputLabel!=NULL && !(activeInputLabel->mouseClick(x,y))){
 				setActiveInputLabel(NULL);
 			}
@@ -1482,7 +1526,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 						}
 					}
 				}
-        }
+			}
         }
 
 		if(hasNetworkGameSettings() == true && listBoxPlayerStatus.mouseClick(x,y)) {
@@ -1981,7 +2025,13 @@ void MenuStateCustomGame::render() {
 		}
 		else {
 			if(mapPreviewTexture != NULL) {
-				renderer.renderTextureQuad(5,185,150,150,mapPreviewTexture,1.0f);
+				//renderer.renderTextureQuad(5,185,150,150,mapPreviewTexture,1.0f);
+				renderer.renderTextureQuad(	this->render_mapPreviewTexture_X,
+											this->render_mapPreviewTexture_Y,
+											this->render_mapPreviewTexture_W,
+											this->render_mapPreviewTexture_H,
+											mapPreviewTexture,1.0f);
+
 				//printf("=================> Rendering map preview texture\n");
 			}
 
@@ -2174,7 +2224,13 @@ void MenuStateCustomGame::render() {
 		    if(mapPreviewTexture == NULL) {
 		    	bool renderAll = (listBoxFogOfWar.getSelectedItemIndex() == 2);
 		    	//printf("=================> Rendering map preview into a texture BEFORE (%p)\n", mapPreviewTexture);
-		    	renderer.renderMapPreview(&mapPreview, renderAll, 10, 350,&mapPreviewTexture);
+
+		    	//renderer.renderMapPreview(&mapPreview, renderAll, 10, 350,&mapPreviewTexture);
+		    	renderer.renderMapPreview(&mapPreview, renderAll,
+		    			this->render_mapPreviewTexture_X,
+		    			this->render_mapPreviewTexture_Y,
+		    			&mapPreviewTexture);
+
 		    	//printf("=================> Rendering map preview into a texture AFTER (%p)\n", mapPreviewTexture);
 		    }
 		}

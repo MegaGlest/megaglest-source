@@ -47,6 +47,11 @@ static const double REPROMPT_DOWNLOAD_SECONDS		= 7;
 const int HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS  	= 4;
 static const char *HEADLESS_SAVED_GAME_FILENAME 	= "lastHeadlessGameSettings.mgg";
 
+const int mapPreviewTexture_X = 5;
+const int mapPreviewTexture_Y = 185;
+const int mapPreviewTexture_W = 150;
+const int mapPreviewTexture_H = 150;
+
 struct FormatString {
 	void operator()(string &s) {
 		s = formatString(s);
@@ -66,6 +71,11 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
 	updateDataSynchDetailText = false;
 	launchingNewGame = false;
+
+	this->render_mapPreviewTexture_X = mapPreviewTexture_X;
+	this->render_mapPreviewTexture_Y = mapPreviewTexture_Y;
+	this->render_mapPreviewTexture_W = mapPreviewTexture_W;
+	this->render_mapPreviewTexture_H = mapPreviewTexture_H;
 
 	needToBroadcastServerSettings=false;
 	broadcastServerSettingsDelayTimer=0;
@@ -1129,6 +1139,40 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
     		//printf("lastKey = %d [%c]\n",lastKey,lastKey);
     		advanceToItemStartingWith = lastKey;
     	}
+	}
+
+	if(mapPreviewTexture != NULL) {
+//        		printf("X: %d Y: %d      [%d, %d, %d, %d]\n",
+//        				x, y,
+//        				this->render_mapPreviewTexture_X, this->render_mapPreviewTexture_X + this->render_mapPreviewTexture_W,
+//        				this->render_mapPreviewTexture_Y, this->render_mapPreviewTexture_Y + this->render_mapPreviewTexture_H);
+
+		if( x >= this->render_mapPreviewTexture_X && x <= this->render_mapPreviewTexture_X + this->render_mapPreviewTexture_W &&
+			y >= this->render_mapPreviewTexture_Y && y <= this->render_mapPreviewTexture_Y + this->render_mapPreviewTexture_H) {
+
+			if( this->render_mapPreviewTexture_X == mapPreviewTexture_X &&
+				this->render_mapPreviewTexture_Y == mapPreviewTexture_Y &&
+				this->render_mapPreviewTexture_W == mapPreviewTexture_W &&
+				this->render_mapPreviewTexture_H == mapPreviewTexture_H) {
+
+				const Metrics &metrics= Metrics::getInstance();
+
+				this->render_mapPreviewTexture_X = 0;
+				this->render_mapPreviewTexture_Y = 0;
+				this->render_mapPreviewTexture_W = metrics.getVirtualW();
+				this->render_mapPreviewTexture_H = metrics.getVirtualH();
+
+				cleanupMapPreviewTexture();
+			}
+			else {
+				this->render_mapPreviewTexture_X = mapPreviewTexture_X;
+				this->render_mapPreviewTexture_Y = mapPreviewTexture_Y;
+				this->render_mapPreviewTexture_W = mapPreviewTexture_W;
+				this->render_mapPreviewTexture_H = mapPreviewTexture_H;
+
+				cleanupMapPreviewTexture();
+			}
+		}
 	}
 
 	if(mainMessageBox.getEnabled()) {
@@ -2386,7 +2430,13 @@ void MenuStateConnectedGame::render() {
 		}
 
 		if(mapPreviewTexture != NULL) {
-			renderer.renderTextureQuad(5,185,150,150,mapPreviewTexture,1.0f);
+			//renderer.renderTextureQuad(5,185,150,150,mapPreviewTexture,1.0f);
+			renderer.renderTextureQuad(	this->render_mapPreviewTexture_X,
+										this->render_mapPreviewTexture_Y,
+										this->render_mapPreviewTexture_W,
+										this->render_mapPreviewTexture_H,
+										mapPreviewTexture,1.0f);
+
 			//printf("=================> Rendering map preview texture\n");
 		}
 
@@ -2633,8 +2683,13 @@ void MenuStateConnectedGame::render() {
 
 			if(mapPreviewTexture == NULL) {
 				renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
+
 				bool renderAll = (listBoxFogOfWar.getSelectedItemIndex() == 2);
-				renderer.renderMapPreview(&mapPreview, renderAll, 10, 350, &mapPreviewTexture);
+				//renderer.renderMapPreview(&mapPreview, renderAll, 10, 350, &mapPreviewTexture);
+		    	renderer.renderMapPreview(&mapPreview, renderAll,
+		    			this->render_mapPreviewTexture_X,
+		    			this->render_mapPreviewTexture_Y,
+		    			&mapPreviewTexture);
 			}
 		}
 		renderer.renderChatManager(&chatManager);

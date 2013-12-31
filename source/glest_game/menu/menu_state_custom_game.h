@@ -192,6 +192,10 @@ private:
 
 	MapPreview mapPreview;
 	Texture2D *mapPreviewTexture;
+	int render_mapPreviewTexture_X;
+	int render_mapPreviewTexture_Y;
+	int render_mapPreviewTexture_W;
+	int render_mapPreviewTexture_H;
 
 	bool autostart;
 	GameSettings *autoStartSettings;
