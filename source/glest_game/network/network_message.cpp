@@ -33,6 +33,12 @@ namespace Glest{ namespace Game{
 
 bool NetworkMessage::useOldProtocol = true;
 
+auto_ptr<Mutex> NetworkMessage::mutexMessageStats(new Mutex(CODE_AT_LINE));
+Chrono NetworkMessage::statsTimer;
+Chrono NetworkMessage::lastSend;
+Chrono NetworkMessage::lastRecv;
+std::map<NetworkMessageStatisticType,int64> NetworkMessage::mapMessageStats;
+
 // =====================================================
 //	class NetworkMessage
 // =====================================================
@@ -54,7 +60,7 @@ bool NetworkMessage::receive(Socket* socket, void* data, int dataSize, bool tryR
 		else {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] dataSize = %d, dataReceived = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,dataSize,dataReceived);
 
-			dump_packet("\nINCOMING PACKET:\n",data, dataSize);
+			dump_packet("\nINCOMING PACKET:\n",data, dataSize, false);
 			return true;
 		}
 	}
@@ -66,7 +72,7 @@ void NetworkMessage::send(Socket* socket, const void* data, int dataSize) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] socket = %p, data = %p, dataSize = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,socket,data,dataSize);
 
 	if(socket != NULL) {
-		dump_packet("\nOUTGOING PACKET:\n",data, dataSize);
+		dump_packet("\nOUTGOING PACKET:\n",data, dataSize, true);
 		int sendResult = socket->send(data, dataSize);
 		if(sendResult != dataSize) {
 			if(socket != NULL && socket->getSocketId() > 0) {
@@ -81,19 +87,159 @@ void NetworkMessage::send(Socket* socket, const void* data, int dataSize) {
 	}
 }
 
-void NetworkMessage::dump_packet(string label, const void* data, int dataSize) {
-	Config &config = Config::getInstance();
-	if(config.getBool("DebugNetworkPackets","false") == true) {
-		printf("%s",label.c_str());
+void NetworkMessage::resetNetworkPacketStats() {
+	NetworkMessage::statsTimer.stop();
+	NetworkMessage::lastSend.stop();
+	NetworkMessage::lastRecv.stop();
+	NetworkMessage::mapMessageStats.clear();
+}
 
-		const char *buf = static_cast<const char *>(data);
-		for(unsigned int i = 0; i < (unsigned int)dataSize; ++i) {
-			printf("%u[%X][%d] ",i,buf[i],buf[i]);
-			if(i % 10 == 0) {
-				printf("\n");
+string  NetworkMessage::getNetworkPacketStats() {
+	string result = "Current Timer Milliseconds: " + intToStr(NetworkMessage::statsTimer.getMillis()) + "\n";
+
+	for(std::map<NetworkMessageStatisticType,int64>::iterator iterMap = mapMessageStats.begin();
+			iterMap != mapMessageStats.end(); ++iterMap) {
+		switch(iterMap->first) {
+			case netmsgstPacketsPerMillisecondSend:
+				result += "send p / msec: " + intToStr(iterMap->second) + (iterMap->second > 10 ? "  ****WARNING WIN32 LIMIT EXCEEDED****" : "") + "\n";
+				break;
+			case netmsgstPacketsPerSecondSend:
+				result += "send p / sec: " + intToStr(iterMap->second) + "\n";
+				break;
+			case netmsgstAverageSendSize:
+				result += "send avg size: " + intToStr(iterMap->second) + "\n";
+				break;
+
+			case netmsgstPacketsPerMillisecondRecv:
+				result += "recv p / msec: " + intToStr(iterMap->second) + "\n";
+				break;
+			case netmsgstPacketsPerSecondRecv:
+				result += "recv p / sec: " + intToStr(iterMap->second) + (iterMap->second > 10 ? "  ****WARNING WIN32 LIMIT EXCEEDED****" : "") + "\n";
+				break;
+			case netmsgstAverageRecvSize:
+				result += "recv avg size: " + intToStr(iterMap->second) + "\n";
+				break;
+
+		}
+	}
+	return result;
+}
+
+void NetworkMessage::dump_packet(string label, const void* data, int dataSize, bool isSend) {
+	Config &config = Config::getInstance();
+	if( config.getBool("DebugNetworkPacketStats","false") == true) {
+
+		MutexSafeWrapper safeMutex(NetworkMessage::mutexMessageStats.get());
+
+		if(NetworkMessage::statsTimer.isStarted() == false) {
+			NetworkMessage::statsTimer.start();
+		}
+
+		bool secondChanged = false;
+		if(NetworkMessage::statsTimer.getSeconds() - NetworkMessage::mapMessageStats[netmsgstLastEvent] >= 3) {
+
+			NetworkMessage::mapMessageStats[netmsgstLastEvent] = NetworkMessage::statsTimer.getSeconds();
+			secondChanged = true;
+		}
+
+		if(isSend == true) {
+			if(NetworkMessage::lastSend.isStarted() == false) {
+				NetworkMessage::lastSend.start();
+			}
+			int64 millisecondsSinceLastSend = NetworkMessage::lastSend.getMillis();
+			int64 secondsSinceLastSend 		= NetworkMessage::lastSend.getSeconds();
+
+			//char szBuf[8096]="";
+			//snprintf(szBuf,8095,"\nSEND check cur [%lld] last [%lld]\n", (long long)millisecondsSinceLastSend,(long long)NetworkMessage::mapMessageStats[netmsgstPacketsPerMillisecondSend_last] );
+			//printf("%s",szBuf);
+
+			if(millisecondsSinceLastSend == NetworkMessage::mapMessageStats[netmsgstPacketsPerMillisecondSend_last]) {
+				NetworkMessage::mapMessageStats[netmsgstPacketsPerMillisecondSend_current_count]++;
+
+			}
+			else {
+				NetworkMessage::mapMessageStats[netmsgstPacketsPerMillisecondSend_last] = millisecondsSinceLastSend;
+				NetworkMessage::mapMessageStats[netmsgstPacketsPerMillisecondSend] =
+						(NetworkMessage::mapMessageStats[netmsgstPacketsPerMillisecondSend] +
+						 NetworkMessage::mapMessageStats[netmsgstPacketsPerMillisecondSend_current_count]) / 2;
+			}
+
+			if(secondsSinceLastSend == NetworkMessage::mapMessageStats[netmsgstPacketsPerSecondSend_last]) {
+				NetworkMessage::mapMessageStats[netmsgstPacketsPerSecondSend_current_count]++;
+
+			}
+			else {
+				NetworkMessage::mapMessageStats[netmsgstPacketsPerSecondSend_last] = secondsSinceLastSend;
+				NetworkMessage::mapMessageStats[netmsgstPacketsPerSecondSend] =
+						(NetworkMessage::mapMessageStats[netmsgstPacketsPerSecondSend] +
+						 NetworkMessage::mapMessageStats[netmsgstPacketsPerSecondSend_current_count]) / 2;
+			}
+
+			NetworkMessage::mapMessageStats[netmsgstAverageSendSize] =
+					(NetworkMessage::mapMessageStats[netmsgstAverageSendSize] +
+					 dataSize) / 2;
+		}
+		else {
+			if(NetworkMessage::lastRecv.isStarted() == false) {
+				NetworkMessage::lastRecv.start();
+			}
+			int64 millisecondsSinceLastRecv = NetworkMessage::lastRecv.getMillis();
+			int64 secondsSinceLastRecv 		= NetworkMessage::lastRecv.getSeconds();
+
+			//char szBuf[8096]="";
+			//snprintf(szBuf,8095,"\nRECV check cur [%lld] last [%lld]\n", (long long)millisecondsSinceLastRecv,(long long)NetworkMessage::mapMessageStats[netmsgstPacketsPerMillisecondRecv_last] );
+			//printf("%s",szBuf);
+
+			if(millisecondsSinceLastRecv == NetworkMessage::mapMessageStats[netmsgstPacketsPerMillisecondRecv_last]) {
+				NetworkMessage::mapMessageStats[netmsgstPacketsPerMillisecondRecv_current_count]++;
+
+			}
+			else {
+				NetworkMessage::mapMessageStats[netmsgstPacketsPerMillisecondRecv_last] = millisecondsSinceLastRecv;
+				NetworkMessage::mapMessageStats[netmsgstPacketsPerMillisecondRecv] =
+						(NetworkMessage::mapMessageStats[netmsgstPacketsPerMillisecondRecv] +
+						 NetworkMessage::mapMessageStats[netmsgstPacketsPerMillisecondRecv_current_count]) / 2;
+			}
+
+			if(secondsSinceLastRecv == NetworkMessage::mapMessageStats[netmsgstPacketsPerSecondRecv_last]) {
+				NetworkMessage::mapMessageStats[netmsgstPacketsPerSecondRecv_current_count]++;
+
+			}
+			else {
+				NetworkMessage::mapMessageStats[netmsgstPacketsPerSecondRecv_last] = secondsSinceLastRecv;
+				NetworkMessage::mapMessageStats[netmsgstPacketsPerSecondRecv] =
+						(NetworkMessage::mapMessageStats[netmsgstPacketsPerSecondRecv] +
+						 NetworkMessage::mapMessageStats[netmsgstPacketsPerSecondRecv_current_count]) / 2;
+			}
+
+			NetworkMessage::mapMessageStats[netmsgstAverageRecvSize] =
+					(NetworkMessage::mapMessageStats[netmsgstAverageRecvSize] +
+					 dataSize) / 2;
+		}
+
+		if(secondChanged == true) {
+			printf("%s",NetworkMessage::getNetworkPacketStats().c_str());
+		}
+	}
+
+	if( config.getBool("DebugNetworkPackets","false") == true ||
+		config.getBool("DebugNetworkPacketSizes","false") == true) {
+
+		printf("%s DataSize = %d",label.c_str(),dataSize);
+
+		if(config.getBool("DebugNetworkPackets","false") == true) {
+
+			printf("\n");
+			const char *buf = static_cast<const char *>(data);
+			for(unsigned int index = 0; index < (unsigned int)dataSize; ++index) {
+
+				printf("%u[%X][%d] ",index,buf[index],buf[index]);
+				if(index % 10 == 0) {
+					printf("\n");
+				}
 			}
 		}
-		printf("\n== END ==\n");
+		printf("\n======= END =======\n");
 	}
 }
 

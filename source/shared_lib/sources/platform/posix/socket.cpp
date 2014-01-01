@@ -89,6 +89,21 @@ Mutex UPNP_Tools::mutexUPNP;
 
 #ifdef WIN32
 
+void DisablePacketThrottling() {
+	//Open the registry key.
+	wstring subKey = L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile";
+	HKEY keyHandle;
+	DWORD dwDisposition;
+	RegCreateKeyEx(HKEY_CURRENT_USER,subKey.c_str(),0, NULL, 0, KEY_ALL_ACCESS, NULL, &keyHandle, &dwDisposition);
+	//Set the value.
+
+	DWORD disableThrottle = 0xffffffff;
+	DWORD len = sizeof(disableThrottle);
+	RegSetValueEx(keyHandle, l"NetworkThrottlingIndex", 0, REG_DWORD, &disableThrottle, len);
+	RegCloseKey(keyHandle);
+}
+
+
     #define socklen_t 	int
 	#define MAXHOSTNAME 254
 
@@ -227,6 +242,7 @@ Mutex UPNP_Tools::mutexUPNP;
 	SocketManager Socket::wsaManager;
 
 	SocketManager::SocketManager() {
+		DisablePacketThrottling();
 		WSADATA wsaData;
 		WORD wVersionRequested = MAKEWORD(2, 0);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("SocketManager calling WSAStartup...\n");

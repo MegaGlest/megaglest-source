@@ -4287,6 +4287,16 @@ int glestMain(int argc, char** argv) {
 			config.setBool("DebugNetworkPackets",true,true);
 		}
 
+		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DEBUG_NETWORK_PACKET_SIZES]) == true) {
+			printf("*NOTE: debugging network packet SIZES.\n");
+			config.setBool("DebugNetworkPacketSizes",true,true);
+		}
+
+		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DEBUG_NETWORK_PACKET_STATS]) == true) {
+			printf("*NOTE: debugging network packet STATISTICS.\n");
+			config.setBool("DebugNetworkPacketStats",true,true);
+		}
+
 		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_ENABLE_NEW_PROTOCOL]) == true) {
 			printf("*NOTE: enabling new newtork protocol.\n");
 			NetworkMessage::useOldProtocol = false;

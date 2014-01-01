@@ -16,6 +16,7 @@
 #include "game_constants.h"
 #include "network_types.h"
 #include "byte_order.h"
+#include <map>
 
 #include "leak_dumper.h"
 
@@ -66,15 +67,52 @@ static const int maxLanguageStringSize= 60;
 //	class NetworkMessage
 // =====================================================
 
+enum NetworkMessageStatisticType {
+	netmsgstPacketsPerMillisecondSend,
+	netmsgstPacketsPerMillisecondSend_current_count,
+	netmsgstPacketsPerMillisecondSend_last,
+
+	netmsgstPacketsPerSecondSend,
+	netmsgstPacketsPerSecondSend_current_count,
+	netmsgstPacketsPerSecondSend_last,
+
+	netmsgstAverageSendSize,
+
+	// ---------------------------------------------
+	netmsgstPacketsPerMillisecondRecv,
+	netmsgstPacketsPerMillisecondRecv_current_count,
+	netmsgstPacketsPerMillisecondRecv_last,
+
+	netmsgstPacketsPerSecondRecv,
+	netmsgstPacketsPerSecondRecv_current_count,
+	netmsgstPacketsPerSecondRecv_last,
+
+	netmsgstAverageRecvSize,
+
+	netmsgstLastEvent
+
+};
+
 class NetworkMessage {
+private:
+
+	static auto_ptr<Mutex> mutexMessageStats;
+	static Chrono statsTimer;
+	static Chrono lastSend;
+	static Chrono lastRecv;
+	static std::map<NetworkMessageStatisticType,int64> mapMessageStats;
+
 public:
+	static void resetNetworkPacketStats();
+	static string getNetworkPacketStats();
+
 	static bool useOldProtocol;
 	virtual ~NetworkMessage(){}
 	virtual bool receive(Socket* socket)= 0;
 	virtual void send(Socket* socket) = 0;
 	virtual size_t getDataSize() const = 0;
 
-	void dump_packet(string label, const void* data, int dataSize);
+	void dump_packet(string label, const void* data, int dataSize, bool isSend);
 
 protected:
 	//bool peek(Socket* socket, void* data, int dataSize);
