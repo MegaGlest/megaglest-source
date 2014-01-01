@@ -33,6 +33,7 @@
   #include <winsock.h>
   #include <iphlpapi.h>
   #include <strstream>
+  #include <strsafe.h>
 
 #define MSG_NOSIGNAL 0
 #define MSG_DONTWAIT 0
@@ -88,21 +89,6 @@ Mutex UPNP_Tools::mutexUPNP;
 // UPnP - End
 
 #ifdef WIN32
-
-void DisablePacketThrottling() {
-	//Open the registry key.
-	wstring subKey = L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile";
-	HKEY keyHandle;
-	DWORD dwDisposition;
-	RegCreateKeyEx(HKEY_LOCAL_MACHINE,subKey.c_str(),0, NULL, 0, KEY_ALL_ACCESS, NULL, &keyHandle, &dwDisposition);
-	//Set the value.
-
-	DWORD disableThrottle = 0xffffffff;
-	DWORD len = sizeof(disableThrottle);
-	RegSetValueEx(keyHandle, L"NetworkThrottlingIndex", 0, REG_DWORD, (const BYTE*)&disableThrottle, len);
-	RegCloseKey(keyHandle);
-}
-
 
     #define socklen_t 	int
 	#define MAXHOSTNAME 254
@@ -242,7 +228,6 @@ void DisablePacketThrottling() {
 	SocketManager Socket::wsaManager;
 
 	SocketManager::SocketManager() {
-		DisablePacketThrottling();
 		WSADATA wsaData;
 		WORD wVersionRequested = MAKEWORD(2, 0);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("SocketManager calling WSAStartup...\n");

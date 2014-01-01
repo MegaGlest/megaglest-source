@@ -4138,6 +4138,10 @@ int glestMain(int argc, char** argv) {
     setGameVersion(glestVersionString);
     setGameGITVersion(getRAWGITRevisionString());
 
+#ifdef WIN32
+	CheckPacketThrottling();
+#endif
+
 	if( hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_OPENGL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) 			== true ||
 		hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LUA_INFO]) 			== true ||

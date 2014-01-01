@@ -436,4 +436,47 @@ void done_win32() {
 	::DestroyIcon(icon);
 }
 
+void CheckPacketThrottling() {
+	static bool alreadyChecked = false;
+	if(alreadyChecked == true) {
+		return;
+	}
+	alreadyChecked = true;
+	//printf("Checking Windows Network Packet Throttle Setting...\n");
+	//Open the registry key.
+	wstring subKey = L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile";
+	wstring Key = L"NetworkThrottlingIndex";
+	HKEY keyHandle;
+	DWORD dwDesiredThrottle = 0xffffffff;
+	//LONG reg_result = RegCreateKeyEx(HKEY_LOCAL_MACHINE,subKey.c_str(),0, NULL, 0, KEY_ALL_ACCESS, NULL, &keyHandle, &dwDisposition);
+	//LONG reg_result = RegOpenKeyEx(HKEY_LOCAL_MACHINE,subKey.c_str(),0, KEY_ALL_ACCESS, &keyHandle);
+	LONG reg_result = RegOpenKeyEx(HKEY_LOCAL_MACHINE,subKey.c_str(),0, KEY_QUERY_VALUE, &keyHandle);
+
+	if(reg_result != ERROR_SUCCESS) {
+		printf("\nError opening network throttle registry hive: %d\n",reg_result);
+	}
+	//Set the value.
+
+	DWORD disableThrottle = 0;
+	DWORD len = sizeof(DWORD);
+
+	reg_result = RegQueryValueEx(keyHandle, Key.c_str(), 0, 0, (LPBYTE) &disableThrottle, &len);
+	if(reg_result != ERROR_SUCCESS) {
+		printf("\nError opening network throttle registry key: %d\n",reg_result);
+	}
+
+	if(disableThrottle != dwDesiredThrottle) {
+		printf("\n***WARNING*** Windows network throttling is enabled, value: %d\n",disableThrottle);
+		wprintf(L"Please set: HKEY_LOCAL_MACHINE\\%s\nKey: %s to the value: %X\n",subKey.c_str(),Key.c_str(),dwDesiredThrottle);
+
+//		disableThrottle = 0xffffffff;
+//		reg_result = RegSetValueEx(keyHandle, L"NetworkThrottlingIndex", 0, REG_DWORD, (LPBYTE) &disableThrottle, len);
+//		if(reg_result != ERROR_SUCCESS) {
+//			printf("Error setting network throttle registry key: %d [%s]\n",reg_result,getWindowsAPIError(reg_result).c_str());
+//		}
+	}
+	RegCloseKey(keyHandle);
+}
+
+
 }}//end namespace
