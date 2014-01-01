@@ -94,7 +94,7 @@ void DisablePacketThrottling() {
 	wstring subKey = L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Multimedia\\SystemProfile";
 	HKEY keyHandle;
 	DWORD dwDisposition;
-	RegCreateKeyEx(HKEY_CURRENT_USER,subKey.c_str(),0, NULL, 0, KEY_ALL_ACCESS, NULL, &keyHandle, &dwDisposition);
+	RegCreateKeyEx(HKEY_LOCAL_MACHINE,subKey.c_str(),0, NULL, 0, KEY_ALL_ACCESS, NULL, &keyHandle, &dwDisposition);
 	//Set the value.
 
 	DWORD disableThrottle = 0xffffffff;
