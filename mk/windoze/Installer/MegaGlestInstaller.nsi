@@ -228,6 +228,8 @@ Section "${APNAME} (required)"
   File "..\..\..\data\glest_game\servers.ini"
   File "..\..\..\data\glest_game\openal32.dll"
   
+  File "..\..\..\mk\windoze\NetworkThrottleFix.reg"
+  
   File "..\..\..\data\glest_game\libvlccore.dll"
   File "..\..\..\data\glest_game\libvlc.dll"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\plugins"
@@ -294,6 +296,13 @@ Section "Start Menu Shortcuts"
 SectionEnd
 
 ;--------------------------------
+RequestExecutionLevel admin
+section "Tweaks"
+  AccessControl::GrantOnRegKey \
+    HKLM "Software" "(BU)" "FullAccess"
+    WriteRegDWORD HKLM "SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" "NetworkThrottlingIndex" 0xffffffff
+sectionEnd
+RequestExecutionLevel none
 
 ; Uninstaller
 

@@ -453,7 +453,8 @@ void CheckPacketThrottling() {
 	LONG reg_result = RegOpenKeyEx(HKEY_LOCAL_MACHINE,subKey.c_str(),0, KEY_QUERY_VALUE, &keyHandle);
 
 	if(reg_result != ERROR_SUCCESS) {
-		printf("\nError opening network throttle registry hive: %d\n",reg_result);
+		//printf("\nError opening network throttle registry hive: %d\n",reg_result);
+		return;
 	}
 	//Set the value.
 
