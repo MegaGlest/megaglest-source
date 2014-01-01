@@ -99,7 +99,7 @@ void DisablePacketThrottling() {
 
 	DWORD disableThrottle = 0xffffffff;
 	DWORD len = sizeof(disableThrottle);
-	RegSetValueEx(keyHandle, l"NetworkThrottlingIndex", 0, REG_DWORD, &disableThrottle, len);
+	RegSetValueEx(keyHandle, L"NetworkThrottlingIndex", 0, REG_DWORD, (const BYTE*)&disableThrottle, len);
 	RegCloseKey(keyHandle);
 }
 
