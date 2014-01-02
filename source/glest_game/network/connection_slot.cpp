@@ -366,6 +366,7 @@ ConnectionSlot::ConnectionSlot(ServerInterface* serverInterface, int playerIndex
 	this->lastReceiveCommandListTime		= 0;
 	this->receivedNetworkGameStatus 		= false;
 
+	this->autoPauseGameCountForLag			= 0;
 	this->skipLagCheck 						= false;
 	this->joinGameInProgress 				= false;
 	this->canAcceptConnections 				= true;
@@ -451,6 +452,14 @@ ConnectionSlot::~ConnectionSlot() {
 	mutexSocket = NULL;
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
+}
+
+int ConnectionSlot::getAutoPauseGameCountForLag() {
+	return autoPauseGameCountForLag;
+}
+
+void ConnectionSlot::incrementAutoPauseGameCountForLag() {
+	autoPauseGameCountForLag++;
 }
 
 bool ConnectionSlot::getGameStarted() {

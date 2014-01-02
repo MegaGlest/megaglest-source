@@ -84,6 +84,8 @@ Game::Game() : ProgramState(NULL) {
 	avgRenderFps=0;
 	currentAvgRenderFpsTotal=0;
 	paused=false;
+	networkPauseGameForLaggedClientsRequested=false;
+	networkResumeGameForLaggedClientsRequested=false;
 	pausedForJoinGame=false;
 	pausedBeforeJoinGame=false;
 	pauseRequestSent=false;
@@ -254,6 +256,8 @@ void Game::resetMembers() {
 	currentAvgRenderFpsTotal=0;
 	tickCount=0;
 	paused= false;
+	networkPauseGameForLaggedClientsRequested=false;
+	networkResumeGameForLaggedClientsRequested=false;
 	pausedForJoinGame=false;
 	pausedBeforeJoinGame=false;
 	resumeRequestSent=false;
@@ -1596,6 +1600,11 @@ void Game::init(bool initForPreviewOnly) {
 		printf("*Note: Monitoring Network CRC NORMAL synchronization...\n");
 	}
 
+	//NetworkRole role = networkManager.getNetworkRole();
+	if(role == nrServer) {
+		networkManager.initServerInterfaces(this);
+	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] ==== START GAME ==== getCurrentPixelByteCount() = " MG_SIZE_T_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderer.getCurrentPixelByteCount());
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugWorldSynch).enabled) SystemFlags::OutputDebug(SystemFlags::debugWorldSynch,"=============================================\n");
@@ -2181,7 +2190,9 @@ void Game::update() {
 					// Commander
 					chronoGamePerformanceCounts.start();
 
-					if(pendingQuitError == false) commander.signalNetworkUpdate(this);
+					if(pendingQuitError == false) {
+						commander.signalNetworkUpdate(this);
+					}
 
 					addPerformanceCount("ProcessNetworkUpdate",chronoGamePerformanceCounts.getMillis());
 
@@ -2244,7 +2255,9 @@ void Game::update() {
 		}
 		//else if(role == nrClient) {
 		else {
-			if(pendingQuitError == false) commander.signalNetworkUpdate(this);
+			if(pendingQuitError == false) {
+				commander.signalNetworkUpdate(this);
+			}
 
 			if(playingStaticVideo == true) {
 				if(videoPlayer->isPlaying() == false) {
@@ -2299,6 +2312,26 @@ void Game::update() {
 
 		// START - Handle joining in progress games
 		if(role == nrServer) {
+
+			if(this->networkPauseGameForLaggedClientsRequested == true) {
+				this->networkPauseGameForLaggedClientsRequested = false;
+
+				if(getPaused() == false) {
+
+					printf("[CMDR] Pausing game for lagging client(s), current world frame [%d]\n",world.getFrameCount());
+					commander.tryPauseGame(false,false);
+				}
+			}
+			else if(this->networkResumeGameForLaggedClientsRequested == true) {
+				this->networkResumeGameForLaggedClientsRequested = false;
+
+				if(getPaused() == true) {
+
+					printf("[CMDR] Resuming game after Pause for lagging client(s), current world frame [%d]\n",world.getFrameCount());
+					commander.tryResumeGame(false,false);
+				}
+			}
+
 			ServerInterface *server = NetworkManager::getInstance().getServerInterface();
 			if(server->getPauseForInGameConnection() == true) {
 
@@ -5985,11 +6018,11 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 			}
 		}
 
-		//printf("Line: %d setPaused value: %d clearCaches: %d\n",__LINE__,value,clearCaches);
-
 		Lang &lang= Lang::getInstance();
 		if(value == false) {
 			console.addLine(lang.getString("GameResumed"));
+
+			bool wasPausedForJoinGame = pausedForJoinGame;
 			paused= false;
 			pausedForJoinGame = false;
 			pausedBeforeJoinGame = false;
@@ -6008,13 +6041,9 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 			}
 			setupPopupMenus(false);
 
-			//!!!
-			//NetworkManager &networkManager= NetworkManager::getInstance();
-			if(networkManager.getNetworkRole() == nrClient) {
-				//ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
-				//if(clientInterface != NULL && clientInterface->getResumeInGameJoin() == true) {
+			if(networkManager.getNetworkRole() == nrClient &&
+				wasPausedForJoinGame == true) {
 				initialResumeSpeedLoops = true;
-				//}
 			}
 
 			commander.setPauseNetworkCommands(false);
@@ -6028,7 +6057,6 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 			paused= true;
 			pausedForJoinGame = joinNetworkGame;
 			pauseStateChanged = true;
-			//!!!
 
 			if(clearCaches == true) {
 				//printf("Line: %d Clear Caches for resume in progress game\n",__LINE__);
@@ -6273,6 +6301,18 @@ void Game::stopAllVideo() {
 	}
 }
 
+bool Game::clientLagHandler(int slotIndex,bool networkPauseGameForLaggedClients) {
+	if(networkPauseGameForLaggedClients == true) {
+		printf("**WARNING** Detected lag from client: %d networkPauseGameForLaggedClients: %d\n",slotIndex,networkPauseGameForLaggedClients);
+	}
+	else {
+		printf("==> Requested Resume Game after Pause for lagging client(s)...\n");
+	}
+
+	this->networkPauseGameForLaggedClientsRequested  = networkPauseGameForLaggedClients;
+	this->networkResumeGameForLaggedClientsRequested = !networkPauseGameForLaggedClients;
+	return true;
+}
 
 void Game::saveGame(){
 	string file = this->saveGame(GameConstants::saveGameFilePattern);

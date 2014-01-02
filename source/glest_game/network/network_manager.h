@@ -49,6 +49,8 @@ public:
 	ServerInterface* getServerInterface(bool throwErrorOnNull=true);
 	ClientInterface* getClientInterface(bool throwErrorOnNull=true);
 	NetworkRole getNetworkRole() const { return networkRole; }
+
+	void initServerInterfaces(ClientLagCallbackInterface *intf);
 };
 
 }}//end namespace

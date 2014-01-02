@@ -49,7 +49,7 @@ void NetworkManager::init(NetworkRole networkRole, bool publishEnabled) {
 
 	if(networkRole == nrServer) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d, networkRole = %d, gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,networkRole,gameNetworkInterface);
-		gameNetworkInterface = new ServerInterface(publishEnabled);
+		gameNetworkInterface = new ServerInterface(publishEnabled,NULL);
 	}
 	else {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d, networkRole = %d, gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,networkRole,gameNetworkInterface);
@@ -59,6 +59,11 @@ void NetworkManager::init(NetworkRole networkRole, bool publishEnabled) {
     //printf("==========] CREATING gameNetworkInterface [%p]\n",gameNetworkInterface);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] this->networkRole = %d gameNetworkInterface [%p]\n",__FILE__,__FUNCTION__,__LINE__,this->networkRole,gameNetworkInterface);
+}
+
+void NetworkManager::initServerInterfaces(ClientLagCallbackInterface *intf) {
+	ServerInterface *server = getServerInterface();
+	server->setClientLagCallbackInterface(intf);
 }
 
 void NetworkManager::end() {

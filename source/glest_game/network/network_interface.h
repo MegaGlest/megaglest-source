@@ -40,6 +40,17 @@ namespace Glest{ namespace Game{
 //	class NetworkInterface
 // =====================================================
 
+//
+// This interface describes the methods to notify when a client is lagging
+//
+class ClientLagCallbackInterface {
+public:
+	virtual bool clientLagHandler(int slotIndex, bool networkPauseGameForLaggedClients) = 0;
+
+	virtual ~ClientLagCallbackInterface() {}
+};
+
+
 class ChatMsgInfo {
 
 protected:

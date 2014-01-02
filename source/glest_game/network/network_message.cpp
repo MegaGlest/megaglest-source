@@ -1606,9 +1606,9 @@ bool NetworkMessageCommandList::receive(Socket* socket) {
 	bool result = false;
 	if(useOldProtocol == true) {
 		result = NetworkMessage::receive(socket, &data.header, commandListHeaderSize, true);
+		//printf("!!! =====> IN Network hdr cmd get frame: %d data.header.commandCount: %u\n",data.header.frameCount,data.header.commandCount);
 	}
 	else {
-		//fromEndianHeader();
 		buf = new unsigned char[getPackedSizeHeader()+1];
 		result = NetworkMessage::receive(socket, buf, getPackedSizeHeader(), true);
 		unpackMessageHeader(buf);
@@ -1620,12 +1620,18 @@ bool NetworkMessageCommandList::receive(Socket* socket) {
 	if(result == true) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] got header, messageType = %d, commandCount = %u, frameCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,data.header.messageType,data.header.commandCount,data.header.frameCount);
 
+		//printf("!!! =====> IN Network cmd get frame: %d data.header.commandCount: %u\n",data.header.frameCount,data.header.commandCount);
+
 		if(data.header.commandCount > 0) {
 			data.commands.resize(data.header.commandCount);
 
 			if(useOldProtocol == true) {
 				int totalMsgSize = (sizeof(NetworkCommand) * data.header.commandCount);
 				result = NetworkMessage::receive(socket, &data.commands[0], totalMsgSize, true);
+
+//				if(data.commands[0].getNetworkCommandType() == nctPauseResume) {
+//					printf("=====> IN Network cmd type: %d [%d] frame: %d\n",data.commands[0].getNetworkCommandType(),nctPauseResume,data.header.frameCount);
+//				}
 			}
 			else {
 				//int totalMsgSize = (sizeof(NetworkCommand) * data.header.commandCount);
@@ -1676,6 +1682,7 @@ void NetworkMessageCommandList::send(Socket* socket) {
 	unsigned char *buf = NULL;
 	//bool result = false;
 	if(useOldProtocol == true) {
+		//printf("<===== OUT Network hdr cmd type: frame: %d totalCommand: %u [%u]\n",data.header.frameCount,totalCommand,data.header.commandCount);
 		NetworkMessage::send(socket, &data.header, commandListHeaderSize);
 	}
 	else {
@@ -1693,6 +1700,9 @@ void NetworkMessageCommandList::send(Socket* socket) {
 
 		//bool result = false;
 		if(useOldProtocol == true) {
+//			if(data.commands[0].getNetworkCommandType() == nctPauseResume) {
+//				printf("<===== OUT Network cmd type: %d [%d] frame: %d totalCommand: %u [%u]\n",data.commands[0].getNetworkCommandType(),nctPauseResume,data.header.frameCount,totalCommand,data.header.commandCount);
+//			}
 			NetworkMessage::send(socket, &data.commands[0], (sizeof(NetworkCommand) * totalCommand));
 		}
 		else {

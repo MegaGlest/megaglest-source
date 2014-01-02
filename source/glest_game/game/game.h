@@ -60,7 +60,7 @@ enum LoadGameItem {
 //	Main game class
 // =====================================================
 class Game: public ProgramState, public FileCRCPreCacheThreadCallbackInterface,
-            public CustomInputCallbackInterface {
+            public CustomInputCallbackInterface, public ClientLagCallbackInterface {
 public:
 	static const float highlightTime;
 
@@ -214,6 +214,9 @@ private:
 
 	std::map<int,FowAlphaCellsLookupItem> teamFowAlphaCellsLookupItem;
 	std::map<string,int64> gamePerformanceCounts;
+
+	bool networkPauseGameForLaggedClientsRequested;
+	bool networkResumeGameForLaggedClientsRequested;
 
 public:
 	Game();
@@ -398,6 +401,8 @@ private:
 	void checkWinnerStandardHeadlessOrObserver();
 	void checkWinnerStandardPlayer();
 	std::map<int, int> getTeamsAlive();
+
+	virtual bool clientLagHandler(int slotIndex,bool networkPauseGameForLaggedClients);
 };
 
 }}//end namespace

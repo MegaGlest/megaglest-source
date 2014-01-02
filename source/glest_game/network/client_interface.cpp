@@ -39,6 +39,10 @@ namespace Glest{ namespace Game{
 
 const bool debugClientInterfacePerf = false;
 
+const int ClientInterface::messageWaitTimeout					= 10000;	//10 seconds
+const int ClientInterface::waitSleepTime						= 10;
+const int ClientInterface::maxNetworkCommandListSendTimeWait 	= 5;
+
 // =====================================================
 //	class ClientInterfaceThread
 // =====================================================
@@ -84,6 +88,7 @@ void ClientInterfaceThread::execute() {
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("ClientInterfaceThread::exec Line: %d\n",__LINE__);
 
+		time_t clientSimulationLagStartTime = 0;
 		Chrono chrono;
 		for(;this->clientInterface != NULL;) {
 
@@ -105,6 +110,18 @@ void ClientInterfaceThread::execute() {
 			while(	this->getQuitStatus() == false &&
 					clientInterface != NULL) {
 				//printf("ClientInterfaceThread::exec Line: %d this->getQuitStatus(): %d\n",__LINE__,this->getQuitStatus());
+
+				// START: Test simulating lag for the client
+				int simulateLag = Config::getInstance().getInt("SimulateClientLag","0");
+				if(simulateLag > 0) {
+					if(clientSimulationLagStartTime == 0) {
+						clientSimulationLagStartTime = time(NULL);
+					}
+					if(difftime((long int)time(NULL),clientSimulationLagStartTime) <= Config::getInstance().getInt("SimulateClientLagDurationSeconds","0")) {
+						sleep(simulateLag);
+					}
+				}
+				// END: Test simulating lag for the client
 
 				clientInterface->updateNetworkFrame();
 
@@ -162,10 +179,6 @@ void ClientInterfaceThread::execute() {
 // =====================================================
 //	class ClientInterface
 // =====================================================
-
-const int ClientInterface::messageWaitTimeout					= 10000;	//10 seconds
-const int ClientInterface::waitSleepTime						= 10;
-const int ClientInterface::maxNetworkCommandListSendTimeWait 	= 4;
 
 ClientInterface::ClientInterface() : GameNetworkInterface() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] constructor for %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this);
@@ -443,7 +456,6 @@ void ClientInterface::update() {
 		}
 
 		double lastSendElapsed = difftime((long int)time(NULL),lastNetworkCommandListSendTime);
-		//printf("#1 Client send currentFrameCount = %d lastSendElapsed = %f\n",currentFrameCount,lastSendElapsed);
 
 		// If we are on a frame that should send packets or we have commands
 		// to send now, send it now.
@@ -451,15 +463,14 @@ void ClientInterface::update() {
 			currentFrameCount % this->gameSettings.getNetworkFramePeriod() == 0) ||
 				networkMessageCommandList.getCommandCount() > 0) {
 
-			//printf("#2 Client send currentFrameCount = %d lastSendElapsed = %f\n",currentFrameCount,lastSendElapsed);
 			if(lastSentFrameCount < currentFrameCount ||
 				networkMessageCommandList.getCommandCount() > 0) {
-				//printf("#3 Client send currentFrameCount = %d lastSentFrameCount = %d\n",currentFrameCount,lastSentFrameCount );
 
 				lastSentFrameCount = currentFrameCount;
 				sendMessage(&networkMessageCommandList);
-				lastNetworkCommandListSendTime = time(NULL);
-				lastSendElapsed = difftime((long int)time(NULL),lastNetworkCommandListSendTime);
+
+				lastNetworkCommandListSendTime 	= time(NULL);
+				lastSendElapsed 				= 0;
 			}
 		}
 
@@ -998,6 +1009,8 @@ void ClientInterface::updateNetworkFrame() {
 void ClientInterface::updateFrame(int *checkFrame) {
 	//printf("#1 ClientInterface::updateFrame\n");
 
+	//printf("In updateFrame: %d\n",(checkFrame ? *checkFrame : -1));
+
 	if(isConnected() == true && getQuitThread() == false) {
 		//printf("#2 ClientInterface::updateFrame\n");
 
@@ -1008,29 +1021,21 @@ void ClientInterface::updateFrame(int *checkFrame) {
 		}
 
 		int waitMicroseconds = (checkFrame == NULL ? 10 : 0);
-		int simulateLag = Config::getInstance().getInt("SimulateClientLag","0");
+
 		bool done= false;
 		while(done == false && getQuitThread() == false) {
 			//printf("BEFORE Client get networkMessageType\n");
+
 
 			//wait for the next message
 			NetworkMessageType networkMessageType = waitForMessage(waitMicroseconds);
 
 			//printf("AFTER Client got networkMessageType = %d\n",networkMessageType);
 
-			// START: Test simulating lag for the client
-			if(simulateLag > 0) {
-				if(clientSimulationLagStartTime == 0) {
-					clientSimulationLagStartTime = time(NULL);
-				}
-				if(difftime((long int)time(NULL),clientSimulationLagStartTime) <= Config::getInstance().getInt("SimulateClientLagDurationSeconds","0")) {
-					sleep(simulateLag);
-				}
-			}
-			// END: Test simulating lag for the client
-
 			//check we have an expected message
 			//NetworkMessageType networkMessageType= getNextMessageType();
+
+			//printf("Got Network networkMessageType: %d\n",networkMessageType);
 
 			switch(networkMessageType)
 			{
@@ -1051,6 +1056,8 @@ void ClientInterface::updateFrame(int *checkFrame) {
 
 						throw megaglest_runtime_error("error retrieving nmtCommandList returned false!");
 					}
+
+					//printf("Client Thread getFrameCount(): %d getCommandCount(): %d\n",networkMessageCommandList.getFrameCount(),networkMessageCommandList.getCommandCount());
 
 					MutexSafeWrapper safeMutex(networkCommandListThreadAccessor,CODE_AT_LINE);
 					cachedLastPendingFrameCount = networkMessageCommandList.getFrameCount();
@@ -1095,6 +1102,11 @@ void ClientInterface::updateFrame(int *checkFrame) {
 					// give all commands
 					for(int i= 0; i < networkMessageCommandList.getCommandCount(); ++i) {
 						//pendingCommands.push_back(*networkMessageCommandList.getCommand(i));
+
+						//if(networkMessageCommandList.getCommand(i)->getNetworkCommandType() == nctPauseResume) {
+							//printf("Network cmd type: %d [%d] frame: %d\n",networkMessageCommandList.getCommand(i)->getNetworkCommandType(),nctPauseResume,networkMessageCommandList.getFrameCount());
+						//}
+
 						cachedPendingCommands[networkMessageCommandList.getFrameCount()].push_back(*networkMessageCommandList.getCommand(i));
 
 						if(cachedPendingCommandCRCs.find(networkMessageCommandList.getFrameCount()) == cachedPendingCommandCRCs.end()) {
@@ -1315,6 +1327,8 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 	uint64 frameCountAsUInt64				= frameCount;
 	timeClientWaitedForLastMessage 			= 0;
 
+	//printf("In getNetworkCommand: %d [%d]\n",frameCount,currentCachedPendingCommandsIndex);
+
 	if(getQuit() == false && getQuitThread() == false) {
 
 		Chrono chrono;
@@ -1333,6 +1347,9 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 			if(cachedPendingCommands.find(frameCount) != cachedPendingCommands.end()) {
 
 				Commands &frameCmdList = cachedPendingCommands[frameCount];
+
+				//printf("In getNetworkCommand frameCmdList.size(): %d\n",(int)frameCmdList.size());
+
 				if(frameCmdList.empty() == false) {
 					for(int index = 0; index < (int)frameCmdList.size(); ++index) {
 						pendingCommands.push_back(frameCmdList[index]);
@@ -1401,6 +1418,8 @@ bool ClientInterface::getNetworkCommand(int frameCount, int currentCachedPending
 
 void ClientInterface::updateKeyframe(int frameCount) {
 	currentFrameCount = frameCount;
+
+	//printf("In updateKeyFrame: %d\n",currentFrameCount);
 
 	if(getQuit() == false && getQuitThread() == false) {
 		if(networkCommandListThread == NULL) {

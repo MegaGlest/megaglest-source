@@ -107,10 +107,17 @@ private:
 	Mutex *gameStatsThreadAccessor;
 	Stats *gameStats;
 
+	bool clientsAutoPausedDueToLag;
+	Chrono clientsAutoPausedDueToLagTimer;
+	Chrono lastBroadcastCommandsTimer;
+	ClientLagCallbackInterface *clientLagCallbackInterface;
+
 public:
-	ServerInterface(bool publishEnabled);
+	ServerInterface(bool publishEnabled, ClientLagCallbackInterface *clientLagCallbackInterface);
 	virtual ~ServerInterface();
 
+	bool getClientsAutoPausedDueToLag();
+	void setClientLagCallbackInterface(ClientLagCallbackInterface *intf);
 	void setGameStats(Stats *gameStats);
 
 	virtual Socket* getSocket(bool mutexLock=true)				{return &serverSocket;}
@@ -254,6 +261,16 @@ private:
     void processTextMessageQueue();
     void processBroadCastMessageQueue();
     void checkListenerSlots();
+	void checkForCompletedClientsUsingThreadManager(
+			std::map<int, bool>& mapSlotSignalledList,
+			std::vector<string>& errorMsgList);
+	void checkForCompletedClientsUsingLoop(
+			std::map<int, bool>& mapSlotSignalledList,
+			std::vector<string>& errorMsgList,
+			std::map<int, ConnectionSlotEvent>& eventList);
+	void checkForAutoPauseForLaggingClient(int index,
+			ConnectionSlot* connectionSlot);
+	void checkForAutoResumeForLaggingClients();
 
 protected:
     void signalClientsToRecieveData(std::map<PLATFORM_SOCKET,bool> & socketTriggeredList, std::map<int,ConnectionSlotEvent> & eventList, std::map<int,bool> & mapSlotSignalledList);

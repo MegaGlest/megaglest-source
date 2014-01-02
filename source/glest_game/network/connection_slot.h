@@ -162,9 +162,14 @@ private:
 	bool unPauseForInGameConnection;
 	bool sentSavedGameInfo;
 
+	int autoPauseGameCountForLag;
+
 public:
 	ConnectionSlot(ServerInterface* serverInterface, int playerIndex);
 	~ConnectionSlot();
+
+	int getAutoPauseGameCountForLag();
+	void incrementAutoPauseGameCountForLag();
 
 	bool getGameStarted();
 	void setGameStarted(bool value);
