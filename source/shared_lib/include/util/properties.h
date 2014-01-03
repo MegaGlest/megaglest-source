@@ -47,6 +47,7 @@ private:
 
 	string path;
 	static string applicationPath;
+	static string applicationDataPath;
 	static string gameVersion;
 
 	static string techtreePath;
@@ -56,6 +57,9 @@ private:
 public:
 	static void setApplicationPath(string value) { applicationPath=value; }
 	static string getApplicationPath() { return applicationPath; }
+
+	static void setApplicationDataPath(string value) { applicationDataPath=value; }
+	static string getApplicationDataPath() { return applicationDataPath; }
 
 	static void setGameVersion(string value) { gameVersion=value; }
 	static string getGameVersion() { return gameVersion; }

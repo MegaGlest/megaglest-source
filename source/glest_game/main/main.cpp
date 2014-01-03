@@ -1337,6 +1337,8 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
     	}
     }
 
+    Properties::setApplicationDataPath(pathCache[GameConstants::path_data_CacheLookupKey]);
+
     //GAME_ARG_INI_PATH
     if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_INI_PATH]) == true) {
         int foundParamIndIndex = -1;
@@ -3977,6 +3979,7 @@ int glestMain(int argc, char** argv) {
 	preCacheThread=NULL;
 
 	Properties::setApplicationPath(executable_path(argv[0]));
+	Properties::setApplicationDataPath(executable_path(argv[0]));
 	Properties::setGameVersion(glestVersionString);
 
     ServerSocket::setMaxPlayerCount(GameConstants::maxPlayers);

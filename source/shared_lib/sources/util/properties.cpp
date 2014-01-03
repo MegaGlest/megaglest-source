@@ -42,6 +42,7 @@ using namespace Shared::Graphics;
 namespace Shared{ namespace Util{
 
 string Properties::applicationPath = "";
+string Properties::applicationDataPath = "";
 string Properties::gameVersion = "";
 
 string Properties::techtreePath = "";
@@ -234,9 +235,9 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
 	mapTagReplacementValues["{APPLICATIONDATAPATH}"] = formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH));
 
 #else
-	mapTagReplacementValues["$APPLICATIONDATAPATH"] = Properties::applicationPath;
-	mapTagReplacementValues["%%APPLICATIONDATAPATH%%"] = Properties::applicationPath;
-	mapTagReplacementValues["{APPLICATIONDATAPATH}"] = Properties::applicationPath;
+	mapTagReplacementValues["$APPLICATIONDATAPATH"] = Properties::applicationDataPath;
+	mapTagReplacementValues["%%APPLICATIONDATAPATH%%"] = Properties::applicationDataPath;
+	mapTagReplacementValues["{APPLICATIONDATAPATH}"] = Properties::applicationDataPath;
 
 #endif
 
@@ -336,9 +337,9 @@ bool Properties::applyTagsToValue(string &value, const std::map<string,string> *
 	replaceAll(value, "{APPLICATIONDATAPATH}",		formatPath(TOSTRING(CUSTOM_DATA_INSTALL_PATH)));
 
 #else
-	replaceAll(value, "$APPLICATIONDATAPATH", 		Properties::applicationPath);
-	replaceAll(value, "%%APPLICATIONDATAPATH%%",	Properties::applicationPath);
-	replaceAll(value, "{APPLICATIONDATAPATH}",		Properties::applicationPath);
+	replaceAll(value, "$APPLICATIONDATAPATH", 		Properties::applicationDataPath);
+	replaceAll(value, "%%APPLICATIONDATAPATH%%",	Properties::applicationDataPath);
+	replaceAll(value, "{APPLICATIONDATAPATH}",		Properties::applicationDataPath);
 
 #endif
 
