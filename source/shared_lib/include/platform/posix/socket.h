@@ -328,6 +328,7 @@ public:
 
 	static Mutex mutexUpnpdiscoverThread;
 	static SDL_Thread *upnpdiscoverThread;
+	static bool cancelUpnpdiscoverThread;
 };
 
 // =====================================================

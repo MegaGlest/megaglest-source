@@ -4214,9 +4214,13 @@ void MenuStateCustomGame::updateNetworkSlots() {
 
         if(hasNetworkGameSettings() == true) {
             if(hasCheckedForUPNP == false) {
-                hasCheckedForUPNP = true;
 
-                serverInterface->getServerSocket()->NETdiscoverUPnPDevices();
+            	if(checkBoxPublishServer.getValue() == true ||
+            		this->headlessServerMode == true) {
+
+            		hasCheckedForUPNP = true;
+            		serverInterface->getServerSocket()->NETdiscoverUPnPDevices();
+            	}
             }
         }
         else {

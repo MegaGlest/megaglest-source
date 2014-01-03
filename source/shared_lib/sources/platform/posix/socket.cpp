@@ -75,6 +75,7 @@ int ServerSocket::maxPlayerCount = -1;
 int ServerSocket::externalPort  = Socket::broadcast_portno;
 BroadCastClientSocketThread *ClientSocket::broadCastClientThread = NULL;
 SDL_Thread *ServerSocket::upnpdiscoverThread = NULL;
+bool ServerSocket::cancelUpnpdiscoverThread = false;
 Mutex ServerSocket::mutexUpnpdiscoverThread;
 //
 // UPnP - Start
@@ -2183,9 +2184,6 @@ ServerSocket::ServerSocket(bool basicMode) : Socket() {
 	this->basicMode = basicMode;
 	this->bindSpecificAddress = "";
 	//printf("SERVER SOCKET CONSTRUCTOR\n");
-	//MutexSafeWrapper safeMutexUPNP(&ServerSocket::mutexUpnpdiscoverThread,CODE_AT_LINE);
-	//ServerSocket::upnpdiscoverThread = NULL;
-	//safeMutexUPNP.ReleaseLock();
 
 	boundPort = 0;
 	portBound = false;
@@ -2205,22 +2203,17 @@ ServerSocket::~ServerSocket() {
 	stopBroadCastThread();
 
 	if(this->basicMode == false) {
-		//printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
-		//printf("SERVER SOCKET DESTRUCTOR\n");
 		MutexSafeWrapper safeMutexUPNP(&ServerSocket::mutexUpnpdiscoverThread,CODE_AT_LINE);
 		if(ServerSocket::upnpdiscoverThread != NULL) {
+
+			ServerSocket::cancelUpnpdiscoverThread = true;
 			SDL_WaitThread(ServerSocket::upnpdiscoverThread, NULL);
 			ServerSocket::upnpdiscoverThread = NULL;
+			ServerSocket::cancelUpnpdiscoverThread = false;
 		}
 		safeMutexUPNP.ReleaseLock();
-		//printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
-
-
-		//printf("In [%s::%s] Line: %d UPNP_Tools::enabledUPNP = %d\n",__FILE__,__FUNCTION__,__LINE__,UPNP_Tools::enabledUPNP);
 		if (UPNP_Tools::enabledUPNP) {
-			//UPNP_Tools::NETremRedirects(ServerSocket::externalPort);
 			UPNP_Tools::NETremRedirects(this->getExternalPort());
-			//UPNP_Tools::enabledUPNP = false;
 		}
 
 		MutexSafeWrapper safeMutexUPNP1(&UPNP_Tools::mutexUPNP,CODE_AT_LINE);
@@ -2477,12 +2470,12 @@ Socket *ServerSocket::accept(bool errorOnFail) {
 void ServerSocket::NETdiscoverUPnPDevices() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] UPNP - Start\n",__FILE__,__FUNCTION__,__LINE__);
 
-	//printf("SERVER SOCKET NETdiscoverUPnPDevices - START\n");
-	//printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
 	MutexSafeWrapper safeMutexUPNP(&ServerSocket::mutexUpnpdiscoverThread,CODE_AT_LINE);
 	if(ServerSocket::upnpdiscoverThread != NULL) {
+		ServerSocket::cancelUpnpdiscoverThread = true;
 		SDL_WaitThread(ServerSocket::upnpdiscoverThread, NULL);
 		ServerSocket::upnpdiscoverThread = NULL;
+		ServerSocket::cancelUpnpdiscoverThread = false;
 	}
 
     // WATCH OUT! Because the thread takes void * as a parameter we MUST cast to the pointer type
@@ -2562,7 +2555,7 @@ int UPNP_Tools::upnp_init(void *param) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] isUPNP = %d callback = %p\n",__FILE__,__FUNCTION__,__LINE__,UPNP_Tools::isUPNP,callback);
 
-	if(UPNP_Tools::isUPNP) {
+	if(UPNP_Tools::isUPNP == true) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"Searching for UPnP devices for automatic port forwarding...\n");
 
 		int upnp_delay = 5000;
@@ -2583,6 +2576,14 @@ int UPNP_Tools::upnp_init(void *param) {
 #endif
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP device search finished devlist = %p.\n",devlist);
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("UPnP device search finished devlist = %p.\n",devlist);
+
+		if(ServerSocket::cancelUpnpdiscoverThread == true) {
+			if(devlist != NULL) {
+				freeUPNPDevlist(devlist);
+			}
+			devlist = NULL;
+			return result;
+		}
 
 		if (devlist) {
 			dev = devlist;
@@ -2632,6 +2633,14 @@ int UPNP_Tools::upnp_init(void *param) {
 				devlist = NULL;
 			}
 
+			if(ServerSocket::cancelUpnpdiscoverThread == true) {
+				if(devlist != NULL) {
+					freeUPNPDevlist(devlist);
+				}
+				devlist = NULL;
+				return result;
+			}
+
 			if (!urls.controlURL || urls.controlURL[0] == '\0')	{
 				snprintf(buf, 255,"controlURL not available, UPnP disabled");
 				if(callback) {
@@ -2666,6 +2675,14 @@ int UPNP_Tools::upnp_init(void *param) {
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"No UPnP devices found.\n");
 
+			if(ServerSocket::cancelUpnpdiscoverThread == true) {
+				if(devlist != NULL) {
+					freeUPNPDevlist(devlist);
+				}
+				devlist = NULL;
+				return result;
+			}
+
 			if(callback) {
 				safeMutexUPNP.ReleaseLock();
 				callback->UPNPInitStatus(false);
@@ -2676,6 +2693,14 @@ int UPNP_Tools::upnp_init(void *param) {
 	else {
 		snprintf(buf, 255,"UPnP detection routine disabled by user.");
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP detection routine disabled by user.\n");
+
+		if(ServerSocket::cancelUpnpdiscoverThread == true) {
+			if(devlist != NULL) {
+				freeUPNPDevlist(devlist);
+			}
+			devlist = NULL;
+			return result;
+		}
 
         if(callback) {
         	safeMutexUPNP.ReleaseLock();
@@ -2696,14 +2721,14 @@ bool UPNP_Tools::upnp_add_redirect(int ports[2],bool mutexLock) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] upnp_add_redir(%d : %d)\n",__FILE__,__FUNCTION__,__LINE__,ports[0],ports[1]);
 
 	if(mutexLock) {
-		//printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
 		MutexSafeWrapper safeMutexUPNP(&ServerSocket::mutexUpnpdiscoverThread,CODE_AT_LINE);
 		if(ServerSocket::upnpdiscoverThread != NULL) {
+			ServerSocket::cancelUpnpdiscoverThread = true;
 			SDL_WaitThread(ServerSocket::upnpdiscoverThread, NULL);
 			ServerSocket::upnpdiscoverThread = NULL;
+			ServerSocket::cancelUpnpdiscoverThread = false;
 		}
 		safeMutexUPNP.ReleaseLock();
-		//printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
 	}
 
 	MutexSafeWrapper safeMutexUPNP(&UPNP_Tools::mutexUPNP,CODE_AT_LINE);
@@ -2748,18 +2773,14 @@ bool UPNP_Tools::upnp_add_redirect(int ports[2],bool mutexLock) {
 void UPNP_Tools::upnp_rem_redirect(int ext_port) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d] upnp_rem_redir(%d)\n",__FILE__,__FUNCTION__,__LINE__,ext_port);
 
-	//printf("SERVER SOCKET upnp_rem_redirect - START\n");
-
-	//printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
 	MutexSafeWrapper safeMutexUPNP(&ServerSocket::mutexUpnpdiscoverThread,CODE_AT_LINE);
     if(ServerSocket::upnpdiscoverThread != NULL) {
+    	ServerSocket::cancelUpnpdiscoverThread = true;
         SDL_WaitThread(ServerSocket::upnpdiscoverThread, NULL);
         ServerSocket::upnpdiscoverThread = NULL;
+        ServerSocket::cancelUpnpdiscoverThread = false;
     }
     safeMutexUPNP.ReleaseLock();
-    //printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
-
-	//printf("In [%s::%s] Line: %d ext_port = %d urls.controlURL = [%s]\n",__FILE__,__FUNCTION__,__LINE__,ext_port,urls.controlURL);
 
     MutexSafeWrapper safeMutexUPNP1(&UPNP_Tools::mutexUPNP,CODE_AT_LINE);
 	if (urls.controlURL && urls.controlURL[0] != '\0')	{

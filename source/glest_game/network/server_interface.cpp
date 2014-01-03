@@ -53,7 +53,7 @@ const int MAX_CLIENT_PAUSE_FOR_LAG_COUNT					= 3;
 const int MAX_SLOT_THREAD_WAIT_TIME_MILLISECONDS			= 1500;
 const int MASTERSERVER_HEARTBEAT_GAME_STATUS_SECONDS 		= 30;
 
-const int maxNetworkCommandListSendTimeWaitWhenAutoPaused 	= 4000;
+const int MAX_EMPTY_NETWORK_COMMAND_LIST_BROADCAST_INTERVAL_MILLISECONDS = 4000;
 
 ServerInterface::ServerInterface(bool publishEnabled, ClientLagCallbackInterface *clientLagCallbackInterface) : GameNetworkInterface() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -1675,16 +1675,45 @@ void ServerInterface::updateKeyframe(int frameCount) {
 			sendTextMessage(sMsg,-1, true,"");
 		}
 
-		//broadcast commands
+		// broadcast commands
+		// If we have more than 0 commands to send, automatically broadcast them
+		bool sendBroadcastMessage = (networkMessageCommandList.getCommandCount() > 0);
+		if(sendBroadcastMessage == false) {
 
-		// Only send empty command list broadcasts when not paused
-		// or auto paused due to lag AND then only every X milliseconds
-		// where x = maxNetworkCommandListSendTimeWaitWhenAutoPaused
-		if(this->getClientsAutoPausedDueToLag() == false ||
-			(this->getClientsAutoPausedDueToLag() == true &&
-			 (networkMessageCommandList.getCommandCount() > 0      ||
-			  lastBroadcastCommandsTimer.isStarted()      == false ||
-			  lastBroadcastCommandsTimer.getMillis()      >= maxNetworkCommandListSendTimeWaitWhenAutoPaused))) {
+			// Is auto pause due to lag NOT enabled
+			if(this->getClientsAutoPausedDueToLag() == false) {
+
+				// ****NOTE:
+				// We always need to broadcast when not pause as clients
+				// look for broadcasts every network frame.
+				sendBroadcastMessage = true;
+
+				// If network CRC checking enabled we turn on broadcasting always
+//				bool calculateNetworkCRC = false;
+//				if(isFlagType1BitEnabled(this->gameSettings.getFlagTypes1(),ft1_network_synch_checks) == true ||
+//					isFlagType1BitEnabled(this->gameSettings.getFlagTypes1(),ft1_network_synch_checks_verbose) == true) {
+//
+//					calculateNetworkCRC = true;
+//				}
+//
+//				if(calculateNetworkCRC == true ||
+//					(lastBroadcastCommandsTimer.isStarted() == false ||
+//					 lastBroadcastCommandsTimer.getMillis() >= MAX_EMPTY_NETWORK_COMMAND_LIST_BROADCAST_INTERVAL_MILLISECONDS)) {
+//
+//					sendBroadcastMessage = true;
+//				}
+			}
+			// Auto pause is enabled due to client lagging, only send empty command
+			// broadcasts every MAX_EMPTY_NETWORK_COMMAND_LIST_BROADCAST_INTERVAL_MILLISECONDS
+			else if(this->getClientsAutoPausedDueToLag() == true &&
+					(lastBroadcastCommandsTimer.isStarted() == false ||
+					 lastBroadcastCommandsTimer.getMillis() >= MAX_EMPTY_NETWORK_COMMAND_LIST_BROADCAST_INTERVAL_MILLISECONDS)) {
+
+				sendBroadcastMessage = true;
+			}
+		}
+
+		if(sendBroadcastMessage == true) {
 
 			if(lastBroadcastCommandsTimer.isStarted() == false) {
 				lastBroadcastCommandsTimer.start();
@@ -2366,7 +2395,10 @@ bool ServerInterface::launchGame(const GameSettings *gameSettings) {
 			shutdownFTPServer();
 		}
 
-		if(requiresUPNPTrigger == true) {
+		if((needToRepublishToMasterserver == true ||
+			GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) &&
+		   requiresUPNPTrigger == true) {
+
             this->getServerSocket()->NETdiscoverUPnPDevices();
         }
 
