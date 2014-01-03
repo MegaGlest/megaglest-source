@@ -192,6 +192,7 @@ private:
 
 	MapPreview mapPreview;
 	Texture2D *mapPreviewTexture;
+	bool zoomedMap;
 	int render_mapPreviewTexture_X;
 	int render_mapPreviewTexture_Y;
 	int render_mapPreviewTexture_W;
