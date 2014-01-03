@@ -285,6 +285,8 @@ string getGameCustomCoreDataPath(string originalBasePath, string uniqueFilePath)
     // decide which file to use
     string result = "";
 
+    if (SystemFlags::VERBOSE_MODE_ENABLED) printf("Looking for [%s] in\n#1: [%s]\n#2: [%s]\n#3: [%s]\n",uniqueFilePath.c_str(),custom_mod_path.c_str(),data_path.c_str(),originalBasePath.c_str());
+
 	if(custom_mod_path != "" &&
 		(uniqueFilePath == "" || fileExists(custom_mod_path + uniqueFilePath) == true)) {
 		result = custom_mod_path + uniqueFilePath;
@@ -297,7 +299,8 @@ string getGameCustomCoreDataPath(string originalBasePath, string uniqueFilePath)
 		result = originalBasePath + uniqueFilePath;
 	}
 
-	//printf("data_path [%s] result [%s]\n",data_path.c_str(),result.c_str());
+	if (SystemFlags::VERBOSE_MODE_ENABLED) printf("result [%s]\n",result.c_str());
+
     return result;
 }
 
