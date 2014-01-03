@@ -80,6 +80,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	this->gameUUID = getUUIDAsString();
 
+	this->zoomedMap=false;
 	this->render_mapPreviewTexture_X = mapPreviewTexture_X;
 	this->render_mapPreviewTexture_Y = mapPreviewTexture_Y;
 	this->render_mapPreviewTexture_W = mapPreviewTexture_W;
@@ -1073,6 +1074,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 						this->render_mapPreviewTexture_Y = 0;
 						this->render_mapPreviewTexture_W = metrics.getVirtualW();
 						this->render_mapPreviewTexture_H = metrics.getVirtualH();
+						this->zoomedMap = true;
 
 						cleanupMapPreviewTexture();
 					}
@@ -1081,10 +1083,15 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 						this->render_mapPreviewTexture_Y = mapPreviewTexture_Y;
 						this->render_mapPreviewTexture_W = mapPreviewTexture_W;
 						this->render_mapPreviewTexture_H = mapPreviewTexture_H;
+						this->zoomedMap = false;
 
 						cleanupMapPreviewTexture();
 					}
+					return;
 				}
+	        	if(this->zoomedMap == true){
+	        		return;
+	        	}
         	}
 
         	if(activeInputLabel!=NULL && !(activeInputLabel->mouseClick(x,y))){
@@ -2031,10 +2038,11 @@ void MenuStateCustomGame::render() {
 											this->render_mapPreviewTexture_W,
 											this->render_mapPreviewTexture_H,
 											mapPreviewTexture,1.0f);
-
+				if(this->zoomedMap==true) {
+					return;
+				}
 				//printf("=================> Rendering map preview texture\n");
 			}
-
 			if(scenarioLogoTexture != NULL) {
 				renderer.renderTextureQuad(300,350,400,300,scenarioLogoTexture,1.0f);
 				//renderer.renderBackground(scenarioLogoTexture);
