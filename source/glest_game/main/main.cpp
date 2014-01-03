@@ -1316,7 +1316,9 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
             if(customPathValue != "") {
             	endPathWithSlash(customPathValue);
             }
-            pathCache[GameConstants::path_data_CacheLookupKey]=customPathValue;
+            pathCache[GameConstants::path_data_CacheLookupKey] = customPathValue;
+            Properties::setApplicationDataPath(pathCache[GameConstants::path_data_CacheLookupKey]);
+
             if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using custom data path [%s]\n",customPathValue.c_str());
         }
         else {
@@ -1329,15 +1331,16 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
     else if(config != NULL) {
     	if(config->getString("DataPath","") != "") {
     		string customPathValue = config->getString("DataPath","");
+
     		if(customPathValue != "") {
     			endPathWithSlash(customPathValue);
     		}
             pathCache[GameConstants::path_data_CacheLookupKey] = config->getString("DataPath","");
+            Properties::setApplicationDataPath(pathCache[GameConstants::path_data_CacheLookupKey]);
+
             if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using ini specified data path [%s]\n",config->getString("DataPath","").c_str());
     	}
     }
-
-    Properties::setApplicationDataPath(pathCache[GameConstants::path_data_CacheLookupKey]);
 
     //GAME_ARG_INI_PATH
     if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_INI_PATH]) == true) {
