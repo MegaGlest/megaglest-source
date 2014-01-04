@@ -1029,6 +1029,8 @@ UnitParticleSystem::UnitParticleSystem(int particleCount) :
 
 	startTime = 0;
 	endTime = 1;
+	unitModel=NULL;
+	meshName="";
 
 	radiusBasedStartenergy = false;
 }
@@ -1062,6 +1064,7 @@ void UnitParticleSystem::setRotation(float rotation){
 
 void UnitParticleSystem::fade(){
 	if(!parent || (lifetime<=0 && !(emissionRateFade && emissionRate > 0))){ // particle has its own lifetime?
+		unitModel=NULL;
 		GameParticleSystem::fade();
 	}
 }
@@ -1156,11 +1159,27 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 
 		}
 		else {// rotate it according to rotation
+			Vec3f combinedOffset=Vec3f(offset);
+			if(meshName!="" && unitModel!=NULL){
+				//printf("meshName set unitModel given\n");
+				for(uint i=0; i<unitModel->getMeshCount() ; i++){
+					//printf("meshName=%s\n",unitModel->getMesh(i)->getName().c_str());
+					if(unitModel->getMesh(i)->getName()==meshName){
+						const InterpolationData *data=unitModel->getMesh(i)->getInterpolationData();
+						const Vec3f *verticepos=data->getVertices();
+						//printf("verticepos %f %f %f\n",verticepos->x,verticepos->y,verticepos->z);
+						combinedOffset.x+=verticepos->x;
+						combinedOffset.y+=verticepos->y;
+						combinedOffset.z+=verticepos->z;
+					}
+				}
+			}
+
 	#ifdef USE_STREFLOP
-			p->pos= Vec3f(pos.x+x+offset.z*streflop::sinf(static_cast<streflop::Simple>(rad))+offset.x*streflop::cosf(static_cast<streflop::Simple>(rad)), pos.y+random.randRange(-radius/2, radius/2)+offset.y, pos.z+y+(offset.z*streflop::cosf(static_cast<streflop::Simple>(rad))-offset.x*streflop::sinf(static_cast<streflop::Simple>(rad))));
+			p->pos= Vec3f(pos.x+x+combinedOffset.z*streflop::sinf(static_cast<streflop::Simple>(rad))+combinedOffset.x*streflop::cosf(static_cast<streflop::Simple>(rad)), pos.y+random.randRange(-radius/2, radius/2)+combinedOffset.y, pos.z+y+(combinedOffset.z*streflop::cosf(static_cast<streflop::Simple>(rad))-combinedOffset.x*streflop::sinf(static_cast<streflop::Simple>(rad))));
 	#else
-			p->pos= Vec3f(pos.x + x + offset.z * sinf(rad) + offset.x * cosf(rad), pos.y + random.randRange(-radius / 2,
-				radius / 2) + offset.y, pos.z + y + (offset.z * cosf(rad) - offset.x * sinf(rad)));
+			p->pos= Vec3f(pos.x + x + combinedOffset.z * sinf(rad) + combinedOffset.x * cosf(rad), pos.y + random.randRange(-radius / 2,
+				radius / 2) + combinedOffset.y, pos.z + y + (combinedOffset.z * cosf(rad) - combinedOffset.x * sinf(rad)));
 	#endif
 
 			p->pos.x = truncateDecimal<float>(p->pos.x,6);

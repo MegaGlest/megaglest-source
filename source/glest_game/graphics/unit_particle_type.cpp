@@ -37,6 +37,7 @@ UnitParticleSystemType::UnitParticleSystemType() : ParticleSystemType() {
 	minRadius = 0;
 	emissionRateFade = 0;
     relative = false;
+    meshName = "";
     relativeDirection = false;
     fixed = false;
     staticParticleCount = 0;
@@ -111,6 +112,15 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
     relative= relativeNode->getAttribute("value")->getBoolValue();
     
 
+    //meshName
+    if(particleSystemNode->hasChild("meshName")){
+    	const XmlNode *tmpNode= particleSystemNode->getChild("meshName");
+    	meshName= tmpNode->getAttribute("value")->getValue();
+    }
+    else{
+    	meshName="";
+    }
+    
     //relativeDirection
     if(particleSystemNode->hasChild("relativeDirection")){
     	const XmlNode *relativeDirectionNode= particleSystemNode->getChild("relativeDirection");
@@ -119,7 +129,7 @@ void UnitParticleSystemType::load(const XmlNode *particleSystemNode, const strin
     else{
     	relativeDirection=true;
     }
-    
+
     if(particleSystemNode->hasChild("static-particle-count")){
 	    //staticParticleCount
 		const XmlNode *staticParticleCountNode= particleSystemNode->getChild("static-particle-count");
@@ -231,6 +241,7 @@ const void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
 	ups->setVarParticleEnergy(energyVar);
 	ups->setFixed(fixed);
 	ups->setRelative(relative);
+	ups->setMeshName(meshName);
 	ups->setRelativeDirection(relativeDirection);
 	ups->setDelay(delay);
 	ups->setLifetime(lifetime);
@@ -303,6 +314,11 @@ void UnitParticleSystemType::loadGame(const XmlNode *rootNode) {
 	emissionRateFade = unitParticleSystemTypeNode->getAttribute("emissionRateFade")->getFloatValue();
 	direction = Vec3f::strToVec3(unitParticleSystemTypeNode->getAttribute("direction")->getValue());
 	relative = (unitParticleSystemTypeNode->getAttribute("relative")->getIntValue() != 0);
+	if(unitParticleSystemTypeNode->hasAttribute("meshName")){
+		meshName = unitParticleSystemTypeNode->getAttribute("meshName")->getValue();}
+	else {
+		meshName = "";
+	}
 	relativeDirection = (unitParticleSystemTypeNode->getAttribute("relativeDirection")->getIntValue() != 0);
 	fixed = (unitParticleSystemTypeNode->getAttribute("fixed")->getIntValue() != 0);
 	staticParticleCount = unitParticleSystemTypeNode->getAttribute("staticParticleCount")->getIntValue();
@@ -336,6 +352,8 @@ void UnitParticleSystemType::saveGame(XmlNode *rootNode) {
 	unitParticleSystemTypeNode->addAttribute("direction",direction.getString(), mapTagReplacements);
 //    bool relative;
 	unitParticleSystemTypeNode->addAttribute("relative",intToStr(relative), mapTagReplacements);
+//    string meshName;
+	unitParticleSystemTypeNode->addAttribute("meshName",meshName, mapTagReplacements);
 //    bool relativeDirection;
 	unitParticleSystemTypeNode->addAttribute("relativeDirection",intToStr(relativeDirection), mapTagReplacements);
 //    bool fixed;

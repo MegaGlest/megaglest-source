@@ -58,6 +58,7 @@ protected:
 	float emissionRateFade;
 	Vec3f direction;
     bool relative;
+	string meshName;
     bool relativeDirection;
     bool fixed;
     int staticParticleCount;
@@ -69,6 +70,7 @@ protected:
 	int lifetime;
 	float startTime;
 	float endTime;
+
 
 public:
 	UnitParticleSystemType();

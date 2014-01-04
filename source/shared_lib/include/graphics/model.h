@@ -133,6 +133,7 @@ public:
 	bool getTwoSided() const		{return twoSided;}
 	bool getCustomTexture() const	{return customColor;}
 	bool getNoSelect() const		{return noSelect;}
+	string getName() const		{return name;}
 
 	uint32 getTextureFlags() const { return textureFlags; }
 

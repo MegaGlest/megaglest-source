@@ -332,6 +332,8 @@ void UnitAttackBoostEffect::applyLoadedAttackBoostParticles(UnitParticleSystemTy
 			ups->setParticleOwner(unit);
 			upst->setValues(ups);
 			ups->setPos(unit->getCurrVector());
+			ups->setRotation(unit->getRotation());
+			ups->setUnitModel(unit->getCurrentModelPtr());
 			if (unit->getFaction()->getTexture()) {
 				ups->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0, 0));
 			}
@@ -1290,6 +1292,8 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 				ups->setParticleOwner(this);
 				(*it)->setValues(ups);
 				ups->setPos(getCurrVector());
+				ups->setRotation(getRotation());
+				ups->setUnitModel(getCurrentModelPtr());
 				if(getFaction()->getTexture()) {
 					ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
 				}
@@ -2334,6 +2338,9 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 								currentAttackBoostOriginatorEffect.currentAppliedEffect->ups);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(
 								getCurrVector());
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setRotation(getRotation());
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setUnitModel(getCurrentModelPtr());
+
 						if (getFaction()->getTexture()) {
 							currentAttackBoostOriginatorEffect.
 									currentAppliedEffect->ups->setFactionColor(
@@ -2442,6 +2449,9 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 								currentAttackBoostOriginatorEffect.currentAppliedEffect->ups);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(
 								getCurrVector());
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setRotation(getRotation());
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setUnitModel(getCurrentModelPtr());
+
 						if (getFaction()->getTexture()) {
 							currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setFactionColor(
 									getFaction()->getTexture()->getPixmapConst()->getPixel3f(
@@ -2608,12 +2618,14 @@ bool Unit::update() {
 		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
 			(*it)->setPos(getCurrVector());
 			(*it)->setRotation(getRotation());
+			(*it)->setUnitModel(getCurrentModelPtr());
 		}
 	}
 	for(UnitParticleSystems::iterator it= damageParticleSystems.begin(); it != damageParticleSystems.end(); ++it) {
 		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
 			(*it)->setPos(getCurrVector());
 			(*it)->setRotation(getRotation());
+			(*it)->setUnitModel(getCurrentModelPtr());
 		}
 	}
 
@@ -2621,6 +2633,7 @@ bool Unit::update() {
 		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
 			(*it)->setPos(getCurrVector());
 			(*it)->setRotation(getRotation());
+			(*it)->setUnitModel(getCurrentModelPtr());
 		}
 	}
 
@@ -2632,6 +2645,7 @@ bool Unit::update() {
 			if(particleValid == true) {
 				effect->ups->setPos(getCurrVector());
 				effect->ups->setRotation(getRotation());
+				effect->ups->setUnitModel(getCurrentModelPtr());
 			}
 
 			//printf("i = %d particleValid = %d\n",i,particleValid);
@@ -2646,6 +2660,7 @@ bool Unit::update() {
 			if(particleValid == true) {
 				currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(getCurrVector());
 				currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setRotation(getRotation());
+				currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setUnitModel(getCurrentModelPtr());
 			}
 		}
 	}
@@ -2699,6 +2714,9 @@ void Unit::updateTimedParticles() {
 					ups->setParticleOwner(this);
 					pst->setValues(ups);
 					ups->setPos(getCurrVector());
+					ups->setRotation(getRotation());
+					ups->setUnitModel(getCurrentModelPtr());
+
 					if(getFaction()->getTexture()) {
 						ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
 					}
@@ -2837,6 +2855,8 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 				effect->ups->setParticleOwner(this);
 				effect->upst->setValues(effect->ups);
 				effect->ups->setPos(getCurrVector());
+				effect->ups->setRotation(getRotation());
+				effect->ups->setUnitModel(getCurrentModelPtr());
 				if(getFaction()->getTexture()) {
 					effect->ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
 				}
@@ -3963,6 +3983,8 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 					ups->setParticleOwner(this);
 					pst->setValues(ups);
 					ups->setPos(getCurrVector());
+					ups->setRotation(getRotation());
+					ups->setUnitModel(getCurrentModelPtr());
 					if(getFaction()->getTexture()) {
 						ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
 					}
@@ -3988,6 +4010,8 @@ void Unit::startDamageParticles() {
 					ups->setParticleOwner(this);
 					pst->setValues(ups);
 					ups->setPos(getCurrVector());
+					ups->setRotation(getRotation());
+					ups->setUnitModel(getCurrentModelPtr());
 					if(getFaction()->getTexture()) {
 						ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
 					}
@@ -4019,6 +4043,8 @@ void Unit::startDamageParticles() {
 				ups->setColorNoEnergy(Vec4f(0.0f, 0.0f, 0.0f, 0.13f));
 				ups->setColor(Vec4f(0.115f, 0.115f, 0.115f, 0.22f));
 				ups->setPos(getCurrVector());
+				ups->setRotation(getRotation());
+				ups->setUnitModel(getCurrentModelPtr());
 				ups->setBlendMode(ups->strToBlendMode("black"));
 				ups->setOffset(Vec3f(0,2,0));
 				ups->setDirection(Vec3f(0,1,-0.2f));

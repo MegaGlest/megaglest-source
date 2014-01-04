@@ -20,6 +20,7 @@
 #include "randomgen.h"
 #include "xml_parser.h"
 #include "leak_dumper.h"
+#include "interpolation.h"
 
 using std::list;
 using Shared::Util::RandomGen;
@@ -351,6 +352,8 @@ public:
 	float sizeNoEnergy;
 	float gravity;
 	float rotation;
+	const Model *unitModel;
+	string meshName;
 	bool isVisibleAtNight;
 	bool isVisibleAtDay;
 	bool isDaylightAffected;
@@ -391,6 +394,8 @@ public:
 	void setSizeNoEnergy(float sizeNoEnergy)			{this->sizeNoEnergy= sizeNoEnergy;}
 	void setGravity(float gravity)						{this->gravity= gravity;}
 	void setRotation(float rotation);
+	const void setUnitModel(const Model* unitModel)					{this->unitModel= unitModel;}
+	void setMeshName(string meshName)						{this->meshName= meshName;}
 	void setRelative(bool relative)						{this->relative= relative;}
 	void setRelativeDirection(bool relativeDirection)	{this->relativeDirection= relativeDirection;}
 	void setFixed(bool fixed)							{this->fixed= fixed;}
