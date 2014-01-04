@@ -393,6 +393,8 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(storeSaveGameData, "storeSaveGameData");
 	luaScript.registerFunction(loadSaveGameData, "loadSaveGameData");
 
+	luaScript.registerFunction(getFactionPlayerType, "getFactionPlayerType");
+
 	//load code
 	for(int i= 0; i<scenario->getScriptCount(); ++i){
 		const Script* script= scenario->getScript(i);
@@ -1999,6 +2001,13 @@ string ScriptManager::loadSaveGameData(string name) {
 	return value;
 }
 
+ControlType ScriptManager::getFactionPlayerType(int factionIndex) {
+	Faction *faction = world->getFaction(factionIndex);
+	if(faction != NULL) {
+		return faction->getControlType();
+	}
+	return ctClosed;
+}
 // ========================== lua callbacks ===============================================
 
 int ScriptManager::showMessage(LuaHandle* luaHandle){
@@ -4892,6 +4901,26 @@ int ScriptManager::loadSaveGameData(LuaHandle* luaHandle) {
 	return luaArguments.getReturnCount();
 }
 
+int ScriptManager::getFactionPlayerType(LuaHandle* luaHandle) {
+	LuaArguments luaArguments(luaHandle);
+	try {
+		luaArguments.returnInt(thisScriptManager->getFactionPlayerType(luaArguments.getInt(-1)));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
+	return luaArguments.getReturnCount();
+
+}
 
 void ScriptManager::saveGame(XmlNode *rootNode) {
 	std::map<string,string> mapTagReplacements;

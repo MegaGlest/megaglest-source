@@ -423,6 +423,7 @@ private:
 	void storeSaveGameData(string name, string value);
 	string loadSaveGameData(string name);
 
+	ControlType getFactionPlayerType(int factionIndex);
 	// -----------------------------------------------------------------------
 
 	//callbacks, commands
@@ -591,6 +592,8 @@ private:
 
 	static int storeSaveGameData(LuaHandle* luaHandle);
 	static int loadSaveGameData(LuaHandle* luaHandle);
+
+	static int getFactionPlayerType(LuaHandle* luaHandle);
 };
 
 }}//end namespace
