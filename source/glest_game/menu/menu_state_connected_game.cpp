@@ -1175,6 +1175,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 
 				cleanupMapPreviewTexture();
 			}
+			return;
 		}
     	if(this->zoomedMap==true){
     		return;
