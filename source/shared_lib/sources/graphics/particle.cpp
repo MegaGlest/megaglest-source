@@ -1162,6 +1162,7 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 			Vec3f combinedOffset=Vec3f(offset);
 			if(meshName!="" && unitModel!=NULL){
 				//printf("meshName set unitModel given\n");
+				bool foundMesh=false;
 				for(uint i=0; i<unitModel->getMeshCount() ; i++){
 					//printf("meshName=%s\n",unitModel->getMesh(i)->getName().c_str());
 					if(unitModel->getMesh(i)->getName()==meshName){
@@ -1171,7 +1172,19 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 						combinedOffset.x+=verticepos->x;
 						combinedOffset.y+=verticepos->y;
 						combinedOffset.z+=verticepos->z;
+						foundMesh==true;
+						break;
 					}
+				}
+				if( foundMesh == false ) {
+					string meshesFound="";
+					for(uint i=0; i<unitModel->getMeshCount() ; i++){
+						meshesFound+= unitModel->getMesh(i)->getName()+", ";
+					}
+
+					string errorString = "Warning: Particle system is trying to find mesh'"+meshName+"', but just found:\n'"+meshesFound+"' in file:\n'"+unitModel->getFileName()+"'\n";
+					//throw megaglest_runtime_error(errorString);
+					printf("%s",errorString.c_str());
 				}
 			}
 
