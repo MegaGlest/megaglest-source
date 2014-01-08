@@ -764,14 +764,21 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 				if(gameNetworkInterface != NULL) {
 					ServerInterface *server = networkManager.getServerInterface();
 					if(server->isClientConnected(playerIndex) == true) {
-						ConnectionSlot *slot = server->getSlot(playerIndex);
+
+						MutexSafeWrapper safeMutex(server->getSlotMutex(playerIndex),CODE_AT_LINE);
+						ConnectionSlot *slot = server->getSlot(playerIndex,false);
 						if(slot != NULL) {
+							safeMutex.ReleaseLock(true);
 							NetworkMessageQuit networkMessageQuit;
 							slot->sendMessage(&networkMessageQuit);
 							sleep(5);
 
 							//printf("Sending nctDisconnectNetworkPlayer\n");
-							slot->close();
+							safeMutex.Lock();
+							slot = server->getSlot(playerIndex,false);
+							if(slot != NULL) {
+								slot->close();
+							}
 						}
 					}
 				}

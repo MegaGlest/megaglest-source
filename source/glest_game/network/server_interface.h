@@ -168,7 +168,8 @@ public:
     void addSlot(int playerIndex);
     bool switchSlot(int fromPlayerIndex, int toPlayerIndex);
     void removeSlot(int playerIndex, int lockedSlotIndex = -1);
-    virtual ConnectionSlot *getSlot(int playerIndex);
+    virtual ConnectionSlot *getSlot(int playerIndex, bool lockMutex);
+    virtual Mutex *getSlotMutex(int playerIndex);
     int getSlotCount();
     int getConnectedSlotCount(bool authenticated);
 

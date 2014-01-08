@@ -1638,7 +1638,9 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 			if(serverInterface != NULL && checkClientAdminOverrideOnly == true) {
 				for(int i = 0; i < world.getFactionCount(); ++i) {
 					Faction *faction = world.getFaction(i);
-					ConnectionSlot *slot =  serverInterface->getSlot(faction->getStartLocationIndex());
+
+					MutexSafeWrapper safeMutex(serverInterface->getSlotMutex(faction->getStartLocationIndex()),CODE_AT_LINE);
+					ConnectionSlot *slot =  serverInterface->getSlot(faction->getStartLocationIndex(),false);
 					if(slot != NULL && slot->getConnectHasHandshaked() == true &&
 							slot->getCurrentFrameCount() <= 0) {
 						//printf("Connected slot can be disconnected: %d\n",slot->getPlayerIndex());
@@ -2338,7 +2340,9 @@ void Game::update() {
 				bool clientNeedsGameSetup = false;
 				for(int i = 0; i < world.getFactionCount(); ++i) {
 					Faction *faction = world.getFaction(i);
-					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+
+					MutexSafeWrapper safeMutex(server->getSlotMutex(faction->getStartLocationIndex()),CODE_AT_LINE);
+					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex(),false);
 					if(slot != NULL && slot->getPauseForInGameConnection() == true) {
 						clientNeedsGameSetup = true;
 						break;
@@ -2362,10 +2366,13 @@ void Game::update() {
 							//printf("Slot: %d faction name: %s GS faction: %s\n",i,faction->getType()->getName().c_str(),server->gameSettings.getFactionTypeName(i).c_str());
 
 							server->gameSettings.setFactionControl(i,ctNetwork);
-							ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+
+							MutexSafeWrapper safeMutex(server->getSlotMutex(faction->getStartLocationIndex()),CODE_AT_LINE);
+							ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex(),false);
 							server->gameSettings.setNetworkPlayerName(i,slot->getName());
 							server->gameSettings.setNetworkPlayerUUID(i,slot->getUUID());
 							server->gameSettings.setNetworkPlayerPlatform(i,slot->getPlatform());
+							safeMutex.ReleaseLock();
 							server->gameSettings.setNetworkPlayerStatuses(i,npst_None);
 
 							this->gameSettings.setFactionControl(i,ctNetwork);
@@ -2382,7 +2389,8 @@ void Game::update() {
 
 				for(int i = 0; i < world.getFactionCount(); ++i) {
 					Faction *faction = world.getFaction(i);
-					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+					MutexSafeWrapper safeMutex(server->getSlotMutex(faction->getStartLocationIndex()),CODE_AT_LINE);
+					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex(),false);
 					if(slot != NULL && slot->getPauseForInGameConnection() == true) {
 						slot->setPauseForInGameConnection(false);
 					}
@@ -2399,7 +2407,9 @@ void Game::update() {
 				bool pauseAndSaveGameForNewClient = false;
 				for(int i = 0; i < world.getFactionCount(); ++i) {
 					Faction *faction = world.getFaction(i);
-					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+
+					MutexSafeWrapper safeMutex(server->getSlotMutex(faction->getStartLocationIndex()),CODE_AT_LINE);
+					ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex(),false);
 
 					if(slot != NULL && slot->getStartInGameConnectionLaunch() == true) {
 						//slot->setStartInGameConnectionLaunch(false);
@@ -2407,6 +2417,7 @@ void Game::update() {
 					}
 					if(slot != NULL && slot->getJoinGameInProgress() == true) {
 						//printf("$$$ signalling client to start game [deleting AI player] factionIndex: %d slot: %d startlocation: %d!\n",i,slot->getPlayerIndex(),faction->getStartLocationIndex());
+						safeMutex.ReleaseLock();
 
 						this->gameSettings.setFactionControl(i,ctNetwork);
 						this->gameSettings.setNetworkPlayerName(i,server->gameSettings.getNetworkPlayerName(i));
@@ -2430,9 +2441,14 @@ void Game::update() {
 					else if((slot == NULL || slot->isConnected() == false) &&
 							this->gameSettings.getFactionControl(i) == ctNetwork &&
 							aiInterfaces[i] == NULL) {
+
+						safeMutex.ReleaseLock();
 						faction->setFactionDisconnectHandled(false);
 						//this->gameSettings.setNetworkPlayerName(i,lang.getString("AI") + intToStr(i+1));
 						//server->gameSettings.setNetworkPlayerName(i,lang.getString("AI") + intToStr(i+1));
+					}
+					else {
+						safeMutex.ReleaseLock();
 					}
 				}
 
@@ -2454,10 +2470,11 @@ void Game::update() {
 				if(server->getUnPauseForInGameConnection() == true) {
 					//printf("^^^ getUnPauseForInGameConnection triggered!\n");
 
-					//this->speed = 1;
 					for(int i = 0; i < world.getFactionCount(); ++i) {
 						Faction *faction = world.getFaction(i);
-						ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+
+						MutexSafeWrapper safeMutex(server->getSlotMutex(faction->getStartLocationIndex()),CODE_AT_LINE);
+						ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex(),false);
 						if(slot != NULL && slot->getUnPauseForInGameConnection() == true) {
 							slot->setUnPauseForInGameConnection(false);
 							faction->setFactionDisconnectHandled(false);
@@ -2465,24 +2482,10 @@ void Game::update() {
 					}
 					//printf("Resuming game for join in progress game resumeRequestSent: %d...\n",resumeRequestSent);
 
-					//commander.tryResumeGame(true,false);
 					if(pausedBeforeJoinGame == false && resumeRequestSent == false) {
 						commander.tryResumeGame(true,true);
 						resumeRequestSent = true;
 					}
-
-//					server->setAllowInGameConnections(false);
-//					for(int i = 0; i < world.getFactionCount(); ++i) {
-//						Faction *faction = world.getFaction(i);
-//						ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
-//						if(slot != NULL && slot->isConnected() == false) {
-//							server->setAllowInGameConnections(false);
-//							server->removeSlot(faction->getStartLocationIndex());
-//						}
-//					}
-
-					//server->shutdownFTPServer();
-					//return;
 				}
 				else if(server->getStartInGameConnectionLaunch() == true) {
 					bool saveNetworkGame = false;
@@ -2490,7 +2493,9 @@ void Game::update() {
 					ServerInterface *server = NetworkManager::getInstance().getServerInterface();
 					for(int i = 0; i < world.getFactionCount(); ++i) {
 						Faction *faction = world.getFaction(i);
-						ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+
+						MutexSafeWrapper safeMutex(server->getSlotMutex(faction->getStartLocationIndex()),CODE_AT_LINE);
+						ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex(),false);
 						if(slot != NULL && slot->getJoinGameInProgress() == true &&
 							slot->getStartInGameConnectionLaunch() == true &&
 							slot->getSentSavedGameInfo() == false) {
@@ -2532,13 +2537,20 @@ void Game::update() {
 
 						for(int i = 0; i < world.getFactionCount(); ++i) {
 							Faction *faction = world.getFaction(i);
-							ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+
+							MutexSafeWrapper safeMutex(server->getSlotMutex(faction->getStartLocationIndex()),CODE_AT_LINE);
+							ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex(),false);
 							if(slot != NULL && slot->getJoinGameInProgress() == true &&
 									slot->getSentSavedGameInfo() == false) {
-								NetworkMessageReady networkMessageReady(0);
+
+								safeMutex.ReleaseLock();
+							    NetworkMessageReady networkMessageReady(0);
 								slot->sendMessage(&networkMessageReady);
 
-								slot->setSentSavedGameInfo(true);
+								slot =  server->getSlot(faction->getStartLocationIndex(),false);
+								if(slot != NULL) {
+									slot->setSentSavedGameInfo(true);
+								}
 							}
 						}
 					}
@@ -3759,7 +3771,9 @@ void Game::mouseDownLeft(int x, int y) {
 
 					bool isSlotJoinInProgressClient = false;
 					if(serverInterface != NULL) {
-						ConnectionSlot *slot =  serverInterface->getSlot(faction->getStartLocationIndex());
+
+						MutexSafeWrapper safeMutex(serverInterface->getSlotMutex(faction->getStartLocationIndex()),CODE_AT_LINE);
+						ConnectionSlot *slot =  serverInterface->getSlot(faction->getStartLocationIndex(),false);
 						if(slot != NULL && slot->getConnectHasHandshaked() == true &&
 								slot->getCurrentFrameCount() <= 0) {
 							isSlotJoinInProgressClient = true;
@@ -5994,9 +6008,12 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 			bool haveClientConnectedButNoReady = false;
 			for(int i = 0; i < world.getFactionCount(); ++i) {
 				Faction *faction = world.getFaction(i);
-				ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex());
+
+				MutexSafeWrapper safeMutex(server->getSlotMutex(faction->getStartLocationIndex()),CODE_AT_LINE);
+				ConnectionSlot *slot =  server->getSlot(faction->getStartLocationIndex(),false);
 				if(slot != NULL && slot->isConnected() == true && slot->isReady() == false) {
 					for(unsigned int i = 0; i < languageList.size(); ++i) {
+
 						char szMsg[8096]="";
 						if(lang.hasString("JoinPlayerToCurrentGameLaunch",languageList[i]) == true) {
 							snprintf(szMsg,8096,lang.getString("JoinPlayerToCurrentGameLaunch",languageList[i]).c_str(), slot->getName().c_str());
@@ -6004,6 +6021,9 @@ void Game::setPaused(bool value,bool forceAllowPauseStateChange,bool clearCaches
 						else {
 							snprintf(szMsg,8096,"Player: %s is about to join the game, please wait...",slot->getName().c_str());
 						}
+
+						safeMutex.ReleaseLock();
+
 						bool localEcho = lang.isLanguageLocal(languageList[i]);
 						server->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
 						sleep(1);

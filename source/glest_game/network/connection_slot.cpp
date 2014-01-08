@@ -209,7 +209,7 @@ void ConnectionSlotThread::execute() {
 
 				ConnectionSlotEvent eventCopy;
 				eventCopy.eventType 		= eReceiveSocketData;
-				eventCopy.connectionSlot 	= this->slotInterface->getSlot(slotIndex);
+				eventCopy.connectionSlot 	= this->slotInterface->getSlot(slotIndex,true);
 
 				if(getQuitStatus() == true) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -233,7 +233,8 @@ void ConnectionSlotThread::execute() {
 
 					// If the slot or socket are NULL the connection was lost
 					// so exit the thread
-					ConnectionSlot *slot = this->slotInterface->getSlot(slotIndex);
+					MutexSafeWrapper safeMutex(this->slotInterface->getSlotMutex(slotIndex),CODE_AT_LINE);
+					ConnectionSlot *slot = this->slotInterface->getSlot(slotIndex,false);
 					if(slot == NULL) {
 						break;
 					}
@@ -242,13 +243,16 @@ void ConnectionSlotThread::execute() {
 						break;
 					}
 
+					PLATFORM_SOCKET socketId = socket->getSocketId();
+					safeMutex.ReleaseLock();
+
 					// Avoid mutex locking
 					//bool socketHasReadData = Socket::hasDataToRead(socket->getSocketId());
-					bool socketHasReadData = Socket::hasDataToReadWithWait(socket->getSocketId(),150000);
+					bool socketHasReadData = Socket::hasDataToReadWithWait(socketId,150000);
 
 					ConnectionSlotEvent eventCopy;
 					eventCopy.eventType 		= eReceiveSocketData;
-					eventCopy.connectionSlot 	= slot;
+					eventCopy.connectionSlot 	= this->slotInterface->getSlot(slotIndex,true);
 					eventCopy.eventId 			= slotIndex;
 					eventCopy.socketTriggered 	= socketHasReadData;
 

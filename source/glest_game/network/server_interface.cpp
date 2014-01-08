@@ -606,14 +606,18 @@ bool ServerInterface::switchSlot(int fromPlayerIndex, int toPlayerIndex) {
 	return result;
 }
 
-ConnectionSlot *ServerInterface::getSlot(int playerIndex) {
+Mutex *ServerInterface::getSlotMutex(int playerIndex) {
+	return slotAccessorMutexes[playerIndex];
+}
+
+ConnectionSlot *ServerInterface::getSlot(int playerIndex, bool lockMutex) {
 	if(playerIndex < 0 || playerIndex >= GameConstants::maxPlayers) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s %d] playerIndex is invalid = %d",extractFileFromDirectoryPath(extractFileFromDirectoryPath(__FILE__).c_str()).c_str(),__FUNCTION__,__LINE__,playerIndex);
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	MutexSafeWrapper safeMutexSlot(slotAccessorMutexes[playerIndex],CODE_AT_LINE_X(playerIndex));
+	MutexSafeWrapper safeMutexSlot((lockMutex == true ? slotAccessorMutexes[playerIndex] : NULL),CODE_AT_LINE_X(playerIndex));
 	ConnectionSlot *result = slots[playerIndex];
 	return result;
 }
