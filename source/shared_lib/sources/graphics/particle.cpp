@@ -1172,7 +1172,7 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 						combinedOffset.x+=verticepos->x;
 						combinedOffset.y+=verticepos->y;
 						combinedOffset.z+=verticepos->z;
-						foundMesh==true;
+						foundMesh=true;
 						break;
 					}
 				}
