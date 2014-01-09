@@ -82,8 +82,8 @@ if (MINIUPNP_FOUND)
     {
         static struct UPNPUrls urls;
         static struct IGDdatas data;
-
-        GetUPNPUrls (&urls, &data, \"myurl\",0);
+        int compileTest = 1;
+        if(compileTest == 0) GetUPNPUrls (&urls, &data, \"myurl\",0);
 
         return 0;
     }"
@@ -100,13 +100,14 @@ if (MINIUPNP_FOUND)
             int main()
             {
                 struct UPNPDev *devlist = NULL;
-	        int upnp_delay = 5000;
+	        int upnp_delay = 1;
 	        const char *upnp_multicastif = NULL;
 	        const char *upnp_minissdpdsock = NULL;
 	        int upnp_sameport = 0;
 	        int upnp_ipv6 = 0;
 	        int upnp_error = 0;
-	        devlist = upnpDiscover(upnp_delay, upnp_multicastif, upnp_minissdpdsock, upnp_sameport, upnp_ipv6, &upnp_error);
+                int compileTest = 1;
+	        if(compileTest == 0) devlist = upnpDiscover(upnp_delay, upnp_multicastif, upnp_minissdpdsock, upnp_sameport, upnp_ipv6, &upnp_error);
 
                 return 0;
             }"
@@ -124,13 +125,14 @@ if (MINIUPNP_FOUND)
             int main()
             {
                 struct UPNPDev *devlist = NULL;
-	        int upnp_delay = 5000;
+	        int upnp_delay = 1;
 	        const char *upnp_multicastif = NULL;
 	        const char *upnp_minissdpdsock = NULL;
 	        int upnp_sameport = 0;
 	        int upnp_ipv6 = 0;
 	        int upnp_error = 0;
-	        devlist = upnpDiscover(upnp_delay, upnp_multicastif, upnp_minissdpdsock, upnp_sameport);
+                int compileTest = 1;
+	        if(compileTest == 0) devlist = upnpDiscover(upnp_delay, upnp_multicastif, upnp_minissdpdsock, upnp_sameport);
 
                 return 0;
             }"
@@ -151,7 +153,8 @@ if (MINIUPNP_FOUND)
             int main()
             {
                 char externalIP[16]     = \"\";
-	        UPNP_GetExternalIPAddress(urls.controlURL, data.first.servicetype, externalIP);
+                int compileTest = 1;
+	        if(compileTest == 0) UPNP_GetExternalIPAddress(urls.controlURL, data.first.servicetype, externalIP);
 
                 return 0;
             }"
@@ -171,7 +174,8 @@ if (MINIUPNP_FOUND)
             int main()
             {
                 char externalIP[16]     = \"\";
-	        UPNP_GetExternalIPAddress(urls.controlURL, data.servicetype, externalIP);
+                int compileTest = 1;
+	        if(compileTest == 0) UPNP_GetExternalIPAddress(urls.controlURL, data.servicetype, externalIP);
 
                 return 0;
             }"
