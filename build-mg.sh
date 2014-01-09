@@ -19,8 +19,9 @@ MAKE_ONLY=0
 CLANG_FORCED=0
 WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
 LUA_FORCED_VERSION=0
+FORCE_32BIT_CROSS_COMPILE=0
 
-while getopts "c:dfhl:mn" option; do
+while getopts "c:dfhl:mnx" option; do
    case "${option}" in
         c) 
            CPU_COUNT=${OPTARG}
@@ -36,7 +37,7 @@ while getopts "c:dfhl:mn" option; do
         ;;
         h) 
                 echo "Usage: $0 <option>"
-                echo "       where <option> can be: -c x, -d, -f, -m, -n, -h, -l x"
+                echo "       where <option> can be: -c x, -d, -f, -m, -n, -h, -l x, -x"
                 echo "       option descriptions:"
                 echo "       -c x : Force the cpu / cores count to x - example: -c 4"
                 echo "       -d   : Force DYNAMIC compile (do not want static libs)"
@@ -44,6 +45,8 @@ while getopts "c:dfhl:mn" option; do
                 echo "       -l x : Force using LUA version x - example: -l 51"                
                 echo "       -m   : Force running CMAKE only to create Make files (do not compile)"
                 echo "       -n   : Force running MAKE only to compile (assume CMAKE already built make files)"
+                echo "       -x   : Force cross compiling on x64 linux to produce an x86 32 bit binary"
+
                 echo "       -h   : Display this help usage"
 
         	exit 1        
@@ -60,6 +63,11 @@ while getopts "c:dfhl:mn" option; do
            MAKE_ONLY=1
 #           echo "${option} value: ${OPTARG}"
         ;;
+        x) 
+           FORCE_32BIT_CROSS_COMPILE=1
+#           echo "${option} value: ${OPTARG}"
+        ;;
+
         \?)
               echo "Script Invalid option: -$OPTARG" >&2
               exit 1
@@ -189,6 +197,14 @@ if [ $LUA_FORCED_VERSION != 0 ]; then
                 EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_5_1=ON"
                 echo "USER WANTS TO FORCE USE of LUA 5.1"
         fi
+fi
+
+if [ $FORCE_32BIT_CROSS_COMPILE != 0 ]; then
+        EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_TOOLCHAIN_FILE=../mk/cmake/Modules/Toolchain-linux32.cmake"
+
+#LIBDIR_32bit='/usr/lib32/'
+#export LD_LIBRARY_PATH="${LIBDIR_32bit}:${LD_LIBRARY_PATH}"
+
 fi
 
 if [ $MAKE_ONLY = 0 ]; then 
