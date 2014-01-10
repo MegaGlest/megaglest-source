@@ -22,6 +22,8 @@ megaglest_release_folder=""
 #megaglest_release_folder="release-3.3.5.1"
 
 CURRENTDIR="$(dirname $(readlink -f $0))"
+REPODIR="$CURRENTDIR/../../../../"
+
 # below describe various folder paths relative to the installer root folder
 #megaglest_project_root=../../../../../
 megaglest_project_root=../../../../
@@ -194,48 +196,90 @@ if [ $REPACKONLY -eq 0 ]; then
 	# Now copy all blender related files
 	echo Copying blender modelling MegaGlest files...
 
-	svn export --force "$CURRENTDIR/${megaglest_linux_toolspath}/glexemel/" "${INSTALLDATADIR}blender/"
+	#svn export --force "$CURRENTDIR/${megaglest_linux_toolspath}/glexemel/" "${INSTALLDATADIR}blender/"
+        mkdir -p "${INSTALLDATADIR}blender/"
+        cd "${INSTALLDATADIR}blender/"
+        git archive --remote ${REPODIR} HEAD:source/tools/glexemel | tar x
+        cd "$CURRENTDIR"
+
 
 	# Now copy all glest data
 	echo Copying live MegaGlest data files...
 
-#	cp "$CURRENTDIR/$megaglest_data_path/configuration.xml" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_data_path/megaglest.ico" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_data_path/megaglest_uninstall.ico" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_data_path/g3dviewer.ico" ${INSTALLDATADIR}
 	cp "$CURRENTDIR/$megaglest_data_path/editor.ico" ${INSTALLDATADIR}
 
 	mkdir -p "$INSTALLDATADIR/data/"
-	svn export --force "$CURRENTDIR/$megaglest_data_path/data/" "$INSTALLDATADIR/data/"
+#	svn export --force "$CURRENTDIR/$megaglest_data_path/data/" "$INSTALLDATADIR/data/"
+        cd "${INSTALLDATADIR}/data/"
+        git archive --remote ${REPODIR}/data/glest_game/ HEAD:data | tar x
+        cd "$CURRENTDIR"
+
 	mkdir -p "$INSTALLDATADIR/docs/"
-	svn export --force "$CURRENTDIR/$megaglest_data_path/docs/" "$INSTALLDATADIR/docs/"
-	svn export --force "${megaglest_project_root}${megaglest_release_folder}/docs/" "$INSTALLDATADIR/docs/"
+#	svn export --force "$CURRENTDIR/$megaglest_data_path/docs/" "$INSTALLDATADIR/docs/"
+#       svn export --force "${megaglest_project_root}${megaglest_release_folder}/docs/" "$INSTALLDATADIR/docs/"
+        cd "${INSTALLDATADIR}/docs/"
+        git archive --remote ${REPODIR}/data/glest_game/ HEAD:docs | tar x
+        git archive --remote ${REPODIR} HEAD:docs | tar x
+        cd "$CURRENTDIR"
+	
 	mkdir -p "$INSTALLDATADIR/maps/"
-	svn export --force "$CURRENTDIR/$megaglest_data_path/maps/" "$INSTALLDATADIR/maps/"
+#	svn export --force "$CURRENTDIR/$megaglest_data_path/maps/" "$INSTALLDATADIR/maps/"
+        cd "${INSTALLDATADIR}/maps/"
+        git archive --remote ${REPODIR}/data/glest_game/ HEAD:maps | tar x
+        cd "$CURRENTDIR"
+
 	mkdir -p "$INSTALLDATADIR/scenarios/"
-	svn export --force "$CURRENTDIR/$megaglest_data_path/scenarios/" "$INSTALLDATADIR/scenarios/"
+#	svn export --force "$CURRENTDIR/$megaglest_data_path/scenarios/" "$INSTALLDATADIR/scenarios/"
+        cd "${INSTALLDATADIR}/scenarios/"
+        git archive --remote ${REPODIR}/data/glest_game/ HEAD:scenarios | tar x
+        cd "$CURRENTDIR"
+
 	mkdir -p "$INSTALLDATADIR/techs/"
-	svn export --force "$CURRENTDIR/$megaglest_data_path/techs/" "$INSTALLDATADIR/techs/"
+#	svn export --force "$CURRENTDIR/$megaglest_data_path/techs/" "$INSTALLDATADIR/techs/"
+        cd "${INSTALLDATADIR}/techs/"
+        git archive --remote ${REPODIR}/data/glest_game/ HEAD:techs | tar x
+        cd "$CURRENTDIR"
+
 	mkdir -p "$INSTALLDATADIR/tilesets/"
-	svn export --force "$CURRENTDIR/$megaglest_data_path/tilesets/" "$INSTALLDATADIR/tilesets/"
+#	svn export --force "$CURRENTDIR/$megaglest_data_path/tilesets/" "$INSTALLDATADIR/tilesets/"
+        cd "${INSTALLDATADIR}/tilesets/"
+        git archive --remote ${REPODIR}/data/glest_game/ HEAD:tilesets | tar x
+        cd "$CURRENTDIR"
+
 	mkdir -p "$INSTALLDATADIR/tutorials/"
-	svn export --force "$CURRENTDIR/$megaglest_data_path/tutorials/" "$INSTALLDATADIR/tutorials/"
+#	svn export --force "$CURRENTDIR/$megaglest_data_path/tutorials/" "$INSTALLDATADIR/tutorials/"
+        cd "${INSTALLDATADIR}/tutorials/"
+        git archive --remote ${REPODIR}/data/glest_game/ HEAD:tutorials | tar x
+        cd "$CURRENTDIR"
 
 	# Now copy all megaglest data
 	echo Copying live MegaGlest country logo files...
 
-	mkdir -p "${INSTALLDATADIR}data/core/misc_textures/"
-	svn export --force "$CURRENTDIR/$megaglest_linux_masterserverpath/flags/" "${INSTALLDATADIR}data/core/misc_textures/flags/"
+	mkdir -p "${INSTALLDATADIR}/data/core/misc_textures/flags/"
+#	svn export --force "$CURRENTDIR/$megaglest_linux_masterserverpath/flags/" "${INSTALLDATADIR}data/core/misc_textures/flags/"
+        cd "${INSTALLDATADIR}/data/core/misc_textures/flags/"
+        git archive --remote ${REPODIR} HEAD:source/masterserver/flags | tar x
+        cd "$CURRENTDIR"
+
 
 	# Copy shared lib dependencies for megaglest
 	cd data
 	copyGlestDeptsCmd="${INSTALL_ROOTDIR}makedeps_folder.sh megaglest"
 	$copyGlestDeptsCmd
 
-	LIBVLC_DIR=`ldd megaglest | grep "libvlc\." | sort -u | awk '{print $3}' | xargs dirname`
-	echo LibVLC installed in [$LIBVLC_DIR]
-	cp -r $LIBVLC_DIR/vlc lib/
-	#exit 1
+        LIBVLC_DIR_CHECK=$( ldd megaglest | grep "libvlc\." | sort -u | awk '{print $3}' )
+        if [ "$LIBVLC_DIR_CHECK" != '' ]; then
+                LIBVLC_DIR=$( $LIBVLC_DIR_CHECK | xargs dirname )
+        fi
+	
+	echo LibVLC installed in [$LIBVLC_DIR] copying to lib/
+        if [ "$LIBVLC_DIR" != '' ]; then
+        	cp -r $LIBVLC_DIR/vlc lib/
+        	#exit 1
+        fi
 
 	cd ..
 fi
