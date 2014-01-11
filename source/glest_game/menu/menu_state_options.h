@@ -58,6 +58,9 @@ private:
 	GraphicLabel labelMouseMoveScrollsWorld;
 	GraphicCheckBox checkBoxMouseMoveScrollsWorld;
 
+	GraphicLabel labelCameraMoveSpeed;
+	GraphicListBox listCameraMoveSpeed;
+
 	GraphicLabel labelVisibleHud;
 	GraphicCheckBox checkBoxVisibleHud;
 	GraphicLabel labelTimeDisplay;

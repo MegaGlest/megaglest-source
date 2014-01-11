@@ -58,7 +58,7 @@ GameCamera::GameCamera() : pos(0.f, defaultHeight, 0.f),
     //}
 
 	//config
-	speed= 15.f / GameConstants::cameraFps;
+	speed= Config::getInstance().getFloat("CameraMoveSpeed","15") / GameConstants::cameraFps;
 	clampBounds= !Config::getInstance().getBool("PhotoMode");
 	clampDisable = false;
 

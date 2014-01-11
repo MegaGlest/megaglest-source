@@ -204,6 +204,19 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		checkBoxMouseMoveScrollsWorld.setValue(config.getBool("MouseMoveScrollsWorld","true"));
 		currentLine-=lineOffset;
 
+		//CameraMoveSpeed
+		labelCameraMoveSpeed.registerGraphicComponent(containerName,"labelCameraMoveSpeed");
+		labelCameraMoveSpeed.init(currentLabelStart,currentLine);
+		labelCameraMoveSpeed.setText(lang.getString("CameraMoveSpeed"));
+
+		listCameraMoveSpeed.registerGraphicComponent(containerName,"listCameraMoveSpeed");
+		listCameraMoveSpeed.init(currentColumnStart, currentLine, 80);
+		for(int i=15; i<=50; i+=5){
+			listCameraMoveSpeed.pushBackItem(intToStr(i));
+		}
+		listCameraMoveSpeed.setSelectedItem(intToStr((int) (config.getFloat("CameraMoveSpeed","15"))));
+		currentLine-=lineOffset;
+
 		labelVisibleHud.registerGraphicComponent(containerName,"lavelVisibleHud");
 		labelVisibleHud.init(currentLabelStart ,currentLine);
 		labelVisibleHud.setText(lang.getString("VisibleHUD"));
@@ -374,6 +387,7 @@ void MenuStateOptions::reloadUI() {
 	labelDisableScreenshotConsoleText.setText(lang.getString("ScreenShotConsoleText"));
 
 	labelMouseMoveScrollsWorld.setText(lang.getString("MouseScrollsWorld"));
+	labelCameraMoveSpeed.setText(lang.getString("CameraMoveSpeed"));
 
 
 	buttonOk.setText(lang.getString("Save"));
@@ -906,6 +920,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
 
         checkBoxDisableScreenshotConsoleText.mouseClick(x, y);
         checkBoxMouseMoveScrollsWorld.mouseClick(x, y);
+		listCameraMoveSpeed.mouseClick(x, y);
         checkBoxVisibleHud.mouseClick(x, y);
         checkBoxChatStaysActive.mouseClick(x, y);
         checkBoxTimeDisplay.mouseClick(x, y);
@@ -936,6 +951,7 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	listBoxScreenShotType.mouseMove(x, y);
 	checkBoxDisableScreenshotConsoleText.mouseMove(x, y);
 	checkBoxMouseMoveScrollsWorld.mouseMove(x, y);
+	listCameraMoveSpeed.mouseMove(x, y);
 	checkBoxVisibleHud.mouseMove(x, y);
     checkBoxChatStaysActive.mouseMove(x, y);
     checkBoxTimeDisplay.mouseMove(x, y);
@@ -1019,6 +1035,8 @@ void MenuStateOptions::render(){
 
         renderer.renderLabel(&labelMouseMoveScrollsWorld);
         renderer.renderCheckBox(&checkBoxMouseMoveScrollsWorld);
+		renderer.renderLabel(&labelCameraMoveSpeed);
+		renderer.renderListBox(&listCameraMoveSpeed);
 
         renderer.renderLabel(&labelVisibleHud);
         renderer.renderLabel(&labelChatStaysActive);
@@ -1058,6 +1076,7 @@ void MenuStateOptions::saveConfig(){
 
     config.setBool("DisableScreenshotConsoleText", !checkBoxDisableScreenshotConsoleText.getValue());
     config.setBool("MouseMoveScrollsWorld", checkBoxMouseMoveScrollsWorld.getValue());
+	config.setString("CameraMoveSpeed", listCameraMoveSpeed.getSelectedItem());
     config.setBool("VisibleHud", checkBoxVisibleHud.getValue());
     config.setBool("ChatStaysActive", checkBoxChatStaysActive.getValue());
     config.setBool("TimeDisplay", checkBoxTimeDisplay.getValue());
