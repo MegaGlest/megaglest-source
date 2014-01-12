@@ -87,12 +87,6 @@ FunctionEnd
 Function MUIGUIInit
 
   Call myGUIInit
-  
-#  SetOutPath '$PLUGINSDIR'
-#  File megaglestinstallscreen.jpg
-
-#  FindWindow $0 '_Nb'
-#  EBanner::show /NOUNLOAD /FIT=BOTH /HWND=$0 "$PLUGINSDIR\megaglestinstallscreen.jpg"
 
 # look for known older versions
 
@@ -351,6 +345,8 @@ Section "Uninstall"
   ; Remove directories used
   RMDir "$SMPROGRAMS\${APNAME}"
   RMDir /r "$INSTDIR"
+
+  Delete "$PLUGINSDIR'\megaglestinstallscreen.jpg"
 
 SectionEnd
 
