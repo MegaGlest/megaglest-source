@@ -1761,7 +1761,7 @@ PixelBufferWrapper::PixelBufferWrapper(int pboCount,int bufferSize) {
 		//
 
 		for(int i = 0; i < pboCount; ++i) {
-			printf("PBO Gen i = %d\n",i);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("PBO Gen i = %d\n",i);
 
 			pboIds.push_back(0);
 			glGenBuffersARB(1, (GLuint*)&pboIds[i]);
@@ -1840,7 +1840,7 @@ void PixelBufferWrapper::end() {
 void PixelBufferWrapper::cleanup() {
 	if(PixelBufferWrapper::isPBOEnabled == true) {
 		if(pboIds.empty() == false) {
-			printf("PBO Delete size = %d\n",(int)pboIds.size());
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("PBO Delete size = %d\n",(int)pboIds.size());
 
 			glDeleteBuffersARB((int)pboIds.size(), &pboIds[0]);
 			pboIds.clear();
