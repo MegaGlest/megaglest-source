@@ -446,6 +446,7 @@ Game::~Game() {
 	// unit particles and fade them out etc and this end method deletes the original
 	// object pointers.
 	renderer.endGame(true);
+	BaseColorPickEntity::cleanupPBO();
 
 	GameConstants::updateFps = original_updateFps;
 	GameConstants::cameraFps = original_cameraFps;

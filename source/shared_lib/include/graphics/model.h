@@ -292,8 +292,11 @@ public:
 
     static int getUsedColorIDListSize() { return (int)usedColorIDList.size(); }
 
+    static void cleanupPBO();
+
 private:
 
+    static int bufferSizeRequired;
     unsigned char uniqueColorID[COLOR_COMPONENTS];
 
     static unsigned char nextColorID[COLOR_COMPONENTS];

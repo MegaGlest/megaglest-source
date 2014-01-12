@@ -1761,6 +1761,8 @@ PixelBufferWrapper::PixelBufferWrapper(int pboCount,int bufferSize) {
 		//
 
 		for(int i = 0; i < pboCount; ++i) {
+			printf("PBO Gen i = %d\n",i);
+
 			pboIds.push_back(0);
 			glGenBuffersARB(1, (GLuint*)&pboIds[i]);
 			// create pixel buffer objects, you need to delete them when program exits.
@@ -1838,8 +1840,12 @@ void PixelBufferWrapper::end() {
 void PixelBufferWrapper::cleanup() {
 	if(PixelBufferWrapper::isPBOEnabled == true) {
 		if(pboIds.empty() == false) {
+			printf("PBO Delete size = %d\n",(int)pboIds.size());
+
 			glDeleteBuffersARB((int)pboIds.size(), &pboIds[0]);
 			pboIds.clear();
+
+			glBindBufferARB(GL_PIXEL_PACK_BUFFER_ARB, 0);
 		}
 	}
 }
@@ -1850,6 +1856,7 @@ PixelBufferWrapper::~PixelBufferWrapper() {
 
 // ---------------------------------------------------------------------------
 
+int BaseColorPickEntity::bufferSizeRequired = -1;
 const unsigned int BaseColorPickEntity::p = 64007;
 const unsigned int BaseColorPickEntity::k = 43067;
 unsigned int BaseColorPickEntity::nextColorRGB = BaseColorPickEntity::k;
@@ -1865,6 +1872,9 @@ vector<vector<unsigned char> > BaseColorPickEntity::nextColorIDReuseList;
 bool BaseColorPickEntity::using_loop_method = false;
 
 BaseColorPickEntity::BaseColorPickEntity() {
+	if(BaseColorPickEntity::bufferSizeRequired != -1) {
+		BaseColorPickEntity::init(BaseColorPickEntity::bufferSizeRequired);
+	}
 	uniqueColorID[0] = 0;
 	uniqueColorID[1] = 0;
 	uniqueColorID[2] = 0;
@@ -2022,8 +2032,13 @@ void BaseColorPickEntity::resetUniqueColors() {
 }
 void BaseColorPickEntity::init(int bufferSize) {
 	 if(BaseColorPickEntity::pbo.get() == NULL) {
-		 BaseColorPickEntity::pbo.reset(new PixelBufferWrapper(2,bufferSize));
+		 BaseColorPickEntity::bufferSizeRequired = bufferSize;
+		 BaseColorPickEntity::pbo.reset(new PixelBufferWrapper(2,BaseColorPickEntity::bufferSizeRequired));
 	 }
+}
+
+void BaseColorPickEntity::cleanupPBO() {
+	BaseColorPickEntity::pbo.reset(0);
 }
 
 string BaseColorPickEntity::getColorDescription() const {
