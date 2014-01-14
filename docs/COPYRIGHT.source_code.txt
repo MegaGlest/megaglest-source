@@ -3,14 +3,22 @@ MegaGlest Source Code License
 You can redistribute this code and/or modify it under the terms of the GNU
 General Public License as published by the Free Software Foundation; either
 version 3 of the License, or (at your option) any later version.
-The complete License is contained in this distribution in the file 
+
+The complete license is contained in this distribution in the file 
 'gnu_gpl_3.0.txt' and also available online at
 http://www.gnu.org/licenses/gpl.html
+
+On Debian GNU/Linux systems (and derivates) please find license information in: 
+/usr/share/common-licenses/GPL
+/usr/share/common-licenses/GPL-2
+/usr/share/common-licenses/GPL-2+
+/usr/share/common-licenses/GPL-3
+/usr/share/common-licenses/GPL-3+
 
 Except where otherwise noted, all of the documentation, multimedia and software
 included in the MegaGlest setup package is copyrighted by The MegaGlest Team.
 
-Copyright (C) 2001-2012 The MegaGlest Team. All rights reserved.
+Copyright (C) 2001-2014 The MegaGlest Team. All rights reserved.
 
 This software is provided without any express or implied warranty. In no event
 shall the author be held liable for any damages arising from the use of this
@@ -20,12 +28,6 @@ This software may be redistributed freely, but all redistributions must retain
 all occurences of the above copyright notice and web site addresses that are
 currently in place and must provide full source code with ALL modifications.
 
-On debian systems please find license information in: 
-/usr/share/common-licenses/GPL
-/usr/share/common-licenses/GPL-2
-/usr/share/common-licenses/GPL-2+
-/usr/share/common-licenses/GPL-3
-/usr/share/common-licenses/GPL-3+
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 MegaGlest is a fork of Glest, so Glests' license terms also apply to MegaGlest.

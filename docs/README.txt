@@ -26,8 +26,8 @@
 Hardware requirements:
 * >= 6th generation x86 CPU with 1.5 GHz or better
   (modern CPU series with at least two cores of at least 1.5 Ghz recommended)
-* 1.0 GB RAM
-  (2.0 GB recommended)
+* 1.5 GB RAM
+  (2.0 GB RAM recommended)
 * Graphics chip supporting OpenGL 1.3 with GL_ARB_env_crossbar and shader
   extensions (=OpenGL 1.4 or glUseProgramObjectARB etc.) or higher
   (dedicated video card with hardware 3D acceleration recommended)
@@ -115,7 +115,7 @@ MegaGlest can be configured in two ways:
 - manual editing of glestuser.ini (options) and glestuserkeys.ini (hotkeys)
 
 DO NOT directly edit glest.ini and glestkeys.ini but rather edit glestuser.ini
-and glestuserkeys.ini and create your user over-ride values in these files.
+and glestuserkeys.ini overwriting global defaults.
 
 On Linux, these files are located in ~/.megaglest/ (note the leading dot, this
 is a hidden directory). 
@@ -237,13 +237,15 @@ same mods.
 
 megaglest                            => start game normally
 megaglest --version                  => display the version string
-megaglest --server                   => start in the custom game screen
-                                        with all slots open
+megaglest --starthost                => start in the custom game screen
+                                        with open network slots
 megaglest --headless-server-mode     => start a headless server, the first
                                         connecting user will manage it
-megaglest --client ServerIp          => start game connecting to a server
+megaglest --connect IPADDR[:PORT]    => start game connecting to the server
+                                        at the given IPv4 address
 
-For a complete list, run: megaglest --help
+For a complete list, run: 
+megaglest --help
 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -277,11 +279,3 @@ their own by reading up on available documentation before getting in touch.
   Network: irc.freenode.net
   Channel: #megaglest
   Or use the webchat at http://chat.megaglest.org/
-
-On Debian GNU/Linux systems please find license information in: 
-/usr/share/common-licenses/GPL
-/usr/share/common-licenses/GPL-2
-/usr/share/common-licenses/GPL-2+
-/usr/share/common-licenses/GPL-3
-/usr/share/common-licenses/GPL-3+
-
