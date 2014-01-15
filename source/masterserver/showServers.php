@@ -78,7 +78,7 @@
 	echo '				<th title="ip">IPv4 address</th>' . PHP_EOL;
 	echo '				<th title="externalServerPort">Game protocol port</th>' . PHP_EOL;
 	echo '				<th title="platform">Platform</th>' . PHP_EOL;
-	echo '				<th title="binaryCompileDate">Build date</th>' . PHP_EOL;
+	echo '				<th title="lasttime">Play date</th>' . PHP_EOL;
 	echo '			</tr>' . PHP_EOL;
 
         $games_with_stats = 0;
@@ -185,7 +185,7 @@
 			printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['platform'],           ENT_QUOTES ), PHP_EOL );
 
 			// binaryCompileDate
-			printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['binaryCompileDate'],  ENT_QUOTES ), PHP_EOL );
+			printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['lasttime'],  ENT_QUOTES ), PHP_EOL );
 
 			echo "\t\t\t" . '</tr>' . PHP_EOL;
 
