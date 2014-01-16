@@ -111,7 +111,7 @@ function timedRequest()
 				"	<th title=\"ip\">IPv4 address</th>\n" +
 				"	<th title=\"externalServerPort\">Game protocol port</th>\n" +
 				"	<th title=\"platform\">Platform</th>\n" +
-				"	<th title=\"binaryCompileDate\">Build date</th>\n" +
+				"	<th title=\"lasttime\">Play date</th>\n" +
 				"</tr>\n";
 
 			// Loop through all json objects
@@ -215,8 +215,8 @@ function timedRequest()
 					///  Platform
 					table += "<td>" + escapeHtml(jsonText[i].platform) + "</td>";
 
-					///  Binary compilation date
-					table += "<td>" + escapeHtml(jsonText[i].binaryCompileDate) + "</td>";
+					///  Play date
+					table += "<td>" + escapeHtml(jsonText[i].lasttime) + "</td>";
 
 					table += "</tr>";
 

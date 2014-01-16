@@ -184,7 +184,7 @@
 			// platform
 			printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['platform'],           ENT_QUOTES ), PHP_EOL );
 
-			// binaryCompileDate
+			// game play time
 			printf( "\t\t\t\t<td>%s</td>%s", htmlspecialchars( $server['lasttime'],  ENT_QUOTES ), PHP_EOL );
 
 			echo "\t\t\t" . '</tr>' . PHP_EOL;
