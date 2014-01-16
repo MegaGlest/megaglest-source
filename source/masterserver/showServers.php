@@ -62,7 +62,7 @@
 	echo '	</head>' . PHP_EOL;
 	echo '	<body>' . PHP_EOL;
 	echo '		<h1><a href="' . htmlspecialchars( PRODUCT_URL ) . '">' . htmlspecialchars( PRODUCT_NAME ) . '</a> gameservers</h1>' . PHP_EOL;
-	echo '		<table>' . PHP_EOL;
+	echo '		<table id="gamesTable">' . PHP_EOL;
 	echo '			<tr>' . PHP_EOL;
 	echo '				<th title="glestVersion">Version</th>' . PHP_EOL;
 	echo '				<th title="status">Status</th>' . PHP_EOL;
@@ -216,7 +216,7 @@
 	}
 
 	echo '		<p>Usage:</p>' . PHP_EOL;
-	echo '		<ul>' . PHP_EOL;
+	echo '		<ul id="noJsUsage">' . PHP_EOL;
 	echo '			<li>You can have this page auto <a href="?refresh=60" rel="nofollow">refresh every 60 seconds</a> by appending <code>?refresh=60</code> to the URL. Minimum refresh time is 10 seconds.</li>' . PHP_EOL;
 	echo '			<li>The parameters used by the masterserver API will display when you move your mouse pointer over any of the table headings.</li>' . PHP_EOL;
 	echo '		</ul>' . PHP_EOL;

@@ -32,7 +32,7 @@ var firstLoop = true;
 
 
 // Modify the document body
-var domUl = document.getElementsByTagName("ul");
+var domUl = document.getElementById("noJsUsage");
 var domBody = document.getElementsByTagName("body");
 
 var wrapperDiv = document.createElement("div");
@@ -41,8 +41,8 @@ wrapperDiv.innerHTML = "The parameters used by the masterserver API will display
 	"<label for=\"refreshTimeId\">Refresh time (in seconds):</label> <input id=\"refreshTimeId\" type=\"number\" width=\"3\" min=\"10\" max=\"999\" /> <label for=\"refreshTimeId\">(minimum 10)</label>";
 wrapperDiv.style.paddingLeft = "30px";
 
-domBody[0].insertBefore(wrapperDiv, domUl[0]);
-domUl[0].parentNode.removeChild(domUl[0]);
+domBody[0].insertBefore(wrapperDiv, domUl);
+domUl.parentNode.removeChild(domUl);
 
 
 // Modifying string object to support startsWith(String) function
@@ -260,13 +260,13 @@ function timedRequest()
 			serverList = newServerList;
 
 			// Write to actual table when done only, otherwise the browser trips as it tries to fix the partial table formatting
-			var tableDOM = document.getElementsByTagName("tbody");
-			tableDOM[0].innerHTML = table;
+			var tableDOM = document.getElementById("gamesTable");
+			tableDOM.innerHTML = table;
 
-						//debugger;
-						for(var gameIndex = 100; gameIndex < 200; ++gameIndex) {
-								setupGameStatsLink(gameIndex);
-						}
+			//debugger;
+			for(var gameIndex = 100; gameIndex < 200; ++gameIndex) {
+					setupGameStatsLink(gameIndex);
+			}
 
 			// Catch empty case
 			if(jsonText.length === 0)
