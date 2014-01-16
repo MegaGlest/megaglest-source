@@ -13,7 +13,7 @@ var version = '';
 for (var i = 0; i < args.length; i++)
 {
 	var tmp = args[i].split(/=/);
-	if(tmp[0] != "")
+	if(tmp[0] !== "")
 	{
 		get_data[decodeURIComponent(tmp[0])] = decodeURIComponent(tmp.slice(1).join("").replace("+", " "));
 	}
@@ -25,6 +25,8 @@ if(get_data['version'])
 	version = get_data['version'];
 }
 
+// Will store the data about servers last time we checked, so we can compare if there
+// are any changes
 var serverList = {};
 var firstLoop = true;
 
@@ -34,14 +36,23 @@ var domUl = document.getElementsByTagName("ul");
 var domBody = document.getElementsByTagName("body");
 
 var wrapperDiv = document.createElement("div");
-wrapperDiv.innerHTML = "The parameters used by the masterserver API will display when you move your mouse pointer over any of the table headings.<br /><br />"
-	+ "<input id=\"enableNotifications\" type=\"checkbox\" /> <label for=\"enableNotifications\">Check here to enable auto-refreshing of the table and desktop notifications</label><br />"
-	+ "<label for=\"refreshTimeId\">Refresh time (in seconds):</label> <input id=\"refreshTimeId\" type=\"number\" width=\"3\" min=\"10\" max=\"999\" /> <label for=\"refreshTimeId\">(minimum 10)</label>";
+wrapperDiv.innerHTML = "The parameters used by the masterserver API will display when you move your mouse pointer over any of the table headings.<br /><br />" +
+	"<input id=\"enableNotifications\" type=\"checkbox\" /> <label for=\"enableNotifications\">Check here to enable auto-refreshing of the table and desktop notifications</label><br />" +
+	"<label for=\"refreshTimeId\">Refresh time (in seconds):</label> <input id=\"refreshTimeId\" type=\"number\" width=\"3\" min=\"10\" max=\"999\" /> <label for=\"refreshTimeId\">(minimum 10)</label>";
 wrapperDiv.style.paddingLeft = "30px";
 
 domBody[0].insertBefore(wrapperDiv, domUl[0]);
 domUl[0].parentNode.removeChild(domUl[0]);
 
+
+// Modifying string object to support startsWith(String) function
+// Created by CMS <http://stackoverflow.com/a/646643/1968462>
+if (typeof String.prototype.startsWith != 'function') {
+  // see below for better implementation!
+  String.prototype.startsWith = function (str){
+    return this.indexOf(str) == 0;
+  };
+}
 
 // Request permission for issuing desktop notifications when the checkbox is ticked
 var notifications = document.getElementById("enableNotifications");
@@ -51,7 +62,7 @@ notifications.onclick = function()
 	{
 		Notification.requestPermission();
 	}
-}
+};
 
 
 // Helper function for escpaing special characters
@@ -77,37 +88,37 @@ function timedRequest()
 	// Function calls as soon as we receive the right data from the site
 	request.onreadystatechange = function()
 	{
-		if (request.readyState == 4 && request.status == 200)
+		if (request.readyState === 4 && request.status === 200)
 		{
 			// Parse the JSON data for safety
 			var jsonText = JSON.parse(request.responseText);
 			var newServerList = {};
 
-                        games_with_stats = 100;
+			games_with_stats = 100;
 			// Repopulate table content
-			var table = "<tr>\n"
-			    + "	<th title=\"glestVersion\">Version</th>\n"
-			    + "	<th title=\"status\">Status</th>\n"
-                            + "	<th title=\"gameDuration\">Game Duration</th>\n"
-			    + "	<th title=\"country\">Country</th>\n"
-			    + "	<th title=\"serverTitle\">Title</th>\n"
-			    + "	<th title=\"tech\">Techtree</th>\n"
-			    + "	<th title=\"connectedClients\">Network players</th>\n"
-			    + "	<th title=\"networkSlots\">Network slots</th>\n"
-			    + "	<th title=\"activeSlots\">Total slots</th>\n"
-			    + "	<th title=\"map\">Map</th>\n"
-			    + "	<th title=\"tileset\">Tileset</th>\n"
-			    + "	<th title=\"ip\">IPv4 address</th>\n"
-			    + "	<th title=\"externalServerPort\">Game protocol port</th>\n"
-			    + "	<th title=\"platform\">Platform</th>\n"
-			    + "	<th title=\"binaryCompileDate\">Build date</th>\n"
-			    + "</tr>\n";
+			var table = "<tr>\n" +
+				"	<th title=\"glestVersion\">Version</th>\n" +
+				"	<th title=\"status\">Status</th>\n" +
+				"	<th title=\"gameDuration\">Game Duration</th>\n" +
+				"	<th title=\"country\">Country</th>\n" +
+				"	<th title=\"serverTitle\">Title</th>\n" +
+				"	<th title=\"tech\">Techtree</th>\n" +
+				"	<th title=\"connectedClients\">Network players</th>\n" +
+				"	<th title=\"networkSlots\">Network slots</th>\n" +
+				"	<th title=\"activeSlots\">Total slots</th>\n" +
+				"	<th title=\"map\">Map</th>\n" +
+				"	<th title=\"tileset\">Tileset</th>\n" +
+				"	<th title=\"ip\">IPv4 address</th>\n" +
+				"	<th title=\"externalServerPort\">Game protocol port</th>\n" +
+				"	<th title=\"platform\">Platform</th>\n" +
+				"	<th title=\"binaryCompileDate\">Build date</th>\n" +
+				"</tr>\n";
 
 			// Loop through all json objects
 			for(var i = 0; i < jsonText.length; i++)
 			{
 				// Check if version filter is active
-				if(version == '' || jsonText[i].glestVersion == version)
+				if(version === '' || jsonText[i].glestVersion == version)
 				{
 					////// DYNAMIC TABLE SECTION
 
@@ -117,10 +128,10 @@ function timedRequest()
 					table += "<td><a href=\"?version=" + escapeHtml(jsonText[i].glestVersion) + "\" rel=\"nofollow\">" + escapeHtml(jsonText[i].glestVersion) + "</a></td>";
 
 					/// Status
-					var statusCode = jsonText[i].status;
+					var statusCode = parseInt(jsonText[i].status);
 
 					// Change text if the server is full
-					if((statusCode == 0) && (jsonText[i].networkSlots <= jsonText[i].connectedClients))
+					if((statusCode === 0) && (jsonText[i].networkSlots <= jsonText[i].connectedClients))
 					{
 						statusCode = 1;
 					}
@@ -149,16 +160,16 @@ function timedRequest()
 							statusClass = 'unknown';
 					}
 
-                                        //debugger;
-                                        if ((statusCode == "2" || statusCode == "3") && jsonText[i].gameUUID != "")
-                                        {
-                                                var specialColHTML = "<td title=\"" + jsonText[i].status + "\" class=\"" + statusClass + "\"><a id=\"gameStats_" + games_with_stats + "\" href=\"#\" gameuuid=\"" + jsonText[i].gameUUID + "\">" + escapeHtml(statusTitle) + "</a></td>";
-                                                table += specialColHTML;
-                                        }
-                                        else
-                                        {
-        					table += "<td title=\"" + jsonText[i].status + "\" class=\"" + statusClass + "\">" + escapeHtml(statusTitle) + "</td>";
-                                        }
+					//debugger;
+					if ((statusCode == "2" || statusCode == "3") && jsonText[i].gameUUID !== "")
+					{
+						var specialColHTML = "<td title=\"" + jsonText[i].status + "\" class=\"" + statusClass + "\"><a id=\"gameStats_" + games_with_stats + "\" href=\"#\" gameuuid=\"" + jsonText[i].gameUUID + "\">" + escapeHtml(statusTitle) + "</a></td>";
+						table += specialColHTML;
+					}
+					else
+					{
+						table += "<td title=\"" + jsonText[i].status + "\" class=\"" + statusClass + "\">" + escapeHtml(statusTitle) + "</td>";
+					}
 
 					/// Game Duration
 					table += "<td>" + escapeHtml(jsonText[i].gameDuration) + "</td>";
@@ -209,14 +220,14 @@ function timedRequest()
 
 					table += "</tr>";
 
-                                        if ((statusCode == "2" || statusCode == "3") && jsonText[i].gameUUID != "")
-                                        {
-                                                table += "<tr width='100%%' class='fullyhide' id='content_row_" + jsonText[i].gameUUID + "'>";
-                                                table += "<td width='100%%' colspan='100'></td>";
-                                                table += "</tr>";
+					if ((statusCode === "2" || statusCode === "3") && jsonText[i].gameUUID !== "")
+					{
+							table += "<tr width='100%%' class='fullyhide' id='content_row_" + jsonText[i].gameUUID + "'>";
+							table += "<td width='100%%' colspan='100'></td>";
+							table += "</tr>";
 
-                                                games_with_stats++;
-                                        }
+							games_with_stats++;
+					}
 
 					////// DESKTOP NOTIFICATIONS SECTION
 
@@ -227,8 +238,8 @@ function timedRequest()
 					// Only check for changes if NOT the first time
 					if(!firstLoop)
 					{
-						// Check if new server doesn't exist in old list
-						if((newServerList[identifier].free > 0) && !serverList[identifier] && statusCode == 0)
+						if((newServerList[identifier].free > 0 && !serverList[identifier] && statusCode === 0) || // doesn't exist in old list
+							(newServerList[identifier].free > 0 && serverList[identifier].free == 0 && statusCode === 0 && serverList[identifier].serverTitle.startsWith("Headless"))) // Headless server that previously had zero players
 						{
 							// Create notification
 							var notification = new Notification("Open server", {
@@ -252,23 +263,23 @@ function timedRequest()
 			var tableDOM = document.getElementsByTagName("tbody");
 			tableDOM[0].innerHTML = table;
 
-                        //debugger;
-                        for(var gameIndex = 100; gameIndex < 200; ++gameIndex) {
-                                setupGameStatsLink(gameIndex);
-                        }
+						//debugger;
+						for(var gameIndex = 100; gameIndex < 200; ++gameIndex) {
+								setupGameStatsLink(gameIndex);
+						}
 
 			// Catch empty case
-			if(jsonText.length == 0)
+			if(jsonText.length === 0)
 			{
 				serverList = { };
 			}
 		}
 		// Empty server list
-		else if(request.readyState == 4 && request.status == 0)
+		else if(request.readyState === 4 && request.status === 0)
 		{
 			serverList = { };
 		}
-	}
+	};
 }
 
 
@@ -341,4 +352,4 @@ refreshTimeBox.onchange = function()
 	// Reset the interval
 	clearInterval(interval);
 	interval = setInterval(timedRequest, refreshTime);
-}
+};
