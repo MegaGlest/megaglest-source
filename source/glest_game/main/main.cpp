@@ -4638,7 +4638,7 @@ int glestMain(int argc, char** argv) {
 
 		if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_LUA_DEBUG]) == true) {
 			printf("Forcing LUA debugging enabled!\n");
-			config.setBool("DebugLUA","true", true);
+			config.setBool("DebugLUA",true, true);
 		}
 
         // Setup debug logging etc
