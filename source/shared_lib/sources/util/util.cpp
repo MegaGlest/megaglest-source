@@ -603,7 +603,7 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
 			printf("[%s] %s", szBuf2, debugEntry.c_str());
 		}
 		else if (type == debugError) {
-			printf("*ERROR* %s", debugEntry.c_str());
+			printf("*ERROR* [%s] %s", szBuf2,debugEntry.c_str());
 		}
 		else {
 			printf("%s", debugEntry.c_str());
