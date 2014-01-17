@@ -1069,9 +1069,10 @@ void ServerInterface::checkForCompletedClients(std::map<int,bool> & mapSlotSigna
 
 void ServerInterface::checkForAutoPauseForLaggingClient(int index,ConnectionSlot* connectionSlot) {
 
-	if (this->clientsAutoPausedDueToLag == false) {
+	if (gameSettings.getNetworkPauseGameForLaggedClients() == true &&
+			this->clientsAutoPausedDueToLag == false) {
 		if (connectionSlot != NULL && connectionSlot->isConnected() == true) {
-			if (connectionSlot->getAutoPauseGameCountForLag()< MAX_CLIENT_PAUSE_FOR_LAG_COUNT) {
+			if (connectionSlot->getAutoPauseGameCountForLag() < MAX_CLIENT_PAUSE_FOR_LAG_COUNT) {
 				if (this->clientLagCallbackInterface != NULL) {
 
 					if (this->clientsAutoPausedDueToLagTimer.isStarted() == false ||
@@ -1438,7 +1439,8 @@ void ServerInterface::dispatchPendingUnMarkCellMessages(std::vector <string> &er
 }
 
 void ServerInterface::checkForAutoResumeForLaggingClients() {
-	if (this->clientsAutoPausedDueToLag == true &&
+	if (gameSettings.getNetworkPauseGameForLaggedClients() == true &&
+		this->clientsAutoPausedDueToLag == true &&
 		this->clientsAutoPausedDueToLagTimer.getMillis() >= MAX_CLIENT_WAIT_SECONDS_FOR_PAUSE_MILLISECONDS) {
 
 		//printf("this->clientsAutoPausedDueToLag: %d [%lld]\n",this->clientsAutoPausedDueToLag,(long long)this->clientsAutoPausedDueToLagTimer.getMillis());
