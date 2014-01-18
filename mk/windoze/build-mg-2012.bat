@@ -97,6 +97,7 @@ rem Update from GIT to latest rev
 ECHO --------------------------------
 Echo Updating Code from GIT to latest Revision...
 cd ..\..\
+git submodule update
 git pull
 git submodule foreach git pull
 
