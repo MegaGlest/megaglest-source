@@ -129,6 +129,7 @@ UnitType::UnitType() : ProducibleType() {
 	armor=0;
 	sight=0;
 	size=0;
+	renderSize=0;
 	height=0;
 
 	addItemToVault(&(this->maxHp),this->maxHp);

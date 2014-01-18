@@ -9,6 +9,7 @@ cd /d "%~dp0"
 ECHO Checking for windows binary runtime tools...
 if NOT EXIST ..\..\data\glest_game\7z.exe call cscript getTools.vbs
 if NOT EXIST ..\..\data\glest_game\7z.dll call cscript getTools.vbs
+if NOT EXIST ..\..\data\glest_game\tar.exe call cscript getTools.vbs
 if NOT EXIST ..\..\data\glest_game\wget.exe call cscript getTools.vbs
 
 set depfolder=windows_deps
@@ -72,6 +73,7 @@ rem Update from GIT to latest rev
 ECHO --------------------------------
 Echo Updating Code from GIT to latest Revision...
 cd ..\..\
+git submodule update
 git pull
 git submodule foreach git pull
 

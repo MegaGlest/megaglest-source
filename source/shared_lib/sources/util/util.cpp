@@ -449,7 +449,8 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
     }
 
     char szBuf2[100]="";
-    if (type != debugPathFinder && type != debugError && type != debugWorldSynch) {
+    //if (type != debugPathFinder && type != debugError && type != debugWorldSynch) {
+    if (type != debugPathFinder && type != debugWorldSynch) {
 		// Get the current time.
 	//    time_t curtime = time (NULL);
 		// Convert it to local time representation.
@@ -581,7 +582,7 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
 				(*currentDebugLog.fileStream) << "[" << szBuf2 << "] " << debugEntry.c_str();
 			}
 			else if (type == debugError) {
-				(*currentDebugLog.fileStream) << " *ERROR* " << debugEntry.c_str();
+				(*currentDebugLog.fileStream) << "[" << szBuf2 << "] *ERROR* " << debugEntry.c_str();
 			}
 			else {
 				(*currentDebugLog.fileStream) << debugEntry.c_str();
@@ -602,7 +603,7 @@ void SystemFlags::logDebugEntry(DebugType type, string debugEntry, time_t debugT
 			printf("[%s] %s", szBuf2, debugEntry.c_str());
 		}
 		else if (type == debugError) {
-			printf("*ERROR* %s", debugEntry.c_str());
+			printf("*ERROR* [%s] %s", szBuf2,debugEntry.c_str());
 		}
 		else {
 			printf("%s", debugEntry.c_str());

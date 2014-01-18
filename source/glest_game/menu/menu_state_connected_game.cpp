@@ -1033,8 +1033,11 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread,void *userdata
     }
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    MutexSafeWrapper safeMutex(callingThread->getMutexThreadObjectAccessor(),string(__FILE__) + "_" + intToStr(__LINE__));
 	tilesetListRemote.clear();
 	Tokenize(tilesetsMetaData,tilesetListRemote,"\n");
+	safeMutex.ReleaseLock(true);
 
 	for(unsigned int i=0; i < tilesetListRemote.size(); i++) {
 
@@ -1043,7 +1046,9 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread,void *userdata
 	        return;
 	    }
 
+	    safeMutex.Lock();
 		string result=refreshTilesetModInfo(tilesetListRemote[i]);
+		safeMutex.ReleaseLock(true);
 	}
 
     if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
@@ -1060,8 +1065,10 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread,void *userdata
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+    safeMutex.Lock();
 	techListRemote.clear();
 	Tokenize(techsMetaData,techListRemote,"\n");
+	safeMutex.ReleaseLock(true);
 
     if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
     	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
@@ -1075,7 +1082,9 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread,void *userdata
 	        return;
 	    }
 
+	    safeMutex.Lock();
 		string result=refreshTechModInfo(techListRemote[i]);
+		safeMutex.ReleaseLock(true);
 	}
 
     if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
@@ -1092,8 +1101,10 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread,void *userdata
 
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
+    safeMutex.Lock();
 	mapListRemote.clear();
 	Tokenize(mapsMetaData,mapListRemote,"\n");
+	safeMutex.ReleaseLock(true);
 
 	for(unsigned int i=0; i < mapListRemote.size(); i++) {
 
@@ -1102,7 +1113,9 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread,void *userdata
 	        return;
 	    }
 
+	    safeMutex.Lock();
 		string result=refreshMapModInfo(mapListRemote[i]);
+		safeMutex.ReleaseLock(true);
 	}
 
     if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
@@ -1218,7 +1231,10 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
                     if(ftpClientThread != NULL) {
                     	if(button == 0 && ftpMessageBox.getButtonCount() == 3) {
 							string mapName = getMissingMapFromFTPServer;
+
+							MutexSafeWrapper safeMutexThread((modHttpServerThread != NULL ? modHttpServerThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 							string mapURL = mapCacheList[mapName].url;
+							safeMutexThread.ReleaseLock();
 
 							if(ftpClientThread != NULL) ftpClientThread->addMapToRequests(mapName,mapURL);
                     		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1253,7 +1269,10 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
                     if(ftpClientThread != NULL) {
                     	if(button == 0 && ftpMessageBox.getButtonCount() == 3) {
     						string tilesetName = getMissingTilesetFromFTPServer;
+
+    						MutexSafeWrapper safeMutexThread((modHttpServerThread != NULL ? modHttpServerThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
     						string tilesetURL = tilesetCacheList[tilesetName].url;
+    						safeMutexThread.ReleaseLock();
 
     						if(ftpClientThread != NULL) ftpClientThread->addTilesetToRequests(tilesetName,tilesetURL);
                     		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1288,7 +1307,10 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
                     if(ftpClientThread != NULL) {
                     	if(button == 0 && ftpMessageBox.getButtonCount() == 3) {
     						string techName = getMissingTechtreeFromFTPServer;
+
+    						MutexSafeWrapper safeMutexThread((modHttpServerThread != NULL ? modHttpServerThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
     						string techURL = techCacheList[techName].url;
+    						safeMutexThread.ReleaseLock();
 
     						if(ftpClientThread != NULL) ftpClientThread->addTechtreeToRequests(techName,techURL);
                     		MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -4372,6 +4394,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 					snprintf(szBuf,8096,"%s %s ?",lang.getString("DownloadMissingTilesetQuestion").c_str(),gameSettings->getTileset().c_str());
 
 					// Is the item in the mod center?
+					MutexSafeWrapper safeMutexThread((modHttpServerThread != NULL ? modHttpServerThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 					if(tilesetCacheList.find(getMissingMapFromFTPServer) == tilesetCacheList.end()) {
 						ftpMessageBox.init(lang.getString("Yes"),lang.getString("NoDownload"));
 					}
@@ -4379,6 +4402,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 						ftpMessageBox.init(lang.getString("ModCenter"),lang.getString("GameHost"));
 						ftpMessageBox.addButton(lang.getString("NoDownload"));
 					}
+					safeMutexThread.ReleaseLock();
 
 					ftpMissingDataType = ftpmsg_MissingTileset;
 					showFTPMessageBox(szBuf, lang.getString("Question"), false);
@@ -4443,6 +4467,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 					snprintf(szBuf,8096,"%s %s ?",lang.getString("DownloadMissingTechtreeQuestion").c_str(),gameSettings->getTech().c_str());
 
 					// Is the item in the mod center?
+					MutexSafeWrapper safeMutexThread((modHttpServerThread != NULL ? modHttpServerThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 					if(techCacheList.find(getMissingTechtreeFromFTPServer) == techCacheList.end()) {
 						ftpMessageBox.init(lang.getString("Yes"),lang.getString("NoDownload"));
 					}
@@ -4450,6 +4475,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 						ftpMessageBox.init(lang.getString("ModCenter"),lang.getString("GameHost"));
 						ftpMessageBox.addButton(lang.getString("NoDownload"));
 					}
+					safeMutexThread.ReleaseLock();
 
 					ftpMissingDataType = ftpmsg_MissingTechtree;
 					showFTPMessageBox(szBuf, lang.getString("Question"), false);
@@ -4534,6 +4560,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 					snprintf(szBuf,8096,"%s %s ?",lang.getString("DownloadMissingMapQuestion").c_str(),currentMap.c_str());
 
 					// Is the item in the mod center?
+					MutexSafeWrapper safeMutexThread((modHttpServerThread != NULL ? modHttpServerThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 					if(mapCacheList.find(getMissingTechtreeFromFTPServer) == mapCacheList.end()) {
 						ftpMessageBox.init(lang.getString("Yes"),lang.getString("NoDownload"));
 					}
@@ -4541,6 +4568,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 						ftpMessageBox.init(lang.getString("ModCenter"),lang.getString("GameHost"));
 						ftpMessageBox.addButton(lang.getString("NoDownload"));
 					}
+					safeMutexThread.ReleaseLock();
 
 					ftpMissingDataType = ftpmsg_MissingMap;
 					showFTPMessageBox(szBuf, lang.getString("Question"), false);

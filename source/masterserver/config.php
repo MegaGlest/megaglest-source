@@ -8,7 +8,7 @@
 	define( 'PRODUCT_NAME',       'MegaGlest' );
 	define( 'PRODUCT_URL',        'http://megaglest.org' );
 
-	define( 'MYSQL_HOST',         '127.0.0.1' );
+	define( 'MYSQL_HOST',         'localhost' );
 	define( 'MYSQL_DATABASE',     'megaglest_master' );
 	define( 'MYSQL_USER',         'not_root' );
 	define( 'MYSQL_PASSWORD',     'your_pwd' );
