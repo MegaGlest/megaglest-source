@@ -118,7 +118,7 @@ function timedRequest()
 			for(var i = 0; i < jsonText.length; i++)
 			{
 				// Check if version filter is active
-				if(version === '' || jsonText[i].glestVersion == version)
+				if(version == '' || jsonText[i].glestVersion == version)
 				{
 					////// DYNAMIC TABLE SECTION
 
@@ -128,10 +128,10 @@ function timedRequest()
 					table += "<td><a href=\"?version=" + escapeHtml(jsonText[i].glestVersion) + "\" rel=\"nofollow\">" + escapeHtml(jsonText[i].glestVersion) + "</a></td>";
 
 					/// Status
-					var statusCode = parseInt(jsonText[i].status);
+					var statusCode = jsonText[i].status;
 
 					// Change text if the server is full
-					if((statusCode === 0) && (jsonText[i].networkSlots <= jsonText[i].connectedClients))
+					if((statusCode == 0) && (jsonText[i].networkSlots <= jsonText[i].connectedClients))
 					{
 						statusCode = 1;
 					}
@@ -220,7 +220,7 @@ function timedRequest()
 
 					table += "</tr>";
 
-					if ((statusCode === "2" || statusCode === "3") && jsonText[i].gameUUID !== "")
+					if ((statusCode == "2" || statusCode == "3") && jsonText[i].gameUUID !== "")
 					{
 							table += "<tr width='100%%' class='fullyhide' id='content_row_" + jsonText[i].gameUUID + "'>";
 							table += "<td width='100%%' colspan='100'></td>";
@@ -232,14 +232,14 @@ function timedRequest()
 					////// DESKTOP NOTIFICATIONS SECTION
 
 					// Store data in an array keyed by the concatenation of the IP and port
-					var identifier = jsonText[i].ip + jsonText[i].externalServerPort;
-					newServerList[identifier] = { 'ip': jsonText[i].ip, 'port': jsonText[i].externalServerPort, 'title': jsonText[i].serverTitle, 'free': (jsonText[i].networkSlots - jsonText[i].connectedClients), 'version': jsonText[i].glestVersion };
+					var identifier = jsonText[i].ip + ":" + jsonText[i].externalServerPort;
+					newServerList[identifier] = { 'ip': jsonText[i].ip, 'port': jsonText[i].externalServerPort, 'title': jsonText[i].serverTitle, 'free': (jsonText[i].networkSlots - jsonText[i].connectedClients), 'version': jsonText[i].glestVersion, 'connectedClients': jsonText[i].connectedClients };
 
 					// Only check for changes if NOT the first time
 					if(!firstLoop)
 					{
-						if((newServerList[identifier].free > 0 && !serverList[identifier] && statusCode === 0) || // doesn't exist in old list
-							(newServerList[identifier].free > 0 && serverList[identifier].free == 0 && statusCode === 0 && serverList[identifier].serverTitle.startsWith("Headless"))) // Headless server that previously had zero players
+						if((newServerList[identifier].free > 0 && !serverList[identifier] && statusCode == 0 && (serverList[identifier] === undefined || !serverList[identifier].title.startsWith("Headless"))) || // doesn't exist in old list
+							(newServerList[identifier].free > 0 && serverList[identifier].connectedClients == 0 && newServerList[identifier].connectedClients > 0 && statusCode == 0 && (serverList[identifier] !== undefined && serverList[identifier].title.startsWith("Headless")))) // Headless server that previously had zero players
 						{
 							// Create notification
 							var notification = new Notification("Open server", {
