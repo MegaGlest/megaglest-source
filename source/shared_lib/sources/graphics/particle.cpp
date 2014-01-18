@@ -1163,7 +1163,7 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 			if(meshName!="" && unitModel!=NULL){
 				//printf("meshName set unitModel given\n");
 				bool foundMesh=false;
-				for(uint i=0; i<unitModel->getMeshCount() ; i++){
+				for(unsigned int i=0; i<unitModel->getMeshCount() ; i++){
 					//printf("meshName=%s\n",unitModel->getMesh(i)->getName().c_str());
 					if(unitModel->getMesh(i)->getName()==meshName){
 						const InterpolationData *data=unitModel->getMesh(i)->getInterpolationData();
@@ -1178,7 +1178,7 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 				}
 				if( foundMesh == false ) {
 					string meshesFound="";
-					for(uint i=0; i<unitModel->getMeshCount() ; i++){
+					for(unsigned i=0; i<unitModel->getMeshCount() ; i++){
 						meshesFound+= unitModel->getMesh(i)->getName()+", ";
 					}
 
