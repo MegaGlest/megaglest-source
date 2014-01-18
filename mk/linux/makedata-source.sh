@@ -14,6 +14,7 @@ PACKAGE="$RELEASENAME-$VERSION.tar.xz"
 CURRENTDIR="$(dirname $(readlink -f $0))"
 RELEASEDIR="$CURRENTDIR/release/$RELEASENAME-$VERSION/megaglest-$VERSION"
 SOURCEDIR="$CURRENTDIR/../../source/"
+# Below we assume you have the data source contents root in a folder called: git-data-source/
 REPODIR="$CURRENTDIR/../../../git-data-source/"
 
 echo "Creating data package in $RELEASEDIR"
@@ -36,7 +37,7 @@ fi
 mkdir -p "$RELEASEDIR/data-source"
 cd "$RELEASEDIR/data-source"
 #svn export --force "$CURRENTDIR/../../../git-data-source" "$RELEASEDIR/data-source/"
-git archive --remote ${REPODIR}/megaglest-data-source/ HEAD: | tar x
+git archive --remote ${REPODIR}/ HEAD: | tar x
 
 cd "$CURRENTDIR"
 echo "creating $PACKAGE"
