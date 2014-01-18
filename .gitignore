@@ -7,6 +7,11 @@
 *.un~
 Session.vim
 MegaGlest.kdev4
+/mk/linux/mydata
+/mk/linux/release
+/mk/linux/linux_symbols
+/mk/linux/core
+/mk/linux/core.bak
 
 ## OSX
 Icon
@@ -69,10 +74,6 @@ $RECYCLE.BIN/
 /source/windows_deps_2012
 /source/windows_deps_2010
 /source/windows_deps_2010_old
-
-/mk/linux/mydata
-/mk/linux/release
-/mk/linux/linux_symbols
 
 # Coverity
 /cov-int
