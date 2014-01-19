@@ -1,20 +1,21 @@
 MEGAGLEST CHANGELOG
 ===================
+
 To see a timeline of detail changes please visit:
-http://sourceforge.net/apps/trac/megaglest/timeline
+https://github.com/MegaGlest/megaglest-source/commits/master
 
 v3.9.1
-This Release includes many bug fixes reported since 3.9.0 reported in the forums, and is backward compatible with 3.9.0.
-- Moved the project from sourceforge.net to github.com and from svn to git.
+- Backward compatible with 3.9.0
+- Many bug fixes as reported on the forums since 3.9.0
+- Moved the project from sourceforge.net to github.com and from subversion to git
 - Better handling of lagging clients in network games
-- Fixed cmake scripts to correctly detect dependencies that were previously partially working on some distros and improved build support for Mac OsX.
-- Added numerous new LUA functions as documented at wikia.
+- Fixed cmake scripts to correctly detect dependencies that were previously partially working on some distros and improved build support for Mac OS X
+- Added numerous new LUA functions as documented at http://wiki.megaglest.org
 - Code quality improvements as reported by cppcheck and coverity (and clang)
-- Better color picking algorithm thanks to willvarfar makes color picking very stable.
+- Better color picking algorithm thanks to willvarfar makes color picking very stable
 - Render order improved to allow more transparency effects
 - Adjustable camera scroll speed
 - Particle systems can be bound to meshes of models
-
 
 v3.9.0
 - we hopefully now really solved the last out of sync problems for cross platform games.
