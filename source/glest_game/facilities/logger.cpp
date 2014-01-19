@@ -135,6 +135,10 @@ void Logger::loadGameHints(string filePathEnglish,string filePathTranslation,boo
 		gameHintsTranslation.load(filePathTranslation,clearList);
 		showNextHint();
 
+		Lang &lang = Lang::getInstance();
+		buttonNextHint.setText(lang.getString("ShowNextHint","",true));
+		buttonCancel.setText(lang.getString("Cancel"));
+
 		GraphicComponent::applyAllCustomProperties("Loading");
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	}
