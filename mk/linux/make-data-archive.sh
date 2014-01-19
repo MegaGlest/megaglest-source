@@ -88,7 +88,7 @@ cd "$RELEASEDIR"
 mkdir -p "$RELEASEDIR/data/core/misc_textures/flags/"
 cd "$RELEASEDIR/data/core/misc_textures/flags/"
 # svn export --force "$CURRENTDIR/../../source/masterserver/flags" "$RELEASEDIR/data/core/misc_textures/flags/"
-git archive --remote ${REPODIR}/source/masterserver/ HEAD:flags | tar x
+git archive --remote ${REPODIR} HEAD:source/masterserver/flags | tar x
 
 #svn export --force "$CURRENTDIR/../../data/glest_game/CMakeLists.txt" "$RELEASEDIR/CMakeLists.txt"
 
