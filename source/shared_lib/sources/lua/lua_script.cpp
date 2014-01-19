@@ -439,7 +439,7 @@ void LuaScript::loadGame(const XmlNode *rootNode) {
 		string variable = node->getAttribute("variable")->getValue();
 		int value_type = node->getAttribute("value_type")->getIntValue();
 
-		if(LuaScript::debugModeEnabled) printf("  index #: %d [%s] [%d]\n",i,variable.c_str(),value_type);
+		if(LuaScript::debugModeEnabled) printf("  index #: %u [%s] [%d]\n",i,variable.c_str(),value_type);
 
 		switch (value_type) {
 			case LUA_TSTRING:
