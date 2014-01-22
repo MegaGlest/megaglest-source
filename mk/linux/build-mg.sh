@@ -173,7 +173,7 @@ if [ $CLANG_FORCED = 1 ]; then
 #exit 1;
 # If both the $CC and $CXX environment variable point to something containing
 # "clang", use whatever these environment variables point to.
-elif [ "`echo $CC | grep -Fq 'clang'`" = 'clang' -a "`echo $CXX | grep -Fq 'clang'`" = 'clang' ]; then
+elif [ "`echo $CC | grep -oF 'clang'`" = 'clang' -a "`echo $CXX | grep -oF 'clang'`" = 'clang' ]; then
 	if [ `echo $CC | grep -Fq '/'` = '/' ]; then
 		CLANG_CC=$CC
 	else
