@@ -190,7 +190,7 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 
 	        # Installation of the program config and image files
 	        INSTALL(FILES 
-                  "${PROJECT_SOURCE_DIR}/editor.ico"
+                  "${PROJECT_SOURCE_DIR}/mk/linux/editor.ico"
 	          DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 
 	        # Installation of the program desktop file
