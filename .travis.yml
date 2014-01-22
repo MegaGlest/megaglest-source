@@ -9,7 +9,7 @@ before_install:
  - sudo mk/linux/setupBuildDeps.sh --quiet # INSTALL DEPENDENCIES HERE
 script:
 # ALL THE BUILD COMMANDS HERE
- - ./build-mg.sh -c 4
+ - mk/linux/build-mg.sh -c 4
  #- dmesg
 notifications:
   irc:
