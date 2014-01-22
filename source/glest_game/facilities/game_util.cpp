@@ -120,6 +120,10 @@ string getCompilerNameString() {
 #if defined(WIN32) && defined(_MSC_VER)
 	version = "VC++: " + intToStr(_MSC_VER);
 
+
+#elif defined(__clang__)
+	version = "Clang: " + intToStr(__clang_major__) + "." + intToStr(__clang_minor__) + "." + intToStr(__clang_patchlevel__);
+
 #elif defined(__GNUC__)
 	#if defined(__GNUC__)
 	# if defined(__GNUC_PATCHLEVEL__)
