@@ -194,7 +194,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 
                 # Installation of the program config and image files
 	        INSTALL(FILES 
-	          "${PROJECT_SOURCE_DIR}/g3dviewer.ico"
+	          "${PROJECT_SOURCE_DIR}/mk/linux/g3dviewer.ico"
 	          DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 
 	        # Installation of the program desktop file
