@@ -206,10 +206,10 @@ if [ $REPACKONLY -eq 0 ]; then
 	# Now copy all glest data
 	echo Copying live MegaGlest data files...
 
-	cp "$CURRENTDIR/$megaglest_data_path/megaglest.ico" $INSTALLDATADIR
-	cp "$CURRENTDIR/$megaglest_data_path/megaglest_uninstall.ico" $INSTALLDATADIR
-	cp "$CURRENTDIR/$megaglest_data_path/g3dviewer.ico" ${INSTALLDATADIR}
-	cp "$CURRENTDIR/$megaglest_data_path/editor.ico" ${INSTALLDATADIR}
+	cp "$CURRENTDIR/$megaglest_linux_path/megaglest.ico" $INSTALLDATADIR
+	cp "$CURRENTDIR/$megaglest_linux_path/megaglest-uninstall.ico" $INSTALLDATADIR
+	cp "$CURRENTDIR/$megaglest_linux_path/g3dviewer.ico" ${INSTALLDATADIR}
+	cp "$CURRENTDIR/$megaglest_linux_path/editor.ico" ${INSTALLDATADIR}
 
 	mkdir -p "$INSTALLDATADIR/data/"
 #	svn export --force "$CURRENTDIR/$megaglest_data_path/data/" "$INSTALLDATADIR/data/"

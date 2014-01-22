@@ -157,7 +157,7 @@ Setup.Package
             genericname = _("MegaGlest"),
             tooltip = _("A real time strategy game."),
             builtin_icon = false,
-	    icon = "megaglest_uninstall.ico",
+	    icon = "megaglest-uninstall.ico",
             commandline = "%0/uninstall-megaglest.sh",
             category = "Game;StrategyGame"
         }
