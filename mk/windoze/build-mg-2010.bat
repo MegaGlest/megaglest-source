@@ -116,9 +116,9 @@ if %NUMBER_OF_PROCESSORS% GTR 1 (
 ECHO Found CPU Count [%NUMBER_OF_PROCESSORS%] BuildInParallel = [%BuildInParallel%]
 if "%2" == "rebuild" echo Doing a FULL REBUILD...
 rem if "%2" == "rebuild" msbuild /detailedsummary %msBuildMaxCPU% /p:BuildInParallel=%BuildInParallel% /p:Configuration=Release /t:Rebuild Glest_vc2010.sln
-if "%2" == "rebuild" msbuild %msBuildMaxCPU% %BuildInParallelCount% /p:Configuration=Release /t:Rebuild Glest_vc2010.sln
+if "%2" == "rebuild" msbuild %msBuildMaxCPU% %BuildInParallelCount% /p:TrackFileAccess=false;Configuration=Release /t:Rebuild Glest_vc2010.sln
 rem if not "%2" == "rebuild" msbuild /detailedsummary %msBuildMaxCPU% /p:BuildInParallel=%BuildInParallel% /p:Configuration=Release Glest_vc2010.sln
-if not "%2" == "rebuild" msbuild %msBuildMaxCPU% %BuildInParallelCount% /p:Configuration=Release Glest_vc2010.sln
+if not "%2" == "rebuild" msbuild %msBuildMaxCPU% %BuildInParallelCount% /p:TrackFileAccess=false;Configuration=Release Glest_vc2010.sln
 
 rem pause execution so we can see the output before the batch file exits
 if not "%1" == "nopause" pause
