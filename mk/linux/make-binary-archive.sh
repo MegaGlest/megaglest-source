@@ -20,7 +20,8 @@ PACKAGE="$RELEASENAME-$VERSION.tar.xz"
 CURRENTDIR="$(dirname $(readlink -f $0))"
 #RELEASEDIR="$CURRENTDIR/release/$RELEASENAME-$VERSION/megaglest-$VERSION"
 RELEASEDIR="$CURRENTDIR/release/$RELEASENAME-$VERSION"
-PROJDIR="$CURRENTDIR/../../"
+#PROJDIR="$CURRENTDIR/../../"
+PROJDIR="$CURRENTDIR/"
 
 echo "Creating binary package in $RELEASEDIR"
 
@@ -43,7 +44,7 @@ fi
 
 cd $PROJDIR
 mkdir -p "$RELEASEDIR/lib"
-cd mk/linux
+#cd mk/linux
 [[ -d "lib" ]] && rm -rf "lib"
 echo "building binary dependencies ..."
 ./makedeps_folder.sh megaglest
@@ -54,19 +55,19 @@ fi
 # copy binary info
 cd $PROJDIR
 echo "copying binaries ..."
-cp -r mk/linux/lib/* "$RELEASEDIR/lib"
-cp mk/linux/*.ico "$RELEASEDIR/"
-cp mk/linux/*.bmp "$RELEASEDIR/"
-cp mk/linux/*.png "$RELEASEDIR/"
-cp mk/linux/*.xpm "$RELEASEDIR/"
-cp mk/linux/*.ini "$RELEASEDIR/"
-cp mk/linux/megaglest "$RELEASEDIR/"
-cp mk/linux/megaglest_editor "$RELEASEDIR/"
-cp mk/linux/megaglest_g3dviewer "$RELEASEDIR/"
-cp mk/linux/start_megaglest "$RELEASEDIR/"
-cp mk/linux/start_megaglest_mapeditor "$RELEASEDIR/"
-cp mk/linux/start_megaglest_g3dviewer "$RELEASEDIR/"
-cp mk/linux/start_megaglest_gameserver "$RELEASEDIR/"
+cp -r lib/* "$RELEASEDIR/lib"
+cp *.ico "$RELEASEDIR/"
+cp *.bmp "$RELEASEDIR/"
+cp *.png "$RELEASEDIR/"
+cp *.xpm "$RELEASEDIR/"
+cp *.ini "$RELEASEDIR/"
+cp megaglest "$RELEASEDIR/"
+cp megaglest_editor "$RELEASEDIR/"
+cp megaglest_g3dviewer "$RELEASEDIR/"
+cp start_megaglest "$RELEASEDIR/"
+cp start_megaglest_mapeditor "$RELEASEDIR/"
+cp start_megaglest_g3dviewer "$RELEASEDIR/"
+cp start_megaglest_gameserver "$RELEASEDIR/"
 
 echo "creating $PACKAGE"
 cd $CURRENTDIR

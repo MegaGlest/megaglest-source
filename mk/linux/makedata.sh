@@ -39,20 +39,20 @@ cd "$RELEASEDIR"
 # svn export --force "$CURRENTDIR/../../mk/linux/glest.ini" "$RELEASEDIR/glest_linux.ini"
 # svn export --force "$CURRENTDIR/../../data/glest_game/glestkeys.ini" "$RELEASEDIR/glestkeys.ini"
 git archive --remote ${REPODIR}/data/glest_game/ HEAD: CMakeLists.txt | tar x
-git archive --remote ${REPODIR} HEAD:mk/linux/ megaglest.bmp | tar x
-git archive --remote ${REPODIR} HEAD:mk/linux/ megaglest.desktop | tar x
-git archive --remote ${REPODIR} HEAD:mk/linux/ megaglest.png | tar x
-git archive --remote ${REPODIR} HEAD:mk/linux/ megaglest.xpm | tar x
-git archive --remote ${REPODIR} HEAD:mk/linux/ glest.ico | tar x
-git archive --remote ${REPODIR} HEAD:mk/linux/ glest.ini | tar x
-mv glest.ini glest_linux.ini
-git archive --remote ${REPODIR}/data/glest_game/ HEAD: megaglest.ico | tar x
-git archive --remote ${REPODIR}/data/glest_game/ HEAD: g3dviewer.ico | tar x
-git archive --remote ${REPODIR}/data/glest_game/ HEAD: editor.ico | tar x
-git archive --remote ${REPODIR}/data/glest_game/ HEAD: servers.ini | tar x
-git archive --remote ${REPODIR}/data/glest_game/ HEAD: glest.ini | tar x
-git archive --remote ${REPODIR}/data/glest_game/ HEAD: glestkeys.ini | tar x
-mv glest.ini glest_windows.ini
+#git archive --remote ${REPODIR} HEAD:mk/linux/ megaglest.bmp | tar x
+#git archive --remote ${REPODIR} HEAD:mk/linux/ megaglest.desktop | tar x
+#git archive --remote ${REPODIR} HEAD:mk/linux/ megaglest.png | tar x
+#git archive --remote ${REPODIR} HEAD:mk/linux/ megaglest.xpm | tar x
+#git archive --remote ${REPODIR} HEAD:mk/linux/ glest.ico | tar x
+#git archive --remote ${REPODIR} HEAD:mk/linux/ glest.ini | tar x
+#mv glest.ini glest_linux.ini
+#git archive --remote ${REPODIR}/data/glest_game/ HEAD: megaglest.ico | tar x
+#git archive --remote ${REPODIR}/data/glest_game/ HEAD: g3dviewer.ico | tar x
+#git archive --remote ${REPODIR}/data/glest_game/ HEAD: editor.ico | tar x
+#git archive --remote ${REPODIR}/data/glest_game/ HEAD: servers.ini | tar x
+#git archive --remote ${REPODIR}/data/glest_game/ HEAD: glest.ini | tar x
+#git archive --remote ${REPODIR}/data/glest_game/ HEAD: glestkeys.ini | tar x
+#mv glest.ini glest_windows.ini
 
 echo "Exporting game data files ..."
 cd "$RELEASEDIR"

@@ -15,7 +15,7 @@ NUMCORES=`lscpu -p | grep -cv '^#'`
 if [ "$NUMCORES" = '' ]; then NUMCORES=1; fi
 
 # This is for regular developers and used by our installer
-cmake -G"Eclipse CDT4 - Unix Makefiles" -DCMAKE_INSTALL_PREFIX= -DWANT_STATIC_LIBS=ON -DCMAKE_ECLIPSE_MAKE_ARGUMENTS=-j$NUMCORES ${CURRENTDIR}
+cmake -G"Eclipse CDT4 - Unix Makefiles" -DCMAKE_INSTALL_PREFIX= -DWANT_STATIC_LIBS=ON -DCMAKE_ECLIPSE_MAKE_ARGUMENTS=-j$NUMCORES ${CURRENTDIR}/../../
 if [ $? -ne 0 ]; then 
   echo 'ERROR: CMAKE failed.' >&2; exit 1
 fi

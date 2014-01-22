@@ -46,11 +46,8 @@ SET(PKG_NAME "megaglest")
 # read version
 file(READ ${PROJECT_SOURCE_DIR}/source/glest_game/facilities/game_util.cpp MG_VERSION_H_CONTENTS)
 # find the version string
-#string (REGEX MATCH "\"v(.*).(.*).(.*)\"" _threePartMatch ${MG_VERSION_H_CONTENTS})
-#string (REGEX MATCH "\"v[^.]*.[^.]*(.[^.])?\"" _threePartMatch ${MG_VERSION_H_CONTENTS})
 #
 MESSAGE(STATUS "Determining version number system type to use:")
-# "v([0-9]).([0-9].*)([0-9].*)?";
 string (REGEX MATCH "\"v([0-9]).([0-9]).([0-9].*)[^\";]" _threePartMatch ${MG_VERSION_H_CONTENTS})
 if(NOT _threePartMatch)
         MESSAGE(STATUS "** Trying 2 part versioning] ")
@@ -60,10 +57,6 @@ if(NOT _threePartMatch)
                 # parse the parts of the version string
                 STRING(REGEX REPLACE "\"v([0-9])\\.[0-9].*" "\\1" VER_MAJOR   "${_threePartMatch}")
                 STRING(REGEX REPLACE "\"v[0-9]\\.([0-9]).*" "\\1" VER_MINOR "${_threePartMatch}")
-
-                #MESSAGE(STATUS "******* TEST2 MegaGlest Version #1 is [${VER_MAJOR}] ")
-                #MESSAGE(STATUS "******* TEST2 MegaGlest Version #2 is [${VER_MINOR}] ")
-                #MESSAGE(STATUS "******* TEST2 MegaGlest Version #3 is [${VER_RELEASE}] ")
 
                 MESSAGE(STATUS "MegaGlest Version is [${VER_MAJOR}.${VER_MINOR}] ")
         endif()
@@ -396,8 +389,8 @@ SET(CPACK_PACKAGE_VERSION_MINOR ${VER_MINOR})
 SET(CPACK_PACKAGE_VERSION_PATCH ${VER_RELEASE})
 IF(WIN32)
     SET(CPACK_NSIS_DISPLAY_NAME "MegaGlest")
-    SET(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/mk/linux/glest.ico")
-    SET(CPACK_PACKAGE_ICON "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.bmp")
+    SET(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/mk/windoze/glest.ico")
+    SET(CPACK_PACKAGE_ICON "${PROJECT_SOURCE_DIR}/mk/windoze/megaglest.ico")
     SET(CPACK_NSIS_URL_INFO_ABOUT "http://megaglest.org")
 ENDIF()
 INCLUDE(CPack)

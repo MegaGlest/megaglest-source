@@ -73,7 +73,8 @@ export PATH="${PATH}:${COVERITY_ANALYSIS_ROOT}/bin"
 
 # cleanup old build files
 # rm -rf ../../build && ../../build-mg.sh -m 1
-cd ../../
+#cd ../../
+cd $CURRENTDIR
 rm -rf build
 ./build-mg.sh -m 1
 

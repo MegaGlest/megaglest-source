@@ -13,6 +13,7 @@
 # Default to English language output so we can understand your bug reports
 export LANG=C
 
+SCRIPTDIR="$(dirname $(readlink -f $0))"
 CPU_COUNT=-1
 CMAKE_ONLY=0
 MAKE_ONLY=0
@@ -84,9 +85,9 @@ done
 # 1. Install clang (sudo apt-get install clang)
 # 2. Set the two vars below:
 #    WANT_CLANG=YES and CLANG_BIN_PATH=<path_to_the_clang_binary>
-CLANG_BIN_PATH=/usr/bin/
+CLANG_BIN_PATH=$( which clang )
+CLANGPP_BIN_PATH=$( which clang++ )
 
-SCRIPTDIR="$(dirname $(readlink -f $0))"
 cd ${SCRIPTDIR}
 
 # Google breakpad integration (cross platform memory dumps) - OPTIONAL
@@ -96,7 +97,7 @@ cd ${SCRIPTDIR}
 # will warn about it later.
 # Instead of editing this variable, consider creating a symbolic link:
 #   ln -s ../../google-breakpad google-breakpad
-BREAKPAD_ROOT="$SCRIPTDIR/google-breakpad/"
+BREAKPAD_ROOT="$SCRIPTDIR/../../google-breakpad/"
 
 # CMake options
 # The default configuration works fine for regular developers and is also used 
@@ -117,7 +118,7 @@ echo "CPU cores to be used: $NUMCORES"
 
 # Load shared functions
 
-. $SCRIPTDIR/mk/linux/mg_shared.sh
+. $SCRIPTDIR/mg_shared.sh
 
 # ----------------------------------------------------------------------------
 
@@ -167,7 +168,7 @@ esac
 # If, in the configuration section on top of this script, the user has 
 # indicated they want to use clang in favor of the default of GCC, use clang.
 if [ $CLANG_FORCED = 1 ]; then 
-        EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_C_COMPILER=${CLANG_BIN_PATH}clang -DCMAKE_CXX_COMPILER=${CLANG_BIN_PATH}clang++"
+        EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_C_COMPILER=${CLANG_BIN_PATH} -DCMAKE_CXX_COMPILER=${CLANGPP_BIN_PATH}"
         echo "USER WANTS to use CLANG / LLVM compiler! EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
 #exit 1;
 # If both the $CC and $CXX environment variable point to something containing
@@ -209,7 +210,7 @@ fi
 
 if [ $MAKE_ONLY = 0 ]; then 
         echo "Calling cmake with EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
-        cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON $WANT_STATIC_LIBS -DBUILD_MEGAGLEST_TESTS=ON -DBREAKPAD_ROOT=$BREAKPAD_ROOT $EXTRA_CMAKE_OPTIONS ..
+        cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON $WANT_STATIC_LIBS -DBUILD_MEGAGLEST_TESTS=ON -DBREAKPAD_ROOT=$BREAKPAD_ROOT $EXTRA_CMAKE_OPTIONS ../../..
         if [ $? -ne 0 ]; then 
           echo 'ERROR: CMAKE failed.' >&2; exit 1
         fi
@@ -229,7 +230,8 @@ else
         echo 'BUILD COMPLETE.'
         echo ''
         echo 'To launch MegaGlest from the current directory, use:'
-        echo '  mk/linux/megaglest --ini-path=mk/linux/ --data-path=mk/linux/'
+        echo '  ./megaglest'
         echo 'Or change into mk/linux and run it from there:'
         echo '  ./megaglest --ini-path=./ --data-path=./'
 fi
+

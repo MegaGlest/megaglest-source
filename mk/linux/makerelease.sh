@@ -81,9 +81,9 @@ echo "Exporting files in data/glest_game ..."
 # svn export --force "$CURRENTDIR/start_megaglest_mapeditor" $RELEASEDIR/start_megaglest_mapeditor
 # svn export --force "$CURRENTDIR/setupBuildDeps.sh" $RELEASEDIR/setupBuildDeps.sh
 # svn export --force "$CURRENTDIR/../../CMakeLists.txt" $RELEASEDIR/CMakeLists.txt
-git archive --remote ${REPODIR}/data/glest_game/ HEAD: megaglest.ico | tar x
-git archive --remote ${REPODIR}/data/glest_game/ HEAD: g3dviewer.ico | tar x
-git archive --remote ${REPODIR}/data/glest_game/ HEAD: editor.ico | tar x
+git archive --remote ${REPODIR} HEAD:mk/linux/ megaglest.ico | tar x
+git archive --remote ${REPODIR} HEAD:mk/linux/ g3dviewer.ico | tar x
+git archive --remote ${REPODIR} HEAD:mk/linux/ editor.ico | tar x
 git archive --remote ${REPODIR} HEAD:mk/linux/ start_megaglest | tar x
 git archive --remote ${REPODIR} HEAD:mk/linux/ start_megaglest_g3dviewer | tar x
 git archive --remote ${REPODIR} HEAD:mk/linux/ start_megaglest_mapeditor | tar x
