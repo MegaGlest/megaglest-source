@@ -14,9 +14,12 @@ OLD_VERSION=`./mg-version.sh --oldversion`
 VERSION=`./mg-version.sh --version`
 NEW_SUBFOLDER_PATH="megaglest-$VERSION"
 
-cd release
-CURDIR="`pwd`"
-cd ..
+CURRENTDIR="$(dirname $(readlink -f $0))"
+RELEASEDIR_ROOT="$CURRENTDIR/../../../release/"
+
+cd $RELEASEDIR_ROOT
+CURDIR=$RELEASEDIR_ROOT
+cd $CURRENTDIR
 
 RELEASENAME=megaglest-data-updates-$VERSION
 
@@ -101,6 +104,5 @@ echo Current Folder is [`pwd`]
 #7za a -mx=9 -ms=on -mhc=on "../$RELEASENAME.7z" $files_list
 tar -cf - --add-file $files_list | xz > ../$RELEASENAME.tar.xz
 
-cd ..
+cd $CURRENTDIR
 
-cd ..

@@ -194,14 +194,11 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 
                 # Installation of the program config and image files
 	        INSTALL(FILES 
-	          "${PROJECT_SOURCE_DIR}/mk/linux/g3dviewer.ico"
+	          "${PROJECT_SOURCE_DIR}/mk/shared/g3dviewer.ico"
 	          DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 
 	        # Installation of the program desktop file
                 SET(MG_DESKTOP_FILE ${PROJECT_SOURCE_DIR}/mk/linux/megaglest_g3dviewer.desktop)
-                IF(NOT EXISTS ${MG_DESKTOP_FILE})
-                        SET(MG_DESKTOP_FILE ${PROJECT_SOURCE_DIR}/megaglest_g3dviewer.desktop)
-                ENDIF()
 
                 INSTALL(FILES
 	          "${MG_DESKTOP_FILE}"

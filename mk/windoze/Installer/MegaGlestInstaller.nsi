@@ -10,10 +10,10 @@ Name "${APNAME} ${APVER}"
 SetCompressor /FINAL /SOLID lzma
 SetCompressorDictSize 64
 OutFile "${APNAME}-Installer-${APVER}_i386_win32.exe"
-Icon "..\megaglest.ico"
-UninstallIcon "..\megaglest.ico"
-!define MUI_ICON "..\megaglest.ico"
-!define MUI_UNICON "..\megaglest.ico"
+Icon "..\..\shared\megaglest.ico"
+UninstallIcon "..\..\shared\megaglest.ico"
+!define MUI_ICON "..\..\shared\megaglest.ico"
+!define MUI_UNICON "..\..\shared\megaglest.ico"
 InstallDir "$PROGRAMFILES\${APNAME}"
 ShowInstDetails show
 BGGradient 0xDF9437 0xffffff
@@ -216,10 +216,10 @@ Section "${APNAME} (required)"
   File "..\..\..\data\glest_game\megaglest_g3dviewer.exe"
   File "..\..\..\data\glest_game\7z.exe"
   File "..\..\..\data\glest_game\7z.dll"
-  File "..\..\..\mk\windoze\megaglest.ico"
+  File "..\..\..\mk\shared\megaglest.ico"
   File "..\..\..\mk\windoze\glest.ini"
-  File "..\..\..\mk\windoze\glestkeys.ini"
-  File "..\..\..\mk\windoze\servers.ini"
+  File "..\..\..\mk\shared\glestkeys.ini"
+  File "..\..\..\mk\shared\servers.ini"
   File "..\..\..\data\glest_game\openal32.dll"
   
   File "..\..\..\mk\windoze\NetworkThrottleFix.reg"

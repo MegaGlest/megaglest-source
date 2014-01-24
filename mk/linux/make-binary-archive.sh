@@ -15,12 +15,10 @@ kernel=`uname -s | tr '[A-Z]' '[a-z]'`
 architecture=`uname -m  | tr '[A-Z]' '[a-z]'`
 
 RELEASENAME=megaglest-binary-$kernel-$architecture
-#PACKAGE="$RELEASENAME-$VERSION.7z"
 PACKAGE="$RELEASENAME-$VERSION.tar.xz"
 CURRENTDIR="$(dirname $(readlink -f $0))"
-#RELEASEDIR="$CURRENTDIR/release/$RELEASENAME-$VERSION/megaglest-$VERSION"
-RELEASEDIR="$CURRENTDIR/release/$RELEASENAME-$VERSION"
-#PROJDIR="$CURRENTDIR/../../"
+RELEASEDIR_ROOT="$CURRENTDIR/../../../release/"
+RELEASEDIR="${RELEASEDIR_ROOT}/${RELEASENAME-$VERSION}"
 PROJDIR="$CURRENTDIR/"
 
 echo "Creating binary package in $RELEASEDIR"
@@ -44,7 +42,7 @@ fi
 
 cd $PROJDIR
 mkdir -p "$RELEASEDIR/lib"
-#cd mk/linux
+
 [[ -d "lib" ]] && rm -rf "lib"
 echo "building binary dependencies ..."
 ./makedeps_folder.sh megaglest
@@ -71,12 +69,10 @@ cp start_megaglest_gameserver "$RELEASEDIR/"
 
 echo "creating $PACKAGE"
 cd $CURRENTDIR
-[[ -f "$release/$PACKAGE" ]] && rm "release/$PACKAGE"
-#tar cJf "release/$PACKAGE" -C "$CURRENTDIR/release/" "$RELEASENAME-$VERSION"
-#tar -cf - -C "$CURRENTDIR/release/$RELEASENAME-$VERSION/" "./" | xz > release/$PACKAGE
-cd release/$RELEASENAME-$VERSION/
+[[ -f "${RELEASEDIR_ROOT}/$PACKAGE" ]] && rm "${RELEASEDIR_ROOT}/$PACKAGE"
+cd ${RELEASEDIR_ROOT}/$RELEASENAME-$VERSION/
 tar -cf - * | xz > ../$PACKAGE
 cd $CURRENTDIR
-# 7z a -mmt -mx=9 -ms=on -mhc=on "release/$PACKAGE" "$CURRENTDIR/release/$RELEASENAME-$VERSION"
 
-ls -la release/$PACKAGE
+ls -la ${RELEASEDIR_ROOT}/$PACKAGE
+

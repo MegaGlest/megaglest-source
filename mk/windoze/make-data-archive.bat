@@ -46,7 +46,6 @@ rem copy data
 echo Copying data ...
 mkdir %RELEASEDIR%\data\
 cd /d %RELEASEDIR%\data\
-rem svn export --force ..\..\data\glest_game\data %RELEASEDIR%\data\
 echo GIT ARCHIVE data ...
 git archive --remote %REPODIR%\data\glest_game\ HEAD:data | tar -x
 cd /d "%~dp0"
@@ -54,20 +53,17 @@ rem pause
 
 mkdir %RELEASEDIR%\docs\
 cd /d %RELEASEDIR%\docs\
-rem svn export --force ..\..\data\glest_game\docs %RELEASEDIR%\docs\
 echo GIT ARCHIVE docs ...
 git archive --remote %REPODIR%/data/glest_game/ HEAD:docs | tar -x
 cd /d "%~dp0"
 
 cd /d %RELEASEDIR%\docs\
-rem svn export --force ..\..\data\glest_game\docs\CHANGELOG.txt %RELEASEDIR%\docs\CHANGELOG.txt
 echo GIT ARCHIVE CHANGELOG.txt ...
 git archive --remote %REPODIR% HEAD:docs/ CHANGELOG.txt | tar -x
 cd /d "%~dp0"
 rem pause
 
 cd /d %RELEASEDIR%\docs\
-rem svn export --force ..\..\data\glest_game\docs\README.txt %RELEASEDIR%\docs\README.txt
 echo GIT ARCHIVE README.txt ...
 git archive --remote %REPODIR% HEAD:docs/ README.txt | tar -x
 cd /d "%~dp0"
@@ -75,35 +71,30 @@ rem pause
 
 mkdir %RELEASEDIR%\maps\
 cd /d %RELEASEDIR%\maps\
-rem svn export --force ..\..\data\glest_game\maps %RELEASEDIR%\maps\
 echo GIT ARCHIVE maps ...
 git archive --remote %REPODIR%/data/glest_game/ HEAD:maps | tar -x
 cd /d "%~dp0"
 
 mkdir %RELEASEDIR%\scenarios\
 cd /d %RELEASEDIR%\scenarios\
-rem svn export --force ..\..\data\glest_game\scenarios %RELEASEDIR%\scenarios\
 echo GIT ARCHIVE scenarios ...
 git archive --remote %REPODIR%/data/glest_game/ HEAD:scenarios | tar -x
 cd /d "%~dp0"
 
 mkdir %RELEASEDIR%\techs\
 cd /d %RELEASEDIR%\techs\
-rem svn export --force ..\..\data\glest_game\techs %RELEASEDIR%\techs\
 echo GIT ARCHIVE techs ...
 git archive --remote %REPODIR%/data/glest_game/ HEAD:techs | tar -x
 cd /d "%~dp0"
 
 mkdir %RELEASEDIR%\tilesets\
 cd /d %RELEASEDIR%\tilesets\
-rem svn export --force ..\..\data\glest_game\tilesets %RELEASEDIR%\tilesets\
 echo GIT ARCHIVE tilesets ...
 git archive --remote %REPODIR%/data/glest_game/ HEAD:tilesets | tar -x
 cd /d "%~dp0"
 
 mkdir %RELEASEDIR%\tutorials\
 cd /d %RELEASEDIR%\tutorials\
-rem svn export --force ..\..\data\glest_game\tutorials %RELEASEDIR%\tutorials\
 echo GIT ARCHIVE tutorials ...
 git archive --remote %REPODIR%/data/glest_game/ HEAD:tutorials | tar -x
 cd /d "%~dp0"
@@ -111,7 +102,6 @@ cd /d "%~dp0"
 rem special export for flag images
 mkdir %RELEASEDIR%\data\core\misc_textures\flags\
 cd /d %RELEASEDIR%\data\core\misc_textures\flags\
-rem svn export --force ..\..\source\masterserver\flags %RELEASEDIR%\data\core\misc_textures\flags\
 echo GIT ARCHIVE flags ...
 git archive --remote %REPODIR% HEAD:source/masterserver/flags | tar -x
 cd /d "%~dp0"
@@ -139,3 +129,4 @@ cd /d "%~dp0"
 
 rem pause execution so we can see the output before the batch file exits
 if not "%1" == "nopause" pause
+

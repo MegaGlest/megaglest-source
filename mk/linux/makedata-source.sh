@@ -9,10 +9,10 @@
 
 VERSION=`./mg-version.sh --version`
 RELEASENAME=megaglest-data-source
-#PACKAGE="$RELEASENAME-$VERSION.7z"
 PACKAGE="$RELEASENAME-$VERSION.tar.xz"
 CURRENTDIR="$(dirname $(readlink -f $0))"
-RELEASEDIR="$CURRENTDIR/release/$RELEASENAME-$VERSION/megaglest-$VERSION"
+RELEASEDIR_ROOT="$CURRENTDIR/../../../release/"
+RELEASEDIR="$RELEASEDIR_ROOT/$RELEASENAME-$VERSION/megaglest-$VERSION"
 SOURCEDIR="$CURRENTDIR/../../source/"
 # Below we assume you have the data source contents root in a folder called: git-data-source/
 REPODIR="$CURRENTDIR/../../../git-data-source/"
@@ -36,14 +36,12 @@ fi
 # copy data
 mkdir -p "$RELEASEDIR/data-source"
 cd "$RELEASEDIR/data-source"
-#svn export --force "$CURRENTDIR/../../../git-data-source" "$RELEASEDIR/data-source/"
 git archive --remote ${REPODIR}/ HEAD: | tar x
 
 cd "$CURRENTDIR"
 echo "creating $PACKAGE"
-[[ -f "$release/$PACKAGE" ]] && rm "release/$PACKAGE"
-#tar cJf "release/$PACKAGE" -C "$CURRENTDIR/release/" "$RELEASENAME-$VERSION"
-tar -cf - -C "$CURRENTDIR/release/$RELEASENAME-$VERSION/" "megaglest-$VERSION" | xz > release/$PACKAGE
-# 7z a -mmt -mx=9 -ms=on -mhc=on "release/$PACKAGE" "$CURRENTDIR/release/$RELEASENAME-$VERSION"
+[[ -f "$RELEASEDIR_ROOT/$PACKAGE" ]] && rm "$RELEASEDIR_ROOT/$PACKAGE"
+tar -cf - -C "$RELEASEDIR_ROOT/$RELEASENAME-$VERSION/" "megaglest-$VERSION" | xz > $RELEASEDIR_ROOT/$PACKAGE
 
-ls -la release/$PACKAGE
+ls -la $RELEASEDIR_ROOT/$PACKAGE
+

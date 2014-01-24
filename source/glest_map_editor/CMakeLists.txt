@@ -190,14 +190,11 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 
 	        # Installation of the program config and image files
 	        INSTALL(FILES 
-                  "${PROJECT_SOURCE_DIR}/mk/linux/editor.ico"
+                  "${PROJECT_SOURCE_DIR}/mk/shared/editor.ico"
 	          DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 
 	        # Installation of the program desktop file
                 SET(MG_DESKTOP_FILE ${PROJECT_SOURCE_DIR}/mk/linux/megaglest_editor.desktop)
-                IF(NOT EXISTS ${MG_DESKTOP_FILE})
-                        SET(MG_DESKTOP_FILE ${PROJECT_SOURCE_DIR}/megaglest_editor.desktop)
-                ENDIF()
 
 	        INSTALL(FILES
 	          "${MG_DESKTOP_FILE}"
