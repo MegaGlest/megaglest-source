@@ -512,6 +512,15 @@ void ClientInterface::update() {
 	}
 }
 
+std::string ClientInterface::getIpAddress(bool mutexLock) {
+	string result = "";
+	//MutexSafeWrapper safeMutexSlot((mutexLock == true ? mutexSocket : NULL),CODE_AT_LINE);
+	if(clientSocket != NULL) {
+		result = clientSocket->getIpAddress();
+	}
+	return result;
+}
+
 std::string ClientInterface::getServerIpAddress() {
 	return this->ip.getString();
 }

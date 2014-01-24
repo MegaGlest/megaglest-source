@@ -121,6 +121,7 @@ public:
 	void setGameStats(Stats *gameStats);
 
 	virtual Socket* getSocket(bool mutexLock=true)				{return &serverSocket;}
+	virtual std::string getIpAddress(bool mutexLock=true);
 
 	time_t getGameStartTime() const { return gameStartTime; }
 

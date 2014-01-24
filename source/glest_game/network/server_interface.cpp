@@ -1043,6 +1043,15 @@ void ServerInterface::checkForCompletedClientsUsingLoop(
 	}
 }
 
+std::string ServerInterface::getIpAddress(bool mutexLock) {
+	string result = "";
+	//MutexSafeWrapper safeMutexSlot((mutexLock == true ? mutexSocket : NULL),CODE_AT_LINE);
+	//if(serverSocket != NULL) {
+	result = serverSocket.getIpAddress();
+	//}
+	return result;
+}
+
 void ServerInterface::setClientLagCallbackInterface(ClientLagCallbackInterface *intf) {
 	this->clientLagCallbackInterface = intf;
 }

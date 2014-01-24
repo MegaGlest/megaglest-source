@@ -516,6 +516,15 @@ void ConnectionSlot::updateSlot(ConnectionSlotEvent *event) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+string ConnectionSlot::getIpAddress(bool mutexLock) {
+	string result = "";
+	MutexSafeWrapper safeMutexSlot((mutexLock == true ? mutexSocket : NULL),CODE_AT_LINE);
+	if(socket != NULL) {
+		result = socket->getIpAddress();
+	}
+	return result;
+}
+
 void ConnectionSlot::update(bool checkForNewClients,int lockedSlotIndex) {
 	try {
 		clearThreadErrorList();

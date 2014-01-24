@@ -223,6 +223,7 @@ public:
 	void setNetworkPlayerFactionCRC(int index, uint32 crc);
 
 	virtual Socket* getSocket(bool mutexLock=true)= 0;
+
 	virtual void close()= 0;
 	virtual string getHumanPlayerName(int index=-1) = 0;
 	virtual int getHumanPlayerIndex() const = 0;
@@ -230,6 +231,7 @@ public:
     static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
     static DisplayMessageFunction getDisplayMessageFunction() { return pCB_DisplayMessage; }
 
+    virtual std::string getIpAddress(bool mutexLock=true) = 0;
 	string getIp() const		{return Socket::getIp();}
 	string getHostName() const	{return Socket::getHostName();}
 
@@ -279,7 +281,6 @@ public:
 	NetworkMessagePing getLastPingInfo();
 	double getLastPingLag();
 
-	std::string getIpAddress();
 	float getThreadedPingMS(std::string host);
 
 	string getNetworkGameDataSynchCheckTechMismatchReport() const {return networkGameDataSynchCheckTechMismatchReport;}

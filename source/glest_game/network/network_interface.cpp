@@ -327,16 +327,6 @@ void NetworkInterface::setHighlightedCell(const MarkedCell &msg){
 	highlightedCellList.push_back(msg);
 }
 
-std::string NetworkInterface::getIpAddress() {
-	std::string result = "";
-
-	Socket *socket = getSocket();
-	if(socket != NULL) {
-		result = socket->getIpAddress();
-	}
-	return result;
-}
-
 float NetworkInterface::getThreadedPingMS(std::string host) {
 	float result = -1;
 

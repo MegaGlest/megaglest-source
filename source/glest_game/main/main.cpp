@@ -1300,6 +1300,12 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
     // Setup path cache for files and folders used in the game
     std::map<string,string> &pathCache = CacheManager::getCachedItem< std::map<string,string> >(GameConstants::pathCacheLookupKey);
 
+    Properties devProperties;
+    string devPropertyFile = Properties::getApplicationPath() + "glest-dev.ini";
+	if(fileExists(devPropertyFile) == true) {
+		devProperties.load(devPropertyFile);
+	}
+
     //GAME_ARG_DATA_PATH
     if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_DATA_PATH]) == true) {
         int foundParamIndIndex = -1;
@@ -1329,13 +1335,26 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
         }
     }
     else if(config != NULL) {
-    	if(config->getString("DataPath","") != "") {
-    		string customPathValue = config->getString("DataPath","");
 
-    		if(customPathValue != "") {
+    	bool foundPath 			= false;
+    	string customPathValue 	= "";
+
+    	if(fileExists(devPropertyFile) == true && devProperties.hasString("DataPath") == true) {
+    		foundPath 		= true;
+    		customPathValue = devProperties.getString("DataPath","");
+    	}
+    	else if(config->getString("DataPath","") != "") {
+    		foundPath 		= true;
+    		customPathValue = config->getString("DataPath","");
+    	}
+
+    	if(foundPath == true) {
+            pathCache[GameConstants::path_data_CacheLookupKey] = customPathValue;
+
+            if(customPathValue != "") {
     			endPathWithSlash(customPathValue);
     		}
-            pathCache[GameConstants::path_data_CacheLookupKey] = config->getString("DataPath","");
+
             Properties::setApplicationDataPath(pathCache[GameConstants::path_data_CacheLookupKey]);
 
             if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using ini specified data path [%s]\n",config->getString("DataPath","").c_str());
@@ -1390,8 +1409,21 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
         }
     }
     else if(config != NULL) {
-    	if(config->getString("LogPath","") != "") {
-            pathCache[GameConstants::path_logs_CacheLookupKey] = config->getString("LogPath","");
+
+    	bool foundPath 			= false;
+    	string customPathValue 	= "";
+
+    	if(fileExists(devPropertyFile) == true && devProperties.hasString("LogPath") == true) {
+    		foundPath 		= true;
+    		customPathValue = devProperties.getString("LogPath","");
+    	}
+    	else if(config->getString("LogPath","") != "") {
+    		foundPath 		= true;
+    		customPathValue = config->getString("LogPath","");
+    	}
+
+    	if(foundPath == true) {
+            pathCache[GameConstants::path_logs_CacheLookupKey] = customPathValue;
             if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Using ini specified logs path [%s]\n",config->getString("LogPath","").c_str());
     	}
     }

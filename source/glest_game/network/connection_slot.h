@@ -205,6 +205,8 @@ public:
 	void setName(string value)      {name = value;}
 	bool isReady() const			{return ready;}
 
+	virtual std::string getIpAddress(bool mutexLock=true);
+
 	virtual Socket* getSocket(bool mutexLock=true);
 	pair<bool,Socket*> getSocketInfo();
 

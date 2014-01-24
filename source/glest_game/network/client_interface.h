@@ -111,6 +111,7 @@ public:
 	ClientInterface();
 	virtual ~ClientInterface();
 
+	virtual std::string getIpAddress(bool mutexLock=true);
 	virtual Socket* getSocket(bool mutexLock=true)					{return clientSocket;}
 	virtual void close();
 
