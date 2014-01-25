@@ -70,7 +70,7 @@ cp start_megaglest_gameserver "$RELEASEDIR/"
 echo "creating $PACKAGE"
 cd $CURRENTDIR
 [[ -f "${RELEASEDIR_ROOT}/$PACKAGE" ]] && rm "${RELEASEDIR_ROOT}/$PACKAGE"
-cd ${RELEASEDIR_ROOT}/$RELEASENAME-$VERSION/
+cd $RELEASEDIR
 tar -cf - * | xz > ../$PACKAGE
 cd $CURRENTDIR
 
