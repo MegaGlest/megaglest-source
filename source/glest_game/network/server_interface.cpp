@@ -2988,7 +2988,11 @@ void ServerInterface::simpleTask(BaseThread *callingThread,void *userdata) {
 		if(needToRepublishToMasterserver == true) {
 			try {
 				if(Config::getInstance().getString("Masterserver","") != "") {
-					string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?";
+					string request = Config::getInstance().getString("Masterserver");
+					if(request != "") {
+						endPathWithSlash(request,false);
+					}
+					request += "addServerInfo.php?";
 
 					std::map<string,string> newPublishToServerInfo = publishToMasterserver();
 
@@ -3012,7 +3016,12 @@ void ServerInterface::simpleTask(BaseThread *callingThread,void *userdata) {
 					std::string serverInfo = SystemFlags::getHTTP(request,handle);
 					//printf("Result:\n%s\n",serverInfo .c_str());
 
-					string requestStats = Config::getInstance().getString("Masterserver") + "addGameStats.php?";
+					string requestStats = Config::getInstance().getString("Masterserver");
+					if(requestStats != "") {
+						endPathWithSlash(requestStats,false);
+					}
+					requestStats += "addGameStats.php?";
+
 					std::map<string,string> newPublishToServerInfoStats = publishToMasterserverStats();
 					if(newPublishToServerInfoStats.empty() == false) {
 						for(std::map<string,string>::const_iterator iterMap = newPublishToServerInfoStats.begin();

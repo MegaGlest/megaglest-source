@@ -951,6 +951,9 @@ void MenuStateConnectedGame::simpleTask(BaseThread *callingThread,void *userdata
 
 	if(config.getString("Masterserver","") != "") {
 		string baseURL = config.getString("Masterserver");
+		if(baseURL != "") {
+			endPathWithSlash(baseURL,false);
+		}
 		string phpVersionParam = config.getString("phpVersionParam","?version=0.1");
 		string gameVersion = "&glestVersion=" + SystemFlags::escapeURL(glestVersionString);
 		string playerUUID = "&uuid=" + SystemFlags::escapeURL(config.getString("PlayerId",""));

@@ -427,6 +427,10 @@ void MenuStateMods::simpleTask(BaseThread *callingThread,void *userdata) {
 
 	if(config.getString("Masterserver","") != "") {
 		string baseURL = config.getString("Masterserver");
+		if(baseURL != "") {
+			endPathWithSlash(baseURL,false);
+		}
+
 		string phpVersionParam = config.getString("phpVersionParam","?version=0.1");
 		string playerUUID = "&uuid=" + SystemFlags::escapeURL(Config::getInstance().getString("PlayerId",""));
 		string gameVersion = "&glestVersion=" + SystemFlags::escapeURL(glestVersionString);

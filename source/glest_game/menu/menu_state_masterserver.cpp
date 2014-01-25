@@ -1005,8 +1005,13 @@ void MenuStateMasterserver::simpleTask(BaseThread *callingThread,void *userdata)
 					CURL *handle = SystemFlags::initHTTP();
 
 					string playerUUID = "?uuid=" + SystemFlags::escapeURL(Config::getInstance().getString("PlayerId",""));
-                    std::string localServerInfoString = SystemFlags::getHTTP(
-                    		Config::getInstance().getString("Masterserver") + "showServersForGlest.php" + playerUUID,handle);
+
+					string baseURL = Config::getInstance().getString("Masterserver");
+		    		if(baseURL != "") {
+		    			endPathWithSlash(baseURL,false);
+		    		}
+
+					std::string localServerInfoString = SystemFlags::getHTTP(baseURL + "showServersForGlest.php" + playerUUID,handle);
 					SystemFlags::cleanupHTTP(&handle);
                     if(callingThread->getQuitStatus() == true) {
                         return;

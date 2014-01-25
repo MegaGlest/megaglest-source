@@ -3160,7 +3160,11 @@ void MenuStateCustomGame::simpleTaskForMasterServer(BaseThread *callingThread) {
         if(republish == true) {
         	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-            string request = Config::getInstance().getString("Masterserver") + "addServerInfo.php?";
+            string request = Config::getInstance().getString("Masterserver");
+    		if(request != "") {
+    			endPathWithSlash(request,false);
+    		}
+    		request += "addServerInfo.php?";
 
             //CURL *handle = SystemFlags::initHTTP();
             CURL *handle = callingThread->getGenericData<CURL>();
