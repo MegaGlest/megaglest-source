@@ -3823,6 +3823,34 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
+void MenuStateCustomGame::KeepCurrentHumanPlayerSlots(GameSettings &gameSettings) {
+	//look for human players
+	for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+		ControlType ct= static_cast<ControlType>(listBoxControls[index].getSelectedItemIndex());
+		if(ct == ctHuman) {
+
+			bool foundControlType = false;
+			for(int index2 = 0; index2 < GameConstants::maxPlayers; ++index2) {
+				ControlType ctFile = static_cast<ControlType>(gameSettings.getFactionControl(index2));
+				if(ctFile == ctHuman) {
+					ControlType ctUI = static_cast<ControlType>(listBoxControls[index2].getSelectedItemIndex());
+					if(ctUI != ctNetwork && ctUI != ctNetworkUnassigned) {
+						foundControlType = true;
+						//printf("Human found in file [%d]\n",index2);
+					}
+				}
+			}
+
+			//printf("Human found in UI [%d] and file [%d]\n",index,foundControlType);
+
+			if(foundControlType == false) {
+				gameSettings.setFactionControl(index,ctHuman);
+			}
+			gameSettings.setNetworkPlayerName(index,getHumanPlayerName());
+		}
+	}
+}
+
 GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -3833,10 +3861,7 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 
     try {
     	CoreData::getInstance().loadGameSettingsFromFile(fileName, &gameSettings);
-
-    	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-   			gameSettings.setNetworkPlayerName(i,"");
-    	}
+    	KeepCurrentHumanPlayerSlots(gameSettings);
 
     	// correct game settings for headless:
     	if(this->headlessServerMode == true) {

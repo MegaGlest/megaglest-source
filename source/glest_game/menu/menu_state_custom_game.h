@@ -309,6 +309,7 @@ private:
 	void cleanupThread(SimpleTaskThread **thread);
 	void simpleTaskForMasterServer(BaseThread *callingThread);
 	void simpleTaskForClients(BaseThread *callingThread);
+	void KeepCurrentHumanPlayerSlots(GameSettings &gameSettings);
 };
 
 }}//end namespace
