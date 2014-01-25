@@ -1,6 +1,6 @@
 ' Set your settings
 strFileURL = "http://www.soft-haus.com/glest/tools/7z.exe"
-strHDLocation = "..\..\data\glest_game\7z.exe"
+strHDLocation = ".\7z.exe"
 
 WScript.Echo "----------------------------------------"
 WScript.Echo "About to download 7z.exe from:"
@@ -39,7 +39,7 @@ Set objXMLHTTP = Nothing
 
 ' Set your settings
 strFileURL = "http://www.soft-haus.com/glest/tools/7z.dll"
-strHDLocation = "..\..\data\glest_game\7z.dll"
+strHDLocation = ".\7z.dll"
 
 WScript.Echo "----------------------------------------"
 WScript.Echo "About to download 7z.dll from:"
@@ -74,7 +74,7 @@ Set objXMLHTTP = Nothing
 
 ' Set your settings
 strFileURL = "http://www.soft-haus.com/glest/tools/wget.exe"
-strHDLocation = "..\..\data\glest_game\wget.exe"
+strHDLocation = ".\wget.exe"
 
 WScript.Echo "----------------------------------------"
 WScript.Echo "About to download wget.exe from:"
@@ -109,7 +109,7 @@ Set objXMLHTTP = Nothing
 
 ' Set your settings
 strFileURL = "http://www.soft-haus.com/glest/tools/tar.exe"
-strHDLocation = "..\..\data\glest_game\tar.exe"
+strHDLocation = ".\tar.exe"
 
 WScript.Echo "----------------------------------------"
 WScript.Echo "About to download tar.exe from:"

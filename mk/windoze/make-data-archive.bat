@@ -7,7 +7,7 @@ rem pause
 cd /d "%~dp0"
 
 set mg_version=
-for /f "tokens=2 delims= " %%i in ('..\..\data\glest_game\megaglest.exe --version') do call :mgver %%i
+for /f "tokens=2 delims= " %%i in ('.\megaglest.exe --version') do call :mgver %%i
 goto got_ver
 
 :mgver
@@ -32,7 +32,7 @@ set PACKAGE=%RELEASENAME%-%mg_version%.7z
 set RELEASEDIR=release-data\%RELEASENAME%-%mg_version%
 set PROJDIR=..\..\
 set REPODIR=%~dp0\..\..\
-set PATH=%path%;%~dp0..\..\data\glest_game
+set PATH=%path%;%~dp0.\
 rem to debug creating the archive only
 rem goto make_archive
 
@@ -122,7 +122,7 @@ set custom_sevenZ_params=
 if not "%SEVENZ_MG_COMPRESS_PARAMS%." == "." set custom_sevenZ_params=%SEVENZ_MG_COMPRESS_PARAMS%
 echo custom_sevenZ_params [%custom_sevenZ_params%] ...
 
-..\..\..\..\data\glest_game\7z.exe a -mmt -mx=9 %custom_sevenZ_params% -ms=on -mhc=on ..\%PACKAGE% *
+..\..\7z.exe a -mmt -mx=9 %custom_sevenZ_params% -ms=on -mhc=on ..\%PACKAGE% *
 
 dir "..\%PACKAGE%"
 cd /d "%~dp0"

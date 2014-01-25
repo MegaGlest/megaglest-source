@@ -7,10 +7,10 @@ rem pause
 cd /d "%~dp0"
 
 ECHO Checking for windows binary runtime tools...
-if NOT EXIST ..\..\data\glest_game\7z.exe call cscript getTools.vbs
-if NOT EXIST ..\..\data\glest_game\7z.dll call cscript getTools.vbs
-if NOT EXIST ..\..\data\glest_game\tar.exe call cscript getTools.vbs
-if NOT EXIST ..\..\data\glest_game\wget.exe call cscript getTools.vbs
+if NOT EXIST .\7z.exe call cscript getTools.vbs
+if NOT EXIST .\7z.dll call cscript getTools.vbs
+if NOT EXIST .\tar.exe call cscript getTools.vbs
+if NOT EXIST .\wget.exe call cscript getTools.vbs
 
 set depfolder=windows_deps
 set depfile=%depfolder%.7z 
@@ -23,13 +23,13 @@ goto processBuildStageA
 :getDepFile
 ECHO Retrieving windows dependency archive...
 rem call ..\..\data\glest_game\wget.exe -c -O ..\..\source\%depfile%  http://master.dl.sourceforge.net/project/megaglest/%depfile%
-call ..\..\data\glest_game\wget.exe -c -O ..\..\source\%depfile% http://download.sourceforge.net/project/megaglest/%depfile%
-call ..\..\data\glest_game\7z.exe x -r -o..\..\source\ ..\..\source\%depfile%
+call .\wget.exe -c -O ..\..\source\%depfile% http://download.sourceforge.net/project/megaglest/%depfile%
+call .\7z.exe x -r -o..\..\source\ ..\..\source\%depfile%
 goto processBuildStageA
 
 :checkDepIntegrity
 ECHO Looking for windows dependency archive...
-call ..\..\data\glest_game\7z.exe t ..\..\source\%depfile% >nul
+call .\7z.exe t ..\..\source\%depfile% >nul
 set 7ztestdep=%ERRORLEVEL%
 ECHO Result of windows dependency archive [%7ztestdep%]
 if NOT "%7ztestdep%" == "0" goto getDepFile
