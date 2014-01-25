@@ -90,12 +90,13 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|x64'">true</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">megaglest_g3dviewer</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">megaglest_g3dviewer</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">megaglest_g3dviewerx64</TargetName>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</GenerateManifest>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IntDir>$(Platform)\$(Configuration)\$(TargetName)\</IntDir>
+    <OutDir>$(SolutionDir)</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
