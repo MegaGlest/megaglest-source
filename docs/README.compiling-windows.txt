@@ -28,6 +28,9 @@ To build the game, the following tools and libraries must be present:
 OR
 * mingw32
 
+* Experiemtnal Microsoft Visual C++ Express 2012 projects also exist in the vc2012
+  folder
+
 * MegaGlest Windows 32 bit dependencies for building with VC++:
   http://sourceforge.net/projects/megaglest/files/windows_deps.7z/download
 OR
@@ -55,15 +58,11 @@ Option A) (recommended) Automated build on the command line:
 
 2. cd mk\windoze
 
-3. build-mg-2010.bat
+3. build-mg-2010.bat (build-mg-2012.bat for vc 2012)
 
-4. CopyWindowsRuntimeDlls_2010.bat
+4. megaglest.exe --version
 
-5. cd ..\..\data\glest_game
-
-6. megaglest.exe --version
-
-7. megaglest.exe
+5. megaglest.exe
 
 Option B) Using VC++ IDE:
 

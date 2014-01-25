@@ -8,6 +8,8 @@
 Session.vim
 # KDevelop
 *.kdev4
+# Meld
+*.orig
 
 ## OSX
 Icon

@@ -100,13 +100,11 @@ These will produce archives in the release folder name:
 megaglest-binary-*
 megaglest-standalone-data-*
 
-To stamp a snapshot in svn for a release we use the following (substitute version #'s of course):
-svn copy https://svn.code.sf.net/p/megaglest/code/trunk \
-  https://svn.code.sf.net/p/megaglest/code/tags/release-3.9.0 -m \
-  "Tagging the 3.9.0 release of MegaGlest"
-svn copy https://svn.code.sf.net/p/megaglest/code/trunk-data-source \
-  https://svn.code.sf.net/p/megaglest/code/tags/release-data-source-3.9.0 -m \
-  "Tagging the 3.9.0 release of MegaGlest"
+To stamp a snapshot in git for a release we use the following 
+(substitute version #'s of course and shasum to be the commit shasum):
+
+git tag 3.9.2 <shasum>
+git push --tags
 
 Linux Installer(s):
 =========================

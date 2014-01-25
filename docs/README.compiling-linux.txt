@@ -95,8 +95,10 @@ who made our development easy and straight forward.
 
 To build the game simply invoke the build script:
 
-./build-mg.sh
+../mk/linux/build-mg.sh
 
+This script manually calls cmake with some optional parameters. Feel free to 
+examine it and build manually using cmake.
 
 2.3 Installation
 
