@@ -6,12 +6,8 @@
 # Vim
 *.un~
 Session.vim
-MegaGlest.kdev4
-/mk/linux/mydata
-/mk/linux/release
-/mk/linux/linux_symbols
-/mk/linux/core
-/mk/linux/core.bak
+# KDevelop
+*.kdev4
 
 ## OSX
 Icon
@@ -55,10 +51,9 @@ $RECYCLE.BIN/
 ## Repo
 *.blend
 *.blend1
-# Linux_build
-/mk/linux/build/
-/google-breakpad
-/mk/linux/megaglest.6
+
+/google-breakpad/
+
 # Windows_build
 *.dll
 *.exe
@@ -68,13 +63,11 @@ $RECYCLE.BIN/
 *.map
 *.dmp
 *.dat
-/data/glest_game/lua/
+#/data/glest_game/lua/
 #
 
-/source/windows_deps_2012
-/source/windows_deps_2010
-/source/windows_deps_2010_old
-
 # Coverity
-/cov-int
-/cov-int/.*
+/cov-int/
+
+# convert_faction_xml2html
+/html/

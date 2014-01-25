@@ -1,9 +1,15 @@
 * text=auto
-*.bat -text
-*.vcproj -text
-*.nsi -text
-*.sln -text
-*.vbs -text
+*.bat eol=crlf
+*.vcproj eol=crlf
+*.nsi eol=crlf
+*.sln eol=crlf
+*.vbs eol=crlf
+
+*.txt eol=crlf
+CMake*.txt eol=lf
+version.txt eol=lf
+VERSION.txt eol=lf
+robots.txt eol=lf
 
 *.ttc -text -diff
 *.ttf -text -diff
@@ -27,6 +33,8 @@
 *.xcf -text -diff
 *.blend -text -diff
 *.blend1 -text -diff
-.gitattributes export-ignore  
+
+.git export-ignore
 .gitignore export-ignore
+.gitattributes export-ignore
 .gitmodules export-ignore
