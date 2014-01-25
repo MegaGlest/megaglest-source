@@ -40,7 +40,7 @@ if [ ! -f ${CURRENTDIR}/.coverity-submit ] ; then
         exit 1
 fi
 
-. ${CURRENTDIR}/.coverity-submit
+. ${CURRENTDIR}/.coverity-scan
 # echo "Read config values: TOKEN [$TOKEN] EMAIL [$EMAIL] COVERITY_ANALYSIS_ROOT [$COVERITY_ANALYSIS_ROOT] NUMCORES [${NUMCORES}]"
 # exit 1
 
