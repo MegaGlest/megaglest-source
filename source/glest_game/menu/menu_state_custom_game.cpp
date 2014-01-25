@@ -3833,6 +3833,11 @@ GameSettings MenuStateCustomGame::loadGameSettingsFromFile(std::string fileName)
 
     try {
     	CoreData::getInstance().loadGameSettingsFromFile(fileName, &gameSettings);
+
+    	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+   			gameSettings.setNetworkPlayerName(i,"");
+    	}
+
     	// correct game settings for headless:
     	if(this->headlessServerMode == true) {
     		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
