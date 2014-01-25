@@ -43,9 +43,11 @@ included in the Glest Game setup package is copyrighted by the Glest Team.
 
 Copyright (C) 2001-2009 The Glest Team. All rights reserved.
 
-This software is provided without any express or implied warranty. In no event shall the author be held liable for any damages arising from the use of this software.
+This software is provided without any express or implied warranty. In no event shall the
+author be held liable for any damages arising from the use of this software.
 
-This software may be redistributed freely, but all redistributions must retain all occurences of the above copyright notice and web site addresses that are currently in place.
+This software may be redistributed freely, but all redistributions must retain all
+occurences of the above copyright notice and web site addresses that are currently in place.
 
 
 email: contact_game@glest.org

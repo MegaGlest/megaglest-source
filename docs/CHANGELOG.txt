@@ -9,7 +9,8 @@ v3.9.1
 - Many bug fixes as reported on the forums since 3.9.0
 - Moved the project from sourceforge.net to github.com and from subversion to git
 - Better handling of lagging clients in network games
-- Fixed cmake scripts to correctly detect dependencies that were previously partially working on some distros and improved build support for Mac OS X
+- Fixed cmake scripts to correctly detect dependencies that were previously partially
+  working on some distros and improved build support for Mac OS X
 - Added numerous new LUA functions as documented at http://wiki.megaglest.org
 - Code quality improvements as reported by cppcheck and coverity (and clang)
 - Better color picking algorithm thanks to willvarfar makes color picking very stable
@@ -21,7 +22,8 @@ v3.9.0
 - we hopefully now really solved the last out of sync problems for cross platform games.
 - animated tileset object support.
 - new tileset texturing possibilities
-- new tilesets birchforest, desert4 and updated mediterran using animated objects and new texture system
+- new tilesets birchforest, desert4 and updated mediterran using animated objects and
+  new texture system
 - greatly improved textures and animations for the roman faction
 - new maps
 - better network game performance / management to handle slower clients.
@@ -55,23 +57,30 @@ v3.7.0
 - auto word wrapping for message boxes
 - headless server can run in local lan mode (does not broadcast to master server)
 - Added lua security sandbox
-- third person view allows you to follow a selected unit. Select one unit anf press f4 to enable (deselect anf f4 to disable).
-- cell markers allow players to create markers anywhere on the map and associate a note with them. All team players see the markers.
+- third person view allows you to follow a selected unit. Select one unit anf press f4 to
+  enable (deselect anf f4 to disable).
+- cell markers allow players to create markers anywhere on the map and associate a note
+  with them. All team players see the markers.
 - quick sonar signal to tell team players where the action is happening
 - admin player can disconnect other network players in game
 - saving / loading games.
-- when placing a new unit, we display a 'ghosted' model while units walk to the build location to show the space it will occupy
+- when placing a new unit, we display a 'ghosted' model while units walk to the build
+  location to show the space it will occupy
 - video playback support (using libvlc)
 - network multi-player scenarios
 - campaign scenarios
-- Integrated language translation support (translate / update your favorite language @ https://www.transifex.com/projects/p/megaglest and pull the files into the game via advanced translation options to test your changes)
+- Integrated language translation support (translate / update your favorite language @
+  https://www.transifex.com/projects/p/megaglest and pull the files into the game via
+  advanced translation options to test your changes)
 - play a sound when player mentions your name in chat mode
 - more game data validation for commandline modders, see --help for more info
 - many new lua commands for scenario modders
 - enhanced AI management (logging and modding) and added more intellegence to decsions
-- enhanced game data downloads now allow for downloading data from the mod center instead of game server if available.
+- enhanced game data downloads now allow for downloading data from the mod center instead
+  of game server if available.
 - Quick keys in game lobby, SHIFT+<letter>+listbox arrow to jump to that letter in a list
-  or Hold CTRL when clicking listbox for network control type to change all non human control values
+  or Hold CTRL when clicking listbox for network control type to change all non human
+  control values
 - enhanced unicode support for non-ascii characters
 - customizable unit, resource and upgrade language files
 - tilesets support animated models
@@ -81,17 +90,21 @@ v3.7.0
 - particle colors are now affected by the time of day
 - new game hints are displayed while loading a new game
 - linked faction support (and new techtree MagiTech for classic Glest play)
-- added runtime checks to ensure cpu supports expected optimizations of the binary used (sse, x87)
+- added runtime checks to ensure cpu supports expected optimizations of the binary used
+  (sse, x87)
 - lots of code cleanup from static analysis such as cppcheck and valgrind
 - experimental big endian and non x86 architecure support (need testers to give feedback)
 
 v3.6.0
 - bugfixes reported in the bugs forum from beta1 and 2
-- iso639-1 style language loading example: megaglest --use-language=zh and auto language detect on first time launch
+- iso639-1 style language loading example: megaglest --use-language=zh and auto language
+  detect on first time launch
 - new and updated translations (Greek, Japanese, Russian, Italian, Czech etc)
 - auto complete player names in chat mode using tab character
-- customized port # override via commandline (useful for multiple headless servers) example: megaglest --use-ports=x,y (x is internal port y is external port)
-- new commandline option to support standalone modes example: megaglest --load-mod=x (x is the path to the mod)
+- customized port # override via commandline (useful for multiple headless servers) example:
+  megaglest --use-ports=x,y (x is internal port y is external port)
+- new commandline option to support standalone modes example: megaglest --load-mod=x
+  (x is the path to the mod)
 - new lua functions added (to be documented on the MG wiki)
 - lower CPU / RAM requirements in headless server mode
 - attack-boosts can be named and shared for proper re-use and singleton usage.
@@ -104,14 +117,18 @@ v3.6.0
 - Ability to toggle languages anywhere in the game using CTRL-L
 - Numerous bug fixes as reported in the bugs forum
 - Improved Megapack including better balanced Romans faction
-- New attack boost system (currently used by Romans faction) which allows new types of in game unit effects.
-- New headless server mode allows dedicated servers to host games for network players (command line option --headless-server-mode)
-- Added ability to 'pause' network games by press ESC in game to show a new popup-menu with in game options.
+- New attack boost system (currently used by Romans faction) which allows new types of
+  in game unit effects.
+- New headless server mode allows dedicated servers to host games for network players
+  (command line option --headless-server-mode)
+- Added ability to 'pause' network games by press ESC in game to show a new popup-menu
+  with in game options.
 - Hosts can now set a title for their game for network games.
 - Music fades in and out of game start/stop
 - New low food warning indicators tells players when they are running out of food
 - MacOSX support (thanks weltall)
-- Players are no longer dropped in game lobby when toggling maps (player status may show as unassigned network node if they are ina slot that is not applicable to the selected map)
+- Players are no longer dropped in game lobby when toggling maps (player status may show
+  as unassigned network node if they are ina slot that is not applicable to the selected map)
 - Bugfixes for supported UPNP for auto router configuration when hosting games
 - many more...
 
@@ -121,21 +138,25 @@ v3.5.2
 - Map editor now supports diagonal flipping
 - Windows users now have a shortcut to the mod folder in their MegaGlest programs Menu.
 - Bug fixes including:
-  - Fix corrupted g3d viewer screenshots, and automatic screenshot mode does not steal focus for Linux users
+  - Fix corrupted g3d viewer screenshots, and automatic screenshot mode does not steal
+    focus for Linux users
   - Proper network disconnect detection when connection drops in an abnormal way
   - Avoid crash when user has no soundcard installed
-  - Better video handling for buggy opengl drivers that don't properly handle non power of two textures
-  - Better support for non ASCII file paths (like Japanese, etc) for international users and Unicode enabled parts of the code
+  - Better video handling for buggy opengl drivers that don't properly handle non power
+    of two textures
+  - Better support for non ASCII file paths (like Japanese, etc) for international users
+    and Unicode enabled parts of the code
 
 3.5.1
 - Much better pathfinder performance
 - Allow servers to temporary block specified network players from the game lobby
-- Better Linux distro packaing support (by default megaglest works in standard linux paths and make install added)
-- Game data cleanup (duplicate sound files have been merged in megapack) and non free content replaced.
-  (autumn and desert tilesets)
+- Better Linux distro packaing support (by default megaglest works in standard linux
+  paths and make install added)
+- Game data cleanup (duplicate sound files have been merged in megapack) and non free
+  content replaced. (autumn and desert tilesets)
 - Displayed up to 15 queued commands (observers can view all players queued commands)
-- Allow factions in a techtree to share common data using the special tag in xml files $COMMONDATAPATH
-  which points to the techtrees commondata/ folder.
+- Allow factions in a techtree to share common data using the special tag in xml files
+  $COMMONDATAPATH which points to the techtrees commondata/ folder.
 - standardized games and tools startup scripts with names starting with 'startup_'
 - updated translations for German, Italian and French
 - bugfixes reported in 3.5.0
@@ -158,12 +179,14 @@ v3.5.2
 - Default screenshot format is now jpg (configurable in options menu)
 - Fixed some performance problems with 'stuck' units
 - improved resource selection
-- performance improvements, now make it possible to play with more units and slower hardware than before.
+- performance improvements, now make it possible to play with more units and slower
+  hardware than before.
 - new maps with cliffs and higher terrain
 - support for sending 7z tilesets and techtrees over network
 - new game mod management console to download new game content or remove existing mod content
 - multi-threaded pathfinding for better performance when many units are moving
-- CPU AI player improvements (units get unstuck more often and stationary air units attack more efficiently)
+- CPU AI player improvements (units get unstuck more often and stationary air units
+  attack more efficiently)
 - new tileset and resource particle support.
 - added jpg screenshot support
 - optional compressed GPU texture support
@@ -175,9 +198,12 @@ v3.5.2
 
 
 3.4.0
-- new attack alarms use visual and audio cues to indicate when and where you or your team are under attack
-- new auto router configuration for Internet hosted games will auto port forward (for UPNP enabled routers)
-- new network file transfer system current allows servers to send missing maps and tilesets to clients
+- new attack alarms use visual and audio cues to indicate when and where you or your
+  team are under attack
+- new auto router configuration for Internet hosted games will auto port forward (for
+  UPNP enabled routers)
+- new network file transfer system current allows servers to send missing maps and
+  tilesets to clients
 - new IRC client built into the Internet lobby (uses freenode's megaglest-lobby channel)
 - improved sound handling for better stability and smoother game play
 - CPU AI players now can have their resource multiplier manually changed
@@ -638,7 +664,8 @@ All versions before 3.2.2 refer to vanilla Glest
 - New particle systems: fire ball and ice nova
 - Damage and armor types
 - Now it is possible to attack your own units
-- Now it possible to give "follow" and "attack unit" orders (using move and attack targeting a unit)
+- Now it possible to give "follow" and "attack unit" orders (using move and attack
+  targeting a unit)
 
 0.5.2
 - Fixed a bug in pathfinding algorithm
@@ -657,12 +684,14 @@ All versions before 3.2.2 refer to vanilla Glest
 - New 3d models for units
 
 0.4.3
-- Fixed a bug when double clicking two towers, one under construction and the other one built, caused the first one to finish its construction.
+- Fixed a bug when double clicking two towers, one under construction and the other one
+  built, caused the first one to finish its construction.
 - Fixed a bug that made that fire never stopped when repairing buildings
 - Performance counters added for world update timing
 
 0.4.2
-- Fixed a bug that made the game crash when right clicking outside the map and a building was selected
+- Fixed a bug that made the game crash when right clicking outside the map and a building
+  was selected
 
 0.4.1
 - Fixed a bug that made the game crash when canceling unit production
@@ -721,16 +750,16 @@ All versions before 3.2.2 refer to vanilla Glest
 - Lots of bug fixes.
 
 0.1.6
-- Unit models have been redesigned, now they have more polygons and detailed animations.   
+- Unit models have been redesigned, now they have more polygons and detailed animations.
 - Minor bug fixes.
 
 The following earlier versions have been released, but no changelog is available:
-0.1.5 
-0.1.4 
-0.1.3 
-0.1.2 
-0.1.1 
-0.1.0 
-0.0.3 
+0.1.5
+0.1.4
+0.1.3
+0.1.2
+0.1.1
+0.1.0
+0.0.3
 0.0.2
 0.0.1
