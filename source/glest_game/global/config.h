@@ -73,7 +73,7 @@ public:
 protected:
 
 	Config();
-	Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist);
+	Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist,string custom_path="");
 	bool tryCustomPath(std::pair<ConfigType,ConfigType> &type, std::pair<string,string> &file, string custom_path);
 	static void CopyAll(Config *src,Config *dest);
 	vector<pair<string,string> > getPropertiesFromContainer(const Properties &propertiesObj) const;
@@ -83,7 +83,7 @@ public:
 
     static Config &getInstance(std::pair<ConfigType,ConfigType> type = std::make_pair(cfgMainGame,cfgUserGame) ,
 				std::pair<string,string> file = std::make_pair(glest_ini_filename,glestuser_ini_filename) ,
-				std::pair<bool,bool> fileMustExist = std::make_pair(true,false) );
+				std::pair<bool,bool> fileMustExist = std::make_pair(true,false),string custom_path="" );
 	void save(const string &path="");
 	void reload();
 

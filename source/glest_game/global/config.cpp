@@ -152,7 +152,7 @@ bool Config::tryCustomPath(std::pair<ConfigType,ConfigType> &type, std::pair<str
 	return wasFound;
 }
 
-Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist) {
+Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist,string custom_path) {
 	fileLoaded.first 			= false;
 	fileLoaded.second 			= false;
 	cfgType 					= type;
@@ -164,8 +164,17 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
     	fileName.second = getGameReadWritePath(GameConstants::path_ini_CacheLookupKey) + fileName.second;
     }
 
-    string currentpath = extractDirectoryPathFromFile(Properties::getApplicationPath());
-  	bool foundPath = tryCustomPath(cfgType, fileName, currentpath);
+  	bool foundPath = false;
+  	string currentpath = custom_path;
+
+    if(custom_path != "") {
+      	foundPath = tryCustomPath(cfgType, fileName, custom_path);
+    }
+
+    if(foundPath == false) {
+		currentpath = extractDirectoryPathFromFile(Properties::getApplicationPath());
+		foundPath = tryCustomPath(cfgType, fileName, currentpath);
+    }
 
 #if defined(CUSTOM_DATA_INSTALL_PATH)
   	if(foundPath == false) {
@@ -291,11 +300,11 @@ Config::Config(std::pair<ConfigType,ConfigType> type, std::pair<string,string> f
     }
 }
 
-Config &Config::getInstance(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist) {
+Config &Config::getInstance(std::pair<ConfigType,ConfigType> type, std::pair<string,string> file, std::pair<bool,bool> fileMustExist, string custom_path) {
 	if(configList.find(type.first) == configList.end()) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		Config config(type, file, fileMustExist);
+		Config config(type, file, fileMustExist, custom_path);
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

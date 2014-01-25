@@ -1304,6 +1304,30 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
     string devPropertyFile = Properties::getApplicationPath() + "glest-dev.ini";
 	if(fileExists(devPropertyFile) == true) {
 		devProperties.load(devPropertyFile);
+
+		if(devProperties.hasString("ServerListPath") == true) {
+			string devItem = devProperties.getString("ServerListPath");
+			Properties::applyTagsToValue(devItem);
+            if(devItem != "") {
+            	endPathWithSlash(devItem);
+            }
+
+            if(config != NULL) {
+            	config->setString("ServerListPath",devItem,true);
+            }
+		}
+
+		if(devProperties.hasString("GlestKeysIniPath") == true) {
+			string devItem = devProperties.getString("GlestKeysIniPath");
+			Properties::applyTagsToValue(devItem);
+            if(devItem != "") {
+            	endPathWithSlash(devItem);
+            }
+
+            if(config != NULL) {
+            	config->setString("GlestKeysIniPath",devItem,true);
+            }
+		}
 	}
 
     //GAME_ARG_DATA_PATH
@@ -4695,7 +4719,7 @@ int glestMain(int argc, char** argv) {
 		Config &configKeys = Config::getInstance(
 				std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys),
 				std::pair<string,string>(Config::glestkeys_ini_filename,Config::glestuserkeys_ini_filename),
-				std::pair<bool,bool>(true,false));
+				std::pair<bool,bool>(true,false),config.getString("GlestKeysIniPath",""));
 
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 

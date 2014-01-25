@@ -77,7 +77,13 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp,int portNumberOverr
 	networkManager.init(nrClient);
 
 	serversSavedFile = serverFileName;
-    string userData = config.getString("UserData_Root","");
+
+	string serverListPath = config.getString("ServerListPath","");
+    if(serverListPath != "") {
+    	endPathWithSlash(serverListPath);
+    }
+
+	string userData = config.getString("UserData_Root","");
     if(userData != "") {
     	endPathWithSlash(userData);
     }
@@ -85,6 +91,15 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp,int portNumberOverr
 
     if(fileExists(serversSavedFile) == true) {
     	servers.load(serversSavedFile);
+    }
+    else if(fileExists(serverListPath + serverFileName) == true) {
+    	servers.load(serverListPath + serverFileName);
+    }
+    else if(fileExists(Properties::getApplicationPath() + serverFileName) == true) {
+    	servers.load(Properties::getApplicationPath() + serverFileName);
+    }
+    else if(fileExists(serverFileName) == true) {
+    	servers.load(serverFileName);
     }
 
 	//buttons
