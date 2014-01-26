@@ -37,7 +37,6 @@ goto processBuildStageA
 
 :processBuildStageA
 call CopyWindowsRuntimeDlls_2010.bat nopause
-call CopySharedBinarySetup.bat nopause
 
 rem setup the Visual Studio 2010 environment
 ECHO --------------------------------
