@@ -77,7 +77,6 @@ const char  *GAME_ARGS[] = {
 	"--disable-vertex-interpolation",
 	"--disable-sound",
 	"--enable-legacyfonts",
-	"--force-ftglfonts",
 
 	"--resolution",
 	"--colorbits",
@@ -160,7 +159,6 @@ enum GAME_ARG_TYPE {
 	GAME_ARG_DISABLE_VERTEX_INTERPOLATION,
 	GAME_ARG_DISABLE_SOUND,
 	GAME_ARG_ENABLE_LEGACYFONTS,
-	GAME_ARG_FORCE_FTGLFONTS,
 
 	GAME_ARG_USE_RESOLUTION,
 	GAME_ARG_USE_COLORBITS,
@@ -439,18 +437,6 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s\t\t\tdisables the sound system.",GAME_ARGS[GAME_ARG_DISABLE_SOUND]);
 
 	printf("\n%s\t\tenables using the legacy font system.",GAME_ARGS[GAME_ARG_ENABLE_LEGACYFONTS]);
-
-	printf("\n%s\t\tforces use of the FTGL font system.",GAME_ARGS[GAME_ARG_FORCE_FTGLFONTS]);
-
-//	printf("\n%s=x\t\t\toverride video settings.",GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
-//	printf("\n                     \t\tWhere x is a string with the following format:");
-//	printf("\n                     \t\twidthxheightxcolorbitsxdepthbitsxfullscreen");
-//	printf("\n                     \t\twhere * indicates not to replace the default value for the parameter");
-//	printf("\n                     \t\tfullscreen has possible values of true, false, 1 or 0");
-//	printf("\n                     \t\tand only the width and height parameters are required (the others are optional)");
-//	printf("\n                     \t\texample: %s %s=1024x768x*x*",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
-//	printf("\n                     \t\tsame result for: %s %s=1024x768",extractFileFromDirectoryPath(argv0).c_str(),GAME_ARGS[GAME_ARG_USE_VIDEO_SETTINGS]);
-
 
 	//     "================================================================================"
 	printf("\n%s=x\t\t\toverride the video resolution.",GAME_ARGS[GAME_ARG_USE_RESOLUTION]);

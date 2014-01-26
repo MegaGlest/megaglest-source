@@ -21,10 +21,6 @@
 using namespace Shared::Graphics::Gl;
 #endif
 
-#ifdef USE_FREETYPEGL
-#include "font_text_freetypegl.h"
-#endif
-
 // If your compiler has a version older than 2.4.1 of fontconfig, you can tell cmake to
 // disable trying to use fontconfig via passing this to cmake:
 // -DWANT_FONTCONFIG=Off
@@ -55,7 +51,6 @@ std::string Font::fontTypeName 				= "Times New Roman";
 bool Font::fontIsMultibyte 					= false;
 bool Font::forceLegacyFonts					= false;
 bool Font::fontIsRightToLeft				= false;
-bool Font::forceFTGLFonts					= false;
 bool Font::fontSupportMixedRightToLeft		= false;
 
 // This value is used to scale the font text rendering
@@ -63,8 +58,6 @@ bool Font::fontSupportMixedRightToLeft		= false;
 float Font::scaleFontValue					= 0.80f;
 // This value is used for centering font text vertically (height)
 float Font::scaleFontValueCenterHFactor		= 4.0f;
-//float Font::scaleFontValue					= 1.0;
-//float Font::scaleFontValueCenterHFactor		= 4.0;
 
 int Font::baseSize							= 3;
 
@@ -76,7 +69,6 @@ void Font::resetToDefaults() {
 	Font::charCount					= 256;
 	Font::fontTypeName 				= "Times New Roman";
 	Font::fontIsMultibyte 			= false;
-	//Font::forceLegacyFonts			= false;
 	Font::fontIsRightToLeft			= false;
 	Font::fontSupportMixedRightToLeft = false;
 	// This value is used to scale the font text rendering
@@ -84,8 +76,6 @@ void Font::resetToDefaults() {
 	Font::scaleFontValue					= 0.80f;
 	// This value is used for centering font text vertically (height)
 	Font::scaleFontValueCenterHFactor		= 4.0f;
-	//float Font::scaleFontValue					= 1.0;
-	//float Font::scaleFontValueCenterHFactor		= 4.0;
 
 	Font::baseSize							= 3;
 
@@ -150,9 +140,7 @@ float FontMetrics::getTextWidth(const string &str) {
     }
 
 	if(textHandler != NULL) {
-		//printf("str [%s] textHandler->Advance = %f Font::scaleFontValue = %f\n",str.c_str(),textHandler->Advance(str.c_str()),Font::scaleFontValue);
 		return (textHandler->Advance(longestLine.c_str()) * Font::scaleFontValue);
-		//return (textHandler->Advance(str.c_str()));
 	}
 	else {
 		float width= 0.f;
@@ -175,8 +163,6 @@ float FontMetrics::getTextWidth(const string &str) {
 
 float FontMetrics::getHeight(const string &str) const {
 	if(textHandler != NULL) {
-		//printf("(textHandler->LineHeight(" ") = %f Font::scaleFontValue = %f\n",textHandler->LineHeight(" "),Font::scaleFontValue);
-		//return (textHandler->LineHeight(str.c_str()) * Font::scaleFontValue);
 		return (textHandler->LineHeight(str.c_str()));
 	}
 	else {
@@ -230,12 +216,11 @@ Font::Font(FontTextHandlerType type) {
 	size 		= 10;
 	textHandler = NULL;
 
-#if defined(USE_FTGL) || defined(USE_FREETYPEGL)
+#if defined(USE_FTGL)
 
 	if(Font::forceLegacyFonts == false) {
 		try {
-#if defined(USE_FREETYPEGL)
-#endif
+
 			{
 				TextFTGL::faceResolution = Font::faceResolution;
 				TextFTGL::langHeightText = Font::langHeightText;
@@ -319,55 +304,6 @@ bool is_ASCII(const int &c) {
 }
 
 void Font::bidi_cvt(string &str_) {
-
-/*
-#ifdef	HAVE_FRIBIDI
-	printf("BEFORE:   [%s]\n",str_.c_str());
-
-	char		*c_str = const_cast<char *>(str_.c_str());	// fribidi forgot const...
-	FriBidiStrIndex	len = (int)str_.length();
-	FriBidiChar	*bidi_logical = new FriBidiChar[len * 4];
-	FriBidiChar	*bidi_visual = new FriBidiChar[len * 4];
-	char		*utf8str = new char[4*len + 1];	//assume worst case here (all 4 Byte characters)
-	FriBidiCharType	base_dir = FRIBIDI_TYPE_ON;
-	FriBidiStrIndex n;
-
-
-#ifdef	OLD_FRIBIDI
-	n = fribidi_utf8_to_unicode (c_str, len, bidi_logical);
-#else
-	n = fribidi_charset_to_unicode(FRIBIDI_CHAR_SET_UTF8, c_str, len, bidi_logical);
-#endif
-	fribidi_boolean log2vis = fribidi_log2vis(bidi_logical, n, &base_dir, bidi_visual, NULL, NULL, NULL);
-	// If convertion was successful
-	//if (log2vis == true) {
-		// Remove bidi marks (that we don't need) from the output text
-		//n = fribidi_remove_bidi_marks (bidi_visual, n, NULL, NULL, NULL);
-
-		// Convert unicode string back to the encoding the input string was in
-		//fribidi_unicode_to_charset (char_set_num, visual, len, op);
-#ifdef	OLD_FRIBIDI
-		fribidi_unicode_to_utf8 (bidi_visual, n, utf8str);
-#else
-		fribidi_unicode_to_charset(FRIBIDI_CHAR_SET_UTF8, bidi_visual, n, utf8str);
-#endif
-
-		// Insert the output string into the output QString
-		str_ = std::string(utf8str);
-	//}
-	//is_rtl_ = base_dir == FRIBIDI_TYPE_RTL;
-	//fontIsRightToLeft = base_dir == FRIBIDI_TYPE_RTL;
-	fontIsRightToLeft = false;
-
-	delete[] bidi_logical;
-	delete[] bidi_visual;
-	delete[] utf8str;
-
-	printf("NEW:      [%s]\n",str_.c_str());
-
-#endif
-*/
-
 
 #ifdef	HAVE_FRIBIDI
 	const bool debugFribidi = false;
