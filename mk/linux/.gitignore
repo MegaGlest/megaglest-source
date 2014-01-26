@@ -1,2 +1,16 @@
 megaglest
 megaglest_*
+lib
+lib/.*
+mojosetup/build
+mojosetup/build/.*
+mojosetup/cmake-build
+mojosetup/cmake-build/.*
+mojosetup/megaglest-installer/MegaGlest*
+mojosetup/megaglest-installer/data
+mojosetup/megaglest-installer/data/.*
+
+# Coverity
+cov-analysis*/
+cov-int
+cov-int/.*
