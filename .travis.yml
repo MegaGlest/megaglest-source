@@ -3,6 +3,8 @@ language: cpp
 compiler:
   - gcc
   - clang
+git:
+  submodules: false
 #branches:
 #  only:
 #    - master
