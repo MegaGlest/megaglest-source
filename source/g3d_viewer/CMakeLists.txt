@@ -23,9 +23,11 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 
 	IF(NOT WIN32)
 
-		FIND_PACKAGE(XercesC REQUIRED)
-		INCLUDE_DIRECTORIES(${XERCESC_INCLUDE})
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${XERCESC_LIBRARY})
+                IF(WANT_XERCES)
+		        FIND_PACKAGE(XercesC REQUIRED)
+		        INCLUDE_DIRECTORIES(${XERCESC_INCLUDE})
+		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${XERCESC_LIBRARY})
+                ENDIF()
 
 		# It was noticed that when using MinGW gcc it is essential that 'core' is mentioned before 'base'.
 		FIND_PACKAGE(wxWidgets COMPONENTS core base gl REQUIRED)

@@ -15,9 +15,14 @@
 #include "xml_parser.h"
 #include "platform_util.h"
 
+#if defined(WANT_XERCES)
+
 #include <xercesc/dom/DOM.hpp>
+
 //#include <xercesc/util/PlatformUtils.hpp>
 //#include <xercesc/framework/LocalFileFormatTarget.hpp>
+
+#endif
 
 #ifdef WIN32
 #include <io.h>
@@ -71,6 +76,8 @@ public:
 	}
 };
 //
+
+#if defined(WANT_XERCES)
 
 //
 // Tests for XmlIo
@@ -147,6 +154,8 @@ public:
 		delete rootNode;
 	}
 };
+
+#endif
 
 //
 // Tests for XmlIoRapid
@@ -242,12 +251,26 @@ class XmlTreeTest : public CppUnit::TestFixture {
 
 public:
 
+#if defined(WANT_XERCES)
+
 	void test_invalid_xml_engine_lowerbound() {
 		xml_engine_parser_type testType = static_cast<xml_engine_parser_type>(XML_XERCES_ENGINE - 1);
 		if((int)testType == (int)(XML_XERCES_ENGINE - 1)) {
 			XmlTree xml(testType);
 		}
 	}
+
+#else
+
+	void test_invalid_xml_engine_lowerbound() {
+		xml_engine_parser_type testType = static_cast<xml_engine_parser_type>(XML_RAPIDXML_ENGINE - 1);
+		if((int)testType == (int)(XML_RAPIDXML_ENGINE - 1)) {
+			XmlTree xml(testType);
+		}
+	}
+
+#endif
+
 	void test_invalid_xml_engine_upperbound() {
 		xml_engine_parser_type testType = static_cast<xml_engine_parser_type>(XML_RAPIDXML_ENGINE + 1);
 		if((int)testType == (int)(XML_RAPIDXML_ENGINE + 1)) {
@@ -301,9 +324,14 @@ class XmlNodeTest : public CppUnit::TestFixture {
 	// Register the suite of tests for this fixture
 	CPPUNIT_TEST_SUITE( XmlNodeTest );
 
+#if defined(WANT_XERCES)
+
 	CPPUNIT_TEST_EXCEPTION( test_null_xerces_node,  megaglest_runtime_error );
-	CPPUNIT_TEST_EXCEPTION( test_null_rapidxml_node,  megaglest_runtime_error );
 	CPPUNIT_TEST( test_valid_xerces_node );
+
+#endif
+
+	CPPUNIT_TEST_EXCEPTION( test_null_rapidxml_node,  megaglest_runtime_error );
 	CPPUNIT_TEST( test_valid_named_node );
 	CPPUNIT_TEST( test_child_nodes );
 	CPPUNIT_TEST( test_node_attributes );
@@ -312,6 +340,8 @@ class XmlNodeTest : public CppUnit::TestFixture {
 	// End of Fixture registration
 
 private:
+
+#if defined(WANT_XERCES)
 
 	class XmlIoMock : public XmlIo {
 	protected:
@@ -329,18 +359,18 @@ private:
 		}
 	};
 
+#endif
+
 public:
+
+#if defined(WANT_XERCES)
 
 	void test_null_xerces_node() {
 		XERCES_CPP_NAMESPACE::DOMNode *node = NULL;
 		const std::map<string,string> mapTagReplacementValues;
 		XmlNode(node, mapTagReplacementValues);
 	}
-	void test_null_rapidxml_node() {
-		xml_node<> *node = NULL;
-		const std::map<string,string> mapTagReplacementValues;
-		XmlNode(node, mapTagReplacementValues);
-	}
+
 	void test_valid_xerces_node() {
 		const string test_filename = "xml_test_valid.xml";
 		createValidXMLTestFile(test_filename);
@@ -359,6 +389,14 @@ public:
 		CPPUNIT_ASSERT_EQUAL( string("menu"), node.getName() );
 		CPPUNIT_ASSERT( node.hasAttribute("mytest-attribute") == true );
 		CPPUNIT_ASSERT( node.hasChild("menu-background-model") == true );
+	}
+
+#endif
+
+	void test_null_rapidxml_node() {
+		xml_node<> *node = NULL;
+		const std::map<string,string> mapTagReplacementValues;
+		XmlNode(node, mapTagReplacementValues);
 	}
 	void test_valid_named_node() {
 		XmlNode node("testNode");
@@ -435,6 +473,7 @@ public:
 
 };
 
+#if defined(WANT_XERCES)
 //
 // Tests for XmlAttribute
 //
@@ -443,6 +482,7 @@ class XmlAttributeTest : public CppUnit::TestFixture {
 	CPPUNIT_TEST_SUITE( XmlAttributeTest );
 
 	CPPUNIT_TEST_EXCEPTION( test_null_xerces_attribute,  megaglest_runtime_error );
+
 	CPPUNIT_TEST( test_node_attributes );
 	CPPUNIT_TEST_EXCEPTION( test_node_attributes_restricted, megaglest_runtime_error );
 	CPPUNIT_TEST_EXCEPTION( test_node_attributes_int_outofrange, megaglest_runtime_error );
@@ -578,11 +618,19 @@ public:
 	}
 };
 
+#endif
 
 // Test Suite Registrations
-CPPUNIT_TEST_SUITE_REGISTRATION( XmlIoTest );
+
 CPPUNIT_TEST_SUITE_REGISTRATION( XmlIoRapidTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( XmlTreeTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( XmlNodeTest );
+
+#if defined(WANT_XERCES)
+
+CPPUNIT_TEST_SUITE_REGISTRATION( XmlIoTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( XmlAttributeTest );
+
+#endif
+
 //

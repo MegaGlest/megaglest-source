@@ -68,7 +68,6 @@ public:
 	static std::string fontTypeName;
 	static bool fontIsMultibyte;
 	static bool forceLegacyFonts;
-	static bool forceFTGLFonts;
 	static bool fontIsRightToLeft;
 	static bool fontSupportMixedRightToLeft;
 	static float scaleFontValue;

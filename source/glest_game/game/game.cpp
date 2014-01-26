@@ -6419,7 +6419,6 @@ string Game::saveGame(string name, string path) {
 		xmlTreeSaveGame.save(replayFile);
 	}
 
-	//XmlTree xmlTree(XML_XERCES_ENGINE);
 	XmlTree xmlTree;
 	xmlTree.init("megaglest-saved-game");
 	XmlNode *rootNode = xmlTree.getRootNode();

@@ -124,7 +124,7 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
                 special_check_for_sse( ${MAX_SSE_LEVEL_DESIRED} )
         ENDIF()
 
-        OPTION(WANT_STREFLOP "use the library streflop" ON)
+        OPTION(WANT_STREFLOP "use the library streflop" OFF)
 	IF(WANT_STREFLOP)
 		ADD_DEFINITIONS("-DUSE_STREFLOP -DSTREFLOP_RANDOM_GEN_SIZE=32 -DLIBM_COMPILING_FLT32 -DN_SPECIALIZED=32")
 
@@ -335,13 +335,13 @@ IF(EXISTS "${PROJECT_SOURCE_DIR}/source/")
 
 	IF(APPLE)
 		include(${PROJECT_SOURCE_DIR}/mk/macosx/CMakeLists.txt)
-	ENDIF(APPLE)
+	ENDIF()
 
         ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/source/tests )
 ENDIF()
 
 # Check if data exist
-IF(EXISTS "${PROJECT_SOURCE_DIR}/data/glest_game/")
+IF(EXISTS "${PROJECT_SOURCE_DIR}/data/glest_game/CMakeLists.txt")
         MESSAGE(STATUS "**Found game data.")
 	ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/data/glest_game )
 ENDIF()

@@ -262,7 +262,11 @@ static void cleanupProcessObjects() {
 	std::map<string, vector<FileReader<Pixmap3D> const * >* > &list3d = FileReader<Pixmap3D>::getFileReadersMap();
 	deleteMapValues(list3d.begin(),list3d.end());
 
+#if defined(WANT_XERCES)
+
 	XmlIo::getInstance().cleanup();
+
+#endif
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -4260,9 +4264,13 @@ int glestMain(int argc, char** argv) {
 		}
 	}
 
+#if defined(WANT_XERCES)
+
 	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_XERCES_INFO]) == true) {
 		printf("XERCES version: %s\n", XERCES_FULLVERSIONDOT);
 	}
+
+#endif
 
 	if( (hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_VERSION]) 		  == true ||
 		 hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_SDL_INFO]) 		  == true ||
@@ -4509,13 +4517,7 @@ int glestMain(int argc, char** argv) {
 	    	TextureGl::setEnableATIHacks(enableATIHacks);
 	    }
 
-        if(config.getBool("ForceFTGLFonts","false") == true || hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_FORCE_FTGLFONTS]) == true) {
-        	::Shared::Graphics::Font::forceFTGLFonts = true;
-        	printf("**WARNING** Forcing use of FTGL Fonts\n");
-        }
-        else {
-        	Renderer::renderText3DEnabled = config.getBool("Enable3DFontRendering",intToStr(Renderer::renderText3DEnabled).c_str());
-        }
+       	Renderer::renderText3DEnabled = config.getBool("Enable3DFontRendering",intToStr(Renderer::renderText3DEnabled).c_str());
 
         if(config.getBool("EnableLegacyFonts","false") == true || hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_ENABLE_LEGACYFONTS]) == true) {
         	::Shared::Graphics::Font::forceLegacyFonts = true;
