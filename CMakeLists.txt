@@ -335,13 +335,13 @@ IF(EXISTS "${PROJECT_SOURCE_DIR}/source/")
 
 	IF(APPLE)
 		include(${PROJECT_SOURCE_DIR}/mk/macosx/CMakeLists.txt)
-	ENDIF(APPLE)
+	ENDIF()
 
         ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/source/tests )
 ENDIF()
 
 # Check if data exist
-IF(EXISTS "${PROJECT_SOURCE_DIR}/data/glest_game/")
+IF(EXISTS "${PROJECT_SOURCE_DIR}/data/glest_game/CMakeLists.txt")
         MESSAGE(STATUS "**Found game data.")
 	ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/data/glest_game )
 ENDIF()
