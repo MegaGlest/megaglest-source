@@ -147,7 +147,6 @@ option(FORCE_LUA_5_2 "Force looking for LUA 5.2" OFF)
         ENDIF()
 
 	OPTION(USE_FTGL "Use FTGL for on-screen fonts (found on your system)" ON)
-
 	if(USE_FTGL)
 		ADD_DEFINITIONS(-DUSE_FTGL)
 
@@ -156,8 +155,6 @@ option(FORCE_LUA_5_2 "Force looking for LUA 5.2" OFF)
 	
 	endif(USE_FTGL)
 
-	#INCLUDE(FindPkgConfig.cmake)
-	#pkg_search_module (FTGL ftgl)
 	FIND_PACKAGE(FTGL)
 
 
@@ -186,11 +183,6 @@ option(FORCE_LUA_5_2 "Force looking for LUA 5.2" OFF)
 		ENDIF()
 	
 	ENDIF(USE_FTGL)
-
-	OPTION(USE_FREETYPEGL "Use Freetype-GL for on-screen fonts" OFF)
-	if(USE_FREETYPEGL)
-		ADD_DEFINITIONS(-DUSE_FREETYPEGL)
-	endif(USE_FREETYPEGL)
 
 	FIND_PACKAGE(Freetype REQUIRED)
 	INCLUDE_DIRECTORIES(${FREETYPE_INCLUDE_PATH})
@@ -264,9 +256,7 @@ option(FORCE_LUA_5_2 "Force looking for LUA 5.2" OFF)
 		feathery_ftp	
 		glew
 		graphics
-		graphics/freetype-gl
 		graphics/gl
-		graphics/iqm
 		lua
 		map	
 		platform/common
