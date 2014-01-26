@@ -15,15 +15,15 @@ rem Project name (case sensitive)
 set PROJECT=MegaGlest
 
 rem read in config settings
-if not exist ".coverity-submit" (
+if not exist ".coverity-scan" (
         echo -----------------------------------------
-        echo **Missing Config** To use this script please create a config file named [%CD%\.coverity-submit]
+        echo **Missing Config** To use this script please create a config file named [%CD%\.coverity-scan]
         echo Containing: TOKEN=x , EMAIL=x , COVERITY_ANALYSIS_ROOT=x , NUMCORES=x
         goto END
 )
 
 setlocal disabledelayedexpansion
-FOR /F "tokens=1* delims==" %%i IN (.coverity-submit) DO set "prop_%%i=%%j"
+FOR /F "tokens=1* delims==" %%i IN (.coverity-scan) DO set "prop_%%i=%%j"
 
 rem Coverity Scan project token as listed on the Coverity Scan project page
 set TOKEN=%prop_TOKEN%
