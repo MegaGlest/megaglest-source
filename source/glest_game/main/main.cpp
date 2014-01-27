@@ -4198,6 +4198,9 @@ int glestMain(int argc, char** argv) {
 #endif
 
 		printf(" - using STREFLOP %s - %s\n",instruction_set,denormals);
+
+#else
+		printf("\n");
 #endif
 	}
 
