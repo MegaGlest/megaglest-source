@@ -163,9 +163,11 @@ void ServerLine::reloadUI() {
 
 	glestVersionLabel.setText(masterServerInfo.getGlestVersion());
 
-	string platform=masterServerInfo.getPlatform();
-	int revOffset=platform.find("-Rev");
-	platform=platform.substr(0,revOffset);
+	string platform = masterServerInfo.getPlatform();
+	size_t revOffset = platform.find("-Rev");
+	if(revOffset != platform.npos) {
+		platform = platform.substr(0,revOffset);
+	}
 
 	platformLabel.setText(platform);
 
