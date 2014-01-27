@@ -1,4 +1,16 @@
-Release/
+/Release/
+
+# Windows_build
+*.dll
+*.exe
+*.pdb
+*.exp
+*.lib
+*.map
+*.dmp
+*.dat
+/lua/
+#
 
 /ipch
 
@@ -6,10 +18,7 @@ Release/
 /glestkeys.ini
 /servers.ini
 /xml_test_malformed.xml
-lua/
 
 # Coverity
-cov-analysis*/
-cov-int
-cov-int/
-
+/cov-analysis*/
+/cov-int

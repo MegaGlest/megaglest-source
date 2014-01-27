@@ -1,16 +1,20 @@
 megaglest
+megaglest.6
+
 megaglest_*
-lib
-lib/
-mojosetup/build
-mojosetup/build/
-mojosetup/cmake-build
-mojosetup/cmake-build/
-mojosetup/megaglest-installer/MegaGlest*
-mojosetup/megaglest-installer/data
-mojosetup/megaglest-installer/data/
+!*.desktop
+
+core
+core.bak
+
+/build/
+/release/
+/linux_symbols/
+/mydata
+
+/lib/
+/lib_bkp/
 
 # Coverity
-cov-analysis*/
-cov-int
-cov-int/
+/cov-analysis*/
+/cov-int
