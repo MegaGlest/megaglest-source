@@ -20,7 +20,7 @@ if NOT EXIST .\tar.exe call cscript getTools.vbs
 if NOT EXIST .\wget.exe call cscript getTools.vbs
 
 set depfolder=windows_deps_2012
-set depfile=%depfolder%.7z 
+set depfile=windows_deps_2012_x64.7z 
 
 dir ..\..\source\
 if NOT EXIST ..\..\source\%depfolder%\NUL echo folder not found [%depfolder%]
