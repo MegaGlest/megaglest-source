@@ -210,6 +210,28 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	checkBoxAllowObservers.setValue(false);
 	checkBoxAllowObservers.setEditable(false);
 
+	labelAllowTeamUnitSharing.registerGraphicComponent(containerName,"labelAllowTeamUnitSharing");
+	labelAllowTeamUnitSharing.init(xoffset+410, 670, 80);
+	labelAllowTeamUnitSharing.setText(lang.getString("AllowTeamUnitSharing"));
+	labelAllowTeamUnitSharing.setVisible(true);
+
+	checkBoxAllowTeamUnitSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamUnitSharing");
+	checkBoxAllowTeamUnitSharing.init(xoffset+600, 670);
+	checkBoxAllowTeamUnitSharing.setValue(false);
+	checkBoxAllowTeamUnitSharing.setVisible(true);
+	checkBoxAllowTeamUnitSharing.setEditable(false);
+
+	labelAllowTeamResourceSharing.registerGraphicComponent(containerName,"labelAllowTeamResourceSharing");
+	labelAllowTeamResourceSharing.init(xoffset+410, 640, 80);
+	labelAllowTeamResourceSharing.setText(lang.getString("AllowTeamResourceSharing"));
+	labelAllowTeamResourceSharing.setVisible(true);
+
+	checkBoxAllowTeamResourceSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamResourceSharing");
+	checkBoxAllowTeamResourceSharing.init(xoffset+600, 640);
+	checkBoxAllowTeamResourceSharing.setValue(false);
+	checkBoxAllowTeamResourceSharing.setVisible(true);
+	checkBoxAllowTeamResourceSharing.setEditable(false);
+
 	for(int i=0; i<45; ++i){
 		rMultiplier.push_back(floatToStr(0.5f+0.1f*i,1));
 	}
@@ -636,6 +658,9 @@ void MenuStateConnectedGame::reloadUI() {
 	labelFallbackCpuMultiplier.setText(lang.getString("FallbackCpuMultiplier"));
 
 	labelEnableSwitchTeamMode.setText(lang.getString("EnableSwitchTeamMode"));
+
+	labelAllowTeamUnitSharing.setText(lang.getString("AllowTeamUnitSharing"));
+	labelAllowTeamResourceSharing.setText(lang.getString("AllowTeamResourceSharing"));
 
 	labelAISwitchTeamAcceptPercent.setText(lang.getString("AISwitchTeamAcceptPercent"));
 
@@ -1814,6 +1839,15 @@ void MenuStateConnectedGame::mouseClickAdmin(int x, int y, MouseButton mouseButt
         	needToBroadcastServerSettings=true;
         	broadcastServerSettingsDelayTimer=time(NULL);
         }
+
+		else if (checkBoxAllowTeamUnitSharing.mouseClick(x, y)) {
+        	needToBroadcastServerSettings=true;
+        	broadcastServerSettingsDelayTimer=time(NULL);
+		}
+		else if (checkBoxAllowTeamResourceSharing.mouseClick(x, y)) {
+        	needToBroadcastServerSettings=true;
+        	broadcastServerSettingsDelayTimer=time(NULL);
+		}
         else {
         	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -2156,6 +2190,26 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 	gameSettings->setAiAcceptSwitchTeamPercentChance(strToInt(listBoxAISwitchTeamAcceptPercent.getSelectedItem()));
 	gameSettings->setFallbackCpuMultiplier(listBoxFallbackCpuMultiplier.getSelectedItemIndex());
 
+	valueFlags1 = gameSettings->getFlagTypes1();
+	if(checkBoxAllowTeamUnitSharing.getValue() == true) {
+        valueFlags1 |= ft1_allow_shared_team_units;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+	else {
+        valueFlags1 &= ~ft1_allow_shared_team_units;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+
+	valueFlags1 = gameSettings->getFlagTypes1();
+	if(checkBoxAllowTeamResourceSharing.getValue() == true) {
+        valueFlags1 |= ft1_allow_shared_team_resources;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+	else {
+        valueFlags1 &= ~ft1_allow_shared_team_resources;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+
 	// First save Used slots
     //for(int i=0; i<mapInfo.players; ++i)
 	int AIPlayerCount = 0;
@@ -2397,6 +2451,11 @@ void MenuStateConnectedGame::mouseMove(int x, int y, const MouseState *ms) {
 
 	checkBoxScenario.mouseMove(x, y);
 	listBoxScenario.mouseMove(x, y);
+
+	labelAllowTeamUnitSharing.mouseMove(x,y);
+	checkBoxAllowTeamUnitSharing.mouseMove(x,y);
+	labelAllowTeamResourceSharing.mouseMove(x,y);
+	checkBoxAllowTeamResourceSharing.mouseMove(x,y);
 
 	checkBoxAllowNativeLanguageTechtree.mouseMove(x, y);
 
@@ -2642,6 +2701,12 @@ void MenuStateConnectedGame::render() {
 		renderer.renderListBox(&listBoxAISwitchTeamAcceptPercent);
 		renderer.renderListBox(&listBoxFallbackCpuMultiplier);
 
+		renderer.renderLabel(&labelAllowTeamUnitSharing);
+		renderer.renderCheckBox(&checkBoxAllowTeamUnitSharing);
+
+		renderer.renderLabel(&labelAllowTeamResourceSharing);
+		renderer.renderCheckBox(&checkBoxAllowTeamResourceSharing);
+
 		renderer.renderButton(&buttonPlayNow);
 		renderer.renderButton(&buttonRestoreLastSettings);
 
@@ -2776,6 +2841,9 @@ void MenuStateConnectedGame::update() {
 		listBoxFallbackCpuMultiplier.setEditable(isHeadlessAdmin());
 		listBoxFogOfWar.setEditable(isHeadlessAdmin());
 		checkBoxAllowObservers.setEditable(isHeadlessAdmin());
+
+		checkBoxAllowTeamUnitSharing.setEditable(isHeadlessAdmin());
+		checkBoxAllowTeamResourceSharing.setEditable(isHeadlessAdmin());
 
 		if(isHeadlessAdmin() == true) {
 			for(unsigned int i = 0; i < (unsigned int)GameConstants::maxPlayers; ++i) {
@@ -4624,6 +4692,20 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 	}
 	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(gameSettings->getAiAcceptSwitchTeamPercentChance()));
 	listBoxFallbackCpuMultiplier.setSelectedItemIndex(gameSettings->getFallbackCpuMultiplier());
+
+	if((gameSettings->getFlagTypes1() & ft1_allow_shared_team_units) == ft1_allow_shared_team_units) {
+		checkBoxAllowTeamUnitSharing.setValue(true);
+	}
+	else {
+		checkBoxAllowTeamUnitSharing.setValue(false);
+	}
+
+	if((gameSettings->getFlagTypes1() & ft1_allow_shared_team_resources) == ft1_allow_shared_team_resources) {
+		checkBoxAllowTeamResourceSharing.setValue(true);
+	}
+	else {
+		checkBoxAllowTeamResourceSharing.setValue(false);
+	}
 
 	// Control
 	for(int i=0; i<GameConstants::maxPlayers; ++i) {

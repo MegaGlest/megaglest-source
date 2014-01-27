@@ -124,13 +124,18 @@ Gui::Gui(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] END\n",__FILE__,__FUNCTION__);
 }
 
-void Gui::init(Game *game){
-	this->commander= game->getCommander();
-	this->gameCamera= game->getGameCameraPtr();
-	this->console= game->getConsole();
-	this->world= game->getWorld();
-	this->game=game;
-	selection.init(this, world->getThisFactionIndex(), world->getThisTeamIndex());
+void Gui::init(Game *game) {
+
+	this->commander		= game->getCommander();
+	this->gameCamera	= game->getGameCameraPtr();
+	this->console		= game->getConsole();
+	this->world			= game->getWorld();
+	this->game			= game;
+
+	selection.init(this,
+					world->getThisFactionIndex(),
+					world->getThisTeamIndex(),
+					isFlagType1BitEnabled(game->getGameSettings()->getFlagTypes1(),ft1_allow_shared_team_units));
 }
 
 void Gui::end(){
@@ -217,10 +222,14 @@ bool Gui::mouseValid(int x, int y) {
 }
 
 void Gui::mouseDownLeftDisplay(int x, int y) {
-	if(!selectingPos && !selectingMeetingPoint) {
-		int posDisplay= computePosDisplay(x, y);
-		if(posDisplay!= invalidPos) {
+	if(selectingPos == false &&
+			selectingMeetingPoint == false) {
+
+		int posDisplay = computePosDisplay(x, y);
+
+		if(posDisplay != invalidPos) {
 			if(selection.isCommandable()) {
+
 				if(selectingBuilding) {
 					mouseDownDisplayUnitBuild(posDisplay);
 				}
@@ -548,15 +557,15 @@ void Gui::centerCameraOnSelection() {
 }
 
 void Gui::selectInterestingUnit(InterestingUnitType iut) {
-	const Faction* thisFaction= world->getThisFaction();
-	const Unit* previousUnit= NULL;
-	bool previousFound= true;
+	const Faction *thisFaction 	= world->getThisFaction();
+	const Unit* previousUnit	= NULL;
+	bool previousFound			= true;
 
 	//start at the next harvester
-	if(selection.getCount()==1){
+	if(selection.getCount() == 1) {
 		const Unit* refUnit= selection.getFrontUnit();
 
-		if(refUnit->isInteresting(iut)){
+		if(refUnit->isInteresting(iut)) {
 			previousUnit= refUnit;
 			previousFound= false;
 		}
@@ -566,28 +575,28 @@ void Gui::selectInterestingUnit(InterestingUnitType iut) {
 	selection.clear();
 
 	//search
-	for(int i= 0; i<thisFaction->getUnitCount(); ++i){
-		Unit* unit= thisFaction->getUnit(i);
+	for(int index = 0; index < thisFaction->getUnitCount(); ++index){
+		Unit* unit = thisFaction->getUnit(index);
 
-		if(previousFound){
-			if(unit->isInteresting(iut)){
+		if(previousFound == true) {
+			if(unit->isInteresting(iut)) {
 				selection.select(unit);
 				break;
 			}
 		}
 		else{
-			if(unit==previousUnit){
-				previousFound= true;
+			if(unit == previousUnit) {
+				previousFound = true;
 			}
 		}
 	}
 
 	//search again if we have a previous
-	if(selection.isEmpty() && previousUnit!=NULL && previousFound==true){
-		for(int i= 0; i<thisFaction->getUnitCount(); ++i){
-			Unit* unit= thisFaction->getUnit(i);
+	if(selection.isEmpty() && previousUnit != NULL && previousFound == true) {
+		for(int index = 0; index < thisFaction->getUnitCount(); ++index) {
+			Unit* unit = thisFaction->getUnit(index);
 
-			if(unit->isInteresting(iut)){
+			if(unit->isInteresting(iut)) {
 				selection.select(unit);
 				break;
 			}
@@ -595,11 +604,14 @@ void Gui::selectInterestingUnit(InterestingUnitType iut) {
 	}
 }
 
-void Gui::clickCommonCommand(CommandClass commandClass){
-	for(int i= 0; i<Display::downCellCount; ++i){
-		const CommandType* ct= display.getCommandType(i);
-		if((ct!=NULL && ct->getClass()==commandClass) || display.getCommandClass(i)==commandClass){
-			mouseDownDisplayUnitSkills(i);
+void Gui::clickCommonCommand(CommandClass commandClass) {
+	for(int index = 0; index < Display::downCellCount; ++index) {
+		const CommandType *ct = display.getCommandType(index);
+
+		if((ct != NULL && ct->getClass() == commandClass) ||
+				display.getCommandClass(index) == commandClass) {
+
+			mouseDownDisplayUnitSkills(index);
 			break;
 		}
 	}
@@ -607,34 +619,34 @@ void Gui::clickCommonCommand(CommandClass commandClass){
 }
 
 void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
-	if(!selection.isEmpty()) {
+	if(selection.isEmpty() == false) {
 		if(posDisplay != cancelPos) {
-			if(posDisplay!=meetingPointPos) {
+			if(posDisplay != meetingPointPos) {
 				const Unit *unit= selection.getFrontUnit();
 
 				//uniform selection
 				if(selection.isUniform()) {
 				    const CommandType *ct = display.getCommandType(posDisplay);
-					if(activeCommandClass == ccAttack)
-					{// try to switch to next attack type
-						int maxI=unit->getType()->getCommandTypeCount();
-						int i=activeCommandType->getId();
-						int k=i+1;
-						while(k!=i)
-						{
-							if(k>=maxI)
-							{
-								k=0;
+
+				    // try to switch to next attack type
+				    if(activeCommandClass == ccAttack) {
+
+						int maxI			= unit->getType()->getCommandTypeCount();
+						int cmdTypeId		= activeCommandType->getId();
+						int cmdTypeIdNext	= cmdTypeId+1;
+
+						while(cmdTypeIdNext != cmdTypeId) {
+							if(cmdTypeIdNext >= maxI) {
+								cmdTypeIdNext = 0;
 							}
-							const CommandType *ctype=display.getCommandType(k);
-							if(ctype != NULL && ctype->getClass() == ccAttack)
-							{
+							const CommandType *ctype = display.getCommandType(cmdTypeIdNext);
+							if(ctype != NULL && ctype->getClass() == ccAttack) {
 								if(ctype != NULL && unit->getFaction()->reqsOk(ctype)) {
-									posDisplay=k;
+									posDisplay=cmdTypeIdNext;
 									break;
 								}
 							}
-							k++;
+							cmdTypeIdNext++;
 						}
 					}
 
@@ -684,22 +696,32 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 	}
 }
 
-void Gui::mouseDownDisplayUnitBuild(int posDisplay){
-	int factionIndex= world->getThisFactionIndex();
+void Gui::mouseDownDisplayUnitBuild(int posDisplay) {
+	//int factionIndex = world->getThisFactionIndex();
 
-	if(posDisplay==cancelPos){
+	if(posDisplay == cancelPos) {
 		resetState();
 	}
-	else{
-		if(activeCommandType!=NULL && activeCommandType->getClass()==ccBuild){
-			const BuildCommandType *bct= static_cast<const BuildCommandType*>(activeCommandType);
-			const UnitType *ut= bct->getBuilding(posDisplay);
-			if(world->getFaction(factionIndex)->reqsOk(ut)){
-				choosenBuildingType= ut;
-				assert(choosenBuildingType!=NULL);
-				selectingPos= true;
-				selectedBuildingFacing = CardinalDir::NORTH;
-				activePos= posDisplay;
+	else {
+		if(activeCommandType != NULL &&
+				activeCommandType->getClass() == ccBuild) {
+
+			const BuildCommandType *bct	= dynamic_cast<const BuildCommandType*>(activeCommandType);
+			if(bct != NULL) {
+				const UnitType *ut 			= bct->getBuilding(posDisplay);
+
+				const Unit *unit = selection.getFrontUnit();
+				if(unit != NULL && unit->getFaction() != NULL) {
+
+					if(selection.canSelectUnitFactionCheck(unit) == true &&
+							unit->getFaction()->reqsOk(ut)) {
+
+						choosenBuildingType		= ut;
+						selectingPos			= true;
+						selectedBuildingFacing 	= CardinalDir::NORTH;
+						activePos				= posDisplay;
+					}
+				}
 			}
 		}
 	}
@@ -707,10 +729,7 @@ void Gui::mouseDownDisplayUnitBuild(int posDisplay){
 
 
 string Gui::computeDefaultInfoString() {
-	//Lang &lang= Lang::getInstance();
-
 	string result="";
-	//printf("\n\n\n\n********* selection.isCommandable() [%d] selection.isUniform() [%d]\n\n",selection.isCommandable(),selection.isUniform());
 
 	if(selection.isUniform()) {
 		if(selection.isObserver() || selection.isCommandable()) {
@@ -1251,138 +1270,53 @@ void Gui::saveGame(XmlNode *rootNode) const {
 	std::map<string,string> mapTagReplacements;
 	XmlNode *guiNode = rootNode->addChild("Gui");
 
-	//External objects
-//	RandomGen random;
 	guiNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
-//	const Commander *commander;
-//	const World *world;
-//	const Game *game;
-//	GameCamera *gameCamera;
-//	Console *console;
-//
-//	//Positions
-//	Vec2i posObjWorld;		//world coords
 	guiNode->addAttribute("posObjWorld",posObjWorld.getString(), mapTagReplacements);
-//	bool validPosObjWorld;
 	guiNode->addAttribute("validPosObjWorld",intToStr(validPosObjWorld), mapTagReplacements);
-//	//display
-//	const UnitType *choosenBuildingType;
 	if(choosenBuildingType != NULL) {
 		const Faction* thisFaction= world->getThisFaction();
 		guiNode->addAttribute("choosenBuildingType",choosenBuildingType->getName(false), mapTagReplacements);
 		guiNode->addAttribute("choosenBuildingTypeFactionIndex",intToStr(thisFaction->getIndex()), mapTagReplacements);
 	}
-//	const CommandType *activeCommandType;
 	if(activeCommandType != NULL) {
 		guiNode->addAttribute("activeCommandType",activeCommandType->getName(false), mapTagReplacements);
 	}
 
-//	CommandClass activeCommandClass;
 	guiNode->addAttribute("activeCommandClass",intToStr(activeCommandClass), mapTagReplacements);
-//	int activePos;
 	guiNode->addAttribute("activePos",intToStr(activePos), mapTagReplacements);
-//	int lastPosDisplay;
 	guiNode->addAttribute("lastPosDisplay",intToStr(lastPosDisplay), mapTagReplacements);
-//	//composite
-//	Display display;
 	display.saveGame(guiNode);
-//	Mouse3d mouse3d;
-//	Selection selection;
 	selection.saveGame(guiNode);
-//	SelectionQuad selectionQuad;
-//	int lastQuadCalcFrame;
 	guiNode->addAttribute("lastQuadCalcFrame",intToStr(lastQuadCalcFrame), mapTagReplacements);
-//	int selectionCalculationFrameSkip;
 	guiNode->addAttribute("selectionCalculationFrameSkip",intToStr(selectionCalculationFrameSkip), mapTagReplacements);
-//	int minQuadSize;
 	guiNode->addAttribute("minQuadSize",intToStr(minQuadSize), mapTagReplacements);
-//	Chrono lastGroupRecallTime;
-	//guiNode->addAttribute("lastGroupRecallTime",intToStr(lastGroupRecallTime.getMillis()), mapTagReplacements);
-//	int lastGroupRecall;
 	guiNode->addAttribute("lastGroupRecall",intToStr(lastGroupRecall), mapTagReplacements);
-//	//states
-//	bool selectingBuilding;
 	guiNode->addAttribute("selectingBuilding",intToStr(selectingBuilding), mapTagReplacements);
-//	bool selectingPos;
 	guiNode->addAttribute("selectingPos",intToStr(selectingPos), mapTagReplacements);
-//	bool selectingMeetingPoint;
 	guiNode->addAttribute("selectingMeetingPoint",intToStr(selectingMeetingPoint), mapTagReplacements);
-//	CardinalDir selectedBuildingFacing;
 	guiNode->addAttribute("selectedBuildingFacing",intToStr(selectedBuildingFacing), mapTagReplacements);
-//	const Object *selectedResourceObject;
-//
-//	Texture2D* hudTexture;
 }
 
 void Gui::loadGame(const XmlNode *rootNode, World *world) {
 	const XmlNode *guiNode = rootNode->getChild("Gui");
 
-	//External objects
-//	RandomGen random;
 	random.setLastNumber(guiNode->getAttribute("random")->getIntValue());
-//	const Commander *commander;
-//	const World *world;
-//	const Game *game;
-//	GameCamera *gameCamera;
-//	Console *console;
-//
-//	//Positions
-//	Vec2i posObjWorld;		//world coords
-	//guiNode->addAttribute("posObjWorld",posObjWorld.getString(), mapTagReplacements);
 	posObjWorld = Vec2i::strToVec2(guiNode->getAttribute("posObjWorld")->getValue());
-//	bool validPosObjWorld;
 	validPosObjWorld = guiNode->getAttribute("validPosObjWorld")->getIntValue() != 0;
-//	//display
-//	const UnitType *choosenBuildingType;
-//	if(choosenBuildingType != NULL) {
-//		guiNode->addAttribute("choosenBuildingType",choosenBuildingType->getName(), mapTagReplacements);
-//	}
 	if(guiNode->hasAttribute("choosenBuildingType") == true) {
 		string unitType = guiNode->getAttribute("choosenBuildingType")->getValue();
 		int factionIndex = guiNode->getAttribute("choosenBuildingTypeFactionIndex")->getIntValue();
 		choosenBuildingType = world->getFaction(factionIndex)->getType()->getUnitType(unitType);
 	}
-//	const CommandType *activeCommandType;
-	//if(activeCommandType != NULL) {
-	//	guiNode->addAttribute("activeCommandType",activeCommandType->getName(), mapTagReplacements);
-	//}
-
-//	CommandClass activeCommandClass;
-	//guiNode->addAttribute("activeCommandClass",intToStr(activeCommandClass), mapTagReplacements);
-//	int activePos;
 	activePos = guiNode->getAttribute("activePos")->getIntValue();
-//	int lastPosDisplay;
 	lastPosDisplay = guiNode->getAttribute("lastPosDisplay")->getIntValue();
-//	//composite
-//	Display display;
 	display.loadGame(guiNode);
-//	Mouse3d mouse3d;
-//	Selection selection;
 	selection.loadGame(guiNode,world);
-//	SelectionQuad selectionQuad;
-//	int lastQuadCalcFrame;
 	// don't load this! lastQuadCalcFrame = guiNode->getAttribute("lastQuadCalcFrame")->getIntValue();
 	lastQuadCalcFrame = game->getTotalRenderFps();
-//	int selectionCalculationFrameSkip;
 	selectionCalculationFrameSkip = guiNode->getAttribute("selectionCalculationFrameSkip")->getIntValue();
-//	int minQuadSize;
 	minQuadSize = guiNode->getAttribute("minQuadSize")->getIntValue();
-//	Chrono lastGroupRecallTime;
-	//guiNode->addAttribute("lastGroupRecallTime",intToStr(lastGroupRecallTime.getMillis()), mapTagReplacements);
-//	int lastGroupRecall;
 	lastGroupRecall = guiNode->getAttribute("lastGroupRecall")->getIntValue();
-//	//states
-//	bool selectingBuilding;
-	//selectingBuilding = guiNode->getAttribute("selectingBuilding")->getIntValue();
-//	bool selectingPos;
-	//guiNode->addAttribute("selectingPos",intToStr(selectingPos), mapTagReplacements);
-//	bool selectingMeetingPoint;
-	//guiNode->addAttribute("selectingMeetingPoint",intToStr(selectingMeetingPoint), mapTagReplacements);
-//	CardinalDir selectedBuildingFacing;
-	//guiNode->addAttribute("selectedBuildingFacing",intToStr(selectedBuildingFacing), mapTagReplacements);
-//	const Object *selectedResourceObject;
-//
-//	Texture2D* hudTexture;
 }
 
 }}//end namespace

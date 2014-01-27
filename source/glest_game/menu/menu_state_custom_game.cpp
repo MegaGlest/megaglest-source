@@ -30,8 +30,6 @@
 #include "cache_manager.h"
 #include <iterator>
 #include "map_preview.h"
-#include "string_utils.h"
-#include "network_message.h"
 #include "gen_uuid.h"
 #include "leak_dumper.h"
 
@@ -39,10 +37,10 @@ namespace Glest{ namespace Game{
 
 using namespace ::Shared::Util;
 
-const int MASTERSERVER_BROADCAST_MAX_WAIT_RESPONSE_SECONDS   	= 15;
+const int MASTERSERVER_BROADCAST_MAX_WAIT_RESPONSE_SECONDS  = 15;
 const int MASTERSERVER_BROADCAST_PUBLISH_SECONDS   			= 6;
-const int BROADCAST_MAP_DELAY_SECONDS 	= 5;
-const int BROADCAST_SETTINGS_SECONDS  	= 4;
+const int BROADCAST_MAP_DELAY_SECONDS 						= 5;
+const int BROADCAST_SETTINGS_SECONDS  						= 4;
 static const char *SAVED_GAME_FILENAME 				= "lastCustomGameSettings.mgg";
 static const char *DEFAULT_GAME_FILENAME 			= "data/defaultGameSetup.mgg";
 static const char *DEFAULT_NETWORKGAME_FILENAME 	= "data/defaultNetworkGameSetup.mgg";
@@ -480,6 +478,26 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	checkBoxAllowInGameJoinPlayer.setVisible(allowInProgressJoin);
 
 
+	labelAllowTeamUnitSharing.registerGraphicComponent(containerName,"labelAllowTeamUnitSharing");
+	labelAllowTeamUnitSharing.init(xoffset+410, 670, 80);
+	labelAllowTeamUnitSharing.setText(lang.getString("AllowTeamUnitSharing"));
+	labelAllowTeamUnitSharing.setVisible(true);
+
+	checkBoxAllowTeamUnitSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamUnitSharing");
+	checkBoxAllowTeamUnitSharing.init(xoffset+600, 670);
+	checkBoxAllowTeamUnitSharing.setValue(false);
+	checkBoxAllowTeamUnitSharing.setVisible(true);
+
+	labelAllowTeamResourceSharing.registerGraphicComponent(containerName,"labelAllowTeamResourceSharing");
+	labelAllowTeamResourceSharing.init(xoffset+410, 640, 80);
+	labelAllowTeamResourceSharing.setText(lang.getString("AllowTeamResourceSharing"));
+	labelAllowTeamResourceSharing.setVisible(true);
+
+	checkBoxAllowTeamResourceSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamResourceSharing");
+	checkBoxAllowTeamResourceSharing.init(xoffset+600, 640);
+	checkBoxAllowTeamResourceSharing.setValue(false);
+	checkBoxAllowTeamResourceSharing.setVisible(true);
+
 
 	// Network Pause for lagged clients
 	labelNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"labelNetworkPauseGameForLaggedClients");
@@ -765,6 +783,9 @@ void MenuStateCustomGame::reloadUI() {
 	labelEnableSwitchTeamMode.setText(lang.getString("EnableSwitchTeamMode"));
 
 	labelAllowInGameJoinPlayer.setText(lang.getString("AllowInGameJoinPlayer"));
+
+	labelAllowTeamUnitSharing.setText(lang.getString("AllowTeamUnitSharing"));
+	labelAllowTeamResourceSharing.setText(lang.getString("AllowTeamResourceSharing"));
 
 	labelAISwitchTeamAcceptPercent.setText(lang.getString("AISwitchTeamAcceptPercent"));
 
@@ -1147,7 +1168,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					mapPublishingDelayTimer=time(NULL);
 				}
 			}
-			//else if (listBoxAdvanced.getSelectedItemIndex() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
 			else if (checkBoxAdvanced.getValue() == 1 && listBoxFogOfWar.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1185,14 +1205,41 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 					needToRepublishToMasterserver = true;
 				}
 
-				if(hasNetworkGameSettings() == true)
-				{
+				if(hasNetworkGameSettings() == true) {
 					needToSetChangedGameSettings = true;
 					lastSetChangedGameSettings   = time(NULL);
 				}
 
 				ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 				serverInterface->setAllowInGameConnections(checkBoxAllowInGameJoinPlayer.getValue() == true);
+			}
+			else if (checkBoxAdvanced.getValue() == 1 && checkBoxAllowTeamUnitSharing.mouseClick(x, y)) {
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+
+				if(checkBoxPublishServer.getValue() == true) {
+					needToRepublishToMasterserver = true;
+				}
+
+				if(hasNetworkGameSettings() == true) {
+					needToSetChangedGameSettings = true;
+					lastSetChangedGameSettings   = time(NULL);
+				}
+			}
+			else if (checkBoxAdvanced.getValue() == 1 && checkBoxAllowTeamResourceSharing.mouseClick(x, y)) {
+				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+
+				if(checkBoxPublishServer.getValue() == true) {
+					needToRepublishToMasterserver = true;
+				}
+
+				if(hasNetworkGameSettings() == true) {
+					needToSetChangedGameSettings = true;
+					lastSetChangedGameSettings   = time(NULL);
+				}
 			}
 			else if (checkBoxAllowNativeLanguageTechtree.mouseClick(x, y)) {
 				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -1949,13 +1996,10 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
     }
 
 	listBoxMap.mouseMove(x, y);
+
 	if(checkBoxAdvanced.getValue() == 1) {
 		listBoxFogOfWar.mouseMove(x, y);
 		checkBoxAllowObservers.mouseMove(x, y);
-		//listBoxEnableObserverMode.mouseMove(x, y);
-		//listBoxEnableServerControlledAI.mouseMove(x, y);
-		//labelNetworkFramePeriod.mouseMove(x, y);
-		//listBoxNetworkFramePeriod.mouseMove(x, y);
 
 		checkBoxEnableSwitchTeamMode.mouseMove(x, y);
 		listBoxAISwitchTeamAcceptPercent.mouseMove(x, y);
@@ -1964,8 +2008,10 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 		labelNetworkPauseGameForLaggedClients.mouseMove(x, y);
 		checkBoxNetworkPauseGameForLaggedClients.mouseMove(x, y);
 
-		//labelPathFinderType.mouseMove(x, y);
-		//listBoxPathFinderType.mouseMove(x, y);
+		labelAllowTeamUnitSharing.mouseMove(x,y);
+		checkBoxAllowTeamUnitSharing.mouseMove(x,y);
+		labelAllowTeamResourceSharing.mouseMove(x,y);
+		checkBoxAllowTeamResourceSharing.mouseMove(x,y);
 	}
 	checkBoxAllowInGameJoinPlayer.mouseMove(x, y);
 
@@ -2060,7 +2106,6 @@ void MenuStateCustomGame::render() {
 			// START - this code ensure player title and player names don't overlap
 			int offsetPosition=0;
 		    for(int i=0; i < GameConstants::maxPlayers; ++i) {
-				//const Metrics &metrics= Metrics::getInstance();
 				FontMetrics *fontMetrics= NULL;
 				if(Renderer::renderText3DEnabled == false) {
 					fontMetrics = labelPlayers[i].getFont()->getMetrics();
@@ -2071,7 +2116,6 @@ void MenuStateCustomGame::render() {
 				if(fontMetrics == NULL) {
 					throw megaglest_runtime_error("fontMetrics == NULL");
 				}
-				//int curWidth = (metrics.toVirtualX(fontMetrics->getTextWidth(labelPlayers[i].getText())));
 				int curWidth = (fontMetrics->getTextWidth(labelPlayers[i].getText()));
 				int newOffsetPosition = labelPlayers[i].getX() + curWidth + 2;
 
@@ -2115,13 +2159,6 @@ void MenuStateCustomGame::render() {
 					// Render the player # label the player's color
 					Vec3f playerColor = crcPlayerTextureCache[i]->getPixmap()->getPixel3f(0, 0);
 					renderer.renderLabel(&labelPlayers[i],&playerColor);
-
-					// Blend the color with white so make it more readable
-					//Vec4f newColor(1.f, 1.f, 1.f, 0.57f);
-					//renderer.renderLabel(&labelPlayers[i],&newColor);
-
-					//int quadWidth = labelPlayerNames[i].getX() - labelPlayers[i].getX() - 5;
-					//renderer.renderTextureQuad(labelPlayers[i].getX(), labelPlayers[i].getY(), quadWidth, labelPlayers[i].getH(), crcPlayerTextureCache[i],1.0f,&playerColor);
 				}
 				else {
 					renderer.renderLabel(&labelPlayers[i]);
@@ -2166,19 +2203,22 @@ void MenuStateCustomGame::render() {
 				renderer.renderLabel(&labelFogOfWar);
 				renderer.renderLabel(&labelAllowObservers);
 				renderer.renderLabel(&labelFallbackCpuMultiplier);
-				//renderer.renderLabel(&labelPathFinderType);
 
 				renderer.renderLabel(&labelEnableSwitchTeamMode);
 				renderer.renderLabel(&labelAISwitchTeamAcceptPercent);
 
 				renderer.renderListBox(&listBoxFogOfWar);
 				renderer.renderCheckBox(&checkBoxAllowObservers);
-				//renderer.renderListBox(&listBoxEnableObserverMode);
-				//renderer.renderListBox(&listBoxPathFinderType);
 
 				renderer.renderCheckBox(&checkBoxEnableSwitchTeamMode);
 				renderer.renderListBox(&listBoxAISwitchTeamAcceptPercent);
 				renderer.renderListBox(&listBoxFallbackCpuMultiplier);
+
+				renderer.renderLabel(&labelAllowTeamUnitSharing);
+				renderer.renderCheckBox(&checkBoxAllowTeamUnitSharing);
+
+				renderer.renderLabel(&labelAllowTeamResourceSharing);
+				renderer.renderCheckBox(&checkBoxAllowTeamResourceSharing);
 			}
 			renderer.renderLabel(&labelAllowInGameJoinPlayer);
 			renderer.renderCheckBox(&checkBoxAllowInGameJoinPlayer);
@@ -2187,7 +2227,6 @@ void MenuStateCustomGame::render() {
 			renderer.renderLabel(&labelMapFilter);
 			renderer.renderLabel(&labelTechTree);
 			renderer.renderLabel(&labelControl);
-			//renderer.renderLabel(&labelRMultiplier);
 			renderer.renderLabel(&labelFaction);
 			renderer.renderLabel(&labelTeam);
 			renderer.renderLabel(&labelMapInfo);
@@ -2197,7 +2236,6 @@ void MenuStateCustomGame::render() {
 			renderer.renderListBox(&listBoxTileset);
 			renderer.renderListBox(&listBoxMapFilter);
 			renderer.renderListBox(&listBoxTechTree);
-			//renderer.renderListBox(&listBoxAdvanced);
 			renderer.renderCheckBox(&checkBoxAdvanced);
 
 			if(checkBoxPublishServer.getEditable())
@@ -2206,16 +2244,11 @@ void MenuStateCustomGame::render() {
 				renderer.renderLabel(&labelPublishServer);
 				renderer.renderLabel(&labelGameName);
 				if(checkBoxAdvanced.getValue() == 1) {
-					//renderer.renderListBox(&listBoxEnableServerControlledAI);
-					//renderer.renderLabel(&labelEnableServerControlledAI);
-					//renderer.renderLabel(&labelNetworkFramePeriod);
-					//renderer.renderListBox(&listBoxNetworkFramePeriod);
 					renderer.renderLabel(&labelNetworkPauseGameForLaggedClients);
 					renderer.renderCheckBox(&checkBoxNetworkPauseGameForLaggedClients);
 				}
 			}
 
-			//renderer.renderLabel(&labelInfo);
 			renderer.renderCheckBox(&checkBoxScenario);
 			renderer.renderLabel(&labelScenario);
 			if(checkBoxScenario.getValue() == true) {
@@ -2740,7 +2773,6 @@ void MenuStateCustomGame::update() {
 			}
 			listBoxFallbackCpuMultiplier.setEditable(true);
 			checkBoxPublishServer.setEditable(true);
-			//listBoxEnableServerControlledAI.setEditable(true);
 
 			// Masterserver always needs one network slot
 			if(this->headlessServerMode == true && hasOneNetworkSlotOpen == false) {
@@ -2773,7 +2805,6 @@ void MenuStateCustomGame::update() {
 
             ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
             serverInterface->setPublishEnabled(checkBoxPublishServer.getValue() == true);
-			//listBoxEnableServerControlledAI.setEditable(false);
 		}
 
 		bool republishToMaster = (difftime((long int)time(NULL),lastMasterserverPublishing) >= MASTERSERVER_BROADCAST_PUBLISH_SECONDS);
@@ -3470,6 +3501,24 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
         gameSettings->setFlagTypes1(valueFlags1);
 	}
 
+	if(checkBoxAllowTeamUnitSharing.getValue() == true) {
+        valueFlags1 |= ft1_allow_shared_team_units;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+	else {
+        valueFlags1 &= ~ft1_allow_shared_team_units;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+
+	if(checkBoxAllowTeamResourceSharing.getValue() == true) {
+        valueFlags1 |= ft1_allow_shared_team_resources;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+	else {
+        valueFlags1 &= ~ft1_allow_shared_team_resources;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+
 	if(Config::getInstance().getBool("EnableNetworkGameSynchChecks","false") == true) {
 		//printf("*WARNING* - EnableNetworkGameSynchChecks is enabled\n");
 
@@ -3991,6 +4040,10 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	listBoxFallbackCpuMultiplier.setSelectedItemIndex(gameSettings.getFallbackCpuMultiplier());
 
 	checkBoxAllowInGameJoinPlayer.setValue((gameSettings.getFlagTypes1() & ft1_allow_in_game_joining) == ft1_allow_in_game_joining ? true : false);
+
+	checkBoxAllowTeamUnitSharing.setValue((gameSettings.getFlagTypes1() & ft1_allow_shared_team_units) == ft1_allow_shared_team_units ? true : false);
+	checkBoxAllowTeamResourceSharing.setValue((gameSettings.getFlagTypes1() & ft1_allow_shared_team_resources) == ft1_allow_shared_team_resources ? true : false);
+
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 	if(serverInterface != NULL) {
 		serverInterface->setAllowInGameConnections(checkBoxAllowInGameJoinPlayer.getValue() == true);

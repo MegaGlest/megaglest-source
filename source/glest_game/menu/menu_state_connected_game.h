@@ -206,8 +206,13 @@ private:
     GraphicButton buttonCancelDownloads;
 
 	GraphicLabel labelEnableSwitchTeamMode;
-	//GraphicListBox listBoxEnableSwitchTeamMode;
 	GraphicCheckBox checkBoxEnableSwitchTeamMode;
+
+	GraphicLabel labelAllowTeamUnitSharing;
+	GraphicCheckBox checkBoxAllowTeamUnitSharing;
+
+	GraphicLabel labelAllowTeamResourceSharing;
+	GraphicCheckBox checkBoxAllowTeamResourceSharing;
 
 	GraphicLabel labelAISwitchTeamAcceptPercent;
 	GraphicListBox listBoxAISwitchTeamAcceptPercent;

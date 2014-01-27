@@ -223,6 +223,8 @@ public:
     Game(Program *program, const GameSettings *gameSettings, bool masterserverMode);
     ~Game();
 
+    void reInitGUI();
+
     bool isMarkCellMode() const { return isMarkCellEnabled; }
     const Texture2D * getMarkCellTexture() const { return markCellTexture; }
     bool isUnMarkCellMode() const { return isUnMarkCellEnabled; }

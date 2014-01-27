@@ -1622,6 +1622,10 @@ void Game::init(bool initForPreviewOnly) {
 
 // ==================== update ====================
 
+void Game::reInitGUI() {
+	gui.init(this);
+}
+
 void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();

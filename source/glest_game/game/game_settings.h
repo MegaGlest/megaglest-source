@@ -17,7 +17,6 @@
 #include <algorithm>
 #include "xml_parser.h"
 #include "config.h"
-//#include "util.h"
 #include "platform_common.h"
 #include "conversion.h"
 #include "platform_util.h"
@@ -66,9 +65,10 @@ enum FlagTypes1 {
     ft1_allow_team_switching  			= 0x02,
     ft1_allow_in_game_joining 			= 0x04,
     ft1_network_synch_checks_verbose 	= 0x08,
-    ft1_network_synch_checks 			= 0x10
-    //ft1_xx                  = 0x20,
-    //ft1_xx                  = 0x40,
+    ft1_network_synch_checks 			= 0x10,
+    ft1_allow_shared_team_units         = 0x20,
+    ft1_allow_shared_team_resources     = 0x40
+    //ft1_xxx = 0x80
 };
 
 inline static bool isFlagType1BitEnabled(uint32 flagValue,FlagTypes1 type) {
@@ -590,7 +590,7 @@ public:
 		result += "networkFramePeriod = " + intToStr(networkFramePeriod) + "\n";
 		result += "networkPauseGameForLaggedClients = " + intToStr(networkPauseGameForLaggedClients) + "\n";
 		result += "pathFinderType = " + intToStr(pathFinderType) + "\n";
-		result += "flagTypes1 = " + intToStr(flagTypes1) + "\n";
+		result += "flagTypes1 = " + uIntToStr(flagTypes1) + "\n";
 		result += "mapCRC = " + uIntToStr(mapCRC) + "\n";
 		result += "tilesetCRC = " + uIntToStr(tilesetCRC) + "\n";
 		result += "techCRC = " + uIntToStr(techCRC) + "\n";
@@ -718,7 +718,7 @@ public:
 //		PathFinderType pathFinderType;
 		gameSettingsNode->addAttribute("pathFinderType",intToStr(pathFinderType), mapTagReplacements);
 //		uint32 flagTypes1;
-		gameSettingsNode->addAttribute("flagTypes1",intToStr(flagTypes1), mapTagReplacements);
+		gameSettingsNode->addAttribute("flagTypes1",uIntToStr(flagTypes1), mapTagReplacements);
 //	    int32 mapCRC;
 		gameSettingsNode->addAttribute("mapCRC",uIntToStr(mapCRC), mapTagReplacements);
 //	    int32 tilesetCRC;
@@ -858,7 +858,7 @@ public:
 //		PathFinderType pathFinderType;
 		pathFinderType = static_cast<PathFinderType>(gameSettingsNode->getAttribute("pathFinderType")->getIntValue());
 //		uint32 flagTypes1;
-		flagTypes1 = gameSettingsNode->getAttribute("flagTypes1")->getIntValue();
+		flagTypes1 = gameSettingsNode->getAttribute("flagTypes1")->getUIntValue();
 //	    int32 mapCRC;
 		mapCRC = gameSettingsNode->getAttribute("mapCRC")->getUIntValue();
 //	    int32 tilesetCRC;

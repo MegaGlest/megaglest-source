@@ -1,14 +1,3 @@
-#ifndef _GLEST_GAME_GAMECONSTANTS_H_
-#define _GLEST_GAME_GAMECONSTANTS_H_
-
-#include <cassert>
-#include <stdio.h>
-#include "vec.h"
-#include <map>
-#include <string>
-#include "conversion.h"
-#include <stdexcept>
-
 // ==============================================================
 //	This file is part of Glest (www.glest.org)
 //
@@ -19,6 +8,17 @@
 //	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
+
+#ifndef _GLEST_GAME_GAMECONSTANTS_H_
+#define _GLEST_GAME_GAMECONSTANTS_H_
+
+#include <cassert>
+#include <stdio.h>
+#include "vec.h"
+#include <map>
+#include <string>
+#include "conversion.h"
+#include <stdexcept>
 
 using namespace Shared::Graphics;
 using namespace std;
@@ -115,30 +115,27 @@ enum FactionPersonalityType {
 
 enum MasterServerGameStatusType {
 	game_status_waiting_for_players = 0,
-	game_status_waiting_for_start = 1,
-	game_status_in_progress = 2,
-	game_status_finished = 3
+	game_status_waiting_for_start 	= 1,
+	game_status_in_progress 		= 2,
+	game_status_finished 			= 3
 };
 
 class GameConstants {
 public:
-	static const int specialFactions = fpt_EndCount - 1;
-	static const int maxPlayers= 8;
-	static const int serverPort= 61357;
-	static const int serverAdminPort= 61355;
-	//static const int updateFps= 40;
-	//static const int cameraFps= 100;
+	static const int specialFactions 				= fpt_EndCount - 1;
+	static const int maxPlayers						= 8;
+	static const int serverPort						= 61357;
+	static const int serverAdminPort				= 61355;
 	static int updateFps;
 	static int cameraFps;
 
 	static int networkFramePeriod;
-	static const int networkPingInterval = 5;
-	static const int networkSmoothInterval= 30;
-	//static const int networkExtraLatency= 200;
-	static const int maxClientConnectHandshakeSecs= 10;
+	static const int networkPingInterval 			= 5;
+	static const int networkSmoothInterval			= 30;
+	static const int maxClientConnectHandshakeSecs	= 10;
 
-	static const int cellScale = 2;
-	static const int clusterSize = 16;
+	static const int cellScale 						= 2;
+	static const int clusterSize 					= 16;
 
 	static const char *folder_path_maps;
 	static const char *folder_path_scenarios;
@@ -212,9 +209,7 @@ public:
 
 	static void assertDirValid(int v) { assert(v >= 0 && v < 4); }
 	void operator++() {
-		//printf("In [%s::%s] Line: %d BEFORE +: value = %d\n",__FILE__,__FUNCTION__,__LINE__,asInt());
 		value = static_cast<Enum>((value + 1) % 4);
-		//printf("In [%s::%s] Line: %d AFTER +: value = %d\n",__FILE__,__FUNCTION__,__LINE__,asInt());
 	}
 	void operator--() { // mod with negative numbers is a 'grey area', hence the +3 rather than -1
 		value = static_cast<Enum>((value + 3) % 4);

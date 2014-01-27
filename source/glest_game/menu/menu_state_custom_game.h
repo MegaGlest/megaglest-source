@@ -54,8 +54,6 @@ private:
 	GraphicLabel labelTechTree;
 	GraphicLabel labelTileset;
 	GraphicLabel labelMapInfo;
-	//GraphicLabel labelEnableObserverMode;
-	//GraphicLabel labelEnableServerControlledAI;
 	GraphicLabel labelLocalGameVersion;
 	GraphicLabel labelLocalIP;
 	GraphicLabel labelGameName;
@@ -64,8 +62,6 @@ private:
 	GraphicListBox listBoxFogOfWar;
 	GraphicListBox listBoxTechTree;
 	GraphicListBox listBoxTileset;
-	//GraphicListBox listBoxEnableObserverMode;
-	//GraphicListBox listBoxEnableServerControlledAI;
 
 	vector<string> mapFiles;
 	vector<string> playerSortedMaps[GameConstants::maxPlayers+1];
@@ -86,31 +82,21 @@ private:
 	GraphicButton buttonClearBlockedPlayers;
 
 	GraphicLabel labelPublishServer;
-	//GraphicListBox listBoxPublishServer;
 	GraphicCheckBox checkBoxPublishServer;
 
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
 
-	//GraphicListBox listBoxNetworkFramePeriod;
-	//GraphicLabel labelNetworkFramePeriod;
-
 	GraphicLabel labelNetworkPauseGameForLaggedClients;
-	//GraphicListBox listBoxNetworkPauseGameForLaggedClients;
 	GraphicCheckBox checkBoxNetworkPauseGameForLaggedClients;
-
-	//GraphicLabel labelPathFinderType;
-	//GraphicListBox listBoxPathFinderType;
 
 	GraphicLabel labelMapFilter;
 	GraphicListBox listBoxMapFilter;
 
 	GraphicLabel labelAdvanced;
-	//GraphicListBox listBoxAdvanced;
 	GraphicCheckBox checkBoxAdvanced;
 
 	GraphicLabel labelAllowObservers;
-	//GraphicListBox listBoxAllowObservers;
 	GraphicCheckBox checkBoxAllowObservers;
 
 	GraphicLabel *activeInputLabel;
@@ -119,7 +105,6 @@ private:
 	GraphicListBox listBoxPlayerStatus;
 
 	GraphicLabel labelEnableSwitchTeamMode;
-	//GraphicListBox listBoxEnableSwitchTeamMode;
 	GraphicCheckBox checkBoxEnableSwitchTeamMode;
 
 	GraphicLabel labelAISwitchTeamAcceptPercent;
@@ -130,12 +115,20 @@ private:
 	GraphicLabel labelAllowInGameJoinPlayer;
 	GraphicCheckBox checkBoxAllowInGameJoinPlayer;
 
+	GraphicLabel labelAllowTeamUnitSharing;
+	GraphicCheckBox checkBoxAllowTeamUnitSharing;
+
+	GraphicLabel labelAllowTeamResourceSharing;
+	GraphicCheckBox checkBoxAllowTeamResourceSharing;
+
+
 	GraphicLabel labelAllowNativeLanguageTechtree;
 	GraphicCheckBox checkBoxAllowNativeLanguageTechtree;
 
 	GraphicCheckBox checkBoxScenario;
 	GraphicLabel labelScenario;
 	GraphicListBox listBoxScenario;
+
 	vector<string> scenarioFiles;
     ScenarioInfo scenarioInfo;
 	vector<string> dirList;
@@ -226,6 +219,7 @@ private:
     std::auto_ptr<TechTree> techTree;
 
     string gameUUID;
+
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,
 			bool openNetworkSlots= false, ParentMenuState parentMenuState=pNewGame,

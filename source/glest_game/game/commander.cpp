@@ -620,6 +620,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 							gameNetworkInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
 	    		    	}
 					}
+					world->getGame()->reInitGUI();
         		}
         	}
         	else {
@@ -713,6 +714,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 							gameNetworkInterface->sendTextMessage(szMsg,-1, localEcho,languageList[i]);
 	    		    	}
 					}
+					world->getGame()->reInitGUI();
         		}
         	}
         	else if(newTeamTotalMemberCount == (newTeamVotedYes + newTeamVotedNo)) {

@@ -47,23 +47,25 @@ public:
 	typedef UnitContainer::const_iterator UnitIterator;
 
 public:
-	static const int maxGroups= 10;
-	static const int maxUnits= 36;
+	static const int maxGroups	= 10;
+	static const int maxUnits	= 36;
 
 private:
 	int factionIndex;
 	int teamIndex;
+	bool allowSharedTeamUnits;
 	UnitContainer selectedUnits;
 	UnitContainer groups[maxGroups];
 	Gui *gui;
 
 public:
 	Selection() : UnitObserver() {
-		factionIndex = 0;
-		teamIndex = 0;
-		gui = NULL;
+		factionIndex 			= 0;
+		teamIndex 				= 0;
+		allowSharedTeamUnits	= false;
+		gui 					= NULL;
 	}
-	void init(Gui *gui, int factionIndex, int teamIndex);
+	void init(Gui *gui, int factionIndex, int teamIndex, bool allowSharedTeamUnits);
 	virtual ~Selection();
 
 	bool select(Unit *unit);
@@ -77,7 +79,6 @@ public:
 	bool isEnemy() const;
 	bool isObserver() const;
 
-	//bool isComandable() const;
 	bool isCommandable() const;
 	bool isCancelable() const;
 	bool isMeetable() const;
@@ -96,9 +97,11 @@ public:
 	vector<Unit*> getUnitsForGroup(int groupIndex);
 
 	virtual void unitEvent(UnitObserver::Event event, const Unit *unit);
+	bool canSelectUnitFactionCheck(const Unit *unit) const;
 
 	virtual void saveGame(XmlNode *rootNode) const;
 	void loadGame(const XmlNode *rootNode, World *world);
+
 };
 
 }}//end namespace
