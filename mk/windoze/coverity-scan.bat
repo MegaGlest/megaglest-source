@@ -2,10 +2,10 @@
 rem
 rem Upload Coverity s
 rem Requires:
-rem - data\glest_game\curl.exe, built with SSL support: http://curl.haxx.se/download.html
-rem - ..\..\data\glest_game\wget.exe (should get installed automatically during a build)
-rem - ..\..\data\glest_game\7z.exe (should get installed automatically during a build)
-rem - Coverity Scan Build Tool installed and in %PATH%
+rem - curl.exe, built with SSL support: http://curl.haxx.se/download.html
+rem - wget.exe (should get installed automatically during a build)
+rem - 7z.exe (should get installed automatically during a build)
+rem - Coverity Scan Build Tool installed and its install path configured in .coverity-scan
 rem
 
 rem Change into this directory
@@ -55,24 +55,25 @@ set VERSION=%GITVERSION_REV%.%GITVERSION_SHA1%
 set FILENAME=%PROJECT%_%DESCRIPTION%_%VERSION%
 
 rem Untested! Requires modification.
-rem ..\..\data\glest_game\wget.exe --no-check-certificate https://scan.coverity.com/download/win-32 --post-data "token=%TOKEN%&project=%PROJECT%" -O %TEMP%\coverity_tool.zip
-rem ..\..\data\glest_game\7z.exe x %TEMP%\coverity_tool.zip
+rem wget.exe --no-check-certificate https://scan.coverity.com/download/win-32 --post-data "token=%TOKEN%&project=%PROJECT%" -O %TEMP%\coverity_tool.zip
+rem 7z.exe x %TEMP%\coverity_tool.zip
 rem set PATH=%PATH%;C:\build\megaglest-source\mk\windoze\cov-analysis-win32-6.6.1\bin\
+
 if "%MG_COV_PATH_SET%." == "." set PATH=%PATH%;%COVERITY_ANALYSIS_ROOT%\bin\
 set MG_COV_PATH_SET=TRUE
 
 cov-build --dir %BUILDTOOL% build-mg-2010.bat nopause rebuild
 if ERRORLEVEL 1 GOTO ERROR
 
-..\..\data\glest_game\7z.exe a %FILENAME%.tar %BUILDTOOL%\
-..\..\data\glest_game\7z.exe a %FILENAME%.tar.gz %FILENAME%.tar
+7z.exe a %FILENAME%.tar %BUILDTOOL%\
+7z.exe a %FILENAME%.tar.gz %FILENAME%.tar
 del /Q /F %FILENAME%.tar
 dir %FILENAME%.tar.gz
 
-Echo **About to run: ..\..\data\glest_game\curl.exe --progress-bar --insecure --form "project=%PROJECT%" --form "token=%TOKEN%" --form "email=%EMAIL%" --form "version=%VERSION%" --form "description=%DESCRIPTION%" --form "file=@%FILENAME%.tar.gz" https://scan5.coverity.com/cgi-bin/upload.py
+echo **About to run: curl.exe --progress-bar --insecure --form "project=%PROJECT%" --form "token=%TOKEN%" --form "email=%EMAIL%" --form "version=%VERSION%" --form "description=%DESCRIPTION%" --form "file=@%FILENAME%.tar.gz" https://scan5.coverity.com/cgi-bin/upload.py
 rem pause
 rem echo Running curl
-..\..\data\glest_game\curl.exe --progress-bar --insecure --form "project=%PROJECT%" --form "token=%TOKEN%" --form "email=%EMAIL%" --form "version=%VERSION%" --form "description=%DESCRIPTION%" --form "file=@%FILENAME%.tar.gz" https://scan5.coverity.com/cgi-bin/upload.py
+curl.exe --progress-bar --insecure --form "project=%PROJECT%" --form "token=%TOKEN%" --form "email=%EMAIL%" --form "version=%VERSION%" --form "description=%DESCRIPTION%" --form "file=@%FILENAME%.tar.gz" https://scan5.coverity.com/cgi-bin/upload.py
 if ERRORLEVEL 1 GOTO ERROR
 GOTO CLEANUP
 
