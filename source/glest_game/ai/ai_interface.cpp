@@ -676,13 +676,14 @@ const TechTree *AiInterface::getTechTree(){
 
 bool AiInterface::isResourceInRegion(const Vec2i &pos, const ResourceType *rt, Vec2i &resourcePos, int range) const {
 	const Map *map= world->getMap();
-	RandomGen random;
+
 	int xi=1;
 	int xj=1;
-	if(random.randRange(0,1)==1){
+
+	if(rand() % 2==1){
 		xi=-1;
 	}
-	if(random.randRange(0,1)==1){
+	if(rand() % 2==1){
 		xj=-1;
 	}
 	for(int i = -range; i <= range; ++i) {
