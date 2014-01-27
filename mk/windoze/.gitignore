@@ -1,3 +1,24 @@
 /Release/
 
+# Windows_build
+*.dll
+*.exe
+*.pdb
+*.exp
+*.lib
+*.map
+*.dmp
+*.dat
+/lua/
+#
+
 /ipch
+
+/game_util.cpp
+/glestkeys.ini
+/servers.ini
+/xml_test_malformed.xml
+
+# Coverity
+/cov-analysis*/
+/cov-int

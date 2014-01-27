@@ -11,3 +11,10 @@ core.bak
 /release/
 /linux_symbols/
 /mydata
+
+/lib/
+/lib_bkp/
+
+# Coverity
+/cov-analysis*/
+/cov-int

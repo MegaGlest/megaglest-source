@@ -264,7 +264,7 @@ string BattleEnd::getBattleEndMusic(bool won) {
 void BattleEnd::initBackgroundMusic() {
 	string music = "";
 
-	if(stats.getThisFactionIndex() > 0 && stats.getTeam(stats.getThisFactionIndex()) != GameConstants::maxPlayers -1 + fpt_Observer) {
+	if(stats.getThisFactionIndex() >= 0 && stats.getTeam(stats.getThisFactionIndex()) != GameConstants::maxPlayers -1 + fpt_Observer) {
 		if(stats.getVictory(stats.getThisFactionIndex())){
 			//header += lang.getString("Victory");
 			music = getBattleEndMusic(true);
@@ -299,7 +299,7 @@ void BattleEnd::initBackgroundVideo() {
 		string videoFile = "";
 		string videoFileFallback = "";
 
-		if(stats.getThisFactionIndex() > 0 && stats.getTeam(stats.getThisFactionIndex()) != GameConstants::maxPlayers -1 + fpt_Observer) {
+		if(stats.getThisFactionIndex() >= 0 && stats.getTeam(stats.getThisFactionIndex()) != GameConstants::maxPlayers -1 + fpt_Observer) {
 			if(stats.getVictory(stats.getThisFactionIndex())){
 				//header += lang.getString("Victory");
 
@@ -682,7 +682,7 @@ void BattleEnd::render() {
 
 		string header = stats.getDescription() + " - ";
 
-		if(stats.getThisFactionIndex() > 0 && stats.getTeam(stats.getThisFactionIndex()) != GameConstants::maxPlayers -1 + fpt_Observer) {
+		if(stats.getThisFactionIndex() >= 0 && stats.getTeam(stats.getThisFactionIndex()) != GameConstants::maxPlayers -1 + fpt_Observer) {
 			if(stats.getVictory(stats.getThisFactionIndex())){
 				header += lang.getString("Victory");
 			}

@@ -57,20 +57,5 @@ $RECYCLE.BIN/
 
 /google-breakpad/
 
-# Windows_build
-*.dll
-*.exe
-*.pdb
-*.exp
-*.lib
-*.map
-*.dmp
-*.dat
-#/data/glest_game/lua/
-#
-
-# Coverity
-/cov-int/
-
 # convert_faction_xml2html
 /html/

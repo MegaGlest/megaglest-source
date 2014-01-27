@@ -33,9 +33,9 @@ PROJECT=MegaGlest
 # EMAIL=x
 
 # read in config settings
-if [ ! -f ${CURRENTDIR}/.coverity-submit ] ; then
+if [ ! -f ${CURRENTDIR}/.coverity-scan ] ; then
         echo "-----------------------------------------"
-        echo "**Missing Config** To use this script please create a config file named [${CURRENTDIR}/.coverity-submit]"
+        echo "**Missing Config** To use this script please create a config file named [${CURRENTDIR}/.coverity-scan]"
         echo "Containing: TOKEN=x , EMAIL=x , COVERITY_ANALYSIS_ROOT=x , NUMCORES=x"
         exit 1
 fi
@@ -93,7 +93,7 @@ ls -la ${FILENAME}.tar.gz
 echo "Running curl to upload analysis file..."
 # echo "curl --progress-bar --insecure --form \"project=${PROJECT}\" --form \"token=${TOKEN}\" --form \"email=${EMAIL}\" --form \"version=${VERSION}\" --form \"description=${DESCRIPTION}\" --form \"file=@${FILENAME}.tar.gz\" https://scan5.coverity.com/cgi-bin/upload.py"
 # exit 1
-curl --progress-bar --insecure --form "project=${PROJECT}" --form "token=${TOKEN}" --form "email=${EMAIL}" --form "version=${VERSION}" --form "description=${DESCRIPTION}" --form "file=@${FILENAME}.tar.gz" https://scan5.coverity.com/cgi-bin/upload.py | tee -a "coverity-submit.log" ; test ${PIPESTATUS[0]} -eq 0
+curl --progress-bar --insecure --form "project=${PROJECT}" --form "token=${TOKEN}" --form "email=${EMAIL}" --form "version=${VERSION}" --form "description=${DESCRIPTION}" --form "file=@${FILENAME}.tar.gz" https://scan5.coverity.com/cgi-bin/upload.py | tee -a "coverity-scan.log" ; test ${PIPESTATUS[0]} -eq 0
 
 echo "CURL returned: $?"
 

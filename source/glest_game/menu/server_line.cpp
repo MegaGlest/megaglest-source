@@ -55,9 +55,13 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	glestVersionLabel.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
 	i+= 70;
+	string platform=masterServerInfo.getPlatform();
+	int revOffset=platform.find("-Rev");
+	platform=platform.substr(0,revOffset);
+
 	platformLabel.init(i, baseY - lineOffset);
 	platformLabel.setTextColor(color);
-	platformLabel.setText(masterServerInfo.getPlatform());
+	platformLabel.setText(platform);
 	platformLabel.setFont(CoreData::getInstance().getDisplayFontSmall());
 	platformLabel.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
@@ -159,7 +163,13 @@ void ServerLine::reloadUI() {
 
 	glestVersionLabel.setText(masterServerInfo.getGlestVersion());
 
-	platformLabel.setText(masterServerInfo.getPlatform());
+	string platform = masterServerInfo.getPlatform();
+	size_t revOffset = platform.find("-Rev");
+	if(revOffset != platform.npos) {
+		platform = platform.substr(0,revOffset);
+	}
+
+	platformLabel.setText(platform);
 
 	serverTitleLabel.setText(masterServerInfo.getServerTitle());
 

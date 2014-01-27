@@ -3825,28 +3825,30 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 
 void MenuStateCustomGame::KeepCurrentHumanPlayerSlots(GameSettings &gameSettings) {
 	//look for human players
+	bool foundValidHumanControlTypeInFile = false;
+	for(int index2 = 0; index2 < GameConstants::maxPlayers; ++index2) {
+		ControlType ctFile = static_cast<ControlType>(gameSettings.getFactionControl(index2));
+		if(ctFile == ctHuman) {
+			ControlType ctUI = static_cast<ControlType>(listBoxControls[index2].getSelectedItemIndex());
+			if(ctUI != ctNetwork && ctUI != ctNetworkUnassigned) {
+				foundValidHumanControlTypeInFile = true;
+				//printf("Human found in file [%d]\n",index2);
+			}
+			else if(labelPlayerNames[index2].getText() == "") {
+				foundValidHumanControlTypeInFile = true;
+			}
+		}
+	}
+
 	for(int index = 0; index < GameConstants::maxPlayers; ++index) {
 		ControlType ct= static_cast<ControlType>(listBoxControls[index].getSelectedItemIndex());
 		if(ct == ctHuman) {
-
-			bool foundControlType = false;
-			for(int index2 = 0; index2 < GameConstants::maxPlayers; ++index2) {
-				ControlType ctFile = static_cast<ControlType>(gameSettings.getFactionControl(index2));
-				if(ctFile == ctHuman) {
-					ControlType ctUI = static_cast<ControlType>(listBoxControls[index2].getSelectedItemIndex());
-					if(ctUI != ctNetwork && ctUI != ctNetworkUnassigned) {
-						foundControlType = true;
-						//printf("Human found in file [%d]\n",index2);
-					}
-				}
-			}
-
 			//printf("Human found in UI [%d] and file [%d]\n",index,foundControlType);
 
-			if(foundControlType == false) {
+			if(foundValidHumanControlTypeInFile == false) {
 				gameSettings.setFactionControl(index,ctHuman);
+				gameSettings.setNetworkPlayerName(index,getHumanPlayerName());
 			}
-			gameSettings.setNetworkPlayerName(index,getHumanPlayerName());
 		}
 	}
 }
