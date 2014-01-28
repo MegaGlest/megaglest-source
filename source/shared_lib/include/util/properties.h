@@ -103,7 +103,7 @@ public:
 	static bool applyTagsToValue(string &value, const std::map<string,string> *mapTagReplacementValues=NULL);
 	static std::map<string,string> getTagReplacementValues(std::map<string,string> *mapExtraTagReplacementValues=NULL);
 	static bool isValuePathVariable(const string &value);
-	static void Properties::updateValuePathVariable(string &value);
+	static void updateValuePathVariable(string &value);
 
 	string getpath() const { return path;}
 
