@@ -1033,6 +1033,7 @@ void World::tick() {
 
 			//if consumable
 			if(rt != NULL && rt->getClass() == rcConsumable) {
+
 				int balance= 0;
 				for(int unitIndex = 0;
 						unitIndex < faction->getUnitCount(); ++unitIndex) {
@@ -1040,11 +1041,13 @@ void World::tick() {
 					//if unit operative and has this cost
 					const Unit *unit = faction->getUnit(unitIndex);
 					if(unit != NULL && unit->isOperative()) {
+
 						const UnitType *ut = unit->getType();
 						const Resource *resource = NULL;
 						std::map<const UnitType *, std::map<const ResourceType *, const Resource *> >::iterator iterFind = resourceCostCache.find(ut);
 						if(iterFind != resourceCostCache.end() &&
 								iterFind->second.find(rt) != iterFind->second.end()) {
+
 							resource = iterFind->second.find(rt)->second;
 						}
 						else {
@@ -2654,6 +2657,87 @@ void World::stopStreamingVideo(const string &playVideo) {
 
 void World::stopAllVideo() {
 	this->game->stopAllVideo();
+}
+
+void World::initTeamResource(const ResourceType *rt,int teamIndex, int value) {
+	std::string resourceTypeName = rt->getName(false);
+	TeamResources[teamIndex][resourceTypeName].init(rt,value);
+}
+
+const Resource *World::getResourceForTeam(const ResourceType *rt, int teamIndex) {
+	if(rt == NULL) {
+		return NULL;
+	}
+
+	std::map<std::string, Resource> &resourceList 	= TeamResources[teamIndex];
+	std::string resourceTypeName 					= rt->getName(false);
+	resourceList[resourceTypeName].init(rt,0);
+	Resource &teamResource 							= resourceList[resourceTypeName];
+
+	for(int index = 0; index < (int)factions.size(); ++index) {
+
+		Faction *faction = factions[index];
+		if(faction != NULL && faction->getTeam() == teamIndex) {
+
+			const Resource *factionResource = faction->getResource(rt,true);
+			if(factionResource != NULL && factionResource->getType() != NULL) {
+
+				int teamResourceAmount 	= teamResource.getAmount();
+				int teamResourceBalance = teamResource.getBalance();
+
+				teamResource.setAmount(teamResourceAmount 	+ factionResource->getAmount());
+				teamResource.setBalance(teamResourceBalance + factionResource->getBalance());
+			}
+		}
+	}
+
+	return &teamResource;
+}
+
+int World::getStoreAmountForTeam(const ResourceType *rt, int teamIndex) const {
+
+	int teamStoreAmount = 0;
+	for(int index = 0; index < (int)factions.size(); ++index) {
+
+		Faction *faction = factions[index];
+		if(faction != NULL && faction->getTeam() == teamIndex) {
+
+			teamStoreAmount += faction->getStoreAmount(rt,true);
+		}
+	}
+
+	return teamStoreAmount;
+}
+
+bool World::showResourceTypeForFaction(const ResourceType *rt, const Faction *faction,bool localFactionOnly) const {
+	//if any unit produces the resource
+	bool showResource = false;
+	for(int factionUnitTypeIndex = 0;
+			factionUnitTypeIndex < faction->getType()->getUnitTypeCount();
+				++factionUnitTypeIndex) {
+
+		const UnitType *ut = faction->getType()->getUnitType(factionUnitTypeIndex);
+		if(ut->getCost(rt) != NULL) {
+			showResource = true;
+			break;
+		}
+	}
+	if(localFactionOnly == false && showResource == false &&
+			(game->isFlagType1BitEnabled(ft1_allow_shared_team_units) == true ||
+			 game->isFlagType1BitEnabled(ft1_allow_shared_team_resources) == true)) {
+
+		for(int index = 0; showResource == false && index < (int)factions.size(); ++index) {
+			const Faction *teamFaction = factions[index];
+			if(teamFaction != NULL && teamFaction->getTeam() == faction->getTeam()) {
+
+				if(teamFaction->hasUnitTypeWithResourceCostInCache(rt) == true) {
+					showResource = true;
+				}
+			}
+		}
+	}
+
+	return showResource;
 }
 
 void World::removeResourceTargetFromCache(const Vec2i &pos) {

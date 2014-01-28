@@ -224,6 +224,7 @@ public:
     ~Game();
 
     void reInitGUI();
+    bool isFlagType1BitEnabled(FlagTypes1 type) const;
 
     bool isMarkCellMode() const { return isMarkCellEnabled; }
     const Texture2D * getMarkCellTexture() const { return markCellTexture; }

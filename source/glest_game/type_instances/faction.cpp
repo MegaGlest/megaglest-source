@@ -710,11 +710,14 @@ void Faction::init(
 	store.resize(techTree->getResourceTypeCount());
 
 	if(loadWorldNode == NULL) {
-		for(int i=0; i<techTree->getResourceTypeCount(); ++i){
-			const ResourceType *rt= techTree->getResourceType(i);
-			int resourceAmount= giveResources? factionType->getStartingResourceAmount(rt): 0;
-			resources[i].init(rt, resourceAmount);
-			store[i].init(rt, 0);
+		for(int index = 0; index < techTree->getResourceTypeCount(); ++index) {
+			const ResourceType *rt	= techTree->getResourceType(index);
+			int resourceAmount		= giveResources ? factionType->getStartingResourceAmount(rt): 0;
+			resources[index].init(rt, resourceAmount);
+			store[index].init(rt, 0);
+
+			this->world->initTeamResource(rt,this->teamIndex,0);
+			this->updateUnitTypeWithResourceCostCache(rt);
 		}
 	}
 
@@ -730,8 +733,6 @@ void Faction::init(
 	}
 
 	if( game->getGameSettings()->getPathFinderType() == pfBasic) {
-//	if( game->getGameSettings()->getPathFinderType() == pfBasic &&
-//		Config::getInstance().getBool("EnableFactionWorkerThreads","true") == true) {
 		if(workerThread != NULL) {
 			workerThread->signalQuit();
 			if(workerThread->shutdownAndWait() == true) {
@@ -750,12 +751,54 @@ void Faction::init(
 
 // ================== get ==================
 
-const Resource *Faction::getResource(const ResourceType *rt) const{
-	for(int i = 0; i < (int)resources.size(); ++i){
-		if(rt==resources[i].getType()){
-			return &resources[i];
+bool Faction::hasUnitTypeWithResourceCostInCache(const ResourceType *rt) const {
+	std::string resourceTypeName = rt->getName(false);
+	std::map<std::string, bool>::const_iterator iterFind = resourceTypeCostCache.find(resourceTypeName);
+	if(iterFind != resourceTypeCostCache.end()) {
+		return iterFind->second;
+	}
+	return false;
+}
+void Faction::updateUnitTypeWithResourceCostCache(const ResourceType *rt) {
+	std::string resourceTypeName = rt->getName(false);
+
+	if(resourceTypeCostCache.find(resourceTypeName) == resourceTypeCostCache.end()) {
+		resourceTypeCostCache[resourceTypeName] = hasUnitTypeWithResouceCost(rt);
+	}
+}
+
+bool Faction::hasUnitTypeWithResouceCost(const ResourceType *rt) {
+	for(int factionUnitTypeIndex = 0;
+			factionUnitTypeIndex < getType()->getUnitTypeCount();
+				++factionUnitTypeIndex) {
+
+		const UnitType *ut = getType()->getUnitType(factionUnitTypeIndex);
+		if(ut->getCost(rt) != NULL) {
+			return true;
+			break;
 		}
 	}
+	return false;
+}
+
+const Resource *Faction::getResource(const ResourceType *rt,bool localFactionOnly) const {
+
+	if(localFactionOnly == false &&
+			world != NULL &&
+				world->getGame() != NULL) {
+
+		Game *game = world->getGame();
+		if(game->isFlagType1BitEnabled(ft1_allow_shared_team_resources) == true) {
+			return world->getResourceForTeam(rt, this->getTeam());
+		}
+	}
+
+	for(int index = 0; index < (int)resources.size(); ++index) {
+		if(rt == resources[index].getType()) {
+			return &resources[index];
+		}
+	}
+
 	printf("ERROR cannot find resource type [%s] in list:\n",(rt != NULL ? rt->getName().c_str() : "null"));
 	for(int i=0; i < (int)resources.size(); ++i){
 		printf("Index %d [%s]",i,resources[i].getType()->getName().c_str());
@@ -765,10 +808,21 @@ const Resource *Faction::getResource(const ResourceType *rt) const{
 	return NULL;
 }
 
-int Faction::getStoreAmount(const ResourceType *rt) const{
-	for(int i=0; i < (int)store.size(); ++i){
-		if(rt==store[i].getType()){
-			return store[i].getAmount();
+int Faction::getStoreAmount(const ResourceType *rt,bool localFactionOnly) const {
+
+	if(localFactionOnly == false &&
+			world != NULL &&
+				world->getGame() != NULL) {
+
+		Game *game = world->getGame();
+		if(game->isFlagType1BitEnabled(ft1_allow_shared_team_resources) == true) {
+			return world->getStoreAmountForTeam(rt, this->getTeam());
+		}
+	}
+
+	for(int index =0 ; index < (int)store.size(); ++index) {
+		if(rt == store[index].getType()) {
+			return store[index].getAmount();
 		}
 	}
 	printf("ERROR cannot find store type [%s] in list:\n",(rt != NULL ? rt->getName().c_str() : "null"));

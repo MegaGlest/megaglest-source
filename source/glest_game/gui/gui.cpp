@@ -135,7 +135,7 @@ void Gui::init(Game *game) {
 	selection.init(this,
 					world->getThisFactionIndex(),
 					world->getThisTeamIndex(),
-					isFlagType1BitEnabled(game->getGameSettings()->getFlagTypes1(),ft1_allow_shared_team_units));
+					game->isFlagType1BitEnabled(ft1_allow_shared_team_units));
 }
 
 void Gui::end(){

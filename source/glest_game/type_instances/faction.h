@@ -167,6 +167,7 @@ private:
 	std::map<int,SwitchTeamVote> switchTeamVotes;
 	int currentSwitchTeamVoteFactionIndex;
 
+	bool allowSharedTeamUnits;
 	set<int> livingUnits;
 	set<Unit*> livingUnitsp;
 
@@ -183,6 +184,8 @@ private:
 	std::map<int,const Unit *> aliveUnitListCache;
 	std::map<int,const Unit *> mobileUnitListCache;
 	std::map<int,const Unit *> beingBuiltUnitListCache;
+
+	std::map<std::string, bool> resourceTypeCostCache;
 
 public:
 	Faction();
@@ -251,9 +254,9 @@ public:
 	void setFactionDisconnectHandled(bool value) { factionDisconnectHandled=value;}
 
     //get
-	const Resource *getResource(const ResourceType *rt) const;
+	const Resource *getResource(const ResourceType *rt,bool localFactionOnly=false) const;
 	inline const Resource *getResource(int i) const			{return &resources[i];}
-	int getStoreAmount(const ResourceType *rt) const;
+	int getStoreAmount(const ResourceType *rt,bool localFactionOnly=false) const;
 	inline const FactionType *getType() const					{return factionType;}
 	inline int getIndex() const								{return index;}
 
@@ -375,9 +378,13 @@ public:
 	string getCRC_DetailsForWorldFrames() const;
 	uint64 getCRC_DetailsForWorldFrameCount() const;
 
+	void updateUnitTypeWithResourceCostCache(const ResourceType *rt);
+	bool hasUnitTypeWithResourceCostInCache(const ResourceType *rt) const;
+
 private:
 	void init();
 	void resetResourceAmount(const ResourceType *rt);
+	bool hasUnitTypeWithResouceCost(const ResourceType *rt);
 };
 
 }}//end namespace

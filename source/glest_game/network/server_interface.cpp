@@ -1702,21 +1702,6 @@ void ServerInterface::updateKeyframe(int frameCount) {
 				// We always need to broadcast when not pause as clients
 				// look for broadcasts every network frame.
 				sendBroadcastMessage = true;
-
-				// If network CRC checking enabled we turn on broadcasting always
-//				bool calculateNetworkCRC = false;
-//				if(isFlagType1BitEnabled(this->gameSettings.getFlagTypes1(),ft1_network_synch_checks) == true ||
-//					isFlagType1BitEnabled(this->gameSettings.getFlagTypes1(),ft1_network_synch_checks_verbose) == true) {
-//
-//					calculateNetworkCRC = true;
-//				}
-//
-//				if(calculateNetworkCRC == true ||
-//					(lastBroadcastCommandsTimer.isStarted() == false ||
-//					 lastBroadcastCommandsTimer.getMillis() >= MAX_EMPTY_NETWORK_COMMAND_LIST_BROADCAST_INTERVAL_MILLISECONDS)) {
-//
-//					sendBroadcastMessage = true;
-//				}
 			}
 			// Auto pause is enabled due to client lagging, only send empty command
 			// broadcasts every MAX_EMPTY_NETWORK_COMMAND_LIST_BROADCAST_INTERVAL_MILLISECONDS

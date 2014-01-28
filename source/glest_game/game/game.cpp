@@ -1594,10 +1594,10 @@ void Game::init(bool initForPreviewOnly) {
 		printf("New game has started...\n");
 	}
 
-	if(isFlagType1BitEnabled(gameSettings.getFlagTypes1(),ft1_network_synch_checks_verbose) == true) {
+	if(isFlagType1BitEnabled(ft1_network_synch_checks_verbose) == true) {
 		printf("*Note: Monitoring Network CRC VERBOSE synchronization...\n");
 	}
-	else if(isFlagType1BitEnabled(gameSettings.getFlagTypes1(),ft1_network_synch_checks) == true) {
+	else if(isFlagType1BitEnabled(ft1_network_synch_checks) == true) {
 		printf("*Note: Monitoring Network CRC NORMAL synchronization...\n");
 	}
 
@@ -1735,8 +1735,8 @@ void Game::processNetworkSynchChecksIfRequired() {
 		if(settings != NULL) {
 			bool calculateNetworkCRC = false;
 
-			if(isFlagType1BitEnabled(settings->getFlagTypes1(),ft1_network_synch_checks) == true ||
-				isFlagType1BitEnabled(settings->getFlagTypes1(),ft1_network_synch_checks_verbose) == true) {
+			if(isFlagType1BitEnabled(ft1_network_synch_checks) == true ||
+				isFlagType1BitEnabled(ft1_network_synch_checks_verbose) == true) {
 				calculateNetworkCRC = true;
 			}
 
@@ -1751,10 +1751,10 @@ void Game::processNetworkSynchChecksIfRequired() {
 						netIntf->setNetworkPlayerFactionCRC(index,faction->getCRC().getSum());
 
 						if(settings != NULL) {
-							if(isFlagType1BitEnabled(settings->getFlagTypes1(),ft1_network_synch_checks_verbose) == true) {
+							if(isFlagType1BitEnabled(ft1_network_synch_checks_verbose) == true) {
 								faction->addCRC_DetailsForWorldFrame(world.getFrameCount(),role == nrServer);
 							}
-							else if(isFlagType1BitEnabled(settings->getFlagTypes1(),ft1_network_synch_checks) == true &&
+							else if(isFlagType1BitEnabled(ft1_network_synch_checks) == true &&
 									world.getFrameCount() % 20 == 0) {
 								faction->addCRC_DetailsForWorldFrame(world.getFrameCount(),role == nrServer);
 							}
@@ -5057,8 +5057,8 @@ void Game::DumpCRCWorldLogIfRequired(string fileSuffix) {
 
 		GameSettings *settings = world.getGameSettingsPtr();
 		if(settings != NULL &&
-				(isFlagType1BitEnabled(settings->getFlagTypes1(),ft1_network_synch_checks_verbose)  == true ||
-				 isFlagType1BitEnabled(settings->getFlagTypes1(),ft1_network_synch_checks) 			== true)) {
+				(isFlagType1BitEnabled(ft1_network_synch_checks_verbose)  == true ||
+				 isFlagType1BitEnabled(ft1_network_synch_checks) 			== true)) {
 			string debugCRCWorldLogFile = Config::getInstance().getString("DebugCRCWorldLogFile","debugCRCWorld.log");
 			debugCRCWorldLogFile += fileSuffix;
 
@@ -5796,7 +5796,7 @@ void Game::checkWinnerStandardPlayer() {
 
 		bool playerLostGame = true;
 		// Team Shared units enabled?
-		if(isFlagType1BitEnabled(this->gameSettings.getFlagTypes1(),ft1_allow_shared_team_units) == true) {
+		if(isFlagType1BitEnabled(ft1_allow_shared_team_units) == true) {
 
 			// Check if all team members have lost?
 			for (int factionIndex = 0; factionIndex < world.getFactionCount(); ++factionIndex) {
@@ -5954,6 +5954,10 @@ void Game::checkWinnerScripted() {
 			}
 		}
 	}
+}
+
+bool Game::isFlagType1BitEnabled(FlagTypes1 type) const {
+	return ((gameSettings.getFlagTypes1() & (uint32)type) == (uint32)type);
 }
 
 bool Game::factionLostGame(int factionIndex) {

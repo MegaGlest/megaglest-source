@@ -142,6 +142,8 @@ private:
 	bool cacheFowAlphaTexture;
 	bool cacheFowAlphaTextureFogOfWarValue;
 
+	std::map<int, std::map<std::string, Resource > > TeamResources;
+
 public:
 	World();
 	~World();
@@ -317,6 +319,12 @@ public:
 	void refreshAllUnitExplorations();
 
 	bool factionLostGame(int factionIndex);
+
+	void initTeamResource(const ResourceType *rt,int teamIndex, int value);
+	const Resource * getResourceForTeam(const ResourceType *rt, int teamIndex);
+	int getStoreAmountForTeam(const ResourceType *rt, int teamIndex) const;
+	bool showResourceTypeForFaction(const ResourceType *rt, const Faction *faction,bool localFactionOnly) const;
+
 private:
 
 	void initCells(bool fogOfWar);

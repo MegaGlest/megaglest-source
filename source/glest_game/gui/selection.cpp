@@ -329,7 +329,7 @@ void Selection::loadGame(const XmlNode *rootNode, World *world) {
 	factionIndex = selectionNode->getAttribute("factionIndex")->getIntValue();
 	teamIndex = selectionNode->getAttribute("teamIndex")->getIntValue();
 	if(selectionNode->hasAttribute("allowSharedTeamUnits") == true) {
-		allowSharedTeamUnits = selectionNode->getAttribute("allowSharedTeamUnits")->getIntValue();
+		allowSharedTeamUnits = (selectionNode->getAttribute("allowSharedTeamUnits")->getIntValue() != 0);
 	}
 
 	vector<XmlNode *> selectedUnitsNodeList = selectionNode->getChildList("selectedUnits");

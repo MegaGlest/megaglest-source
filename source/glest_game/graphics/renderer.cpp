@@ -2339,40 +2339,66 @@ void Renderer::renderResourceStatus() {
 		return;
 	}
 
-	const Metrics &metrics= Metrics::getInstance();
-	const World *world= game->getWorld();
+	const Metrics &metrics	= Metrics::getInstance();
+	const World *world		= game->getWorld();
 
-	if(world->getThisFactionIndex() < 0 || world->getThisFactionIndex() >= world->getFactionCount()) {
+	if(world->getThisFactionIndex() < 0 ||
+			world->getThisFactionIndex() >= world->getFactionCount()) {
 		return;
 	}
 
-	const Faction *thisFaction= world->getFaction(world->getThisFactionIndex());
-	const Vec4f fontColor = game->getGui()->getDisplay()->getColor();
+	const Faction *thisFaction	= world->getFaction(world->getThisFactionIndex());
+	const Vec4f fontColor 		= game->getGui()->getDisplay()->getColor();
 	assertGl();
 
 	glPushAttrib(GL_ENABLE_BIT);
 
 	int resourceCountRendered = 0;
-	for(int i= 0; i < world->getTechTree()->getResourceTypeCount(); ++i) {
-		const ResourceType *rt = world->getTechTree()->getResourceType(i);
-		const Resource *r = thisFaction->getResource(rt);
+	for(int techTreeResourceTypeIndex = 0;
+			techTreeResourceTypeIndex < world->getTechTree()->getResourceTypeCount();
+				++techTreeResourceTypeIndex) {
 
-		if ( rt->getDisplayInHud() == false ){
+		const ResourceType *rt 	= world->getTechTree()->getResourceType(techTreeResourceTypeIndex);
+
+		if ( rt->getDisplayInHud() == false ) {
 			continue;
 		}
-		//if any unit produces the resource
-		bool showResource= false;
-		for(int k=0; k < thisFaction->getType()->getUnitTypeCount(); ++k) {
-			const UnitType *ut = thisFaction->getType()->getUnitType(k);
-			if(ut->getCost(rt) != NULL) {
-				showResource = true;
-				break;
+
+		const Faction *factionForResourceView 	= thisFaction;
+		bool localFactionResourcesOnly 			= false;
+
+		if(game != NULL && game->getGui() != NULL) {
+
+			if(game->isFlagType1BitEnabled(ft1_allow_shared_team_units) == true ||
+					game->isFlagType1BitEnabled(ft1_allow_shared_team_resources) == true) {
+
+				const Gui *gui = game->getGui();
+				if(gui != NULL) {
+
+					const Selection *selection = gui->getSelection();
+					if(selection != NULL && selection->getCount() > 0 && selection->getFrontUnit() != NULL) {
+
+						const Unit *selectedUnit = selection->getFrontUnit();
+						if(selectedUnit != NULL && selectedUnit->getType()->hasSkillClass(scBeBuilt) == true) {
+
+							if(selectedUnit->getFactionIndex() == thisFaction->getIndex() ||
+								selectedUnit->getFaction()->isAlly(thisFaction) == true) {
+
+								factionForResourceView	  = selectedUnit->getFaction();
+								localFactionResourcesOnly = true;
+							}
+						}
+					}
+				}
 			}
 		}
+		//if any unit produces the resource
+		bool showResource = world->showResourceTypeForFaction(rt, factionForResourceView, localFactionResourcesOnly);
 
 		//draw resource status
-		if(showResource) {
-			string str= intToStr(r->getAmount());
+		if(showResource == true) {
+			const Resource *r = factionForResourceView->getResource(rt,localFactionResourcesOnly);
+			string str = intToStr(r->getAmount());
 
 			glEnable(GL_TEXTURE_2D);
 
@@ -2381,18 +2407,22 @@ void Renderer::renderResourceStatus() {
 			bool isNegativeConsumableDisplayCycle = false;
 			if(rt->getClass() == rcConsumable) {
 				// Show in yellow/orange/red font if negative
-				if(r->getBalance()*5+r->getAmount()<0){
+				if(r->getBalance() * 5 + r->getAmount() < 0) {
 					if(time(NULL) % 2 == 0) {
+
 						isNegativeConsumableDisplayCycle = true;
-						if(r->getBalance()*1+r->getAmount()<0){
+						if(r->getBalance() * 1 + r->getAmount() < 0) {
+
 							glColor3f(RED.x,RED.y,RED.z);
 							resourceFontColor = RED;
 						}
-						else if(r->getBalance()*3+r->getAmount()<0){
+						else if(r->getBalance() * 3 + r->getAmount() < 0) {
+
 							glColor3f(ORANGE.x,ORANGE.y,ORANGE.z);
 							resourceFontColor = ORANGE;
 						}
-						else if(r->getBalance()*5+r->getAmount()<0){
+						else if(r->getBalance() * 5 + r->getAmount() < 0) {
+
 							glColor3f(YELLOW.x,YELLOW.y,YELLOW.z);
 							resourceFontColor = YELLOW;
 						}
@@ -2406,11 +2436,11 @@ void Renderer::renderResourceStatus() {
 			const int MAX_RESOURCES_PER_ROW = 6;
 			int resourceRow = (resourceCountRendered > 0 ? resourceCountRendered / MAX_RESOURCES_PER_ROW : 0);
 			int resourceCol = resourceCountRendered % MAX_RESOURCES_PER_ROW;
-			//renderQuad(resourceCountRendered*100+200, metrics.getVirtualH()-30 - (30 * resourceRows), 16, 16, rt->getImage());
+
 			renderQuad(resourceCol * 100 + 200, metrics.getVirtualH()-30 - (30 * resourceRow), 16, 16, rt->getImage());
 
 			if(rt->getClass() != rcStatic) {
-				str+= "/" + intToStr(thisFaction->getStoreAmount(rt));
+				str+= "/" + intToStr(factionForResourceView->getStoreAmount(rt,localFactionResourcesOnly));
 			}
 			if(rt->getClass() == rcConsumable) {
 				str+= "(";

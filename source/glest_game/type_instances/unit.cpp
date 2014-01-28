@@ -753,11 +753,11 @@ void Unit::dumpMemoryList() {
 bool Unit::isNetworkCRCEnabled() {
 	bool isNetworkCRCEnabled = false;
 
-	if(game != NULL && game->getGameSettings() != NULL) {
-		if(isFlagType1BitEnabled(game->getGameSettings()->getFlagTypes1(),ft1_network_synch_checks_verbose) == true) {
+	if(game != NULL) {
+		if(game->isFlagType1BitEnabled(ft1_network_synch_checks_verbose) == true) {
 			isNetworkCRCEnabled = true;
 		}
-		else if(isFlagType1BitEnabled(game->getGameSettings()->getFlagTypes1(),ft1_network_synch_checks) == true) {
+		else if(game->isFlagType1BitEnabled(ft1_network_synch_checks) == true) {
 			isNetworkCRCEnabled = true;
 		}
 	}
