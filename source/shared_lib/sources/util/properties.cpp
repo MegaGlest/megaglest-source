@@ -261,9 +261,39 @@ std::map<string,string> Properties::getTagReplacementValues(std::map<string,stri
 	return mapTagReplacementValues;
 }
 
+bool Properties::isValuePathVariable(const string &value) {
+	if(value.find("~/") != value.npos ||
+		value.find("$HOME") != value.npos ||
+		value.find("%%HOME%%") != value.npos ||
+		value.find("%%USERPROFILE%%") != value.npos ||
+		value.find("%%HOMEPATH%%") != value.npos ||
+		value.find("{HOMEPATH}") != value.npos ||
+        value.find("$APPDATA") != value.npos ||
+	    value.find("%%APPDATA%%") != value.npos ||
+	    value.find("{APPDATA}") != value.npos ||
+		value.find("$APPLICATIONPATH") != value.npos ||
+		value.find("%%APPLICATIONPATH%%") != value.npos ||
+		value.find("{APPLICATIONPATH}") != value.npos ||
+		value.find("$APPLICATIONDATAPATH") != value.npos ||
+		value.find("%%APPLICATIONDATAPATH%%") != value.npos ||
+		value.find("{APPLICATIONDATAPATH}") != value.npos ||
+		value.find("{TECHTREEPATH}") != value.npos ||
+		value.find("{SCENARIOPATH}") != value.npos ||
+		value.find("{TUTORIALPATH}") != value.npos) {
+
+			return true;
+	}
+	return false;
+}
+void Properties::updateValuePathVariable(string &value) {
+	replaceAll(value,"//","/");
+	replaceAll(value,"\\\\","\\");
+	updatePathClimbingParts(value);
+}
+
 bool Properties::applyTagsToValue(string &value, const std::map<string,string> *mapTagReplacementValues) {
 	string originalValue = value;
-
+	bool valueRequiresPathUpdate = Properties::isValuePathVariable(value);
 	//if(originalValue.find("$APPLICATIONDATAPATH") != string::npos) {
 	//	printf("\nBEFORE SUBSTITUTE [%s] app [%s] mapTagReplacementValues [%p]\n",originalValue.c_str(),Properties::applicationPath.c_str(),mapTagReplacementValues);
 	//}
@@ -357,6 +387,10 @@ bool Properties::applyTagsToValue(string &value, const std::map<string,string> *
 	//if(originalValue != value || originalValue.find("$APPLICATIONDATAPATH") != string::npos) {
 	//	printf("\nBEFORE SUBSTITUTE [%s] AFTER [%s]\n",originalValue.c_str(),value.c_str());
 	//}
+
+	if(valueRequiresPathUpdate == true) {
+		Properties::updateValuePathVariable(value);
+	}
 	return (originalValue != value);
 }
 

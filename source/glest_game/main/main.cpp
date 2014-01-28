@@ -1311,11 +1311,9 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
 
 		if(devProperties.hasString("ServerListPath") == true) {
 			string devItem = devProperties.getString("ServerListPath");
-			Properties::applyTagsToValue(devItem);
             if(devItem != "") {
             	endPathWithSlash(devItem);
             }
-
             if(config != NULL) {
             	config->setString("ServerListPath",devItem,true);
             }
@@ -1323,11 +1321,9 @@ int setupGameItemPaths(int argc, char** argv, Config *config) {
 
 		if(devProperties.hasString("GlestKeysIniPath") == true) {
 			string devItem = devProperties.getString("GlestKeysIniPath");
-			Properties::applyTagsToValue(devItem);
             if(devItem != "") {
             	endPathWithSlash(devItem);
             }
-
             if(config != NULL) {
             	config->setString("GlestKeysIniPath",devItem,true);
             }

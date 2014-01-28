@@ -56,8 +56,10 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 
 	i+= 70;
 	string platform=masterServerInfo.getPlatform();
-	int revOffset=platform.find("-Rev");
-	platform=platform.substr(0,revOffset);
+	size_t revOffset = platform.find("-Rev");
+	if(revOffset != platform.npos) {
+		platform = platform.substr(0,revOffset);
+	}
 
 	platformLabel.init(i, baseY - lineOffset);
 	platformLabel.setTextColor(color);
