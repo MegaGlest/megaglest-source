@@ -17,7 +17,10 @@
 /game_util.cpp
 /glestkeys.ini
 /servers.ini
+# Files generated during build
 /xml_test_malformed.xml
+/vc2012/x64/
+/vc2012/xml_test_malformed.xml
 
 # Coverity
 /cov-analysis*/
