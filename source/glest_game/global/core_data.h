@@ -113,7 +113,6 @@ public:
 	enum TextureSystemType {
 		tsyst_NONE,
 		tsyst_logoTexture,
-		//std::vector<Texture2D *> logoTextureList;
 		tsyst_backgroundTexture,
 		tsyst_fireTexture,
 		tsyst_teamColorTexture,
@@ -136,7 +135,6 @@ public:
 		tsyst_statusBRBTexture,
 
 		tsyst_COUNT
-	    //std::vector<Texture2D *> miscTextureList;
 	};
 
 public:

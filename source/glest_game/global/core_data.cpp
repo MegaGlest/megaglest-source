@@ -439,6 +439,7 @@ void CoreData::loadLogoTextureExtraIfRequired() {
 						getGameCustomCoreDataPath(data_path, "") +
 						CORE_MENU_TEXTURES_PATH + logo, tsyst_NONE,
 					true, false, true);
+				logoTextureList.push_back(logoTextureExtra);
 			}
 		}
 		if (logoTextureList.empty() == true) {
@@ -455,6 +456,7 @@ void CoreData::loadLogoTextureExtraIfRequired() {
 					loadTextureIfRequired(&logoTextureExtra,data_path,
 							data_path + CORE_MENU_TEXTURES_PATH + logo, tsyst_NONE,
 						true, false, true);
+					logoTextureList.push_back(logoTextureExtra);
 				}
 			}
 		}
@@ -490,7 +492,7 @@ void CoreData::loadMiscTextureListIfRequired() {
 				getGameCustomCoreDataPath(data_path, "") + CORE_MENU_TEXTURES_PATH +
 				logo, tsyst_NONE,
 				true, false, true);
-
+			miscTextureList.push_back(logoTextureExtra);
 		}
 		if (miscTextureList.empty() == true) {
 			introPath = data_path + CORE_MENU_TEXTURES_PATH + "intro*.*";
@@ -503,6 +505,7 @@ void CoreData::loadMiscTextureListIfRequired() {
 				loadTextureIfRequired(&logoTextureExtra,data_path,
 						data_path + CORE_MENU_TEXTURES_PATH + logo, tsyst_NONE,
 					true, false, true);
+				miscTextureList.push_back(logoTextureExtra);
 			}
 		}
 
