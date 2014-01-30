@@ -2397,6 +2397,27 @@ void Renderer::renderResourceStatus() {
 
 		//draw resource status
 		if(showResource == true) {
+
+			if(localFactionResourcesOnly == true) {
+				string str = "*";
+				Vec4f resourceFontColor = Vec4f(factionForResourceView->getTexture()->getPixmapConst()->getPixel3f(0,0));
+				int resourceCol = 0;
+				int resourceRow = 0;
+
+				if(renderText3DEnabled == true) {
+					renderTextShadow3D(
+						str, CoreData::getInstance().getDisplayFontSmall3D(),
+						resourceFontColor,
+						resourceCol * 100 + 190, metrics.getVirtualH()-30 - (30 * resourceRow), false);
+				}
+				else {
+					renderTextShadow(
+						str, CoreData::getInstance().getDisplayFontSmall(),
+						resourceFontColor,
+						resourceCol * 100 + 190, metrics.getVirtualH()-30 - (30 * resourceRow), false);
+				}
+			}
+
 			const Resource *r = factionForResourceView->getResource(rt,localFactionResourcesOnly);
 			string str = intToStr(r->getAmount());
 
