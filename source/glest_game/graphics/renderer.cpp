@@ -2334,25 +2334,37 @@ void Renderer::renderClock() {
 	}
 }
 
+bool Renderer::renderResourcesInTeamMode() {
+	bool result = false;
+
+	if(game != NULL && game->getGui() != NULL) {
+
+		if(game->isFlagType1BitEnabled(ft1_allow_shared_team_units) == true ||
+			game->isFlagType1BitEnabled(ft1_allow_shared_team_resources) == true) {
+
+			result = true;
+		}
+	}
+	return result;
+}
 void Renderer::renderResourceStatus() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
-	const Metrics &metrics	= Metrics::getInstance();
 	const World *world		= game->getWorld();
 
 	if(world->getThisFactionIndex() < 0 ||
-			world->getThisFactionIndex() >= world->getFactionCount()) {
+		world->getThisFactionIndex() >= world->getFactionCount()) {
 		return;
 	}
 
-	const Faction *thisFaction	= world->getFaction(world->getThisFactionIndex());
-	const Vec4f fontColor 		= game->getGui()->getDisplay()->getColor();
-	assertGl();
+	const Faction *thisFaction = world->getFaction(world->getThisFactionIndex());
 
+	assertGl();
 	glPushAttrib(GL_ENABLE_BIT);
 
+	int rowsRendered = 0;
 	int resourceCountRendered = 0;
 	for(int techTreeResourceTypeIndex = 0;
 			techTreeResourceTypeIndex < world->getTechTree()->getResourceTypeCount();
@@ -2367,131 +2379,175 @@ void Renderer::renderResourceStatus() {
 		const Faction *factionForResourceView 	= thisFaction;
 		bool localFactionResourcesOnly 			= false;
 
-		if(game != NULL && game->getGui() != NULL) {
+		if(renderResourcesInTeamMode() == true) {
 
-			if(game->isFlagType1BitEnabled(ft1_allow_shared_team_units) == true ||
-					game->isFlagType1BitEnabled(ft1_allow_shared_team_resources) == true) {
+			const Gui *gui = game->getGui();
+			if(gui != NULL) {
 
-				const Gui *gui = game->getGui();
-				if(gui != NULL) {
+				const Selection *selection = gui->getSelection();
+				if(selection != NULL && selection->getCount() > 0 && selection->getFrontUnit() != NULL) {
 
-					const Selection *selection = gui->getSelection();
-					if(selection != NULL && selection->getCount() > 0 && selection->getFrontUnit() != NULL) {
+					const Unit *selectedUnit = selection->getFrontUnit();
+//						if(selectedUnit != NULL && selectedUnit->getType()->hasSkillClass(scBeBuilt) == true) {
+//
+//							if(selectedUnit->getFactionIndex() == thisFaction->getIndex() ||
+//								selectedUnit->getFaction()->isAlly(thisFaction) == true) {
+//
+//								factionForResourceView	  = selectedUnit->getFaction();
+//								localFactionResourcesOnly = true;
+//							}
+//						}
 
-						const Unit *selectedUnit = selection->getFrontUnit();
-						if(selectedUnit != NULL && selectedUnit->getType()->hasSkillClass(scBeBuilt) == true) {
-
-							if(selectedUnit->getFactionIndex() == thisFaction->getIndex() ||
-								selectedUnit->getFaction()->isAlly(thisFaction) == true) {
-
-								factionForResourceView	  = selectedUnit->getFaction();
-								localFactionResourcesOnly = true;
-							}
-						}
+					if(selectedUnit != NULL && selectedUnit->getFaction()->isAlly(thisFaction) == true) {
+						factionForResourceView	  = selectedUnit->getFaction();
+						localFactionResourcesOnly = true;
 					}
+				}
+				else {
+					factionForResourceView	  = thisFaction;
+					localFactionResourcesOnly = true;
 				}
 			}
 		}
+
 		//if any unit produces the resource
-		bool showResource = world->showResourceTypeForFaction(rt, factionForResourceView, localFactionResourcesOnly);
-
-		//draw resource status
+		bool showResource = world->showResourceTypeForFaction(rt, factionForResourceView, false);
 		if(showResource == true) {
+			rowsRendered = renderResource(factionForResourceView,localFactionResourcesOnly,
+							rt, 0, resourceCountRendered);
+		}
+	}
 
-			if(localFactionResourcesOnly == true) {
-				string str = "*";
-				Vec4f resourceFontColor = Vec4f(factionForResourceView->getTexture()->getPixmapConst()->getPixel3f(0,0));
-				int resourceCol = 0;
-				int resourceRow = 0;
+	// If we rendered single player resources above and we are in team mode,
+	// lets render team totals next
+	if(renderResourcesInTeamMode() == true) {
+		if(rowsRendered > 0 || resourceCountRendered > 0) {
+			rowsRendered++;
+		}
+		resourceCountRendered = 0;
+		for(int techTreeResourceTypeIndex = 0;
+				techTreeResourceTypeIndex < world->getTechTree()->getResourceTypeCount();
+					++techTreeResourceTypeIndex) {
 
-				if(renderText3DEnabled == true) {
-					renderTextShadow3D(
-						str, CoreData::getInstance().getDisplayFontSmall3D(),
-						resourceFontColor,
-						resourceCol * 100 + 190, metrics.getVirtualH()-30 - (30 * resourceRow), false);
-				}
-				else {
-					renderTextShadow(
-						str, CoreData::getInstance().getDisplayFontSmall(),
-						resourceFontColor,
-						resourceCol * 100 + 190, metrics.getVirtualH()-30 - (30 * resourceRow), false);
-				}
+			const ResourceType *rt 	= world->getTechTree()->getResourceType(techTreeResourceTypeIndex);
+
+			if ( rt->getDisplayInHud() == false ) {
+				continue;
 			}
 
-			const Resource *r = factionForResourceView->getResource(rt,localFactionResourcesOnly);
-			string str = intToStr(r->getAmount());
+			const Faction *factionForResourceView 	= thisFaction;
+			bool localFactionResourcesOnly 			= false;
 
-			glEnable(GL_TEXTURE_2D);
-
-			Vec4f resourceFontColor = fontColor;
-
-			bool isNegativeConsumableDisplayCycle = false;
-			if(rt->getClass() == rcConsumable) {
-				// Show in yellow/orange/red font if negative
-				if(r->getBalance() * 5 + r->getAmount() < 0) {
-					if(time(NULL) % 2 == 0) {
-
-						isNegativeConsumableDisplayCycle = true;
-						if(r->getBalance() * 1 + r->getAmount() < 0) {
-
-							glColor3f(RED.x,RED.y,RED.z);
-							resourceFontColor = RED;
-						}
-						else if(r->getBalance() * 3 + r->getAmount() < 0) {
-
-							glColor3f(ORANGE.x,ORANGE.y,ORANGE.z);
-							resourceFontColor = ORANGE;
-						}
-						else if(r->getBalance() * 5 + r->getAmount() < 0) {
-
-							glColor3f(YELLOW.x,YELLOW.y,YELLOW.z);
-							resourceFontColor = YELLOW;
-						}
-					}
-				}
+			bool showResource = world->showResourceTypeForFaction(rt, factionForResourceView, localFactionResourcesOnly);
+			if(showResource == true) {
+				renderResource(factionForResourceView,localFactionResourcesOnly,
+								rt, rowsRendered, resourceCountRendered);
 			}
-
-			if(isNegativeConsumableDisplayCycle == false) {
-				glColor3f(1.f, 1.f, 1.f);
-			}
-			const int MAX_RESOURCES_PER_ROW = 6;
-			int resourceRow = (resourceCountRendered > 0 ? resourceCountRendered / MAX_RESOURCES_PER_ROW : 0);
-			int resourceCol = resourceCountRendered % MAX_RESOURCES_PER_ROW;
-
-			renderQuad(resourceCol * 100 + 200, metrics.getVirtualH()-30 - (30 * resourceRow), 16, 16, rt->getImage());
-
-			if(rt->getClass() != rcStatic) {
-				str+= "/" + intToStr(factionForResourceView->getStoreAmount(rt,localFactionResourcesOnly));
-			}
-			if(rt->getClass() == rcConsumable) {
-				str+= "(";
-				if(r->getBalance() > 0) {
-					str+= "+";
-				}
-				str+= intToStr(r->getBalance()) + ")";
-			}
-
-			glDisable(GL_TEXTURE_2D);
-
-			if(renderText3DEnabled == true) {
-				renderTextShadow3D(
-					str, CoreData::getInstance().getDisplayFontSmall3D(),
-					resourceFontColor,
-					resourceCol * 100 + 220, metrics.getVirtualH()-30 - (30 * resourceRow), false);
-			}
-			else {
-				renderTextShadow(
-					str, CoreData::getInstance().getDisplayFontSmall(),
-					resourceFontColor,
-					resourceCol * 100 + 220, metrics.getVirtualH()-30 - (30 * resourceRow), false);
-			}
-			++resourceCountRendered;
 		}
 	}
 
 	glPopAttrib();
 
 	assertGl();
+}
+
+int Renderer::renderResource(const Faction *factionForResourceView,bool localFactionResourcesOnly,
+		const ResourceType *rt, int startRow, int &resourceCountRendered) {
+
+	const Metrics &metrics	= Metrics::getInstance();
+
+	//draw resource status
+	if(localFactionResourcesOnly == true) {
+		string str = "*";
+		Vec4f resourceFontColor = Vec4f(factionForResourceView->getTexture()->getPixmapConst()->getPixel3f(0,0));
+		int resourceCol = 0;
+		int resourceRow = startRow;
+
+		if(renderText3DEnabled == true) {
+			renderTextShadow3D(
+				str, CoreData::getInstance().getDisplayFontSmall3D(),
+				resourceFontColor,
+				resourceCol * 100 + 190, metrics.getVirtualH()-30 - (30 * resourceRow), false);
+		}
+		else {
+			renderTextShadow(
+				str, CoreData::getInstance().getDisplayFontSmall(),
+				resourceFontColor,
+				resourceCol * 100 + 190, metrics.getVirtualH()-30 - (30 * resourceRow), false);
+		}
+	}
+
+	const Resource *r = factionForResourceView->getResource(rt,localFactionResourcesOnly);
+	string str = intToStr(r->getAmount());
+
+	glEnable(GL_TEXTURE_2D);
+
+	const Vec4f fontColor 	= game->getGui()->getDisplay()->getColor();
+	Vec4f resourceFontColor = fontColor;
+
+	bool isNegativeConsumableDisplayCycle = false;
+	if(rt->getClass() == rcConsumable) {
+		// Show in yellow/orange/red font if negative
+		if(r->getBalance() * 5 + r->getAmount() < 0) {
+			if(time(NULL) % 2 == 0) {
+
+				isNegativeConsumableDisplayCycle = true;
+				if(r->getBalance() * 1 + r->getAmount() < 0) {
+
+					glColor3f(RED.x,RED.y,RED.z);
+					resourceFontColor = RED;
+				}
+				else if(r->getBalance() * 3 + r->getAmount() < 0) {
+
+					glColor3f(ORANGE.x,ORANGE.y,ORANGE.z);
+					resourceFontColor = ORANGE;
+				}
+				else if(r->getBalance() * 5 + r->getAmount() < 0) {
+
+					glColor3f(YELLOW.x,YELLOW.y,YELLOW.z);
+					resourceFontColor = YELLOW;
+				}
+			}
+		}
+	}
+
+	if(isNegativeConsumableDisplayCycle == false) {
+		glColor3f(1.f, 1.f, 1.f);
+	}
+	const int MAX_RESOURCES_PER_ROW = 6;
+	int resourceRow = startRow + (resourceCountRendered > 0 ? resourceCountRendered / MAX_RESOURCES_PER_ROW : 0);
+	int resourceCol = resourceCountRendered % MAX_RESOURCES_PER_ROW;
+
+	renderQuad(resourceCol * 100 + 200, metrics.getVirtualH()-30 - (30 * resourceRow), 16, 16, rt->getImage());
+
+	if(rt->getClass() != rcStatic) {
+		str+= "/" + intToStr(factionForResourceView->getStoreAmount(rt,localFactionResourcesOnly));
+	}
+	if(rt->getClass() == rcConsumable) {
+		str+= "(";
+		if(r->getBalance() > 0) {
+			str+= "+";
+		}
+		str+= intToStr(r->getBalance()) + ")";
+	}
+
+	glDisable(GL_TEXTURE_2D);
+
+	if(renderText3DEnabled == true) {
+		renderTextShadow3D(
+			str, CoreData::getInstance().getDisplayFontSmall3D(),
+			resourceFontColor,
+			resourceCol * 100 + 220, metrics.getVirtualH()-30 - (30 * resourceRow), false);
+	}
+	else {
+		renderTextShadow(
+			str, CoreData::getInstance().getDisplayFontSmall(),
+			resourceFontColor,
+			resourceCol * 100 + 220, metrics.getVirtualH()-30 - (30 * resourceRow), false);
+	}
+	++resourceCountRendered;
+
+	return resourceRow;
 }
 
 void Renderer::renderSelectionQuad() {
