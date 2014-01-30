@@ -3899,6 +3899,11 @@ void MenuStateCustomGame::KeepCurrentHumanPlayerSlots(GameSettings &gameSettings
 				gameSettings.setNetworkPlayerName(index,getHumanPlayerName());
 			}
 		}
+
+		ControlType ctFile = static_cast<ControlType>(gameSettings.getFactionControl(index));
+		if(ctFile == ctHuman) {
+			gameSettings.setFactionControl(index,ctHuman);
+		}
 	}
 }
 
