@@ -55,7 +55,9 @@ $RECYCLE.BIN/
 *.blend
 *.blend1
 
+# breakpad symlink / directory
 /google-breakpad
+/google-breakpad/
 
 # convert_faction_xml2html
 /html/
