@@ -137,6 +137,42 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 		}
 	}
 
+	if (currSkill->getShake()) {
+		float shakeStartTime = currSkill->getShakeStartTime();
+		if (shakeStartTime >= unit->getLastAnimProgressAsFloat()
+				&& shakeStartTime < unit->getAnimProgressAsFloat()) {
+			bool visibleAffected=false;
+			bool cameraViewAffected=false;
+			bool cameraDistanceAffected=false;
+			bool enabled=false;
+			if (game->getWorld()->getThisFactionIndex() == unit->getFactionIndex()) {
+				visibleAffected=currSkill->getShakeSelfVisible();
+				cameraViewAffected=currSkill->getShakeSelfInCameraView();
+				cameraDistanceAffected=currSkill->getShakeSelfCameraAffected();
+				enabled=currSkill->getShakeSelfEnabled();
+			} else if (unit->getTeam() == world->getThisTeamIndex()) {
+				visibleAffected=currSkill->getShakeTeamVisible();
+				cameraViewAffected=currSkill->getShakeTeamInCameraView();
+				cameraDistanceAffected=currSkill->getShakeTeamCameraAffected();
+				enabled=currSkill->getShakeTeamEnabled();
+			} else {
+				visibleAffected=currSkill->getShakeEnemyVisible();
+				cameraViewAffected=currSkill->getShakeEnemyInCameraView();
+				cameraDistanceAffected=currSkill->getShakeEnemyCameraAffected();
+				enabled=currSkill->getShakeEnemyEnabled();
+			}
+
+			bool visibility=(!visibleAffected)||(map->getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(world->getThisTeamIndex()) ||
+					(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true));
+
+			bool cameraAffected=(!cameraViewAffected) || unit->getVisible();
+
+			if(visibility && cameraAffected && enabled) {
+				game->getGameCameraPtr()->shake( currSkill->getShakeDuration(), currSkill->getShakeIntensity(),cameraDistanceAffected,unit->getCurrVector());
+			}
+		}
+	}
+
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after playsound]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	unit->updateTimedParticles();

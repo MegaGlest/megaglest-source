@@ -133,6 +133,24 @@ protected:
     int speed;
     int animSpeed;
 
+	bool shake;
+	int shakeIntensity;
+	int shakeDuration;
+	float shakeStartTime;
+    bool shakeSelfEnabled;
+    bool shakeSelfVisible;
+    bool shakeSelfInCameraView;
+    bool shakeSelfCameraAffected;
+    bool shakeTeamEnabled;
+    bool shakeTeamVisible;
+    bool shakeTeamInCameraView;
+    bool shakeTeamCameraAffected;
+    bool shakeEnemyEnabled;
+    bool shakeEnemyVisible;
+    bool shakeEnemyInCameraView;
+    bool shakeEnemyCameraAffected;
+
+
     int animationRandomCycleMaxcount;
     vector<Model *> animations;
     vector<AnimationAttributes> animationAttributes;
@@ -179,6 +197,25 @@ public:
 	Model *getAnimation(float animProgress=0, const Unit *unit=NULL, int *lastAnimationIndex=NULL, int *animationRandomCycleCount=NULL) const;
 	StaticSound *getSound() const		{return sounds.getRandSound();}
 	float getSoundStartTime() const		{return soundStartTime;}
+
+	float getShakeStartTime() const		{return shakeStartTime;}
+	bool getShake() const	{return shake;}
+    int getShakeIntensity() const	{return shakeIntensity;}
+    int getShakeDuration() const	{return shakeDuration;}
+
+	bool getShakeSelfEnabled() const	{return shakeSelfEnabled;}
+	bool getShakeSelfVisible() const	{return shakeSelfVisible;}
+	bool getShakeSelfInCameraView() const	{return shakeSelfInCameraView;}
+	bool getShakeSelfCameraAffected() const	{return shakeSelfCameraAffected;}
+	bool getShakeTeamEnabled() const	{return shakeTeamEnabled;}
+	bool getShakeTeamVisible() const	{return shakeTeamVisible;}
+	bool getShakeTeamInCameraView() const	{return shakeTeamInCameraView;}
+	bool getShakeTeamCameraAffected() const	{return shakeTeamCameraAffected;}
+	bool getShakeEnemyEnabled() const	{return shakeEnemyEnabled;}
+	bool getShakeEnemyVisible() const	{return shakeEnemyVisible;}
+	bool getShakeEnemyInCameraView() const	{return shakeEnemyInCameraView;}
+	bool getShakeEnemyCameraAffected() const	{return shakeEnemyCameraAffected;}
+
 	
 	bool isAttackBoostEnabled() const { return attackBoost.enabled; }
 	const AttackBoost * getAttackBoost() const { return &attackBoost; }

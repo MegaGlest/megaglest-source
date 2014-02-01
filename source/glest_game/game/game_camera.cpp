@@ -19,6 +19,7 @@
 #include "conversion.h"
 #include "platform_common.h"
 #include "leak_dumper.h"
+#include "randomgen.h"
 
 
 using namespace Shared::Graphics;
@@ -41,6 +42,7 @@ const float GameCamera::vTransitionMult= 0.125f;
 const float GameCamera::hTransitionMult= 0.125f;
 const float GameCamera::defaultHeight= 20.f;
 const float GameCamera::centerOffsetZ= 8.0f;
+const float GameCamera::shakeDist= 50.f;
 
 // ================= Constructor =================
 
@@ -68,6 +70,9 @@ GameCamera::GameCamera() : pos(0.f, defaultHeight, 0.f),
     rotate=0;
 
 	move= Vec3f(0.f);
+
+	shakeDecrement=0.f;
+	currentShakeIntensity=0;
 
 	//maxRenderDistance = Config::getInstance().getFloat("RenderDistanceMax","64");
 	maxHeight = Config::getInstance().getFloat("CameraMaxDistance","20");
@@ -133,8 +138,48 @@ void GameCamera::setPos(Vec3f pos){
 	destPos.z = pos.z;
 }
 
-void GameCamera::update(){
+void GameCamera::shake(int shakeDuration, int shakeStartIntensity , bool cameraDistanceAffected, Vec3f unitVector) {
+	float currentDurationLeft=0;
+	float incomingShakeIntensity=((float) shakeStartIntensity)/1000;
 
+	// calculate the shake duration which is left
+	if(this->currentShakeIntensity > 0.f && this->shakeDecrement != 0.f){
+		currentDurationLeft=this->currentShakeIntensity / this->shakeDecrement;
+	}
+
+	// reduce new shake effect camera distance related
+	if (cameraDistanceAffected) {
+		incomingShakeIntensity=incomingShakeIntensity*(1.f-unitVector.dist(getPos())/GameCamera::shakeDist);
+	}
+
+	// add camera shake effect to current one ( if exsists ).
+	if(this->currentShakeIntensity>0){
+		this->currentShakeIntensity = this->currentShakeIntensity+incomingShakeIntensity ;
+	}
+	else {
+		this->currentShakeIntensity = incomingShakeIntensity ;
+	}
+
+	// use bigger shakeDuration to calculate new shakeDecrement
+	if(currentDurationLeft < shakeDuration){
+		this->shakeDecrement = currentShakeIntensity / ((float) shakeDuration);
+	}
+	else if(currentDurationLeft!=0.0f)
+	{
+		this->shakeDecrement = currentShakeIntensity / ((float) currentDurationLeft);
+	}
+}
+
+void GameCamera::shakeCamera(){
+	//RandomGen random;
+	if(currentShakeIntensity > 0.f) {
+		pos.x += (((float) (rand() % 50)) / 50.f - 0.5f) * currentShakeIntensity;
+		pos.z += (((float) (rand() % 50)) / 50.f - 0.5f) * currentShakeIntensity;
+		currentShakeIntensity -= shakeDecrement;
+	}
+}
+
+void GameCamera::update(){
 	//move XZ
 	if(move.z){
         moveForwardH(speed * move.z, 0.9f);
@@ -186,8 +231,8 @@ void GameCamera::update(){
 	if(abs(destPos.z - pos.z) > 0.01f) {
 		pos.z += (destPos.z - pos.z) / 32.0f;
 	}
-
 	clampAng();
+	shakeCamera();
 
 	if(clampDisable == false && clampBounds){
 		clampPosXYZ(0.0f, (float)limitX, minHeight, maxHeight, 0.0f, (float)limitY);

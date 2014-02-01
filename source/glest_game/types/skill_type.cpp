@@ -528,6 +528,54 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 		const XmlNode *attackBoostNode = sn->getChild("attack-boost");
 		loadAttackBoost(attackBoostsNode, attackBoostNode, ft, parentLoader, dir, currentPath, loadedFileList, tt);
 	}
+
+    shake=false;
+    shakeIntensity=50;
+    shakeDuration=300;
+    shakeStartTime=0.0f;
+    shakeSelfEnabled=false;
+    shakeSelfVisible=true;
+    shakeSelfInCameraView=false;
+    shakeSelfCameraAffected=false;
+    shakeTeamEnabled=false;
+    shakeTeamVisible=true;
+    shakeTeamInCameraView=false;
+    shakeTeamCameraAffected=false;
+    shakeEnemyEnabled=false;
+    shakeEnemyVisible=true;
+    shakeEnemyInCameraView=false;
+    shakeEnemyCameraAffected=false;
+
+	if (sn->hasChild("shake")) {
+		XmlNode *shakeNode=sn->getChild("shake");
+		shake= shakeNode->getAttribute("enabled")->getBoolValue();
+		shakeIntensity= shakeNode->getAttribute("intensity")->getIntValue();
+		shakeDuration= shakeNode->getAttribute("duration")->getIntValue();
+		if (shakeNode->hasAttribute("start-time")) {
+			shakeStartTime= shakeNode->getAttribute("start-time")->getFloatValue();
+		}
+		if (shakeNode->hasChild("self")) {
+			shakeSelfEnabled= shakeNode->getChild("enemy")->getAttribute("enabled")->getBoolValue();
+			shakeSelfVisible= shakeNode->getChild("self")->getAttribute("visible")->getBoolValue();
+			shakeSelfInCameraView= shakeNode->getChild("self")->getAttribute("in-camera-view")->getBoolValue();
+			shakeSelfCameraAffected= shakeNode->getChild("self")->getAttribute("camera-distance-affected")->getBoolValue();
+		}
+		if (shakeNode->hasChild("team")) {
+			shakeTeamEnabled= shakeNode->getChild("enemy")->getAttribute("enabled")->getBoolValue();
+			shakeTeamVisible= shakeNode->getChild("team")->getAttribute("visible")->getBoolValue();
+			shakeTeamInCameraView= shakeNode->getChild("team")->getAttribute("in-camera-view")->getBoolValue();
+			shakeTeamCameraAffected= shakeNode->getChild("team")->getAttribute("camera-distance-affected")->getBoolValue();
+		}
+		if (shakeNode->hasChild("enemy")) {
+			shakeEnemyEnabled= shakeNode->getChild("enemy")->getAttribute("enabled")->getBoolValue();
+			shakeEnemyVisible= shakeNode->getChild("enemy")->getAttribute("visible")->getBoolValue();
+			shakeEnemyInCameraView= shakeNode->getChild("enemy")->getAttribute("in-camera-view")->getBoolValue();
+			shakeEnemyCameraAffected= shakeNode->getChild("enemy")->getAttribute("camera-distance-affected")->getBoolValue();
+		}
+
+		//visible-for (team, self,all, team-and-visible, self-and-visible, all-and-visible )
+
+	}
 }
 
 bool SkillType::CanCycleNextRandomAnimation(const int *animationRandomCycleCount) const {
