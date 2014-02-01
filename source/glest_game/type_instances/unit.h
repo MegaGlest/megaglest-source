@@ -627,7 +627,7 @@ public:
 	void refreshPos();
 	void setTargetPos(const Vec2i &targetPos);
 	void setTarget(const Unit *unit);
-	void setTargetVec(const Vec3f &targetVec);
+	//void setTargetVec(const Vec3f &targetVec);
 	void setMeetingPos(const Vec2i &meetingPos);
 	void setVisible(const bool visible);
 	inline bool getVisible() const { return visible; }

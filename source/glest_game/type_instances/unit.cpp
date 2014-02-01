@@ -2241,10 +2241,31 @@ int64 Unit::getUpdatedProgress(int64 currentProgress, int64 updateFPS, int64 spe
 	}
 
 	if(isNetworkCRCEnabled() == true) {
+		float height			= map->getCell(pos)->getHeight();
+		float airHeight 		= game->getWorld()->getTileset()->getAirHeight();
+		int cellUnitHeight		= -1;
+		int cellObjectHeight	= -1;
+
+		Unit *unit = map->getCell(pos)->getUnit(fLand);
+		if(unit != NULL && unit->getType()->getHeight() > airHeight) {
+			cellUnitHeight = unit->getType()->getHeight();
+		}
+		else {
+			SurfaceCell *sc = map->getSurfaceCell(map->toSurfCoords(pos));
+			if(sc != NULL && sc->getObject() != NULL && sc->getObject()->getType() != NULL) {
+				if(sc->getObject()->getType()->getHeight() > airHeight) {
+					cellObjectHeight = sc->getObject()->getType()->getHeight();
+				}
+			}
+		}
+
+
 		char szBuf[8096]="";
-		snprintf(szBuf,8095,"currentProgress = " MG_I64_SPECIFIER " updateFPS = " MG_I64_SPECIFIER " speed = " MG_I64_SPECIFIER " diagonalFactor = " MG_I64_SPECIFIER " heightFactor = " MG_I64_SPECIFIER " speedDenominator = " MG_I64_SPECIFIER " progressIncrease = " MG_I64_SPECIFIER " [" MG_I64_SPECIFIER "]",
-				currentProgress,updateFPS,speed,diagonalFactor,heightFactor,speedDenominator,progressIncrease,((speed * diagonalFactor * heightFactor) / speedDenominator));
+		snprintf(szBuf,8095,"currentProgress = " MG_I64_SPECIFIER " updateFPS = " MG_I64_SPECIFIER " speed = " MG_I64_SPECIFIER " diagonalFactor = " MG_I64_SPECIFIER " heightFactor = " MG_I64_SPECIFIER " speedDenominator = " MG_I64_SPECIFIER " progressIncrease = " MG_I64_SPECIFIER " [" MG_I64_SPECIFIER "] height [%f] airHeight [%f] cellUnitHeight [%d] cellObjectHeight [%d]",
+				currentProgress,updateFPS,speed,diagonalFactor,heightFactor,speedDenominator,progressIncrease,((speed * diagonalFactor * heightFactor) / speedDenominator),height,airHeight,cellUnitHeight,cellObjectHeight);
 		networkCRCLogInfo = szBuf;
+
+		//printf("%s\n",szBuf);
 	}
 
 	newProgress += progressIncrease;
@@ -4068,10 +4089,10 @@ void Unit::startDamageParticles() {
 	checkCustomizedParticleTriggers(false);
 }
 
-void Unit::setTargetVec(const Vec3f &targetVec)	{
-	this->targetVec= targetVec;
-	logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
-}
+//void Unit::setTargetVec(const Vec3f &targetVec)	{
+//	this->targetVec= targetVec;
+//	logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
+//}
 
 void Unit::setMeetingPos(const Vec2i &meetingPos) {
 	this->meetingPos= meetingPos;

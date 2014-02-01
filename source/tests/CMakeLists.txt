@@ -38,6 +38,7 @@ IF(BUILD_MEGAGLEST_TESTS)
 	SET(DIRS_WITH_SRC
                 ./
                 shared_lib/graphics
+                shared_lib/streflop
                 shared_lib/util
 		shared_lib/xml)
 	
@@ -60,7 +61,14 @@ IF(BUILD_MEGAGLEST_TESTS)
                 ${GLEST_LIB_INCLUDE_ROOT}xml/rapidxml
                 ${GLEST_LIB_INCLUDE_ROOT}glew
                 ${GLEST_LIB_INCLUDE_ROOT}lua
-                ${GLEST_LIB_INCLUDE_ROOT}map)
+                ${GLEST_LIB_INCLUDE_ROOT}map
+
+                ${PROJECT_SOURCE_DIR}/source/glest_game/graphics
+                ${PROJECT_SOURCE_DIR}/source/glest_game/world
+                ${PROJECT_SOURCE_DIR}/source/glest_game/sound
+                ${PROJECT_SOURCE_DIR}/source/glest_game/type_instances
+                ${PROJECT_SOURCE_DIR}/source/glest_game/types
+                )
 
 	IF(WANT_STREFLOP)
 		SET(GLEST_LIB_INCLUDE_DIRS
