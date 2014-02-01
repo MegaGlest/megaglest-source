@@ -10,6 +10,11 @@
 // ==============================================================
 
 #include <cppunit/extensions/HelperMacros.h>
+#ifdef WIN32
+  #include <winsock2.h>
+  #include <winsock.h>
+#endif
+
 #include "vec.h"
 #include "skill_type.h"
 #include <memory>
@@ -207,13 +212,13 @@ public:
 			height = truncateDecimal<float>(height,6);
 
 			if(cellLandUnitHeight >= 0 && cellLandUnitHeight > airHeight) {
-				height += (std::min((float)cellLandUnitHeight,standardAirHeight * 3) - airHeight);
+				height += (min((float)cellLandUnitHeight,standardAirHeight * 3) - airHeight);
 				height = truncateDecimal<float>(height,6);
 			}
 			else {
 				if(cellObjectHeight >= 0) {
 					if(cellObjectHeight > airHeight) {
-						height += (std::min((float)cellObjectHeight,standardAirHeight * 3) - airHeight);
+						height += (min((float)cellObjectHeight,standardAirHeight * 3) - airHeight);
 						height = truncateDecimal<float>(height,6);
 					}
 				}
