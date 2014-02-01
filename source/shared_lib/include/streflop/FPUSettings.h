@@ -133,15 +133,37 @@ enum FPU_RoundMode {
 
 // plan for portability
 #if defined(_MSC_VER)
+
+#if _WIN64
+
+/* No fldcw intrinsics on Windows x64, punt to external asm */
+extern "C" { void   streflop_winx64_fldcw(unsigned int mode); }
+extern "C" { unsigned int	streflop_winx64_fstcw(); }
+extern "C" { void   streflop_winx64_fclex(void); }
+extern "C" { void   streflop_winx64_stmxcsr(unsigned int mode); }
+extern "C" { void   streflop_winx64_ldmxcsr(unsigned int mode); }
+
+#define STREFLOP_FSTCW(cw)   do { int tmp = 0; tmp = streflop_winx64_fstcw(); (cw) = tmp; } while (0)
+#define STREFLOP_FLDCW(cw)   do { int tmp = (cw); streflop_winx64_fldcw(tmp); } while (0)
+#define STREFLOP_STMXCSR(cw) do { int tmp = 0; streflop_winx64_stmxcsr(tmp); (cw) = tmp; } while (0)
+#define STREFLOP_LDMXCSR(cw) do { int tmp = (cw); streflop_winx64_ldmxcsr(tmp); } while (0)
+
+#else
+
 #define STREFLOP_FSTCW(cw) do { short tmp; __asm { fstcw tmp }; (cw) = tmp; } while (0)
 #define STREFLOP_FLDCW(cw) do { short tmp = (cw); __asm { fclex }; __asm { fldcw tmp }; } while (0)
 #define STREFLOP_STMXCSR(cw) do { int tmp; __asm { stmxcsr tmp }; (cw) = tmp; } while (0)
 #define STREFLOP_LDMXCSR(cw) do { int tmp = (cw); __asm { ldmxcsr tmp }; } while (0)
+
+#endif
+
 #else // defined(_MSC_VER)
+
 #define STREFLOP_FSTCW(cw) do { asm volatile ("fstcw %0" : "=m" (cw) : ); } while (0)
 #define STREFLOP_FLDCW(cw) do { asm volatile ("fclex \n fldcw %0" : : "m" (cw)); } while (0)
 #define STREFLOP_STMXCSR(cw) do { asm volatile ("stmxcsr %0" : "=m" (cw) : ); } while (0)
 #define STREFLOP_LDMXCSR(cw) do { asm volatile ("ldmxcsr %0" : : "m" (cw) ); } while (0)
+
 #endif // defined(_MSC_VER)
 
 // Subset of all C99 functions
