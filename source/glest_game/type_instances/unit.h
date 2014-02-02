@@ -471,6 +471,8 @@ private:
 	//static std::map<void *,bool> deletedUnits;
 
 	bool changedActiveCommand;
+	uint32 lastChangedActiveCommandFrame;
+	uint32 changedActiveCommandFrame;
 
 	int32 lastAttackerUnitId;
 	int32 lastAttackedUnitId;

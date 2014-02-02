@@ -59,9 +59,27 @@ private:
 	Vec2i lastPos;
 	Vec2i pos;
 
+	void reset() {
+		cellHeight 			= 0;
+		currField  			= fLand;
+		tileSetAirHeight	= standardAirHeight;
+		cellLandUnitHeight	= 0;
+		cellObjectHeight	= 0;
+		currSkill			= scStop;
+		curUnitTypeSize		= 0;
+		progress			= 0;
+		lastPos 			= Vec2i(0,0);
+		pos 				= Vec2i(0,0);
+	}
+
 public:
 
+	StreflopTest() {
+		reset();
+	}
+
 	void test_warmup_cases() {
+		int unitTypeHeight 	= 0;
 
 		cellHeight 			= 1.1;
 		currField  			= fLand;
@@ -73,62 +91,61 @@ public:
 		progress			= 10;
 		lastPos 			= Vec2i(1,1);
 		pos 				= Vec2i(1,2);
-
-		int unitTypeHeight 	= 1;
-		Vec3f result = getCurrVector(unitTypeHeight);
+		unitTypeHeight 		= 1;
+		Vec3f result 		= getCurrVector(unitTypeHeight);
 		CPPUNIT_ASSERT_EQUAL( string("x [1] y [1.6] z [1.0001]"), result.getString() );
 
-		unitTypeHeight 	= 0;
-		result = getCurrVector(unitTypeHeight);
+		unitTypeHeight 		= 0;
+		result 				= getCurrVector(unitTypeHeight);
 		CPPUNIT_ASSERT_EQUAL( string("x [1] y [1.1] z [1.0001]"), result.getString() );
 
-		unitTypeHeight 	= 2;
-		result = getCurrVector(unitTypeHeight);
+		unitTypeHeight 		= 2;
+		result 				= getCurrVector(unitTypeHeight);
 		CPPUNIT_ASSERT_EQUAL( string("x [1] y [2.1] z [1.0001]"), result.getString() );
 
-		unitTypeHeight 	= 1;
-		currField  		= fAir;
-		result = getCurrVector(unitTypeHeight);
+		unitTypeHeight 		= 1;
+		currField  			= fAir;
+		result 				= getCurrVector(unitTypeHeight);
 		CPPUNIT_ASSERT_EQUAL( string("x [1] y [6.6] z [1.0001]"), result.getString() );
 
-		unitTypeHeight 	= 1;
-		currField  		= fAir;
-		currSkill		= scAttack;
-		result = getCurrVector(unitTypeHeight);
+		unitTypeHeight 		= 1;
+		currField  			= fAir;
+		currSkill			= scAttack;
+		result 				= getCurrVector(unitTypeHeight);
 		CPPUNIT_ASSERT_EQUAL( string("x [1] y [6.6] z [2]"), result.getString() );
 
-		unitTypeHeight 	= 1;
-		currField  		= fLand;
-		currSkill		= scAttack;
-		result = getCurrVector(unitTypeHeight);
+		unitTypeHeight 		= 1;
+		currField  			= fLand;
+		currSkill			= scAttack;
+		result 				= getCurrVector(unitTypeHeight);
 		CPPUNIT_ASSERT_EQUAL( string("x [1] y [1.6] z [2]"), result.getString() );
 
 		unitTypeHeight 		= 1;
 		currField  			= fLand;
 		currSkill			= scAttack;
 		cellLandUnitHeight	= -1;
-		result = getCurrVector(unitTypeHeight);
+		result 				= getCurrVector(unitTypeHeight);
 		CPPUNIT_ASSERT_EQUAL( string("x [1] y [1.6] z [2]"), result.getString() );
 
 		unitTypeHeight 		= 1;
 		currField  			= fAir;
 		currSkill			= scAttack;
 		cellLandUnitHeight	= -1;
-		result = getCurrVector(unitTypeHeight);
+		result 				= getCurrVector(unitTypeHeight);
 		CPPUNIT_ASSERT_EQUAL( string("x [1] y [6.6] z [2]"), result.getString() );
 
 		unitTypeHeight 		= 1;
 		currField  			= fLand;
 		currSkill			= scMove;
 		cellLandUnitHeight	= 2;
-		result = getCurrVector(unitTypeHeight);
+		result 				= getCurrVector(unitTypeHeight);
 		CPPUNIT_ASSERT_EQUAL( string("x [1] y [1.6] z [1.0001]"), result.getString() );
 
 		unitTypeHeight 		= 1;
 		currField  			= fAir;
 		currSkill			= scMove;
 		cellLandUnitHeight	= 2;
-		result = getCurrVector(unitTypeHeight);
+		result 				= getCurrVector(unitTypeHeight);
 		CPPUNIT_ASSERT_EQUAL( string("x [1] y [6.6] z [1.0001]"), result.getString() );
 
 		unitTypeHeight 		= 1;
@@ -136,7 +153,7 @@ public:
 		currSkill			= scMove;
 		cellLandUnitHeight	= -1;
 		cellObjectHeight	= 0;
-		result = getCurrVector(unitTypeHeight);
+		result 				= getCurrVector(unitTypeHeight);
 		CPPUNIT_ASSERT_EQUAL( string("x [1] y [1.6] z [1.0001]"), result.getString() );
 
 		unitTypeHeight 		= 1;
@@ -144,7 +161,7 @@ public:
 		currSkill			= scMove;
 		cellLandUnitHeight	= -1;
 		cellObjectHeight	= 1;
-		result = getCurrVector(unitTypeHeight);
+		result 				= getCurrVector(unitTypeHeight);
 		CPPUNIT_ASSERT_EQUAL( string("x [1] y [1.6] z [1.0001]"), result.getString() );
 
 		unitTypeHeight 		= 1;
@@ -152,14 +169,14 @@ public:
 		currSkill			= scMove;
 		cellLandUnitHeight	= -1;
 		cellObjectHeight	= 1;
-		result = getCurrVector(unitTypeHeight);
+		result 				= getCurrVector(unitTypeHeight);
 		CPPUNIT_ASSERT_EQUAL( string("x [1] y [6.6] z [1.0001]"), result.getString() );
 
-		unitTypeHeight 	= 1;
-		currField  		= fLand;
-		currSkill		= scMove;
-		progress		= 1324312;
-		result = getCurrVector(unitTypeHeight);
+		unitTypeHeight 		= 1;
+		currField  			= fLand;
+		currSkill			= scMove;
+		progress			= 1324312;
+		result 				= getCurrVector(unitTypeHeight);
 		CPPUNIT_ASSERT_EQUAL( string("x [1] y [1.6] z [14.2431]"), result.getString() );
 
 		cellHeight 			= 2.870369;
@@ -172,7 +189,6 @@ public:
 		progress			= 21250;
 		lastPos 			= Vec2i(96,34);
 		pos 				= Vec2i(95,35);
-
 		unitTypeHeight 		= 3;
 		result 				= getCurrVector(unitTypeHeight);
 		CPPUNIT_ASSERT_EQUAL( string("x [95] y [4.37037] z [35]"), result.getString() );
@@ -180,22 +196,23 @@ public:
 	}
 
 	void test_known_out_of_synch_cases() {
+		// Documented cases of out of synch go here to test cross platform for
+		// consistency
+//		int unitTypeHeight 	= 0;
 
-//		cellHeight 			= 2.870369;
+//		cellHeight 			= 1.1;
 //		currField  			= fLand;
 //		tileSetAirHeight	= standardAirHeight;
-//		cellLandUnitHeight	= 0;
+//		cellLandUnitHeight	= 1;
 //		cellObjectHeight	= 0;
-//		currSkill			= scAttack;
+//		currSkill			= scMove;
 //		curUnitTypeSize		= 1;
-//		progress			= 21250;
-//		lastPos 			= Vec2i(96,34);
-//		pos 				= Vec2i(95,35);
-//
-//		int unitTypeHeight 	= 3;
-//		Vec3f result = getCurrVector(unitTypeHeight);
-//		CPPUNIT_ASSERT_EQUAL( string("x [95] y [4.37037] z [35]"), result.getString() );
-
+//		progress			= 10;
+//		lastPos 			= Vec2i(1,1);
+//		pos 				= Vec2i(1,2);
+//		unitTypeHeight 		= 1;
+//		Vec3f result 		= getCurrVector(unitTypeHeight);
+//		CPPUNIT_ASSERT_EQUAL( string("x [1] y [1.6] z [1.0001]"), result.getString() );
 	}
 
 // =========================== Helper Methods =================================

@@ -35,7 +35,8 @@ using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
-const int CHANGE_COMMAND_SPEED = 325;
+const int CHANGE_COMMAND_SPEED 					= 325;
+const int MIN_FRAMECOUNT_CHANGE_COMMAND_SPEED	= 160;
 
 //Mutex Unit::mutexDeletedUnits;
 //map<void *,bool> Unit::deletedUnits;
@@ -515,6 +516,9 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 
 	mutexCommands = new Mutex(CODE_AT_LINE);
 	changedActiveCommand = false;
+	lastChangedActiveCommandFrame = 0;
+	changedActiveCommandFrame = 0;
+
 	lastSynchDataString="";
 	modelFacing = CardinalDir::NORTH;
 	lastStuckFrame = 0;
@@ -1783,26 +1787,37 @@ std::pair<CommandResult,string> Unit::giveCommand(Command *command, bool tryQueu
 		//empty command queue
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] Clear commands because current is NOT queable.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-		bool willChangedActiveCommand= (commands.empty() == false);
-		if(willChangedActiveCommand){
-			CommandClass currCommandClass=getCurrCommand()->getCommandType()->getClass();
-			CommandClass commandClass=command->getCommandType()->getClass();
-			if(currCommandClass
-			        == commandClass){
-				willChangedActiveCommand= false;
+		bool willChangedActiveCommand = (commands.empty() == false);
+		if(willChangedActiveCommand == true) {
+
+			CommandClass currCommandClass 	= getCurrCommand()->getCommandType()->getClass();
+			CommandClass commandClass		= command->getCommandType()->getClass();
+			if(currCommandClass == commandClass) {
+
+				willChangedActiveCommand = false;
 			}
-			else if(currCommandClass==ccAttack || currCommandClass==ccAttackStopped ||
-					commandClass==ccAttack || commandClass==ccAttackStopped){
+			else if(currCommandClass == ccAttack ||
+					currCommandClass == ccAttackStopped ||
+					commandClass     == ccAttack ||
+					commandClass     == ccAttackStopped) {
+
 				willChangedActiveCommand= true;
 			}
-			else{
+			else {
 				willChangedActiveCommand= false;
 			}
 		}
+
+		if(willChangedActiveCommand == true) {
+
+			lastChangedActiveCommandFrame = changedActiveCommandFrame;
+			changedActiveCommandFrame = getFrameCount();
+
+			//printf("Line: %d getCurrCommand() [%s] command [%s]\n",__LINE__,getCurrCommand()->toString(false).c_str(),command->toString(false).c_str());
+		}
+
 		clearCommands();
-		changedActiveCommand= willChangedActiveCommand;
-
-
+		changedActiveCommand = willChangedActiveCommand;
 
 		//printf("In [%s::%s] Line: %d cleared existing commands\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -2153,8 +2168,12 @@ int64 Unit::getUpdateProgress() {
 		//speed
 		int speed = currSkill->getTotalSpeed(&totalUpgrade);
 
-		if(changedActiveCommand) {
-			speed = CHANGE_COMMAND_SPEED;
+		if(changedActiveCommand == true) {
+			if(changedActiveCommandFrame - lastChangedActiveCommandFrame >= MIN_FRAMECOUNT_CHANGE_COMMAND_SPEED) {
+				//printf("Line: %d speed = %d changedActiveCommandFrame [%u] lastChangedActiveCommandFrame [%u] skill [%s] command [%s]\n",__LINE__,speed,changedActiveCommandFrame,lastChangedActiveCommandFrame,currSkill->toString(false).c_str(),getCurrCommand()->toString(false).c_str());
+				//printf("Line: %d speed = %d changedActiveCommandFrame [%u] lastChangedActiveCommandFrame [%u] total = %u\n",__LINE__,speed,changedActiveCommandFrame,lastChangedActiveCommandFrame,(changedActiveCommandFrame - lastChangedActiveCommandFrame));
+				speed = CHANGE_COMMAND_SPEED;
+			}
 		}
 
 		//speed modifier
@@ -2532,7 +2551,11 @@ bool Unit::update() {
 	int speed= currSkill->getTotalSpeed(&totalUpgrade);
 
 	if(changedActiveCommand) {
-		speed = CHANGE_COMMAND_SPEED;
+		if(changedActiveCommandFrame - lastChangedActiveCommandFrame >= MIN_FRAMECOUNT_CHANGE_COMMAND_SPEED) {
+			//printf("Line: %d speed = %d changedActiveCommandFrame [%u] lastChangedActiveCommandFrame [%u] skill [%s] command [%s]\n",__LINE__,speed,changedActiveCommandFrame,lastChangedActiveCommandFrame,currSkill->toString(false).c_str(),getCurrCommand()->toString(false).c_str());
+			//printf("Line: %d speed = %d changedActiveCommandFrame [%u] lastChangedActiveCommandFrame [%u] total = %u\n",__LINE__,speed,changedActiveCommandFrame,lastChangedActiveCommandFrame,(changedActiveCommandFrame - lastChangedActiveCommandFrame));
+			speed = CHANGE_COMMAND_SPEED;
+		}
 	}
 
 	//speed modifier
