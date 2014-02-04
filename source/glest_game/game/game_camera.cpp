@@ -73,6 +73,7 @@ GameCamera::GameCamera() : pos(0.f, defaultHeight, 0.f),
 
 	shakeDecrement=0.f;
 	currentShakeIntensity=0;
+	shakeOffset= Vec2f(0.f);
 
 	//maxRenderDistance = Config::getInstance().getFloat("RenderDistanceMax","64");
 	maxHeight = Config::getInstance().getFloat("CameraMaxDistance","20");
@@ -173,8 +174,11 @@ void GameCamera::shake(int shakeDuration, int shakeStartIntensity , bool cameraD
 void GameCamera::shakeCamera(){
 	//RandomGen random;
 	if(currentShakeIntensity > 0.f) {
-		pos.x += (((float) (rand() % 50)) / 50.f - 0.5f) * currentShakeIntensity;
-		pos.z += (((float) (rand() % 50)) / 50.f - 0.5f) * currentShakeIntensity;
+//		pos.x += (((float) (rand() % 50)) / 50.f - 0.5f) * currentShakeIntensity;
+//		pos.z += (((float) (rand() % 50)) / 50.f - 0.5f) * currentShakeIntensity;
+
+		shakeOffset.x = (((float) (rand() % 50)) / 50.f - 0.5f) * currentShakeIntensity;
+		shakeOffset.y = (((float) (rand() % 50)) / 50.f - 0.5f) * currentShakeIntensity;
 		currentShakeIntensity -= shakeDecrement;
 	}
 }

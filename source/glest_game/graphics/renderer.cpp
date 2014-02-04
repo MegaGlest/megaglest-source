@@ -1128,7 +1128,9 @@ void Renderer::loadGameCameraMatrix() {
 	if(gameCamera != NULL) {
 		glRotatef(gameCamera->getVAng(), -1, 0, 0);
 		glRotatef(gameCamera->getHAng(), 0, 1, 0);
-		glTranslatef(-gameCamera->getPos().x, -gameCamera->getPos().y, -gameCamera->getPos().z);
+		glTranslatef(-(gameCamera->getPos().x + gameCamera->getShakeOffset().x),
+				-gameCamera->getPos().y,
+				-(gameCamera->getPos().z + gameCamera->getShakeOffset().y));
 	}
 }
 
