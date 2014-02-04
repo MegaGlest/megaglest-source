@@ -7,13 +7,16 @@ rem pause
 cd /d "%~dp0"
 
 ECHO Checking for windows binaries...
-ECHO Calling .\megaglest.exe --version
+
+SET MG_BINARY_NAME=megaglest.exe
+if exist "megaglestx64.exe" SET MG_BINARY_NAME=megaglestx64.exe
+ECHO Calling .\%MG_BINARY_NAME% --version
 
 set mg_version=
 set mg_WIN32_ARCH=win32-i386
 set mg_WIN64_ARCH=win64-x86_64
 set mg_arch=%mg_WIN32_ARCH%
-for /f "tokens=* delims= " %%i in ('.\megaglest.exe --version') do call :mgver %%i
+for /f "tokens=* delims= " %%i in ('.\%MG_BINARY_NAME% --version') do call :mgver %%i
 echo after #1 for loop
 goto got_ver
 
@@ -53,7 +56,7 @@ rem pause
 set RELEASENAME=megaglest-binary-%mg_arch%
 set PACKAGE=%RELEASENAME%-%mg_version%.7z
 
-cd /d release-data\
+rem cd /d release-data\
 
 echo creating [%PACKAGE%] ...
 if exist "%PACKAGE%" del "%PACKAGE%"
@@ -61,10 +64,10 @@ set custom_sevenZ_params=
 if not "%SEVENZ_MG_COMPRESS_PARAMS%." == "." set custom_sevenZ_params=%SEVENZ_MG_COMPRESS_PARAMS%
 echo custom_sevenZ_params [%custom_sevenZ_params%] ...
 
-if "%mg_arch%" == "%mg_WIN32_ARCH%" 7z a -mmt -mx=9 %custom_sevenZ_params% -ms=on -mhc=on "%PACKAGE%" megaglest.exe megaglest_g3dviewer.exe megaglest_editor.exe  libvlc.dll libvlccore.dll lua plugins 7z.exe 7z.dll xml2g.exe openal32.dll g2xml.exe glest.ini ..\shared\glestkeys.ini ..\shared\servers.ini
-if "%mg_arch%" == "%mg_WIN64_ARCH%" 7z a -mmt -mx=9 %custom_sevenZ_params% -ms=on -mhc=on "%PACKAGE%" megaglestx64.exe megaglest_g3dviewerx64.exe megaglest_editorx64.exe  7z.exe 7z.dll xml2gx64.exe openal64.dll g2xmlx64.exe glest.ini ..\shared\glestkeys.ini ..\shared\servers.ini
+if "%mg_arch%" == "%mg_WIN32_ARCH%" 7z a -mmt -mx=9 %custom_sevenZ_params% -ms=on -mhc=on "release-data\%PACKAGE%" megaglest.exe megaglest_g3dviewer.exe megaglest_editor.exe  libvlc.dll libvlccore.dll lua plugins 7z.exe 7z.dll xml2g.exe openal32.dll g2xml.exe glest.ini ..\shared\glestkeys.ini ..\shared\servers.ini
+if "%mg_arch%" == "%mg_WIN64_ARCH%" 7z a -mmt -mx=9 %custom_sevenZ_params% -ms=on -mhc=on "release-data\%PACKAGE%" megaglestx64.exe megaglest_g3dviewerx64.exe megaglest_editorx64.exe  7z.exe 7z.dll xml2gx64.exe openal64.dll g2xmlx64.exe glest.ini ..\shared\glestkeys.ini ..\shared\servers.ini
 
-dir "%PACKAGE%"
+dir "release-data\%PACKAGE%"
 cd /d "%~dp0"
 
 rem pause execution so we can see the output before the batch file exits
