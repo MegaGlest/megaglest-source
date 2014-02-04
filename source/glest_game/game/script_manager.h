@@ -278,6 +278,7 @@ private:
 	void DisplayFormattedText(const char *fmt,...);
 	void DisplayFormattedLangText(const char *fmt,...);
 	void setCameraPosition(const Vec2i &pos);
+	void shakeCamera(int shakeIntensity, int shakeDuration, bool cameraDistanceAffected, int unitId);
 	void createUnit(const string &unitName, int factionIndex, Vec2i pos);
 	void createUnitNoSpacing(const string &unitName, int factionIndex, Vec2i pos);
 
@@ -441,6 +442,8 @@ private:
 	static int DisplayFormattedLangText(LuaHandle* luaHandle);
 	static int clearDisplayText(LuaHandle* luaHandle);
 	static int setCameraPosition(LuaHandle* luaHandle);
+	static int shakeCamera(LuaHandle* luaHandle);
+	static int shakeCameraOnUnit(LuaHandle* luaHandle);
 	static int createUnit(LuaHandle* luaHandle);
 	static int createUnitNoSpacing(LuaHandle* luaHandle);
 

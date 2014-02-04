@@ -248,6 +248,8 @@ void ScriptManager::init(World* world, GameCamera *gameCamera, const XmlNode *ro
 	luaScript.registerFunction(DisplayFormattedLangText, "displayFormattedLangText");
 	luaScript.registerFunction(clearDisplayText, "clearDisplayText");
 	luaScript.registerFunction(setCameraPosition, "setCameraPosition");
+	luaScript.registerFunction(shakeCamera, "shakeCamera");
+	luaScript.registerFunction(shakeCameraOnUnit, "shakeCameraOnUnit");
 	luaScript.registerFunction(createUnit, "createUnit");
 	luaScript.registerFunction(createUnitNoSpacing, "createUnitNoSpacing");
 	luaScript.registerFunction(destroyUnit, "destroyUnit");
@@ -1023,6 +1025,17 @@ void ScriptManager::setCameraPosition(const Vec2i &pos){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	gameCamera->centerXZ(pos.x, pos.y);
+}
+
+void ScriptManager::shakeCamera(int shakeIntensity, int shakeDuration, bool cameraDistanceAffected, int unitId){
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	if (cameraDistanceAffected) {
+		Unit *unit = world->findUnitById(unitId);
+		gameCamera->shake(shakeDuration, shakeIntensity,cameraDistanceAffected,	unit->getCurrVector());
+	} else {
+		gameCamera->shake(shakeDuration, shakeIntensity,cameraDistanceAffected,	Vec3f(0.f,0.f,0.f));
+	}
 }
 
 void ScriptManager::createUnit(const string &unitName, int factionIndex, Vec2i pos){
@@ -2169,6 +2182,48 @@ int ScriptManager::setCameraPosition(LuaHandle* luaHandle){
 
 	try {
 		thisScriptManager->setCameraPosition(Vec2i(luaArguments.getVec2i(-1)));
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::shakeCamera(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+
+	try {
+		thisScriptManager->shakeCamera(luaArguments.getInt(-2),luaArguments.getInt(-1),false,0);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
+	return luaArguments.getReturnCount();
+}
+
+int ScriptManager::shakeCameraOnUnit(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+
+	try {
+		thisScriptManager->shakeCamera(luaArguments.getInt(-3),luaArguments.getInt(-2),true,luaArguments.getInt(-1));
 	}
 	catch(const megaglest_runtime_error &ex) {
 		char szErrBuf[8096]="";
