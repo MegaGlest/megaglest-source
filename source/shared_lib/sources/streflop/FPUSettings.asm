@@ -25,7 +25,7 @@ streflop_winx64_fldcw PROC FRAME
 	fclex
     mov qword ptr [rsp + 8], rcx
     .ENDPROLOG
-    ldmxcsr [rsp + 8]
+    fldcw [rsp + 8]
     ret
 streflop_winx64_fldcw ENDP
 
@@ -33,7 +33,7 @@ streflop_winx64_fstcw PROC FRAME
 
     sub rsp, 8
     .ENDPROLOG
-    stmxcsr [rsp]
+    fstcw [rsp]
     mov rax, [rsp]
     add rsp, 8
     ret
