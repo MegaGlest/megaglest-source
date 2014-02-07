@@ -225,7 +225,7 @@ public:
 		// consistency
 		int unitTypeHeight 	= 0;
 
-		cellHeight 			= 2.768517;
+		cellHeight 			= 2.814814;
 		currField  			= fLand;
 		tileSetAirHeight	= 5.000000;
 		cellLandUnitHeight	= -1;
@@ -236,8 +236,11 @@ public:
 		lastPos 			= Vec2i(40,41);
 		pos 				= Vec2i(39,40);
 		unitTypeHeight 		= 2;
-		Vec3f result 		= getCurrVector(unitTypeHeight);
-		CPPUNIT_ASSERT_EQUAL( string("x [39.6485] y [3.76852] z [40.6485]"), result.getString() );
+
+		for(int index = 0; index < 10000; ++index) {
+			Vec3f result 		= getCurrVector(unitTypeHeight);
+			CPPUNIT_ASSERT_EQUAL( string("x [39.6485] y [3.81481] z [40.6485]"), result.getString() );
+		}
 
 	}
 
