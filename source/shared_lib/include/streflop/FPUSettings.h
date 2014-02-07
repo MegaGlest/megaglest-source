@@ -136,12 +136,13 @@ enum FPU_RoundMode {
 
 #if _WIN64
 
-/* No fldcw intrinsics on Windows x64, punt to external asm */
-extern "C" { void   streflop_winx64_fldcw(short mode); }
-extern "C" { short	streflop_winx64_fstcw(); }
+// No fldcw intrinsics on Windows x64, punt to external asm
+// Seems like using unsigned is better on windows x64: http://www.virtualdub.org/blog/pivot/entry.php?id=340
+extern "C" { void   streflop_winx64_fldcw(unsigned short mode); }
+extern "C" { unsigned short	streflop_winx64_fstcw(); }
 extern "C" { void   streflop_winx64_fclex(void); }
-extern "C" { void   streflop_winx64_stmxcsr(int mode); }
-extern "C" { void   streflop_winx64_ldmxcsr(int mode); }
+extern "C" { void   streflop_winx64_stmxcsr(unsigned int mode); }
+extern "C" { void   streflop_winx64_ldmxcsr(unsigned int mode); }
 
 #define STREFLOP_FSTCW(cw)   do { short tmp = 0; tmp = streflop_winx64_fstcw(); (cw) = tmp; } while (0)
 #define STREFLOP_FLDCW(cw)   do { short tmp = (cw); streflop_winx64_fldcw(tmp); } while (0)

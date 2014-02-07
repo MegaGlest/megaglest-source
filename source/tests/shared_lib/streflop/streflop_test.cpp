@@ -35,6 +35,7 @@ using namespace Glest::Game;
 //
 const int64 PROGRESS_SPEED_MULTIPLIER  	= 100000;
 const float standardAirHeight			= 5.0f;
+const float FLOAT_TOLERANCE				= 1e-10;
 
 class StreflopTest : public CppUnit::TestFixture {
 	// Register the suite of tests for this fixture
@@ -47,8 +48,6 @@ class StreflopTest : public CppUnit::TestFixture {
 	// End of Fixture registration
 
 private:
-
-	static const float FLOAT_TOLERANCE = 1e-10;
 
 	float cellHeight;
 	Field currField;
