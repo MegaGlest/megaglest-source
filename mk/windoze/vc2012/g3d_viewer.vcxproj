@@ -190,7 +190,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalOptions>/arch:SSE2 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>..\..\..\source\windows_deps_2012\wxWidgets-2.9.3\lib\vc_lib\mswu;..\..\..\source\shared_lib\include\util;..\..\..\source\shared_lib\include\graphics\gl;..\..\..\source\windows_deps_2012\include;..\..\..\source\shared_lib\include\graphics;..\..\..\source\windows_deps_2012\wxWidgets-2.9.3\include;..\..\..\source\shared_lib\include\platform\sdl;../../../source/shared_lib/include/platform/common;../../../source/windows_deps_2012/SDL-1.2.15/include;../../../source/windows_deps_2012/curl-7.21.3/include;..\..\..\source\glest_game\graphics;..\..\..\source\shared_lib\include\xml;../../../source/windows_deps_2012/xerces-c-3.1.1/src;..\..\..\source\glest_game\global;..\..\..\source\glest_game\sound;..\..\..\source\shared_lib\include\sound;..\..\..\source\glest_game\game;../../../source/shared_lib/include/map;../../../source/windows_deps_2012/lpng1510;..\..\..\source\glest_game\facilities;../../../source/windows_deps_2012/glew-1.7.0/include;..\..\..\source\shared_lib\include\xml\rapidxml;../../../source/shared_lib/include/platform/win32;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_WINDOWS;WIN32;NDEBUG;CURL_STATICLIB;UNICODE;_UNICODE;GLEW_STATIC;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
@@ -256,7 +256,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|x64'">
     <ClCompile>
-      <AdditionalOptions>/arch:SSE2 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>%(AdditionalOptions)</AdditionalOptions>
       <AdditionalIncludeDirectories>..\..\..\source\windows_deps_2012\wxWidgets-2.8.10\lib\vc_lib\mswd;..\..\..\source\windows_deps_2012\wxWidgets-2.8.10\include\msvc;..\..\..\source\shared_lib\include\util;..\..\..\source\shared_lib\include\platform\win32;..\..\..\source\shared_lib\include\graphics\gl;..\..\..\source\windows_deps_2012\include;..\..\..\source\shared_lib\include\graphics;..\..\..\source\windows_deps_2012\wxWidgets-2.8.10\include;..\..\..\source\shared_lib\include\platform\sdl;../../../source/shared_lib/include/streflop;../../../source/shared_lib/include/platform/common;../../../source/windows_deps_2012/SDL-1.2.x/include;../../../source/windows_deps_2012/curl-7.21.3/include;..\..\..\source\glest_game\graphics;..\..\..\source\shared_lib\include\xml;../../../source/windows_deps_2012/xerces-c-3.0.1/src;..\..\..\source\glest_game\global;..\..\..\source\glest_game\sound;..\..\..\source\shared_lib\include\sound;..\..\..\source\glest_game\game;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
