@@ -75,6 +75,31 @@ private:
 public:
 
 	StreflopTest() {
+#ifdef USE_STREFLOP
+//#define STREFLOP_NO_DENORMALS
+//
+//#if defined(STREFLOP_SSE)
+//		const char *instruction_set = "[SSE]";
+//#elif defined(STREFLOP_X87)
+//		const char *instruction_set = "[X87]";
+//#elif defined(STREFLOP_SOFT)
+//		const char *instruction_set = "[SOFTFLOAT]";
+//#else
+//		const char *instruction_set = "[none]";
+//#endif
+//
+//#if defined(STREFLOP_NO_DENORMALS)
+//		const char *denormals = "[no-denormals]";
+//#else
+//		const char *denormals = "[denormals]";
+//#endif
+//
+//	printf("Tests - using STREFLOP %s - %s\n",instruction_set,denormals);
+
+	streflop_init<streflop::Simple>();
+
+#endif
+
 		reset();
 	}
 
@@ -198,21 +223,22 @@ public:
 	void test_known_out_of_synch_cases() {
 		// Documented cases of out of synch go here to test cross platform for
 		// consistency
-//		int unitTypeHeight 	= 0;
+		int unitTypeHeight 	= 0;
 
-//		cellHeight 			= 1.1;
-//		currField  			= fLand;
-//		tileSetAirHeight	= standardAirHeight;
-//		cellLandUnitHeight	= 1;
-//		cellObjectHeight	= 0;
-//		currSkill			= scMove;
-//		curUnitTypeSize		= 1;
-//		progress			= 10;
-//		lastPos 			= Vec2i(1,1);
-//		pos 				= Vec2i(1,2);
-//		unitTypeHeight 		= 1;
-//		Vec3f result 		= getCurrVector(unitTypeHeight);
-//		CPPUNIT_ASSERT_EQUAL( string("x [1] y [1.6] z [1.0001]"), result.getString() );
+		cellHeight 			= 2.768517;
+		currField  			= fLand;
+		tileSetAirHeight	= 5.000000;
+		cellLandUnitHeight	= -1;
+		cellObjectHeight	= -1;
+		currSkill			= scMove;
+		curUnitTypeSize		= 1;
+		progress			= 35145;
+		lastPos 			= Vec2i(40,41);
+		pos 				= Vec2i(39,40);
+		unitTypeHeight 		= 2;
+		Vec3f result 		= getCurrVector(unitTypeHeight);
+		CPPUNIT_ASSERT_EQUAL( string("x [39.6485] y [3.76852] z [40.6485]"), result.getString() );
+
 	}
 
 // =========================== Helper Methods =================================

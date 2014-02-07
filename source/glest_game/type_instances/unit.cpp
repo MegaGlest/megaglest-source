@@ -2280,8 +2280,8 @@ int64 Unit::getUpdatedProgress(int64 currentProgress, int64 updateFPS, int64 spe
 
 
 		char szBuf[8096]="";
-		snprintf(szBuf,8095,"currentProgress = " MG_I64_SPECIFIER " updateFPS = " MG_I64_SPECIFIER " speed = " MG_I64_SPECIFIER " diagonalFactor = " MG_I64_SPECIFIER " heightFactor = " MG_I64_SPECIFIER " speedDenominator = " MG_I64_SPECIFIER " progressIncrease = " MG_I64_SPECIFIER " [" MG_I64_SPECIFIER "] height [%f] airHeight [%f] cellUnitHeight [%d] cellObjectHeight [%d]",
-				currentProgress,updateFPS,speed,diagonalFactor,heightFactor,speedDenominator,progressIncrease,((speed * diagonalFactor * heightFactor) / speedDenominator),height,airHeight,cellUnitHeight,cellObjectHeight);
+		snprintf(szBuf,8095,"currentProgress = " MG_I64_SPECIFIER " updateFPS = " MG_I64_SPECIFIER " speed = " MG_I64_SPECIFIER " diagonalFactor = " MG_I64_SPECIFIER " heightFactor = " MG_I64_SPECIFIER " speedDenominator = " MG_I64_SPECIFIER " progressIncrease = " MG_I64_SPECIFIER " [" MG_I64_SPECIFIER "] height [%f] airHeight [%f] cellUnitHeight [%d] cellObjectHeight [%d] skill [%s] pos [%s] lastpos [%s]",
+				currentProgress,updateFPS,speed,diagonalFactor,heightFactor,speedDenominator,progressIncrease,((speed * diagonalFactor * heightFactor) / speedDenominator),height,airHeight,cellUnitHeight,cellObjectHeight,(currSkill != NULL ? currSkill->getName().c_str() : "none"),pos.getString().c_str(),lastPos.getString().c_str());
 		networkCRCLogInfo = szBuf;
 
 		//printf("%s\n",szBuf);
