@@ -1,16 +1,12 @@
 ;
-;  Copyright (c) 2010 The VP8 project authors. All Rights Reserved.
+;  Copyright (c) 2014 MegaGlest. All Rights Reserved.
 ;
-;  Use of this source code is governed by a BSD-style license 
-;  that can be found in the LICENSE file in the root of the source
-;  tree. An additional intellectual property rights grant can be found
-;  in the file PATENTS.  All contributing project authors may 
-;  be found in the AUTHORS file in the root of the source tree.
-;
+;  Use of this source code is governed by the GPL 3.x license 
 
 _text SEGMENT
 ; %ifidn __OUTPUT_FORMAT__,x64
 ; %ifdef _WIN64
+IFDEF RAX
 
 streflop_winx64_fclex PROC FRAME
 
@@ -65,5 +61,6 @@ streflop_winx64_ldmxcsr PROC FRAME
 streflop_winx64_ldmxcsr ENDP
 
 ;%endif
+ENDIF
 
 end
