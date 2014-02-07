@@ -8,7 +8,6 @@
 ;  be found in the AUTHORS file in the root of the source tree.
 ;
 
-
 _text SEGMENT
 ; %ifidn __OUTPUT_FORMAT__,x64
 ; %ifdef _WIN64
@@ -23,9 +22,15 @@ streflop_winx64_fclex ENDP
 streflop_winx64_fldcw PROC FRAME
 
 	fclex
-    mov qword ptr [rsp + 8], rcx
-    .ENDPROLOG
-    fldcw [rsp + 8]
+;    mov qword ptr [rsp + 8], rcx
+;    .ENDPROLOG
+;    fldcw [rsp + 8]
+;    ret
+	sub   rsp, 8
+    mov   [rsp], rcx ; win x64 specific
+	.ENDPROLOG
+    fldcw [rsp]
+    add   rsp, 8
     ret
 streflop_winx64_fldcw ENDP
 
