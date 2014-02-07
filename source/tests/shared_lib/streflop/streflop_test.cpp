@@ -48,6 +48,8 @@ class StreflopTest : public CppUnit::TestFixture {
 
 private:
 
+	static const float FLOAT_TOLERANCE = 1e-10;
+
 	float cellHeight;
 	Field currField;
 	float tileSetAirHeight;
@@ -60,7 +62,7 @@ private:
 	Vec2i pos;
 
 	void reset() {
-		cellHeight 			= 0;
+		cellHeight 			= 0.f;
 		currField  			= fLand;
 		tileSetAirHeight	= standardAirHeight;
 		cellLandUnitHeight	= 0;
@@ -106,7 +108,7 @@ public:
 	void test_warmup_cases() {
 		int unitTypeHeight 	= 0;
 
-		cellHeight 			= 1.1;
+		cellHeight 			= 1.1f;
 		currField  			= fLand;
 		tileSetAirHeight	= standardAirHeight;
 		cellLandUnitHeight	= 1;
@@ -204,7 +206,7 @@ public:
 		result 				= getCurrVector(unitTypeHeight);
 		CPPUNIT_ASSERT_EQUAL( string("x [1] y [1.6] z [14.2431]"), result.getString() );
 
-		cellHeight 			= 2.870369;
+		cellHeight 			= 2.870369f;
 		currField  			= fLand;
 		tileSetAirHeight	= standardAirHeight;
 		cellLandUnitHeight	= 0;
@@ -222,16 +224,25 @@ public:
 		x /= 10.0;
 		double y = x;
 		// THIS IS NOT ALWAYS TRUE without streflop!
-		CPPUNIT_ASSERT_EQUAL( x, y );
+		CPPUNIT_ASSERT_DOUBLES_EQUAL( x, y, FLOAT_TOLERANCE );
 
 		float xf = 1.0;
 		xf /= 10.0;
 		float yf = xf;
 		// THIS IS NOT ALWAYS TRUE without streflop!
-		CPPUNIT_ASSERT_EQUAL( xf, yf );
+		CPPUNIT_ASSERT_DOUBLES_EQUAL( xf, yf, FLOAT_TOLERANCE );
 
-		xf = 0.1 + 0.1;
-		CPPUNIT_ASSERT_EQUAL( 0.2f, xf );
+		CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.2f, 0.1f + 0.1f, FLOAT_TOLERANCE );
+		CPPUNIT_ASSERT_EQUAL( string("0.200000"), floatToStr(0.1f + 0.1f,6) );
+		CPPUNIT_ASSERT_EQUAL( string("0.2000000"), floatToStr(0.1f + 0.1f,7) );
+
+		CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.01f, 0.1f * 0.1f, 1e-9 );
+		CPPUNIT_ASSERT_EQUAL( string("0.010000"), floatToStr(0.1f * 0.1f,6) );
+		CPPUNIT_ASSERT_EQUAL( string("0.0100000"), floatToStr(0.1f * 0.1f,7) );
+
+		CPPUNIT_ASSERT_DOUBLES_EQUAL( 0.002877f, 2877.0f / 1000000.0f, FLOAT_TOLERANCE );
+		CPPUNIT_ASSERT_EQUAL( string("0.002877"), floatToStr(2877.0f / 1000000.0f,6) );
+		CPPUNIT_ASSERT_EQUAL( string("0.0028770"), floatToStr(2877.0f / 1000000.0f,7) );
 	}
 
 	void test_known_out_of_synch_cases() {
@@ -239,9 +250,9 @@ public:
 		// consistency
 		int unitTypeHeight 	= 0;
 
-		cellHeight 			= 2.814814;
+		cellHeight 			= 2.814814f;
 		currField  			= fLand;
-		tileSetAirHeight	= 5.000000;
+		tileSetAirHeight	= 5.000000f;
 		cellLandUnitHeight	= -1;
 		cellObjectHeight	= -1;
 		currSkill			= scMove;
@@ -251,11 +262,8 @@ public:
 		pos 				= Vec2i(39,40);
 		unitTypeHeight 		= 2;
 
-		for(int index = 0; index < 10000; ++index) {
-			Vec3f result 		= getCurrVector(unitTypeHeight);
-			CPPUNIT_ASSERT_EQUAL( string("x [39.6485] y [3.81481] z [40.6485]"), result.getString() );
-		}
-
+		Vec3f result 		= getCurrVector(unitTypeHeight);
+		CPPUNIT_ASSERT_EQUAL( string("x [39.6485] y [3.81481] z [40.6485]"), result.getString() );
 	}
 
 // =========================== Helper Methods =================================
