@@ -218,6 +218,20 @@ public:
 		result 				= getCurrVector(unitTypeHeight);
 		CPPUNIT_ASSERT_EQUAL( string("x [95] y [4.37037] z [35]"), result.getString() );
 
+		double x = 1.0;
+		x /= 10.0;
+		double y = x;
+		// THIS IS NOT ALWAYS TRUE without streflop!
+		CPPUNIT_ASSERT_EQUAL( x, y );
+
+		float xf = 1.0;
+		xf /= 10.0;
+		float yf = xf;
+		// THIS IS NOT ALWAYS TRUE without streflop!
+		CPPUNIT_ASSERT_EQUAL( xf, yf );
+
+		xf = 0.1 + 0.1;
+		CPPUNIT_ASSERT_EQUAL( 0.2f, xf );
 	}
 
 	void test_known_out_of_synch_cases() {
