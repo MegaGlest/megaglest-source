@@ -147,6 +147,9 @@ private:
 public:
 	World();
 	~World();
+//	World & World(World &obj) {
+//		throw runtime_error("class World is NOT safe to assign!");
+//	}
 	void cleanup();
 	void end(); //to die before selection does
 	void endScenario(); //to die before selection does

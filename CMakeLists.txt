@@ -21,7 +21,8 @@ MESSAGE(STATUS "Build type for this compile will be: ${CMAKE_BUILD_TYPE}")
 
 IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         SET(CMAKE_COMPILER_IS_GNUCXX "YES")
-        ADD_DEFINITIONS("-Qunused-arguments -Wno-switch")
+#        ADD_DEFINITIONS("-Qunused-arguments -Wno-switch")
+        ADD_DEFINITIONS("-Wno-switch")
 ENDIF()
 
 OPTION(BUILD_MEGAGLEST_MODEL_IMPORT_EXPORT_TOOLS "Build model import/export tools" ON)
@@ -98,15 +99,34 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 	# Default compiler flags
 	#SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s")  ## Strip binary
 
+        # Common generic GNU type compiler options that work with all generic GCC compatible compilers
+        ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing")
+
 	# For gcc warning options see: http://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
 	IF(NOT MINGW)
 		# For tons of verbose warnings add: -Wall
 #		ADD_DEFINITIONS("-Wreturn-type -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -rdynamic")
-		ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing -frounding-math  -fsignaling-nans -rdynamic")
+#		ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing -frounding-math  -fsignaling-nans -rdynamic")
 	ELSE()
 #		ADD_DEFINITIONS("-Wreturn-type -fno-strict-aliasing -frounding-math  -fsignaling-nans -mfpmath=sse -msse -DUNICODE")
-		ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing -frounding-math  -fsignaling-nans -DUNICODE")
+#		ADD_DEFINITIONS("-Wuninitialized -Wsign-compare -Wunused-function -Wunused-variable -Wreturn-type -fno-strict-aliasing -frounding-math  -fsignaling-nans -DUNICODE")
+                ADD_DEFINITIONS("-DUNICODE")
+
 	ENDIF()
+
+        # CLang specific Compiler Options
+        IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+
+        # GCC specific Compiler Options
+        ELSE()
+                ADD_DEFINITIONS("-frounding-math -fsignaling-nans")
+
+#                IF(NOT MINGW)
+#                        set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -rdynamic")
+#                        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -rdynamic")
+#                ENDIF()
+        ENDIF()
+
 	#SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")	
         
         #MESSAGE(STATUS "*TEST: Checking for max SSE LEVEL [${MAX_SSE_LEVEL_DESIRED}]")
@@ -344,6 +364,13 @@ ENDIF()
 IF(EXISTS "${PROJECT_SOURCE_DIR}/data/glest_game/CMakeLists.txt")
         MESSAGE(STATUS "**Found game data.")
 	ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/data/glest_game )
+ENDIF()
+
+#get_directory_property( DirDefs COMPILE_DEFINITIONS )
+#MESSAGE(STATUS ">>>> NOTICE Compiler definitions used: ${DirDefs}")
+#MESSAGE(STATUS "END of compile defs...")
+IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+        MESSAGE(WARNING ">> CLANG is NOT currently compatible as it does not support the following essential GCC compiler settings: -frounding-math -fsignaling-nans")
 ENDIF()
 
 SET(CPACK_GENERATOR "DEB")
