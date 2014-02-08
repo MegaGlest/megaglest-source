@@ -703,13 +703,17 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	publishToMasterserverThread->start();
 	publishToClientsThread->start();
 
-	if(openNetworkSlots==true){
-		if(fileExists(DEFAULT_NETWORKGAME_FILENAME) == true)
-			loadGameSettings(DEFAULT_NETWORKGAME_FILENAME);
+	if(openNetworkSlots == true) {
+		string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+
+		if(fileExists(data_path + DEFAULT_NETWORKGAME_FILENAME) == true)
+			loadGameSettings(data_path + DEFAULT_NETWORKGAME_FILENAME);
 	}
 	else {
-		if(fileExists(DEFAULT_GAME_FILENAME) == true)
-			loadGameSettings(DEFAULT_GAME_FILENAME);
+		string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+
+		if(fileExists(data_path + DEFAULT_GAME_FILENAME) == true)
+			loadGameSettings(data_path + DEFAULT_GAME_FILENAME);
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
