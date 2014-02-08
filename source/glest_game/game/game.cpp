@@ -159,7 +159,7 @@ Game::Game() : ProgramState(NULL) {
 	isUnMarkCellEnabled = false;
 	unmarkCellTexture = NULL;
 
-	masterserverMode = false;
+	headlessServerMode = false;
 	currentUIState=NULL;
 	currentAmbientSound=NULL;
 	//printf("In [%s:%s] Line: %d currentAmbientSound = [%p]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,currentAmbientSound);
@@ -300,17 +300,17 @@ void Game::resetMembers() {
 	logger.showProgress();
 }
 
-Game::Game(Program *program, const GameSettings *gameSettings,bool masterserverMode):
+Game::Game(Program *program, const GameSettings *gameSettings,bool headlessServerMode):
 	ProgramState(program), lastMousePos(0), isFirstRender(true)
 {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	this->masterserverMode = masterserverMode;
+	this->headlessServerMode = headlessServerMode;
 	videoPlayer = NULL;
 	playingStaticVideo = false;
 
-	if(this->masterserverMode == true) {
+	if(this->headlessServerMode == true) {
 		printf("Starting a new game...\n");
 	}
 
@@ -1381,6 +1381,7 @@ void Game::init(bool initForPreviewOnly) {
 		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
 		bool isNetworkGame 				= this->gameSettings.isNetworkGame();
 		role 							= networkManager.getNetworkRole();
+		bool headlessAdmin             = gameSettings.getMasterserver_admin();
 
 		masterController.clearSlaves(true);
 		deleteValues(aiInterfaces.begin(), aiInterfaces.end());
@@ -1392,7 +1393,7 @@ void Game::init(bool initForPreviewOnly) {
 
 			//printf("Controltype = %d for index = %d\n",faction->getControlType(),i);
 
-			if(faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true) {
+			if(faction->getCpuControl(enableServerControlledAI,isNetworkGame,role,headlessServerMode,headlessAdmin) == true) {
 				//printf("** Loading AI player for Controltype = %d for index = %d\n",faction->getControlType(),i);
 
 				aiInterfaces[i]= new AiInterface(*this, i, faction->getTeam());
@@ -1501,7 +1502,7 @@ void Game::init(bool initForPreviewOnly) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Starting music stream\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		logger.add(Lang::getInstance().getString("LogScreenGameLoadingStartingMusic","",true), true);
 
-		if(this->masterserverMode == false) {
+		if(this->headlessServerMode == false) {
 			if(world.getThisFaction() == NULL) {
 				throw megaglest_runtime_error("world.getThisFaction() == NULL");
 			}
@@ -1537,7 +1538,7 @@ void Game::init(bool initForPreviewOnly) {
 			soundRenderer.playAmbient(currentAmbientSound);
 		}
 
-		if(this->masterserverMode == false) {
+		if(this->headlessServerMode == false) {
 			StrSound *gameMusic= world.getThisFaction()->getType()->getMusic();
 			soundRenderer.playMusic(gameMusic);
 		}
@@ -1588,7 +1589,7 @@ void Game::init(bool initForPreviewOnly) {
 
 	gameStarted = true;
 
-	if(this->masterserverMode == true) {
+	if(this->headlessServerMode == true) {
 		world.getStats()->setIsMasterserverMode(true);
 
 		printf("New game has started...\n");
@@ -1796,6 +1797,8 @@ void Game::update() {
 		// set game stats for host
 		NetworkManager &networkManager	= NetworkManager::getInstance();
 		NetworkRole role 				= networkManager.getNetworkRole();
+		bool headlessAdmin             = gameSettings.getMasterserver_admin();
+
 		if(role == nrServer) {
 			ServerInterface *server = NetworkManager::getInstance().getServerInterface(false);
 			if(server != NULL) {
@@ -1808,7 +1811,7 @@ void Game::update() {
 								  NetworkManager::getInstance().getGameNetworkInterface()->getQuit()));
 
 		if(pendingQuitError == true &&
-		   (this->masterserverMode == true ||
+		   (this->headlessServerMode == true ||
 		    (mainMessageBox.getEnabled() == false && errorMessageBox.getEnabled() == false))) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -1816,7 +1819,7 @@ void Game::update() {
 			return;
 		}
 
-		if(this->masterserverMode == false) {
+		if(this->headlessServerMode == false) {
 			if(world.getFactionCount() > 0 && world.getThisFaction()->getFirstSwitchTeamVote() != NULL) {
 				const SwitchTeamVote *vote = world.getThisFaction()->getFirstSwitchTeamVote();
 				GameSettings *settings = world.getGameSettingsPtr();
@@ -1987,7 +1990,7 @@ void Game::update() {
 
 		chronoGamePerformanceCounts.start();
 
-		ReplaceDisconnectedNetworkPlayersWithAI(isNetworkGame, role);
+		replaceDisconnectedNetworkPlayersWithAI(isNetworkGame, role);
 
 		addPerformanceCount("ReplaceDisconnectedNetworkPlayersWithAI",chronoGamePerformanceCounts.getMillis());
 
@@ -2048,7 +2051,7 @@ void Game::update() {
 
 								//printf("Faction Index = %d enableServerControlledAI = %d, isNetworkGame = %d, role = %d isCPU player = %d scriptManager.getPlayerModifiers(j)->getAiEnabled() = %d\n",j,enableServerControlledAI,isNetworkGame,role,faction->getCpuControl(enableServerControlledAI,isNetworkGame,role),scriptManager.getPlayerModifiers(j)->getAiEnabled());
 
-								if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
+								if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role, headlessServerMode,headlessAdmin) == true &&
 									scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
 
 									if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] [i = %d] faction = %d, factionCount = %d, took msecs: %lld [before AI updates]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,j,world.getFactionCount(),chrono.getMillis());
@@ -2076,7 +2079,7 @@ void Game::update() {
 										if(faction == NULL) {
 											throw megaglest_runtime_error("faction == NULL");
 										}
-										if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true &&
+										if(	faction->getCpuControl(enableServerControlledAI,isNetworkGame,role,headlessServerMode,headlessAdmin) == true &&
 											scriptManager.getPlayerModifiers(j)->getAiEnabled() == true) {
 											if(aiInterfaces[j]->isWorkerThreadSignalCompleted(world.getFrameCount()) == false) {
 												workThreadsFinished = false;
@@ -2156,7 +2159,7 @@ void Game::update() {
 					//World
 					chronoGamePerformanceCounts.start();
 
-					if(pendingQuitError == false) world.update();
+					if(pendingQuitError == false) world.update(headlessServerMode);
 
 					addPerformanceCount("ProcessWorldUpdate",chronoGamePerformanceCounts.getMillis());
 
@@ -2735,7 +2738,7 @@ void Game::update() {
 					soundRenderer.playAmbient(currentAmbientSound);
 				}
 
-				if(this->masterserverMode == false) {
+				if(this->headlessServerMode == false) {
 					StrSound *gameMusic= world.getThisFaction()->getType()->getMusic();
 					soundRenderer.playMusic(gameMusic);
 				}
@@ -3085,7 +3088,7 @@ void Game::addOrReplaceInHighlightedCells(MarkedCell mc){
 	}
 	highlightedCells.push_back(mc);
 
-	if (this->masterserverMode == false) {
+	if (this->headlessServerMode == false) {
 		CoreData &coreData= CoreData::getInstance();
 		SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 
@@ -3101,9 +3104,9 @@ void Game::addOrReplaceInHighlightedCells(MarkedCell mc){
 	}
 }
 
-void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRole role) {
+void Game::replaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRole role) {
 	if(role == nrServer && isNetworkGame == true &&
-			difftime((long int)time(NULL),lastNetworkPlayerConnectionCheck) >= NETWORK_PLAYER_CONNECTION_CHECK_SECONDS) {
+			difftime((long int)time(NULL),lastNetworkPlayerConnectionCheck) >= NETWORK_PLAYER_CONNECTION_CHECK_SECONDS ) {
 		lastNetworkPlayerConnectionCheck = time(NULL);
 		Logger &logger= Logger::getInstance();
 		ServerInterface *server = NetworkManager::getInstance().getServerInterface();
@@ -3132,14 +3135,14 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 					bool isPlayerObserver = false;
 					char szBuf[8096]="";
 					if(faction->getPersonalityType() != fpt_Observer) {
-						aiInterfaces[i] = new AiInterface(*this, i, faction->getTeam(), faction->getStartLocationIndex());
+						if(!gameSettings.getMasterserver_admin()){
+							aiInterfaces[i] = new AiInterface(*this, i, faction->getTeam(), faction->getStartLocationIndex());
 
-						snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
-						logger.add(szBuf, true);
-
+							snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
+							logger.add(szBuf, true);
+							newAIPlayerCreated = true;
+						}
 						commander.tryNetworkPlayerDisconnected(i);
-
-						newAIPlayerCreated = true;
 					}
 					else {
 						isPlayerObserver = true;
@@ -3177,7 +3180,38 @@ void Game::ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 			std::vector<SlaveThreadControllerInterface *> slaveThreadList;
 			for(int i=0; i < world.getFactionCount(); ++i) {
 				Faction *faction= world.getFaction(i);
-				if(faction->getCpuControl(enableServerControlledAI,isNetworkGame,role) == true) {
+				if(faction->getCpuControl(enableServerControlledAI,isNetworkGame,role,headlessServerMode,gameSettings.getMasterserver_admin()) == true) {
+					slaveThreadList.push_back(aiInterfaces[i]->getWorkerThread());
+				}
+			}
+			masterController.setSlaves(slaveThreadList);
+		}
+	}
+}
+void Game::switchPlayerToAIControl(int factionIndex){
+	Faction *faction = world.getFaction(factionIndex);
+	if(aiInterfaces[factionIndex] == NULL && faction->getPersonalityType() != fpt_Observer && gameSettings.getMasterserver_admin()) {
+		Logger &logger= Logger::getInstance();
+		char szBuf[8096]="";
+
+		aiInterfaces[factionIndex] = new AiInterface(*this, factionIndex, faction->getTeam(), faction->getStartLocationIndex());
+
+		snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),factionIndex);
+		logger.add(szBuf, true);
+
+		if( Config::getInstance().getBool("EnableNewThreadManager","false") == true) {
+			bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
+			bool isNetworkGame = this->gameSettings.isNetworkGame();
+			NetworkManager &networkManager	= NetworkManager::getInstance();
+			NetworkRole role 				= networkManager.getNetworkRole();
+			bool headlessAdmin             = gameSettings.getMasterserver_admin();
+
+			masterController.clearSlaves(true);
+
+			std::vector<SlaveThreadControllerInterface *> slaveThreadList;
+			for(int i=0; i < world.getFactionCount(); ++i) {
+				Faction *faction= world.getFaction(i);
+				if(faction->getCpuControl(enableServerControlledAI,isNetworkGame,role,headlessServerMode,headlessAdmin) == true) {
 					slaveThreadList.push_back(aiInterfaces[i]->getWorkerThread());
 				}
 			}
@@ -3218,7 +3252,7 @@ void Game::render() {
 	updateWorldStats();
 
 	//NetworkManager &networkManager= NetworkManager::getInstance();
-	if(this->masterserverMode == false) {
+	if(this->headlessServerMode == false) {
 		renderWorker();
 	}
 	else {
@@ -3679,7 +3713,7 @@ void Game::showMarker(Vec2i cellPos, MarkedCell cellData) {
 }
 
 void Game::mouseDownLeft(int x, int y) {
-	if(this->masterserverMode == true) {
+	if(this->headlessServerMode == true) {
 		return;
 	}
 	cameraDragAllowed=false;
@@ -4215,7 +4249,7 @@ void Game::mouseDownLeft(int x, int y) {
 }
 
 void Game::mouseDownRight(int x, int y) {
-	if(this->masterserverMode == true) {
+	if(this->headlessServerMode == true) {
 		return;
 	}
 
@@ -4273,7 +4307,7 @@ void Game::mouseDownRight(int x, int y) {
 }
 
  void Game::mouseUpCenter(int x, int y) {
-	if(this->masterserverMode == true) {
+	if(this->headlessServerMode == true) {
 		return;
 	}
 
@@ -4295,7 +4329,7 @@ void Game::mouseDownRight(int x, int y) {
 }
 
 void Game::mouseUpLeft(int x, int y) {
-	if(this->masterserverMode == true) {
+	if(this->headlessServerMode == true) {
 		return;
 	}
 
@@ -4330,7 +4364,7 @@ void Game::mouseUpLeft(int x, int y) {
 }
 
 void Game::mouseDoubleClickLeft(int x, int y) {
-	if(this->masterserverMode == true) {
+	if(this->headlessServerMode == true) {
 		return;
 	}
 
@@ -4376,7 +4410,7 @@ void Game::mouseDoubleClickLeft(int x, int y) {
 }
 
 void Game::mouseMove(int x, int y, const MouseState *ms) {
-	if(this->masterserverMode == true) {
+	if(this->headlessServerMode == true) {
 		return;
 	}
 
@@ -4529,7 +4563,7 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 }
 
 void Game::eventMouseWheel(int x, int y, int zDelta) {
-	if(this->masterserverMode == true) {
+	if(this->headlessServerMode == true) {
 		return;
 	}
 
@@ -4583,7 +4617,7 @@ void Game::startCameraFollowUnit() {
 }
 
 void Game::keyDown(SDL_KeyboardEvent key) {
-	if(this->masterserverMode == true) {
+	if(this->headlessServerMode == true) {
 		return;
 	}
 
@@ -4659,7 +4693,7 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			//else if(key == configKeys.getCharKey("ToggleMusic")) {
 			else if(isKeyPressed(configKeys.getSDLKey("ToggleMusic"),key, false) == true) {
 
-				if(this->masterserverMode == false) {
+				if(this->headlessServerMode == false) {
 					Config &config = Config::getInstance();
 					StrSound *gameMusic = world.getThisFaction()->getType()->getMusic();
 					if(gameMusic != NULL) {
@@ -4879,7 +4913,7 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 }
 
 void Game::keyUp(SDL_KeyboardEvent key) {
-	if(this->masterserverMode == true) {
+	if(this->headlessServerMode == true) {
 		return;
 	}
 
@@ -4986,7 +5020,7 @@ void Game::calcCameraMoveZ(){
 }
 
 void Game::keyPress(SDL_KeyboardEvent c) {
-	if(this->masterserverMode == true) {
+	if(this->headlessServerMode == true) {
 		return;
 	}
 
@@ -5005,7 +5039,7 @@ Stats Game::getEndGameStats() {
 	Stats endStats;
 	endStats = *(world.getStats());
 	//NetworkManager &networkManager= NetworkManager::getInstance();
-	if (this->masterserverMode == true) {
+	if (this->headlessServerMode == true) {
 		endStats.setIsMasterserverMode(true);
 	}
 	return endStats;
@@ -5124,7 +5158,7 @@ void Game::exitGameState(Program *program, Stats &endStats) {
 		game->endGame();
 	}
 
-	if((game != NULL && game->isMasterserverMode() == true) ||
+	if((game != NULL && game->isHeadlessMode() == true) ||
 		Config::getInstance().getBool("AutoTest") == true) {
 		printf("Game ending with stats:\n");
 		printf("-----------------------\n");
@@ -5290,7 +5324,7 @@ void Game::updateWorldStats() {
 string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 	string str = "";
 
-	if(this->masterserverMode == false) {
+	if(this->headlessServerMode == false) {
 		str+= "MouseXY: "        + intToStr(mouseX) + "," + intToStr(mouseY)+"\n";
 
 		if(world.getMap()->isInsideSurface(world.getMap()->toSurfCoords(mouseCellPos)) == true) {
@@ -5303,7 +5337,7 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 	str+= "Render FPS: "     + intToStr(lastRenderFps) + "[" + intToStr(avgRenderFps) + "]\n";
 	str+= "Update FPS: "     + intToStr(lastUpdateFps) + "[" + intToStr(avgUpdateFps) + "]\n";
 
-	if(this->masterserverMode == false) {
+	if(this->headlessServerMode == false) {
 		str+= "GameCamera pos: " + floatToStr(gameCamera.getPos().x)+","+floatToStr(gameCamera.getPos().y)+","+floatToStr(gameCamera.getPos().z)+"\n";
 		//str+= "Cached surfacedata: " +  intToStr(renderer.getCachedSurfaceDataSize())+"\n";
 	}
@@ -5333,7 +5367,7 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 	str+= "Tileset: " + gameSettings.getTileset() +"\n";
 	str+= "Techtree: " + gameSettings.getTech() +"\n";
 
-	if(this->masterserverMode == false) {
+	if(this->headlessServerMode == false) {
 		Renderer &renderer= Renderer::getInstance();
 		str+= "Triangle count: " + intToStr(renderer.getTriangleCount())+"\n";
 		str+= "Vertex count: "   + intToStr(renderer.getPointCount())+"\n";
@@ -5342,7 +5376,7 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 	str+= "Frame count:"     + intToStr(world.getFrameCount())+"\n";
 
 	//visible quad
-	if(this->masterserverMode == false) {
+	if(this->headlessServerMode == false) {
 		Renderer &renderer= Renderer::getInstance();
 		Quad2i visibleQuad= renderer.getVisibleQuad();
 		//Quad2i visibleQuadCamera= renderer.getVisibleQuadFromCamera();
@@ -5374,7 +5408,7 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 		totalUnitcount += faction->getUnitCount();
 	}
 
-	if(this->masterserverMode == false) {
+	if(this->headlessServerMode == false) {
 		Renderer &renderer= Renderer::getInstance();
 		VisibleQuadContainerCache &qCache =renderer.getQuadCache();
 		int visibleUnitCount = (int)qCache.visibleQuadUnitList.size();
@@ -5624,7 +5658,7 @@ void Game::render2d() {
 
     //resource info
 	if(photoModeEnabled == false) {
-		if(this->masterserverMode == false) {
+		if(this->headlessServerMode == false) {
 			renderer.renderResourceStatus();
 		}
 		renderer.renderConsole(&console,showFullConsole);
@@ -5659,7 +5693,7 @@ void Game::checkWinner() {
 
 void Game::setEndGameTeamWinnersAndLosers() {
 	//bool lose= false;
-	bool checkTeamIndex = !(this->masterserverMode == false && world.getThisFaction()->getPersonalityType() != fpt_Observer);
+	bool checkTeamIndex = !(this->headlessServerMode == false && world.getThisFaction()->getPersonalityType() != fpt_Observer);
 
 	// lookup int is team #, value is players alive on team
 	std::map<int,int> teamsAlive;
@@ -5742,7 +5776,7 @@ void Game::checkWinnerStandardHeadlessOrObserver() {
 
 	// did some team win
 	if (teamsAlive.size() <= 1) {
-		if (this->masterserverMode == true) {
+		if (this->headlessServerMode == true) {
 			printf("Game finished...\n");
 		}
 		for (int factionIndex = 0; factionIndex < world.getFactionCount(); ++factionIndex) {
@@ -5752,7 +5786,7 @@ void Game::checkWinnerStandardHeadlessOrObserver() {
 					teamsAlive.find(faction->getTeam()) != teamsAlive.end()) {
 
 				world.getStats()->setVictorious(factionIndex);
-				if (this->masterserverMode == true) {
+				if (this->headlessServerMode == true) {
 
 					printf("Player: %s is on the winning team #: %d\n",
 							this->gameSettings.getNetworkPlayerName(factionIndex).c_str(),
@@ -5902,7 +5936,7 @@ void Game::checkWinnerStandard() {
 	if(world.getFactionCount() <= 0) {
 		return;
 	}
-	if(this->masterserverMode == true ||
+	if(this->headlessServerMode == true ||
 		world.getThisFaction()->getPersonalityType() == fpt_Observer) {
 		checkWinnerStandardHeadlessOrObserver();
 	}
@@ -5938,7 +5972,7 @@ void Game::checkWinnerScripted() {
 				// END
 			}
 
-			if(this->masterserverMode == true ||
+			if(this->headlessServerMode == true ||
 					world.getThisFaction()->getPersonalityType() == fpt_Observer) {
 				showWinMessageBox();
 			}
@@ -6181,7 +6215,7 @@ void Game::showLoseMessageBox() {
 void Game::showWinMessageBox() {
 	Lang &lang= Lang::getInstance();
 
-	if(this->masterserverMode == true || world.getThisFaction()->getPersonalityType() == fpt_Observer) {
+	if(this->headlessServerMode == true || world.getThisFaction()->getPersonalityType() == fpt_Observer) {
 		showMessageBox(lang.getString("GameOver")+" "+lang.getString("ExitGameMenu?"), lang.getString("BattleOver"), false);
 	}
 	else {
@@ -6616,7 +6650,7 @@ string Game::saveGame(string name, string path) {
 
 	xmlTree.save(saveGameFile);
 
-	if(masterserverMode == false) {
+	if(headlessServerMode == false) {
 		// take Screenshot
 		string jpgFileName=saveGameFile+".jpg";
 		// menu is already disabled, last rendered screen is still with enabled one. Lets render again:
@@ -6628,7 +6662,7 @@ string Game::saveGame(string name, string path) {
 	return saveGameFile;
 }
 
-void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,const GameSettings *joinGameSettings) {
+void Game::loadGame(string name,Program *programPtr,bool headlessServerMode,const GameSettings *joinGameSettings) {
 	Config &config= Config::getInstance();
 	// This condition will re-play all the commands from a replay file
 	// INSTEAD of saving from a saved game.
@@ -6675,7 +6709,7 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 		networkManager.end();
 		networkManager.init(nrServer,true);
 
-		Game *newGame = new Game(programPtr, &newGameSettingsReplay, isMasterserverMode);
+		Game *newGame = new Game(programPtr, &newGameSettingsReplay, headlessServerMode);
 		newGame->lastworldFrameCountForReplay = gameNode->getAttribute("LastWorldFrameCount")->getIntValue();
 
 		vector<XmlNode *> networkCommandNodeList = gameNode->getChildList("NetworkCommand");
@@ -6781,7 +6815,7 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 		networkManager.init(nrServer,true);
 	}
 
-	Game *newGame = new Game(programPtr, &newGameSettings, isMasterserverMode);
+	Game *newGame = new Game(programPtr, &newGameSettings, headlessServerMode);
 
 	newGame->loadGameNode = gameNode;
 	newGame->inJoinGameLoading = (joinGameSettings != NULL);

@@ -184,7 +184,7 @@ private:
 	std::map<Vec2i, MarkedCell> mapMarkedCellList;
 	Texture2D *highlightCellTexture;
 	std::vector<MarkedCell> highlightedCells;
-	bool masterserverMode;
+	bool headlessServerMode;
 
 	StrSound *currentAmbientSound;
 
@@ -220,7 +220,7 @@ private:
 
 public:
 	Game();
-    Game(Program *program, const GameSettings *gameSettings, bool masterserverMode);
+    Game(Program *program, const GameSettings *gameSettings, bool headlessServerMode);
     ~Game();
 
     void reInitGUI();
@@ -237,7 +237,7 @@ public:
     const std::vector<MarkedCell> * getHighlightedCells() const { return &highlightedCells; }
     void addOrReplaceInHighlightedCells(MarkedCell mc);
 
-    bool isMasterserverMode() const { return masterserverMode; }
+    bool isHeadlessMode() const { return headlessServerMode; }
     //get
     GameSettings *getGameSettings() 	    		{return &gameSettings;}
     void setGameSettings(GameSettings *settings) 	{ gameSettings = *settings;}
@@ -349,6 +349,7 @@ public:
 	string getGamePerformanceCounts(bool displayWarnings) const;
 	virtual void addPerformanceCount(string key,int64 value);
 	bool getRenderInGamePerformance() const { return renderInGamePerformance; }
+	void switchPlayerToAIControl(int factionIndex);
 
 private:
 	//render
@@ -375,7 +376,7 @@ private:
 	void renderWorker();
 	static int ErrorDisplayMessage(const char *msg, bool exitApp);
 
-	void ReplaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRole role);
+	void replaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRole role);
 	void calcCameraMoveX();
 	void calcCameraMoveZ();
 

@@ -343,7 +343,9 @@ bool AiInterface::executeCommandOverNetwork() {
 	bool isNetworkGame 				= gameSettings->isNetworkGame();
 	NetworkRole role 				= NetworkManager::getInstance().getNetworkRole();
 	Faction *faction 				= world->getFaction(factionIndex);
-	return faction->getCpuControl(enableServerControlledAI,isNetworkGame,role);
+	bool headlessServerMode        = world->getGame()->isHeadlessMode();
+	bool headlessAdmin             = gameSettings->getMasterserver_admin();
+	return faction->getCpuControl(enableServerControlledAI,isNetworkGame,role,headlessServerMode,headlessAdmin);
 }
 
 std::pair<CommandResult,string> AiInterface::giveCommandSwitchTeamVote(const Faction* faction, SwitchTeamVote *vote) {

@@ -816,7 +816,7 @@ void World::updateAllFactionConsumableCosts() {
 	}
 }
 
-void World::update() {
+void World::update(bool headlessServerMode) {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -830,57 +830,20 @@ void World::update() {
 
 	++frameCount;
 
-	//time
-	timeFlow.update();
-	if(scriptManager) scriptManager->onDayNightTriggerEvent();
-
-	if(showPerfStats) {
-		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
-		perfList.push_back(perfBuf);
-	}
-
-	//water effects
-	waterEffects.update(1.0f);
-	// attack effects
-	attackEffects.update(0.25f);
-
-	if(showPerfStats) {
-		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
-		perfList.push_back(perfBuf);
-	}
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	// objects on the map from tilesets
-	if(this->game) chronoGamePerformanceCounts.start();
-
-	updateAllTilesetObjects();
-
-	if(this->game) this->game->addPerformanceCount("updateAllTilesetObjects",chronoGamePerformanceCounts.getMillis());
-
-	if(showPerfStats) {
-		sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
-		perfList.push_back(perfBuf);
-	}
-
-	//units
-	if(getFactionCount() > 0) {
-		if(this->game) chronoGamePerformanceCounts.start();
-
-		updateAllFactionUnits();
-
-		if(this->game) this->game->addPerformanceCount("updateAllFactionUnits",chronoGamePerformanceCounts.getMillis());
+	if(!headlessServerMode){
+		//time
+		timeFlow.update();
+		if(scriptManager) scriptManager->onDayNightTriggerEvent();
 
 		if(showPerfStats) {
 			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
 			perfList.push_back(perfBuf);
 		}
 
-		//undertake the dead
-		if(this->game) chronoGamePerformanceCounts.start();
-
-		underTakeDeadFactionUnits();
-
-		if(this->game) this->game->addPerformanceCount("underTakeDeadFactionUnits",chronoGamePerformanceCounts.getMillis());
+		//water effects
+		waterEffects.update(1.0f);
+		// attack effects
+		attackEffects.update(0.25f);
 
 		if(showPerfStats) {
 			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
@@ -888,36 +851,75 @@ void World::update() {
 		}
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-		//food costs
+		// objects on the map from tilesets
 		if(this->game) chronoGamePerformanceCounts.start();
 
-		updateAllFactionConsumableCosts();
+		updateAllTilesetObjects();
 
-		if(this->game) this->game->addPerformanceCount("updateAllFactionConsumableCosts",chronoGamePerformanceCounts.getMillis());
+		if(this->game) this->game->addPerformanceCount("updateAllTilesetObjects",chronoGamePerformanceCounts.getMillis());
 
 		if(showPerfStats) {
 			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
 			perfList.push_back(perfBuf);
 		}
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		//fow smoothing
-		if(fogOfWarSmoothing && ((frameCount+1) % (fogOfWarSmoothingFrameSkip+1)) == 0) {
+		//units
+		if(getFactionCount() > 0) {
 			if(this->game) chronoGamePerformanceCounts.start();
 
-			float fogFactor= static_cast<float>(frameCount % GameConstants::updateFps) / GameConstants::updateFps;
-			minimap.updateFowTex(clamp(fogFactor, 0.f, 1.f));
+			updateAllFactionUnits();
 
-			if(this->game) this->game->addPerformanceCount("minimap.updateFowTex",chronoGamePerformanceCounts.getMillis());
+			if(this->game) this->game->addPerformanceCount("updateAllFactionUnits",chronoGamePerformanceCounts.getMillis());
+
+			if(showPerfStats) {
+				sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+				perfList.push_back(perfBuf);
+			}
+
+			//undertake the dead
+			if(this->game) chronoGamePerformanceCounts.start();
+
+			underTakeDeadFactionUnits();
+
+			if(this->game) this->game->addPerformanceCount("underTakeDeadFactionUnits",chronoGamePerformanceCounts.getMillis());
+
+			if(showPerfStats) {
+				sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+				perfList.push_back(perfBuf);
+			}
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+			//food costs
+			if(this->game) chronoGamePerformanceCounts.start();
+
+			updateAllFactionConsumableCosts();
+
+			if(this->game) this->game->addPerformanceCount("updateAllFactionConsumableCosts",chronoGamePerformanceCounts.getMillis());
+
+			if(showPerfStats) {
+				sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+				perfList.push_back(perfBuf);
+			}
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			//fow smoothing
+			if(fogOfWarSmoothing && ((frameCount+1) % (fogOfWarSmoothingFrameSkip+1)) == 0) {
+				if(this->game) chronoGamePerformanceCounts.start();
+
+				float fogFactor= static_cast<float>(frameCount % GameConstants::updateFps) / GameConstants::updateFps;
+				minimap.updateFowTex(clamp(fogFactor, 0.f, 1.f));
+
+				if(this->game) this->game->addPerformanceCount("minimap.updateFowTex",chronoGamePerformanceCounts.getMillis());
+			}
+
+			if(showPerfStats) {
+				sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
+				perfList.push_back(perfBuf);
+			}
+
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		}
-
-		if(showPerfStats) {
-			sprintf(perfBuf,"In [%s::%s] Line: %d took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chronoPerf.getMillis());
-			perfList.push_back(perfBuf);
-		}
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		//tick
 		bool needToTick = canTickWorld();
 
@@ -2009,7 +2011,7 @@ void World::initFactionTypes(GameSettings *gs) {
 	//create stats
 	//printf("World gs->getThisFactionIndex() = %d\n",gs->getThisFactionIndex());
 
-	if(this->game->isMasterserverMode() == true) {
+	if(this->game->isHeadlessMode() == true) {
 		this->thisFactionIndex = -1;
 	}
 	else {
@@ -2125,7 +2127,7 @@ void World::initFactionTypes(GameSettings *gs) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	if(factions.empty() == false) {
-		if(this->game->isMasterserverMode() == true) {
+		if(this->game->isHeadlessMode() == true) {
 			thisTeamIndex = -1;
 		}
 		else {
