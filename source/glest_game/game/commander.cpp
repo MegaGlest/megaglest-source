@@ -823,21 +823,23 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 			GameSettings *settings = world->getGameSettingsPtr();
     		if(playerStatus == npst_Disconnected) {
     			//printf("Commander nctPlayerStatusChange factionIndex: %d\n",factionIndex);
-
+    			Game *game = this->world->getGame();
     			settings->setNetworkPlayerStatuses(factionIndex,npst_Disconnected);
 
     			//printf("nctPlayerStatusChange -> faction->getPersonalityType() = %d index [%d] control [%d] networkstatus [%d]\n",
     			//		world->getFaction(factionIndex)->getPersonalityType(),world->getFaction(factionIndex)->getIndex(),world->getFaction(factionIndex)->getControlType(),settings->getNetworkPlayerStatuses(factionIndex));
 
+    			game->switchPlayerToAIControl(factionIndex);
+
     			//printf("#2 nctPlayerStatusChange factionIndex = %d playerStatus = %d\n",factionIndex,playerStatus);
     			settings->setFactionControl(factionIndex,ctCpuUltra);
     			settings->setResourceMultiplierIndex(factionIndex,settings->getFallbackCpuMultiplier());
-    			//Game *game = this->world->getGame();
+
     			//game->get
     			Faction *faction = this->world->getFaction(factionIndex);
     			faction->setControlType(ctCpuUltra);
 
-        		if(!world->getGame()->getGameOver()&& !this->world->getGame()->factionLostGame(factionIndex)){
+        		if(!game->getGameOver()&& !game->factionLostGame(factionIndex)){
         			// use the fallback multiplier here
 
         			// mark player as "leaver"

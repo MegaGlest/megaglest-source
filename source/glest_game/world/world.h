@@ -211,7 +211,7 @@ public:
 	void initUnitsForScenario();
 
 	//misc
-	void update();
+	void update(bool headlessServerMode);
 	Unit* findUnitById(int id) const;
 	const UnitType* findUnitTypeById(const FactionType* factionType, int id);
 	const UnitType *findUnitTypeByName(const string factionName, const string unitTypeName);

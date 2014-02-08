@@ -270,7 +270,7 @@ public:
 	inline int getCurrentSwitchTeamVoteFactionIndex() const { return currentSwitchTeamVoteFactionIndex; }
 	void setCurrentSwitchTeamVoteFactionIndex(int index) { currentSwitchTeamVoteFactionIndex = index; }
 
-	bool getCpuControl(bool enableServerControlledAI, bool isNetworkGame, NetworkRole role) const;
+	bool getCpuControl(bool enableServerControlledAI, bool isNetworkGame, NetworkRole role, bool headless, bool headlessAdmin) const;
 	bool getCpuControl() const;
 	inline bool getCpuEasyControl() const						{return control==ctCpuEasy;}
 	inline bool getCpuUltraControl() const						{return control==ctCpuUltra;}

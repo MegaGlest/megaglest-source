@@ -834,14 +834,17 @@ int Faction::getStoreAmount(const ResourceType *rt,bool localFactionOnly) const 
 	return 0;
 }
 
-bool Faction::getCpuControl(bool enableServerControlledAI,bool isNetworkGame, NetworkRole role) const {
+bool Faction::getCpuControl(bool enableServerControlledAI,bool isNetworkGame, NetworkRole role , bool headless, bool headlessAdmin) const {
 	bool result = false;
-	if(enableServerControlledAI == false || isNetworkGame == false) {
+	if(headless == true){
+		return false;
+	}
+	else if(enableServerControlledAI == false || isNetworkGame == false) {
 			result = (control == ctCpuEasy ||control == ctCpu || control == ctCpuUltra || control == ctCpuMega);
 	}
 	else {
 		if(isNetworkGame == true) {
-			if(role == nrServer) {
+			if(role == nrServer || headlessAdmin == true) {
 				result = (control == ctCpuEasy ||control == ctCpu || control == ctCpuUltra || control == ctCpuMega);
 			}
 			else {
