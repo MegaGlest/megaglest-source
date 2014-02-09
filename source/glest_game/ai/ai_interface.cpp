@@ -344,7 +344,7 @@ bool AiInterface::executeCommandOverNetwork() {
 	NetworkRole role 				= NetworkManager::getInstance().getNetworkRole();
 	Faction *faction 				= world->getFaction(factionIndex);
 	bool headlessServerMode        = world->getGame()->isHeadlessMode();
-	bool headlessAdmin             = gameSettings->getMasterserver_admin();
+	bool headlessAdmin             = world->getGame()->isHeadlessAdmin();
 	return faction->getCpuControl(enableServerControlledAI,isNetworkGame,role,headlessServerMode,headlessAdmin);
 }
 

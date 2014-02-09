@@ -175,7 +175,7 @@ Game::Game() : ProgramState(NULL) {
 		receivedTooEarlyInFrames[i]=-1;
 		framesNeededToWaitForServerMessage[i]=-1;
 	}
-
+	oldHeadlessAdmin=true;
 	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
 	GAME_STATS_DUMP_INTERVAL = Config::getInstance().getInt("GameStatsDumpIntervalSeconds",intToStr(GAME_STATS_DUMP_INTERVAL).c_str());
 }
@@ -1381,7 +1381,7 @@ void Game::init(bool initForPreviewOnly) {
 		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
 		bool isNetworkGame 				= this->gameSettings.isNetworkGame();
 		role 							= networkManager.getNetworkRole();
-		bool headlessAdmin             = gameSettings.getMasterserver_admin();
+		bool headlessAdmin             = isHeadlessAdmin();
 
 		masterController.clearSlaves(true);
 		deleteValues(aiInterfaces.begin(), aiInterfaces.end());
@@ -1627,6 +1627,11 @@ void Game::reInitGUI() {
 	gui.init(this);
 }
 
+bool Game::isHeadlessAdmin() {
+	if(isHeadlessMode()) return false;
+	return ( gameSettings.getMasterserver_admin_faction_index() == getWorld()->getThisFactionIndex() );
+}
+
 void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
@@ -1770,6 +1775,35 @@ void Game::processNetworkSynchChecksIfRequired() {
 	}
 }
 
+
+void Game::initAiInterfaces(bool enableServerControlledAI, bool isNetworkGame, NetworkRole role, bool headless, bool headlessAdmin){
+	deleteValues(aiInterfaces.begin(), aiInterfaces.end());
+
+	std::vector<SlaveThreadControllerInterface *> slaveThreadList;
+	aiInterfaces.resize(world.getFactionCount());
+	for(int i=0; i < world.getFactionCount(); ++i) {
+		Faction *faction= world.getFaction(i);
+
+		//printf("Controltype = %d for index = %d\n",faction->getControlType(),i);
+
+		if(faction->getCpuControl(enableServerControlledAI,isNetworkGame,role,headlessServerMode,headlessAdmin) == true) {
+			//printf("** Loading AI player for Controltype = %d for index = %d\n",faction->getControlType(),i);
+
+			aiInterfaces[i]= new AiInterface(*this, i, faction->getTeam());
+			if(loadGameNode != NULL) {
+				aiInterfaces[i]->loadGame(loadGameNode,faction);
+			}
+			slaveThreadList.push_back(aiInterfaces[i]->getWorkerThread());
+		}
+		else {
+			aiInterfaces[i]= NULL;
+		}
+	}
+	if(Config::getInstance().getBool("EnableNewThreadManager","false") == true) {
+		masterController.setSlaves(slaveThreadList);
+	}
+}
+
 //update
 void Game::update() {
 	try {
@@ -1795,10 +1829,18 @@ void Game::update() {
 		// a) Updates non dependent on speed
 
 		// set game stats for host
+
+
+		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
+
 		NetworkManager &networkManager	= NetworkManager::getInstance();
 		NetworkRole role 				= networkManager.getNetworkRole();
-		bool headlessAdmin             = gameSettings.getMasterserver_admin();
-
+		bool headlessAdmin             = isHeadlessAdmin();
+		if((oldHeadlessAdmin == false) && (headlessAdmin == true))
+		{// I am headless admin now and I must initialize the aiInterfaces.
+			initAiInterfaces( enableServerControlledAI,  this->gameSettings.isNetworkGame(),  role,  this->headlessServerMode,  headlessAdmin);
+		}
+		oldHeadlessAdmin = headlessAdmin;
 		if(role == nrServer) {
 			ServerInterface *server = NetworkManager::getInstance().getServerInterface(false);
 			if(server != NULL) {
@@ -1861,8 +1903,6 @@ void Game::update() {
 		}
 
 		chronoGamePerformanceCounts.start();
-		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
-
 		if(role == nrClient && updateLoops == 1 && world.getFrameCount() >= (gameSettings.getNetworkFramePeriod() * 2) ) {
 			ClientInterface *clientInterface = dynamic_cast<ClientInterface *>(networkManager.getClientInterface());
 			if(clientInterface != NULL) {
@@ -3135,7 +3175,7 @@ void Game::replaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 					bool isPlayerObserver = false;
 					char szBuf[8096]="";
 					if(faction->getPersonalityType() != fpt_Observer) {
-						if(!gameSettings.getMasterserver_admin()){
+						if(isHeadlessAdmin()){
 							aiInterfaces[i] = new AiInterface(*this, i, faction->getTeam(), faction->getStartLocationIndex());
 
 							snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
@@ -3180,7 +3220,7 @@ void Game::replaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 			std::vector<SlaveThreadControllerInterface *> slaveThreadList;
 			for(int i=0; i < world.getFactionCount(); ++i) {
 				Faction *faction= world.getFaction(i);
-				if(faction->getCpuControl(enableServerControlledAI,isNetworkGame,role,headlessServerMode,gameSettings.getMasterserver_admin()) == true) {
+				if(faction->getCpuControl(enableServerControlledAI,isNetworkGame,role,headlessServerMode,isHeadlessAdmin()) == true) {
 					slaveThreadList.push_back(aiInterfaces[i]->getWorkerThread());
 				}
 			}
@@ -3190,7 +3230,7 @@ void Game::replaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 }
 void Game::switchPlayerToAIControl(int factionIndex){
 	Faction *faction = world.getFaction(factionIndex);
-	if(aiInterfaces[factionIndex] == NULL && faction->getPersonalityType() != fpt_Observer && gameSettings.getMasterserver_admin()) {
+	if(aiInterfaces[factionIndex] == NULL && faction->getPersonalityType() != fpt_Observer && isHeadlessAdmin()) {
 		Logger &logger= Logger::getInstance();
 		char szBuf[8096]="";
 
@@ -3204,7 +3244,7 @@ void Game::switchPlayerToAIControl(int factionIndex){
 			bool isNetworkGame = this->gameSettings.isNetworkGame();
 			NetworkManager &networkManager	= NetworkManager::getInstance();
 			NetworkRole role 				= networkManager.getNetworkRole();
-			bool headlessAdmin             = gameSettings.getMasterserver_admin();
+			bool headlessAdmin             = isHeadlessAdmin();
 
 			masterController.clearSlaves(true);
 
