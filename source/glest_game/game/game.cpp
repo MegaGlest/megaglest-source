@@ -3175,13 +3175,11 @@ void Game::replaceDisconnectedNetworkPlayersWithAI(bool isNetworkGame, NetworkRo
 					bool isPlayerObserver = false;
 					char szBuf[8096]="";
 					if(faction->getPersonalityType() != fpt_Observer) {
-						if(isHeadlessAdmin()){
-							aiInterfaces[i] = new AiInterface(*this, i, faction->getTeam(), faction->getStartLocationIndex());
+						aiInterfaces[i] = new AiInterface(*this, i, faction->getTeam(), faction->getStartLocationIndex());
 
-							snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
-							logger.add(szBuf, true);
-							newAIPlayerCreated = true;
-						}
+						snprintf(szBuf,8096,Lang::getInstance().getString("LogScreenGameLoadingCreatingAIFaction","",true).c_str(),i);
+						logger.add(szBuf, true);
+						newAIPlayerCreated = true;
 						commander.tryNetworkPlayerDisconnected(i);
 					}
 					else {
