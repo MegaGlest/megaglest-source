@@ -6,6 +6,8 @@
 //Foundation; either version 2 of the License, or (at your option) any later
 //version.
 #include "gl_wrap.h"
+#include <CEGUI/RendererModules/OpenGL/GLRenderer.h>
+#include <CEGUI/CEGUI.h>
 
 #include <iostream>
 #include <sstream>
@@ -272,6 +274,15 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 
         SDL_WM_GrabInput(SDL_GRAB_ON);
         SDL_WM_GrabInput(SDL_GRAB_OFF);
+
+        // Bootstrap CEGUI::System with an OpenGLRenderer object that uses the
+        // current GL viewport, the DefaultResourceProvider, and the default
+        // ImageCodec.
+        //
+        // NB: Your OpenGL context must already be initialised when you call this; CEGUI
+        // will not create the OpenGL context itself.
+        //CEGUI::OpenGLRenderer& myRenderer = CEGUI::OpenGLRenderer::bootstrapSystem();
+        CEGUI::OpenGLRenderer::bootstrapSystem();
 	}
 }
 
@@ -302,6 +313,19 @@ void PlatformContextGl::makeCurrent() {
 
 void PlatformContextGl::swapBuffers() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+
+		// make sure that before calling renderAllGUIContexts, that any bound textures
+		// and shaders used to render the scene above are disabled using
+		// glBindTexture(0) and glUseProgram(0) respectively also set
+		// glActiveTexture(GL_TEXTURE_0)
+		// draw GUI
+		// NB: When not using >=3.2 core profile, this call should not occur
+		// between glBegin/glEnd calls.
+		//glBindTexture(0);
+		//glUseProgram(0);
+		//glActiveTexture(GL_TEXTURE_0);
+		CEGUI::System::getSingleton().renderAllGUIContexts();
+
 		SDL_GL_SwapBuffers();
 	}
 }

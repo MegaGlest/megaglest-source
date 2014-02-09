@@ -1,0 +1,6 @@
+<MetaImageset output="Basic.imageset" onlyPOT="false">
+    <Bitmap path="../images/splashscreen.png"/>
+    <Bitmap path="../icons/application_icon.png"/>
+    <Bitmap path="../icons/layout_editing/*.png"/>
+</MetaImageset>
+

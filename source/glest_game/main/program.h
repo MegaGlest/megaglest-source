@@ -233,6 +233,7 @@ private:
 	void setDisplaySettings();
 	void restoreDisplaySettings();
 	void restoreStateFromSystemError();
+	void setupCEGUI();
 };
 
 }} //end namespace

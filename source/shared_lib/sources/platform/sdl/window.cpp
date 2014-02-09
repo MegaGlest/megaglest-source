@@ -6,7 +6,9 @@
 //Foundation; either version 2 of the License, or (at your option) any later
 //version.
 
+#include <CEGUI/CEGUI.h>
 #include "window.h"
+
 
 #include <iostream>
 #include <stdexcept>
@@ -120,6 +122,43 @@ Window::~Window() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
+void cegui_handle_mouse_down(Uint8 button) {
+	switch ( button ) {
+		// handle real mouse buttons
+		case SDL_BUTTON_LEFT:
+			CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(CEGUI::LeftButton);
+			break;
+		case SDL_BUTTON_MIDDLE:
+			CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(CEGUI::MiddleButton);
+			break;
+		case SDL_BUTTON_RIGHT:
+			CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(CEGUI::RightButton);
+			break;
+
+		// handle the mouse wheel
+		case SDL_BUTTON_WHEELDOWN:
+			CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseWheelChange( -1 );
+			break;
+		case SDL_BUTTON_WHEELUP:
+			CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseWheelChange( +1 );
+			break;
+		}
+}
+
+void cegui_handle_mouse_up(Uint8 button) {
+	switch ( button ) {
+		case SDL_BUTTON_LEFT:
+			CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(CEGUI::LeftButton);
+			break;
+		case SDL_BUTTON_MIDDLE:
+			CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(CEGUI::MiddleButton);
+			break;
+		case SDL_BUTTON_RIGHT:
+			CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(CEGUI::RightButton);
+			break;
+		}
+}
+
 bool Window::handleEvent() {
 	string codeLocation = "a";
 
@@ -137,11 +176,24 @@ bool Window::handleEvent() {
 				case SDL_MOUSEBUTTONUP:
 				case SDL_MOUSEMOTION:
 
-					//printf("In [%s::%s] Line :%d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-					codeLocation = "d";
 
            			setLastMouseEvent(Chrono::getCurMillis());
            			setMousePos(Vec2i(event.button.x, event.button.y));
+
+           			if(event.type == SDL_MOUSEMOTION) {
+           				// we inject the mouse position directly.
+						CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(
+						  static_cast<float>(event.motion.x),
+						  static_cast<float>(event.motion.y)
+						);
+           			}
+           			else if(event.type == SDL_MOUSEBUTTONDOWN) {
+           				cegui_handle_mouse_down(event.button.button);
+           			}
+           			else if(event.type == SDL_MOUSEBUTTONUP) {
+           				cegui_handle_mouse_up(event.button.button);
+           			}
+
 					break;
 			}
 
@@ -237,7 +289,18 @@ bool Window::handleEvent() {
 					}
 
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] =================================== END OF SDL SDL_KEYDOWN ================================\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+					// to tell CEGUI that a key was pressed, we inject the scancode.
+					CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown((CEGUI::Key::Scan)event.key.keysym.scancode);
+
+					// as for the character it's a litte more complicated. we'll use for translated unicode value.
+					// this is described in more detail below.
+					if (event.key.keysym.unicode != 0)	{
+					  CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(event.key.keysym.unicode);
 					}
+
+					}
+
 					break;
 
 				case SDL_KEYUP:
@@ -264,6 +327,8 @@ bool Window::handleEvent() {
 					}
 
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] =================================== END OF SDL SDL_KEYUP ================================\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+					CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp((CEGUI::Key::Scan)event.key.keysym.scancode);
 
 					break;
 				case SDL_ACTIVEEVENT:

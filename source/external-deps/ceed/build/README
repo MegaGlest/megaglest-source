@@ -1,0 +1,7 @@
+Python is an interpretted language so building applications in it doesn't
+make much sense.
+
+It makes sense to bundle python, used libraries and the app into a group of
+files that are portable and standalone.
+
+This folder contains cx_Frozen version of the application.

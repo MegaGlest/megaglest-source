@@ -9,7 +9,9 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+#include <CEGUI/CEGUI.h>
 #include "program.h"
+
 
 #include "sound.h"
 #include "renderer.h"
@@ -734,6 +736,67 @@ void Program::exit() {
 
 // ==================== PRIVATE ====================
 
+void Program::setupCEGUI() {
+	//void initialiseResourceGroupDirectories() {
+	    // initialise the required dirs for the DefaultResourceProvider
+	    CEGUI::DefaultResourceProvider* rp =
+	        static_cast<CEGUI::DefaultResourceProvider*>
+	            (CEGUI::System::getSingleton().getResourceProvider());
+
+	    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+	    string data_path_cegui = data_path + "/data/cegui/";
+	    //const char* dataPathPrefix = getDataPathPrefix();
+	    const char* dataPathPrefix = data_path_cegui.c_str();
+	    char resourcePath[PATH_MAX];
+
+	    // for each resource type, set a resource group directory
+	    sprintf(resourcePath, "%s/%s", dataPathPrefix, "schemes/");
+	    rp->setResourceGroupDirectory("schemes", resourcePath);
+	    sprintf(resourcePath, "%s/%s", dataPathPrefix, "imagesets/");
+	    rp->setResourceGroupDirectory("imagesets", resourcePath);
+	    sprintf(resourcePath, "%s/%s", dataPathPrefix, "fonts/");
+	    rp->setResourceGroupDirectory("fonts", resourcePath);
+	    sprintf(resourcePath, "%s/%s", dataPathPrefix, "layouts/");
+	    rp->setResourceGroupDirectory("layouts", resourcePath);
+	    sprintf(resourcePath, "%s/%s", dataPathPrefix, "looknfeel/");
+	    rp->setResourceGroupDirectory("looknfeels", resourcePath);
+	    sprintf(resourcePath, "%s/%s", dataPathPrefix, "lua_scripts/");
+	    rp->setResourceGroupDirectory("lua_scripts", resourcePath);
+	    sprintf(resourcePath, "%s/%s", dataPathPrefix, "xml_schemas/");
+	    rp->setResourceGroupDirectory("schemas", resourcePath);
+	    sprintf(resourcePath, "%s/%s", dataPathPrefix, "animations/");
+	    rp->setResourceGroupDirectory("animations", resourcePath);
+	//}
+
+	//----------------------------------------------------------------------------//
+	//void initialiseDefaultResourceGroups() {
+	    // set the default resource groups to be used
+	    CEGUI::ImageManager::setImagesetDefaultResourceGroup("imagesets");
+	    CEGUI::Font::setDefaultResourceGroup("fonts");
+	    CEGUI::Scheme::setDefaultResourceGroup("schemes");
+	    CEGUI::WidgetLookManager::setDefaultResourceGroup("looknfeels");
+	    CEGUI::WindowManager::setDefaultResourceGroup("layouts");
+	    CEGUI::ScriptModule::setDefaultResourceGroup("lua_scripts");
+	    CEGUI::AnimationManager::setDefaultResourceGroup("animations");
+	    // setup default group for validation schemas
+	    CEGUI::XMLParser* parser = CEGUI::System::getSingleton().getXMLParser();
+	    if (parser->isPropertyPresent("SchemaDefaultResourceGroup"))
+	        parser->setProperty("SchemaDefaultResourceGroup", "schemas");
+	//}
+
+	    CEGUI::SchemeManager::getSingleton().createFromFile("TaharezLook.scheme");
+	    CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setDefaultImage("TaharezLook/MouseArrow");
+	    CEGUI::WindowManager& winMgr(CEGUI::WindowManager::getSingleton());
+	    CEGUI::Window* root = winMgr.createWindow("DefaultWindow", "root");
+	    CEGUI::Window* fw = root->createChild("TaharezLook/FrameWindow");
+	    fw->setPosition(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.25, 0)));
+	    fw->setSize(CEGUI::USize(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.5, 0)));
+	    fw->setText("MegaGlest CE-GUI Test");
+
+	    CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(root);
+
+}
+
 void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -812,6 +875,7 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	CoreData &coreData= CoreData::getInstance();
     coreData.load();
 
+    setupCEGUI();
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//init renderer (load global textures)

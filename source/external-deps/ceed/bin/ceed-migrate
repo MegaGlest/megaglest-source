@@ -1,0 +1,80 @@
+#!/usr/bin/env python2
+
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <martin@preisler.me>
+#                             and contributing authors (see AUTHORS file)
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##############################################################################
+
+"""Data migration command line tool
+"""
+
+import sys
+import argparse
+
+def main():
+    parser = argparse.ArgumentParser(description = "Migrate given files using compatibility layers of the editor")
+
+    parser.add_argument("category", type = str,
+                        help = "Which compatibility category to use ('imageset', 'layout').")
+    parser.add_argument("--sourceType", type = str, default = "Auto", required = False,
+                        help = "What is the source type of the data, if omitted, the type will be guessed")
+    parser.add_argument("--targetType", type = str, default = "Native", required = False,
+                        help = "What should the target type be. If omitted, editor's native type is used")
+
+    parser.add_argument("input", metavar = "INPUT_FILE", type = argparse.FileType("r"),
+                        help = "Input file to be processed.")
+    parser.add_argument("output", metavar = "OUTPUT_FILE", type = argparse.FileType("w"),
+                        help = "Output / target file path.")
+
+    args = parser.parse_args()
+
+    if args.category == "imageset":
+        from ceed.compatibility import imageset as compat
+
+    elif args.category == "layout":
+        from ceed.compatibility import layout as compat
+
+    elif args.category == "scheme":
+        from ceed.compatibility import scheme as compat
+
+    elif args.category == "looknfeel":
+        from ceed.compatibility import looknfeel as compat
+
+    elif args.category == "font":
+        from ceed.compatibility import font as compat
+
+    else:
+        print("Provided compatibility is not valid, such a compatibility module doesn't exist or can't be imported!")
+        sys.exit(1)
+
+    print("\nStarting migration!\n")
+
+    data = args.input.read()
+
+    sourceType = args.sourceType if args.sourceType != "Auto" else compat.manager.guessType(data, args.input.name)
+    targetType = args.targetType if args.targetType != "Native" else compat.manager.EditorNativeType
+
+    outputData = compat.manager.transform(sourceType, targetType, data)
+
+    args.output.write(outputData)
+
+    print("Performed migration from '%s' to '%s'.\ninput size: %i bytes\noutput size: %i bytes" % (sourceType, targetType, len(data), len(outputData)))
+
+if __name__ == "__main__":
+    main()
+

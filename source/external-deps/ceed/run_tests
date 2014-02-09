@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+RUNWRAPPER_NO_FORK=1 source bin/runwrapper.sh
+
+python -m unittest discover -s ceed.tests -p '*.py'

@@ -1,0 +1,190 @@
+#!/usr/bin/env python2
+
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <martin@preisler.me>
+#                             and contributing authors (see AUTHORS file)
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##############################################################################
+
+"""This is a utility toolset script allowing various maintenance tasks
+to be performed with CEED codebase
+"""
+
+# I would have preferred a bash script or a Makefile but to potentially
+# allow Windows folks to use this as well I have chosen python in the end
+
+import sys
+import os
+import argparse
+import subprocess
+import shutil
+
+def get_temporary_directory_path():
+    temp_directory_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                       "maintenance-temp"))
+
+    if not os.path.exists(temp_directory_path):
+        os.mkdir(temp_directory_path)
+
+    return temp_directory_path
+
+def compile_ui_files():
+    from ceed import compileuifiles
+    compileuifiles.main()
+
+def build_docs():
+    print("Building a PDF version of quickstart guide...")
+    subprocess.call(["lyx", "-e", "pdf", "doc/quickstart-guide-src/quickstart-guide.lyx"])
+    shutil.move("doc/quickstart-guide-src/quickstart-guide.pdf", "doc/quickstart-guide.pdf")
+    print("Building a PDF version of user manual...")
+    subprocess.call(["lyx", "-e", "pdf", "doc/user-manual-src/user-manual.lyx"])
+    shutil.move("doc/user-manual-src/user-manual.pdf", "doc/user-manual.pdf")
+    print("Building a PDF version of developer manual...")
+    subprocess.call(["lyx", "-e", "pdf", "doc/developer-manual-src/developer-manual.lyx"])
+    shutil.move("doc/developer-manual-src/developer-manual.pdf", "doc/developer-manual.pdf")
+    print("All done!")
+
+def fetch_datafiles():
+    v0_7_branch = "v0-7"
+    v1_0_branch = "default"
+
+    old_cwd = os.getcwd()
+
+    try:
+        temp_directory_path = get_temporary_directory_path()
+        sample_directory_path = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                             os.path.join("data", "samples")))
+        v0_7_sample_datafiles_path = os.path.join(sample_directory_path, "datafiles0_7")
+        v1_0_sample_datafiles_path = os.path.join(sample_directory_path, "datafiles1_0")
+
+        os.chdir(temp_directory_path)
+
+        print("*** Making sure the cegui working copy is up to date...")
+        if os.path.exists("cegui"):
+            os.chdir("cegui")
+            subprocess.call(["hg", "pull"])
+            os.chdir(temp_directory_path)
+        else:
+            subprocess.call(["hg", "clone",
+                             "https://bitbucket.org/cegui/cegui",
+                             "cegui"])
+
+        print("*** cegui is up to date now!")
+
+        os.chdir("cegui")
+
+        def copy_datafiles(branch, target_path):
+            print("*** Preparing to copy datafiles from the '%s' branch to '%s'" % (branch, target_path))
+            subprocess.call(["hg", "update", "-C", branch])
+
+            if os.path.exists(target_path):
+                print("*** The path already exists, deleting the whole tree ('%s')..." % (target_path))
+                shutil.rmtree(target_path)
+
+            print("*** Copying datafiles to '%s'" % (target_path))
+            shutil.copytree("datafiles", target_path, ignore = shutil.ignore_patterns(".hg"))
+            print("*** Datafiles from branch '%s' are up to date in CEED working copy!" % (branch))
+
+        copy_datafiles(v0_7_branch, v0_7_sample_datafiles_path)
+        # fix up the 0.7 schemes, some of them are duplicated
+        print("*** Deleting duplicate schemes from 0.7 datafiles")
+        for scheme in ["Demo8", "TaharezLookWidgetAliases", "TaharezLookWidgets", "WindowsLookWidgets"]:
+            os.remove(os.path.join(v0_7_sample_datafiles_path, "schemes", "%s.scheme" % (scheme)))
+        print("*** Done")
+
+        copy_datafiles(v1_0_branch, v1_0_sample_datafiles_path)
+
+    finally:
+        os.chdir(old_cwd)
+
+def archive():
+    # make sure we have to proper datafiles fetched
+    print("*** Making sure fresh datafiles are in place...")
+    fetch_datafiles()
+    print("*** Making sure docs are built...")
+    build_docs()
+
+    temp_directory_path = get_temporary_directory_path()
+    from ceed import version
+    target_temp_directory_path = os.path.join(temp_directory_path, "ceed-%s" % (version.CEED))
+
+    import glob
+
+    if os.path.exists(target_temp_directory_path):
+        print("Target temporary directory '%s' already existed, removing it..." % (target_temp_directory_path))
+        shutil.rmtree(target_temp_directory_path)
+
+    os.mkdir(target_temp_directory_path)
+
+    shutil.copytree("bin", os.path.join(target_temp_directory_path, "bin"),
+                    ignore = shutil.ignore_patterns("*~", "*.orig", "runwrapper.sh"))
+    shutil.copytree("ceed", os.path.join(target_temp_directory_path, "ceed"),
+                    ignore = shutil.ignore_patterns("*~", "*.orig", "*.pyc", "*.pyo"))
+    shutil.copytree("data", os.path.join(target_temp_directory_path, "data"),
+                    ignore = shutil.ignore_patterns("*~", "*.orig"))
+    shutil.copytree("doc", os.path.join(target_temp_directory_path, "doc"),
+                    ignore = shutil.ignore_patterns("*~", "*.orig")) #, "*-src"))
+    # the *-src ignore pattern is commented because we want documentation sources
+    # in the source tarball, we do not want it installed however
+
+    shutil.copy("AUTHORS", target_temp_directory_path)
+    shutil.copy("LICENSE", target_temp_directory_path)
+    shutil.copy("README", target_temp_directory_path)
+
+    import tarfile
+    target_archive_path = os.path.join(temp_directory_path, "ceed-%s.tar.bz2" % (version.CEED))
+    with tarfile.open(target_archive_path, "w:bz2") as tar:
+        tar.add(target_temp_directory_path, os.path.basename(target_temp_directory_path))
+
+    print("*** The resulting archive is ready at '%s'" % (target_archive_path))
+
+def clean():
+    temp_directory_path = get_temporary_directory_path()
+    shutil.rmtree(temp_directory_path)
+
+    print("*** No maintenance temporary directory present now!")
+
+def main():
+    parser = argparse.ArgumentParser(description = "Script doing various codebase maintenance tasks")
+
+    parser.add_argument("task", type = str,
+                        help = "Which task do you want to perform? (valid choices: compile-ui-files, build-docs, fetch-datafiles, archive, clean)")
+
+    args = parser.parse_args()
+
+    if args.task == "compile-ui-files":
+        compile_ui_files()
+
+    elif args.task == "build-docs":
+        build_docs()
+
+    elif args.task == "fetch-datafiles":
+        fetch_datafiles()
+
+    elif args.task == "archive":
+        archive()
+
+    elif args.task == "clean":
+        clean()
+
+    else:
+        print("*** Y U NO PROVIDE VALID TASK!!!!")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()
+

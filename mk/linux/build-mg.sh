@@ -21,6 +21,9 @@ CLANG_FORCED=0
 WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
 LUA_FORCED_VERSION=0
 FORCE_32BIT_CROSS_COMPILE=0
+CEGUIDIR="$(readlink -m ${SCRIPTDIR}/../../source/external-deps/cegui-source/ )"
+#echo ${CEGUIDIR}
+#exit 1
 
 while getopts "c:dfhl:mnx" option; do
    case "${option}" in
@@ -203,9 +206,12 @@ fi
 if [ $FORCE_32BIT_CROSS_COMPILE != 0 ]; then
         EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_TOOLCHAIN_FILE=../mk/cmake/Modules/Toolchain-linux32.cmake"
 
-#LIBDIR_32bit='/usr/lib32/'
-#export LD_LIBRARY_PATH="${LIBDIR_32bit}:${LD_LIBRARY_PATH}"
+        #LIBDIR_32bit='/usr/lib32/'
+        #export LD_LIBRARY_PATH="${LIBDIR_32bit}:${LD_LIBRARY_PATH}"
+fi
 
+if [ "$CEGUIDIR" != '' ]; then 
+        EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCEGUIDIR=$CEGUIDIR -DMG_EMBEDDED_CEGUI_INCLUDE_PATH=$CEGUIDIR/cegui/include -DCEGUI_INC_SEARCH_PATH=$CEGUIDIR/cegui/include -DCEGUI_LIB_SEARCH_PATH=$CEGUIDIR/build/lib"
 fi
 
 if [ $MAKE_ONLY = 0 ]; then 

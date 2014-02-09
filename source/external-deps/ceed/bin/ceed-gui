@@ -1,0 +1,90 @@
+#!/usr/bin/env python2
+
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <martin@preisler.me>
+#                             and contributing authors (see AUTHORS file)
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##############################################################################
+
+"""This file is usually started when people expect the GUI of the editor
+to come up. It is probably the most important of all 3 executable scripts.
+"""
+
+def main():
+    from ceed import prerequisites
+
+    if prerequisites.check():
+        import sys
+        import os
+        import os.path
+
+        from ceed import application
+        from ceed import paths
+
+        import argparse
+
+        parser = argparse.ArgumentParser(description = "CEGUI Unified Editor GUI application")
+
+        # Qt has it's own set of options, mostly related to style, debugging, etc...
+        # we deal with that fact by wrapping these options up into --qt-options parameter
+        parser.add_argument("--qtoptions", metavar = "OPTIONS", type = str, required = False, default = "",
+                            help = "These options will be passed to QApplication, see documentation of QApplication for details. " + \
+                            "Please don't use \" or ' inside the string. I was too lazy to support that when splitting the arguments.")
+
+        parser.add_argument("--debug", type = bool, nargs = "?", const = True, default = False,
+                            help = "Verbosely output log messages to stdout / terminal")
+
+        parser.add_argument("--project", metavar = "PROJECT_FILE", type = file, required = False,
+                            help = "You can open a project file immediately after CEED loads using this optional parameter.")
+
+        parser.add_argument("--file", metavar = "FILE", type = file, nargs = "*", default = [],
+                            help = "A file you want to have opened after CEED starts and after project given through the CLI interface loads (if any). " + \
+                            "The path of the file is relative to your current working directory, not to the project opened (if any). " + \
+                            "Last opened file will be made active.")
+
+        args = parser.parse_args()
+
+        # we pass the first argument, which is the app name and the split qtoptions
+        split_qtoptions = sys.argv[:1]
+        if args.qtoptions != "":
+            split_qtoptions.extend(args.qtoptions.split(" "))
+
+        # we have to deduce absolute paths now before we chdir!
+        projectToOpen = os.path.abspath(args.project.name) if args.project is not None else None
+        filesToOpen = [os.path.abspath(f.name) for f in args.file]
+
+        # cwd has to be data dir for Qt to load the icons correctly
+        os.chdir(paths.DATA_DIR)
+        # split_qtoptions has to remain valid for the entire lifetime of the app
+        app = application.Application(split_qtoptions, args.debug)
+
+        if projectToOpen is not None:
+            app.processEvents()
+            app.mainWindow.openProject(projectToOpen)
+
+        for filePath in filesToOpen:
+            app.processEvents()
+            app.mainWindow.openEditorTab(filePath)
+
+        sys.exit(app.exec_())
+
+    else:
+        print("Your environment doesn't meet critical prerequisites! Can't start!")
+
+if __name__ == "__main__":
+    main()
+

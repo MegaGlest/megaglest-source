@@ -1,0 +1,667 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass report
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Section
+The basics
+\end_layout
+
+\begin_layout Subsection
+Main interface
+\end_layout
+
+\begin_layout Standard
+This interface hosts all the tabbed editors and provides functionality that
+ is shared by all the editors.
+ It surrounds the application.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename main_interface.png
+	width 80col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Caption
+
+\begin_layout Plain Layout
+overview of the interface
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:interface-overview"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Multi tab editing
+\end_layout
+
+\begin_layout Standard
+The centre of the application consists of tabs, each tab represents one
+ opened file.
+ CEED will strive not to have two tabs for one file opened, if you try to
+ open one file twice it will just activate the existing tab for the file.
+ Any of the tabs can be closed on request.
+ If there are unsaved changes the user will be asked what to do about them.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Wrap figure
+lines 0
+placement o
+overhang 0col%
+width "50col%"
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename multi_tab_reordering.png
+	width 50col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename multi_tab_context_menu.png
+	width 50col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+tabs offer reordering and a context menu
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:tabs-reordering-ctext-menu"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+Reordering tabs is also possible using mouse drag-moving.
+ The interface including dock widgets, toolbars, etc...
+ may change when switching tabs.
+ Switching tabs does not count as an undo action, it is instead just a context
+ change action.
+\end_layout
+
+\begin_layout Subsection
+Multi mode editing
+\end_layout
+
+\begin_layout Standard
+\begin_inset Wrap figure
+lines 0
+placement o
+overhang 0col%
+width "50col%"
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename multi_mode.png
+	width 40col%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+switch modes by clicking the bottom mode tabs
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For some file types (mostly .imageset and .layout) it makes sense to edit
+ in both visual mode as well as code mode (raw XML).
+ Undo and redo are transparent between mode switching as mode switching
+ counts as an undo action.
+ You can switch modes by clicking on the bottom tab pane.
+ All files are opened in Visual mode by default.
+ Code editing is regarded as a crutch mechanism, a tool to make tedious
+ mass changes or work around problems with Visual mode.
+\end_layout
+
+\begin_layout Standard
+Code editing is currently very simplistic and does not even have syntax
+ highlighting! Please also note undo/redo is very wasteful when it comes
+ to code editing and long editing sessions may end up with a lot of RAM
+ being allocated.
+\end_layout
+
+\begin_layout Subsection
+Copy / Paste
+\end_layout
+
+\begin_layout Standard
+Many things you can select in the editor can be copied/cut and pasted elsewhere.
+ This is a very useful workflow feature and works even across multiple CEED
+ instances.
+ You can for example have 2 different projects and copy parts of layouts
+ between them.
+ Both projects have to have all widget types that or copied of course!
+\end_layout
+
+\begin_layout Standard
+The default shortcuts are the expected ones depending on your platform.
+ 
+\emph on
+Ctrl + C
+\emph default
+ for copy on Windows and GNU/Linux, 
+\emph on
+Cmd + C
+\emph default
+ on Mac OS X.
+\end_layout
+
+\begin_layout Subsection
+Project manager
+\end_layout
+
+\begin_layout Standard
+\begin_inset Wrap figure
+lines 0
+placement o
+overhang 0in
+width "50col%"
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename project_manager.png
+	width 40col%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+project manager dock widget
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Allows user to manage a project (project is a set of related files), browse
+ through files, open any file for editing, add new or existing files to
+ the project and remove files from the project.
+ Most of the project managing takes place in the 
+\emph on
+Project Manager
+\emph default
+ dock widget.
+ The dock widgets lists all files currently in the project and allows user
+ to edit/view them by double clicking them.
+ Right clicking brings up a context menu with the ability to add files to
+ the project or remove currently selected files from the project.
+ The main reason for project management is to have CEGUI resource path settings
+ shared for all the files in the project.
+ The project files are designed to be committed to a repository and used
+ on different computers.
+ All paths are stored relative to the project file, even though you may
+ see absolute paths in the editor itself, they get converted to relative
+ paths in the end.
+\end_layout
+
+\begin_layout Subsection
+File manager
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+You are advised to use project manager if at all possible, it will improve
+ workflow, especially in bigger teams.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+In addition to the project manager, CEED allows you to browse the filesystem
+ and simply open files for quick editing.
+ Please note that this will only work for some file types (it cannot work
+ for schemes and layouts because CEGUI paths are not set if project is not
+ loaded).
+ This is again contained in a dock widget that hosts the functionality.
+ It has a very simplistic interface, displaying current path, allowing the
+ user to go one level up the hierarchy and simply listing files and folder
+ in the current path.
+\end_layout
+
+\begin_layout Standard
+Double clicking a file opens it for editing.
+\end_layout
+
+\begin_layout Standard
+Furthermore, this dock widget will watch for changes on the filesystem and
+ refresh accordingly.
+\end_layout
+
+\begin_layout Subsection
+Resizable rectangle
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Resizable-rectangle"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A construct used reused in many places in CEED.
+ Represents a rectangular object that can be resized and/or resized.
+ It offers features that would otherwise have to be reimplemented in many
+ places.
+ The main inspiration was GIMP's selection rectangle 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "gimprectselectweb"
+
+\end_inset
+
+.
+ Can be moved by dragging the middle area.
+ There are eight areas that resize the rectangle if you drag them.
+ These are called resize handles - four edges and four corners.
+ They get highlighted when you hover over them.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename resizable_rect_right_edge.png
+
+\end_inset
+
+
+\begin_inset space \space{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename resizable_rect_top_right_corner.png
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+resizable handles appear when you hover over edges/corners
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Zooming
+\end_layout
+
+\begin_layout Standard
+To make editing easier and possibly more precise, user is allowed to zoom
+ in the editors that support it.
+ Both imageset and layout editors support zooming.
+ By default you can zoom by clicking the zoom icons in the toolbar as seen
+ in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:interface-overview"
+
+\end_inset
+
+ or holding the 
+\emph on
+Ctrl
+\emph default
+ key and scrolling with your 
+\emph on
+mouse wheel
+\emph default
+.
+ You can zoom out to 50% to get an overview or zoom in multiples of two.
+ If you are at the zoom level of 100%, one zoom in will change that to 200%,
+ another zoom in will change it to 400%, etc.
+\end_layout
+
+\begin_layout Standard
+The zoom level will in no way affect your data, it will only change the
+ context you are editing in.
+ It therefore is not an undo action.
+\end_layout
+
+\begin_layout Subsection
+Undo and Redo functionality
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Undo-and-Redo"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Since most tabbed editors allow undo and redo, the main interface allows
+ you to perform these actions via shared means in the top toolbar.
+ Undo/redo are per-file, so whenever you switch tabs the undo stack gets
+ changed to a completely different stack.
+ If you for example do changes to file 
+\emph on
+A
+\emph default
+, then switch to file 
+\emph on
+B,
+\emph default
+ do some changes and keep pressing 
+\emph on
+undo
+\emph default
+, only changes to file 
+\emph on
+B
+\emph default
+ gets undone, You have to switch to 
+\emph on
+A
+\emph default
+ again and undo there.
+ Selections are not undoable as they do not count as undo actions.
+ There is one very important aspect that breaks the 
+\begin_inset Quotes eld
+\end_inset
+
+context switching is not an undo action
+\begin_inset Quotes erd
+\end_inset
+
+ rule.
+ Switching editing mode is an undoable action because the changes of XML
+ code do not make sense in visual mode.
+\end_layout
+
+\begin_layout Standard
+Undo and Redo can be very powerful and allows free experimentation without
+ fear of losing data.
+ Apart from possible bugs in the applications, all things that affect data
+ are undo actions and are undoable.
+ Use that fact to your advantage!
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+Even with undo/redo, you are advised to use version control or other mechanisms.
+ Undo/redo actions are lost when you close the application!
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Compatibility layers
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Compatibility-layers"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+CEED has a facility called compatibility layers which allows it to work
+ with data from many versions of CEGUI.
+ In a nutshell these layers allow you to transform raw data from version
+ to version.
+ Each layer has source and target data types that describe the transformation.
+ Layers can be chained, if there is a path to go from data type 
+\emph on
+A
+\emph default
+ to 
+\emph on
+B
+\emph default
+ and 
+\emph on
+B
+\emph default
+ to 
+\emph on
+C
+\emph default
+, it is possible to transform 
+\emph on
+A
+\emph default
+ to 
+\emph on
+C
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+Each time you are editing a file, you can right click the tab to bring out
+ a context menu and see the exact data type you are editing, see Figure
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:tabs-reordering-ctext-menu"
+
+\end_inset
+
+.
+ It is not currently possible to change the data type of a file that's been
+ opened, CEED will attempt to detect the data type when you are opening
+ the file and ask you if it cannot decide for sure.
+ Make sure you set the correct CEGUI target version as described in Figure
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:project-settings"
+
+\end_inset
+
+.
+ The CEGUI version will affect what data type newly created files in CEED
+ will have.
+\end_layout
+
+\begin_layout Standard
+You can also use all compatibility layers using the shipped CLI tool called
+ 
+\emph on
+ceed-migrate
+\emph default
+.
+ Call 
+\emph on
+ceed-migrate --help
+\emph default
+ for more info.
+\end_layout
+
+\end_body
+\end_document

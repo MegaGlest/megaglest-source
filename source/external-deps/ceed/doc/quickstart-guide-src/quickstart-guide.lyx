@@ -1,0 +1,423 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman palatino
+\font_sans default
+\font_typewriter default
+\font_default_family rmdefault
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 1.5cm
+\topmargin 1.5cm
+\rightmargin 1.5cm
+\bottommargin 1.5cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+CEGUI Unified Editor Quickstart Guide
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+This is just a quick and informal introductory document.
+ See the User manual for more information.
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Now that you have started the editor, it is time to take a few minutes to
+ learn basic concepts of it.
+ Lets start with some terminology.
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+Project file
+\emph default
+ - encapsulates enough information to start up embedded CEGUI and use it
+ to open layouts, animations and possible other data types
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+CEGUI resources
+\emph default
+ - schemes, imagesets, looknfeels and possibly other CEGUI data
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+Compatibility layer
+\emph default
+ - a facility that can convert a CEGUI resource from one version to another
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+There usually are two layers to provide conversion both ways but it is not
+ a strict requirement.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+Embedded CEGUI
+\emph default
+ - the editor uses CEGUI internally to make sure it's all WYSIWYG, embedded
+ CEGUI is the CEGUI instance that runs in the editor, project file is needed
+ to start it
+\end_layout
+
+\begin_layout Section
+Opening existing files and projects
+\end_layout
+
+\begin_layout Standard
+Some of the simpler datafiles (e.g.
+ imagesets) can be opened without having a project file setup, however it
+ is still recommended to have a project opened for everything since that
+ way your custom resource provider path settings are honoured.
+\end_layout
+
+\begin_layout Enumerate
+(optional) open a project - 
+\emph on
+File / Open project
+\emph default
+ will do the trick (start with data/samples/StockDatafiles_VERSION.project
+ if you just want to try things out)
+\end_layout
+
+\begin_layout Enumerate
+open a file - 
+\emph on
+File / Open file
+\end_layout
+
+\begin_layout Section
+Creating your own project file
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+If you are working on a project and are not a programmer, you probably should
+ ask one of the coders to set up a project file for you.
+ They can simply send you the archived folder to open or even commit it
+ to your team repository for more efficient workflow.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Needed parts:
+\end_layout
+
+\begin_layout Itemize
+target CEGUI version
+\end_layout
+
+\begin_layout Itemize
+paths
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Same as you would use in DefaultResourceProvider::setResourceGroup calls.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Relocatable folder
+\end_layout
+
+\begin_layout Standard
+Create a folder where you will keep all CEGUI data for your project.
+ You will place the project file into this folder.
+ The project file is designed to be 
+\begin_inset Quotes eld
+\end_inset
+
+version control friendly
+\begin_inset Quotes erd
+\end_inset
+
+ and is relocatable
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+You can simply move it around on the disk and it continues to work as a
+ whole.
+\end_layout
+
+\end_inset
+
+.
+ Your colleagues can clone/checkout and move it somewhere else and it will
+ still work unless you do something wrong like reference files across different
+ drives
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+This only applies to Windows.
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Moment of creation
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+File » New » Project
+\emph default
+ will ask you for a name and where to save the new project file.
+ Choose a fitting name and select the relocatable folder and a file in it
+ (e.g.
+ 
+\emph on
+Game.project
+\emph default
+) and press OK.
+ Project name and the filename of the project file are separate.
+ Though they will be same or similar in most cases.
+\end_layout
+
+\begin_layout Subsection
+Project settings
+\end_layout
+
+\begin_layout Standard
+After the file is created you will be asked for target CEGUI version, paths
+ and several other things
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+See the User manual for more details.
+\end_layout
+
+\end_inset
+
+.
+ Make sure you get everything right or ask a fellow programmer from your
+ project to help with this, they will surely know the right values.
+ The editor will attempt to bootstrap CEGUI based on your values after you
+ press OK.
+ Do not continue with this guide unless everything goes smoothly and no
+ error dialogs are shown!
+\end_layout
+
+\begin_layout Subsection
+Referencing files
+\end_layout
+
+\begin_layout Standard
+OK, your project file has been created and embedded CEGUI is working correctly
+ with the project.
+\end_layout
+
+\begin_layout Standard
+Now, let us add some files to the project so that it is easier to work with
+ it.
+ The project file has a simple tree of nodes, each node referencing a file.
+ It does not automatically scan and add anything.
+ You have to add files manually and explicitly
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+The editor may provide some auto-discovery tool in the future.
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Start by right clicking the project manager and selecting 
+\emph on
+Create folder
+\emph default
+.
+ This will create a container for your file references
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+No folder is created on disk, this is all project file only.
+\end_layout
+
+\end_inset
+
+.
+ You can then add files, either new or existing on disk already.
+ Make sure to avoid adding files from outside the 
+\begin_inset Quotes eld
+\end_inset
+
+
+\emph on
+relocatable folder
+\emph default
+
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Otherwise your colleagues might have trouble opening them after you commit.
+\end_layout
+
+\begin_layout Section
+Creating new files
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+File » New » Type of file
+\emph default
+ will create a new empty file of given type.
+ The editor will detect that it is empty when you try to open it
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+If the file only has CR and/or LF characters, it is deemed empty.
+\end_layout
+
+\end_inset
+
+.
+ You can start working on the file after you open it.
+\end_layout
+
+\begin_layout Section
+Further reading
+\end_layout
+
+\begin_layout Standard
+This has been just a really quick run through the basics to get you started.
+ See the 
+\emph on
+User manual
+\emph default
+ for more in-depth documentation.
+ Please read it fully before asking questions on IRC or the forum.
+ You can also find the 
+\emph on
+Developer manual
+\emph default
+ interesting if you want to know how internals work, contribute or troubleshoot
+ an issue.
+\end_layout
+
+\end_body
+\end_document

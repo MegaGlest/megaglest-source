@@ -5771,6 +5771,8 @@ __try {
 
 }
 
+//----------------------------------------------------------------------------//
+
 int glestMainWrapper(int argc, char** argv) {
 	//setlocale(LC_ALL, "zh_TW.UTF-8");
 	//setlocale(LC_ALL, "");

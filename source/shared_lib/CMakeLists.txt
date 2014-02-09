@@ -240,6 +240,16 @@ option(FORCE_LUA_5_2 "Force looking for LUA 5.2" OFF)
 		message("Could not find FriBiDi. Disabling FriBiDi support.")
 	endif()
 
+        #FIND_PACKAGE(CEGUI REQUIRED COMPONENTS OPENGL)
+        FIND_PACKAGE(CEGUI REQUIRED)
+        # If we found our embedded includes, use it
+        IF("${CEGUI_INCLUDE_DIR}" STREQUAL "${MG_EMBEDDED_CEGUI_INCLUDE_PATH}/CEGUI")
+                INCLUDE_DIRECTORIES(SYSTEM ${MG_EMBEDDED_CEGUI_INCLUDE_PATH})
+        ELSE()
+                INCLUDE_DIRECTORIES(SYSTEM ${CEGUI_INCLUDE_DIR})
+        ENDIF()
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${CEGUI_LIBRARIES} ${CEGUI_OpenGLRenderer_LIBRARY_REL})
+
 	find_package( GoogleBreakpad )
 	if(BREAKPAD_EXCEPTION_HANDLER_FOUND AND BREAKPAD_EXCEPTION_HANDLER_LIBRARIES)
 	        add_definitions(-DHAVE_GOOGLE_BREAKPAD)

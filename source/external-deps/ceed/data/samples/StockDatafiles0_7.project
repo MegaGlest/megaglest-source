@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project CEGUIDefaultResolution="1024x768" CEGUIVersion="0.7" baseDirectory="datafiles0_7" fontsPath="fonts" imagesetsPath="imagesets" layoutsPath="layouts" looknfeelsPath="looknfeel" schemesPath="schemes" version="CEED Project 1" xmlSchemasPath="../datafiles1_0/xml_schemas">
+    <Items>
+        <Item name="imagesets" type="folder">
+            <Item path="imagesets/DriveIcons.imageset" type="file" />
+            <Item path="imagesets/FairChar.imageset" type="file" />
+            <Item path="imagesets/OgreTray.imageset" type="file" />
+            <Item path="imagesets/TaharezLook.imageset" type="file" />
+            <Item path="imagesets/Vanilla.imageset" type="file" />
+            <Item path="imagesets/WindowsLook.imageset" type="file" />
+        </Item>
+        <Item name="layouts" type="folder">
+            <Item path="layouts/DragDropDemo.layout" type="file" />
+            <Item path="layouts/TabControlDemo.layout" type="file" />
+            <Item path="layouts/TextDemo.layout" type="file" />
+            <Item path="layouts/TreeDemoTaharez.layout" type="file" />
+            <Item path="layouts/VanillaConsole.layout" type="file" />
+            <Item path="layouts/VanillaWindows.layout" type="file" />
+        </Item>
+    </Items>
+</Project>

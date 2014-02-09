@@ -1,0 +1,93 @@
+#!/usr/bin/env python2
+
+##############################################################################
+#   CEED - Unified CEGUI asset editor
+#
+#   Copyright (C) 2011-2012   Martin Preisler <martin@preisler.me>
+#                             and contributing authors (see AUTHORS file)
+#
+#   This program is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation, either version 3 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+##############################################################################
+
+"""MetaImageset compiler command line tool.
+Allows you to compile metaimagesets into resulting imagesets and their
+underlying bitmap images.
+"""
+
+def main():
+    from ceed import prerequisites
+
+    if prerequisites.check():
+        from PySide.QtGui import QApplication
+
+        import argparse
+        import sys
+
+        from ceed import metaimageset
+        from ceed.metaimageset import compiler as metaimageset_compiler
+
+        from xml.etree import cElementTree as ElementTree
+
+        import multiprocessing
+
+        parser = argparse.ArgumentParser(description = "Compile given meta imageset")
+
+        parser.add_argument("--qtoptions", metavar = "OPTIONS", type = str, required = False, default = "",
+                            help = "These options will be passed to QApplication, see documentation of QApplication for details. " + \
+                            "Please don't use \" or ' inside the string. I was too lazy to support that when splitting the arguments.")
+
+        parser.add_argument("--sizeIncrement", metavar = "X", type = int, required = False, default = 5,
+                            help = "Number of pixels the size is increased as a step in the size determination.")
+        parser.add_argument("--jobs", metavar = "PARALLEL_JOBS", type = int, required = False, default = multiprocessing.cpu_count(),
+                            help = "Number of parallel jobs that will be used by the compiler. Defaults to number of logical CPUs (recommended).")
+        parser.add_argument("input", metavar = "INPUT_FILE", type = argparse.FileType("r"),
+                            help = "Input file to be processed.")
+
+        args = parser.parse_args()
+
+        # we pass the first argument, which is the app name and the split qtoptions
+        split_qtoptions = sys.argv[:1]
+        if args.qtoptions != "":
+            split_qtoptions.extend(args.qtoptions.split(" "))
+
+        # we have to construct Qt application, otherwise all the pixmap functionality won't work
+        QApplication(split_qtoptions)
+
+        metaImageset = metaimageset.MetaImageset(args.input.name)
+
+        data = args.input.read()
+        element = ElementTree.fromstring(data)
+        metaImageset.loadFromElement(element)
+
+        try:
+            compiler = metaimageset_compiler.CompilerInstance(metaImageset)
+            compiler.sizeIncrement = args.sizeIncrement
+            compiler.jobs = args.jobs
+            compiler.compile()
+
+            print("")
+            print("Performed compilation of '%s'..." % (args.input.name))
+            sys.exit(0)
+
+        except Exception as e:
+            print("Encountered an error while compiling! Details: '%s'." % (e))
+            sys.exit(1)
+
+    else:
+        print("Your environment doesn't meet critical prerequisites! Can't start!")
+        sys.exit(2)
+
+if __name__ == "__main__":
+    main()
+

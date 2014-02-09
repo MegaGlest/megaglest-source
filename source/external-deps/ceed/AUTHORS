@@ -1,0 +1,31 @@
+List of authors and contributors
+================================
+
+Authors might have possibly done more than is attributed to them in this list!
+
+Martin Preisler        - main developer
+Pavlos Touboulidis     - property inspecting system, many bug fixes, UI polish,
+                         image duplication, image copy paste and more
+Patrick Robertson      - settings interface improvements
+Stefan Stammberger     - recent projects
+Christopher Trenkamp   - external file changes monitoring
+Paul D Turner          - CELE2 code (layout editing is inspired by it in CEED),
+                         compileuifiles
+Charles Mattei         - splashscreen             
+Markus 'Cygon' Ewald   - rectangle packing code
+Eniko                  - porting rectangle packing code to Python
+Michael Kapelko        - bug fixes
+Jorge Avila            - animation editor timeline UI design
+Chris Trenkamp         - file changes monitoring, file permissions fixes
+Stępień Bartłomiej     - Windows testing and release
+
+Special thanks goes to
+================================
+
+Martin Babka for advices and supervision of this project
+Metalhead Software Inc. for advices, feedback and financial support
+
+---
+This list is very hard to maintain.
+If I forgot to add your name, please remind me via email or IRC
+

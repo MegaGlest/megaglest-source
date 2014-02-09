@@ -1,0 +1,1216 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass report
+\begin_preamble
+\usepackage{xcolor}
+\definecolor{codebg}{rgb}{0.95, 0.95, 0.95}
+\definecolor{commentfg}{rgb}{0.0, 0.6, 0.0}
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman palatino
+\font_sans default
+\font_typewriter default
+\font_default_family rmdefault
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref true
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder true
+\pdf_colorlinks false
+\pdf_backref false
+\pdf_pdfusetitle true
+\papersize a4paper
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 1.5cm
+\topmargin 1.5cm
+\rightmargin 1.5cm
+\bottommargin 1.5cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\listings_params "backgroundcolor={\color{codebg}},basicstyle={\ttfamily},breaklines=true,commentstyle={\color{commentfg}},frame=single,keywordstyle={\bf\color{blue}},numbers=left,numberstyle={\tiny\color{gray}},rulecolor={\color{black}},showstringspaces=false,stringstyle={\color{red}}"
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Chapter
+Prerequisites
+\end_layout
+
+\begin_layout Section
+Hardware and software requirements
+\end_layout
+
+\begin_layout Standard
+Operating system:
+\end_layout
+
+\begin_layout Itemize
+
+\noun on
+GNU/Linux
+\noun default
+ system with X11
+\end_layout
+
+\begin_layout Itemize
+
+\noun on
+Windows XP
+\noun default
+ and newer
+\end_layout
+
+\begin_layout Itemize
+
+\noun on
+Apple MacOS X 10.6+
+\end_layout
+
+\begin_layout Itemize
+
+\noun on
+*BSD
+\noun default
+ system with X11
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+CEED has been reported to work on BSD but this platform is not officially
+ supported.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Hardware:
+\end_layout
+
+\begin_layout Itemize
+At least Intel Pentium 4 or AMD Athlon XP
+\end_layout
+
+\begin_layout Itemize
+512 MB of RAM
+\end_layout
+
+\begin_layout Itemize
+Graphics card capable of accelerated OpenGL with FBO support
+\end_layout
+
+\begin_layout Itemize
+Display area of at least 800*600 px available to the application
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Vertical screen estate of at least 800 px is recommended.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Dependencies:
+\end_layout
+
+\begin_layout Itemize
+
+\noun on
+Python
+\noun default
+ 2.7
+\end_layout
+
+\begin_layout Itemize
+
+\noun on
+Qt
+\noun default
+ 4.7 or 4.8
+\end_layout
+
+\begin_layout Itemize
+
+\noun on
+PySide
+\noun default
+ – python bindings for 
+\noun on
+Qt
+\end_layout
+
+\begin_layout Itemize
+CEGUI 1.0
+\noun on
+
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+
+\noun on
+CEED
+\noun default
+ supports 
+\noun on
+CEGUI
+\noun default
+ 0.7 data as well but uses 1.0 internally.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+
+\noun on
+PyCEGUI
+\noun default
+ 1.0
+\end_layout
+
+\begin_layout Section
+Knowledge prerequisites
+\end_layout
+
+\begin_layout Standard
+To use the Unified Editor, you have to have some basic knowledge of how
+ GUI systems work in general.
+ It would be best if you were familiar with how CEGUI works but Qt or GTK
+ knowledge can be transferred without problems.
+\end_layout
+
+\begin_layout Standard
+For editing assets in 
+\emph on
+code mode
+\emph default
+ you should understand the format in question, the editor makes no effort
+ to make code editing easier with highlighting or any code references (it's
+ a planned feature though).
+\end_layout
+
+\begin_layout Standard
+There is no need to understand programming in general to use CEED efficiently,
+ the application is targeted at artists.
+ You may still need help from a fellow programmer about setting up the project
+ file.
+\end_layout
+
+\begin_layout Section
+Installation
+\end_layout
+
+\begin_layout Standard
+The application is currently distributed as a source tarball that works
+ on all supported platforms (if you install the dependencies).
+ Furthermore, binary standalone builds are made for Windows and Apple MacOS
+ X.
+ This only applies to official releases, mercurial code is not being built
+ regularly.
+\end_layout
+
+\begin_layout Subsection
+Source tarball
+\end_layout
+
+\begin_layout Standard
+First, make sure you have all dependencies installed.
+ Refer to guides of the dependencies on how to install them.
+\end_layout
+
+\begin_layout Standard
+Download the tarball and extract it.
+ You should end up with a folder called 
+\emph on
+CEED-${version}
+\emph default
+.
+ Go into this folder in CLI
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Use terminal emulator of choice on UNIXes, cmd.exe on Windows.
+\end_layout
+
+\end_inset
+
+ and call 
+\emph on
+python setup.py install
+\emph default
+ as administrator
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Use su/sudo on UNIXes, 
+\begin_inset Quotes eld
+\end_inset
+
+Run as administrator
+\begin_inset Quotes erd
+\end_inset
+
+ on Windows.
+\end_layout
+
+\end_inset
+
+.
+ This should trigger the installation.
+ After the installation finishes, run 
+\emph on
+ceed-gui
+\emph default
+ to start the application.
+\end_layout
+
+\begin_layout Subsection
+Standalone executable (Win32)
+\end_layout
+
+\begin_layout Standard
+You do not have to install anything in this case (all dependencies are bundled),
+ just unzipping the archive and running 
+\emph on
+ceed-gui.exe
+\emph default
+ will make the application start.
+ If this is not the case, please report it as a bug.
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+If you have made custom changes to CEGUI that you use with your application,
+ this distribution method might not work well for you! Upstream CEGUI is
+ used for the build.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+.app bundle (MacOS X)
+\end_layout
+
+\begin_layout Standard
+CEED behaves like a proper MacOS X native application.
+ Double clicking will start the GUI, dragging it to 
+\emph on
+Applications
+\emph default
+ will install it.
+ If you use multiple versions they might share settings!
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+If you have made custom changes to CEGUI that you use with your application,
+ this distribution method might not work well for you! Upstream CEGUI is
+ used for the build.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Chapter
+Working with the application
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset include
+LatexCommand input
+filename "basics/basics.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\begin_inset CommandInset include
+LatexCommand input
+filename "project_creation/project_creation.lyx"
+
+\end_inset
+
+
+\begin_inset Newpage newpage
+\end_inset
+
+
+\begin_inset CommandInset include
+LatexCommand input
+filename "imageset_editing/imageset_editing.lyx"
+
+\end_inset
+
+
+\begin_inset Newpage newpage
+\end_inset
+
+
+\begin_inset CommandInset include
+LatexCommand input
+filename "layout_editing/layout_editing.lyx"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Command line
+\end_layout
+
+\begin_layout Standard
+While most of this manual talks about the main executable - ceed-gui - two
+ more are offered in all releases.
+ As with most command line tools, inbuilt help is offered and it would make
+ no sense to repeat it here.
+ Instead, a brief overview of some capabilities of the tools will be presented.
+\end_layout
+
+\begin_layout Subsection
+ceed-gui
+\end_layout
+
+\begin_layout Standard
+The main use of this executable is to bring up the CEED GUI interface.
+ Most people will probably call it with no command line arguments at all.
+ Some of the supported arguments might be very useful though, you can for
+ example call ceed-gui so that it immediately loads a certain project and
+ opens specific files.
+\end_layout
+
+\begin_layout Standard
+Call 
+\begin_inset listings
+lstparams "language=sh"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+ceed-gui --help
+\end_layout
+
+\end_inset
+
+ for more info.
+\end_layout
+
+\begin_layout Subsection
+ceed-migrate
+\end_layout
+
+\begin_layout Standard
+Allows you to use compatibility layers as described in Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Compatibility-layers"
+
+\end_inset
+
+ without having to start the main GUI app.
+ This can be very useful when you want to migrate all your assets to a new
+ CEGUI version.
+ You can also incorporate it to your workflow if you have to support multiple
+ CEGUI versions for some reason.
+\end_layout
+
+\begin_layout Standard
+Call 
+\begin_inset listings
+lstparams "language=sh"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+ceed-migrate --help 
+\end_layout
+
+\end_inset
+
+for more info.
+\end_layout
+
+\begin_layout Subsection
+ceed-mic
+\end_layout
+
+\begin_layout Standard
+Makes it possible to build a rectangle packed imageset out of given data.
+ Source data is a 
+\emph on
+MetaImageset
+\emph default
+.
+ In a nutshell you can specify separate image files or even imagesets and
+ ceed-mic will make just one imageset with one underlying texture out of
+ them.
+ It will make effort to have the resulting texture as small as possible.
+\end_layout
+
+\begin_layout Standard
+See 
+\emph on
+data/samples/AllStockImagery.meta-imageset
+\emph default
+ for an example.
+\end_layout
+
+\begin_layout Standard
+Call 
+\begin_inset listings
+lstparams "language=sh"
+inline true
+status open
+
+\begin_layout Plain Layout
+
+ceed-mic --help
+\end_layout
+
+\end_inset
+
+ for more info.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Newpage newpage
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Settings
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Settings"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Go to 
+\emph on
+Edit » Settings
+\emph default
+ to open the settings window.
+ Note that these settings are only persistent on the user's machine, they
+ are not stored in a project file! If you make changes that you want your
+ colleagues to share, you will have to tell them how to replicate these
+ changes on their machines.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename settings/overview.png
+	width 70col%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+settings window
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:settings-window"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Applying changes
+\end_layout
+
+\begin_layout Standard
+Most of the settings will apply immediately after pressing the Apply button.
+ Some will require you to close and open the edited file again and some
+ will even require you to restart the application.
+ If you experience glitches related to a settings change a restart will
+ very likely cure them.
+ We would still appreciate it if you reported them as a bug though, for
+ further detail see Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Reporting-bugs"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Back to default
+\end_layout
+
+\begin_layout Standard
+Feel free to change settings and experiment with them.
+ Whenever you regret making some setting, click the 
+\emph on
+Reset icon
+\emph default
+ as seen on Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:settings-window"
+
+\end_inset
+
+ to reset it to its default value.
+ Please note that same rules about applicability of the settings apply when
+ you reset them to default.
+ In some cases you will even have to restart the application.
+\end_layout
+
+\begin_layout Subsection
+Shortcuts
+\end_layout
+
+\begin_layout Standard
+\begin_inset Wrap figure
+lines 0
+placement o
+overhang 0col%
+width "50col%"
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename settings/changing_key_seq.png
+	width 50col%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+changing key sequence for an action
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Most of the actions in CEED are using the 
+\emph on
+Action API
+\emph default
+ and can be triggered using shortcuts.
+ The default shortcuts are set depending on your platform.
+ Go to 
+\emph on
+Edit » Settings
+\emph default
+ and choosing 
+\emph on
+Shortcuts
+\emph default
+ in the tab header.
+ Clicking the button in the middle will allow you to press your desired
+ combination to change to it.
+ Only combination keypresses are supported, preferably with modifier keys.
+ Discrete sequences or key chords cannot be used for shortcuts.
+\end_layout
+
+\begin_layout Chapter
+Further help
+\end_layout
+
+\begin_layout Section
+Common issues
+\end_layout
+
+\begin_layout Subsection*
+Cannot find PyCEGUI
+\end_layout
+
+\begin_layout Standard
+Assuming you are using a release source tarball, make sure you have installed
+ PyCEGUI system-wide.
+ Check the PyCEGUI.{so,dll} with 
+\emph on
+ldd -r
+\emph default
+ or 
+\emph on
+depends.exe
+\emph default
+ to check whether it can find all required libraries.
+\end_layout
+
+\begin_layout Standard
+You can also use the runwrapper.sh script if you use a UNIX system but that
+ is not officially supported.
+\end_layout
+
+\begin_layout Subsection*
+Cannot find XYZ
+\end_layout
+
+\begin_layout Standard
+Install dependency XYZ, all dependency upstreams offer binary installers
+ with the exception of PyCEGUI.
+ Check with 
+\emph on
+ldd -r
+\emph default
+ or 
+\emph on
+depends.exe
+\emph default
+ to see whether the libraries can find their dependencies.
+\end_layout
+
+\begin_layout Subsection*
+Only widget outlines move when I pan the layout editing viewport
+\end_layout
+
+\begin_layout Standard
+Confirm that zooming also only moves the outlines.
+\end_layout
+
+\begin_layout Standard
+Make sure your GPU supports FBO and that it supports it properly.
+ The solution is to get better OpenGL drivers.
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+This may also be a newly introduced bug that may be worth reporting.
+ Use common sense.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+OpenGL invalid enum exception
+\end_layout
+
+\begin_layout Standard
+Make sure your GPU supports FBO.
+ Other than that it is usually a driver bug.
+ I have witnessed this in VirtualBox VM.
+ The solution is to get better OpenGL drivers.
+\end_layout
+
+\begin_layout Standard
+\noindent
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+This may also be a newly introduced bug that may be worth reporting.
+ Use common sense.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+Cannot start 'hg'
+\end_layout
+
+\begin_layout Standard
+This is just a warning and you need not be concerned with it.
+ Mercurial is used to get the 
+\emph on
+tip
+\emph default
+ revision hash for error reporting purposes.
+ It will simply 
+\begin_inset Quotes eld
+\end_inset
+
+unknown
+\begin_inset Quotes erd
+\end_inset
+
+ in cases where it is not possible to get the hash.
+\end_layout
+
+\begin_layout Subsection*
+I only see a black viewport with outlines instead of my widgets!
+\end_layout
+
+\begin_layout Standard
+Make sure the widgets are set as visible! Many people create layouts with
+ widgets hidden and then show them selectively after they are loaded.
+ CEED will not display hidden widgets, it will only display their outlines.
+\end_layout
+
+\begin_layout Subsection*
+Imageset editing is unresponsive
+\end_layout
+
+\begin_layout Standard
+There are two configurable modes of drawing the imageset editing viewport.
+ The default one uses OpenGL and redraws the entire viewport when any redraw
+ is needed.
+ It has a predictable speed and does not stall often.
+ It is suitable for all but the biggest imagesets.
+\end_layout
+
+\begin_layout Standard
+In cases where you edit really big imagesets and/or have a slow GPU you
+ can use the alternative mode.
+ It uses software QPainter and only redraws portions that need it.
+ This makes it a bit unpredictable with occasional stalls but it will be
+ faster if you edit in a small area.
+\end_layout
+
+\begin_layout Standard
+The settings option is 
+\emph on
+Settings » Imageset editing » Use partial drawing updates
+\emph default
+.
+\end_layout
+
+\begin_layout Standard
+See Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Settings"
+
+\end_inset
+
+ to learn how to alter settings.
+\end_layout
+
+\begin_layout Standard
+Changing sizing modes while resizing/moving widgets
+\end_layout
+
+\begin_layout Section
+Getting support
+\end_layout
+
+\begin_layout Standard
+Community support is provided on the following channels.
+ No official commercial support is offered.
+\end_layout
+
+\begin_layout Itemize
+forum: 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://cegui.org.uk/phpBB2
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+IRC: #cegui on irc.freenode.net
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+See 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://freenode.net
+\end_layout
+
+\end_inset
+
+ for information about the FreeNode network.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+wiki: 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://cegui.org.uk/wiki
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Help CEED
+\end_layout
+
+\begin_layout Subsection
+Report bugs
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Reporting-bugs"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Software gets complex really quickly, nobody is pretending that CEED does
+ not have any bugs.
+ If you find some we would really appreciate you reporting them using the
+ CEGUI bug tracker
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+We have a Mantis tracker at 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://cegui.org.uk/mantis
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+.
+ Please make sure the bug has not been reported already by searching the
+ bug tracker before submitting the ticket.
+ Feature requests are also welcome.
+\end_layout
+
+\begin_layout Standard
+Please note that there are no assurances on whether and when particular
+ tickets get resolved, we do our 
+\begin_inset Quotes eld
+\end_inset
+
+best effort
+\begin_inset Quotes erd
+\end_inset
+
+ to fix tickets but cannot possibly give you a reliable time frame.
+\end_layout
+
+\begin_layout Subsection
+Help with documentation
+\end_layout
+
+\begin_layout Standard
+Documenting is a very hard task, any help is welcome in that area.
+ The usual starting point is editing the CEGUI wiki
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+Wiki of the project is at 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://cegui.org.uk/wiki
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+.
+ If you feel up to it you can also send patches to the manuals, they are
+ written in 
+\emph on
+LyX
+\emph default
+ so it should not be a problem to correct typos or even add new content.
+\end_layout
+
+\begin_layout Subsection
+Help with development
+\end_layout
+
+\begin_layout Standard
+CEED is a community project, 
+\emph on
+GPLv3+
+\emph default
+ licensed.
+ That means that anyone can contribute! See the 
+\emph on
+Developer manual
+\emph default
+ for more info.
+\end_layout
+
+\begin_layout Subsection
+Donate money
+\end_layout
+
+\begin_layout Standard
+If you would like to help us spend more time developing the software you
+ use and hopefully like, consider making a donation.
+ Every amount counts, no matter how small.
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+Donating to the main developer of CEED is possible at
+\end_layout
+
+\begin_layout Standard
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://bitbucket.org/cegui/ceed
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+You can also donate to the CEGUI library itself using
+\end_layout
+
+\begin_layout Standard
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+https://bitbucket.org/cegui/ceed
+\end_layout
+
+\end_inset
+
+
+\begin_inset VSpace defskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\noindent
+Both types of donations require a PayPal account.
+\end_layout
+
+\end_body
+\end_document

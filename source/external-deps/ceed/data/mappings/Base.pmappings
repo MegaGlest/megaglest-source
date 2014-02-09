@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Using a combobox for any property:
+        Any property can be mapped to a combobox by setting it's "typeName" to "String"
+        and adding "combo" settings. The "name" attribute specifies the label that appears
+        on the combobox and the "value" the value that will be used.
+
+        The following example shows how HorizontalAlignment could be mapped, if it
+        wasn't a built-in type that was already handled:
+
+        <mapping propertyOrigin="Element" propertyName="HorizontalAlignment" typeName="String">
+            <settings name="combo">
+                <setting name="Left" value="Left" />
+                <setting name="Centre" value="Centre" />
+                <setting name="Right" value="Right" />
+            </settings>
+        </mapping>
+
+        This will make the Visible property appear as a combobox instead of a checkbox:
+
+        <mapping propertyOrigin="Window" propertyName="Visible" typeName="String">
+            <settings name="combo">
+                <setting name="Yes" value="True" />
+                <setting name="No" value="False" />
+            </settings>
+        </mapping>
+-->
+<mappings version="CEED Property Mappings 1">
+
+    <!-- CEGUI::Element -->
+    <mapping propertyOrigin="Element" propertyName="AspectRatio">
+        <settings name="numeric">
+            <setting name="min" value="0.01" />
+            <setting name="max" value="100" />
+            <setting name="step" value="0.1" />
+            <setting name="decimals" value="3" />
+        </settings>
+    </mapping>
+    <!-- End of CEGUI::Element -->
+
+    <!-- CEGUI::NamedElement -->
+    <mapping propertyOrigin="NamedElement" propertyName="Name" hidden="True" />
+    <mapping propertyOrigin="NamedElement" propertyName="NamePath" hidden="True" />
+    <!-- End of CEGUI::NamedElement -->
+
+    <!-- CEGUI::Window -->
+    <mapping propertyOrigin="Window" propertyName="LookNFeel" hidden="True" />
+    <mapping propertyOrigin="Window" propertyName="WindowRenderer" hidden="True" />
+
+    <mapping propertyOrigin="Window" propertyName="Alpha">
+        <settings name="numeric">
+            <setting name="min" value="0" />
+            <setting name="max" value="1" />
+            <setting name="step" value="0.1" />
+            <setting name="decimals" value="2" />
+        </settings>
+    </mapping>
+    <mapping propertyOrigin="Window" propertyName="AutoRepeatDelay">
+        <settings name="numeric">
+            <setting name="min" value="0" />
+            <setting name="max" value="100" />
+            <setting name="step" value="0.01" />
+            <setting name="decimals" value="2" />
+        </settings>
+    </mapping>
+    <mapping propertyOrigin="Window" propertyName="AutoRepeatRate">
+        <settings name="numeric">
+            <setting name="min" value="0" />
+            <setting name="max" value="100" />
+            <setting name="step" value="0.01" />
+            <setting name="decimals" value="2" />
+        </settings>
+    </mapping>
+    <!-- End of CEGUI::Window -->
+
+    <!-- Testing -->
+    <!--
+    <mapping propertyOrigin="Unknown" propertyName="NormalTextColour" typeName="Colour" />
+    <mapping propertyOrigin="Unknown" propertyName="NormalBackgroundColours" typeName="ColourRect" />
+    -->
+
+</mappings>

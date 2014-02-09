@@ -1,0 +1,508 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass report
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Section
+Imageset editing
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+An imageset is practically a texture atlas, a technique used to put many
+ smaller images on one texture to drastically speed up rendering.
+ Each imageset has a name, underlying texture file path, autoscaled settings,
+ native resolution and a set of images.
+ 
+\begin_inset Quotes eld
+\end_inset
+
+Image
+\begin_inset Quotes erd
+\end_inset
+
+ means a rectangle selection of the underlying texture.
+ Each of these images has a position (x, y), width, height and an offset
+ (x, y).
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Opening existing imagesets for editing does not require you to have a project
+ opened.
+ The underlying texture file is sought after in the same directory the .imageset
+ file resides in.
+ If a project file is opened the appropriate resource directory is used
+ to search for the files instead.
+\end_layout
+
+\begin_layout Subsection
+Overview
+\end_layout
+
+\begin_layout Standard
+A dock widget containing basic imageset properties and a list of image definitio
+ns shows up upon opening an imageset file.
+ The centre part of the editor shows the underlying texture and rectangles
+ describing geometry of image definitions.
+ Image definitions can be selected (including multiple selection).
+ Selection works in both the image definition list and the editor's centre
+ part (rubber band selection).
+ Both selections are synchronised.
+ Names of image definitions will be shown as labels when the definitions
+ are selected.
+ This can be disabled in settings, see Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Settings"
+
+\end_inset
+
+ for more details.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename overview.png
+	width 80col%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+rubber band selecting in the imageset editor
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:rubber-band-selecting"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Imageset properties
+\end_layout
+
+\begin_layout Standard
+As can be seen in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:rubber-band-selecting"
+
+\end_inset
+
+, imageset itself has several properties that affect all image definitions
+ defined in it.
+\end_layout
+
+\begin_layout Standard
+The name of the imageset means different things depending on which version
+ of CEGUI you are targeting.
+ It is simply a prefix of each of the defined image definitions' names in
+ CEGUI 1.0 with 
+\begin_inset Quotes eld
+\end_inset
+
+ImagesetName/ImageName
+\begin_inset Quotes erd
+\end_inset
+
+ being the full name of a single image definition, in 0.7 image definitions
+ are strictly tied to imagesets and are referenced using 
+\begin_inset Quotes eld
+\end_inset
+
+set: ImagesetName image: ImageName
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Underlying texture is the texture that will be used to draw the imagery
+ of image definitions inside the imageset.
+\end_layout
+
+\begin_layout Standard
+The auto scaled settings affects how the imageset's image definition sizes
+ will be affected on various resolutions.
+ In a nutshell, with disabled auto scaling the image definitions will always
+ have exactly the size they are defined with, with any other auto scaled
+ settings, the size will be affected by the resolution CEGUI is currently
+ rendered in (see CEGUI documentation for explanations of each setting).
+ Please note that only 
+\begin_inset Quotes eld
+\end_inset
+
+false
+\begin_inset Quotes erd
+\end_inset
+
+ and 
+\begin_inset Quotes eld
+\end_inset
+
+true
+\begin_inset Quotes erd
+\end_inset
+
+ settings are implemented in CEGUI 0.7, the rest are new in CEGUI 1.0.
+\end_layout
+
+\begin_layout Standard
+Native resolution is the resolution this imageset was created for in simplified
+ terms.
+ If the target resolution is different, the image definitions may be scaled,
+ depending on the 
+\emph on
+auto scaled
+\emph default
+ settings.
+\end_layout
+
+\begin_layout Subsection
+Moving and resizing image definitions
+\end_layout
+
+\begin_layout Standard
+You can move selected image definitions by dragging or using keyboard (
+\emph on
+WSAD
+\emph default
+ scheme moves them one pixel in each direction, pressing 
+\emph on
+Ctrl
+\emph default
+ moves them 10 pixels in each of the directions).
+ You can also resize the image definitions by pressing 
+\emph on
+Shift
+\emph default
+ and one of the 
+\emph on
+WSAD
+\emph default
+ keys, this moves just the bottom right 
+\emph on
+vertex
+\emph default
+ of the image definition rectangle.
+ Rectangles are 
+\begin_inset Quotes eld
+\end_inset
+
+resizable rectangles
+\begin_inset Quotes erd
+\end_inset
+
+, see Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Resizable-rectangle"
+
+\end_inset
+
+ for more details.
+ This will only delete the rectangle definitions of the images in the imageset,
+ it will not alter the underlying texture in any way.
+\end_layout
+
+\begin_layout Subsection
+Deleting image definitions
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename context_menu.png
+	width 35col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+selected images context menu
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:selected-images-context"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+You can delete a selection of image definitions by selecting, right clicking
+ and choosing 
+\emph on
+Delete
+\emph default
+ in the context menu or pressing the 
+\emph on
+Delete key
+\emph default
+.
+ This will only delete the image definitions, it will not alter the underlying
+ texture in any way.
+\end_layout
+
+\begin_layout Subsection
+The property box
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:The-property-box"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Wrap figure
+lines 0
+placement o
+overhang 0in
+width "37col%"
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename image_property_box.png
+	width 35col%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+image property box
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+To allow precise adjustments, user can alter all the values of selected
+ image definition manually using the property box.
+ Just select exactly one image definition and the property box will get
+ filled with its values.
+ Altering them will immediately preview the changes in the visual editing
+ pane.
+ All editing has undo/redo support, see Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Undo-and-Redo"
+
+\end_inset
+
+ for more details.
+ Editing image definition properties in the property box should always be
+ preferred to editing raw XML in code mode, it is safer and has better and
+ faster undo/redo.
+\end_layout
+
+\begin_layout Subsection
+Editing image definition offsets
+\end_layout
+
+\begin_layout Standard
+Offsets describe where the 
+\emph on
+0, 0
+\emph default
+ position is in the image definition.
+ By default it is at the top left corner of the rectangle of the image definitio
+n.
+ You may want to adjust it, especially if you are working with crosshairs,
+ cursors or window edge imagery.
+ Enable editing of offsets using the context menu (see Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:selected-images-context"
+
+\end_inset
+
+) and red offset crosshairs will appear, move them around to alter the offsets.
+ You can alternatively use the property box to edit offsets manually using
+ the keyboard, see Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:The-property-box"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Selecting overlapping image definitions
+\end_layout
+
+\begin_layout Standard
+Sometimes the image definitions overlap in a way that would prevent you
+ from selecting the image definition you need.
+ You can select any image definition in the overlapping area and use the
+ 
+\emph on
+Cycle Overlapping Images
+\emph default
+ feature.
+ It will cycle all overlapping image definitions, just stop when the desired
+ one is selected.
+ The order in which the overlapping image definitions are cycled is not
+ well defined, just cycle until the right one is selected.
+ You can see the option in the context menu in Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:selected-images-context"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+The code mode
+\end_layout
+
+\begin_layout Standard
+Raw editing of the XML is supported in imageset editing, click the 
+\begin_inset Quotes eld
+\end_inset
+
+Code
+\begin_inset Quotes erd
+\end_inset
+
+ tab in the bottom to switch to it.
+ Please note that the raw format will always be the native CEGUI 1.0 format
+ even if you selected CEGUI 0.7 as the target version.
+ The conversion will only happen when you save to a file.
+\end_layout
+
+\end_body
+\end_document

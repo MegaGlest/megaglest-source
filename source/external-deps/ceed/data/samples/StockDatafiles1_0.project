@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project CEGUIDefaultResolution="1280x720" CEGUIVersion="1.0" baseDirectory="datafiles1_0" fontsPath="fonts" imagesetsPath="imagesets" layoutsPath="layouts" looknfeelsPath="looknfeel" schemesPath="schemes" version="CEED Project 1" xmlSchemasPath="xml_schemas">
+    <Items>
+        <Item name="animations" type="folder">
+            <Item path="animations/example.anims" type="file" />
+        </Item>
+        <Item name="imagesets" type="folder">
+            <Item path="imagesets/AlfiskoSkin.imageset" type="file" />
+            <Item path="imagesets/AlfiskoSkin.png" type="file" />
+            <Item path="imagesets/DriveIcons.imageset" type="file" />
+            <Item path="imagesets/DriveIcons.png" type="file" />
+            <Item path="imagesets/FairChar.imageset" type="file" />
+            <Item path="imagesets/FairChar.png" type="file" />
+            <Item path="imagesets/GPN-2000-001437.png" type="file" />
+            <Item path="imagesets/OgreTray.imageset" type="file" />
+            <Item path="imagesets/OgreTrayImages.png" type="file" />
+            <Item path="imagesets/TaharezLook.imageset" type="file" />
+            <Item path="imagesets/TaharezLook.png" type="file" />
+            <Item path="imagesets/TaharezLook.png" type="file" />
+            <Item path="imagesets/Vanilla.imageset" type="file" />
+            <Item path="imagesets/WindowsLook.imageset" type="file" />
+            <Item path="imagesets/WindowsLook.png" type="file" />
+            <Item path="imagesets/logo.png" type="file" />
+            <Item path="imagesets/vanilla.png" type="file" />
+        </Item>
+        <Item name="layouts" type="folder">
+            <Item path="layouts/Demo8.layout" type="file" />
+            <Item path="layouts/Demo7Windows.layout" type="file" />
+            <Item path="layouts/DragDropDemo.layout" type="file" />
+            <Item path="layouts/FontDemo.layout" type="file" />
+            <Item path="layouts/TabControlDemo.layout" type="file" />
+            <Item path="layouts/TabPage.layout" type="file" />
+            <Item path="layouts/TabPage1.layout" type="file" />
+            <Item path="layouts/TabPage2.layout" type="file" />
+            <Item path="layouts/TextDemo.layout" type="file" />
+            <Item path="layouts/TreeDemoTaharez.layout" type="file" />
+            <Item path="layouts/VanillaConsole.layout" type="file" />
+            <Item path="layouts/VanillaWindows.layout" type="file" />
+        </Item>
+    </Items>
+</Project>

@@ -1,0 +1,22 @@
+CEGUI Unified Editor
+=======================
+See http://www.cegui.org.uk/wiki/index.php/CEED
+
+Troubleshooting
+=======================
+
+1) Can't import ceed.ui.[something]
+You haven't got the .ui files compiled.
+
+Compile them with ./maintenance compile-ui-files
+or switch to developer mode (see ceed/version.py)
+
+2) Module ceed not found
+Unless you have installed ceed system-wide, you have to set several environment
+variables so that everything is found correctly.
+
+Go to "bin" and start runwrapper.sh. It will spawn a shell with PYTHONPATH
+defined so that "ceed" is found properly.
+
+See the script's contents for more details.
+

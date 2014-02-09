@@ -1,0 +1,925 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass report
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Section
+Layout editing
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+The word layout has two meanings in the CEGUI world so I will first disambiguate
+ it.
+ The first meaning is a hierarchy of widgets, the layout describes the way
+ widgets are laid out as an 
+\emph on
+n-tree
+\emph default
+.
+ The other meaning is a widget able to lay out its child widgets during
+ runtime, this is more precisely called 
+\emph on
+Layout Container
+\emph default
+.
+ I will use the word 
+\begin_inset Quotes eld
+\end_inset
+
+layout
+\begin_inset Quotes erd
+\end_inset
+
+ with the former meaning in the rest of this section unless stated otherwise.
+\end_layout
+
+\begin_layout Plain Layout
+Each layout starts with a root widget and can only have exactly one root
+ widget.
+ If you need more top widgets, just put them into a 
+\emph on
+DefaultWindow
+\emph default
+ and use the 
+\emph on
+DefaultWindow
+\emph default
+ as the root widget.
+ When CEGUI loads the layout it returns this root widget.
+ Widgets always have a name, this name only needs to be unique in the parent
+ in CEGUI 1.0, it has to be globally unique in CEGUI 0.7.
+\end_layout
+
+\begin_layout Plain Layout
+Saying 
+\begin_inset Quotes eld
+\end_inset
+
+widget Parent/Child/SubChild
+\begin_inset Quotes erd
+\end_inset
+
+ means a widget that is a child of the 
+\begin_inset Quotes eld
+\end_inset
+
+Child
+\begin_inset Quotes erd
+\end_inset
+
+ widget and the 
+\begin_inset Quotes eld
+\end_inset
+
+Child
+\begin_inset Quotes erd
+\end_inset
+
+ widget is a child of the 
+\begin_inset Quotes eld
+\end_inset
+
+Parent
+\begin_inset Quotes erd
+\end_inset
+
+ widget.
+ This notation is called the 
+\emph on
+name path
+\emph default
+.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Overview
+\end_layout
+
+\begin_layout Standard
+Upon opening a layout, dock widgets containing widget hierarchy, available
+ widgets to create and selection properties show up.
+ The centre part of the editor shows the layout as rendered using CEGUI.
+ Widgets can be selected and unselected by clicking on them, rubber band
+ selection is not available in the layout editor.
+ Coloured lines are shown to outline how the widgets are sized and positioned.
+ Properties of selected widget(s) are shown and are available for editing
+ in the bottom right part of the screen.
+\end_layout
+
+\begin_layout Standard
+There are no global properties of the GUI layout, the only objects holding
+ information are the widgets.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename overview.png
+	width 80col%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+selecting a window when layout editing
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Subsection
+Moving and sizing widgets
+\end_layout
+
+\begin_layout Standard
+Selected widgets can be moved around by dragging.
+ Resizable rectangle is used for implementation of the 
+\emph on
+widget manipulators
+\emph default
+, see Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Resizable-rectangle"
+
+\end_inset
+
+ for more details.
+\end_layout
+
+\begin_layout Subsubsection*
+Unified dimensions
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+Both position and size have two components in CEGUI - scale and offset.
+ Scale represents the dimension relative to the parent, offset is absolute
+ pixels.
+ Both can be positive or negative, both are stored as floating point numbers.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Wrap figure
+lines 0
+placement O
+overhang 0in
+width "40col%"
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename button_udims.png
+	width 35col%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+unified dimensions of a button
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+There are several tools in CEED to deal with unified dimensions without
+ having to edit them manually in the property editor (see Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Property-editing"
+
+\end_inset
+
+).
+ By default CEED affects the offset component, meaning you are moving everything
+ in pixels.
+ It is recommended to learn relative positioning and sizing, it is a very
+ powerful tool to make resolution independent layouts.
+ Press the 
+\emph on
+A key
+\emph default
+ to switch which dimension component you are affecting with your moving
+ and resizing.
+\end_layout
+
+\begin_layout Standard
+Use 
+\emph on
+Normalise Position
+\emph default
+ and 
+\emph on
+Normalise Size
+\emph default
+ to 
+\begin_inset Quotes eld
+\end_inset
+
+clean up
+\begin_inset Quotes erd
+\end_inset
+
+ the dimensions in your layout.
+ Default shortcuts are the 
+\emph on
+D key
+\emph default
+ and 
+\emph on
+S key
+\emph default
+ respectively.
+\end_layout
+
+\begin_layout Standard
+Whenever you select a widget, its position and size are shown by the means
+ of coloured lines.
+ Red part of the dimension represents the scale component and green part
+ represents the offset component.
+\end_layout
+
+\begin_layout Subsubsection*
+Snap to grid
+\end_layout
+
+\begin_layout Standard
+It is really hard to keep your widgets aligned and it is quite easy to spot
+ for your users that they do not align properly.
+ CEED has a tool to help you align your widgets to a grid.
+ You can enable it by pressing the 
+\emph on
+Spacebar key 
+\emph default
+or by clicking the 
+\emph on
+Snap to grid
+\emph default
+ icon.
+ If it is activated, a grid will be shown whenever you drag move any widgets
+ and your movements will snap to it.
+ All snap to grid happens only between parent and its child widgets, so
+ the grid will be only shown in the dragged widget's parent.
+\end_layout
+
+\begin_layout Standard
+You can change snap grid settings in CEED's application settings, see Section
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Settings"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename snapgrid_unaligned.png
+	width 26col%
+
+\end_inset
+
+
+\begin_inset space \space{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename snapgrid_in_progress.png
+	width 26col%
+
+\end_inset
+
+
+\begin_inset space \space{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename snapgrid_aligned.png
+	width 26col%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+snapping to grid, zoom at 200%
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection*
+Alignment
+\end_layout
+
+\begin_layout Standard
+Position of a widget in CEGUI is relative to a certain pivot.
+ By default this pivot is the top left corner of the widget's parent widget
+ client area.
+ You can change this by selecting a different alignment.
+ Choosing 
+\emph on
+Centre
+\emph default
+ for both horizontal and vertical alignments.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename editbox_centred.png
+	width 30col%
+
+\end_inset
+
+
+\begin_inset space \space{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename alignment_icons.png
+	width 25col%
+
+\end_inset
+
+
+\begin_inset space \space{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename alignment_properties.png
+	width 25col%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+alignment of widgets
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection*
+Minimum and maximum size
+\end_layout
+
+\begin_layout Standard
+Another tool to help you create resolution independent layouts.
+ Consider you are using relative sizes and your top with is 50% of the screen
+ width.
+ You can place a limit that the widget should be 50% of the screen width
+ but not exceed 1000px by setting the MaxSize property to (0, 1000).
+\end_layout
+
+\begin_layout Standard
+The maximum and minimum sizes are unified dimensions but there is one big
+ difference: The first component is relative to the screen dimension, not
+ to the widget's parent!
+\end_layout
+
+\begin_layout Subsubsection*
+Aspect ratio
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Boxed
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+This feature was added in CEGUI 1.0 and it is not available in earlier versions.
+ The compatibility layer will simply strip it and the behavior will be as
+ if the AspectMode was set to Ignore.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Is a tool to make sure your UI is not stretched in any way in a case where
+ your display's aspect ratio differs from that of your user.
+ Choose the desired AspectMode first using the property editing (see Section
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Property-editing"
+
+\end_inset
+
+).
+ There are three modes you can select: 
+\emph on
+Ignore
+\emph default
+, 
+\emph on
+Shrink
+\emph default
+ or 
+\emph on
+Expand
+\emph default
+.
+ 
+\emph on
+Ignore
+\emph default
+ ignores your chosen aspect ratio and does not affect the sizes in any way.
+ 
+\emph on
+Shrink
+\emph default
+ makes sure to comply to the aspect ratio by shrinking one of the dimensions
+ until the ratio is satisfied.
+ 
+\emph on
+Expand
+\emph default
+ behaves similarly but expands one of the dimensions until the ratio is
+ satisfied.
+\end_layout
+
+\begin_layout Standard
+The dimension guides will reflect this by either drawing the size guide
+ too long or too short for 
+\emph on
+shrink
+\emph default
+ and 
+\emph on
+expand
+\emph default
+ respectively.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename aspect_ratio_properties.png
+	width 30col%
+
+\end_inset
+
+
+\begin_inset space \space{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename aspect_ratio_shrunk.png
+	width 25col%
+
+\end_inset
+
+
+\begin_inset space \space{}
+\end_inset
+
+
+\begin_inset Graphics
+	filename aspect_ratio_expanded.png
+	width 25col%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+aspect ratio demonstration
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Deleting widgets
+\end_layout
+
+\begin_layout Standard
+Selected widgets can be deleted by right clicking them in the widget hierarchy
+ dock widget to bring the context menu and choosing 
+\emph on
+Delete
+\emph default
+ or by simply selecting them and pressing the 
+\emph on
+Delete key
+\emph default
+.
+ Please note that deleting a widget also deletes all its descendants - children,
+ children of children, ...
+\end_layout
+
+\begin_layout Subsection
+Property editing
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Property-editing"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Wrap figure
+lines 0
+placement O
+overhang 0in
+width "40col%"
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename complex_properties.png
+	width 35col%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+recursively expanded Area property
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:recursively-expanded-Area"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+A well implemented CEGUI widget should expose most of its properties using
+ the 
+\emph on
+CEGUI::PropertySet
+\emph default
+ class.
+ All properties exposed as such will be editable within the editor in the
+ 
+\emph on
+Selection Properties
+\emph default
+ dock widget.
+\end_layout
+
+\begin_layout Standard
+Simply select a widget, scroll through its properties in the dock widget,
+ choose one and double click it to alter it.
+ Such action will be recorded as an 
+\emph on
+undo action
+\emph default
+ and will be undoable, see Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Undo-and-Redo"
+
+\end_inset
+
+ for more details.
+ You can use the property filter to quickly find the property you are looking
+ for by name, see Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:recursively-expanded-Area"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Some of the properties will show an expandable icon on the left, these are
+ usually complex properties made up from multiple pieces.
+ Clicking this icon will expand the property and allow you to edit its component
+s.
+\end_layout
+
+\begin_layout Standard
+It is possible to edit properties of multiple widgets but properties will
+ display <multiple values> if there is no single value in all of them for
+ that property.
+\end_layout
+
+\begin_layout Subsection
+Reparenting widgets
+\end_layout
+
+\begin_layout Standard
+Reparenting means changing parent of a widget or an entire hierarchy of
+ widget.
+ This can be done in the widget hierarchy dock widget, pick a widget there,
+ drag it and drop it into a widget that should be its new parent.
+\end_layout
+
+\begin_layout Subsection
+Live preview
+\end_layout
+
+\begin_layout Standard
+\begin_inset Wrap figure
+lines 0
+placement o
+overhang 0in
+width "35col%"
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename live_preview.png
+	width 30col%
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+previewing a layout
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+You can preview your widget layout including limited interaction by clicking
+ the 
+\emph on
+Live preview
+\emph default
+ tab in the bottom.
+ It is possible to then interact with your GUI as if it were in your application.
+ Nothing you do in 
+\emph on
+Live preview
+\emph default
+ will affect the edited layout.
+\end_layout
+
+\begin_layout Subsection
+Custom widgets
+\end_layout
+
+\begin_layout Standard
+The editor loads all schemes in the project so standard widgets get registered
+ if you have them in your scheme.
+ The scheme will be able to load a custom widget set module.
+ The custom widget set module is able to add widget factories so you can
+ even add custom made widgets and have the editor edit them.
+\end_layout
+
+\begin_layout Subsection
+The code mode
+\end_layout
+
+\begin_layout Standard
+Raw XML editing is supported in layout editing, click the 
+\emph on
+Code
+\emph default
+ tab in the bottom to switch to it.
+ Please note that the raw format will always be the native CEGUI 1.0 format
+ even if you selected CEGUI 0.7 as the target version.
+ The conversion will only happen when you save to a file.
+\end_layout
+
+\begin_layout Standard
+Please note that there are several errors that you can make in the layout
+ XML that will go silently ignored! This is an issue which CEED cannot solve,
+ it is CEGUI that ignores this input.
+ Examples include various property values, for example the 
+\emph on
+ColourRect
+\emph default
+, invalid values will result in black.
+\end_layout
+
+\begin_layout Standard
+XML editing should only be used as the last resort!
+\end_layout
+
+\end_body
+\end_document

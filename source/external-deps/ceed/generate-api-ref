@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# If the script fails make sure you have *epydoc* installed
+# to get inheritance graphs, make sure you have *graphviz* installed
+
+DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+rm -rf $DIR/doc/API
+mkdir $DIR/doc/API
+epydoc -v --html -o $DIR/doc/API \
+    --name "CEGUI Unified Editor" \
+    --url "http://cegui.org.uk" \
+    --graph all --inheritance listed \
+    $DIR/ceed/

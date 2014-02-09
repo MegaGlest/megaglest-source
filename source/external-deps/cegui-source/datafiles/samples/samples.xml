@@ -1,0 +1,115 @@
+<?xml version="1.0" ?>
+<Samples>
+<SampleDefinition
+    name      = "CEGUIHelloWorldDemo"
+    type      = "C++ Module"
+    summary         = "A very simple &quot;Hello World&quot; demo. It contains a single window which will write &quot;Hello-World&quot; to the console if clicked"
+    description     = "The demo uses the WindowManager to create the window from code. An event handler is used to handle the mouse clicks on the window."
+    credits         = "CrazyEddie, Lukas &quot;Ident&quot; Meindl"
+/>
+<SampleDefinition
+    name      = "CEGUIWidgetDemo"
+    type      = "C++ Module"
+    summary         = "The widget demo allows to choose a widget from the stock CEGUI skins. The widget will then be displayed and can be interacted with. In addition all occuring events will be logged in the event logger below the widget display. By accessing the &quot;Properties&quot; tab, the user can see all properties the widget has and their respective current values."
+    description     = "The demos code is quite specific and probably not of use for most developers. It makes use of the list of mapped widgets and subscribes to all throwable events of it. The properties are retrieved from the widget using the PropertyIterator. The greatest use of this demo for users is to see the available properties of specific widgets and to interactively inspect how events are thrown and how widgets look. Additionally the special setup of certain widgets, for example in initItemListbox(), initListbox(), initMenubar() and initMultiColumnList(), can be useful interesting to look at in the code"
+    credits         = "Lukas &quot;Ident&quot; Meindl"
+/>
+<SampleDefinition
+    name      = "CEGUIEffectsDemo"
+    type      = "C++ Module"
+    summary         = "Shows effects on CEGUI windows. When moving the window the effect will render the windows in a way specified by the effect."
+    description     = "Custom render effects (CEGUI::RenderEffect) can be created for the windows. The demo's c++ files present 3 examples for such effects. The effects can be mapped using schemes or can be directly applied using functions."
+    credits         = "Lukas &quot;Ident&quot; Meindl, Martin Preisler"
+/>
+<SampleDefinition
+    name      = "CEGUIFontDemo"
+    type      = "C++ Module"
+    summary         = "Showcase of different fonts packaged with CEGUI. A selection of fonts and predefined texts, with characters from a variety of languages, is given. It is possible to edit the demonstration text and create or edit fonts the font editor window."
+    description     = "The demo displays the usage of CEGUI::Font&apos;s using the fonts from the datafiles folder. For the special characters, UTF-8 character encoding is supported by CEGUI and is used in the demo. All &quot;.font&quot; files found in the datafiles' font folder are loaded into the demo. Additionally, some of the supported font file endings (.ttf, .pcf, .otf) are added to the list in the font editor window using the CEGUI ResourceProvider. CEGUI Fonts have size and autoscale settings that can be adjusted in the demo. In CEGUI fonts can be loaded using the &quot;.font&quot; files or can be created in run-time using the CEGUI::FontManager. They can be edited at any time.
+
+When characters are requested to be displayed for the first time, CEGUI might need a short time to create them. This load-time only occurs once and is only significant for big character sets, such as for Asian languages with a broad set of characters."
+    credits         = "Lukas &quot;Ident&quot; Meindl"
+/>
+<SampleDefinition
+    name      = "CEGUIDemo6"
+    type      = "C++ Module"
+    summary         = "2"
+    description     = "3"
+/> 
+<SampleDefinition
+    name      = "CEGUIDragDropDemo"
+    type      = "C++ Module"
+    summary         = "2"
+    description     = "3"
+/>
+<SampleDefinition
+    name      = "CEGUIEditboxValidationDemo"
+    type      = "C++ Module"
+    summary         = "Displays how text can be validated. In the demo an editbox is presented which validates incoming text. Partially valid, valid and invalid entries in the editbox are displayed using different text colours"
+    description     = "The &quot;RegexMatchStateEventArgs&quot; are used in the demo to retrieve the validation status of a text matched against a regular expression"
+    credits         = "CrazyEddie"
+/>
+<SampleDefinition
+    name      = "CEGUIGameMenuDemo"
+    type      = "C++ Module"
+    summary         = "Displays a science-fiction game menu using a lot of animations."
+    description     = "The demo uses a custom skin (look n' feel) and a great variety of animations defined. The animations are loaded from xml and utilized via C++ code. For the animated windows, which do not display text, the pixel alignment setting was switched off for smoother transitions, and event handlers are used to control the animations."
+    credits         = "Lukas &quot;Ident&quot; Meindl, graphics: Charles &quot;Syg&quot; Mattei"
+    />
+<SampleDefinition
+    name      = "CEGUIHUDDemo"
+    type      = "C++ Module"
+    summary         = "The HUD Demo presents a game that using head-up display. This shows that CEGUI has full capabilities for rendering HUD's for first person shooters or other any other types of games. The interface consists of a health bar, lives, switchable weapons and power-ups. The game itself consists of moving dishes that have to be clicked on to receive points. When clicked, the points appear in red or green text as a pop-up text that moves upwards and vanishes after some seconds."
+    description     = "The HUD uses very basic &quot;Generic/Label&quot; and &quot;Generic/Image&quot; windows to display most of the elements. For some windows event handlers are registered to react to user interaction. A CEGUI/Progressbar with custom skinning was made for this demo to display the life bar. For the pop-up points a window with animations directly defined in the look n' feel file was made. The animations are triggered by firing events and when the pop-up animation is over the event handler will react to this and subsequently the window will be deleted as defined in the C++ code."
+    credits         = "Lukas &quot;Ident&quot; Meindl, graphics: Charles &quot;Syg&quot; Mattei"
+/>
+<SampleDefinition
+    name      = "CEGUIInventoryDemo"
+    type      = "C++ Module"
+    summary         = "The demo contains an RPG style inventory that allows dragging shaped items from one inventory window to another. Red and green colours display if the item can be dropped at the current position."
+    description     = "To achieve this the custom windows &quot;TaharezLook/InventoryReceiver&quot; and &quot;TaharezLook/InventoryItem&quot; were added via the &quot;InventoryComponents.looknfeel&quot; file. For handling the mechanics of allowing or refusing items to be dropped at set position, the InventoryReceiver class provides extra functionality in the C++ code. Event handlers are used to react to drag n' drop events for this purpose. "
+    credits         = "CrazyEddie"
+/>
+<SampleDefinition
+    name      = "CEGUIMinesweeper"
+    type      = "C++ Module"
+    summary         = "The Minesweeper demo is a fully functional replication of the well known game using CEGUI"
+    description     = "The demo uses event handlers and the Vanilla and Taharez skins"
+    credits         = "Olivier &quot;Dalfy&quot; Delannoy"
+/>
+<SampleDefinition
+    name      = "CEGUIScrollablePaneDemo"
+    type      = "C++ Module"
+    summary         = "The ScrollbarPaneDemo uses the WindowsLook which gives it a Windows application-like look. For the background it has a ScrollablePane and windows for it can created via the menu bar. The items on the pane can be moved freely and the pane can be scrolled with the scrollbars."
+    description     = "The window uses a window of target type &quot;CEGUI/ScrollablePane&quot; for the scrollable pane and the WindowsLook skin for all windows."
+    credits         = "Tomas Lindquist Olsen"
+/>
+<SampleDefinition
+    name      = "CEGUITabControlDemo"
+    type      = "C++ Module"
+    summary         = "The TabControl demo contains a window that has multiple pages, which can be switching by clicking the tabs. Tabs can be adjusted and created with the widgets on the 1st page."
+    description     = "The tab window is of type &quot;TaharezLook/TabControl&quot;. For the seperate pages CEGUI layouts are loaded and attached."
+    credits         = "Andrew Zabolotny"
+/>
+<SampleDefinition
+    name      = "CEGUITextDemo"
+    type      = "C++ Module"
+    summary         = "The demo contains text editing widgets and allows to change the text formatting or enter a text"
+    description     = "The text formatting and scrollbar visibility are adjusted using the properties of the windows"
+    credits         = "CEGUI team"
+/>
+<SampleDefinition
+    name      = "CEGUITreeDemo"
+    type      = "C++ Module"
+    summary         = "The demos contains a tree of items that can be expanded and collapsed."
+    description     = "The TreeDemo showcases the &quot;CEGUI/Tree&quot; functionality for windows. The &quot;TaharezLook/Tree&quot; widget is used for this purpose."
+    credits         = "David Durant"
+/>
+<SampleDefinition
+    name      = "CEGUICommonDialogsDemo"
+    type      = "C++ Module"
+    summary         = "Shows the functionalities of the Common Dialogues library. Currently this library consists only of the ColourPicker for CEGUI. It can be opened by clicking one of the coloured rectangle in the demo."
+    description     = "The demo uses the &quot;Vanilla/ColourPicker&quot; widget"
+    credits         = "CrazyEddie, Lukas &quot;Ident&quot; Meindl"
+/>
+</Samples>
