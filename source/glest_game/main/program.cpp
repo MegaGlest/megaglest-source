@@ -802,13 +802,38 @@ void Program::setupCEGUI() {
 	CEGUI::SchemeManager::getSingleton().createFromFile(themeName + ".scheme");
 	CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setDefaultImage(themeNameCursors + "/MouseArrow");
 	CEGUI::WindowManager& winMgr(CEGUI::WindowManager::getSingleton());
+
+
 	CEGUI::Window* root = winMgr.createWindow("DefaultWindow", "root");
 	CEGUI::Window* fw = root->createChild(themeName + "/FrameWindow");
 	fw->setPosition(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.25, 0)));
 	fw->setSize(CEGUI::USize(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.5, 0)));
 	fw->setText("MegaGlest CE-GUI Test");
 
+	CEGUI::Window *gTestBtnWindow = CEGUI::WindowManager::getSingleton().createWindow(themeName + "/Button","TestPushButton");
+	gTestBtnWindow->setPosition(CEGUI::UVector2(cegui_reldim(0.81f), cegui_reldim( 0.32f)));
+	gTestBtnWindow->setSize(CEGUI::USize(cegui_reldim(0.15f), cegui_reldim( 0.2f)));
+	gTestBtnWindow->setText("Test Button");
+	fw->addChild(gTestBtnWindow);
+
+	CEGUI::Window *gTestComboWindow = CEGUI::WindowManager::getSingleton().createWindow(themeName + "/Combobox","TestCombobox");
+	gTestComboWindow->setPosition(CEGUI::UVector2(cegui_reldim(0.04f), cegui_reldim( 0.06f)));
+	gTestComboWindow->setSize(CEGUI::USize(cegui_reldim(0.66f), cegui_reldim( 0.33f)));
+	gTestComboWindow->setText("Test Combo");
+	fw->addChild(gTestComboWindow);
+
+	CEGUI::Window *label = CEGUI::WindowManager::getSingleton().createWindow(themeName + "/StaticText", "Label4");
+    fw->addChild(label);
+    label->setProperty("FrameEnabled", "false");
+    label->setProperty("BackgroundEnabled", "false");
+    label->setPosition(CEGUI::UVector2(cegui_reldim(0.02f), cegui_reldim( 0.55f)));
+    label->setSize(CEGUI::USize(cegui_reldim(0.2f), cegui_reldim( 0.12f)));
+    label->setText("Player Name:");
+
+
 	CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(root);
+
+
 }
 
 void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){

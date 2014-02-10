@@ -123,8 +123,14 @@ private:
     //static bool masterserverMode;
     static map<wchar_t,bool> mapAllowedKeys;
 
+    static void cegui_handle_mouse_down(Uint8 button);
+    static void cegui_handle_mouse_up(Uint8 button);
+    static void inject_time_pulse(double &time_pulse);
+
 protected:
 	int w, h;
+	static double last_time_pulse;
+
 	static bool isActive;
 	static bool no2DMouseRendering;
 	static bool allowAltEnterFullscreenToggle;

@@ -63,7 +63,7 @@ bool Window::tryVSynch = false;
 
 map<wchar_t,bool> Window::mapAllowedKeys;
 
-//bool Window::masterserverMode = false;
+double Window::last_time_pulse = 0;
 
 // ========== PUBLIC ==========
 
@@ -91,6 +91,8 @@ Window::Window()  {
 		lastMouseX[idx]		= 0;
 		lastMouseY[idx]		= 0;
 	}
+
+	this->last_time_pulse = 0.001 * static_cast<double>(SDL_GetTicks());
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	assert(global_window == 0);
@@ -122,7 +124,7 @@ Window::~Window() {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
-void cegui_handle_mouse_down(Uint8 button) {
+void Window::cegui_handle_mouse_down(Uint8 button) {
 	switch ( button ) {
 		// handle real mouse buttons
 		case SDL_BUTTON_LEFT:
@@ -145,7 +147,7 @@ void cegui_handle_mouse_down(Uint8 button) {
 		}
 }
 
-void cegui_handle_mouse_up(Uint8 button) {
+void Window::cegui_handle_mouse_up(Uint8 button) {
 	switch ( button ) {
 		case SDL_BUTTON_LEFT:
 			CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(CEGUI::LeftButton);
@@ -157,6 +159,17 @@ void cegui_handle_mouse_up(Uint8 button) {
 			CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(CEGUI::RightButton);
 			break;
 		}
+}
+
+void Window::inject_time_pulse(double &time_pulse) {
+	// get current "run-time" in seconds
+	double current_time_pulse = 0.001 * SDL_GetTicks();
+
+	// inject the time that passed since the last call
+	CEGUI::System::getSingleton().injectTimePulse( float(current_time_pulse - last_time_pulse) );
+
+	// store the new time as the last time
+	last_time_pulse = current_time_pulse;
 }
 
 bool Window::handleEvent() {
@@ -397,6 +410,13 @@ bool Window::handleEvent() {
 					}
 				}
 				break;
+
+				case SDL_VIDEORESIZE:
+				{
+					//your resize code here, including the SDL_SetVideoMode call
+					CEGUI::System::getSingleton().getRenderer()->setDisplaySize(CEGUI::Size<float>(event.resize.w, event.resize.h));
+				}
+				break;
 			}
 		}
 		catch(const char *e){
@@ -418,6 +438,8 @@ bool Window::handleEvent() {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] (c) Couldn't process event: [UNKNOWN ERROR] codeLocation = %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,codeLocation.c_str());
 		}
 	}
+
+	inject_time_pulse(last_time_pulse);
 
 	return true;
 }
