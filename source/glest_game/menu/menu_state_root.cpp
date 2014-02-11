@@ -107,6 +107,8 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu) :
 
 void MenuStateRoot::setupCEGUIWidgets() {
 
+	Lang &lang= Lang::getInstance();
+
 	CEGUI::WindowManager& winMgr(CEGUI::WindowManager::getSingleton());
 	CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(
 			winMgr.loadLayoutFromFile("MainMenuRoot.layout"));
@@ -115,26 +117,32 @@ void MenuStateRoot::setupCEGUIWidgets() {
 			getRootWindow();
 
 	CEGUI::Window *ButtonNewGame = root->getChild("ButtonNewGame");
+	ButtonNewGame->setText(lang.getString("NewGame"));
 	MegaGlest_CEGUIManager::getInstance().subscribeEventClick(containerName,
 			ButtonNewGame,CEGUI::PushButton::EventClicked.c_str(), this);
 
 	CEGUI::Window *ButtonLoadGame = root->getChild("ButtonLoadGame");
+	ButtonLoadGame->setText(lang.getString("LoadGame"));
 	MegaGlest_CEGUIManager::getInstance().subscribeEventClick(containerName,
 			ButtonLoadGame,CEGUI::PushButton::EventClicked.c_str(), this);
 
 	CEGUI::Window *ButtonMods = root->getChild("ButtonMods");
+	ButtonMods->setText(lang.getString("Mods"));
 	MegaGlest_CEGUIManager::getInstance().subscribeEventClick(containerName,
 			ButtonMods,CEGUI::PushButton::EventClicked.c_str(), this);
 
 	CEGUI::Window *ButtonOptions = root->getChild("ButtonOptions");
+	ButtonOptions->setText(lang.getString("Options"));
 	MegaGlest_CEGUIManager::getInstance().subscribeEventClick(containerName,
 			ButtonOptions,CEGUI::PushButton::EventClicked.c_str(), this);
 
 	CEGUI::Window *ButtonAbout = root->getChild("ButtonAbout");
+	ButtonAbout->setText(lang.getString("About"));
 	MegaGlest_CEGUIManager::getInstance().subscribeEventClick(containerName,
 			ButtonAbout,CEGUI::PushButton::EventClicked.c_str(), this);
 
 	CEGUI::Window *ButtonExit = root->getChild("ButtonExit");
+	ButtonExit->setText(lang.getString("Soap"));
 	MegaGlest_CEGUIManager::getInstance().subscribeEventClick(containerName,
 			ButtonExit,CEGUI::PushButton::EventClicked.c_str(), this);
 }

@@ -15,7 +15,7 @@ before_install:
 #  - sudo apt-get install libpython-all-dev libglm-dev libglfw-dev libboost-all-dev
 script:
 # ALL THE BUILD COMMANDS HERE
-  - source/external-deps/cegui-source/build-ce-gui-for-mg.sh
+  - source/external-deps/cegui-source/build-ce-gui-for-mg.sh -c 4
   - mk/linux/build-mg.sh -c 4
 notifications:
   irc:

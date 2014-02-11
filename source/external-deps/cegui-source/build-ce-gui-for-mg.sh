@@ -13,6 +13,33 @@ SCRIPTDIR="$(dirname $(readlink -f $0))"
 # By default we use all physical CPU cores to build.
 NUMCORES=`lscpu -p | grep -cv '^#'`
 CPU_COUNT=-1
+
+
+while getopts "c:h" option; do
+   case "${option}" in
+        c) 
+           CPU_COUNT=${OPTARG}
+#           echo "${option} value: ${OPTARG}"
+        ;;
+        h) 
+                echo "Usage: $0 <option>"
+                echo "       where <option> can be: -c x, -h"
+                echo "       option descriptions:"
+                echo "       -c x : Force the cpu / cores count to x - example: -c 4"
+                echo "       -h   : Display this help usage"
+
+        	exit 1        
+        ;;
+
+        \?)
+              echo "Script Invalid option: -$OPTARG" >&2
+              exit 1
+        ;;
+   esac
+done
+
+
+
 echo "CPU cores detected: $NUMCORES"
 if [ "$NUMCORES" = '' ]; then NUMCORES=1; fi
 if [ $CPU_COUNT != -1 ]; then NUMCORES=$CPU_COUNT; fi
