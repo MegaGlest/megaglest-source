@@ -12,7 +12,7 @@ before_install:
   - sudo apt-get update -qq # UPDATE REPOS
   - sudo mk/linux/setupBuildDeps.sh --quiet # INSTALL DEPENDENCIES HERE
 # This is required to build cegui
-  - sudo apt-get install libpython2.7-dev libglm-dev libglfw-dev libboost1.53-dev-all
+  - sudo apt-get install libpython-dev libglm-dev libglfw-dev libboost-all-dev
 script:
 # ALL THE BUILD COMMANDS HERE
   - source/external-deps/cegui-source/build-ce-gui-for-mg.sh
