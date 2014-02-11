@@ -283,6 +283,7 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
         // will not create the OpenGL context itself.
         //CEGUI::OpenGLRenderer& myRenderer = CEGUI::OpenGLRenderer::bootstrapSystem();
         CEGUI::OpenGLRenderer::bootstrapSystem();
+        showCursor(false);
 	}
 }
 

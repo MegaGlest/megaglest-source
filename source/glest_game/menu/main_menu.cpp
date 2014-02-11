@@ -9,6 +9,7 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+#include <CEGUI/CEGUI.h>
 #include "main_menu.h"
 
 #include "renderer.h"
@@ -300,6 +301,8 @@ MenuState::MenuState(Program *program, MainMenu *mainMenu, const string &stateNa
 	this->containerName="";
 	this->program= program;
 	this->mainMenu= mainMenu;
+
+	CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(0);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//switch on menu music again, it might be muted

@@ -13,6 +13,7 @@
 #define _GLEST_GAME_MENUSTATEROOT_H_
 
 #include "main_menu.h"
+#include "megaglest_cegui_manager.h"
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -24,7 +25,7 @@ namespace Glest{ namespace Game{
 class GraphicMessageBox;
 class PopupMenu;
 
-class MenuStateRoot: public MenuState {
+class MenuStateRoot: public MenuState, public MegaGlest_CEGUIManagerBackInterface {
 private:
 	GraphicButton buttonNewGame;
 	GraphicButton buttonLoadGame;
@@ -40,6 +41,7 @@ private:
 	PopupMenu popupMenu;
 
 public:
+
 	MenuStateRoot(Program *program, MainMenu *mainMenu);
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
@@ -53,6 +55,11 @@ public:
 
 	virtual bool isMasterserverMode() const;
 	virtual void reloadUI();
+
+private:
+
+	void setupCEGUIWidgets();
+	virtual bool EventCallback(CEGUI::Window *ctl, std::string name);
 };
 
 

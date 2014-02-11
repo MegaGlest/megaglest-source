@@ -8,10 +8,7 @@
 //	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
-
-#include <CEGUI/CEGUI.h>
 #include "program.h"
-
 
 #include "sound.h"
 #include "renderer.h"
@@ -30,6 +27,7 @@
 #include "menu_state_custom_game.h"
 #include "menu_state_join_game.h"
 #include "menu_state_scenario.h"
+#include "megaglest_cegui_manager.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -40,14 +38,14 @@ using namespace Shared::Graphics::Gl;
 // 	class Program
 // =====================================================
 
-namespace Glest{ namespace Game{
+namespace Glest { namespace Game {
 
-const int Program::maxTimes= 10;
-Program *Program::singleton = NULL;
-const int SOUND_THREAD_UPDATE_MILLISECONDS = 25;
+const int Program::maxTimes							= 10;
+Program *Program::singleton 						= NULL;
+const int SOUND_THREAD_UPDATE_MILLISECONDS 			= 25;
 
-bool Program::wantShutdownApplicationAfterGame = false;
-const char *ProgramState::MAIN_PROGRAM_RENDER_KEY = "MEGAGLEST.RENDER";
+bool Program::wantShutdownApplicationAfterGame 		= false;
+const char *ProgramState::MAIN_PROGRAM_RENDER_KEY 	= "MEGAGLEST.RENDER";
 
 // =====================================================
 // 	class Program::CrashProgramState
@@ -736,105 +734,6 @@ void Program::exit() {
 
 // ==================== PRIVATE ====================
 
-void Program::setupCEGUI() {
-	//void initialiseResourceGroupDirectories() {
-	// initialise the required dirs for the DefaultResourceProvider
-	CEGUI::DefaultResourceProvider* rp =
-		static_cast<CEGUI::DefaultResourceProvider*>
-			(CEGUI::System::getSingleton().getResourceProvider());
-
-	string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-
-	string data_path_cegui = Config::getInstance().getString("CEGUI-Theme-Path","");
-	if(data_path_cegui == "") {
-		data_path_cegui = data_path + "/data/cegui/themes/default/";
-	}
-
-	const char* dataPathPrefix = data_path_cegui.c_str();
-	char resourcePath[PATH_MAX];
-
-	// for each resource type, set a resource group directory
-	sprintf(resourcePath, "%s/%s", dataPathPrefix, "schemes/");
-	rp->setResourceGroupDirectory("schemes", resourcePath);
-	sprintf(resourcePath, "%s/%s", dataPathPrefix, "imagesets/");
-	rp->setResourceGroupDirectory("imagesets", resourcePath);
-	sprintf(resourcePath, "%s/%s", dataPathPrefix, "fonts/");
-	rp->setResourceGroupDirectory("fonts", resourcePath);
-	sprintf(resourcePath, "%s/%s", dataPathPrefix, "layouts/");
-	rp->setResourceGroupDirectory("layouts", resourcePath);
-	sprintf(resourcePath, "%s/%s", dataPathPrefix, "looknfeel/");
-	rp->setResourceGroupDirectory("looknfeels", resourcePath);
-	sprintf(resourcePath, "%s/%s", dataPathPrefix, "lua_scripts/");
-	rp->setResourceGroupDirectory("lua_scripts", resourcePath);
-	sprintf(resourcePath, "%s/%s", dataPathPrefix, "xml_schemas/");
-	rp->setResourceGroupDirectory("schemas", resourcePath);
-	sprintf(resourcePath, "%s/%s", dataPathPrefix, "animations/");
-	rp->setResourceGroupDirectory("animations", resourcePath);
-	//}
-
-	//----------------------------------------------------------------------------//
-	//void initialiseDefaultResourceGroups() {
-	// set the default resource groups to be used
-	CEGUI::ImageManager::setImagesetDefaultResourceGroup("imagesets");
-	CEGUI::Font::setDefaultResourceGroup("fonts");
-	CEGUI::Scheme::setDefaultResourceGroup("schemes");
-	CEGUI::WidgetLookManager::setDefaultResourceGroup("looknfeels");
-	CEGUI::WindowManager::setDefaultResourceGroup("layouts");
-	CEGUI::ScriptModule::setDefaultResourceGroup("lua_scripts");
-	CEGUI::AnimationManager::setDefaultResourceGroup("animations");
-	// setup default group for validation schemas
-	CEGUI::XMLParser* parser = CEGUI::System::getSingleton().getXMLParser();
-	if (parser->isPropertyPresent("SchemaDefaultResourceGroup")) {
-		parser->setProperty("SchemaDefaultResourceGroup", "schemas");
-	}
-	//}
-
-	string themeName = Config::getInstance().getString("CEGUI-Theme-Name","");
-	if(themeName == "") {
-		themeName = "TaharezLook";
-	}
-
-	string themeNameCursors = Config::getInstance().getString("CEGUI-Theme-Name-Cursors","");
-	if(themeNameCursors == "") {
-		themeNameCursors = "TaharezLook";
-	}
-
-	CEGUI::SchemeManager::getSingleton().createFromFile(themeName + ".scheme");
-	CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setDefaultImage(themeNameCursors + "/MouseArrow");
-	CEGUI::WindowManager& winMgr(CEGUI::WindowManager::getSingleton());
-
-
-	CEGUI::Window* root = winMgr.createWindow("DefaultWindow", "root");
-	CEGUI::Window* fw = root->createChild(themeName + "/FrameWindow");
-	fw->setPosition(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.25, 0)));
-	fw->setSize(CEGUI::USize(CEGUI::UDim(0.5, 0), CEGUI::UDim(0.5, 0)));
-	fw->setText("MegaGlest CE-GUI Test");
-
-	CEGUI::Window *gTestBtnWindow = CEGUI::WindowManager::getSingleton().createWindow(themeName + "/Button","TestPushButton");
-	gTestBtnWindow->setPosition(CEGUI::UVector2(cegui_reldim(0.81f), cegui_reldim( 0.32f)));
-	gTestBtnWindow->setSize(CEGUI::USize(cegui_reldim(0.15f), cegui_reldim( 0.2f)));
-	gTestBtnWindow->setText("Test Button");
-	fw->addChild(gTestBtnWindow);
-
-	CEGUI::Window *gTestComboWindow = CEGUI::WindowManager::getSingleton().createWindow(themeName + "/Combobox","TestCombobox");
-	gTestComboWindow->setPosition(CEGUI::UVector2(cegui_reldim(0.04f), cegui_reldim( 0.06f)));
-	gTestComboWindow->setSize(CEGUI::USize(cegui_reldim(0.66f), cegui_reldim( 0.33f)));
-	gTestComboWindow->setText("Test Combo");
-	fw->addChild(gTestComboWindow);
-
-	CEGUI::Window *label = CEGUI::WindowManager::getSingleton().createWindow(themeName + "/StaticText", "Label4");
-    fw->addChild(label);
-    label->setProperty("FrameEnabled", "false");
-    label->setProperty("BackgroundEnabled", "false");
-    label->setPosition(CEGUI::UVector2(cegui_reldim(0.02f), cegui_reldim( 0.55f)));
-    label->setSize(CEGUI::USize(cegui_reldim(0.2f), cegui_reldim( 0.12f)));
-    label->setText("Player Name:");
-
-
-	CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(root);
-
-
-}
 
 void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -914,7 +813,8 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	CoreData &coreData= CoreData::getInstance();
     coreData.load();
 
-    setupCEGUI();
+    MegaGlest_CEGUIManager::getInstance().setupCEGUI();
+
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//init renderer (load global textures)
