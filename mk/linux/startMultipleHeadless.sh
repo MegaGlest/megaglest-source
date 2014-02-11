@@ -1,5 +1,4 @@
 #!/bin/bash
-#hello
 portstart=62000
 cycles=$1
 megaglest=./megaglest
