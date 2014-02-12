@@ -26,6 +26,7 @@
 #include <algorithm>
 #include "config.h"
 #include "window.h"
+
 #include "leak_dumper.h"
 
 using namespace std;
@@ -173,7 +174,6 @@ void Lang::loadGameStrings(string uselanguage, bool loadFonts,
 
 		// end win32
 	#endif
-
 
 		if(	lang.hasString("ALLOWED_SPECIAL_KEYS","",false)) {
 			string allowedKeys = lang.getString("ALLOWED_SPECIAL_KEYS");
@@ -471,7 +471,7 @@ string Lang::parseResult(const string &key, const string &value) {
 	string result = Lang::getString(key, DEFAULT_LANGUAGE);
 	return result;
 }
-string Lang::getString(const string &s, string uselanguage, bool fallbackToDefault) {
+string Lang::getString(const string &s, string uselanguage, bool fallbackToDefault,bool friBidiConvert) {
 	try {
 		string result = "";
 
@@ -487,7 +487,11 @@ string Lang::getString(const string &s, string uselanguage, bool fallbackToDefau
 			replaceAll(result, "\\n", "\n");
 		}
 
-		return parseResult(s, result);;
+		string result_string = parseResult(s, result);
+		if(friBidiConvert == true) {
+			Font::bidi_cvt(result_string);
+		}
+		return result_string;
 	}
 	catch(exception &ex) {
 		if(gameStringsAllLanguages[this->language].getpath() != "") {
@@ -502,7 +506,11 @@ string Lang::getString(const string &s, string uselanguage, bool fallbackToDefau
 
 		//if(fallbackToDefault == true && uselanguage != DEFAULT_LANGUAGE && this->language != DEFAULT_LANGUAGE) {
 		if( uselanguage != DEFAULT_LANGUAGE && this->language != DEFAULT_LANGUAGE) {
-			return getString(s, DEFAULT_LANGUAGE, false);
+			string result_string = getString(s, DEFAULT_LANGUAGE, false);
+			if(friBidiConvert == true) {
+				Font::bidi_cvt(result_string);
+			}
+			return result_string;
 		}
 
 		//return "???" + s + "???";
@@ -510,10 +518,15 @@ string Lang::getString(const string &s, string uselanguage, bool fallbackToDefau
 	return "???" + s + "???";
 }
 
-string Lang::getScenarioString(const string &s) {
+string Lang::getScenarioString(const string &s,bool friBidiConvert) {
 	try{
 		string result = scenarioStrings.getString(s);
 		replaceAll(result, "\\n", "\n");
+
+		if(friBidiConvert == true) {
+			Font::bidi_cvt(result);
+		}
+
 		return result;
 	}
 	catch(exception &ex) {
@@ -538,7 +551,7 @@ bool Lang::hasScenarioString(const string &s) {
 	return result;
 }
 
-string Lang::getTechTreeString(const string &s,const char *defaultValue) {
+string Lang::getTechTreeString(const string &s,const char *defaultValue,bool friBidiConvert) {
 	try{
 		string result = "";
 		string default_language = "default";
@@ -573,6 +586,11 @@ string Lang::getTechTreeString(const string &s,const char *defaultValue) {
 			result = defaultValue;
 		}
 		replaceAll(result, "\\n", "\n");
+
+		if(friBidiConvert == true) {
+			Font::bidi_cvt(result);
+		}
+
 		return result;
 	}
 	catch(exception &ex) {
@@ -584,7 +602,7 @@ string Lang::getTechTreeString(const string &s,const char *defaultValue) {
 	return "???" + s + "???";
 }
 
-string Lang::getTilesetString(const string &s,const char *defaultValue) {
+string Lang::getTilesetString(const string &s,const char *defaultValue,bool friBidiConvert) {
 	try{
 		string result = "";
 
@@ -603,6 +621,11 @@ string Lang::getTilesetString(const string &s,const char *defaultValue) {
 			result = defaultValue;
 		}
 		replaceAll(result, "\\n", "\n");
+
+		if(friBidiConvert == true) {
+			Font::bidi_cvt(result);
+		}
+
 		return result;
 	}
 	catch(exception &ex) {

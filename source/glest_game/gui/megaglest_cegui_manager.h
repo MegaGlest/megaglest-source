@@ -38,7 +38,7 @@ class MegaGlest_CEGUIManager {
 
 private:
 
-	void initializeMainMenuRoot();
+	//void initializeMainMenuRoot();
 
 protected:
 
@@ -59,8 +59,18 @@ public:
 
 	void setupCEGUI();
 
+	void setCurrentLayout(string layoutFile);
+	void setControlText(string controlName, string text);
+	void setControlEventCallback(string containerName, string controlName,
+			string eventName, MegaGlest_CEGUIManagerBackInterface *cb);
+	CEGUI::Window * getControl(string controlName);
+
+	string getEventClicked();
+
 	void subscribeEventClick(std::string containerName, CEGUI::Window *ctl, std::string name, MegaGlest_CEGUIManagerBackInterface *cb);
 	void unsubscribeEvents(std::string containerName);
+
+	void setFontDefaultFont(string fontName, string fontFileName, float fontPointSize);
 };
 
 }} //end namespace

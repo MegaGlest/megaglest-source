@@ -66,14 +66,14 @@ public:
 	bool loadTechTreeStrings(string techTree, bool forceLoad=false);
 	void loadTilesetStrings(string tileset);
 
-	string getString(const string &s,string uselanguage="", bool fallbackToDefault=false);
+	string getString(const string &s,string uselanguage="", bool fallbackToDefault=false, bool friBidiConvert=false);
 	bool hasString(const string &s, string uselanguage="", bool fallbackToDefault=false);
 
-	string getScenarioString(const string &s);
+	string getScenarioString(const string &s,bool friBidiConvert=false);
 	bool hasScenarioString(const string &s);
 
-	string getTechTreeString(const string &s, const char *defaultValue=NULL);
-	string getTilesetString(const string &s, const char *defaultValue=NULL);
+	string getTechTreeString(const string &s, const char *defaultValue=NULL,bool friBidiConvert=false);
+	string getTilesetString(const string &s, const char *defaultValue=NULL,bool friBidiConvert=false);
 
 	string getLanguage() const { return language; }
 	bool isLanguageLocal(string compareLanguage) const;

@@ -9,7 +9,6 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
-#include <CEGUI/CEGUI.h>
 #include "menu_state_root.h"
 
 #include "renderer.h"
@@ -109,85 +108,81 @@ void MenuStateRoot::setupCEGUIWidgets() {
 
 	Lang &lang= Lang::getInstance();
 
-	CEGUI::WindowManager& winMgr(CEGUI::WindowManager::getSingleton());
-	CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(
-			winMgr.loadLayoutFromFile("MainMenuRoot.layout"));
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.setCurrentLayout("MainMenuRoot.layout");
 
-	CEGUI::Window *root = CEGUI::System::getSingleton().getDefaultGUIContext().
-			getRootWindow();
+	cegui_manager.setControlText("ButtonNewGame",
+			lang.getString("NewGame","",false,true));
+	cegui_manager.setControlEventCallback(containerName,
+			"ButtonNewGame", cegui_manager.getEventClicked(), this);
 
-	CEGUI::Window *ButtonNewGame = root->getChild("ButtonNewGame");
-	ButtonNewGame->setText(lang.getString("NewGame"));
-	MegaGlest_CEGUIManager::getInstance().subscribeEventClick(containerName,
-			ButtonNewGame,CEGUI::PushButton::EventClicked.c_str(), this);
+	cegui_manager.setControlText("ButtonLoadGame",
+			lang.getString("LoadGame","",false,true));
+	cegui_manager.setControlEventCallback(containerName,
+			"ButtonLoadGame", cegui_manager.getEventClicked(), this);
 
-	CEGUI::Window *ButtonLoadGame = root->getChild("ButtonLoadGame");
-	ButtonLoadGame->setText(lang.getString("LoadGame"));
-	MegaGlest_CEGUIManager::getInstance().subscribeEventClick(containerName,
-			ButtonLoadGame,CEGUI::PushButton::EventClicked.c_str(), this);
+	cegui_manager.setControlText("ButtonMods",
+			lang.getString("Mods","",false,true));
+	cegui_manager.setControlEventCallback(containerName,
+			"ButtonMods", cegui_manager.getEventClicked(), this);
 
-	CEGUI::Window *ButtonMods = root->getChild("ButtonMods");
-	ButtonMods->setText(lang.getString("Mods"));
-	MegaGlest_CEGUIManager::getInstance().subscribeEventClick(containerName,
-			ButtonMods,CEGUI::PushButton::EventClicked.c_str(), this);
+	cegui_manager.setControlText("ButtonOptions",
+			lang.getString("Options","",false,true));
+	cegui_manager.setControlEventCallback(containerName,
+			"ButtonOptions", cegui_manager.getEventClicked(), this);
 
-	CEGUI::Window *ButtonOptions = root->getChild("ButtonOptions");
-	ButtonOptions->setText(lang.getString("Options"));
-	MegaGlest_CEGUIManager::getInstance().subscribeEventClick(containerName,
-			ButtonOptions,CEGUI::PushButton::EventClicked.c_str(), this);
+	cegui_manager.setControlText("ButtonAbout",
+			lang.getString("About","",false,true));
+	cegui_manager.setControlEventCallback(containerName,
+			"ButtonAbout", cegui_manager.getEventClicked(), this);
 
-	CEGUI::Window *ButtonAbout = root->getChild("ButtonAbout");
-	ButtonAbout->setText(lang.getString("About"));
-	MegaGlest_CEGUIManager::getInstance().subscribeEventClick(containerName,
-			ButtonAbout,CEGUI::PushButton::EventClicked.c_str(), this);
-
-	CEGUI::Window *ButtonExit = root->getChild("ButtonExit");
-	ButtonExit->setText(lang.getString("Soap"));
-	MegaGlest_CEGUIManager::getInstance().subscribeEventClick(containerName,
-			ButtonExit,CEGUI::PushButton::EventClicked.c_str(), this);
+	cegui_manager.setControlText("ButtonExit",
+			lang.getString("Exit","",false,true));
+	cegui_manager.setControlEventCallback(containerName,
+			"ButtonExit", cegui_manager.getEventClicked(), this);
 }
 
 bool MenuStateRoot::EventCallback(CEGUI::Window *ctl, std::string name) {
 
-	CEGUI::Window *root = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
-	if(name == CEGUI::PushButton::EventClicked) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	if(name == cegui_manager.getEventClicked()) {
 
-		if(ctl == root->getChild("ButtonNewGame")) {
+		if(ctl == cegui_manager.getControl("ButtonNewGame")) {
 			CoreData &coreData=  CoreData::getInstance();
 			SoundRenderer &soundRenderer = SoundRenderer::getInstance();
 			soundRenderer.playFx(coreData.getClickSoundB());
 			mainMenu->setState(new MenuStateNewGame(program, mainMenu));
 			return true;
 		}
-		else if(ctl == root->getChild("ButtonLoadGame")) {
+		else if(ctl == cegui_manager.getControl("ButtonLoadGame")) {
 			CoreData &coreData=  CoreData::getInstance();
 			SoundRenderer &soundRenderer = SoundRenderer::getInstance();
 			soundRenderer.playFx(coreData.getClickSoundB());
 			mainMenu->setState(new MenuStateLoadGame(program, mainMenu));
 			return true;
 		}
-		else if(ctl == root->getChild("ButtonMods")) {
+		else if(ctl == cegui_manager.getControl("ButtonMods")) {
 			CoreData &coreData=  CoreData::getInstance();
 			SoundRenderer &soundRenderer = SoundRenderer::getInstance();
 			soundRenderer.playFx(coreData.getClickSoundB());
 			mainMenu->setState(new MenuStateMods(program, mainMenu));
 			return true;
 		}
-		else if(ctl == root->getChild("ButtonOptions")) {
+		else if(ctl == cegui_manager.getControl("ButtonOptions")) {
 			CoreData &coreData=  CoreData::getInstance();
 			SoundRenderer &soundRenderer = SoundRenderer::getInstance();
 			soundRenderer.playFx(coreData.getClickSoundB());
 			mainMenu->setState(new MenuStateOptions(program, mainMenu));
 			return true;
 		}
-		else if(ctl == root->getChild("ButtonAbout")) {
+		else if(ctl == cegui_manager.getControl("ButtonAbout")) {
 			CoreData &coreData=  CoreData::getInstance();
 			SoundRenderer &soundRenderer = SoundRenderer::getInstance();
 			soundRenderer.playFx(coreData.getClickSoundB());
 			mainMenu->setState(new MenuStateAbout(program, mainMenu));
 			return true;
 		}
-		else if(ctl == root->getChild("ButtonExit")) {
+		else if(ctl == cegui_manager.getControl("ButtonExit")) {
 			CoreData &coreData=  CoreData::getInstance();
 			SoundRenderer &soundRenderer = SoundRenderer::getInstance();
 			soundRenderer.playFx(coreData.getClickSoundA());

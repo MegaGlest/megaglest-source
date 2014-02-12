@@ -282,6 +282,7 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
         // NB: Your OpenGL context must already be initialised when you call this; CEGUI
         // will not create the OpenGL context itself.
         //CEGUI::OpenGLRenderer& myRenderer = CEGUI::OpenGLRenderer::bootstrapSystem();
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CE-GUI bootstrapped!\n");
         CEGUI::OpenGLRenderer::bootstrapSystem();
         showCursor(false);
 	}

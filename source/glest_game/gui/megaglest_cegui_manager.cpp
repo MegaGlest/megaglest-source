@@ -14,8 +14,13 @@
 #include "game_util.h"
 #include "game_constants.h"
 #include "config.h"
+#include "platform_common.h"
+#include "font.h"
+#include "conversion.h"
 
 #include "leak_dumper.h"
+
+using namespace Shared::PlatformCommon;
 
 namespace Glest { namespace Game {
 
@@ -149,13 +154,17 @@ void MegaGlest_CEGUIManager::setupCEGUI() {
 	initializeResourceGroupDirectories();
 	initializeDefaultResourceGroups();
 	initializeTheme();
+
+	string fontFile = findFont();
+	printf("\nCE-GUI set default font: %s\n\n",fontFile.c_str());
+	setFontDefaultFont("MEGAGLEST_FONT", fontFile, 12.0f);
 }
 
-void MegaGlest_CEGUIManager::initializeMainMenuRoot() {
-	string themeName 		= getThemeName();
-	string themeNameCursors = getThemeCursorName();
-
-	CEGUI::WindowManager& winMgr(CEGUI::WindowManager::getSingleton());
+//void MegaGlest_CEGUIManager::initializeMainMenuRoot() {
+//	string themeName 		= getThemeName();
+//	string themeNameCursors = getThemeCursorName();
+//
+//	CEGUI::WindowManager& winMgr(CEGUI::WindowManager::getSingleton());
 
 //	CEGUI::Window* root = winMgr.createWindow("DefaultWindow", "root");
 
@@ -187,10 +196,10 @@ void MegaGlest_CEGUIManager::initializeMainMenuRoot() {
 
 //	CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(root);
 
-	CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(
-			winMgr.loadLayoutFromFile("MainMenuRoot.layout"));
-
-}
+//	CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(
+//			winMgr.loadLayoutFromFile("MainMenuRoot.layout"));
+//
+//}
 
 void MegaGlest_CEGUIManager::subscribeEventClick(std::string containerName, CEGUI::Window *ctl, std::string name, MegaGlest_CEGUIManagerBackInterface *callback) {
 	//printf("Line: %d\n",__LINE__);
@@ -210,6 +219,68 @@ void MegaGlest_CEGUIManager::unsubscribeEvents(std::string containerName) {
 		}
 		eventManagerList.erase(containerName);
 	}
+}
+
+void MegaGlest_CEGUIManager::setCurrentLayout(string layoutFile) {
+	CEGUI::WindowManager& winMgr(CEGUI::WindowManager::getSingleton());
+	CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(
+			winMgr.loadLayoutFromFile(layoutFile));
+}
+
+void MegaGlest_CEGUIManager::setControlText(string controlName, string text) {
+	CEGUI::Window *root = CEGUI::System::getSingleton().
+			getDefaultGUIContext().getRootWindow();
+
+	CEGUI::Window *ctl = root->getChild(controlName);
+	ctl->setText((CEGUI::encoded_char*)text.c_str());
+}
+
+void MegaGlest_CEGUIManager::setControlEventCallback(string containerName,
+		string controlName, string eventName, MegaGlest_CEGUIManagerBackInterface *cb) {
+
+	CEGUI::Window *root = CEGUI::System::getSingleton().
+			getDefaultGUIContext().getRootWindow();
+	CEGUI::Window *ctl = root->getChild(controlName);
+	subscribeEventClick(containerName,ctl,eventName, cb);
+
+}
+
+CEGUI::Window * MegaGlest_CEGUIManager::getControl(string controlName) {
+	CEGUI::Window *root = CEGUI::System::getSingleton().
+			getDefaultGUIContext().getRootWindow();
+	return root->getChild(controlName);
+}
+
+string MegaGlest_CEGUIManager::getEventClicked() {
+	string result = CEGUI::PushButton::EventClicked.c_str();
+	return result;
+}
+
+void MegaGlest_CEGUIManager::setFontDefaultFont(string fontName, string fontFileName, float fontPointSize) {
+
+	string fontPath = extractDirectoryPathFromFile(fontFileName);
+	string fontFile = extractFileFromDirectoryPath(fontFileName);
+
+	CEGUI::FontManager& fontManager(CEGUI::FontManager::getSingleton());
+	string fontNameIdentifier = fontName + "-" + floatToStr(fontPointSize);
+
+	if(fontManager.isDefined(fontNameIdentifier) == false) {
+		CEGUI::Font &font = fontManager.createFreeTypeFont(
+				fontNameIdentifier,
+				fontPointSize,
+				true,
+				fontFileName,
+				//CEGUI::Font::getDefaultResourceGroup(),
+				fontPath,
+				CEGUI::ASM_Vertical,
+				CEGUI::Sizef(1280.0f, 720.0f));
+		CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultFont(&font);
+	}
+	else {
+		CEGUI::Font &font(fontManager.get(fontNameIdentifier));
+		CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultFont(&font);
+	}
+
 }
 
 }}//end namespace
