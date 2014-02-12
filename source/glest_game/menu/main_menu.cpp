@@ -191,7 +191,7 @@ void MainMenu::render() {
 		state->render();
 
 		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
-			renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
+			//renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 			renderer.renderFPSWhenEnabled(lastFps);
 			renderer.swapBuffers();
 		}

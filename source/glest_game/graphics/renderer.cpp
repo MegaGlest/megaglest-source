@@ -1606,131 +1606,131 @@ void Renderer::computeVisibleQuad() {
 // basic rendering
 // =======================================
 
-void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
-	if(no2DMouseRendering == true) {
-			return;
-	}
-	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
-		return;
-	}
-//	float blue=0.0f;
-//	float green=0.4f;
-	if(game != NULL && game->getGui() != NULL) {
-		const Gui *gui=game->getGui();
-		const Display *display=gui->getDisplay();
-		int downPos= display->getDownSelectedPos();
-		if(downPos != Display::invalidPos){
-			// in state of doing something
-			const Texture2D *texture= display->getDownImage(downPos);
-			renderTextureQuad(x+18,y-50,32,32,texture,0.8f);
-		}
-//		else {
-//			// Display current commandtype
-//			const Unit *unit=NULL;
-//			if(gui->getSelection()->isEmpty()){
-//				blue=0.0f;
-//				green=0.1f;
-//			}
-//			else{
-//				unit=gui->getSelection()->getFrontUnit();
-//				if(unit->getCurrCommand()!=NULL && unit->getCurrCommand()->getCommandType()->getImage()!=NULL){
-//					const Texture2D *texture = unit->getCurrCommand()->getCommandType()->getImage();
-//					renderTextureQuad(x+18,y-50,32,32,texture,0.2f);
-//				}
-//			}
+//void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
+//	if(no2DMouseRendering == true) {
+//			return;
+//	}
+//	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+//		return;
+//	}
+////	float blue=0.0f;
+////	float green=0.4f;
+//	if(game != NULL && game->getGui() != NULL) {
+//		const Gui *gui=game->getGui();
+//		const Display *display=gui->getDisplay();
+//		int downPos= display->getDownSelectedPos();
+//		if(downPos != Display::invalidPos){
+//			// in state of doing something
+//			const Texture2D *texture= display->getDownImage(downPos);
+//			renderTextureQuad(x+18,y-50,32,32,texture,0.8f);
 //		}
-
-		if(game->isMarkCellMode() == true) {
-			const Texture2D *texture= game->getMarkCellTexture();
-			renderTextureQuad(x-18,y-50,texture->getTextureWidth(),texture->getTextureHeight(),texture,0.8f);
-		}
-		if(game->isUnMarkCellMode() == true) {
-			const Texture2D *texture= game->getUnMarkCellTexture();
-			renderTextureQuad(x-18,y-50,texture->getTextureWidth(),texture->getTextureHeight(),texture,0.8f);
-		}
-	}
-
-	float fadeFactor = fade + 1.f;
-
-	anim= anim * 2 - maxMouse2dAnim;
-
-	float color2= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.4f;
-	float color1= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.8f;
-
-	glPushAttrib(GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_LINE_BIT);
-		glEnable(GL_BLEND);
-
-		//inside
-		glColor4f(0.4f*fadeFactor, 0.2f*fadeFactor, 0.2f*fadeFactor, 0.5f*fadeFactor);
-		glBegin(GL_TRIANGLES);
-			glVertex2i(x, y);
-			glVertex2i(x+20, y-10);
-			glVertex2i(x+10, y-20);
-		glEnd();
-
-		//border
-		glLineWidth(2);
-		glBegin(GL_LINE_LOOP);
-			glColor4f(1.f, 0.2f, 0, color1);
-			glVertex2i(x, y);
-			glColor4f(1.f, 0.4f, 0, color2);
-			glVertex2i(x+20, y-10);
-			glColor4f(1.f, 0.4f, 0, color2);
-			glVertex2i(x+10, y-20);
-		glEnd();
-	glPopAttrib();
-
-
-/*
-	if(no2DMouseRendering == true) {
-		return;
-	}
-    float color1 = 0.0, color2 = 0.0;
-
-	float fadeFactor = fade + 1.f;
-
-	anim= anim * 2 - maxMouse2dAnim;
-
-    color2= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.4f;
-    color1= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.8f;
-
-    glPushAttrib(GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_LINE_BIT);
-    glEnable(GL_BLEND);
-
-	//inside
-	Vec2i vertices[3];
-	vertices[0] = Vec2i(x, y);
-	vertices[1] = Vec2i(x+20, y-10);
-	vertices[2] = Vec2i(x+10, y-20);
-
-	glColor4f(0.4f*fadeFactor, 0.2f*fadeFactor, 0.2f*fadeFactor, 0.5f*fadeFactor);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(2, GL_INT, 0, &vertices[0]);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-    glDisableClientState(GL_VERTEX_ARRAY);
-
-	//border
-	vertices[0] = Vec2i(x, y);
-	vertices[1] = Vec2i(x+20, y-10);
-	vertices[2] = Vec2i(x+10, y-20);
-
-	Vec4f colors[4];
-	colors[0] = Vec4f(1.f, 0.2f, 0, color1);
-	colors[1] = Vec4f(1.f, 0.4f, 0, color2);
-	colors[2] = Vec4f(1.f, 0.4f, 0, color2);
-
-	glLineWidth(2);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(2, GL_INT, 0, &vertices[0]);
-	glEnableClientState(GL_COLOR_ARRAY);
-	glColorPointer(4, GL_FLOAT, 0, &colors[0]);
-    glDrawArrays(GL_LINE_LOOP, 0, 3);
-    glDisableClientState(GL_COLOR_ARRAY);
-    glDisableClientState(GL_VERTEX_ARRAY);
-
-    glPopAttrib();
-*/
-}
+////		else {
+////			// Display current commandtype
+////			const Unit *unit=NULL;
+////			if(gui->getSelection()->isEmpty()){
+////				blue=0.0f;
+////				green=0.1f;
+////			}
+////			else{
+////				unit=gui->getSelection()->getFrontUnit();
+////				if(unit->getCurrCommand()!=NULL && unit->getCurrCommand()->getCommandType()->getImage()!=NULL){
+////					const Texture2D *texture = unit->getCurrCommand()->getCommandType()->getImage();
+////					renderTextureQuad(x+18,y-50,32,32,texture,0.2f);
+////				}
+////			}
+////		}
+//
+//		if(game->isMarkCellMode() == true) {
+//			const Texture2D *texture= game->getMarkCellTexture();
+//			renderTextureQuad(x-18,y-50,texture->getTextureWidth(),texture->getTextureHeight(),texture,0.8f);
+//		}
+//		if(game->isUnMarkCellMode() == true) {
+//			const Texture2D *texture= game->getUnMarkCellTexture();
+//			renderTextureQuad(x-18,y-50,texture->getTextureWidth(),texture->getTextureHeight(),texture,0.8f);
+//		}
+//	}
+//
+//	float fadeFactor = fade + 1.f;
+//
+//	anim= anim * 2 - maxMouse2dAnim;
+//
+//	float color2= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.4f;
+//	float color1= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.8f;
+//
+//	glPushAttrib(GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_LINE_BIT);
+//		glEnable(GL_BLEND);
+//
+//		//inside
+//		glColor4f(0.4f*fadeFactor, 0.2f*fadeFactor, 0.2f*fadeFactor, 0.5f*fadeFactor);
+//		glBegin(GL_TRIANGLES);
+//			glVertex2i(x, y);
+//			glVertex2i(x+20, y-10);
+//			glVertex2i(x+10, y-20);
+//		glEnd();
+//
+//		//border
+//		glLineWidth(2);
+//		glBegin(GL_LINE_LOOP);
+//			glColor4f(1.f, 0.2f, 0, color1);
+//			glVertex2i(x, y);
+//			glColor4f(1.f, 0.4f, 0, color2);
+//			glVertex2i(x+20, y-10);
+//			glColor4f(1.f, 0.4f, 0, color2);
+//			glVertex2i(x+10, y-20);
+//		glEnd();
+//	glPopAttrib();
+//
+//
+///*
+//	if(no2DMouseRendering == true) {
+//		return;
+//	}
+//    float color1 = 0.0, color2 = 0.0;
+//
+//	float fadeFactor = fade + 1.f;
+//
+//	anim= anim * 2 - maxMouse2dAnim;
+//
+//    color2= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.4f;
+//    color1= (abs(anim*(int)fadeFactor)/static_cast<float>(maxMouse2dAnim))/2.f+0.8f;
+//
+//    glPushAttrib(GL_CURRENT_BIT | GL_COLOR_BUFFER_BIT | GL_LINE_BIT);
+//    glEnable(GL_BLEND);
+//
+//	//inside
+//	Vec2i vertices[3];
+//	vertices[0] = Vec2i(x, y);
+//	vertices[1] = Vec2i(x+20, y-10);
+//	vertices[2] = Vec2i(x+10, y-20);
+//
+//	glColor4f(0.4f*fadeFactor, 0.2f*fadeFactor, 0.2f*fadeFactor, 0.5f*fadeFactor);
+//	glEnableClientState(GL_VERTEX_ARRAY);
+//	glVertexPointer(2, GL_INT, 0, &vertices[0]);
+//	glDrawArrays(GL_TRIANGLES, 0, 3);
+//    glDisableClientState(GL_VERTEX_ARRAY);
+//
+//	//border
+//	vertices[0] = Vec2i(x, y);
+//	vertices[1] = Vec2i(x+20, y-10);
+//	vertices[2] = Vec2i(x+10, y-20);
+//
+//	Vec4f colors[4];
+//	colors[0] = Vec4f(1.f, 0.2f, 0, color1);
+//	colors[1] = Vec4f(1.f, 0.4f, 0, color2);
+//	colors[2] = Vec4f(1.f, 0.4f, 0, color2);
+//
+//	glLineWidth(2);
+//	glEnableClientState(GL_VERTEX_ARRAY);
+//	glVertexPointer(2, GL_INT, 0, &vertices[0]);
+//	glEnableClientState(GL_COLOR_ARRAY);
+//	glColorPointer(4, GL_FLOAT, 0, &colors[0]);
+//    glDrawArrays(GL_LINE_LOOP, 0, 3);
+//    glDisableClientState(GL_COLOR_ARRAY);
+//    glDisableClientState(GL_VERTEX_ARRAY);
+//
+//    glPopAttrib();
+//*/
+//}
 
 void Renderer::renderMouse3d() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {

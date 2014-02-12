@@ -744,7 +744,7 @@ void Intro::render() {
 
 	if(program != NULL) program->renderProgramMsgBox();
 
-	if(this->forceMouseRender == true) renderer.renderMouse2d(mouseX, mouseY, mouse2d, 0.f);
+	//if(this->forceMouseRender == true) renderer.renderMouse2d(mouseX, mouseY, mouse2d, 0.f);
 
 	bool showIntroTiming = Config::getInstance().getBool("ShowIntroTiming","false");
 	if(showIntroTiming == true && Intro::introTime > 0) {

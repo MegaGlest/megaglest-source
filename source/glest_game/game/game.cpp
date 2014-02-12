@@ -5631,7 +5631,7 @@ void Game::render2d() {
     }
 
     //2d mouse
-	renderer.renderMouse2d(mouseX, mouseY, mouse2d, gui.isSelectingPos()? 1.f: 0.f);
+	//renderer.renderMouse2d(mouseX, mouseY, mouse2d, gui.isSelectingPos()? 1.f: 0.f);
 
 	if(perfLogging == true && difftime((long int)time(NULL),lastRenderLog2d) >= 1) {
 		lastRenderLog2d = time(NULL);

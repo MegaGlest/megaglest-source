@@ -107,9 +107,20 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu) :
 void MenuStateRoot::setupCEGUIWidgets() {
 
 	Lang &lang= Lang::getInstance();
+	CoreData &coreData=  CoreData::getInstance();
 
 	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
 	cegui_manager.setCurrentLayout("MainMenuRoot.layout");
+
+	string versionText = glestVersionString;
+	if(EndsWith(versionText, "-dev") == true) {
+		versionText = glestVersionString + " (" + getCompileDateTime() + ", " + getGITRevisionString() + ")";
+	}
+	//printf("versionText: %s\n",versionText.c_str());
+
+	cegui_manager.setImageFileForControl("GameLogoImage", coreData.getLogoTexture()->getPath(), "GameLogo");
+
+	cegui_manager.setControlText("GameVersion",versionText);
 
 	cegui_manager.setControlText("ButtonNewGame",
 			lang.getString("NewGame","",false,true));
@@ -140,6 +151,12 @@ void MenuStateRoot::setupCEGUIWidgets() {
 			lang.getString("Exit","",false,true));
 	cegui_manager.setControlEventCallback(containerName,
 			"ButtonExit", cegui_manager.getEventClicked(), this);
+
+	cegui_manager.setControlEventCallback(containerName,
+			"ButtonExit", cegui_manager.getEventClicked(), this);
+
+	cegui_manager.subscribeMessageBoxEventClicks(containerName, this);
+
 }
 
 bool MenuStateRoot::EventCallback(CEGUI::Window *ctl, std::string name) {
@@ -147,7 +164,16 @@ bool MenuStateRoot::EventCallback(CEGUI::Window *ctl, std::string name) {
 	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
 	if(name == cegui_manager.getEventClicked()) {
 
-		if(ctl == cegui_manager.getControl("ButtonNewGame")) {
+		if(cegui_manager.isControlMessageBoxOk(ctl) == true) {
+			CoreData &coreData=  CoreData::getInstance();
+			SoundRenderer &soundRenderer = SoundRenderer::getInstance();
+			soundRenderer.playFx(coreData.getClickSoundA());
+			program->exit();
+		}
+		else if(cegui_manager.isControlMessageBoxCancel(ctl) == true) {
+			cegui_manager.hideMessageBox();
+		}
+		else if(ctl == cegui_manager.getControl("ButtonNewGame")) {
 			CoreData &coreData=  CoreData::getInstance();
 			SoundRenderer &soundRenderer = SoundRenderer::getInstance();
 			soundRenderer.playFx(coreData.getClickSoundB());
@@ -449,6 +475,11 @@ void MenuStateRoot::showMessageBox(const string &text, const string &header, boo
 	else{
 		mainMessageBox.setEnabled(false);
 	}
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	Lang &lang= Lang::getInstance();
+	cegui_manager.displayMessageBox(header, text, lang.getString("Yes"),lang.getString("No"));
+
 }
 
 void MenuStateRoot::showErrorMessageBox(const string &text, const string &header, bool toggle){

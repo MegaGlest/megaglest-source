@@ -489,7 +489,7 @@ public:
 	void computeVisibleQuad();
 
     //basic rendering
-	void renderMouse2d(int mouseX, int mouseY, int anim, float fade= 0.f);
+	//void renderMouse2d(int mouseX, int mouseY, int anim, float fade= 0.f);
     void renderMouse3d();
 
     void renderGhostModel(const UnitType *building, const Vec2i pos,CardinalDir facing,Vec4f *forceColor=NULL);

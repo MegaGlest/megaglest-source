@@ -2781,7 +2781,7 @@ void MenuStateConnectedGame::render() {
 			int mouse2dAnim = mainMenu->getMouse2dAnim();
 
 			if(mapPreviewTexture == NULL) {
-				renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
+				//renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 
 				bool renderAll = (listBoxFogOfWar.getSelectedItemIndex() == 2);
 				//renderer.renderMapPreview(&mapPreview, renderAll, 10, 350, &mapPreviewTexture);

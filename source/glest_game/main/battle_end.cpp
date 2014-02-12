@@ -395,7 +395,7 @@ void BattleEnd::render() {
 			renderer.renderMessageBox(&mainMessageBox);
 		}
 
-	    renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
+	    //renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 	}
 	else {
 		//printf("Rendering to texture!\n");
@@ -716,9 +716,9 @@ void BattleEnd::render() {
 			renderer.renderMessageBox(&mainMessageBox);
 		}
 
-		if(menuBackgroundVideo == NULL && renderToTexture == NULL) {
-			renderer.renderMouse2d(mouseX, mouseY, mouse2d, 0.f);
-		}
+//		if(menuBackgroundVideo == NULL && renderToTexture == NULL) {
+//			renderer.renderMouse2d(mouseX, mouseY, mouse2d, 0.f);
+//		}
 
 		if(menuBackgroundVideo == NULL && renderToTextureCount >= 300) {
 			renderer.endRenderToTexture(&renderToTexture);

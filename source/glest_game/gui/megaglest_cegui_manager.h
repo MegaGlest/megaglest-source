@@ -42,6 +42,7 @@ private:
 
 protected:
 
+	CEGUI::Window *messageBoxRoot;
 	std::map<string, std::vector<MegaGlest_CEGUI_Events_Manager *> > eventManagerList;
 	MegaGlest_CEGUIManager();
 
@@ -59,6 +60,7 @@ public:
 
 	void setupCEGUI();
 
+	CEGUI::Window * loadLayoutFromFile(string layoutFile);
 	void setCurrentLayout(string layoutFile);
 	void setControlText(string controlName, string text);
 	void setControlEventCallback(string containerName, string controlName,
@@ -71,6 +73,13 @@ public:
 	void unsubscribeEvents(std::string containerName);
 
 	void setFontDefaultFont(string fontName, string fontFileName, float fontPointSize);
+	void setImageFileForControl(string imageName, string imageFileName, string controlName);
+
+	void subscribeMessageBoxEventClicks(std::string containerName, MegaGlest_CEGUIManagerBackInterface *cb);
+	void displayMessageBox(string title, string text, string buttonTextOk, string buttonTextCancel);
+	void hideMessageBox();
+	bool isControlMessageBoxOk(CEGUI::Window *ctl);
+	bool isControlMessageBoxCancel(CEGUI::Window *ctl);
 };
 
 }} //end namespace

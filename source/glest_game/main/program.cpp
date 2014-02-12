@@ -101,7 +101,7 @@ void ProgramState::render() {
 		renderer.clearBuffers();
 		renderer.reset2d();
 		renderer.renderMessageBox(program->getMsgBox());
-		renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
+		//renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 		renderer.swapBuffers();
 	}
 }
@@ -138,7 +138,7 @@ void Program::ShowMessageProgramState::render() {
 	renderer.clearBuffers();
 	renderer.reset2d();
 	renderer.renderMessageBox(&msgBox);
-	renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
+	//renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 	renderer.swapBuffers();
 }
 
