@@ -1,19 +1,33 @@
 # http://docs.travis-ci.com/user/build-configuration/
 language: cpp
+
 compiler:
   - gcc
   - clang
+
+matrix:
+  include:
+    - compiler: gcc
+    - compiler: clang
+  allow_failures:
+    - compiler: clang
+
 git:
   submodules: false
+
 #branches:
 #  only:
 #    - master
+
 before_install:
   - sudo apt-get update -qq # UPDATE REPOS
-  - sudo mk/linux/setupBuildDeps.sh --quiet # INSTALL DEPENDENCIES HERE
+  - sudo apt-get upgrade -qq # UPGRADE SYSTEM TO LATEST PATCH LEVEL
+  - sudo mk/linux/setupBuildDeps.sh --quiet # INSTALL OUR DEPENDENCIES
+
 script:
 # ALL THE BUILD COMMANDS HERE
   - mk/linux/build-mg.sh -c 4
+
 notifications:
   irc:
     channels:
