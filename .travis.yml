@@ -6,9 +6,9 @@ compiler:
   - clang
 
 matrix:
-  include:
-    - compiler: gcc
-    - compiler: clang
+  #include:
+  #  - compiler: gcc
+  #  - compiler: clang
   allow_failures:
     - compiler: clang
 
