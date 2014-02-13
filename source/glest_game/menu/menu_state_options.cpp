@@ -26,6 +26,8 @@
 #include "menu_state_options_sound.h"
 #include "string_utils.h"
 #include "metrics.h"
+#include "megaglest_cegui_manager.h"
+
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -35,28 +37,23 @@ namespace Glest{ namespace Game{
 // =====================================================
 // 	class MenuStateOptions
 // =====================================================
-MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, ProgramState **parentUI):
-	MenuState(program, mainMenu, "config")
-{
+MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, ProgramState **parentUI) :
+	MenuState(program, mainMenu, "config") {
 	try {
 		containerName = "Options";
+
+		setupCEGUIWidgets();
+
 		this->parentUI=parentUI;
 		Lang &lang= Lang::getInstance();
 		Config &config= Config::getInstance();
 		this->console.setOnlyChatMessagesInStoredLines(false);
-		//modeinfos=list<ModeInfo> ();
 		activeInputLabel=NULL;
 
 		int leftLabelStart=50;
 		int leftColumnStart=leftLabelStart+280;
-		//int rightLabelStart=450;
-		//int rightColumnStart=rightLabelStart+280;
 		int buttonRowPos=50;
 		int buttonStartPos=170;
-		//int captionOffset=75;
-		//int currentLabelStart=leftLabelStart;
-		//int currentColumnStart=leftColumnStart;
-		//int currentLine=700;
 		int lineOffset=30;
 		int tabButtonWidth=200;
 		int tabButtonHeight=30;
@@ -111,22 +108,6 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		listBoxLang.init(currentColumnStart, currentLine, 320);
 		vector<string> langResults;
 
-	//    string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
-	//
-	//    string userDataPath = getGameCustomCoreDataPath(data_path, "");
-	//	findAll(userDataPath + "data/lang/*.lng", langResults, true, false);
-	//
-	//	vector<string> langResults2;
-	//	findAll(data_path + "data/lang/*.lng", langResults2, true);
-	//	if(langResults2.empty() && langResults.empty()) {
-	//        throw megaglest_runtime_error("There are no lang files");
-	//	}
-	//	for(unsigned int i = 0; i < langResults2.size(); ++i) {
-	//		string testLanguage = langResults2[i];
-	//		if(std::find(langResults.begin(),langResults.end(),testLanguage) == langResults.end()) {
-	//			langResults.push_back(testLanguage);
-	//		}
-	//	}
 		languageList = Lang::getInstance().getDiscoveredLanguageList(true);
 		for(map<string,string>::iterator iterMap = languageList.begin();
 			iterMap != languageList.end(); ++iterMap) {
@@ -399,6 +380,31 @@ void MenuStateOptions::reloadUI() {
 	labelTransifexUserLabel.setText(lang.getString("TransifexUserName"));
 	labelTransifexPwdLabel.setText(lang.getString("TransifexPwd"));
 	labelTransifexI18NLabel.setText(lang.getString("TransifexI18N"));
+}
+
+void MenuStateOptions::setupCEGUIWidgets() {
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+	cegui_manager.setCurrentLayout("OptionsMenuRoot.layout",containerName);
+	cegui_manager.loadLayoutFromFile("OptionsMenuMisc.layout");
+
+	setupCEGUIWidgetsText();
+}
+
+void MenuStateOptions::setupCEGUIWidgetsText() {
+
+	//Lang &lang= Lang::getInstance();
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.setCurrentLayout("OptionsMenuRoot.layout",containerName);
+	CEGUI::Window *ctl = cegui_manager.loadLayoutFromFile("OptionsMenuMisc.layout");
+	cegui_manager.addTabPageToTabControl("TabControl", ctl);
+
+	cegui_manager.addItemToComboDropListControl(
+			cegui_manager.getChildControl(ctl,"ComboDropListLanguage"), "English", 0);
+
+	//cegui_manager.setControlText("ButtonNewGame",lang.getString("NewGame","",false,true));
 }
 
 void MenuStateOptions::setupTransifexUI() {

@@ -104,12 +104,16 @@ public:
 
 
 private:
+
 	void saveConfig();
 	void setActiveInputLable(GraphicLabel* newLable);
 	void showMessageBox(const string &text, const string &header, bool toggle);
 	void showLuaMessageBox(const string &text, const string &header, bool toggle);
 
 	void setupTransifexUI();
+
+	void setupCEGUIWidgets();
+	void setupCEGUIWidgetsText();
 };
 
 }}//end namespace

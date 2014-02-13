@@ -57,6 +57,7 @@ protected:
 
 	string getThemeName();
 	string getThemeCursorName();
+	string getLookName();
 
 	CEGUI::Window * getMessageBoxRoot();
 	CEGUI::Window * getErrorMessageBoxRoot();
@@ -70,11 +71,12 @@ public:
 	void clearRootWindow();
 
 	CEGUI::Window * loadLayoutFromFile(string layoutFile);
-	void setCurrentLayout(string layoutFile, string containerName);
+	CEGUI::Window * setCurrentLayout(string layoutFile, string containerName);
 	void setControlText(string controlName, string text);
 	void setControlEventCallback(string containerName, string controlName,
 			string eventName, MegaGlest_CEGUIManagerBackInterface *cb);
 	CEGUI::Window * getControl(string controlName);
+	CEGUI::Window * getChildControl(CEGUI::Window *parentCtl,string controlNameChild);
 
 	string getEventClicked();
 
@@ -99,6 +101,8 @@ public:
 	bool isControlErrorMessageBoxOk(CEGUI::Window *ctl);
 	bool isControlErrorMessageBoxCancel(CEGUI::Window *ctl);
 
+	void addTabPageToTabControl(string tabControlName, CEGUI::Window *ctl);
+	void addItemToComboDropListControl(CEGUI::Window *ctl, string value, int position);
 };
 
 }} //end namespace

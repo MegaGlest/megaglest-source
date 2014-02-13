@@ -148,6 +148,14 @@ string MegaGlest_CEGUIManager::getThemeCursorName() {
 	return themeNameCursors;
 }
 
+string MegaGlest_CEGUIManager::getLookName() {
+	string themeName = Config::getInstance().getString("CEGUI-Look-Name","");
+	if(themeName == "") {
+		themeName = "GlossySerpent";
+	}
+	return themeName;
+}
+
 void MegaGlest_CEGUIManager::initializeTheme() {
 	string themeName 		= getThemeName();
 	string themeNameCursors = getThemeCursorName();
@@ -251,11 +259,13 @@ CEGUI::Window * MegaGlest_CEGUIManager::loadLayoutFromFile(string layoutFile) {
 	return layoutCache[layoutFile];
 }
 
-void MegaGlest_CEGUIManager::setCurrentLayout(string layoutFile, string containerName) {
+CEGUI::Window * MegaGlest_CEGUIManager::setCurrentLayout(string layoutFile, string containerName) {
 
-	CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(
-			loadLayoutFromFile(layoutFile));
+	CEGUI::Window *ctl = loadLayoutFromFile(layoutFile);
+	CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(ctl);
 	this->containerName = containerName;
+
+	return ctl;
 }
 
 void MegaGlest_CEGUIManager::setControlText(string controlName, string text) {
@@ -280,6 +290,10 @@ CEGUI::Window * MegaGlest_CEGUIManager::getControl(string controlName) {
 	CEGUI::Window *root = CEGUI::System::getSingleton().
 			getDefaultGUIContext().getRootWindow();
 	return root->getChild(controlName);
+}
+
+CEGUI::Window * MegaGlest_CEGUIManager::getChildControl(CEGUI::Window *parentCtl,string controlNameChild) {
+	return parentCtl->getChild(controlNameChild);
 }
 
 string MegaGlest_CEGUIManager::getEventClicked() {
@@ -439,6 +453,25 @@ bool MegaGlest_CEGUIManager::isControlErrorMessageBoxOk(CEGUI::Window *ctl) {
 		result = (ctl == ctlOk);
 	}
 	return result;
+}
+
+void MegaGlest_CEGUIManager::addTabPageToTabControl(string tabControlName, CEGUI::Window *ctl) {
+
+	CEGUI::Window *genericCtl = getControl(tabControlName);
+	CEGUI::TabControl *tabCtl = static_cast<CEGUI::TabControl *>(genericCtl);
+
+	tabCtl->addTab(ctl);
+}
+
+void MegaGlest_CEGUIManager::addItemToComboDropListControl(CEGUI::Window *ctl, string value, int position) {
+	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
+	combobox->setReadOnly(true);
+
+	CEGUI::ListboxTextItem *itemCombobox = new CEGUI::ListboxTextItem(value, position);
+	string selectionImageName = getLookName() + "/MultiListSelectionBrush";
+	const CEGUI::Image *selectionImage = &CEGUI::ImageManager::getSingleton().get(selectionImageName);
+	itemCombobox->setSelectionBrushImage(selectionImage);
+	combobox->addItem(itemCombobox);
 }
 
 }}//end namespace
