@@ -86,7 +86,7 @@ void MenuStateRoot::setupCEGUIWidgetsText() {
 
 	string versionText = glestVersionString;
 	if(EndsWith(versionText, "-dev") == true) {
-		versionText = glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]";
+		versionText = glestVersionString + "[colour='FF00FF00'] \\[" + getCompileDateTime() + ", " + getGITRevisionString() + "]";
 	}
 
 	cegui_manager.setControlText("GameVersion",versionText);

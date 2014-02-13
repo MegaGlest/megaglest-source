@@ -8,6 +8,7 @@
 //	by the Free Software Foundation; either version 2 of the
 //	License, or (at your option) any later version
 // ==============================================================
+
 #include "intro.h"
 
 #include "main_menu.h"
@@ -21,9 +22,6 @@
 #include "metrics.h"
 #include "auto_test.h"
 #include "util.h"
-//#include "glm.h"
-//#include "md5util.h"
-//#include "Mathlib.h"
 
 #include "video_player.h"
 
@@ -34,27 +32,6 @@ using namespace Shared::Graphics;
 using namespace	Shared::Xml;
 
 namespace Glest{ namespace Game{
-
-//struct Timer {
-//public:
-//  Timer ()
-//    : current_time (0.0), last_time (0.0) { }
-//
-//public:
-//  void update () {
-//    last_time = current_time;
-//    current_time = static_cast<double>(SDL_GetTicks ()) / 1000.0;
-//  }
-//
-//  double deltaTime () const {
-//    return (current_time - last_time);
-//  }
-//
-//public:
-//  double current_time;
-//  double last_time;
-//
-//} animTimer;
 
 // =====================================================
 // 	class Text
@@ -82,10 +59,10 @@ Text::Text(const Texture2D *texture, const Vec2i &pos, const Vec2i &size, int ti
 // 	class Intro
 // =====================================================
 
-int Intro::introTime	= 50000;
-int Intro::appearTime	= 2500;
-int Intro::showTime		= 3500;
-int Intro::disapearTime	= 2500;
+int Intro::introTime	 = 50000;
+int Intro::appearTime	 = 2500;
+int Intro::showTime		 = 3500;
+int Intro::disappearTime = 2500;
 
 Intro::Intro(Program *program):
 	ProgramState(program)
@@ -107,11 +84,9 @@ Intro::Intro(Program *program):
 	timer=0;
 	mouseX = 0;
 	mouseY = 0;
-	mouse2d = 0;
 	exitAfterIntroVideo = false;
 
 	Renderer &renderer= Renderer::getInstance();
-	//renderer.init3dListMenu(NULL);
 	renderer.initMenu(NULL);
 	fade= 0.f;
 	anim= 0.f;
@@ -136,7 +111,7 @@ Intro::Intro(Program *program):
 	Intro::introTime = 3000;
 	Intro::appearTime = 500;
 	Intro::showTime = 500;
-	Intro::disapearTime = 500;
+	Intro::disappearTime = 500;
 	int showIntroPics = 0;
 	int showIntroPicsTime = 0;
 	bool showIntroPicsRandom = false;
@@ -184,7 +159,7 @@ Intro::Intro(Program *program):
 		const XmlNode *showTimeNode= introNode->getChild("show-time");
 		Intro::showTime = showTimeNode->getAttribute("value")->getIntValue();
 		const XmlNode *disappearTimeNode= introNode->getChild("disappear-time");
-		Intro::disapearTime = disappearTimeNode->getAttribute("value")->getIntValue();
+		Intro::disappearTime = disappearTimeNode->getAttribute("value")->getIntValue();
 		const XmlNode *showIntroPicturesNode= introNode->getChild("show-intro-pictures");
 		showIntroPics = showIntroPicturesNode->getAttribute("value")->getIntValue();
 		showIntroPicsTime = showIntroPicturesNode->getAttribute("time")->getIntValue();
@@ -202,7 +177,6 @@ Intro::Intro(Program *program):
 	models.clear();
 	if(showIntroModels == true) {
 
-		//getGameCustomCoreDataPath(data_path, "data/core/menu/menu.xml")
 		string introPath = getGameCustomCoreDataPath(data_path, "") + "data/core/menu/main_model/intro*.g3d";
 		vector<string> introModels;
 		findAll(introPath, introModels, false, false);
@@ -211,20 +185,17 @@ Intro::Intro(Program *program):
 			Model *model= renderer.newModel(rsMenu, getGameCustomCoreDataPath(data_path, "") + "data/core/menu/main_model/" + logo);
             if(model) {
                 models.push_back(model);
-				//printf("#1 Intro model [%s]\n",model->getFileName().c_str());
 			}
 		}
 
 		if(models.empty() == true) {
 			introPath = data_path + "data/core/menu/main_model/intro*.g3d";
-			//vector<string> introModels;
 			findAll(introPath, introModels, false, false);
 			for(int i = 0; i < (int)introModels.size(); ++i) {
 				string logo = introModels[i];
 				Model *model= renderer.newModel(rsMenu, data_path + "data/core/menu/main_model/" + logo);
                 if(model) {
 					models.push_back(model);
-					//printf("#2 Intro model [%s]\n",model->getFileName().c_str());
 				}
 			}
 		}
@@ -232,7 +203,6 @@ Intro::Intro(Program *program):
 		if(showIntroModelsRandom == true) {
 			std::vector<Model *> modelList;
 
-			//unsigned int seed = time(NULL);
 			Chrono seed(true);
 			srand((unsigned int)seed.getCurTicks());
 			int failedLookups=0;
@@ -244,7 +214,6 @@ Intro::Intro(Program *program):
 					srand((unsigned int)seed.getCurTicks() / failedLookups);
 					continue;
 				}
-				//printf("picIndex = %d list count = %d\n",picIndex,coreData.getMiscTextureList().size());
 				modelList.push_back(models[index]);
 				usedIndex[index]=true;
 				srand((unsigned int)seed.getCurTicks() / (unsigned int)modelList.size());
@@ -255,7 +224,7 @@ Intro::Intro(Program *program):
 
 	int displayItemNumber = 1;
 	int appear= Intro::appearTime;
-	int disappear= Intro::showTime+Intro::appearTime+(Intro::disapearTime * 2);
+	int disappear= Intro::showTime+Intro::appearTime+(Intro::disappearTime * 2);
 
 	const unsigned int maxIntroLines = 100;
 	Lang &lang= Lang::getInstance();
@@ -400,23 +369,6 @@ Intro::Intro(Program *program):
 		modelShowTime = disappear *(displayItemNumber);
 	}
 
-/*
-	string lineText = "Based on award-winning classic Glest";
-	texts.push_back(new Text(lineText, Vec2i(-1, -1), appear, coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
-	lineText = "the MegaGlest Team presents";
-	texts.push_back(new Text(lineText, Vec2i(-1, -1), disappear, coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
-	lineText = "a libre software real-time strategy game";
-	texts.push_back(new Text(lineText, Vec2i(-1, -1), disappear *(++displayItemNumber), coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
-
-	texts.push_back(new Text(coreData.getLogoTexture(), Vec2i(w/2-128, h/2-64), Vec2i(256, 128), disappear *(++displayItemNumber)));
-	texts.push_back(new Text(glestVersionString, Vec2i(w/2+45, h/2-45), disappear *(displayItemNumber++), coreData.getMenuFontNormal(),coreData.getMenuFontNormal3D()));
-	lineText = "www.megaglest.org";
-	//texts.push_back(new Text(lineText, Vec2i(-1, -1), disappear *(displayItemNumber++), coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
-	texts.push_back(new Text(lineText, Vec2i(-1, h/2-45-18), disappear *(displayItemNumber-1), coreData.getMenuFontVeryBig(),coreData.getMenuFontVeryBig3D()));
-*/
-
-
-
 	if(showIntroPics > 0 && coreData.getMiscTextureList().size() > 0) {
 		const int showMiscTime = showIntroPicsTime;
 
@@ -446,7 +398,6 @@ Intro::Intro(Program *program):
 						continue;
 					}
 				}
-				//printf("picIndex = %d list count = %d\n",picIndex,coreData.getMiscTextureList().size());
 				intoTexList.push_back(coreData.getMiscTextureList()[picIndex]);
 				usedIndex[picIndex]=true;
 				srand((unsigned int)seed.getCurTicks() / (unsigned int)intoTexList.size());
@@ -463,7 +414,6 @@ Intro::Intro(Program *program):
 
 		for(unsigned int i = 0; i < intoTexList.size(); ++i) {
 			Texture2D *tex = intoTexList[i];
-			//printf("tex # %d [%s]\n",i,tex->getPath().c_str());
 
 			Vec2i texPlacement;
 			if(i == 0 || i % 9 == 0) {
@@ -518,7 +468,7 @@ Intro::Intro(Program *program):
 		SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
 
 		string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
-		//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
+
 		::Shared::Graphics::VideoPlayer player(
 				&Renderer::getInstance(),
 				introVideoFile,
@@ -541,19 +491,11 @@ Intro::Intro(Program *program):
 
 Intro::~Intro() {
 	deleteValues(texts.begin(),texts.end());
-
-	//deleteValues(introTextureList.begin(),introTextureList.end());
-//	if(test) {
-//		glmDelete(test);
-//	}
-
-	//Shared::Graphics::md5::cleanupMD5OpenGL();
 }
 
 void Intro::update() {
 	if(exitAfterIntroVideo == true) {
 		mouseUpLeft(0, 0);
-		//cleanup();
 		return;
 	}
 	timer++;
@@ -570,8 +512,6 @@ void Intro::update() {
 		AutoTest::getInstance().updateIntro(program);
 		return;
 	}
-
-	mouse2d= (mouse2d+1) % Renderer::maxMouse2dAnim;
 
 	if(targetCamera != NULL) {
 		t+= ((0.01f+(1.f-t)/10.f)/20.f)*(60.f/GameConstants::updateFps);
@@ -598,17 +538,12 @@ void Intro::update() {
 	}
 
 	//animation
-	//const float minSpeed = 0.015f;
-	//const float minSpeed = 0.010f;
-	//const float maxSpeed = 0.6f;
 	const float minSpeed = modelMinAnimSpeed;
 	const float maxSpeed = modelMaxAnimSpeed;
 	anim += (maxSpeed / GameConstants::updateFps) / 5 + random.randRange(minSpeed, max(minSpeed + 0.0001f, (maxSpeed / GameConstants::updateFps) / 5.f));
 	if(anim > 1.f) {
 		anim = 0.f;
 	}
-
-	//animTimer.update();
 }
 
 void Intro::renderModelBackground() {
@@ -620,33 +555,11 @@ void Intro::renderModelBackground() {
 		int totalModelShowTime = Intro::introTime - modelShowTime;
 		int individualModelShowTime = totalModelShowTime / (int)models.size();
 
-		//printf("difTime = %d individualModelShowTime = %d modelIndex = %d\n",difTime,individualModelShowTime,modelIndex);
-
-		//int difTime= 1;
 		if(difTime > 0) {
 			if(difTime > ((modelIndex+1) * individualModelShowTime)) {
-				//int oldmodelIndex = modelIndex;
 				if(modelIndex + 1 < (int)models.size()) {
 					modelIndex++;
-
-					//position
-					//nextCamera.setPosition(camera.getPosition());
-//					nextCamera.setPosition(Vec3f(84,-9,11));
-//
-//					//rotation
-//					//Vec3f startRotation(0,12,0);
-//					Vec3f startRotation(0,-80,0);
-//					nextCamera.setOrientation(Quaternion(EulerAngles(
-//						degToRad(startRotation.x),
-//						degToRad(startRotation.y),
-//						degToRad(startRotation.z))));
-//
-//					this->targetCamera = &nextCamera;
-//					this->lastCamera= camera;
-//					this->t= 0.f;
-
 				}
-				//printf("oldmodelIndex = %d, modelIndex = %d\n",oldmodelIndex,modelIndex);
 			}
 			Renderer &renderer= Renderer::getInstance();
 			vector<Model *> characterModels;
@@ -684,15 +597,15 @@ void Intro::render() {
 
 		int difTime= 1000 * timer / GameConstants::updateFps - text->getTime();
 
-		if(difTime > 0 && difTime < appearTime + showTime + disapearTime) {
+		if(difTime > 0 && difTime < appearTime + showTime + disappearTime) {
 			float alpha= 1.f;
 			if(difTime > 0 && difTime < appearTime) {
 				//apearing
 				alpha= static_cast<float>(difTime) / appearTime;
 			}
-			else if(difTime > 0 && difTime < appearTime + showTime + disapearTime) {
+			else if(difTime > 0 && difTime < appearTime + showTime + disappearTime) {
 				//disappearing
-				alpha= 1.f- static_cast<float>(difTime - appearTime - showTime) / disapearTime;
+				alpha= 1.f- static_cast<float>(difTime - appearTime - showTime) / disappearTime;
 			}
 
 			if(text->getText().empty() == false) {
@@ -744,8 +657,6 @@ void Intro::render() {
 
 	if(program != NULL) program->renderProgramMsgBox();
 
-	//if(this->forceMouseRender == true) renderer.renderMouse2d(mouseX, mouseY, mouse2d, 0.f);
-
 	bool showIntroTiming = Config::getInstance().getBool("ShowIntroTiming","false");
 	if(showIntroTiming == true && Intro::introTime > 0) {
 		CoreData &coreData= CoreData::getInstance();
@@ -753,19 +664,11 @@ void Intro::render() {
 		string timingText = intToStr(difTime) + " / " + intToStr(Intro::introTime);
 
 		if(Renderer::renderText3DEnabled) {
-			//const Metrics &metrics= Metrics::getInstance();
-			//int w= metrics.getVirtualW();
-			//int h= metrics.getVirtualH();
-
 			renderer.renderText3D(
 					timingText, coreData.getMenuFontVeryBig3D(), 1,
 				10, 20, false);
 		}
 		else {
-			//const Metrics &metrics= Metrics::getInstance();
-			//int w= metrics.getVirtualW();
-			//int h= metrics.getVirtualH();
-
 			renderer.renderText(
 					timingText, coreData.getMenuFontVeryBig(), 1,
 				10, 20, false);
@@ -778,19 +681,17 @@ void Intro::render() {
 
 void Intro::keyDown(SDL_KeyboardEvent key) {
 	SDL_keysym keystate = key.keysym;
-	//printf("keystate.mod = %d key = unicode[%d] regular[%d] lalt [%d] ralt [%d] alt [%d]\n",keystate.mod,key.keysym.unicode,key.keysym.sym,(keystate.mod & KMOD_LALT),(keystate.mod & KMOD_RALT),(keystate.mod & KMOD_ALT));
 
 	if(keystate.mod & (KMOD_LALT | KMOD_RALT)) {
-		//printf("ALT KEY #1\n");
 
 		if(isKeyPressed(SDLK_RETURN,key) == true ||
-			isKeyPressed(SDLK_RALT,key) == true ||
+			isKeyPressed(SDLK_RALT,key) == true  ||
 			isKeyPressed(SDLK_LALT,key) == true) {
+
 			return;
 		}
 	}
 
-	//printf("Exiting intro\n");
 	mouseUpLeft(0, 0);
 }
 

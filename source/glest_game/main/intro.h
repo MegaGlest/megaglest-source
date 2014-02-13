@@ -36,11 +36,6 @@ using Shared::Graphics::Texture2D;
 using Shared::Graphics::Camera;
 using Shared::Graphics::Model;
 using Shared::Util::RandomGen;
-//class GLMmodel;
-
-//namespace Shared{ namespace Graphics { namespace md5 {
-//class Md5Object;
-//}}}
 
 namespace Glest{ namespace Game{
 
@@ -82,14 +77,12 @@ private:
 	static int introTime;
 	static int appearTime;
 	static int showTime;
-	static int disapearTime;
+	static int disappearTime;
 
 private:
 	vector<Text *> texts;
 	int timer;
-	int mouse2d;
 
-	//Model *mainModel;
 	int modelIndex;
 	float modelMinAnimSpeed;
 	float modelMaxAnimSpeed;
@@ -104,9 +97,6 @@ private:
 	float fade;
 	Vec3f startPosition;
 	int modelShowTime;
-
-	//GLMmodel* test;
-	//Shared::Graphics::md5::Md5Object *md5Test;
 
 	bool exitAfterIntroVideo;
 	void cleanup();
