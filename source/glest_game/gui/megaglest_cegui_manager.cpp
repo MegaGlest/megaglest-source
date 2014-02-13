@@ -42,6 +42,10 @@ public:
 		this->callback 	= callback;
 	}
 
+	CEGUI::Window * getControl() { return ctl; }
+	std::string getEventName() { return name; }
+	MegaGlest_CEGUIManagerBackInterface * getCallback() { return callback; }
+
 	bool Event(const CEGUI::EventArgs &event) {
 		//printf("Line: %d this->name: %s\n",__LINE__,this->name.c_str());
 		return callback->EventCallback(this->ctl,this->name);
@@ -53,7 +57,10 @@ public:
 };
 
 MegaGlest_CEGUIManager::MegaGlest_CEGUIManager() {
-
+	emptyMainWindowRoot = NULL;
+	messageBoxRoot 		= NULL;
+	errorMessageBoxRoot = NULL;
+	containerName 		= "";
 }
 
 MegaGlest_CEGUIManager::~MegaGlest_CEGUIManager() {
@@ -128,7 +135,7 @@ void MegaGlest_CEGUIManager::initializeDefaultResourceGroups() {
 string MegaGlest_CEGUIManager::getThemeName() {
 	string themeName = Config::getInstance().getString("CEGUI-Theme-Name","");
 	if(themeName == "") {
-		themeName = "TaharezLook";
+		themeName = "GlossySerpent";
 	}
 	return themeName;
 }
@@ -136,7 +143,7 @@ string MegaGlest_CEGUIManager::getThemeName() {
 string MegaGlest_CEGUIManager::getThemeCursorName() {
 	string themeNameCursors = Config::getInstance().getString("CEGUI-Theme-Name-Cursors","");
 	if(themeNameCursors == "") {
-		themeNameCursors = "TaharezLook";
+		themeNameCursors = "GlossySerpentCursors";
 	}
 	return themeNameCursors;
 }
@@ -157,9 +164,17 @@ void MegaGlest_CEGUIManager::setupCEGUI() {
 
 	string fontFile = findFont();
 	//printf("\nCE-GUI set default font: %s\n\n",fontFile.c_str());
-	setFontDefaultFont("MEGAGLEST_FONT", fontFile, 12.0f);
+	setFontDefaultFont("MEGAGLEST_FONT", fontFile, 10.0f);
 
-	messageBoxRoot = loadLayoutFromFile("MessageBox.layout");
+	emptyMainWindowRoot = loadLayoutFromFile("EmptyRoot.layout");
+	messageBoxRoot 		= loadLayoutFromFile("MessageBox.layout");
+	errorMessageBoxRoot = loadLayoutFromFile("ErrorMessageBox.layout");
+}
+
+void MegaGlest_CEGUIManager::clearRootWindow() {
+
+	CEGUI::System::getSingleton().getDefaultGUIContext().
+			setRootWindow(emptyMainWindowRoot);
 }
 
 //void MegaGlest_CEGUIManager::initializeMainMenuRoot() {
@@ -204,7 +219,7 @@ void MegaGlest_CEGUIManager::setupCEGUI() {
 //}
 
 void MegaGlest_CEGUIManager::subscribeEventClick(std::string containerName, CEGUI::Window *ctl, std::string name, MegaGlest_CEGUIManagerBackInterface *callback) {
-	//printf("Line: %d\n",__LINE__);
+	//printf("SUBSCRIBE Line: %d containerName [%s] ctl [%s] name [%s]\n",__LINE__,containerName.c_str(),ctl->getName().c_str(),name.c_str());
 
 	MegaGlest_CEGUI_Events_Manager *mgr = new MegaGlest_CEGUI_Events_Manager(ctl,name,callback);
 	eventManagerList[containerName].push_back(mgr);
@@ -216,7 +231,12 @@ void MegaGlest_CEGUIManager::unsubscribeEvents(std::string containerName) {
 	if(iterMap != eventManagerList.end()) {
 		std::vector<MegaGlest_CEGUI_Events_Manager *> &events = iterMap->second;
 		while(events.empty() == false) {
-			delete events.back();
+			MegaGlest_CEGUI_Events_Manager *event = events.back();
+			if(event != NULL) {
+				//printf("UNSUBSCRIBE Line: %d containerName [%s] ctl [%s] name [%s]\n",__LINE__,containerName.c_str(),event->getControl()->getName().c_str(),event->getEventName().c_str());
+				event->getControl()->removeEvent(event->getEventName());
+			}
+			delete event;
 			events.pop_back();
 		}
 		eventManagerList.erase(containerName);
@@ -225,13 +245,17 @@ void MegaGlest_CEGUIManager::unsubscribeEvents(std::string containerName) {
 
 CEGUI::Window * MegaGlest_CEGUIManager::loadLayoutFromFile(string layoutFile) {
 	CEGUI::WindowManager& winMgr(CEGUI::WindowManager::getSingleton());
-	return winMgr.loadLayoutFromFile(layoutFile);
+	if(layoutCache.find(layoutFile) == layoutCache.end()) {
+		layoutCache[layoutFile] = winMgr.loadLayoutFromFile(layoutFile);
+	}
+	return layoutCache[layoutFile];
 }
 
-void MegaGlest_CEGUIManager::setCurrentLayout(string layoutFile) {
+void MegaGlest_CEGUIManager::setCurrentLayout(string layoutFile, string containerName) {
 
 	CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(
 			loadLayoutFromFile(layoutFile));
+	this->containerName = containerName;
 }
 
 void MegaGlest_CEGUIManager::setControlText(string controlName, string text) {
@@ -301,49 +325,118 @@ void MegaGlest_CEGUIManager::setImageFileForControl(string imageName, string ima
 	staticImage->setProperty("Image", imageName);
 }
 
+CEGUI::Window * MegaGlest_CEGUIManager::getMessageBoxRoot() {
+
+	CEGUI::Window *root = CEGUI::System::getSingleton().
+			getDefaultGUIContext().getRootWindow();
+
+	//printf("messageBoxRoot->getName() [%s]\n",messageBoxRoot->getName().c_str());
+
+	if(root->isChild(messageBoxRoot->getName()) == false) {
+		CEGUI::Window *ctl = messageBoxRoot->clone(true);
+		ctl->setVisible(false);
+		ctl->setAlwaysOnTop(true);
+		root->addChild(ctl);
+	}
+	return root->getChild(messageBoxRoot->getName());
+}
 void MegaGlest_CEGUIManager::displayMessageBox(string title, string text,
 		string buttonTextOk, string buttonTextCancel) {
 
-	CEGUI::Window *root = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
-	if(root->isChild(messageBoxRoot) == false) {
-		root->addChild(messageBoxRoot);
-	}
-	CEGUI::Window *ctlMsg = messageBoxRoot->getChild("MessageBox");
+	CEGUI::Window *ctlMsg = getMessageBoxRoot()->getChild("MessageBox");
 	ctlMsg->setText(title);
 	ctlMsg->getChild("MessageText")->setText(text);
 	ctlMsg->getChild("ButtonOk")->setText(buttonTextOk);
 	ctlMsg->getChild("ButtonCancel")->setText(buttonTextCancel);
 
-	messageBoxRoot->setVisible(true);
+	getMessageBoxRoot()->setVisible(true);
 }
+
+bool MegaGlest_CEGUIManager::isMessageBoxShowing() {
+	return getMessageBoxRoot()->isVisible();
+}
+
 void MegaGlest_CEGUIManager::hideMessageBox() {
 
-	messageBoxRoot->setVisible(false);
+	getMessageBoxRoot()->setVisible(false);
 }
 
 void MegaGlest_CEGUIManager::subscribeMessageBoxEventClicks(std::string containerName,
 		MegaGlest_CEGUIManagerBackInterface *cb) {
 
-	CEGUI::Window *ctlOk = messageBoxRoot->getChild("MessageBox")->getChild("ButtonOk");
+	CEGUI::Window *ctlOk = getMessageBoxRoot()->getChild("MessageBox")->getChild("ButtonOk");
 	subscribeEventClick(containerName, ctlOk, getEventClicked(), cb);
-	CEGUI::Window *ctlCancel = messageBoxRoot->getChild("MessageBox")->getChild("ButtonCancel");
+	CEGUI::Window *ctlCancel = getMessageBoxRoot()->getChild("MessageBox")->getChild("ButtonCancel");
 	subscribeEventClick(containerName, ctlCancel, getEventClicked(), cb);
 }
 
 bool MegaGlest_CEGUIManager::isControlMessageBoxOk(CEGUI::Window *ctl) {
 	bool result = false;
-	if(messageBoxRoot->isVisible() == true && ctl != NULL) {
-		CEGUI::Window *ctlOk = messageBoxRoot->getChild("MessageBox")->getChild("ButtonOk");
+
+	if(getMessageBoxRoot()->isVisible() == true && ctl != NULL) {
+		CEGUI::Window *ctlOk = getMessageBoxRoot()->getChild("MessageBox")->getChild("ButtonOk");
 		result = (ctl == ctlOk);
 	}
 	return result;
 }
 
 bool MegaGlest_CEGUIManager::isControlMessageBoxCancel(CEGUI::Window *ctl) {
+
 	bool result = false;
-	if(messageBoxRoot->isVisible() == true && ctl != NULL) {
-		CEGUI::Window *ctlCancel = messageBoxRoot->getChild("MessageBox")->getChild("ButtonCancel");
+
+	if(getMessageBoxRoot()->isVisible() == true && ctl != NULL) {
+		CEGUI::Window *ctlCancel = getMessageBoxRoot()->getChild("MessageBox")->getChild("ButtonCancel");
 		result = (ctl == ctlCancel);
+	}
+	return result;
+}
+
+CEGUI::Window * MegaGlest_CEGUIManager::getErrorMessageBoxRoot() {
+
+	CEGUI::Window *root = CEGUI::System::getSingleton().
+			getDefaultGUIContext().getRootWindow();
+
+	if(root->isChild(errorMessageBoxRoot->getName()) == false) {
+		CEGUI::Window *ctl = errorMessageBoxRoot->clone(true);
+		ctl->setVisible(false);
+		ctl->setAlwaysOnTop(true);
+		root->addChild(ctl);
+	}
+	return root->getChild(errorMessageBoxRoot->getName());
+}
+void MegaGlest_CEGUIManager::displayErrorMessageBox(string title, string text,
+		string buttonTextOk) {
+
+	CEGUI::Window *ctlMsg = getErrorMessageBoxRoot()->getChild("ErrorMessageBox");
+	ctlMsg->setText(title);
+	ctlMsg->getChild("MessageText")->setText(text);
+	ctlMsg->getChild("ButtonOk")->setText(buttonTextOk);
+
+	getErrorMessageBoxRoot()->setVisible(true);
+}
+
+bool MegaGlest_CEGUIManager::isErrorMessageBoxShowing() {
+	return getErrorMessageBoxRoot()->isVisible();
+}
+
+void MegaGlest_CEGUIManager::hideErrorMessageBox() {
+
+	getErrorMessageBoxRoot()->setVisible(false);
+}
+
+void MegaGlest_CEGUIManager::subscribeErrorMessageBoxEventClicks(std::string containerName,
+		MegaGlest_CEGUIManagerBackInterface *cb) {
+
+	CEGUI::Window *ctlOk = getErrorMessageBoxRoot()->getChild("ErrorMessageBox")->getChild("ButtonOk");
+	subscribeEventClick(containerName, ctlOk, getEventClicked(), cb);
+}
+
+bool MegaGlest_CEGUIManager::isControlErrorMessageBoxOk(CEGUI::Window *ctl) {
+	bool result = false;
+
+	if(getErrorMessageBoxRoot()->isVisible() == true && ctl != NULL) {
+		CEGUI::Window *ctlOk = getErrorMessageBoxRoot()->getChild("ErrorMessageBox")->getChild("ButtonOk");
+		result = (ctl == ctlOk);
 	}
 	return result;
 }

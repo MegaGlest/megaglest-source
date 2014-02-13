@@ -42,8 +42,13 @@ private:
 
 protected:
 
+	CEGUI::Window *emptyMainWindowRoot;
 	CEGUI::Window *messageBoxRoot;
+	CEGUI::Window *errorMessageBoxRoot;
+	string containerName;
 	std::map<string, std::vector<MegaGlest_CEGUI_Events_Manager *> > eventManagerList;
+	std::map<string, CEGUI::Window *> layoutCache;
+
 	MegaGlest_CEGUIManager();
 
 	void initializeResourceGroupDirectories();
@@ -53,15 +58,19 @@ protected:
 	string getThemeName();
 	string getThemeCursorName();
 
+	CEGUI::Window * getMessageBoxRoot();
+	CEGUI::Window * getErrorMessageBoxRoot();
+
 public:
 
 	static MegaGlest_CEGUIManager & getInstance();
 	virtual ~MegaGlest_CEGUIManager();
 
 	void setupCEGUI();
+	void clearRootWindow();
 
 	CEGUI::Window * loadLayoutFromFile(string layoutFile);
-	void setCurrentLayout(string layoutFile);
+	void setCurrentLayout(string layoutFile, string containerName);
 	void setControlText(string controlName, string text);
 	void setControlEventCallback(string containerName, string controlName,
 			string eventName, MegaGlest_CEGUIManagerBackInterface *cb);
@@ -69,7 +78,8 @@ public:
 
 	string getEventClicked();
 
-	void subscribeEventClick(std::string containerName, CEGUI::Window *ctl, std::string name, MegaGlest_CEGUIManagerBackInterface *cb);
+	void subscribeEventClick(std::string containerName, CEGUI::Window *ctl,
+			std::string name, MegaGlest_CEGUIManagerBackInterface *cb);
 	void unsubscribeEvents(std::string containerName);
 
 	void setFontDefaultFont(string fontName, string fontFileName, float fontPointSize);
@@ -77,9 +87,18 @@ public:
 
 	void subscribeMessageBoxEventClicks(std::string containerName, MegaGlest_CEGUIManagerBackInterface *cb);
 	void displayMessageBox(string title, string text, string buttonTextOk, string buttonTextCancel);
+	bool isMessageBoxShowing();
 	void hideMessageBox();
 	bool isControlMessageBoxOk(CEGUI::Window *ctl);
 	bool isControlMessageBoxCancel(CEGUI::Window *ctl);
+
+	void subscribeErrorMessageBoxEventClicks(std::string containerName, MegaGlest_CEGUIManagerBackInterface *cb);
+	void displayErrorMessageBox(string title, string text, string buttonTextOk);
+	bool isErrorMessageBoxShowing();
+	void hideErrorMessageBox();
+	bool isControlErrorMessageBoxOk(CEGUI::Window *ctl);
+	bool isControlErrorMessageBoxCancel(CEGUI::Window *ctl);
+
 };
 
 }} //end namespace

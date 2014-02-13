@@ -9,7 +9,6 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
-#include <CEGUI/CEGUI.h>
 #include "main_menu.h"
 
 #include "renderer.h"
@@ -29,6 +28,7 @@
 #include "menu_state_root.h"
 #include "video_player.h"
 #include "string_utils.h"
+#include "megaglest_cegui_manager.h"
 
 #include "leak_dumper.h"
 
@@ -295,14 +295,14 @@ void MainMenu::consoleAddLine(string line) {
 // 	class MenuState
 // =====================================================
 
-MenuState::MenuState(Program *program, MainMenu *mainMenu, const string &stateName){
+MenuState::MenuState(Program *program, MainMenu *mainMenu, const string &stateName) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	MegaGlest_CEGUIManager::getInstance().clearRootWindow();
 
 	this->containerName="";
 	this->program= program;
 	this->mainMenu= mainMenu;
-
-	CEGUI::System::getSingleton().getDefaultGUIContext().setRootWindow(0);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 	//switch on menu music again, it might be muted

@@ -14,6 +14,7 @@
 
 #include "main_menu.h"
 #include "megaglest_cegui_manager.h"
+
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -22,42 +23,28 @@ namespace Glest{ namespace Game{
 // 	class MenuStateRoot  
 // ===============================
 
-class GraphicMessageBox;
-class PopupMenu;
-
 class MenuStateRoot: public MenuState, public MegaGlest_CEGUIManagerBackInterface {
-private:
-	GraphicButton buttonNewGame;
-	GraphicButton buttonLoadGame;
-	GraphicButton buttonMods;
-	GraphicButton buttonOptions;
-	GraphicButton buttonAbout;
-	GraphicButton buttonExit;
-	GraphicLabel labelVersion;
-
-	GraphicMessageBox mainMessageBox;
-	GraphicMessageBox errorMessageBox;
-
-	PopupMenu popupMenu;
 
 public:
 
 	MenuStateRoot(Program *program, MainMenu *mainMenu);
 
-	void mouseClick(int x, int y, MouseButton mouseButton);
-	void mouseMove(int x, int y, const MouseState *mouseState);
+	virtual void mouseClick(int x, int y, MouseButton mouseButton) {};
+	virtual void mouseMove(int x, int y, const MouseState *mouseState) {};
+
 	void render();
 	void update();
-	virtual void keyDown(SDL_KeyboardEvent key);
-	void showMessageBox(const string &text, const string &header, bool toggle);
 
-	void showErrorMessageBox(const string &text, const string &header, bool toggle);
+	virtual void keyDown(SDL_KeyboardEvent key);
+	void showMessageBox(const string &text, const string &header);
+	//void showErrorMessageBox(const string &text, const string &header);
 
 	virtual bool isMasterserverMode() const;
 	virtual void reloadUI();
 
 private:
 
+	void setupCEGUIWidgetsText();
 	void setupCEGUIWidgets();
 	virtual bool EventCallback(CEGUI::Window *ctl, std::string name);
 };
