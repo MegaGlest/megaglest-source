@@ -17,6 +17,7 @@
 #include "platform_common.h"
 #include "font.h"
 #include "conversion.h"
+#include "string_utils.h"
 
 #include "leak_dumper.h"
 
@@ -24,8 +25,11 @@ using namespace Shared::PlatformCommon;
 
 namespace Glest { namespace Game {
 
+// =========================================================================
+//
+// This class wraps CEGUI event management
+//
 class MegaGlest_CEGUI_Events_Manager {
-
 protected:
 
 	CEGUI::Window *ctl;
@@ -56,6 +60,10 @@ public:
 	}
 };
 
+// =========================================================================
+//
+// This is the main CEGUI Wrapper class
+//
 MegaGlest_CEGUIManager::MegaGlest_CEGUIManager() {
 	emptyMainWindowRoot = NULL;
 	messageBoxRoot 		= NULL;
@@ -172,7 +180,7 @@ void MegaGlest_CEGUIManager::setupCEGUI() {
 
 	string fontFile = findFont();
 	//printf("\nCE-GUI set default font: %s\n\n",fontFile.c_str());
-	setFontDefaultFont("MEGAGLEST_FONT", fontFile, 10.0f);
+	setDefaultFont("MEGAGLEST_FONT", fontFile, 10.0f);
 
 	emptyMainWindowRoot = loadLayoutFromFile("EmptyRoot.layout");
 	messageBoxRoot 		= loadLayoutFromFile("MessageBox.layout");
@@ -268,11 +276,17 @@ CEGUI::Window * MegaGlest_CEGUIManager::setCurrentLayout(string layoutFile, stri
 	return ctl;
 }
 
-void MegaGlest_CEGUIManager::setControlText(string controlName, string text) {
+void MegaGlest_CEGUIManager::setControlText(string controlName, string text, bool disableFormatting) {
 	CEGUI::Window *root = CEGUI::System::getSingleton().
 			getDefaultGUIContext().getRootWindow();
 
 	CEGUI::Window *ctl = root->getChild(controlName);
+	setControlText(ctl,text, disableFormatting);
+}
+
+void MegaGlest_CEGUIManager::setControlText(CEGUI::Window *ctl, string text, bool disableFormatting) {
+
+	ctl->setTextParsingEnabled(disableFormatting == false);
 	ctl->setText((CEGUI::encoded_char*)text.c_str());
 }
 
@@ -286,14 +300,39 @@ void MegaGlest_CEGUIManager::setControlEventCallback(string containerName,
 
 }
 
-CEGUI::Window * MegaGlest_CEGUIManager::getControl(string controlName) {
-	CEGUI::Window *root = CEGUI::System::getSingleton().
-			getDefaultGUIContext().getRootWindow();
-	return root->getChild(controlName);
+void MegaGlest_CEGUIManager::dumpWindowNames(string dumpTag) {
+	CEGUI::WindowManager &winMgr(CEGUI::WindowManager::getSingleton());
+	winMgr.DEBUG_dumpWindowNames(dumpTag);
 }
 
-CEGUI::Window * MegaGlest_CEGUIManager::getChildControl(CEGUI::Window *parentCtl,string controlNameChild) {
-	return parentCtl->getChild(controlNameChild);
+CEGUI::Window * MegaGlest_CEGUIManager::getRootControl() {
+	return CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
+}
+
+CEGUI::Window * MegaGlest_CEGUIManager::getControl(string controlName, bool recursiveScan) {
+	CEGUI::Window *root = CEGUI::System::getSingleton().
+			getDefaultGUIContext().getRootWindow();
+	if(recursiveScan == false) {
+		return root->getChild(controlName);
+	}
+	else {
+		CEGUI::NamedElement *element = root->getChildElementRecursive(controlName);
+		if(element != NULL) {
+			return root->getChild(element->getNamePath());
+		}
+		return NULL;
+	}
+}
+
+CEGUI::Window * MegaGlest_CEGUIManager::getChildControl(CEGUI::Window *parentCtl,string controlNameChild, bool recursiveScan) {
+	if(recursiveScan == false) {
+		return parentCtl->getChild(controlNameChild);
+	}
+	CEGUI::NamedElement *element = parentCtl->getChildElementRecursive(controlNameChild);
+	if(element != NULL) {
+		return parentCtl->getChild(element->getNamePath());
+	}
+	return NULL;
 }
 
 string MegaGlest_CEGUIManager::getEventClicked() {
@@ -301,13 +340,15 @@ string MegaGlest_CEGUIManager::getEventClicked() {
 	return result;
 }
 
-void MegaGlest_CEGUIManager::setFontDefaultFont(string fontName, string fontFileName, float fontPointSize) {
+void MegaGlest_CEGUIManager::setDefaultFont(string fontName, string fontFileName, float fontPointSize) {
 
 	string fontPath = extractDirectoryPathFromFile(fontFileName);
 	string fontFile = extractFileFromDirectoryPath(fontFileName);
 
-	CEGUI::FontManager& fontManager(CEGUI::FontManager::getSingleton());
+	CEGUI::FontManager &fontManager(CEGUI::FontManager::getSingleton());
 	string fontNameIdentifier = fontName + "-" + floatToStr(fontPointSize);
+
+	printf("\nCE-GUI set default font: [%s] fontNameIdentifier [%s] fontPointSize: %f\n\n",fontFileName.c_str(),fontNameIdentifier.c_str(),fontPointSize);
 
 	if(fontManager.isDefined(fontNameIdentifier) == false) {
 		CEGUI::Font &font = fontManager.createFreeTypeFont(
@@ -463,15 +504,109 @@ void MegaGlest_CEGUIManager::addTabPageToTabControl(string tabControlName, CEGUI
 	tabCtl->addTab(ctl);
 }
 
-void MegaGlest_CEGUIManager::addItemToComboDropListControl(CEGUI::Window *ctl, string value, int position) {
+void MegaGlest_CEGUIManager::addItemToComboBoxControl(CEGUI::Window *ctl, string value, int index, bool disableFormatting) {
 	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
-	combobox->setReadOnly(true);
+	bool wasReadOnly = combobox->isReadOnly();
+	if(wasReadOnly == true) {
+		combobox->setReadOnly(false);
+	}
 
-	CEGUI::ListboxTextItem *itemCombobox = new CEGUI::ListboxTextItem(value, position);
+	CEGUI::String cegui_value((CEGUI::encoded_char*)value.c_str());
+	//printf("\nCE-GUI add item to combobox: [%s] [%s]\n",cegui_value.c_str(),value.c_str());
+
+	CEGUI::ListboxTextItem *itemCombobox = new CEGUI::ListboxTextItem(cegui_value, index);
+
 	string selectionImageName = getLookName() + "/MultiListSelectionBrush";
 	const CEGUI::Image *selectionImage = &CEGUI::ImageManager::getSingleton().get(selectionImageName);
 	itemCombobox->setSelectionBrushImage(selectionImage);
+
+	combobox->setTextParsingEnabled(disableFormatting == false);
 	combobox->addItem(itemCombobox);
+	if(wasReadOnly == true) {
+		combobox->setReadOnly(true);
+	}
+}
+
+void MegaGlest_CEGUIManager::addItemsToComboBoxControl(CEGUI::Window *ctl, vector<string> valueList, bool disableFormatting) {
+	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
+	int previousItemCount = combobox->getItemCount();
+
+	for(unsigned int index = 0; index < valueList.size(); ++index) {
+
+		string &value = valueList[index];
+		int position = previousItemCount + index;
+		addItemToComboBoxControl(ctl, value, position, disableFormatting);
+	}
+}
+
+void MegaGlest_CEGUIManager::setSelectedItemInComboBoxControl(CEGUI::Window *ctl, int index) {
+	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
+	bool wasReadOnly = combobox->isReadOnly();
+	if(wasReadOnly == true) {
+		combobox->setReadOnly(false);
+	}
+
+	combobox->setItemSelectState(index,true);
+
+	if(wasReadOnly == true) {
+		combobox->setReadOnly(true);
+	}
+}
+
+void MegaGlest_CEGUIManager::setSelectedItemInComboBoxControl(CEGUI::Window *ctl, string value, bool disableFormatting) {
+	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
+	bool wasReadOnly = combobox->isReadOnly();
+	if(wasReadOnly == true) {
+		combobox->setReadOnly(false);
+	}
+
+	CEGUI::String cegui_value((CEGUI::encoded_char*)value.c_str());
+	combobox->setTextParsingEnabled(disableFormatting == false);
+	combobox->setText(cegui_value);
+
+	if(wasReadOnly == true) {
+		combobox->setReadOnly(true);
+	}
+}
+
+void MegaGlest_CEGUIManager::addItemToListBoxControl(CEGUI::Window *ctl, string value, int index, bool disableFormatting) {
+	CEGUI::Listbox *listbox = static_cast<CEGUI::Listbox*>(ctl);
+
+	CEGUI::String cegui_value((CEGUI::encoded_char*)value.c_str());
+	CEGUI::ListboxTextItem *itemCombobox = new CEGUI::ListboxTextItem(cegui_value, index);
+
+	string selectionImageName = getLookName() + "/MultiListSelectionBrush";
+	const CEGUI::Image *selectionImage = &CEGUI::ImageManager::getSingleton().get(selectionImageName);
+	itemCombobox->setSelectionBrushImage(selectionImage);
+
+	listbox->setTextParsingEnabled(disableFormatting == false);
+	listbox->addItem(itemCombobox);
+}
+
+void MegaGlest_CEGUIManager::addItemsToListBoxControl(CEGUI::Window *ctl, vector<string> valueList, bool disableFormatting) {
+	CEGUI::Listbox *listbox = static_cast<CEGUI::Listbox*>(ctl);
+	int previousItemCount = listbox->getItemCount();
+
+	for(unsigned int index = 0; index < valueList.size(); ++index) {
+
+		string &value = valueList[index];
+		int position = previousItemCount + index;
+		addItemToListBoxControl(ctl, value, position, disableFormatting);
+	}
+}
+
+void MegaGlest_CEGUIManager::setSelectedItemInListBoxControl(CEGUI::Window *ctl, int index) {
+	CEGUI::Listbox *listbox = static_cast<CEGUI::Listbox*>(ctl);
+
+	listbox->setItemSelectState(index,true);
+}
+
+void MegaGlest_CEGUIManager::setSelectedItemInListBoxControl(CEGUI::Window *ctl, string value, bool disableFormatting) {
+	CEGUI::Combobox *listbox = static_cast<CEGUI::Combobox*>(ctl);
+
+	CEGUI::String cegui_value((CEGUI::encoded_char*)value.c_str());
+	listbox->setTextParsingEnabled(disableFormatting == false);
+	listbox->setText(cegui_value);
 }
 
 }}//end namespace

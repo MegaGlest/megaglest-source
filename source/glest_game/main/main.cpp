@@ -4763,6 +4763,7 @@ int glestMain(int argc, char** argv) {
 			Tokenize(paramValue,paramPartTokens,"=");
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
 				language = paramPartTokens[1];
+				config.setString("Lang",language,true);
 				printf("Forcing language [%s]\n",language.c_str());
 			}
 	        else {

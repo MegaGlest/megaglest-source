@@ -16,6 +16,8 @@
 #include <map>
 #include <vector>
 
+#include "leak_dumper.h"
+
 using namespace std;
 
 namespace CEGUI {
@@ -72,11 +74,15 @@ public:
 
 	CEGUI::Window * loadLayoutFromFile(string layoutFile);
 	CEGUI::Window * setCurrentLayout(string layoutFile, string containerName);
-	void setControlText(string controlName, string text);
+	void setControlText(string controlName, string text, bool disableFormatting=false);
+	void setControlText(CEGUI::Window *ctl, string text, bool disableFormatting=false);
 	void setControlEventCallback(string containerName, string controlName,
 			string eventName, MegaGlest_CEGUIManagerBackInterface *cb);
-	CEGUI::Window * getControl(string controlName);
-	CEGUI::Window * getChildControl(CEGUI::Window *parentCtl,string controlNameChild);
+
+	CEGUI::Window * getRootControl();
+	CEGUI::Window * getControl(string controlName, bool recursiveScan=false);
+	CEGUI::Window * getChildControl(CEGUI::Window *parentCtl,string controlNameChild, bool recursiveScan=false);
+	void dumpWindowNames(string dumpTag);
 
 	string getEventClicked();
 
@@ -84,7 +90,7 @@ public:
 			std::string name, MegaGlest_CEGUIManagerBackInterface *cb);
 	void unsubscribeEvents(std::string containerName);
 
-	void setFontDefaultFont(string fontName, string fontFileName, float fontPointSize);
+	void setDefaultFont(string fontName, string fontFileName, float fontPointSize);
 	void setImageFileForControl(string imageName, string imageFileName, string controlName);
 
 	void subscribeMessageBoxEventClicks(std::string containerName, MegaGlest_CEGUIManagerBackInterface *cb);
@@ -102,7 +108,17 @@ public:
 	bool isControlErrorMessageBoxCancel(CEGUI::Window *ctl);
 
 	void addTabPageToTabControl(string tabControlName, CEGUI::Window *ctl);
-	void addItemToComboDropListControl(CEGUI::Window *ctl, string value, int position);
+
+	void addItemToComboBoxControl(CEGUI::Window *ctl, string value, int index, bool disableFormatting=false);
+	void addItemsToComboBoxControl(CEGUI::Window *ctl, vector<string> valueList, bool disableFormatting=false);
+	void setSelectedItemInComboBoxControl(CEGUI::Window *ctl, int index);
+	void setSelectedItemInComboBoxControl(CEGUI::Window *ctl, string value, bool disableFormatting=false);
+
+	void addItemToListBoxControl(CEGUI::Window *ctl, string value, int index, bool disableFormatting=false);
+	void addItemsToListBoxControl(CEGUI::Window *ctl, vector<string> valueList, bool disableFormatting=false);
+	void setSelectedItemInListBoxControl(CEGUI::Window *ctl, int index);
+	void setSelectedItemInListBoxControl(CEGUI::Window *ctl, string value, bool disableFormatting=false);
+
 };
 
 }} //end namespace
