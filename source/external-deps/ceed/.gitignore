@@ -1,0 +1,4 @@
+# cegui files created during build
+*.py
+*.pyc
+

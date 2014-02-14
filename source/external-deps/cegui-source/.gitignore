@@ -1,1 +1,5 @@
+# cegui files created during build
+/cegui/include/CEGUI/Config.h
+/cegui/include/CEGUI/ModuleConfig.h
+/cegui/include/CEGUI/Version.h
 /build/

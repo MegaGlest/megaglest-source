@@ -1,0 +1,3 @@
+#!/bin/bash
+
+PYTHONPATH=../../cegui-source/build/lib:../:/home/softcoder/Code/megaglest/git/source/external-deps/ceed/bin/../../cegui-v0-8/build/lib:/home/softcoder/Code/megaglest/git/source/external-deps/ceed/bin/../:/home/softcoder/Code/megaglest/git/source/external-deps/ceed/bin/../../cegui/build/lib:/home/softcoder/Code/megaglest/git/source/external-deps/ceed/bin/../:/home/softcoder/Code/megaglest/git/source/external-deps/ceed/bin/../../cegui/build/lib:/home/softcoder/Code/megaglest/git/source/external-deps/ceed/bin/../:/home/softcoder/Code/megaglest/git/source/external-deps/ceed/bin/../../cegui/build/lib:/home/softcoder/Code/megaglest/git/source/external-deps/ceed/bin/../: python2 ./ceed-gui
