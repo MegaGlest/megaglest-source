@@ -59,10 +59,5 @@ $RECYCLE.BIN/
 /google-breakpad
 /google-breakpad/
 
-# cegui files created during build
-/source/external-deps/cegui-source/cegui/include/CEGUI/Config.h
-/source/external-deps/cegui-source/cegui/include/CEGUI/ModuleConfig.h
-/source/external-deps/cegui-source/cegui/include/CEGUI/Version.h
-
 # convert_faction_xml2html
 /html/

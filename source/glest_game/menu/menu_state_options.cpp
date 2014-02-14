@@ -394,17 +394,39 @@ void MenuStateOptions::setupCEGUIWidgets() {
 
 void MenuStateOptions::setupCEGUIWidgetsText() {
 
-	//Lang &lang= Lang::getInstance();
+	Lang &lang		= Lang::getInstance();
+	Config &config	= Config::getInstance();
 
 	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
 	cegui_manager.setCurrentLayout("OptionsMenuRoot.layout",containerName);
 	CEGUI::Window *ctl = cegui_manager.loadLayoutFromFile("OptionsMenuMisc.layout");
 	cegui_manager.addTabPageToTabControl("TabControl", ctl);
 
-	cegui_manager.addItemToComboDropListControl(
-			cegui_manager.getChildControl(ctl,"ComboDropListLanguage"), "English", 0);
+	//cegui_manager.dumpWindowNames("Test");
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctl,"LabelLanguage"),lang.getString("Language","",false,true));
 
-	//cegui_manager.setControlText("ButtonNewGame",lang.getString("NewGame","",false,true));
+	languageList = lang.getDiscoveredLanguageList(true);
+	pair<string,string> defaultLang = lang.getNavtiveNameFromLanguageName(config.getString("Lang"));
+	if(defaultLang.first == "" && defaultLang.second == "") {
+		defaultLang = lang.getNavtiveNameFromLanguageName(lang.getDefaultLanguage());
+	}
+	string defaultLanguageText = defaultLang.second + "-" + defaultLang.first;
+
+	vector<string> langResults;
+	for(map<string,string>::iterator iterMap = languageList.begin();
+			iterMap != languageList.end(); ++iterMap) {
+
+		string language = iterMap->first + "-" + iterMap->second;
+		langResults.push_back(language);
+	}
+	cegui_manager.addItemsToComboBoxControl(
+			cegui_manager.getChildControl(ctl,"ComboBoxLanguage"), langResults);
+
+	cegui_manager.setSelectedItemInComboBoxControl(
+			cegui_manager.getChildControl(ctl,"ComboBoxLanguage"), defaultLanguageText);
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctl,"LabelPlayerName"),lang.getString("Playername","",false,true));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctl,"EditboxPlayerName"),config.getString("NetPlayerName",Socket::getHostName().c_str()));
 }
 
 void MenuStateOptions::setupTransifexUI() {
