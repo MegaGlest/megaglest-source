@@ -399,10 +399,10 @@ void MegaGlest_CEGUIManager::displayMessageBox(string title, string text,
 		string buttonTextOk, string buttonTextCancel) {
 
 	CEGUI::Window *ctlMsg = getMessageBoxRoot()->getChild("MessageBox");
-	ctlMsg->setText(title);
-	ctlMsg->getChild("MessageText")->setText(text);
-	ctlMsg->getChild("ButtonOk")->setText(buttonTextOk);
-	ctlMsg->getChild("ButtonCancel")->setText(buttonTextCancel);
+	ctlMsg->setText((CEGUI::encoded_char*)title.c_str());
+	ctlMsg->getChild("MessageText")->setText((CEGUI::encoded_char*)text.c_str());
+	ctlMsg->getChild("ButtonOk")->setText((CEGUI::encoded_char*)buttonTextOk.c_str());
+	ctlMsg->getChild("ButtonCancel")->setText((CEGUI::encoded_char*)buttonTextCancel.c_str());
 
 	getMessageBoxRoot()->setVisible(true);
 }
@@ -463,9 +463,9 @@ void MegaGlest_CEGUIManager::displayErrorMessageBox(string title, string text,
 		string buttonTextOk) {
 
 	CEGUI::Window *ctlMsg = getErrorMessageBoxRoot()->getChild("ErrorMessageBox");
-	ctlMsg->setText(title);
-	ctlMsg->getChild("MessageText")->setText(text);
-	ctlMsg->getChild("ButtonOk")->setText(buttonTextOk);
+	ctlMsg->setText((CEGUI::encoded_char*)title.c_str());
+	ctlMsg->getChild("MessageText")->setText((CEGUI::encoded_char*)text.c_str());
+	ctlMsg->getChild("ButtonOk")->setText((CEGUI::encoded_char*)buttonTextOk.c_str());
 
 	getErrorMessageBoxRoot()->setVisible(true);
 }
