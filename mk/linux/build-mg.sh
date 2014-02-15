@@ -85,8 +85,8 @@ done
 # 1. Install clang (sudo apt-get install clang)
 # 2. Set the two vars below:
 #    WANT_CLANG=YES and CLANG_BIN_PATH=<path_to_the_clang_binary>
-CLANG_BIN_PATH=$( which clang )
-CLANGPP_BIN_PATH=$( which clang++ )
+CLANG_BIN_PATH=$( which clang 2>/dev/null )
+CLANGPP_BIN_PATH=$( which clang++ 2>/dev/null )
 
 cd ${SCRIPTDIR}
 
