@@ -2776,9 +2776,9 @@ void MenuStateConnectedGame::render() {
 
 		if(enableMapPreview && (mapPreview.hasFileLoaded() == true)) {
 
-			int mouseX = mainMenu->getMouseX();
-			int mouseY = mainMenu->getMouseY();
-			int mouse2dAnim = mainMenu->getMouse2dAnim();
+			//int mouseX = mainMenu->getMouseX();
+			//int mouseY = mainMenu->getMouseY();
+			//int mouse2dAnim = mainMenu->getMouse2dAnim();
 
 			if(mapPreviewTexture == NULL) {
 				//renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);

@@ -348,7 +348,7 @@ void MegaGlest_CEGUIManager::setDefaultFont(string fontName, string fontFileName
 	CEGUI::FontManager &fontManager(CEGUI::FontManager::getSingleton());
 	string fontNameIdentifier = fontName + "-" + floatToStr(fontPointSize);
 
-	printf("\nCE-GUI set default font: [%s] fontNameIdentifier [%s] fontPointSize: %f\n\n",fontFileName.c_str(),fontNameIdentifier.c_str(),fontPointSize);
+	//printf("\nCE-GUI set default font: [%s] fontNameIdentifier [%s] fontPointSize: %f\n\n",fontFileName.c_str(),fontNameIdentifier.c_str(),fontPointSize);
 
 	if(fontManager.isDefined(fontNameIdentifier) == false) {
 		CEGUI::Font &font = fontManager.createFreeTypeFont(
