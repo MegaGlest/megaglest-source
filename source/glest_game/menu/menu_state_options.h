@@ -13,6 +13,7 @@
 #define _GLEST_GAME_MENUSTATEOPTIONS_H_
 
 #include "main_menu.h"
+#include "megaglest_cegui_manager.h"
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -21,72 +22,19 @@ namespace Glest{ namespace Game{
 // 	class MenuStateOptions
 // ===============================
 
-class MenuStateOptions: public MenuState{
+class MenuStateOptions: public MenuState, public MegaGlest_CEGUIManagerBackInterface {
 private:
 
-	GraphicButton buttonOk;
-	GraphicButton buttonReturn;
+//	GraphicButton buttonKeyboardSetup; // configure the keyboard
+//	GraphicButton buttonVideoSection;
+//	GraphicButton buttonAudioSection;
+//	GraphicButton buttonMiscSection;
+//	GraphicButton buttonNetworkSettings;
 
-	GraphicLabel labelLang;
-	GraphicListBox listBoxLang;
-	GraphicLabel labelPlayerName;
-	GraphicLabel labelPlayerNameLabel;
-	GraphicLabel *activeInputLabel;
-
-
-	GraphicButton buttonKeyboardSetup; // configure the keyboard
-	GraphicButton buttonVideoSection;
-	GraphicButton buttonAudioSection;
-	GraphicButton buttonMiscSection;
-	GraphicButton buttonNetworkSettings;
-
-	GraphicLabel labelFontSizeAdjustment;
-	GraphicListBox listFontSizeAdjustment;
-
-
-	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
-
-
-
-	GraphicLabel labelScreenShotType;
-	GraphicListBox listBoxScreenShotType;
-
-	GraphicLabel labelDisableScreenshotConsoleText;
-	GraphicCheckBox checkBoxDisableScreenshotConsoleText;
-
-	GraphicLabel labelMouseMoveScrollsWorld;
-	GraphicCheckBox checkBoxMouseMoveScrollsWorld;
-
-	GraphicLabel labelCameraMoveSpeed;
-	GraphicListBox listCameraMoveSpeed;
-
-	GraphicLabel labelVisibleHud;
-	GraphicCheckBox checkBoxVisibleHud;
-	GraphicLabel labelTimeDisplay;
-	GraphicCheckBox checkBoxTimeDisplay;
-	GraphicLabel labelChatStaysActive;
-	GraphicCheckBox checkBoxChatStaysActive;
-
-	GraphicLabel labelLuaDisableSecuritySandbox;
-	GraphicCheckBox checkBoxLuaDisableSecuritySandbox;
-
-	GraphicMessageBox luaMessageBox;
 	int luaMessageBoxState;
 
 	map<string,string> languageList;
-
-	GraphicLabel labelCustomTranslation;
-	GraphicCheckBox checkBoxCustomTranslation;
-
-	GraphicButton buttonGetNewLanguageFiles;
-	GraphicButton buttonDeleteNewLanguageFiles;
-	GraphicLabel labelTransifexUserLabel;
-	GraphicLabel labelTransifexUser;
-	GraphicLabel labelTransifexPwdLabel;
-	GraphicLabel labelTransifexPwd;
-	GraphicLabel labelTransifexI18NLabel;
-	GraphicLabel labelTransifexI18N;
 
 	ProgramState **parentUI;
 
@@ -102,11 +50,9 @@ public:
 
     virtual void reloadUI();
 
-
 private:
 
 	void saveConfig();
-	void setActiveInputLable(GraphicLabel* newLable);
 	void showMessageBox(const string &text, const string &header, bool toggle);
 	void showLuaMessageBox(const string &text, const string &header, bool toggle);
 
@@ -114,6 +60,7 @@ private:
 
 	void setupCEGUIWidgets();
 	void setupCEGUIWidgetsText();
+	virtual bool EventCallback(CEGUI::Window *ctl, std::string name);
 };
 
 }}//end namespace

@@ -180,6 +180,13 @@ void MegaGlest_CEGUIManager::setupCEGUI() {
 
 	string fontFile = findFont();
 	//printf("\nCE-GUI set default font: %s\n\n",fontFile.c_str());
+	addFont("MEGAGLEST_FONT", fontFile, 8.0f);
+	addFont("MEGAGLEST_FONT", fontFile, 10.0f);
+	addFont("MEGAGLEST_FONT", fontFile, 12.0f);
+	addFont("MEGAGLEST_FONT", fontFile, 14.0f);
+	addFont("MEGAGLEST_FONT", fontFile, 16.0f);
+	addFont("MEGAGLEST_FONT", fontFile, 18.0f);
+	addFont("MEGAGLEST_FONT", fontFile, 20.0f);
 	setDefaultFont("MEGAGLEST_FONT", fontFile, 10.0f);
 
 	emptyMainWindowRoot = loadLayoutFromFile("EmptyRoot.layout");
@@ -290,12 +297,35 @@ void MegaGlest_CEGUIManager::setControlText(CEGUI::Window *ctl, string text, boo
 	ctl->setText((CEGUI::encoded_char*)text.c_str());
 }
 
+string MegaGlest_CEGUIManager::getControlText(string controlName) {
+	CEGUI::Window *root = CEGUI::System::getSingleton().
+			getDefaultGUIContext().getRootWindow();
+
+	CEGUI::Window *ctl = root->getChild(controlName);
+	return getControlText(ctl);
+}
+string MegaGlest_CEGUIManager::getControlText(CEGUI::Window *ctl) {
+
+	return ctl->getText().c_str();
+}
+
 void MegaGlest_CEGUIManager::setControlEventCallback(string containerName,
 		string controlName, string eventName, MegaGlest_CEGUIManagerBackInterface *cb) {
 
 	CEGUI::Window *root = CEGUI::System::getSingleton().
 			getDefaultGUIContext().getRootWindow();
 	CEGUI::Window *ctl = root->getChild(controlName);
+	//printf("In [%s] controlName [%s] ctl: %p\n",__FUNCTION__,controlName.c_str(),ctl);
+	subscribeEventClick(containerName,ctl,eventName, cb);
+
+}
+
+void MegaGlest_CEGUIManager::setControlEventCallback(string containerName,
+		CEGUI::Window *ctl, string eventName, MegaGlest_CEGUIManagerBackInterface *cb) {
+
+	//CEGUI::Window *root = CEGUI::System::getSingleton().
+	//		getDefaultGUIContext().getRootWindow();
+	//CEGUI::Window *ctl = root->getChild(controlName);
 	subscribeEventClick(containerName,ctl,eventName, cb);
 
 }
@@ -335,38 +365,76 @@ CEGUI::Window * MegaGlest_CEGUIManager::getChildControl(CEGUI::Window *parentCtl
 	return NULL;
 }
 
-string MegaGlest_CEGUIManager::getEventClicked() {
+bool MegaGlest_CEGUIManager::isChildControl(CEGUI::Window *parentCtl,string controlNameChild) {
+	return parentCtl->isChild(controlNameChild);
+}
+
+string MegaGlest_CEGUIManager::getControlFullPathName(CEGUI::Window *ctl) {
+	return ctl->getNamePath().c_str();
+}
+
+string MegaGlest_CEGUIManager::getEventButtonClicked() {
 	string result = CEGUI::PushButton::EventClicked.c_str();
 	return result;
 }
 
-void MegaGlest_CEGUIManager::setDefaultFont(string fontName, string fontFileName, float fontPointSize) {
+string MegaGlest_CEGUIManager::getEventComboboxClicked() {
+	string result = CEGUI::Combobox::EventListSelectionChanged.c_str();
+	return result;
+}
 
+string MegaGlest_CEGUIManager::getEventComboboxChangeAccepted() {
+	string result = CEGUI::Combobox::EventListSelectionAccepted.c_str();
+	return result;
+}
+
+string MegaGlest_CEGUIManager::getEventCheckboxClicked() {
+	string result = CEGUI::ToggleButton::EventSelectStateChanged.c_str();
+	return result;
+}
+
+void MegaGlest_CEGUIManager::addFont(string fontName, string fontFileName, float fontPointSize) {
 	string fontPath = extractDirectoryPathFromFile(fontFileName);
 	string fontFile = extractFileFromDirectoryPath(fontFileName);
 
 	CEGUI::FontManager &fontManager(CEGUI::FontManager::getSingleton());
-	string fontNameIdentifier = fontName + "-" + floatToStr(fontPointSize);
+	string fontNameIdentifier = fontName + "-" + floatToStr(fontPointSize,2);
 
 	//printf("\nCE-GUI set default font: [%s] fontNameIdentifier [%s] fontPointSize: %f\n\n",fontFileName.c_str(),fontNameIdentifier.c_str(),fontPointSize);
 
 	if(fontManager.isDefined(fontNameIdentifier) == false) {
-		CEGUI::Font &font = fontManager.createFreeTypeFont(
+		fontManager.createFreeTypeFont(
 				fontNameIdentifier,
 				fontPointSize,
 				true,
 				fontFileName,
 				//CEGUI::Font::getDefaultResourceGroup(),
-				fontPath,
+				//fontPath,
+				"MEGAGLEST_DYNAMIC",
 				CEGUI::ASM_Vertical,
 				CEGUI::Sizef(1280.0f, 720.0f));
-		CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultFont(&font);
 	}
-	else {
-		CEGUI::Font &font(fontManager.get(fontNameIdentifier));
-		CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultFont(&font);
-	}
+}
 
+void MegaGlest_CEGUIManager::setDefaultFont(string fontName, string fontFileName, float fontPointSize) {
+
+	addFont(fontName, fontFileName, fontPointSize);
+	string fontNameIdentifier = fontName + "-" + floatToStr(fontPointSize,2);
+
+	CEGUI::FontManager &fontManager(CEGUI::FontManager::getSingleton());
+	CEGUI::Font &font(fontManager.get(fontNameIdentifier));
+	CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultFont(&font);
+}
+
+void MegaGlest_CEGUIManager::setControlFont(CEGUI::Window *ctl, string fontName, float fontPointSize) {
+	if(fontName == "") {
+		fontName = "MEGAGLEST_FONT";
+	}
+	string fontNameIdentifier = fontName + "-" + floatToStr(fontPointSize,2);
+	CEGUI::FontManager &fontManager(CEGUI::FontManager::getSingleton());
+	CEGUI::Font &font(fontManager.get(fontNameIdentifier));
+
+	ctl->setFont(&font);
 }
 
 void MegaGlest_CEGUIManager::setImageFileForControl(string imageName, string imageFileName, string controlName) {
@@ -380,67 +448,92 @@ void MegaGlest_CEGUIManager::setImageFileForControl(string imageName, string ima
 	staticImage->setProperty("Image", imageName);
 }
 
-CEGUI::Window * MegaGlest_CEGUIManager::getMessageBoxRoot() {
+CEGUI::Window * MegaGlest_CEGUIManager::cloneMessageBoxControl(string newMessageBoxControlName,
+		CEGUI::Window *rootControlToAddTo) {
+
+	CEGUI::Window *msgRoot = getMessageBoxRoot();
+	CEGUI::Window *ctl = msgRoot->clone(true);
+	ctl->setName(newMessageBoxControlName);
+	ctl->setVisible(false);
+	ctl->setAlwaysOnTop(true);
+
+	if(rootControlToAddTo != NULL) {
+		rootControlToAddTo->addChild(ctl);
+		ctl = rootControlToAddTo->getChild(newMessageBoxControlName);
+	}
+	return ctl;
+}
+
+CEGUI::Window * MegaGlest_CEGUIManager::getMessageBoxRoot(string rootMessageBoxFullName) {
 
 	CEGUI::Window *root = CEGUI::System::getSingleton().
 			getDefaultGUIContext().getRootWindow();
 
+	CEGUI::Window *msgRoot = NULL;
+	if(rootMessageBoxFullName != "") {
+		msgRoot = getControl(rootMessageBoxFullName);
+	}
+	else {
+		if(root->isChild(messageBoxRoot->getName()) == false) {
+			CEGUI::Window *ctl = messageBoxRoot->clone(true);
+			ctl->setVisible(false);
+			ctl->setAlwaysOnTop(true);
+			root->addChild(ctl);
+		}
+		msgRoot = root->getChild(messageBoxRoot->getName());
+	}
 	//printf("messageBoxRoot->getName() [%s]\n",messageBoxRoot->getName().c_str());
 
-	if(root->isChild(messageBoxRoot->getName()) == false) {
-		CEGUI::Window *ctl = messageBoxRoot->clone(true);
-		ctl->setVisible(false);
-		ctl->setAlwaysOnTop(true);
-		root->addChild(ctl);
-	}
-	return root->getChild(messageBoxRoot->getName());
+
+	return msgRoot;
 }
 void MegaGlest_CEGUIManager::displayMessageBox(string title, string text,
-		string buttonTextOk, string buttonTextCancel) {
+		string buttonTextOk, string buttonTextCancel, string rootMessageBoxFullName) {
 
-	CEGUI::Window *ctlMsg = getMessageBoxRoot()->getChild("MessageBox");
+	CEGUI::Window *ctlMsg = getMessageBoxRoot(rootMessageBoxFullName)->getChild("MessageBox");
 	ctlMsg->setText((CEGUI::encoded_char*)title.c_str());
 	ctlMsg->getChild("MessageText")->setText((CEGUI::encoded_char*)text.c_str());
 	ctlMsg->getChild("ButtonOk")->setText((CEGUI::encoded_char*)buttonTextOk.c_str());
 	ctlMsg->getChild("ButtonCancel")->setText((CEGUI::encoded_char*)buttonTextCancel.c_str());
 
-	getMessageBoxRoot()->setVisible(true);
+	getMessageBoxRoot(rootMessageBoxFullName)->setVisible(true);
 }
 
-bool MegaGlest_CEGUIManager::isMessageBoxShowing() {
-	return getMessageBoxRoot()->isVisible();
+bool MegaGlest_CEGUIManager::isMessageBoxShowing(string rootMessageBoxFullName) {
+	return getMessageBoxRoot(rootMessageBoxFullName)->isVisible();
 }
 
-void MegaGlest_CEGUIManager::hideMessageBox() {
+void MegaGlest_CEGUIManager::hideMessageBox(string rootMessageBoxFullName) {
 
-	getMessageBoxRoot()->setVisible(false);
+	getMessageBoxRoot(rootMessageBoxFullName)->setVisible(false);
 }
 
 void MegaGlest_CEGUIManager::subscribeMessageBoxEventClicks(std::string containerName,
-		MegaGlest_CEGUIManagerBackInterface *cb) {
+		MegaGlest_CEGUIManagerBackInterface *cb,string rootMessageBoxFullName) {
 
-	CEGUI::Window *ctlOk = getMessageBoxRoot()->getChild("MessageBox")->getChild("ButtonOk");
-	subscribeEventClick(containerName, ctlOk, getEventClicked(), cb);
-	CEGUI::Window *ctlCancel = getMessageBoxRoot()->getChild("MessageBox")->getChild("ButtonCancel");
-	subscribeEventClick(containerName, ctlCancel, getEventClicked(), cb);
+	CEGUI::Window *ctlOk = getMessageBoxRoot(rootMessageBoxFullName)->getChild("MessageBox")->getChild("ButtonOk");
+	subscribeEventClick(containerName, ctlOk, getEventButtonClicked(), cb);
+	CEGUI::Window *ctlCancel = getMessageBoxRoot(rootMessageBoxFullName)->getChild("MessageBox")->getChild("ButtonCancel");
+	subscribeEventClick(containerName, ctlCancel, getEventButtonClicked(), cb);
 }
 
-bool MegaGlest_CEGUIManager::isControlMessageBoxOk(CEGUI::Window *ctl) {
+bool MegaGlest_CEGUIManager::isControlMessageBoxOk(CEGUI::Window *ctl,string rootMessageBoxFullName) {
+
 	bool result = false;
 
-	if(getMessageBoxRoot()->isVisible() == true && ctl != NULL) {
-		CEGUI::Window *ctlOk = getMessageBoxRoot()->getChild("MessageBox")->getChild("ButtonOk");
+	if(getMessageBoxRoot(rootMessageBoxFullName)->isVisible() == true && ctl != NULL) {
+		CEGUI::Window *ctlOk = getMessageBoxRoot(rootMessageBoxFullName)->getChild("MessageBox")->getChild("ButtonOk");
 		result = (ctl == ctlOk);
 	}
 	return result;
 }
 
-bool MegaGlest_CEGUIManager::isControlMessageBoxCancel(CEGUI::Window *ctl) {
+bool MegaGlest_CEGUIManager::isControlMessageBoxCancel(CEGUI::Window *ctl,string rootMessageBoxFullName) {
 
 	bool result = false;
 
-	if(getMessageBoxRoot()->isVisible() == true && ctl != NULL) {
-		CEGUI::Window *ctlCancel = getMessageBoxRoot()->getChild("MessageBox")->getChild("ButtonCancel");
+	if(getMessageBoxRoot(rootMessageBoxFullName)->isVisible() == true && ctl != NULL) {
+		CEGUI::Window *ctlCancel = getMessageBoxRoot(rootMessageBoxFullName)->getChild("MessageBox")->getChild("ButtonCancel");
 		result = (ctl == ctlCancel);
 	}
 	return result;
@@ -483,7 +576,7 @@ void MegaGlest_CEGUIManager::subscribeErrorMessageBoxEventClicks(std::string con
 		MegaGlest_CEGUIManagerBackInterface *cb) {
 
 	CEGUI::Window *ctlOk = getErrorMessageBoxRoot()->getChild("ErrorMessageBox")->getChild("ButtonOk");
-	subscribeEventClick(containerName, ctlOk, getEventClicked(), cb);
+	subscribeEventClick(containerName, ctlOk, getEventButtonClicked(), cb);
 }
 
 bool MegaGlest_CEGUIManager::isControlErrorMessageBoxOk(CEGUI::Window *ctl) {
@@ -504,7 +597,7 @@ void MegaGlest_CEGUIManager::addTabPageToTabControl(string tabControlName, CEGUI
 	tabCtl->addTab(ctl);
 }
 
-void MegaGlest_CEGUIManager::addItemToComboBoxControl(CEGUI::Window *ctl, string value, int index, bool disableFormatting) {
+void MegaGlest_CEGUIManager::addItemToComboBoxControl(CEGUI::Window *ctl, string value, int id, bool disableFormatting) {
 	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
 	bool wasReadOnly = combobox->isReadOnly();
 	if(wasReadOnly == true) {
@@ -514,11 +607,12 @@ void MegaGlest_CEGUIManager::addItemToComboBoxControl(CEGUI::Window *ctl, string
 	CEGUI::String cegui_value((CEGUI::encoded_char*)value.c_str());
 	//printf("\nCE-GUI add item to combobox: [%s] [%s]\n",cegui_value.c_str(),value.c_str());
 
-	CEGUI::ListboxTextItem *itemCombobox = new CEGUI::ListboxTextItem(cegui_value, index);
+	CEGUI::ListboxTextItem *itemCombobox = new CEGUI::ListboxTextItem(cegui_value, id);
 
 	string selectionImageName = getLookName() + "/MultiListSelectionBrush";
 	const CEGUI::Image *selectionImage = &CEGUI::ImageManager::getSingleton().get(selectionImageName);
 	itemCombobox->setSelectionBrushImage(selectionImage);
+	itemCombobox->setTextParsingEnabled(disableFormatting == false);
 
 	combobox->setTextParsingEnabled(disableFormatting == false);
 	combobox->addItem(itemCombobox);
@@ -537,6 +631,43 @@ void MegaGlest_CEGUIManager::addItemsToComboBoxControl(CEGUI::Window *ctl, vecto
 		int position = previousItemCount + index;
 		addItemToComboBoxControl(ctl, value, position, disableFormatting);
 	}
+}
+
+void MegaGlest_CEGUIManager::addItemsToComboBoxControl(CEGUI::Window *ctl, map<string,int> mapList, bool disableFormatting) {
+
+	for(map<string,int>::iterator iterMap = mapList.begin();
+			iterMap != mapList.end(); ++iterMap) {
+
+		string value = iterMap->first;
+		int position = iterMap->second;
+		addItemToComboBoxControl(ctl, value, position, disableFormatting);
+	}
+}
+
+string MegaGlest_CEGUIManager::getSelectedItemFromComboBoxControl(CEGUI::Window *ctl) {
+
+	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
+	CEGUI::ListboxItem *itemCombobox = combobox->getSelectedItem();
+	return itemCombobox->getText().c_str();
+}
+
+int MegaGlest_CEGUIManager::getSelectedItemIndexFromComboBoxControl(CEGUI::Window *ctl) {
+
+	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
+	CEGUI::ListboxItem *itemCombobox = combobox->getSelectedItem();
+
+	//printf("Line: %d [%p - %s] [%p]\n",__LINE__,combobox,combobox->getName().c_str(),itemCombobox);
+
+	return (itemCombobox != NULL ? combobox->getItemIndex(itemCombobox) : -1);
+}
+
+int MegaGlest_CEGUIManager::getSelectedItemIdFromComboBoxControl(CEGUI::Window *ctl) {
+
+	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
+	CEGUI::ListboxItem *itemCombobox = combobox->getSelectedItem();
+
+	//printf("Line: %d [%p - %s] [%p]\n",__LINE__,combobox,combobox->getName().c_str(),itemCombobox);
+	return (itemCombobox != NULL ? itemCombobox->getID() : -1);
 }
 
 void MegaGlest_CEGUIManager::setSelectedItemInComboBoxControl(CEGUI::Window *ctl, int index) {
@@ -562,7 +693,10 @@ void MegaGlest_CEGUIManager::setSelectedItemInComboBoxControl(CEGUI::Window *ctl
 
 	CEGUI::String cegui_value((CEGUI::encoded_char*)value.c_str());
 	combobox->setTextParsingEnabled(disableFormatting == false);
-	combobox->setText(cegui_value);
+	//combobox->setText(cegui_value);
+	CEGUI::ListboxItem *lbItem = combobox->findItemWithText(cegui_value,NULL);
+	//printf("value [%s] [%s] [%p]\n",value.c_str(),cegui_value.c_str(),lbItem);
+	combobox->setItemSelectState(lbItem,true);
 
 	if(wasReadOnly == true) {
 		combobox->setReadOnly(true);
@@ -578,6 +712,7 @@ void MegaGlest_CEGUIManager::addItemToListBoxControl(CEGUI::Window *ctl, string 
 	string selectionImageName = getLookName() + "/MultiListSelectionBrush";
 	const CEGUI::Image *selectionImage = &CEGUI::ImageManager::getSingleton().get(selectionImageName);
 	itemCombobox->setSelectionBrushImage(selectionImage);
+	itemCombobox->setTextParsingEnabled(disableFormatting == false);
 
 	listbox->setTextParsingEnabled(disableFormatting == false);
 	listbox->addItem(itemCombobox);
@@ -607,6 +742,52 @@ void MegaGlest_CEGUIManager::setSelectedItemInListBoxControl(CEGUI::Window *ctl,
 	CEGUI::String cegui_value((CEGUI::encoded_char*)value.c_str());
 	listbox->setTextParsingEnabled(disableFormatting == false);
 	listbox->setText(cegui_value);
+}
+
+void MegaGlest_CEGUIManager::setSpinnerControlValues(CEGUI::Window *ctl, double minValue, double maxValue, double curValue,double interval) {
+
+	CEGUI::Spinner *spinner = static_cast<CEGUI::Spinner*>(ctl);
+	spinner->setMinimumValue(minValue);
+	spinner->setMaximumValue(maxValue);
+	spinner->setCurrentValue(curValue);
+	spinner->setStepSize(interval);
+}
+
+double MegaGlest_CEGUIManager::getSpinnerControlValue(CEGUI::Window *ctl) {
+
+	CEGUI::Spinner *spinner = static_cast<CEGUI::Spinner*>(ctl);
+	return spinner->getCurrentValue();
+}
+
+void MegaGlest_CEGUIManager::setCheckboxControlChecked(CEGUI::Window *ctl, bool checked, bool disableEventsTrigger) {
+	CEGUI::ToggleButton *checkbox = static_cast<CEGUI::ToggleButton*>(ctl);
+
+	bool wasDisable = checkbox->isMuted();
+	if(disableEventsTrigger == true && wasDisable == false) {
+		checkbox->setMutedState(true);
+	}
+	checkbox->setSelected(checked);
+
+	if(disableEventsTrigger == true && wasDisable == false) {
+		checkbox->setMutedState(false);
+	}
+}
+
+bool MegaGlest_CEGUIManager::getCheckboxControlChecked(CEGUI::Window *ctl) {
+	CEGUI::ToggleButton *checkbox = static_cast<CEGUI::ToggleButton*>(ctl);
+	return checkbox->isSelected();
+}
+
+void MegaGlest_CEGUIManager::setControlVisible(string controlName, bool visible) {
+	CEGUI::Window *root = CEGUI::System::getSingleton().
+			getDefaultGUIContext().getRootWindow();
+
+	CEGUI::Window *ctl = root->getChild(controlName);
+	setControlVisible(ctl,visible);
+}
+
+void MegaGlest_CEGUIManager::setControlVisible(CEGUI::Window *ctl, bool visible) {
+	ctl->setVisible(visible);
 }
 
 }}//end namespace

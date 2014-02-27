@@ -61,7 +61,7 @@ protected:
 	string getThemeCursorName();
 	string getLookName();
 
-	CEGUI::Window * getMessageBoxRoot();
+	CEGUI::Window * getMessageBoxRoot(string rootMessageBoxFullName="");
 	CEGUI::Window * getErrorMessageBoxRoot();
 
 public:
@@ -76,29 +76,45 @@ public:
 	CEGUI::Window * setCurrentLayout(string layoutFile, string containerName);
 	void setControlText(string controlName, string text, bool disableFormatting=false);
 	void setControlText(CEGUI::Window *ctl, string text, bool disableFormatting=false);
+	string getControlText(string controlName);
+	string getControlText(CEGUI::Window *ctl);
 	void setControlEventCallback(string containerName, string controlName,
 			string eventName, MegaGlest_CEGUIManagerBackInterface *cb);
+	void setControlEventCallback(string containerName, CEGUI::Window *ctl,
+			string eventName, MegaGlest_CEGUIManagerBackInterface *cb);
+
+	void setControlVisible(string controlName, bool visible);
+	void setControlVisible(CEGUI::Window *ctl, bool visible);
 
 	CEGUI::Window * getRootControl();
 	CEGUI::Window * getControl(string controlName, bool recursiveScan=false);
 	CEGUI::Window * getChildControl(CEGUI::Window *parentCtl,string controlNameChild, bool recursiveScan=false);
+	bool isChildControl(CEGUI::Window *parentCtl,string controlNameChild);
+	string getControlFullPathName(CEGUI::Window *ctl);
 	void dumpWindowNames(string dumpTag);
 
-	string getEventClicked();
+	string getEventButtonClicked();
+	string getEventComboboxClicked();
+	string getEventComboboxChangeAccepted();
+	string getEventCheckboxClicked();
 
 	void subscribeEventClick(std::string containerName, CEGUI::Window *ctl,
 			std::string name, MegaGlest_CEGUIManagerBackInterface *cb);
 	void unsubscribeEvents(std::string containerName);
 
+	void addFont(string fontName, string fontFileName, float fontPointSize);
+	void setControlFont(CEGUI::Window *ctl, string fontName, float fontPointSize);
 	void setDefaultFont(string fontName, string fontFileName, float fontPointSize);
+
 	void setImageFileForControl(string imageName, string imageFileName, string controlName);
 
-	void subscribeMessageBoxEventClicks(std::string containerName, MegaGlest_CEGUIManagerBackInterface *cb);
-	void displayMessageBox(string title, string text, string buttonTextOk, string buttonTextCancel);
-	bool isMessageBoxShowing();
-	void hideMessageBox();
-	bool isControlMessageBoxOk(CEGUI::Window *ctl);
-	bool isControlMessageBoxCancel(CEGUI::Window *ctl);
+	CEGUI::Window * cloneMessageBoxControl(string newMessageBoxControlName, CEGUI::Window *rootControlToAddTo=NULL);
+	void subscribeMessageBoxEventClicks(std::string containerName, MegaGlest_CEGUIManagerBackInterface *cb, string rootMessageBoxFullName="");
+	void displayMessageBox(string title, string text, string buttonTextOk, string buttonTextCancel, string rootMessageBoxFullName="");
+	bool isMessageBoxShowing(string rootMessageBoxFullName="");
+	void hideMessageBox(string rootMessageBoxFullName="");
+	bool isControlMessageBoxOk(CEGUI::Window *ctl, string rootMessageBoxFullName="");
+	bool isControlMessageBoxCancel(CEGUI::Window *ctl, string rootMessageBoxFullName="");
 
 	void subscribeErrorMessageBoxEventClicks(std::string containerName, MegaGlest_CEGUIManagerBackInterface *cb);
 	void displayErrorMessageBox(string title, string text, string buttonTextOk);
@@ -109,16 +125,25 @@ public:
 
 	void addTabPageToTabControl(string tabControlName, CEGUI::Window *ctl);
 
-	void addItemToComboBoxControl(CEGUI::Window *ctl, string value, int index, bool disableFormatting=false);
+	void addItemToComboBoxControl(CEGUI::Window *ctl, string value, int id, bool disableFormatting=false);
 	void addItemsToComboBoxControl(CEGUI::Window *ctl, vector<string> valueList, bool disableFormatting=false);
+	void addItemsToComboBoxControl(CEGUI::Window *ctl, map<string,int> mapList, bool disableFormatting=false);
 	void setSelectedItemInComboBoxControl(CEGUI::Window *ctl, int index);
 	void setSelectedItemInComboBoxControl(CEGUI::Window *ctl, string value, bool disableFormatting=false);
+	string getSelectedItemFromComboBoxControl(CEGUI::Window *ctl);
+	int getSelectedItemIndexFromComboBoxControl(CEGUI::Window *ctl);
+	int getSelectedItemIdFromComboBoxControl(CEGUI::Window *ctl);
 
 	void addItemToListBoxControl(CEGUI::Window *ctl, string value, int index, bool disableFormatting=false);
 	void addItemsToListBoxControl(CEGUI::Window *ctl, vector<string> valueList, bool disableFormatting=false);
 	void setSelectedItemInListBoxControl(CEGUI::Window *ctl, int index);
 	void setSelectedItemInListBoxControl(CEGUI::Window *ctl, string value, bool disableFormatting=false);
 
+	void setSpinnerControlValues(CEGUI::Window *ctl, double minValue, double maxValue, double curValue, double interval=1);
+	double getSpinnerControlValue(CEGUI::Window *ctl);
+
+	void setCheckboxControlChecked(CEGUI::Window *ctl, bool checked, bool disableEventsTrigger=false);
+	bool getCheckboxControlChecked(CEGUI::Window *ctl);
 };
 
 }} //end namespace

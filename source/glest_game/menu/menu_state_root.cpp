@@ -59,17 +59,17 @@ void MenuStateRoot::setupCEGUIWidgets() {
 	}
 
 	cegui_manager.setControlEventCallback(containerName,
-			"ButtonNewGame", cegui_manager.getEventClicked(), this);
+			"ButtonNewGame", cegui_manager.getEventButtonClicked(), this);
 	cegui_manager.setControlEventCallback(containerName,
-			"ButtonLoadGame", cegui_manager.getEventClicked(), this);
+			"ButtonLoadGame", cegui_manager.getEventButtonClicked(), this);
 	cegui_manager.setControlEventCallback(containerName,
-			"ButtonMods", cegui_manager.getEventClicked(), this);
+			"ButtonMods", cegui_manager.getEventButtonClicked(), this);
 	cegui_manager.setControlEventCallback(containerName,
-			"ButtonOptions", cegui_manager.getEventClicked(), this);
+			"ButtonOptions", cegui_manager.getEventButtonClicked(), this);
 	cegui_manager.setControlEventCallback(containerName,
-			"ButtonAbout", cegui_manager.getEventClicked(), this);
+			"ButtonAbout", cegui_manager.getEventButtonClicked(), this);
 	cegui_manager.setControlEventCallback(containerName,
-			"ButtonExit", cegui_manager.getEventClicked(), this);
+			"ButtonExit", cegui_manager.getEventButtonClicked(), this);
 
 	cegui_manager.subscribeMessageBoxEventClicks(containerName, this);
 	cegui_manager.subscribeErrorMessageBoxEventClicks(containerName, this);
@@ -101,7 +101,7 @@ void MenuStateRoot::setupCEGUIWidgetsText() {
 bool MenuStateRoot::EventCallback(CEGUI::Window *ctl, std::string name) {
 
 	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-	if(name == cegui_manager.getEventClicked()) {
+	if(name == cegui_manager.getEventButtonClicked()) {
 
 		if(cegui_manager.isControlMessageBoxOk(ctl) == true) {
 			CoreData &coreData=  CoreData::getInstance();
