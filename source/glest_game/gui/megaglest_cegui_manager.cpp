@@ -393,6 +393,11 @@ string MegaGlest_CEGUIManager::getEventCheckboxClicked() {
 	return result;
 }
 
+string MegaGlest_CEGUIManager::getEventTabControlSelectionChanged() {
+	string result = CEGUI::TabControl::EventSelectionChanged.c_str();
+	return result;
+}
+
 void MegaGlest_CEGUIManager::addFont(string fontName, string fontFileName, float fontPointSize) {
 	string fontPath = extractDirectoryPathFromFile(fontFileName);
 	string fontFile = extractFileFromDirectoryPath(fontFileName);
@@ -431,6 +436,7 @@ void MegaGlest_CEGUIManager::setControlFont(CEGUI::Window *ctl, string fontName,
 		fontName = "MEGAGLEST_FONT";
 	}
 	string fontNameIdentifier = fontName + "-" + floatToStr(fontPointSize,2);
+	//printf("fontNameIdentifier: %s\n",fontNameIdentifier.c_str());
 	CEGUI::FontManager &fontManager(CEGUI::FontManager::getSingleton());
 	CEGUI::Font &font(fontManager.get(fontNameIdentifier));
 
@@ -589,12 +595,35 @@ bool MegaGlest_CEGUIManager::isControlErrorMessageBoxOk(CEGUI::Window *ctl) {
 	return result;
 }
 
-void MegaGlest_CEGUIManager::addTabPageToTabControl(string tabControlName, CEGUI::Window *ctl) {
+void MegaGlest_CEGUIManager::addTabPageToTabControl(string tabControlName, CEGUI::Window *ctl, string fontName, float fontPointSize) {
 
 	CEGUI::Window *genericCtl = getControl(tabControlName);
 	CEGUI::TabControl *tabCtl = static_cast<CEGUI::TabControl *>(genericCtl);
 
+	if(fontPointSize > 0) {
+		setControlFont(tabCtl,fontName, fontPointSize);
+	}
+	//printf("Adding tab page [%p] [%s]\n",ctl,(ctl != NULL ? ctl->getName().c_str() : "NULL)"));
 	tabCtl->addTab(ctl);
+	tabCtl->makeTabVisible(ctl->getName());
+}
+
+void MegaGlest_CEGUIManager::setSelectedTabPage(string tabControlName, string tabPageName) {
+
+	CEGUI::Window *genericCtl = getControl(tabControlName);
+	CEGUI::TabControl *tabCtl = static_cast<CEGUI::TabControl *>(genericCtl);
+
+	tabCtl->setSelectedTab(tabPageName);
+}
+
+bool MegaGlest_CEGUIManager::isSelectedTabPage(string tabControlName, string tabPageName) {
+
+	CEGUI::Window *genericCtl = getControl(tabControlName);
+	CEGUI::TabControl *tabCtl = static_cast<CEGUI::TabControl *>(genericCtl);
+
+	CEGUI::Window *tabPage = tabCtl->getTabContents(tabPageName);
+	return tabCtl->isTabContentsSelected(tabPage);
+
 }
 
 void MegaGlest_CEGUIManager::addItemToComboBoxControl(CEGUI::Window *ctl, string value, int id, bool disableFormatting) {

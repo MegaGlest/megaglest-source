@@ -97,6 +97,7 @@ public:
 	string getEventComboboxClicked();
 	string getEventComboboxChangeAccepted();
 	string getEventCheckboxClicked();
+	string getEventTabControlSelectionChanged();
 
 	void subscribeEventClick(std::string containerName, CEGUI::Window *ctl,
 			std::string name, MegaGlest_CEGUIManagerBackInterface *cb);
@@ -123,7 +124,9 @@ public:
 	bool isControlErrorMessageBoxOk(CEGUI::Window *ctl);
 	bool isControlErrorMessageBoxCancel(CEGUI::Window *ctl);
 
-	void addTabPageToTabControl(string tabControlName, CEGUI::Window *ctl);
+	void addTabPageToTabControl(string tabControlName, CEGUI::Window *ctl, string fontName="", float fontPointSize=-1);
+	void setSelectedTabPage(string tabControlName, string tabPageName);
+	bool isSelectedTabPage(string tabControlName, string tabPageName);
 
 	void addItemToComboBoxControl(CEGUI::Window *ctl, string value, int id, bool disableFormatting=false);
 	void addItemsToComboBoxControl(CEGUI::Window *ctl, vector<string> valueList, bool disableFormatting=false);

@@ -48,49 +48,8 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		this->parentUI=parentUI;
 		this->console.setOnlyChatMessagesInStoredLines(false);
 
-
-//		int leftLabelStart=50;
-//		int leftColumnStart=leftLabelStart+280;
-//		int buttonRowPos=50;
-//		int buttonStartPos=170;
-//		int lineOffset=30;
-//		int tabButtonWidth=200;
-//		int tabButtonHeight=30;
-
 		mainMessageBoxState = 0;
 		luaMessageBoxState  = 0;
-
-//		buttonAudioSection.registerGraphicComponent(containerName,"buttonAudioSection");
-//		buttonAudioSection.init(0, 720,tabButtonWidth,tabButtonHeight);
-//		buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-//		buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-//		buttonAudioSection.setText(lang.getString("Audio"));
-		// Video Section
-//		buttonVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
-//		buttonVideoSection.init(200, 720,tabButtonWidth,tabButtonHeight);
-//		buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-//		buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-//		buttonVideoSection.setText(lang.getString("Video"));
-		//currentLine-=lineOffset;
-		//MiscSection
-//		buttonMiscSection.registerGraphicComponent(containerName,"labelMiscSection");
-//		buttonMiscSection.init(400, 700,tabButtonWidth,tabButtonHeight+20);
-//		buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-//		buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-//		buttonMiscSection.setText(lang.getString("Misc"));
-		//NetworkSettings
-//		buttonNetworkSettings.registerGraphicComponent(containerName,"labelNetworkSettingsSection");
-//		buttonNetworkSettings.init(600, 720,tabButtonWidth,tabButtonHeight);
-//		buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
-//		buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-//		buttonNetworkSettings.setText(lang.getString("Network"));
-
-		//KeyboardSetup
-//		buttonKeyboardSetup.registerGraphicComponent(containerName,"buttonKeyboardSetup");
-//		buttonKeyboardSetup.init(800, 720,tabButtonWidth,tabButtonHeight);
-//		buttonKeyboardSetup.setFont(CoreData::getInstance().getMenuFontVeryBig());
-//		buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-//		buttonKeyboardSetup.setText(lang.getString("Keyboardsetup"));
 
 		languageList = Lang::getInstance().getDiscoveredLanguageList(true);
 		setupTransifexUI();
@@ -107,27 +66,6 @@ void MenuStateOptions::reloadUI() {
 	console.resetFonts();
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 
-
-//	buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-//	buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-//	buttonAudioSection.setText(lang.getString("Audio"));
-//
-//	buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-//	buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-//	buttonVideoSection.setText(lang.getString("Video"));
-//
-//	buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-//	buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-//	buttonMiscSection.setText(lang.getString("Misc"));
-//
-//	buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
-//	buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-//	buttonNetworkSettings.setText(lang.getString("Network"));
-//
-//	buttonKeyboardSetup.setFont(CoreData::getInstance().getMenuFontVeryBig());
-//	buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-//	buttonKeyboardSetup.setText(lang.getString("Keyboardsetup"));
-
 	setupCEGUIWidgetsText();
 }
 
@@ -136,9 +74,17 @@ void MenuStateOptions::setupCEGUIWidgets() {
 	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
 	cegui_manager.unsubscribeEvents(this->containerName);
 	cegui_manager.setCurrentLayout("OptionsMenuRoot.layout",containerName);
+
+	cegui_manager.loadLayoutFromFile("OptionsMenuAudio.layout");
+	cegui_manager.loadLayoutFromFile("OptionsMenuKeyboard.layout");;
 	cegui_manager.loadLayoutFromFile("OptionsMenuMisc.layout");
+	cegui_manager.loadLayoutFromFile("OptionsMenuNetwork.layout");
+	cegui_manager.loadLayoutFromFile("OptionsMenuVideo.layout");
 
 	setupCEGUIWidgetsText();
+
+	cegui_manager.setControlEventCallback(containerName, "TabControl",
+					cegui_manager.getEventTabControlSelectionChanged(), this);
 
 	cegui_manager.setControlEventCallback(containerName,
 			"TabControl/__auto_TabPane__/Misc/ComboBoxLanguage",
@@ -185,18 +131,42 @@ void MenuStateOptions::setupCEGUIWidgetsText() {
 
 	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
 	cegui_manager.setCurrentLayout("OptionsMenuRoot.layout",containerName);
-	CEGUI::Window *ctl = cegui_manager.loadLayoutFromFile("OptionsMenuMisc.layout");
 
-	//cegui_manager.setControlFont(ctl,"",18);
-	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Misc") == false) {
-		cegui_manager.addTabPageToTabControl("TabControl", ctl);
+	CEGUI::Window *ctlAudio 	= cegui_manager.loadLayoutFromFile("OptionsMenuAudio.layout");
+	CEGUI::Window *ctlKeyboard 	= cegui_manager.loadLayoutFromFile("OptionsMenuKeyboard.layout");
+	CEGUI::Window *ctlMisc 		= cegui_manager.loadLayoutFromFile("OptionsMenuMisc.layout");
+	CEGUI::Window *ctlNetwork 	= cegui_manager.loadLayoutFromFile("OptionsMenuNetwork.layout");
+	CEGUI::Window *ctlVideo 	= cegui_manager.loadLayoutFromFile("OptionsMenuVideo.layout");
+
+	cegui_manager.setControlText(ctlAudio,lang.getString("Audio","",false,true));
+	cegui_manager.setControlText(ctlKeyboard,lang.getString("Keyboardsetup","",false,true));
+	cegui_manager.setControlText(ctlMisc,lang.getString("Misc","",false,true));
+	cegui_manager.setControlText(ctlNetwork,lang.getString("Network","",false,true));
+	cegui_manager.setControlText(ctlVideo,lang.getString("Video","",false,true));
+
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Audio") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlAudio,"",18);
 	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Keyboard") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlKeyboard,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Misc") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlMisc,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Network") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlNetwork,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Video") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlVideo,"",18);
+	}
+
+	cegui_manager.setSelectedTabPage("TabControl", "Misc");
 
 	//cegui_manager.dumpWindowNames("Test #1");
 	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl/__auto_TabPane__/Misc"),"LuaMsgBox") == false) {
-		cegui_manager.cloneMessageBoxControl("LuaMsgBox", ctl);
+		cegui_manager.cloneMessageBoxControl("LuaMsgBox", ctlMisc);
 	}
-	cegui_manager.setControlText(cegui_manager.getChildControl(ctl,"LabelLanguage"),lang.getString("Language","",false,true));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelLanguage"),lang.getString("Language","",false,true));
 
 	languageList = lang.getDiscoveredLanguageList(true);
 	pair<string,string> defaultLang = lang.getNavtiveNameFromLanguageName(config.getString("Lang"));
@@ -239,19 +209,19 @@ void MenuStateOptions::setupCEGUIWidgetsText() {
 	}
 
 	cegui_manager.addItemsToComboBoxControl(
-			cegui_manager.getChildControl(ctl,"ComboBoxLanguage"), langResultsMap,false);
+			cegui_manager.getChildControl(ctlMisc,"ComboBoxLanguage"), langResultsMap,false);
 
 	cegui_manager.setSelectedItemInComboBoxControl(
-			cegui_manager.getChildControl(ctl,"ComboBoxLanguage"), defaultLanguageTextFormatted,false);
-	cegui_manager.setControlText(cegui_manager.getChildControl(ctl,"ComboBoxLanguage"),defaultLanguageText);
+			cegui_manager.getChildControl(ctlMisc,"ComboBoxLanguage"), defaultLanguageTextFormatted,false);
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"ComboBoxLanguage"),defaultLanguageText);
 
-	cegui_manager.setControlText(cegui_manager.getChildControl(ctl,"LabelPlayerName"),lang.getString("Playername","",false,true));
-	cegui_manager.setControlText(cegui_manager.getChildControl(ctl,"EditboxPlayerName"),config.getString("NetPlayerName",Socket::getHostName().c_str()));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelPlayerName"),lang.getString("Playername","",false,true));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"EditboxPlayerName"),config.getString("NetPlayerName",Socket::getHostName().c_str()));
 
-	cegui_manager.setControlText(cegui_manager.getChildControl(ctl,"LabelFontAdjustment"),lang.getString("FontSizeAdjustment","",false,true));
-	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctl,"SpinnerFontAdjustment"),-5,5,config.getInt("FontSizeAdjustment"));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelFontAdjustment"),lang.getString("FontSizeAdjustment","",false,true));
+	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctlMisc,"SpinnerFontAdjustment"),-5,5,config.getInt("FontSizeAdjustment"));
 
-	cegui_manager.setControlText(cegui_manager.getChildControl(ctl,"LabelScreenshotFormat"),lang.getString("ScreenShotFileType","",false,true));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelScreenshotFormat"),lang.getString("ScreenShotFileType","",false,true));
 	vector<string> langScreenshotFormats;
 	langScreenshotFormats.push_back("bmp");
 	langScreenshotFormats.push_back("jpg");
@@ -259,34 +229,34 @@ void MenuStateOptions::setupCEGUIWidgetsText() {
 	langScreenshotFormats.push_back("tga");
 
 	cegui_manager.addItemsToComboBoxControl(
-			cegui_manager.getChildControl(ctl,"ComboBoxScreenshotFormat"), langScreenshotFormats);
+			cegui_manager.getChildControl(ctlMisc,"ComboBoxScreenshotFormat"), langScreenshotFormats);
 	cegui_manager.setSelectedItemInComboBoxControl(
-			cegui_manager.getChildControl(ctl,"ComboBoxScreenshotFormat"), config.getString("ScreenShotFileType","jpg"));
+			cegui_manager.getChildControl(ctlMisc,"ComboBoxScreenshotFormat"), config.getString("ScreenShotFileType","jpg"));
 
-	cegui_manager.setControlText(cegui_manager.getChildControl(ctl,"LabelShowScreenshotSaved"),lang.getString("ScreenShotConsoleText","",false,true));
-	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctl,"CheckboxShowScreenshotSaved"),!config.getBool("DisableScreenshotConsoleText","false"));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelShowScreenshotSaved"),lang.getString("ScreenShotConsoleText","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlMisc,"CheckboxShowScreenshotSaved"),!config.getBool("DisableScreenshotConsoleText","false"));
 
-	cegui_manager.setControlText(cegui_manager.getChildControl(ctl,"LabelMouseMovesCamera"),lang.getString("MouseScrollsWorld","",false,true));
-	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctl,"CheckboxMouseMovesCamera"),config.getBool("MouseMoveScrollsWorld","true"));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelMouseMovesCamera"),lang.getString("MouseScrollsWorld","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlMisc,"CheckboxMouseMovesCamera"),config.getBool("MouseMoveScrollsWorld","true"));
 
-	cegui_manager.setControlText(cegui_manager.getChildControl(ctl,"LabelCameraMoveSpeed"),lang.getString("CameraMoveSpeed","",false,true));
-	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctl,"SpinnerCameraMoveSpeed"),15,50,config.getFloat("CameraMoveSpeed","15"),5);
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelCameraMoveSpeed"),lang.getString("CameraMoveSpeed","",false,true));
+	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctlMisc,"SpinnerCameraMoveSpeed"),15,50,config.getFloat("CameraMoveSpeed","15"),5);
 
-	cegui_manager.setControlText(cegui_manager.getChildControl(ctl,"LabelVisibleHUD"),lang.getString("VisibleHUD","",false,true));
-	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctl,"CheckboxVisibleHUD"),config.getBool("VisibleHud","true"));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelVisibleHUD"),lang.getString("VisibleHUD","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlMisc,"CheckboxVisibleHUD"),config.getBool("VisibleHud","true"));
 
-	cegui_manager.setControlText(cegui_manager.getChildControl(ctl,"LabelChatRemainsActive"),lang.getString("ChatStaysActive","",false,true));
-	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctl,"CheckboxChatRemainsActive"),config.getBool("ChatStaysActive","false"));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelChatRemainsActive"),lang.getString("ChatStaysActive","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlMisc,"CheckboxChatRemainsActive"),config.getBool("ChatStaysActive","false"));
 
-	cegui_manager.setControlText(cegui_manager.getChildControl(ctl,"LabelDisplayRealAndGameTime"),lang.getString("TimeDisplay","",false,true));
-	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctl,"CheckboxDisplayRealAndGameTime"),config.getBool("TimeDisplay","true"));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelDisplayRealAndGameTime"),lang.getString("TimeDisplay","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlMisc,"CheckboxDisplayRealAndGameTime"),config.getBool("TimeDisplay","true"));
 
-	cegui_manager.setControlText(cegui_manager.getChildControl(ctl,"LabelDisableLuaSandbox"),lang.getString("LuaDisableSecuritySandbox","",false,true));
-	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctl,"CheckboxDisableLuaSandbox"),config.getBool("DisableLuaSandbox","false"));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelDisableLuaSandbox"),lang.getString("LuaDisableSecuritySandbox","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlMisc,"CheckboxDisableLuaSandbox"),config.getBool("DisableLuaSandbox","false"));
 
-	cegui_manager.setControlText(cegui_manager.getChildControl(ctl,"LabelAdvancedTranslation"),lang.getString("CustomTranslation","",false,true));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelAdvancedTranslation"),lang.getString("CustomTranslation","",false,true));
 
-	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctl,"CheckboxAdvancedTranslation"),false);
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlMisc,"CheckboxAdvancedTranslation"),false);
 
 	cegui_manager.setControlText("TabControl/__auto_TabPane__/Misc/GroupBoxAdvancedTranslation/__auto_contentpane__/LabelTransifexUsername",lang.getString("TransifexUserName","",false,true));
 	cegui_manager.setControlText("TabControl/__auto_TabPane__/Misc/GroupBoxAdvancedTranslation/__auto_contentpane__/EditboxTransifexUsername",config.getString("TranslationGetURLUser","<none>"));
@@ -310,7 +280,31 @@ void MenuStateOptions::setupCEGUIWidgetsText() {
 bool MenuStateOptions::EventCallback(CEGUI::Window *ctl, std::string name) {
 
 	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-	if(name == cegui_manager.getEventButtonClicked()) {
+	if(name == cegui_manager.getEventTabControlSelectionChanged()) {
+
+		CoreData &coreData				= CoreData::getInstance();
+		SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+		if(cegui_manager.isSelectedTabPage("TabControl", "Audio") == true) {
+			soundRenderer.playFx(coreData.getClickSoundA());
+			mainMenu->setState(new MenuStateOptionsSound(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
+		}
+		else if(cegui_manager.isSelectedTabPage("TabControl", "Keyboard") == true) {
+			soundRenderer.playFx(coreData.getClickSoundA());
+			mainMenu->setState(new MenuStateKeysetup(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
+		}
+		else if(cegui_manager.isSelectedTabPage("TabControl", "Network") == true) {
+			soundRenderer.playFx(coreData.getClickSoundA());
+			mainMenu->setState(new MenuStateOptionsNetwork(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
+		}
+		else if(cegui_manager.isSelectedTabPage("TabControl", "Video") == true) {
+			soundRenderer.playFx(coreData.getClickSoundA());
+			mainMenu->setState(new MenuStateOptionsGraphics(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
+		}
+
+		return true;
+	}
+	else if(name == cegui_manager.getEventButtonClicked()) {
 
 		if(cegui_manager.isControlMessageBoxOk(ctl) == true) {
 
@@ -802,20 +796,7 @@ void MenuStateOptions::setupTransifexUI() {
 }
 
 void MenuStateOptions::showMessageBox(const string &text, const string &header, bool toggle){
-//	if(!toggle){
-//		mainMessageBox.setEnabled(false);
-//	}
-//
-//	if(!mainMessageBox.getEnabled()){
-//		mainMessageBox.setText(text);
-//		mainMessageBox.setHeader(header);
-//		mainMessageBox.setEnabled(true);
-//	}
-//	else{
-//		mainMessageBox.setEnabled(false);
-//	}
 
-	// ---
 	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
 	if(cegui_manager.isMessageBoxShowing() == false) {
 		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
@@ -829,19 +810,6 @@ void MenuStateOptions::showMessageBox(const string &text, const string &header, 
 }
 
 void MenuStateOptions::showLuaMessageBox(const string &text, const string &header, bool toggle) {
-//	if(!toggle) {
-//		luaMessageBox.setEnabled(false);
-//	}
-//
-//	if(!luaMessageBox.getEnabled()){
-//		luaMessageBox.setText(text);
-//		luaMessageBox.setHeader(header);
-//		luaMessageBox.setEnabled(true);
-//	}
-//	else{
-//		luaMessageBox.setEnabled(false);
-//	}
-
 
 	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
 	if(cegui_manager.isMessageBoxShowing("TabControl/__auto_TabPane__/Misc/LuaMsgBox") == false) {
@@ -855,42 +823,9 @@ void MenuStateOptions::showLuaMessageBox(const string &text, const string &heade
 
 }
 
-void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
+void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton) { }
 
-//	Config &config= Config::getInstance();
-//	CoreData &coreData= CoreData::getInstance();
-//	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-//
-//	if(buttonKeyboardSetup.mouseClick(x, y)){
-//		soundRenderer.playFx(coreData.getClickSoundA());
-//		mainMenu->setState(new MenuStateKeysetup(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
-//		//showMessageBox("Not implemented yet", "Keyboard setup", false);
-//		return;
-//	}
-//	else if(buttonAudioSection.mouseClick(x, y)){
-//			soundRenderer.playFx(coreData.getClickSoundA());
-//			mainMenu->setState(new MenuStateOptionsSound(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
-//			return;
-//		}
-//	else if(buttonNetworkSettings.mouseClick(x, y)){
-//			soundRenderer.playFx(coreData.getClickSoundA());
-//			mainMenu->setState(new MenuStateOptionsNetwork(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
-//			return;
-//		}
-//	else if(buttonMiscSection.mouseClick(x, y)){
-//			soundRenderer.playFx(coreData.getClickSoundA());
-//			//mainMenu->setState(new MenuStateOptions(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
-//			return;
-//		}
-//	else if(buttonVideoSection.mouseClick(x, y)){
-//			soundRenderer.playFx(coreData.getClickSoundA());
-//			mainMenu->setState(new MenuStateOptionsGraphics(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
-//			return;
-//		}
-}
-
-void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
-}
+void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms) { }
 
 bool MenuStateOptions::isInSpecialKeyCaptureEvent() {
 	return false;
@@ -902,13 +837,6 @@ void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {}
 
 void MenuStateOptions::render(){
 	Renderer &renderer= Renderer::getInstance();
-
-//		renderer.renderButton(&buttonKeyboardSetup);
-//		renderer.renderButton(&buttonVideoSection);
-//		renderer.renderButton(&buttonAudioSection);
-//		renderer.renderButton(&buttonMiscSection);
-//		renderer.renderButton(&buttonNetworkSettings);
-//
 
 	renderer.renderConsole(&console,false,true);
 	if(program != NULL) program->renderProgramMsgBox();
