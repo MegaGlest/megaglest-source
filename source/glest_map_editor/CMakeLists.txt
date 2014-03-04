@@ -15,43 +15,30 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 	INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
 	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENGL_LIBRARY})
 
-	IF(NOT WIN32)
-		# It was noticed that when using MinGW gcc it is essential that 'core' is mentioned before 'base'.
-		FIND_PACKAGE(wxWidgets COMPONENTS core base gl REQUIRED)
+	# Instruct CMake to run moc automatically when needed.
+	set(CMAKE_AUTOMOC ON)
 
-		# wxWidgets include (this will do all the magic to configure everything)
-		include( ${wxWidgets_USE_FILE} )
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${wxWidgets_LIBRARIES})
-	ELSE()
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu-2.8-i586-mingw32msvc.dll.a)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu_gl-2.8-i586-mingw32msvc.dll.a)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwxpng-2.8-i586-mingw32msvc.a)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwxjpeg-2.8-i586-mingw32msvc.a)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwxtiff-2.8-i586-mingw32msvc.a)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwxzlib-2.8-i586-mingw32msvc.a)
+	#resources are here
+	set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/include/)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/wx/include/i586-mingw32msvc-msw-unicode-release-static-2.8)
-
-		SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
-				       ${PROJECT_SOURCE_DIR}/source/win32_deps/lib
-				       ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
-
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/include)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854/include)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/include)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/libogg-1.2.1/include)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/lua-5.1/src)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/jpeg-8b)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/lpng141)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/zlib-1.2.5)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.21.3/include)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/SDL-1.2.x/include)
-				       
-		link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/lib)
-		link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
+	# qt5
+	IF(USE_QT5)
+		find_package(Qt5Widgets REQUIRED)
+		#those decscribe the actual user interface
+		QT5_WRAP_UI(UIS_HDRS
+			main.ui
+			newmap.ui
+			advanced.ui
+			info.ui
+			switchsurfaces.ui
+		)
+		#contains all used icons
+		set(RESOURCE icons.qrc)
+		qt5_add_resources(RESOURCE_ADDED ${RESOURCE})
+	ELSE()#QT4
+	
 	ENDIF()
+
 
 	#########################################################################################
 	# megaglest map editor
@@ -131,7 +118,13 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 
 	SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
-	ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
+	ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES} ${UIS_HDRS} ${RESOURCE_ADDED})
+
+	IF(USE_QT5)
+		qt5_use_modules(${TARGET_NAME} Widgets Core Gui)
+	ELSE()#QT4
+	
+	ENDIF()
 	
 	SET(MG_STREFLOP "")
 	IF(WANT_STREFLOP)
