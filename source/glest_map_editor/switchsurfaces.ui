@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>257</width>
+    <height>97</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -172,11 +172,11 @@
    <hints>
     <hint type="sourcelabel">
      <x>226</x>
-     <y>285</y>
+     <y>82</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
-     <y>274</y>
+     <y>96</y>
     </hint>
    </hints>
   </connection>
@@ -187,12 +187,12 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>294</x>
-     <y>291</y>
+     <x>248</x>
+     <y>88</y>
     </hint>
     <hint type="destinationlabel">
-     <x>286</x>
-     <y>274</y>
+     <x>256</x>
+     <y>96</y>
     </hint>
    </hints>
   </connection>

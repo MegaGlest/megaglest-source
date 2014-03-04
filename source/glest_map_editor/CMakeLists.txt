@@ -15,30 +15,23 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 	INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
 	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENGL_LIBRARY})
 
-	# Instruct CMake to run moc automatically when needed.
+	#QT
 	set(CMAKE_AUTOMOC ON)
-
-	#resources are here
 	set(CMAKE_INCLUDE_CURRENT_DIR ON)
-
-	# qt5
-	IF(USE_QT5)
-		find_package(Qt5Widgets REQUIRED)
-		#those decscribe the actual user interface
-		QT5_WRAP_UI(UIS_HDRS
-			main.ui
-			newmap.ui
-			advanced.ui
-			info.ui
-			switchsurfaces.ui
-		)
-		#contains all used icons
-		set(RESOURCE icons.qrc)
-		qt5_add_resources(RESOURCE_ADDED ${RESOURCE})
-	ELSE()#QT4
+	FILE(GLOB UI_FILES_FROM_THIS_DIR *.ui)#those decscribe the actual user interface
+	FILE(GLOB QRC_FILES_FROM_THIS_DIR *.qrc)#contains all used icons
 	
+	IF(USE_QT5)#QT5
+		FIND_PACKAGE(Qt5Widgets REQUIRED)
+		QT5_WRAP_UI(UI_INCLUDE_FILES ${UI_FILES_FROM_THIS_DIR})
+		QT5_ADD_RESOURCES(UI_RESOURCES ${QRC_FILES_FROM_THIS_DIR})
+	ELSE()#QT4
+		FIND_PACKAGE(Qt4 REQUIRED)
+		QT4_WRAP_UI(UI_INCLUDE_FILES ${UI_FILES_FROM_THIS_DIR})
+		QT4_ADD_RESOURCES(UI_RESOURCES ${QRC_FILES_FROM_THIS_DIR})
+		INCLUDE(${QT_USE_FILE})
+		#ADD_DEFINITIONS(${QT_DEFINITIONS})
 	ENDIF()
-
 
 	#########################################################################################
 	# megaglest map editor
@@ -118,12 +111,12 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 
 	SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
-	ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES} ${UIS_HDRS} ${RESOURCE_ADDED})
+	ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES} ${UI_INCLUDE_FILES} ${UI_RESOURCES})
 
-	IF(USE_QT5)
+	IF(USE_QT5)#QT5
 		qt5_use_modules(${TARGET_NAME} Widgets Core Gui)
 	ELSE()#QT4
-	
+		TARGET_LINK_LIBRARIES(${TARGET_NAME} ${QT_LIBRARIES})
 	ENDIF()
 	
 	SET(MG_STREFLOP "")
