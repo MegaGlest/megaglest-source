@@ -58,7 +58,17 @@ string getGameReadWritePath(string lookupKey) {
 	{
 		ui->setupUi(this);
 		newmap = new NewMap();//instance of new map dialog
-		connect(ui->actionNew, SIGNAL(triggered()), newmap, SLOT(show()));//open dialog window
+		connect(ui->actionNew, SIGNAL(triggered()), newmap, SLOT(show()));//new map dialog window
+		connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openFile()));//open dialog window
+		connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(saveFile()));//save dialog window
+
+
+
+
+		renderer = new Renderer();
+		ui->graphicsView->setScene(renderer->getScene());
+		//ui->graphicsView->scale(5,5);
+		//ui->graphicsView->show();
 	}
 
 	MainWindow::~MainWindow()
@@ -79,6 +89,16 @@ string getGameReadWritePath(string lookupKey) {
 			break;
 		}
 	}
+
+	void MainWindow::openFile(){
+		QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"",tr("Mega&Glest Map(*.mgm *.gbm)"));
+		if(fileName != NULL){
+			this->renderer->open(fileName.toStdString());
+		}
+	}
+	void MainWindow::saveFile(){
+		QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),"",tr("MegaGlest Map(*.mgm);;Glest Map(*.gbm)"));
+	}
 //}// end namespace
 
 
@@ -87,5 +107,7 @@ int main(int argc, char *argv[]){
 	QApplication a(argc, argv);
 	MainWindow w;
 	w.show();
+
+	
 	return a.exec();
 }

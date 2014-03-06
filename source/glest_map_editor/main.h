@@ -20,7 +20,6 @@
 #include <string>
 #include <vector>
 
-#include "program.h"
 #include "util.h"
 #include "platform_common.h"
 
@@ -35,7 +34,11 @@ using namespace Shared::PlatformCommon;
 
 
 #include "newmap.h"
+#include "renderer.h"
 #include <QMainWindow>
+#include <QFileDialog>
+#include <QGraphicsScene>
+#include <QGraphicsRectItem>
 //namespace MapEditor {
 	namespace Ui {
 		class MainWindow;
@@ -54,7 +57,13 @@ using namespace Shared::PlatformCommon;
 
 	private:
 		Ui::MainWindow *ui;
+		Renderer *renderer;
 		NewMap *newmap;
+		QGraphicsScene *scene; 
+
+	private slots:
+		void openFile();
+		void saveFile();
 	};
 //}// end namespace
 
