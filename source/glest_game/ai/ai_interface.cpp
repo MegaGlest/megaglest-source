@@ -186,7 +186,7 @@ void AiInterfaceThread::execute() {
 AiInterface::AiInterface(Game &game, int factionIndex, int teamIndex,
 		int useStartLocation) : fp(NULL) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
+	//printf("AiInterface::AiInterface factionIndex=%d teamIndex=%d \n",factionIndex,teamIndex);
 	this->aiMutex = new Mutex(CODE_AT_LINE);
 	this->workerThread = NULL;
 	this->world= game.getWorld();

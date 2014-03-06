@@ -176,6 +176,7 @@ Game::Game() : ProgramState(NULL) {
 		framesNeededToWaitForServerMessage[i]=-1;
 	}
 	oldHeadlessAdmin=true;
+	oldNumberOfWinners=-1;
 	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
 	GAME_STATS_DUMP_INTERVAL = Config::getInstance().getInt("GameStatsDumpIntervalSeconds",intToStr(GAME_STATS_DUMP_INTERVAL).c_str());
 }
@@ -292,6 +293,8 @@ void Game::resetMembers() {
 		framesNeededToWaitForServerMessage[i]=-1;
 	}
 
+	oldHeadlessAdmin=true;
+	oldNumberOfWinners=-1;
 
 	fadeMusicMilliseconds = Config::getInstance().getInt("GameStartStopFadeSoundMilliseconds",intToStr(fadeMusicMilliseconds).c_str());
 	GAME_STATS_DUMP_INTERVAL = Config::getInstance().getInt("GameStatsDumpIntervalSeconds",intToStr(GAME_STATS_DUMP_INTERVAL).c_str());
@@ -1590,7 +1593,7 @@ void Game::init(bool initForPreviewOnly) {
 	gameStarted = true;
 
 	if(this->headlessServerMode == true) {
-		world.getStats()->setIsMasterserverMode(true);
+		world.getStats()->setIsHeadlessMode(true);
 
 		printf("New game has started...\n");
 	}
@@ -1779,6 +1782,7 @@ void Game::processNetworkSynchChecksIfRequired() {
 void Game::initAiInterfaces(bool enableServerControlledAI, bool isNetworkGame, NetworkRole role, bool headless, bool headlessAdmin){
 	deleteValues(aiInterfaces.begin(), aiInterfaces.end());
 
+	//printf("initAiInterfaces called\n");
 	std::vector<SlaveThreadControllerInterface *> slaveThreadList;
 	aiInterfaces.resize(world.getFactionCount());
 	for(int i=0; i < world.getFactionCount(); ++i) {
@@ -1826,26 +1830,41 @@ void Game::update() {
 		Chrono chrono;
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled) chrono.start();
 
-		// a) Updates non dependent on speed
-
-		// set game stats for host
-
-
 		bool enableServerControlledAI 	= this->gameSettings.getEnableServerControlledAI();
-
 		NetworkManager &networkManager	= NetworkManager::getInstance();
 		NetworkRole role 				= networkManager.getNetworkRole();
 		bool headlessAdmin             = isHeadlessAdmin();
-		if((oldHeadlessAdmin == false) && (headlessAdmin == true))
+		// Init AiInterfaces for headlessAdmins if game starts or current client was nominated as new headless
+		// softcoder please look at this, as this initialisation is very likely not correct .( titi )
+		if((headlessAdmin == true) && (oldHeadlessAdmin == false) )
 		{// I am headless admin now and I must initialize the aiInterfaces.
 			initAiInterfaces( enableServerControlledAI,  this->gameSettings.isNetworkGame(),  role,  this->headlessServerMode,  headlessAdmin);
+			//printf("titis init\n");
 		}
 		oldHeadlessAdmin = headlessAdmin;
 		if(role == nrServer) {
 			ServerInterface *server = NetworkManager::getInstance().getServerInterface(false);
 			if(server != NULL) {
+				if(this->headlessServerMode == true)
+					server->fillReceivedStats(world.getStats());
 				server->setGameStats(world.getStats());
 			}
+		} else if ((headlessAdmin == true)){
+			int currentNumberOfWinners=0;
+			for(int k = 0; k < world.getFactionCount(); ++k) {
+				if(this->getEndGameStats().getVictory(k)==true){
+					currentNumberOfWinners++;
+				}
+			}
+			//Whenever the win state of one Faction changes we need to send the stats to get proper end game stats. Else we send in cycle periods
+			if((currentNumberOfWinners!=oldNumberOfWinners) ||
+				(world.getFrameCount()
+						% (gameSettings.getNetworkFramePeriod() * 10 ) == 0)) {
+
+				ClientInterface *clientInterface = NetworkManager::getInstance().getClientInterface(false);
+				clientInterface->sendNetworkMessageGameStats(world.getStats());
+			}
+			oldNumberOfWinners=currentNumberOfWinners;
 		}
 
 		bool pendingQuitError = (quitPendingIndicator == true ||
@@ -5078,7 +5097,7 @@ Stats Game::getEndGameStats() {
 	endStats = *(world.getStats());
 	//NetworkManager &networkManager= NetworkManager::getInstance();
 	if (this->headlessServerMode == true) {
-		endStats.setIsMasterserverMode(true);
+		endStats.setIsHeadlessMode(true);
 	}
 	return endStats;
 }

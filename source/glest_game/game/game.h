@@ -219,6 +219,7 @@ private:
 	bool networkResumeGameForLaggedClientsRequested;
 
 	bool oldHeadlessAdmin;
+	int oldNumberOfWinners;
 
 public:
 	Game();

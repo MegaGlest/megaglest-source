@@ -844,7 +844,10 @@ bool Faction::getCpuControl(bool enableServerControlledAI,bool isNetworkGame, Ne
 	}
 	else {
 		if(isNetworkGame == true) {
-			if(role == nrServer || headlessAdmin == true) {
+			if(headlessAdmin == true){
+				result = getCpuControl();
+			}
+			else if(role == nrServer ) {
 				result = (control == ctCpuEasy ||control == ctCpu || control == ctCpuUltra || control == ctCpuMega);
 			}
 			else {

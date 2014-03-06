@@ -354,7 +354,7 @@ void BattleEnd::update() {
 	}
 	mouse2d= (mouse2d+1) % Renderer::maxMouse2dAnim;
 
-	if(this->stats.getIsMasterserverMode() == true) {
+	if(this->stats.getIsHeadlessMode() == true) {
 		if(program->getWantShutdownApplicationAfterGame() == true) {
 			program->setShutdownApplicationEnabled(true);
 			return;
@@ -367,7 +367,7 @@ void BattleEnd::update() {
 }
 
 void BattleEnd::render() {
-	if(this->stats.getIsMasterserverMode() == true) {
+	if(this->stats.getIsHeadlessMode() == true) {
 		return;
 	}
 	Renderer &renderer= Renderer::getInstance();
