@@ -18,7 +18,8 @@ class RenderTile{
 		void setHeight(int height);
 		void update();
 	private:
-		const int size;
+		static const QColor SURFACE[];
+		static const int SIZE;
 		Renderer* renderer;
 		void move(int column, int row);
 		QGraphicsRectItem *rect;

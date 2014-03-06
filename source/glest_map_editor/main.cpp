@@ -26,7 +26,7 @@ using namespace Shared::PlatformCommon;
 using namespace Glest::Game;
 using namespace std;
 
-namespace Glest { namespace Game {
+namespace Glest { namespace Game {//need that somehow for default path detection
 string getGameReadWritePath(string lookupKey) {
 	string path = "";
 	if(path == "" && getenv("GLESTHOME") != NULL) {
@@ -91,13 +91,19 @@ string getGameReadWritePath(string lookupKey) {
 	}
 
 	void MainWindow::openFile(){
-		QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),"",tr("Mega&Glest Map(*.mgm *.gbm)"));
+		Config &config = Config::getInstance();
+		string userData = config.getString("UserData_Root","");
+		string defaultPath = userData + "maps/";
+		QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),QString::fromStdString(defaultPath),tr("Mega&Glest Map(*.mgm *.gbm)"));
 		if(fileName != NULL){
 			this->renderer->open(fileName.toStdString());
 		}
 	}
 	void MainWindow::saveFile(){
-		QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),"",tr("MegaGlest Map(*.mgm);;Glest Map(*.gbm)"));
+		Config &config = Config::getInstance();
+		string userData = config.getString("UserData_Root","");
+		string defaultPath = userData + "maps/";
+		QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),QString::fromStdString(defaultPath),tr("MegaGlest Map(*.mgm);;Glest Map(*.gbm)"));
 	}
 //}// end namespace
 

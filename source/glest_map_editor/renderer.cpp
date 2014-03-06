@@ -23,6 +23,7 @@ void Renderer::open(string path){
 	this->map->loadFromFile(path);
 	if(this->width == this->map->getW() && this->height == this->map->getH()){
 		this->updateMap();
+		this->recalculateAll();
 	}else{
 		this->removeTiles();
 		this->width = this->map->getW();
