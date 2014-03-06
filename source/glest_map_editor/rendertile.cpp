@@ -7,10 +7,11 @@ const int RenderTile::SIZE = 6;
 
 //column and row are the position in tiles of the tile 
 RenderTile::RenderTile(QGraphicsScene *scene, Renderer *renderer, int column, int row){
+	//cout << "RenderTile" << endl;
 	this->renderer=renderer;
 	this->rect = scene->addRect( QRectF(0, 0, SIZE, SIZE) );//rect and lines are only moved together with setPos
 	this->water = new QGraphicsRectItem(0, 0, SIZE, SIZE, this->rect);
-	float objectSpace = SIZE/3;
+	float objectSpace = SIZE* 2/5;
 	this->object = new QGraphicsRectItem(objectSpace, objectSpace, SIZE-(2*objectSpace), SIZE-(2*objectSpace), this->rect);
 	//borders are extra items for pseudo 3D effect, we rarely show all of them, they have the rectangle as parent
 	this->leftLine = new QGraphicsLineItem(0,0,0,SIZE-1,this->rect);
@@ -37,6 +38,7 @@ RenderTile::RenderTile(QGraphicsScene *scene, Renderer *renderer, int column, in
 
 	this->move(column, row);
 	//this->recalculate();
+	//cout << "RenderTile done!" << endl;
 }
 
 RenderTile::~RenderTile(){
