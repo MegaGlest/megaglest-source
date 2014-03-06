@@ -23,6 +23,8 @@ class RenderTile{
 		Renderer* renderer;
 		void move(int column, int row);
 		QGraphicsRectItem *rect;
+		QGraphicsRectItem *water;
+		QGraphicsRectItem *object;
 		QGraphicsLineItem *topLine;
 		QGraphicsLineItem *rightLine;
 		QGraphicsLineItem *bottomLine;
