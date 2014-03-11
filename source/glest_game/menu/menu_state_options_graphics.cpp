@@ -40,6 +40,7 @@ namespace Glest{ namespace Game{
 // =====================================================
 MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *mainMenu, ProgramState **parentUI):
 	MenuState(program, mainMenu, "config") {
+
 	try {
 		containerName 			= "OptionsVideo";
 		this->parentUI 			= parentUI;
@@ -389,16 +390,12 @@ bool MenuStateOptionsGraphics::EventCallback(CEGUI::Window *ctl, std::string nam
 	}
 	else if(name == cegui_manager.getEventButtonClicked()) {
 
-		//printf("Line: %d mainMessageBoxState = %d\n",__LINE__,mainMessageBoxState);
-
 		if(cegui_manager.isControlMessageBoxOk(ctl,"TabControl/__auto_TabPane__/Video/MsgBox") == true) {
 
 			CoreData &coreData				= CoreData::getInstance();
 			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
 
 			soundRenderer.playFx(coreData.getClickSoundA());
-
-			//printf("Line: %d mainMessageBoxState = %d\n",__LINE__,mainMessageBoxState);
 
 			if(mainMessageBoxState == 1) {
 				mainMessageBoxState = 0;
@@ -417,8 +414,6 @@ bool MenuStateOptionsGraphics::EventCallback(CEGUI::Window *ctl, std::string nam
 
 			soundRenderer.playFx(coreData.getClickSoundA());
 
-			//printf("Line: %d mainMessageBoxState = %d\n",__LINE__,mainMessageBoxState);
-
 			if(mainMessageBoxState == 1) {
 				mainMessageBoxState = 0;
 				revertScreenMode();
@@ -428,8 +423,6 @@ bool MenuStateOptionsGraphics::EventCallback(CEGUI::Window *ctl, std::string nam
 			return true;
 		}
 		else if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Video/ButtonSave")) {
-
-			//printf("Line: %d mainMessageBoxState = %d\n",__LINE__,mainMessageBoxState);
 
 			CoreData &coreData				= CoreData::getInstance();
 			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
@@ -498,16 +491,12 @@ bool MenuStateOptionsGraphics::EventCallback(CEGUI::Window *ctl, std::string nam
 		}
 		else if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Video/ButtonReturn")) {
 
-			//printf("Line: %d mainMessageBoxState = %d\n",__LINE__,mainMessageBoxState);
-
 			DelayCallbackFunction pCB = &MenuStateOptionsGraphics::delayedCallbackFunctionReturn;
 			delayedCallbackList.push_back(pCB);
 
 			return true;
 		}
 		else if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Video/ButtonAutoConfig")) {
-
-			//printf("Line: %d mainMessageBoxState = %d\n",__LINE__,mainMessageBoxState);
 
 			CoreData &coreData				= CoreData::getInstance();
 			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
@@ -520,8 +509,8 @@ bool MenuStateOptionsGraphics::EventCallback(CEGUI::Window *ctl, std::string nam
 			return true;
 
 		}
-		printf("Line: %d mainMessageBoxState = %d\n",__LINE__,mainMessageBoxState);
-		cegui_manager.printDebugControlInfo(ctl);
+		//printf("Line: %d mainMessageBoxState = %d\n",__LINE__,mainMessageBoxState);
+		//cegui_manager.printDebugControlInfo(ctl);
 
 	}
 	else if(name == cegui_manager.getEventSpinnerValueChanged()) {

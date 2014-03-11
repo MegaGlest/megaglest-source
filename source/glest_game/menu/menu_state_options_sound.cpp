@@ -26,6 +26,8 @@
 #include "menu_state_options_sound.h"
 #include "string_utils.h"
 #include "metrics.h"
+#include "megaglest_cegui_manager.h"
+
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -35,138 +37,15 @@ namespace Glest{ namespace Game{
 // =====================================================
 // 	class MenuStateOptions
 // =====================================================
-MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMenu, ProgramState **parentUI):
-	MenuState(program, mainMenu, "config")
-{
+MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMenu, ProgramState **parentUI) :
+	MenuState(program, mainMenu, "config") {
+
 	try {
-		containerName = "OptionsSound";
-		this->parentUI=parentUI;
-		Lang &lang= Lang::getInstance();
-		Config &config= Config::getInstance();
+		containerName 	= "OptionsSound";
+		this->parentUI 	= parentUI;
 		this->console.setOnlyChatMessagesInStoredLines(false);
 
-		int leftLabelStart=50;
-		int leftColumnStart=leftLabelStart+280;
-		//int rightLabelStart=450;
-		//int rightColumnStart=rightLabelStart+280;
-		int buttonRowPos=50;
-		int buttonStartPos=170;
-		//int captionOffset=75;
-		//int currentLabelStart=leftLabelStart;
-		//int currentColumnStart=leftColumnStart;
-		//int currentLine=700;
-		int lineOffset=30;
-		int tabButtonWidth=200;
-		int tabButtonHeight=30;
-
-		mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
-		mainMessageBox.init(lang.getString("Ok"));
-		mainMessageBox.setEnabled(false);
-		mainMessageBoxState=0;
-
-		buttonAudioSection.registerGraphicComponent(containerName,"buttonAudioSection");
-		buttonAudioSection.init(0, 700,tabButtonWidth,tabButtonHeight+20);
-		buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-		buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-		buttonAudioSection.setText(lang.getString("Audio"));
-		// Video Section
-		buttonVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
-		buttonVideoSection.init(200, 720,tabButtonWidth,tabButtonHeight);
-		buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-		buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-		buttonVideoSection.setText(lang.getString("Video"));
-		//currentLine-=lineOffset;
-		//MiscSection
-		buttonMiscSection.registerGraphicComponent(containerName,"labelMiscSection");
-		buttonMiscSection.init(400, 720,tabButtonWidth,tabButtonHeight);
-		buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-		buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-		buttonMiscSection.setText(lang.getString("Misc"));
-		//NetworkSettings
-		buttonNetworkSettings.registerGraphicComponent(containerName,"labelNetworkSettingsSection");
-		buttonNetworkSettings.init(600, 720,tabButtonWidth,tabButtonHeight);
-		buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
-		buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-		buttonNetworkSettings.setText(lang.getString("Network"));
-
-		//KeyboardSetup
-		buttonKeyboardSetup.registerGraphicComponent(containerName,"buttonKeyboardSetup");
-		buttonKeyboardSetup.init(800, 720,tabButtonWidth,tabButtonHeight);
-		buttonKeyboardSetup.setFont(CoreData::getInstance().getMenuFontVeryBig());
-		buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-		buttonKeyboardSetup.setText(lang.getString("Keyboardsetup"));
-
-		int currentLine=650; // reset line pos
-		int currentLabelStart=leftLabelStart; // set to right side
-		int currentColumnStart=leftColumnStart; // set to right side
-
-		//soundboxes
-		labelSoundFactory.registerGraphicComponent(containerName,"labelSoundFactory");
-		labelSoundFactory.init(currentLabelStart, currentLine);
-		labelSoundFactory.setText(lang.getString("SoundAndMusic"));
-
-		listBoxSoundFactory.registerGraphicComponent(containerName,"listBoxSoundFactory");
-		listBoxSoundFactory.init(currentColumnStart, currentLine, 100);
-		listBoxSoundFactory.pushBackItem("None");
-		listBoxSoundFactory.pushBackItem("OpenAL");
-
-		listBoxSoundFactory.setSelectedItem(config.getString("FactorySound"));
-		currentLine-=lineOffset;
-
-		labelVolumeFx.registerGraphicComponent(containerName,"labelVolumeFx");
-		labelVolumeFx.init(currentLabelStart, currentLine);
-		labelVolumeFx.setText(lang.getString("FxVolume"));
-
-		listBoxVolumeFx.registerGraphicComponent(containerName,"listBoxVolumeFx");
-		listBoxVolumeFx.init(currentColumnStart, currentLine, 80);
-		currentLine-=lineOffset;
-
-		labelVolumeAmbient.registerGraphicComponent(containerName,"labelVolumeAmbient");
-		labelVolumeAmbient.init(currentLabelStart, currentLine);
-
-		listBoxVolumeAmbient.registerGraphicComponent(containerName,"listBoxVolumeAmbient");
-		listBoxVolumeAmbient.init(currentColumnStart, currentLine, 80);
-		labelVolumeAmbient.setText(lang.getString("AmbientVolume"));
-		currentLine-=lineOffset;
-
-		labelVolumeMusic.registerGraphicComponent(containerName,"labelVolumeMusic");
-		labelVolumeMusic.init(currentLabelStart, currentLine);
-
-		listBoxVolumeMusic.registerGraphicComponent(containerName,"listBoxVolumeMusic");
-		listBoxVolumeMusic.init(currentColumnStart, currentLine, 80);
-		labelVolumeMusic.setText(lang.getString("MusicVolume"));
-		//currentLine-=lineOffset;
-
-		for(int i=0; i<=100; i+=5){
-			listBoxVolumeFx.pushBackItem(intToStr(i));
-			listBoxVolumeAmbient.pushBackItem(intToStr(i));
-			listBoxVolumeMusic.pushBackItem(intToStr(i));
-		}
-		listBoxVolumeFx.setSelectedItem(intToStr(config.getInt("SoundVolumeFx")/5*5));
-		listBoxVolumeAmbient.setSelectedItem(intToStr(config.getInt("SoundVolumeAmbient")/5*5));
-		listBoxVolumeMusic.setSelectedItem(intToStr(config.getInt("SoundVolumeMusic")/5*5));
-
-		//currentLine-=lineOffset/2;
-
-
-
-		//////////////////////////////////////////////////////////////////
-		///////// RIGHT SIDE
-		//////////////////////////////////////////////////////////////////
-
-		//currentLine=700; // reset line pos
-		//currentLabelStart=rightLabelStart; // set to right side
-		//currentColumnStart=rightColumnStart; // set to right side
-
-
-		// buttons
-		buttonOk.registerGraphicComponent(containerName,"buttonOk");
-		buttonOk.init(buttonStartPos, buttonRowPos, 100);
-		buttonOk.setText(lang.getString("Save"));
-		buttonReturn.setText(lang.getString("Return"));
-
-		buttonReturn.registerGraphicComponent(containerName,"buttonAbort");
-		buttonReturn.init(buttonStartPos+110, buttonRowPos, 100);
+		setupCEGUIWidgets();
 
 		GraphicComponent::applyAllCustomProperties(containerName);
 	}
@@ -177,259 +56,281 @@ MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMen
 }
 
 void MenuStateOptionsSound::reloadUI() {
-	Lang &lang= Lang::getInstance();
 
 	console.resetFonts();
-	mainMessageBox.init(lang.getString("Ok"));
-
-	buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonAudioSection.setText(lang.getString("Audio"));
-
-	buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonVideoSection.setText(lang.getString("Video"));
-
-	buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonMiscSection.setText(lang.getString("Misc"));
-
-	buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonNetworkSettings.setText(lang.getString("Network"));
-
-	labelSoundFactory.setText(lang.getString("SoundAndMusic"));
-
-	std::vector<string> listboxData;
-	listboxData.push_back("None");
-	listboxData.push_back("OpenAL");
-
-	listBoxSoundFactory.setItems(listboxData);
-
-	labelVolumeFx.setText(lang.getString("FxVolume"));
-
-	labelVolumeAmbient.setText(lang.getString("AmbientVolume"));
-	labelVolumeMusic.setText(lang.getString("MusicVolume"));
-
-
-	listboxData.clear();
-
-	buttonOk.setText(lang.getString("Save"));
-	buttonReturn.setText(lang.getString("Return"));
-
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+
+	setupCEGUIWidgetsText();
+}
+
+void MenuStateOptionsSound::setupCEGUIWidgets() {
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+	cegui_manager.setCurrentLayout("OptionsMenuRoot.layout",containerName);
+
+	cegui_manager.loadLayoutFromFile("OptionsMenuAudio.layout");
+	cegui_manager.loadLayoutFromFile("OptionsMenuKeyboard.layout");;
+	cegui_manager.loadLayoutFromFile("OptionsMenuMisc.layout");
+	cegui_manager.loadLayoutFromFile("OptionsMenuNetwork.layout");
+	cegui_manager.loadLayoutFromFile("OptionsMenuVideo.layout");
+
+	setupCEGUIWidgetsText();
+
+	cegui_manager.setControlEventCallback(containerName, "TabControl",
+					cegui_manager.getEventTabControlSelectionChanged(), this);
+
+	cegui_manager.setControlEventCallback(containerName,
+			"TabControl/__auto_TabPane__/Audio/ButtonSave",
+			cegui_manager.getEventButtonClicked(), this);
+
+	cegui_manager.setControlEventCallback(containerName,
+			"TabControl/__auto_TabPane__/Audio/ButtonReturn",
+			cegui_manager.getEventButtonClicked(), this);
+
+	cegui_manager.subscribeMessageBoxEventClicks(containerName, this);
+	cegui_manager.subscribeMessageBoxEventClicks(containerName, this, "TabControl/__auto_TabPane__/Audio/MsgBox");
+}
+
+void MenuStateOptionsSound::setupCEGUIWidgetsText() {
+
+	Lang &lang		= Lang::getInstance();
+	Config &config	= Config::getInstance();
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.setCurrentLayout("OptionsMenuRoot.layout",containerName);
+
+	CEGUI::Window *ctlAudio 	= cegui_manager.loadLayoutFromFile("OptionsMenuAudio.layout");
+	CEGUI::Window *ctlKeyboard 	= cegui_manager.loadLayoutFromFile("OptionsMenuKeyboard.layout");
+	CEGUI::Window *ctlMisc 		= cegui_manager.loadLayoutFromFile("OptionsMenuMisc.layout");
+	CEGUI::Window *ctlNetwork 	= cegui_manager.loadLayoutFromFile("OptionsMenuNetwork.layout");
+	CEGUI::Window *ctlVideo 	= cegui_manager.loadLayoutFromFile("OptionsMenuVideo.layout");
+
+	cegui_manager.setControlText(ctlAudio,lang.getString("Audio","",false,true));
+	cegui_manager.setControlText(ctlKeyboard,lang.getString("Keyboardsetup","",false,true));
+	cegui_manager.setControlText(ctlMisc,lang.getString("Misc","",false,true));
+	cegui_manager.setControlText(ctlNetwork,lang.getString("Network","",false,true));
+	cegui_manager.setControlText(ctlVideo,lang.getString("Video","",false,true));
+
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Audio") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlAudio,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Keyboard") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlKeyboard,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Misc") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlMisc,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Network") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlNetwork,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Video") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlVideo,"",18);
+	}
+
+	cegui_manager.setSelectedTabPage("TabControl", "Audio");
+
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl/__auto_TabPane__/Audio"),"MsgBox") == false) {
+		cegui_manager.cloneMessageBoxControl("MsgBox", ctlAudio);
+	}
+
+	vector<string> soundDevices;
+	soundDevices.push_back("None");
+	soundDevices.push_back("OpenAL");
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlAudio,"LabelSoundDevice"),lang.getString("SoundAndMusic","",false,true));
+	cegui_manager.addItemsToComboBoxControl(
+			cegui_manager.getChildControl(ctlAudio,"ComboBoxSoundDevice"), soundDevices,true);
+	cegui_manager.setSelectedItemInComboBoxControl(
+			cegui_manager.getChildControl(ctlAudio,"ComboBoxSoundDevice"), config.getString("FactorySound"),true);
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlAudio,"ComboBoxSoundDevice"),config.getString("FactorySound"));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlAudio,"LabelSoundFxVolume"),lang.getString("FxVolume","",false,true));
+	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctlAudio,"SpinnerSoundFxVolume"),0,100,config.getInt("SoundVolumeFx"),5);
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlAudio,"LabelAmbientVolume"),lang.getString("AmbientVolume","",false,true));
+	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctlAudio,"SpinnerAmbientVolume"),0,100,config.getInt("SoundVolumeAmbient"),5);
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlAudio,"LabelMusicVolume"),lang.getString("MusicVolume","",false,true));
+	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctlAudio,"SpinnerMusicVolume"),0,100,config.getInt("SoundVolumeMusic"),5);
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlAudio,"ButtonSave"),lang.getString("Save","",false,true));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlAudio,"ButtonReturn"),lang.getString("Return","",false,true));
 }
 
 
-
-//void MenuStateOptionsSound::showMessageBox(const string &text, const string &header, bool toggle){
-//	if(!toggle){
-//		mainMessageBox.setEnabled(false);
-//	}
-//
-//	if(!mainMessageBox.getEnabled()){
-//		mainMessageBox.setText(text);
-//		mainMessageBox.setHeader(header);
-//		mainMessageBox.setEnabled(true);
-//	}
-//	else{
-//		mainMessageBox.setEnabled(false);
-//	}
-//}
-
-
-void MenuStateOptionsSound::mouseClick(int x, int y, MouseButton mouseButton){
-
-	//Config &config= Config::getInstance();
-	CoreData &coreData= CoreData::getInstance();
-	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-
-	if(mainMessageBox.getEnabled()) {
-		int button= 0;
-		if(mainMessageBox.mouseClick(x, y, button)) {
-			soundRenderer.playFx(coreData.getClickSoundA());
-			if(button == 0) {
-				if(mainMessageBoxState == 1) {
-					mainMessageBoxState=0;
-					mainMessageBox.setEnabled(false);
-					saveConfig();
-
-					Lang &lang= Lang::getInstance();
-					mainMessageBox.init(lang.getString("Ok"));
-					mainMenu->setState(new MenuStateOptions(program, mainMenu));
-				}
-				else {
-					mainMessageBox.setEnabled(false);
-
-					Lang &lang= Lang::getInstance();
-					mainMessageBox.init(lang.getString("Ok"));
-				}
-			}
-			else {
-				if(mainMessageBoxState == 1) {
-					mainMessageBoxState=0;
-					mainMessageBox.setEnabled(false);
-
-					Lang &lang= Lang::getInstance();
-					mainMessageBox.init(lang.getString("Ok"));
-
-
-					this->mainMenu->init();
-				}
-			}
+void MenuStateOptionsSound::callDelayedCallbacks() {
+	if(hasDelayedCallbacks() == true) {
+		for(unsigned int index = 0; index < delayedCallbackList.size(); ++index) {
+			DelayCallbackFunction pCB = delayedCallbackList[index];
+			(this->*pCB)();
 		}
-	}
-	else if(buttonOk.mouseClick(x, y)){
-		soundRenderer.playFx(coreData.getClickSoundA());
-		saveConfig();
-		//mainMenu->setState(new MenuStateOptions(program, mainMenu));
-		return;
-    }
-	else if(buttonReturn.mouseClick(x, y)){
-		soundRenderer.playFx(coreData.getClickSoundA());
-		if(this->parentUI != NULL) {
-			*this->parentUI = NULL;
-			delete *this->parentUI;
-		}
-		mainMenu->setState(new MenuStateRoot(program, mainMenu));
-		return;
-    }
-	else if(buttonKeyboardSetup.mouseClick(x, y)){
-		soundRenderer.playFx(coreData.getClickSoundA());
-		//mainMenu->setState(new MenuStateKeysetup(program, mainMenu)); // open keyboard shortcuts setup screen
-		//mainMenu->setState(new MenuStateOptionsGraphics(program, mainMenu)); // open keyboard shortcuts setup screen
-		//mainMenu->setState(new MenuStateOptionsNetwork(program, mainMenu)); // open keyboard shortcuts setup screen
-		mainMenu->setState(new MenuStateKeysetup(program, mainMenu)); // open keyboard shortcuts setup screen
-		//showMessageBox("Not implemented yet", "Keyboard setup", false);
-		return;
-	}
-	else if(buttonAudioSection.mouseClick(x, y)){ 
-			soundRenderer.playFx(coreData.getClickSoundA());
-			//mainMenu->setState(new MenuStateOptionsSound(program, mainMenu)); // open keyboard shortcuts setup screen
-			return;
-		}
-	else if(buttonNetworkSettings.mouseClick(x, y)){ 
-			soundRenderer.playFx(coreData.getClickSoundA());
-			mainMenu->setState(new MenuStateOptionsNetwork(program, mainMenu)); // open keyboard shortcuts setup screen
-			return;
-		}
-	else if(buttonMiscSection.mouseClick(x, y)){ 
-			soundRenderer.playFx(coreData.getClickSoundA());
-			mainMenu->setState(new MenuStateOptions(program, mainMenu)); // open keyboard shortcuts setup screen
-			return;
-		}
-	else if(buttonVideoSection.mouseClick(x, y)){ 
-			soundRenderer.playFx(coreData.getClickSoundA());
-			mainMenu->setState(new MenuStateOptionsGraphics(program, mainMenu)); // open keyboard shortcuts setup screen
-			return;
-		}
-	else
-	{
-		listBoxSoundFactory.mouseClick(x, y);
-		listBoxVolumeFx.mouseClick(x, y);
-		listBoxVolumeAmbient.mouseClick(x, y);
-		listBoxVolumeMusic.mouseClick(x, y);
 	}
 }
 
-void MenuStateOptionsSound::mouseMove(int x, int y, const MouseState *ms){
-	if (mainMessageBox.getEnabled()) {
-		mainMessageBox.mouseMove(x, y);
-	}
-	buttonOk.mouseMove(x, y);
-	buttonReturn.mouseMove(x, y);
-	buttonKeyboardSetup.mouseMove(x, y);
-	buttonAudioSection.mouseMove(x, y);
-	buttonNetworkSettings.mouseMove(x, y);
-	buttonMiscSection.mouseMove(x, y);
-	buttonVideoSection.mouseMove(x, y);
+void MenuStateOptionsSound::delayedCallbackFunctionSelectKeyboardTab() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
 
-	listBoxSoundFactory.mouseMove(x, y);
-	listBoxVolumeFx.mouseMove(x, y);
-	listBoxVolumeAmbient.mouseMove(x, y);
-	listBoxVolumeMusic.mouseMove(x, y);
+	soundRenderer.playFx(coreData.getClickSoundA());
+	mainMenu->setState(new MenuStateKeysetup(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
 }
 
-//bool MenuStateOptionsSound::isInSpecialKeyCaptureEvent() {
-//	return (activeInputLabel != NULL);
-//}
-//
-//void MenuStateOptionsSound::keyDown(SDL_KeyboardEvent key) {
-//	if(activeInputLabel != NULL) {
-//		keyDownEditLabel(key, &activeInputLabel);
-//	}
-//}
+void MenuStateOptionsSound::delayedCallbackFunctionSelectMiscTab() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	soundRenderer.playFx(coreData.getClickSoundA());
+	mainMenu->setState(new MenuStateOptions(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
+}
+
+void MenuStateOptionsSound::delayedCallbackFunctionSelectNetworkTab() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	soundRenderer.playFx(coreData.getClickSoundA());
+	mainMenu->setState(new MenuStateOptionsNetwork(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
+}
+
+void MenuStateOptionsSound::delayedCallbackFunctionSelectVideoTab() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	soundRenderer.playFx(coreData.getClickSoundA());
+	mainMenu->setState(new MenuStateOptionsGraphics(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
+}
+
+void MenuStateOptionsSound::delayedCallbackFunctionOk() {
+
+	mainMenu->setState(new MenuStateOptions(program, mainMenu));
+}
+
+void MenuStateOptionsSound::delayedCallbackFunctionReturn() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	soundRenderer.playFx(coreData.getClickSoundA());
+	if(this->parentUI != NULL) {
+		*this->parentUI = NULL;
+		delete *this->parentUI;
+	}
+	mainMenu->setState(new MenuStateRoot(program, mainMenu));
+}
+
+bool MenuStateOptionsSound::EventCallback(CEGUI::Window *ctl, std::string name) {
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	if(name == cegui_manager.getEventTabControlSelectionChanged()) {
+
+		if(cegui_manager.isSelectedTabPage("TabControl", "Keyboard") == true) {
+			DelayCallbackFunction pCB = &MenuStateOptionsSound::delayedCallbackFunctionSelectKeyboardTab;
+			delayedCallbackList.push_back(pCB);
+			return true;
+		}
+		else if(cegui_manager.isSelectedTabPage("TabControl", "Misc") == true) {
+			DelayCallbackFunction pCB = &MenuStateOptionsSound::delayedCallbackFunctionSelectMiscTab;
+			delayedCallbackList.push_back(pCB);
+			return true;
+		}
+		else if(cegui_manager.isSelectedTabPage("TabControl", "Network") == true) {
+			DelayCallbackFunction pCB = &MenuStateOptionsSound::delayedCallbackFunctionSelectNetworkTab;
+			delayedCallbackList.push_back(pCB);
+			return true;
+		}
+		else if(cegui_manager.isSelectedTabPage("TabControl", "Video") == true) {
+			DelayCallbackFunction pCB = &MenuStateOptionsSound::delayedCallbackFunctionSelectVideoTab;
+			delayedCallbackList.push_back(pCB);
+			return true;
+		}
+	}
+	else if(name == cegui_manager.getEventButtonClicked()) {
+
+		if(cegui_manager.isControlMessageBoxOk(ctl,"TabControl/__auto_TabPane__/Audio/MsgBox") == true) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundA());
+
+			cegui_manager.hideMessageBox("TabControl/__auto_TabPane__/Audio/MsgBox");
+			return true;
+		}
+		else if(cegui_manager.isControlMessageBoxCancel(ctl,"TabControl/__auto_TabPane__/Audio/MsgBox") == true) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundA());
+
+			cegui_manager.hideMessageBox("TabControl/__auto_TabPane__/Audio/MsgBox");
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Audio/ButtonSave")) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundA());
+			saveConfig();
+
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Audio/ButtonReturn")) {
+
+			DelayCallbackFunction pCB = &MenuStateOptionsSound::delayedCallbackFunctionReturn;
+			delayedCallbackList.push_back(pCB);
+
+			return true;
+		}
+		//printf("Line: %d\n",__LINE__);
+		//cegui_manager.printDebugControlInfo(ctl);
+	}
+
+	return false;
+}
+
+void MenuStateOptionsSound::mouseClick(int x, int y, MouseButton mouseButton) { }
+
+void MenuStateOptionsSound::mouseMove(int x, int y, const MouseState *ms) { }
 
 void MenuStateOptionsSound::keyPress(SDL_KeyboardEvent c) {
-//	if(activeInputLabel != NULL) {
-//	    //printf("[%d]\n",c); fflush(stdout);
-//		if( &labelPlayerName 	== activeInputLabel ||
-//			&labelTransifexUser == activeInputLabel ||
-//			&labelTransifexPwd == activeInputLabel ||
-//			&labelTransifexI18N == activeInputLabel) {
-//			keyPressEditLabel(c, &activeInputLabel);
-//		}
-//	}
-//	else {
-		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-		if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),c) == true) {
-			GraphicComponent::saveAllCustomProperties(containerName);
-			//Lang &lang= Lang::getInstance();
-			//console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
-		}
-//	}
+
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),c) == true) {
+		GraphicComponent::saveAllCustomProperties(containerName);
+	}
 }
 
-void MenuStateOptionsSound::render(){
-	Renderer &renderer= Renderer::getInstance();
+void MenuStateOptionsSound::render() {
 
-	if(mainMessageBox.getEnabled()){
-		renderer.renderMessageBox(&mainMessageBox);
-	}
-	else
-	{
-		renderer.renderButton(&buttonOk);
-		renderer.renderButton(&buttonReturn);
-		renderer.renderButton(&buttonKeyboardSetup);
-		renderer.renderButton(&buttonVideoSection);
-		renderer.renderButton(&buttonAudioSection);
-		renderer.renderButton(&buttonMiscSection);
-		renderer.renderButton(&buttonNetworkSettings);
-		renderer.renderListBox(&listBoxSoundFactory);
-		renderer.renderLabel(&labelSoundFactory);
-
-
-		renderer.renderListBox(&listBoxVolumeFx);
-		renderer.renderLabel(&labelVolumeFx);
-		renderer.renderListBox(&listBoxVolumeAmbient);
-		renderer.renderLabel(&labelVolumeAmbient);
-		renderer.renderListBox(&listBoxVolumeMusic);
-		renderer.renderLabel(&labelVolumeMusic);
-
-
-
-	}
-
+	Renderer &renderer = Renderer::getInstance();
 	renderer.renderConsole(&console,false,true);
+
 	if(program != NULL) program->renderProgramMsgBox();
 }
 
-void MenuStateOptionsSound::saveConfig(){
-	Config &config= Config::getInstance();
-	Lang &lang= Lang::getInstance();
-	setActiveInputLable(NULL);
+void MenuStateOptionsSound::saveConfig() {
 
-	config.setString("FactorySound", listBoxSoundFactory.getSelectedItem());
-	config.setString("SoundVolumeFx", listBoxVolumeFx.getSelectedItem());
-	config.setString("SoundVolumeAmbient", listBoxVolumeAmbient.getSelectedItem());
-	CoreData::getInstance().getMenuMusic()->setVolume(strToInt(listBoxVolumeMusic.getSelectedItem())/100.f);
-	config.setString("SoundVolumeMusic", listBoxVolumeMusic.getSelectedItem());
+	Config &config	= Config::getInstance();
+	Lang &lang		= Lang::getInstance();
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+
+	string selectedSoundDevice = cegui_manager.getSelectedItemFromComboBoxControl(
+				cegui_manager.getControl("TabControl/__auto_TabPane__/Audio/ComboBoxSoundDevice"));
+
+	config.setString("FactorySound", selectedSoundDevice);
+	config.setString("SoundVolumeFx", intToStr(cegui_manager.getSpinnerControlValue(
+			cegui_manager.getControl("TabControl/__auto_TabPane__/Audio/SpinnerSoundFxVolume"))));
+
+	config.setString("SoundVolumeAmbient", intToStr(cegui_manager.getSpinnerControlValue(
+			cegui_manager.getControl("TabControl/__auto_TabPane__/Audio/SpinnerAmbientVolume"))));
+
+	int musicVolume = cegui_manager.getSpinnerControlValue(
+				cegui_manager.getControl("TabControl/__auto_TabPane__/Audio/SpinnerMusicVolume"));
+	CoreData::getInstance().getMenuMusic()->setVolume(musicVolume / 100.f);
+	config.setString("SoundVolumeMusic", intToStr(musicVolume));
 
 	config.save();
-
-	if(config.getBool("DisableLuaSandbox","false") == true) {
-		LuaScript::setDisableSandbox(true);
-	}
 
     SoundRenderer &soundRenderer= SoundRenderer::getInstance();
     soundRenderer.stopAllSounds();
@@ -445,9 +346,6 @@ void MenuStateOptionsSound::saveConfig(){
 
 	Renderer::getInstance().loadConfig();
 	console.addLine(lang.getString("SettingsSaved"));
-}
-
-void MenuStateOptionsSound::setActiveInputLable(GraphicLabel *newLable) {
 }
 
 }}//end namespace

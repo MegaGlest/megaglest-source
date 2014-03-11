@@ -685,6 +685,7 @@ void MegaGlest_CEGUIManager::addItemsToComboBoxControl(CEGUI::Window *ctl, vecto
 	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
 	int previousItemCount = combobox->getItemCount();
 
+	combobox->resetList();
 	for(unsigned int index = 0; index < valueList.size(); ++index) {
 
 		string &value = valueList[index];
@@ -694,6 +695,9 @@ void MegaGlest_CEGUIManager::addItemsToComboBoxControl(CEGUI::Window *ctl, vecto
 }
 
 void MegaGlest_CEGUIManager::addItemsToComboBoxControl(CEGUI::Window *ctl, map<string,int> mapList, bool disableFormatting) {
+
+	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
+	combobox->resetList();
 
 	for(map<string,int>::iterator iterMap = mapList.begin();
 			iterMap != mapList.end(); ++iterMap) {
@@ -782,6 +786,7 @@ void MegaGlest_CEGUIManager::addItemsToListBoxControl(CEGUI::Window *ctl, vector
 	CEGUI::Listbox *listbox = static_cast<CEGUI::Listbox*>(ctl);
 	int previousItemCount = listbox->getItemCount();
 
+	listbox->resetList();
 	for(unsigned int index = 0; index < valueList.size(); ++index) {
 
 		string &value = valueList[index];
