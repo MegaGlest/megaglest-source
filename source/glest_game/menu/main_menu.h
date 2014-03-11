@@ -108,6 +108,9 @@ protected:
 
 protected:
 
+	virtual bool hasDelayedCallbacks() { return false; }
+	virtual void callDelayedCallbacks() {};
+
 	void setActiveInputLabel(GraphicLabel *newLabel, GraphicLabel **activeInputLabelPtr);
 	bool keyPressEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInputLabelPtr);
 	bool keyDownEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInputLabelPtr);
@@ -119,7 +122,8 @@ public:
 	virtual void mouseUp(int x, int y, const MouseButton mouseButton){};
 	virtual void mouseMove(int x, int y, const MouseState *mouseState)=0;
 	virtual void render()=0;
-	virtual void update(){};
+	virtual void update();
+
 	virtual void keyDown(SDL_KeyboardEvent key){};
 	virtual void keyPress(SDL_KeyboardEvent c){};
 	virtual void keyUp(SDL_KeyboardEvent key){};

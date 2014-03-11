@@ -52,7 +52,17 @@ public:
 
 	bool Event(const CEGUI::EventArgs &event) {
 		//printf("Line: %d this->name: %s\n",__LINE__,this->name.c_str());
-		return callback->EventCallback(this->ctl,this->name);
+
+		if(callback != NULL) {
+			//printf("Line: %d this->name: %s\n",__LINE__,this->name.c_str());
+
+			bool result = callback->EventCallback(this->ctl,this->name);
+			//printf("Line: %d this->name: %s\n",__LINE__,this->name.c_str());
+
+			return result;
+		}
+		//printf("Line: %d this->name: %s\n",__LINE__,this->name.c_str());
+		return false;
 	}
 
 	CEGUI::Event::Subscriber getSubscriber() {
@@ -398,6 +408,11 @@ string MegaGlest_CEGUIManager::getEventTabControlSelectionChanged() {
 	return result;
 }
 
+string MegaGlest_CEGUIManager::getEventSpinnerValueChanged() {
+	string result = CEGUI::Spinner::EventValueChanged.c_str();
+	return result;
+}
+
 void MegaGlest_CEGUIManager::addFont(string fontName, string fontFileName, float fontPointSize) {
 	string fontPath = extractDirectoryPathFromFile(fontFileName);
 	string fontFile = extractFileFromDirectoryPath(fontFileName);
@@ -505,6 +520,16 @@ void MegaGlest_CEGUIManager::displayMessageBox(string title, string text,
 	getMessageBoxRoot(rootMessageBoxFullName)->setVisible(true);
 }
 
+void MegaGlest_CEGUIManager::setMessageBoxButtonText(string buttonTextOk,
+		string buttonTextCancel, string rootMessageBoxFullName) {
+
+	CEGUI::Window *ctlMsg = getMessageBoxRoot(rootMessageBoxFullName)->getChild("MessageBox");
+	ctlMsg->getChild("ButtonOk")->setText((CEGUI::encoded_char*)buttonTextOk.c_str());
+	ctlMsg->getChild("ButtonCancel")->setText((CEGUI::encoded_char*)buttonTextCancel.c_str());
+
+	getMessageBoxRoot(rootMessageBoxFullName)->setVisible(true);
+}
+
 bool MegaGlest_CEGUIManager::isMessageBoxShowing(string rootMessageBoxFullName) {
 	return getMessageBoxRoot(rootMessageBoxFullName)->isVisible();
 }
@@ -529,8 +554,14 @@ bool MegaGlest_CEGUIManager::isControlMessageBoxOk(CEGUI::Window *ctl,string roo
 
 	if(getMessageBoxRoot(rootMessageBoxFullName)->isVisible() == true && ctl != NULL) {
 		CEGUI::Window *ctlOk = getMessageBoxRoot(rootMessageBoxFullName)->getChild("MessageBox")->getChild("ButtonOk");
+
+		//printDebugControlInfo(ctl);
+		//printDebugControlInfo(ctlOk);
+
 		result = (ctl == ctlOk);
+
 	}
+	//printf("isControlMessageBoxOk result = %d\n",result);
 	return result;
 }
 
@@ -817,6 +848,10 @@ void MegaGlest_CEGUIManager::setControlVisible(string controlName, bool visible)
 
 void MegaGlest_CEGUIManager::setControlVisible(CEGUI::Window *ctl, bool visible) {
 	ctl->setVisible(visible);
+}
+
+void MegaGlest_CEGUIManager::printDebugControlInfo(CEGUI::Window *ctl) {
+	printf("ctl [%p] name [%s]\n",ctl,ctl->getNamePath().c_str());
 }
 
 }}//end namespace

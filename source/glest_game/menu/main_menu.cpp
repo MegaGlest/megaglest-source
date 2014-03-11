@@ -350,6 +350,12 @@ MenuState::~MenuState() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+void MenuState::update() {
+	if(hasDelayedCallbacks() == true) {
+		callDelayedCallbacks();
+	}
+}
+
 void MenuState::consoleAddLine(string line) {
 	bool onlyWantChatMsgs = console.getOnlyChatMessagesInStoredLines();
 	if(onlyWantChatMsgs == true) {

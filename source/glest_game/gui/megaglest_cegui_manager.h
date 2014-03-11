@@ -98,6 +98,7 @@ public:
 	string getEventComboboxChangeAccepted();
 	string getEventCheckboxClicked();
 	string getEventTabControlSelectionChanged();
+	string getEventSpinnerValueChanged();
 
 	void subscribeEventClick(std::string containerName, CEGUI::Window *ctl,
 			std::string name, MegaGlest_CEGUIManagerBackInterface *cb);
@@ -112,6 +113,7 @@ public:
 	CEGUI::Window * cloneMessageBoxControl(string newMessageBoxControlName, CEGUI::Window *rootControlToAddTo=NULL);
 	void subscribeMessageBoxEventClicks(std::string containerName, MegaGlest_CEGUIManagerBackInterface *cb, string rootMessageBoxFullName="");
 	void displayMessageBox(string title, string text, string buttonTextOk, string buttonTextCancel, string rootMessageBoxFullName="");
+	void setMessageBoxButtonText(string buttonTextOk, string buttonTextCancel, string rootMessageBoxFullName="");
 	bool isMessageBoxShowing(string rootMessageBoxFullName="");
 	void hideMessageBox(string rootMessageBoxFullName="");
 	bool isControlMessageBoxOk(CEGUI::Window *ctl, string rootMessageBoxFullName="");
@@ -147,6 +149,8 @@ public:
 
 	void setCheckboxControlChecked(CEGUI::Window *ctl, bool checked, bool disableEventsTrigger=false);
 	bool getCheckboxControlChecked(CEGUI::Window *ctl);
+
+	void printDebugControlInfo(CEGUI::Window *ctl);
 };
 
 }} //end namespace

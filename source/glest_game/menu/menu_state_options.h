@@ -25,18 +25,19 @@ namespace Glest{ namespace Game{
 class MenuStateOptions: public MenuState, public MegaGlest_CEGUIManagerBackInterface {
 private:
 
-//	GraphicButton buttonKeyboardSetup; // configure the keyboard
-//	GraphicButton buttonVideoSection;
-//	GraphicButton buttonAudioSection;
-//	GraphicButton buttonMiscSection;
-//	GraphicButton buttonNetworkSettings;
-
 	int mainMessageBoxState;
 	int luaMessageBoxState;
 
 	map<string,string> languageList;
 
 	ProgramState **parentUI;
+
+	typedef void(MenuStateOptions::*DelayCallbackFunction)(void);
+	vector<DelayCallbackFunction> delayedCallbackList;
+
+protected:
+	virtual bool hasDelayedCallbacks() { return delayedCallbackList.empty() == false; }
+	virtual void callDelayedCallbacks();
 
 public:
 	MenuStateOptions(Program *program, MainMenu *mainMenu, ProgramState **parentUI=NULL);
@@ -51,6 +52,13 @@ public:
     virtual void reloadUI();
 
 private:
+
+    void delayedCallbackFunctionOk();
+    void delayedCallbackFunctionReturn();
+    void delayedCallbackFunctionSelectAudioTab();
+    void delayedCallbackFunctionSelectKeyboardTab();
+    void delayedCallbackFunctionSelectNetworkTab();
+    void delayedCallbackFunctionVideoTab();
 
 	void saveConfig();
 	void showMessageBox(const string &text, const string &header, bool toggle);

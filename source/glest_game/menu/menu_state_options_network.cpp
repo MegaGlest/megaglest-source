@@ -39,7 +39,7 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mai
 	MenuState(program, mainMenu, "config")
 {
 	try {
-		containerName = "Options";
+		containerName = "OptionsNetwork";
 		Lang &lang= Lang::getInstance();
 		Config &config= Config::getInstance();
 		this->parentUI=parentUI;

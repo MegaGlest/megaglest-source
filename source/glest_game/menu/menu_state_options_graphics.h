@@ -13,6 +13,7 @@
 #define _GLEST_GAME_MENUSTATEOPTIONS_GRAPHICS_H_
 
 #include "main_menu.h"
+#include "megaglest_cegui_manager.h"
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -21,76 +22,22 @@ namespace Glest{ namespace Game{
 // 	class MenuStateOptionsGraphics
 // ===============================
 
-class MenuStateOptionsGraphics: public MenuState{
+class MenuStateOptionsGraphics: public MenuState, public MegaGlest_CEGUIManagerBackInterface {
 private:
 
-	GraphicButton buttonOk;
-	GraphicButton buttonReturn;
-	GraphicButton buttonAutoConfig;
-	GraphicButton buttonVideoInfo;
-
-	GraphicButton buttonKeyboardSetup; // configure the keyboard
-	GraphicButton buttonVideoSection;
-	GraphicButton buttonAudioSection;
-	GraphicButton buttonMiscSection;
-	GraphicButton buttonNetworkSettings;
-
-	GraphicLabel labelShadows;
-	GraphicListBox listBoxShadows;
-	GraphicLabel labelFilter;
-	GraphicListBox listBoxFilter;
-	GraphicLabel labelTextures3D;
-	GraphicCheckBox checkBoxTextures3D;
-	GraphicLabel labelLights;
-	GraphicListBox listBoxLights;
-	GraphicLabel labelUnitParticles;
-	GraphicCheckBox checkBoxUnitParticles;
-
-	GraphicLabel labelTilesetParticles;
-	GraphicCheckBox checkBoxTilesetParticles;
-	GraphicLabel labelAnimatedTilesetObjects;
-	GraphicListBox listBoxAnimatedTilesetObjects;
-
-
-	GraphicLabel labelScreenModes;
-	GraphicListBox listBoxScreenModes;
 	vector<ModeInfo> modeInfos;
 
-	GraphicLabel labelFullscreenWindowed;
-	GraphicCheckBox checkBoxFullscreenWindowed;
-
-
-	GraphicLabel labelMapPreview;
-	GraphicCheckBox checkBoxMapPreview;
-
-	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
-
-	GraphicLabel labelEnableTextureCompression;
-	GraphicCheckBox checkBoxEnableTextureCompression;
-
-	GraphicLabel labelRainEffect;
-	GraphicLabel labelRainEffectSeparator;
-	GraphicCheckBox checkBoxRainEffect;
-	GraphicCheckBox checkBoxRainEffectMenu;
-
-	GraphicLabel labelGammaCorrection;
-	GraphicListBox listBoxGammaCorrection;
-
-	GraphicLabel labelShadowIntensity;
-	GraphicListBox listBoxShadowIntensity;
-
-	GraphicLabel labelShadowTextureSize;
-	GraphicListBox listBoxShadowTextureSize;
-
-	GraphicLabel labelVideos;
-	GraphicCheckBox checkBoxVideos;
-
-	GraphicLabel labelSelectionType;
-	GraphicListBox listBoxSelectionType;
 
 	ProgramState **parentUI;
 	time_t screenModeChangedTimer;
+
+	typedef void(MenuStateOptionsGraphics::*DelayCallbackFunction)(void);
+	vector<DelayCallbackFunction> delayedCallbackList;
+
+protected:
+	virtual bool hasDelayedCallbacks() { return delayedCallbackList.empty() == false; }
+	virtual void callDelayedCallbacks();
 
 public:
 	MenuStateOptionsGraphics(Program *program, MainMenu *mainMenu, ProgramState **parentUI=NULL);
@@ -98,20 +45,29 @@ public:
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void render();
-	//virtual void keyDown(SDL_KeyboardEvent key);
-    virtual void keyPress(SDL_KeyboardEvent c);
-    //virtual bool isInSpecialKeyCaptureEvent();
 
+    virtual void keyPress(SDL_KeyboardEvent c);
     virtual void reloadUI();
 
-
 private:
+
+    void delayedCallbackFunctionSelectAudioTab();
+    void delayedCallbackFunctionSelectKeyboardTab();
+    void delayedCallbackFunctionSelectMiscTab();
+    void delayedCallbackFunctionSelectNetworkTab();
+    void delayedCallbackFunctionReturn();
+
+
 	void saveConfig();
 	void setActiveInputLable(GraphicLabel* newLable);
 	void showMessageBox(const string &text, const string &header, bool toggle);
 	void revertScreenMode();
 	void setupTransifexUI();
 	virtual void update();
+
+	void setupCEGUIWidgetsText();
+	void setupCEGUIWidgets();
+	virtual bool EventCallback(CEGUI::Window *ctl, std::string name);
 };
 
 }}//end namespace

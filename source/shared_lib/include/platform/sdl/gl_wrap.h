@@ -36,6 +36,10 @@ using std::string;
 
 using Shared::Graphics::FontMetrics;
 
+namespace CEGUI {
+	class OpenGLRenderer;
+};
+
 namespace Shared{ namespace Platform{
 
 // =====================================================
@@ -46,6 +50,9 @@ class PlatformContextGl {
 protected:
 	SDL_Surface *icon;
 	SDL_Surface *screen;
+
+	bool isBootStrapped;
+	CEGUI::OpenGLRenderer *guiRenderer;
 
 public:
 	// Example values:
