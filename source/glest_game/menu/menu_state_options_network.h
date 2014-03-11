@@ -13,6 +13,7 @@
 #define _GLEST_GAME_MENUSTATEOPTIONS_NETWORK_H_
 
 #include "main_menu.h"
+#include "megaglest_cegui_manager.h"
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -21,68 +22,45 @@ namespace Glest{ namespace Game{
 // 	class MenuStateOptionsNetwork
 // ===============================
 
-class MenuStateOptionsNetwork: public MenuState{
+class MenuStateOptionsNetwork : public MenuState , public MegaGlest_CEGUIManagerBackInterface {
 private:
-
-	GraphicButton buttonOk;
-	GraphicButton buttonReturn;
-
-	GraphicButton buttonKeyboardSetup; // configure the keyboard
-	GraphicButton buttonVideoSection;
-	GraphicButton buttonAudioSection;
-	GraphicButton buttonMiscSection;
-	GraphicButton buttonNetworkSettings;
-
-
-	GraphicMessageBox mainMessageBox;
-	int mainMessageBoxState;
-
-	GraphicLabel labelExternalPort;
-	GraphicLabel labelServerPortLabel;
-
-	GraphicLabel labelPublishServerExternalPort;
-	GraphicListBox listBoxServerPort;
-
-	GraphicLabel labelEnableFTP;
-	GraphicCheckBox checkBoxEnableFTP;
-
-	GraphicLabel labelEnableFTPServer;
-	GraphicCheckBox checkBoxEnableFTPServer;
-
-	GraphicLabel labelFTPServerPortLabel;
-	GraphicLabel labelFTPServerPort;
-
-	GraphicLabel labelFTPServerDataPortsLabel;
-	GraphicLabel labelFTPServerDataPorts;
-
-	GraphicLabel labelEnableFTPServerInternetTilesetXfer;
-	GraphicCheckBox checkBoxEnableFTPServerInternetTilesetXfer;
-
-	GraphicLabel labelEnableFTPServerInternetTechtreeXfer;
-	GraphicCheckBox checkBoxEnableFTPServerInternetTechtreeXfer;
-
-	GraphicLabel labelEnablePrivacy;
-	GraphicCheckBox checkBoxEnablePrivacy;
 
 	ProgramState **parentUI;
 
+	typedef void(MenuStateOptionsNetwork::*DelayCallbackFunction)(void);
+	vector<DelayCallbackFunction> delayedCallbackList;
+
+protected:
+	virtual bool hasDelayedCallbacks() { return delayedCallbackList.empty() == false; }
+	virtual void callDelayedCallbacks();
+
 public:
+
 	MenuStateOptionsNetwork(Program *program, MainMenu *mainMenu, ProgramState **parentUI=NULL);
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void render();
-	//virtual void keyDown(SDL_KeyboardEvent key);
     virtual void keyPress(SDL_KeyboardEvent c);
-    //virtual bool isInSpecialKeyCaptureEvent();
 
     virtual void reloadUI();
 
 
 private:
 	void saveConfig();
-	void setActiveInputLable(GraphicLabel* newLable);
-	//void showMessageBox(const string &text, const string &header, bool toggle);
+
+	void delayedCallbackFunctionSelectAudioTab();
+	void delayedCallbackFunctionSelectKeyboardTab();
+    void delayedCallbackFunctionSelectMiscTab();
+    void delayedCallbackFunctionSelectVideoTab();
+    void delayedCallbackFunctionOk();
+    void delayedCallbackFunctionReturn();
+
+    void setupCEGUIWidgets();
+    void setupCEGUIWidgetsText();
+
+    virtual bool EventCallback(CEGUI::Window *ctl, std::string name);
+
 };
 
 }}//end namespace

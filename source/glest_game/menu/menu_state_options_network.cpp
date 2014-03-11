@@ -26,6 +26,8 @@
 #include "menu_state_options_sound.h"
 #include "string_utils.h"
 #include "metrics.h"
+#include "megaglest_cegui_manager.h"
+
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -35,194 +37,14 @@ namespace Glest{ namespace Game{
 // =====================================================
 // 	class MenuStateOptions
 // =====================================================
-MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mainMenu, ProgramState **parentUI):
-	MenuState(program, mainMenu, "config")
-{
+MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mainMenu, ProgramState **parentUI) :
+	MenuState(program, mainMenu, "config") {
 	try {
 		containerName = "OptionsNetwork";
-		Lang &lang= Lang::getInstance();
-		Config &config= Config::getInstance();
 		this->parentUI=parentUI;
 		this->console.setOnlyChatMessagesInStoredLines(false);
-		//modeinfos=list<ModeInfo> ();
-		int leftLabelStart=50;
-		int leftColumnStart=leftLabelStart+280;
-		//int rightLabelStart=450;
-		//int rightColumnStart=rightLabelStart+280;
-		int buttonRowPos=50;
-		int buttonStartPos=170;
-		//int captionOffset=75;
-		//int currentLabelStart=leftLabelStart;
-		//int currentColumnStart=leftColumnStart;
-		//int currentLine=700;
-		int lineOffset=30;
-		int tabButtonWidth=200;
-		int tabButtonHeight=30;
 
-		mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
-		mainMessageBox.init(lang.getString("Ok"));
-		mainMessageBox.setEnabled(false);
-		mainMessageBoxState=0;
-
-		buttonAudioSection.registerGraphicComponent(containerName,"buttonAudioSection");
-		buttonAudioSection.init(0, 720,tabButtonWidth,tabButtonHeight);
-		buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-		buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-		buttonAudioSection.setText(lang.getString("Audio"));
-		// Video Section
-		buttonVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
-		buttonVideoSection.init(200, 720,tabButtonWidth,tabButtonHeight);
-		buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-		buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-		buttonVideoSection.setText(lang.getString("Video"));
-		//currentLine-=lineOffset;
-		//MiscSection
-		buttonMiscSection.registerGraphicComponent(containerName,"labelMiscSection");
-		buttonMiscSection.init(400, 720,tabButtonWidth,tabButtonHeight);
-		buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-		buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-		buttonMiscSection.setText(lang.getString("Misc"));
-		//NetworkSettings
-		buttonNetworkSettings.registerGraphicComponent(containerName,"labelNetworkSettingsSection");
-		buttonNetworkSettings.init(600, 700,tabButtonWidth,tabButtonHeight+20);
-		buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
-		buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-		buttonNetworkSettings.setText(lang.getString("Network"));
-
-		//KeyboardSetup
-		buttonKeyboardSetup.registerGraphicComponent(containerName,"buttonKeyboardSetup");
-		buttonKeyboardSetup.init(800, 720,tabButtonWidth,tabButtonHeight);
-		buttonKeyboardSetup.setFont(CoreData::getInstance().getMenuFontVeryBig());
-		buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-		buttonKeyboardSetup.setText(lang.getString("Keyboardsetup"));
-
-		int currentLine=650; // reset line pos
-		int currentLabelStart=leftLabelStart; // set to right side
-		int currentColumnStart=leftColumnStart; // set to right side
-
-
-		// external server port
-		labelPublishServerExternalPort.registerGraphicComponent(containerName,"labelPublishServerExternalPort");
-		labelPublishServerExternalPort.init(currentLabelStart, currentLine, 150);
-		labelPublishServerExternalPort.setText(lang.getString("PublishServerExternalPort"));
-
-		labelExternalPort.init(currentColumnStart,currentLine);
-		string extPort= config.getString("PortExternal","not set");
-		if(extPort == "not set" || extPort == "0"){
-			extPort="   ---   ";
-		}
-		else{
-			extPort="!!! "+extPort+" !!!";
-		}
-		labelExternalPort.setText(extPort);
-
-		currentLine-=lineOffset;
-		// server port
-		labelServerPortLabel.registerGraphicComponent(containerName,"labelServerPortLabel");
-		labelServerPortLabel.init(currentLabelStart,currentLine);
-		labelServerPortLabel.setText(lang.getString("ServerPort"));
-
-		listBoxServerPort.registerGraphicComponent(containerName,"listBoxPublishServerExternalPort");
-		listBoxServerPort.init(currentColumnStart, currentLine, 170);
-
-		string portListString = config.getString("PortList",intToStr(GameConstants::serverPort).c_str());
-		std::vector<std::string> portList;
-		Tokenize(portListString,portList,",");
-
-		string currentPort=config.getString("PortServer", intToStr(GameConstants::serverPort).c_str());
-		int portSelectionIndex=0;
-		for(int idx = 0; idx < (int)portList.size(); idx++) {
-			if(portList[idx] != "" && IsNumeric(portList[idx].c_str(),false)) {
-				listBoxServerPort.pushBackItem(portList[idx]);
-				if(currentPort==portList[idx])
-				{
-					portSelectionIndex=idx;
-				}
-			}
-		}
-		listBoxServerPort.setSelectedItemIndex(portSelectionIndex);
-
-		currentLine-=lineOffset;
-		labelFTPServerPortLabel.registerGraphicComponent(containerName,"labelFTPServerPortLabel");
-		labelFTPServerPortLabel.init(currentLabelStart ,currentLine );
-		labelFTPServerPortLabel.setText(lang.getString("FTPServerPort"));
-
-		int FTPPort = config.getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
-		labelFTPServerPort.registerGraphicComponent(containerName,"labelFTPServerPort");
-		labelFTPServerPort.init(currentColumnStart ,currentLine );
-		labelFTPServerPort.setText(intToStr(FTPPort));
-		currentLine-=lineOffset;
-		labelFTPServerDataPortsLabel.registerGraphicComponent(containerName,"labelFTPServerDataPortsLabel");
-		labelFTPServerDataPortsLabel.init(currentLabelStart ,currentLine );
-		labelFTPServerDataPortsLabel.setText(lang.getString("FTPServerDataPort"));
-
-		char szBuf[8096]="";
-		snprintf(szBuf,8096,"%d - %d",FTPPort + 1, FTPPort + GameConstants::maxPlayers);
-
-		labelFTPServerDataPorts.registerGraphicComponent(containerName,"labelFTPServerDataPorts");
-		labelFTPServerDataPorts.init(currentColumnStart,currentLine );
-		labelFTPServerDataPorts.setText(szBuf);
-		currentLine-=lineOffset;
-		labelEnableFTPServer.registerGraphicComponent(containerName,"labelEnableFTPServer");
-		labelEnableFTPServer.init(currentLabelStart ,currentLine);
-		labelEnableFTPServer.setText(lang.getString("EnableFTPServer"));
-
-		checkBoxEnableFTPServer.registerGraphicComponent(containerName,"checkBoxEnableFTPServer");
-		checkBoxEnableFTPServer.init(currentColumnStart ,currentLine );
-		checkBoxEnableFTPServer.setValue(config.getBool("EnableFTPServer","true"));
-		currentLine-=lineOffset;
-		// FTP Config - start
-		labelEnableFTP.registerGraphicComponent(containerName,"labelEnableFTP");
-		labelEnableFTP.init(currentLabelStart ,currentLine);
-		labelEnableFTP.setText(lang.getString("EnableFTP"));
-
-		checkBoxEnableFTP.registerGraphicComponent(containerName,"checkBoxEnableFTP");
-		checkBoxEnableFTP.init(currentColumnStart ,currentLine );
-		checkBoxEnableFTP.setValue(config.getBool("EnableFTPXfer","true"));
-		currentLine-=lineOffset;
-
-		labelEnableFTPServerInternetTilesetXfer.registerGraphicComponent(containerName,"labelEnableFTPServerInternetTilesetXfer");
-		labelEnableFTPServerInternetTilesetXfer.init(currentLabelStart ,currentLine );
-		labelEnableFTPServerInternetTilesetXfer.setText(lang.getString("EnableFTPServerInternetTilesetXfer"));
-
-		checkBoxEnableFTPServerInternetTilesetXfer.registerGraphicComponent(containerName,"checkBoxEnableFTPServerInternetTilesetXfer");
-		checkBoxEnableFTPServerInternetTilesetXfer.init(currentColumnStart ,currentLine );
-		checkBoxEnableFTPServerInternetTilesetXfer.setValue(config.getBool("EnableFTPServerInternetTilesetXfer","true"));
-
-		currentLine-=lineOffset;
-
-		labelEnableFTPServerInternetTechtreeXfer.registerGraphicComponent(containerName,"labelEnableFTPServerInternetTechtreeXfer");
-		labelEnableFTPServerInternetTechtreeXfer.init(currentLabelStart ,currentLine );
-		labelEnableFTPServerInternetTechtreeXfer.setText(lang.getString("EnableFTPServerInternetTechtreeXfer"));
-
-		checkBoxEnableFTPServerInternetTechtreeXfer.registerGraphicComponent(containerName,"checkBoxEnableFTPServerInternetTechtreeXfer");
-		checkBoxEnableFTPServerInternetTechtreeXfer.init(currentColumnStart ,currentLine );
-		checkBoxEnableFTPServerInternetTechtreeXfer.setValue(config.getBool("EnableFTPServerInternetTechtreeXfer","true"));
-
-		currentLine-=lineOffset;
-
-
-		// FTP config end
-
-		// Privacy flag
-		labelEnablePrivacy.registerGraphicComponent(containerName,"labelEnablePrivacy");
-		labelEnablePrivacy.init(currentLabelStart ,currentLine);
-		labelEnablePrivacy.setText(lang.getString("PrivacyPlease"));
-
-		checkBoxEnablePrivacy.registerGraphicComponent(containerName,"checkBoxEnablePrivacy");
-		checkBoxEnablePrivacy.init(currentColumnStart ,currentLine );
-		checkBoxEnablePrivacy.setValue(config.getBool("PrivacyPlease","false"));
-		//currentLine-=lineOffset;
-		// end
-
-		// buttons
-		buttonOk.registerGraphicComponent(containerName,"buttonOk");
-		buttonOk.init(buttonStartPos, buttonRowPos, 100);
-		buttonOk.setText(lang.getString("Save"));
-		buttonReturn.setText(lang.getString("Return"));
-
-		buttonReturn.registerGraphicComponent(containerName,"buttonAbort");
-		buttonReturn.init(buttonStartPos+110, buttonRowPos, 100);
+		setupCEGUIWidgets();
 
 		GraphicComponent::applyAllCustomProperties(containerName);
 	}
@@ -233,271 +55,318 @@ MenuStateOptionsNetwork::MenuStateOptionsNetwork(Program *program, MainMenu *mai
 }
 
 void MenuStateOptionsNetwork::reloadUI() {
-	Lang &lang= Lang::getInstance();
 
 	console.resetFonts();
-	mainMessageBox.init(lang.getString("Ok"));
-
-	buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonAudioSection.setText(lang.getString("Audio"));
-
-	buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonVideoSection.setText(lang.getString("Video"));
-
-	buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonMiscSection.setText(lang.getString("Misc"));
-
-	buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
-	buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-	buttonNetworkSettings.setText(lang.getString("Network"));
-
-	std::vector<string> listboxData;
-	listboxData.push_back("None");
-	listboxData.push_back("OpenAL");
-
-	listboxData.clear();
-	listboxData.push_back("Bilinear");
-	listboxData.push_back("Trilinear");
-
-	listboxData.clear();
-	for (float f=0.0;f<2.1f;f=f+0.1f) {
-		listboxData.push_back(floatToStr(f));
-	}
-	listboxData.clear();
-	for(int i= 0; i<Renderer::sCount; ++i){
-		listboxData.push_back(lang.getString(Renderer::shadowsToStr(static_cast<Renderer::Shadows>(i))));
-	}
-
-
-	labelServerPortLabel.setText(lang.getString("ServerPort"));
-
-	labelPublishServerExternalPort.setText(lang.getString("PublishServerExternalPort"));
-
-	labelEnableFTP.setText(lang.getString("EnableFTP"));
-
-	labelEnableFTPServer.setText(lang.getString("EnableFTPServer"));
-
-	labelFTPServerPortLabel.setText(lang.getString("FTPServerPort"));
-
-	labelFTPServerDataPortsLabel.setText(lang.getString("FTPServerDataPort"));
-
-	labelEnableFTPServerInternetTilesetXfer.setText(lang.getString("EnableFTPServerInternetTilesetXfer"));
-
-	labelEnableFTPServerInternetTechtreeXfer.setText(lang.getString("EnableFTPServerInternetTechtreeXfer"));
-
-	labelEnablePrivacy.setText(lang.getString("PrivacyPlease"));
-
-	buttonOk.setText(lang.getString("Save"));
-	buttonReturn.setText(lang.getString("Return"));
-
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+
+	setupCEGUIWidgetsText();
 }
 
-//void MenuStateOptionsNetwork::showMessageBox(const string &text, const string &header, bool toggle){
-//	if(!toggle){
-//		mainMessageBox.setEnabled(false);
-//	}
-//
-//	if(!mainMessageBox.getEnabled()){
-//		mainMessageBox.setText(text);
-//		mainMessageBox.setHeader(header);
-//		mainMessageBox.setEnabled(true);
-//	}
-//	else{
-//		mainMessageBox.setEnabled(false);
-//	}
-//}
+void MenuStateOptionsNetwork::setupCEGUIWidgets() {
 
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+	cegui_manager.setCurrentLayout("OptionsMenuRoot.layout",containerName);
 
-void MenuStateOptionsNetwork::mouseClick(int x, int y, MouseButton mouseButton){
+	cegui_manager.loadLayoutFromFile("OptionsMenuAudio.layout");
+	cegui_manager.loadLayoutFromFile("OptionsMenuKeyboard.layout");;
+	cegui_manager.loadLayoutFromFile("OptionsMenuMisc.layout");
+	cegui_manager.loadLayoutFromFile("OptionsMenuNetwork.layout");
+	cegui_manager.loadLayoutFromFile("OptionsMenuVideo.layout");
 
-	//Config &config= Config::getInstance();
-	CoreData &coreData= CoreData::getInstance();
-	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+	setupCEGUIWidgetsText();
 
-	if(mainMessageBox.getEnabled()) {
-		int button= 0;
-		if(mainMessageBox.mouseClick(x, y, button)) {
-			soundRenderer.playFx(coreData.getClickSoundA());
-			if(button == 0) {
-				if(mainMessageBoxState == 1) {
-					mainMessageBoxState=0;
-					mainMessageBox.setEnabled(false);
-					saveConfig();
+	cegui_manager.setControlEventCallback(containerName, "TabControl",
+					cegui_manager.getEventTabControlSelectionChanged(), this);
 
-					Lang &lang= Lang::getInstance();
-					mainMessageBox.init(lang.getString("Ok"));
-					mainMenu->setState(new MenuStateOptions(program, mainMenu));
-				}
-				else {
-					mainMessageBox.setEnabled(false);
+	cegui_manager.setControlEventCallback(containerName,
+			"TabControl/__auto_TabPane__/Network/ButtonSave",
+			cegui_manager.getEventButtonClicked(), this);
 
-					Lang &lang= Lang::getInstance();
-					mainMessageBox.init(lang.getString("Ok"));
-				}
+	cegui_manager.setControlEventCallback(containerName,
+			"TabControl/__auto_TabPane__/Network/ButtonReturn",
+			cegui_manager.getEventButtonClicked(), this);
+
+	cegui_manager.setControlEventCallback(containerName,
+			"TabControl/__auto_TabPane__/Network/SpinnerServerPortNumber",
+			cegui_manager.getEventSpinnerValueChanged(), this);
+
+	cegui_manager.subscribeMessageBoxEventClicks(containerName, this);
+	cegui_manager.subscribeMessageBoxEventClicks(containerName, this, "TabControl/__auto_TabPane__/Network/MsgBox");
+}
+
+void MenuStateOptionsNetwork::setupCEGUIWidgetsText() {
+
+	Lang &lang		= Lang::getInstance();
+	Config &config	= Config::getInstance();
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.setCurrentLayout("OptionsMenuRoot.layout",containerName);
+
+	CEGUI::Window *ctlAudio 	= cegui_manager.loadLayoutFromFile("OptionsMenuAudio.layout");
+	CEGUI::Window *ctlKeyboard 	= cegui_manager.loadLayoutFromFile("OptionsMenuKeyboard.layout");
+	CEGUI::Window *ctlMisc 		= cegui_manager.loadLayoutFromFile("OptionsMenuMisc.layout");
+	CEGUI::Window *ctlNetwork 	= cegui_manager.loadLayoutFromFile("OptionsMenuNetwork.layout");
+	CEGUI::Window *ctlVideo 	= cegui_manager.loadLayoutFromFile("OptionsMenuVideo.layout");
+
+	cegui_manager.setControlText(ctlAudio,lang.getString("Audio","",false,true));
+	cegui_manager.setControlText(ctlKeyboard,lang.getString("Keyboardsetup","",false,true));
+	cegui_manager.setControlText(ctlMisc,lang.getString("Misc","",false,true));
+	cegui_manager.setControlText(ctlNetwork,lang.getString("Network","",false,true));
+	cegui_manager.setControlText(ctlVideo,lang.getString("Video","",false,true));
+
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Audio") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlAudio,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Keyboard") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlKeyboard,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Misc") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlMisc,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Network") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlNetwork,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Video") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlVideo,"",18);
+	}
+
+	cegui_manager.setSelectedTabPage("TabControl", "Network");
+
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl/__auto_TabPane__/Network"),"MsgBox") == false) {
+		cegui_manager.cloneMessageBoxControl("MsgBox", ctlNetwork);
+	}
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlNetwork,"LabelExternalPortNumber"),lang.getString("PublishServerExternalPort","",false,true));
+
+	string extPort= config.getString("PortExternal","not set");
+	if(extPort == "not set" || extPort == "0") {
+		extPort = "   ---   ";
+	}
+	else {
+		extPort = "!!! " + extPort + " !!!";
+	}
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlNetwork,"LabelExternalPortNumberValue"),extPort);
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlNetwork,"LabelServerPortNumber"),lang.getString("ServerPort","",false,true));
+
+	string portListString = config.getString("PortList",intToStr(GameConstants::serverPort).c_str());
+	std::vector<std::string> portList;
+	Tokenize(portListString,portList,",");
+
+	string currentPort = config.getString("PortServer", intToStr(GameConstants::serverPort).c_str());
+
+	int minPort = 9999999;
+	int maxPort = 0;
+	int selectedPort = 0;
+	for(unsigned int idx = 0; idx < portList.size(); idx++) {
+		if(portList[idx] != "" && IsNumeric(portList[idx].c_str(),false)) {
+			int curPortNumber = strToInt(portList[idx]);
+			minPort = min(minPort,curPortNumber);
+			maxPort = max(maxPort,curPortNumber);
+			if(currentPort == portList[idx]) {
+				selectedPort = curPortNumber;
 			}
-
 		}
 	}
-	else if(buttonOk.mouseClick(x, y)){
-		soundRenderer.playFx(coreData.getClickSoundA());
-		saveConfig();
-		//mainMenu->setState(new MenuStateOptions(program, mainMenu,this->parentUI));
-		return;
-    }
-	else if(buttonReturn.mouseClick(x, y)){
-		soundRenderer.playFx(coreData.getClickSoundA());
-		if(this->parentUI != NULL) {
-			*this->parentUI = NULL;
-			delete *this->parentUI;
+
+	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctlNetwork,"SpinnerServerPortNumber"),minPort,maxPort,selectedPort,1);
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlNetwork,"LabelFTPServerPortNumber"),lang.getString("FTPServerPort","",false,true));
+
+	int FTPPort = config.getInt("FTPServerPort",intToStr(ServerSocket::getFTPServerPort()).c_str());
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlNetwork,"LabelFTPServerPortNumberValue"),intToStr(FTPPort));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlNetwork,"LabelFTPServerDataPorts"),lang.getString("FTPServerDataPort","",false,true));
+
+	char szBuf[8096] = "";
+	snprintf(szBuf,8096,"%d - %d",FTPPort + 1, FTPPort + GameConstants::maxPlayers);
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlNetwork,"LabelFTPServerDataPortsValue"),szBuf);
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlNetwork,"LabelEnableFTPServer"),lang.getString("EnableFTPServer","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlNetwork,"CheckboxEnableFTPServer"),config.getBool("EnableFTPServer","true"));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlNetwork,"LabelEnableFTPFileXfer"),lang.getString("EnableFTP","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlNetwork,"CheckboxEnableFTPFileXfer"),config.getBool("EnableFTPXfer","true"));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlNetwork,"LabelEnableFTPTilesetFileXferInternet"),lang.getString("EnableFTPServerInternetTilesetXfer","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlNetwork,"CheckboxEnableFTPTilesetFileXferInternet"),config.getBool("EnableFTPServerInternetTilesetXfer","true"));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlNetwork,"LabelEnableFTPTechtreeFileXferInternet"),lang.getString("EnableFTPServerInternetTechtreeXfer","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlNetwork,"CheckboxEnableFTPTechtreeFileXferInternet"),config.getBool("EnableFTPServerInternetTechtreeXfer","true"));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlNetwork,"LabelEnablePrivacy"),lang.getString("PrivacyPlease","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlNetwork,"CheckboxEnablePrivacy"),config.getBool("PrivacyPlease","false"));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlNetwork,"ButtonSave"),lang.getString("Save","",false,true));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlNetwork,"ButtonReturn"),lang.getString("Return","",false,true));
+}
+
+
+void MenuStateOptionsNetwork::callDelayedCallbacks() {
+	if(hasDelayedCallbacks() == true) {
+		for(unsigned int index = 0; index < delayedCallbackList.size(); ++index) {
+			DelayCallbackFunction pCB = delayedCallbackList[index];
+			(this->*pCB)();
 		}
-		mainMenu->setState(new MenuStateRoot(program, mainMenu));
-		return;
-    }
-	else if(buttonAudioSection.mouseClick(x, y)){ 
-			soundRenderer.playFx(coreData.getClickSoundA());
-			mainMenu->setState(new MenuStateOptionsSound(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
-			return;
-		}
-	else if(buttonNetworkSettings.mouseClick(x, y)){ 
-			soundRenderer.playFx(coreData.getClickSoundA());
-			//mainMenu->setState(new MenuStateOptionsNetwork(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
-			return;
-		}
-	else if(buttonMiscSection.mouseClick(x, y)){ 
-			soundRenderer.playFx(coreData.getClickSoundA());
-			mainMenu->setState(new MenuStateOptions(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
-			return;
-		}
-	else if(buttonVideoSection.mouseClick(x, y)){ 
-			soundRenderer.playFx(coreData.getClickSoundA());
-			mainMenu->setState(new MenuStateOptionsGraphics(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
-			return;
-		}
-	else if(buttonKeyboardSetup.mouseClick(x, y)){
-		soundRenderer.playFx(coreData.getClickSoundA());
-		mainMenu->setState(new MenuStateKeysetup(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
-		//showMessageBox("Not implemented yet", "Keyboard setup", false);
-		return;
 	}
-	else
-	{
-		if(listBoxServerPort.mouseClick(x, y)){
-			int selectedPort=strToInt(listBoxServerPort.getSelectedItem());
-			if(selectedPort<10000){
-				selectedPort=GameConstants::serverPort;
+}
+
+void MenuStateOptionsNetwork::delayedCallbackFunctionSelectAudioTab() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	soundRenderer.playFx(coreData.getClickSoundA());
+	mainMenu->setState(new MenuStateOptionsSound(program, mainMenu,this->parentUI));
+}
+
+void MenuStateOptionsNetwork::delayedCallbackFunctionSelectKeyboardTab() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	soundRenderer.playFx(coreData.getClickSoundA());
+	mainMenu->setState(new MenuStateKeysetup(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
+}
+
+void MenuStateOptionsNetwork::delayedCallbackFunctionSelectMiscTab() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	soundRenderer.playFx(coreData.getClickSoundA());
+	mainMenu->setState(new MenuStateOptions(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
+}
+
+void MenuStateOptionsNetwork::delayedCallbackFunctionSelectVideoTab() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	soundRenderer.playFx(coreData.getClickSoundA());
+	mainMenu->setState(new MenuStateOptionsGraphics(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
+}
+
+void MenuStateOptionsNetwork::delayedCallbackFunctionOk() {
+
+	mainMenu->setState(new MenuStateOptions(program, mainMenu));
+}
+
+void MenuStateOptionsNetwork::delayedCallbackFunctionReturn() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	soundRenderer.playFx(coreData.getClickSoundA());
+	if(this->parentUI != NULL) {
+		*this->parentUI = NULL;
+		delete *this->parentUI;
+	}
+	mainMenu->setState(new MenuStateRoot(program, mainMenu));
+}
+
+bool MenuStateOptionsNetwork::EventCallback(CEGUI::Window *ctl, std::string name) {
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	if(name == cegui_manager.getEventTabControlSelectionChanged()) {
+
+		if(cegui_manager.isSelectedTabPage("TabControl", "Audio") == true) {
+			DelayCallbackFunction pCB = &MenuStateOptionsNetwork::delayedCallbackFunctionSelectAudioTab;
+			delayedCallbackList.push_back(pCB);
+			return true;
+		}
+		else if(cegui_manager.isSelectedTabPage("TabControl", "Keyboard") == true) {
+			DelayCallbackFunction pCB = &MenuStateOptionsNetwork::delayedCallbackFunctionSelectKeyboardTab;
+			delayedCallbackList.push_back(pCB);
+			return true;
+		}
+		else if(cegui_manager.isSelectedTabPage("TabControl", "Misc") == true) {
+			DelayCallbackFunction pCB = &MenuStateOptionsNetwork::delayedCallbackFunctionSelectMiscTab;
+			delayedCallbackList.push_back(pCB);
+			return true;
+		}
+		else if(cegui_manager.isSelectedTabPage("TabControl", "Video") == true) {
+			DelayCallbackFunction pCB = &MenuStateOptionsNetwork::delayedCallbackFunctionSelectVideoTab;
+			delayedCallbackList.push_back(pCB);
+			return true;
+		}
+	}
+	else if(name == cegui_manager.getEventButtonClicked()) {
+
+		if(cegui_manager.isControlMessageBoxOk(ctl,"TabControl/__auto_TabPane__/Network/MsgBox") == true) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundA());
+
+			cegui_manager.hideMessageBox("TabControl/__auto_TabPane__/Network/MsgBox");
+			return true;
+		}
+		else if(cegui_manager.isControlMessageBoxCancel(ctl,"TabControl/__auto_TabPane__/Network/MsgBox") == true) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundA());
+
+			cegui_manager.hideMessageBox("TabControl/__auto_TabPane__/Network/MsgBox");
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Network/ButtonSave")) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundA());
+			saveConfig();
+
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Network/ButtonReturn")) {
+
+			DelayCallbackFunction pCB = &MenuStateOptionsNetwork::delayedCallbackFunctionReturn;
+			delayedCallbackList.push_back(pCB);
+
+			return true;
+		}
+		//printf("Line: %d\n",__LINE__);
+		//cegui_manager.printDebugControlInfo(ctl);
+	}
+	else if(name == cegui_manager.getEventSpinnerValueChanged()) {
+		if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Network/SpinnerServerPortNumber")) {
+
+			int selectedPort = (int)cegui_manager.getSpinnerControlValue(
+					cegui_manager.getControl("TabControl/__auto_TabPane__/Network/SpinnerServerPortNumber"));
+
+			if(selectedPort < 10000) {
+				selectedPort = GameConstants::serverPort;
 			}
+			cegui_manager.setControlText(cegui_manager.getControl("TabControl/__auto_TabPane__/Network/LabelFTPServerPortNumberValue"),intToStr(selectedPort+1));
+
 			// use the following ports for ftp
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"%d - %d",selectedPort + 2, selectedPort + 1 + GameConstants::maxPlayers);
-			labelFTPServerPort.setText(intToStr(selectedPort+1));
-			labelFTPServerDataPorts.setText(szBuf);
+			cegui_manager.setControlText(cegui_manager.getControl("TabControl/__auto_TabPane__/Network/LabelFTPServerDataPortsValue"),szBuf);
+
+			return true;
 		}
-
-        checkBoxEnableFTP.mouseClick(x, y);
-        checkBoxEnableFTPServer.mouseClick(x, y);
-
-        checkBoxEnableFTPServerInternetTilesetXfer.mouseClick(x, y);
-        checkBoxEnableFTPServerInternetTechtreeXfer.mouseClick(x, y);
-
-        checkBoxEnablePrivacy.mouseClick(x, y);
-	}
-}
-
-void MenuStateOptionsNetwork::mouseMove(int x, int y, const MouseState *ms){
-	if (mainMessageBox.getEnabled()) {
-		mainMessageBox.mouseMove(x, y);
 	}
 
-	buttonOk.mouseMove(x, y);
-	buttonReturn.mouseMove(x, y);
-	buttonKeyboardSetup.mouseMove(x, y);
-	buttonAudioSection.mouseMove(x, y);
-	buttonNetworkSettings.mouseMove(x, y);
-	buttonMiscSection.mouseMove(x, y);
-	buttonVideoSection.mouseMove(x, y);
-	listBoxServerPort.mouseMove(x, y);
-	checkBoxEnableFTP.mouseMove(x, y);
-	checkBoxEnableFTPServer.mouseMove(x, y);
-    checkBoxEnableFTPServerInternetTilesetXfer.mouseMove(x, y);
-    checkBoxEnableFTPServerInternetTechtreeXfer.mouseMove(x, y);
-	checkBoxEnablePrivacy.mouseMove(x, y);
+	return false;
 }
 
-//bool MenuStateOptionsNetwork::isInSpecialKeyCaptureEvent() {
-//	return (activeInputLabel != NULL);
-//}
-//
-//void MenuStateOptionsNetwork::keyDown(SDL_KeyboardEvent key) {
-//	if(activeInputLabel != NULL) {
-//		keyDownEditLabel(key, &activeInputLabel);
-//	}
-//}
+
+void MenuStateOptionsNetwork::mouseClick(int x, int y, MouseButton mouseButton) { }
+
+void MenuStateOptionsNetwork::mouseMove(int x, int y, const MouseState *ms) { }
 
 void MenuStateOptionsNetwork::keyPress(SDL_KeyboardEvent c) {
-//	if(activeInputLabel != NULL) {
-//	    //printf("[%d]\n",c); fflush(stdout);
-//		if( &labelPlayerName 	== activeInputLabel ||
-//			&labelTransifexUser == activeInputLabel ||
-//			&labelTransifexPwd == activeInputLabel ||
-//			&labelTransifexI18N == activeInputLabel) {
-//			keyPressEditLabel(c, &activeInputLabel);
-//		}
-//	}
-//	else {
-		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-		if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),c) == true) {
-			GraphicComponent::saveAllCustomProperties(containerName);
-			//Lang &lang= Lang::getInstance();
-			//console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
-		}
-//	}
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),c) == true) {
+		GraphicComponent::saveAllCustomProperties(containerName);
+	}
 }
 
-void MenuStateOptionsNetwork::render(){
+void MenuStateOptionsNetwork::render() {
+
 	Renderer &renderer= Renderer::getInstance();
-
-	if(mainMessageBox.getEnabled()){
-		renderer.renderMessageBox(&mainMessageBox);
-	}
-	else
-	{
-		renderer.renderButton(&buttonOk);
-		renderer.renderButton(&buttonReturn);
-		renderer.renderButton(&buttonKeyboardSetup);
-		renderer.renderButton(&buttonVideoSection);
-		renderer.renderButton(&buttonAudioSection);
-		renderer.renderButton(&buttonMiscSection);
-		renderer.renderButton(&buttonNetworkSettings);
-		renderer.renderLabel(&labelServerPortLabel);
-		renderer.renderLabel(&labelExternalPort);
-		renderer.renderLabel(&labelPublishServerExternalPort);
-		renderer.renderListBox(&listBoxServerPort);
-
-
-        renderer.renderLabel(&labelEnableFTP);
-        renderer.renderCheckBox(&checkBoxEnableFTP);
-
-        renderer.renderLabel(&labelEnableFTPServer);
-        renderer.renderCheckBox(&checkBoxEnableFTPServer);
-
-        renderer.renderLabel(&labelFTPServerPortLabel);
-        renderer.renderLabel(&labelFTPServerPort);
-        renderer.renderLabel(&labelFTPServerDataPortsLabel);
-        renderer.renderLabel(&labelFTPServerDataPorts);
-
-        renderer.renderLabel(&labelEnableFTPServerInternetTilesetXfer);
-        renderer.renderCheckBox(&checkBoxEnableFTPServerInternetTilesetXfer);
-        renderer.renderLabel(&labelEnableFTPServerInternetTechtreeXfer);
-        renderer.renderCheckBox(&checkBoxEnableFTPServerInternetTechtreeXfer);
-
-        renderer.renderLabel(&labelEnablePrivacy);
-        renderer.renderCheckBox(&checkBoxEnablePrivacy);
-
-	}
 
 	renderer.renderConsole(&console,false,true);
 	if(program != NULL) program->renderProgramMsgBox();
@@ -506,20 +375,26 @@ void MenuStateOptionsNetwork::render(){
 void MenuStateOptionsNetwork::saveConfig(){
 	Config &config= Config::getInstance();
 	Lang &lang= Lang::getInstance();
-	setActiveInputLable(NULL);
-
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
 
 	lang.loadGameStrings(config.getString("Lang"));
 
-	config.setString("PortServer", listBoxServerPort.getSelectedItem());
+	config.setInt("PortServer", (int)cegui_manager.getSpinnerControlValue(
+			cegui_manager.getControl("TabControl/__auto_TabPane__/Network/SpinnerServerPortNumber")));
 	config.setInt("FTPServerPort",config.getInt("PortServer")+1);
-    config.setBool("EnableFTPXfer", checkBoxEnableFTP.getValue());
-    config.setBool("EnableFTPServer", checkBoxEnableFTPServer.getValue());
 
-    config.setBool("EnableFTPServerInternetTilesetXfer", checkBoxEnableFTPServerInternetTilesetXfer.getValue());
-    config.setBool("EnableFTPServerInternetTechtreeXfer", checkBoxEnableFTPServerInternetTechtreeXfer.getValue());
+    config.setBool("EnableFTPXfer", cegui_manager.getCheckboxControlChecked(
+			cegui_manager.getControl("TabControl/__auto_TabPane__/Network/CheckboxEnableFTPFileXfer")));
+    config.setBool("EnableFTPServer", cegui_manager.getCheckboxControlChecked(
+			cegui_manager.getControl("TabControl/__auto_TabPane__/Network/CheckboxEnableFTPServer")));
 
-    config.setBool("PrivacyPlease", checkBoxEnablePrivacy.getValue());
+    config.setBool("EnableFTPServerInternetTilesetXfer", cegui_manager.getCheckboxControlChecked(
+			cegui_manager.getControl("TabControl/__auto_TabPane__/Network/CheckboxEnableFTPTilesetFileXferInternet")));
+    config.setBool("EnableFTPServerInternetTechtreeXfer", cegui_manager.getCheckboxControlChecked(
+			cegui_manager.getControl("TabControl/__auto_TabPane__/Network/CheckboxEnableFTPTechtreeFileXferInternet")));
+
+    config.setBool("PrivacyPlease", cegui_manager.getCheckboxControlChecked(
+			cegui_manager.getControl("TabControl/__auto_TabPane__/Network/CheckboxEnablePrivacy")));
 
 	config.save();
 
@@ -537,9 +412,6 @@ void MenuStateOptionsNetwork::saveConfig(){
 
 	Renderer::getInstance().loadConfig();
 	console.addLine(lang.getString("SettingsSaved"));
-}
-
-void MenuStateOptionsNetwork::setActiveInputLable(GraphicLabel *newLable) {
 }
 
 }}//end namespace

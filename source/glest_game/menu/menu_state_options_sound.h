@@ -47,14 +47,14 @@ public:
 
 private:
 
+    void saveConfig();
+
     void delayedCallbackFunctionSelectKeyboardTab();
     void delayedCallbackFunctionSelectMiscTab();
     void delayedCallbackFunctionSelectNetworkTab();
     void delayedCallbackFunctionSelectVideoTab();
     void delayedCallbackFunctionOk();
     void delayedCallbackFunctionReturn();
-
-    void saveConfig();
 
     void setupCEGUIWidgets();
     void setupCEGUIWidgetsText();
