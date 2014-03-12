@@ -321,6 +321,9 @@ void MenuStateOptionsGraphics::delayedCallbackFunctionReturn() {
 	CoreData &coreData				= CoreData::getInstance();
 	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
 
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+
 	soundRenderer.playFx(coreData.getClickSoundA());
 	if(this->parentUI != NULL) {
 		*this->parentUI = NULL;
@@ -334,6 +337,9 @@ void MenuStateOptionsGraphics::delayedCallbackFunctionSelectAudioTab() {
 	CoreData &coreData				= CoreData::getInstance();
 	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
 
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+
 	soundRenderer.playFx(coreData.getClickSoundA());
 	mainMenu->setState(new MenuStateOptionsSound(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
 }
@@ -341,6 +347,9 @@ void MenuStateOptionsGraphics::delayedCallbackFunctionSelectAudioTab() {
 void MenuStateOptionsGraphics::delayedCallbackFunctionSelectKeyboardTab() {
 	CoreData &coreData				= CoreData::getInstance();
 	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
 
 	soundRenderer.playFx(coreData.getClickSoundA());
 	mainMenu->setState(new MenuStateKeysetup(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
@@ -350,6 +359,9 @@ void MenuStateOptionsGraphics::delayedCallbackFunctionSelectMiscTab() {
 	CoreData &coreData				= CoreData::getInstance();
 	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
 
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+
 	soundRenderer.playFx(coreData.getClickSoundA());
 	mainMenu->setState(new MenuStateOptions(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
 }
@@ -357,6 +369,9 @@ void MenuStateOptionsGraphics::delayedCallbackFunctionSelectMiscTab() {
 void MenuStateOptionsGraphics::delayedCallbackFunctionSelectNetworkTab() {
 	CoreData &coreData				= CoreData::getInstance();
 	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
 
 	soundRenderer.playFx(coreData.getClickSoundA());
 	mainMenu->setState(new MenuStateOptionsNetwork(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
@@ -387,6 +402,7 @@ bool MenuStateOptionsGraphics::EventCallback(CEGUI::Window *ctl, std::string nam
 			delayedCallbackList.push_back(pCB);
 			return true;
 		}
+		return true;
 	}
 	else if(name == cegui_manager.getEventButtonClicked()) {
 

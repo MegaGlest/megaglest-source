@@ -172,6 +172,9 @@ void MenuStateOptionsSound::delayedCallbackFunctionSelectKeyboardTab() {
 	CoreData &coreData				= CoreData::getInstance();
 	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
 
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+
 	soundRenderer.playFx(coreData.getClickSoundA());
 	mainMenu->setState(new MenuStateKeysetup(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
 }
@@ -179,6 +182,9 @@ void MenuStateOptionsSound::delayedCallbackFunctionSelectKeyboardTab() {
 void MenuStateOptionsSound::delayedCallbackFunctionSelectMiscTab() {
 	CoreData &coreData				= CoreData::getInstance();
 	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
 
 	soundRenderer.playFx(coreData.getClickSoundA());
 	mainMenu->setState(new MenuStateOptions(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
@@ -188,6 +194,9 @@ void MenuStateOptionsSound::delayedCallbackFunctionSelectNetworkTab() {
 	CoreData &coreData				= CoreData::getInstance();
 	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
 
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+
 	soundRenderer.playFx(coreData.getClickSoundA());
 	mainMenu->setState(new MenuStateOptionsNetwork(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
 }
@@ -196,11 +205,17 @@ void MenuStateOptionsSound::delayedCallbackFunctionSelectVideoTab() {
 	CoreData &coreData				= CoreData::getInstance();
 	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
 
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+
 	soundRenderer.playFx(coreData.getClickSoundA());
 	mainMenu->setState(new MenuStateOptionsGraphics(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
 }
 
 void MenuStateOptionsSound::delayedCallbackFunctionOk() {
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
 
 	mainMenu->setState(new MenuStateOptions(program, mainMenu));
 }
@@ -208,6 +223,9 @@ void MenuStateOptionsSound::delayedCallbackFunctionOk() {
 void MenuStateOptionsSound::delayedCallbackFunctionReturn() {
 	CoreData &coreData				= CoreData::getInstance();
 	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
 
 	soundRenderer.playFx(coreData.getClickSoundA());
 	if(this->parentUI != NULL) {
@@ -225,23 +243,20 @@ bool MenuStateOptionsSound::EventCallback(CEGUI::Window *ctl, std::string name) 
 		if(cegui_manager.isSelectedTabPage("TabControl", "Keyboard") == true) {
 			DelayCallbackFunction pCB = &MenuStateOptionsSound::delayedCallbackFunctionSelectKeyboardTab;
 			delayedCallbackList.push_back(pCB);
-			return true;
 		}
 		else if(cegui_manager.isSelectedTabPage("TabControl", "Misc") == true) {
 			DelayCallbackFunction pCB = &MenuStateOptionsSound::delayedCallbackFunctionSelectMiscTab;
 			delayedCallbackList.push_back(pCB);
-			return true;
 		}
 		else if(cegui_manager.isSelectedTabPage("TabControl", "Network") == true) {
 			DelayCallbackFunction pCB = &MenuStateOptionsSound::delayedCallbackFunctionSelectNetworkTab;
 			delayedCallbackList.push_back(pCB);
-			return true;
 		}
 		else if(cegui_manager.isSelectedTabPage("TabControl", "Video") == true) {
 			DelayCallbackFunction pCB = &MenuStateOptionsSound::delayedCallbackFunctionSelectVideoTab;
 			delayedCallbackList.push_back(pCB);
-			return true;
 		}
+		return true;
 	}
 	else if(name == cegui_manager.getEventButtonClicked()) {
 

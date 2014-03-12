@@ -14,6 +14,7 @@
 
 #include "main_menu.h"
 #include "server_line.h"
+#include "megaglest_cegui_manager.h"
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -24,46 +25,25 @@ namespace Glest{ namespace Game{
 typedef vector<GraphicButton*> UserButtons;
 typedef vector<GraphicLabel*> GraphicLabels;
 
-class MenuStateKeysetup: public MenuState {
+class MenuStateKeysetup: public MenuState, public MegaGlest_CEGUIManagerBackInterface {
 
 private:
 
-	GraphicButton buttonOk;
-	GraphicButton buttonDefaults;
-	GraphicButton buttonReturn;
-
-	GraphicButton buttonKeyboardSetup; // configure the keyboard
-	GraphicButton buttonVideoSection;
-	GraphicButton buttonAudioSection;
-	GraphicButton buttonMiscSection;
-	GraphicButton buttonNetworkSettings;
-
-	GraphicLabel labelTitle;
-
-	GraphicScrollBar keyScrollBar;
-	UserButtons keyButtons;
-	GraphicLabels labels;
-	int keyButtonsToRender;
-	int keyButtonsYBase;
-	int keyButtonsXBase;
-	int keyButtonsLineHeight;
-	int	keyButtonsHeight;
-	int keyButtonsWidth;
-
-	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
 	vector<pair<string,string> > mergedProperties;
 	vector<pair<string,string> > masterProperties;
 	vector<pair<string,string> > userProperties;
 
-	int hotkeyIndex;
-	//char hotkeyChar;
 	SDLKey hotkeyChar;
 
-	GraphicLabel labelTestTitle;
-	GraphicLabel labelTestValue;
-
 	ProgramState **parentUI;
+
+	typedef void(MenuStateKeysetup::*DelayCallbackFunction)(void);
+	vector<DelayCallbackFunction> delayedCallbackList;
+
+protected:
+	virtual bool hasDelayedCallbacks() { return delayedCallbackList.empty() == false; }
+	virtual void callDelayedCallbacks();
 
 public:
 	MenuStateKeysetup(Program *program, MainMenu *mainMenu, ProgramState **parentUI=NULL);
@@ -72,23 +52,34 @@ public:
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseUp(int x, int y, const MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
-	void update();
+	virtual void update();
 	void render();
 
 	virtual void keyDown(SDL_KeyboardEvent key);
-    virtual void keyPress(SDL_KeyboardEvent c);
+
     virtual void keyUp(SDL_KeyboardEvent key);
 
 	virtual bool isInSpecialKeyCaptureEvent() { return true; }
 
-	//static void setDisplayMessageFunction(DisplayMessageFunction pDisplayMessage) { pCB_DisplayMessage = pDisplayMessage; }
-
 	void reloadUI();
 
 private:
+
 	void showMessageBox(const string &text, const string &header, bool toggle);
-	void clearUserButtons();
-	void cleanup();
+
+    void delayedCallbackFunctionSelectAudioTab();
+    void delayedCallbackFunctionSelectMiscTab();
+    void delayedCallbackFunctionSelectNetworkTab();
+    void delayedCallbackFunctionSelectVideoTab();
+    void delayedCallbackFunctionOk();
+    void delayedCallbackFunctionReturn();
+    void delayedCallbackFunctionDefaults();
+
+    void setupCEGUIWidgets();
+    void setupCEGUIWidgetsText();
+
+    virtual bool EventCallback(CEGUI::Window *ctl, std::string name);
+
 };
 
 

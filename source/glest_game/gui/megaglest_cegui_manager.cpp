@@ -413,6 +413,11 @@ string MegaGlest_CEGUIManager::getEventSpinnerValueChanged() {
 	return result;
 }
 
+string MegaGlest_CEGUIManager::getEventMultiColumnListSelectionChanged() {
+	string result = CEGUI::MultiColumnList::EventSelectionChanged.c_str();
+	return result;
+}
+
 void MegaGlest_CEGUIManager::addFont(string fontName, string fontFileName, float fontPointSize) {
 	string fontPath = extractDirectoryPathFromFile(fontFileName);
 	string fontFile = extractFileFromDirectoryPath(fontFileName);
@@ -853,6 +858,86 @@ void MegaGlest_CEGUIManager::setControlVisible(string controlName, bool visible)
 
 void MegaGlest_CEGUIManager::setControlVisible(CEGUI::Window *ctl, bool visible) {
 	ctl->setVisible(visible);
+}
+
+void MegaGlest_CEGUIManager::setColumnsForMultiColumnListControl(CEGUI::Window *ctl, vector<pair<string, float> > columnValues) {
+	CEGUI::MultiColumnList *listbox = static_cast<CEGUI::MultiColumnList*>(ctl);
+	// Add some column headers
+	for(unsigned int index = 0; index < columnValues.size(); ++index) {
+		pair<string, float> &columnInfo = columnValues[index];
+		CEGUI::String cegui_value((CEGUI::encoded_char*)columnInfo.first.c_str());
+		listbox->addColumn(cegui_value,index,cegui_absdim(columnInfo.second));
+	}
+}
+
+void MegaGlest_CEGUIManager::addItemToMultiColumnListControl(CEGUI::Window *ctl, vector<string> columnValues, int id, bool disableFormatting) {
+	CEGUI::MultiColumnList *listbox = static_cast<CEGUI::MultiColumnList*>(ctl);
+//	bool wasReadOnly = listbox->isReadOnly();
+//	if(wasReadOnly == true) {
+//		listbox->setReadOnly(false);
+//	}
+
+	unsigned int rowId = listbox->addRow();
+
+	for(unsigned int index = 0; index < columnValues.size(); ++index) {
+		CEGUI::String cegui_value((CEGUI::encoded_char*)columnValues[index].c_str());
+		//printf("\nCE-GUI add item to combobox: [%s] [%s]\n",cegui_value.c_str(),value.c_str());
+
+		CEGUI::ListboxTextItem *itemCombobox = new CEGUI::ListboxTextItem(cegui_value, id);
+
+		string selectionImageName = getLookName() + "/MultiListSelectionBrush";
+		const CEGUI::Image *selectionImage = &CEGUI::ImageManager::getSingleton().get(selectionImageName);
+		itemCombobox->setSelectionBrushImage(selectionImage);
+		itemCombobox->setTextParsingEnabled(disableFormatting == false);
+
+		listbox->setTextParsingEnabled(disableFormatting == false);
+
+		//listbox->addItem(itemCombobox);
+		listbox->setItem(itemCombobox,index,rowId);
+	}
+//	if(wasReadOnly == true) {
+//		listbox->setReadOnly(true);
+//	}
+}
+
+void MegaGlest_CEGUIManager::addItemsToMultiColumnListControl(CEGUI::Window *ctl, vector<vector<string> > valueList, bool disableFormatting) {
+	CEGUI::MultiColumnList *listbox = static_cast<CEGUI::MultiColumnList*>(ctl);
+	int previousItemCount = listbox->getRowCount();
+
+	listbox->resetList();
+	for(unsigned int index = 0; index < valueList.size(); ++index) {
+
+		vector<string> &columnValues = valueList[index];
+		int position = previousItemCount + index;
+		addItemToMultiColumnListControl(ctl, columnValues, position, disableFormatting);
+	}
+}
+
+void MegaGlest_CEGUIManager::setSelectedItemTextForMultiColumnListControl(CEGUI::Window *ctl, string value, int id, bool disableFormatting) {
+	CEGUI::MultiColumnList *listbox = static_cast<CEGUI::MultiColumnList*>(ctl);
+
+
+	CEGUI::ListboxItem *row 	= listbox->getFirstSelectedItem();
+	CEGUI::MCLGridRef cellRef 	= listbox->getItemGridReference(row);
+	cellRef.column 				= id;
+	CEGUI::ListboxItem *cell 	= listbox->getItemAtGridReference(cellRef);
+
+	//row->setTextParsingEnabled(disableFormatting == false);
+	CEGUI::String cegui_value((CEGUI::encoded_char*)value.c_str());
+	cell->setText(cegui_value);
+	listbox->handleUpdatedItemData();
+}
+
+int MegaGlest_CEGUIManager::getSelectedRowForMultiColumnListControl(CEGUI::Window *ctl) {
+	CEGUI::MultiColumnList *listbox = static_cast<CEGUI::MultiColumnList*>(ctl);
+
+	int rowIndex = -1;
+	CEGUI::ListboxItem *row = listbox->getFirstSelectedItem();
+	if(row != NULL) {
+		CEGUI::MCLGridRef cellRef = listbox->getItemGridReference(row);
+		rowIndex = cellRef.row;
+	}
+	return rowIndex;
 }
 
 void MegaGlest_CEGUIManager::printDebugControlInfo(CEGUI::Window *ctl) {

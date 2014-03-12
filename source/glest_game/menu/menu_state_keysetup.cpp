@@ -21,9 +21,9 @@
 #include "menu_state_options_graphics.h"
 #include "menu_state_options_sound.h"
 #include "menu_state_options_network.h"
-#include "menu_state_options_sound.h"
 #include "metrics.h"
 #include "string_utils.h"
+#include "megaglest_cegui_manager.h"
 
 #include "leak_dumper.h"
 
@@ -35,160 +35,29 @@ namespace Glest{ namespace Game{
 // =====================================================
 
 MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
-		ProgramState **parentUI) :
-	MenuState(program, mainMenu, "config")
-{
+		ProgramState **parentUI) :	MenuState(program, mainMenu, "config") {
 	try {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		containerName = "KeySetup";
 
-		this->parentUI = parentUI;
+		mainMessageBoxState = 0;
+		this->parentUI 		= parentUI;
 		this->console.setOnlyChatMessagesInStoredLines(false);
-		hotkeyIndex = -1;
-		hotkeyChar = SDLK_UNKNOWN;
 
-		Lang &lang= Lang::getInstance();
-		int buttonRowPos=80;
-		if(this->parentUI==NULL){
-			int tabButtonWidth=200;
-			int tabButtonHeight=30;
+		//Config &configKeys 	= Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+		Config &config = Config::getInstance();
+		Config &configKeys = Config::getInstance(
+				std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys),
+				std::pair<string,string>(Config::glestkeys_ini_filename,Config::glestuserkeys_ini_filename),
+				std::pair<bool,bool>(true,false),config.getString("GlestKeysIniPath",""));
 
-			buttonAudioSection.registerGraphicComponent(containerName,"buttonAudioSection");
-			buttonAudioSection.init(0, 720,tabButtonWidth,tabButtonHeight);
-			buttonAudioSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-			buttonAudioSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-			buttonAudioSection.setText(lang.getString("Audio"));
-			// Video Section
-			buttonVideoSection.registerGraphicComponent(containerName,"labelVideoSection");
-			buttonVideoSection.init(200, 720,tabButtonWidth,tabButtonHeight);
-			buttonVideoSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-			buttonVideoSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-			buttonVideoSection.setText(lang.getString("Video"));
-			//currentLine-=lineOffset;
-			//MiscSection
-			buttonMiscSection.registerGraphicComponent(containerName,"labelMiscSection");
-			buttonMiscSection.init(400, 720,tabButtonWidth,tabButtonHeight);
-			buttonMiscSection.setFont(CoreData::getInstance().getMenuFontVeryBig());
-			buttonMiscSection.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-			buttonMiscSection.setText(lang.getString("Misc"));
-			//NetworkSettings
-			buttonNetworkSettings.registerGraphicComponent(containerName,"labelNetworkSettingsSection");
-			buttonNetworkSettings.init(600, 720,tabButtonWidth,tabButtonHeight);
-			buttonNetworkSettings.setFont(CoreData::getInstance().getMenuFontVeryBig());
-			buttonNetworkSettings.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-			buttonNetworkSettings.setText(lang.getString("Network"));
-
-			//KeyboardSetup
-			buttonKeyboardSetup.registerGraphicComponent(containerName,"buttonKeyboardSetup");
-			buttonKeyboardSetup.init(800, 700,tabButtonWidth,tabButtonHeight+20);
-			buttonKeyboardSetup.setFont(CoreData::getInstance().getMenuFontVeryBig());
-			buttonKeyboardSetup.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
-			buttonKeyboardSetup.setText(lang.getString("Keyboardsetup"));
-		}
-		// header
-		labelTitle.registerGraphicComponent(containerName,"labelTitle");
-		labelTitle.init(360,670);
-		labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
-		labelTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-		labelTitle.setText(lang.getString("Keyboardsetup"));
-
-		labelTestTitle.registerGraphicComponent(containerName,"labelTestTitle");
-		labelTestTitle.init(50,170);
-		labelTestTitle.setFont(CoreData::getInstance().getMenuFontBig());
-		labelTestTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-		labelTestTitle.setText(lang.getString("KeyboardsetupTest"));
-
-		labelTestValue.registerGraphicComponent(containerName,"labelTestValue");
-		labelTestValue.init(50,140);
-		labelTestValue.setFont(CoreData::getInstance().getMenuFontBig());
-		labelTestValue.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-		labelTestValue.setText("");
-
-		// mainMassegeBox
-		mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
-		mainMessageBox.init(lang.getString("Ok"));
-		mainMessageBox.setEnabled(false);
-		mainMessageBoxState=0;
-
-		keyScrollBar.init(800,200,false,200,20);
-		keyScrollBar.setLength(400);
-		keyScrollBar.setElementCount(0);
-		keyScrollBar.setVisibleSize(keyButtonsToRender);
-		keyScrollBar.setVisibleStart(0);
-
-
-		// buttons
-		buttonOk.registerGraphicComponent(containerName,"buttonOk");
-		buttonOk.init(200, buttonRowPos, 100);
-		buttonOk.setText(lang.getString("Save"));
-
-		buttonDefaults.registerGraphicComponent(containerName,"buttonDefaults");
-		buttonDefaults.init(310, buttonRowPos, 100);
-		buttonDefaults.setText(lang.getString("Defaults"));
-
-		buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
-		buttonReturn.init(420, buttonRowPos, 100);
-		buttonReturn.setText(lang.getString("Return"));
-
-		keyButtonsLineHeight=30;
-		keyButtonsHeight=25;
-		keyButtonsWidth=400;
-		keyButtonsXBase=200;
-		keyButtonsYBase=200+400-keyButtonsLineHeight;
-		keyButtonsToRender=400/keyButtonsLineHeight;
-		int labelWidth=100;
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-		mergedProperties=configKeys.getMergedProperties();
-		masterProperties=configKeys.getMasterProperties();
-		//userProperties=configKeys.getUserProperties();
+		mergedProperties 	= configKeys.getMergedProperties();
+		masterProperties 	= configKeys.getMasterProperties();
 		userProperties.clear();
 
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		setupCEGUIWidgets();
 
-		//throw megaglest_runtime_error("Test!");
-
-		for(int i = 0; i < (int)mergedProperties.size(); ++i) {
-
-			string keyName = mergedProperties[i].second;
-			if(keyName.length() > 0) {
-				//char c = configKeys.translateStringToCharKey(keyName);
-				SDLKey c = configKeys.translateStringToSDLKey(keyName);
-				if(c > SDLK_UNKNOWN && c < SDLK_LAST) {
-					SDLKey keysym = static_cast<SDLKey>(c);
-					// SDL skips capital letters
-					if(keysym >= 65 && keysym <= 90) {
-						keysym = (SDLKey)((int)keysym + 32);
-					}
-					keyName = SDL_GetKeyName(keysym);
-				}
-				else {
-					keyName = "";
-				}
-				if(keyName == "unknown key" || keyName == "") {
-					keyName = mergedProperties[i].second;
-				}
-			}
-
-			GraphicButton *button=new GraphicButton();
-			button->init(keyButtonsXBase, keyButtonsYBase, keyButtonsWidth,keyButtonsHeight);
-			button->setText(mergedProperties[i].first);
-			keyButtons.push_back(button);
-			GraphicLabel *label=new GraphicLabel();
-			label->init(keyButtonsXBase+keyButtonsWidth+10,keyButtonsYBase,labelWidth,20);
-			label->setText(keyName);
-			labels.push_back(label);
-		}
-
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		keyScrollBar.init(keyButtonsXBase+keyButtonsWidth+labelWidth+20,200,false,200,20);
-		keyScrollBar.setLength(400);
-		keyScrollBar.setElementCount((int)keyButtons.size());
-		keyScrollBar.setVisibleSize(keyButtonsToRender);
-		keyScrollBar.setVisibleStart(0);
+		hotkeyChar 			= SDLK_UNKNOWN;
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
@@ -196,322 +65,430 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
-        mainMessageBoxState=1;
+        mainMessageBoxState = 1;
         showMessageBox( "Error: " + string(ex.what()), "Error detected", false);
 	}
 }
 
 void MenuStateKeysetup::reloadUI() {
-	Lang &lang= Lang::getInstance();
 
 	console.resetFonts();
-	labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
-	labelTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	labelTitle.setText(lang.getString("Keyboardsetup"));
-
-	labelTestTitle.setFont(CoreData::getInstance().getMenuFontBig());
-	labelTestTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	labelTestTitle.setText(lang.getString("KeyboardsetupTest"));
-
-	labelTestValue.setFont(CoreData::getInstance().getMenuFontBig());
-	labelTestValue.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	labelTestValue.setText("");
-
-	// mainMassegeBox
-	mainMessageBox.init(lang.getString("Ok"));
-
-	buttonOk.setText(lang.getString("Save"));
-	buttonReturn.setText(lang.getString("Return"));
-
-	buttonDefaults.setText(lang.getString("Defaults"));
-
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+
+	setupCEGUIWidgets();
 }
 
-void MenuStateKeysetup::cleanup() {
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	clearUserButtons();
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] END\n",__FILE__,__FUNCTION__,__LINE__);
+void MenuStateKeysetup::setupCEGUIWidgets() {
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+	cegui_manager.setCurrentLayout("OptionsMenuRoot.layout",containerName);
+
+	cegui_manager.loadLayoutFromFile("OptionsMenuAudio.layout");
+	cegui_manager.loadLayoutFromFile("OptionsMenuKeyboard.layout");;
+	cegui_manager.loadLayoutFromFile("OptionsMenuMisc.layout");
+	cegui_manager.loadLayoutFromFile("OptionsMenuNetwork.layout");
+	cegui_manager.loadLayoutFromFile("OptionsMenuVideo.layout");
+
+	setupCEGUIWidgetsText();
+
+	cegui_manager.setControlEventCallback(containerName, "TabControl",
+					cegui_manager.getEventTabControlSelectionChanged(), this);
+
+	cegui_manager.setControlEventCallback(containerName,
+			"TabControl/__auto_TabPane__/Keyboard/ButtonSave",
+			cegui_manager.getEventButtonClicked(), this);
+
+	cegui_manager.setControlEventCallback(containerName,
+			"TabControl/__auto_TabPane__/Keyboard/ButtonReturn",
+			cegui_manager.getEventButtonClicked(), this);
+
+	cegui_manager.setControlEventCallback(containerName,
+			"TabControl/__auto_TabPane__/Keyboard/ButtonDefaults",
+			cegui_manager.getEventButtonClicked(), this);
+
+	cegui_manager.subscribeMessageBoxEventClicks(containerName, this);
+	cegui_manager.subscribeMessageBoxEventClicks(containerName, this, "TabControl/__auto_TabPane__/Keyboard/MsgBox");
+}
+
+void MenuStateKeysetup::setupCEGUIWidgetsText() {
+
+	Lang &lang								= Lang::getInstance();
+	MegaGlest_CEGUIManager &cegui_manager 	= MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.setCurrentLayout("OptionsMenuRoot.layout",containerName);
+
+	CEGUI::Window *ctlAudio 	= cegui_manager.loadLayoutFromFile("OptionsMenuAudio.layout");
+	CEGUI::Window *ctlKeyboard 	= cegui_manager.loadLayoutFromFile("OptionsMenuKeyboard.layout");
+	CEGUI::Window *ctlMisc 		= cegui_manager.loadLayoutFromFile("OptionsMenuMisc.layout");
+	CEGUI::Window *ctlNetwork 	= cegui_manager.loadLayoutFromFile("OptionsMenuNetwork.layout");
+	CEGUI::Window *ctlVideo 	= cegui_manager.loadLayoutFromFile("OptionsMenuVideo.layout");
+
+	cegui_manager.setControlText(ctlAudio,lang.getString("Audio","",false,true));
+	cegui_manager.setControlText(ctlKeyboard,lang.getString("Keyboardsetup","",false,true));
+	cegui_manager.setControlText(ctlMisc,lang.getString("Misc","",false,true));
+	cegui_manager.setControlText(ctlNetwork,lang.getString("Network","",false,true));
+	cegui_manager.setControlText(ctlVideo,lang.getString("Video","",false,true));
+
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Audio") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlAudio,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Keyboard") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlKeyboard,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Misc") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlMisc,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Network") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlNetwork,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Video") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlVideo,"",18);
+	}
+
+	cegui_manager.setSelectedTabPage("TabControl", "Keyboard");
+
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl/__auto_TabPane__/Keyboard"),"MsgBox") == false) {
+		cegui_manager.cloneMessageBoxControl("MsgBox", ctlKeyboard);
+	}
+
+	if(this->parentUI != NULL) {
+		cegui_manager.setControlVisible(ctlAudio,false);
+		cegui_manager.setControlVisible(ctlMisc,false);
+		cegui_manager.setControlVisible(ctlNetwork,false);
+		cegui_manager.setControlVisible(ctlVideo,false);
+	}
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlKeyboard,"LabelKeyboardSetupTitle"),lang.getString("Keyboardsetup","",false,true));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlKeyboard,"LabelKeyboardTestTitle"),lang.getString("KeyboardsetupTest","",false,true));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlKeyboard,"LabelKeyboardTestValue"),"");
+
+	//Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	Config &config = Config::getInstance();
+	Config &configKeys = Config::getInstance(
+			std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys),
+			std::pair<string,string>(Config::glestkeys_ini_filename,Config::glestuserkeys_ini_filename),
+			std::pair<bool,bool>(true,false),config.getString("GlestKeysIniPath",""));
+
+	vector<vector<string> > valueList;
+	for(unsigned int index = 0; index < mergedProperties.size(); ++index) {
+
+		string keyName = mergedProperties[index].second;
+		if(keyName.length() > 0) {
+			SDLKey c = configKeys.translateStringToSDLKey(keyName);
+			if(c > SDLK_UNKNOWN && c < SDLK_LAST) {
+				SDLKey keysym = static_cast<SDLKey>(c);
+				// SDL skips capital letters
+				if(keysym >= 65 && keysym <= 90) {
+					keysym = (SDLKey)((int)keysym + 32);
+				}
+				keyName = SDL_GetKeyName(keysym);
+			}
+			else {
+				keyName = "";
+			}
+			if(keyName == "unknown key" || keyName == "") {
+				keyName = mergedProperties[index].second;
+			}
+		}
+
+		vector<string> columnValues;
+		columnValues.push_back(mergedProperties[index].first);
+		columnValues.push_back(keyName);
+
+		valueList.push_back(columnValues);
+	}
+
+	vector<pair<string,float> > columnValues;
+	columnValues.push_back(make_pair("",1500));
+	columnValues.push_back(make_pair("",200));
+	cegui_manager.setColumnsForMultiColumnListControl(cegui_manager.getChildControl(ctlKeyboard,"MultiColumnListKeyMapping"), columnValues);
+	cegui_manager.addItemsToMultiColumnListControl(cegui_manager.getChildControl(ctlKeyboard,"MultiColumnListKeyMapping"),valueList);
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlKeyboard,"ButtonSave"),lang.getString("Save","",false,true));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlKeyboard,"ButtonReturn"),lang.getString("Return","",false,true));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlKeyboard,"ButtonDefaults"),lang.getString("Defaults","",false,true));
+}
+
+void MenuStateKeysetup::callDelayedCallbacks() {
+	if(hasDelayedCallbacks() == true) {
+		for(unsigned int index = 0; index < delayedCallbackList.size(); ++index) {
+			DelayCallbackFunction pCB = delayedCallbackList[index];
+			(this->*pCB)();
+		}
+	}
+}
+
+void MenuStateKeysetup::delayedCallbackFunctionSelectAudioTab() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+
+	soundRenderer.playFx(coreData.getClickSoundA());
+	mainMenu->setState(new MenuStateOptionsSound(program, mainMenu,this->parentUI));
+}
+
+void MenuStateKeysetup::delayedCallbackFunctionSelectMiscTab() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+
+	soundRenderer.playFx(coreData.getClickSoundA());
+	mainMenu->setState(new MenuStateOptions(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
+}
+
+void MenuStateKeysetup::delayedCallbackFunctionSelectNetworkTab() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+
+	soundRenderer.playFx(coreData.getClickSoundA());
+	mainMenu->setState(new MenuStateOptionsNetwork(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
+}
+
+void MenuStateKeysetup::delayedCallbackFunctionSelectVideoTab() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+
+	soundRenderer.playFx(coreData.getClickSoundA());
+	mainMenu->setState(new MenuStateOptionsGraphics(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
+}
+
+void MenuStateKeysetup::delayedCallbackFunctionOk() {
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+
+	mainMenu->setState(new MenuStateOptions(program, mainMenu));
+}
+
+void MenuStateKeysetup::delayedCallbackFunctionReturn() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+
+	soundRenderer.playFx(coreData.getClickSoundA());
+	if(this->parentUI != NULL) {
+		*this->parentUI = NULL;
+		delete *this->parentUI;
+	}
+	mainMenu->setState(new MenuStateRoot(program, mainMenu));
+}
+
+void MenuStateKeysetup::delayedCallbackFunctionDefaults() {
+
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+
+	soundRenderer.playFx(coreData.getClickSoundB());
+
+	//Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	Config &config = Config::getInstance();
+	Config &configKeys = Config::getInstance(
+			std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys),
+			std::pair<string,string>(Config::glestkeys_ini_filename,Config::glestuserkeys_ini_filename),
+			std::pair<bool,bool>(true,false),config.getString("GlestKeysIniPath",""));
+
+	string userKeysFile = configKeys.getFileName(true);
+
+	bool result = removeFile(userKeysFile.c_str());
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] delete file [%s] returned %d\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),result);
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] delete file [%s] returned %d\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),result);
+	configKeys.reload();
+
+	if(this->parentUI != NULL) {
+		// Set the parent pointer to NULL so the owner knows it was deleted
+		*this->parentUI = NULL;
+		// Delete the main menu
+		delete mainMenu;
+		return;
+	}
+
+	mainMenu->setState(new MenuStateKeysetup(program, mainMenu));
+}
+
+bool MenuStateKeysetup::EventCallback(CEGUI::Window *ctl, std::string name) {
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	if(name == cegui_manager.getEventTabControlSelectionChanged()) {
+
+		if(cegui_manager.isSelectedTabPage("TabControl", "Audio") == true) {
+			DelayCallbackFunction pCB = &MenuStateKeysetup::delayedCallbackFunctionSelectAudioTab;
+			delayedCallbackList.push_back(pCB);
+		}
+		else if(cegui_manager.isSelectedTabPage("TabControl", "Misc") == true) {
+			DelayCallbackFunction pCB = &MenuStateKeysetup::delayedCallbackFunctionSelectMiscTab;
+			delayedCallbackList.push_back(pCB);
+		}
+		else if(cegui_manager.isSelectedTabPage("TabControl", "Network") == true) {
+			DelayCallbackFunction pCB = &MenuStateKeysetup::delayedCallbackFunctionSelectNetworkTab;
+			delayedCallbackList.push_back(pCB);
+		}
+		else if(cegui_manager.isSelectedTabPage("TabControl", "Video") == true) {
+			DelayCallbackFunction pCB = &MenuStateKeysetup::delayedCallbackFunctionSelectVideoTab;
+			delayedCallbackList.push_back(pCB);
+		}
+		return true;
+	}
+	else if(name == cegui_manager.getEventButtonClicked()) {
+
+		if(cegui_manager.isControlMessageBoxOk(ctl,"TabControl/__auto_TabPane__/Keyboard/MsgBox") == true) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundB());
+
+			cegui_manager.hideMessageBox("TabControl/__auto_TabPane__/Keyboard/MsgBox");
+			return true;
+		}
+		else if(cegui_manager.isControlMessageBoxCancel(ctl,"TabControl/__auto_TabPane__/Keyboard/MsgBox") == true) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundB());
+
+			cegui_manager.hideMessageBox("TabControl/__auto_TabPane__/Keyboard/MsgBox");
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Keyboard/ButtonSave")) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundB());
+
+	        if(userProperties.empty() == false) {
+				//Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	        	Config &config = Config::getInstance();
+	        	Config &configKeys = Config::getInstance(
+	        			std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys),
+	        			std::pair<string,string>(Config::glestkeys_ini_filename,Config::glestuserkeys_ini_filename),
+	        			std::pair<bool,bool>(true,false),config.getString("GlestKeysIniPath",""));
+
+				string userKeysFile = configKeys.getFileName(true);
+		        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] save file [%s] userProperties.size() = " MG_SIZE_T_SPECIFIER "\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),userProperties.size());
+		        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] save file [%s] userProperties.size() = " MG_SIZE_T_SPECIFIER "\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),userProperties.size());
+
+				configKeys.setUserProperties(userProperties);
+				configKeys.save();
+				configKeys.reload();
+	       }
+
+			Lang &lang= Lang::getInstance();
+			console.addLine(lang.getString("SettingsSaved"));
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Keyboard/ButtonReturn")) {
+
+			DelayCallbackFunction pCB = &MenuStateKeysetup::delayedCallbackFunctionReturn;
+			delayedCallbackList.push_back(pCB);
+
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Keyboard/ButtonDefaults")) {
+
+			DelayCallbackFunction pCB = &MenuStateKeysetup::delayedCallbackFunctionDefaults;
+			delayedCallbackList.push_back(pCB);
+
+			return true;
+		}
+
+		//printf("Line: %d\n",__LINE__);
+		//cegui_manager.printDebugControlInfo(ctl);
+	}
+	else if(name == cegui_manager.getEventSpinnerValueChanged()) {
+		if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Keyboard/SpinnerServerPortNumber")) {
+
+			int selectedPort = (int)cegui_manager.getSpinnerControlValue(
+					cegui_manager.getControl("TabControl/__auto_TabPane__/Keyboard/SpinnerServerPortNumber"));
+
+			if(selectedPort < 10000) {
+				selectedPort = GameConstants::serverPort;
+			}
+			cegui_manager.setControlText(cegui_manager.getControl("TabControl/__auto_TabPane__/Keyboard/LabelFTPServerPortNumberValue"),intToStr(selectedPort+1));
+
+			// use the following ports for ftp
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"%d - %d",selectedPort + 2, selectedPort + 1 + GameConstants::maxPlayers);
+			cegui_manager.setControlText(cegui_manager.getControl("TabControl/__auto_TabPane__/Keyboard/LabelFTPServerDataPortsValue"),szBuf);
+
+			return true;
+		}
+	}
+	else if(name == cegui_manager.getEventMultiColumnListSelectionChanged()) {
+		if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Keyboard/MultiColumnListKeyMapping")) {
+
+			return true;
+		}
+	}
+
+	return false;
 }
 
 MenuStateKeysetup::~MenuStateKeysetup() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	cleanup();
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] END\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-void MenuStateKeysetup::clearUserButtons() {
-	while(!keyButtons.empty()) {
-		delete keyButtons.back();
-		keyButtons.pop_back();
-	}
-	while(!labels.empty()) {
-			delete labels.back();
-			labels.pop_back();
-		}
-}
+void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton) { }
 
-void MenuStateKeysetup::mouseClick(int x, int y, MouseButton mouseButton){
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+void MenuStateKeysetup::mouseUp(int x, int y, const MouseButton mouseButton) { }
 
-	CoreData &coreData= CoreData::getInstance();
-	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-
-	if(mainMessageBox.getEnabled()){
-		int button= 0;
-		if(mainMessageBox.mouseClick(x, y, button))
-		{
-			soundRenderer.playFx(coreData.getClickSoundA());
-			if(button==0)
-			{
-				mainMessageBox.setEnabled(false);
-			}
-		}
-	}
-	else if(keyScrollBar.mouseClick(x, y)){
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-			soundRenderer.playFx(coreData.getClickSoundB());
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-	    }
-    else if(buttonReturn.mouseClick(x, y)){
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		soundRenderer.playFx(coreData.getClickSoundB());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-		if(this->parentUI != NULL) {
-			// Set the parent pointer to NULL so the owner knows it was deleted
-			*this->parentUI = NULL;
-			// Delete the main menu
-			delete mainMenu;
-			return;
-		}
-		mainMenu->setState(new MenuStateRoot(program, mainMenu));
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    }
-    else if(buttonDefaults.mouseClick(x, y)){
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		soundRenderer.playFx(coreData.getClickSoundB());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-        Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-        string userKeysFile = configKeys.getFileName(true);
-
-        bool result = removeFile(userKeysFile.c_str());
-        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] delete file [%s] returned %d\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),result);
-        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] delete file [%s] returned %d\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),result);
-        configKeys.reload();
-
-		if(this->parentUI != NULL) {
-			// Set the parent pointer to NULL so the owner knows it was deleted
-			*this->parentUI = NULL;
-			// Delete the main menu
-			delete mainMenu;
-			return;
-		}
-
-		mainMenu->setState(new MenuStateKeysetup(program, mainMenu));
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    }
-    else if(buttonOk.mouseClick(x, y)){
-    	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		soundRenderer.playFx(coreData.getClickSoundB());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-
-        if(userProperties.empty() == false) {
-			Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-			string userKeysFile = configKeys.getFileName(true);
-	        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] save file [%s] userProperties.size() = " MG_SIZE_T_SPECIFIER "\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),userProperties.size());
-	        if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] save file [%s] userProperties.size() = " MG_SIZE_T_SPECIFIER "\n",__FILE__,__FUNCTION__,__LINE__,userKeysFile.c_str(),userProperties.size());
-
-			configKeys.setUserProperties(userProperties);
-			configKeys.save();
-			configKeys.reload();
-       }
-
-		Lang &lang= Lang::getInstance();
-		console.addLine(lang.getString("SettingsSaved"));
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-    }
-    else if ( keyScrollBar.getElementCount() != 0) {
-			for (int i = keyScrollBar.getVisibleStart(); i
-					<= keyScrollBar.getVisibleEnd(); ++i) {
-				if (keyButtons[i]->mouseClick(x, y)) {
-				    hotkeyIndex = i;
-				    hotkeyChar = SDLK_UNKNOWN;
-					break;
-				}
-			}
-		}
-
-	if(this->parentUI==NULL){
-		if(buttonKeyboardSetup.mouseClick(x, y)){
-			soundRenderer.playFx(coreData.getClickSoundA());
-			//mainMenu->setState(new MenuStateKeysetup(program, mainMenu)); // open keyboard shortcuts setup screen
-			//mainMenu->setState(new MenuStateOptionsGraphics(program, mainMenu)); // open keyboard shortcuts setup screen
-			//mainMenu->setState(new MenuStateOptionsNetwork(program, mainMenu)); // open keyboard shortcuts setup screen
-			//mainMenu->setState(new MenuStateKeysetup(program, mainMenu)); // open keyboard shortcuts setup screen
-			//showMessageBox("Not implemented yet", "Keyboard setup", false);
-			return;
-		}
-		else if(buttonAudioSection.mouseClick(x, y)){
-				soundRenderer.playFx(coreData.getClickSoundA());
-				mainMenu->setState(new MenuStateOptionsSound(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
-				return;
-			}
-		else if(buttonNetworkSettings.mouseClick(x, y)){
-				soundRenderer.playFx(coreData.getClickSoundA());
-				mainMenu->setState(new MenuStateOptionsNetwork(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
-				return;
-			}
-		else if(buttonMiscSection.mouseClick(x, y)){
-				soundRenderer.playFx(coreData.getClickSoundA());
-				mainMenu->setState(new MenuStateOptions(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
-				return;
-			}
-		else if(buttonVideoSection.mouseClick(x, y)){
-				soundRenderer.playFx(coreData.getClickSoundA());
-				mainMenu->setState(new MenuStateOptionsGraphics(program, mainMenu,this->parentUI)); // open keyboard shortcuts setup screen
-				return;
-			}
-	}
-}
-
-void MenuStateKeysetup::mouseUp(int x, int y, const MouseButton mouseButton){
-	if (mouseButton == mbLeft) {
-		keyScrollBar.mouseUp(x, y);
-	}
-}
-
-void MenuStateKeysetup::mouseMove(int x, int y, const MouseState *ms){
-    buttonReturn.mouseMove(x, y);
-    buttonOk.mouseMove(x, y);
-    if(this->parentUI==NULL){
-    	buttonKeyboardSetup.mouseMove(x, y);
-    	buttonAudioSection.mouseMove(x, y);
-    	buttonNetworkSettings.mouseMove(x, y);
-    	buttonMiscSection.mouseMove(x, y);
-    	buttonVideoSection.mouseMove(x, y);
-    }
-    if (ms->get(mbLeft)) {
-		keyScrollBar.mouseDown(x, y);
-	} else {
-		keyScrollBar.mouseMove(x, y);
-	}
-
-    if(keyScrollBar.getElementCount()!=0 ) {
-    	for(int i = keyScrollBar.getVisibleStart(); i <= keyScrollBar.getVisibleEnd(); ++i) {
-    		keyButtons[i]->mouseMove(x, y);
-    	}
-    }
-
-}
+void MenuStateKeysetup::mouseMove(int x, int y, const MouseState *ms) { }
 
 void MenuStateKeysetup::render(){
-	Renderer &renderer= Renderer::getInstance();
 
-	//printf("MenuStateKeysetup::render A\n");
-
-	if(mainMessageBox.getEnabled()) {
-		//printf("MenuStateKeysetup::render B\n");
-		renderer.renderMessageBox(&mainMessageBox);
-	}
-	else {
-		//printf("MenuStateKeysetup::render C\n");
-		renderer.renderButton(&buttonReturn);
-		renderer.renderButton(&buttonDefaults);
-		renderer.renderButton(&buttonOk);
-		if(this->parentUI==NULL){
-			renderer.renderButton(&buttonKeyboardSetup);
-			renderer.renderButton(&buttonVideoSection);
-			renderer.renderButton(&buttonAudioSection);
-			renderer.renderButton(&buttonMiscSection);
-			renderer.renderButton(&buttonNetworkSettings);
-		}
-		renderer.renderLabel(&labelTitle);
-		renderer.renderLabel(&labelTestTitle);
-		renderer.renderLabel(&labelTestValue);
-
-		if(keyScrollBar.getElementCount()!=0 ) {
-			for(int i = keyScrollBar.getVisibleStart(); i <= keyScrollBar.getVisibleEnd(); ++i) {
-				if(hotkeyIndex == i) {
-					renderer.renderButton(keyButtons[i],&YELLOW);
-				}
-				else {
-					renderer.renderButton(keyButtons[i]);
-				}
-				renderer.renderLabel(labels[i]);
-			}
-		}
-		renderer.renderScrollBar(&keyScrollBar);
-	}
-
+	Renderer &renderer = Renderer::getInstance();
 	renderer.renderConsole(&console,false,true);
 	if(program != NULL) program->renderProgramMsgBox();
 }
 
 void MenuStateKeysetup::update() {
-	//printf("MenuStateKeysetup::update A\n");
-
-	if (keyScrollBar.getElementCount() != 0) {
-		for (int i = keyScrollBar.getVisibleStart(); i
-				<= keyScrollBar.getVisibleEnd(); ++i) {
-			keyButtons[i]->setY(keyButtonsYBase - keyButtonsLineHeight * (i
-					- keyScrollBar.getVisibleStart()));
-			labels[i]->setY(keyButtonsYBase - keyButtonsLineHeight * (i
-					- keyScrollBar.getVisibleStart()));
-		}
-	}
-
 	console.update();
+
+	MenuState::update();
 }
-
-
 
 void MenuStateKeysetup::showMessageBox(const string &text, const string &header, bool toggle){
-	if(!toggle){
-		mainMessageBox.setEnabled(false);
-	}
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	if(cegui_manager.isMessageBoxShowing("TabControl/__auto_TabPane__/Keyboard/MsgBox") == false) {
 
-	if(!mainMessageBox.getEnabled()){
-		mainMessageBox.setText(text);
-		mainMessageBox.setHeader(header);
-		mainMessageBox.setEnabled(true);
+		Lang &lang= Lang::getInstance();
+		cegui_manager.displayMessageBox(header, text, lang.getString("Ok","",false,true),lang.getString("Cancel","",false,true),"TabControl/__auto_TabPane__/Keyboard/MsgBox");
 	}
-	else{
-		mainMessageBox.setEnabled(false);
+	else {
+		cegui_manager.hideMessageBox("TabControl/__auto_TabPane__/Keyboard/MsgBox");
 	}
 }
-
 
 void MenuStateKeysetup::keyDown(SDL_KeyboardEvent key) {
 	hotkeyChar = extractKeyPressed(key);
-	//printf("\nkeyDown [%d]\n",hotkeyChar);
 
 	string keyName = "";
 	if(hotkeyChar > SDLK_UNKNOWN && hotkeyChar < SDLK_LAST) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key.keysym.sym);
 		keyName = SDL_GetKeyName(hotkeyChar);
 	}
-	//key = hotkeyChar;
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key.keysym.sym);
-
-//	SDLKey keysym = SDLK_UNKNOWN;
-//	if(keyName == "unknown key" || keyName == "") {
-//		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-//		keysym = configKeys.translateSpecialStringToSDLKey(hotkeyChar);
-//
-//		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keysym [%d]\n",__FILE__,__FUNCTION__,__LINE__,keysym);
-//
-//		// SDL skips capital letters
-//		if(keysym >= 65 && keysym <= 90) {
-//			keysym = (SDLKey)((int)keysym + 32);
-//		}
-//		//if(keysym < 255) {
-//		//	key = keysym;
-//		//}
-//		keyName = SDL_GetKeyName(keysym);
-//	}
 
 	char szCharText[20]="";
 	snprintf(szCharText,20,"%c",hotkeyChar);
@@ -519,20 +496,21 @@ void MenuStateKeysetup::keyDown(SDL_KeyboardEvent key) {
 
 	char szBuf[8096] = "";
 	snprintf(szBuf,8096,"%s [%s][%d][%d][%d][%d]",keyName.c_str(),utfStr,key.keysym.sym,hotkeyChar,key.keysym.unicode,key.keysym.mod);
-	labelTestValue.setText(szBuf);
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.setControlText("TabControl/__auto_TabPane__/Keyboard/LabelKeyboardTestValue",szBuf, true);
 
 	delete [] utfStr;
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] hotkeyChar [%d]\n",__FILE__,__FUNCTION__,__LINE__,hotkeyChar);
 }
 
-void MenuStateKeysetup::keyPress(SDL_KeyboardEvent c) {
-}
-
 void MenuStateKeysetup::keyUp(SDL_KeyboardEvent key) {
-	//Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-    if(hotkeyIndex >= 0) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	int selectedRowIndex = cegui_manager.getSelectedRowForMultiColumnListControl(cegui_manager.getControl(
+			"TabControl/__auto_TabPane__/Keyboard/MultiColumnListKeyMapping"));
+    if(selectedRowIndex >= 0) {
     	if(hotkeyChar != 0) {
     		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,hotkeyChar,key.keysym.sym);
 
@@ -544,70 +522,31 @@ void MenuStateKeysetup::keyUp(SDL_KeyboardEvent key) {
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key.keysym.sym);
 
-			//SDLKey keysym = SDLK_UNKNOWN;
-			if(keyName == "unknown key" || keyName == "") {
-//				Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-//				keysym = configKeys.translateSpecialStringToSDLKey(hotkeyChar);
-//
-//				if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keysym [%d]\n",__FILE__,__FUNCTION__,__LINE__,keysym);
-//
-//				// SDL skips capital letters
-//				if(keysym >= 65 && keysym <= 90) {
-//					keysym = (SDLKey)((int)keysym + 32);
-//				}
-//				if(keysym < 255) {
-//					key = keysym;
-//				}
-//				keyName = SDL_GetKeyName(keysym);
-			}
-
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key.keysym.sym);
-
 			if(keyName != "unknown key") {
-				GraphicLabel *label= labels[hotkeyIndex];
-				label->setText(keyName);
+				//printf("Set pressed key to: %s\n",keyName.c_str());
 
-				pair<string,string> &nameValuePair = mergedProperties[hotkeyIndex];
+				cegui_manager.setSelectedItemTextForMultiColumnListControl(
+						cegui_manager.getControl(
+								"TabControl/__auto_TabPane__/Keyboard/MultiColumnListKeyMapping"),
+									keyName, 1);
+
+				pair<string,string> &nameValuePair = mergedProperties[selectedRowIndex];
 				bool isNewUserKeyEntry = true;
-				for(int i = 0; i < (int)userProperties.size(); ++i) {
-					string hotKeyName = userProperties[i].first;
+				for(unsigned int index = 0; index < userProperties.size(); ++index) {
+					string hotKeyName = userProperties[index].first;
 					if(nameValuePair.first == hotKeyName) {
-//						if(keysym <= SDLK_ESCAPE || keysym > 255) {
-//							if(keysym <= SDLK_ESCAPE) {
-//								userProperties[i].second = intToStr(extractKeyPressed(key));
-//							}
-//							else {
-//								userProperties[i].second = keyName;
-//							}
-//						}
-//						else {
-//							userProperties[i].second = "";
-//							userProperties[i].second.push_back(extractKeyPressed(key));
-//						}
-						userProperties[i].second = keyName;
+						userProperties[index].second = keyName;
 						isNewUserKeyEntry = false;
 						break;
 					}
 				}
 				if(isNewUserKeyEntry == true) {
 					pair<string,string> newNameValuePair = nameValuePair;
-//					if(keysym <= SDLK_ESCAPE || keysym > 255) {
-//						if(keysym <= SDLK_ESCAPE) {
-//							newNameValuePair.second = intToStr(extractKeyPressed(key));
-//						}
-//						else {
-//							newNameValuePair.second = keyName;
-//						}
-//					}
-//					else {
-//						newNameValuePair.second = extractKeyPressed(key);
-//					}
 					newNameValuePair.second = keyName;
 					userProperties.push_back(newNameValuePair);
 				}
 			}
     	}
-        hotkeyIndex = -1;
         hotkeyChar = SDLK_UNKNOWN;
     }
 }

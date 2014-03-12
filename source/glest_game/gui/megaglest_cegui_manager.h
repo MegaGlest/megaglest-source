@@ -99,6 +99,7 @@ public:
 	string getEventCheckboxClicked();
 	string getEventTabControlSelectionChanged();
 	string getEventSpinnerValueChanged();
+	string getEventMultiColumnListSelectionChanged();
 
 	void subscribeEventClick(std::string containerName, CEGUI::Window *ctl,
 			std::string name, MegaGlest_CEGUIManagerBackInterface *cb);
@@ -149,6 +150,12 @@ public:
 
 	void setCheckboxControlChecked(CEGUI::Window *ctl, bool checked, bool disableEventsTrigger=false);
 	bool getCheckboxControlChecked(CEGUI::Window *ctl);
+
+	void setColumnsForMultiColumnListControl(CEGUI::Window *ctl, vector<pair<string, float> > columnValues);
+	void addItemToMultiColumnListControl(CEGUI::Window *ctl, vector<string> columnValues, int id, bool disableFormatting=false);
+	void addItemsToMultiColumnListControl(CEGUI::Window *ctl, vector<vector<string> > valueList, bool disableFormatting=false);
+	void setSelectedItemTextForMultiColumnListControl(CEGUI::Window *ctl, string value, int id, bool disableFormatting=false);
+	int getSelectedRowForMultiColumnListControl(CEGUI::Window *ctl);
 
 	void printDebugControlInfo(CEGUI::Window *ctl);
 };
