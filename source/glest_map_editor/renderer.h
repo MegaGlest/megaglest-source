@@ -4,6 +4,7 @@
 #include <QGraphicsScene>
 #include "map_preview.h"
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -25,6 +26,7 @@ class Renderer{
 		int getWidth() const;
 		void open(string path);
 		MapPreview *getMap() const;
+		void newMap();
 	private:
 		void removeTiles();
 		void createTiles();
@@ -33,6 +35,11 @@ class Renderer{
 		MapPreview *map;
 		int height;
 		int width;
+		vector<MapPreview*> history;
+		int historyPos;
+		void addHistory();
+		void redo();
+		void undo();
 };
 
 #endif
