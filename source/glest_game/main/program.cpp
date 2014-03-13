@@ -119,11 +119,11 @@ Program::ShowMessageProgramState::ShowMessageProgramState(Program *program, cons
 
     string containerName = "ShowMessageProgramState";
     MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-    cegui_manager.setCurrentLayout("MessageBox.layout",containerName);
+    //cegui_manager.setCurrentLayout("MessageBox.layout",containerName);
 
 	cegui_manager.unsubscribeEvents(containerName);
     cegui_manager.subscribeMessageBoxEventClicks(containerName, this);
-	if(cegui_manager.isMessageBoxShowing() == false) {
+	//if(cegui_manager.isMessageBoxShowing() == false) {
 		Lang &lang= Lang::getInstance();
 
 		string text = "Mega-Glest has crashed.";
@@ -133,7 +133,7 @@ Program::ShowMessageProgramState::ShowMessageProgramState(Program *program, cons
 		}
 
 		cegui_manager.displayMessageBox("Error", text, lang.getString("Ok","",false,true),lang.getString("Cancel","",false,true));
-	}
+	//}
 
 	this->msg = (msg ? msg : "");
 }
@@ -324,19 +324,19 @@ void Program::restoreStateFromSystemError() {
 void Program::keyDown(SDL_KeyboardEvent key) {
 
 	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-	if(cegui_manager.isMessageBoxShowing() == true) {
-		//SDL_keysym keystate = Window::getKeystate();
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-		//if(key == vkEscape  || key == SDLK_ESCAPE ||
-		//	((key == vkReturn || key == SDLK_RETURN || key == SDLK_KP_ENTER) && !(keystate.mod & (KMOD_LALT | KMOD_RALT)))) {
-		if(isKeyPressed(SDLK_ESCAPE,key) == true ||	((isKeyPressed(SDLK_RETURN,key) == true) && !(key.keysym.mod & (KMOD_LALT | KMOD_RALT)))) {
+	if(cegui_manager.isInitialized() == true) {
+		if(cegui_manager.isMessageBoxShowing() == true) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-			//printf("---> keystate [%d]\n",keystate);
-			cegui_manager.hideMessageBox();
-			if(messageBoxIsSystemError == true) {
-				restoreStateFromSystemError();
+			if(isKeyPressed(SDLK_ESCAPE,key) == true ||	((isKeyPressed(SDLK_RETURN,key) == true) && !(key.keysym.mod & (KMOD_LALT | KMOD_RALT)))) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+				//printf("---> keystate [%d]\n",keystate);
+				cegui_manager.hideMessageBox();
+
+				if(messageBoxIsSystemError == true) {
+					restoreStateFromSystemError();
+				}
 			}
 		}
 	}
@@ -801,6 +801,10 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
     coreData.load();
 
     MegaGlest_CEGUIManager::getInstance().setupCEGUI();
+	string containerName = "Program";
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.setCurrentLayout("MessageBox.layout",containerName);
+	cegui_manager.setControlVisible(ctl,false);
 
     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -902,7 +906,7 @@ void Program::showMessage(const char *msg) {
 
     string containerName = "Program";
     MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-    cegui_manager.setCurrentLayout("MessageBox.layout",containerName);
+    //cegui_manager.setCurrentLayout("MessageBox.layout",containerName);
 
 	cegui_manager.unsubscribeEvents(containerName);
     cegui_manager.subscribeMessageBoxEventClicks(containerName, this);
