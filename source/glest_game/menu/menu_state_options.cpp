@@ -275,6 +275,8 @@ void MenuStateOptions::setupCEGUIWidgetsText() {
 
 	cegui_manager.hideMessageBox();
 	cegui_manager.hideMessageBox("TabControl/__auto_TabPane__/Misc/LuaMsgBox");
+
+	//throw runtime_error("test!");
 }
 
 void MenuStateOptions::callDelayedCallbacks() {

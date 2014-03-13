@@ -100,8 +100,6 @@ void ProgramState::render() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		renderer.clearBuffers();
 		renderer.reset2d();
-		renderer.renderMessageBox(program->getMsgBox());
-		//renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
 		renderer.swapBuffers();
 	}
 }
@@ -113,62 +111,74 @@ void ProgramState::update() {
 void ProgramState::mouseMove(int x, int y, const MouseState *mouseState) {
 	mouseX = x;
 	mouseY = y;
-	program->getMsgBox()->mouseMove(x, y);
 }
 
 Program::ShowMessageProgramState::ShowMessageProgramState(Program *program, const char *msg) :
 		ProgramState(program) {
     userWantsExit = false;
-	msgBox.init("Ok");
 
-	if(msg) {
-		fprintf(stderr, "%s\n", msg);
-		msgBox.setText(msg);
-	}
-	else {
-		msgBox.setText("Mega-Glest has crashed.");
+    string containerName = "ShowMessageProgramState";
+    MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+    cegui_manager.setCurrentLayout("MessageBox.layout",containerName);
+
+	cegui_manager.unsubscribeEvents(containerName);
+    cegui_manager.subscribeMessageBoxEventClicks(containerName, this);
+	if(cegui_manager.isMessageBoxShowing() == false) {
+		Lang &lang= Lang::getInstance();
+
+		string text = "Mega-Glest has crashed.";
+		if(msg) {
+			fprintf(stderr, "%s\n", msg);
+			text = msg;
+		}
+
+		cegui_manager.displayMessageBox("Error", text, lang.getString("Ok","",false,true),lang.getString("Cancel","",false,true));
 	}
 
-	mouse2dAnim = mouseY = mouseX = 0;
 	this->msg = (msg ? msg : "");
 }
 
-void Program::ShowMessageProgramState::render() {
-	Renderer &renderer= Renderer::getInstance();
-	renderer.clearBuffers();
-	renderer.reset2d();
-	renderer.renderMessageBox(&msgBox);
-	//renderer.renderMouse2d(mouseX, mouseY, mouse2dAnim);
-	renderer.swapBuffers();
-}
+bool Program::ShowMessageProgramState::EventCallback(CEGUI::Window *ctl, std::string name) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	if(name == cegui_manager.getEventButtonClicked()) {
 
-void Program::ShowMessageProgramState::mouseDownLeft(int x, int y) {
-	int button= 0;
-	if(msgBox.mouseClick(x,y,button)) {
-		program->exit();
-		userWantsExit = true;
+		if(cegui_manager.isControlMessageBoxOk(ctl) == true) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundA());
+
+			cegui_manager.hideMessageBox();
+
+			program->exit();
+			userWantsExit = true;
+		}
+		else if(cegui_manager.isControlMessageBoxCancel(ctl) == true) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundA());
+
+			cegui_manager.hideMessageBox();
+
+			program->exit();
+			userWantsExit = true;
+		}
+		return true;
 	}
+	return false;
 }
 
 void Program::ShowMessageProgramState::keyPress(SDL_KeyboardEvent c) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] c = [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,c.keysym.sym);
 
     // if user pressed return we exit
-	//if(c == 13) {
 	if(isKeyPressed(SDLK_RETURN,c) == true) {
 		program->exit();
 		userWantsExit = true;
 	}
-}
-
-void Program::ShowMessageProgramState::mouseMove(int x, int y, const MouseState &mouseState) {
-	mouseX = x;
-	mouseY = y;
-	msgBox.mouseMove(x, y);
-}
-
-void Program::ShowMessageProgramState::update() {
-	mouse2dAnim = (mouse2dAnim +1) % Renderer::maxMouse2dAnim;
 }
 
 // ===================== PUBLIC ========================
@@ -177,7 +187,6 @@ bool Program::rendererInitOk = false;
 bool Program::tryingRendererInit = false;
 
 Program::Program() {
-	//this->masterserverMode = false;
 	this->window = NULL;
 	this->shutdownApplicationEnabled = false;
 	this->skipRenderFrameCount = 0;
@@ -186,16 +195,7 @@ Program::Program() {
 	this->programState= NULL;
 	this->singleton = this;
 	this->soundThreadManager = NULL;
-
-	//mesage box
-	Lang &lang= Lang::getInstance();
-	msgBox.init(lang.getString("Ok"));
-	msgBox.setEnabled(false);
 }
-
-//bool Program::isMasterserverMode() const {
-//	return this->masterserverMode;
-//}
 
 void Program::initNormal(WindowGl *window){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -280,6 +280,11 @@ void Program::initScenario(WindowGl *window, string autoloadScenarioName) {
 
 Program::~Program(){
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+    string containerName = "Program";
+    MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(containerName);
+
 	delete programState;
 	programState = NULL;
 
@@ -317,7 +322,9 @@ void Program::restoreStateFromSystemError() {
 }
 
 void Program::keyDown(SDL_KeyboardEvent key) {
-	if(msgBox.getEnabled()) {
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	if(cegui_manager.isMessageBoxShowing() == true) {
 		//SDL_keysym keystate = Window::getKeystate();
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -327,7 +334,7 @@ void Program::keyDown(SDL_KeyboardEvent key) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 			//printf("---> keystate [%d]\n",keystate);
-			msgBox.setEnabled(false);
+			cegui_manager.hideMessageBox();
 			if(messageBoxIsSystemError == true) {
 				restoreStateFromSystemError();
 			}
@@ -345,25 +352,9 @@ void Program::keyPress(SDL_KeyboardEvent c) {
 	programState->keyPress(c);
 }
 
-void Program::mouseDownLeft(int x, int y) {
-	if(msgBox.getEnabled()) {
-		int button= 0;
-		if(msgBox.mouseClick(x, y, button)) {
-			//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			//close message box
-			msgBox.setEnabled(false);
-			if(messageBoxIsSystemError == true) {
-				restoreStateFromSystemError();
-			}
-		}
-	}
-}
+void Program::mouseDownLeft(int x, int y) {}
 
-void Program::eventMouseMove(int x, int y, const MouseState *ms) {
-	if (msgBox.getEnabled()) {
-		msgBox.mouseMove(x, y);
-	}
-}
+void Program::eventMouseMove(int x, int y, const MouseState *ms) {}
 
 void Program::simpleTask(BaseThread *callingThread,void *userdata) {
 	loopWorker();
@@ -578,18 +569,12 @@ void Program::resize(SizeState sizeState){
 // ==================== misc ====================
 
 void Program::renderProgramMsgBox() {
-	Renderer &renderer= Renderer::getInstance();
-	if(msgBox.getEnabled()) {
-		renderer.renderMessageBox(&msgBox);
-	}
-
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false && window) {
 		MainWindow *mainWindow = dynamic_cast<MainWindow *>(window);
 		if(mainWindow) {
 			mainWindow->render();
 		}
 	}
-
 }
 
 void Program::setState(ProgramState *programStateNew, bool cleanupOldState) {
@@ -597,7 +582,9 @@ void Program::setState(ProgramState *programStateNew, bool cleanupOldState) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		this->programStateOldSystemError = this->programState;
-		bool msgBoxEnabled = msgBox.getEnabled();
+		//bool msgBoxEnabled = msgBox.getEnabled();
+		//MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+		//bool msgBoxEnabled =  cegui_manager.isMessageBoxShowing("MainWindowMessageBox/ProgramMsgBox");
 
 		bool showingOSCursor = isCursorShowing();
 		if(dynamic_cast<Game *>(programStateNew) != NULL) {
@@ -637,9 +624,9 @@ void Program::setState(ProgramState *programStateNew, bool cleanupOldState) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		//mesage box
-		Lang &lang= Lang::getInstance();
-		msgBox.init(lang.getString("Ok"));
-		msgBox.setEnabled(msgBoxEnabled);
+		//Lang &lang= Lang::getInstance();
+		//msgBox.init(lang.getString("Ok"));
+		//msgBox.setEnabled(msgBoxEnabled);
 
 		fpsTimer.init(1, maxTimes);
 		updateTimer.init(GameConstants::updateFps, maxTimes);
@@ -669,9 +656,9 @@ void Program::setState(ProgramState *programStateNew, bool cleanupOldState) {
 			}
 			sleep(0);
 
-			if(dynamic_cast<Intro *>(programStateNew) != NULL && msgBoxEnabled == true) {
-				showCursor(true);
-			}
+			//if(dynamic_cast<Intro *>(programStateNew) != NULL && msgBoxEnabled == true) {
+			//	showCursor(true);
+			//}
 		}
 
 		this->programStateOldSystemError = NULL;
@@ -895,14 +882,12 @@ void Program::restoreDisplaySettings(){
 }
 
 bool Program::isMessageShowing() {
-    return msgBox.getEnabled();
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	return cegui_manager.isMessageBoxShowing();
 }
 
 void Program::showMessage(const char *msg) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] msg [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg);
-
-	msgBox.setText(msg);
-	msgBox.setEnabled(true);
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		printf("Message:\n%s\n",msg);
@@ -911,8 +896,63 @@ void Program::showMessage(const char *msg) {
 			messageBoxIsSystemError = false;
 			//setState(new Intro(this));
 			initServer(window,false,true,true);
+			return;
 		}
 	}
+
+    string containerName = "Program";
+    MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+    cegui_manager.setCurrentLayout("MessageBox.layout",containerName);
+
+	cegui_manager.unsubscribeEvents(containerName);
+    cegui_manager.subscribeMessageBoxEventClicks(containerName, this);
+	if(cegui_manager.isMessageBoxShowing() == false) {
+		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+		Lang &lang= Lang::getInstance();
+
+		string text = "Mega-Glest has crashed.";
+		if(msg) {
+			fprintf(stderr, "%s\n", msg);
+			text = msg;
+		}
+
+		cegui_manager.displayMessageBox("", text, lang.getString("Ok","",false,true),lang.getString("Cancel","",false,true));
+	}
+}
+
+bool Program::EventCallback(CEGUI::Window *ctl, std::string name) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	if(name == cegui_manager.getEventButtonClicked()) {
+
+		if(cegui_manager.isControlMessageBoxOk(ctl) == true) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundA());
+
+			cegui_manager.hideMessageBox();
+
+			if(messageBoxIsSystemError == true) {
+				restoreStateFromSystemError();
+			}
+		}
+		else if(cegui_manager.isControlMessageBoxCancel(ctl) == true) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundA());
+
+			cegui_manager.hideMessageBox();
+
+			if(messageBoxIsSystemError == true) {
+				restoreStateFromSystemError();
+			}
+		}
+		return true;
+	}
+	return false;
 }
 
 void Program::stopSoundSystem() {

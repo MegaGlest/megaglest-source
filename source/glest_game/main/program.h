@@ -25,6 +25,8 @@
 #include "window.h"
 #include "simple_threads.h"
 #include "stats.h"
+#include "megaglest_cegui_manager.h"
+
 #include "leak_dumper.h"
 
 using Shared::Platform::MouseButton;
@@ -118,28 +120,25 @@ protected:
 // 	class Program
 // ===============================
 
-class Program {
+class Program : public MegaGlest_CEGUIManagerBackInterface {
 private:
 	static const int maxTimes;
 	SimpleTaskThread *soundThreadManager;
 
-	class ShowMessageProgramState : public ProgramState {
-		GraphicMessageBox msgBox;
-		int mouseX;
-		int mouseY;
-		int mouse2dAnim;
+	class ShowMessageProgramState : public ProgramState, public MegaGlest_CEGUIManagerBackInterface {
 		string msg;
 		bool userWantsExit;
 
 	public:
 		ShowMessageProgramState(Program *program, const char *msg);
 
-		virtual void render();
-		virtual void mouseDownLeft(int x, int y);
-		virtual void mouseMove(int x, int y, const MouseState &mouseState);
 		virtual void keyPress(SDL_KeyboardEvent c);
-		virtual void update();
+		//virtual void update();
 		virtual bool wantExit() { return userWantsExit; }
+
+	protected:
+
+		virtual bool EventCallback(CEGUI::Window *ctl, std::string name);
 	};
 
 
@@ -153,7 +152,6 @@ private:
     WindowGl *window;
     static Program *singleton;
 
-    GraphicMessageBox msgBox;
     int skipRenderFrameCount;
 
     bool messageBoxIsSystemError;
@@ -178,11 +176,9 @@ public:
     static void setWantShutdownApplicationAfterGame(bool value) { wantShutdownApplicationAfterGame = value; }
     static bool getWantShutdownApplicationAfterGame() { return wantShutdownApplicationAfterGame; }
 
-    //bool isMasterserverMode() const;
     bool isShutdownApplicationEnabled() const { return shutdownApplicationEnabled; }
     void setShutdownApplicationEnabled(bool value) { shutdownApplicationEnabled = value; }
 
-    GraphicMessageBox * getMsgBox() { return &msgBox; }
 	void initNormal(WindowGl *window);
 	void initServer(WindowGl *window,bool autostart=false,bool openNetworkSlots=false,bool masterserverMode=false);
 	void initServer(WindowGl *window, GameSettings *settings);
@@ -227,6 +223,10 @@ public:
 
 	virtual SimpleTaskThread * getSoundThreadManager(bool takeOwnership);
 	virtual void reloadUI();
+
+protected:
+
+	virtual bool EventCallback(CEGUI::Window *ctl, std::string name);
 
 private:
 

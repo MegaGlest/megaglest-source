@@ -79,6 +79,7 @@ MegaGlest_CEGUIManager::MegaGlest_CEGUIManager() {
 	messageBoxRoot 		= NULL;
 	errorMessageBoxRoot = NULL;
 	containerName 		= "";
+	initialized 		= false;
 }
 
 MegaGlest_CEGUIManager::~MegaGlest_CEGUIManager() {
@@ -202,6 +203,8 @@ void MegaGlest_CEGUIManager::setupCEGUI() {
 	emptyMainWindowRoot = loadLayoutFromFile("EmptyRoot.layout");
 	messageBoxRoot 		= loadLayoutFromFile("MessageBox.layout");
 	errorMessageBoxRoot = loadLayoutFromFile("ErrorMessageBox.layout");
+
+	initialized = true;
 }
 
 void MegaGlest_CEGUIManager::clearRootWindow() {
@@ -862,6 +865,10 @@ void MegaGlest_CEGUIManager::setControlVisible(CEGUI::Window *ctl, bool visible)
 
 void MegaGlest_CEGUIManager::setColumnsForMultiColumnListControl(CEGUI::Window *ctl, vector<pair<string, float> > columnValues) {
 	CEGUI::MultiColumnList *listbox = static_cast<CEGUI::MultiColumnList*>(ctl);
+
+	for(int index = listbox->getColumnCount()-1; index >= 0; --index) {
+		listbox->removeColumn(index);
+	}
 	// Add some column headers
 	for(unsigned int index = 0; index < columnValues.size(); ++index) {
 		pair<string, float> &columnInfo = columnValues[index];

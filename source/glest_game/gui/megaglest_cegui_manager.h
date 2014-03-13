@@ -44,6 +44,7 @@ private:
 
 protected:
 
+	bool initialized;
 	CEGUI::Window *emptyMainWindowRoot;
 	CEGUI::Window *messageBoxRoot;
 	CEGUI::Window *errorMessageBoxRoot;
@@ -70,6 +71,7 @@ public:
 	virtual ~MegaGlest_CEGUIManager();
 
 	void setupCEGUI();
+	bool isInitialized() const { return initialized; }
 	void clearRootWindow();
 
 	CEGUI::Window * loadLayoutFromFile(string layoutFile);
