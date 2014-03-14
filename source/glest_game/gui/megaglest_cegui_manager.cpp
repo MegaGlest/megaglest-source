@@ -525,6 +525,17 @@ void MegaGlest_CEGUIManager::displayMessageBox(string title, string text,
 	ctlMsg->getChild("ButtonOk")->setText((CEGUI::encoded_char*)buttonTextOk.c_str());
 	ctlMsg->getChild("ButtonCancel")->setText((CEGUI::encoded_char*)buttonTextCancel.c_str());
 
+	if(buttonTextCancel == "") {
+		CEGUI::UDim xPos(0.35f,0);
+		ctlMsg->getChild("ButtonOk")->setXPosition(xPos);
+		ctlMsg->getChild("ButtonCancel")->setVisible(false);
+	}
+	else {
+		CEGUI::UDim xPos(0.17388f,0);
+		ctlMsg->getChild("ButtonOk")->setXPosition(xPos);
+		ctlMsg->getChild("ButtonCancel")->setVisible(true);
+	}
+
 	getMessageBoxRoot(rootMessageBoxFullName)->setVisible(true);
 }
 
@@ -534,6 +545,17 @@ void MegaGlest_CEGUIManager::setMessageBoxButtonText(string buttonTextOk,
 	CEGUI::Window *ctlMsg = getMessageBoxRoot(rootMessageBoxFullName)->getChild("MessageBox");
 	ctlMsg->getChild("ButtonOk")->setText((CEGUI::encoded_char*)buttonTextOk.c_str());
 	ctlMsg->getChild("ButtonCancel")->setText((CEGUI::encoded_char*)buttonTextCancel.c_str());
+
+	if(buttonTextCancel == "") {
+		CEGUI::UDim xPos(0.35f,0);
+		ctlMsg->getChild("ButtonOk")->setXPosition(xPos);
+		ctlMsg->getChild("ButtonCancel")->setVisible(false);
+	}
+	else {
+		CEGUI::UDim xPos(0.17388f,0);
+		ctlMsg->getChild("ButtonOk")->setXPosition(xPos);
+		ctlMsg->getChild("ButtonCancel")->setVisible(true);
+	}
 
 	getMessageBoxRoot(rootMessageBoxFullName)->setVisible(true);
 }

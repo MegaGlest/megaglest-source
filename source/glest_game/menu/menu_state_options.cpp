@@ -638,7 +638,7 @@ bool MenuStateOptions::EventCallback(CEGUI::Window *ctl, std::string name) {
 					Lang &lang= Lang::getInstance();
 					showMessageBox(lang.getString("TransifexDownloadSuccess","",false,true) +
 													"\n" + langName,
-								   lang.getString("Notice","",false,true), false);
+								   lang.getString("Notice","",false,true), true);
 				}
 			}
 		}
@@ -787,7 +787,7 @@ bool MenuStateOptions::EventCallback(CEGUI::Window *ctl, std::string name) {
 
 					if(foundFilesToDelete == true) {
 						mainMessageBoxState = 0;
-						showMessageBox(lang.getString("TransifexDeleteSuccess","",false,true), lang.getString("Notice","",false,true), false);
+						showMessageBox(lang.getString("TransifexDeleteSuccess","",false,true), lang.getString("Notice","",false,true), true);
 					}
 				}
 			}
@@ -869,20 +869,25 @@ void MenuStateOptions::setupTransifexUI() {
 			cegui_manager.getCheckboxControlChecked(cegui_manager.getChildControl(ctl,"CheckboxAdvancedTranslation")));
 }
 
-void MenuStateOptions::showMessageBox(const string &text, const string &header, bool toggle){
+void MenuStateOptions::showMessageBox(const string &text, const string &header, bool okOnly){
 
 	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
 	if(cegui_manager.isMessageBoxShowing() == false) {
 		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
 		Lang &lang= Lang::getInstance();
-		cegui_manager.displayMessageBox(header, text, lang.getString("Yes","",false,true),lang.getString("No","",false,true));
+		if(okOnly == true) {
+			cegui_manager.displayMessageBox(header, text, lang.getString("Ok","",false,true),"");
+		}
+		else {
+			cegui_manager.displayMessageBox(header, text, lang.getString("Yes","",false,true),lang.getString("No","",false,true));
+		}
 	}
 	else {
 		cegui_manager.hideMessageBox();
 	}
 }
 
-void MenuStateOptions::showLuaMessageBox(const string &text, const string &header, bool toggle) {
+void MenuStateOptions::showLuaMessageBox(const string &text, const string &header, bool okOnly) {
 
 	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
 	if(cegui_manager.isMessageBoxShowing("TabControl/__auto_TabPane__/Misc/LuaMsgBox") == false) {

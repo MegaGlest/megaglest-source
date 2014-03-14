@@ -132,7 +132,7 @@ Program::ShowMessageProgramState::ShowMessageProgramState(Program *program, cons
 			text = msg;
 		}
 
-		cegui_manager.displayMessageBox("Error", text, lang.getString("Ok","",false,true),lang.getString("Cancel","",false,true));
+		cegui_manager.displayMessageBox("Error", text, lang.getString("Ok","",false,true),"");
 	//}
 
 	this->msg = (msg ? msg : "");
@@ -920,7 +920,7 @@ void Program::showMessage(const char *msg) {
 			text = msg;
 		}
 
-		cegui_manager.displayMessageBox("", text, lang.getString("Ok","",false,true),lang.getString("Cancel","",false,true));
+		cegui_manager.displayMessageBox("", text, lang.getString("Ok","",false,true),"");
 	}
 }
 

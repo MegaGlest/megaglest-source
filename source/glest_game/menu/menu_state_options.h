@@ -61,8 +61,8 @@ private:
     void delayedCallbackFunctionVideoTab();
 
 	void saveConfig();
-	void showMessageBox(const string &text, const string &header, bool toggle);
-	void showLuaMessageBox(const string &text, const string &header, bool toggle);
+	void showMessageBox(const string &text, const string &header, bool okOnly);
+	void showLuaMessageBox(const string &text, const string &header, bool okOnly);
 
 	void setupTransifexUI();
 
