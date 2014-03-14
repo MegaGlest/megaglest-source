@@ -201,7 +201,7 @@ void MenuStateKeysetup::setupCEGUIWidgetsText() {
 	}
 
 	vector<pair<string,float> > columnValues;
-	columnValues.push_back(make_pair("",1500));
+	columnValues.push_back(make_pair("",800));
 	columnValues.push_back(make_pair("",200));
 	cegui_manager.setColumnsForMultiColumnListControl(cegui_manager.getChildControl(ctlKeyboard,"MultiColumnListKeyMapping"), columnValues);
 	cegui_manager.addItemsToMultiColumnListControl(cegui_manager.getChildControl(ctlKeyboard,"MultiColumnListKeyMapping"),valueList);
