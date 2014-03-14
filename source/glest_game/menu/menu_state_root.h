@@ -33,7 +33,7 @@ public:
 	virtual void mouseMove(int x, int y, const MouseState *mouseState) {};
 
 	void render();
-	void update();
+	virtual void update();
 
 	virtual void keyDown(SDL_KeyboardEvent key);
 	void showMessageBox(const string &text, const string &header);

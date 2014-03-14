@@ -13,6 +13,8 @@
 #define _GLEST_GAME_MENUSTATESCENARIO_H_
 
 #include "main_menu.h"
+#include "megaglest_cegui_manager.h"
+
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -21,24 +23,14 @@ namespace Glest{ namespace Game{
 // 	class MenuStateScenario
 // ===============================
 
-class MenuStateScenario: public MenuState {
+class MenuStateScenario: public MenuState, public MegaGlest_CEGUIManagerBackInterface {
 private:
-
-	GraphicButton buttonReturn;
-	GraphicButton buttonPlayNow;
-
-	GraphicLabel labelInfo;
-	GraphicLabel labelScenario;
-	GraphicListBox listBoxScenario;
-	GraphicLabel labelScenarioName;
-
 
 	vector<string> scenarioFiles;
 
     ScenarioInfo scenarioInfo;
 	vector<string> dirList;
 
-	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
 
 	string autoloadScenarioName;
@@ -51,6 +43,13 @@ private:
 
 	bool isTutorialMode;
 
+	typedef void(MenuStateScenario::*DelayCallbackFunction)(void);
+	vector<DelayCallbackFunction> delayedCallbackList;
+
+protected:
+	virtual bool hasDelayedCallbacks() { return delayedCallbackList.empty() == false; }
+	virtual void callDelayedCallbacks();
+
 public:
 	MenuStateScenario(Program *program, MainMenu *mainMenu, bool isTutorialMode, const vector<string> &dirList, string autoloadScenarioName="");
 	virtual ~MenuStateScenario();
@@ -58,11 +57,11 @@ public:
     void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void render();
-	void update();
+	virtual void update();
 
 	void launchGame();
 	void setScenario(int i);
-	int getScenarioCount() const	{ return listBoxScenario.getItemCount(); }
+	int getScenarioCount() const { return scenarioFiles.size(); }
 
 	virtual void keyDown(SDL_KeyboardEvent key);
 
@@ -74,9 +73,17 @@ private:
     void loadGameSettings(const ScenarioInfo *scenarioInfo, GameSettings *gameSettings);
     void loadScenarioPreviewTexture();
 	Difficulty computeDifficulty(const ScenarioInfo *scenarioInfo);
-    void showMessageBox(const string &text, const string &header, bool toggle);
+    void showMessageBox(const string &text, const string &header,bool okOnly = false);
 
     void cleanupPreviewTexture();
+
+	void delayedCallbackFunctionPlay();
+	void delayedCallbackFunctionReturn();
+
+	void setupCEGUIWidgetsText();
+	void setupCEGUIWidgets();
+	virtual bool EventCallback(CEGUI::Window *ctl, std::string name);
+
 };
 
 

@@ -20,6 +20,7 @@
 #include "config.h"
 #include "auto_test.h"
 #include "game.h"
+#include "megaglest_cegui_manager.h"
 
 #include "leak_dumper.h"
 
@@ -35,15 +36,14 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
 		bool isTutorialMode, const vector<string> &dirList, string autoloadScenarioName) :
     MenuState(program, mainMenu, "scenario")
 {
-	containerName = "Scenario";
-	this->isTutorialMode = isTutorialMode;
-
+	containerName 				 = "Scenario";
+	this->isTutorialMode 		 = isTutorialMode;
 	enableScenarioTexturePreview = Config::getInstance().getBool("EnableScenarioTexturePreview","true");
-	scenarioLogoTexture=NULL;
-	previewLoadDelayTimer=time(NULL);
-	needToLoadTextures=true;
+	scenarioLogoTexture			 = NULL;
+	previewLoadDelayTimer		 = time(NULL);
+	needToLoadTextures			 = true;
+	mainMessageBoxState 		 = 0;
 
-	Lang &lang= Lang::getInstance();
 	NetworkManager &networkManager= NetworkManager::getInstance();
     try {
         networkManager.init(nrServer);
@@ -54,97 +54,122 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
 		SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
-        mainMessageBoxState=1;
-        showMessageBox( "Error: " + string(ex.what()), "Error detected", false);
+        mainMessageBoxState = 1;
+        showMessageBox( "Error: " + string(ex.what()), "Error detected");
 	}
 
-	mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
-	mainMessageBox.init(lang.getString("Ok"));
-	mainMessageBox.setEnabled(false);
-	mainMessageBoxState=0;
+	this->autoloadScenarioName 	= autoloadScenarioName;
+	this->dirList 				= dirList;
 
-	this->autoloadScenarioName = autoloadScenarioName;
-    vector<string> results;
-
-	this->dirList = dirList;
-
-	int buttonStartY=50;
-	int buttonStartX=70;
-
-	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
-    buttonReturn.init(buttonStartX, buttonStartY, 125);
-	buttonReturn.setText(lang.getString("Return"));
-
-    buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
-	buttonPlayNow.init(buttonStartX+150, buttonStartY, 125);
-	buttonPlayNow.setText(lang.getString("PlayNow"));
-
-	int startY=700;
-	int startX=50;
-
-    labelScenario.registerGraphicComponent(containerName,"labelScenario");
-	labelScenario.init(startX, startY);
-
-	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
-    listBoxScenario.init(startX, startY-30, 290);
-
-	labelScenarioName.registerGraphicComponent(containerName,"labelScenarioName");
-	labelScenarioName.init(startX, startY-80);
-	labelScenarioName.setFont(CoreData::getInstance().getMenuFontBig());
-	labelScenarioName.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-
-	labelInfo.registerGraphicComponent(containerName,"labelInfo");
-    labelInfo.init(startX, startY-110);
-	labelInfo.setFont(CoreData::getInstance().getMenuFontNormal());
-	labelInfo.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
-
-	if(this->isTutorialMode == true) {
-		labelScenario.setText(lang.getString("Tutorial"));
-	}
-	else {
-		labelScenario.setText(lang.getString("Scenario"));
-	}
-
-    //scenario listbox
+	vector<string> results;
 	findDirs(dirList, results);
     scenarioFiles = results;
-    //printf("scenarioFiles[0] [%s]\n",scenarioFiles[0].c_str());
+//    printf("scenarioFiles count = %d\n",scenarioFiles.size());
+//    for(unsigned int index = 0; index < scenarioFiles.size(); ++index) {
+//    	string item = scenarioFiles[index];
+//    	printf("scenarioFile index = %d file: [%s]\n",index,item.c_str());
+//    }
+
+    setupCEGUIWidgets();
 
 	if(results.empty() == true) {
-        //throw megaglest_runtime_error("There are no scenarios found to load");
-        mainMessageBoxState=1;
+        mainMessageBoxState = 1;
         if(this->isTutorialMode == true) {
-        	showMessageBox( "Error: There are no tutorials found to load", "Error detected", false);
+        	showMessageBox( "Error: There are no tutorials found to load", "Error detected");
         }
         else {
-        	showMessageBox( "Error: There are no scenarios found to load", "Error detected", false);
+        	showMessageBox( "Error: There are no scenarios found to load", "Error detected");
+        }
+	}
+
+    GraphicComponent::applyAllCustomProperties(containerName);
+}
+
+
+void MenuStateScenario::setupCEGUIWidgets() {
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+	CEGUI::Window *ctl = cegui_manager.setCurrentLayout("TutorialMenu.layout",containerName);
+	cegui_manager.setControlVisible(ctl,true);
+
+	cegui_manager.setControlEventCallback(containerName,"ComboBoxTutorial",
+					cegui_manager.getEventComboboxChangeAccepted(), this);
+
+	cegui_manager.setControlEventCallback(containerName,
+			"ButtonPlay", cegui_manager.getEventButtonClicked(), this);
+	cegui_manager.setControlEventCallback(containerName,
+			"ButtonReturn", cegui_manager.getEventButtonClicked(), this);
+
+	cegui_manager.subscribeMessageBoxEventClicks(containerName, this);
+	cegui_manager.subscribeErrorMessageBoxEventClicks(containerName, this);
+
+	setupCEGUIWidgetsText();
+}
+
+void MenuStateScenario::setupCEGUIWidgetsText() {
+
+	Lang &lang= Lang::getInstance();
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+
+	cegui_manager.setCurrentLayout("TutorialMenu.layout",containerName);
+
+	if(this->isTutorialMode == true) {
+		cegui_manager.setControlText("LabelTutorialTitle",lang.getString("Tutorial","",false,true));
+	}
+	else {
+		cegui_manager.setControlText("LabelTutorialTitle",lang.getString("Scenario","",false,true));
+	}
+
+	vector<string> results = scenarioFiles;
+	if(results.empty() == true) {
+        mainMessageBoxState = 1;
+        if(this->isTutorialMode == true) {
+        	showMessageBox( "Error: There are no tutorials found to load", "Error detected");
+        }
+        else {
+        	showMessageBox( "Error: There are no scenarios found to load", "Error detected");
         }
 	}
 
 	std::map<string,string> scenarioErrors;
-	for(int i= 0; i < (int)results.size(); ++i){
-			results[i] = formatString(results[i]);
+	for(unsigned int index = 0; index < results.size(); ++index) {
+		results[index] = formatString(results[index]);
 	}
-    listBoxScenario.setItems(results);
+
+	cegui_manager.addItemsToComboBoxControl(
+			cegui_manager.getControl("ComboBoxTutorial"), results,false);
+	if(results.empty() == false) {
+		cegui_manager.setSelectedItemInComboBoxControl(
+								cegui_manager.getControl("ComboBoxTutorial"), results[0],false);
+	}
 
     try {
-    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
+    	int selectedTutorialIndex = cegui_manager.getSelectedItemIndexFromComboBoxControl(cegui_manager.getControl("ComboBoxTutorial"));
 
-    	if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < (int)scenarioFiles.size()) {
-    		string scenarioPath = Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]);
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,selectedTutorialIndex,(int)scenarioFiles.size());
+
+    	if(selectedTutorialIndex >= 0 && selectedTutorialIndex < (int)scenarioFiles.size()) {
+    		string scenarioPath = Scenario::getScenarioPath(dirList, scenarioFiles[selectedTutorialIndex]);
     		//printf("scenarioPath [%s]\n",scenarioPath.c_str());
 
     		loadScenarioInfo(scenarioPath, &scenarioInfo );
-    		labelInfo.setText(scenarioInfo.desc);
+    		//labelInfo.setText(scenarioInfo.desc);
+    		cegui_manager.setControlText("EditboxTutorialInfo",scenarioInfo.desc);
+
     		if(scenarioInfo.namei18n != "") {
-    			labelScenarioName.setText(scenarioInfo.namei18n);
+    			//labelScenarioName.setText(scenarioInfo.namei18n);
+    			cegui_manager.setControlText("LabelTutorialName",scenarioInfo.namei18n);
+
     		}
     		else {
-    			labelScenarioName.setText(listBoxScenario.getSelectedItem());
+    			//labelScenarioName.setText(listBoxScenario.getSelectedItem());
+    			cegui_manager.setControlText("LabelTutorialName",
+    					cegui_manager.getSelectedItemFromComboBoxControl(
+    							cegui_manager.getControl("ComboBoxTutorial")));
+
     		}
     	}
-
-        GraphicComponent::applyAllCustomProperties(containerName);
     }
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
@@ -153,38 +178,143 @@ MenuStateScenario::MenuStateScenario(Program *program, MainMenu *mainMenu,
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
         mainMessageBoxState=1;
-        showMessageBox( "Error: " + string(ex.what()), "Error detected", false);
+        showMessageBox( "Error: " + string(ex.what()), "Error detected");
 	}
 
 	if(scenarioErrors.empty() == false) {
-        mainMessageBoxState=1;
+        mainMessageBoxState = 1;
 
         string errorMsg = "";
         for(std::map<string,string>::iterator iterMap = scenarioErrors.begin();
         		iterMap != scenarioErrors.end(); ++iterMap) {
+
         	errorMsg += "scenario: " + iterMap->first + " error text: " + iterMap->second.substr(0,400) + "\n";
         }
-        showMessageBox( "Error loading scenario(s): " + errorMsg, "Error detected", false);
+        showMessageBox( "Error loading scenario(s): " + errorMsg, "Error detected");
+	}
+
+	cegui_manager.setControlText("ButtonPlay",lang.getString("PlayNow","",false,true));
+	cegui_manager.setControlText("ButtonReturn",lang.getString("Return","",false,true));
+}
+
+void MenuStateScenario::callDelayedCallbacks() {
+	if(hasDelayedCallbacks() == true) {
+		while(hasDelayedCallbacks() == true) {
+			MenuStateScenario::DelayCallbackFunction pCB = delayedCallbackList[0];
+			delayedCallbackList.erase(delayedCallbackList.begin());
+			bool hasMoreCallbacks = hasDelayedCallbacks();
+			(this->*pCB)();
+			if(hasMoreCallbacks == false) {
+				return;
+			}
+		}
 	}
 }
 
+void MenuStateScenario::delayedCallbackFunctionPlay() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	soundRenderer.playFx(coreData.getClickSoundC());
+	launchGame();
+}
+
+void MenuStateScenario::delayedCallbackFunctionReturn() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+
+	soundRenderer.playFx(coreData.getClickSoundA());
+	mainMenu->setState(new MenuStateNewGame(program, mainMenu));
+}
+
+bool MenuStateScenario::EventCallback(CEGUI::Window *ctl, std::string name) {
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	if(name == cegui_manager.getEventButtonClicked()) {
+
+		if(cegui_manager.isControlMessageBoxOk(ctl) == true) {
+
+			MenuStateScenario::DelayCallbackFunction pCB = &MenuStateScenario::delayedCallbackFunctionReturn;
+			delayedCallbackList.push_back(pCB);
+
+			cegui_manager.hideMessageBox();
+			return true;
+		}
+		else if(cegui_manager.isControlMessageBoxCancel(ctl) == true) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundA());
+			cegui_manager.hideMessageBox();
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("ButtonPlay")) {
+			MenuStateScenario::DelayCallbackFunction pCB = &MenuStateScenario::delayedCallbackFunctionPlay;
+			delayedCallbackList.push_back(pCB);
+
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("ButtonReturn")) {
+			MenuStateScenario::DelayCallbackFunction pCB = &MenuStateScenario::delayedCallbackFunctionReturn;
+			delayedCallbackList.push_back(pCB);
+
+			return true;
+		}
+	}
+	else if(name == cegui_manager.getEventComboboxChangeAccepted()) {
+		if(ctl == cegui_manager.getControl("ComboBoxTutorial")) {
+
+			try {
+				int selectedId = cegui_manager.getSelectedItemIdFromComboBoxControl(cegui_manager.getControl("ComboBoxTutorial"));
+
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,selectedId,(int)scenarioFiles.size());
+
+				if(selectedId >= 0) {
+					if(selectedId < (int)scenarioFiles.size()) {
+						loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[selectedId]), &scenarioInfo);
+
+			    		cegui_manager.setControlText("EditboxTutorialInfo",scenarioInfo.desc);
+
+			    		if(scenarioInfo.namei18n != "") {
+			    			cegui_manager.setControlText("LabelTutorialName",scenarioInfo.namei18n);
+
+			    		}
+			    		else {
+			    			cegui_manager.setControlText("LabelTutorialName",
+			    					cegui_manager.getSelectedItemFromComboBoxControl(
+			    							cegui_manager.getControl("ComboBoxTutorial")));
+			    		}
+					}
+				}
+			}
+			catch(const std::exception &ex) {
+				char szBuf[8096]="";
+				snprintf(szBuf,8096,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
+				SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+				mainMessageBoxState=1;
+				showMessageBox( "Error: " + string(ex.what()), "Error detected");
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
 void MenuStateScenario::reloadUI() {
-	Lang &lang= Lang::getInstance();
 
 	console.resetFonts();
-	mainMessageBox.init(lang.getString("Ok"));
-	labelInfo.setFont(CoreData::getInstance().getMenuFontNormal());
-	labelInfo.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
-
-	labelScenarioName.setFont(CoreData::getInstance().getMenuFontNormal());
-	labelScenarioName.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
-
-	buttonReturn.setText(lang.getString("Return"));
-	buttonPlayNow.setText(lang.getString("PlayNow"));
-
-    labelScenario.setText(lang.getString("Scenario"));
-
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
+
+	setupCEGUIWidgetsText();
 }
 
 MenuStateScenario::~MenuStateScenario() {
@@ -200,112 +330,19 @@ void MenuStateScenario::cleanupPreviewTexture() {
 	scenarioLogoTexture = NULL;
 }
 
-void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) {
-	CoreData &coreData= CoreData::getInstance();
-	SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-	string advanceToItemStartingWith = "";
+void MenuStateScenario::mouseClick(int x, int y, MouseButton mouseButton) { }
 
-	if(mainMessageBox.getEnabled()){
-		int button= 0;
-		if(mainMessageBox.mouseClick(x, y, button)) {
-			soundRenderer.playFx(coreData.getClickSoundA());
-			if(button==0) {
-				mainMessageBox.setEnabled(false);
+void MenuStateScenario::mouseMove(int x, int y, const MouseState *ms) { }
 
-				if(scenarioFiles.empty() == true && mainMessageBoxState ==1) {
-					mainMenu->setState(new MenuStateNewGame(program, mainMenu));
-					return;
-				}
-			}
-		}
-		return;
-	}
-    else {
-    	if(::Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
-    		const wchar_t lastKey = ::Shared::Platform::Window::extractLastKeyPressed();
-//        		xxx:
-//        		string hehe=lastKey;
-//        		printf("lastKey = %d [%c] '%s'\n",lastKey,lastKey,hehe);
-    		advanceToItemStartingWith =  lastKey;
-    	}
-    }
-
-	if(buttonReturn.mouseClick(x,y)){
-		soundRenderer.playFx(coreData.getClickSoundA());
-		mainMenu->setState(new MenuStateNewGame(program, mainMenu));
-		return;
-    }
-	else if(buttonPlayNow.mouseClick(x,y)){
-		soundRenderer.playFx(coreData.getClickSoundC());
-		launchGame();
-		return;
-	}
-    else if(listBoxScenario.mouseClick(x, y,advanceToItemStartingWith)){
-        try {
-        	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
-
-        	if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < (int)scenarioFiles.size()) {
-        		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
-        		labelInfo.setText(scenarioInfo.desc);
-        		if(scenarioInfo.namei18n != "") {
-        			labelScenarioName.setText(scenarioInfo.namei18n);
-        		}
-        		else {
-        			labelScenarioName.setText(listBoxScenario.getSelectedItem());
-        		}
-        	}
-        }
-        catch(const std::exception &ex) {
-            char szBuf[8096]="";
-            snprintf(szBuf,8096,"In [%s::%s %d] Error detected:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,ex.what());
-            SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
-            if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
-
-            mainMessageBoxState=1;
-            showMessageBox( "Error: " + string(ex.what()), "Error detected", false);
-        }
-	}
-}
-
-void MenuStateScenario::mouseMove(int x, int y, const MouseState *ms){
-
-	if (mainMessageBox.getEnabled()) {
-		mainMessageBox.mouseMove(x, y);
-	}
-
-	listBoxScenario.mouseMove(x, y);
-
-	buttonReturn.mouseMove(x, y);
-	buttonPlayNow.mouseMove(x, y);
-}
-
-void MenuStateScenario::render(){
+void MenuStateScenario::render() {
 
 	Renderer &renderer= Renderer::getInstance();
-
-	if(scenarioLogoTexture != NULL) {
-		renderer.renderTextureQuad(450,200,533,400,scenarioLogoTexture,1.0f);
-		//renderer.renderBackground(scenarioLogoTexture);
-	}
-
-	if(mainMessageBox.getEnabled()) {
-		renderer.renderMessageBox(&mainMessageBox);
-	}
-	else {
-		renderer.renderLabel(&labelInfo);
-		renderer.renderLabel(&labelScenarioName);
-
-		renderer.renderLabel(&labelScenario);
-		renderer.renderListBox(&listBoxScenario);
-
-		renderer.renderButton(&buttonReturn);
-		renderer.renderButton(&buttonPlayNow);
-	}
 	renderer.renderConsole(&console,false,true);
 	if(program != NULL) program->renderProgramMsgBox();
 }
 
 void MenuStateScenario::update() {
+
 	if(Config::getInstance().getBool("AutoTest")) {
 		AutoTest::getInstance().updateScenario(this);
 		return;
@@ -327,32 +364,41 @@ void MenuStateScenario::update() {
 		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("[%s:%s] Line: %d this->autoloadScenarioName [%s] scenarioPath [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->autoloadScenarioName.c_str(),scenarioPath.c_str());
 		printf("[%s:%s] Line: %d this->autoloadScenarioName [%s] scenarioPath [%s] file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->autoloadScenarioName.c_str(),scenarioPath.c_str(),scenarioInfo.file.c_str());
 
-		listBoxScenario.setSelectedItem(this->autoloadScenarioName,false);
+		//listBoxScenario.setSelectedItem(this->autoloadScenarioName,false);
+		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+		cegui_manager.setSelectedItemInComboBoxControl(
+								cegui_manager.getControl("ComboBoxTutorial"), this->autoloadScenarioName,false);
+		string selectedItem = cegui_manager.getSelectedItemFromComboBoxControl(cegui_manager.getControl("ComboBoxTutorial"));
+		int selectedItemId = cegui_manager.getSelectedItemIdFromComboBoxControl(cegui_manager.getControl("ComboBoxTutorial"));
 
-		if(listBoxScenario.getSelectedItem() != this->autoloadScenarioName) {
-			mainMessageBoxState=1;
-			showMessageBox( "Could not find scenario name: " + this->autoloadScenarioName, "Scenario Missing", false);
+		if(selectedItem != this->autoloadScenarioName) {
+			mainMessageBoxState = 1;
+			showMessageBox( "Could not find scenario name: " + this->autoloadScenarioName, "Scenario Missing");
 			this->autoloadScenarioName = "";
 		}
 		else {
 			try {
 				this->autoloadScenarioName = "";
-				if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 &&
-					listBoxScenario.getSelectedItemIndex() < (int)scenarioFiles.size()) {
+				if(selectedItemId >= 0 && selectedItemId < (int)scenarioFiles.size()) {
 
-					printf("[%s:%s] Line: %d scenarioFiles[listBoxScenario.getSelectedItemIndex()] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenarioFiles[listBoxScenario.getSelectedItemIndex()].c_str());
+					printf("[%s:%s] Line: %d scenarioFiles[listBoxScenario.getSelectedItemIndex()] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenarioFiles[selectedItemId].c_str());
 
-					loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+					loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[selectedItemId]), &scenarioInfo);
 
 					printf("[%s:%s] Line: %d scenarioInfo.file [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenarioInfo.file.c_str());
 
-					labelInfo.setText(scenarioInfo.desc);
-	        		if(scenarioInfo.namei18n != "") {
-	        			labelScenarioName.setText(scenarioInfo.namei18n);
-	        		}
-	        		else {
-	        			labelScenarioName.setText(listBoxScenario.getSelectedItem());
-	        		}
+		    		cegui_manager.setControlText("EditboxTutorialInfo",scenarioInfo.desc);
+
+		    		if(scenarioInfo.namei18n != "") {
+		    			cegui_manager.setControlText("LabelTutorialName",scenarioInfo.namei18n);
+
+		    		}
+		    		else {
+		    			cegui_manager.setControlText("LabelTutorialName",
+		    					cegui_manager.getSelectedItemFromComboBoxControl(
+		    							cegui_manager.getControl("ComboBoxTutorial")));
+		    		}
+
 
 					SoundRenderer &soundRenderer= SoundRenderer::getInstance();
 					CoreData &coreData= CoreData::getInstance();
@@ -368,7 +414,7 @@ void MenuStateScenario::update() {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
 
 				mainMessageBoxState=1;
-				showMessageBox( "Error: " + string(ex.what()), "Error detected", false);
+				showMessageBox( "Error: " + string(ex.what()), "Error detected");
 			}
 		}
 	}
@@ -381,6 +427,8 @@ void MenuStateScenario::update() {
 		}
 	}
 	console.update();
+
+	MenuState::update();
 }
 
 void MenuStateScenario::launchGame() {
@@ -399,18 +447,28 @@ void MenuStateScenario::launchGame() {
 			SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
 
 	        mainMessageBoxState=1;
-	        showMessageBox( szBuf, "Error detected", false);
+	        showMessageBox( szBuf, "Error detected");
 
 			return;
 		}
+
+		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+		cegui_manager.unsubscribeEvents(this->containerName);
+		CEGUI::Window *ctl = cegui_manager.setCurrentLayout("TutorialMenu.layout",containerName);
+		cegui_manager.setControlVisible(ctl,false);
+
 		program->setState(new Game(program, &gameSettings, false));
 		return;
 	}
 }
 
 void MenuStateScenario::setScenario(int i) {
-	listBoxScenario.setSelectedItemIndex(i);
-	loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+	//listBoxScenario.setSelectedItemIndex(i);
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.setSelectedItemInComboBoxControl(
+							cegui_manager.getControl("ComboBoxTutorial"), i);
+
+	loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[i]), &scenarioInfo);
 }
 
 void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo) {
@@ -427,8 +485,10 @@ void MenuStateScenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo
 
 void MenuStateScenario::loadScenarioPreviewTexture(){
 	if(enableScenarioTexturePreview == true) {
-		//if(listBoxScenario.getSelectedItemIndex() >= 0) {
-		if(listBoxScenario.getItemCount() > 0 && listBoxScenario.getSelectedItemIndex() >= 0 && listBoxScenario.getSelectedItemIndex() < (int)scenarioFiles.size()) {
+
+		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+		int selectedId = cegui_manager.getSelectedItemIdFromComboBoxControl(cegui_manager.getControl("ComboBoxTutorial"));
+		if(selectedId >= 0 && selectedId < (int)scenarioFiles.size()) {
 			GameSettings gameSettings;
 			loadGameSettings(&scenarioInfo, &gameSettings);
 
@@ -447,37 +507,48 @@ void MenuStateScenario::loadScenarioPreviewTexture(){
 				cleanupPreviewTexture();
 				scenarioLogoTexture = NULL;
 			}
+
+			//printf("Image preview: [%s]\n",(scenarioLogoTexture != NULL ? scenarioLogoTexture->getPath().c_str() : ""));
+
+			cegui_manager.setImageFileForControl("TutorialPreviewImage_" + scenarioLogo,
+					(scenarioLogoTexture != NULL ? scenarioLogoTexture->getPath() : ""),
+						"TutorialPreview");
 		}
 	}
 }
 
 void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameSettings *gameSettings){
-	if(listBoxScenario.getSelectedItemIndex() < 0) {
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	int selectedId = cegui_manager.getSelectedItemIdFromComboBoxControl(cegui_manager.getControl("ComboBoxTutorial"));
+	if(selectedId < 0) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"listBoxScenario.getSelectedItemIndex() < 0, = %d",listBoxScenario.getSelectedItemIndex());
+		snprintf(szBuf,8096,"listBoxScenario.getSelectedItemIndex() < 0, = %d",selectedId);
 		throw megaglest_runtime_error(szBuf);
 	}
-	else if(listBoxScenario.getSelectedItemIndex() >= (int)scenarioFiles.size()) {
+	else if(selectedId >= (int)scenarioFiles.size()) {
 		char szBuf[8096]="";
-		snprintf(szBuf,8096,"listBoxScenario.getSelectedItemIndex() >= scenarioFiles.size(), = [%d][%d]",listBoxScenario.getSelectedItemIndex(),(int)scenarioFiles.size());
+		snprintf(szBuf,8096,"listBoxScenario.getSelectedItemIndex() >= scenarioFiles.size(), = [%d][%d]",selectedId,(int)scenarioFiles.size());
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	Scenario::loadGameSettings(dirList,scenarioInfo, gameSettings, formatString(scenarioFiles[listBoxScenario.getSelectedItemIndex()]));
+	Scenario::loadGameSettings(dirList,scenarioInfo, gameSettings, formatString(scenarioFiles[selectedId]));
 }
 
-void MenuStateScenario::showMessageBox(const string &text, const string &header, bool toggle){
-	if(!toggle){
-		mainMessageBox.setEnabled(false);
+void MenuStateScenario::showMessageBox(const string &text, const string &header, bool okOnly) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	if(cegui_manager.isMessageBoxShowing() == false) {
+		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+		Lang &lang= Lang::getInstance();
+		if(okOnly == true) {
+			cegui_manager.displayMessageBox(header, text, lang.getString("Ok","",false,true),"");
+		}
+		else {
+			cegui_manager.displayMessageBox(header, text, lang.getString("Yes","",false,true),lang.getString("No","",false,true));
+		}
 	}
-
-	if(!mainMessageBox.getEnabled()){
-		mainMessageBox.setText(text);
-		mainMessageBox.setHeader(header);
-		mainMessageBox.setEnabled(true);
-	}
-	else{
-		mainMessageBox.setEnabled(false);
+	else {
+		cegui_manager.hideMessageBox();
 	}
 }
 

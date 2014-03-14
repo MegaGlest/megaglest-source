@@ -201,6 +201,8 @@ void MenuStateRoot::update() {
 		return;
 	}
 	console.update();
+
+	MenuState::update();
 }
 
 void MenuStateRoot::keyDown(SDL_KeyboardEvent key) {
