@@ -13,6 +13,7 @@
 #define _GLEST_GAME_MENUSTATENEWGAME_H_
 
 #include "main_menu.h"
+#include "megaglest_cegui_manager.h"
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -21,14 +22,15 @@ namespace Glest{ namespace Game{
 // 	class MenuStateNewGame  
 // ===============================
 
-class MenuStateNewGame: public MenuState{
+class MenuStateNewGame: public MenuState, public MegaGlest_CEGUIManagerBackInterface {
 private:
-	GraphicButton buttonCustomGame;
-	GraphicButton buttonScenario;
-	GraphicButton buttonJoinGame;
-	GraphicButton buttonMasterserverGame;
-	GraphicButton buttonTutorial;
-	GraphicButton buttonReturn;
+
+	typedef void(MenuStateNewGame::*DelayCallbackFunction)(void);
+	vector<DelayCallbackFunction> delayedCallbackList;
+
+protected:
+	virtual bool hasDelayedCallbacks() { return delayedCallbackList.empty() == false; }
+	virtual void callDelayedCallbacks();
 
 public:
 	MenuStateNewGame(Program *program, MainMenu *mainMenu);
@@ -40,6 +42,20 @@ public:
 	virtual void keyDown(SDL_KeyboardEvent key);
 
 	void reloadUI();
+
+private:
+
+	void delayedCallbackFunctionTutorial();
+	void delayedCallbackFunctionScenario();
+	void delayedCallbackFunctionCustomGame();
+	void delayedCallbackFunctionInternetGame();
+	void delayedCallbackFunctionLANGame();
+	void delayedCallbackFunctionReturn();
+
+	void setupCEGUIWidgetsText();
+	void setupCEGUIWidgets();
+	virtual bool EventCallback(CEGUI::Window *ctl, std::string name);
+
 };
 
 
