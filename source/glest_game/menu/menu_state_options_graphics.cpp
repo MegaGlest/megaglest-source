@@ -265,7 +265,7 @@ void MenuStateOptionsGraphics::setupCEGUIWidgetsText() {
 
 	int selectedAnimatedObjects = config.getInt("AnimatedTilesetObjects","-1");
 	cegui_manager.setControlText(cegui_manager.getChildControl(ctlVideo,"LabelAnimatedTilesetObjects"),lang.getString("AnimatedTilesetObjects","",false,true));
-	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctlVideo,"SpinnerAnimatedTilesetObjects"),0,10000,(selectedAnimatedObjects >= 0 ? selectedAnimatedObjects : 10000),10);
+	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctlVideo,"SpinnerAnimatedTilesetObjects"),0,10000,(selectedAnimatedObjects >= 0 ? selectedAnimatedObjects : 10000),1);
 
 	cegui_manager.setControlText(cegui_manager.getChildControl(ctlVideo,"LabelMapPreview"),lang.getString("ShowMapPreview","",false,true));
 	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlVideo,"CheckboxMapPreview"),config.getBool("MapPreview","true"));

@@ -240,7 +240,7 @@ void MenuStateOptions::setupCEGUIWidgetsText() {
 	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlMisc,"CheckboxMouseMovesCamera"),config.getBool("MouseMoveScrollsWorld","true"));
 
 	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelCameraMoveSpeed"),lang.getString("CameraMoveSpeed","",false,true));
-	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctlMisc,"SpinnerCameraMoveSpeed"),15,50,config.getFloat("CameraMoveSpeed","15"),5);
+	cegui_manager.setSliderControlValues(cegui_manager.getChildControl(ctlMisc,"SliderCameraMoveSpeed"),15,50,config.getFloat("CameraMoveSpeed","15"),1);
 
 	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelVisibleHUD"),lang.getString("VisibleHUD","",false,true));
 	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlMisc,"CheckboxVisibleHUD"),config.getBool("VisibleHud","true"));
@@ -962,7 +962,7 @@ void MenuStateOptions::saveConfig() {
     config.setBool("MouseMoveScrollsWorld", cegui_manager.getCheckboxControlChecked(
 			cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/CheckboxMouseMovesCamera")));
 
-    string selectedCameraMoveSpeed = intToStr((int)cegui_manager.getSpinnerControlValue(cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/SpinnerCameraMoveSpeed")));
+    string selectedCameraMoveSpeed = intToStr((int)cegui_manager.getSliderControlValue(cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/SliderCameraMoveSpeed")));
 	config.setString("CameraMoveSpeed", selectedCameraMoveSpeed);
 
     config.setBool("VisibleHud", cegui_manager.getCheckboxControlChecked(

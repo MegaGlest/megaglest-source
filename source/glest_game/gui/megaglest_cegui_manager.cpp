@@ -859,6 +859,52 @@ double MegaGlest_CEGUIManager::getSpinnerControlValue(CEGUI::Window *ctl) {
 	return spinner->getCurrentValue();
 }
 
+void MegaGlest_CEGUIManager::setSliderControlValues(CEGUI::Window *ctl, double minValue, double maxValue, double curValue,double interval) {
+	CEGUI::Scrollbar *scrollbar = static_cast<CEGUI::Scrollbar*>(ctl);
+
+	scrollbar->setUserString("MG_MIN",floatToStr(minValue));
+	scrollbar->setUserString("MG_MAX",floatToStr(maxValue));
+	scrollbar->setDocumentSize(maxValue-minValue);
+	scrollbar->setPageSize(interval);
+	double realScrollPosition = curValue;
+//	if(minValue < 0) {
+//		realScrollPosition += (minValue * -1.0);
+//	}
+//	else if(minValue > 0) {
+//		realScrollPosition -= minValue;
+//	}
+	if(minValue != 0) {
+		realScrollPosition -= minValue;
+	}
+	scrollbar->setScrollPosition(realScrollPosition);
+	scrollbar->setStepSize(interval);
+
+	//printf("Line: %d curValue = %f realScrollPosition = %f\n",__LINE__,curValue,realScrollPosition);
+}
+
+double MegaGlest_CEGUIManager::getSliderControlValue(CEGUI::Window *ctl) {
+	CEGUI::Scrollbar *scrollbar = static_cast<CEGUI::Scrollbar*>(ctl);
+	double realScrollPosition = scrollbar->getScrollPosition();
+
+	string strMinValue = scrollbar->getUserString("MG_MIN").c_str();
+	double minValue = strToFloat(strMinValue);
+
+	double curValue = realScrollPosition;
+//	if(minValue < 0) {
+//		curValue -= (minValue * -1.0);
+//	}
+//	else if(minValue > 0) {
+//		curValue += minValue;
+//	}
+	if(minValue != 0) {
+		realScrollPosition += minValue;
+	}
+
+	//printf("Line: %d curValue = %f realScrollPosition = %f\n",__LINE__,curValue,realScrollPosition);
+
+	return curValue;
+}
+
 void MegaGlest_CEGUIManager::setCheckboxControlChecked(CEGUI::Window *ctl, bool checked, bool disableEventsTrigger) {
 	CEGUI::ToggleButton *checkbox = static_cast<CEGUI::ToggleButton*>(ctl);
 

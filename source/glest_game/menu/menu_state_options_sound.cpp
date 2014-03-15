@@ -146,13 +146,13 @@ void MenuStateOptionsSound::setupCEGUIWidgetsText() {
 	cegui_manager.setControlText(cegui_manager.getChildControl(ctlAudio,"ComboBoxSoundDevice"),config.getString("FactorySound"));
 
 	cegui_manager.setControlText(cegui_manager.getChildControl(ctlAudio,"LabelSoundFxVolume"),lang.getString("FxVolume","",false,true));
-	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctlAudio,"SpinnerSoundFxVolume"),0,100,config.getInt("SoundVolumeFx"),5);
+	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctlAudio,"SpinnerSoundFxVolume"),0,100,config.getInt("SoundVolumeFx"),1);
 
 	cegui_manager.setControlText(cegui_manager.getChildControl(ctlAudio,"LabelAmbientVolume"),lang.getString("AmbientVolume","",false,true));
-	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctlAudio,"SpinnerAmbientVolume"),0,100,config.getInt("SoundVolumeAmbient"),5);
+	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctlAudio,"SpinnerAmbientVolume"),0,100,config.getInt("SoundVolumeAmbient"),1);
 
 	cegui_manager.setControlText(cegui_manager.getChildControl(ctlAudio,"LabelMusicVolume"),lang.getString("MusicVolume","",false,true));
-	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctlAudio,"SpinnerMusicVolume"),0,100,config.getInt("SoundVolumeMusic"),5);
+	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctlAudio,"SpinnerMusicVolume"),0,100,config.getInt("SoundVolumeMusic"),1);
 
 	cegui_manager.setControlText(cegui_manager.getChildControl(ctlAudio,"ButtonSave"),lang.getString("Save","",false,true));
 	cegui_manager.setControlText(cegui_manager.getChildControl(ctlAudio,"ButtonReturn"),lang.getString("Return","",false,true));
