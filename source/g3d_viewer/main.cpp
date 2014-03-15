@@ -88,6 +88,13 @@ string getGameReadWritePath(string lookupKey) {
 		ui(new Ui::MainWindow)
 	{
 		ui->setupUi(this);
+
+		connect(ui->actionChange_Background_Color,SIGNAL(triggered()),this,SLOT(colorChooser()));
+		connect(ui->actionLoad_G3D_Model,SIGNAL(triggered()),this,SLOT(openG3DFile()));
+		connect(ui->actionLoad_Particle_XML,SIGNAL(triggered()),this,SLOT(openXMLFile()));
+		connect(ui->actionLoad_Projectile_Particle_XML,SIGNAL(triggered()),this,SLOT(openXMLFile()));
+		connect(ui->actionLoad_Splash_Particle_XML,SIGNAL(triggered()),this,SLOT(openXMLFile()));
+		
 		playerGroup = new QActionGroup(this);
 		playerGroup->addAction(ui->actionPlayer_1);
 		playerGroup->addAction(ui->actionPlayer_2);
@@ -116,6 +123,27 @@ string getGameReadWritePath(string lookupKey) {
 		default:
 			break;
 		}
+	}
+
+	void MainWindow::colorChooser(){
+		QColor chosen = QColorDialog::getColor(QColor(0x00,0x00,0x00));
+	}
+
+	void MainWindow::openG3DFile(){
+		Config &config = Config::getInstance();
+		string userData = config.getString("UserData_Root","");
+		string defaultPath = userData + "maps/";
+		QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),QString::fromStdString(defaultPath),tr("G3D file (*.g3d)"));
+		/*if(fileName != NULL){
+			this->renderer->open(fileName.toStdString());
+		}*/
+	}
+
+	void MainWindow::openXMLFile(){
+		Config &config = Config::getInstance();
+		string userData = config.getString("UserData_Root","");
+		string defaultPath = userData + "maps/";
+		QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),QString::fromStdString(defaultPath),tr("XML file (*.xml)"));
 	}
 
 //initialize and open the window

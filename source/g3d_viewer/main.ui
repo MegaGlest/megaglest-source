@@ -61,7 +61,7 @@
     <property name="title">
      <string>Custom Color</string>
     </property>
-    <addaction name="actionChange_Backround_Color"/>
+    <addaction name="actionChange_Background_Color"/>
     <addaction name="separator"/>
     <addaction name="actionPlayer_1"/>
     <addaction name="actionPlayer_2"/>
@@ -86,13 +86,16 @@
     <string>Ctrl+L</string>
    </property>
   </action>
-  <action name="actionChange_Backround_Color">
+  <action name="actionChange_Background_Color">
    <property name="text">
-    <string>Change Backround Color</string>
+    <string>Change Background Color</string>
    </property>
   </action>
   <action name="actionPlayer_1">
    <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
     <bool>true</bool>
    </property>
    <property name="text">
@@ -223,6 +226,9 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Grid</string>
    </property>
@@ -260,6 +266,9 @@
    </property>
   </action>
   <action name="actionTransparent_Screenshots">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Transparent Screenshots</string>
    </property>

@@ -32,6 +32,9 @@
 
 #include <QMainWindow>
 #include <QActionGroup>
+#include <QColor>
+#include <QColorDialog>
+#include <QFileDialog>
 using std::string;
 using namespace Glest::Game;
 
@@ -55,7 +58,10 @@ using namespace Glest::Game;
 		QActionGroup *playerGroup;
 		
 
-	//private slots:
+	private slots:
+		void colorChooser();
+		void openXMLFile();
+		void openG3DFile();
 	};
 
 #endif
