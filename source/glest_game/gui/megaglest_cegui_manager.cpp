@@ -468,13 +468,18 @@ void MegaGlest_CEGUIManager::setControlFont(CEGUI::Window *ctl, string fontName,
 
 void MegaGlest_CEGUIManager::setImageFileForControl(string imageName, string imageFileName, string controlName) {
 
-    if( CEGUI::ImageManager::getSingleton().isDefined(imageName) == false ) {
-    	string filePath = extractDirectoryPathFromFile(imageFileName);
-    	CEGUI::ImageManager::getSingleton().addFromImageFile(imageName, imageFileName, filePath);
-    }
 	CEGUI::DefaultWindow* staticImage = static_cast<CEGUI::DefaultWindow*>(getControl(controlName));
-
-	staticImage->setProperty("Image", imageName);
+	if(imageName != "" || imageFileName != "") {
+		if( CEGUI::ImageManager::getSingleton().isDefined(imageName) == false ) {
+			string filePath = extractDirectoryPathFromFile(imageFileName);
+			CEGUI::ImageManager::getSingleton().addFromImageFile(imageName, imageFileName, filePath);
+		}
+		staticImage->setProperty("Image", imageName);
+		staticImage->setVisible(true);
+	}
+	else {
+		staticImage->setVisible(false);
+	}
 }
 
 CEGUI::Window * MegaGlest_CEGUIManager::cloneMessageBoxControl(string newMessageBoxControlName,

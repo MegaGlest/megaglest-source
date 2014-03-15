@@ -510,7 +510,7 @@ void MenuStateScenario::loadScenarioPreviewTexture(){
 
 			//printf("Image preview: [%s]\n",(scenarioLogoTexture != NULL ? scenarioLogoTexture->getPath().c_str() : ""));
 
-			cegui_manager.setImageFileForControl("TutorialPreviewImage_" + scenarioLogo,
+			cegui_manager.setImageFileForControl((scenarioLogoTexture != NULL ? "TutorialPreviewImage_" + scenarioLogo : ""),
 					(scenarioLogoTexture != NULL ? scenarioLogoTexture->getPath() : ""),
 						"TutorialPreview");
 		}
