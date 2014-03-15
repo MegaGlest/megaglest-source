@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>G3D Viewer v1.4</string>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
+  </property>
+  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionLoad_G3D_Model"/>
+    <addaction name="actionLoad_Particle_XML"/>
+    <addaction name="actionLoad_Projectile_Particle_XML"/>
+    <addaction name="actionLoad_Splash_Particle_XML"/>
+    <addaction name="actionClear_All"/>
+    <addaction name="actionTransparent_Screenshots"/>
+    <addaction name="actionSave_A_Screenshot"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuMode">
+    <property name="title">
+     <string>Mode</string>
+    </property>
+    <addaction name="actionNormals"/>
+    <addaction name="actionWireframe"/>
+    <addaction name="actionGrid"/>
+   </widget>
+   <widget class="QMenu" name="menuSpeed">
+    <property name="title">
+     <string>Speed</string>
+    </property>
+    <addaction name="actionSlower"/>
+    <addaction name="actionFaster"/>
+    <addaction name="separator"/>
+    <addaction name="actionRestart_Particles"/>
+   </widget>
+   <widget class="QMenu" name="menuCustom_Color">
+    <property name="title">
+     <string>Custom Color</string>
+    </property>
+    <addaction name="actionChange_Backround_Color"/>
+    <addaction name="separator"/>
+    <addaction name="actionPlayer_1"/>
+    <addaction name="actionPlayer_2"/>
+    <addaction name="actionPlayer_3"/>
+    <addaction name="actionPlayer_4"/>
+    <addaction name="actionPlayer_5"/>
+    <addaction name="actionPlayer_6"/>
+    <addaction name="actionPlayer_7"/>
+    <addaction name="actionPlayer_8"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuMode"/>
+   <addaction name="menuSpeed"/>
+   <addaction name="menuCustom_Color"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="actionLoad_G3D_Model">
+   <property name="text">
+    <string>Load G3D Model</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+L</string>
+   </property>
+  </action>
+  <action name="actionChange_Backround_Color">
+   <property name="text">
+    <string>Change Backround Color</string>
+   </property>
+  </action>
+  <action name="actionPlayer_1">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 1</string>
+   </property>
+   <property name="shortcut">
+    <string>1</string>
+   </property>
+  </action>
+  <action name="actionPlayer_2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 2</string>
+   </property>
+   <property name="shortcut">
+    <string>2</string>
+   </property>
+  </action>
+  <action name="actionPlayer_3">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 3</string>
+   </property>
+   <property name="shortcut">
+    <string>3</string>
+   </property>
+  </action>
+  <action name="actionPlayer_4">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 4</string>
+   </property>
+   <property name="shortcut">
+    <string>4</string>
+   </property>
+  </action>
+  <action name="actionPlayer_5">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 5</string>
+   </property>
+   <property name="shortcut">
+    <string>5</string>
+   </property>
+  </action>
+  <action name="actionPlayer_6">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 6</string>
+   </property>
+   <property name="shortcut">
+    <string>6</string>
+   </property>
+  </action>
+  <action name="actionPlayer_7">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 7</string>
+   </property>
+   <property name="shortcut">
+    <string>7</string>
+   </property>
+  </action>
+  <action name="actionPlayer_8">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Player 8</string>
+   </property>
+   <property name="shortcut">
+    <string>8</string>
+   </property>
+  </action>
+  <action name="actionSlower">
+   <property name="text">
+    <string>Slower</string>
+   </property>
+   <property name="shortcut">
+    <string>-</string>
+   </property>
+  </action>
+  <action name="actionFaster">
+   <property name="text">
+    <string>Faster</string>
+   </property>
+   <property name="shortcut">
+    <string>+</string>
+   </property>
+  </action>
+  <action name="actionRestart_Particles">
+   <property name="text">
+    <string>Restart Particles</string>
+   </property>
+   <property name="shortcut">
+    <string>R</string>
+   </property>
+  </action>
+  <action name="actionNormals">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Normals</string>
+   </property>
+  </action>
+  <action name="actionWireframe">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Wireframe</string>
+   </property>
+  </action>
+  <action name="actionGrid">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Grid</string>
+   </property>
+  </action>
+  <action name="actionLoad_Particle_XML">
+   <property name="text">
+    <string>Load Particle XML</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+P</string>
+   </property>
+  </action>
+  <action name="actionLoad_Projectile_Particle_XML">
+   <property name="text">
+    <string>Load Projectile Particle XML</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+J</string>
+   </property>
+  </action>
+  <action name="actionLoad_Splash_Particle_XML">
+   <property name="text">
+    <string>Load Splash Particle XML</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionClear_All">
+   <property name="text">
+    <string>Clear All</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionTransparent_Screenshots">
+   <property name="text">
+    <string>Transparent Screenshots</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionSave_A_Screenshot">
+   <property name="text">
+    <string>Save A Screenshot</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="actionQuit">
+   <property name="text">
+    <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>actionQuit</sender>
+   <signal>triggered()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>399</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

@@ -120,16 +120,23 @@ string getGameReadWritePath(string lookupKey) {
 
 //initialize and open the window
 int main(int argc, char *argv[]){
-	if(argc==2){
-		if(argv[1][0]=='-') { // any flag gives help and exits program.
-			cout << "MegaGlest G3D Viewer TODO :D" << endl << endl;
-			cout << "does stuff" << endl << endl;
-			cout << endl;
-			exit (0);
-		}
-	}
+	string version = "1.4.0";
 	
 	QApplication a(argc, argv);
+	QStringList args = a.arguments();
+
+	if(args.contains("--help") || args.contains("-h") || args.contains("-H") || args.contains("-?") || args.contains("?") || args.contains("-help") ){
+		cout << "MegaGlest G3D Viewer v" << version << endl << endl;
+		cout << "does stuff" << endl << endl;
+		cout << endl;
+		exit (0);
+	}
+	if(args.contains("--version")){
+		cout << version << endl;
+
+		cout << endl;
+		exit (0);
+	}
 	MainWindow w;
 	w.show();
 
