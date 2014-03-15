@@ -57,6 +57,7 @@ string getGameReadWritePath(string lookupKey) {
 		ui(new Ui::MainWindow)
 	{
 		ui->setupUi(this);
+		
 		renderer = new Renderer();
 		
 		newmap = new NewMap(renderer);//instance of new map dialog
@@ -185,6 +186,22 @@ string getGameReadWritePath(string lookupKey) {
 
 //initialize and open the window
 int main(int argc, char *argv[]){
+	string fileparam;
+	if(argc==2){
+		if(argv[1][0]=='-') { // any flag gives help and exits program.
+			cout << "MegaGlest map editor TODO :D" << endl << endl;
+			cout << "glest_map_editor [GBM OR MGM FILE]" << endl << std::endl;
+			cout << "Creates or edits glest/megaglest maps." << endl;
+			cout << "Draw with left mouse button (select what and how large area in menu or toolbar)" << endl;
+			cout << "Pan trough the map with right mouse button" << endl;
+			cout << "Zoom with middle mouse button or mousewheel" << endl;
+
+			// std::cout << " ~ more helps should be written here ~" << std::endl;
+			cout << std::endl;
+			exit (0);
+		}
+	}
+	
 	QApplication a(argc, argv);
 	MainWindow w;
 	w.show();

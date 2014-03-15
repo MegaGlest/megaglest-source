@@ -31,6 +31,7 @@
 
 
 #include <QMainWindow>
+#include <QActionGroup>
 using std::string;
 using namespace Glest::Game;
 
@@ -51,6 +52,7 @@ using namespace Glest::Game;
 
 	private:
 		Ui::MainWindow *ui;
+		QActionGroup *playerGroup;
 		
 
 	//private slots:

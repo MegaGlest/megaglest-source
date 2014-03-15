@@ -88,6 +88,16 @@ string getGameReadWritePath(string lookupKey) {
 		ui(new Ui::MainWindow)
 	{
 		ui->setupUi(this);
+		playerGroup = new QActionGroup(this);
+		playerGroup->addAction(ui->actionPlayer_1);
+		playerGroup->addAction(ui->actionPlayer_2);
+		playerGroup->addAction(ui->actionPlayer_3);
+		playerGroup->addAction(ui->actionPlayer_4);
+		playerGroup->addAction(ui->actionPlayer_5);
+		playerGroup->addAction(ui->actionPlayer_6);
+		playerGroup->addAction(ui->actionPlayer_7);
+		playerGroup->addAction(ui->actionPlayer_8);
+
 	}
 
 	MainWindow::~MainWindow()
@@ -110,6 +120,15 @@ string getGameReadWritePath(string lookupKey) {
 
 //initialize and open the window
 int main(int argc, char *argv[]){
+	if(argc==2){
+		if(argv[1][0]=='-') { // any flag gives help and exits program.
+			cout << "MegaGlest G3D Viewer TODO :D" << endl << endl;
+			cout << "does stuff" << endl << endl;
+			cout << endl;
+			exit (0);
+		}
+	}
+	
 	QApplication a(argc, argv);
 	MainWindow w;
 	w.show();
