@@ -269,7 +269,7 @@ bool MenuStateScenario::EventCallback(CEGUI::Window *ctl, std::string name) {
 		if(ctl == cegui_manager.getControl("ComboBoxTutorial")) {
 
 			try {
-				int selectedId = cegui_manager.getSelectedItemIdFromComboBoxControl(cegui_manager.getControl("ComboBoxTutorial"));
+				int selectedId = cegui_manager.getSelectedItemIndexFromComboBoxControl(cegui_manager.getControl("ComboBoxTutorial"));
 
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] listBoxScenario.getSelectedItemIndex() = %d scenarioFiles.size() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,selectedId,(int)scenarioFiles.size());
 
@@ -369,7 +369,7 @@ void MenuStateScenario::update() {
 		cegui_manager.setSelectedItemInComboBoxControl(
 								cegui_manager.getControl("ComboBoxTutorial"), this->autoloadScenarioName,false);
 		string selectedItem = cegui_manager.getSelectedItemFromComboBoxControl(cegui_manager.getControl("ComboBoxTutorial"));
-		int selectedItemId = cegui_manager.getSelectedItemIdFromComboBoxControl(cegui_manager.getControl("ComboBoxTutorial"));
+		int selectedItemId = cegui_manager.getSelectedItemIndexFromComboBoxControl(cegui_manager.getControl("ComboBoxTutorial"));
 
 		if(selectedItem != this->autoloadScenarioName) {
 			mainMessageBoxState = 1;
@@ -487,7 +487,7 @@ void MenuStateScenario::loadScenarioPreviewTexture(){
 	if(enableScenarioTexturePreview == true) {
 
 		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-		int selectedId = cegui_manager.getSelectedItemIdFromComboBoxControl(cegui_manager.getControl("ComboBoxTutorial"));
+		int selectedId = cegui_manager.getSelectedItemIndexFromComboBoxControl(cegui_manager.getControl("ComboBoxTutorial"));
 		if(selectedId >= 0 && selectedId < (int)scenarioFiles.size()) {
 			GameSettings gameSettings;
 			loadGameSettings(&scenarioInfo, &gameSettings);
@@ -520,7 +520,7 @@ void MenuStateScenario::loadScenarioPreviewTexture(){
 void MenuStateScenario::loadGameSettings(const ScenarioInfo *scenarioInfo, GameSettings *gameSettings){
 
 	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-	int selectedId = cegui_manager.getSelectedItemIdFromComboBoxControl(cegui_manager.getControl("ComboBoxTutorial"));
+	int selectedId = cegui_manager.getSelectedItemIndexFromComboBoxControl(cegui_manager.getControl("ComboBoxTutorial"));
 	if(selectedId < 0) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"listBoxScenario.getSelectedItemIndex() < 0, = %d",selectedId);
