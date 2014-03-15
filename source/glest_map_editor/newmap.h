@@ -2,6 +2,10 @@
 #define NEWMAP_H
 
 #include <QDialog>
+#include "renderer.h"
+
+#include <iostream>
+using namespace std;
 
 namespace Ui {
 class NewMap;
@@ -12,7 +16,7 @@ class NewMap : public QDialog
     Q_OBJECT
 
 public:
-    explicit NewMap(QWidget *parent = 0);
+    explicit NewMap(Renderer *renderer, QWidget *parent = 0);
     ~NewMap();
 
 protected:
@@ -20,6 +24,10 @@ protected:
 
 private:
     Ui::NewMap *ui;
+    Renderer *renderer;
+    
+private slots:
+    void create();
 };
 
 #endif // NEWMAP_H

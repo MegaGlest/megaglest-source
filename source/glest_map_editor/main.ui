@@ -146,7 +146,7 @@
     <addaction name="separator"/>
     <addaction name="actionTree_harvestable"/>
     <addaction name="actionDead_tree_Cactuses_Hornbush"/>
-    <addaction name="actionStone_2"/>
+    <addaction name="actionStone_object"/>
     <addaction name="actionBush_Grass_walkable"/>
     <addaction name="actionWater_object_Papyrus"/>
     <addaction name="actionBig_tree_old_palm"/>
@@ -159,33 +159,33 @@
     <property name="title">
      <string>Gradient</string>
     </property>
-    <addaction name="action_8"/>
-    <addaction name="action_9"/>
-    <addaction name="action_10"/>
-    <addaction name="action_11"/>
-    <addaction name="action_1"/>
-    <addaction name="action0"/>
-    <addaction name="action1"/>
-    <addaction name="action2"/>
-    <addaction name="action3"/>
-    <addaction name="action4"/>
-    <addaction name="action5"/>
+    <addaction name="actionGradient_5"/>
+    <addaction name="actionGradient_4"/>
+    <addaction name="actionGradient_3"/>
+    <addaction name="actionGradient_2"/>
+    <addaction name="actionGradient_1"/>
+    <addaction name="actionGradient0"/>
+    <addaction name="actionGradient1"/>
+    <addaction name="actionGradient2"/>
+    <addaction name="actionGradient3"/>
+    <addaction name="actionGradient4"/>
+    <addaction name="actionGradient5"/>
    </widget>
    <widget class="QMenu" name="menuHeight">
     <property name="title">
      <string>Height</string>
     </property>
-    <addaction name="action_12"/>
-    <addaction name="action_13"/>
-    <addaction name="action_14"/>
-    <addaction name="action_15"/>
-    <addaction name="action_16"/>
-    <addaction name="action0_2"/>
-    <addaction name="action1_2"/>
-    <addaction name="action2_2"/>
-    <addaction name="action3_2"/>
-    <addaction name="action4_2"/>
-    <addaction name="action5_2"/>
+    <addaction name="actionHeight_5"/>
+    <addaction name="actionHeight_4"/>
+    <addaction name="actionHeight_3"/>
+    <addaction name="actionHeight_2"/>
+    <addaction name="actionHeight_1"/>
+    <addaction name="actionHeight0"/>
+    <addaction name="actionHeight1"/>
+    <addaction name="actionHeight2"/>
+    <addaction name="actionHeight3"/>
+    <addaction name="actionHeight4"/>
+    <addaction name="actionHeight5"/>
    </widget>
    <widget class="QMenu" name="menuRadius">
     <property name="title">
@@ -205,8 +205,8 @@
     <property name="title">
      <string>Player</string>
     </property>
-    <addaction name="actionPlayer_1_Red"/>
-    <addaction name="actionPlayer_2_Blue"/>
+    <addaction name="actionPlayer_1"/>
+    <addaction name="actionPlayer_2"/>
     <addaction name="actionPlayer_3"/>
     <addaction name="actionPlayer_4"/>
     <addaction name="actionPlayer_5"/>
@@ -258,7 +258,7 @@
    <addaction name="actionNone_erase"/>
    <addaction name="actionTree_harvestable"/>
    <addaction name="actionDead_tree_Cactuses_Hornbush"/>
-   <addaction name="actionStone_2"/>
+   <addaction name="actionStone_object"/>
    <addaction name="actionBush_Grass_walkable"/>
    <addaction name="actionWater_object_Papyrus"/>
    <addaction name="actionBig_tree_old_palm"/>
@@ -278,29 +278,29 @@
    <attribute name="toolBarBreak">
     <bool>true</bool>
    </attribute>
-   <addaction name="action_8"/>
-   <addaction name="action_9"/>
-   <addaction name="action_10"/>
-   <addaction name="action_11"/>
-   <addaction name="action_1"/>
-   <addaction name="action0"/>
-   <addaction name="action1"/>
-   <addaction name="action2"/>
-   <addaction name="action3"/>
-   <addaction name="action4"/>
-   <addaction name="action5"/>
+   <addaction name="actionGradient_5"/>
+   <addaction name="actionGradient_4"/>
+   <addaction name="actionGradient_3"/>
+   <addaction name="actionGradient_2"/>
+   <addaction name="actionGradient_1"/>
+   <addaction name="actionGradient0"/>
+   <addaction name="actionGradient1"/>
+   <addaction name="actionGradient2"/>
+   <addaction name="actionGradient3"/>
+   <addaction name="actionGradient4"/>
+   <addaction name="actionGradient5"/>
    <addaction name="separator"/>
-   <addaction name="action_12"/>
-   <addaction name="action_13"/>
-   <addaction name="action_14"/>
-   <addaction name="action_15"/>
-   <addaction name="action_16"/>
-   <addaction name="action0_2"/>
-   <addaction name="action1_2"/>
-   <addaction name="action2_2"/>
-   <addaction name="action3_2"/>
-   <addaction name="action4_2"/>
-   <addaction name="action5_2"/>
+   <addaction name="actionHeight_5"/>
+   <addaction name="actionHeight_4"/>
+   <addaction name="actionHeight_3"/>
+   <addaction name="actionHeight_2"/>
+   <addaction name="actionHeight_1"/>
+   <addaction name="actionHeight0"/>
+   <addaction name="actionHeight1"/>
+   <addaction name="actionHeight2"/>
+   <addaction name="actionHeight3"/>
+   <addaction name="actionHeight4"/>
+   <addaction name="actionHeight5"/>
    <addaction name="separator"/>
    <addaction name="action1_diameter"/>
    <addaction name="action2_diameter"/>
@@ -635,7 +635,7 @@
     <string>Dead tree / Cactuses / Thornbush</string>
    </property>
   </action>
-  <action name="actionStone_2">
+  <action name="actionStone_object">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -731,7 +731,7 @@
     <string>Invisible Blocking Object</string>
    </property>
   </action>
-  <action name="action_8">
+  <action name="actionGradient_5">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -743,7 +743,7 @@
     <string>-5</string>
    </property>
   </action>
-  <action name="action_9">
+  <action name="actionGradient_4">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -755,7 +755,7 @@
     <string>-4</string>
    </property>
   </action>
-  <action name="action_10">
+  <action name="actionGradient_3">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -767,7 +767,7 @@
     <string>-3</string>
    </property>
   </action>
-  <action name="action_11">
+  <action name="actionGradient_2">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -779,7 +779,7 @@
     <string>-2</string>
    </property>
   </action>
-  <action name="action_1">
+  <action name="actionGradient_1">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -791,7 +791,7 @@
     <string>-1</string>
    </property>
   </action>
-  <action name="action0">
+  <action name="actionGradient0">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -803,7 +803,7 @@
     <string>0</string>
    </property>
   </action>
-  <action name="action1">
+  <action name="actionGradient1">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -815,7 +815,7 @@
     <string>1</string>
    </property>
   </action>
-  <action name="action2">
+  <action name="actionGradient2">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -827,7 +827,7 @@
     <string>2</string>
    </property>
   </action>
-  <action name="action3">
+  <action name="actionGradient3">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -839,7 +839,7 @@
     <string>3</string>
    </property>
   </action>
-  <action name="action4">
+  <action name="actionGradient4">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -851,7 +851,7 @@
     <string>4</string>
    </property>
   </action>
-  <action name="action5">
+  <action name="actionGradient5">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -863,7 +863,7 @@
     <string>5</string>
    </property>
   </action>
-  <action name="action_12">
+  <action name="actionHeight_5">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -875,7 +875,7 @@
     <string>-5</string>
    </property>
   </action>
-  <action name="action_13">
+  <action name="actionHeight_4">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -887,7 +887,7 @@
     <string>-4</string>
    </property>
   </action>
-  <action name="action_14">
+  <action name="actionHeight_3">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -899,7 +899,7 @@
     <string>-3</string>
    </property>
   </action>
-  <action name="action_15">
+  <action name="actionHeight_2">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -911,7 +911,7 @@
     <string>-2</string>
    </property>
   </action>
-  <action name="action_16">
+  <action name="actionHeight_1">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -923,7 +923,7 @@
     <string>-1</string>
    </property>
   </action>
-  <action name="action0_2">
+  <action name="actionHeight0">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -935,7 +935,7 @@
     <string>0</string>
    </property>
   </action>
-  <action name="action1_2">
+  <action name="actionHeight1">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -947,7 +947,7 @@
     <string>1</string>
    </property>
   </action>
-  <action name="action2_2">
+  <action name="actionHeight2">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -959,7 +959,7 @@
     <string>2</string>
    </property>
   </action>
-  <action name="action3_2">
+  <action name="actionHeight3">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -971,7 +971,7 @@
     <string>3</string>
    </property>
   </action>
-  <action name="action4_2">
+  <action name="actionHeight4">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -983,7 +983,7 @@
     <string>4</string>
    </property>
   </action>
-  <action name="action5_2">
+  <action name="actionHeight5">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1130,7 +1130,7 @@
     <string>Alt+9</string>
    </property>
   </action>
-  <action name="actionPlayer_1_Red">
+  <action name="actionPlayer_1">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/brush_players_red.png</normaloff>:/icons/brush_players_red.png</iconset>
@@ -1139,7 +1139,7 @@
     <string>Player 1 Red</string>
    </property>
   </action>
-  <action name="actionPlayer_2_Blue">
+  <action name="actionPlayer_2">
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/brush_players_blue.png</normaloff>:/icons/brush_players_blue.png</iconset>

@@ -39,6 +39,7 @@ using namespace Shared::PlatformCommon;
 #include <QFileDialog>
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
+#include <QActionGroup>
 //namespace MapEditor {
 	namespace Ui {
 		class MainWindow;
@@ -59,7 +60,15 @@ using namespace Shared::PlatformCommon;
 		Ui::MainWindow *ui;
 		Renderer *renderer;
 		NewMap *newmap;
-		QGraphicsScene *scene; 
+		QGraphicsScene *scene;
+		QActionGroup *gradientGroup;
+		QActionGroup *heightGroup;
+		QActionGroup *radiusGroup;
+		QActionGroup *surfaceGroup;
+		QActionGroup *resourceGroup;
+		QActionGroup *objectGroup;
+		QActionGroup *playerGroup;
+		
 
 	private slots:
 		void openFile();
