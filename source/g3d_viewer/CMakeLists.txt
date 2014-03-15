@@ -21,49 +21,24 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${GLEW_LIBRARY})
 	ENDIF()
 
-	IF(NOT WIN32)
-
-                IF(WANT_XERCES)
-		        FIND_PACKAGE(XercesC REQUIRED)
-		        INCLUDE_DIRECTORIES(${XERCESC_INCLUDE})
-		        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${XERCESC_LIBRARY})
-                ENDIF()
-
-		# It was noticed that when using MinGW gcc it is essential that 'core' is mentioned before 'base'.
-		FIND_PACKAGE(wxWidgets COMPONENTS core base gl REQUIRED)
-		# wxWidgets include (this will do all the magic to configure everything)
-		include( ${wxWidgets_USE_FILE} )
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${wxWidgets_LIBRARIES})
-	ELSE()
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu-2.8-i586-mingw32msvc.dll.a)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwx_mswu_gl-2.8-i586-mingw32msvc.dll.a)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwxpng-2.8-i586-mingw32msvc.a)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwxjpeg-2.8-i586-mingw32msvc.a)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwxtiff-2.8-i586-mingw32msvc.a)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/libwxzlib-2.8-i586-mingw32msvc.a)
-
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/include/)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/lib/wx/include/i586-mingw32msvc-msw-unicode-release-static-2.8)
-
-		SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
-				       ${PROJECT_SOURCE_DIR}/source/win32_deps/lib
-				       ${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
-
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/include)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854/include)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/openal-soft-1.12.854)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/include)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/libogg-1.2.1/include)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/lua-5.1/src)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/jpeg-8b)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/lpng141)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/zlib-1.2.5)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.21.3/include)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/SDL-1.2.x/include)
-				       
-		link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/lib)
-		link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
+	#QT
+	set(CMAKE_AUTOMOC ON)
+	set(CMAKE_INCLUDE_CURRENT_DIR ON)
+	FILE(GLOB UI_FILES_FROM_THIS_DIR *.ui)#those decscribe the actual user interface
+	FILE(GLOB QRC_FILES_FROM_THIS_DIR *.qrc)#contains all used icons
+	
+	IF(USE_QT5)#QT5
+		FIND_PACKAGE(Qt5Widgets REQUIRED)
+		QT5_WRAP_UI(UI_INCLUDE_FILES ${UI_FILES_FROM_THIS_DIR})
+		QT5_ADD_RESOURCES(UI_RESOURCES ${QRC_FILES_FROM_THIS_DIR})
+	ELSE()#QT4
+		FIND_PACKAGE(Qt4 REQUIRED)
+		QT4_WRAP_UI(UI_INCLUDE_FILES ${UI_FILES_FROM_THIS_DIR})
+		QT4_ADD_RESOURCES(UI_RESOURCES ${QRC_FILES_FROM_THIS_DIR})
+		INCLUDE(${QT_USE_FILE})
+		#ADD_DEFINITIONS(${QT_DEFINITIONS})
 	ENDIF()
+
 
 	#########################################################################################
 	# megaglest G3D Model Viewer
@@ -147,7 +122,15 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 
 	SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
-	ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
+	#ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
+
+	ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES} ${UI_INCLUDE_FILES} ${UI_RESOURCES})
+
+	IF(USE_QT5)#QT5
+		qt5_use_modules(${TARGET_NAME} Widgets Core Gui)
+	ELSE()#QT4
+		TARGET_LINK_LIBRARIES(${TARGET_NAME} ${QT_LIBRARIES})
+	ENDIF()
 
 	IF(WANT_STREFLOP)
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
