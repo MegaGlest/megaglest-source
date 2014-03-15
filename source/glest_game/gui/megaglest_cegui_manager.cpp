@@ -859,14 +859,15 @@ double MegaGlest_CEGUIManager::getSpinnerControlValue(CEGUI::Window *ctl) {
 	return spinner->getCurrentValue();
 }
 
-void MegaGlest_CEGUIManager::setSliderControlValues(CEGUI::Window *ctl, double minValue, double maxValue, double curValue,double interval) {
+void MegaGlest_CEGUIManager::setSliderControlValues(CEGUI::Window *ctl, float minValue, float maxValue, float curValue,float interval) {
 	CEGUI::Scrollbar *scrollbar = static_cast<CEGUI::Scrollbar*>(ctl);
 
 	scrollbar->setUserString("MG_MIN",floatToStr(minValue));
 	scrollbar->setUserString("MG_MAX",floatToStr(maxValue));
-	scrollbar->setDocumentSize(maxValue-minValue);
+	float realMax = maxValue-minValue + 1;
+	scrollbar->setDocumentSize(realMax);
 	scrollbar->setPageSize(interval);
-	double realScrollPosition = curValue;
+	float realScrollPosition = curValue;
 //	if(minValue < 0) {
 //		realScrollPosition += (minValue * -1.0);
 //	}
@@ -879,17 +880,17 @@ void MegaGlest_CEGUIManager::setSliderControlValues(CEGUI::Window *ctl, double m
 	scrollbar->setScrollPosition(realScrollPosition);
 	scrollbar->setStepSize(interval);
 
-	//printf("Line: %d curValue = %f realScrollPosition = %f\n",__LINE__,curValue,realScrollPosition);
+	//printf("Line: %d realMax = %f curValue = %f realScrollPosition = %f\n",__LINE__,realMax,curValue,realScrollPosition);
 }
 
 double MegaGlest_CEGUIManager::getSliderControlValue(CEGUI::Window *ctl) {
 	CEGUI::Scrollbar *scrollbar = static_cast<CEGUI::Scrollbar*>(ctl);
-	double realScrollPosition = scrollbar->getScrollPosition();
+	float realScrollPosition = scrollbar->getScrollPosition();
 
 	string strMinValue = scrollbar->getUserString("MG_MIN").c_str();
-	double minValue = strToFloat(strMinValue);
+	float minValue = strToFloat(strMinValue);
 
-	double curValue = realScrollPosition;
+	float curValue = realScrollPosition;
 //	if(minValue < 0) {
 //		curValue -= (minValue * -1.0);
 //	}
@@ -897,7 +898,7 @@ double MegaGlest_CEGUIManager::getSliderControlValue(CEGUI::Window *ctl) {
 //		curValue += minValue;
 //	}
 	if(minValue != 0) {
-		realScrollPosition += minValue;
+		curValue += minValue;
 	}
 
 	//printf("Line: %d curValue = %f realScrollPosition = %f\n",__LINE__,curValue,realScrollPosition);

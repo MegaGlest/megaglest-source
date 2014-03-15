@@ -159,7 +159,7 @@ public:
 	void setSelectedItemTextForMultiColumnListControl(CEGUI::Window *ctl, string value, int id, bool disableFormatting=false);
 	int getSelectedRowForMultiColumnListControl(CEGUI::Window *ctl);
 
-	void setSliderControlValues(CEGUI::Window *ctl, double minValue, double maxValue, double curValue,double interval);
+	void setSliderControlValues(CEGUI::Window *ctl, float minValue, float maxValue, float curValue,float interval);
 	double getSliderControlValue(CEGUI::Window *ctl);
 
 	void printDebugControlInfo(CEGUI::Window *ctl);
