@@ -9,8 +9,8 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
-#ifndef _MAPEDITOR_MAIN_H_
-#define _MAPEDITOR_MAIN_H_
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
 #ifdef WIN32
     #include <winsock2.h>
@@ -19,8 +19,6 @@
 
 #include <QMainWindow>
 
-class Renderer;
-class NewMap;
 class QGraphicsScene;
 class QActionGroup;
 
@@ -29,6 +27,9 @@ namespace Ui {
 }
 
 namespace MapEditor {
+    class Renderer;
+    class NewMap;
+
     class MainWindow : public QMainWindow{
         Q_OBJECT//for Qt, otherwise “slots” won’t work
 

@@ -8,8 +8,7 @@
 //  by the Free Software Foundation; either version 2 of the
 //  License, or (at your option) any later version
 // ==============================================================
-//TODO: split main.cpp to main.cpp and mainWindow.cpp
-#include "main.h"
+
 //#include <ctime>
 //#include "conversion.h"
 #include "platform_common.h"
@@ -19,9 +18,9 @@
 #ifndef WIN32
 #include <errno.h>
 #endif
-//TODO: rename this file
-#include "ui_main.h"
-#include "newmap.h"
+#include "mainWindow.h"
+#include "ui_mainWindow.h"
+#include "newMap.h"
 #include "renderer.h"
 #include <QFileDialog>
 #include <QGraphicsScene>
@@ -29,10 +28,8 @@
 #include <QActionGroup>
 //#include <memory>
 
-//using namespace Shared::Util;
 using namespace Shared::PlatformCommon;
 using namespace Glest::Game;
-//using namespace std;
 
 namespace Glest { namespace Game {//need that somehow for default path detection
 string getGameReadWritePath(string lookupKey) {
@@ -190,31 +187,4 @@ namespace MapEditor {
     }
 }// end namespace
 
-//initialize and open the window
-int main(int argc, char *argv[]){
-    //string name = "MegaGlest Editor";
-    string version = "1.7.0";
 
-    QApplication a(argc, argv);
-    QStringList args = a.arguments();//all arguments stripped of those Qt uses itself
-
-    if(args.contains("--help") || args.contains("-h") || args.contains("-H") || args.contains("-?") || args.contains("?") || args.contains("-help") ){
-        std::cout << "MegaGlest map editor v" << version << endl << std::endl;
-        std::cout << "glest_map_editor [GBM OR MGM FILE]" << endl << std::endl;
-        std::cout << "Creates or edits glest/megaglest maps." << std::endl;
-        std::cout << "Draw with left mouse button (select what and how large area in menu or toolbar)" << std::endl;
-        std::cout << "Pan trough the map with right mouse button" << std::endl;
-        std::cout << "Zoom with middle mouse button or mousewheel" << std::endl;
-        std::cout << endl;
-        exit (0);
-    }
-    if(args.contains("--version")){
-        std::cout << version << std::endl;
-        std::cout << std::endl;
-        exit (0);
-    }
-
-    MapEditor::MainWindow w;
-    w.show();
-    return a.exec();
-}

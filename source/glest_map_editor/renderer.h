@@ -16,46 +16,49 @@
 #include <vector>
 #include <QObject>
 
-class RenderTile;
 class QGraphicsScene;
 class QAction;
 /*namespace Shared{ namespace Map{
     class MapPreview;
 } }*/
 
-class Renderer: public QObject{//QObject because of the slot
-    Q_OBJECT
-    public:
-        Renderer();
-        ~Renderer();
-        void reduceHeight(int height);
-        void changeSurface(int surface);
-        QGraphicsScene *getScene() const;
-        RenderTile* at(int column, int row) const;
-        void recalculateAll();
-        void updateMap();
-        int getHeight() const;
-        int getWidth() const;
-        void open(std::string path);
-        Shared::Map::MapPreview *getMap() const;
-        void newMap();
-        int getRadius() const;
-    public slots:
-        void setRadius(QAction *radius);
-    private:
-        void removeTiles();
-        void createTiles();
-        QGraphicsScene *scene;
-        RenderTile*** tiles;
-        Shared::Map::MapPreview *map;
-        int height;
-        int width;
-        std::vector<Shared::Map::MapPreview*> history;
-        int historyPos;
-        void addHistory();
-        void redo();
-        void undo();
-        int radius;
-};
+namespace MapEditor {
+    class Tile;
+
+    class Renderer: public QObject{//QObject because of the slot
+        Q_OBJECT
+        public:
+            Renderer();
+            ~Renderer();
+            void reduceHeight(int height);
+            void changeSurface(int surface);
+            QGraphicsScene *getScene() const;
+            Tile* at(int column, int row) const;
+            void recalculateAll();
+            void updateMap();
+            int getHeight() const;
+            int getWidth() const;
+            void open(std::string path);
+            Shared::Map::MapPreview *getMap() const;
+            void newMap();
+            int getRadius() const;
+        public slots:
+            void setRadius(QAction *radius);
+        private:
+            void removeTiles();
+            void createTiles();
+            QGraphicsScene *scene;
+            Tile*** Tiles;
+            Shared::Map::MapPreview *map;
+            int height;
+            int width;
+            std::vector<Shared::Map::MapPreview*> history;
+            int historyPos;
+            void addHistory();
+            void redo();
+            void undo();
+            int radius;
+    };
+}
 
 #endif

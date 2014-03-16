@@ -1,31 +1,44 @@
+// ==============================================================
+//  This file is part of MegaGlest (www.megaglest.org)
+//
+//  Copyright (C) 2014 Sebastian Riedel
+//
+//  You can redistribute this code and/or modify it under
+//  the terms of the GNU General Public License as published
+//  by the Free Software Foundation; either version 2 of the
+//  License, or (at your option) any later version
+// ==============================================================
+
 #ifndef NEWMAP_H
 #define NEWMAP_H
 
 #include <QDialog>
 
-class Renderer;
-
 namespace Ui {
 class NewMap;
 }
 
-class NewMap : public QDialog
-{
-    Q_OBJECT
+namespace MapEditor {
+    class Renderer;
 
-public:
-    explicit NewMap(Renderer *renderer, QWidget *parent = 0);
-    ~NewMap();
+    class NewMap : public QDialog
+    {
+        Q_OBJECT
 
-protected:
-    void changeEvent(QEvent *e);
+    public:
+        explicit NewMap(Renderer *renderer, QWidget *parent = 0);
+        ~NewMap();
 
-private:
-    Ui::NewMap *ui;
-    Renderer *renderer;
+    protected:
+        void changeEvent(QEvent *e);
 
-private slots:
-    void create();
-};
+    private:
+        Ui::NewMap *ui;
+        Renderer *renderer;
+
+    private slots:
+        void create();
+    };
+}
 
 #endif // NEWMAP_H
