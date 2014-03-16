@@ -2,10 +2,8 @@
 #define NEWMAP_H
 
 #include <QDialog>
-#include "renderer.h"
 
-#include <iostream>
-using namespace std;
+class Renderer;
 
 namespace Ui {
 class NewMap;
@@ -25,7 +23,7 @@ protected:
 private:
     Ui::NewMap *ui;
     Renderer *renderer;
-    
+
 private slots:
     void create();
 };

@@ -71,6 +71,8 @@
     <addaction name="actionSave"/>
     <addaction name="actionSave_as"/>
     <addaction name="separator"/>
+    <addaction name="actionPreview"/>
+    <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -999,6 +1001,9 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/radius_1.png</normaloff>:/icons/radius_1.png</iconset>
@@ -1012,9 +1017,6 @@
   </action>
   <action name="action2_diameter">
    <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
     <bool>true</bool>
    </property>
    <property name="icon">
@@ -1238,6 +1240,11 @@
   <action name="actionRotate_Top_Left_to_Bottom_Right">
    <property name="text">
     <string>Rotate Top Left to Bottom Right</string>
+   </property>
+  </action>
+  <action name="actionPreview">
+   <property name="text">
+    <string>Preview</string>
    </property>
   </action>
  </widget>

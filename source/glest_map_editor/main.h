@@ -1,12 +1,12 @@
 // ==============================================================
-//	This file is part of Glest (www.glest.org)
+//  This file is part of Glest (www.glest.org)
 //
-//	Copyright (C) 2001-2008 Martiño Figueroa
+//  Copyright (C) 2001-2008 Martiño Figueroa
 //
-//	You can redistribute this code and/or modify it under
-//	the terms of the GNU General Public License as published
-//	by the Free Software Foundation; either version 2 of the
-//	License, or (at your option) any later version
+//  You can redistribute this code and/or modify it under
+//  the terms of the GNU General Public License as published
+//  by the Free Software Foundation; either version 2 of the
+//  License, or (at your option) any later version
 // ==============================================================
 
 #ifndef _MAPEDITOR_MAIN_H_
@@ -17,66 +17,47 @@
     #include <winsock.h>
 #endif
 
-#include <string>
-#include <vector>
-
-#include "util.h"
-#include "platform_common.h"
-
-using std::string;
-using std::vector;
-using std::pair;
-using namespace Shared::PlatformCommon;
-
-
-
-
-
-
-#include "newmap.h"
-#include "renderer.h"
 #include <QMainWindow>
-#include <QFileDialog>
-#include <QGraphicsScene>
-#include <QGraphicsRectItem>
-#include <QActionGroup>
-//namespace MapEditor {
-	namespace Ui {
-		class MainWindow;
-	}
 
-	class MainWindow : public QMainWindow
-	{
-		Q_OBJECT
+class Renderer;
+class NewMap;
+class QGraphicsScene;
+class QActionGroup;
 
-	public:
-		explicit MainWindow(QWidget *parent = 0);
-		~MainWindow();
+namespace Ui {
+    class MainWindow;
+}
 
-	protected:
-		void changeEvent(QEvent *e);
+namespace MapEditor {
+    class MainWindow : public QMainWindow{
+        Q_OBJECT//for Qt, otherwise “slots” won’t work
 
-	private:
-		Ui::MainWindow *ui;
-		Renderer *renderer;
-		NewMap *newmap;
-		QGraphicsScene *scene;
-		QActionGroup *gradientGroup;
-		QActionGroup *heightGroup;
-		QActionGroup *radiusGroup;
-		QActionGroup *surfaceGroup;
-		QActionGroup *resourceGroup;
-		QActionGroup *objectGroup;
-		QActionGroup *playerGroup;
+        public:
+            explicit MainWindow(QWidget *parent = 0);
+            ~MainWindow();
 
-		
+        protected:
+            void changeEvent(QEvent *e);
 
-	private slots:
-		void setRadius();
-		void openFile();
-		void saveFile();
-	};
-//}// end namespace
+        private:
+            Ui::MainWindow *ui;
+            Renderer *renderer;
+            NewMap *newmap;
+            QGraphicsScene *scene;
+            QActionGroup *gradientGroup;
+            QActionGroup *heightGroup;
+            QActionGroup *radiusGroup;
+            QActionGroup *surfaceGroup;
+            QActionGroup *resourceGroup;
+            QActionGroup *objectGroup;
+            QActionGroup *playerGroup;
+
+        private slots:
+            void openFile();
+            void saveFile();
+            void setRadius();
+    };
+}// end namespace
 
 
 #endif
