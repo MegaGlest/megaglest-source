@@ -24,7 +24,7 @@
 #include "texture.h"
 #include "vec.h"
 #include "xml_parser.h"
-#include "graphics_interface.h"
+#include "renderer_interface.h"
 #include "leak_dumper.h"
 
 using std::string;

@@ -15,13 +15,16 @@
 #include <string>
 #include <map>
 #include <vector>
-
+#include "gl_wrap.h"
+#include "window.h"
 #include "leak_dumper.h"
 
 using namespace std;
+using namespace Shared::Platform;
 
 namespace CEGUI {
 	class Window;
+	//class OpenGLRenderer;
 };
 
 namespace Glest { namespace Game {
@@ -36,7 +39,9 @@ public:
 	virtual bool EventCallback(CEGUI::Window *ctl, std::string name) = 0;
 };
 
-class MegaGlest_CEGUIManager {
+class MegaGlest_CEGUIManager : 
+	public PlatformContextRendererInterface,
+    public WindowInputInterface {
 
 private:
 
@@ -51,6 +56,10 @@ protected:
 	string containerName;
 	std::map<string, std::vector<MegaGlest_CEGUI_Events_Manager *> > eventManagerList;
 	std::map<string, CEGUI::Window *> layoutCache;
+
+	bool isBootStrapped;
+	double last_time_pulse;
+	//CEGUI::OpenGLRenderer *guiRenderer;
 
 	MegaGlest_CEGUIManager();
 
@@ -69,6 +78,16 @@ public:
 
 	static MegaGlest_CEGUIManager & getInstance();
 	virtual ~MegaGlest_CEGUIManager();
+
+	virtual void setupRenderer(int width, int height);
+	virtual void renderAllContexts();
+
+	virtual void handleMouseMotion(float x, float y);
+	virtual void handleMouseButtonDown(Uint8 button);
+	virtual void handleMouseButtonUp(Uint8 button);
+	virtual void handleKeyDown(SDL_keysym key);
+	virtual void handleKeyUp(SDL_keysym key);
+	virtual void handleTimePulse();
 
 	void setupCEGUI();
 	bool isInitialized() const { return initialized; }

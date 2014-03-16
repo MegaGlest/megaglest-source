@@ -6,8 +6,8 @@
 //Foundation; either version 2 of the License, or (at your option) any later
 //version.
 #include "gl_wrap.h"
-#include <CEGUI/RendererModules/OpenGL/GLRenderer.h>
-#include <CEGUI/CEGUI.h>
+//#include <CEGUI/RendererModules/OpenGL/GLRenderer.h>
+//#include <CEGUI/CEGUI.h>
 
 #include <iostream>
 #include <sstream>
@@ -18,7 +18,7 @@
 #include "sdl_private.h"
 #include "noimpl.h"
 #include "util.h"
-#include "window.h"
+//#include "window.h"
 #include <vector>
 //#include <SDL_image.h>
 #include "model.h"
@@ -44,6 +44,9 @@ DWORD PlatformContextGl::charSet = DEFAULT_CHARSET;
 int PlatformContextGl::charSet = 1;
 #endif
 
+PlatformContextRendererInterface * PlatformContextGl::renderer = NULL;
+PlatformContextWindowInterface * PlatformContextGl::window = NULL;
+
 // ======================================
 //	class PlatformContextGl
 // ======================================
@@ -51,7 +54,6 @@ PlatformContextGl::PlatformContextGl() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	icon = NULL;
 	screen = NULL;
-	isBootStrapped = false;
 }
 
 PlatformContextGl::~PlatformContextGl() {
@@ -69,8 +71,9 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
     if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	Window::setupGraphicsScreen(depthBits, stencilBits, hardware_acceleration, fullscreen_anti_aliasing);
-
+	if(PlatformContextGl::window != NULL) {
+		PlatformContextGl::window->setupGraphicsScreen(depthBits, stencilBits, hardware_acceleration, fullscreen_anti_aliasing);
+	}
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -79,10 +82,15 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 	int flags = SDL_OPENGL;
 	if(PlatformCommon::Private::shouldBeFullscreen) {
 		flags |= SDL_FULLSCREEN;
-		Window::setIsFullScreen(true);
+
+		if(PlatformContextGl::window != NULL) {
+			PlatformContextGl::window->setIsFullScreen(true);
+		}
 	}
 	else {
-		Window::setIsFullScreen(false);
+		if(PlatformContextGl::window != NULL) {
+			PlatformContextGl::window->setIsFullScreen(false);
+		}
 	}
 
 	//flags |= SDL_HWSURFACE
@@ -276,21 +284,24 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
         SDL_WM_GrabInput(SDL_GRAB_ON);
         SDL_WM_GrabInput(SDL_GRAB_OFF);
 
+		if(PlatformContextGl::renderer != NULL) {
+			PlatformContextGl::renderer->setupRenderer(resW,resH);
+		}
         // Bootstrap CEGUI::System with an OpenGLRenderer object that uses the
         // current GL viewport, the DefaultResourceProvider, and the default
         // ImageCodec.
         //
         // NB: Your OpenGL context must already be initialised when you call this; CEGUI
         // will not create the OpenGL context itself.
-        if(isBootStrapped == false) {
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CE-GUI bootstrapped!\n");
-			guiRenderer = &CEGUI::OpenGLRenderer::bootstrapSystem();
-			isBootStrapped = true;
-        }
-        else {
-        	CEGUI::Sizef newSize(resW,resH);
-        	guiRenderer->setDisplaySize(newSize);
-        }
+   //     if(isBootStrapped == false) {
+			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CE-GUI bootstrapped!\n");
+			//guiRenderer = &CEGUI::OpenGLRenderer::bootstrapSystem();
+			//isBootStrapped = true;
+   //     }
+   //     else {
+   //     	CEGUI::Sizef newSize((float)resW,(float)resH);
+   //     	guiRenderer->setDisplaySize(newSize);
+   //     }
         showCursor(false);
 	}
 }
@@ -333,13 +344,16 @@ void PlatformContextGl::swapBuffers() {
 		//glBindTexture(0);
 		//glUseProgram(0);
 		//glActiveTexture(GL_TEXTURE_0);
-		CEGUI::System::getSingleton().renderAllGUIContexts();
+		
+		if(PlatformContextGl::renderer != NULL) {
+			PlatformContextGl::renderer->renderAllContexts();
+		}
 
 		SDL_GL_SwapBuffers();
 	}
 }
 	
-	
+/*	
 const char *getPlatformExtensions(const PlatformContextGl *pcgl) {
 		return "";
 }
@@ -349,5 +363,6 @@ void *getGlProcAddress(const char *procName) {
 		assert(proc!=NULL);
 		return proc;
 }
+*/
 
 }}//end namespace 

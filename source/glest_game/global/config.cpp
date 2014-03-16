@@ -15,11 +15,11 @@
 #include "game_constants.h"
 #include "platform_util.h"
 #include "game_util.h"
-#include <map>
 #include "conversion.h"
-#include "window.h"
+#include <map>
 #include <stdexcept>
 #include <fstream>
+
 #include "leak_dumper.h"
 
 using namespace Shared::Platform;

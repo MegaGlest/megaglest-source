@@ -42,7 +42,7 @@ SoundRenderer::SoundRenderer() : mutex(new Mutex(CODE_AT_LINE)) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] runThreadSafe = %d\n",__FILE__,__FUNCTION__,__LINE__,runThreadSafe);
 }
 
-bool SoundRenderer::init(Window *window) {
+bool SoundRenderer::init() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
 	SoundInterface &si= SoundInterface::getInstance();

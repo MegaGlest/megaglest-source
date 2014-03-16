@@ -132,10 +132,10 @@ const char *getGlExtensions() {
 	return reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
 }
 
-const char *getGlPlatformExtensions() {
-	Context *c= GraphicsInterface::getInstance().getCurrentContext();
-	return getPlatformExtensions(static_cast<ContextGl*>(c)->getPlatformContextGl());
-}
+//const char *getGlPlatformExtensions() {
+//	Context *c= GraphicsInterface::getInstance().getCurrentContext();
+//	return getPlatformExtensions(static_cast<ContextGl*>(c)->getPlatformContextGl());
+//}
 
 int getGlMaxLights() {
 	int i;

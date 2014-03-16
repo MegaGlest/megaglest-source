@@ -12,6 +12,7 @@
 #ifndef _BASE_RENDERER_H_
 #define _BASE_RENDERER_H_
 
+#include "renderer_interface.h"
 #include "graphics_interface.h"
 #include "leak_dumper.h"
 

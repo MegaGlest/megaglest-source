@@ -819,7 +819,7 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	//sound
 	if(initSound == true && toggleFullScreen == false) {
         SoundRenderer &soundRenderer= SoundRenderer::getInstance();
-        bool initOk = soundRenderer.init(window);
+        bool initOk = soundRenderer.init();
 
         if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] initOk = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,initOk);
 

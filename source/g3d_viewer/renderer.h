@@ -24,10 +24,7 @@
 
 #include "particle_renderer.h"
 #include "model_manager.h"
-#include "graphics_interface.h"
-
-//#include "model_manager.h"
-//#include "graphics_factory_gl.h"
+#include "renderer_interface.h"
 
 using Shared::Graphics::ModelRenderer;
 using Shared::Graphics::TextureManager;
@@ -37,7 +34,6 @@ using Shared::Graphics::Texture2D;
 using Shared::Graphics::ParticleRenderer;
 using Shared::Graphics::ParticleManager;
 using Shared::Graphics::ParticleSystem;
-//#include "model_renderer.h"
 
 using Shared::Graphics::MeshCallback;
 using Shared::Graphics::Mesh;

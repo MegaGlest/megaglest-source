@@ -10,6 +10,17 @@ if (POLICY CMP0045)
     cmake_policy(SET CMP0045 OLD)
 endif()
 
+if ((WIN32 OR APPLE) AND NOT CMAKE_PREFIX_PATH)
+
+	message(STATUS "ADD TO CMAKE LOOKUP PATHS: ${CMAKE_SOURCE_DIR}/../../windows_deps/cegui-deps-0.8.x-src/build/dependencies/")
+	set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "${CMAKE_SOURCE_DIR}/../../windows_deps/cegui-deps-0.8.x-src/build/dependencies/include")
+	set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${CMAKE_SOURCE_DIR}/../../windows_deps/cegui-deps-0.8.x-src/build/dependencies/lib/static")
+
+	set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} "${CMAKE_SOURCE_DIR}/../../windows_deps/boost_1_55_0")
+	set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} "${CMAKE_SOURCE_DIR}/../../windows_deps/boost_1_55_0/lib32-msvc-10.0")
+	
+endif()
+
 set (CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 include(CEGUIMacros)
 include(CMakeDependentOption)

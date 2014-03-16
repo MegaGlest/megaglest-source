@@ -414,7 +414,7 @@ void MenuStateOptionsNetwork::saveConfig(){
     SoundRenderer &soundRenderer= SoundRenderer::getInstance();
     soundRenderer.stopAllSounds();
     program->stopSoundSystem();
-    soundRenderer.init(program->getWindow());
+    soundRenderer.init();
     soundRenderer.loadConfig();
     soundRenderer.setMusicVolume(CoreData::getInstance().getMenuMusic());
     program->startSoundSystem();

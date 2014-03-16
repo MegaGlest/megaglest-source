@@ -81,6 +81,9 @@
 #include "network_protocol.h"
 #include "conversion.h"
 #include "gen_uuid.h"
+#include "gl_wrap.h"
+#include "megaglest_cegui_manager.h"
+
 #include "leak_dumper.h"
 
 #if defined(WIN32)
@@ -3992,6 +3995,10 @@ int glestMain(int argc, char** argv) {
     // DEbug testing threads
     //Thread::setEnableVerboseMode(true);
 
+	MegaGlest_CEGUIManager &ceguiInstance = MegaGlest_CEGUIManager::getInstance();
+	PlatformContextGl::setRenderer(&ceguiInstance);
+	Window::setInputHandler(&ceguiInstance);
+	
     if( hasCommandArgument(argc, argv,string(GAME_ARGS[GAME_ARG_MASTERSERVER_MODE])) == true) {
     	//isMasterServerModeEnabled = true;
     	//Window::setMasterserverMode(isMasterServerModeEnabled);
@@ -4964,7 +4971,8 @@ int glestMain(int argc, char** argv) {
 
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		mainWindow= new MainWindow(program);
+		mainWindow = new MainWindow(program);
+		PlatformContextGl::setWindow(mainWindow);
 
 		mainWindow->setUseDefaultCursorOnly(config.getBool("No2DMouseRendering","false"));
 

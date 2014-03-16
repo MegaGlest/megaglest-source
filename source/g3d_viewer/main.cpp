@@ -14,7 +14,7 @@
 #include <stdexcept>
 
 #include "model_gl.h"
-#include "graphics_interface.h"
+//#include "graphics_interface.h"
 #include "util.h"
 #include "conversion.h"
 #include "platform_common.h"
@@ -25,13 +25,10 @@
 #include "game_constants.h"
 #include <wx/stdpaths.h>
 #include <platform_util.h>
-//#include "interpolation.h"
 
 #ifndef WIN32
 #include <errno.h>
 #endif
-
-//#include <wx/filename.h>
 
 #ifndef WIN32
   #define stricmp strcasecmp
@@ -54,9 +51,6 @@ const char *folderDelimiter = "\\";
 #else
 const char *folderDelimiter = "/";
 #endif
-
-//int GameConstants::updateFps= 40;
-//int GameConstants::cameraFps= 100;
 
 const string g3dviewerVersionString= "v1.3.6";
 

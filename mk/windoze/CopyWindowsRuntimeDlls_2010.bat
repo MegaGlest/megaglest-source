@@ -11,4 +11,7 @@ if not exist libvlccore.dll copy ..\..\source\windows_deps\lib\libvlccore.dll .\
 if not exist plugins\nul xcopy ..\..\source\windows_deps\vlc-2.1.2\plugins .\plugins\ /s
 if not exist lua\nul xcopy ..\..\source\windows_deps\vlc-2.1.2\lua .\lua\ /s
 
+if not exist CEGUIBase-0.dll xcopy /y ..\..\source\windows_deps\cegui-0.8.x\bin\*.dll .\ /s
+if not exist freetype.dll xcopy /y ..\..\source\windows_deps\cegui-deps-0.8.x-src\build\dependencies\bin\*.dll .\ /s
+
 if not "%1" == "nopause" pause

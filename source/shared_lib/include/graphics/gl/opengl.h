@@ -17,7 +17,7 @@
 #include <stdexcept>
 #include <string>
 #include "conversion.h"
-#include "gl_wrap.h"
+//#include "gl_wrap.h"
 #include "platform_util.h"
 #include "leak_dumper.h"
 
@@ -42,7 +42,7 @@ const char *getGlVersion();
 const char *getGlRenderer();
 const char *getGlVendor();
 const char *getGlExtensions();
-const char *getGlPlatformExtensions();
+//const char *getGlPlatformExtensions();
 int getGlMaxLights();
 int getGlMaxTextureSize();
 int getGlMaxTextureUnits();

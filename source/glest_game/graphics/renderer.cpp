@@ -7292,19 +7292,19 @@ string Renderer::getGlMoreInfo(){
 		}
 
 		//platform extensions
-		infoStr+= "\n\n";
-		infoStr+= lang.getString("OpenGlPlatformExtensions")+":\n   ";
+		//infoStr+= "\n\n";
+		//infoStr+= lang.getString("OpenGlPlatformExtensions")+":\n   ";
 
-		charCount= 0;
-		string platformExtensions= getGlPlatformExtensions();
-		for(int i = 0; i < (int)platformExtensions.size(); ++i) {
-			infoStr+= platformExtensions[i];
-			if(charCount>120 && platformExtensions[i]==' '){
-				infoStr+= "\n   ";
-				charCount= 0;
-			}
-			++charCount;
-		}
+		//charCount= 0;
+		//string platformExtensions= getGlPlatformExtensions();
+		//for(int i = 0; i < (int)platformExtensions.size(); ++i) {
+		//	infoStr+= platformExtensions[i];
+		//	if(charCount>120 && platformExtensions[i]==' '){
+		//		infoStr+= "\n   ";
+		//		charCount= 0;
+		//	}
+		//	++charCount;
+		//}
 	}
 
 	return infoStr;

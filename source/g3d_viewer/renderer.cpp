@@ -12,6 +12,7 @@
 #include "renderer.h"
 
 #include "graphics_factory_gl.h"
+#include "renderer_interface.h"
 #include "graphics_interface.h"
 #include "config.h"
 #include "platform_common.h"

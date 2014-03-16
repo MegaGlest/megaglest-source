@@ -20,6 +20,8 @@
 #include "data_types.h"
 #include "vec.h"
 #include <vector>
+#include "gl_wrap.h"
+
 #include "leak_dumper.h"
 
 using std::map;
@@ -38,6 +40,17 @@ namespace Shared{ namespace Platform{
 
 class Timer;
 class PlatformContextGl;
+
+class WindowInputInterface {
+public:
+	virtual void handleMouseMotion(float x, float y) = 0;
+	virtual void handleMouseButtonDown(Uint8 button) = 0;
+	virtual void handleMouseButtonUp(Uint8 button) = 0;
+	virtual void handleKeyDown(SDL_keysym key) = 0;
+	virtual void handleKeyUp(SDL_keysym key) = 0;
+	virtual void setupRenderer(int width, int height) = 0;
+	virtual void handleTimePulse() = 0;
+};
 
 enum MouseButton {
 	mbUnknown,
@@ -61,7 +74,6 @@ enum SizeState{
 class MouseState {
 private:
 	bool states[mbCount];
-
 
 public:
 	MouseState() {
@@ -95,7 +107,7 @@ enum WindowStyle{
 //	class Window
 // =====================================================
 
-class Window {
+class Window: public PlatformContextWindowInterface {
 private:
 	Uint32 lastMouseDown[mbCount];
 	int lastMouseX[mbCount];
@@ -108,6 +120,7 @@ private:
 	static bool isFullScreen;
 	static SDL_keysym keystate;
 	static bool tryVSynch;
+	static WindowInputInterface * inputHandler;
 
     static void setLastMouseEvent(int64 lastMouseEvent)	{Window::lastMouseEvent = lastMouseEvent;}
     static int64 getLastMouseEvent() 				    {return Window::lastMouseEvent;}
@@ -123,27 +136,32 @@ private:
     //static bool masterserverMode;
     static map<wchar_t,bool> mapAllowedKeys;
 
-    static void cegui_handle_mouse_down(Uint8 button);
-    static void cegui_handle_mouse_up(Uint8 button);
-    static void inject_time_pulse(double &time_pulse);
+    //static void cegui_handle_mouse_down(Uint8 button);
+    //static void cegui_handle_mouse_up(Uint8 button);
+    //static void inject_time_pulse(double &time_pulse);
 
 protected:
 	int w, h;
-	static double last_time_pulse;
+	//static double last_time_pulse;
 
 	static bool isActive;
 	static bool no2DMouseRendering;
 	static bool allowAltEnterFullscreenToggle;
 	static int lastShowMouseState;
 
-public:
+public: 
+
+	static void setInputHandler(WindowInputInterface *inputHandlerObj) { inputHandler = inputHandlerObj; }
+
 	static bool handleEvent();
 	static void revertMousePos();
 	static Vec2i getOldMousePos();
 	static bool isKeyDown() { return isKeyPressedDown; }
-	static void setupGraphicsScreen(int depthBits=-1, int stencilBits=-1, bool hardware_acceleration=false, bool fullscreen_anti_aliasing=false);
+	
+	virtual void setupGraphicsScreen(int depthBits=-1, int stencilBits=-1, bool hardware_acceleration=false, bool fullscreen_anti_aliasing=false);
 	static const bool getIsFullScreen() { return isFullScreen; }
-	static void setIsFullScreen(bool value) { isFullScreen = value; }
+	virtual void setIsFullScreen(bool value) { isFullScreen = value; }
+
 	//static SDL_keysym getKeystate() { return keystate; }
 	static bool isKeyStateModPressed(int mod);
 	static wchar_t extractLastKeyPressed();

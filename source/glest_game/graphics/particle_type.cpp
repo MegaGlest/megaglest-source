@@ -13,12 +13,10 @@
 #include "unit_particle_type.h"
 
 #include "util.h"
-#include "core_data.h"
 #include "xml_parser.h"
 #include "model.h"
-#include "config.h"
+#include "properties.h"
 #include "game_constants.h"
-#include "util.h"
 #include "platform_common.h"
 #include "conversion.h"
 #include "leak_dumper.h"

@@ -19,7 +19,7 @@
 #include <stdexcept>
 #include <sys/stat.h>
 #include <FTGL/ftgl.h>
-
+#include "font.h"
 #include "platform_common.h"
 #include "util.h"
 

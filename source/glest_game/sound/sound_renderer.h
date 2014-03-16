@@ -19,7 +19,7 @@
 
 #include "sound.h"
 #include "sound_player.h"
-#include "window.h"
+//#include "window.h"
 #include "vec.h"
 #include "simple_threads.h"
 #include "platform_common.h"
@@ -63,7 +63,7 @@ public:
 	//misc
 	virtual ~SoundRenderer();
 	static SoundRenderer &getInstance();
-	bool init(Window *window);
+	bool init();
 	void update();
 	virtual void simpleTask(BaseThread *callingThread,void *userdata) { update(); }
 	SoundPlayer *getSoundPlayer() const	{return soundPlayer;}
