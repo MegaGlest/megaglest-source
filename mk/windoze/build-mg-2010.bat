@@ -93,15 +93,17 @@ copy /b ..\..\source\glest_game\facilities\game_util.cpp +,,
 
 rem Build Mega-Glest in release mode
 ECHO --------------------------------
-Echo Building Mega-Glest using Visual Studio 2010...
+Echo Building MegaGlest using Visual Studio 2010...
 
 set CL=
 del ..\..\source\glest_game\facilities\gitversion.h
 
 if not "%GITVERSION_SHA1%" == "." set CL=/DGITVERSIONHEADER
-if not "%GITVERSION_SHA1%" == "."  echo building with CL [%CL%]
+if not "%GITVERSION_SHA1%" == "." echo building with CL [%CL%]
 if not "%GITVERSION_SHA1%" == "." echo #define GITVERSION "%GITVERSION_REV%.%GITVERSION_SHA1%" > ..\..\source\glest_game\facilities\gitversion.h
 if not "%GITVERSION_SHA1%" == "." copy /b ..\..\source\glest_game\facilities\game_util.cpp +,,
+
+del Release\*.tlog
 
 set msBuildMaxCPU=
 SET BuildInParallel=false

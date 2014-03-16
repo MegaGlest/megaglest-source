@@ -117,7 +117,7 @@ copy /b ..\..\source\glest_game\facilities\game_util.cpp +,,
 
 rem Build Mega-Glest in release mode
 ECHO --------------------------------
-Echo Building Mega-Glest using Visual Studio 2012...
+Echo Building MegaGlest using Visual Studio 2012...
 
 set CL=/MP
 rem set INCLUDE=%ProgramFiles(x86)%\Microsoft SDKs\Windows\7.1A\Include;%INCLUDE%
@@ -138,9 +138,11 @@ rem set PlatformToolset=V110
 del ..\..\source\glest_game\facilities\gitversion.h
 
 if not "%GITVERSION_SHA1%" == "." set CL=/DGITVERSIONHEADER
-if not "%GITVERSION_SHA1%" == "."  echo building with CL [%CL%]
+if not "%GITVERSION_SHA1%" == "." echo building with CL [%CL%]
 if not "%GITVERSION_SHA1%" == "." echo #define GITVERSION "%GITVERSION_REV%.%GITVERSION_SHA1%" > ..\..\source\glest_game\facilities\gitversion.h
 if not "%GITVERSION_SHA1%" == "." copy /b ..\..\source\glest_game\facilities\game_util.cpp +,,
+
+del Release\*.tlog
 
 rem set VisualStudioVersion=11.0
 set msBuildMaxCPU=
