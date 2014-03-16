@@ -1,7 +1,9 @@
 #include "renderer.h"
 #include "rendertile.h"
 
-Renderer::Renderer(){
+Renderer::Renderer(/*MainWindow *win*/){
+	//this->win = win;
+	this->radius = 1;
 	this->map = new MapPreview();
 	//this->map->loadFromFile("/home/dabascht/projects/megaglest/git/works.gbm");
 	this->scene = new QGraphicsScene();
@@ -85,6 +87,9 @@ MapPreview *Renderer::getMap() const{
 	return this->map;
 }
 
+/*MapPreview *Renderer::getWin() const{
+	return this->win;
+}*/
 
 RenderTile *Renderer::at(int column, int row) const{
 	return this->tiles[column][row];
@@ -96,4 +101,15 @@ QGraphicsScene *Renderer::getScene() const{
 
 void Renderer::addHistory(){
 	this->history.push_back(this->map);
+}
+
+void Renderer::setRadius(QAction *radius){
+	//cout << radius->objectName().toStdString() << endl;
+	//cout << QChar::digitValue(radius->objectName().at(6).unicode()) << endl;//action1_diameter
+	this->radius = QChar::digitValue(radius->objectName().at(6).unicode());//action1_diameter
+	cout << this->radius << endl;
+}
+
+int Renderer::getRadius() const{
+	return this->radius;
 }

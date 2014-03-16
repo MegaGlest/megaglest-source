@@ -1014,6 +1014,9 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/radius_2.png</normaloff>:/icons/radius_2.png</iconset>

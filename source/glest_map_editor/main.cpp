@@ -58,7 +58,7 @@ string getGameReadWritePath(string lookupKey) {
 	{
 		ui->setupUi(this);
 		
-		renderer = new Renderer();
+		renderer = new Renderer(/*this*/);
 		
 		newmap = new NewMap(renderer);//instance of new map dialog
 		connect(ui->actionNew, SIGNAL(triggered()), newmap, SLOT(show()));//new map dialog window
@@ -103,8 +103,13 @@ string getGameReadWritePath(string lookupKey) {
 		radiusGroup->addAction(ui->action7_diameter);
 		radiusGroup->addAction(ui->action8_diameter);
 		radiusGroup->addAction(ui->action9_diameter);
-
-
+		
+		//QList<QAction *> action_diameter = radiusGroup->actions();
+		//while (!action_diameter.isEmpty())
+		//	connect(action_diameter.takeFirst(),SIGNAL(triggered()),this,SLOT(setRadius()));
+		//connect(radiusGroup,SIGNAL(triggered(QAction*)),this,SLOT(setRadius()));
+		connect(radiusGroup,SIGNAL(triggered(QAction*)),this->renderer,SLOT(setRadius(QAction*)));
+		
 		surfaceGroup = new QActionGroup(this);
 		surfaceGroup->addAction(ui->actionGrass);
 		surfaceGroup->addAction(ui->actionSecondary_Grass);
@@ -142,6 +147,8 @@ string getGameReadWritePath(string lookupKey) {
 		playerGroup->addAction(ui->actionPlayer_7);
 		playerGroup->addAction(ui->actionPlayer_8);
 
+		//connect(playerGroup,SIGNAL(triggered),this,SLOT());
+
 		ui->graphicsView->setScene(renderer->getScene());
 		//ui->graphicsView->scale(5,5);
 		//ui->graphicsView->show();
@@ -166,6 +173,7 @@ string getGameReadWritePath(string lookupKey) {
 		}
 	}
 
+
 	void MainWindow::openFile(){
 		Config &config = Config::getInstance();
 		string userData = config.getString("UserData_Root","");
@@ -181,8 +189,13 @@ string getGameReadWritePath(string lookupKey) {
 		string defaultPath = userData + "maps/";
 		QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),QString::fromStdString(defaultPath),tr("MegaGlest Map(*.mgm);;Glest Map(*.gbm)"));
 	}
-//}// end namespace
 
+
+	void MainWindow::setRadius(){
+		cout << "test" << endl;
+		this->renderer->setRadius(this->radiusGroup->checkedAction());
+	}
+//}// end namespace
 
 //initialize and open the window
 int main(int argc, char *argv[]){

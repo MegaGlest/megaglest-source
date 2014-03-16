@@ -68,9 +68,11 @@ using namespace Shared::PlatformCommon;
 		QActionGroup *resourceGroup;
 		QActionGroup *objectGroup;
 		QActionGroup *playerGroup;
+
 		
 
 	private slots:
+		void setRadius();
 		void openFile();
 		void saveFile();
 	};

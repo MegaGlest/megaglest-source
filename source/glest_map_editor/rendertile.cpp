@@ -172,7 +172,11 @@ void RenderTile::recalculate(){
 
 void RenderTile::mousePressEvent ( QGraphicsSceneMouseEvent * event){
 	cout << "mouse pressed @" << this->column << "," << this->row << endl;
-	this->setSurface(0);
+	//this->setSurface(0);
+	//this->renderer->getMap()->glestChangeHeight(column, row, 15, 4);
+	this->renderer->getMap()->changeSurface(column, row, st_Road, this->renderer->getRadius());
+	this->renderer->updateMap();
+	this->renderer->recalculateAll();
 	//ungrabMouse();
 	//event->ignore();
 }
@@ -184,6 +188,10 @@ void RenderTile::mouseMoveEvent ( QGraphicsSceneMouseEvent * event){
 	if(column >= 0 && row >= 0 && row < this->renderer->getHeight() && column < this->renderer->getWidth()){
 		this->renderer->at(column,row)->setSurface(0);
 	}
+	//this->renderer->getMap()->glestChangeHeight(column, row, 15, 4);
+	this->renderer->getMap()->changeSurface(column, row, st_Road, this->renderer->getRadius());
+	this->renderer->updateMap();
+	this->renderer->recalculateAll();
 	//cout << "mouse moved @" << column << "," << row << endl;
 }
 
@@ -192,6 +200,7 @@ void RenderTile::mouseReleaseEvent ( QGraphicsSceneMouseEvent * event){
 	int column = point.x() / SIZE;
 	int row = point.y() / SIZE;
 	cout << "mouse released @" << column << "," << row << endl;
+	this->renderer->getMap()->setHasChanged(false);
 }
 
 void RenderTile::hoverEnterEvent ( QGraphicsSceneHoverEvent * event ){
