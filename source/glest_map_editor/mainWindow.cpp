@@ -159,7 +159,7 @@ namespace MapEditor {
         //this way we don’t need to save before previewing
         string mapName = "temporary_editor_preview";
         string fileName = defaultPath+mapName+".mgm";
-        this->renderer->save(fileName);
+        this->renderer->getMap()->saveToFile(fileName);
         QString path = QCoreApplication::applicationDirPath().append("/megaglest");
 #ifdef WIN32
         path.append(".exe");

@@ -24,6 +24,7 @@ namespace MapEditor {
         this->mapman = mapman;
         mapman->setRenderer(this);
         this->map = new Shared::Map::MapPreview();
+        this->map->resetFactions(1);//otherwise this map can’t be loaded later
         this->scene = new QGraphicsScene();
         this->historyPos = 0;
         this->width = this->map->getW();
