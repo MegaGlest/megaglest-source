@@ -197,7 +197,7 @@ namespace MapEditor {
         this->renderer->updateMap();
         this->renderer->recalculateAll();*/
         //event->ignore();
-        this->renderer->getMapManipulator()->changeTile(this->column, this->row);
+        this->renderer->getMapManipulator()->click(this->column, this->row);
     }
 
     void Tile::mouseMoveEvent ( QGraphicsSceneMouseEvent *event){

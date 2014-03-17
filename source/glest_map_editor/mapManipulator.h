@@ -28,6 +28,7 @@ namespace MapEditor{
         public slots:
             void setRadius(QAction *radius);
             void changeTile(int column, int row);
+            void click(int column, int row);
         private:
             MainWindow *win;//for user input
             Renderer *renderer;//for accessing the map

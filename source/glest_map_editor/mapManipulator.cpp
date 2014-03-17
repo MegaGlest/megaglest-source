@@ -81,4 +81,9 @@ namespace MapEditor{
 
         this->renderer->recalculateAll();
     }
+
+    void MapManipulator::click(int column, int row){
+        this->renderer->getMap()->setRefAlt(column, row);
+        this->changeTile(column, row);
+    }
 }
