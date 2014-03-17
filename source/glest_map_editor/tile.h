@@ -44,6 +44,7 @@ namespace MapEditor {
             private:
                 static const QColor SURFACE[];
                 static const QColor OBJECT[];
+                static const QColor RESOURCE[];
                 static const int SIZE;
                 Renderer* renderer;
                 void move(int column, int row);
