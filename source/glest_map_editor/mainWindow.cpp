@@ -129,8 +129,7 @@ namespace MapEditor {
         if(fileName != NULL){
             if(!fileName.endsWith(".mgm") && !fileName.endsWith(".gbm")){//gnu/linux has no auto-suffixes
                 fileName += ".mgm";
-                QFile targetFile(fileName);
-                if(targetFile.exists()){
+                if(QFile(fileName).exists()){
                     QMessageBox::StandardButton reply = QMessageBox::question(this, tr("Save File"), tr("This file already exists.\nDo you want to replace it?"),QMessageBox::Yes|QMessageBox::No);
                     reallySave = (reply == QMessageBox::Yes);
                 }
@@ -154,11 +153,19 @@ namespace MapEditor {
 
     //TODO: generate on the fly scenario for testing --load-scenario=x
     void MainWindow::showPreview(){
+        Config &config = Config::getInstance();
+        string userData = config.getString("UserData_Root","");
+        string defaultPath = userData + "maps/";
+        //this way we don’t need to save before previewing
+        string mapName = "temporary_editor_preview";
+        string fileName = defaultPath+mapName+".mgm";
+        this->renderer->save(fileName);
         QString path = QCoreApplication::applicationDirPath().append("/megaglest");
-#ifndef WIN32
+#ifdef WIN32
         path.append(".exe");
 #endif
-        QProcess::execute(path,QStringList("--preview-map=8_rivers")<<"--data-path=/usr/share/megaglest/"<<"--ini-path=/usr/share/megaglest");
+        QProcess::execute(path,QStringList(QString::fromStdString("--preview-map="+mapName)));//<<"--data-path=/usr/share/megaglest/"<<"--ini-path=/usr/share/megaglest"
+        QFile(QString::fromStdString(fileName)).remove();//don’t need that anymore
     }
 }// end namespace
 
