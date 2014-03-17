@@ -48,12 +48,16 @@ namespace MapEditor {
             this->updateMap();
             this->recalculateAll();
         }else{
-            this->removeTiles();
-            this->width = this->map->getW();
-            this->height = this->map->getH();
-            this->createTiles();
-            this->recalculateAll();
+            this->resize();
         }
+    }
+
+    void Renderer::resize(){
+        this->removeTiles();
+        this->width = this->map->getW();
+        this->height = this->map->getH();
+        this->createTiles();
+        this->recalculateAll();
     }
 
     //TODO: only save if a file is loaded
@@ -75,6 +79,10 @@ namespace MapEditor {
 
     std::string Renderer::getFilename() const{
         return this->filename;
+    }
+
+    void Renderer::resetFilename(){
+        this->filename = "";
     }
 
     void Renderer::createTiles(){

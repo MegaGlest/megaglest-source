@@ -54,8 +54,9 @@ namespace MapEditor {
     MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWindow){
         ui->setupUi(this);
 
-        renderer = new Renderer(new MapManipulator(this));
-        newmap = new NewMap(renderer);//instance of new map dialog
+        MapManipulator *mapman = new MapManipulator(this);
+        renderer = new Renderer(mapman);
+        newmap = new NewMap(mapman);//instance of new map dialog
 
         connect(ui->actionNew, SIGNAL(triggered()), newmap, SLOT(show() ));//new map dialog window
         connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openFile() ));//open dialog window

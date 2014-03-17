@@ -29,6 +29,7 @@ namespace MapEditor{
             void setRadius(QAction *radius);
             void changeTile(int column, int row);
             void click(int column, int row);
+            void reset(int width, int height, int surface, float altitude, int players);
         private:
             MainWindow *win;//for user input
             Renderer *renderer;//for accessing the map

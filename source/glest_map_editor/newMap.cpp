@@ -11,11 +11,11 @@
 
 #include "newMap.h"
 #include "ui_newMap.h"
-#include "renderer.h"
+#include "mapManipulator.h"
 #include <iostream>
 
 namespace MapEditor {
-    NewMap::NewMap(Renderer *renderer, QWidget *parent) : QDialog(parent), ui(new Ui::NewMap), renderer(renderer){
+    NewMap::NewMap(MapManipulator *mapman, QWidget *parent) : QDialog(parent), ui(new Ui::NewMap), mapman(mapman){
         ui->setupUi(this);
         connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(create()));//create new map
     }
@@ -36,6 +36,11 @@ namespace MapEditor {
     }
 
     void NewMap::create(){
-        std::cout << "create: " << ui->inputAltitude->text().toStdString () << "; " << ui->inputHeight->text().toStdString () << "; " << ui->inputWidth->text().toStdString () << "; " << ui->inputPlayers->text().toStdString () << "; " << ui->inputSurface->currentIndex() << "; " << std::endl;
+        int width = ui->inputWidth->text().toInt();
+        int height = ui->inputHeight->text().toInt();
+        int surface = ui->inputSurface->currentIndex();
+        int altitude = ui->inputAltitude->text().toFloat();
+        int players = ui->inputPlayers->text().toInt();
+        this->mapman->reset(width, height, surface, altitude, players);
     }
 }

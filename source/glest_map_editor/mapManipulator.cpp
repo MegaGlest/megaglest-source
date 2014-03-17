@@ -86,4 +86,27 @@ namespace MapEditor{
         this->renderer->getMap()->setRefAlt(column, row);
         this->changeTile(column, row);
     }
+
+    void MapManipulator::reset(int width, int height, int surface, float altitude, int players){
+        //dostuff
+        Shared::Map::MapSurfaceType surf = Shared::Map::st_Grass;
+        switch(surface){
+            case 1:
+                surf = Shared::Map::st_Secondary_Grass;
+                break;
+            case 2:
+                surf = Shared::Map::st_Road;
+                break;
+            case 3:
+                surf = Shared::Map::st_Stone;
+                break;
+            case 4:
+                surf = Shared::Map::st_Ground;
+                break;
+        }
+        this->renderer->getMap()->reset(width, height, altitude, surf);
+        //this->renderer->getMap()->resize(int w, int h, float alt, MapSurfaceType surf);
+        this->renderer->getMap()->resetFactions(players);
+        this->renderer->resize();//changes width and height; updates and recalculates map
+    }
 }

@@ -19,14 +19,14 @@ class NewMap;
 }
 
 namespace MapEditor {
-    class Renderer;
+    class MapManipulator;
 
     class NewMap : public QDialog
     {
         Q_OBJECT
 
     public:
-        explicit NewMap(Renderer *renderer, QWidget *parent = 0);
+        explicit NewMap(MapManipulator *mapman, QWidget *parent = 0);
         ~NewMap();
 
     protected:
@@ -34,7 +34,7 @@ namespace MapEditor {
 
     private:
         Ui::NewMap *ui;
-        Renderer *renderer;
+        MapManipulator *mapman;
 
     private slots:
         void create();
