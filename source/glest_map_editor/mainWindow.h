@@ -21,6 +21,7 @@
 
 class QGraphicsScene;
 class QActionGroup;
+class QAction;
 
 namespace Ui {
     class MainWindow;
@@ -36,6 +37,7 @@ namespace MapEditor {
         public:
             explicit MainWindow(QWidget *parent = 0);
             ~MainWindow();
+            QAction *getPen() const;
 
         protected:
             void changeEvent(QEvent *e);
@@ -45,18 +47,12 @@ namespace MapEditor {
             Renderer *renderer;
             NewMap *newmap;
             QGraphicsScene *scene;
-            QActionGroup *gradientGroup;
-            QActionGroup *heightGroup;
             QActionGroup *radiusGroup;
-            QActionGroup *surfaceGroup;
-            QActionGroup *resourceGroup;
-            QActionGroup *objectGroup;
-            QActionGroup *playerGroup;
+            QActionGroup *penGroup;
 
         private slots:
             void openFile();
             void saveFile();
-            void setRadius();
     };
 }// end namespace
 

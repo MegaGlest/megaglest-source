@@ -22,10 +22,12 @@
 #include "ui_mainWindow.h"
 #include "newMap.h"
 #include "renderer.h"
+#include "mapManipulator.h"
 #include <QFileDialog>
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
 #include <QActionGroup>
+//#include <QAction>
 //#include <memory>
 
 using namespace Shared::PlatformCommon;
@@ -49,7 +51,7 @@ namespace MapEditor {
     MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWindow){
         ui->setupUi(this);
 
-        renderer = new Renderer();
+        renderer = new Renderer(new MapManipulator(this));
         newmap = new NewMap(renderer);//instance of new map dialog
 
         connect(ui->actionNew, SIGNAL(triggered()), newmap, SLOT(show()));//new map dialog window
@@ -57,83 +59,23 @@ namespace MapEditor {
         connect(ui->actionSave_as, SIGNAL(triggered()), this, SLOT(saveFile()));//save as dialog window
 
         //those actions form a selection group -> only one is selected
-        gradientGroup = new QActionGroup(this);
-        gradientGroup->addAction(ui->actionGradient_5);
-        gradientGroup->addAction(ui->actionGradient_4);
-        gradientGroup->addAction(ui->actionGradient_3);
-        gradientGroup->addAction(ui->actionGradient_2);
-        gradientGroup->addAction(ui->actionGradient_1);
-        gradientGroup->addAction(ui->actionGradient0);
-        gradientGroup->addAction(ui->actionGradient1);
-        gradientGroup->addAction(ui->actionGradient2);
-        gradientGroup->addAction(ui->actionGradient3);
-        gradientGroup->addAction(ui->actionGradient4);
-        gradientGroup->addAction(ui->actionGradient5);
-
-        //one event for the whole group, they do all the same, but with different gradients
-        //connect(gradientGroup,SIGNAL(triggered(QAction*)),????,SLOT(set???(QAction*)));
-
-        heightGroup = new QActionGroup(this);
-        heightGroup->addAction(ui->actionHeight_5);
-        heightGroup->addAction(ui->actionHeight_4);
-        heightGroup->addAction(ui->actionHeight_3);
-        heightGroup->addAction(ui->actionHeight_2);
-        heightGroup->addAction(ui->actionHeight_1);
-        heightGroup->addAction(ui->actionHeight0);
-        heightGroup->addAction(ui->actionHeight1);
-        heightGroup->addAction(ui->actionHeight2);
-        heightGroup->addAction(ui->actionHeight3);
-        heightGroup->addAction(ui->actionHeight4);
-        heightGroup->addAction(ui->actionHeight5);
-
         radiusGroup = new QActionGroup(this);
-        radiusGroup->addAction(ui->action1_diameter);
-        radiusGroup->addAction(ui->action2_diameter);
-        radiusGroup->addAction(ui->action3_diameter);
-        radiusGroup->addAction(ui->action4_diameter);
-        radiusGroup->addAction(ui->action5_diameter);
-        radiusGroup->addAction(ui->action6_diameter);
-        radiusGroup->addAction(ui->action7_diameter);
-        radiusGroup->addAction(ui->action8_diameter);
-        radiusGroup->addAction(ui->action9_diameter);
-        connect(radiusGroup,SIGNAL(triggered(QAction*)),this->renderer,SLOT(setRadius(QAction*)));
+        QList<QAction *> actions = ui->menuRadius->actions();
+        while(!actions.isEmpty()){
+            radiusGroup->addAction(actions.takeFirst());
+        }
+        connect(radiusGroup,SIGNAL(triggered(QAction*)),this->renderer->getMapManipulator(),SLOT(setRadius(QAction*)));
 
-        surfaceGroup = new QActionGroup(this);
-        surfaceGroup->addAction(ui->actionGrass);
-        surfaceGroup->addAction(ui->actionSecondary_Grass);
-        surfaceGroup->addAction(ui->actionRoad);
-        surfaceGroup->addAction(ui->actionStone);
-        surfaceGroup->addAction(ui->actionGround);
-
-        resourceGroup = new QActionGroup(this);
-        resourceGroup->addAction(ui->actionGold_unwalkable);
-        resourceGroup->addAction(ui->actionStone_unwalkable);
-        resourceGroup->addAction(ui->action3_custom);
-        resourceGroup->addAction(ui->action4_custom);
-        resourceGroup->addAction(ui->action5_custom);
-
-        objectGroup = new QActionGroup(this);
-        objectGroup->addAction(ui->actionNone_erase);
-        objectGroup->addAction(ui->actionTree_harvestable);
-        objectGroup->addAction(ui->actionDead_tree_Cactuses_Hornbush);
-        objectGroup->addAction(ui->actionStone_object);
-        objectGroup->addAction(ui->actionBush_Grass_walkable);
-        objectGroup->addAction(ui->actionWater_object_Papyrus);
-        objectGroup->addAction(ui->actionBig_tree_old_palm);
-        objectGroup->addAction(ui->actionHanged_Impaled);
-        objectGroup->addAction(ui->actionStatues);
-        objectGroup->addAction(ui->actionMountain);
-        objectGroup->addAction(ui->actionInvisible_Blocking_Object);
-
-        playerGroup = new QActionGroup(this);
-        playerGroup->addAction(ui->actionPlayer_1);
-        playerGroup->addAction(ui->actionPlayer_2);
-        playerGroup->addAction(ui->actionPlayer_3);
-        playerGroup->addAction(ui->actionPlayer_4);
-        playerGroup->addAction(ui->actionPlayer_5);
-        playerGroup->addAction(ui->actionPlayer_6);
-        playerGroup->addAction(ui->actionPlayer_7);
-        playerGroup->addAction(ui->actionPlayer_8);
+        penGroup = new QActionGroup(this);
+        QList<QMenu *> penMenus;
+        penMenus << ui->menuGradient << ui->menuSurface << ui->menuResource << ui->menuObject << ui->menuHeight << ui->menuPlayer;
+        //adds all QActions from the menus listed above to penGroup
+        while(!penMenus.isEmpty()){
+            actions = penMenus.takeFirst()->actions();
+            while(!actions.isEmpty()){
+                penGroup->addAction(actions.takeFirst());
+            }
+        }
 
         ui->graphicsView->setScene(renderer->getScene());
         //ui->graphicsView->scale(5,5);
@@ -142,13 +84,12 @@ namespace MapEditor {
     MainWindow::~MainWindow(){
         delete ui;
         delete newmap;
-        delete gradientGroup;
-        delete heightGroup;
         delete radiusGroup;
-        delete surfaceGroup;
-        delete resourceGroup;
-        delete objectGroup;
-        delete playerGroup;
+        delete penGroup;
+    }
+
+    QAction *MainWindow::getPen() const{
+        return penGroup->checkedAction();
     }
 
     //for translation ... somehow
@@ -178,12 +119,6 @@ namespace MapEditor {
         string userData = config.getString("UserData_Root","");
         string defaultPath = userData + "maps/";
         QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),QString::fromStdString(defaultPath),tr("MegaGlest Map(*.mgm);;Glest Map(*.gbm)"));
-    }
-
-    //TODO: move methods like this one to another class
-    void MainWindow::setRadius(){
-        std::cout << "test" << std::endl;
-        this->renderer->setRadius(this->radiusGroup->checkedAction());
     }
 }// end namespace
 

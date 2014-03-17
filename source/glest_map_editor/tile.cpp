@@ -11,6 +11,7 @@
 
 #include "tile.h"
 #include "renderer.h"
+#include "mapManipulator.h"
 #include <QGraphicsScene>
 #include <QGraphicsLineItem>
 #include <QGraphicsRectItem>
@@ -181,24 +182,26 @@ namespace MapEditor {
         cout << "mouse pressed @" << this->column << "," << this->row << endl;
         //this->setSurface(0);
         //this->renderer->getMap()->glestChangeHeight(column, row, 15, 4);
-        this->renderer->getMap()->changeSurface(column, row, Shared::Map::st_Road, this->renderer->getRadius());
+        /*this->renderer->getMap()->changeSurface(column, row, Shared::Map::st_Road, this->renderer->getRadius());
         this->renderer->updateMap();
-        this->renderer->recalculateAll();
+        this->renderer->recalculateAll();*/
         //event->ignore();
+        this->renderer->getMapManipulator()->changeTile(this->column, this->row);
     }
 
     void Tile::mouseMoveEvent ( QGraphicsSceneMouseEvent *event){
         QPointF point = event->scenePos();
         int column = point.x() / SIZE;
         int row = point.y() / SIZE;
-        if(column >= 0 && row >= 0 && row < this->renderer->getHeight() && column < this->renderer->getWidth()){
+        /*if(column >= 0 && row >= 0 && row < this->renderer->getHeight() && column < this->renderer->getWidth()){
             this->renderer->at(column,row)->setSurface(0);
         }
         //this->renderer->getMap()->glestChangeHeight(column, row, 15, 4);
         this->renderer->getMap()->changeSurface(column, row, Shared::Map::st_Road, this->renderer->getRadius());
         this->renderer->updateMap();
-        this->renderer->recalculateAll();
+        this->renderer->recalculateAll();*/
         //std::cout << "mouse moved @" << column << "," << row << std::endl;
+        this->renderer->getMapManipulator()->changeTile(column, row);
     }
 
     void Tile::mouseReleaseEvent ( QGraphicsSceneMouseEvent *event){
@@ -206,7 +209,7 @@ namespace MapEditor {
         int column = point.x() / SIZE;
         int row = point.y() / SIZE;
         std::cout << "mouse released @" << column << "," << row << std::endl;
-        this->renderer->getMap()->setHasChanged(false);
+        //this->renderer->getMap()->setHasChanged(false);
     }
 
     void Tile::hoverEnterEvent ( QGraphicsSceneHoverEvent *event ){

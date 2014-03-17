@@ -134,28 +134,28 @@
      <string>Resource</string>
     </property>
     <addaction name="separator"/>
-    <addaction name="actionGold_unwalkable"/>
-    <addaction name="actionStone_unwalkable"/>
-    <addaction name="action3_custom"/>
-    <addaction name="action4_custom"/>
-    <addaction name="action5_custom"/>
+    <addaction name="actionResource1"/>
+    <addaction name="actionResource2"/>
+    <addaction name="actionResource3"/>
+    <addaction name="actionResource4"/>
+    <addaction name="actionResource5"/>
    </widget>
    <widget class="QMenu" name="menuObject">
     <property name="title">
      <string>Object</string>
     </property>
-    <addaction name="actionNone_erase"/>
+    <addaction name="actionObject0"/>
     <addaction name="separator"/>
-    <addaction name="actionTree_harvestable"/>
-    <addaction name="actionDead_tree_Cactuses_Hornbush"/>
-    <addaction name="actionStone_object"/>
-    <addaction name="actionBush_Grass_walkable"/>
-    <addaction name="actionWater_object_Papyrus"/>
-    <addaction name="actionBig_tree_old_palm"/>
-    <addaction name="actionHanged_Impaled"/>
-    <addaction name="actionStatues"/>
-    <addaction name="actionMountain"/>
-    <addaction name="actionInvisible_Blocking_Object"/>
+    <addaction name="actionObject1"/>
+    <addaction name="actionObject2"/>
+    <addaction name="actionObject3"/>
+    <addaction name="actionObject4"/>
+    <addaction name="actionObject5"/>
+    <addaction name="actionObject6"/>
+    <addaction name="actionObject7"/>
+    <addaction name="actionObject8"/>
+    <addaction name="actionObject9"/>
+    <addaction name="actionObjectA"/>
    </widget>
    <widget class="QMenu" name="menuGradient">
     <property name="title">
@@ -193,15 +193,15 @@
     <property name="title">
      <string>Radius</string>
     </property>
-    <addaction name="action1_diameter"/>
-    <addaction name="action2_diameter"/>
-    <addaction name="action3_diameter"/>
-    <addaction name="action4_diameter"/>
-    <addaction name="action5_diameter"/>
-    <addaction name="action6_diameter"/>
-    <addaction name="action7_diameter"/>
-    <addaction name="action8_diameter"/>
-    <addaction name="action9_diameter"/>
+    <addaction name="actionDiameter1"/>
+    <addaction name="actionDiameter2"/>
+    <addaction name="actionDiameter3"/>
+    <addaction name="actionDiameter4"/>
+    <addaction name="actionDiameter5"/>
+    <addaction name="actionDiameter6"/>
+    <addaction name="actionDiameter7"/>
+    <addaction name="actionDiameter8"/>
+    <addaction name="actionDiameter9"/>
    </widget>
    <widget class="QMenu" name="menuPlayer">
     <property name="title">
@@ -251,23 +251,23 @@
    <addaction name="actionStone"/>
    <addaction name="actionGround"/>
    <addaction name="separator"/>
-   <addaction name="actionGold_unwalkable"/>
-   <addaction name="actionStone_unwalkable"/>
-   <addaction name="action3_custom"/>
-   <addaction name="action4_custom"/>
-   <addaction name="action5_custom"/>
+   <addaction name="actionResource1"/>
+   <addaction name="actionResource2"/>
+   <addaction name="actionResource3"/>
+   <addaction name="actionResource4"/>
+   <addaction name="actionResource5"/>
    <addaction name="separator"/>
-   <addaction name="actionNone_erase"/>
-   <addaction name="actionTree_harvestable"/>
-   <addaction name="actionDead_tree_Cactuses_Hornbush"/>
-   <addaction name="actionStone_object"/>
-   <addaction name="actionBush_Grass_walkable"/>
-   <addaction name="actionWater_object_Papyrus"/>
-   <addaction name="actionBig_tree_old_palm"/>
-   <addaction name="actionHanged_Impaled"/>
-   <addaction name="actionStatues"/>
-   <addaction name="actionMountain"/>
-   <addaction name="actionInvisible_Blocking_Object"/>
+   <addaction name="actionObject0"/>
+   <addaction name="actionObject1"/>
+   <addaction name="actionObject2"/>
+   <addaction name="actionObject3"/>
+   <addaction name="actionObject4"/>
+   <addaction name="actionObject5"/>
+   <addaction name="actionObject6"/>
+   <addaction name="actionObject7"/>
+   <addaction name="actionObject8"/>
+   <addaction name="actionObject9"/>
+   <addaction name="actionObjectA"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="toolBar">
@@ -304,15 +304,15 @@
    <addaction name="actionHeight4"/>
    <addaction name="actionHeight5"/>
    <addaction name="separator"/>
-   <addaction name="action1_diameter"/>
-   <addaction name="action2_diameter"/>
-   <addaction name="action3_diameter"/>
-   <addaction name="action4_diameter"/>
-   <addaction name="action5_diameter"/>
-   <addaction name="action6_diameter"/>
-   <addaction name="action7_diameter"/>
-   <addaction name="action8_diameter"/>
-   <addaction name="action9_diameter"/>
+   <addaction name="actionDiameter1"/>
+   <addaction name="actionDiameter2"/>
+   <addaction name="actionDiameter3"/>
+   <addaction name="actionDiameter4"/>
+   <addaction name="actionDiameter5"/>
+   <addaction name="actionDiameter6"/>
+   <addaction name="actionDiameter7"/>
+   <addaction name="actionDiameter8"/>
+   <addaction name="actionDiameter9"/>
   </widget>
   <action name="actionNew">
    <property name="text">
@@ -494,6 +494,9 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/brush_surface_grass2.png</normaloff>:/icons/brush_surface_grass2.png</iconset>
@@ -538,7 +541,7 @@
     <string>Ground</string>
    </property>
   </action>
-  <action name="actionGold_unwalkable">
+  <action name="actionResource1">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -550,7 +553,7 @@
     <string>Gold (unwalkable)</string>
    </property>
   </action>
-  <action name="actionStone_unwalkable">
+  <action name="actionResource2">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -562,7 +565,7 @@
     <string>Stone (unwalkable)</string>
    </property>
   </action>
-  <action name="action3_custom">
+  <action name="actionResource3">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -574,7 +577,7 @@
     <string>3 - custom</string>
    </property>
   </action>
-  <action name="action4_custom">
+  <action name="actionResource4">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -586,7 +589,7 @@
     <string>4 - custom</string>
    </property>
   </action>
-  <action name="action5_custom">
+  <action name="actionResource5">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -598,7 +601,7 @@
     <string>5 - custom</string>
    </property>
   </action>
-  <action name="actionNone_erase">
+  <action name="actionObject0">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -613,7 +616,7 @@
     <string>Alt+0</string>
    </property>
   </action>
-  <action name="actionTree_harvestable">
+  <action name="actionObject1">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -625,7 +628,7 @@
     <string>Tree (harvestable)</string>
    </property>
   </action>
-  <action name="actionDead_tree_Cactuses_Hornbush">
+  <action name="actionObject2">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -637,7 +640,7 @@
     <string>Dead tree / Cactuses / Thornbush</string>
    </property>
   </action>
-  <action name="actionStone_object">
+  <action name="actionObject3">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -649,7 +652,7 @@
     <string>Stone</string>
    </property>
   </action>
-  <action name="actionBush_Grass_walkable">
+  <action name="actionObject4">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -661,7 +664,7 @@
     <string>Bush / Grass / Fern (walkable)</string>
    </property>
   </action>
-  <action name="actionWater_object_Papyrus">
+  <action name="actionObject5">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -673,7 +676,7 @@
     <string>Water object / Reed / Papyrus (walkable)</string>
    </property>
   </action>
-  <action name="actionBig_tree_old_palm">
+  <action name="actionObject6">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -685,7 +688,7 @@
     <string>Big tree / Old palm</string>
    </property>
   </action>
-  <action name="actionHanged_Impaled">
+  <action name="actionObject7">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -697,7 +700,7 @@
     <string>Hanged / Impaled</string>
    </property>
   </action>
-  <action name="actionStatues">
+  <action name="actionObject8">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -709,7 +712,7 @@
     <string>Statues</string>
    </property>
   </action>
-  <action name="actionMountain">
+  <action name="actionObject9">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -721,7 +724,7 @@
     <string>Mountain</string>
    </property>
   </action>
-  <action name="actionInvisible_Blocking_Object">
+  <action name="actionObjectA">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -997,7 +1000,7 @@
     <string>5</string>
    </property>
   </action>
-  <action name="action1_diameter">
+  <action name="actionDiameter1">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1015,7 +1018,7 @@
     <string>Alt+1</string>
    </property>
   </action>
-  <action name="action2_diameter">
+  <action name="actionDiameter2">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1030,7 +1033,7 @@
     <string>Alt+2</string>
    </property>
   </action>
-  <action name="action3_diameter">
+  <action name="actionDiameter3">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1045,7 +1048,7 @@
     <string>Alt+3</string>
    </property>
   </action>
-  <action name="action4_diameter">
+  <action name="actionDiameter4">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1060,7 +1063,7 @@
     <string>Alt+4</string>
    </property>
   </action>
-  <action name="action5_diameter">
+  <action name="actionDiameter5">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1075,7 +1078,7 @@
     <string>Alt+5</string>
    </property>
   </action>
-  <action name="action6_diameter">
+  <action name="actionDiameter6">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1090,7 +1093,7 @@
     <string>Alt+6</string>
    </property>
   </action>
-  <action name="action7_diameter">
+  <action name="actionDiameter7">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1105,7 +1108,7 @@
     <string>Alt+7</string>
    </property>
   </action>
-  <action name="action8_diameter">
+  <action name="actionDiameter8">
    <property name="checkable">
     <bool>true</bool>
    </property>
@@ -1120,7 +1123,7 @@
     <string>Alt+8</string>
    </property>
   </action>
-  <action name="action9_diameter">
+  <action name="actionDiameter9">
    <property name="checkable">
     <bool>true</bool>
    </property>

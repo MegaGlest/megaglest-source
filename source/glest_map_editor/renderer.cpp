@@ -11,6 +11,7 @@
 
 #include "renderer.h"
 #include "tile.h"
+#include "mapManipulator.h"
 
 #include <QGraphicsScene>
 #include <QAction>
@@ -19,8 +20,9 @@
 #include <iostream>
 
 namespace MapEditor {
-    Renderer::Renderer(){
-        this->radius = 1;
+    Renderer::Renderer(MapManipulator *mapman){
+        this->mapman = mapman;
+        mapman->setRenderer(this);
         this->map = new Shared::Map::MapPreview();
         this->scene = new QGraphicsScene();
         this->historyPos = 0;
@@ -32,9 +34,10 @@ namespace MapEditor {
     }
 
     Renderer::~Renderer(){
-            this->removeTiles();
-            delete this->map;
-        }
+        this->removeTiles();
+        delete this->map;
+        delete this->mapman;
+    }
 
     void Renderer::open(string path){
         this->addHistory();
@@ -100,6 +103,9 @@ namespace MapEditor {
         return this->map;
     }
 
+    MapManipulator *Renderer::getMapManipulator() const{
+        return this->mapman;
+    }
 
     Tile *Renderer::at(int column, int row) const{
         return this->Tiles[column][row];
@@ -113,12 +119,4 @@ namespace MapEditor {
         this->history.push_back(this->map);
     }
 
-    void Renderer::setRadius(QAction *radius){
-        this->radius = QChar::digitValue(radius->objectName().at(6).unicode());//action1_diameter
-        std::cout << this->radius << std::endl;
-    }
-
-    int Renderer::getRadius() const{
-        return this->radius;
-    }
 }

@@ -9,8 +9,8 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
-#ifndef Tile_H
-#define Tile_H
+#ifndef TILE_H
+#define TILE_H
 
 #include <QGraphicsItemGroup>
 
