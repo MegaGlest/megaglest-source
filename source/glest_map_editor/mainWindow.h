@@ -53,6 +53,8 @@ namespace MapEditor {
         private slots:
             void openFile();
             void saveFile();
+            void quickSave();
+            void showPreview();
     };
 }// end namespace
 

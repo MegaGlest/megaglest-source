@@ -16,11 +16,11 @@
 #include <QGraphicsScene>
 #include <QAction>
 //#include "map_preview.h"
-
 #include <iostream>
 
 namespace MapEditor {
     Renderer::Renderer(MapManipulator *mapman){
+        this->filename = "";
         this->mapman = mapman;
         mapman->setRenderer(this);
         this->map = new Shared::Map::MapPreview();
@@ -40,6 +40,7 @@ namespace MapEditor {
     }
 
     void Renderer::open(string path){
+        this->filename = path;
         this->addHistory();
         this->map->loadFromFile(path);
         if(this->width == this->map->getW() && this->height == this->map->getH()){
@@ -52,6 +53,27 @@ namespace MapEditor {
             this->createTiles();
             this->recalculateAll();
         }
+    }
+
+    //TODO: only save if a file is loaded
+    void Renderer::save(){
+        if(this->isSavable()){//save as last saved or opened file
+            this->save(this->filename);
+        }
+    }
+
+    void Renderer::save(std::string path){
+        this->filename = path;//maybe this is the first time we save/open
+        std::cout << "save to " << path << std::endl;
+        this->map->saveToFile(path);
+    }
+
+    bool Renderer::isSavable(){
+        return this->filename != "";
+    }
+
+    std::string Renderer::getFilename() const{
+        return this->filename;
     }
 
     void Renderer::createTiles(){

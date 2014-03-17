@@ -38,6 +38,10 @@ namespace MapEditor {
             int getHeight() const;
             int getWidth() const;
             void open(std::string path);
+            void save();
+            void save(std::string path);
+            bool isSavable();
+            std::string getFilename() const;
             Shared::Map::MapPreview *getMap() const;
             MapManipulator *getMapManipulator() const;
             void newMap();
@@ -55,6 +59,7 @@ namespace MapEditor {
             void addHistory();
             void redo();
             void undo();
+            std::string filename;
     };
 }
 

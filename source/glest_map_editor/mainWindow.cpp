@@ -24,9 +24,12 @@
 #include "renderer.h"
 #include "mapManipulator.h"
 #include <QFileDialog>
+#include <QMessageBox>
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
 #include <QActionGroup>
+#include <QProcess>
+#include <QCoreApplication>
 //#include <QAction>
 //#include <memory>
 
@@ -54,9 +57,11 @@ namespace MapEditor {
         renderer = new Renderer(new MapManipulator(this));
         newmap = new NewMap(renderer);//instance of new map dialog
 
-        connect(ui->actionNew, SIGNAL(triggered()), newmap, SLOT(show()));//new map dialog window
-        connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openFile()));//open dialog window
-        connect(ui->actionSave_as, SIGNAL(triggered()), this, SLOT(saveFile()));//save as dialog window
+        connect(ui->actionNew, SIGNAL(triggered()), newmap, SLOT(show() ));//new map dialog window
+        connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openFile() ));//open dialog window
+        connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(quickSave() ));//save as dialog window
+        connect(ui->actionSave_as, SIGNAL(triggered()), this, SLOT(saveFile() ));//save as dialog window
+        connect(ui->actionPreview, SIGNAL(triggered()), this, SLOT(showPreview() ));//show a preview with megaglest game
 
         //those actions form a selection group -> only one is selected
         radiusGroup = new QActionGroup(this);
@@ -118,7 +123,42 @@ namespace MapEditor {
         Config &config = Config::getInstance();
         string userData = config.getString("UserData_Root","");
         string defaultPath = userData + "maps/";
-        QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"),QString::fromStdString(defaultPath),tr("MegaGlest Map(*.mgm);;Glest Map(*.gbm)"));
+        QString fileName = QFileDialog::getSaveFileName(this, tr("Save File"), QString::fromStdString(defaultPath),tr("MegaGlest Map(*.mgm);;Glest Map(*.gbm)"),0,QFileDialog::DontUseNativeDialog);//does not support auto-suffix on gnu/linux
+
+        bool reallySave = true;
+        if(fileName != NULL){
+            if(!fileName.endsWith(".mgm") && !fileName.endsWith(".gbm")){//gnu/linux has no auto-suffixes
+                fileName += ".mgm";
+                QFile targetFile(fileName);
+                if(targetFile.exists()){
+                    QMessageBox::StandardButton reply = QMessageBox::question(this, tr("Save File"), tr("This file already exists.\nDo you want to replace it?"),QMessageBox::Yes|QMessageBox::No);
+                    reallySave = (reply == QMessageBox::Yes);
+                }
+            }
+
+            if(reallySave){
+                this->renderer->save(fileName.toStdString());
+            }else{
+                this->saveFile();
+            }
+        }
+    }
+
+    void MainWindow::quickSave(){
+        if(this->renderer->isSavable()){
+            this->renderer->save();
+        }else{
+            this->saveFile();
+        }
+    }
+
+    //TODO: generate on the fly scenario for testing --load-scenario=x
+    void MainWindow::showPreview(){
+        QString path = QCoreApplication::applicationDirPath().append("/megaglest");
+#ifndef WIN32
+        path.append(".exe");
+#endif
+        QProcess::execute(path,QStringList("--preview-map=8_rivers")<<"--data-path=/usr/share/megaglest/"<<"--ini-path=/usr/share/megaglest");
     }
 }// end namespace
 
