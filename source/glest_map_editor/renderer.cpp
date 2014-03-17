@@ -52,6 +52,7 @@ namespace MapEditor {
         }
     }
 
+    //destroys the whole map, takes some time
     void Renderer::resize(){
         this->removeTiles();
         this->width = this->map->getW();
@@ -60,7 +61,6 @@ namespace MapEditor {
         this->recalculateAll();
     }
 
-    //TODO: only save if a file is loaded
     void Renderer::save(){
         if(this->isSavable()){//save as last saved or opened file
             this->save(this->filename);
@@ -85,26 +85,8 @@ namespace MapEditor {
         this->filename = "";
     }
 
-    void Renderer::createTiles(){
-        this->Tiles = new Tile**[this->width];
-        for(int column = 0; column < this->width; column++){
-            this->Tiles[column] = new Tile*[this->height];
-            for(int row = 0; row < this->height; row++){
-                this->Tiles[column][row] = new Tile(this->scene, this, column, row);
-            }
-        }
-    }
 
-    void Renderer::removeTiles(){
-        for(int column = 0; column < this->width; column++){
-            for(int row = 0; row < this->height; row++){
-                delete this->Tiles[column][row];
-            }
-            delete[] this->Tiles[column];
-        }
-        delete[] this->Tiles;
-    }
-
+    //‘recalculate’ which borders are necessary, if water is visible etc … for every tile
     void Renderer::recalculateAll(){
         for(int column = 0; column < this->width; column++){
             for(int row = 0; row < this->height; row++){
@@ -113,6 +95,7 @@ namespace MapEditor {
         }
     }
 
+    //let all tiles update their cached height
     void Renderer::updateMap(){
         for(int column = 0; column < this->width; column++){
             for(int row = 0; row < this->height; row++){
@@ -138,12 +121,32 @@ namespace MapEditor {
         return this->mapman;
     }
 
+    QGraphicsScene *Renderer::getScene() const{
+        return this->scene;
+    }
+
     Tile *Renderer::at(int column, int row) const{
         return this->Tiles[column][row];
     }
 
-    QGraphicsScene *Renderer::getScene() const{
-        return this->scene;
+    void Renderer::createTiles(){
+        this->Tiles = new Tile**[this->width];
+        for(int column = 0; column < this->width; column++){
+            this->Tiles[column] = new Tile*[this->height];
+            for(int row = 0; row < this->height; row++){
+                this->Tiles[column][row] = new Tile(this->scene, this, column, row);
+            }
+        }
+    }
+
+    void Renderer::removeTiles(){
+        for(int column = 0; column < this->width; column++){
+            for(int row = 0; row < this->height; row++){
+                delete this->Tiles[column][row];
+            }
+            delete[] this->Tiles[column];
+        }
+        delete[] this->Tiles;
     }
 
     void Renderer::addHistory(){

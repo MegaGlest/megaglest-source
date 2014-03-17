@@ -29,14 +29,6 @@ namespace MapEditor {
         public:
             Renderer(MapManipulator *mapman);
             ~Renderer();
-            void reduceHeight(int height);
-            void changeSurface(int surface);
-            QGraphicsScene *getScene() const;
-            Tile* at(int column, int row) const;
-            void recalculateAll();
-            void updateMap();
-            int getHeight() const;
-            int getWidth() const;
             void open(std::string path);
             void resize();
             void save();
@@ -44,12 +36,26 @@ namespace MapEditor {
             bool isSavable();
             std::string getFilename() const;
             void resetFilename();
+            void recalculateAll();
+            void updateMap();
+            int getHeight() const;
+            int getWidth() const;
             Shared::Map::MapPreview *getMap() const;
             MapManipulator *getMapManipulator() const;
+
+            void reduceHeight(int height);
+            void changeSurface(int surface);
+            QGraphicsScene *getScene() const;
+            Tile* at(int column, int row) const;
+
+
             void newMap();
         private:
             void removeTiles();
             void createTiles();
+            void addHistory();
+            void redo();
+            void undo();
             QGraphicsScene *scene;
             Tile*** Tiles;
             Shared::Map::MapPreview *map;
@@ -58,9 +64,7 @@ namespace MapEditor {
             int width;
             std::vector<Shared::Map::MapPreview*> history;
             int historyPos;
-            void addHistory();
-            void redo();
-            void undo();
+
             std::string filename;
     };
 }

@@ -165,7 +165,7 @@ namespace MapEditor {
 #ifdef WIN32
         path.append(".exe");
 #endif
-        QProcess::execute(path,QStringList(QString::fromStdString("--preview-map="+mapName)));//<<"--data-path=/usr/share/megaglest/"<<"--ini-path=/usr/share/megaglest"
+        QProcess::execute(path,QStringList(QString::fromStdString("--preview-map="+mapName))/*);//*/<<"--data-path=/usr/share/megaglest/"<<"--ini-path=/usr/share/megaglest");
         QFile(QString::fromStdString(fileName)).remove();//don’t need that anymore
     }
 }// end namespace
