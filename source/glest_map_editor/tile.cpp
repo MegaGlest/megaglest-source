@@ -148,13 +148,14 @@ namespace MapEditor {
         this->update();
     }
 
-    QRectF Tile::boundingRect() const{
-        return QRectF(0,0,this->SIZE,this->SIZE);
+    QRectF Tile::boundingRect() const{//need this for colidesWith … setPos is ignored
+        return QRectF(column * this->SIZE,row * this->SIZE, this->SIZE, this->SIZE);
     }
 
     void Tile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
-        painter->fillRect(QRectF(0,0,this->SIZE,this->SIZE),QBrush(this->color));
-
+        //painter->translate(column * this->SIZE,row * this->SIZE);
+        painter->fillRect(this->boundingRect(),QBrush(this->color));
+        painter->translate(column * this->SIZE,row * this->SIZE);
         if(!this->water){
             painter->setPen(QColor(0xFF, 0xFF, 0xFF, 0x42 ));//white
             if(this->leftLine)
@@ -179,36 +180,48 @@ namespace MapEditor {
     }
 
     void Tile::mousePressEvent ( QGraphicsSceneMouseEvent *event){
-        cout << "mouse pressed @" << this->column << "," << this->row << endl;
-        //this->setSurface(0);
-        //this->renderer->getMap()->glestChangeHeight(column, row, 15, 4);
-        /*this->renderer->getMap()->changeSurface(column, row, Shared::Map::st_Road, this->renderer->getRadius());
-        this->renderer->updateMap();
-        this->renderer->recalculateAll();*/
+        //cout << "mouse pressed @" << this->column << "," << this->row << endl;
         //event->ignore();
         this->renderer->getMapManipulator()->click(this->column, this->row);
     }
 
     void Tile::mouseMoveEvent ( QGraphicsSceneMouseEvent *event){
+        QPointF lastPoint = event->lastScenePos();
+        int lastColumn = lastPoint.x() / SIZE;
+        int lastRow = lastPoint.y() / SIZE;
+
         QPointF point = event->scenePos();
         int column = point.x() / SIZE;
         int row = point.y() / SIZE;
-        /*if(column >= 0 && row >= 0 && row < this->renderer->getHeight() && column < this->renderer->getWidth()){
-            this->renderer->at(column,row)->setSurface(0);
+
+        //drawing a line from last point to actual position
+        QPainterPath path(lastPoint);
+        path.lineTo(point);
+
+
+        //checking a bounding rectangle with possible tiles between the points
+        //limited by map size
+        int width = std::min(std::max(lastColumn,column),this->renderer->getWidth()-1);
+        int height = std::min(std::max(lastRow,row),this->renderer->getHeight()-1);
+
+        for(int nextColumn = std::max(0,std::min(lastColumn,column)); nextColumn <= width; nextColumn++){
+            for(int nextRow = std::max(0,std::min(lastRow,row)); nextRow <= height; nextRow++){
+                //if(nextColumn != lastColumn && nextRow != lastRow){//no need redrawing the old one
+                    if(this->renderer->at(nextColumn,nextRow)->collidesWithPath(path)){
+
+                        this->renderer->getMapManipulator()->changeTile(nextColumn, nextRow);
+                    }
+
+                //}
+            }
         }
-        //this->renderer->getMap()->glestChangeHeight(column, row, 15, 4);
-        this->renderer->getMap()->changeSurface(column, row, Shared::Map::st_Road, this->renderer->getRadius());
-        this->renderer->updateMap();
-        this->renderer->recalculateAll();*/
-        //std::cout << "mouse moved @" << column << "," << row << std::endl;
-        this->renderer->getMapManipulator()->changeTile(column, row);
     }
 
     void Tile::mouseReleaseEvent ( QGraphicsSceneMouseEvent *event){
-        QPointF point = event->scenePos();
+        /*QPointF point = event->scenePos();
         int column = point.x() / SIZE;
         int row = point.y() / SIZE;
-        std::cout << "mouse released @" << column << "," << row << std::endl;
+        std::cout << "mouse released @" << column << "," << row << std::endl;*/
         //this->renderer->getMap()->setHasChanged(false);
     }
 
@@ -222,7 +235,7 @@ namespace MapEditor {
     }
 
     void Tile::move(int column, int row){
-        QGraphicsItem::setPos(column*SIZE,row*SIZE);
+        //QGraphicsItem::setPos(column*SIZE,row*SIZE);
         this->row = row;
         this->column = column;
     }
