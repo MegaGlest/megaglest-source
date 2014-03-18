@@ -21,6 +21,9 @@
 #include "mainWindow.h"
 #include "ui_mainWindow.h"
 #include "newMap.h"
+#include "info.h"
+#include "advanced.h"
+#include "switchSurfaces.h"
 #include "renderer.h"
 #include "mapManipulator.h"
 #include <QFileDialog>
@@ -58,12 +61,18 @@ namespace MapEditor {
         MapManipulator *mapman = new MapManipulator(this);
         renderer = new Renderer(mapman);
         newmap = new NewMap(mapman);//instance of new map dialog
+        info = new Info(mapman);//instance of new map dialog
+        switchSurfaces = new SwitchSurfaces(mapman);//instance of new map dialog
+        advanced = new Advanced(mapman);//instance of new map dialog
 
         connect(ui->actionNew, SIGNAL(triggered()), newmap, SLOT(show() ));//new map dialog window
         connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openFile() ));//open dialog window
         connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(quickSave() ));//save as dialog window
         connect(ui->actionSave_as, SIGNAL(triggered()), this, SLOT(saveFile() ));//save as dialog window
         connect(ui->actionPreview, SIGNAL(triggered()), this, SLOT(showPreview() ));//show a preview with megaglest game
+        connect(ui->actionInfo, SIGNAL(triggered()), info, SLOT(show() ));//new map dialog window
+        connect(ui->actionSwitch_Surfaces, SIGNAL(triggered()), switchSurfaces, SLOT(show() ));//new map dialog window
+        connect(ui->actionAdvanced, SIGNAL(triggered()), advanced, SLOT(show() ));//new map dialog window
 
         //those actions form a selection group -> only one is selected
         radiusGroup = new QActionGroup(this);

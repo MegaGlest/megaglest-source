@@ -9,25 +9,22 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
-#include "newMap.h"
-#include "ui_newMap.h"
+#include "switchSurfaces.h"
+#include "ui_switchSurfaces.h"
 #include "mapManipulator.h"
 #include <iostream>
 
 namespace MapEditor {
-    NewMap::NewMap(MapManipulator *mapman, QWidget *parent) : QDialog(parent), ui(new Ui::NewMap), mapman(mapman){
+    SwitchSurfaces::SwitchSurfaces(MapManipulator *mapman, QWidget *parent) : QDialog(parent), ui(new Ui::SwitchSurfaces), mapman(mapman){
         ui->setupUi(this);
-        //ui->inputPlayers->deleteLater();
-        //ui->labelPlayers->deleteLater();
-        //QDialog::adjustSize();
         connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(create()));//create new map
     }
 
-    NewMap::~NewMap(){
+    SwitchSurfaces::~SwitchSurfaces(){
         delete ui;
     }
 
-    void NewMap::changeEvent(QEvent *e){
+    void SwitchSurfaces::changeEvent(QEvent *e){
         QDialog::changeEvent(e);
         switch (e->type()) {
          case QEvent::LanguageChange:
@@ -38,12 +35,12 @@ namespace MapEditor {
         }
     }
 
-    void NewMap::create(){
-        int width = ui->inputWidth->text().toInt();
+    void SwitchSurfaces::create(){
+        /*int width = ui->inputWidth->text().toInt();
         int height = ui->inputHeight->text().toInt();
         int surface = ui->inputSurface->currentIndex();
         int altitude = ui->inputAltitude->text().toFloat();
         int players = ui->inputPlayers->text().toInt();
-        this->mapman->reset(width, height, surface, altitude, players);
+        this->mapman->reset(width, height, surface, altitude, players);*/
     }
 }

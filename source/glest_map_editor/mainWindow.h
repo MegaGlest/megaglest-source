@@ -30,6 +30,9 @@ namespace Ui {
 namespace MapEditor {
     class Renderer;
     class NewMap;
+    class Info;
+    class Advanced;
+    class SwitchSurfaces;
 
     class MainWindow : public QMainWindow{
         Q_OBJECT//for Qt, otherwise “slots” won’t work
@@ -46,6 +49,9 @@ namespace MapEditor {
             Ui::MainWindow *ui;
             Renderer *renderer;
             NewMap *newmap;
+            SwitchSurfaces *switchSurfaces;
+            Advanced *advanced;
+            Info *info;
             QGraphicsScene *scene;
             QActionGroup *radiusGroup;
             QActionGroup *penGroup;
