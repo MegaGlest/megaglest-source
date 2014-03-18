@@ -40,6 +40,8 @@ namespace MapEditor {
 
         this->height = this->renderer->getMap()->getHeight(column, row);//the fuck ist width? - xDD
 
+        this->setAcceptHoverEvents(true);
+
         this->move(column, row);
 
     }
@@ -212,6 +214,7 @@ namespace MapEditor {
 
     void Tile::hoverEnterEvent ( QGraphicsSceneHoverEvent *event ){
         //std::cout << "hovered @" << column << "," << row << std::endl;
+        //this->renderer->getMapManipulator()->changeTile(column, row);
     }
 
     void Tile::dragEnterEvent (QGraphicsSceneDragDropEvent *event){

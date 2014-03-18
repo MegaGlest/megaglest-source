@@ -59,6 +59,7 @@ namespace MapEditor {
         this->height = this->map->getH();
         this->createTiles();
         this->recalculateAll();
+        this->scene->setSceneRect(this->scene->itemsBoundingRect());
     }
 
     void Renderer::save(){
