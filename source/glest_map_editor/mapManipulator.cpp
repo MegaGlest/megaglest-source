@@ -79,7 +79,7 @@ namespace MapEditor{
             this->renderer->getMap()->changeStartLocation(column, row, player);
         }//else nothing to do
 
-        this->renderer->recalculateAll();
+        //this->renderer->recalculateAll();
     }
 
     void MapManipulator::click(int column, int row){

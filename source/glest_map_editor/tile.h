@@ -22,6 +22,7 @@ class QGraphicsRectItem;
 class QGraphicsLineItem;
 class QGraphicsItem;
 class QColor;
+class QString;
 
 namespace MapEditor {
         class Renderer;

@@ -14,6 +14,8 @@
 #include "mapManipulator.h"
 #include <QPainter>
 //#include <QColor>
+#include <QString>
+#include <QObject>
 #include <QGraphicsScene>
 #include <QGraphicsLineItem>
 #include <QGraphicsRectItem>
@@ -77,6 +79,22 @@ namespace MapEditor {
 
     double Tile::getHeight() const{
         return this->height;
+        /*if(changed){TODO: maybe use a updateBorders()
+            this->renderer->getMap()->setHeight(this->column, this->row, height);
+            this->recalculate();
+            if(this->column > 0){
+                this->renderer->at(this->column - 1, this->row)->recalculate();
+            }
+            if(this->row > 0){
+                this->renderer->at(this->column, this->row - 1)->recalculate();
+            }
+            if(this->column < this->renderer->getWidth() - 1){
+                this->renderer->at(this->column + 1, this->row)->recalculate();
+            }
+            if(this->row < this->renderer->getHeight() - 1){
+                this->renderer->at(this->column, this->row + 1)->recalculate();
+            }
+        }*/
     }
 
     void Tile::updateHeight(){
@@ -86,6 +104,8 @@ namespace MapEditor {
 
     void Tile::recalculate(){
         //this->height = this->renderer->getMap()->getHeight(column, row);
+        bool changed = false;
+
         QColor base = SURFACE[this->renderer->getMap()->getSurface(column, row)];
         this->object = false;
         this->water = false;
@@ -93,7 +113,10 @@ namespace MapEditor {
         if(this->renderer->getMap()->isCliff(column, row)){
             base = SURFACE[0];
             this->object = true;
-            this->objectColor = Qt::black;
+            if(this->objectColor != Qt::black){
+                changed = true;
+                this->objectColor = Qt::black;
+            }
         }
 
         double waterlevel = this->renderer->getMap()->getWaterLevel();
@@ -105,18 +128,29 @@ namespace MapEditor {
                 base = Qt::cyan;
             }
         }
-        this->color = base.darker(100+10*(20 - this->height));//base;
+        base = base.darker(100+10*(20 - this->height));//make it darker
+        if(this->color != base){
+            changed = true;
+            this->color = base;
+        }
         int resource = this->renderer->getMap()->getResource(column, row);
         if(resource != 0){
             this->resource = true;
-            this->resourceColor = RESOURCE[resource-1];
+            if(this->resourceColor != RESOURCE[resource-1]){
+                changed = true;
+                this->resourceColor = RESOURCE[resource-1];
+            }
         }
         int object = this->renderer->getMap()->getObject(column, row);
         if(object != 0){
             this->object = true;
-            this->objectColor = OBJECT[object-1];
+            if(this->objectColor != OBJECT[object-1]){
+                changed = true;
+                this->objectColor = OBJECT[object-1];
+            }
         }
 
+        //TODO: check for change
         //get the heights of all surrounding Tiles
         if(this->column > 0){
             double leftHeight = this->renderer->at(this->column - 1, this->row)->getHeight();
@@ -145,7 +179,10 @@ namespace MapEditor {
         }else{
             this->bottomLine = false;
         }
-        this->update();
+
+        if(changed){
+            this->update();
+        }
     }
 
     QRectF Tile::boundingRect() const{//need this for colidesWith … setPos is ignored
@@ -183,6 +220,7 @@ namespace MapEditor {
         //cout << "mouse pressed @" << this->column << "," << this->row << endl;
         //event->ignore();
         this->renderer->getMapManipulator()->click(this->column, this->row);
+        this->renderer->recalculateAll();
     }
 
     void Tile::mouseMoveEvent ( QGraphicsSceneMouseEvent *event){
@@ -215,6 +253,7 @@ namespace MapEditor {
                 //}
             }
         }
+        this->renderer->recalculateAll();
     }
 
     void Tile::mouseReleaseEvent ( QGraphicsSceneMouseEvent *event){
