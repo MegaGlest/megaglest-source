@@ -30,6 +30,7 @@
 #include <QActionGroup>
 #include <QProcess>
 #include <QCoreApplication>
+#include <QLabel>
 //#include <QAction>
 //#include <memory>
 
@@ -85,6 +86,20 @@ namespace MapEditor {
 
         ui->graphicsView->setScene(renderer->getScene());
         //ui->graphicsView->scale(5,5);
+
+        QLabel *fileStatus = new QLabel(tr("File: ").append("desert_river"));
+        ui->statusBar->addWidget(fileStatus);
+        QLabel *typeStatus = new QLabel(".gbm");
+        ui->statusBar->addWidget(typeStatus);
+        QLabel *objectStatus = new QLabel(tr("Object: ").append("None (Erase)"));
+        ui->statusBar->addWidget(objectStatus);
+        QLabel *posStatus = new QLabel(tr("Position: ").append("(74,47)"));
+        ui->statusBar->addWidget(posStatus);
+        QLabel *ingameStatus = new QLabel(tr("Ingame: ").append("(148,94)"));
+        ui->statusBar->addWidget(ingameStatus);
+        /*ui->statusBar->setStyleSheet(
+        "QStatusBar::item { border: 1px solid red; border-radius: 3px; border-style:inset;} "
+        );*/
     }
 
     MainWindow::~MainWindow(){

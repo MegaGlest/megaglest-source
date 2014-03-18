@@ -12,7 +12,7 @@
 #ifndef TILE_H
 #define TILE_H
 
-#include <QGraphicsItemGroup>
+#include <QGraphicsItem>
 
 class QGraphicsScene;
 class QGraphicsSceneMouseEvent;
@@ -21,20 +21,22 @@ class QGraphicsSceneDragDropEvent;
 class QGraphicsRectItem;
 class QGraphicsLineItem;
 class QGraphicsItem;
+class QColor;
 
 namespace MapEditor {
         class Renderer;
 
-        class Tile:public QGraphicsItemGroup{
+        class Tile:public QGraphicsItem{
             public:
                 Tile(QGraphicsScene *scene, Renderer *renderer,int column=0,int row=0);
-                ~Tile();
-                void recalculate();
-                double getHeight() const;
-                void setHeight(double height);
+                //~Tile();
                 void setSurface(int surface);
-                void update();
-                void clicked(QGraphicsSceneMouseEvent * event);
+                void setHeight(double height);
+                double getHeight() const;
+                void updateHeight();
+                void recalculate();
+                virtual QRectF boundingRect() const;
+                virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
             protected:
                 virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event);
                 virtual void mouseMoveEvent ( QGraphicsSceneMouseEvent * event);
@@ -42,25 +44,25 @@ namespace MapEditor {
                 virtual void hoverEnterEvent ( QGraphicsSceneHoverEvent * event );
                 virtual void dragEnterEvent (QGraphicsSceneDragDropEvent * event);
             private:
+                void move(int column, int row);
                 static const QColor SURFACE[];
                 static const QColor OBJECT[];
                 static const QColor RESOURCE[];
                 static const int SIZE;
                 Renderer* renderer;
-                void move(int column, int row);
-                QGraphicsRectItem *rect;
-                QGraphicsRectItem *water;
-                QGraphicsRectItem *object;
-                QGraphicsLineItem *topLine;
-                QGraphicsLineItem *rightLine;
-                QGraphicsLineItem *bottomLine;
-                QGraphicsLineItem *leftLine;
+                bool topLine;
+                bool rightLine;
+                bool bottomLine;
+                bool leftLine;
                 double height;
                 int column;
                 int row;
-
-                int children;
-                QGraphicsItem ** child;
+                QColor color;
+                bool water;
+                bool object;
+                QColor objectColor;
+                bool resource;
+                QColor resourceColor;
         };
 }
 #endif

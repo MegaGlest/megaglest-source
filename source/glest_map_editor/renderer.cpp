@@ -99,7 +99,7 @@ namespace MapEditor {
     void Renderer::updateMap(){
         for(int column = 0; column < this->width; column++){
             for(int row = 0; row < this->height; row++){
-                this->Tiles[column][row]->update();
+                this->Tiles[column][row]->updateHeight();
             }
         }
     }

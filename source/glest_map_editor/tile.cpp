@@ -12,6 +12,8 @@
 #include "tile.h"
 #include "renderer.h"
 #include "mapManipulator.h"
+#include <QPainter>
+//#include <QColor>
 #include <QGraphicsScene>
 #include <QGraphicsLineItem>
 #include <QGraphicsRectItem>
@@ -24,71 +26,30 @@ namespace MapEditor {
     const QColor Tile::SURFACE[] = {QColor(0xF2,0xCC,0x00),QColor(0x00,0xCC,0x00),QColor(0x66,0x99,0x0B),QColor(0x99,0x4C,0x00),QColor(0xB2,0xB2,0xB2),QColor(0xB2,0x7F,0x4C)};
     const QColor Tile::OBJECT[] = {QColor(0xFF,0x00,0x00),QColor(0xFF,0xFF,0xFF),QColor(0x7F,0x7F,0xFF),QColor(0x00,0x00,0xFF),QColor(0x7F,0x7F,0x7F),QColor(0xFF,0xCC,0x7F),QColor(0x00,0xFF,0xFF),QColor(0xB2,0x19,0x4C),QColor(0x7F,0xFF,0x19),QColor(0xFF,0x33,0xCC)};
     const QColor Tile::RESOURCE[] = {QColor(0xDD,0xDD,0x00),QColor(0x80,0x80,0x80),QColor(0xFF,0x00,0x00),QColor(0x00,0x00,0xFF),QColor(0x00,0x80,0x80)};
-    const int Tile::SIZE = 6;
+    const int Tile::SIZE = 8;
 
     //column and row are the position in Tiles of the Tile
-    Tile::Tile(QGraphicsScene *scene, Renderer *renderer, int column, int row):QGraphicsItemGroup(){//call the standard constructor of QGraphicsItemGroup
-        scene->addItem(this);//add this group to the scene
+    Tile::Tile(QGraphicsScene *scene, Renderer *renderer, int column, int row):QGraphicsItem(){//call the standard constructor of QGraphicsItemGroup
+        scene->addItem(this);//add this to the scene
 
+        this->renderer=renderer;//TODO: do I need this?
+        this->leftLine = this->topLine = this->rightLine = this->bottomLine = true;
+        this->water = this->object = this->resource = false;
 
-        this->renderer=renderer;
-        children = 7;
-        child = new QGraphicsItem*[children];
-        child[0] = this->rect = new QGraphicsRectItem(0, 0, SIZE, SIZE, this);
-        child[1] = this->water = new QGraphicsRectItem(0, 0, SIZE, SIZE, this);
-        float objectSpace = (SIZE*2)/5.0;
-        child[2] = this->object = new QGraphicsRectItem(objectSpace, objectSpace, SIZE-(2*objectSpace), SIZE-(2*objectSpace), this);
-        //borders are extra items for pseudo 3D effect, we rarely show all of them, they have the rectangle as parent
-        child[3] = this->leftLine = new QGraphicsLineItem(0,0,0,SIZE-1,this);
-        child[4] = this->topLine = new QGraphicsLineItem(0,0,SIZE-1,0,this);
-        child[5] = this->rightLine = new QGraphicsLineItem(SIZE-1,0,SIZE-1,SIZE-1,this);
-        child[6] = this->bottomLine = new QGraphicsLineItem(0,SIZE-1,SIZE-1,SIZE-1,this);
+        this->color = this->objectColor = this->resourceColor = Qt::black;
 
-        this->height = this->renderer->getMap()->getHeight(column, row);
-
-        for(int i = 0; i < children; i++){
-            //child[i]->setAcceptHoverEvents(true);//for hover events
-            //child[i]->setAcceptDrops(true);//for drag and drop -> hover while mouse pressed
-        }
-
-        this->rect->setPen(QPen(Qt::NoPen));//no borders
-        this->water->setPen(QPen(Qt::NoPen));
-        this->object->setPen(QPen(Qt::NoPen));
-        this->water->setOpacity(0.4);
-
-        QPen white(QColor(0xFF, 0xFF, 0xFF, 0x42 ));
-        this->leftLine->setPen(white);//white and 50% opacity
-        this->topLine->setPen(white);
-
-        QPen black(QColor(0x00, 0x00, 0x00, 0x42 ));
-        this->rightLine->setPen(black);//black and 50% opacity
-        this->bottomLine->setPen(black);
+        this->height = this->renderer->getMap()->getHeight(column, row);//the fuck ist width? - xDD
 
         this->move(column, row);
 
     }
 
-    Tile::~Tile(){
-        this->rect->scene()->removeItem(this->rect);
-        delete this->water;
-        delete this->object;
-        delete this->leftLine;
-        delete this->topLine;
-        delete this->rightLine;
-        delete this->bottomLine;
-        delete this->rect;
+    /*Tile::~Tile(){
+    }*/
 
-        delete child;
-    }
-
-    void Tile::move(int column, int row){
-        QGraphicsItemGroup::setPos(column*SIZE,row*SIZE);
-        this->row = row;
-        this->column = column;
-    }
-
-    void Tile::update(){
-        this->height = this->renderer->getMap()->getHeight(column, row);
+    void Tile::setSurface(int surface){//TODO:checking if still needed
+        this->renderer->getMap()->setSurface(this->column, this->row, Shared::Map::st_Road);
+        this->recalculate();
     }
 
     void Tile::setHeight(double height){
@@ -112,82 +73,108 @@ namespace MapEditor {
         }
     }
 
-    void Tile::setSurface(int surface){
-        this->renderer->getMap()->setSurface(this->column, this->row, Shared::Map::st_Road);
-        this->recalculate();
-    }
-
     double Tile::getHeight() const{
         return this->height;
     }
 
+    void Tile::updateHeight(){
+        this->height = this->renderer->getMap()->getHeight(column, row);
+        //std::cout << "update!" << std::endl;
+    }
+
     void Tile::recalculate(){
+        //this->height = this->renderer->getMap()->getHeight(column, row);
         QColor base = SURFACE[this->renderer->getMap()->getSurface(column, row)];
-        bool showObject = false;
-        bool showWater = false;
+        this->object = false;
+        this->water = false;
+        this->resource = false;
         if(this->renderer->getMap()->isCliff(column, row)){
             base = SURFACE[0];
-            showObject = true;
-            this->object->setBrush(Qt::black);
+            this->object = true;
+            this->objectColor = Qt::black;
         }
-        //TODO: draw objects ... getObject
+
         double waterlevel = this->renderer->getMap()->getWaterLevel();
         if(this->height <= waterlevel){
-            //showWater = true;
+            this->water = true;
             if(this->height <= waterlevel - 1.5){
-                //this->water->setBrush(QBrush(Qt::blue));
                 base = Qt::blue;
             }else{
-                //this->water->setBrush(QBrush(Qt::cyan));
                 base = Qt::cyan;
             }
         }
+        this->color = base.darker(100+10*(20 - this->height));//base;
         int resource = this->renderer->getMap()->getResource(column, row);
         if(resource != 0){
-            showObject = true;
-            this->object->setBrush(RESOURCE[resource-1]);
+            this->resource = true;
+            this->resourceColor = RESOURCE[resource-1];
         }
         int object = this->renderer->getMap()->getObject(column, row);
         if(object != 0){
-            showObject = true;
-            this->object->setBrush(OBJECT[object-1]);
+            this->object = true;
+            this->objectColor = OBJECT[object-1];
         }
-
-        this->object->setVisible(showObject);
-        this->water->setVisible(showWater);
-        this->rect->setBrush(base.darker(100+10*(20 - this->height)));
 
         //get the heights of all surrounding Tiles
         if(this->column > 0){
             double leftHeight = this->renderer->at(this->column - 1, this->row)->getHeight();
-            this->leftLine->setVisible(this->height > leftHeight);
+            this->leftLine = this->height > leftHeight;
         }else{
-            this->leftLine->setVisible(false);
+            this->leftLine = false;
         }
 
         if(this->row > 0){
             double topHeight = this->renderer->at(this->column, this->row - 1)->getHeight();
-            this->topLine->setVisible(this->height > topHeight);
+            this->topLine = this->height > topHeight;
         }else{
-            this->topLine->setVisible(false);
+            this->topLine = false;
         }
 
         if(this->column < this->renderer->getWidth() - 1){
             double rightHeight = this->renderer->at(this->column + 1, this->row)->getHeight();
-            this->rightLine->setVisible(this->height > rightHeight);
+            this->rightLine = this->height > rightHeight;
         }else{
-            this->rightLine->setVisible(false);
+            this->rightLine = false;
         }
 
         if(this->row < this->renderer->getHeight() - 1){
             double bottomHeight = this->renderer->at(this->column, this->row + 1)->getHeight();
-            this->bottomLine->setVisible(this->height > bottomHeight);
+            this->bottomLine = this->height > bottomHeight;
         }else{
-            this->bottomLine->setVisible(false);
+            this->bottomLine = false;
         }
-
+        this->update();
     }
 
+    QRectF Tile::boundingRect() const{
+        return QRectF(0,0,this->SIZE,this->SIZE);
+    }
+
+    void Tile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
+        painter->fillRect(QRectF(0,0,this->SIZE,this->SIZE),QBrush(this->color));
+
+        if(!this->water){
+            painter->setPen(QColor(0xFF, 0xFF, 0xFF, 0x42 ));//white
+            if(this->leftLine)
+                painter->drawLine(0,0,0,SIZE);//left
+            if(this->topLine)
+                painter->drawLine(0,0,SIZE,0);//top
+            painter->setPen(QColor(0x00, 0x00, 0x00, 0x42 ));//black
+            if(this->rightLine)
+                painter->drawLine(SIZE-1,0,SIZE-1,SIZE-1);//right
+            if(this->bottomLine)
+                painter->drawLine(0,SIZE-1,SIZE-1,SIZE-1);//bottom
+        }
+        if(this->resource){
+            painter->setPen(this->resourceColor);
+            painter->drawLine(1,1,SIZE-2,SIZE-2);
+            painter->drawLine(1,SIZE-1,SIZE-2,2);
+        }
+        if(this->object){
+            float objectSpace = (SIZE*2)/3.0;
+            painter->fillRect(QRectF(objectSpace,objectSpace,SIZE-(2*objectSpace),SIZE-(2*objectSpace)),QBrush(this->objectColor));
+        }
+    }
 
     void Tile::mousePressEvent ( QGraphicsSceneMouseEvent *event){
         cout << "mouse pressed @" << this->column << "," << this->row << endl;
@@ -229,5 +216,11 @@ namespace MapEditor {
 
     void Tile::dragEnterEvent (QGraphicsSceneDragDropEvent *event){
         //std::cout << "drag hovered @" << column << "," << row << std::endl;
+    }
+
+    void Tile::move(int column, int row){
+        QGraphicsItem::setPos(column*SIZE,row*SIZE);
+        this->row = row;
+        this->column = column;
     }
 }
