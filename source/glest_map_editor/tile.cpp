@@ -236,6 +236,7 @@ namespace MapEditor {
     void Tile::mousePressEvent ( QGraphicsSceneMouseEvent *event){
         //cout << "mouse pressed @" << this->column << "," << this->row << endl;
         //event->ignore();
+        //this->renderer->addHistory();
         this->renderer->getMapManipulator()->click(this->column, this->row);
         this->renderer->recalculateAll();
     }
@@ -282,6 +283,7 @@ namespace MapEditor {
         int row = point.y() / SIZE;
         std::cout << "mouse released @" << column << "," << row << std::endl;*/
         //this->renderer->getMap()->setHasChanged(false);
+        this->renderer->addHistory();
     }
 
     void Tile::hoverEnterEvent ( QGraphicsSceneHoverEvent *event ){

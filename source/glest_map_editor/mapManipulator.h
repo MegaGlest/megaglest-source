@@ -59,6 +59,7 @@ namespace MapEditor{
             void click(int column, int row);
             /**
              * Resets the actual map / creates a new one.
+             * Clears history.
              * @param width New size of the map
              * @param height New size of the map
              * @param surface Whole map gets filled with this surface

@@ -95,21 +95,23 @@ namespace MapEditor {
         }
 
         //file
-        connect(ui->actionNew, SIGNAL(triggered()), newmap, SLOT(show() ));//new map dialog window
-        connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openFile() ));//open dialog window
-        connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(quickSave() ));//save as dialog window
-        connect(ui->actionSave_as, SIGNAL(triggered()), this, SLOT(saveFile() ));//save as dialog window
-        connect(ui->actionPreview, SIGNAL(triggered()), this, SLOT(showPreview() ));//show a preview with megaglest game
+        connect(ui->actionNew, SIGNAL( triggered() ), newmap, SLOT( show() ));//new map dialog window
+        connect(ui->actionOpen, SIGNAL( triggered() ), this, SLOT( openFile() ));//open dialog window
+        connect(ui->actionSave, SIGNAL( triggered() ), this, SLOT( quickSave() ));//save as dialog window
+        connect(ui->actionSave_as, SIGNAL( triggered() ), this, SLOT( saveFile() ));//save as dialog window
+        connect(ui->actionPreview, SIGNAL( triggered() ), this, SLOT( showPreview() ));//show a preview with megaglest game
         //edit
-        connect(ui->actionInfo, SIGNAL(triggered()), info, SLOT(show() ));
-        connect(ui->actionSwitch_Surfaces, SIGNAL(triggered()), switchSurfaces, SLOT(show() ));
-        connect(ui->actionAdvanced, SIGNAL(triggered()), advanced, SLOT(show() ));
+        connect(ui->actionUndo, SIGNAL( triggered() ), renderer, SLOT( undo() ));
+        connect(ui->actionRedo, SIGNAL( triggered() ), renderer, SLOT( redo() ));
+        connect(ui->actionInfo, SIGNAL( triggered() ), info, SLOT( show() ));
+        connect(ui->actionSwitch_Surfaces, SIGNAL( triggered() ), switchSurfaces, SLOT( show() ));
+        connect(ui->actionAdvanced, SIGNAL( triggered() ), advanced, SLOT( show() ));
         //view
-        connect(ui->actionGrid, SIGNAL(toggled(bool)), renderer, SLOT(setGrid(bool)));
-        connect(ui->actionHeight_Map, SIGNAL(toggled(bool)), renderer, SLOT(setHeightMap(bool)));
-        connect(ui->actionWater, SIGNAL(toggled(bool)), renderer, SLOT(setWater(bool)));
-        connect(ui->actionHelp, SIGNAL(triggered()), help, SLOT(show()));
-        connect(ui->actionAbout, SIGNAL(triggered()), about, SLOT(show()));
+        connect(ui->actionGrid, SIGNAL( toggled(bool) ), renderer, SLOT( setGrid(bool) ));
+        connect(ui->actionHeight_Map, SIGNAL( toggled(bool) ), renderer, SLOT( setHeightMap(bool) ));
+        connect(ui->actionWater, SIGNAL( toggled(bool) ), renderer, SLOT( setWater(bool) ));
+        connect(ui->actionHelp, SIGNAL( triggered() ), help, SLOT( show() ));
+        connect(ui->actionAbout, SIGNAL( triggered() ), about, SLOT( show() ));
 
         //those actions form a selection group -> only one is selected
         radiusGroup = new QActionGroup(this);

@@ -32,12 +32,12 @@ namespace MapEditor {
         this->map = new Shared::Map::MapPreview();
         this->map->resetFactions(1);//otherwise this map can’t be loaded later
         this->scene = new QGraphicsScene();
-        this->historyPos = 0;
         this->width = this->map->getW();
         this->height = this->map->getH();
         this->createTiles();
 
         this->recalculateAll();
+        this->clearHistory();
     }
 
     Renderer::~Renderer(){
@@ -56,6 +56,7 @@ namespace MapEditor {
         }else{
             this->resize();
         }
+        this->clearHistory();
     }
 
     //destroys the whole map, takes some time
@@ -162,6 +163,43 @@ namespace MapEditor {
         this->updateTiles();
     }
 
+    void Renderer::undo(){
+        int realIndex = this->history.size() -1 - this->historyPos;
+        //std::cout << "historyPos: " << historyPos << "; realIndex: " << realIndex << "; size: " << this->history.size() << std::endl;
+        if(realIndex > 0){
+            this->historyPos++;
+            *this->map = this->history[realIndex-1];
+            this->updateMap();
+            this->recalculateAll();
+        }
+    }
+
+    void Renderer::redo(){
+        //int realIndex = (this->history.size()-1) - this->historyPos;
+        //std::cout << "historyPos: " << historyPos << "; realIndex: " << realIndex << "; size: " << this->history.size() << std::endl;
+        if(this->historyPos > 0){
+            this->historyPos--;
+            int realIndex = (this->history.size()-1) - this->historyPos;
+            *this->map = this->history[realIndex];
+            this->updateMap();
+            this->recalculateAll();
+        }
+    }
+
+    void Renderer::addHistory(){
+        while(this->historyPos > 0){//1 is latest change; 0 is actual
+            this->historyPos--;
+            this->history.pop_back();
+        }
+        this->history.push_back(*this->map);//has no pointer, should work
+    }
+
+    void Renderer::clearHistory(){
+        this->history.clear();
+        this->historyPos = 0;//1 is previous change //0 would be actual map
+        this->history.push_back(*this->map);
+    }
+
     void Renderer::setHeightMap(bool heightMap){
         this->heightMap = heightMap;
         this->recalculateAll();
@@ -194,10 +232,6 @@ namespace MapEditor {
             delete[] this->Tiles[column];
         }
         delete[] this->Tiles;
-    }
-
-    void Renderer::addHistory(){
-        this->history.push_back(this->map);
     }
 
 }

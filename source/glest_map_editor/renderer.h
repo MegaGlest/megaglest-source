@@ -144,6 +144,22 @@ namespace MapEditor {
              *@param heigtMap show only height map
              */
             void setHeightMap(bool heightMap);
+            /**
+             * redo last undone step
+             */
+            void redo();
+            /**
+             * undo last step
+             */
+            void undo();
+            /**
+             * Adds the actual map to the history
+             */
+            void addHistory();
+            /**
+             * vanishes whole history
+             */
+            void clearHistory();
         private:
             /**
              * initiate a repaint of all tiles
@@ -157,28 +173,13 @@ namespace MapEditor {
              * Deletes all tile instances
              */
             void removeTiles();
-            /**
-             * Adds the actual map to the history
-             * TODO: remove undone maps
-             */
-            void addHistory();
-            /**
-             * redo last undone step
-             * TODO: implement it
-             */
-            void redo();
-            /**
-             * undo last step
-             * TODO: implement it
-             */
-            void undo();
             QGraphicsScene *scene;
             Tile*** Tiles;
             Shared::Map::MapPreview *map;
             MapManipulator *mapman;
             int height;
             int width;
-            std::vector<Shared::Map::MapPreview*> history;
+            std::vector<Shared::Map::MapPreview> history;
             int historyPos;
             Status *status;
 

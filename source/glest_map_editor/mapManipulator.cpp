@@ -108,5 +108,6 @@ namespace MapEditor{
         //this->renderer->getMap()->resize(int w, int h, float alt, MapSurfaceType surf);
         this->renderer->getMap()->resetFactions(players);
         this->renderer->resize();//changes width and height; updates and recalculates map
+        this->renderer->clearHistory();
     }
 }
