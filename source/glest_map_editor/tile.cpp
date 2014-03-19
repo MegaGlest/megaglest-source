@@ -111,15 +111,19 @@ namespace MapEditor {
         bool changed = false;
 
         QColor base = SURFACE[this->renderer->getMap()->getSurface(column, row)];
-        this->object = 0;
         this->water = false;
-        this->resource = false;
         //change detected by base color change
         if(this->renderer->getMap()->isCliff(column, row)){
             base = SURFACE[0];
-            this->cliff = true;//TODO: change
+            if(!this->cliff){
+                changed = true;
+                this->cliff = true;
+            }
         }else{
-            this-> cliff = false;
+            if(this->cliff){
+                changed = true;
+                this->cliff = false;
+            }
         }
         if(this->renderer->getHeightMap()){//showing water but no cliffs
             base = Qt::lightGray;
@@ -140,18 +144,28 @@ namespace MapEditor {
         }
         int resource = this->renderer->getMap()->getResource(column, row);
         if(resource != 0){
-            this->resource = true;
-            if(this->resourceColor != RESOURCE[resource-1]){
+            if(this->resource != resource){
+                this->resource = resource;
                 changed = true;
                 this->resourceColor = RESOURCE[resource-1];
+            }
+        }else{
+            if(this->resource){
+                changed = true;
+                this->resource = 0;
             }
         }
         int object = this->renderer->getMap()->getObject(column, row);
         if(object != 0){
-            this->object = object;
-            if(this->objectColor != OBJECT[object-1]){
+            if(this->object != object){
+                this->object = object;
                 changed = true;
                 this->objectColor = OBJECT[object-1];
+            }
+        }else{
+            if(this->object){
+                changed = true;
+                this->object = 0;
             }
         }
 

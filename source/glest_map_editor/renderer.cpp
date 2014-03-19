@@ -171,6 +171,7 @@ namespace MapEditor {
             *this->map = this->history[realIndex-1];
             this->updateMap();
             this->recalculateAll();
+            //this->updateTiles();
         }
     }
 
@@ -183,6 +184,7 @@ namespace MapEditor {
             *this->map = this->history[realIndex];
             this->updateMap();
             this->recalculateAll();
+            //this->updateTiles();
         }
     }
 
