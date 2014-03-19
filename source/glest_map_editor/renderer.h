@@ -38,10 +38,11 @@ class QAction;
 namespace MapEditor {
     class Tile;
     class MapManipulator;
+    struct Status;
 
     class Renderer{//QObject because of the slot
         public:
-            Renderer(MapManipulator *mapman);
+            Renderer(MapManipulator *mapman, Status *status);
             ~Renderer();
             /**
              * opens a map
@@ -112,6 +113,10 @@ namespace MapEditor {
              * @return tile at a specific position
              */
             Tile* at(int column, int row) const;
+            /**
+             *@return pointer for statusbar QLabels
+             */
+            Status* getStatus() const;
         private:
             /**
              * Fill the scene with new tiles, depends on the map size
@@ -144,6 +149,7 @@ namespace MapEditor {
             int width;
             std::vector<Shared::Map::MapPreview*> history;
             int historyPos;
+            Status *status;
 
             std::string filename;
     };

@@ -10,6 +10,8 @@
 // ==============================================================
 
 #include "renderer.h"
+//good idea?
+#include "mainWindow.h"
 #include "tile.h"
 #include "mapManipulator.h"
 
@@ -19,7 +21,8 @@
 #include <iostream>
 
 namespace MapEditor {
-    Renderer::Renderer(MapManipulator *mapman){
+    Renderer::Renderer(MapManipulator *mapman, Status *status){
+        this->status = status;
         this->filename = "";
         this->mapman = mapman;
         mapman->setRenderer(this);
@@ -58,7 +61,7 @@ namespace MapEditor {
         this->width = this->map->getW();
         this->height = this->map->getH();
         this->createTiles();
-        this->recalculateAll();
+        this->recalculateAll();//TODO: do we need an .update() ?
         this->scene->setSceneRect(this->scene->itemsBoundingRect());
     }
 
@@ -128,6 +131,10 @@ namespace MapEditor {
 
     Tile *Renderer::at(int column, int row) const{
         return this->Tiles[column][row];
+    }
+
+    Status *Renderer::getStatus() const{
+        return status;
     }
 
     void Renderer::createTiles(){

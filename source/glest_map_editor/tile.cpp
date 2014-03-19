@@ -11,11 +11,14 @@
 
 #include "tile.h"
 #include "renderer.h"
+//good idea?
+#include "mainWindow.h"
 #include "mapManipulator.h"
 #include <QPainter>
 //#include <QColor>
 #include <QString>
 #include <QObject>
+#include <QLabel>
 #include <QGraphicsScene>
 #include <QGraphicsLineItem>
 #include <QGraphicsRectItem>
@@ -28,6 +31,7 @@ namespace MapEditor {
     const QColor Tile::SURFACE[] = {QColor(0xF2,0xCC,0x00),QColor(0x00,0xCC,0x00),QColor(0x66,0x99,0x0B),QColor(0x99,0x4C,0x00),QColor(0xB2,0xB2,0xB2),QColor(0xB2,0x7F,0x4C)};
     const QColor Tile::OBJECT[] = {QColor(0xFF,0x00,0x00),QColor(0xFF,0xFF,0xFF),QColor(0x7F,0x7F,0xFF),QColor(0x00,0x00,0xFF),QColor(0x7F,0x7F,0x7F),QColor(0xFF,0xCC,0x7F),QColor(0x00,0xFF,0xFF),QColor(0xB2,0x19,0x4C),QColor(0x7F,0xFF,0x19),QColor(0xFF,0x33,0xCC)};
     const QColor Tile::RESOURCE[] = {QColor(0xDD,0xDD,0x00),QColor(0x80,0x80,0x80),QColor(0xFF,0x00,0x00),QColor(0x00,0x00,0xFF),QColor(0x00,0x80,0x80)};
+    const QString Tile::OBJECTSTR[] = {QObject::tr("None (erase)"),QObject::tr("Tree (harvestable)"),QObject::tr("Dead tree / Cactuses / Thornbush"),QObject::tr("Stone"),QObject::tr("Bush / Grass / Fern (walkable)"),QObject::tr("Water object / Reed / Papyrus (walkable)"),QObject::tr("Big tree / Old palm"),QObject::tr("Hanged / Impaled"),QObject::tr("Statues"),QObject::tr("Mountain"),QObject::tr("Invisible Blocking Object")};
     const int Tile::SIZE = 8;
 
     //column and row are the position in Tiles of the Tile
@@ -36,7 +40,7 @@ namespace MapEditor {
 
         this->renderer=renderer;//TODO: do I need this?
         this->leftLine = this->topLine = this->rightLine = this->bottomLine = true;
-        this->water = this->object = this->resource = false;
+        this->water = this->object = this->resource = this->cliff = false;
 
         this->color = this->objectColor = this->resourceColor = Qt::black;
 
@@ -107,16 +111,15 @@ namespace MapEditor {
         bool changed = false;
 
         QColor base = SURFACE[this->renderer->getMap()->getSurface(column, row)];
-        this->object = false;
+        this->object = 0;
         this->water = false;
         this->resource = false;
+        //change detected by base color change
         if(this->renderer->getMap()->isCliff(column, row)){
             base = SURFACE[0];
-            this->object = true;
-            if(this->objectColor != Qt::black){
-                changed = true;
-                this->objectColor = Qt::black;
-            }
+            this->cliff = true;//TODO: change
+        }else{
+            this-> cliff = false;
         }
 
         double waterlevel = this->renderer->getMap()->getWaterLevel();
@@ -143,7 +146,7 @@ namespace MapEditor {
         }
         int object = this->renderer->getMap()->getObject(column, row);
         if(object != 0){
-            this->object = true;
+            this->object = object;
             if(this->objectColor != OBJECT[object-1]){
                 changed = true;
                 this->objectColor = OBJECT[object-1];
@@ -210,6 +213,10 @@ namespace MapEditor {
             painter->drawLine(1,1,SIZE-2,SIZE-2);
             painter->drawLine(1,SIZE-1,SIZE-2,2);
         }
+        if(this->cliff){
+            float objectSpace = (SIZE*2)/3.0;
+            painter->fillRect(QRectF(objectSpace,objectSpace,SIZE-(2*objectSpace),SIZE-(2*objectSpace)),QBrush(Qt::black));
+        }
         if(this->object){
             float objectSpace = (SIZE*2)/3.0;
             painter->fillRect(QRectF(objectSpace,objectSpace,SIZE-(2*objectSpace),SIZE-(2*objectSpace)),QBrush(this->objectColor));
@@ -231,6 +238,9 @@ namespace MapEditor {
         QPointF point = event->scenePos();
         int column = point.x() / SIZE;
         int row = point.y() / SIZE;
+
+        this->renderer->getStatus()->pos->setText(QObject::tr("Position: %1, %2").arg(column,3,10,QChar('0')).arg(row,3,10,QChar('0')));
+        this->renderer->getStatus()->ingame->setText(QObject::tr("Ingame: %1, %2").arg(column*2,3,10,QChar('0')).arg(row*2,3,10,QChar('0')));
 
         //drawing a line from last point to actual position
         QPainterPath path(lastPoint);
@@ -267,6 +277,9 @@ namespace MapEditor {
     void Tile::hoverEnterEvent ( QGraphicsSceneHoverEvent *event ){
         //std::cout << "hovered @" << column << "," << row << std::endl;
         //this->renderer->getMapManipulator()->changeTile(column, row);
+        this->renderer->getStatus()->pos->setText(QObject::tr("Position: %1, %2").arg(column,3,10,QChar('0')).arg(row,3,10,QChar('0')));
+        this->renderer->getStatus()->ingame->setText(QObject::tr("Ingame: %1, %2").arg(column*2,3,10,QChar('0')).arg(row*2,3,10,QChar('0')));
+        this->renderer->getStatus()->object->setText(QObject::tr("Object: %1").arg(this->OBJECTSTR[this->object]));
     }
 
     void Tile::dragEnterEvent (QGraphicsSceneDragDropEvent *event){

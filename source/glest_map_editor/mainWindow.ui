@@ -18,15 +18,6 @@
    <iconset resource="icons.qrc">
     <normaloff>:/mk/shared/editor.ico</normaloff>:/mk/shared/editor.ico</iconset>
   </property>
-  <property name="styleSheet">
-   <string notr="true">QStatusBar::item {
-	border: 1px solid grey;
-	border-radius: 3px;
-	border-style: inset;
-	margin-left: 1px;
-	margin-right: 1px;
-}</string>
-  </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>
@@ -52,17 +43,14 @@
     </property>
     <item>
      <widget class="QGraphicsView" name="graphicsView">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
       <property name="cursor" stdset="0">
        <cursorShape>CrossCursor</cursorShape>
       </property>
       <property name="mouseTracking">
        <bool>true</bool>
+      </property>
+      <property name="viewportUpdateMode">
+       <enum>QGraphicsView::MinimalViewportUpdate</enum>
       </property>
      </widget>
     </item>
@@ -294,7 +282,18 @@
    <addaction name="actionObject9"/>
    <addaction name="actionObjectA"/>
   </widget>
-  <widget class="QStatusBar" name="statusBar"/>
+  <widget class="QStatusBar" name="statusBar">
+   <property name="styleSheet">
+    <string notr="true">QStatusBar::item {
+	border: 1px solid grey;
+	border-radius: 3px;
+	border-style: inset;
+	margin-left: 1px;
+	margin-right: 1px;
+	font: 9pt &quot;Monospace&quot;;
+}</string>
+   </property>
+  </widget>
   <widget class="QToolBar" name="toolBar">
    <property name="windowTitle">
     <string>Heights and diameters</string>

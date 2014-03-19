@@ -58,8 +58,21 @@ namespace MapEditor {
     MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWindow){
         ui->setupUi(this);
 
+        Status *status = new Status();
+        status->file = new QLabel(tr("File: %1").arg("desert_river"));
+        ui->statusBar->addWidget(status->file);
+        status->type = new QLabel(".gbm");
+        ui->statusBar->addWidget(status->type);
+        status->pos = new QLabel(tr("Position: %1, %2").arg(0,3,10,QChar('0')).arg(0,3,10,QChar('0')));
+        ui->statusBar->addWidget(status->pos);
+        status->ingame = new QLabel(tr("Ingame: %1, %2").arg(0,3,10,QChar('0')).arg(0,3,10,QChar('0')));
+        ui->statusBar->addWidget(status->ingame);
+        status->object = new QLabel(tr("Object: %1").arg("None (Erase)"));
+        status->object->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Minimum);
+        ui->statusBar->addWidget(status->object);
+
         MapManipulator *mapman = new MapManipulator(this);
-        renderer = new Renderer(mapman);
+        renderer = new Renderer(mapman, status);
         newmap = new NewMap(mapman);//instance of new map dialog
         info = new Info(mapman);//instance of new map dialog
         switchSurfaces = new SwitchSurfaces(mapman);//instance of new map dialog
@@ -96,16 +109,6 @@ namespace MapEditor {
         ui->graphicsView->setScene(renderer->getScene());
         //ui->graphicsView->scale(5,5);
 
-        QLabel *fileStatus = new QLabel(tr("File: ").append("desert_river"));
-        ui->statusBar->addWidget(fileStatus);
-        QLabel *typeStatus = new QLabel(".gbm");
-        ui->statusBar->addWidget(typeStatus);
-        QLabel *objectStatus = new QLabel(tr("Object: ").append("None (Erase)"));
-        ui->statusBar->addWidget(objectStatus);
-        QLabel *posStatus = new QLabel(tr("Position: ").append("(74,47)"));
-        ui->statusBar->addWidget(posStatus);
-        QLabel *ingameStatus = new QLabel(tr("Ingame: ").append("(148,94)"));
-        ui->statusBar->addWidget(ingameStatus);
         /*ui->statusBar->setStyleSheet(
         "QStatusBar::item { border: 1px solid red; border-radius: 3px; border-style:inset;} "
         );*/

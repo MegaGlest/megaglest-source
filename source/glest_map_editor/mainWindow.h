@@ -22,6 +22,7 @@
 class QGraphicsScene;
 class QActionGroup;
 class QAction;
+class QLabel;
 
 namespace Ui {
     class MainWindow;
@@ -33,6 +34,14 @@ namespace MapEditor {
     class Info;
     class Advanced;
     class SwitchSurfaces;
+
+    struct Status{
+        QLabel *file;
+        QLabel *type;
+        QLabel *object;
+        QLabel *pos;
+        QLabel *ingame;
+    };
 
     class MainWindow : public QMainWindow{
         Q_OBJECT//for Qt, otherwise “slots” won’t work

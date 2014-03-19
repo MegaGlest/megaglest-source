@@ -72,6 +72,7 @@ namespace MapEditor {
             static const QColor SURFACE[];
             static const QColor OBJECT[];
             static const QColor RESOURCE[];
+            static const QString OBJECTSTR[];
             static const int SIZE;
             Renderer* renderer;
             bool topLine;
@@ -83,9 +84,10 @@ namespace MapEditor {
             int row;
             QColor color;
             bool water;
-            bool object;
+            bool cliff;
+            int object;
             QColor objectColor;
-            bool resource;
+            int resource;
             QColor resourceColor;
     };
 }
