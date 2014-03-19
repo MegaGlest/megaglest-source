@@ -61,6 +61,8 @@ namespace MapEditor {
             SwitchSurfaces *switchSurfaces;
             Advanced *advanced;
             Info *info;
+            QDialog *help;
+            QDialog *about;
             QGraphicsScene *scene;
             QActionGroup *radiusGroup;
             QActionGroup *penGroup;

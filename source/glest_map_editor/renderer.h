@@ -28,6 +28,7 @@
 
 #include "map_preview.h"
 #include <vector>
+#include <QObject>
 
 class QGraphicsScene;
 class QAction;
@@ -40,7 +41,8 @@ namespace MapEditor {
     class MapManipulator;
     struct Status;
 
-    class Renderer{//QObject because of the slot
+    class Renderer: public QObject{//QObject because of the slot
+        Q_OBJECT
         public:
             Renderer(MapManipulator *mapman, Status *status);
             ~Renderer();
@@ -117,7 +119,36 @@ namespace MapEditor {
              *@return pointer for statusbar QLabels
              */
             Status* getStatus() const;
+            /**
+             *@return if water is visible
+             */
+            bool getWater() const;
+            /**
+             *@return if grid is visible
+             */
+            bool getGrid() const;
+            /**
+             *@return if only heihgt map is shown
+             */
+            bool getHeightMap() const;
+        public slots:
+            /**
+             *@param water show water
+             */
+            void setWater(bool water);
+            /**
+             *@param grid show grid
+             */
+            void setGrid(bool grid);
+            /**
+             *@param heigtMap show only height map
+             */
+            void setHeightMap(bool heightMap);
         private:
+            /**
+             * initiate a repaint of all tiles
+             */
+            void updateTiles();
             /**
              * Fill the scene with new tiles, depends on the map size
              */
@@ -150,6 +181,10 @@ namespace MapEditor {
             std::vector<Shared::Map::MapPreview*> history;
             int historyPos;
             Status *status;
+
+            bool water;
+            bool grid;
+            bool heightMap;
 
             std::string filename;
     };

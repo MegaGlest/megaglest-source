@@ -22,6 +22,9 @@
 
 namespace MapEditor {
     Renderer::Renderer(MapManipulator *mapman, Status *status){
+        this->water = true;
+        this->heightMap = false;
+        this->grid = false;
         this->status = status;
         this->filename = "";
         this->mapman = mapman;
@@ -135,6 +138,42 @@ namespace MapEditor {
 
     Status *Renderer::getStatus() const{
         return status;
+    }
+
+    bool Renderer::getWater() const{
+        return this->water;
+    }
+
+    bool Renderer::getGrid() const{
+        return this->grid;
+    }
+
+    bool Renderer::getHeightMap() const{
+        return this->heightMap;
+    }
+
+    void Renderer::setWater(bool water){
+        this->water = water;
+        this->recalculateAll();//new colors
+    }
+
+    void Renderer::setGrid(bool grid){
+        this->grid = grid;
+        this->updateTiles();
+    }
+
+    void Renderer::setHeightMap(bool heightMap){
+        this->heightMap = heightMap;
+        this->recalculateAll();
+        this->updateTiles();//because of cliffs, would not be necessary if water got hidden
+    }
+
+    void Renderer::updateTiles(){
+        for(int column = 0; column < this->width; column++){
+            for(int row = 0; row < this->height; row++){
+                this->Tiles[column][row]->update();
+            }
+        }
     }
 
     void Renderer::createTiles(){

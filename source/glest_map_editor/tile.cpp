@@ -121,9 +121,11 @@ namespace MapEditor {
         }else{
             this-> cliff = false;
         }
-
+        if(this->renderer->getHeightMap()){//showing water but no cliffs
+            base = Qt::lightGray;
+        }
         double waterlevel = this->renderer->getMap()->getWaterLevel();
-        if(this->height <= waterlevel){
+        if(this->height <= waterlevel && this->renderer->getWater()){
             this->water = true;
             if(this->height <= waterlevel - 1.5){
                 base = Qt::blue;
@@ -196,31 +198,39 @@ namespace MapEditor {
         //painter->translate(column * this->SIZE,row * this->SIZE);
         painter->fillRect(this->boundingRect(),QBrush(this->color));
         painter->translate(column * this->SIZE,row * this->SIZE);
-        if(!this->water){
-            painter->setPen(QColor(0xFF, 0xFF, 0xFF, 0x42 ));//white
-            if(this->leftLine)
-                painter->drawLine(0,0,0,SIZE);//left
-            if(this->topLine)
-                painter->drawLine(0,0,SIZE,0);//top
-            painter->setPen(QColor(0x00, 0x00, 0x00, 0x42 ));//black
-            if(this->rightLine)
-                painter->drawLine(SIZE-1,0,SIZE-1,SIZE-1);//right
-            if(this->bottomLine)
-                painter->drawLine(0,SIZE-1,SIZE-1,SIZE-1);//bottom
+        if(!this->renderer->getHeightMap()){
+            if(!this->water){
+                painter->setPen(QColor(0xFF, 0xFF, 0xFF, 0x42 ));//white
+                if(this->leftLine)
+                    painter->drawLine(0,0,0,SIZE);//left
+                if(this->topLine)
+                    painter->drawLine(0,0,SIZE,0);//top
+                painter->setPen(QColor(0x00, 0x00, 0x00, 0x42 ));//black
+                if(this->rightLine)
+                    painter->drawLine(SIZE-1,0,SIZE-1,SIZE-1);//right
+                if(this->bottomLine)
+                    painter->drawLine(0,SIZE-1,SIZE-1,SIZE-1);//bottom
+            }
+            if(this->resource){
+                painter->setPen(this->resourceColor);
+                painter->drawLine(1,1,SIZE-2,SIZE-2);
+                painter->drawLine(1,SIZE-1,SIZE-2,2);
+            }
+            if(this->cliff){
+                float objectSpace = (SIZE*2)/3.0;
+                painter->fillRect(QRectF(objectSpace,objectSpace,SIZE-(2*objectSpace),SIZE-(2*objectSpace)),QBrush(Qt::black));
+            }
+            if(this->object){
+                float objectSpace = (SIZE*2)/3.0;
+                painter->fillRect(QRectF(objectSpace,objectSpace,SIZE-(2*objectSpace),SIZE-(2*objectSpace)),QBrush(this->objectColor));
+            }
         }
-        if(this->resource){
-            painter->setPen(this->resourceColor);
-            painter->drawLine(1,1,SIZE-2,SIZE-2);
-            painter->drawLine(1,SIZE-1,SIZE-2,2);
+        if(this->renderer->getGrid()){
+            painter->setPen(Qt::black);
+            painter->drawLine(SIZE-1,0,SIZE-1,SIZE-1);//right
+            painter->drawLine(0,SIZE-1,SIZE-1,SIZE-1);//bottom
         }
-        if(this->cliff){
-            float objectSpace = (SIZE*2)/3.0;
-            painter->fillRect(QRectF(objectSpace,objectSpace,SIZE-(2*objectSpace),SIZE-(2*objectSpace)),QBrush(Qt::black));
-        }
-        if(this->object){
-            float objectSpace = (SIZE*2)/3.0;
-            painter->fillRect(QRectF(objectSpace,objectSpace,SIZE-(2*objectSpace),SIZE-(2*objectSpace)),QBrush(this->objectColor));
-        }
+
     }
 
     void Tile::mousePressEvent ( QGraphicsSceneMouseEvent *event){

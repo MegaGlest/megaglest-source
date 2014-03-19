@@ -29,16 +29,7 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>0</number>
     </property>
     <item>
@@ -62,7 +53,7 @@
      <x>0</x>
      <y>0</y>
      <width>807</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -123,7 +114,7 @@
     </property>
     <addaction name="actionReset_zoom_and_pos"/>
     <addaction name="actionGrid"/>
-    <addaction name="actionHeigth_Map"/>
+    <addaction name="actionHeight_Map"/>
     <addaction name="actionWater"/>
     <addaction name="separator"/>
     <addaction name="actionHelp"/>
@@ -470,12 +461,12 @@
     <string>Grid</string>
    </property>
   </action>
-  <action name="actionHeigth_Map">
+  <action name="actionHeight_Map">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Heigth Map</string>
+    <string>Height Map</string>
    </property>
   </action>
   <action name="actionWater">
@@ -486,7 +477,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Hide Water</string>
+    <string>Water</string>
    </property>
   </action>
   <action name="actionHelp">

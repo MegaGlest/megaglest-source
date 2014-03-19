@@ -19,7 +19,11 @@
 #include <errno.h>
 #endif
 #include "mainWindow.h"
+
 #include "ui_mainWindow.h"
+#include "ui_help.h"
+#include "ui_about.h"
+
 #include "newMap.h"
 #include "info.h"
 #include "advanced.h"
@@ -73,19 +77,39 @@ namespace MapEditor {
 
         MapManipulator *mapman = new MapManipulator(this);
         renderer = new Renderer(mapman, status);
-        newmap = new NewMap(mapman);//instance of new map dialog
-        info = new Info(mapman);//instance of new map dialog
-        switchSurfaces = new SwitchSurfaces(mapman);//instance of new map dialog
-        advanced = new Advanced(mapman);//instance of new map dialog
+        newmap = new NewMap(mapman,this);//instance of new map dialog
+        info = new Info(mapman,this);//instance of new map dialog
+        switchSurfaces = new SwitchSurfaces(mapman,this);//instance of new map dialog
+        advanced = new Advanced(mapman,this);//instance of new map dialog
 
+        help = new QDialog(this);//no need for a whole new class
+        {
+            Ui::Help *ui = new Ui::Help;
+            ui->setupUi(help);
+        }
+
+        about = new QDialog(this);//no need for a whole new class
+        {
+            Ui::About *ui = new Ui::About;
+            ui->setupUi(about);
+        }
+
+        //file
         connect(ui->actionNew, SIGNAL(triggered()), newmap, SLOT(show() ));//new map dialog window
         connect(ui->actionOpen, SIGNAL(triggered()), this, SLOT(openFile() ));//open dialog window
         connect(ui->actionSave, SIGNAL(triggered()), this, SLOT(quickSave() ));//save as dialog window
         connect(ui->actionSave_as, SIGNAL(triggered()), this, SLOT(saveFile() ));//save as dialog window
         connect(ui->actionPreview, SIGNAL(triggered()), this, SLOT(showPreview() ));//show a preview with megaglest game
-        connect(ui->actionInfo, SIGNAL(triggered()), info, SLOT(show() ));//new map dialog window
-        connect(ui->actionSwitch_Surfaces, SIGNAL(triggered()), switchSurfaces, SLOT(show() ));//new map dialog window
-        connect(ui->actionAdvanced, SIGNAL(triggered()), advanced, SLOT(show() ));//new map dialog window
+        //edit
+        connect(ui->actionInfo, SIGNAL(triggered()), info, SLOT(show() ));
+        connect(ui->actionSwitch_Surfaces, SIGNAL(triggered()), switchSurfaces, SLOT(show() ));
+        connect(ui->actionAdvanced, SIGNAL(triggered()), advanced, SLOT(show() ));
+        //view
+        connect(ui->actionGrid, SIGNAL(toggled(bool)), renderer, SLOT(setGrid(bool)));
+        connect(ui->actionHeight_Map, SIGNAL(toggled(bool)), renderer, SLOT(setHeightMap(bool)));
+        connect(ui->actionWater, SIGNAL(toggled(bool)), renderer, SLOT(setWater(bool)));
+        connect(ui->actionHelp, SIGNAL(triggered()), help, SLOT(show()));
+        connect(ui->actionAbout, SIGNAL(triggered()), about, SLOT(show()));
 
         //those actions form a selection group -> only one is selected
         radiusGroup = new QActionGroup(this);
