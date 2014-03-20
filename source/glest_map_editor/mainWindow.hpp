@@ -9,8 +9,8 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef MAINWINDOW_HPP
+#define MAINWINDOW_HPP
 
 #ifdef WIN32
     #include <winsock2.h>
@@ -20,6 +20,7 @@
 #include <QMainWindow>
 
 class QGraphicsScene;
+class QGraphicsView;
 class QActionGroup;
 class QAction;
 class QLabel;
@@ -50,6 +51,7 @@ namespace MapEditor {
             explicit MainWindow(QWidget *parent = 0);
             ~MainWindow();
             QAction *getPen() const;
+            QGraphicsView *getView() const;
 
         protected:
             void changeEvent(QEvent *e);

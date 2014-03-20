@@ -9,9 +9,9 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
-#include "advanced.h"
+#include "advanced.hpp"
 #include "ui_advanced.h"
-#include "mapManipulator.h"
+#include "mapManipulator.hpp"
 #include <iostream>
 
 namespace MapEditor {

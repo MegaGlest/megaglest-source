@@ -9,8 +9,8 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
-#ifndef TILE_H
-#define TILE_H
+#ifndef TILE_HPP
+#define TILE_HPP
 
 #include <QGraphicsItem>
 
@@ -53,14 +53,24 @@ namespace MapEditor {
              * Borders depend on the height of this tile and the height of the direct neighbors
              */
             void recalculate();
+            /**
+             * modifies dimension (size×size) of all tiles
+             * @param size >0: increase; <0: decrease
+             */
+            static void modifySize(int size);
+            /**
+             * @return size of all tiles
+             */
+            static int getSize();
             virtual QRectF boundingRect() const;
             virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
         protected:
             virtual void mousePressEvent ( QGraphicsSceneMouseEvent * event);
             virtual void mouseMoveEvent ( QGraphicsSceneMouseEvent * event);
-             virtual void mouseReleaseEvent ( QGraphicsSceneMouseEvent * event);
+            virtual void mouseReleaseEvent ( QGraphicsSceneMouseEvent * event);
             virtual void hoverEnterEvent ( QGraphicsSceneHoverEvent * event );
             virtual void dragEnterEvent (QGraphicsSceneDragDropEvent * event);
+            virtual void wheelEvent ( QGraphicsSceneWheelEvent * event );
         private:
             /**
              * Changes the position of this tile, does not use built in setPos.
@@ -73,7 +83,7 @@ namespace MapEditor {
             static const QColor OBJECT[];
             static const QColor RESOURCE[];
             static const QString OBJECTSTR[];
-            static const int SIZE;
+            static int size;
             Renderer* renderer;
             bool topLine;
             bool rightLine;

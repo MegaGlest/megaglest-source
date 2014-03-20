@@ -9,31 +9,31 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
-#ifndef NEWMAP_H
-#define NEWMAP_H
+#ifndef ADVANCED_HPP
+#define ADVANCED_HPP
 
 #include <QDialog>
 
 namespace Ui {
-class NewMap;
+class Advanced;
 }
 
 namespace MapEditor {
     class MapManipulator;
 
-    class NewMap : public QDialog
+    class Advanced : public QDialog
     {
         Q_OBJECT
 
     public:
-        explicit NewMap(MapManipulator *mapman, QWidget *parent = 0);
-        ~NewMap();
+        explicit Advanced(MapManipulator *mapman, QWidget *parent = 0);
+        ~Advanced();
 
     protected:
         void changeEvent(QEvent *e);
 
     private:
-        Ui::NewMap *ui;
+        Ui::Advanced *ui;
         MapManipulator *mapman;
 
     private slots:
@@ -41,4 +41,4 @@ namespace MapEditor {
     };
 }
 
-#endif // NEWMAP_H
+#endif // NEWMAP_HPP

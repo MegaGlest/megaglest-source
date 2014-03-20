@@ -9,31 +9,31 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
-#ifndef SWITCHSURFACES_H
-#define SWITCHSURFACES_H
+#ifndef NEWMAP_HPP
+#define NEWMAP_HPP
 
 #include <QDialog>
 
 namespace Ui {
-class SwitchSurfaces;
+class NewMap;
 }
 
 namespace MapEditor {
     class MapManipulator;
 
-    class SwitchSurfaces : public QDialog
+    class NewMap : public QDialog
     {
         Q_OBJECT
 
     public:
-        explicit SwitchSurfaces(MapManipulator *mapman, QWidget *parent = 0);
-        ~SwitchSurfaces();
+        explicit NewMap(MapManipulator *mapman, QWidget *parent = 0);
+        ~NewMap();
 
     protected:
         void changeEvent(QEvent *e);
 
     private:
-        Ui::SwitchSurfaces *ui;
+        Ui::NewMap *ui;
         MapManipulator *mapman;
 
     private slots:
@@ -41,4 +41,4 @@ namespace MapEditor {
     };
 }
 
-#endif // NEWMAP_H
+#endif // NEWMAP_HPP

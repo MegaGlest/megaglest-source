@@ -8,9 +8,9 @@
 //  by the Free Software Foundation; either version 2 of the
 //  License, or (at your option) any later version
 // ==============================================================
-#include "mapManipulator.h"
-#include "mainWindow.h"
-#include "renderer.h"
+#include "mapManipulator.hpp"
+#include "mainWindow.hpp"
+#include "renderer.hpp"
 #include "map_preview.h"
 #include <QAction>
 #include <QString>
@@ -30,6 +30,10 @@ namespace MapEditor{
 
     void MapManipulator::setRenderer( Renderer *renderer){
         this->renderer = renderer;
+    }
+
+    MainWindow *MapManipulator::getWindow(){
+        return this->win;
     }
 
     void MapManipulator::setRadius(QAction *radius){

@@ -1,5 +1,5 @@
 /**
- * @file mapManipulator.h
+ * @file mapManipulator.hpp
  * @author  Sebastian Riedel
  *
  * @section LICENSE
@@ -21,8 +21,8 @@
  * This file is part of MegaGlest (megaglest.org)
  */
 
-#ifndef MAPMANIPULATOR_H
-#define MAPMANIPULATOR_H
+#ifndef MAPMANIPULATOR_HPP
+#define MAPMANIPULATOR_HPP
 
 #include <QObject>
 
@@ -38,6 +38,7 @@ namespace MapEditor{
             MapManipulator(MainWindow *win);
             ~MapManipulator();
             void setRenderer(Renderer *renderer);
+            MainWindow *getWindow();
         public slots:
             /**
              * Sets the radius for the drawing tool

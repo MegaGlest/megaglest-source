@@ -18,18 +18,18 @@
 #ifndef WIN32
 #include <errno.h>
 #endif
-#include "mainWindow.h"
+#include "mainWindow.hpp"
 
 #include "ui_mainWindow.h"
 #include "ui_help.h"
 #include "ui_about.h"
 
-#include "newMap.h"
-#include "info.h"
-#include "advanced.h"
-#include "switchSurfaces.h"
-#include "renderer.h"
-#include "mapManipulator.h"
+#include "newMap.hpp"
+#include "info.hpp"
+#include "advanced.hpp"
+#include "switchSurfaces.hpp"
+#include "renderer.hpp"
+#include "mapManipulator.hpp"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QGraphicsScene>
@@ -107,6 +107,9 @@ namespace MapEditor {
         connect(ui->actionSwitch_Surfaces, SIGNAL( triggered() ), switchSurfaces, SLOT( show() ));
         connect(ui->actionAdvanced, SIGNAL( triggered() ), advanced, SLOT( show() ));
         //view
+        connect(ui->actionZoom_in, SIGNAL( triggered() ), renderer, SLOT( zoomIn() ));
+        connect(ui->actionZoom_out, SIGNAL( triggered() ), renderer, SLOT( zoomOut() ));
+        connect(ui->actionReset_zoom, SIGNAL( triggered() ), renderer, SLOT( fitZoom() ));
         connect(ui->actionGrid, SIGNAL( toggled(bool) ), renderer, SLOT( setGrid(bool) ));
         connect(ui->actionHeight_Map, SIGNAL( toggled(bool) ), renderer, SLOT( setHeightMap(bool) ));
         connect(ui->actionWater, SIGNAL( toggled(bool) ), renderer, SLOT( setWater(bool) ));
@@ -149,6 +152,10 @@ namespace MapEditor {
 
     QAction *MainWindow::getPen() const{
         return penGroup->checkedAction();
+    }
+
+    QGraphicsView *MainWindow::getView() const{
+        return ui->graphicsView;
     }
 
     //for translation ... somehow

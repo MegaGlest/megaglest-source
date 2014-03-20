@@ -9,15 +9,16 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
-#include "renderer.h"
+#include "renderer.hpp"
 //good idea?
-#include "mainWindow.h"
-#include "tile.h"
-#include "mapManipulator.h"
+#include "mainWindow.hpp"
+#include "tile.hpp"
+#include "mapManipulator.hpp"
 
 #include <QGraphicsScene>
+#include <QGraphicsView>
 #include <QAction>
-//#include "map_preview.h"
+//#include "map_preview.hpp"
 #include <iostream>
 
 namespace MapEditor {
@@ -200,6 +201,28 @@ namespace MapEditor {
         this->history.clear();
         this->historyPos = 0;//1 is previous change //0 would be actual map
         this->history.push_back(*this->map);
+    }
+
+    void Renderer::zoomIn(){
+        Tile::modifySize(+1);
+        this->scene->setSceneRect(this->scene->itemsBoundingRect());
+        this->updateTiles();
+    }
+
+    void Renderer::zoomOut(){
+        Tile::modifySize(-1);
+        this->scene->setSceneRect(this->scene->itemsBoundingRect());
+        this->updateTiles();
+    }
+
+    void Renderer::fitZoom(){
+        //frameRect();
+        QRect rect = this->mapman->getWindow()->getView()->frameRect();
+        //getting dimension that fit them all
+        int dimension = std::min(rect.height()/(double)this->height,rect.width()/(double)this->width);
+        Tile::modifySize(dimension-Tile::getSize());
+        this->scene->setSceneRect(this->scene->itemsBoundingRect());
+        this->updateTiles();
     }
 
     void Renderer::setHeightMap(bool heightMap){

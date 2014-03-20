@@ -9,11 +9,11 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
-#include "tile.h"
-#include "renderer.h"
+#include "tile.hpp"
+#include "renderer.hpp"
 //good idea?
-#include "mainWindow.h"
-#include "mapManipulator.h"
+#include "mainWindow.hpp"
+#include "mapManipulator.hpp"
 #include <QPainter>
 //#include <QColor>
 #include <QString>
@@ -32,7 +32,7 @@ namespace MapEditor {
     const QColor Tile::OBJECT[] = {QColor(0xFF,0x00,0x00),QColor(0xFF,0xFF,0xFF),QColor(0x7F,0x7F,0xFF),QColor(0x00,0x00,0xFF),QColor(0x7F,0x7F,0x7F),QColor(0xFF,0xCC,0x7F),QColor(0x00,0xFF,0xFF),QColor(0xB2,0x19,0x4C),QColor(0x7F,0xFF,0x19),QColor(0xFF,0x33,0xCC)};
     const QColor Tile::RESOURCE[] = {QColor(0xDD,0xDD,0x00),QColor(0x80,0x80,0x80),QColor(0xFF,0x00,0x00),QColor(0x00,0x00,0xFF),QColor(0x00,0x80,0x80)};
     const QString Tile::OBJECTSTR[] = {QObject::tr("None (erase)"),QObject::tr("Tree (harvestable)"),QObject::tr("Dead tree / Cactuses / Thornbush"),QObject::tr("Stone"),QObject::tr("Bush / Grass / Fern (walkable)"),QObject::tr("Water object / Reed / Papyrus (walkable)"),QObject::tr("Big tree / Old palm"),QObject::tr("Hanged / Impaled"),QObject::tr("Statues"),QObject::tr("Mountain"),QObject::tr("Invisible Blocking Object")};
-    const int Tile::SIZE = 8;
+    int Tile::size = 5;
 
     //column and row are the position in Tiles of the Tile
     Tile::Tile(QGraphicsScene *scene, Renderer *renderer, int column, int row):QGraphicsItem(){//call the standard constructor of QGraphicsItemGroup
@@ -49,6 +49,8 @@ namespace MapEditor {
         this->setAcceptHoverEvents(true);
 
         this->move(column, row);
+
+        //this->setAcceptedMouseButtons(Qt::NoButton);
 
     }
 
@@ -204,45 +206,54 @@ namespace MapEditor {
         }
     }
 
+    void Tile::modifySize(int size){
+        if(size > 0 || Tile::size+size >= 3)
+            Tile::size += size;
+    }
+
+    int Tile::getSize(){
+        return Tile::size;
+    }
+
     QRectF Tile::boundingRect() const{//need this for colidesWith … setPos is ignored
-        return QRectF(column * this->SIZE,row * this->SIZE, this->SIZE, this->SIZE);
+        return QRectF(column * this->size,row * this->size, this->size, this->size);
     }
 
     void Tile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
-        //painter->translate(column * this->SIZE,row * this->SIZE);
+        //painter->translate(column * this->size,row * this->size);
         painter->fillRect(this->boundingRect(),QBrush(this->color));
-        painter->translate(column * this->SIZE,row * this->SIZE);
+        painter->translate(column * this->size,row * this->size);
         if(!this->renderer->getHeightMap()){
             if(!this->water){
                 painter->setPen(QColor(0xFF, 0xFF, 0xFF, 0x42 ));//white
                 if(this->leftLine)
-                    painter->drawLine(0,0,0,SIZE);//left
+                    painter->drawLine(0,0,0,size);//left
                 if(this->topLine)
-                    painter->drawLine(0,0,SIZE,0);//top
+                    painter->drawLine(0,0,size,0);//top
                 painter->setPen(QColor(0x00, 0x00, 0x00, 0x42 ));//black
                 if(this->rightLine)
-                    painter->drawLine(SIZE-1,0,SIZE-1,SIZE-1);//right
+                    painter->drawLine(size-1,0,size-1,size-1);//right
                 if(this->bottomLine)
-                    painter->drawLine(0,SIZE-1,SIZE-1,SIZE-1);//bottom
+                    painter->drawLine(0,size-1,size-1,size-1);//bottom
             }
             if(this->resource){
                 painter->setPen(this->resourceColor);
-                painter->drawLine(1,1,SIZE-2,SIZE-2);
-                painter->drawLine(1,SIZE-1,SIZE-2,2);
+                painter->drawLine(1,1,size-2,size-2);
+                painter->drawLine(1,size-1,size-2,2);
             }
             if(this->cliff){
-                float objectSpace = (SIZE*2)/3.0;
-                painter->fillRect(QRectF(objectSpace,objectSpace,SIZE-(2*objectSpace),SIZE-(2*objectSpace)),QBrush(Qt::black));
+                float objectSpace = (size*2)/3.0;
+                painter->fillRect(QRectF(objectSpace,objectSpace,size-(2*objectSpace),size-(2*objectSpace)),QBrush(Qt::black));
             }
             if(this->object){
-                float objectSpace = (SIZE*2)/3.0;
-                painter->fillRect(QRectF(objectSpace,objectSpace,SIZE-(2*objectSpace),SIZE-(2*objectSpace)),QBrush(this->objectColor));
+                float objectSpace = (size*2)/3.0;
+                painter->fillRect(QRectF(objectSpace,objectSpace,size-(2*objectSpace),size-(2*objectSpace)),QBrush(this->objectColor));
             }
         }
         if(this->renderer->getGrid()){
             painter->setPen(Qt::black);
-            painter->drawLine(SIZE-1,0,SIZE-1,SIZE-1);//right
-            painter->drawLine(0,SIZE-1,SIZE-1,SIZE-1);//bottom
+            painter->drawLine(size-1,0,size-1,size-1);//right
+            painter->drawLine(0,size-1,size-1,size-1);//bottom
         }
 
     }
@@ -257,12 +268,12 @@ namespace MapEditor {
 
     void Tile::mouseMoveEvent ( QGraphicsSceneMouseEvent *event){
         QPointF lastPoint = event->lastScenePos();
-        int lastColumn = lastPoint.x() / SIZE;
-        int lastRow = lastPoint.y() / SIZE;
+        int lastColumn = lastPoint.x() / size;
+        int lastRow = lastPoint.y() / size;
 
         QPointF point = event->scenePos();
-        int column = point.x() / SIZE;
-        int row = point.y() / SIZE;
+        int column = point.x() / size;
+        int row = point.y() / size;
 
         this->renderer->getStatus()->pos->setText(QObject::tr("Position: %1, %2").arg(column,3,10,QChar('0')).arg(row,3,10,QChar('0')));
         this->renderer->getStatus()->ingame->setText(QObject::tr("Ingame: %1, %2").arg(column*2,3,10,QChar('0')).arg(row*2,3,10,QChar('0')));
@@ -293,8 +304,8 @@ namespace MapEditor {
 
     void Tile::mouseReleaseEvent ( QGraphicsSceneMouseEvent *event){
         /*QPointF point = event->scenePos();
-        int column = point.x() / SIZE;
-        int row = point.y() / SIZE;
+        int column = point.x() / size;
+        int row = point.y() / size;
         std::cout << "mouse released @" << column << "," << row << std::endl;*/
         //this->renderer->getMap()->setHasChanged(false);
         this->renderer->addHistory();
@@ -312,8 +323,14 @@ namespace MapEditor {
         //std::cout << "drag hovered @" << column << "," << row << std::endl;
     }
 
+    void Tile::wheelEvent ( QGraphicsSceneWheelEvent *event ){
+        Tile::modifySize(event->delta()/80);
+        this->renderer->getScene()->setSceneRect(this->renderer->getScene()->itemsBoundingRect());
+        this->renderer->updateTiles();
+    }
+
     void Tile::move(int column, int row){
-        //QGraphicsItem::setPos(column*SIZE,row*SIZE);
+        //QGraphicsItem::setPos(column*size,row*size);
         this->row = row;
         this->column = column;
     }

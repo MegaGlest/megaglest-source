@@ -29,7 +29,16 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <item>
@@ -39,6 +48,9 @@
       </property>
       <property name="mouseTracking">
        <bool>true</bool>
+      </property>
+      <property name="dragMode">
+       <enum>QGraphicsView::RubberBandDrag</enum>
       </property>
       <property name="viewportUpdateMode">
        <enum>QGraphicsView::MinimalViewportUpdate</enum>
@@ -53,7 +65,7 @@
      <x>0</x>
      <y>0</y>
      <width>807</width>
-     <height>21</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -112,7 +124,9 @@
     <property name="title">
      <string>View</string>
     </property>
-    <addaction name="actionReset_zoom_and_pos"/>
+    <addaction name="actionZoom_in"/>
+    <addaction name="actionZoom_out"/>
+    <addaction name="actionReset_zoom"/>
     <addaction name="actionGrid"/>
     <addaction name="actionHeight_Map"/>
     <addaction name="actionWater"/>
@@ -448,7 +462,7 @@
     <string>Advanced</string>
    </property>
   </action>
-  <action name="actionReset_zoom_and_pos">
+  <action name="actionReset_zoom">
    <property name="text">
     <string>Reset zoom and pos</string>
    </property>
@@ -1263,6 +1277,22 @@
   <action name="actionPreview">
    <property name="text">
     <string>Preview</string>
+   </property>
+  </action>
+  <action name="actionZoom_in">
+   <property name="text">
+    <string>Zoom in</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl++</string>
+   </property>
+  </action>
+  <action name="actionZoom_out">
+   <property name="text">
+    <string>Zoom out</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+-</string>
    </property>
   </action>
  </widget>

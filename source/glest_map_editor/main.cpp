@@ -1,4 +1,4 @@
-#include "mainWindow.h"
+#include "mainWindow.hpp"
 #include <QMainWindow>
 #include <QApplication>
 #include <iostream>

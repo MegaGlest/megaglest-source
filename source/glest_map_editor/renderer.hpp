@@ -1,5 +1,5 @@
 /**
- * @file renderer.h
+ * @file renderer.hpp
  * @author  Sebastian Riedel
  *
  * @section LICENSE
@@ -23,8 +23,8 @@
  */
 
 
-#ifndef RENDERER_H
-#define RENDERER_H
+#ifndef RENDERER_HPP
+#define RENDERER_HPP
 
 #include "map_preview.h"
 #include <vector>
@@ -160,11 +160,14 @@ namespace MapEditor {
              * vanishes whole history
              */
             void clearHistory();
-        private:
+            void zoomIn();
+            void zoomOut();
+            void fitZoom();
             /**
              * initiate a repaint of all tiles
              */
             void updateTiles();
+        private:
             /**
              * Fill the scene with new tiles, depends on the map size
              */
