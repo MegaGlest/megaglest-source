@@ -68,14 +68,14 @@ namespace MapEditor {
             QGraphicsScene *scene;
             QActionGroup *radiusGroup;
             QActionGroup *penGroup;
-            QActionGroup *mouseGroup;
+            //QActionGroup *mouseGroup;
 
         private slots:
             void openFile();
             void saveFile();
             void quickSave();
             void showPreview();
-            void mouseBehavior(QAction* action);
+            void mouseBehavior(bool checked);
     };
 }// end namespace
 

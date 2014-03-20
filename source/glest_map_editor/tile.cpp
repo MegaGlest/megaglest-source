@@ -262,7 +262,7 @@ namespace MapEditor {
     }
 
     void Tile::mousePressEvent ( QGraphicsSceneMouseEvent *event){
-        if(this->renderer->getMapManipulator()->getWindow()->getView()->dragMode() != QGraphicsView::NoDrag){
+        if(event->modifiers() == Qt::ControlModifier || this->renderer->getMapManipulator()->getWindow()->getView()->dragMode() == QGraphicsView::RubberBandDrag){
             event->ignore();
         }else{
             //cout << "mouse pressed @" << this->column << "," << this->row << endl;
@@ -293,8 +293,8 @@ namespace MapEditor {
         int column = point.x() / size;
         int row = point.y() / size;
 
-        this->renderer->getStatus()->pos->setText(QObject::tr("Position: %1, %2").arg(column,3,10,QChar('0')).arg(row,3,10,QChar('0')));
-        this->renderer->getStatus()->ingame->setText(QObject::tr("Ingame: %1, %2").arg(column*2,3,10,QChar('0')).arg(row*2,3,10,QChar('0')));
+        //this->renderer->getStatus()->pos->setText(QObject::tr("Position: %1, %2").arg(column,3,10,QChar('0')).arg(row,3,10,QChar('0')));
+        //this->renderer->getStatus()->ingame->setText(QObject::tr("Ingame: %1, %2").arg(column*2,3,10,QChar('0')).arg(row*2,3,10,QChar('0')));
         if(this->pressedButton == Qt::RightButton){//not possible
             /*/magically move the scrollbars :D
             //QScrollBar *hor = this->renderer->getMapManipulator()->getWindow()->getView()->horizontalScrollBar();
@@ -349,9 +349,11 @@ namespace MapEditor {
     void Tile::hoverEnterEvent ( QGraphicsSceneHoverEvent *event ){
         //std::cout << "hovered @" << column << "," << row << std::endl;
         //this->renderer->getMapManipulator()->changeTile(column, row);
-        this->renderer->getStatus()->pos->setText(QObject::tr("Position: %1, %2").arg(column,3,10,QChar('0')).arg(row,3,10,QChar('0')));
-        this->renderer->getStatus()->ingame->setText(QObject::tr("Ingame: %1, %2").arg(column*2,3,10,QChar('0')).arg(row*2,3,10,QChar('0')));
-        this->renderer->getStatus()->object->setText(QObject::tr("Object: %1").arg(this->OBJECTSTR[this->object]));
+        //this->renderer->getStatus()->pos->setText(QObject::tr("Position: %1, %2").arg(column,3,10,QChar('0')).arg(row,3,10,QChar('0')));
+        //this->renderer->getStatus()->ingame->setText(QObject::tr("Ingame: %1, %2").arg(column*2,3,10,QChar('0')).arg(row*2,3,10,QChar('0')));
+        //this->renderer->getStatus()->object->setText(QObject::tr("Object: %1").arg(this->OBJECTSTR[this->object]));
+
+        //this->renderer->getMapManipulator()->getWindow()->getView()->
     }
 
     void Tile::dragEnterEvent (QGraphicsSceneDragDropEvent *event){

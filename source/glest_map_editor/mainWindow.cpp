@@ -67,16 +67,21 @@ namespace MapEditor {
         ui->statusBar->addWidget(status->file);
         status->type = new QLabel(".gbm");
         ui->statusBar->addWidget(status->type);
-        status->pos = new QLabel(tr("Position: %1, %2").arg(0,3,10,QChar('0')).arg(0,3,10,QChar('0')));
+        status->pos = new QLabel(tr("Position: %1, %2").arg(0,4,10,QChar('0')).arg(0,4,10,QChar('0')));
+        status->pos->setFixedWidth(status->pos->sizeHint().width());
+        status->pos->setText(QObject::tr("Position: (none)"));
         ui->statusBar->addWidget(status->pos);
-        status->ingame = new QLabel(tr("Ingame: %1, %2").arg(0,3,10,QChar('0')).arg(0,3,10,QChar('0')));
+        status->ingame = new QLabel(tr("Ingame: %1, %2").arg(0,4,10,QChar('0')).arg(0,4,10,QChar('0')));
+        status->ingame->setFixedWidth(status->ingame->sizeHint().width());
+        status->ingame->setText(QObject::tr("Position: (none)"));
         ui->statusBar->addWidget(status->ingame);
         status->object = new QLabel(tr("Object: %1").arg("None (Erase)"));
-        status->object->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Minimum);
+        status->object->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
         ui->statusBar->addWidget(status->object);
 
         MapManipulator *mapman = new MapManipulator(this);
         renderer = new Renderer(mapman, status);
+        ui->graphicsView->setStatus(status);
         newmap = new NewMap(mapman,this);//instance of new map dialog
         info = new Info(mapman,this);//instance of new map dialog
         switchSurfaces = new SwitchSurfaces(mapman,this);//instance of new map dialog
@@ -135,12 +140,12 @@ namespace MapEditor {
             }
         }
 
-        mouseGroup = new QActionGroup(this);
+        /*mouseGroup = new QActionGroup(this);
         mouseGroup->addAction(ui->actionDraw);
         mouseGroup->addAction(ui->actionMove);
-        mouseGroup->addAction(ui->actionSelect);
+        mouseGroup->addAction(ui->actionSelect);*/
 
-        connect(mouseGroup,SIGNAL(triggered(QAction*)),this,SLOT(mouseBehavior(QAction*)));
+        connect(ui->actionSelect,SIGNAL(toggled(bool)),this,SLOT(mouseBehavior(bool)));
 
         ui->graphicsView->setScene(renderer->getScene());
         //ui->graphicsView->scale(5,5);
@@ -239,8 +244,8 @@ namespace MapEditor {
         QFile(QString::fromStdString(fileName)).remove();//don’t need that anymore
     }
 
-    void MainWindow::mouseBehavior(QAction* action){
-        if(action->objectName().contains("Draw")){
+    void MainWindow::mouseBehavior(bool checked){
+        /*if(action->objectName().contains("Draw")){
             std::cout << "draw" << std::endl;
             ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
         }else if(action->objectName().contains("Move")){
@@ -249,6 +254,11 @@ namespace MapEditor {
         }else if(action->objectName().contains("Select")){
             std::cout << "draw" << std::endl;
             ui->graphicsView->setDragMode(QGraphicsView::RubberBandDrag);
+        }*/
+        if(checked){
+            ui->graphicsView->setDragMode(QGraphicsView::RubberBandDrag);
+        }else{
+            ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
         }
     }
 }// end namespace

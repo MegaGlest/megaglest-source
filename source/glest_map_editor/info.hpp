@@ -9,8 +9,8 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
-#ifndef INFO_HPPPP
-#define INFO_HPPPP
+#ifndef INFO_HPP
+#define INFO_HPP
 
 #include <QDialog>
 
