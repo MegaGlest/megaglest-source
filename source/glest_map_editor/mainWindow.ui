@@ -49,12 +49,6 @@
       <property name="mouseTracking">
        <bool>true</bool>
       </property>
-      <property name="dragMode">
-       <enum>QGraphicsView::RubberBandDrag</enum>
-      </property>
-      <property name="viewportUpdateMode">
-       <enum>QGraphicsView::MinimalViewportUpdate</enum>
-      </property>
      </widget>
     </item>
    </layout>

@@ -20,6 +20,7 @@
 #include <QObject>
 #include <QLabel>
 #include <QGraphicsScene>
+#include <QGraphicsView>
 #include <QGraphicsLineItem>
 #include <QGraphicsRectItem>
 #include <QGraphicsItemGroup>
@@ -262,8 +263,12 @@ namespace MapEditor {
         //cout << "mouse pressed @" << this->column << "," << this->row << endl;
         //event->ignore();
         //this->renderer->addHistory();
-        this->renderer->getMapManipulator()->click(this->column, this->row);
-        this->renderer->recalculateAll();
+        if(event->button() == Qt::RightButton){
+
+        }else{
+            this->renderer->getMapManipulator()->click(this->column, this->row);
+            this->renderer->recalculateAll();
+        }
     }
 
     void Tile::mouseMoveEvent ( QGraphicsSceneMouseEvent *event){
@@ -327,6 +332,7 @@ namespace MapEditor {
         Tile::modifySize(event->delta()/80);
         this->renderer->getScene()->setSceneRect(this->renderer->getScene()->itemsBoundingRect());
         this->renderer->updateTiles();
+        this->renderer->getMapManipulator()->getWindow()->getView()->centerOn(this);
     }
 
     void Tile::move(int column, int row){

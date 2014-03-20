@@ -28,6 +28,6 @@ int main(int argc, char *argv[]){
     }
 
     MapEditor::MainWindow w;
-    w.show();
+    //w.show();
     return a.exec();
 }

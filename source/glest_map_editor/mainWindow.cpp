@@ -141,6 +141,8 @@ namespace MapEditor {
         /*ui->statusBar->setStyleSheet(
         "QStatusBar::item { border: 1px solid red; border-radius: 3px; border-style:inset;} "
         );*/
+        this->show();
+        this->renderer->fitZoom();
     }
 
     MainWindow::~MainWindow(){
