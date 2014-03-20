@@ -67,11 +67,11 @@ namespace MapEditor {
         ui->statusBar->addWidget(status->file);
         status->type = new QLabel(".gbm");
         ui->statusBar->addWidget(status->type);
-        status->pos = new QLabel(tr("Position: %1, %2").arg(0,4,10,QChar('0')).arg(0,4,10,QChar('0')));
+        status->pos = new QLabel(tr("Position: 0000, 0000","for determining maximum content size"));
         status->pos->setFixedWidth(status->pos->sizeHint().width());
         status->pos->setText(QObject::tr("Position: (none)"));
         ui->statusBar->addWidget(status->pos);
-        status->ingame = new QLabel(tr("Ingame: %1, %2").arg(0,4,10,QChar('0')).arg(0,4,10,QChar('0')));
+        status->ingame = new QLabel(tr("Ingame: 0000, 0000","for determining maximum content size"));
         status->ingame->setFixedWidth(status->ingame->sizeHint().width());
         status->ingame->setText(QObject::tr("Position: (none)"));
         ui->statusBar->addWidget(status->ingame);
