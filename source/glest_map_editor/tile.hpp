@@ -99,6 +99,7 @@ namespace MapEditor {
             QColor objectColor;
             int resource;
             QColor resourceColor;
+            Qt::MouseButton pressedButton;
     };
 }
 #endif

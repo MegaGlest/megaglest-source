@@ -18,6 +18,9 @@
    <iconset resource="icons.qrc">
     <normaloff>:/mk/shared/editor.ico</normaloff>:/mk/shared/editor.ico</iconset>
   </property>
+  <property name="toolTip">
+   <string>Water is visible below this and walkable until 1.5 less.</string>
+  </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
   </property>
@@ -62,26 +65,6 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="inputWaterLevel">
-       <property name="toolTip">
-        <string>Water is visible below this and walkable until 1.5 less.</string>
-       </property>
-       <property name="inputMethodHints">
-        <set>Qt::ImhDigitsOnly</set>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="inputCliffLevel">
-       <property name="toolTip">
-        <string>Neighboring fields with at least this height difference are cliffs.</string>
-       </property>
-       <property name="inputMethodHints">
-        <set>Qt::ImhDigitsOnly</set>
-       </property>
-      </widget>
-     </item>
      <item row="3" column="1">
       <widget class="QLineEdit" name="inputCameraHeight">
        <property name="toolTip">
@@ -89,6 +72,26 @@
        </property>
        <property name="inputMethodHints">
         <set>Qt::ImhDigitsOnly</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="inputWaterLevel">
+       <property name="toolTip">
+        <string>Water is visible below this and walkable until 1.5 less.</string>
+       </property>
+       <property name="maximum">
+        <number>20</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QSpinBox" name="inputCliffLevel">
+       <property name="toolTip">
+        <string>Neighboring fields with at least this height difference are cliffs.</string>
+       </property>
+       <property name="maximum">
+        <number>20</number>
        </property>
       </widget>
      </item>

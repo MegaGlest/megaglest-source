@@ -135,6 +135,13 @@ namespace MapEditor {
             }
         }
 
+        mouseGroup = new QActionGroup(this);
+        mouseGroup->addAction(ui->actionDraw);
+        mouseGroup->addAction(ui->actionMove);
+        mouseGroup->addAction(ui->actionSelect);
+
+        connect(mouseGroup,SIGNAL(triggered(QAction*)),this,SLOT(mouseBehavior(QAction*)));
+
         ui->graphicsView->setScene(renderer->getScene());
         //ui->graphicsView->scale(5,5);
 
@@ -230,6 +237,19 @@ namespace MapEditor {
         std::cout << "megaglest path: " << path.toStdString() << std::endl;
         QProcess::execute(path,QStringList(QString::fromStdString("--preview-map="+mapName))/* */);//*/<<"--data-path=/usr/share/megaglest/"<<"--ini-path=/usr/share/megaglest");
         QFile(QString::fromStdString(fileName)).remove();//don’t need that anymore
+    }
+
+    void MainWindow::mouseBehavior(QAction* action){
+        if(action->objectName().contains("Draw")){
+            std::cout << "draw" << std::endl;
+            ui->graphicsView->setDragMode(QGraphicsView::NoDrag);
+        }else if(action->objectName().contains("Move")){
+            std::cout << "draw" << std::endl;
+            ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
+        }else if(action->objectName().contains("Select")){
+            std::cout << "draw" << std::endl;
+            ui->graphicsView->setDragMode(QGraphicsView::RubberBandDrag);
+        }
     }
 }// end namespace
 

@@ -19,6 +19,7 @@
 #include <QString>
 #include <QObject>
 #include <QLabel>
+//#include <QScrollBar>
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include <QAction>
@@ -261,19 +262,24 @@ namespace MapEditor {
     }
 
     void Tile::mousePressEvent ( QGraphicsSceneMouseEvent *event){
-        //cout << "mouse pressed @" << this->column << "," << this->row << endl;
-        //event->ignore();
-        //this->renderer->addHistory();
-        //if( .contains("actionObject")){
-        if(event->button() == Qt::RightButton){
-
+        if(this->renderer->getMapManipulator()->getWindow()->getView()->dragMode() != QGraphicsView::NoDrag){
+            event->ignore();
         }else{
-            QString penName = this->renderer->getMapManipulator()->getWindow()->getPen()->objectName();
-            if(!this->renderer->getHeightMap() || penName.contains("actionGradient") || penName.contains("actionHeight") ){
-                this->renderer->getMapManipulator()->click(this->column, this->row);
-                this->renderer->recalculateAll();
+            //cout << "mouse pressed @" << this->column << "," << this->row << endl;
+            //event->ignore();
+            //this->renderer->addHistory();
+            //if( .contains("actionObject")){
+            this->pressedButton = event->button();
+            if(event->button() == Qt::RightButton){
+
             }else{
-               event->ignore();//don’t draw stuff you can’t see
+                QString penName = this->renderer->getMapManipulator()->getWindow()->getPen()->objectName();
+                if(!this->renderer->getHeightMap() || penName.contains("actionGradient") || penName.contains("actionHeight") ){
+                    this->renderer->getMapManipulator()->click(this->column, this->row);
+                    this->renderer->recalculateAll();
+                }else{
+                   event->ignore();//don’t draw stuff you can’t see
+                }
             }
         }
     }
@@ -289,29 +295,46 @@ namespace MapEditor {
 
         this->renderer->getStatus()->pos->setText(QObject::tr("Position: %1, %2").arg(column,3,10,QChar('0')).arg(row,3,10,QChar('0')));
         this->renderer->getStatus()->ingame->setText(QObject::tr("Ingame: %1, %2").arg(column*2,3,10,QChar('0')).arg(row*2,3,10,QChar('0')));
+        if(this->pressedButton == Qt::RightButton){//not possible
+            /*/magically move the scrollbars :D
+            //QScrollBar *hor = this->renderer->getMapManipulator()->getWindow()->getView()->horizontalScrollBar();
+            //QScrollBar *vert = this->renderer->getMapManipulator()->getWindow()->getView()->verticalScrollBar();
+            QRectF scene =  this->renderer->getMapManipulator()->getWindow()->getView()->sceneRect();
+            / *double x = * /scene.setX(scene.x() + lastPoint.x() - point.x());
+            / *double y = * /scene.setY(scene.y() + lastPoint.y() - point.y());
+            / *if(x < hor->minimum()){
+                x = hor->minimum();
+            }else if(x > hor->maximum()){
+                x = hor->maximum();
+            }
 
-        //drawing a line from last point to actual position
-        QPainterPath path(lastPoint);
-        path.lineTo(point);
+            if(y < vert->minimum()){
+                y = vert->minimum();
+            }else if(y > vert->maximum()){
+                y = vert->maximum();
+            }
 
+            hor->setValue(x);
+            vert->setValue(y);*/
+            //this->renderer->getMapManipulator()->getWindow()->getView()->setSceneRect(scene);
+        }else{
+            //drawing a line from last point to actual position
+            QPainterPath path(lastPoint);
+            path.lineTo(point);
+            //checking a bounding rectangle with possible tiles between the points
+            //limited by map size
+            int width = std::min(std::max(lastColumn,column),this->renderer->getWidth()-1);
+            int height = std::min(std::max(lastRow,row),this->renderer->getHeight()-1);
 
-        //checking a bounding rectangle with possible tiles between the points
-        //limited by map size
-        int width = std::min(std::max(lastColumn,column),this->renderer->getWidth()-1);
-        int height = std::min(std::max(lastRow,row),this->renderer->getHeight()-1);
-
-        for(int nextColumn = std::max(0,std::min(lastColumn,column)); nextColumn <= width; nextColumn++){
-            for(int nextRow = std::max(0,std::min(lastRow,row)); nextRow <= height; nextRow++){
-                //if(nextColumn != lastColumn && nextRow != lastRow){//no need redrawing the old one
+            for(int nextColumn = std::max(0,std::min(lastColumn,column)); nextColumn <= width; nextColumn++){
+                for(int nextRow = std::max(0,std::min(lastRow,row)); nextRow <= height; nextRow++){
                     if(this->renderer->at(nextColumn,nextRow)->collidesWithPath(path)){
-
                         this->renderer->getMapManipulator()->changeTile(nextColumn, nextRow);
                     }
-
-                //}
+                }
             }
+            this->renderer->recalculateAll();
         }
-        this->renderer->recalculateAll();
     }
 
     void Tile::mouseReleaseEvent ( QGraphicsSceneMouseEvent *event){
@@ -340,6 +363,7 @@ namespace MapEditor {
         this->renderer->getScene()->setSceneRect(this->renderer->getScene()->itemsBoundingRect());
         this->renderer->updateTiles();
         this->renderer->getMapManipulator()->getWindow()->getView()->centerOn(this);
+        //this->renderer->getMapManipulator()->getWindow()->getView()->ensureVisible(this,Tile::size,Tile::size);
     }
 
     void Tile::move(int column, int row){
