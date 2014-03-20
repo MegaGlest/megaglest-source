@@ -21,6 +21,7 @@
 #include <QLabel>
 #include <QGraphicsScene>
 #include <QGraphicsView>
+#include <QAction>
 #include <QGraphicsLineItem>
 #include <QGraphicsRectItem>
 #include <QGraphicsItemGroup>
@@ -263,11 +264,17 @@ namespace MapEditor {
         //cout << "mouse pressed @" << this->column << "," << this->row << endl;
         //event->ignore();
         //this->renderer->addHistory();
+        //if( .contains("actionObject")){
         if(event->button() == Qt::RightButton){
 
         }else{
-            this->renderer->getMapManipulator()->click(this->column, this->row);
-            this->renderer->recalculateAll();
+            QString penName = this->renderer->getMapManipulator()->getWindow()->getPen()->objectName();
+            if(!this->renderer->getHeightMap() || penName.contains("actionGradient") || penName.contains("actionHeight") ){
+                this->renderer->getMapManipulator()->click(this->column, this->row);
+                this->renderer->recalculateAll();
+            }else{
+               event->ignore();//don’t draw stuff you can’t see
+            }
         }
     }
 
