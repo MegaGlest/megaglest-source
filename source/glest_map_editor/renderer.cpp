@@ -13,10 +13,12 @@
 //good idea?
 #include "mainWindow.hpp"
 #include "tile.hpp"
+#include "player.hpp"
 #include "mapManipulator.hpp"
 
 #include <QGraphicsScene>
 #include <QGraphicsView>
+#include <QGraphicsItemGroup>
 #include <QAction>
 //#include "map_preview.hpp"
 #include <iostream>
@@ -35,6 +37,27 @@ namespace MapEditor {
         this->scene = new QGraphicsScene();
         this->width = this->map->getW();
         this->height = this->map->getH();
+
+        this->tileContainer = new QGraphicsItemGroup();
+        this->tileContainer->setHandlesChildEvents(false);
+        this->scene->addItem(this->tileContainer);
+        this->playerContainer = new QGraphicsItemGroup();
+        this->playerContainer->setHandlesChildEvents(false);
+        this->scene->addItem(this->playerContainer);
+
+        //this->player = new Player[];{Player(Qt::black),Player(Qt::black),Player(Qt::black),Player(Qt::black),Player(Qt::black),Player(Qt::black),Player(Qt::black),Player(Qt::black)};
+        this->player[0] = new Player(Qt::red);
+        this->player[1] = new Player(Qt::blue);
+        this->player[2] = new Player(Qt::green);
+        this->player[3] = new Player(Qt::yellow);
+        this->player[4] = new Player(Qt::white);
+        this->player[5] = new Player(Qt::cyan);
+        this->player[6] = new Player(QColor(0xFF,0xA5,0x00));//orange
+        this->player[7] = new Player(QColor(0xFF,0xC0,0xCB));//pink
+        for(unsigned int i = 0; i < (sizeof(player)/sizeof(*player)); i++){
+            this->player[i]->setParentItem(this->playerContainer);
+        }
+
         this->createTiles();
 
         this->recalculateAll();
@@ -43,6 +66,11 @@ namespace MapEditor {
 
     Renderer::~Renderer(){
         this->removeTiles();
+        delete this->tileContainer;
+        for(unsigned int i = 0; i < (sizeof(player)/sizeof(*player)); i++){
+            delete this->player[i];
+        }
+        delete this->playerContainer;
         delete this->map;
         delete this->mapman;
     }
@@ -57,6 +85,7 @@ namespace MapEditor {
         }else{
             this->resize();
         }
+        this->resetPlayers();
         this->clearHistory();
     }
 
@@ -138,6 +167,10 @@ namespace MapEditor {
         return this->Tiles[column][row];
     }
 
+    bool Renderer::exists(int column, int row) const{
+        return (column >= 0 && row >= 0 && column < this->width && row < this->height);
+    }
+
     Status *Renderer::getStatus() const{
         return status;
     }
@@ -173,6 +206,7 @@ namespace MapEditor {
             this->updateMap();
             this->recalculateAll();
             //this->updateTiles();
+            this->resetPlayers();
         }
     }
 
@@ -186,6 +220,7 @@ namespace MapEditor {
             this->updateMap();
             this->recalculateAll();
             //this->updateTiles();
+            this->resetPlayers();
         }
     }
 
@@ -239,12 +274,19 @@ namespace MapEditor {
         }
     }
 
+    void Renderer::resetPlayers(){
+        for(unsigned int i = 0; i < (sizeof(player)/sizeof(*player)); i++){
+            //cout << i << ": " << this->map->getStartLocationX(i) << ", " << this->map->getStartLocationY(i) << endl;
+            this->player[i]->move(this->map->getStartLocationX(i), this->map->getStartLocationY(i));
+        }
+    }
+
     void Renderer::createTiles(){
         this->Tiles = new Tile**[this->width];
         for(int column = 0; column < this->width; column++){
             this->Tiles[column] = new Tile*[this->height];
             for(int row = 0; row < this->height; row++){
-                this->Tiles[column][row] = new Tile(this->scene, this, column, row);
+                this->Tiles[column][row] = new Tile(this->tileContainer, this, column, row);
             }
         }
     }

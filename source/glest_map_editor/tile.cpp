@@ -38,8 +38,9 @@ namespace MapEditor {
     int Tile::size = 5;
 
     //column and row are the position in Tiles of the Tile
-    Tile::Tile(QGraphicsScene *scene, Renderer *renderer, int column, int row):QGraphicsItem(){//call the standard constructor of QGraphicsItemGroup
-        scene->addItem(this);//add this to the scene
+    Tile::Tile(QGraphicsItem *parent, Renderer *renderer, int column, int row):QGraphicsItem(){//call the standard constructor of QGraphicsItemGroup
+        //scene->addItem(this);//add this to the scene
+        this->setParentItem(parent);
 
         this->renderer=renderer;//TODO: do I need this?
         this->leftLine = this->topLine = this->rightLine = this->bottomLine = true;

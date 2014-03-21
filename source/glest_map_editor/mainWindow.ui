@@ -1324,6 +1324,9 @@
    </property>
   </action>
   <action name="actionPlayer_1">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/brush_players_red.png</normaloff>:/icons/brush_players_red.png</iconset>
@@ -1336,6 +1339,9 @@
    </property>
   </action>
   <action name="actionPlayer_2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/brush_players_blue.png</normaloff>:/icons/brush_players_blue.png</iconset>
@@ -1348,6 +1354,9 @@
    </property>
   </action>
   <action name="actionPlayer_3">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/brush_players_green.png</normaloff>:/icons/brush_players_green.png</iconset>
@@ -1360,6 +1369,9 @@
    </property>
   </action>
   <action name="actionPlayer_4">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/brush_players_yellow.png</normaloff>:/icons/brush_players_yellow.png</iconset>
@@ -1372,6 +1384,9 @@
    </property>
   </action>
   <action name="actionPlayer_5">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/brush_players_white.png</normaloff>:/icons/brush_players_white.png</iconset>
@@ -1384,6 +1399,9 @@
    </property>
   </action>
   <action name="actionPlayer_6">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/brush_players_cyan.png</normaloff>:/icons/brush_players_cyan.png</iconset>
@@ -1396,6 +1414,9 @@
    </property>
   </action>
   <action name="actionPlayer_7">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/brush_players_orange.png</normaloff>:/icons/brush_players_orange.png</iconset>
@@ -1408,6 +1429,9 @@
    </property>
   </action>
   <action name="actionPlayer_8">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="icon">
     <iconset resource="icons.qrc">
      <normaloff>:/icons/brush_players_pink.png</normaloff>:/icons/brush_players_pink.png</iconset>

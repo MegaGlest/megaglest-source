@@ -79,8 +79,10 @@ namespace MapEditor{
             int object = penName.right(1).toInt(0,16);//hexadecimal A=10 etc.
             this->renderer->getMap()->changeObject(column, row, object, this->radius);
         }else if(penName.contains("actionPlayer")){
-            int player = penName.right(1).toInt();
+            int player = penName.right(1).toInt()-1;
+            //std::cout << "move player" << player << std::endl;
             this->renderer->getMap()->changeStartLocation(column, row, player);
+            this->renderer->resetPlayers();
         }//else nothing to do
 
         //this->renderer->recalculateAll();
@@ -111,6 +113,7 @@ namespace MapEditor{
         this->renderer->getMap()->reset(width, height, altitude, surf);
         //this->renderer->getMap()->resize(int w, int h, float alt, MapSurfaceType surf);
         this->renderer->getMap()->resetFactions(players);
+        this->renderer->resetPlayers();
         this->renderer->resize();//changes width and height; updates and recalculates map
         this->renderer->clearHistory();
     }

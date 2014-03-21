@@ -29,7 +29,7 @@ namespace MapEditor {
 
     class Tile:public QGraphicsItem{
         public:
-            Tile(QGraphicsScene *scene, Renderer *renderer,int column=0,int row=0);
+            Tile(QGraphicsItem *parent, Renderer *renderer,int column=0,int row=0);
             //~Tile();
             /**
              * FIXME: critical, surfaces are enums

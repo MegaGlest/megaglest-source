@@ -26,11 +26,14 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
+//#include "player.hpp"
 #include "map_preview.h"
 #include <vector>
 #include <QObject>
+//#include
 
 class QGraphicsScene;
+class QGraphicsItemGroup;
 class QAction;
 /*namespace Shared{ namespace Map{
     class MapPreview;
@@ -38,6 +41,7 @@ class QAction;
 
 namespace MapEditor {
     class Tile;
+    class Player;
     class MapManipulator;
     struct Status;
 
@@ -114,7 +118,14 @@ namespace MapEditor {
              * @param row Position of that tile
              * @return tile at a specific position
              */
-            Tile* at(int column, int row) const;
+            Tile *at(int column, int row) const;
+            /**
+             * Does that specific tile exist?
+             * @param column Position of that tile
+             * @param row Position of that tile
+             * @return tile at a specific position
+             */
+            bool exists(int column, int row) const;
             /**
              *@return pointer for statusbar QLabels
              */
@@ -167,6 +178,10 @@ namespace MapEditor {
              * initiate a repaint of all tiles
              */
             void updateTiles();
+            /**
+             * updates positions of all players
+             */
+            void resetPlayers();
         private:
             /**
              * Fill the scene with new tiles, depends on the map size
@@ -178,6 +193,9 @@ namespace MapEditor {
             void removeTiles();
             QGraphicsScene *scene;
             Tile*** Tiles;
+            QGraphicsItemGroup *tileContainer;
+            Player *player[8];
+            QGraphicsItemGroup *playerContainer;
             Shared::Map::MapPreview *map;
             MapManipulator *mapman;
             int height;
@@ -191,6 +209,7 @@ namespace MapEditor {
             bool heightMap;
 
             std::string filename;
+
     };
 }
 
