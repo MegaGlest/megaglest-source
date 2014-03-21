@@ -39,22 +39,15 @@ namespace MapEditor {
 
     //column and row are the position in Tiles of the Tile
     Tile::Tile(QGraphicsItem *parent, Renderer *renderer, int column, int row):QGraphicsItem(){//call the standard constructor of QGraphicsItemGroup
-        //scene->addItem(this);//add this to the scene
         this->setParentItem(parent);
 
         this->renderer=renderer;//TODO: do I need this?
         this->leftLine = this->topLine = this->rightLine = this->bottomLine = true;
         this->water = this->object = this->resource = this->cliff = false;
-
         this->color = this->objectColor = this->resourceColor = Qt::black;
-
-        this->height = this->renderer->getMap()->getHeight(column, row);//the fuck ist width? - xDD
-
+        this->height = this->renderer->getMap()->getHeight(column, row);//altitude
         this->setAcceptHoverEvents(true);
-
         this->move(column, row);
-
-        //this->setAcceptedMouseButtons(Qt::NoButton);
 
     }
 
@@ -89,27 +82,11 @@ namespace MapEditor {
 
     double Tile::getHeight() const{
         return this->height;
-        /*if(changed){TODO: maybe use a updateBorders()
-            this->renderer->getMap()->setHeight(this->column, this->row, height);
-            this->recalculate();
-            if(this->column > 0){
-                this->renderer->at(this->column - 1, this->row)->recalculate();
-            }
-            if(this->row > 0){
-                this->renderer->at(this->column, this->row - 1)->recalculate();
-            }
-            if(this->column < this->renderer->getWidth() - 1){
-                this->renderer->at(this->column + 1, this->row)->recalculate();
-            }
-            if(this->row < this->renderer->getHeight() - 1){
-                this->renderer->at(this->column, this->row + 1)->recalculate();
-            }
-        }*/
     }
 
     void Tile::updateHeight(){
         this->height = this->renderer->getMap()->getHeight(column, row);
-        //std::cout << "update!" << std::endl;
+        //TODO: maybe use a updateBorders()
     }
 
     void Tile::recalculate(){
@@ -211,7 +188,7 @@ namespace MapEditor {
     }
 
     void Tile::modifySize(int size){
-        if(size > 0 || Tile::size+size >= 3)
+        if(size > 0 || Tile::size+size >= 5)
             Tile::size += size;
     }
 
@@ -224,7 +201,6 @@ namespace MapEditor {
     }
 
     void Tile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
-        //painter->translate(column * this->size,row * this->size);
         painter->fillRect(this->boundingRect(),QBrush(this->color));
         painter->translate(column * this->size,row * this->size);
         if(!this->renderer->getHeightMap()){
@@ -263,13 +239,9 @@ namespace MapEditor {
     }
 
     void Tile::mousePressEvent ( QGraphicsSceneMouseEvent *event){
-        if(event->modifiers() == Qt::ControlModifier || this->renderer->getMapManipulator()->getWindow()->getView()->dragMode() == QGraphicsView::RubberBandDrag){
+        if(this->renderer->getMapManipulator()->getWindow()->getView()->dragMode() != QGraphicsView::NoDrag){
             event->ignore();
         }else{
-            //cout << "mouse pressed @" << this->column << "," << this->row << endl;
-            //event->ignore();
-            //this->renderer->addHistory();
-            //if( .contains("actionObject")){
             this->pressedButton = event->button();
             if(event->button() == Qt::RightButton){
 
@@ -294,31 +266,9 @@ namespace MapEditor {
         int column = point.x() / size;
         int row = point.y() / size;
 
-        //this->renderer->getStatus()->pos->setText(QObject::tr("Position: %1, %2").arg(column,3,10,QChar('0')).arg(row,3,10,QChar('0')));
-        //this->renderer->getStatus()->ingame->setText(QObject::tr("Ingame: %1, %2").arg(column*2,3,10,QChar('0')).arg(row*2,3,10,QChar('0')));
-        if(this->pressedButton == Qt::RightButton){//not possible
-            /*/magically move the scrollbars :D
-            //QScrollBar *hor = this->renderer->getMapManipulator()->getWindow()->getView()->horizontalScrollBar();
-            //QScrollBar *vert = this->renderer->getMapManipulator()->getWindow()->getView()->verticalScrollBar();
-            QRectF scene =  this->renderer->getMapManipulator()->getWindow()->getView()->sceneRect();
-            / *double x = * /scene.setX(scene.x() + lastPoint.x() - point.x());
-            / *double y = * /scene.setY(scene.y() + lastPoint.y() - point.y());
-            / *if(x < hor->minimum()){
-                x = hor->minimum();
-            }else if(x > hor->maximum()){
-                x = hor->maximum();
-            }
-
-            if(y < vert->minimum()){
-                y = vert->minimum();
-            }else if(y > vert->maximum()){
-                y = vert->maximum();
-            }
-
-            hor->setValue(x);
-            vert->setValue(y);*/
-            //this->renderer->getMapManipulator()->getWindow()->getView()->setSceneRect(scene);
-        }else{
+        /*if(this->pressedButton == Qt::RightButton){
+            //TODO: do something with the right mous button
+        }else{*/
             //drawing a line from last point to actual position
             QPainterPath path(lastPoint);
             path.lineTo(point);
@@ -335,7 +285,7 @@ namespace MapEditor {
                 }
             }
             this->renderer->recalculateAll();
-        }
+        //}
     }
 
     void Tile::mouseReleaseEvent ( QGraphicsSceneMouseEvent *event){
@@ -343,18 +293,11 @@ namespace MapEditor {
         int column = point.x() / size;
         int row = point.y() / size;
         std::cout << "mouse released @" << column << "," << row << std::endl;*/
-        //this->renderer->getMap()->setHasChanged(false);
         this->renderer->addHistory();
     }
 
     void Tile::hoverEnterEvent ( QGraphicsSceneHoverEvent *event ){
         //std::cout << "hovered @" << column << "," << row << std::endl;
-        //this->renderer->getMapManipulator()->changeTile(column, row);
-        //this->renderer->getStatus()->pos->setText(QObject::tr("Position: %1, %2").arg(column,3,10,QChar('0')).arg(row,3,10,QChar('0')));
-        //this->renderer->getStatus()->ingame->setText(QObject::tr("Ingame: %1, %2").arg(column*2,3,10,QChar('0')).arg(row*2,3,10,QChar('0')));
-        //this->renderer->getStatus()->object->setText(QObject::tr("Object: %1").arg(this->OBJECTSTR[this->object]));
-
-        //this->renderer->getMapManipulator()->getWindow()->getView()->
     }
 
     void Tile::dragEnterEvent (QGraphicsSceneDragDropEvent *event){
@@ -366,11 +309,9 @@ namespace MapEditor {
         this->renderer->getScene()->setSceneRect(this->renderer->getScene()->itemsBoundingRect());
         this->renderer->updateTiles();
         this->renderer->getMapManipulator()->getWindow()->getView()->centerOn(this);
-        //this->renderer->getMapManipulator()->getWindow()->getView()->ensureVisible(this,Tile::size,Tile::size);
     }
 
     void Tile::move(int column, int row){
-        //QGraphicsItem::setPos(column*size,row*size);
         this->row = row;
         this->column = column;
     }
