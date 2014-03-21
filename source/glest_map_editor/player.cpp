@@ -18,10 +18,11 @@
 namespace MapEditor {
 
     //column and row are the position in Players of the Player
-    Player::Player(QColor color):QGraphicsItem(){
+    Player::Player(const QColor &color):QGraphicsItem(){
         this->column = 0;
         this->row = 0;
         this->color = color;
+        this->color.setAlphaF(.5);
     }
 
     QRectF Player::boundingRect() const{//need this for colidesWith … setPos is ignored
@@ -30,9 +31,11 @@ namespace MapEditor {
 
     void Player::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
         painter->translate((column - 1) * Tile::getSize(),(row - 1) * Tile::getSize());
-        painter->setPen(this->color);
-        painter->drawLine(1,1,Tile::getSize()*3 - 2,Tile::getSize()*3 - 2);
-        painter->drawLine(1,Tile::getSize()*3 - 1,Tile::getSize()*3 - 2,2);
+        painter->setPen(QPen(this->color, 3, Qt::SolidLine, Qt::RoundCap));
+        QLine lines[2] = {QLine(1,1,Tile::getSize()*3 - 2,Tile::getSize()*3 - 2),
+                          QLine(1,Tile::getSize()*3 - 2,Tile::getSize()*3 - 2,1)};
+        painter->drawLines(lines, 2);
+        //drawLine would produce overlapping lines -> ugly with half opacity
     }
 
     void Player::move(int column,int row){

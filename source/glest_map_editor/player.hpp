@@ -19,7 +19,7 @@ namespace MapEditor {
 
     class Player:public QGraphicsItem{
         public:
-            Player(QColor color);
+            Player(const QColor &color);
             //~Player();
             virtual QRectF boundingRect() const;
             virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
