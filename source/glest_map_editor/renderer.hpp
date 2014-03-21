@@ -181,7 +181,11 @@ namespace MapEditor {
             /**
              * updates positions of all players
              */
-            void resetPlayers();
+            void updatePlayerPositions();
+            /**
+             * updates allowed amount of all players
+             */
+            void updateMaxPlayers();
         private:
             /**
              * Fill the scene with new tiles, depends on the map size

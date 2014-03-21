@@ -172,6 +172,14 @@ namespace MapEditor {
         return ui->graphicsView;
     }
 
+    void MainWindow::limitPlayers(int limit){
+        QList<QAction *>actions = ui->menuPlayer->actions();
+
+        for (int i = 0; i < actions.size(); i++) {
+            actions[i]->setEnabled(i < limit);
+        }
+    }
+
     //for translation ... somehow
     void MainWindow::changeEvent(QEvent *e){
         QMainWindow::changeEvent(e);

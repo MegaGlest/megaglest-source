@@ -58,6 +58,9 @@ namespace MapEditor {
             this->player[i]->setParentItem(this->playerContainer);
         }
 
+        this->updatePlayerPositions();
+        this->updateMaxPlayers();
+
         this->createTiles();
 
         this->recalculateAll();
@@ -85,7 +88,8 @@ namespace MapEditor {
         }else{
             this->resize();
         }
-        this->resetPlayers();
+        this->updatePlayerPositions();
+        this->updateMaxPlayers();
         this->clearHistory();
     }
 
@@ -206,7 +210,8 @@ namespace MapEditor {
             this->updateMap();
             this->recalculateAll();
             //this->updateTiles();
-            this->resetPlayers();
+            this->updatePlayerPositions();
+            this->updateMaxPlayers();
         }
     }
 
@@ -220,7 +225,8 @@ namespace MapEditor {
             this->updateMap();
             this->recalculateAll();
             //this->updateTiles();
-            this->resetPlayers();
+            this->updatePlayerPositions();
+            this->updateMaxPlayers();
         }
     }
 
@@ -274,10 +280,21 @@ namespace MapEditor {
         }
     }
 
-    void Renderer::resetPlayers(){
+    void Renderer::updatePlayerPositions(){
         for(unsigned int i = 0; i < (sizeof(player)/sizeof(*player)); i++){
             //cout << i << ": " << this->map->getStartLocationX(i) << ", " << this->map->getStartLocationY(i) << endl;
             this->player[i]->move(this->map->getStartLocationX(i), this->map->getStartLocationY(i));
+        }
+    }
+
+    void Renderer::updateMaxPlayers(){
+        unsigned int maxPlayers = this->map->getMaxFactions();
+        this->mapman->getWindow()->limitPlayers(maxPlayers);
+        //std::cout << "max. players: " << maxPlayers << std::endl;
+        for(unsigned int i = 0; i < (sizeof(player)/sizeof(*player)); i++){
+            //cout << i << ": " << this->map->getStartLocationX(i) << ", " << this->map->getStartLocationY(i) << endl;
+            //this->player[i]->move(this->map->getStartLocationX(i), this->map->getStartLocationY(i));
+            this->player[i]->setVisible(i < maxPlayers);
         }
     }
 

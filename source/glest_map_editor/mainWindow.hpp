@@ -52,6 +52,7 @@ namespace MapEditor {
             ~MainWindow();
             QAction *getPen() const;
             QGraphicsView *getView() const;
+            void limitPlayers(int limit);
 
         protected:
             void changeEvent(QEvent *e);
