@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>311</width>
-    <height>177</height>
+    <height>180</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -40,19 +40,6 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="inputWidth">
-       <property name="toolTip">
-        <string>must be 16, 32, 64, 128, 256, 512 …</string>
-       </property>
-       <property name="inputMethodHints">
-        <set>Qt::ImhDigitsOnly</set>
-       </property>
-       <property name="text">
-        <string>128</string>
-       </property>
-      </widget>
-     </item>
      <item row="1" column="0">
       <widget class="QLabel" name="labelHeight">
        <property name="text">
@@ -78,32 +65,6 @@
       <widget class="QLabel" name="labelPlayers">
        <property name="text">
         <string>Number of players</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="inputHeight">
-       <property name="toolTip">
-        <string>must be 16, 32, 64, 128, 256, 512 …</string>
-       </property>
-       <property name="inputMethodHints">
-        <set>Qt::ImhDigitsOnly</set>
-       </property>
-       <property name="text">
-        <string>128</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QLineEdit" name="inputAltitude">
-       <property name="toolTip">
-        <string>Default surface height</string>
-       </property>
-       <property name="inputMethodHints">
-        <set>Qt::ImhDigitsOnly</set>
-       </property>
-       <property name="text">
-        <string>10</string>
        </property>
       </widget>
      </item>
@@ -172,6 +133,45 @@
        </item>
       </widget>
      </item>
+     <item row="0" column="1">
+      <widget class="QSpinBox" name="inputWidth">
+       <property name="toolTip">
+        <string>must be 16, 32, 64, 128, 256, 512 …</string>
+       </property>
+       <property name="maximum">
+        <number>4096</number>
+       </property>
+       <property name="value">
+        <number>128</number>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QSpinBox" name="inputHeight">
+       <property name="toolTip">
+        <string>must be 16, 32, 64, 128, 256, 512 …</string>
+       </property>
+       <property name="maximum">
+        <number>4096</number>
+       </property>
+       <property name="value">
+        <number>128</number>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QSpinBox" name="spinBox">
+       <property name="toolTip">
+        <string>Default surface height</string>
+       </property>
+       <property name="maximum">
+        <number>40</number>
+       </property>
+       <property name="value">
+        <number>10</number>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>
@@ -190,10 +190,7 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>inputWidth</tabstop>
-  <tabstop>inputHeight</tabstop>
   <tabstop>inputSurface</tabstop>
-  <tabstop>inputAltitude</tabstop>
   <tabstop>inputPlayers</tabstop>
   <tabstop>buttonBox</tabstop>
  </tabstops>

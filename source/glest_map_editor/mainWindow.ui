@@ -107,7 +107,7 @@
     <addaction name="separator"/>
     <addaction name="actionReset_Players"/>
     <addaction name="actionResize"/>
-    <addaction name="actionMirror"/>
+    <addaction name="actionFlip_Diagonal"/>
     <addaction name="actionFlip_X"/>
     <addaction name="actionFlip_Y"/>
     <addaction name="menuMirror"/>
@@ -420,7 +420,7 @@
     <string>Resize...</string>
    </property>
   </action>
-  <action name="actionMirror">
+  <action name="actionFlip_Diagonal">
    <property name="text">
     <string>Flip Diagonal</string>
    </property>
