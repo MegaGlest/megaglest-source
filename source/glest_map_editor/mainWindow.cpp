@@ -83,6 +83,8 @@ namespace MapEditor {
         renderer = new Renderer(mapman, status);
         ui->graphicsView->setStatus(status);
         newmap = new NewMap(mapman,this);//instance of new map dialog
+        resize = new NewMap(mapman,this);//instance of new map dialog
+        resetPlayers = new NewMap(mapman,this);//instance of new map dialog
         info = new Info(mapman,this);//instance of new map dialog
         switchSurfaces = new SwitchSurfaces(mapman,this);//instance of new map dialog
         advanced = new Advanced(mapman,this);//instance of new map dialog
@@ -108,6 +110,11 @@ namespace MapEditor {
         //edit
         connect(ui->actionUndo, SIGNAL( triggered() ), renderer, SLOT( undo() ));
         connect(ui->actionRedo, SIGNAL( triggered() ), renderer, SLOT( redo() ));
+        connect(ui->actionResize, SIGNAL( triggered() ), resize, SLOT( show() ));
+        connect(ui->actionReset_Players, SIGNAL( triggered() ), resetPlayers, SLOT( show() ));
+        connect(ui->actionFlip_Diagonal, SIGNAL( triggered() ), mapman, SLOT( flipDiagonal() ));
+        connect(ui->actionFlip_X, SIGNAL( triggered() ), mapman, SLOT( flipX() ));
+        connect(ui->actionFlip_Y, SIGNAL( triggered() ), mapman, SLOT( flipY() ));
         connect(ui->actionInfo, SIGNAL( triggered() ), info, SLOT( show() ));
         connect(ui->actionSwitch_Surfaces, SIGNAL( triggered() ), switchSurfaces, SLOT( show() ));
         connect(ui->actionAdvanced, SIGNAL( triggered() ), advanced, SLOT( show() ));

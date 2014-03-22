@@ -314,5 +314,6 @@ namespace MapEditor {
     void Tile::move(int column, int row){
         this->row = row;
         this->column = column;
+        this->prepareGeometryChange();
     }
 }

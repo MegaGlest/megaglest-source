@@ -61,6 +61,8 @@ namespace MapEditor {
             Ui::MainWindow *ui;
             Renderer *renderer;
             NewMap *newmap;
+            NewMap *resize;
+            NewMap *resetPlayers;
             SwitchSurfaces *switchSurfaces;
             Advanced *advanced;
             Info *info;

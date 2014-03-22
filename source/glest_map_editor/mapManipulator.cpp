@@ -118,4 +118,63 @@ namespace MapEditor{
         this->renderer->resize();//changes width and height; updates and recalculates map
         this->renderer->clearHistory();
     }
+
+    void MapManipulator::flipDiagonal(){
+        this->renderer->getMap()->flipX();
+        this->renderer->getMap()->flipY();
+        this->renderer->updateMap();
+        this->renderer->recalculateAll();
+        this->renderer->addHistory();
+    }
+
+    void MapManipulator::flipX(){
+        this->renderer->getMap()->flipX();
+        this->renderer->updateMap();
+        this->renderer->recalculateAll();
+        this->renderer->addHistory();
+    }
+
+    void MapManipulator::flipY(){
+        this->renderer->getMap()->flipY();
+        this->renderer->updateMap();
+        this->renderer->recalculateAll();
+        this->renderer->addHistory();
+    }
+
+    void MapManipulator::randomizeHeights(){
+        this->updateEverything();
+    }
+    void MapManipulator::randomizeHeightsAndPlayers(){
+        this->updateEverything();
+    }
+    void MapManipulator::copyL2R(){
+        this->updateEverything();
+    }
+    void MapManipulator::copyT2B(){
+        this->updateEverything();
+    }
+    void MapManipulator::copyBL2TR(){
+        this->updateEverything();
+    }
+    void MapManipulator::rotateL2R(){
+        this->updateEverything();
+    }
+    void MapManipulator::rotateT2B(){
+        this->updateEverything();
+    }
+    void MapManipulator::rotateBL2TR(){
+        this->updateEverything();
+    }
+    void MapManipulator::rotateTL2BR(){
+        this->updateEverything();
+    }
+    void MapManipulator::switchSurfaces(){
+        this->updateEverything();
+    }
+
+    void MapManipulator::updateEverything(){
+        this->renderer->updateMap();
+        this->renderer->recalculateAll();
+        this->renderer->addHistory();
+    }
 }

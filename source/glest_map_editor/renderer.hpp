@@ -93,7 +93,7 @@ namespace MapEditor {
              */
             void updateMap();
             /**
-             * @return heigt of the map
+             * @return height of the map
              */
             int getHeight() const;
             /**

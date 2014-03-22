@@ -68,7 +68,30 @@ namespace MapEditor{
              * @param players Number of players for this map
              */
             void reset(int width, int height, int surface, float altitude, int players);
+            /**
+             * Flips the map diagonal
+             */
+            void flipDiagonal();
+            /**
+             * Flips the map on the X-axis
+             */
+            void flipX();
+            /**
+             * Flips the map on the Y-axis
+             */
+            void flipY();
+            void randomizeHeights();
+            void randomizeHeightsAndPlayers();
+            void copyL2R();
+            void copyT2B();
+            void copyBL2TR();
+            void rotateL2R();
+            void rotateT2B();
+            void rotateBL2TR();
+            void rotateTL2BR();
+            void switchSurfaces();
         private:
+            void updateEverything();
             MainWindow *win;//for user input
             Renderer *renderer;//for accessing the map
             int radius;
