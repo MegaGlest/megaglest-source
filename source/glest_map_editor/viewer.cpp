@@ -70,7 +70,7 @@ namespace MapEditor {
         //std::cout << "test" << std::endl;
         if(mod == Qt::ControlModifier){
             this->setDragMode(QGraphicsView::ScrollHandDrag);
-        }else if(mod == Qt::AltModifier){
+        }else if(mod == Qt::ShiftModifier){
             this->setDragMode(QGraphicsView::RubberBandDrag);
         }else {
             this->setDragMode(QGraphicsView::NoDrag);

@@ -37,6 +37,9 @@ namespace MapEditor{
         public:
             MapManipulator(MainWindow *win);
             ~MapManipulator();
+            /**
+             * Set this immediately after colling the constructor!
+             */
             void setRenderer(Renderer *renderer);
             MainWindow *getWindow();
         public slots:
@@ -70,31 +73,89 @@ namespace MapEditor{
             void reset(int width, int height, int surface, float altitude, int players);
             /**
              * Flips the map diagonal
+             * Sets history
              */
             void flipDiagonal();
             /**
              * Flips the map on the X-axis
+             * Sets history
              */
             void flipX();
             /**
              * Flips the map on the Y-axis
+             * Sets history
              */
             void flipY();
+            /**
+             * Sets history
+             */
             void randomizeHeights();
+            /**
+             * Sets history
+             */
             void randomizeHeightsAndPlayers();
+            /**
+             * Sets history
+             */
             void copyL2R();
+            /**
+             * Sets history
+             */
             void copyT2B();
+            /**
+             * Sets history
+             */
             void copyBL2TR();
+            /**
+             * Sets history
+             */
             void rotateL2R();
+            /**
+             * Sets history
+             */
             void rotateT2B();
+            /**
+             * Sets history
+             */
             void rotateBL2TR();
+            /**
+             * Sets history
+             */
             void rotateTL2BR();
-            void switchSurfaces();
+            /**
+             * Sets history
+             */
+            void switchSurfaces(int a, int b);
+            /**
+             * Sets history
+             */
+            void setInfo(const std::string &title, const std::string &description, const std::string &author);
+            /**
+             * Sets history
+             */
+            void setAdvanced(int heightFactor, int waterLevel, int cliffLevel, int cameraHeight);
+            /**
+             * Sets history
+             */
+            void resetPlayers(int amount);
+            /**
+             * Sets history
+             */
+            void resize(int width, int height);
+            /**
+             * define a selection rectangle
+             * -1 means select all
+             */
+            void setSelection(int startColumn = -1, int startRow = -1, int endColumn = -1, int endRow = -1);
         private:
             void updateEverything();
             MainWindow *win;//for user input
             Renderer *renderer;//for accessing the map
             int radius;
+            int selectionStartColumn;
+            int selectionStartRow;
+            int selectionEndColumn;
+            int selectionEndRow;
     };
 }
 

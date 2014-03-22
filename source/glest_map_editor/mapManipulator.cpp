@@ -30,6 +30,11 @@ namespace MapEditor{
 
     void MapManipulator::setRenderer( Renderer *renderer){
         this->renderer = renderer;
+        this->selectionStartColumn = 0;
+        this->selectionStartRow = 0;
+        //std::cout << this->renderer->getMap() << std::endl;
+        this->selectionEndColumn = this->renderer->getHeight()-1;
+        this->selectionEndRow = this->renderer->getWidth()-1;
     }
 
     MainWindow *MapManipulator::getWindow(){
@@ -118,27 +123,49 @@ namespace MapEditor{
         this->renderer->resize();//changes width and height; updates and recalculates map
         this->renderer->clearHistory();
     }
-
+//    void copyXY(int x, int y, int sx, int sy);  // destination x,y = source sx,sy
+//    void swapXY(int x, int y, int sx, int sy);
     void MapManipulator::flipDiagonal(){
-        this->renderer->getMap()->flipX();
-        this->renderer->getMap()->flipY();
-        this->renderer->updateMap();
-        this->renderer->recalculateAll();
-        this->renderer->addHistory();
+        /*for(int column = this->selectionStartColumn; column <= this->selectionEndColumn / 2; column++){
+            for(int row = this->selectionStartRow; row <= this->selectionEndRow / 2; row++){
+                this->renderer->getMap()->swapXY(column, row, selectionEndColumn - column, this->selectionEndRow - row);
+            }
+        }*/
+        this->flipX();
+        this->renderer->forgetLast();
+        this->flipY();
     }
 
     void MapManipulator::flipX(){
-        this->renderer->getMap()->flipX();
-        this->renderer->updateMap();
-        this->renderer->recalculateAll();
-        this->renderer->addHistory();
+        Shared::Map::MapPreview *gmap = this->renderer->getMap();
+        for(int column = this->selectionStartColumn; column <= this->selectionEndColumn / 2; column++){
+            for(int row = this->selectionStartRow; row <= this->selectionEndRow; row++){
+                gmap->swapXY(column, row, selectionEndColumn - column, row);
+            }
+        }
+        int max = gmap->getMaxFactions();
+        for(int i = 0; i < max; i++){
+            gmap->changeStartLocation(selectionEndColumn - gmap->getStartLocationX(i),gmap->getStartLocationY(i),i);
+        }
+        //this->renderer->getMap()->flipX();
+        this->renderer->updatePlayerPositions();
+        this->updateEverything();
     }
 
     void MapManipulator::flipY(){
-        this->renderer->getMap()->flipY();
-        this->renderer->updateMap();
-        this->renderer->recalculateAll();
-        this->renderer->addHistory();
+        Shared::Map::MapPreview *gmap = this->renderer->getMap();
+        for(int column = this->selectionStartColumn; column <= this->selectionEndColumn ; column++){
+            for(int row = this->selectionStartRow; row <= this->selectionEndRow / 2; row++){
+                gmap->swapXY(column, row, column, this->selectionEndRow - row);
+            }
+        }
+        int max = gmap->getMaxFactions();
+        for(int i = 0; i < max; i++){
+            gmap->changeStartLocation(gmap->getStartLocationX(i),this->selectionEndRow - gmap->getStartLocationY(i),i);
+        }
+        //this->renderer->getMap()->flipY();
+        this->renderer->updatePlayerPositions();
+        this->updateEverything();;
     }
 
     void MapManipulator::randomizeHeights(){
@@ -151,27 +178,58 @@ namespace MapEditor{
         this->updateEverything();
     }
     void MapManipulator::copyL2R(){
+        //this->renderer->getMap()->;
         this->updateEverything();
     }
     void MapManipulator::copyT2B(){
+        //this->renderer->getMap()->;
         this->updateEverything();
     }
     void MapManipulator::copyBL2TR(){
+        //this->renderer->getMap()->;
         this->updateEverything();
     }
     void MapManipulator::rotateL2R(){
+        //this->renderer->getMap()->;
         this->updateEverything();
     }
     void MapManipulator::rotateT2B(){
+        //this->renderer->getMap()->;
         this->updateEverything();
     }
     void MapManipulator::rotateBL2TR(){
+        //this->renderer->getMap()->;
         this->updateEverything();
     }
     void MapManipulator::rotateTL2BR(){
+        //this->renderer->getMap()->;
         this->updateEverything();
     }
-    void MapManipulator::switchSurfaces(){
+    void MapManipulator::switchSurfaces(int a, int b){
+        //this->renderer->getMap()->;
+        this->updateEverything();
+    }
+
+    void MapManipulator::setInfo(const std::string &title, const std::string &description, const std::string &author){
+        this->renderer->getMap()->setTitle(title);
+        this->renderer->getMap()->setDesc(description);
+        this->renderer->getMap()->setAuthor(author);
+        this->updateEverything();
+    }
+
+    void MapManipulator::setAdvanced(int heightFactor, int waterLevel, int cliffLevel, int cameraHeight){
+        this->renderer->getMap()->setAdvanced(heightFactor, waterLevel, cliffLevel, cameraHeight);
+        this->updateEverything();
+    }
+
+    void MapManipulator::resetPlayers(int amount){
+        this->renderer->getMap()->resetFactions(amount);
+        this->updateEverything();
+    }
+
+    void MapManipulator::resize(int width, int height){
+        //TODO: refit the selection and player positions!
+        //this->renderer->getMap()->
         this->updateEverything();
     }
 
@@ -179,5 +237,20 @@ namespace MapEditor{
         this->renderer->updateMap();
         this->renderer->recalculateAll();
         this->renderer->addHistory();
+    }
+
+    void MapManipulator::setSelection(int startColumn, int startRow, int endColumn, int endRow){
+        if(endRow == -1 || endColumn == -1 || startRow == -1 || startColumn == -1){
+            //select all
+            this->selectionStartColumn = 0;
+            this->selectionStartRow = 0;
+            this->selectionEndColumn = this->renderer->getMap()->getH()-1;
+            this->selectionEndRow = this->renderer->getMap()->getW()-1;
+        }else{
+            this->selectionStartColumn = startColumn;
+            this->selectionStartRow = startRow;
+            this->selectionEndColumn = endColumn;
+            this->selectionEndRow = endRow;
+        }
     }
 }

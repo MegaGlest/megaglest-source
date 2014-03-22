@@ -138,8 +138,11 @@
        <property name="toolTip">
         <string>must be 16, 32, 64, 128, 256, 512 …</string>
        </property>
+       <property name="minimum">
+        <number>16</number>
+       </property>
        <property name="maximum">
-        <number>4096</number>
+        <number>1024</number>
        </property>
        <property name="value">
         <number>128</number>
@@ -151,8 +154,11 @@
        <property name="toolTip">
         <string>must be 16, 32, 64, 128, 256, 512 …</string>
        </property>
+       <property name="minimum">
+        <number>16</number>
+       </property>
        <property name="maximum">
-        <number>4096</number>
+        <number>1024</number>
        </property>
        <property name="value">
         <number>128</number>

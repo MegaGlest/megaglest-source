@@ -168,6 +168,11 @@ namespace MapEditor {
              */
             void addHistory();
             /**
+             * Forgets the last change in history
+             * Useful if you call different methods, who set their own history
+             */
+            void forgetLast();
+            /**
              * vanishes whole history
              */
             void clearHistory();

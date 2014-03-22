@@ -31,12 +31,14 @@ namespace MapEditor {
         this->status = status;
         this->filename = "";
         this->mapman = mapman;
-        mapman->setRenderer(this);
         this->map = new Shared::Map::MapPreview();
-        this->map->resetFactions(1);//otherwise this map can’t be loaded later
+        this->map->resetFactions(Shared::Map::DEFAULT_MAP_FACTIONCOUNT);//otherwise this map can’t be loaded later
+        this->map->setHasChanged(false);//Don’t save blank maps :D
         this->scene = new QGraphicsScene();
         this->width = this->map->getW();
         this->height = this->map->getH();
+
+        //mapman->setRenderer(this);
 
         this->tileContainer = new QGraphicsItemGroup();
         this->tileContainer->setHandlesChildEvents(false);
@@ -65,6 +67,8 @@ namespace MapEditor {
 
         this->recalculateAll();
         this->clearHistory();
+
+        mapman->setRenderer(this);
     }
 
     Renderer::~Renderer(){
@@ -228,6 +232,10 @@ namespace MapEditor {
             this->updatePlayerPositions();
             this->updateMaxPlayers();
         }
+    }
+
+    void Renderer::forgetLast(){
+        this->history.pop_back();
     }
 
     void Renderer::addHistory(){
