@@ -17,20 +17,20 @@ gitcommit=`git log -1 --pretty=tformat:"%H" $SCRIPTDIR/../..`
 
 # Got root?
 if [ `id -u`'x' != '0x' ]
-then 
+then
 	echo 'This script must be run as root (UID 0).' >&2
 	exit 1
 fi
 
 # Do you have the 'git' command?
-if [ `which git`'x' = 'x' ] 
+if [ `which git`'x' = 'x' ]
 then
 	echo 'Could not find "git", please make sure it is installed.' >&2
 	exit 1
 fi
 
 # Allow for quiet/silent installs
-if [ $1'x' = '-qx' -o $1'x' = '--quietx' -o $1'x' = '--silentx' ] 
+if [ $1'x' = '-qx' -o $1'x' = '--quietx' -o $1'x' = '--silentx' ]
 then
 	quiet=1
 else
@@ -47,7 +47,7 @@ echo ''
 echo 'On supported systems, we will now install build dependencies.'
 echo ''
 
-# Until this point you may cancel without any modifications applied 
+# Until this point you may cancel without any modifications applied
 #exit 0
 
 
@@ -116,64 +116,69 @@ case $distribution in
 		case $release in
 			6.0*|unstable)
 				# No libvlc-dev since version (1.1.3) in Debian 6.0/Squeeze is incompatible, no libluajit-5.1-dev because it is not available on Debian 6.0/Squeeze, cf. http://glest.org/glest_board/?topic=8460
-				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libminiupnpc-dev librtmp-dev libgtk2.0-dev libcppunit-dev'
+				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libqt4-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libminiupnpc-dev librtmp-dev libcppunit-dev'
 				$installcommand
 				if [ $? != 0 ]; then
-					error_during_installation; 
+					error_during_installation;
 					echo ''
 					echo 'Be sure to have the squeeze-backports repository installed, it is required for libminiupnpc-dev.'
-					exit 1; 
+					exit 1;
 				fi
 				;;
 			*)
-				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libminiupnpc-dev librtmp-dev libgtk2.0-dev libcppunit-dev'
+				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libqt4-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libminiupnpc-dev librtmp-dev libcppunit-dev'
 				unsupported_release
 				exit 1
 				;;
 		esac
 		;;
 
-	Ubuntu) 
+	Ubuntu)
 		if [ $quiet = 1 ]; then
 			APT_OPTIONS="$APT_OPTIONS -y -q"
 		fi
 		case $release in
 			8.04)
-				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libcppunit-dev'
+				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libqt4-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libcppunit-dev'
 				$installcommand
-				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
+				if [ $? != 0 ]; then error_during_installation; exit 1; fi
 				;;
 			10.04)
-				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew1.5-dev libftgl-dev libfribidi-dev libcppunit-dev'
+				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libqt4-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew1.5-dev libftgl-dev libfribidi-dev libcppunit-dev'
 				$installcommand
-				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
+				if [ $? != 0 ]; then error_during_installation; exit 1; fi
 				;;
 			11.10|12.04|12.10|13.04|13.10|14.04)
-				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libcppunit-dev'
+				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libqt4-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libcppunit-dev'
 				$installcommand
-				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
+				if [ $? != 0 ]; then error_during_installation; exit 1; fi
 				;;
-			*)
-				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libcppunit-dev'
+			13.10|14.04)
+				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev qt5base-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libcppunit-dev'
+				$installcommand
+				if [ $? != 0 ]; then error_during_installation; exit 1; fi
+				;;
+			*)#13.10 and 14.04 also have qt5base-dev
+				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libqt4-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libcppunit-dev'
 				unsupported_release
 				exit 1
 				;;
 		esac
 		;;
 
-	LinuxMint) 
+	LinuxMint)
 		if [ $quiet = 1 ]; then
 			APT_OPTIONS="$APT_OPTIONS -y -q"
 		fi
 		case $release in
 
 			13|14|15|16)
-				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libcppunit-dev'
+				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libqt4-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libcppunit-dev'
 				$installcommand
-				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
+				if [ $? != 0 ]; then error_during_installation; exit 1; fi
 				;;
 			*)
-				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libwxbase2.8-dev libwxgtk2.8-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libcppunit-dev'
+				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libqt4-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libcppunit-dev'
 				unsupported_release
 				exit 1
 				;;
@@ -183,12 +188,12 @@ case $distribution in
 	SuSE|SUSE?LINUX|Opensuse*|openSUSE*) 
 		case $release in
 			11.2|11.3|11.4|12.1)
-				installcommand='zypper install gcc gcc-c++ cmake libSDL-devel MesaGLw-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel'
+				installcommand='zypper install gcc gcc-c++ cmake libSDL-devel MesaGLw-devel freeglut-devel libvorbis-devel libqt4-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel'
 				$installcommand
-				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
+				if [ $? != 0 ]; then error_during_installation; exit 1; fi
 				;;
 			12.2)
-				installcommand='zypper install gcc gcc-c++ cmake libSDL-devel Mesa-libGL-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel'
+				installcommand='zypper install gcc gcc-c++ cmake libSDL-devel Mesa-libGL-devel freeglut-devel libvorbis-devel libqt4-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel'
 				$installcommand
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi
 				;;
@@ -198,25 +203,25 @@ case $distribution in
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi
 				;;
 			*)
-				installcommand='zypper install gcc gcc-c++ cmake libSDL-devel Mesa-libGL-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel'
+				installcommand='zypper install gcc gcc-c++ cmake libSDL-devel Mesa-libGL-devel freeglut-devel libvorbis-devel libqt4-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel'
 				unsupported_release
 				exit 1
 				;;
 		esac
 		;;
 
-	Fedora) 
+	Fedora)
 		case $release in
 			13|14|15|16|17|18)
 				installcommand='yum groupinstall development-tools'
 				$installcommand
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi
 
-				installcommand='yum install cmake SDL-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel'
+				installcommand='yum install cmake SDL-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel qt5-base-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel'
 				$installcommand
 				;;
 			*)
-				installcommand='yum groupinstall "Development Tools"; yum install cmake SDL-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel wxBase wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel'
+				installcommand='yum groupinstall "Development Tools"; yum install cmake SDL-devel mesa-libGL-devel mesa-libGLU-devel libvorbis-devel qt5-base-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel'
 				unsupported_release
 				exit 1
 				;;
@@ -225,22 +230,23 @@ case $distribution in
 
 	archlinux)
 		case $release in
-			rolling)
+			rolling)#please use AUR
+				echo "please use AUR"
 				unsupported_release
 				exit 1
 				;;
 		esac
 		;;
 
-#	Redhat) 
+#	Redhat)
 #
 #		;;
 #
-#	Mandrake|Mandriva) 
+#	Mandrake|Mandriva)
 #
 #		;;
 
-	*) 
+	*)
 		unsupported_distribution
 		exit 1
 		;;
