@@ -115,6 +115,15 @@ namespace MapEditor {
         connect(ui->actionFlip_Diagonal, SIGNAL( triggered() ), mapman, SLOT( flipDiagonal() ));
         connect(ui->actionFlip_X, SIGNAL( triggered() ), mapman, SLOT( flipX() ));
         connect(ui->actionFlip_Y, SIGNAL( triggered() ), mapman, SLOT( flipY() ));
+        connect(ui->actionCopy_left_to_right, SIGNAL( triggered() ), mapman, SLOT( copyL2R() ));
+        connect(ui->actionCopy, SIGNAL( triggered() ), mapman, SLOT( copyT2B() ));
+        connect(ui->actionCopy_2, SIGNAL( triggered() ), mapman, SLOT( copyBL2TR() ));
+        connect(ui->actionRotate_Left_to_Right, SIGNAL( triggered() ), mapman, SLOT( rotateT2B() ));
+        connect(ui->actionTop_to_Bottom, SIGNAL( triggered() ), mapman, SLOT( rotateT2B() ));
+        connect(ui->actionBottom_Left_to_Top_Right, SIGNAL( triggered() ), mapman, SLOT( rotateBL2TR() ));
+        connect(ui->actionRotate_Top_Left_to_Bottom_Right, SIGNAL( triggered() ), mapman, SLOT( rotateTL2BR() ));
+        connect(ui->actionRandomize_Heights, SIGNAL( triggered() ), mapman, SLOT( randomizeHeights() ));
+        connect(ui->actionRandomize_Heights_Players, SIGNAL( triggered() ), mapman, SLOT( randomizeHeightsAndPlayers() ));
         connect(ui->actionInfo, SIGNAL( triggered() ), info, SLOT( show() ));
         connect(ui->actionSwitch_Surfaces, SIGNAL( triggered() ), switchSurfaces, SLOT( show() ));
         connect(ui->actionAdvanced, SIGNAL( triggered() ), advanced, SLOT( show() ));

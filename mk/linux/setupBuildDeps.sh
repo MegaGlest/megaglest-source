@@ -158,7 +158,7 @@ case $distribution in
 				$installcommand
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi
 				;;
-			*)#13.10 and 14.04 also have qt5base-dev
+			*)
 				installcommand='apt-get install '"$APT_OPTIONS"' build-essential cmake libsdl1.2-dev libalut-dev libgl1-mesa-dev libglu1-mesa-dev libvorbis-dev libqt4-dev libx11-dev liblua5.1-0-dev libjpeg-dev libpng12-dev libcurl4-gnutls-dev libxml2-dev libircclient-dev libglew-dev libftgl-dev libfribidi-dev libvlc-dev libcppunit-dev'
 				unsupported_release
 				exit 1

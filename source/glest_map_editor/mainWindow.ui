@@ -99,7 +99,7 @@
      <addaction name="separator"/>
      <addaction name="actionRotate_Left_to_Right"/>
      <addaction name="actionTop_to_Bottom"/>
-     <addaction name="actionBottem_LEeft_to_Top_Right"/>
+     <addaction name="actionBottom_Left_to_Top_Right"/>
      <addaction name="actionRotate_Top_Left_to_Bottom_Right"/>
     </widget>
     <addaction name="actionUndo"/>
@@ -1468,9 +1468,9 @@
     <string>Rotate Top to Bottom</string>
    </property>
   </action>
-  <action name="actionBottem_LEeft_to_Top_Right">
+  <action name="actionBottom_Left_to_Top_Right">
    <property name="text">
-    <string>Rotate Bottem Left to Top Right</string>
+    <string>Rotate Bottom Left to Top Right</string>
    </property>
   </action>
   <action name="actionRotate_Top_Left_to_Bottom_Right">

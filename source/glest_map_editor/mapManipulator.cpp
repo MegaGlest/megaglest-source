@@ -142,9 +142,12 @@ namespace MapEditor{
     }
 
     void MapManipulator::randomizeHeights(){
+        this->renderer->getMap()->randomizeHeights();
         this->updateEverything();
     }
     void MapManipulator::randomizeHeightsAndPlayers(){
+        this->renderer->getMap()->randomize();
+        this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
     void MapManipulator::copyL2R(){
