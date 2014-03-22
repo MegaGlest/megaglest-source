@@ -145,7 +145,11 @@ namespace MapEditor{
         }
         int max = gmap->getMaxFactions();
         for(int i = 0; i < max; i++){
-            gmap->changeStartLocation(selectionEndColumn - gmap->getStartLocationX(i),gmap->getStartLocationY(i),i);
+            int x = gmap->getStartLocationX(i);
+            int y = gmap->getStartLocationY(i);
+            if(x > selectionStartColumn && y > selectionStartRow && x < selectionEndColumn && y < selectionEndRow){
+                gmap->changeStartLocation(this->selectionEndColumn - x, y,i );
+            }
         }
         //this->renderer->getMap()->flipX();
         this->renderer->updatePlayerPositions();
@@ -161,7 +165,11 @@ namespace MapEditor{
         }
         int max = gmap->getMaxFactions();
         for(int i = 0; i < max; i++){
-            gmap->changeStartLocation(gmap->getStartLocationX(i),this->selectionEndRow - gmap->getStartLocationY(i),i);
+            int x = gmap->getStartLocationX(i);
+            int y = gmap->getStartLocationY(i);
+            if(x > selectionStartColumn && y > selectionStartRow && x < selectionEndColumn && y < selectionEndRow){
+                gmap->changeStartLocation(x, this->selectionEndRow - y, i);
+            }
         }
         //this->renderer->getMap()->flipY();
         this->renderer->updatePlayerPositions();
