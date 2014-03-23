@@ -148,6 +148,10 @@ namespace MapEditor{
              */
             void setSelection(int startColumn = -1, int startRow = -1, int endColumn = -1, int endRow = -1);
             /**
+             *  decide if the selection should be a square
+             */
+            void enableSelctionsquare(bool enable);
+            /**
              * Reads scene selection
              */
             void selectionChanged();
@@ -170,6 +174,7 @@ namespace MapEditor{
             int selectionStartRow;
             int selectionEndColumn;
             int selectionEndRow;
+            bool selectionsquare;
     };
 }
 

@@ -38,6 +38,9 @@ namespace MapEditor{
         //std::cout << this->renderer->getMap() << std::endl;
         this->selectionEndColumn = this->renderer->getHeight()-1;
         this->selectionEndRow = this->renderer->getWidth()-1;
+
+        this->selectionsquare = true;//selectionfield is a square
+        //height and width of selectionfield is a power of two
     }
 
     MainWindow *MapManipulator::getWindow(){
@@ -245,6 +248,10 @@ namespace MapEditor{
         this->fitSelection();
     }
 
+    void MapManipulator::enableSelctionsquare(bool enable){
+        this->selectionsquare = enable;
+    }
+
     void MapManipulator::selectionChanged(){
         //std::cout << "selected something" << std::endl;
         QRectF selection = this->renderer->getScene()->selectionArea().boundingRect();
@@ -264,7 +271,12 @@ namespace MapEditor{
             this->selectionEndColumn = this->renderer->getMap()->getH()-1;
         if(this->selectionEndRow > this->renderer->getMap()->getW()-1)
             this->selectionEndRow = this->renderer->getMap()->getW()-1;
-
+        if(this->selectionsquare){
+            int size =  std::min( (this->selectionEndColumn - this->selectionStartColumn)
+                                 ,(this->selectionEndRow - this->selectionStartRow) );
+            this->selectionEndColumn = size + this->selectionStartColumn;
+            this->selectionEndRow = size + this->selectionStartRow;
+        }
         this->renderer->getSelectionRect()->move(this->selectionStartColumn,this->selectionStartRow);
         this->renderer->getSelectionRect()->resize(this->selectionEndColumn - this->selectionStartColumn + 1,this->selectionEndRow - this->selectionStartRow + 1);
     }

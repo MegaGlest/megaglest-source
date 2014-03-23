@@ -108,6 +108,7 @@
     <addaction name="actionInfo"/>
     <addaction name="actionAdvanced"/>
     <addaction name="actionSelect_all"/>
+    <addaction name="actionSquare_selection"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -467,9 +468,6 @@
   <action name="actionAdvanced">
    <property name="text">
     <string>Advanced</string>
-   </property>
-   <property name="shortcut">
-    <string>Ctrl+A</string>
    </property>
   </action>
   <action name="actionReset_zoom">
@@ -1524,6 +1522,20 @@
   <action name="actionSelect_all">
    <property name="text">
     <string>Select all</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionSquare_selection">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Square selection</string>
    </property>
   </action>
  </widget>

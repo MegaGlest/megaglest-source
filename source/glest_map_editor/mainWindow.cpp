@@ -128,6 +128,7 @@ namespace MapEditor {
         connect(ui->actionSwitch_Surfaces, SIGNAL( triggered() ), switchSurfaces, SLOT( show() ));
         connect(ui->actionAdvanced, SIGNAL( triggered() ), advanced, SLOT( show() ));
         connect(ui->actionSelect_all, SIGNAL( triggered() ), mapman, SLOT( setSelection() ));
+        connect(ui->actionSquare_selection, SIGNAL( oggled(bool) ), mapman, SLOT( enableSelctionsquare(bool) ));
         //view
         connect(ui->actionZoom_in, SIGNAL( triggered() ), renderer, SLOT( zoomIn() ));
         connect(ui->actionZoom_out, SIGNAL( triggered() ), renderer, SLOT( zoomOut() ));
