@@ -166,7 +166,11 @@ namespace MapEditor{
              * @param modus c: copy; s: swap
              * TODO: more explaination
              */
-            void doToSelection(char modus, int columnLimit, int rowLimit ,bool invertColumn, bool invertRow);
+            void axisTool(char modus, int columnLimit, int rowLimit ,bool invertColumn, bool invertRow);
+            /**
+             * TODO: write something
+             */
+            void diagonalTool(char modus, int columnLimit, int rowLimit ,bool invertColumn, bool invertRow);
             MainWindow *win;//for user input
             Renderer *renderer;//for accessing the map
             int radius;
