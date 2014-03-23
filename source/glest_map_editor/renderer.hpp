@@ -42,6 +42,7 @@ class QAction;
 namespace MapEditor {
     class Tile;
     class Player;
+    class Selection;
     class MapManipulator;
     struct Status;
 
@@ -142,6 +143,7 @@ namespace MapEditor {
              *@return if only heihgt map is shown
              */
             bool getHeightMap() const;
+            Selection *getSelectionRect();
         public slots:
             /**
              *@param water show water
@@ -205,6 +207,7 @@ namespace MapEditor {
             QGraphicsItemGroup *tileContainer;
             Player *player[8];
             QGraphicsItemGroup *playerContainer;
+            Selection *selectionRect;
             Shared::Map::MapPreview *map;
             MapManipulator *mapman;
             int height;

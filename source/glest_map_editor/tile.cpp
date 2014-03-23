@@ -47,6 +47,7 @@ namespace MapEditor {
         this->color = this->objectColor = this->resourceColor = Qt::black;
         this->height = this->renderer->getMap()->getHeight(column, row);//altitude
         this->setAcceptHoverEvents(true);
+        this->setFlag(QGraphicsItem::ItemIsSelectable);
         this->move(column, row);
 
     }

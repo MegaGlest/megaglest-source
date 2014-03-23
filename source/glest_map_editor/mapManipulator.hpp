@@ -146,9 +146,23 @@ namespace MapEditor{
              * define a selection rectangle
              * -1 means select all
              */
-            void setSelection(int startColumn = -1, int startRow = -1, int endColumn = -1, int endRow = -1);
+            void setSelection(int startColumn, int startRow, int endColumn, int endRow);
+            /**
+             * Reads scene selection
+             */
+            void selectionChanged();
+            /**
+             * fit selection in scene
+             */
+            void fitSelection();
         private:
             void updateEverything();
+            /**
+             * uses a methode on all selected tiles
+             * @param modus c: copy; s: swap
+             * TODO: more explaination
+             */
+            void doToSelection(char modus, int columnLimit, int rowLimit ,bool invertColumn, bool invertRow);
             MainWindow *win;//for user input
             Renderer *renderer;//for accessing the map
             int radius;

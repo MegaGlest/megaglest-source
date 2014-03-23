@@ -14,6 +14,7 @@
 #include "mainWindow.hpp"
 #include "tile.hpp"
 #include "player.hpp"
+#include "selection.hpp"
 #include "mapManipulator.hpp"
 
 #include <QGraphicsScene>
@@ -38,14 +39,18 @@ namespace MapEditor {
         this->width = this->map->getW();
         this->height = this->map->getH();
 
-        //mapman->setRenderer(this);
+        this->selectionRect = new Selection();
+        this->selectionRect->resize(this->width,this->height);
+        connect(scene, SIGNAL( selectionChanged() ), mapman, SLOT( selectionChanged() ));
 
+        //mapman->setRenderer(this);
         this->tileContainer = new QGraphicsItemGroup();
         this->tileContainer->setHandlesChildEvents(false);
         this->scene->addItem(this->tileContainer);
         this->playerContainer = new QGraphicsItemGroup();
         this->playerContainer->setHandlesChildEvents(false);
         this->scene->addItem(this->playerContainer);
+        this->scene->addItem(this->selectionRect);//must be on top
 
         //this->player = new Player[];{Player(Qt::black),Player(Qt::black),Player(Qt::black),Player(Qt::black),Player(Qt::black),Player(Qt::black),Player(Qt::black),Player(Qt::black)};
         this->player[0] = new Player(Qt::red);
@@ -78,6 +83,7 @@ namespace MapEditor {
             delete this->player[i];
         }
         delete this->playerContainer;
+        delete this->selectionRect;
         delete this->map;
         delete this->mapman;
     }
@@ -193,6 +199,10 @@ namespace MapEditor {
 
     bool Renderer::getHeightMap() const{
         return this->heightMap;
+    }
+
+    Selection *Renderer::getSelectionRect(){
+        return this->selectionRect;
     }
 
     void Renderer::setWater(bool water){

@@ -11,8 +11,11 @@
 #include "mapManipulator.hpp"
 #include "mainWindow.hpp"
 #include "renderer.hpp"
+#include "selection.hpp"
 #include "map_preview.h"
+#include "tile.hpp"
 #include <QAction>
+#include <QGraphicsScene>
 #include <QString>
 #include <iostream>
 
@@ -122,6 +125,7 @@ namespace MapEditor{
         this->renderer->updateMaxPlayers();
         this->renderer->resize();//changes width and height; updates and recalculates map
         this->renderer->clearHistory();
+        this->fitSelection();
     }
 
     void MapManipulator::flipDiagonal(){
@@ -132,7 +136,8 @@ namespace MapEditor{
 
     void MapManipulator::flipX(){
         int midColumn = this->selectionStartColumn + ( (this->selectionEndColumn - this->selectionStartColumn) / 2);
-        Shared::Map::MapPreview *gmap = this->renderer->getMap();
+        this->doToSelection('s', midColumn, this->selectionEndRow, true, false);
+        /*Shared::Map::MapPreview *gmap = this->renderer->getMap();
         for(int column = this->selectionStartColumn; column <= midColumn; column++){
             for(int row = this->selectionStartRow; row <= this->selectionEndRow; row++){
                 gmap->swapXY(column, row, selectionEndColumn - column, row);
@@ -145,14 +150,15 @@ namespace MapEditor{
             if(x > selectionStartColumn && y > selectionStartRow && x < selectionEndColumn && y < selectionEndRow){
                 gmap->changeStartLocation(this->selectionEndColumn - x, y,i );
             }
-        }
+        }*/
         this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
 
     void MapManipulator::flipY(){
         int midRow = this->selectionStartRow + ( (this->selectionEndRow - this->selectionStartRow) / 2);
-        Shared::Map::MapPreview *gmap = this->renderer->getMap();
+        this->doToSelection('s', this->selectionEndColumn, midRow, false, true);
+        /*Shared::Map::MapPreview *gmap = this->renderer->getMap();
         for(int column = this->selectionStartColumn; column <= this->selectionEndColumn ; column++){
             for(int row = this->selectionStartRow; row <= midRow; row++){
                 gmap->swapXY(column, row, column, this->selectionEndRow - row);
@@ -165,7 +171,7 @@ namespace MapEditor{
             if(x > selectionStartColumn && y > selectionStartRow && x < selectionEndColumn && y < selectionEndRow){
                 gmap->changeStartLocation(x, this->selectionEndRow - y, i);
             }
-        }
+        }*/
         this->renderer->updatePlayerPositions();
         this->updateEverything();;
     }
@@ -183,7 +189,8 @@ namespace MapEditor{
 
     void MapManipulator::copyL2R(){
         int midColumn = this->selectionStartColumn + ( (this->selectionEndColumn - this->selectionStartColumn) / 2);
-        Shared::Map::MapPreview *gmap = this->renderer->getMap();
+        this->doToSelection('c', midColumn, this->selectionEndRow, true, false);
+        /*Shared::Map::MapPreview *gmap = this->renderer->getMap();
         for(int column = this->selectionStartColumn; column <= midColumn; column++){
             for(int row = this->selectionStartRow; row <= this->selectionEndRow; row++){
                 gmap->copyXY(selectionEndColumn - column, row, column, row);
@@ -208,14 +215,15 @@ namespace MapEditor{
                     freeForChange++;
                 }
             }
-        }
+        }*/
         this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
 
     void MapManipulator::copyT2B(){
         int midRow = this->selectionStartRow + ( (this->selectionEndRow - this->selectionStartRow) / 2);
-        Shared::Map::MapPreview *gmap = this->renderer->getMap();
+        this->doToSelection('c', this->selectionEndColumn, midRow, false, true);
+        /*Shared::Map::MapPreview *gmap = this->renderer->getMap();
         for(int column = this->selectionStartColumn; column <= this->selectionEndColumn; column++){
             for(int row = this->selectionStartRow; row <= midRow; row++){
                 gmap->copyXY(column, selectionEndRow - row, column, row);
@@ -240,7 +248,7 @@ namespace MapEditor{
                     freeForChange++;
                 }
             }
-        }
+        }*/
         this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
@@ -253,7 +261,8 @@ namespace MapEditor{
 
     void MapManipulator::rotateL2R(){
         int midColumn = this->selectionStartColumn + ( (this->selectionEndColumn - this->selectionStartColumn) / 2);
-        Shared::Map::MapPreview *gmap = this->renderer->getMap();
+        this->doToSelection('c', midColumn, this->selectionEndRow, true, true);
+        /*Shared::Map::MapPreview *gmap = this->renderer->getMap();
         for(int column = this->selectionStartColumn; column <= midColumn; column++){
             for(int row = this->selectionStartRow; row <= this->selectionEndRow; row++){
                 gmap->copyXY(selectionEndColumn - column, selectionEndRow - row, column, row);
@@ -278,14 +287,15 @@ namespace MapEditor{
                     freeForChange++;
                 }
             }
-        }
+        }*/
         this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
 
     void MapManipulator::rotateT2B(){
         int midRow = this->selectionStartRow + ( (this->selectionEndRow - this->selectionStartRow) / 2);
-        Shared::Map::MapPreview *gmap = this->renderer->getMap();
+        this->doToSelection('c', this->selectionEndColumn, midRow, false, true);
+        /*Shared::Map::MapPreview *gmap = this->renderer->getMap();
         for(int column = this->selectionStartColumn; column <= this->selectionEndColumn; column++){
             for(int row = this->selectionStartRow; row <= midRow; row++){
                 gmap->copyXY(selectionEndColumn - column, selectionEndRow - row, column, row);
@@ -309,7 +319,7 @@ namespace MapEditor{
                     freeForChange++;
                 }
             }
-        }
+        }*/
         this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
@@ -346,13 +356,8 @@ namespace MapEditor{
     void MapManipulator::resize(int width, int height){
         //TODO: refit the selection and player positions!
         //this->renderer->getMap()->
+        this->fitSelection();
         this->updateEverything();
-    }
-
-    void MapManipulator::updateEverything(){//TODO: Just in selection
-        this->renderer->updateMap();
-        this->renderer->recalculateAll();
-        this->renderer->addHistory();
     }
 
     void MapManipulator::setSelection(int startColumn, int startRow, int endColumn, int endRow){
@@ -368,5 +373,68 @@ namespace MapEditor{
             this->selectionEndColumn = endColumn;
             this->selectionEndRow = endRow;
         }
+    }
+
+    void MapManipulator::selectionChanged(){
+        //std::cout << "selected something" << std::endl;
+        QRectF selection = this->renderer->getScene()->selectionArea().boundingRect();
+        this->selectionStartColumn = selection.x() / Tile::getSize();
+        this->selectionStartRow = selection.y() / Tile::getSize();
+        this->selectionEndColumn = (selection.x() + selection.width()) / Tile::getSize();
+        this->selectionEndRow = (selection.y() + selection.height()) / Tile::getSize();
+        this->fitSelection();
+    }
+
+    void MapManipulator::fitSelection(){
+        if(this->selectionStartColumn < 0)
+            this->selectionStartColumn = 0;
+        if(this->selectionStartRow < 0)
+            this->selectionStartRow = 0;
+        if(this->selectionEndColumn > this->renderer->getMap()->getH()-1)
+            this->selectionEndColumn = this->renderer->getMap()->getH()-1;
+        if(this->selectionEndRow > this->renderer->getMap()->getW()-1)
+            this->selectionEndRow = this->renderer->getMap()->getW()-1;
+
+        this->renderer->getSelectionRect()->move(this->selectionStartColumn,this->selectionStartRow);
+        this->renderer->getSelectionRect()->resize(this->selectionEndColumn - this->selectionStartColumn + 1,this->selectionEndRow - this->selectionStartRow + 1);
+    }
+
+    void MapManipulator::updateEverything(){//TODO: Just in selection
+        this->renderer->updateMap();
+        this->renderer->recalculateAll();
+        this->renderer->addHistory();
+    }
+
+    void MapManipulator::doToSelection(char modus, int columnLimit, int rowLimit, bool invertColumn, bool invertRow){
+        //int columnLimit, int rowLimit bool invertColumn = false, bool invertRow = false;
+        Shared::Map::MapPreview *gmap = this->renderer->getMap();
+        for(int column = this->selectionStartColumn; column <= columnLimit; column++){
+            for(int row = this->selectionStartRow; row <= rowLimit; row++){
+                int destinationColumn = column;
+                if(invertColumn){
+                    destinationColumn = this->selectionEndColumn - (destinationColumn - this->selectionStartColumn);
+                }
+                int destinationRow = row;
+                if(invertRow){
+                    destinationRow = this->selectionEndRow - (destinationRow - this->selectionStartRow);
+                }
+                switch(modus){
+                 case 's':
+                    gmap->swapXY(destinationColumn, destinationRow, column, row);
+                    break;
+                 case 'c':
+                    gmap->copyXY(destinationColumn, destinationRow, column, row);
+                    break;
+                }
+            }
+        }
+        /*int max = gmap->getMaxFactions();
+        for(int i = 0; i < max; i++){
+            int x = gmap->getStartLocationX(i);
+            int y = gmap->getStartLocationY(i);
+            if(x > selectionStartColumn && y > selectionStartRow && x < selectionEndColumn && y < selectionEndRow){
+                gmap->changeStartLocation(this->selectionEndColumn - x, y,i );
+            }
+        }*/
     }
 }
