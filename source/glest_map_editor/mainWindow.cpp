@@ -118,7 +118,7 @@ namespace MapEditor {
         connect(ui->actionCopy_left_to_right, SIGNAL( triggered() ), mapman, SLOT( copyL2R() ));
         connect(ui->actionCopy, SIGNAL( triggered() ), mapman, SLOT( copyT2B() ));
         connect(ui->actionCopy_2, SIGNAL( triggered() ), mapman, SLOT( copyBL2TR() ));
-        connect(ui->actionRotate_Left_to_Right, SIGNAL( triggered() ), mapman, SLOT( rotateT2B() ));
+        connect(ui->actionRotate_Left_to_Right, SIGNAL( triggered() ), mapman, SLOT( rotateL2R() ));
         connect(ui->actionTop_to_Bottom, SIGNAL( triggered() ), mapman, SLOT( rotateT2B() ));
         connect(ui->actionBottom_Left_to_Top_Right, SIGNAL( triggered() ), mapman, SLOT( rotateBL2TR() ));
         connect(ui->actionRotate_Top_Left_to_Bottom_Right, SIGNAL( triggered() ), mapman, SLOT( rotateTL2BR() ));
