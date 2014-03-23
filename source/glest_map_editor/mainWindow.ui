@@ -29,16 +29,7 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>0</number>
     </property>
     <item>
@@ -62,7 +53,7 @@
      <x>0</x>
      <y>0</y>
      <width>792</width>
-     <height>19</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -116,6 +107,7 @@
     <addaction name="actionSwitch_Surfaces"/>
     <addaction name="actionInfo"/>
     <addaction name="actionAdvanced"/>
+    <addaction name="actionSelect_all"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -1527,6 +1519,11 @@
    </property>
    <property name="text">
     <string>Select</string>
+   </property>
+  </action>
+  <action name="actionSelect_all">
+   <property name="text">
+    <string>Select all</string>
    </property>
   </action>
  </widget>

@@ -146,7 +146,7 @@ namespace MapEditor{
              * define a selection rectangle
              * -1 means select all
              */
-            void setSelection(int startColumn, int startRow, int endColumn, int endRow);
+            void setSelection(int startColumn = -1, int startRow = -1, int endColumn = -1, int endRow = -1);
             /**
              * Reads scene selection
              */

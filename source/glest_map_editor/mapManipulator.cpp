@@ -137,20 +137,6 @@ namespace MapEditor{
     void MapManipulator::flipX(){
         int midColumn = this->selectionStartColumn + ( (this->selectionEndColumn - this->selectionStartColumn) / 2);
         this->doToSelection('s', midColumn, this->selectionEndRow, true, false);
-        /*Shared::Map::MapPreview *gmap = this->renderer->getMap();
-        for(int column = this->selectionStartColumn; column <= midColumn; column++){
-            for(int row = this->selectionStartRow; row <= this->selectionEndRow; row++){
-                gmap->swapXY(column, row, selectionEndColumn - column, row);
-            }
-        }
-        int max = gmap->getMaxFactions();
-        for(int i = 0; i < max; i++){
-            int x = gmap->getStartLocationX(i);
-            int y = gmap->getStartLocationY(i);
-            if(x > selectionStartColumn && y > selectionStartRow && x < selectionEndColumn && y < selectionEndRow){
-                gmap->changeStartLocation(this->selectionEndColumn - x, y,i );
-            }
-        }*/
         this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
@@ -158,20 +144,6 @@ namespace MapEditor{
     void MapManipulator::flipY(){
         int midRow = this->selectionStartRow + ( (this->selectionEndRow - this->selectionStartRow) / 2);
         this->doToSelection('s', this->selectionEndColumn, midRow, false, true);
-        /*Shared::Map::MapPreview *gmap = this->renderer->getMap();
-        for(int column = this->selectionStartColumn; column <= this->selectionEndColumn ; column++){
-            for(int row = this->selectionStartRow; row <= midRow; row++){
-                gmap->swapXY(column, row, column, this->selectionEndRow - row);
-            }
-        }
-        int max = gmap->getMaxFactions();
-        for(int i = 0; i < max; i++){
-            int x = gmap->getStartLocationX(i);
-            int y = gmap->getStartLocationY(i);
-            if(x > selectionStartColumn && y > selectionStartRow && x < selectionEndColumn && y < selectionEndRow){
-                gmap->changeStartLocation(x, this->selectionEndRow - y, i);
-            }
-        }*/
         this->renderer->updatePlayerPositions();
         this->updateEverything();;
     }
@@ -190,32 +162,6 @@ namespace MapEditor{
     void MapManipulator::copyL2R(){
         int midColumn = this->selectionStartColumn + ( (this->selectionEndColumn - this->selectionStartColumn) / 2);
         this->doToSelection('c', midColumn, this->selectionEndRow, true, false);
-        /*Shared::Map::MapPreview *gmap = this->renderer->getMap();
-        for(int column = this->selectionStartColumn; column <= midColumn; column++){
-            for(int row = this->selectionStartRow; row <= this->selectionEndRow; row++){
-                gmap->copyXY(selectionEndColumn - column, row, column, row);
-            }
-        }
-        int max = gmap->getMaxFactions();
-        int freeForChange = 0;//remember which player got repositioned
-        for(int i = 0; i < max; i++){
-            int x = gmap->getStartLocationX(i);
-            int y = gmap->getStartLocationY(i);
-            //use positions of players in left part
-            if(x >= selectionStartColumn && y >= selectionStartRow && x <= midColumn && y <= selectionEndRow){
-                bool foundSth = false;
-                while(freeForChange < max && !foundSth){
-                    int changeX = gmap->getStartLocationX(freeForChange);
-                    int changeY = gmap->getStartLocationY(freeForChange);
-                    //reposition players in right part
-                    if(changeX > midColumn && changeY >= selectionStartRow && changeX <= selectionEndColumn && changeY <= selectionEndRow){
-                        gmap->changeStartLocation(this->selectionEndColumn - x, y, freeForChange);
-                        foundSth = true;
-                    }
-                    freeForChange++;
-                }
-            }
-        }*/
         this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
@@ -223,32 +169,6 @@ namespace MapEditor{
     void MapManipulator::copyT2B(){
         int midRow = this->selectionStartRow + ( (this->selectionEndRow - this->selectionStartRow) / 2);
         this->doToSelection('c', this->selectionEndColumn, midRow, false, true);
-        /*Shared::Map::MapPreview *gmap = this->renderer->getMap();
-        for(int column = this->selectionStartColumn; column <= this->selectionEndColumn; column++){
-            for(int row = this->selectionStartRow; row <= midRow; row++){
-                gmap->copyXY(column, selectionEndRow - row, column, row);
-            }
-        }
-        int max = gmap->getMaxFactions();
-        int freeForChange = 0;//remember which player got repositioned
-        for(int i = 0; i < max; i++){
-            int x = gmap->getStartLocationX(i);
-            int y = gmap->getStartLocationY(i);
-            //use positions of players in top part
-            if(x >= selectionStartColumn && y >= selectionStartRow && x <= selectionEndColumn && y <= midRow){
-                bool foundSth = false;
-                while(freeForChange < max && !foundSth){
-                    int changeX = gmap->getStartLocationX(freeForChange);
-                    int changeY = gmap->getStartLocationY(freeForChange);
-                    //reposition players in bottom part
-                    if(changeX >= selectionStartColumn && changeY > midRow && changeX <= selectionEndColumn && changeY <= selectionEndRow){
-                        gmap->changeStartLocation(x, this->selectionEndRow - y, freeForChange);
-                        foundSth = true;
-                    }
-                    freeForChange++;
-                }
-            }
-        }*/
         this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
@@ -262,64 +182,13 @@ namespace MapEditor{
     void MapManipulator::rotateL2R(){
         int midColumn = this->selectionStartColumn + ( (this->selectionEndColumn - this->selectionStartColumn) / 2);
         this->doToSelection('c', midColumn, this->selectionEndRow, true, true);
-        /*Shared::Map::MapPreview *gmap = this->renderer->getMap();
-        for(int column = this->selectionStartColumn; column <= midColumn; column++){
-            for(int row = this->selectionStartRow; row <= this->selectionEndRow; row++){
-                gmap->copyXY(selectionEndColumn - column, selectionEndRow - row, column, row);
-            }
-        }
-        int max = gmap->getMaxFactions();
-        int freeForChange = 0;//remember which player got repositioned
-        for(int i = 0; i < max; i++){
-            int x = gmap->getStartLocationX(i);
-            int y = gmap->getStartLocationY(i);
-            //use positions of players in left part
-            if(x >= selectionStartColumn && y >= selectionStartRow && x <= midColumn && y <= selectionEndRow){
-                bool foundSth = false;
-                while(freeForChange < max && !foundSth){
-                    int changeX = gmap->getStartLocationX(freeForChange);
-                    int changeY = gmap->getStartLocationY(freeForChange);
-                    //reposition players in right part
-                    if(changeX > midColumn && changeY >= selectionStartRow && changeX <= selectionEndColumn && changeY <= selectionEndRow){
-                        gmap->changeStartLocation(this->selectionEndColumn - x, selectionEndRow - y, freeForChange);
-                        foundSth = true;
-                    }
-                    freeForChange++;
-                }
-            }
-        }*/
         this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
 
     void MapManipulator::rotateT2B(){
         int midRow = this->selectionStartRow + ( (this->selectionEndRow - this->selectionStartRow) / 2);
-        this->doToSelection('c', this->selectionEndColumn, midRow, false, true);
-        /*Shared::Map::MapPreview *gmap = this->renderer->getMap();
-        for(int column = this->selectionStartColumn; column <= this->selectionEndColumn; column++){
-            for(int row = this->selectionStartRow; row <= midRow; row++){
-                gmap->copyXY(selectionEndColumn - column, selectionEndRow - row, column, row);
-            }
-        }        int max = gmap->getMaxFactions();
-        int freeForChange = 0;//remember which player got repositioned
-        for(int i = 0; i < max; i++){
-            int x = gmap->getStartLocationX(i);
-            int y = gmap->getStartLocationY(i);
-            //use positions of players in top part
-            if(x >= selectionStartColumn && y >= selectionStartRow && x <= selectionEndColumn && y <= midRow){
-                bool foundSth = false;
-                while(freeForChange < max && !foundSth){
-                    int changeX = gmap->getStartLocationX(freeForChange);
-                    int changeY = gmap->getStartLocationY(freeForChange);
-                    //reposition players in bottom part
-                    if(changeX >= selectionStartColumn && changeY > midRow && changeX <= selectionEndColumn && changeY <= selectionEndRow){
-                        gmap->changeStartLocation(this->selectionEndColumn - x, this->selectionEndRow - y, freeForChange);
-                        foundSth = true;
-                    }
-                    freeForChange++;
-                }
-            }
-        }*/
+        this->doToSelection('c', this->selectionEndColumn, midRow, true, true);
         this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
@@ -373,6 +242,7 @@ namespace MapEditor{
             this->selectionEndColumn = endColumn;
             this->selectionEndRow = endRow;
         }
+        this->fitSelection();
     }
 
     void MapManipulator::selectionChanged(){
@@ -406,7 +276,7 @@ namespace MapEditor{
     }
 
     void MapManipulator::doToSelection(char modus, int columnLimit, int rowLimit, bool invertColumn, bool invertRow){
-        //int columnLimit, int rowLimit bool invertColumn = false, bool invertRow = false;
+        //c: copy to; s: swap to
         Shared::Map::MapPreview *gmap = this->renderer->getMap();
         for(int column = this->selectionStartColumn; column <= columnLimit; column++){
             for(int row = this->selectionStartRow; row <= rowLimit; row++){
@@ -428,13 +298,47 @@ namespace MapEditor{
                 }
             }
         }
-        /*int max = gmap->getMaxFactions();
+        int max = gmap->getMaxFactions();
+        int freeForChange = 0;//remember which player got repositioned
         for(int i = 0; i < max; i++){
             int x = gmap->getStartLocationX(i);
             int y = gmap->getStartLocationY(i);
-            if(x > selectionStartColumn && y > selectionStartRow && x < selectionEndColumn && y < selectionEndRow){
-                gmap->changeStartLocation(this->selectionEndColumn - x, y,i );
+            //use positions of players in top part
+
+            int destinationX = x;
+            if(invertColumn){
+                destinationX = this->selectionEndColumn - (x - this->selectionStartColumn);
             }
-        }*/
+            int destinationY = y;
+            if(invertRow){
+                destinationY = this->selectionEndRow - (y - this->selectionStartRow);
+            }
+            switch(modus){
+             case 's':
+                if(x >= selectionStartColumn && y >= selectionStartRow && x <= selectionEndColumn && y <= selectionEndRow){
+                    gmap->changeStartLocation(destinationX, destinationY, i);
+                }
+                break;
+             case 'c':
+                if(x >= selectionStartColumn && y >= selectionStartRow && x <= columnLimit && y <= rowLimit){
+                    bool foundSth = false;
+                    while(freeForChange < max && !foundSth){
+                        int changeX = gmap->getStartLocationX(freeForChange);
+                        int changeY = gmap->getStartLocationY(freeForChange);
+                        //reposition players in bottom part
+                        //only respect the limit if not divided
+                        if((columnLimit==selectionEndColumn ? changeX >= selectionStartColumn : changeX > columnLimit)
+                        && (rowLimit==selectionEndRow ? changeY >= selectionStartRow : changeY > rowLimit)
+                        && changeX <= selectionEndColumn && changeY <= selectionEndRow){
+                            gmap->changeStartLocation(destinationX, destinationY, freeForChange);
+                            foundSth = true;
+                        }
+                        freeForChange++;
+                    }
+                }
+                break;
+            }
+        }
+
     }
 }
