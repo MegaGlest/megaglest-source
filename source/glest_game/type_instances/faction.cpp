@@ -481,6 +481,7 @@ void Faction::init() {
 	//lastResourceTargettListPurge = 0;
 	cachingDisabled=false;
 	factionDisconnectHandled=false;
+	replacedByAI=false;
 	workerThread = NULL;
 
 	world=NULL;
@@ -845,10 +846,10 @@ bool Faction::getCpuControl(bool enableServerControlledAI,bool isNetworkGame, Ne
 	else {
 		if(isNetworkGame == true) {
 			if(headlessAdmin == true){
-				result = getCpuControl();
+				result = replacedByAI || getCpuControl() ;
 			}
 			else if(role == nrServer ) {
-				result = (control == ctCpuEasy ||control == ctCpu || control == ctCpuUltra || control == ctCpuMega);
+				result = (replacedByAI || control == ctCpuEasy ||control == ctCpu || control == ctCpuUltra || control == ctCpuMega);
 			}
 			else {
 				result = (control == ctNetworkCpuEasy ||control == ctNetworkCpu || control == ctNetworkCpuUltra || control == ctNetworkCpuMega);

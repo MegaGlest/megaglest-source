@@ -218,7 +218,6 @@ private:
 	bool networkPauseGameForLaggedClientsRequested;
 	bool networkResumeGameForLaggedClientsRequested;
 
-	bool oldHeadlessAdmin;
 	int oldNumberOfWinners;
 
 public:
@@ -412,8 +411,7 @@ private:
 
 	virtual bool clientLagHandler(int slotIndex,bool networkPauseGameForLaggedClients);
 
-	bool getOldHeadlessAdmin() const {return oldHeadlessAdmin;}
-	void initAiInterfaces(bool enableServerControlledAI, bool isNetworkGame, NetworkRole role, bool headless, bool headlessAdmin);
+	void initAiInterfacesIfNeeded(int aiIndex);
 };
 
 }}//end namespace
