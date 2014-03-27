@@ -69,7 +69,7 @@ rm -rf "$RELEASEDIR/source/shared_lib/sources/libircclient/"
 rm -rf "$RELEASEDIR/source/shared_lib/include/libircclient/"
 rm -rf "$RELEASEDIR/source/shared_lib/sources/platform/miniupnpc/"
 rm -rf "$RELEASEDIR/source/shared_lib/include/platform/miniupnpc/"
-rm -rf "$RELEASEDIR/source/masterserver/flags/"
+#rm -rf "$RELEASEDIR/source/masterserver/flags/"
 # END
 
 cd ${CURRENTDIR}

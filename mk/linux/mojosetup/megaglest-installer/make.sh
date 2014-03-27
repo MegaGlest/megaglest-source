@@ -250,7 +250,7 @@ if [ $REPACKONLY -eq 0 ]; then
 
 	mkdir -p "${INSTALLDATADIR}/data/core/misc_textures/flags/"
         cd "${INSTALLDATADIR}/data/core/misc_textures/flags/"
-        git archive --remote ${REPODIR} HEAD:source/masterserver/flags | tar x
+        git archive --remote ${REPODIR}/data/glest_game/data/core/misc_textures HEAD:flags | tar x
         cd "$CURRENTDIR"
 
 

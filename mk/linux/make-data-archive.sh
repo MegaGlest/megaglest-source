@@ -64,7 +64,7 @@ git archive --remote ${REPODIR}/data/glest_game/ HEAD:tutorials | tar x
 cd "$RELEASEDIR"
 mkdir -p "$RELEASEDIR/data/core/misc_textures/flags/"
 cd "$RELEASEDIR/data/core/misc_textures/flags/"
-git archive --remote ${REPODIR} HEAD:source/masterserver/flags | tar x
+git archive --remote ${REPODIR}/data/glest_game/data/core/misc_textures HEAD:flags | tar x
 
 cd "$CURRENTDIR"
 echo "creating data archive: $PACKAGE"

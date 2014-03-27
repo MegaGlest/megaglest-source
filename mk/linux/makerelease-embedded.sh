@@ -35,7 +35,7 @@ git archive --remote ${REPODIR} HEAD:source/shared_lib/include/platform/miniupnp
 
 mkdir -p "$RELEASEDIR/source/masterserver/flags/"
 cd "$RELEASEDIR/source/masterserver/flags/"
-git archive --remote ${REPODIR} HEAD:source/masterserver/flags | tar x
+git archive --remote ${REPODIR}/data/glest_game/data/core/misc_textures HEAD:flags | tar x
 
 mkdir -p "$RELEASEDIR/data/core/fonts/"
 cd "$RELEASEDIR/data/core/fonts/"

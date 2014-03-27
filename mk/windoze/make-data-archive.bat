@@ -103,7 +103,7 @@ rem special export for flag images
 mkdir %RELEASEDIR%\data\core\misc_textures\flags\
 cd /d %RELEASEDIR%\data\core\misc_textures\flags\
 echo GIT ARCHIVE flags ...
-git archive --remote %REPODIR% HEAD:source/masterserver/flags | tar -x
+git archive --remote %REPODIR%/data/glest_game/data/core/misc_textures HEAD:flags | tar -x
 cd /d "%~dp0"
 
 
