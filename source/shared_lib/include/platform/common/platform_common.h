@@ -103,6 +103,12 @@ private:
 	int maxTimes;		// maximum number consecutive times
 
 public:
+	PerformanceTimer() {
+		lastTicks = 0;;
+		updateTicks = 0;
+		times = 0;
+		maxTimes = 0;
+	}
 	void init(float fps, int maxTimes= -1);
 
 	bool isTime();

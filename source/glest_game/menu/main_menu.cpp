@@ -54,6 +54,7 @@ MainMenu::MainMenu(Program *program) : ProgramState(program), menuBackgroundVide
 
 	mouseX=100;
 	mouseY=100;
+	mouse2dAnim=0;
 
 	state= NULL;
 	this->program= program;

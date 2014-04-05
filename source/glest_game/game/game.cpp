@@ -287,6 +287,12 @@ void Game::resetMembers() {
 	quitGameCalled = false;
 	disableSpeedChange = false;
 
+	cameraDragAllowed=false;
+	updateFpsAvgTest=0;
+	renderFpsAvgTest=0;
+	playerIndexDisconnect=0;
+	highlightCellTexture=NULL;
+
 	for( int i=0;i<GameConstants::networkSmoothInterval;i++){
 		receivedTooEarlyInFrames[i]=-1;
 		framesNeededToWaitForServerMessage[i]=-1;

@@ -1843,10 +1843,10 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] bestCommandTypeIndex = %d, bestCommandTypeCount = %d\n",__FILE__,__FUNCTION__,__LINE__,bestCommandTypeIndex,bestCommandTypeCount);
 
 					defBct = buildersDefaultCommandType[builderIndex][bestCommandTypeIndex];
+
+					aiInterface->giveCommand(builderIndex, defBct, pos, bt->getUnitType());
 				}
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] builderIndex = %d, bIndex = %d, defBct = %p\n",__FILE__,__FUNCTION__,__LINE__,builderIndex,bIndex,defBct);
-
-				aiInterface->giveCommand(builderIndex, defBct, pos, bt->getUnitType());
 			}
 			else {
 				ai->retryTask(bt);

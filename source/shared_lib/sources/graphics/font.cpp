@@ -581,7 +581,7 @@ void CHECK_FONT_PATH(const char *filename,const char *fontFamily,const char **fo
 			//*path = fileFound.c_str();
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 candidate font file found [%s]\n",fileFound.c_str());
 			if( fileFound.length() > 0 && fileExists(fileFound) == true ) {
-				if(*font) free((void*)*font);
+				if(*font) free((char*)*font);
 				*font = strdup(fileFound.c_str());
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#2 candidate font file has been set[%s]\n",(*font != NULL ? *font : "null"));
 			}
@@ -591,7 +591,7 @@ void CHECK_FONT_PATH(const char *filename,const char *fontFamily,const char **fo
 	}
 }
 
-const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry) {
+string findFont(const char *firstFontToTry,const char *firstFontFamilyToTry) {
 	const char* font = NULL;
 	const char* path = NULL;
 
@@ -712,7 +712,11 @@ const char* findFont(const char *firstFontToTry,const char *firstFontFamilyToTry
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Final selection of font file is [%s]\n",(font != NULL ? font : "null")); \
 
-	return font;
+	string result = (font != NULL ? font : "");
+	if(font) {
+		free((char*)font);
+	}
+	return result;
 }
 
 

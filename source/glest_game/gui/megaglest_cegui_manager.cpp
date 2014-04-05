@@ -758,20 +758,22 @@ void MegaGlest_CEGUIManager::setImageForControl(string textureName,Texture2D *ga
 		CEGUI::Rectf rect(CEGUI::Vector2f(0.0f, 0.0f), buffer_size);
 
 		Gl::TextureGl *glTex = dynamic_cast<Gl::TextureGl *>(gameTexture);
-		CEGUI::OpenGLTexture *ceGuiTex = (CEGUI::OpenGLTexture *)(texture);
-		ceGuiTex->setOpenGLTexture(glTex->getHandle(),buffer_size);
+		if(glTex) {
+			CEGUI::OpenGLTexture *ceGuiTex = (CEGUI::OpenGLTexture *)(texture);
+			ceGuiTex->setOpenGLTexture(glTex->getHandle(),buffer_size);
 
-		image->setTexture(texture);
+			image->setTexture(texture);
 
-		//Flipping is necessary due to differences between renderers regarding top or bottom being the origin
-		if(isTextureTargetVerticallyFlipped) {
-			rect = CEGUI::Rectf(0.0f, buffer_size.d_height, buffer_size.d_width, 0.0f);
+			//Flipping is necessary due to differences between renderers regarding top or bottom being the origin
+			if(isTextureTargetVerticallyFlipped) {
+				rect = CEGUI::Rectf(0.0f, buffer_size.d_height, buffer_size.d_width, 0.0f);
+			}
+			image->setArea(rect);
+			image->setAutoScaled(CEGUI::ASM_Both);
+
+			staticImage->setProperty("Image", imageGroupName);
+			staticImage->setVisible(true);
 		}
-		image->setArea(rect);
-		image->setAutoScaled(CEGUI::ASM_Both);
-
-		staticImage->setProperty("Image", imageGroupName);
-		staticImage->setVisible(true);
 	}
 	else {
 		if( CEGUI::ImageManager::getSingleton().isDefined(imageGroupName) == true ) {

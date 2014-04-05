@@ -48,7 +48,7 @@ public:
 
 private:
 	FTFont *ftFont;
-	const char* fontFile;
+	string fontFile;
 
 	void cleanupFont();
 };

@@ -1113,51 +1113,119 @@ void MenuStateCustomGame::setupCEGUIWidgetsText(bool isReload, bool openNetworkS
 	cegui_manager.setControlVisible("CheckboxAllowInProgressJoinGame", allowInProgressJoin);
 
 
+	vector<string> controlItems;
+    controlItems.push_back(lang.getString("Closed"));
+	controlItems.push_back(lang.getString("CpuEasy"));
+	controlItems.push_back(lang.getString("Cpu"));
+    controlItems.push_back(lang.getString("CpuUltra"));
+    controlItems.push_back(lang.getString("CpuMega"));
+	controlItems.push_back(lang.getString("Network"));
+	controlItems.push_back(lang.getString("NetworkUnassigned"));
+	controlItems.push_back(lang.getString("Human"));
+
+	if(config.getBool("EnableNetworkCpu","false") == true) {
+		controlItems.push_back(lang.getString("NetworkCpuEasy"));
+		controlItems.push_back(lang.getString("NetworkCpu"));
+	    controlItems.push_back(lang.getString("NetworkCpuUltra"));
+	    controlItems.push_back(lang.getString("NetworkCpuMega"));
+	}
+
+	vector<string> teamItems;
+	for(int index = 1; index <= GameConstants::maxPlayers; ++index) {
+		teamItems.push_back(intToStr(index));
+	}
+	for(int index = GameConstants::maxPlayers + 1; index <= GameConstants::maxPlayers + GameConstants::specialFactions; ++index) {
+		teamItems.push_back(intToStr(index));
+	}
+
+	for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+
+		cegui_manager.setControlText("LabelPlayer" + intToStr(index+1) + "Number",intToStr(index+1));
+		cegui_manager.setImageForControl("ImagePlayer" + intToStr(index+1) + "Status_Texture",CoreData::getInstance().getStatusReadyTexture(), "ImagePlayer1Status", true);
+		cegui_manager.setControlText("EditboxPlayer" + intToStr(index+1) + "Name","*");
+
+		cegui_manager.addItemsToComboBoxControl(
+				cegui_manager.getControl("ComboBoxPlayer" + intToStr(index+1) + "Control"), controlItems);
+		//cegui_manager.setSelectedItemInComboBoxControl(
+		//	cegui_manager.getControl("ComboBoxPlayer1Control"), 4);
+
+		//ComboBoxPlayer1Multiplier
+		//ComboBoxPlayer1Faction
+
+		cegui_manager.addItemsToComboBoxControl(
+				cegui_manager.getControl("ComboBoxPlayer" + intToStr(index+1) + "Team"), teamItems);
+		cegui_manager.setSelectedItemInComboBoxControl(
+			cegui_manager.getControl("ComboBoxPlayer" + intToStr(index+1) + "Team"), index);
+
+		cegui_manager.setControlText("LabelPlayer" + intToStr(index+1) + "Version","*");
+	}
+
+
+//	for(int i=0; i < GameConstants::maxPlayers; ++i) {
+//		labelPlayerStatus[i].setText(" ");
+//		labelPlayerStatus[i].setTexture(CoreData::getInstance().getStatusReadyTexture());
+//		labelPlayerStatus[i].setH(16);
+//		labelPlayerStatus[i].setW(12);
+//
+//		//labelPlayers[i].setText(lang.getString("Player")+" "+intToStr(i));
+//		labelPlayers[i].setText(intToStr(i+1));
+//		labelPlayerNames[i].setText("*");
+//		labelPlayerNames[i].setMaxEditWidth(16);
+//		labelPlayerNames[i].setMaxEditRenderWidth(135);
+//
+//        listBoxTeams[i].setItems(teamItems);
+//		listBoxTeams[i].setSelectedItemIndex(i);
+//		lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
+//
+//		listBoxControls[i].setItems(controlItems);
+//		listBoxRMultiplier[i].setItems(rMultiplier);
+//		listBoxRMultiplier[i].setSelectedItem("1.0");
+//		labelNetStatus[i].setText("");
+//    }
+
+//	//list boxes
+//	xoffset=30;
+//	int rowHeight=27;
+//    for(int i=0; i<GameConstants::maxPlayers; ++i){
+//
+//    	labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
+//		labelPlayers[i].init(xoffset, setupPos-30-i*rowHeight+2);
+//		labelPlayers[i].setFont(CoreData::getInstance().getMenuFontBig());
+//		labelPlayers[i].setFont3D(CoreData::getInstance().getMenuFontBig3D());
+//
+//		labelPlayerStatus[i].registerGraphicComponent(containerName,"labelPlayerStatus" + intToStr(i));
+//		labelPlayerStatus[i].init(xoffset+15, setupPos-30-i*rowHeight+2, 60);
+//		labelPlayerNames[i].registerGraphicComponent(containerName,"labelPlayerNames" + intToStr(i));
+//		labelPlayerNames[i].init(xoffset+30,setupPos-30-i*rowHeight);
+//
+//		listBoxControls[i].registerGraphicComponent(containerName,"listBoxControls" + intToStr(i));
+//        listBoxControls[i].init(xoffset+170, setupPos-30-i*rowHeight);
+//
+//        buttonBlockPlayers[i].registerGraphicComponent(containerName,"buttonBlockPlayers" + intToStr(i));
+//        //buttonBlockPlayers[i].init(xoffset+355, setupPos-30-i*rowHeight, 70);
+//        buttonBlockPlayers[i].init(xoffset+210, setupPos-30-i*rowHeight, 70);
+//        buttonBlockPlayers[i].setText(lang.getString("BlockPlayer"));
+//        buttonBlockPlayers[i].setFont(CoreData::getInstance().getDisplayFontSmall());
+//        buttonBlockPlayers[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
+//
+//        listBoxRMultiplier[i].registerGraphicComponent(containerName,"listBoxRMultiplier" + intToStr(i));
+//        listBoxRMultiplier[i].init(xoffset+310, setupPos-30-i*rowHeight,70);
+//
+//        listBoxFactions[i].registerGraphicComponent(containerName,"listBoxFactions" + intToStr(i));
+//        listBoxFactions[i].init(xoffset+390, setupPos-30-i*rowHeight, 250);
+//        listBoxFactions[i].setLeftControlled(true);
+//
+//        listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
+//		listBoxTeams[i].init(xoffset+650, setupPos-30-i*rowHeight, 60);
+//
+//		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
+//		labelNetStatus[i].init(xoffset+715, setupPos-30-i*rowHeight, 60);
+//		labelNetStatus[i].setFont(CoreData::getInstance().getDisplayFontSmall());
+//		labelNetStatus[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
+//    }
+
 	//!!!
 
-//
-//	// Allow Switch Team Mode
-//	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
-//	labelEnableSwitchTeamMode.init(xoffset+310, aHeadPos+45, 80);
-//	labelEnableSwitchTeamMode.setText(lang.getString("EnableSwitchTeamMode"));
-//
-//	checkBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"checkBoxEnableSwitchTeamMode");
-//	checkBoxEnableSwitchTeamMode.init(xoffset+310, aPos+45);
-//	checkBoxEnableSwitchTeamMode.setValue(false);
-//
-//
-//	labelAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"labelAllowNativeLanguageTechtree");
-//	labelAllowNativeLanguageTechtree.init(xoffset+650, mapHeadPos-50);
-//	labelAllowNativeLanguageTechtree.setText(lang.getString("AllowNativeLanguageTechtree"));
-//
-//	checkBoxAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"checkBoxAllowNativeLanguageTechtree");
-//	checkBoxAllowNativeLanguageTechtree.init(xoffset+650, mapHeadPos-70);
-//	checkBoxAllowNativeLanguageTechtree.setValue(false);
-//
-//    // player status
-//	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
-//	listBoxPlayerStatus.init(810, buttony, 150);
-//	vector<string> playerStatuses;
-//	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
-//	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
-//	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
-//	listBoxPlayerStatus.setItems(playerStatuses);
-//	listBoxPlayerStatus.setSelectedItemIndex(2,true);
-//	listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
-//	listBoxPlayerStatus.setLighted(false);
-//	listBoxPlayerStatus.setVisible(true);
-//
-//	// Network Scenario
-//	int scenarioX=810;
-//	int scenarioY=140;
-//    labelScenario.registerGraphicComponent(containerName,"labelScenario");
-//    labelScenario.init(scenarioX, scenarioY);
-//    labelScenario.setText(lang.getString("Scenario"));
-//	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
-//    listBoxScenario.init(scenarioX, scenarioY-30,190);
-//    checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
-//    checkBoxScenario.init(scenarioX+90, scenarioY);
-//    checkBoxScenario.setValue(false);
 
 
 
@@ -5712,11 +5780,24 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 			string originalValue = (listBoxFactions[i].getItemCount() > 0 ? listBoxFactions[i].getSelectedItem() : "");
 
 			listBoxFactions[i].setItems(results,translatedFactionNames);
+
+			//ComboBoxPlayer1Multiplier
+			//ComboBoxPlayer1Faction
+
+			MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+			cegui_manager.setCurrentLayout("CustomGameMenu.layout",containerName);
+
+			cegui_manager.addItemsToComboBoxControl(
+					cegui_manager.getControl("ComboBoxPlayer" + intToStr(i+1) + "Faction"), results);
+
 			if( keepExistingSelectedItem == false ||
 				(checkBoxAllowObservers.getValue() == 0 &&
 						originalValue == formatString(GameConstants::OBSERVER_SLOTNAME)) ) {
 
 				listBoxFactions[i].setSelectedItemIndex(i % results.size());
+
+				cegui_manager.setSelectedItemInComboBoxControl(
+					cegui_manager.getControl("ComboBoxPlayer" + intToStr(i+1) + "Faction"), i % results.size());
 
 				if( originalValue == formatString(GameConstants::OBSERVER_SLOTNAME) &&
 					listBoxFactions[i].getSelectedItem() != formatString(GameConstants::OBSERVER_SLOTNAME)) {
@@ -5727,6 +5808,9 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 			}
 			else if(originalIndex < (int)results.size()) {
 				listBoxFactions[i].setSelectedItemIndex(originalIndex);
+
+				cegui_manager.setSelectedItemInComboBoxControl(
+					cegui_manager.getControl("ComboBoxPlayer" + intToStr(i+1) + "Faction"), originalIndex);
 			}
 		}
 	}

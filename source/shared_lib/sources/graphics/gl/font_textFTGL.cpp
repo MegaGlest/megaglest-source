@@ -58,27 +58,27 @@ TextFTGL::TextFTGL(FontTextHandlerType type) : Text(type) {
 
 	//ftFont = new FTGLPixmapFont("/usr/share/fonts/truetype/arphic/uming.ttc");
 	if(type == ftht_2D) {
-		ftFont = new FTGLPixmapFont(fontFile);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("2D font [%s]\n",fontFile);
+		ftFont = new FTGLPixmapFont(fontFile.c_str());
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("2D font [%s]\n",fontFile.c_str());
 	}
 	else if(type == ftht_3D) {
-		ftFont = new FTGLTextureFont(fontFile);
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("3D font [%s]\n",fontFile);
+		ftFont = new FTGLTextureFont(fontFile.c_str());
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("3D font [%s]\n",fontFile.c_str());
 	}
 	else {
 		throw megaglest_runtime_error("font render type not set to a known value!");
 	}
 
 	if(ftFont->Error())	{
-		string fontFileName = (fontFile != NULL ? fontFile : "n/a");
+		string fontFileName = (fontFile != "" ? fontFile : "n/a");
 		printf("FTGL: error loading font: %s\n", fontFileName.c_str());
 		delete ftFont; ftFont = NULL;
-		if(fontFile != NULL) free((void*)fontFile);
-		fontFile = NULL;
+		//if(fontFile != NULL) free((void*)fontFile);
+		//fontFile = NULL;
 		throw megaglest_runtime_error(string("FTGL: error loading font: ") + fontFileName);
 	}
-	free((void*)fontFile);
-	fontFile = NULL;
+	//free((void*)fontFile);
+	//fontFile = NULL;
 
 	const unsigned int defSize = 24;
 	ftFont->FaceSize(defSize,TextFTGL::faceResolution);
@@ -116,10 +116,10 @@ void TextFTGL::cleanupFont() {
 	delete ftFont;
 	ftFont = NULL;
 
-	if(fontFile) {
-		free((void*)fontFile);
-	}
-	fontFile = NULL;
+	//if(fontFile) {
+	//	free((void*)fontFile);
+	//}
+	//fontFile = NULL;
 }
 
 void TextFTGL::init(string fontName, string fontFamilyName, int fontSize) {
@@ -133,11 +133,11 @@ void TextFTGL::init(string fontName, string fontFamilyName, int fontSize) {
 	//ftFont = new FTGLPixmapFont("/usr/share/fonts/truetype/arphic/uming.ttc");
 
 	if(type == ftht_2D) {
-		ftFont = new FTGLPixmapFont(fontFile);
+		ftFont = new FTGLPixmapFont(fontFile.c_str());
 		//printf("2D font [%s]\n",fontFile);
 	}
 	else if(type == ftht_3D) {
-		ftFont = new FTGLTextureFont(fontFile);
+		ftFont = new FTGLTextureFont(fontFile.c_str());
 
 		//ftFont = new FTBufferFont(fontFile);
 		//ftFont = new FTGLExtrdFont(fontFile);
@@ -150,16 +150,16 @@ void TextFTGL::init(string fontName, string fontFamilyName, int fontSize) {
 	}
 
 	if(ftFont->Error())	{
-		printf("FTGL: error loading font: %s\n", fontFile);
+		printf("FTGL: error loading font: %s\n", fontFile.c_str());
 		delete ftFont; ftFont = NULL;
-		if(fontFile) {
-			free((void*)fontFile);
-		}
-		fontFile = NULL;
+		//if(fontFile) {
+		//	free((void*)fontFile);
+		//}
+		//fontFile = NULL;
 		throw megaglest_runtime_error("FTGL: error loading font");
 	}
-	free((void*)fontFile);
-	fontFile = NULL;
+	//free((void*)fontFile);
+	//fontFile = NULL;
 
 	if(fontSize <= 0) {
 		fontSize = 24;
