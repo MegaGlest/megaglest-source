@@ -31,6 +31,8 @@
 #include <iterator>
 #include "map_preview.h"
 #include "gen_uuid.h"
+#include "megaglest_cegui_manager.h"
+
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -181,6 +183,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	soundConnectionCount=0;
 
 	techTree.reset(new TechTree(config.getPathListForType(ptTechs)));
+
+	setupCEGUIWidgets(openNetworkSlots);
 
 	int labelOffset=23;
 	int setupPos=605;
@@ -733,6 +737,8 @@ void MenuStateCustomGame::reloadUI() {
     Config &config = Config::getInstance();
 
     console.resetFonts();
+    setupCEGUIWidgetsText(true,false);
+
 	mainMessageBox.init(lang.getString("Ok"));
 
 
@@ -882,6 +888,584 @@ void MenuStateCustomGame::reloadUI() {
 
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
+
+
+
+
+
+
+void MenuStateCustomGame::setupCEGUIWidgets(bool openNetworkSlots) {
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+	cegui_manager.setCurrentLayout("CustomGameMenu.layout",containerName);
+
+	setupCEGUIWidgetsText(false,openNetworkSlots);
+
+/*
+	cegui_manager.setControlEventCallback(containerName, "TabControl",
+					cegui_manager.getEventTabControlSelectionChanged(), this);
+
+
+	cegui_manager.setControlEventCallback(containerName,
+			"TabControl/__auto_TabPane__/Misc/ComboBoxLanguage",
+					cegui_manager.getEventComboboxClicked(), this);
+
+	cegui_manager.setControlEventCallback(containerName,
+			"TabControl/__auto_TabPane__/Misc/ComboBoxLanguage",
+					cegui_manager.getEventComboboxChangeAccepted(), this);
+
+	cegui_manager.setControlEventCallback(containerName,
+			"TabControl/__auto_TabPane__/Misc/CheckboxDisableLuaSandbox",
+			cegui_manager.getEventCheckboxClicked(), this);
+
+	cegui_manager.setControlEventCallback(containerName,
+			"TabControl/__auto_TabPane__/Misc/CheckboxAdvancedTranslation",
+			cegui_manager.getEventCheckboxClicked(), this);
+
+	cegui_manager.setControlEventCallback(containerName,
+			"TabControl/__auto_TabPane__/Misc/GroupBoxAdvancedTranslation/__auto_contentpane__/ButtonDownloadFromTransifex",
+			cegui_manager.getEventButtonClicked(), this);
+
+	cegui_manager.setControlEventCallback(containerName,
+			"TabControl/__auto_TabPane__/Misc/GroupBoxAdvancedTranslation/__auto_contentpane__/ButtonDeleteDownloadedTransifexFiles",
+			cegui_manager.getEventButtonClicked(), this);
+
+	cegui_manager.setControlEventCallback(containerName,
+			"TabControl/__auto_TabPane__/Misc/ButtonSave",
+			cegui_manager.getEventButtonClicked(), this);
+
+	cegui_manager.setControlEventCallback(containerName,
+			"TabControl/__auto_TabPane__/Misc/ButtonReturn",
+			cegui_manager.getEventButtonClicked(), this);
+
+	cegui_manager.subscribeMessageBoxEventClicks(containerName, this);
+	cegui_manager.subscribeMessageBoxEventClicks(containerName, this, "TabControl/__auto_TabPane__/Misc/LuaMsgBox");
+*/
+}
+
+void MenuStateCustomGame::setupCEGUIWidgetsText(bool isReload, bool openNetworkSlots) {
+
+	Lang &lang		= Lang::getInstance();
+	Config &config	= Config::getInstance();
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.setCurrentLayout("CustomGameMenu.layout",containerName);
+
+	string ipText = "none";
+	std::vector<std::string> ipList = Socket::getLocalIPAddressList();
+	if(ipList.empty() == false) {
+		ipText = "";
+		for(int idx = 0; idx < (int)ipList.size(); idx++) {
+			string ip = ipList[idx];
+			if(ipText != "") {
+				ipText += ", ";
+			}
+			ipText += ip;
+		}
+	}
+	string serverPort 	= config.getString("PortServer", intToStr(GameConstants::serverPort).c_str());
+	string externalPort = config.getString("PortExternal", serverPort.c_str());
+	cegui_manager.setControlText("LabelLocalGameIPTitle",
+			lang.getString("LanIP","",false,true) +
+			ipText +
+			"  ( " + serverPort + " / " + externalPort + " )");
+	//ServerSocket::setExternalPort(strToInt(externalPort));
+
+	if(EndsWith(glestVersionString, "-dev") == false){
+		cegui_manager.setControlText("LabelLocalGameVersion",glestVersionString);
+
+	}
+	else {
+		cegui_manager.setControlText("LabelLocalGameVersion",glestVersionString + " [colour='FF00FF00'] \\[" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
+	}
+
+	cegui_manager.setControlText("LabelPublishGame",lang.getString("PublishServer","",false,true));
+	if(isReload == false) {
+		cegui_manager.setCheckboxControlChecked(cegui_manager.getControl("CheckboxPublishGame"),
+				(this->headlessServerMode == true ||
+						(openNetworkSlots == true && parentMenuState != pLanGame)) &&
+							GlobalStaticFlags::isFlagSet(gsft_lan_mode) == false);
+
+		if(this->headlessServerMode == false) {
+			cegui_manager.setControlText("EditboxPublishGameName",defaultPlayerName + "'s game");
+		}
+		else {
+			cegui_manager.setControlText("EditboxPublishGameName","headless (" + defaultPlayerName +")");
+		}
+	}
+
+	cegui_manager.setControlText("LabelTechTree",lang.getString("TechTree","",false,true));
+
+    //tech Tree listBox
+    int initialTechSelection = setupTechList("", true);
+    if(initialTechSelection >= 0) {
+    	cegui_manager.setSelectedItemInComboBoxControl(
+			cegui_manager.getControl("ComboBoxTechTree"), initialTechSelection);
+    }
+
+    cegui_manager.setControlText("LabelTechTreeTranslated",lang.getString("AllowNativeLanguageTechtree","",false,true));
+    if(isReload == false) {
+    	cegui_manager.setCheckboxControlChecked(cegui_manager.getControl("CheckboxTechTreeTranslated"),false);
+    }
+
+    cegui_manager.setControlText("LabelShowAdvancedOptions",lang.getString("AdvancedGameOptions","",false,true));
+    if(isReload == false) {
+    	cegui_manager.setCheckboxControlChecked(cegui_manager.getControl("CheckboxShowAdvancedOptions"),false);
+    }
+
+    cegui_manager.setControlText("LabelMapFilter",lang.getString("MapFilter","",false,true));
+    vector<string> values;
+    for(int index = 1; index < GameConstants::maxPlayers+1; ++index) {
+    	values.push_back(intToStr(index));
+    }
+	cegui_manager.addItemsToComboBoxControl(
+			cegui_manager.getControl("ComboMapFilter"), values);
+	cegui_manager.setSelectedItemInComboBoxControl(
+		cegui_manager.getControl("ComboMapFilter"), 0);
+
+
+	cegui_manager.setControlText("LabelMap",lang.getString("Map","",false,true));
+
+	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
+	// will also ensure they are alphabetically listed (rather than how the OS provides them)
+	int initialMapSelection = setupMapList("");
+
+	cegui_manager.addItemsToComboBoxControl(
+			cegui_manager.getControl("ComboMap"), formattedPlayerSortedMaps[0]);
+	cegui_manager.setSelectedItemInComboBoxControl(
+		cegui_manager.getControl("ComboMap"), initialMapSelection);
+
+
+	loadMapInfo(Config::getMapPath(getCurrentMapFile()), &mapInfo, true);
+	cegui_manager.setControlText("LabelMapInfo",mapInfo.desc);
+	//printf("Selected Map: %s",mapInfo.desc.c_str());
+
+	cegui_manager.setControlText("LabelTileset",lang.getString("Tileset","",false,true));
+
+	setupTilesetList("");
+	Chrono seed(true);
+	srand((unsigned int)seed.getCurTicks());
+	int selectedTileset = rand() % tilesetFiles.size();
+	cegui_manager.setSelectedItemInComboBoxControl(
+		cegui_manager.getControl("ComboTileset"), selectedTileset);
+
+
+	cegui_manager.setControlText("LabelFogOfWar",lang.getString("FogOfWar","",false,true));
+
+    values.clear();
+    values.push_back(lang.getString("Enabled"));
+    values.push_back(lang.getString("Explored"));
+    values.push_back(lang.getString("Disabled"));
+
+	cegui_manager.addItemsToComboBoxControl(
+			cegui_manager.getControl("ComboFogOfWar"), values);
+	cegui_manager.setSelectedItemInComboBoxControl(
+		cegui_manager.getControl("ComboFogOfWar"), 0);
+
+    values.clear();
+    values.push_back(lang.getString("PlayerStatusSetup"));
+    values.push_back(lang.getString("PlayerStatusBeRightBack"));
+    values.push_back(lang.getString("PlayerStatusReady"));
+
+	cegui_manager.addItemsToComboBoxControl(
+			cegui_manager.getControl("ComboHumanPlayerStatus"), values);
+	cegui_manager.setSelectedItemInComboBoxControl(
+		cegui_manager.getControl("ComboHumanPlayerStatus"), 2);
+
+	cegui_manager.setControlText("LabelAIAcceptPercent",lang.getString("AISwitchTeamAcceptPercent","",false,true));
+
+	values.clear();
+	for(int index = 0; index <= 100; index += 10) {
+		values.push_back(intToStr(index));
+	}
+	cegui_manager.addItemsToComboBoxControl(
+			cegui_manager.getControl("ComboAIAcceptPercent"), values);
+	cegui_manager.setSelectedItemInComboBoxControl(
+		cegui_manager.getControl("ComboAIAcceptPercent"), 4);
+
+	cegui_manager.setControlText("LabelAIReplaceMultiplier",lang.getString("FallbackCpuMultiplier","",false,true));
+	cegui_manager.setSpinnerControlValues(cegui_manager.getControl("SpinnerAIReplaceMultiplier"),0,5,1.0,0.1);
+
+	cegui_manager.setControlText("LabelAllowSwitchTeams",lang.getString("EnableSwitchTeamMode","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getControl("CheckboxAllowSwitchTeams"),false);
+
+	cegui_manager.setControlText("LabelAllowObservers",lang.getString("AllowObservers","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getControl("CheckboxAllowObservers"),false);
+
+	cegui_manager.setControlText("LabelAllowSharedTeamUnits",lang.getString("AllowTeamUnitSharing","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getControl("CheckboxAllowSharedTeamUnits"),false);
+
+	cegui_manager.setControlText("LabelAllowSharedTeamResources",lang.getString("AllowTeamResourceSharing","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getControl("CheckboxAllowSharedTeamResources"),false);
+
+	cegui_manager.setControlText("LabelShowNetworkScenarios",lang.getString("Scenario","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getControl("CheckboxShowNetworkScenarios"),false);
+
+	cegui_manager.setControlText("LabelPauseLaggingClients",lang.getString("NetworkPauseGameForLaggedClients","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getControl("CheckboxPauseLaggingClients"),true);
+
+	bool allowInProgressJoin = Config::getInstance().getBool("EnableJoinInProgressGame","false");
+
+	cegui_manager.setControlText("LabelAllowInProgressJoinGame",lang.getString("AllowInGameJoinPlayer","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getControl("CheckboxAllowInProgressJoinGame"),false);
+	cegui_manager.setControlVisible("LabelAllowInProgressJoinGame", allowInProgressJoin);
+	cegui_manager.setControlVisible("CheckboxAllowInProgressJoinGame", allowInProgressJoin);
+
+
+	//!!!
+
+//
+//	// Allow Switch Team Mode
+//	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
+//	labelEnableSwitchTeamMode.init(xoffset+310, aHeadPos+45, 80);
+//	labelEnableSwitchTeamMode.setText(lang.getString("EnableSwitchTeamMode"));
+//
+//	checkBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"checkBoxEnableSwitchTeamMode");
+//	checkBoxEnableSwitchTeamMode.init(xoffset+310, aPos+45);
+//	checkBoxEnableSwitchTeamMode.setValue(false);
+//
+//
+//	labelAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"labelAllowNativeLanguageTechtree");
+//	labelAllowNativeLanguageTechtree.init(xoffset+650, mapHeadPos-50);
+//	labelAllowNativeLanguageTechtree.setText(lang.getString("AllowNativeLanguageTechtree"));
+//
+//	checkBoxAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"checkBoxAllowNativeLanguageTechtree");
+//	checkBoxAllowNativeLanguageTechtree.init(xoffset+650, mapHeadPos-70);
+//	checkBoxAllowNativeLanguageTechtree.setValue(false);
+//
+//    // player status
+//	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
+//	listBoxPlayerStatus.init(810, buttony, 150);
+//	vector<string> playerStatuses;
+//	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
+//	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
+//	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
+//	listBoxPlayerStatus.setItems(playerStatuses);
+//	listBoxPlayerStatus.setSelectedItemIndex(2,true);
+//	listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
+//	listBoxPlayerStatus.setLighted(false);
+//	listBoxPlayerStatus.setVisible(true);
+//
+//	// Network Scenario
+//	int scenarioX=810;
+//	int scenarioY=140;
+//    labelScenario.registerGraphicComponent(containerName,"labelScenario");
+//    labelScenario.init(scenarioX, scenarioY);
+//    labelScenario.setText(lang.getString("Scenario"));
+//	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
+//    listBoxScenario.init(scenarioX, scenarioY-30,190);
+//    checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
+//    checkBoxScenario.init(scenarioX+90, scenarioY);
+//    checkBoxScenario.setValue(false);
+
+
+
+
+/*
+	CEGUI::Window *ctlAudio 	= cegui_manager.loadLayoutFromFile("OptionsMenuAudio.layout");
+	CEGUI::Window *ctlKeyboard 	= cegui_manager.loadLayoutFromFile("OptionsMenuKeyboard.layout");
+	CEGUI::Window *ctlMisc 		= cegui_manager.loadLayoutFromFile("OptionsMenuMisc.layout");
+	CEGUI::Window *ctlNetwork 	= cegui_manager.loadLayoutFromFile("OptionsMenuNetwork.layout");
+	CEGUI::Window *ctlVideo 	= cegui_manager.loadLayoutFromFile("OptionsMenuVideo.layout");
+
+	cegui_manager.setControlText(ctlAudio,lang.getString("Audio","",false,true));
+	cegui_manager.setControlText(ctlKeyboard,lang.getString("Keyboardsetup","",false,true));
+	cegui_manager.setControlText(ctlMisc,lang.getString("Misc","",false,true));
+	cegui_manager.setControlText(ctlNetwork,lang.getString("Network","",false,true));
+	cegui_manager.setControlText(ctlVideo,lang.getString("Video","",false,true));
+
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Audio") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlAudio,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Keyboard") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlKeyboard,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Misc") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlMisc,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Network") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlNetwork,"",18);
+	}
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl"),"__auto_TabPane__/Video") == false) {
+		cegui_manager.addTabPageToTabControl("TabControl", ctlVideo,"",18);
+	}
+
+	cegui_manager.setSelectedTabPage("TabControl", "Misc");
+
+	//cegui_manager.dumpWindowNames("Test #1");
+	if(cegui_manager.isChildControl(cegui_manager.getControl("TabControl/__auto_TabPane__/Misc"),"LuaMsgBox") == false) {
+		cegui_manager.cloneMessageBoxControl("LuaMsgBox", ctlMisc);
+	}
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelLanguage"),lang.getString("Language","",false,true));
+
+	//languageList = lang.getDiscoveredLanguageList(true);
+	pair<string,string> defaultLang = lang.getNavtiveNameFromLanguageName(config.getString("Lang"));
+	if(defaultLang.first == "" && defaultLang.second == "") {
+		defaultLang = lang.getNavtiveNameFromLanguageName(lang.getDefaultLanguage());
+	}
+	string defaultLanguageText = defaultLang.second + "-" + defaultLang.first;
+	string defaultLanguageTextFormatted = defaultLanguageText;
+
+	//int langCount = 0;
+	map<string,int> langResultsMap;
+	vector<string> langResults;
+//	for(map<string,string>::iterator iterMap = languageList.begin();
+//			iterMap != languageList.end(); ++iterMap) {
+//
+//		string language = iterMap->first + "-" + iterMap->second;
+//		string languageFont = "";
+//		if(lang.hasString("MEGAGLEST_FONT",iterMap->first) == true) {
+//
+//			bool langIsDefault = false;
+//			if(defaultLanguageText == language) {
+//				langIsDefault = true;
+//			}
+//			string fontFile = lang.getString("MEGAGLEST_FONT",iterMap->first);
+//			if(	lang.hasString("MEGAGLEST_FONT_FAMILY")) {
+//				string fontFamily = lang.getString("MEGAGLEST_FONT_FAMILY",iterMap->first);
+//				fontFile = findFont(fontFile.c_str(),fontFamily.c_str());
+//			}
+//
+//			cegui_manager.addFont("MEGAGLEST_FONT_" + iterMap->first, fontFile, 10.0f);
+//			language = iterMap->first + "-[font='" + "MEGAGLEST_FONT_" + iterMap->first + "-10.00']" + iterMap->second;
+//
+//			if(langIsDefault == true) {
+//				defaultLanguageTextFormatted = language;
+//			}
+//		}
+//		langResults.push_back(language);
+//		langResultsMap[language] = langCount;
+//		langCount++;
+//	}
+
+	cegui_manager.addItemsToComboBoxControl(
+			cegui_manager.getChildControl(ctlMisc,"ComboBoxLanguage"), langResultsMap,false);
+
+	cegui_manager.setSelectedItemInComboBoxControl(
+			cegui_manager.getChildControl(ctlMisc,"ComboBoxLanguage"), defaultLanguageTextFormatted,false);
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"ComboBoxLanguage"),defaultLanguageText);
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelPlayerName"),lang.getString("Playername","",false,true));
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"EditboxPlayerName"),config.getString("NetPlayerName",Socket::getHostName().c_str()));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelFontAdjustment"),lang.getString("FontSizeAdjustment","",false,true));
+	cegui_manager.setSpinnerControlValues(cegui_manager.getChildControl(ctlMisc,"SpinnerFontAdjustment"),-5,5,config.getInt("FontSizeAdjustment"));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelScreenshotFormat"),lang.getString("ScreenShotFileType","",false,true));
+	vector<string> langScreenshotFormats;
+	langScreenshotFormats.push_back("bmp");
+	langScreenshotFormats.push_back("jpg");
+	langScreenshotFormats.push_back("png");
+	langScreenshotFormats.push_back("tga");
+
+	cegui_manager.addItemsToComboBoxControl(
+			cegui_manager.getChildControl(ctlMisc,"ComboBoxScreenshotFormat"), langScreenshotFormats);
+	cegui_manager.setSelectedItemInComboBoxControl(
+			cegui_manager.getChildControl(ctlMisc,"ComboBoxScreenshotFormat"), config.getString("ScreenShotFileType","jpg"));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelShowScreenshotSaved"),lang.getString("ScreenShotConsoleText","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlMisc,"CheckboxShowScreenshotSaved"),!config.getBool("DisableScreenshotConsoleText","false"));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelMouseMovesCamera"),lang.getString("MouseScrollsWorld","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlMisc,"CheckboxMouseMovesCamera"),config.getBool("MouseMoveScrollsWorld","true"));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelCameraMoveSpeed"),lang.getString("CameraMoveSpeed","",false,true));
+	cegui_manager.setSliderControlValues(cegui_manager.getChildControl(ctlMisc,"SliderCameraMoveSpeed"),15,50,config.getFloat("CameraMoveSpeed","15"),1);
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelVisibleHUD"),lang.getString("VisibleHUD","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlMisc,"CheckboxVisibleHUD"),config.getBool("VisibleHud","true"));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelChatRemainsActive"),lang.getString("ChatStaysActive","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlMisc,"CheckboxChatRemainsActive"),config.getBool("ChatStaysActive","false"));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelDisplayRealAndGameTime"),lang.getString("TimeDisplay","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlMisc,"CheckboxDisplayRealAndGameTime"),config.getBool("TimeDisplay","true"));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelDisableLuaSandbox"),lang.getString("LuaDisableSecuritySandbox","",false,true));
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlMisc,"CheckboxDisableLuaSandbox"),config.getBool("DisableLuaSandbox","false"));
+
+	cegui_manager.setControlText(cegui_manager.getChildControl(ctlMisc,"LabelAdvancedTranslation"),lang.getString("CustomTranslation","",false,true));
+
+	cegui_manager.setCheckboxControlChecked(cegui_manager.getChildControl(ctlMisc,"CheckboxAdvancedTranslation"),false);
+
+	cegui_manager.setControlText("TabControl/__auto_TabPane__/Misc/GroupBoxAdvancedTranslation/__auto_contentpane__/LabelTransifexUsername",lang.getString("TransifexUserName","",false,true));
+	cegui_manager.setControlText("TabControl/__auto_TabPane__/Misc/GroupBoxAdvancedTranslation/__auto_contentpane__/EditboxTransifexUsername",config.getString("TranslationGetURLUser","<none>"));
+
+	cegui_manager.setControlText("TabControl/__auto_TabPane__/Misc/GroupBoxAdvancedTranslation/__auto_contentpane__/LabelTransifexPassword",lang.getString("TransifexPwd","",false,true));
+	cegui_manager.setControlText("TabControl/__auto_TabPane__/Misc/GroupBoxAdvancedTranslation/__auto_contentpane__/EditboxTransifexPassword",config.getString("TranslationGetURLPassword",""));
+
+	cegui_manager.setControlText("TabControl/__auto_TabPane__/Misc/GroupBoxAdvancedTranslation/__auto_contentpane__/LabelTransifexLanguageCode",lang.getString("TransifexI18N","",false,true));
+	cegui_manager.setControlText("TabControl/__auto_TabPane__/Misc/GroupBoxAdvancedTranslation/__auto_contentpane__/EditboxTransifexLanguageCode",config.getString("TranslationGetURLLanguage","en"));
+
+	cegui_manager.setControlText("TabControl/__auto_TabPane__/Misc/GroupBoxAdvancedTranslation/__auto_contentpane__/ButtonDownloadFromTransifex",lang.getString("TransifexGetLanguageFiles","",false,true));
+	cegui_manager.setControlText("TabControl/__auto_TabPane__/Misc/GroupBoxAdvancedTranslation/__auto_contentpane__/ButtonDeleteDownloadedTransifexFiles",lang.getString("TransifexDeleteLanguageFiles","",false,true));
+
+	cegui_manager.setControlText("TabControl/__auto_TabPane__/Misc/ButtonSave",lang.getString("Save","",false,true));
+	cegui_manager.setControlText("TabControl/__auto_TabPane__/Misc/ButtonReturn",lang.getString("Return","",false,true));
+
+	cegui_manager.hideMessageBox();
+	cegui_manager.hideMessageBox("TabControl/__auto_TabPane__/Misc/LuaMsgBox");
+
+	//throw runtime_error("test!");
+
+*/
+}
+
+void MenuStateCustomGame::callDelayedCallbacks() {
+	if(hasDelayedCallbacks() == true) {
+		while(hasDelayedCallbacks() == true) {
+			DelayCallbackFunction pCB = delayedCallbackList[0];
+			delayedCallbackList.erase(delayedCallbackList.begin());
+			bool hasMoreCallbacks = hasDelayedCallbacks();
+			(this->*pCB)();
+			if(hasMoreCallbacks == false) {
+				return;
+			}
+		}
+	}
+}
+
+void MenuStateCustomGame::delayedCallbackFunctionReturn() {
+	CoreData &coreData				= CoreData::getInstance();
+	SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+
+	soundRenderer.playFx(coreData.getClickSoundA());
+
+	MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+	MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+	needToBroadcastServerSettings = false;
+	needToRepublishToMasterserver = false;
+	lastNetworkPing               = time(NULL);
+	safeMutex.ReleaseLock();
+	safeMutexCLI.ReleaseLock();
+
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	returnToParentMenu();
+}
+
+void MenuStateCustomGame::delayedCallbackFunctionPlayNow() {
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.unsubscribeEvents(this->containerName);
+
+	PlayNow(true);
+}
+
+bool MenuStateCustomGame::EventCallback(CEGUI::Window *ctl, std::string name) {
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	if(name == cegui_manager.getEventButtonClicked()) {
+
+		if(cegui_manager.isControlMessageBoxOk(ctl) == true) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundA());
+			if(mainMessageBoxState == 1) {
+				mainMessageBoxState = 0;
+
+				//DelayCallbackFunction pCB = &MenuStateOptions::delayedCallbackFunctionOk;
+				//delayedCallbackList.push_back(pCB);
+
+				return true;
+			}
+
+			cegui_manager.hideMessageBox();
+		}
+		else if(cegui_manager.isControlMessageBoxCancel(ctl) == true) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundA());
+
+			if(mainMessageBoxState == 1) {
+				mainMessageBoxState = 0;
+			}
+
+			cegui_manager.hideMessageBox();
+		}
+		else if(cegui_manager.isControlMessageBoxOk(ctl,"TabControl/__auto_TabPane__/Misc/LuaMsgBox") == true) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundA());
+			cegui_manager.setCheckboxControlChecked(
+										cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/CheckboxDisableLuaSandbox"),true,true);
+
+			cegui_manager.hideMessageBox("TabControl/__auto_TabPane__/Misc/LuaMsgBox");
+		}
+		else if(cegui_manager.isControlMessageBoxCancel(ctl,"TabControl/__auto_TabPane__/Misc/LuaMsgBox") == true) {
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundA());
+			cegui_manager.setCheckboxControlChecked(
+										cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/CheckboxDisableLuaSandbox"),false,true);
+
+			cegui_manager.hideMessageBox("TabControl/__auto_TabPane__/Misc/LuaMsgBox");
+
+		}
+		else if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/ButtonSave")) {
+
+			DelayCallbackFunction pCB = &MenuStateCustomGame::delayedCallbackFunctionPlayNow;
+			delayedCallbackList.push_back(pCB);
+
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/ButtonReturn")) {
+
+			DelayCallbackFunction pCB = &MenuStateCustomGame::delayedCallbackFunctionReturn;
+			delayedCallbackList.push_back(pCB);
+
+			return true;
+		}
+	}
+	else if(name == cegui_manager.getEventComboboxChangeAccepted()) {
+		if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/ComboBoxLanguage")) {
+
+			int selectedId = cegui_manager.getSelectedItemIdFromComboBoxControl(cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/ComboBoxLanguage"));
+			if(selectedId >= 0) {
+				//map<string,string>::iterator iterMap = languageList.begin();
+				//std::advance(iterMap,selectedId);
+				//string language = iterMap->first + "-" + iterMap->second;
+
+				//cegui_manager.setControlText("TabControl/__auto_TabPane__/Misc/ComboBoxLanguage",language);
+			}
+		}
+	}
+	else if(name == cegui_manager.getEventCheckboxClicked()) {
+
+		if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/CheckboxAdvancedTranslation")) {
+			//setupTransifexUI();
+		}
+		else if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/CheckboxDisableLuaSandbox")) {
+
+			if(cegui_manager.getCheckboxControlChecked(
+					cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/CheckboxDisableLuaSandbox")) == true) {
+
+				cegui_manager.setCheckboxControlChecked(
+							cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/CheckboxDisableLuaSandbox"),false,true);
+
+				//luaMessageBoxState=1;
+				//Lang &lang= Lang::getInstance();
+				//showLuaMessageBox(lang.getString("LuaDisableSecuritySandboxWarning","",false,true), lang.getString("Question","",false,true), false);
+			}
+		}
+
+	}
+	return false;
+}
+
+
 
 void MenuStateCustomGame::cleanupThread(SimpleTaskThread **thread) {
 	//printf("LINE: %d *thread = %p\n",__LINE__,*thread);
@@ -2277,6 +2861,10 @@ void MenuStateCustomGame::render() {
 		    			this->render_mapPreviewTexture_X,
 		    			this->render_mapPreviewTexture_Y,
 		    			&mapPreviewTexture);
+
+		    	//printf("Load Map [%s] [%s]\n",mapPreview.getMapFileLoaded().c_str(),mapPreviewTexture->getPath().c_str());
+		    	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+		    	cegui_manager.setImageForControl("TextureMapPreview",mapPreviewTexture, "ImageMapPreview",true);
 
 		    	//printf("=================> Rendering map preview into a texture AFTER (%p)\n", mapPreviewTexture);
 		    }
@@ -3987,11 +4575,13 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 		listBoxMap.setSelectedItem(formatString(scenarioInfo.mapName));
 	}
 	else {
-		if(gameSettings.getMapFilterIndex() == 0) {
-			listBoxMapFilter.setSelectedItemIndex(0);
-		}
-		else {
-			listBoxMapFilter.setSelectedItem(intToStr(gameSettings.getMapFilterIndex()));
+		if(listBoxMapFilter.getItemCount() > 0) {
+			if(gameSettings.getMapFilterIndex() == 0) {
+				listBoxMapFilter.setSelectedItemIndex(0);
+			}
+			else {
+				listBoxMapFilter.setSelectedItem(intToStr(gameSettings.getMapFilterIndex()));
+			}
 		}
 		listBoxMap.setItems(formattedPlayerSortedMaps[gameSettings.getMapFilterIndex()]);
 	}
@@ -4184,29 +4774,32 @@ bool MenuStateCustomGame::hasNetworkGameSettings() {
 
 void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMapPreview) {
 	try {
+
 		Lang &lang= Lang::getInstance();
 		if(MapPreview::loadMapInfo(file, mapInfo, lang.getString("MaxPlayers"),lang.getString("Size"),true) == true) {
-			ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-			for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-				if(serverInterface->getSlot(i,true) != NULL &&
-					(listBoxControls[i].getSelectedItemIndex() == ctNetwork ||
-					listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned)) {
-					if(serverInterface->getSlot(i,true)->isConnected() == true) {
-						if(i+1 > mapInfo->players &&
-							listBoxControls[i].getSelectedItemIndex() != ctNetworkUnassigned) {
-							listBoxControls[i].setSelectedItemIndex(ctNetworkUnassigned);
+
+			if(listBoxControls[0].getItemCount() > 0) {
+				ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+				for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+					if(serverInterface->getSlot(i,true) != NULL &&
+						(listBoxControls[i].getSelectedItemIndex() == ctNetwork ||
+						listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned)) {
+						if(serverInterface->getSlot(i,true)->isConnected() == true) {
+							if(i+1 > mapInfo->players &&
+								listBoxControls[i].getSelectedItemIndex() != ctNetworkUnassigned) {
+								listBoxControls[i].setSelectedItemIndex(ctNetworkUnassigned);
+							}
 						}
 					}
+
+					labelPlayers[i].setVisible(i+1 <= mapInfo->players);
+					labelPlayerNames[i].setVisible(i+1 <= mapInfo->players);
+					listBoxControls[i].setVisible(i+1 <= mapInfo->players);
+					listBoxFactions[i].setVisible(i+1 <= mapInfo->players);
+					listBoxTeams[i].setVisible(i+1 <= mapInfo->players);
+					labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
 				}
-
-				labelPlayers[i].setVisible(i+1 <= mapInfo->players);
-				labelPlayerNames[i].setVisible(i+1 <= mapInfo->players);
-				listBoxControls[i].setVisible(i+1 <= mapInfo->players);
-				listBoxFactions[i].setVisible(i+1 <= mapInfo->players);
-				listBoxTeams[i].setVisible(i+1 <= mapInfo->players);
-				labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
 			}
-
 			// Not painting properly so this is on hold
 			if(loadMapPreview == true) {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -4217,6 +4810,7 @@ void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMa
 				cleanupMapPreviewTexture();
 			}
 		}
+
 	}
 	catch(exception &e) {
 		SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] Error [%s] loading map [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,e.what(),file.c_str());
@@ -4595,6 +5189,12 @@ void MenuStateCustomGame::loadFactionTexture(string filepath) {
 
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		}
+
+		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+		cegui_manager.setImageFileForControl((factionTexture != NULL ? "ImageFactionPreview_" + filepath : ""),
+				(factionTexture != NULL ? factionTexture->getPath() : ""),
+					"ImageFactionPreview");
+
 	}
 }
 
@@ -4611,6 +5211,9 @@ void MenuStateCustomGame::cleanupMapPreviewTexture() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		delete mapPreviewTexture;
 		mapPreviewTexture = NULL;
+
+    	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+    	cegui_manager.setImageForControl("TextureMapPreview",NULL, "ImageMapPreview",false);
 	}
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
@@ -4883,6 +5486,8 @@ int MenuStateCustomGame::setupMapList(string scenario) {
 
 	try {
 		Config &config = Config::getInstance();
+		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+
 		vector<string> invalidMapList;
 		string scenarioDir = Scenario::getScenarioDir(dirList, scenario);
 		vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
@@ -4933,14 +5538,30 @@ int MenuStateCustomGame::setupMapList(string scenario) {
 
 			//printf("#6.1 about to load map [%s]\n",scenarioInfo.mapName.c_str());
 			loadMapInfo(Config::getMapPath(scenarioInfo.mapName, scenarioDir, true), &mapInfo, false);
-			//printf("#6.2\n");
-			listBoxMapFilter.setSelectedItem(intToStr(mapInfo.players));
-			listBoxMap.setItems(formattedPlayerSortedMaps[mapInfo.players]);
+
+			if(listBoxMapFilter.getItemCount() > 0) {
+				//printf("#6.2\n");
+				listBoxMapFilter.setSelectedItem(intToStr(mapInfo.players));
+				listBoxMap.setItems(formattedPlayerSortedMaps[mapInfo.players]);
+			}
+
+			cegui_manager.addItemsToComboBoxControl(
+					cegui_manager.getControl("ComboMap"), formattedPlayerSortedMaps[mapInfo.players]);
+
 		}
 		else {
-			listBoxMapFilter.setSelectedItemIndex(0);
-			listBoxMap.setItems(formattedPlayerSortedMaps[0]);
+			if(listBoxMapFilter.getItemCount() > 0) {
+				listBoxMapFilter.setSelectedItemIndex(0);
+
+				listBoxMap.setItems(formattedPlayerSortedMaps[0]);
+			}
+
+			cegui_manager.addItemsToComboBoxControl(
+					cegui_manager.getControl("ComboMap"), formattedPlayerSortedMaps[0]);
+
 		}
+
+
 		//printf("#7\n");
 	}
 	catch(const std::exception &ex) {
@@ -4988,6 +5609,16 @@ int MenuStateCustomGame::setupTechList(string scenario, bool forceLoad) {
 
 
 		listBoxTechTree.setItems(results,translatedTechs);
+
+		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+
+		map<string,void*> techTreeList;
+		for(unsigned int index = 0; index < results.size(); index++) {
+			techTreeList[results[index]] = (void *)translatedTechs[index].c_str();
+		}
+		cegui_manager.addItemsToComboBoxControl(
+				cegui_manager.getControl("ComboBoxTechTree"), techTreeList);
+
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
@@ -5138,6 +5769,10 @@ void MenuStateCustomGame::setupTilesetList(string scenario) {
 		std::for_each(results.begin(), results.end(), FormatString());
 
 		listBoxTileset.setItems(results);
+
+		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+		cegui_manager.addItemsToComboBoxControl(
+				cegui_manager.getControl("ComboTileset"), results);
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";

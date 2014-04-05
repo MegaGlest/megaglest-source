@@ -17,15 +17,21 @@
 #include <vector>
 #include "gl_wrap.h"
 #include "window.h"
+#include "texture.h"
 #include "leak_dumper.h"
 
 using namespace std;
 using namespace Shared::Platform;
+using namespace Shared::Graphics;
 
 namespace CEGUI {
 	class Window;
 	//class OpenGLRenderer;
 };
+
+//namespace Shared { namespace Graphics {
+//	class Texture2D;
+//}};
 
 namespace Glest { namespace Game {
 
@@ -131,6 +137,7 @@ public:
 	void setDefaultFont(string fontName, string fontFileName, float fontPointSize);
 
 	void setImageFileForControl(string imageName, string imageFileName, string controlName);
+	void setImageForControl(string textureName,Texture2D *gameTexture, string controlName, bool isTextureTargetVerticallyFlipped);
 
 	CEGUI::Window * cloneMessageBoxControl(string newMessageBoxControlName, CEGUI::Window *rootControlToAddTo=NULL);
 	void subscribeMessageBoxEventClicks(std::string containerName, MegaGlest_CEGUIManagerBackInterface *cb, string rootMessageBoxFullName="");
@@ -153,13 +160,17 @@ public:
 	bool isSelectedTabPage(string tabControlName, string tabPageName);
 
 	void addItemToComboBoxControl(CEGUI::Window *ctl, string value, int id, bool disableFormatting=false);
+	void addItemToComboBoxControl(CEGUI::Window *ctl, string value, int id, void *userData,bool disableFormatting=false);
 	void addItemsToComboBoxControl(CEGUI::Window *ctl, vector<string> valueList, bool disableFormatting=false);
 	void addItemsToComboBoxControl(CEGUI::Window *ctl, map<string,int> mapList, bool disableFormatting=false);
+	void addItemsToComboBoxControl(CEGUI::Window *ctl, map<string,void*> mapList, bool disableFormatting=false);
 	void setSelectedItemInComboBoxControl(CEGUI::Window *ctl, int index);
 	void setSelectedItemInComboBoxControl(CEGUI::Window *ctl, string value, bool disableFormatting=false);
+	void setSelectedUserDataItemInComboBoxControl(CEGUI::Window *ctl, void *value, bool disableFormatting=false);
 	string getSelectedItemFromComboBoxControl(CEGUI::Window *ctl);
 	int getSelectedItemIndexFromComboBoxControl(CEGUI::Window *ctl);
 	int getSelectedItemIdFromComboBoxControl(CEGUI::Window *ctl);
+	void * getSelectedUserDataItemFromComboBoxControl(CEGUI::Window *ctl);
 
 	void addItemToListBoxControl(CEGUI::Window *ctl, string value, int index, bool disableFormatting=false);
 	void addItemsToListBoxControl(CEGUI::Window *ctl, vector<string> valueList, bool disableFormatting=false);

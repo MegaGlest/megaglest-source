@@ -23,6 +23,7 @@
 
 #include <GL/glew.h>
 #include <CEGUI/RendererModules/OpenGL/GLRenderer.h>
+#include <CEGUI/RendererModules/OpenGL/Texture.h>
 #include <CEGUI/CEGUI.h>
 
 #include "megaglest_cegui_manager.h"
@@ -35,8 +36,12 @@
 #include "conversion.h"
 //#include "string_utils.h"
 
+#include "platform_util.h"
+#include "texture_gl.h"
+
 #include "leak_dumper.h"
 
+//using Shared::Graphics::Texture::Format;
 using namespace Shared::PlatformCommon;
 
 namespace Glest { namespace Game {
@@ -721,6 +726,63 @@ void MegaGlest_CEGUIManager::setImageFileForControl(string imageName, string ima
 	}
 }
 
+void MegaGlest_CEGUIManager::setImageForControl(string textureName,Texture2D *gameTexture, string controlName,
+												bool isTextureTargetVerticallyFlipped) {
+
+	string imageType 		= "BasicImage";
+	string imageName 		= "BasicImage_" + textureName;
+	string imageGroupName 	= "MegaGlestImageGroup/" + imageName;
+
+	CEGUI::DefaultWindow* staticImage = static_cast<CEGUI::DefaultWindow*>(getControl(controlName));
+	if(gameTexture != NULL) {
+
+		CEGUI::BasicImage *image = NULL;
+		if( CEGUI::ImageManager::getSingleton().isDefined(imageGroupName) == false ) {
+			image = static_cast<CEGUI::BasicImage*>(&CEGUI::ImageManager::getSingleton().create(imageType, imageGroupName));
+		}
+		else {
+			image = static_cast<CEGUI::BasicImage*>(&CEGUI::ImageManager::getSingleton().get(imageGroupName));
+		}
+
+		CEGUI::Texture *texture = NULL;
+		if(CEGUI::System::getSingletonPtr()->getRenderer()->isTextureDefined(textureName.c_str()) == false) {
+
+			texture = &CEGUI::System::getSingletonPtr()->getRenderer()->createTexture(textureName.c_str());
+		}
+		else {
+			CEGUI::System::getSingletonPtr()->getRenderer()->destroyTexture(textureName.c_str());
+			texture = &CEGUI::System::getSingletonPtr()->getRenderer()->createTexture(textureName.c_str());
+		}
+
+		CEGUI::Sizef buffer_size(gameTexture->getPixmap()->getW(),gameTexture->getPixmap()->getH());
+		CEGUI::Rectf rect(CEGUI::Vector2f(0.0f, 0.0f), buffer_size);
+
+		Gl::TextureGl *glTex = dynamic_cast<Gl::TextureGl *>(gameTexture);
+		CEGUI::OpenGLTexture *ceGuiTex = (CEGUI::OpenGLTexture *)(texture);
+		ceGuiTex->setOpenGLTexture(glTex->getHandle(),buffer_size);
+
+		image->setTexture(texture);
+
+		//Flipping is necessary due to differences between renderers regarding top or bottom being the origin
+		if(isTextureTargetVerticallyFlipped) {
+			rect = CEGUI::Rectf(0.0f, buffer_size.d_height, buffer_size.d_width, 0.0f);
+		}
+		image->setArea(rect);
+		image->setAutoScaled(CEGUI::ASM_Both);
+
+		staticImage->setProperty("Image", imageGroupName);
+		staticImage->setVisible(true);
+	}
+	else {
+		if( CEGUI::ImageManager::getSingleton().isDefined(imageGroupName) == true ) {
+			if(CEGUI::System::getSingletonPtr()->getRenderer()->isTextureDefined(textureName.c_str()) == true) {
+				CEGUI::System::getSingletonPtr()->getRenderer()->destroyTexture(textureName.c_str());
+			}
+		}
+		staticImage->setVisible(false);
+	}
+}
+
 CEGUI::Window * MegaGlest_CEGUIManager::cloneMessageBoxControl(string newMessageBoxControlName,
 		CEGUI::Window *rootControlToAddTo) {
 
@@ -932,6 +994,10 @@ bool MegaGlest_CEGUIManager::isSelectedTabPage(string tabControlName, string tab
 }
 
 void MegaGlest_CEGUIManager::addItemToComboBoxControl(CEGUI::Window *ctl, string value, int id, bool disableFormatting) {
+	addItemToComboBoxControl(ctl, value, id, NULL, disableFormatting);
+}
+
+void MegaGlest_CEGUIManager::addItemToComboBoxControl(CEGUI::Window *ctl, string value, int id, void *userData,bool disableFormatting) {
 	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
 	bool wasReadOnly = combobox->isReadOnly();
 	if(wasReadOnly == true) {
@@ -947,6 +1013,7 @@ void MegaGlest_CEGUIManager::addItemToComboBoxControl(CEGUI::Window *ctl, string
 	const CEGUI::Image *selectionImage = &CEGUI::ImageManager::getSingleton().get(selectionImageName);
 	itemCombobox->setSelectionBrushImage(selectionImage);
 	itemCombobox->setTextParsingEnabled(disableFormatting == false);
+	itemCombobox->setUserData(userData);
 
 	combobox->setTextParsingEnabled(disableFormatting == false);
 	combobox->addItem(itemCombobox);
@@ -982,11 +1049,37 @@ void MegaGlest_CEGUIManager::addItemsToComboBoxControl(CEGUI::Window *ctl, map<s
 	}
 }
 
+void MegaGlest_CEGUIManager::addItemsToComboBoxControl(CEGUI::Window *ctl, map<string,void*> mapList, bool disableFormatting) {
+
+	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
+	combobox->resetList();
+
+	int previousItemCount = 0;
+	for(map<string,void*>::iterator iterMap = mapList.begin();
+			iterMap != mapList.end(); ++iterMap) {
+
+		string value = iterMap->first;
+		void *userData = iterMap->second;
+		int position = previousItemCount;
+
+		addItemToComboBoxControl(ctl, value, position, userData, disableFormatting);
+
+		previousItemCount++;
+	}
+}
+
 string MegaGlest_CEGUIManager::getSelectedItemFromComboBoxControl(CEGUI::Window *ctl) {
 
 	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
 	CEGUI::ListboxItem *itemCombobox = combobox->getSelectedItem();
 	return itemCombobox->getText().c_str();
+}
+
+void * MegaGlest_CEGUIManager::getSelectedUserDataItemFromComboBoxControl(CEGUI::Window *ctl) {
+	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
+	CEGUI::ListboxItem *itemCombobox = combobox->getSelectedItem();
+
+	return itemCombobox->getUserData();
 }
 
 int MegaGlest_CEGUIManager::getSelectedItemIndexFromComboBoxControl(CEGUI::Window *ctl) {
@@ -1035,6 +1128,28 @@ void MegaGlest_CEGUIManager::setSelectedItemInComboBoxControl(CEGUI::Window *ctl
 	CEGUI::ListboxItem *lbItem = combobox->findItemWithText(cegui_value,NULL);
 	//printf("value [%s] [%s] [%p]\n",value.c_str(),cegui_value.c_str(),lbItem);
 	combobox->setItemSelectState(lbItem,true);
+
+	if(wasReadOnly == true) {
+		combobox->setReadOnly(true);
+	}
+}
+
+void MegaGlest_CEGUIManager::setSelectedUserDataItemInComboBoxControl(CEGUI::Window *ctl, void *value, bool disableFormatting) {
+	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
+	bool wasReadOnly = combobox->isReadOnly();
+	if(wasReadOnly == true) {
+		combobox->setReadOnly(false);
+	}
+
+	combobox->setTextParsingEnabled(disableFormatting == false);
+
+	for(size_t index = 0; index < combobox->getItemCount(); ++index) {
+		CEGUI::ListboxItem *lbItem = combobox->getListboxItemFromIndex(index);
+		if(lbItem->getUserData() == value) {
+			combobox->setItemSelectState(lbItem,true);
+			break;
+		}
+	}
 
 	if(wasReadOnly == true) {
 		combobox->setReadOnly(true);

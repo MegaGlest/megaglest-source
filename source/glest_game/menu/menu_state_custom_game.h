@@ -16,6 +16,8 @@
 #include "chat_manager.h"
 #include "simple_threads.h"
 #include "map_preview.h"
+#include "megaglest_cegui_manager.h"
+
 #include "leak_dumper.h"
 
 using namespace Shared::Map;
@@ -40,7 +42,7 @@ enum ParentMenuState {
 // 	class MenuStateCustomGame
 // ===============================
 
-class MenuStateCustomGame : public MenuState, public SimpleTaskCallbackInterface {
+class MenuStateCustomGame : public MenuState, public SimpleTaskCallbackInterface, public MegaGlest_CEGUIManagerBackInterface {
 private:
 	GraphicButton buttonReturn;
 	GraphicButton buttonPlayNow;
@@ -220,6 +222,13 @@ private:
 
     string gameUUID;
 
+	typedef void(MenuStateCustomGame::*DelayCallbackFunction)(void);
+	vector<DelayCallbackFunction> delayedCallbackList;
+
+protected:
+	virtual bool hasDelayedCallbacks() { return delayedCallbackList.empty() == false; }
+	virtual void callDelayedCallbacks();
+
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,
 			bool openNetworkSlots= false, ParentMenuState parentMenuState=pNewGame,
@@ -304,6 +313,15 @@ private:
 	void simpleTaskForMasterServer(BaseThread *callingThread);
 	void simpleTaskForClients(BaseThread *callingThread);
 	void KeepCurrentHumanPlayerSlots(GameSettings &gameSettings);
+
+
+    void delayedCallbackFunctionPlayNow();
+    void delayedCallbackFunctionReturn();
+
+	void setupCEGUIWidgets(bool openNetworkSlots);
+	void setupCEGUIWidgetsText(bool isReload, bool openNetworkSlots);
+	virtual bool EventCallback(CEGUI::Window *ctl, std::string name);
+
 };
 
 }}//end namespace
