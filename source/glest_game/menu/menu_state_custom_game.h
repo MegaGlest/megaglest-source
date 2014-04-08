@@ -44,26 +44,26 @@ enum ParentMenuState {
 
 class MenuStateCustomGame : public MenuState, public SimpleTaskCallbackInterface, public MegaGlest_CEGUIManagerBackInterface {
 private:
-	GraphicButton buttonReturn;
-	GraphicButton buttonPlayNow;
-	GraphicButton buttonRestoreLastSettings;
+	//GraphicButton buttonReturn;
+	//GraphicButton buttonPlayNow;
+	//GraphicButton buttonRestoreLastSettings;
 	GraphicLabel labelControl;
 	GraphicLabel labelRMultiplier;
 	GraphicLabel labelFaction;
 	GraphicLabel labelTeam;
-	GraphicLabel labelMap;
-	GraphicLabel labelFogOfWar;
-	GraphicLabel labelTechTree;
-	GraphicLabel labelTileset;
-	GraphicLabel labelMapInfo;
-	GraphicLabel labelLocalGameVersion;
-	GraphicLabel labelLocalIP;
-	GraphicLabel labelGameName;
+	//GraphicLabel labelMap;
+	//GraphicLabel labelFogOfWar;
+	//GraphicLabel labelTechTree;
+	//GraphicLabel labelTileset;
+	//GraphicLabel labelMapInfo;
+	//GraphicLabel labelLocalGameVersion;
+	//GraphicLabel labelLocalIP;
+	//GraphicLabel labelGameName;
 
-	GraphicListBox listBoxMap;
-	GraphicListBox listBoxFogOfWar;
-	GraphicListBox listBoxTechTree;
-	GraphicListBox listBoxTileset;
+	//GraphicListBox listBoxMap;
+	//GraphicListBox listBoxFogOfWar;
+	//GraphicListBox listBoxTechTree;
+	//GraphicListBox listBoxTileset;
 
 	vector<string> mapFiles;
 	vector<string> playerSortedMaps[GameConstants::maxPlayers+1];
@@ -71,9 +71,10 @@ private:
 	vector<string> techTreeFiles;
 	vector<string> tilesetFiles;
 	vector<string> factionFiles;
-	GraphicLabel labelPlayers[GameConstants::maxPlayers];
+
+	//GraphicLabel labelPlayers[GameConstants::maxPlayers];
 	GraphicLabel labelPlayerNames[GameConstants::maxPlayers];
-	GraphicListBox listBoxControls[GameConstants::maxPlayers];
+	//GraphicListBox listBoxControls[GameConstants::maxPlayers];
 	GraphicButton buttonBlockPlayers[GameConstants::maxPlayers];
 	GraphicListBox listBoxRMultiplier[GameConstants::maxPlayers];
 	GraphicListBox listBoxFactions[GameConstants::maxPlayers];
@@ -83,8 +84,8 @@ private:
 
 	GraphicButton buttonClearBlockedPlayers;
 
-	GraphicLabel labelPublishServer;
-	GraphicCheckBox checkBoxPublishServer;
+	//GraphicLabel labelPublishServer;
+	//GraphicCheckBox checkBoxPublishServer;
 
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
@@ -92,8 +93,8 @@ private:
 	GraphicLabel labelNetworkPauseGameForLaggedClients;
 	GraphicCheckBox checkBoxNetworkPauseGameForLaggedClients;
 
-	GraphicLabel labelMapFilter;
-	GraphicListBox listBoxMapFilter;
+	//GraphicLabel labelMapFilter;
+	//GraphicListBox listBoxMapFilter;
 
 	GraphicLabel labelAdvanced;
 	GraphicCheckBox checkBoxAdvanced;
@@ -239,7 +240,7 @@ public:
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void render();
-	void update();
+	virtual void update();
 
     virtual void keyDown(SDL_KeyboardEvent key);
     virtual void keyPress(SDL_KeyboardEvent c);
@@ -271,7 +272,10 @@ private:
 	void showMessageBox(const string &text, const string &header, bool toggle);
 
 	void saveGameSettingsToFile(std::string fileName);
-	void switchToNextMapGroup(const int direction);
+
+	//void switchToNextMapGroup(const int direction);
+	void switchToMapGroup(const int index);
+
 	void updateAllResourceMultiplier();
 	void updateResourceMultiplier(const int index);
 	string getCurrentMapFile();
@@ -299,7 +303,7 @@ private:
 	void loadScenarioInfo(string file, ScenarioInfo *scenarioInfo);
 	void processScenario();
 	void SetupUIForScenarios();
-	int setupMapList(string scenario);
+	string setupMapList(string scenario);
 	int setupTechList(string scenario, bool forceLoad=false);
 	void reloadFactions(bool keepExistingSelectedItem, string scenario);
 	void setupTilesetList(string scenario);
@@ -315,13 +319,22 @@ private:
 	void KeepCurrentHumanPlayerSlots(GameSettings &gameSettings);
 
 
-    void delayedCallbackFunctionPlayNow();
-    void delayedCallbackFunctionReturn();
+	void delayedCallbackFunctionReturn();
+	void delayedCallbackFunctionReloadLastSettings();
+	void delayedCallbackFunctionPlayNow();
+
 
 	void setupCEGUIWidgets(bool openNetworkSlots);
 	void setupCEGUIWidgetsText(bool isReload, bool openNetworkSlots);
 	virtual bool EventCallback(CEGUI::Window *ctl, std::string name);
 
+	int getSelectedPlayerControlTypeIndex(int index);
+	int getSelectedPlayerControlTypeItemCount(int index);
+	void setPlayerControlTypeVisible(int index, bool visible);
+	void setPlayerControlTypeEnabled(int index, bool enabled);
+	void setPlayerControlTypeSelectedIndex(int index, int indexValue);
+
+	void setPlayerNumberVisible(int index, bool visible);
 };
 
 }}//end namespace

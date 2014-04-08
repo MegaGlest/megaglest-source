@@ -103,6 +103,8 @@ public:
 	CEGUI::Window * setCurrentLayout(string layoutFile, string containerName);
 	void setControlText(string controlName, string text, bool disableFormatting=false);
 	void setControlText(CEGUI::Window *ctl, string text, bool disableFormatting=false);
+	void setControlTextColor(CEGUI::Window *ctl, float red, float green, float blue, float alpha=1.0f);
+	void setControlTextColor(string controlName, float red, float green, float blue, float alpha=1.0f);
 	string getControlText(string controlName);
 	string getControlText(CEGUI::Window *ctl);
 	void setControlEventCallback(string containerName, string controlName,
@@ -112,6 +114,10 @@ public:
 
 	void setControlVisible(string controlName, bool visible);
 	void setControlVisible(CEGUI::Window *ctl, bool visible);
+
+	void setControlReadOnly(CEGUI::Window *ctl, bool readOnly);
+	void setControlEnabled(CEGUI::Window *ctl, bool enabled);
+	bool getControlEnabled(CEGUI::Window *ctl);
 
 	CEGUI::Window * getRootControl();
 	CEGUI::Window * getControl(string controlName, bool recursiveScan=false);
@@ -171,6 +177,7 @@ public:
 	int getSelectedItemIndexFromComboBoxControl(CEGUI::Window *ctl);
 	int getSelectedItemIdFromComboBoxControl(CEGUI::Window *ctl);
 	void * getSelectedUserDataItemFromComboBoxControl(CEGUI::Window *ctl);
+	int getItemCountInComboBoxControl(CEGUI::Window *ctl);
 
 	void addItemToListBoxControl(CEGUI::Window *ctl, string value, int index, bool disableFormatting=false);
 	void addItemsToListBoxControl(CEGUI::Window *ctl, vector<string> valueList, bool disableFormatting=false);

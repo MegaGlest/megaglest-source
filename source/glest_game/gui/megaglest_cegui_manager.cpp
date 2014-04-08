@@ -554,6 +554,20 @@ void MegaGlest_CEGUIManager::setControlText(CEGUI::Window *ctl, string text, boo
 	ctl->setText((CEGUI::encoded_char*)text.c_str());
 }
 
+void MegaGlest_CEGUIManager::setControlTextColor(string controlName, float red, float green, float blue, float alpha) {
+	CEGUI::Window *root = CEGUI::System::getSingleton().
+			getDefaultGUIContext().getRootWindow();
+
+	CEGUI::Window *ctl = root->getChild(controlName);
+
+	setControlTextColor(ctl, red, green, blue, alpha);
+}
+
+void MegaGlest_CEGUIManager::setControlTextColor(CEGUI::Window *ctl, float red, float green, float blue, float alpha) {
+	CEGUI::Colour color(red, green, blue, alpha);
+	ctl->setProperty("TextColours", CEGUI::PropertyHelper<CEGUI::Colour>::toString(color));
+}
+
 string MegaGlest_CEGUIManager::getControlText(string controlName) {
 	CEGUI::Window *root = CEGUI::System::getSingleton().
 			getDefaultGUIContext().getRootWindow();
@@ -1103,6 +1117,11 @@ int MegaGlest_CEGUIManager::getSelectedItemIdFromComboBoxControl(CEGUI::Window *
 	return (itemCombobox != NULL ? itemCombobox->getID() : -1);
 }
 
+int MegaGlest_CEGUIManager::getItemCountInComboBoxControl(CEGUI::Window *ctl) {
+	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
+	return combobox->getItemCount();
+}
+
 void MegaGlest_CEGUIManager::setSelectedItemInComboBoxControl(CEGUI::Window *ctl, int index) {
 	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
 	bool wasReadOnly = combobox->isReadOnly();
@@ -1291,6 +1310,54 @@ void MegaGlest_CEGUIManager::setControlVisible(string controlName, bool visible)
 
 void MegaGlest_CEGUIManager::setControlVisible(CEGUI::Window *ctl, bool visible) {
 	ctl->setVisible(visible);
+}
+
+void MegaGlest_CEGUIManager::setControlReadOnly(CEGUI::Window *ctl, bool readOnly) {
+
+	if(dynamic_cast<CEGUI::Combobox*>(ctl)) {
+		CEGUI::Combobox *combobox = dynamic_cast<CEGUI::Combobox*>(ctl);
+		combobox->setReadOnly(readOnly);
+	}
+//	else if(dynamic_cast<CEGUI::MultiColumnList*>(ctl)) {
+//		CEGUI::MultiColumnList *ctlType = dynamic_cast<CEGUI::MultiColumnList*>(ctl);
+//		ctlType->setReadOnly(readOnly);
+//	}
+//	else if(dynamic_cast<CEGUI::ToggleButton*>(ctl)) {
+//		CEGUI::ToggleButton *ctlType = dynamic_cast<CEGUI::ToggleButton*>(ctl);
+//		ctlType->setReadOnly(readOnly);
+//	}
+//	else if(dynamic_cast<CEGUI::Scrollbar*>(ctl)) {
+//		CEGUI::Scrollbar *ctlType = dynamic_cast<CEGUI::Scrollbar*>(ctl);
+//		ctlType->setReadOnly(readOnly);
+//	}
+//	else if(dynamic_cast<CEGUI::TabControl*>(ctl)) {
+//		CEGUI::TabControl *ctlType = dynamic_cast<CEGUI::TabControl*>(ctl);
+//		ctlType->setReadOnly(readOnly);
+//	}
+//	else if(dynamic_cast<CEGUI::Listbox*>(ctl)) {
+//		CEGUI::Listbox *ctlType = dynamic_cast<CEGUI::Listbox*>(ctl);
+//		ctlType->setReadOnly(readOnly);
+//	}
+//	else if(dynamic_cast<CEGUI::Spinner*>(ctl)) {
+//		CEGUI::Spinner *ctlType = dynamic_cast<CEGUI::Spinner*>(ctl);
+//		ctlType->setReadOnly(readOnly);
+//	}
+//	else if(dynamic_cast<CEGUI::Scrollbar*>(ctl)) {
+//		CEGUI::Scrollbar *ctlType = dynamic_cast<CEGUI::Spinner*>(ctl);
+//		ctlType->setReadOnly(readOnly);
+//	}
+	else if(dynamic_cast<CEGUI::Editbox*>(ctl)) {
+		CEGUI::Editbox *ctlType = dynamic_cast<CEGUI::Editbox*>(ctl);
+		ctlType->setReadOnly(readOnly);
+	}
+}
+
+void MegaGlest_CEGUIManager::setControlEnabled(CEGUI::Window *ctl, bool enabled) {
+	ctl->setEnabled(enabled);
+}
+
+bool MegaGlest_CEGUIManager::getControlEnabled(CEGUI::Window *ctl) {
+	return ctl->isDisabled() == false;
 }
 
 void MegaGlest_CEGUIManager::setColumnsForMultiColumnListControl(CEGUI::Window *ctl, vector<pair<string, float> > columnValues) {
