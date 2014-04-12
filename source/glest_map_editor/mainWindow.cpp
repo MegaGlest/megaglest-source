@@ -110,13 +110,15 @@ namespace MapEditor {
         //edit
         connect(ui->actionUndo, SIGNAL( triggered() ), renderer, SLOT( undo() ));
         connect(ui->actionRedo, SIGNAL( triggered() ), renderer, SLOT( redo() ));
+        connect(ui->actionCopy, SIGNAL( triggered() ), mapman, SLOT( copy() ));
+        connect(ui->actionPaste, SIGNAL( triggered() ), mapman, SLOT( paste() ));
         connect(ui->actionResize, SIGNAL( triggered() ), resize, SLOT( show() ));
         connect(ui->actionReset_Players, SIGNAL( triggered() ), resetPlayers, SLOT( show() ));
         connect(ui->actionFlip_Diagonal, SIGNAL( triggered() ), mapman, SLOT( flipDiagonal() ));
         connect(ui->actionFlip_X, SIGNAL( triggered() ), mapman, SLOT( flipX() ));
         connect(ui->actionFlip_Y, SIGNAL( triggered() ), mapman, SLOT( flipY() ));
         connect(ui->actionCopy_left_to_right, SIGNAL( triggered() ), mapman, SLOT( copyL2R() ));
-        connect(ui->actionCopy, SIGNAL( triggered() ), mapman, SLOT( copyT2B() ));
+        connect(ui->actionCopy_1, SIGNAL( triggered() ), mapman, SLOT( copyT2B() ));
         connect(ui->actionCopy_2, SIGNAL( triggered() ), mapman, SLOT( copyBL2TR() ));
         connect(ui->actionRotate_Left_to_Right, SIGNAL( triggered() ), mapman, SLOT( rotateL2R() ));
         connect(ui->actionTop_to_Bottom, SIGNAL( triggered() ), mapman, SLOT( rotateT2B() ));

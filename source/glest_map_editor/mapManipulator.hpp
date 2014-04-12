@@ -32,6 +32,13 @@ namespace MapEditor{
     class MainWindow;
     class Renderer;
 
+    struct SubMapHeader{
+        int column;
+        int row;
+        int width;
+        int height;
+    };
+
     class MapManipulator: public QObject{
         Q_OBJECT
         public:
@@ -157,8 +164,11 @@ namespace MapEditor{
             void selectionChanged();
             /**
              * fit selection in scene
+             * @param useUserSettings choose if you wanna respect user settings or ignore them
              */
-            void fitSelection();
+            void fitSelection(bool useUserSettings = true);
+            void copy();
+            void paste();
         private:
             void updateEverything();
             /**

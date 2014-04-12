@@ -85,7 +85,7 @@
       <string>Mirror</string>
      </property>
      <addaction name="actionCopy_left_to_right"/>
-     <addaction name="actionCopy"/>
+     <addaction name="actionCopy_1"/>
      <addaction name="actionCopy_2"/>
      <addaction name="separator"/>
      <addaction name="actionRotate_Left_to_Right"/>
@@ -109,6 +109,9 @@
     <addaction name="actionAdvanced"/>
     <addaction name="actionSelect_all"/>
     <addaction name="actionSquare_selection"/>
+    <addaction name="separator"/>
+    <addaction name="actionCopy"/>
+    <addaction name="actionPaste"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -1438,7 +1441,7 @@
     <string>Copy Left to Right</string>
    </property>
   </action>
-  <action name="actionCopy">
+  <action name="actionCopy_1">
    <property name="text">
     <string>Copy Top to Bottom</string>
    </property>
@@ -1536,6 +1539,22 @@
    </property>
    <property name="text">
     <string>Square selection</string>
+   </property>
+  </action>
+  <action name="actionCopy">
+   <property name="text">
+    <string>Copy</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionPaste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
    </property>
   </action>
  </widget>

@@ -18,6 +18,12 @@
 #include <QGraphicsScene>
 #include <QString>
 #include <iostream>
+#include <QApplication>
+#include <QClipboard>
+#include <QByteArray>
+#include <QMimeData>
+
+#include <QDebug>
 
 
 namespace MapEditor{
@@ -266,7 +272,8 @@ namespace MapEditor{
         this->fitSelection();
     }
 
-    void MapManipulator::fitSelection(){
+    void MapManipulator::fitSelection(bool useUserSettings){
+        //check if selection box is within the map
         if(this->selectionStartColumn < 0)
             this->selectionStartColumn = 0;
         if(this->selectionStartRow < 0)
@@ -275,19 +282,185 @@ namespace MapEditor{
             this->selectionEndColumn = this->renderer->getMap()->getH()-1;
         if(this->selectionEndRow > this->renderer->getMap()->getW()-1)
             this->selectionEndRow = this->renderer->getMap()->getW()-1;
-        if(this->selectionsquare){
+        //make the selection a square
+        if(useUserSettings && this->selectionsquare){
             int size =  std::min( (this->selectionEndColumn - this->selectionStartColumn)
                                  ,(this->selectionEndRow - this->selectionStartRow) );
             this->selectionEndColumn = size + this->selectionStartColumn;
             this->selectionEndRow = size + this->selectionStartRow;
         }
+        //update the visual rectangle
         this->renderer->getSelectionRect()->move(this->selectionStartColumn,this->selectionStartRow);
         this->renderer->getSelectionRect()->resize(this->selectionEndColumn - this->selectionStartColumn + 1,this->selectionEndRow - this->selectionStartRow + 1);
     }
 
+    void MapManipulator::copy(){
+        Shared::Map::MapPreview *map = this->renderer->getMap();
+        //store the header infos
+        SubMapHeader header;
+        header.column = this->selectionStartColumn;
+        header.row = this->selectionStartRow;
+        header.height = this->selectionEndColumn - this->selectionStartColumn + 1;
+        header.width = this->selectionEndRow - this->selectionStartRow + 1;
+
+        std::cout << "column: " << header.column << "; row: " << header.row
+            << "; width: " << header.width << "; height: " << header.height << std::endl;
+
+        QByteArray subMapData( (const char*) &header, sizeof(SubMapHeader) );
+        //store the heights
+        for(int column = 0; column < header.height; column++){
+            for(int row = 0; row < header.width; row++){
+                float height = map->getHeight(header.column + column, header.row + row);
+                //convert to bytes
+                subMapData.append(QByteArray( (const char*) &height, sizeof(float) ));
+                ///std::cout << height << ", ";
+            }
+            ///std::cout << std::endl;
+        }
+        ///std::cout << std::endl;
+
+        //store the surfaces
+        for(int column = 0; column < header.height; column++){
+            for(int row = 0; row < header.width; row++){
+                Shared::Map::MapSurfaceType surface = map->getSurface(header.column + column, header.row + row);
+                //convert to bytes
+                subMapData.append(QByteArray( (const char*) &surface, sizeof(Shared::Map::MapSurfaceType) ));
+                ///std::cout << surface << ", ";
+            }
+            ///std::cout << std::endl;
+        }
+        ///std::cout << std::endl;
+
+        //store the resources
+        for(int column = 0; column < header.height; column++){
+            for(int row = 0; row < header.width; row++){
+                int resource = map->getResource(header.column + column, header.row + row);
+                //convert to bytes
+                subMapData.append(QByteArray( (const char*) &resource, sizeof(int) ));
+                ///std::cout << resource << ", ";
+            }
+            ///std::cout << std::endl;
+        }
+        ///std::cout << std::endl;
+
+        //store the objects
+        for(int column = 0; column < header.height; column++){
+            for(int row = 0; row < header.width; row++){
+                int object = map->getObject(header.column + column, header.row + row);
+                //convert to bytes
+                subMapData.append(QByteArray( (const char*) &object, sizeof(int) ));
+                ///std::cout << object << ", ";
+            }
+            ///std::cout << std::endl;
+        }
+        ///std::cout << std::endl;
+        ///qDebug() << "copy (" << subMapData.size() << "): " << subMapData.toHex();
+
+        //create a mime for clipboard
+        QMimeData *mimeData = new QMimeData;
+        mimeData->setData("application/mg-submap", subMapData);
+        QApplication::clipboard()->setMimeData(mimeData);
+
+    }
+    void MapManipulator::paste(){
+        Shared::Map::MapPreview *map = this->renderer->getMap();
+
+        const QMimeData *mimeData = QApplication::clipboard()->mimeData();
+
+        //check if clipboard contains a submap
+        if(mimeData && mimeData->hasFormat("application/mg-submap")){
+            QByteArray subMapData = mimeData->data("application/mg-submap");
+            ///qDebug() << "paste (" << subMapData.size() << "): " << subMapData.toHex();
+
+            //read the header
+            SubMapHeader *header = (SubMapHeader*)( subMapData.left(sizeof(SubMapHeader)).constData() );
+            ///std::cout << "column: " << header->column << "; row: " << header->row
+            ///<< "; width: " << header->width << "; height: " << header->height << std::endl;
+
+            int rowOffset = this->selectionStartRow;
+            int columnOffset = this->selectionStartColumn;
+
+            //only paste within the map
+            int maxWidth = std::min(header->height,map->getH() - rowOffset);
+            int maxHeight = std::min(header->width,map->getW() - columnOffset);
+
+            //resize selection
+            /*this->selectionEndRow = rowOffset + maxHeight - 1;
+            this->selectionEndColumn = columnOffset + maxWidth - 1;*/
+            //this->renderer->getSelectionRect()->resize(maxWidth, maxHeight);
+            //this->fitSelection(false);
+
+            //we need to know, where we want to read
+            int position = sizeof(SubMapHeader);
+
+            //paste the four parts of the map
+            int byteSize;
+            enum MapSection {HEIGHT, SURFACE, RESOURCE, OBJECT};
+            for(int section = HEIGHT; section <= OBJECT; section++){
+                switch(section){
+                    case HEIGHT:
+                        byteSize = sizeof(float);
+                        break;
+                    case SURFACE:
+                        byteSize = sizeof(Shared::Map::MapSurfaceType);
+                        break;
+                    default:
+                        byteSize = sizeof(int);
+                        break;
+                }
+                for(int column = 0; column < maxHeight; column++){
+                    for(int row = 0; row < maxWidth; row++){
+                        switch(section){
+                            case HEIGHT:{
+                                //convert from byte to float
+                                float height = *(float*)(subMapData.mid( position, byteSize ).data());
+                                //insert into map
+                                map->setHeight(columnOffset + column, rowOffset + row, height);
+                                break;
+                            }
+                            case SURFACE:{
+                                //convert from byte to surface
+                                Shared::Map::MapSurfaceType surface = *(Shared::Map::MapSurfaceType*)(subMapData.mid( position, byteSize ).data());
+                                map->setSurface(columnOffset + column, rowOffset + row, surface);
+                                break;
+                            }
+                            case RESOURCE:{
+                                //convert from byte to int
+                                int resource = *(int*)(subMapData.mid( position, byteSize ).data());
+                                map->setResource(columnOffset + column, rowOffset + row, resource);
+                                break;
+                            }
+                            case OBJECT:{
+                                //convert from byte to int
+                                int object = *(int*)(subMapData.mid( position, byteSize ).data());
+                                map->setObject(columnOffset + column, rowOffset + row, object);
+                                break;
+                            }
+                        }
+                        ///std::cout << "(" << subMapData.mid( position, byteSize ).toHex().data() << ") ";
+                        ///std::cout << height << ", ";
+                        position += byteSize;
+                    }
+                    //skip all cells not copied in this column
+                    position += byteSize * (header->width - maxWidth);
+                    ///std::cout << std::endl;
+                }
+                //skip all not copied rows
+                position += byteSize * (header->width) * (header->height - maxHeight);
+                ///std::cout << std::endl;
+            }
+
+            //this action should be reversible
+            this->updateEverything();
+            std::cout << "copy done" << std::endl;
+        }
+    }
+
     void MapManipulator::updateEverything(){//TODO: Just in selection
         this->renderer->updateMap();
+        std::cout << "updeted map" << std::endl;
         this->renderer->recalculateAll();
+        std::cout << "recalculation done" << std::endl;
         this->renderer->addHistory();
     }
 
