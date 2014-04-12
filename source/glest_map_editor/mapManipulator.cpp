@@ -204,17 +204,33 @@ namespace MapEditor{
         this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
+
     void MapManipulator::rotateBL2TR(){
         //this->renderer->getMap()->;
         diagonalTool('c', this->selectionEndColumn, this->selectionEndRow, true, true);
         this->updateEverything();
     }
+
     void MapManipulator::rotateTL2BR(){
         //this->renderer->getMap()->;
         this->updateEverything();
     }
+
     void MapManipulator::switchSurfaces(int a, int b){//TODO: Just in selection
-        //this->renderer->getMap()->;
+        Shared::Map::MapPreview *map = this->renderer->getMap();
+        //cast to surface, surfaces start with 1
+        Shared::Map::MapSurfaceType firstSurface = (Shared::Map::MapSurfaceType)(a + 1);
+        Shared::Map::MapSurfaceType secondSurface = (Shared::Map::MapSurfaceType)(b + 1);
+        //switch everything in selection
+        for(int column = this->selectionStartColumn; column <= this->selectionEndColumn; column++){
+            for(int row = this->selectionStartRow; row <= this->selectionEndRow; row++){
+                if(map->getSurface(column, row) == firstSurface){
+                    map->setSurface(column, row, secondSurface);
+                }else if(map->getSurface(column, row) == secondSurface){
+                    map->setSurface(column, row, firstSurface);
+                }
+            }
+        }
         this->updateEverything();
     }
 

@@ -42,5 +42,6 @@ namespace MapEditor {
         int altitude = ui->inputAltitude->text().toFloat();
         int players = ui->inputPlayers->text().toInt();
         this->mapman->reset(width, height, surface, altitude, players);*/
+        mapman->switchSurfaces(ui->inputSurface_1->currentIndex(), ui->inputSurface_2->currentIndex());
     }
 }
