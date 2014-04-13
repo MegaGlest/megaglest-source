@@ -440,7 +440,7 @@
      <normaloff>:/icons/edit_randomize-heights.png</normaloff>:/icons/edit_randomize-heights.png</iconset>
    </property>
    <property name="text">
-    <string>Randomize Heights</string>
+    <string>Randomize Heights (whole map)</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
@@ -448,7 +448,7 @@
   </action>
   <action name="actionRandomize_Heights_Players">
    <property name="text">
-    <string>Randomize Heights/Players</string>
+    <string>Randomize Heights/Players (whole map)</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+R</string>
@@ -1583,6 +1583,22 @@
     <hint type="destinationlabel">
      <x>290</x>
      <y>184</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>actionSquare_selection</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>actionCopy_2</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
     </hint>
    </hints>
   </connection>

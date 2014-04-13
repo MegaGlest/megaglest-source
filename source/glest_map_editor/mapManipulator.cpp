@@ -186,7 +186,7 @@ namespace MapEditor{
     void MapManipulator::copyBL2TR(){//shit
         //this->renderer->getMap()->;
         //this->axisTool('c', this->selectionEndColumn, this->selectionEndRow, true, true);
-        diagonalTool('c', this->selectionEndColumn, this->selectionEndRow, false, false);
+        diagonalTool('c', this->selectionEndColumn, this->selectionEndRow, false, true, true);
         this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
@@ -207,16 +207,17 @@ namespace MapEditor{
 
     void MapManipulator::rotateBL2TR(){
         //this->renderer->getMap()->;
-        diagonalTool('c', this->selectionEndColumn, this->selectionEndRow, true, true);
+        diagonalTool('c', this->selectionEndColumn, this->selectionEndRow, false, true, false);
         this->updateEverything();
     }
 
     void MapManipulator::rotateTL2BR(){
         //this->renderer->getMap()->;
+        diagonalTool('c', this->selectionEndColumn, this->selectionEndRow, true, false, false);
         this->updateEverything();
     }
 
-    void MapManipulator::switchSurfaces(int a, int b){//TODO: Just in selection
+    void MapManipulator::switchSurfaces(int a, int b){
         Shared::Map::MapPreview *map = this->renderer->getMap();
         //cast to surface, surfaces start with 1
         Shared::Map::MapSurfaceType firstSurface = (Shared::Map::MapSurfaceType)(a + 1);
@@ -251,6 +252,7 @@ namespace MapEditor{
         this->updateEverything();
     }
 
+    //the fuck is this method for??? TODO
     void MapManipulator::resize(int width, int height){
         //TODO: refit the selection and player positions!
         //this->renderer->getMap()->
@@ -547,29 +549,53 @@ namespace MapEditor{
 
     }
 
-    void MapManipulator::diagonalTool(char modus, int columnLimit, int rowLimit, bool invertColumn, bool invertRow){
+    void MapManipulator::diagonalTool(char modus, int columnLimit, int rowLimit, bool invertColumn, bool invertRow, bool mirror){
         //c: copy to; s: swap to
         Shared::Map::MapPreview *gmap = this->renderer->getMap();
+
+        int selectionHeight = this->selectionEndRow - this->selectionStartRow;
+        int selectionWidth = this->selectionEndColumn - this->selectionStartColumn;
+        //ratio
+        double diagonalFactor = (double)selectionHeight / selectionWidth;
+        std::cout << diagonalFactor << std::endl;
         for(int column = this->selectionStartColumn; column <= columnLimit; column++){
-            for(int row = this->selectionStartRow + column; row <= rowLimit; row++){
-                int destinationColumn = column;
+            for(double row = this->selectionStartRow; row <= rowLimit - (column - this->selectionStartColumn) * diagonalFactor; row++){
+                int relativeColumn = column - this->selectionStartColumn;
+                int relativeRow = row - this->selectionStartRow;
+
                 if(invertColumn){
-                    destinationColumn = this->selectionEndColumn - (destinationColumn - this->selectionStartColumn);
+                    relativeColumn = selectionWidth - relativeColumn;
                 }
-                int destinationRow = row;
+
                 if(invertRow){
-                    destinationRow = this->selectionEndRow - (destinationRow - this->selectionStartRow);
+                    relativeRow = selectionHeight - relativeRow;
                 }
+
+                int destinationColumn = this->selectionEndColumn - relativeColumn;
+                int destinationRow = this->selectionEndRow - relativeRow;
+                if(mirror){
+                    destinationColumn = this->selectionEndColumn - relativeRow;
+                    destinationRow = this->selectionEndRow - relativeColumn;
+                    //if just one side is inverted, redo this for mirroring
+                    if(invertRow != invertColumn){
+                        destinationColumn += 2*relativeRow - selectionHeight;
+                        destinationRow += 2*relativeColumn - selectionWidth;
+                    }
+                }
+
+                int sourceColumn = this->selectionStartColumn + relativeColumn;
+                int sourceRow = this->selectionStartRow + relativeRow;
                 switch(modus){
                  case 's':
-                    gmap->swapXY(destinationColumn, destinationRow, column, row);
+                    gmap->swapXY(destinationColumn, destinationRow, sourceColumn, sourceRow);
                     break;
                  case 'c':
-                    gmap->copyXY(destinationColumn, destinationRow, column, row);
+                    gmap->copyXY(destinationColumn, destinationRow, sourceColumn, sourceRow);
                     break;
                 }
             }
         }
+        //TODO: change player positions
         /*int max = gmap->getMaxFactions();
         int freeForChange = 0;//remember which player got repositioned
         for(int i = 0; i < max; i++){
