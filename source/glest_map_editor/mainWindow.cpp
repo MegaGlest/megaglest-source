@@ -23,10 +23,11 @@
 #include "ui_mainWindow.h"
 #include "ui_help.h"
 #include "ui_about.h"
+#include "ui_info.h"
+#include "ui_advanced.h"
 
 #include "newMap.hpp"
-#include "info.hpp"
-#include "advanced.hpp"
+//#include "advanced.hpp"
 #include "switchSurfaces.hpp"
 #include "renderer.hpp"
 #include "mapManipulator.hpp"
@@ -85,9 +86,9 @@ namespace MapEditor {
         newmap = new NewMap(mapman,this);//instance of new map dialog
         resize = new NewMap(mapman,this);//instance of new map dialog
         resetPlayers = new NewMap(mapman,this);//instance of new map dialog
-        info = new Info(mapman,this);//instance of new map dialog
+        //info = new Info(mapman,this);//instance of new map dialog
         switchSurfaces = new SwitchSurfaces(mapman,this);//instance of new map dialog
-        advanced = new Advanced(mapman,this);//instance of new map dialog
+        //advanced = new Advanced(mapman,this);//instance of new map dialog
 
         help = new QDialog(this);//no need for a whole new class
         {
@@ -126,9 +127,9 @@ namespace MapEditor {
         connect(ui->actionRotate_Top_Left_to_Bottom_Right, SIGNAL( triggered() ), mapman, SLOT( rotateTL2BR() ));
         connect(ui->actionRandomize_Heights, SIGNAL( triggered() ), mapman, SLOT( randomizeHeights() ));
         connect(ui->actionRandomize_Heights_Players, SIGNAL( triggered() ), mapman, SLOT( randomizeHeightsAndPlayers() ));
-        connect(ui->actionInfo, SIGNAL( triggered() ), info, SLOT( show() ));
+        connect(ui->actionInfo, SIGNAL( triggered() ), this, SLOT( infoDialog() ));
         connect(ui->actionSwitch_Surfaces, SIGNAL( triggered() ), switchSurfaces, SLOT( show() ));
-        connect(ui->actionAdvanced, SIGNAL( triggered() ), advanced, SLOT( show() ));
+        connect(ui->actionAdvanced, SIGNAL( triggered() ), this, SLOT( advancedDialog() ));
         connect(ui->actionSelect_all, SIGNAL( triggered() ), mapman, SLOT( setSelection() ));
         connect(ui->actionSquare_selection, SIGNAL( toggled(bool) ), mapman, SLOT( enableSelctionsquare(bool) ));
         //view
@@ -287,6 +288,53 @@ namespace MapEditor {
             ui->graphicsView->setDragMode(QGraphicsView::RubberBandDrag);
         }else{
             ui->graphicsView->setDragMode(QGraphicsView::ScrollHandDrag);
+        }
+    }
+
+    void MainWindow::infoDialog(){
+        QString title = QString(this->renderer->getMap()->getTitle().c_str());
+        QString description = QString(this->renderer->getMap()->getDesc().c_str());
+        QString author = QString(this->renderer->getMap()->getAuthor().c_str());
+
+        QDialog info(this);
+        Ui::Info ui;
+        ui.setupUi(&info);
+        //set values
+        ui.inputTitle->setText(title);
+        ui.inputDescription->setText(description);
+        ui.inputAuthor->setText(author);
+
+        if(info.exec()){
+            //get new values
+            title = ui.inputTitle->text();
+            description = ui.inputDescription->text();
+            author = ui.inputAuthor->text();
+            this->renderer->getMapManipulator()->setInfo(title.toStdString(), description.toStdString(), author.toStdString());
+        }
+    }
+
+    void MainWindow::advancedDialog(){
+        int height = this->renderer->getMap()->getHeightFactor();
+        int water = this->renderer->getMap()->getWaterLevel();
+        int cliff = this->renderer->getMap()->getCliffLevel();
+        int camera = this->renderer->getMap()->getCameraHeight();
+
+        QDialog advanced(this);
+        Ui::Advanced ui;
+        ui.setupUi(&advanced);
+        //set values
+        ui.inputHeightFactor->setValue(height);
+        ui.inputWaterLevel->setValue(water);
+        ui.inputCliffLevel->setValue(cliff);
+        ui.inputCameraHeight->setValue(camera);
+
+        if(advanced.exec()){
+            //get new values
+            height = ui.inputHeightFactor->value();
+            water = ui.inputWaterLevel->value();
+            cliff = ui.inputCliffLevel->value();
+            camera = ui.inputCameraHeight->value();
+            this->renderer->getMapManipulator()->setAdvanced(height, water, cliff, camera);
         }
     }
 }// end namespace

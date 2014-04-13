@@ -64,8 +64,8 @@ namespace MapEditor {
             NewMap *resize;
             NewMap *resetPlayers;
             SwitchSurfaces *switchSurfaces;
-            Advanced *advanced;
-            Info *info;
+            //Advanced *advanced;
+            //Info *info;
             QDialog *help;
             QDialog *about;
             QGraphicsScene *scene;
@@ -79,6 +79,8 @@ namespace MapEditor {
             void quickSave();
             void showPreview();
             void mouseBehavior(bool checked);
+            void infoDialog();
+            void advancedDialog();
     };
 }// end namespace
 

@@ -475,10 +475,9 @@ namespace MapEditor{
     }
 
     void MapManipulator::updateEverything(){//TODO: Just in selection
+        //only makes sense if paste changes selected area
         this->renderer->updateMap();
-        std::cout << "updeted map" << std::endl;
         this->renderer->recalculateAll();
-        std::cout << "recalculation done" << std::endl;
         this->renderer->addHistory();
     }
 
