@@ -29,7 +29,16 @@
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <item>
@@ -53,7 +62,7 @@
      <x>0</x>
      <y>0</y>
      <width>792</width>
-     <height>21</height>
+     <height>19</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -224,14 +233,6 @@
     <addaction name="actionPlayer_7"/>
     <addaction name="actionPlayer_8"/>
    </widget>
-   <widget class="QMenu" name="menuMouse">
-    <property name="title">
-     <string>Mouse</string>
-    </property>
-    <addaction name="actionDraw"/>
-    <addaction name="actionMove"/>
-    <addaction name="actionSelect"/>
-   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
@@ -242,7 +243,6 @@
    <addaction name="menuHeight"/>
    <addaction name="menuRadius"/>
    <addaction name="menuPlayer"/>
-   <addaction name="menuMouse"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <property name="sizeIncrement">

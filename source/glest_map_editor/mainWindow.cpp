@@ -337,6 +337,30 @@ namespace MapEditor {
             this->renderer->getMapManipulator()->setAdvanced(height, water, cliff, camera);
         }
     }
+
+    void MainWindow::close(){
+        if(this->renderer->getMap()->getHasChanged()){
+            QMessageBox modified;
+            modified.setText(tr("The document has been modified."));
+            modified.setInformativeText(tr("Do you want to save your changes?"));
+            modified.setStandardButtons(QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+            modified.setDefaultButton(QMessageBox::Save);
+            int status = modified.exec();
+            switch (status) {
+                case QMessageBox::Save:
+                    this->quickSave();
+                case QMessageBox::Discard:
+                    QMainWindow::close();
+                    break;
+                case QMessageBox::Cancel:
+                    break;
+                default:
+                    break;
+            }
+        }else{
+            QMainWindow::close();
+        }
+    }
 }// end namespace
 
 

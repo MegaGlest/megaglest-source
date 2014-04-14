@@ -81,6 +81,7 @@ namespace MapEditor {
             void mouseBehavior(bool checked);
             void infoDialog();
             void advancedDialog();
+            void close();
     };
 }// end namespace
 
