@@ -81,7 +81,7 @@ namespace MapEditor {
             void mouseBehavior(bool checked);
             void infoDialog();
             void advancedDialog();
-            void close();
+            virtual void closeEvent ( QCloseEvent * event );
     };
 }// end namespace
 

@@ -41,6 +41,7 @@
 #include <QLabel>
 //#include <QAction>
 //#include <memory>
+#include <QCloseEvent>
 
 using namespace Shared::PlatformCommon;
 using namespace Glest::Game;
@@ -337,8 +338,7 @@ namespace MapEditor {
             this->renderer->getMapManipulator()->setAdvanced(height, water, cliff, camera);
         }
     }
-
-    void MainWindow::close(){
+    void MainWindow::closeEvent(QCloseEvent *event){
         if(this->renderer->getMap()->getHasChanged()){
             QMessageBox modified;
             modified.setText(tr("The document has been modified."));
@@ -350,15 +350,14 @@ namespace MapEditor {
                 case QMessageBox::Save:
                     this->quickSave();
                 case QMessageBox::Discard:
-                    QMainWindow::close();
-                    break;
-                case QMessageBox::Cancel:
+                    event->accept();
                     break;
                 default:
+                    event->ignore();
                     break;
             }
         }else{
-            QMainWindow::close();
+            event->accept();
         }
     }
 }// end namespace
