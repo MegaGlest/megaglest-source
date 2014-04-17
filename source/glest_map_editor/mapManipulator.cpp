@@ -39,11 +39,7 @@ namespace MapEditor{
 
     void MapManipulator::setRenderer( Renderer *renderer){
         this->renderer = renderer;
-        this->selectionStartColumn = 0;
-        this->selectionStartRow = 0;
-        //std::cout << this->renderer->getMap() << std::endl;
-        this->selectionEndColumn = this->renderer->getHeight()-1;
-        this->selectionEndRow = this->renderer->getWidth()-1;
+        this->selectAll();
 
         this->selectionsquare = true;//selectionfield is a square
         //height and width of selectionfield is a power of two
@@ -134,7 +130,7 @@ namespace MapEditor{
         this->renderer->updateMaxPlayers();
         this->renderer->resize();//changes width and height; updates and recalculates map
         this->renderer->clearHistory();
-        this->fitSelection();
+        this->selectAll();
     }
 
     void MapManipulator::flipDiagonal(){
@@ -273,6 +269,15 @@ namespace MapEditor{
             this->selectionEndColumn = endColumn;
             this->selectionEndRow = endRow;
         }
+        this->fitSelection();
+    }
+
+    void MapManipulator::selectAll(){
+        this->selectionStartColumn = 0;
+        this->selectionStartRow = 0;
+        //std::cout << this->renderer->getMap() << std::endl;
+        this->selectionEndColumn = this->renderer->getHeight()-1;
+        this->selectionEndRow = this->renderer->getWidth()-1;
         this->fitSelection();
     }
 

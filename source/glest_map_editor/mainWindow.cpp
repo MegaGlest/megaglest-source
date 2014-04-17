@@ -131,7 +131,7 @@ namespace MapEditor {
         connect(ui->actionInfo, SIGNAL( triggered() ), this, SLOT( infoDialog() ));
         connect(ui->actionSwitch_Surfaces, SIGNAL( triggered() ), switchSurfaces, SLOT( show() ));
         connect(ui->actionAdvanced, SIGNAL( triggered() ), this, SLOT( advancedDialog() ));
-        connect(ui->actionSelect_all, SIGNAL( triggered() ), mapman, SLOT( setSelection() ));
+        connect(ui->actionSelect_all, SIGNAL( triggered() ), mapman, SLOT( selectAll() ));
         connect(ui->actionSquare_selection, SIGNAL( toggled(bool) ), mapman, SLOT( enableSelctionsquare(bool) ));
         //view
         connect(ui->actionZoom_in, SIGNAL( triggered() ), renderer, SLOT( zoomIn() ));

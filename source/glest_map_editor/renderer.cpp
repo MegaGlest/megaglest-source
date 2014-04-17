@@ -100,6 +100,7 @@ namespace MapEditor {
         }
         this->updatePlayerPositions();
         this->updateMaxPlayers();
+        this->mapman->selectAll();
         this->clearHistory();
     }
 
