@@ -279,7 +279,7 @@ namespace MapEditor {
         //frameRect();
         QRect rect = this->mapman->getWindow()->getView()->frameRect();
         //getting dimension that fit them all
-        int dimension = std::min(rect.height()/(double)this->height,rect.width()/(double)this->width);
+        int dimension = min(rect.height()/(double)this->height,rect.width()/(double)this->width);
         Tile::modifySize(dimension-Tile::getSize());
         this->scene->setSceneRect(this->scene->itemsBoundingRect());
         this->updateTiles();
