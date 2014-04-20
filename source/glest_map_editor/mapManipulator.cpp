@@ -16,7 +16,6 @@
 #include "tile.hpp"
 
 #include <iostream>
-#include <algorithm>
 
 #include <QAction>
 #include <QGraphicsScene>
@@ -310,7 +309,7 @@ namespace MapEditor{
             this->selectionEndRow = this->renderer->getMap()->getW()-1;
         //make the selection a square
         if(useUserSettings && this->selectionsquare){
-            int size =  std::min( (this->selectionEndColumn - this->selectionStartColumn)
+            int size =  min( (this->selectionEndColumn - this->selectionStartColumn)
                                  ,(this->selectionEndRow - this->selectionStartRow) );
             this->selectionEndColumn = size + this->selectionStartColumn;
             this->selectionEndRow = size + this->selectionStartRow;
@@ -407,8 +406,8 @@ namespace MapEditor{
             int columnOffset = this->selectionStartColumn;
 
             //only paste within the map
-            int maxWidth = std::min(header->height,map->getH() - rowOffset);
-            int maxHeight = std::min(header->width,map->getW() - columnOffset);
+            int maxWidth = min(header->height,map->getH() - rowOffset);
+            int maxHeight = min(header->width,map->getW() - columnOffset);
 
             //resize selection
             /*this->selectionEndRow = rowOffset + maxHeight - 1;
