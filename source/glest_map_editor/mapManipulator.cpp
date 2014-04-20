@@ -14,10 +14,13 @@
 #include "selection.hpp"
 #include "map_preview.h"
 #include "tile.hpp"
+
+#include <iostream>
+#include <algorithm>
+
 #include <QAction>
 #include <QGraphicsScene>
 #include <QString>
-#include <iostream>
 #include <QApplication>
 #include <QClipboard>
 #include <QByteArray>
