@@ -28,9 +28,8 @@
 
 #ifdef WIN32
 
-  #include <winsock2.h>
   #include <windows.h>
-  //isnt that part of windows.h?
+  #include <winsock2.h>
   #include <winsock.h>
   #include <iphlpapi.h>
   #include <strstream>
@@ -1305,7 +1304,7 @@ int Socket::send(const void *data, int dataSize) {
 		int totalBytesSent = bytesSent;
 		int attemptCount = 0;
 
-
+		
 	    time_t tStartTimer = time(NULL);
 	    while(((bytesSent > 0 && totalBytesSent < dataSize) ||
 	    		(bytesSent < 0 && lastSocketError == PLATFORM_SOCKET_TRY_AGAIN)) &&
