@@ -12,6 +12,7 @@
 #define _SHARED_PLATFORM_PLATFORMCOMMON_H_
 
 #ifdef WIN32
+#include <winsock2.h>
 #include <windows.h>
 #endif
 

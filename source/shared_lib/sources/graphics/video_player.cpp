@@ -17,6 +17,7 @@
 #include <time.h>
 
 #if defined(WIN32)
+#include <winsock2.h>
 #include <windows.h>
 #endif
 
@@ -47,7 +48,7 @@ typedef unsigned __int64 uint64_t;
 */
 std::string getRegKey(const std::string& location, const std::string& name){
     HKEY key;
-    CHAR value[1024]; 
+    CHAR value[1024];
     DWORD bufLen = 1024*sizeof(CHAR);
     long ret;
     ret = RegOpenKeyExA(HKEY_LOCAL_MACHINE, location.c_str(), 0, KEY_QUERY_VALUE, &key);
@@ -64,7 +65,7 @@ std::string getRegKey(const std::string& location, const std::string& name){
     while( i > 0 && stringValue[i-1] == '\0' ){
         --i;
     }
-    return stringValue.substr(0,i); 
+    return stringValue.substr(0,i);
 }
 #endif
 
@@ -1195,7 +1196,7 @@ void VideoPlayer::PlayVideo() {
 		}
 		if(libvlc == NULL) {
 			_putenv("VLC_PLUGIN_PATH=c:\\program files (x86)\\videolan\\vlc\\plugins");
-			
+
 			if(verboseEnabled) printf("Trying [%s]\n",getenv("VLC_PLUGIN_PATH"));
 			libvlc = libvlc_new(vlc_argc, &vlc_argv[0]);
 		}
@@ -1245,7 +1246,7 @@ void VideoPlayer::PlayVideo() {
 			libvlc_event_attach(eventManager, libvlc_MediaPlayerEncounteredError, (libvlc_callback_t)trapErrorEvent, ctxPtr);
 		}
 #endif
-		
+
 		ctxPtr->isPlaying = true;
 #if defined(LIBVLC_VERSION_PRE_2) && defined(LIBVLC_VERSION_PRE_1_1_0)
 		int play_result = libvlc_media_player_play(mp,&ex);
@@ -1425,7 +1426,7 @@ bool VideoPlayer::playFrame(bool swapBuffers) {
 		return ctxPtr->needToQuit;
 	}
 	else {
-		return false; 
+		return false;
 	}
 }
 
