@@ -275,11 +275,11 @@ namespace MapEditor {
             path.lineTo(point);
             //checking a bounding rectangle with possible tiles between the points
             //limited by map size
-            int width = std::min(std::max(lastColumn,column),this->renderer->getWidth()-1);
-            int height = std::min(std::max(lastRow,row),this->renderer->getHeight()-1);
+            int width = min(std::max(lastColumn,column),this->renderer->getWidth()-1);
+            int height = min(std::max(lastRow,row),this->renderer->getHeight()-1);
 
-            for(int nextColumn = std::max(0,std::min(lastColumn,column)); nextColumn <= width; nextColumn++){
-                for(int nextRow = std::max(0,std::min(lastRow,row)); nextRow <= height; nextRow++){
+            for(int nextColumn = std::max(0,min(lastColumn,column)); nextColumn <= width; nextColumn++){
+                for(int nextRow = std::max(0,min(lastRow,row)); nextRow <= height; nextRow++){
                     if(this->renderer->at(nextColumn,nextRow)->collidesWithPath(path)){
                         this->renderer->getMapManipulator()->changeTile(nextColumn, nextRow);
                     }
