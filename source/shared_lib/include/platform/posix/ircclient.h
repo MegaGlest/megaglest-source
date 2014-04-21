@@ -14,7 +14,6 @@
 
 #ifdef WIN32
     #include <winsock2.h>
-    #include <winsock.h>
 #endif
 
 #include "base_thread.h"

@@ -3,10 +3,10 @@
 //
 // Copyright (C) 2011 - by Mark Vejvoda <mark_vejvoda@hotmail.com>
 //
-//	You can redistribute this code and/or modify it under
-//	the terms of the GNU General Public License as published
-//	by the Free Software Foundation; either version 2 of the
-//	License, or (at your option) any later version
+//  You can redistribute this code and/or modify it under
+//  the terms of the GNU General Public License as published
+//  by the Free Software Foundation; either version 2 of the
+//  License, or (at your option) any later version
 // ==============================================================
 
 #ifndef _SHADER_G3DVIEWER_MAIN_H_
@@ -14,7 +14,6 @@
 
 #ifdef WIN32
     #include <winsock2.h>
-    #include <winsock.h>
 #endif
 
 #include <string>
@@ -38,30 +37,30 @@
 using std::string;
 using namespace Glest::Game;
 
-	namespace Ui {
-		class MainWindow;
-	}
+    namespace Ui {
+        class MainWindow;
+    }
 
-	class MainWindow : public QMainWindow
-	{
-		Q_OBJECT
+    class MainWindow : public QMainWindow
+    {
+        Q_OBJECT
 
-	public:
-		explicit MainWindow(QWidget *parent = 0);
-		~MainWindow();
+    public:
+        explicit MainWindow(QWidget *parent = 0);
+        ~MainWindow();
 
-	protected:
-		void changeEvent(QEvent *e);
+    protected:
+        void changeEvent(QEvent *e);
 
-	private:
-		Ui::MainWindow *ui;
-		QActionGroup *playerGroup;
-		
+    private:
+        Ui::MainWindow *ui;
+        QActionGroup *playerGroup;
 
-	private slots:
-		void colorChooser();
-		void openXMLFile();
-		void openG3DFile();
-	};
+
+    private slots:
+        void colorChooser();
+        void openXMLFile();
+        void openG3DFile();
+    };
 
 #endif

@@ -3,10 +3,10 @@
 //
 // Copyright (C) 2011 - by Mark Vejvoda <mark_vejvoda@hotmail.com>
 //
-//	You can redistribute this code and/or modify it under
-//	the terms of the GNU General Public License as published
-//	by the Free Software Foundation; either version 2 of the
-//	License, or (at your option) any later version
+//  You can redistribute this code and/or modify it under
+//  the terms of the GNU General Public License as published
+//  by the Free Software Foundation; either version 2 of the
+//  License, or (at your option) any later version
 // ==============================================================
 
 #include "main.h"
@@ -66,7 +66,7 @@ string fileFormat = "png";
 namespace Glest { namespace Game {
 
 string getGameReadWritePath(string lookupKey) {
-	string path = "";
+    string path = "";
     if(path == "" && getenv("GLESTHOME") != NULL) {
         path = safeCharPtrCopy(getenv("GLESTHOME"),8096);
         if(path != "" && EndsWith(path, "/") == false && EndsWith(path, "\\") == false) {
@@ -83,91 +83,91 @@ string getGameReadWritePath(string lookupKey) {
 #include "main.h"
 #include "ui_main.h"
 //namespace MapEditor {
-	MainWindow::MainWindow(QWidget *parent) :
-		QMainWindow(parent),
-		ui(new Ui::MainWindow)
-	{
-		ui->setupUi(this);
+    MainWindow::MainWindow(QWidget *parent) :
+        QMainWindow(parent),
+        ui(new Ui::MainWindow)
+    {
+        ui->setupUi(this);
 
-		connect(ui->actionChange_Background_Color,SIGNAL(triggered()),this,SLOT(colorChooser()));
-		connect(ui->actionLoad_G3D_Model,SIGNAL(triggered()),this,SLOT(openG3DFile()));
-		connect(ui->actionLoad_Particle_XML,SIGNAL(triggered()),this,SLOT(openXMLFile()));
-		connect(ui->actionLoad_Projectile_Particle_XML,SIGNAL(triggered()),this,SLOT(openXMLFile()));
-		connect(ui->actionLoad_Splash_Particle_XML,SIGNAL(triggered()),this,SLOT(openXMLFile()));
-		
-		playerGroup = new QActionGroup(this);
-		playerGroup->addAction(ui->actionPlayer_1);
-		playerGroup->addAction(ui->actionPlayer_2);
-		playerGroup->addAction(ui->actionPlayer_3);
-		playerGroup->addAction(ui->actionPlayer_4);
-		playerGroup->addAction(ui->actionPlayer_5);
-		playerGroup->addAction(ui->actionPlayer_6);
-		playerGroup->addAction(ui->actionPlayer_7);
-		playerGroup->addAction(ui->actionPlayer_8);
+        connect(ui->actionChange_Background_Color,SIGNAL(triggered()),this,SLOT(colorChooser()));
+        connect(ui->actionLoad_G3D_Model,SIGNAL(triggered()),this,SLOT(openG3DFile()));
+        connect(ui->actionLoad_Particle_XML,SIGNAL(triggered()),this,SLOT(openXMLFile()));
+        connect(ui->actionLoad_Projectile_Particle_XML,SIGNAL(triggered()),this,SLOT(openXMLFile()));
+        connect(ui->actionLoad_Splash_Particle_XML,SIGNAL(triggered()),this,SLOT(openXMLFile()));
 
-	}
+        playerGroup = new QActionGroup(this);
+        playerGroup->addAction(ui->actionPlayer_1);
+        playerGroup->addAction(ui->actionPlayer_2);
+        playerGroup->addAction(ui->actionPlayer_3);
+        playerGroup->addAction(ui->actionPlayer_4);
+        playerGroup->addAction(ui->actionPlayer_5);
+        playerGroup->addAction(ui->actionPlayer_6);
+        playerGroup->addAction(ui->actionPlayer_7);
+        playerGroup->addAction(ui->actionPlayer_8);
 
-	MainWindow::~MainWindow()
-	{
-		delete ui;
-	}
+    }
 
-		//for translation ... somehow
-	void MainWindow::changeEvent(QEvent *e)
-	{
-		QMainWindow::changeEvent(e);
-		switch (e->type()) {
-		case QEvent::LanguageChange:
-			ui->retranslateUi(this);
-			break;
-		default:
-			break;
-		}
-	}
+    MainWindow::~MainWindow()
+    {
+        delete ui;
+    }
 
-	void MainWindow::colorChooser(){
-		QColor chosen = QColorDialog::getColor(QColor(0x00,0x00,0x00));
-	}
+        //for translation ... somehow
+    void MainWindow::changeEvent(QEvent *e)
+    {
+        QMainWindow::changeEvent(e);
+        switch (e->type()) {
+        case QEvent::LanguageChange:
+            ui->retranslateUi(this);
+            break;
+        default:
+            break;
+        }
+    }
 
-	void MainWindow::openG3DFile(){
-		Config &config = Config::getInstance();
-		string userData = config.getString("UserData_Root","");
-		string defaultPath = userData + "maps/";
-		QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),QString::fromStdString(defaultPath),tr("G3D file (*.g3d)"));
-		/*if(fileName != NULL){
-			this->renderer->open(fileName.toStdString());
-		}*/
-	}
+    void MainWindow::colorChooser(){
+        QColor chosen = QColorDialog::getColor(QColor(0x00,0x00,0x00));
+    }
 
-	void MainWindow::openXMLFile(){
-		Config &config = Config::getInstance();
-		string userData = config.getString("UserData_Root","");
-		string defaultPath = userData + "maps/";
-		QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),QString::fromStdString(defaultPath),tr("XML file (*.xml)"));
-	}
+    void MainWindow::openG3DFile(){
+        Config &config = Config::getInstance();
+        string userData = config.getString("UserData_Root","");
+        string defaultPath = userData + "maps/";
+        QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),QString::fromStdString(defaultPath),tr("G3D file (*.g3d)"));
+        /*if(fileName != NULL){
+            this->renderer->open(fileName.toStdString());
+        }*/
+    }
+
+    void MainWindow::openXMLFile(){
+        Config &config = Config::getInstance();
+        string userData = config.getString("UserData_Root","");
+        string defaultPath = userData + "maps/";
+        QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),QString::fromStdString(defaultPath),tr("XML file (*.xml)"));
+    }
 
 //initialize and open the window
 int main(int argc, char *argv[]){
-	string version = "1.4.0";
-	
-	QApplication a(argc, argv);
-	QStringList args = a.arguments();
+    string version = "1.4.0";
 
-	if(args.contains("--help") || args.contains("-h") || args.contains("-H") || args.contains("-?") || args.contains("?") || args.contains("-help") ){
-		cout << "MegaGlest G3D Viewer v" << version << endl << endl;
-		cout << "does stuff" << endl << endl;
-		cout << endl;
-		exit (0);
-	}
-	if(args.contains("--version")){
-		cout << version << endl;
+    QApplication a(argc, argv);
+    QStringList args = a.arguments();
 
-		cout << endl;
-		exit (0);
-	}
-	MainWindow w;
-	w.show();
+    if(args.contains("--help") || args.contains("-h") || args.contains("-H") || args.contains("-?") || args.contains("?") || args.contains("-help") ){
+        cout << "MegaGlest G3D Viewer v" << version << endl << endl;
+        cout << "does stuff" << endl << endl;
+        cout << endl;
+        exit (0);
+    }
+    if(args.contains("--version")){
+        cout << version << endl;
 
-	
-	return a.exec();
+        cout << endl;
+        exit (0);
+    }
+    MainWindow w;
+    w.show();
+
+
+    return a.exec();
 }

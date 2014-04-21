@@ -17,7 +17,6 @@
 	   #include <winsock2.h>
     #else
        #include <winsock2.h>
-       #include <winsock.h>
     #endif
 
 	typedef SOCKET PLATFORM_SOCKET;
