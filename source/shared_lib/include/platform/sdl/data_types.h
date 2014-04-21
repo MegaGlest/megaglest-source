@@ -23,7 +23,8 @@
 #else
 
 //don't include winsock.h and don't break std::max and std::min
-#include <winsock2.h>
+#undef _WINSOCKAPI_
+#define _WINSOCKAPI_
 #undef NOMINMAX
 #define NOMINMAX
 #include <windows.h>
