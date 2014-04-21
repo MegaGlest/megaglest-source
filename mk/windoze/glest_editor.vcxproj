@@ -1,5 +1,30 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--Rules>
+    <CustomBuildRule
+      Name="qtmoc"
+      DisplayName="Qt moc"
+      CommandLine="$(QTDIR)\bin\moc.exe $(FullPath) -o .\GeneratedFiles\$(ConfigurationName)\moc_%(InputName).cpp  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB  -I.\GeneratedFiles -I. -I$(QTDIR)\include -I.\GeneratedFiles\$(ConfigurationName)\. -I$(QTDIR)\include\QtCore -I$(QTDIR)\include\QtGui -I$(QTDIR)\include\QtOpenGL -I$(QTDIR)\include\QtWidgets"
+      Outputs=".\GeneratedFiles\$(ConfigurationName)\moc_%(InputName).cpp"
+      FileExtensions="*.hpp"
+      ExecutionDescription="moc  $(InputName)"
+    >
+      <Properties>
+      </Properties>
+    </CustomBuildRule>
+  </Rules-->
+  <!--ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\mainWindow.hpp">
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing ..\..\source\glest_map_editor\mainWindow.hpp...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets"</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Moc%27ing ..\..\source\glest_map_editor\mainWindow.hpp...</Message>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets"</Command>
+    </CustomBuild>
+  </ItemGroup-->
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -34,12 +59,15 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="Qt5Macros.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="Qt5Macros.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="Qt5Macros.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -59,8 +87,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\source\windows_deps\wxWidgets-2.9.3\lib\vc_lib\mswu;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\windows_deps\include;..\..\source\shared_lib\include\graphics;..\..\source\windows_deps\wxWidgets-2.9.3\include;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/streflop;../../source/shared_lib/include/platform/common;../../source/windows_deps/SDL-1.2.15/include;../../source/windows_deps/curl-7.21.3/include;../../source/shared_lib/include/map;..\..\source\glest_game\global;..\..\source\glest_game\game;..\..\source\glest_game\facilities;..\..\source\shared_lib\include\xml;..\..\source\shared_lib\include\xml\rapidxml;../../source/windows_deps/xerces-c-3.1.1/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;_WINDOWS;WIN32;CURL_STATICLIB;UNICODE;_UNICODE;GLEW_STATIC;ZLIB_WINAPI_DEBUG;_WINDOWS;WIN32;CURL_STATICLIB;UNICODE;_UNICODE;GLEW_STATIC;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\source\windows_deps\wxWidgets-2.9.3\lib\vc_lib\mswu;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\windows_deps\include;..\..\source\shared_lib\include\graphics;..\..\source\windows_deps\wxWidgets-2.9.3\include;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/streflop;../../source/shared_lib/include/platform/common;../../source/windows_deps/SDL-1.2.15/include;../../source/windows_deps/curl-7.21.3/include;../../source/shared_lib/include/map;..\..\source\glest_game\global;..\..\source\glest_game\game;..\..\source\glest_game\facilities;..\..\source\shared_lib\include\xml;..\..\source\shared_lib\include\xml\rapidxml;../../source/windows_deps/xerces-c-3.1.1/src;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtOpenGL;$(QTDIR)\include\QtWidgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;WIN32;CURL_STATICLIB;UNICODE;_UNICODE;GLEW_STATIC;ZLIB_WINAPI_DEBUG;ZLIB_WINAPI;QT_DLL;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -76,9 +104,9 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>wxbase29u.lib;wxbase29u_net.lib;wxbase29u_xml.lib;wxexpat.lib;wxjpeg.lib;wxmsw29u_adv.lib;wxmsw29u_aui.lib;wxmsw29u_core.lib;wxmsw29u_gl.lib;wxmsw29u_html.lib;wxmsw29u_media.lib;wxmsw29u_qa.lib;wxmsw29u_richtext.lib;wxmsw29u_xrc.lib;wxpng.lib;wxregexu.lib;wxtiff.lib;winmm.lib;rpcrt4.lib;kernel32.lib;user32.lib;gdi32.lib;ole32.lib;oleaut32.lib;comctl32.lib;comdlg32.lib;uuid.lib;advapi32.lib;shell32.lib;libglest.lib;sdl.lib;sdlmain.lib;dsound.lib;dxguid.lib;Dbghelp.lib;libcurl.lib;ws2_32.lib;ftgl_static.lib;freetype244MT.lib;zlibstat.lib;libeay32.lib;ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;rpcrt4.lib;kernel32.lib;user32.lib;gdi32.lib;ole32.lib;oleaut32.lib;comctl32.lib;comdlg32.lib;uuid.lib;advapi32.lib;shell32.lib;libglest.lib;sdl.lib;sdlmain.lib;dsound.lib;dxguid.lib;Dbghelp.lib;libcurl.lib;ws2_32.lib;ftgl_static.lib;freetype244MT.lib;zlibstat.lib;libeay32.lib;ssleay32.lib;qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5OpenGLd.lib;opengl32.lib;glu32.lib;Qt5Widgetsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)Glest_Editor.exe</OutputFile>
-      <AdditionalLibraryDirectories>../../source/windows_deps/lib;../../build/$(Configuration)/libglest;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../../source/windows_deps/lib;../../build/$(Configuration)/libglest;$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <TargetMachine>MachineX86</TargetMachine>
@@ -87,8 +115,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalOptions>/arch:SSE2 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>..\..\source\windows_deps\wxWidgets-2.9.3\lib\vc_lib\mswu;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\windows_deps\include;..\..\source\shared_lib\include\graphics;..\..\source\windows_deps\wxWidgets-2.9.3\include;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/streflop;../../source/shared_lib/include/platform/common;../../source/windows_deps/SDL-1.2.15/include;../../source/windows_deps/curl-7.21.3/include;../../source/shared_lib/include/map;..\..\source\glest_game\global;..\..\source\glest_game\game;..\..\source\glest_game\facilities;..\..\source\shared_lib\include\xml;..\..\source\shared_lib\include\xml\rapidxml;../../source/windows_deps/xerces-c-3.1.1/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_WINDOWS;WIN32;NDEBUG;CURL_STATICLIB;UNICODE;_UNICODE;GLEW_STATIC;ZLIB_WINAPI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\source\windows_deps\wxWidgets-2.9.3\lib\vc_lib\mswu;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\windows_deps\include;..\..\source\shared_lib\include\graphics;..\..\source\windows_deps\wxWidgets-2.9.3\include;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/streflop;../../source/shared_lib/include/platform/common;../../source/windows_deps/SDL-1.2.15/include;../../source/windows_deps/curl-7.21.3/include;../../source/shared_lib/include/map;..\..\source\glest_game\global;..\..\source\glest_game\game;..\..\source\glest_game\facilities;..\..\source\shared_lib\include\xml;..\..\source\shared_lib\include\xml\rapidxml;../../source/windows_deps/xerces-c-3.1.1/src;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtOpenGL;$(QTDIR)\include\QtWidgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WINDOWS;WIN32;NDEBUG;CURL_STATICLIB;UNICODE;_UNICODE;GLEW_STATIC;ZLIB_WINAPI;QT_DLL;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Async</ExceptionHandling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
@@ -105,9 +133,9 @@
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>wxbase29u.lib;wxbase29u_net.lib;wxbase29u_xml.lib;wxexpat.lib;wxjpeg.lib;wxmsw29u_adv.lib;wxmsw29u_aui.lib;wxmsw29u_core.lib;wxmsw29u_gl.lib;wxmsw29u_html.lib;wxmsw29u_media.lib;wxmsw29u_qa.lib;wxmsw29u_richtext.lib;wxmsw29u_xrc.lib;wxpng.lib;wxregexu.lib;wxtiff.lib;winmm.lib;rpcrt4.lib;kernel32.lib;user32.lib;gdi32.lib;ole32.lib;oleaut32.lib;comctl32.lib;comdlg32.lib;uuid.lib;advapi32.lib;shell32.lib;libglest.lib;sdl.lib;sdlmain.lib;dsound.lib;dxguid.lib;Dbghelp.lib;libcurl.lib;ws2_32.lib;ftgl_static.lib;freetype244MT.lib;zlibstat.lib;libeay32.lib;ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>winmm.lib;rpcrt4.lib;comctl32.lib;libglest.lib;sdl.lib;sdlmain.lib;dsound.lib;dxguid.lib;Dbghelp.lib;libcurl.lib;ws2_32.lib;ftgl_static.lib;freetype244MT.lib;zlibstat.lib;libeay32.lib;ssleay32.lib;qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5OpenGLd.lib;opengl32.lib;glu32.lib;Qt5Widgetsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)\$(TargetFileName)</OutputFile>
-      <AdditionalLibraryDirectories>i386;../../source/windows_deps/lib;../../build/$(Configuration)/libglest;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>i386;../../source/windows_deps/lib;../../build/$(Configuration)/libglest;$(QTDIR)\lib;..\..\source\windows_deps\Qt5.2.1\msvc2010_opengl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>
@@ -118,6 +146,8 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <ShowProgress>LinkVerboseLib</ShowProgress>
+      <LinkStatus>true</LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'">
@@ -150,8 +180,96 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\source\glest_map_editor\main.h" />
-    <ClInclude Include="..\..\source\glest_map_editor\program.h" />
+    <!--ClInclude Include="..\..\source\glest_map_editor\mainWindow.hpp" /-->
+    <!--ClInclude Include="..\..\source\glest_map_editor\mapManipulator.hpp" /-->
+    <!--ClInclude Include="..\..\source\glest_map_editor\newMap.hpp" /-->
+    <!--ClInclude Include="..\..\source\glest_map_editor\player.hpp" /-->
+    <!--ClInclude Include="..\..\source\glest_map_editor\renderer.hpp" /-->
+    <!--ClInclude Include="..\..\source\glest_map_editor\selection.hpp" /-->
+    <!--ClInclude Include="..\..\source\glest_map_editor\switchSurfaces.hpp" /-->
+    <!--ClInclude Include="..\..\source\glest_map_editor\tile.hpp" /-->
+    <!--ClInclude Include="..\..\source\glest_map_editor\viewer.hpp" /-->
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\mainWindow.hpp">
+      <AdditionalInputs>$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message>Moc%27ing \glest_map_editor\mainWindow.hpp...</Message>
+      <Outputs>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" $(QTMOCPARAM)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" -DQT_NO_DEBUG -DNDEBUG $(QTMOCPARAM)</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\mapManipulator.hpp">
+      <AdditionalInputs>$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message>Moc%27ing \glest_map_editor\mapManipulator.hpp...</Message>
+      <Outputs>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" $(QTMOCPARAM)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" -DQT_NO_DEBUG -DNDEBUG $(QTMOCPARAM)</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\newMap.hpp">
+      <AdditionalInputs>$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message>Moc%27ing \glest_map_editor\newMap.hpp...</Message>
+      <Outputs>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" $(QTMOCPARAM)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" -DQT_NO_DEBUG -DNDEBUG $(QTMOCPARAM)</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\player.hpp">
+      <AdditionalInputs>$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message>Moc%27ing \glest_map_editor\player.hpp...</Message>
+      <Outputs>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" $(QTMOCPARAM)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" -DQT_NO_DEBUG -DNDEBUG $(QTMOCPARAM)</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\renderer.hpp">
+      <AdditionalInputs>$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message>Moc%27ing \glest_map_editor\renderer.hpp...</Message>
+      <Outputs>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" $(QTMOCPARAM)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" -DQT_NO_DEBUG -DNDEBUG $(QTMOCPARAM)</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\selection.hpp">
+      <AdditionalInputs>$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message>Moc%27ing \glest_map_editor\selection.hpp...</Message>
+      <Outputs>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" $(QTMOCPARAM)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" -DQT_NO_DEBUG -DNDEBUG $(QTMOCPARAM)</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\switchSurfaces.hpp">
+      <AdditionalInputs>$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message>Moc%27ing \glest_map_editor\switchSurface.hpp...</Message>
+      <Outputs>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" $(QTMOCPARAM)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" -DQT_NO_DEBUG -DNDEBUG $(QTMOCPARAM)</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\tile.hpp">
+      <AdditionalInputs>$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message>Moc%27ing \glest_map_editor\tile.hpp...</Message>
+      <Outputs>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" $(QTMOCPARAM)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" -DQT_NO_DEBUG -DNDEBUG $(QTMOCPARAM)</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\viewer.hpp">
+      <AdditionalInputs>$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
+      <Message>Moc%27ing \glest_map_editor\viewer.hpp...</Message>
+      <Outputs>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" $(QTMOCPARAM)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" -DQT_NO_DEBUG -DNDEBUG $(QTMOCPARAM)</Command>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="glest_editor.rc" />
@@ -159,13 +277,113 @@
   <ItemGroup>
     <ClCompile Include="..\..\source\glest_game\global\config.cpp" />
     <ClCompile Include="..\..\source\glest_map_editor\main.cpp" />
-    <ClCompile Include="..\..\source\glest_map_editor\program.cpp" />
+    <ClCompile Include="..\..\source\glest_map_editor\mainWindow.cpp" />
+    <ClCompile Include="..\..\source\glest_map_editor\mapManipulator.cpp" />
+    <ClCompile Include="..\..\source\glest_map_editor\newMap.cpp" />
+    <ClCompile Include="..\..\source\glest_map_editor\player.cpp" />
+    <ClCompile Include="..\..\source\glest_map_editor\renderer.cpp" />
+    <ClCompile Include="..\..\source\glest_map_editor\selection.cpp" />
+    <ClCompile Include="..\..\source\glest_map_editor\switchSurfaces.cpp" />
+    <ClCompile Include="..\..\source\glest_map_editor\tile.cpp" />
+    <ClCompile Include="..\..\source\glest_map_editor\viewer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="shared_lib.vcxproj">
       <Project>{8daa0c24-95cd-4f66-b4c5-19abdd771746}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\about.ui">
+      <FileType>Document</FileType>
+      <AdditionalInputs>$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message>Uic%27ing %(Identity)...</Message>
+      <Outputs>.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command>"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\advanced.ui">
+      <FileType>Document</FileType>
+      <AdditionalInputs>$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message>Uic%27ing %(Identity)...</Message>
+      <Outputs>.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command>"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\help.ui">
+      <FileType>Document</FileType>
+      <AdditionalInputs>$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message>Uic%27ing %(Identity)...</Message>
+      <Outputs>.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command>"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\info.ui">
+      <FileType>Document</FileType>
+      <AdditionalInputs>$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message>Uic%27ing %(Identity)...</Message>
+      <Outputs>.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command>"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\mainWindow.ui">
+      <FileType>Document</FileType>
+      <AdditionalInputs>$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message>Uic%27ing %(Identity)...</Message>
+      <Outputs>.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command>"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\newMap.ui">
+      <FileType>Document</FileType>
+      <AdditionalInputs>$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message>Uic%27ing %(Identity)...</Message>
+      <Outputs>.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command>"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\swapCopy.ui">
+      <FileType>Document</FileType>
+      <AdditionalInputs>$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message>Uic%27ing %(Identity)...</Message>
+      <Outputs>.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command>"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\switchSurfaces.ui">
+      <FileType>Document</FileType>
+      <AdditionalInputs>$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Message>Uic%27ing %(Identity)...</Message>
+      <Outputs>.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
+      <Command>"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\..\source\glest_map_editor\icons.qrc">
+      <FileType>Document</FileType>
+      <AdditionalInputs>%(FullPath);%(AdditionalInputs)</AdditionalInputs>
+      <Message>Rcc%27ing %(Identity)...</Message>
+      <Outputs>.\GeneratedFiles\qrc_%(Filename).cpp;%(Outputs)</Outputs>
+      <Command>"$(QTDIR)\bin\rcc.exe" -name "%(Filename)" -no-compress "%(FullPath)" -o .\GeneratedFiles\qrc_%(Filename).cpp</Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\source\glest_map_editor\ui_about.h" />
+    <ClInclude Include="..\..\source\glest_map_editor\ui_advanced.h" />
+    <ClInclude Include="..\..\source\glest_map_editor\ui_help.h" />
+    <ClInclude Include="..\..\source\glest_map_editor\qrc_icons.cpp" />
+    <ClInclude Include="..\..\source\glest_map_editor\ui_info.h" />
+    <ClInclude Include="..\..\source\glest_map_editor\ui_mainWindow.h" />
+    <ClInclude Include="..\..\source\glest_map_editor\ui_newMap.h" />
+    <ClInclude Include="..\..\source\glest_map_editor\ui_swapCopy.h" />
+    <ClInclude Include="..\..\source\glest_map_editor\ui_switchSurfaces.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

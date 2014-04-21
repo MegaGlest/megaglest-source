@@ -1,6 +1,6 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C++ Express 2010
+# Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "g2xml", "g2xml.vcxproj", "{407355A4-D12A-4E3B-A7EB-A835E573B376}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "xml2g", "xml2g.vcxproj", "{3BAC3FE8-1CC4-487D-802A-E0A04B39BB6A}"
@@ -135,7 +135,6 @@ Global
 		{6B0C65F1-D031-46AF-AC0D-7C38892D2952}.Syncdebug|Win32.ActiveCfg = Release|Win32
 		{6B0C65F1-D031-46AF-AC0D-7C38892D2952}.Syncdebug|Win32.Build.0 = Release|Win32
 		{5D09BE33-81EC-450B-8A7B-2E7B941ADC56}.Debug|Win32.ActiveCfg = Debug|Win32
-		{5D09BE33-81EC-450B-8A7B-2E7B941ADC56}.Debug|Win32.Build.0 = Debug|Win32
 		{5D09BE33-81EC-450B-8A7B-2E7B941ADC56}.Debug+MT|Win32.ActiveCfg = Debug|Win32
 		{5D09BE33-81EC-450B-8A7B-2E7B941ADC56}.Debug+MT|Win32.Build.0 = Debug|Win32
 		{5D09BE33-81EC-450B-8A7B-2E7B941ADC56}.Debug-MT|Win32.ActiveCfg = Debug|Win32
@@ -153,7 +152,6 @@ Global
 		{5D09BE33-81EC-450B-8A7B-2E7B941ADC56}.Syncdebug|Win32.ActiveCfg = Release|Win32
 		{5D09BE33-81EC-450B-8A7B-2E7B941ADC56}.Syncdebug|Win32.Build.0 = Release|Win32
 		{FE5C7C7C-F109-44F5-8329-25A4E24F162C}.Debug|Win32.ActiveCfg = Debug|Win32
-		{FE5C7C7C-F109-44F5-8329-25A4E24F162C}.Debug|Win32.Build.0 = Debug|Win32
 		{FE5C7C7C-F109-44F5-8329-25A4E24F162C}.Debug+MT|Win32.ActiveCfg = Debug|Win32
 		{FE5C7C7C-F109-44F5-8329-25A4E24F162C}.Debug+MT|Win32.Build.0 = Debug|Win32
 		{FE5C7C7C-F109-44F5-8329-25A4E24F162C}.Debug-MT|Win32.ActiveCfg = Debug|Win32
@@ -165,7 +163,6 @@ Global
 		{FE5C7C7C-F109-44F5-8329-25A4E24F162C}.Release_NO_STREFLOP|Win32.ActiveCfg = Release_NO_STREFLOP|Win32
 		{FE5C7C7C-F109-44F5-8329-25A4E24F162C}.Release_NO_STREFLOP|Win32.Build.0 = Release_NO_STREFLOP|Win32
 		{FE5C7C7C-F109-44F5-8329-25A4E24F162C}.Release|Win32.ActiveCfg = Release|Win32
-		{FE5C7C7C-F109-44F5-8329-25A4E24F162C}.Release|Win32.Build.0 = Release|Win32
 		{FE5C7C7C-F109-44F5-8329-25A4E24F162C}.Release+MT with error catching|Win32.ActiveCfg = Release|Win32
 		{FE5C7C7C-F109-44F5-8329-25A4E24F162C}.Release+MT with error catching|Win32.Build.0 = Release|Win32
 		{FE5C7C7C-F109-44F5-8329-25A4E24F162C}.Syncdebug|Win32.ActiveCfg = Release|Win32
@@ -191,5 +188,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		Qt5Version = 5.2.1
 	EndGlobalSection
 EndGlobal
