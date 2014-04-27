@@ -64,6 +64,8 @@ namespace MapEditor {
     MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),ui(new Ui::MainWindow){
         ui->setupUi(this);
 
+        QStringList args = QApplication::arguments();
+
         Status *status = new Status();
         status->file = new QLabel(tr("File: %1").arg("desert_river"));
         ui->statusBar->addWidget(status->file);
@@ -83,6 +85,13 @@ namespace MapEditor {
 
         MapManipulator *mapman = new MapManipulator(this);
         renderer = new Renderer(mapman, status);
+        if(args.size() == 2){//map name given
+            if(QFile::exists(args[1]) && (QFile::permissions(args[1]) & QFile::ReadUser) ){
+                this->renderer->open(args[1].toStdString());
+            }else{
+                std::cout << "given map is invalid" << std::endl;
+            }
+        }
         ui->graphicsView->setStatus(status);
         newmap = new NewMap(mapman,this);//instance of new map dialog
         resize = new NewMap(mapman,this);//instance of new map dialog
@@ -175,7 +184,7 @@ namespace MapEditor {
         /*ui->statusBar->setStyleSheet(
         "QStatusBar::item { border: 1px solid red; border-radius: 3px; border-style:inset;} "
         );*/
-        this->show();
+        //this->show();
         this->renderer->fitZoom();
     }
 

@@ -20,14 +20,15 @@ int main(int argc, char *argv[]){
         std::cout << "Zoom with middle mouse button or mousewheel" << std::endl;
         std::cout << std::endl;
         exit (0);
-    }
-    if(args.contains("--version")){
+    }else if(args.contains("--version")){
         std::cout << version << std::endl;
         std::cout << std::endl;
         exit (0);
+    }else{
+        MapEditor::MainWindow w;
+        w.show();
+        return a.exec();
     }
 
-    MapEditor::MainWindow w;
-    //w.show();
-    return a.exec();
+
 }
