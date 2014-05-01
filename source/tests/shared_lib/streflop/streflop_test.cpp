@@ -12,7 +12,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 #ifdef WIN32
   #include <winsock2.h>
-  #include <winsock.h>
 #endif
 
 #include "vec.h"

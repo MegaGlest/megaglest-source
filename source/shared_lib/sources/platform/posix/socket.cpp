@@ -30,7 +30,6 @@
 
   #include <windows.h>
   #include <winsock2.h>
-  #include <winsock.h>
   #include <iphlpapi.h>
   #include <strstream>
   #include <strsafe.h>

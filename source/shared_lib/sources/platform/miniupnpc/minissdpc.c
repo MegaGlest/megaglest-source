@@ -18,7 +18,6 @@
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <io.h>
-#include <winsock.h>
 #include <stdint.h>
 
 typedef SSIZE_T ssize_t;
