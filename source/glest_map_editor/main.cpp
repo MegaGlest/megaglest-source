@@ -2,6 +2,8 @@
 #include <QMainWindow>
 #include <QApplication>
 #include <iostream>
+//otherwise linking error in Visual Studio
+#include <SDL.h>
 
 //initialize and open the window
 int main(int argc, char *argv[]){
