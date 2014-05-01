@@ -3,7 +3,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <!--QTDIR>..\..\source\windows_deps\Qt5.2.1\msvc2010_opengl\</QTDIR-->
-    <QTDIR>C:\Qt\Qt5.2.1\msvc2010_opengl\</QTDIR>
+    <QTDIR>C:/Qt/Qt5.2.1/msvc2010_opengl/</QTDIR>
     <QTMOCPARAM>-DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_CORE_LIB -DQT_GUI_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtOpenGL" "-I$(QTDIR)\include\QtWidgets"</QTMOCPARAM>
   </PropertyGroup>
   <PropertyGroup>
