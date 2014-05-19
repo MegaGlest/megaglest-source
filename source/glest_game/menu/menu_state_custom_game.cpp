@@ -198,7 +198,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	//create
 	//int buttonx=200;
-	int buttony=180;
+	//int buttony=180;
 	//buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	//buttonReturn.init(buttonx, buttony, 125);
 
@@ -361,17 +361,17 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	checkBoxAllowNativeLanguageTechtree.setValue(false);
 
     // player status
-	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
-	listBoxPlayerStatus.init(810, buttony, 150);
-	vector<string> playerStatuses;
-	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
-	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
-	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
-	listBoxPlayerStatus.setItems(playerStatuses);
-	listBoxPlayerStatus.setSelectedItemIndex(2,true);
-	listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
-	listBoxPlayerStatus.setLighted(false);
-	listBoxPlayerStatus.setVisible(true);
+//	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
+//	listBoxPlayerStatus.init(810, buttony, 150);
+//	vector<string> playerStatuses;
+//	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
+//	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
+//	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
+//	listBoxPlayerStatus.setItems(playerStatuses);
+//	listBoxPlayerStatus.setSelectedItemIndex(2,true);
+//	listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
+//	listBoxPlayerStatus.setLighted(false);
+//	listBoxPlayerStatus.setVisible(true);
 
 	// Network Scenario
 	int scenarioX=810;
@@ -522,10 +522,10 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 //		labelPlayers[i].setFont(CoreData::getInstance().getMenuFontBig());
 //		labelPlayers[i].setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
-		labelPlayerStatus[i].registerGraphicComponent(containerName,"labelPlayerStatus" + intToStr(i));
-		labelPlayerStatus[i].init(xoffset+15, setupPos-30-i*rowHeight+2, 60);
-		labelPlayerNames[i].registerGraphicComponent(containerName,"labelPlayerNames" + intToStr(i));
-		labelPlayerNames[i].init(xoffset+30,setupPos-30-i*rowHeight);
+		//labelPlayerStatus[i].registerGraphicComponent(containerName,"labelPlayerStatus" + intToStr(i));
+		//labelPlayerStatus[i].init(xoffset+15, setupPos-30-i*rowHeight+2, 60);
+		//labelPlayerNames[i].registerGraphicComponent(containerName,"labelPlayerNames" + intToStr(i));
+		//labelPlayerNames[i].init(xoffset+30,setupPos-30-i*rowHeight);
 
 
         buttonBlockPlayers[i].registerGraphicComponent(containerName,"buttonBlockPlayers" + intToStr(i));
@@ -545,38 +545,38 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
         listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
 		listBoxTeams[i].init(xoffset+650, setupPos-30-i*rowHeight, 60);
 
-		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
-		labelNetStatus[i].init(xoffset+715, setupPos-30-i*rowHeight, 60);
-		labelNetStatus[i].setFont(CoreData::getInstance().getDisplayFontSmall());
-		labelNetStatus[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
+//		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
+//		labelNetStatus[i].init(xoffset+715, setupPos-30-i*rowHeight, 60);
+//		labelNetStatus[i].setFont(CoreData::getInstance().getDisplayFontSmall());
+//		labelNetStatus[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
     }
 
 	buttonClearBlockedPlayers.registerGraphicComponent(containerName,"buttonClearBlockedPlayers");
 	buttonClearBlockedPlayers.init(xoffset+170, setupPos-30-8*rowHeight, 140);
 
-	labelControl.registerGraphicComponent(containerName,"labelControl");
-	labelControl.init(xoffset+170, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
-	labelControl.setText(lang.getString("Control"));
+//	labelControl.registerGraphicComponent(containerName,"labelControl");
+//	labelControl.init(xoffset+170, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+//	labelControl.setText(lang.getString("Control"));
 
-    labelRMultiplier.registerGraphicComponent(containerName,"labelRMultiplier");
-	labelRMultiplier.init(xoffset+310, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+    //labelRMultiplier.registerGraphicComponent(containerName,"labelRMultiplier");
+	//labelRMultiplier.init(xoffset+310, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
 
-	labelFaction.registerGraphicComponent(containerName,"labelFaction");
-    labelFaction.init(xoffset+390, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
-    labelFaction.setText(lang.getString("Faction"));
+	//labelFaction.registerGraphicComponent(containerName,"labelFaction");
+    //labelFaction.init(xoffset+390, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+    //labelFaction.setText(lang.getString("Faction"));
 
-    labelTeam.registerGraphicComponent(containerName,"labelTeam");
-    labelTeam.init(xoffset+650, setupPos, 50, GraphicListBox::defH, true);
-    labelTeam.setText(lang.getString("Team"));
+    //labelTeam.registerGraphicComponent(containerName,"labelTeam");
+    //labelTeam.init(xoffset+650, setupPos, 50, GraphicListBox::defH, true);
+    //labelTeam.setText(lang.getString("Team"));
 
-    labelControl.setFont(CoreData::getInstance().getMenuFontBig());
-    labelControl.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-    labelRMultiplier.setFont(CoreData::getInstance().getMenuFontBig());
-    labelRMultiplier.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	labelFaction.setFont(CoreData::getInstance().getMenuFontBig());
-	labelFaction.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	labelTeam.setFont(CoreData::getInstance().getMenuFontBig());
-	labelTeam.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+    //labelControl.setFont(CoreData::getInstance().getMenuFontBig());
+    //labelControl.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+    //labelRMultiplier.setFont(CoreData::getInstance().getMenuFontBig());
+    //labelRMultiplier.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	//labelFaction.setFont(CoreData::getInstance().getMenuFontBig());
+	//labelFaction.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	//labelTeam.setFont(CoreData::getInstance().getMenuFontBig());
+	//labelTeam.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
     //xoffset=100;
 
@@ -624,16 +624,16 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
     }
 
 	for(int i=0; i < GameConstants::maxPlayers; ++i) {
-		labelPlayerStatus[i].setText(" ");
-		labelPlayerStatus[i].setTexture(CoreData::getInstance().getStatusReadyTexture());
-		labelPlayerStatus[i].setH(16);
-		labelPlayerStatus[i].setW(12);
+		//labelPlayerStatus[i].setText(" ");
+		//labelPlayerStatus[i].setTexture(CoreData::getInstance().getStatusReadyTexture());
+		//labelPlayerStatus[i].setH(16);
+		//labelPlayerStatus[i].setW(12);
 
 		//labelPlayers[i].setText(lang.getString("Player")+" "+intToStr(i));
 		//labelPlayers[i].setText(intToStr(i+1));
-		labelPlayerNames[i].setText("*");
-		labelPlayerNames[i].setMaxEditWidth(16);
-		labelPlayerNames[i].setMaxEditRenderWidth(135);
+		//labelPlayerNames[i].setText("*");
+		//labelPlayerNames[i].setMaxEditWidth(16);
+		//labelPlayerNames[i].setMaxEditRenderWidth(135);
 
         listBoxTeams[i].setItems(teamItems);
 		listBoxTeams[i].setSelectedItemIndex(i);
@@ -641,7 +641,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 		listBoxRMultiplier[i].setItems(rMultiplier);
 		listBoxRMultiplier[i].setSelectedItem("1.0");
-		labelNetStatus[i].setText("");
+		//labelNetStatus[i].setText("");
     }
 
 	loadMapInfo(Config::getMapPath(getCurrentMapFile()), &mapInfo, true);
@@ -665,8 +665,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 			setSlotHuman(0);
 			updateResourceMultiplier(0);
 		}
-		labelPlayerNames[0].setText("");
-		labelPlayerNames[0].setText(getHumanPlayerName());
+		//labelPlayerNames[0].setText("");
+		//labelPlayerNames[0].setText(getHumanPlayerName());
 
 		if(openNetworkSlots == true) {
 			for(int i= 1; i< mapInfo.players; ++i){
@@ -825,20 +825,20 @@ void MenuStateCustomGame::reloadUI() {
         buttonBlockPlayers[i].setText(lang.getString("BlockPlayer"));
     }
 
-	labelControl.setText(lang.getString("Control"));
+	//labelControl.setText(lang.getString("Control"));
 
-    labelFaction.setText(lang.getString("Faction"));
+    //labelFaction.setText(lang.getString("Faction"));
 
-    labelTeam.setText(lang.getString("Team"));
+    //labelTeam.setText(lang.getString("Team"));
 
-    labelControl.setFont(CoreData::getInstance().getMenuFontBig());
-    labelControl.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-    labelRMultiplier.setFont(CoreData::getInstance().getMenuFontBig());
-    labelRMultiplier.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	labelFaction.setFont(CoreData::getInstance().getMenuFontBig());
-	labelFaction.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	labelTeam.setFont(CoreData::getInstance().getMenuFontBig());
-	labelTeam.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+    //labelControl.setFont(CoreData::getInstance().getMenuFontBig());
+    //labelControl.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+    //labelRMultiplier.setFont(CoreData::getInstance().getMenuFontBig());
+    //labelRMultiplier.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	//labelFaction.setFont(CoreData::getInstance().getMenuFontBig());
+	//labelFaction.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	//labelTeam.setFont(CoreData::getInstance().getMenuFontBig());
+	//labelTeam.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
 	//texts
 	buttonClearBlockedPlayers.setText(lang.getString("BlockPlayerClear"));
@@ -872,11 +872,11 @@ void MenuStateCustomGame::reloadUI() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	vector<string> playerStatuses;
-	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
-	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
-	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
-	listBoxPlayerStatus.setItems(playerStatuses);
+//	vector<string> playerStatuses;
+//	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
+//	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
+//	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
+//	listBoxPlayerStatus.setItems(playerStatuses);
 
 	labelScenario.setText(lang.getString("Scenario"));
 
@@ -960,6 +960,9 @@ void MenuStateCustomGame::setupCEGUIWidgets(bool openNetworkSlots) {
 					cegui_manager.getEventComboboxChangeAccepted(), this);
 
 	cegui_manager.setControlEventCallback(containerName, "ComboBoxFogOfWar",
+					cegui_manager.getEventComboboxChangeAccepted(), this);
+
+	cegui_manager.setControlEventCallback(containerName, "ComboHumanPlayerStatus",
 					cegui_manager.getEventComboboxChangeAccepted(), this);
 
 	for(int index = 0; index < GameConstants::maxPlayers; ++index) {
@@ -1192,8 +1195,12 @@ void MenuStateCustomGame::setupCEGUIWidgetsText(bool isReload, bool openNetworkS
 		cegui_manager.setControlTextColor("LabelPlayer" + intToStr(index+1) + "Number",
 				playerColor.x, playerColor.y, playerColor.z);
 
-		cegui_manager.setImageForControl("ImagePlayer" + intToStr(index+1) + "Status_Texture",CoreData::getInstance().getStatusReadyTexture(), "ImagePlayer1Status", true);
-		cegui_manager.setControlText("EditboxPlayer" + intToStr(index+1) + "Name","*");
+		//cegui_manager.setImageForControl("ImagePlayer" + intToStr(index+1) + "Status_Texture",CoreData::getInstance().getStatusReadyTexture(), "ImagePlayer" + intToStr(index+1) + "Status", true);
+		setPlayerStatusImage(index, CoreData::getInstance().getStatusReadyTexture());
+
+		string cegui_playercolor = cegui_manager.getTextColorFromRGBA(playerColor.x, playerColor.y, playerColor.z);
+		setPlayerNameText(index,"*");
+
 
 		cegui_manager.addItemsToComboBoxControl(
 				cegui_manager.getControl("ComboBoxPlayer" + intToStr(index+1) + "Control"), controlItems);
@@ -1210,7 +1217,8 @@ void MenuStateCustomGame::setupCEGUIWidgetsText(bool isReload, bool openNetworkS
 		cegui_manager.setSelectedItemInComboBoxControl(
 			cegui_manager.getControl("ComboBoxPlayer" + intToStr(index+1) + "Team"), index);
 
-		cegui_manager.setControlText("LabelPlayer" + intToStr(index+1) + "Version","*");
+		//cegui_manager.setControlText("LabelPlayer" + intToStr(index+1) + "Version","*");
+		cegui_manager.setControlText("LabelPlayer" + intToStr(index+1) + "Version","");
 	}
 
 
@@ -1228,13 +1236,13 @@ void MenuStateCustomGame::setupCEGUIWidgetsText(bool isReload, bool openNetworkS
 			//updateResourceMultiplier(0);
 		}
 		else {
-			//setSlotHuman(0);
+			setSlotHuman(0);
 			//updateResourceMultiplier(0);
 		}
 		//labelPlayerNames[0].setText("");
 		//labelPlayerNames[0].setText(getHumanPlayerName());
-		cegui_manager.setControlText("EditboxPlayer1Name","");
-		cegui_manager.setControlText("EditboxPlayer1Name",getHumanPlayerName());
+		setPlayerNameText(0,"");
+		setPlayerNameText(0,getHumanPlayerName());
 
 		if(openNetworkSlots == true) {
 			for(int index = 1; index < mapInfo.players; ++index){
@@ -1707,6 +1715,48 @@ bool MenuStateCustomGame::EventCallback(CEGUI::Window *ctl, std::string name) {
 				needToSetChangedGameSettings = true;
 				lastSetChangedGameSettings   = time(NULL);
 			}
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("ComboHumanPlayerStatus")) {
+
+			if(hasNetworkGameSettings() == true) {
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+				CoreData &coreData				= CoreData::getInstance();
+				SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+				soundRenderer.playFx(coreData.getClickSoundC());
+				if(getNetworkPlayerStatus() == npst_PickSettings) {
+					//listBoxPlayerStatus.setTextColor(Vec3f(1.0f,0.0f,0.0f));
+					//listBoxPlayerStatus.setLighted(true);
+				}
+				else if(getNetworkPlayerStatus() == npst_BeRightBack) {
+					//listBoxPlayerStatus.setTextColor(Vec3f(1.0f,1.0f,0.0f));
+					//listBoxPlayerStatus.setLighted(true);
+				}
+				else if(getNetworkPlayerStatus() == npst_Ready) {
+					//listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
+					//listBoxPlayerStatus.setLighted(false);
+				}
+
+				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+				//MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+				bool publishToServerEnabled =
+						cegui_manager.getCheckboxControlChecked(
+								cegui_manager.getControl("CheckboxPublishGame"));
+
+	            if(publishToServerEnabled == true) {
+	                needToRepublishToMasterserver = true;
+	            }
+
+	            if(hasNetworkGameSettings() == true) {
+	                needToSetChangedGameSettings = true;
+	                lastSetChangedGameSettings   = time(NULL);
+	            }
+			}
+
+			return true;
 		}
 		else {
 			//printf("LINE: %d name [%s]\n",__LINE__,name.c_str());
@@ -1803,7 +1853,7 @@ bool MenuStateCustomGame::EventCallback(CEGUI::Window *ctl, std::string name) {
 							//no human
 							if(humanIndex1 == -1 && humanIndex2 == -1) {
 								setSlotHuman(index);
-								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[i].getText() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,slotIndex,labelPlayerNames[index].getText().c_str());
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[i].getText() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,slotIndex,getPlayerNameText(index).c_str());
 
 								//printf("humanIndex1 = %d humanIndex2 = %d i = %d listBoxControls[i].getSelectedItemIndex() = %d\n",humanIndex1,humanIndex2,i,listBoxControls[i].getSelectedItemIndex());
 							}
@@ -1812,7 +1862,7 @@ bool MenuStateCustomGame::EventCallback(CEGUI::Window *ctl, std::string name) {
 								int closeSlotIndex = (humanIndex1 == slotIndex ? humanIndex2: humanIndex1);
 								int humanSlotIndex = (closeSlotIndex == humanIndex1 ? humanIndex2 : humanIndex1);
 
-								string origPlayName = labelPlayerNames[closeSlotIndex].getText();
+								string origPlayName = getPlayerNameText(closeSlotIndex);
 
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] closeSlotIndex = %d, origPlayName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,closeSlotIndex,origPlayName.c_str());
 
@@ -1825,7 +1875,7 @@ bool MenuStateCustomGame::EventCallback(CEGUI::Window *ctl, std::string name) {
 								//printf("Line: %d closeSlotIndex: %d\n",__LINE__,closeSlotIndex);
 
 								setSlotHuman(humanSlotIndex);
-								labelPlayerNames[humanSlotIndex].setText((origPlayName != "" ? origPlayName : getHumanPlayerName()));
+								setPlayerNameText(humanSlotIndex,(origPlayName != "" ? origPlayName : getHumanPlayerName()));
 							}
 							updateNetworkSlots();
 
@@ -2659,53 +2709,53 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 							lastSetChangedGameSettings   = time(NULL);;
 						}
 					}
-					else if(labelPlayerNames[i].mouseClick(x, y)) {
-						ControlType ct= static_cast<ControlType>(getSelectedPlayerControlTypeIndex(i));
-						if(ct == ctHuman) {
-							setActiveInputLabel(&labelPlayerNames[i]);
-							break;
-						}
-					}
+//					else if(labelPlayerNames[i].mouseClick(x, y)) {
+//						ControlType ct= static_cast<ControlType>(getSelectedPlayerControlTypeIndex(i));
+//						if(ct == ctHuman) {
+//							setActiveInputLabel(&labelPlayerNames[i]);
+//							break;
+//						}
+//					}
 				}
 			}
         }
 
-		if(hasNetworkGameSettings() == true && listBoxPlayerStatus.mouseClick(x,y)) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			soundRenderer.playFx(coreData.getClickSoundC());
-			if(getNetworkPlayerStatus()==npst_PickSettings)
-			{
-				listBoxPlayerStatus.setTextColor(Vec3f(1.0f,0.0f,0.0f));
-				listBoxPlayerStatus.setLighted(true);
-			}
-			else if(getNetworkPlayerStatus()==npst_BeRightBack)
-			{
-				listBoxPlayerStatus.setTextColor(Vec3f(1.0f,1.0f,0.0f));
-				listBoxPlayerStatus.setLighted(true);
-			}
-			else if(getNetworkPlayerStatus()==npst_Ready)
-			{
-				listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
-				listBoxPlayerStatus.setLighted(false);
-			}
-
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-			bool publishToServerEnabled =
-					cegui_manager.getCheckboxControlChecked(
-							cegui_manager.getControl("CheckboxPublishGame"));
-
-            if(publishToServerEnabled == true) {
-                needToRepublishToMasterserver = true;
-            }
-
-            if(hasNetworkGameSettings() == true) {
-                needToSetChangedGameSettings = true;
-                lastSetChangedGameSettings   = time(NULL);
-            }
-		}
+//		if(hasNetworkGameSettings() == true && listBoxPlayerStatus.mouseClick(x,y)) {
+//			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//
+//			soundRenderer.playFx(coreData.getClickSoundC());
+//			if(getNetworkPlayerStatus()==npst_PickSettings)
+//			{
+//				listBoxPlayerStatus.setTextColor(Vec3f(1.0f,0.0f,0.0f));
+//				listBoxPlayerStatus.setLighted(true);
+//			}
+//			else if(getNetworkPlayerStatus()==npst_BeRightBack)
+//			{
+//				listBoxPlayerStatus.setTextColor(Vec3f(1.0f,1.0f,0.0f));
+//				listBoxPlayerStatus.setLighted(true);
+//			}
+//			else if(getNetworkPlayerStatus()==npst_Ready)
+//			{
+//				listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
+//				listBoxPlayerStatus.setLighted(false);
+//			}
+//
+//			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//
+//			MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+//			bool publishToServerEnabled =
+//					cegui_manager.getCheckboxControlChecked(
+//							cegui_manager.getControl("CheckboxPublishGame"));
+//
+//            if(publishToServerEnabled == true) {
+//                needToRepublishToMasterserver = true;
+//            }
+//
+//            if(hasNetworkGameSettings() == true) {
+//                needToSetChangedGameSettings = true;
+//                lastSetChangedGameSettings   = time(NULL);
+//            }
+//		}
     }
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
@@ -3225,7 +3275,7 @@ void MenuStateCustomGame::render() {
 			//std::map<int,Texture2D *> &crcPlayerTextureCache = CacheManager::getCachedItem< std::map<int,Texture2D *> >(GameConstants::playerTextureCacheLookupKey);
 
 			// START - this code ensure player title and player names don't overlap
-			int offsetPosition=0;
+			//int offsetPosition=0;
 //		    for(int i=0; i < GameConstants::maxPlayers; ++i) {
 //				FontMetrics *fontMetrics= NULL;
 //				if(Renderer::renderText3DEnabled == false) {
@@ -3252,7 +3302,7 @@ void MenuStateCustomGame::render() {
 
 		    ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		    if(hasNetworkGameSettings() == true) {
-		    	renderer.renderListBox(&listBoxPlayerStatus);
+		    	//renderer.renderListBox(&listBoxPlayerStatus);
 		    	if( serverInterface != NULL &&
 		    		serverInterface->getServerSocket() != NULL ) {
 		    		renderer.renderButton(&buttonClearBlockedPlayers);
@@ -3265,18 +3315,20 @@ void MenuStateCustomGame::render() {
 					//labelPlayers[i].setVisible(true);
 		    		setPlayerNumberVisible(i, true);
 
-					labelPlayerNames[i].setVisible(true);
+					//labelPlayerNames[i].setVisible(true);
+		    		setPlayerNameVisible(i,true);
 					//listBoxControls[i].setVisible(true);
 					setPlayerControlTypeVisible(i,true);
 					listBoxFactions[i].setVisible(true);
 					listBoxTeams[i].setVisible(true);
-					labelNetStatus[i].setVisible(true);
+					//labelNetStatus[i].setVisible(true);
+					setPlayerVersionVisible(i,true);
 		    	}
 
 				if( hasNetworkGameSettings() == true &&
 						getSelectedPlayerControlTypeIndex(i) != ctClosed) {
 
-					renderer.renderLabel(&labelPlayerStatus[i]);
+					//renderer.renderLabel(&labelPlayerStatus[i]);
 				}
 
 //				if(crcPlayerTextureCache[i] != NULL) {
@@ -3288,17 +3340,17 @@ void MenuStateCustomGame::render() {
 //					renderer.renderLabel(&labelPlayers[i]);
 //				}
 
-				if(offsetPosition > 0) {
-					labelPlayerNames[i].setX(offsetPosition);
-				}
-				renderer.renderLabel(&labelPlayerNames[i]);
+//				if(offsetPosition > 0) {
+//					labelPlayerNames[i].setX(offsetPosition);
+//				}
+//				renderer.renderLabel(&labelPlayerNames[i]);
 
 				//renderer.renderListBox(&listBoxControls[i]);
 
 				if( hasNetworkGameSettings() == true &&
 						getSelectedPlayerControlTypeIndex(i) != ctClosed) {
 
-					renderer.renderLabel(&labelPlayerStatus[i]);
+					//renderer.renderLabel(&labelPlayerStatus[i]);
 
 					if(getSelectedPlayerControlTypeIndex(i) == ctNetwork ||
 							getSelectedPlayerControlTypeIndex(i) == ctNetworkUnassigned) {
@@ -3317,7 +3369,7 @@ void MenuStateCustomGame::render() {
 
 					renderer.renderListBox(&listBoxFactions[i]);
 					renderer.renderListBox(&listBoxTeams[i]);
-					renderer.renderLabel(&labelNetStatus[i]);
+					//renderer.renderLabel(&labelNetStatus[i]);
 				}
 			}
 
@@ -3352,9 +3404,9 @@ void MenuStateCustomGame::render() {
 			//renderer.renderLabel(&labelTileset);
 			//renderer.renderLabel(&labelMapFilter);
 			//renderer.renderLabel(&labelTechTree);
-			renderer.renderLabel(&labelControl);
-			renderer.renderLabel(&labelFaction);
-			renderer.renderLabel(&labelTeam);
+			//renderer.renderLabel(&labelControl);
+			//renderer.renderLabel(&labelFaction);
+			//renderer.renderLabel(&labelTeam);
 			//renderer.renderLabel(&labelMapInfo);
 			renderer.renderLabel(&labelAdvanced);
 
@@ -3470,8 +3522,8 @@ void MenuStateCustomGame::switchSetupForSlots(SwitchSetupRequest **switchSetupRe
 								listBoxTeams[newFactionIdx].setSelectedItemIndex(switchSetupRequests[i]->getToTeam());
 							}
 							if(switchSetupRequests[i]->getNetworkPlayerName() != "") {
-								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[newFactionIdx].getText() [%s] switchSetupRequests[i]->getNetworkPlayerName() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,labelPlayerNames[newFactionIdx].getText().c_str(),switchSetupRequests[i]->getNetworkPlayerName().c_str());
-								labelPlayerNames[newFactionIdx].setText(switchSetupRequests[i]->getNetworkPlayerName());
+								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[newFactionIdx].getText() [%s] switchSetupRequests[i]->getNetworkPlayerName() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,getPlayerNameText(newFactionIdx).c_str(),switchSetupRequests[i]->getNetworkPlayerName().c_str());
+								setPlayerNameText(newFactionIdx,switchSetupRequests[i]->getNetworkPlayerName());
 							}
 
 							if(getSelectedPlayerControlTypeIndex(switchFactionIdx) == ctNetworkUnassigned) {
@@ -3483,12 +3535,13 @@ void MenuStateCustomGame::switchSetupForSlots(SwitchSetupRequest **switchSetupRe
 								//labelPlayers[switchFactionIdx].setVisible(switchFactionIdx+1 <= mapInfo.players);
 								setPlayerNumberVisible(switchFactionIdx, switchFactionIdx+1 <= mapInfo.players);
 
-								labelPlayerNames[switchFactionIdx].setVisible(switchFactionIdx+1 <= mapInfo.players);
+								setPlayerNameVisible(switchFactionIdx,switchFactionIdx+1 <= mapInfo.players);
 						        //listBoxControls[switchFactionIdx].setVisible(switchFactionIdx+1 <= mapInfo.players);
 								setPlayerControlTypeVisible(switchFactionIdx,switchFactionIdx+1 <= mapInfo.players);
 						        listBoxFactions[switchFactionIdx].setVisible(switchFactionIdx+1 <= mapInfo.players);
 								listBoxTeams[switchFactionIdx].setVisible(switchFactionIdx+1 <= mapInfo.players);
-								labelNetStatus[switchFactionIdx].setVisible(switchFactionIdx+1 <= mapInfo.players);
+								//labelNetStatus[switchFactionIdx].setVisible(switchFactionIdx+1 <= mapInfo.players);
+								setPlayerVersionVisible(switchFactionIdx,switchFactionIdx+1 <= mapInfo.players);
 							}
 						}
 						catch(const runtime_error &e) {
@@ -3514,13 +3567,13 @@ void MenuStateCustomGame::switchSetupForSlots(SwitchSetupRequest **switchSetupRe
 						}
 
 						if((switchSetupRequests[i]->getSwitchFlags() & ssrft_NetworkPlayerName) == ssrft_NetworkPlayerName) {
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, switchSetupRequests[i]->getSwitchFlags() = %d, switchSetupRequests[i]->getNetworkPlayerName() [%s], labelPlayerNames[i].getText() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,switchSetupRequests[i]->getSwitchFlags(),switchSetupRequests[i]->getNetworkPlayerName().c_str(),labelPlayerNames[i].getText().c_str());
+							if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, switchSetupRequests[i]->getSwitchFlags() = %d, switchSetupRequests[i]->getNetworkPlayerName() [%s], labelPlayerNames[i].getText() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,switchSetupRequests[i]->getSwitchFlags(),switchSetupRequests[i]->getNetworkPlayerName().c_str(),getPlayerNameText(i).c_str());
 
 							if(switchSetupRequests[i]->getNetworkPlayerName() != GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
-								labelPlayerNames[i].setText(switchSetupRequests[i]->getNetworkPlayerName());
+								setPlayerNameText(i,switchSetupRequests[i]->getNetworkPlayerName());
 							}
 							else {
-								labelPlayerNames[i].setText("");
+								setPlayerNameText(i,"");
 							}
 						}
 					}
@@ -3698,6 +3751,10 @@ void MenuStateCustomGame::update() {
 
 		listBoxAISwitchTeamAcceptPercent.setEnabled(checkBoxEnableSwitchTeamMode.getValue());
 
+		for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+			setPlayerStatusImageVisible(index, false);
+		}
+
 		int factionCount = 0;
 		for(int i= 0; i< mapInfo.players; ++i) {
 			if(hasNetworkGameSettings() == true) {
@@ -3706,31 +3763,44 @@ void MenuStateCustomGame::update() {
 					if(getSelectedPlayerControlTypeIndex(i) == ctHuman) {
 						switch(gameSettings.getNetworkPlayerStatuses(slotIndex)) {
 							case npst_BeRightBack:
-								labelPlayerStatus[i].setTexture(CoreData::getInstance().getStatusBRBTexture());
+								//labelPlayerStatus[i].setTexture(CoreData::getInstance().getStatusBRBTexture());
+								setPlayerStatusImage(i, CoreData::getInstance().getStatusBRBTexture());
+								setPlayerStatusImageVisible(i, true);
+
 								break;
 							case npst_Ready:
-								labelPlayerStatus[i].setTexture(CoreData::getInstance().getStatusReadyTexture());
+								//labelPlayerStatus[i].setTexture(CoreData::getInstance().getStatusReadyTexture());
+								setPlayerStatusImage(i, CoreData::getInstance().getStatusReadyTexture());
+								setPlayerStatusImageVisible(i, true);
+
 								break;
 							case npst_PickSettings:
-								labelPlayerStatus[i].setTexture(CoreData::getInstance().getStatusNotReadyTexture());
+								//labelPlayerStatus[i].setTexture(CoreData::getInstance().getStatusNotReadyTexture());
+								setPlayerStatusImage(i, CoreData::getInstance().getStatusNotReadyTexture());
+								setPlayerStatusImageVisible(i, true);
+
 								break;
 							case npst_Disconnected:
-								labelPlayerStatus[i].setTexture(NULL);
+								//labelPlayerStatus[i].setTexture(NULL);
+								setPlayerStatusImage(i, NULL);
 								break;
 
 							default:
-								labelPlayerStatus[i].setTexture(NULL);
+								//labelPlayerStatus[i].setTexture(NULL);
+								setPlayerStatusImage(i, NULL);
 								break;
 						}
 					}
 					else {
-						labelPlayerStatus[i].setTexture(NULL);
+						//labelPlayerStatus[i].setTexture(NULL);
+						setPlayerStatusImage(i, NULL);
 					}
 
 					factionCount++;
 				}
 				else {
-					labelPlayerStatus[i].setTexture(NULL);
+					//labelPlayerStatus[i].setTexture(NULL);
+					setPlayerStatusImage(i, NULL);
 				}
 			}
 
@@ -3744,19 +3814,28 @@ void MenuStateCustomGame::update() {
 					if(hasNetworkGameSettings() == true) {
 						switch(serverInterface->getSlot(i,true)->getNetworkPlayerStatus()) {
 							case npst_BeRightBack:
-								labelPlayerStatus[i].setTexture(CoreData::getInstance().getStatusBRBTexture());
+								//labelPlayerStatus[i].setTexture(CoreData::getInstance().getStatusBRBTexture());
+								setPlayerStatusImage(i, CoreData::getInstance().getStatusBRBTexture());
+								setPlayerStatusImageVisible(i, true);
+
 								break;
 							case npst_Ready:
-								labelPlayerStatus[i].setTexture(CoreData::getInstance().getStatusReadyTexture());
+								//labelPlayerStatus[i].setTexture(CoreData::getInstance().getStatusReadyTexture());
+								setPlayerStatusImage(i, CoreData::getInstance().getStatusReadyTexture());
+								setPlayerStatusImageVisible(i, true);
+
 								break;
 							case npst_PickSettings:
 							default:
-								labelPlayerStatus[i].setTexture(CoreData::getInstance().getStatusNotReadyTexture());
+								//labelPlayerStatus[i].setTexture(CoreData::getInstance().getStatusNotReadyTexture());
+								setPlayerStatusImage(i, CoreData::getInstance().getStatusNotReadyTexture());
+								setPlayerStatusImageVisible(i, true);
+
 								break;
 						}
 					}
 
-					serverInterface->getSlot(i,true)->setName(labelPlayerNames[i].getText());
+					serverInterface->getSlot(i,true)->setName(getPlayerNameText(i));
 
 					//printf("FYI we have at least 1 client connected, slot = %d'\n",i);
 
@@ -3855,15 +3934,21 @@ void MenuStateCustomGame::update() {
 					char szBuf[8096]="";
 					snprintf(szBuf,8096,"%s",label.c_str());
 
-					labelNetStatus[i].setText(szBuf);
+					//labelNetStatus[i].setText(szBuf);
+					MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+					cegui_manager.setControlText("LabelPlayer" + intToStr(i+1) + "Version",szBuf);
 				}
 				else {
 					string port = "("+intToStr(config.getInt("PortServer"))+")";
-					labelNetStatus[i].setText("--- " + port);
+					//labelNetStatus[i].setText("--- " + port);
+					MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+					cegui_manager.setControlText("LabelPlayer" + intToStr(i+1) + "Version","--- " + port);
 				}
 			}
 			else{
-				labelNetStatus[i].setText("");
+				//labelNetStatus[i].setText("");
+				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+				cegui_manager.setControlText("LabelPlayer" + intToStr(i+1) + "Version","");
 			}
 		}
 
@@ -4872,13 +4957,13 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 					gameSettings->setNetworkPlayerName(slotIndex, serverInterface->getSlot(i,true)->getName());
 					gameSettings->setNetworkPlayerUUID(i,serverInterface->getSlot(i,true)->getUUID());
 					gameSettings->setNetworkPlayerPlatform(i,serverInterface->getSlot(i,true)->getPlatform());
-					labelPlayerNames[i].setText(serverInterface->getSlot(i,true)->getName());
+					setPlayerNameText(i,serverInterface->getSlot(i,true)->getName());
 				}
 				else {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, playername unconnected\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i);
 
 					gameSettings->setNetworkPlayerName(slotIndex, GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME);
-					labelPlayerNames[i].setText("");
+					setPlayerNameText(i,"");
 				}
 			}
 			else if (getSelectedPlayerControlTypeIndex(i) != ctHuman) {
@@ -4887,7 +4972,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 				Lang &lang= Lang::getInstance();
 				gameSettings->setNetworkPlayerName(slotIndex, lang.getString("AI") + intToStr(AIPlayerCount));
-				labelPlayerNames[i].setText("");
+				setPlayerNameText(i,"");
 			}
 			if (getSelectedPlayerControlTypeIndex(i) == ctHuman) {
 				setSlotHuman(i);
@@ -4902,7 +4987,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 		else {
 			//gameSettings->setNetworkPlayerName("");
 			gameSettings->setNetworkPlayerStatuses(factionCount, npst_None);
-			labelPlayerNames[i].setText("");
+			setPlayerNameText(i,"");
 		}
     }
 
@@ -5117,7 +5202,7 @@ void MenuStateCustomGame::KeepCurrentHumanPlayerSlots(GameSettings &gameSettings
 				foundValidHumanControlTypeInFile = true;
 				//printf("Human found in file [%d]\n",index2);
 			}
-			else if(labelPlayerNames[index2].getText() == "") {
+			else if(getPlayerNameText(index2) == "") {
 				foundValidHumanControlTypeInFile = true;
 			}
 		}
@@ -5400,11 +5485,11 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 		for(int index = 0; index < GameConstants::maxPlayers; ++index) {
 			ControlType ct= static_cast<ControlType>(getSelectedPlayerControlTypeIndex(index));
 			if(ct == ctHuman) {
-				if(humanPlayerName != labelPlayerNames[index].getText()) {
+				if(humanPlayerName != getPlayerNameText(index)) {
 					//printf("Player name changing from [%s] to [%s]\n",labelPlayerNames[index].getText().c_str(),humanPlayerName.c_str());
 
-					labelPlayerNames[index].setText("");
-					labelPlayerNames[index].setText(humanPlayerName);
+					setPlayerNameText(index,"");
+					setPlayerNameText(index,humanPlayerName);
 				}
 			}
 		}
@@ -5480,12 +5565,13 @@ void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMa
 					//labelPlayers[i].setVisible(i+1 <= mapInfo->players);
 					setPlayerNumberVisible(i, i+1 <= mapInfo->players);
 
-					labelPlayerNames[i].setVisible(i+1 <= mapInfo->players);
+					setPlayerNameVisible(i,i+1 <= mapInfo->players);
 					//listBoxControls[i].setVisible(i+1 <= mapInfo->players);
 					setPlayerControlTypeVisible(i,i+1 <= mapInfo->players);
 					listBoxFactions[i].setVisible(i+1 <= mapInfo->players);
 					listBoxTeams[i].setVisible(i+1 <= mapInfo->players);
-					labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
+					//labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
+					setPlayerVersionVisible(i,i+1 <= mapInfo->players);
 				}
 			}
 			// Not painting properly so this is on hold
@@ -5904,9 +5990,9 @@ string MenuStateCustomGame::getHumanPlayerName(int index) {
 	}
 
 	if(index >= 0 && index < GameConstants::maxPlayers &&
-		labelPlayerNames[index].getText() != "" &&
-		labelPlayerNames[index].getText() !=  GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
-		result = labelPlayerNames[index].getText();
+			getPlayerNameText(index) != "" &&
+			getPlayerNameText(index) !=  GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
+		result = getPlayerNameText(index);
 
 		if(activeInputLabel != NULL) {
 			size_t found = result.find_last_of("_");
@@ -5964,7 +6050,13 @@ void MenuStateCustomGame::cleanupMapPreviewTexture() {
 
 int32 MenuStateCustomGame::getNetworkPlayerStatus() {
 	int32 result = npst_None;
-	switch(listBoxPlayerStatus.getSelectedItemIndex()) {
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	int selectedControlItemIndex = cegui_manager.
+			getSelectedItemIndexFromComboBoxControl(
+					cegui_manager.getControl("ComboHumanPlayerStatus"));
+
+	switch(selectedControlItemIndex) {
 		case 2:
 			result = npst_Ready;
 			break;
@@ -6086,7 +6178,7 @@ void MenuStateCustomGame::processScenario() {
 					//no human
 					if(humanIndex1 == -1 && humanIndex2 == -1) {
 						setSlotHuman(i);
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[i].getText() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,labelPlayerNames[i].getText().c_str());
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[i].getText() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,getPlayerNameText(i).c_str());
 
 						//printf("humanIndex1 = %d humanIndex2 = %d i = %d listBoxControls[i].getSelectedItemIndex() = %d\n",humanIndex1,humanIndex2,i,listBoxControls[i].getSelectedItemIndex());
 					}
@@ -6095,7 +6187,7 @@ void MenuStateCustomGame::processScenario() {
 						int closeSlotIndex = (humanIndex1 == i ? humanIndex2: humanIndex1);
 						int humanSlotIndex = (closeSlotIndex == humanIndex1 ? humanIndex2 : humanIndex1);
 
-						string origPlayName = labelPlayerNames[closeSlotIndex].getText();
+						string origPlayName = getPlayerNameText(closeSlotIndex);
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] closeSlotIndex = %d, origPlayName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,closeSlotIndex,origPlayName.c_str());
 						//printf("humanIndex1 = %d humanIndex2 = %d i = %d closeSlotIndex = %d humanSlotIndex = %d\n",humanIndex1,humanIndex2,i,closeSlotIndex,humanSlotIndex);
@@ -6103,7 +6195,7 @@ void MenuStateCustomGame::processScenario() {
 						//listBoxControls[closeSlotIndex].setSelectedItemIndex(ctClosed);
 						setPlayerControlTypeSelectedIndex(closeSlotIndex,ctClosed);
 
-						labelPlayerNames[humanSlotIndex].setText((origPlayName != "" ? origPlayName : getHumanPlayerName()));
+						setPlayerNameText(humanSlotIndex,(origPlayName != "" ? origPlayName : getHumanPlayerName()));
 					}
 
 					ControlType ct= static_cast<ControlType>(getSelectedPlayerControlTypeIndex(i));
@@ -6589,7 +6681,7 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 }
 
 void MenuStateCustomGame::setSlotHuman(int i) {
-	if(labelPlayerNames[i].getEditable()) {
+	if(getPlayerNameEnabled(i)) {
 		return;
 	}
 	//listBoxControls[i].setSelectedItemIndex(ctHuman);
@@ -6597,11 +6689,11 @@ void MenuStateCustomGame::setSlotHuman(int i) {
 
 	listBoxRMultiplier[i].setSelectedItem("1.0");
 
-	labelPlayerNames[i].setText(getHumanPlayerName());
+	setPlayerNameText(i,getHumanPlayerName());
 	for(int j = 0; j < GameConstants::maxPlayers; ++j) {
-		labelPlayerNames[j].setEditable(false);
+		setPlayerNameEnabled(j,false);
 	}
-	labelPlayerNames[i].setEditable(true);
+	setPlayerNameEnabled(i,true);
 }
 
 void MenuStateCustomGame::setupTilesetList(string scenario) {
@@ -6686,6 +6778,89 @@ void MenuStateCustomGame::setPlayerNumberVisible(int index, bool visible) {
 					"LabelPlayer" + intToStr(index+1) + "Number");
 
 	cegui_manager.setControlVisible(ctl,visible);
+}
+
+void MenuStateCustomGame::setPlayerNameText(int index, string text) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.getControl(
+					"EditboxPlayer" + intToStr(index+1) + "Name");
+
+	std::map<int,Texture2D *> &crcPlayerTextureCache =
+				CacheManager::getCachedItem< std::map<int,Texture2D *> >(
+						GameConstants::playerTextureCacheLookupKey);
+	Vec3f playerColor = crcPlayerTextureCache[index]->getPixmap()->getPixel3f(0, 0);
+	cegui_manager.setControlTextColor(ctl,playerColor.x, playerColor.y, playerColor.z);
+	cegui_manager.setControlText(ctl,text);
+}
+
+string MenuStateCustomGame::getPlayerNameText(int index) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.getControl(
+					"EditboxPlayer" + intToStr(index+1) + "Name");
+
+	return cegui_manager.getControlText(ctl);
+}
+
+void MenuStateCustomGame::setPlayerNameVisible(int index, bool visible) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.getControl(
+					"EditboxPlayer" + intToStr(index+1) + "Name");
+
+	if(cegui_manager.getControlVisible(ctl) != visible) {
+		cegui_manager.setControlVisible(ctl,visible);
+	}
+}
+
+bool MenuStateCustomGame::getPlayerNameEnabled(int index) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.getControl(
+					"EditboxPlayer" + intToStr(index+1) + "Name");
+
+	return cegui_manager.getControlEnabled(ctl);
+
+}
+
+void MenuStateCustomGame::setPlayerNameEnabled(int index, bool enabled) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.getControl(
+					"EditboxPlayer" + intToStr(index+1) + "Name");
+
+	if(cegui_manager.getControlEnabled(ctl) != enabled) {
+		cegui_manager.setControlEnabled(ctl,enabled);
+		//cegui_manager.setControlReadOnly(ctl,enabled);
+	}
+
+}
+
+void MenuStateCustomGame::setPlayerVersionVisible(int index, bool visible) {
+
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.getControl(
+					"LabelPlayer" + intToStr(index+1) + "Version");
+
+	if(cegui_manager.getControlVisible(ctl) != visible) {
+		cegui_manager.setControlVisible(ctl,visible);
+	}
+}
+
+void MenuStateCustomGame::setPlayerStatusImage(int index, Texture2D *texture) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	string textureName 	= "ImagePlayer" + intToStr(index+1) + "Status_Texture";
+	string ctlName 		= "ImagePlayer" + intToStr(index+1) + "Status";
+
+	cegui_manager.setImageForControl(textureName,texture, ctlName, true);
+}
+
+void MenuStateCustomGame::setPlayerStatusImageVisible(int index, bool visible) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	string ctlName 		= "ImagePlayer" + intToStr(index+1) + "Status";
+
+	CEGUI::Window *ctl = cegui_manager.getControl(ctlName);
+
+	if(cegui_manager.getControlVisible(ctl) != visible) {
+		cegui_manager.setControlVisible(ctl,visible);
+	}
+
 }
 
 }}//end namespace

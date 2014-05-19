@@ -3,8 +3,11 @@
 ################################################################################
 include(FindPackageHandleStandardArgs)
 
-find_path(FREETYPE_H_PATH_ft2build NAMES ft2build.h)
-find_path(FREETYPE_H_PATH_ftconfig NAMES freetype/config/ftconfig.h PATH_SUFFIXES freetype2)
+find_path(FREETYPE_H_PATH_ft2build NAMES ft2build.h ft2build.h freetype2/ PATH_SUFFIXES freetype2)
+find_path(FREETYPE_H_PATH_ftconfig NAMES freetype/config/ftconfig.h freetype2/config/ftconfig.h PATH_SUFFIXES freetype2)
+
+MESSAGE(STATUS "FREETYPE_H_PATH_ft2build  [${FREETYPE_H_PATH_ft2build}] FREETYPE_H_PATH_ftconfig [${FREETYPE_H_PATH_ftconfig}]")
+
 find_library(FREETYPE_LIB NAMES freetype2 freetype libfreetype PATH_SUFFIXES dynamic)
 find_library(FREETYPE_LIB_DBG NAMES freetype_d libfreetype_d PATH_SUFFIXES dynamic)
 mark_as_advanced(FREETYPE_H_PATH_ft2build FREETYPE_H_PATH_ftconfig FREETYPE_LIB FREETYPE_LIB_DBG)
@@ -15,7 +18,7 @@ if (WIN32 OR APPLE)
     mark_as_advanced(FREETYPE_LIB_STATIC FREETYPE_LIB_STATIC_DBG)
 endif()
 
-cegui_find_package_handle_standard_args(FREETYPE FREETYPE_LIB FREETYPE_H_PATH_ft2build FREETYPE_H_PATH_ftconfig)
+cegui_find_package_handle_standard_args(FREETYPE FREETYPE_LIB FREETYPE_H_PATH_ft2build FREETYPE_H_PATH_ftconfig) 
 
 # set up output vars
 if (FREETYPE_FOUND)

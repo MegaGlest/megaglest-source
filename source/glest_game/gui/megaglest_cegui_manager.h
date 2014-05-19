@@ -105,6 +105,7 @@ public:
 	void setControlText(CEGUI::Window *ctl, string text, bool disableFormatting=false);
 	void setControlTextColor(CEGUI::Window *ctl, float red, float green, float blue, float alpha=1.0f);
 	void setControlTextColor(string controlName, float red, float green, float blue, float alpha=1.0f);
+	string getTextColorFromRGBA(float red, float green, float blue, float alpha=1.0f);
 	string getControlText(string controlName);
 	string getControlText(CEGUI::Window *ctl);
 	void setControlEventCallback(string containerName, string controlName,
@@ -114,6 +115,7 @@ public:
 
 	void setControlVisible(string controlName, bool visible);
 	void setControlVisible(CEGUI::Window *ctl, bool visible);
+	bool getControlVisible(CEGUI::Window *ctl);
 
 	void setControlReadOnly(CEGUI::Window *ctl, bool readOnly);
 	void setControlEnabled(CEGUI::Window *ctl, bool enabled);

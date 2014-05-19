@@ -47,10 +47,10 @@ private:
 	//GraphicButton buttonReturn;
 	//GraphicButton buttonPlayNow;
 	//GraphicButton buttonRestoreLastSettings;
-	GraphicLabel labelControl;
-	GraphicLabel labelRMultiplier;
-	GraphicLabel labelFaction;
-	GraphicLabel labelTeam;
+	//GraphicLabel labelControl;
+	//GraphicLabel labelRMultiplier;
+	//GraphicLabel labelFaction;
+	//GraphicLabel labelTeam;
 	//GraphicLabel labelMap;
 	//GraphicLabel labelFogOfWar;
 	//GraphicLabel labelTechTree;
@@ -73,13 +73,13 @@ private:
 	vector<string> factionFiles;
 
 	//GraphicLabel labelPlayers[GameConstants::maxPlayers];
-	GraphicLabel labelPlayerNames[GameConstants::maxPlayers];
+	//GraphicLabel labelPlayerNames[GameConstants::maxPlayers];
 	//GraphicListBox listBoxControls[GameConstants::maxPlayers];
 	GraphicButton buttonBlockPlayers[GameConstants::maxPlayers];
 	GraphicListBox listBoxRMultiplier[GameConstants::maxPlayers];
 	GraphicListBox listBoxFactions[GameConstants::maxPlayers];
 	GraphicListBox listBoxTeams[GameConstants::maxPlayers];
-	GraphicLabel labelNetStatus[GameConstants::maxPlayers];
+	//GraphicLabel labelNetStatus[GameConstants::maxPlayers];
 	MapInfo mapInfo;
 
 	GraphicButton buttonClearBlockedPlayers;
@@ -104,8 +104,8 @@ private:
 
 	GraphicLabel *activeInputLabel;
 
-	GraphicLabel labelPlayerStatus[GameConstants::maxPlayers];
-	GraphicListBox listBoxPlayerStatus;
+	//GraphicLabel labelPlayerStatus[GameConstants::maxPlayers];
+	//GraphicListBox listBoxPlayerStatus;
 
 	GraphicLabel labelEnableSwitchTeamMode;
 	GraphicCheckBox checkBoxEnableSwitchTeamMode;
@@ -335,6 +335,18 @@ private:
 	void setPlayerControlTypeSelectedIndex(int index, int indexValue);
 
 	void setPlayerNumberVisible(int index, bool visible);
+
+	void setPlayerNameText(int index, string text);
+	string getPlayerNameText(int index);
+	void setPlayerNameVisible(int index, bool visible);
+
+	bool getPlayerNameEnabled(int index);
+	void setPlayerNameEnabled(int index, bool enabled);
+
+	void setPlayerVersionVisible(int index, bool visible);
+
+	void setPlayerStatusImageVisible(int index, bool visible);
+	void setPlayerStatusImage(int index, Texture2D *texture);
 };
 
 }}//end namespace

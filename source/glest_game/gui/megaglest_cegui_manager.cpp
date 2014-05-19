@@ -565,7 +565,18 @@ void MegaGlest_CEGUIManager::setControlTextColor(string controlName, float red, 
 
 void MegaGlest_CEGUIManager::setControlTextColor(CEGUI::Window *ctl, float red, float green, float blue, float alpha) {
 	CEGUI::Colour color(red, green, blue, alpha);
-	ctl->setProperty("TextColours", CEGUI::PropertyHelper<CEGUI::Colour>::toString(color));
+
+	if(dynamic_cast<CEGUI::Editbox *>(ctl) != NULL) {
+		ctl->setProperty("NormalTextColour", CEGUI::PropertyHelper<CEGUI::Colour>::toString(color));
+	}
+	else {
+		ctl->setProperty("TextColours", CEGUI::PropertyHelper<CEGUI::Colour>::toString(color));
+	}
+}
+
+string MegaGlest_CEGUIManager::getTextColorFromRGBA(float red, float green, float blue, float alpha) {
+	CEGUI::Colour color(red, green, blue, alpha);
+	return CEGUI::PropertyHelper<CEGUI::Colour>::toString(color).c_str();
 }
 
 string MegaGlest_CEGUIManager::getControlText(string controlName) {
@@ -1310,6 +1321,10 @@ void MegaGlest_CEGUIManager::setControlVisible(string controlName, bool visible)
 
 void MegaGlest_CEGUIManager::setControlVisible(CEGUI::Window *ctl, bool visible) {
 	ctl->setVisible(visible);
+}
+
+bool MegaGlest_CEGUIManager::getControlVisible(CEGUI::Window *ctl) {
+	return ctl->isVisible();
 }
 
 void MegaGlest_CEGUIManager::setControlReadOnly(CEGUI::Window *ctl, bool readOnly) {

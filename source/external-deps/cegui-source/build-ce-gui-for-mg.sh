@@ -52,7 +52,7 @@ if [ -f 'CMakeCache.txt' ]; then rm -f 'CMakeCache.txt'; fi
 
 # You may require a bunch of deps to build cegui, some listed below:
 #
-# sudo apt-get install libpython2.7-dev libglm-dev libglfw-dev libboost1.53-dev-all
+# sudo apt-get install libpython2.7-dev libglm-dev libglfw-dev libboost1.55-dev-all libfreeimage-dev
 
 cmake -DCEGUI_BUILD_PYTHON_MODULES:BOOL=ON \
       -DCEGUI_BUILD_RENDERER_OGRE:BOOL=OFF \
