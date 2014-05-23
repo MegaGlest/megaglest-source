@@ -857,7 +857,7 @@ void MenuStateMasterserver::update() {
 					button->setFont(CoreData::getInstance().getDisplayFontSmall());
 					button->setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 					button->setText(nickList[i]);
-					if(strncmp(&nickList[i][0],"MG_",3) != 0) {
+					if(strncmp(&nickList[i][0],"MG_",3) != 0 || &nickList[i][0] == currentIrcNick) {
 						button->setEnabled(false);
 						button->setEditable(false);
 						button->setCustomTexture(CoreData::getInstance().getCustomTexture());
