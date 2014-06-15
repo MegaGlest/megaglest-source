@@ -76,8 +76,8 @@ private:
 	//GraphicLabel labelPlayerNames[GameConstants::maxPlayers];
 	//GraphicListBox listBoxControls[GameConstants::maxPlayers];
 	GraphicButton buttonBlockPlayers[GameConstants::maxPlayers];
-	GraphicListBox listBoxRMultiplier[GameConstants::maxPlayers];
-	GraphicListBox listBoxFactions[GameConstants::maxPlayers];
+	//GraphicListBox listBoxRMultiplier[GameConstants::maxPlayers];
+	//GraphicListBox listBoxFactions[GameConstants::maxPlayers];
 	GraphicListBox listBoxTeams[GameConstants::maxPlayers];
 	//GraphicLabel labelNetStatus[GameConstants::maxPlayers];
 	MapInfo mapInfo;
@@ -347,6 +347,16 @@ private:
 
 	void setPlayerStatusImageVisible(int index, bool visible);
 	void setPlayerStatusImage(int index, Texture2D *texture);
+
+	double convertMultiplierIndexToValue(int index);
+	int convertMultiplierValueToIndex(double value);
+
+	int getSelectedPlayerFactionTypeIndex(int index);
+	void setPlayerFactionTypeSelectedIndex(int index, int indexValue);
+	void setPlayerFactionTypeSelectedItem(int index, string value);
+
+	int getSelectedPlayerFactionTypeItemCount(int index);
+	string getPlayerFactionTypeSelectedItem(int index);
 };
 
 }}//end namespace

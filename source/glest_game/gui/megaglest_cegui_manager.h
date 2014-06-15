@@ -176,6 +176,7 @@ public:
 	void setSelectedItemInComboBoxControl(CEGUI::Window *ctl, string value, bool disableFormatting=false);
 	void setSelectedUserDataItemInComboBoxControl(CEGUI::Window *ctl, void *value, bool disableFormatting=false);
 	string getSelectedItemFromComboBoxControl(CEGUI::Window *ctl);
+	string getItemFromComboBoxControl(CEGUI::Window *ctl, int index);
 	int getSelectedItemIndexFromComboBoxControl(CEGUI::Window *ctl);
 	int getSelectedItemIdFromComboBoxControl(CEGUI::Window *ctl);
 	void * getSelectedUserDataItemFromComboBoxControl(CEGUI::Window *ctl);
@@ -187,6 +188,7 @@ public:
 	void setSelectedItemInListBoxControl(CEGUI::Window *ctl, string value, bool disableFormatting=false);
 
 	void setSpinnerControlValues(CEGUI::Window *ctl, double minValue, double maxValue, double curValue, double interval=1);
+	void setSpinnerControlValue(CEGUI::Window *ctl, double curValue);
 	double getSpinnerControlValue(CEGUI::Window *ctl);
 
 	void setCheckboxControlChecked(CEGUI::Window *ctl, bool checked, bool disableEventsTrigger=false);

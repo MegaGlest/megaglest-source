@@ -1102,6 +1102,12 @@ string MegaGlest_CEGUIManager::getSelectedItemFromComboBoxControl(CEGUI::Window 
 	return itemCombobox->getText().c_str();
 }
 
+string MegaGlest_CEGUIManager::getItemFromComboBoxControl(CEGUI::Window *ctl, int index) {
+	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
+	CEGUI::ListboxItem *itemCombobox = combobox->getListboxItemFromIndex(index);
+	return itemCombobox->getText().c_str();
+}
+
 void * MegaGlest_CEGUIManager::getSelectedUserDataItemFromComboBoxControl(CEGUI::Window *ctl) {
 	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
 	CEGUI::ListboxItem *itemCombobox = combobox->getSelectedItem();
@@ -1237,6 +1243,11 @@ void MegaGlest_CEGUIManager::setSpinnerControlValues(CEGUI::Window *ctl, double 
 	spinner->setMaximumValue(maxValue);
 	spinner->setCurrentValue(curValue);
 	spinner->setStepSize(interval);
+}
+
+void MegaGlest_CEGUIManager::setSpinnerControlValue(CEGUI::Window *ctl, double curValue) {
+	CEGUI::Spinner *spinner = static_cast<CEGUI::Spinner*>(ctl);
+	spinner->setCurrentValue(curValue);
 }
 
 double MegaGlest_CEGUIManager::getSpinnerControlValue(CEGUI::Window *ctl) {
