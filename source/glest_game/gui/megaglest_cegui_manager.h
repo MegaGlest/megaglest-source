@@ -181,6 +181,7 @@ public:
 	int getSelectedItemIdFromComboBoxControl(CEGUI::Window *ctl);
 	void * getSelectedUserDataItemFromComboBoxControl(CEGUI::Window *ctl);
 	int getItemCountInComboBoxControl(CEGUI::Window *ctl);
+	bool hasItemInComboBoxControl(CEGUI::Window *ctl, string value);
 
 	void addItemToListBoxControl(CEGUI::Window *ctl, string value, int index, bool disableFormatting=false);
 	void addItemsToListBoxControl(CEGUI::Window *ctl, vector<string> valueList, bool disableFormatting=false);

@@ -358,6 +358,7 @@ private:
 
 	int getSelectedPlayerFactionTypeItemCount(int index);
 	string getPlayerFactionTypeSelectedItem(int index);
+	int hasPlayerFactionTypeItem(int index, string value);
 
 
 	int getSelectedPlayerTeamIndex(int index);

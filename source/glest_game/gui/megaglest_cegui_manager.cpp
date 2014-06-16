@@ -1197,6 +1197,13 @@ void MegaGlest_CEGUIManager::setSelectedUserDataItemInComboBoxControl(CEGUI::Win
 	}
 }
 
+bool MegaGlest_CEGUIManager::hasItemInComboBoxControl(CEGUI::Window *ctl, string value) {
+	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
+
+	CEGUI::String cegui_value((CEGUI::encoded_char*)value.c_str());
+	return combobox->findItemWithText(cegui_value,NULL);
+}
+
 void MegaGlest_CEGUIManager::addItemToListBoxControl(CEGUI::Window *ctl, string value, int index, bool disableFormatting) {
 	CEGUI::Listbox *listbox = static_cast<CEGUI::Listbox*>(ctl);
 

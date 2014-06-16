@@ -3367,10 +3367,8 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 
 			if(//listBoxFactions[i].getSelectedItem() == formatString(GameConstants::RANDOMFACTION_SLOTNAME) &&
 				//listBoxFactions[i].getItemCount() > 1) {
-				cegui_manager.getSelectedItemFromComboBoxControl(
-									cegui_manager.getControl("ComboBoxPlayer" + intToStr(i+1) + "Faction")) == formatString(GameConstants::RANDOMFACTION_SLOTNAME) &&
-				cegui_manager.getItemCountInComboBoxControl(
-						cegui_manager.getControl("ComboBoxPlayer" + intToStr(i+1) + "Faction")) > 1) {
+				getPlayerFactionTypeSelectedItem(i) == formatString(GameConstants::RANDOMFACTION_SLOTNAME) &&
+				getSelectedPlayerFactionTypeItemCount(i) > 1) {
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i);
 
@@ -3380,8 +3378,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 					srand((unsigned int)seed.getCurTicks() + findRandomFaction);
 
 					//int selectedFactionIndex = rand() % listBoxFactions[i].getItemCount();
-					int selectedFactionIndex = rand() % cegui_manager.getItemCountInComboBoxControl(
-											cegui_manager.getControl("ComboBoxPlayer" + intToStr(i+1) + "Faction"));
+					int selectedFactionIndex = rand() % getSelectedPlayerFactionTypeItemCount(i);
 					//string selectedFactionName = listBoxFactions[i].getItem(selectedFactionIndex);
 					string selectedFactionName = cegui_manager.getItemFromComboBoxControl(
 							cegui_manager.getControl("ComboBoxPlayer" + intToStr(i+1) + "Faction"),selectedFactionIndex);
@@ -3394,8 +3391,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 						//listBoxFactions[i].setSelectedItem(selectedFactionName);
-						cegui_manager.setSelectedItemInComboBoxControl(
-							cegui_manager.getControl("ComboBoxPlayer" + intToStr(i+1) + "Faction"), selectedFactionName);
+						setPlayerFactionTypeSelectedItem(i, selectedFactionName);
 
 						randomFactionSelectionList.push_back(selectedFactionName);
 						break;
@@ -3403,17 +3399,13 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 				}
 
 				//if(listBoxFactions[i].getSelectedItem() == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
-				if(cegui_manager.getSelectedItemFromComboBoxControl(
-					cegui_manager.getControl("ComboBoxPlayer" + intToStr(i+1) + "Faction")) ==
-							formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
+				if(getPlayerFactionTypeSelectedItem(i) == formatString(GameConstants::RANDOMFACTION_SLOTNAME)) {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] RandomCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,RandomCount);
 
 					// Find first real faction and use it
 					int factionIndexToUse = RandomCount;
 					//for(int useIdx = 0; useIdx < listBoxFactions[i].getItemCount(); useIdx++) {
-					for(int useIdx = 0; useIdx < cegui_manager.getItemCountInComboBoxControl(
-							cegui_manager.getControl(
-									"ComboBoxPlayer" + intToStr(i+1) + "Faction")); useIdx++) {
+					for(int useIdx = 0; useIdx < getSelectedPlayerFactionTypeItemCount(i); useIdx++) {
 
 						//string selectedFactionName = listBoxFactions[i].getItem(useIdx);
 						string selectedFactionName = cegui_manager.getItemFromComboBoxControl(
@@ -3426,9 +3418,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 						}
 					}
 					//listBoxFactions[i].setSelectedItemIndex(factionIndexToUse);
-					cegui_manager.setSelectedItemInComboBoxControl(
-							cegui_manager.getControl("ComboBoxPlayer" + intToStr(i+1) + "Faction"),
-							factionIndexToUse);
+					setPlayerFactionTypeSelectedIndex(i,factionIndexToUse);
 
 					//randomFactionSelectionList.push_back(listBoxFactions[i].getItem(factionIndexToUse));
 					randomFactionSelectionList.push_back(
@@ -4048,13 +4038,9 @@ void MenuStateCustomGame::switchSetupForSlots(SwitchSetupRequest **switchSetupRe
 							(slot != NULL &&
 							 switchSetupRequests[i]->getSelectedFactionName() != Lang::getInstance().getString("DataMissing",slot->getNetworkPlayerLanguage(),true) &&
 							 switchSetupRequests[i]->getSelectedFactionName() != "???DataMissing???")) {
-							//listBoxFactions[i].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
 
-							MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-							cegui_manager.setSelectedItemInComboBoxControl(
-								cegui_manager.getControl(
-									"ComboBoxPlayer" + intToStr(i+1) + "Faction"),
-									switchSetupRequests[i]->getSelectedFactionName());
+							//listBoxFactions[i].setSelectedItem(switchSetupRequests[i]->getSelectedFactionName());
+							setPlayerFactionTypeSelectedItem(i,switchSetupRequests[i]->getSelectedFactionName());
 						}
 						if(switchSetupRequests[i]->getToTeam() != -1) {
 							setSelectedPlayerTeamIndex(i,switchSetupRequests[i]->getToTeam());
@@ -5303,7 +5289,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	gameSettings->setAiAcceptSwitchTeamPercentChance(strToInt(cegui_manager.getSelectedItemFromComboBoxControl(ctl)));
 
 	//gameSettings->setFallbackCpuMultiplier(listBoxFallbackCpuMultiplier.getSelectedItemIndex());
-	cegui_manager.setControlEnabled(cegui_manager.getControl("SpinnerAIReplaceMultiplier"),false);
+	//cegui_manager.setControlEnabled(cegui_manager.getControl("SpinnerAIReplaceMultiplier"),false);
 	//cegui_manager.setSelectedItemInComboBoxControl(cegui_manager.getControl("SpinnerAIReplaceMultiplier"),"1.0");
 	cegui_manager.setSpinnerControlValue(cegui_manager.getControl("SpinnerAIReplaceMultiplier"),1.0f);
 
@@ -5545,10 +5531,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 			//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
 
 			//gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
-			gameSettings->setFactionTypeName(slotIndex, factionFiles[
-              cegui_manager.getSelectedItemIndexFromComboBoxControl(
-            		  cegui_manager.getControl(
-			             "ComboBoxPlayer" + intToStr(i+1) + "Faction"))]);
+			gameSettings->setFactionTypeName(slotIndex, factionFiles[getSelectedPlayerFactionTypeIndex(i)]);
 
 			gameSettings->setNetworkPlayerName(slotIndex, "Closed");
 			gameSettings->setNetworkPlayerUUID(slotIndex,"");
@@ -6025,9 +6008,13 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 		//else {
 		//	listBoxFactions[slotIndex].setSelectedItem(formatString(GameConstants::RANDOMFACTION_SLOTNAME));
 		//}
-		cegui_manager.setSelectedItemInComboBoxControl(
-		    cegui_manager.getControl(
-			    "ComboBoxPlayer" + intToStr(slotIndex+1) + "Faction"),formatString(GameConstants::RANDOMFACTION_SLOTNAME));
+
+		if(hasPlayerFactionTypeItem(slotIndex,factionName) == true) {
+			setPlayerFactionTypeSelectedItem(slotIndex,factionName);
+		}
+		else {
+			setPlayerFactionTypeSelectedItem(slotIndex,formatString(GameConstants::RANDOMFACTION_SLOTNAME));
+		}
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, gameSettings.getNetworkPlayerName(i) [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,gameSettings.getNetworkPlayerName(i).c_str());
 
 		//labelPlayerNames[slotIndex].setText(gameSettings.getNetworkPlayerName(i));
@@ -6780,37 +6767,26 @@ void MenuStateCustomGame::processScenario() {
 
 						//printf("Setting scenario faction i = %d [ %s]\n",i,scenarioInfo.factionTypeNames[i].c_str());
 						//listBoxFactions[i].setSelectedItem(formatString(scenarioInfo.factionTypeNames[i]));
-						cegui_manager.setSelectedItemInComboBoxControl(
-						    cegui_manager.getControl(
-							    "ComboBoxPlayer" + intToStr(i+1) + "Faction"),
-							    formatString(scenarioInfo.factionTypeNames[i]));
+						setPlayerFactionTypeSelectedItem(i,formatString(scenarioInfo.factionTypeNames[i]));
 
 						//printf("DONE Setting scenario faction i = %d [ %s]\n",i,scenarioInfo.factionTypeNames[i].c_str());
 
 						// Disallow CPU players to be observers
 						//if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
-						if(factionFiles[cegui_manager.getSelectedItemIndexFromComboBoxControl(
-						    cegui_manager.getControl(
-							    "ComboBoxPlayer" + intToStr(i+1) + "Faction"))] ==
-							    		formatString(GameConstants::OBSERVER_SLOTNAME) &&
-
+						if(factionFiles[getSelectedPlayerFactionTypeIndex(i)] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
 							(getSelectedPlayerControlTypeIndex(i) == ctCpuEasy ||
 								getSelectedPlayerControlTypeIndex(i) == ctCpu ||
 								getSelectedPlayerControlTypeIndex(i) == ctCpuUltra ||
 								getSelectedPlayerControlTypeIndex(i) == ctCpuMega)) {
 
 							//listBoxFactions[i].setSelectedItemIndex(0);
-							cegui_manager.setSelectedItemInComboBoxControl(
-								cegui_manager.getControl(
-								    "ComboBoxPlayer" + intToStr(i+1) + "Faction"),0);
+							setPlayerFactionTypeSelectedIndex(i,0);
 						}
 						//
 
 						setSelectedPlayerTeam(i,intToStr(scenarioInfo.teams[i]));
 						//if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
-						if(factionFiles[cegui_manager.getSelectedItemIndexFromComboBoxControl(
-							cegui_manager.getControl(
-							    "ComboBoxPlayer" + intToStr(i+1) + "Faction"))] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
+						if(factionFiles[getSelectedPlayerFactionTypeIndex(i)] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
 
 							if(getSelectedPlayerTeamIndex(i) + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
 								lastSelectedTeamIndex[i] = getSelectedPlayerTeamIndex(i);
@@ -7257,9 +7233,7 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 			}
 			else if(originalIndex < (int)results.size()) {
 				//listBoxFactions[i].setSelectedItemIndex(originalIndex);
-
-				cegui_manager.setSelectedItemInComboBoxControl(
-					cegui_manager.getControl("ComboBoxPlayer" + intToStr(i+1) + "Faction"), originalIndex);
+				setPlayerFactionTypeSelectedIndex(i, originalIndex);
 			}
 		}
 	}
@@ -7525,6 +7499,14 @@ string MenuStateCustomGame::getPlayerFactionTypeSelectedItem(int index) {
 					"ComboBoxPlayer" + intToStr(index+1) + "Faction");
 
 	return cegui_manager.getSelectedItemFromComboBoxControl(ctl);
+}
+
+int MenuStateCustomGame::hasPlayerFactionTypeItem(int index, string value) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.getControl(
+					"ComboBoxPlayer" + intToStr(index+1) + "Faction");
+
+	return cegui_manager.hasItemInComboBoxControl(ctl, value);
 }
 
 int MenuStateCustomGame::getSelectedPlayerTeamIndex(int index) {
