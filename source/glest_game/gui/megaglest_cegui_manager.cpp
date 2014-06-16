@@ -1099,6 +1099,9 @@ string MegaGlest_CEGUIManager::getSelectedItemFromComboBoxControl(CEGUI::Window 
 
 	CEGUI::Combobox *combobox = static_cast<CEGUI::Combobox*>(ctl);
 	CEGUI::ListboxItem *itemCombobox = combobox->getSelectedItem();
+	if(itemCombobox == NULL) {
+		return "";
+	}
 	return itemCombobox->getText().c_str();
 }
 

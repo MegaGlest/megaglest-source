@@ -101,7 +101,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] autostart = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,autostart);
 
 	containerName = "CustomGame";
-	activeInputLabel=NULL;
+	//activeInputLabel=NULL;
 	showGeneralError = false;
 	generalErrorToShow = "---";
 	currentFactionLogo = "";
@@ -186,13 +186,13 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	setupCEGUIWidgets(openNetworkSlots);
 
-	int labelOffset=23;
+	//int labelOffset=23;
 	int setupPos=605;
-	int mapHeadPos=330;
+	//int mapHeadPos=330;
 	//int mapPos=mapHeadPos-labelOffset;
-	int aHeadPos=240;
-	int aPos=aHeadPos-labelOffset;
-	int networkHeadPos=700;
+	//int aHeadPos=240;
+	//int aPos=aHeadPos-labelOffset;
+	//int networkHeadPos=700;
 	//int networkPos=networkHeadPos-labelOffset;
 	int xoffset=10;
 
@@ -310,55 +310,55 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 //	listBoxFogOfWar.setSelectedItemIndex(0);
 
 	// Allow Observers
-	labelAllowObservers.registerGraphicComponent(containerName,"labelAllowObservers");
-	labelAllowObservers.init(xoffset+310, aHeadPos, 80);
-	labelAllowObservers.setText(lang.getString("AllowObservers"));
-
-	checkBoxAllowObservers.registerGraphicComponent(containerName,"checkBoxAllowObservers");
-	checkBoxAllowObservers.init(xoffset+310, aPos);
-	checkBoxAllowObservers.setValue(false);
+//	labelAllowObservers.registerGraphicComponent(containerName,"labelAllowObservers");
+//	labelAllowObservers.init(xoffset+310, aHeadPos, 80);
+//	labelAllowObservers.setText(lang.getString("AllowObservers"));
+//
+//	checkBoxAllowObservers.registerGraphicComponent(containerName,"checkBoxAllowObservers");
+//	checkBoxAllowObservers.init(xoffset+310, aPos);
+//	checkBoxAllowObservers.setValue(false);
 
 	vector<string> rMultiplier;
 	for(int i=0; i<45; ++i){
 		rMultiplier.push_back(floatToStr(0.5f+0.1f*i,1));
 	}
 
-	labelFallbackCpuMultiplier.registerGraphicComponent(containerName,"labelFallbackCpuMultiplier");
-	labelFallbackCpuMultiplier.init(xoffset+460, aHeadPos, 80);
-	labelFallbackCpuMultiplier.setText(lang.getString("FallbackCpuMultiplier"));
-
-	listBoxFallbackCpuMultiplier.registerGraphicComponent(containerName,"listBoxFallbackCpuMultiplier");
-	listBoxFallbackCpuMultiplier.init(xoffset+460, aPos, 80);
-	listBoxFallbackCpuMultiplier.setItems(rMultiplier);
-	listBoxFallbackCpuMultiplier.setSelectedItem("1.0");
+//	labelFallbackCpuMultiplier.registerGraphicComponent(containerName,"labelFallbackCpuMultiplier");
+//	labelFallbackCpuMultiplier.init(xoffset+460, aHeadPos, 80);
+//	labelFallbackCpuMultiplier.setText(lang.getString("FallbackCpuMultiplier"));
+//
+//	listBoxFallbackCpuMultiplier.registerGraphicComponent(containerName,"listBoxFallbackCpuMultiplier");
+//	listBoxFallbackCpuMultiplier.init(xoffset+460, aPos, 80);
+//	listBoxFallbackCpuMultiplier.setItems(rMultiplier);
+//	listBoxFallbackCpuMultiplier.setSelectedItem("1.0");
 
 	// Allow Switch Team Mode
-	labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
-	labelEnableSwitchTeamMode.init(xoffset+310, aHeadPos+45, 80);
-	labelEnableSwitchTeamMode.setText(lang.getString("EnableSwitchTeamMode"));
+	//labelEnableSwitchTeamMode.registerGraphicComponent(containerName,"labelEnableSwitchTeamMode");
+	//labelEnableSwitchTeamMode.init(xoffset+310, aHeadPos+45, 80);
+	//labelEnableSwitchTeamMode.setText(lang.getString("EnableSwitchTeamMode"));
 
-	checkBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"checkBoxEnableSwitchTeamMode");
-	checkBoxEnableSwitchTeamMode.init(xoffset+310, aPos+45);
-	checkBoxEnableSwitchTeamMode.setValue(false);
+	//checkBoxEnableSwitchTeamMode.registerGraphicComponent(containerName,"checkBoxEnableSwitchTeamMode");
+	//checkBoxEnableSwitchTeamMode.init(xoffset+310, aPos+45);
+	//checkBoxEnableSwitchTeamMode.setValue(false);
 
-	labelAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"labelAISwitchTeamAcceptPercent");
-	labelAISwitchTeamAcceptPercent.init(xoffset+460, aHeadPos+45, 80);
-	labelAISwitchTeamAcceptPercent.setText(lang.getString("AISwitchTeamAcceptPercent"));
+	//labelAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"labelAISwitchTeamAcceptPercent");
+	//labelAISwitchTeamAcceptPercent.init(xoffset+460, aHeadPos+45, 80);
+	//labelAISwitchTeamAcceptPercent.setText(lang.getString("AISwitchTeamAcceptPercent"));
 
-	listBoxAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"listBoxAISwitchTeamAcceptPercent");
-	listBoxAISwitchTeamAcceptPercent.init(xoffset+460, aPos+45, 80);
-	for(int i = 0; i <= 100; i = i + 10) {
-		listBoxAISwitchTeamAcceptPercent.pushBackItem(intToStr(i));
-	}
-	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(30));
+	//listBoxAISwitchTeamAcceptPercent.registerGraphicComponent(containerName,"listBoxAISwitchTeamAcceptPercent");
+//	listBoxAISwitchTeamAcceptPercent.init(xoffset+460, aPos+45, 80);
+//	for(int i = 0; i <= 100; i = i + 10) {
+//		listBoxAISwitchTeamAcceptPercent.pushBackItem(intToStr(i));
+//	}
+//	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(30));
 
-	labelAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"labelAllowNativeLanguageTechtree");
-	labelAllowNativeLanguageTechtree.init(xoffset+650, mapHeadPos-50);
-	labelAllowNativeLanguageTechtree.setText(lang.getString("AllowNativeLanguageTechtree"));
-
-	checkBoxAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"checkBoxAllowNativeLanguageTechtree");
-	checkBoxAllowNativeLanguageTechtree.init(xoffset+650, mapHeadPos-70);
-	checkBoxAllowNativeLanguageTechtree.setValue(false);
+//	labelAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"labelAllowNativeLanguageTechtree");
+//	labelAllowNativeLanguageTechtree.init(xoffset+650, mapHeadPos-50);
+//	labelAllowNativeLanguageTechtree.setText(lang.getString("AllowNativeLanguageTechtree"));
+//
+//	checkBoxAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"checkBoxAllowNativeLanguageTechtree");
+//	checkBoxAllowNativeLanguageTechtree.init(xoffset+650, mapHeadPos-70);
+//	checkBoxAllowNativeLanguageTechtree.setValue(false);
 
     // player status
 //	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
@@ -374,68 +374,69 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 //	listBoxPlayerStatus.setVisible(true);
 
 	// Network Scenario
-	int scenarioX=810;
-	int scenarioY=140;
-    labelScenario.registerGraphicComponent(containerName,"labelScenario");
-    labelScenario.init(scenarioX, scenarioY);
-    labelScenario.setText(lang.getString("Scenario"));
-	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
-    listBoxScenario.init(scenarioX, scenarioY-30,190);
-    checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
-    checkBoxScenario.init(scenarioX+90, scenarioY);
-    checkBoxScenario.setValue(false);
+	//int scenarioX=810;
+	//int scenarioY=140;
+    //labelScenario.registerGraphicComponent(containerName,"labelScenario");
+    //labelScenario.init(scenarioX, scenarioY);
+    //labelScenario.setText(lang.getString("Scenario"));
+	//listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
+    //listBoxScenario.init(scenarioX, scenarioY-30,190);
+    //checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
+    //checkBoxScenario.init(scenarioX+90, scenarioY);
+    //checkBoxScenario.setValue(false);
 
     //scenario listbox
-    vector<string> resultsScenarios;
-	findDirs(dirList, resultsScenarios);
-	// Filter out only scenarios with no network slots
-	for(int i= 0; i < (int)resultsScenarios.size(); ++i) {
-		string scenario = resultsScenarios[i];
-		string file = Scenario::getScenarioPath(dirList, scenario);
+//    vector<string> resultsScenarios;
+//	findDirs(dirList, resultsScenarios);
+//	// Filter out only scenarios with no network slots
+//	for(int i= 0; i < (int)resultsScenarios.size(); ++i) {
+//		string scenario = resultsScenarios[i];
+//		string file = Scenario::getScenarioPath(dirList, scenario);
+//
+//		try {
+//			if(file != "") {
+//				bool isTutorial = Scenario::isGameTutorial(file);
+//				Scenario::loadScenarioInfo(file, &scenarioInfo, isTutorial);
+//
+//				bool isNetworkScenario = false;
+//				for(unsigned int j = 0; isNetworkScenario == false && j < (unsigned int)GameConstants::maxPlayers; ++j) {
+//					if(scenarioInfo.factionControls[j] == ctNetwork) {
+//						isNetworkScenario = true;
+//					}
+//				}
+//				if(isNetworkScenario == true) {
+//					scenarioFiles.push_back(scenario);
+//				}
+//			}
+//		}
+//		catch(const std::exception &ex) {
+//		    char szBuf[8096]="";
+//		    snprintf(szBuf,8096,"In [%s::%s %d]\nError loading scenario [%s]:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenario.c_str(),ex.what());
+//		    SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+//		    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+//
+//		    showGeneralError=true;
+//			generalErrorToShow = szBuf;
+//		    //throw megaglest_runtime_error(szBuf);
+//		}
+//	}
+//	resultsScenarios.clear();
+//	for(int i = 0; i < (int)scenarioFiles.size(); ++i) {
+//		resultsScenarios.push_back(formatString(scenarioFiles[i]));
+//	}
+//    listBoxScenario.setItems(resultsScenarios);
+//    if(resultsScenarios.empty() == true) {
+//    	checkBoxScenario.setEnabled(false);
+//    }
 
-		try {
-			if(file != "") {
-				bool isTutorial = Scenario::isGameTutorial(file);
-				Scenario::loadScenarioInfo(file, &scenarioInfo, isTutorial);
-
-				bool isNetworkScenario = false;
-				for(unsigned int j = 0; isNetworkScenario == false && j < (unsigned int)GameConstants::maxPlayers; ++j) {
-					if(scenarioInfo.factionControls[j] == ctNetwork) {
-						isNetworkScenario = true;
-					}
-				}
-				if(isNetworkScenario == true) {
-					scenarioFiles.push_back(scenario);
-				}
-			}
-		}
-		catch(const std::exception &ex) {
-		    char szBuf[8096]="";
-		    snprintf(szBuf,8096,"In [%s::%s %d]\nError loading scenario [%s]:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenario.c_str(),ex.what());
-		    SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
-		    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
-
-		    showGeneralError=true;
-			generalErrorToShow = szBuf;
-		    //throw megaglest_runtime_error(szBuf);
-		}
-	}
-	resultsScenarios.clear();
-	for(int i = 0; i < (int)scenarioFiles.size(); ++i) {
-		resultsScenarios.push_back(formatString(scenarioFiles[i]));
-	}
-    listBoxScenario.setItems(resultsScenarios);
-    if(resultsScenarios.empty() == true) {
-    	checkBoxScenario.setEnabled(false);
-    }
 	// Advanced Options
-	labelAdvanced.registerGraphicComponent(containerName,"labelAdvanced");
-	labelAdvanced.init(810, 80, 80);
-	labelAdvanced.setText(lang.getString("AdvancedGameOptions"));
-
-	checkBoxAdvanced.registerGraphicComponent(containerName,"checkBoxAdvanced");
-	checkBoxAdvanced.init(810,  80-labelOffset);
-	checkBoxAdvanced.setValue(false);
+//	labelAdvanced.registerGraphicComponent(containerName,"labelAdvanced");
+//	labelAdvanced.init(810, 80, 80);
+//	labelAdvanced.setText(lang.getString("AdvancedGameOptions"));
+//
+//	checkBoxAdvanced.registerGraphicComponent(containerName,"checkBoxAdvanced");
+//	checkBoxAdvanced.init(810,  80-labelOffset);
+//	checkBoxAdvanced.setValue(false);
 
 	// network things
 	// PublishServer
@@ -470,47 +471,49 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 //	labelGameName.setMaxEditRenderWidth(200);
 
 
-	bool allowInProgressJoin = Config::getInstance().getBool("EnableJoinInProgressGame","false");
-	labelAllowInGameJoinPlayer.registerGraphicComponent(containerName,"labelAllowInGameJoinPlayer");
-	labelAllowInGameJoinPlayer.init(xoffset+410, 670, 80);
-	labelAllowInGameJoinPlayer.setText(lang.getString("AllowInGameJoinPlayer"));
-	labelAllowInGameJoinPlayer.setVisible(allowInProgressJoin);
+	//bool allowInProgressJoin = Config::getInstance().getBool("EnableJoinInProgressGame","false");
+//	labelAllowInGameJoinPlayer.registerGraphicComponent(containerName,"labelAllowInGameJoinPlayer");
+//	labelAllowInGameJoinPlayer.init(xoffset+410, 670, 80);
+//	labelAllowInGameJoinPlayer.setText(lang.getString("AllowInGameJoinPlayer"));
+//	labelAllowInGameJoinPlayer.setVisible(allowInProgressJoin);
+//
+//	checkBoxAllowInGameJoinPlayer.registerGraphicComponent(containerName,"checkBoxAllowInGameJoinPlayer");
+//	checkBoxAllowInGameJoinPlayer.init(xoffset+600, 670);
+//	checkBoxAllowInGameJoinPlayer.setValue(false);
+//	checkBoxAllowInGameJoinPlayer.setVisible(allowInProgressJoin);
 
-	checkBoxAllowInGameJoinPlayer.registerGraphicComponent(containerName,"checkBoxAllowInGameJoinPlayer");
-	checkBoxAllowInGameJoinPlayer.init(xoffset+600, 670);
-	checkBoxAllowInGameJoinPlayer.setValue(false);
-	checkBoxAllowInGameJoinPlayer.setVisible(allowInProgressJoin);
 
+//	labelAllowTeamUnitSharing.registerGraphicComponent(containerName,"labelAllowTeamUnitSharing");
+//	labelAllowTeamUnitSharing.init(xoffset+410, 670, 80);
+//	labelAllowTeamUnitSharing.setText(lang.getString("AllowTeamUnitSharing"));
+//	labelAllowTeamUnitSharing.setVisible(true);
+//
+//	checkBoxAllowTeamUnitSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamUnitSharing");
+//	checkBoxAllowTeamUnitSharing.init(xoffset+600, 670);
+//	checkBoxAllowTeamUnitSharing.setValue(false);
+//	checkBoxAllowTeamUnitSharing.setVisible(true);
 
-	labelAllowTeamUnitSharing.registerGraphicComponent(containerName,"labelAllowTeamUnitSharing");
-	labelAllowTeamUnitSharing.init(xoffset+410, 670, 80);
-	labelAllowTeamUnitSharing.setText(lang.getString("AllowTeamUnitSharing"));
-	labelAllowTeamUnitSharing.setVisible(true);
-
-	checkBoxAllowTeamUnitSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamUnitSharing");
-	checkBoxAllowTeamUnitSharing.init(xoffset+600, 670);
-	checkBoxAllowTeamUnitSharing.setValue(false);
-	checkBoxAllowTeamUnitSharing.setVisible(true);
-
-	labelAllowTeamResourceSharing.registerGraphicComponent(containerName,"labelAllowTeamResourceSharing");
-	labelAllowTeamResourceSharing.init(xoffset+410, 640, 80);
-	labelAllowTeamResourceSharing.setText(lang.getString("AllowTeamResourceSharing"));
-	labelAllowTeamResourceSharing.setVisible(true);
-
-	checkBoxAllowTeamResourceSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamResourceSharing");
-	checkBoxAllowTeamResourceSharing.init(xoffset+600, 640);
-	checkBoxAllowTeamResourceSharing.setValue(false);
-	checkBoxAllowTeamResourceSharing.setVisible(true);
+//	labelAllowTeamResourceSharing.registerGraphicComponent(containerName,"labelAllowTeamResourceSharing");
+//	labelAllowTeamResourceSharing.init(xoffset+410, 640, 80);
+//	labelAllowTeamResourceSharing.setText(lang.getString("AllowTeamResourceSharing"));
+//	labelAllowTeamResourceSharing.setVisible(true);
+//
+//	checkBoxAllowTeamResourceSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamResourceSharing");
+//	checkBoxAllowTeamResourceSharing.init(xoffset+600, 640);
+//	checkBoxAllowTeamResourceSharing.setValue(false);
+//	checkBoxAllowTeamResourceSharing.setVisible(true);
 
 
 	// Network Pause for lagged clients
-	labelNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"labelNetworkPauseGameForLaggedClients");
-	labelNetworkPauseGameForLaggedClients.init(labelAllowInGameJoinPlayer.getX(), networkHeadPos, 80);
-	labelNetworkPauseGameForLaggedClients.setText(lang.getString("NetworkPauseGameForLaggedClients"));
+	//labelNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"labelNetworkPauseGameForLaggedClients");
+	//labelNetworkPauseGameForLaggedClients.init(labelAllowInGameJoinPlayer.getX(), networkHeadPos, 80);
+	//labelNetworkPauseGameForLaggedClients.init(xoffset+410, networkHeadPos, 80);
+	//labelNetworkPauseGameForLaggedClients.setText(lang.getString("NetworkPauseGameForLaggedClients"));
 
-	checkBoxNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"checkBoxNetworkPauseGameForLaggedClients");
-	checkBoxNetworkPauseGameForLaggedClients.init(checkBoxAllowInGameJoinPlayer.getX(), networkHeadPos);
-	checkBoxNetworkPauseGameForLaggedClients.setValue(true);
+	//checkBoxNetworkPauseGameForLaggedClients.registerGraphicComponent(containerName,"checkBoxNetworkPauseGameForLaggedClients");
+	//checkBoxNetworkPauseGameForLaggedClients.init(checkBoxAllowInGameJoinPlayer.getX(), networkHeadPos);
+	//checkBoxNetworkPauseGameForLaggedClients.init(xoffset+410, networkHeadPos);
+	//checkBoxNetworkPauseGameForLaggedClients.setValue(true);
 
 	//list boxes
 	xoffset=30;
@@ -542,8 +545,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
         //listBoxFactions[i].init(xoffset+390, setupPos-30-i*rowHeight, 250);
         //listBoxFactions[i].setLeftControlled(true);
 
-        listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
-		listBoxTeams[i].init(xoffset+650, setupPos-30-i*rowHeight, 60);
+        //listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
+		//listBoxTeams[i].init(xoffset+650, setupPos-30-i*rowHeight, 60);
 
 //		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
 //		labelNetStatus[i].init(xoffset+715, setupPos-30-i*rowHeight, 60);
@@ -635,9 +638,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		//labelPlayerNames[i].setMaxEditWidth(16);
 		//labelPlayerNames[i].setMaxEditRenderWidth(135);
 
-        listBoxTeams[i].setItems(teamItems);
-		listBoxTeams[i].setSelectedItemIndex(i);
-		lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
+        //listBoxTeams[i].setItems(teamItems);
+		//listBoxTeams[i].setSelectedItemIndex(i);
+		//lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
 
 		//listBoxRMultiplier[i].setItems(rMultiplier);
 		//listBoxRMultiplier[i].setSelectedItem("1.0");
@@ -780,7 +783,7 @@ void MenuStateCustomGame::reloadUI() {
 
 	//labelTechTree.setText(lang.getString("TechTree"));
 
-	labelAllowNativeLanguageTechtree.setText(lang.getString("AllowNativeLanguageTechtree"));
+	//labelAllowNativeLanguageTechtree.setText(lang.getString("AllowNativeLanguageTechtree"));
 
 	//labelFogOfWar.setText(lang.getString("FogOfWar"));
 
@@ -791,22 +794,22 @@ void MenuStateCustomGame::reloadUI() {
 //	listBoxFogOfWar.setItems(listBoxData);
 
 	// Allow Observers
-	labelAllowObservers.setText(lang.getString("AllowObservers"));
+	//labelAllowObservers.setText(lang.getString("AllowObservers"));
 
 	// Allow Switch Team Mode
-	labelEnableSwitchTeamMode.setText(lang.getString("EnableSwitchTeamMode"));
+	//labelEnableSwitchTeamMode.setText(lang.getString("EnableSwitchTeamMode"));
 
-	labelAllowInGameJoinPlayer.setText(lang.getString("AllowInGameJoinPlayer"));
+	//labelAllowInGameJoinPlayer.setText(lang.getString("AllowInGameJoinPlayer"));
 
-	labelAllowTeamUnitSharing.setText(lang.getString("AllowTeamUnitSharing"));
-	labelAllowTeamResourceSharing.setText(lang.getString("AllowTeamResourceSharing"));
+	//labelAllowTeamUnitSharing.setText(lang.getString("AllowTeamUnitSharing"));
+	//labelAllowTeamResourceSharing.setText(lang.getString("AllowTeamResourceSharing"));
 
-	labelAISwitchTeamAcceptPercent.setText(lang.getString("AISwitchTeamAcceptPercent"));
+	//labelAISwitchTeamAcceptPercent.setText(lang.getString("AISwitchTeamAcceptPercent"));
 
 	//listBoxData.clear();
 
 	// Advanced Options
-	labelAdvanced.setText(lang.getString("AdvancedGameOptions"));
+	//labelAdvanced.setText(lang.getString("AdvancedGameOptions"));
 
 	//labelPublishServer.setText(lang.getString("PublishServer"));
 
@@ -819,7 +822,7 @@ void MenuStateCustomGame::reloadUI() {
 //		labelGameName.setText("headless ("+defaultPlayerName+")");
 //	}
 
-	labelNetworkPauseGameForLaggedClients.setText(lang.getString("NetworkPauseGameForLaggedClients"));
+	//labelNetworkPauseGameForLaggedClients.setText(lang.getString("NetworkPauseGameForLaggedClients"));
 
     for(int i=0; i < GameConstants::maxPlayers; ++i) {
         buttonBlockPlayers[i].setText(lang.getString("BlockPlayer"));
@@ -868,7 +871,7 @@ void MenuStateCustomGame::reloadUI() {
 //
 //    }
 
-    labelFallbackCpuMultiplier.setText(lang.getString("FallbackCpuMultiplier"));
+    //labelFallbackCpuMultiplier.setText(lang.getString("FallbackCpuMultiplier"));
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -878,9 +881,9 @@ void MenuStateCustomGame::reloadUI() {
 //	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
 //	listBoxPlayerStatus.setItems(playerStatuses);
 
-	labelScenario.setText(lang.getString("Scenario"));
+	//labelScenario.setText(lang.getString("Scenario"));
 
-	reloadFactions(true,(checkBoxScenario.getValue() == true ? scenarioFiles[listBoxScenario.getSelectedItemIndex()] : ""));
+	reloadFactions(true,(getAllowNetworkScenario() == true ? scenarioFiles.at(getSelectedNetworkScenarioIndex()) : ""));
 
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
@@ -891,11 +894,6 @@ void MenuStateCustomGame::reloadUI() {
 
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
 }
-
-
-
-
-
 
 void MenuStateCustomGame::setupCEGUIWidgets(bool openNetworkSlots) {
 
@@ -975,9 +973,48 @@ void MenuStateCustomGame::setupCEGUIWidgets(bool openNetworkSlots) {
 				"ComboBoxPlayer" + intToStr(index+1) + "Faction",
 						cegui_manager.getEventComboboxChangeAccepted(), this);
 
+		cegui_manager.setControlEventCallback(containerName,
+				"ComboBoxPlayer" + intToStr(index+1) + "Team",
+						cegui_manager.getEventComboboxChangeAccepted(), this);
+
 	}
 
+	cegui_manager.setControlEventCallback(containerName,
+			"ComboNetworkScenarios",
+					cegui_manager.getEventComboboxChangeAccepted(), this);
+
+	cegui_manager.setControlEventCallback(containerName,
+			"ComboAIAcceptPercent",
+					cegui_manager.getEventComboboxChangeAccepted(), this);
+
+
+
+	cegui_manager.setControlEventCallback(containerName, "CheckboxAllowSwitchTeams",
+					cegui_manager.getEventCheckboxClicked(), this);
+
+	cegui_manager.setControlEventCallback(containerName, "CheckboxAllowObservers",
+					cegui_manager.getEventCheckboxClicked(), this);
+
+
+	cegui_manager.setControlEventCallback(containerName, "CheckboxAllowInProgressJoinGame",
+					cegui_manager.getEventCheckboxClicked(), this);
+
+	cegui_manager.setControlEventCallback(containerName, "CheckboxAllowSharedTeamUnits",
+					cegui_manager.getEventCheckboxClicked(), this);
+
+	cegui_manager.setControlEventCallback(containerName, "CheckboxAllowSharedTeamResources",
+					cegui_manager.getEventCheckboxClicked(), this);
+
+	cegui_manager.setControlEventCallback(containerName, "CheckboxTechTreeTranslated",
+					cegui_manager.getEventCheckboxClicked(), this);
+
+	cegui_manager.setControlEventCallback(containerName, "CheckboxPauseLaggingClients",
+					cegui_manager.getEventCheckboxClicked(), this);
+
 	cegui_manager.setControlEventCallback(containerName, "CheckboxPublishGame",
+					cegui_manager.getEventCheckboxClicked(), this);
+
+	cegui_manager.setControlEventCallback(containerName, "CheckboxShowNetworkScenarios",
 					cegui_manager.getEventCheckboxClicked(), this);
 
 
@@ -1228,6 +1265,8 @@ void MenuStateCustomGame::setupCEGUIWidgetsText(bool isReload, bool openNetworkS
 		cegui_manager.setSelectedItemInComboBoxControl(
 			cegui_manager.getControl("ComboBoxPlayer" + intToStr(index+1) + "Team"), index);
 
+		lastSelectedTeamIndex[index] = index;
+
 		//cegui_manager.setControlText("LabelPlayer" + intToStr(index+1) + "Version","*");
 		cegui_manager.setControlText("LabelPlayer" + intToStr(index+1) + "Version","");
 	}
@@ -1279,6 +1318,58 @@ void MenuStateCustomGame::setupCEGUIWidgetsText(bool isReload, bool openNetworkS
 		//serverInterface->setGameSettings(&gameSettings,false);
 	}
 
+
+
+    //scenario listbox
+    vector<string> resultsScenarios;
+	findDirs(dirList, resultsScenarios);
+	// Filter out only scenarios with no network slots
+	for(int i= 0; i < (int)resultsScenarios.size(); ++i) {
+		string scenario = resultsScenarios[i];
+		string file = Scenario::getScenarioPath(dirList, scenario);
+
+		try {
+			if(file != "") {
+				bool isTutorial = Scenario::isGameTutorial(file);
+				Scenario::loadScenarioInfo(file, &scenarioInfo, isTutorial);
+
+				bool isNetworkScenario = false;
+				for(unsigned int j = 0; isNetworkScenario == false && j < (unsigned int)GameConstants::maxPlayers; ++j) {
+					if(scenarioInfo.factionControls[j] == ctNetwork) {
+						isNetworkScenario = true;
+					}
+				}
+				if(isNetworkScenario == true) {
+					scenarioFiles.push_back(scenario);
+				}
+			}
+		}
+		catch(const std::exception &ex) {
+		    char szBuf[8096]="";
+		    snprintf(szBuf,8096,"In [%s::%s %d]\nError loading scenario [%s]:\n%s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,scenario.c_str(),ex.what());
+		    SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+		    if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+		    showGeneralError=true;
+			generalErrorToShow = szBuf;
+		    //throw megaglest_runtime_error(szBuf);
+		}
+	}
+	resultsScenarios.clear();
+	for(int i = 0; i < (int)scenarioFiles.size(); ++i) {
+		resultsScenarios.push_back(formatString(scenarioFiles.at(i)));
+	}
+
+	cegui_manager.addItemsToComboBoxControl(
+			cegui_manager.getControl("ComboNetworkScenarios"), resultsScenarios);
+	//cegui_manager.setSelectedItemInComboBoxControl(
+	//	cegui_manager.getControl("ComboNetworkScenarios"), index);
+
+	setNetworkScenarioVisible(getAllowNetworkScenario());
+
+    if(resultsScenarios.empty() == true) {
+    	setAllowNetworkScenario(false);
+    }
 
 	cegui_manager.setControlText("EditboxChatText","");
 	cegui_manager.setControlText("MultiLineEditboxChatHistory","");
@@ -1663,7 +1754,7 @@ bool MenuStateCustomGame::EventCallback(CEGUI::Window *ctl, std::string name) {
 			int techTreeCount = cegui_manager.getItemCountInComboBoxControl(cegui_manager.getControl("ComboBoxTechTree"));
 
 			//printf("LINE: %d\n",__LINE__);
-			reloadFactions(techTreeCount <= 1,(checkBoxScenario.getValue() == true ? scenarioFiles.at(listBoxScenario.getSelectedItemIndex()) : ""));
+			reloadFactions(techTreeCount <= 1,(getAllowNetworkScenario() == true ? scenarioFiles.at(getSelectedNetworkScenarioIndex()) : ""));
 
 			//printf("LINE: %d\n",__LINE__);
 
@@ -1766,6 +1857,33 @@ bool MenuStateCustomGame::EventCallback(CEGUI::Window *ctl, std::string name) {
 	                lastSetChangedGameSettings   = time(NULL);
 	            }
 			}
+
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("ComboAIAcceptPercent")) {
+
+			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+			MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+			bool publishToServerEnabled =
+					cegui_manager.getCheckboxControlChecked(
+							cegui_manager.getControl("CheckboxPublishGame"));
+
+			if(publishToServerEnabled == true) {
+				needToRepublishToMasterserver = true;
+			}
+
+			if(hasNetworkGameSettings() == true) {
+				needToSetChangedGameSettings = true;
+				lastSetChangedGameSettings   = time(NULL);
+			}
+
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("ComboNetworkScenarios")) {
+
+			processScenario();
 
 			return true;
 		}
@@ -1949,6 +2067,36 @@ bool MenuStateCustomGame::EventCallback(CEGUI::Window *ctl, std::string name) {
 
 					return true;
 				}
+				else if(ctl == cegui_manager.getControl("ComboBoxPlayer" + intToStr(index+1) + "Team")) {
+
+					int selectedTeamItemIndex = cegui_manager.getSelectedItemIndexFromComboBoxControl(ctl);
+
+					int selectedControlItemIndex = getSelectedPlayerFactionTypeIndex(index);
+					if(factionFiles[selectedControlItemIndex] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
+						if(selectedTeamItemIndex + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
+							lastSelectedTeamIndex[index] = selectedTeamItemIndex;
+						}
+					}
+					else {
+						lastSelectedTeamIndex[index] = -1;
+					}
+
+					MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+					bool publishToServerEnabled =
+							cegui_manager.getCheckboxControlChecked(
+									cegui_manager.getControl("CheckboxPublishGame"));
+
+					if(publishToServerEnabled == true) {
+						needToRepublishToMasterserver = true;
+					}
+
+					if(hasNetworkGameSettings() == true) {
+						needToSetChangedGameSettings = true;
+						lastSetChangedGameSettings   = time(NULL);;
+					}
+
+					return true;
+				}
 			}
 		}
 	}
@@ -1974,6 +2122,169 @@ bool MenuStateCustomGame::EventCallback(CEGUI::Window *ctl, std::string name) {
 
 			return true;
 		}
+		else if(ctl == cegui_manager.getControl("CheckboxAllowSwitchTeams")) {
+
+			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+			MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+			bool publishToServerEnabled =
+					cegui_manager.getCheckboxControlChecked(
+							cegui_manager.getControl("CheckboxPublishGame"));
+
+			if(publishToServerEnabled == true) {
+				needToRepublishToMasterserver = true;
+			}
+
+			if(hasNetworkGameSettings() == true) {
+				needToSetChangedGameSettings = true;
+				lastSetChangedGameSettings   = time(NULL);
+			}
+
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("CheckboxAllowObservers")) {
+
+			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+			MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+			bool publishToServerEnabled =
+					cegui_manager.getCheckboxControlChecked(
+							cegui_manager.getControl("CheckboxPublishGame"));
+
+			if(publishToServerEnabled == true) {
+				needToRepublishToMasterserver = true;
+			}
+
+			reloadFactions(true,(getAllowNetworkScenario() == true ? scenarioFiles.at(getSelectedNetworkScenarioIndex()) : ""));
+
+			if(hasNetworkGameSettings() == true) {
+				needToSetChangedGameSettings = true;
+				lastSetChangedGameSettings   = time(NULL);
+			}
+
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("CheckboxAllowInProgressJoinGame")) {
+
+			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+			MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+			bool publishToServerEnabled =
+					cegui_manager.getCheckboxControlChecked(
+							cegui_manager.getControl("CheckboxPublishGame"));
+
+			if(publishToServerEnabled == true) {
+				needToRepublishToMasterserver = true;
+			}
+
+			if(hasNetworkGameSettings() == true) {
+				needToSetChangedGameSettings = true;
+				lastSetChangedGameSettings   = time(NULL);
+			}
+
+			ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+			serverInterface->setAllowInGameConnections(getAllowInGameJoinPlayer() == true);
+
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("CheckboxAllowSharedTeamUnits")) {
+
+			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+			MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+			bool publishToServerEnabled =
+					cegui_manager.getCheckboxControlChecked(
+							cegui_manager.getControl("CheckboxPublishGame"));
+
+			if(publishToServerEnabled == true) {
+				needToRepublishToMasterserver = true;
+			}
+
+			if(hasNetworkGameSettings() == true) {
+				needToSetChangedGameSettings = true;
+				lastSetChangedGameSettings   = time(NULL);
+			}
+
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("CheckboxAllowSharedTeamResources")) {
+
+			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+			MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+			bool publishToServerEnabled =
+					cegui_manager.getCheckboxControlChecked(
+							cegui_manager.getControl("CheckboxPublishGame"));
+
+			if(publishToServerEnabled == true) {
+				needToRepublishToMasterserver = true;
+			}
+
+			if(hasNetworkGameSettings() == true) {
+				needToSetChangedGameSettings = true;
+				lastSetChangedGameSettings   = time(NULL);
+			}
+
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("CheckboxTechTreeTranslated")) {
+
+			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+			MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+			bool publishToServerEnabled =
+					cegui_manager.getCheckboxControlChecked(
+							cegui_manager.getControl("CheckboxPublishGame"));
+
+			if(publishToServerEnabled == true) {
+				needToRepublishToMasterserver = true;
+			}
+
+			if(hasNetworkGameSettings() == true) {
+				needToSetChangedGameSettings = true;
+				lastSetChangedGameSettings   = time(NULL);
+			}
+
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("CheckboxPauseLaggingClients")) {
+
+			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+			MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+			bool publishToServerEnabled =
+					cegui_manager.getCheckboxControlChecked(
+							cegui_manager.getControl("CheckboxPublishGame"));
+
+			if(publishToServerEnabled == true) {
+				needToRepublishToMasterserver = true;
+			}
+			if(hasNetworkGameSettings() == true) {
+				needToSetChangedGameSettings = true;
+				lastSetChangedGameSettings   = time(NULL);
+			}
+
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundC());
+
+			return true;
+		}
+		else if(ctl == cegui_manager.getControl("CheckboxShowNetworkScenarios")) {
+
+			setNetworkScenarioVisible(getAllowNetworkScenario());
+
+			return true;
+		}
+
 
 //		else if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/CheckboxDisableLuaSandbox")) {
 //
@@ -1990,6 +2301,30 @@ bool MenuStateCustomGame::EventCallback(CEGUI::Window *ctl, std::string name) {
 //		}
 //
 	}
+	else if(name == cegui_manager.getEventSpinnerValueChanged()) {
+		if(ctl == cegui_manager.getControl("SpinnerAIReplaceMultiplier")) {
+
+			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+
+			MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+			bool publishToServerEnabled =
+					cegui_manager.getCheckboxControlChecked(
+							cegui_manager.getControl("CheckboxPublishGame"));
+
+			if(publishToServerEnabled == true) {
+				needToRepublishToMasterserver = true;
+			}
+
+			if(hasNetworkGameSettings() == true) {
+				needToSetChangedGameSettings = true;
+				lastSetChangedGameSettings   = time(NULL);
+			}
+
+			return true;
+		}
+	}
+
 	return false;
 }
 
@@ -2232,9 +2567,9 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 	        	}
         	}
 
-        	if(activeInputLabel!=NULL && !(activeInputLabel->mouseClick(x,y))){
-				setActiveInputLabel(NULL);
-			}
+//        	if(activeInputLabel!=NULL && !(activeInputLabel->mouseClick(x,y))){
+//				setActiveInputLabel(NULL);
+//			}
 //			if(buttonReturn.mouseClick(x,y) || serverInitError == true) {
 //				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 //
@@ -2303,161 +2638,161 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 //					lastSetChangedGameSettings   = time(NULL);
 //				}
 //			}
-			else if (checkBoxAdvanced.getValue() == 1 && checkBoxAllowObservers.mouseClick(x, y)) {
-				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-				bool publishToServerEnabled =
-						cegui_manager.getCheckboxControlChecked(
-								cegui_manager.getControl("CheckboxPublishGame"));
-
-				if(publishToServerEnabled == true) {
-					needToRepublishToMasterserver = true;
-				}
-
-				reloadFactions(true,(checkBoxScenario.getValue() == true ? scenarioFiles[listBoxScenario.getSelectedItemIndex()] : ""));
-
-				if(hasNetworkGameSettings() == true) {
-					needToSetChangedGameSettings = true;
-					lastSetChangedGameSettings   = time(NULL);
-				}
-			}
-			else if (checkBoxAllowInGameJoinPlayer.mouseClick(x, y)) {
-				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-				bool publishToServerEnabled =
-						cegui_manager.getCheckboxControlChecked(
-								cegui_manager.getControl("CheckboxPublishGame"));
-
-				if(publishToServerEnabled == true) {
-					needToRepublishToMasterserver = true;
-				}
-
-				if(hasNetworkGameSettings() == true) {
-					needToSetChangedGameSettings = true;
-					lastSetChangedGameSettings   = time(NULL);
-				}
-
-				ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-				serverInterface->setAllowInGameConnections(checkBoxAllowInGameJoinPlayer.getValue() == true);
-			}
-			else if (checkBoxAdvanced.getValue() == 1 && checkBoxAllowTeamUnitSharing.mouseClick(x, y)) {
-				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-				bool publishToServerEnabled =
-						cegui_manager.getCheckboxControlChecked(
-								cegui_manager.getControl("CheckboxPublishGame"));
-
-				if(publishToServerEnabled == true) {
-					needToRepublishToMasterserver = true;
-				}
-
-				if(hasNetworkGameSettings() == true) {
-					needToSetChangedGameSettings = true;
-					lastSetChangedGameSettings   = time(NULL);
-				}
-			}
-			else if (checkBoxAdvanced.getValue() == 1 && checkBoxAllowTeamResourceSharing.mouseClick(x, y)) {
-				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-				bool publishToServerEnabled =
-						cegui_manager.getCheckboxControlChecked(
-								cegui_manager.getControl("CheckboxPublishGame"));
-
-				if(publishToServerEnabled == true) {
-					needToRepublishToMasterserver = true;
-				}
-
-				if(hasNetworkGameSettings() == true) {
-					needToSetChangedGameSettings = true;
-					lastSetChangedGameSettings   = time(NULL);
-				}
-			}
-			else if (checkBoxAllowNativeLanguageTechtree.mouseClick(x, y)) {
-				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-				bool publishToServerEnabled =
-						cegui_manager.getCheckboxControlChecked(
-								cegui_manager.getControl("CheckboxPublishGame"));
-
-				if(publishToServerEnabled == true) {
-					needToRepublishToMasterserver = true;
-				}
-
-				if(hasNetworkGameSettings() == true)
-				{
-					needToSetChangedGameSettings = true;
-					lastSetChangedGameSettings   = time(NULL);
-				}
-			}
-			else if (checkBoxAdvanced.getValue() == 1 && checkBoxEnableSwitchTeamMode.mouseClick(x, y)) {
-				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-				bool publishToServerEnabled =
-						cegui_manager.getCheckboxControlChecked(
-								cegui_manager.getControl("CheckboxPublishGame"));
-
-				if(publishToServerEnabled == true) {
-					needToRepublishToMasterserver = true;
-				}
-
-				if(hasNetworkGameSettings() == true)
-				{
-					needToSetChangedGameSettings = true;
-					lastSetChangedGameSettings   = time(NULL);
-				}
-			}
-			else if (checkBoxAdvanced.getValue() == 1 && listBoxAISwitchTeamAcceptPercent.getEnabled() && listBoxAISwitchTeamAcceptPercent.mouseClick(x, y)) {
-				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-				bool publishToServerEnabled =
-						cegui_manager.getCheckboxControlChecked(
-								cegui_manager.getControl("CheckboxPublishGame"));
-
-				if(publishToServerEnabled == true) {
-					needToRepublishToMasterserver = true;
-				}
-
-				if(hasNetworkGameSettings() == true)
-				{
-					needToSetChangedGameSettings = true;
-					lastSetChangedGameSettings   = time(NULL);
-				}
-			}
-			else if (checkBoxAdvanced.getValue() == 1 && listBoxFallbackCpuMultiplier.getEditable() == true && listBoxFallbackCpuMultiplier.mouseClick(x, y)) {
-				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-				bool publishToServerEnabled =
-						cegui_manager.getCheckboxControlChecked(
-								cegui_manager.getControl("CheckboxPublishGame"));
-
-				if(publishToServerEnabled == true) {
-					needToRepublishToMasterserver = true;
-				}
-
-				if(hasNetworkGameSettings() == true)
-				{
-					needToSetChangedGameSettings = true;
-					lastSetChangedGameSettings   = time(NULL);
-				}
-			}
-			else if (checkBoxAdvanced.mouseClick(x, y)) {
-			}
+//			else if (checkBoxAdvanced.getValue() == 1 && checkBoxAllowObservers.mouseClick(x, y)) {
+//				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//
+//				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+//				bool publishToServerEnabled =
+//						cegui_manager.getCheckboxControlChecked(
+//								cegui_manager.getControl("CheckboxPublishGame"));
+//
+//				if(publishToServerEnabled == true) {
+//					needToRepublishToMasterserver = true;
+//				}
+//
+//				reloadFactions(true,(checkBoxScenario.getValue() == true ? scenarioFiles[listBoxScenario.getSelectedItemIndex()] : ""));
+//
+//				if(hasNetworkGameSettings() == true) {
+//					needToSetChangedGameSettings = true;
+//					lastSetChangedGameSettings   = time(NULL);
+//				}
+//			}
+//			else if (checkBoxAllowInGameJoinPlayer.mouseClick(x, y)) {
+//				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//
+//				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+//				bool publishToServerEnabled =
+//						cegui_manager.getCheckboxControlChecked(
+//								cegui_manager.getControl("CheckboxPublishGame"));
+//
+//				if(publishToServerEnabled == true) {
+//					needToRepublishToMasterserver = true;
+//				}
+//
+//				if(hasNetworkGameSettings() == true) {
+//					needToSetChangedGameSettings = true;
+//					lastSetChangedGameSettings   = time(NULL);
+//				}
+//
+//				ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+//				serverInterface->setAllowInGameConnections(checkBoxAllowInGameJoinPlayer.getValue() == true);
+//			}
+//			else if (checkBoxAdvanced.getValue() == 1 && checkBoxAllowTeamUnitSharing.mouseClick(x, y)) {
+//				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//
+//				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+//				bool publishToServerEnabled =
+//						cegui_manager.getCheckboxControlChecked(
+//								cegui_manager.getControl("CheckboxPublishGame"));
+//
+//				if(publishToServerEnabled == true) {
+//					needToRepublishToMasterserver = true;
+//				}
+//
+//				if(hasNetworkGameSettings() == true) {
+//					needToSetChangedGameSettings = true;
+//					lastSetChangedGameSettings   = time(NULL);
+//				}
+//			}
+//			else if (checkBoxAdvanced.getValue() == 1 && checkBoxAllowTeamResourceSharing.mouseClick(x, y)) {
+//				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//
+//				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+//				bool publishToServerEnabled =
+//						cegui_manager.getCheckboxControlChecked(
+//								cegui_manager.getControl("CheckboxPublishGame"));
+//
+//				if(publishToServerEnabled == true) {
+//					needToRepublishToMasterserver = true;
+//				}
+//
+//				if(hasNetworkGameSettings() == true) {
+//					needToSetChangedGameSettings = true;
+//					lastSetChangedGameSettings   = time(NULL);
+//				}
+//			}
+//			else if (checkBoxAllowNativeLanguageTechtree.mouseClick(x, y)) {
+//				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//
+//				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+//				bool publishToServerEnabled =
+//						cegui_manager.getCheckboxControlChecked(
+//								cegui_manager.getControl("CheckboxPublishGame"));
+//
+//				if(publishToServerEnabled == true) {
+//					needToRepublishToMasterserver = true;
+//				}
+//
+//				if(hasNetworkGameSettings() == true)
+//				{
+//					needToSetChangedGameSettings = true;
+//					lastSetChangedGameSettings   = time(NULL);
+//				}
+//			}
+//			else if (checkBoxAdvanced.getValue() == 1 && checkBoxEnableSwitchTeamMode.mouseClick(x, y)) {
+//				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//
+//				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+//				bool publishToServerEnabled =
+//						cegui_manager.getCheckboxControlChecked(
+//								cegui_manager.getControl("CheckboxPublishGame"));
+//
+//				if(publishToServerEnabled == true) {
+//					needToRepublishToMasterserver = true;
+//				}
+//
+//				if(hasNetworkGameSettings() == true)
+//				{
+//					needToSetChangedGameSettings = true;
+//					lastSetChangedGameSettings   = time(NULL);
+//				}
+//			}
+//			else if (checkBoxAdvanced.getValue() == 1 && listBoxAISwitchTeamAcceptPercent.getEnabled() && listBoxAISwitchTeamAcceptPercent.mouseClick(x, y)) {
+//				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//
+//				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+//				bool publishToServerEnabled =
+//						cegui_manager.getCheckboxControlChecked(
+//								cegui_manager.getControl("CheckboxPublishGame"));
+//
+//				if(publishToServerEnabled == true) {
+//					needToRepublishToMasterserver = true;
+//				}
+//
+//				if(hasNetworkGameSettings() == true)
+//				{
+//					needToSetChangedGameSettings = true;
+//					lastSetChangedGameSettings   = time(NULL);
+//				}
+//			}
+//			else if (checkBoxAdvanced.getValue() == 1 && listBoxFallbackCpuMultiplier.getEditable() == true && listBoxFallbackCpuMultiplier.mouseClick(x, y)) {
+//				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//
+//				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+//				bool publishToServerEnabled =
+//						cegui_manager.getCheckboxControlChecked(
+//								cegui_manager.getControl("CheckboxPublishGame"));
+//
+//				if(publishToServerEnabled == true) {
+//					needToRepublishToMasterserver = true;
+//				}
+//
+//				if(hasNetworkGameSettings() == true)
+//				{
+//					needToSetChangedGameSettings = true;
+//					lastSetChangedGameSettings   = time(NULL);
+//				}
+//			}
+			//else if (checkBoxAdvanced.mouseClick(x, y)) {
+			//}
 //			else if(listBoxTileset.mouseClick(x, y,advanceToItemStartingWith)) {
 //				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 //				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -2529,29 +2864,29 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 //			else if(labelGameName.mouseClick(x, y) && checkBoxPublishServer.getEditable()){
 //				setActiveInputLabel(&labelGameName);
 //			}
-			else if(checkBoxAdvanced.getValue() == 1 && checkBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)) {
-				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-				bool publishToServerEnabled =
-						cegui_manager.getCheckboxControlChecked(
-								cegui_manager.getControl("CheckboxPublishGame"));
-
-				if(publishToServerEnabled == true) {
-					needToRepublishToMasterserver = true;
-				}
-				if(hasNetworkGameSettings() == true)
-				{
-					needToSetChangedGameSettings = true;
-					lastSetChangedGameSettings   = time(NULL);
-				}
-
-				soundRenderer.playFx(coreData.getClickSoundC());
-			}
-		    else if(listBoxScenario.mouseClick(x, y) || checkBoxScenario.mouseClick(x,y)) {
-		        processScenario();
-			}
+//			else if(checkBoxAdvanced.getValue() == 1 && checkBoxNetworkPauseGameForLaggedClients.mouseClick(x, y)) {
+//				MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//				MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//
+//				MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+//				bool publishToServerEnabled =
+//						cegui_manager.getCheckboxControlChecked(
+//								cegui_manager.getControl("CheckboxPublishGame"));
+//
+//				if(publishToServerEnabled == true) {
+//					needToRepublishToMasterserver = true;
+//				}
+//				if(hasNetworkGameSettings() == true)
+//				{
+//					needToSetChangedGameSettings = true;
+//					lastSetChangedGameSettings   = time(NULL);
+//				}
+//
+//				soundRenderer.playFx(coreData.getClickSoundC());
+//			}
+//		    else if(listBoxScenario.mouseClick(x, y) || checkBoxScenario.mouseClick(x,y)) {
+//		        processScenario();
+//			}
 			else {
 				for(int i = 0; i < mapInfo.players; ++i) {
 					MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
@@ -2729,33 +3064,33 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 //							lastSetChangedGameSettings   = time(NULL);
 //						}
 //					}
-					else if(listBoxTeams[i].mouseClick(x, y)) {
+//					else if(listBoxTeams[i].mouseClick(x, y)) {
 
-						int selectedControlItemIndex = getSelectedPlayerFactionTypeIndex(i);
-						if(factionFiles[selectedControlItemIndex] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
-							if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
-								lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
-							}
-						}
-						else {
-							lastSelectedTeamIndex[i] = -1;
-						}
-
-						MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
-						bool publishToServerEnabled =
-								cegui_manager.getCheckboxControlChecked(
-										cegui_manager.getControl("CheckboxPublishGame"));
-
-						if(publishToServerEnabled == true) {
-							needToRepublishToMasterserver = true;
-						}
-
-						if(hasNetworkGameSettings() == true)
-						{
-							needToSetChangedGameSettings = true;
-							lastSetChangedGameSettings   = time(NULL);;
-						}
-					}
+//						int selectedControlItemIndex = getSelectedPlayerFactionTypeIndex(i);
+//						if(factionFiles[selectedControlItemIndex] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
+//							if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
+//								lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
+//							}
+//						}
+//						else {
+//							lastSelectedTeamIndex[i] = -1;
+//						}
+//
+//						MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+//						bool publishToServerEnabled =
+//								cegui_manager.getCheckboxControlChecked(
+//										cegui_manager.getControl("CheckboxPublishGame"));
+//
+//						if(publishToServerEnabled == true) {
+//							needToRepublishToMasterserver = true;
+//						}
+//
+//						if(hasNetworkGameSettings() == true)
+//						{
+//							needToSetChangedGameSettings = true;
+//							lastSetChangedGameSettings   = time(NULL);;
+//						}
+//					}
 //					else if(labelPlayerNames[i].mouseClick(x, y)) {
 //						ControlType ct= static_cast<ControlType>(getSelectedPlayerControlTypeIndex(i));
 //						if(ct == ctHuman) {
@@ -2839,7 +3174,7 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 
 		cegui_manager.setControlEnabled(cegui_manager.getControl(
 						"SpinnerPlayer" + intToStr(index+1) + "Multiplier"),
-				checkBoxScenario.getValue() == false);
+				getAllowNetworkScenario() == false);
 		//listBoxRMultiplier[index].setSelectedItem(floatToStr(GameConstants::easyMultiplier,1));
 		//listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
 	}
@@ -2854,7 +3189,7 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 
 		cegui_manager.setControlEnabled(cegui_manager.getControl(
 						"SpinnerPlayer" + intToStr(index+1) + "Multiplier"),
-				checkBoxScenario.getValue() == false);
+				getAllowNetworkScenario() == false);
 
 		//listBoxRMultiplier[index].setSelectedItem(floatToStr(GameConstants::normalMultiplier,1));
 		//listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
@@ -2870,7 +3205,7 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 
 		cegui_manager.setControlEnabled(cegui_manager.getControl(
 						"SpinnerPlayer" + intToStr(index+1) + "Multiplier"),
-				checkBoxScenario.getValue() == false);
+				getAllowNetworkScenario() == false);
 
 		//listBoxRMultiplier[index].setSelectedItem(floatToStr(GameConstants::ultraMultiplier,1));
 		//listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
@@ -2886,7 +3221,7 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 
 		cegui_manager.setControlEnabled(cegui_manager.getControl(
 						"SpinnerPlayer" + intToStr(index+1) + "Multiplier"),
-				checkBoxScenario.getValue() == false);
+				getAllowNetworkScenario() == false);
 
 		//listBoxRMultiplier[index].setSelectedItem(floatToStr(GameConstants::megaMultiplier,1));
 		//listBoxRMultiplier[index].setEnabled(checkBoxScenario.getValue() == false);
@@ -2904,7 +3239,7 @@ void MenuStateCustomGame::updateResourceMultiplier(const int index) {
 
 		cegui_manager.setControlEnabled(cegui_manager.getControl(
 						"SpinnerPlayer" + intToStr(index+1) + "Multiplier"),
-				checkBoxScenario.getValue() == false);
+				getAllowNetworkScenario() == false);
 
 		//listBoxRMultiplier[index].setSelectedItem(floatToStr(GameConstants::normalMultiplier,1));
 		//listBoxRMultiplier[index].setEnabled(false);
@@ -3302,40 +3637,40 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
         //listBoxControls[i].mouseMove(x, y);
         buttonBlockPlayers[i].mouseMove(x, y);
         //listBoxFactions[i].mouseMove(x, y);
-		listBoxTeams[i].mouseMove(x, y);
+		//listBoxTeams[i].mouseMove(x, y);
     }
 
 	//listBoxMap.mouseMove(x, y);
 
-	if(checkBoxAdvanced.getValue() == 1) {
+	//if(checkBoxAdvanced.getValue() == 1) {
 		//listBoxFogOfWar.mouseMove(x, y);
-		checkBoxAllowObservers.mouseMove(x, y);
+		//checkBoxAllowObservers.mouseMove(x, y);
 
-		checkBoxEnableSwitchTeamMode.mouseMove(x, y);
-		listBoxAISwitchTeamAcceptPercent.mouseMove(x, y);
-		listBoxFallbackCpuMultiplier.mouseMove(x, y);
+		//checkBoxEnableSwitchTeamMode.mouseMove(x, y);
+		//listBoxAISwitchTeamAcceptPercent.mouseMove(x, y);
+		//listBoxFallbackCpuMultiplier.mouseMove(x, y);
 
-		labelNetworkPauseGameForLaggedClients.mouseMove(x, y);
-		checkBoxNetworkPauseGameForLaggedClients.mouseMove(x, y);
+		//labelNetworkPauseGameForLaggedClients.mouseMove(x, y);
+		//checkBoxNetworkPauseGameForLaggedClients.mouseMove(x, y);
 
-		labelAllowTeamUnitSharing.mouseMove(x,y);
-		checkBoxAllowTeamUnitSharing.mouseMove(x,y);
-		labelAllowTeamResourceSharing.mouseMove(x,y);
-		checkBoxAllowTeamResourceSharing.mouseMove(x,y);
-	}
-	checkBoxAllowInGameJoinPlayer.mouseMove(x, y);
+		//labelAllowTeamUnitSharing.mouseMove(x,y);
+		//checkBoxAllowTeamUnitSharing.mouseMove(x,y);
+		//labelAllowTeamResourceSharing.mouseMove(x,y);
+		//checkBoxAllowTeamResourceSharing.mouseMove(x,y);
+	//}
+	//checkBoxAllowInGameJoinPlayer.mouseMove(x, y);
 
-	checkBoxAllowNativeLanguageTechtree.mouseMove(x, y);
+	//checkBoxAllowNativeLanguageTechtree.mouseMove(x, y);
 
 	//listBoxTileset.mouseMove(x, y);
 	//listBoxMapFilter.mouseMove(x, y);
 	//listBoxTechTree.mouseMove(x, y);
 	//checkBoxPublishServer.mouseMove(x, y);
 
-	checkBoxAdvanced.mouseMove(x, y);
+	//checkBoxAdvanced.mouseMove(x, y);
 
-	checkBoxScenario.mouseMove(x, y);
-	listBoxScenario.mouseMove(x, y);
+	//checkBoxScenario.mouseMove(x, y);
+	//listBoxScenario.mouseMove(x, y);
 }
 
 bool MenuStateCustomGame::isMasterserverMode() const {
@@ -3464,7 +3799,7 @@ void MenuStateCustomGame::render() {
 							cegui_manager.getControl(
 									"ComboBoxPlayer" + intToStr(i+1) + "Faction"),
 									true);
-					listBoxTeams[i].setVisible(true);
+					setPlayerTeamVisible(i,true);
 					//labelNetStatus[i].setVisible(true);
 					setPlayerVersionVisible(i,true);
 		    	}
@@ -3508,42 +3843,42 @@ void MenuStateCustomGame::render() {
 					}
 				}
 
-				if(getSelectedPlayerControlTypeIndex(i) != ctClosed) {
+				//if(getSelectedPlayerControlTypeIndex(i) != ctClosed) {
 					//renderer.renderListBox(&listBoxRMultiplier[i]);
 
 					//renderer.renderListBox(&listBoxFactions[i]);
-					renderer.renderListBox(&listBoxTeams[i]);
+					//renderer.renderListBox(&listBoxTeams[i]);
 					//renderer.renderLabel(&labelNetStatus[i]);
-				}
+				//}
 			}
 
 			//renderer.renderLabel(&labelLocalGameVersion);
 			//renderer.renderLabel(&labelLocalIP);
 			//renderer.renderLabel(&labelMap);
 
-			if(checkBoxAdvanced.getValue() == 1) {
+			//if(checkBoxAdvanced.getValue() == 1) {
 				//renderer.renderLabel(&labelFogOfWar);
-				renderer.renderLabel(&labelAllowObservers);
-				renderer.renderLabel(&labelFallbackCpuMultiplier);
+				//renderer.renderLabel(&labelAllowObservers);
+				//renderer.renderLabel(&labelFallbackCpuMultiplier);
 
-				renderer.renderLabel(&labelEnableSwitchTeamMode);
-				renderer.renderLabel(&labelAISwitchTeamAcceptPercent);
+				//renderer.renderLabel(&labelEnableSwitchTeamMode);
+				//renderer.renderLabel(&labelAISwitchTeamAcceptPercent);
 
 				//renderer.renderListBox(&listBoxFogOfWar);
-				renderer.renderCheckBox(&checkBoxAllowObservers);
+				//renderer.renderCheckBox(&checkBoxAllowObservers);
 
-				renderer.renderCheckBox(&checkBoxEnableSwitchTeamMode);
-				renderer.renderListBox(&listBoxAISwitchTeamAcceptPercent);
-				renderer.renderListBox(&listBoxFallbackCpuMultiplier);
+				//renderer.renderCheckBox(&checkBoxEnableSwitchTeamMode);
+				//renderer.renderListBox(&listBoxAISwitchTeamAcceptPercent);
+				//renderer.renderListBox(&listBoxFallbackCpuMultiplier);
 
-				renderer.renderLabel(&labelAllowTeamUnitSharing);
-				renderer.renderCheckBox(&checkBoxAllowTeamUnitSharing);
+				//renderer.renderLabel(&labelAllowTeamUnitSharing);
+				//renderer.renderCheckBox(&checkBoxAllowTeamUnitSharing);
 
-				renderer.renderLabel(&labelAllowTeamResourceSharing);
-				renderer.renderCheckBox(&checkBoxAllowTeamResourceSharing);
-			}
-			renderer.renderLabel(&labelAllowInGameJoinPlayer);
-			renderer.renderCheckBox(&checkBoxAllowInGameJoinPlayer);
+				//renderer.renderLabel(&labelAllowTeamResourceSharing);
+				//renderer.renderCheckBox(&checkBoxAllowTeamResourceSharing);
+			//}
+			//renderer.renderLabel(&labelAllowInGameJoinPlayer);
+			//renderer.renderCheckBox(&checkBoxAllowInGameJoinPlayer);
 
 			//renderer.renderLabel(&labelTileset);
 			//renderer.renderLabel(&labelMapFilter);
@@ -3552,13 +3887,13 @@ void MenuStateCustomGame::render() {
 			//renderer.renderLabel(&labelFaction);
 			//renderer.renderLabel(&labelTeam);
 			//renderer.renderLabel(&labelMapInfo);
-			renderer.renderLabel(&labelAdvanced);
+			//renderer.renderLabel(&labelAdvanced);
 
 			//renderer.renderListBox(&listBoxMap);
 			//renderer.renderListBox(&listBoxTileset);
 			//renderer.renderListBox(&listBoxMapFilter);
 			//renderer.renderListBox(&listBoxTechTree);
-			renderer.renderCheckBox(&checkBoxAdvanced);
+			//renderer.renderCheckBox(&checkBoxAdvanced);
 
 
 //			if(checkBoxPublishServer.getEditable())
@@ -3572,14 +3907,14 @@ void MenuStateCustomGame::render() {
 //				}
 //			}
 
-			renderer.renderCheckBox(&checkBoxScenario);
-			renderer.renderLabel(&labelScenario);
-			if(checkBoxScenario.getValue() == true) {
-				renderer.renderListBox(&listBoxScenario);
-			}
+			//renderer.renderCheckBox(&checkBoxScenario);
+			//renderer.renderLabel(&labelScenario);
+			//if(checkBoxScenario.getValue() == true) {
+				//renderer.renderListBox(&listBoxScenario);
+			//}
 
-			renderer.renderLabel(&labelAllowNativeLanguageTechtree);
-			renderer.renderCheckBox(&checkBoxAllowNativeLanguageTechtree);
+			//renderer.renderLabel(&labelAllowNativeLanguageTechtree);
+			//renderer.renderCheckBox(&checkBoxAllowNativeLanguageTechtree);
 		}
 
 		if(program != NULL) program->renderProgramMsgBox();
@@ -3668,7 +4003,7 @@ void MenuStateCustomGame::switchSetupForSlots(SwitchSetupRequest **switchSetupRe
 								setPlayerFactionTypeSelectedItem(newFactionIdx, switchSetupRequests[i]->getSelectedFactionName());
 							}
 							if(switchSetupRequests[i]->getToTeam() != -1) {
-								listBoxTeams[newFactionIdx].setSelectedItemIndex(switchSetupRequests[i]->getToTeam());
+								setSelectedPlayerTeamIndex(newFactionIdx,switchSetupRequests[i]->getToTeam());
 							}
 							if(switchSetupRequests[i]->getNetworkPlayerName() != "") {
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d] i = %d, labelPlayerNames[newFactionIdx].getText() [%s] switchSetupRequests[i]->getNetworkPlayerName() [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,getPlayerNameText(newFactionIdx).c_str(),switchSetupRequests[i]->getNetworkPlayerName().c_str());
@@ -3692,7 +4027,7 @@ void MenuStateCustomGame::switchSetupForSlots(SwitchSetupRequest **switchSetupRe
 									cegui_manager.getControl(
 										"ComboBoxPlayer" + intToStr(switchFactionIdx+1) + "Faction"),
 										switchFactionIdx+1 <= mapInfo.players);
-								listBoxTeams[switchFactionIdx].setVisible(switchFactionIdx+1 <= mapInfo.players);
+								setPlayerTeamVisible(switchFactionIdx,switchFactionIdx+1 <= mapInfo.players);
 								//labelNetStatus[switchFactionIdx].setVisible(switchFactionIdx+1 <= mapInfo.players);
 								setPlayerVersionVisible(switchFactionIdx,switchFactionIdx+1 <= mapInfo.players);
 							}
@@ -3722,7 +4057,7 @@ void MenuStateCustomGame::switchSetupForSlots(SwitchSetupRequest **switchSetupRe
 									switchSetupRequests[i]->getSelectedFactionName());
 						}
 						if(switchSetupRequests[i]->getToTeam() != -1) {
-							listBoxTeams[i].setSelectedItemIndex(switchSetupRequests[i]->getToTeam());
+							setSelectedPlayerTeamIndex(i,switchSetupRequests[i]->getToTeam());
 						}
 
 						if((switchSetupRequests[i]->getSwitchFlags() & ssrft_NetworkPlayerName) == ssrft_NetworkPlayerName) {
@@ -3787,15 +4122,15 @@ void MenuStateCustomGame::update() {
 		}
 
 		if(this->autoloadScenarioName != "") {
-			listBoxScenario.setSelectedItem(formatString(this->autoloadScenarioName),false);
+			setSelectedNetworkScenario(formatString(this->autoloadScenarioName));
 
-			if(listBoxScenario.getSelectedItem() != formatString(this->autoloadScenarioName)) {
+			if(getNetworkScenarioSelectedItem() != formatString(this->autoloadScenarioName)) {
 				mainMessageBoxState=1;
 				showMessageBox( "Could not find scenario name: " + formatString(this->autoloadScenarioName), "Scenario Missing", false);
 				this->autoloadScenarioName = "";
 			}
 			else {
-				loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+				loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles.at(getSelectedNetworkScenarioIndex())), &scenarioInfo);
 				//labelInfo.setText(scenarioInfo.desc);
 
 				SoundRenderer &soundRenderer= SoundRenderer::getInstance();
@@ -3908,7 +4243,11 @@ void MenuStateCustomGame::update() {
 		GameSettings gameSettings;
 		loadGameSettings(&gameSettings);
 
-		listBoxAISwitchTeamAcceptPercent.setEnabled(checkBoxEnableSwitchTeamMode.getValue());
+		//listBoxAISwitchTeamAcceptPercent.setEnabled(checkBoxEnableSwitchTeamMode.getValue());
+		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+		CEGUI::Window *ctl = cegui_manager.getControl(
+						"ComboAIAcceptPercent");
+		cegui_manager.setControlEnabled(ctl,getAllowSwitchTeams());
 
 		for(int index = 0; index < GameConstants::maxPlayers; ++index) {
 			setPlayerStatusImageVisible(index, false);
@@ -4116,7 +4455,7 @@ void MenuStateCustomGame::update() {
 
 		//ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 
-		if(checkBoxScenario.getValue() == false) {
+		if(getAllowNetworkScenario() == false) {
 			for(int i= 0; i< GameConstants::maxPlayers; ++i) {
 				if(i >= mapInfo.players) {
 					//listBoxControls[i].setEditable(false);
@@ -4170,10 +4509,10 @@ void MenuStateCustomGame::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
-		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+		//MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
 
 		if(this->headlessServerMode == true || hasOneNetworkSlotOpen == true ||
-				checkBoxAllowInGameJoinPlayer.getValue() == true) {
+				getAllowInGameJoinPlayer() == true) {
 
 			if(this->headlessServerMode == true &&
 					GlobalStaticFlags::isFlagSet(gsft_lan_mode) == false) {
@@ -4181,7 +4520,8 @@ void MenuStateCustomGame::update() {
 
 				cegui_manager.setCheckboxControlChecked(cegui_manager.getControl("CheckboxPublishGame"),true);
 			}
-			listBoxFallbackCpuMultiplier.setEditable(true);
+			//listBoxFallbackCpuMultiplier.setEditable(true);
+			cegui_manager.setControlEnabled(cegui_manager.getControl("SpinnerAIReplaceMultiplier"),true);
 			//checkBoxPublishServer.setEditable(true);
 			cegui_manager.setControlEnabled(cegui_manager.getControl("CheckboxPublishGame"),true);
 
@@ -4215,8 +4555,10 @@ void MenuStateCustomGame::update() {
 			//checkBoxPublishServer.setEditable(false);
 			cegui_manager.setControlEnabled(cegui_manager.getControl("CheckboxPublishGame"),false);
 
-			listBoxFallbackCpuMultiplier.setEditable(false);
-			listBoxFallbackCpuMultiplier.setSelectedItem("1.0");
+			//listBoxFallbackCpuMultiplier.setEditable(false);
+			//listBoxFallbackCpuMultiplier.setSelectedItem("1.0");
+			cegui_manager.setControlEnabled(cegui_manager.getControl("SpinnerAIReplaceMultiplier"),false);
+			cegui_manager.setSpinnerControlValue(cegui_manager.getControl("SpinnerAIReplaceMultiplier"),1.0f);
 
 			bool publishToServerEnabled =
 					cegui_manager.getCheckboxControlChecked(
@@ -4873,7 +5215,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
     //gameSettings->setFlagTypes1(ft1_show_map_resources);
     //
 
-	if(checkBoxScenario.getValue() == true) {
+	if(getAllowNetworkScenario() == true) {
 		gameSettings->setScenario(scenarioInfo.name);
 		gameSettings->setScenarioDir(Scenario::getScenarioPath(dirList, scenarioInfo.name));
 
@@ -4917,7 +5259,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
     	gameSettings->setDefaultResources(autoStartSettings->getDefaultResources());
     	gameSettings->setDefaultVictoryConditions(autoStartSettings->getDefaultVictoryConditions());
     }
-    else if(checkBoxScenario.getValue() == false) {
+    else if(getAllowNetworkScenario() == false) {
 		gameSettings->setDefaultUnits(true);
 		gameSettings->setDefaultResources(true);
 		gameSettings->setDefaultVictoryConditions(true);
@@ -4928,7 +5270,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
    	gameSettings->setFogOfWar(selectedFogOfWarIndex == 0 ||
    			selectedFogOfWarIndex == 1 );
 
-	gameSettings->setAllowObservers(checkBoxAllowObservers.getValue() == 1);
+	gameSettings->setAllowObservers(getAllowObservers());
 
 	uint32 valueFlags1 = gameSettings->getFlagTypes1();
 	if(selectedFogOfWarIndex == 1 ||
@@ -4947,7 +5289,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	//gameSettings->setPathFinderType(static_cast<PathFinderType>(listBoxPathFinderType.getSelectedItemIndex()));
 
 	valueFlags1 = gameSettings->getFlagTypes1();
-	if(checkBoxEnableSwitchTeamMode.getValue() == true) {
+	if(getAllowSwitchTeams() == true) {
         valueFlags1 |= ft1_allow_team_switching;
         gameSettings->setFlagTypes1(valueFlags1);
 	}
@@ -4955,10 +5297,19 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
         valueFlags1 &= ~ft1_allow_team_switching;
         gameSettings->setFlagTypes1(valueFlags1);
 	}
-	gameSettings->setAiAcceptSwitchTeamPercentChance(strToInt(listBoxAISwitchTeamAcceptPercent.getSelectedItem()));
-	gameSettings->setFallbackCpuMultiplier(listBoxFallbackCpuMultiplier.getSelectedItemIndex());
+	//gameSettings->setAiAcceptSwitchTeamPercentChance(strToInt(listBoxAISwitchTeamAcceptPercent.getSelectedItem()));
+	//MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.getControl("ComboAIAcceptPercent");
+	gameSettings->setAiAcceptSwitchTeamPercentChance(strToInt(cegui_manager.getSelectedItemFromComboBoxControl(ctl)));
 
-	if(checkBoxAllowInGameJoinPlayer.getValue() == true) {
+	//gameSettings->setFallbackCpuMultiplier(listBoxFallbackCpuMultiplier.getSelectedItemIndex());
+	cegui_manager.setControlEnabled(cegui_manager.getControl("SpinnerAIReplaceMultiplier"),false);
+	//cegui_manager.setSelectedItemInComboBoxControl(cegui_manager.getControl("SpinnerAIReplaceMultiplier"),"1.0");
+	cegui_manager.setSpinnerControlValue(cegui_manager.getControl("SpinnerAIReplaceMultiplier"),1.0f);
+
+	gameSettings->setFallbackCpuMultiplier(cegui_manager.getSpinnerControlValue(cegui_manager.getControl("SpinnerAIReplaceMultiplier")));
+
+	if(getAllowInGameJoinPlayer() == true) {
         valueFlags1 |= ft1_allow_in_game_joining;
         gameSettings->setFlagTypes1(valueFlags1);
 	}
@@ -4967,7 +5318,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
         gameSettings->setFlagTypes1(valueFlags1);
 	}
 
-	if(checkBoxAllowTeamUnitSharing.getValue() == true) {
+	if(getAllowTeamUnitSharing() == true) {
         valueFlags1 |= ft1_allow_shared_team_units;
         gameSettings->setFlagTypes1(valueFlags1);
 	}
@@ -4976,7 +5327,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
         gameSettings->setFlagTypes1(valueFlags1);
 	}
 
-	if(checkBoxAllowTeamResourceSharing.getValue() == true) {
+	if(getAllowTeamResourceSharing() == true) {
         valueFlags1 |= ft1_allow_shared_team_resources;
         gameSettings->setFlagTypes1(valueFlags1);
 	}
@@ -5010,7 +5361,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 	}
 
-	gameSettings->setNetworkAllowNativeLanguageTechtree(checkBoxAllowNativeLanguageTechtree.getValue());
+	gameSettings->setNetworkAllowNativeLanguageTechtree(getAllowNativeLanguageTechtree());
 
 	// First save Used slots
     //for(int i=0; i<mapInfo.players; ++i)
@@ -5029,7 +5380,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 			if(serverInterface != NULL &&
 			   (serverInterface->getSlot(i,true) == NULL ||
                serverInterface->getSlot(i,true)->isConnected() == false)) {
-				if(checkBoxScenario.getValue() == false) {
+				if(getAllowNetworkScenario() == false) {
 				//printf("Closed A [%d] [%s]\n",i,labelPlayerNames[i].getText().c_str());
 
 					//listBoxControls[i].setSelectedItemIndex(ctClosed);
@@ -5084,15 +5435,15 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 				//if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME)) {
 				if(factionFiles[selectedFactionIndex] == formatString(GameConstants::OBSERVER_SLOTNAME)) {
 
-					listBoxTeams[i].setSelectedItem(intToStr(GameConstants::maxPlayers + fpt_Observer));
+					setSelectedPlayerTeam(i,intToStr(GameConstants::maxPlayers + fpt_Observer));
 				}
-				else if(listBoxTeams[i].getSelectedItem() == intToStr(GameConstants::maxPlayers + fpt_Observer)) {
+				else if(getPlayerTeamSelectedItem(i) == intToStr(GameConstants::maxPlayers + fpt_Observer)) {
 
 					//printf("Line: %d lastSelectedTeamIndex[i] = %d \n",__LINE__,lastSelectedTeamIndex[i]);
 
 					if((getSelectedPlayerControlTypeIndex(i) == ctCpuEasy || getSelectedPlayerControlTypeIndex(i) == ctCpu ||
 							getSelectedPlayerControlTypeIndex(i) == ctCpuUltra || getSelectedPlayerControlTypeIndex(i) == ctCpuMega) &&
-							checkBoxScenario.getValue() == true) {
+							getAllowNetworkScenario() == true) {
 
 					}
 					else {
@@ -5104,16 +5455,16 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 								lastSelectedTeamIndex[i] = 0;
 							}
 
-							listBoxTeams[i].setSelectedItemIndex(lastSelectedTeamIndex[i]);
+							setSelectedPlayerTeamIndex(i,lastSelectedTeamIndex[i]);
 						}
 						else {
-							listBoxTeams[i].setSelectedItem(intToStr(1));
+							setSelectedPlayerTeam(i,intToStr(1));
 						}
 					}
 				}
 			}
 
-			gameSettings->setTeam(slotIndex, listBoxTeams[i].getSelectedItemIndex());
+			gameSettings->setTeam(slotIndex, getSelectedPlayerTeamIndex(i));
 			gameSettings->setStartLocationIndex(slotIndex, i);
 
 			if(getSelectedPlayerControlTypeIndex(i) == ctNetwork ||
@@ -5171,7 +5522,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 			int slotIndex = factionCount + closedCount;
 
 			gameSettings->setFactionControl(slotIndex, ct);
-			gameSettings->setTeam(slotIndex, listBoxTeams[i].getSelectedItemIndex());
+			gameSettings->setTeam(slotIndex, getSelectedPlayerTeamIndex(i));
 			gameSettings->setStartLocationIndex(slotIndex, i);
 			//gameSettings->setResourceMultiplierIndex(slotIndex, 10);
 			//listBoxRMultiplier[i].setSelectedItem("1.0");
@@ -5212,7 +5563,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 	Config &config = Config::getInstance();
 	gameSettings->setEnableServerControlledAI(config.getBool("ServerControlledAI","true"));
 	gameSettings->setNetworkFramePeriod(config.getInt("NetworkSendFrameCount","20"));
-	gameSettings->setNetworkPauseGameForLaggedClients(((checkBoxNetworkPauseGameForLaggedClients.getValue() == true)));
+	gameSettings->setNetworkPauseGameForLaggedClients(((getNetworkPauseGameForLaggedClients() == true)));
 
 	if( gameSettings->getTileset() != "") {
 		// Check if client has different data, if so force a CRC refresh
@@ -5253,7 +5604,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 					lastCheckedCRCTechtreeValue = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/*", ".xml", NULL, true);
 				}
 
-				reloadFactions(true,(checkBoxScenario.getValue() == true ? scenarioFiles[listBoxScenario.getSelectedItemIndex()] : ""));
+				reloadFactions(true,(getAllowNetworkScenario() == true ? scenarioFiles.at(getSelectedNetworkScenarioIndex()) : ""));
 				factionCRCList.clear();
 				for(unsigned int factionIdx = 0; factionIdx < factionFiles.size(); ++factionIdx) {
 					string factionName = factionFiles[factionIdx];
@@ -5375,7 +5726,7 @@ void MenuStateCustomGame::saveGameSettingsToFile(std::string fileName) {
 
 	GameSettings gameSettings;
 	loadGameSettings(&gameSettings);
-	CoreData::getInstance().saveGameSettingsToFile(fileName, &gameSettings,checkBoxAdvanced.getValue());
+	CoreData::getInstance().saveGameSettingsToFile(fileName, &gameSettings,getShowAdvancedOptions());
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
@@ -5456,11 +5807,11 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	string humanPlayerName = getHumanPlayerName();
 
 	string scenarioDir = "";
-	checkBoxScenario.setValue((gameSettings.getScenario() != ""));
-	if(checkBoxScenario.getValue() == true) {
-		listBoxScenario.setSelectedItem(formatString(gameSettings.getScenario()));
+	setAllowNetworkScenario((gameSettings.getScenario() != ""));
+	if(getAllowNetworkScenario() == true) {
+		setSelectedNetworkScenario(formatString(gameSettings.getScenario()));
 
-		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+		loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles.at(getSelectedNetworkScenarioIndex())), &scenarioInfo);
 		scenarioDir = Scenario::getScenarioDir(dirList, gameSettings.getScenario());
 
 		//printf("scenarioInfo.fogOfWar = %d scenarioInfo.fogOfWar_exploredFlag = %d\n",scenarioInfo.fogOfWar,scenarioInfo.fogOfWar_exploredFlag);
@@ -5484,7 +5835,7 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	setupTechList(gameSettings.getScenario(),false);
 	setupTilesetList(gameSettings.getScenario());
 
-	if(checkBoxScenario.getValue() == true) {
+	if(getAllowNetworkScenario() == true) {
 		//string file = Scenario::getScenarioPath(dirList, gameSettings.getScenario());
 		//loadScenarioInfo(file, &scenarioInfo);
 
@@ -5566,7 +5917,7 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	//gameSettings->setDefaultVictoryConditions(true);
 
 	//FogOfWar
-	if(checkBoxScenario.getValue() == false) {
+	if(getAllowNetworkScenario() == false) {
 
 		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
 
@@ -5587,24 +5938,30 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 
 	//printf("In [%s::%s line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	checkBoxAllowObservers.setValue(gameSettings.getAllowObservers() == true ? true : false);
+	setAllowObservers(gameSettings.getAllowObservers() == true ? true : false);
 	//listBoxEnableObserverMode.setSelectedItem(gameSettings.getEnableObserverModeAtEndGame() == true ? lang.getString("Yes") : lang.getString("No"));
 
-	checkBoxEnableSwitchTeamMode.setValue((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching ? true : false);
-	listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(gameSettings.getAiAcceptSwitchTeamPercentChance()));
-	listBoxFallbackCpuMultiplier.setSelectedItemIndex(gameSettings.getFallbackCpuMultiplier());
+	setAllowSwitchTeams((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching ? true : false);
+	//listBoxAISwitchTeamAcceptPercent.setSelectedItem(intToStr(gameSettings.getAiAcceptSwitchTeamPercentChance()));
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.getControl(
+					"ComboAIAcceptPercent");
+	cegui_manager.setSelectedItemInComboBoxControl(ctl,intToStr(gameSettings.getAiAcceptSwitchTeamPercentChance()));
 
-	checkBoxAllowInGameJoinPlayer.setValue((gameSettings.getFlagTypes1() & ft1_allow_in_game_joining) == ft1_allow_in_game_joining ? true : false);
+	//listBoxFallbackCpuMultiplier.setSelectedItemIndex(gameSettings.getFallbackCpuMultiplier());
+	cegui_manager.setSpinnerControlValue(cegui_manager.getControl("SpinnerAIReplaceMultiplier"),gameSettings.getFallbackCpuMultiplier());
 
-	checkBoxAllowTeamUnitSharing.setValue((gameSettings.getFlagTypes1() & ft1_allow_shared_team_units) == ft1_allow_shared_team_units ? true : false);
-	checkBoxAllowTeamResourceSharing.setValue((gameSettings.getFlagTypes1() & ft1_allow_shared_team_resources) == ft1_allow_shared_team_resources ? true : false);
+	setAllowInGameJoinPlayer((gameSettings.getFlagTypes1() & ft1_allow_in_game_joining) == ft1_allow_in_game_joining ? true : false);
+
+	setAllowTeamUnitSharing((gameSettings.getFlagTypes1() & ft1_allow_shared_team_units) == ft1_allow_shared_team_units ? true : false);
+	setAllowTeamResourceSharing((gameSettings.getFlagTypes1() & ft1_allow_shared_team_resources) == ft1_allow_shared_team_resources ? true : false);
 
 	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 	if(serverInterface != NULL) {
-		serverInterface->setAllowInGameConnections(checkBoxAllowInGameJoinPlayer.getValue() == true);
+		serverInterface->setAllowInGameConnections(getAllowInGameJoinPlayer() == true);
 	}
 
-	checkBoxAllowNativeLanguageTechtree.setValue(gameSettings.getNetworkAllowNativeLanguageTechtree());
+	setAllowNativeLanguageTechtree(gameSettings.getNetworkAllowNativeLanguageTechtree());
 
 	//listBoxPathFinderType.setSelectedItemIndex(gameSettings.getPathFinderType());
 
@@ -5616,11 +5973,11 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	checkBoxNetworkPauseGameForLaggedClients.setValue(gameSettings.getNetworkPauseGameForLaggedClients());
+	setNetworkPauseGameForLaggedClients(gameSettings.getNetworkPauseGameForLaggedClients());
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	reloadFactions(false,(checkBoxScenario.getValue() == true ? scenarioFiles[listBoxScenario.getSelectedItemIndex()] : ""));
+	reloadFactions(false,(getAllowNetworkScenario() == true ? scenarioFiles.at(getSelectedNetworkScenarioIndex()) : ""));
 	//reloadFactions(true);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] Line: %d] gameSettings.getFactionCount() = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,gameSettings.getFactionCount());
@@ -5651,9 +6008,9 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 
 		//if(slotIndex == 0) printf("#4 slotIndex = %d, i = %d, multiplier = %d\n",slotIndex,i,listBoxRMultiplier[i].getSelectedItemIndex());
 
-		listBoxTeams[slotIndex].setSelectedItemIndex(gameSettings.getTeam(i));
+		setSelectedPlayerTeamIndex(slotIndex,gameSettings.getTeam(i));
 
-		lastSelectedTeamIndex[slotIndex] = listBoxTeams[slotIndex].getSelectedItemIndex();
+		lastSelectedTeamIndex[slotIndex] = getSelectedPlayerTeamIndex(slotIndex);
 
 		string factionName = gameSettings.getFactionTypeName(i);
 		factionName = formatString(factionName);
@@ -5776,7 +6133,7 @@ void MenuStateCustomGame::loadMapInfo(string file, MapInfo *mapInfo, bool loadMa
 						    "ComboBoxPlayer" + intToStr(i+1) + "Faction"),
 						    i+1 <= mapInfo->players);
 
-					listBoxTeams[i].setVisible(i+1 <= mapInfo->players);
+					setPlayerTeamVisible(i,i+1 <= mapInfo->players);
 					//labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
 					setPlayerVersionVisible(i,i+1 <= mapInfo->players);
 				}
@@ -5867,7 +6224,7 @@ void MenuStateCustomGame::updateControlers() {
 
 void MenuStateCustomGame::closeUnusedSlots(){
 	try {
-		if(checkBoxScenario.getValue() == false) {
+		if(getAllowNetworkScenario() == false) {
 			ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 			//for(int i= 0; i<mapInfo.players; ++i){
 			for(int i= 0; i < GameConstants::maxPlayers; ++i){
@@ -5995,19 +6352,19 @@ void MenuStateCustomGame::keyDown(SDL_KeyboardEvent key) {
 		return;
 	}
 
-	if(activeInputLabel != NULL) {
-		bool handled = keyDownEditLabel(key, &activeInputLabel);
-		if(handled == true) {
-			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-	        if(hasNetworkGameSettings() == true) {
-	            needToSetChangedGameSettings = true;
-	            lastSetChangedGameSettings   = time(NULL);
-	        }
-		}
-	}
-	else {
+//	if(activeInputLabel != NULL) {
+//		bool handled = keyDownEditLabel(key, &activeInputLabel);
+//		if(handled == true) {
+//			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//
+//	        if(hasNetworkGameSettings() == true) {
+//	            needToSetChangedGameSettings = true;
+//	            lastSetChangedGameSettings   = time(NULL);
+//	        }
+//		}
+//	}
+	//else {
 		//send key to the chat manager
 		if(hasNetworkGameSettings() == true) {
 			chatManager.keyDown(key);
@@ -6046,7 +6403,7 @@ void MenuStateCustomGame::keyDown(SDL_KeyboardEvent key) {
 				console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
 			}
 		}
-	}
+	//}
 }
 
 void MenuStateCustomGame::keyPress(SDL_KeyboardEvent c) {
@@ -6054,24 +6411,24 @@ void MenuStateCustomGame::keyPress(SDL_KeyboardEvent c) {
 		return;
 	}
 
-	if(activeInputLabel != NULL) {
-		bool handled = keyPressEditLabel(c, &activeInputLabel);
-		//if(handled == true && &labelGameName != activeInputLabel) {
-		if(handled == true) {
-			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-
-			if(hasNetworkGameSettings() == true) {
-				needToSetChangedGameSettings = true;
-				lastSetChangedGameSettings   = time(NULL);
-			}
-		}
-	}
-	else {
+//	if(activeInputLabel != NULL) {
+//		bool handled = keyPressEditLabel(c, &activeInputLabel);
+//		//if(handled == true && &labelGameName != activeInputLabel) {
+//		if(handled == true) {
+//			MutexSafeWrapper safeMutex((publishToMasterserverThread != NULL ? publishToMasterserverThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//			MutexSafeWrapper safeMutexCLI((publishToClientsThread != NULL ? publishToClientsThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
+//
+//			if(hasNetworkGameSettings() == true) {
+//				needToSetChangedGameSettings = true;
+//				lastSetChangedGameSettings   = time(NULL);
+//			}
+//		}
+//	}
+//	else {
 		if(hasNetworkGameSettings() == true) {
 			chatManager.keyPress(c);
 		}
-	}
+//	}
 }
 
 void MenuStateCustomGame::keyUp(SDL_KeyboardEvent key) {
@@ -6079,7 +6436,7 @@ void MenuStateCustomGame::keyUp(SDL_KeyboardEvent key) {
 		return;
 	}
 
-	if(activeInputLabel==NULL) {
+	//if(activeInputLabel==NULL) {
 		if(hasNetworkGameSettings() == true) {
 			chatManager.keyUp(key);
 		}
@@ -6095,7 +6452,7 @@ void MenuStateCustomGame::keyUp(SDL_KeyboardEvent key) {
 		else if(isKeyPressed(configKeys.getSDLKey("ShowFullConsole"),key) == true) {
 			showFullConsole= false;
 		}
-	}
+	//}
 }
 
 void MenuStateCustomGame::showMessageBox(const string &text, const string &header, bool toggle){
@@ -6177,9 +6534,9 @@ string MenuStateCustomGame::getCurrentMapFile(){
 	return mapFile;
 }
 
-void MenuStateCustomGame::setActiveInputLabel(GraphicLabel *newLable) {
-	MenuState::setActiveInputLabel(newLable,&activeInputLabel);
-}
+//void MenuStateCustomGame::setActiveInputLabel(GraphicLabel *newLable) {
+//	MenuState::setActiveInputLabel(newLable,&activeInputLabel);
+//}
 
 string MenuStateCustomGame::getHumanPlayerName(int index) {
 	string  result = defaultPlayerName;
@@ -6201,12 +6558,12 @@ string MenuStateCustomGame::getHumanPlayerName(int index) {
 			getPlayerNameText(index) !=  GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME) {
 		result = getPlayerNameText(index);
 
-		if(activeInputLabel != NULL) {
-			size_t found = result.find_last_of("_");
-			if (found != string::npos) {
-				result = result.substr(0,found);
-			}
-		}
+//		if(activeInputLabel != NULL) {
+//			size_t found = result.find_last_of("_");
+//			if (found != string::npos) {
+//				result = result.substr(0,found);
+//			}
+//		}
 	}
 
 	return result;
@@ -6290,15 +6647,16 @@ void MenuStateCustomGame::loadScenarioInfo(string file, ScenarioInfo *scenarioIn
 }
 
 bool MenuStateCustomGame::isInSpecialKeyCaptureEvent() {
-	bool result = (chatManager.getEditEnabled() || activeInputLabel != NULL);
+	//bool result = (chatManager.getEditEnabled() || activeInputLabel != NULL);
+	bool result = chatManager.getEditEnabled();
 	return result;
 }
 
 void MenuStateCustomGame::processScenario() {
 	try {
-		if(checkBoxScenario.getValue() == true) {
+		if(getAllowNetworkScenario() == true) {
 			//printf("listBoxScenario.getSelectedItemIndex() = %d [%s] scenarioFiles.size() = %d\n",listBoxScenario.getSelectedItemIndex(),listBoxScenario.getSelectedItem().c_str(),scenarioFiles.size());
-			loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles[listBoxScenario.getSelectedItemIndex()]), &scenarioInfo);
+			loadScenarioInfo(Scenario::getScenarioPath(dirList, scenarioFiles.at(getSelectedNetworkScenarioIndex())), &scenarioInfo);
 			string scenarioDir = Scenario::getScenarioDir(dirList, scenarioInfo.name);
 
 			//printf("scenarioInfo.fogOfWar = %d scenarioInfo.fogOfWar_exploredFlag = %d\n",scenarioInfo.fogOfWar,scenarioInfo.fogOfWar_exploredFlag);
@@ -6448,14 +6806,14 @@ void MenuStateCustomGame::processScenario() {
 						}
 						//
 
-						listBoxTeams[i].setSelectedItem(intToStr(scenarioInfo.teams[i]));
+						setSelectedPlayerTeam(i,intToStr(scenarioInfo.teams[i]));
 						//if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
 						if(factionFiles[cegui_manager.getSelectedItemIndexFromComboBoxControl(
 							cegui_manager.getControl(
 							    "ComboBoxPlayer" + intToStr(i+1) + "Faction"))] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
 
-							if(listBoxTeams[i].getSelectedItemIndex() + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
-								lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
+							if(getSelectedPlayerTeamIndex(i) + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
+								lastSelectedTeamIndex[i] = getSelectedPlayerTeamIndex(i);
 							}
 							// Alow Neutral cpu players
 							else if(getSelectedPlayerControlTypeIndex(i) == ctCpuEasy ||
@@ -6463,7 +6821,7 @@ void MenuStateCustomGame::processScenario() {
 									getSelectedPlayerControlTypeIndex(i) == ctCpuUltra ||
 									getSelectedPlayerControlTypeIndex(i) == ctCpuMega) {
 
-								lastSelectedTeamIndex[i] = listBoxTeams[i].getSelectedItemIndex();
+								lastSelectedTeamIndex[i] = getSelectedPlayerTeamIndex(i);
 							}
 						}
 						else {
@@ -6540,7 +6898,7 @@ void MenuStateCustomGame::processScenario() {
 
 void MenuStateCustomGame::SetupUIForScenarios() {
 	try {
-		if(checkBoxScenario.getValue() == true) {
+		if(getAllowNetworkScenario() == true) {
 			// START - Disable changes to controls while in Scenario mode
 			for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 				//listBoxControls[i].setEditable(false);
@@ -6548,15 +6906,15 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 
 				//listBoxFactions[i].setEditable(false);
 				//listBoxRMultiplier[i].setEditable(false);
-				listBoxTeams[i].setEditable(false);
+				//listBoxTeams[i].setEditable(false);
 			}
 			//listBoxFogOfWar.setEditable(false);
 
-			checkBoxAllowObservers.setEditable(false);
+			//checkBoxAllowObservers.setEditable(false);
 			//listBoxPathFinderType.setEditable(false);
-			checkBoxEnableSwitchTeamMode.setEditable(false);
-			listBoxAISwitchTeamAcceptPercent.setEditable(false);
-			listBoxFallbackCpuMultiplier.setEditable(false);
+			//checkBoxEnableSwitchTeamMode.setEditable(false);
+			//listBoxAISwitchTeamAcceptPercent.setEditable(false);
+			//listBoxFallbackCpuMultiplier.setEditable(false);
 			//listBoxMap.setEditable(false);
 			//listBoxTileset.setEditable(false);
 			//listBoxMapFilter.setEditable(false);
@@ -6577,14 +6935,14 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 
 				//listBoxFactions[i].setEditable(true);
 				//listBoxRMultiplier[i].setEditable(true);
-				listBoxTeams[i].setEditable(true);
+				//listBoxTeams[i].setEditable(true);
 			}
 			//listBoxFogOfWar.setEditable(true);
-			checkBoxAllowObservers.setEditable(true);
+			//checkBoxAllowObservers.setEditable(true);
 			//listBoxPathFinderType.setEditable(true);
-			checkBoxEnableSwitchTeamMode.setEditable(true);
-			listBoxAISwitchTeamAcceptPercent.setEditable(true);
-			listBoxFallbackCpuMultiplier.setEditable(true);
+			//checkBoxEnableSwitchTeamMode.setEditable(true);
+			//listBoxAISwitchTeamAcceptPercent.setEditable(true);
+			//listBoxFallbackCpuMultiplier.setEditable(true);
 			//listBoxMap.setEditable(true);
 			//listBoxTileset.setEditable(true);
 			//listBoxMapFilter.setEditable(true);
@@ -6858,7 +7216,7 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 		translatedFactionNames.push_back("*"+lang.getString("Random","",true)+"*");
 
 		// Add special Observer Faction
-		if(checkBoxAllowObservers.getValue() == 1) {
+		if(getAllowObservers()) {
 			results.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
 			factionFiles.push_back(formatString(GameConstants::OBSERVER_SLOTNAME));
 			translatedFactionNames.push_back("*"+lang.getString("Observer","",true)+"*");
@@ -6881,7 +7239,7 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 					cegui_manager.getControl("ComboBoxPlayer" + intToStr(i+1) + "Faction"), results);
 
 			if( keepExistingSelectedItem == false ||
-				(checkBoxAllowObservers.getValue() == 0 &&
+				(getAllowObservers() == false &&
 						originalValue == formatString(GameConstants::OBSERVER_SLOTNAME)) ) {
 
 				//listBoxFactions[i].setSelectedItemIndex(i % results.size());
@@ -6892,8 +7250,8 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 
 				if( originalValue == formatString(GameConstants::OBSERVER_SLOTNAME) &&
 						getPlayerFactionTypeSelectedItem(i) != formatString(GameConstants::OBSERVER_SLOTNAME)) {
-					if(listBoxTeams[i].getSelectedItem() == intToStr(GameConstants::maxPlayers + fpt_Observer)) {
-						listBoxTeams[i].setSelectedItem(intToStr(1));
+					if(getPlayerTeamSelectedItem(i) == intToStr(GameConstants::maxPlayers + fpt_Observer)) {
+						setSelectedPlayerTeam(i,intToStr(1));
 					}
 				}
 			}
@@ -7167,6 +7525,199 @@ string MenuStateCustomGame::getPlayerFactionTypeSelectedItem(int index) {
 					"ComboBoxPlayer" + intToStr(index+1) + "Faction");
 
 	return cegui_manager.getSelectedItemFromComboBoxControl(ctl);
+}
+
+int MenuStateCustomGame::getSelectedPlayerTeamIndex(int index) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *slotCtl = cegui_manager.getControl(
+					"ComboBoxPlayer" + intToStr(index+1) + "Team");
+	int selectedSlotControlItemIndex = cegui_manager.
+			getSelectedItemIndexFromComboBoxControl(slotCtl);
+
+	return selectedSlotControlItemIndex;
+
+}
+
+void MenuStateCustomGame::setPlayerTeamVisible(int index, bool visible) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.getControl(
+					"ComboBoxPlayer" + intToStr(index+1) + "Team");
+
+	if(cegui_manager.getControlVisible(ctl) != visible) {
+		cegui_manager.setControlVisible(ctl,visible);
+	}
+}
+
+void MenuStateCustomGame::setSelectedPlayerTeamIndex(int index, int indexValue) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.getControl(
+					"ComboBoxPlayer" + intToStr(index+1) + "Team");
+
+	cegui_manager.setSelectedItemInComboBoxControl(ctl,indexValue);
+}
+
+void MenuStateCustomGame::setSelectedPlayerTeam(int index, string value) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.getControl(
+					"ComboBoxPlayer" + intToStr(index+1) + "Team");
+
+	cegui_manager.setSelectedItemInComboBoxControl(ctl,value);
+}
+
+string MenuStateCustomGame::getPlayerTeamSelectedItem(int index) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.getControl(
+					"ComboBoxPlayer" + intToStr(index+1) + "Team");
+
+	return cegui_manager.getSelectedItemFromComboBoxControl(ctl);
+}
+
+bool MenuStateCustomGame::getAllowSwitchTeams() {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	return cegui_manager.getCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxAllowSwitchTeams"));
+}
+
+void MenuStateCustomGame::setAllowSwitchTeams(bool value) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.setCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxAllowSwitchTeams"),value);
+}
+
+bool MenuStateCustomGame::getAllowObservers() {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	return cegui_manager.getCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxAllowObservers"));
+}
+
+void MenuStateCustomGame::setAllowObservers(bool value) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.setCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxAllowObservers"),value);
+}
+
+bool MenuStateCustomGame::getAllowInGameJoinPlayer() {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	return cegui_manager.getCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxAllowInProgressJoinGame"));
+}
+
+void MenuStateCustomGame::setAllowInGameJoinPlayer(bool value) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.setCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxAllowInProgressJoinGame"),value);
+}
+
+bool MenuStateCustomGame::getAllowTeamUnitSharing() {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	return cegui_manager.getCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxAllowSharedTeamUnits"));
+}
+
+void MenuStateCustomGame::setAllowTeamUnitSharing(bool value) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.setCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxAllowSharedTeamUnits"),value);
+}
+
+bool MenuStateCustomGame::getAllowTeamResourceSharing() {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	return cegui_manager.getCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxAllowSharedTeamResources"));
+}
+
+void MenuStateCustomGame::setAllowTeamResourceSharing(bool value) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.setCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxAllowSharedTeamResources"),value);
+}
+
+bool MenuStateCustomGame::getAllowNativeLanguageTechtree() {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	return cegui_manager.getCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxTechTreeTranslated"));
+}
+
+void MenuStateCustomGame::setAllowNativeLanguageTechtree(bool value) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.setCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxTechTreeTranslated"),value);
+}
+
+bool MenuStateCustomGame::getNetworkPauseGameForLaggedClients() {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	return cegui_manager.getCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxPauseLaggingClients"));
+}
+
+void MenuStateCustomGame::setNetworkPauseGameForLaggedClients(bool value) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.setCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxPauseLaggingClients"),value);
+}
+
+bool MenuStateCustomGame::getShowAdvancedOptions() {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	return cegui_manager.getCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxShowAdvancedOptions"));
+}
+
+void MenuStateCustomGame::setShowAdvancedOptions(bool value) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.setCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxShowAdvancedOptions"),value);
+}
+
+int MenuStateCustomGame::getSelectedNetworkScenarioIndex() {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *slotCtl = cegui_manager.getControl("ComboNetworkScenarios");
+	int selectedSlotControlItemIndex = cegui_manager.
+			getSelectedItemIndexFromComboBoxControl(slotCtl);
+
+	return selectedSlotControlItemIndex;
+
+}
+
+void MenuStateCustomGame::setNetworkScenarioVisible(bool visible) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.getControl("ComboNetworkScenarios");
+
+	//printf("#1 visible = %d\n",visible);
+	if(cegui_manager.getControlVisible(ctl) != visible) {
+		//printf("#2 visible = %d\n",visible);
+		cegui_manager.setControlVisible(ctl,visible);
+	}
+}
+
+void MenuStateCustomGame::setSelectedNetworkScenarioIndex(int indexValue) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.getControl("ComboNetworkScenarios");
+
+	cegui_manager.setSelectedItemInComboBoxControl(ctl,indexValue);
+
+}
+void MenuStateCustomGame::setSelectedNetworkScenario(string value) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.getControl("ComboNetworkScenarios");
+
+	cegui_manager.setSelectedItemInComboBoxControl(ctl,value);
+}
+string MenuStateCustomGame::getNetworkScenarioSelectedItem() {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	CEGUI::Window *ctl = cegui_manager.getControl("ComboNetworkScenarios");
+
+	return cegui_manager.getSelectedItemFromComboBoxControl(ctl);
+}
+
+bool MenuStateCustomGame::getAllowNetworkScenario() {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	return cegui_manager.getCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxShowNetworkScenarios"));
+}
+void MenuStateCustomGame::setAllowNetworkScenario(bool value) {
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	cegui_manager.setCheckboxControlChecked(
+			cegui_manager.getControl("CheckboxShowNetworkScenarios"),value);
 }
 
 }}//end namespace

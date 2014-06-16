@@ -78,7 +78,7 @@ private:
 	GraphicButton buttonBlockPlayers[GameConstants::maxPlayers];
 	//GraphicListBox listBoxRMultiplier[GameConstants::maxPlayers];
 	//GraphicListBox listBoxFactions[GameConstants::maxPlayers];
-	GraphicListBox listBoxTeams[GameConstants::maxPlayers];
+	//GraphicListBox listBoxTeams[GameConstants::maxPlayers];
 	//GraphicLabel labelNetStatus[GameConstants::maxPlayers];
 	MapInfo mapInfo;
 
@@ -90,47 +90,48 @@ private:
 	GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
 
-	GraphicLabel labelNetworkPauseGameForLaggedClients;
-	GraphicCheckBox checkBoxNetworkPauseGameForLaggedClients;
+	//GraphicLabel labelNetworkPauseGameForLaggedClients;
+	//GraphicCheckBox checkBoxNetworkPauseGameForLaggedClients;
 
 	//GraphicLabel labelMapFilter;
 	//GraphicListBox listBoxMapFilter;
 
-	GraphicLabel labelAdvanced;
-	GraphicCheckBox checkBoxAdvanced;
+	//GraphicLabel labelAdvanced;
+	//GraphicCheckBox checkBoxAdvanced;
 
-	GraphicLabel labelAllowObservers;
-	GraphicCheckBox checkBoxAllowObservers;
+	//GraphicLabel labelAllowObservers;
+	//GraphicCheckBox checkBoxAllowObservers;
 
-	GraphicLabel *activeInputLabel;
+	//GraphicLabel *activeInputLabel;
 
 	//GraphicLabel labelPlayerStatus[GameConstants::maxPlayers];
 	//GraphicListBox listBoxPlayerStatus;
 
-	GraphicLabel labelEnableSwitchTeamMode;
-	GraphicCheckBox checkBoxEnableSwitchTeamMode;
+	//GraphicLabel labelEnableSwitchTeamMode;
+	//GraphicCheckBox checkBoxEnableSwitchTeamMode;
 
-	GraphicLabel labelAISwitchTeamAcceptPercent;
-	GraphicListBox listBoxAISwitchTeamAcceptPercent;
-	GraphicLabel labelFallbackCpuMultiplier;
-	GraphicListBox listBoxFallbackCpuMultiplier;
+	//GraphicLabel labelAISwitchTeamAcceptPercent;
+	//GraphicListBox listBoxAISwitchTeamAcceptPercent;
+	//GraphicLabel labelFallbackCpuMultiplier;
+	//GraphicListBox listBoxFallbackCpuMultiplier;
 
-	GraphicLabel labelAllowInGameJoinPlayer;
-	GraphicCheckBox checkBoxAllowInGameJoinPlayer;
+	//GraphicLabel labelAllowInGameJoinPlayer;
+	//GraphicCheckBox checkBoxAllowInGameJoinPlayer;
 
-	GraphicLabel labelAllowTeamUnitSharing;
-	GraphicCheckBox checkBoxAllowTeamUnitSharing;
+	//GraphicLabel labelAllowTeamUnitSharing;
+	//GraphicCheckBox checkBoxAllowTeamUnitSharing;
 
-	GraphicLabel labelAllowTeamResourceSharing;
-	GraphicCheckBox checkBoxAllowTeamResourceSharing;
+	//GraphicLabel labelAllowTeamResourceSharing;
+	//GraphicCheckBox checkBoxAllowTeamResourceSharing;
 
 
-	GraphicLabel labelAllowNativeLanguageTechtree;
-	GraphicCheckBox checkBoxAllowNativeLanguageTechtree;
+	//GraphicLabel labelAllowNativeLanguageTechtree;
+	//GraphicCheckBox checkBoxAllowNativeLanguageTechtree;
 
-	GraphicCheckBox checkBoxScenario;
-	GraphicLabel labelScenario;
-	GraphicListBox listBoxScenario;
+	//GraphicLabel labelScenario;
+	//GraphicCheckBox checkBoxScenario;
+
+	//GraphicListBox listBoxScenario;
 
 	vector<string> scenarioFiles;
     ScenarioInfo scenarioInfo;
@@ -279,7 +280,7 @@ private:
 	void updateAllResourceMultiplier();
 	void updateResourceMultiplier(const int index);
 	string getCurrentMapFile();
-	void setActiveInputLabel(GraphicLabel *newLable);
+	//void setActiveInputLabel(GraphicLabel *newLable);
 	string getHumanPlayerName(int index=-1);
 
 	void loadFactionTexture(string filepath);
@@ -357,6 +358,47 @@ private:
 
 	int getSelectedPlayerFactionTypeItemCount(int index);
 	string getPlayerFactionTypeSelectedItem(int index);
+
+
+	int getSelectedPlayerTeamIndex(int index);
+	void setPlayerTeamVisible(int index, bool visible);
+	void setSelectedPlayerTeamIndex(int index, int indexValue);
+	void setSelectedPlayerTeam(int index, string value);
+	string getPlayerTeamSelectedItem(int index);
+
+	bool getAllowSwitchTeams();
+	void setAllowSwitchTeams(bool value);
+
+	bool getAllowObservers();
+	void setAllowObservers(bool value);
+
+	bool getAllowInGameJoinPlayer();
+	void setAllowInGameJoinPlayer(bool value);
+
+	bool getAllowTeamUnitSharing();
+	void setAllowTeamUnitSharing(bool value);
+
+	bool getAllowTeamResourceSharing();
+	void setAllowTeamResourceSharing(bool value);
+
+	bool getAllowNativeLanguageTechtree();
+	void setAllowNativeLanguageTechtree(bool value);
+
+	bool getNetworkPauseGameForLaggedClients();
+	void setNetworkPauseGameForLaggedClients(bool value);
+
+	bool getShowAdvancedOptions();
+	void setShowAdvancedOptions(bool value);
+
+	int getSelectedNetworkScenarioIndex();
+	void setNetworkScenarioVisible(bool visible);
+	void setSelectedNetworkScenarioIndex(int indexValue);
+	void setSelectedNetworkScenario(string value);
+	string getNetworkScenarioSelectedItem();
+
+	bool getAllowNetworkScenario();
+	void setAllowNetworkScenario(bool value);
+
 };
 
 }}//end namespace
