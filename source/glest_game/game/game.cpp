@@ -1785,6 +1785,7 @@ void Game::initAiInterfacesIfNeeded(int aiIndex){
 			Faction *faction= world.getFaction(i);
 			if(i==aiIndex) {
 				aiInterfaces[i]= new AiInterface(*this, i, faction->getTeam());
+				console.addLine("I am controlling client!!!!");
 			}
 			if(aiInterfaces[i]!=NULL){
 				slaveThreadList.push_back(aiInterfaces[i]->getWorkerThread());
