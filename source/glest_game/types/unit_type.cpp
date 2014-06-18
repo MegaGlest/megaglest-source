@@ -1109,7 +1109,7 @@ std::string UnitType::toString() const {
 	result += " maxHp = " + intToStr(maxHp);
 	result += " hpRegeneration = " + intToStr(hpRegeneration);
 	result += " maxEp = " + intToStr(maxEp);
-	result += " startEp = " + intToStr(maxEp);
+	result += " startEp = " + intToStr(startEp);
 	result += " epRegeneration = " + intToStr(epRegeneration);
 	result += " maxUnitCount = " + intToStr(getMaxUnitCount());
 
