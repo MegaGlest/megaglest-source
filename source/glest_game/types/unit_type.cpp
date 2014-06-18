@@ -126,6 +126,7 @@ UnitType::UnitType() : ProducibleType() {
 	maxUnitCount= 0;
 	maxHp=0;
 	maxEp=0;
+	startEp=0;
 	armor=0;
 	sight=0;
 	size=0;
@@ -246,6 +247,14 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 			epRegeneration= parametersNode->getChild("max-ep")->getAttribute("regeneration")->getIntValue();
 		}
 		addItemToVault(&(this->epRegeneration),this->epRegeneration);
+
+		//startEp
+
+		if(parametersNode->hasChild("start-ep")) {
+			//checkItemInVault(&(this->startEp),this->startEp);
+			startEp= parametersNode->getChild("start-ep")->getAttribute("value")->getIntValue();
+		}
+		addItemToVault(&(this->startEp),this->startEp);
 
 		//maxUnitCount
 		if(parametersNode->hasChild("max-unit-count")) {
@@ -1100,6 +1109,7 @@ std::string UnitType::toString() const {
 	result += " maxHp = " + intToStr(maxHp);
 	result += " hpRegeneration = " + intToStr(hpRegeneration);
 	result += " maxEp = " + intToStr(maxEp);
+	result += " startEp = " + intToStr(maxEp);
 	result += " epRegeneration = " + intToStr(epRegeneration);
 	result += " maxUnitCount = " + intToStr(getMaxUnitCount());
 

@@ -1958,6 +1958,10 @@ void Unit::born(const CommandType *ct) {
 		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 	}
 	addItemToVault(&this->hp,this->hp);
+
+	//set ep from start-ep tag
+	checkItemInVault(&this->ep,this->ep);
+	this->ep= type->getStartEp();
 }
 
 void Unit::kill() {
