@@ -117,6 +117,9 @@ public:
 	void setControlVisible(CEGUI::Window *ctl, bool visible);
 	bool getControlVisible(CEGUI::Window *ctl);
 
+	void setControlOnTop(string controlName, bool ontop);
+	void setControlOnTop(CEGUI::Window *ctl, bool ontop);
+
 	void setControlReadOnly(CEGUI::Window *ctl, bool readOnly);
 	void setControlEnabled(CEGUI::Window *ctl, bool enabled);
 	bool getControlEnabled(CEGUI::Window *ctl);

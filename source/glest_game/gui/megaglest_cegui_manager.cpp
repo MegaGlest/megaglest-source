@@ -1348,6 +1348,24 @@ bool MegaGlest_CEGUIManager::getControlVisible(CEGUI::Window *ctl) {
 	return ctl->isVisible();
 }
 
+void MegaGlest_CEGUIManager::setControlOnTop(string controlName, bool ontop) {
+	CEGUI::Window *root = CEGUI::System::getSingleton().
+			getDefaultGUIContext().getRootWindow();
+
+	CEGUI::Window *ctl = root->getChild(controlName);
+	setControlOnTop(ctl,ontop);
+}
+
+void MegaGlest_CEGUIManager::setControlOnTop(CEGUI::Window *ctl, bool ontop) {
+	if(ontop) {
+		ctl->moveToFront();
+	}
+	else {
+		ctl->moveToBack();
+	}
+
+}
+
 void MegaGlest_CEGUIManager::setControlReadOnly(CEGUI::Window *ctl, bool readOnly) {
 
 	if(dynamic_cast<CEGUI::Combobox*>(ctl)) {

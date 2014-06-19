@@ -144,9 +144,9 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	this->autoloadScenarioName = autoloadScenarioName;
 	this->dirList = Config::getInstance().getPathListForType(ptScenarios);
 
-    mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
-	mainMessageBox.init(lang.getString("Ok"));
-	mainMessageBox.setEnabled(false);
+    //mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
+	//mainMessageBox.init(lang.getString("Ok"));
+	//mainMessageBox.setEnabled(false);
 	mainMessageBoxState=0;
 
 	//initialize network interface
@@ -187,7 +187,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	setupCEGUIWidgets(openNetworkSlots);
 
 	//int labelOffset=23;
-	int setupPos=605;
+	//int setupPos=605;
 	//int mapHeadPos=330;
 	//int mapPos=mapHeadPos-labelOffset;
 	//int aHeadPos=240;
@@ -517,7 +517,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	//list boxes
 	xoffset=30;
-	int rowHeight=27;
+	//int rowHeight=27;
     for(int i=0; i<GameConstants::maxPlayers; ++i){
 
 //    	labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
@@ -531,12 +531,12 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		//labelPlayerNames[i].init(xoffset+30,setupPos-30-i*rowHeight);
 
 
-        buttonBlockPlayers[i].registerGraphicComponent(containerName,"buttonBlockPlayers" + intToStr(i));
+        //buttonBlockPlayers[i].registerGraphicComponent(containerName,"buttonBlockPlayers" + intToStr(i));
         //buttonBlockPlayers[i].init(xoffset+355, setupPos-30-i*rowHeight, 70);
-        buttonBlockPlayers[i].init(xoffset+210, setupPos-30-i*rowHeight, 70);
-        buttonBlockPlayers[i].setText(lang.getString("BlockPlayer"));
-        buttonBlockPlayers[i].setFont(CoreData::getInstance().getDisplayFontSmall());
-        buttonBlockPlayers[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
+        //buttonBlockPlayers[i].init(xoffset+210, setupPos-30-i*rowHeight, 70);
+        //buttonBlockPlayers[i].setText(lang.getString("BlockPlayer"));
+        //buttonBlockPlayers[i].setFont(CoreData::getInstance().getDisplayFontSmall());
+        //buttonBlockPlayers[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
         //listBoxRMultiplier[i].registerGraphicComponent(containerName,"listBoxRMultiplier" + intToStr(i));
         //listBoxRMultiplier[i].init(xoffset+310, setupPos-30-i*rowHeight,70);
@@ -554,8 +554,8 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 //		labelNetStatus[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
     }
 
-	buttonClearBlockedPlayers.registerGraphicComponent(containerName,"buttonClearBlockedPlayers");
-	buttonClearBlockedPlayers.init(xoffset+170, setupPos-30-8*rowHeight, 140);
+	//buttonClearBlockedPlayers.registerGraphicComponent(containerName,"buttonClearBlockedPlayers");
+	//buttonClearBlockedPlayers.init(xoffset+170, setupPos-30-8*rowHeight, 140);
 
 //	labelControl.registerGraphicComponent(containerName,"labelControl");
 //	labelControl.init(xoffset+170, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
@@ -584,7 +584,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
     //xoffset=100;
 
 	//texts
-	buttonClearBlockedPlayers.setText(lang.getString("BlockPlayerClear"));
+	//buttonClearBlockedPlayers.setText(lang.getString("BlockPlayerClear"));
 	//buttonReturn.setText(lang.getString("Return"));
 	//buttonPlayNow.setText(lang.getString("PlayNow"));
 	//buttonRestoreLastSettings.setText(lang.getString("ReloadLastGameSettings"));
@@ -746,7 +746,7 @@ void MenuStateCustomGame::reloadUI() {
     console.resetFonts();
     setupCEGUIWidgetsText(true,false);
 
-	mainMessageBox.init(lang.getString("Ok"));
+	//mainMessageBox.init(lang.getString("Ok"));
 
 
 //	if(EndsWith(glestVersionString, "-dev") == false){
@@ -824,9 +824,9 @@ void MenuStateCustomGame::reloadUI() {
 
 	//labelNetworkPauseGameForLaggedClients.setText(lang.getString("NetworkPauseGameForLaggedClients"));
 
-    for(int i=0; i < GameConstants::maxPlayers; ++i) {
-        buttonBlockPlayers[i].setText(lang.getString("BlockPlayer"));
-    }
+    //for(int i=0; i < GameConstants::maxPlayers; ++i) {
+        //buttonBlockPlayers[i].setText(lang.getString("BlockPlayer"));
+    //}
 
 	//labelControl.setText(lang.getString("Control"));
 
@@ -844,7 +844,7 @@ void MenuStateCustomGame::reloadUI() {
 	//labelTeam.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
 	//texts
-	buttonClearBlockedPlayers.setText(lang.getString("BlockPlayerClear"));
+	//buttonClearBlockedPlayers.setText(lang.getString("BlockPlayerClear"));
 	//buttonReturn.setText(lang.getString("Return"));
 	//buttonPlayNow.setText(lang.getString("PlayNow"));
 	//buttonRestoreLastSettings.setText(lang.getString("ReloadLastGameSettings"));
@@ -977,7 +977,13 @@ void MenuStateCustomGame::setupCEGUIWidgets(bool openNetworkSlots) {
 				"ComboBoxPlayer" + intToStr(index+1) + "Team",
 						cegui_manager.getEventComboboxChangeAccepted(), this);
 
+
+		cegui_manager.setControlEventCallback(containerName,"ButtonPlayer" + intToStr(index+1) + "Block",
+					cegui_manager.getEventButtonClicked(), this);
 	}
+
+	cegui_manager.setControlEventCallback(containerName,"ButtonClearBlockedPlayers",
+						cegui_manager.getEventButtonClicked(), this);
 
 	cegui_manager.setControlEventCallback(containerName,
 			"ComboNetworkScenarios",
@@ -1026,6 +1032,8 @@ void MenuStateCustomGame::setupCEGUIWidgets(bool openNetworkSlots) {
 
 	cegui_manager.setControlEventCallback(containerName,"ButtonPlay",
 			cegui_manager.getEventButtonClicked(), this);
+
+	cegui_manager.subscribeMessageBoxEventClicks(containerName, this);
 }
 
 void MenuStateCustomGame::setupCEGUIWidgetsText(bool isReload, bool openNetworkSlots) {
@@ -1269,8 +1277,15 @@ void MenuStateCustomGame::setupCEGUIWidgetsText(bool isReload, bool openNetworkS
 
 		//cegui_manager.setControlText("LabelPlayer" + intToStr(index+1) + "Version","*");
 		cegui_manager.setControlText("LabelPlayer" + intToStr(index+1) + "Version","");
+
+
+		//buttonBlockPlayers
+		cegui_manager.setControlText("ButtonPlayer" + intToStr(index+1) + "Block",lang.getString("BlockPlayer","",false,true));
+		cegui_manager.setControlVisible("ButtonPlayer" + intToStr(index+1) + "Block",false);
 	}
 
+	cegui_manager.setControlText("ButtonClearBlockedPlayers",lang.getString("BlockPlayerClear","",false,true));
+	cegui_manager.setControlVisible("ButtonClearBlockedPlayers",false);
 
 	//init controllers
 	if(serverInitError == false) {
@@ -1378,6 +1393,7 @@ void MenuStateCustomGame::setupCEGUIWidgetsText(bool isReload, bool openNetworkS
 	cegui_manager.setControlText("ButtonReloadLastSettings",lang.getString("ReloadLastGameSettings","",false,true));
 	cegui_manager.setControlText("ButtonPlay",lang.getString("PlayNow","",false,true));
 
+	cegui_manager.hideMessageBox();
 
 /*
 	CEGUI::Window *ctlAudio 	= cegui_manager.loadLayoutFromFile("OptionsMenuAudio.layout");
@@ -1623,36 +1639,6 @@ bool MenuStateCustomGame::EventCallback(CEGUI::Window *ctl, std::string name) {
 
 			cegui_manager.hideMessageBox();
 		}
-//		else if(cegui_manager.isControlMessageBoxOk(ctl,"TabControl/__auto_TabPane__/Misc/LuaMsgBox") == true) {
-//
-//			CoreData &coreData				= CoreData::getInstance();
-//			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
-//
-//			soundRenderer.playFx(coreData.getClickSoundA());
-//			cegui_manager.setCheckboxControlChecked(
-//										cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/CheckboxDisableLuaSandbox"),true,true);
-//
-//			cegui_manager.hideMessageBox("TabControl/__auto_TabPane__/Misc/LuaMsgBox");
-//		}
-//		else if(cegui_manager.isControlMessageBoxCancel(ctl,"TabControl/__auto_TabPane__/Misc/LuaMsgBox") == true) {
-//
-//			CoreData &coreData				= CoreData::getInstance();
-//			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
-//
-//			soundRenderer.playFx(coreData.getClickSoundA());
-//			cegui_manager.setCheckboxControlChecked(
-//										cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/CheckboxDisableLuaSandbox"),false,true);
-//
-//			cegui_manager.hideMessageBox("TabControl/__auto_TabPane__/Misc/LuaMsgBox");
-//
-//		}
-//		else if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/ButtonSave")) {
-//
-//			DelayCallbackFunction pCB = &MenuStateCustomGame::delayedCallbackFunctionPlayNow;
-//			delayedCallbackList.push_back(pCB);
-//
-//			return true;
-//		}
 		else if(ctl == cegui_manager.getControl("ButtonReturn")) {
 
 			DelayCallbackFunction pCB = &MenuStateCustomGame::delayedCallbackFunctionReturn;
@@ -1674,7 +1660,69 @@ bool MenuStateCustomGame::EventCallback(CEGUI::Window *ctl, std::string name) {
 
 			return true;
 		}
+		else if(ctl == cegui_manager.getControl("ButtonClearBlockedPlayers")) {
 
+			//printf("Clear1\n");
+			CoreData &coreData				= CoreData::getInstance();
+			SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+			soundRenderer.playFx(coreData.getClickSoundB());
+
+			ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+			if(serverInterface != NULL) {
+				//printf("Clear2\n");
+
+				ServerSocket *serverSocket = serverInterface->getServerSocket();
+				if(serverSocket != NULL) {
+					//printf("Clear3\n");
+					serverSocket->clearBlockedIPAddress();
+				}
+			}
+
+			return true;
+		}
+		else {
+
+			for(int index = 0; index < GameConstants::maxPlayers; ++index) {
+				if(ctl == cegui_manager.getControl("ButtonPlayer" + intToStr(index+1) + "Block")) {
+
+					CoreData &coreData				= CoreData::getInstance();
+					SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
+
+					soundRenderer.playFx(coreData.getClickSoundB());
+
+					ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+					if(serverInterface != NULL) {
+						if(serverInterface->getSlot(index,true) != NULL &&
+						   serverInterface->getSlot(index,true)->isConnected()) {
+
+							ServerSocket *serverSocket = serverInterface->getServerSocket();
+							if(serverSocket != NULL) {
+								serverSocket->addIPAddressToBlockedList(serverInterface->getSlot(index,true)->getIpAddress());
+
+								Lang &lang= Lang::getInstance();
+								const vector<string> languageList = serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+								for(unsigned int j = 0; j < languageList.size(); ++j) {
+									char szMsg[8096]="";
+									if(lang.hasString("BlockPlayerServerMsg",languageList[j]) == true) {
+										snprintf(szMsg,8096,lang.getString("BlockPlayerServerMsg",languageList[j]).c_str(),serverInterface->getSlot(index,true)->getIpAddress().c_str());
+									}
+									else {
+										snprintf(szMsg,8096,"The server has temporarily blocked IP Address [%s] from this game.",serverInterface->getSlot(index,true)->getIpAddress().c_str());
+									}
+
+									serverInterface->sendTextMessage(szMsg,-1, true,languageList[j]);
+								}
+								sleep(1);
+								serverInterface->getSlot(index,true)->close();
+							}
+						}
+					}
+
+					return true;
+				}
+			}
+		}
 	}
 	else if(name == cegui_manager.getEventComboboxChangeAccepted()) {
 
@@ -2040,7 +2088,7 @@ bool MenuStateCustomGame::EventCallback(CEGUI::Window *ctl, std::string name) {
 					//printf("factionFiles[selectedControlItemIndex] = %s\n",factionFiles[selectedControlItemIndex].c_str());
 
 					// Disallow CPU players to be observers
-					if(factionFiles[selectedControlItemIndex] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
+					if(factionFiles.at(selectedControlItemIndex) == formatString(GameConstants::OBSERVER_SLOTNAME) &&
 						(getSelectedPlayerControlTypeIndex(index) == ctCpuEasy ||
 						 getSelectedPlayerControlTypeIndex(index) == ctCpu ||
 						 getSelectedPlayerControlTypeIndex(index) == ctCpuUltra ||
@@ -2072,7 +2120,7 @@ bool MenuStateCustomGame::EventCallback(CEGUI::Window *ctl, std::string name) {
 					int selectedTeamItemIndex = cegui_manager.getSelectedItemIndexFromComboBoxControl(ctl);
 
 					int selectedControlItemIndex = getSelectedPlayerFactionTypeIndex(index);
-					if(factionFiles[selectedControlItemIndex] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
+					if(factionFiles.at(selectedControlItemIndex) != formatString(GameConstants::OBSERVER_SLOTNAME)) {
 						if(selectedTeamItemIndex + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
 							lastSelectedTeamIndex[index] = selectedTeamItemIndex;
 						}
@@ -2284,22 +2332,6 @@ bool MenuStateCustomGame::EventCallback(CEGUI::Window *ctl, std::string name) {
 
 			return true;
 		}
-
-
-//		else if(ctl == cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/CheckboxDisableLuaSandbox")) {
-//
-//			if(cegui_manager.getCheckboxControlChecked(
-//					cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/CheckboxDisableLuaSandbox")) == true) {
-//
-//				cegui_manager.setCheckboxControlChecked(
-//							cegui_manager.getControl("TabControl/__auto_TabPane__/Misc/CheckboxDisableLuaSandbox"),false,true);
-//
-//				//luaMessageBoxState=1;
-//				//Lang &lang= Lang::getInstance();
-//				//showLuaMessageBox(lang.getString("LuaDisableSecuritySandboxWarning","",false,true), lang.getString("Question","",false,true), false);
-//			}
-//		}
-//
 	}
 	else if(name == cegui_manager.getEventSpinnerValueChanged()) {
 		if(ctl == cegui_manager.getControl("SpinnerAIReplaceMultiplier")) {
@@ -2504,20 +2536,20 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 	}
 
     try {
-        CoreData &coreData= CoreData::getInstance();
-        SoundRenderer &soundRenderer= SoundRenderer::getInstance();
+        //CoreData &coreData= CoreData::getInstance();
+        //SoundRenderer &soundRenderer= SoundRenderer::getInstance();
         //int oldListBoxMapfilterIndex=listBoxMapFilter.getSelectedItemIndex();
 
-        if(mainMessageBox.getEnabled()){
-            int button= 0;
-            if(mainMessageBox.mouseClick(x, y, button)) {
-                soundRenderer.playFx(coreData.getClickSoundA());
-                if(button == 0) {
-                    mainMessageBox.setEnabled(false);
-                }
-            }
-        }
-        else {
+//        if(mainMessageBox.getEnabled()){
+//            int button= 0;
+//            if(mainMessageBox.mouseClick(x, y, button)) {
+//                soundRenderer.playFx(coreData.getClickSoundA());
+//                if(button == 0) {
+//                    mainMessageBox.setEnabled(false);
+//                }
+//            }
+//        }
+//        else {
         	string advanceToItemStartingWith = "";
         	if(::Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
         		const wchar_t lastKey = ::Shared::Platform::Window::extractLastKeyPressed();
@@ -2998,48 +3030,48 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 //							updateResourceMultiplier(index);
 //						}
 //					}
-					if(buttonClearBlockedPlayers.mouseClick(x, y)) {
-						soundRenderer.playFx(coreData.getClickSoundB());
-
-						ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-						if(serverInterface != NULL) {
-							ServerSocket *serverSocket = serverInterface->getServerSocket();
-							if(serverSocket != NULL) {
-								serverSocket->clearBlockedIPAddress();
-							}
-						}
-					}
-					else if(buttonBlockPlayers[i].mouseClick(x, y)) {
-						soundRenderer.playFx(coreData.getClickSoundB());
-
-						ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
-						if(serverInterface != NULL) {
-							if(serverInterface->getSlot(i,true) != NULL &&
-							   serverInterface->getSlot(i,true)->isConnected()) {
-
-								ServerSocket *serverSocket = serverInterface->getServerSocket();
-								if(serverSocket != NULL) {
-									serverSocket->addIPAddressToBlockedList(serverInterface->getSlot(i,true)->getIpAddress());
-
-									Lang &lang= Lang::getInstance();
-									const vector<string> languageList = serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
-									for(unsigned int j = 0; j < languageList.size(); ++j) {
-										char szMsg[8096]="";
-										if(lang.hasString("BlockPlayerServerMsg",languageList[j]) == true) {
-											snprintf(szMsg,8096,lang.getString("BlockPlayerServerMsg",languageList[j]).c_str(),serverInterface->getSlot(i,true)->getIpAddress().c_str());
-										}
-										else {
-											snprintf(szMsg,8096,"The server has temporarily blocked IP Address [%s] from this game.",serverInterface->getSlot(i,true)->getIpAddress().c_str());
-										}
-
-										serverInterface->sendTextMessage(szMsg,-1, true,languageList[j]);
-									}
-									sleep(1);
-									serverInterface->getSlot(i,true)->close();
-								}
-							}
-						}
-					}
+//					if(buttonClearBlockedPlayers.mouseClick(x, y)) {
+//						soundRenderer.playFx(coreData.getClickSoundB());
+//
+//						ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+//						if(serverInterface != NULL) {
+//							ServerSocket *serverSocket = serverInterface->getServerSocket();
+//							if(serverSocket != NULL) {
+//								serverSocket->clearBlockedIPAddress();
+//							}
+//						}
+//					}
+//					else if(buttonBlockPlayers[i].mouseClick(x, y)) {
+//						soundRenderer.playFx(coreData.getClickSoundB());
+//
+//						ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+//						if(serverInterface != NULL) {
+//							if(serverInterface->getSlot(i,true) != NULL &&
+//							   serverInterface->getSlot(i,true)->isConnected()) {
+//
+//								ServerSocket *serverSocket = serverInterface->getServerSocket();
+//								if(serverSocket != NULL) {
+//									serverSocket->addIPAddressToBlockedList(serverInterface->getSlot(i,true)->getIpAddress());
+//
+//									Lang &lang= Lang::getInstance();
+//									const vector<string> languageList = serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+//									for(unsigned int j = 0; j < languageList.size(); ++j) {
+//										char szMsg[8096]="";
+//										if(lang.hasString("BlockPlayerServerMsg",languageList[j]) == true) {
+//											snprintf(szMsg,8096,lang.getString("BlockPlayerServerMsg",languageList[j]).c_str(),serverInterface->getSlot(i,true)->getIpAddress().c_str());
+//										}
+//										else {
+//											snprintf(szMsg,8096,"The server has temporarily blocked IP Address [%s] from this game.",serverInterface->getSlot(i,true)->getIpAddress().c_str());
+//										}
+//
+//										serverInterface->sendTextMessage(szMsg,-1, true,languageList[j]);
+//									}
+//									sleep(1);
+//									serverInterface->getSlot(i,true)->close();
+//								}
+//							}
+//						}
+//					}
 //					else if(listBoxFactions[i].mouseClick(x, y,advanceToItemStartingWith)) {
 //						// Disallow CPU players to be observers
 //						if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
@@ -3100,7 +3132,7 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
 //					}
 				}
 			}
-        }
+//        }
 
 //		if(hasNetworkGameSettings() == true && listBoxPlayerStatus.mouseClick(x,y)) {
 //			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -3531,7 +3563,7 @@ void MenuStateCustomGame::PlayNow(bool saveGame) {
 				mainMessageBoxState=1;
 
 				Lang &lang= Lang::getInstance();
-				string sMsg = lang.getString("NetworkSlotNoHumanErrorUI","",true);
+				string sMsg = lang.getString("NetworkSlotNoHumanErrorUI","",false,true);
 				showMessageBox(sMsg, "", false);
 
 		    	const vector<string> languageList = serverInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
@@ -3614,21 +3646,21 @@ void MenuStateCustomGame::mouseMove(int x, int y, const MouseState *ms) {
 		return;
 	}
 
-	if (mainMessageBox.getEnabled()) {
-		mainMessageBox.mouseMove(x, y);
-	}
+	//if (mainMessageBox.getEnabled()) {
+	//	mainMessageBox.mouseMove(x, y);
+	//}
 	//buttonReturn.mouseMove(x, y);
 	//buttonPlayNow.mouseMove(x, y);
 	//buttonRestoreLastSettings.mouseMove(x, y);
-	buttonClearBlockedPlayers.mouseMove(x, y);
+	//buttonClearBlockedPlayers.mouseMove(x, y);
 
-	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+	//for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		//listBoxRMultiplier[i].mouseMove(x, y);
         //listBoxControls[i].mouseMove(x, y);
-        buttonBlockPlayers[i].mouseMove(x, y);
+        //buttonBlockPlayers[i].mouseMove(x, y);
         //listBoxFactions[i].mouseMove(x, y);
 		//listBoxTeams[i].mouseMove(x, y);
-    }
+    //}
 
 	//listBoxMap.mouseMove(x, y);
 
@@ -3680,13 +3712,13 @@ void MenuStateCustomGame::render() {
 	try {
 		Renderer &renderer= Renderer::getInstance();
 
-		if(mainMessageBox.getEnabled() == false) {
+		//if(mainMessageBox.getEnabled() == false) {
 //			if(factionTexture != NULL) {
 //				if(factionVideo == NULL || factionVideo->isPlaying() == false) {
 //					renderer.renderTextureQuad(800,600,200,150,factionTexture,1.0f);
 //				}
 //			}
-		}
+		//}
 		if(factionVideo != NULL) {
 			if(factionVideo->isPlaying() == true) {
 				factionVideo->playFrame(false);
@@ -3708,12 +3740,12 @@ void MenuStateCustomGame::render() {
 			}
 		}
 
-		if(mainMessageBox.getEnabled()) {
-			renderer.renderMessageBox(&mainMessageBox);
+		//if(mainMessageBox.getEnabled()) {
+		//	renderer.renderMessageBox(&mainMessageBox);
 
 			//renderer.renderButton(&buttonReturn);
-		}
-		else {
+		//}
+		//else {
 //			if(mapPreviewTexture != NULL) {
 //				//renderer.renderTextureQuad(5,185,150,150,mapPreviewTexture,1.0f);
 //				renderer.renderTextureQuad(	this->render_mapPreviewTexture_X,
@@ -3764,15 +3796,22 @@ void MenuStateCustomGame::render() {
 //		    }
 		    // END
 
+			MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+//    		cegui_manager.setControlVisible(
+//    			cegui_manager.getControl("ButtonClearBlockedPlayers"),false);
+
 		    ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		    if(hasNetworkGameSettings() == true) {
 		    	//renderer.renderListBox(&listBoxPlayerStatus);
 		    	if( serverInterface != NULL &&
 		    		serverInterface->getServerSocket() != NULL ) {
-		    		renderer.renderButton(&buttonClearBlockedPlayers);
+		    		//renderer.renderButton(&buttonClearBlockedPlayers);
+
+		    		//cegui_manager.setControlVisible(
+		    		//	cegui_manager.getControl("ButtonClearBlockedPlayers"),true);
 		    	}
 		    }
-		    MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+
 			for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 		    	if(getSelectedPlayerControlTypeIndex(i) == ctNetworkUnassigned) {
 		    		//printf("Player #%d [%s] control = %d\n",i,labelPlayerNames[i].getText().c_str(),listBoxControls[i].getSelectedItemIndex());
@@ -3816,6 +3855,7 @@ void MenuStateCustomGame::render() {
 
 				//renderer.renderListBox(&listBoxControls[i]);
 
+				cegui_manager.setControlVisible("ButtonPlayer" + intToStr(i+1) + "Block",false);
 				if( hasNetworkGameSettings() == true &&
 						getSelectedPlayerControlTypeIndex(i) != ctClosed) {
 
@@ -3828,7 +3868,9 @@ void MenuStateCustomGame::render() {
 						if( serverInterface != NULL &&
 							serverInterface->getSlot(i,true) != NULL &&
 		                    serverInterface->getSlot(i,true)->isConnected()) {
-							renderer.renderButton(&buttonBlockPlayers[i]);
+							//renderer.renderButton(&buttonBlockPlayers[i]);
+							cegui_manager.setControlVisible("ButtonPlayer" + intToStr(i+1) + "Block",true);
+							cegui_manager.setControlOnTop("ButtonPlayer" + intToStr(i+1) + "Block",true);
 						}
 					}
 				}
@@ -3905,7 +3947,7 @@ void MenuStateCustomGame::render() {
 
 			//renderer.renderLabel(&labelAllowNativeLanguageTechtree);
 			//renderer.renderCheckBox(&checkBoxAllowNativeLanguageTechtree);
-		}
+		//}
 
 		if(program != NULL) program->renderProgramMsgBox();
 
@@ -3933,11 +3975,11 @@ void MenuStateCustomGame::render() {
 		    }
 		}
 
-		if(mainMessageBox.getEnabled() == false) {
+		//if(mainMessageBox.getEnabled() == false) {
 			if(hasNetworkGameSettings() == true) {
 				renderer.renderChatManager(&chatManager);
 			}
-		}
+		//}
 		renderer.renderConsole(&console,showFullConsole,true);
 	}
 	catch(const std::exception &ex) {
@@ -4103,8 +4145,24 @@ void MenuStateCustomGame::update() {
 		ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
 		Lang& lang= Lang::getInstance();
 
-		if( serverInterface != NULL && serverInterface->getServerSocket() != NULL ){
-			buttonClearBlockedPlayers.setEditable( serverInterface->getServerSocket()->hasBlockedIPAddresses());
+		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+		if( serverInterface != NULL && serverInterface->getServerSocket() != NULL ) {
+			//buttonClearBlockedPlayers.setEditable( serverInterface->getServerSocket()->hasBlockedIPAddresses());
+
+			bool canClear = serverInterface->getServerSocket()->hasBlockedIPAddresses();
+
+    		//cegui_manager.setControlEnabled(
+    			//cegui_manager.getControl("ButtonClearBlockedPlayers"),
+    			//	serverInterface->getServerSocket()->hasBlockedIPAddresses());
+		    cegui_manager.setControlVisible(
+		    	cegui_manager.getControl("ButtonClearBlockedPlayers"),canClear);
+		    if(canClear) {
+		    	cegui_manager.setControlOnTop(cegui_manager.getControl("ButtonClearBlockedPlayers"),true);
+		    }
+		}
+		else {
+			cegui_manager.setControlVisible(
+					    	cegui_manager.getControl("ButtonClearBlockedPlayers"),false);
 		}
 
 		if(this->autoloadScenarioName != "") {
@@ -4162,7 +4220,7 @@ void MenuStateCustomGame::update() {
             masterServererErrorToShow += publishText;
 			showMasterserverError=false;
 			mainMessageBoxState=1;
-			showMessageBox( masterServererErrorToShow, lang.getString("ErrorFromMasterserver"), false);
+			showMessageBox( masterServererErrorToShow, lang.getString("ErrorFromMasterserver","",false,true), false);
 
 			MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
 
@@ -4230,7 +4288,7 @@ void MenuStateCustomGame::update() {
 		loadGameSettings(&gameSettings);
 
 		//listBoxAISwitchTeamAcceptPercent.setEnabled(checkBoxEnableSwitchTeamMode.getValue());
-		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+		//MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
 		CEGUI::Window *ctl = cegui_manager.getControl(
 						"ComboAIAcceptPercent");
 		cegui_manager.setControlEnabled(ctl,getAllowSwitchTeams());
@@ -5416,10 +5474,10 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 			//gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
 			int selectedFactionIndex = getSelectedPlayerFactionTypeIndex(i);
 			if(selectedFactionIndex >= 0) {
-				gameSettings->setFactionTypeName(slotIndex, factionFiles[selectedFactionIndex]);
+				gameSettings->setFactionTypeName(slotIndex, factionFiles.at(selectedFactionIndex));
 
 				//if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME)) {
-				if(factionFiles[selectedFactionIndex] == formatString(GameConstants::OBSERVER_SLOTNAME)) {
+				if(factionFiles.at(selectedFactionIndex) == formatString(GameConstants::OBSERVER_SLOTNAME)) {
 
 					setSelectedPlayerTeam(i,intToStr(GameConstants::maxPlayers + fpt_Observer));
 				}
@@ -5531,7 +5589,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 			//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
 
 			//gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
-			gameSettings->setFactionTypeName(slotIndex, factionFiles[getSelectedPlayerFactionTypeIndex(i)]);
+			gameSettings->setFactionTypeName(slotIndex, factionFiles.at(getSelectedPlayerFactionTypeIndex(i)));
 
 			gameSettings->setNetworkPlayerName(slotIndex, "Closed");
 			gameSettings->setNetworkPlayerUUID(slotIndex,"");
@@ -5590,7 +5648,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 				reloadFactions(true,(getAllowNetworkScenario() == true ? scenarioFiles.at(getSelectedNetworkScenarioIndex()) : ""));
 				factionCRCList.clear();
 				for(unsigned int factionIdx = 0; factionIdx < factionFiles.size(); ++factionIdx) {
-					string factionName = factionFiles[factionIdx];
+					string factionName = factionFiles.at(factionIdx);
 					if(factionName != GameConstants::RANDOMFACTION_SLOTNAME &&
 						factionName != GameConstants::OBSERVER_SLOTNAME) {
 						//factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
@@ -6443,17 +6501,19 @@ void MenuStateCustomGame::keyUp(SDL_KeyboardEvent key) {
 }
 
 void MenuStateCustomGame::showMessageBox(const string &text, const string &header, bool toggle){
-	if(!toggle){
-		mainMessageBox.setEnabled(false);
+	MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+	if(cegui_manager.isMessageBoxShowing() == false) {
+		MegaGlest_CEGUIManager &cegui_manager = MegaGlest_CEGUIManager::getInstance();
+		Lang &lang= Lang::getInstance();
+		//if(okOnly == true) {
+		cegui_manager.displayMessageBox(header, text, lang.getString("Ok","",false,true),"");
+		//}
+		//else {
+		//cegui_manager.displayMessageBox(header, text, lang.getString("Yes","",false,true),lang.getString("No","",false,true));
+		//}
 	}
-
-	if(!mainMessageBox.getEnabled()){
-		mainMessageBox.setText(text);
-		mainMessageBox.setHeader(header);
-		mainMessageBox.setEnabled(true);
-	}
-	else{
-		mainMessageBox.setEnabled(false);
+	else {
+		cegui_manager.hideMessageBox();
 	}
 }
 
@@ -6773,7 +6833,7 @@ void MenuStateCustomGame::processScenario() {
 
 						// Disallow CPU players to be observers
 						//if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
-						if(factionFiles[getSelectedPlayerFactionTypeIndex(i)] == formatString(GameConstants::OBSERVER_SLOTNAME) &&
+						if(factionFiles.at(getSelectedPlayerFactionTypeIndex(i)) == formatString(GameConstants::OBSERVER_SLOTNAME) &&
 							(getSelectedPlayerControlTypeIndex(i) == ctCpuEasy ||
 								getSelectedPlayerControlTypeIndex(i) == ctCpu ||
 								getSelectedPlayerControlTypeIndex(i) == ctCpuUltra ||
@@ -6786,7 +6846,7 @@ void MenuStateCustomGame::processScenario() {
 
 						setSelectedPlayerTeam(i,intToStr(scenarioInfo.teams[i]));
 						//if(factionFiles[listBoxFactions[i].getSelectedItemIndex()] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
-						if(factionFiles[getSelectedPlayerFactionTypeIndex(i)] != formatString(GameConstants::OBSERVER_SLOTNAME)) {
+						if(factionFiles.at(getSelectedPlayerFactionTypeIndex(i)) != formatString(GameConstants::OBSERVER_SLOTNAME)) {
 
 							if(getSelectedPlayerTeamIndex(i) + 1 != (GameConstants::maxPlayers + fpt_Observer)) {
 								lastSelectedTeamIndex[i] = getSelectedPlayerTeamIndex(i);
@@ -7174,7 +7234,7 @@ void MenuStateCustomGame::reloadFactions(bool keepExistingSelectedItem, string s
 			if(techTreeCount > 0) {
 
 				int selectedTechtreeIndex = cegui_manager.getSelectedItemIndexFromComboBoxControl(cegui_manager.getControl("ComboBoxTechTree"));
-				translatedString = techTree->getTranslatedFactionName(techTreeFiles[selectedTechtreeIndex],factionFiles[i]);
+				translatedString = techTree->getTranslatedFactionName(techTreeFiles[selectedTechtreeIndex],factionFiles.at(i));
 			}
 			//printf("translatedString=%s  formatString(results[i])=%s \n",translatedString.c_str(),formatString(results[i]).c_str() );
 			if(toLower(translatedString)==toLower(results[i])){

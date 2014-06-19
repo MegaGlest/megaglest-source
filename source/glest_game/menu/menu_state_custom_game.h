@@ -75,19 +75,19 @@ private:
 	//GraphicLabel labelPlayers[GameConstants::maxPlayers];
 	//GraphicLabel labelPlayerNames[GameConstants::maxPlayers];
 	//GraphicListBox listBoxControls[GameConstants::maxPlayers];
-	GraphicButton buttonBlockPlayers[GameConstants::maxPlayers];
+	//GraphicButton buttonBlockPlayers[GameConstants::maxPlayers];
 	//GraphicListBox listBoxRMultiplier[GameConstants::maxPlayers];
 	//GraphicListBox listBoxFactions[GameConstants::maxPlayers];
 	//GraphicListBox listBoxTeams[GameConstants::maxPlayers];
 	//GraphicLabel labelNetStatus[GameConstants::maxPlayers];
 	MapInfo mapInfo;
 
-	GraphicButton buttonClearBlockedPlayers;
+	//GraphicButton buttonClearBlockedPlayers;
 
 	//GraphicLabel labelPublishServer;
 	//GraphicCheckBox checkBoxPublishServer;
 
-	GraphicMessageBox mainMessageBox;
+	//GraphicMessageBox mainMessageBox;
 	int mainMessageBoxState;
 
 	//GraphicLabel labelNetworkPauseGameForLaggedClients;
