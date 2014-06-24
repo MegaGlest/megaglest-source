@@ -130,6 +130,7 @@ protected:
 	string name;
 	int mpCost;
 	int hpCost;
+	bool hpCostDeath;
     int speed;
     int animSpeed;
 
@@ -192,6 +193,7 @@ public:
 	SkillClass getClass() const			{return skillClass;}
 	int getEpCost() const				{return mpCost;}
 	int getHpCost() const				{return hpCost;}
+	bool getHpCostDeathEnabled() const	{return hpCostDeath;}
 	int getSpeed() const				{return speed;}
 	int getAnimSpeed() const			{return animSpeed;}
 	Model *getAnimation(float animProgress=0, const Unit *unit=NULL, int *lastAnimationIndex=NULL, int *animationRandomCycleCount=NULL) const;

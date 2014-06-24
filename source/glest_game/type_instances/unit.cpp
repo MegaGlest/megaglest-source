@@ -601,6 +601,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
     ep= 0;
 	deadCount= 0;
 	hp= type->getMaxHp() / 20;
+	hpToRemoveOnNextUpdate= 0;
 	toBeUndertaken= false;
 
 	highlight= 0.f;
@@ -3233,6 +3234,71 @@ bool Unit::computeEp() {
     return false;
 }
 
+bool Unit::isHPCostOk(const SkillType *skill){
+	if(skill == NULL) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: skill == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
+		throw megaglest_runtime_error(szBuf);
+	}
+	if (skill->getHpCost() == 0) {
+		return true;
+	}
+
+	//if not enough hp to use it; or if the unit would die but hpCostDeath is disabled -> return
+    if((this->hp - skill->getHpCost() < 0) || ((skill->getHpCostDeathEnabled() == false) && (this->hp - skill->getHpCost() < 1))) {
+        return false;
+    }
+
+    return true;
+}
+
+bool Unit::computeHp() {
+	if(currSkill == NULL) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: currSkill == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
+		throw megaglest_runtime_error(szBuf);
+	}
+
+    if(hpToRemoveOnNextUpdate){
+		checkItemInVault(&this->hp,this->hp);
+		bool decHpResult = decHp(hpToRemoveOnNextUpdate);
+		if(decHpResult) {
+			// unit is dead
+			this->setCauseOfDeath(ucodStarvedRegeneration);
+
+			Unit::game->getWorld()->getStats()->die(getFactionIndex(),getType()->getCountUnitDeathInStats());
+			game->getScriptManager()->onUnitDied(this);
+			StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
+			if(sound != NULL &&
+					(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
+							(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
+				SoundRenderer::getInstance().playFx(sound);
+			}
+			hpToRemoveOnNextUpdate=0;
+		}
+		else {
+			hpToRemoveOnNextUpdate=currSkill->getHpCost();
+		}
+
+		addItemToVault(&this->hp,this->hp);
+    }
+
+
+	if (currSkill->getHpCost() == 0) {
+		return false;
+	}
+
+	//if not enough hp to use it; or if the unit would die but hpCostDeath is disabled -> return
+    if((this->hp - currSkill->getHpCost() < 0) || ((currSkill->getHpCostDeathEnabled() == false) && (this->hp - currSkill->getHpCost() < 1))) {
+        return true;
+    }
+
+    hpToRemoveOnNextUpdate=currSkill->getHpCost();
+
+
+    return false;
+}
+
 bool Unit::repair(){
 
 	if(type == NULL) {
@@ -3286,6 +3352,17 @@ bool Unit::decHp(int decrementValue) {
 	checkItemInVault(&this->hp,this->hp);
 	int original_hp = this->hp;
 	this->hp -= decrementValue;
+	if(decrementValue<0){
+		if(getType() == NULL) {
+						char szBuf[8096]="";
+						snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: getType() == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
+						throw megaglest_runtime_error(szBuf);
+					}
+
+		if(this->hp > getType()->getTotalMaxHp(&totalUpgrade)){
+			this->hp = getType()->getTotalMaxHp(&totalUpgrade);
+		}
+	}
 	if(original_hp != this->hp) {
 		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);

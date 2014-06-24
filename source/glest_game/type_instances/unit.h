@@ -358,6 +358,7 @@ public:
 private:
 	const int32 id;
 	int32 hp;
+    int32 hpToRemoveOnNextUpdate;
 	int32 ep;
 	int32 loadCount;
 	int32 deadCount;
@@ -673,7 +674,8 @@ public:
 	string getDesc(bool translatedValue) const;
 	string getDescExtension(bool translatedValue) const;
     bool computeEp();
-    //bool computeHp();
+    bool computeHp();
+    bool isHPCostOk(const SkillType *skill);
     bool repair();
     bool decHp(int i);
     int update2();

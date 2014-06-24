@@ -215,7 +215,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld [after updateUnitCommand()]\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 		//if unit is out of EP, it stops
-		if(unit->computeEp() == true) {
+		if(unit->computeEp() == true || unit->computeHp() == true) {
 			bool reQueueHoldPosition = false;
 			string holdPositionName = "";
 			if(unit->getCurrCommand() != NULL &&
@@ -239,7 +239,8 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 
 							//printf("Re-Queing hold pos = %d, ep = %d skillep = %d skillname [%s]\n ",unit->getFaction()->reqsOk(act),unit->getEp(),act->getAttackSkillType()->getEpCost(),act->getName().c_str());
 							if(unit->getFaction()->reqsOk(act) == true &&
-								unit->getEp() >= act->getStopSkillType()->getEpCost()) {
+								unit->getEp() >= act->getStopSkillType()->getEpCost() &&
+								unit->isHPCostOk(act->getStopSkillType())) {
 								unit->giveCommand(new Command(act),true);
 							}
 

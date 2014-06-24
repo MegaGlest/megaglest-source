@@ -415,9 +415,15 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 
 	if (sn->hasChild("hp-cost") == true) {
 		hpCost = sn->getChild("hp-cost")->getAttribute("value")->getIntValue();
+		if (sn->getChild("hp-cost")->hasAttribute("can-die")) {
+		   hpCostDeath= sn->getChild("hp-cost")->getAttribute("can-die")->getBoolValue();
+		} else {
+		    hpCostDeath= true;
+		}
 	}
 	else {
 		hpCost = 0;
+		hpCostDeath= true;
 	}
 
 	//speed
