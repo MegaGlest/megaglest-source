@@ -518,7 +518,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	//list boxes
 	xoffset=30;
 	//int rowHeight=27;
-    for(int i=0; i<GameConstants::maxPlayers; ++i){
+    //for(int i=0; i<GameConstants::maxPlayers; ++i){
 
 //    	labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
 //		labelPlayers[i].init(xoffset, setupPos-30-i*rowHeight+2);
@@ -552,7 +552,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 //		labelNetStatus[i].init(xoffset+715, setupPos-30-i*rowHeight, 60);
 //		labelNetStatus[i].setFont(CoreData::getInstance().getDisplayFontSmall());
 //		labelNetStatus[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
-    }
+    //}
 
 	//buttonClearBlockedPlayers.registerGraphicComponent(containerName,"buttonClearBlockedPlayers");
 	//buttonClearBlockedPlayers.init(xoffset+170, setupPos-30-8*rowHeight, 140);
@@ -626,7 +626,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		generalErrorToShow = "[#1] There are no factions for the tech tree [" + techTreeFiles.at(selectedTechtreeIndex) + "]";
     }
 
-	for(int i=0; i < GameConstants::maxPlayers; ++i) {
+	//for(int i=0; i < GameConstants::maxPlayers; ++i) {
 		//labelPlayerStatus[i].setText(" ");
 		//labelPlayerStatus[i].setTexture(CoreData::getInstance().getStatusReadyTexture());
 		//labelPlayerStatus[i].setH(16);
@@ -645,7 +645,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		//listBoxRMultiplier[i].setItems(rMultiplier);
 		//listBoxRMultiplier[i].setSelectedItem("1.0");
 		//labelNetStatus[i].setText("");
-    }
+    //}
 
 	loadMapInfo(Config::getMapPath(getCurrentMapFile()), &mapInfo, true);
 	//labelMapInfo.setText(mapInfo.desc);
@@ -7494,6 +7494,9 @@ void MenuStateCustomGame::setPlayerStatusImageVisible(int index, bool visible) {
 
 	if(cegui_manager.getControlVisible(ctl) != visible) {
 		cegui_manager.setControlVisible(ctl,visible);
+		if(visible) {
+			cegui_manager.setControlOnTop(ctl,true);
+		}
 	}
 
 }

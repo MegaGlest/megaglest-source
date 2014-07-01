@@ -758,55 +758,160 @@ void MegaGlest_CEGUIManager::setImageForControl(string textureName,Texture2D *ga
 	string imageName 		= "BasicImage_" + textureName;
 	string imageGroupName 	= "MegaGlestImageGroup/" + imageName;
 
-	CEGUI::DefaultWindow* staticImage = static_cast<CEGUI::DefaultWindow*>(getControl(controlName));
+	CEGUI::DefaultWindow *staticImage = static_cast<CEGUI::DefaultWindow*>(getControl(controlName));
+	if(staticImage == NULL) {
+		throw runtime_error("staticImage == NULL");
+	}
+
+	//printf("Line: %d, [%s] [%p] [%s]\n",__LINE__,textureName.c_str(),gameTexture,controlName.c_str());
+
 	if(gameTexture != NULL) {
 
-		CEGUI::BasicImage *image = NULL;
-		if( CEGUI::ImageManager::getSingleton().isDefined(imageGroupName) == false ) {
-			image = static_cast<CEGUI::BasicImage*>(&CEGUI::ImageManager::getSingleton().create(imageType, imageGroupName));
+		bool processTexture = false;
+		string *currentImageGroupName = static_cast<string *>(staticImage->getUserData());
+		if(currentImageGroupName == NULL || *currentImageGroupName != imageGroupName) {
+			processTexture = true;
 		}
-		else {
-			image = static_cast<CEGUI::BasicImage*>(&CEGUI::ImageManager::getSingleton().get(imageGroupName));
-		}
+		else if(currentImageGroupName != NULL && *currentImageGroupName == imageGroupName) {
+			//processTexture = true;
 
-		CEGUI::Texture *texture = NULL;
-		if(CEGUI::System::getSingletonPtr()->getRenderer()->isTextureDefined(textureName.c_str()) == false) {
+			CEGUI::BasicImage *image = NULL;
+			if( CEGUI::ImageManager::getSingleton().isDefined(imageGroupName) == true ) {
+				image = static_cast<CEGUI::BasicImage*>(&CEGUI::ImageManager::getSingleton().get(imageGroupName));
 
-			texture = &CEGUI::System::getSingletonPtr()->getRenderer()->createTexture(textureName.c_str());
-		}
-		else {
-			CEGUI::System::getSingletonPtr()->getRenderer()->destroyTexture(textureName.c_str());
-			texture = &CEGUI::System::getSingletonPtr()->getRenderer()->createTexture(textureName.c_str());
-		}
+				CEGUI::Texture *texture = NULL;
+				if(CEGUI::System::getSingletonPtr()->getRenderer()->isTextureDefined(textureName.c_str()) == false) {
 
-		CEGUI::Sizef buffer_size(gameTexture->getPixmap()->getW(),gameTexture->getPixmap()->getH());
-		CEGUI::Rectf rect(CEGUI::Vector2f(0.0f, 0.0f), buffer_size);
+					//printf("Line: %d, [%s] [%s]\n",__LINE__,(currentImageGroupName ? currentImageGroupName->c_str() : "null"),imageGroupName.c_str());
+					processTexture = true;
+				}
+				else {
+					//CEGUI::System::getSingletonPtr()->getRenderer()->destroyTexture(textureName.c_str());
+					texture = &CEGUI::System::getSingletonPtr()->getRenderer()->getTexture(textureName.c_str());
 
-		Gl::TextureGl *glTex = dynamic_cast<Gl::TextureGl *>(gameTexture);
-		if(glTex) {
-			CEGUI::OpenGLTexture *ceGuiTex = (CEGUI::OpenGLTexture *)(texture);
-			ceGuiTex->setOpenGLTexture(glTex->getHandle(),buffer_size);
+					Gl::TextureGl *glTex = dynamic_cast<Gl::TextureGl *>(gameTexture);
+					if(glTex) {
+						CEGUI::OpenGLTexture *ceGuiTex = (CEGUI::OpenGLTexture *)(texture);
+						if(ceGuiTex->getOpenGLTexture() != glTex->getHandle()) {
 
-			image->setTexture(texture);
-
-			//Flipping is necessary due to differences between renderers regarding top or bottom being the origin
-			if(isTextureTargetVerticallyFlipped) {
-				rect = CEGUI::Rectf(0.0f, buffer_size.d_height, buffer_size.d_width, 0.0f);
+							//printf("Line: %d, [%s] [%s]\n",__LINE__,(currentImageGroupName ? currentImageGroupName->c_str() : "null"),imageGroupName.c_str());
+							processTexture = true;
+						}
+					}
+					else  {
+						//printf("Line: %d, [%s] [%s]\n",__LINE__,(currentImageGroupName ? currentImageGroupName->c_str() : "null"),imageGroupName.c_str());
+						processTexture = true;
+					}
+				}
 			}
-			image->setArea(rect);
-			image->setAutoScaled(CEGUI::ASM_Both);
-
-			staticImage->setProperty("Image", imageGroupName);
-			staticImage->setVisible(true);
+			else {
+				//printf("Line: %d, [%s] [%s]\n",__LINE__,(currentImageGroupName ? currentImageGroupName->c_str() : "null"),imageGroupName.c_str());
+				processTexture = true;
+			}
 		}
+
+		if(processTexture) {
+			//printf("Line: %d, [%s] [%s]\n",__LINE__,(currentImageGroupName ? currentImageGroupName->c_str() : "null"),imageGroupName.c_str());
+			delete currentImageGroupName;
+
+			bool imageCreated = false;
+			CEGUI::BasicImage *image = NULL;
+			if( CEGUI::ImageManager::getSingleton().isDefined(imageGroupName) == false ) {
+				//printf("Line: %d, [%s] [%s]\n",__LINE__,(currentImageGroupName ? currentImageGroupName->c_str() : "null"),imageGroupName.c_str());
+
+				image = static_cast<CEGUI::BasicImage*>(&CEGUI::ImageManager::getSingleton().create(imageType, imageGroupName));
+				imageCreated = true;
+			}
+			else {
+				image = static_cast<CEGUI::BasicImage*>(&CEGUI::ImageManager::getSingleton().get(imageGroupName));
+			}
+
+			CEGUI::Texture *texture = NULL;
+			if(CEGUI::System::getSingletonPtr()->getRenderer()->isTextureDefined(textureName.c_str()) == false) {
+
+				//printf("Line: %d, [%s] [%s]\n",__LINE__,(currentImageGroupName ? currentImageGroupName->c_str() : "null"),imageGroupName.c_str());
+				texture = &CEGUI::System::getSingletonPtr()->getRenderer()->createTexture(textureName.c_str());
+			}
+			else {
+				//printf("Line: %d, [%s] [%s]\n",__LINE__,(currentImageGroupName ? currentImageGroupName->c_str() : "null"),imageGroupName.c_str());
+				//CEGUI::System::getSingletonPtr()->getRenderer()->destroyTexture(textureName.c_str());
+				//texture = &CEGUI::System::getSingletonPtr()->getRenderer()->createTexture(textureName.c_str());
+				texture = &CEGUI::System::getSingletonPtr()->getRenderer()->getTexture(textureName.c_str());
+			}
+
+			CEGUI::Sizef buffer_size(gameTexture->getPixmap()->getW(),gameTexture->getPixmap()->getH());
+			CEGUI::Rectf rect(CEGUI::Vector2f(0.0f, 0.0f), buffer_size);
+			Gl::TextureGl *glTex = dynamic_cast<Gl::TextureGl *>(gameTexture);
+
+			//printf("Line: %d, [%p]\n",__LINE__,glTex);
+
+			if(glTex) {
+				CEGUI::OpenGLTexture *ceGuiTex = (CEGUI::OpenGLTexture *)(texture);
+				//if(ceGuiTex->getOpenGLTexture() != glTex->getHandle()) {
+
+					ceGuiTex->setOpenGLTexture(glTex->getHandle(),buffer_size);
+				//}
+
+				//const CEGUI::Image *pImage = CEGUI::PropertyHelper::stringToImage(staticImage->getProperty("Image"));
+				//if(pImage->getName())
+				//if(imageCreated) {
+				image->setTexture(texture);
+
+				//Flipping is necessary due to differences between renderers regarding top or bottom being the origin
+				if(isTextureTargetVerticallyFlipped) {
+					rect = CEGUI::Rectf(0.0f, buffer_size.d_height, buffer_size.d_width, 0.0f);
+				}
+				image->setArea(rect);
+				image->setAutoScaled(CEGUI::ASM_Both);
+				//}
+
+				//printf("Line: %d, [%p]\n",__LINE__,glTex);
+
+				//string currentImageGroupName = staticImage->getProperty("Image");
+				//const CEGUI::Image* pImage = CEGUI::PropertyHelper::stringToImage(pWidget->getProperty("Image"));
+				//const CEGUI::Image *pImage = CEGUI::PropertyHelper::stringToImage(staticImage->getProperty("Image"));
+
+				//if(currentImageGroupName != imageGroupName) {
+				//printf("Line: %d, [%p]\n",__LINE__,glTex);
+
+				staticImage->setProperty("Image", imageGroupName);
+				//}
+			}
+
+			staticImage->setUserData(new string(imageGroupName));
+		}
+
+		//if(staticImage->isVisible() == false) {
+			//printf("Line: %d, [%s] [%s]\n",__LINE__,(currentImageGroupName ? currentImageGroupName->c_str() : "null"),imageGroupName.c_str());
+
+			//staticImage->setVisible(true);
+			//staticImage->moveToFront();
+		//}
 	}
 	else {
+		//printf("Line: %d, [%s] [%p] [%s]\n",__LINE__,textureName.c_str(),gameTexture,controlName.c_str());
+
 		if( CEGUI::ImageManager::getSingleton().isDefined(imageGroupName) == true ) {
+
+			string *currentImageGroupName = static_cast<string *>(staticImage->getUserData());
+			//printf("Line: %d, [%s] [%p] [%s]\n",__LINE__,textureName.c_str(),gameTexture,controlName.c_str());
+
 			if(CEGUI::System::getSingletonPtr()->getRenderer()->isTextureDefined(textureName.c_str()) == true) {
-				CEGUI::System::getSingletonPtr()->getRenderer()->destroyTexture(textureName.c_str());
+				//printf("Line: %d, [%s] [%p] [%s] [%s]\n",__LINE__,textureName.c_str(),gameTexture,controlName.c_str(),(currentImageGroupName ? currentImageGroupName->c_str() : "null"));
+
+				//CEGUI::System::getSingletonPtr()->getRenderer()->destroyTexture(textureName.c_str());
+
 			}
+
+			delete currentImageGroupName;
+			staticImage->setUserData(NULL);
 		}
-		staticImage->setVisible(false);
+
+		if(staticImage->isVisible() == true) {
+		//	printf("Line: %d, [%s]\n",__LINE__,imageGroupName.c_str());
+
+			//staticImage->setVisible(false);
+		}
 	}
 }
 
