@@ -895,7 +895,28 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 			projectileParticleSystemType->load(particleNode, dir, currentPath + path,
 					&Renderer::getInstance(), loadedFileList, parentLoader,
 					tt->getPath());
+					loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleNode->getAttribute("path")->getRestrictedValue()));
+					projectileParticleSystemTypes.push_back(projectileParticleSystemType);
 		}
+
+		//extra projectiles
+		if(projectileNode->hasChild("particles")){
+			const XmlNode *extraParticlesNode= projectileNode->getChild("particles");
+			bool extraParticlesEnabled= extraParticlesNode->getAttribute("value")->getBoolValue();
+			if(extraParticlesEnabled){
+				for(int i = 0; i < (int)extraParticlesNode->getChildCount(); ++i) {
+								const XmlNode *extraParticleFileNode= extraParticlesNode->getChild("particle-file", i);
+								string path= extraParticleFileNode->getAttribute("path")->getRestrictedValue();
+								projectileParticleSystemType= new ParticleSystemTypeProjectile();
+								projectileParticleSystemType->load(extraParticleFileNode, dir, currentPath + path,
+										&Renderer::getInstance(), loadedFileList, parentLoader,
+										tt->getPath());
+										loadedFileList[currentPath + path].push_back(make_pair(parentLoader,extraParticleFileNode->getAttribute("path")->getRestrictedValue()));
+										projectileParticleSystemTypes.push_back(projectileParticleSystemType);
+				}
+			}
+		}
+
 
 		//proj sounds
 		const XmlNode *soundNode= projectileNode->getChild("sound");

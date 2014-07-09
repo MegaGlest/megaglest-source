@@ -2615,23 +2615,24 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 		visible = true;
 	}
 
-	//projectile
-	if(pstProj != NULL) {
-		psProj= pstProj->create(unit);
+
+	for(ProjectileParticleSystemTypes::const_iterator pit= unit->getCurrSkill()->projectileParticleSystemTypes.begin(); pit != unit->getCurrSkill()->projectileParticleSystemTypes.end(); ++pit) {
+		psProj= (*pit)->create(unit);
 		psProj->setPath(startPos, endPos);
 		psProj->setObserver(new ParticleDamager(unit, this, gameCamera));
 		psProj->setVisible(visible);
-		if(unit->getFaction()->getTexture()) {
-			psProj->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
-		}
-		renderer.manageParticleSystem(psProj, rsGame);
-		unit->addAttackParticleSystem(psProj);
+				if(unit->getFaction()->getTexture()) {
+					psProj->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+				}
+				renderer.manageParticleSystem(psProj, rsGame);
+				unit->addAttackParticleSystem(psProj);
 	}
-	else {
+
+	// if no projectile, still deal damage..
+	if(pstProj == NULL) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8095,"Unit hitting [startAttackParticleSystem] no proj");
 		unit->addNetworkCRCDecHp(szBuf);
-
 		hit(unit);
 	}
 

@@ -74,6 +74,7 @@ enum SkillClass{
 };
 
 typedef list<UnitParticleSystemType*> UnitParticleSystemTypes;
+typedef list<ParticleSystemTypeProjectile*> ProjectileParticleSystemTypes;
 // =====================================================
 // 	class SkillType
 //
@@ -172,6 +173,7 @@ protected:
 
 public:
 	UnitParticleSystemTypes unitParticleSystemTypes;
+	ProjectileParticleSystemTypes projectileParticleSystemTypes;
 
 public:
     //varios
