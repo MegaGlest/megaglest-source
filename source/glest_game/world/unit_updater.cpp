@@ -2601,7 +2601,7 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 	if(ast == NULL) {
 		throw megaglest_runtime_error("Start attack particle ast == NULL!");
 	}
-	ParticleSystemTypeProjectile *pstProj= NULL;
+	bool hasProjectile = false;
 	ParticleSystemTypeSplash *pstSplash= ast->getSplashParticleType();
 
 	Vec3f startPos= unit->getCurrVector();
@@ -2621,16 +2621,16 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 		psProj->setPath(startPos, endPos);
 		psProj->setObserver(new ParticleDamager(unit, this, gameCamera));
 		psProj->setVisible(visible);
-				if(unit->getFaction()->getTexture()) {
-					psProj->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
-				}
-				renderer.manageParticleSystem(psProj, rsGame);
-				unit->addAttackParticleSystem(psProj);
-		pstProj=(*pit);
+		if(unit->getFaction()->getTexture()) {
+			psProj->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+		}
+		renderer.manageParticleSystem(psProj, rsGame);
+		unit->addAttackParticleSystem(psProj);
+		hasProjectile=true;
 	}
 
 	// if no projectile, still deal damage..
-	if(pstProj == NULL) {
+	if(hasProjectile == true) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8095,"Unit hitting [startAttackParticleSystem] no proj");
 		unit->addNetworkCRCDecHp(szBuf);
@@ -2646,7 +2646,7 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 			psSplash->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
 		}
 		renderer.manageParticleSystem(psSplash, rsGame);
-		if(pstProj!=NULL){
+		if(hasProjectile == true){
 			psProj->link(psSplash);
 		}
 		unit->addAttackParticleSystem(psSplash);
