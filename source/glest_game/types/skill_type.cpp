@@ -806,7 +806,6 @@ AttackSkillType::AttackSkillType() {
     splashRadius= 0;
     spawnUnit="";
     spawnUnitcount=0;
-	projectileParticleSystemType= NULL;
 	splashParticleSystemType= NULL;
 
 	for(int i = 0; i < fieldCount; ++i) {
@@ -821,8 +820,8 @@ AttackSkillType::AttackSkillType() {
 }
 
 AttackSkillType::~AttackSkillType() {
-	delete projectileParticleSystemType;
-	projectileParticleSystemType = NULL;
+
+	deleteValues(projectileParticleSystemTypes.begin(), projectileParticleSystemTypes.end());
 
 	delete splashParticleSystemType;
 	splashParticleSystemType = NULL;
@@ -887,16 +886,18 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	if(projectile){
 
 		//proj particle
-		const XmlNode *particleNode= projectileNode->getChild("particle");
-		bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
-		if(particleEnabled){
-			string path= particleNode->getAttribute("path")->getRestrictedValue();
-			projectileParticleSystemType= new ParticleSystemTypeProjectile();
-			projectileParticleSystemType->load(particleNode, dir, currentPath + path,
-					&Renderer::getInstance(), loadedFileList, parentLoader,
-					tt->getPath());
-					loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleNode->getAttribute("path")->getRestrictedValue()));
-					projectileParticleSystemTypes.push_back(projectileParticleSystemType);
+		if(projectileNode->hasChild("particle")){
+			const XmlNode *particleNode= projectileNode->getChild("particle");
+			bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
+			if(particleEnabled){
+				string path= particleNode->getAttribute("path")->getRestrictedValue();
+				ParticleSystemTypeProjectile* projectileParticleSystemType= new ParticleSystemTypeProjectile();
+				projectileParticleSystemType->load(particleNode, dir, currentPath + path,
+						&Renderer::getInstance(), loadedFileList, parentLoader,
+						tt->getPath());
+						loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleNode->getAttribute("path")->getRestrictedValue()));
+						projectileParticleSystemTypes.push_back(projectileParticleSystemType);
+			}
 		}
 
 		//extra projectiles
@@ -907,7 +908,7 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 				for(int i = 0; i < (int)extraParticlesNode->getChildCount(); ++i) {
 								const XmlNode *extraParticleFileNode= extraParticlesNode->getChild("particle-file", i);
 								string path= extraParticleFileNode->getAttribute("path")->getRestrictedValue();
-								projectileParticleSystemType= new ParticleSystemTypeProjectile();
+								ParticleSystemTypeProjectile* projectileParticleSystemType= new ParticleSystemTypeProjectile();
 								projectileParticleSystemType->load(extraParticleFileNode, dir, currentPath + path,
 										&Renderer::getInstance(), loadedFileList, parentLoader,
 										tt->getPath());
@@ -1007,9 +1008,10 @@ void AttackSkillType::saveGame(XmlNode *rootNode) {
 //    bool projectile;
 	attackSkillTypeNode->addAttribute("projectile",intToStr(projectile), mapTagReplacements);
 //    ParticleSystemTypeProjectile* projectileParticleSystemType;
-	if(projectileParticleSystemType != NULL) {
-		projectileParticleSystemType->saveGame(attackSkillTypeNode);
-	}
+// save a skill_type ????
+	//	if(projectileParticleSystemType != NULL) {
+//		projectileParticleSystemType->saveGame(attackSkillTypeNode);
+//	}
 //	SoundContainer projSounds;
 //
 //    bool splash;

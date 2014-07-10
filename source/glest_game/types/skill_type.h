@@ -271,7 +271,7 @@ private:
 	string spawnUnit;
 	int spawnUnitcount;
     bool projectile;
-    ParticleSystemTypeProjectile* projectileParticleSystemType;
+    //ParticleSystemTypeProjectile* projectileParticleSystemType;
 	SoundContainer projSounds;
 	
     bool splash;
@@ -299,7 +299,7 @@ public:
 
 	//get proj
 	inline bool getProjectile() const									{return projectile;}
-	inline ParticleSystemTypeProjectile * getProjParticleType() const	{return projectileParticleSystemType;}
+	//inline ParticleSystemTypeProjectile * getProjParticleType() const	{return projectileParticleSystemType;}
 	inline StaticSound *getProjSound() const							{return projSounds.getRandSound();}
 
 	//get splash

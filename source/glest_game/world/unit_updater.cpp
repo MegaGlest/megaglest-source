@@ -2601,7 +2601,7 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 	if(ast == NULL) {
 		throw megaglest_runtime_error("Start attack particle ast == NULL!");
 	}
-	ParticleSystemTypeProjectile *pstProj= ast->getProjParticleType();
+	ParticleSystemTypeProjectile *pstProj= NULL;
 	ParticleSystemTypeSplash *pstSplash= ast->getSplashParticleType();
 
 	Vec3f startPos= unit->getCurrVector();
@@ -2626,6 +2626,7 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 				}
 				renderer.manageParticleSystem(psProj, rsGame);
 				unit->addAttackParticleSystem(psProj);
+		pstProj=(*pit);
 	}
 
 	// if no projectile, still deal damage..
