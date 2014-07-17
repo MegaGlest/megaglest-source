@@ -269,6 +269,7 @@
     <ClCompile Include="..\..\source\glest_game\types\object_type.cpp" />
     <ClCompile Include="..\..\source\glest_game\types\resource_type.cpp" />
     <ClCompile Include="..\..\source\glest_game\types\skill_type.cpp" />
+    <ClCompile Include="..\..\source\glest_game\types\projectile_type.cpp" />
     <ClCompile Include="..\..\source\glest_game\types\tech_tree.cpp" />
     <ClCompile Include="..\..\source\glest_game\types\unit_type.cpp" />
     <ClCompile Include="..\..\source\glest_game\types\upgrade_type.cpp" />
@@ -356,6 +357,7 @@
     <ClInclude Include="..\..\source\glest_game\types\object_type.h" />
     <ClInclude Include="..\..\source\glest_game\types\resource_type.h" />
     <ClInclude Include="..\..\source\glest_game\types\skill_type.h" />
+    <ClInclude Include="..\..\source\glest_game\types\projectile_type.h" />
     <ClInclude Include="..\..\source\glest_game\types\tech_tree.h" />
     <ClInclude Include="..\..\source\glest_game\types\unit_type.h" />
     <ClInclude Include="..\..\source\glest_game\types\upgrade_type.h" />

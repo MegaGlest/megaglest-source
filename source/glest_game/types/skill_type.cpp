@@ -19,6 +19,7 @@
 #include "renderer.h"
 #include "particle_type.h"
 #include "unit_particle_type.h"
+#include "projectile_type.h"
 #include "tech_tree.h"
 #include "faction_type.h"
 #include "leak_dumper.h"
@@ -821,7 +822,7 @@ AttackSkillType::AttackSkillType() {
 
 AttackSkillType::~AttackSkillType() {
 
-	deleteValues(projectileParticleSystemTypes.begin(), projectileParticleSystemTypes.end());
+	deleteValues(projectileTypes.begin(), projectileTypes.end());
 
 	delete splashParticleSystemType;
 	splashParticleSystemType = NULL;
@@ -880,59 +881,56 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 		}
 	}
 
-	//projectile
-	const XmlNode *projectileNode= sn->getChild("projectile");
-	projectile= projectileNode->getAttribute("value")->getBoolValue();
-	if(projectile){
+	if(sn->hasChild("projectiles")){
+		const XmlNode *projectilesNode= sn->getChild("projectiles");
+		vector<XmlNode *> projectilesNodeList = projectilesNode->getChildList("projectile");
+		for(unsigned int i = 0; i < projectilesNodeList.size(); ++i) {
+			const XmlNode *projectileNode= projectilesNodeList[i];
+			ProjectileType *projectileType=new ProjectileType();
+			projectileType->load(projectileNode,dir, tt->getPath(), loadedFileList, parentLoader);
 
-		//proj particle
-		if(projectileNode->hasChild("particle")){
-			const XmlNode *particleNode= projectileNode->getChild("particle");
-			bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
-			if(particleEnabled){
-				string path= particleNode->getAttribute("path")->getRestrictedValue();
-				ParticleSystemTypeProjectile* projectileParticleSystemType= new ParticleSystemTypeProjectile();
-				projectileParticleSystemType->load(particleNode, dir, currentPath + path,
-						&Renderer::getInstance(), loadedFileList, parentLoader,
-						tt->getPath());
-						loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleNode->getAttribute("path")->getRestrictedValue()));
-						projectileParticleSystemTypes.push_back(projectileParticleSystemType);
-			}
+			projectileTypes.push_back(projectileType);
+			projectile=true;
 		}
-
-		//extra projectiles
-		if(projectileNode->hasChild("particles")){
-			const XmlNode *extraParticlesNode= projectileNode->getChild("particles");
-			bool extraParticlesEnabled= extraParticlesNode->getAttribute("value")->getBoolValue();
-			if(extraParticlesEnabled){
-				for(int i = 0; i < (int)extraParticlesNode->getChildCount(); ++i) {
-								const XmlNode *extraParticleFileNode= extraParticlesNode->getChild("particle-file", i);
-								string path= extraParticleFileNode->getAttribute("path")->getRestrictedValue();
-								ParticleSystemTypeProjectile* projectileParticleSystemType= new ParticleSystemTypeProjectile();
-								projectileParticleSystemType->load(extraParticleFileNode, dir, currentPath + path,
-										&Renderer::getInstance(), loadedFileList, parentLoader,
-										tt->getPath());
-										loadedFileList[currentPath + path].push_back(make_pair(parentLoader,extraParticleFileNode->getAttribute("path")->getRestrictedValue()));
-										projectileParticleSystemTypes.push_back(projectileParticleSystemType);
+	}
+	else {
+		//projectile -- backward compatible old behaviour with only one projectile
+		const XmlNode *projectileNode= sn->getChild("projectile");
+		projectile= projectileNode->getAttribute("value")->getBoolValue();
+		if(projectile){
+			// create new projectile
+				ProjectileType *projectileType=new ProjectileType();
+				projectileTypes.push_back(projectileType);
+				projectileType->setAttackStartTime(attackStartTime);
+			//proj particle
+			if(projectileNode->hasChild("particle")){
+				const XmlNode *particleNode= projectileNode->getChild("particle");
+				bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
+				if(particleEnabled){
+					string path= particleNode->getAttribute("path")->getRestrictedValue();
+					ParticleSystemTypeProjectile* projectileParticleSystemType= new ParticleSystemTypeProjectile();
+					projectileParticleSystemType->load(particleNode, dir, currentPath + path,
+							&Renderer::getInstance(), loadedFileList, parentLoader,
+							tt->getPath());
+							loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleNode->getAttribute("path")->getRestrictedValue()));
+							projectileType->setProjectileParticleSystemType(projectileParticleSystemType);
 				}
 			}
-		}
+			//proj sounds
+			const XmlNode *soundNode= projectileNode->getChild("sound");
+			if(soundNode->getAttribute("enabled")->getBoolValue()){
 
+				projSounds.resize((int)soundNode->getChildCount());
+				for(int i=0; i < (int)soundNode->getChildCount(); ++i){
+					const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
+					string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
+					//printf("\n\n\n\n!@#$ ---> parentLoader [%s] path [%s] nodeValue [%s] i = %d",parentLoader.c_str(),path.c_str(),soundFileNode->getAttribute("path")->getRestrictedValue().c_str(),i);
 
-		//proj sounds
-		const XmlNode *soundNode= projectileNode->getChild("sound");
-		if(soundNode->getAttribute("enabled")->getBoolValue()){
-
-			projSounds.resize((int)soundNode->getChildCount());
-			for(int i=0; i < (int)soundNode->getChildCount(); ++i){
-				const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
-				string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
-				//printf("\n\n\n\n!@#$ ---> parentLoader [%s] path [%s] nodeValue [%s] i = %d",parentLoader.c_str(),path.c_str(),soundFileNode->getAttribute("path")->getRestrictedValue().c_str(),i);
-
-				StaticSound *sound= new StaticSound();
-				sound->load(path);
-				loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
-				projSounds[i]= sound;
+					StaticSound *sound= new StaticSound();
+					sound->load(path);
+					loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
+					projSounds[i]= sound;
+				}
 			}
 		}
 	}

@@ -143,7 +143,7 @@ private:
     void hit(Unit *attacker);
 	void hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &targetPos, Field targetField);
 	void damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance);
-	void startAttackParticleSystem(Unit *unit);
+	void startAttackParticleSystem(Unit *unit, float lastAnimProgress, float animProgress);
 
 	//misc
     bool searchForResource(Unit *unit, const HarvestCommandType *hct);
@@ -169,13 +169,14 @@ class ParticleDamager: public ParticleObserver {
 public:
 	UnitReference attackerRef;
 	const AttackSkillType* ast;
+	const ProjectileType* projectileType;
 	UnitUpdater *unitUpdater;
 	const GameCamera *gameCamera;
 	Vec2i targetPos;
 	Field targetField;
 
 public:
-	ParticleDamager(Unit *attacker, UnitUpdater *unitUpdater, const GameCamera *gameCamera);
+	ParticleDamager(Unit *attacker, const ProjectileType *projectileType, UnitUpdater *unitUpdater, const GameCamera *gameCamera);
 	virtual void update(ParticleSystem *particleSystem);
 
 	virtual void saveGame(XmlNode *rootNode);

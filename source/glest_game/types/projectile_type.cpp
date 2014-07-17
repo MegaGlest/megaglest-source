@@ -1,0 +1,88 @@
+// ==============================================================
+//	This file is part of Glest (www.glest.org)
+//
+//	Copyright (C) 2001-2008 Martiño Figueroa
+//
+//	You can redistribute this code and/or modify it under 
+//	the terms of the GNU General Public License as published 
+//	by the Free Software Foundation; either version 2 of the 
+//	License, or (at your option) any later version
+// ==============================================================
+
+#include <cassert>
+#include "logger.h"
+#include "lang.h"
+#include "renderer.h"
+#include "leak_dumper.h"
+
+using namespace Shared::Util;
+
+namespace Glest{ namespace Game{
+
+ProjectileType::ProjectileType() {
+
+	projectileParticleSystemType=NULL;
+	attackStartTime=0.0f;
+
+     splash=false;
+     splashRadius=0;
+     splashDamageAll=true;
+    splashParticleSystemType=NULL;
+
+	shake=false;
+	shakeIntensity=0;
+	shakeDuration=0;
+
+    shakeVisible=true;
+    shakeInCameraView=true;
+    shakeCameraAffected=false;
+
+}
+
+
+void ProjectileType::load(const XmlNode *projectileNode, const string &dir, const string &techtreepath, std::map<string,vector<pair<string, string> > > &loadedFileList,
+		string parentLoader){
+
+	string currentPath = dir;
+	endPathWithSlash(currentPath);
+
+	if(projectileNode->hasAttribute("attack-start-time")){
+		attackStartTime =projectileNode->getAttribute("attack-start-time")->getFloatValue();
+	}
+	else
+	{
+		attackStartTime=0.0f;
+	}
+	if(projectileNode->hasChild("particle")){
+		const XmlNode *particleNode= projectileNode->getChild("particle");
+		bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
+		if(particleEnabled){
+			string path= particleNode->getAttribute("path")->getRestrictedValue();
+			ParticleSystemTypeProjectile* projectileParticleSystemType= new ParticleSystemTypeProjectile();
+			projectileParticleSystemType->load(particleNode, dir, currentPath + path,
+					&Renderer::getInstance(), loadedFileList, parentLoader,
+					techtreepath);
+					loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleNode->getAttribute("path")->getRestrictedValue()));
+			setProjectileParticleSystemType(projectileParticleSystemType);
+		}
+	}
+
+	const XmlNode *soundNode= projectileNode->getChild("sound");
+	if(soundNode->getAttribute("enabled")->getBoolValue()){
+
+		hitSounds.resize((int)soundNode->getChildCount());
+		for(int i=0; i < (int)soundNode->getChildCount(); ++i){
+			const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
+			string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
+			//printf("\n\n\n\n!@#$ ---> parentLoader [%s] path [%s] nodeValue [%s] i = %d",parentLoader.c_str(),path.c_str(),soundFileNode->getAttribute("path")->getRestrictedValue().c_str(),i);
+
+			StaticSound *sound= new StaticSound();
+			sound->load(path);
+			loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
+			hitSounds[i]= sound;
+		}
+	}
+}
+
+
+}}//end namespace

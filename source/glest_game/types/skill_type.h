@@ -27,6 +27,7 @@
 #include "factory.h"
 #include "sound_container.h"
 #include "particle.h"
+#include "projectile_type.h"
 #include "upgrade_type.h"
 #include "leak_dumper.h"
 
@@ -74,7 +75,7 @@ enum SkillClass{
 };
 
 typedef list<UnitParticleSystemType*> UnitParticleSystemTypes;
-typedef list<ParticleSystemTypeProjectile*> ProjectileParticleSystemTypes;
+typedef list<ProjectileType*> ProjectileTypes;
 // =====================================================
 // 	class SkillType
 //
@@ -173,7 +174,6 @@ protected:
 
 public:
 	UnitParticleSystemTypes unitParticleSystemTypes;
-	ProjectileParticleSystemTypes projectileParticleSystemTypes;
 
 public:
     //varios
@@ -260,6 +260,8 @@ public:
 // ===============================
 
 class AttackSkillType: public SkillType{
+public:
+	ProjectileTypes projectileTypes;
 private:
     int attackStrength;
     int attackVar;
@@ -299,7 +301,6 @@ public:
 
 	//get proj
 	inline bool getProjectile() const									{return projectile;}
-	//inline ParticleSystemTypeProjectile * getProjParticleType() const	{return projectileParticleSystemType;}
 	inline StaticSound *getProjSound() const							{return projSounds.getRandSound();}
 
 	//get splash

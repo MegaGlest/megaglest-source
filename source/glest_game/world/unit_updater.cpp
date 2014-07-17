@@ -21,6 +21,7 @@
 #include "network_manager.h"
 #include "object.h"
 #include "particle_type.h"
+#include "projectile_type.h"
 #include "path_finder.h"
 #include "renderer.h"
 #include "sound.h"
@@ -186,14 +187,24 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 		float attackStartTime = truncateDecimal<float>(ast->getAttackStartTime(),6);
 		float lastAnimProgress = truncateDecimal<float>(unit->getLastAnimProgressAsFloat(),6);
 		float animProgress = truncateDecimal<float>(unit->getAnimProgressAsFloat(),6);
-		bool startAttackParticleSystemNow = (attackStartTime >= lastAnimProgress && attackStartTime < animProgress);
+		bool startAttackParticleSystemNow = false;
+		if(ast->projectileTypes.empty() == true ){
+			startAttackParticleSystemNow = (attackStartTime >= lastAnimProgress && attackStartTime < animProgress);
+		}
+		else {// start projectile attack
+			for(ProjectileTypes::const_iterator it= ast->projectileTypes.begin(); it != ast->projectileTypes.end(); ++it) {
+				attackStartTime= (*it)->getAttackStartTime();
+				startAttackParticleSystemNow = (attackStartTime >= lastAnimProgress && attackStartTime < animProgress);
+				if(startAttackParticleSystemNow==true) break;
+			}
+		}
 
 		char szBuf[8096]="";
 		snprintf(szBuf,8095,"attackStartTime = %f, lastAnimProgress = %f, animProgress = %f startAttackParticleSystemNow = %d",attackStartTime,lastAnimProgress,animProgress,startAttackParticleSystemNow);
 		unit->setNetworkCRCParticleLogInfo(szBuf);
 
 		if(startAttackParticleSystemNow == true) {
-			startAttackParticleSystem(unit);
+			startAttackParticleSystem(unit,lastAnimProgress,animProgress);
 		}
 	}
 
@@ -2592,18 +2603,18 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	//attacker->computeHp();
 }
 
-void UnitUpdater::startAttackParticleSystem(Unit *unit){
+void UnitUpdater::startAttackParticleSystem(Unit *unit, float lastAnimProgress, float animProgress){
 	Renderer &renderer= Renderer::getInstance();
 
-	ProjectileParticleSystem *psProj = 0;
+	//const AttackSkillType *ast= dynamic_cast<const AttackSkillType*>(unit->getCurrSkill());
+	const AttackSkillType *ast= static_cast<const AttackSkillType*>(unit->getCurrSkill());
 
-	const AttackSkillType *ast= dynamic_cast<const AttackSkillType*>(unit->getCurrSkill());
 	if(ast == NULL) {
 		throw megaglest_runtime_error("Start attack particle ast == NULL!");
 	}
-	bool hasProjectile = false;
-	ParticleSystemTypeSplash *pstSplash= ast->getSplashParticleType();
 
+	ParticleSystemTypeSplash *pstSplash= ast->getSplashParticleType();
+	bool hasProjectile = !ast->projectileTypes.empty();
 	Vec3f startPos= unit->getCurrVector();
 	Vec3f endPos= unit->getTargetVec();
 
@@ -2615,41 +2626,51 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit){
 		visible = true;
 	}
 
-
-	for(ProjectileParticleSystemTypes::const_iterator pit= unit->getCurrSkill()->projectileParticleSystemTypes.begin(); pit != unit->getCurrSkill()->projectileParticleSystemTypes.end(); ++pit) {
-		psProj= (*pit)->create(unit);
-		psProj->setPath(startPos, endPos);
-		psProj->setObserver(new ParticleDamager(unit, this, gameCamera));
-		psProj->setVisible(visible);
-		if(unit->getFaction()->getTexture()) {
-			psProj->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+	//for(ProjectileParticleSystemTypes::const_iterator pit= unit->getCurrSkill()->projectileParticleSystemTypes.begin(); pit != unit->getCurrSkill()->projectileParticleSystemTypes.end(); ++pit) {
+	for(ProjectileTypes::const_iterator pt= ast->projectileTypes.begin(); pt != ast->projectileTypes.end(); ++pt) {
+		bool startAttackParticleSystemNow = ((*pt)->getAttackStartTime() >= lastAnimProgress && (*pt)->getAttackStartTime() < animProgress);
+		if(startAttackParticleSystemNow){
+			ProjectileParticleSystem *psProj= (*pt)->getProjectileParticleSystemType()->create(unit);
+			psProj->setPath(startPos, endPos);
+			psProj->setObserver(new ParticleDamager(unit,(*pt), this, gameCamera));
+			psProj->setVisible(visible);
+			if(unit->getFaction()->getTexture()) {
+				psProj->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+			}
+			renderer.manageParticleSystem(psProj, rsGame);
+			unit->addAttackParticleSystem(psProj);
+			ParticleSystemTypeSplash *splashType=(*pt)->getSplashParticleSystemType();
+			if(splashType!=NULL){
+				SplashParticleSystem *psSplash= pstSplash->create(unit);
+				psSplash->setPos(endPos);
+				psSplash->setVisible(visible);
+				if(unit->getFaction()->getTexture()) {
+					psSplash->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+				}
+				renderer.manageParticleSystem(psSplash, rsGame);
+				unit->addAttackParticleSystem(psSplash);
+				psProj->link(psSplash);
+			}
 		}
-		renderer.manageParticleSystem(psProj, rsGame);
-		unit->addAttackParticleSystem(psProj);
-		hasProjectile=true;
 	}
 
 	// if no projectile, still deal damage..
-	if(hasProjectile == true) {
+	if(hasProjectile == false) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8095,"Unit hitting [startAttackParticleSystem] no proj");
 		unit->addNetworkCRCDecHp(szBuf);
 		hit(unit);
-	}
-
-	//splash
-	if(pstSplash != NULL) {
-		SplashParticleSystem *psSplash= pstSplash->create(unit);
-		psSplash->setPos(endPos);
-		psSplash->setVisible(visible);
-		if(unit->getFaction()->getTexture()) {
-			psSplash->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+		//splash
+		if(pstSplash != NULL) {
+			SplashParticleSystem *psSplash= pstSplash->create(unit);
+			psSplash->setPos(endPos);
+			psSplash->setVisible(visible);
+			if(unit->getFaction()->getTexture()) {
+				psSplash->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+			}
+			renderer.manageParticleSystem(psSplash, rsGame);
+			unit->addAttackParticleSystem(psSplash);
 		}
-		renderer.manageParticleSystem(psSplash, rsGame);
-		if(hasProjectile == true){
-			psProj->link(psSplash);
-		}
-		unit->addAttackParticleSystem(psSplash);
 	}
 }
 
@@ -3206,9 +3227,10 @@ void UnitUpdater::loadGame(const XmlNode *rootNode) {
 //	class ParticleDamager
 // =====================================================
 
-ParticleDamager::ParticleDamager(Unit *attacker, UnitUpdater *unitUpdater, const GameCamera *gameCamera){
+ParticleDamager::ParticleDamager(Unit *attacker,const ProjectileType* projectileType, UnitUpdater *unitUpdater, const GameCamera *gameCamera){
 	this->gameCamera= gameCamera;
 	this->attackerRef= attacker;
+	this->projectileType= projectileType;
 	this->ast= static_cast<const AttackSkillType*>(attacker->getCurrSkill());
 	this->targetPos= attacker->getTargetPos();
 	this->targetField= attacker->getTargetField();
