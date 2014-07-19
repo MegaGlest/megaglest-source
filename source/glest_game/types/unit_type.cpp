@@ -592,6 +592,32 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		}
 		sortedItems.clear();
 
+		// Lootable resources
+		if(parametersNode->hasChild("resources-death")) {
+			const XmlNode *deathResourcesNode= parametersNode->getChild("resources-death");
+
+			for(int i=0; i < deathResourcesNode->getChildCount(); ++i){
+				const XmlNode *resourceNode= deathResourcesNode->getChild("resource", i);
+
+				// TODO: Add rest of attributes and make appropriate ones optional
+				string name= resourceNode->getAttribute("name")->getRestrictedValue();
+				int amountValue= resourceNode->getAttribute("amount-value")->getIntValue();
+
+				LootableResource resource;
+				resource.setResourceType(techTree->getResourceType(name));
+				resource.setAmountValue(amountValue);
+
+				lootableResources.push_back(resource);
+
+				// TODO: Add checks for duplicate resources
+			}
+		}
+
+		// TODO: For debug purposes only -- remove
+		for(int i = 0; i < lootableResources.size(); i++) {
+			printf("Lootable resource %s has amount %d\n", lootableResources[i].getResourceType()->getName().c_str(), lootableResources[i].getAmountValue());
+		}
+
 		//image
 		const XmlNode *imageNode= parametersNode->getChild("image");
 		image= Renderer::getInstance().newTexture2D(rsGame);

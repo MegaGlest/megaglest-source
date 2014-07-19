@@ -64,6 +64,37 @@ public:
 };
 
 // ===============================
+// 	class LootResource
+//
+///	Stores information about a lootable resource. Lootable resources are stolen by the attacker on death.
+// ===============================
+
+class LootableResource {
+private:
+	const ResourceType *type;
+	int amountValue;
+	double amountPercentage;
+	int lossValue;
+	double lossPercentage;
+
+public:
+	const ResourceType* getResourceType() {return type;}
+	void setResourceType(const ResourceType *type) {this->type=type;}
+
+	int getAmountValue() {return amountValue;}
+	void setAmountValue(int amountValue) {this->amountValue=amountValue;}
+
+	double getAmountPercentage() {return amountPercentage;}
+	void setAmountPercentage(double amountPercentage) {this->amountPercentage=amountPercentage;}
+
+	int getLossValue() {return lossValue;}
+	void setLossValue(int lossValue) {this->lossValue=lossValue;}
+
+	double getLossPercentage() {return lossPercentage;}
+	void setLossPercentage(double lossPercentage) {this->lossPercentage=lossPercentage;}
+};
+
+// ===============================
 // 	class UnitType
 //
 ///	A unit or building type
@@ -104,6 +135,7 @@ private:
     typedef vector<CommandType*> CommandTypes;
     typedef vector<Resource> StoredResources;
 	typedef vector<Level> Levels;
+	typedef vector<LootableResource> LootableResources;
 
 private:
 	//basic
@@ -151,6 +183,7 @@ private:
     CommandTypes commandTypes;
     StoredResources storedResources;
 	Levels levels;
+	LootableResources lootableResources;
 
 	//meeting point
 	bool meetingPoint;
@@ -220,6 +253,8 @@ public:
 	int getHeight() const								{return height;}
 	int getStoredResourceCount() const					{return (int)storedResources.size();}
 	inline const Resource *getStoredResource(int i) const		{return &storedResources[i];}
+	int getLootableResourceCount() const					{return lootableResources.size();}
+	inline const LootableResource getLootableResource(int i) const		{return lootableResources.at(i);}
 	bool getCellMapCell(int x, int y, CardinalDir facing) const;
 	inline bool getMeetingPoint() const						{return meetingPoint;}
 	inline bool getCountUnitDeathInStats() const				{return countUnitDeathInStats;}

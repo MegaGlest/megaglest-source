@@ -2573,6 +2573,13 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 			attacker->incKills(attacked->getTeam());
 		}
 
+		// TODO: Add looting here
+		int lootableResourceCount = attacked->getType()->getLootableResourceCount();
+		for(int i = 0; i < lootableResourceCount; i++) {
+			LootableResource resource = attacked->getType()->getLootableResource(i);
+			attacker->getFaction()->incResourceAmount(resource.getResourceType(), resource.getAmountValue());
+		}
+
 		switch(this->game->getGameSettings()->getPathFinderType()) {
 			case pfBasic:
 				break;
