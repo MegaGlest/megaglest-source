@@ -249,10 +249,9 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		addItemToVault(&(this->epRegeneration),this->epRegeneration);
 
 		//startEp
-
-		if(parametersNode->hasChild("start-ep")) {
+		if(parametersNode->getChild("max-ep")->hasAttribute("start-value")) {
 			//checkItemInVault(&(this->startEp),this->startEp);
-			startEp= parametersNode->getChild("start-ep")->getAttribute("value")->getIntValue();
+			startEp= parametersNode->getChild("max-ep")->getAttribute("start-value")->getIntValue();
 		}
 		addItemToVault(&(this->startEp),this->startEp);
 
