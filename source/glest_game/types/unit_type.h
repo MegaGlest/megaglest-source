@@ -79,23 +79,27 @@ private:
 	bool negativeAllowed;
 
 public:
-	const ResourceType* getResourceType() {return type;}
+	const ResourceType* getResourceType() const {return type;}
 	void setResourceType(const ResourceType *type) {this->type=type;}
 
-	int getAmountValue() {return amountValue;}
+	int getAmountValue() const {return amountValue;}
 	void setAmountValue(int amountValue) {this->amountValue=amountValue;}
 
-	double getAmountPercentage() {return amountPercentage;}
+	double getAmountPercentage() const {return amountPercentage;}
 	void setAmountPercentage(double amountPercentage) {this->amountPercentage=amountPercentage;}
 
-	int getLossValue() {return lossValue;}
+	int getLossValue() const {return lossValue;}
 	void setLossValue(int lossValue) {this->lossValue=lossValue;}
 
-	double getLossPercentage() {return lossPercentage;}
+	double getLossPercentage() const {return lossPercentage;}
 	void setLossPercentage(double lossPercentage) {this->lossPercentage=lossPercentage;}
 
-	bool isNegativeAllowed() {return negativeAllowed;}
+	bool isNegativeAllowed() const {return negativeAllowed;}
 	void setNegativeAllowed(bool negativeAllowed) {this->negativeAllowed=negativeAllowed;}
+
+	bool operator==(const LootableResource& other) {
+		return type == other.getResourceType();
+	}
 };
 
 // ===============================
