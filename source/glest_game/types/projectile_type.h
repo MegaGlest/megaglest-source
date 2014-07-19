@@ -41,11 +41,6 @@ protected:
 	SoundContainer hitSounds;
 	float attackStartTime;
 
-    bool splash;
-    int splashRadius;
-    bool splashDamageAll;
-    ParticleSystemTypeSplash* splashParticleSystemType;
-
 	bool shake;
 	int shakeIntensity;
 	int shakeDuration;
@@ -56,7 +51,7 @@ protected:
 
 public:
 	ProjectileType();
-	virtual ~ProjectileType(){};
+	virtual ~ProjectileType();
 
 
 	void load(const XmlNode *projectileNode, const string &dir, const string &techtreepath, std::map<string,vector<pair<string, string> > > &loadedFileList,
@@ -67,10 +62,6 @@ public:
 	ParticleSystemTypeProjectile* getProjectileParticleSystemType() const { return projectileParticleSystemType;}
 	float getAttackStartTime() const			{return attackStartTime;}
 	void setAttackStartTime(float value) {attackStartTime=value;}
-	bool isSplash() const {	return splash;}
-	bool isSplashDamageAll() const {	return splashDamageAll;}
-	ParticleSystemTypeSplash* getSplashParticleSystemType() const {	return splashParticleSystemType;}
-	int getSplashRadius() const {	return splashRadius;}
 
 	bool isShake() const{return shake;}
 	bool isShakeCameraDistanceAffected() const{return shakeCameraDistanceAffected;}

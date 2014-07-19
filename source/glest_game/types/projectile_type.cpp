@@ -24,11 +24,6 @@ ProjectileType::ProjectileType() {
 	projectileParticleSystemType=NULL;
 	attackStartTime=0.0f;
 
-    splash=false;
-    splashRadius=0;
-    splashDamageAll=true;
-    splashParticleSystemType=NULL;
-
 	shake=false;
 	shakeIntensity=0;
 	shakeDuration=0;
@@ -39,6 +34,13 @@ ProjectileType::ProjectileType() {
 
 }
 
+ProjectileType::~ProjectileType() {
+	deleteValues(hitSounds.getSounds().begin(), hitSounds.getSounds().end());
+	if(projectileParticleSystemType!=NULL){
+		delete projectileParticleSystemType;
+		projectileParticleSystemType = NULL;
+	}
+}
 
 void ProjectileType::load(const XmlNode *projectileNode, const string &dir, const string &techtreepath, std::map<string,vector<pair<string, string> > > &loadedFileList,
 		string parentLoader){

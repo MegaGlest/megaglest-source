@@ -2639,8 +2639,8 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit, float lastAnimProgress, 
 			}
 			renderer.manageParticleSystem(psProj, rsGame);
 			unit->addAttackParticleSystem(psProj);
-			ParticleSystemTypeSplash *splashType=(*pt)->getSplashParticleSystemType();
-			if(splashType!=NULL){
+
+			if(pstSplash!=NULL){
 				SplashParticleSystem *psSplash= pstSplash->create(unit);
 				psSplash->setPos(endPos);
 				psSplash->setVisible(visible);
