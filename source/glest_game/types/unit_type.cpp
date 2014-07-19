@@ -591,8 +591,9 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 			}
 		}
 		sortedItems.clear();
+		hasDup = false;
 
-		// Lootable resources
+		// Lootable resources (resources given/lost on death)
 		if(parametersNode->hasChild("resources-death")) {
 			const XmlNode *deathResourcesNode= parametersNode->getChild("resources-death");
 
@@ -640,9 +641,13 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 					resource.setNegativeAllowed(false);
 				}
 
-				lootableResources.push_back(resource);
+				// Figure out if there are duplicate resources. The value stored in the map is arbitrary,
+				// and exists solely because 
+				if(std::find(lootableResources.begin(), lootableResources.end(), resource) != lootableResources.end()) {
+					printf("WARNING, unit type [%s] has one or more duplicate lootable resources\n", this->getName(false).c_str());
+				}
 
-				// TODO: Add checks for duplicate resources
+				lootableResources.push_back(resource);
 			}
 		}
 
