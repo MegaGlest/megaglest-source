@@ -125,8 +125,13 @@ UnitType::UnitType() : ProducibleType() {
 	epRegeneration= 0;
 	maxUnitCount= 0;
 	maxHp=0;
+	startHpValue=0;
+	startHpPercentage=1.0;
+	startHpType=stValue;
 	maxEp=0;
-	startEp=0;
+	startEpValue=0;
+	startEpPercentage=0;
+	startEpType=stValue;
 	armor=0;
 	sight=0;
 	size=0;
@@ -248,13 +253,58 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		}
 		addItemToVault(&(this->epRegeneration),this->epRegeneration);
 
-		//startEp
-
-		if(parametersNode->hasChild("start-ep")) {
-			//checkItemInVault(&(this->startEp),this->startEp);
-			startEp= parametersNode->getChild("start-ep")->getAttribute("value")->getIntValue();
+		// Check that we don't use both start-value and start-percentage, as they are mutually
+		// exclusive
+		if(parametersNode->getChild("max-hp")->hasAttribute("start-value") &&
+				parametersNode->getChild("max-hp")->hasAttribute("start-percentage")) {
+					throw megaglest_runtime_error("Unit " + name +
+							" has both start-value and start-percentage for HP", validationMode);
 		}
-		addItemToVault(&(this->startEp),this->startEp);
+
+		//startHpValue -- the *absolute* value to use for starting HP
+		if(parametersNode->getChild("max-hp")->hasAttribute("start-value")) {
+			//checkItemInVault(&(this->startEp),this->startEp);
+			startHpValue= parametersNode->getChild("max-hp")->getAttribute("start-value")->getIntValue();
+			startHpType= stValue;
+		}
+		addItemToVault(&(this->startHpValue),this->startHpValue);
+
+		//startHpPercentage -- the *relative* value to use for starting HP
+		if(parametersNode->getChild("max-hp")->hasAttribute("start-percentage")) {
+			startHpPercentage= parametersNode->getChild("max-hp")->getAttribute("start-percentage")->getFloatValue();
+			startHpType= stPercentage;
+		}
+
+		// No start value set; use max HP before upgrades
+		if(!parametersNode->getChild("max-hp")->hasAttribute("start-value") &&
+				!parametersNode->getChild("max-hp")->hasAttribute("start-percentage")) {
+			startHpValue= parametersNode->getChild("max-hp")->getAttribute("value")->getIntValue();
+			startHpType= stValue;
+		}
+		addItemToVault(&(this->startHpPercentage),this->startHpPercentage);
+
+		// Check that we don't use both start-value and start-percentage, as they are mutually
+		// exclusive
+		if(parametersNode->getChild("max-ep")->hasAttribute("start-value") &&
+				parametersNode->getChild("max-ep")->hasAttribute("start-percentage")) {
+					throw megaglest_runtime_error("Unit " + name +
+							" has both start-value and start-percentage for EP", validationMode);
+		}
+
+		//startEpValue -- the *absolute* value to use for starting EP
+		if(parametersNode->getChild("max-ep")->hasAttribute("start-value")) {
+			//checkItemInVault(&(this->startEp),this->startEp);
+			startEpValue= parametersNode->getChild("max-ep")->getAttribute("start-value")->getIntValue();
+			startEpType= stValue;
+		}
+		addItemToVault(&(this->startEpValue),this->startEpValue);
+
+		//startEpPercentage -- the *relative* value to use for starting EP
+		if(parametersNode->getChild("max-ep")->hasAttribute("start-percentage")) {
+			startEpPercentage= parametersNode->getChild("max-ep")->getAttribute("start-percentage")->getFloatValue();
+			startEpType= stPercentage;
+		}
+		addItemToVault(&(this->startEpPercentage),this->startEpPercentage);
 
 		//maxUnitCount
 		if(parametersNode->hasChild("max-unit-count")) {
@@ -1109,7 +1159,8 @@ std::string UnitType::toString() const {
 	result += " maxHp = " + intToStr(maxHp);
 	result += " hpRegeneration = " + intToStr(hpRegeneration);
 	result += " maxEp = " + intToStr(maxEp);
-	result += " startEp = " + intToStr(startEp);
+	result += " startEpValue = " + intToStr(startEpValue);
+	result += " startEpPercentage = " + intToStr(startEpPercentage);
 	result += " epRegeneration = " + intToStr(epRegeneration);
 	result += " maxUnitCount = " + intToStr(getMaxUnitCount());
 
