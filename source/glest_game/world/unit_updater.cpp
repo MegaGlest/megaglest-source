@@ -3254,9 +3254,32 @@ void ParticleDamager::update(ParticleSystem *particleSystem) {
 		//attacker->setNetworkCRCParticleObserverLogInfo(szBuf);
 
 		//play sound
-		StaticSound *projSound= ast->getProjSound();
+		// Try to use the sound form the projetileType
+		StaticSound *projSound=projectileType->getHitSound();
+		if(projSound == NULL){
+			// use the sound from the skill
+			projSound= ast->getProjSound();
+		}
 		if(particleSystem->getVisible() && projSound != NULL) {
 			SoundRenderer::getInstance().playFx(projSound, attacker->getCurrVector(), gameCamera->getPos());
+		}
+
+		// check for shake and shake
+		if(projectileType->isShake()==true){
+			World *world=attacker->getFaction()->getWorld();
+			Map* map=world->getMap();
+			Game *game=world->getGame();
+
+			//Unit *attacked= map->getCell(targetPos)->getUnit(targetField);
+			Vec2i surfaceTargetPos=Map::toSurfCoords(targetPos);
+			bool visibility=(!projectileType->isShakeVisible())||(map->getSurfaceCell(surfaceTargetPos)->isVisible(world->getThisTeamIndex()) ||
+								(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true));
+
+			bool isInCameraView=(!projectileType->isShakeInCameraView()) || Renderer::getInstance().posInCellQuadCache(surfaceTargetPos).first;
+
+			if(visibility && isInCameraView) {
+				game->getGameCameraPtr()->shake( projectileType->getShakeDuration(), projectileType->getShakeIntensity(),projectileType->isShakeCameraDistanceAffected(),map->getSurfaceCell(surfaceTargetPos)->getVertex());
+			}
 		}
 	}
 	particleSystem->setObserver(NULL);

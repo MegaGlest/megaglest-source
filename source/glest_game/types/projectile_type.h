@@ -52,7 +52,7 @@ protected:
 
     bool shakeVisible;
     bool shakeInCameraView;
-    bool shakeCameraAffected;
+    bool shakeCameraDistanceAffected;
 
 public:
 	ProjectileType();
@@ -73,7 +73,7 @@ public:
 	int getSplashRadius() const {	return splashRadius;}
 
 	bool isShake() const{return shake;}
-	bool isShakeCameraAffected() const{return shakeCameraAffected;}
+	bool isShakeCameraDistanceAffected() const{return shakeCameraDistanceAffected;}
 	int getShakeDuration() const{return shakeDuration;}
 	bool isShakeInCameraView() const{return shakeInCameraView;}
 	int getShakeIntensity() const{return shakeIntensity;}

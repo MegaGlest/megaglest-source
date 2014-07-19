@@ -24,9 +24,9 @@ ProjectileType::ProjectileType() {
 	projectileParticleSystemType=NULL;
 	attackStartTime=0.0f;
 
-     splash=false;
-     splashRadius=0;
-     splashDamageAll=true;
+    splash=false;
+    splashRadius=0;
+    splashDamageAll=true;
     splashParticleSystemType=NULL;
 
 	shake=false;
@@ -35,7 +35,7 @@ ProjectileType::ProjectileType() {
 
     shakeVisible=true;
     shakeInCameraView=true;
-    shakeCameraAffected=false;
+    shakeCameraDistanceAffected=false;
 
 }
 
@@ -67,19 +67,34 @@ void ProjectileType::load(const XmlNode *projectileNode, const string &dir, cons
 		}
 	}
 
-	const XmlNode *soundNode= projectileNode->getChild("sound");
-	if(soundNode->getAttribute("enabled")->getBoolValue()){
+	if(projectileNode->hasChild("hitshake")){
+		const XmlNode *hitShakeNode= projectileNode->getChild("hitshake");
+		shake=hitShakeNode->getAttribute("enabled")->getBoolValue();
+		if(shake){
+			shakeIntensity=hitShakeNode->getAttribute("intensity")->getIntValue();
+			shakeDuration=hitShakeNode->getAttribute("duration")->getIntValue();
 
-		hitSounds.resize((int)soundNode->getChildCount());
-		for(int i=0; i < (int)soundNode->getChildCount(); ++i){
-			const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
-			string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
-			//printf("\n\n\n\n!@#$ ---> parentLoader [%s] path [%s] nodeValue [%s] i = %d",parentLoader.c_str(),path.c_str(),soundFileNode->getAttribute("path")->getRestrictedValue().c_str(),i);
+		    shakeVisible=hitShakeNode->getAttribute("visible")->getBoolValue();
+		    shakeInCameraView=hitShakeNode->getAttribute("in-camera-view")->getBoolValue();
+		    shakeCameraDistanceAffected=hitShakeNode->getAttribute("camera-distance-affected")->getBoolValue();
+		}
+	}
 
-			StaticSound *sound= new StaticSound();
-			sound->load(path);
-			loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
-			hitSounds[i]= sound;
+	if(projectileNode->hasChild("hitsound")){
+	const XmlNode *soundNode= projectileNode->getChild("hitsound");
+		if(soundNode->getAttribute("enabled")->getBoolValue()){
+
+			hitSounds.resize((int)soundNode->getChildCount());
+			for(int i=0; i < (int)soundNode->getChildCount(); ++i){
+				const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
+				string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
+				//printf("\n\n\n\n!@#$ ---> parentLoader [%s] path [%s] nodeValue [%s] i = %d",parentLoader.c_str(),path.c_str(),soundFileNode->getAttribute("path")->getRestrictedValue().c_str(),i);
+
+				StaticSound *sound= new StaticSound();
+				sound->load(path);
+				loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
+				hitSounds[i]= sound;
+			}
 		}
 	}
 }

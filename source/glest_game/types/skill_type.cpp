@@ -881,19 +881,7 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 		}
 	}
 
-	if(sn->hasChild("projectiles")){
-		const XmlNode *projectilesNode= sn->getChild("projectiles");
-		vector<XmlNode *> projectilesNodeList = projectilesNode->getChildList("projectile");
-		for(unsigned int i = 0; i < projectilesNodeList.size(); ++i) {
-			const XmlNode *projectileNode= projectilesNodeList[i];
-			ProjectileType *projectileType=new ProjectileType();
-			projectileType->load(projectileNode,dir, tt->getPath(), loadedFileList, parentLoader);
-
-			projectileTypes.push_back(projectileType);
-			projectile=true;
-		}
-	}
-	else {
+	if(sn->hasChild("projectile")){
 		//projectile -- backward compatible old behaviour with only one projectile
 		const XmlNode *projectileNode= sn->getChild("projectile");
 		projectile= projectileNode->getAttribute("value")->getBoolValue();
@@ -931,6 +919,34 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 					loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
 					projSounds[i]= sound;
 				}
+			}
+		}
+	}
+	else {
+		const XmlNode *projectilesNode= sn->getChild("projectiles");
+		vector<XmlNode *> projectilesNodeList = projectilesNode->getChildList("projectile");
+		for(unsigned int i = 0; i < projectilesNodeList.size(); ++i) {
+			const XmlNode *projectileNode= projectilesNodeList[i];
+			ProjectileType *projectileType=new ProjectileType();
+			projectileType->load(projectileNode,dir, tt->getPath(), loadedFileList, parentLoader);
+
+			projectileTypes.push_back(projectileType);
+			projectile=true;
+		}
+		//general hit sounds, individual ones can be set in projectiles
+		const XmlNode *soundNode= sn->getChild("hitsound");
+		if(soundNode->getAttribute("enabled")->getBoolValue()){
+
+			projSounds.resize((int)soundNode->getChildCount());
+			for(int i=0; i < (int)soundNode->getChildCount(); ++i){
+				const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
+				string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
+				//printf("\n\n\n\n!@#$ ---> parentLoader [%s] path [%s] nodeValue [%s] i = %d",parentLoader.c_str(),path.c_str(),soundFileNode->getAttribute("path")->getRestrictedValue().c_str(),i);
+
+				StaticSound *sound= new StaticSound();
+				sound->load(path);
+				loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
+				projSounds[i]= sound;
 			}
 		}
 	}
