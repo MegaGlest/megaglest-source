@@ -598,24 +598,45 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 
 			for(int i=0; i < deathResourcesNode->getChildCount(); ++i){
 				const XmlNode *resourceNode= deathResourcesNode->getChild("resource", i);
-
-				// TODO: Add rest of attributes and make appropriate ones optional
 				string name= resourceNode->getAttribute("name")->getRestrictedValue();
-				int amountValue= resourceNode->getAttribute("amount-value")->getIntValue();
 
 				LootableResource resource;
 				resource.setResourceType(techTree->getResourceType(name));
-				resource.setAmountValue(amountValue);
+
+				// All attributes are optional, although nothing happens if they aren't used. They can
+				// be combined freely. Percentages will take affect before absolute values.
+				if(resourceNode->hasAttribute("amount-value")) {
+					resource.setAmountValue(resourceNode->getAttribute("amount-value")->getIntValue());
+				}
+				else {
+					resource.setAmountValue(0);
+				}
+				
+				if(resourceNode->hasAttribute("amount-percentage")) {
+					resource.setAmountPercentage(resourceNode->getAttribute("amount-percentage")->getFloatValue());
+				}
+				else {
+					resource.setAmountPercentage(0);
+				}
+
+				if(resourceNode->hasAttribute("loss-value")) {
+					resource.setLossValue(resourceNode->getAttribute("loss-value")->getIntValue());
+				}
+				else {
+					resource.setLossValue(0);
+				}
+				
+				if(resourceNode->hasAttribute("loss-percentage")) {
+					resource.setLossPercentage(resourceNode->getAttribute("loss-percentage")->getFloatValue());
+				}
+				else {
+					resource.setLossPercentage(0);
+				}
 
 				lootableResources.push_back(resource);
 
 				// TODO: Add checks for duplicate resources
 			}
-		}
-
-		// TODO: For debug purposes only -- remove
-		for(int i = 0; i < lootableResources.size(); i++) {
-			printf("Lootable resource %s has amount %d\n", lootableResources[i].getResourceType()->getName().c_str(), lootableResources[i].getAmountValue());
 		}
 
 		//image

@@ -2573,10 +2573,22 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 			attacker->incKills(attacked->getTeam());
 		}
 
-		// TODO: Add looting here
 		int lootableResourceCount = attacked->getType()->getLootableResourceCount();
 		for(int i = 0; i < lootableResourceCount; i++) {
 			LootableResource resource = attacked->getType()->getLootableResource(i);
+			
+			// Figure out how much of the resource in question that the attacked unit's faction has
+			int factionTotalResource = 0;
+			for(int j = 0; j < attacked->getFaction()->getTechTree()->getResourceTypeCount(); j++) {
+				if(attacked->getFaction()->getTechTree()->getResourceType(j) == resource.getResourceType()) {
+					factionTotalResource = attacked->getFaction()->getResource(j)->getAmount();
+					break;
+				}
+			}
+			
+			attacked->getFaction()->incResourceAmount(resource.getResourceType(), -resource.getLossPercentage() * factionTotalResource);
+			attacked->getFaction()->incResourceAmount(resource.getResourceType(), -resource.getLossValue());
+			attacker->getFaction()->incResourceAmount(resource.getResourceType(), resource.getAmountPercentage() * factionTotalResource);
 			attacker->getFaction()->incResourceAmount(resource.getResourceType(), resource.getAmountValue());
 		}
 
