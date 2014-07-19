@@ -53,19 +53,16 @@ void ProjectileType::load(const XmlNode *projectileNode, const string &dir, cons
 	{
 		attackStartTime=0.0f;
 	}
-	if(projectileNode->hasChild("particle")){
-		const XmlNode *particleNode= projectileNode->getChild("particle");
-		bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
-		if(particleEnabled){
-			string path= particleNode->getAttribute("path")->getRestrictedValue();
-			ParticleSystemTypeProjectile* projectileParticleSystemType= new ParticleSystemTypeProjectile();
-			projectileParticleSystemType->load(particleNode, dir, currentPath + path,
-					&Renderer::getInstance(), loadedFileList, parentLoader,
-					techtreepath);
-					loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleNode->getAttribute("path")->getRestrictedValue()));
-			setProjectileParticleSystemType(projectileParticleSystemType);
-		}
-	}
+
+	// projectiles MUST have a particle system.
+	const XmlNode *particleNode= projectileNode->getChild("particle");
+	string path= particleNode->getAttribute("path")->getRestrictedValue();
+	ParticleSystemTypeProjectile* projectileParticleSystemType= new ParticleSystemTypeProjectile();
+	projectileParticleSystemType->load(particleNode, dir, currentPath + path,
+			&Renderer::getInstance(), loadedFileList, parentLoader,
+			techtreepath);
+			loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleNode->getAttribute("path")->getRestrictedValue()));
+	setProjectileParticleSystemType(projectileParticleSystemType);
 
 	if(projectileNode->hasChild("hitshake")){
 		const XmlNode *hitShakeNode= projectileNode->getChild("hitshake");
