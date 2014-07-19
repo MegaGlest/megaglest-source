@@ -632,6 +632,13 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 				else {
 					resource.setLossPercentage(0);
 				}
+				
+				if(resourceNode->hasAttribute("allow-negative")) {
+					resource.setNegativeAllowed(resourceNode->getAttribute("allow-negative")->getBoolValue());
+				}
+				else {
+					resource.setNegativeAllowed(false);
+				}
 
 				lootableResources.push_back(resource);
 

@@ -76,6 +76,7 @@ private:
 	double amountPercentage;
 	int lossValue;
 	double lossPercentage;
+	bool negativeAllowed;
 
 public:
 	const ResourceType* getResourceType() {return type;}
@@ -92,6 +93,9 @@ public:
 
 	double getLossPercentage() {return lossPercentage;}
 	void setLossPercentage(double lossPercentage) {this->lossPercentage=lossPercentage;}
+
+	bool isNegativeAllowed() {return negativeAllowed;}
+	void setNegativeAllowed(bool negativeAllowed) {this->negativeAllowed=negativeAllowed;}
 };
 
 // ===============================
