@@ -2573,31 +2573,34 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 			attacker->incKills(attacked->getTeam());
 		}
 
-		int lootableResourceCount = attacked->getType()->getLootableResourceCount();
-		for(int i = 0; i < lootableResourceCount; i++) {
-			LootableResource resource = attacked->getType()->getLootableResource(i);
+		// Perform resource looting iff the attack is from a different faction
+		if(attacker->getFaction() != attacked->getFaction()) {
+			int lootableResourceCount = attacked->getType()->getLootableResourceCount();
+			for(int i = 0; i < lootableResourceCount; i++) {
+				LootableResource resource = attacked->getType()->getLootableResource(i);
 			
-			// Figure out how much of the resource in question that the attacked unit's faction has
-			int factionTotalResource = 0;
-			for(int j = 0; j < attacked->getFaction()->getTechTree()->getResourceTypeCount(); j++) {
-				if(attacked->getFaction()->getTechTree()->getResourceType(j) == resource.getResourceType()) {
-					factionTotalResource = attacked->getFaction()->getResource(j)->getAmount();
-					break;
+				// Figure out how much of the resource in question that the attacked unit's faction has
+				int factionTotalResource = 0;
+				for(int j = 0; j < attacked->getFaction()->getTechTree()->getResourceTypeCount(); j++) {
+					if(attacked->getFaction()->getTechTree()->getResourceType(j) == resource.getResourceType()) {
+						factionTotalResource = attacked->getFaction()->getResource(j)->getAmount();
+						break;
+					}
 				}
-			}
 			
-			if(resource.isNegativeAllowed()) {
-				attacked->getFaction()->incResourceAmount(resource.getResourceType(), -resource.getLossPercentage() * factionTotalResource);
-				attacked->getFaction()->incResourceAmount(resource.getResourceType(), -resource.getLossValue());
-				attacker->getFaction()->incResourceAmount(resource.getResourceType(), resource.getAmountPercentage() * factionTotalResource);
-				attacker->getFaction()->incResourceAmount(resource.getResourceType(), resource.getAmountValue());
-			}
-			// Can't take more resources than the faction has, otherwise we end up in the negatives
-			else {
-				attacked->getFaction()->incResourceAmount(resource.getResourceType(), -min(resource.getLossPercentage() * factionTotalResource, factionTotalResource));
-				attacked->getFaction()->incResourceAmount(resource.getResourceType(), -min(resource.getLossValue(), factionTotalResource));
-				attacker->getFaction()->incResourceAmount(resource.getResourceType(), min(resource.getAmountPercentage() * factionTotalResource, factionTotalResource));
-				attacker->getFaction()->incResourceAmount(resource.getResourceType(), min(resource.getAmountValue(), factionTotalResource));
+				if(resource.isNegativeAllowed()) {
+					attacked->getFaction()->incResourceAmount(resource.getResourceType(), -resource.getLossPercentage() * factionTotalResource);
+					attacked->getFaction()->incResourceAmount(resource.getResourceType(), -resource.getLossValue());
+					attacker->getFaction()->incResourceAmount(resource.getResourceType(), resource.getAmountPercentage() * factionTotalResource);
+					attacker->getFaction()->incResourceAmount(resource.getResourceType(), resource.getAmountValue());
+				}
+				// Can't take more resources than the faction has, otherwise we end up in the negatives
+				else {
+					attacked->getFaction()->incResourceAmount(resource.getResourceType(), -min(resource.getLossPercentage() * factionTotalResource, factionTotalResource));
+					attacked->getFaction()->incResourceAmount(resource.getResourceType(), -min(resource.getLossValue(), factionTotalResource));
+					attacker->getFaction()->incResourceAmount(resource.getResourceType(), min(resource.getAmountPercentage() * factionTotalResource, factionTotalResource));
+					attacker->getFaction()->incResourceAmount(resource.getResourceType(), min(resource.getAmountValue(), factionTotalResource));
+				}
 			}
 		}
 
