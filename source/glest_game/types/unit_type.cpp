@@ -125,6 +125,9 @@ UnitType::UnitType() : ProducibleType() {
 	epRegeneration= 0;
 	maxUnitCount= 0;
 	maxHp=0;
+	startHpValue=0;
+	startHpPercentage=1.0;
+	startHpType=stValue;
 	maxEp=0;
 	startEpValue=0;
 	startEpPercentage=0;
@@ -249,6 +252,36 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 			epRegeneration= parametersNode->getChild("max-ep")->getAttribute("regeneration")->getIntValue();
 		}
 		addItemToVault(&(this->epRegeneration),this->epRegeneration);
+
+		// Check that we don't use both start-value and start-percentage, as they are mutually
+		// exclusive
+		if(parametersNode->getChild("max-hp")->hasAttribute("start-value") &&
+				parametersNode->getChild("max-hp")->hasAttribute("start-percentage")) {
+					throw megaglest_runtime_error("Unit " + name +
+							" has both start-value and start-percentage for HP", validationMode);
+		}
+
+		//startHpValue -- the *absolute* value to use for starting HP
+		if(parametersNode->getChild("max-hp")->hasAttribute("start-value")) {
+			//checkItemInVault(&(this->startEp),this->startEp);
+			startHpValue= parametersNode->getChild("max-hp")->getAttribute("start-value")->getIntValue();
+			startHpType= stValue;
+		}
+		addItemToVault(&(this->startHpValue),this->startHpValue);
+
+		//startHpPercentage -- the *relative* value to use for starting HP
+		if(parametersNode->getChild("max-hp")->hasAttribute("start-percentage")) {
+			startHpPercentage= parametersNode->getChild("max-hp")->getAttribute("start-percentage")->getFloatValue();
+			startHpType= stPercentage;
+		}
+
+		// No start value set; use max HP before upgrades
+		if(!parametersNode->getChild("max-hp")->hasAttribute("start-value") &&
+				!parametersNode->getChild("max-hp")->hasAttribute("start-percentage")) {
+			startHpValue= parametersNode->getChild("max-hp")->getAttribute("value")->getIntValue();
+			startHpType= stValue;
+		}
+		addItemToVault(&(this->startHpPercentage),this->startHpPercentage);
 
 		// Check that we don't use both start-value and start-percentage, as they are mutually
 		// exclusive

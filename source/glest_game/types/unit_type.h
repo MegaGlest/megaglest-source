@@ -109,6 +109,9 @@ private:
 	//basic
 	int id;
 	int maxHp;
+    int startHpValue;
+    double startHpPercentage;
+	StartType startHpType;
 	int hpRegeneration;
     int maxEp;
     int startEpValue;
@@ -186,6 +189,9 @@ public:
     inline int getId() const									{return id;}
     inline int getMaxHp() const								{return maxHp;}
     inline int getHpRegeneration() const						{return hpRegeneration;}
+    inline int getStartHpValue() const						{return startHpValue;}
+    inline double getStartHpPercentage() const						{return startHpPercentage;}
+    inline StartType getStartHpType() const						{return startHpType;}
     inline int getMaxEp() const								{return maxEp;}
     inline int getEpRegeneration() const						{return epRegeneration;}
     inline int getStartEpValue() const						{return startEpValue;}

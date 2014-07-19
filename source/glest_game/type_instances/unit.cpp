@@ -1951,7 +1951,17 @@ void Unit::born(const CommandType *ct) {
 
 	checkItemInVault(&this->hp,this->hp);
 	int original_hp = this->hp;
-	this->hp= type->getMaxHp();
+
+	
+	//set hp from start hp
+	checkItemInVault(&this->ep,this->ep);
+	if(type->getStartHpType() == UnitType::stValue) {
+		this->hp= type->getStartHpValue();
+	}
+	else {
+		this->hp= type->getStartHpPercentage() * type->getTotalMaxHp(&totalUpgrade);
+	}
+
 	if(original_hp != this->hp) {
 		//printf("File: %s line: %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 		game->getScriptManager()->onUnitTriggerEvent(this,utet_HPChanged);
