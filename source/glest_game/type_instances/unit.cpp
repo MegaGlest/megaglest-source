@@ -1959,9 +1959,14 @@ void Unit::born(const CommandType *ct) {
 	}
 	addItemToVault(&this->hp,this->hp);
 
-	//set ep from start-ep tag
+	//set ep from start ep
 	checkItemInVault(&this->ep,this->ep);
-	this->ep= type->getStartEp();
+	if(type->getStartEpType() == UnitType::stValue) {
+		this->ep= type->getStartEpValue();
+	}
+	else {
+		this->ep= type->getStartEpPercentage() * type->getTotalMaxEp(&totalUpgrade);
+	}
 }
 
 void Unit::kill() {

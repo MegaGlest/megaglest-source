@@ -126,7 +126,9 @@ UnitType::UnitType() : ProducibleType() {
 	maxUnitCount= 0;
 	maxHp=0;
 	maxEp=0;
-	startEp=0;
+	startEpValue=0;
+	startEpPercentage=0;
+	startEpType=stValue;
 	armor=0;
 	sight=0;
 	size=0;
@@ -248,12 +250,20 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		}
 		addItemToVault(&(this->epRegeneration),this->epRegeneration);
 
-		//startEp
+		//startEpValue -- the *absolute* value to use for starting EP
 		if(parametersNode->getChild("max-ep")->hasAttribute("start-value")) {
 			//checkItemInVault(&(this->startEp),this->startEp);
-			startEp= parametersNode->getChild("max-ep")->getAttribute("start-value")->getIntValue();
+			startEpValue= parametersNode->getChild("max-ep")->getAttribute("start-value")->getIntValue();
+			startEpType= stValue;
 		}
-		addItemToVault(&(this->startEp),this->startEp);
+		addItemToVault(&(this->startEpValue),this->startEpValue);
+
+		//startEpPercentage -- the *relative* value to use for starting EP
+		if(parametersNode->getChild("max-ep")->hasAttribute("start-percentage")) {
+			startEpPercentage= parametersNode->getChild("max-ep")->getAttribute("start-percentage")->getFloatValue();
+			startEpType= stPercentage;
+		}
+		addItemToVault(&(this->startEpPercentage),this->startEpPercentage);
 
 		//maxUnitCount
 		if(parametersNode->hasChild("max-unit-count")) {
@@ -1108,7 +1118,8 @@ std::string UnitType::toString() const {
 	result += " maxHp = " + intToStr(maxHp);
 	result += " hpRegeneration = " + intToStr(hpRegeneration);
 	result += " maxEp = " + intToStr(maxEp);
-	result += " startEp = " + intToStr(startEp);
+	result += " startEpValue = " + intToStr(startEpValue);
+	result += " startEpPercentage = " + intToStr(startEpPercentage);
 	result += " epRegeneration = " + intToStr(epRegeneration);
 	result += " maxUnitCount = " + intToStr(getMaxUnitCount());
 

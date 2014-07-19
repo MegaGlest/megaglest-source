@@ -92,6 +92,11 @@ public:
 		pCount
 	};
 
+	enum StartType {
+		stValue,
+		stPercentage
+	};
+
 	static const char *propertyNames[];
 	DamageParticleSystemTypes damageParticleSystemTypes;
 private:
@@ -106,7 +111,9 @@ private:
 	int maxHp;
 	int hpRegeneration;
     int maxEp;
-    int startEp;
+    int startEpValue;
+    double startEpPercentage;
+	StartType startEpType;
 	int epRegeneration;
 	int maxUnitCount;
 
@@ -181,7 +188,9 @@ public:
     inline int getHpRegeneration() const						{return hpRegeneration;}
     inline int getMaxEp() const								{return maxEp;}
     inline int getEpRegeneration() const						{return epRegeneration;}
-    inline int getStartEp() const						{return startEp;}
+    inline int getStartEpValue() const						{return startEpValue;}
+    inline double getStartEpPercentage() const						{return startEpPercentage;}
+    inline StartType getStartEpType() const						{return startEpType;}
     inline int getMaxUnitCount() const							{return maxUnitCount;}
     inline bool getField(Field field) const					{return fields[field];}
     inline Field getField() const								{return field;}
