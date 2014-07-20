@@ -110,12 +110,12 @@ private:
 	int id;
 	int maxHp;
     int startHpValue;
-    double startHpPercentage;
+    int startHpPercentage;
 	StartType startHpType;
 	int hpRegeneration;
     int maxEp;
     int startEpValue;
-    double startEpPercentage;
+    int startEpPercentage;
 	StartType startEpType;
 	int epRegeneration;
 	int maxUnitCount;
@@ -190,12 +190,12 @@ public:
     inline int getMaxHp() const								{return maxHp;}
     inline int getHpRegeneration() const						{return hpRegeneration;}
     inline int getStartHpValue() const						{return startHpValue;}
-    inline double getStartHpPercentage() const						{return startHpPercentage;}
+    inline int getStartHpPercentage() const						{return startHpPercentage;}
     inline StartType getStartHpType() const						{return startHpType;}
     inline int getMaxEp() const								{return maxEp;}
     inline int getEpRegeneration() const						{return epRegeneration;}
     inline int getStartEpValue() const						{return startEpValue;}
-    inline double getStartEpPercentage() const						{return startEpPercentage;}
+    inline int getStartEpPercentage() const						{return startEpPercentage;}
     inline StartType getStartEpType() const						{return startEpType;}
     inline int getMaxUnitCount() const							{return maxUnitCount;}
     inline bool getField(Field field) const					{return fields[field];}
