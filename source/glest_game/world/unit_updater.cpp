@@ -2589,16 +2589,16 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 				}
 			
 				if(resource.isNegativeAllowed()) {
-					attacked->getFaction()->incResourceAmount(resource.getResourceType(), -resource.getLossPercentage() * factionTotalResource);
+					attacked->getFaction()->incResourceAmount(resource.getResourceType(), -(factionTotalResource * 100 / resource.getLossPercentage()));
 					attacked->getFaction()->incResourceAmount(resource.getResourceType(), -resource.getLossValue());
-					attacker->getFaction()->incResourceAmount(resource.getResourceType(), resource.getAmountPercentage() * factionTotalResource);
+					attacker->getFaction()->incResourceAmount(resource.getResourceType(), factionTotalResource * 100 / resource.getAmountPercentage());
 					attacker->getFaction()->incResourceAmount(resource.getResourceType(), resource.getAmountValue());
 				}
 				// Can't take more resources than the faction has, otherwise we end up in the negatives
 				else {
-					attacked->getFaction()->incResourceAmount(resource.getResourceType(), -(std::min)(static_cast<int>(resource.getLossPercentage() * factionTotalResource), factionTotalResource));
+					attacked->getFaction()->incResourceAmount(resource.getResourceType(), -(std::min)(factionTotalResource * 100 / resource.getLossPercentage(), factionTotalResource));
 					attacked->getFaction()->incResourceAmount(resource.getResourceType(), -(std::min)(resource.getLossValue(), factionTotalResource));
-					attacker->getFaction()->incResourceAmount(resource.getResourceType(), (std::min)(static_cast<int>(resource.getAmountPercentage() * factionTotalResource), factionTotalResource));
+					attacker->getFaction()->incResourceAmount(resource.getResourceType(), (std::min)(factionTotalResource * 100 / resource.getAmountPercentage(), factionTotalResource));
 					attacker->getFaction()->incResourceAmount(resource.getResourceType(), (std::min)(resource.getAmountValue(), factionTotalResource));
 				}
 			}

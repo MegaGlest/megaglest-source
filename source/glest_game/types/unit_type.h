@@ -73,9 +73,9 @@ class LootableResource {
 private:
 	const ResourceType *type;
 	int amountValue;
-	double amountPercentage;
+	int amountPercentage;
 	int lossValue;
-	double lossPercentage;
+	int lossPercentage;
 	bool negativeAllowed;
 
 public:
@@ -85,14 +85,14 @@ public:
 	int getAmountValue() const {return amountValue;}
 	void setAmountValue(int amountValue) {this->amountValue=amountValue;}
 
-	double getAmountPercentage() const {return amountPercentage;}
-	void setAmountPercentage(double amountPercentage) {this->amountPercentage=amountPercentage;}
+	int getAmountPercentage() const {return amountPercentage;}
+	void setAmountPercentage(int amountPercentage) {this->amountPercentage=amountPercentage;}
 
 	int getLossValue() const {return lossValue;}
 	void setLossValue(int lossValue) {this->lossValue=lossValue;}
 
-	double getLossPercentage() const {return lossPercentage;}
-	void setLossPercentage(double lossPercentage) {this->lossPercentage=lossPercentage;}
+	int getLossPercentage() const {return lossPercentage;}
+	void setLossPercentage(int lossPercentage) {this->lossPercentage=lossPercentage;}
 
 	bool isNegativeAllowed() const {return negativeAllowed;}
 	void setNegativeAllowed(bool negativeAllowed) {this->negativeAllowed=negativeAllowed;}

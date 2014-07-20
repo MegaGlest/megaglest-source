@@ -614,7 +614,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 				}
 				
 				if(resourceNode->hasAttribute("amount-percentage")) {
-					resource.setAmountPercentage(resourceNode->getAttribute("amount-percentage")->getFloatValue());
+					resource.setAmountPercentage(resourceNode->getAttribute("amount-percentage")->getIntValue());
 				}
 				else {
 					resource.setAmountPercentage(0);
@@ -628,7 +628,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 				}
 				
 				if(resourceNode->hasAttribute("loss-percentage")) {
-					resource.setLossPercentage(resourceNode->getAttribute("loss-percentage")->getFloatValue());
+					resource.setLossPercentage(resourceNode->getAttribute("loss-percentage")->getIntValue());
 				}
 				else {
 					resource.setLossPercentage(0);
