@@ -271,7 +271,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 
 		//startHpPercentage -- the *relative* value to use for starting HP
 		if(parametersNode->getChild("max-hp")->hasAttribute("start-percentage")) {
-			startHpPercentage= parametersNode->getChild("max-hp")->getAttribute("start-percentage")->getFloatValue();
+			startHpPercentage= parametersNode->getChild("max-hp")->getAttribute("start-percentage")->getIntValue();
 			startHpType= stPercentage;
 		}
 
@@ -301,7 +301,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 
 		//startEpPercentage -- the *relative* value to use for starting EP
 		if(parametersNode->getChild("max-ep")->hasAttribute("start-percentage")) {
-			startEpPercentage= parametersNode->getChild("max-ep")->getAttribute("start-percentage")->getFloatValue();
+			startEpPercentage= parametersNode->getChild("max-ep")->getAttribute("start-percentage")->getIntValue();
 			startEpType= stPercentage;
 		}
 		addItemToVault(&(this->startEpPercentage),this->startEpPercentage);

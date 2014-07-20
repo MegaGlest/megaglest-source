@@ -1959,7 +1959,7 @@ void Unit::born(const CommandType *ct) {
 		this->hp= type->getStartHpValue();
 	}
 	else {
-		this->hp= type->getStartHpPercentage() * type->getTotalMaxHp(&totalUpgrade);
+		this->hp= type->getTotalMaxHp(&totalUpgrade) * 100 / type->getStartHpPercentage();
 	}
 
 	if(original_hp != this->hp) {
@@ -1975,7 +1975,7 @@ void Unit::born(const CommandType *ct) {
 		this->ep= type->getStartEpValue();
 	}
 	else {
-		this->ep= type->getStartEpPercentage() * type->getTotalMaxEp(&totalUpgrade);
+		this->ep= type->getTotalMaxEp(&totalUpgrade) * 100 / type->getStartEpPercentage();
 	}
 }
 
