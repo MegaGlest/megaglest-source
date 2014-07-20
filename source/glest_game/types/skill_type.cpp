@@ -935,6 +935,16 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	}
 }
 
+int AttackSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
+	int result = speed + totalUpgrade->getAttackSpeed(this);
+	result = max(0,result);
+	return result;
+}
+
+int AttackSkillType::getAnimSpeedBoost(const TotalUpgrade *totalUpgrade) const{
+	return totalUpgrade->getAttackSpeed(this);
+}
+
 string AttackSkillType::toString(bool translatedValue) const{
 	if(translatedValue == false) {
 		return "Attack";

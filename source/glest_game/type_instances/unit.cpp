@@ -2615,7 +2615,15 @@ bool Unit::update() {
 		int64 heightFactor   = getHeightFactor(ANIMATION_SPEED_MULTIPLIER);
 		int64 speedDenominator = speedDivider *
 				game->getWorld()->getUpdateFps(this->getFactionIndex());
-		int64 progressIncrease = (currSkill->getAnimSpeed() * heightFactor) / speedDenominator;
+		
+		// Override the animation speed for attacks that have upgraded the attack speed
+		int animSpeed = currSkill->getAnimSpeed();
+		if(currSkill->getClass() == scAttack) {
+			int animSpeedBoost = ((AttackSkillType *) currSkill)->getAnimSpeedBoost(&totalUpgrade);
+			animSpeed += animSpeedBoost;
+		}
+
+		int64 progressIncrease = (animSpeed * heightFactor) / speedDenominator;
 		// Ensure we increment at least a value of 1 of the action will be stuck infinitely
 		if(currSkill->getAnimSpeed() > 0 && heightFactor > 0 && progressIncrease == 0) {
 			progressIncrease = 1;

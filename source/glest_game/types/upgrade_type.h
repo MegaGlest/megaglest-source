@@ -80,6 +80,10 @@ protected:
     std::map<string,int> prodSpeedUpgradeIsMultiplierValueList;
     std::map<string,int> prodSpeedMorphIsMultiplierValueList;
 
+	int attackSpeed;
+	bool attackSpeedIsMultiplier;
+	std::map<string,int> attackSpeedIsMultiplierValueList;
+
 public:
     UpgradeTypeBase() {
         maxHp = 0;;
@@ -127,6 +131,8 @@ public:
 	bool getMoveSpeedIsMultiplier() const		{return moveSpeedIsMultiplier;}
 	int getProdSpeed(const SkillType *st) const;
 	bool getProdSpeedIsMultiplier() const		{return prodSpeedIsMultiplier;}
+	int getAttackSpeed(const AttackSkillType *st) const;
+	bool getAttackSpeedIsMultiplier() const		{return attackSpeedIsMultiplier;}
 
 	void load(const XmlNode *upgradeNode, string upgradename);
 
@@ -207,6 +213,9 @@ public:
 	    crcForUpgradeType.addInt64((int64)prodSpeedUpgradeIsMultiplierValueList.size());
 	    //std::map<string,int> prodSpeedMorphIsMultiplierValueList;
 	    crcForUpgradeType.addInt64((int64)prodSpeedMorphIsMultiplierValueList.size());
+		
+	    crcForUpgradeType.addInt(attackSpeed);
+	    crcForUpgradeType.addInt(attackSpeedIsMultiplier);
 
 		return crcForUpgradeType;
 	}
