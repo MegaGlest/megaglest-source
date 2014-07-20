@@ -31,7 +31,7 @@ ProjectileType::ProjectileType() {
     shakeVisible=true;
     shakeInCameraView=true;
     shakeCameraDistanceAffected=false;
-
+    damagePercentage=100;
 }
 
 ProjectileType::~ProjectileType() {
@@ -55,6 +55,10 @@ void ProjectileType::load(const XmlNode *projectileNode, const string &dir, cons
 	{
 		attackStartTime=0.0f;
 	}
+
+	// damage percentage MUST be set!
+	damagePercentage =projectileNode->getAttribute("damage-percentage")->getIntValue();
+
 
 	// projectiles MUST have a particle system.
 	const XmlNode *particleNode= projectileNode->getChild("particle");

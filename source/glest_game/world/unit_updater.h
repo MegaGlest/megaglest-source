@@ -141,8 +141,8 @@ public:
 private:
     //attack
     void hit(Unit *attacker);
-	void hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &targetPos, Field targetField);
-	void damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance);
+	void hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &targetPos, Field targetField, int damagePercent);
+	void damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance, int damagePercent);
 	void startAttackParticleSystem(Unit *unit, float lastAnimProgress, float animProgress);
 
 	//misc

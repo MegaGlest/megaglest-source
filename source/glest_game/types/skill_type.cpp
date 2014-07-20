@@ -910,6 +910,7 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 				ProjectileType *projectileType=new ProjectileType();
 				projectileTypes.push_back(projectileType);
 				projectileType->setAttackStartTime(attackStartTime);
+				projectileType->setDamagePercentage(100);
 			//proj particle
 			if(projectileNode->hasChild("particle")){
 				const XmlNode *particleNode= projectileNode->getChild("particle");
@@ -945,14 +946,20 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	else {
 		const XmlNode *projectilesNode= sn->getChild("projectiles");
 		vector<XmlNode *> projectilesNodeList = projectilesNode->getChildList("projectile");
+		int totalDamagePercentage=0;
 		for(unsigned int i = 0; i < projectilesNodeList.size(); ++i) {
 			const XmlNode *projectileNode= projectilesNodeList[i];
 			ProjectileType *projectileType=new ProjectileType();
 			projectileType->load(projectileNode,dir, tt->getPath(), loadedFileList, parentLoader);
-
+			totalDamagePercentage += projectileType->getDamagePercentage();
 			projectileTypes.push_back(projectileType);
 			projectile=true;
 		}
+
+		if(totalDamagePercentage!=100){
+			throw megaglest_runtime_error("Damages percentages of projectiles don't sum up to 100 %");
+		}
+
 		//general hit sounds, individual ones can be set in projectiles
 		const XmlNode *soundNode= sn->getChild("hitsound");
 		if(soundNode->getAttribute("enabled")->getBoolValue()){

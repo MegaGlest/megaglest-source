@@ -48,6 +48,7 @@ protected:
     bool shakeVisible;
     bool shakeInCameraView;
     bool shakeCameraDistanceAffected;
+    int damagePercentage;
 
 public:
 	ProjectileType();
@@ -69,6 +70,8 @@ public:
 	bool isShakeInCameraView() const{return shakeInCameraView;}
 	int getShakeIntensity() const{return shakeIntensity;}
 	bool isShakeVisible() const{return shakeVisible;}
+	int getDamagePercentage() const {return damagePercentage;}
+	void setDamagePercentage(int value)  {damagePercentage=value;}
 
 	void setProjectileParticleSystemType(ParticleSystemTypeProjectile *pointer) {projectileParticleSystemType=pointer;}
 	ParticleSystemTypeProjectile* getProjectileParticleSystemType() {return projectileParticleSystemType;}

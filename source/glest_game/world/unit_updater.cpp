@@ -2501,10 +2501,10 @@ void UnitUpdater::updateSwitchTeam(Unit *unit, int frameIndex) {
 // ==================== attack ====================
 
 void UnitUpdater::hit(Unit *attacker){
-	hit(attacker, dynamic_cast<const AttackSkillType*>(attacker->getCurrSkill()), attacker->getTargetPos(), attacker->getTargetField());
+	hit(attacker, dynamic_cast<const AttackSkillType*>(attacker->getCurrSkill()), attacker->getTargetPos(), attacker->getTargetField(),100);
 }
 
-void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &targetPos, Field targetField){
+void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &targetPos, Field targetField, int damagePercent){
 	//hit attack positions
 	if(ast != NULL && ast->getSplash()) {
 		char szBuf[8096]="";
@@ -2524,7 +2524,7 @@ void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &t
 
 					float distance = pci.getPos().dist(targetPos);
 					distance = truncateDecimal<float>(distance,6);
-					damage(attacker, ast, attacked, distance);
+					damage(attacker, ast, attacked, distance,damagePercent);
 			  	}
 			}
 		}
@@ -2537,12 +2537,12 @@ void UnitUpdater::hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &t
 		attacker->addNetworkCRCDecHp(szBuf);
 
 		if(attacked != NULL) {
-			damage(attacker, ast, attacked, 0.f);
+			damage(attacker, ast, attacked, 0.f,damagePercent);
 		}
 	}
 }
 
-void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance) {
+void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance, int damagePercent) {
 	if(attacker == NULL) {
 		throw megaglest_runtime_error("attacker == NULL");
 	}
@@ -2568,6 +2568,7 @@ void UnitUpdater::damage(Unit *attacker, const AttackSkillType* ast, Unit *attac
 	damage *= damageMultiplier;
 	damage = truncateDecimal<float>(damage,6);
 
+	damage = (damage*damagePercent)/100;
 	if(damage < 1) {
 		damage= 1;
 	}
@@ -3249,7 +3250,7 @@ void ParticleDamager::update(ParticleSystem *particleSystem) {
 		snprintf(szBuf,8095,"Unit hitting [ParticleDamager::update] [%s] targetField = %d",targetPos.getString().c_str(),targetField);
 		attacker->addNetworkCRCDecHp(szBuf);
 
-		unitUpdater->hit(attacker, ast, targetPos, targetField);
+		unitUpdater->hit(attacker, ast, targetPos, targetField, projectileType->getDamagePercentage());
 
 		//char szBuf[8096]="";
 		//snprintf(szBuf,8095,"ParticleDamager::update attacker particleSystem before: %s\nafter: %s",auditBeforeHit.c_str(),particleSystem->toString().c_str());
