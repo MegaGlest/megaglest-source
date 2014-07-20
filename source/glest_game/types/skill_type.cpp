@@ -275,11 +275,26 @@ void AttackBoost::saveGame(XmlNode *rootNode) const {
 }
 
 // =====================================================
+// 	class SkillSound
+// =====================================================
+SkillSound::SkillSound(){
+	startTime=0.0f;
+}
+SkillSound::~SkillSound()
+{
+	deleteValues(soundContainer.getSounds().begin(), soundContainer.getSounds().end());
+	startTime=0.0f;
+	//soundContainer
+}
+// =====================================================
 // 	class SkillType
 // =====================================================
 
 SkillType::~SkillType() {
-	deleteValues(sounds.getSounds().begin(), sounds.getSounds().end());
+	while(!skillSoundList.empty()) {
+		    delete skillSoundList.back();
+			skillSoundList.pop_back();
+		}
 	//remove unitParticleSystemTypes
 	while(!unitParticleSystemTypes.empty()) {
 		delete unitParticleSystemTypes.back();
@@ -505,11 +520,16 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	}
 
 	//sound
-	if(sn->hasChild("sound")) {
-		const XmlNode *soundNode= sn->getChild("sound");
+	vector<XmlNode *> soundNodeList = sn->getChildList("sound");
+	for(unsigned int i = 0; i < soundNodeList.size(); ++i) {
+		const XmlNode *soundNode= soundNodeList[i];
 		if(soundNode->getAttribute("enabled")->getBoolValue()) {
-			soundStartTime= soundNode->getAttribute("start-time")->getFloatValue();
-			sounds.resize((int)soundNode->getChildCount());
+			float soundStartTime= soundNode->getAttribute("start-time")->getFloatValue();
+			SkillSound *skillSound = new SkillSound();
+			skillSound->setStartTime(soundStartTime);
+
+			skillSound->getSoundContainer()->resize((int)soundNode->getChildCount());
+			skillSoundList.push_back(skillSound);
 			for(int i = 0; i < (int)soundNode->getChildCount(); ++i) {
 				const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
 				string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
@@ -517,7 +537,7 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 				StaticSound *sound= new StaticSound();
 				sound->load(path);
 				loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
-				sounds[i]= sound;
+				(*skillSound->getSoundContainer())[i]= sound;
 			}
 		}
 	}
@@ -744,7 +764,7 @@ void SkillType::saveGame(XmlNode *rootNode) {
 //
 //    SoundContainer sounds;
 //	float soundStartTime;
-	skillTypeNode->addAttribute("soundStartTime",floatToStr(soundStartTime,6), mapTagReplacements);
+//	skillTypeNode->addAttribute("soundStartTime",floatToStr(soundStartTime,6), mapTagReplacements);
 //	RandomGen random;
 	skillTypeNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
 //	AttackBoost attackBoost;
@@ -1297,6 +1317,15 @@ void DieSkillType::saveGame(XmlNode *rootNode) {
 	XmlNode *dieSkillTypeNode = rootNode->addChild("DieSkillType");
 
 	dieSkillTypeNode->addAttribute("fade",intToStr(fade), mapTagReplacements);
+}
+
+StaticSound *DieSkillType::getSound() const{
+	if(skillSoundList.size()==0){
+		return NULL;
+	}
+	else {
+		return skillSoundList.front()->getSoundContainer()->getRandSound();
+	}
 }
 
 

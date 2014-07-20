@@ -125,8 +125,29 @@ public:
 	int toHp;
 };
 
+// =====================================================
+// 	class SkillSound
+// 	holds the start time and a SoundContainer
+// =====================================================
+
+class SkillSound{
+private:
+	SoundContainer soundContainer;
+	float startTime;
+
+public:
+	SkillSound();
+	~SkillSound();
+
+	SoundContainer *getSoundContainer() 	{return &soundContainer;}
+	float getStartTime() const 	{return startTime;}
+	void setStartTime(float value)  	{startTime=value;}
+};
+
+typedef list<SkillSound*> SkillSoundList;
+
 class SkillType {
-    
+
 protected:
     SkillClass skillClass;
 	string name;
@@ -157,8 +178,7 @@ protected:
     vector<Model *> animations;
     vector<AnimationAttributes> animationAttributes;
 
-    SoundContainer sounds;
-	float soundStartTime;
+    SkillSoundList skillSoundList;
 	RandomGen random;
 	AttackBoost attackBoost;
 
@@ -197,13 +217,13 @@ public:
 	int getSpeed() const				{return speed;}
 	int getAnimSpeed() const			{return animSpeed;}
 	Model *getAnimation(float animProgress=0, const Unit *unit=NULL, int *lastAnimationIndex=NULL, int *animationRandomCycleCount=NULL) const;
-	StaticSound *getSound() const		{return sounds.getRandSound();}
-	float getSoundStartTime() const		{return soundStartTime;}
 
 	float getShakeStartTime() const		{return shakeStartTime;}
 	bool getShake() const	{return shake;}
     int getShakeIntensity() const	{return shakeIntensity;}
     int getShakeDuration() const	{return shakeDuration;}
+
+    const SkillSoundList * getSkillSoundList()	const	{return &skillSoundList;}
 
 	bool getShakeSelfEnabled() const	{return shakeSelfEnabled;}
 	bool getShakeSelfVisible() const	{return shakeSelfVisible;}
@@ -450,6 +470,7 @@ public:
 	virtual string toString(bool translatedValue) const;
 
 	virtual void saveGame(XmlNode *rootNode);
+	StaticSound *getSound() const;
 };
 
 // ===============================

@@ -128,15 +128,17 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 
 	//play skill sound
 	const SkillType *currSkill= unit->getCurrSkill();
-	if(currSkill->getSound() != NULL) {
-		float soundStartTime= currSkill->getSoundStartTime();
+
+	for(SkillSoundList::const_iterator it= currSkill->getSkillSoundList()->begin(); it != currSkill->getSkillSoundList()->end(); ++it) {
+		float soundStartTime= (*it)->getStartTime();
 		if(soundStartTime >= unit->getLastAnimProgressAsFloat() && soundStartTime < unit->getAnimProgressAsFloat()) {
 			if(map->getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(world->getThisTeamIndex()) ||
 				(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
-				soundRenderer.playFx(currSkill->getSound(), unit->getCurrVector(), gameCamera->getPos());
+				soundRenderer.playFx((*it)->getSoundContainer()->getRandSound(), unit->getCurrVector(), gameCamera->getPos());
 			}
 		}
 	}
+
 
 	if (currSkill->getShake()) {
 		float shakeStartTime = currSkill->getShakeStartTime();

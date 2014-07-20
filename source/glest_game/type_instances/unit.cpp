@@ -2937,7 +2937,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 				Unit::game->getWorld()->getStats()->die(getFactionIndex(),getType()->getCountUnitDeathInStats());
 				game->getScriptManager()->onUnitDied(this);
 
-				StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
+				StaticSound *sound= static_cast<const DieSkillType *>(this->getType()->getFirstStOfClass(scDie))->getSound();
 				if(sound != NULL &&
 					(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
 					 (game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
@@ -3035,7 +3035,7 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 			Unit::game->getWorld()->getStats()->die(getFactionIndex(),getType()->getCountUnitDeathInStats());
 			game->getScriptManager()->onUnitDied(this);
 
-			StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
+			StaticSound *sound= static_cast<const DieSkillType *>(this->getType()->getFirstStOfClass(scDie))->getSound();
 			if(sound != NULL &&
 				(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
 				 (game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
@@ -3107,7 +3107,7 @@ void Unit::tick() {
 						Unit::game->getWorld()->getStats()->die(getFactionIndex(),getType()->getCountUnitDeathInStats());
 						game->getScriptManager()->onUnitDied(this);
 					}
-					StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
+					StaticSound *sound= static_cast<const DieSkillType *>(this->getType()->getFirstStOfClass(scDie))->getSound();
 					if(sound != NULL &&
 							(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
 									(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
@@ -3146,7 +3146,7 @@ void Unit::tick() {
 					Unit::game->getWorld()->getStats()->die(getFactionIndex(),getType()->getCountUnitDeathInStats());
 					game->getScriptManager()->onUnitDied(this);
 				}
-				StaticSound *sound= this->getType()->getFirstStOfClass(scDie)->getSound();
+				StaticSound *sound= static_cast<const DieSkillType *>(this->getType()->getFirstStOfClass(scDie))->getSound();
 				if(sound != NULL &&
 					(this->getFactionIndex() == Unit::game->getWorld()->getThisFactionIndex() ||
 					 (game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true))) {
