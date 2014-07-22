@@ -9,6 +9,14 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+/**
+ * @file
+ * Classified the Upgrade type (which is sort of like a class for upgrades). Each upgrade has a
+ * type that details the stats that it boosts and the units that it affects. Also has TotalUpgrade,
+ * which is a sum of all upgrades applied to a particular unit (and is what determines how units
+ * stats are modified by an upgrade.
+ */
+
 #ifndef _GLEST_GAME_UPGRADETYPE_H_
 #define _GLEST_GAME_UPGRADETYPE_H_
 

@@ -9,6 +9,13 @@
 //	License, or (at your option) any later version
 // ==============================================================
 
+/**
+ * @file
+ * Contains the Upgrade and UpgradeManager classes. This is what the factions need to manage
+ * upgrades (including starting, canceling, and finishing upgrades, figuring out which
+ * upgrades we have done, etc).
+ */
+
 #ifndef _GLEST_GAME_UPGRADE_H_
 #define _GLEST_GAME_UPGRADE_H_
 
@@ -36,6 +43,7 @@ class Faction;
 /**
  * Stores the state of the upgrade (whether or not the upgrading process is complete).
  */
+// TODO: Don't make this global; move it inside Upgrade
 enum UpgradeState {
 	usUpgrading, /**< The upgrade is currently in progress. */
 	usUpgraded, /**< The upgrade is completed. */
