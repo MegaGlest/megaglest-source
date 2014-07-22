@@ -597,7 +597,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		if(parametersNode->hasChild("resources-death")) {
 			const XmlNode *deathResourcesNode= parametersNode->getChild("resources-death");
 
-			for(int i=0; i < deathResourcesNode->getChildCount(); ++i){
+			for(uint i=0; i < deathResourcesNode->getChildCount(); ++i){
 				const XmlNode *resourceNode= deathResourcesNode->getChild("resource", i);
 				string name= resourceNode->getAttribute("name")->getRestrictedValue();
 
@@ -613,11 +613,11 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 					resource.setAmountValue(0);
 				}
 				
-				if(resourceNode->hasAttribute("faction-amount-percentage")) {
-					resource.setAmountPercentage(resourceNode->getAttribute("faction-amount-percentage")->getIntValue());
+				if(resourceNode->hasAttribute("amount-faction-percent")) {
+					resource.setAmountFactionPercent(resourceNode->getAttribute("amount-faction-percent")->getIntValue());
 				}
 				else {
-					resource.setAmountPercentage(0);
+					resource.setAmountFactionPercent(0);
 				}
 
 				if(resourceNode->hasAttribute("loss-value")) {
@@ -627,11 +627,11 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 					resource.setLossValue(0);
 				}
 				
-				if(resourceNode->hasAttribute("faction-loss-percentage")) {
-					resource.setLossPercentage(resourceNode->getAttribute("faction-loss-percentage")->getIntValue());
+				if(resourceNode->hasAttribute("loss-faction-percent")) {
+					resource.setLossFactionPercent(resourceNode->getAttribute("loss-faction-percent")->getIntValue());
 				}
 				else {
-					resource.setLossPercentage(0);
+					resource.setLossFactionPercent(0);
 				}
 				
 				if(resourceNode->hasAttribute("allow-negative")) {
