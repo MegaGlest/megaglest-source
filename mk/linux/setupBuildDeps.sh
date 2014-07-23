@@ -187,7 +187,7 @@ case $distribution in
 				$installcommand
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi 
 				;;
-			12.2)
+			12.2|13.1)
 				installcommand='zypper install gcc gcc-c++ cmake libSDL-devel Mesa-libGL-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel'
 				$installcommand
 				if [ $? != 0 ]; then error_during_installation; exit 1; fi
