@@ -597,7 +597,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		if(parametersNode->hasChild("resources-death")) {
 			const XmlNode *deathResourcesNode= parametersNode->getChild("resources-death");
 
-			for(uint i=0; i < deathResourcesNode->getChildCount(); ++i){
+			for(int i=0; i < deathResourcesNode->getChildCount(); ++i){
 				const XmlNode *resourceNode= deathResourcesNode->getChild("resource", i);
 				string name= resourceNode->getAttribute("name")->getRestrictedValue();
 

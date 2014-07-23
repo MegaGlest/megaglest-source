@@ -35,8 +35,8 @@ using namespace Shared::Util;
 
 namespace Glest{ namespace Game{
 
-const uint CHANGE_COMMAND_SPEED 					= 325;
-const uint MIN_FRAMECOUNT_CHANGE_COMMAND_SPEED	= 160;
+const int CHANGE_COMMAND_SPEED 					= 325;
+const int MIN_FRAMECOUNT_CHANGE_COMMAND_SPEED	= 160;
 
 //Mutex Unit::mutexDeletedUnits;
 //map<void *,bool> Unit::deletedUnits;
