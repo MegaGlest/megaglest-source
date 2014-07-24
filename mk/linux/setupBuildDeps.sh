@@ -180,7 +180,7 @@ case $distribution in
 		esac
 		;;
 
-	SuSE|SUSE?LINUX|Opensuse) 
+	SuSE|SUSE?LINUX|Opensuse*|openSUSE*) 
 		case $release in
 			11.2|11.3|11.4|12.1)
 				installcommand='zypper install gcc gcc-c++ cmake libSDL-devel MesaGLw-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel'
