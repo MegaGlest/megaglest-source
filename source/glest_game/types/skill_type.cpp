@@ -504,11 +504,18 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 				unitParticleSystemType->load(particleFileNode, dir, currentPath + path, &Renderer::getInstance(),
 						loadedFileList,parentLoader,tt->getPath());
 
-				if(particleNode->getAttribute("start-time",false) != NULL) {
+				if (particleNode->getChild(i)->hasAttribute("start-time")) {
+					//printf("*NOTE particle system type has start-time [%f]\n",particleNode->getAttribute("start-time")->getFloatValue());
+					unitParticleSystemType->setStartTime(particleNode->getChild(i)->getAttribute("start-time")->getFloatValue());
+				} else if (particleNode->hasAttribute("start-time")) {
 					//printf("*NOTE particle system type has start-time [%f]\n",particleNode->getAttribute("start-time")->getFloatValue());
 					unitParticleSystemType->setStartTime(particleNode->getAttribute("start-time")->getFloatValue());
 				}
-				if(particleNode->getAttribute("end-time",false) != NULL) {
+
+				if (particleNode->getChild(i)->hasAttribute("end-time")) {
+					//printf("*NOTE particle system type has start-time [%f]\n",particleNode->getAttribute("start-time")->getFloatValue());
+					unitParticleSystemType->setEndTime(particleNode->getChild(i)->getAttribute("end-time")->getFloatValue());
+				} else if (particleNode->hasAttribute("end-time")) {
 					//printf("*NOTE particle system type has end-time [%f]\n",particleNode->getAttribute("end-time")->getFloatValue());
 					unitParticleSystemType->setEndTime(particleNode->getAttribute("end-time")->getFloatValue());
 				}
