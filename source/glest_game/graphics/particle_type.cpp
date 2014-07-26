@@ -57,6 +57,8 @@ ParticleSystemType::ParticleSystemType() {
     size=0;
     sizeNoEnergy=0;
     speed=0;
+    speedUpRelative=0;
+    speedUpConstant=0;
 	gravity=0;
 	emissionRate=0;
 	energyMax=0;
@@ -107,6 +109,8 @@ void ParticleSystemType::copyAll(const ParticleSystemType &src) {
 	this->size				= src.size;
 	this->sizeNoEnergy		= src.sizeNoEnergy;
 	this->speed				= src.speed;
+	this->speedUpRelative	= src.speedUpRelative;
+	this->speedUpConstant	= src.speedUpConstant;
 	this->gravity			= src.gravity;
 	this->emissionRate		= src.emissionRate;
 	this->energyMax			= src.energyMax;
@@ -220,6 +224,17 @@ void ParticleSystemType::load(const XmlNode *particleSystemNode, const string &d
 	const XmlNode *speedNode= particleSystemNode->getChild("speed");
 	speed= speedNode->getAttribute("value")->getFloatValue()/GameConstants::updateFps;
 
+	//speedUp
+    if(particleSystemNode->hasChild("speedUp")){
+    	const XmlNode *speedUpNode= particleSystemNode->getChild("speedUp");
+    	if(speedUpNode->hasAttribute("relative")){
+    		speedUpRelative= speedUpNode->getAttribute("relative")->getFloatValue();
+    	}
+    	if(speedUpNode->hasAttribute("constant")){
+    		speedUpConstant= speedUpNode->getAttribute("constant")->getFloatValue();
+    	}
+    }
+
 	//gravity
 	const XmlNode *gravityNode= particleSystemNode->getChild("gravity");
 	gravity= gravityNode->getAttribute("value")->getFloatValue()/GameConstants::updateFps;
@@ -300,6 +315,8 @@ void ParticleSystemType::setValues(AttackParticleSystem *ats){
 	ats->setColor(color);
 	ats->setColorNoEnergy(colorNoEnergy);
 	ats->setSpeed(speed);
+	ats->setSpeedUpRelative(speedUpRelative);
+	ats->setSpeedUpConstant(speedUpConstant);
 	ats->setGravity(gravity);
 	ats->setParticleSize(size);
 	ats->setSizeNoEnergy(sizeNoEnergy);
@@ -328,6 +345,8 @@ void ParticleSystemType::loadGame(const XmlNode *rootNode) {
 	size = particleSystemTypeNode->getAttribute("size")->getFloatValue();
 	sizeNoEnergy = particleSystemTypeNode->getAttribute("sizeNoEnergy")->getFloatValue();
 	speed = particleSystemTypeNode->getAttribute("speed")->getFloatValue();
+	speedUpRelative = particleSystemTypeNode->getAttribute("speedUpRelative")->getFloatValue();
+	speedUpConstant = particleSystemTypeNode->getAttribute("speedUpConstant")->getFloatValue();
 	gravity = particleSystemTypeNode->getAttribute("gravity")->getFloatValue();
 	emissionRate = particleSystemTypeNode->getAttribute("emissionRate")->getFloatValue();
 	energyMax = particleSystemTypeNode->getAttribute("energyMax")->getIntValue();
@@ -379,6 +398,10 @@ void ParticleSystemType::saveGame(XmlNode *rootNode) {
 	particleSystemTypeNode->addAttribute("sizeNoEnergy",floatToStr(sizeNoEnergy,6), mapTagReplacements);
 //	float speed;
 	particleSystemTypeNode->addAttribute("speed",floatToStr(speed,6), mapTagReplacements);
+//	float speedUpRelative;
+	particleSystemTypeNode->addAttribute("speedUpRelative",floatToStr(speedUpRelative,6), mapTagReplacements);
+//	float speedUpConstant;
+	particleSystemTypeNode->addAttribute("speedUpConstant",floatToStr(speedUpConstant,6), mapTagReplacements);
 //	float gravity;
 	particleSystemTypeNode->addAttribute("gravity",floatToStr(gravity,6), mapTagReplacements);
 //	float emissionRate;
