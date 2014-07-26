@@ -1135,7 +1135,7 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->speedUpRelative= speedUpRelative;
 	p->accel= Vec3f(0.0f, -gravity, 0.0f);
 	p->accel.x = truncateDecimal<float>(p->accel.x,6);
-	p->accel.y = truncateDecimal<float>(p->accel.y-gravity,6);
+	p->accel.y = truncateDecimal<float>(p->accel.y,6);
 	p->accel.z = truncateDecimal<float>(p->accel.z,6);
 	
 	// work out where we start for our shape (set speed and pos)
