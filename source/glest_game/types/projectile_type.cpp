@@ -24,6 +24,10 @@ ProjectileType::ProjectileType() {
 	projectileParticleSystemType=NULL;
 	attackStartTime=0.0f;
 
+	spawnUnit="";
+	spawnUnitcount=0;
+	spawnUnitAtTarget=false;
+
 	shake=false;
 	shakeIntensity=0;
 	shakeDuration=0;
@@ -69,6 +73,22 @@ void ProjectileType::load(const XmlNode *projectileNode, const string &dir, cons
 			techtreepath);
 			loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleNode->getAttribute("path")->getRestrictedValue()));
 	setProjectileParticleSystemType(projectileParticleSystemType);
+
+	//spawnattack
+	if (projectileNode->hasChild("unit")) {
+		spawnUnit = projectileNode->getChild("unit")->getAttribute("value")->getValue();
+		spawnUnitcount = projectileNode->getChild("unit")->getAttribute("amount")->getIntValue();
+		if(projectileNode->getChild("unit")->hasAttribute("spawnAtTarget")) {
+			spawnUnitAtTarget = projectileNode->getChild("unit")->getAttribute("spawnAtTarget")->getBoolValue();
+		} else {
+			spawnUnitAtTarget = false;
+		}
+	} else {
+		spawnUnit = "";
+		spawnUnitcount = 0;
+		spawnUnitAtTarget = false;
+	}
+
 
 	if(projectileNode->hasChild("hitshake")){
 		const XmlNode *hitShakeNode= projectileNode->getChild("hitshake");
