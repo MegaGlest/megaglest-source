@@ -298,7 +298,13 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 								                Vec2i(0), spawnUnitType, unit->getFaction(),
 								                world->getMap(), CardinalDir::NORTH);
 						//SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] about to place unit for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,spawned->toString().c_str());
-						if(!world->placeUnit(unit->getCenteredPos(), 10, spawned)) {
+						bool placedSpawnUnit=false;
+						if(act->getAttackSkillType()->getSpawnUnitAtTarget()) {
+							placedSpawnUnit=world->placeUnit(unit->getTargetPos(), 10, spawned);
+						} else {
+							placedSpawnUnit=world->placeUnit(unit->getCenteredPos(), 10, spawned);
+						}
+						if(!placedSpawnUnit) {
 							//SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] COULD NOT PLACE UNIT for unitID [%d]\n",__FILE__,__FUNCTION__,__LINE__,spawned->getId());
 
 							// This will also cleanup newPath
@@ -309,10 +315,10 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 							spawned->create();
 							spawned->born(ct);
 							world->getStats()->produce(unit->getFactionIndex(),spawned->getType()->getCountUnitProductionInStats());
-							const CommandType *ct= spawned->computeCommandType(command->getPos(),command->getUnit());
+							const CommandType *ct= spawned->computeCommandType(unit->getTargetPos(),map->getCell(unit->getTargetPos())->getUnit(unit->getTargetField()));
 							if(ct != NULL){
 								if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-								spawned->giveCommand(new Command(ct, unit->getMeetingPos()));
+								spawned->giveCommand(new Command(ct, unit->getTargetPos()));
 							}
 							scriptManager->onUnitCreated(spawned);
 

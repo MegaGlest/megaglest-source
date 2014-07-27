@@ -292,6 +292,7 @@ private:
 
 	string spawnUnit;
 	int spawnUnitcount;
+	bool spawnUnitAtTarget;
     bool projectile;
     //ParticleSystemTypeProjectile* projectileParticleSystemType;
 	SoundContainer projSounds;
@@ -318,6 +319,7 @@ public:
 	inline float getAttackStartTime() const			{return attackStartTime;}
 	inline string getSpawnUnit() const					{return spawnUnit;}
 	inline int getSpawnUnitCount() const				{return spawnUnitcount;}
+	inline bool getSpawnUnitAtTarget() const			{return spawnUnitAtTarget;}
 
 	//get proj
 	inline bool getProjectile() const									{return projectile;}
