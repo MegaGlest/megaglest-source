@@ -967,20 +967,22 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 			throw megaglest_runtime_error("Damages percentages of projectiles don't sum up to 100 %");
 		}
 
-		//general hit sounds, individual ones can be set in projectiles
-		const XmlNode *soundNode= sn->getChild("hitsound");
-		if(soundNode->getAttribute("enabled")->getBoolValue()){
+		if(sn->hasChild("hitsound")==true){
+			//general hit sounds, individual ones can be set in projectiles
+			const XmlNode *soundNode= sn->getChild("hitsound");
+			if(soundNode->getAttribute("enabled")->getBoolValue()){
 
-			projSounds.resize((int)soundNode->getChildCount());
-			for(int i=0; i < (int)soundNode->getChildCount(); ++i){
-				const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
-				string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
-				//printf("\n\n\n\n!@#$ ---> parentLoader [%s] path [%s] nodeValue [%s] i = %d",parentLoader.c_str(),path.c_str(),soundFileNode->getAttribute("path")->getRestrictedValue().c_str(),i);
+				projSounds.resize((int)soundNode->getChildCount());
+				for(int i=0; i < (int)soundNode->getChildCount(); ++i){
+					const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
+					string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
+					//printf("\n\n\n\n!@#$ ---> parentLoader [%s] path [%s] nodeValue [%s] i = %d",parentLoader.c_str(),path.c_str(),soundFileNode->getAttribute("path")->getRestrictedValue().c_str(),i);
 
-				StaticSound *sound= new StaticSound();
-				sound->load(path);
-				loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
-				projSounds[i]= sound;
+					StaticSound *sound= new StaticSound();
+					sound->load(path);
+					loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
+					projSounds[i]= sound;
+				}
 			}
 		}
 	}
