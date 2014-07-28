@@ -71,6 +71,16 @@ bool Selection::select(Unit *unit) {
 			return false;
 		}
 
+		//check if selectable
+		if(unit->getType()->isSelectable() == false) {
+			return false;
+		}
+
+		//check if selectable
+		if(unit->getType()->isCommandable() == false && isEmpty() == false) {
+			return false;
+		}
+
 		//check if multisel
 		if(unit->getType()->getMultiSelect() == false && isEmpty() == false) {
 			return false;
@@ -181,7 +191,8 @@ bool Selection::isCommandable() const {
 	return
 		isEmpty() == false &&
 		isEnemy() == false &&
-		(selectedUnits.size() == 1 && selectedUnits.front()->isAlive() == false) == false;
+		(selectedUnits.size() == 1 && selectedUnits.front()->isAlive() == false) == false &&
+		selectedUnits.front()->getType()->isCommandable();
 }
 
 bool Selection::isCancelable() const {

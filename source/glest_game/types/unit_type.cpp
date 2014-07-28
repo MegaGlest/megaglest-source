@@ -89,6 +89,8 @@ UnitType::UnitType() : ProducibleType() {
     lightColor= Vec3f(0.f);
     light= false;
     multiSelect= false;
+    selectable= true;
+    commandable= true;
 	armorType= NULL;
 	rotatedBuildPos=0;
 
@@ -333,6 +335,14 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		//multi selection
 		multiSelect= parametersNode->getChild("multi-selection")->getAttribute("value")->getBoolValue();
 
+		//selectable
+		if(parametersNode->hasChild("selectable")){
+			selectable= parametersNode->getChild("selectable")->getAttribute("value")->getBoolValue();
+		}
+		//commandable
+		if(parametersNode->hasChild("commandable")){
+			commandable= parametersNode->getChild("commandable")->getAttribute("value")->getBoolValue();
+		}
 		//cellmap
 		allowEmptyCellMap = false;
 		const XmlNode *cellMapNode= parametersNode->getChild("cellmap");
@@ -1240,6 +1250,8 @@ std::string UnitType::toString() const {
 	result += " light = " + intToStr(light);
 	result += " lightColor = " + lightColor.getString();
 	result += " multiSelect = " + intToStr(multiSelect);
+	result += " selectable = " + intToStr(selectable);
+	result += " commandable = " + intToStr(commandable);
 	result += " sight = " + intToStr(sight);
 	result += " size = " + intToStr(size);
 	result += " height = " + intToStr(height);
