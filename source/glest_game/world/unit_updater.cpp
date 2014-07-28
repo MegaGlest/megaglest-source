@@ -270,56 +270,9 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 		else if(unit->getCommandSize() > 0) {
 			Command *command= unit->getCurrCommand();
 			if(command != NULL) {
-				const CommandType *ct = command->getCommandType();
 
 				const AttackCommandType *act= dynamic_cast<const AttackCommandType*>(command->getCommandType());
-				if( act != NULL && act->getAttackSkillType() != NULL &&
-					act->getAttackSkillType()->getSpawnUnit() != "" && act->getAttackSkillType()->getSpawnUnitCount() > 0) {
-
-					const FactionType *ft= unit->getFaction()->getType();
-					const UnitType *spawnUnitType = ft->getUnitType(act->getAttackSkillType()->getSpawnUnit());
-					int spawnCount = act->getAttackSkillType()->getSpawnUnitCount();
-					for (int y=0; y < spawnCount; ++y) {
-						if(spawnUnitType->getMaxUnitCount() > 0) {
-							if(spawnUnitType->getMaxUnitCount() <= unit->getFaction()->getCountForMaxUnitCount(spawnUnitType)) {
-								break;
-							}
-						}
-						UnitPathInterface *newpath = NULL;
-						switch(this->game->getGameSettings()->getPathFinderType()) {
-							case pfBasic:
-								newpath = new UnitPathBasic();
-								break;
-							default:
-								throw megaglest_runtime_error("detected unsupported pathfinder type!");
-						}
-
-						Unit *spawned= new Unit(world->getNextUnitId(unit->getFaction()), newpath,
-								                Vec2i(0), spawnUnitType, unit->getFaction(),
-								                world->getMap(), CardinalDir::NORTH);
-						//SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] about to place unit for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,spawned->toString().c_str());
-						if(!world->placeUnit(unit->getCenteredPos(), 10, spawned)) {
-							//SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] COULD NOT PLACE UNIT for unitID [%d]\n",__FILE__,__FUNCTION__,__LINE__,spawned->getId());
-
-							// This will also cleanup newPath
-							delete spawned;
-							spawned = NULL;
-						}
-						else {
-							spawned->create();
-							spawned->born(ct);
-							world->getStats()->produce(unit->getFactionIndex(),spawned->getType()->getCountUnitProductionInStats());
-							const CommandType *ct= spawned->computeCommandType(command->getPos(),command->getUnit());
-							if(ct != NULL){
-								if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-								spawned->giveCommand(new Command(ct, unit->getMeetingPos()));
-							}
-							scriptManager->onUnitCreated(spawned);
-
-							if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
-						}
-					}
-				}
+				spawnAttack(unit,act->getAttackSkillType()->getSpawnUnit(),act->getAttackSkillType()->getSpawnUnitCount(),act->getAttackSkillType()->getSpawnUnitAtTarget());
 			}
 		}
 		
@@ -354,6 +307,65 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s] Line: %d took msecs: %lld --------------------------- [END OF METHOD] ---------------------------\n",__FILE__,__FUNCTION__,__LINE__,chrono.getMillis());
 
 	return processUnitCommand;
+}
+
+void UnitUpdater::spawnAttack(Unit *unit,string spawnUnit,int spawnUnitcount,bool spawnUnitAtTarget,Vec2i targetPos) {
+	if(spawnUnit != "" && spawnUnitcount > 0) {
+
+		const FactionType *ft= unit->getFaction()->getType();
+		const UnitType *spawnUnitType = ft->getUnitType(spawnUnit);
+		int spawnCount = spawnUnitcount;
+		for (int y=0; y < spawnCount; ++y) {
+			if(spawnUnitType->getMaxUnitCount() > 0) {
+				if(spawnUnitType->getMaxUnitCount() <= unit->getFaction()->getCountForMaxUnitCount(spawnUnitType)) {
+					break;
+				}
+			}
+			UnitPathInterface *newpath = NULL;
+			switch(this->game->getGameSettings()->getPathFinderType()) {
+				case pfBasic:
+					newpath = new UnitPathBasic();
+					break;
+				default:
+					throw megaglest_runtime_error("detected unsupported pathfinder type!");
+			}
+
+			Unit *spawned= new Unit(world->getNextUnitId(unit->getFaction()), newpath,
+					                Vec2i(0), spawnUnitType, unit->getFaction(),
+					                world->getMap(), CardinalDir::NORTH);
+			//SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] about to place unit for unit [%s]\n",__FILE__,__FUNCTION__,__LINE__,spawned->toString().c_str());
+			bool placedSpawnUnit=false;
+			if(targetPos==Vec2i(-10,-10)) {
+				targetPos=unit->getTargetPos();
+			}
+			if(spawnUnitAtTarget) {
+				placedSpawnUnit=world->placeUnit(targetPos, 10, spawned);
+			} else {
+				placedSpawnUnit=world->placeUnit(unit->getCenteredPos(), 10, spawned);
+			}
+			if(!placedSpawnUnit) {
+				//SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d] COULD NOT PLACE UNIT for unitID [%d]\n",__FILE__,__FUNCTION__,__LINE__,spawned->getId());
+
+				// This will also cleanup newPath
+				delete spawned;
+				spawned = NULL;
+			}
+			else {
+				spawned->create();
+				spawned->born(NULL);
+				world->getStats()->produce(unit->getFactionIndex(),spawned->getType()->getCountUnitProductionInStats());
+				const CommandType *ct= spawned->getType()->getFirstAttackCommand(unit->getTargetField());
+				if(ct == NULL){
+					ct= spawned->computeCommandType(targetPos,map->getCell(targetPos)->getUnit(unit->getTargetField()));
+				}
+				if(ct != NULL){
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugUnitCommands).enabled) SystemFlags::OutputDebug(SystemFlags::debugUnitCommands,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+					spawned->giveCommand(new Command(ct, targetPos));
+				}
+				scriptManager->onUnitCreated(spawned);
+			}
+		}
+	}
 }
 
 // ==================== progress commands ====================
@@ -3296,6 +3308,11 @@ void ParticleDamager::update(ParticleSystem *particleSystem) {
 		}
 		if(particleSystem->getVisible() && projSound != NULL) {
 			SoundRenderer::getInstance().playFx(projSound, attacker->getCurrVector(), gameCamera->getPos());
+		}
+
+		//check for spawnattack
+		if(projectileType->getSpawnUnit()!=""){
+			unitUpdater->spawnAttack(attacker,projectileType->getSpawnUnit(),projectileType->getSpawnUnitcount(),projectileType->getSpawnUnitAtTarget(),targetPos);
 		}
 
 		// check for shake and shake

@@ -103,6 +103,7 @@ public:
 
 	//update skills
     bool updateUnit(Unit *unit);
+	void spawnAttack(Unit *unit,string spawnUnit,int spawnUnitcount,bool spawnUnitAtTarget,Vec2i targetPos=Vec2i(-10,-10));
 
     //update commands
     void updateUnitCommand(Unit *unit, int frameIndex);

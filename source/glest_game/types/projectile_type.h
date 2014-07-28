@@ -41,6 +41,10 @@ protected:
 	SoundContainer hitSounds;
 	float attackStartTime;
 
+	string spawnUnit;
+	int spawnUnitcount;
+	bool spawnUnitAtTarget;
+
 	bool shake;
 	int shakeIntensity;
 	int shakeDuration;
@@ -63,6 +67,10 @@ public:
 	ParticleSystemTypeProjectile* getProjectileParticleSystemType() const { return projectileParticleSystemType;}
 	float getAttackStartTime() const			{return attackStartTime;}
 	void setAttackStartTime(float value) {attackStartTime=value;}
+
+	string getSpawnUnit() const{return spawnUnit;}
+	int getSpawnUnitcount() const{return spawnUnitcount;}
+	bool getSpawnUnitAtTarget() const{return spawnUnitAtTarget;}
 
 	bool isShake() const{return shake;}
 	bool isShakeCameraDistanceAffected() const{return shakeCameraDistanceAffected;}

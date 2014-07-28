@@ -834,6 +834,7 @@ AttackSkillType::AttackSkillType() {
     splashRadius= 0;
     spawnUnit="";
     spawnUnitcount=0;
+    spawnUnitAtTarget=false;
 	splashParticleSystemType= NULL;
 
 	for(int i = 0; i < fieldCount; ++i) {
@@ -886,11 +887,16 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 
 	if (sn->hasChild("unit")) {
 		spawnUnit = sn->getChild("unit")->getAttribute("value")->getValue();
-		spawnUnitcount
-				= sn->getChild("unit")->getAttribute("amount")->getIntValue();
+		spawnUnitcount = sn->getChild("unit")->getAttribute("amount")->getIntValue();
+		if(sn->getChild("unit")->hasAttribute("spawnAtTarget")) {
+			spawnUnitAtTarget = sn->getChild("unit")->getAttribute("spawnAtTarget")->getBoolValue();
+		} else {
+			spawnUnitAtTarget = false;
+		}
 	} else {
 		spawnUnit = "";
 		spawnUnitcount = 0;
+		spawnUnitAtTarget = false;
 	}
 	//attack fields
 	const XmlNode *attackFieldsNode= sn->getChild("attack-fields");
@@ -1055,6 +1061,8 @@ void AttackSkillType::saveGame(XmlNode *rootNode) {
 	attackSkillTypeNode->addAttribute("spawnUnit",spawnUnit, mapTagReplacements);
 //	int spawnUnitcount;
 	attackSkillTypeNode->addAttribute("spawnUnitcount",intToStr(spawnUnitcount), mapTagReplacements);
+//	bool spawnUnitAtTarget;
+	attackSkillTypeNode->addAttribute("spawnUnitAtTarget",intToStr(spawnUnitAtTarget), mapTagReplacements);
 //    bool projectile;
 	attackSkillTypeNode->addAttribute("projectile",intToStr(projectile), mapTagReplacements);
 //    ParticleSystemTypeProjectile* projectileParticleSystemType;
