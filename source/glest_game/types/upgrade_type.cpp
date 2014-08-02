@@ -718,10 +718,11 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 		sortedItems.clear();
 		hasDup = false;
 
-		//effects
+		//effects -- get list of affected units
 		const XmlNode *effectsNode= upgradeNode->getChild("effects");
-		for(int i = 0; i < (int)effectsNode->getChildCount(); ++i) {
-			const XmlNode *unitNode= effectsNode->getChild("unit", i);
+		vector<XmlNode*> unitNodes= effectsNode->getChildList("unit");
+		for(size_t i = 0; i < unitNodes.size(); ++i) {
+			const XmlNode *unitNode= unitNodes.at(i);
 			string name= unitNode->getAttribute("name")->getRestrictedValue();
 
 			if(sortedItems.find(name) != sortedItems.end()) {
@@ -729,6 +730,30 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 			}
 
 			sortedItems[name] = 0;
+		}
+
+		//effects -- convert tags into units
+		vector<XmlNode*> tagNodes= effectsNode->getChildList("tag");
+		for(size_t i = 0; i < tagNodes.size(); ++i) {
+			const XmlNode *tagNode= tagNodes.at(i);
+			string name= tagNode->getAttribute("name")->getRestrictedValue();
+
+			if(sortedItems.find(name) != sortedItems.end()) {
+				hasDup = true;
+			}
+
+			// Get all unit types that have the given tag. Check all the tags of every unit in every
+			// faction against all the tags that this upgrade has.
+			for(int factionIndex = 0; factionIndex < techTree->getTypeCount(); factionIndex++) {
+				const FactionType *faction = techTree->getType(factionIndex);
+				for(int unitIndex = 0; unitIndex < faction->getUnitTypeCount(); unitIndex++) {
+					const UnitType *unit = faction->getUnitType(unitIndex);
+					vector<string> tags = unit->getTags();
+					if(std::find(tags.begin(), tags.end(), name) != tags.end()) {
+						effects.push_back(unit);
+					}
+				}
+			}
 		}
 
 		if(hasDup) {
