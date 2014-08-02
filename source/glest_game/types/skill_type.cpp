@@ -371,9 +371,31 @@ void SkillType::loadAttackBoost(const XmlNode *attackBoostsNode, const XmlNode *
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
-		const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
-		attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
+    // Load the regular targets
+    const XmlNode *targetNode = attackBoostNode->getChild("target");
+    vector<XmlNode*> targetNodes = targetNode->getChildList("unit-type");
+	for(size_t i = 0;i < targetNodes.size(); ++i) {
+		string unitName = targetNodes.at(i)->getAttribute("name")->getRestrictedValue();
+		attackBoost.boostUnitList.push_back(ft->getUnitType(unitName));
+	}
+
+	// Load tags
+    vector<XmlNode*> tagNodes = targetNode->getChildList("tag");
+	for(size_t i = 0;i < tagNodes.size(); ++i) {
+		string unitName = tagNodes.at(i)->getAttribute("name")->getRestrictedValue();
+
+		// Get all unit types that have the given tag. Check all the tags of every unit in every
+		// faction against all the tags that this upgrade has.
+		for(int factionIndex = 0; factionIndex < tt->getTypeCount(); factionIndex++) {
+			const FactionType *faction = tt->getType(factionIndex);
+			for(int unitIndex = 0; unitIndex < faction->getUnitTypeCount(); unitIndex++) {
+				const UnitType *unit = faction->getUnitType(unitIndex);
+				vector<string> tags = unit->getTags();
+				if(std::find(tags.begin(), tags.end(), unitName) != tags.end()) {
+					attackBoost.boostUnitList.push_back(unit);
+				}
+			}
+		}
 	}
 
     attackBoost.boostUpgrade.load(attackBoostNode,attackBoost.name);
