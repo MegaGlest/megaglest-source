@@ -272,7 +272,11 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 			if(command != NULL) {
 
 				const AttackCommandType *act= dynamic_cast<const AttackCommandType*>(command->getCommandType());
-				spawnAttack(unit,act->getAttackSkillType()->getSpawnUnit(),act->getAttackSkillType()->getSpawnUnitCount(),act->getAttackSkillType()->getSpawnUnitAtTarget());
+				if (act != NULL && act->getAttackSkillType() != NULL
+						&& act->getAttackSkillType()->getSpawnUnit() != ""
+						&& act->getAttackSkillType()->getSpawnUnitCount() > 0) {
+					spawnAttack(unit,act->getAttackSkillType()->getSpawnUnit(),act->getAttackSkillType()->getSpawnUnitCount(),act->getAttackSkillType()->getSpawnUnitAtTarget());
+				}
 			}
 		}
 		
@@ -3311,7 +3315,7 @@ void ParticleDamager::update(ParticleSystem *particleSystem) {
 		}
 
 		//check for spawnattack
-		if(projectileType->getSpawnUnit()!=""){
+		if(projectileType->getSpawnUnit()!="" && projectileType->getSpawnUnitcount()>0 ){
 			unitUpdater->spawnAttack(attacker,projectileType->getSpawnUnit(),projectileType->getSpawnUnitcount(),projectileType->getSpawnUnitAtTarget(),targetPos);
 		}
 
