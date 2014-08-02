@@ -572,8 +572,10 @@ string UpgradeType::getReqDesc(bool translatedValue) const{
 	str+=UpgradeTypeBase::getDesc(translatedValue);
 	if(getEffectCount()>0){
 		str+= lang.getString("AffectedUnits",(translatedValue == true ? "" : "english"))+"\n";
-		for(int i=0; i<getEffectCount(); ++i){
-			str+= indent+getEffect(i)->getName(translatedValue)+"\n";
+		std::set<const UnitType*>::iterator it;
+		for (it = getEffects().begin(); it != getEffects().end(); ++it) {
+			const UnitType *unit = *it;
+			str+= indent+unit->getName(translatedValue)+"\n";
 		}
 	}
 	return str;
@@ -725,11 +727,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 			const XmlNode *unitNode= unitNodes.at(i);
 			string name= unitNode->getAttribute("name")->getRestrictedValue();
 
-			if(sortedItems.find(name) != sortedItems.end()) {
-				hasDup = true;
-			}
-
-			sortedItems[name] = 0;
+			effects.insert(factionType->getUnitType(name));
 		}
 
 		//effects -- convert tags into units
@@ -737,10 +735,6 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 		for(size_t i = 0; i < tagNodes.size(); ++i) {
 			const XmlNode *tagNode= tagNodes.at(i);
 			string name= tagNode->getAttribute("name")->getRestrictedValue();
-
-			if(sortedItems.find(name) != sortedItems.end()) {
-				hasDup = true;
-			}
 
 			// Get all unit types that have the given tag. Check all the tags of every unit in every
 			// faction against all the tags that this upgrade has.
@@ -750,21 +744,11 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 					const UnitType *unit = faction->getUnitType(unitIndex);
 					vector<string> tags = unit->getTags();
 					if(std::find(tags.begin(), tags.end(), name) != tags.end()) {
-						effects.push_back(unit);
+						effects.insert(unit);
 					}
 				}
 			}
 		}
-
-		if(hasDup) {
-			printf("WARNING, upgrade type [%s] has one or more duplicate effects\n",this->getName().c_str());
-		}
-
-		for(std::map<string,int>::iterator iterMap = sortedItems.begin();
-				iterMap != sortedItems.end(); ++iterMap) {
-			effects.push_back(factionType->getUnitType(iterMap->first));
-		}
-		sortedItems.clear();
 
 		//values
 		UpgradeTypeBase::load(upgradeNode,name);
