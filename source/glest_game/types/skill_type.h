@@ -30,6 +30,7 @@
 #include "projectile_type.h"
 #include "upgrade_type.h"
 #include "leak_dumper.h"
+#include <set>
 
 using Shared::Sound::StaticSound;
 using Shared::Xml::XmlNode;
@@ -98,7 +99,7 @@ public:
 	bool allowMultipleBoosts;
 	int radius;
 	AttackBoostTargetType targetType;
-	vector<const UnitType *> boostUnitList;
+	std::set<const UnitType *> boostUnitList;
 	UpgradeTypeBase boostUpgrade;
 
 	UnitParticleSystemType *unitParticleSystemTypeForSourceUnit;

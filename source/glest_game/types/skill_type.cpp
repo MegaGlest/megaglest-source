@@ -64,9 +64,10 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 				destUnitMightApply = (boostUnitList.empty() == true);
 
 				// Specify which units are affected
-				for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-					const UnitType *ut = boostUnitList[i];
-					if(dest->getType()->getId() == ut->getId()) {
+	    		std::set<const UnitType*>::iterator it;
+	    		for (it = boostUnitList.begin(); it != boostUnitList.end(); ++it) {
+	    			const UnitType *unit = *it;
+	    			if(dest->getType()->getId() == unit->getId()) {
 						destUnitMightApply = true;
 						break;
 					}
@@ -81,9 +82,10 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 					destUnitMightApply = (boostUnitList.empty() == true);
 
 					// Specify which units are affected
-					for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-						const UnitType *ut = boostUnitList[i];
-						if(dest->getType()->getId() == ut->getId()) {
+		    		std::set<const UnitType*>::iterator it;
+		    		for (it = boostUnitList.begin(); it != boostUnitList.end(); ++it) {
+		    			const UnitType *unit = *it;
+		    			if(dest->getType()->getId() == unit->getId()) {
 							destUnitMightApply = true;
 							break;
 						}
@@ -100,13 +102,15 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 					destUnitMightApply = (boostUnitList.empty() == true);
 
 					// Specify which units are affected
-					for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-						const UnitType *ut = boostUnitList[i];
-						if(dest->getType()->getId() == ut->getId()) {
+		    		std::set<const UnitType*>::iterator it;
+		    		for (it = boostUnitList.begin(); it != boostUnitList.end(); ++it) {
+		    			const UnitType *unit = *it;
+		    			if(dest->getType()->getId() == unit->getId()) {
 							destUnitMightApply = true;
 							break;
 						}
 					}
+
 				}
 				//}
 			}
@@ -118,9 +122,10 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 					destUnitMightApply = (boostUnitList.empty() == true);
 
 					// Specify which units are affected
-					for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-						const UnitType *ut = boostUnitList[i];
-						if(dest->getType()->getId() == ut->getId()) {
+		    		std::set<const UnitType*>::iterator it;
+		    		for (it = boostUnitList.begin(); it != boostUnitList.end(); ++it) {
+		    			const UnitType *unit = *it;
+		    			if(dest->getType()->getId() == unit->getId()) {
 							destUnitMightApply = true;
 							break;
 						}
@@ -130,9 +135,10 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 			}
 			else if(targetType == abtUnitTypes) {
 				// Specify which units are affected
-				for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-					const UnitType *ut = boostUnitList[i];
-					if(dest->getType()->getId() == ut->getId()) {
+	    		std::set<const UnitType*>::iterator it;
+	    		for (it = boostUnitList.begin(); it != boostUnitList.end(); ++it) {
+	    			const UnitType *unit = *it;
+	    			if(dest->getType()->getId() == unit->getId()) {
 						destUnitMightApply = true;
 						break;
 					}
@@ -191,8 +197,10 @@ string AttackBoost::getDesc(bool translatedValue) const{
     	}
 
     	if(boostUnitList.empty() == false) {
-			for(int i=0; i < (int)boostUnitList.size(); ++i){
-				str+= "  "+boostUnitList[i]->getName(translatedValue)+"\n";
+    		std::set<const UnitType*>::iterator it;
+    		for (it = boostUnitList.begin(); it != boostUnitList.end(); ++it) {
+    			const UnitType *unit = *it;
+				str+= "  "+ unit->getName(translatedValue)+"\n";
 			}
     	}
     	else
@@ -222,7 +230,7 @@ void AttackBoost::loadGame(const XmlNode *rootNode, Faction *faction, const Skil
 			string unitTypeName = node->getAttribute("name")->getValue();
 			const UnitType *unitType = faction->getType()->getUnitType(unitTypeName);
 			if(unitType != NULL) {
-				boostUnitList.push_back(unitType);
+				boostUnitList.insert(unitType);
 			}
 		}
 	}
@@ -252,10 +260,11 @@ void AttackBoost::saveGame(XmlNode *rootNode) const {
 //	AttackBoostTargetType targetType;
 	attackBoostNode->addAttribute("targetType",intToStr(targetType), mapTagReplacements);
 //	vector<const UnitType *> boostUnitList;
-	for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-		const UnitType *ut = boostUnitList[i];
+	std::set<const UnitType*>::iterator it;
+	for (it = boostUnitList.begin(); it != boostUnitList.end(); ++it) {
+		const UnitType *unit = *it;
 		XmlNode *unitTypeNode = attackBoostNode->addChild("UnitType");
-		unitTypeNode->addAttribute("name",ut->getName(false), mapTagReplacements);
+		unitTypeNode->addAttribute("name",unit->getName(false), mapTagReplacements);
 	}
 //	UpgradeTypeBase boostUpgrade;
 	boostUpgrade.saveGame(attackBoostNode);
@@ -376,7 +385,7 @@ void SkillType::loadAttackBoost(const XmlNode *attackBoostsNode, const XmlNode *
     vector<XmlNode*> targetNodes = targetNode->getChildList("unit-type");
 	for(size_t i = 0;i < targetNodes.size(); ++i) {
 		string unitName = targetNodes.at(i)->getAttribute("name")->getRestrictedValue();
-		attackBoost.boostUnitList.push_back(ft->getUnitType(unitName));
+		attackBoost.boostUnitList.insert(ft->getUnitType(unitName));
 	}
 
 	// Load tags
@@ -392,7 +401,7 @@ void SkillType::loadAttackBoost(const XmlNode *attackBoostsNode, const XmlNode *
 				const UnitType *unit = faction->getUnitType(unitIndex);
 				vector<string> tags = unit->getTags();
 				if(std::find(tags.begin(), tags.end(), unitName) != tags.end()) {
-					attackBoost.boostUnitList.push_back(unit);
+					attackBoost.boostUnitList.insert(unit);
 				}
 			}
 		}
