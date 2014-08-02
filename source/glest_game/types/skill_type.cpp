@@ -352,43 +352,28 @@ void SkillType::loadAttackBoost(const XmlNode *attackBoostsNode, const XmlNode *
 
     if(targetType == "ally") {
         attackBoost.targetType = abtAlly;
-        for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
-            const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
-            attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-        }
     }
     else if(targetType == "foe") {
 		attackBoost.targetType = abtFoe;
-		for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
-			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
-			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-		}
 	}
 	else if(targetType == "faction") {
 		attackBoost.targetType = abtFaction;
-		for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
-			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
-			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-		}
 	}
 	else if(targetType == "unit-types") {
 		attackBoost.targetType = abtUnitTypes;
-		for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
-			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
-			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-		}
 	}
 	else if(targetType == "all") {
 		attackBoost.targetType = abtAll;
-		for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
-			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
-			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-		}
 	}
 	else {
 		char szBuf[8096] = "";
 		snprintf(szBuf, 8096,"Unsupported target [%s] specified for attack boost for skill [%s] in [%s]", targetType.c_str(), name.c_str(), parentLoader.c_str());
 		throw megaglest_runtime_error(szBuf);
+	}
+
+	for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
+		const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
+		attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
 	}
 
     attackBoost.boostUpgrade.load(attackBoostNode,attackBoost.name);
