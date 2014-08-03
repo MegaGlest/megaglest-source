@@ -197,11 +197,15 @@ string AttackBoost::getDesc(bool translatedValue) const{
     	}
 
     	if(boostUnitList.empty() == false) {
-    		std::set<const UnitType*>::iterator it;
-    		for (it = boostUnitList.begin(); it != boostUnitList.end(); ++it) {
+    		// We want the output to be sorted, so convert the set to a vector and sort that
+    		std::vector<const UnitType*> output(boostUnitList.begin(), boostUnitList.end());
+    		std::sort(output.begin(), output.end(), UnitTypeSorter());
+
+    		vector<const UnitType*>::iterator it;
+    		for (it = output.begin(); it != output.end(); ++it) {
     			const UnitType *unit = *it;
-				str+= "  "+ unit->getName(translatedValue)+"\n";
-			}
+    			str+= indent+unit->getName(translatedValue)+"\n";
+    		}
     	}
     	else
     	{
