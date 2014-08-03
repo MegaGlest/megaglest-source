@@ -233,7 +233,6 @@ public:
 
     //get all
 	int getEffectCount() const				{return (int)effects.size();}
-	std::set<const UnitType*> getEffects() const	{return effects;}
 	bool isAffected(const UnitType *unitType) const;
 
     //other methods

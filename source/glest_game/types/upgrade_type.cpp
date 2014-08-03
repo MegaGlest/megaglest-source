@@ -572,8 +572,13 @@ string UpgradeType::getReqDesc(bool translatedValue) const{
 	str+=UpgradeTypeBase::getDesc(translatedValue);
 	if(getEffectCount()>0){
 		str+= lang.getString("AffectedUnits",(translatedValue == true ? "" : "english"))+"\n";
-		std::set<const UnitType*>::iterator it;
-		for (it = getEffects().begin(); it != getEffects().end(); ++it) {
+
+		// We want the output to be sorted, so convert the set to a vector and sort that
+		std::vector<const UnitType*> output(effects.begin(), effects.end());
+		std::sort(output.begin(), output.end(), UnitTypeSorter());
+
+		vector<const UnitType*>::iterator it;
+		for (it = output.begin(); it != output.end(); ++it) {
 			const UnitType *unit = *it;
 			str+= indent+unit->getName(translatedValue)+"\n";
 		}

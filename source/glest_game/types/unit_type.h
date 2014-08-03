@@ -329,6 +329,17 @@ private:
     void computeFirstCtOfClass();
 };
 
+/**
+ * Used to sort UnitType. Sorts by *translated* unit name. Sorting is case sensitive and done in
+ * lexical order.
+ */
+struct UnitTypeSorter
+{
+    bool operator()( const UnitType *left, const UnitType *right ) const {
+    	return left->getName(true) < right->getName(true);
+    }
+};
+
 }}//end namespace
 
 
