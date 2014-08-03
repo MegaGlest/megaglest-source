@@ -100,6 +100,7 @@ public:
 	int radius;
 	AttackBoostTargetType targetType;
 	std::set<const UnitType *> boostUnitList;
+	std::set<string> tags;
 	UpgradeTypeBase boostUpgrade;
 
 	UnitParticleSystemType *unitParticleSystemTypeForSourceUnit;

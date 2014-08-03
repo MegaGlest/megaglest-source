@@ -566,11 +566,11 @@ string UpgradeType::getReqDesc(bool translatedValue) const{
 	Lang &lang= Lang::getInstance();
     string str= ProducibleType::getReqDesc(translatedValue);
     string indent="  ";
-	if(getEffectCount()>0){
+	if(!effects.empty()){
 		str+= "\n"+ lang.getString("Upgrades",(translatedValue == true ? "" : "english"))+"\n";
 	}
 	str+=UpgradeTypeBase::getDesc(translatedValue);
-	if(getEffectCount()>0){
+	if(!effects.empty()){
 		str+= lang.getString("AffectedUnits",(translatedValue == true ? "" : "english"))+"\n";
 
 		// We want the output to be sorted, so convert the set to a vector and sort that
@@ -741,18 +741,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 			const XmlNode *tagNode= tagNodes.at(i);
 			string name= tagNode->getAttribute("name")->getRestrictedValue();
 
-			// Get all unit types that have the given tag. Check all the tags of every unit in every
-			// faction against all the tags that this upgrade has.
-			for(int factionIndex = 0; factionIndex < techTree->getTypeCount(); factionIndex++) {
-				const FactionType *faction = techTree->getType(factionIndex);
-				for(int unitIndex = 0; unitIndex < faction->getUnitTypeCount(); unitIndex++) {
-					const UnitType *unit = faction->getUnitType(unitIndex);
-					vector<string> tags = unit->getTags();
-					if(std::find(tags.begin(), tags.end(), name) != tags.end()) {
-						effects.insert(unit);
-					}
-				}
-			}
+			tags.insert(name);
 		}
 
 		//values
@@ -767,7 +756,13 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 }
 
 bool UpgradeType::isAffected(const UnitType *unitType) const{
-	return find(effects.begin(), effects.end(), unitType)!=effects.end();
+	if(std::find(effects.begin(), effects.end(), unitType)!=effects.end()) return true;
+
+	// Does the unit have at least one of the affected tags?
+	set<string> intersect;
+	set_intersection(tags.begin(),tags.end(),unitType->getTags().begin(),unitType->getTags().end(),
+			std::inserter(intersect,intersect.begin()));
+	return !intersect.empty();
 }
 
 //void UpgradeType::saveGame(XmlNode *rootNode) const {

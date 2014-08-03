@@ -220,6 +220,7 @@ public:
 class UpgradeType: public UpgradeTypeBase, public ProducibleType {
 private:
     std::set<const UnitType*> effects;
+    std::set<string> tags;
 
 public:
 	void preLoad(const string &dir);
@@ -232,7 +233,6 @@ public:
     virtual string getName(bool translatedValue=false) const;
 
     //get all
-	int getEffectCount() const				{return (int)effects.size();}
 	bool isAffected(const UnitType *unitType) const;
 
     //other methods

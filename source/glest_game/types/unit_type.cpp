@@ -658,7 +658,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 			for(int i=0; i < tagsNode->getChildCount(); ++i){
 				const XmlNode *resourceNode= tagsNode->getChild("tag", i);
 				string tag= resourceNode->getAttribute("value")->getRestrictedValue();
-				tags.push_back(tag);
+				tags.insert(tag);
 			}
 		}
 

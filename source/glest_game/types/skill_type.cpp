@@ -61,7 +61,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 		else {
 			// All units are affected (including enemies)
 			if(targetType == abtAll) {
-				destUnitMightApply = (boostUnitList.empty() == true);
+				destUnitMightApply = (boostUnitList.empty() && tags.empty());
 
 				// Specify which units are affected
 	    		std::set<const UnitType*>::iterator it;
@@ -72,14 +72,18 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 						break;
 					}
 				}
-
+	    		set<string> unitTags = dest->getType()->getTags();
+	    		set<string> intersect;
+	    		set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
+	    				std::inserter(intersect,intersect.begin()));
+	    		if(!intersect.empty()) destUnitMightApply = true;
 			}
 			// Only same faction units are affected
 			else if(targetType == abtFaction) {
 				//if(boostUnitList.empty() == true) {
 				if(source->getFactionIndex() == dest->getFactionIndex()) {
 					//destUnitMightApply = true;
-					destUnitMightApply = (boostUnitList.empty() == true);
+					destUnitMightApply = (boostUnitList.empty() && tags.empty());
 
 					// Specify which units are affected
 		    		std::set<const UnitType*>::iterator it;
@@ -90,7 +94,11 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 							break;
 						}
 					}
-
+		    		set<string> unitTags = dest->getType()->getTags();
+		    		set<string> intersect;
+		    		set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
+		    				std::inserter(intersect,intersect.begin()));
+		    		if(!intersect.empty()) destUnitMightApply = true;
 				}
 				//}
 			}
@@ -99,7 +107,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 				//if(boostUnitList.empty() == true) {
 				if(source->isAlly(dest) == true) {
 					//destUnitMightApply = true;
-					destUnitMightApply = (boostUnitList.empty() == true);
+					destUnitMightApply = (boostUnitList.empty() && tags.empty());
 
 					// Specify which units are affected
 		    		std::set<const UnitType*>::iterator it;
@@ -110,7 +118,11 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 							break;
 						}
 					}
-
+		    		set<string> unitTags = dest->getType()->getTags();
+		    		set<string> intersect;
+		    		set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
+		    				std::inserter(intersect,intersect.begin()));
+		    		if(!intersect.empty()) destUnitMightApply = true;
 				}
 				//}
 			}
@@ -119,7 +131,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 				//if(boostUnitList.empty() == true) {
 				if(source->isAlly(dest) == false) {
 					//destUnitMightApply = true;
-					destUnitMightApply = (boostUnitList.empty() == true);
+					destUnitMightApply = (boostUnitList.empty() && tags.empty());
 
 					// Specify which units are affected
 		    		std::set<const UnitType*>::iterator it;
@@ -130,6 +142,11 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 							break;
 						}
 					}
+		    		set<string> unitTags = dest->getType()->getTags();
+		    		set<string> intersect;
+		    		set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
+		    				std::inserter(intersect,intersect.begin()));
+		    		if(!intersect.empty()) destUnitMightApply = true;
 				}
 				//}
 			}
@@ -143,6 +160,11 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 						break;
 					}
 				}
+	    		set<string> unitTags = dest->getType()->getTags();
+	    		set<string> intersect;
+	    		set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
+	    				std::inserter(intersect,intersect.begin()));
+	    		if(!intersect.empty()) destUnitMightApply = true;
 			}
 		}
 
@@ -396,19 +418,7 @@ void SkillType::loadAttackBoost(const XmlNode *attackBoostsNode, const XmlNode *
     vector<XmlNode*> tagNodes = targetNode->getChildList("tag");
 	for(size_t i = 0;i < tagNodes.size(); ++i) {
 		string unitName = tagNodes.at(i)->getAttribute("name")->getRestrictedValue();
-
-		// Get all unit types that have the given tag. Check all the tags of every unit in every
-		// faction against all the tags that this upgrade has.
-		for(int factionIndex = 0; factionIndex < tt->getTypeCount(); factionIndex++) {
-			const FactionType *faction = tt->getType(factionIndex);
-			for(int unitIndex = 0; unitIndex < faction->getUnitTypeCount(); unitIndex++) {
-				const UnitType *unit = faction->getUnitType(unitIndex);
-				vector<string> tags = unit->getTags();
-				if(std::find(tags.begin(), tags.end(), unitName) != tags.end()) {
-					attackBoost.boostUnitList.insert(unit);
-				}
-			}
-		}
+		attackBoost.tags.insert(unitName);
 	}
 
     attackBoost.boostUpgrade.load(attackBoostNode,attackBoost.name);
