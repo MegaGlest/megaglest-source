@@ -26,6 +26,7 @@
 
 #include <QObject>
 
+
 class QAction;
 
 namespace MapEditor{
@@ -69,16 +70,6 @@ namespace MapEditor{
              */
             void click(int column, int row);
             /**
-             * Resets the actual map / creates a new one.
-             * Clears history.
-             * @param width New size of the map
-             * @param height New size of the map
-             * @param surface Whole map gets filled with this surface
-             * @param altitude Whole map will have this altitude
-             * @param players Number of players for this map
-             */
-            void reset(int width, int height, int surface, float altitude, int players);
-            /**
              * Flips the map diagonal
              * Sets history
              */
@@ -94,61 +85,81 @@ namespace MapEditor{
              */
             void flipY();
             /**
-             * Sets history
+             * randomizes all tile heights of the map
              */
             void randomizeHeights();
             /**
-             * Sets history
+             * randomizes all tile heights and player positions of the map
              */
             void randomizeHeightsAndPlayers();
             /**
-             * Sets history
+             * (necessary?) TODO: Sets history
              */
             void copyL2R();
             /**
-             * Sets history
+             * (necessary?) TODO: Sets history
              */
             void copyT2B();
             /**
-             * Sets history
+             * (necessary?) TODO: Sets history
              */
             void copyBL2TR();
             /**
-             * Sets history
+             * (necessary?) TODO: Sets history
              */
             void rotateL2R();
             /**
-             * Sets history
+             * (necessary?) TODO: Sets history
              */
             void rotateT2B();
             /**
-             * Sets history
+             * (necessary?) TODO: Sets history
              */
             void rotateBL2TR();
             /**
-             * Sets history
+             * (necessary?) TODO: Sets history
              */
             void rotateTL2BR();
             /**
-             * Sets history
+             * replaces all surfaces a in the selected area with surface b and vice versa
              */
             void switchSurfaces(int a, int b);
             /**
-             * Sets history
+             * sets textual informations for this map
              */
             void setInfo(const std::string &title, const std::string &description, const std::string &author);
             /**
-             * Sets history
+             * sets advanced option for ingame view of the map
              */
             void setAdvanced(int heightFactor, int waterLevel, int cliffLevel, int cameraHeight);
             /**
-             * Sets history
+             * Resets the actual map / creates a new one.
+             * Clears history.
+             * @param width New size of the map
+             * @param height New size of the map
+             * @param surface Whole map gets filled with this surface
+             * @param altitude Whole map will have this altitude
+             * @param players Number of players for this map
              */
-            void resetPlayers(int amount);
+            void reset(int width, int height, int surface, float altitude, int players);
             /**
-             * Sets history
+             * new amount of allowed players on this map
              */
-            void resize(int width, int height);
+            void changePlayerAmount(int amount);
+            /**
+             * Expands or shrinks the map.
+             * @param width New size of the map
+             * @param height New size of the map
+             * @param surface New areas gets filled with this surface
+             * @param altitude New areas will have this altitude
+             */
+            void resize(int width, int height, int surface, float altitude);
+
+            /**
+             * Converts int to enum MapSurfaceType
+             * @param surface A number that represents the surface
+             */
+            //Shared::Map::MapSurfaceType intToSurface(int surface);
             /**
              * define a selection rectangle
              * -1 means select all
@@ -171,8 +182,26 @@ namespace MapEditor{
              * @param useUserSettings choose if you wanna respect user settings or ignore them
              */
             void fitSelection(bool useUserSettings = true);
+            /**
+             * copy the selected area
+             */
             void copy();
+            /**
+             * paste to selected area
+             */
             void paste();
+            /**
+             * heihgt of map (dimension)
+             */
+            int getHeight();
+            /**
+             * width of map (dimension)
+             */
+            int getWidth();
+            /**
+             * maximum of players allowed on this map
+             */
+            int getPlayerAmount();
         private:
             void updateEverything();
             /**

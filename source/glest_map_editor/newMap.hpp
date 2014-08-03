@@ -26,7 +26,7 @@ namespace MapEditor {
         Q_OBJECT
 
     public:
-        explicit NewMap(MapManipulator *mapman, QWidget *parent = 0);
+        explicit NewMap(MapManipulator *mapman, char modus, QWidget *parent = 0);
         ~NewMap();
 
     protected:
@@ -35,6 +35,7 @@ namespace MapEditor {
     private:
         Ui::NewMap *ui;
         MapManipulator *mapman;
+        char modus;
 
     private slots:
         void create();

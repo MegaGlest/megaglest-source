@@ -44,4 +44,12 @@ namespace MapEditor {
         this->prepareGeometryChange();
     }
 
+    int Player::getRow(){
+        return row;
+    }
+
+    int Player::getColumn(){
+        return column;
+    }
+
 }

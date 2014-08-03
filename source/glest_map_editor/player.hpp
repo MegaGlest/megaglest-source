@@ -24,6 +24,8 @@ namespace MapEditor {
             virtual QRectF boundingRect() const;
             virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget = 0);
             void move(int column, int row);
+            int getRow();
+            int getColumn();
         private:
             int column;
             int row;

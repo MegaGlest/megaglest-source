@@ -306,6 +306,12 @@ namespace MapEditor {
         }
     }
 
+    void Renderer::restorePlayerPositions(){
+        for(unsigned int i = 0; i < (sizeof(player)/sizeof(*player)); i++){
+            this->map->changeStartLocation(this->player[i]->getColumn(), this->player[i]->getRow(), i);
+        }
+    }
+
     void Renderer::updateMaxPlayers(){
         unsigned int maxPlayers = this->map->getMaxFactions();
         this->mapman->getWindow()->limitPlayers(maxPlayers);

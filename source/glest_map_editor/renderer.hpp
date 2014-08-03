@@ -190,6 +190,10 @@ namespace MapEditor {
              */
             void updatePlayerPositions();
             /**
+             * discard not updated position changes
+             */
+            void restorePlayerPositions();
+            /**
              * updates allowed amount of all players
              */
             void updateMaxPlayers();

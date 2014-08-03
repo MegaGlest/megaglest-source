@@ -93,9 +93,9 @@ namespace MapEditor {
             }
         }
         ui->graphicsView->setStatus(status);
-        newmap = new NewMap(mapman,this);//instance of new map dialog
-        resize = new NewMap(mapman,this);//instance of new map dialog
-        resetPlayers = new NewMap(mapman,this);//instance of new map dialog
+        newmap = new NewMap(mapman,'n',this);//instance of new map dialog
+        resize = new NewMap(mapman,'r',this);//instance of new map dialog
+        resetPlayers = new NewMap(mapman,'p',this);//instance of new map dialog
         //info = new Info(mapman,this);//instance of new map dialog
         switchSurfaces = new SwitchSurfaces(mapman,this);//instance of new map dialog
         //advanced = new Advanced(mapman,this);//instance of new map dialog
