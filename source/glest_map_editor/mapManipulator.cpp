@@ -115,15 +115,15 @@ namespace MapEditor{
     }
 
     void MapManipulator::flipX(){
-        int midColumn = this->selectionStartColumn + ( (this->selectionEndColumn - this->selectionStartColumn) / 2);
-        this->axisTool('s', midColumn, this->selectionEndRow, true, false);
+        //int midColumn = this->selectionStartColumn + ( (this->selectionEndColumn - this->selectionStartColumn) / 2);
+        //this->axisTool('s', midColumn, this->selectionEndRow, true, false);
         this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
 
     void MapManipulator::flipY(){
-        int midRow = this->selectionStartRow + ( (this->selectionEndRow - this->selectionStartRow) / 2);
-        this->axisTool('s', this->selectionEndColumn, midRow, false, true);
+        //int midRow = this->selectionStartRow + ( (this->selectionEndRow - this->selectionStartRow) / 2);
+        //this->axisTool('s', this->selectionEndColumn, midRow, false, true);
         this->renderer->updatePlayerPositions();
         this->updateEverything();;
     }
@@ -140,15 +140,15 @@ namespace MapEditor{
     }
 
     void MapManipulator::copyL2R(){
-        int midColumn = this->selectionStartColumn + ( (this->selectionEndColumn - this->selectionStartColumn) / 2);
-        this->axisTool('c', midColumn, this->selectionEndRow, true, false);
+        //int midColumn = this->selectionStartColumn + ( (this->selectionEndColumn - this->selectionStartColumn) / 2);
+        //this->axisTool('c', midColumn, this->selectionEndRow, true, false);
         this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
 
     void MapManipulator::copyT2B(){
-        int midRow = this->selectionStartRow + ( (this->selectionEndRow - this->selectionStartRow) / 2);
-        this->axisTool('c', this->selectionEndColumn, midRow, false, true);
+        //int midRow = this->selectionStartRow + ( (this->selectionEndRow - this->selectionStartRow) / 2);
+        //this->axisTool('c', this->selectionEndColumn, midRow, false, true);
         this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
@@ -163,15 +163,15 @@ namespace MapEditor{
     }
 
     void MapManipulator::rotateL2R(){
-        int midColumn = this->selectionStartColumn + ( (this->selectionEndColumn - this->selectionStartColumn) / 2);
-        this->axisTool('c', midColumn, this->selectionEndRow, true, true);
+        //int midColumn = this->selectionStartColumn + ( (this->selectionEndColumn - this->selectionStartColumn) / 2);
+        //this->axisTool('c', midColumn, this->selectionEndRow, true, true);
         this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
 
     void MapManipulator::rotateT2B(){
-        int midRow = this->selectionStartRow + ( (this->selectionEndRow - this->selectionStartRow) / 2);
-        this->axisTool('c', this->selectionEndColumn, midRow, true, true);
+        //int midRow = this->selectionStartRow + ( (this->selectionEndRow - this->selectionStartRow) / 2);
+        //this->axisTool('c', this->selectionEndColumn, midRow, true, true);
         this->renderer->updatePlayerPositions();
         this->updateEverything();
     }
@@ -534,7 +534,7 @@ namespace MapEditor{
         this->renderer->addHistory();
     }
 
-    void MapManipulator::axisTool(char modus, int columnLimit, int rowLimit, bool invertColumn, bool invertRow){
+    /*void MapManipulator::axisTool(char modus, int columnLimit, int rowLimit, bool invertColumn, bool invertRow){
         //c: copy to; s: swap to
         Shared::Map::MapPreview *gmap = this->renderer->getMap();
         for(int column = this->selectionStartColumn; column <= columnLimit; column++){
@@ -596,6 +596,228 @@ namespace MapEditor{
                     }
                 }
                 break;
+            }
+        }
+
+    }*/
+
+    int MapManipulator::projectCol(int col, int row, bool rotate, char modus){//axis: '\' '/' '-' '|'
+        int width = (this->selectionEndColumn - this->selectionStartColumn);
+        //int height = (this->selectionEndRow - this->selectionStartRow);
+        if(rotate){//just mirror in both directions
+            return width - col;
+        }else{//mirroring is more complicated
+            switch(modus){
+              case '\\':
+                return width - row;//first mirror to / and transpone then
+              case '/':
+                return row;//transpone
+              case '|'://just mirror
+                return width - col;
+              default://do nothing
+                return col;
+            }
+        }
+    }
+
+    int MapManipulator::projectRow(int col, int row, bool rotate, char modus){//axis: '\' '/' '-' '|'
+        int width = (this->selectionEndColumn - this->selectionStartColumn);
+        int height = (this->selectionEndRow - this->selectionStartRow);
+        if(rotate){//just mirror in both directions
+            return height - row;
+        }else{//mirroring is more complicated
+            switch(modus){
+              case '\\':
+                return width - col;//first mirror to / and transpone then
+              case '/':
+                return col;//transpone
+              case '-'://just mirror
+                return height - row;
+              default://do nothing
+                return row;
+            }
+        }
+    }
+
+    //rotation by pi is just mirroring twice
+    //transponing is just switching x and y axis
+    void MapManipulator::axisTool(char modus, bool swap, bool rotate, bool inverted){
+        //axis: '\' '/' '-' '|'
+        int width = (this->selectionEndColumn - this->selectionStartColumn);
+        int height = (this->selectionEndRow - this->selectionStartRow);
+        //double midColumn = this->selectionStartColumn + ( width / 2.0);
+        //double midRow = this->selectionStartRow + ( height / 2.0);
+
+
+        //c: copy to; s: swap to
+        Shared::Map::MapPreview *gmap = this->renderer->getMap();
+
+            /*switch(modus){
+              case '\':
+                col: all
+                row: 0 to column
+                rev row: column to width
+                break
+              case '/':
+                col: all
+                row: 0 to width-column
+                rev row: width-column to width
+                break
+              case '-':
+                col: all
+                row: 0 to height/2.0
+                break
+              case '|':
+                col: 0 to width/2.0
+                row: all
+                break
+            }*/
+        //for(int column = 0 (width+1)/2; column <= (width+1)/2 column width; column++){
+        //    for(int row = 0 (height+1)/2 row; row <= (height+1)/2 row height; row++){
+        int column = 0;
+        int maxcol = width;
+        if(modus == '|'){
+            if(inverted){
+                column = 0;
+            }else{
+                maxcol = width/2.0;
+            }
+        }
+        for(; column <= maxcol; column++){
+            int maxrow = height;
+            int row = 0;
+            switch(modus){
+              case '\\':
+                if(inverted){
+                    row = column;
+                }else{
+                    maxrow = column;
+                }
+                break;
+              case '/':
+                if(inverted){
+                    row = height-column;
+                }else{
+                    maxrow = height-column;
+                }
+                break;
+              case '-':
+                if(inverted){
+                    row = 0;
+                }else{
+                    maxrow = height/2.0;
+                }
+                break;
+            }
+            for(; row <= maxrow; row++){
+                /*int destCol = column;
+                int destRow = row;
+                if(rotate){//just mirror in both directions
+                    destCol = width - destCol;
+                    destRow = height - destRow;
+                }else{//mirroring is more complicated
+                    switch(modus){
+                      case '\':
+                        destCol = width - destCol;//mirror to /
+                      case '/'://have both the same row
+                        int tmp = row;//transpose
+                        row = col;
+                        col = tmp;
+                        break;
+                      case '-':
+                        row=height - row;
+                        break;
+                      case '|':
+                        col=width - col;
+                        break;
+                    }
+                    if(modus == '\'){
+                        destCol = width - destCol;//mirror to \
+                    }
+                }*/
+
+                if(swap){
+                    gmap->swapXY(projectCol(column,row,rotate,modus),
+                                 projectRow(column,row,rotate,modus),
+                                 column, row);
+                }else{
+                    gmap->copyXY(projectCol(column,row,rotate,modus),
+                                 projectRow(column,row,rotate,modus),
+                                 column, row);
+                }
+            }
+        }
+
+        int max = gmap->getMaxFactions();
+        int positionFlag[Shared::Map::MAX_MAP_FACTIONCOUNT];
+        //find and flag all players
+        for(int i = 0; i < max; i++){
+            int x = gmap->getStartLocationX(i) - this->selectionStartColumn;
+            int y = gmap->getStartLocationY(i) - this->selectionStartRow;
+
+            bool flag = 0;//0: not in selected area or already mirrored; 1: source; -1: destination, will be moved
+            if(x >= 0 && y >= 0 && x < width && y < height){//or <= ?
+                //we are definitely source or destination! or on the mirror axis
+                if(swap){
+                    flag = 1;
+                }else{
+                    switch(modus){
+                      case '\\':
+                        y = height - y;//first mirror to /
+                      case '/':// just for cubic selection
+                        if(y+x < width+1){
+                            flag = 1;
+                        }
+                        if(y+x > width+1){
+                            flag = -1;
+                        }
+                        break;
+                      case '-'://just mirror
+                        if(y < height/2.0){
+                            flag = 1;
+                        }
+                        if(y > height/2.0){
+                            flag = -1;
+                        }
+                        break;
+                      case '|'://do nothing
+                        if(x < width/2.0){
+                            flag = 1;
+                        }
+                        if(x > width/2.0){
+                            flag = -1;
+                        }
+                        break;
+                    }
+                }
+            }
+            //do *-1 for mirroring here
+            if(inverted){
+                flag *= -1;
+            }
+            positionFlag[i] = flag;
+        }
+
+        //do the actual mirroring
+        for(int i = 0; i < max; i++){
+            if(positionFlag[i] == 1){//get a source
+
+                int x = gmap->getStartLocationX(i);
+                int y = gmap->getStartLocationY(i);
+                int target = i;
+                if(!swap){// if we don’t swap this, we need another player
+                    target = -1;
+                    for(int j = 0; j < max && target < 0; j++){//get a destination
+                        if(positionFlag[j] == -1){
+                            target = j;
+                        }
+                    }
+                }
+                gmap->changeStartLocation(projectCol(x,y,rotate,modus),
+                                          projectRow(x,y,rotate,modus), target);
+                //mark as visited
+                positionFlag[i] = 0;
+                positionFlag[target] = 0;
             }
         }
 

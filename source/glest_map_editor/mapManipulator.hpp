@@ -204,12 +204,14 @@ namespace MapEditor{
             int getPlayerAmount();
         private:
             void updateEverything();
+            int projectCol(int col, int row, bool rotate, char modus);
+            int projectRow(int col, int row, bool rotate, char modus);
             /**
              * uses a methode on all selected tiles
              * @param modus c: copy; s: swap
              * TODO: more explaination
              */
-            void axisTool(char modus, int columnLimit, int rowLimit ,bool invertColumn, bool invertRow);
+            void axisTool(char modus, bool swap, bool rotate, bool inverted);
             /**
              * TODO: write something
              * @param mirror only makes sense if the selection is a square
