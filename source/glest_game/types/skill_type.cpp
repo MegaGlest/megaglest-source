@@ -190,7 +190,7 @@ string AttackBoost::getDesc(bool translatedValue) const{
     		vector<string>::iterator tagIter;
     		for (tagIter = outputTags.begin(); tagIter != outputTags.end(); ++tagIter) {
     			string tag = *tagIter;
-    			str+= indent + "Tag: " + tag + "\n";
+    			str+= indent + lang.getString("TagDesc", (translatedValue == true ? "" : "english")) + " " + tag + "\n";
     		}
     	}
 
