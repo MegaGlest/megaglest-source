@@ -270,6 +270,14 @@ void AttackBoost::loadGame(const XmlNode *rootNode, Faction *faction, const Skil
 			}
 		}
 	}
+	if(attackBoostNode->hasChild("tag")) {
+		vector<XmlNode *> tagNodeList = attackBoostNode->getChildList("tag");
+		for(unsigned int i = 0; i < tagNodeList.size(); ++i) {
+			XmlNode *node = tagNodeList[i];
+			string tagName = node->getAttribute("name")->getValue();
+			tags.insert(tagName);
+		}
+	}
 	//boostUpgrade.loadGame(attackBoostNode,faction);
 	boostUpgrade = skillType->getAttackBoost()->boostUpgrade;
 
@@ -302,7 +310,7 @@ void AttackBoost::saveGame(XmlNode *rootNode) const {
 		XmlNode *unitTypeNode = attackBoostNode->addChild("UnitType");
 		unitTypeNode->addAttribute("name",unit->getName(false), mapTagReplacements);
 	}
-	std::set<const UnitType*>::iterator tagIter;
+	std::set<string>::iterator tagIter;
 	for (tagIter = tags.begin(); tagIter != tags.end(); ++tagIter) {
 		string tag = *tagIter;
 		XmlNode *unitTypeNode = attackBoostNode->addChild("tag");
