@@ -72,7 +72,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 						break;
 					}
 				}
-	    		set<string> unitTags = dest->getType()->getTags();
+	    		const set<string> unitTags = dest->getType()->getTags();
 	    		set<string> intersect;
 	    		set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
 	    				std::inserter(intersect,intersect.begin()));
@@ -94,7 +94,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 							break;
 						}
 					}
-		    		set<string> unitTags = dest->getType()->getTags();
+		    		const set<string> unitTags = dest->getType()->getTags();
 		    		set<string> intersect;
 		    		set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
 		    				std::inserter(intersect,intersect.begin()));
@@ -142,7 +142,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 							break;
 						}
 					}
-		    		set<string> unitTags = dest->getType()->getTags();
+		    		const set<string> unitTags = dest->getType()->getTags();
 		    		set<string> intersect;
 		    		set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
 		    				std::inserter(intersect,intersect.begin()));
@@ -160,7 +160,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 						break;
 					}
 				}
-	    		set<string> unitTags = dest->getType()->getTags();
+	    		const set<string> unitTags = dest->getType()->getTags();
 	    		set<string> intersect;
 	    		set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
 	    				std::inserter(intersect,intersect.begin()));
@@ -296,11 +296,17 @@ void AttackBoost::saveGame(XmlNode *rootNode) const {
 //	AttackBoostTargetType targetType;
 	attackBoostNode->addAttribute("targetType",intToStr(targetType), mapTagReplacements);
 //	vector<const UnitType *> boostUnitList;
-	std::set<const UnitType*>::iterator it;
-	for (it = boostUnitList.begin(); it != boostUnitList.end(); ++it) {
-		const UnitType *unit = *it;
+	std::set<const UnitType*>::iterator unitIter;
+	for (unitIter = boostUnitList.begin(); unitIter != boostUnitList.end(); ++unitIter) {
+		const UnitType *unit = *unitIter;
 		XmlNode *unitTypeNode = attackBoostNode->addChild("UnitType");
 		unitTypeNode->addAttribute("name",unit->getName(false), mapTagReplacements);
+	}
+	std::set<const UnitType*>::iterator tagIter;
+	for (tagIter = tags.begin(); tagIter != tags.end(); ++tagIter) {
+		string tag = *tagIter;
+		XmlNode *unitTypeNode = attackBoostNode->addChild("tag");
+		unitTypeNode->addAttribute("name", tag, mapTagReplacements);
 	}
 //	UpgradeTypeBase boostUpgrade;
 	boostUpgrade.saveGame(attackBoostNode);

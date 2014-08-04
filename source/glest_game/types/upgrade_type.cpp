@@ -767,18 +767,11 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 bool UpgradeType::isAffected(const UnitType *unitType) const{
 	if(std::find(effects.begin(), effects.end(), unitType)!=effects.end()) return true;
 
-	// Check if the unit has any of the affected tags
-	if(unitType->getTags().size() == 0) return false;
-
-	std::set<string>::iterator upgradeIter;
-	for(upgradeIter = tags.begin(); upgradeIter != tags.end(); ++upgradeIter) {
-		std::set<string>::iterator unitIter;
-		for(unitIter = unitType->getTags().begin(); unitIter != unitType->getTags().end(); ++unitIter) {
-			string unitTag = *unitIter;
-			string upgradeTag = *upgradeIter;
-			if(unitTag == upgradeTag) return true;
-		}
-	}
+	const set<string> unitTags = unitType->getTags();
+	set<string> intersect;
+	set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
+			std::inserter(intersect,intersect.begin()));
+	if(!intersect.empty()) return true;
 
 	return false;
 }

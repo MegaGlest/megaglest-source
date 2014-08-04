@@ -264,7 +264,7 @@ public:
 	inline const Resource *getStoredResource(int i) const		{return &storedResources[i];}
 	int getLootableResourceCount() const					{return lootableResources.size();}
 	inline const LootableResource getLootableResource(int i) const		{return lootableResources.at(i);}
-	set<string> getTags() const	{return tags;}
+	const set<string> &getTags() const	{return tags;}
 	bool getCellMapCell(int x, int y, CardinalDir facing) const;
 	inline bool getMeetingPoint() const						{return meetingPoint;}
 	inline bool getCountUnitDeathInStats() const				{return countUnitDeathInStats;}
