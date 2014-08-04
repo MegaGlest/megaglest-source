@@ -566,21 +566,31 @@ string UpgradeType::getReqDesc(bool translatedValue) const{
 	Lang &lang= Lang::getInstance();
     string str= ProducibleType::getReqDesc(translatedValue);
     string indent="  ";
-	if(!effects.empty()){
+	if(!effects.empty() || !tags.empty()){
 		str+= "\n"+ lang.getString("Upgrades",(translatedValue == true ? "" : "english"))+"\n";
 	}
 	str+=UpgradeTypeBase::getDesc(translatedValue);
-	if(!effects.empty()){
+	if(!effects.empty() || !tags.empty()){
 		str+= lang.getString("AffectedUnits",(translatedValue == true ? "" : "english"))+"\n";
 
 		// We want the output to be sorted, so convert the set to a vector and sort that
-		std::vector<const UnitType*> output(effects.begin(), effects.end());
-		std::sort(output.begin(), output.end(), UnitTypeSorter());
+		std::vector<const UnitType*> outputUnits(effects.begin(), effects.end());
+		std::sort(outputUnits.begin(), outputUnits.end(), UnitTypeSorter());
 
-		vector<const UnitType*>::iterator it;
-		for (it = output.begin(); it != output.end(); ++it) {
-			const UnitType *unit = *it;
+		vector<const UnitType*>::iterator unitIter;
+		for (unitIter = outputUnits.begin(); unitIter != outputUnits.end(); ++unitIter) {
+			const UnitType *unit = *unitIter;
 			str+= indent+unit->getName(translatedValue)+"\n";
+		}
+
+		// Do the same for tags
+		std::vector<string> outputTags(tags.begin(), tags.end());
+		std::sort(outputTags.begin(), outputTags.end());
+
+		vector<string>::iterator tagIter;
+		for (tagIter = outputTags.begin(); tagIter != outputTags.end(); ++tagIter) {
+			string tag = *tagIter;
+			str+= indent + "Tag: " + tag + "\n";
 		}
 	}
 	return str;
@@ -740,7 +750,6 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 		for(size_t i = 0; i < tagNodes.size(); ++i) {
 			const XmlNode *tagNode= tagNodes.at(i);
 			string name= tagNode->getAttribute("name")->getRestrictedValue();
-
 			tags.insert(name);
 		}
 
@@ -758,11 +767,20 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 bool UpgradeType::isAffected(const UnitType *unitType) const{
 	if(std::find(effects.begin(), effects.end(), unitType)!=effects.end()) return true;
 
-	// Does the unit have at least one of the affected tags?
-	set<string> intersect;
-	set_intersection(tags.begin(),tags.end(),unitType->getTags().begin(),unitType->getTags().end(),
-			std::inserter(intersect,intersect.begin()));
-	return !intersect.empty();
+	// Check if the unit has any of the affected tags
+	if(unitType->getTags().size() == 0) return false;
+
+	std::set<string>::iterator upgradeIter;
+	for(upgradeIter = tags.begin(); upgradeIter != tags.end(); ++upgradeIter) {
+		std::set<string>::iterator unitIter;
+		for(unitIter = unitType->getTags().begin(); unitIter != unitType->getTags().end(); ++unitIter) {
+			string unitTag = *unitIter;
+			string upgradeTag = *upgradeIter;
+			if(unitTag == upgradeTag) return true;
+		}
+	}
+
+	return false;
 }
 
 //void UpgradeType::saveGame(XmlNode *rootNode) const {

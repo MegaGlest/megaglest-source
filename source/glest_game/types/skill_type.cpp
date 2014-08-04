@@ -218,20 +218,30 @@ string AttackBoost::getDesc(bool translatedValue) const{
     		str+= lang.getString("AffectedUnitsFromAll") +":\n";
     	}
 
-    	if(boostUnitList.empty() == false) {
-    		// We want the output to be sorted, so convert the set to a vector and sort that
-    		std::vector<const UnitType*> output(boostUnitList.begin(), boostUnitList.end());
-    		std::sort(output.begin(), output.end(), UnitTypeSorter());
-
-    		vector<const UnitType*>::iterator it;
-    		for (it = output.begin(); it != output.end(); ++it) {
-    			const UnitType *unit = *it;
-    			str+= indent+unit->getName(translatedValue)+"\n";
-    		}
+    	if(boostUnitList.empty() && tags.empty()) {
+    		str+= lang.getString("All")+"\n";
     	}
     	else
     	{
-    		str+= lang.getString("All")+"\n";
+    		// We want the output to be sorted, so convert the set to a vector and sort that
+    		std::vector<const UnitType*> outputUnits(boostUnitList.begin(), boostUnitList.end());
+    		std::sort(outputUnits.begin(), outputUnits.end(), UnitTypeSorter());
+
+    		vector<const UnitType*>::iterator unitIter;
+    		for (unitIter = outputUnits.begin(); unitIter != outputUnits.end(); ++unitIter) {
+    			const UnitType *unit = *unitIter;
+    			str+= indent+unit->getName(translatedValue)+"\n";
+    		}
+
+    		// Do the same for tags
+    		std::vector<string> outputTags(tags.begin(), tags.end());
+    		std::sort(outputTags.begin(), outputTags.end());
+
+    		vector<string>::iterator tagIter;
+    		for (tagIter = outputTags.begin(); tagIter != outputTags.end(); ++tagIter) {
+    			string tag = *tagIter;
+    			str+= indent + "Tag: " + tag + "\n";
+    		}
     	}
 
     	return str;
