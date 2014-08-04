@@ -212,11 +212,7 @@ namespace MapEditor{
              * TODO: more explaination
              */
             void axisTool(char modus, bool swap, bool rotate, bool inverted);
-            /**
-             * TODO: write something
-             * @param mirror only makes sense if the selection is a square
-             */
-            void diagonalTool(char modus, int columnLimit, int rowLimit ,bool invertColumn, bool invertRow ,bool mirror);
+
             MainWindow *win;//for user input
             Renderer *renderer;//for accessing the map
             int radius;
