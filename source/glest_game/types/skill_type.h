@@ -111,6 +111,7 @@ public:
 
 	bool isAffected(const Unit *source, const Unit *dest) const;
 	virtual string getDesc(bool translatedValue) const;
+	string getTagName(string tag, bool translatedValue=false) const;
 
 	virtual void saveGame(XmlNode *rootNode) const;
 	virtual void loadGame(const XmlNode *rootNode, Faction *faction, const SkillType *skillType);

@@ -129,6 +129,13 @@ bool AttackBoost::isInUnitListOrTags(const UnitType *unitType) const {
 	return false;
 }
 
+string AttackBoost::getTagName(string tag, bool translatedValue) const {
+	if(translatedValue == false) return tag;
+
+	Lang &lang = Lang::getInstance();
+	return lang.getTechTreeString("TagName_" + tag, tag.c_str());
+}
+
 string AttackBoost::getDesc(bool translatedValue) const{
 	Lang &lang= Lang::getInstance();
     string str= "";
@@ -190,7 +197,8 @@ string AttackBoost::getDesc(bool translatedValue) const{
     		vector<string>::iterator tagIter;
     		for (tagIter = outputTags.begin(); tagIter != outputTags.end(); ++tagIter) {
     			string tag = *tagIter;
-    			str+= indent + lang.getString("TagDesc", (translatedValue == true ? "" : "english")) + " " + tag + "\n";
+    			str+= indent + lang.getString("TagDesc", (translatedValue == true ? "" : "english")) +
+    					" " + getTagName(tag,translatedValue)  + "\n";
     		}
     	}
 

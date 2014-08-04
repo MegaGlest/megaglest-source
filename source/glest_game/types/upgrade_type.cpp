@@ -562,6 +562,13 @@ string UpgradeType::getName(bool translatedValue) const {
 	return lang.getTechTreeString("UpgradeTypeName_" + name,name.c_str());
 }
 
+string UpgradeType::getTagName(string tag, bool translatedValue) const {
+	if(translatedValue == false) return tag;
+
+	Lang &lang = Lang::getInstance();
+	return lang.getTechTreeString("TagName_" + tag, tag.c_str());
+}
+
 string UpgradeType::getReqDesc(bool translatedValue) const{
 	Lang &lang= Lang::getInstance();
     string str= ProducibleType::getReqDesc(translatedValue);
@@ -590,7 +597,8 @@ string UpgradeType::getReqDesc(bool translatedValue) const{
 		vector<string>::iterator tagIter;
 		for (tagIter = outputTags.begin(); tagIter != outputTags.end(); ++tagIter) {
 			string tag = *tagIter;
-			str+= indent + "Tag: " + tag + "\n";
+			str+= indent + lang.getString("TagDesc", (translatedValue == true ? "" : "english")) +
+					" " + getTagName(tag,translatedValue)  + "\n";
 		}
 	}
 	return str;

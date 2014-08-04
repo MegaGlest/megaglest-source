@@ -231,6 +231,7 @@ public:
     		bool validationMode=false);
 
     virtual string getName(bool translatedValue=false) const;
+	string getTagName(string tag, bool translatedValue=false) const;
 
     //get all
 	bool isAffected(const UnitType *unitType) const;
