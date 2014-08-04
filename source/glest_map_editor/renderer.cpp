@@ -222,11 +222,13 @@ namespace MapEditor {
         if(realIndex > 0){
             this->historyPos++;
             *this->map = this->history[realIndex-1];
+            this->resize();
             this->updateMap();
             this->recalculateAll();
             //this->updateTiles();
             this->updatePlayerPositions();
             this->updateMaxPlayers();
+            this->resize();
         }
     }
 
@@ -237,11 +239,13 @@ namespace MapEditor {
             this->historyPos--;
             int realIndex = (this->history.size()-1) - this->historyPos;
             *this->map = this->history[realIndex];
+            this->resize();
             this->updateMap();
             this->recalculateAll();
             //this->updateTiles();
             this->updatePlayerPositions();
             this->updateMaxPlayers();
+
         }
     }
 
@@ -315,10 +319,7 @@ namespace MapEditor {
     void Renderer::updateMaxPlayers(){
         unsigned int maxPlayers = this->map->getMaxFactions();
         this->mapman->getWindow()->limitPlayers(maxPlayers);
-        //std::cout << "max. players: " << maxPlayers << std::endl;
         for(unsigned int i = 0; i < (sizeof(player)/sizeof(*player)); i++){
-            //cout << i << ": " << this->map->getStartLocationX(i) << ", " << this->map->getStartLocationY(i) << endl;
-            //this->player[i]->move(this->map->getStartLocationX(i), this->map->getStartLocationY(i));
             this->player[i]->setVisible(i < maxPlayers);
         }
     }

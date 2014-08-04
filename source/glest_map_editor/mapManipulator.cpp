@@ -233,24 +233,7 @@ namespace MapEditor{
     }
 
     void MapManipulator::reset(int width, int height, int surface, float altitude, int players){
-        //dostuff
-        /*Shared::Map::MapSurfaceType surf = Shared::Map::st_Grass;
-        switch(surface){
-            case 1:
-                surf = Shared::Map::st_Secondary_Grass;
-                break;
-            case 2:
-                surf = Shared::Map::st_Road;
-                break;
-            case 3:
-                surf = Shared::Map::st_Stone;
-                break;
-            case 4:
-                surf = Shared::Map::st_Ground;
-                break;
-        }*/
         this->renderer->getMap()->reset(width, height, altitude, (Shared::Map::MapSurfaceType)(surface+1));
-        //this->renderer->getMap()->resize(int w, int h, float alt, MapSurfaceType surf);
         this->renderer->getMap()->resetFactions(players);
         this->renderer->updatePlayerPositions();
         this->renderer->updateMaxPlayers();
@@ -263,50 +246,15 @@ namespace MapEditor{
         this->renderer->getMap()->resetFactions(amount);
         this->renderer->restorePlayerPositions();
         this->renderer->updateMaxPlayers();
-        //this->updateEverything();
+        this->updateEverything();
     }
 
-    //the fuck is this method for??? TODO
     void MapManipulator::resize(int width, int height, int surface, float altitude){
-        //TODO:should outsource this
-        /*Shared::Map::MapSurfaceType surf = Shared::Map::st_Grass;
-        switch(surface){
-            case 1:
-                surf = Shared::Map::st_Secondary_Grass;
-                break;
-            case 2:
-                surf = Shared::Map::st_Road;
-                break;
-            case 3:
-                surf = Shared::Map::st_Stone;
-                break;
-            case 4:
-                surf = Shared::Map::st_Ground;
-                break;
-        }*/
-        //TODO: refit the selection and player positions!
-        //this->renderer->getMap()->
         this->renderer->getMap()->resize(width, height, altitude, (Shared::Map::MapSurfaceType)(surface+1));
         this->renderer->resize();
         this->fitSelection();
         this->updateEverything();
     }
-
-    /*Shared::Map::MapSurfaceType intToSurface(int surface){
-        using namespace Shared::Map;
-        MapSurfaceType surf = st_Grass;
-        switch(surface){
-            case 1:
-                return st_Secondary_Grass;
-            case 2:
-                return st_Road;
-            case 3:
-                return st_Stone;
-            case 4:
-                return st_Ground;
-        }
-        return st_Grass;
-    }*/
 
     void MapManipulator::setSelection(int startColumn, int startRow, int endColumn, int endRow){
         if(endRow == -1 || endColumn == -1 || startRow == -1 || startColumn == -1){
