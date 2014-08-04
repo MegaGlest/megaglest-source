@@ -557,9 +557,9 @@ namespace MapEditor{
         }else{//mirroring is more complicated
             switch(modus){
               case '\\':
-                return width - row;//first mirror to / and transpone then
-              case '/':
                 return row;//transpone
+              case '/':
+                return width - row;//first mirror to / and transpone then
               case '|'://just mirror
                 return width - col;
               default://do nothing
@@ -577,9 +577,9 @@ namespace MapEditor{
         }else{//mirroring is more complicated
             switch(modus){
               case '\\':
-                return width - col;//first mirror to / and transpone then
-              case '/':
                 return col;//transpone
+              case '/':
+                return width - col;//first mirror to / and transpone then
               case '-'://just mirror
                 return height - row;
               default://do nothing
@@ -612,9 +612,9 @@ namespace MapEditor{
             switch(modus){
               case '\\':
                 if(inverted){
-                    row = column;
-                }else{
                     maxrow = column;
+                }else{
+                    row = column;
                 }
                 break;
               case '/':
@@ -654,7 +654,7 @@ namespace MapEditor{
             int x = gmap->getStartLocationX(i) - this->selectionStartColumn;
             int y = gmap->getStartLocationY(i) - this->selectionStartRow;
 
-            bool flag = 0;//0: not in selected area or already mirrored; 1: source; -1: destination, will be moved
+            int flag = 0;//0: not in selected area or already mirrored; 1: source; -1: destination, will be moved
             if(x >= 0 && y >= 0 && x < width && y < height){//or <= ?
                 //we are definitely source or destination! or on the mirror axis
                 if(swap){
