@@ -62,21 +62,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 			// All units are affected (including enemies)
 			if(targetType == abtAll) {
 				destUnitMightApply = (boostUnitList.empty() && tags.empty());
-
-				// Specify which units are affected
-	    		std::set<const UnitType*>::iterator it;
-	    		for (it = boostUnitList.begin(); it != boostUnitList.end(); ++it) {
-	    			const UnitType *unit = *it;
-	    			if(dest->getType()->getId() == unit->getId()) {
-						destUnitMightApply = true;
-						break;
-					}
-				}
-	    		const set<string> unitTags = dest->getType()->getTags();
-	    		set<string> intersect;
-	    		set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
-	    				std::inserter(intersect,intersect.begin()));
-	    		if(!intersect.empty()) destUnitMightApply = true;
+				destUnitMightApply = isInUnitListOrTags(dest->getType());
 			}
 			// Only same faction units are affected
 			else if(targetType == abtFaction) {
@@ -84,21 +70,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 				if(source->getFactionIndex() == dest->getFactionIndex()) {
 					//destUnitMightApply = true;
 					destUnitMightApply = (boostUnitList.empty() && tags.empty());
-
-					// Specify which units are affected
-		    		std::set<const UnitType*>::iterator it;
-		    		for (it = boostUnitList.begin(); it != boostUnitList.end(); ++it) {
-		    			const UnitType *unit = *it;
-		    			if(dest->getType()->getId() == unit->getId()) {
-							destUnitMightApply = true;
-							break;
-						}
-					}
-		    		const set<string> unitTags = dest->getType()->getTags();
-		    		set<string> intersect;
-		    		set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
-		    				std::inserter(intersect,intersect.begin()));
-		    		if(!intersect.empty()) destUnitMightApply = true;
+					destUnitMightApply = isInUnitListOrTags(dest->getType());
 				}
 				//}
 			}
@@ -108,21 +80,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 				if(source->isAlly(dest) == true) {
 					//destUnitMightApply = true;
 					destUnitMightApply = (boostUnitList.empty() && tags.empty());
-
-					// Specify which units are affected
-		    		std::set<const UnitType*>::iterator it;
-		    		for (it = boostUnitList.begin(); it != boostUnitList.end(); ++it) {
-		    			const UnitType *unit = *it;
-		    			if(dest->getType()->getId() == unit->getId()) {
-							destUnitMightApply = true;
-							break;
-						}
-					}
-		    		set<string> unitTags = dest->getType()->getTags();
-		    		set<string> intersect;
-		    		set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
-		    				std::inserter(intersect,intersect.begin()));
-		    		if(!intersect.empty()) destUnitMightApply = true;
+					destUnitMightApply = isInUnitListOrTags(dest->getType());
 				}
 				//}
 			}
@@ -132,39 +90,12 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 				if(source->isAlly(dest) == false) {
 					//destUnitMightApply = true;
 					destUnitMightApply = (boostUnitList.empty() && tags.empty());
-
-					// Specify which units are affected
-		    		std::set<const UnitType*>::iterator it;
-		    		for (it = boostUnitList.begin(); it != boostUnitList.end(); ++it) {
-		    			const UnitType *unit = *it;
-		    			if(dest->getType()->getId() == unit->getId()) {
-							destUnitMightApply = true;
-							break;
-						}
-					}
-		    		const set<string> unitTags = dest->getType()->getTags();
-		    		set<string> intersect;
-		    		set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
-		    				std::inserter(intersect,intersect.begin()));
-		    		if(!intersect.empty()) destUnitMightApply = true;
+					destUnitMightApply = isInUnitListOrTags(dest->getType());
 				}
 				//}
 			}
 			else if(targetType == abtUnitTypes) {
-				// Specify which units are affected
-	    		std::set<const UnitType*>::iterator it;
-	    		for (it = boostUnitList.begin(); it != boostUnitList.end(); ++it) {
-	    			const UnitType *unit = *it;
-	    			if(dest->getType()->getId() == unit->getId()) {
-						destUnitMightApply = true;
-						break;
-					}
-				}
-	    		const set<string> unitTags = dest->getType()->getTags();
-	    		set<string> intersect;
-	    		set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
-	    				std::inserter(intersect,intersect.begin()));
-	    		if(!intersect.empty()) destUnitMightApply = true;
+				destUnitMightApply = isInUnitListOrTags(dest->getType());
 			}
 		}
 
@@ -177,6 +108,25 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 	}
 
 	return result;
+}
+
+bool AttackBoost::isInUnitListOrTags(const UnitType *unitType) const {
+	// Specify which units are affected
+	std::set<const UnitType*>::iterator it;
+	for (it = boostUnitList.begin(); it != boostUnitList.end(); ++it) {
+		const UnitType *boostUnit = *it;
+		if(unitType->getId() == boostUnit->getId()) {
+			return true;
+		}
+	}
+	set<string> unitTags = unitType->getTags();
+	set<string> intersect;
+	set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
+			std::inserter(intersect,intersect.begin()));
+	if(!intersect.empty()) return true;
+
+	// Otherwise no match
+	return false;
 }
 
 string AttackBoost::getDesc(bool translatedValue) const{

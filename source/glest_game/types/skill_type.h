@@ -114,6 +114,16 @@ public:
 
 	virtual void saveGame(XmlNode *rootNode) const;
 	virtual void loadGame(const XmlNode *rootNode, Faction *faction, const SkillType *skillType);
+
+private:
+	/**
+	 * Checks if a unit is affected by the attack boost by checking if either the UnitType is in
+	 * the #boostUnitList or shares a tag with #tags.
+	 * @param unitType The unit type to check.
+	 * @return True if the unit *might* be affected by the attack boost (still have to check if it's
+	 * in range), false otherwise.
+	 */
+	bool isInUnitListOrTags(const UnitType *unitType) const;
 };
 
 class AnimationAttributes {
