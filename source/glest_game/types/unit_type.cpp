@@ -597,7 +597,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		if(parametersNode->hasChild("resources-death")) {
 			const XmlNode *deathResourcesNode= parametersNode->getChild("resources-death");
 
-			for(int i=0; i < deathResourcesNode->getChildCount(); ++i){
+			for(size_t i=0; i < deathResourcesNode->getChildCount(); ++i){
 				const XmlNode *resourceNode= deathResourcesNode->getChild("resource", i);
 				string name= resourceNode->getAttribute("name")->getRestrictedValue();
 
@@ -655,7 +655,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		if(parametersNode->hasChild("tags")) {
 			const XmlNode *tagsNode= parametersNode->getChild("tags");
 
-			for(int i=0; i < tagsNode->getChildCount(); ++i){
+			for(size_t i=0; i < tagsNode->getChildCount(); ++i){
 				const XmlNode *resourceNode= tagsNode->getChild("tag", i);
 				string tag= resourceNode->getAttribute("value")->getRestrictedValue();
 				tags.insert(tag);
