@@ -25,6 +25,9 @@
 #include <QByteArray>
 #include <QMimeData>
 
+#include <QMessageBox>
+#include "platform_util.h"
+
 #include <QDebug>
 
 
@@ -233,13 +236,17 @@ namespace MapEditor{
     }
 
     void MapManipulator::reset(int width, int height, int surface, float altitude, int players){
-        this->renderer->getMap()->reset(width, height, altitude, (Shared::Map::MapSurfaceType)(surface+1));
-        this->renderer->getMap()->resetFactions(players);
-        this->renderer->updatePlayerPositions();
-        this->renderer->updateMaxPlayers();
-        this->renderer->resize();//changes width and height; updates and recalculates map
-        this->renderer->clearHistory();
-        this->selectAll();
+        try{
+            this->renderer->getMap()->reset(width, height, altitude, (Shared::Map::MapSurfaceType)(surface+1));
+            this->renderer->getMap()->resetFactions(players);
+            this->renderer->updatePlayerPositions();
+            this->renderer->updateMaxPlayers();
+            this->renderer->resize();//changes width and height; updates and recalculates map
+            this->renderer->clearHistory();
+            this->selectAll();
+        }catch(const Shared::Platform::megaglest_runtime_error &ex) {
+            this->win->showRuntimeError("Can’t reset map, wrong parameters.", ex);
+        }
     }
 
     void MapManipulator::changePlayerAmount(int amount){
@@ -250,10 +257,14 @@ namespace MapEditor{
     }
 
     void MapManipulator::resize(int width, int height, int surface, float altitude){
-        this->renderer->getMap()->resize(width, height, altitude, (Shared::Map::MapSurfaceType)(surface+1));
-        this->renderer->resize();
-        this->fitSelection();
-        this->updateEverything();
+        try{
+            this->renderer->getMap()->resize(width, height, altitude, (Shared::Map::MapSurfaceType)(surface+1));
+            this->renderer->resize();
+            this->fitSelection();
+            this->updateEverything();
+        }catch(const Shared::Platform::megaglest_runtime_error &ex) {
+            this->win->showRuntimeError("Can’t resize map, wrong parameters.", ex);
+        }
     }
 
     void MapManipulator::setSelection(int startColumn, int startRow, int endColumn, int endRow){

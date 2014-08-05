@@ -43,6 +43,10 @@
 //#include <memory>
 #include <QCloseEvent>
 
+
+#include <QMessageBox>
+#include <iostream>
+
 using namespace Shared::PlatformCommon;
 using namespace Glest::Game;
 
@@ -87,7 +91,11 @@ namespace MapEditor {
         renderer = new Renderer(mapman, status);
         if(args.size() == 2){//map name given
             if(QFile::exists(args[1]) && (QFile::permissions(args[1]) & QFile::ReadUser) ){
-                this->renderer->open(args[1].toStdString());
+                try{
+                    this->renderer->open(args[1].toStdString());
+                }catch(const Shared::Platform::megaglest_runtime_error &ex) {
+                    showRuntimeError("Can’t read file, invalid format.", ex);
+                }
             }else{
                 std::cout << "given map is invalid" << std::endl;
             }
@@ -211,6 +219,14 @@ namespace MapEditor {
         }
     }
 
+    int MainWindow::showRuntimeError(const std::string text, const Shared::Platform::megaglest_runtime_error &ex) {
+        std::cerr << ex.what() << std::endl;
+        QMessageBox messageBox( QMessageBox::Critical, tr("A runtime error occured!"), tr("A runtime error occured!"), QMessageBox::Ok, this);
+        messageBox.setInformativeText(tr(text.c_str()));
+        messageBox.setDetailedText(ex.what());
+        return messageBox.exec();
+    }
+
     //for translation ... somehow
     void MainWindow::changeEvent(QEvent *e){
         QMainWindow::changeEvent(e);
@@ -229,7 +245,11 @@ namespace MapEditor {
         string defaultPath = userData + "maps/";
         QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),QString::fromStdString(defaultPath),tr("Mega&Glest Map(*.mgm *.gbm)"));
         if(fileName != NULL){
-            this->renderer->open(fileName.toStdString());
+            try{
+                this->renderer->open(fileName.toStdString());
+            }catch(const Shared::Platform::megaglest_runtime_error &ex) {
+                showRuntimeError("Can’t read file, invalid format.", ex);
+            }
         }
     }
 
@@ -250,16 +270,24 @@ namespace MapEditor {
             }
 
             if(reallySave){
-                this->renderer->save(fileName.toStdString());
+                try{
+                    this->renderer->save(fileName.toStdString());
+                }catch(const Shared::Platform::megaglest_runtime_error &ex) {
+                    showRuntimeError("Can’t save map here.", ex);
+                }
             }else{
-                this->saveFile();
+                this->saveFile();//no suffix added
             }
         }
     }
 
     void MainWindow::quickSave(){
         if(this->renderer->isSavable()){
-            this->renderer->save();
+            try{
+                this->renderer->save();
+            }catch(const Shared::Platform::megaglest_runtime_error &ex) {
+                    showRuntimeError("Can’t save map here.", ex);
+                }
         }else{
             this->saveFile();
         }

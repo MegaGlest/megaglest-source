@@ -17,6 +17,7 @@
 #endif
 
 #include <QMainWindow>
+#include "platform_util.h"
 
 class QGraphicsScene;
 class QGraphicsView;
@@ -52,6 +53,7 @@ namespace MapEditor {
             QAction *getPen() const;
             QGraphicsView *getView() const;
             void limitPlayers(int limit);
+            int showRuntimeError(const std::string text, const Shared::Platform::megaglest_runtime_error &ex);
 
         protected:
             void changeEvent(QEvent *e);
