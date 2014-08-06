@@ -19,6 +19,7 @@
 
 #include <QAction>
 #include <QGraphicsScene>
+#include <QGraphicsView>
 #include <QString>
 #include <QApplication>
 #include <QClipboard>
@@ -337,8 +338,8 @@ namespace MapEditor{
         header.height = this->selectionEndColumn - this->selectionStartColumn + 1;
         header.width = this->selectionEndRow - this->selectionStartRow + 1;
 
-        std::cout << "column: " << header.column << "; row: " << header.row
-            << "; width: " << header.width << "; height: " << header.height << std::endl;
+        //~ std::cout << "column: " << header.column << "; row: " << header.row
+            //~ << "; width: " << header.width << "; height: " << header.height << std::endl;
 
         QByteArray subMapData( (const char*) &header, sizeof(SubMapHeader) );
         //store the heights
@@ -401,28 +402,40 @@ namespace MapEditor{
 
         const QMimeData *mimeData = QApplication::clipboard()->mimeData();
 
+        int rowOffset = this->selectionStartRow;
+        int columnOffset = this->selectionStartColumn;
+
+        QGraphicsView* v = win->getView();
+        QPointF p = v->mapToScene(v->mapFromGlobal(QCursor::pos()));
+        p /= Tile::getSize(); //reduce position to tiles
+        //~ std::cout << "x: " << p.x() << "; y: " << p.y() << std::endl;
+        if(p.x() >= 0 && p.y() >= 0 &&
+           p.x() < getWidth() && p.y() < getHeight() ){
+            rowOffset = p.y();
+            columnOffset = p.x();
+        }
+
         //check if clipboard contains a submap
         if(mimeData && mimeData->hasFormat("application/mg-submap")){
             QByteArray subMapData = mimeData->data("application/mg-submap");
             ///qDebug() << "paste (" << subMapData.size() << "): " << subMapData.toHex();
 
             //read the header
-            SubMapHeader *header = (SubMapHeader*)( subMapData.left(sizeof(SubMapHeader)).constData() );
-            ///std::cout << "column: " << header->column << "; row: " << header->row
-            ///<< "; width: " << header->width << "; height: " << header->height << std::endl;
+            SubMapHeader header = *(SubMapHeader*)(subMapData.left(sizeof(SubMapHeader)).constData());
+            //~ std::cout << "column: " << header->column << "; row: " << header->row
+            //~ << "; width: " << header->width << "; height: " << header->height << std::endl;
 
-            int rowOffset = this->selectionStartRow;
-            int columnOffset = this->selectionStartColumn;
 
             //only paste within the map
-            int maxWidth = min(header->height,map->getH() - rowOffset);
-            int maxHeight = min(header->width,map->getW() - columnOffset);
+            int maxHeight = min(header.height,renderer->getHeight() - rowOffset);
+            int maxWidth = min(header.width,renderer->getWidth() - columnOffset);
 
             //resize selection
-            /*this->selectionEndRow = rowOffset + maxHeight - 1;
-            this->selectionEndColumn = columnOffset + maxWidth - 1;*/
-            //this->renderer->getSelectionRect()->resize(maxWidth, maxHeight);
-            //this->fitSelection(false);
+            this->selectionStartRow = rowOffset;
+            this->selectionStartColumn = columnOffset;
+            this->selectionEndRow = rowOffset + maxHeight - 1;
+            this->selectionEndColumn = columnOffset + maxWidth - 1;
+            this->fitSelection(false);
 
             //we need to know, where we want to read
             int position = sizeof(SubMapHeader);
@@ -442,8 +455,8 @@ namespace MapEditor{
                         byteSize = sizeof(int);
                         break;
                 }
-                for(int column = 0; column < maxHeight; column++){
-                    for(int row = 0; row < maxWidth; row++){
+                for(int column = 0; column < maxWidth; column++){
+                    for(int row = 0; row < maxHeight; row++){
                         switch(section){
                             case HEIGHT:{
                                 //convert from byte to float
@@ -476,17 +489,16 @@ namespace MapEditor{
                         position += byteSize;
                     }
                     //skip all cells not copied in this column
-                    position += byteSize * (header->width - maxWidth);
+                    position += byteSize * (header.width - maxHeight);
                     ///std::cout << std::endl;
                 }
                 //skip all not copied rows
-                position += byteSize * (header->width) * (header->height - maxHeight);
+                position += byteSize * (header.width) * (header.height - maxWidth);
                 ///std::cout << std::endl;
             }
 
             //this action should be reversible
             this->updateEverything();
-            std::cout << "copy done" << std::endl;
         }
     }
 

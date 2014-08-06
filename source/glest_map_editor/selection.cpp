@@ -30,8 +30,9 @@ namespace MapEditor {
     }
 
     void Selection::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
-        //painter->translate(column * Tile::getSize(),row  * Tile::getSize());
-        painter->setPen(QPen(Qt::red, 1, Qt::DashLine, Qt::RoundCap));
+        QPen red(Qt::red, 1, Qt::DashLine, Qt::RoundCap);
+        red.setCosmetic(true);
+        painter->setPen(red);
         painter->drawRect(this->boundingRect());
         //drawLine would produce overlapping lines -> ugly with half opacity
     }
