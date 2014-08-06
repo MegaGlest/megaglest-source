@@ -68,7 +68,6 @@ namespace MapEditor {
             //Advanced *advanced;
             //Info *info;
             QDialog *help;
-            QDialog *about;
             QGraphicsScene *scene;
             QActionGroup *radiusGroup;
             QActionGroup *penGroup;
@@ -83,6 +82,8 @@ namespace MapEditor {
             void infoDialog();
             void advancedDialog();
             virtual void closeEvent ( QCloseEvent * event );
+            void about();
+            void aboutQt();
     };
 }// end namespace
 

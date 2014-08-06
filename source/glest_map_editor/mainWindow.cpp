@@ -22,7 +22,6 @@
 
 #include "ui_mainWindow.h"
 #include "ui_help.h"
-#include "ui_about.h"
 #include "ui_info.h"
 #include "ui_advanced.h"
 
@@ -114,11 +113,6 @@ namespace MapEditor {
             ui->setupUi(help);
         }
 
-        about = new QDialog(this);//no need for a whole new class
-        {
-            Ui::About *ui = new Ui::About;
-            ui->setupUi(about);
-        }
 
         //file
         connect(ui->actionNew, SIGNAL( triggered() ), newmap, SLOT( show() ));//new map dialog window
@@ -158,7 +152,8 @@ namespace MapEditor {
         connect(ui->actionHeight_Map, SIGNAL( toggled(bool) ), renderer, SLOT( setHeightMap(bool) ));
         connect(ui->actionWater, SIGNAL( toggled(bool) ), renderer, SLOT( setWater(bool) ));
         connect(ui->actionHelp, SIGNAL( triggered() ), help, SLOT( show() ));
-        connect(ui->actionAbout, SIGNAL( triggered() ), about, SLOT( show() ));
+        connect(ui->actionAbout, SIGNAL( triggered() ), this, SLOT( about() ));
+        connect(ui->actionAbout_Qt, SIGNAL( triggered() ), this, SLOT( aboutQt() ));
 
         //those actions form a selection group -> only one is selected
         radiusGroup = new QActionGroup(this);
@@ -396,6 +391,12 @@ namespace MapEditor {
         }else{
             event->accept();
         }
+    }
+    void MainWindow::about(){
+        QMessageBox::about(this, tr("about"), tr("Glest Map Editor - Copyright 2004 The Glest Team\n(with improvements by others, 2010 and 2014)"));
+    }
+    void MainWindow::aboutQt(){
+        QMessageBox::aboutQt(this, tr("about Qt"));
     }
 }// end namespace
 

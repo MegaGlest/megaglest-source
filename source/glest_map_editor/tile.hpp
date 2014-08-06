@@ -54,11 +54,6 @@ namespace MapEditor {
              */
             void recalculate();
             /**
-             * modifies dimension (size×size) of all tiles
-             * @param size >0: increase; <0: decrease
-             */
-            static void modifySize(int size);
-            /**
              * @return size of all tiles
              */
             static int getSize();
@@ -70,7 +65,6 @@ namespace MapEditor {
             virtual void mouseReleaseEvent ( QGraphicsSceneMouseEvent * event);
             virtual void hoverEnterEvent ( QGraphicsSceneHoverEvent * event );
             virtual void dragEnterEvent (QGraphicsSceneDragDropEvent * event);
-            virtual void wheelEvent ( QGraphicsSceneWheelEvent * event );
         private:
             /**
              * Changes the position of this tile, does not use built in setPos.
@@ -86,8 +80,8 @@ namespace MapEditor {
             static int size;
             Renderer* renderer;
             bool topLine;
-            bool rightLine;
-            bool bottomLine;
+            bool rightLine;//right line of the tile on the left
+            bool bottomLine;//bottom line of tile above
             bool leftLine;
             double height;
             int column;

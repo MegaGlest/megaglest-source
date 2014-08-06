@@ -29,6 +29,7 @@ namespace MapEditor {
             virtual void keyReleaseEvent(QKeyEvent *event);
             virtual void LeaveEvent(QEvent *event);
             void modeChecker(Qt::KeyboardModifiers mod);
+            virtual void wheelEvent ( QWheelEvent * event );
         private:
             Status *status;
     };

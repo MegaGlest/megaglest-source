@@ -23,6 +23,7 @@
 #include <QAction>
 //#include "map_preview.hpp"
 #include <iostream>
+//#include <cmath> //for fitZoom
 
 namespace MapEditor {
     Renderer::Renderer(MapManipulator *mapman, Status *status){
@@ -268,25 +269,38 @@ namespace MapEditor {
     }
 
     void Renderer::zoomIn(){
-        Tile::modifySize(+1);
+        QGraphicsView* viewer = this->mapman->getWindow()->getView();
+        /*Tile::modifySize(+1);
         this->scene->setSceneRect(this->scene->itemsBoundingRect());
-        this->updateTiles();
+        this->updateTiles();*/
+        viewer->setTransformationAnchor(QGraphicsView::AnchorViewCenter);
+        viewer->scale(2,2);
     }
 
     void Renderer::zoomOut(){
-        Tile::modifySize(-1);
-        this->scene->setSceneRect(this->scene->itemsBoundingRect());
-        this->updateTiles();
+        QGraphicsView* viewer = this->mapman->getWindow()->getView();
+        viewer->setTransformationAnchor(QGraphicsView::AnchorViewCenter);
+        viewer->scale(0.5,0.5);
     }
 
     void Renderer::fitZoom(){
-        //frameRect();
-        QRect rect = this->mapman->getWindow()->getView()->frameRect();
-        //getting dimension that fit them all
-        int dimension = min(rect.height()/(double)this->height,rect.width()/(double)this->width);
-        Tile::modifySize(dimension-Tile::getSize());
-        this->scene->setSceneRect(this->scene->itemsBoundingRect());
-        this->updateTiles();
+
+        QGraphicsView* viewer = this->mapman->getWindow()->getView();
+
+        viewer->fitInView(this->scene->sceneRect());
+        QTransform trans = viewer->transform();
+        //get the mininmum scaling of horizontal and vertical
+        double scale = min(trans.m11(),trans.m22());
+
+        //round up to a 2^x number
+        int newScale = 1;
+        while(2*newScale <= scale){
+            newScale*=2;
+        }
+
+        viewer->resetTransform();
+        viewer->scale(newScale,newScale);
+
     }
 
     void Renderer::setHeightMap(bool heightMap){
@@ -337,6 +351,7 @@ namespace MapEditor {
     void Renderer::removeTiles(){
         for(int column = 0; column < this->width; column++){
             for(int row = 0; row < this->height; row++){
+                ///this->tileContainer->removeFromGroup(this->Tiles[column][row]);
                 delete this->Tiles[column][row];
             }
             delete[] this->Tiles[column];

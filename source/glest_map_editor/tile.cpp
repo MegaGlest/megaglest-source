@@ -66,12 +66,6 @@ namespace MapEditor {
         if(changed){
             this->renderer->getMap()->setHeight(this->column, this->row, height);
             this->recalculate();
-            if(this->column > 0){
-                this->renderer->at(this->column - 1, this->row)->recalculate();
-            }
-            if(this->row > 0){
-                this->renderer->at(this->column, this->row - 1)->recalculate();
-            }
             if(this->column < this->renderer->getWidth() - 1){
                 this->renderer->at(this->column + 1, this->row)->recalculate();
             }
@@ -154,43 +148,27 @@ namespace MapEditor {
         }
 
         //TODO: check for change
-        //get the heights of all surrounding Tiles
+        //get the heights of all necessary Tiles
         if(this->column > 0){
             double leftHeight = this->renderer->at(this->column - 1, this->row)->getHeight();
             this->leftLine = this->height > leftHeight;
+            this->rightLine = this->height < leftHeight;
         }else{
-            this->leftLine = false;
+            this->leftLine = this->rightLine = false;
         }
 
         if(this->row > 0){
             double topHeight = this->renderer->at(this->column, this->row - 1)->getHeight();
             this->topLine = this->height > topHeight;
+            this->bottomLine = this->height < topHeight;
         }else{
-            this->topLine = false;
+            this->topLine = this->bottomLine = false;
         }
 
-        if(this->column < this->renderer->getWidth() - 1){
-            double rightHeight = this->renderer->at(this->column + 1, this->row)->getHeight();
-            this->rightLine = this->height > rightHeight;
-        }else{
-            this->rightLine = false;
-        }
-
-        if(this->row < this->renderer->getHeight() - 1){
-            double bottomHeight = this->renderer->at(this->column, this->row + 1)->getHeight();
-            this->bottomLine = this->height > bottomHeight;
-        }else{
-            this->bottomLine = false;
-        }
 
         if(changed){
             this->update();
         }
-    }
-
-    void Tile::modifySize(int size){
-        if(size > 0 || Tile::size+size >= 5)
-            Tile::size += size;
     }
 
     int Tile::getSize(){
@@ -201,26 +179,54 @@ namespace MapEditor {
         return QRectF(column * this->size,row * this->size, this->size, this->size);
     }
 
+//TODO: do borders like old editor?
     void Tile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
         painter->fillRect(this->boundingRect(),QBrush(this->color));
         painter->translate(column * this->size,row * this->size);
         if(!this->renderer->getHeightMap()){
-            if(!this->water){
-                painter->setPen(QColor(0xFF, 0xFF, 0xFF, 0x42 ));//white
-                if(this->leftLine)
-                    painter->drawLine(0,0,0,size);//left
-                if(this->topLine)
-                    painter->drawLine(0,0,size,0);//top
-                painter->setPen(QColor(0x00, 0x00, 0x00, 0x42 ));//black
-                if(this->rightLine)
-                    painter->drawLine(size-1,0,size-1,size-1);//right
-                if(this->bottomLine)
-                    painter->drawLine(0,size-1,size-1,size-1);//bottom
-            }
             if(this->resource){
-                painter->setPen(this->resourceColor);
-                painter->drawLine(1,1,size-2,size-2);
-                painter->drawLine(1,size-1,size-2,2);
+                QPen res(this->resourceColor);
+                res.setCosmetic(true);//keep width when transformed
+                painter->setPen(res);
+                painter->drawLine(0,0,size,size);
+                painter->drawLine(0,size,size,0);
+                //don' use full cell; "erase" the ends
+                //otherwise transforming will screw the lenght of the lines
+                painter->fillRect(0,0,size,1, this->color);
+                painter->fillRect(0,0,1,size, this->color);
+                painter->fillRect(0,size-1,size,1, this->color);
+                painter->fillRect(size-1,0,1,size, this->color);
+
+            }
+            if(!this->water){
+                QPen light(QColor(0xFF, 0xFF, 0xFF, 0x42 ));
+                QPen dark(QColor(0x00, 0x00, 0x00, 0x42 ));
+                QPen grid(Qt::black);
+                light.setCosmetic(true);//keep width when transformed (zoomed)
+                dark.setCosmetic(true);
+                grid.setCosmetic(true);
+
+                //one line to rule them all
+                if(leftLine || rightLine || renderer->getGrid()){
+                    if(leftLine){
+                        painter->setPen(light);
+                    }else if(rightLine){
+                        painter->setPen(dark);
+                    }else{
+                        painter->setPen(grid);
+                    }
+                    painter->drawLine(0,0,0,size);//left
+                }
+                if(topLine || bottomLine || renderer->getGrid()){
+                    if(topLine){
+                        painter->setPen(light);
+                    }else if(bottomLine){
+                        painter->setPen(dark);
+                    }else{
+                        painter->setPen(grid);
+                    }
+                    painter->drawLine(0,0,size,0);//top
+                }
             }
             if(this->cliff){
                 float objectSpace = (size*2)/3.0;
@@ -230,11 +236,6 @@ namespace MapEditor {
                 float objectSpace = (size*2)/3.0;
                 painter->fillRect(QRectF(objectSpace,objectSpace,size-(2*objectSpace),size-(2*objectSpace)),QBrush(this->objectColor));
             }
-        }
-        if(this->renderer->getGrid()){
-            painter->setPen(Qt::black);
-            painter->drawLine(size-1,0,size-1,size-1);//right
-            painter->drawLine(0,size-1,size-1,size-1);//bottom
         }
 
     }
@@ -303,13 +304,6 @@ namespace MapEditor {
 
     void Tile::dragEnterEvent (QGraphicsSceneDragDropEvent *event){
         //std::cout << "drag hovered @" << column << "," << row << std::endl;
-    }
-
-    void Tile::wheelEvent ( QGraphicsSceneWheelEvent *event ){
-        Tile::modifySize(event->delta()/80);
-        this->renderer->getScene()->setSceneRect(this->renderer->getScene()->itemsBoundingRect());
-        this->renderer->updateTiles();
-        this->renderer->getMapManipulator()->getWindow()->getView()->centerOn(this);
     }
 
     void Tile::move(int column, int row){

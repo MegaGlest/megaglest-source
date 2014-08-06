@@ -178,7 +178,15 @@ namespace MapEditor {
              * vanishes whole history
              */
             void clearHistory();
+            /**
+             * Zooms in and keeps the tile in the center of the screen centered
+             * This is the menu-zoom, the other zoom is in Viewer::wheelEvent
+             */
             void zoomIn();
+            /**
+             * Zooms in and keeps the tile in the center of the screen centered
+             * This is the menu-zoom, the other zoom is in Viewer::wheelEvent
+             */
             void zoomOut();
             void fitZoom();
             /**

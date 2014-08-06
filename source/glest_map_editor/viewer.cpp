@@ -18,6 +18,8 @@
 
 namespace MapEditor {
     Viewer::Viewer(QWidget *parent) : QGraphicsView(parent){
+        setTransformationAnchor(AnchorUnderMouse);
+        //scale(8,8);
     }
 
     Viewer::~Viewer(){
@@ -78,5 +80,16 @@ namespace MapEditor {
     }
     void Viewer::setStatus(Status *status){
         this->status = status;
+    }
+
+    //other zoom is in renderer
+    void Viewer::wheelEvent ( QWheelEvent *event ){
+        this->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+        if(event->delta() > 0) {// zoom in
+            scale(2, 2);
+        } else {// zoomout
+            scale(0.5, 0.5);
+        }
+        event->accept();
     }
 }

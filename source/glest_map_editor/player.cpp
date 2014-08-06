@@ -30,12 +30,21 @@ namespace MapEditor {
     }
 
     void Player::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
-        painter->translate((column - 1) * Tile::getSize(),(row - 1) * Tile::getSize());
-        painter->setPen(QPen(this->color, 3, Qt::SolidLine, Qt::RoundCap));
-        QLine lines[2] = {QLine(1,1,Tile::getSize()*3 - 2,Tile::getSize()*3 - 2),
-                          QLine(1,Tile::getSize()*3 - 2,Tile::getSize()*3 - 2,1)};
+        int size = Tile::getSize();
+        painter->translate((column - 1) * size,(row - 1) * size);
+
+        QPen color(QPen(this->color, 3, Qt::SolidLine, Qt::RoundCap));
+        color.setCosmetic(true);//keep width when transformed
+        painter->setPen(color);
+        QLine lines[2] = {QLine(1,1,size*3 - 2,size*3 - 2),
+                          QLine(1,size*3 - 2,size*3 - 2,1)};
         painter->drawLines(lines, 2);
         //drawLine would produce overlapping lines -> ugly with half opacity
+        //don't use complete tiles
+        //~ painter->eraseRect(0,0,size*3,2);
+        //~ painter->eraseRect(0,0,2,size*3);
+        //~ painter->eraseRect(0,size*3-2,size*3,2);
+        //~ painter->eraseRect(size*3-2,0,2,size*3);
     }
 
     void Player::move(int column,int row){
