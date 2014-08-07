@@ -19,8 +19,6 @@
 namespace MapEditor {
     Viewer::Viewer(QWidget *parent) : QGraphicsView(parent){
         setTransformationAnchor(AnchorUnderMouse);
-        this->setRenderHints(QPainter::Antialiasing | QPainter::HighQualityAntialiasing);//else smoot scrolling looks bad
-        //scale(8,8);
     }
 
     Viewer::~Viewer(){
@@ -88,14 +86,20 @@ namespace MapEditor {
         this->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
 
         double oldScale = transform().m11();
-        double px = (2.0/(Tile::getSize() * oldScale));
+        //each level has 2 further pixels
+        double oldLevel = (((Tile::getSize() * oldScale) - Tile::getSize())/2);
+
+        double px = ((2.0)/Tile::getSize());//scale for 2px
         if(event->delta() > 0) {// zoom in
-            if((1+px)*oldScale < 10){
-                scale(1+px, 1+px);
+            if(oldLevel < 10*Tile::getSize()){
+                double scale = 1.0+(oldLevel+1)*px;
+                //create a new transformation matrix
+                setTransform(QTransform().scale(scale, scale));
             }
         } else {// zoomout
-            if((1-px)*oldScale > 1){
-                scale(1-px, 1-px);
+            if(oldLevel > 1){
+                double scale = 1.0+(oldLevel-1)*px;
+                setTransform(QTransform().scale(scale, scale));
             }else{
                 resetTransform();
             }

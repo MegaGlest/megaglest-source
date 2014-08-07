@@ -12,7 +12,6 @@
 #include "renderer.hpp"
 //good idea?
 #include "mainWindow.hpp"
-#include "viewer.hpp"
 #include "tile.hpp"
 #include "player.hpp"
 #include "selection.hpp"
@@ -348,15 +347,23 @@ namespace MapEditor {
     void Renderer::zoom(int delta, int pixels){
         QGraphicsView* viewer = this->mapman->getWindow()->getView();
         viewer->setTransformationAnchor(QGraphicsView::AnchorViewCenter);
+
+
         double oldScale = viewer->transform().m11();
-        double px = (((double)pixels)/(Tile::getSize() * oldScale));
+        //each level has 2 further pixels
+        double oldLevel = (((Tile::getSize() * oldScale) - Tile::getSize())/2);
+
+        double px = ((2.0)/Tile::getSize());//scale for 2px
         if(delta > 0) {// zoom in
-            if((1+px)*oldScale < 10){
-                viewer->scale(1+px, 1+px);
+            if(oldLevel < 10*Tile::getSize()){
+                double scale = 1.0+(oldLevel+pixels/2)*px;
+                //create a new transformation matrix
+                viewer->setTransform(QTransform().scale(scale, scale));
             }
         } else {// zoomout
-            if((1-px)*oldScale > 1){
-                viewer->scale(1-px, 1-px);
+            if(oldLevel > 1){
+                double scale = 1.0+(oldLevel-pixels/2)*px;
+                viewer->setTransform(QTransform().scale(scale, scale));
             }else{
                 viewer->resetTransform();
             }

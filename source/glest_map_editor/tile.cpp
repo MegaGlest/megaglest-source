@@ -180,15 +180,9 @@ namespace MapEditor {
 
 //TODO: do borders like old editor?
     void Tile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
-        //slightly overlap -> avoid gaps when scrolling
-        QPen ground(this->color,2);
-        ground.setCosmetic(true);//keep width when transformed
-        painter->setPen(ground);
-        painter->setBrush(this->color);
-        painter->drawRect(boundingRect());
-
+        painter->setClipRect(boundingRect());//don’t draw over the borders
+        painter->fillRect(boundingRect(),this->color);
         painter->translate(column * this->size,row * this->size);
-        painter->setClipRect(QRectF(0,0,size,size));//don’t draw over the borders
 
         if(!this->renderer->getHeightMap()){
             if(this->resource){
@@ -298,19 +292,7 @@ namespace MapEditor {
     }
 
     void Tile::mouseReleaseEvent ( QGraphicsSceneMouseEvent *event){
-        /*QPointF point = event->scenePos();
-        int column = point.x() / size;
-        int row = point.y() / size;
-        std::cout << "mouse released @" << column << "," << row << std::endl;*/
         this->renderer->addHistory();
-    }
-
-    void Tile::hoverEnterEvent ( QGraphicsSceneHoverEvent *event ){
-        //std::cout << "hovered @" << column << "," << row << std::endl;
-    }
-
-    void Tile::dragEnterEvent (QGraphicsSceneDragDropEvent *event){
-        //std::cout << "drag hovered @" << column << "," << row << std::endl;
     }
 
     void Tile::move(int column, int row){
