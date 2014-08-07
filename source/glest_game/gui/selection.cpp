@@ -71,12 +71,7 @@ bool Selection::select(Unit *unit) {
 			return false;
 		}
 
-		//check if selectable
-		if(unit->getType()->isSelectable() == false) {
-			return false;
-		}
-
-		//check if selectable
+		//check if commandable
 		if(unit->getType()->isCommandable() == false && isEmpty() == false) {
 			return false;
 		}

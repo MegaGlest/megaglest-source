@@ -171,7 +171,6 @@ private:
 	bool light;
     Vec3f lightColor;
     bool multiSelect;
-    bool selectable;
     bool commandable;
     int sight;
     int size;							//size in cells
@@ -257,7 +256,6 @@ public:
 	inline bool getRotationAllowed() const						{return rotationAllowed;}
 	inline Vec3f getLightColor() const							{return lightColor;}
 	inline bool getMultiSelect() const							{return multiSelect;}
-	inline bool isSelectable() const							{return selectable;}
 	inline bool isCommandable() const							{return commandable;}
 	inline int getSight() const								{return sight;}
 	inline int getSize() const									{return size;}

@@ -531,7 +531,7 @@ bool Ai::findAbleUnit(int *unitIndex, CommandClass ability, bool idleOnly){
 	*unitIndex= -1;
 	for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
 		const Unit *unit= aiInterface->getMyUnit(i);
-		if(unit->getType()->hasCommandClass(ability)){
+		if(unit->getType()->isCommandable() && unit->getType()->hasCommandClass(ability)){
 			if(!idleOnly || !unit->anyCommand() || unit->getCurrCommand()->getCommandType()->getClass()==ccStop){
 				units.push_back(i);
 			}
@@ -553,55 +553,57 @@ vector<int> Ai::findUnitsHarvestingResourceType(const ResourceType *rt) {
 	Map *map= aiInterface->getMap();
 	for(int i = 0; i < aiInterface->getMyUnitCount(); ++i) {
 		const Unit *unit= aiInterface->getMyUnit(i);
-		if(unit->getType()->hasCommandClass(ccHarvest)) {
-			if(unit->anyCommand() && unit->getCurrCommand()->getCommandType()->getClass() == ccHarvest) {
-				Command *command= unit->getCurrCommand();
-			    const HarvestCommandType *hct= dynamic_cast<const HarvestCommandType*>(command->getCommandType());
-			    if(hct != NULL) {
-					const Vec2i unitTargetPos = unit->getTargetPos();
-					SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unitTargetPos));
-					Resource *r= sc->getResource();
-					if (r != NULL && r->getType() == rt) {
-						units.push_back(i);
-					}
-			    }
-			}
-		}
-		else if(unit->getType()->hasCommandClass(ccProduce)) {
-			if(unit->anyCommand() && unit->getCurrCommand()->getCommandType()->getClass() == ccProduce) {
-				Command *command= unit->getCurrCommand();
-			    const ProduceCommandType *pct= dynamic_cast<const ProduceCommandType*>(command->getCommandType());
-			    if(pct != NULL) {
-			    	const UnitType *ut = pct->getProducedUnit();
-			    	if(ut != NULL) {
-						const Resource *r = ut->getCost(rt);
-						if(r != NULL) {
-							if (r != NULL && r->getAmount() < 0) {
-								units.push_back(i);
-							}
+		if(unit->getType()->isCommandable()) {
+			if(unit->getType()->hasCommandClass(ccHarvest)) {
+				if(unit->anyCommand() && unit->getCurrCommand()->getCommandType()->getClass() == ccHarvest) {
+					Command *command= unit->getCurrCommand();
+					const HarvestCommandType *hct= dynamic_cast<const HarvestCommandType*>(command->getCommandType());
+					if(hct != NULL) {
+						const Vec2i unitTargetPos = unit->getTargetPos();
+						SurfaceCell *sc= map->getSurfaceCell(Map::toSurfCoords(unitTargetPos));
+						Resource *r= sc->getResource();
+						if (r != NULL && r->getType() == rt) {
+							units.push_back(i);
 						}
-			    	}
-			    }
+					}
+				}
 			}
-		}
-		else if(unit->getType()->hasCommandClass(ccBuild)) {
-			if(unit->anyCommand() && unit->getCurrCommand()->getCommandType()->getClass() == ccBuild) {
-				Command *command= unit->getCurrCommand();
-			    const BuildCommandType *bct= dynamic_cast<const BuildCommandType*>(command->getCommandType());
-			    if(bct != NULL) {
-			    	for(int j = 0; j < bct->getBuildingCount(); ++j) {
-						const UnitType *ut = bct->getBuilding(j);
+			else if(unit->getType()->hasCommandClass(ccProduce)) {
+				if(unit->anyCommand() && unit->getCurrCommand()->getCommandType()->getClass() == ccProduce) {
+					Command *command= unit->getCurrCommand();
+					const ProduceCommandType *pct= dynamic_cast<const ProduceCommandType*>(command->getCommandType());
+					if(pct != NULL) {
+						const UnitType *ut = pct->getProducedUnit();
 						if(ut != NULL) {
 							const Resource *r = ut->getCost(rt);
 							if(r != NULL) {
 								if (r != NULL && r->getAmount() < 0) {
 									units.push_back(i);
-									break;
 								}
 							}
 						}
-			    	}
-			    }
+					}
+				}
+			}
+			else if(unit->getType()->hasCommandClass(ccBuild)) {
+				if(unit->anyCommand() && unit->getCurrCommand()->getCommandType()->getClass() == ccBuild) {
+					Command *command= unit->getCurrCommand();
+					const BuildCommandType *bct= dynamic_cast<const BuildCommandType*>(command->getCommandType());
+					if(bct != NULL) {
+						for(int j = 0; j < bct->getBuildingCount(); ++j) {
+							const UnitType *ut = bct->getBuilding(j);
+							if(ut != NULL) {
+								const Resource *r = ut->getCost(rt);
+								if(r != NULL) {
+									if (r != NULL && r->getAmount() < 0) {
+										units.push_back(i);
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 		}
 	}
@@ -614,7 +616,7 @@ vector<int> Ai::findUnitsDoingCommand(CommandClass currentCommand) {
 
 	for(int i = 0; i < aiInterface->getMyUnitCount(); ++i) {
 		const Unit *unit= aiInterface->getMyUnit(i);
-		if(unit->getType()->hasCommandClass(currentCommand)) {
+		if(unit->getType()->isCommandable() && unit->getType()->hasCommandClass(currentCommand)) {
 			if(unit->anyCommand() && unit->getCurrCommand()->getCommandType()->getClass() == currentCommand) {
 				units.push_back(i);
 			}
@@ -630,7 +632,7 @@ bool Ai::findAbleUnit(int *unitIndex, CommandClass ability, CommandClass current
 	*unitIndex= -1;
 	for(int i=0; i<aiInterface->getMyUnitCount(); ++i){
 		const Unit *unit= aiInterface->getMyUnit(i);
-		if(unit->getType()->hasCommandClass(ability)){
+		if(unit->getType()->isCommandable() && unit->getType()->hasCommandClass(ability)){
 			if(unit->anyCommand() && unit->getCurrCommand()->getCommandType()->getClass()==currentCommand){
 				units.push_back(i);
 			}
