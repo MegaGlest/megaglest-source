@@ -15,6 +15,7 @@
 #include "mainWindow.hpp"
 #include "tile.hpp"
 #include <iostream>
+#include <QCoreApplication>
 
 namespace MapEditor {
     Viewer::Viewer(QWidget *parent) : QGraphicsView(parent){
@@ -44,31 +45,20 @@ namespace MapEditor {
 
     }
 
-    /*void Viewer::mousePressEvent(QMouseEvent *event){
-        if(event->modifiers() == Qt::ControlModifier){
-            this->setDragMode(QGraphicsView::ScrollHandDrag);
-        }else if(event->modifiers() == Qt::AltModifier){
-            this->setDragMode(QGraphicsView::RubberBandDrag);
-        }else {
-            this->setDragMode(QGraphicsView::NoDrag);
-        }
-        QGraphicsView::mousePressEvent(event);
-    }*/
-
-    void Viewer::keyPressEvent(QKeyEvent *event){
+    /*void Viewer::keyPressEvent(QKeyEvent *event){
         this->modeChecker(event->modifiers());
         QGraphicsView::keyPressEvent(event);
     }
     void Viewer::keyReleaseEvent(QKeyEvent *event){
         this->modeChecker(event->modifiers());
         QGraphicsView::keyReleaseEvent(event);
-    }
+    }*/
+
     void Viewer::LeaveEvent(QEvent *event){
         this->status->pos->setText(QObject::tr("Position: (none)"));
         this->status->ingame->setText(QObject::tr("Ingame: (none)"));
     }
     void Viewer::modeChecker(Qt::KeyboardModifiers mod){
-        //std::cout << "test" << std::endl;
         if(mod == Qt::ControlModifier){
             this->setDragMode(QGraphicsView::ScrollHandDrag);
         }else if(mod == Qt::ShiftModifier){

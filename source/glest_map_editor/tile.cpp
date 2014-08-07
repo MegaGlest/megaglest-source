@@ -244,6 +244,8 @@ namespace MapEditor {
     void Tile::mousePressEvent ( QGraphicsSceneMouseEvent *event){
         if(this->renderer->getMapManipulator()->getWindow()->getView()->dragMode() != QGraphicsView::NoDrag){
             event->ignore();
+        }else if(event->button() != Qt::LeftButton){
+            event->ignore();
         }else{
             this->pressedButton = event->button();
             if(event->button() == Qt::RightButton){
@@ -269,9 +271,7 @@ namespace MapEditor {
         int column = point.x() / size;
         int row = point.y() / size;
 
-        /*if(this->pressedButton == Qt::RightButton){
-            //TODO: do something with the right mous button
-        }else{*/
+        if(this->pressedButton == Qt::LeftButton){
             //drawing a line from last point to actual position
             QPainterPath path(lastPoint);
             path.lineTo(point);
@@ -288,7 +288,11 @@ namespace MapEditor {
                 }
             }
             this->renderer->recalculateAll();
-        //}
+        }else if(this->pressedButton == Qt::RightButton){
+            //TODO: do something with the right mous button
+        }else{
+            event->ignore();
+        }
     }
 
     void Tile::mouseReleaseEvent ( QGraphicsSceneMouseEvent *event){
