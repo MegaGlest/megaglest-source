@@ -192,6 +192,7 @@ private:
     StoredResources storedResources;
 	Levels levels;
 	LootableResources lootableResources;
+	std::set<string> tags;
 
 	//meeting point
 	bool meetingPoint;
@@ -263,6 +264,7 @@ public:
 	inline const Resource *getStoredResource(int i) const		{return &storedResources[i];}
 	int getLootableResourceCount() const					{return lootableResources.size();}
 	inline const LootableResource getLootableResource(int i) const		{return lootableResources.at(i);}
+	const set<string> &getTags() const	{return tags;}
 	bool getCellMapCell(int x, int y, CardinalDir facing) const;
 	inline bool getMeetingPoint() const						{return meetingPoint;}
 	inline bool getCountUnitDeathInStats() const				{return countUnitDeathInStats;}
@@ -325,6 +327,17 @@ public:
 private:
     void computeFirstStOfClass();
     void computeFirstCtOfClass();
+};
+
+/**
+ * Used to sort UnitType. Sorts by *translated* unit name. Sorting is case sensitive and done in
+ * lexical order.
+ */
+struct UnitTypeSorter
+{
+    bool operator()( const UnitType *left, const UnitType *right ) const {
+    	return left->getName(true) < right->getName(true);
+    }
 };
 
 }}//end namespace

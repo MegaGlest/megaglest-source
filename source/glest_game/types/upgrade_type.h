@@ -22,6 +22,7 @@
 #include "conversion.h"
 #include "xml_parser.h"
 #include "leak_dumper.h"
+#include <set>
 
 using Shared::Util::Checksum;
 using namespace Shared::Util;
@@ -218,7 +219,8 @@ public:
 
 class UpgradeType: public UpgradeTypeBase, public ProducibleType {
 private:
-    vector<const UnitType*> effects;
+    std::set<const UnitType*> effects;
+    std::set<string> tags;
 
 public:
 	void preLoad(const string &dir);
@@ -229,10 +231,9 @@ public:
     		bool validationMode=false);
 
     virtual string getName(bool translatedValue=false) const;
+	string getTagName(string tag, bool translatedValue=false) const;
 
     //get all
-	int getEffectCount() const				{return (int)effects.size();}
-	const UnitType * getEffect(int i) const	{return effects[i];}
 	bool isAffected(const UnitType *unitType) const;
 
     //other methods
