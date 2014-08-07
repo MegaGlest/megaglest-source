@@ -5,110 +5,110 @@ SET(TARGET_NAME "megaglest_g3dviewer")
 SET(TARGET_NAME_MANPAGE "${TARGET_NAME}.6")
 
 IF(BUILD_MEGAGLEST_MODEL_VIEWER)
-	MESSAGE(STATUS "Will try to build MegaGlest model viewer")
+        MESSAGE(STATUS "Will try to build MegaGlest model viewer")
 
-	FIND_PACKAGE(SDL REQUIRED)
-	INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
-	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${SDL_LIBRARY})
+        FIND_PACKAGE(SDL REQUIRED)
+        INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
+        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${SDL_LIBRARY})
 
-	FIND_PACKAGE(OpenGL REQUIRED)
-	INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
-	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENGL_LIBRARY})
+        FIND_PACKAGE(OpenGL REQUIRED)
+        INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
+        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${OPENGL_LIBRARY})
 
-	FIND_PACKAGE(GLEW REQUIRED)
-	INCLUDE_DIRECTORIES(${GLEW_INCLUDE_PATH})
-	IF(UNIX)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${GLEW_LIBRARY})
-	ENDIF()
+        FIND_PACKAGE(GLEW REQUIRED)
+        INCLUDE_DIRECTORIES(${GLEW_INCLUDE_PATH})
+        IF(UNIX)
+                SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${GLEW_LIBRARY})
+        ENDIF()
 
-	#QT
-	set(CMAKE_AUTOMOC ON)
-	set(CMAKE_INCLUDE_CURRENT_DIR ON)
-	FILE(GLOB UI_FILES_FROM_THIS_DIR *.ui)#those decscribe the actual user interface
-	FILE(GLOB QRC_FILES_FROM_THIS_DIR *.qrc)#contains all used icons
-	
-	IF(USE_QT5)#QT5
-		FIND_PACKAGE(Qt5Widgets REQUIRED)
-		QT5_WRAP_UI(UI_INCLUDE_FILES ${UI_FILES_FROM_THIS_DIR})
-		QT5_ADD_RESOURCES(UI_RESOURCES ${QRC_FILES_FROM_THIS_DIR})
-	ELSE()#QT4
-		FIND_PACKAGE(Qt4 REQUIRED)
-		QT4_WRAP_UI(UI_INCLUDE_FILES ${UI_FILES_FROM_THIS_DIR})
-		QT4_ADD_RESOURCES(UI_RESOURCES ${QRC_FILES_FROM_THIS_DIR})
-		INCLUDE(${QT_USE_FILE})
-		#ADD_DEFINITIONS(${QT_DEFINITIONS})
-	ENDIF()
+        #QT
+        set(CMAKE_AUTOMOC ON)
+        set(CMAKE_INCLUDE_CURRENT_DIR ON)
+        FILE(GLOB UI_FILES_FROM_THIS_DIR *.ui)#those decscribe the actual user interface
+        FILE(GLOB QRC_FILES_FROM_THIS_DIR *.qrc)#contains all used icons
+
+        IF(USE_QT5)#QT5
+                FIND_PACKAGE(Qt5 REQUIRED Widgets OpenGL)
+                QT5_WRAP_UI(UI_INCLUDE_FILES ${UI_FILES_FROM_THIS_DIR})
+                QT5_ADD_RESOURCES(UI_RESOURCES ${QRC_FILES_FROM_THIS_DIR})
+        ELSE()#QT4
+                FIND_PACKAGE(Qt4 REQUIRED COMPONENTS QtCore QtGui QtOpenGL  )
+                QT4_WRAP_UI(UI_INCLUDE_FILES ${UI_FILES_FROM_THIS_DIR})
+                QT4_ADD_RESOURCES(UI_RESOURCES ${QRC_FILES_FROM_THIS_DIR})
+                INCLUDE(${QT_USE_FILE})
+                #ADD_DEFINITIONS(${QT_DEFINITIONS})
+        ENDIF()
 
 
-	#########################################################################################
-	# megaglest G3D Model Viewer
+        #########################################################################################
+        # megaglest G3D Model Viewer
 
-	SET(DIRS_WITH_SRC
-	    .
-	     )
+        SET(DIRS_WITH_SRC
+            .
+             )
 
-	SET(GLEST_MAIN_INCLUDE_ROOT "../glest_game/")
-	SET(GLEST_LIB_INCLUDE_ROOT "../shared_lib/include/")
+        SET(GLEST_MAIN_INCLUDE_ROOT "../glest_game/")
+        SET(GLEST_LIB_INCLUDE_ROOT "../shared_lib/include/")
 
-	SET(GLEST_LIB_INCLUDE_DIRS
-	    ${GLEST_LIB_INCLUDE_ROOT}platform/common
-	#    ${GLEST_LIB_INCLUDE_ROOT}platform/sdl
-	    ${GLEST_LIB_INCLUDE_ROOT}platform/posix
-	    ${GLEST_LIB_INCLUDE_ROOT}util
-	    ${GLEST_LIB_INCLUDE_ROOT}graphics
-	    ${GLEST_LIB_INCLUDE_ROOT}graphics/gl
-	    ${GLEST_LIB_INCLUDE_ROOT}map
-	    ${GLEST_LIB_INCLUDE_ROOT}sound
-	    ${GLEST_LIB_INCLUDE_ROOT}xml
+        SET(GLEST_LIB_INCLUDE_DIRS
+            ${GLEST_LIB_INCLUDE_ROOT}platform/common
+        #    ${GLEST_LIB_INCLUDE_ROOT}platform/sdl
+            ${GLEST_LIB_INCLUDE_ROOT}platform/posix
+            ${GLEST_LIB_INCLUDE_ROOT}util
+            ${GLEST_LIB_INCLUDE_ROOT}graphics
+            ${GLEST_LIB_INCLUDE_ROOT}graphics/gl
+            ${GLEST_LIB_INCLUDE_ROOT}map
+            ${GLEST_LIB_INCLUDE_ROOT}sound
+            ${GLEST_LIB_INCLUDE_ROOT}xml
             ${GLEST_LIB_INCLUDE_ROOT}xml/rapidxml
-	    ${GLEST_MAIN_INCLUDE_ROOT}facilities
-	    ${GLEST_MAIN_INCLUDE_ROOT}graphics
-	    ${GLEST_MAIN_INCLUDE_ROOT}game
-	    ${GLEST_MAIN_INCLUDE_ROOT}global
-	    ${GLEST_MAIN_INCLUDE_ROOT}sound)
+            ${GLEST_MAIN_INCLUDE_ROOT}facilities
+            ${GLEST_MAIN_INCLUDE_ROOT}graphics
+            ${GLEST_MAIN_INCLUDE_ROOT}game
+            ${GLEST_MAIN_INCLUDE_ROOT}global
+            ${GLEST_MAIN_INCLUDE_ROOT}sound)
 
-	IF(WANT_STREFLOP)
-		SET(GLEST_LIB_INCLUDE_DIRS
-			${GLEST_LIB_INCLUDE_DIRS}
-    			${GLEST_LIB_INCLUDE_ROOT}streflop)
-	ENDIF()
+        IF(WANT_STREFLOP)
+                SET(GLEST_LIB_INCLUDE_DIRS
+                        ${GLEST_LIB_INCLUDE_DIRS}
+                        ${GLEST_LIB_INCLUDE_ROOT}streflop)
+        ENDIF()
 
-	INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_DIRS} )
+        INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_DIRS} )
 
-	IF(WIN32)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/win32)
-		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/sdl )
-	ELSE()
-		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/sdl )
-	ENDIF()
+        IF(WIN32)
+                INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/win32)
+                INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/sdl )
+        ELSE()
+                INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/sdl )
+        ENDIF()
 
-	SET(MG_SOURCE_FILES "../glest_game/graphics/particle_type.cpp" "../glest_game/graphics/unit_particle_type.cpp" "../glest_game/global/config.cpp")
-	
-	FOREACH(DIR IN LISTS DIRS_WITH_SRC)
-		INCLUDE_DIRECTORIES( ${DIR} )
+        SET(MG_SOURCE_FILES "../glest_game/graphics/particle_type.cpp" "../glest_game/graphics/unit_particle_type.cpp" "../glest_game/global/config.cpp")
 
-		set(SRC_DIR_TO_GLOB ${DIR})
-		FILE(GLOB SRC_FILES_FROM_THIS_DIR ${SRC_DIR_TO_GLOB}/*.cpp)
-		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${SRC_FILES_FROM_THIS_DIR})
-		FILE(GLOB INCLUDE_FILES_FROM_THIS_DIR ${SRC_DIR_TO_GLOB}/*.h)
-		SET(MG_INCLUDE_FILES ${MG_INCLUDE_FILES} ${INCLUDE_FILES_FROM_THIS_DIR})	
-		IF(APPLE)
-			FILE(GLOB SRC_FILES_FROM_THIS_DIR ${SRC_DIR_TO_GLOB}/*.mm)
-			#MESSAGE(STATUS "SRC_FILES_FROM_THIS_DIR: ${SRC_FILES_FROM_THIS_DIR}")
-			SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${SRC_FILES_FROM_THIS_DIR})
-			FILE(GLOB SRC_FILES_FROM_THIS_DIR ${SRC_DIR_TO_GLOB}/*.m)
-			#MESSAGE(STATUS "SRC_FILES_FROM_THIS_DIR: ${SRC_FILES_FROM_THIS_DIR}")
-			SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${SRC_FILES_FROM_THIS_DIR})	
-			ENDIF(APPLE)
-	ENDFOREACH(DIR)
-	
+        FOREACH(DIR IN LISTS DIRS_WITH_SRC)
+                INCLUDE_DIRECTORIES( ${DIR} )
+
+                set(SRC_DIR_TO_GLOB ${DIR})
+                FILE(GLOB SRC_FILES_FROM_THIS_DIR ${SRC_DIR_TO_GLOB}/*.cpp)
+                SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${SRC_FILES_FROM_THIS_DIR})
+                FILE(GLOB INCLUDE_FILES_FROM_THIS_DIR ${SRC_DIR_TO_GLOB}/*.h)
+                SET(MG_INCLUDE_FILES ${MG_INCLUDE_FILES} ${INCLUDE_FILES_FROM_THIS_DIR})
+                IF(APPLE)
+                        FILE(GLOB SRC_FILES_FROM_THIS_DIR ${SRC_DIR_TO_GLOB}/*.mm)
+                        #MESSAGE(STATUS "SRC_FILES_FROM_THIS_DIR: ${SRC_FILES_FROM_THIS_DIR}")
+                        SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${SRC_FILES_FROM_THIS_DIR})
+                        FILE(GLOB SRC_FILES_FROM_THIS_DIR ${SRC_DIR_TO_GLOB}/*.m)
+                        #MESSAGE(STATUS "SRC_FILES_FROM_THIS_DIR: ${SRC_FILES_FROM_THIS_DIR}")
+                        SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${SRC_FILES_FROM_THIS_DIR})
+                        ENDIF(APPLE)
+        ENDFOREACH(DIR)
+
         OPTION(WANT_DEV_OUTPATH "use developer friendly output paths" OFF)
         IF(WANT_DEV_OUTPATH)
-	        IF(UNIX AND NOT APPLE)
-		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux/)
-	        ELSE()
-		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game/)
-	        ENDIF()
+                IF(UNIX AND NOT APPLE)
+                        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux/)
+                ELSE()
+                        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game/)
+                ENDIF()
         ENDIF()
 
         SET(HELP2MAN_OUT_PATH ${EXECUTABLE_OUTPUT_PATH})
@@ -118,76 +118,76 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 
         MESSAGE(STATUS "***Note: The final output path for Megaglest G3d Viewer will be [${HELP2MAN_OUT_PATH}]")
 
-	FIND_PROGRAM(HELP2MAN "help2man")
+        FIND_PROGRAM(HELP2MAN "help2man")
 
-	SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
+        SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
-	#ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
+        #ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 
-	ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES} ${UI_INCLUDE_FILES} ${UI_RESOURCES})
+        ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES} ${UI_INCLUDE_FILES} ${UI_RESOURCES})
 
-	IF(USE_QT5)#QT5
-		qt5_use_modules(${TARGET_NAME} Widgets Core Gui)
-	ELSE()#QT4
-		TARGET_LINK_LIBRARIES(${TARGET_NAME} ${QT_LIBRARIES})
-	ENDIF()
+        IF(USE_QT5)#QT5
+                qt5_use_modules(${TARGET_NAME} Widgets Core Gui OpenGL)
+        ELSE()#QT4
+                TARGET_LINK_LIBRARIES(${TARGET_NAME} ${QT_LIBRARIES})
+        ENDIF()
 
-	IF(WANT_STREFLOP)
-		TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
-	ENDIF()
+        IF(WANT_STREFLOP)
+                TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
+        ENDIF()
 
-	IF(WIN32)
-		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
-	ELSE()
-		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
-	ENDIF()
-	TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
+        IF(WIN32)
+                TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
+        ELSE()
+                TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
+        ENDIF()
+        TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
 
-	IF(EXISTS ${HELP2MAN})
-		MESSAGE("***-- Found help2man: ${HELP2MAN} about to build manpage in [${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}]")
+        IF(EXISTS ${HELP2MAN})
+                MESSAGE("***-- Found help2man: ${HELP2MAN} about to build manpage in [${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}]")
 
                 SET(MG_MANPAGE_DESCRIPTION "G3D Model editor for the popular 3D realtime stragegy game")
 
-		IF(EXISTS ${XVFB_EXEC})
-			MESSAGE("***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
+                IF(EXISTS ${XVFB_EXEC})
+                        MESSAGE("***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
 
-		  	add_custom_target(${TARGET_NAME_MANPAGE} ALL
-		    		COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${HELP2MAN} --name='${MG_MANPAGE_DESCRIPTION}' --section=6 -N -o ${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE} ${HELP2MAN_OUT_PATH}${TARGET_NAME}
-		    	DEPENDS ${TARGET_NAME})
-		ELSE()
-		  	add_custom_target(${TARGET_NAME_MANPAGE} ALL
-		    		COMMAND ${HELP2MAN} --name='${MG_MANPAGE_DESCRIPTION}' --section=6 -N -o ${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE} ${HELP2MAN_OUT_PATH}${TARGET_NAME}
-		    	DEPENDS ${TARGET_NAME})
-		ENDIF()
-	ENDIF()
+                        add_custom_target(${TARGET_NAME_MANPAGE} ALL
+                                COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${HELP2MAN} --name='${MG_MANPAGE_DESCRIPTION}' --section=6 -N -o ${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE} ${HELP2MAN_OUT_PATH}${TARGET_NAME}
+                        DEPENDS ${TARGET_NAME})
+                ELSE()
+                        add_custom_target(${TARGET_NAME_MANPAGE} ALL
+                                COMMAND ${HELP2MAN} --name='${MG_MANPAGE_DESCRIPTION}' --section=6 -N -o ${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE} ${HELP2MAN_OUT_PATH}${TARGET_NAME}
+                        DEPENDS ${TARGET_NAME})
+                ENDIF()
+        ENDIF()
 
         # Requires an install prefix for the items below to work
         IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")
-	        # Installation of the program
-	        INSTALL(TARGETS 
-		        ${TARGET_NAME} 
-		        DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
+                # Installation of the program
+                INSTALL(TARGETS
+                        ${TARGET_NAME}
+                        DESTINATION ${MEGAGLEST_BIN_INSTALL_PATH})
 
-	        IF(EXISTS ${HELP2MAN})
-         		MESSAGE(STATUS "**NOTE: Will Install manpage [${TARGET_NAME_MANPAGE}] to [${MEGAGLEST_MANPAGE_INSTALL_PATH}]")	
+                IF(EXISTS ${HELP2MAN})
+                        MESSAGE(STATUS "**NOTE: Will Install manpage [${TARGET_NAME_MANPAGE}] to [${MEGAGLEST_MANPAGE_INSTALL_PATH}]")
 
-		        # Installation of the program manpage file
-		        INSTALL(FILES 
-		          "${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}"
-		          DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
-	        ENDIF()
+                        # Installation of the program manpage file
+                        INSTALL(FILES
+                          "${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}"
+                          DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
+                ENDIF()
 
                 # Installation of the program config and image files
-	        INSTALL(FILES 
-	          "${PROJECT_SOURCE_DIR}/mk/shared/g3dviewer.ico"
-	          DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+                INSTALL(FILES
+                  "${PROJECT_SOURCE_DIR}/mk/shared/g3dviewer.ico"
+                  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 
-	        # Installation of the program desktop file
+                # Installation of the program desktop file
                 SET(MG_DESKTOP_FILE ${PROJECT_SOURCE_DIR}/mk/linux/megaglest_g3dviewer.desktop)
 
                 INSTALL(FILES
-	          "${MG_DESKTOP_FILE}"
-	          DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
+                  "${MG_DESKTOP_FILE}"
+                  DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
 
         ENDIF()
 ENDIF()

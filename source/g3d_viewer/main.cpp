@@ -82,6 +82,7 @@ string getGameReadWritePath(string lookupKey) {
 
 #include "main.h"
 #include "ui_main.h"
+#include <QGLWidget>
 //namespace MapEditor {
     MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent),
