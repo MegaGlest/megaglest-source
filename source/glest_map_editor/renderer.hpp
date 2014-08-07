@@ -214,6 +214,7 @@ namespace MapEditor {
              * Deletes all tile instances
              */
             void removeTiles();
+            void zoom(int delta, int pixels);
             QGraphicsScene *scene;
             Tile*** Tiles;
             QGraphicsItemGroup *tileContainer;

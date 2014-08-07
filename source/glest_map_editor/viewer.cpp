@@ -19,6 +19,7 @@
 namespace MapEditor {
     Viewer::Viewer(QWidget *parent) : QGraphicsView(parent){
         setTransformationAnchor(AnchorUnderMouse);
+        this->setRenderHints(QPainter::Antialiasing | QPainter::HighQualityAntialiasing);//else smoot scrolling looks bad
         //scale(8,8);
     }
 
@@ -85,10 +86,19 @@ namespace MapEditor {
     //other zoom is in renderer
     void Viewer::wheelEvent ( QWheelEvent *event ){
         this->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+
+        double oldScale = transform().m11();
+        double px = (2.0/(Tile::getSize() * oldScale));
         if(event->delta() > 0) {// zoom in
-            scale(2, 2);
+            if((1+px)*oldScale < 10){
+                scale(1+px, 1+px);
+            }
         } else {// zoomout
-            scale(0.5, 0.5);
+            if((1-px)*oldScale > 1){
+                scale(1-px, 1-px);
+            }else{
+                resetTransform();
+            }
         }
         event->accept();
     }

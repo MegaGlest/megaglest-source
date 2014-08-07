@@ -49,7 +49,6 @@ namespace MapEditor {
         this->setAcceptHoverEvents(true);
         this->setFlag(QGraphicsItem::ItemIsSelectable);
         this->move(column, row);
-
     }
 
     /*Tile::~Tile(){
@@ -181,21 +180,29 @@ namespace MapEditor {
 
 //TODO: do borders like old editor?
     void Tile::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget){
-        painter->fillRect(this->boundingRect(),QBrush(this->color));
+        //slightly overlap -> avoid gaps when scrolling
+        QPen ground(this->color,2);
+        ground.setCosmetic(true);//keep width when transformed
+        painter->setPen(ground);
+        painter->setBrush(this->color);
+        painter->drawRect(boundingRect());
+
         painter->translate(column * this->size,row * this->size);
+        painter->setClipRect(QRectF(0,0,size,size));//don’t draw over the borders
+
         if(!this->renderer->getHeightMap()){
             if(this->resource){
                 QPen res(this->resourceColor);
                 res.setCosmetic(true);//keep width when transformed
                 painter->setPen(res);
-                painter->drawLine(0,0,size,size);
-                painter->drawLine(0,size,size,0);
+                painter->drawLine(QLineF(0,0,size,size));
+                painter->drawLine(QLineF(0,size,size,0));
                 //don' use full cell; "erase" the ends
                 //otherwise transforming will screw the lenght of the lines
-                painter->fillRect(0,0,size,1, this->color);
-                painter->fillRect(0,0,1,size, this->color);
-                painter->fillRect(0,size-1,size,1, this->color);
-                painter->fillRect(size-1,0,1,size, this->color);
+                painter->fillRect(QRectF(0,0,size,1), this->color);
+                painter->fillRect(QRectF(0,0,1,size), this->color);
+                painter->fillRect(QRectF(0,size-1,size,1), this->color);
+                painter->fillRect(QRectF(size-1,0,1,size), this->color);
 
             }
             if(!this->water){
@@ -215,7 +222,7 @@ namespace MapEditor {
                     }else{
                         painter->setPen(grid);
                     }
-                    painter->drawLine(0,0,0,size);//left
+                    painter->drawLine(QLineF(0,0,0,size));//left
                 }
                 if(topLine || bottomLine || renderer->getGrid()){
                     if(topLine){
@@ -225,7 +232,7 @@ namespace MapEditor {
                     }else{
                         painter->setPen(grid);
                     }
-                    painter->drawLine(0,0,size,0);//top
+                    painter->drawLine(QLineF(0,0,size,0));//top
                 }
             }
             if(this->cliff){

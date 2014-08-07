@@ -12,6 +12,7 @@
 #include "renderer.hpp"
 //good idea?
 #include "mainWindow.hpp"
+#include "viewer.hpp"
 #include "tile.hpp"
 #include "player.hpp"
 #include "selection.hpp"
@@ -23,7 +24,6 @@
 #include <QAction>
 //#include "map_preview.hpp"
 #include <iostream>
-//#include <cmath> //for fitZoom
 
 namespace MapEditor {
     Renderer::Renderer(MapManipulator *mapman, Status *status){
@@ -269,38 +269,24 @@ namespace MapEditor {
     }
 
     void Renderer::zoomIn(){
-        QGraphicsView* viewer = this->mapman->getWindow()->getView();
-        /*Tile::modifySize(+1);
-        this->scene->setSceneRect(this->scene->itemsBoundingRect());
-        this->updateTiles();*/
-        viewer->setTransformationAnchor(QGraphicsView::AnchorViewCenter);
-        viewer->scale(2,2);
+        zoom(1,4);
     }
 
     void Renderer::zoomOut(){
-        QGraphicsView* viewer = this->mapman->getWindow()->getView();
-        viewer->setTransformationAnchor(QGraphicsView::AnchorViewCenter);
-        viewer->scale(0.5,0.5);
+        zoom(-1,4);
     }
 
     void Renderer::fitZoom(){
-
         QGraphicsView* viewer = this->mapman->getWindow()->getView();
-
-        viewer->fitInView(this->scene->sceneRect());
-        QTransform trans = viewer->transform();
-        //get the mininmum scaling of horizontal and vertical
-        double scale = min(trans.m11(),trans.m22());
-
-        //round up to a 2^x number
-        int newScale = 1;
-        while(2*newScale <= scale){
-            newScale*=2;
-        }
-
         viewer->resetTransform();
-        viewer->scale(newScale,newScale);
-
+        QRect rect = viewer->frameRect();
+        //getting ratios that fit them all
+        int heightRatio = rect.height()/(double)this->height;
+        int widthRatio = rect.width()/(double)this->width;
+        int growBy = min(heightRatio,widthRatio) -Tile::getSize();
+        if(growBy > 0){
+            zoom(1,growBy);
+        }
     }
 
     void Renderer::setHeightMap(bool heightMap){
@@ -357,6 +343,24 @@ namespace MapEditor {
             delete[] this->Tiles[column];
         }
         delete[] this->Tiles;
+    }
+
+    void Renderer::zoom(int delta, int pixels){
+        QGraphicsView* viewer = this->mapman->getWindow()->getView();
+        viewer->setTransformationAnchor(QGraphicsView::AnchorViewCenter);
+        double oldScale = viewer->transform().m11();
+        double px = (((double)pixels)/(Tile::getSize() * oldScale));
+        if(delta > 0) {// zoom in
+            if((1+px)*oldScale < 10){
+                viewer->scale(1+px, 1+px);
+            }
+        } else {// zoomout
+            if((1-px)*oldScale > 1){
+                viewer->scale(1-px, 1-px);
+            }else{
+                viewer->resetTransform();
+            }
+        }
     }
 
 }
