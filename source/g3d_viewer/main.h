@@ -34,6 +34,9 @@
 #include <QColor>
 #include <QColorDialog>
 #include <QFileDialog>
+namespace Shared{ namespace G3dViewer{
+class GLWidget;
+}}
 using std::string;
 using namespace Glest::Game;
 
@@ -55,6 +58,7 @@ using namespace Glest::Game;
     private:
         Ui::MainWindow *ui;
         QActionGroup *playerGroup;
+        Shared::G3dViewer::GLWidget *glWidget;
 
 
     private slots:

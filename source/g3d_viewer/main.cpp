@@ -80,15 +80,28 @@ string getGameReadWritePath(string lookupKey) {
 }
 }}
 
-#include "main.h"
 #include "ui_main.h"
-#include <QGLWidget>
+//#include <QGLWidget>
+#include "moc_glwidget.cpp"
+//otherwise it will be included in the automoc.cpp
 //namespace MapEditor {
     MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent),
         ui(new Ui::MainWindow)
     {
         ui->setupUi(this);
+
+        QGLFormat glFormat;
+        glFormat.setVersion( 1, 3 );
+        glFormat.setProfile( QGLFormat::NoProfile ); // Requires >=Qt-4.8.0
+        //~ glFormat.setVersion( 3, 3 );
+        //~ glFormat.setProfile( QGLFormat::CompatibilityProfile ); // Requires >=Qt-4.8.0
+        //~ //glFormat.setProfile( QGLFormat::CoreProfile ); // Requires >=Qt-4.8.0
+        glFormat.setSampleBuffers( true );
+        glWidget = new Shared::G3dViewer::GLWidget(glFormat,this);
+        //glWidget = new GLWidget(this);
+        ui->verticalLayout->addWidget(glWidget);
+
 
         connect(ui->actionChange_Background_Color,SIGNAL(triggered()),this,SLOT(colorChooser()));
         connect(ui->actionLoad_G3D_Model,SIGNAL(triggered()),this,SLOT(openG3DFile()));
@@ -133,17 +146,20 @@ string getGameReadWritePath(string lookupKey) {
     void MainWindow::openG3DFile(){
         Config &config = Config::getInstance();
         string userData = config.getString("UserData_Root","");
-        string defaultPath = userData + "maps/";
+        string defaultPath = userData + "techs/";
         QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),QString::fromStdString(defaultPath),tr("G3D file (*.g3d)"));
         /*if(fileName != NULL){
             this->renderer->open(fileName.toStdString());
         }*/
+        if(fileName != NULL){
+            this->glWidget->loadModel(fileName);
+        }else throw "no file";
     }
 
     void MainWindow::openXMLFile(){
         Config &config = Config::getInstance();
         string userData = config.getString("UserData_Root","");
-        string defaultPath = userData + "maps/";
+        string defaultPath = userData + "techs/";
         QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),QString::fromStdString(defaultPath),tr("XML file (*.xml)"));
     }
 

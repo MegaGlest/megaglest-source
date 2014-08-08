@@ -23,6 +23,8 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 
         #QT
         set(CMAKE_AUTOMOC ON)
+        #includes not as moc_*.cpp included files
+        #in _alphanumeric_ order into automoc.cpp; breaks GLEW and stuff
         set(CMAKE_INCLUDE_CURRENT_DIR ON)
         FILE(GLOB UI_FILES_FROM_THIS_DIR *.ui)#those decscribe the actual user interface
         FILE(GLOB QRC_FILES_FROM_THIS_DIR *.qrc)#contains all used icons
