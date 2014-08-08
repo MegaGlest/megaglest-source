@@ -6,6 +6,7 @@
 #include "renderer.h"
 #include <QGLWidget>
 #include <vector>
+#include <QColor>
 //includes openGL, fucks GLEW
 //~ //~
 //#include <QGLBuffer>
@@ -19,6 +20,7 @@ public:
 
 
     void loadModel(QString path);
+    void setBackgroundColor(const QColor &col);
 //~
 protected:
     virtual void initializeGL();
@@ -26,10 +28,12 @@ protected:
     virtual void paintGL();
 //~ //~
     //virtual void keyPressEvent( QKeyEvent* e );
+    virtual void wheelEvent ( QWheelEvent* e);
 //~
 private:
     Renderer* renderer;
-    int rotX , rotY , zoom;
+    int rotX , rotY;
+    float zoom;
     vector<std::string> modelPathList;
     Model *model;
     //bool prepareShaderProgram( const QString& vertexShaderPath,

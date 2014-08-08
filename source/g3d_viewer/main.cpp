@@ -150,6 +150,9 @@ string getGameReadWritePath(string lookupKey) {
 
     void MainWindow::colorChooser(){
         QColor chosen = QColorDialog::getColor(QColor(0x00,0x00,0x00));
+        if(chosen.isValid()){
+            this->glWidget->setBackgroundColor(chosen);
+        }
     }
 
     void MainWindow::openG3DFile(){

@@ -2,6 +2,7 @@
 #include "glwidget.h"
 #include <iostream>
 #include <QFile>
+#include <QWheelEvent>
 //~ //~
 //~ //~
 namespace Shared{ namespace G3dViewer{
@@ -43,6 +44,17 @@ void GLWidget::loadModel(QString path){
     }
 }
 
+void GLWidget::setBackgroundColor(const QColor &col){
+    try{
+        renderer->setBackgroundColor(col.redF(), col.greenF(), col.blueF());
+        updateGL();
+    }
+    catch(Shared::Platform::megaglest_runtime_error &e) {
+        std::cout << e.what() << std::endl;
+        ((MainWindow*)parentWidget())->showRuntimeError("Loading G3D File",e);
+    }
+}
+
 void GLWidget::initializeGL(){
     GLuint err = glewInit();//init GLEW, renderer needs this
     if (GLEW_OK != err) {
@@ -78,7 +90,7 @@ void GLWidget::paintGL(){
 
             //~ wxCommandEvent event;
             //~ if(unitPath.first != "") {
-                //onMenuFileClearAll(event);
+                //onMenuFileClearAll(event)
 
                 modelPathList.clear();
                 //~ particlePathList.clear();
@@ -92,6 +104,15 @@ void GLWidget::paintGL(){
             //~ }
         //~ }
     }
+}
+
+void GLWidget::wheelEvent ( QWheelEvent* e){
+    if(e->delta() > 0){
+        zoom*= 1.1f;
+    }else{
+        zoom*= 0.90909f;
+    }
+    updateGL();
 }
 
 }}
