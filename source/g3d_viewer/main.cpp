@@ -84,6 +84,7 @@ string getGameReadWritePath(string lookupKey) {
 //#include <QGLWidget>
 #include "moc_glwidget.cpp"
 //otherwise it will be included in the automoc.cpp
+#include <QMessageBox>
 //namespace MapEditor {
     MainWindow::MainWindow(QWidget *parent) :
         QMainWindow(parent),
@@ -124,6 +125,14 @@ string getGameReadWritePath(string lookupKey) {
     MainWindow::~MainWindow()
     {
         delete ui;
+    }
+
+    int MainWindow::showRuntimeError(const std::string text, const Shared::Platform::megaglest_runtime_error &ex) {
+        std::cerr << ex.what() << std::endl;
+        QMessageBox messageBox( QMessageBox::Critical, tr("A runtime error occured!"), tr("A runtime error occured!"), QMessageBox::Ok, this);
+        messageBox.setInformativeText(tr(text.c_str()));
+        messageBox.setDetailedText(ex.what());
+        return messageBox.exec();
     }
 
         //for translation ... somehow

@@ -51,6 +51,7 @@ using namespace Glest::Game;
     public:
         explicit MainWindow(QWidget *parent = 0);
         ~MainWindow();
+        int showRuntimeError(const std::string text, const Shared::Platform::megaglest_runtime_error &ex);
 
     protected:
         void changeEvent(QEvent *e);

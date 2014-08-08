@@ -22,7 +22,7 @@ public:
 //~
 protected:
     virtual void initializeGL();
-    virtual void resizeGL( int w, int h );
+    //virtual void resizeGL( int w, int h );
     virtual void paintGL();
 //~ //~
     //virtual void keyPressEvent( QKeyEvent* e );
@@ -31,6 +31,7 @@ private:
     Renderer* renderer;
     int rotX , rotY , zoom;
     vector<std::string> modelPathList;
+    Model *model;
     //bool prepareShaderProgram( const QString& vertexShaderPath,
     //                           const QString& fragmentShaderPath );
 //~ //~
