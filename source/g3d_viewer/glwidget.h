@@ -22,6 +22,10 @@ public:
     void loadModel(QString path);
     void setBackgroundColor(const QColor &col);
     void screenshot(QString path, bool transparent);
+public slots:
+    void toggleNormals();
+    void toggleWireframe();
+    void toggleGrid();
 //~
 protected:
     virtual void initializeGL();

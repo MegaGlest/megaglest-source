@@ -111,6 +111,10 @@ string getGameReadWritePath(string lookupKey) {
         connect(ui->actionLoad_Splash_Particle_XML,SIGNAL(triggered()),this,SLOT(openXMLFile()));
         connect(ui->actionSave_A_Screenshot,SIGNAL(triggered()),this,SLOT(screenshot()));
 
+        connect(ui->actionNormals,SIGNAL(triggered()),glWidget,SLOT(toggleNormals()));
+        connect(ui->actionWireframe,SIGNAL(triggered()),glWidget,SLOT(toggleWireframe()));
+        connect(ui->actionGrid,SIGNAL(triggered()),glWidget,SLOT(toggleGrid()));
+
         playerGroup = new QActionGroup(this);
         playerGroup->addAction(ui->actionPlayer_1);
         playerGroup->addAction(ui->actionPlayer_2);

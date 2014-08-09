@@ -65,6 +65,21 @@ void GLWidget::screenshot(QString path, bool transparent){
     context()->swapBuffers();*/
 }
 
+void GLWidget::toggleNormals(){
+    renderer->toggleNormals();
+    updateGL();
+}
+
+void GLWidget::toggleWireframe(){
+    renderer->toggleWireframe();
+    updateGL();
+}
+
+void GLWidget::toggleGrid(){
+    renderer->toggleGrid();
+    updateGL();
+}
+
 void GLWidget::initializeGL(){
     GLuint err = glewInit();//init GLEW, renderer needs this
     if (GLEW_OK != err) {
@@ -78,10 +93,6 @@ void GLWidget::initializeGL(){
 void GLWidget::paintGL(){
     std::cout << "pain t!" << std::endl;
     int viewportW = width(), viewportH = height();
-
-    if(renderer->getGrid() != true) {
-        renderer->toggleGrid();
-    }
 
     renderer->reset(viewportW, viewportH, Renderer::pcRed);
     renderer->transform(rotX, rotY, zoom);

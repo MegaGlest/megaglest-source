@@ -405,15 +405,15 @@ void Renderer::renderGrid() {
 }
 
 void Renderer::toggleNormals() {
-        normals= normals? false: true;
+        normals= !normals;
 }
 
 void Renderer::toggleWireframe() {
-        wireframe= wireframe? false: true;
+        wireframe= !wireframe;
 }
 
 void Renderer::toggleGrid() {
-        grid= grid? false: true;
+        grid= !grid;
 }
 
 void Renderer::renderTheModel(Model *model, float f) {
