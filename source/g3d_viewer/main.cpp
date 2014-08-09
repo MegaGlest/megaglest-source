@@ -109,6 +109,7 @@ string getGameReadWritePath(string lookupKey) {
         connect(ui->actionLoad_Particle_XML,SIGNAL(triggered()),this,SLOT(openXMLFile()));
         connect(ui->actionLoad_Projectile_Particle_XML,SIGNAL(triggered()),this,SLOT(openXMLFile()));
         connect(ui->actionLoad_Splash_Particle_XML,SIGNAL(triggered()),this,SLOT(openXMLFile()));
+        connect(ui->actionSave_A_Screenshot,SIGNAL(triggered()),this,SLOT(screenshot()));
 
         playerGroup = new QActionGroup(this);
         playerGroup->addAction(ui->actionPlayer_1);
@@ -165,7 +166,7 @@ string getGameReadWritePath(string lookupKey) {
         }*/
         if(fileName != NULL){
             this->glWidget->loadModel(fileName);
-        }else throw "no file";
+        }
     }
 
     void MainWindow::openXMLFile(){
@@ -173,6 +174,13 @@ string getGameReadWritePath(string lookupKey) {
         string userData = config.getString("UserData_Root","");
         string defaultPath = userData + "techs/";
         QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),QString::fromStdString(defaultPath),tr("XML file (*.xml)"));
+    }
+
+    void MainWindow::screenshot(){
+        Config &config = Config::getInstance();
+        string userData = config.getString("UserData_Root","");
+        string defaultPath = userData + "screens/";
+        this->glWidget->screenshot(QString(defaultPath.c_str()).append("screen.png"));
     }
 
 //initialize and open the window

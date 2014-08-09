@@ -21,6 +21,7 @@ public:
 
     void loadModel(QString path);
     void setBackgroundColor(const QColor &col);
+    void screenshot(QString path);
 //~
 protected:
     virtual void initializeGL();

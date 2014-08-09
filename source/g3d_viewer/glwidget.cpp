@@ -51,8 +51,12 @@ void GLWidget::setBackgroundColor(const QColor &col){
     }
     catch(Shared::Platform::megaglest_runtime_error &e) {
         std::cout << e.what() << std::endl;
-        ((MainWindow*)parentWidget())->showRuntimeError("Loading G3D File",e);
+        ((MainWindow*)parentWidget())->showRuntimeError("Setting Background Color",e);
     }
+}
+
+void GLWidget::screenshot(QString path){
+    renderPixmap().toImage().save(path);
 }
 
 void GLWidget::initializeGL(){

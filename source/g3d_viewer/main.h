@@ -66,6 +66,7 @@ using namespace Glest::Game;
         void colorChooser();
         void openXMLFile();
         void openG3DFile();
+        void screenshot();
     };
 
 #endif
