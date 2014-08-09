@@ -180,7 +180,7 @@ string getGameReadWritePath(string lookupKey) {
         Config &config = Config::getInstance();
         string userData = config.getString("UserData_Root","");
         string defaultPath = userData + "screens/";
-        this->glWidget->screenshot(QString(defaultPath.c_str()).append("screen.png"));
+        this->glWidget->screenshot(QString(defaultPath.c_str()).append("screen.png"),ui->actionTransparent_Screenshots->isChecked());
     }
 
 //initialize and open the window

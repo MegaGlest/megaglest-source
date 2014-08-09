@@ -55,8 +55,14 @@ void GLWidget::setBackgroundColor(const QColor &col){
     }
 }
 
-void GLWidget::screenshot(QString path){
+void GLWidget::screenshot(QString path, bool transparent){
+    makeCurrent();
+    renderer->setAlphaColor(transparent ? 0.0f : 1.0f);
+    context()->swapBuffers();
     renderPixmap().toImage().save(path);
+    /*makeCurrent();
+    renderer->setAlphaColor(1.0f);
+    context()->swapBuffers();*/
 }
 
 void GLWidget::initializeGL(){
