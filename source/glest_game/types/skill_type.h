@@ -334,6 +334,8 @@ public:
 	//misc
 	int getTotalAttackStrength(const TotalUpgrade *totalUpgrade) const;
 	int getTotalAttackRange(const TotalUpgrade *totalUpgrade) const;
+	virtual int getTotalSpeed(const TotalUpgrade *totalUpgrade) const;
+	virtual int getAnimSpeedBoost(const TotalUpgrade *totalUpgrade) const;
 
 	virtual void saveGame(XmlNode *rootNode);
 };

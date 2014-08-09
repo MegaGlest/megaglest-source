@@ -92,6 +92,10 @@ protected:
     std::map<string,int> prodSpeedUpgradeIsMultiplierValueList; /**< @see #attackStrengthMultiplierValueList */
     std::map<string,int> prodSpeedMorphIsMultiplierValueList; /**< @see #attackStrengthMultiplierValueList */
 
+	int attackSpeed;
+	bool attackSpeedIsMultiplier;
+	std::map<string,int> attackSpeedIsMultiplierValueList;
+
 public:
 	/**
 	 * Creates an UpgradeTypeBase with values such that there are no stat changes.
@@ -142,13 +146,16 @@ public:
 	bool getMoveSpeedIsMultiplier() const		{return moveSpeedIsMultiplier;}
 	int getProdSpeed(const SkillType *st) const;
 	bool getProdSpeedIsMultiplier() const		{return prodSpeedIsMultiplier;}
-	
+	int getAttackSpeed(const AttackSkillType *st) const;
+	bool getAttackSpeedIsMultiplier() const		{return attackSpeedIsMultiplier;}
+
 	/**
 	 * Loads the upgrade values (stat boosts and whether or not the boosts use a multiplier) from an
 	 * XML node.
 	 * @param upgradeNode Node containing the stat boost elements (`max-hp`, `attack-strength`, etc).
 	 * @param upgradename Unique identifier for the upgrade.
 	 */
+
 	void load(const XmlNode *upgradeNode, string upgradename);
 	
 	/**
@@ -243,6 +250,9 @@ public:
 	    crcForUpgradeType.addInt64((int64)prodSpeedUpgradeIsMultiplierValueList.size());
 	    //std::map<string,int> prodSpeedMorphIsMultiplierValueList;
 	    crcForUpgradeType.addInt64((int64)prodSpeedMorphIsMultiplierValueList.size());
+		
+	    crcForUpgradeType.addInt(attackSpeed);
+	    crcForUpgradeType.addInt(attackSpeedIsMultiplier);
 
 		return crcForUpgradeType;
 	}

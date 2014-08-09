@@ -1013,6 +1013,24 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 	}
 }
 
+int AttackSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
+	int result = speed + totalUpgrade->getAttackSpeed(this);
+	result = max(0,result);
+	return result;
+}
+
+// Get the amount to boost the attack animation speed by (based on attack-speed upgrades)
+int AttackSkillType::getAnimSpeedBoost(const TotalUpgrade *totalUpgrade) const{
+	// Same calculation as in TotalUpgrade::sum, but bypassing the use of the value
+	// list (which is for the attack speed, not animation speed)
+	if(totalUpgrade->getAttackRangeIsMultiplier()) {
+		return animSpeed * (totalUpgrade->getAttackSpeed(NULL) / (double)100);
+	}
+	else {
+		return totalUpgrade->getAttackSpeed(NULL);
+	}
+}
+
 string AttackSkillType::toString(bool translatedValue) const{
 	if(translatedValue == false) {
 		return "Attack";
