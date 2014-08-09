@@ -288,7 +288,13 @@ string AttackCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool transla
 	}
     str+="\n";
 
+	//attack speed
     str+= lang.getString("AttackSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(attackSkillType->getSpeed()) +"\n";
+	if(totalUpgrade->getAttackSpeed(attackSkillType) != 0) {
+        str+= "+"+intToStr(totalUpgrade->getAttackSpeed(attackSkillType));
+	}
+    str+="\n";
+
 	str+=attackSkillType->getBoostDesc(translatedValue);
     return str;
 }
