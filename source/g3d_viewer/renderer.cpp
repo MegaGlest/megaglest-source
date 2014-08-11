@@ -328,6 +328,7 @@ void Renderer::reset(int w, int h, PlayerColor playerColor) {
         glTranslatef(0, -1.5, -5);
 
         Texture2D *customTexture=NULL;
+        //TODO: this looks like utter crap
         switch(playerColor) {
         case pcRed:
                 customTexture= customTextureRed;
@@ -377,7 +378,6 @@ void Renderer::reset(int w, int h, PlayerColor playerColor) {
 
 void Renderer::renderGrid() {
         if(grid) {
-                printf("test\n");
                 float i=0;
 
                 assertGl();

@@ -64,7 +64,10 @@ using namespace Glest::Game;
 
     private slots:
         void colorChooser();
-        void openXMLFile();
+        QString openXMLFile();
+        void openParticle();
+        void openProjectileParticle();
+        void openSplashParticle();
         void openG3DFile();
         void screenshot();
     };

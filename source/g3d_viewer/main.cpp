@@ -18,7 +18,7 @@
 #include "util.h"
 #include "conversion.h"
 #include "platform_common.h"
-#include "xml_parser.h"
+//~ #include "xml_parser.h"
 #include <iostream>
 //#include <wx/event.h>
 #include "config.h"
@@ -106,14 +106,15 @@ string getGameReadWritePath(string lookupKey) {
 
         connect(ui->actionChange_Background_Color,SIGNAL(triggered()),this,SLOT(colorChooser()));
         connect(ui->actionLoad_G3D_Model,SIGNAL(triggered()),this,SLOT(openG3DFile()));
-        connect(ui->actionLoad_Particle_XML,SIGNAL(triggered()),this,SLOT(openXMLFile()));
-        connect(ui->actionLoad_Projectile_Particle_XML,SIGNAL(triggered()),this,SLOT(openXMLFile()));
-        connect(ui->actionLoad_Splash_Particle_XML,SIGNAL(triggered()),this,SLOT(openXMLFile()));
+        connect(ui->actionLoad_Particle_XML,SIGNAL(triggered()),this,SLOT(openParticle()));
+        connect(ui->actionLoad_Projectile_Particle_XML,SIGNAL(triggered()),this,SLOT(openProjectileParticle()));
+        connect(ui->actionLoad_Splash_Particle_XML,SIGNAL(triggered()),this,SLOT(openSplashParticlee()));
         connect(ui->actionSave_A_Screenshot,SIGNAL(triggered()),this,SLOT(screenshot()));
 
         connect(ui->actionNormals,SIGNAL(triggered()),glWidget,SLOT(toggleNormals()));
         connect(ui->actionWireframe,SIGNAL(triggered()),glWidget,SLOT(toggleWireframe()));
         connect(ui->actionGrid,SIGNAL(triggered()),glWidget,SLOT(toggleGrid()));
+        connect(ui->actionClear_All,SIGNAL(triggered()),glWidget,SLOT(clearAll()));
 
         playerGroup = new QActionGroup(this);
         playerGroup->addAction(ui->actionPlayer_1);
@@ -163,7 +164,7 @@ string getGameReadWritePath(string lookupKey) {
     void MainWindow::openG3DFile(){
         Config &config = Config::getInstance();
         string userData = config.getString("UserData_Root","");
-        string defaultPath = userData + "techs/";
+        string defaultPath = userData + "techs" + folderDelimiter;
         QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),QString::fromStdString(defaultPath),tr("G3D file (*.g3d)"));
         /*if(fileName != NULL){
             this->renderer->open(fileName.toStdString());
@@ -173,17 +174,40 @@ string getGameReadWritePath(string lookupKey) {
         }
     }
 
-    void MainWindow::openXMLFile(){
+    QString MainWindow::openXMLFile(){
         Config &config = Config::getInstance();
         string userData = config.getString("UserData_Root","");
-        string defaultPath = userData + "techs/";
-        QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),QString::fromStdString(defaultPath),tr("XML file (*.xml)"));
+        string defaultPath = userData + "techs" + folderDelimiter;
+        return QFileDialog::getOpenFileName(this, tr("Open File"),QString::fromStdString(defaultPath),tr("XML file (*.xml)"));
+    }
+
+    void MainWindow::openParticle(){
+        QString fileName = openXMLFile();
+        std::cout << fileName.toStdString() << std::endl;
+        if(fileName != NULL){
+            std::cout << "load particle..." << std::endl;
+            this->glWidget->loadParticle(fileName);
+        }
+    }
+
+    void MainWindow::openSplashParticle(){
+        QString fileName = openXMLFile();
+        if(fileName != NULL){
+            this->glWidget->loadSplashParticle(fileName);
+        }
+    }
+
+    void MainWindow::openProjectileParticle(){
+        QString fileName = openXMLFile();
+        if(fileName != NULL){
+            this->glWidget->loadProjectileParticle(fileName);
+        }
     }
 
     void MainWindow::screenshot(){
         Config &config = Config::getInstance();
         string userData = config.getString("UserData_Root","");
-        string defaultPath = userData + "screens/";
+        string defaultPath = userData + "screens" + folderDelimiter;
         this->glWidget->screenshot(QString(defaultPath.c_str()).append("screen.png"),ui->actionTransparent_Screenshots->isChecked());
     }
 
