@@ -4,16 +4,24 @@
 #include <GL/glew.h>
 #define QT_NO_OPENGL_ES_2
 #include "renderer.h"
+
+//includes openGL, fucks GLEW
+#if QT_VERSION >= 0x050400
+#include <QOpenGLWidget>
+#else
 #include <QGLWidget>
+#endif
+
 #include <vector>
 #include <QColor>
-//includes openGL, fucks GLEW
-//~ //~
-//#include <QGLBuffer>
-//#include <QGLShaderProgram>
-//~ //~
+
 namespace Shared{ namespace G3dViewer{
-class GLWidget : public QGLWidget{
+class GLWidget ://Qt5.4 replaces QGLWidget
+#if QT_VERSION >= 0x050400
+public QOpenGLWidget {
+#else
+public QGLWidget {
+#endif
     Q_OBJECT
 public:
     GLWidget( const QGLFormat& format, QWidget* parent = 0 );
