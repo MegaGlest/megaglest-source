@@ -105,10 +105,11 @@ string getGameReadWritePath(string lookupKey) {
 
 
         connect(ui->actionChange_Background_Color,SIGNAL(triggered()),this,SLOT(colorChooser()));
+        connect(ui->actionChange_Player_Color,SIGNAL(triggered()),this,SLOT(playerColorChooser()));
         connect(ui->actionLoad_G3D_Model,SIGNAL(triggered()),this,SLOT(openG3DFile()));
         connect(ui->actionLoad_Particle_XML,SIGNAL(triggered()),this,SLOT(openParticle()));
         connect(ui->actionLoad_Projectile_Particle_XML,SIGNAL(triggered()),this,SLOT(openProjectileParticle()));
-        connect(ui->actionLoad_Splash_Particle_XML,SIGNAL(triggered()),this,SLOT(openSplashParticlee()));
+        connect(ui->actionLoad_Splash_Particle_XML,SIGNAL(triggered()),this,SLOT(openSplashParticle()));
         connect(ui->actionSave_A_Screenshot,SIGNAL(triggered()),this,SLOT(screenshot()));
 
         connect(ui->actionNormals,SIGNAL(triggered()),glWidget,SLOT(toggleNormals()));
@@ -116,20 +117,19 @@ string getGameReadWritePath(string lookupKey) {
         connect(ui->actionGrid,SIGNAL(triggered()),glWidget,SLOT(toggleGrid()));
         connect(ui->actionClear_All,SIGNAL(triggered()),glWidget,SLOT(clearAll()));
 
-        playerGroup = new QActionGroup(this);
-        playerGroup->addAction(ui->actionPlayer_1);
-        playerGroup->addAction(ui->actionPlayer_2);
-        playerGroup->addAction(ui->actionPlayer_3);
-        playerGroup->addAction(ui->actionPlayer_4);
-        playerGroup->addAction(ui->actionPlayer_5);
-        playerGroup->addAction(ui->actionPlayer_6);
-        playerGroup->addAction(ui->actionPlayer_7);
-        playerGroup->addAction(ui->actionPlayer_8);
+        //~ playerGroup = new QActionGroup(this);
+        //~ playerGroup->addAction(ui->actionPlayer_1);
+        //~ playerGroup->addAction(ui->actionPlayer_2);
+        //~ playerGroup->addAction(ui->actionPlayer_3);
+        //~ playerGroup->addAction(ui->actionPlayer_4);
+        //~ playerGroup->addAction(ui->actionPlayer_5);
+        //~ playerGroup->addAction(ui->actionPlayer_6);
+        //~ playerGroup->addAction(ui->actionPlayer_7);
+        //~ playerGroup->addAction(ui->actionPlayer_8);
 
     }
 
-    MainWindow::~MainWindow()
-    {
+    MainWindow::~MainWindow() {
         delete ui;
     }
 
@@ -142,8 +142,7 @@ string getGameReadWritePath(string lookupKey) {
     }
 
         //for translation ... somehow
-    void MainWindow::changeEvent(QEvent *e)
-    {
+    void MainWindow::changeEvent(QEvent *e) {
         QMainWindow::changeEvent(e);
         switch (e->type()) {
         case QEvent::LanguageChange:
@@ -154,14 +153,38 @@ string getGameReadWritePath(string lookupKey) {
         }
     }
 
-    void MainWindow::colorChooser(){
-        QColor chosen = QColorDialog::getColor(QColor(0x00,0x00,0x00));
+    void MainWindow::colorChooser() {
+        QColorDialog::setCustomColor(0,QColor(0x4C,0x4C,0x4C));
+        for(int i = 1; i < 8; i++){//reset custom colors
+            QColorDialog::setCustomColor(i,QColor(0x00,0x00,0x00));
+        }
+        QColor chosen = QColorDialog::getColor(QColor(0x4C,0x4C,0x4C),this,
+                tr("Choose Player Color"), QColorDialog::DontUseNativeDialog);
         if(chosen.isValid()){
             this->glWidget->setBackgroundColor(chosen);
         }
     }
 
-    void MainWindow::openG3DFile(){
+    void MainWindow::playerColorChooser() {
+        //custom colors for each player
+
+        QColorDialog::setCustomColor(0,QColor(0xFF,0x00,0x00));
+        QColorDialog::setCustomColor(1,QColor(0x00,0x00,0xFF));
+        QColorDialog::setCustomColor(2,QColor(0x00,0x7F,0x00));
+        QColorDialog::setCustomColor(3,QColor(0xFF,0xFF,0x00));
+        QColorDialog::setCustomColor(4,QColor(0xFF,0xFF,0xFF));
+        QColorDialog::setCustomColor(5,QColor(0x00,0xFF,0xCC));
+        QColorDialog::setCustomColor(6,QColor(0xFF,0x7F,0x00));
+        QColorDialog::setCustomColor(7,QColor(0xFF,0x7F,0xFF));
+        
+        QColor chosen = QColorDialog::getColor(glWidget->getPlayerColor(),this,
+                tr("Choose Player Color"), QColorDialog::DontUseNativeDialog);
+        if(chosen.isValid()){
+            this->glWidget->setPlayerColor(chosen);
+        }
+    }
+
+    void MainWindow::openG3DFile() {
         Config &config = Config::getInstance();
         string userData = config.getString("UserData_Root","");
         string defaultPath = userData + "techs" + folderDelimiter;
@@ -190,21 +213,21 @@ string getGameReadWritePath(string lookupKey) {
         }
     }
 
-    void MainWindow::openSplashParticle(){
+    void MainWindow::openSplashParticle() {
         QString fileName = openXMLFile();
         if(fileName != NULL){
             this->glWidget->loadSplashParticle(fileName);
         }
     }
 
-    void MainWindow::openProjectileParticle(){
+    void MainWindow::openProjectileParticle() {
         QString fileName = openXMLFile();
         if(fileName != NULL){
             this->glWidget->loadProjectileParticle(fileName);
         }
     }
 
-    void MainWindow::screenshot(){
+    void MainWindow::screenshot() {
         Config &config = Config::getInstance();
         string userData = config.getString("UserData_Root","");
         string defaultPath = userData + "screens" + folderDelimiter;
@@ -212,7 +235,7 @@ string getGameReadWritePath(string lookupKey) {
     }
 
 //initialize and open the window
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[]) {
     string version = "1.4.0";
 
     QApplication a(argc, argv);

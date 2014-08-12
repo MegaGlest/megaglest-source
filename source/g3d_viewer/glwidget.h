@@ -34,6 +34,7 @@ public:
     void setBackgroundColor(const QColor &col);
     void screenshot(QString path, bool transparent);
     void setPlayerColor(const QColor &col);
+    QColor getPlayerColor() {return playerColor;};
 public slots:
     void toggleNormals();
     void toggleWireframe();

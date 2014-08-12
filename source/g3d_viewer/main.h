@@ -58,12 +58,13 @@ using namespace Glest::Game;
 
     private:
         Ui::MainWindow *ui;
-        QActionGroup *playerGroup;
+        //~ QActionGroup *playerGroup;
         Shared::G3dViewer::GLWidget *glWidget;
 
 
     private slots:
         void colorChooser();
+        void playerColorChooser();
         QString openXMLFile();
         void openParticle();
         void openProjectileParticle();

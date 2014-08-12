@@ -174,6 +174,7 @@ void GLWidget::screenshot(QString path, bool transparent) {
 
 void GLWidget::setPlayerColor(const QColor &col) {
     playerColor = col;
+    renderer->setPlayerColor(col.redF(), col.greenF(), col.blueF());
     //~ for(unsigned int idx = 0; idx < this->particlePathList.size(); idx++) {
         //~ setFactionColor(Vec3f(col.redF(), col.greenF(), col.blueF()));
     //~ }
@@ -228,7 +229,7 @@ void GLWidget::initializeGL() {
     }
     renderer->init();
     renderer->setDimension(width(),height());
-    renderer->setPlayerColor(1.0f,0.0f,0.0f);
+    renderer->setPlayerColor(0xFF,0x00,0x00);
 }
 
 void GLWidget::resizeGL(int w, int h) {

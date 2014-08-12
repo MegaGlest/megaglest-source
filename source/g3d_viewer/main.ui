@@ -25,7 +25,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>19</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -65,14 +65,7 @@
     </property>
     <addaction name="actionChange_Background_Color"/>
     <addaction name="separator"/>
-    <addaction name="actionPlayer_1"/>
-    <addaction name="actionPlayer_2"/>
-    <addaction name="actionPlayer_3"/>
-    <addaction name="actionPlayer_4"/>
-    <addaction name="actionPlayer_5"/>
-    <addaction name="actionPlayer_6"/>
-    <addaction name="actionPlayer_7"/>
-    <addaction name="actionPlayer_8"/>
+    <addaction name="actionChange_Player_Color"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuMode"/>
@@ -292,6 +285,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionChange_Player_Color">
+   <property name="text">
+    <string>Change Player Color</string>
    </property>
   </action>
  </widget>

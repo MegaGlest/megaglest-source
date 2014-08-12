@@ -271,8 +271,8 @@ void Renderer::setDimension(int w, int h) {
 }
 
 void Renderer::setPlayerColor(float red, float green, float blue) {
-        //delete last texture and throw error if not found
-        textureManager->endTexture(playerTexture,true);
+        //delete last texture and throw no error if not found
+        textureManager->endTexture(playerTexture,false);
         //create new texture with new player color
         playerTexture = textureManager->newTexture2D();
         playerTexture->getPixmap()->init(1, 1, 3);//????
