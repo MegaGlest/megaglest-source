@@ -49,22 +49,36 @@ protected:
      * Only Qt should calls this!
      */
     virtual void initializeGL();
-    virtual void resizeGL( int w, int h );//TODO: don’t change size in paintGL
+    /**
+     * resizes the viewport and fits the scene
+     * Only Qt should calls this!
+     */
+    virtual void resizeGL(int w, int h);
     /**
      * Only Qt should calls this!
      * Please use updateGL() for triggering this
      */
     virtual void paintGL();
-    //virtual void keyPressEvent( QKeyEvent* e );
     /**
      * Only Qt should calls this!
      * Event for scrolling
      */
-    virtual void wheelEvent ( QWheelEvent* e);
+    virtual void wheelEvent(QWheelEvent* e);
+    /**
+     * Only Qt should calls this!
+     * Event for scrolling
+     */
+    virtual void mousePressEvent(QMouseEvent* e);
+    /**
+     * Only Qt should calls this!
+     * Event for scrolling
+     */
+    virtual void mouseMoveEvent(QMouseEvent* e);
 //~
 private:
     Renderer* renderer;
-    int rotX , rotY;
+    float rotX , rotY, oldRotX, oldRotY;
+    QPoint oldPos;
     float zoom;
     QColor playerColor;
     std::vector<std::string> modelPathList, particlePathList;

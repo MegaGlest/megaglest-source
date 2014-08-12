@@ -16,7 +16,7 @@ const char *folderDelimiter = "/";
 #endif
 
 GLWidget::GLWidget( const QGLFormat& format, QWidget* parent):QGLWidget( format, parent ),
-        renderer(Renderer::getInstance()),rotX(0),rotY(0),zoom(1),model(NULL),playerColor(1.0f,0.0f,0.0f){}
+        renderer(Renderer::getInstance()),rotX(50),rotY(50),zoom(1),model(NULL),playerColor(1.0f,0.0f,0.0f){}
 
 void GLWidget::loadModel(QString path) {
     try{
@@ -285,6 +285,22 @@ void GLWidget::wheelEvent ( QWheelEvent* e) {
         zoom*= 0.90909f;
     }
     updateGL();
+}
+
+void GLWidget::mousePressEvent(QMouseEvent* e){
+    std::cout << "mouse press" << std::endl;
+    oldRotX = rotX;
+    oldRotY = rotY;
+    oldPos = e->pos();
+    e->accept();
+}
+void GLWidget::mouseMoveEvent(QMouseEvent* e){
+    std::cout << "mouse move" << std::endl;
+    QPoint currPos = mapFromGlobal(QCursor::pos());
+    rotX = oldRotX + (e->pos().x() - oldPos.x()) / 4; 
+    rotY = oldRotY + (e->pos().y() - oldPos.y()) / 4;
+    updateGL();
+    e->accept();
 }
 
 }}
