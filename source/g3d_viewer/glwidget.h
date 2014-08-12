@@ -33,6 +33,7 @@ public:
     void loadProjectileParticle(QString path);
     void setBackgroundColor(const QColor &col);
     void screenshot(QString path, bool transparent);
+    void setPlayerColor(const QColor &col);
 public slots:
     void toggleNormals();
     void toggleWireframe();
@@ -47,7 +48,7 @@ protected:
      * Only Qt should calls this!
      */
     virtual void initializeGL();
-    //virtual void resizeGL( int w, int h );//TODO: don’t change size in paintGL
+    virtual void resizeGL( int w, int h );//TODO: don’t change size in paintGL
     /**
      * Only Qt should calls this!
      * Please use updateGL() for triggering this

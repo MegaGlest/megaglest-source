@@ -74,16 +74,6 @@ public:
 	static int windowH;
 
 public:
-	enum PlayerColor{
-		pcRed,
-		pcBlue,
-		pcGreen,
-		pcYellow,
-		pcWhite,
-		pcCyan,
-		pcOrange,
-		pcMagenta
-	};
 
 private:
 	bool wireframe;
@@ -100,15 +90,8 @@ private:
 	ParticleManager *particleManager;
 	ModelManager *modelManager;
 
-	Texture2D *customTextureRed;
-	Texture2D *customTextureBlue;
-	Texture2D *customTextureGreen;
-	Texture2D *customTextureYellow;
-	Texture2D *customTextureWhite;
-	Texture2D *customTextureCyan;
-	Texture2D *customTextureOrange;
-	Texture2D *customTextureMagenta;
 	MeshCallbackTeamColor meshCallbackTeamColor;
+	Texture2D *playerTexture;
 
 	float red;
 	float green;
@@ -123,8 +106,19 @@ public:
 	virtual ~Renderer();
 	static Renderer *getInstance();
 
+	/**
+	 * needs OpenGL context
+	 */
 	void init();
-	void reset(int w, int h, PlayerColor playerColor);
+	/**
+	 * needs OpenGL context
+	 */
+	void setDimension(int w, int h);
+	void setPlayerColor(float red, float green, float blue);
+	/**
+	 * needs OpenGL context
+	 */
+	void reset();
 	void transform(float rotX, float rotY, float zoom);
 	void renderGrid();
 
@@ -133,6 +127,9 @@ public:
 	bool getGrid() const		{return grid;}
 
 	void toggleNormals();
+	/**
+	 * needs OpenGL context
+	 */
 	void toggleWireframe();
 	void toggleGrid();
 
@@ -141,7 +138,6 @@ public:
 	void manageParticleSystem(ParticleSystem *particleSystem);
 	void updateParticleManager();
 	void renderParticleManager();
-	Texture2D *getPlayerColorTexture(PlayerColor playerColor);
 
 	Texture2D * getNewTexture2D();
 

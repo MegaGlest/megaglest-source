@@ -106,16 +106,8 @@ Renderer::Renderer() {
         green = 0.3f;
         blue = 0.3f;
         alpha = 1.0f;
-
-        customTextureRed=NULL;
-        customTextureBlue=NULL;
-        customTextureGreen=NULL;
-        customTextureYellow=NULL;
-        customTextureWhite=NULL;
-        customTextureCyan=NULL;
-        customTextureOrange=NULL;
-        customTextureMagenta=NULL;
-        particleManager=NULL;
+        playerTexture = NULL;
+        particleManager = NULL;
 }
 
 Renderer::~Renderer() {
@@ -233,46 +225,6 @@ void Renderer::init() {
         modelManager = gf->newModelManager();
         modelManager->setTextureManager(textureManager);
 
-        //red tex
-        customTextureRed= textureManager->newTexture2D();
-        customTextureRed->getPixmap()->init(1, 1, 3);
-        customTextureRed->getPixmap()->setPixel(0, 0, Vec3f(1.f, 0.f, 0.f));
-
-        //blue tex
-        customTextureBlue= textureManager->newTexture2D();
-        customTextureBlue->getPixmap()->init(1, 1, 3);
-        customTextureBlue->getPixmap()->setPixel(0, 0, Vec3f(0.f, 0.f, 1.f));
-
-        //green tex
-        customTextureGreen= textureManager->newTexture2D();
-        customTextureGreen->getPixmap()->init(1, 1, 3);
-        customTextureGreen->getPixmap()->setPixel(0, 0, Vec3f(0.f, 0.5f, 0.f));
-
-        //yellow tex
-        customTextureYellow= textureManager->newTexture2D();
-        customTextureYellow->getPixmap()->init(1, 1, 3);
-        customTextureYellow->getPixmap()->setPixel(0, 0, Vec3f(1.f, 1.f, 0.f));
-
-        //white tex
-        customTextureWhite= textureManager->newTexture2D();
-        customTextureWhite->getPixmap()->init(1, 1, 3);
-        customTextureWhite->getPixmap()->setPixel(0, 0, Vec3f(1.f, 1.f, 1.f));
-
-        //cyan tex
-        customTextureCyan= textureManager->newTexture2D();
-        customTextureCyan->getPixmap()->init(1, 1, 3);
-        customTextureCyan->getPixmap()->setPixel(0, 0, Vec3f(0.f, 1.f, 0.8f));
-
-        //orange tex
-        customTextureOrange= textureManager->newTexture2D();
-        customTextureOrange->getPixmap()->init(1, 1, 3);
-        customTextureOrange->getPixmap()->setPixel(0, 0, Vec3f(1.f, 0.5f, 0.f));
-
-        //magenta tex
-        customTextureMagenta= textureManager->newTexture2D();
-        customTextureMagenta->getPixmap()->init(1, 1, 3);
-        customTextureMagenta->getPixmap()->setPixel(0, 0, Vec3f(1.f, 0.5f, 1.f));
-
         glClearColor(red, green, blue, alpha);  //backgroundcolor constant 0.3
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -305,73 +257,47 @@ void Renderer::init() {
         assertGl();
 }
 
-void Renderer::reset(int w, int h, PlayerColor playerColor) {
-        assertGl();
-
+void Renderer::setDimension(int w, int h) {
         width=w;
         height=h;
 
-        //glClearColor(red, green, blue, alpha);  //backgroundcolor constant 0.3
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glViewport(0, 0, width, height);//set size of viewport
+        glMatrixMode(GL_PROJECTION);//??
+        glLoadIdentity();//??
+        gluPerspective(60.0f, static_cast<float>(width)/height, 1.0f, 200.0f);//??
+        glMatrixMode(GL_MODELVIEW);//??
+        glLoadIdentity();//??
+        glTranslatef(0, -1.5, -5);//??
+}
 
-    /* once the GL context is valid : */
-    //GLint alpha_bits;
-    //glGetIntegerv(GL_ALPHA_BITS, &alpha_bits);
-    //printf("#2 The framebuffer uses %d bit(s) per the alpha component\n", alpha_bits);
+void Renderer::setPlayerColor(float red, float green, float blue) {
+        //delete last texture and throw error if not found
+        textureManager->endTexture(playerTexture,true);
+        //create new texture with new player color
+        playerTexture = textureManager->newTexture2D();
+        playerTexture->getPixmap()->init(1, 1, 3);//????
+        playerTexture->getPixmap()->setPixel(0, 0, Vec3f(red, green, blue));
+        meshCallbackTeamColor.setTeamTexture(playerTexture);//???
+        //and all particles
+}
 
-        glViewport(0, 0, w, h);
-        glMatrixMode(GL_PROJECTION);
-        glLoadIdentity();
-        gluPerspective(60.0f, static_cast<float>(w)/h, 1.0f, 200.0f);
-        glMatrixMode(GL_MODELVIEW);
-        glLoadIdentity();
-        glTranslatef(0, -1.5, -5);
+void Renderer::reset() {
+        assertGl();
 
-        Texture2D *customTexture=NULL;
-        //TODO: this looks like utter crap
-        switch(playerColor) {
-        case pcRed:
-                customTexture= customTextureRed;
-                break;
-        case pcBlue:
-                customTexture= customTextureBlue;
-                break;
-        case pcGreen:
-                customTexture= customTextureGreen;
-                break;
-        case pcYellow:
-                customTexture= customTextureYellow;
-                break;
-        case pcWhite:
-                customTexture= customTextureWhite;
-                break;
-        case pcCyan:
-                customTexture= customTextureCyan;
-                break;
-        case pcOrange:
-                customTexture= customTextureOrange;
-                break;
-        case pcMagenta:
-                customTexture= customTextureMagenta;
-                break;
-        default:
-                assert(false);
-                break;
-        }
-        meshCallbackTeamColor.setTeamTexture(customTexture);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if(wireframe) {
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                glDisable(GL_TEXTURE_2D);
-                glDisable(GL_LIGHTING);
-                glDisable(GL_LIGHT0);
-        }
-        else {
-                glEnable(GL_TEXTURE_2D);
-                glEnable(GL_LIGHTING);
-                glEnable(GL_LIGHT0);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        }
+        //~ if(wireframe) {//better do this in toggleWireframe?
+                //~ glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                //~ glDisable(GL_TEXTURE_2D);
+                //~ glDisable(GL_LIGHTING);
+                //~ glDisable(GL_LIGHT0);
+        //~ }
+        //~ else {
+                //~ glEnable(GL_TEXTURE_2D);
+                //~ glEnable(GL_LIGHTING);
+                //~ glEnable(GL_LIGHT0);
+                //~ glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        //~ }
 
         assertGl();
 }
@@ -410,6 +336,22 @@ void Renderer::toggleNormals() {
 
 void Renderer::toggleWireframe() {
         wireframe= !wireframe;
+        
+        assertGl();
+        //TODO: toggleWireframe or paintGL?
+        if(wireframe) {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                glDisable(GL_TEXTURE_2D);
+                glDisable(GL_LIGHTING);
+                glDisable(GL_LIGHT0);
+        }
+        else {
+                glEnable(GL_TEXTURE_2D);
+                glEnable(GL_LIGHTING);
+                glEnable(GL_LIGHT0);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+        assertGl();
 }
 
 void Renderer::toggleGrid() {
@@ -452,41 +394,6 @@ void Renderer::renderParticleManager() {
         glDepthFunc(GL_LESS);
         particleRenderer->renderManager(particleManager, modelRenderer);
         glPopAttrib();
-}
-
-Texture2D * Renderer::getPlayerColorTexture(PlayerColor playerColor) {
-        Texture2D *customTexture=NULL;
-        switch(playerColor){
-        case pcRed:
-                customTexture= customTextureRed;
-                break;
-        case pcBlue:
-                customTexture= customTextureBlue;
-                break;
-        case pcGreen:
-                customTexture= customTextureGreen;
-                break;
-        case pcYellow:
-                customTexture= customTextureYellow;
-                break;
-        case pcWhite:
-                customTexture= customTextureWhite;
-                break;
-        case pcCyan:
-                customTexture= customTextureCyan;
-                break;
-        case pcOrange:
-                customTexture= customTextureOrange;
-                break;
-        case pcMagenta:
-                customTexture= customTextureMagenta;
-                break;
-        default:
-                throw megaglest_runtime_error("Unknown playercolor: " + intToStr(playerColor));
-                break;
-        }
-
-        return customTexture;
 }
 
 void Renderer::initTextureManager() {

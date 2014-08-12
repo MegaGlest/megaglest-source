@@ -172,13 +172,22 @@ void GLWidget::screenshot(QString path, bool transparent) {
     context()->swapBuffers();*/
 }
 
+void GLWidget::setPlayerColor(const QColor &col) {
+    playerColor = col;
+    //~ for(unsigned int idx = 0; idx < this->particlePathList.size(); idx++) {
+        //~ setFactionColor(Vec3f(col.redF(), col.greenF(), col.blueF()));
+    //~ }
+}
+
 void GLWidget::toggleNormals() {
     renderer->toggleNormals();
     updateGL();
 }
 
 void GLWidget::toggleWireframe() {
+    makeCurrent();//use opengl on this widget
     renderer->toggleWireframe();
+    context()->swapBuffers();//push stuff to GPU
     updateGL();
 }
 
@@ -218,13 +227,19 @@ void GLWidget::initializeGL() {
         throw std::runtime_error((char *)glewGetErrorString(err));
     }
     renderer->init();
+    renderer->setDimension(width(),height());
+    renderer->setPlayerColor(1.0f,0.0f,0.0f);
 }
+
+void GLWidget::resizeGL(int w, int h) {
+    renderer->setDimension(w,h);
+}
+
 //void GLWidget::resizeGL( int w, int h ){}
 void GLWidget::paintGL() {
-    int viewportW = width(), viewportH = height();
 
     //back to blank background
-    renderer->reset(viewportW, viewportH, Renderer::pcRed);
+    renderer->reset();
     renderer->transform(rotX, rotY, zoom);
     renderer->renderGrid();
     //context()->swapBuffers();
