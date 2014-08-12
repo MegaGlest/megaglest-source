@@ -262,12 +262,10 @@ void Renderer::setDimension(int w, int h) {
         height=h;
 
         glViewport(0, 0, width, height);//set size of viewport
-        glMatrixMode(GL_PROJECTION);//??
-        glLoadIdentity();//??
+        glMatrixMode(GL_PROJECTION);//modus for projection
+        glLoadIdentity();//reset
         gluPerspective(60.0f, static_cast<float>(width)/height, 1.0f, 200.0f);//??
-        glMatrixMode(GL_MODELVIEW);//??
-        glLoadIdentity();//??
-        glTranslatef(0, -1.5, -5);//??
+      
 }
 
 void Renderer::setPlayerColor(float red, float green, float blue) {
@@ -284,20 +282,12 @@ void Renderer::setPlayerColor(float red, float green, float blue) {
 void Renderer::reset() {
         assertGl();
 
+        //clear with background color
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //~ if(wireframe) {//better do this in toggleWireframe?
-                //~ glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                //~ glDisable(GL_TEXTURE_2D);
-                //~ glDisable(GL_LIGHTING);
-                //~ glDisable(GL_LIGHT0);
-        //~ }
-        //~ else {
-                //~ glEnable(GL_TEXTURE_2D);
-                //~ glEnable(GL_LIGHTING);
-                //~ glEnable(GL_LIGHT0);
-                //~ glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        //~ }
+        glMatrixMode(GL_MODELVIEW);//modus for 
+        glLoadIdentity();//reset
+        glTranslatef(0, -1.5, -5);//default camera position
 
         assertGl();
 }
@@ -338,7 +328,6 @@ void Renderer::toggleWireframe() {
         wireframe= !wireframe;
         
         assertGl();
-        //TODO: toggleWireframe or paintGL?
         if(wireframe) {
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                 glDisable(GL_TEXTURE_2D);
