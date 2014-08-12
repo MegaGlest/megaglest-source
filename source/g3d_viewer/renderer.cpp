@@ -133,7 +133,8 @@ Renderer * Renderer::getInstance() {
 void Renderer::transform(float rotX, float rotY, float zoom) {
         assertGl();
 
-        glMatrixMode(GL_MODELVIEW);
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
         glRotatef(rotY, 1.0f, 0.0f, 0.0f);
         glRotatef(rotX, 0.0f, 1.0f, 0.0f);
         glScalef(zoom, zoom, zoom);
@@ -265,9 +266,9 @@ void Renderer::setDimension(int w, int h) {
         glMatrixMode(GL_PROJECTION);//??
         glLoadIdentity();//??
         gluPerspective(60.0f, static_cast<float>(width)/height, 1.0f, 200.0f);//??
-        glMatrixMode(GL_MODELVIEW);//??
-        glLoadIdentity();//??
-        glTranslatef(0, -1.5, -5);//??
+        //~ glMatrixMode(GL_MODELVIEW);//??
+        //~ glLoadIdentity();//??
+        //~ glTranslatef(0, -1.5, -5);//??
 }
 
 void Renderer::setPlayerColor(float red, float green, float blue) {
@@ -286,19 +287,13 @@ void Renderer::reset() {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        //~ if(wireframe) {//better do this in toggleWireframe?
-                //~ glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                //~ glDisable(GL_TEXTURE_2D);
-                //~ glDisable(GL_LIGHTING);
-                //~ glDisable(GL_LIGHT0);
-        //~ }
-        //~ else {
-                //~ glEnable(GL_TEXTURE_2D);
-                //~ glEnable(GL_LIGHTING);
-                //~ glEnable(GL_LIGHT0);
-                //~ glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        //~ }
-
+        //reset projection
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        //??
+        gluPerspective(60.0f, static_cast<float>(width)/height, 1.0f, 200.0f);
+        //default camera position
+        glTranslatef(0, -1.5, -5);
         assertGl();
 }
 
