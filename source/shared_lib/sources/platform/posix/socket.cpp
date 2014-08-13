@@ -27,9 +27,11 @@
 #include <algorithm>
 
 #ifdef WIN32
-
-  #include <windows.h>
   #include <winsock2.h>
+  //don't break std::max and std::min
+  #undef NOMINMAX
+  #define NOMINMAX
+  #include <windows.h>
   #include <iphlpapi.h>
   #include <strstream>
   #include <strsafe.h>

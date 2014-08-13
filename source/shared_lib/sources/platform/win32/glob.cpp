@@ -45,6 +45,10 @@
 #include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
+//don't include winsock.h and don't break std::max and std::min
+#undef _WINSOCKAPI_
+#define _WINSOCKAPI_
+#undef NOMINMAX
 #define NOMINMAX
 #include <windows.h>
 #include "platform_util.h"
