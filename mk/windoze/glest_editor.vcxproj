@@ -25,7 +25,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -50,10 +49,10 @@
     <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.\..\..\data\glest_game\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)/$(ProjectName)\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)/$(ProjectName)\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'">$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'">$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'">true</LinkIncremental>
@@ -64,8 +63,8 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..\source\windows_deps\wxWidgets-2.9.3\lib\vc_lib\mswu;..\..\source\shared_lib\include\util;..\..\source\shared_lib\include\platform\win32;..\..\source\shared_lib\include\graphics\gl;..\..\source\windows_deps\include;..\..\source\shared_lib\include\graphics;..\..\source\windows_deps\wxWidgets-2.9.3\include;..\..\source\shared_lib\include\platform\sdl;../../source/shared_lib/include/streflop;../../source/shared_lib/include/platform/common;../../source/windows_deps/SDL-1.2.15/include;../../source/windows_deps/curl-7.21.3/include;../../source/shared_lib/include/map;..\..\source\glest_game\global;..\..\source\glest_game\game;..\..\source\glest_game\facilities;..\..\source\shared_lib\include\xml;..\..\source\shared_lib\include\xml\rapidxml;../../source/windows_deps/xerces-c-3.1.1/src;.\GeneratedFiles;.;$(QTDIR)\include;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include\QtCore;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtOpenGL;$(QTDIR)\include\QtWidgets;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;_WINDOWS;WIN32;CURL_STATICLIB;UNICODE;_UNICODE;GLEW_STATIC;ZLIB_WINAPI_DEBUG;ZLIB_WINAPI;QT_DLL;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <MinimalRebuild>false</MinimalRebuild>
+      <PreprocessorDefinitions>NDEBUG;_WINDOWS;WIN32;CURL_STATICLIB;UNICODE;_UNICODE;GLEW_STATIC;ZLIB_WINAPI_DEBUG;ZLIB_WINAPI;QT_DLL;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions</EnableEnhancedInstructionSet>
@@ -114,7 +113,7 @@
       <AdditionalDependencies>winmm.lib;rpcrt4.lib;comctl32.lib;libglest.lib;sdl.lib;sdlmain.lib;dsound.lib;dxguid.lib;Dbghelp.lib;libcurl.lib;ws2_32.lib;ftgl_static.lib;freetype244MT.lib;zlibstat.lib;libeay32.lib;ssleay32.lib;qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5OpenGL.lib;opengl32.lib;glu32.lib;Qt5Widgets.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)\$(TargetFileName)</OutputFile>
       <AdditionalLibraryDirectories>i386;../../source/windows_deps/lib;../../build/$(Configuration)/libglest;$(QTDIR)\lib;..\..\source\windows_deps\Qt5.2.1\msvc2010_opengl\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>
       </OptimizeReferences>
@@ -124,8 +123,6 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
-      <ShowProgress>NotSet</ShowProgress>
-      <LinkStatus>false</LinkStatus>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release_NO_STREFLOP|Win32'">

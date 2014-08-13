@@ -135,7 +135,7 @@
       <AdditionalDependencies>dsound.lib;dxguid.lib;glew32s.lib;libogg_static.lib;libvorbis_static.lib;libvorbisfile_static.lib;opengl32.lib;glu32.lib;wsock32.lib;libglest.lib;mmc.lib;lua.lib;xerces-c_static_3.lib;Dbghelp.lib;libpng15.lib;jpeg.lib;zlibstat.lib;sdl.lib;sdlmain.lib;winmm.lib;openal32.lib;iphlpapi.lib;libstreflop.lib;libcurl.lib;ws2_32.lib;libircclient.lib;freetype244MT.lib;ftgl_static.lib;libeay32.lib;ssleay32.lib;crash_generation_client.lib;exception_handler.lib;common.lib;processor_bits.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>i386;../../source/windows_deps/lib;../../build/$(Configuration)/libglest;../../source/shared_lib/sources/streflop/libstreflop;$(DXSDK_DIR)/lib/x86;../../source/windows_deps/Microsoft DirectX SDK %28November 2007%29/Lib/x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Console</SubSystem>
       <OptimizeReferences>
       </OptimizeReferences>
