@@ -154,9 +154,9 @@ string getGameReadWritePath(string lookupKey) {
     }
 
     void MainWindow::colorChooser() {
-        QColorDialog::setCustomColor(0,QColor(0x4C,0x4C,0x4C));
+        QColorDialog::setCustomColor(0,qRgb(0x4C,0x4C,0x4C));
         for(int i = 1; i < 8; i++){//reset custom colors
-            QColorDialog::setCustomColor(i,QColor(0x00,0x00,0x00));
+            QColorDialog::setCustomColor(i,qRgb(0x00,0x00,0x00));
         }
         QColor chosen = QColorDialog::getColor(QColor(0x4C,0x4C,0x4C),this,
                 tr("Choose Player Color"), QColorDialog::DontUseNativeDialog);
@@ -168,14 +168,14 @@ string getGameReadWritePath(string lookupKey) {
     void MainWindow::playerColorChooser() {
         //custom colors for each player
 
-        QColorDialog::setCustomColor(0,QColor(0xFF,0x00,0x00));
-        QColorDialog::setCustomColor(1,QColor(0x00,0x00,0xFF));
-        QColorDialog::setCustomColor(2,QColor(0x00,0x7F,0x00));
-        QColorDialog::setCustomColor(3,QColor(0xFF,0xFF,0x00));
-        QColorDialog::setCustomColor(4,QColor(0xFF,0xFF,0xFF));
-        QColorDialog::setCustomColor(5,QColor(0x00,0xFF,0xCC));
-        QColorDialog::setCustomColor(6,QColor(0xFF,0x7F,0x00));
-        QColorDialog::setCustomColor(7,QColor(0xFF,0x7F,0xFF));
+        QColorDialog::setCustomColor(0,qRgb(0xFF,0x00,0x00));
+        QColorDialog::setCustomColor(1,qRgb(0x00,0x00,0xFF));
+        QColorDialog::setCustomColor(2,qRgb(0x00,0x7F,0x00));
+        QColorDialog::setCustomColor(3,qRgb(0xFF,0xFF,0x00));
+        QColorDialog::setCustomColor(4,qRgb(0xFF,0xFF,0xFF));
+        QColorDialog::setCustomColor(5,qRgb(0x00,0xFF,0xCC));
+        QColorDialog::setCustomColor(6,qRgb(0xFF,0x7F,0x00));
+        QColorDialog::setCustomColor(7,qRgb(0xFF,0x7F,0xFF));
         
         QColor chosen = QColorDialog::getColor(glWidget->getPlayerColor(),this,
                 tr("Choose Player Color"), QColorDialog::DontUseNativeDialog);
