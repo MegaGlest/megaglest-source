@@ -16,7 +16,7 @@ const char *folderDelimiter = "/";
 #endif
 
 GLWidget::GLWidget( const QGLFormat& format, QWidget* parent):QGLWidget( format, parent ),
-        renderer(Renderer::getInstance()),rotX(50),rotY(50),zoom(1),model(NULL),playerColor(1.0f,0.0f,0.0f){}
+        renderer(Renderer::getInstance()),rotX(50),rotY(50),zoom(1),model(NULL),playerColor(0xFF,0x00,0x00){}
 
 void GLWidget::loadModel(QString path) {
     try{
@@ -132,7 +132,7 @@ void GLWidget::loadParticle(QString path) {
             }
 
             if(path != "" && QFile(path).exists()){//otherwise nothing changed
-                renderer->initModelManager();
+                //~ renderer->initModelManager();
                 renderer->initTextureManager();
             }
         }
@@ -167,14 +167,20 @@ void GLWidget::screenshot(QString path, bool transparent) {
     renderer->setAlphaColor(transparent ? 0.0f : 1.0f);
     context()->swapBuffers();
     renderPixmap().toImage().save(path);
-    /*makeCurrent();
-    renderer->setAlphaColor(1.0f);
-    context()->swapBuffers();*/
 }
 
 void GLWidget::setPlayerColor(const QColor &col) {
-    playerColor = col;
-    renderer->setPlayerColor(col.redF(), col.greenF(), col.blueF());
+    try{
+        playerColor = col;
+        renderer->setPlayerColor(col.redF(), col.greenF(), col.blueF());
+        renderer->initModelManager();
+        renderer->initTextureManager();
+        updateGL();
+    }
+    catch(Shared::Platform::megaglest_runtime_error &e) {
+        std::cout << e.what() << std::endl;
+        ((MainWindow*)parentWidget())->showRuntimeError("Setting Player Color",e);
+    }
     //~ for(unsigned int idx = 0; idx < this->particlePathList.size(); idx++) {
         //~ setFactionColor(Vec3f(col.redF(), col.greenF(), col.blueF()));
     //~ }
@@ -229,7 +235,8 @@ void GLWidget::initializeGL() {
     }
     renderer->init();
     renderer->setDimension(width(),height());
-    renderer->setPlayerColor(0xFF,0x00,0x00);
+    renderer->setPlayerColor(playerColor.redF(), playerColor.greenF(), playerColor.blueF());
+    renderer->initTextureManager();
 }
 
 void GLWidget::resizeGL(int w, int h) {
@@ -251,7 +258,7 @@ void GLWidget::paintGL() {
     }*/
     renderer->renderParticleManager();
     
-    if((modelPathList.empty() == false)){// && resetAnimation && haveLoadedParticles) {
+    if(!modelPathList.empty()){// && resetAnimation && haveLoadedParticles) {
         //~ if(anim >= resetAnim && resetAnim > 0) {
             std::cout << "RESETTING EVERYTHING ...\n" << std::endl;
             //~ fflush(stdout);
@@ -264,7 +271,7 @@ void GLWidget::paintGL() {
                 //onMenuFileClearAll(event)
 
                 modelPathList.clear();
-                //~ particlePathList.clear();
+                particlePathList.clear();
                 //~ particleProjectilePathList.clear();
                 //~ particleSplashPathList.clear(); // as above
 
