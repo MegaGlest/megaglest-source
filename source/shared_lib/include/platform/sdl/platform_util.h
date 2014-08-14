@@ -12,11 +12,8 @@
 #define _SHARED_PLATFORM_PLATFORMUTIL_H_
 
 #ifdef WIN32
+//please give compiler definition WIN32_LEAN_AND_MEAN
 //don't include winsock.h and don't break std::max and std::min
-#undef _WINSOCKAPI_
-#define _WINSOCKAPI_
-#undef NOMINMAX
-#define NOMINMAX
 #include <windows.h>
 
 #endif

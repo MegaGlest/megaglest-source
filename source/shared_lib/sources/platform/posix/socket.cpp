@@ -28,9 +28,8 @@
 
 #ifdef WIN32
   #include <winsock2.h>
-  //don't break std::max and std::min
-  #undef NOMINMAX
-  #define NOMINMAX
+  //please give compiler definition WIN32_LEAN_AND_MEAN
+  //don't include winsock.h and don't break std::max and std::min
   #include <windows.h>
   #include <iphlpapi.h>
   #include <strstream>
