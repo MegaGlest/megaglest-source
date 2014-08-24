@@ -14,16 +14,6 @@
 
 #include <QGraphicsItem>
 
-class QGraphicsScene;
-class QGraphicsSceneMouseEvent;
-class QGraphicsSceneHoverEvent;
-class QGraphicsSceneDragDropEvent;
-class QGraphicsRectItem;
-class QGraphicsLineItem;
-class QGraphicsItem;
-class QColor;
-class QString;
-
 namespace MapEditor {
     class Renderer;
 

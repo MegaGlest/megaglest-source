@@ -9,9 +9,12 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
-#include "newMap.hpp"
 #include "ui_newMap.h"
+
+#include "newMap.hpp"
+
 #include "mapManipulator.hpp"
+
 #include <iostream>
 
 namespace MapEditor {

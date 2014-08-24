@@ -9,7 +9,13 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
+#include <QGraphicsScene>
+#include <QGraphicsView>
+#include <QGraphicsItemGroup>
+#include <QAction>
+
 #include "renderer.hpp"
+
 //good idea?
 #include "mainWindow.hpp"
 #include "tile.hpp"
@@ -17,11 +23,6 @@
 #include "selection.hpp"
 #include "mapManipulator.hpp"
 
-#include <QGraphicsScene>
-#include <QGraphicsView>
-#include <QGraphicsItemGroup>
-#include <QAction>
-//#include "map_preview.hpp"
 #include <iostream>
 
 namespace MapEditor {

@@ -9,10 +9,13 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
+#include <QPainter>
+
 #include "player.hpp"
+
 #include "tile.hpp"
 #include "renderer.hpp"
-#include <QPainter>
+
 #include <iostream>
 
 namespace MapEditor {

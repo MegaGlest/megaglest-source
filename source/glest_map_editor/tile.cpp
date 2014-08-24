@@ -9,11 +9,6 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
-#include "tile.hpp"
-#include "renderer.hpp"
-//good idea?
-#include "mainWindow.hpp"
-#include "mapManipulator.hpp"
 #include <QPainter>
 //#include <QColor>
 #include <QString>
@@ -27,6 +22,14 @@
 #include <QGraphicsRectItem>
 #include <QGraphicsItemGroup>
 #include <QGraphicsSceneMouseEvent>
+
+#include "tile.hpp"
+
+#include "renderer.hpp"
+//good idea?
+#include "mainWindow.hpp"
+#include "mapManipulator.hpp"
+
 #include <iostream>
 
 namespace MapEditor {

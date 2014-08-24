@@ -9,13 +9,17 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
-#include "viewer.hpp"
+#include <QCoreApplication>
 #include <QMouseEvent>
 #include <QLabel>
+
+#include "viewer.hpp"
+
 #include "mainWindow.hpp"
 #include "tile.hpp"
+
 #include <iostream>
-#include <QCoreApplication>
+
 
 namespace MapEditor {
     Viewer::Viewer(QWidget *parent) : QGraphicsView(parent){

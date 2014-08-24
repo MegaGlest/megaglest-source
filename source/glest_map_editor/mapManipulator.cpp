@@ -8,14 +8,6 @@
 //  by the Free Software Foundation; either version 2 of the
 //  License, or (at your option) any later version
 // ==============================================================
-#include "mapManipulator.hpp"
-#include "mainWindow.hpp"
-#include "renderer.hpp"
-#include "selection.hpp"
-#include "map_preview.h"
-#include "tile.hpp"
-
-#include <iostream>
 
 #include <QAction>
 #include <QGraphicsScene>
@@ -25,11 +17,22 @@
 #include <QClipboard>
 #include <QByteArray>
 #include <QMimeData>
-
 #include <QMessageBox>
+#include <QDebug>
+
+#include "mapManipulator.hpp"
+
+#include "mainWindow.hpp"
+#include "renderer.hpp"
+#include "selection.hpp"
+#include "tile.hpp"
+
+#include "map_preview.h"
 #include "platform_util.h"
 
-#include <QDebug>
+#include <iostream>
+
+
 
 
 namespace MapEditor{

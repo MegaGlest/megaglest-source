@@ -26,11 +26,11 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
-//#include "player.hpp"
-#include "map_preview.h"
-#include <vector>
 #include <QObject>
-//#include
+
+#include "map_preview.h"
+
+#include <vector>
 
 class QGraphicsScene;
 class QGraphicsItemGroup;

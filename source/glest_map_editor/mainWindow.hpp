@@ -12,11 +12,11 @@
 #ifndef MAINWINDOW_HPP
 #define MAINWINDOW_HPP
 
+#include <QMainWindow>
+
 #ifdef WIN32
     #include <winsock2.h>
 #endif
-
-#include <QMainWindow>
 #include "platform_util.h"
 
 class QGraphicsScene;

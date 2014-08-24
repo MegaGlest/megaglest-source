@@ -9,27 +9,6 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
-//#include <ctime>
-//#include "conversion.h"
-#include "platform_common.h"
-#include "config.h"
-#include <iostream>
-//#include "platform_util.h"
-#ifndef WIN32
-#include <errno.h>
-#endif
-#include "mainWindow.hpp"
-
-#include "ui_mainWindow.h"
-#include "ui_help.h"
-#include "ui_info.h"
-#include "ui_advanced.h"
-
-#include "newMap.hpp"
-//#include "advanced.hpp"
-#include "switchSurfaces.hpp"
-#include "renderer.hpp"
-#include "mapManipulator.hpp"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QGraphicsScene>
@@ -39,12 +18,33 @@
 #include <QCoreApplication>
 #include <QLabel>
 //#include <QAction>
-//#include <memory>
 #include <QCloseEvent>
-
-
 #include <QMessageBox>
+
+#include "ui_mainWindow.h"
+#include "ui_help.h"
+#include "ui_info.h"
+#include "ui_advanced.h"
+
+#include "mainWindow.hpp"
+
+#include "newMap.hpp"
+//#include "advanced.hpp"
+#include "switchSurfaces.hpp"
+#include "renderer.hpp"
+#include "mapManipulator.hpp"
+
+#include "platform_common.h"
+#include "config.h"
+//#include "platform_util.h"
+#ifndef WIN32
+  #include <errno.h>
+#endif
+
+//#include <memory>
 #include <iostream>
+//#include <ctime>
+//#include "conversion.h"
 
 using namespace Shared::PlatformCommon;
 using namespace Glest::Game;

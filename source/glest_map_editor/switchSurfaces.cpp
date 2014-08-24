@@ -9,9 +9,12 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
-#include "switchSurfaces.hpp"
 #include "ui_switchSurfaces.h"
+
+#include "switchSurfaces.hpp"
+
 #include "mapManipulator.hpp"
+
 #include <iostream>
 
 namespace MapEditor {
