@@ -666,27 +666,7 @@ Unit::~Unit() {
 	}
 	safeMutex.ReleaseLock();
 
-	// If the unit is not visible we better make sure we cleanup associated particles
-	if(this->getVisible() == false) {
-		Renderer::getInstance().cleanupUnitParticleSystems(unitParticleSystems,rsGame);
-
-		Renderer::getInstance().cleanupParticleSystems(fireParticleSystems,rsGame);
-		// Must set this to null of it will be used below in stopDamageParticles()
-
-		if(Renderer::getInstance().validateParticleSystemStillExists(this->fire,rsGame) == false) {
-			this->fire = NULL;
-		}
-	}
-
-	// fade(and by this remove) all unit particle systems
-	queuedUnitParticleSystemTypes.clear();
-	while(unitParticleSystems.empty() == false) {
-		if(Renderer::getInstance().validateParticleSystemStillExists(unitParticleSystems.back(),rsGame) == true) {
-			unitParticleSystems.back()->fade();
-		}
-		unitParticleSystems.pop_back();
-	}
-	stopDamageParticles(true);
+	cleanupAllParticlesystems();
 
 	while(currentAttackBoostEffects.empty() == false) {
 		//UnitAttackBoostEffect &effect = currentAttackBoostEffects.back();
@@ -724,6 +704,29 @@ Unit::~Unit() {
 #ifdef LEAK_CHECK_UNITS
 	Unit::mapMemoryList.erase(this);
 #endif
+}
+
+void Unit::cleanupAllParticlesystems() {
+
+	Renderer::getInstance().cleanupUnitParticleSystems(unitParticleSystems,rsGame);
+
+	Renderer::getInstance().cleanupParticleSystems(fireParticleSystems,rsGame);
+	// Must set this to null of it will be used below in stopDamageParticles()
+
+	if(Renderer::getInstance().validateParticleSystemStillExists(this->fire,rsGame) == false) {
+		this->fire = NULL;
+	}
+
+	// fade(and by this remove) all unit particle systems
+	queuedUnitParticleSystemTypes.clear();
+	while(unitParticleSystems.empty() == false) {
+		if(Renderer::getInstance().validateParticleSystemStillExists(unitParticleSystems.back(),rsGame) == true) {
+			unitParticleSystems.back()->fade();
+		}
+		unitParticleSystems.pop_back();
+	}
+	stopDamageParticles(true);
+
 }
 
 ParticleSystem * Unit::getFire() const	{
@@ -3580,6 +3583,8 @@ bool Unit::morph(const MorphCommandType *mct) {
 			}
 		}
 
+		//stopDamageParticles(true);
+		cleanupAllParticlesystems();
 
 		checkItemInVault(&this->hp,this->hp);
 		int original_hp = this->hp;

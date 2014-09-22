@@ -806,6 +806,7 @@ public:
 
 private:
 
+	void cleanupAllParticlesystems();
 	bool isNetworkCRCEnabled();
 	string getNetworkCRCDecHpList() const;
 	string getParticleInfo() const;
