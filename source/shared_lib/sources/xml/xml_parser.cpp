@@ -388,7 +388,7 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
 
         // Load data and add terminating 0
         vector<char> buffer;
-        buffer.resize((unsigned int)file_size + 1);
+        buffer.resize((unsigned int)file_size + 100);
         xmlFile.read(&buffer.front(), static_cast<streamsize>(file_size));
         buffer[(unsigned int)file_size] = 0;
 
@@ -696,8 +696,18 @@ XmlNode::XmlNode(xml_node<> *node, const std::map<string,string> &mapTagReplacem
 
 	//get value
 	if(node->type() == node_element && children.size() == 0) {
-		text = node->value();
-		Properties::applyTagsToValue(this->text,&mapTagReplacementValues);
+		string xmlText = node->value();
+
+		bool debugReplace = false;
+//		if(xmlText.find("{SCENARIOPATH}") != string::npos) {
+//			printf("\n----------------------\n** XML!! WILL REPLACE [%s]\n",xmlText.c_str());
+//			debugReplace = true;
+//		}
+		Properties::applyTagsToValue(xmlText,&mapTagReplacementValues);
+		if(debugReplace) {
+			printf("\n\n** XML!! REPLACED WITH [%s]\n===================\n",xmlText.c_str());
+		}
+		text = xmlText;
 	}
 }
 

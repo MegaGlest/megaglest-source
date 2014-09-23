@@ -288,7 +288,12 @@ bool Properties::isValuePathVariable(const string &value) {
 void Properties::updateValuePathVariable(string &value) {
 	replaceAll(value,"//","/");
 	replaceAll(value,"\\\\","\\");
+
+	//printf("\n** $$$$# 1 in updateValuePathVariable [%s]\n===================\n",value.c_str());
+
 	updatePathClimbingParts(value);
+
+	//printf("\n** $$$$$ #2 in updateValuePathVariable [%s]\n===================\n",value.c_str());
 }
 
 bool Properties::applyTagsToValue(string &value, const std::map<string,string> *mapTagReplacementValues) {
@@ -302,13 +307,16 @@ bool Properties::applyTagsToValue(string &value, const std::map<string,string> *
 		for(std::map<string,string>::const_iterator iterMap = mapTagReplacementValues->begin();
 				iterMap != mapTagReplacementValues->end(); ++iterMap) {
 
+			bool debugReplace = false;
 //			if(value.find("{SCENARIOPATH}") != string::npos) {
-//				printf("\n\n** WILL REPLACE [%s]\n",value.c_str());
-//				replaceAll(value, "{SCENARIOPATH}",		Properties::scenarioPath);
-//				printf("** REPLACED [%s]\n\n",value.c_str());
+//				debugReplace = true;
+//				printf("\n----------------------\n** WILL REPLACE [%s]\n",value.c_str());
 //			}
-//			else {
+
 			replaceAll(value, iterMap->first, iterMap->second);
+
+//			if(debugReplace) {
+//				printf("\n\n** REPLACED WITH [%s]\n===================\n",value.c_str());
 //			}
 		}
 	}
@@ -390,6 +398,8 @@ bool Properties::applyTagsToValue(string &value, const std::map<string,string> *
 
 	if(valueRequiresPathUpdate == true) {
 		Properties::updateValuePathVariable(value);
+
+		//printf("\n** !!!!AFTER updateValuePathVariable [%s]\n===================\n",value.c_str());
 	}
 	return (originalValue != value);
 }

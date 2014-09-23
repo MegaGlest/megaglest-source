@@ -79,13 +79,19 @@ Checksum Scenario::load(const string &path) {
 		//parse xml
 		XmlTree xmlTree;
 		xmlTree.load(path,Properties::getTagReplacementValues());
+
 		const XmlNode *scenarioNode= xmlTree.getRootNode();
 		const XmlNode *scriptsNode= scenarioNode->getChild("scripts");
 
-		for(int i= 0; i < (int)scriptsNode->getChildCount(); ++i){
-			const XmlNode *scriptNode = scriptsNode->getChild(i);
+		for(int index= 0; index < (int)scriptsNode->getChildCount(); ++index){
+			const XmlNode *scriptNode = scriptsNode->getChild(index);
+			const string luaFunctionName = getFunctionName(scriptNode);
+			const string luaCode = scriptNode->getText();
 
-			scripts.push_back(Script(getFunctionName(scriptNode), scriptNode->getText()));
+//			printf("\n\nLUA Code for function [%s]: =================\n%s\n-----------------------\n",
+//					luaFunctionName.c_str(),luaCode.c_str());
+
+			scripts.push_back(Script(luaFunctionName, luaCode));
 		}
 	}
 	//Exception handling (conversions and so on);
