@@ -339,7 +339,8 @@ XmlIoRapid::~XmlIoRapid() {
 	cleanup();
 }
 
-XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation,bool skipStackTrace) {
+XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &mapTagReplacementValues,
+		bool noValidation,bool skipStackTrace,bool skipUpdatePathClimbingParts) {
 	bool showPerfStats = SystemFlags::VERBOSE_MODE_ENABLED;
 	Chrono chrono;
 	chrono.start();
@@ -405,7 +406,7 @@ XmlNode *XmlIoRapid::load(const string &path, const std::map<string,string> &map
 
         if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
-		rootNode= new XmlNode(doc.first_node(),mapTagReplacementValues);
+		rootNode= new XmlNode(doc.first_node(),mapTagReplacementValues, skipUpdatePathClimbingParts);
 
 		if(showPerfStats) printf("In [%s::%s Line: %d] took msecs: " MG_I64_SPECIFIER "\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
@@ -522,6 +523,7 @@ XmlTree::XmlTree(xml_engine_parser_type engine_type) {
 
 	this->engine_type = engine_type;
 	this->skipStackCheck = false;
+	this->skipUpdatePathClimbingParts = false;
 }
 
 void XmlTree::init(const string &name){
@@ -532,6 +534,10 @@ void XmlTree::init(const string &name){
 typedef std::vector<XmlTree*> LoadStack;
 //static LoadStack loadStack;
 static string loadStackCacheName = string(__FILE__) + string("_loadStackCacheName");
+
+void XmlTree::setSkipUpdatePathClimbingParts(bool value) {
+	this->skipUpdatePathClimbingParts = value;
+}
 
 void XmlTree::load(const string &path, const std::map<string,string> &mapTagReplacementValues, bool noValidation,bool skipStackCheck,bool skipStackTrace) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s] skipStackCheck = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str(),skipStackCheck);
@@ -565,7 +571,7 @@ void XmlTree::load(const string &path, const std::map<string,string> &mapTagRepl
 	else
 #endif
 	{
-		this->rootNode= XmlIoRapid::getInstance().load(path, mapTagReplacementValues, noValidation,skipStackTrace);
+		this->rootNode= XmlIoRapid::getInstance().load(path, mapTagReplacementValues, noValidation,skipStackTrace, this->skipUpdatePathClimbingParts);
 	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] about to load [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,path.c_str());
@@ -661,7 +667,8 @@ XmlNode::XmlNode(DOMNode *node, const std::map<string,string> &mapTagReplacement
 
 #endif
 
-XmlNode::XmlNode(xml_node<> *node, const std::map<string,string> &mapTagReplacementValues) : superNode(NULL) {
+XmlNode::XmlNode(xml_node<> *node, const std::map<string,string> &mapTagReplacementValues,
+		bool skipUpdatePathClimbingParts) : superNode(NULL) {
 	if(node == NULL || node->name() == NULL) {
         throw megaglest_runtime_error("XML structure seems to be corrupt!");
     }
@@ -682,7 +689,7 @@ XmlNode::XmlNode(xml_node<> *node, const std::map<string,string> &mapTagReplacem
 	for(xml_node<> *currentNode = node->first_node();
 			currentNode; currentNode = currentNode->next_sibling()) {
 		if(currentNode != NULL && currentNode->type() == node_element) {
-			XmlNode *xmlNode= new XmlNode(currentNode, mapTagReplacementValues);
+			XmlNode *xmlNode= new XmlNode(currentNode, mapTagReplacementValues, skipUpdatePathClimbingParts);
 			children.push_back(xmlNode);
 		}
     }
@@ -703,7 +710,7 @@ XmlNode::XmlNode(xml_node<> *node, const std::map<string,string> &mapTagReplacem
 //			printf("\n----------------------\n** XML!! WILL REPLACE [%s]\n",xmlText.c_str());
 //			debugReplace = true;
 //		}
-		Properties::applyTagsToValue(xmlText,&mapTagReplacementValues);
+		Properties::applyTagsToValue(xmlText,&mapTagReplacementValues, skipUpdatePathClimbingParts);
 		if(debugReplace) {
 			printf("\n\n** XML!! REPLACED WITH [%s]\n===================\n",xmlText.c_str());
 		}

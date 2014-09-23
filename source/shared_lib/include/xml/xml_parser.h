@@ -124,7 +124,7 @@ public:
 	static bool isInitialized();
 	void cleanup();
 
-	XmlNode *load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation=false,bool skipStackTrace=false);
+	XmlNode *load(const string &path, const std::map<string,string> &mapTagReplacementValues,bool noValidation=false,bool skipStackTrace=false, bool skipUpdatePathClimbingParts=false);
 	void save(const string &path, const XmlNode *node);
 };
 
@@ -138,6 +138,8 @@ private:
 	string loadPath;
 	xml_engine_parser_type engine_type;
 	bool skipStackCheck;
+	bool skipUpdatePathClimbingParts;
+
 private:
 	XmlTree(XmlTree&);
 	void operator =(XmlTree&);
@@ -147,6 +149,7 @@ public:
 	XmlTree(xml_engine_parser_type engine_type = XML_RAPIDXML_ENGINE);
 	~XmlTree();
 
+	void setSkipUpdatePathClimbingParts(bool value);
 	void init(const string &name);
 	void load(const string &path, const std::map<string,string> &mapTagReplacementValues, bool noValidation=false,bool skipStackCheck=false,bool skipStackTrace=false);
 	void save(const string &path);
@@ -182,7 +185,7 @@ public:
 
 #endif
 
-	XmlNode(xml_node<> *node, const std::map<string,string> &mapTagReplacementValues);
+	XmlNode(xml_node<> *node, const std::map<string,string> &mapTagReplacementValues,bool skipUpdatePathClimbingParts=false);
 	XmlNode(const string &name);
 	~XmlNode();
 	
