@@ -5359,7 +5359,8 @@ int glestMain(int argc, char** argv) {
         bool startCRCPrecacheThread = config.getBool("PreCacheCRCThread","true");
         //printf("### In [%s::%s Line: %d] precache thread enabled = %d SystemFlags::VERBOSE_MODE_ENABLED = %d\n",__FILE__,__FUNCTION__,__LINE__,startCRCPrecacheThread,SystemFlags::VERBOSE_MODE_ENABLED);
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] precache thread enabled = %d\n",__FILE__,__FUNCTION__,__LINE__,startCRCPrecacheThread);
-		if(startCRCPrecacheThread == true) {
+		if (startCRCPrecacheThread == true
+				&& GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 			static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 			vector<string> techDataPaths = config.getPathListForType(ptTechs);
 
