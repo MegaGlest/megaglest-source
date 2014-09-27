@@ -285,13 +285,15 @@ bool Properties::isValuePathVariable(const string &value) {
 	}
 	return false;
 }
-void Properties::updateValuePathVariable(string &value) {
+void Properties::updateValuePathVariable(string &value, bool skipUpdatePathClimbingParts) {
 	replaceAll(value,"//","/");
 	replaceAll(value,"\\\\","\\");
-	updatePathClimbingParts(value);
+	if(skipUpdatePathClimbingParts == false) {
+		updatePathClimbingParts(value);
+	}
 }
 
-bool Properties::applyTagsToValue(string &value, const std::map<string,string> *mapTagReplacementValues) {
+bool Properties::applyTagsToValue(string &value, const std::map<string,string> *mapTagReplacementValues,bool skipUpdatePathClimbingParts) {
 	string originalValue = value;
 	bool valueRequiresPathUpdate = Properties::isValuePathVariable(value);
 	//if(originalValue.find("$APPLICATIONDATAPATH") != string::npos) {
@@ -389,7 +391,7 @@ bool Properties::applyTagsToValue(string &value, const std::map<string,string> *
 	//}
 
 	if(valueRequiresPathUpdate == true) {
-		Properties::updateValuePathVariable(value);
+		Properties::updateValuePathVariable(value, skipUpdatePathClimbingParts);
 	}
 	return (originalValue != value);
 }

@@ -78,6 +78,7 @@ Checksum Scenario::load(const string &path) {
 
 		//parse xml
 		XmlTree xmlTree;
+		xmlTree.setSkipUpdatePathClimbingParts(true);
 		xmlTree.load(path,Properties::getTagReplacementValues());
 		const XmlNode *scenarioNode= xmlTree.getRootNode();
 		const XmlNode *scriptsNode= scenarioNode->getChild("scripts");

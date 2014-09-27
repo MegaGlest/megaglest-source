@@ -1209,7 +1209,7 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 							world->getStats()->die(unit->getFactionIndex(),unit->getType()->getCountUnitDeathInStats());
 							scriptManager->onUnitDied(unit);
 						}
-						StaticSound *sound= unit->getType()->getFirstStOfClass(scDie)->getSound();
+						StaticSound *sound= static_cast<const DieSkillType *>(unit->getType()->getFirstStOfClass(scDie))->getSound();
 						if(sound != NULL &&
 							(thisFaction == true || world->showWorldForPlayer(world->getThisTeamIndex()) == true)) {
 							SoundRenderer::getInstance().playFx(sound);

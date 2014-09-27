@@ -1531,6 +1531,12 @@ int ScriptManager::getUnitFaction(int unitId) {
 const string ScriptManager::getUnitName(int unitId) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+	return world->findUnitById(unitId)->getType()->getName(false);
+}
+
+const string ScriptManager::getUnitDisplayName(int unitId) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 	return world->getUnitName(unitId);
 }
 
@@ -3414,6 +3420,7 @@ int ScriptManager::getUnitFaction(LuaHandle* luaHandle){
 
 	return luaArguments.getReturnCount();
 }
+
 int ScriptManager::getUnitName(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);
 	try {
@@ -3434,6 +3441,28 @@ int ScriptManager::getUnitName(LuaHandle* luaHandle){
 
 	return luaArguments.getReturnCount();
 }
+
+int ScriptManager::getUnitDisplayName(LuaHandle* luaHandle){
+	LuaArguments luaArguments(luaHandle);
+	try {
+		const string unitname = thisScriptManager->getUnitDisplayName(luaArguments.getInt(-1));
+		luaArguments.returnString(unitname);
+	}
+	catch(const megaglest_runtime_error &ex) {
+		char szErrBuf[8096]="";
+		snprintf(szErrBuf,8096,"In [%s::%s %d]",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		string sErrBuf = string(szErrBuf) + string("\nThe game may no longer be stable!\nerror [") + string(ex.what()) + string("]\n");
+
+		SystemFlags::OutputDebug(SystemFlags::debugError,sErrBuf.c_str());
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,sErrBuf.c_str());
+
+		thisScriptManager->addMessageToQueue(ScriptManagerMessage(sErrBuf.c_str(), "error",-1,-1,true));
+		thisScriptManager->onMessageBoxOk(false);
+	}
+
+	return luaArguments.getReturnCount();
+}
+
 
 int ScriptManager::getResourceAmount(LuaHandle* luaHandle){
 	LuaArguments luaArguments(luaHandle);

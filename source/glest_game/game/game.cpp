@@ -5391,18 +5391,20 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 	for(int i = 0; i < world.getFactionCount(); ++i) {
 		string factionInfo = this->gameSettings.getNetworkPlayerName(i);
 		//factionInfo += " [" + this->gameSettings.getNetworkPlayerUUID(i) + "]";
+		float multi=world.getStats()->getResourceMultiplier(i);
+		string multiplier="["+floatToStr(multi,1)+"]";
 		switch(this->gameSettings.getFactionControl(i)) {
 			case ctCpuEasy:
-				factionInfo += " CPU Easy";
+				factionInfo += " CPU Easy"+multiplier;
 				break;
 			case ctCpu:
-				factionInfo += " CPU Normal";
+				factionInfo += " CPU Normal"+multiplier;
 				break;
 			case ctCpuUltra:
-				factionInfo += " CPU Ultra";
+				factionInfo += " CPU Ultra"+multiplier;
 				break;
 			case ctCpuMega:
-				factionInfo += " CPU Mega";
+				factionInfo += " CPU Mega"+multiplier;
 				break;
 		}
 
