@@ -96,6 +96,10 @@ protected:
 	bool attackSpeedIsMultiplier;
 	std::map<string,int> attackSpeedIsMultiplierValueList;
 
+	int attackSpeed;
+	bool attackSpeedIsMultiplier;
+	std::map<string,int> attackSpeedIsMultiplierValueList;
+
 public:
 	/**
 	 * Creates an UpgradeTypeBase with values such that there are no stat changes.
