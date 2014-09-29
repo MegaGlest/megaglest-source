@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iterator>
 
 #include "unit_type.h"
 #include "util.h"

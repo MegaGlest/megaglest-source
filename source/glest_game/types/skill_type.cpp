@@ -12,6 +12,7 @@
 #include "skill_type.h"
 
 #include <cassert>
+#include <iterator>
 
 #include "sound.h"
 #include "util.h"
