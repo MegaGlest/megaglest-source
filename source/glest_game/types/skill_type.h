@@ -30,6 +30,7 @@
 #include "projectile_type.h"
 #include "upgrade_type.h"
 #include "leak_dumper.h"
+#include <set>
 
 using Shared::Sound::StaticSound;
 using Shared::Xml::XmlNode;
@@ -98,7 +99,8 @@ public:
 	bool allowMultipleBoosts;
 	int radius;
 	AttackBoostTargetType targetType;
-	vector<const UnitType *> boostUnitList;
+	std::set<const UnitType *> boostUnitList;
+	std::set<string> tags;
 	UpgradeTypeBase boostUpgrade;
 
 	UnitParticleSystemType *unitParticleSystemTypeForSourceUnit;
@@ -109,9 +111,20 @@ public:
 
 	bool isAffected(const Unit *source, const Unit *dest) const;
 	virtual string getDesc(bool translatedValue) const;
+	string getTagName(string tag, bool translatedValue=false) const;
 
 	virtual void saveGame(XmlNode *rootNode) const;
 	virtual void loadGame(const XmlNode *rootNode, Faction *faction, const SkillType *skillType);
+
+private:
+	/**
+	 * Checks if a unit is affected by the attack boost by checking if either the UnitType is in
+	 * the #boostUnitList or shares a tag with #tags.
+	 * @param unitType The unit type to check.
+	 * @return True if the unit *might* be affected by the attack boost (still have to check if it's
+	 * in range), false otherwise.
+	 */
+	bool isInUnitListOrTags(const UnitType *unitType) const;
 };
 
 class AnimationAttributes {
