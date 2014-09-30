@@ -266,7 +266,7 @@ string AttackCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool transla
     //attack distance
     str+= lang.getString("AttackDistance",(translatedValue == true ? "" : "english"))+": "+intToStr(attackSkillType->getAttackRange());
 	if(totalUpgrade->getAttackRange(attackSkillType) != 0) {
-        str+= "+"+intToStr(totalUpgrade->getAttackRange(attackSkillType) != 0);
+        str+= "+"+intToStr(totalUpgrade->getAttackRange(attackSkillType));
 	}
     str+="\n";
 
