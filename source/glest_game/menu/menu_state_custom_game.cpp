@@ -1124,18 +1124,18 @@ bool MenuStateCustomGame::EventCallback(CEGUI::Window *ctl, std::string name) {
 				SoundRenderer &soundRenderer	= SoundRenderer::getInstance();
 
 				soundRenderer.playFx(coreData.getClickSoundC());
-				if(getNetworkPlayerStatus() == npst_PickSettings) {
+				//if(getNetworkPlayerStatus() == npst_PickSettings) {
 					//listBoxPlayerStatus.setTextColor(Vec3f(1.0f,0.0f,0.0f));
 					//listBoxPlayerStatus.setLighted(true);
-				}
-				else if(getNetworkPlayerStatus() == npst_BeRightBack) {
+				//}
+				//else if(getNetworkPlayerStatus() == npst_BeRightBack) {
 					//listBoxPlayerStatus.setTextColor(Vec3f(1.0f,1.0f,0.0f));
 					//listBoxPlayerStatus.setLighted(true);
-				}
-				else if(getNetworkPlayerStatus() == npst_Ready) {
+				//}
+				//else if(getNetworkPlayerStatus() == npst_Ready) {
 					//listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
 					//listBoxPlayerStatus.setLighted(false);
-				}
+				//}
 
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
