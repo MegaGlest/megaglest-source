@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iterator>
 
 #include "unit_type.h"
 #include "util.h"
@@ -601,18 +602,43 @@ string UpgradeType::getName(bool translatedValue) const {
 	return lang.getTechTreeString("UpgradeTypeName_" + name,name.c_str());
 }
 
+string UpgradeType::getTagName(string tag, bool translatedValue) const {
+	if(translatedValue == false) return tag;
+
+	Lang &lang = Lang::getInstance();
+	return lang.getTechTreeString("TagName_" + tag, tag.c_str());
+}
+
 string UpgradeType::getReqDesc(bool translatedValue) const{
 	Lang &lang= Lang::getInstance();
     string str= ProducibleType::getReqDesc(translatedValue);
     string indent="  ";
-	if(getEffectCount()>0){
+	if(!effects.empty() || !tags.empty()){
 		str+= "\n"+ lang.getString("Upgrades",(translatedValue == true ? "" : "english"))+"\n";
 	}
 	str+=UpgradeTypeBase::getDesc(translatedValue);
-	if(getEffectCount()>0){
+	if(!effects.empty() || !tags.empty()){
 		str+= lang.getString("AffectedUnits",(translatedValue == true ? "" : "english"))+"\n";
-		for(int i=0; i<getEffectCount(); ++i){
-			str+= indent+getEffect(i)->getName(translatedValue)+"\n";
+
+		// We want the output to be sorted, so convert the set to a vector and sort that
+		std::vector<const UnitType*> outputUnits(effects.begin(), effects.end());
+		std::sort(outputUnits.begin(), outputUnits.end(), UnitTypeSorter());
+
+		vector<const UnitType*>::iterator unitIter;
+		for (unitIter = outputUnits.begin(); unitIter != outputUnits.end(); ++unitIter) {
+			const UnitType *unit = *unitIter;
+			str+= indent+unit->getName(translatedValue)+"\n";
+		}
+
+		// Do the same for tags
+		std::vector<string> outputTags(tags.begin(), tags.end());
+		std::sort(outputTags.begin(), outputTags.end());
+
+		vector<string>::iterator tagIter;
+		for (tagIter = outputTags.begin(); tagIter != outputTags.end(); ++tagIter) {
+			string tag = *tagIter;
+			str+= indent + lang.getString("TagDesc", (translatedValue == true ? "" : "english")) +
+					" " + getTagName(tag,translatedValue)  + "\n";
 		}
 	}
 	return str;
@@ -757,28 +783,23 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 		sortedItems.clear();
 		hasDup = false;
 
-		//effects
+		//effects -- get list of affected units
 		const XmlNode *effectsNode= upgradeNode->getChild("effects");
-		for(int i = 0; i < (int)effectsNode->getChildCount(); ++i) {
-			const XmlNode *unitNode= effectsNode->getChild("unit", i);
+		vector<XmlNode*> unitNodes= effectsNode->getChildList("unit");
+		for(size_t i = 0; i < unitNodes.size(); ++i) {
+			const XmlNode *unitNode= unitNodes.at(i);
 			string name= unitNode->getAttribute("name")->getRestrictedValue();
 
-			if(sortedItems.find(name) != sortedItems.end()) {
-				hasDup = true;
-			}
-
-			sortedItems[name] = 0;
+			effects.insert(factionType->getUnitType(name));
 		}
 
-		if(hasDup) {
-			printf("WARNING, upgrade type [%s] has one or more duplicate effects\n",this->getName().c_str());
+		//effects -- convert tags into units
+		vector<XmlNode*> tagNodes= effectsNode->getChildList("tag");
+		for(size_t i = 0; i < tagNodes.size(); ++i) {
+			const XmlNode *tagNode= tagNodes.at(i);
+			string name= tagNode->getAttribute("name")->getRestrictedValue();
+			tags.insert(name);
 		}
-
-		for(std::map<string,int>::iterator iterMap = sortedItems.begin();
-				iterMap != sortedItems.end(); ++iterMap) {
-			effects.push_back(factionType->getUnitType(iterMap->first));
-		}
-		sortedItems.clear();
 
 		//values
 		UpgradeTypeBase::load(upgradeNode,name);
@@ -792,7 +813,15 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 }
 
 bool UpgradeType::isAffected(const UnitType *unitType) const{
-	return find(effects.begin(), effects.end(), unitType)!=effects.end();
+	if(std::find(effects.begin(), effects.end(), unitType)!=effects.end()) return true;
+
+	const set<string> unitTags = unitType->getTags();
+	set<string> intersect;
+	set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
+			std::inserter(intersect,intersect.begin()));
+	if(!intersect.empty()) return true;
+
+	return false;
 }
 
 //void UpgradeType::saveGame(XmlNode *rootNode) const {

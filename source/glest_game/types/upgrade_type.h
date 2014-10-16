@@ -30,6 +30,7 @@
 #include "conversion.h"
 #include "xml_parser.h"
 #include "leak_dumper.h"
+#include <set>
 
 using Shared::Util::Checksum;
 using namespace Shared::Util;
@@ -266,9 +267,10 @@ public:
 class UpgradeType: public UpgradeTypeBase, public ProducibleType {
 private:
 	/**
-	 * List of unit types (the "classes" of units, eg, swordman) that are affected by this upgrade.
-	 */
-    vector<const UnitType*> effects;
+	* Set of unit types (the "classes" of units, eg, swordman) that are affected by this upgrade.
+	*/
+    std::set<const UnitType*> effects;
+    std::set<string> tags;
 
 public:
 	/**
@@ -301,17 +303,7 @@ public:
 	 * appears in the XMLs.
 	 */
     virtual string getName(bool translatedValue=false) const;
-
-    /**
-	 * Returns the number of UnitTypes affected by this upgrade.
-	 */
-	int getEffectCount() const				{return (int)effects.size();}
-
-    /**
-	 * Returns a particular unit type affected by this upgrade.
-	 * @param i Index of the unit type in the #effects list.
-	 */
-	const UnitType * getEffect(int i) const	{return effects[i];}
+	string getTagName(string tag, bool translatedValue=false) const;
 
 	/**
 	 * Determines if a unit is affected by this upgrade.

@@ -3341,8 +3341,9 @@ void MenuStateConnectedGame::update() {
 				GameSettings *gameSettings = clientInterface->getGameSettingsPtr();
 
 				//printf("Menu got new settings thisfactionindex = %d startlocation: %d control = %d\n",gameSettings->getThisFactionIndex(),clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()),gameSettings->getFactionControl(clientInterface->getGameSettings()->getThisFactionIndex()));
-
-				setupUIFromGameSettings(gameSettings, errorOnMissingData);
+				if ( difftime((long int)time(NULL),broadcastServerSettingsDelayTimer) >= HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS){
+					setupUIFromGameSettings(gameSettings, errorOnMissingData);
+				}
 			}
 
 			// check if we are joining an in progress game
@@ -4604,6 +4605,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 	if(getMissingMapFromFTPServerInProgress == false &&
 			gameSettings->getMap() != "") {
 		// map
+		bool missingMap=false;
 		string mapFile = gameSettings->getMap();
 		mapFile = formatString(mapFile);
 
@@ -4647,11 +4649,16 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 			}
 			maps.push_back(Lang::getInstance().getString("DataMissing","",true));
 			mapFile = Lang::getInstance().getString("DataMissing","",true);
+			missingMap=true;
 		}
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] listBoxMap.getSelectedItemIndex() = %d, mapFiles.size() = " MG_SIZE_T_SPECIFIER ", maps.size() = " MG_SIZE_T_SPECIFIER ", getCurrentMapFile() [%s] mapFile [%s]\n",
 				extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxMap.getSelectedItemIndex(),mapFiles.size(),maps.size(),getCurrentMapFile().c_str(),mapFile.c_str());
 
+		if(!missingMap && mapFile!=listBoxMap.getSelectedItem()){
+			console.addLine("Headless server does not have map, switching to next one");
+			printf("Headless server doesn't have map '%s'. Setting map '%s' instead.\n",listBoxMap.getSelectedItem().c_str(),mapFile.c_str());
+		}
 		listBoxMap.setItems(maps);
 
 		listBoxMap.setSelectedItem(mapFile);

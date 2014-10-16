@@ -12,6 +12,7 @@
 #include "skill_type.h"
 
 #include <cassert>
+#include <iterator>
 
 #include "sound.h"
 #include "util.h"
@@ -61,34 +62,16 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 		else {
 			// All units are affected (including enemies)
 			if(targetType == abtAll) {
-				destUnitMightApply = (boostUnitList.empty() == true);
-
-				// Specify which units are affected
-				for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-					const UnitType *ut = boostUnitList[i];
-					if(dest->getType()->getId() == ut->getId()) {
-						destUnitMightApply = true;
-						break;
-					}
-				}
-
+				destUnitMightApply = (boostUnitList.empty() && tags.empty());
+				destUnitMightApply = isInUnitListOrTags(dest->getType());
 			}
 			// Only same faction units are affected
 			else if(targetType == abtFaction) {
 				//if(boostUnitList.empty() == true) {
 				if(source->getFactionIndex() == dest->getFactionIndex()) {
 					//destUnitMightApply = true;
-					destUnitMightApply = (boostUnitList.empty() == true);
-
-					// Specify which units are affected
-					for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-						const UnitType *ut = boostUnitList[i];
-						if(dest->getType()->getId() == ut->getId()) {
-							destUnitMightApply = true;
-							break;
-						}
-					}
-
+					destUnitMightApply = (boostUnitList.empty() && tags.empty());
+					destUnitMightApply = isInUnitListOrTags(dest->getType());
 				}
 				//}
 			}
@@ -97,16 +80,8 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 				//if(boostUnitList.empty() == true) {
 				if(source->isAlly(dest) == true) {
 					//destUnitMightApply = true;
-					destUnitMightApply = (boostUnitList.empty() == true);
-
-					// Specify which units are affected
-					for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-						const UnitType *ut = boostUnitList[i];
-						if(dest->getType()->getId() == ut->getId()) {
-							destUnitMightApply = true;
-							break;
-						}
-					}
+					destUnitMightApply = (boostUnitList.empty() && tags.empty());
+					destUnitMightApply = isInUnitListOrTags(dest->getType());
 				}
 				//}
 			}
@@ -115,28 +90,13 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 				//if(boostUnitList.empty() == true) {
 				if(source->isAlly(dest) == false) {
 					//destUnitMightApply = true;
-					destUnitMightApply = (boostUnitList.empty() == true);
-
-					// Specify which units are affected
-					for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-						const UnitType *ut = boostUnitList[i];
-						if(dest->getType()->getId() == ut->getId()) {
-							destUnitMightApply = true;
-							break;
-						}
-					}
+					destUnitMightApply = (boostUnitList.empty() && tags.empty());
+					destUnitMightApply = isInUnitListOrTags(dest->getType());
 				}
 				//}
 			}
 			else if(targetType == abtUnitTypes) {
-				// Specify which units are affected
-				for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-					const UnitType *ut = boostUnitList[i];
-					if(dest->getType()->getId() == ut->getId()) {
-						destUnitMightApply = true;
-						break;
-					}
-				}
+				destUnitMightApply = isInUnitListOrTags(dest->getType());
 			}
 		}
 
@@ -149,6 +109,32 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 	}
 
 	return result;
+}
+
+bool AttackBoost::isInUnitListOrTags(const UnitType *unitType) const {
+	// Specify which units are affected
+	std::set<const UnitType*>::iterator it;
+	for (it = boostUnitList.begin(); it != boostUnitList.end(); ++it) {
+		const UnitType *boostUnit = *it;
+		if(unitType->getId() == boostUnit->getId()) {
+			return true;
+		}
+	}
+	set<string> unitTags = unitType->getTags();
+	set<string> intersect;
+	set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
+			std::inserter(intersect,intersect.begin()));
+	if(!intersect.empty()) return true;
+
+	// Otherwise no match
+	return false;
+}
+
+string AttackBoost::getTagName(string tag, bool translatedValue) const {
+	if(translatedValue == false) return tag;
+
+	Lang &lang = Lang::getInstance();
+	return lang.getTechTreeString("TagName_" + tag, tag.c_str());
 }
 
 string AttackBoost::getDesc(bool translatedValue) const{
@@ -190,14 +176,31 @@ string AttackBoost::getDesc(bool translatedValue) const{
     		str+= lang.getString("AffectedUnitsFromAll") +":\n";
     	}
 
-    	if(boostUnitList.empty() == false) {
-			for(int i=0; i < (int)boostUnitList.size(); ++i){
-				str+= "  "+boostUnitList[i]->getName(translatedValue)+"\n";
-			}
+    	if(boostUnitList.empty() && tags.empty()) {
+    		str+= lang.getString("All")+"\n";
     	}
     	else
     	{
-    		str+= lang.getString("All")+"\n";
+    		// We want the output to be sorted, so convert the set to a vector and sort that
+    		std::vector<const UnitType*> outputUnits(boostUnitList.begin(), boostUnitList.end());
+    		std::sort(outputUnits.begin(), outputUnits.end(), UnitTypeSorter());
+
+    		vector<const UnitType*>::iterator unitIter;
+    		for (unitIter = outputUnits.begin(); unitIter != outputUnits.end(); ++unitIter) {
+    			const UnitType *unit = *unitIter;
+    			str+= indent+unit->getName(translatedValue)+"\n";
+    		}
+
+    		// Do the same for tags
+    		std::vector<string> outputTags(tags.begin(), tags.end());
+    		std::sort(outputTags.begin(), outputTags.end());
+
+    		vector<string>::iterator tagIter;
+    		for (tagIter = outputTags.begin(); tagIter != outputTags.end(); ++tagIter) {
+    			string tag = *tagIter;
+    			str+= indent + lang.getString("TagDesc", (translatedValue == true ? "" : "english")) +
+    					" " + getTagName(tag,translatedValue)  + "\n";
+    		}
     	}
 
     	return str;
@@ -222,8 +225,16 @@ void AttackBoost::loadGame(const XmlNode *rootNode, Faction *faction, const Skil
 			string unitTypeName = node->getAttribute("name")->getValue();
 			const UnitType *unitType = faction->getType()->getUnitType(unitTypeName);
 			if(unitType != NULL) {
-				boostUnitList.push_back(unitType);
+				boostUnitList.insert(unitType);
 			}
+		}
+	}
+	if(attackBoostNode->hasChild("tag")) {
+		vector<XmlNode *> tagNodeList = attackBoostNode->getChildList("tag");
+		for(unsigned int i = 0; i < tagNodeList.size(); ++i) {
+			XmlNode *node = tagNodeList[i];
+			string tagName = node->getAttribute("name")->getValue();
+			tags.insert(tagName);
 		}
 	}
 	//boostUpgrade.loadGame(attackBoostNode,faction);
@@ -252,10 +263,17 @@ void AttackBoost::saveGame(XmlNode *rootNode) const {
 //	AttackBoostTargetType targetType;
 	attackBoostNode->addAttribute("targetType",intToStr(targetType), mapTagReplacements);
 //	vector<const UnitType *> boostUnitList;
-	for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-		const UnitType *ut = boostUnitList[i];
+	std::set<const UnitType*>::iterator unitIter;
+	for (unitIter = boostUnitList.begin(); unitIter != boostUnitList.end(); ++unitIter) {
+		const UnitType *unit = *unitIter;
 		XmlNode *unitTypeNode = attackBoostNode->addChild("UnitType");
-		unitTypeNode->addAttribute("name",ut->getName(false), mapTagReplacements);
+		unitTypeNode->addAttribute("name",unit->getName(false), mapTagReplacements);
+	}
+	std::set<string>::iterator tagIter;
+	for (tagIter = tags.begin(); tagIter != tags.end(); ++tagIter) {
+		string tag = *tagIter;
+		XmlNode *unitTypeNode = attackBoostNode->addChild("tag");
+		unitTypeNode->addAttribute("name", tag, mapTagReplacements);
 	}
 //	UpgradeTypeBase boostUpgrade;
 	boostUpgrade.saveGame(attackBoostNode);
@@ -352,43 +370,38 @@ void SkillType::loadAttackBoost(const XmlNode *attackBoostsNode, const XmlNode *
 
     if(targetType == "ally") {
         attackBoost.targetType = abtAlly;
-        for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
-            const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
-            attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-        }
     }
     else if(targetType == "foe") {
 		attackBoost.targetType = abtFoe;
-		for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
-			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
-			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-		}
 	}
 	else if(targetType == "faction") {
 		attackBoost.targetType = abtFaction;
-		for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
-			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
-			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-		}
 	}
 	else if(targetType == "unit-types") {
 		attackBoost.targetType = abtUnitTypes;
-		for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
-			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
-			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-		}
 	}
 	else if(targetType == "all") {
 		attackBoost.targetType = abtAll;
-		for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
-			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
-			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-		}
 	}
 	else {
 		char szBuf[8096] = "";
 		snprintf(szBuf, 8096,"Unsupported target [%s] specified for attack boost for skill [%s] in [%s]", targetType.c_str(), name.c_str(), parentLoader.c_str());
 		throw megaglest_runtime_error(szBuf);
+	}
+
+    // Load the regular targets
+    const XmlNode *targetNode = attackBoostNode->getChild("target");
+    vector<XmlNode*> targetNodes = targetNode->getChildList("unit-type");
+	for(size_t i = 0;i < targetNodes.size(); ++i) {
+		string unitName = targetNodes.at(i)->getAttribute("name")->getRestrictedValue();
+		attackBoost.boostUnitList.insert(ft->getUnitType(unitName));
+	}
+
+	// Load tags
+    vector<XmlNode*> tagNodes = targetNode->getChildList("tag");
+	for(size_t i = 0;i < tagNodes.size(); ++i) {
+		string unitName = tagNodes.at(i)->getAttribute("name")->getRestrictedValue();
+		attackBoost.tags.insert(unitName);
 	}
 
     attackBoost.boostUpgrade.load(attackBoostNode,attackBoost.name);
