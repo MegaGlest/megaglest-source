@@ -5445,6 +5445,11 @@ void Renderer::renderSelectionEffects() {
 				glColor4f(unit->getHpRatio(), 0, 0, 0.3f);
 			}
 			renderSelectionCircle(currVec, unit->getType()->getSize(), selectionCircleRadius);
+			if(unit->getType()->getMaxEp() > 0) {
+				renderSelectionHpBar((currVec+Vec3f(0,unit->getType()->getHeight(),0)),unit->getType()->getSize(),unit->getHpRatio(),0.08,unit->getEpRatio());
+			} else {
+				renderSelectionHpBar((currVec+Vec3f(0,unit->getType()->getHeight(),0)),unit->getType()->getSize(),unit->getHpRatio(),0.05);
+			}
 
 			if(	showDebugUI == true &&
 				(showDebugUILevel & debugui_unit_titles) == debugui_unit_titles) {
@@ -8215,6 +8220,76 @@ void Renderer::enableProjectiveTexturing() {
 }
 
 // ==================== private aux drawing ====================
+void Renderer::renderSelectionHpBar(Vec3f v, int size, float hp, float height, float ep) {
+	Vec3f rightVector;
+	Vec3f upVector;
+	Vec3f posUpVector=Vec3f(0,1,0);
+	v+=posUpVector;
+	float modelview[16];
+	float width=size/2+0.5f;
+	float red;
+	float green;
+	float brightness=0.6f;
+
+	glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+
+	// get the current modelview state
+	glGetFloatv(GL_MODELVIEW_MATRIX , modelview);
+	rightVector= Vec3f(modelview[0], modelview[4], modelview[8]);
+	upVector= Vec3f(modelview[1], modelview[5], modelview[9]);
+
+//	vertexBuffer[bufferIndex] = pos - (rightVector - upVector) * size;
+//	vertexBuffer[bufferIndex+1] = pos - (rightVector + upVector) * size;
+//	vertexBuffer[bufferIndex+2] = pos + (rightVector - upVector) * size;
+//	vertexBuffer[bufferIndex+3] = pos + (rightVector + upVector) * size;
+
+	//printf("size:%f\n",size);
+	hp=hp*2-1;
+	ep=ep*2-1;
+
+	if(hp >= 0.0f) {
+		green=brightness;
+		red=brightness-hp*brightness;
+	} else {
+		red=brightness;
+		green=brightness+hp*brightness;
+	}
+
+	glColor4f(red,green,0.0f,1.0f);
+	glBegin(GL_QUADS);
+		if(ep < -2.0f) {
+			glVertex3fv((v - (rightVector*width - upVector*height)).ptr());
+			glVertex3fv((v - (rightVector*width + upVector*height)).ptr());
+			glVertex3fv((v + (rightVector*hp*width - upVector*height)).ptr());
+			glVertex3fv((v + (rightVector*hp*width + upVector*height)).ptr());
+
+		} else {
+			glVertex3fv((v - (rightVector*width - upVector*height)).ptr());
+			glVertex3fv((v - (rightVector*width + upVector*height*0.1f)).ptr());
+			glVertex3fv((v + (rightVector*hp*width - upVector*height*0.1f)).ptr());
+			glVertex3fv((v + (rightVector*hp*width + upVector*height)).ptr());
+
+			glColor4f(brightness/2,brightness/2,brightness,1.0f);
+			glVertex3fv((v - (rightVector*width + upVector*height*0.1f)).ptr());
+			glVertex3fv((v - (rightVector*width + upVector*height)).ptr());
+			glVertex3fv((v + (rightVector*ep*width - upVector*height)).ptr());
+			glVertex3fv((v + (rightVector*ep*width - upVector*height*0.1f)).ptr());
+			printf("Found Ep Unit\n");
+		}
+	glEnd();
+
+	glColor4f(red+0.1f,green+0.1f,0.1f,1.0f);
+	glBegin(GL_LINE_LOOP);
+		glVertex3fv((v - (rightVector*width - upVector*height)).ptr());
+		glVertex3fv((v - (rightVector*width + upVector*height)).ptr());
+		glVertex3fv((v + (rightVector*width - upVector*height)).ptr());
+		glVertex3fv((v + (rightVector*width + upVector*height)).ptr());
+	glEnd();
+
+
+    glPopMatrix();
+}
 
 void Renderer::renderSelectionCircle(Vec3f v, int size, float radius, float thickness) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {

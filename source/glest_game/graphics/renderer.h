@@ -680,6 +680,7 @@ private:
 
 	//private aux drawing
 	void renderSelectionCircle(Vec3f v, int size, float radius, float thickness=0.2f);
+	void renderSelectionHpBar(Vec3f v, int size, float hp, float height, float ep=-1.0f);
 	void renderTeamColorEffect(Vec3f &v, int heigth, int size, Vec3f color, const Texture2D *texture);
 	void renderArrow(const Vec3f &pos1, const Vec3f &pos2, const Vec3f &color, float width);
 	void renderTile(const Vec2i &pos);
