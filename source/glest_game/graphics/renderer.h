@@ -549,6 +549,7 @@ public:
     void renderUnitsToBuild(const int renderFps);
 
 	void renderSelectionEffects();
+	void renderOnTopBars();
 	void renderWaterEffects();
 	void renderHud();
 	void renderMinimap();

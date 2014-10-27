@@ -5445,11 +5445,6 @@ void Renderer::renderSelectionEffects() {
 				glColor4f(unit->getHpRatio(), 0, 0, 0.3f);
 			}
 			renderSelectionCircle(currVec, unit->getType()->getSize(), selectionCircleRadius);
-			if(unit->getType()->getMaxEp() > 0) {
-				renderSelectionHpBar((currVec+Vec3f(0,unit->getType()->getHeight(),0)),unit->getType()->getSize(),unit->getHpRatio(),0.08,unit->getEpRatio());
-			} else {
-				renderSelectionHpBar((currVec+Vec3f(0,unit->getType()->getHeight(),0)),unit->getType()->getSize(),unit->getHpRatio(),0.05);
-			}
 
 			if(	showDebugUI == true &&
 				(showDebugUILevel & debugui_unit_titles) == debugui_unit_titles) {
@@ -5612,6 +5607,41 @@ void Renderer::renderSelectionEffects() {
 		}
 	}
 
+	glPopAttrib();
+}
+
+void Renderer::renderOnTopBars(){
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
+	Config &config= Config::getInstance();
+	if(config.getBool("RecordMode","false") == true) {
+		return;
+	}
+
+	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_TEXTURE_2D);
+	glDepthFunc(GL_ALWAYS);
+	glDisable(GL_STENCIL_TEST);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glLineWidth(2.f);
+
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	if(qCache.visibleQuadUnitList.empty() == false) {
+		for(int visibleUnitIndex = 0;
+				visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
+			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
+			Vec3f currVec= unit->getCurrVectorFlat();
+			if(unit->getType()->getMaxEp() > 0) {
+				renderSelectionHpBar((currVec+Vec3f(0,unit->getType()->getHeight(),0)),unit->getType()->getSize(),unit->getHpRatio(),0.08,unit->getEpRatio());
+			} else {
+				renderSelectionHpBar((currVec+Vec3f(0,unit->getType()->getHeight(),0)),unit->getType()->getSize(),unit->getHpRatio(),0.05);
+			}
+		}
+	}
 	glPopAttrib();
 }
 
