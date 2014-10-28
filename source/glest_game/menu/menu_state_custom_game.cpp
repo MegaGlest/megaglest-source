@@ -172,6 +172,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	needToSetChangedGameSettings = false;
 	needToRepublishToMasterserver = false;
 	needToBroadcastServerSettings = false;
+	lastGameSettingsreceivedCount = -1;
 	showMasterserverError = false;
 	tMasterserverErrorElapsed = 0;
 	masterServererErrorToShow = "---";
@@ -2439,7 +2440,8 @@ void MenuStateCustomGame::update() {
 
 		if(this->autoloadScenarioName != "") {
 			listBoxScenario.setSelectedItem(formatString(this->autoloadScenarioName),false);
-
+			lastSetChangedGameSettings = time(NULL);
+			lastGameSettingsreceivedCount=serverInterface->getGameSettingsUpdateCount();
 			if(listBoxScenario.getSelectedItem() != formatString(this->autoloadScenarioName)) {
 				mainMessageBoxState=1;
 				showMessageBox( "Could not find scenario name: " + formatString(this->autoloadScenarioName), "Scenario Missing", false);
@@ -2845,7 +2847,15 @@ void MenuStateCustomGame::update() {
 		if(needToPublishDelayed == false || headlessServerMode == true) {
 			bool broadCastSettings = (difftime((long int)time(NULL),lastSetChangedGameSettings) >= BROADCAST_SETTINGS_SECONDS);
 
-			//printf("broadCastSettings = %d\n",broadCastSettings);
+			if(headlessServerMode==true){
+				// publish settings directly when we receive them
+				ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+				if(lastGameSettingsreceivedCount<serverInterface->getGameSettingsUpdateCount()){
+					needToBroadcastServerSettings=true;
+					lastSetChangedGameSettings = time(NULL);
+					lastGameSettingsreceivedCount=serverInterface->getGameSettingsUpdateCount();
+				}
+			}
 
 			if(broadCastSettings == true) {
 				needToBroadcastServerSettings=true;
@@ -3342,7 +3352,7 @@ void MenuStateCustomGame::simpleTaskForClients(BaseThread *callingThread) {
             }
             ServerInterface *serverInterface= NetworkManager::getInstance().getServerInterface(false);
             if(serverInterface != NULL) {
-
+				lastGameSettingsreceivedCount++;
             	if(this->headlessServerMode == false || (serverInterface->getGameSettingsUpdateCount() <= lastMasterServerSettingsUpdateCount)) {
                     GameSettings gameSettings;
                     loadGameSettings(&gameSettings);
