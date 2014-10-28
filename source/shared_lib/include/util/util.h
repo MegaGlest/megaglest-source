@@ -13,6 +13,7 @@
 #define _SHARED_UTIL_UTIL_H_
 
 #include <string>
+#include <vector>
 #include <fstream>
 #include <map>
 #include "thread.h"
@@ -226,6 +227,7 @@ string cutLastFile(const string &s);
 string cutLastExt(const string &s);
 string ext(const string &s);
 string replaceBy(const string &s, char c1, char c2);
+vector<string> split(string s,string d);
 string toLower(const string &s);
 void copyStringToBuffer(char *buffer, int bufferSize, const string& s);
 

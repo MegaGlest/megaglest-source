@@ -5634,11 +5634,33 @@ void Renderer::renderOnTopBars(){
 		for(int visibleUnitIndex = 0;
 				visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
-			Vec3f currVec= unit->getCurrVectorFlat();
-			if(unit->getType()->getMaxEp() > 0) {
-				renderSelectionHpBar((currVec+Vec3f(0,unit->getType()->getHeight(),0)),unit->getType()->getSize(),unit->getHpRatio(),0.08,unit->getEpRatio());
-			} else {
-				renderSelectionHpBar((currVec+Vec3f(0,unit->getType()->getHeight(),0)),unit->getType()->getSize(),unit->getHpRatio(),0.05);
+			if(unit->isAlive() && unit->getType()->isHealthbarEnabled()
+			&& ((unit->getType()->getHealthbarVisible()&hbvAlways)
+			|| ((unit->getType()->getHealthbarVisible()&hbvDamaged) && unit->getHp()!=unit->getType()->getMaxHp())
+			|| ((unit->getType()->getHealthbarVisible()&hbvSelected) && game->getGui()->isSelected(unit)))) {
+				Vec3f currVec= unit->getCurrVectorFlat();
+				float thickness;
+				if(unit->getType()->getHealthbarHeight()==-100.0f) {
+					currVec.y+=unit->getType()->getHeight()+1;
+				} else {
+					currVec.y+=unit->getType()->getHealthbarHeight();
+				}
+
+				if(unit->getType()->getHealthbarThickness()==-1.0f) {
+					if(unit->getType()->getMaxEp() > 0 && unit->getType()->isHealthbarShowEp()) {
+						thickness=0.08f;
+					} else {
+						thickness=0.05f;
+					}
+				} else {
+					thickness=unit->getType()->getHealthbarThickness();
+				}
+
+				if(unit->getType()->getMaxEp() > 0 && unit->getType()->isHealthbarShowEp()) {
+					renderSelectionHpBar(currVec,unit->getType()->getSize(),unit->getHpRatio(),thickness,unit->getEpRatio());
+				} else {
+					renderSelectionHpBar(currVec,unit->getType()->getSize(),unit->getHpRatio(),thickness);
+				}
 			}
 		}
 	}
@@ -8253,13 +8275,12 @@ void Renderer::enableProjectiveTexturing() {
 void Renderer::renderSelectionHpBar(Vec3f v, int size, float hp, float height, float ep) {
 	Vec3f rightVector;
 	Vec3f upVector;
-	Vec3f posUpVector=Vec3f(0,1,0);
-	v+=posUpVector;
+	v.y+=1;
 	float modelview[16];
-	float width=size/2+0.5f;
+	float width=(float)size/6+0.25f;
 	float red;
 	float green;
-	float brightness=0.6f;
+	float brightness=0.7f;
 
 	glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
@@ -8269,12 +8290,6 @@ void Renderer::renderSelectionHpBar(Vec3f v, int size, float hp, float height, f
 	rightVector= Vec3f(modelview[0], modelview[4], modelview[8]);
 	upVector= Vec3f(modelview[1], modelview[5], modelview[9]);
 
-//	vertexBuffer[bufferIndex] = pos - (rightVector - upVector) * size;
-//	vertexBuffer[bufferIndex+1] = pos - (rightVector + upVector) * size;
-//	vertexBuffer[bufferIndex+2] = pos + (rightVector - upVector) * size;
-//	vertexBuffer[bufferIndex+3] = pos + (rightVector + upVector) * size;
-
-	//printf("size:%f\n",size);
 	hp=hp*2-1;
 	ep=ep*2-1;
 
@@ -8286,7 +8301,7 @@ void Renderer::renderSelectionHpBar(Vec3f v, int size, float hp, float height, f
 		green=brightness+hp*brightness;
 	}
 
-	glColor4f(red,green,0.0f,1.0f);
+	glColor4f(red,green,0.0f,0.4f);
 	glBegin(GL_QUADS);
 		if(ep < -2.0f) {
 			glVertex3fv((v - (rightVector*width - upVector*height)).ptr());
@@ -8296,20 +8311,20 @@ void Renderer::renderSelectionHpBar(Vec3f v, int size, float hp, float height, f
 
 		} else {
 			glVertex3fv((v - (rightVector*width - upVector*height)).ptr());
-			glVertex3fv((v - (rightVector*width + upVector*height*0.1f)).ptr());
-			glVertex3fv((v + (rightVector*hp*width - upVector*height*0.1f)).ptr());
+			glVertex3fv((v - (rightVector*width + upVector*height*0.0f)).ptr());
+			glVertex3fv((v + (rightVector*hp*width - upVector*height*0.0f)).ptr());
 			glVertex3fv((v + (rightVector*hp*width + upVector*height)).ptr());
 
-			glColor4f(brightness/2,brightness/2,brightness,1.0f);
-			glVertex3fv((v - (rightVector*width + upVector*height*0.1f)).ptr());
+			glColor4f(brightness,0,brightness,0.4f);
+			glVertex3fv((v - (rightVector*width + upVector*height*0.0f)).ptr());
 			glVertex3fv((v - (rightVector*width + upVector*height)).ptr());
 			glVertex3fv((v + (rightVector*ep*width - upVector*height)).ptr());
-			glVertex3fv((v + (rightVector*ep*width - upVector*height*0.1f)).ptr());
+			glVertex3fv((v + (rightVector*ep*width - upVector*height*0.0f)).ptr());
 			printf("Found Ep Unit\n");
 		}
 	glEnd();
 
-	glColor4f(red+0.1f,green+0.1f,0.1f,1.0f);
+	glColor4f(red+0.1f,green+0.1f,0.1f,0.5f);
 	glBegin(GL_LINE_LOOP);
 		glVertex3fv((v - (rightVector*width - upVector*height)).ptr());
 		glVertex3fv((v - (rightVector*width + upVector*height)).ptr());
