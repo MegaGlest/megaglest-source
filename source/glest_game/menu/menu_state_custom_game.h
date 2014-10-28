@@ -220,6 +220,8 @@ private:
 
     string gameUUID;
 
+    int lastGameSettingsreceivedCount;
+
 public:
 	MenuStateCustomGame(Program *program, MainMenu *mainMenu ,
 			bool openNetworkSlots= false, ParentMenuState parentMenuState=pNewGame,

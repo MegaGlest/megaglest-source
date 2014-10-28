@@ -238,8 +238,16 @@ private:
 	time_t broadcastServerSettingsDelayTimer;
 	int lastGameSettingsReceivedCount;
 
+	time_t noReceiveTimer;
+
 	bool launchingNewGame;
 	std::auto_ptr<TechTree> techTree;
+
+	GameSettings originalGamesettings;
+	bool validOriginalGameSettings;
+	GameSettings displayedGamesettings;
+	bool validDisplayedGamesettings;
+
 
 public:
 
