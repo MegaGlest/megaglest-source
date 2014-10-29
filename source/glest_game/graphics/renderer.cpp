@@ -5610,6 +5610,77 @@ void Renderer::renderSelectionEffects() {
 	glPopAttrib();
 }
 
+void Renderer::renderOnTopBars(){
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
+	Config &config= Config::getInstance();
+	if(config.getBool("RecordMode","false") == true) {
+		return;
+	}
+
+	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_TEXTURE_2D);
+	glDepthFunc(GL_ALWAYS);
+	glDisable(GL_STENCIL_TEST);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glLineWidth(2.f);
+
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	if(qCache.visibleQuadUnitList.empty() == false) {
+		for(int visibleUnitIndex = 0;
+				visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
+			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
+
+			float healthbarheight;
+			float healthbarthickness;
+			int healthbarVisible;
+
+			//get settings of the faction
+			healthbarheight=unit->getFaction()->getType()->getHealthbarHeight();
+			healthbarthickness=unit->getFaction()->getType()->getHealthbarThickness();
+			healthbarVisible=unit->getFaction()->getType()->getHealthbarVisible();
+
+			//replace them by the ones from the unit if existent
+			if(unit->getType()->getHealthbarVisible()!=hbvOff && unit->getType()->getHealthbarVisible()!=hbvUndefined) {
+				if(unit->getType()->getHealthbarHeight()!=-100.0f) {
+					healthbarheight=unit->getType()->getHealthbarHeight();
+				}
+				if(unit->getType()->getHealthbarThickness()!=-1.0f) {
+					healthbarthickness=unit->getType()->getHealthbarThickness();
+				}
+				healthbarVisible=unit->getType()->getHealthbarVisible();
+			}
+
+			if(unit->isAlive() && !(healthbarVisible==hbvUndefined || (healthbarVisible&hbvOff))
+			&& ((healthbarVisible&hbvAlways)
+			|| ((healthbarVisible&hbvDamaged) && unit->getHp()!=unit->getType()->getMaxHp())
+			|| ((healthbarVisible&hbvSelected) && game->getGui()->isSelected(unit)))) {
+				Vec3f currVec= unit->getCurrVectorFlat();
+				if(healthbarheight==-100.0f) {
+					currVec.y+=unit->getType()->getHeight()+1;
+				} else {
+					currVec.y+=healthbarheight;
+				}
+
+				if(unit->getType()->getMaxEp() > 0) {
+					healthbarthickness=healthbarthickness*2;
+				}
+
+				if(unit->getType()->getMaxEp() > 0) {
+					renderSelectionHpBar(currVec,unit->getType()->getSize(),unit->getHpRatio(),healthbarthickness,unit->getEpRatio());
+				} else {
+					renderSelectionHpBar(currVec,unit->getType()->getSize(),unit->getHpRatio(),healthbarthickness);
+				}
+			}
+		}
+	}
+	glPopAttrib();
+}
+
 void Renderer::renderWaterEffects(){
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
@@ -8215,6 +8286,72 @@ void Renderer::enableProjectiveTexturing() {
 }
 
 // ==================== private aux drawing ====================
+void Renderer::renderSelectionHpBar(Vec3f v, int size, float hp, float height, float ep) {
+	Vec3f rightVector;
+	Vec3f upVector;
+	v.y+=1;
+	float modelview[16];
+	float width=(float)size/6+0.25f;
+	float red;
+	float green;
+	float brightness=0.7f;
+
+	glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+
+	// get the current modelview state
+	glGetFloatv(GL_MODELVIEW_MATRIX , modelview);
+	rightVector= Vec3f(modelview[0], modelview[4], modelview[8]);
+	upVector= Vec3f(modelview[1], modelview[5], modelview[9]);
+
+	hp=hp*2-1;
+	ep=ep*2-1;
+
+	//from green to yellow to red
+	if(hp >= 0.0f) {
+		green=brightness;
+		red=brightness-hp*brightness;
+	} else {
+		red=brightness;
+		green=brightness+hp*brightness;
+	}
+
+	glColor4f(red,green,0.0f,0.4f);
+	glBegin(GL_QUADS);
+		if(ep < -2.0f) {
+			//hpbar
+			glVertex3fv((v - (rightVector*width - upVector*height)).ptr());
+			glVertex3fv((v - (rightVector*width + upVector*height)).ptr());
+			glVertex3fv((v + (rightVector*hp*width - upVector*height)).ptr());
+			glVertex3fv((v + (rightVector*hp*width + upVector*height)).ptr());
+
+		} else {
+			//hpbar
+			glVertex3fv((v - (rightVector*width - upVector*height)).ptr());
+			glVertex3fv((v - (rightVector*width + upVector*height*0.0f)).ptr());
+			glVertex3fv((v + (rightVector*hp*width - upVector*height*0.0f)).ptr());
+			glVertex3fv((v + (rightVector*hp*width + upVector*height)).ptr());
+			//epbar
+			glColor4f(brightness,0,brightness,0.4f);
+			glVertex3fv((v - (rightVector*width + upVector*height*0.0f)).ptr());
+			glVertex3fv((v - (rightVector*width + upVector*height)).ptr());
+			glVertex3fv((v + (rightVector*ep*width - upVector*height)).ptr());
+			glVertex3fv((v + (rightVector*ep*width - upVector*height*0.0f)).ptr());
+		}
+	glEnd();
+
+	//border
+	glColor4f(red+0.1f,green+0.1f,0.1f,0.5f);
+	glBegin(GL_LINE_LOOP);
+		glVertex3fv((v - (rightVector*width - upVector*height)).ptr());
+		glVertex3fv((v - (rightVector*width + upVector*height)).ptr());
+		glVertex3fv((v + (rightVector*width - upVector*height)).ptr());
+		glVertex3fv((v + (rightVector*width + upVector*height)).ptr());
+	glEnd();
+
+
+    glPopMatrix();
+}
 
 void Renderer::renderSelectionCircle(Vec3f v, int size, float radius, float thickness) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {

@@ -95,6 +95,10 @@ private:
 	std::map<AIBehaviorStaticValueCategory, int > mapAIBehaviorStaticOverrideValues;
 
 	bool isLinked;
+	float healthbarheight;
+	float healthbarthickness;
+	int healthbarVisible;
+
 
 public:
 	//init
@@ -120,6 +124,10 @@ public:
 	int getStartingUnitCount() const					{return (int)startingUnits.size();}
 	const UnitType *getStartingUnit(int i) const		{return startingUnits[i].first;}
 	int getStartingUnitAmount(int i) const				{return startingUnits[i].second;}
+	inline float getHealthbarHeight() const							{return healthbarheight;}
+	inline float getHealthbarThickness() const							{return healthbarthickness;}
+	inline int getHealthbarVisible() const							{return healthbarVisible;}
+
 
 	const UnitType *getUnitType(const string &name) const;
 	const UnitType *getUnitTypeById(int id) const;

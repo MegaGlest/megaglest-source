@@ -88,6 +88,9 @@ UnitType::UnitType() : ProducibleType() {
 	meetingPointImage = NULL;
     lightColor= Vec3f(0.f);
     light= false;
+	healthbarheight= -100.0f;
+	healthbarthickness=-1.0f;
+	healthbarVisible=hbvUndefined;
     multiSelect= false;
     commandable= true;
 	armorType= NULL;
@@ -442,6 +445,35 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 					}
 
 					damageParticleSystemTypes.push_back(unitParticleSystemType);
+				}
+			}
+		}
+
+		//healthbar
+		if(parametersNode->hasChild("healthbar")) {
+			const XmlNode *HealthbarNode= parametersNode->getChild("healthbar");
+			if(HealthbarNode->hasChild("height")) {
+				healthbarheight= HealthbarNode->getChild("height")->getAttribute("value")->getFloatValue();
+			}
+			if(HealthbarNode->hasChild("thickness")) {
+				healthbarthickness= HealthbarNode->getChild("thickness")->getAttribute("value")->getFloatValue(0.f, 1.f);
+			}
+			if(HealthbarNode->hasChild("visible")) {
+				string healthbarVisibleString=HealthbarNode->getChild("visible")->getAttribute("value")->getValue();
+				vector<string> v=split(healthbarVisibleString,"|");
+				for (int i = 0; i < (int)v.size(); ++i) {
+					string current=trim(v[i]);
+					if(current=="always") {
+						healthbarVisible=healthbarVisible|hbvAlways;
+					} else if(current=="selected") {
+						healthbarVisible=healthbarVisible|hbvSelected;
+					} else if(current=="damaged") {
+						healthbarVisible=healthbarVisible|hbvDamaged;
+					} else if(current=="off") {
+						healthbarVisible=healthbarVisible|hbvOff;
+					} else {
+						throw megaglest_runtime_error("Unknown Healthbar Visible Option: " + current, validationMode);
+					}
 				}
 			}
 		}
