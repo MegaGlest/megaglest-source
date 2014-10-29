@@ -5620,6 +5620,10 @@ void Renderer::renderOnTopBars(){
 		return;
 	}
 
+	if(config.getBool("PhotoMode")) {
+		return;
+	}
+
 	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_LIGHTING);
 	glDisable(GL_TEXTURE_2D);
@@ -5661,7 +5665,7 @@ void Renderer::renderOnTopBars(){
 			|| ((healthbarVisible&hbvSelected) && game->getGui()->isSelected(unit)))) {
 				Vec3f currVec= unit->getCurrVectorFlat();
 				if(healthbarheight==-100.0f) {
-					currVec.y+=unit->getType()->getHeight()+1;
+					currVec.y+=unit->getType()->getHeight();
 				} else {
 					currVec.y+=healthbarheight;
 				}
@@ -5671,9 +5675,9 @@ void Renderer::renderOnTopBars(){
 				}
 
 				if(unit->getType()->getMaxEp() > 0) {
-					renderSelectionHpBar(currVec,unit->getType()->getSize(),unit->getHpRatio(),healthbarthickness,unit->getEpRatio());
+					renderHealthBar(currVec,unit->getType()->getSize(),unit->getHpRatio(),healthbarthickness,unit->getEpRatio());
 				} else {
-					renderSelectionHpBar(currVec,unit->getType()->getSize(),unit->getHpRatio(),healthbarthickness);
+					renderHealthBar(currVec,unit->getType()->getSize(),unit->getHpRatio(),healthbarthickness);
 				}
 			}
 		}
@@ -8286,7 +8290,11 @@ void Renderer::enableProjectiveTexturing() {
 }
 
 // ==================== private aux drawing ====================
-void Renderer::renderSelectionHpBar(Vec3f v, int size, float hp, float height, float ep) {
+void Renderer::renderHealthBar(Vec3f v, int size, float hp, float height, float ep) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
 	Vec3f rightVector;
 	Vec3f upVector;
 	v.y+=1;

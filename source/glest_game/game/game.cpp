@@ -5252,7 +5252,9 @@ void Game::render3d(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	//renderOnTopBars (aka Healthbars)
-	renderer.renderOnTopBars();
+	if(photoModeEnabled == false) {
+		renderer.renderOnTopBars();
+	}
 
 	//particles
 	renderer.renderParticleManager(rsGame);
