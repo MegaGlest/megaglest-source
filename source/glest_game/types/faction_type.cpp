@@ -34,6 +34,9 @@ FactionType::FactionType() {
 	music			= NULL;
 	personalityType = fpt_Normal;
 	isLinked		= false;
+	healthbarheight= -100.0f;
+	healthbarthickness= 0.05f;
+	healthbarVisible=hbvUndefined;
 }
 
 //load a faction, given a directory
@@ -270,6 +273,35 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 			music= new StrSound();
 			music->open(musicNode->getAttribute("path")->getRestrictedValue(currentPath));
 			loadedFileList[musicNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(path,musicNode->getAttribute("path")->getRestrictedValue()));
+		}
+
+		//healthbar
+		if(factionNode->hasChild("healthbar")) {
+			const XmlNode *HealthbarNode= factionNode->getChild("healthbar");
+			if(HealthbarNode->hasChild("height")) {
+				healthbarheight= HealthbarNode->getChild("height")->getAttribute("value")->getFloatValue();
+			}
+			if(HealthbarNode->hasChild("thickness")) {
+				healthbarthickness= HealthbarNode->getChild("thickness")->getAttribute("value")->getFloatValue(0.f, 1.f);
+			}
+			if(HealthbarNode->hasChild("visible")) {
+				string healthbarVisibleString=HealthbarNode->getChild("visible")->getAttribute("value")->getValue();
+				vector<string> v=split(healthbarVisibleString,"|");
+				for (int i = 0; i < (int)v.size(); ++i) {
+					string current=trim(v[i]);
+					if(current=="always") {
+						healthbarVisible=healthbarVisible|hbvAlways;
+					} else if(current=="selected") {
+						healthbarVisible=healthbarVisible|hbvSelected;
+					} else if(current=="damaged") {
+						healthbarVisible=healthbarVisible|hbvDamaged;
+					} else if(current=="off") {
+						healthbarVisible=healthbarVisible|hbvOff;
+					} else {
+						throw megaglest_runtime_error("Unknown Healthbar Visible Option: " + current, validationMode);
+					}
+				}
+			}
 		}
 
 		//read ai behavior

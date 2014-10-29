@@ -709,6 +709,22 @@ string replaceBy(const string &s, char c1, char c2){
 	return rs;
 }
 
+vector<string> split(string s,string d) {
+    vector<string> results;
+    size_t lastOffset = 0;
+
+    while(true)
+    {
+        size_t offset = s.find_first_of(d, lastOffset);
+        results.push_back(s.substr(lastOffset, offset - lastOffset));
+        if (offset == string::npos)
+            break;
+        else
+            lastOffset = offset + d.size(); //skip the delimiter
+    }
+    return results;
+}
+
 string toLower(const string &s){
 	string rs= s;
 
