@@ -5634,32 +5634,46 @@ void Renderer::renderOnTopBars(){
 		for(int visibleUnitIndex = 0;
 				visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
-			if(unit->isAlive() && unit->getType()->isHealthbarEnabled()
-			&& ((unit->getType()->getHealthbarVisible()&hbvAlways)
-			|| ((unit->getType()->getHealthbarVisible()&hbvDamaged) && unit->getHp()!=unit->getType()->getMaxHp())
-			|| ((unit->getType()->getHealthbarVisible()&hbvSelected) && game->getGui()->isSelected(unit)))) {
+
+			float healthbarheight;
+			float healthbarthickness;
+			int healthbarVisible;
+
+			//get settings of the faction
+			healthbarheight=unit->getFaction()->getType()->getHealthbarHeight();
+			healthbarthickness=unit->getFaction()->getType()->getHealthbarThickness();
+			healthbarVisible=unit->getFaction()->getType()->getHealthbarVisible();
+
+			//replace them by the ones from the unit if existent
+			if(unit->getType()->getHealthbarVisible()!=hbvOff && unit->getType()->getHealthbarVisible()!=hbvUndefined) {
+				if(unit->getType()->getHealthbarHeight()!=-100.0f) {
+					healthbarheight=unit->getType()->getHealthbarHeight();
+				}
+				if(unit->getType()->getHealthbarThickness()!=-1.0f) {
+					healthbarthickness=unit->getType()->getHealthbarThickness();
+				}
+				healthbarVisible=unit->getType()->getHealthbarVisible();
+			}
+
+			if(unit->isAlive() && !(healthbarVisible==hbvUndefined || (healthbarVisible&hbvOff))
+			&& ((healthbarVisible&hbvAlways)
+			|| ((healthbarVisible&hbvDamaged) && unit->getHp()!=unit->getType()->getMaxHp())
+			|| ((healthbarVisible&hbvSelected) && game->getGui()->isSelected(unit)))) {
 				Vec3f currVec= unit->getCurrVectorFlat();
-				float thickness;
-				if(unit->getType()->getHealthbarHeight()==-100.0f) {
+				if(healthbarheight==-100.0f) {
 					currVec.y+=unit->getType()->getHeight()+1;
 				} else {
-					currVec.y+=unit->getType()->getHealthbarHeight();
+					currVec.y+=healthbarheight;
 				}
 
-				if(unit->getType()->getHealthbarThickness()==-1.0f) {
-					if(unit->getType()->getMaxEp() > 0 && unit->getType()->isHealthbarShowEp()) {
-						thickness=0.08f;
-					} else {
-						thickness=0.05f;
-					}
-				} else {
-					thickness=unit->getType()->getHealthbarThickness();
+				if(unit->getType()->getMaxEp() > 0) {
+					healthbarthickness=healthbarthickness*2;
 				}
 
-				if(unit->getType()->getMaxEp() > 0 && unit->getType()->isHealthbarShowEp()) {
-					renderSelectionHpBar(currVec,unit->getType()->getSize(),unit->getHpRatio(),thickness,unit->getEpRatio());
+				if(unit->getType()->getMaxEp() > 0) {
+					renderSelectionHpBar(currVec,unit->getType()->getSize(),unit->getHpRatio(),healthbarthickness,unit->getEpRatio());
 				} else {
-					renderSelectionHpBar(currVec,unit->getType()->getSize(),unit->getHpRatio(),thickness);
+					renderSelectionHpBar(currVec,unit->getType()->getSize(),unit->getHpRatio(),healthbarthickness);
 				}
 			}
 		}
@@ -8293,6 +8307,7 @@ void Renderer::renderSelectionHpBar(Vec3f v, int size, float hp, float height, f
 	hp=hp*2-1;
 	ep=ep*2-1;
 
+	//from green to yellow to red
 	if(hp >= 0.0f) {
 		green=brightness;
 		red=brightness-hp*brightness;
@@ -8304,26 +8319,28 @@ void Renderer::renderSelectionHpBar(Vec3f v, int size, float hp, float height, f
 	glColor4f(red,green,0.0f,0.4f);
 	glBegin(GL_QUADS);
 		if(ep < -2.0f) {
+			//hpbar
 			glVertex3fv((v - (rightVector*width - upVector*height)).ptr());
 			glVertex3fv((v - (rightVector*width + upVector*height)).ptr());
 			glVertex3fv((v + (rightVector*hp*width - upVector*height)).ptr());
 			glVertex3fv((v + (rightVector*hp*width + upVector*height)).ptr());
 
 		} else {
+			//hpbar
 			glVertex3fv((v - (rightVector*width - upVector*height)).ptr());
 			glVertex3fv((v - (rightVector*width + upVector*height*0.0f)).ptr());
 			glVertex3fv((v + (rightVector*hp*width - upVector*height*0.0f)).ptr());
 			glVertex3fv((v + (rightVector*hp*width + upVector*height)).ptr());
-
+			//epbar
 			glColor4f(brightness,0,brightness,0.4f);
 			glVertex3fv((v - (rightVector*width + upVector*height*0.0f)).ptr());
 			glVertex3fv((v - (rightVector*width + upVector*height)).ptr());
 			glVertex3fv((v + (rightVector*ep*width - upVector*height)).ptr());
 			glVertex3fv((v + (rightVector*ep*width - upVector*height*0.0f)).ptr());
-			printf("Found Ep Unit\n");
 		}
 	glEnd();
 
+	//border
 	glColor4f(red+0.1f,green+0.1f,0.1f,0.5f);
 	glBegin(GL_LINE_LOOP);
 		glVertex3fv((v - (rightVector*width - upVector*height)).ptr());

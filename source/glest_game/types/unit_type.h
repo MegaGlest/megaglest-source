@@ -118,9 +118,10 @@ typedef vector<UnitParticleSystemType*> DamageParticleSystemTypes;
 
 enum HealthbarVisible {
 	hbvUndefined=0,
-	hbvAlways=1,
-	hbvDamaged=2,
-	hbvSelected=4
+	hbvOff=1,
+	hbvAlways=2,
+	hbvDamaged=4,
+	hbvSelected=8
 };
 
 enum UnitCountsInVictoryConditions {
@@ -177,8 +178,6 @@ private:
 	const ArmorType *armorType;
 	bool light;
     Vec3f lightColor;
-	bool healthbar;
-	bool healthbarShowEp;
 	float healthbarheight;
 	float healthbarthickness;
 	int healthbarVisible;
@@ -268,8 +267,6 @@ public:
 	inline bool getLight() const								{return light;}
 	inline bool getRotationAllowed() const						{return rotationAllowed;}
 	inline Vec3f getLightColor() const							{return lightColor;}
-	inline bool isHealthbarEnabled() const						{return healthbar;}
-	inline bool isHealthbarShowEp() const							{return healthbarShowEp;}
 	inline float getHealthbarHeight() const							{return healthbarheight;}
 	inline float getHealthbarThickness() const							{return healthbarthickness;}
 	inline int getHealthbarVisible() const							{return healthbarVisible;}
