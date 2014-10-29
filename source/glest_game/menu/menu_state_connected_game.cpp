@@ -2868,7 +2868,16 @@ void MenuStateConnectedGame::update() {
 
 		if(isHeadlessAdmin() == true) {
 			for(unsigned int i = 0; i < (unsigned int)GameConstants::maxPlayers; ++i) {
-				listBoxControls[i].setEditable(isHeadlessAdmin());
+				if(displayedGamesettings.getFactionControl(i)==ctNetwork &&
+						displayedGamesettings.getNetworkPlayerNameByPlayerIndex(i)!= GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME){
+					listBoxControls[i].setEditable(false);
+				}
+				else
+				if(clientInterface->getPlayerIndex()==(int)i)
+					listBoxControls[i].setEditable(false);
+				else {
+					listBoxControls[i].setEditable(true);
+				}
 				listBoxRMultiplier[i].setEditable(isHeadlessAdmin());
 				listBoxFactions[i].setEditable(isHeadlessAdmin());
 				listBoxTeams[i].setEditable(isHeadlessAdmin());
