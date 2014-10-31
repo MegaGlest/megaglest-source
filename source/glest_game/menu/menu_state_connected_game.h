@@ -241,6 +241,7 @@ private:
 	time_t noReceiveTimer;
 
 	bool launchingNewGame;
+	bool isfirstSwitchingMapMessage;
 	std::auto_ptr<TechTree> techTree;
 
 	GameSettings originalGamesettings;

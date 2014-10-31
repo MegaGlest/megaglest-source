@@ -434,7 +434,7 @@ void MenuStateLoadGame::render() {
 		renderer.renderMessageBox(&mainMessageBox);
 	}
 
-	renderer.renderConsole(&console,false,false);
+	renderer.renderConsole(&console);
 	if(program != NULL) program->renderProgramMsgBox();
 }
 

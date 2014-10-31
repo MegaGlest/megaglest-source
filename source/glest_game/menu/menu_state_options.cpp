@@ -1051,7 +1051,7 @@ void MenuStateOptions::render(){
 
 	}
 
-	renderer.renderConsole(&console,false,true);
+	renderer.renderConsole(&console);
 	if(program != NULL) program->renderProgramMsgBox();
 }
 

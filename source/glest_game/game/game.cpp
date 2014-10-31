@@ -5632,7 +5632,7 @@ void Game::render2d() {
 		if(this->masterserverMode == false) {
 			renderer.renderResourceStatus();
 		}
-		renderer.renderConsole(&console,showFullConsole);
+		renderer.renderConsole(&console,showFullConsole?consoleFull:consoleNormal);
     }
 
     //2d mouse

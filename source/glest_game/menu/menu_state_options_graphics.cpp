@@ -836,7 +836,7 @@ void MenuStateOptionsGraphics::render(){
         renderer.renderCheckBox(&checkBoxVideos);
 	}
 
-	renderer.renderConsole(&console,false,true);
+	renderer.renderConsole(&console);
 	if(program != NULL) program->renderProgramMsgBox();
 }
 

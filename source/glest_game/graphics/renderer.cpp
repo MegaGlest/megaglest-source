@@ -2082,8 +2082,7 @@ void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, in
         xPosition, (lineIndex * lineHeight) + yPosition);
 }
 
-void Renderer::renderConsole(const Console *console,const bool showFullConsole,
-		const bool showMenuConsole, int overrideMaxConsoleLines){
+void Renderer::renderConsole(const Console *console, ConsoleMode mode , int overrideMaxConsoleLines){
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
@@ -2095,7 +2094,7 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
 
-	if(showFullConsole) {
+	if(mode==consoleFull) {
 	    int x= console->getXPos()-5;
 	    int y= console->getYPos()-5;
 	    int h= console->getLineHeight()*console->getStoredLineCount();
@@ -2130,7 +2129,7 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,
 			}
 		}
 	}
-	else if(showMenuConsole) {
+	else if(mode==consoleStoredOnly) {
 		int allowedMaxLines = (overrideMaxConsoleLines >= 0 ? overrideMaxConsoleLines : maxConsoleLines);
 		for(int i = 0; i < console->getStoredLineCount() && i < allowedMaxLines; ++i) {
 			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
@@ -2144,7 +2143,39 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,
 			}
 		}
 	}
-	else {
+	else if(mode==consoleStoredAndNormal) {
+		int allowedMaxLines = (overrideMaxConsoleLines >= 0 ? overrideMaxConsoleLines : maxConsoleLines);
+		float starttimestamp=0;
+		int consoleIndex=0;
+		for(int i = 0; i < console->getLineCount() && i < allowedMaxLines; ++i) {
+			const ConsoleLineInfo &lineInfo = console->getLineItem(i);
+			if(i==0) starttimestamp=lineInfo.timeStamp;
+			consoleIndex=i;
+			if(renderText3DEnabled == true) {
+				renderConsoleLine3D(i, console->getXPos(), console->getYPos(),
+						console->getLineHeight(), console->getFont3D(), console->getStringToHighlight(), &lineInfo);
+			}
+			else {
+				renderConsoleLine(i, console->getXPos(), console->getYPos(),
+						console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
+			}
+		}
+		for(int i = 0; i < console->getStoredLineCount() && consoleIndex < allowedMaxLines; ++i) {
+			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
+			if( lineInfo.timeStamp<starttimestamp || starttimestamp==0){
+				consoleIndex++;
+				if(renderText3DEnabled == true) {
+					renderConsoleLine3D(consoleIndex, console->getXPos(), console->getYPos(),
+							console->getLineHeight(), console->getFont3D(), console->getStringToHighlight(), &lineInfo);
+				}
+				else {
+					renderConsoleLine(consoleIndex, console->getXPos(), console->getYPos(),
+							console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
+				}
+			}
+		}
+	}
+	else if(mode==consoleNormal) {
 		for(int i = 0; i < console->getLineCount(); ++i) {
 			const ConsoleLineInfo &lineInfo = console->getLineItem(i);
 			if(renderText3DEnabled == true) {
@@ -8371,6 +8402,13 @@ void Renderer::renderSelectionCircle(Vec3f v, int size, float radius, float thic
 	gluDeleteQuadric(disc);
 
     glPopMatrix();
+    //	glBegin (GL_QUAD_STRIP);
+    //	for (float k = 0; k <= 180; k=k+1) {
+    //		float j=degToRad(k);
+    //		glVertex3f(v.x+std::cos(j)*.9*radius*size, v.y+thickness, v.z+std::sin(j)*.9*radius*size);
+    //		glVertex3f(v.x+std::cos(j)*radius*size, v.y, v.z+std::sin(j)*radius*size);
+    //	}
+    //	glEnd();
 }
 
 void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2,

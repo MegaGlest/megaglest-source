@@ -71,6 +71,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
 	updateDataSynchDetailText = false;
 	launchingNewGame = false;
+	isfirstSwitchingMapMessage = true;
 
 	this->zoomedMap = false;
 	this->render_mapPreviewTexture_X = mapPreviewTexture_X;
@@ -2798,7 +2799,7 @@ void MenuStateConnectedGame::render() {
 			}
 		}
 		renderer.renderChatManager(&chatManager);
-		renderer.renderConsole(&console,showFullConsole,true);
+		renderer.renderConsole(&console,consoleStoredAndNormal);
 
         if(difftime((long int)time(NULL),timerLabelFlash) > 2) {
             timerLabelFlash = time(NULL);
@@ -4729,9 +4730,13 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] listBoxMap.getSelectedItemIndex() = %d, mapFiles.size() = " MG_SIZE_T_SPECIFIER ", maps.size() = " MG_SIZE_T_SPECIFIER ", getCurrentMapFile() [%s] mapFile [%s]\n",
 				extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxMap.getSelectedItemIndex(),mapFiles.size(),maps.size(),getCurrentMapFile().c_str(),mapFile.c_str());
 
-		if(!missingMap && mapFile!=listBoxMap.getSelectedItem()){
-			console.addLine("Headless server does not have map, switching to next one");
-			printf("Headless server doesn't have map '%s'. Setting map '%s' instead.\n",listBoxMap.getSelectedItem().c_str(),mapFile.c_str());
+		if( isHeadlessAdmin() && !missingMap && mapFile!=listBoxMap.getSelectedItem()){
+			//console.addLine("Headless server does not have map, switching to next one");
+			if(isfirstSwitchingMapMessage){
+				isfirstSwitchingMapMessage=false;
+			}else{
+				console.addLine(Lang::getInstance().getString("HeadlessServerDoesNotHaveMap","",true));
+			}
 		}
 		listBoxMap.setItems(maps);
 

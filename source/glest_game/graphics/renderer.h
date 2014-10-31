@@ -183,6 +183,15 @@ public:
 	//uint32	m_nVBOIndexes;					// Indexes VBO Name
 };
 
+enum ConsoleMode {
+	consoleOff,
+	consoleNormal,
+	consoleFull,
+	consoleStoredOnly,
+	consoleStoredAndNormal,
+
+	consoleCount
+};
 
 class Renderer : public RendererInterface,
 				 public BaseRenderer,
@@ -496,7 +505,7 @@ public:
 
     void renderBackground(const Texture2D *texture);
 	void renderTextureQuad(int x, int y, int w, int h, const Texture2D *texture, float alpha=1.f,const Vec3f *color=NULL);
-	void renderConsole(const Console *console, const bool showAll=false, const bool showMenuConsole=false, int overrideMaxConsoleLines=-1);
+	void renderConsole(const Console *console, ConsoleMode mode=consoleNormal, int overrideMaxConsoleLines=-1);
 	void renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, int lineHeight, Font3D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo);
 	void renderConsoleLine(int lineIndex, int xPosition, int yPosition, int lineHeight, Font2D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo);
 

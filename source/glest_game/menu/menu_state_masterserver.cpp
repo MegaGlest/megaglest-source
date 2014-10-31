@@ -790,7 +790,7 @@ void MenuStateMasterserver::render(){
 		           ircClient->getHasJoinedChannel() == true) {
 					 renderer.renderChatManager(&chatManager);
 		        }
-		renderer.renderConsole(&consoleIRC,false,true,21);
+		renderer.renderConsole(&consoleIRC,consoleStoredOnly,21);
 
 	}
 	if(program != NULL) program->renderProgramMsgBox();

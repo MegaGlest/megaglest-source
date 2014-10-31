@@ -279,7 +279,7 @@ void MenuStateRoot::render() {
 	renderer.renderButton(&buttonExit);
 	renderer.renderLabel(&labelVersion);
 
-	renderer.renderConsole(&console,false,true);
+	renderer.renderConsole(&console);
 
 	renderer.renderPopupMenu(&popupMenu);
 
