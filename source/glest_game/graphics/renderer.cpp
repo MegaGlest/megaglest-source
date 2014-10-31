@@ -2149,7 +2149,7 @@ void Renderer::renderConsole(const Console *console, ConsoleMode mode , int over
 		int consoleIndex=0;
 		for(int i = 0; i < console->getLineCount() && i < allowedMaxLines; ++i) {
 			const ConsoleLineInfo &lineInfo = console->getLineItem(i);
-			if(i==0) starttimestamp=lineInfo.timeStamp;
+			if(starttimestamp<lineInfo.timeStamp) starttimestamp=lineInfo.timeStamp;
 			consoleIndex=i;
 			if(renderText3DEnabled == true) {
 				renderConsoleLine3D(i, console->getXPos(), console->getYPos(),
@@ -2162,7 +2162,7 @@ void Renderer::renderConsole(const Console *console, ConsoleMode mode , int over
 		}
 		for(int i = 0; i < console->getStoredLineCount() && consoleIndex < allowedMaxLines; ++i) {
 			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
-			if( lineInfo.timeStamp<starttimestamp || starttimestamp==0){
+			if( lineInfo.timeStamp>starttimestamp || starttimestamp==0){
 				consoleIndex++;
 				if(renderText3DEnabled == true) {
 					renderConsoleLine3D(consoleIndex, console->getXPos(), console->getYPos(),
