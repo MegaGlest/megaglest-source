@@ -115,6 +115,7 @@ Game::Game() : ProgramState(NULL) {
 	renderFpsAvgTest=0;
 	renderExtraTeamColor=0;
 	photoModeEnabled=false;
+	forcedHealthbars=false;
 	visibleHUD=false;
 	timeDisplay=false;
 	withRainEffect=false;
@@ -235,6 +236,7 @@ void Game::resetMembers() {
 
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
 	photoModeEnabled = Config::getInstance().getBool("PhotoMode","false");
+	forcedHealthbars = Config::getInstance().getBool("ForcedHealthbars","false");
 	visibleHUD = Config::getInstance().getBool("VisibleHud","true");
 	timeDisplay = Config::getInstance().getBool("TimeDisplay","true");
 	withRainEffect = Config::getInstance().getBool("RainEffect","true");
@@ -4655,6 +4657,10 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				}
 
 			}
+			//Toggle Healthbars
+			else if(isKeyPressed(configKeys.getSDLKey("ToggleHealthbars"),key, false) == true) {
+				forcedHealthbars = !forcedHealthbars;
+			}
 			//Toggle music
 			//else if(key == configKeys.getCharKey("ToggleMusic")) {
 			else if(isKeyPressed(configKeys.getSDLKey("ToggleMusic"),key, false) == true) {
@@ -5253,7 +5259,7 @@ void Game::render3d(){
 
 	//renderOnTopBars (aka Healthbars)
 	if(photoModeEnabled == false) {
-		renderer.renderOnTopBars();
+		renderer.renderOnTopBars(forcedHealthbars);
 	}
 
 	//particles
