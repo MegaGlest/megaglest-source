@@ -2582,15 +2582,18 @@ void MenuStateConnectedGame::render() {
 	    ClientInterface *clientInterface = networkManager.getClientInterface();
 		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 	    	if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
+	    		bool rendetIt=true;
 	    		//printf("Player #%d [%s] control = %d\n",i,labelPlayerNames[i].getText().c_str(),listBoxControls[i].getSelectedItemIndex());
-
-				labelPlayers[i].setVisible(true);
-				labelPlayerNames[i].setVisible(true);
-				listBoxControls[i].setVisible(true);
-				listBoxRMultiplier[i].setVisible(true);
-				listBoxFactions[i].setVisible(true);
-				listBoxTeams[i].setVisible(true);
-				labelNetStatus[i].setVisible(true);
+	    		if(labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME){
+	    			rendetIt=false;
+	    		}
+				labelPlayers[i].setVisible(rendetIt);
+				labelPlayerNames[i].setVisible(rendetIt);
+				listBoxControls[i].setVisible(rendetIt);
+				listBoxRMultiplier[i].setVisible(rendetIt);
+				listBoxFactions[i].setVisible(rendetIt);
+				listBoxTeams[i].setVisible(rendetIt);
+				labelNetStatus[i].setVisible(rendetIt);
 	    	}
 
 			if(listBoxControls[i].getSelectedItemIndex() != ctClosed) {
