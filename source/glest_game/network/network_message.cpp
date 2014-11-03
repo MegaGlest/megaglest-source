@@ -3464,7 +3464,8 @@ void NetworkMessageGameStats::copyToGameStats(Stats *stats) {
 	stats->setTotalEndGameConcurrentUnitCount(data.totalEndGameConcurrentUnitCount);
 }
 void NetworkMessageGameStats::setDataFromNetworkStats(NetworkMessageGameStats *networkStats){
-	memcpy(&data,networkStats->getData(),sizeof(data));
+	//memcpy(&data,networkStats->getData(),sizeof(data));
+	data=*networkStats->getData();
 }
 const char * NetworkMessageGameStats::getPackedMessageFormat() const {
 	return "???";
