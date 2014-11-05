@@ -5610,7 +5610,7 @@ void Renderer::renderSelectionEffects() {
 	glPopAttrib();
 }
 
-void Renderer::renderOnTopBars(bool forceHealthbars){
+void Renderer::renderHealthBars(bool forceHealthbars){
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
@@ -5644,15 +5644,31 @@ void Renderer::renderOnTopBars(bool forceHealthbars){
 			int healthbarVisible;
 			const Texture2D *healthbarTexture;
 			const Texture2D *healthbarBackgroundTexture;
+			bool healthbarLineBorder;
 
 			//get settings of the faction
 			healthbarheight=unit->getFaction()->getType()->getHealthbarHeight();
 			healthbarthickness=unit->getFaction()->getType()->getHealthbarThickness();
 			healthbarVisible=unit->getFaction()->getType()->getHealthbarVisible();
+			healthbarLineBorder=unit->getFaction()->getType()->isHealthbarLineBorder();
 			CoreData &coreData= CoreData::getInstance();
-			healthbarTexture=coreData.getHealthbarTexture();
-			healthbarBackgroundTexture=coreData.getHealthbarBackgroundTexture();
-
+			//First try faction texture then use core Texture
+			if(unit->getFaction()->getType()->isHealthbarBorderTextureEnabled()) {
+				healthbarTexture=unit->getFaction()->getType()->getHealthbarTexture();
+				if(healthbarTexture==NULL) {
+					healthbarTexture=coreData.getHealthbarTexture();
+				}
+			} else {
+				healthbarTexture=NULL;
+			}
+			if(unit->getFaction()->getType()->isHealthbarBackgroundTextureEnabled()) {
+				healthbarBackgroundTexture=unit->getFaction()->getType()->getHealthbarBackgroundTexture();
+				if(healthbarBackgroundTexture==NULL) {
+					healthbarBackgroundTexture=coreData.getHealthbarBackgroundTexture();
+				}
+			} else {
+				healthbarBackgroundTexture=NULL;
+			}
 
 			//replace them by the ones from the unit if existent
 			if(unit->getType()->getHealthbarVisible()!=hbvOff && unit->getType()->getHealthbarVisible()!=hbvUndefined) {
@@ -5680,12 +5696,9 @@ void Renderer::renderOnTopBars(bool forceHealthbars){
 
 				if(unit->getType()->getMaxEp() > 0) {
 					healthbarthickness=healthbarthickness*2;
-				}
-
-				if(unit->getType()->getMaxEp() > 0) {
-					renderHealthBar(currVec,unit->getType()->getSize(),unit->getHpRatio(),healthbarthickness,healthbarTexture,healthbarBackgroundTexture,unit->getEpRatio());
+					renderHealthBar(currVec,unit->getType()->getSize(),unit->getHpRatio(),healthbarthickness,healthbarLineBorder,healthbarTexture,healthbarBackgroundTexture,unit->getEpRatio());
 				} else {
-					renderHealthBar(currVec,unit->getType()->getSize(),unit->getHpRatio(),healthbarthickness,healthbarTexture,healthbarBackgroundTexture);
+					renderHealthBar(currVec,unit->getType()->getSize(),unit->getHpRatio(),healthbarthickness,healthbarLineBorder,healthbarTexture,healthbarBackgroundTexture);
 				}
 			}
 		}
@@ -8298,7 +8311,7 @@ void Renderer::enableProjectiveTexturing() {
 }
 
 // ==================== private aux drawing ====================
-void Renderer::renderHealthBar(Vec3f v, int size, float hp, float height, const Texture2D *texture, const Texture2D *backgroundTexture , float ep) {
+void Renderer::renderHealthBar(Vec3f v, int size, float hp, float height, bool lineBorder, const Texture2D *texture, const Texture2D *backgroundTexture , float ep) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
@@ -8336,23 +8349,24 @@ void Renderer::renderHealthBar(Vec3f v, int size, float hp, float height, const 
 		green=brightness+(hp-0.5f)*brightness;
 	}
 
-	//backgroundTexture
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(backgroundTexture)->getHandle());
-	glColor4f(1.f,1.f,1.f,1.f);
-	//glColor4f(red+0.1f,green+0.1f,0.1f,0.5f);
-	glBegin(GL_QUADS);
-		glTexCoord2i(0,1);
-		glVertex3fv((v - (rightVectorTexture*width - upVectorTexture*height)).ptr());
-		glTexCoord2i(0,0);
-		glVertex3fv((v - (rightVectorTexture*width + upVectorTexture*height)).ptr());
-		glTexCoord2i(1,0);
-		glVertex3fv((v + (rightVectorTexture*width - upVectorTexture*height)).ptr());
-		glTexCoord2i(1,1);
-		glVertex3fv((v + (rightVectorTexture*width + upVectorTexture*height)).ptr());
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
-
+	if(backgroundTexture!=NULL) {
+		//backgroundTexture
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(backgroundTexture)->getHandle());
+		glColor4f(1.f,1.f,1.f,1.f);
+		//glColor4f(red+0.1f,green+0.1f,0.1f,0.5f);
+		glBegin(GL_QUADS);
+			glTexCoord2i(0,1);
+			glVertex3fv((v - (rightVectorTexture*width - upVectorTexture*height)).ptr());
+			glTexCoord2i(0,0);
+			glVertex3fv((v - (rightVectorTexture*width + upVectorTexture*height)).ptr());
+			glTexCoord2i(1,0);
+			glVertex3fv((v + (rightVectorTexture*width - upVectorTexture*height)).ptr());
+			glTexCoord2i(1,1);
+			glVertex3fv((v + (rightVectorTexture*width + upVectorTexture*height)).ptr());
+		glEnd();
+		glDisable(GL_TEXTURE_2D);
+	}
 
 	//healthbar
 	glColor4f(red,green,0.0f,0.4f);
@@ -8379,31 +8393,35 @@ void Renderer::renderHealthBar(Vec3f v, int size, float hp, float height, const 
 		}
 	glEnd();
 
-	//border
-	glColor4f(red+0.1f,green+0.1f,0.1f,0.5f);
-	glBegin(GL_LINE_LOOP);
-		glVertex3fv((v - (rightVector*width - upVector*height)).ptr());
-		glVertex3fv((v - (rightVector*width + upVector*height)).ptr());
-		glVertex3fv((v + (rightVector*width - upVector*height)).ptr());
-		glVertex3fv((v + (rightVector*width + upVector*height)).ptr());
-	glEnd();
+	if(lineBorder) {
+		//border
+		glColor4f(red+0.1f,green+0.1f,0.1f,0.5f);
+		glBegin(GL_LINE_LOOP);
+			glVertex3fv((v - (rightVector*width - upVector*height)).ptr());
+			glVertex3fv((v - (rightVector*width + upVector*height)).ptr());
+			glVertex3fv((v + (rightVector*width - upVector*height)).ptr());
+			glVertex3fv((v + (rightVector*width + upVector*height)).ptr());
+		glEnd();
+	}
 
-	//BorderTexture
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(texture)->getHandle());
-	glColor4f(1.f,1.f,1.f,1.f);
-	//glColor4f(red+0.1f,green+0.1f,0.1f,0.5f);
-	glBegin(GL_QUADS);
-		glTexCoord2i(0,1);
-		glVertex3fv((v - (rightVectorTexture*width - upVectorTexture*height)).ptr());
-		glTexCoord2i(0,0);
-		glVertex3fv((v - (rightVectorTexture*width + upVectorTexture*height)).ptr());
-		glTexCoord2i(1,0);
-		glVertex3fv((v + (rightVectorTexture*width - upVectorTexture*height)).ptr());
-		glTexCoord2i(1,1);
-		glVertex3fv((v + (rightVectorTexture*width + upVectorTexture*height)).ptr());
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
+	if(texture!=NULL) {
+		//BorderTexture
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(texture)->getHandle());
+		glColor4f(1.f,1.f,1.f,1.f);
+		//glColor4f(red+0.1f,green+0.1f,0.1f,0.5f);
+		glBegin(GL_QUADS);
+			glTexCoord2i(0,1);
+			glVertex3fv((v - (rightVectorTexture*width - upVectorTexture*height)).ptr());
+			glTexCoord2i(0,0);
+			glVertex3fv((v - (rightVectorTexture*width + upVectorTexture*height)).ptr());
+			glTexCoord2i(1,0);
+			glVertex3fv((v + (rightVectorTexture*width - upVectorTexture*height)).ptr());
+			glTexCoord2i(1,1);
+			glVertex3fv((v + (rightVectorTexture*width + upVectorTexture*height)).ptr());
+		glEnd();
+		glDisable(GL_TEXTURE_2D);
+	}
 
     glPopMatrix();
 }

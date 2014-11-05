@@ -5259,7 +5259,7 @@ void Game::render3d(){
 
 	//renderOnTopBars (aka Healthbars)
 	if(photoModeEnabled == false) {
-		renderer.renderOnTopBars(forcedHealthbars);
+		renderer.renderHealthBars(forcedHealthbars);
 	}
 
 	//particles

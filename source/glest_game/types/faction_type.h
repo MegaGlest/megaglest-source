@@ -95,9 +95,15 @@ private:
 	std::map<AIBehaviorStaticValueCategory, int > mapAIBehaviorStaticOverrideValues;
 
 	bool isLinked;
+
 	float healthbarheight;
 	float healthbarthickness;
 	int healthbarVisible;
+	bool healthbarBorderTextureEnabled;
+	bool healthbarBackgroundTextureEnabled;
+	bool healthbarLineBorder;
+	Texture2D *healthbarTexture;
+	Texture2D *healthbarBackgroundTexture;
 
 
 public:
@@ -127,6 +133,11 @@ public:
 	inline float getHealthbarHeight() const							{return healthbarheight;}
 	inline float getHealthbarThickness() const							{return healthbarthickness;}
 	inline int getHealthbarVisible() const							{return healthbarVisible;}
+	inline bool isHealthbarBorderTextureEnabled() const	{return healthbarBorderTextureEnabled;}
+	inline bool isHealthbarBackgroundTextureEnabled() const	{return healthbarBackgroundTextureEnabled;}
+	inline bool isHealthbarLineBorder() const	{return healthbarLineBorder;}
+	Texture2D *getHealthbarTexture() const				{return healthbarTexture;}
+	Texture2D *getHealthbarBackgroundTexture() const				{return healthbarBackgroundTexture;}
 
 
 	const UnitType *getUnitType(const string &name) const;
