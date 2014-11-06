@@ -546,7 +546,9 @@ void Commander::updateNetwork(Game *game) {
 				//give pending commands
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("START process: %d network commands in frame: %d\n",gameNetworkInterface->getPendingCommandCount(),this->world->getFrameCount());
 				for(int i= 0; i < gameNetworkInterface->getPendingCommandCount(); ++i){
-					giveNetworkCommand(gameNetworkInterface->getPendingCommand(i));
+					if(game->isHeadlessMode()!=true){
+						giveNetworkCommand(gameNetworkInterface->getPendingCommand(i));
+					}
 				}
 				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("END process: %d network commands in frame: %d\n",gameNetworkInterface->getPendingCommandCount(),this->world->getFrameCount());
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && perfTimer.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] giveNetworkCommand took %lld msecs, PendingCommandCount = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,perfTimer.getMillis(),gameNetworkInterface->getPendingCommandCount());
@@ -858,6 +860,8 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
     if(commandWasHandled == false) {
         Unit* unit= world->findUnitById(networkCommand->getUnitId());
 
+        printf("Frame:%d giveCommand: %d unit=%d unittype=%s ",world->getFrameCount(),networkCommand->getNetworkCommandType(),unit->getId(),unit->getType()->getName(false).c_str() );
+
         if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after world->findUnitById]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
 
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Running command NetworkCommandType = %d, unitid = %d [%p] factionindex = %d\n",networkCommand->getNetworkCommandType(),networkCommand->getUnitId(),unit,(unit != NULL ? unit->getFactionIndex() : -1));
@@ -875,6 +879,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
                     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] command = %p\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,command);
 
+                    printf(" commandtype:%s \n",command->getCommandType()->getName(false).c_str());
                     unit->giveCommand(command, (networkCommand->getWantQueue() != 0));
 
                     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->giveCommand]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -885,6 +890,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
                 case nctCancelCommand: {
                 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctCancelCommand\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
+                    printf(" commandtype:cancel \n");
                 	unit->cancelCommand();
 
                 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->cancelCommand]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
@@ -894,7 +900,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
                     break;
                 case nctSetMeetingPoint: {
                 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] found nctSetMeetingPoint\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
+                	printf(" commandtype:setMeetingpoint \n");
                     unit->setMeetingPos(networkCommand->getPosition());
 
                     if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld [after unit->setMeetingPos]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
