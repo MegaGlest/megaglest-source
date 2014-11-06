@@ -549,7 +549,7 @@ public:
     void renderUnitsToBuild(const int renderFps);
 
 	void renderSelectionEffects();
-	void renderHealthBars(bool forceHealthbars=false);
+	void renderHealthBars(int forceHealthbars=hbvUndefined);
 	void renderWaterEffects();
 	void renderHud();
 	void renderMinimap();

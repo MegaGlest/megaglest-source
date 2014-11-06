@@ -5610,7 +5610,7 @@ void Renderer::renderSelectionEffects() {
 	glPopAttrib();
 }
 
-void Renderer::renderHealthBars(bool forceHealthbars){
+void Renderer::renderHealthBars(int healthbarMode){
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
@@ -5641,7 +5641,7 @@ void Renderer::renderHealthBars(bool forceHealthbars){
 
 			float healthbarheight;
 			float healthbarthickness;
-			int healthbarVisible;
+			int healthbarVisible=hbvUndefined;
 			const Texture2D *healthbarTexture;
 			const Texture2D *healthbarBackgroundTexture;
 			bool healthbarLineBorder;
@@ -5649,7 +5649,12 @@ void Renderer::renderHealthBars(bool forceHealthbars){
 			//get settings of the faction
 			healthbarheight=unit->getFaction()->getType()->getHealthbarHeight();
 			healthbarthickness=unit->getFaction()->getType()->getHealthbarThickness();
-			healthbarVisible=unit->getFaction()->getType()->getHealthbarVisible();
+			//check options (hotkey)
+			if(healthbarMode==hbvUndefined) {
+				healthbarVisible=unit->getFaction()->getType()->getHealthbarVisible();
+			} else {
+				healthbarVisible=healthbarMode;
+			}
 			healthbarLineBorder=unit->getFaction()->getType()->isHealthbarLineBorder();
 			CoreData &coreData= CoreData::getInstance();
 			//First try faction texture then use core Texture
@@ -5678,7 +5683,9 @@ void Renderer::renderHealthBars(bool forceHealthbars){
 				if(unit->getType()->getHealthbarThickness()!=-1.0f) {
 					healthbarthickness=unit->getType()->getHealthbarThickness();
 				}
-				healthbarVisible=unit->getType()->getHealthbarVisible();
+				if(healthbarMode==hbvUndefined) { //don't override the visible setting when hotkey is not hbvUndefined
+					healthbarVisible=unit->getType()->getHealthbarVisible();
+				}
 			}
 
 			bool settingsWantToRenderThem=!(healthbarVisible==hbvUndefined || (healthbarVisible&hbvOff))
@@ -5686,7 +5693,7 @@ void Renderer::renderHealthBars(bool forceHealthbars){
 					|| ((healthbarVisible&hbvDamaged) && unit->getHp()!=unit->getType()->getMaxHp())
 					|| ((healthbarVisible&hbvSelected) && game->getGui()->isSelected(unit)));
 
-			if(unit->isAlive() && (settingsWantToRenderThem || forceHealthbars)) {
+			if(unit->isAlive() && (settingsWantToRenderThem)) {
 				Vec3f currVec= unit->getCurrVectorFlat();
 				if(healthbarheight==-100.0f) {
 					currVec.y+=unit->getType()->getHeight();

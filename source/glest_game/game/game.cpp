@@ -115,7 +115,7 @@ Game::Game() : ProgramState(NULL) {
 	renderFpsAvgTest=0;
 	renderExtraTeamColor=0;
 	photoModeEnabled=false;
-	forcedHealthbars=false;
+	healthbarMode=hbvUndefined;
 	visibleHUD=false;
 	timeDisplay=false;
 	withRainEffect=false;
@@ -236,7 +236,7 @@ void Game::resetMembers() {
 
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
 	photoModeEnabled = Config::getInstance().getBool("PhotoMode","false");
-	forcedHealthbars = Config::getInstance().getBool("ForcedHealthbars","false");
+	healthbarMode = Config::getInstance().getInt("HealthbarMode","0");
 	visibleHUD = Config::getInstance().getBool("VisibleHud","true");
 	timeDisplay = Config::getInstance().getBool("TimeDisplay","true");
 	withRainEffect = Config::getInstance().getBool("RainEffect","true");
@@ -4659,7 +4659,32 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 			}
 			//Toggle Healthbars
 			else if(isKeyPressed(configKeys.getSDLKey("ToggleHealthbars"),key, false) == true) {
-				forcedHealthbars = !forcedHealthbars;
+				switch (healthbarMode) {
+					case hbvUndefined:
+						healthbarMode=hbvOff;
+						console.addLine(lang.getString("HealthbarsOff"));
+						break;
+					case hbvOff:
+						healthbarMode=hbvAlways;
+						console.addLine(lang.getString("HealthbarsAlways"));
+						break;
+					case hbvAlways:
+						healthbarMode=hbvDamaged;
+						console.addLine(lang.getString("HealthbarsDamaged"));
+						break;
+					case hbvDamaged:
+						healthbarMode=hbvSelected;
+						console.addLine(lang.getString("HealthbarsSelected"));
+						break;
+					case hbvSelected:
+						healthbarMode=hbvUndefined;
+						console.addLine(lang.getString("HealthbarsDefault"));
+						break;
+					default:
+						printf("In [%s::%s Line: %d] Toggle Healthbars Hotkey - Invalid Value. Setting to default.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+						healthbarMode=hbvUndefined;
+						break;
+				}
 			}
 			//Toggle music
 			//else if(key == configKeys.getCharKey("ToggleMusic")) {
@@ -5259,7 +5284,7 @@ void Game::render3d(){
 
 	//renderOnTopBars (aka Healthbars)
 	if(photoModeEnabled == false) {
-		renderer.renderHealthBars(forcedHealthbars);
+		renderer.renderHealthBars(healthbarMode);
 	}
 
 	//particles
