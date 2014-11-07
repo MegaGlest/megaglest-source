@@ -78,6 +78,9 @@ private:
     Texture2D *statusNotReadyTexture;
     Texture2D *statusBRBTexture;
 
+    Texture2D *healthbarTexture;
+    Texture2D *healthbarBackgroundTexture;
+
     std::vector<Texture2D *> miscTextureList;
 
     Font2D *displayFont;
@@ -133,6 +136,8 @@ public:
 		tsyst_statusReadyTexture,
 		tsyst_statusNotReadyTexture,
 		tsyst_statusBRBTexture,
+		tsyst_healthbarTexture,
+		tsyst_healthbarBackgroundTexture,
 
 		tsyst_COUNT
 	};
@@ -170,6 +175,9 @@ public:
     Texture2D *getStatusNotReadyTexture();
     Texture2D *getStatusBRBTexture();
 	Texture2D *getGameWinnerTexture();
+
+	Texture2D *getHealthbarTexture();
+	Texture2D *getHealthbarBackgroundTexture();
 
 	size_t getLogoTextureExtraCount();
 	Texture2D *getLogoTextureExtra(int idx);

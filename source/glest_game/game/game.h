@@ -141,6 +141,7 @@ private:
 	static const int renderTeamColorPlaneBit=2;
 
 	bool photoModeEnabled;
+	int healthbarMode;
 	bool visibleHUD;
 	bool timeDisplay;
 	bool withRainEffect;

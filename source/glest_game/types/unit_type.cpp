@@ -451,15 +451,15 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 
 		//healthbar
 		if(parametersNode->hasChild("healthbar")) {
-			const XmlNode *HealthbarNode= parametersNode->getChild("healthbar");
-			if(HealthbarNode->hasChild("height")) {
-				healthbarheight= HealthbarNode->getChild("height")->getAttribute("value")->getFloatValue();
+			const XmlNode *healthbarNode= parametersNode->getChild("healthbar");
+			if(healthbarNode->hasChild("height")) {
+				healthbarheight= healthbarNode->getChild("height")->getAttribute("value")->getFloatValue();
 			}
-			if(HealthbarNode->hasChild("thickness")) {
-				healthbarthickness= HealthbarNode->getChild("thickness")->getAttribute("value")->getFloatValue(0.f, 1.f);
+			if(healthbarNode->hasChild("thickness")) {
+				healthbarthickness= healthbarNode->getChild("thickness")->getAttribute("value")->getFloatValue(0.f, 1.f);
 			}
-			if(HealthbarNode->hasChild("visible")) {
-				string healthbarVisibleString=HealthbarNode->getChild("visible")->getAttribute("value")->getValue();
+			if(healthbarNode->hasChild("visible")) {
+				string healthbarVisibleString=healthbarNode->getChild("visible")->getAttribute("value")->getValue();
 				vector<string> v=split(healthbarVisibleString,"|");
 				for (int i = 0; i < (int)v.size(); ++i) {
 					string current=trim(v[i]);

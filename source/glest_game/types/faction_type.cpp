@@ -16,6 +16,7 @@
 #include "xml_parser.h"
 #include "tech_tree.h"
 #include "resource.h"
+#include "renderer.h"
 #include "platform_util.h"
 #include "game_util.h"
 #include "conversion.h"
@@ -37,6 +38,11 @@ FactionType::FactionType() {
 	healthbarheight= -100.0f;
 	healthbarthickness= 0.05f;
 	healthbarVisible=hbvUndefined;
+	healthbarBorderTextureEnabled=false;
+	healthbarBackgroundTextureEnabled=false;
+	healthbarLineBorder=true;
+	healthbarTexture=NULL;
+	healthbarBackgroundTexture=NULL;
 }
 
 //load a faction, given a directory
@@ -277,15 +283,15 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 
 		//healthbar
 		if(factionNode->hasChild("healthbar")) {
-			const XmlNode *HealthbarNode= factionNode->getChild("healthbar");
-			if(HealthbarNode->hasChild("height")) {
-				healthbarheight= HealthbarNode->getChild("height")->getAttribute("value")->getFloatValue();
+			const XmlNode *healthbarNode= factionNode->getChild("healthbar");
+			if(healthbarNode->hasChild("height")) {
+				healthbarheight= healthbarNode->getChild("height")->getAttribute("value")->getFloatValue();
 			}
-			if(HealthbarNode->hasChild("thickness")) {
-				healthbarthickness= HealthbarNode->getChild("thickness")->getAttribute("value")->getFloatValue(0.f, 1.f);
+			if(healthbarNode->hasChild("thickness")) {
+				healthbarthickness= healthbarNode->getChild("thickness")->getAttribute("value")->getFloatValue(0.f, 1.f);
 			}
-			if(HealthbarNode->hasChild("visible")) {
-				string healthbarVisibleString=HealthbarNode->getChild("visible")->getAttribute("value")->getValue();
+			if(healthbarNode->hasChild("visible")) {
+				string healthbarVisibleString=healthbarNode->getChild("visible")->getAttribute("value")->getValue();
 				vector<string> v=split(healthbarVisibleString,"|");
 				for (int i = 0; i < (int)v.size(); ++i) {
 					string current=trim(v[i]);
@@ -302,6 +308,30 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 					}
 				}
 			}
+			if(healthbarNode->hasChild("borderTexture")) {
+				healthbarBorderTextureEnabled=healthbarNode->getChild("borderTexture")->getAttribute("enabled")->getBoolValue();
+				if(healthbarBorderTextureEnabled && healthbarNode->getChild("borderTexture")->hasAttribute("path")) {
+					healthbarTexture= Renderer::getInstance().newTexture2D(rsGame);
+					if(healthbarTexture) {
+						healthbarTexture->load(healthbarNode->getChild("borderTexture")->getAttribute("path")->getRestrictedValue(currentPath));
+					}
+					loadedFileList[healthbarNode->getChild("borderTexture")->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(path,healthbarNode->getChild("borderTexture")->getAttribute("path")->getRestrictedValue()));
+					}
+				}
+			if(healthbarNode->hasChild("backgroundTexture")) {
+				healthbarBackgroundTextureEnabled=healthbarNode->getChild("backgroundTexture")->getAttribute("enabled")->getBoolValue();
+				if(healthbarBackgroundTextureEnabled && healthbarNode->getChild("backgroundTexture")->hasAttribute("path")) {
+					healthbarBackgroundTexture= Renderer::getInstance().newTexture2D(rsGame);
+					if(healthbarBackgroundTexture) {
+						healthbarBackgroundTexture->load(healthbarNode->getChild("backgroundTexture")->getAttribute("path")->getRestrictedValue(currentPath));
+					}
+					loadedFileList[healthbarNode->getChild("backgroundTexture")->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(path,healthbarNode->getChild("backgroundTexture")->getAttribute("path")->getRestrictedValue()));
+				}
+			}
+			if(healthbarNode->hasChild("lineBorder")) {
+				healthbarLineBorder= healthbarNode->getChild("lineBorder")->getAttribute("enabled")->getBoolValue();
+			}
+
 		}
 
 		//read ai behavior
