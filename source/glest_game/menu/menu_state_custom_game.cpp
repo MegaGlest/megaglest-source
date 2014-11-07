@@ -3091,8 +3091,7 @@ void MenuStateCustomGame::publishToMasterserver() {
     publishToServerInfo["binaryCompileDate"] = getCompileDateTime();
 
 	//game info:
-	publishToServerInfo["serverTitle"] = getHumanPlayerName() + "'s game";
-	publishToServerInfo["serverTitle"] = labelGameName.getText();
+	publishToServerInfo["serverTitle"] = gameSettings.getGameName();
 	//ip is automatically set
 
 	//game setup info:
@@ -3431,6 +3430,8 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 		setupUIFromGameSettings(*settings);
 	}
+
+	gameSettings->setGameName(labelGameName.getText());
 
     // Test flags values
     //gameSettings->setFlagTypes1(ft1_show_map_resources);

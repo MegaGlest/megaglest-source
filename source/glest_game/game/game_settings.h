@@ -85,6 +85,7 @@ enum NetworkPlayerStatusType {
 
 class GameSettings {
 private:
+	string gameName;
 	string description;
 	string map;
 	string tileset;
@@ -189,6 +190,7 @@ public:
 	// default copy constructor will do fine, and will maintain itself ;)
 
 	//get
+	const string &getGameName() const							{return gameName;}
 	const string &getDescription() const							{return description;}
 	const string &getMap() const 									{return map;}
 	const string &getTileset() const								{return tileset;}
@@ -394,6 +396,7 @@ public:
 	const string &getGameUUID() const								{return gameUUID;}
 
 	//set
+	void setGameName(const string& gameName)						{this->gameName= gameName;}
 	void setDescription(const string& description)						{this->description= description;}
 	void setMap(const string& map)										{this->map= map;}
 	void setTileset(const string& tileset)								{this->tileset= tileset;}
@@ -556,6 +559,7 @@ public:
 		string result = "";
 
 		result += "Game ID = " + gameUUID + "\n";
+		result += "gameName = " + gameName + "\n";
 		result += "description = " + description + "\n";
 		result += "mapFilterIndex = " + intToStr(mapFilterIndex) + "\n";
 		result += "map = " + map + "\n";
@@ -613,6 +617,8 @@ public:
 
 		gameSettingsNode->addAttribute("gameUUID",gameUUID, mapTagReplacements);
 
+//		string gameName;
+		gameSettingsNode->addAttribute("gameName",gameName, mapTagReplacements);
 //		string description;
 		gameSettingsNode->addAttribute("description",description, mapTagReplacements);
 //		string map;
@@ -750,6 +756,13 @@ public:
 			gameUUID = gameSettingsNode->getAttribute("gameUUID")->getValue();
 		}
 
+//		string gameName;
+		if(gameSettingsNode->hasAttribute("gameName") == true) {
+			gameName = gameSettingsNode->getAttribute("gameName")->getValue();
+		}
+		else {
+			gameName = "oldSavegame";
+		}
 //		string description;
 		description = gameSettingsNode->getAttribute("description")->getValue();
 //		string map;
