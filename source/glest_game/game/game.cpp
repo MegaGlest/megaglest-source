@@ -4662,23 +4662,23 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				switch (healthbarMode) {
 					case hbvUndefined:
 						healthbarMode=hbvOff;
-						console.addLine(lang.getString("HealthbarsOff"));
+						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsOff"));
 						break;
 					case hbvOff:
 						healthbarMode=hbvAlways;
-						console.addLine(lang.getString("HealthbarsAlways"));
+						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsAlways"));
 						break;
 					case hbvAlways:
 						healthbarMode=hbvDamaged;
-						console.addLine(lang.getString("HealthbarsDamaged"));
+						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsDamaged"));
 						break;
 					case hbvDamaged:
 						healthbarMode=hbvSelected;
-						console.addLine(lang.getString("HealthbarsSelected"));
+						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsSelected"));
 						break;
 					case hbvSelected:
 						healthbarMode=hbvUndefined;
-						console.addLine(lang.getString("HealthbarsDefault"));
+						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsDefault"));
 						break;
 					default:
 						printf("In [%s::%s Line: %d] Toggle Healthbars Hotkey - Invalid Value. Setting to default.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);

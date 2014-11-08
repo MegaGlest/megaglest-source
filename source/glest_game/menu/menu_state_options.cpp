@@ -227,6 +227,45 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 
 		currentLine-=lineOffset;
 
+		labelHealthBars.registerGraphicComponent(containerName,"labelHealthBars");
+		labelHealthBars.init(currentLabelStart ,currentLine);
+		labelHealthBars.setText(lang.getString("HealthBar"));
+
+		listBoxHealthBars.registerGraphicComponent(containerName,"lisBoxtHealthBars");
+		listBoxHealthBars.init(currentColumnStart ,currentLine, 300 );
+		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsDefault"));
+		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsOff"));
+		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsAlways"));
+		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsDamaged"));
+		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsSelected"));
+
+		int hpMode=config.getInt("HealthBarMode","0");
+		int hpIndex=0;
+		switch (hpMode) {
+			case hbvUndefined:
+				hpIndex = 0;
+				break;
+			case hbvOff:
+				hpIndex = 1;
+				break;
+			case hbvAlways:
+				hpIndex = 2;
+				break;
+			case hbvDamaged:
+				hpIndex = 3;
+				break;
+			case hbvSelected:
+				hpIndex = 4;
+				break;
+			default:
+				hpIndex = 0;
+				break;
+		}
+
+		listBoxHealthBars.setSelectedItemIndex(hpIndex);
+
+		currentLine-=lineOffset;
+
 		labelChatStaysActive.registerGraphicComponent(containerName,"labelChatStaysActive");
 		labelChatStaysActive.init(currentLabelStart ,currentLine);
 		labelChatStaysActive.setText(lang.getString("ChatStaysActive"));
@@ -368,6 +407,7 @@ void MenuStateOptions::reloadUI() {
 	buttonKeyboardSetup.setText(lang.getString("Keyboardsetup"));
 
 	labelVisibleHud.setText(lang.getString("VisibleHUD"));
+	labelHealthBars.setText(lang.getString("HealthBars"));
 	labelChatStaysActive.setText(lang.getString("ChatStaysActive"));
 	labelTimeDisplay.setText(lang.getString("TimeDisplay"));
 
@@ -922,6 +962,7 @@ void MenuStateOptions::mouseClick(int x, int y, MouseButton mouseButton){
         checkBoxMouseMoveScrollsWorld.mouseClick(x, y);
 		listCameraMoveSpeed.mouseClick(x, y);
         checkBoxVisibleHud.mouseClick(x, y);
+        listBoxHealthBars.mouseClick(x, y);
         checkBoxChatStaysActive.mouseClick(x, y);
         checkBoxTimeDisplay.mouseClick(x, y);
 		checkBoxLuaDisableSecuritySandbox.mouseClick(x, y);
@@ -952,6 +993,7 @@ void MenuStateOptions::mouseMove(int x, int y, const MouseState *ms){
 	checkBoxDisableScreenshotConsoleText.mouseMove(x, y);
 	checkBoxMouseMoveScrollsWorld.mouseMove(x, y);
 	listCameraMoveSpeed.mouseMove(x, y);
+	listBoxHealthBars.mouseMove(x, y);
 	checkBoxVisibleHud.mouseMove(x, y);
     checkBoxChatStaysActive.mouseMove(x, y);
     checkBoxTimeDisplay.mouseMove(x, y);
@@ -1039,6 +1081,8 @@ void MenuStateOptions::render(){
 		renderer.renderListBox(&listCameraMoveSpeed);
 
         renderer.renderLabel(&labelVisibleHud);
+        renderer.renderLabel(&labelHealthBars);
+        renderer.renderListBox(&listBoxHealthBars);
         renderer.renderLabel(&labelChatStaysActive);
         renderer.renderLabel(&labelTimeDisplay);
 
@@ -1077,6 +1121,11 @@ void MenuStateOptions::saveConfig(){
     config.setBool("DisableScreenshotConsoleText", !checkBoxDisableScreenshotConsoleText.getValue());
     config.setBool("MouseMoveScrollsWorld", checkBoxMouseMoveScrollsWorld.getValue());
 	config.setString("CameraMoveSpeed", listCameraMoveSpeed.getSelectedItem());
+	int hpModeHelp=0;
+	if(listBoxHealthBars.getSelectedItemIndex()!=0){
+		hpModeHelp=pow(2,listBoxHealthBars.getSelectedItemIndex()-1);
+	}
+	config.setInt("HealthBarMode",hpModeHelp );
     config.setBool("VisibleHud", checkBoxVisibleHud.getValue());
     config.setBool("ChatStaysActive", checkBoxChatStaysActive.getValue());
     config.setBool("TimeDisplay", checkBoxTimeDisplay.getValue());
