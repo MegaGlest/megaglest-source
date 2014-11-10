@@ -2441,7 +2441,9 @@ void MenuStateCustomGame::update() {
 		if(this->autoloadScenarioName != "") {
 			listBoxScenario.setSelectedItem(formatString(this->autoloadScenarioName),false);
 			lastSetChangedGameSettings = time(NULL);
-			lastGameSettingsreceivedCount=serverInterface->getGameSettingsUpdateCount();
+			if(serverInterface != NULL){
+				lastGameSettingsreceivedCount=serverInterface->getGameSettingsUpdateCount();
+			}
 			if(listBoxScenario.getSelectedItem() != formatString(this->autoloadScenarioName)) {
 				mainMessageBoxState=1;
 				showMessageBox( "Could not find scenario name: " + formatString(this->autoloadScenarioName), "Scenario Missing", false);
