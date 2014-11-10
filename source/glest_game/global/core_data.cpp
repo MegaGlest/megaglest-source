@@ -429,7 +429,7 @@ Texture2D *CoreData::getGameWinnerTexture() {
 Texture2D *CoreData::getHealthbarTexture() {
 	string data_path = getDataPath();
 	loadTextureIfRequired(&healthbarTexture,data_path,
-			CORE_MISC_TEXTURES_PATH + "healthbar.png", tsyst_healthbarTexture,
+			CORE_MISC_TEXTURES_PATH + "healthbar.*", tsyst_healthbarTexture,
 		true, false, false, true);
 
 	return healthbarTexture;
@@ -438,7 +438,7 @@ Texture2D *CoreData::getHealthbarTexture() {
 Texture2D *CoreData::getHealthbarBackgroundTexture() {
 	string data_path = getDataPath();
 	loadTextureIfRequired(&healthbarBackgroundTexture,data_path,
-			CORE_MISC_TEXTURES_PATH + "healthbarBackground.png", tsyst_healthbarBackgroundTexture,
+			CORE_MISC_TEXTURES_PATH + "healthbarBackground.*", tsyst_healthbarBackgroundTexture,
 		true, false, false, true);
 
 	return healthbarBackgroundTexture;
