@@ -673,6 +673,19 @@ bool Faction::canUnitsPathfind() {
 	return result;
 }
 
+void Faction::setLockedUnitForFaction(const UnitType *ut, bool lock) {
+	if (lock) {
+		LockedUnits.insert(ut);
+	} else {
+		std::set<const UnitType*>::iterator it;
+		it=LockedUnits.find(ut);
+		if(it!=LockedUnits.end()) {
+			LockedUnits.erase(it);
+		}
+	}
+
+}
+
 void Faction::signalWorkerThread(int frameIndex) {
 	if(workerThread != NULL) {
 		workerThread->signalPathfinder(frameIndex);
@@ -912,6 +925,10 @@ bool Faction::reqsOk(const RequirableType *rt) const {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 		        return false;
 			}
+   		}
+
+   		if(producedUnitType != NULL && isUnitLocked(producedUnitType)) {
+   			return false;
    		}
     }
 

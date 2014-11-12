@@ -174,6 +174,8 @@ private:
 	std::map<int,int> unitsMovingList;
 	std::map<int,int> unitsPathfindingList;
 
+	std::set<const UnitType*> LockedUnits;
+
 	TechTree *techTree;
 	const XmlNode *loadWorldNode;
 
@@ -243,6 +245,9 @@ public:
 	int getUnitPathfindingListCount();
 	void clearUnitsPathfinding();
 	bool canUnitsPathfind();
+
+	void setLockedUnitForFaction(const UnitType *ut, bool lock);
+	bool isUnitLocked(const UnitType *ut) const { return LockedUnits.find(ut)!=LockedUnits.end(); }
 
     void init(
 		FactionType *factionType, ControlType control, TechTree *techTree, Game *game,
