@@ -768,6 +768,7 @@ void Gui::computeInfoString(int posDisplay){
 							display.setInfoText(ct->getDesc(unit->getTotalUpgrade(),game->showTranslatedTechTree()));
 						}
 						else{
+							display.setInfoText(ct->getReqDesc(game->showTranslatedTechTree()));
 							if(ct->getClass()==ccUpgrade){
 								string text="";
 								const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(ct);
@@ -779,8 +780,19 @@ void Gui::computeInfoString(int posDisplay){
 								}
 								display.setInfoText(text+ct->getReqDesc(game->showTranslatedTechTree()));
 							}
-							else{
-								display.setInfoText(ct->getReqDesc(game->showTranslatedTechTree()));
+							//locked by scenario
+							else if(ct->getClass()==ccProduce){
+								string text="";
+								const ProduceCommandType *pct= static_cast<const ProduceCommandType*>(ct);
+								if(unit->getFaction()->isUnitLocked(pct->getProducedUnit())){
+									display.setInfoText(lang.getString("LockedByScenario")+"\n\n"+ct->getReqDesc(game->showTranslatedTechTree()));
+								}
+							}
+							else if(ct->getClass()==ccMorph){
+								const MorphCommandType *mct= static_cast<const MorphCommandType*>(ct);
+								if(unit->getFaction()->isUnitLocked(mct->getMorphUnit())){
+									display.setInfoText(lang.getString("LockedByScenario")+"\n\n"+ct->getReqDesc(game->showTranslatedTechTree()));
+								}
 							}
 						}
 					}
@@ -802,8 +814,16 @@ void Gui::computeInfoString(int posDisplay){
 			}
 			else{
 				if(activeCommandType!=NULL && activeCommandType->getClass()==ccBuild){
+					//locked by scenario
 					const BuildCommandType *bct= static_cast<const BuildCommandType*>(activeCommandType);
-					display.setInfoText(bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
+					const Unit *unit= selection.getFrontUnit();
+					printf("opfaaa\n");
+					if(unit->getFaction()->isUnitLocked(bct->getBuilding(posDisplay))){
+						printf("OpfaUnitNameDiggaaaa:%s",bct->getBuilding(posDisplay)->getName(false).c_str());
+						display.setInfoText(lang.getString("LockedByScenario")+"\n\n"+bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
+					} else {
+						display.setInfoText(bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
+					}
 				}
 			}
 		}

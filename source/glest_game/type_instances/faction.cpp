@@ -675,12 +675,12 @@ bool Faction::canUnitsPathfind() {
 
 void Faction::setLockedUnitForFaction(const UnitType *ut, bool lock) {
 	if (lock) {
-		LockedUnits.insert(ut);
+		lockedUnits.insert(ut);
 	} else {
 		std::set<const UnitType*>::iterator it;
-		it=LockedUnits.find(ut);
-		if(it!=LockedUnits.end()) {
-			LockedUnits.erase(it);
+		it=lockedUnits.find(ut);
+		if(it!=lockedUnits.end()) {
+			lockedUnits.erase(it);
 		}
 	}
 
