@@ -480,6 +480,8 @@ void Scenario::loadGameSettings(const vector<string> &dirList,
 		const ScenarioInfo *scenarioInfo, GameSettings *gameSettings,
 		string scenarioDescription) {
 	int factionCount= 0;
+	int AIPlayerCount=0;
+	Lang &lang= Lang::getInstance();
 
 	if(gameSettings->getGameUUID() == "") {
 		gameSettings->setGameUUID(getUUIDAsString());
@@ -501,15 +503,21 @@ void Scenario::loadGameSettings(const vector<string> &dirList,
 			if(ct == ctHuman) {
 				gameSettings->setThisFactionIndex(factionCount);
 
-				if(gameSettings->getNetworkPlayerName(i) == "") {
-					gameSettings->setNetworkPlayerName(i,Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()));
+				if(gameSettings->getNetworkPlayerName(factionCount) == "") {
+					gameSettings->setNetworkPlayerName(factionCount,Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()));
 				}
-				gameSettings->setNetworkPlayerUUID(i,Config::getInstance().getString("PlayerId",""));
-				gameSettings->setNetworkPlayerPlatform(i,getPlatformNameString());
+				gameSettings->setNetworkPlayerUUID(factionCount,Config::getInstance().getString("PlayerId",""));
+				gameSettings->setNetworkPlayerPlatform(factionCount,getPlatformNameString());
 			}
-			else {
-				if(gameSettings->getNetworkPlayerName(i) == "") {
-					gameSettings->setNetworkPlayerName(i,controllerTypeToStr(ct));
+			else if(ct == ctNetwork || ct == ctNetworkUnassigned){
+				if(gameSettings->getNetworkPlayerName(factionCount) == "") {
+					gameSettings->setNetworkPlayerName(factionCount,controllerTypeToStr(ct));
+				}
+			}
+			else {//this is a CPU player
+				AIPlayerCount++;
+				if(gameSettings->getNetworkPlayerName(factionCount) == "") {
+					gameSettings->setNetworkPlayerName(factionCount,lang.getString("AI") + intToStr(AIPlayerCount));
 				}
 			}
 			gameSettings->setFactionControl(factionCount, ct);
