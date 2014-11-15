@@ -817,9 +817,7 @@ void Gui::computeInfoString(int posDisplay){
 					//locked by scenario
 					const BuildCommandType *bct= static_cast<const BuildCommandType*>(activeCommandType);
 					const Unit *unit= selection.getFrontUnit();
-					printf("opfaaa\n");
 					if(unit->getFaction()->isUnitLocked(bct->getBuilding(posDisplay))){
-						printf("OpfaUnitNameDiggaaaa:%s",bct->getBuilding(posDisplay)->getName(false).c_str());
 						display.setInfoText(lang.getString("LockedByScenario")+"\n\n"+bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
 					} else {
 						display.setInfoText(bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
