@@ -2267,6 +2267,13 @@ void Faction::saveGame(XmlNode *rootNode) {
 	factionNode->addAttribute("currentSwitchTeamVoteFactionIndex",intToStr(currentSwitchTeamVoteFactionIndex), mapTagReplacements);
 	factionNode->addAttribute("allowSharedTeamUnits",intToStr(allowSharedTeamUnits), mapTagReplacements);
 
+	for(std::set<const UnitType*>::iterator iterMap = lockedUnits.begin();
+			iterMap != lockedUnits.end(); ++iterMap) {
+		XmlNode *lockedUnitsListNode = factionNode->addChild("lockedUnitList");
+		const UnitType *ut=*iterMap;
+
+		lockedUnitsListNode->addAttribute("value",ut->getName(false), mapTagReplacements);
+	}
 
 	for(std::map<int,int>::iterator iterMap = unitsMovingList.begin();
 			iterMap != unitsMovingList.end(); ++iterMap) {
@@ -2358,6 +2365,14 @@ void Faction::loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *s
 		}
 
 		random.setLastNumber(factionNode->getAttribute("random")->getIntValue());
+
+		vector<XmlNode *> lockedUnitsListNodeList = factionNode->getChildList("lockedUnitList");
+		for(unsigned int i = 0; i < lockedUnitsListNodeList.size(); ++i) {
+			XmlNode *lockedUnitsListNode = lockedUnitsListNodeList[i];
+
+			string unitName = lockedUnitsListNode->getAttribute("value")->getValue();
+			lockedUnits.insert(getType()->getUnitType(unitName));
+		}
 
 		vector<XmlNode *> unitsMovingListNodeList = factionNode->getChildList("unitsMovingList");
 		for(unsigned int i = 0; i < unitsMovingListNodeList.size(); ++i) {
