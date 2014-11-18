@@ -6686,7 +6686,7 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 
 		Lang &lang= Lang::getInstance();
 		string gameVer = versionNode->getAttribute("version")->getValue();
-		if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false) {
+		if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false){
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,lang.getString("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
 			throw megaglest_runtime_error(szBuf,true);
@@ -6747,7 +6747,10 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 
 	Lang &lang= Lang::getInstance();
 	string gameVer = versionNode->getAttribute("version")->getValue();
-	if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false) {
+	// this is the version check for loading normal save games from menu_state_load_game
+	if (gameVer != glestVersionString
+			&& (compareMajorMinorVersion(gameVer, lastCompatibleSaveGameVersionString) < 0
+					|| compareMajorMinorVersion(glestVersionString, gameVer) < 0)) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,lang.getString("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
 		throw megaglest_runtime_error(szBuf,true);
@@ -6765,6 +6768,12 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 		XmlNode *selectionNode = guiNode->getChild("Selection");
 		XmlNode *statsNode = worldNode->getChild("Stats");
 		XmlNode *minimapNode = worldNode->getChild("Minimap");
+
+		if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false){
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,lang.getString("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
+			throw megaglest_runtime_error(szBuf,true);
+		}
 		// This is explored fog of war for the host player, clear it
 		minimapNode->clearChild("fowPixmap1");
 
@@ -6837,7 +6846,13 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 	newGame->tickCount = gameNode->getAttribute("tickCount")->getIntValue();
 
 	//bool paused;
-	newGame->paused = gameNode->getAttribute("paused")->getIntValue() != 0;
+	if(newGame->inJoinGameLoading==true){
+		newGame->paused = gameNode->getAttribute("paused")->getIntValue() != 0;
+	}else{
+		//newGame->paused = gameNode->getAttribute("paused")->getIntValue() != 0;
+		newGame->paused = true;
+	}
+	if(newGame->paused) newGame->console.addLine(lang.getString("GamePaused"));
 	//bool gameOver;
 	newGame->gameOver = gameNode->getAttribute("gameOver")->getIntValue() != 0;
 	//bool renderNetworkStatus;

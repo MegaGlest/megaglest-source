@@ -1395,14 +1395,16 @@ void TotalUpgrade::loadGame(const XmlNode *rootNode) {
 		                                  node->getAttribute("value")->getIntValue();
 	}
 
-	attackSpeed = upgradeTypeBaseNode->getAttribute("attackSpeed")->getIntValue();
-	attackSpeedIsMultiplier = upgradeTypeBaseNode->getAttribute("attackSpeedIsMultiplier")->getIntValue() != 0;
-	vector<XmlNode *> attackSpeedIsMultiplierValueNodeList = upgradeTypeBaseNode->getChildList("attackSpeedIsMultiplierValueList");
-	for(unsigned int i = 0; i < attackSpeedIsMultiplierValueNodeList.size(); ++i) {
-		XmlNode *node = attackSpeedIsMultiplierValueNodeList[i];
+	if(upgradeTypeBaseNode->hasAttribute("attackSpeed")){
+		attackSpeed = upgradeTypeBaseNode->getAttribute("attackSpeed")->getIntValue();
+		attackSpeedIsMultiplier = upgradeTypeBaseNode->getAttribute("attackSpeedIsMultiplier")->getIntValue() != 0;
+		vector<XmlNode *> attackSpeedIsMultiplierValueNodeList = upgradeTypeBaseNode->getChildList("attackSpeedIsMultiplierValueList");
+		for(unsigned int i = 0; i < attackSpeedIsMultiplierValueNodeList.size(); ++i) {
+			XmlNode *node = attackSpeedIsMultiplierValueNodeList[i];
 
-		attackSpeedIsMultiplierValueList[node->getAttribute("key")->getValue()] =
-		                                  node->getAttribute("value")->getIntValue();
+			attackSpeedIsMultiplierValueList[node->getAttribute("key")->getValue()] =
+											  node->getAttribute("value")->getIntValue();
+		}
 	}
 }
 
