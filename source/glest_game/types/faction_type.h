@@ -156,7 +156,6 @@ public:
 	void deletePixels();
 	bool factionUsesResourceType(const ResourceType *rt) const;
 
-	void saveGame(XmlNode *rootNode);
 };
 
 }}//end namespace

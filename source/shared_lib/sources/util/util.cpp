@@ -787,6 +787,44 @@ int round(float f){
 }
 
 // ==================== misc ====================
+int compareMajorMinorVersion(string versionA,string versionB){
+	int majorA=getMajor(versionA);
+	int minorA=getMinor(versionA);
+	int majorB=getMajor(versionB);
+	int minorB=getMinor(versionB);
+
+	if(majorA<majorB) return -1;
+	else if(majorA==majorB){
+		if(minorA<minorB) return -1;
+		else if(minorA==minorB){
+			return 0;
+		}
+		else{
+			return 1;
+		}
+	}
+	else{
+		return 1;
+	}
+}
+
+int getMajor(string version){
+	vector<string> parts=split(version.substr(1),".");
+
+	if(parts.size()>2 && parts[0] != "" && IsNumeric(parts[0].c_str(),false))
+		return strToInt(parts[0]);
+	else
+		return 0;
+}
+
+int getMinor(string version){
+	vector<string> parts=split(version.substr(1),".");
+
+	if(parts.size()>2 && parts[1] != "" && IsNumeric(parts[1].c_str(),false))
+		return strToInt(parts[1]);
+	else
+		return 0;
+}
 
 bool checkVersionComptability(string clientVersionString, string serverVersionString) {
 	//SystemFlags::VERBOSE_MODE_ENABLED = true;

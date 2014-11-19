@@ -41,6 +41,7 @@ private:
 	GraphicLabel savedGamesLabel;
 	GraphicLabel infoHeaderLabel;
 	GraphicLabel infoTextLabel;
+	GraphicLabel versionWarningLabel;
 
 	GraphicLine lines[2];
 

@@ -239,6 +239,9 @@ float saturate(float value);
 int round(float f);
 
 //misc
+int compareMajorMinorVersion(string versionA,string versionB);
+int getMajor(string version);
+int getMinor(string version);
 bool checkVersionComptability(string clientVersionString, string serverVersionString);
 
 template<typename T>
