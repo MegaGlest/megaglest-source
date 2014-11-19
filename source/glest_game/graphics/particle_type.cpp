@@ -305,6 +305,7 @@ void ParticleSystemType::setValues(AttackParticleSystem *ats){
 	for(Children::iterator i=children.begin(); i!=children.end(); ++i){
 		UnitParticleSystem *child = new UnitParticleSystem();
 		child->setParticleOwner(ats->getParticleOwner());
+		child->setParticleType((*i));
 		(*i)->setValues(child);
 		ats->addChild(child);
 		child->setState(ParticleSystem::sPlay);

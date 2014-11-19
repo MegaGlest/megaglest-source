@@ -821,7 +821,14 @@ private:
 	void startDamageParticles();
 
 	uint32 getFrameCount() const;
+
 	void checkCustomizedParticleTriggers(bool force);
+	void checkCustomizedUnitParticleTriggers();
+	void checkCustomizedUnitParticleListTriggers(vector<UnitParticleSystem*> &unitParticleSystemsList,
+												 const UnitParticleSystemTypes &unitParticleSystemTypesList,
+												 vector<UnitParticleSystemType*> &queuedUnitParticleSystemTypesList);
+
+
 	bool checkModelStateInfoForNewHpValue();
 	void checkUnitLevel();
 

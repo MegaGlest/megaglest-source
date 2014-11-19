@@ -1009,6 +1009,8 @@ Vec3f UnitParticleSystem::lightColor=Vec3f(1.0f,1.0f,1.0f);
 
 UnitParticleSystem::UnitParticleSystem(int particleCount) :
 		GameParticleSystem(particleCount),	parent(NULL) {
+
+	particleSystemType = NULL;
 	radius= 0.5f;
 	speed= 0.01f;
 	windSpeed= Vec3f(0.0f);

@@ -1371,6 +1371,8 @@ void MainWindow::loadParticle(string path) {
 
             for(std::vector<UnitParticleSystemType *>::const_iterator it= unitParticleSystemTypes.begin(); it != unitParticleSystemTypes.end(); ++it) {
                 UnitParticleSystem *ups= new UnitParticleSystem(200);
+
+                ups->setParticleType((*it));
                 (*it)->setValues(ups);
                 if(size > 0) {
                     //getCurrVectorFlat() + Vec3f(0.f, type->getHeight()/2.f, 0.f);

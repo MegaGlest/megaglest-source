@@ -331,6 +331,8 @@ void UnitAttackBoostEffect::applyLoadedAttackBoostParticles(UnitParticleSystemTy
 			ups = new UnitParticleSystem(200);
 			//ups->loadGame(node2);
 			ups->setParticleOwner(unit);
+			ups->setParticleType(upst);
+
 			upst->setValues(ups);
 			ups->setPos(unit->getCurrVector());
 			ups->setRotation(unit->getRotation());
@@ -1291,12 +1293,16 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 		unitParticleSystems.empty() == true) {
 		//printf("START - particle system type\n");
 
-		for(UnitParticleSystemTypes::const_iterator it= currSkill->unitParticleSystemTypes.begin(); it != currSkill->unitParticleSystemTypes.end(); ++it) {
+		/*
+		for(UnitParticleSystemTypes::const_iterator it= currSkill->unitParticleSystemTypes.begin();
+				it != currSkill->unitParticleSystemTypes.end(); ++it) {
 			if((*it)->getStartTime() == 0.0) {
 				//printf("Adding NON-queued particle system type [%s] [%f] [%f]\n",(*it)->getType().c_str(),(*it)->getStartTime(),(*it)->getEndTime());
 
 				UnitParticleSystem *ups = new UnitParticleSystem(200);
 				ups->setParticleOwner(this);
+				ups->setParticleType((*it));
+
 				(*it)->setValues(ups);
 				ups->setPos(getCurrVector());
 				ups->setRotation(getRotation());
@@ -1313,6 +1319,9 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 				queuedUnitParticleSystemTypes.push_back(*it);
 			}
 		}
+		*/
+		checkCustomizedUnitParticleListTriggers(unitParticleSystems,
+				currSkill->unitParticleSystemTypes,queuedUnitParticleSystemTypes);
 	}
 	progress2= 0;
 	if(this->currSkill != currSkill) {
@@ -2396,6 +2405,8 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups = new UnitParticleSystem(200);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setParticleOwner(this);
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setParticleType(currentAttackBoostOriginatorEffect.currentAppliedEffect->upst);
+
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->upst->setValues(
 								currentAttackBoostOriginatorEffect.currentAppliedEffect->ups);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(
@@ -2507,6 +2518,8 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups = new UnitParticleSystem(200);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setParticleOwner(this);
+						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setParticleType(currentAttackBoostOriginatorEffect.currentAppliedEffect->upst);
+
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->upst->setValues(
 								currentAttackBoostOriginatorEffect.currentAppliedEffect->ups);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(
@@ -2786,6 +2799,8 @@ void Unit::updateTimedParticles() {
 
 					UnitParticleSystem *ups = new UnitParticleSystem(200);
 					ups->setParticleOwner(this);
+					ups->setParticleType(pst);
+
 					pst->setValues(ups);
 					ups->setPos(getCurrVector());
 					ups->setRotation(getRotation());
@@ -2927,6 +2942,8 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 
 				effect->ups = new UnitParticleSystem(200);
 				effect->ups->setParticleOwner(this);
+				effect->ups->setParticleType(effect->upst);
+
 				effect->upst->setValues(effect->ups);
 				effect->ups->setPos(getCurrVector());
 				effect->ups->setRotation(getRotation());
@@ -3977,8 +3994,131 @@ void Unit::stopDamageParticles(bool force) {
 	checkCustomizedParticleTriggers(force);
 }
 
+void Unit::checkCustomizedUnitParticleListTriggers(vector<UnitParticleSystem*> &unitParticleSystemsList,
+											const UnitParticleSystemTypes &unitParticleSystemTypesList,
+											vector<UnitParticleSystemType*> &queuedUnitParticleSystemTypesList) {
+	if(showUnitParticles == true) {
+		vector<ParticleSystemTypeInterface *> systemTypesInUse;
+
+		if(unitParticleSystemsList.empty() == false) {
+			for(int index = (int)unitParticleSystemsList.size() - 1; index >= 0; index--) {
+				UnitParticleSystem *ps = unitParticleSystemsList[index];
+				if(ps != NULL) {
+					if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
+
+						bool stopParticle = false;
+						if((ps->getParticleType() != NULL &&
+								ps->getParticleType()->getMinmaxEnabled())) {
+
+							if(ps->getParticleType() != NULL) {
+								if(ps->getParticleType()->getMinmaxIsPercent() == false) {
+									if(hp < ps->getParticleType()->getMinHp() || hp > ps->getParticleType()->getMaxHp()) {
+										stopParticle = true;
+
+										//printf("STOP Particle line: %d\n",__LINE__);
+									}
+								}
+								else {
+									int hpPercent = (hp / type->getTotalMaxHp(&totalUpgrade) * 100);
+									if(hpPercent < ps->getParticleType()->getMinHp() || hpPercent > ps->getParticleType()->getMaxHp()) {
+										stopParticle = true;
+
+										//printf("STOP Particle line: %d\n",__LINE__);
+									}
+								}
+							}
+
+							if(stopParticle == true) {
+								ps->fade();
+								unitParticleSystemsList.erase(unitParticleSystemsList.begin() + index);
+							}
+						}
+
+						if(ps->getParticleType() != NULL && stopParticle == false) {
+							systemTypesInUse.push_back(ps->getParticleType());
+						}
+					}
+				}
+			}
+		}
+
+		//printf("Check Particle start line: %d size: %d\n",__LINE__,(int)unitParticleSystemTypesList.size());
+
+		if(unitParticleSystemTypesList.empty() == false) {
+
+			//for(unsigned int index = 0; index < unitParticleSystemTypesList.size(); ++index) {
+			for(UnitParticleSystemTypes::const_iterator iterParticleType = unitParticleSystemTypesList.begin();
+					iterParticleType != unitParticleSystemTypesList.end(); ++iterParticleType) {
+				UnitParticleSystemType *pst = *iterParticleType;
+
+				vector<ParticleSystemTypeInterface *>::iterator iterFind = std::find(systemTypesInUse.begin(),systemTypesInUse.end(),pst);
+
+				//printf("Check Particle line: %d   isenabled: %d  already in use: %d\n",__LINE__,pst->getMinmaxEnabled(),(iterFind == systemTypesInUse.end()));
+
+				if(pst->getMinmaxEnabled() == true) {
+
+					//printf("Check Particle line: %d   isenabled: %d  already in use: %d\n",__LINE__,pst->getMinmaxEnabled(),(iterFind != systemTypesInUse.end()));
+
+					if(iterFind == systemTypesInUse.end()) {
+						bool showParticle = false;
+						if(pst->getMinmaxIsPercent() == false) {
+							if(hp >= pst->getMinHp() && hp <= pst->getMaxHp()) {
+								showParticle = true;
+
+								//printf("START Particle line: %d\n",__LINE__);
+							}
+						}
+						else {
+							int hpPercent = (hp / type->getTotalMaxHp(&totalUpgrade) * 100);
+							if(hpPercent >= pst->getMinHp() && hpPercent <= pst->getMaxHp()) {
+								showParticle = true;
+
+								//printf("START Particle line: %d\n",__LINE__);
+							}
+						}
+
+						if(showParticle == true) {
+
+							if(pst->getStartTime() == 0.0) {
+								UnitParticleSystem *ups = new UnitParticleSystem(200);
+								ups->setParticleOwner(this);
+								ups->setParticleType(pst);
+
+								pst->setValues(ups);
+								ups->setPos(getCurrVector());
+								ups->setRotation(getRotation());
+								ups->setUnitModel(getCurrentModelPtr());
+								if(getFaction()->getTexture()) {
+									ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+								}
+								unitParticleSystemsList.push_back(ups);
+								Renderer::getInstance().manageParticleSystem(ups, rsGame);
+							}
+							else {
+								queuedUnitParticleSystemTypesList.push_back(pst);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+}
+
+void Unit::checkCustomizedUnitParticleTriggers() {
+	if(currSkill != NULL) {
+		checkCustomizedUnitParticleListTriggers(unitParticleSystems,
+				currSkill->unitParticleSystemTypes,queuedUnitParticleSystemTypes);
+	}
+}
+
 void Unit::checkCustomizedParticleTriggers(bool force) {
-	// Now check if we have special hp triggered particles
+	//
+	// Now check if we have special pre-exisitng hp triggered particles and
+	// end those that should no longer display
+	//
+	// end s particles
 	if(damageParticleSystems.empty() == false) {
 		for(int i = (int)damageParticleSystems.size()-1; i >= 0; --i) {
 			UnitParticleSystem *ps = damageParticleSystems[i];
@@ -4028,7 +4168,9 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 		}
 	}
 
-	// Now check if we have special hp triggered particles
+	//
+	// Now check if we have new special hp triggered particles to display
+	//
 	//start additional particles
 	if(showUnitParticles &&
 		type->damageParticleSystemTypes.empty() == false  &&
@@ -4057,6 +4199,8 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 
 					UnitParticleSystem *ups = new UnitParticleSystem(200);
 					ups->setParticleOwner(this);
+					ups->setParticleType(pst);
+
 					pst->setValues(ups);
 					ups->setPos(getCurrVector());
 					ups->setRotation(getRotation());
@@ -4071,6 +4215,8 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 			}
 		}
 	}
+
+	checkCustomizedUnitParticleTriggers();
 }
 
 void Unit::startDamageParticles() {
@@ -4084,6 +4230,8 @@ void Unit::startDamageParticles() {
 				if(pst->getMinmaxEnabled() == false && damageParticleSystemsInUse.find(i) == damageParticleSystemsInUse.end()) {
 					UnitParticleSystem *ups = new UnitParticleSystem(200);
 					ups->setParticleOwner(this);
+					ups->setParticleType(pst);
+
 					pst->setValues(ups);
 					ups->setPos(getCurrVector());
 					ups->setRotation(getRotation());

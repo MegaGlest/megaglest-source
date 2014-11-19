@@ -52,7 +52,7 @@ class UnitParticleSystemType;
 ///	A type of particle system
 // ===========================================================
 
-class ParticleSystemType {
+class ParticleSystemType : public ParticleSystemTypeInterface {
 protected:
 	string type;
 	Texture2D *texture;

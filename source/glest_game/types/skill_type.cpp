@@ -533,9 +533,21 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 					unitParticleSystemType->setEndTime(particleNode->getAttribute("end-time")->getFloatValue());
 				}
 
+				if(particleNode->getChild(i)->hasAttribute("minHp") && particleNode->getChild(i)->hasAttribute("maxHp")) {
+					unitParticleSystemType->setMinmaxEnabled(true);
+					unitParticleSystemType->setMinHp(particleNode->getChild(i)->getAttribute("minHp")->getIntValue());
+					unitParticleSystemType->setMaxHp(particleNode->getChild(i)->getAttribute("maxHp")->getIntValue());
+
+					if(particleNode->getChild(i)->hasAttribute("ispercentbased")) {
+						unitParticleSystemType->setMinmaxIsPercent(particleNode->getChild(i)->getAttribute("ispercentbased")->getBoolValue());
+					}
+				}
+
 				loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleFileNode->getAttribute("path")->getRestrictedValue()));
 				unitParticleSystemTypes.push_back(unitParticleSystemType);
 			}
+
+			//printf("Load skill particles line: %d size: %d\n",__LINE__,(int)unitParticleSystemTypes.size());
 		}
 	}
 

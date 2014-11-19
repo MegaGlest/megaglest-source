@@ -58,6 +58,7 @@ public:
 
 public:
 	Particle() {
+		speedUpRelative = 0;
 		size = 0;
 		energy = 0;
 	}
@@ -91,6 +92,20 @@ public:
 	virtual ~ParticleOwner() {}
 	virtual void end(ParticleSystem *particleSystem)= 0;
 	virtual void logParticleInfo(string info)= 0;
+};
+
+
+class ParticleSystemTypeInterface {
+public:
+
+	ParticleSystemTypeInterface() {};
+	virtual ~ParticleSystemTypeInterface() {};
+
+	virtual bool getMinmaxEnabled() const = 0;
+	virtual int getMinHp() const = 0;
+	virtual int getMaxHp() const = 0;
+	virtual bool getMinmaxIsPercent() const = 0;
+
 };
 
 // =====================================================
@@ -344,12 +359,15 @@ private:
     float startTime;
     float endTime;
     
+    ParticleSystemTypeInterface *particleSystemType;
+
 public:
 	enum Shape{
 		sLinear, // generated in a sphere, flying in direction
 		sSpherical, // generated in a sphere, flying away from center
 		sConical, // generated in a cone at angle from direction
 	};
+
 	bool relative;
 	bool relativeDirection;
     bool fixed;
@@ -375,6 +393,13 @@ public:
 	~UnitParticleSystem();
 
 	virtual ParticleSystemType getParticleSystemType() const { return pst_UnitParticleSystem;}
+
+	ParticleSystemTypeInterface * getParticleType() const {
+		return particleSystemType;
+	}
+	void setParticleType(ParticleSystemTypeInterface *type) {
+		particleSystemType = type;
+	}
 
 	//virtual
 	virtual void initParticle(Particle *p, int particleIndex);
