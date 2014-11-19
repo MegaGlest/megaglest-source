@@ -1340,6 +1340,11 @@ void World::createUnit(const string &unitName, int factionIndex, const Vec2i &po
 			if(scriptManager) {
 				scriptManager->onUnitCreated(unit);
 			}
+			if(game->getPaused()==true){
+				// new units added in pause mode might change the Fow. ( Scenarios do this )
+				computeFow();
+				minimap.updateFowTex(1.f);
+			}
 		}
 		else {
 			delete unit;
@@ -1707,6 +1712,9 @@ void World::clearCaches() {
 
 void World::togglePauseGame(bool pauseStatus,bool forceAllowPauseStateChange) {
 	game->setPaused(pauseStatus, forceAllowPauseStateChange, false, false);
+	// ensures that the Fow is really up to date when the game switches to pause mode. ( mainly for scenarios )
+	computeFow();
+	minimap.updateFowTex(1.f);
 }
 
 void World::addConsoleText(const string &text) {
