@@ -418,9 +418,9 @@ void World::init(Game *game, bool createUnits, bool initFactions){
 
 	//initExplorationState(); ... was only for !fog-of-war, now handled in initCells()
 	computeFow();
-	if(getFrameCount()>10){
+	if(getFrameCount()>1){
 		// this is needed for games that are loaded to "switch the light on".
-		// otherwise the FowTexture is completely black as in the beginning of a game.
+		// otherwise the FowTexture is completely black like in the beginning of a game.
 		minimap.updateFowTex(1.f);
 	}
 
