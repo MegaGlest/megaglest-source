@@ -680,6 +680,7 @@ bool IRCThread::isConnected(bool mutexLockRequired) {
     		safeMutex1.setMutex(&mutexIRCSession);
     	}
         ret = (irc_is_connected(ircSession) != 0);
+        safeMutex1.ReleaseLock();
 #endif
     }
 
@@ -907,6 +908,7 @@ int IRCThread::irc_run_session(irc_session_t * session) {
 
 		safeMutex.Lock();
 		if ( irc_process_select_descriptors (session, &in_set, &out_set) ) {
+			safeMutex.ReleaseLock();
 			return 3;
 		}
 
@@ -997,6 +999,7 @@ void IRCThread::connectToHost() {
 		if(result != 1) {
 			connectRequired = true;
 		}
+		safeMutex1.ReleaseLock();
 #endif
 	}
 
@@ -1004,9 +1007,12 @@ void IRCThread::connectToHost() {
 #if !defined(DISABLE_IRCCLIENT)
 		MutexSafeWrapper safeMutex1(&mutexIRCSession,string(__FILE__) + "_" + intToStr(__LINE__));
         if(irc_connect(ircSession, argv[0].c_str(), IRC_SERVER_PORT, 0, this->nick.c_str(), this->username.c_str(), "megaglest")) {
+        	safeMutex1.ReleaseLock();
+
             if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC Could not connect: %s\n", irc_strerror (irc_errno(ircSession)));
             return;
         }
+        safeMutex1.ReleaseLock();
 #endif
 	}
 }
@@ -1031,7 +1037,9 @@ void IRCThread::joinChannel() {
 			lastNickListUpdate = time(NULL);
 
 			irc_cmd_join(ircSession, ctx->getChannel().c_str(), 0);
+			safeMutex.ReleaseLock();
 		}
+		safeMutex.ReleaseLock();
 #endif
 	}
 }
@@ -1050,7 +1058,9 @@ void IRCThread::leaveChannel() {
 		IRCThread *ctx = (IRCThread *)irc_get_ctx(ircSession);
 		if(ctx != NULL) {
 			irc_cmd_part(ircSession,ctx->getChannel().c_str());
+			safeMutex.ReleaseLock();
 		}
+		safeMutex.ReleaseLock();
 #endif
 	}
 }
