@@ -236,7 +236,7 @@ void Game::resetMembers() {
 
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
 	photoModeEnabled = Config::getInstance().getBool("PhotoMode","false");
-	healthbarMode = Config::getInstance().getInt("HealthbarMode","0");
+	healthbarMode = Config::getInstance().getInt("HealthBarMode","0");
 	visibleHUD = Config::getInstance().getBool("VisibleHud","true");
 	timeDisplay = Config::getInstance().getBool("TimeDisplay","true");
 	withRainEffect = Config::getInstance().getBool("RainEffect","true");
@@ -4669,16 +4669,20 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsAlways"));
 						break;
 					case hbvAlways:
-						healthbarMode=hbvDamaged;
-						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsDamaged"));
+						healthbarMode=hbvIfNeeded;
+						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsIfNeeded"));
 						break;
-					case hbvDamaged:
+					case hbvIfNeeded:
 						healthbarMode=hbvSelected;
 						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsSelected"));
 						break;
 					case hbvSelected:
+						healthbarMode=hbvSelected | hbvIfNeeded;
+						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsSelectedOrNeeded"));
+						break;
+					case (hbvSelected | hbvIfNeeded):
 						healthbarMode=hbvUndefined;
-						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsDefault"));
+						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsFactionDefault"));
 						break;
 					default:
 						printf("In [%s::%s Line: %d] Toggle Healthbars Hotkey - Invalid Value. Setting to default.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -5236,7 +5240,7 @@ void Game::render3d(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	//selection circles
-	renderer.renderSelectionEffects();
+	renderer.renderSelectionEffects(healthbarMode);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderSelectionEffects]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 

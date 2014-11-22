@@ -233,11 +233,12 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 
 		listBoxHealthBars.registerGraphicComponent(containerName,"lisBoxtHealthBars");
 		listBoxHealthBars.init(currentColumnStart ,currentLine, 300 );
-		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsDefault"));
+		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsFactionDefault"));
 		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsOff"));
 		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsAlways"));
-		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsDamaged"));
+		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsIfNeeded"));
 		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsSelected"));
+		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsSelectedOrNeeded"));
 
 		int hpMode=config.getInt("HealthBarMode","0");
 		int hpIndex=0;
@@ -251,11 +252,14 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 			case hbvAlways:
 				hpIndex = 2;
 				break;
-			case hbvDamaged:
+			case hbvIfNeeded:
 				hpIndex = 3;
 				break;
 			case hbvSelected:
 				hpIndex = 4;
+				break;
+			case hbvSelected | hbvIfNeeded:
+				hpIndex = 5;
 				break;
 			default:
 				hpIndex = 0;
@@ -1121,11 +1125,34 @@ void MenuStateOptions::saveConfig(){
     config.setBool("DisableScreenshotConsoleText", !checkBoxDisableScreenshotConsoleText.getValue());
     config.setBool("MouseMoveScrollsWorld", checkBoxMouseMoveScrollsWorld.getValue());
 	config.setString("CameraMoveSpeed", listCameraMoveSpeed.getSelectedItem());
-	int hpModeHelp=0;
-	if(listBoxHealthBars.getSelectedItemIndex()!=0){
-		hpModeHelp=pow(2,listBoxHealthBars.getSelectedItemIndex()-1);
+
+	int hpIndex=listBoxHealthBars.getSelectedItemIndex();
+	int hpMode=hbvUndefined;
+	switch (hpIndex) {
+		case 0:
+			hpMode = hbvUndefined;
+			break;
+		case 1:
+			hpMode = hbvOff;
+			break;
+		case 2:
+			hpMode = hbvAlways;
+			break;
+		case 3:
+			hpMode = hbvIfNeeded;
+			break;
+		case 4:
+			hpMode = hbvSelected;
+			break;
+		case 5:
+			hpMode = hbvSelected | hbvIfNeeded;
+			break;
+		default:
+			hpMode = hbvUndefined;
+			break;
 	}
-	config.setInt("HealthBarMode",hpModeHelp );
+
+	config.setInt("HealthBarMode",hpMode );
     config.setBool("VisibleHud", checkBoxVisibleHud.getValue());
     config.setBool("ChatStaysActive", checkBoxChatStaysActive.getValue());
     config.setBool("TimeDisplay", checkBoxTimeDisplay.getValue());

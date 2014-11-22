@@ -120,7 +120,7 @@ enum HealthbarVisible {
 	hbvUndefined=0,
 	hbvOff=1,
 	hbvAlways=2,
-	hbvDamaged=4,
+	hbvIfNeeded=4,
 	hbvSelected=8
 };
 

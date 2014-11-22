@@ -36,7 +36,7 @@ FactionType::FactionType() {
 	personalityType = fpt_Normal;
 	isLinked		= false;
 	healthbarheight= -100.0f;
-	healthbarthickness= 0.05f;
+	healthbarthickness= 0.11f;
 	healthbarVisible=hbvUndefined;
 	healthbarBorderTextureEnabled=false;
 	healthbarBackgroundTextureEnabled=false;
@@ -299,8 +299,8 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 						healthbarVisible=healthbarVisible|hbvAlways;
 					} else if(current=="selected") {
 						healthbarVisible=healthbarVisible|hbvSelected;
-					} else if(current=="damaged") {
-						healthbarVisible=healthbarVisible|hbvDamaged;
+					} else if(current=="ifNeeded") {
+						healthbarVisible=healthbarVisible|hbvIfNeeded;
 					} else if(current=="off") {
 						healthbarVisible=healthbarVisible|hbvOff;
 					} else {
