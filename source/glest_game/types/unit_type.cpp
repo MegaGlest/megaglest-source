@@ -467,8 +467,8 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 						healthbarVisible=healthbarVisible|hbvAlways;
 					} else if(current=="selected") {
 						healthbarVisible=healthbarVisible|hbvSelected;
-					} else if(current=="damaged") {
-						healthbarVisible=healthbarVisible|hbvDamaged;
+					} else if(current=="ifNeeded") {
+						healthbarVisible=healthbarVisible|hbvIfNeeded;
 					} else if(current=="off") {
 						healthbarVisible=healthbarVisible|hbvOff;
 					} else {

@@ -557,8 +557,8 @@ public:
     void renderUnits(bool airUnits, const int renderFps);
     void renderUnitsToBuild(const int renderFps);
 
-	void renderSelectionEffects();
-	void renderHealthBars(int forceHealthbars=hbvUndefined);
+	void renderSelectionEffects(int healthbarMode);
+	void renderHealthBars(int healthbarMode);
 	void renderWaterEffects();
 	void renderHud();
 	void renderMinimap();
@@ -690,7 +690,9 @@ private:
 
 	//private aux drawing
 	void renderSelectionCircle(Vec3f v, int size, float radius, float thickness=0.2f);
-	void renderHealthBar(Vec3f v, int size, float hp, float height, bool lineBorder, const Texture2D *texture=NULL, const Texture2D *backgroundTexture=NULL , float ep=-1.0f);
+	bool isHealthBarVisible(const Unit *unit,int healthbarMode);
+	void renderHealthBar(Vec3f v, Unit *unit, float height, bool lineBorder, const Texture2D *texture=NULL, const Texture2D *backgroundTexture=NULL);
+	void internalRenderHp(int numberOfBars, int barNumber, float hp, Vec3f posVector, float width, float singleHPheight, Vec3f rightVector, Vec3f upVector);
 	void renderTeamColorEffect(Vec3f &v, int heigth, int size, Vec3f color, const Texture2D *texture);
 	void renderArrow(const Vec3f &pos1, const Vec3f &pos2, const Vec3f &color, float width);
 	void renderTile(const Vec2i &pos);
