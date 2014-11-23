@@ -229,7 +229,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 
 		labelHealthBars.registerGraphicComponent(containerName,"labelHealthBars");
 		labelHealthBars.init(currentLabelStart ,currentLine);
-		labelHealthBars.setText(lang.getString("HealthBar"));
+		labelHealthBars.setText(lang.getString("Healthbar"));
 
 		listBoxHealthBars.registerGraphicComponent(containerName,"lisBoxtHealthBars");
 		listBoxHealthBars.init(currentColumnStart ,currentLine, 300 );

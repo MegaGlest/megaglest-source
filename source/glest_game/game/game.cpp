@@ -4662,27 +4662,27 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				switch (healthbarMode) {
 					case hbvUndefined:
 						healthbarMode=hbvOff;
-						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsOff"));
+						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsOff"));
 						break;
 					case hbvOff:
 						healthbarMode=hbvAlways;
-						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsAlways"));
+						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsAlways"));
 						break;
 					case hbvAlways:
 						healthbarMode=hbvIfNeeded;
-						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsIfNeeded"));
+						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsIfNeeded"));
 						break;
 					case hbvIfNeeded:
 						healthbarMode=hbvSelected;
-						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsSelected"));
+						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsSelected"));
 						break;
 					case hbvSelected:
 						healthbarMode=hbvSelected | hbvIfNeeded;
-						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsSelectedOrNeeded"));
+						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsSelectedOrNeeded"));
 						break;
 					case (hbvSelected | hbvIfNeeded):
 						healthbarMode=hbvUndefined;
-						console.addLine(lang.getString("HealthBar")+": "+lang.getString("HealthbarsFactionDefault"));
+						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsFactionDefault"));
 						break;
 					default:
 						printf("In [%s::%s Line: %d] Toggle Healthbars Hotkey - Invalid Value. Setting to default.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
