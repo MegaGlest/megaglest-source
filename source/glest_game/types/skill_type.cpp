@@ -946,7 +946,8 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 		if(projectile){
 			// create new projectile
 				ProjectileType *projectileType=new ProjectileType();
-				projectileTypes.push_back(projectileType);
+				//only add this projectile if there is an enabled particlesystem
+				//projectileTypes.push_back(projectileType);
 				projectileType->setAttackStartTime(attackStartTime);
 				projectileType->setDamagePercentage(100);
 			//proj particle
@@ -954,6 +955,7 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 				const XmlNode *particleNode= projectileNode->getChild("particle");
 				bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
 				if(particleEnabled){
+					projectileTypes.push_back(projectileType);
 					string path= particleNode->getAttribute("path")->getRestrictedValue();
 					ParticleSystemTypeProjectile* projectileParticleSystemType= new ParticleSystemTypeProjectile();
 					projectileParticleSystemType->load(particleNode, dir, currentPath + path,
