@@ -5526,7 +5526,7 @@ void Renderer::renderSelectionEffects(int healthbarMode) {
 
 				if(effect.skillType->isAttackBoostEnabled() == true) {
 					glColor4f(MAGENTA.x,MAGENTA.y,MAGENTA.z,MAGENTA.w);
-					renderSelectionCircle(currVec, unit->getType()->getSize(), effect.skillType->getAttackBoost()->radius);
+					renderSelectionCircle(currVec, 1, effect.skillType->getAttackBoost()->radius, .25f/effect.skillType->getAttackBoost()->radius);
 
 					for(unsigned int i = 0; i < effect.currentAttackBoostUnits.size(); ++i) {
 						// Remove attack boost upgrades from unit
