@@ -2288,7 +2288,7 @@ void MenuStateCustomGame::render() {
 				renderer.renderChatManager(&chatManager);
 			}
 		}
-		renderer.renderConsole(&console,consoleStoredAndNormal,true);
+		renderer.renderConsole(&console,showFullConsole?consoleFull:consoleStoredAndNormal);
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";

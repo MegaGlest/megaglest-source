@@ -2145,12 +2145,11 @@ void Renderer::renderConsole(const Console *console, ConsoleMode mode , int over
 	}
 	else if(mode==consoleStoredAndNormal) {
 		int allowedMaxLines = (overrideMaxConsoleLines >= 0 ? overrideMaxConsoleLines : maxConsoleLines);
-		float starttimestamp=0;
+		float starttimestamp=-1;
 		int consoleIndex=0;
 		for(int i = 0; i < console->getLineCount() && i < allowedMaxLines; ++i) {
 			const ConsoleLineInfo &lineInfo = console->getLineItem(i);
-			if(starttimestamp<lineInfo.timeStamp) starttimestamp=lineInfo.timeStamp;
-			consoleIndex=i;
+			if(starttimestamp>lineInfo.timeStamp || starttimestamp==-1) starttimestamp=lineInfo.timeStamp;
 			if(renderText3DEnabled == true) {
 				renderConsoleLine3D(i, console->getXPos(), console->getYPos(),
 						console->getLineHeight(), console->getFont3D(), console->getStringToHighlight(), &lineInfo);
@@ -2159,11 +2158,11 @@ void Renderer::renderConsole(const Console *console, ConsoleMode mode , int over
 				renderConsoleLine(i, console->getXPos(), console->getYPos(),
 						console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
 			}
+			consoleIndex++;
 		}
 		for(int i = 0; i < console->getStoredLineCount() && consoleIndex < allowedMaxLines; ++i) {
 			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
-			if( lineInfo.timeStamp>starttimestamp || starttimestamp==0){
-				consoleIndex++;
+			if( lineInfo.timeStamp<starttimestamp || starttimestamp==-1){
 				if(renderText3DEnabled == true) {
 					renderConsoleLine3D(consoleIndex, console->getXPos(), console->getYPos(),
 							console->getLineHeight(), console->getFont3D(), console->getStringToHighlight(), &lineInfo);
@@ -2172,6 +2171,7 @@ void Renderer::renderConsole(const Console *console, ConsoleMode mode , int over
 					renderConsoleLine(consoleIndex, console->getXPos(), console->getYPos(),
 							console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
 				}
+				consoleIndex++;
 			}
 		}
 	}

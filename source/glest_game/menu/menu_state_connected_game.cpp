@@ -2802,7 +2802,7 @@ void MenuStateConnectedGame::render() {
 			}
 		}
 		renderer.renderChatManager(&chatManager);
-		renderer.renderConsole(&console,consoleStoredAndNormal);
+		renderer.renderConsole(&console,showFullConsole?consoleFull:consoleStoredAndNormal);
 
         if(difftime((long int)time(NULL),timerLabelFlash) > 2) {
             timerLabelFlash = time(NULL);
