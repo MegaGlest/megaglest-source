@@ -826,7 +826,8 @@ private:
 	void checkCustomizedUnitParticleTriggers();
 	void checkCustomizedUnitParticleListTriggers(vector<UnitParticleSystem*> &unitParticleSystemsList,
 												 const UnitParticleSystemTypes &unitParticleSystemTypesList,
-												 vector<UnitParticleSystemType*> &queuedUnitParticleSystemTypesList);
+												 vector<UnitParticleSystemType*> &queuedUnitParticleSystemTypesList,
+												 bool applySkillChangeParticles);
 
 
 	bool checkModelStateInfoForNewHpValue();

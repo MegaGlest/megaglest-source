@@ -1321,7 +1321,8 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 		}
 		*/
 		checkCustomizedUnitParticleListTriggers(unitParticleSystems,
-				currSkill->unitParticleSystemTypes,queuedUnitParticleSystemTypes);
+				currSkill->unitParticleSystemTypes,
+				queuedUnitParticleSystemTypes, true);
 	}
 	progress2= 0;
 	if(this->currSkill != currSkill) {
@@ -3996,7 +3997,8 @@ void Unit::stopDamageParticles(bool force) {
 
 void Unit::checkCustomizedUnitParticleListTriggers(vector<UnitParticleSystem*> &unitParticleSystemsList,
 											const UnitParticleSystemTypes &unitParticleSystemTypesList,
-											vector<UnitParticleSystemType*> &queuedUnitParticleSystemTypesList) {
+											vector<UnitParticleSystemType*> &queuedUnitParticleSystemTypesList,
+											bool applySkillChangeParticles) {
 	if(showUnitParticles == true) {
 		vector<ParticleSystemTypeInterface *> systemTypesInUse;
 
@@ -4055,12 +4057,13 @@ void Unit::checkCustomizedUnitParticleListTriggers(vector<UnitParticleSystem*> &
 
 				//printf("Check Particle line: %d   isenabled: %d  already in use: %d\n",__LINE__,pst->getMinmaxEnabled(),(iterFind == systemTypesInUse.end()));
 
+				bool showParticle = applySkillChangeParticles;
 				if(pst->getMinmaxEnabled() == true) {
 
 					//printf("Check Particle line: %d   isenabled: %d  already in use: %d\n",__LINE__,pst->getMinmaxEnabled(),(iterFind != systemTypesInUse.end()));
 
+					showParticle = false;
 					if(iterFind == systemTypesInUse.end()) {
-						bool showParticle = false;
 						if(pst->getMinmaxIsPercent() == false) {
 							if(hp >= pst->getMinHp() && hp <= pst->getMaxHp()) {
 								showParticle = true;
@@ -4076,30 +4079,31 @@ void Unit::checkCustomizedUnitParticleListTriggers(vector<UnitParticleSystem*> &
 								//printf("START Particle line: %d\n",__LINE__);
 							}
 						}
-
-						if(showParticle == true) {
-
-							if(pst->getStartTime() == 0.0) {
-								UnitParticleSystem *ups = new UnitParticleSystem(200);
-								ups->setParticleOwner(this);
-								ups->setParticleType(pst);
-
-								pst->setValues(ups);
-								ups->setPos(getCurrVector());
-								ups->setRotation(getRotation());
-								ups->setUnitModel(getCurrentModelPtr());
-								if(getFaction()->getTexture()) {
-									ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
-								}
-								unitParticleSystemsList.push_back(ups);
-								Renderer::getInstance().manageParticleSystem(ups, rsGame);
-							}
-							else {
-								queuedUnitParticleSystemTypesList.push_back(pst);
-							}
-						}
 					}
 				}
+
+				if(showParticle == true) {
+
+					if(pst->getStartTime() == 0.0) {
+						UnitParticleSystem *ups = new UnitParticleSystem(200);
+						ups->setParticleOwner(this);
+						ups->setParticleType(pst);
+
+						pst->setValues(ups);
+						ups->setPos(getCurrVector());
+						ups->setRotation(getRotation());
+						ups->setUnitModel(getCurrentModelPtr());
+						if(getFaction()->getTexture()) {
+							ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
+						}
+						unitParticleSystemsList.push_back(ups);
+						Renderer::getInstance().manageParticleSystem(ups, rsGame);
+					}
+					else {
+						queuedUnitParticleSystemTypesList.push_back(pst);
+					}
+				}
+
 			}
 		}
 	}
@@ -4109,7 +4113,8 @@ void Unit::checkCustomizedUnitParticleListTriggers(vector<UnitParticleSystem*> &
 void Unit::checkCustomizedUnitParticleTriggers() {
 	if(currSkill != NULL) {
 		checkCustomizedUnitParticleListTriggers(unitParticleSystems,
-				currSkill->unitParticleSystemTypes,queuedUnitParticleSystemTypes);
+				currSkill->unitParticleSystemTypes,
+				queuedUnitParticleSystemTypes, false);
 	}
 }
 
