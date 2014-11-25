@@ -1061,11 +1061,11 @@ void Renderer::setupLighting() {
 				Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 
 				if(world->toRenderUnit(unit) &&
-					unit->getCurrVector().dist(gameCamera->getPos()) < maxLightDist &&
+					unit->getCurrMidHeightVector().dist(gameCamera->getPos()) < maxLightDist &&
 					unit->getType()->getLight() && unit->isOperative()) {
 					//printf("$$$ Show light for faction: %s # %d / %d for Unit [%d - %s]\n",world->getFaction(i)->getType()->getName().c_str(),lightCount,maxLights,unit->getId(),unit->getFullName().c_str());
 
-					Vec4f pos= Vec4f(unit->getCurrVector());
+					Vec4f pos= Vec4f(unit->getCurrMidHeightVector());
 					pos.y+=4.f;
 
 					GLenum lightEnum= GL_LIGHT0 + lightCount;
@@ -6976,7 +6976,7 @@ void Renderer::selectUsingFrustumSelection(Selection::UnitContainer &units,
 				visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 			if(unit != NULL && unit->isAlive()) {
-				Vec3f unitPos = unit->getCurrVector();
+				Vec3f unitPos = unit->getCurrMidHeightVector();
 				bool insideQuad = CubeInFrustum(quadSelectionCacheItem.frustumData,
 						unitPos.x, unitPos.y, unitPos.z, unit->getType()->getRenderSize());
 				if(insideQuad == true) {
@@ -9028,7 +9028,7 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 					bool unitCheckedForRender = false;
 					if(VisibleQuadContainerCache::enableFrustumCalcs == true) {
 						//bool insideQuad 	= PointInFrustum(quadCache.frustumData, unit->getCurrVector().x, unit->getCurrVector().y, unit->getCurrVector().z );
-						bool insideQuad 	= CubeInFrustum(quadCache.frustumData, unit->getCurrVector().x, unit->getCurrVector().y, unit->getCurrVector().z, unit->getType()->getRenderSize());
+						bool insideQuad 	= CubeInFrustum(quadCache.frustumData, unit->getCurrMidHeightVector().x, unit->getCurrMidHeightVector().y, unit->getCurrMidHeightVector().z, unit->getType()->getRenderSize());
 						bool renderInMap 	= world->toRenderUnit(unit);
 						if(insideQuad == false || renderInMap == false) {
 							unit->setVisible(false);

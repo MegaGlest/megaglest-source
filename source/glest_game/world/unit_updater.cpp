@@ -134,7 +134,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 		if(soundStartTime >= unit->getLastAnimProgressAsFloat() && soundStartTime < unit->getAnimProgressAsFloat()) {
 			if(map->getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(world->getThisTeamIndex()) ||
 				(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
-				soundRenderer.playFx((*it)->getSoundContainer()->getRandSound(), unit->getCurrVector(), gameCamera->getPos());
+				soundRenderer.playFx((*it)->getSoundContainer()->getRandSound(), unit->getCurrMidHeightVector(), gameCamera->getPos());
 			}
 		}
 	}
@@ -171,7 +171,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 			bool cameraAffected=(!cameraViewAffected) || unit->getVisible();
 
 			if(visibility && cameraAffected && enabled) {
-				game->getGameCameraPtr()->shake( currSkill->getShakeDuration(), currSkill->getShakeIntensity(),cameraDistanceAffected,unit->getCurrVector());
+				game->getGameCameraPtr()->shake( currSkill->getShakeDuration(), currSkill->getShakeIntensity(),cameraDistanceAffected,unit->getCurrMidHeightVector());
 			}
 		}
 	}
@@ -291,7 +291,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 				if(Config::getInstance().getBool("DisableWaterSounds","false") == false) {
 					soundRenderer.playFx(
 						CoreData::getInstance().getWaterSound(),
-						unit->getCurrVector(),
+						unit->getCurrMidHeightVector(),
 						gameCamera->getPos()
 					);
 
@@ -1123,7 +1123,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 						(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
 						SoundRenderer::getInstance().playFx(
 							bct->getStartSound(),
-							unit->getCurrVector(),
+							unit->getCurrMidHeightVector(),
 							gameCamera->getPos());
 					}
 
@@ -1215,7 +1215,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 					(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
 					SoundRenderer::getInstance().playFx(
 						bct->getBuiltSound(),
-						unit->getCurrVector(),
+						unit->getCurrMidHeightVector(),
 						gameCamera->getPos());
 				}
 			}
@@ -2665,7 +2665,7 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit, float lastAnimProgress, 
 
 	ParticleSystemTypeSplash *pstSplash= ast->getSplashParticleType();
 	bool hasProjectile = !ast->projectileTypes.empty();
-	Vec3f startPos= unit->getCurrVector();
+	Vec3f startPos= unit->getCurrMidHeightVector();
 	Vec3f endPos= unit->getTargetVec();
 
 	//make particle system
@@ -3311,7 +3311,7 @@ void ParticleDamager::update(ParticleSystem *particleSystem) {
 			projSound= ast->getProjSound();
 		}
 		if(particleSystem->getVisible() && projSound != NULL) {
-			SoundRenderer::getInstance().playFx(projSound, attacker->getCurrVector(), gameCamera->getPos());
+			SoundRenderer::getInstance().playFx(projSound, attacker->getCurrMidHeightVector(), gameCamera->getPos());
 		}
 
 		//check for spawnattack

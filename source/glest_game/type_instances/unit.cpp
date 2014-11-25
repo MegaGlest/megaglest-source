@@ -334,7 +334,7 @@ void UnitAttackBoostEffect::applyLoadedAttackBoostParticles(UnitParticleSystemTy
 			ups->setParticleType(upst);
 
 			upst->setValues(ups);
-			ups->setPos(unit->getCurrVector());
+			ups->setPos(unit->getCurrMidHeightVector());
 			ups->setRotation(unit->getRotation());
 			ups->setUnitModel(unit->getCurrentModelPtr());
 			if (unit->getFaction()->getTexture()) {
@@ -1600,7 +1600,7 @@ bool Unit::checkModelStateInfoForNewHpValue() {
 	return result;
 }
 
-Vec3f Unit::getCurrVector() const{
+Vec3f Unit::getCurrMidHeightVector() const{
 	if(type == NULL) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
@@ -2441,7 +2441,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->upst->setValues(
 								currentAttackBoostOriginatorEffect.currentAppliedEffect->ups);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(
-								getCurrVector());
+								getCurrMidHeightVector());
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setRotation(getRotation());
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setUnitModel(getCurrentModelPtr());
 
@@ -2554,7 +2554,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->upst->setValues(
 								currentAttackBoostOriginatorEffect.currentAppliedEffect->ups);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(
-								getCurrVector());
+								getCurrMidHeightVector());
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setRotation(getRotation());
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setUnitModel(getCurrentModelPtr());
 
@@ -2730,18 +2730,18 @@ bool Unit::update() {
 	}
 
 	if (this->fire != NULL) {
-		this->fire->setPos(getCurrVector());
+		this->fire->setPos(getCurrMidHeightVector());
 	}
 	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
 		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
-			(*it)->setPos(getCurrVector());
+			(*it)->setPos(getCurrMidHeightVector());
 			(*it)->setRotation(getRotation());
 			(*it)->setUnitModel(getCurrentModelPtr());
 		}
 	}
 	for(UnitParticleSystems::iterator it= damageParticleSystems.begin(); it != damageParticleSystems.end(); ++it) {
 		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
-			(*it)->setPos(getCurrVector());
+			(*it)->setPos(getCurrMidHeightVector());
 			(*it)->setRotation(getRotation());
 			(*it)->setUnitModel(getCurrentModelPtr());
 		}
@@ -2749,7 +2749,7 @@ bool Unit::update() {
 
 	for(UnitParticleSystems::iterator it= smokeParticleSystems.begin(); it != smokeParticleSystems.end(); ++it) {
 		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
-			(*it)->setPos(getCurrVector());
+			(*it)->setPos(getCurrMidHeightVector());
 			(*it)->setRotation(getRotation());
 			(*it)->setUnitModel(getCurrentModelPtr());
 		}
@@ -2761,7 +2761,7 @@ bool Unit::update() {
 		if(effect != NULL && effect->ups != NULL) {
 			bool particleValid = Renderer::getInstance().validateParticleSystemStillExists(effect->ups,rsGame);
 			if(particleValid == true) {
-				effect->ups->setPos(getCurrVector());
+				effect->ups->setPos(getCurrMidHeightVector());
 				effect->ups->setRotation(getRotation());
 				effect->ups->setUnitModel(getCurrentModelPtr());
 			}
@@ -2776,7 +2776,7 @@ bool Unit::update() {
 		if(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups != NULL) {
 			bool particleValid = Renderer::getInstance().validateParticleSystemStillExists(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups,rsGame);
 			if(particleValid == true) {
-				currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(getCurrVector());
+				currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(getCurrMidHeightVector());
 				currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setRotation(getRotation());
 				currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setUnitModel(getCurrentModelPtr());
 			}
@@ -2833,7 +2833,7 @@ void Unit::updateTimedParticles() {
 					ups->setParticleType(pst);
 
 					pst->setValues(ups);
-					ups->setPos(getCurrVector());
+					ups->setPos(getCurrMidHeightVector());
 					ups->setRotation(getRotation());
 					ups->setUnitModel(getCurrentModelPtr());
 
@@ -2976,7 +2976,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 				effect->ups->setParticleType(effect->upst);
 
 				effect->upst->setValues(effect->ups);
-				effect->ups->setPos(getCurrVector());
+				effect->ups->setPos(getCurrMidHeightVector());
 				effect->ups->setRotation(getRotation());
 				effect->ups->setUnitModel(getCurrentModelPtr());
 				if(getFaction()->getTexture()) {
@@ -4120,7 +4120,7 @@ void Unit::checkCustomizedUnitParticleListTriggers(vector<UnitParticleSystem*> &
 						ups->setParticleType(pst);
 
 						pst->setValues(ups);
-						ups->setPos(getCurrVector());
+						ups->setPos(getCurrMidHeightVector());
 						ups->setRotation(getRotation());
 						ups->setUnitModel(getCurrentModelPtr());
 						if(getFaction()->getTexture()) {
@@ -4237,7 +4237,7 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 					ups->setParticleType(pst);
 
 					pst->setValues(ups);
-					ups->setPos(getCurrVector());
+					ups->setPos(getCurrMidHeightVector());
 					ups->setRotation(getRotation());
 					ups->setUnitModel(getCurrentModelPtr());
 					if(getFaction()->getTexture()) {
@@ -4268,7 +4268,7 @@ void Unit::startDamageParticles() {
 					ups->setParticleType(pst);
 
 					pst->setValues(ups);
-					ups->setPos(getCurrVector());
+					ups->setPos(getCurrMidHeightVector());
 					ups->setRotation(getRotation());
 					ups->setUnitModel(getCurrentModelPtr());
 					if(getFaction()->getTexture()) {

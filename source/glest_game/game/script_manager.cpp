@@ -1033,7 +1033,7 @@ void ScriptManager::shakeCamera(int shakeIntensity, int shakeDuration, bool came
 
 	if (cameraDistanceAffected) {
 		Unit *unit = world->findUnitById(unitId);
-		gameCamera->shake(shakeDuration, shakeIntensity,cameraDistanceAffected,	unit->getCurrVector());
+		gameCamera->shake(shakeDuration, shakeIntensity,cameraDistanceAffected,	unit->getCurrMidHeightVector());
 	} else {
 		gameCamera->shake(shakeDuration, shakeIntensity,cameraDistanceAffected,	Vec3f(0.f,0.f,0.f));
 	}

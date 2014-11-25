@@ -2171,7 +2171,7 @@ void Game::update() {
 					}
 
 					if(currentCameraFollowUnit != NULL) {
-						Vec3f c=currentCameraFollowUnit->getCurrVector();
+						Vec3f c=currentCameraFollowUnit->getCurrMidHeightVector();
 						int rotation=currentCameraFollowUnit->getRotation();
 						float angle=rotation+180;
 
@@ -4568,7 +4568,7 @@ void Game::startCameraFollowUnit() {
 		if(currentUnit != NULL) {
 			currentCameraFollowUnit = currentUnit;
 			getGameCameraPtr()->setState(GameCamera::sUnit);
-			getGameCameraPtr()->setPos(currentCameraFollowUnit->getCurrVector());
+			getGameCameraPtr()->setPos(currentCameraFollowUnit->getCurrMidHeightVector());
 
 			int rotation=currentCameraFollowUnit->getRotation();
 			getGameCameraPtr()->stop();
