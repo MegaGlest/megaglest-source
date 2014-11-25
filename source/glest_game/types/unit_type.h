@@ -187,6 +187,8 @@ private:
     int size;							//size in cells
     int renderSize;						//size to render in cells
     int height;
+    int burnHeight;
+    int targetHeight;
     float rotatedBuildPos;
     bool rotationAllowed;
 
@@ -275,8 +277,10 @@ public:
 	inline int getSight() const								{return sight;}
 	inline int getSize() const									{return size;}
 	inline int getRenderSize() const								{return renderSize;}
-	int getHeight() const								{return height;}
-	int getStoredResourceCount() const					{return (int)storedResources.size();}
+	int getHeight() const										{return height;}
+	int getBurnHeight() const								{return burnHeight;}
+	int getTargetHeight() const								{return targetHeight;}
+	int getStoredResourceCount() const						{return (int)storedResources.size();}
 	inline const Resource *getStoredResource(int i) const		{return &storedResources[i];}
 	int getLootableResourceCount() const					{return lootableResources.size();}
 	inline const LootableResource getLootableResource(int i) const		{return lootableResources.at(i);}

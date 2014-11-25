@@ -638,6 +638,8 @@ public:
     const Model *getCurrentModel();
     Model *getCurrentModelPtr();
 	Vec3f getCurrVector() const;
+	Vec3f getCurrVectorAsTarget() const;
+	Vec3f getCurrBurnVector() const;
 	Vec3f getCurrVectorFlat() const;
 	Vec3f getVectorFlat(const Vec2i &lastPosValue, const Vec2i &curPosValue) const;
 

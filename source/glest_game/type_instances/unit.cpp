@@ -1364,7 +1364,7 @@ void Unit::setTarget(const Unit *unit){
 
 	//ser field and vector
 	targetField= unit->getCurrField();
-	targetVec= unit->getCurrVector();
+	targetVec= unit->getCurrVectorAsTarget();
 	targetRef= unit;
 }
 
@@ -1608,6 +1608,36 @@ Vec3f Unit::getCurrVector() const{
 	}
 
 	Vec3f result = getCurrVectorFlat() + Vec3f(0.f, type->getHeight() / 2.f, 0.f);
+	result.x = truncateDecimal<float>(result.x,6);
+	result.y = truncateDecimal<float>(result.y,6);
+	result.z = truncateDecimal<float>(result.z,6);
+
+	return result;
+}
+
+Vec3f Unit::getCurrVectorAsTarget() const{
+	if(type == NULL) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
+		throw megaglest_runtime_error(szBuf);
+	}
+
+	Vec3f result = getCurrVectorFlat() + Vec3f(0.f, type->getTargetHeight() / 2.f, 0.f);
+	result.x = truncateDecimal<float>(result.x,6);
+	result.y = truncateDecimal<float>(result.y,6);
+	result.z = truncateDecimal<float>(result.z,6);
+
+	return result;
+}
+
+Vec3f Unit::getCurrBurnVector() const{
+	if(type == NULL) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"In [%s::%s Line: %d] ERROR: type == NULL, Unit = [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,this->toString().c_str());
+		throw megaglest_runtime_error(szBuf);
+	}
+
+	Vec3f result = getCurrVectorFlat() + Vec3f(0.f, type->getBurnHeight() / 2.f, 0.f);
 	result.x = truncateDecimal<float>(result.x,6);
 	result.y = truncateDecimal<float>(result.y,6);
 	result.z = truncateDecimal<float>(result.z,6);
@@ -3699,7 +3729,7 @@ void Unit::updateTarget(){
 #else
 		targetRotation= radToDeg(atan2(relPosf.x, relPosf.y));
 #endif
-		targetVec= target->getCurrVector();
+		targetVec= target->getCurrVectorAsTarget();
 	}
 }
 
@@ -4257,7 +4287,7 @@ void Unit::startDamageParticles() {
 			fps->setParticleOwner(this);
 			const Game *game = Renderer::getInstance().getGame();
 			fps->setSpeed(2.5f / game->getWorld()->getUpdateFps(this->getFactionIndex()));
-			fps->setPos(getCurrVector());
+			fps->setPos(getCurrBurnVector());
 			fps->setRadius(type->getSize()/3.f);
 			fps->setTexture(CoreData::getInstance().getFireTexture());
 			fps->setParticleSize(type->getSize()/3.f);
@@ -4271,7 +4301,7 @@ void Unit::startDamageParticles() {
 				ups->setParticleOwner(this);
 				ups->setColorNoEnergy(Vec4f(0.0f, 0.0f, 0.0f, 0.13f));
 				ups->setColor(Vec4f(0.115f, 0.115f, 0.115f, 0.22f));
-				ups->setPos(getCurrVector());
+				ups->setPos(getCurrBurnVector());
 				ups->setRotation(getRotation());
 				ups->setUnitModel(getCurrentModelPtr());
 				ups->setBlendMode(ups->strToBlendMode("black"));
@@ -4296,11 +4326,6 @@ void Unit::startDamageParticles() {
 
 	checkCustomizedParticleTriggers(false);
 }
-
-//void Unit::setTargetVec(const Vec3f &targetVec)	{
-//	this->targetVec= targetVec;
-//	logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
-//}
 
 void Unit::setMeetingPos(const Vec2i &meetingPos) {
 	this->meetingPos= meetingPos;

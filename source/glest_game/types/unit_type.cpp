@@ -235,6 +235,22 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
 		addItemToVault(&(this->height),this->height);
 
+		//targetHeight
+		if(parametersNode->hasChild("target-height")){
+			targetHeight= parametersNode->getChild("target-height")->getAttribute("value")->getIntValue();
+			addItemToVault(&(this->targetHeight),this->targetHeight);
+		} else {
+			targetHeight=height;
+		}
+		//burnHeight
+		if(parametersNode->hasChild("target-height")){
+			burnHeight= parametersNode->getChild("burn-height")->getAttribute("value")->getIntValue();
+			addItemToVault(&(this->burnHeight),this->burnHeight);
+		} else {
+			burnHeight=height;
+		}
+
+
 		//maxHp
 		//checkItemInVault(&(this->maxHp),this->maxHp);
 		maxHp = parametersNode->getChild("max-hp")->getAttribute("value")->getIntValue();
