@@ -964,6 +964,9 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 							loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleNode->getAttribute("path")->getRestrictedValue()));
 							projectileType->setProjectileParticleSystemType(projectileParticleSystemType);
 				}
+				else {
+					delete projectileType;
+				}
 			}
 			//proj sounds
 			const XmlNode *soundNode= projectileNode->getChild("sound");
