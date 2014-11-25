@@ -104,7 +104,7 @@ private:
 	bool healthbarLineBorder;
 	Texture2D *healthbarTexture;
 	Texture2D *healthbarBackgroundTexture;
-
+	bool flatParticlePositions;
 
 public:
 	//init
@@ -138,6 +138,7 @@ public:
 	inline bool isHealthbarLineBorder() const	{return healthbarLineBorder;}
 	Texture2D *getHealthbarTexture() const				{return healthbarTexture;}
 	Texture2D *getHealthbarBackgroundTexture() const				{return healthbarBackgroundTexture;}
+	bool isFlatParticlePositions() const				{return flatParticlePositions;}
 
 
 	const UnitType *getUnitType(const string &name) const;

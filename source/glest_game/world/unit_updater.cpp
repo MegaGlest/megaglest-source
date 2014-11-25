@@ -2665,7 +2665,7 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit, float lastAnimProgress, 
 
 	ParticleSystemTypeSplash *pstSplash= ast->getSplashParticleType();
 	bool hasProjectile = !ast->projectileTypes.empty();
-	Vec3f startPos= unit->getCurrMidHeightVector();
+	Vec3f startPos= unit->getCurrVectorForParticlesystems();
 	Vec3f endPos= unit->getTargetVec();
 
 	//make particle system

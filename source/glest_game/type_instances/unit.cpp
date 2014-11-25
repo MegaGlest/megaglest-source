@@ -334,7 +334,7 @@ void UnitAttackBoostEffect::applyLoadedAttackBoostParticles(UnitParticleSystemTy
 			ups->setParticleType(upst);
 
 			upst->setValues(ups);
-			ups->setPos(unit->getCurrMidHeightVector());
+			ups->setPos(unit->getCurrVectorForParticlesystems());
 			ups->setRotation(unit->getRotation());
 			ups->setUnitModel(unit->getCurrentModelPtr());
 			if (unit->getFaction()->getTexture()) {
@@ -1600,6 +1600,15 @@ bool Unit::checkModelStateInfoForNewHpValue() {
 	return result;
 }
 
+Vec3f Unit::getCurrVectorForParticlesystems() const{
+	if(getFaction()->getType()->isFlatParticlePositions()){
+		return getCurrVectorFlat();
+	}
+	else {
+		return getCurrMidHeightVector();
+	}
+}
+
 Vec3f Unit::getCurrMidHeightVector() const{
 	if(type == NULL) {
 		char szBuf[8096]="";
@@ -2441,7 +2450,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->upst->setValues(
 								currentAttackBoostOriginatorEffect.currentAppliedEffect->ups);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(
-								getCurrMidHeightVector());
+								getCurrVectorForParticlesystems());
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setRotation(getRotation());
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setUnitModel(getCurrentModelPtr());
 
@@ -2554,7 +2563,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->upst->setValues(
 								currentAttackBoostOriginatorEffect.currentAppliedEffect->ups);
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(
-								getCurrMidHeightVector());
+								getCurrVectorForParticlesystems());
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setRotation(getRotation());
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setUnitModel(getCurrentModelPtr());
 
@@ -2761,7 +2770,7 @@ bool Unit::update() {
 		if(effect != NULL && effect->ups != NULL) {
 			bool particleValid = Renderer::getInstance().validateParticleSystemStillExists(effect->ups,rsGame);
 			if(particleValid == true) {
-				effect->ups->setPos(getCurrMidHeightVector());
+				effect->ups->setPos(getCurrVectorForParticlesystems());
 				effect->ups->setRotation(getRotation());
 				effect->ups->setUnitModel(getCurrentModelPtr());
 			}
@@ -2776,7 +2785,7 @@ bool Unit::update() {
 		if(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups != NULL) {
 			bool particleValid = Renderer::getInstance().validateParticleSystemStillExists(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups,rsGame);
 			if(particleValid == true) {
-				currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(getCurrMidHeightVector());
+				currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(getCurrVectorForParticlesystems());
 				currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setRotation(getRotation());
 				currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setUnitModel(getCurrentModelPtr());
 			}
@@ -2833,7 +2842,7 @@ void Unit::updateTimedParticles() {
 					ups->setParticleType(pst);
 
 					pst->setValues(ups);
-					ups->setPos(getCurrMidHeightVector());
+					ups->setPos(getCurrVectorForParticlesystems());
 					ups->setRotation(getRotation());
 					ups->setUnitModel(getCurrentModelPtr());
 
@@ -2976,7 +2985,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 				effect->ups->setParticleType(effect->upst);
 
 				effect->upst->setValues(effect->ups);
-				effect->ups->setPos(getCurrMidHeightVector());
+				effect->ups->setPos(getCurrVectorForParticlesystems());
 				effect->ups->setRotation(getRotation());
 				effect->ups->setUnitModel(getCurrentModelPtr());
 				if(getFaction()->getTexture()) {
@@ -4120,7 +4129,7 @@ void Unit::checkCustomizedUnitParticleListTriggers(vector<UnitParticleSystem*> &
 						ups->setParticleType(pst);
 
 						pst->setValues(ups);
-						ups->setPos(getCurrMidHeightVector());
+						ups->setPos(getCurrVectorForParticlesystems());
 						ups->setRotation(getRotation());
 						ups->setUnitModel(getCurrentModelPtr());
 						if(getFaction()->getTexture()) {
@@ -4237,7 +4246,7 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 					ups->setParticleType(pst);
 
 					pst->setValues(ups);
-					ups->setPos(getCurrMidHeightVector());
+					ups->setPos(getCurrVectorForParticlesystems());
 					ups->setRotation(getRotation());
 					ups->setUnitModel(getCurrentModelPtr());
 					if(getFaction()->getTexture()) {
@@ -4268,7 +4277,7 @@ void Unit::startDamageParticles() {
 					ups->setParticleType(pst);
 
 					pst->setValues(ups);
-					ups->setPos(getCurrMidHeightVector());
+					ups->setPos(getCurrVectorForParticlesystems());
 					ups->setRotation(getRotation());
 					ups->setUnitModel(getCurrentModelPtr());
 					if(getFaction()->getTexture()) {

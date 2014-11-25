@@ -43,6 +43,7 @@ FactionType::FactionType() {
 	healthbarLineBorder=true;
 	healthbarTexture=NULL;
 	healthbarBackgroundTexture=NULL;
+	flatParticlePositions=false;
 }
 
 //load a faction, given a directory
@@ -279,6 +280,11 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 			music= new StrSound();
 			music->open(musicNode->getAttribute("path")->getRestrictedValue(currentPath));
 			loadedFileList[musicNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(path,musicNode->getAttribute("path")->getRestrictedValue()));
+		}
+
+		if(factionNode->hasChild("flat-particle-positions")) {
+			const XmlNode *node= factionNode->getChild("flat-particle-positions");
+			flatParticlePositions = node->getAttribute("value")->getBoolValue();
 		}
 
 		//healthbar

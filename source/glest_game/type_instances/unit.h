@@ -638,6 +638,7 @@ public:
     const Model *getCurrentModel();
     Model *getCurrentModelPtr();
 	Vec3f getCurrMidHeightVector() const;
+	Vec3f getCurrVectorForParticlesystems() const;
 	Vec3f getCurrVectorAsTarget() const;
 	Vec3f getCurrBurnVector() const;
 	Vec3f getCurrVectorFlat() const;
