@@ -2739,7 +2739,7 @@ bool Unit::update() {
 	}
 
 	if (this->fire != NULL) {
-		this->fire->setPos(getCurrMidHeightVector());
+		this->fire->setPos(getCurrBurnVector());
 	}
 	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
 		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
