@@ -2743,14 +2743,14 @@ bool Unit::update() {
 	}
 	for(UnitParticleSystems::iterator it= unitParticleSystems.begin(); it != unitParticleSystems.end(); ++it) {
 		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
-			(*it)->setPos(getCurrMidHeightVector());
+			(*it)->setPos(getCurrVectorForParticlesystems());
 			(*it)->setRotation(getRotation());
 			(*it)->setUnitModel(getCurrentModelPtr());
 		}
 	}
 	for(UnitParticleSystems::iterator it= damageParticleSystems.begin(); it != damageParticleSystems.end(); ++it) {
 		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
-			(*it)->setPos(getCurrMidHeightVector());
+			(*it)->setPos(getCurrVectorForParticlesystems());
 			(*it)->setRotation(getRotation());
 			(*it)->setUnitModel(getCurrentModelPtr());
 		}
