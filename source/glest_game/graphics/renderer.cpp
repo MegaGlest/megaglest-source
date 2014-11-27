@@ -5756,7 +5756,7 @@ bool Renderer::isHealthBarVisible(const Unit *unit,int healthbarMode){
 	bool settingsWantToRenderThem=!(healthbarVisible==hbvUndefined || (healthbarVisible&hbvOff))
 			&& ((healthbarVisible&hbvAlways)
 			|| ((healthbarVisible&hbvIfNeeded) && unit->getHp()<unit->getType()->getMaxHp()+unit->getTotalUpgrade()->getMaxHp())
-			|| ((healthbarVisible&hbvIfNeeded) && unit->getType()->getMaxEp() > 0 && unit->getType()->getMaxEp()+unit->getEp()<unit->getTotalUpgrade()->getMaxEp())
+			|| ((healthbarVisible&hbvIfNeeded) && unit->getType()->getMaxEp() > 0 && unit->getEp()<unit->getType()->getMaxEp()+unit->getTotalUpgrade()->getMaxEp())
 			|| ((healthbarVisible&hbvIfNeeded) && unit->getProductionPercent() > 0)
 			|| ((healthbarVisible&hbvSelected) && game->getGui()->isSelected(unit)));
 
