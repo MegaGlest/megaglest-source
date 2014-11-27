@@ -5263,7 +5263,6 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 		//result->fire->setTexture(CoreData::getInstance().getFireTexture());
 		result->fireParticleSystems.push_back(result->fire);
 
-		//Renderer::getInstance().manageParticleSystem(result->fire, rsGame);
 		Renderer::getInstance().addToDeferredParticleSystemList(make_pair(result->fire, rsGame));
 	}
 
@@ -5388,16 +5387,18 @@ Unit * Unit::loadGame(const XmlNode *rootNode, GameSettings *settings, Faction *
 		for(int i = 0; i < (int)unitParticleSystemNodeList.size(); ++i) {
 			XmlNode *node = unitParticleSystemNodeList[i];
 
-			FireParticleSystem *ups = new FireParticleSystem();
-			ups->loadGame(node);
-			//ups->setTexture(CoreData::getInstance().getFireTexture());
-			result->fireParticleSystems.push_back(ups);
+			if(linkFireIndex != i) {
+				FireParticleSystem *ups = new FireParticleSystem();
+				ups->setParticleOwner(result);
+				ups->loadGame(node);
+				//ups->setTexture(CoreData::getInstance().getFireTexture());
+				result->fireParticleSystems.push_back(ups);
 
-			if(linkFireIndex >= 0 && linkFireIndex == i) {
-				result->fire = ups;
+				//if(linkFireIndex >= 0 && linkFireIndex == i) {
+				//	result->fire = ups;
+				//}
+				Renderer::getInstance().addToDeferredParticleSystemList(make_pair(ups, rsGame));
 			}
-			//Renderer::getInstance().manageParticleSystem(result->fire, rsGame);
-			Renderer::getInstance().addToDeferredParticleSystemList(make_pair(ups, rsGame));
 		}
 	}
 
