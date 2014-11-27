@@ -582,10 +582,15 @@ void Renderer::manageDeferredParticleSystems() {
 			CoreData::TextureSystemType textureSystemId =
 					static_cast<CoreData::TextureSystemType>(
 							ps->getTextureFileLoadDeferredSystemId());
+
+			//printf("Load DEFERRED particle i = %d textureSystemId = %d\n",i,textureSystemId);
+
 			if(textureSystemId != CoreData::tsyst_NONE) {
 				Texture2D *texture= CoreData::getInstance().getTextureBySystemId(textureSystemId);
 				//printf("Loading texture from system [%d] [%p]\n",textureSystemId,texture);
 				ps->setTexture(texture);
+
+				//printf("#2 Load DEFERRED particle i = %d textureSystemId = %d, texture = %p\n",i,textureSystemId,texture);
 			}
 			else {
 				Texture2D *texture= newTexture2D(rs);
@@ -601,6 +606,7 @@ void Renderer::manageDeferredParticleSystems() {
 					texture->load(textureFile);
 					ps->setTexture(texture);
 				}
+				//printf("#3 Load DEFERRED particle i = %d textureSystemId = %d, texture = %p\n",i,textureSystemId,texture);
 			}
 		}
 		if(dynamic_cast<GameParticleSystem *>(ps) != NULL) {

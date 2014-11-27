@@ -117,30 +117,30 @@ void CoreData::cleanup() {
 	waterSounds.getSoundsPtr()->clear();
 }
 
-Texture2D *CoreData::getTextureBySystemId(TextureSystemType type) const {
+Texture2D *CoreData::getTextureBySystemId(TextureSystemType type) {
 	Texture2D *result = NULL;
 	switch(type) {
 	case tsyst_logoTexture:
-		result = logoTexture;
+		result = getLogoTexture();
 		break;
 	//std::vector<Texture2D *> logoTextureList;
 	case tsyst_backgroundTexture:
-		result = backgroundTexture;
+		result = getBackgroundTexture();
 		break;
 	case tsyst_fireTexture:
-		result = fireTexture;
+		result = getFireTexture();
 		break;
 	case tsyst_teamColorTexture:
-		result = teamColorTexture;
+		result = getTeamColorTexture();
 		break;
 	case tsyst_snowTexture:
-		result = snowTexture;
+		result = getSnowTexture();
 		break;
 	case tsyst_waterSplashTexture:
-		result = waterSplashTexture;
+		result = getWaterSplashTexture();
 		break;
 	case tsyst_customTexture:
-		result = customTexture;
+		result = getCustomTexture();
 		break;
 	case tsyst_buttonSmallTexture:
 		result = buttonSmallTexture;
