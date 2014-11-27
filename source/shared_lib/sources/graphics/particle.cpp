@@ -1452,7 +1452,7 @@ void UnitParticleSystem::loadGame(const XmlNode *rootNode) {
 //	Vec3f windSpeed;
 	windSpeed = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("windSpeed")->getValue());
 //	Vec3f cRotation;
-	windSpeed = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("cRotation")->getValue());
+	cRotation = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("cRotation")->getValue());
 //	Vec3f fixedAddition;
 	fixedAddition = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("fixedAddition")->getValue());
 //    Vec3f oldPosition;
