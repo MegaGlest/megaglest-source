@@ -152,7 +152,7 @@ public:
     void loadFonts();
 
     // Textures
-    Texture2D *getTextureBySystemId(TextureSystemType type) const;
+    Texture2D *getTextureBySystemId(TextureSystemType type);
 
 	Texture2D *getBackgroundTexture();
 	Texture2D *getFireTexture();
