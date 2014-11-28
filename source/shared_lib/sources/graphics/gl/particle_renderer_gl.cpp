@@ -64,6 +64,9 @@ void ParticleRendererGl::renderManager(ParticleManager *pm, ModelRenderer *mr){
 	pm->render(this, mr);
 	rendering= false;
 
+	// blend mode back to normal
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	//pop state
 	glPopClientAttrib();
 	glPopAttrib();
