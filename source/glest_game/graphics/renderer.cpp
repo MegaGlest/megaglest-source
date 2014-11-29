@@ -5472,14 +5472,11 @@ void Renderer::renderSelectionEffects(int healthbarMode) {
 			}
 			bool healthbarsVisible=((finalHealthbarMode&hbvAlways)||(finalHealthbarMode&hbvSelected)||(finalHealthbarMode&hbvIfNeeded));
 			float selectionCircleThickness=0.2f;
-			float hpRatio;
+			float hpRatio=unit->getHpRatio();
 			if(healthbarsVisible) {
-				hpRatio=unit->getHpRatio();
+				//hpRatio=unit->getHpRatio();
 				selectionCircleThickness=0.05f;
-				//hpRatio=1.0f;
-			}
-			else {
-				hpRatio=0.0f;
+				hpRatio=1.0f;
 			}
 
 			if(world->getThisFactionIndex() == unit->getFactionIndex()) {
