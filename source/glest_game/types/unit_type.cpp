@@ -141,6 +141,8 @@ UnitType::UnitType() : ProducibleType() {
 	size=0;
 	renderSize=0;
 	height=0;
+	burnHeight=0;
+	targetHeight=0;
 
 	addItemToVault(&(this->maxHp),this->maxHp);
 	addItemToVault(&(this->hpRegeneration),this->hpRegeneration);

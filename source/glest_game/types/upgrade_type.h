@@ -120,6 +120,8 @@ public:
         moveSpeedIsMultiplier = false;
         prodSpeed = 0;
         prodSpeedIsMultiplier = false;
+        attackSpeed = 0;
+        attackSpeedIsMultiplier = false;
     }
     virtual ~UpgradeTypeBase() {}
 
