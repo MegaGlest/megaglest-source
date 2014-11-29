@@ -79,6 +79,15 @@ private:
 	bool negativeAllowed;
 
 public:
+	LootableResource() {
+		type=NULL;
+		amountValue=0;
+		amountFactionPercent=0;
+		lossValue=0;
+		lossFactionPercent=0;
+		negativeAllowed=false;
+	}
+
 	const ResourceType* getResourceType() const {return type;}
 	void setResourceType(const ResourceType *type) {this->type=type;}
 

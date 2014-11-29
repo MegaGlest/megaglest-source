@@ -781,7 +781,7 @@ void UpgradeType::load(const string &dir, const TechTree *techTree,
 
 		}
 		sortedItems.clear();
-		hasDup = false;
+		//hasDup = false;
 
 		//effects -- get list of affected units
 		const XmlNode *effectsNode= upgradeNode->getChild("effects");

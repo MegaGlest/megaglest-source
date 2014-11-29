@@ -646,7 +646,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 			}
 		}
 		sortedItems.clear();
-		hasDup = false;
+		//hasDup = false;
 
 		// Lootable resources (resources given/lost on death)
 		if(parametersNode->hasChild("resources-death")) {

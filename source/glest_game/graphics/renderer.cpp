@@ -5476,7 +5476,10 @@ void Renderer::renderSelectionEffects(int healthbarMode) {
 			if(healthbarsVisible) {
 				hpRatio=unit->getHpRatio();
 				selectionCircleThickness=0.05f;
-				hpRatio=1.0f;
+				//hpRatio=1.0f;
+			}
+			else {
+				hpRatio=0.0f;
 			}
 
 			if(world->getThisFactionIndex() == unit->getFactionIndex()) {
