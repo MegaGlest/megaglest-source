@@ -141,6 +141,8 @@ UnitType::UnitType() : ProducibleType() {
 	size=0;
 	renderSize=0;
 	height=0;
+	burnHeight=0;
+	targetHeight=0;
 
 	addItemToVault(&(this->maxHp),this->maxHp);
 	addItemToVault(&(this->hpRegeneration),this->hpRegeneration);
@@ -644,7 +646,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 			}
 		}
 		sortedItems.clear();
-		hasDup = false;
+		//hasDup = false;
 
 		// Lootable resources (resources given/lost on death)
 		if(parametersNode->hasChild("resources-death")) {

@@ -79,6 +79,15 @@ private:
 	bool negativeAllowed;
 
 public:
+	LootableResource() {
+		type=NULL;
+		amountValue=0;
+		amountFactionPercent=0;
+		lossValue=0;
+		lossFactionPercent=0;
+		negativeAllowed=false;
+	}
+
 	const ResourceType* getResourceType() const {return type;}
 	void setResourceType(const ResourceType *type) {this->type=type;}
 
@@ -282,7 +291,7 @@ public:
 	int getTargetHeight() const								{return targetHeight;}
 	int getStoredResourceCount() const						{return (int)storedResources.size();}
 	inline const Resource *getStoredResource(int i) const		{return &storedResources[i];}
-	int getLootableResourceCount() const					{return lootableResources.size();}
+	int getLootableResourceCount() const					{return (int)lootableResources.size();}
 	inline const LootableResource getLootableResource(int i) const		{return lootableResources.at(i);}
 	const set<string> &getTags() const	{return tags;}
 	bool getCellMapCell(int x, int y, CardinalDir facing) const;

@@ -5464,19 +5464,21 @@ void Renderer::renderSelectionEffects(int healthbarMode) {
 			currVec.y+= 0.3f;
 
 			//selection circle
-			int finalHealthbarMode=hbvUndefined;
-			if(healthbarMode==hbvUndefined) {
-				finalHealthbarMode=unit->getFaction()->getType()->getHealthbarVisible();
-			} else {
-				finalHealthbarMode=healthbarMode;
+			int finalHealthbarMode = hbvUndefined;
+			if(healthbarMode == hbvUndefined) {
+				finalHealthbarMode = unit->getFaction()->getType()->getHealthbarVisible();
 			}
-			bool healthbarsVisible=((finalHealthbarMode&hbvAlways)||(finalHealthbarMode&hbvSelected)||(finalHealthbarMode&hbvIfNeeded));
-			float selectionCircleThickness=0.2f;
-			float hpRatio;
+			else {
+				finalHealthbarMode = healthbarMode;
+			}
+			bool healthbarsVisible =((finalHealthbarMode & hbvAlways)   ||
+					                 (finalHealthbarMode & hbvSelected) ||
+					                 (finalHealthbarMode & hbvIfNeeded));
+			float selectionCircleThickness = 0.2f;
+			float hpRatio = unit->getHpRatio();
 			if(healthbarsVisible) {
-				hpRatio=unit->getHpRatio();
-				selectionCircleThickness=0.05f;
-				hpRatio=1.0f;
+				selectionCircleThickness = 0.05f;
+				hpRatio = 1.0f;
 			}
 
 			if(world->getThisFactionIndex() == unit->getFactionIndex()) {
@@ -5493,7 +5495,7 @@ void Renderer::renderSelectionEffects(int healthbarMode) {
 			else if ( world->getThisTeamIndex() == unit->getTeam()) {
 				glColor4f(hpRatio, hpRatio, 0, 0.3f);
 			}
-			else{
+			else {
 				glColor4f(hpRatio, 0, 0, 0.3f);
 			}
 			renderSelectionCircle(currVec, unit->getType()->getSize(), selectionCircleRadius,selectionCircleThickness);

@@ -62,7 +62,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 		else {
 			// All units are affected (including enemies)
 			if(targetType == abtAll) {
-				destUnitMightApply = (boostUnitList.empty() && tags.empty());
+				//destUnitMightApply = (boostUnitList.empty() && tags.empty());
 				destUnitMightApply = isInUnitListOrTags(dest->getType());
 			}
 			// Only same faction units are affected
@@ -70,7 +70,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 				//if(boostUnitList.empty() == true) {
 				if(source->getFactionIndex() == dest->getFactionIndex()) {
 					//destUnitMightApply = true;
-					destUnitMightApply = (boostUnitList.empty() && tags.empty());
+					//destUnitMightApply = (boostUnitList.empty() && tags.empty());
 					destUnitMightApply = isInUnitListOrTags(dest->getType());
 				}
 				//}
@@ -80,7 +80,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 				//if(boostUnitList.empty() == true) {
 				if(source->isAlly(dest) == true) {
 					//destUnitMightApply = true;
-					destUnitMightApply = (boostUnitList.empty() && tags.empty());
+					//destUnitMightApply = (boostUnitList.empty() && tags.empty());
 					destUnitMightApply = isInUnitListOrTags(dest->getType());
 				}
 				//}
@@ -90,7 +90,7 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 				//if(boostUnitList.empty() == true) {
 				if(source->isAlly(dest) == false) {
 					//destUnitMightApply = true;
-					destUnitMightApply = (boostUnitList.empty() && tags.empty());
+					//destUnitMightApply = (boostUnitList.empty() && tags.empty());
 					destUnitMightApply = isInUnitListOrTags(dest->getType());
 				}
 				//}

@@ -138,12 +138,12 @@ END_EVENT_TABLE()
 
 void MainWindow::init(string fname) {
 #if wxCHECK_VERSION(2, 9, 3)
-	glCanvas->setCurrentGLContext();
+	//glCanvas->setCurrentGLContext();
 	//printf("setcurrent #1\n");
 #elif wxCHECK_VERSION(2, 9, 1)
 
 #else
-	glCanvas->SetCurrent();
+	//glCanvas->SetCurrent();
 	//printf("setcurrent #2\n");
 #endif
 
@@ -638,11 +638,17 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 		return;
 	}
 
-#if wxCHECK_VERSION(2, 9, 3)
+//#if wxCHECK_VERSION(2, 9, 3)
 
-#elif wxCHECK_VERSION(2, 9, 1)
-	glCanvas->setCurrentGLContext();
-#endif
+//#elif wxCHECK_VERSION(2, 9, 1)
+//	glCanvas->setCurrentGLContext();
+//#endif
+
+	static bool contextSet = false;
+	if(contextSet == false) {
+		contextSet = true;
+		glCanvas->setCurrentGLContext();
+	}
 
 	if(lastPaintEvent.getMillis() < 30) {
 		sleep(1);
