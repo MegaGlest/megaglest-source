@@ -201,6 +201,7 @@ public:
 	void onKeyDown(wxKeyEvent &event);
 	void setCurrentGLContext();
 
+	wxGLContext * getCtx() { return context; }
 private:
 	MainWindow *mainWindow;
 	wxGLContext *context;

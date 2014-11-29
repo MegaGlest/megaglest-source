@@ -480,12 +480,15 @@ void MainWindow::setupTimer() {
 }
 
 void MainWindow::setupStartupSettings() {
-	 GLuint err = glewInit();
-	 if (GLEW_OK != err) {
+
+	glCanvas->setCurrentGLContext();
+
+	GLuint err = glewInit();
+	if (GLEW_OK != err) {
 		fprintf(stderr, "Error [main]: glewInit failed: %s\n", glewGetErrorString(err));
 		//return 1;
 		throw std::runtime_error((char *)glewGetErrorString(err));
-	 }
+	}
 
 	renderer= Renderer::getInstance();
 
@@ -567,12 +570,12 @@ MainWindow::~MainWindow(){
 void MainWindow::init() {
 
 #if wxCHECK_VERSION(2, 9, 3)
-	glCanvas->setCurrentGLContext();
+	//glCanvas->setCurrentGLContext();
 	//printf("setcurrent #1\n");
 #elif wxCHECK_VERSION(2, 9, 1)
 
 #else
-	glCanvas->SetCurrent();
+	//glCanvas->SetCurrent();
 	//printf("setcurrent #2\n");
 #endif
 
@@ -585,10 +588,12 @@ void MainWindow::init() {
 void MainWindow::onPaint(wxPaintEvent &event) {
 	if(!IsShown()) return;
 	
-#if wxCHECK_VERSION(2, 9, 3)
+#if wxCHECK_VERSION(2, 9, 4)
+	//glCanvas->setCurrentGLContext();
+#elif wxCHECK_VERSION(2, 9, 3)
 
 #elif wxCHECK_VERSION(2, 9, 1)
-	glCanvas->setCurrentGLContext();
+	//glCanvas->setCurrentGLContext();
 #endif
 
 	if(startupSettingsInited == false) {
@@ -756,8 +761,8 @@ void MainWindow::onClose(wxCloseEvent &event){
 	delete timer;
 	timer = NULL;
 
-	delete model;
-	model = NULL;
+	//delete model;
+	//model = NULL;
 
 	delete renderer;
 	renderer = NULL;
@@ -2029,7 +2034,7 @@ GlCanvas::GlCanvas(MainWindow *	mainWindow, int *args)
 }
 
 GlCanvas::~GlCanvas() {
-	delete this->context;
+	if(this->context) delete this->context;
 	this->context = NULL;
 }
 
@@ -2039,11 +2044,13 @@ void GlCanvas::setCurrentGLContext() {
 #if wxCHECK_VERSION(2, 9, 1)
 	if(this->context == NULL) {
 		this->context = new wxGLContext(this);
+		//printf("Set ctx [%p]\n",this->context);
 	}
 #endif
 	//printf("Set ctx [%p]\n",this->context);
 	if(this->context) {
 		wxGLCanvas::SetCurrent(*this->context);
+		//printf("Set ctx2 [%p]\n",this->context);
 	}
 #else
 	this->SetCurrent();

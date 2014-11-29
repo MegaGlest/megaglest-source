@@ -1099,7 +1099,7 @@ Model::Model() {
 }
 
 Model::~Model() {
-	delete [] meshes;
+	if(meshes) delete [] meshes;
 	meshes = NULL;
 }
 
