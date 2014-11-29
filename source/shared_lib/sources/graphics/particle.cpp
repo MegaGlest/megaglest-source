@@ -126,6 +126,9 @@ ParticleSystem::ParticleSystem(int particleCount) {
 	emissionRate= 15.0f;
 	emissionState= 1.0f; // initialized with 1 because we must have at least one particle in the beginning!
 	speed= 1.0f;
+	speedUpRelative = 0;
+	speedUpConstant = 0;
+
 	teamcolorNoEnergy= false;
 	teamcolorEnergy= false;
 	alternations= 0;
