@@ -291,7 +291,7 @@ public:
 	int getTargetHeight() const								{return targetHeight;}
 	int getStoredResourceCount() const						{return (int)storedResources.size();}
 	inline const Resource *getStoredResource(int i) const		{return &storedResources[i];}
-	int getLootableResourceCount() const					{return lootableResources.size();}
+	int getLootableResourceCount() const					{return (int)lootableResources.size();}
 	inline const LootableResource getLootableResource(int i) const		{return lootableResources.at(i);}
 	const set<string> &getTags() const	{return tags;}
 	bool getCellMapCell(int x, int y, CardinalDir facing) const;

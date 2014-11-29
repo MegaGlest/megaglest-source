@@ -435,6 +435,7 @@
     <ClCompile Include="..\..\..\source\glest_game\network\server_interface.cpp" />
     <ClCompile Include="..\..\..\source\glest_game\sound\sound_container.cpp" />
     <ClCompile Include="..\..\..\source\glest_game\sound\sound_renderer.cpp" />
+    <ClCompile Include="..\..\..\source\glest_game\types\projectile_type.cpp" />
     <ClCompile Include="..\..\..\source\glest_game\types\tileset_model_type.cpp" />
     <ClCompile Include="..\..\..\source\glest_game\type_instances\command.cpp" />
     <ClCompile Include="..\..\..\source\glest_game\type_instances\faction.cpp" />
