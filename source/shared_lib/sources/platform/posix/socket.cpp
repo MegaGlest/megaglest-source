@@ -2676,10 +2676,10 @@ int UPNP_Tools::upnp_init(void *param) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"No UPnP devices found.\n");
 
 			if(ServerSocket::cancelUpnpdiscoverThread == true) {
-				if(devlist != NULL) {
-					freeUPNPDevlist(devlist);
-				}
-				devlist = NULL;
+				//if(devlist != NULL) {
+				//	freeUPNPDevlist(devlist);
+				//}
+				//devlist = NULL;
 				return result;
 			}
 

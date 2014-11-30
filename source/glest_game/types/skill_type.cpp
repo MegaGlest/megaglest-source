@@ -945,16 +945,16 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 		projectile= projectileNode->getAttribute("value")->getBoolValue();
 		if(projectile){
 			// create new projectile
-				ProjectileType *projectileType=new ProjectileType();
-				//only add this projectile if there is an enabled particlesystem
-				//projectileTypes.push_back(projectileType);
-				projectileType->setAttackStartTime(attackStartTime);
-				projectileType->setDamagePercentage(100);
+			ProjectileType *projectileType = new ProjectileType();
+			//only add this projectile if there is an enabled particlesystem
+			//projectileTypes.push_back(projectileType);
+			projectileType->setAttackStartTime(attackStartTime);
+			projectileType->setDamagePercentage(100);
 			//proj particle
 			if(projectileNode->hasChild("particle")){
 				const XmlNode *particleNode= projectileNode->getChild("particle");
 				bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
-				if(particleEnabled){
+				if(particleEnabled) {
 					projectileTypes.push_back(projectileType);
 					string path= particleNode->getAttribute("path")->getRestrictedValue();
 					ParticleSystemTypeProjectile* projectileParticleSystemType= new ParticleSystemTypeProjectile();
@@ -967,6 +967,9 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 				else {
 					delete projectileType;
 				}
+			}
+			else {
+				delete projectileType;
 			}
 			//proj sounds
 			const XmlNode *soundNode= projectileNode->getChild("sound");

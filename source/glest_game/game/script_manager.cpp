@@ -1033,8 +1033,11 @@ void ScriptManager::shakeCamera(int shakeIntensity, int shakeDuration, bool came
 
 	if (cameraDistanceAffected) {
 		Unit *unit = world->findUnitById(unitId);
-		gameCamera->shake(shakeDuration, shakeIntensity,cameraDistanceAffected,	unit->getCurrMidHeightVector());
-	} else {
+		if(unit) {
+			gameCamera->shake(shakeDuration, shakeIntensity,cameraDistanceAffected,	unit->getCurrMidHeightVector());
+		}
+	}
+	else {
 		gameCamera->shake(shakeDuration, shakeIntensity,cameraDistanceAffected,	Vec3f(0.f,0.f,0.f));
 	}
 }
@@ -1542,7 +1545,12 @@ int ScriptManager::getUnitFaction(int unitId) {
 const string ScriptManager::getUnitName(int unitId) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	return world->findUnitById(unitId)->getType()->getName(false);
+	string result = "";
+	Unit *unit = world->findUnitById(unitId);
+	if(unit) {
+		result = world->findUnitById(unitId)->getType()->getName(false);
+	}
+	return result;
 }
 
 const string ScriptManager::getUnitDisplayName(int unitId) {
