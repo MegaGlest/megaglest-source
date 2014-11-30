@@ -575,7 +575,7 @@ void MainWindow::init() {
 #elif wxCHECK_VERSION(2, 9, 1)
 
 #else
-	//glCanvas->SetCurrent();
+	glCanvas->SetCurrent();
 	//printf("setcurrent #2\n");
 #endif
 
@@ -593,7 +593,7 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 #elif wxCHECK_VERSION(2, 9, 3)
 
 #elif wxCHECK_VERSION(2, 9, 1)
-	//glCanvas->setCurrentGLContext();
+	glCanvas->setCurrentGLContext();
 #endif
 
 	if(startupSettingsInited == false) {
