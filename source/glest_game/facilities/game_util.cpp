@@ -27,7 +27,7 @@ using namespace Shared::Platform;
 namespace Glest { namespace Game {
 
 const char *mailString				= " http://bugs.megaglest.org";
-const string glestVersionString 	= "v3.10.0-dev";
+const string glestVersionString 	= "v3.10.0-beta1";
 const string lastCompatibleSaveGameVersionString 	= "v3.9.0";
 #if defined(GITVERSION)
     const string GIT_RawRev			= string(GITVERSION);
