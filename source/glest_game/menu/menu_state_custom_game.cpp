@@ -543,6 +543,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
         listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
 		listBoxTeams[i].init(xoffset+650, setupPos-30-i*rowHeight, 60);
+		listBoxTeams[i].setLighted(true);
 
 		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
 		labelNetStatus[i].init(xoffset+715, setupPos-30-i*rowHeight, 60);
@@ -2193,8 +2194,15 @@ void MenuStateCustomGame::render() {
 
 				if(listBoxControls[i].getSelectedItemIndex()!=ctClosed){
 					renderer.renderListBox(&listBoxRMultiplier[i]);
-
 					renderer.renderListBox(&listBoxFactions[i]);
+
+					int teamnumber=listBoxTeams[i].getSelectedItemIndex();
+					Vec3f teamcolor=Vec3f(1.0f,1.0f,1.0f);
+					if(teamnumber>=0 && teamnumber<8){
+						teamcolor=crcPlayerTextureCache[teamnumber]->getPixmap()->getPixel3f(0, 0);
+					}
+					listBoxTeams[i].setTextColor(teamcolor);
+
 					renderer.renderListBox(&listBoxTeams[i]);
 					renderer.renderLabel(&labelNetStatus[i]);
 				}

@@ -374,6 +374,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
         listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
 		listBoxTeams[i].init(xoffset+650, setupPos-30-i*rowHeight, 60);
 		listBoxTeams[i].setEditable(false);
+		listBoxTeams[i].setLighted(true);
 
 		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
 		labelNetStatus[i].init(xoffset+715, setupPos-30-i*rowHeight, 60);
@@ -2592,18 +2593,18 @@ void MenuStateConnectedGame::render() {
 	    ClientInterface *clientInterface = networkManager.getClientInterface();
 		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 	    	if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
-	    		bool rendetIt=true;
+	    		bool renderIt=true;
 	    		//printf("Player #%d [%s] control = %d\n",i,labelPlayerNames[i].getText().c_str(),listBoxControls[i].getSelectedItemIndex());
 	    		if(labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME){
-	    			rendetIt=false;
+	    			renderIt=false;
 	    		}
-				labelPlayers[i].setVisible(rendetIt);
-				labelPlayerNames[i].setVisible(rendetIt);
-				listBoxControls[i].setVisible(rendetIt);
-				listBoxRMultiplier[i].setVisible(rendetIt);
-				listBoxFactions[i].setVisible(rendetIt);
-				listBoxTeams[i].setVisible(rendetIt);
-				labelNetStatus[i].setVisible(rendetIt);
+				labelPlayers[i].setVisible(renderIt);
+				labelPlayerNames[i].setVisible(renderIt);
+				listBoxControls[i].setVisible(renderIt);
+				listBoxRMultiplier[i].setVisible(renderIt);
+				listBoxFactions[i].setVisible(renderIt);
+				listBoxTeams[i].setVisible(renderIt);
+				labelNetStatus[i].setVisible(renderIt);
 	    	}
 
 			if(listBoxControls[i].getSelectedItemIndex() != ctClosed) {
@@ -2651,6 +2652,12 @@ void MenuStateConnectedGame::render() {
 			if(listBoxControls[i].getSelectedItemIndex() != ctClosed) {
 				renderer.renderListBox(&listBoxRMultiplier[i]);
 				renderer.renderListBox(&listBoxFactions[i]);
+				int teamnumber=listBoxTeams[i].getSelectedItemIndex();
+				Vec3f teamcolor=Vec3f(1.0f,1.0f,1.0f);
+				if(teamnumber>=0 && teamnumber<8){
+					teamcolor=crcPlayerTextureCache[teamnumber]->getPixmap()->getPixel3f(0, 0);
+				}
+				listBoxTeams[i].setTextColor(teamcolor);
 				renderer.renderListBox(&listBoxTeams[i]);
 
 				bool canGrabSlot = false;
