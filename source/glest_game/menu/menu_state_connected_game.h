@@ -63,6 +63,7 @@ private:
 	GraphicLabel labelMapInfo;
 	GraphicLabel labelStatus;
 	GraphicLabel labelInfo;
+	GraphicLabel labelWaitingForPlayers;
 	GraphicButton buttonRestoreLastSettings;
 
 	//GraphicLabel labelPathFinderType;

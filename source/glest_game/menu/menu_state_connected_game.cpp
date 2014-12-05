@@ -184,6 +184,13 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelInfo.setFont(CoreData::getInstance().getMenuFontBig());
 	labelInfo.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
+	labelWaitingForPlayers.registerGraphicComponent(containerName,"labelInfo");
+	labelWaitingForPlayers.init(30, 100);
+	labelWaitingForPlayers.setText("");
+	labelWaitingForPlayers.setFont(CoreData::getInstance().getMenuFontBig());
+	labelWaitingForPlayers.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	labelWaitingForPlayers.setTextColor(Vec3f(1.0f,1.0f,0.f));
+
     timerLabelFlash = time(NULL);
     labelDataSynchInfo.registerGraphicComponent(containerName,"labelDataSynchInfo");
 	labelDataSynchInfo.init(30, networkHeadPos-60);
@@ -645,6 +652,9 @@ void MenuStateConnectedGame::reloadUI() {
 
 	labelInfo.setFont(CoreData::getInstance().getMenuFontBig());
 	labelInfo.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+
+	labelWaitingForPlayers.setFont(CoreData::getInstance().getMenuFontBig());
+	labelWaitingForPlayers.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
 	labelDataSynchInfo.setFont(CoreData::getInstance().getMenuFontBig());
 	labelDataSynchInfo.setFont3D(CoreData::getInstance().getMenuFontBig3D());
@@ -2682,9 +2692,11 @@ void MenuStateConnectedGame::render() {
 
 		if(difftime((long int)time(NULL),timerLabelFlash) < 1) {
 		    renderer.renderLabel(&labelDataSynchInfo,&RED);
+		    renderer.renderLabel(&labelWaitingForPlayers,&YELLOW);
 		}
 		else {
             renderer.renderLabel(&labelDataSynchInfo,&WHITE);
+		    renderer.renderLabel(&labelWaitingForPlayers,&WHITE);
 		}
 
 		renderer.renderLabel(&labelMap);
@@ -2870,11 +2882,20 @@ void MenuStateConnectedGame::update() {
 		checkBoxAllowTeamUnitSharing.setEditable(isHeadlessAdmin());
 		checkBoxAllowTeamResourceSharing.setEditable(isHeadlessAdmin());
 
+
 		if(isHeadlessAdmin() == true) {
+			bool hasOtherPlayer=false;
+			bool hasOpenSlot=false;
 			for(unsigned int i = 0; i < (unsigned int)GameConstants::maxPlayers; ++i) {
+				if(displayedGamesettings.getFactionControl(i)==ctNetwork && clientInterface->getPlayerIndex()!=(int)i){
+					hasOpenSlot=true;
+				}
 				if(displayedGamesettings.getFactionControl(i)==ctNetwork &&
 						displayedGamesettings.getNetworkPlayerNameByPlayerIndex(i)!= GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME){
 					listBoxControls[i].setEditable(false);
+					if(clientInterface->getPlayerIndex()!=(int)i){
+						hasOtherPlayer=true;
+					}
 				}
 				else
 				if(clientInterface->getPlayerIndex()==(int)i)
@@ -2886,6 +2907,20 @@ void MenuStateConnectedGame::update() {
 				listBoxFactions[i].setEditable(isHeadlessAdmin());
 				listBoxTeams[i].setEditable(isHeadlessAdmin());
 			}
+			if (hasOtherPlayer) {
+				labelWaitingForPlayers.setText("");
+				labelWaitingForPlayers.setVisible(false);
+			} else if (hasOpenSlot) {
+				labelWaitingForPlayers.setText(lang.getString("WaitingForPlayers"));
+				labelWaitingForPlayers.setVisible(true);
+			} else {
+				labelWaitingForPlayers.setText(lang.getString("OpenANetworkSLot"));
+				labelWaitingForPlayers.setVisible(true);
+			}
+		}
+		else {
+			labelWaitingForPlayers.setText("");
+			labelWaitingForPlayers.setVisible(false);
 		}
 
 		if(difftime((long int)time(NULL),lastNetworkSendPing) >= GameConstants::networkPingInterval) {
