@@ -591,6 +591,14 @@ void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton)
 			if(selectedMode == NULL) {
 				throw megaglest_runtime_error("selectedMode == NULL");
 			}
+
+#if defined(__APPLE__)
+			mainMessageBoxState=1;
+			mainMessageBox.init(lang.getString("Ok"),lang.getString("Cancel"));
+			screenModeChangedTimer= time(NULL);
+
+			showMessageBox(lang.getString("RestartNeeded"), lang.getString("ResolutionChanged"), false);
+#else
 			WindowGl *window = this->program->getWindow();
 			window->ChangeVideoMode(true,
 					selectedMode->width,
@@ -609,8 +617,9 @@ void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton)
 			mainMessageBoxState=1;
 			mainMessageBox.init(lang.getString("Ok"),lang.getString("Cancel"));
 			screenModeChangedTimer= time(NULL);
-			//showMessageBox(lang.getString("RestartNeeded"), lang.getString("ResolutionChanged"), false);
+
 			showMessageBox(lang.getString("ResolutionChanged"), lang.getString("Notice"), false);
+#endif
 			//No saveConfig() here! this is done by the messageBox
 			return;
 		}
