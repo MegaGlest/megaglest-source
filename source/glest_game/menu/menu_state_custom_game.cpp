@@ -143,7 +143,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	this->dirList = Config::getInstance().getPathListForType(ptScenarios);
 
     mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
-	mainMessageBox.init(lang.getString("Ok"));
+	mainMessageBox.init(lang.getString("Ok"),500,300);
 	mainMessageBox.setEnabled(false);
 	mainMessageBoxState=0;
 
@@ -735,7 +735,7 @@ void MenuStateCustomGame::reloadUI() {
     Config &config = Config::getInstance();
 
     console.resetFonts();
-	mainMessageBox.init(lang.getString("Ok"));
+	mainMessageBox.init(lang.getString("Ok"),500,300);
 
 
 	if(EndsWith(glestVersionString, "-dev") == false){
@@ -2501,7 +2501,7 @@ void MenuStateCustomGame::update() {
 				publishText = lang.getString("PublishDisabled");
 			}
 
-            masterServererErrorToShow += publishText;
+            masterServererErrorToShow += "\n\n"+ publishText;
 			showMasterserverError=false;
 			mainMessageBoxState=1;
 			showMessageBox( masterServererErrorToShow, lang.getString("ErrorFromMasterserver"), false);
