@@ -838,7 +838,7 @@ void GraphicScrollBar::init(int x, int y, bool horizontal,int length, int thickn
 bool GraphicScrollBar::mouseDown(int x, int y) {
 	if(getVisible() && getEnabled() && getEditable())
 	{
-		if(activated)
+		if(activated && elementCount>0)
 		{
 			if( elementCount>visibleSize) {
 				int pos;
