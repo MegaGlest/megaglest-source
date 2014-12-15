@@ -191,11 +191,15 @@ void Game::resetMembers() {
 	GameConstants::updateFps= 40;
 	GameConstants::cameraFps= 100;
 	captureAvgTestStatus = false;
+	updateFpsAvgTest=0;
+	renderFpsAvgTest=0;
 	lastRenderLog2d		 = 0;
-	lastMasterServerGameStatsDump = 0;
-	totalRenderFps       = 0;
-	lastMaxUnitCalcTime  = 0;
-	renderExtraTeamColor = 0;
+	playerIndexDisconnect=0;
+	lastMasterServerGameStatsDump=0;
+	highlightCellTexture=NULL;
+	totalRenderFps       =0;
+	lastMaxUnitCalcTime  =0;
+	renderExtraTeamColor =0;
 
 	mouseMoved= false;
 	quitTriggeredIndicator = false;
@@ -271,6 +275,7 @@ void Game::resetMembers() {
 	this->speed= 1;
 	showFullConsole= false;
 	setMarker = false;
+	cameraDragAllowed=false;
 	camLeftButtonDown=false;
 	camRightButtonDown=false;
 	camUpButtonDown=false;
