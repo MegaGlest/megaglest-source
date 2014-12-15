@@ -205,7 +205,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelFogOfWar.setText(lang.getString("FogOfWar"));
 
 	listBoxFogOfWar.registerGraphicComponent(containerName,"listBoxFogOfWar");
-	listBoxFogOfWar.init(xoffset+100, aPos, 130);
+	listBoxFogOfWar.init(xoffset+100, aPos, 150);
 	listBoxFogOfWar.pushBackItem(lang.getString("Enabled"));
 	listBoxFogOfWar.pushBackItem(lang.getString("Explored"));
 	listBoxFogOfWar.pushBackItem(lang.getString("Disabled"));
@@ -284,16 +284,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	buttonCancelDownloads.registerGraphicComponent(containerName,"buttonCancelDownloads");
 	buttonCancelDownloads.init(xoffset+620, 180, 150);
 	buttonCancelDownloads.setText(lang.getString("CancelDownloads"));
-
-	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
-	nonAdminPlayerStatusX = xoffset+460;
-	listBoxPlayerStatus.init(nonAdminPlayerStatusX, 180, 150);
-	listBoxPlayerStatus.setTextColor(Vec3f(1.0f,0.f,0.f));
-	listBoxPlayerStatus.setLighted(true);
-	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
-	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
-	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
-	listBoxPlayerStatus.setItems(playerStatuses);
 
 	// Network Frame Period
 	xoffset=70;
@@ -466,17 +456,34 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	setupMapList("");
     listBoxMap.setItems(formattedPlayerSortedMaps[0]);
 
-	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
-	buttonPlayNow.init(220, 180, 125);
-	buttonPlayNow.setText(lang.getString("PlayNow"));
-	buttonPlayNow.setVisible(false);
+	int buttonx=170;
+	int buttony=180;
+
+	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
+	listBoxPlayerStatus.init(buttonx, buttony, 150);
+	listBoxPlayerStatus.setTextColor(Vec3f(1.0f,0.f,0.f));
+	listBoxPlayerStatus.setLighted(true);
+	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
+	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
+	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
+	listBoxPlayerStatus.setItems(playerStatuses);
+	buttonx+=180;
 
 	buttonDisconnect.registerGraphicComponent(containerName,"buttonDisconnect");
-	buttonDisconnect.init(350, 180, 125);
+	buttonDisconnect.init(buttonx, buttony, 125);
+	buttonx+=130;
 
 	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
-	buttonRestoreLastSettings.init(480, 180, 220);
+	buttonRestoreLastSettings.init(buttonx, buttony, 220);
 	buttonRestoreLastSettings.setText(lang.getString("ReloadLastGameSettings"));
+	buttonx+=225;
+
+	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
+	buttonPlayNow.init(buttonx, buttony, 125);
+	buttonPlayNow.setText(lang.getString("PlayNow"));
+	buttonPlayNow.setVisible(false);
+	buttonx+=130;
+
 
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
@@ -2494,14 +2501,6 @@ bool MenuStateConnectedGame::isVideoPlaying() {
 void MenuStateConnectedGame::render() {
 	try {
 		Renderer &renderer= Renderer::getInstance();
-
-		if(isHeadlessAdmin() == true) {
-			listBoxPlayerStatus.setX(buttonRestoreLastSettings.getX() +
-									 buttonRestoreLastSettings.getW() + 20);
-		}
-		else {
-			listBoxPlayerStatus.setX(nonAdminPlayerStatusX);
-		}
 
 		if(mainMessageBox.getEnabled()) {
 			renderer.renderMessageBox(&mainMessageBox);

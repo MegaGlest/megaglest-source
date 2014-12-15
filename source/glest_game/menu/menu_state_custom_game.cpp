@@ -194,16 +194,34 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	int xoffset=10;
 
 	//create
-	int buttonx=200;
+	int buttonx=170;
 	int buttony=180;
+
+    // player status
+	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
+	listBoxPlayerStatus.init(buttonx, buttony, 150);
+	vector<string> playerStatuses;
+	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
+	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
+	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
+	listBoxPlayerStatus.setItems(playerStatuses);
+	listBoxPlayerStatus.setSelectedItemIndex(2,true);
+	listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
+	listBoxPlayerStatus.setLighted(false);
+	listBoxPlayerStatus.setVisible(true);
+	buttonx+=180;
+
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	buttonReturn.init(buttonx, buttony, 125);
+	buttonx+=130;
 
 	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
-	buttonRestoreLastSettings.init(buttonx+130, buttony, 220);
+	buttonRestoreLastSettings.init(buttonx, buttony, 220);
+	buttonx+=225;
 
 	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
-	buttonPlayNow.init(buttonx+130+225, buttony, 125);
+	buttonPlayNow.init(buttonx, buttony, 125);
+	buttonx+=130;
 
 	labelLocalGameVersion.registerGraphicComponent(containerName,"labelLocalGameVersion");
 	labelLocalGameVersion.init(10, networkHeadPos+labelOffset);
@@ -356,19 +374,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	checkBoxAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"checkBoxAllowNativeLanguageTechtree");
 	checkBoxAllowNativeLanguageTechtree.init(xoffset+650, mapHeadPos-70);
 	checkBoxAllowNativeLanguageTechtree.setValue(false);
-
-    // player status
-	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
-	listBoxPlayerStatus.init(810, buttony, 150);
-	vector<string> playerStatuses;
-	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
-	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
-	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
-	listBoxPlayerStatus.setItems(playerStatuses);
-	listBoxPlayerStatus.setSelectedItemIndex(2,true);
-	listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
-	listBoxPlayerStatus.setLighted(false);
-	listBoxPlayerStatus.setVisible(true);
 
 	// Network Scenario
 	int scenarioX=810;

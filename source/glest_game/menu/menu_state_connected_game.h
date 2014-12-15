@@ -90,7 +90,6 @@ private:
 
 	GraphicListBox listBoxPlayerStatus;
 	GraphicLabel labelPlayerStatus[GameConstants::maxPlayers];
-	int nonAdminPlayerStatusX;
 
 	GraphicLabel labelAllowObservers;
 	GraphicCheckBox checkBoxAllowObservers;
