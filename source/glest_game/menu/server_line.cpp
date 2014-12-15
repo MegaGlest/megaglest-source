@@ -49,6 +49,8 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	//general info:
 	//i+= 10;
 	glestVersionLabel.init(i, baseY - lineOffset);
+	glestVersionLabel.setRenderBackground(true);
+	glestVersionLabel.setMaxEditRenderWidth(960); // use background for whole line
 	glestVersionLabel.setTextColor(color);
 	glestVersionLabel.setText(masterServerInfo.getGlestVersion());
 	glestVersionLabel.setFont(CoreData::getInstance().getDisplayFontSmall());
@@ -218,20 +220,6 @@ bool ServerLine::buttonMouseMove(int x, int y){
 
 void ServerLine::render(){
 	Renderer &renderer= Renderer::getInstance();
-
-	bool joinEnabled= (masterServerInfo.getNetworkSlots() > masterServerInfo.getConnectedClients());
-	if(joinEnabled == true){
-		if(compatible){
-			selectButton.setEnabled(true);
-			selectButton.setVisible(true);
-			renderer.renderButton(&selectButton);
-		}
-	}
-	else{
-		selectButton.setEnabled(false);
-		selectButton.setVisible(false);
-	}
-
 	//general info:
 	renderer.renderLabel(&glestVersionLabel);
 	renderer.renderLabel(&platformLabel);
@@ -264,6 +252,18 @@ void ServerLine::render(){
 	}
 	renderer.renderLabel(&status);
 
+	bool joinEnabled= (masterServerInfo.getNetworkSlots() > masterServerInfo.getConnectedClients());
+	if(joinEnabled == true){
+		if(compatible){
+			selectButton.setEnabled(true);
+			selectButton.setVisible(true);
+			renderer.renderButton(&selectButton);
+		}
+	}
+	else{
+		selectButton.setEnabled(false);
+		selectButton.setVisible(false);
+	}
 }
 
 void ServerLine::setY(int y){

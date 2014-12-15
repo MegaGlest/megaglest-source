@@ -5451,11 +5451,11 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 		factionInfo +=	" [" + formatString(this->gameSettings.getFactionTypeName(i)) +
 				" team: " + intToStr(this->gameSettings.getTeam(i)) + "]";
 
-//		bool showResourceDebugInfo = false;
+//		bool showResourceDebugInfo = true;
 //		if(showResourceDebugInfo == true) {
 //			factionInfo +=" res: ";
 //			for(int j = 0; j < world.getTechTree()->getResourceTypeCount(); ++j) {
-//				factionInfo += intToStr(world.getFaction(i)->getResource(j)->getAmount());
+//				factionInfo += world.getFaction(i)->getResource(j)->getType()->getName()+":"+intToStr(world.getFaction(i)->getResource(j)->getAmount());
 //				factionInfo += " ";
 //			}
 //		}

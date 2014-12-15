@@ -146,6 +146,8 @@ private:
 	bool editModeEnabled;
 	int maxEditWidth;
 	int maxEditRenderWidth;
+	bool renderBackground;
+	Vec4f backgroundColor;
 
 	vector<int> textCharLength;
 	bool isPassword;
@@ -186,6 +188,11 @@ public:
 
 	void setMaxEditWidth(int value) { maxEditWidth = value; }
 	int getMaxEditWidth() const { return maxEditWidth; }
+
+	void setRenderBackground(bool value) { renderBackground = value; }
+	bool getRenderBackground() const { return renderBackground; }
+	Vec4f getBackgroundColor() const	{return backgroundColor;}
+	void setBackgroundColor(Vec4f color)	{this->backgroundColor= color;}
 
 	void setMaxEditRenderWidth(int value) { maxEditRenderWidth = value; }
 	int getMaxEditRenderWidth() const { return maxEditRenderWidth; }

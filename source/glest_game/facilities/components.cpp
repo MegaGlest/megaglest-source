@@ -281,6 +281,8 @@ GraphicLabel::GraphicLabel() {
 	editModeEnabled = false;
 	maxEditWidth = -1;
 	maxEditRenderWidth = -1;
+	renderBackground = false;
+	backgroundColor=Vec4f(0.2f,0.2f,0.2f,0.6f);
 	isPassword = false;
 	texture = NULL;
 }

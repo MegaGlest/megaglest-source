@@ -3090,6 +3090,33 @@ void Renderer::renderLabel(GraphicLabel *label) {
 	    }
 	}
 
+	if(label->getRenderBackground())
+	{
+	    int x= label->getX();
+	    int y= label->getY();
+	    int h= label->getH();
+	    int w= label->getW();
+	    if(label->getMaxEditRenderWidth()>0){
+	    	w= label->getMaxEditRenderWidth();
+	    }
+	    Vec4f color=label->getBackgroundColor();
+	    if(h>0){
+	    	//background
+	    	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+	    	glEnable(GL_BLEND);
+
+	    	glColor4f(color.x, color.y, color.z, color.w*label->getFade()) ;
+
+	    	glBegin(GL_TRIANGLE_STRIP);
+	    		glVertex2i(x, y);
+	    		glVertex2i(x, y+h);
+	    		glVertex2i(x+w, y);
+	    		glVertex2i(x+w, y+h);
+	    	glEnd();
+	    	glPopAttrib();
+	    }
+	}
+
 	if(label->getTexture()!=NULL )
 	{
 	    int x= label->getX();
