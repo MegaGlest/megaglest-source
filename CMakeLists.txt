@@ -376,53 +376,55 @@ IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         MESSAGE(WARNING ">> CLANG is NOT currently compatible as it does not support the following essential GCC compiler settings: -frounding-math -fsignaling-nans")
 ENDIF()
 
-SET(CPACK_GENERATOR "DEB")
-SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Mark Vejvoda") #required
-SET(CPACK_DEBIAN_PACKAGE_DEPENDS "
- libcurl4-gnutls-dev | libcurl4-nss-dev,
- libfontconfig1-dev,
- libftgl-dev,
- libglew-dev,
- libircclient-dev,
- libjpeg-dev,
- liblua5.1-0-dev,
- libminiupnpc-dev,
- libogg-dev,
- libopenal-dev,
- libpng12-dev,
- libsdl1.2-dev,
- libvlc-dev,
- libvorbis-dev,
- libwxgtk2.8-dev,
- libxerces-c2-dev,
- libxml2-dev,
- libz-dev,
- libfribidi-dev")
+IF(NOT DEFINED CPACK_GENERATOR)
+	SET(CPACK_GENERATOR "DEB")
+	SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Mark Vejvoda") #required
+	SET(CPACK_DEBIAN_PACKAGE_DEPENDS "
+	 libcurl4-gnutls-dev | libcurl4-nss-dev,
+	 libfontconfig1-dev,
+	 libftgl-dev,
+	 libglew-dev,
+	 libircclient-dev,
+	 libjpeg-dev,
+	 liblua5.1-0-dev,
+	 libminiupnpc-dev,
+	 libogg-dev,
+	 libopenal-dev,
+	 libpng12-dev,
+	 libsdl1.2-dev,
+	 libvlc-dev,
+	 libvorbis-dev,
+	 libwxgtk2.8-dev,
+	 libxerces-c2-dev,
+	 libxml2-dev,
+	 libz-dev,
+	 libfribidi-dev")
 
-#find_program(DPKG_PROGRAM dpkg DOC "dpkg program of Debian-based systems")
-#if(DPKG_PROGRAM)
-#  execute_process(
-#    COMMAND ${DPKG_PROGRAM} --print-architecture
-#    OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
-#    OUTPUT_STRIP_TRAILING_WHITESPACE
-#  )
-#endif(DPKG_PROGRAM)
+	#find_program(DPKG_PROGRAM dpkg DOC "dpkg program of Debian-based systems")
+	#if(DPKG_PROGRAM)
+	#  execute_process(
+	#    COMMAND ${DPKG_PROGRAM} --print-architecture
+	#    OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
+	#    OUTPUT_STRIP_TRAILING_WHITESPACE
+	#  )
+	#endif(DPKG_PROGRAM)
 
-SET(CPACK_PACKAGE_NAME ${PKG_NAME})
-SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MegaGlest")
-SET(CPACK_PACKAGE_VENDOR "megaglest.org")
-#SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
-#SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
-SET(CPACK_PACKAGE_INSTALL_DIRECTORY "megaglest")
-SET(CPACK_PACKAGE_VERSION_MAJOR ${VER_MAJOR})
-SET(CPACK_PACKAGE_VERSION_MINOR ${VER_MINOR})
-SET(CPACK_PACKAGE_VERSION_PATCH ${VER_RELEASE})
-IF(WIN32)
-    SET(CPACK_NSIS_DISPLAY_NAME "MegaGlest")
-    SET(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/mk/windoze/glest.ico")
-    SET(CPACK_PACKAGE_ICON "${PROJECT_SOURCE_DIR}/mk/windoze/megaglest.ico")
-    SET(CPACK_NSIS_URL_INFO_ABOUT "http://megaglest.org")
-ENDIF()
+	SET(CPACK_PACKAGE_NAME ${PKG_NAME})
+	SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MegaGlest")
+	SET(CPACK_PACKAGE_VENDOR "megaglest.org")
+	#SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
+	#SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
+	SET(CPACK_PACKAGE_INSTALL_DIRECTORY "megaglest")
+	SET(CPACK_PACKAGE_VERSION_MAJOR ${VER_MAJOR})
+	SET(CPACK_PACKAGE_VERSION_MINOR ${VER_MINOR})
+	SET(CPACK_PACKAGE_VERSION_PATCH ${VER_RELEASE})
+	IF(WIN32)
+		SET(CPACK_NSIS_DISPLAY_NAME "MegaGlest")
+		SET(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/mk/windoze/glest.ico")
+		SET(CPACK_PACKAGE_ICON "${PROJECT_SOURCE_DIR}/mk/windoze/megaglest.ico")
+		SET(CPACK_NSIS_URL_INFO_ABOUT "http://megaglest.org")
+	ENDIF()
+ENDIF(NOT DEFINED CPACK_GENERATOR)
 INCLUDE(CPack)
 
 get_directory_property( DirDefs DIRECTORY ${CMAKE_SOURCE_DIR} COMPILE_DEFINITIONS )
