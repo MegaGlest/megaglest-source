@@ -317,7 +317,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		buttonReturn.setText(lang.getString("Return"));
 
 		// Transifex related UI
-		currentLine-=lineOffset*4;
+		currentLine-=lineOffset*3;
 		labelCustomTranslation.registerGraphicComponent(containerName,"labelCustomTranslation");
 		labelCustomTranslation.init(currentLabelStart ,currentLine);
 		labelCustomTranslation.setText(lang.getString("CustomTranslation"));
