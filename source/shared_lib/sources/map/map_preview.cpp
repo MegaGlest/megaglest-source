@@ -992,9 +992,9 @@ void MapPreview::sinRandomize(int strenght) {
 	float sinV1 = random.randRange(5.f, 40.f);
 	float sinV2 = random.randRange(5.f, 40.f);
 	float ah = static_cast<float>(10 + random.randRange(-2, 2));
-	float bh = static_cast<float>((maxHeight - minHeight) / random.randRange(2, 3));
+	float bh = static_cast<float>((maxHeight - minHeight)) / static_cast<float>(random.randRange(2, 3));
 	float av = static_cast<float>(10 + random.randRange(-2, 2));
-	float bv = static_cast<float>((maxHeight - minHeight) / random.randRange(2, 3));
+	float bv = static_cast<float>((maxHeight - minHeight)) / static_cast<float>(random.randRange(2, 3));
 
 	for (int i = 0; i < w; ++i) {
 		for (int j = 0; j < h; ++j) {
