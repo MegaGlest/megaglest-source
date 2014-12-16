@@ -327,7 +327,8 @@ bool BaseThread::shutdownAndWait(BaseThread *pThread) {
 bool BaseThread::shutdownAndWait() {
 	bool ret = true;
 	BaseThread *pThread = this;
-	string uniqueID = (pThread != NULL ? pThread->getUniqueID() : "?");
+	//string uniqueID = (pThread != NULL ? pThread->getUniqueID() : "?");
+	string uniqueID = pThread->getUniqueID();
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] uniqueID [%s]\n",__FILE__,__FUNCTION__,__LINE__,uniqueID.c_str());
 
 	if(pThread != NULL) {

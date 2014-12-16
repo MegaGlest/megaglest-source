@@ -667,7 +667,7 @@ Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 						const AnimationAttributes &attributes = animationAttributes[i];
 						if(attributes.fromHp != 0 || attributes.toHp != 0) {
 							if(unit->getHp() >= attributes.fromHp && unit->getHp() <= attributes.toHp) {
-								modelIndex = i;
+								//modelIndex = i;
 								foundSpecificAnimation = true;
 								filteredAnimations.push_back(i);
 								//printf("SELECTING Model index = %d [%s] model attributes [%d to %d] for unit [%s - %d] with HP = %d\n",i,animations[modelIndex]->getFileName().c_str(),attributes.fromHp,attributes.toHp,unit->getType()->getName().c_str(),unit->getId(),unit->getHp());

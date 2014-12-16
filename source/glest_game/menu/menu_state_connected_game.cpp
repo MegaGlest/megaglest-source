@@ -1632,7 +1632,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 				}
 
 				if(labelPlayerNames[i].mouseClick(x, y) && (activeInputLabel != &labelPlayerNames[i])){
-					if(i == clientInterface->getPlayerIndex()){
+					if(clientInterface != NULL && i == clientInterface->getPlayerIndex()){
 						setActiveInputLabel(&labelPlayerNames[i]);
 					}
 				}
