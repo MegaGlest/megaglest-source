@@ -3511,8 +3511,8 @@ int handleCreateDataArchivesCommand(int argc, char** argv) {
 				printf("Compress item [%s] is not valid!\n",compress_item.c_str());
 				return_value = 1;
 			}
-
-			return_value = 0;
+			else
+				return_value = 0;
 		}
 		else {
 			printf("\nInvalid missing map specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
