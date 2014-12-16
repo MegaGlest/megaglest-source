@@ -316,6 +316,11 @@ Game::Game(Program *program, const GameSettings *gameSettings,bool masterserverM
 	this->masterserverMode = masterserverMode;
 	videoPlayer = NULL;
 	playingStaticVideo = false;
+	highlightCellTexture = NULL;
+	playerIndexDisconnect=0;
+	updateFpsAvgTest=0;
+	renderFpsAvgTest=0;
+	cameraDragAllowed=false;
 
 	if(this->masterserverMode == true) {
 		printf("Starting a new game...\n");

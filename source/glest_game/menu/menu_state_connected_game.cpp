@@ -1595,7 +1595,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 				}
 
 				if(canGrabSlot == true) {
-					if(i < mapInfo.players && grabSlotButton[i].mouseClick(x, y)) {
+					if(clientInterface != NULL && i < mapInfo.players && grabSlotButton[i].mouseClick(x, y)) {
 						//printf("Send slot switch request for slot = %d, myCurrentIndex = %d\n",i,myCurrentIndex);
 
 						soundRenderer.playFx(coreData.getClickSoundB());

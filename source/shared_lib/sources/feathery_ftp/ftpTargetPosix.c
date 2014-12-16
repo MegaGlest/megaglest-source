@@ -164,7 +164,7 @@ int ftpStat(const char* path, ftpPathInfo_S *info)
 
 		pw = getpwuid(fileInfo.st_uid);
 		if(pw)
-			strncpy(info->user, pw->pw_name, sizeof(info->user));
+			strncpy(info->user, pw->pw_name, sizeof(info->user)-1);
 		else
 			snprintf(info->user, 20,"%04d", fileInfo.st_uid);
 

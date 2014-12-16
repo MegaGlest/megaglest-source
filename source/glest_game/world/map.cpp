@@ -477,7 +477,7 @@ Checksum Map::load(const string &path, TechTree *techTree, Tileset *tileset) {
 					objNumber = ::Shared::PlatformByteOrder::fromCommonEndian(objNumber);
 
 					SurfaceCell *sc= getSurfaceCell(toSurfCoords(Vec2i(i, j)));
-					if(objNumber == 0) {
+					if(objNumber <= 0) {
 						sc->setObject(NULL);
 					}
 					else if(objNumber <= Tileset::objCount) {

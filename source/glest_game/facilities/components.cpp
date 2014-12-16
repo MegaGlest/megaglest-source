@@ -876,7 +876,10 @@ void GraphicScrollBar::setVisibleStart(int vs){
 	if(visibleStart<0) {
 		visibleStart=0;
 	}
-	float partSize=(float)getLength()/(float)elementCount;
+	float partSize = 0.f;
+	if(elementCount > 0) {
+		partSize = (float)getLength()/(float)elementCount;
+	}
 	visibleCompPosStart=visibleStart*partSize;
 	visibleCompPosEnd=visibleStart*partSize+visibleSize*partSize;
 	if(visibleCompPosEnd>getLength()) {

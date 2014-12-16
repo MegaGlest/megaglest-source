@@ -1224,7 +1224,7 @@ void AiRuleProduce::produceSpecific(const ProduceTask *pt){
 						if(ai->outputAIBehaviourToConsole()) printf("produceSpecific aiInterface->reqsOk(ct) = [%d] Testing AI RULE Name[%s]\n",aiInterface->reqsOk(ct), this->getName().c_str());
 
 						if(aiInterface->reqsOk(ct)){
-							defCt= ct;
+							//defCt= ct;
 							producers.push_back(i);
 							producersDefaultCommandType[i].push_back(ct);
 						}
@@ -1779,7 +1779,7 @@ void AiRuleBuild::buildSpecific(const BuildTask *bt) {
 								if(aiInterface->reqsOk(bct)) {
 									builders.push_back(i);
 									buildersDefaultCommandType[i].push_back(bct);
-									defBct= bct;
+									//defBct= bct;
 								}
 							}
 						}

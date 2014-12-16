@@ -49,7 +49,7 @@ void Display::calculateUpDimensions(int index) {
 		maxUpIndex=index;
 		if(maxUpIndex+1>upCellSideCount*upCellSideCount){
 			upCellSideCount=upCellSideCount+1;
-			upImageSize=imageSize*cellSideCount/upCellSideCount+0.9f;
+			upImageSize = static_cast<float>(imageSize) * static_cast<float>(cellSideCount) / static_cast<float>(upCellSideCount) + 0.9f;
 		}
 	}
 }
