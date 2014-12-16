@@ -1288,17 +1288,18 @@ void UnitParticleSystem::updateParticle(Particle *p){
 	if(alternations > 0){
 		int interval= (maxParticleEnergy / alternations);
 		float moduloValue= (float)((int)(static_cast<float> (p->energy)) % interval);
+		float floatInterval=static_cast<float> (interval);
 
-		if(moduloValue < interval / 2){
-			energyRatio= (interval - moduloValue) / interval;
+		if(moduloValue < floatInterval / 2.0f){
+			energyRatio= (floatInterval - moduloValue) / floatInterval;
 		}
 		else{
-			energyRatio= moduloValue / interval;
+			energyRatio= moduloValue / floatInterval;
 		}
 		energyRatio= clamp(energyRatio, 0.f, 1.f);
 	}
 	else{
-		energyRatio= clamp(static_cast<float> (p->energy) / maxParticleEnergy, 0.f, 1.f);
+		energyRatio= clamp(static_cast<float> (p->energy) / static_cast<float> (maxParticleEnergy), 0.f, 1.f);
 	}
 
 	energyRatio = truncateDecimal<float>(energyRatio,6);
