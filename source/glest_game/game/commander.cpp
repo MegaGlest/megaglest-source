@@ -687,7 +687,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
         	// If > 50% of team vote yes, switch th eplayers team
         	if(newTeamTotalMemberCount > 0 && newTeamVotedYes > 0 &&
-        		newTeamVotedYes / newTeamTotalMemberCount > 0.5) {
+        			static_cast<float>(newTeamVotedYes) / static_cast<float>(newTeamTotalMemberCount) > 0.5) {
         		Faction *faction = world->getFaction(factionIndex);
         		int oldTeam = faction->getTeam();
         		faction->setTeam(vote->newTeam);
