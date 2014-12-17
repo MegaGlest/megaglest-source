@@ -29,19 +29,7 @@ ENDIF(NOT CONFIG_HAS_BEEN_RUN_BEFORE)
 
 ##install part
 
-#extracting the current version...
-EXECUTE_PROCESS(
-	COMMAND /usr/bin/sed 
-	-n -e "s/.*glestVersionString = \"v\\\(.*\\\)\";.*/\\1/p" 
-
-	game_util.cpp 
-	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/source/glest_game/facilities"
-	OUTPUT_VARIABLE MEGAGLEST_VERSION )
-
-#for some reason the MEGAGLEST_VERSION can containts return like thus remove it
-STRING(REGEX REPLACE "\n" "" MEGAGLEST_VERSION "${MEGAGLEST_VERSION}")
-
-set(CPACK_PACKAGE_FILE_NAME MegaGlest-${MEGAGLEST_VERSION})
+set(CPACK_PACKAGE_FILE_NAME MegaGlest-${MG_VERSION_H_CONTENTS})
 
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/Info.plist" "${CMAKE_CURRENT_BINARY_DIR}/Info.plist") 
 
@@ -50,7 +38,7 @@ include (InstallRequiredSystemLibraries)
 
 set (CPACK_RESOURCE_FILE_LICENSE  
      "${CMAKE_CURRENT_SOURCE_DIR}/docs/COPYRIGHT.source_code.txt")
-set (CPACK_GENERATOR Bundle)
+set (CPACK_GENERATOR "Bundle")
 set (CPACK_BUNDLE_NAME "MegaGlest")
 set (CPACK_BUNDLE_STARTUP_COMMAND "${PROJECT_SOURCE_DIR}/data/glest_game/megaglest")
 set (CPACK_BUNDLE_ICON  "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/MegaGlest.icns")

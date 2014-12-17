@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>MegaGlest</string>
 	<key>CFBundleGetInfoString</key>
-	<string>${MEGAGLEST_VERSION}, © 2001-2010 The Glest Team All Rights Reserved.</string>
+	<string>${MG_VERSION_H_CONTENTS}, © 2001-2010 The Glest Team All Rights Reserved.</string>
 	<key>CFBundleIconFile</key>
 	<string>MegaGlest</string>
 	<key>CFBundleIdentifier</key>
@@ -19,11 +19,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>${MEGAGLEST_VERSION}</string>
+	<string>${MG_VERSION_H_CONTENTS}</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>${MEGAGLEST_VERSION}</string>
+	<string>${MG_VERSION_H_CONTENTS}</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
