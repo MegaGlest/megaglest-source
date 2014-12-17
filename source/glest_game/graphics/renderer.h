@@ -710,7 +710,7 @@ private:
 
     bool renderResourcesInTeamMode();
     int renderResource(const Faction *factionForResourceView,
-    		bool localFactionResourcesOnly, const ResourceType *rt,
+    		bool localFactionResourcesOnly,bool twoResourceLines, const ResourceType *rt,
     		int startRow, int &resourceCountRendered);
 
 };

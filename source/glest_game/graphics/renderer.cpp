@@ -2405,10 +2405,42 @@ void Renderer::renderResourceStatus() {
 
 	int rowsRendered = 0;
 	int resourceCountRendered = 0;
+	bool twoRessourceLines=false;
+
+	// If we are in team mode, lets render team totals
+	if(renderResourcesInTeamMode() == true) {
+		resourceCountRendered = 0;
+		for(int techTreeResourceTypeIndex = 0;
+				techTreeResourceTypeIndex < world->getTechTree()->getResourceTypeCount();
+					++techTreeResourceTypeIndex) {
+
+			const ResourceType *rt 	= world->getTechTree()->getResourceType(techTreeResourceTypeIndex);
+
+			if ( rt->getDisplayInHud() == false ) {
+				continue;
+			}
+
+			const Faction *factionForResourceView 	= thisFaction;
+			bool localFactionResourcesOnly 			= false;
+
+			bool showResource = world->showResourceTypeForFaction(rt, factionForResourceView, localFactionResourcesOnly);
+			if(showResource == true) {
+				twoRessourceLines=true;
+				rowsRendered = renderResource(factionForResourceView,
+						localFactionResourcesOnly, twoRessourceLines, rt, 0,
+						resourceCountRendered);
+			}
+		}
+	}
+
+	if(rowsRendered > 0 || resourceCountRendered > 0) {
+		rowsRendered++;
+	}
+	resourceCountRendered = 0;
+
 	for(int techTreeResourceTypeIndex = 0;
 			techTreeResourceTypeIndex < world->getTechTree()->getResourceTypeCount();
 				++techTreeResourceTypeIndex) {
-
 		const ResourceType *rt 	= world->getTechTree()->getResourceType(techTreeResourceTypeIndex);
 
 		if ( rt->getDisplayInHud() == false ) {
@@ -2452,68 +2484,45 @@ void Renderer::renderResourceStatus() {
 		//if any unit produces the resource
 		bool showResource = world->showResourceTypeForFaction(rt, factionForResourceView, false);
 		if(showResource == true) {
-			rowsRendered = renderResource(factionForResourceView,localFactionResourcesOnly,
-							rt, 0, resourceCountRendered);
+			renderResource(factionForResourceView, localFactionResourcesOnly,
+					twoRessourceLines, rt, rowsRendered, resourceCountRendered);
 		}
 	}
-
-	// If we rendered single player resources above and we are in team mode,
-	// lets render team totals next
-	if(renderResourcesInTeamMode() == true) {
-		if(rowsRendered > 0 || resourceCountRendered > 0) {
-			rowsRendered++;
-		}
-		resourceCountRendered = 0;
-		for(int techTreeResourceTypeIndex = 0;
-				techTreeResourceTypeIndex < world->getTechTree()->getResourceTypeCount();
-					++techTreeResourceTypeIndex) {
-
-			const ResourceType *rt 	= world->getTechTree()->getResourceType(techTreeResourceTypeIndex);
-
-			if ( rt->getDisplayInHud() == false ) {
-				continue;
-			}
-
-			const Faction *factionForResourceView 	= thisFaction;
-			bool localFactionResourcesOnly 			= false;
-
-			bool showResource = world->showResourceTypeForFaction(rt, factionForResourceView, localFactionResourcesOnly);
-			if(showResource == true) {
-				renderResource(factionForResourceView,localFactionResourcesOnly,
-								rt, rowsRendered, resourceCountRendered);
-			}
-		}
-	}
-
 	glPopAttrib();
 
 	assertGl();
 }
 
 int Renderer::renderResource(const Faction *factionForResourceView,bool localFactionResourcesOnly,
-		const ResourceType *rt, int startRow, int &resourceCountRendered) {
+		bool twoResourceLines, const ResourceType *rt, int startRow, int &resourceCountRendered) {
 
 	const Metrics &metrics	= Metrics::getInstance();
+	const int MAX_RESOURCES_PER_ROW = 6;
+
+	int resourceRowHeigth=30;
+	int resourceYStart=metrics.getVirtualH()-30;
+	if(twoResourceLines){
+		// we need to save some space
+		resourceYStart=metrics.getVirtualH()-22;
+		resourceRowHeigth=16;
+	}
 
 	//draw resource status
 	if(localFactionResourcesOnly == true) {
-		string str = "*";
 		Vec4f resourceFontColor = Vec4f(factionForResourceView->getTexture()->getPixmapConst()->getPixel3f(0,0));
 		int resourceCol = 0;
 		int resourceRow = startRow;
 
-		if(renderText3DEnabled == true) {
-			renderTextShadow3D(
-				str, CoreData::getInstance().getDisplayFontSmall3D(),
-				resourceFontColor,
-				resourceCol * 100 + 190, metrics.getVirtualH()-30 - (30 * resourceRow), false);
-		}
-		else {
-			renderTextShadow(
-				str, CoreData::getInstance().getDisplayFontSmall(),
-				resourceFontColor,
-				resourceCol * 100 + 190, metrics.getVirtualH()-30 - (30 * resourceRow), false);
-		}
+		int x=resourceCol * 100 + 190;
+		int y=resourceYStart - (resourceRowHeigth * resourceRow);
+		int h=16;
+		int w=8;
+		glColor3f(resourceFontColor.x,resourceFontColor.y,resourceFontColor.z);
+		glBegin(GL_TRIANGLE_STRIP);
+			glVertex2i(x, y+h);
+			glVertex2i(x, y);
+			glVertex2i(x+w, y+h/2);
+		glEnd();
 	}
 
 	const Resource *r = factionForResourceView->getResource(rt,localFactionResourcesOnly);
@@ -2553,11 +2562,11 @@ int Renderer::renderResource(const Faction *factionForResourceView,bool localFac
 	if(isNegativeConsumableDisplayCycle == false) {
 		glColor3f(1.f, 1.f, 1.f);
 	}
-	const int MAX_RESOURCES_PER_ROW = 6;
+
 	int resourceRow = startRow + (resourceCountRendered > 0 ? resourceCountRendered / MAX_RESOURCES_PER_ROW : 0);
 	int resourceCol = resourceCountRendered % MAX_RESOURCES_PER_ROW;
 
-	renderQuad(resourceCol * 100 + 200, metrics.getVirtualH()-30 - (30 * resourceRow), 16, 16, rt->getImage());
+	renderQuad(resourceCol * 100 + 200, resourceYStart - (resourceRowHeigth * resourceRow), 16, 16, rt->getImage());
 
 	if(rt->getClass() != rcStatic) {
 		str+= "/" + intToStr(factionForResourceView->getStoreAmount(rt,localFactionResourcesOnly));
@@ -2576,13 +2585,13 @@ int Renderer::renderResource(const Faction *factionForResourceView,bool localFac
 		renderTextShadow3D(
 			str, CoreData::getInstance().getDisplayFontSmall3D(),
 			resourceFontColor,
-			resourceCol * 100 + 220, metrics.getVirtualH()-30 - (30 * resourceRow), false);
+			resourceCol * 100 + 220, resourceYStart - (resourceRowHeigth * resourceRow), false);
 	}
 	else {
 		renderTextShadow(
 			str, CoreData::getInstance().getDisplayFontSmall(),
 			resourceFontColor,
-			resourceCol * 100 + 220, metrics.getVirtualH()-30 - (30 * resourceRow), false);
+			resourceCol * 100 + 220, resourceYStart - (resourceRowHeigth * resourceRow), false);
 	}
 	++resourceCountRendered;
 
