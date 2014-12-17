@@ -26,9 +26,6 @@ IF(NOT CONFIG_HAS_BEEN_RUN_BEFORE)
 ENDIF(NOT CONFIG_HAS_BEEN_RUN_BEFORE)
 
 # Include extra paths to search for includes; this is the default system wide macports path.
-
-# Try to get /opt/local in my path http://stackoverflow.com/questions/1487752/how-do-i-instruct-cmake-to-look-for-libraries-installed-by-macports
-# Try the better solutions when possible
 INCLUDE_DIRECTORIES(/opt/local/include)
 LINK_DIRECTORIES(/opt/local/lib)
 
