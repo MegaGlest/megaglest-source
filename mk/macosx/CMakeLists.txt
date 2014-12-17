@@ -38,7 +38,7 @@ include (InstallRequiredSystemLibraries)
 
 set (CPACK_RESOURCE_FILE_LICENSE  
      "${CMAKE_CURRENT_SOURCE_DIR}/docs/COPYRIGHT.source_code.txt")
-set (CPACK_GENERATOR "Bundle")
+set (CPACK_GENERATOR Bundle)
 set (CPACK_BUNDLE_NAME "MegaGlest")
 set (CPACK_BUNDLE_STARTUP_COMMAND "${PROJECT_SOURCE_DIR}/data/glest_game/megaglest")
 set (CPACK_BUNDLE_ICON  "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/MegaGlest.icns")
