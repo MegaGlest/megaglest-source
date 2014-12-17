@@ -31,19 +31,7 @@ LINK_DIRECTORIES(/opt/local/lib)
 
 ##install part
 
-#extracting the current version...
-EXECUTE_PROCESS(
-	COMMAND /usr/bin/sed 
-	-n -e "s/.*glestVersionString = \"v\\\(.*\\\)\";.*/\\1/p" 
-
-	game_util.cpp 
-	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/source/glest_game/facilities"
-	OUTPUT_VARIABLE MEGAGLEST_VERSION )
-
-#for some reason the MEGAGLEST_VERSION can containts return like thus remove it
-STRING(REGEX REPLACE "\n" "" MEGAGLEST_VERSION "${MEGAGLEST_VERSION}")
-
-set(CPACK_PACKAGE_FILE_NAME MegaGlest-${MEGAGLEST_VERSION})
+set(CPACK_PACKAGE_FILE_NAME MegaGlest-${MG_VERSION_H_CONTENTS})
 
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/Info.plist" "${CMAKE_CURRENT_BINARY_DIR}/Info.plist") 
 
