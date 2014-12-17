@@ -25,7 +25,9 @@ IF(NOT CONFIG_HAS_BEEN_RUN_BEFORE)
 	ENDIF()
 ENDIF(NOT CONFIG_HAS_BEEN_RUN_BEFORE)
 
-
+# Include extra paths to search for includes; this is the default system wide macports path.
+INCLUDE_DIRECTORIES(/opt/local/include)
+LINK_DIRECTORIES(/opt/local/lib)
 
 ##install part
 

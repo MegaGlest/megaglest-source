@@ -81,6 +81,7 @@ endif()
 ## Compiler flags
 IF(APPLE)
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
+	include(${PROJECT_SOURCE_DIR}/mk/macosx/CMakeLists.txt)
 ENDIF(APPLE)
 
 IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
@@ -364,10 +365,6 @@ IF(EXISTS "${PROJECT_SOURCE_DIR}/source/")
 	#  MESSAGE(STATUS "map editor, g3d viewer")
 	#endif()
 	ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/source/tools/glexemel )
-
-	IF(APPLE)
-		include(${PROJECT_SOURCE_DIR}/mk/macosx/CMakeLists.txt)
-	ENDIF()
 
         ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/source/tests )
 ENDIF()
