@@ -617,7 +617,7 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 //	class GraphicMessageBox
 // =====================================================
 
-const int GraphicMessageBox::defH= 300;
+const int GraphicMessageBox::defH= 280;
 const int GraphicMessageBox::defW= 350;
 
 GraphicMessageBox::GraphicMessageBox(std::string containerName, std::string objName) :
