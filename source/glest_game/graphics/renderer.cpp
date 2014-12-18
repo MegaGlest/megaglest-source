@@ -3774,6 +3774,7 @@ void Renderer::renderListBox(GraphicListBox *listBox) {
 }
 
 void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
+	const int headerHeight=25;
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
@@ -3805,18 +3806,18 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 
 		glColor4f(0.0f, 0.0f, 0.0f, 0.8f) ;
 		glBegin(GL_TRIANGLE_STRIP);
-			glVertex2i(messageBox->getX(), messageBox->getY()+9*messageBox->getH()/10);
+			glVertex2i(messageBox->getX(), messageBox->getY()+messageBox->getH()-headerHeight);
 			glVertex2i(messageBox->getX(), messageBox->getY());
-			glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY() + 9*messageBox->getH()/10);
+			glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY() + messageBox->getH()-headerHeight);
 			glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY());
 		glEnd();
 
 		glColor4f(0.0f, 0.0f, 0.0f, 0.8f) ;
 		glBegin(GL_TRIANGLE_STRIP);
 			glVertex2i(messageBox->getX(), messageBox->getY()+messageBox->getH());
-			glVertex2i(messageBox->getX(), messageBox->getY()+9*messageBox->getH()/10);
+			glVertex2i(messageBox->getX(), messageBox->getY()+messageBox->getH()-headerHeight);
 			glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY() + messageBox->getH());
-			glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY()+9*messageBox->getH()/10);
+			glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY()+messageBox->getH()-headerHeight);
 		glEnd();
 
 		glBegin(GL_LINE_LOOP);
@@ -3835,10 +3836,10 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 
 		glBegin(GL_LINE_STRIP);
 			glColor4f(1.0f, 1.0f, 1.0f, 0.25f) ;
-			glVertex2i(messageBox->getX(), messageBox->getY() + 90*messageBox->getH()/100);
+			glVertex2i(messageBox->getX(), messageBox->getY() + messageBox->getH()-headerHeight);
 
 			glColor4f(0.5f, 0.5f, 0.5f, 0.25f) ;
-			glVertex2i(messageBox->getX()+ messageBox->getW(), messageBox->getY() + 90*messageBox->getH()/100);
+			glVertex2i(messageBox->getX()+ messageBox->getW(), messageBox->getY() + messageBox->getH()-headerHeight);
 		glEnd();
 
 		glPopAttrib();
@@ -3869,12 +3870,12 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 			//text
 			renderTextShadow3D(
 					wrappedText, messageBox->getFont3D(), fontColor,
-				messageBox->getX()+15, messageBox->getY()+7*messageBox->getH()/10,
+				messageBox->getX()+15, messageBox->getY()+messageBox->getH()-headerHeight*2,
 				false );
 
 			renderTextShadow3D(
 				messageBox->getHeader(), messageBox->getFont3D(),fontColor,
-				messageBox->getX()+15, messageBox->getY()+93*messageBox->getH()/100,
+				messageBox->getX()+15, messageBox->getY()+messageBox->getH()-headerHeight+8,
 				false );
 
 		}
@@ -3882,12 +3883,12 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 			//text
 			renderTextShadow(
 					wrappedText, messageBox->getFont(), fontColor,
-				messageBox->getX()+15, messageBox->getY()+7*messageBox->getH()/10,
+				messageBox->getX()+15, messageBox->getY()+messageBox->getH()-headerHeight*2,
 				false );
 
 			renderTextShadow(
 				messageBox->getHeader(), messageBox->getFont(),fontColor,
-				messageBox->getX()+15, messageBox->getY()+93*messageBox->getH()/100,
+				messageBox->getX()+15, messageBox->getY()+messageBox->getH()-headerHeight+8,
 				false );
 		}
 	}
