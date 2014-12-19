@@ -62,38 +62,25 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 		else {
 			// All units are affected (including enemies)
 			if(targetType == abtAll) {
-				//destUnitMightApply = (boostUnitList.empty() && tags.empty());
-				destUnitMightApply = isInUnitListOrTags(dest->getType());
+				destUnitMightApply = (boostUnitList.empty() && tags.empty()) || isInUnitListOrTags(dest->getType());;
 			}
 			// Only same faction units are affected
 			else if(targetType == abtFaction) {
-				//if(boostUnitList.empty() == true) {
 				if(source->getFactionIndex() == dest->getFactionIndex()) {
-					//destUnitMightApply = true;
-					//destUnitMightApply = (boostUnitList.empty() && tags.empty());
-					destUnitMightApply = isInUnitListOrTags(dest->getType());
+					destUnitMightApply = (boostUnitList.empty() && tags.empty()) || isInUnitListOrTags(dest->getType());
 				}
-				//}
 			}
 			// Only ally units are affected
 			else if(targetType == abtAlly) {
-				//if(boostUnitList.empty() == true) {
 				if(source->isAlly(dest) == true) {
-					//destUnitMightApply = true;
-					//destUnitMightApply = (boostUnitList.empty() && tags.empty());
-					destUnitMightApply = isInUnitListOrTags(dest->getType());
+					destUnitMightApply = (boostUnitList.empty() && tags.empty()) || isInUnitListOrTags(dest->getType());
 				}
-				//}
 			}
 			// Only foe units are affected
 			else if(targetType == abtFoe) {
-				//if(boostUnitList.empty() == true) {
 				if(source->isAlly(dest) == false) {
-					//destUnitMightApply = true;
-					//destUnitMightApply = (boostUnitList.empty() && tags.empty());
-					destUnitMightApply = isInUnitListOrTags(dest->getType());
+					destUnitMightApply = (boostUnitList.empty() && tags.empty()) || isInUnitListOrTags(dest->getType());
 				}
-				//}
 			}
 			else if(targetType == abtUnitTypes) {
 				destUnitMightApply = isInUnitListOrTags(dest->getType());
