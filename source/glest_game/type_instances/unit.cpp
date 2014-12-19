@@ -2421,13 +2421,11 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 					attackBoost->radius);
 
 			if(debugBoost) printf("Line: %d candidates unit size: " MG_SIZE_T_SPECIFIER " attackBoost: %s\n",__LINE__,candidates.size(),attackBoost->getDesc(false).c_str());
-
 			for (unsigned int i = 0; i < candidates.size(); ++i) {
 				Unit *affectedUnit = candidates[i];
 				if (attackBoost->isAffected(this, affectedUnit) == true) {
 					if (affectedUnit->applyAttackBoost(attackBoost, this) == true) {
 						currentAttackBoostOriginatorEffect.currentAttackBoostUnits.push_back(affectedUnit->getId());
-
 						//printf("+ #1 APPLY ATTACK BOOST to unit [%s - %d]\n",affectedUnit->getType()->getName().c_str(),affectedUnit->getId());
 					}
 				}

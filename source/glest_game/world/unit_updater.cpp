@@ -3159,7 +3159,7 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 }
 
 
-void UnitUpdater::findUnitsForCell(Cell *cell, const Unit *unit,vector<Unit*> &units) {
+void UnitUpdater::findUnitsForCell(Cell *cell, vector<Unit*> &units) {
 	//all fields
 	if(cell != NULL) {
 		for(int k = 0; k < fieldCount; k++) {
@@ -3169,7 +3169,21 @@ void UnitUpdater::findUnitsForCell(Cell *cell, const Unit *unit,vector<Unit*> &u
 			Unit *cellUnit = cell->getUnit(f);
 
 			if(cellUnit != NULL && cellUnit->isAlive()) {
-				units.push_back(cellUnit);
+				// check if unit already is in list
+				bool found = false;
+				//printf("---- search for cellUnit=%d\n",cellUnit->getId());
+				for (unsigned int i = 0; i < units.size(); ++i) {
+					Unit *unitInList = units[i];
+					//printf("compare unitInList=%d cellUnit=%d\n",unitInList->getId(),cellUnit->getId());
+					if (unitInList->getId() == cellUnit->getId()){
+						found=true;
+						break;
+					}
+				}
+				if(found==false){
+					//printf(">>> adding cellUnit=%d\n",cellUnit->getId());
+					units.push_back(cellUnit);
+				}
 			}
 		}
 	}
@@ -3195,7 +3209,7 @@ vector<Unit*> UnitUpdater::findUnitsInRange(const Unit *unit, int radius) {
 			if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
 #endif
 				Cell *cell = map->getCell(i,j);
-				findUnitsForCell(cell,unit,units);
+				findUnitsForCell(cell,units);
 			}
 		}
 	}
