@@ -308,7 +308,7 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 	Lang &lang= Lang::getInstance();
 
 	if(getMaxHp() != 0) {
-		str += indent+lang.getString("Hp",(translatedValue == true ? "" : "english")) + " *" + intToStr(getMaxHp());
+		str += indent+lang.getString("Hp",(translatedValue == true ? "" : "english")) + " +" + intToStr(getMaxHp());
 		if(getMaxHpRegeneration() != 0) {
 			str += " [" + intToStr(getMaxHpRegeneration()) + "]";
 		}
