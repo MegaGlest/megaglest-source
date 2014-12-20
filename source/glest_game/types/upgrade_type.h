@@ -133,7 +133,7 @@ public:
     }
     virtual ~UpgradeTypeBase() {}
 
-	virtual void copyData(UpgradeTypeBase *destination);
+	virtual void copyDataFrom(UpgradeTypeBase *source);
 
     virtual string getUpgradeName() const { return upgradename; }
     virtual int getMaxHp() const			{return maxHp;}
@@ -338,12 +338,10 @@ class TotalUpgrade: public UpgradeTypeBase {
 private:
 
 	// List of boosts
-	//const UpgradeTypeBase *ut, const Unit *unit
 	const UpgradeTypeBase *boostUpgradeBase;
 	const Unit *boostUpgradeUnit;
 	std::vector<TotalUpgrade *> boostUpgrades;
 
-	void remove(const UpgradeTypeBase *ut,const Unit *unit);
 public:
 	TotalUpgrade();
 	virtual ~TotalUpgrade() {}
