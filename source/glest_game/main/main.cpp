@@ -1147,6 +1147,7 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 			Renderer &renderer= Renderer::getInstance();
 			if(keystate.mod & (KMOD_LALT | KMOD_RALT)) {
 				renderer.cycleShowDebugUILevel();
+				printf("**Cycled Debug UI level to: %d\n",renderer.getShowDebugUILevel());
 			}
 			else {
 				bool showDebugUI = renderer.getShowDebugUI();

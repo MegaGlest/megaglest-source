@@ -97,6 +97,14 @@ protected:
 	bool attackSpeedIsMultiplier;
 	std::map<string,int> attackSpeedIsMultiplierValueList;
 
+protected:
+
+	virtual int getAttackStrength() const { return attackStrength; }
+	virtual int getAttackRange() const { return attackRange; }
+	virtual int getMoveSpeed() const { return moveSpeed; }
+	virtual int getProdSpeed() const { return prodSpeed; }
+	virtual int getAttackSpeed() const { return attackSpeed; }
+
 public:
 	/**
 	 * Creates an UpgradeTypeBase with values such that there are no stat changes.
@@ -125,32 +133,30 @@ public:
     }
     virtual ~UpgradeTypeBase() {}
 
-	int getMaxHp() const			{return maxHp;}
-	bool getMaxHpIsMultiplier() const			{return maxHpIsMultiplier;}
-	int getMaxHpRegeneration() const			{return maxHpRegeneration;}
-	//bool getMaxHpRegenerationIsMultiplier() const			{return maxHpRegenerationIsMultiplier;}
+	virtual void copyData(UpgradeTypeBase *destination);
 
-	int getSight() const			{return sight;}
-	bool getSightIsMultiplier() const			{return sightIsMultiplier;}
+    virtual string getUpgradeName() const { return upgradename; }
+    virtual int getMaxHp() const			{return maxHp;}
+    virtual int getMaxHpRegeneration() const			{return maxHpRegeneration;}
+    virtual int getSight() const			{return sight;}
+    virtual int getMaxEp() const			{return maxEp;}
+    virtual int getMaxEpRegeneration() const			{return maxEpRegeneration;}
+    virtual int getArmor() const			{return armor;}
+    virtual int getAttackStrength(const AttackSkillType *st) const;
+    virtual int getAttackRange(const AttackSkillType *st) const;
+    virtual int getMoveSpeed(const MoveSkillType *st) const;
+    virtual int getProdSpeed(const SkillType *st) const;
+    virtual int getAttackSpeed(const AttackSkillType *st) const;
 
-	int getMaxEp() const			{return maxEp;}
-	bool getMaxEpIsMultiplier() const			{return maxEpIsMultiplier;}
-	int getMaxEpRegeneration() const			{return maxEpRegeneration;}
-	//bool getMaxEpRegenerationIsMultiplier() const			{return maxEpRegenerationIsMultiplier;}
-
-	int getArmor() const			{return armor;}
-	bool getArmorIsMultiplier() const			{return armorIsMultiplier;}
-
-	int getAttackStrength(const AttackSkillType *st) const;
-	bool getAttackStrengthIsMultiplier() const	{return attackStrengthIsMultiplier;}
-	int getAttackRange(const AttackSkillType *st) const;
-	bool getAttackRangeIsMultiplier() const		{return attackRangeIsMultiplier;}
-	int getMoveSpeed(const MoveSkillType *st) const;
-	bool getMoveSpeedIsMultiplier() const		{return moveSpeedIsMultiplier;}
-	int getProdSpeed(const SkillType *st) const;
-	bool getProdSpeedIsMultiplier() const		{return prodSpeedIsMultiplier;}
-	int getAttackSpeed(const AttackSkillType *st) const;
-	bool getAttackSpeedIsMultiplier() const		{return attackSpeedIsMultiplier;}
+	virtual bool getAttackStrengthIsMultiplier() const	{return attackStrengthIsMultiplier;}
+	virtual bool getMaxHpIsMultiplier() const			{return maxHpIsMultiplier;}
+	virtual bool getSightIsMultiplier() const			{return sightIsMultiplier;}
+	virtual bool getMaxEpIsMultiplier() const			{return maxEpIsMultiplier;}
+	virtual bool getArmorIsMultiplier() const			{return armorIsMultiplier;}
+	virtual bool getAttackRangeIsMultiplier() const		{return attackRangeIsMultiplier;}
+	virtual bool getMoveSpeedIsMultiplier() const		{return moveSpeedIsMultiplier;}
+	virtual bool getProdSpeedIsMultiplier() const		{return prodSpeedIsMultiplier;}
+	virtual bool getAttackSpeedIsMultiplier() const		{return attackSpeedIsMultiplier;}
 
 	/**
 	 * Loads the upgrade values (stat boosts and whether or not the boosts use a multiplier) from an
@@ -159,7 +165,7 @@ public:
 	 * @param upgradename Unique identifier for the upgrade.
 	 */
 
-	void load(const XmlNode *upgradeNode, string upgradename);
+    virtual void load(const XmlNode *upgradeNode, string upgradename);
 	
 	/**
 	 * Creates a string representation of the upgrade. All stat boosts are detailed on their own line
@@ -167,39 +173,39 @@ public:
 	 * @param translatedValue If true, the description is translated. Otherwise the description uses
 	 * names as they appear in the XMLs.
 	 */
-	virtual string getDesc(bool translatedValue) const;
+    virtual string getDesc(bool translatedValue) const;
 	
 	/**
 	 * Returns a string representation of this object. Lists all the value that the object stores.
 	 * For debugging purposes, only.
 	 */
-	std::string toString() const {
+    virtual std::string toString() const {
 		std::string result = "";
 
-		result += "upgradename =" + upgradename;
-		result += "maxHp = " + intToStr(maxHp);
-		result += "maxHpIsMultiplier = " + intToStr(maxHpIsMultiplier);
-		result += "maxHpRegeneration = " + intToStr(maxHpRegeneration);
+		result += "upgradename =" + getUpgradeName();
+		result += "maxHp = " + intToStr(getMaxHp());
+		result += "maxHpIsMultiplier = " + intToStr(getMaxHpIsMultiplier());
+		result += "maxHpRegeneration = " + intToStr(getMaxHpRegeneration());
 		//result += "maxHpRegenerationIsMultiplier = " + intToStr(maxHpRegenerationIsMultiplier);
 
-		result += " sight = " + intToStr(sight);
-		result += "sightIsMultiplier = " + intToStr(sightIsMultiplier);
+		result += " sight = " + intToStr(getSight());
+		result += "sightIsMultiplier = " + intToStr(getSightIsMultiplier());
 
-		result += " maxEp = " + intToStr(maxEp);
-		result += " maxEpIsMultiplier = " + intToStr(maxEpIsMultiplier);
-		result += " maxEpRegeneration = " + intToStr(maxEpRegeneration);
+		result += " maxEp = " + intToStr(getMaxEp());
+		result += " maxEpIsMultiplier = " + intToStr(getMaxEpIsMultiplier());
+		result += " maxEpRegeneration = " + intToStr(getMaxEpRegeneration());
 		//result += "maxEpRegenerationIsMultiplier = " + intToStr(maxEpRegenerationIsMultiplier);
 
-		result += " armor = " + intToStr(armor);
-		result += " armorIsMultiplier = " + intToStr(armorIsMultiplier);
-		result += " attackStrength = " + intToStr(attackStrength);
-		result += " attackStrengthIsMultiplier = " + intToStr(attackStrengthIsMultiplier);
-		result += " attackRange = " + intToStr(attackRange);
-		result += " attackRangeIsMultiplier = " + intToStr(attackRangeIsMultiplier);
-		result += " moveSpeed = " + intToStr(moveSpeed);
-		result += " moveSpeedIsMultiplier = " + intToStr(moveSpeedIsMultiplier);
-		result += " prodSpeed = " + intToStr(prodSpeed);
-		result += " prodSpeedIsMultiplier = " + intToStr(prodSpeedIsMultiplier);
+		result += " armor = " + intToStr(getArmor());
+		result += " armorIsMultiplier = " + intToStr(getArmorIsMultiplier());
+		result += " attackStrength = " + intToStr(getAttackStrength());
+		result += " attackStrengthIsMultiplier = " + intToStr(getAttackStrengthIsMultiplier());
+		result += " attackRange = " + intToStr(getAttackRange());
+		result += " attackRangeIsMultiplier = " + intToStr(getAttackRangeIsMultiplier());
+		result += " moveSpeed = " + intToStr(getMoveSpeed());
+		result += " moveSpeedIsMultiplier = " + intToStr(getMoveSpeedIsMultiplier());
+		result += " prodSpeed = " + intToStr(getProdSpeed());
+		result += " prodSpeedIsMultiplier = " + intToStr(getProdSpeedIsMultiplier());
 
 		return result;
 	}
@@ -212,41 +218,41 @@ public:
 	/**
 	 * Generates a checksum value for the upgrade.
 	 */
-	Checksum getCRC() {
+	virtual Checksum getCRC() {
 		Checksum crcForUpgradeType;
 
-		crcForUpgradeType.addString(upgradename);
-		crcForUpgradeType.addInt(maxHp);
-		crcForUpgradeType.addInt(maxHpIsMultiplier);
-	    crcForUpgradeType.addInt(maxHpRegeneration);
+		crcForUpgradeType.addString(getUpgradeName());
+		crcForUpgradeType.addInt(getMaxHp());
+		crcForUpgradeType.addInt(getMaxHpIsMultiplier());
+	    crcForUpgradeType.addInt(getMaxHpRegeneration());
 
-	    crcForUpgradeType.addInt(sight);
-	    crcForUpgradeType.addInt(sightIsMultiplier);
+	    crcForUpgradeType.addInt(getSight());
+	    crcForUpgradeType.addInt(getSightIsMultiplier());
 
-	    crcForUpgradeType.addInt(maxEp);
-	    crcForUpgradeType.addInt(maxEpIsMultiplier);
-	    crcForUpgradeType.addInt(maxEpRegeneration);
+	    crcForUpgradeType.addInt(getMaxEp());
+	    crcForUpgradeType.addInt(getMaxEpIsMultiplier());
+	    crcForUpgradeType.addInt(getMaxEpRegeneration());
 
-	    crcForUpgradeType.addInt(armor);
-	    crcForUpgradeType.addInt(armorIsMultiplier);
+	    crcForUpgradeType.addInt(getArmor());
+	    crcForUpgradeType.addInt(getArmorIsMultiplier());
 
-	    crcForUpgradeType.addInt(attackStrength);
-	    crcForUpgradeType.addInt(attackStrengthIsMultiplier);
+	    crcForUpgradeType.addInt(getAttackStrength());
+	    crcForUpgradeType.addInt(getAttackStrengthIsMultiplier());
 	    //std::map<string,int> attackStrengthMultiplierValueList;
 	    crcForUpgradeType.addInt64((int64)attackStrengthMultiplierValueList.size());
 
-	    crcForUpgradeType.addInt(attackRange);
-	    crcForUpgradeType.addInt(attackRangeIsMultiplier);
+	    crcForUpgradeType.addInt(getAttackRange());
+	    crcForUpgradeType.addInt(getAttackRangeIsMultiplier());
 	    //std::map<string,int> attackRangeMultiplierValueList;
 	    crcForUpgradeType.addInt64((int64)attackRangeMultiplierValueList.size());
 
-	    crcForUpgradeType.addInt(moveSpeed);
-	    crcForUpgradeType.addInt(moveSpeedIsMultiplier);
+	    crcForUpgradeType.addInt(getMoveSpeed());
+	    crcForUpgradeType.addInt(getMoveSpeedIsMultiplier());
 	    //std::map<string,int> moveSpeedIsMultiplierValueList;
 	    crcForUpgradeType.addInt64((int64)moveSpeedIsMultiplierValueList.size());
 
-	    crcForUpgradeType.addInt(prodSpeed);
-	    crcForUpgradeType.addInt(prodSpeedIsMultiplier);
+	    crcForUpgradeType.addInt(getProdSpeed());
+	    crcForUpgradeType.addInt(getProdSpeedIsMultiplier());
 	    //std::map<string,int> prodSpeedProduceIsMultiplierValueList;
 	    crcForUpgradeType.addInt64((int64)prodSpeedProduceIsMultiplierValueList.size());
 	    //std::map<string,int> prodSpeedUpgradeIsMultiplierValueList;
@@ -254,8 +260,8 @@ public:
 	    //std::map<string,int> prodSpeedMorphIsMultiplierValueList;
 	    crcForUpgradeType.addInt64((int64)prodSpeedMorphIsMultiplierValueList.size());
 		
-	    crcForUpgradeType.addInt(attackSpeed);
-	    crcForUpgradeType.addInt(attackSpeedIsMultiplier);
+	    crcForUpgradeType.addInt(getAttackSpeed());
+	    crcForUpgradeType.addInt(getAttackSpeedIsMultiplier());
 
 		return crcForUpgradeType;
 	}
@@ -328,6 +334,16 @@ public:
  * upgrades to a unit with the effects stacking.
  */
 class TotalUpgrade: public UpgradeTypeBase {
+
+private:
+
+	// List of boosts
+	//const UpgradeTypeBase *ut, const Unit *unit
+	const UpgradeTypeBase *boostUpgradeBase;
+	const Unit *boostUpgradeUnit;
+	std::vector<TotalUpgrade *> boostUpgrades;
+
+	void remove(const UpgradeTypeBase *ut,const Unit *unit);
 public:
 	TotalUpgrade();
 	virtual ~TotalUpgrade() {}
@@ -372,6 +388,18 @@ public:
 	 * the stats were raise by an amount relative to the unit's base stats).
 	 */
 	void deapply(const UpgradeTypeBase *ut, const Unit *unit);
+
+    virtual int getMaxHp() const;
+    virtual int getMaxHpRegeneration() const;
+    virtual int getSight() const;
+    virtual int getMaxEp() const;
+    virtual int getMaxEpRegeneration() const;
+    virtual int getArmor() const;
+    virtual int getAttackStrength(const AttackSkillType *st) const;
+    virtual int getAttackRange(const AttackSkillType *st) const;
+    virtual int getMoveSpeed(const MoveSkillType *st) const;
+    virtual int getProdSpeed(const SkillType *st) const;
+    virtual int getAttackSpeed(const AttackSkillType *st) const;
 
 	/**
 	 * Creates the XML for the save game file. Essentially just stores everything about its state.

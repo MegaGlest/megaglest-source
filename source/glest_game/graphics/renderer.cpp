@@ -9799,6 +9799,9 @@ Texture2D * Renderer::findTexture(string logoFilename) {
 void Renderer::cycleShowDebugUILevel() {
 	//printf("#1 showDebugUILevel = %d, debugui_fps = %d, debugui_unit_titles = %d\n",showDebugUILevel,debugui_fps,debugui_unit_titles);
 
+	//if(showDebugUI == false) {
+	//	showDebugUI = true;
+	//}
 	if((showDebugUILevel & debugui_fps) != debugui_fps ||
 		(showDebugUILevel & debugui_unit_titles) != debugui_unit_titles) {
 		showDebugUILevel  |= debugui_fps;

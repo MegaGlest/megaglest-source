@@ -42,6 +42,38 @@ namespace Glest{ namespace Game{
 const string VALUE_PERCENT_MULTIPLIER_KEY_NAME = "value-percent-multiplier";
 const string VALUE_REGEN_KEY_NAME = "regeneration";
 
+void UpgradeTypeBase::copyData(UpgradeTypeBase *destination) {
+	destination->upgradename = upgradename;
+	destination->maxHp = maxHp;
+	destination->maxHpIsMultiplier = maxHpIsMultiplier;
+	destination->maxHpRegeneration = maxHpRegeneration;
+	destination->sight = sight;
+	destination->sightIsMultiplier = sightIsMultiplier;
+	destination->maxEp = maxEp;
+	destination->maxEpIsMultiplier = maxEpIsMultiplier;
+	destination->maxEpRegeneration = maxEpRegeneration;
+	destination->armor = armor;
+	destination->armorIsMultiplier = armorIsMultiplier;
+	destination->attackStrength = attackStrength;
+	destination->attackStrengthIsMultiplier = attackStrengthIsMultiplier;
+	destination->attackStrengthMultiplierValueList = attackStrengthMultiplierValueList;
+	destination->attackRange = attackRange;
+	destination->attackRangeIsMultiplier = attackRangeIsMultiplier;
+	destination->attackRangeMultiplierValueList = attackRangeMultiplierValueList;
+	destination->moveSpeed = moveSpeed;
+	destination->moveSpeedIsMultiplier = moveSpeedIsMultiplier;
+	destination->moveSpeedIsMultiplierValueList = moveSpeedIsMultiplierValueList;
+	destination->prodSpeed = prodSpeed;
+	destination->prodSpeedIsMultiplier = prodSpeedIsMultiplier;
+	destination->prodSpeedProduceIsMultiplierValueList = prodSpeedProduceIsMultiplierValueList;
+	destination->prodSpeedUpgradeIsMultiplierValueList = prodSpeedUpgradeIsMultiplierValueList;
+	destination->prodSpeedMorphIsMultiplierValueList = prodSpeedMorphIsMultiplierValueList;
+	destination->attackSpeed = attackSpeed;
+	destination->attackSpeedIsMultiplier = attackSpeedIsMultiplier;
+	destination->attackSpeedIsMultiplierValueList = attackSpeedIsMultiplierValueList;
+
+}
+
 void UpgradeTypeBase::load(const XmlNode *upgradeNode, string upgradename) {
 	this->upgradename = upgradename;
 	//values
@@ -276,116 +308,70 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
     //int i;
 	Lang &lang= Lang::getInstance();
 
-	if(maxHp != 0) {
-		if(maxHpIsMultiplier) {
-			str += indent+lang.getString("Hp",(translatedValue == true ? "" : "english")) + " *" + intToStr(maxHp);
-		}
-		else {
-			str += indent+lang.getString("Hp",(translatedValue == true ? "" : "english")) + " +" + intToStr(maxHp);
-		}
-
-		if(maxHpRegeneration != 0) {
-			str += " [" + intToStr(maxHpRegeneration) + "]";
+	if(getMaxHp() != 0) {
+		str += indent+lang.getString("Hp",(translatedValue == true ? "" : "english")) + " *" + intToStr(getMaxHp());
+		if(getMaxHpRegeneration() != 0) {
+			str += " [" + intToStr(getMaxHpRegeneration()) + "]";
 		}
 	}
 
-	if(sight != 0) {
+	if(getSight() != 0) {
 		if(str != "") {
 			str += "\n";
 		}
-		if(sightIsMultiplier) {
-			str+= indent+lang.getString("Sight",(translatedValue == true ? "" : "english")) + " *" + intToStr(sight);
-		}
-		else {
-			str+= indent+lang.getString("Sight",(translatedValue == true ? "" : "english")) + " +" + intToStr(sight);
-		}
+		str+= indent+lang.getString("Sight",(translatedValue == true ? "" : "english")) + " +" + intToStr(getSight());
 	}
-	if(maxEp != 0) {
+	if(getMaxEp() != 0) {
 		if(str != "") {
 			str += "\n";
 		}
 
-		if(maxEpIsMultiplier) {
-			str+= indent+lang.getString("Ep",(translatedValue == true ? "" : "english")) + " *" + intToStr(maxEp);
-		}
-		else {
-			str+= indent+lang.getString("Ep",(translatedValue == true ? "" : "english")) + " +" + intToStr(maxEp);
-		}
-		if(maxEpRegeneration != 0) {
-			str += " [" + intToStr(maxEpRegeneration) + "]";
+		str+= indent+lang.getString("Ep",(translatedValue == true ? "" : "english")) + " +" + intToStr(getMaxEp());
+		if(getMaxEpRegeneration() != 0) {
+			str += " [" + intToStr(getMaxEpRegeneration()) + "]";
 		}
 	}
-	if(attackStrength != 0) {
+	if(getAttackStrength() != 0) {
 		if(str != "") {
 			str += "\n";
 		}
 
-		if(attackStrengthIsMultiplier) {
-			str+= indent+lang.getString("AttackStrenght",(translatedValue == true ? "" : "english")) + " *" + intToStr(attackStrength);
-		}
-		else {
-			str+= indent+lang.getString("AttackStrenght",(translatedValue == true ? "" : "english")) + " +" + intToStr(attackStrength);
-		}
+		str+= indent+lang.getString("AttackStrenght",(translatedValue == true ? "" : "english")) + " +" + intToStr(getAttackStrength());
 	}
-	if(attackRange != 0) {
+	if(getAttackRange() != 0) {
 		if(str != "") {
 			str += "\n";
 		}
 
-		if(attackRangeIsMultiplier) {
-			str+= indent+lang.getString("AttackDistance",(translatedValue == true ? "" : "english")) + " *" + intToStr(attackRange);
-		}
-		else {
-			str+= indent+lang.getString("AttackDistance",(translatedValue == true ? "" : "english")) + " +" + intToStr(attackRange);
-		}
+		str+= indent+lang.getString("AttackDistance",(translatedValue == true ? "" : "english")) + " +" + intToStr(getAttackRange());
 	}
-	if(armor != 0) {
+	if(getArmor() != 0) {
 		if(str != "") {
 			str += "\n";
 		}
 
-		if(armorIsMultiplier) {
-			str+= indent+lang.getString("Armor",(translatedValue == true ? "" : "english")) + " *" + intToStr(armor);
-		}
-		else {
-			str+= indent+lang.getString("Armor",(translatedValue == true ? "" : "english")) + " +" + intToStr(armor);
-		}
+		str+= indent+lang.getString("Armor",(translatedValue == true ? "" : "english")) + " +" + intToStr(getArmor());
 	}
-	if(moveSpeed != 0) {
+	if(getMoveSpeed() != 0) {
 		if(str != "") {
 			str += "\n";
 		}
 
-		if(moveSpeedIsMultiplier) {
-			str+= indent+lang.getString("WalkSpeed",(translatedValue == true ? "" : "english")) + " *" + intToStr(moveSpeed);
-		}
-		else {
-			str+= indent+lang.getString("WalkSpeed",(translatedValue == true ? "" : "english")) + " +" + intToStr(moveSpeed);
-		}
+		str+= indent+lang.getString("WalkSpeed",(translatedValue == true ? "" : "english")) + " +" + intToStr(getMoveSpeed());
 	}
-	if(prodSpeed != 0) {
+	if(getProdSpeed() != 0) {
 		if(str != "") {
 			str += "\n";
 		}
 
-		if(prodSpeedIsMultiplier) {
-			str+= indent+lang.getString("ProductionSpeed",(translatedValue == true ? "" : "english")) + " *" + intToStr(prodSpeed);
-		}
-		else {
-			str+= indent+lang.getString("ProductionSpeed",(translatedValue == true ? "" : "english")) + " +" + intToStr(prodSpeed);
-		}
+		str+= indent+lang.getString("ProductionSpeed",(translatedValue == true ? "" : "english")) + " +" + intToStr(getProdSpeed());
 	}
-	if(attackSpeed != 0) {
+	if(getAttackSpeed() != 0) {
 		if(str != "") {
 			str += "\n";
 		}
 
-		if(attackSpeedIsMultiplier) {
-			str+= indent+lang.getString("AttackSpeed",(translatedValue == true ? "" : "english")) + " *" + intToStr(moveSpeed);
-		}
-		else {
-			str+= indent+lang.getString("AttackSpeed",(translatedValue == true ? "" : "english")) + " +" + intToStr(moveSpeed);
-		}
+		str+= indent+lang.getString("AttackSpeed",(translatedValue == true ? "" : "english")) + " +" + intToStr(getAttackSpeed());
 	}
 	if(str != "") {
 		str += "\n";
@@ -892,6 +878,9 @@ void TotalUpgrade::reset() {
 
 	attackSpeed=0;
 	attackSpeedIsMultiplier=false;
+
+	boostUpgradeBase = NULL;
+	boostUpgradeUnit = NULL;
 }
 
 void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
@@ -1029,10 +1018,33 @@ void TotalUpgrade::sum(const UpgradeTypeBase *ut, const Unit *unit) {
 }
 
 void TotalUpgrade::apply(const UpgradeTypeBase *ut, const Unit *unit) {
-	sum(ut, unit);
+	//sum(ut, unit);
+
+	//printf("====> About to apply boost: %s\nTo unit: %d\n\n",ut->toString().c_str(),unit->getId());
+	TotalUpgrade *boostUpgrade = new TotalUpgrade();
+	this->copyData(boostUpgrade);
+	boostUpgrade->boostUpgradeBase = ut;
+	boostUpgrade->boostUpgradeUnit = unit;
+
+	boostUpgrade->sum(ut,unit);
+	boostUpgrades.push_back(boostUpgrade);
 }
 
 void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
+	//printf("<****** About to de-apply boost: %s\nTo unit: %d\n\n",ut->toString().c_str(),unit->getId());
+
+	for(unsigned int index = 0; index < boostUpgrades.size(); ++index) {
+		TotalUpgrade *boost = boostUpgrades[index];
+		if(boost->boostUpgradeBase == ut && boost->boostUpgradeUnit == unit) {
+			boostUpgrades.erase(boostUpgrades.begin() + index);
+			delete boost;
+
+			break;
+		}
+	}
+}
+
+void TotalUpgrade::remove(const UpgradeTypeBase *ut,const Unit *unit) {
 	maxHpIsMultiplier			= ut->getMaxHpIsMultiplier();
 	sightIsMultiplier			= ut->getSightIsMultiplier();
 	maxEpIsMultiplier			= ut->getMaxEpIsMultiplier();
@@ -1183,6 +1195,107 @@ void TotalUpgrade::deapply(const UpgradeTypeBase *ut,const Unit *unit) {
 		enforceMinimumValue(0, attackSpeed);
 	}
 }
+
+int TotalUpgrade::getMaxHp() const {
+	int result = maxHp;
+	for(unsigned int index = 0; index < boostUpgrades.size(); ++index) {
+		TotalUpgrade *boost = boostUpgrades[index];
+		//result += (boost->getMaxHp() - maxHp);
+		result += boost->getMaxHp();
+	}
+	return result;
+}
+int TotalUpgrade::getMaxHpRegeneration() const {
+	int result = maxHpRegeneration;
+	for(unsigned int index = 0; index < boostUpgrades.size(); ++index) {
+		TotalUpgrade *boost = boostUpgrades[index];
+		//result += (boost->getMaxHpRegeneration() - maxHpRegeneration);
+		result += boost->getMaxHpRegeneration();
+	}
+	return result;
+}
+int TotalUpgrade::getSight() const {
+	int result = sight;
+	for(unsigned int index = 0; index < boostUpgrades.size(); ++index) {
+		TotalUpgrade *boost = boostUpgrades[index];
+		//result += (boost->getSight() - sight);
+		result += boost->getSight();
+	}
+	return result;
+}
+int TotalUpgrade::getMaxEp() const {
+	int result = maxEp;
+	for(unsigned int index = 0; index < boostUpgrades.size(); ++index) {
+		TotalUpgrade *boost = boostUpgrades[index];
+		//result += (boost->getMaxEp() - maxEp);
+		result += boost->getMaxEp();
+	}
+	return result;
+}
+int TotalUpgrade::getMaxEpRegeneration() const {
+	int result = maxEpRegeneration;
+	for(unsigned int index = 0; index < boostUpgrades.size(); ++index) {
+		TotalUpgrade *boost = boostUpgrades[index];
+		//result += (boost->getMaxEpRegeneration() - maxEpRegeneration);
+		result += boost->getMaxEpRegeneration();
+	}
+	return result;
+}
+int TotalUpgrade::getArmor() const {
+	int result = armor;
+	for(unsigned int index = 0; index < boostUpgrades.size(); ++index) {
+		TotalUpgrade *boost = boostUpgrades[index];
+		//result += (boost->getArmor() - armor);
+		result += boost->getArmor();
+	}
+	return result;
+}
+int TotalUpgrade::getAttackStrength(const AttackSkillType *st) const {
+	int result = UpgradeTypeBase::getAttackStrength(st);
+	for(unsigned int index = 0; index < boostUpgrades.size(); ++index) {
+		TotalUpgrade *boost = boostUpgrades[index];
+		//result += (boost->getAttackStrength(st) - UpgradeTypeBase::getAttackStrength(st));
+		result += boost->getAttackStrength(st);
+	}
+	return result;
+}
+int TotalUpgrade::getAttackRange(const AttackSkillType *st) const {
+	int result = UpgradeTypeBase::getAttackRange(st);
+	for(unsigned int index = 0; index < boostUpgrades.size(); ++index) {
+		TotalUpgrade *boost = boostUpgrades[index];
+		//result += (boost->getAttackRange(st) - UpgradeTypeBase::getAttackRange(st));
+		result += boost->getAttackRange(st);
+	}
+	return result;
+}
+int TotalUpgrade::getMoveSpeed(const MoveSkillType *st) const {
+	int result = UpgradeTypeBase::getMoveSpeed(st);
+	for(unsigned int index = 0; index < boostUpgrades.size(); ++index) {
+		TotalUpgrade *boost = boostUpgrades[index];
+		//result += (boost->getMoveSpeed(st) - UpgradeTypeBase::getMoveSpeed(st));
+		result += boost->getMoveSpeed(st);
+	}
+	return result;
+}
+int TotalUpgrade::getProdSpeed(const SkillType *st) const {
+	int result = UpgradeTypeBase::getProdSpeed(st);
+	for(unsigned int index = 0; index < boostUpgrades.size(); ++index) {
+		TotalUpgrade *boost = boostUpgrades[index];
+		//result += (boost->getProdSpeed(st) - UpgradeTypeBase::getProdSpeed(st));
+		result += boost->getProdSpeed(st);
+	}
+	return result;
+}
+int TotalUpgrade::getAttackSpeed(const AttackSkillType *st) const {
+	int result = UpgradeTypeBase::getAttackSpeed(st);
+	for(unsigned int index = 0; index < boostUpgrades.size(); ++index) {
+		TotalUpgrade *boost = boostUpgrades[index];
+		//result += (boost->getAttackSpeed(st) - UpgradeTypeBase::getAttackSpeed(st));
+		result += boost->getAttackSpeed(st);
+	}
+	return result;
+}
+
 
 void TotalUpgrade::incLevel(const UnitType *ut) {
 	maxHp += ut->getMaxHp()*50/100;
