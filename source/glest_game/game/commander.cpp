@@ -770,16 +770,19 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 						MutexSafeWrapper safeMutex(server->getSlotMutex(playerIndex),CODE_AT_LINE);
 						ConnectionSlot *slot = server->getSlot(playerIndex,false);
 						if(slot != NULL) {
-							safeMutex.ReleaseLock(true);
+							safeMutex.ReleaseLock();
 							NetworkMessageQuit networkMessageQuit;
 							slot->sendMessage(&networkMessageQuit);
 							sleep(5);
 
 							//printf("Sending nctDisconnectNetworkPlayer\n");
-							safeMutex.Lock();
-							slot = server->getSlot(playerIndex,false);
-							if(slot != NULL) {
-								slot->close();
+							if(server != NULL) {
+								MutexSafeWrapper safeMutex2(server->getSlotMutex(playerIndex),CODE_AT_LINE);
+								slot = server->getSlot(playerIndex,false);
+								if(slot != NULL) {
+									safeMutex2.ReleaseLock();
+									slot->close();
+								}
 							}
 						}
 					}

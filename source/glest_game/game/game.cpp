@@ -340,6 +340,7 @@ void Game::endGame() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	quitGame();
+	sleep(0);
 
 	Object::setStateCallback(NULL);
 	thisGamePtr = NULL;

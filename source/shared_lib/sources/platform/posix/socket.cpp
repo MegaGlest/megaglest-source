@@ -2637,7 +2637,7 @@ int UPNP_Tools::upnp_init(void *param) {
 				//if(devlist != NULL) {
 				//	freeUPNPDevlist(devlist);
 				//}
-				devlist = NULL;
+				//devlist = NULL;
 				return result;
 			}
 
