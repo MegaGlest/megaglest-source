@@ -1459,7 +1459,12 @@ void TotalUpgrade::deapply(int sourceUnitId, const UpgradeTypeBase *ut,int destU
 		}
 	}
 	if(removedBoost == false) {
-		printf("\n\n!!!!!! de-apply boost NOT FOUND!\n\n");
+		printf("\n\n!!!!!! de-apply boost NOT FOUND for sourceUnitId = %d, destUnitId = %d\n%s\n\nCurrent Boosts:\n",
+				sourceUnitId,destUnitId,ut->toString().c_str());
+		for(unsigned int index = 0; index < boostUpgrades.size(); ++index) {
+			TotalUpgrade *boost = boostUpgrades[index];
+			printf("\nBoost #%d\n%s\n",index,boost->toString().c_str());
+		}
 	}
 }
 
