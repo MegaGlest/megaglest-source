@@ -819,9 +819,20 @@ int getMajor(string version){
 
 int getMinor(string version){
 	vector<string> parts=split(version.substr(1),".");
-
-	if(parts.size()>2 && parts[1] != "" && IsNumeric(parts[1].c_str(),false))
-		return strToInt(parts[1]);
+	if(parts.size()>2 && parts[1] != ""){
+		string resultStr="";
+		for (int i = 0; i < (int)parts[1].length(); ++i) {
+			// just add leading numbers
+			if(IsNumeric((resultStr+parts[1][i]).c_str(),false) )
+				resultStr += parts[1][i];
+			else
+				break;
+		}
+		if(resultStr=="")
+			return 0;
+		else
+			return strToInt(resultStr);
+	}
 	else
 		return 0;
 }

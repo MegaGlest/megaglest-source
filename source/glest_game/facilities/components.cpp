@@ -341,6 +341,7 @@ const int GraphicButton::defW= 90;
 
 GraphicButton::GraphicButton(std::string containerName, std::string objName) : GraphicComponent(containerName,objName) {
 	lighted = false;
+	alwaysLighted = false;
 	useCustomTexture = false;
 	customTexture = NULL;
 }

@@ -212,6 +212,7 @@ public:
 	
 private:
 	bool lighted;
+	bool alwaysLighted;
 
 	bool useCustomTexture;
 	Texture *customTexture;
@@ -226,9 +227,10 @@ public:
 	void setUseCustomTexture(bool value) { useCustomTexture=value; }
 	void setCustomTexture(Texture *value) { customTexture=value; }
 
-	bool getLighted() const			{return lighted;}
-	
+	bool getLighted() const			{return lighted||alwaysLighted;}
 	void setLighted(bool lighted)	{this->lighted= lighted;}
+	bool getAlwaysLighted() const			{return alwaysLighted;}
+	void setAlwaysLighted(bool value)	{this->alwaysLighted= value;}
 	virtual bool mouseMove(int x, int y);  
 };
 
