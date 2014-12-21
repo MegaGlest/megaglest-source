@@ -154,6 +154,7 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	i+= 130;
 	selectButton.init(i, baseY - lineOffset, 30);
 	selectButton.setText(">");
+	selectButton.setAlwaysLighted(true);
 
 	//printf("glestVersionString [%s] masterServerInfo->getGlestVersion() [%s]\n",glestVersionString.c_str(),masterServerInfo->getGlestVersion().c_str());
 	compatible= checkVersionComptability(glestVersionString, masterServerInfo.getGlestVersion());
