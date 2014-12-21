@@ -2932,7 +2932,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 		int prevMaxHpRegen = totalUpgrade.getMaxHpRegeneration();
 		//printf("#1 wasAlive = %d hp = %d boosthp = %d\n",wasAlive,hp,boost->boostUpgrade.getMaxHp());
 
-		totalUpgrade.apply(&boost->boostUpgrade, this);
+		totalUpgrade.apply(source->getId(),&boost->boostUpgrade, this);
 
 		checkItemInVault(&this->hp,this->hp);
 		//hp += boost->boostUpgrade.getMaxHp();
@@ -3052,7 +3052,7 @@ void Unit::deapplyAttackBoost(const AttackBoost *boost, const Unit *source) {
 	int originalHp = hp;
 	int prevMaxHp = totalUpgrade.getMaxHp();
 	int prevMaxHpRegen = totalUpgrade.getMaxHpRegeneration();
-	totalUpgrade.deapply(&boost->boostUpgrade, this);
+	totalUpgrade.deapply(source->getId(),&boost->boostUpgrade, this->getId());
 
 	checkItemInVault(&this->hp,this->hp);
 	int original_hp = this->hp;

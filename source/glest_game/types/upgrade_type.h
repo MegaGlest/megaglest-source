@@ -225,7 +225,9 @@ public:
 	// TODO: It's not clear if these save game methods are being used, currently. I think
 	// attack boosts might use the few lines that aren't commented out.
 	virtual void saveGame(XmlNode *rootNode) const;
+	virtual void saveGameBoost(XmlNode *rootNode) const;
 	static const UpgradeType * loadGame(const XmlNode *rootNode, Faction *faction);
+	void loadGameBoost(const XmlNode *rootNode);
 
 	/**
 	 * Generates a checksum value for the upgrade.
@@ -351,7 +353,8 @@ private:
 
 	// List of boosts
 	const UpgradeTypeBase *boostUpgradeBase;
-	const Unit *boostUpgradeUnit;
+	int boostUpgradeSourceUnit;
+	int boostUpgradeDestUnit;
 	std::vector<TotalUpgrade *> boostUpgrades;
 
 public:
@@ -370,7 +373,7 @@ public:
 	 * @param unit The unit this TotalUpgrade is associated with (since when we use a multiplier,
 	 * the stats raise by an amount relative to the unit's base stats).
 	 */
-	void sum(const UpgradeTypeBase *ut, const Unit *unit);
+	void sum(const UpgradeTypeBase *ut, const Unit *unit, bool boostMode=false);
 
 	/**
 	 * Increases the level of the unit. Doing so results in their HP, EP, and armour going up by
@@ -383,7 +386,7 @@ public:
 	/**
 	 * Applies the upgrade. Just a delegate to TotalUpgrade::sum.
 	 */
-	void apply(const UpgradeTypeBase *ut, const Unit *unit);
+	void apply(int sourceUnitId, const UpgradeTypeBase *ut, const Unit *unit);
 
 	/**
 	 * Removes the effect of an upgrade to a specific unit. Using this after applying the upgrade
@@ -397,7 +400,7 @@ public:
 	 * @param unit The unit this TotalUpgrade is associated with (since when we use a multiplier,
 	 * the stats were raise by an amount relative to the unit's base stats).
 	 */
-	void deapply(const UpgradeTypeBase *ut, const Unit *unit);
+	void deapply(int sourceUnitId, const UpgradeTypeBase *ut,int destUnitId);
 
     virtual int getMaxHp() const;
     virtual int getMaxHpRegeneration() const;
