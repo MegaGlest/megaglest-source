@@ -105,6 +105,18 @@ protected:
 	virtual int getProdSpeed() const { return prodSpeed; }
 	virtual int getAttackSpeed() const { return attackSpeed; }
 
+    virtual int getMaxHpFromBoosts() const { return 0; }
+    virtual int getMaxHpRegenerationFromBoosts() const { return 0; }
+    virtual int getSightFromBoosts() const { return 0; }
+    virtual int getMaxEpFromBoosts() const { return 0; }
+    virtual int getMaxEpRegenerationFromBoosts() const { return 0; }
+    virtual int getArmorFromBoosts() const { return 0; };
+    virtual int getAttackStrengthFromBoosts(const AttackSkillType *st) const { return 0; }
+    virtual int getAttackRangeFromBoosts(const AttackSkillType *st) const { return 0; }
+    virtual int getMoveSpeedFromBoosts(const MoveSkillType *st) const { return 0; }
+    virtual int getProdSpeedFromBoosts(const SkillType *st) const { return 0; }
+    virtual int getAttackSpeedFromBoosts(const AttackSkillType *st) const { return 0; }
+
 public:
 	/**
 	 * Creates an UpgradeTypeBase with values such that there are no stat changes.
@@ -398,6 +410,18 @@ public:
     virtual int getMoveSpeed(const MoveSkillType *st) const;
     virtual int getProdSpeed(const SkillType *st) const;
     virtual int getAttackSpeed(const AttackSkillType *st) const;
+
+    virtual int getMaxHpFromBoosts() const;
+    virtual int getMaxHpRegenerationFromBoosts() const;
+    virtual int getSightFromBoosts() const;
+    virtual int getMaxEpFromBoosts() const;
+    virtual int getMaxEpRegenerationFromBoosts() const;
+    virtual int getArmorFromBoosts() const;
+    virtual int getAttackStrengthFromBoosts(const AttackSkillType *st) const;
+    virtual int getAttackRangeFromBoosts(const AttackSkillType *st) const;
+    virtual int getMoveSpeedFromBoosts(const MoveSkillType *st) const;
+    virtual int getProdSpeedFromBoosts(const SkillType *st) const;
+    virtual int getAttackSpeedFromBoosts(const AttackSkillType *st) const;
 
 	/**
 	 * Creates the XML for the save game file. Essentially just stores everything about its state.
