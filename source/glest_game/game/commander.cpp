@@ -765,7 +765,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 				GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 				if(gameNetworkInterface != NULL) {
 					ServerInterface *server = networkManager.getServerInterface();
-					if(server->isClientConnected(playerIndex) == true) {
+					if(server != NULL && server->isClientConnected(playerIndex) == true) {
 
 						MutexSafeWrapper safeMutex(server->getSlotMutex(playerIndex),CODE_AT_LINE);
 						ConnectionSlot *slot = server->getSlot(playerIndex,false);
@@ -776,6 +776,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 							sleep(5);
 
 							//printf("Sending nctDisconnectNetworkPlayer\n");
+							server = networkManager.getServerInterface(false);
 							if(server != NULL) {
 								MutexSafeWrapper safeMutex2(server->getSlotMutex(playerIndex),CODE_AT_LINE);
 								slot = server->getSlot(playerIndex,false);
