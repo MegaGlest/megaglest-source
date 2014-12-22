@@ -2755,7 +2755,7 @@ bool UnitUpdater::searchForResource(Unit *unit, const HarvestCommandType *hct) {
 }
 
 bool UnitUpdater::attackerOnSight(Unit *unit, Unit **rangedPtr, bool evalMode){
-	int range= unit->getType()->getSight();
+	int range = unit->getType()->getTotalSight(unit->getTotalUpgrade());
 	return unitOnRange(unit, range, rangedPtr, NULL,evalMode);
 }
 
@@ -3089,7 +3089,7 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 	try {
 
 
-	int range = unit->getType()->getSight();
+	int range = unit->getType()->getTotalSight(unit->getTotalUpgrade());
 	if(ast != NULL) {
 
 		range = ast->getTotalAttackRange(unit->getTotalUpgrade());
