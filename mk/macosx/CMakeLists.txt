@@ -31,22 +31,28 @@ LINK_DIRECTORIES(/opt/local/lib)
 
 ##install part
 
-set(CPACK_PACKAGE_FILE_NAME MegaGlest-${MG_VERSION_H_CONTENTS})
-
-CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/Info.plist" "${CMAKE_CURRENT_BINARY_DIR}/Info.plist") 
-
+# This changes Info.plist from something with variables and CMakeisms to
+# something that can be installed on disk.
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/Info.plist"
+	"${CMAKE_CURRENT_BINARY_DIR}/Info.plist") 
 
 include (InstallRequiredSystemLibraries)
 
+# Use bundle generator (OSX has 3 other options if you feel adventurous)
+set (CPACK_GENERATOR "Bundle")
+
+# The following CPACK_* options are all required
+set (CPACK_PACKAGE_FILE_NAME MegaGlest-${VER_MAJOR}.${VER_MINOR}.${VER_RELEASE})
+set (CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/MegaGlest.icns")
+
 set (CPACK_RESOURCE_FILE_LICENSE  
      "${CMAKE_CURRENT_SOURCE_DIR}/docs/COPYRIGHT.source_code.txt")
-set (CPACK_GENERATOR Bundle)
 set (CPACK_BUNDLE_NAME "MegaGlest")
 set (CPACK_BUNDLE_STARTUP_COMMAND "${PROJECT_SOURCE_DIR}/data/glest_game/megaglest")
 set (CPACK_BUNDLE_ICON  "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/MegaGlest.icns")
-set (CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/MegaGlest.icns")
 set (CPACK_BUNDLE_PLIST "${CMAKE_CURRENT_BINARY_DIR}/Info.plist")
-#set (CPACK_BUNDLE_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/Info.plist.template")
+
+# Install files in to the package (FIXME: how? we sure?)
 INSTALL(FILES 
 	${LUA_LIBRARIES}
     DESTINATION ../Frameworks
@@ -63,6 +69,4 @@ STRING(REGEX REPLACE ";.*" "" SDL_LIBRARY_DIR "${SDL_LIBRARY}")
 #	${PNG_LIBRARY}
  #   DESTINATION ../Frameworks
  # )
-  
-include (CPack)
-  
+
