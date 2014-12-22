@@ -3730,7 +3730,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
 
 			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
-			gameSettings->setNetworkPlayerName(slotIndex, "Closed");
+			gameSettings->setNetworkPlayerName(slotIndex, GameConstants::NETWORK_SLOT_CLOSED_SLOTNAME);
 			gameSettings->setNetworkPlayerUUID(slotIndex,"");
 			gameSettings->setNetworkPlayerPlatform(slotIndex,"");
 

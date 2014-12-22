@@ -5060,7 +5060,7 @@ int glestMain(int argc, char** argv) {
 					gameSettings->setFactionControl(i, ct);
 					gameSettings->setStartLocationIndex(i, i);
 					gameSettings->setResourceMultiplierIndex(i, 10);
-					gameSettings->setNetworkPlayerName(i, "Closed");
+					gameSettings->setNetworkPlayerName(i, GameConstants::NETWORK_SLOT_CLOSED_SLOTNAME);
 				}
 
 				ControlType ct= ctHuman;

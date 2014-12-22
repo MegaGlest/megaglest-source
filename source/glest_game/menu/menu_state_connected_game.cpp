@@ -2314,7 +2314,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 
 			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
 			gameSettings->setNetworkPlayerStatuses(slotIndex, npst_None);
-			gameSettings->setNetworkPlayerName(slotIndex, "Closed");
+			gameSettings->setNetworkPlayerName(slotIndex, GameConstants::NETWORK_SLOT_CLOSED_SLOTNAME);
 
 			closedCount++;
 		}
@@ -2897,15 +2897,16 @@ void MenuStateConnectedGame::update() {
 					hasOpenSlot=true;
 				}
 				if(displayedGamesettings.getFactionControl(i)==ctNetwork &&
-						displayedGamesettings.getNetworkPlayerNameByPlayerIndex(i)!= GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME){
+						displayedGamesettings.getNetworkPlayerNameByPlayerIndex(i)!= GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME &&
+						displayedGamesettings.getNetworkPlayerNameByPlayerIndex(i)!= GameConstants::NETWORK_SLOT_CLOSED_SLOTNAME   ){
 					listBoxControls[i].setEditable(false);
 					if(clientInterface->getPlayerIndex()!=(int)i){
 						hasOtherPlayer=true;
 					}
 				}
-				else
-				if(clientInterface->getPlayerIndex()==(int)i)
+				else if(clientInterface->getPlayerIndex()==(int)i){
 					listBoxControls[i].setEditable(false);
+				}
 				else {
 					listBoxControls[i].setEditable(true);
 				}
