@@ -8425,7 +8425,7 @@ void Renderer::renderHealthBar(Vec3f v, Unit *unit, float height, bool lineBorde
 	int barCount=0;
 	float hp=unit->getHpRatio();
 	float ep=-1.f;
-	if(unit->getType()->getMaxEp()!=0){
+	if(unit->getType()->getTotalMaxEp(unit->getTotalUpgrade()) !=0 ) {
 			ep=unit->getEpRatio();
 			numberOfBars++;
 	}

@@ -1463,7 +1463,7 @@ void TotalUpgrade::deapply(int sourceUnitId, const UpgradeTypeBase *ut,int destU
 				sourceUnitId,destUnitId,ut->toString().c_str());
 		for(unsigned int index = 0; index < boostUpgrades.size(); ++index) {
 			TotalUpgrade *boost = boostUpgrades[index];
-			printf("\nBoost #%d\n%s\n",index,boost->toString().c_str());
+			printf("\nBoost #%u\n%s\n",index,boost->toString().c_str());
 		}
 	}
 }

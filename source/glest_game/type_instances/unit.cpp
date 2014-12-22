@@ -1050,7 +1050,7 @@ float Unit::getEpRatio() const {
 		throw megaglest_runtime_error(szBuf);
 	}
 
-	if(type->getMaxHp() == 0) {
+	if(type->getTotalMaxHp(&totalUpgrade) == 0) {
 		return 0.f;
 	}
 	else {
@@ -3199,11 +3199,11 @@ void Unit::tick() {
 		}
 		//regenerate hp
 		else {
-			if(type->getHpRegeneration() >= 0) {
+			if(type->getTotalMaxHpRegeneration(&totalUpgrade) >= 0) {
 				if( currSkill->getClass() != scBeBuilt){
 					checkItemInVault(&this->hp,this->hp);
 					int original_hp = this->hp;
-					this->hp += type->getHpRegeneration();
+					this->hp += type->getTotalMaxHpRegeneration(&totalUpgrade);
 					if(this->hp > type->getTotalMaxHp(&totalUpgrade)) {
 						this->hp = type->getTotalMaxHp(&totalUpgrade);
 					}
@@ -3220,7 +3220,7 @@ void Unit::tick() {
 			}
 			// If we have negative regeneration then check if the unit should die
 			else {
-				bool decHpResult = decHp(-type->getHpRegeneration());
+				bool decHpResult = decHp(-type->getTotalMaxHpRegeneration(&totalUpgrade));
 				if(decHpResult) {
 					this->setCauseOfDeath(ucodStarvedRegeneration);
 
@@ -4262,7 +4262,7 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 }
 
 void Unit::startDamageParticles() {
-	if(hp < type->getMaxHp() / 2 && hp > 0 && alive == true) {
+	if(hp < type->getTotalMaxHp(&totalUpgrade) / 2 && hp > 0 && alive == true) {
 		//start additional particles
 		if( showUnitParticles &&
 			type->damageParticleSystemTypes.empty() == false ) {

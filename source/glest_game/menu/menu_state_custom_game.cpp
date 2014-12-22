@@ -221,7 +221,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
 	buttonPlayNow.init(buttonx, buttony, 125);
-	buttonx+=130;
 
 	labelLocalGameVersion.registerGraphicComponent(containerName,"labelLocalGameVersion");
 	labelLocalGameVersion.init(10, networkHeadPos+labelOffset);

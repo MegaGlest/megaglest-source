@@ -482,7 +482,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	buttonPlayNow.init(buttonx, buttony, 125);
 	buttonPlayNow.setText(lang.getString("PlayNow"));
 	buttonPlayNow.setVisible(false);
-	buttonx+=130;
 
 
 	// write hint to console:
