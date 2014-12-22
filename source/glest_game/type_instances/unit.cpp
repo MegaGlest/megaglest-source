@@ -1406,7 +1406,7 @@ FowAlphaCellsLookupItem Unit::getFogOfWarRadius(bool useCache) const {
 	}
 
 	//iterate through all cells
-	int sightRange= this->getType()->getSight();
+	int sightRange= this->getType()->getTotalSight(this->getTotalUpgrade());
 	int radius = sightRange + World::indirectSightRange;
 	PosCircularIterator pci(map, this->getPosNotThreadSafe(), radius);
 	FowAlphaCellsLookupItem result;
@@ -4365,7 +4365,7 @@ uint32 Unit::getFrameCount() const {
 void Unit::exploreCells() {
 	if(this->isOperative() == true) {
 		const Vec2i &newPos = this->getCenteredPos();
-		int sightRange 		= this->getType()->getSight();
+		int sightRange 		= this->getType()->getTotalSight(this->getTotalUpgrade());
 		int teamIndex 		= this->getTeam();
 
 		if(game == NULL) {
