@@ -78,7 +78,7 @@ else()
         endif()
 endif()
 
-## Compiler flags
+## Compiler flags, CPACK configuration and other Apple specific code.
 IF(APPLE)
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
 	include(${PROJECT_SOURCE_DIR}/mk/macosx/CMakeLists.txt)
