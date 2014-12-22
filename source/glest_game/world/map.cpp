@@ -170,11 +170,25 @@ bool SurfaceCell::decAmount(int value) {
 	return object->getResource()->decAmount(value);
 }
 void SurfaceCell::setExplored(int teamIndex, bool explored) {
+	if(teamIndex < 0 || teamIndex >= GameConstants::maxPlayers + GameConstants::specialFactions) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Invalid value for teamIndex [%d]",teamIndex);
+		printf("%s\n",szBuf);
+		throw megaglest_runtime_error(szBuf);
+	}
+
 	this->explored[teamIndex]= explored;
 	//printf("Setting explored to %d for teamIndex %d\n",explored,teamIndex);
 }
 
 void SurfaceCell::setVisible(int teamIndex, bool visible) {
+	if(teamIndex < 0 || teamIndex >= GameConstants::maxPlayers + GameConstants::specialFactions) {
+		char szBuf[8096]="";
+		snprintf(szBuf,8096,"Invalid value for teamIndex [%d]",teamIndex);
+		printf("%s\n",szBuf);
+		throw megaglest_runtime_error(szBuf);
+	}
+
     this->visible[teamIndex]= visible;
 }
 
