@@ -370,6 +370,7 @@ private:
 	int32 kills;
 	int32 enemyKills;
 	bool morphFieldsBlocked;
+	int oldTotalSight;
 
 	UnitReference targetRef;
 
@@ -519,7 +520,7 @@ public:
 
     const FowAlphaCellsLookupItem & getCachedFow() const { return cachedFow; }
     FowAlphaCellsLookupItem getFogOfWarRadius(bool useCache) const;
-    void calculateFogOfWarRadius();
+    void calculateFogOfWarRadius(bool forceRefresh=false);
 
     //queries
     Command *getCurrrentCommandThreadSafe();
@@ -626,7 +627,7 @@ public:
     inline void setLoadType(const ResourceType *loadType)		{this->loadType= loadType;}
     inline void setProgress2(int progress2)					{this->progress2= progress2;}
 	void setPos(const Vec2i &pos,bool clearPathFinder=false);
-	void refreshPos();
+	void refreshPos(bool forceRefresh=false);
 	void setTargetPos(const Vec2i &targetPos);
 	void setTarget(const Unit *unit);
 	//void setTargetVec(const Vec3f &targetVec);
@@ -711,7 +712,7 @@ public:
 	inline string getCurrentUnitTitle() const {return currentUnitTitle;}
 	void setCurrentUnitTitle(string value) { currentUnitTitle = value;}
 
-	void exploreCells();
+	void exploreCells(bool forceRefresh=false);
 
 	inline bool getInBailOutAttempt() const { return inBailOutAttempt; }
 	inline void setInBailOutAttempt(bool value) { inBailOutAttempt = value; }

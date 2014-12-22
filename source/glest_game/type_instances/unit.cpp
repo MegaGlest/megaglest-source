@@ -578,6 +578,7 @@ Unit::Unit(int id, UnitPathInterface *unitpath, const Vec2i &pos,
 	this->lastHarvestResourceTarget.first = Vec2i(0);
 	this->morphFieldsBlocked=false;
 	//this->lastBadHarvestListPurge = 0;
+	this->oldTotalSight = 0;
 
 	level= NULL;
 	loadType= NULL;
@@ -1394,10 +1395,10 @@ void Unit::setPos(const Vec2i &pos, bool clearPathFinder) {
 	logSynchData(extractFileFromDirectoryPath(__FILE__).c_str(),__LINE__);
 }
 
-void Unit::refreshPos() {
+void Unit::refreshPos(bool forceRefresh) {
 	// Attempt to improve performance
-	this->exploreCells();
-	calculateFogOfWarRadius();
+	this->exploreCells(forceRefresh);
+	calculateFogOfWarRadius(forceRefresh);
 }
 
 FowAlphaCellsLookupItem Unit::getFogOfWarRadius(bool useCache) const {
@@ -1438,9 +1439,9 @@ FowAlphaCellsLookupItem Unit::getFogOfWarRadius(bool useCache) const {
 	return result;
 }
 
-void Unit::calculateFogOfWarRadius() {
+void Unit::calculateFogOfWarRadius(bool forceRefresh) {
 	if(game->getWorld()->getFogOfWar() == true) {
-		if(this->pos != this->cachedFowPos) {
+		if(forceRefresh || this->pos != this->cachedFowPos) {
 			cachedFow = getFogOfWarRadius(false);
 			static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
 			MutexSafeWrapper safeMutex(mutexCommands,mutexOwnerId);
@@ -2622,6 +2623,12 @@ bool Unit::update() {
 
 	//speed
 	int speed= currSkill->getTotalSpeed(&totalUpgrade);
+
+	if( oldTotalSight  != getType()->getTotalSight(this->getTotalUpgrade())){
+		oldTotalSight= getType()->getTotalSight(this->getTotalUpgrade());
+		// refresh FogOfWar and so on, because sight ha changed since last update
+		refreshPos(true);
+	}
 
 	if(changedActiveCommand) {
 		if(changedActiveCommandFrame - lastChangedActiveCommandFrame >= MIN_FRAMECOUNT_CHANGE_COMMAND_SPEED) {
@@ -4362,7 +4369,7 @@ uint32 Unit::getFrameCount() const {
 	return frameCount;
 }
 
-void Unit::exploreCells() {
+void Unit::exploreCells(bool forceRefresh) {
 	if(this->isOperative() == true) {
 		const Vec2i &newPos = this->getCenteredPos();
 		int sightRange 		= this->getType()->getTotalSight(this->getTotalUpgrade());
@@ -4376,7 +4383,8 @@ void Unit::exploreCells() {
 		}
 
 		// Try the local unit exploration cache
-		if(cacheExploredCellsKey.first == newPos &&
+		if( !forceRefresh &&
+			cacheExploredCellsKey.first == newPos &&
 			cacheExploredCellsKey.second == sightRange) {
 			game->getWorld()->exploreCells(teamIndex, cacheExploredCells);
 		}
