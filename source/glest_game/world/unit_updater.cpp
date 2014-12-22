@@ -2760,7 +2760,7 @@ bool UnitUpdater::attackerOnSight(Unit *unit, Unit **rangedPtr, bool evalMode){
 }
 
 bool UnitUpdater::attackableOnSight(Unit *unit, Unit **rangedPtr, const AttackSkillType *ast, bool evalMode) {
-	int range= unit->getType()->getSight();
+	int range = unit->getType()->getTotalSight(unit->getTotalUpgrade());
 	return unitOnRange(unit, range, rangedPtr, ast, evalMode);
 }
 
