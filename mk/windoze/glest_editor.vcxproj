@@ -172,13 +172,13 @@
     <ClCompile Include="GeneratedFiles\Release\moc_mainWindow.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <CustomBuild Include="..\..\source\glest_map_editor\mainWindow.hpp">
+    <!--CustomBuild Include="..\..\source\glest_map_editor\mainWindow.hpp">
       <AdditionalInputs>$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message>Moc%27ing \glest_map_editor\mainWindow.hpp...</Message>
       <Outputs>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" $(QTMOCPARAM)</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" -DQT_NO_DEBUG -DNDEBUG $(QTMOCPARAM)</Command>
-    </CustomBuild>
+    </CustomBuild-->
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_mapManipulator.cpp">
@@ -187,13 +187,13 @@
     <ClCompile Include="GeneratedFiles\Release\moc_mapManipulator.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <CustomBuild Include="..\..\source\glest_map_editor\mapManipulator.hpp">
+    <!--CustomBuild Include="..\..\source\glest_map_editor\mapManipulator.hpp">
       <AdditionalInputs>$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message>Moc%27ing \glest_map_editor\mapManipulator.hpp...</Message>
       <Outputs>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" $(QTMOCPARAM)</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" -DQT_NO_DEBUG -DNDEBUG $(QTMOCPARAM)</Command>
-    </CustomBuild>
+    </CustomBuild-->
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_newMap.cpp">
@@ -202,13 +202,13 @@
     <ClCompile Include="GeneratedFiles\Release\moc_newMap.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <CustomBuild Include="..\..\source\glest_map_editor\newMap.hpp">
+    <!--CustomBuild Include="..\..\source\glest_map_editor\newMap.hpp">
       <AdditionalInputs>$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message>Moc%27ing \glest_map_editor\newMap.hpp...</Message>
       <Outputs>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" $(QTMOCPARAM)</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" -DQT_NO_DEBUG -DNDEBUG $(QTMOCPARAM)</Command>
-    </CustomBuild>
+    </CustomBuild-->
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_renderer.cpp">
@@ -217,13 +217,13 @@
     <ClCompile Include="GeneratedFiles\Release\moc_renderer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <CustomBuild Include="..\..\source\glest_map_editor\renderer.hpp">
+    <!--CustomBuild Include="..\..\source\glest_map_editor\renderer.hpp">
       <AdditionalInputs>$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message>Moc%27ing \glest_map_editor\renderer.hpp...</Message>
       <Outputs>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" $(QTMOCPARAM)</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" -DQT_NO_DEBUG -DNDEBUG $(QTMOCPARAM)</Command>
-    </CustomBuild>
+    </CustomBuild-->
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_switchSurfaces.cpp">
@@ -232,13 +232,13 @@
     <ClCompile Include="GeneratedFiles\Release\moc_switchSurfaces.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <CustomBuild Include="..\..\source\glest_map_editor\switchSurfaces.hpp">
+    <!--CustomBuild Include="..\..\source\glest_map_editor\switchSurfaces.hpp">
       <AdditionalInputs>$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message>Moc%27ing \glest_map_editor\switchSurface.hpp...</Message>
       <Outputs>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" $(QTMOCPARAM)</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" -DQT_NO_DEBUG -DNDEBUG $(QTMOCPARAM)</Command>
-    </CustomBuild>
+    </CustomBuild-->
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GeneratedFiles\Debug\moc_viewer.cpp">
@@ -247,13 +247,13 @@
     <ClCompile Include="GeneratedFiles\Release\moc_viewer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <CustomBuild Include="..\..\source\glest_map_editor\viewer.hpp">
+    <!--CustomBuild Include="..\..\source\glest_map_editor\viewer.hpp">
       <AdditionalInputs>$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message>Moc%27ing \glest_map_editor\viewer.hpp...</Message>
       <Outputs>.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" $(QTMOCPARAM)</Command>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp" -DQT_NO_DEBUG -DNDEBUG $(QTMOCPARAM)</Command>
-    </CustomBuild>
+    </CustomBuild-->
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="glest_editor.rc" />
@@ -277,7 +277,7 @@
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
+  <!--ItemGroup>
     <CustomBuild Include="..\..\source\glest_map_editor\about.ui">
       <FileType>Document</FileType>
       <AdditionalInputs>$(QTDIR)\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
@@ -357,7 +357,7 @@
       <Outputs>.\GeneratedFiles\qrc_%(Filename).cpp;%(Outputs)</Outputs>
       <Command>"$(QTDIR)\bin\rcc.exe" -name "%(Filename)" -no-compress "%(FullPath)" -o .\GeneratedFiles\qrc_%(Filename).cpp</Command>
     </CustomBuild>
-  </ItemGroup>
+  </ItemGroup-->
   <ItemGroup>
     <ClInclude Include="..\..\source\glest_map_editor\ui_about.h" />
     <ClInclude Include="..\..\source\glest_map_editor\ui_advanced.h" />
