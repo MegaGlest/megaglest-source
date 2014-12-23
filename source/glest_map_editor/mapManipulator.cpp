@@ -20,6 +20,10 @@
 #include <QMessageBox>
 #include <QDebug>
 
+#ifdef WIN32
+    #include <winsock2.h>
+#endif
+
 #include "mapManipulator.hpp"
 
 #include "mainWindow.hpp"

@@ -13,6 +13,11 @@
 #include <QMouseEvent>
 #include <QLabel>
 
+//Qt needs this, otherwise glestlib will load winsock.h and break everything
+#ifdef WIN32
+    #include <winsock2.h>
+#endif
+
 #include "viewer.hpp"
 
 #include "mainWindow.hpp"

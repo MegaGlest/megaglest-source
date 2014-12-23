@@ -14,6 +14,11 @@
 #include <QGraphicsItemGroup>
 #include <QAction>
 
+//Qt needs this, otherwise glestlib will load winsock.h and break everything
+#ifdef WIN32
+    #include <winsock2.h>
+#endif
+
 #include "renderer.hpp"
 
 //good idea?

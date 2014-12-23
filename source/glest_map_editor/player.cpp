@@ -11,6 +11,10 @@
 
 #include <QPainter>
 
+#ifdef WIN32
+    #include <winsock2.h>
+#endif
+
 #include "player.hpp"
 
 #include "tile.hpp"

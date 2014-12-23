@@ -9,11 +9,15 @@
 //  License, or (at your option) any later version
 // ==============================================================
 
-#include "ui_switchSurfaces.h"
+//Qt needs this, otherwise glestlib will load winsock.h and break everything
+#ifdef WIN32
+    #include <winsock2.h>
+#endif
 
 #include "switchSurfaces.hpp"
-
 #include "mapManipulator.hpp"
+
+#include "ui_switchSurfaces.h"
 
 #include <iostream>
 

@@ -21,10 +21,10 @@
 #include <QCloseEvent>
 #include <QMessageBox>
 
-#include "ui_mainWindow.h"
-#include "ui_help.h"
-#include "ui_info.h"
-#include "ui_advanced.h"
+//Qt needs this, otherwise glestlib will load winsock.h and break everything
+#ifdef WIN32
+    #include <winsock2.h>
+#endif
 
 #include "mainWindow.hpp"
 
@@ -33,6 +33,12 @@
 #include "switchSurfaces.hpp"
 #include "renderer.hpp"
 #include "mapManipulator.hpp"
+
+#include "ui_mainWindow.h"
+#include "ui_help.h"
+#include "ui_info.h"
+#include "ui_advanced.h"
+
 
 #include "platform_common.h"
 #include "config.h"

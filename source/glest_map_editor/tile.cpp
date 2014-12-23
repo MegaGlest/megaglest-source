@@ -23,6 +23,11 @@
 #include <QGraphicsItemGroup>
 #include <QGraphicsSceneMouseEvent>
 
+//Qt needs this, otherwise glestlib will load winsock.h and break everything
+#ifdef WIN32
+    #include <winsock2.h>
+#endif
+
 #include "tile.hpp"
 
 #include "renderer.hpp"
