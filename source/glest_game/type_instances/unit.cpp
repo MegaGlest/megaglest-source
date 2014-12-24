@@ -1321,9 +1321,7 @@ void Unit::setCurrSkill(const SkillType *currSkill) {
 			}
 		}
 		*/
-		checkCustomizedUnitParticleListTriggers(unitParticleSystems,
-				currSkill->unitParticleSystemTypes,
-				queuedUnitParticleSystemTypes, true);
+		checkCustomizedUnitParticleListTriggers(currSkill->unitParticleSystemTypes,true);
 	}
 	progress2= 0;
 	if(this->currSkill != currSkill) {
@@ -2646,6 +2644,9 @@ bool Unit::update() {
 	this->lastAnimProgress= this->animProgress;
 	const Game *game = Renderer::getInstance().getGame();
 
+	if(progress==0){
+		skillCycleStarts();
+	}
 	progress = getUpdatedProgress(progress,
 			GameConstants::updateFps,
 			speed, diagonalFactor, heightFactor);
@@ -3730,6 +3731,11 @@ float Unit::computeHeight(const Vec2i &pos) const {
 	return height;
 }
 
+void Unit::skillCycleStarts(){
+	// we need to queue timed particles if progress starts
+	queueTimedParticles(currSkill->unitParticleSystemTypes);
+}
+
 void Unit::updateTarget(){
 	Unit *target= targetRef.getUnit();
 	if(target!=NULL){
@@ -4039,16 +4045,14 @@ void Unit::stopDamageParticles(bool force) {
 	checkCustomizedParticleTriggers(force);
 }
 
-void Unit::checkCustomizedUnitParticleListTriggers(vector<UnitParticleSystem*> &unitParticleSystemsList,
-											const UnitParticleSystemTypes &unitParticleSystemTypesList,
-											vector<UnitParticleSystemType*> &queuedUnitParticleSystemTypesList,
-											bool applySkillChangeParticles) {
+void Unit::checkCustomizedUnitParticleListTriggers(const UnitParticleSystemTypes &unitParticleSystemTypesList,
+		bool applySkillChangeParticles) {
 	if(showUnitParticles == true) {
 		vector<ParticleSystemTypeInterface *> systemTypesInUse;
 
-		if(unitParticleSystemsList.empty() == false) {
-			for(int index = (int)unitParticleSystemsList.size() - 1; index >= 0; index--) {
-				UnitParticleSystem *ps = unitParticleSystemsList[index];
+		if(unitParticleSystems.empty() == false) {
+			for(int index = (int)unitParticleSystems.size() - 1; index >= 0; index--) {
+				UnitParticleSystem *ps = unitParticleSystems[index];
 				if(ps != NULL) {
 					if(Renderer::getInstance().validateParticleSystemStillExists(ps,rsGame) == true) {
 
@@ -4076,7 +4080,7 @@ void Unit::checkCustomizedUnitParticleListTriggers(vector<UnitParticleSystem*> &
 
 							if(stopParticle == true) {
 								ps->fade();
-								unitParticleSystemsList.erase(unitParticleSystemsList.begin() + index);
+								unitParticleSystems.erase(unitParticleSystems.begin() + index);
 							}
 						}
 
@@ -4125,9 +4129,7 @@ void Unit::checkCustomizedUnitParticleListTriggers(vector<UnitParticleSystem*> &
 						}
 					}
 				}
-
-				if(showParticle == true) {
-
+				if(showParticle == true){
 					if(pst->getStartTime() == 0.0) {
 						UnitParticleSystem *ups = new UnitParticleSystem(200);
 						ups->setParticleOwner(this);
@@ -4140,25 +4142,35 @@ void Unit::checkCustomizedUnitParticleListTriggers(vector<UnitParticleSystem*> &
 						if(getFaction()->getTexture()) {
 							ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
 						}
-						unitParticleSystemsList.push_back(ups);
+						unitParticleSystems.push_back(ups);
 						Renderer::getInstance().manageParticleSystem(ups, rsGame);
 					}
 					else {
-						queuedUnitParticleSystemTypesList.push_back(pst);
+						// do nothing, timed particles are handled below in queueTimedParticles()
 					}
 				}
-
 			}
 		}
 	}
+}
 
+void Unit::queueTimedParticles(const UnitParticleSystemTypes &unitParticleSystemTypesList){
+	if(showUnitParticles == true) {
+		for(UnitParticleSystemTypes::const_iterator iterParticleType = unitParticleSystemTypesList.begin();
+				iterParticleType != unitParticleSystemTypesList.end(); ++iterParticleType) {
+			UnitParticleSystemType *pst = *iterParticleType;
+			if(pst->getMinmaxEnabled() == false) {
+				if(pst->getStartTime() != 0.0) {
+					queuedUnitParticleSystemTypes.push_back(pst);
+				}
+			}
+		}
+	}
 }
 
 void Unit::checkCustomizedUnitParticleTriggers() {
 	if(currSkill != NULL) {
-		checkCustomizedUnitParticleListTriggers(unitParticleSystems,
-				currSkill->unitParticleSystemTypes,
-				queuedUnitParticleSystemTypes, false);
+		checkCustomizedUnitParticleListTriggers(currSkill->unitParticleSystemTypes,false);
 	}
 }
 

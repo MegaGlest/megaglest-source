@@ -817,6 +817,7 @@ private:
 
 	float computeHeight(const Vec2i &pos) const;
 	void calculateXZRotation();
+	void skillCycleStarts();
 	void updateTarget();
 	void clearCommands();
 	void deleteQueuedCommand(Command *command);
@@ -828,11 +829,9 @@ private:
 
 	void checkCustomizedParticleTriggers(bool force);
 	void checkCustomizedUnitParticleTriggers();
-	void checkCustomizedUnitParticleListTriggers(vector<UnitParticleSystem*> &unitParticleSystemsList,
-												 const UnitParticleSystemTypes &unitParticleSystemTypesList,
-												 vector<UnitParticleSystemType*> &queuedUnitParticleSystemTypesList,
+	void checkCustomizedUnitParticleListTriggers(const UnitParticleSystemTypes &unitParticleSystemTypesList,
 												 bool applySkillChangeParticles);
-
+	void queueTimedParticles(const UnitParticleSystemTypes &unitParticleSystemTypesList);
 
 	bool checkModelStateInfoForNewHpValue();
 	void checkUnitLevel();
