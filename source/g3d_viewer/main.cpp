@@ -299,6 +299,9 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	this->appPath = appPath;
 	Properties::setApplicationPath(executable_path(appPath));
 
+	lastanim = 0;
+	model= NULL;
+
 	Config &config = Config::getInstance();
     //getGlPlatformExtensions();
 
@@ -313,8 +316,6 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	glCanvas->SetCurrent();
 #endif
 
-	lastanim = 0;
-	model= NULL;
 	unitPath = unitToLoad;
 
 	if(modelPath != "") {
@@ -555,8 +556,9 @@ MainWindow::~MainWindow(){
 	delete fileDialog;
 	fileDialog = NULL;
 
-	delete model;
-	model = NULL;
+	//delete model;
+	//model = NULL;
+	if(renderer) renderer->end();
 
 	delete renderer;
 	renderer = NULL;
@@ -742,7 +744,6 @@ void MainWindow::onClose(wxCloseEvent &event){
 	particleSplashPathList.clear(); // as above
 
 	if(timer) timer->Stop();
-	if(renderer) renderer->end();
 
 	unitParticleSystems.clear();
 	unitParticleSystemTypes.clear();
@@ -752,8 +753,9 @@ void MainWindow::onClose(wxCloseEvent &event){
 	splashParticleSystems.clear(); // as above
 	splashParticleSystemTypes.clear();
 
-	delete model;
-	model = NULL;
+	//delete model;
+	//model = NULL;
+	if(renderer) renderer->end();
 
 	//printf("OnClose about to END\n");
 	//fflush(stdout);
@@ -1112,7 +1114,9 @@ void MainWindow::onMenuFileClearAll(wxCommandEvent &event) {
 		splashParticleSystems.clear(); // as above
 		splashParticleSystemTypes.clear();
 
-		delete model;
+		//delete model;
+		//model = NULL;
+		if(model != NULL && renderer != NULL) renderer->endModel(rsGlobal, model);
 		model = NULL;
 
 		loadUnit("","");
@@ -1284,7 +1288,9 @@ void MainWindow::loadModel(string path) {
             //printf("Loading model [%s] %u of " MG_SIZE_T_SPECIFIER "\n",modelPath.c_str(),idx, this->modelPathList.size());
 
             if(timer) timer->Stop();
-            delete model;
+            //delete model;
+    		if(model != NULL && renderer != NULL) renderer->endModel(rsGlobal, model);
+    		model = NULL;
             model = renderer? renderer->newModel(rsGlobal, modelPath): NULL;
 
             statusbarText = getModelInfo();
@@ -1859,7 +1865,7 @@ void MainWindow::onTimer(wxTimerEvent &event) {
 string MainWindow::getModelInfo() {
 	string str;
 
-	if(model!=NULL){
+	if(model != NULL) {
 		str+= "Meshes: "+intToStr(model->getMeshCount());
 		str+= ", Vertices: "+intToStr(model->getVertexCount());
 		str+= ", Triangles: "+intToStr(model->getTriangleCount());
