@@ -817,7 +817,7 @@ private:
 
 	float computeHeight(const Vec2i &pos) const;
 	void calculateXZRotation();
-	void skillCycleStarts();
+	void AnimCycleStarts();
 	void updateTarget();
 	void clearCommands();
 	void deleteQueuedCommand(Command *command);

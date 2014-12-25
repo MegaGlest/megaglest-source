@@ -2644,8 +2644,8 @@ bool Unit::update() {
 	this->lastAnimProgress= this->animProgress;
 	const Game *game = Renderer::getInstance().getGame();
 
-	if(progress==0){
-		skillCycleStarts();
+	if(animProgress==0){
+		AnimCycleStarts();
 	}
 	progress = getUpdatedProgress(progress,
 			GameConstants::updateFps,
@@ -3731,7 +3731,7 @@ float Unit::computeHeight(const Vec2i &pos) const {
 	return height;
 }
 
-void Unit::skillCycleStarts(){
+void Unit::AnimCycleStarts(){
 	// we need to queue timed particles if progress starts
 	queueTimedParticles(currSkill->unitParticleSystemTypes);
 }
