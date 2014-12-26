@@ -7,12 +7,15 @@ v3.11.0
 - healthbars with a lot of options
 - multi shot / multi-projectiles with different timings,sounds and particle systems
 - several camera shake effects
+- new tileset "pine rock"
 - improve switching settings when connected to a headless server
 - support for team unit sharing
 - team resource sharing
 - tags feature  
 - Attack boosts fixed in many ways
 - Attack boosts and upgrades now support upgrading attack speed
+- timed particles and mesh bound particles really work now.
+- unit height independend particle positioning ( flat-particle-positions ) 
 - CPU players multiplier are displayed in debug view
 - You can have non commandable units
 - Units spawned by an attack skill can get an attack command  
@@ -21,6 +24,8 @@ v3.11.0
 - HP and EP starting values
 - <target-height> <burn-height> can be given https://docs.megaglest.org/XML/Unit#target-height
 - +several bugfixes
+
+v3.10.0 This version was skipped because of version number trouble.
 
 v3.9.1
 - Backward compatible with 3.9.0
