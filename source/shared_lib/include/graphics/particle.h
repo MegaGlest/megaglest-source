@@ -377,6 +377,7 @@ public:
 	float gravity;
 	float rotation;
 	const Model *unitModel;
+	Vec3f meshPos;
 	string meshName;
 	bool isVisibleAtNight;
 	bool isVisibleAtDay;
@@ -425,7 +426,8 @@ public:
 	void setSizeNoEnergy(float sizeNoEnergy)			{this->sizeNoEnergy= sizeNoEnergy;}
 	void setGravity(float gravity)						{this->gravity= gravity;}
 	void setRotation(float rotation);
-	const void setUnitModel(const Model* unitModel)					{this->unitModel= unitModel;}
+	void setMeshPos(Vec3f meshPos)						{this->meshPos=meshPos;}
+	string getMeshName()									{return meshName;}
 	void setMeshName(string meshName)						{this->meshName= meshName;}
 	void setRelative(bool relative)						{this->relative= relative;}
 	void setRelativeDirection(bool relativeDirection)	{this->relativeDirection= relativeDirection;}

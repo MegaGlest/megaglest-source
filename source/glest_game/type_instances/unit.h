@@ -789,6 +789,7 @@ public:
 	inline void setUsePathfinderExtendedMaxNodes(bool value) { usePathfinderExtendedMaxNodes = value; }
 
 	void updateTimedParticles();
+	void setMeshPosInParticleSystem(UnitParticleSystem *ups);
 
 	virtual string getUniquePickName() const;
 	void saveGame(XmlNode *rootNode);
