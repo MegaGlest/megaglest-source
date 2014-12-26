@@ -336,7 +336,7 @@ void UnitAttackBoostEffect::applyLoadedAttackBoostParticles(UnitParticleSystemTy
 			upst->setValues(ups);
 			ups->setPos(unit->getCurrVectorForParticlesystems());
 			ups->setRotation(unit->getRotation());
-			ups->setUnitModel(unit->getCurrentModelPtr());
+			unit->setMeshPosInParticleSystem(ups);
 			if (unit->getFaction()->getTexture()) {
 				ups->setFactionColor(unit->getFaction()->getTexture()->getPixmapConst()->getPixel3f(0, 0));
 			}
@@ -2449,7 +2449,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(
 								getCurrVectorForParticlesystems());
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setRotation(getRotation());
-						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setUnitModel(getCurrentModelPtr());
+						setMeshPosInParticleSystem(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups);
 
 						if (getFaction()->getTexture()) {
 							currentAttackBoostOriginatorEffect.
@@ -2562,7 +2562,7 @@ void Unit::updateAttackBoostProgress(const Game* game) {
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(
 								getCurrVectorForParticlesystems());
 						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setRotation(getRotation());
-						currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setUnitModel(getCurrentModelPtr());
+						setMeshPosInParticleSystem(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups);
 
 						if (getFaction()->getTexture()) {
 							currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setFactionColor(
@@ -2751,14 +2751,14 @@ bool Unit::update() {
 		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
 			(*it)->setPos(getCurrVectorForParticlesystems());
 			(*it)->setRotation(getRotation());
-			(*it)->setUnitModel(getCurrentModelPtr());
+			setMeshPosInParticleSystem(*it);
 		}
 	}
 	for(UnitParticleSystems::iterator it= damageParticleSystems.begin(); it != damageParticleSystems.end(); ++it) {
 		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
 			(*it)->setPos(getCurrVectorForParticlesystems());
 			(*it)->setRotation(getRotation());
-			(*it)->setUnitModel(getCurrentModelPtr());
+			setMeshPosInParticleSystem(*it);
 		}
 	}
 
@@ -2766,7 +2766,7 @@ bool Unit::update() {
 		if(Renderer::getInstance().validateParticleSystemStillExists((*it),rsGame) == true) {
 			(*it)->setPos(getCurrMidHeightVector());
 			(*it)->setRotation(getRotation());
-			(*it)->setUnitModel(getCurrentModelPtr());
+			setMeshPosInParticleSystem(*it);
 		}
 	}
 
@@ -2778,7 +2778,7 @@ bool Unit::update() {
 			if(particleValid == true) {
 				effect->ups->setPos(getCurrVectorForParticlesystems());
 				effect->ups->setRotation(getRotation());
-				effect->ups->setUnitModel(getCurrentModelPtr());
+				setMeshPosInParticleSystem(effect->ups);
 			}
 
 			//printf("i = %d particleValid = %d\n",i,particleValid);
@@ -2793,7 +2793,7 @@ bool Unit::update() {
 			if(particleValid == true) {
 				currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setPos(getCurrVectorForParticlesystems());
 				currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setRotation(getRotation());
-				currentAttackBoostOriginatorEffect.currentAppliedEffect->ups->setUnitModel(getCurrentModelPtr());
+				setMeshPosInParticleSystem(currentAttackBoostOriginatorEffect.currentAppliedEffect->ups);
 			}
 		}
 	}
@@ -2850,7 +2850,7 @@ void Unit::updateTimedParticles() {
 					pst->setValues(ups);
 					ups->setPos(getCurrVectorForParticlesystems());
 					ups->setRotation(getRotation());
-					ups->setUnitModel(getCurrentModelPtr());
+					setMeshPosInParticleSystem(ups);
 
 					if(getFaction()->getTexture()) {
 						ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
@@ -2993,7 +2993,7 @@ bool Unit::applyAttackBoost(const AttackBoost *boost, const Unit *source) {
 				effect->upst->setValues(effect->ups);
 				effect->ups->setPos(getCurrVectorForParticlesystems());
 				effect->ups->setRotation(getRotation());
-				effect->ups->setUnitModel(getCurrentModelPtr());
+				setMeshPosInParticleSystem(effect->ups);
 				if(getFaction()->getTexture()) {
 					effect->ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
 				}
@@ -4138,7 +4138,7 @@ void Unit::checkCustomizedUnitParticleListTriggers(const UnitParticleSystemTypes
 						pst->setValues(ups);
 						ups->setPos(getCurrVectorForParticlesystems());
 						ups->setRotation(getRotation());
-						ups->setUnitModel(getCurrentModelPtr());
+						setMeshPosInParticleSystem(ups);
 						if(getFaction()->getTexture()) {
 							ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
 						}
@@ -4164,6 +4164,36 @@ void Unit::queueTimedParticles(const UnitParticleSystemTypes &unitParticleSystem
 					queuedUnitParticleSystemTypes.push_back(pst);
 				}
 			}
+		}
+	}
+}
+
+void Unit::setMeshPosInParticleSystem(UnitParticleSystem *ups){
+	if(ups->getMeshName()!=""){
+		string meshName=ups->getMeshName();
+		Model *model= getCurrentModelPtr();
+		model->updateInterpolationVertices(getAnimProgressAsFloat(), isAlive() && !isAnimProgressBound());
+
+		bool foundMesh=false;
+		for(unsigned int i=0; i<model->getMeshCount() ; i++){
+			//printf("meshName=%s\n",unitModel->getMesh(i)->getName().c_str());
+			if(model->getMesh(i)->getName()==meshName){
+				const InterpolationData *data=model->getMesh(i)->getInterpolationData();
+				const Vec3f *verticepos=data->getVertices();
+				ups->setMeshPos(Vec3f(verticepos->x,verticepos->y,verticepos->z));
+				foundMesh=true;
+				break;
+			}
+		}
+		if( foundMesh == false ) {
+			string meshesFound="";
+			for(unsigned i=0; i<model->getMeshCount() ; i++){
+				meshesFound+= model->getMesh(i)->getName()+", ";
+			}
+
+			string errorString = "Warning: Particle system is trying to find mesh'"+meshName+"', but just found:\n'"+meshesFound+"' in file:\n'"+model->getFileName()+"'\n";
+			//throw megaglest_runtime_error(errorString);
+			printf("%s",errorString.c_str());
 		}
 	}
 }
@@ -4265,7 +4295,7 @@ void Unit::checkCustomizedParticleTriggers(bool force) {
 					pst->setValues(ups);
 					ups->setPos(getCurrVectorForParticlesystems());
 					ups->setRotation(getRotation());
-					ups->setUnitModel(getCurrentModelPtr());
+					setMeshPosInParticleSystem(ups);
 					if(getFaction()->getTexture()) {
 						ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
 					}
@@ -4296,7 +4326,7 @@ void Unit::startDamageParticles() {
 					pst->setValues(ups);
 					ups->setPos(getCurrVectorForParticlesystems());
 					ups->setRotation(getRotation());
-					ups->setUnitModel(getCurrentModelPtr());
+					setMeshPosInParticleSystem(ups);
 					if(getFaction()->getTexture()) {
 						ups->setFactionColor(getFaction()->getTexture()->getPixmapConst()->getPixel3f(0,0));
 					}
@@ -4329,7 +4359,7 @@ void Unit::startDamageParticles() {
 				ups->setColor(Vec4f(0.115f, 0.115f, 0.115f, 0.22f));
 				ups->setPos(getCurrBurnVector());
 				ups->setRotation(getRotation());
-				ups->setUnitModel(getCurrentModelPtr());
+				setMeshPosInParticleSystem(ups);
 				ups->setBlendMode(ups->strToBlendMode("black"));
 				ups->setOffset(Vec3f(0,2,0));
 				ups->setDirection(Vec3f(0,1,-0.2f));
