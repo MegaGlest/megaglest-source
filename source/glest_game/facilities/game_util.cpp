@@ -27,8 +27,13 @@ using namespace Shared::Platform;
 namespace Glest { namespace Game {
 
 const char *mailString				= " http://bugs.megaglest.org";
-const string glestVersionString 	= "v3.10.0-dev";
+
+// !! Use minor versions !!  Only major and minor version control compatibility!
+// typical version numbers look like this: v3.11-beta1.0   v3.12-dev   v3.12.0
+// don't forget to update mk/linux/mg-version.sh
+const string glestVersionString 	= "v3.11-beta2.0";
 const string lastCompatibleSaveGameVersionString 	= "v3.9.0";
+
 #if defined(GITVERSION)
     const string GIT_RawRev			= string(GITVERSION);
     const string GIT_Rev 			= string("Rev: ") + string(GITVERSION);
