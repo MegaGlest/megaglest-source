@@ -235,7 +235,7 @@ Section "${APNAME} (required)"
   File /r /x .svn /x mydata "..\..\..\source\tools\glexemel\*.*"
   SetOutPath $INSTDIR
 
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\data"
+  File /r /x .svn /x mydata /x cegui "..\..\..\data\glest_game\data"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\docs"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\maps"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\scenarios"
