@@ -446,17 +446,19 @@ void MenuStateRoot::FTPClient_CallbackEvent(string itemName,
     			removeFile(tempFilePath + itemName);
     		}
 
-        	// Move all files into binary folder
-    		vector<string> fileList = getFolderTreeContentsListRecursively(tempFilePath, "", false, NULL);
-    		for(unsigned int index = 0; index < fileList.size(); ++index) {
-    			string fileName = fileList[index];
-    			string newFileName = Properties::getApplicationPath() + extractFileFromDirectoryPath(fileName);
-    			bool result = renameFile(fileName,newFileName);
+    		bool result = upgradeFilesInTemp();
+    		if(result == false) {
+    			string binaryName = Properties::getApplicationPath() + extractFileFromDirectoryPath(PlatformExceptionHandler::application_binary);
+    			string binaryNameOld = Properties::getApplicationPath() + extractFileFromDirectoryPath(PlatformExceptionHandler::application_binary) + "__REMOVE";
+    			bool resultRename = renameFile(binaryName,binaryNameOld);
+    			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Rename: [%s] to [%s] result = %d\n",binaryName.c_str(),binaryNameOld.c_str(),resultRename);
+    			printf("#1 Rename: [%s] to [%s] result = %d\n",binaryName.c_str(),binaryNameOld.c_str(),resultRename);
 
-    			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Rename: [%s] to [%s] result = %d\n",fileName.c_str(),newFileName.c_str(),result);
+    			result = upgradeFilesInTemp();
+    			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Rename: [%s] to [%s] result = %d\n",binaryName.c_str(),binaryNameOld.c_str(),resultRename);
+    			printf("#2 Rename: [%s] to [%s] result = %d\n",binaryName.c_str(),binaryNameOld.c_str(),resultRename);
     		}
 
-    		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Successfully updated!\n");
     		console.addLine("Successfully updated, please restart!",true);
         }
         else {

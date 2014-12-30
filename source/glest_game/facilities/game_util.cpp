@@ -370,4 +370,38 @@ void initSpecialStrings() {
 	getCompileDateTime();
 }
 
+bool upgradeFilesInTemp() {
+	// Get path to temp files
+	string tempFilePath = "temp/";
+	if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+		tempFilePath = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + tempFilePath;
+	}
+	else {
+		Config &config = Config::getInstance();
+		string userData = config.getString("UserData_Root","");
+		if(userData != "") {
+			endPathWithSlash(userData);
+		}
+		tempFilePath = userData + tempFilePath;
+	}
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Temp files path [%s]\n",tempFilePath.c_str());
+
+	// Move all files into binary folder
+	bool anyFailures = false;
+	vector<string> fileList = getFolderTreeContentsListRecursively(tempFilePath, "", false, NULL);
+	for(unsigned int index = 0; index < fileList.size(); ++index) {
+		string fileName = fileList[index];
+		string newFileName = Properties::getApplicationPath() + extractFileFromDirectoryPath(fileName);
+		bool result = renameFile(fileName,newFileName);
+		if(result == false) {
+			anyFailures = true;
+		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Rename: [%s] to [%s] result = %d\n",fileName.c_str(),newFileName.c_str(),result);
+	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Successfully updated!\n");
+
+	return (fileList.size() > 0 && anyFailures == false);
+}
+
 }}//end namespace

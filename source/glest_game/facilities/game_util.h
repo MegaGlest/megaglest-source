@@ -54,6 +54,8 @@ string formatString(string str);
 string getGameReadWritePath(string lookupKey="");
 string getGameCustomCoreDataPath(string originalBasePath, string uniqueFilePath);
 
+bool upgradeFilesInTemp();
+
 }}//end namespace
 
 #endif
