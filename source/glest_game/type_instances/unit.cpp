@@ -323,6 +323,9 @@ void UnitAttackBoostEffect::setSource(const Unit *unit) {
 void UnitAttackBoostEffect::applyLoadedAttackBoostParticles(UnitParticleSystemType *upstPtr,const XmlNode *node, Unit* unit) {
 	if (upstPtr != NULL) {
 		bool showUnitParticles = Config::getInstance().getBool("UnitParticles","true");
+		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+				showUnitParticles = false;
+			}
 		if (showUnitParticles == true) {
 			upst = new UnitParticleSystemType();
 			*upst = *upstPtr;
