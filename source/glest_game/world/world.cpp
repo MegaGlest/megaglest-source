@@ -2692,14 +2692,16 @@ const Resource *World::getResourceForTeam(const ResourceType *rt, int teamIndex)
 		Faction *faction = factions[index];
 		if(faction != NULL && faction->getTeam() == teamIndex) {
 
-			const Resource *factionResource = faction->getResource(rt,true);
-			if(factionResource != NULL && factionResource->getType() != NULL) {
+			if(faction->hasAliveUnits(true,true)) {
+				const Resource *factionResource = faction->getResource(rt,true);
+				if(factionResource != NULL && factionResource->getType() != NULL) {
 
-				int teamResourceAmount 	= teamResource.getAmount();
-				int teamResourceBalance = teamResource.getBalance();
+					int teamResourceAmount 	= teamResource.getAmount();
+					int teamResourceBalance = teamResource.getBalance();
 
-				teamResource.setAmount(teamResourceAmount 	+ factionResource->getAmount());
-				teamResource.setBalance(teamResourceBalance + factionResource->getBalance());
+					teamResource.setAmount(teamResourceAmount 	+ factionResource->getAmount());
+					teamResource.setBalance(teamResourceBalance + factionResource->getBalance());
+				}
 			}
 		}
 	}

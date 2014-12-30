@@ -13,6 +13,9 @@
 #define _GLEST_GAME_MENUSTATEROOT_H_
 
 #include "main_menu.h"
+#include "simple_threads.h"
+#include "miniftpclient.h"
+
 #include "leak_dumper.h"
 
 namespace Glest{ namespace Game{
@@ -24,7 +27,7 @@ namespace Glest{ namespace Game{
 class GraphicMessageBox;
 class PopupMenu;
 
-class MenuStateRoot: public MenuState {
+class MenuStateRoot: public MenuState, public SimpleTaskCallbackInterface, public FTPClientCallbackInterface {
 private:
 	GraphicButton buttonNewGame;
 	GraphicButton buttonLoadGame;
@@ -36,20 +39,36 @@ private:
 
 	GraphicMessageBox mainMessageBox;
 	GraphicMessageBox errorMessageBox;
+	GraphicMessageBox ftpMessageBox;
 
 	PopupMenu popupMenu;
 
+	static bool gameUpdateChecked;
+	SimpleTaskThread *updatesHttpServerThread;
+	FTPClientThread *ftpClientThread;
+	std::map<string,pair<int,string> > fileFTPProgressList;
+	string ftpFileName;
+	string ftpFileURL;
+	int lastDownloadProgress;
+
+	virtual void simpleTask(BaseThread *callingThread,void *userdata);
+	void startFTPClientIfRequired();
+	virtual void FTPClient_CallbackEvent(string itemName,
+	    		FTP_Client_CallbackType type, pair<FTP_Client_ResultType,string> result,void *userdata);
+
 public:
 	MenuStateRoot(Program *program, MainMenu *mainMenu);
+	virtual ~MenuStateRoot();
 
 	void mouseClick(int x, int y, MouseButton mouseButton);
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void render();
 	void update();
 	virtual void keyDown(SDL_KeyboardEvent key);
-	void showMessageBox(const string &text, const string &header, bool toggle);
 
+	void showMessageBox(const string &text, const string &header, bool toggle);
 	void showErrorMessageBox(const string &text, const string &header, bool toggle);
+	void showFTPMessageBox(const string &text, const string &header, bool toggle, bool okOnly);
 
 	virtual bool isMasterserverMode() const;
 	virtual void reloadUI();

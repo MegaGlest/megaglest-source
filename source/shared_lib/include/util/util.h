@@ -239,7 +239,7 @@ float saturate(float value);
 int round(float f);
 
 //misc
-int compareMajorMinorVersion(string versionA,string versionB);
+int compareMajorMinorVersion(string versionA,string versionB, bool checkForNewVersionUpdates=false);
 int getMajor(string version);
 int getMinor(string version);
 bool checkVersionComptability(string clientVersionString, string serverVersionString);

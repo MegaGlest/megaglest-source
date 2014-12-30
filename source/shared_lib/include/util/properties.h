@@ -54,6 +54,9 @@ private:
 	static string scenarioPath;
 	static string tutorialPath;
 
+protected:
+	void processTextLine(bool is_utf8_language, char *lineBuffer);
+
 public:
 	static void setApplicationPath(string value) { applicationPath=value; }
 	static string getApplicationPath() { return applicationPath; }
@@ -72,6 +75,8 @@ public:
 	static string getTutorialPath() { return tutorialPath; }
 
 	void clear();
+
+	void loadFromText(const string &text);
 	void load(const string &path,bool clearCurrentProperties=true);
 	void save(const string &path);
 

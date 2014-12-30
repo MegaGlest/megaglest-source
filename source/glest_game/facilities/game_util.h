@@ -34,6 +34,8 @@ extern const string networkVersionString;
 
 void initSpecialStrings();
 string getCrashDumpFileName();
+string getPlatformTypeNameString();
+string getPlatformArchTypeNameString();
 string getPlatformNameString();
 string getGITRevisionString();
 string getRAWGITRevisionString();

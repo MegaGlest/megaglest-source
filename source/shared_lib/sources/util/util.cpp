@@ -787,54 +787,70 @@ int round(float f){
 }
 
 // ==================== misc ====================
-int compareMajorMinorVersion(string versionA,string versionB){
-	int majorA=getMajor(versionA);
-	int minorA=getMinor(versionA);
-	int majorB=getMajor(versionB);
-	int minorB=getMinor(versionB);
+int compareMajorMinorVersion(string versionA,string versionB, bool checkForNewVersionUpdates) {
+	int majorA = getMajor(versionA);
+	int minorA = getMinor(versionA);
+	int majorB = getMajor(versionB);
+	int minorB = getMinor(versionB);
 
-	if(majorA<majorB) return -1;
-	else if(majorA==majorB){
-		if(minorA<minorB) return -1;
-		else if(minorA==minorB){
+	if(majorA < majorB) {
+		return -1;
+	}
+	else if(majorA == majorB) {
+		if(minorA < minorB) {
+			return -1;
+		}
+		else if(minorA == minorB) {
+			if(checkForNewVersionUpdates) {
+				if(versionA != versionB) {
+					return -1;
+				}
+			}
 			return 0;
 		}
-		else{
+		else {
 			return 1;
 		}
 	}
-	else{
+	else {
 		return 1;
 	}
 }
 
-int getMajor(string version){
-	vector<string> parts=split(version.substr(1),".");
+int getMajor(string version) {
+	vector<string> parts = split(version.substr(1),".");
 
-	if(parts.size()>2 && parts[0] != "" && IsNumeric(parts[0].c_str(),false))
+	if(parts.size() > 2 && parts[0] != "" && IsNumeric(parts[0].c_str(),false)) {
 		return strToInt(parts[0]);
-	else
+	}
+	else {
 		return 0;
+	}
 }
 
-int getMinor(string version){
-	vector<string> parts=split(version.substr(1),".");
-	if(parts.size()>2 && parts[1] != ""){
+int getMinor(string version) {
+	vector<string> parts = split(version.substr(1),".");
+	if(parts.size() > 2 && parts[1] != "") {
 		string resultStr="";
 		for (int i = 0; i < (int)parts[1].length(); ++i) {
 			// just add leading numbers
-			if(IsNumeric((resultStr+parts[1][i]).c_str(),false) )
+			if(IsNumeric((resultStr + parts[1][i]).c_str(),false) ) {
 				resultStr += parts[1][i];
-			else
+			}
+			else {
 				break;
+			}
 		}
-		if(resultStr=="")
+		if(resultStr == "") {
 			return 0;
-		else
+		}
+		else {
 			return strToInt(resultStr);
+		}
 	}
-	else
+	else {
 		return 0;
+	}
 }
 
 bool checkVersionComptability(string clientVersionString, string serverVersionString) {
