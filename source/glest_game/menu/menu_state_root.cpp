@@ -460,7 +460,7 @@ void MenuStateRoot::FTPClient_CallbackEvent(string itemName,
     			resultRename = renameFile(binaryNameOld, binaryName);
 
     			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Rename: [%s] to [%s] result = %d\n",binaryName.c_str(),binaryNameOld.c_str(),resultRename);
-    			printf("#2 Rename: [%s] to [%s] result = %d errno = %d\n",binaryName.c_str(),binaryNameOld.c_str(),resultRename, errno);
+    			printf("#2 Rename: [%s] to [%s] result = %d errno = %d\n",binaryNameOld.c_str(),binaryName.c_str(),resultRename, errno);
     		}
 
     		console.addLine("Successfully updated, please restart!",true);

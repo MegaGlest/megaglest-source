@@ -4439,6 +4439,10 @@ int glestMain(int argc, char** argv) {
         }
         createDirectoryPaths(tempDataPath);
 
+        string binaryNameOld = Properties::getApplicationPath() + extractFileFromDirectoryPath(PlatformExceptionHandler::application_binary) + "__REMOVE";
+        if(fileExists(binaryNameOld)) {
+        	removeFile(binaryNameOld);
+        }
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_PORTS]) == true) {
 			int foundParamIndIndex = -1;
