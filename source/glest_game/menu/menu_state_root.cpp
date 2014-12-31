@@ -423,7 +423,7 @@ void MenuStateRoot::FTPClient_CallbackEvent(string itemName,
         fileFTPProgressList.erase(itemName);
         safeMutexFTPProgress.ReleaseLock();
 
-        printf("### downloaded TEMP file [%s] result = %d\n",itemName.c_str(),result.first);
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("### downloaded TEMP file [%s] result = %d\n",itemName.c_str(),result.first);
 
         if(result.first == ftp_crt_SUCCESS) {
     		// Get path to temp files
@@ -452,11 +452,15 @@ void MenuStateRoot::FTPClient_CallbackEvent(string itemName,
     			string binaryNameOld = Properties::getApplicationPath() + extractFileFromDirectoryPath(PlatformExceptionHandler::application_binary) + "__REMOVE";
     			bool resultRename = renameFile(binaryName,binaryNameOld);
     			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Rename: [%s] to [%s] result = %d\n",binaryName.c_str(),binaryNameOld.c_str(),resultRename);
-    			printf("#1 Rename: [%s] to [%s] result = %d\n",binaryName.c_str(),binaryNameOld.c_str(),resultRename);
+    			printf("#1 Rename: [%s] to [%s] result = %d errno = %d\n",binaryName.c_str(),binaryNameOld.c_str(),resultRename, errno);
 
-    			result = upgradeFilesInTemp();
+    			//result = upgradeFilesInTemp();
+    			binaryName = Properties::getApplicationPath() + extractFileFromDirectoryPath(PlatformExceptionHandler::application_binary);
+    			binaryNameOld = tempFilePath + extractFileFromDirectoryPath(PlatformExceptionHandler::application_binary);
+    			resultRename = renameFile(binaryNameOld, binaryName);
+
     			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Rename: [%s] to [%s] result = %d\n",binaryName.c_str(),binaryNameOld.c_str(),resultRename);
-    			printf("#2 Rename: [%s] to [%s] result = %d\n",binaryName.c_str(),binaryNameOld.c_str(),resultRename);
+    			printf("#2 Rename: [%s] to [%s] result = %d errno = %d\n",binaryName.c_str(),binaryNameOld.c_str(),resultRename, errno);
     		}
 
     		console.addLine("Successfully updated, please restart!",true);

@@ -19,6 +19,7 @@
 #include "platform_util.h"
 #include "conversion.h"
 #include "cache_manager.h"
+#include "errno.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -394,6 +395,8 @@ bool upgradeFilesInTemp() {
 		string newFileName = Properties::getApplicationPath() + extractFileFromDirectoryPath(fileName);
 		bool result = renameFile(fileName,newFileName);
 		if(result == false) {
+			printf("FAILED Rename: [%s] to [%s] result = %d errno = %d\n",fileName.c_str(),newFileName.c_str(),result,errno);
+
 			anyFailures = true;
 		}
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Rename: [%s] to [%s] result = %d\n",fileName.c_str(),newFileName.c_str(),result);
