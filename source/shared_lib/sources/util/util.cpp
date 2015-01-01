@@ -787,7 +787,7 @@ int round(float f){
 }
 
 // ==================== misc ====================
-int compareMajorMinorVersion(string versionA,string versionB, bool checkForNewVersionUpdates) {
+int compareMajorMinorVersion(string versionA,string versionB) {
 	int majorA = getMajor(versionA);
 	int minorA = getMinor(versionA);
 	int majorB = getMajor(versionB);
@@ -801,11 +801,6 @@ int compareMajorMinorVersion(string versionA,string versionB, bool checkForNewVe
 			return -1;
 		}
 		else if(minorA == minorB) {
-			if(checkForNewVersionUpdates) {
-				if(versionA != versionB) {
-					return -1;
-				}
-			}
 			return 0;
 		}
 		else {

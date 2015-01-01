@@ -656,7 +656,12 @@ void MenuStateRoot::simpleTask(BaseThread *callingThread,void *userdata) {
 			Properties props;
 			props.loadFromText(updateMetaData);
 
-			int compareResult = compareMajorMinorVersion(glestVersionString, props.getString("LatestGameVersion",""),true);
+			int compareResult = compareMajorMinorVersion(glestVersionString, props.getString("LatestGameVersion",""));
+			if(compareResult==0) {
+				if(glestVersionString != props.getString("LatestGameVersion","")) {
+					compareResult = -1;
+				}
+			}
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("compareResult = %d local [%s] remote [%s]\n",compareResult,glestVersionString.c_str(),props.getString("LatestGameVersion","").c_str());
 
 			if(compareResult < 0) {
