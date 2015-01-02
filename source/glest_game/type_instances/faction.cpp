@@ -1279,7 +1279,7 @@ bool Faction::isAlly(const Faction *faction) {
 
 void Faction::incResourceAmount(const ResourceType *rt, int amount) {
 	if (world != NULL && world->getGame() != NULL
-			&& world->getGame->isFlagType1BitEnabled(
+			&& world->getGame()->isFlagType1BitEnabled(
 					ft1_allow_shared_team_resources) == true) {
 		for(int i=0; i < (int)resources.size(); ++i) {
 			Resource *r= &resources[i];
@@ -1390,13 +1390,12 @@ void Faction::removeStore(const UnitType *unitType){
 
 void Faction::limitResourcesToStore() {
 	if (world != NULL && world->getGame() != NULL
-			&& world->getGame->isFlagType1BitEnabled(
+			&& world->getGame()->isFlagType1BitEnabled(
 					ft1_allow_shared_team_resources) == true) {
 		for(int i=0; i < (int)resources.size(); ++i) {
 			Resource *r= &resources[i];
 			const ResourceType *rt= r->getType();
 			if(rt->getClass() != rcStatic && (getResource(rt,false)->getAmount())>getStoreAmount(rt,false)) {
-				printf("wopm\n");
 				r->setAmount(getStoreAmount(rt,false)-(getResource(rt,false)->getAmount()-r->getAmount()));
 				return;
 			}
