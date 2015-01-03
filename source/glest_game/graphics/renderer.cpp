@@ -7728,6 +7728,11 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 					visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 				Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 
+				if(renderingShadows==false && unit->isAlive()==false){
+					// no need to render dead units for selection
+					continue;
+				}
+
 				if(renderOnlyBuildings==true && unit->getType()->hasSkillClass(scMove)){
 					continue;
 				}
