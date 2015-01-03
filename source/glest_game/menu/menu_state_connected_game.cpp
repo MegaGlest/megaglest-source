@@ -5092,11 +5092,12 @@ int MenuStateConnectedGame::setupMapList(string scenario) {
 		string scenarioDir = Scenario::getScenarioDir(dirList, scenario);
 		vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
 		vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,true,&invalidMapList);
-
+		// sort map list non case sensitive
+		std::sort(allMaps.begin(),allMaps.end(),compareNonCaseSensitive);
 		if(scenario != "") {
 			vector<string> allMaps2 = MapPreview::findAllValidMaps(config.getPathListForType(ptMaps,""),"",false,true,&invalidMapList);
 			copy(allMaps2.begin(), allMaps2.end(), std::inserter(allMaps, allMaps.begin()));
-			std::sort(allMaps.begin(),allMaps.end());
+			std::sort(allMaps.begin(),allMaps.end(),compareNonCaseSensitive);
 		}
 
 		if (allMaps.empty()) {

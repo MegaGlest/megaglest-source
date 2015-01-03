@@ -229,6 +229,7 @@ string ext(const string &s);
 string replaceBy(const string &s, char c1, char c2);
 vector<string> split(string s,string d);
 string toLower(const string &s);
+bool compareNonCaseSensitive(const string a, const string b);
 void copyStringToBuffer(char *buffer, int bufferSize, const string& s);
 
 //numeric fcs
