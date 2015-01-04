@@ -8,6 +8,7 @@ v3.11.0
 - multi shot / multi-projectiles with different timings,sounds and particle systems
 - several camera shake effects
 - new tileset "pine rock"
+- some new maps
 - improve switching settings when connected to a headless server
 - support for team unit sharing
 - team resource sharing
