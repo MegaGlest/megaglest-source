@@ -257,6 +257,9 @@ public:
 
 	Program *getProgram()					{return program;}
 
+	Vec2i getMouseCellPos() const			{return mouseCellPos;}
+	bool isValidMouseCellPos() const;
+
 	void removeUnitFromSelection(const Unit *unit);
 	bool addUnitToSelection(Unit *unit);
 	void addUnitToGroupSelection(Unit *unit,int groupIndex);

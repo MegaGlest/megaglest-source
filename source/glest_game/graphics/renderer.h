@@ -568,7 +568,7 @@ public:
 	void renderMenuBackground(Camera *camera, float fade, Model *mainModel, vector<Model *> characterModels,const Vec3f characterPosition, float anim);
 
 	//computing
-    bool computePosition(const Vec2i &screenPos, Vec2i &worldPos,bool exactCoords=false);
+    bool ccomputePosition(const Vec2i &screenPos, Vec2i &worldPos,bool exactCoords=false);
 	void computeSelected(Selection::UnitContainer &units, const Object *&obj, const bool withObjectSelection, const Vec2i &posDown, const Vec2i &posUp);
 	void selectUsingColorPicking(Selection::UnitContainer &units, const Object *&obj,const bool withObjectSelection,const Vec2i &posDown, const Vec2i &posUp);
 	void selectUsingSelectionBuffer(Selection::UnitContainer &units,const Object *&obj, const bool withObjectSelection,const Vec2i &posDown, const Vec2i &posUp);

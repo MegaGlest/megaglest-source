@@ -2068,6 +2068,10 @@ void BaseColorPickEntity::beginPicking() {
 	glDisable(GL_POLYGON_OFFSET_FILL);
 	glDisable(GL_NORMALIZE);
 
+	// all off, but we want depth test
+	glEnable(GL_DEPTH_TEST);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	//glPushAttrib(GL_TEXTURE_2D | GL_LIGHTING | GL_BLEND | GL_MULTISAMPLE | GL_DITHER);
 	//glPushAttrib(GL_ENABLE_BIT | GL_LIGHTING_BIT | GL_POLYGON_BIT | GL_CURRENT_BIT | GL_TEXTURE_BIT | GL_NORMALIZE | GL_BLEND | GL_POLYGON_OFFSET_FILL);
 }

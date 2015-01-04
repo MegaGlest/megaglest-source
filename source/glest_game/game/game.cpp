@@ -4122,8 +4122,7 @@ void Game::mouseDownLeft(int x, int y) {
 				if(setMarker) {
 					Vec2i targetPos;
 					Vec2i screenPos(x,y-60);
-					Renderer &renderer= Renderer::getInstance();
-					renderer.computePosition(screenPos, targetPos);
+					targetPos=getMouseCellPos();
 					//Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
 
 
@@ -4137,8 +4136,7 @@ void Game::mouseDownLeft(int x, int y) {
 				if(originalIsMarkCellEnabled == true && isMarkCellEnabled == true) {
 					Vec2i targetPos;
 					Vec2i screenPos(x,y-60);
-					Renderer &renderer= Renderer::getInstance();
-					renderer.computePosition(screenPos, targetPos);
+					targetPos=getMouseCellPos();
 					Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
 
 					MarkedCell mc(targetPos,world.getThisFaction(),"placeholder for note",world.getThisFaction()->getStartLocationIndex());
@@ -4152,14 +4150,13 @@ void Game::mouseDownLeft(int x, int y) {
 					chatManager.switchOnEdit(this,500);
 
 					//renderer.updateMarkedCellScreenPosQuadCache(surfaceCellPos);
-					renderer.forceQuadCacheUpdate();
+					Renderer::getInstance().forceQuadCacheUpdate();
 				}
 
 				if(originalIsUnMarkCellEnabled == true && isUnMarkCellEnabled == true) {
 					Vec2i targetPos;
 					Vec2i screenPos(x,y-35);
-					Renderer &renderer= Renderer::getInstance();
-					renderer.computePosition(screenPos, targetPos);
+					targetPos=getMouseCellPos();
 					Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
 
 //					if(mapMarkedCellList.find(surfaceCellPos) != mapMarkedCellList.end()) {
@@ -4177,7 +4174,7 @@ void Game::mouseDownLeft(int x, int y) {
 
 					//Renderer &renderer= Renderer::getInstance();
 					//renderer.updateMarkedCellScreenPosQuadCache(surfaceCellPos);
-					renderer.forceQuadCacheUpdate();
+					Renderer::getInstance().forceQuadCacheUpdate();
 				}
 			}
 		}
@@ -4259,9 +4256,8 @@ void Game::mouseDownRight(int x, int y) {
 		else {
 			Vec2i targetPos;
 			Vec2i screenPos(x,y);
-			Renderer &renderer= Renderer::getInstance();
-			renderer.computePosition(screenPos, targetPos);
-			if(renderer.computePosition(screenPos, targetPos) == true &&
+			targetPos=getMouseCellPos();
+			if(isValidMouseCellPos() == true &&
 				map->isInsideSurface(map->toSurfCoords(targetPos)) == true) {
 				gui.mouseDownRightGraphics(x, y,false);
 			}
@@ -4521,7 +4517,7 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 		lastMousePos.y = mouseY;
 
 		Renderer &renderer= Renderer::getInstance();
-		renderer.computePosition(Vec2i(mouseX, mouseY), mouseCellPos);
+		renderer.ccomputePosition(Vec2i(mouseX, mouseY), mouseCellPos);
 	}
 	catch(const exception &ex) {
 		char szBuf[8096]="";
@@ -4538,6 +4534,15 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 			networkManager.getGameNetworkInterface()->quitGame(true);
 		}
 		ErrorDisplayMessage(ex.what(),true);
+	}
+}
+
+bool Game::isValidMouseCellPos() const{
+	if(world.getMap() == NULL){
+		return false;
+	}
+	else {
+		return world.getMap()->isInside(mouseCellPos);
 	}
 }
 
