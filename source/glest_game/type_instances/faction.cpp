@@ -1278,14 +1278,29 @@ bool Faction::isAlly(const Faction *faction) {
 // ================== misc ==================
 
 void Faction::incResourceAmount(const ResourceType *rt, int amount) {
-	for(int i=0; i < (int)resources.size(); ++i) {
-		Resource *r= &resources[i];
-		if(r->getType()==rt) {
-			r->setAmount(r->getAmount()+amount);
-			if(r->getType()->getClass() != rcStatic && r->getAmount()>getStoreAmount(rt)) {
-				r->setAmount(getStoreAmount(rt));
+	if (world != NULL && world->getGame() != NULL
+			&& world->getGame()->isFlagType1BitEnabled(
+					ft1_allow_shared_team_resources) == true) {
+		for(int i=0; i < (int)resources.size(); ++i) {
+			Resource *r= &resources[i];
+			if(r->getType()==rt) {
+				r->setAmount(r->getAmount()+amount);
+				if(r->getType()->getClass() != rcStatic && (getResource(rt,false)->getAmount()+amount)>getStoreAmount(rt,false)) {
+					r->setAmount(getStoreAmount(rt,false)-(getResource(rt,false)->getAmount()-r->getAmount()));
+				}
+				return;
 			}
-			return;
+		}
+	} else {
+		for(int i=0; i < (int)resources.size(); ++i) {
+			Resource *r= &resources[i];
+			if(r->getType()==rt) {
+				r->setAmount(r->getAmount()+amount);
+				if(r->getType()->getClass() != rcStatic && r->getAmount()>getStoreAmount(rt)) {
+					r->setAmount(getStoreAmount(rt));
+				}
+				return;
+			}
 		}
 	}
 	assert(false);
@@ -1374,11 +1389,23 @@ void Faction::removeStore(const UnitType *unitType){
 }
 
 void Faction::limitResourcesToStore() {
-	for(int i=0; i < (int)resources.size(); ++i) {
-		Resource *r= &resources[i];
-		Resource *s= &store[i];
-		if(r->getType()->getClass() != rcStatic && r->getAmount()>s->getAmount()) {
-			r->setAmount(s->getAmount());
+	if (world != NULL && world->getGame() != NULL
+			&& world->getGame()->isFlagType1BitEnabled(
+					ft1_allow_shared_team_resources) == true) {
+		for(int i=0; i < (int)resources.size(); ++i) {
+			Resource *r= &resources[i];
+			const ResourceType *rt= r->getType();
+			if(rt->getClass() != rcStatic && (getResource(rt,false)->getAmount())>getStoreAmount(rt,false)) {
+				r->setAmount(getStoreAmount(rt,false)-(getResource(rt,false)->getAmount()-r->getAmount()));
+			}
+		}
+	} else {
+		for(int i=0; i < (int)resources.size(); ++i) {
+			Resource *r= &resources[i];
+			Resource *s= &store[i];
+			if(r->getType()->getClass() != rcStatic && r->getAmount()>s->getAmount()) {
+				r->setAmount(s->getAmount());
+			}
 		}
 	}
 }
