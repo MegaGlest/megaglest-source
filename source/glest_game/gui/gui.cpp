@@ -256,8 +256,8 @@ void Gui::mouseMoveOutsideDisplay() {
 void Gui::mouseDownLeftGraphics(int x, int y, bool prepared) {
 	if(selectingPos) {
 		//give standard orders
-		Vec2i targetPos;
-		if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos) &&
+		Vec2i targetPos=game->getMouseCellPos();
+		if(game->isValidMouseCellPos() &&
 			world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
 			giveTwoClickOrders(x, y, prepared);
 		}
@@ -266,8 +266,8 @@ void Gui::mouseDownLeftGraphics(int x, int y, bool prepared) {
 	//set meeting point
 	else if(selectingMeetingPoint) {
 		if(selection.isCommandable()) {
-			Vec2i targetPos;
-			if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos) &&
+			Vec2i targetPos=game->getMouseCellPos();
+			if(game->isValidMouseCellPos() &&
 				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
 				commander->trySetMeetingPoint(selection.getFrontUnit(), targetPos);
 			}
@@ -287,15 +287,15 @@ void Gui::mouseDownRightGraphics(int x, int y , bool prepared) {
 	}
 	else if(selection.isCommandable()) {
 		if(prepared) {
-			Vec2i targetPos;
-			if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos) &&
+			Vec2i targetPos=game->getMouseCellPos();
+			if(game->isValidMouseCellPos() &&
 				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
 				givePreparedDefaultOrders(x, y);
 			}
 		}
 		else {
-			Vec2i targetPos;
-			if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos) &&
+			Vec2i targetPos=game->getMouseCellPos();
+			if(game->isValidMouseCellPos() &&
 				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
 				giveDefaultOrders(x, y);
 			}
@@ -331,7 +331,8 @@ void Gui::mouseMoveGraphics(int x, int y) {
 
 	//compute position for building
 	if(isPlacingBuilding()){
-		validPosObjWorld= Renderer::getInstance().computePosition(Vec2i(x,y), posObjWorld);
+		posObjWorld=game->getMouseCellPos();
+		validPosObjWorld= game->isValidMouseCellPos();
 	}
 
 	display.setInfoText("");
@@ -1160,8 +1161,7 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 		if(selObj != NULL) {
 			selObj->resetHighlight();
 			// get real click pos
-			renderer.computePosition(screenPos, targetPos);
-
+			targetPos=game->getMouseCellPos();
 			//validPosObjWorld= true;
 			//posObjWorld = targetPos;
 
@@ -1252,7 +1252,8 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 	}
 	else{
 		targetUnit= NULL;
-		if(renderer.computePosition(screenPos, targetPos)){
+		targetPos=game->getMouseCellPos();
+		if(game->isValidMouseCellPos()){
 			validPosObjWorld= true;
 			posObjWorld= targetPos;
 

@@ -1648,11 +1648,11 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
 
 		if(game->isMarkCellMode() == true) {
 			const Texture2D *texture= game->getMarkCellTexture();
-			renderTextureQuad(x-18,y-50,texture->getTextureWidth(),texture->getTextureHeight(),texture,0.8f);
+			renderTextureQuad(x,y,texture->getTextureWidth(),texture->getTextureHeight(),texture,0.8f);
 		}
 		if(game->isUnMarkCellMode() == true) {
 			const Texture2D *texture= game->getUnMarkCellTexture();
-			renderTextureQuad(x-18,y-50,texture->getTextureWidth(),texture->getTextureHeight(),texture,0.8f);
+			renderTextureQuad(x,y,texture->getTextureWidth(),texture->getTextureHeight(),texture,0.8f);
 		}
 	}
 
@@ -6274,7 +6274,7 @@ void Renderer::renderHighlightedCellsOnMinimap() {
 
 
 		//int mx= metrics.getMinimapX();
-		int my= metrics.getMinimapY();
+		//int my= metrics.getMinimapY();
 		int mw= metrics.getMinimapW();
 		int mh= metrics.getMinimapH();
 
@@ -6297,7 +6297,8 @@ void Renderer::renderHighlightedCellsOnMinimap() {
 				if(texture != NULL) {
 					//float alpha = 0.49f+0.5f/(mc->getAliveCount()%15);
 					float alpha=1.0f;
-					renderTextureQuad((int)(pos.x*zoom.x)+pointersize, my + mh-(int)(pos.y*zoom.y), pointersize, pointersize, texture, alpha,&myColor);
+					renderTextureQuad((int)(pos.x*zoom.x),(int)(pos.y*zoom.y), pointersize, pointersize, texture, alpha,&myColor);
+					//renderTextureQuad((int)(pos.x*zoom.x)+pointersize, my + mh-(int)(pos.y*zoom.y), pointersize, pointersize, texture, alpha,&myColor);
 				}
 			}
 		}
@@ -6394,7 +6395,7 @@ void Renderer::renderVisibleMarkedCells(bool renderTextHint,int x, int y) {
 	std::map<Vec2i, MarkedCell> markedCells = game->getMapMarkedCellList();
 	if(markedCells.empty() == false) {
 		const Texture2D *texture= game->getMarkCellTexture();
-		const int yOffset = 10;
+		const int yOffset = -40;
 
 		for(std::map<Vec2i, MarkedCell>::iterator iterMap =markedCells.begin();
 				iterMap != markedCells.end(); ++iterMap) {
@@ -6885,7 +6886,7 @@ void Renderer::renderMenuBackground(Camera *camera, float fade, Model *mainModel
 
 // ==================== computing ====================
 
-bool Renderer::computePosition(const Vec2i &screenPos, Vec2i &worldPos, bool exactCoords) {
+bool Renderer::ccomputePosition(const Vec2i &screenPos, Vec2i &worldPos, bool exactCoords) {
 	assertGl();
 	const Map* map= game->getWorld()->getMap();
 	const Metrics &metrics= Metrics::getInstance();
