@@ -983,7 +983,7 @@ bool Renderer::validateParticleSystemStillExists(ParticleSystem * particleSystem
 }
 
 void Renderer::removeParticleSystemsForParticleOwner(ParticleOwner * particleOwner,ResourceScope rs) {
-	return particleManager[rs]->removeParticleSystemsForParticleOwner(particleOwner);
+	particleManager[rs]->removeParticleSystemsForParticleOwner(particleOwner);
 }
 
 void Renderer::cleanupParticleSystems(vector<ParticleSystem *> &particleSystems, ResourceScope rs) {
