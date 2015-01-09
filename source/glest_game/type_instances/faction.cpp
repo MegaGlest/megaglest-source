@@ -1397,7 +1397,6 @@ void Faction::limitResourcesToStore() {
 			const ResourceType *rt= r->getType();
 			if(rt->getClass() != rcStatic && (getResource(rt,false)->getAmount())>getStoreAmount(rt,false)) {
 				r->setAmount(getStoreAmount(rt,false)-(getResource(rt,false)->getAmount()-r->getAmount()));
-				return;
 			}
 		}
 	} else {
