@@ -2721,7 +2721,23 @@ int World::getStoreAmountForTeam(const ResourceType *rt, int teamIndex) const {
 	return teamStoreAmount;
 }
 
-bool World::showResourceTypeForFaction(const ResourceType *rt, const Faction *faction,bool localFactionOnly) const {
+bool World::showResourceTypeForTeam(const ResourceType *rt, int teamIndex) const {
+	//if any unit produces the resource
+	bool showResource = false;
+	for(int index = 0; showResource == false && index < (int)factions.size(); ++index) {
+		const Faction *teamFaction = factions[index];
+		if(teamFaction != NULL && teamFaction->getTeam() == teamIndex) {
+
+			if(teamFaction->hasUnitTypeWithResourceCostInCache(rt) == true) {
+				showResource = true;
+			}
+		}
+	}
+	return showResource;
+}
+
+
+bool World::showResourceTypeForFaction(const ResourceType *rt, const Faction *faction) const {
 	//if any unit produces the resource
 	bool showResource = false;
 	for(int factionUnitTypeIndex = 0;
@@ -2734,21 +2750,6 @@ bool World::showResourceTypeForFaction(const ResourceType *rt, const Faction *fa
 			break;
 		}
 	}
-	if(localFactionOnly == false && showResource == false &&
-			(game->isFlagType1BitEnabled(ft1_allow_shared_team_units) == true ||
-			 game->isFlagType1BitEnabled(ft1_allow_shared_team_resources) == true)) {
-
-		for(int index = 0; showResource == false && index < (int)factions.size(); ++index) {
-			const Faction *teamFaction = factions[index];
-			if(teamFaction != NULL && teamFaction->getTeam() == faction->getTeam()) {
-
-				if(teamFaction->hasUnitTypeWithResourceCostInCache(rt) == true) {
-					showResource = true;
-				}
-			}
-		}
-	}
-
 	return showResource;
 }
 

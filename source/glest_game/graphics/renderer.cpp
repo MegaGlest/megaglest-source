@@ -2443,11 +2443,9 @@ void Renderer::renderResourceStatus() {
 				continue;
 			}
 
-			const Faction *factionForResourceView 	= thisFaction;
-
-			bool showResource = world->showResourceTypeForFaction(rt, factionForResourceView, false);
+			bool showResource = world->showResourceTypeForTeam(rt, thisFaction->getTeam());
 			if(showResource == true) {
-				rowsRendered = renderResource(factionForResourceView,
+				rowsRendered = renderResource(thisFaction,
 						false, twoRessourceLines, rt, 0,
 						resourceCountRendered);
 			}
@@ -2472,7 +2470,13 @@ void Renderer::renderResourceStatus() {
 			}
 
 			//if any unit produces the resource
-			bool showResource = world->showResourceTypeForFaction(rt, factionForResourceView, false);
+			bool showResource;
+			if (twoRessourceLines)
+				showResource = world->showResourceTypeForTeam(rt,
+						factionForResourceView->getTeam());
+			else
+				showResource = world->showResourceTypeForFaction(rt,
+						factionForResourceView);
 			if(showResource == true) {
 				renderResource(factionForResourceView, localFactionResourcesOnly,
 						twoRessourceLines, rt, rowsRendered, resourceCountRendered);
@@ -2493,7 +2497,6 @@ void Renderer::renderResourceStatus() {
 		if(gui != NULL) {
 			const Selection *selection = gui->getSelection();
 			if(selection != NULL && selection->getCount() > 0 && selection->getFrontUnit() != NULL) {
-
 				const Unit *selectedUnit = selection->getFrontUnit();
 				if(selectedUnit != NULL && selectedUnit->getFaction()->isAlly(thisFaction) == true) {
 					factionForResourceView	  = selectedUnit->getFaction();
@@ -2510,7 +2513,14 @@ void Renderer::renderResourceStatus() {
 			}
 
 			//if any unit produces the resource
-			bool showResource = world->showResourceTypeForFaction(rt, factionForResourceView, false);
+			bool showResource;
+			if (twoRessourceLines)
+				showResource = world->showResourceTypeForTeam(rt,
+						factionForResourceView->getTeam());
+			else
+				showResource = world->showResourceTypeForFaction(rt,
+						factionForResourceView);
+
 			if(showResource == true) {
 				renderResource(factionForResourceView, localFactionResourcesOnly,
 						twoRessourceLines, rt, rowsRendered, resourceCountRendered);
