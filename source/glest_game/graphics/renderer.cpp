@@ -2373,25 +2373,13 @@ void Renderer::renderClock() {
 	}
 }
 
-bool Renderer::renderResourcesInTeamMode() {
-	bool result = false;
-
-	if(game != NULL && game->getGui() != NULL) {
-
-		if(game->isFlagType1BitEnabled(ft1_allow_shared_team_units) == true ||
-			game->isFlagType1BitEnabled(ft1_allow_shared_team_resources) == true) {
-
-			result = true;
-		}
-	}
-	return result;
-}
 void Renderer::renderResourceStatus() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
 	const World *world		= game->getWorld();
+	Config &config= Config::getInstance();
 
 	if(world->getThisFactionIndex() < 0 ||
 		world->getThisFactionIndex() >= world->getFactionCount()) {
@@ -2407,8 +2395,43 @@ void Renderer::renderResourceStatus() {
 	int resourceCountRendered = 0;
 	bool twoRessourceLines=false;
 
-	// If we are in team mode, lets render team totals
-	if(renderResourcesInTeamMode() == true) {
+	bool sharedTeamUnits = game != NULL && game->getGui() != NULL
+			&& game->isFlagType1BitEnabled(ft1_allow_shared_team_units)
+					== true;
+	bool sharedTeamResources = game != NULL && game->getGui() != NULL
+			&& game->isFlagType1BitEnabled(
+					ft1_allow_shared_team_resources) == true;
+
+	bool renderSharedTeamResources=false;
+	bool renderSharedTeamUnits=false;
+	bool renderLocalFactionResources=false;
+
+	if(config.getBool("TwoLineTeamResourceRendering","false") == true) {
+		if( sharedTeamResources == true || sharedTeamUnits == true){
+			twoRessourceLines=true;
+		}
+		if(sharedTeamResources == true){
+			renderSharedTeamResources=true;
+			renderSharedTeamUnits=true;
+		}
+		else if(sharedTeamUnits == true){
+			renderSharedTeamUnits=true;
+			renderLocalFactionResources=true;
+		}
+		else{
+			renderLocalFactionResources=true;
+		}
+	}
+	else {
+		if(sharedTeamResources == true)
+			renderSharedTeamResources=true;
+		else if(sharedTeamUnits == true)
+			renderSharedTeamUnits=true;
+		else
+			renderLocalFactionResources=true;
+	}
+
+	if(renderSharedTeamResources == true) {
 		resourceCountRendered = 0;
 		for(int techTreeResourceTypeIndex = 0;
 				techTreeResourceTypeIndex < world->getTechTree()->getResourceTypeCount();
@@ -2421,73 +2444,83 @@ void Renderer::renderResourceStatus() {
 			}
 
 			const Faction *factionForResourceView 	= thisFaction;
-			bool localFactionResourcesOnly 			= false;
 
-			bool showResource = world->showResourceTypeForFaction(rt, factionForResourceView, localFactionResourcesOnly);
+			bool showResource = world->showResourceTypeForFaction(rt, factionForResourceView, false);
 			if(showResource == true) {
-				twoRessourceLines=true;
 				rowsRendered = renderResource(factionForResourceView,
-						localFactionResourcesOnly, twoRessourceLines, rt, 0,
+						false, twoRessourceLines, rt, 0,
 						resourceCountRendered);
 			}
 		}
-	}
-
-	if(rowsRendered > 0 || resourceCountRendered > 0) {
-		rowsRendered++;
-	}
-	resourceCountRendered = 0;
-
-	for(int techTreeResourceTypeIndex = 0;
-			techTreeResourceTypeIndex < world->getTechTree()->getResourceTypeCount();
-				++techTreeResourceTypeIndex) {
-		const ResourceType *rt 	= world->getTechTree()->getResourceType(techTreeResourceTypeIndex);
-
-		if ( rt->getDisplayInHud() == false ) {
-			continue;
+		if(resourceCountRendered > 0) {
+			rowsRendered++;
 		}
+	}
+
+	if(renderLocalFactionResources == true){
+		resourceCountRendered = 0;
 
 		const Faction *factionForResourceView 	= thisFaction;
-		bool localFactionResourcesOnly 			= false;
+		bool localFactionResourcesOnly 			= true;
 
-		if(renderResourcesInTeamMode() == true) {
+		for(int techTreeResourceTypeIndex = 0;
+				techTreeResourceTypeIndex < world->getTechTree()->getResourceTypeCount();
+					++techTreeResourceTypeIndex) {
+			const ResourceType *rt 	= world->getTechTree()->getResourceType(techTreeResourceTypeIndex);
+			if ( rt->getDisplayInHud() == false ) {
+				continue;
+			}
 
-			const Gui *gui = game->getGui();
-			if(gui != NULL) {
+			//if any unit produces the resource
+			bool showResource = world->showResourceTypeForFaction(rt, factionForResourceView, false);
+			if(showResource == true) {
+				renderResource(factionForResourceView, localFactionResourcesOnly,
+						twoRessourceLines, rt, rowsRendered, resourceCountRendered);
+			}
+		}
+		if(resourceCountRendered > 0) {
+			rowsRendered++;
+		}
+	}
 
-				const Selection *selection = gui->getSelection();
-				if(selection != NULL && selection->getCount() > 0 && selection->getFrontUnit() != NULL) {
+	if(renderSharedTeamUnits == true){
+		resourceCountRendered = 0;
 
-					const Unit *selectedUnit = selection->getFrontUnit();
-//						if(selectedUnit != NULL && selectedUnit->getType()->hasSkillClass(scBeBuilt) == true) {
-//
-//							if(selectedUnit->getFactionIndex() == thisFaction->getIndex() ||
-//								selectedUnit->getFaction()->isAlly(thisFaction) == true) {
-//
-//								factionForResourceView	  = selectedUnit->getFaction();
-//								localFactionResourcesOnly = true;
-//							}
-//						}
+		const Faction *factionForResourceView 	= thisFaction;
+		bool localFactionResourcesOnly 			= true;
 
-					if(selectedUnit != NULL && selectedUnit->getFaction()->isAlly(thisFaction) == true) {
-						factionForResourceView	  = selectedUnit->getFaction();
-						localFactionResourcesOnly = true;
-					}
-				}
-				else {
-					factionForResourceView	  = thisFaction;
-					localFactionResourcesOnly = true;
+		const Gui *gui = game->getGui();
+		if(gui != NULL) {
+			const Selection *selection = gui->getSelection();
+			if(selection != NULL && selection->getCount() > 0 && selection->getFrontUnit() != NULL) {
+
+				const Unit *selectedUnit = selection->getFrontUnit();
+				if(selectedUnit != NULL && selectedUnit->getFaction()->isAlly(thisFaction) == true) {
+					factionForResourceView	  = selectedUnit->getFaction();
 				}
 			}
 		}
 
-		//if any unit produces the resource
-		bool showResource = world->showResourceTypeForFaction(rt, factionForResourceView, false);
-		if(showResource == true) {
-			renderResource(factionForResourceView, localFactionResourcesOnly,
-					twoRessourceLines, rt, rowsRendered, resourceCountRendered);
+		for(int techTreeResourceTypeIndex = 0;
+				techTreeResourceTypeIndex < world->getTechTree()->getResourceTypeCount();
+					++techTreeResourceTypeIndex) {
+			const ResourceType *rt 	= world->getTechTree()->getResourceType(techTreeResourceTypeIndex);
+			if ( rt->getDisplayInHud() == false ) {
+				continue;
+			}
+
+			//if any unit produces the resource
+			bool showResource = world->showResourceTypeForFaction(rt, factionForResourceView, false);
+			if(showResource == true) {
+				renderResource(factionForResourceView, localFactionResourcesOnly,
+						twoRessourceLines, rt, rowsRendered, resourceCountRendered);
+			}
+		}
+		if(resourceCountRendered > 0) {
+			rowsRendered++;
 		}
 	}
+
 	glPopAttrib();
 
 	assertGl();
@@ -2541,17 +2574,14 @@ int Renderer::renderResource(const Faction *factionForResourceView,bool localFac
 
 				isNegativeConsumableDisplayCycle = true;
 				if(r->getBalance() * 1 + r->getAmount() < 0) {
-
 					glColor3f(RED.x,RED.y,RED.z);
 					resourceFontColor = RED;
 				}
 				else if(r->getBalance() * 3 + r->getAmount() < 0) {
-
 					glColor3f(ORANGE.x,ORANGE.y,ORANGE.z);
 					resourceFontColor = ORANGE;
 				}
 				else if(r->getBalance() * 5 + r->getAmount() < 0) {
-
 					glColor3f(YELLOW.x,YELLOW.y,YELLOW.z);
 					resourceFontColor = YELLOW;
 				}

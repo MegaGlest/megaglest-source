@@ -708,7 +708,6 @@ private:
     void render3dSetup();
     void render3dMenuSetup(const MainMenu *mm);
 
-    bool renderResourcesInTeamMode();
     int renderResource(const Faction *factionForResourceView,
     		bool localFactionResourcesOnly,bool twoResourceLines, const ResourceType *rt,
     		int startRow, int &resourceCountRendered);
