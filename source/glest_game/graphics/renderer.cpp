@@ -7760,7 +7760,10 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 				renderOnlyBuildings=true;
 			}
 			else {
-				//glClear(GL_DEPTH_BUFFER_BIT);
+				if(colorPickingSelection == true){
+					// clear depth buffer to get units behind buildings rendered in front of them
+					glClear(GL_DEPTH_BUFFER_BIT);
+				}
 				//glEnable(GL_DEPTH_TEST);
 				renderOnlyBuildings=false;
 			}
