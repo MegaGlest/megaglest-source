@@ -6314,7 +6314,7 @@ void Renderer::renderHighlightedCellsOnMinimap() {
 
 
 		//int mx= metrics.getMinimapX();
-		//int my= metrics.getMinimapY();
+		int my= metrics.getMinimapY();
 		int mw= metrics.getMinimapW();
 		int mh= metrics.getMinimapH();
 
@@ -6337,8 +6337,7 @@ void Renderer::renderHighlightedCellsOnMinimap() {
 				if(texture != NULL) {
 					//float alpha = 0.49f+0.5f/(mc->getAliveCount()%15);
 					float alpha=1.0f;
-					renderTextureQuad((int)(pos.x*zoom.x),(int)(pos.y*zoom.y), pointersize, pointersize, texture, alpha,&myColor);
-					//renderTextureQuad((int)(pos.x*zoom.x)+pointersize, my + mh-(int)(pos.y*zoom.y), pointersize, pointersize, texture, alpha,&myColor);
+					renderTextureQuad((int)(pos.x*zoom.x)+pointersize, my + mh-(int)(pos.y*zoom.y), pointersize, pointersize, texture, alpha,&myColor);
 				}
 			}
 		}
