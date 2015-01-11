@@ -167,6 +167,21 @@ MenuStateOptionsGraphics::MenuStateOptionsGraphics(Program *program, MainMenu *m
 		listBoxFilter.setSelectedItem(config.getString("Filter"));
 		currentLine-=lineOffset;
 
+		//FilterMaxAnisotropy
+		labelFilterMaxAnisotropy.registerGraphicComponent(containerName,"labelFilterMaxAnisotropy");
+		labelFilterMaxAnisotropy.init(currentLabelStart, currentLine);
+		labelFilterMaxAnisotropy.setText(lang.getString("FilterMaxAnisotropy"));
+
+		listBoxFilterMaxAnisotropy.registerGraphicComponent(containerName,"listBoxFilterMaxAnisotropy");
+		listBoxFilterMaxAnisotropy.init(currentColumnStart, currentLine, 200);
+		listBoxFilterMaxAnisotropy.pushBackItem("1");
+		listBoxFilterMaxAnisotropy.pushBackItem("2");
+		listBoxFilterMaxAnisotropy.pushBackItem("4");
+		listBoxFilterMaxAnisotropy.pushBackItem("8");
+		listBoxFilterMaxAnisotropy.pushBackItem("16");
+		listBoxFilterMaxAnisotropy.setSelectedItem(config.getString("FilterMaxAnisotropy","1"));
+		currentLine-=lineOffset;
+
 		//selectionType
 		labelSelectionType.registerGraphicComponent(containerName,"labelSelectionType");
 		labelSelectionType.init(currentLabelStart, currentLine);
@@ -403,6 +418,15 @@ void MenuStateOptionsGraphics::reloadUI() {
 	listboxData.push_back("Bilinear");
 	listboxData.push_back("Trilinear");
 	listBoxFilter.setItems(listboxData);
+
+	labelFilterMaxAnisotropy.setText(lang.getString("FilterMaxAnisotropy"));
+	listboxData.clear();
+	listboxData.push_back("1");
+	listboxData.push_back("2");
+	listboxData.push_back("4");
+	listboxData.push_back("8");
+	listboxData.push_back("16");
+	listBoxFilterMaxAnisotropy.setItems(listboxData);
 
 	listboxData.clear();
 	for (float f=0.0;f<2.1f;f=f+0.1f) {
@@ -696,6 +720,7 @@ void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton)
 		listBoxShadowTextureSize.mouseClick(x, y);
 		listBoxShadowIntensity.mouseClick(x, y);
 		listBoxFilter.mouseClick(x, y);
+		listBoxFilterMaxAnisotropy.mouseClick(x, y);
 		if(listBoxGammaCorrection.mouseClick(x, y)){
 			float gammaValue=strToFloat(listBoxGammaCorrection.getSelectedItem());
 			if(gammaValue!=0.0){
@@ -733,6 +758,7 @@ void MenuStateOptionsGraphics::mouseMove(int x, int y, const MouseState *ms){
 	buttonAutoConfig.mouseMove(x, y);
 	buttonVideoInfo.mouseMove(x, y);
 	listBoxFilter.mouseMove(x, y);
+	listBoxFilterMaxAnisotropy.mouseMove(x, y);
 	listBoxGammaCorrection.mouseMove(x, y);
 	listBoxShadowIntensity.mouseMove(x, y);
 	listBoxSelectionType.mouseMove(x, y);
@@ -809,6 +835,7 @@ void MenuStateOptionsGraphics::render(){
 		renderer.renderCheckBox(&checkBoxMapPreview);
 		renderer.renderListBox(&listBoxLights);
 		renderer.renderListBox(&listBoxFilter);
+		renderer.renderListBox(&listBoxFilterMaxAnisotropy);
 		renderer.renderListBox(&listBoxGammaCorrection);
 		renderer.renderListBox(&listBoxShadowIntensity);
 		renderer.renderLabel(&labelShadows);
@@ -820,6 +847,7 @@ void MenuStateOptionsGraphics::render(){
 		renderer.renderLabel(&labelMapPreview);
 		renderer.renderLabel(&labelLights);
 		renderer.renderLabel(&labelFilter);
+		renderer.renderLabel(&labelFilterMaxAnisotropy);
 		renderer.renderLabel(&labelGammaCorrection);
 		renderer.renderLabel(&labelShadowIntensity);
 		renderer.renderLabel(&labelScreenModes);
@@ -873,6 +901,7 @@ void MenuStateOptionsGraphics::saveConfig(){
 
 	config.setBool("Windowed", checkBoxFullscreenWindowed.getValue());
 	config.setString("Filter", listBoxFilter.getSelectedItem());
+	config.setInt("FilterMaxAnisotropy", strToInt(listBoxFilterMaxAnisotropy.getSelectedItem()));
 	config.setFloat("GammaValue", strToFloat(listBoxGammaCorrection.getSelectedItem()));
 	config.setFloat("ShadowIntensity", strToFloat(listBoxShadowIntensity.getSelectedItem()));
 	config.setBool("Textures3D", checkBoxTextures3D.getValue());
