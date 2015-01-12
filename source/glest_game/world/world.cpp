@@ -2257,7 +2257,11 @@ void World::initUnits() {
 						placeUnitAtLocation(map.getStartLocation(startLocationIndex), generationArea, unit, true);
 					}
 				}
-
+			}
+			// the following is done here in an extra loop and not in the loop above, because shared resources games
+			// need to load all factions first, before calculating limitResourcesToStore()
+			for(int i = 0; i < getFactionCount(); ++i) {
+				Faction *f= factions[i];
 				// Ensure Starting Resource Amount are adjusted to max store levels
 				f->limitResourcesToStore();
 			}
