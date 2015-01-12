@@ -394,7 +394,7 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo, bool is
 
 	if(scenarioNode->hasChild("shared-team-units") == true) {
 		scenarioInfo->allowTeamUnitSharing=scenarioNode->getChild("shared-team-units")->getAttribute("value")->getBoolValue();
-		//printf("\nallowTeamUnitSharing is set to [%B]\n",scenarioInfo->allowTeamUnitSharing);
+		//printf("\nallowTeamUnitSharing is set to [%s]\n",scenarioInfo->allowTeamUnitSharing);
 	}
 	else {
 		scenarioInfo->allowTeamUnitSharing = false;
@@ -402,7 +402,7 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo, bool is
 
 	if(scenarioNode->hasChild("shared-team-resources") == true) {
 		scenarioInfo->allowTeamResourceSharing=scenarioNode->getChild("shared-team-resources")->getAttribute("value")->getBoolValue();
-		//printf("\nallowTeamResourceSharing is set to [%B]\n",scenarioInfo->allowTeamResourceSharing);
+		//printf("\nallowTeamResourceSharing is set to [%s]\n",scenarioInfo->allowTeamResourceSharing);
 	}
 	else {
 		scenarioInfo->allowTeamResourceSharing = false;
