@@ -1255,7 +1255,8 @@ void Game::init(bool initForPreviewOnly) {
 		//message box
 		errorMessageBox.init(lang.getString("Ok"));
 		errorMessageBox.setEnabled(false);
-		errorMessageBox.setY(mainMessageBox.getY() - mainMessageBox.getH() - 10);
+		errorMessageBox.setY(20);
+
 
 		//init world, and place camera
 		commander.init(&world);
