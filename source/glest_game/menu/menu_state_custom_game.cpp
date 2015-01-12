@@ -3994,6 +3994,8 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 		else {
 			listBoxFogOfWar.setSelectedItemIndex(0);
 		}
+		checkBoxAllowTeamUnitSharing.setValue(scenarioInfo.allowTeamUnitSharing);
+		checkBoxAllowTeamResourceSharing.setValue(scenarioInfo.allowTeamResourceSharing);
 	}
 	setupMapList(gameSettings.getScenario());
 	setupTechList(gameSettings.getScenario(),false);
@@ -4690,6 +4692,9 @@ void MenuStateCustomGame::processScenario() {
 			else {
 				listBoxFogOfWar.setSelectedItemIndex(0);
 			}
+
+			checkBoxAllowTeamUnitSharing.setValue(scenarioInfo.allowTeamUnitSharing);
+			checkBoxAllowTeamResourceSharing.setValue(scenarioInfo.allowTeamResourceSharing);
 
 			setupTechList(scenarioInfo.name, false);
 			listBoxTechTree.setSelectedItem(formatString(scenarioInfo.techTreeName));
