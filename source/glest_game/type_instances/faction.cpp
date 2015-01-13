@@ -731,8 +731,12 @@ void Faction::init(
 			store[index].init(rt, 0);
 
 			this->world->initTeamResource(rt,this->teamIndex,0);
-			this->updateUnitTypeWithResourceCostCache(rt);
 		}
+	}
+	//initialize cache
+	for(int index = 0; index < techTree->getResourceTypeCount(); ++index) {
+		const ResourceType *rt	= techTree->getResourceType(index);
+		this->updateUnitTypeWithResourceCostCache(rt);
 	}
 
 	texture= Renderer::getInstance().newTexture2D(rsGame);
