@@ -4866,6 +4866,8 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 			}
 			listBoxFogOfWar.setEditable(false);
 			checkBoxAllowObservers.setEditable(false);
+			checkBoxAllowTeamUnitSharing.setEditable(false);
+			checkBoxAllowTeamResourceSharing.setEditable(false);
 			//listBoxPathFinderType.setEditable(false);
 			checkBoxEnableSwitchTeamMode.setEditable(false);
 			listBoxAISwitchTeamAcceptPercent.setEditable(false);
@@ -4886,6 +4888,8 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 			}
 			listBoxFogOfWar.setEditable(true);
 			checkBoxAllowObservers.setEditable(true);
+			checkBoxAllowTeamUnitSharing.setEditable(false);
+			checkBoxAllowTeamResourceSharing.setEditable(false);
 			//listBoxPathFinderType.setEditable(true);
 			checkBoxEnableSwitchTeamMode.setEditable(true);
 			listBoxAISwitchTeamAcceptPercent.setEditable(true);
