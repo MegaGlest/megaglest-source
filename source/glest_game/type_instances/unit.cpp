@@ -3632,7 +3632,7 @@ bool Unit::morph(const MorphCommandType *mct) {
     }
 
     map->clearUnitCells(this, pos, false);
-    if(map->isFreeCellsOrHasUnit(pos, morphUnitType->getSize(), morphUnitField, this,morphUnitType)) {
+    if(map->canMorph(pos,this,morphUnitType)) {
 		map->clearUnitCells(this, pos, true);
 		faction->deApplyStaticCosts(type,mct);
 

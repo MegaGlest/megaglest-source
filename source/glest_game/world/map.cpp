@@ -817,13 +817,7 @@ bool Map::isFreeCells(const Vec2i & pos, int size, Field field) const  {
 }
 
 bool Map::isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field,
-		const Unit *unit, const UnitType *munit,bool allowNullUnit) const {
-	if(unit == NULL && allowNullUnit == false) {
-		throw megaglest_runtime_error("unit == NULL");
-	}
-	if(munit == NULL && allowNullUnit == false) {
-		throw megaglest_runtime_error("munit == NULL");
-	}
+		const Unit *unit) const {
 	for(int i = pos.x; i < pos.x + size; ++i) {
 		for(int j = pos.y; j < pos.y + size; ++j) {
 			if(isFreeCellOrHasUnit(Vec2i(i,j), field, unit) == false) {
@@ -843,6 +837,34 @@ bool Map::isAproxFreeCells(const Vec2i &pos, int size, Field field, int teamInde
 		}
 	}
     return true;
+}
+
+bool Map::canMorph(const Vec2i &pos,const Unit *currentUnit,const UnitType *targetUnitType ) const{
+	Field field=targetUnitType->getField();
+	const UnitType *ut=targetUnitType;
+	CardinalDir facing=currentUnit->getModelFacing();
+
+	if (ut->hasCellMap() && isInside(pos) && isInsideSurface(toSurfCoords(pos))) {
+		for (int y=0; y < ut->getSize(); ++y) {
+			for (int x=0; x < ut->getSize(); ++x) {
+				Vec2i cellPos = pos + Vec2i(x, y);
+				if(isInside(cellPos) && isInsideSurface(toSurfCoords(cellPos))) {
+					if (ut->getCellMapCell(x, y, facing)) {
+						if (isFreeCellOrHasUnit(cellPos, field, currentUnit) == false) {
+							return false;
+						}
+					}
+				}
+				else {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	else {
+		return isFreeCellsOrHasUnit(pos, ut->getSize(), field,currentUnit);
+	}
 }
 
 bool Map::canOccupy(const Vec2i &pos, Field field, const UnitType *ut, CardinalDir facing) {
