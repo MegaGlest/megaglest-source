@@ -3594,7 +3594,26 @@ void MenuStateConnectedGame::update() {
                     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
                     launchingNewGame = true;
-					program->setState(new Game(program, clientInterface->getGameSettings(),false));
+
+                    GameSettings gameSettings = *clientInterface->getGameSettings();
+                    // complete game settings with local stuff
+                    if(gameSettings.getScenario()!="")
+                    {
+                		string scenario = gameSettings.getScenario();
+                		listBoxScenario.setSelectedItem(formatString(scenario));
+                		string file = Scenario::getScenarioPath(dirList, scenario);
+
+                		bool isTutorial = Scenario::isGameTutorial(file);
+                		Scenario::loadScenarioInfo(file, &scenarioInfo, isTutorial);
+
+                		gameSettings.setScenarioDir(Scenario::getScenarioPath(dirList, scenarioInfo.name));
+
+                		gameSettings.setDefaultResources(scenarioInfo.defaultResources);
+                		gameSettings.setDefaultUnits(scenarioInfo.defaultUnits);
+                		gameSettings.setDefaultVictoryConditions(scenarioInfo.defaultVictoryConditions);
+                    }
+
+					program->setState(new Game(program, &gameSettings,false));
 					return;
 				}
 			}

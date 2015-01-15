@@ -1734,7 +1734,7 @@ int ScriptManager::isFreeCellsOrHasUnit(int field, int unitId, Vec2i pos) {
 	if(unit == NULL) {
 		throw megaglest_runtime_error("unit == NULL",true);
 	}
-	int result = world->getMap()->isFreeCellsOrHasUnit(pos,unit->getType()->getSize(),static_cast<Field>(field),unit,NULL,true);
+	int result = world->getMap()->isFreeCellsOrHasUnit(pos,unit->getType()->getSize(),static_cast<Field>(field),unit);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s] unitId = %d, [%s] pos [%s] field = %d result = %d\n",__FUNCTION__,unitId,unit->getType()->getName(false).c_str(),pos.getString().c_str(),field,result);
 
@@ -1744,7 +1744,7 @@ int ScriptManager::isFreeCellsOrHasUnit(int field, int unitId, Vec2i pos) {
 int ScriptManager::isFreeCells(int unitSize, int field, Vec2i pos) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	int result = world->getMap()->isFreeCellsOrHasUnit(pos,unitSize,static_cast<Field>(field),NULL,NULL,true);
+	int result = world->getMap()->isFreeCellsOrHasUnit(pos,unitSize,static_cast<Field>(field),NULL);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s] unitSize = %d, pos [%s] field = %d result = %d\n",__FUNCTION__,unitSize,pos.getString().c_str(),field,result);
 

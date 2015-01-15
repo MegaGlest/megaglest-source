@@ -2434,7 +2434,7 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
 
     if(unit->getCurrSkill()->getClass()!=scMorph){
 		//if not morphing, check space
-		if(map->isFreeCellsOrHasUnit(unit->getPos(), mct->getMorphUnit()->getSize(), mct->getMorphUnit()->getField(), unit, mct->getMorphUnit())){
+		if(map->canMorph(unit->getPos(),unit,mct->getMorphUnit())){
 			unit->setCurrSkill(mct->getMorphSkillType());
 			// block space for morphing units ( block space before and after morph ! )
 			map->putUnitCells(unit, unit->getPos());
