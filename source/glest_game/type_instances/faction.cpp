@@ -1354,7 +1354,7 @@ void Faction::removeUnit(Unit *unit){
 	//assert(false);
 }
 
-void Faction::addStore(const UnitType *unitType, bool replaceStorage) {
+void Faction::addStore(const UnitType *unitType) {
 	assert(unitType != NULL);
 	for(int newUnitStoredResourceIndex = 0;
 			newUnitStoredResourceIndex < unitType->getStoredResourceCount();
@@ -1367,12 +1367,7 @@ void Faction::addStore(const UnitType *unitType, bool replaceStorage) {
 			Resource *storedResource= &store[currentStoredResourceIndex];
 
 			if(storedResource->getType() == newUnitStoredResource->getType()) {
-				if(replaceStorage == true) {
-					storedResource->setAmount(newUnitStoredResource->getAmount());
-				}
-				else {
-					storedResource->setAmount(storedResource->getAmount() + newUnitStoredResource->getAmount());
-				}
+				storedResource->setAmount(storedResource->getAmount() + newUnitStoredResource->getAmount());
 			}
 		}
 	}

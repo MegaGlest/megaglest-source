@@ -329,7 +329,7 @@ public:
 	Unit *findUnit(int id) const;
 	void addUnit(Unit *unit);
 	void removeUnit(Unit *unit);
-	void addStore(const UnitType *unitType, bool replaceStorage);
+	void addStore(const UnitType *unitType);
 	void removeStore(const UnitType *unitType);
 
 	//resources
