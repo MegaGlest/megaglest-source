@@ -2435,7 +2435,7 @@ void ParticleManager::update(int renderFps){
 	vector<ParticleSystem *> cleanupParticleSystemsList;
 	for(unsigned int i= 0; i < particleSystems.size(); i++){
 		ParticleSystem *ps= particleSystems[i];
-		if(ps != NULL && validateParticleSystemStillExists(ps) == true) {
+		if(ps != NULL) {
 			currentParticleCount+= ps->getAliveParticleCount();
 
 			bool showParticle= true;
