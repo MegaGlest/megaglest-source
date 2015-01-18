@@ -4888,8 +4888,8 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 			}
 			listBoxFogOfWar.setEditable(true);
 			checkBoxAllowObservers.setEditable(true);
-			checkBoxAllowTeamUnitSharing.setEditable(false);
-			checkBoxAllowTeamResourceSharing.setEditable(false);
+			checkBoxAllowTeamUnitSharing.setEditable(true);
+			checkBoxAllowTeamResourceSharing.setEditable(true);
 			//listBoxPathFinderType.setEditable(true);
 			checkBoxEnableSwitchTeamMode.setEditable(true);
 			listBoxAISwitchTeamAcceptPercent.setEditable(true);
