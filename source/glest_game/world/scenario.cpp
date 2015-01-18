@@ -392,6 +392,22 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo, bool is
 		scenarioInfo->fogOfWar_exploredFlag = false;
 	}
 
+	if(scenarioNode->hasChild("shared-team-units") == true) {
+		scenarioInfo->allowTeamUnitSharing=scenarioNode->getChild("shared-team-units")->getAttribute("value")->getBoolValue();
+		//printf("\nallowTeamUnitSharing is set to [%s]\n",scenarioInfo->allowTeamUnitSharing);
+	}
+	else {
+		scenarioInfo->allowTeamUnitSharing = false;
+	}
+
+	if(scenarioNode->hasChild("shared-team-resources") == true) {
+		scenarioInfo->allowTeamResourceSharing=scenarioNode->getChild("shared-team-resources")->getAttribute("value")->getBoolValue();
+		//printf("\nallowTeamResourceSharing is set to [%s]\n",scenarioInfo->allowTeamResourceSharing);
+	}
+	else {
+		scenarioInfo->allowTeamResourceSharing = false;
+	}
+
 	scenarioInfo->file = file;
 	scenarioInfo->name = extractFileFromDirectoryPath(file);
 	scenarioInfo->name = cutLastExt(scenarioInfo->name);
@@ -538,6 +554,24 @@ void Scenario::loadGameSettings(const vector<string> &dirList,
 	}
 	else {
         valueFlags1 &= ~ft1_show_map_resources;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+
+	if(scenarioInfo->allowTeamUnitSharing == true) {
+        valueFlags1 |= ft1_allow_shared_team_units;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+	else {
+        valueFlags1 &= ~ft1_allow_shared_team_units;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+
+	if(scenarioInfo->allowTeamResourceSharing == true) {
+        valueFlags1 |= ft1_allow_shared_team_resources;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+	else {
+        valueFlags1 &= ~ft1_allow_shared_team_resources;
         gameSettings->setFlagTypes1(valueFlags1);
 	}
 

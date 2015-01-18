@@ -3994,6 +3994,8 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 		else {
 			listBoxFogOfWar.setSelectedItemIndex(0);
 		}
+		checkBoxAllowTeamUnitSharing.setValue(scenarioInfo.allowTeamUnitSharing);
+		checkBoxAllowTeamResourceSharing.setValue(scenarioInfo.allowTeamResourceSharing);
 	}
 	setupMapList(gameSettings.getScenario());
 	setupTechList(gameSettings.getScenario(),false);
@@ -4691,6 +4693,9 @@ void MenuStateCustomGame::processScenario() {
 				listBoxFogOfWar.setSelectedItemIndex(0);
 			}
 
+			checkBoxAllowTeamUnitSharing.setValue(scenarioInfo.allowTeamUnitSharing);
+			checkBoxAllowTeamResourceSharing.setValue(scenarioInfo.allowTeamResourceSharing);
+
 			setupTechList(scenarioInfo.name, false);
 			listBoxTechTree.setSelectedItem(formatString(scenarioInfo.techTreeName));
 			reloadFactions(false,scenarioInfo.name);
@@ -4861,6 +4866,8 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 			}
 			listBoxFogOfWar.setEditable(false);
 			checkBoxAllowObservers.setEditable(false);
+			checkBoxAllowTeamUnitSharing.setEditable(false);
+			checkBoxAllowTeamResourceSharing.setEditable(false);
 			//listBoxPathFinderType.setEditable(false);
 			checkBoxEnableSwitchTeamMode.setEditable(false);
 			listBoxAISwitchTeamAcceptPercent.setEditable(false);
@@ -4881,6 +4888,8 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 			}
 			listBoxFogOfWar.setEditable(true);
 			checkBoxAllowObservers.setEditable(true);
+			checkBoxAllowTeamUnitSharing.setEditable(true);
+			checkBoxAllowTeamResourceSharing.setEditable(true);
 			//listBoxPathFinderType.setEditable(true);
 			checkBoxEnableSwitchTeamMode.setEditable(true);
 			listBoxAISwitchTeamAcceptPercent.setEditable(true);

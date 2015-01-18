@@ -4565,6 +4565,9 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 			listBoxFogOfWar.setSelectedItemIndex(0);
 		}
 
+		checkBoxAllowTeamUnitSharing.setValue(scenarioInfo.allowTeamUnitSharing);
+		checkBoxAllowTeamResourceSharing.setValue(scenarioInfo.allowTeamResourceSharing);
+
 		if(originalFOWValue != listBoxFogOfWar.getSelectedItemIndex()) {
 			cleanupMapPreviewTexture();
 		}
