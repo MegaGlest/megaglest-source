@@ -4,7 +4,7 @@
 !define APNAME MegaGlest
 !define APNAME_OLD Mega-Glest
 !define APVER_OLD 3.9.1
-!define APVER 3.11-dev
+!define APVER 3.11.0
 
 Name "${APNAME} ${APVER}"
 SetCompressor /FINAL /SOLID lzma
@@ -16,7 +16,7 @@ UninstallIcon "..\..\shared\megaglest.ico"
 !define MUI_UNICON "..\..\shared\megaglest.ico"
 InstallDir "$PROGRAMFILES\${APNAME}"
 ShowInstDetails show
-BGGradient 0xDF9437 0xffffff
+;BGGradient 0xDF9437 0xffffff
 
 ; Request application privileges for Windows Vista
 RequestExecutionLevel none
