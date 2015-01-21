@@ -12,6 +12,7 @@
 #include "skill_type.h"
 
 #include <cassert>
+#include <iterator>
 
 #include "sound.h"
 #include "util.h"
@@ -19,6 +20,7 @@
 #include "renderer.h"
 #include "particle_type.h"
 #include "unit_particle_type.h"
+#include "projectile_type.h"
 #include "tech_tree.h"
 #include "faction_type.h"
 #include "leak_dumper.h"
@@ -60,82 +62,28 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 		else {
 			// All units are affected (including enemies)
 			if(targetType == abtAll) {
-				destUnitMightApply = (boostUnitList.empty() == true);
-
-				// Specify which units are affected
-				for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-					const UnitType *ut = boostUnitList[i];
-					if(dest->getType()->getId() == ut->getId()) {
-						destUnitMightApply = true;
-						break;
-					}
-				}
-
+				destUnitMightApply = (boostUnitList.empty() && tags.empty()) || isInUnitListOrTags(dest->getType());;
 			}
 			// Only same faction units are affected
 			else if(targetType == abtFaction) {
-				//if(boostUnitList.empty() == true) {
 				if(source->getFactionIndex() == dest->getFactionIndex()) {
-					//destUnitMightApply = true;
-					destUnitMightApply = (boostUnitList.empty() == true);
-
-					// Specify which units are affected
-					for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-						const UnitType *ut = boostUnitList[i];
-						if(dest->getType()->getId() == ut->getId()) {
-							destUnitMightApply = true;
-							break;
-						}
-					}
-
+					destUnitMightApply = (boostUnitList.empty() && tags.empty()) || isInUnitListOrTags(dest->getType());
 				}
-				//}
 			}
 			// Only ally units are affected
 			else if(targetType == abtAlly) {
-				//if(boostUnitList.empty() == true) {
 				if(source->isAlly(dest) == true) {
-					//destUnitMightApply = true;
-					destUnitMightApply = (boostUnitList.empty() == true);
-
-					// Specify which units are affected
-					for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-						const UnitType *ut = boostUnitList[i];
-						if(dest->getType()->getId() == ut->getId()) {
-							destUnitMightApply = true;
-							break;
-						}
-					}
+					destUnitMightApply = (boostUnitList.empty() && tags.empty()) || isInUnitListOrTags(dest->getType());
 				}
-				//}
 			}
 			// Only foe units are affected
 			else if(targetType == abtFoe) {
-				//if(boostUnitList.empty() == true) {
 				if(source->isAlly(dest) == false) {
-					//destUnitMightApply = true;
-					destUnitMightApply = (boostUnitList.empty() == true);
-
-					// Specify which units are affected
-					for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-						const UnitType *ut = boostUnitList[i];
-						if(dest->getType()->getId() == ut->getId()) {
-							destUnitMightApply = true;
-							break;
-						}
-					}
+					destUnitMightApply = (boostUnitList.empty() && tags.empty()) || isInUnitListOrTags(dest->getType());
 				}
-				//}
 			}
 			else if(targetType == abtUnitTypes) {
-				// Specify which units are affected
-				for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-					const UnitType *ut = boostUnitList[i];
-					if(dest->getType()->getId() == ut->getId()) {
-						destUnitMightApply = true;
-						break;
-					}
-				}
+				destUnitMightApply = isInUnitListOrTags(dest->getType());
 			}
 		}
 
@@ -148,6 +96,32 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 	}
 
 	return result;
+}
+
+bool AttackBoost::isInUnitListOrTags(const UnitType *unitType) const {
+	// Specify which units are affected
+	std::set<const UnitType*>::iterator it;
+	for (it = boostUnitList.begin(); it != boostUnitList.end(); ++it) {
+		const UnitType *boostUnit = *it;
+		if(unitType->getId() == boostUnit->getId()) {
+			return true;
+		}
+	}
+	set<string> unitTags = unitType->getTags();
+	set<string> intersect;
+	set_intersection(tags.begin(),tags.end(),unitTags.begin(),unitTags.end(),
+			std::inserter(intersect,intersect.begin()));
+	if(!intersect.empty()) return true;
+
+	// Otherwise no match
+	return false;
+}
+
+string AttackBoost::getTagName(string tag, bool translatedValue) const {
+	if(translatedValue == false) return tag;
+
+	Lang &lang = Lang::getInstance();
+	return lang.getTechTreeString("TagName_" + tag, tag.c_str());
 }
 
 string AttackBoost::getDesc(bool translatedValue) const{
@@ -189,14 +163,31 @@ string AttackBoost::getDesc(bool translatedValue) const{
     		str+= lang.getString("AffectedUnitsFromAll") +":\n";
     	}
 
-    	if(boostUnitList.empty() == false) {
-			for(int i=0; i < (int)boostUnitList.size(); ++i){
-				str+= "  "+boostUnitList[i]->getName(translatedValue)+"\n";
-			}
+    	if(boostUnitList.empty() && tags.empty()) {
+    		str+= lang.getString("All")+"\n";
     	}
     	else
     	{
-    		str+= lang.getString("All")+"\n";
+    		// We want the output to be sorted, so convert the set to a vector and sort that
+    		std::vector<const UnitType*> outputUnits(boostUnitList.begin(), boostUnitList.end());
+    		std::sort(outputUnits.begin(), outputUnits.end(), UnitTypeSorter());
+
+    		vector<const UnitType*>::iterator unitIter;
+    		for (unitIter = outputUnits.begin(); unitIter != outputUnits.end(); ++unitIter) {
+    			const UnitType *unit = *unitIter;
+    			str+= indent+unit->getName(translatedValue)+"\n";
+    		}
+
+    		// Do the same for tags
+    		std::vector<string> outputTags(tags.begin(), tags.end());
+    		std::sort(outputTags.begin(), outputTags.end());
+
+    		vector<string>::iterator tagIter;
+    		for (tagIter = outputTags.begin(); tagIter != outputTags.end(); ++tagIter) {
+    			string tag = *tagIter;
+    			str+= indent + lang.getString("TagDesc", (translatedValue == true ? "" : "english")) +
+    					" " + getTagName(tag,translatedValue)  + "\n";
+    		}
     	}
 
     	return str;
@@ -221,8 +212,16 @@ void AttackBoost::loadGame(const XmlNode *rootNode, Faction *faction, const Skil
 			string unitTypeName = node->getAttribute("name")->getValue();
 			const UnitType *unitType = faction->getType()->getUnitType(unitTypeName);
 			if(unitType != NULL) {
-				boostUnitList.push_back(unitType);
+				boostUnitList.insert(unitType);
 			}
+		}
+	}
+	if(attackBoostNode->hasChild("tag")) {
+		vector<XmlNode *> tagNodeList = attackBoostNode->getChildList("tag");
+		for(unsigned int i = 0; i < tagNodeList.size(); ++i) {
+			XmlNode *node = tagNodeList[i];
+			string tagName = node->getAttribute("name")->getValue();
+			tags.insert(tagName);
 		}
 	}
 	//boostUpgrade.loadGame(attackBoostNode,faction);
@@ -251,10 +250,17 @@ void AttackBoost::saveGame(XmlNode *rootNode) const {
 //	AttackBoostTargetType targetType;
 	attackBoostNode->addAttribute("targetType",intToStr(targetType), mapTagReplacements);
 //	vector<const UnitType *> boostUnitList;
-	for(unsigned int i = 0; i < boostUnitList.size(); ++i) {
-		const UnitType *ut = boostUnitList[i];
+	std::set<const UnitType*>::iterator unitIter;
+	for (unitIter = boostUnitList.begin(); unitIter != boostUnitList.end(); ++unitIter) {
+		const UnitType *unit = *unitIter;
 		XmlNode *unitTypeNode = attackBoostNode->addChild("UnitType");
-		unitTypeNode->addAttribute("name",ut->getName(false), mapTagReplacements);
+		unitTypeNode->addAttribute("name",unit->getName(false), mapTagReplacements);
+	}
+	std::set<string>::iterator tagIter;
+	for (tagIter = tags.begin(); tagIter != tags.end(); ++tagIter) {
+		string tag = *tagIter;
+		XmlNode *unitTypeNode = attackBoostNode->addChild("tag");
+		unitTypeNode->addAttribute("name", tag, mapTagReplacements);
 	}
 //	UpgradeTypeBase boostUpgrade;
 	boostUpgrade.saveGame(attackBoostNode);
@@ -274,11 +280,26 @@ void AttackBoost::saveGame(XmlNode *rootNode) const {
 }
 
 // =====================================================
+// 	class SkillSound
+// =====================================================
+SkillSound::SkillSound(){
+	startTime=0.0f;
+}
+SkillSound::~SkillSound()
+{
+	deleteValues(soundContainer.getSounds().begin(), soundContainer.getSounds().end());
+	startTime=0.0f;
+	//soundContainer
+}
+// =====================================================
 // 	class SkillType
 // =====================================================
 
 SkillType::~SkillType() {
-	deleteValues(sounds.getSounds().begin(), sounds.getSounds().end());
+	while(!skillSoundList.empty()) {
+		    delete skillSoundList.back();
+			skillSoundList.pop_back();
+		}
 	//remove unitParticleSystemTypes
 	while(!unitParticleSystemTypes.empty()) {
 		delete unitParticleSystemTypes.back();
@@ -336,43 +357,38 @@ void SkillType::loadAttackBoost(const XmlNode *attackBoostsNode, const XmlNode *
 
     if(targetType == "ally") {
         attackBoost.targetType = abtAlly;
-        for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
-            const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
-            attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-        }
     }
     else if(targetType == "foe") {
 		attackBoost.targetType = abtFoe;
-		for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
-			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
-			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-		}
 	}
 	else if(targetType == "faction") {
 		attackBoost.targetType = abtFaction;
-		for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
-			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
-			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-		}
 	}
 	else if(targetType == "unit-types") {
 		attackBoost.targetType = abtUnitTypes;
-		for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
-			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
-			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-		}
 	}
 	else if(targetType == "all") {
 		attackBoost.targetType = abtAll;
-		for(int i = 0;i < (int)attackBoostNode->getChild("target")->getChildCount();++i) {
-			const XmlNode *boostUnitNode = attackBoostNode->getChild("target")->getChild("unit-type", i);
-			attackBoost.boostUnitList.push_back(ft->getUnitType(boostUnitNode->getAttribute("name")->getRestrictedValue()));
-		}
 	}
 	else {
 		char szBuf[8096] = "";
 		snprintf(szBuf, 8096,"Unsupported target [%s] specified for attack boost for skill [%s] in [%s]", targetType.c_str(), name.c_str(), parentLoader.c_str());
 		throw megaglest_runtime_error(szBuf);
+	}
+
+    // Load the regular targets
+    const XmlNode *targetNode = attackBoostNode->getChild("target");
+    vector<XmlNode*> targetNodes = targetNode->getChildList("unit-type");
+	for(size_t i = 0;i < targetNodes.size(); ++i) {
+		string unitName = targetNodes.at(i)->getAttribute("name")->getRestrictedValue();
+		attackBoost.boostUnitList.insert(ft->getUnitType(unitName));
+	}
+
+	// Load tags
+    vector<XmlNode*> tagNodes = targetNode->getChildList("tag");
+	for(size_t i = 0;i < tagNodes.size(); ++i) {
+		string unitName = tagNodes.at(i)->getAttribute("name")->getRestrictedValue();
+		attackBoost.tags.insert(unitName);
 	}
 
     attackBoost.boostUpgrade.load(attackBoostNode,attackBoost.name);
@@ -488,27 +504,51 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 				unitParticleSystemType->load(particleFileNode, dir, currentPath + path, &Renderer::getInstance(),
 						loadedFileList,parentLoader,tt->getPath());
 
-				if(particleNode->getAttribute("start-time",false) != NULL) {
+				if (particleNode->getChild(i)->hasAttribute("start-time")) {
+					//printf("*NOTE particle system type has start-time [%f]\n",particleNode->getAttribute("start-time")->getFloatValue());
+					unitParticleSystemType->setStartTime(particleNode->getChild(i)->getAttribute("start-time")->getFloatValue());
+				} else if (particleNode->hasAttribute("start-time")) {
 					//printf("*NOTE particle system type has start-time [%f]\n",particleNode->getAttribute("start-time")->getFloatValue());
 					unitParticleSystemType->setStartTime(particleNode->getAttribute("start-time")->getFloatValue());
 				}
-				if(particleNode->getAttribute("end-time",false) != NULL) {
+
+				if (particleNode->getChild(i)->hasAttribute("end-time")) {
+					//printf("*NOTE particle system type has start-time [%f]\n",particleNode->getAttribute("start-time")->getFloatValue());
+					unitParticleSystemType->setEndTime(particleNode->getChild(i)->getAttribute("end-time")->getFloatValue());
+				} else if (particleNode->hasAttribute("end-time")) {
 					//printf("*NOTE particle system type has end-time [%f]\n",particleNode->getAttribute("end-time")->getFloatValue());
 					unitParticleSystemType->setEndTime(particleNode->getAttribute("end-time")->getFloatValue());
+				}
+
+				if(particleNode->getChild(i)->hasAttribute("minHp") && particleNode->getChild(i)->hasAttribute("maxHp")) {
+					unitParticleSystemType->setMinmaxEnabled(true);
+					unitParticleSystemType->setMinHp(particleNode->getChild(i)->getAttribute("minHp")->getIntValue());
+					unitParticleSystemType->setMaxHp(particleNode->getChild(i)->getAttribute("maxHp")->getIntValue());
+
+					if(particleNode->getChild(i)->hasAttribute("ispercentbased")) {
+						unitParticleSystemType->setMinmaxIsPercent(particleNode->getChild(i)->getAttribute("ispercentbased")->getBoolValue());
+					}
 				}
 
 				loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleFileNode->getAttribute("path")->getRestrictedValue()));
 				unitParticleSystemTypes.push_back(unitParticleSystemType);
 			}
+
+			//printf("Load skill particles line: %d size: %d\n",__LINE__,(int)unitParticleSystemTypes.size());
 		}
 	}
 
 	//sound
-	if(sn->hasChild("sound")) {
-		const XmlNode *soundNode= sn->getChild("sound");
+	vector<XmlNode *> soundNodeList = sn->getChildList("sound");
+	for(unsigned int i = 0; i < soundNodeList.size(); ++i) {
+		const XmlNode *soundNode= soundNodeList[i];
 		if(soundNode->getAttribute("enabled")->getBoolValue()) {
-			soundStartTime= soundNode->getAttribute("start-time")->getFloatValue();
-			sounds.resize((int)soundNode->getChildCount());
+			float soundStartTime= soundNode->getAttribute("start-time")->getFloatValue();
+			SkillSound *skillSound = new SkillSound();
+			skillSound->setStartTime(soundStartTime);
+
+			skillSound->getSoundContainer()->resize((int)soundNode->getChildCount());
+			skillSoundList.push_back(skillSound);
 			for(int i = 0; i < (int)soundNode->getChildCount(); ++i) {
 				const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
 				string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
@@ -516,7 +556,7 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 				StaticSound *sound= new StaticSound();
 				sound->load(path);
 				loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
-				sounds[i]= sound;
+				(*skillSound->getSoundContainer())[i]= sound;
 			}
 		}
 	}
@@ -614,7 +654,7 @@ Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 						const AnimationAttributes &attributes = animationAttributes[i];
 						if(attributes.fromHp != 0 || attributes.toHp != 0) {
 							if(unit->getHp() >= attributes.fromHp && unit->getHp() <= attributes.toHp) {
-								modelIndex = i;
+								//modelIndex = i;
 								foundSpecificAnimation = true;
 								filteredAnimations.push_back(i);
 								//printf("SELECTING Model index = %d [%s] model attributes [%d to %d] for unit [%s - %d] with HP = %d\n",i,animations[modelIndex]->getFileName().c_str(),attributes.fromHp,attributes.toHp,unit->getType()->getName().c_str(),unit->getId(),unit->getHp());
@@ -628,7 +668,7 @@ Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 						for(unsigned int i = 0; i < animationAttributes.size(); ++i) {
 							const AnimationAttributes &attributes = animationAttributes[i];
 							if(attributes.fromHp == 0 && attributes.toHp == 0) {
-								modelIndex = i;
+								//modelIndex = i;
 								foundSpecificAnimation = true;
 								filteredAnimations.push_back(i);
 									//printf("SELECTING Model index = %d [%s] model attributes [%d to %d] for unit [%s - %d] with HP = %d\n",i,animations[modelIndex]->getFileName().c_str(),attributes.fromHp,attributes.toHp,unit->getType()->getName().c_str(),unit->getId(),unit->getHp());
@@ -743,7 +783,7 @@ void SkillType::saveGame(XmlNode *rootNode) {
 //
 //    SoundContainer sounds;
 //	float soundStartTime;
-	skillTypeNode->addAttribute("soundStartTime",floatToStr(soundStartTime,6), mapTagReplacements);
+//	skillTypeNode->addAttribute("soundStartTime",floatToStr(soundStartTime,6), mapTagReplacements);
 //	RandomGen random;
 	skillTypeNode->addAttribute("random",intToStr(random.getLastNumber()), mapTagReplacements);
 //	AttackBoost attackBoost;
@@ -806,7 +846,7 @@ AttackSkillType::AttackSkillType() {
     splashRadius= 0;
     spawnUnit="";
     spawnUnitcount=0;
-	projectileParticleSystemType= NULL;
+    spawnUnitAtTarget=false;
 	splashParticleSystemType= NULL;
 
 	for(int i = 0; i < fieldCount; ++i) {
@@ -821,8 +861,8 @@ AttackSkillType::AttackSkillType() {
 }
 
 AttackSkillType::~AttackSkillType() {
-	delete projectileParticleSystemType;
-	projectileParticleSystemType = NULL;
+
+	deleteValues(projectileTypes.begin(), projectileTypes.end());
 
 	delete splashParticleSystemType;
 	splashParticleSystemType = NULL;
@@ -859,11 +899,16 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 
 	if (sn->hasChild("unit")) {
 		spawnUnit = sn->getChild("unit")->getAttribute("value")->getValue();
-		spawnUnitcount
-				= sn->getChild("unit")->getAttribute("amount")->getIntValue();
+		spawnUnitcount = sn->getChild("unit")->getAttribute("amount")->getIntValue();
+		if(sn->getChild("unit")->hasAttribute("spawnAtTarget")) {
+			spawnUnitAtTarget = sn->getChild("unit")->getAttribute("spawnAtTarget")->getBoolValue();
+		} else {
+			spawnUnitAtTarget = false;
+		}
 	} else {
 		spawnUnit = "";
 		spawnUnitcount = 0;
+		spawnUnitAtTarget = false;
 	}
 	//attack fields
 	const XmlNode *attackFieldsNode= sn->getChild("attack-fields");
@@ -881,36 +926,89 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 		}
 	}
 
-	//projectile
-	const XmlNode *projectileNode= sn->getChild("projectile");
-	projectile= projectileNode->getAttribute("value")->getBoolValue();
-	if(projectile){
+	if(sn->hasChild("projectile")){
+		//projectile -- backward compatible old behaviour with only one projectile
+		const XmlNode *projectileNode= sn->getChild("projectile");
+		projectile= projectileNode->getAttribute("value")->getBoolValue();
+		if(projectile){
+			// create new projectile
+			ProjectileType *projectileType = new ProjectileType();
+			//only add this projectile if there is an enabled particlesystem
+			//projectileTypes.push_back(projectileType);
+			projectileType->setAttackStartTime(attackStartTime);
+			projectileType->setDamagePercentage(100);
+			//proj particle
+			if(projectileNode->hasChild("particle")){
+				const XmlNode *particleNode= projectileNode->getChild("particle");
+				bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
+				if(particleEnabled) {
+					projectileTypes.push_back(projectileType);
+					string path= particleNode->getAttribute("path")->getRestrictedValue();
+					ParticleSystemTypeProjectile* projectileParticleSystemType= new ParticleSystemTypeProjectile();
+					projectileParticleSystemType->load(particleNode, dir, currentPath + path,
+							&Renderer::getInstance(), loadedFileList, parentLoader,
+							tt->getPath());
+							loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleNode->getAttribute("path")->getRestrictedValue()));
+							projectileType->setProjectileParticleSystemType(projectileParticleSystemType);
+				}
+				else {
+					delete projectileType;
+				}
+			}
+			else {
+				delete projectileType;
+			}
+			//proj sounds
+			const XmlNode *soundNode= projectileNode->getChild("sound");
+			if(soundNode->getAttribute("enabled")->getBoolValue()){
 
-		//proj particle
-		const XmlNode *particleNode= projectileNode->getChild("particle");
-		bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
-		if(particleEnabled){
-			string path= particleNode->getAttribute("path")->getRestrictedValue();
-			projectileParticleSystemType= new ParticleSystemTypeProjectile();
-			projectileParticleSystemType->load(particleNode, dir, currentPath + path,
-					&Renderer::getInstance(), loadedFileList, parentLoader,
-					tt->getPath());
+				projSounds.resize((int)soundNode->getChildCount());
+				for(int i=0; i < (int)soundNode->getChildCount(); ++i){
+					const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
+					string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
+					//printf("\n\n\n\n!@#$ ---> parentLoader [%s] path [%s] nodeValue [%s] i = %d",parentLoader.c_str(),path.c_str(),soundFileNode->getAttribute("path")->getRestrictedValue().c_str(),i);
+
+					StaticSound *sound= new StaticSound();
+					sound->load(path);
+					loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
+					projSounds[i]= sound;
+				}
+			}
+		}
+	}
+	else {
+		const XmlNode *projectilesNode= sn->getChild("projectiles");
+		vector<XmlNode *> projectilesNodeList = projectilesNode->getChildList("projectile");
+		int totalDamagePercentage=0;
+		for(unsigned int i = 0; i < projectilesNodeList.size(); ++i) {
+			const XmlNode *projectileNode= projectilesNodeList[i];
+			ProjectileType *projectileType=new ProjectileType();
+			projectileType->load(projectileNode,dir, tt->getPath(), loadedFileList, parentLoader);
+			totalDamagePercentage += projectileType->getDamagePercentage();
+			projectileTypes.push_back(projectileType);
+			projectile=true;
 		}
 
-		//proj sounds
-		const XmlNode *soundNode= projectileNode->getChild("sound");
-		if(soundNode->getAttribute("enabled")->getBoolValue()){
+		if(totalDamagePercentage!=100){
+			throw megaglest_runtime_error("Damages percentages of projectiles don't sum up to 100 %");
+		}
 
-			projSounds.resize((int)soundNode->getChildCount());
-			for(int i=0; i < (int)soundNode->getChildCount(); ++i){
-				const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
-				string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
-				//printf("\n\n\n\n!@#$ ---> parentLoader [%s] path [%s] nodeValue [%s] i = %d",parentLoader.c_str(),path.c_str(),soundFileNode->getAttribute("path")->getRestrictedValue().c_str(),i);
+		if(sn->hasChild("hitsound")==true){
+			//general hit sounds, individual ones can be set in projectiles
+			const XmlNode *soundNode= sn->getChild("hitsound");
+			if(soundNode->getAttribute("enabled")->getBoolValue()){
 
-				StaticSound *sound= new StaticSound();
-				sound->load(path);
-				loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
-				projSounds[i]= sound;
+				projSounds.resize((int)soundNode->getChildCount());
+				for(int i=0; i < (int)soundNode->getChildCount(); ++i){
+					const XmlNode *soundFileNode= soundNode->getChild("sound-file", i);
+					string path= soundFileNode->getAttribute("path")->getRestrictedValue(currentPath, true);
+					//printf("\n\n\n\n!@#$ ---> parentLoader [%s] path [%s] nodeValue [%s] i = %d",parentLoader.c_str(),path.c_str(),soundFileNode->getAttribute("path")->getRestrictedValue().c_str(),i);
+
+					StaticSound *sound= new StaticSound();
+					sound->load(path);
+					loadedFileList[path].push_back(make_pair(parentLoader,soundFileNode->getAttribute("path")->getRestrictedValue()));
+					projSounds[i]= sound;
+				}
 			}
 		}
 	}
@@ -932,6 +1030,24 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 					&Renderer::getInstance(),loadedFileList, parentLoader,
 					tt->getPath());
 		}
+	}
+}
+
+int AttackSkillType::getTotalSpeed(const TotalUpgrade *totalUpgrade) const{
+	int result = speed + totalUpgrade->getAttackSpeed(this);
+	result = max(0,result);
+	return result;
+}
+
+// Get the amount to boost the attack animation speed by (based on attack-speed upgrades)
+int AttackSkillType::getAnimSpeedBoost(const TotalUpgrade *totalUpgrade) const{
+	// Same calculation as in TotalUpgrade::sum, but bypassing the use of the value
+	// list (which is for the attack speed, not animation speed)
+	if(totalUpgrade->getAttackRangeIsMultiplier()) {
+		return animSpeed * (totalUpgrade->getAttackSpeed(NULL) / (double)100);
+	}
+	else {
+		return totalUpgrade->getAttackSpeed(NULL);
 	}
 }
 
@@ -983,12 +1099,15 @@ void AttackSkillType::saveGame(XmlNode *rootNode) {
 	attackSkillTypeNode->addAttribute("spawnUnit",spawnUnit, mapTagReplacements);
 //	int spawnUnitcount;
 	attackSkillTypeNode->addAttribute("spawnUnitcount",intToStr(spawnUnitcount), mapTagReplacements);
+//	bool spawnUnitAtTarget;
+	attackSkillTypeNode->addAttribute("spawnUnitAtTarget",intToStr(spawnUnitAtTarget), mapTagReplacements);
 //    bool projectile;
 	attackSkillTypeNode->addAttribute("projectile",intToStr(projectile), mapTagReplacements);
 //    ParticleSystemTypeProjectile* projectileParticleSystemType;
-	if(projectileParticleSystemType != NULL) {
-		projectileParticleSystemType->saveGame(attackSkillTypeNode);
-	}
+// save a skill_type ????
+	//	if(projectileParticleSystemType != NULL) {
+//		projectileParticleSystemType->saveGame(attackSkillTypeNode);
+//	}
 //	SoundContainer projSounds;
 //
 //    bool splash;
@@ -1260,6 +1379,15 @@ void DieSkillType::saveGame(XmlNode *rootNode) {
 	XmlNode *dieSkillTypeNode = rootNode->addChild("DieSkillType");
 
 	dieSkillTypeNode->addAttribute("fade",intToStr(fade), mapTagReplacements);
+}
+
+StaticSound *DieSkillType::getSound() const{
+	if(skillSoundList.size()==0){
+		return NULL;
+	}
+	else {
+		return skillSoundList.front()->getSoundContainer()->getRandSound();
+	}
 }
 
 

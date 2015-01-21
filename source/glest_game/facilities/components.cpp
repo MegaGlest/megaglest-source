@@ -281,6 +281,8 @@ GraphicLabel::GraphicLabel() {
 	editModeEnabled = false;
 	maxEditWidth = -1;
 	maxEditRenderWidth = -1;
+	renderBackground = false;
+	backgroundColor=Vec4f(0.2f,0.2f,0.2f,0.6f);
 	isPassword = false;
 	texture = NULL;
 }
@@ -339,6 +341,7 @@ const int GraphicButton::defW= 90;
 
 GraphicButton::GraphicButton(std::string containerName, std::string objName) : GraphicComponent(containerName,objName) {
 	lighted = false;
+	alwaysLighted = false;
 	useCustomTexture = false;
 	customTexture = NULL;
 }
@@ -615,7 +618,7 @@ bool GraphicListBox::mouseClick(int x, int y,string advanceToItemStartingWith) {
 //	class GraphicMessageBox
 // =====================================================
 
-const int GraphicMessageBox::defH= 240;
+const int GraphicMessageBox::defH= 280;
 const int GraphicMessageBox::defW= 350;
 
 GraphicMessageBox::GraphicMessageBox(std::string containerName, std::string objName) :
@@ -836,7 +839,7 @@ void GraphicScrollBar::init(int x, int y, bool horizontal,int length, int thickn
 bool GraphicScrollBar::mouseDown(int x, int y) {
 	if(getVisible() && getEnabled() && getEditable())
 	{
-		if(activated)
+		if(activated && elementCount>0)
 		{
 			if( elementCount>visibleSize) {
 				int pos;
@@ -874,7 +877,10 @@ void GraphicScrollBar::setVisibleStart(int vs){
 	if(visibleStart<0) {
 		visibleStart=0;
 	}
-	float partSize=(float)getLength()/(float)elementCount;
+	float partSize = 0.f;
+	if(elementCount > 0) {
+		partSize = (float)getLength()/(float)elementCount;
+	}
 	visibleCompPosStart=visibleStart*partSize;
 	visibleCompPosEnd=visibleStart*partSize+visibleSize*partSize;
 	if(visibleCompPosEnd>getLength()) {

@@ -78,6 +78,9 @@ CoreData::CoreData() {
     statusNotReadyTexture=NULL;
     statusBRBTexture=NULL;
 
+    healthbarTexture=NULL;
+    healthbarBackgroundTexture=NULL;
+
     miscTextureList.clear();
 
     displayFont=NULL;
@@ -114,30 +117,30 @@ void CoreData::cleanup() {
 	waterSounds.getSoundsPtr()->clear();
 }
 
-Texture2D *CoreData::getTextureBySystemId(TextureSystemType type) const {
+Texture2D *CoreData::getTextureBySystemId(TextureSystemType type) {
 	Texture2D *result = NULL;
 	switch(type) {
 	case tsyst_logoTexture:
-		result = logoTexture;
+		result = getLogoTexture();
 		break;
 	//std::vector<Texture2D *> logoTextureList;
 	case tsyst_backgroundTexture:
-		result = backgroundTexture;
+		result = getBackgroundTexture();
 		break;
 	case tsyst_fireTexture:
-		result = fireTexture;
+		result = getFireTexture();
 		break;
 	case tsyst_teamColorTexture:
-		result = teamColorTexture;
+		result = getTeamColorTexture();
 		break;
 	case tsyst_snowTexture:
-		result = snowTexture;
+		result = getSnowTexture();
 		break;
 	case tsyst_waterSplashTexture:
-		result = waterSplashTexture;
+		result = getWaterSplashTexture();
 		break;
 	case tsyst_customTexture:
-		result = customTexture;
+		result = getCustomTexture();
 		break;
 	case tsyst_buttonSmallTexture:
 		result = buttonSmallTexture;
@@ -180,6 +183,12 @@ Texture2D *CoreData::getTextureBySystemId(TextureSystemType type) const {
 		break;
 	case tsyst_statusBRBTexture:
 		result = statusBRBTexture;
+		break;
+	case tsyst_healthbarTexture:
+		result = healthbarTexture;
+		break;
+	case tsyst_healthbarBackgroundTexture:
+		result = healthbarBackgroundTexture;
 		break;
 
     //std::vector<Texture2D *> miscTextureList;
@@ -415,6 +424,24 @@ Texture2D *CoreData::getGameWinnerTexture() {
 		true, false, false, true);
 
 	return gameWinnerTexture;
+}
+
+Texture2D *CoreData::getHealthbarTexture() {
+	string data_path = getDataPath();
+	loadTextureIfRequired(&healthbarTexture,data_path,
+			CORE_MISC_TEXTURES_PATH + "healthbar.png", tsyst_healthbarTexture,
+		true, false, false, true);
+
+	return healthbarTexture;
+}
+
+Texture2D *CoreData::getHealthbarBackgroundTexture() {
+	string data_path = getDataPath();
+	loadTextureIfRequired(&healthbarBackgroundTexture,data_path,
+			CORE_MISC_TEXTURES_PATH + "healthbarBackground.png", tsyst_healthbarBackgroundTexture,
+		true, false, false, true);
+
+	return healthbarBackgroundTexture;
 }
 
 void CoreData::loadLogoTextureExtraIfRequired() {

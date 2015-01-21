@@ -50,6 +50,10 @@ void Particle::saveGame(XmlNode *rootNode) {
 	particleNode->addAttribute("lastPos",lastPos.getString(), mapTagReplacements);
 //	Vec3f speed;
 	particleNode->addAttribute("speed",speed.getString(), mapTagReplacements);
+//	Vec3f speedUpRelative;
+	particleNode->addAttribute("speedUpRelative",floatToStr(speedUpRelative,6), mapTagReplacements);
+//	Vec3f speedUpConstant;
+	particleNode->addAttribute("speedUpConstant",speedUpConstant.getString(), mapTagReplacements);
 //	Vec3f accel;
 	particleNode->addAttribute("accel",accel.getString(), mapTagReplacements);
 //	Vec4f color;
@@ -70,6 +74,10 @@ void Particle::loadGame(const XmlNode *rootNode) {
 	lastPos = Vec3f::strToVec3(particleNode->getAttribute("lastPos")->getValue());
 	//	Vec3f speed;
 	speed = Vec3f::strToVec3(particleNode->getAttribute("speed")->getValue());
+	//	Vec3f speed;
+	speedUpRelative = particleNode->getAttribute("speedUpRelative")->getFloatValue();
+	//	Vec3f speed;
+	speedUpConstant = Vec3f::strToVec3(particleNode->getAttribute("speedUpConstant")->getValue());
 	//	Vec3f accel;
 	accel = Vec3f::strToVec3(particleNode->getAttribute("accel")->getValue());
 	//	Vec4f color;
@@ -118,6 +126,9 @@ ParticleSystem::ParticleSystem(int particleCount) {
 	emissionRate= 15.0f;
 	emissionState= 1.0f; // initialized with 1 because we must have at least one particle in the beginning!
 	speed= 1.0f;
+	speedUpRelative = 0;
+	speedUpConstant = 0;
+
 	teamcolorNoEnergy= false;
 	teamcolorEnergy= false;
 	alternations= 0;
@@ -288,6 +299,16 @@ void ParticleSystem::setParticleSize(float particleSize){
 void ParticleSystem::setSpeed(float speed){
 	this->speed= speed;
 	this->speed = truncateDecimal<float>(this->speed,6);
+}
+
+void ParticleSystem::setSpeedUpRelative(float speedUpRelative){
+	this->speedUpRelative= speedUpRelative;
+	this->speedUpRelative = truncateDecimal<float>(this->speedUpRelative,6);
+}
+
+void ParticleSystem::setSpeedUpConstant(float speedUpConstant){
+	this->speedUpConstant= speedUpConstant;
+	this->speedUpConstant = truncateDecimal<float>(this->speedUpConstant,6);
 }
 
 void ParticleSystem::setActive(bool active){
@@ -991,6 +1012,8 @@ Vec3f UnitParticleSystem::lightColor=Vec3f(1.0f,1.0f,1.0f);
 
 UnitParticleSystem::UnitParticleSystem(int particleCount) :
 		GameParticleSystem(particleCount),	parent(NULL) {
+
+	particleSystemType = NULL;
 	radius= 0.5f;
 	speed= 0.01f;
 	windSpeed= Vec3f(0.0f);
@@ -1031,6 +1054,7 @@ UnitParticleSystem::UnitParticleSystem(int particleCount) :
 	endTime = 1;
 	unitModel=NULL;
 	meshName="";
+	meshPos=Vec3f(0,0,0);
 
 	radiusBasedStartenergy = false;
 }
@@ -1114,6 +1138,7 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->lastPos= pos;
 	oldPosition= pos;
 	p->size= particleSize;
+	p->speedUpRelative= speedUpRelative;
 	p->accel= Vec3f(0.0f, -gravity, 0.0f);
 	p->accel.x = truncateDecimal<float>(p->accel.x,6);
 	p->accel.y = truncateDecimal<float>(p->accel.y,6);
@@ -1158,36 +1183,17 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 			p->pos.z = truncateDecimal<float>(p->pos.z,6);
 
 		}
-		else {// rotate it according to rotation
+		else {
 			Vec3f combinedOffset=Vec3f(offset);
-			if(meshName!="" && unitModel!=NULL){
-				//printf("meshName set unitModel given\n");
-				bool foundMesh=false;
-				for(unsigned int i=0; i<unitModel->getMeshCount() ; i++){
-					//printf("meshName=%s\n",unitModel->getMesh(i)->getName().c_str());
-					if(unitModel->getMesh(i)->getName()==meshName){
-						const InterpolationData *data=unitModel->getMesh(i)->getInterpolationData();
-						const Vec3f *verticepos=data->getVertices();
-						//printf("verticepos %f %f %f\n",verticepos->x,verticepos->y,verticepos->z);
-						combinedOffset.x+=verticepos->x;
-						combinedOffset.y+=verticepos->y;
-						combinedOffset.z+=verticepos->z;
-						foundMesh=true;
-						break;
-					}
-				}
-				if( foundMesh == false ) {
-					string meshesFound="";
-					for(unsigned i=0; i<unitModel->getMeshCount() ; i++){
-						meshesFound+= unitModel->getMesh(i)->getName()+", ";
-					}
-
-					string errorString = "Warning: Particle system is trying to find mesh'"+meshName+"', but just found:\n'"+meshesFound+"' in file:\n'"+unitModel->getFileName()+"'\n";
-					//throw megaglest_runtime_error(errorString);
-					printf("%s",errorString.c_str());
+			if(meshName!=""){
+				combinedOffset.x+=meshPos.x;
+				combinedOffset.y+=meshPos.y;
+				combinedOffset.z+=meshPos.z;
+				if(meshPos.x==0 && meshPos.y==0 && meshPos.z==0) {
+					printf("meshPosFail\n");
 				}
 			}
-
+			// rotate it according to rotation
 	#ifdef USE_STREFLOP
 			p->pos= Vec3f(pos.x+x+combinedOffset.z*streflop::sinf(static_cast<streflop::Simple>(rad))+combinedOffset.x*streflop::cosf(static_cast<streflop::Simple>(rad)), pos.y+random.randRange(-radius/2, radius/2)+combinedOffset.y, pos.z+y+(combinedOffset.z*streflop::cosf(static_cast<streflop::Simple>(rad))-combinedOffset.x*streflop::sinf(static_cast<streflop::Simple>(rad))));
 	#else
@@ -1228,6 +1234,8 @@ void UnitParticleSystem::initParticle(Particle *p, int particleIndex){
 	} break;
 	default: throw megaglest_runtime_error("bad shape");
 	}
+	//need to do that down here because we need p->speed for it.
+	p->speedUpConstant= Vec3f(speedUpConstant)*p->speed;
 }
 
 void UnitParticleSystem::update(){
@@ -1262,17 +1270,18 @@ void UnitParticleSystem::updateParticle(Particle *p){
 	if(alternations > 0){
 		int interval= (maxParticleEnergy / alternations);
 		float moduloValue= (float)((int)(static_cast<float> (p->energy)) % interval);
+		float floatInterval=static_cast<float> (interval);
 
-		if(moduloValue < interval / 2){
-			energyRatio= (interval - moduloValue) / interval;
+		if(moduloValue < floatInterval / 2.0f){
+			energyRatio= (floatInterval - moduloValue) / floatInterval;
 		}
 		else{
-			energyRatio= moduloValue / interval;
+			energyRatio= moduloValue / floatInterval;
 		}
 		energyRatio= clamp(energyRatio, 0.f, 1.f);
 	}
 	else{
-		energyRatio= clamp(static_cast<float> (p->energy) / maxParticleEnergy, 0.f, 1.f);
+		energyRatio= clamp(static_cast<float> (p->energy) / static_cast<float> (maxParticleEnergy), 0.f, 1.f);
 	}
 
 	energyRatio = truncateDecimal<float>(energyRatio,6);
@@ -1299,6 +1308,8 @@ void UnitParticleSystem::updateParticle(Particle *p){
 		p->pos.z = truncateDecimal<float>(p->pos.z,6);
 	}
 	p->speed += p->accel;
+	p->speed += p->speedUpConstant;
+	p->speed=p->speed*(1+p->speedUpRelative);
 	p->speed.x = truncateDecimal<float>(p->speed.x,6);
 	p->speed.y = truncateDecimal<float>(p->speed.y,6);
 	p->speed.z = truncateDecimal<float>(p->speed.z,6);
@@ -1368,9 +1379,13 @@ void UnitParticleSystem::saveGame(XmlNode *rootNode) {
 	unitParticleSystemNode->addAttribute("cRotation",cRotation.getString(), mapTagReplacements);
 //	Vec3f fixedAddition;
 	unitParticleSystemNode->addAttribute("fixedAddition",fixedAddition.getString(), mapTagReplacements);
-//    Vec3f oldPosition;
+//  Vec3f oldPosition;
 	unitParticleSystemNode->addAttribute("oldPosition",oldPosition.getString(), mapTagReplacements);
-//    bool energyUp;
+//  Vec3f meshPos;
+	unitParticleSystemNode->addAttribute("meshPos",meshPos.getString(), mapTagReplacements);
+//  string meshName;
+	unitParticleSystemNode->addAttribute("meshName",meshName, mapTagReplacements);
+//  bool energyUp;
 	unitParticleSystemNode->addAttribute("energyUp",intToStr(energyUp), mapTagReplacements);
 //	float startTime;
 	unitParticleSystemNode->addAttribute("startTime",floatToStr(startTime,6), mapTagReplacements);
@@ -1380,7 +1395,7 @@ void UnitParticleSystem::saveGame(XmlNode *rootNode) {
 	unitParticleSystemNode->addAttribute("relative",intToStr(relative), mapTagReplacements);
 //	bool relativeDirection;
 	unitParticleSystemNode->addAttribute("relativeDirection",intToStr(relativeDirection), mapTagReplacements);
-//    bool fixed;
+//  bool fixed;
 	unitParticleSystemNode->addAttribute("fixed",intToStr(fixed), mapTagReplacements);
 //	Shape shape;
 	unitParticleSystemNode->addAttribute("shape",intToStr(shape), mapTagReplacements);
@@ -1427,11 +1442,19 @@ void UnitParticleSystem::loadGame(const XmlNode *rootNode) {
 //	Vec3f windSpeed;
 	windSpeed = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("windSpeed")->getValue());
 //	Vec3f cRotation;
-	windSpeed = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("cRotation")->getValue());
+	cRotation = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("cRotation")->getValue());
 //	Vec3f fixedAddition;
 	fixedAddition = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("fixedAddition")->getValue());
 //    Vec3f oldPosition;
 	oldPosition = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("oldPosition")->getValue());
+	//    Vec3f meshPos;
+	if(unitParticleSystemNode->hasAttribute("meshPos")){
+		meshPos = Vec3f::strToVec3(unitParticleSystemNode->getAttribute("meshPos")->getValue());
+	}
+	//    Vec3f meshName;
+	if(unitParticleSystemNode->hasAttribute("meshName")){
+		meshName = unitParticleSystemNode->getAttribute("meshName")->getValue();
+	}
 //    bool energyUp;
 	energyUp = unitParticleSystemNode->getAttribute("energyUp")->getIntValue() != 0;
 //	float startTime;
@@ -2220,6 +2243,7 @@ void SplashParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->energy= maxParticleEnergy;
 	p->size= particleSize;
 	p->color= color;
+	p->speedUpRelative= speedUpRelative;
 
 	p->speed= Vec3f(horizontalSpreadA * random.randRange(-1.0f, 1.0f) + horizontalSpreadB, verticalSpreadA
 	        * random.randRange(-1.0f, 1.0f) + verticalSpreadB, horizontalSpreadA * random.randRange(-1.0f, 1.0f)
@@ -2243,6 +2267,7 @@ void SplashParticleSystem::initParticle(Particle *p, int particleIndex){
 	p->accel.y = truncateDecimal<float>(p->accel.y,6);
 	p->accel.z = truncateDecimal<float>(p->accel.z,6);
 
+	p->speedUpConstant= Vec3f(speedUpConstant)*p->speed;
 }
 
 void SplashParticleSystem::updateParticle(Particle *p){
@@ -2254,6 +2279,8 @@ void SplashParticleSystem::updateParticle(Particle *p){
 	p->pos.y = truncateDecimal<float>(p->pos.y,6);
 	p->pos.z = truncateDecimal<float>(p->pos.z,6);
 
+	p->speed += p->speedUpConstant;
+	p->speed=p->speed*(1+p->speedUpRelative);
 	p->speed= p->speed + p->accel;
 	p->speed.x = truncateDecimal<float>(p->speed.x,6);
 	p->speed.y = truncateDecimal<float>(p->speed.y,6);
@@ -2408,7 +2435,7 @@ void ParticleManager::update(int renderFps){
 	vector<ParticleSystem *> cleanupParticleSystemsList;
 	for(unsigned int i= 0; i < particleSystems.size(); i++){
 		ParticleSystem *ps= particleSystems[i];
-		if(ps != NULL && validateParticleSystemStillExists(ps) == true) {
+		if(ps != NULL) {
 			currentParticleCount+= ps->getAliveParticleCount();
 
 			bool showParticle= true;

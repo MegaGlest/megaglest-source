@@ -445,7 +445,7 @@ void MenuStateKeysetup::render(){
 		renderer.renderScrollBar(&keyScrollBar);
 	}
 
-	renderer.renderConsole(&console,false,true);
+	renderer.renderConsole(&console);
 	if(program != NULL) program->renderProgramMsgBox();
 }
 

@@ -25,38 +25,34 @@ IF(NOT CONFIG_HAS_BEEN_RUN_BEFORE)
 	ENDIF()
 ENDIF(NOT CONFIG_HAS_BEEN_RUN_BEFORE)
 
-
+# Include extra paths to search for includes; this is the default system wide macports path.
+INCLUDE_DIRECTORIES(/opt/local/include)
+LINK_DIRECTORIES(/opt/local/lib)
 
 ##install part
 
-#extracting the current version...
-EXECUTE_PROCESS(
-	COMMAND /usr/bin/sed 
-	-n -e "s/.*glestVersionString = \"v\\\(.*\\\)\";.*/\\1/p" 
-
-	game_util.cpp 
-	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/source/glest_game/facilities"
-	OUTPUT_VARIABLE MEGAGLEST_VERSION )
-
-#for some reason the MEGAGLEST_VERSION can containts return like thus remove it
-STRING(REGEX REPLACE "\n" "" MEGAGLEST_VERSION "${MEGAGLEST_VERSION}")
-
-set(CPACK_PACKAGE_FILE_NAME MegaGlest-${MEGAGLEST_VERSION})
-
-CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/Info.plist" "${CMAKE_CURRENT_BINARY_DIR}/Info.plist") 
-
+# This changes Info.plist from something with variables and CMakeisms to
+# something that can be installed on disk.
+CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/Info.plist"
+	"${CMAKE_CURRENT_BINARY_DIR}/Info.plist") 
 
 include (InstallRequiredSystemLibraries)
 
+# Use bundle generator (OSX has 3 other options if you feel adventurous)
+set (CPACK_GENERATOR "Bundle")
+
+# The following CPACK_* options are all required
+set (CPACK_PACKAGE_FILE_NAME MegaGlest-${VER_MAJOR}.${VER_MINOR}.${VER_RELEASE})
+set (CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/MegaGlest.icns")
+
 set (CPACK_RESOURCE_FILE_LICENSE  
      "${CMAKE_CURRENT_SOURCE_DIR}/docs/COPYRIGHT.source_code.txt")
-set (CPACK_GENERATOR Bundle)
 set (CPACK_BUNDLE_NAME "MegaGlest")
 set (CPACK_BUNDLE_STARTUP_COMMAND "${PROJECT_SOURCE_DIR}/data/glest_game/megaglest")
 set (CPACK_BUNDLE_ICON  "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/MegaGlest.icns")
-set (CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/MegaGlest.icns")
 set (CPACK_BUNDLE_PLIST "${CMAKE_CURRENT_BINARY_DIR}/Info.plist")
-#set (CPACK_BUNDLE_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/Info.plist.template")
+
+# Install files in to the package (FIXME: how? we sure?)
 INSTALL(FILES 
 	${LUA_LIBRARIES}
     DESTINATION ../Frameworks
@@ -73,6 +69,4 @@ STRING(REGEX REPLACE ";.*" "" SDL_LIBRARY_DIR "${SDL_LIBRARY}")
 #	${PNG_LIBRARY}
  #   DESTINATION ../Frameworks
  # )
-  
-include (CPack)
-  
+

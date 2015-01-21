@@ -141,7 +141,7 @@ void MenuStateGraphicInfo::render(){
 	renderer.renderLabel(&labelInternalInfo);
 	renderer.renderLabel(&labelMoreInfo);
 
-	renderer.renderConsole(&console,false,true);
+	renderer.renderConsole(&console);
 }
 
 void MenuStateGraphicInfo::keyDown(SDL_KeyboardEvent key) {

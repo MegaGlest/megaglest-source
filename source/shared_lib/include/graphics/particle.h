@@ -49,6 +49,8 @@ public:
 	Vec3f pos;
 	Vec3f lastPos;
 	Vec3f speed;
+	float speedUpRelative;
+	Vec3f speedUpConstant;
 	Vec3f accel;
 	Vec4f color;
 	float size;
@@ -56,6 +58,7 @@ public:
 
 public:
 	Particle() {
+		speedUpRelative = 0;
 		size = 0;
 		energy = 0;
 	}
@@ -89,6 +92,20 @@ public:
 	virtual ~ParticleOwner() {}
 	virtual void end(ParticleSystem *particleSystem)= 0;
 	virtual void logParticleInfo(string info)= 0;
+};
+
+
+class ParticleSystemTypeInterface {
+public:
+
+	ParticleSystemTypeInterface() {};
+	virtual ~ParticleSystemTypeInterface() {};
+
+	virtual bool getMinmaxEnabled() const = 0;
+	virtual int getMinHp() const = 0;
+	virtual int getMaxHp() const = 0;
+	virtual bool getMinmaxIsPercent() const = 0;
+
 };
 
 // =====================================================
@@ -147,6 +164,8 @@ protected:
 	int varParticleEnergy;
 	float particleSize;
 	float speed;
+	float speedUpRelative;
+	float speedUpConstant;
 	Vec3f factionColor;
     bool teamcolorNoEnergy;
     bool teamcolorEnergy;
@@ -192,6 +211,8 @@ public:
 	void setVarParticleEnergy(int varParticleEnergy);
 	void setParticleSize(float particleSize);
 	void setSpeed(float speed);
+	void setSpeedUpRelative(float speedUpRelative);
+	void setSpeedUpConstant(float speedUpConstant);
 	virtual void setActive(bool active);
 	void setObserver(ParticleObserver *particleObserver);
 	virtual void setVisible(bool visible);
@@ -338,12 +359,15 @@ private:
     float startTime;
     float endTime;
     
+    ParticleSystemTypeInterface *particleSystemType;
+
 public:
 	enum Shape{
 		sLinear, // generated in a sphere, flying in direction
 		sSpherical, // generated in a sphere, flying away from center
 		sConical, // generated in a cone at angle from direction
 	};
+
 	bool relative;
 	bool relativeDirection;
     bool fixed;
@@ -353,6 +377,7 @@ public:
 	float gravity;
 	float rotation;
 	const Model *unitModel;
+	Vec3f meshPos;
 	string meshName;
 	bool isVisibleAtNight;
 	bool isVisibleAtDay;
@@ -369,6 +394,13 @@ public:
 	~UnitParticleSystem();
 
 	virtual ParticleSystemType getParticleSystemType() const { return pst_UnitParticleSystem;}
+
+	ParticleSystemTypeInterface * getParticleType() const {
+		return particleSystemType;
+	}
+	void setParticleType(ParticleSystemTypeInterface *type) {
+		particleSystemType = type;
+	}
 
 	//virtual
 	virtual void initParticle(Particle *p, int particleIndex);
@@ -394,7 +426,8 @@ public:
 	void setSizeNoEnergy(float sizeNoEnergy)			{this->sizeNoEnergy= sizeNoEnergy;}
 	void setGravity(float gravity)						{this->gravity= gravity;}
 	void setRotation(float rotation);
-	const void setUnitModel(const Model* unitModel)					{this->unitModel= unitModel;}
+	void setMeshPos(Vec3f meshPos)						{this->meshPos=meshPos;}
+	string getMeshName()									{return meshName;}
 	void setMeshName(string meshName)						{this->meshName= meshName;}
 	void setRelative(bool relative)						{this->relative= relative;}
 	void setRelativeDirection(bool relativeDirection)	{this->relativeDirection= relativeDirection;}

@@ -13,6 +13,7 @@
 #define _SHARED_UTIL_UTIL_H_
 
 #include <string>
+#include <vector>
 #include <fstream>
 #include <map>
 #include "thread.h"
@@ -226,7 +227,9 @@ string cutLastFile(const string &s);
 string cutLastExt(const string &s);
 string ext(const string &s);
 string replaceBy(const string &s, char c1, char c2);
+vector<string> split(string s,string d);
 string toLower(const string &s);
+bool compareNonCaseSensitive(const string a, const string b);
 void copyStringToBuffer(char *buffer, int bufferSize, const string& s);
 
 //numeric fcs
@@ -237,6 +240,9 @@ float saturate(float value);
 int round(float f);
 
 //misc
+int compareMajorMinorVersion(string versionA,string versionB);
+int getMajor(string version);
+int getMinor(string version);
 bool checkVersionComptability(string clientVersionString, string serverVersionString);
 
 template<typename T>

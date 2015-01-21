@@ -301,7 +301,7 @@ void MenuStateScenario::render(){
 		renderer.renderButton(&buttonReturn);
 		renderer.renderButton(&buttonPlayNow);
 	}
-	renderer.renderConsole(&console,false,true);
+	renderer.renderConsole(&console);
 	if(program != NULL) program->renderProgramMsgBox();
 }
 

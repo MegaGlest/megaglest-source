@@ -266,7 +266,7 @@ string AttackCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool transla
     //attack distance
     str+= lang.getString("AttackDistance",(translatedValue == true ? "" : "english"))+": "+intToStr(attackSkillType->getAttackRange());
 	if(totalUpgrade->getAttackRange(attackSkillType) != 0) {
-        str+= "+"+intToStr(totalUpgrade->getAttackRange(attackSkillType) != 0);
+        str+= "+"+intToStr(totalUpgrade->getAttackRange(attackSkillType));
 	}
     str+="\n";
 
@@ -288,7 +288,13 @@ string AttackCommandType::getDesc(const TotalUpgrade *totalUpgrade, bool transla
 	}
     str+="\n";
 
+	//attack speed
     str+= lang.getString("AttackSpeed",(translatedValue == true ? "" : "english"))+": "+ intToStr(attackSkillType->getSpeed()) +"\n";
+	if(totalUpgrade->getAttackSpeed(attackSkillType) != 0) {
+        str+= "+"+intToStr(totalUpgrade->getAttackSpeed(attackSkillType));
+	}
+    str+="\n";
+
 	str+=attackSkillType->getBoostDesc(translatedValue);
     return str;
 }
@@ -846,7 +852,6 @@ MorphCommandType::MorphCommandType(){
     morphUnit=NULL;
     discount=0;
     ignoreResourceRequirements = false;
-    replaceStorage = false;
 }
 
 void MorphCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
@@ -874,11 +879,6 @@ void MorphCommandType::load(int id, const XmlNode *n, const string &dir,
 		ignoreResourceRequirements= n->getChild("ignore-resource-requirements")->getAttribute("value")->getBoolValue();
 
 		//printf("ignoreResourceRequirements = %d\n",ignoreResourceRequirements);
-	}
-
-	replaceStorage = false;
-	if(n->hasChild("replace-storage") == true) {
-		replaceStorage = n->getChild("replace-storage")->getAttribute("value")->getBoolValue();
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

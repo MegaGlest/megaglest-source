@@ -561,7 +561,7 @@ void trimPathWithStartingSlash(string &path) {
 	}
 }
 
-void updatePathClimbingParts(string &path) {
+void updatePathClimbingParts(string &path,bool processPreviousDirTokenCheck) {
 	// Update paths with /./
 	string::size_type pos = path.find("/./");
 	if(pos != string::npos && pos != 0) {
@@ -569,9 +569,11 @@ void updatePathClimbingParts(string &path) {
 		path.erase(pos,2);
 		//pos--;
 
+		//printf("#1 CHANGE relative path from [%s] to [%s]\n",orig.c_str(),path.c_str());
+
 		pos = path.find("/./");
 		if(pos != string::npos && pos != 0) {
-			updatePathClimbingParts(path);
+			updatePathClimbingParts(path, processPreviousDirTokenCheck);
 		}
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CHANGED relative path from [%s] to [%s]\n",orig.c_str(),path.c_str());
@@ -581,39 +583,65 @@ void updatePathClimbingParts(string &path) {
 		string orig = path;
 		path.erase(pos,2);
 		//pos--;
+		//printf("#w CHANGE relative path from [%s] to [%s]\n",orig.c_str(),path.c_str());
 
 		pos = path.find("\\.\\");
 		if(pos != string::npos && pos != 0) {
-			updatePathClimbingParts(path);
+			updatePathClimbingParts(path, processPreviousDirTokenCheck);
 		}
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CHANGED relative path from [%s] to [%s]\n",orig.c_str(),path.c_str());
 	}
 
 	// Update paths with ..
-	pos = path.find("..");
-	if(pos != string::npos && pos != 0) {
-		string orig = path;
-		path.erase(pos,2);
-		pos--;
-		if(path[pos] == '/' || path[pos] == '\\') {
-			path.erase(pos,1);
-		}
-
-		for(int x = (int)pos; x >= 0; --x) {
-			//printf("x [%d][%c] pos [%ld][%c] [%s]\n",x,path[x],(long int)pos,path[pos],path.substr(0,x+1).c_str());
-
-			if((path[x] == '/' || path[x] == '\\') && x != (int)pos) {
-				path.erase(x,pos-x);
-				break;
-			}
-		}
+	if(processPreviousDirTokenCheck) {
 		pos = path.find("..");
 		if(pos != string::npos && pos != 0) {
-			updatePathClimbingParts(path);
-		}
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CHANGED relative path from [%s] to [%s]\n",orig.c_str(),path.c_str());
+			string orig = path;
+			if(path[pos-1] != ' ' || (path.length() > 2 && path[pos+2] != ' ')) {
+				path.erase(pos,2);
+
+				//printf("#3 [%d] CHANGE relative path from [%s] to [%s]\n",(int)pos,orig.c_str(),path.c_str());
+
+				pos--;
+				//pos = pos -1;
+
+				//printf("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ #3b [%d]\n",(int)pos);
+
+				if(path[pos] == '/' || path[pos] == '\\') {
+					path.erase(pos,1);
+
+					//printf("#4 CHANGE relative path from [%s] to [%s]\n",orig.c_str(),path.c_str());
+				}
+
+				for(int x = (int)pos; x >= 0; --x) {
+					//printf("x [%d][%c] pos [%ld][%c] [%s]\n",x,path[x],(long int)pos,path[pos],path.substr(0,x+1).c_str());
+
+					if((path[x] == '/' || path[x] == '\\') && x != (int)pos) {
+						//string origLoop = path;
+						path.erase(x,(int)pos-x);
+
+						//printf("#5 [%d] [%d] [%d] CHANGE relative path from [%s] to [%s]\n",(int)pos,(int)x,(int)origLoop.length(),origLoop.c_str(),path.c_str());
+						break;
+					}
+				}
+				pos = path.find("..");
+			}
+			else {
+				//printf("#6a [%d]\n",(int)pos);
+
+				//pos = path.find("..",pos+1);
+				pos = string::npos;
+
+				//printf("#6b [%d]\n",(int)pos);
+			}
+			if(pos != string::npos && pos != 0) {
+				updatePathClimbingParts(path,processPreviousDirTokenCheck);
+			}
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("CHANGED relative path from [%s] to [%s]\n",orig.c_str(),path.c_str());
+		}
 	}
 
 /*
@@ -2427,7 +2455,7 @@ void ValueCheckerVault::checkItemInVault(const void *ptr,int value) const {
 }
 
 string getUserHome() {
-	string home_folder = "";
+	string home_folder;
 	home_folder = safeCharPtrCopy(getenv("HOME"),8095);
 	if(home_folder == "") {
 #if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED

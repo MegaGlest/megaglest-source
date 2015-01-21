@@ -317,47 +317,47 @@ void event_channel(irc_session_t * session, const char * event, const char * ori
         }
 	}
 
-	if ( !strcmp (params[1], "quit") )
-		irc_cmd_quit (session, "of course, Master!");
-
-	if ( !strcmp (params[1], "help") ) {
-		irc_cmd_msg (session, params[0], "quit, help, dcc chat, dcc send, ctcp");
-	}
-
-	if ( !strcmp (params[1], "ctcp") ) {
-		irc_cmd_ctcp_request (session, realNick, "PING 223");
-		irc_cmd_ctcp_request (session, realNick, "FINGER");
-		irc_cmd_ctcp_request (session, realNick, "VERSION");
-		irc_cmd_ctcp_request (session, realNick, "TIME");
-	}
-
-	if ( !strcmp (params[1], "dcc chat") ) {
-		irc_dcc_t dccid;
-		irc_dcc_chat (session, 0, realNick, dcc_recv_callback, &dccid);
-		if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("DCC chat ID: %d\n", dccid);
-	}
-
-	if ( !strcmp (params[1], "dcc send") ) {
-		irc_dcc_t dccid;
-		irc_dcc_sendfile (session, 0, realNick, "irctest.c", dcc_file_recv_callback, &dccid);
-		if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("DCC send ID: %d\n", dccid);
-	}
-
-	if ( !strcmp (params[1], "topic") ) {
-		irc_cmd_topic (session, params[0], 0);
-    }
-	else if ( strstr (params[1], "topic ") == params[1] ) {
-		irc_cmd_topic (session, params[0], params[1] + 6);
-    }
-
-	if ( strstr (params[1], "mode ") == params[1] )
-		irc_cmd_channel_mode (session, params[0], params[1] + 5);
-
-	if ( strstr (params[1], "nick ") == params[1] )
-		irc_cmd_nick (session, params[1] + 5);
-
-	if ( strstr (params[1], "whois ") == params[1] )
-		irc_cmd_whois (session, params[1] + 5);
+//	if ( !strcmp (params[1], "quit") )
+//		irc_cmd_quit (session, "of course, Master!");
+//
+//	if ( !strcmp (params[1], "help") ) {
+//		irc_cmd_msg (session, params[0], "quit, help, dcc chat, dcc send, ctcp");
+//	}
+//
+//	if ( !strcmp (params[1], "ctcp") ) {
+//		irc_cmd_ctcp_request (session, realNick, "PING 223");
+//		irc_cmd_ctcp_request (session, realNick, "FINGER");
+//		irc_cmd_ctcp_request (session, realNick, "VERSION");
+//		irc_cmd_ctcp_request (session, realNick, "TIME");
+//	}
+//
+//	if ( !strcmp (params[1], "dcc chat") ) {
+//		irc_dcc_t dccid;
+//		irc_dcc_chat (session, 0, realNick, dcc_recv_callback, &dccid);
+//		if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("DCC chat ID: %d\n", dccid);
+//	}
+//
+//	if ( !strcmp (params[1], "dcc send") ) {
+//		irc_dcc_t dccid;
+//		irc_dcc_sendfile (session, 0, realNick, "irctest.c", dcc_file_recv_callback, &dccid);
+//		if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("DCC send ID: %d\n", dccid);
+//	}
+//
+//	if ( !strcmp (params[1], "topic") ) {
+//		irc_cmd_topic (session, params[0], 0);
+//    }
+//	else if ( strstr (params[1], "topic ") == params[1] ) {
+//		irc_cmd_topic (session, params[0], params[1] + 6);
+//    }
+//
+//	if ( strstr (params[1], "mode ") == params[1] )
+//		irc_cmd_channel_mode (session, params[0], params[1] + 5);
+//
+//	if ( strstr (params[1], "nick ") == params[1] )
+//		irc_cmd_nick (session, params[1] + 5);
+//
+//	if ( strstr (params[1], "whois ") == params[1] )
+//		irc_cmd_whois (session, params[1] + 5);
 }
 
 void irc_event_dcc_chat(irc_session_t * session, const char * nick, const char * addr, irc_dcc_t dccid) {
@@ -680,6 +680,7 @@ bool IRCThread::isConnected(bool mutexLockRequired) {
     		safeMutex1.setMutex(&mutexIRCSession);
     	}
         ret = (irc_is_connected(ircSession) != 0);
+        safeMutex1.ReleaseLock();
 #endif
     }
 
@@ -907,6 +908,7 @@ int IRCThread::irc_run_session(irc_session_t * session) {
 
 		safeMutex.Lock();
 		if ( irc_process_select_descriptors (session, &in_set, &out_set) ) {
+			safeMutex.ReleaseLock();
 			return 3;
 		}
 
@@ -997,6 +999,7 @@ void IRCThread::connectToHost() {
 		if(result != 1) {
 			connectRequired = true;
 		}
+		safeMutex1.ReleaseLock();
 #endif
 	}
 
@@ -1004,9 +1007,12 @@ void IRCThread::connectToHost() {
 #if !defined(DISABLE_IRCCLIENT)
 		MutexSafeWrapper safeMutex1(&mutexIRCSession,string(__FILE__) + "_" + intToStr(__LINE__));
         if(irc_connect(ircSession, argv[0].c_str(), IRC_SERVER_PORT, 0, this->nick.c_str(), this->username.c_str(), "megaglest")) {
+        	safeMutex1.ReleaseLock();
+
             if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC Could not connect: %s\n", irc_strerror (irc_errno(ircSession)));
             return;
         }
+        safeMutex1.ReleaseLock();
 #endif
 	}
 }
@@ -1031,7 +1037,9 @@ void IRCThread::joinChannel() {
 			lastNickListUpdate = time(NULL);
 
 			irc_cmd_join(ircSession, ctx->getChannel().c_str(), 0);
+			safeMutex.ReleaseLock();
 		}
+		safeMutex.ReleaseLock();
 #endif
 	}
 }
@@ -1050,7 +1058,9 @@ void IRCThread::leaveChannel() {
 		IRCThread *ctx = (IRCThread *)irc_get_ctx(ircSession);
 		if(ctx != NULL) {
 			irc_cmd_part(ircSession,ctx->getChannel().c_str());
+			safeMutex.ReleaseLock();
 		}
+		safeMutex.ReleaseLock();
 #endif
 	}
 }

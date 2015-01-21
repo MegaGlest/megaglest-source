@@ -183,6 +183,15 @@ public:
 	//uint32	m_nVBOIndexes;					// Indexes VBO Name
 };
 
+enum ConsoleMode {
+	consoleOff,
+	consoleNormal,
+	consoleFull,
+	consoleStoredOnly,
+	consoleStoredAndNormal,
+
+	consoleCount
+};
 
 class Renderer : public RendererInterface,
 				 public BaseRenderer,
@@ -496,7 +505,7 @@ public:
 
     void renderBackground(const Texture2D *texture);
 	void renderTextureQuad(int x, int y, int w, int h, const Texture2D *texture, float alpha=1.f,const Vec3f *color=NULL);
-	void renderConsole(const Console *console, const bool showAll=false, const bool showMenuConsole=false, int overrideMaxConsoleLines=-1);
+	void renderConsole(const Console *console, ConsoleMode mode=consoleNormal, int overrideMaxConsoleLines=-1);
 	void renderConsoleLine3D(int lineIndex, int xPosition, int yPosition, int lineHeight, Font3D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo);
 	void renderConsoleLine(int lineIndex, int xPosition, int yPosition, int lineHeight, Font2D* font, string stringToHightlight, const ConsoleLineInfo *lineInfo);
 
@@ -548,7 +557,8 @@ public:
     void renderUnits(bool airUnits, const int renderFps);
     void renderUnitsToBuild(const int renderFps);
 
-	void renderSelectionEffects();
+	void renderSelectionEffects(int healthbarMode);
+	void renderHealthBars(int healthbarMode);
 	void renderWaterEffects();
 	void renderHud();
 	void renderMinimap();
@@ -558,7 +568,7 @@ public:
 	void renderMenuBackground(Camera *camera, float fade, Model *mainModel, vector<Model *> characterModels,const Vec3f characterPosition, float anim);
 
 	//computing
-    bool computePosition(const Vec2i &screenPos, Vec2i &worldPos,bool exactCoords=false);
+    bool ccomputePosition(const Vec2i &screenPos, Vec2i &worldPos,bool exactCoords=false);
 	void computeSelected(Selection::UnitContainer &units, const Object *&obj, const bool withObjectSelection, const Vec2i &posDown, const Vec2i &posUp);
 	void selectUsingColorPicking(Selection::UnitContainer &units, const Object *&obj,const bool withObjectSelection,const Vec2i &posDown, const Vec2i &posUp);
 	void selectUsingSelectionBuffer(Selection::UnitContainer &units,const Object *&obj, const bool withObjectSelection,const Vec2i &posDown, const Vec2i &posUp);
@@ -680,6 +690,9 @@ private:
 
 	//private aux drawing
 	void renderSelectionCircle(Vec3f v, int size, float radius, float thickness=0.2f);
+	bool isHealthBarVisible(const Unit *unit,int healthbarMode);
+	void renderHealthBar(Vec3f v, Unit *unit, float height, bool lineBorder, const Texture2D *texture=NULL, const Texture2D *backgroundTexture=NULL);
+	void internalRenderHp(int numberOfBars, int barNumber, float hp, Vec3f posVector, float width, float singleHPheight, Vec3f rightVector, Vec3f upVector);
 	void renderTeamColorEffect(Vec3f &v, int heigth, int size, Vec3f color, const Texture2D *texture);
 	void renderArrow(const Vec3f &pos1, const Vec3f &pos2, const Vec3f &color, float width);
 	void renderTile(const Vec2i &pos);
@@ -695,9 +708,8 @@ private:
     void render3dSetup();
     void render3dMenuSetup(const MainMenu *mm);
 
-    bool renderResourcesInTeamMode();
     int renderResource(const Faction *factionForResourceView,
-    		bool localFactionResourcesOnly, const ResourceType *rt,
+    		bool localFactionResourcesOnly,bool twoResourceLines, const ResourceType *rt,
     		int startRow, int &resourceCountRendered);
 
 };

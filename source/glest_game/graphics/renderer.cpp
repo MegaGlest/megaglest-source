@@ -582,10 +582,15 @@ void Renderer::manageDeferredParticleSystems() {
 			CoreData::TextureSystemType textureSystemId =
 					static_cast<CoreData::TextureSystemType>(
 							ps->getTextureFileLoadDeferredSystemId());
+
+			//printf("Load DEFERRED particle i = %d textureSystemId = %d\n",i,textureSystemId);
+
 			if(textureSystemId != CoreData::tsyst_NONE) {
 				Texture2D *texture= CoreData::getInstance().getTextureBySystemId(textureSystemId);
 				//printf("Loading texture from system [%d] [%p]\n",textureSystemId,texture);
 				ps->setTexture(texture);
+
+				//printf("#2 Load DEFERRED particle i = %d textureSystemId = %d, texture = %p\n",i,textureSystemId,texture);
 			}
 			else {
 				Texture2D *texture= newTexture2D(rs);
@@ -601,6 +606,7 @@ void Renderer::manageDeferredParticleSystems() {
 					texture->load(textureFile);
 					ps->setTexture(texture);
 				}
+				//printf("#3 Load DEFERRED particle i = %d textureSystemId = %d, texture = %p\n",i,textureSystemId,texture);
 			}
 		}
 		if(dynamic_cast<GameParticleSystem *>(ps) != NULL) {
@@ -977,7 +983,7 @@ bool Renderer::validateParticleSystemStillExists(ParticleSystem * particleSystem
 }
 
 void Renderer::removeParticleSystemsForParticleOwner(ParticleOwner * particleOwner,ResourceScope rs) {
-	return particleManager[rs]->removeParticleSystemsForParticleOwner(particleOwner);
+	particleManager[rs]->removeParticleSystemsForParticleOwner(particleOwner);
 }
 
 void Renderer::cleanupParticleSystems(vector<ParticleSystem *> &particleSystems, ResourceScope rs) {
@@ -1061,11 +1067,11 @@ void Renderer::setupLighting() {
 				Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 
 				if(world->toRenderUnit(unit) &&
-					unit->getCurrVector().dist(gameCamera->getPos()) < maxLightDist &&
+					unit->getCurrMidHeightVector().dist(gameCamera->getPos()) < maxLightDist &&
 					unit->getType()->getLight() && unit->isOperative()) {
 					//printf("$$$ Show light for faction: %s # %d / %d for Unit [%d - %s]\n",world->getFaction(i)->getType()->getName().c_str(),lightCount,maxLights,unit->getId(),unit->getFullName().c_str());
 
-					Vec4f pos= Vec4f(unit->getCurrVector());
+					Vec4f pos= Vec4f(unit->getCurrMidHeightVector());
 					pos.y+=4.f;
 
 					GLenum lightEnum= GL_LIGHT0 + lightCount;
@@ -1642,11 +1648,11 @@ void Renderer::renderMouse2d(int x, int y, int anim, float fade) {
 
 		if(game->isMarkCellMode() == true) {
 			const Texture2D *texture= game->getMarkCellTexture();
-			renderTextureQuad(x-18,y-50,texture->getTextureWidth(),texture->getTextureHeight(),texture,0.8f);
+			renderTextureQuad(x,y,texture->getTextureWidth(),texture->getTextureHeight(),texture,0.8f);
 		}
 		if(game->isUnMarkCellMode() == true) {
 			const Texture2D *texture= game->getUnMarkCellTexture();
-			renderTextureQuad(x-18,y-50,texture->getTextureWidth(),texture->getTextureHeight(),texture,0.8f);
+			renderTextureQuad(x,y,texture->getTextureWidth(),texture->getTextureHeight(),texture,0.8f);
 		}
 	}
 
@@ -2082,8 +2088,7 @@ void Renderer::renderConsoleLine(int lineIndex, int xPosition, int yPosition, in
         xPosition, (lineIndex * lineHeight) + yPosition);
 }
 
-void Renderer::renderConsole(const Console *console,const bool showFullConsole,
-		const bool showMenuConsole, int overrideMaxConsoleLines){
+void Renderer::renderConsole(const Console *console, ConsoleMode mode , int overrideMaxConsoleLines){
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
@@ -2095,7 +2100,7 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,
 	glPushAttrib(GL_ENABLE_BIT);
 	glEnable(GL_BLEND);
 
-	if(showFullConsole) {
+	if(mode==consoleFull) {
 	    int x= console->getXPos()-5;
 	    int y= console->getYPos()-5;
 	    int h= console->getLineHeight()*console->getStoredLineCount();
@@ -2130,7 +2135,7 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,
 			}
 		}
 	}
-	else if(showMenuConsole) {
+	else if(mode==consoleStoredOnly) {
 		int allowedMaxLines = (overrideMaxConsoleLines >= 0 ? overrideMaxConsoleLines : maxConsoleLines);
 		for(int i = 0; i < console->getStoredLineCount() && i < allowedMaxLines; ++i) {
 			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
@@ -2144,7 +2149,39 @@ void Renderer::renderConsole(const Console *console,const bool showFullConsole,
 			}
 		}
 	}
-	else {
+	else if(mode==consoleStoredAndNormal) {
+		int allowedMaxLines = (overrideMaxConsoleLines >= 0 ? overrideMaxConsoleLines : maxConsoleLines);
+		float starttimestamp=-1;
+		int consoleIndex=0;
+		for(int i = 0; i < console->getLineCount() && i < allowedMaxLines; ++i) {
+			const ConsoleLineInfo &lineInfo = console->getLineItem(i);
+			if(starttimestamp>lineInfo.timeStamp || starttimestamp==-1) starttimestamp=lineInfo.timeStamp;
+			if(renderText3DEnabled == true) {
+				renderConsoleLine3D(i, console->getXPos(), console->getYPos(),
+						console->getLineHeight(), console->getFont3D(), console->getStringToHighlight(), &lineInfo);
+			}
+			else {
+				renderConsoleLine(i, console->getXPos(), console->getYPos(),
+						console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
+			}
+			consoleIndex++;
+		}
+		for(int i = 0; i < console->getStoredLineCount() && consoleIndex < allowedMaxLines; ++i) {
+			const ConsoleLineInfo &lineInfo = console->getStoredLineItem(i);
+			if( lineInfo.timeStamp<starttimestamp || starttimestamp==-1){
+				if(renderText3DEnabled == true) {
+					renderConsoleLine3D(consoleIndex, console->getXPos(), console->getYPos(),
+							console->getLineHeight(), console->getFont3D(), console->getStringToHighlight(), &lineInfo);
+				}
+				else {
+					renderConsoleLine(consoleIndex, console->getXPos(), console->getYPos(),
+							console->getLineHeight(), console->getFont(), console->getStringToHighlight(), &lineInfo);
+				}
+				consoleIndex++;
+			}
+		}
+	}
+	else if(mode==consoleNormal) {
 		for(int i = 0; i < console->getLineCount(); ++i) {
 			const ConsoleLineInfo &lineInfo = console->getLineItem(i);
 			if(renderText3DEnabled == true) {
@@ -2336,25 +2373,13 @@ void Renderer::renderClock() {
 	}
 }
 
-bool Renderer::renderResourcesInTeamMode() {
-	bool result = false;
-
-	if(game != NULL && game->getGui() != NULL) {
-
-		if(game->isFlagType1BitEnabled(ft1_allow_shared_team_units) == true ||
-			game->isFlagType1BitEnabled(ft1_allow_shared_team_resources) == true) {
-
-			result = true;
-		}
-	}
-	return result;
-}
 void Renderer::renderResourceStatus() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
 
 	const World *world		= game->getWorld();
+	Config &config= Config::getInstance();
 
 	if(world->getThisFactionIndex() < 0 ||
 		world->getThisFactionIndex() >= world->getFactionCount()) {
@@ -2368,64 +2393,45 @@ void Renderer::renderResourceStatus() {
 
 	int rowsRendered = 0;
 	int resourceCountRendered = 0;
-	for(int techTreeResourceTypeIndex = 0;
-			techTreeResourceTypeIndex < world->getTechTree()->getResourceTypeCount();
-				++techTreeResourceTypeIndex) {
+	bool twoRessourceLines=false;
 
-		const ResourceType *rt 	= world->getTechTree()->getResourceType(techTreeResourceTypeIndex);
+	bool sharedTeamUnits = game != NULL && game->getGui() != NULL
+			&& game->isFlagType1BitEnabled(ft1_allow_shared_team_units)
+					== true;
+	bool sharedTeamResources = game != NULL && game->getGui() != NULL
+			&& game->isFlagType1BitEnabled(
+					ft1_allow_shared_team_resources) == true;
 
-		if ( rt->getDisplayInHud() == false ) {
-			continue;
+	bool renderSharedTeamResources=false;
+	bool renderSharedTeamUnits=false;
+	bool renderLocalFactionResources=false;
+
+	if(config.getBool("TwoLineTeamResourceRendering","false") == true) {
+		if( sharedTeamResources == true || sharedTeamUnits == true){
+			twoRessourceLines=true;
 		}
-
-		const Faction *factionForResourceView 	= thisFaction;
-		bool localFactionResourcesOnly 			= false;
-
-		if(renderResourcesInTeamMode() == true) {
-
-			const Gui *gui = game->getGui();
-			if(gui != NULL) {
-
-				const Selection *selection = gui->getSelection();
-				if(selection != NULL && selection->getCount() > 0 && selection->getFrontUnit() != NULL) {
-
-					const Unit *selectedUnit = selection->getFrontUnit();
-//						if(selectedUnit != NULL && selectedUnit->getType()->hasSkillClass(scBeBuilt) == true) {
-//
-//							if(selectedUnit->getFactionIndex() == thisFaction->getIndex() ||
-//								selectedUnit->getFaction()->isAlly(thisFaction) == true) {
-//
-//								factionForResourceView	  = selectedUnit->getFaction();
-//								localFactionResourcesOnly = true;
-//							}
-//						}
-
-					if(selectedUnit != NULL && selectedUnit->getFaction()->isAlly(thisFaction) == true) {
-						factionForResourceView	  = selectedUnit->getFaction();
-						localFactionResourcesOnly = true;
-					}
-				}
-				else {
-					factionForResourceView	  = thisFaction;
-					localFactionResourcesOnly = true;
-				}
-			}
+		if(sharedTeamResources == true){
+			renderSharedTeamResources=true;
+			renderSharedTeamUnits=true;
 		}
-
-		//if any unit produces the resource
-		bool showResource = world->showResourceTypeForFaction(rt, factionForResourceView, false);
-		if(showResource == true) {
-			rowsRendered = renderResource(factionForResourceView,localFactionResourcesOnly,
-							rt, 0, resourceCountRendered);
+		else if(sharedTeamUnits == true){
+			renderSharedTeamUnits=true;
+			renderLocalFactionResources=true;
+		}
+		else{
+			renderLocalFactionResources=true;
 		}
 	}
+	else {
+		if(sharedTeamResources == true)
+			renderSharedTeamResources=true;
+		else if(sharedTeamUnits == true)
+			renderSharedTeamUnits=true;
+		else
+			renderLocalFactionResources=true;
+	}
 
-	// If we rendered single player resources above and we are in team mode,
-	// lets render team totals next
-	if(renderResourcesInTeamMode() == true) {
-		if(rowsRendered > 0 || resourceCountRendered > 0) {
-			rowsRendered++;
-		}
+	if(renderSharedTeamResources == true) {
 		resourceCountRendered = 0;
 		for(int techTreeResourceTypeIndex = 0;
 				techTreeResourceTypeIndex < world->getTechTree()->getResourceTypeCount();
@@ -2437,14 +2443,91 @@ void Renderer::renderResourceStatus() {
 				continue;
 			}
 
-			const Faction *factionForResourceView 	= thisFaction;
-			bool localFactionResourcesOnly 			= false;
-
-			bool showResource = world->showResourceTypeForFaction(rt, factionForResourceView, localFactionResourcesOnly);
+			bool showResource = world->showResourceTypeForTeam(rt, thisFaction->getTeam());
 			if(showResource == true) {
-				renderResource(factionForResourceView,localFactionResourcesOnly,
-								rt, rowsRendered, resourceCountRendered);
+				rowsRendered = renderResource(thisFaction,
+						false, twoRessourceLines, rt, 0,
+						resourceCountRendered);
 			}
+		}
+		if(resourceCountRendered > 0) {
+			rowsRendered++;
+		}
+	}
+
+	if(renderLocalFactionResources == true){
+		resourceCountRendered = 0;
+
+		const Faction *factionForResourceView 	= thisFaction;
+		bool localFactionResourcesOnly 			= true;
+
+		for(int techTreeResourceTypeIndex = 0;
+				techTreeResourceTypeIndex < world->getTechTree()->getResourceTypeCount();
+					++techTreeResourceTypeIndex) {
+			const ResourceType *rt 	= world->getTechTree()->getResourceType(techTreeResourceTypeIndex);
+			if ( rt->getDisplayInHud() == false ) {
+				continue;
+			}
+
+			//if any unit produces the resource
+			bool showResource;
+			if (twoRessourceLines)
+				showResource = world->showResourceTypeForTeam(rt,
+						factionForResourceView->getTeam());
+			else
+				showResource = world->showResourceTypeForFaction(rt,
+						factionForResourceView);
+			if(showResource == true) {
+				renderResource(factionForResourceView, localFactionResourcesOnly,
+						twoRessourceLines, rt, rowsRendered, resourceCountRendered);
+			}
+		}
+		if(resourceCountRendered > 0) {
+			rowsRendered++;
+		}
+	}
+
+	if(renderSharedTeamUnits == true){
+		resourceCountRendered = 0;
+
+		const Faction *factionForResourceView 	= thisFaction;
+		bool localFactionResourcesOnly 			= true;
+
+		const Gui *gui = game->getGui();
+		if(gui != NULL) {
+			const Selection *selection = gui->getSelection();
+			if(selection != NULL && selection->getCount() > 0 && selection->getFrontUnit() != NULL) {
+				const Unit *selectedUnit = selection->getFrontUnit();
+				if(selectedUnit != NULL && selectedUnit->getFaction()->isAlly(thisFaction) == true) {
+					factionForResourceView	  = selectedUnit->getFaction();
+				}
+			}
+		}
+
+		for(int techTreeResourceTypeIndex = 0;
+				techTreeResourceTypeIndex < world->getTechTree()->getResourceTypeCount();
+					++techTreeResourceTypeIndex) {
+			const ResourceType *rt 	= world->getTechTree()->getResourceType(techTreeResourceTypeIndex);
+			if ( rt->getDisplayInHud() == false ) {
+				continue;
+			}
+
+			//if any unit produces the resource
+			bool showResource;
+			if (twoRessourceLines)
+				showResource = world->showResourceTypeForTeam(rt,
+						factionForResourceView->getTeam());
+			else
+				showResource = world->showResourceTypeForFaction(rt,
+						factionForResourceView);
+
+			if(showResource == true) {
+				renderResource(factionForResourceView, localFactionResourcesOnly,
+						twoRessourceLines, rt, rowsRendered, resourceCountRendered);
+			}
+		}
+		if(resourceCountRendered > 0) {
+			rowsRendered++;
 		}
 	}
 
@@ -2454,29 +2537,35 @@ void Renderer::renderResourceStatus() {
 }
 
 int Renderer::renderResource(const Faction *factionForResourceView,bool localFactionResourcesOnly,
-		const ResourceType *rt, int startRow, int &resourceCountRendered) {
+		bool twoResourceLines, const ResourceType *rt, int startRow, int &resourceCountRendered) {
 
 	const Metrics &metrics	= Metrics::getInstance();
+	const int MAX_RESOURCES_PER_ROW = 6;
+
+	int resourceRowHeigth=30;
+	int resourceYStart=metrics.getVirtualH()-30;
+	if(twoResourceLines){
+		// we need to save some space
+		resourceYStart=metrics.getVirtualH()-22;
+		resourceRowHeigth=16;
+	}
 
 	//draw resource status
 	if(localFactionResourcesOnly == true) {
-		string str = "*";
 		Vec4f resourceFontColor = Vec4f(factionForResourceView->getTexture()->getPixmapConst()->getPixel3f(0,0));
 		int resourceCol = 0;
 		int resourceRow = startRow;
 
-		if(renderText3DEnabled == true) {
-			renderTextShadow3D(
-				str, CoreData::getInstance().getDisplayFontSmall3D(),
-				resourceFontColor,
-				resourceCol * 100 + 190, metrics.getVirtualH()-30 - (30 * resourceRow), false);
-		}
-		else {
-			renderTextShadow(
-				str, CoreData::getInstance().getDisplayFontSmall(),
-				resourceFontColor,
-				resourceCol * 100 + 190, metrics.getVirtualH()-30 - (30 * resourceRow), false);
-		}
+		int x=resourceCol * 100 + 190;
+		int y=resourceYStart - (resourceRowHeigth * resourceRow);
+		int h=16;
+		int w=8;
+		glColor3f(resourceFontColor.x,resourceFontColor.y,resourceFontColor.z);
+		glBegin(GL_TRIANGLE_STRIP);
+			glVertex2i(x, y+h);
+			glVertex2i(x, y);
+			glVertex2i(x+w, y+h/2);
+		glEnd();
 	}
 
 	const Resource *r = factionForResourceView->getResource(rt,localFactionResourcesOnly);
@@ -2495,17 +2584,14 @@ int Renderer::renderResource(const Faction *factionForResourceView,bool localFac
 
 				isNegativeConsumableDisplayCycle = true;
 				if(r->getBalance() * 1 + r->getAmount() < 0) {
-
 					glColor3f(RED.x,RED.y,RED.z);
 					resourceFontColor = RED;
 				}
 				else if(r->getBalance() * 3 + r->getAmount() < 0) {
-
 					glColor3f(ORANGE.x,ORANGE.y,ORANGE.z);
 					resourceFontColor = ORANGE;
 				}
 				else if(r->getBalance() * 5 + r->getAmount() < 0) {
-
 					glColor3f(YELLOW.x,YELLOW.y,YELLOW.z);
 					resourceFontColor = YELLOW;
 				}
@@ -2516,11 +2602,11 @@ int Renderer::renderResource(const Faction *factionForResourceView,bool localFac
 	if(isNegativeConsumableDisplayCycle == false) {
 		glColor3f(1.f, 1.f, 1.f);
 	}
-	const int MAX_RESOURCES_PER_ROW = 6;
+
 	int resourceRow = startRow + (resourceCountRendered > 0 ? resourceCountRendered / MAX_RESOURCES_PER_ROW : 0);
 	int resourceCol = resourceCountRendered % MAX_RESOURCES_PER_ROW;
 
-	renderQuad(resourceCol * 100 + 200, metrics.getVirtualH()-30 - (30 * resourceRow), 16, 16, rt->getImage());
+	renderQuad(resourceCol * 100 + 200, resourceYStart - (resourceRowHeigth * resourceRow), 16, 16, rt->getImage());
 
 	if(rt->getClass() != rcStatic) {
 		str+= "/" + intToStr(factionForResourceView->getStoreAmount(rt,localFactionResourcesOnly));
@@ -2539,13 +2625,13 @@ int Renderer::renderResource(const Faction *factionForResourceView,bool localFac
 		renderTextShadow3D(
 			str, CoreData::getInstance().getDisplayFontSmall3D(),
 			resourceFontColor,
-			resourceCol * 100 + 220, metrics.getVirtualH()-30 - (30 * resourceRow), false);
+			resourceCol * 100 + 220, resourceYStart - (resourceRowHeigth * resourceRow), false);
 	}
 	else {
 		renderTextShadow(
 			str, CoreData::getInstance().getDisplayFontSmall(),
 			resourceFontColor,
-			resourceCol * 100 + 220, metrics.getVirtualH()-30 - (30 * resourceRow), false);
+			resourceCol * 100 + 220, resourceYStart - (resourceRowHeigth * resourceRow), false);
 	}
 	++resourceCountRendered;
 
@@ -3042,6 +3128,33 @@ void Renderer::renderLabel(GraphicLabel *label) {
 	    	glEnable(GL_BLEND);
 
 	    	glColor4f(0.2f, 0.2f, 0.2f, 0.6f*label->getFade()) ;
+
+	    	glBegin(GL_TRIANGLE_STRIP);
+	    		glVertex2i(x, y);
+	    		glVertex2i(x, y+h);
+	    		glVertex2i(x+w, y);
+	    		glVertex2i(x+w, y+h);
+	    	glEnd();
+	    	glPopAttrib();
+	    }
+	}
+
+	if(label->getRenderBackground())
+	{
+	    int x= label->getX();
+	    int y= label->getY();
+	    int h= label->getH();
+	    int w= label->getW();
+	    if(label->getMaxEditRenderWidth()>0){
+	    	w= label->getMaxEditRenderWidth();
+	    }
+	    Vec4f color=label->getBackgroundColor();
+	    if(h>0){
+	    	//background
+	    	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+	    	glEnable(GL_BLEND);
+
+	    	glColor4f(color.x, color.y, color.z, color.w*label->getFade()) ;
 
 	    	glBegin(GL_TRIANGLE_STRIP);
 	    		glVertex2i(x, y);
@@ -3701,6 +3814,7 @@ void Renderer::renderListBox(GraphicListBox *listBox) {
 }
 
 void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
+	const int headerHeight=25;
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
@@ -3732,18 +3846,18 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 
 		glColor4f(0.0f, 0.0f, 0.0f, 0.8f) ;
 		glBegin(GL_TRIANGLE_STRIP);
-			glVertex2i(messageBox->getX(), messageBox->getY()+9*messageBox->getH()/10);
+			glVertex2i(messageBox->getX(), messageBox->getY()+messageBox->getH()-headerHeight);
 			glVertex2i(messageBox->getX(), messageBox->getY());
-			glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY() + 9*messageBox->getH()/10);
+			glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY() + messageBox->getH()-headerHeight);
 			glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY());
 		glEnd();
 
 		glColor4f(0.0f, 0.0f, 0.0f, 0.8f) ;
 		glBegin(GL_TRIANGLE_STRIP);
 			glVertex2i(messageBox->getX(), messageBox->getY()+messageBox->getH());
-			glVertex2i(messageBox->getX(), messageBox->getY()+9*messageBox->getH()/10);
+			glVertex2i(messageBox->getX(), messageBox->getY()+messageBox->getH()-headerHeight);
 			glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY() + messageBox->getH());
-			glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY()+9*messageBox->getH()/10);
+			glVertex2i(messageBox->getX() + messageBox->getW(), messageBox->getY()+messageBox->getH()-headerHeight);
 		glEnd();
 
 		glBegin(GL_LINE_LOOP);
@@ -3762,10 +3876,10 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 
 		glBegin(GL_LINE_STRIP);
 			glColor4f(1.0f, 1.0f, 1.0f, 0.25f) ;
-			glVertex2i(messageBox->getX(), messageBox->getY() + 90*messageBox->getH()/100);
+			glVertex2i(messageBox->getX(), messageBox->getY() + messageBox->getH()-headerHeight);
 
 			glColor4f(0.5f, 0.5f, 0.5f, 0.25f) ;
-			glVertex2i(messageBox->getX()+ messageBox->getW(), messageBox->getY() + 90*messageBox->getH()/100);
+			glVertex2i(messageBox->getX()+ messageBox->getW(), messageBox->getY() + messageBox->getH()-headerHeight);
 		glEnd();
 
 		glPopAttrib();
@@ -3796,12 +3910,12 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 			//text
 			renderTextShadow3D(
 					wrappedText, messageBox->getFont3D(), fontColor,
-				messageBox->getX()+15, messageBox->getY()+7*messageBox->getH()/10,
+				messageBox->getX()+15, messageBox->getY()+messageBox->getH()-headerHeight*2,
 				false );
 
 			renderTextShadow3D(
 				messageBox->getHeader(), messageBox->getFont3D(),fontColor,
-				messageBox->getX()+15, messageBox->getY()+93*messageBox->getH()/100,
+				messageBox->getX()+15, messageBox->getY()+messageBox->getH()-headerHeight+8,
 				false );
 
 		}
@@ -3809,12 +3923,12 @@ void Renderer::renderMessageBox(GraphicMessageBox *messageBox) {
 			//text
 			renderTextShadow(
 					wrappedText, messageBox->getFont(), fontColor,
-				messageBox->getX()+15, messageBox->getY()+7*messageBox->getH()/10,
+				messageBox->getX()+15, messageBox->getY()+messageBox->getH()-headerHeight*2,
 				false );
 
 			renderTextShadow(
 				messageBox->getHeader(), messageBox->getFont(),fontColor,
-				messageBox->getX()+15, messageBox->getY()+93*messageBox->getH()/100,
+				messageBox->getX()+15, messageBox->getY()+messageBox->getH()-headerHeight+8,
 				false );
 		}
 	}
@@ -5393,7 +5507,7 @@ void Renderer::renderMorphEffects(){
 
 
 
-void Renderer::renderSelectionEffects() {
+void Renderer::renderSelectionEffects(int healthbarMode) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
 		return;
 	}
@@ -5427,24 +5541,41 @@ void Renderer::renderSelectionEffects() {
 			currVec.y+= 0.3f;
 
 			//selection circle
+			int finalHealthbarMode = hbvUndefined;
+			if(healthbarMode == hbvUndefined) {
+				finalHealthbarMode = unit->getFaction()->getType()->getHealthbarVisible();
+			}
+			else {
+				finalHealthbarMode = healthbarMode;
+			}
+			bool healthbarsVisible =((finalHealthbarMode & hbvAlways)   ||
+					                 (finalHealthbarMode & hbvSelected) ||
+					                 (finalHealthbarMode & hbvIfNeeded));
+			float selectionCircleThickness = 0.2f;
+			float hpRatio = unit->getHpRatio();
+			if(healthbarsVisible) {
+				selectionCircleThickness = 0.05f;
+				hpRatio = 1.0f;
+			}
+
 			if(world->getThisFactionIndex() == unit->getFactionIndex()) {
 				if(	showDebugUI == true &&
 					((showDebugUILevel & debugui_unit_titles) == debugui_unit_titles) &&
 					unit->getCommandSize() > 0 &&
 					dynamic_cast<const BuildCommandType *>(unit->getCurrCommand()->getCommandType()) != NULL) {
-					glColor4f(unit->getHpRatio(), unit->getHpRatio(), unit->getHpRatio(), 0.3f);
+					glColor4f(hpRatio, hpRatio, hpRatio, 0.3f);
 				}
 				else {
-					glColor4f(0, unit->getHpRatio(), 0, 0.3f);
+					glColor4f(0, hpRatio, 0, 0.3f);
 				}
 			}
 			else if ( world->getThisTeamIndex() == unit->getTeam()) {
-				glColor4f(unit->getHpRatio(), unit->getHpRatio(), 0, 0.3f);
+				glColor4f(hpRatio, hpRatio, 0, 0.3f);
 			}
-			else{
-				glColor4f(unit->getHpRatio(), 0, 0, 0.3f);
+			else {
+				glColor4f(hpRatio, 0, 0, 0.3f);
 			}
-			renderSelectionCircle(currVec, unit->getType()->getSize(), selectionCircleRadius);
+			renderSelectionCircle(currVec, unit->getType()->getSize(), selectionCircleRadius,selectionCircleThickness);
 
 			if(	showDebugUI == true &&
 				(showDebugUILevel & debugui_unit_titles) == debugui_unit_titles) {
@@ -5468,7 +5599,7 @@ void Renderer::renderSelectionEffects() {
 			}
 
 			//magic circle
-			if(world->getThisFactionIndex() == unit->getFactionIndex() && unit->getType()->getMaxEp() > 0) {
+			if(!healthbarsVisible && world->getThisFactionIndex() == unit->getFactionIndex() && unit->getType()->getMaxEp() > 0) {
 				glColor4f(unit->getEpRatio()/2.f, unit->getEpRatio(), unit->getEpRatio(), 0.5f);
 				renderSelectionCircle(currVec, unit->getType()->getSize(), magicCircleRadius);
 			}
@@ -5480,7 +5611,7 @@ void Renderer::renderSelectionEffects() {
 
 				if(effect.skillType->isAttackBoostEnabled() == true) {
 					glColor4f(MAGENTA.x,MAGENTA.y,MAGENTA.z,MAGENTA.w);
-					renderSelectionCircle(currVec, unit->getType()->getSize(), effect.skillType->getAttackBoost()->radius);
+					renderSelectionCircle(currVec, 1, effect.skillType->getAttackBoost()->radius, .25f/effect.skillType->getAttackBoost()->radius);
 
 					for(unsigned int i = 0; i < effect.currentAttackBoostUnits.size(); ++i) {
 						// Remove attack boost upgrades from unit
@@ -5608,6 +5739,116 @@ void Renderer::renderSelectionEffects() {
 	}
 
 	glPopAttrib();
+}
+
+void Renderer::renderHealthBars(int healthbarMode){
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
+	Config &config= Config::getInstance();
+	if(config.getBool("RecordMode","false") == true) {
+		return;
+	}
+
+	if(config.getBool("PhotoMode")) {
+		return;
+	}
+
+	glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT | GL_DEPTH_BUFFER_BIT);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_TEXTURE_2D);
+	glDepthFunc(GL_ALWAYS);
+	glDisable(GL_STENCIL_TEST);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glLineWidth(2.f);
+
+	VisibleQuadContainerCache &qCache = getQuadCache();
+	if(qCache.visibleQuadUnitList.empty() == false) {
+		for(int visibleUnitIndex = 0;
+				visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
+			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
+			if(isHealthBarVisible(unit,healthbarMode)) {
+				float healthbarheight;
+				float healthbarthickness;
+				const Texture2D *healthbarTexture;
+				const Texture2D *healthbarBackgroundTexture;
+				bool healthbarLineBorder;
+
+				//get settings of the faction
+				healthbarheight=unit->getFaction()->getType()->getHealthbarHeight();
+				healthbarthickness=unit->getFaction()->getType()->getHealthbarThickness();
+				healthbarLineBorder=unit->getFaction()->getType()->isHealthbarLineBorder();
+				CoreData &coreData= CoreData::getInstance();
+				//First try faction texture then use core Texture
+				if(unit->getFaction()->getType()->isHealthbarBorderTextureEnabled()) {
+					healthbarTexture=unit->getFaction()->getType()->getHealthbarTexture();
+					if(healthbarTexture==NULL) {
+						healthbarTexture=coreData.getHealthbarTexture();
+					}
+				} else {
+					healthbarTexture=NULL;
+				}
+				if(unit->getFaction()->getType()->isHealthbarBackgroundTextureEnabled()) {
+					healthbarBackgroundTexture=unit->getFaction()->getType()->getHealthbarBackgroundTexture();
+					if(healthbarBackgroundTexture==NULL) {
+						healthbarBackgroundTexture=coreData.getHealthbarBackgroundTexture();
+					}
+				} else {
+					healthbarBackgroundTexture=NULL;
+				}
+
+				//replace them by the ones from the unit if existent
+				if(unit->getType()->getHealthbarVisible()!=hbvOff && unit->getType()->getHealthbarVisible()!=hbvUndefined) {
+					if(unit->getType()->getHealthbarHeight()!=-100.0f) {
+						healthbarheight=unit->getType()->getHealthbarHeight();
+					}
+					if(unit->getType()->getHealthbarThickness()!=-1.0f) {
+						healthbarthickness=unit->getType()->getHealthbarThickness();
+					}
+				}
+
+				Vec3f currVec= unit->getCurrVectorFlat();
+				if(healthbarheight==-100.0f) {
+					currVec.y+=unit->getType()->getHeight();
+				} else {
+					currVec.y+=healthbarheight;
+				}
+				renderHealthBar(currVec,unit,healthbarthickness,healthbarLineBorder,healthbarTexture,healthbarBackgroundTexture);
+			}
+		}
+	}
+	glPopAttrib();
+}
+
+bool Renderer::isHealthBarVisible(const Unit *unit,int healthbarMode){
+	int healthbarVisible=hbvUndefined;
+	//check options (hotkey)
+	if(healthbarMode==hbvUndefined) {
+		healthbarVisible=unit->getFaction()->getType()->getHealthbarVisible();
+	} else {
+		healthbarVisible=healthbarMode;
+	}
+
+	//replace them by the ones from the unit if existent
+	if(unit->getType()->getHealthbarVisible()!=hbvOff && unit->getType()->getHealthbarVisible()!=hbvUndefined) {
+		if(healthbarMode==hbvUndefined) { //don't override the visible setting when hotkey is not hbvUndefined
+			healthbarVisible=unit->getType()->getHealthbarVisible();
+		}
+	}
+
+	bool settingsWantToRenderThem=!(healthbarVisible==hbvUndefined || (healthbarVisible&hbvOff))
+			&& ((healthbarVisible&hbvAlways)
+			|| ((healthbarVisible&hbvIfNeeded) && unit->getHp()<unit->getType()->getMaxHp()+unit->getTotalUpgrade()->getMaxHp())
+			|| ((healthbarVisible&hbvIfNeeded) && unit->getType()->getMaxEp() > 0 && unit->getEp()<unit->getType()->getMaxEp()+unit->getTotalUpgrade()->getMaxEp())
+			|| ((healthbarVisible&hbvIfNeeded) && unit->getProductionPercent() > 0)
+			|| ((healthbarVisible&hbvSelected) && game->getGui()->isSelected(unit)));
+
+	if(unit->isAlive() && (settingsWantToRenderThem)) {
+		return true;
+	}
+	return false;
 }
 
 void Renderer::renderWaterEffects(){
@@ -6193,7 +6434,7 @@ void Renderer::renderVisibleMarkedCells(bool renderTextHint,int x, int y) {
 	std::map<Vec2i, MarkedCell> markedCells = game->getMapMarkedCellList();
 	if(markedCells.empty() == false) {
 		const Texture2D *texture= game->getMarkCellTexture();
-		const int yOffset = 10;
+		const int yOffset = -40;
 
 		for(std::map<Vec2i, MarkedCell>::iterator iterMap =markedCells.begin();
 				iterMap != markedCells.end(); ++iterMap) {
@@ -6684,7 +6925,7 @@ void Renderer::renderMenuBackground(Camera *camera, float fade, Model *mainModel
 
 // ==================== computing ====================
 
-bool Renderer::computePosition(const Vec2i &screenPos, Vec2i &worldPos, bool exactCoords) {
+bool Renderer::ccomputePosition(const Vec2i &screenPos, Vec2i &worldPos, bool exactCoords) {
 	assertGl();
 	const Map* map= game->getWorld()->getMap();
 	const Metrics &metrics= Metrics::getInstance();
@@ -6820,7 +7061,7 @@ void Renderer::selectUsingFrustumSelection(Selection::UnitContainer &units,
 				visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 			Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
 			if(unit != NULL && unit->isAlive()) {
-				Vec3f unitPos = unit->getCurrVector();
+				Vec3f unitPos = unit->getCurrMidHeightVector();
 				bool insideQuad = CubeInFrustum(quadSelectionCacheItem.frustumData,
 						unitPos.x, unitPos.y, unitPos.z, unit->getType()->getRenderSize());
 				if(insideQuad == true) {
@@ -7519,13 +7760,21 @@ vector<Unit *> Renderer::renderUnitsFast(bool renderingShadows, bool colorPickin
 				renderOnlyBuildings=true;
 			}
 			else {
-				//glClear(GL_DEPTH_BUFFER_BIT);
+				if(colorPickingSelection == true){
+					// clear depth buffer to get units behind buildings rendered in front of them
+					glClear(GL_DEPTH_BUFFER_BIT);
+				}
 				//glEnable(GL_DEPTH_TEST);
 				renderOnlyBuildings=false;
 			}
 			for(int visibleUnitIndex = 0;
 					visibleUnitIndex < (int)qCache.visibleQuadUnitList.size(); ++visibleUnitIndex) {
 				Unit *unit = qCache.visibleQuadUnitList[visibleUnitIndex];
+
+				if(renderingShadows==false && unit->isAlive()==false){
+					// no need to render dead units for selection
+					continue;
+				}
 
 				if(renderOnlyBuildings==true && unit->getType()->hasSkillClass(scMove)){
 					continue;
@@ -8215,6 +8464,174 @@ void Renderer::enableProjectiveTexturing() {
 }
 
 // ==================== private aux drawing ====================
+void Renderer::renderHealthBar(Vec3f v, Unit *unit, float height, bool lineBorder, const Texture2D *texture, const Texture2D *backgroundTexture) {
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
+		return;
+	}
+
+	int numberOfBars=1;
+	int barCount=0;
+	float hp=unit->getHpRatio();
+	float ep=-1.f;
+	if(unit->getType()->getTotalMaxEp(unit->getTotalUpgrade()) !=0 ) {
+			ep=unit->getEpRatio();
+			numberOfBars++;
+	}
+	int productionPercent=unit->getProductionPercent();
+	if(productionPercent!=-1) {
+		numberOfBars++;
+	}
+	int size=unit->getType()->getSize();
+
+
+	Vec3f rightVector;
+	Vec3f upVector;
+	Vec3f rightVectorTexture;
+	Vec3f upVectorTexture;
+	v.y+=1;
+	float modelview[16];
+	float width=(float)size/6+0.25f;
+	float red;
+	float green;
+	float brightness=0.8f;
+
+	glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+
+	// get the current modelview state
+	glGetFloatv(GL_MODELVIEW_MATRIX , modelview);
+	rightVector= Vec3f(modelview[0], modelview[4], modelview[8]);
+	upVector= Vec3f(modelview[1], modelview[5], modelview[9]);
+	rightVectorTexture=rightVector*2;
+	upVectorTexture=upVector*4;
+
+	//from green to yellow to red
+
+	if(hp >= 0.75f) {
+		green=1;
+		red=1-((2*hp-1)-0.5f);
+	} else {
+		red=1;
+		green=0.5f+(2*hp-1);
+	}
+
+	if(red>1.0f) red=1.0f;
+	if(green>1.0f) green=1.0f;
+	float yOffset=(float)numberOfBars/2.f;
+
+	if(backgroundTexture!=NULL) {
+		//backgroundTexture
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(backgroundTexture)->getHandle());
+		glColor4f(1.f,1.f,1.f,1.f);
+		//glColor4f(red+0.1f,green+0.1f,0.1f,0.5f);
+		glBegin(GL_QUADS);
+			glTexCoord2i(0,1);
+			glVertex3fv((v - (rightVectorTexture*width - upVectorTexture*height*yOffset)).ptr());
+			glTexCoord2i(0,0);
+			glVertex3fv((v - (rightVectorTexture*width + upVectorTexture*height*yOffset)).ptr());
+			glTexCoord2i(1,0);
+			glVertex3fv((v + (rightVectorTexture*width - upVectorTexture*height*yOffset)).ptr());
+			glTexCoord2i(1,1);
+			glVertex3fv((v + (rightVectorTexture*width + upVectorTexture*height*yOffset)).ptr());
+		glEnd();
+		glDisable(GL_TEXTURE_2D);
+	}
+
+	//healthbar
+	glColor4f(red*brightness,green*brightness,0.0f,0.4f);
+	//hpbar
+	barCount++;
+	internalRenderHp(numberOfBars,barCount,hp,v,width,height,rightVector,upVector);
+
+
+	if(ep > -1.0f) {
+		//epbar
+		barCount++;
+		//glColor4f(brightness,0,brightness,0.5f);
+		glColor4f(.15f*brightness,0.3f*brightness,0.8f*brightness,0.7f);
+		internalRenderHp(numberOfBars,barCount,ep,v,width,height,rightVector,upVector);
+	}
+	if(productionPercent!=-1) {
+		barCount++;
+		glColor4f(brightness,0,brightness,0.6f);
+		//glColor4f(0.0f*brightness,0.4f*brightness,0.2f*brightness,0.8f);
+		internalRenderHp(numberOfBars,barCount,(float)productionPercent/100,v,width,height,rightVector,upVector);
+	}
+
+
+//	glBegin(GL_QUADS);
+//		if(ep < -2.0f) {
+//			//hpbar
+//			glVertex3fv((v - (rightVector*width - upVector*height)).ptr());
+//			glVertex3fv((v - (rightVector*width + upVector*height)).ptr());
+//			glVertex3fv((v + (rightVector*hp*width - upVector*height)).ptr());
+//			glVertex3fv((v + (rightVector*hp*width + upVector*height)).ptr());
+//
+//		} else {
+//			//hpbar
+//			glVertex3fv((v - (rightVector*width - upVector*height)).ptr());
+//			glVertex3fv((v - (rightVector*width + upVector*height*0.0f)).ptr());
+//			glVertex3fv((v + (rightVector*hp*width - upVector*height*0.0f)).ptr());
+//			glVertex3fv((v + (rightVector*hp*width + upVector*height)).ptr());
+//			//epbar
+//			glColor4f(brightness,0,brightness,0.4f);
+//			glVertex3fv((v - (rightVector*width + upVector*height*0.0f)).ptr());
+//			glVertex3fv((v - (rightVector*width + upVector*height)).ptr());
+//			glVertex3fv((v + (rightVector*ep*width - upVector*height)).ptr());
+//			glVertex3fv((v + (rightVector*ep*width - upVector*height*0.0f)).ptr());
+//		}
+//	glEnd();
+
+	if(lineBorder) {
+		//border
+		glColor4f(red*brightness,green*brightness,0.1f*brightness,0.5f);
+		glBegin(GL_LINE_LOOP);
+			glVertex3fv((v - (rightVector*width - upVector*height*yOffset)).ptr());
+			glVertex3fv((v - (rightVector*width + upVector*height*yOffset)).ptr());
+			glVertex3fv((v + (rightVector*width - upVector*height*yOffset)).ptr());
+			glVertex3fv((v + (rightVector*width + upVector*height*yOffset)).ptr());
+		glEnd();
+	}
+
+	if(texture!=NULL) {
+		//BorderTexture
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, static_cast<const Texture2DGl*>(texture)->getHandle());
+		glColor4f(1.f,1.f,1.f,1.f);
+		//glColor4f(red+0.1f,green+0.1f,0.1f,0.5f);
+		glBegin(GL_QUADS);
+			glTexCoord2i(0,1);
+			glVertex3fv((v - (rightVectorTexture*width - upVectorTexture*height*yOffset)).ptr());
+			glTexCoord2i(0,0);
+			glVertex3fv((v - (rightVectorTexture*width + upVectorTexture*height*yOffset)).ptr());
+			glTexCoord2i(1,0);
+			glVertex3fv((v + (rightVectorTexture*width - upVectorTexture*height*yOffset)).ptr());
+			glTexCoord2i(1,1);
+			glVertex3fv((v + (rightVectorTexture*width + upVectorTexture*height*yOffset)).ptr());
+		glEnd();
+		glDisable(GL_TEXTURE_2D);
+	}
+
+    glPopMatrix();
+}
+
+void Renderer::internalRenderHp(int numberOfBars, int barNumber, float hp,
+		Vec3f posVector, float width, float singleHPheight, Vec3f rightVector, Vec3f upVector) {
+
+	float yOffset=(float)numberOfBars*singleHPheight/2;
+	float offsetTop=yOffset-singleHPheight*(barNumber-1);
+	float offsetBottom=yOffset-singleHPheight*barNumber;
+	offsetBottom=offsetBottom*-1;
+	hp=hp*2-1;
+
+	glBegin(GL_QUADS);
+		glVertex3fv((posVector - (rightVector*width - upVector*offsetTop)).ptr());
+		glVertex3fv((posVector - (rightVector*width + upVector*offsetBottom)).ptr());
+		glVertex3fv((posVector + (rightVector*hp*width - upVector*offsetBottom)).ptr());
+		glVertex3fv((posVector + (rightVector*hp*width + upVector*offsetTop)).ptr());
+	glEnd();
+}
 
 void Renderer::renderSelectionCircle(Vec3f v, int size, float radius, float thickness) {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == true) {
@@ -8234,6 +8651,13 @@ void Renderer::renderSelectionCircle(Vec3f v, int size, float radius, float thic
 	gluDeleteQuadric(disc);
 
     glPopMatrix();
+    //	glBegin (GL_QUAD_STRIP);
+    //	for (float k = 0; k <= 180; k=k+1) {
+    //		float j=degToRad(k);
+    //		glVertex3f(v.x+std::cos(j)*.9*radius*size, v.y+thickness, v.z+std::sin(j)*.9*radius*size);
+    //		glVertex3f(v.x+std::cos(j)*radius*size, v.y, v.z+std::sin(j)*radius*size);
+    //	}
+    //	glEnd();
 }
 
 void Renderer::renderArrow(const Vec3f &pos1, const Vec3f &pos2,
@@ -8697,7 +9121,7 @@ VisibleQuadContainerCache & Renderer::getQuadCache(	bool updateOnDirtyFrame,
 					bool unitCheckedForRender = false;
 					if(VisibleQuadContainerCache::enableFrustumCalcs == true) {
 						//bool insideQuad 	= PointInFrustum(quadCache.frustumData, unit->getCurrVector().x, unit->getCurrVector().y, unit->getCurrVector().z );
-						bool insideQuad 	= CubeInFrustum(quadCache.frustumData, unit->getCurrVector().x, unit->getCurrVector().y, unit->getCurrVector().z, unit->getType()->getRenderSize());
+						bool insideQuad 	= CubeInFrustum(quadCache.frustumData, unit->getCurrMidHeightVector().x, unit->getCurrMidHeightVector().y, unit->getCurrMidHeightVector().z, unit->getType()->getRenderSize());
 						bool renderInMap 	= world->toRenderUnit(unit);
 						if(insideQuad == false || renderInMap == false) {
 							unit->setVisible(false);
@@ -9423,6 +9847,9 @@ Texture2D * Renderer::findTexture(string logoFilename) {
 void Renderer::cycleShowDebugUILevel() {
 	//printf("#1 showDebugUILevel = %d, debugui_fps = %d, debugui_unit_titles = %d\n",showDebugUILevel,debugui_fps,debugui_unit_titles);
 
+	//if(showDebugUI == false) {
+	//	showDebugUI = true;
+	//}
 	if((showDebugUILevel & debugui_fps) != debugui_fps ||
 		(showDebugUILevel & debugui_unit_titles) != debugui_unit_titles) {
 		showDebugUILevel  |= debugui_fps;

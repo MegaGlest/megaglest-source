@@ -103,6 +103,7 @@ public:
 
 	//update skills
     bool updateUnit(Unit *unit);
+	void spawnAttack(Unit *unit,string spawnUnit,int spawnUnitcount,bool spawnUnitAtTarget,Vec2i targetPos=Vec2i(-10,-10));
 
     //update commands
     void updateUnitCommand(Unit *unit, int frameIndex);
@@ -128,7 +129,6 @@ public:
 	vector<Unit*> enemyUnitsOnRange(const Unit *unit,const AttackSkillType *ast);
 	void findEnemiesForCell(const Vec2i pos, int size, int sightRange, const Faction *faction, vector<Unit*> &enemies, bool attackersOnly) const;
 
-	void findUnitsForCell(Cell *cell, const Unit *unit,vector<Unit*> &units);
 	vector<Unit*> findUnitsInRange(const Unit *unit, int radius);
 
 	string getUnitRangeCellsLookupItemCacheStats();
@@ -141,9 +141,9 @@ public:
 private:
     //attack
     void hit(Unit *attacker);
-	void hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &targetPos, Field targetField);
-	void damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance);
-	void startAttackParticleSystem(Unit *unit);
+	void hit(Unit *attacker, const AttackSkillType* ast, const Vec2i &targetPos, Field targetField, int damagePercent);
+	void damage(Unit *attacker, const AttackSkillType* ast, Unit *attacked, float distance, int damagePercent);
+	void startAttackParticleSystem(Unit *unit, float lastAnimProgress, float animProgress);
 
 	//misc
     bool searchForResource(Unit *unit, const HarvestCommandType *hct);
@@ -158,6 +158,8 @@ private:
 	void SwapActiveCommandState(Unit *unit, CommandStateType commandStateType,
 								const CommandType *commandType,
 								int originalValue,int newValue);
+	void findUnitsForCell(Cell *cell, vector<Unit*> &units);
+
 };
 
 // =====================================================
@@ -169,13 +171,14 @@ class ParticleDamager: public ParticleObserver {
 public:
 	UnitReference attackerRef;
 	const AttackSkillType* ast;
+	const ProjectileType* projectileType;
 	UnitUpdater *unitUpdater;
 	const GameCamera *gameCamera;
 	Vec2i targetPos;
 	Field targetField;
 
 public:
-	ParticleDamager(Unit *attacker, UnitUpdater *unitUpdater, const GameCamera *gameCamera);
+	ParticleDamager(Unit *attacker, const ProjectileType *projectileType, UnitUpdater *unitUpdater, const GameCamera *gameCamera);
 	virtual void update(ParticleSystem *particleSystem);
 
 	virtual void saveGame(XmlNode *rootNode);

@@ -54,6 +54,9 @@ private:
 	static string scenarioPath;
 	static string tutorialPath;
 
+protected:
+	void processTextLine(bool is_utf8_language, char *lineBuffer);
+
 public:
 	static void setApplicationPath(string value) { applicationPath=value; }
 	static string getApplicationPath() { return applicationPath; }
@@ -72,6 +75,8 @@ public:
 	static string getTutorialPath() { return tutorialPath; }
 
 	void clear();
+
+	void loadFromText(const string &text);
 	void load(const string &path,bool clearCurrentProperties=true);
 	void save(const string &path);
 
@@ -100,10 +105,10 @@ public:
 
 	bool hasString(const string &key) const;
 
-	static bool applyTagsToValue(string &value, const std::map<string,string> *mapTagReplacementValues=NULL);
+	static bool applyTagsToValue(string &value, const std::map<string,string> *mapTagReplacementValues=NULL, bool skipUpdatePathClimbingParts=false);
 	static std::map<string,string> getTagReplacementValues(std::map<string,string> *mapExtraTagReplacementValues=NULL);
 	static bool isValuePathVariable(const string &value);
-	static void updateValuePathVariable(string &value);
+	static void updateValuePathVariable(string &value, bool skipUpdatePathClimbingParts=false);
 
 	string getpath() const { return path;}
 

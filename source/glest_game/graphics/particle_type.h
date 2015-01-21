@@ -52,7 +52,7 @@ class UnitParticleSystemType;
 ///	A type of particle system
 // ===========================================================
 
-class ParticleSystemType {
+class ParticleSystemType : public ParticleSystemTypeInterface {
 protected:
 	string type;
 	Texture2D *texture;
@@ -65,6 +65,8 @@ protected:
 	float size;
 	float sizeNoEnergy;
 	float speed;
+	float speedUpRelative;
+	float speedUpConstant;
 	float gravity;
 	float emissionRate;
 	int energyMax;

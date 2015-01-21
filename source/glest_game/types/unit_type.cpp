@@ -88,7 +88,11 @@ UnitType::UnitType() : ProducibleType() {
 	meetingPointImage = NULL;
     lightColor= Vec3f(0.f);
     light= false;
+	healthbarheight= -100.0f;
+	healthbarthickness=-1.0f;
+	healthbarVisible=hbvUndefined;
     multiSelect= false;
+    commandable= true;
 	armorType= NULL;
 	rotatedBuildPos=0;
 
@@ -125,12 +129,20 @@ UnitType::UnitType() : ProducibleType() {
 	epRegeneration= 0;
 	maxUnitCount= 0;
 	maxHp=0;
+	startHpValue=0;
+	startHpPercentage=1.0;
+	startHpType=stValue;
 	maxEp=0;
+	startEpValue=0;
+	startEpPercentage=0;
+	startEpType=stValue;
 	armor=0;
 	sight=0;
 	size=0;
 	renderSize=0;
 	height=0;
+	burnHeight=0;
+	targetHeight=0;
 
 	addItemToVault(&(this->maxHp),this->maxHp);
 	addItemToVault(&(this->hpRegeneration),this->hpRegeneration);
@@ -225,6 +237,22 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
 		addItemToVault(&(this->height),this->height);
 
+		//targetHeight
+		if(parametersNode->hasChild("target-height")){
+			targetHeight= parametersNode->getChild("target-height")->getAttribute("value")->getIntValue();
+			addItemToVault(&(this->targetHeight),this->targetHeight);
+		} else {
+			targetHeight=height;
+		}
+		//burnHeight
+		if(parametersNode->hasChild("target-height")){
+			burnHeight= parametersNode->getChild("burn-height")->getAttribute("value")->getIntValue();
+			addItemToVault(&(this->burnHeight),this->burnHeight);
+		} else {
+			burnHeight=height;
+		}
+
+
 		//maxHp
 		//checkItemInVault(&(this->maxHp),this->maxHp);
 		maxHp = parametersNode->getChild("max-hp")->getAttribute("value")->getIntValue();
@@ -246,6 +274,59 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 			epRegeneration= parametersNode->getChild("max-ep")->getAttribute("regeneration")->getIntValue();
 		}
 		addItemToVault(&(this->epRegeneration),this->epRegeneration);
+
+		// Check that we don't use both start-value and start-percentage, as they are mutually
+		// exclusive
+		if(parametersNode->getChild("max-hp")->hasAttribute("start-value") &&
+				parametersNode->getChild("max-hp")->hasAttribute("start-percentage")) {
+					throw megaglest_runtime_error("Unit " + name +
+							" has both start-value and start-percentage for HP", validationMode);
+		}
+
+		//startHpValue -- the *absolute* value to use for starting HP
+		if(parametersNode->getChild("max-hp")->hasAttribute("start-value")) {
+			//checkItemInVault(&(this->startEp),this->startEp);
+			startHpValue= parametersNode->getChild("max-hp")->getAttribute("start-value")->getIntValue();
+			startHpType= stValue;
+		}
+		addItemToVault(&(this->startHpValue),this->startHpValue);
+
+		//startHpPercentage -- the *relative* value to use for starting HP
+		if(parametersNode->getChild("max-hp")->hasAttribute("start-percentage")) {
+			startHpPercentage= parametersNode->getChild("max-hp")->getAttribute("start-percentage")->getIntValue();
+			startHpType= stPercentage;
+		}
+
+		// No start value set; use max HP before upgrades
+		if(!parametersNode->getChild("max-hp")->hasAttribute("start-value") &&
+				!parametersNode->getChild("max-hp")->hasAttribute("start-percentage")) {
+			startHpValue= parametersNode->getChild("max-hp")->getAttribute("value")->getIntValue();
+			startHpType= stValue;
+		}
+		addItemToVault(&(this->startHpPercentage),this->startHpPercentage);
+
+		// Check that we don't use both start-value and start-percentage, as they are mutually
+		// exclusive
+		if(parametersNode->getChild("max-ep")->hasAttribute("start-value") &&
+				parametersNode->getChild("max-ep")->hasAttribute("start-percentage")) {
+					throw megaglest_runtime_error("Unit " + name +
+							" has both start-value and start-percentage for EP", validationMode);
+		}
+
+		//startEpValue -- the *absolute* value to use for starting EP
+		if(parametersNode->getChild("max-ep")->hasAttribute("start-value")) {
+			//checkItemInVault(&(this->startEp),this->startEp);
+			startEpValue= parametersNode->getChild("max-ep")->getAttribute("start-value")->getIntValue();
+			startEpType= stValue;
+		}
+		addItemToVault(&(this->startEpValue),this->startEpValue);
+
+		//startEpPercentage -- the *relative* value to use for starting EP
+		if(parametersNode->getChild("max-ep")->hasAttribute("start-percentage")) {
+			startEpPercentage= parametersNode->getChild("max-ep")->getAttribute("start-percentage")->getIntValue();
+			startEpType= stPercentage;
+		}
+		addItemToVault(&(this->startEpPercentage),this->startEpPercentage);
 
 		//maxUnitCount
 		if(parametersNode->hasChild("max-unit-count")) {
@@ -274,6 +355,10 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		//multi selection
 		multiSelect= parametersNode->getChild("multi-selection")->getAttribute("value")->getBoolValue();
 
+		//commandable
+		if(parametersNode->hasChild("commandable")){
+			commandable= parametersNode->getChild("commandable")->getAttribute("value")->getBoolValue();
+		}
 		//cellmap
 		allowEmptyCellMap = false;
 		const XmlNode *cellMapNode= parametersNode->getChild("cellmap");
@@ -378,6 +463,35 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 					}
 
 					damageParticleSystemTypes.push_back(unitParticleSystemType);
+				}
+			}
+		}
+
+		//healthbar
+		if(parametersNode->hasChild("healthbar")) {
+			const XmlNode *healthbarNode= parametersNode->getChild("healthbar");
+			if(healthbarNode->hasChild("height")) {
+				healthbarheight= healthbarNode->getChild("height")->getAttribute("value")->getFloatValue();
+			}
+			if(healthbarNode->hasChild("thickness")) {
+				healthbarthickness= healthbarNode->getChild("thickness")->getAttribute("value")->getFloatValue(0.f, 1.f);
+			}
+			if(healthbarNode->hasChild("visible")) {
+				string healthbarVisibleString=healthbarNode->getChild("visible")->getAttribute("value")->getValue();
+				vector<string> v=split(healthbarVisibleString,"|");
+				for (int i = 0; i < (int)v.size(); ++i) {
+					string current=trim(v[i]);
+					if(current=="always") {
+						healthbarVisible=healthbarVisible|hbvAlways;
+					} else if(current=="selected") {
+						healthbarVisible=healthbarVisible|hbvSelected;
+					} else if(current=="ifNeeded") {
+						healthbarVisible=healthbarVisible|hbvIfNeeded;
+					} else if(current=="off") {
+						healthbarVisible=healthbarVisible|hbvOff;
+					} else {
+						throw megaglest_runtime_error("Unknown Healthbar Visible Option: " + current, validationMode);
+					}
 				}
 			}
 		}
@@ -532,6 +646,76 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 			}
 		}
 		sortedItems.clear();
+		//hasDup = false;
+
+		// Lootable resources (resources given/lost on death)
+		if(parametersNode->hasChild("resources-death")) {
+			const XmlNode *deathResourcesNode= parametersNode->getChild("resources-death");
+
+			for(unsigned int i = 0; i < deathResourcesNode->getChildCount(); ++i){
+				const XmlNode *resourceNode= deathResourcesNode->getChild("resource", i);
+				string name= resourceNode->getAttribute("name")->getRestrictedValue();
+
+				LootableResource resource;
+				resource.setResourceType(techTree->getResourceType(name));
+
+				// All attributes are optional, although nothing happens if they aren't used. They can
+				// be combined freely. Percentages will take affect before absolute values.
+				if(resourceNode->hasAttribute("amount-value")) {
+					resource.setAmountValue(resourceNode->getAttribute("amount-value")->getIntValue());
+				}
+				else {
+					resource.setAmountValue(0);
+				}
+				
+				if(resourceNode->hasAttribute("amount-faction-percent")) {
+					resource.setAmountFactionPercent(resourceNode->getAttribute("amount-faction-percent")->getIntValue());
+				}
+				else {
+					resource.setAmountFactionPercent(0);
+				}
+
+				if(resourceNode->hasAttribute("loss-value")) {
+					resource.setLossValue(resourceNode->getAttribute("loss-value")->getIntValue());
+				}
+				else {
+					resource.setLossValue(0);
+				}
+				
+				if(resourceNode->hasAttribute("loss-faction-percent")) {
+					resource.setLossFactionPercent(resourceNode->getAttribute("loss-faction-percent")->getIntValue());
+				}
+				else {
+					resource.setLossFactionPercent(0);
+				}
+				
+				if(resourceNode->hasAttribute("allow-negative")) {
+					resource.setNegativeAllowed(resourceNode->getAttribute("allow-negative")->getBoolValue());
+				}
+				else {
+					resource.setNegativeAllowed(false);
+				}
+
+				// Figure out if there are duplicate resources. The value stored in the map is arbitrary,
+				// and exists solely because 
+				if(std::find(lootableResources.begin(), lootableResources.end(), resource) != lootableResources.end()) {
+					printf("WARNING, unit type [%s] has one or more duplicate lootable resources\n", this->getName(false).c_str());
+				}
+
+				lootableResources.push_back(resource);
+			}
+		}
+
+		// Tags
+		if(parametersNode->hasChild("tags")) {
+			const XmlNode *tagsNode= parametersNode->getChild("tags");
+
+			for(unsigned int i = 0; i < tagsNode->getChildCount(); ++i){
+				const XmlNode *resourceNode= tagsNode->getChild("tag", i);
+				string tag= resourceNode->getAttribute("value")->getRestrictedValue();
+				tags.insert(tag);
+			}
+		}
 
 		//image
 		const XmlNode *imageNode= parametersNode->getChild("image");
@@ -1100,6 +1284,8 @@ std::string UnitType::toString() const {
 	result += " maxHp = " + intToStr(maxHp);
 	result += " hpRegeneration = " + intToStr(hpRegeneration);
 	result += " maxEp = " + intToStr(maxEp);
+	result += " startEpValue = " + intToStr(startEpValue);
+	result += " startEpPercentage = " + intToStr(startEpPercentage);
 	result += " epRegeneration = " + intToStr(epRegeneration);
 	result += " maxUnitCount = " + intToStr(getMaxUnitCount());
 
@@ -1120,6 +1306,7 @@ std::string UnitType::toString() const {
 	result += " light = " + intToStr(light);
 	result += " lightColor = " + lightColor.getString();
 	result += " multiSelect = " + intToStr(multiSelect);
+	result += " commandable = " + intToStr(commandable);
 	result += " sight = " + intToStr(sight);
 	result += " size = " + intToStr(size);
 	result += " height = " + intToStr(height);

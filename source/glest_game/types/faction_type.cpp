@@ -16,6 +16,7 @@
 #include "xml_parser.h"
 #include "tech_tree.h"
 #include "resource.h"
+#include "renderer.h"
 #include "platform_util.h"
 #include "game_util.h"
 #include "conversion.h"
@@ -34,6 +35,15 @@ FactionType::FactionType() {
 	music			= NULL;
 	personalityType = fpt_Normal;
 	isLinked		= false;
+	healthbarheight= -100.0f;
+	healthbarthickness= 0.11f;
+	healthbarVisible=hbvUndefined;
+	healthbarBorderTextureEnabled=false;
+	healthbarBackgroundTextureEnabled=false;
+	healthbarLineBorder=true;
+	healthbarTexture=NULL;
+	healthbarBackgroundTexture=NULL;
+	flatParticlePositions=false;
 }
 
 //load a faction, given a directory
@@ -270,6 +280,64 @@ void FactionType::load(const string &factionName, const TechTree *techTree, Chec
 			music= new StrSound();
 			music->open(musicNode->getAttribute("path")->getRestrictedValue(currentPath));
 			loadedFileList[musicNode->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(path,musicNode->getAttribute("path")->getRestrictedValue()));
+		}
+
+		if(factionNode->hasChild("flat-particle-positions")) {
+			const XmlNode *node= factionNode->getChild("flat-particle-positions");
+			flatParticlePositions = node->getAttribute("value")->getBoolValue();
+		}
+
+		//healthbar
+		if(factionNode->hasChild("healthbar")) {
+			const XmlNode *healthbarNode= factionNode->getChild("healthbar");
+			if(healthbarNode->hasChild("height")) {
+				healthbarheight= healthbarNode->getChild("height")->getAttribute("value")->getFloatValue();
+			}
+			if(healthbarNode->hasChild("thickness")) {
+				healthbarthickness= healthbarNode->getChild("thickness")->getAttribute("value")->getFloatValue(0.f, 1.f);
+			}
+			if(healthbarNode->hasChild("visible")) {
+				string healthbarVisibleString=healthbarNode->getChild("visible")->getAttribute("value")->getValue();
+				vector<string> v=split(healthbarVisibleString,"|");
+				for (int i = 0; i < (int)v.size(); ++i) {
+					string current=trim(v[i]);
+					if(current=="always") {
+						healthbarVisible=healthbarVisible|hbvAlways;
+					} else if(current=="selected") {
+						healthbarVisible=healthbarVisible|hbvSelected;
+					} else if(current=="ifNeeded") {
+						healthbarVisible=healthbarVisible|hbvIfNeeded;
+					} else if(current=="off") {
+						healthbarVisible=healthbarVisible|hbvOff;
+					} else {
+						throw megaglest_runtime_error("Unknown Healthbar Visible Option: " + current, validationMode);
+					}
+				}
+			}
+			if(healthbarNode->hasChild("borderTexture")) {
+				healthbarBorderTextureEnabled=healthbarNode->getChild("borderTexture")->getAttribute("enabled")->getBoolValue();
+				if(healthbarBorderTextureEnabled && healthbarNode->getChild("borderTexture")->hasAttribute("path")) {
+					healthbarTexture= Renderer::getInstance().newTexture2D(rsGame);
+					if(healthbarTexture) {
+						healthbarTexture->load(healthbarNode->getChild("borderTexture")->getAttribute("path")->getRestrictedValue(currentPath));
+					}
+					loadedFileList[healthbarNode->getChild("borderTexture")->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(path,healthbarNode->getChild("borderTexture")->getAttribute("path")->getRestrictedValue()));
+					}
+				}
+			if(healthbarNode->hasChild("backgroundTexture")) {
+				healthbarBackgroundTextureEnabled=healthbarNode->getChild("backgroundTexture")->getAttribute("enabled")->getBoolValue();
+				if(healthbarBackgroundTextureEnabled && healthbarNode->getChild("backgroundTexture")->hasAttribute("path")) {
+					healthbarBackgroundTexture= Renderer::getInstance().newTexture2D(rsGame);
+					if(healthbarBackgroundTexture) {
+						healthbarBackgroundTexture->load(healthbarNode->getChild("backgroundTexture")->getAttribute("path")->getRestrictedValue(currentPath));
+					}
+					loadedFileList[healthbarNode->getChild("backgroundTexture")->getAttribute("path")->getRestrictedValue(currentPath)].push_back(make_pair(path,healthbarNode->getChild("backgroundTexture")->getAttribute("path")->getRestrictedValue()));
+				}
+			}
+			if(healthbarNode->hasChild("lineBorder")) {
+				healthbarLineBorder= healthbarNode->getChild("lineBorder")->getAttribute("enabled")->getBoolValue();
+			}
+
 		}
 
 		//read ai behavior
@@ -967,56 +1035,5 @@ string FactionType::getName(bool translatedValue) const {
 	return lang.getTechTreeString("FactionName_" + name,name.c_str());
 }
 
-void FactionType::saveGame(XmlNode *rootNode) {
-	std::map<string,string> mapTagReplacements;
-	XmlNode *factionTypeNode = rootNode->addChild("FactionType");
-
-//    string name;
-	factionTypeNode->addAttribute("name",name, mapTagReplacements);
-//    UnitTypes unitTypes;
-	for(unsigned int i = 0; i < unitTypes.size(); ++i) {
-		XmlNode *unitTypesNode = factionTypeNode->addChild("unitTypes");
-		unitTypesNode->addAttribute("name",unitTypes[i].getName(false), mapTagReplacements);
-	}
-//    UpgradeTypes upgradeTypes;
-	for(unsigned int i = 0; i < upgradeTypes.size(); ++i) {
-		XmlNode *upgradeTypesNode = factionTypeNode->addChild("upgradeTypes");
-		upgradeTypesNode->addAttribute("name",upgradeTypes[i].getName(false), mapTagReplacements);
-	}
-
-//	StartingUnits startingUnits;
-	for(unsigned int i = 0; i < startingUnits.size(); ++i) {
-		XmlNode *startingUnitsNode = factionTypeNode->addChild("startingUnits");
-		startingUnitsNode->addAttribute("name",startingUnits[i].first->getName(false), mapTagReplacements);
-		startingUnitsNode->addAttribute("count",intToStr(startingUnits[i].second), mapTagReplacements);
-	}
-
-//	Resources startingResources;
-	for(unsigned int i = 0; i < startingResources.size(); ++i) {
-		startingResources[i].saveGame(factionTypeNode);
-	}
-
-//	StrSound *music;
-//	FactionPersonalityType personalityType;
-	factionTypeNode->addAttribute("personalityType",intToStr(personalityType), mapTagReplacements);
-//	std::map<AIBehaviorUnitCategory, std::vector<PairPUnitTypeInt> > mapAIBehaviorUnitCategories;
-	for(std::map<AIBehaviorUnitCategory, std::vector<PairPUnitTypeInt> >::iterator iterMap = mapAIBehaviorUnitCategories.begin();
-			iterMap != mapAIBehaviorUnitCategories.end(); ++iterMap) {
-
-		std::vector<PairPUnitTypeInt> &vct = iterMap->second;
-		for(unsigned int i = 0; i < vct.size(); ++i) {
-			PairPUnitTypeInt &item = vct[i];
-
-			XmlNode *mapAIBehaviorUnitCategoriesNode = factionTypeNode->addChild("mapAIBehaviorUnitCategories");
-			mapAIBehaviorUnitCategoriesNode->addAttribute("key",intToStr(iterMap->first), mapTagReplacements);
-			mapAIBehaviorUnitCategoriesNode->addAttribute("unitType",item.first->getName(false), mapTagReplacements);
-			mapAIBehaviorUnitCategoriesNode->addAttribute("count",intToStr(item.second), mapTagReplacements);
-		}
-	}
-//	std::vector<const UpgradeType*> vctAIBehaviorUpgrades;
-	//for(unsigned int i = 0; i < vctAIBehaviorUpgrades.size(); ++i) {
-	//	vctAIBehaviorUpgrades[i]->saveGame(factionTypeNode);
-	//}
-}
 
 }}//end namespace

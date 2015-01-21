@@ -673,6 +673,19 @@ bool Faction::canUnitsPathfind() {
 	return result;
 }
 
+void Faction::setLockedUnitForFaction(const UnitType *ut, bool lock) {
+	if (lock) {
+		lockedUnits.insert(ut);
+	} else {
+		std::set<const UnitType*>::iterator it;
+		it=lockedUnits.find(ut);
+		if(it!=lockedUnits.end()) {
+			lockedUnits.erase(it);
+		}
+	}
+
+}
+
 void Faction::signalWorkerThread(int frameIndex) {
 	if(workerThread != NULL) {
 		workerThread->signalPathfinder(frameIndex);
@@ -718,8 +731,12 @@ void Faction::init(
 			store[index].init(rt, 0);
 
 			this->world->initTeamResource(rt,this->teamIndex,0);
-			this->updateUnitTypeWithResourceCostCache(rt);
 		}
+	}
+	//initialize cache
+	for(int index = 0; index < techTree->getResourceTypeCount(); ++index) {
+		const ResourceType *rt	= techTree->getResourceType(index);
+		this->updateUnitTypeWithResourceCostCache(rt);
 	}
 
 	texture= Renderer::getInstance().newTexture2D(rsGame);
@@ -912,6 +929,10 @@ bool Faction::reqsOk(const RequirableType *rt) const {
 				if(SystemFlags::getSystemSettingType(SystemFlags::debugLUA).enabled) SystemFlags::OutputDebug(SystemFlags::debugLUA,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__, __LINE__);
 		        return false;
 			}
+   		}
+
+   		if(producedUnitType != NULL && isUnitLocked(producedUnitType)) {
+   			return false;
    		}
     }
 
@@ -1203,13 +1224,13 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 
 					//decrease unit hp
 					if(scriptManager->getPlayerModifiers(this->index)->getConsumeEnabled() == true) {
-						bool decHpResult = unit->decHp(unit->getType()->getMaxHp() / 3);
+						bool decHpResult = unit->decHp(unit->getType()->getTotalMaxHp(unit->getTotalUpgrade()) / 3);
 						if(decHpResult) {
 							unit->setCauseOfDeath(ucodStarvedResource);
 							world->getStats()->die(unit->getFactionIndex(),unit->getType()->getCountUnitDeathInStats());
 							scriptManager->onUnitDied(unit);
 						}
-						StaticSound *sound= unit->getType()->getFirstStOfClass(scDie)->getSound();
+						StaticSound *sound= static_cast<const DieSkillType *>(unit->getType()->getFirstStOfClass(scDie))->getSound();
 						if(sound != NULL &&
 							(thisFaction == true || world->showWorldForPlayer(world->getThisTeamIndex()) == true)) {
 							SoundRenderer::getInstance().playFx(sound);
@@ -1261,14 +1282,29 @@ bool Faction::isAlly(const Faction *faction) {
 // ================== misc ==================
 
 void Faction::incResourceAmount(const ResourceType *rt, int amount) {
-	for(int i=0; i < (int)resources.size(); ++i) {
-		Resource *r= &resources[i];
-		if(r->getType()==rt) {
-			r->setAmount(r->getAmount()+amount);
-			if(r->getType()->getClass() != rcStatic && r->getAmount()>getStoreAmount(rt)) {
-				r->setAmount(getStoreAmount(rt));
+	if (world != NULL && world->getGame() != NULL
+			&& world->getGame()->isFlagType1BitEnabled(
+					ft1_allow_shared_team_resources) == true) {
+		for(int i=0; i < (int)resources.size(); ++i) {
+			Resource *r= &resources[i];
+			if(r->getType()==rt) {
+				r->setAmount(r->getAmount()+amount);
+				if(r->getType()->getClass() != rcStatic && (getResource(rt,false)->getAmount()+amount)>getStoreAmount(rt,false)) {
+					r->setAmount(getStoreAmount(rt,false)-(getResource(rt,false)->getAmount()-r->getAmount()));
+				}
+				return;
 			}
-			return;
+		}
+	} else {
+		for(int i=0; i < (int)resources.size(); ++i) {
+			Resource *r= &resources[i];
+			if(r->getType()==rt) {
+				r->setAmount(r->getAmount()+amount);
+				if(r->getType()->getClass() != rcStatic && r->getAmount()>getStoreAmount(rt)) {
+					r->setAmount(getStoreAmount(rt));
+				}
+				return;
+			}
 		}
 	}
 	assert(false);
@@ -1318,7 +1354,7 @@ void Faction::removeUnit(Unit *unit){
 	//assert(false);
 }
 
-void Faction::addStore(const UnitType *unitType, bool replaceStorage) {
+void Faction::addStore(const UnitType *unitType) {
 	assert(unitType != NULL);
 	for(int newUnitStoredResourceIndex = 0;
 			newUnitStoredResourceIndex < unitType->getStoredResourceCount();
@@ -1331,12 +1367,7 @@ void Faction::addStore(const UnitType *unitType, bool replaceStorage) {
 			Resource *storedResource= &store[currentStoredResourceIndex];
 
 			if(storedResource->getType() == newUnitStoredResource->getType()) {
-				if(replaceStorage == true) {
-					storedResource->setAmount(newUnitStoredResource->getAmount());
-				}
-				else {
-					storedResource->setAmount(storedResource->getAmount() + newUnitStoredResource->getAmount());
-				}
+				storedResource->setAmount(storedResource->getAmount() + newUnitStoredResource->getAmount());
 			}
 		}
 	}
@@ -1357,11 +1388,23 @@ void Faction::removeStore(const UnitType *unitType){
 }
 
 void Faction::limitResourcesToStore() {
-	for(int i=0; i < (int)resources.size(); ++i) {
-		Resource *r= &resources[i];
-		Resource *s= &store[i];
-		if(r->getType()->getClass() != rcStatic && r->getAmount()>s->getAmount()) {
-			r->setAmount(s->getAmount());
+	if (world != NULL && world->getGame() != NULL
+			&& world->getGame()->isFlagType1BitEnabled(
+					ft1_allow_shared_team_resources) == true) {
+		for(int i=0; i < (int)resources.size(); ++i) {
+			Resource *r= &resources[i];
+			const ResourceType *rt= r->getType();
+			if(rt->getClass() != rcStatic && (getResource(rt,false)->getAmount())>getStoreAmount(rt,false)) {
+				r->setAmount(getStoreAmount(rt,false)-(getResource(rt,false)->getAmount()-r->getAmount()));
+			}
+		}
+	} else {
+		for(int i=0; i < (int)resources.size(); ++i) {
+			Resource *r= &resources[i];
+			Resource *s= &store[i];
+			if(r->getType()->getClass() != rcStatic && r->getAmount()>s->getAmount()) {
+				r->setAmount(s->getAmount());
+			}
 		}
 	}
 }
@@ -2250,6 +2293,13 @@ void Faction::saveGame(XmlNode *rootNode) {
 	factionNode->addAttribute("currentSwitchTeamVoteFactionIndex",intToStr(currentSwitchTeamVoteFactionIndex), mapTagReplacements);
 	factionNode->addAttribute("allowSharedTeamUnits",intToStr(allowSharedTeamUnits), mapTagReplacements);
 
+	for(std::set<const UnitType*>::iterator iterMap = lockedUnits.begin();
+			iterMap != lockedUnits.end(); ++iterMap) {
+		XmlNode *lockedUnitsListNode = factionNode->addChild("lockedUnitList");
+		const UnitType *ut=*iterMap;
+
+		lockedUnitsListNode->addAttribute("value",ut->getName(false), mapTagReplacements);
+	}
 
 	for(std::map<int,int>::iterator iterMap = unitsMovingList.begin();
 			iterMap != unitsMovingList.end(); ++iterMap) {
@@ -2341,6 +2391,14 @@ void Faction::loadGame(const XmlNode *rootNode, int factionIndex,GameSettings *s
 		}
 
 		random.setLastNumber(factionNode->getAttribute("random")->getIntValue());
+
+		vector<XmlNode *> lockedUnitsListNodeList = factionNode->getChildList("lockedUnitList");
+		for(unsigned int i = 0; i < lockedUnitsListNodeList.size(); ++i) {
+			XmlNode *lockedUnitsListNode = lockedUnitsListNodeList[i];
+
+			string unitName = lockedUnitsListNode->getAttribute("value")->getValue();
+			lockedUnits.insert(getType()->getUnitType(unitName));
+		}
 
 		vector<XmlNode *> unitsMovingListNodeList = factionNode->getChildList("unitsMovingList");
 		for(unsigned int i = 0; i < unitsMovingListNodeList.size(); ++i) {

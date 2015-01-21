@@ -1818,9 +1818,9 @@ bool Socket::isConnected() {
 		int err = peek(&tmp, peekDataBytes, false, &lastSocketError);
 		//if(err <= 0 && err != PLATFORM_SOCKET_TRY_AGAIN) {
 		//if(err <= 0 && lastSocketError != 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN) {
-		if((err < 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN) || (err == 0 && peekDataBytes != 0) ||
-			((err == 0 || err == -1) && peekDataBytes == 0 && lastSocketError != 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN)) {
-
+		//if((err < 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN) || (err == 0 && peekDataBytes != 0) ||
+		//	((err == 0 || err == -1) && peekDataBytes == 0 && lastSocketError != 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN)) {
+		if((err < 0 && lastSocketError != PLATFORM_SOCKET_TRY_AGAIN) || (err == 0 && peekDataBytes != 0)) {
 			//printf("IsConnected socket has disconnected sock = %d err = %d lastSocketError = %d\n",sock,err,lastSocketError);
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"[%s::%s Line: %d] ERROR Peek failed, err = %d for socket: %d, error = %s, lastSocketError = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,getLastSocketErrorFormattedText().c_str(),lastSocketError);
 			if(SystemFlags::VERBOSE_MODE_ENABLED) SystemFlags::OutputDebug(SystemFlags::debugError,"SOCKET DISCONNECTED In [%s::%s Line: %d] ERROR Peek failed, err = %d for socket: %d, error = %s, lastSocketError = %d\n",__FILE__,__FUNCTION__,__LINE__,err,sock,getLastSocketErrorFormattedText().c_str(),lastSocketError);
@@ -2634,10 +2634,10 @@ int UPNP_Tools::upnp_init(void *param) {
 			}
 
 			if(ServerSocket::cancelUpnpdiscoverThread == true) {
-				if(devlist != NULL) {
-					freeUPNPDevlist(devlist);
-				}
-				devlist = NULL;
+				//if(devlist != NULL) {
+				//	freeUPNPDevlist(devlist);
+				//}
+				//devlist = NULL;
 				return result;
 			}
 
@@ -2676,10 +2676,10 @@ int UPNP_Tools::upnp_init(void *param) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"No UPnP devices found.\n");
 
 			if(ServerSocket::cancelUpnpdiscoverThread == true) {
-				if(devlist != NULL) {
-					freeUPNPDevlist(devlist);
-				}
-				devlist = NULL;
+				//if(devlist != NULL) {
+				//	freeUPNPDevlist(devlist);
+				//}
+				//devlist = NULL;
 				return result;
 			}
 
@@ -2695,10 +2695,10 @@ int UPNP_Tools::upnp_init(void *param) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugNetwork).enabled) SystemFlags::OutputDebug(SystemFlags::debugNetwork,"UPnP detection routine disabled by user.\n");
 
 		if(ServerSocket::cancelUpnpdiscoverThread == true) {
-			if(devlist != NULL) {
-				freeUPNPDevlist(devlist);
-			}
-			devlist = NULL;
+			//if(devlist != NULL) {
+			//	freeUPNPDevlist(devlist);
+			//}
+			//devlist = NULL;
 			return result;
 		}
 

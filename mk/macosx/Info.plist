@@ -5,13 +5,13 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>MegaGlest</string>
+	<string>megaglest</string>
 	<key>CFBundleGetInfoString</key>
-	<string>${MEGAGLEST_VERSION}, © 2001-2010 The Glest Team All Rights Reserved.</string>
+	<string>${VER_MAJOR}.${VER_MINOR}.${VER_RELEASE}, © 2001-2015 The Glest Team All Rights Reserved.</string>
 	<key>CFBundleIconFile</key>
 	<string>MegaGlest</string>
 	<key>CFBundleIdentifier</key>
-	<string>geovah.MegaGlest</string>
+	<string>org.megaglest.v${VER_MAJOR}-${VER_MINOR}-${VER_RELEASE}</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -19,11 +19,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>${MEGAGLEST_VERSION}</string>
+	<string>${VER_MAJOR}.${VER_MINOR}.${VER_RELEASE}</string>
 	<key>CFBundleSignature</key>
-	<string>????</string>
+	<string>MGGL</string>
 	<key>CFBundleVersion</key>
-	<string>${MEGAGLEST_VERSION}</string>
+	<string>${VER_MAJOR}.${VER_MINOR}.${VER_RELEASE}</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>

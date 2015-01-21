@@ -327,9 +327,9 @@ public:
 	bool isFreeCellOrHasUnit(const Vec2i &pos, Field field, const Unit *unit) const;
 	bool isAproxFreeCell(const Vec2i &pos, Field field, int teamIndex) const;
 	bool isFreeCells(const Vec2i &pos, int size, Field field) const;
-	bool isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field, const Unit *unit, const UnitType *munit, bool allowNullUnit=false) const;
+	bool isFreeCellsOrHasUnit(const Vec2i &pos, int size, Field field, const Unit *unit) const;
 	bool isAproxFreeCells(const Vec2i &pos, int size, Field field, int teamIndex) const;
-
+	bool canMorph(const Vec2i &pos,const Unit *currentUnit,const UnitType *targetUnitType ) const;
 	bool canOccupy(const Vec2i &pos, Field field, const UnitType *ut, CardinalDir facing);
 
 	//unit placement

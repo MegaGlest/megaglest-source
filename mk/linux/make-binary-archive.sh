@@ -54,11 +54,11 @@ fi
 cd $PROJDIR
 echo "copying binaries ..."
 cp -r lib/* "$RELEASEDIR/lib"
-cp *.ico "$RELEASEDIR/"
+cp {../shared/,}*.ico "$RELEASEDIR/"
 cp *.bmp "$RELEASEDIR/"
 cp *.png "$RELEASEDIR/"
 cp *.xpm "$RELEASEDIR/"
-cp *.ini "$RELEASEDIR/"
+cp {../shared/,}*.ini "$RELEASEDIR/"
 cp megaglest "$RELEASEDIR/"
 cp megaglest_editor "$RELEASEDIR/"
 cp megaglest_g3dviewer "$RELEASEDIR/"

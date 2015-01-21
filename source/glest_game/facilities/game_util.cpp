@@ -19,6 +19,7 @@
 #include "platform_util.h"
 #include "conversion.h"
 #include "cache_manager.h"
+#include "errno.h"
 #include "leak_dumper.h"
 
 using namespace Shared::Util;
@@ -27,7 +28,13 @@ using namespace Shared::Platform;
 namespace Glest { namespace Game {
 
 const char *mailString				= " http://bugs.megaglest.org";
-const string glestVersionString 	= "v3.10.0-dev";
+
+// !! Use minor versions !!  Only major and minor version control compatibility!
+// typical version numbers look like this: v3.11-beta1.0   v3.12-dev   v3.12.0
+// don't forget to update mk/linux/mg-version.sh
+const string glestVersionString 	= "v3.11.0";
+const string lastCompatibleSaveGameVersionString 	= "v3.9.0";
+
 #if defined(GITVERSION)
     const string GIT_RawRev			= string(GITVERSION);
     const string GIT_Rev 			= string("Rev: ") + string(GITVERSION);
@@ -47,7 +54,7 @@ string getCrashDumpFileName(){
 	return "megaglest" + glestVersionString + ".dmp";
 }
 
-string getPlatformNameString() {
+string getPlatformTypeNameString() {
 	static string platform;
 	if(platform == "") {
 #if defined(WIN32)
@@ -89,23 +96,38 @@ string getPlatformNameString() {
 #else
 	platform = "???";
 #endif
+	}
+	return platform;
+}
+
+string getPlatformArchTypeNameString() {
+	static string platform;
+	if(platform == "") {
 
 #if defined(_M_X64) || defined(_M_AMD64) || defined(__x86_64__) || defined(_WIN64)
-	platform += "-X64";
+	platform = "-X64";
 #elif defined(_M_ALPHA) || defined(__alpha__)
-	platform += "-ALPHA";
+	platform = "-ALPHA";
 #elif defined(_M_IA64) || defined(__ia64__)
-	platform += "-IA64";
+	platform = "-IA64";
 #elif defined(_M_MRX000) || defined(__mips__)
-	platform += "-MIPS";
+	platform = "-MIPS";
 #elif defined(_M_PPC) || defined(__powerpc__)
-	platform += "-POWERPC";
+	platform = "-POWERPC";
 #elif defined(__sparc__)
-	platform += "-SPARC";
+	platform = "-SPARC";
 #elif defined(_M_ARM_FP) || defined(__arm__) || defined(_M_ARM)
-	platform += "-ARM";
+	platform = "-ARM";
 
 #endif
+	}
+	return platform;
+}
+
+string getPlatformNameString() {
+	static string platform;
+	if(platform == "") {
+		platform = getPlatformTypeNameString() + getPlatformArchTypeNameString();
 	}
 	return platform;
 }
@@ -191,7 +213,7 @@ string getAboutString1(int i) {
 	case 0: return "MegaGlest " + glestVersionString + " (" + "Shared Library " + sharedLibVersionString + ")";
 	case 1: return "Built: " + string(__DATE__) + " " + GIT_Rev;
 	case 2: return "Copyright 2001-2010 The Glest Team";
-	case 3: return "Copyright 2010-2014 The MegaGlest Team";
+	case 3: return "Copyright 2010-2015 The MegaGlest Team";
 	}
 	return "";
 }
@@ -347,6 +369,42 @@ void initSpecialStrings() {
 	getNetworkVersionGITString();
 	getNetworkPlatformFreeVersionString();
 	getCompileDateTime();
+}
+
+bool upgradeFilesInTemp() {
+	// Get path to temp files
+	string tempFilePath = "temp/";
+	if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+		tempFilePath = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + tempFilePath;
+	}
+	else {
+		Config &config = Config::getInstance();
+		string userData = config.getString("UserData_Root","");
+		if(userData != "") {
+			endPathWithSlash(userData);
+		}
+		tempFilePath = userData + tempFilePath;
+	}
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Temp files path [%s]\n",tempFilePath.c_str());
+
+	// Move all files into binary folder
+	bool anyFailures = false;
+	vector<string> fileList = getFolderTreeContentsListRecursively(tempFilePath, "", false, NULL);
+	for(unsigned int index = 0; index < fileList.size(); ++index) {
+		string fileName = fileList[index];
+		string newFileName = Properties::getApplicationPath() + extractFileFromDirectoryPath(fileName);
+		bool result = renameFile(fileName,newFileName);
+		if(result == false) {
+			printf("FAILED Rename: [%s] to [%s] result = %d errno = %d\n",fileName.c_str(),newFileName.c_str(),result,errno);
+
+			anyFailures = true;
+		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Rename: [%s] to [%s] result = %d\n",fileName.c_str(),newFileName.c_str(),result);
+	}
+
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Successfully updated!\n");
+
+	return (fileList.size() > 0 && anyFailures == false);
 }
 
 }}//end namespace

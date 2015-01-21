@@ -218,6 +218,7 @@ const void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
 	for(Children::iterator i=children.begin(); i!=children.end(); ++i){
 		UnitParticleSystem *child = new UnitParticleSystem();
 		child->setParticleOwner(ups->getParticleOwner());
+		child->setParticleType((*i));
 		(*i)->setValues(child);
 		ups->addChild(child);
 	}
@@ -233,6 +234,8 @@ const void UnitParticleSystemType::setValues(UnitParticleSystem *ups){
 	ups->setColor(color);
 	ups->setColorNoEnergy(colorNoEnergy);
 	ups->setSpeed(speed);
+	ups->setSpeedUpRelative(speedUpRelative);
+	ups->setSpeedUpConstant(speedUpConstant);
 	ups->setGravity(gravity);
 	ups->setParticleSize(size);
 	ups->setSizeNoEnergy(sizeNoEnergy);

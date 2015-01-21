@@ -113,6 +113,7 @@ void Object::initParticlesFromTypes(const ModelParticleSystemTypes *particleType
 		for(ObjectParticleSystemTypes::const_iterator it= particleTypes->begin(); it != particleTypes->end(); ++it){
 			UnitParticleSystem *ups= new UnitParticleSystem(200);
 			ups->setParticleOwner(this);
+			ups->setParticleType((*it));
 			(*it)->setValues(ups);
 			ups->setPos(this->pos);
 			ups->setRotation(this->rotation);

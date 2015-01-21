@@ -25,6 +25,7 @@
 #include "network_message.h"
 #include "socket.h"
 #include "auto_test.h"
+#include <stdio.h>
 
 #include "leak_dumper.h"
 
@@ -34,10 +35,16 @@ namespace Glest{ namespace Game{
 // 	class MenuStateRoot
 // =====================================================
 
+bool MenuStateRoot::gameUpdateChecked = false;
+
 MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
-	MenuState(program, mainMenu, "root")
+	MenuState(program, mainMenu, "root"), updatesHttpServerThread(NULL)
 {
 	containerName = "MainMenu";
+
+	ftpClientThread 		= NULL;
+	lastDownloadProgress	= 0;
+
 	Lang &lang= Lang::getInstance();
 	int yPos=440;
 
@@ -87,6 +94,10 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	errorMessageBox.init(lang.getString("Ok"));
 	errorMessageBox.setEnabled(false);
 
+	ftpMessageBox.registerGraphicComponent(containerName,"ftpMessageBox");
+	ftpMessageBox.init(lang.getString("Yes"), lang.getString("No"));
+	ftpMessageBox.setEnabled(false);
+
 	//PopupMenu popupMenu;
 	std::vector<string> menuItems;
 	menuItems.push_back("1");
@@ -99,6 +110,57 @@ MenuStateRoot::MenuStateRoot(Program *program, MainMenu *mainMenu):
 	popupMenu.setVisible(false);
 
 	GraphicComponent::applyAllCustomProperties(containerName);
+}
+
+MenuStateRoot::~MenuStateRoot() {
+	if(updatesHttpServerThread != NULL) {
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		updatesHttpServerThread->setSimpleTaskInterfaceValid(false);
+		updatesHttpServerThread->signalQuit();
+		updatesHttpServerThread->setThreadOwnerValid(false);
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		if( updatesHttpServerThread->canShutdown(true) == true &&
+				updatesHttpServerThread->shutdownAndWait() == true) {
+			delete updatesHttpServerThread;
+		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		updatesHttpServerThread = NULL;
+	}
+
+	if(ftpClientThread != NULL) {
+		ftpClientThread->setCallBackObject(NULL);
+		ftpClientThread->signalQuit();
+		sleep(0);
+		if(ftpClientThread->canShutdown(true) == true &&
+				ftpClientThread->shutdownAndWait() == true) {
+			delete ftpClientThread;
+		}
+		else {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"In [%s::%s %d] Error cannot shutdown ftpClientThread\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+			//SystemFlags::OutputDebug(SystemFlags::debugError,szBuf);
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("%s",szBuf);
+			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"%s",szBuf);
+
+			//publishToMasterserverThread->cleanup();
+		}
+		ftpClientThread = NULL;
+
+//		ftpClientThread->signalQuit();
+//	    ftpClientThread->setCallBackObject(NULL);
+//	    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+//	    if( ftpClientThread->shutdownAndWait() == true) {
+//	    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+//            delete ftpClientThread;
+//	    }
+//	    ftpClientThread = NULL;
+//	    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+
 }
 
 void MenuStateRoot::reloadUI() {
@@ -122,6 +184,8 @@ void MenuStateRoot::reloadUI() {
 
 	mainMessageBox.init(lang.getString("Yes"), lang.getString("No"));
 	errorMessageBox.init(lang.getString("Ok"));
+	ftpMessageBox.init(lang.getString("Yes"), lang.getString("No"));
+
 	console.resetFonts();
 
 	GraphicComponent::reloadFontsForRegisterGraphicComponents(containerName);
@@ -163,6 +227,28 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 				errorMessageBox.setEnabled(false);
 			}
 		}
+
+		else if(ftpMessageBox.getEnabled()) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+			int button= 0;
+			if(ftpMessageBox.mouseClick(x, y, button)) {
+				ftpMessageBox.setEnabled(false);
+				if(button == 0) {
+					startFTPClientIfRequired();
+
+					lastDownloadProgress = 0;
+					printf("Adding ftpFileName [%s] ftpFileURL [%s]\n",ftpFileName.c_str(),ftpFileURL.c_str());
+					if(ftpClientThread != NULL) ftpClientThread->addTempFileToRequests(ftpFileName,ftpFileURL);
+
+					static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+					MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+					if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
+					fileFTPProgressList[ftpFileName] = pair<int,string>(0,"");
+					safeMutexFTPProgress.ReleaseLock();
+				}
+			}
+		}
 		else if(mainMessageBox.getEnabled() == false && buttonNewGame.mouseClick(x, y)){
 			soundRenderer.playFx(coreData.getClickSoundB());
 			mainMenu->setState(new MenuStateNewGame(program, mainMenu));
@@ -196,6 +282,201 @@ void MenuStateRoot::mouseClick(int x, int y, MouseButton mouseButton){
 	}
 }
 
+void MenuStateRoot::startFTPClientIfRequired() {
+	if(ftpClientThread == NULL) {
+		// Setup File Transfer thread
+		Config &config = Config::getInstance();
+
+		vector<string> tilesetFiles;
+		vector<string> tilesetFilesUserData;
+
+		vector<string> techTreeFiles;
+		vector<string> techTreeFilesUserData;
+
+
+		findDirs(config.getPathListForType(ptTilesets), tilesetFiles);
+		findDirs(config.getPathListForType(ptTechs), techTreeFiles);
+
+		vector<string> mapPathList = config.getPathListForType(ptMaps);
+		std::pair<string,string> mapsPath;
+		if(mapPathList.empty() == false) {
+			mapsPath.first = mapPathList[0];
+		}
+		if(mapPathList.size() > 1) {
+			mapsPath.second = mapPathList[1];
+		}
+		std::pair<string,string> tilesetsPath;
+		vector<string> tilesetsList = Config::getInstance().getPathListForType(ptTilesets);
+		if(tilesetsList.empty() == false) {
+			tilesetsPath.first = tilesetsList[0];
+			if(tilesetsList.size() > 1) {
+				tilesetsPath.second = tilesetsList[1];
+			}
+		}
+
+		std::pair<string,string> techtreesPath;
+		vector<string> techtreesList = Config::getInstance().getPathListForType(ptTechs);
+		if(techtreesList.empty() == false) {
+			techtreesPath.first = techtreesList[0];
+			if(techtreesList.size() > 1) {
+				techtreesPath.second = techtreesList[1];
+			}
+		}
+
+		std::pair<string,string> scenariosPath;
+		vector<string> scenariosList = Config::getInstance().getPathListForType(ptScenarios);
+		if(scenariosList.empty() == false) {
+			scenariosPath.first = scenariosList[0];
+			if(scenariosList.size() > 1) {
+				scenariosPath.second = scenariosList[1];
+			}
+		}
+
+		string fileArchiveExtension = config.getString("FileArchiveExtension","");
+		string fileArchiveExtractCommand = config.getString("FileArchiveExtractCommand","");
+		string fileArchiveExtractCommandParameters = config.getString("FileArchiveExtractCommandParameters","");
+		int32 fileArchiveExtractCommandSuccessResult = config.getInt("FileArchiveExtractCommandSuccessResult","0");
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+		console.setOnlyChatMessagesInStoredLines(false);
+
+		// Get path to temp files
+		string tempFilePath = "temp/";
+		if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+			tempFilePath = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + tempFilePath;
+		}
+		else {
+			string userData = config.getString("UserData_Root","");
+			if(userData != "") {
+				endPathWithSlash(userData);
+			}
+			tempFilePath = userData + tempFilePath;
+		}
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Temp files path [%s]\n",tempFilePath.c_str());
+
+		ftpClientThread = new FTPClientThread(-1,"",
+				mapsPath,tilesetsPath,techtreesPath,scenariosPath,
+				this,fileArchiveExtension,fileArchiveExtractCommand,
+				fileArchiveExtractCommandParameters,
+				fileArchiveExtractCommandSuccessResult,
+				tempFilePath);
+		ftpClientThread->start();
+
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+	}
+}
+
+void MenuStateRoot::FTPClient_CallbackEvent(string itemName,
+		FTP_Client_CallbackType type, pair<FTP_Client_ResultType,string> result,void *userdata) {
+	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+    Lang &lang= Lang::getInstance();
+    if(type == ftp_cct_DownloadProgress) {
+        FTPClientCallbackInterface::FtpProgressStats *stats = (FTPClientCallbackInterface::FtpProgressStats *)userdata;
+        if(stats != NULL) {
+            int fileProgress = 0;
+            if(stats->download_total > 0) {
+                fileProgress = ((stats->download_now / stats->download_total) * 100.0);
+            }
+            //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] current file [%s] fileProgress = %d [now = %f, total = %f]\n",itemName.c_str(),stats->currentFilename.c_str(), fileProgress,stats->download_now,stats->download_total);
+
+            static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+            MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+            if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
+            pair<int,string> lastProgress = fileFTPProgressList[itemName];
+            fileFTPProgressList[itemName] = pair<int,string>(fileProgress,stats->currentFilename);
+            safeMutexFTPProgress.ReleaseLock();
+
+            if(itemName != "" && (lastDownloadProgress < fileProgress && fileProgress % 25 == 0)) {
+            	lastDownloadProgress = fileProgress;
+
+    			char szBuf[8096]="";
+    			snprintf(szBuf,8096,"Downloaded %d%% of file: %s",fileProgress,itemName.c_str());
+            	console.addLine(szBuf);
+            }
+        }
+    }
+    else if(type == ftp_cct_ExtractProgress) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP extract Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
+    	printf("Got FTP extract Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
+
+    	if(userdata == NULL) {
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,lang.getString("DataMissingExtractDownloadMod").c_str(),itemName.c_str());
+			//printf("%s\n",szBuf);
+			console.addLine(szBuf,true);
+    	}
+    	else {
+			char *szBuf = (char *)userdata;
+			//printf("%s\n",szBuf);
+			console.addLine(szBuf);
+    	}
+    }
+    else if(type == ftp_cct_TempFile) {
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Got FTP Callback for [%s] result = %d [%s]\n",itemName.c_str(),result.first,result.second.c_str());
+
+        static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+        MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),mutexOwnerId);
+        if(ftpClientThread != NULL && ftpClientThread->getProgressMutex() != NULL) ftpClientThread->getProgressMutex()->setOwnerId(mutexOwnerId);
+        fileFTPProgressList.erase(itemName);
+        safeMutexFTPProgress.ReleaseLock();
+
+        if(SystemFlags::VERBOSE_MODE_ENABLED) printf("### downloaded TEMP file [%s] result = %d\n",itemName.c_str(),result.first);
+
+        if(result.first == ftp_crt_SUCCESS) {
+    		// Get path to temp files
+    		string tempFilePath = "temp/";
+    		if(getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) != "") {
+    			tempFilePath = getGameReadWritePath(GameConstants::path_logs_CacheLookupKey) + tempFilePath;
+    		}
+    		else {
+    			Config &config = Config::getInstance();
+    			string userData = config.getString("UserData_Root","");
+    			if(userData != "") {
+    				endPathWithSlash(userData);
+    			}
+    			tempFilePath = userData + tempFilePath;
+    		}
+    		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Temp files path [%s]\n",tempFilePath.c_str());
+
+    		// Delete the downloaded archive
+    		if(fileExists(tempFilePath + itemName)) {
+    			removeFile(tempFilePath + itemName);
+    		}
+
+    		bool result = upgradeFilesInTemp();
+    		if(result == false) {
+    			string binaryName = Properties::getApplicationPath() + extractFileFromDirectoryPath(PlatformExceptionHandler::application_binary);
+    			string binaryNameOld = Properties::getApplicationPath() + extractFileFromDirectoryPath(PlatformExceptionHandler::application_binary) + "__REMOVE";
+    			bool resultRename = renameFile(binaryName,binaryNameOld);
+    			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Rename: [%s] to [%s] result = %d\n",binaryName.c_str(),binaryNameOld.c_str(),resultRename);
+    			printf("#1 Rename: [%s] to [%s] result = %d errno = %d\n",binaryName.c_str(),binaryNameOld.c_str(),resultRename, errno);
+
+    			//result = upgradeFilesInTemp();
+    			binaryName = Properties::getApplicationPath() + extractFileFromDirectoryPath(PlatformExceptionHandler::application_binary);
+    			binaryNameOld = tempFilePath + extractFileFromDirectoryPath(PlatformExceptionHandler::application_binary);
+    			resultRename = renameFile(binaryNameOld, binaryName);
+
+    			//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Rename: [%s] to [%s] result = %d\n",binaryName.c_str(),binaryNameOld.c_str(),resultRename);
+    			printf("#2 Rename: [%s] to [%s] result = %d errno = %d\n",binaryNameOld.c_str(),binaryName.c_str(),resultRename, errno);
+    		}
+
+    		console.addLine("Successfully updated, please restart!",true);
+        }
+        else {
+			curl_version_info_data *curlVersion= curl_version_info(CURLVERSION_NOW);
+
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,"FAILED to download the updates: [%s] using CURL version [%s] [%s]",itemName.c_str(),curlVersion->version,result.second.c_str());
+			console.addLine(szBuf,true);
+			showErrorMessageBox(szBuf, "ERROR", false);
+        }
+    }
+}
+
+
 void MenuStateRoot::mouseMove(int x, int y, const MouseState *ms){
 	popupMenu.mouseMove(x, y);
 	buttonNewGame.mouseMove(x, y);
@@ -209,6 +490,9 @@ void MenuStateRoot::mouseMove(int x, int y, const MouseState *ms){
 	}
 	if (errorMessageBox.getEnabled()) {
 		errorMessageBox.mouseMove(x, y);
+	}
+	if (ftpMessageBox.getEnabled()) {
+		ftpMessageBox.mouseMove(x, y);
 	}
 }
 
@@ -279,7 +563,7 @@ void MenuStateRoot::render() {
 	renderer.renderButton(&buttonExit);
 	renderer.renderLabel(&labelVersion);
 
-	renderer.renderConsole(&console,false,true);
+	renderer.renderConsole(&console);
 
 	renderer.renderPopupMenu(&popupMenu);
 
@@ -289,6 +573,9 @@ void MenuStateRoot::render() {
 	}
 	if(errorMessageBox.getEnabled()) {
 		renderer.renderMessageBox(&errorMessageBox);
+	}
+	if(ftpMessageBox.getEnabled()) {
+		renderer.renderMessageBox(&ftpMessageBox);
 	}
 
 	if(program != NULL) program->renderProgramMsgBox();
@@ -304,7 +591,107 @@ void MenuStateRoot::update() {
 		}
 		return;
 	}
+
+	if(gameUpdateChecked == false) {
+		gameUpdateChecked = true;
+
+		string updateCheckURL = Config::getInstance().getString("UpdateCheckURL","");
+		if(updateCheckURL != "") {
+		    static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
+		    updatesHttpServerThread = new SimpleTaskThread(this,1,200);
+		    updatesHttpServerThread->setUniqueID(mutexOwnerId);
+		    updatesHttpServerThread->start();
+		}
+	}
+
 	console.update();
+}
+
+void MenuStateRoot::simpleTask(BaseThread *callingThread,void *userdata) {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+	static string mutexOwnerId = string(__FILE__) + string("_") + intToStr(__LINE__);
+    MutexSafeWrapper safeMutexThreadOwner(callingThread->getMutexThreadOwnerValid(),mutexOwnerId);
+    if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+    	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+        return;
+    }
+
+    callingThread->getMutexThreadOwnerValid()->setOwnerId(mutexOwnerId);
+    if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+
+
+	string updateCheckURL = Config::getInstance().getString("UpdateCheckURL","");
+	if(updateCheckURL != "") {
+
+		string baseURL = updateCheckURL;
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] About to call first http url, base [%s]..\n",__FILE__,__FUNCTION__,__LINE__,baseURL.c_str());
+
+		CURL *handle = SystemFlags::initHTTP();
+		CURLcode curlResult = CURLE_OK;
+		string updateMetaData = SystemFlags::getHTTP(baseURL,handle,-1,&curlResult);
+
+		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("techsMetaData [%s] curlResult = %d\n",updateMetaData.c_str(),curlResult);
+
+		if(callingThread->getQuitStatus() == true || safeMutexThreadOwner.isValidMutex() == false) {
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d]\n",__FILE__,__FUNCTION__,__LINE__);
+			return;
+		}
+
+		if(curlResult != CURLE_OK) {
+			string curlError = curl_easy_strerror(curlResult);
+
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] curlError [%s]..\n",__FILE__,__FUNCTION__,__LINE__,curlError.c_str());
+
+			char szMsg[8096]="";
+			snprintf(szMsg,8096,"An error was detected while checking for new updates\n%s",curlError.c_str());
+			showErrorMessageBox(szMsg, "ERROR", false);
+		}
+
+		if(curlResult == CURLE_OK ||
+			(curlResult != CURLE_COULDNT_RESOLVE_HOST &&
+			 curlResult != CURLE_COULDNT_CONNECT)) {
+
+			Properties props;
+			props.loadFromText(updateMetaData);
+
+			int compareResult = compareMajorMinorVersion(glestVersionString, props.getString("LatestGameVersion",""));
+			if(compareResult==0) {
+				if(glestVersionString != props.getString("LatestGameVersion","")) {
+					compareResult = -1;
+				}
+			}
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("compareResult = %d local [%s] remote [%s]\n",compareResult,glestVersionString.c_str(),props.getString("LatestGameVersion","").c_str());
+
+			if(compareResult < 0) {
+
+				string downloadBinaryKey = "LatestGameBinaryUpdateArchiveURL-" + getPlatformTypeNameString() + getPlatformArchTypeNameString();
+				if(props.hasString(downloadBinaryKey)) {
+					ftpFileName = extractFileFromDirectoryPath(props.getString(downloadBinaryKey));
+					ftpFileURL = props.getString(downloadBinaryKey);
+				}
+
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Checking update key downloadBinaryKey [%s] ftpFileURL [%s]\n",downloadBinaryKey.c_str(),ftpFileURL.c_str());
+
+				if(props.getBool("AllowUpdateDownloads","false") == false || ftpFileURL == "") {
+					char szMsg[8096]="";
+					snprintf(szMsg,8096,"A new update was detected: %s\nUpdate Date: %s\nPlease visit megaglest.org for details!",
+							props.getString("LatestGameVersion","?").c_str(),
+							props.getString("LatestGameVersionReleaseDate","?").c_str());
+					showFTPMessageBox(szMsg, "Update", false, true);
+				}
+				else {
+					char szMsg[8096]="";
+					snprintf(szMsg,8096,"A new update was detected: %s\nUpdate Date: %s\nDownload update now?",
+							props.getString("LatestGameVersion","?").c_str(),
+							props.getString("LatestGameVersionReleaseDate","?").c_str());
+					showFTPMessageBox(szMsg, "Update", false, false);
+				}
+			}
+		}
+		SystemFlags::cleanupHTTP(&handle);
+	}
 }
 
 void MenuStateRoot::keyDown(SDL_KeyboardEvent key) {
@@ -344,34 +731,58 @@ void MenuStateRoot::keyDown(SDL_KeyboardEvent key) {
 
 }
 
-void MenuStateRoot::showMessageBox(const string &text, const string &header, bool toggle){
-	if(!toggle){
+void MenuStateRoot::showMessageBox(const string &text, const string &header, bool toggle) {
+	if(toggle == false) {
 		mainMessageBox.setEnabled(false);
 	}
 
-	if(!mainMessageBox.getEnabled()){
+	if(mainMessageBox.getEnabled() == false) {
 		mainMessageBox.setText(text);
 		mainMessageBox.setHeader(header);
 		mainMessageBox.setEnabled(true);
 	}
-	else{
+	else {
 		mainMessageBox.setEnabled(false);
 	}
 }
 
-void MenuStateRoot::showErrorMessageBox(const string &text, const string &header, bool toggle){
-	if(!toggle){
+void MenuStateRoot::showErrorMessageBox(const string &text, const string &header, bool toggle) {
+	if(toggle == false) {
 		errorMessageBox.setEnabled(false);
 	}
 
-	if(!errorMessageBox.getEnabled()){
+	if(errorMessageBox.getEnabled() == false) {
 		errorMessageBox.setText(text);
 		errorMessageBox.setHeader(header);
 		errorMessageBox.setEnabled(true);
 	}
-	else{
+	else {
 		errorMessageBox.setEnabled(false);
 	}
 }
+
+void MenuStateRoot::showFTPMessageBox(const string &text, const string &header, bool toggle, bool okOnly) {
+	if(toggle == false) {
+		ftpMessageBox.setEnabled(false);
+	}
+
+	Lang &lang= Lang::getInstance();
+	if(okOnly) {
+		ftpMessageBox.init(lang.getString("Ok"));
+	}
+	else {
+		ftpMessageBox.init(lang.getString("Yes"), lang.getString("No"));
+	}
+
+	if(ftpMessageBox.getEnabled() == false) {
+		ftpMessageBox.setText(text);
+		ftpMessageBox.setHeader(header);
+		ftpMessageBox.setEnabled(true);
+	}
+	else {
+		ftpMessageBox.setEnabled(false);
+	}
+}
+
 
 }}//end namespace

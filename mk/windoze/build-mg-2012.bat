@@ -117,7 +117,7 @@ copy /b ..\..\source\glest_game\facilities\game_util.cpp +,,
 
 rem Build Mega-Glest in release mode
 ECHO --------------------------------
-Echo Building Mega-Glest using Visual Studio 2012...
+Echo Building MegaGlest using Visual Studio 2012...
 
 set CL=/MP
 rem set INCLUDE=%ProgramFiles(x86)%\Microsoft SDKs\Windows\7.1A\Include;%INCLUDE%
@@ -138,9 +138,11 @@ rem set PlatformToolset=V110
 del ..\..\source\glest_game\facilities\gitversion.h
 
 if not "%GITVERSION_SHA1%" == "." set CL=/DGITVERSIONHEADER
-if not "%GITVERSION_SHA1%" == "."  echo building with CL [%CL%]
+if not "%GITVERSION_SHA1%" == "." echo building with CL [%CL%]
 if not "%GITVERSION_SHA1%" == "." echo #define GITVERSION "%GITVERSION_REV%.%GITVERSION_SHA1%" > ..\..\source\glest_game\facilities\gitversion.h
 if not "%GITVERSION_SHA1%" == "." copy /b ..\..\source\glest_game\facilities\game_util.cpp +,,
+
+del /Q /F Release\*.tlog
 
 rem set VisualStudioVersion=11.0
 set msBuildMaxCPU=
@@ -159,13 +161,15 @@ rem if "%2" == "rebuild" msbuild %msBuildMaxCPU% /p:Configuration=Release;Platfo
 rem /p:VCTargetsPath=%MSBUILD_PATH_MG_x64%;
 
 rem if "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:detailed /p:TrackFileAccess=false;VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release;Platform=x64;PlatformToolset=v110 /m /t:Rebuild Glest_vc2012.sln
-if "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:q /p:TrackFileAccess=false;VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release;Platform=x64;PlatformToolset=v110 /m /t:Rebuild Glest_vc2012.sln
+rem if "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:q /p:TrackFileAccess=false;VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release;Platform=x64;PlatformToolset=v110 /m /t:Rebuild Glest_vc2012.sln
+if "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:q /p:TrackFileAccess=false;VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release_WITHOUT_STREFLOP;Platform=x64;PlatformToolset=v110 /m /t:Rebuild Glest_vc2012.sln
 
 rem if not "%2" == "rebuild" msbuild /detailedsummary %msBuildMaxCPU% /p:BuildInParallel=%BuildInParallel% /p:Configuration=Release Glest_vc2010.sln
 rem if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /p:Configuration=Release;Platform=x64 /v:q /m /p:PlatformToolset=v110_xp Glest_vc2012.sln
 
 rem if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:detailed /p:TrackFileAccess=false;VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release;Platform=x64;PlatformToolset=v110 /m Glest_vc2012.sln
-if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:q /p:TrackFileAccess=false;VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release;Platform=x64;PlatformToolset=v110 /m Glest_vc2012.sln
+rem if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:q /p:TrackFileAccess=false;VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release;Platform=x64;PlatformToolset=v110 /m Glest_vc2012.sln
+if not "%2" == "rebuild" msbuild %msBuildMaxCPU% /v:q /p:TrackFileAccess=false;VCTargetsPath=%MSBUILD_PATH_MG_x64%;Configuration=Release_WITHOUT_STREFLOP;Platform=x64;PlatformToolset=v110 /m Glest_vc2012.sln
 
 rem pause execution so we can see the output before the batch file exits
 if not "%1" == "nopause" pause

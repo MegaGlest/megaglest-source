@@ -137,7 +137,7 @@ void MenuStateNewGame::render(){
 	renderer.renderButton(&buttonTutorial);
 	renderer.renderButton(&buttonReturn);
 
-	renderer.renderConsole(&console,false,true);
+	renderer.renderConsole(&console);
 	if(program != NULL) program->renderProgramMsgBox();
 }
 

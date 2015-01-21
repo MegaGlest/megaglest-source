@@ -78,6 +78,7 @@ Checksum Scenario::load(const string &path) {
 
 		//parse xml
 		XmlTree xmlTree;
+		xmlTree.setSkipUpdatePathClimbingParts(true);
 		xmlTree.load(path,Properties::getTagReplacementValues());
 		const XmlNode *scenarioNode= xmlTree.getRootNode();
 		const XmlNode *scriptsNode= scenarioNode->getChild("scripts");
@@ -391,6 +392,22 @@ void Scenario::loadScenarioInfo(string file, ScenarioInfo *scenarioInfo, bool is
 		scenarioInfo->fogOfWar_exploredFlag = false;
 	}
 
+	if(scenarioNode->hasChild("shared-team-units") == true) {
+		scenarioInfo->allowTeamUnitSharing=scenarioNode->getChild("shared-team-units")->getAttribute("value")->getBoolValue();
+		//printf("\nallowTeamUnitSharing is set to [%s]\n",scenarioInfo->allowTeamUnitSharing);
+	}
+	else {
+		scenarioInfo->allowTeamUnitSharing = false;
+	}
+
+	if(scenarioNode->hasChild("shared-team-resources") == true) {
+		scenarioInfo->allowTeamResourceSharing=scenarioNode->getChild("shared-team-resources")->getAttribute("value")->getBoolValue();
+		//printf("\nallowTeamResourceSharing is set to [%s]\n",scenarioInfo->allowTeamResourceSharing);
+	}
+	else {
+		scenarioInfo->allowTeamResourceSharing = false;
+	}
+
 	scenarioInfo->file = file;
 	scenarioInfo->name = extractFileFromDirectoryPath(file);
 	scenarioInfo->name = cutLastExt(scenarioInfo->name);
@@ -479,6 +496,8 @@ void Scenario::loadGameSettings(const vector<string> &dirList,
 		const ScenarioInfo *scenarioInfo, GameSettings *gameSettings,
 		string scenarioDescription) {
 	int factionCount= 0;
+	int AIPlayerCount=0;
+	Lang &lang= Lang::getInstance();
 
 	if(gameSettings->getGameUUID() == "") {
 		gameSettings->setGameUUID(getUUIDAsString());
@@ -500,15 +519,21 @@ void Scenario::loadGameSettings(const vector<string> &dirList,
 			if(ct == ctHuman) {
 				gameSettings->setThisFactionIndex(factionCount);
 
-				if(gameSettings->getNetworkPlayerName(i) == "") {
-					gameSettings->setNetworkPlayerName(i,Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()));
+				if(gameSettings->getNetworkPlayerName(factionCount) == "") {
+					gameSettings->setNetworkPlayerName(factionCount,Config::getInstance().getString("NetPlayerName",Socket::getHostName().c_str()));
 				}
-				gameSettings->setNetworkPlayerUUID(i,Config::getInstance().getString("PlayerId",""));
-				gameSettings->setNetworkPlayerPlatform(i,getPlatformNameString());
+				gameSettings->setNetworkPlayerUUID(factionCount,Config::getInstance().getString("PlayerId",""));
+				gameSettings->setNetworkPlayerPlatform(factionCount,getPlatformNameString());
 			}
-			else {
-				if(gameSettings->getNetworkPlayerName(i) == "") {
-					gameSettings->setNetworkPlayerName(i,controllerTypeToStr(ct));
+			else if(ct == ctNetwork || ct == ctNetworkUnassigned){
+				if(gameSettings->getNetworkPlayerName(factionCount) == "") {
+					gameSettings->setNetworkPlayerName(factionCount,controllerTypeToStr(ct));
+				}
+			}
+			else {//this is a CPU player
+				AIPlayerCount++;
+				if(gameSettings->getNetworkPlayerName(factionCount) == "") {
+					gameSettings->setNetworkPlayerName(factionCount,lang.getString("AI") + intToStr(AIPlayerCount));
 				}
 			}
 			gameSettings->setFactionControl(factionCount, ct);
@@ -529,6 +554,24 @@ void Scenario::loadGameSettings(const vector<string> &dirList,
 	}
 	else {
         valueFlags1 &= ~ft1_show_map_resources;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+
+	if(scenarioInfo->allowTeamUnitSharing == true) {
+        valueFlags1 |= ft1_allow_shared_team_units;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+	else {
+        valueFlags1 &= ~ft1_allow_shared_team_units;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+
+	if(scenarioInfo->allowTeamResourceSharing == true) {
+        valueFlags1 |= ft1_allow_shared_team_resources;
+        gameSettings->setFlagTypes1(valueFlags1);
+	}
+	else {
+        valueFlags1 &= ~ft1_allow_shared_team_resources;
         gameSettings->setFlagTypes1(valueFlags1);
 	}
 

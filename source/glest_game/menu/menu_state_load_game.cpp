@@ -85,8 +85,14 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
 	infoHeaderLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	infoHeaderLabel.setText(lang.getString("SavegameInfo"));
 
+	versionWarningLabel.registerGraphicComponent(containerName,"versionWarningLabel");
+	versionWarningLabel.init(550, 350);
+	versionWarningLabel.setText("");
+	versionWarningLabel.setTextColor(Vec3f(1.0f,0.5f,0.5f));
+
+
 	infoTextLabel.registerGraphicComponent(containerName,"infoTextLabel");
-	infoTextLabel.init(550, 350);
+	infoTextLabel.init(550, 310);
 	infoTextLabel.setText("");
 
     abortButton.registerGraphicComponent(containerName,"abortButton");
@@ -337,25 +343,26 @@ void MenuStateLoadGame::mouseClick(int x, int y, MouseButton mouseButton){
 							if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false) {
 								char szBuf[8096]="";
 								snprintf(szBuf,8096,lang.getString("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
-								infoTextLabel.setText(szBuf);
+								versionWarningLabel.setText(szBuf);
 							}
 							else {
-								XmlNode *gameNode = rootNode->getChild("Game");
-								GameSettings newGameSettings;
-								newGameSettings.loadGame(gameNode);
-
-								char szBuf[8096]="";
-								snprintf(szBuf,8096,lang.getString("LoadSavedGameInfo").c_str(),
-										newGameSettings.getMap().c_str(),
-										newGameSettings.getTileset().c_str(),
-										newGameSettings.getTech().c_str(),
-										newGameSettings.getScenario().c_str(),
-										newGameSettings.getFactionCount(),
-										(newGameSettings.getThisFactionIndex() >= 0 &&
-										 newGameSettings.getThisFactionIndex() < newGameSettings.getFactionCount() ?
-										newGameSettings.getFactionTypeName(newGameSettings.getThisFactionIndex()).c_str() : ""));
-								infoTextLabel.setText(szBuf);
+								versionWarningLabel.setText("");
 							}
+							XmlNode *gameNode = rootNode->getChild("Game");
+							GameSettings newGameSettings;
+							newGameSettings.loadGame(gameNode);
+
+							char szBuf[8096]="";
+							snprintf(szBuf,8096,lang.getString("LoadSavedGameInfo").c_str(),
+									newGameSettings.getMap().c_str(),
+									newGameSettings.getTileset().c_str(),
+									newGameSettings.getTech().c_str(),
+									newGameSettings.getScenario().c_str(),
+									newGameSettings.getFactionCount(),
+									(newGameSettings.getThisFactionIndex() >= 0 &&
+									 newGameSettings.getThisFactionIndex() < newGameSettings.getFactionCount() ?
+									newGameSettings.getFactionTypeName(newGameSettings.getThisFactionIndex()).c_str() : ""));
+							infoTextLabel.setText(szBuf);
 						}
 						catch(const megaglest_runtime_error &ex) {
 							char szBuf[8096]="";
@@ -401,6 +408,8 @@ void MenuStateLoadGame::render() {
 	renderer.renderLabel(&savedGamesLabel);
 	renderer.renderLabel(&infoHeaderLabel);
 	renderer.renderLabel(&infoTextLabel);
+	if(versionWarningLabel.getText()!="")
+		renderer.renderLabel(&versionWarningLabel);
 
 	renderer.renderButton(&abortButton);
 	renderer.renderButton(&deleteButton);
@@ -434,7 +443,7 @@ void MenuStateLoadGame::render() {
 		renderer.renderMessageBox(&mainMessageBox);
 	}
 
-	renderer.renderConsole(&console,false,false);
+	renderer.renderConsole(&console);
 	if(program != NULL) program->renderProgramMsgBox();
 }
 

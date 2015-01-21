@@ -103,20 +103,28 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
 		//toggle team mode
-		if(editEnabled == false && disableTeamMode == false &&
+		if(editEnabled == false &&
 			isKeyPressed(configKeys.getSDLKey("ChatTeamMode"),key) == true) {
-			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
+			if(disableTeamMode == true) {
+				if (!inMenu) {
+					console->addLine(lang.getString("ChatModeDisabledToAvoidCheating") );
+				}
+			}
+			else {
+				SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 
-			if (!inMenu) {
-				if (teamMode == true) {
-					teamMode = false;
-					console->addLine(lang.getString("ChatMode") + ": " + lang.getString("All"));
-				} else {
-					teamMode = true;
-					console->addLine(lang.getString("ChatMode") + ": " + lang.getString("Team"));
+				if (!inMenu) {
+					if (teamMode == true) {
+						teamMode = false;
+						console->addLine(lang.getString("ChatMode") + ": " + lang.getString("All"));
+					} else {
+						teamMode = true;
+						console->addLine(lang.getString("ChatMode") + ": " + lang.getString("Team"));
+					}
 				}
 			}
 		}
+
 
 		if(isKeyPressed(SDLK_RETURN,key, false) == true) {
 			SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);

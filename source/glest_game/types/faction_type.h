@@ -96,6 +96,16 @@ private:
 
 	bool isLinked;
 
+	float healthbarheight;
+	float healthbarthickness;
+	int healthbarVisible;
+	bool healthbarBorderTextureEnabled;
+	bool healthbarBackgroundTextureEnabled;
+	bool healthbarLineBorder;
+	Texture2D *healthbarTexture;
+	Texture2D *healthbarBackgroundTexture;
+	bool flatParticlePositions;
+
 public:
 	//init
 	FactionType();
@@ -120,6 +130,16 @@ public:
 	int getStartingUnitCount() const					{return (int)startingUnits.size();}
 	const UnitType *getStartingUnit(int i) const		{return startingUnits[i].first;}
 	int getStartingUnitAmount(int i) const				{return startingUnits[i].second;}
+	inline float getHealthbarHeight() const							{return healthbarheight;}
+	inline float getHealthbarThickness() const							{return healthbarthickness;}
+	inline int getHealthbarVisible() const							{return healthbarVisible;}
+	inline bool isHealthbarBorderTextureEnabled() const	{return healthbarBorderTextureEnabled;}
+	inline bool isHealthbarBackgroundTextureEnabled() const	{return healthbarBackgroundTextureEnabled;}
+	inline bool isHealthbarLineBorder() const	{return healthbarLineBorder;}
+	Texture2D *getHealthbarTexture() const				{return healthbarTexture;}
+	Texture2D *getHealthbarBackgroundTexture() const				{return healthbarBackgroundTexture;}
+	bool isFlatParticlePositions() const				{return flatParticlePositions;}
+
 
 	const UnitType *getUnitType(const string &name) const;
 	const UnitType *getUnitTypeById(int id) const;
@@ -137,7 +157,6 @@ public:
 	void deletePixels();
 	bool factionUsesResourceType(const ResourceType *rt) const;
 
-	void saveGame(XmlNode *rootNode);
 };
 
 }}//end namespace

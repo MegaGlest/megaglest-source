@@ -85,8 +85,8 @@ done
 # 1. Install clang (sudo apt-get install clang)
 # 2. Set the two vars below:
 #    WANT_CLANG=YES and CLANG_BIN_PATH=<path_to_the_clang_binary>
-CLANG_BIN_PATH=$( which clang )
-CLANGPP_BIN_PATH=$( which clang++ )
+CLANG_BIN_PATH=$( which clang 2>/dev/null )
+CLANGPP_BIN_PATH=$( which clang++ 2>/dev/null )
 
 cd ${SCRIPTDIR}
 
@@ -174,12 +174,12 @@ if [ $CLANG_FORCED = 1 ]; then
 # If both the $CC and $CXX environment variable point to something containing
 # "clang", use whatever these environment variables point to.
 elif [ "`echo $CC | grep -oF 'clang'`" = 'clang' -a "`echo $CXX | grep -oF 'clang'`" = 'clang' ]; then
-	if [ `echo $CC | grep -Fq '/'` = '/' ]; then
+	if [ "`echo $CC | grep -Fo '/'`" = '/' ]; then
 		CLANG_CC=$CC
 	else
 		CLANG_CC=`which $CC`
 	fi
-	if [ `echo $CXX | grep -Fq '/'` = '/' ]; then
+	if [ "`echo $CXX | grep -Fo '/'`" = '/' ]; then
 		CLANG_CXX=$CXX
 	else
 		CLANG_CXX=`which $CXX`

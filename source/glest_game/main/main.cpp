@@ -101,6 +101,14 @@ using namespace Shared::Graphics::Gl;
 using namespace Shared::Xml;
 using namespace Shared;
 
+/**
+ * @namespace Glest
+ * Namespace used for all %Glest related code.
+ */
+/**
+ * @namespace Game
+ * Namespace used for game related code.
+ */
 namespace Glest { namespace Game {
 
 static string tempDataLocation 			= getUserHome();
@@ -1139,6 +1147,7 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 			Renderer &renderer= Renderer::getInstance();
 			if(keystate.mod & (KMOD_LALT | KMOD_RALT)) {
 				renderer.cycleShowDebugUILevel();
+				printf("**Cycled Debug UI level to: %d\n",renderer.getShowDebugUILevel());
 			}
 			else {
 				bool showDebugUI = renderer.getShowDebugUI();
@@ -3503,8 +3512,8 @@ int handleCreateDataArchivesCommand(int argc, char** argv) {
 				printf("Compress item [%s] is not valid!\n",compress_item.c_str());
 				return_value = 1;
 			}
-
-			return_value = 0;
+			else
+				return_value = 0;
 		}
 		else {
 			printf("\nInvalid missing map specified on commandline [%s] value [%s]\n\n",argv[foundParamIndIndex],(paramPartTokens.size() >= 2 ? paramPartTokens[1].c_str() : NULL));
@@ -4430,6 +4439,10 @@ int glestMain(int argc, char** argv) {
         }
         createDirectoryPaths(tempDataPath);
 
+        string binaryNameOld = Properties::getApplicationPath() + extractFileFromDirectoryPath(PlatformExceptionHandler::application_binary) + "__REMOVE";
+        if(fileExists(binaryNameOld)) {
+        	removeFile(binaryNameOld);
+        }
 
     	if(hasCommandArgument(argc, argv,GAME_ARGS[GAME_ARG_USE_PORTS]) == true) {
 			int foundParamIndIndex = -1;
@@ -5051,7 +5064,7 @@ int glestMain(int argc, char** argv) {
 					gameSettings->setFactionControl(i, ct);
 					gameSettings->setStartLocationIndex(i, i);
 					gameSettings->setResourceMultiplierIndex(i, 10);
-					gameSettings->setNetworkPlayerName(i, "Closed");
+					gameSettings->setNetworkPlayerName(i, GameConstants::NETWORK_SLOT_CLOSED_SLOTNAME);
 				}
 
 				ControlType ct= ctHuman;
@@ -5351,7 +5364,8 @@ int glestMain(int argc, char** argv) {
         bool startCRCPrecacheThread = config.getBool("PreCacheCRCThread","true");
         //printf("### In [%s::%s Line: %d] precache thread enabled = %d SystemFlags::VERBOSE_MODE_ENABLED = %d\n",__FILE__,__FUNCTION__,__LINE__,startCRCPrecacheThread,SystemFlags::VERBOSE_MODE_ENABLED);
         if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] precache thread enabled = %d\n",__FILE__,__FUNCTION__,__LINE__,startCRCPrecacheThread);
-		if(startCRCPrecacheThread == true) {
+		if (startCRCPrecacheThread == true
+				&& GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 			static string mutexOwnerId = string(extractFileFromDirectoryPath(__FILE__).c_str()) + string("_") + intToStr(__LINE__);
 			vector<string> techDataPaths = config.getPathListForType(ptTechs);
 

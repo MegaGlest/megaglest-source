@@ -687,7 +687,7 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 
         	// If > 50% of team vote yes, switch th eplayers team
         	if(newTeamTotalMemberCount > 0 && newTeamVotedYes > 0 &&
-        		newTeamVotedYes / newTeamTotalMemberCount > 0.5) {
+        			static_cast<float>(newTeamVotedYes) / static_cast<float>(newTeamTotalMemberCount) > 0.5) {
         		Faction *faction = world->getFaction(factionIndex);
         		int oldTeam = faction->getTeam();
         		faction->setTeam(vote->newTeam);
@@ -765,21 +765,25 @@ void Commander::giveNetworkCommand(NetworkCommand* networkCommand) const {
 				GameNetworkInterface *gameNetworkInterface= NetworkManager::getInstance().getGameNetworkInterface();
 				if(gameNetworkInterface != NULL) {
 					ServerInterface *server = networkManager.getServerInterface();
-					if(server->isClientConnected(playerIndex) == true) {
+					if(server != NULL && server->isClientConnected(playerIndex) == true) {
 
 						MutexSafeWrapper safeMutex(server->getSlotMutex(playerIndex),CODE_AT_LINE);
 						ConnectionSlot *slot = server->getSlot(playerIndex,false);
 						if(slot != NULL) {
-							safeMutex.ReleaseLock(true);
+							safeMutex.ReleaseLock();
 							NetworkMessageQuit networkMessageQuit;
 							slot->sendMessage(&networkMessageQuit);
 							sleep(5);
 
 							//printf("Sending nctDisconnectNetworkPlayer\n");
-							safeMutex.Lock();
-							slot = server->getSlot(playerIndex,false);
-							if(slot != NULL) {
-								slot->close();
+							server = networkManager.getServerInterface(false);
+							if(server != NULL) {
+								MutexSafeWrapper safeMutex2(server->getSlotMutex(playerIndex),CODE_AT_LINE);
+								slot = server->getSlot(playerIndex,false);
+								if(slot != NULL) {
+									safeMutex2.ReleaseLock();
+									slot->close();
+								}
 							}
 						}
 					}

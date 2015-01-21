@@ -63,6 +63,9 @@ private:
 
 	GraphicLabel labelVisibleHud;
 	GraphicCheckBox checkBoxVisibleHud;
+	GraphicLabel labelHealthBars;
+	GraphicListBox listBoxHealthBars;
+
 	GraphicLabel labelTimeDisplay;
 	GraphicCheckBox checkBoxTimeDisplay;
 	GraphicLabel labelChatStaysActive;

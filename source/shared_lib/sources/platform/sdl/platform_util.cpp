@@ -136,6 +136,7 @@ static int getFileAndLine(char *function, void *address, char *file, size_t flen
 #if __APPLE_CC__
             //### TODO Will: still working this out
             int len = fread(buf,1,maxbufSize,f);
+            pclose(f);
             buf[len] = 0;
             fprintf(stderr,"< %s",buf);
             return -1;

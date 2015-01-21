@@ -146,6 +146,8 @@ private:
 	bool editModeEnabled;
 	int maxEditWidth;
 	int maxEditRenderWidth;
+	bool renderBackground;
+	Vec4f backgroundColor;
 
 	vector<int> textCharLength;
 	bool isPassword;
@@ -187,6 +189,11 @@ public:
 	void setMaxEditWidth(int value) { maxEditWidth = value; }
 	int getMaxEditWidth() const { return maxEditWidth; }
 
+	void setRenderBackground(bool value) { renderBackground = value; }
+	bool getRenderBackground() const { return renderBackground; }
+	Vec4f getBackgroundColor() const	{return backgroundColor;}
+	void setBackgroundColor(Vec4f color)	{this->backgroundColor= color;}
+
 	void setMaxEditRenderWidth(int value) { maxEditRenderWidth = value; }
 	int getMaxEditRenderWidth() const { return maxEditRenderWidth; }
 
@@ -205,6 +212,7 @@ public:
 	
 private:
 	bool lighted;
+	bool alwaysLighted;
 
 	bool useCustomTexture;
 	Texture *customTexture;
@@ -219,9 +227,10 @@ public:
 	void setUseCustomTexture(bool value) { useCustomTexture=value; }
 	void setCustomTexture(Texture *value) { customTexture=value; }
 
-	bool getLighted() const			{return lighted;}
-	
+	bool getLighted() const			{return lighted||alwaysLighted;}
 	void setLighted(bool lighted)	{this->lighted= lighted;}
+	bool getAlwaysLighted() const			{return alwaysLighted;}
+	void setAlwaysLighted(bool value)	{this->alwaysLighted= value;}
 	virtual bool mouseMove(int x, int y);  
 };
 
