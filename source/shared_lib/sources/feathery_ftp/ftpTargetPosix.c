@@ -164,13 +164,13 @@ int ftpStat(const char* path, ftpPathInfo_S *info)
 
 		pw = getpwuid(fileInfo.st_uid);
 		if(pw)
-			strncpy(info->user, pw->pw_name, sizeof(info->user));
+			strncpy(info->user, pw->pw_name, sizeof(info->user)-1);
 		else
 			snprintf(info->user, 20,"%04d", fileInfo.st_uid);
 
 		gr = getgrgid(fileInfo.st_gid);
 		if(gr)
-			strncpy(info->group, gr->gr_name, sizeof(info->group));
+			strncpy(info->group, gr->gr_name, sizeof(info->group)-1);
 		else
 			snprintf(info->group, 20,"%04d", fileInfo.st_gid);
 

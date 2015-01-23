@@ -14,6 +14,8 @@
 #include <fstream>
 #include <stdexcept>
 #include <cstring>
+#include <iostream>
+#include <sstream>
 
 #include "conversion.h"
 #include "util.h"
@@ -31,7 +33,6 @@
 #include "utf8.h"
 #include "font.h"
 #include "string_utils.h"
-
 #include "leak_dumper.h"
 
 using namespace std;
@@ -56,8 +57,6 @@ string Properties::tutorialPath = "";
 void Properties::load(const string &path, bool clearCurrentProperties) {
 
 	char lineBuffer[maxLine]="";
-	string line, key, value, original_value;
-	size_t pos=0;
 	this->path= path;
 
 	bool is_utf8_language = valid_utf8_file(path.c_str());
@@ -88,80 +87,7 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 		fileStream.getline(lineBuffer, maxLine);
 		lineBuffer[maxLine-1]='\0';
 
-		//printf("\n[%ls]\n",lineBuffer);
-		//printf("\n[%s]\n",&lineBuffer[0]);
-
-		if(lineBuffer[0] != '\0') {
-			// If the file is NOT in UTF-8 format convert each line
-			if(is_utf8_language == false && Font::forceLegacyFonts == false) {
-				char *utfStr = ConvertToUTF8(&lineBuffer[0]);
-
-				//printf("\nBefore [%s] After [%s]\n",&lineBuffer[0],utfStr);
-
-				memset(&lineBuffer[0],0,maxLine);
-				memcpy(&lineBuffer[0],&utfStr[0],strlen(utfStr));
-
-				delete [] utfStr;
-			}
-			else if(is_utf8_language == true && Font::forceLegacyFonts == true) {
-				char *asciiStr = ConvertFromUTF8(&lineBuffer[0]);
-
-				//printf("\nBefore [%s] After [%s]\n",&lineBuffer[0],utfStr);
-
-				memset(&lineBuffer[0],0,maxLine);
-				memcpy(&lineBuffer[0],&asciiStr[0],strlen(asciiStr));
-
-				delete [] asciiStr;
-			}
-		}
-
-		//process line if it it not a comment
-		if(lineBuffer[0] != ';' && lineBuffer[0] != '#') {
-			//wstring wstr = lineBuffer;
-			//line.assign(wstr.begin(),wstr.end());
-
-			// gracefully handle win32 \r\n line endings
-			size_t len= strlen(lineBuffer);
-   			if(len > 0 && lineBuffer[len-1] == '\r') {
-   				lineBuffer[len-1]= 0;
-			}
-
-			line= lineBuffer;
-			pos= line.find('=');
-
-			if(pos != string::npos){
-				key= line.substr(0, pos);
-				value= line.substr(pos+1);
-				original_value = value;
-
-				if(applyTagsToValue(value) == true) {
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Property key [%s] now has value [%s] original_value [%s]\n",key.c_str(),value.c_str(),original_value.c_str());
-				}
-
-				bool replaceExisting = false;
-				if(propertyMap.find(key) != propertyMap.end()) {
-					replaceExisting = true;
-				}
-				propertyMap[key] = original_value;
-				propertyMapTmp[key] = value;
-
-				if(replaceExisting == false) {
-					propertyVector.push_back(PropertyPair(key, original_value));
-					propertyVectorTmp.push_back(PropertyPair(key, value));
-				}
-				else {
-					for(unsigned int i = 0; i < propertyVector.size(); ++i) {
-						PropertyPair &currentPair = propertyVector[i];
-						if(currentPair.first == key) {
-							currentPair.second = original_value;
-
-							propertyVectorTmp[i].second = value;
-							break;
-						}
-					}
-				}
-			}
-		}
+		processTextLine(is_utf8_language,lineBuffer);
 	}
 
 	fileStream.close();
@@ -170,6 +96,108 @@ void Properties::load(const string &path, bool clearCurrentProperties) {
 		fclose(fp);
 	}
 #endif
+}
+
+void Properties::loadFromText(const string &text) {
+	bool is_utf8_language = false;
+
+	char lineBuffer[maxLine]="";
+
+	std::istringstream textStream(text);
+	while(textStream.eof() == false) {
+		//lineBuffer[0]='\0';
+		std::string lineText;
+		getline(textStream, lineText);
+		if(lineText.length() > 0) {
+			memset(&lineBuffer[0],0,maxLine);
+			memcpy(&lineBuffer[0],&lineText[0],lineText.length());
+
+			//fileStream.getline(lineBuffer, maxLine);
+			//lineBuffer[maxLine-1]='\0';
+
+			processTextLine(is_utf8_language,&lineBuffer[0]);
+		}
+	}
+}
+
+void Properties::processTextLine(bool is_utf8_language, char *lineBuffer) {
+	//printf("\n[%ls]\n",lineBuffer);
+	//printf("\n[%s]\n",&lineBuffer[0]);
+
+	string line, key, value, original_value;
+	size_t pos=0;
+
+	if(lineBuffer != NULL && lineBuffer[0] != '\0') {
+		// If the file is NOT in UTF-8 format convert each line
+		if(is_utf8_language == false && Font::forceLegacyFonts == false) {
+			char *utfStr = ConvertToUTF8(&lineBuffer[0]);
+
+			//printf("\nBefore [%s] After [%s]\n",&lineBuffer[0],utfStr);
+
+			memset(&lineBuffer[0],0,maxLine);
+			memcpy(&lineBuffer[0],&utfStr[0],strlen(utfStr));
+
+			delete [] utfStr;
+		}
+		else if(is_utf8_language == true && Font::forceLegacyFonts == true) {
+			char *asciiStr = ConvertFromUTF8(&lineBuffer[0]);
+
+			//printf("\nBefore [%s] After [%s]\n",&lineBuffer[0],utfStr);
+
+			memset(&lineBuffer[0],0,maxLine);
+			memcpy(&lineBuffer[0],&asciiStr[0],strlen(asciiStr));
+
+			delete [] asciiStr;
+		}
+	}
+
+	//process line if it it not a comment
+	if(lineBuffer != NULL && lineBuffer[0] != ';' && lineBuffer[0] != '#') {
+		//wstring wstr = lineBuffer;
+		//line.assign(wstr.begin(),wstr.end());
+
+		// gracefully handle win32 \r\n line endings
+		size_t len= strlen(lineBuffer);
+		if(len > 0 && lineBuffer[len-1] == '\r') {
+			lineBuffer[len-1]= 0;
+		}
+
+		line= lineBuffer;
+		pos= line.find('=');
+
+		if(pos != string::npos){
+			key= line.substr(0, pos);
+			value= line.substr(pos+1);
+			original_value = value;
+
+			if(applyTagsToValue(value) == true) {
+				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Property key [%s] now has value [%s] original_value [%s]\n",key.c_str(),value.c_str(),original_value.c_str());
+			}
+
+			bool replaceExisting = false;
+			if(propertyMap.find(key) != propertyMap.end()) {
+				replaceExisting = true;
+			}
+			propertyMap[key] = original_value;
+			propertyMapTmp[key] = value;
+
+			if(replaceExisting == false) {
+				propertyVector.push_back(PropertyPair(key, original_value));
+				propertyVectorTmp.push_back(PropertyPair(key, value));
+			}
+			else {
+				for(unsigned int i = 0; i < propertyVector.size(); ++i) {
+					PropertyPair &currentPair = propertyVector[i];
+					if(currentPair.first == key) {
+						currentPair.second = original_value;
+
+						propertyVectorTmp[i].second = value;
+						break;
+					}
+				}
+			}
+		}
+	}
 }
 
 std::map<string,string> Properties::getTagReplacementValues(std::map<string,string> *mapExtraTagReplacementValues) {

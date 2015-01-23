@@ -305,6 +305,7 @@ void ParticleSystemType::setValues(AttackParticleSystem *ats){
 	for(Children::iterator i=children.begin(); i!=children.end(); ++i){
 		UnitParticleSystem *child = new UnitParticleSystem();
 		child->setParticleOwner(ats->getParticleOwner());
+		child->setParticleType((*i));
 		(*i)->setValues(child);
 		ats->addChild(child);
 		child->setState(ParticleSystem::sPlay);
@@ -345,8 +346,12 @@ void ParticleSystemType::loadGame(const XmlNode *rootNode) {
 	size = particleSystemTypeNode->getAttribute("size")->getFloatValue();
 	sizeNoEnergy = particleSystemTypeNode->getAttribute("sizeNoEnergy")->getFloatValue();
 	speed = particleSystemTypeNode->getAttribute("speed")->getFloatValue();
-	speedUpRelative = particleSystemTypeNode->getAttribute("speedUpRelative")->getFloatValue();
-	speedUpConstant = particleSystemTypeNode->getAttribute("speedUpConstant")->getFloatValue();
+	if(particleSystemTypeNode->hasAttribute("speedUpRelative")){
+		speedUpRelative = particleSystemTypeNode->getAttribute("speedUpRelative")->getFloatValue();
+	}
+	if(particleSystemTypeNode->hasAttribute("speedUpConstant")){
+		speedUpConstant = particleSystemTypeNode->getAttribute("speedUpConstant")->getFloatValue();
+	}
 	gravity = particleSystemTypeNode->getAttribute("gravity")->getFloatValue();
 	emissionRate = particleSystemTypeNode->getAttribute("emissionRate")->getFloatValue();
 	energyMax = particleSystemTypeNode->getAttribute("energyMax")->getIntValue();
@@ -367,7 +372,6 @@ void ParticleSystemType::loadGame(const XmlNode *rootNode) {
 			children.push_back(child);
 		}
 	}
-
 	minmaxEnabled = (particleSystemTypeNode->getAttribute("minmaxEnabled")->getIntValue() != 0);
 	minHp = particleSystemTypeNode->getAttribute("minHp")->getIntValue();
 	maxHp = particleSystemTypeNode->getAttribute("maxHp")->getIntValue();

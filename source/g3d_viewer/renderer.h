@@ -147,6 +147,7 @@ public:
 	Texture2D * getNewTexture2D();
 
 	Model *newModel(ResourceScope rs,const string &path,bool deletePixMapAfterLoad=false,std::map<string,vector<pair<string, string> > > *loadedFileList=NULL, string *sourceLoader=NULL);
+	void endModel(ResourceScope rs,Model *model);
 	Texture2D *newTexture2D(ResourceScope rs) { return getNewTexture2D(); }
 
 	void initTextureManager();

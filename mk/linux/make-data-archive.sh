@@ -66,6 +66,13 @@ mkdir -p "$RELEASEDIR/data/core/misc_textures/flags/"
 cd "$RELEASEDIR/data/core/misc_textures/flags/"
 git archive --remote ${REPODIR}/data/glest_game/data/core/misc_textures HEAD:flags | tar x
 
+echo "Removing non required files ..."
+cd "$CURRENTDIR"
+# START
+# remove cegui data
+rm -rf "$RELEASEDIR/data/cegui"
+# END
+
 cd "$CURRENTDIR"
 echo "creating data archive: $PACKAGE"
 [[ -f "${RELEASEDIR_ROOT}/$PACKAGE" ]] && rm "${RELEASEDIR_ROOT}/$PACKAGE"

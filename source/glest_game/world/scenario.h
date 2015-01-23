@@ -68,6 +68,9 @@ public:
 	    fogOfWar = false;
 	    fogOfWar_exploredFlag = false;
 
+	    allowTeamUnitSharing = false;
+	    allowTeamResourceSharing = false;
+
 	    file = "";
 	    name = "";
 	    namei18n = "";
@@ -90,6 +93,9 @@ public:
 
     bool fogOfWar;
     bool fogOfWar_exploredFlag;
+
+    bool allowTeamUnitSharing;
+    bool allowTeamResourceSharing;
 
     string file;
     string name;

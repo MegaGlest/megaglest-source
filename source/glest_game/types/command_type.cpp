@@ -852,7 +852,6 @@ MorphCommandType::MorphCommandType(){
     morphUnit=NULL;
     discount=0;
     ignoreResourceRequirements = false;
-    replaceStorage = false;
 }
 
 void MorphCommandType::update(UnitUpdater *unitUpdater, Unit *unit, int frameIndex) const {
@@ -880,11 +879,6 @@ void MorphCommandType::load(int id, const XmlNode *n, const string &dir,
 		ignoreResourceRequirements= n->getChild("ignore-resource-requirements")->getAttribute("value")->getBoolValue();
 
 		//printf("ignoreResourceRequirements = %d\n",ignoreResourceRequirements);
-	}
-
-	replaceStorage = false;
-	if(n->hasChild("replace-storage") == true) {
-		replaceStorage = n->getChild("replace-storage")->getAttribute("value")->getBoolValue();
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);

@@ -78,9 +78,10 @@ else()
         endif()
 endif()
 
-## Compiler flags
+## Compiler flags, CPACK configuration and other Apple specific code.
 IF(APPLE)
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++")
+	include(${PROJECT_SOURCE_DIR}/mk/macosx/CMakeLists.txt)
 ENDIF(APPLE)
 
 IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
@@ -196,14 +197,23 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 
 	# Release compiler flags
 	SET(CMAKE_CXX_FLAGS_RELEASE "-O3 ${CMAKE_CXX_FLAGS_RELEASE} -O3 ")
-	SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -s")  ## Strip binary
+	IF(CMAKE_GENERATOR STREQUAL Xcode)
+		SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")  ## Strip binary
+	ELSE()
+		SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -s")  ## Strip binary
+	ENDIF()
 
 	# Release with debug info compiler flags
 	SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 ${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -g -O3 ") 
 
 	# Release minimum size compiler flags
 	SET(CMAKE_CXX_FLAGS_MINSIZEREL "-O3 ${CMAKE_CXX_FLAGS_MINSIZEREL} -O3 ")
-	SET(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL} -s")  ## Strip binary 
+	SET(CMAKE_EXE_LINKER_FLAGS_MINSIZEREL "${CMAKE_EXE_LINKER_FLAGS_MINSIZEREL}")  ## Strip binary 
+	IF(CMAKE_GENERATOR STREQUAL Xcode)
+		SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE}")  ## Strip binary
+	ELSE()
+		SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -s")  ## Strip binary
+	ENDIF()
 
         # Get the git revision info for the binary
 	SET(HAS_GIT "FALSE") 
@@ -242,12 +252,11 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 		ENDIF()
 	ENDIF()
 
-        IF(APPLE AND NOT CMAKE_COMPILER_IS_GNUCXX)
-	        SET(GIT_VERSION_CMD "-DGITVERSION='\\\\'${GIT_LIVE_REV_CMD}\\\\''")
-        ELSE()
-                SET(GIT_VERSION_CMD "-DGITVERSION='\\\"${GIT_LIVE_REV_CMD}\\\"'")
-#                SET(SVN_VERSION_CMD "-DSVNVERSION='\\\"`svnversion -n ${PROJECT_SOURCE_DIR}`\\\"'")
-        ENDIF()
+	IF(CMAKE_GENERATOR STREQUAL Xcode)
+		SET(GIT_VERSION_CMD "-DGITVERSION='\\\\'${GIT_LIVE_REV_CMD}\\\\''")
+	ELSE()
+		SET(GIT_VERSION_CMD "-DGITVERSION='\\\"${GIT_LIVE_REV_CMD}\\\"'")
+	ENDIF()
 
 	IF(CMAKE_INSTALL_PREFIX STREQUAL "")
 		MESSAGE(STATUS "*NOTE: NOT USING a Custom Data Install Path...")
@@ -269,14 +278,9 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 		ENDIF()
 
 		IF(NOT CUSTOM_DATA_INSTALL_PATH)
-                        IF(APPLE)
-			        SET(CUSTOM_DATA_INSTALL_PATH "'\\\\'${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_DATA_INSTALL_PATH}\\\\''" CACHE STRING "The FULL installation path for data files (this is build automatically by combining CMAKE_INSTALL_PREFIX and MEGAGLEST_DATA_INSTALL_PATH)")
-                        ELSE()
-                                SET(CUSTOM_DATA_INSTALL_PATH "\"${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_DATA_INSTALL_PATH}\"" CACHE STRING "The FULL installation path for data files (this is build automatically by combining CMAKE_INSTALL_PREFIX and MEGAGLEST_DATA_INSTALL_PATH)")
-                        ENDIF()
+                        SET (CUSTOM_DATA_INSTALL_PATH "\"${CMAKE_INSTALL_PREFIX}/${MEGAGLEST_DATA_INSTALL_PATH}\"" CACHE STRING "The FULL installation path for data files (this is build automatically by combining CMAKE_INSTALL_PREFIX and MEGAGLEST_DATA_INSTALL_PATH)")
 		ENDIF()
 		SET(CUSTOM_DATA_INSTALL_PATH_VALUE "-DCUSTOM_DATA_INSTALL_PATH=${CUSTOM_DATA_INSTALL_PATH}")
-		ADD_DEFINITIONS("-DCUSTOM_DATA_INSTALL_PATH=${CUSTOM_DATA_INSTALL_PATH}")
 
                 SET(PKG_DATADIR ${CUSTOM_DATA_INSTALL_PATH_VALUE})
                 SET(PKG_BINDIR ${MEGAGLEST_BIN_INSTALL_PATH})
@@ -361,10 +365,6 @@ IF(EXISTS "${PROJECT_SOURCE_DIR}/source/")
 	#endif()
 	ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/source/tools/glexemel )
 
-	IF(APPLE)
-		include(${PROJECT_SOURCE_DIR}/mk/macosx/CMakeLists.txt)
-	ENDIF()
-
         ADD_SUBDIRECTORY( ${PROJECT_SOURCE_DIR}/source/tests )
 ENDIF()
 
@@ -381,38 +381,7 @@ IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         MESSAGE(WARNING ">> CLANG is NOT currently compatible as it does not support the following essential GCC compiler settings: -frounding-math -fsignaling-nans")
 ENDIF()
 
-SET(CPACK_GENERATOR "DEB")
-SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Mark Vejvoda") #required
-SET(CPACK_DEBIAN_PACKAGE_DEPENDS "
- libcurl4-gnutls-dev | libcurl4-nss-dev,
- libfontconfig1-dev,
- libftgl-dev,
- libglew-dev,
- libircclient-dev,
- libjpeg-dev,
- liblua5.1-0-dev,
- libminiupnpc-dev,
- libogg-dev,
- libopenal-dev,
- libpng12-dev,
- libsdl1.2-dev,
- libvlc-dev,
- libvorbis-dev,
- libwxgtk2.8-dev,
- libxerces-c2-dev,
- libxml2-dev,
- libz-dev,
- libfribidi-dev")
-
-#find_program(DPKG_PROGRAM dpkg DOC "dpkg program of Debian-based systems")
-#if(DPKG_PROGRAM)
-#  execute_process(
-#    COMMAND ${DPKG_PROGRAM} --print-architecture
-#    OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
-#    OUTPUT_STRIP_TRAILING_WHITESPACE
-#  )
-#endif(DPKG_PROGRAM)
-
+# CPack configuration shared accross platforms
 SET(CPACK_PACKAGE_NAME ${PKG_NAME})
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "MegaGlest")
 SET(CPACK_PACKAGE_VENDOR "megaglest.org")
@@ -422,12 +391,50 @@ SET(CPACK_PACKAGE_INSTALL_DIRECTORY "megaglest")
 SET(CPACK_PACKAGE_VERSION_MAJOR ${VER_MAJOR})
 SET(CPACK_PACKAGE_VERSION_MINOR ${VER_MINOR})
 SET(CPACK_PACKAGE_VERSION_PATCH ${VER_RELEASE})
-IF(WIN32)
-    SET(CPACK_NSIS_DISPLAY_NAME "MegaGlest")
-    SET(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/mk/windoze/glest.ico")
-    SET(CPACK_PACKAGE_ICON "${PROJECT_SOURCE_DIR}/mk/windoze/megaglest.ico")
-    SET(CPACK_NSIS_URL_INFO_ABOUT "http://megaglest.org")
-ENDIF()
+
+
+# Debian specific generator options
+IF(NOT DEFINED CPACK_GENERATOR)
+	SET(CPACK_GENERATOR "DEB")
+	SET(CPACK_DEBIAN_PACKAGE_MAINTAINER "Mark Vejvoda") #required
+	SET(CPACK_DEBIAN_PACKAGE_DEPENDS "
+	 libcurl4-gnutls-dev | libcurl4-nss-dev,
+	 libfontconfig1-dev,
+	 libftgl-dev,
+	 libglew-dev,
+	 libircclient-dev,
+	 libjpeg-dev,
+	 liblua5.1-0-dev,
+	 libminiupnpc-dev,
+	 libogg-dev,
+	 libopenal-dev,
+	 libpng12-dev,
+	 libsdl1.2-dev,
+	 libvlc-dev,
+	 libvorbis-dev,
+	 libwxgtk2.8-dev,
+	 libxerces-c2-dev,
+	 libxml2-dev,
+	 libz-dev,
+	 libfribidi-dev")
+
+	#find_program(DPKG_PROGRAM dpkg DOC "dpkg program of Debian-based systems")
+	#if(DPKG_PROGRAM)
+	#  execute_process(
+	#    COMMAND ${DPKG_PROGRAM} --print-architecture
+	#    OUTPUT_VARIABLE CPACK_DEBIAN_PACKAGE_ARCHITECTURE
+	#    OUTPUT_STRIP_TRAILING_WHITESPACE
+	#  )
+	#endif(DPKG_PROGRAM)
+ENDIF(NOT DEFINED CPACK_GENERATOR)
+
+IF(CPACK_GENERATOR STREQUAL "NSIS")
+	SET(CPACK_NSIS_DISPLAY_NAME "MegaGlest")
+	SET(CPACK_NSIS_MUI_ICON "${PROJECT_SOURCE_DIR}/mk/windoze/glest.ico")
+	SET(CPACK_PACKAGE_ICON "${PROJECT_SOURCE_DIR}/mk/windoze/megaglest.ico")
+	SET(CPACK_NSIS_URL_INFO_ABOUT "http://megaglest.org")
+ENDIF(CPACK_GENERATOR STREQUAL "NSIS")
+
 INCLUDE(CPack)
 
 get_directory_property( DirDefs DIRECTORY ${CMAKE_SOURCE_DIR} COMPILE_DEFINITIONS )

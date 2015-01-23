@@ -134,7 +134,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 		if(soundStartTime >= unit->getLastAnimProgressAsFloat() && soundStartTime < unit->getAnimProgressAsFloat()) {
 			if(map->getSurfaceCell(Map::toSurfCoords(unit->getPos()))->isVisible(world->getThisTeamIndex()) ||
 				(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
-				soundRenderer.playFx((*it)->getSoundContainer()->getRandSound(), unit->getCurrVector(), gameCamera->getPos());
+				soundRenderer.playFx((*it)->getSoundContainer()->getRandSound(), unit->getCurrMidHeightVector(), gameCamera->getPos());
 			}
 		}
 	}
@@ -171,7 +171,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 			bool cameraAffected=(!cameraViewAffected) || unit->getVisible();
 
 			if(visibility && cameraAffected && enabled) {
-				game->getGameCameraPtr()->shake( currSkill->getShakeDuration(), currSkill->getShakeIntensity(),cameraDistanceAffected,unit->getCurrVector());
+				game->getGameCameraPtr()->shake( currSkill->getShakeDuration(), currSkill->getShakeIntensity(),cameraDistanceAffected,unit->getCurrMidHeightVector());
 			}
 		}
 	}
@@ -291,7 +291,7 @@ bool UnitUpdater::updateUnit(Unit *unit) {
 				if(Config::getInstance().getBool("DisableWaterSounds","false") == false) {
 					soundRenderer.playFx(
 						CoreData::getInstance().getWaterSound(),
-						unit->getCurrVector(),
+						unit->getCurrMidHeightVector(),
 						gameCamera->getPos()
 					);
 
@@ -1123,7 +1123,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 						(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
 						SoundRenderer::getInstance().playFx(
 							bct->getStartSound(),
-							unit->getCurrVector(),
+							unit->getCurrMidHeightVector(),
 							gameCamera->getPos());
 					}
 
@@ -1215,7 +1215,7 @@ void UnitUpdater::updateBuild(Unit *unit, int frameIndex) {
 					(game->getWorld()->showWorldForPlayer(game->getWorld()->getThisTeamIndex()) == true)) {
 					SoundRenderer::getInstance().playFx(
 						bct->getBuiltSound(),
-						unit->getCurrVector(),
+						unit->getCurrMidHeightVector(),
 						gameCamera->getPos());
 				}
 			}
@@ -2434,7 +2434,7 @@ void UnitUpdater::updateMorph(Unit *unit, int frameIndex) {
 
     if(unit->getCurrSkill()->getClass()!=scMorph){
 		//if not morphing, check space
-		if(map->isFreeCellsOrHasUnit(unit->getPos(), mct->getMorphUnit()->getSize(), mct->getMorphUnit()->getField(), unit, mct->getMorphUnit())){
+		if(map->canMorph(unit->getPos(),unit,mct->getMorphUnit())){
 			unit->setCurrSkill(mct->getMorphSkillType());
 			// block space for morphing units ( block space before and after morph ! )
 			map->putUnitCells(unit, unit->getPos());
@@ -2665,7 +2665,7 @@ void UnitUpdater::startAttackParticleSystem(Unit *unit, float lastAnimProgress, 
 
 	ParticleSystemTypeSplash *pstSplash= ast->getSplashParticleType();
 	bool hasProjectile = !ast->projectileTypes.empty();
-	Vec3f startPos= unit->getCurrVector();
+	Vec3f startPos= unit->getCurrVectorForParticlesystems();
 	Vec3f endPos= unit->getTargetVec();
 
 	//make particle system
@@ -2755,12 +2755,12 @@ bool UnitUpdater::searchForResource(Unit *unit, const HarvestCommandType *hct) {
 }
 
 bool UnitUpdater::attackerOnSight(Unit *unit, Unit **rangedPtr, bool evalMode){
-	int range= unit->getType()->getSight();
+	int range = unit->getType()->getTotalSight(unit->getTotalUpgrade());
 	return unitOnRange(unit, range, rangedPtr, NULL,evalMode);
 }
 
 bool UnitUpdater::attackableOnSight(Unit *unit, Unit **rangedPtr, const AttackSkillType *ast, bool evalMode) {
-	int range= unit->getType()->getSight();
+	int range = unit->getType()->getTotalSight(unit->getTotalUpgrade());
 	return unitOnRange(unit, range, rangedPtr, ast, evalMode);
 }
 
@@ -3089,7 +3089,7 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 	try {
 
 
-	int range = unit->getType()->getSight();
+	int range = unit->getType()->getTotalSight(unit->getTotalUpgrade());
 	if(ast != NULL) {
 
 		range = ast->getTotalAttackRange(unit->getTotalUpgrade());
@@ -3159,7 +3159,7 @@ vector<Unit*> UnitUpdater::enemyUnitsOnRange(const Unit *unit,const AttackSkillT
 }
 
 
-void UnitUpdater::findUnitsForCell(Cell *cell, const Unit *unit,vector<Unit*> &units) {
+void UnitUpdater::findUnitsForCell(Cell *cell, vector<Unit*> &units) {
 	//all fields
 	if(cell != NULL) {
 		for(int k = 0; k < fieldCount; k++) {
@@ -3169,7 +3169,21 @@ void UnitUpdater::findUnitsForCell(Cell *cell, const Unit *unit,vector<Unit*> &u
 			Unit *cellUnit = cell->getUnit(f);
 
 			if(cellUnit != NULL && cellUnit->isAlive()) {
-				units.push_back(cellUnit);
+				// check if unit already is in list
+				bool found = false;
+				//printf("---- search for cellUnit=%d\n",cellUnit->getId());
+				for (unsigned int i = 0; i < units.size(); ++i) {
+					Unit *unitInList = units[i];
+					//printf("compare unitInList=%d cellUnit=%d\n",unitInList->getId(),cellUnit->getId());
+					if (unitInList->getId() == cellUnit->getId()){
+						found=true;
+						break;
+					}
+				}
+				if(found==false){
+					//printf(">>> adding cellUnit=%d\n",cellUnit->getId());
+					units.push_back(cellUnit);
+				}
 			}
 		}
 	}
@@ -3195,7 +3209,7 @@ vector<Unit*> UnitUpdater::findUnitsInRange(const Unit *unit, int radius) {
 			if(map->isInside(i, j) && floor(floatCenter.dist(Vec2f((float)i, (float)j))) <= (range+1)){
 #endif
 				Cell *cell = map->getCell(i,j);
-				findUnitsForCell(cell,unit,units);
+				findUnitsForCell(cell,units);
 			}
 		}
 	}
@@ -3311,7 +3325,7 @@ void ParticleDamager::update(ParticleSystem *particleSystem) {
 			projSound= ast->getProjSound();
 		}
 		if(particleSystem->getVisible() && projSound != NULL) {
-			SoundRenderer::getInstance().playFx(projSound, attacker->getCurrVector(), gameCamera->getPos());
+			SoundRenderer::getInstance().playFx(projSound, attacker->getCurrMidHeightVector(), gameCamera->getPos());
 		}
 
 		//check for spawnattack

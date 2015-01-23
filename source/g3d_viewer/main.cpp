@@ -299,6 +299,9 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	this->appPath = appPath;
 	Properties::setApplicationPath(executable_path(appPath));
 
+	lastanim = 0;
+	model= NULL;
+
 	Config &config = Config::getInstance();
     //getGlPlatformExtensions();
 
@@ -313,8 +316,6 @@ MainWindow::MainWindow(	std::pair<string,vector<string> > unitToLoad,
 	glCanvas->SetCurrent();
 #endif
 
-	lastanim = 0;
-	model= NULL;
 	unitPath = unitToLoad;
 
 	if(modelPath != "") {
@@ -480,12 +481,15 @@ void MainWindow::setupTimer() {
 }
 
 void MainWindow::setupStartupSettings() {
-	 GLuint err = glewInit();
-	 if (GLEW_OK != err) {
+
+	glCanvas->setCurrentGLContext();
+
+	GLuint err = glewInit();
+	if (GLEW_OK != err) {
 		fprintf(stderr, "Error [main]: glewInit failed: %s\n", glewGetErrorString(err));
 		//return 1;
 		throw std::runtime_error((char *)glewGetErrorString(err));
-	 }
+	}
 
 	renderer= Renderer::getInstance();
 
@@ -552,8 +556,9 @@ MainWindow::~MainWindow(){
 	delete fileDialog;
 	fileDialog = NULL;
 
-	delete model;
-	model = NULL;
+	//delete model;
+	//model = NULL;
+	if(renderer) renderer->end();
 
 	delete renderer;
 	renderer = NULL;
@@ -567,7 +572,7 @@ MainWindow::~MainWindow(){
 void MainWindow::init() {
 
 #if wxCHECK_VERSION(2, 9, 3)
-	glCanvas->setCurrentGLContext();
+	//glCanvas->setCurrentGLContext();
 	//printf("setcurrent #1\n");
 #elif wxCHECK_VERSION(2, 9, 1)
 
@@ -585,7 +590,9 @@ void MainWindow::init() {
 void MainWindow::onPaint(wxPaintEvent &event) {
 	if(!IsShown()) return;
 	
-#if wxCHECK_VERSION(2, 9, 3)
+#if wxCHECK_VERSION(2, 9, 4)
+	//glCanvas->setCurrentGLContext();
+#elif wxCHECK_VERSION(2, 9, 3)
 
 #elif wxCHECK_VERSION(2, 9, 1)
 	glCanvas->setCurrentGLContext();
@@ -737,7 +744,6 @@ void MainWindow::onClose(wxCloseEvent &event){
 	particleSplashPathList.clear(); // as above
 
 	if(timer) timer->Stop();
-	if(renderer) renderer->end();
 
 	unitParticleSystems.clear();
 	unitParticleSystemTypes.clear();
@@ -747,8 +753,9 @@ void MainWindow::onClose(wxCloseEvent &event){
 	splashParticleSystems.clear(); // as above
 	splashParticleSystemTypes.clear();
 
-	delete model;
-	model = NULL;
+	//delete model;
+	//model = NULL;
+	if(renderer) renderer->end();
 
 	//printf("OnClose about to END\n");
 	//fflush(stdout);
@@ -756,8 +763,8 @@ void MainWindow::onClose(wxCloseEvent &event){
 	delete timer;
 	timer = NULL;
 
-	delete model;
-	model = NULL;
+	//delete model;
+	//model = NULL;
 
 	delete renderer;
 	renderer = NULL;
@@ -1107,7 +1114,9 @@ void MainWindow::onMenuFileClearAll(wxCommandEvent &event) {
 		splashParticleSystems.clear(); // as above
 		splashParticleSystemTypes.clear();
 
-		delete model;
+		//delete model;
+		//model = NULL;
+		if(model != NULL && renderer != NULL) renderer->endModel(rsGlobal, model);
 		model = NULL;
 
 		loadUnit("","");
@@ -1279,7 +1288,9 @@ void MainWindow::loadModel(string path) {
             //printf("Loading model [%s] %u of " MG_SIZE_T_SPECIFIER "\n",modelPath.c_str(),idx, this->modelPathList.size());
 
             if(timer) timer->Stop();
-            delete model;
+            //delete model;
+    		if(model != NULL && renderer != NULL) renderer->endModel(rsGlobal, model);
+    		model = NULL;
             model = renderer? renderer->newModel(rsGlobal, modelPath): NULL;
 
             statusbarText = getModelInfo();
@@ -1371,6 +1382,8 @@ void MainWindow::loadParticle(string path) {
 
             for(std::vector<UnitParticleSystemType *>::const_iterator it= unitParticleSystemTypes.begin(); it != unitParticleSystemTypes.end(); ++it) {
                 UnitParticleSystem *ups= new UnitParticleSystem(200);
+
+                ups->setParticleType((*it));
                 (*it)->setValues(ups);
                 if(size > 0) {
                     //getCurrVectorFlat() + Vec3f(0.f, type->getHeight()/2.f, 0.f);
@@ -1852,7 +1865,7 @@ void MainWindow::onTimer(wxTimerEvent &event) {
 string MainWindow::getModelInfo() {
 	string str;
 
-	if(model!=NULL){
+	if(model != NULL) {
 		str+= "Meshes: "+intToStr(model->getMeshCount());
 		str+= ", Vertices: "+intToStr(model->getVertexCount());
 		str+= ", Triangles: "+intToStr(model->getTriangleCount());
@@ -2027,7 +2040,7 @@ GlCanvas::GlCanvas(MainWindow *	mainWindow, int *args)
 }
 
 GlCanvas::~GlCanvas() {
-	delete this->context;
+	if(this->context) delete this->context;
 	this->context = NULL;
 }
 
@@ -2037,11 +2050,13 @@ void GlCanvas::setCurrentGLContext() {
 #if wxCHECK_VERSION(2, 9, 1)
 	if(this->context == NULL) {
 		this->context = new wxGLContext(this);
+		//printf("Set ctx [%p]\n",this->context);
 	}
 #endif
 	//printf("Set ctx [%p]\n",this->context);
 	if(this->context) {
 		wxGLCanvas::SetCurrent(*this->context);
+		//printf("Set ctx2 [%p]\n",this->context);
 	}
 #else
 	this->SetCurrent();

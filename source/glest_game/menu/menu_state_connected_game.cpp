@@ -44,7 +44,7 @@ static const int MAX_PING_LAG_COUNT		= 6;
 static const double REPROMPT_DOWNLOAD_SECONDS		= 7;
 //static const string ITEM_MISSING 					= "***missing***";
 // above replaced with Lang::getInstance().getString("DataMissing","",true)
-const int HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS  	= 4;
+const int HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS  	= 2;
 static const char *HEADLESS_SAVED_GAME_FILENAME 	= "lastHeadlessGameSettings.mgg";
 
 const int mapPreviewTexture_X = 5;
@@ -71,6 +71,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	switchSetupRequestFlagType |= ssrft_NetworkPlayerName;
 	updateDataSynchDetailText = false;
 	launchingNewGame = false;
+	isfirstSwitchingMapMessage = true;
 
 	this->zoomedMap = false;
 	this->render_mapPreviewTexture_X = mapPreviewTexture_X;
@@ -81,6 +82,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	needToBroadcastServerSettings=false;
 	broadcastServerSettingsDelayTimer=0;
 	lastGameSettingsReceivedCount=0;
+	noReceiveTimer=time(NULL)-100; // old but inititialized ( must be an "old" time )
 
 	soundConnectionCount=0;
 
@@ -132,6 +134,9 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	settingsReceivedFromServer=false;
 	initialSettingsReceivedFromServer=false;
 
+	validOriginalGameSettings=false;
+	validDisplayedGamesettings=false;
+
 	returnMenuInfo=joinMenuInfo;
 	Lang &lang= Lang::getInstance();
 
@@ -179,6 +184,13 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelInfo.setFont(CoreData::getInstance().getMenuFontBig());
 	labelInfo.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
+	labelWaitingForPlayers.registerGraphicComponent(containerName,"labelInfo");
+	labelWaitingForPlayers.init(30, 100);
+	labelWaitingForPlayers.setText("");
+	labelWaitingForPlayers.setFont(CoreData::getInstance().getMenuFontBig());
+	labelWaitingForPlayers.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+	labelWaitingForPlayers.setTextColor(Vec3f(1.0f,1.0f,0.f));
+
     timerLabelFlash = time(NULL);
     labelDataSynchInfo.registerGraphicComponent(containerName,"labelDataSynchInfo");
 	labelDataSynchInfo.init(30, networkHeadPos-60);
@@ -193,7 +205,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelFogOfWar.setText(lang.getString("FogOfWar"));
 
 	listBoxFogOfWar.registerGraphicComponent(containerName,"listBoxFogOfWar");
-	listBoxFogOfWar.init(xoffset+100, aPos, 130);
+	listBoxFogOfWar.init(xoffset+100, aPos, 150);
 	listBoxFogOfWar.pushBackItem(lang.getString("Enabled"));
 	listBoxFogOfWar.pushBackItem(lang.getString("Explored"));
 	listBoxFogOfWar.pushBackItem(lang.getString("Disabled"));
@@ -272,16 +284,6 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	buttonCancelDownloads.registerGraphicComponent(containerName,"buttonCancelDownloads");
 	buttonCancelDownloads.init(xoffset+620, 180, 150);
 	buttonCancelDownloads.setText(lang.getString("CancelDownloads"));
-
-	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
-	nonAdminPlayerStatusX = xoffset+460;
-	listBoxPlayerStatus.init(nonAdminPlayerStatusX, 180, 150);
-	listBoxPlayerStatus.setTextColor(Vec3f(1.0f,0.f,0.f));
-	listBoxPlayerStatus.setLighted(true);
-	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
-	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
-	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
-	listBoxPlayerStatus.setItems(playerStatuses);
 
 	// Network Frame Period
 	xoffset=70;
@@ -362,6 +364,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
         listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
 		listBoxTeams[i].init(xoffset+650, setupPos-30-i*rowHeight, 60);
 		listBoxTeams[i].setEditable(false);
+		listBoxTeams[i].setLighted(true);
 
 		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
 		labelNetStatus[i].init(xoffset+715, setupPos-30-i*rowHeight, 60);
@@ -453,17 +456,33 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	setupMapList("");
     listBoxMap.setItems(formattedPlayerSortedMaps[0]);
 
+	int buttonx=170;
+	int buttony=180;
+
+	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
+	listBoxPlayerStatus.init(buttonx, buttony, 150);
+	listBoxPlayerStatus.setTextColor(Vec3f(1.0f,0.f,0.f));
+	listBoxPlayerStatus.setLighted(true);
+	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
+	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
+	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
+	listBoxPlayerStatus.setItems(playerStatuses);
+	buttonx+=180;
+
+	buttonDisconnect.registerGraphicComponent(containerName,"buttonDisconnect");
+	buttonDisconnect.init(buttonx, buttony, 125);
+	buttonx+=130;
+
+	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
+	buttonRestoreLastSettings.init(buttonx, buttony, 220);
+	buttonRestoreLastSettings.setText(lang.getString("ReloadLastGameSettings"));
+	buttonx+=225;
+
 	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
-	buttonPlayNow.init(220, 180, 125);
+	buttonPlayNow.init(buttonx, buttony, 125);
 	buttonPlayNow.setText(lang.getString("PlayNow"));
 	buttonPlayNow.setVisible(false);
 
-	buttonDisconnect.registerGraphicComponent(containerName,"buttonDisconnect");
-	buttonDisconnect.init(350, 180, 125);
-
-	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
-	buttonRestoreLastSettings.init(480, 180, 220);
-	buttonRestoreLastSettings.setText(lang.getString("ReloadLastGameSettings"));
 
 	// write hint to console:
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
@@ -640,6 +659,9 @@ void MenuStateConnectedGame::reloadUI() {
 
 	labelInfo.setFont(CoreData::getInstance().getMenuFontBig());
 	labelInfo.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+
+	labelWaitingForPlayers.setFont(CoreData::getInstance().getMenuFontBig());
+	labelWaitingForPlayers.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 
 	labelDataSynchInfo.setFont(CoreData::getInstance().getMenuFontBig());
 	labelDataSynchInfo.setFont3D(CoreData::getInstance().getMenuFontBig3D());
@@ -1531,6 +1553,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 							        switchSetupRequestFlagType,
 							        lang.getLanguage());
 							switchSetupRequestFlagType= ssrft_None;
+							noReceiveTimer=time(NULL);
 						}
 						break;
 					}
@@ -1571,7 +1594,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 				}
 
 				if(canGrabSlot == true) {
-					if(i < mapInfo.players && grabSlotButton[i].mouseClick(x, y)) {
+					if(clientInterface != NULL && i < mapInfo.players && grabSlotButton[i].mouseClick(x, y)) {
 						//printf("Send slot switch request for slot = %d, myCurrentIndex = %d\n",i,myCurrentIndex);
 
 						soundRenderer.playFx(coreData.getClickSoundB());
@@ -1608,7 +1631,7 @@ void MenuStateConnectedGame::mouseClick(int x, int y, MouseButton mouseButton){
 				}
 
 				if(labelPlayerNames[i].mouseClick(x, y) && (activeInputLabel != &labelPlayerNames[i])){
-					if(i == clientInterface->getPlayerIndex()){
+					if(clientInterface != NULL && i == clientInterface->getPlayerIndex()){
 						setActiveInputLabel(&labelPlayerNames[i]);
 					}
 				}
@@ -1724,14 +1747,17 @@ void MenuStateConnectedGame::broadCastGameSettingsToHeadlessServer(bool forceNow
 			}
 		}
 
-		GameSettings gameSettings = *clientInterface->getGameSettings();
-		loadGameSettings(&gameSettings);
+		if(validDisplayedGamesettings){
+			loadGameSettings(&displayedGamesettings);
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("broadcast settings:\n%s\n",gameSettings.toString().c_str());
 
-		//printf("Client sending map [%s] admin key [%d]\n",gameSettings.getMap().c_str(),gameSettings.getMasterserver_admin());
+			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("broadcast settings:\n%s\n",displayedGamesettings.toString().c_str());
 
-		clientInterface->broadcastGameSetup(&gameSettings);
+			//printf("Client sending map [%s] admin key [%d]\n",gameSettings.getMap().c_str(),gameSettings.getMasterserver_admin());
+
+			clientInterface->broadcastGameSetup(&displayedGamesettings);
+			noReceiveTimer=time(NULL);
+		}
 	}
 }
 
@@ -2287,7 +2313,7 @@ void MenuStateConnectedGame::loadGameSettings(GameSettings *gameSettings) {
 
 			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
 			gameSettings->setNetworkPlayerStatuses(slotIndex, npst_None);
-			gameSettings->setNetworkPlayerName(slotIndex, "Closed");
+			gameSettings->setNetworkPlayerName(slotIndex, GameConstants::NETWORK_SLOT_CLOSED_SLOTNAME);
 
 			closedCount++;
 		}
@@ -2475,14 +2501,6 @@ void MenuStateConnectedGame::render() {
 	try {
 		Renderer &renderer= Renderer::getInstance();
 
-		if(isHeadlessAdmin() == true) {
-			listBoxPlayerStatus.setX(buttonRestoreLastSettings.getX() +
-									 buttonRestoreLastSettings.getW() + 20);
-		}
-		else {
-			listBoxPlayerStatus.setX(nonAdminPlayerStatusX);
-		}
-
 		if(mainMessageBox.getEnabled()) {
 			renderer.renderMessageBox(&mainMessageBox);
 		}
@@ -2510,10 +2528,8 @@ void MenuStateConnectedGame::render() {
 						delete factionVideo;
 						factionVideo = NULL;
 
-						NetworkManager &networkManager= NetworkManager::getInstance();
-						ClientInterface* clientInterface= networkManager.getClientInterface();
-						if(clientInterface != NULL) {
-							initFactionPreview(clientInterface->getGameSettings());
+						if(validDisplayedGamesettings) {
+							initFactionPreview(&displayedGamesettings);
 						}
 					}
 				}
@@ -2575,15 +2591,18 @@ void MenuStateConnectedGame::render() {
 	    ClientInterface *clientInterface = networkManager.getClientInterface();
 		for(int i = 0; i < GameConstants::maxPlayers; ++i) {
 	    	if(listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned) {
+	    		bool renderIt=true;
 	    		//printf("Player #%d [%s] control = %d\n",i,labelPlayerNames[i].getText().c_str(),listBoxControls[i].getSelectedItemIndex());
-
-				labelPlayers[i].setVisible(true);
-				labelPlayerNames[i].setVisible(true);
-				listBoxControls[i].setVisible(true);
-				listBoxRMultiplier[i].setVisible(true);
-				listBoxFactions[i].setVisible(true);
-				listBoxTeams[i].setVisible(true);
-				labelNetStatus[i].setVisible(true);
+	    		if(labelNetStatus[i].getText() == GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME){
+	    			renderIt=false;
+	    		}
+				labelPlayers[i].setVisible(renderIt);
+				labelPlayerNames[i].setVisible(renderIt);
+				listBoxControls[i].setVisible(renderIt);
+				listBoxRMultiplier[i].setVisible(renderIt);
+				listBoxFactions[i].setVisible(renderIt);
+				listBoxTeams[i].setVisible(renderIt);
+				labelNetStatus[i].setVisible(renderIt);
 	    	}
 
 			if(listBoxControls[i].getSelectedItemIndex() != ctClosed) {
@@ -2631,6 +2650,12 @@ void MenuStateConnectedGame::render() {
 			if(listBoxControls[i].getSelectedItemIndex() != ctClosed) {
 				renderer.renderListBox(&listBoxRMultiplier[i]);
 				renderer.renderListBox(&listBoxFactions[i]);
+				int teamnumber=listBoxTeams[i].getSelectedItemIndex();
+				Vec3f teamcolor=Vec3f(1.0f,1.0f,1.0f);
+				if(teamnumber>=0 && teamnumber<8){
+					teamcolor=crcPlayerTextureCache[teamnumber]->getPixmap()->getPixel3f(0, 0);
+				}
+				listBoxTeams[i].setTextColor(teamcolor);
 				renderer.renderListBox(&listBoxTeams[i]);
 
 				bool canGrabSlot = false;
@@ -2672,9 +2697,11 @@ void MenuStateConnectedGame::render() {
 
 		if(difftime((long int)time(NULL),timerLabelFlash) < 1) {
 		    renderer.renderLabel(&labelDataSynchInfo,&RED);
+		    renderer.renderLabel(&labelWaitingForPlayers,&YELLOW);
 		}
 		else {
             renderer.renderLabel(&labelDataSynchInfo,&WHITE);
+		    renderer.renderLabel(&labelWaitingForPlayers,&WHITE);
 		}
 
 		renderer.renderLabel(&labelMap);
@@ -2792,7 +2819,7 @@ void MenuStateConnectedGame::render() {
 			}
 		}
 		renderer.renderChatManager(&chatManager);
-		renderer.renderConsole(&console,showFullConsole,true);
+		renderer.renderConsole(&console,showFullConsole?consoleFull:consoleStoredAndNormal);
 
         if(difftime((long int)time(NULL),timerLabelFlash) > 2) {
             timerLabelFlash = time(NULL);
@@ -2827,6 +2854,21 @@ void MenuStateConnectedGame::update() {
 		//printf("#2 admin key [%d] client key [%d]\n",settings->getMasterserver_admin(),clientInterface->getSessionKey());
 		broadCastGameSettingsToHeadlessServer(false);
 
+		bool notCurrentlySwitching=(( difftime((long int) time(NULL), broadcastServerSettingsDelayTimer)) >= HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS );
+		bool receiveAllowedNow=difftime((long int) time(NULL), noReceiveTimer) > 2 ;
+		bool newMessage= lastGameSettingsReceivedCount < clientInterface->getGameSettingsReceivedCount();
+		if (validDisplayedGamesettings == false
+				|| ( notCurrentlySwitching
+				&& newMessage
+				&& receiveAllowedNow )) {
+
+			//printf("I take the whole settings top broadcastDelay=%d noReceiveTimer=%d\n", (int)difftime((long int) time(NULL), broadcastServerSettingsDelayTimer),(int)difftime((long int) time(NULL), noReceiveTimer));
+
+			displayedGamesettings = *(clientInterface->getGameSettings());
+			originalGamesettings = displayedGamesettings;
+			validDisplayedGamesettings = true;
+		}
+
 		checkBoxAllowNativeLanguageTechtree.setEditable(isHeadlessAdmin());
 		checkBoxAllowNativeLanguageTechtree.setEnabled(isHeadlessAdmin());
 
@@ -2845,13 +2887,46 @@ void MenuStateConnectedGame::update() {
 		checkBoxAllowTeamUnitSharing.setEditable(isHeadlessAdmin());
 		checkBoxAllowTeamResourceSharing.setEditable(isHeadlessAdmin());
 
+
 		if(isHeadlessAdmin() == true) {
+			bool hasOtherPlayer=false;
+			bool hasOpenSlot=false;
 			for(unsigned int i = 0; i < (unsigned int)GameConstants::maxPlayers; ++i) {
-				listBoxControls[i].setEditable(isHeadlessAdmin());
+				if(displayedGamesettings.getFactionControl(i)==ctNetwork && clientInterface->getPlayerIndex()!=(int)i){
+					hasOpenSlot=true;
+				}
+				if(displayedGamesettings.getFactionControl(i)==ctNetwork &&
+						displayedGamesettings.getNetworkPlayerNameByPlayerIndex(i)!= GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME &&
+						displayedGamesettings.getNetworkPlayerNameByPlayerIndex(i)!= GameConstants::NETWORK_SLOT_CLOSED_SLOTNAME   ){
+					listBoxControls[i].setEditable(false);
+					if(clientInterface->getPlayerIndex()!=(int)i){
+						hasOtherPlayer=true;
+					}
+				}
+				else if(clientInterface->getPlayerIndex()==(int)i){
+					listBoxControls[i].setEditable(false);
+				}
+				else {
+					listBoxControls[i].setEditable(true);
+				}
 				listBoxRMultiplier[i].setEditable(isHeadlessAdmin());
 				listBoxFactions[i].setEditable(isHeadlessAdmin());
 				listBoxTeams[i].setEditable(isHeadlessAdmin());
 			}
+			if (hasOtherPlayer) {
+				labelWaitingForPlayers.setText("");
+				labelWaitingForPlayers.setVisible(false);
+			} else if (hasOpenSlot) {
+				labelWaitingForPlayers.setText(lang.getString("WaitingForPlayers"));
+				labelWaitingForPlayers.setVisible(true);
+			} else {
+				labelWaitingForPlayers.setText(lang.getString("OpenANetworkSLot"));
+				labelWaitingForPlayers.setVisible(true);
+			}
+		}
+		else {
+			labelWaitingForPlayers.setText("");
+			labelWaitingForPlayers.setVisible(false);
 		}
 
 		if(difftime((long int)time(NULL),lastNetworkSendPing) >= GameConstants::networkPingInterval) {
@@ -2874,7 +2949,7 @@ void MenuStateConnectedGame::update() {
 					MutexSafeWrapper safeMutexFTPProgress((ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
 					if(fileFTPProgressList.empty() == true) {
 						Lang &lang= Lang::getInstance();
-						const vector<string> languageList = clientInterface->getGameSettings()->getUniqueNetworkPlayerLanguages();
+						const vector<string> languageList = displayedGamesettings.getUniqueNetworkPlayerLanguages();
 						for(unsigned int i = 0; i < languageList.size(); ++i) {
 							clientInterface->sendTextMessage(lang.getString("ConnectionTimedOut",languageList[i]) + " : " + doubleToStr(clientInterface->getLastPingLag(),2),-1,false,languageList[i]);
 							sleep(1);
@@ -2887,13 +2962,6 @@ void MenuStateConnectedGame::update() {
 			pingCount++;
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		}
-	}
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] took msecs: %lld\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,chrono.getMillis());
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
-
-	//update status label
-	if(clientInterface != NULL && clientInterface->isConnected()) {
 		buttonDisconnect.setText(lang.getString("Disconnect"));
 
 		if(clientInterface->getAllowDownloadDataSynch() == false) {
@@ -2905,64 +2973,63 @@ void MenuStateConnectedGame::update() {
 
             label = label + ", " + clientInterface->getVersionString();
 
-            const GameSettings *gameSettings = clientInterface->getGameSettings();
             if(clientInterface->getAllowGameDataSynchCheck() == false &&
-            	gameSettings->getTileset() != "" &&
-            	gameSettings->getTech() != "" &&
-            	gameSettings->getMap() != "") {
+            	displayedGamesettings.getTileset() != "" &&
+            	displayedGamesettings.getTech() != "" &&
+            	displayedGamesettings.getMap() != "") {
                 Config &config = Config::getInstance();
 
                 MutexSafeWrapper safeMutexFTPProgress(ftpClientThread != NULL ? ftpClientThread->getProgressMutex() : NULL,string(__FILE__) + "_" + intToStr(__LINE__));
 
                 uint32 tilesetCRC = lastCheckedCRCTilesetValue;
-                if(lastCheckedCRCTilesetName != gameSettings->getTileset() &&
-                	gameSettings->getTileset() != "") {
-					//console.addLine("Checking tileset CRC [" + gameSettings->getTileset() + "]");
-                	tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL);
-                	if(tilesetCRC == 0 || tilesetCRC != gameSettings->getTilesetCRC()) {
-                		tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + gameSettings->getTileset() + string("/*"), ".xml", NULL, true);
+                if(lastCheckedCRCTilesetName != displayedGamesettings.getTileset() &&
+                	displayedGamesettings.getTileset() != "") {
+					//console.addLine("Checking tileset CRC [" + displayedGamesettings.getTileset() + "]");
+                	tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + displayedGamesettings.getTileset() + string("/*"), ".xml", NULL);
+                	if(tilesetCRC == 0 || tilesetCRC != displayedGamesettings.getTilesetCRC()) {
+                		tilesetCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTilesets,""), string("/") + displayedGamesettings.getTileset() + string("/*"), ".xml", NULL, true);
                 	}
 
 					// Test data synch
 					//tilesetCRC++;
 					lastCheckedCRCTilesetValue = tilesetCRC;
-					lastCheckedCRCTilesetName = gameSettings->getTileset();
+					lastCheckedCRCTilesetName = displayedGamesettings.getTileset();
                 }
 
                 uint32 techCRC = lastCheckedCRCTechtreeValue;
-                if(lastCheckedCRCTechtreeName != gameSettings->getTech() &&
-                	gameSettings->getTech() != "") {
-					//console.addLine("Checking techtree CRC [" + gameSettings->getTech() + "]");
-					techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL);
-					//clientInterface->sendTextMessage("#1 TechCRC = " + intToStr(techCRC) + " remoteCRC = " + intToStr(gameSettings->getTechCRC()),-1, true, "");
+                if(lastCheckedCRCTechtreeName != displayedGamesettings.getTech() &&
+                	displayedGamesettings.getTech() != "") {
+					//console.addLine("Checking techtree CRC [" + displayedGamesettings.getTech() + "]");
+					techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + displayedGamesettings.getTech() + string("/*"), ".xml", NULL);
+					//clientInterface->sendTextMessage("#1 TechCRC = " + intToStr(techCRC) + " remoteCRC = " + intToStr(displayedGamesettings.getTechCRC()),-1, true, "");
 
-					if(techCRC == 0 || techCRC != gameSettings->getTechCRC()) {
-						techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL, true);
-						//clientInterface->sendTextMessage("#2 TechCRC = " + intToStr(techCRC) + " remoteCRC = " + intToStr(gameSettings->getTechCRC()),-1, true, "");
+					if(techCRC == 0 || techCRC != displayedGamesettings.getTechCRC()) {
+						techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + displayedGamesettings.getTech() + string("/*"), ".xml", NULL, true);
+						//clientInterface->sendTextMessage("#2 TechCRC = " + intToStr(techCRC) + " remoteCRC = " + intToStr(displayedGamesettings.getTechCRC()),-1, true, "");
 					}
 
 
-                    if(techCRC != 0 && techCRC != gameSettings->getTechCRC() &&
+                    if(techCRC != 0 && techCRC != displayedGamesettings.getTechCRC() &&
                     	listBoxTechTree.getSelectedItemIndex() >= 0 &&
                     	listBoxTechTree.getSelectedItem() != Lang::getInstance().getString("DataMissing","",true)) {
 
                     	//time_t now = time(NULL);
-                    	time_t lastUpdateDate = getFolderTreeContentsCheckSumRecursivelyLastGenerated(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml");
+                    	time_t lastUpdateDate = getFolderTreeContentsCheckSumRecursivelyLastGenerated(config.getPathListForType(ptTechs,""), string("/") + displayedGamesettings.getTech() + string("/*"), ".xml");
 
                     	const time_t REFRESH_CRC_DAY_SECONDS = 60 * 60 * 1;
             			if(	lastUpdateDate <= 0 ||
             				difftime((long int)time(NULL),lastUpdateDate) >= REFRESH_CRC_DAY_SECONDS) {
-            				techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + gameSettings->getTech() + string("/*"), ".xml", NULL, true);
-            				//clientInterface->sendTextMessage("#3 TechCRC = " + intToStr(techCRC) + " remoteCRC = " + intToStr(gameSettings->getTechCRC()),-1, true, "");
+            				techCRC = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), string("/") + displayedGamesettings.getTech() + string("/*"), ".xml", NULL, true);
+            				//clientInterface->sendTextMessage("#3 TechCRC = " + intToStr(techCRC) + " remoteCRC = " + intToStr(displayedGamesettings.getTechCRC()),-1, true, "");
             			}
                     }
 
 					// Test data synch
 					//techCRC++;
 					lastCheckedCRCTechtreeValue = techCRC;
-					lastCheckedCRCTechtreeName = gameSettings->getTech();
+					lastCheckedCRCTechtreeName = displayedGamesettings.getTech();
 
-					loadFactions(gameSettings,false);
+					loadFactions(&displayedGamesettings,false);
 	    			factionCRCList.clear();
 	    			for(unsigned int factionIdx = 0; factionIdx < factionFiles.size(); ++factionIdx) {
 	    				string factionName = factionFiles[factionIdx];
@@ -2972,28 +3039,28 @@ void MenuStateConnectedGame::update() {
 
 	    					uint32 factionCRC   = 0;
 	                    	//time_t now = time(NULL);
-	                    	time_t lastUpdateDate = getFolderTreeContentsCheckSumRecursivelyLastGenerated(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml");
+	                    	time_t lastUpdateDate = getFolderTreeContentsCheckSumRecursivelyLastGenerated(config.getPathListForType(ptTechs,""), "/" + displayedGamesettings.getTech() + "/factions/" + factionName + "/*", ".xml");
 
 	                    	const time_t REFRESH_CRC_DAY_SECONDS = 60 * 60 * 24;
 	            			if(	lastUpdateDate <= 0 ||
 	            				difftime((long int)time(NULL),lastUpdateDate) >= REFRESH_CRC_DAY_SECONDS ||
-	            				(techCRC != 0 && techCRC != gameSettings->getTechCRC())) {
-	            				factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
+	            				(techCRC != 0 && techCRC != displayedGamesettings.getTechCRC())) {
+	            				factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + displayedGamesettings.getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
 	            			}
 	            			else {
-	            				factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL);
+	            				factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + displayedGamesettings.getTech() + "/factions/" + factionName + "/*", ".xml", NULL);
 	            			}
 	            			if(factionCRC == 0) {
-	            				factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
+	            				factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + displayedGamesettings.getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
 	            			}
 
 	            			if(factionCRC != 0) {
-								vector<pair<string,uint32> > serverFactionCRCList = gameSettings->getFactionCRCList();
+								vector<pair<string,uint32> > serverFactionCRCList = displayedGamesettings.getFactionCRCList();
 								for(unsigned int factionIdx1 = 0; factionIdx1 < serverFactionCRCList.size(); ++factionIdx1) {
 									pair<string,uint32> &serverFaction = serverFactionCRCList[factionIdx1];
 									if(serverFaction.first == factionName) {
 										if(serverFaction.second != factionCRC) {
-											factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + gameSettings->getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
+											factionCRC   = getFolderTreeContentsCheckSumRecursively(config.getPathListForType(ptTechs,""), "/" + displayedGamesettings.getTech() + "/factions/" + factionName + "/*", ".xml", NULL, true);
 										}
 										break;
 									}
@@ -3006,10 +3073,10 @@ void MenuStateConnectedGame::update() {
                 }
 
                 uint32 mapCRC = lastCheckedCRCMapValue;
-                if(lastCheckedCRCMapName != gameSettings->getMap() &&
-                	gameSettings->getMap() != "") {
+                if(lastCheckedCRCMapName != displayedGamesettings.getMap() &&
+                	displayedGamesettings.getMap() != "") {
 					Checksum checksum;
-					string file = Config::getMapPath(gameSettings->getMap(),"",false);
+					string file = Config::getMapPath(displayedGamesettings.getMap(),"",false);
 					//console.addLine("Checking map CRC [" + file + "]");
 					checksum.addFile(file);
 					mapCRC = checksum.getSum();
@@ -3017,22 +3084,23 @@ void MenuStateConnectedGame::update() {
 					//mapCRC++;
 
 					lastCheckedCRCMapValue = mapCRC;
-					lastCheckedCRCMapName = gameSettings->getMap();
+					lastCheckedCRCMapName = displayedGamesettings.getMap();
                 }
                 safeMutexFTPProgress.ReleaseLock();
 
-                bool dataSynchMismatch = ((mapCRC != 0 && mapCRC != gameSettings->getMapCRC()) ||
-                						  (tilesetCRC != 0 && tilesetCRC != gameSettings->getTilesetCRC()) ||
-                						  (techCRC != 0 && techCRC != gameSettings->getTechCRC()));
+                bool dataSynchMismatch = ((mapCRC != 0 && mapCRC != displayedGamesettings.getMapCRC()) ||
+                						  (tilesetCRC != 0 && tilesetCRC != displayedGamesettings.getTilesetCRC()) ||
+                						  (techCRC != 0 && techCRC != displayedGamesettings.getTechCRC()));
 
-                //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nmapCRC [%d] gameSettings->getMapCRC() [%d]\ntilesetCRC [%d] gameSettings->getTilesetCRC() [%d]\ntechCRC [%d] gameSettings->getTechCRC() [%d]\n",mapCRC,gameSettings->getMapCRC(),tilesetCRC,gameSettings->getTilesetCRC(),techCRC,gameSettings->getTechCRC());
+                //if(SystemFlags::VERBOSE_MODE_ENABLED) printf("\nmapCRC [%d] displayedGamesettings.getMapCRC() [%d]\ntilesetCRC [%d] displayedGamesettings.getTilesetCRC() [%d]\ntechCRC [%d] displayedGamesettings.getTechCRC() [%d]\n",mapCRC,displayedGamesettings.getMapCRC(),tilesetCRC,displayedGamesettings.getTilesetCRC(),techCRC,displayedGamesettings.getTechCRC());
 
-                if(dataSynchMismatch == true) {
-                    //printf("Data not synched: lmap %u rmap: %u ltile: %d rtile: %u ltech: %u rtech: %u\n",mapCRC,gameSettings->getMapCRC(),tilesetCRC,gameSettings->getTilesetCRC(),techCRC,gameSettings->getTechCRC());
+                if(dataSynchMismatch == true &&
+                		( difftime((long int)time(NULL),broadcastServerSettingsDelayTimer) >= HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS)) {
+                    //printf("Data not synched: lmap %u rmap: %u ltile: %d rtile: %u ltech: %u rtech: %u\n",mapCRC,displayedGamesettings.getMapCRC(),tilesetCRC,displayedGamesettings.getTilesetCRC(),techCRC,displayedGamesettings.getTechCRC());
 
                     string labelSynch = lang.getString("DataNotSynchedTitle");
 
-                    if(mapCRC != 0 && mapCRC != gameSettings->getMapCRC() &&
+                    if(mapCRC != 0 && mapCRC != displayedGamesettings.getMapCRC() &&
                     		listBoxMap.getSelectedItemIndex() >= 0 &&
                     		listBoxMap.getSelectedItem() != Lang::getInstance().getString("DataMissing","",true)) {
                         labelSynch = labelSynch + " " + lang.getString("Map");
@@ -3051,7 +3119,7 @@ void MenuStateConnectedGame::update() {
                         }
                     }
 
-                    if(tilesetCRC != 0 && tilesetCRC != gameSettings->getTilesetCRC() &&
+                    if(tilesetCRC != 0 && tilesetCRC != displayedGamesettings.getTilesetCRC() &&
                     		listBoxTileset.getSelectedItemIndex() >= 0 &&
                     		listBoxTileset.getSelectedItem() != Lang::getInstance().getString("DataMissing","",true)) {
                         labelSynch = labelSynch + " " + lang.getString("Tileset");
@@ -3069,7 +3137,7 @@ void MenuStateConnectedGame::update() {
                         }
                     }
 
-                    if(techCRC != 0 && techCRC != gameSettings->getTechCRC() &&
+                    if(techCRC != 0 && techCRC != displayedGamesettings.getTechCRC() &&
                     		listBoxTechTree.getSelectedItemIndex() >= 0 &&
                     		listBoxTechTree.getSelectedItem() != Lang::getInstance().getString("DataMissing","",true)) {
                         labelSynch = labelSynch + " " + lang.getString("TechTree");
@@ -3092,7 +3160,7 @@ void MenuStateConnectedGame::update() {
 
 								string mismatchedFactionText = "";
 								vector<string> mismatchedFactionTextList;
-								vector<pair<string,uint32> > serverFactionCRCList = gameSettings->getFactionCRCList();
+								vector<pair<string,uint32> > serverFactionCRCList = displayedGamesettings.getFactionCRCList();
 
 								for(unsigned int factionIdx = 0; factionIdx < serverFactionCRCList.size(); ++factionIdx) {
 									pair<string,uint32> &serverFaction = serverFactionCRCList[factionIdx];
@@ -3332,18 +3400,67 @@ void MenuStateConnectedGame::update() {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 		try {
-			if(clientInterface->getGameSettingsReceived() &&
+			if(clientInterface->getGameSettingsReceived() && validDisplayedGamesettings &&
 					lastGameSettingsReceivedCount != clientInterface->getGameSettingsReceivedCount()) {
-				broadCastGameSettingsToHeadlessServer(needToBroadcastServerSettings);
-
 				lastGameSettingsReceivedCount = clientInterface->getGameSettingsReceivedCount();
 				bool errorOnMissingData = (clientInterface->getAllowGameDataSynchCheck() == false);
-				GameSettings *gameSettings = clientInterface->getGameSettingsPtr();
 
-				//printf("Menu got new settings thisfactionindex = %d startlocation: %d control = %d\n",gameSettings->getThisFactionIndex(),clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()),gameSettings->getFactionControl(clientInterface->getGameSettings()->getThisFactionIndex()));
-				if ( difftime((long int)time(NULL),broadcastServerSettingsDelayTimer) >= HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS){
-					setupUIFromGameSettings(gameSettings, errorOnMissingData);
+				const GameSettings *receivedGameSettings= clientInterface->getGameSettings();
+
+				//printf("Menu got new settings thisfactionindex = %d startlocation: %d control = %d\n",displayedGamesettings.getThisFactionIndex(),clientInterface->getGameSettings()->getStartLocationIndex(clientInterface->getGameSettings()->getThisFactionIndex()),displayedGamesettings.getFactionControl(clientInterface->getGameSettings()->getThisFactionIndex()));
+				if ( difftime((long int)time(NULL),noReceiveTimer) < 3 || difftime((long int)time(NULL),broadcastServerSettingsDelayTimer) < HEADLESSSERVER_BROADCAST_SETTINGS_SECONDS){
+					// copy my current settings in UI to displayedSettings;
+					loadGameSettings(&displayedGamesettings);
+					// check if there are any changed fields from others clients
+					if(isHeadlessAdmin()){
+						//printf("I am headless admin and will restore only some parts\n");
+						// only copy those parts which are editable by normal clients
+						for (int i=0;i<receivedGameSettings->getFactionCount();i++){
+							if(displayedGamesettings.getFactionControl(i)==ctNetwork){
+								if(originalGamesettings.getTeam(i)==displayedGamesettings.getTeam(i)){
+									displayedGamesettings.setTeam(i,receivedGameSettings->getTeam(i));
+									originalGamesettings.setTeam(i,receivedGameSettings->getTeam(i));
+								}
+								if(originalGamesettings.getFactionTypeName(i)==displayedGamesettings.getFactionTypeName(i)){
+									displayedGamesettings.setFactionTypeName(i,receivedGameSettings->getFactionTypeName(i));
+									originalGamesettings.setFactionTypeName(i,receivedGameSettings->getFactionTypeName(i));
+								}
+								displayedGamesettings.setNetworkPlayerGameStatus(i,receivedGameSettings->getNetworkPlayerGameStatus(i));
+								originalGamesettings.setNetworkPlayerGameStatus(i,receivedGameSettings->getNetworkPlayerGameStatus(i));
+								displayedGamesettings.setNetworkPlayerName(i,receivedGameSettings->getNetworkPlayerName(i));
+								originalGamesettings.setNetworkPlayerName(i,receivedGameSettings->getNetworkPlayerName(i));
+							}
+						}
+					}
+					else{
+						//printf("I am client and restore everything but not my line\n");
+						// copy all received fields just not those which are editable for normal client
+						//store my changes
+						int i=clientInterface->getPlayerIndex();
+						int team=displayedGamesettings.getTeam(i);
+						string faction=displayedGamesettings.getFactionTypeName(i);
+						int status=displayedGamesettings.getNetworkPlayerGameStatus(i);
+						string networkPlayerName=displayedGamesettings.getNetworkPlayerName(i);
+						displayedGamesettings=*receivedGameSettings;
+						originalGamesettings=*receivedGameSettings;
+
+						displayedGamesettings.setTeam(i,team);
+						originalGamesettings.setTeam(i,team);
+						displayedGamesettings.setFactionTypeName(i,faction);
+						originalGamesettings.setFactionTypeName(i,faction);
+						displayedGamesettings.setNetworkPlayerGameStatus(i,status);
+						originalGamesettings.setNetworkPlayerGameStatus(i,status);
+						displayedGamesettings.setNetworkPlayerName(i,networkPlayerName);
+						originalGamesettings.setNetworkPlayerName(i,networkPlayerName);
+
+					}
+					setupUIFromGameSettings(&displayedGamesettings, errorOnMissingData);
 				}
+				else {
+					// do nothing
+					setupUIFromGameSettings(&displayedGamesettings, errorOnMissingData);
+				}
+				broadCastGameSettingsToHeadlessServer(needToBroadcastServerSettings);
 			}
 
 			// check if we are joining an in progress game
@@ -3477,7 +3594,26 @@ void MenuStateConnectedGame::update() {
                     if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
                     launchingNewGame = true;
-					program->setState(new Game(program, clientInterface->getGameSettings(),false));
+
+                    GameSettings gameSettings = *clientInterface->getGameSettings();
+                    // complete game settings with local stuff
+                    if(gameSettings.getScenario()!="")
+                    {
+                		string scenario = gameSettings.getScenario();
+                		listBoxScenario.setSelectedItem(formatString(scenario));
+                		string file = Scenario::getScenarioPath(dirList, scenario);
+
+                		bool isTutorial = Scenario::isGameTutorial(file);
+                		Scenario::loadScenarioInfo(file, &scenarioInfo, isTutorial);
+
+                		gameSettings.setScenarioDir(Scenario::getScenarioPath(dirList, scenarioInfo.name));
+
+                		gameSettings.setDefaultResources(scenarioInfo.defaultResources);
+                		gameSettings.setDefaultUnits(scenarioInfo.defaultUnits);
+                		gameSettings.setDefaultVictoryConditions(scenarioInfo.defaultVictoryConditions);
+                    }
+
+					program->setState(new Game(program, &gameSettings,false));
 					return;
 				}
 			}
@@ -3490,12 +3626,11 @@ void MenuStateConnectedGame::update() {
 
             // check for need to switch music on again
 			if(clientInterface != NULL) {
-				GameSettings *gameSettings = clientInterface->getGameSettingsPtr();
 				int currentConnectionCount=0;
 				for(int i=0; i < GameConstants::maxPlayers; ++i) {
-					if(gameSettings->getFactionControl(i)==ctNetwork &&
-							gameSettings->getNetworkPlayerName(i) != "" &&
-							gameSettings->getNetworkPlayerName(i) != GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME)
+					if(displayedGamesettings.getFactionControl(i)==ctNetwork &&
+							displayedGamesettings.getNetworkPlayerName(i) != "" &&
+							displayedGamesettings.getNetworkPlayerName(i) != GameConstants::NETWORK_SLOT_UNCONNECTED_SLOTNAME)
 					{
 						currentConnectionCount++;
 					}
@@ -3828,13 +3963,14 @@ bool MenuStateConnectedGame::loadMapInfo(string file, MapInfo *mapInfo, bool loa
 			Lang &lang= Lang::getInstance();
 			if(MapPreview::loadMapInfo(file, mapInfo, lang.getString("MaxPlayers"),lang.getString("Size"),true) == true) {
 				for(int i = 0; i < GameConstants::maxPlayers; ++i) {
-					labelPlayers[i].setVisible(i+1 <= mapInfo->players);
-					labelPlayerNames[i].setVisible(i+1 <= mapInfo->players);
-					listBoxControls[i].setVisible(i+1 <= mapInfo->players);
-					listBoxRMultiplier[i].setVisible(i+1 <= mapInfo->players);
-					listBoxFactions[i].setVisible(i+1 <= mapInfo->players);
-					listBoxTeams[i].setVisible(i+1 <= mapInfo->players);
-					labelNetStatus[i].setVisible(i+1 <= mapInfo->players);
+					bool visible=i+1 <= mapInfo->players;
+					labelPlayers[i].setVisible(visible);
+					labelPlayerNames[i].setVisible(visible);
+					listBoxControls[i].setVisible(visible);
+					listBoxRMultiplier[i].setVisible(visible);
+					listBoxFactions[i].setVisible(visible);
+					listBoxTeams[i].setVisible(visible);
+					labelNetStatus[i].setVisible(visible);
 				}
 
 				// Not painting properly so this is on hold
@@ -4401,6 +4537,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		throw megaglest_runtime_error("gameSettings == NULL");
 	}
 
+
 	checkBoxScenario.setValue((gameSettings->getScenario() != ""));
 	if(checkBoxScenario.getValue() == true) {
 		int originalFOWValue = listBoxFogOfWar.getSelectedItemIndex();
@@ -4428,6 +4565,9 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 			listBoxFogOfWar.setSelectedItemIndex(0);
 		}
 
+		checkBoxAllowTeamUnitSharing.setValue(scenarioInfo.allowTeamUnitSharing);
+		checkBoxAllowTeamResourceSharing.setValue(scenarioInfo.allowTeamResourceSharing);
+
 		if(originalFOWValue != listBoxFogOfWar.getSelectedItemIndex()) {
 			cleanupMapPreviewTexture();
 		}
@@ -4441,8 +4581,8 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 	//listBoxMap.setItems(formattedPlayerSortedMaps[gameSettings.getMapFilterIndex()]);
 	//printf("A gameSettings->getTileset() [%s]\n",gameSettings->getTileset().c_str());
 
-	if(getMissingTilesetFromFTPServerInProgress == false &&
-			gameSettings->getTileset() != "") {
+	if ( getMissingTilesetFromFTPServerInProgress == false
+			&& gameSettings->getTileset() != "") {
 		// tileset
 		tilesets = tilesetFiles;
 		std::for_each(tilesets.begin(), tilesets.end(), FormatString());
@@ -4602,6 +4742,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		loadFactions(gameSettings,false);
 	}
 
+
 	if(getMissingMapFromFTPServerInProgress == false &&
 			gameSettings->getMap() != "") {
 		// map
@@ -4655,9 +4796,13 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line %d] listBoxMap.getSelectedItemIndex() = %d, mapFiles.size() = " MG_SIZE_T_SPECIFIER ", maps.size() = " MG_SIZE_T_SPECIFIER ", getCurrentMapFile() [%s] mapFile [%s]\n",
 				extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,listBoxMap.getSelectedItemIndex(),mapFiles.size(),maps.size(),getCurrentMapFile().c_str(),mapFile.c_str());
 
-		if(!missingMap && mapFile!=listBoxMap.getSelectedItem()){
-			console.addLine("Headless server does not have map, switching to next one");
-			printf("Headless server doesn't have map '%s'. Setting map '%s' instead.\n",listBoxMap.getSelectedItem().c_str(),mapFile.c_str());
+		if( isHeadlessAdmin() && !missingMap && mapFile!=listBoxMap.getSelectedItem()){
+			//console.addLine("Headless server does not have map, switching to next one");
+			if(isfirstSwitchingMapMessage){
+				isfirstSwitchingMapMessage=false;
+			}else{
+				console.addLine(Lang::getInstance().getString("HeadlessServerDoesNotHaveMap","",true));
+			}
 		}
 		listBoxMap.setItems(maps);
 
@@ -4713,6 +4858,8 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 	else {
 		checkBoxAllowTeamResourceSharing.setValue(false);
 	}
+
+	checkBoxAllowNativeLanguageTechtree.setValue(gameSettings->getNetworkAllowNativeLanguageTechtree());
 
 	// Control
 	for(int i=0; i<GameConstants::maxPlayers; ++i) {
@@ -4777,9 +4924,9 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 
 			listBoxControls[slot].setSelectedItemIndex(gameSettings->getFactionControl(i),errorOnMissingData);
 			listBoxRMultiplier[slot].setSelectedItemIndex(gameSettings->getResourceMultiplierIndex(i),errorOnMissingData);
-
 			listBoxTeams[slot].setSelectedItemIndex(gameSettings->getTeam(i),errorOnMissingData);
 			listBoxFactions[slot].setSelectedItem(formatString(gameSettings->getFactionTypeName(i)),false);
+
 			if( gameSettings->getFactionControl(i) == ctNetwork ||
 				gameSettings->getFactionControl(i) == ctNetworkUnassigned) {
 				labelNetStatus[slot].setText(gameSettings->getNetworkPlayerName(i));
@@ -4821,13 +4968,12 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 					labelPlayerNames[slot].setText(gameSettings->getNetworkPlayerName(i));
 				}
 			}
-
-			settingsReceivedFromServer=true;
-			initialSettingsReceivedFromServer=true;
-
-			needToSetChangedGameSettings = true;
-			lastSetChangedGameSettings   = time(NULL);
 		}
+		settingsReceivedFromServer=true;
+		initialSettingsReceivedFromServer=true;
+
+		needToSetChangedGameSettings = true;
+		lastSetChangedGameSettings   = time(NULL);
 	}
 
 	if(enableFactionTexturePreview == true) {
@@ -4845,7 +4991,6 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 		}
 	}
 
-	checkBoxAllowNativeLanguageTechtree.setValue(gameSettings->getNetworkAllowNativeLanguageTechtree());
 }
 
 void MenuStateConnectedGame::initFactionPreview(const GameSettings *gameSettings) {
@@ -4956,6 +5101,7 @@ void MenuStateConnectedGame::RestoreLastGameSettings() {
 
 	needToBroadcastServerSettings=true;
 	broadcastServerSettingsDelayTimer=time(NULL);
+	noReceiveTimer=time(NULL);
 
 }
 
@@ -4968,11 +5114,12 @@ int MenuStateConnectedGame::setupMapList(string scenario) {
 		string scenarioDir = Scenario::getScenarioDir(dirList, scenario);
 		vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
 		vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,true,&invalidMapList);
-
+		// sort map list non case sensitive
+		std::sort(allMaps.begin(),allMaps.end(),compareNonCaseSensitive);
 		if(scenario != "") {
 			vector<string> allMaps2 = MapPreview::findAllValidMaps(config.getPathListForType(ptMaps,""),"",false,true,&invalidMapList);
 			copy(allMaps2.begin(), allMaps2.end(), std::inserter(allMaps, allMaps.begin()));
-			std::sort(allMaps.begin(),allMaps.end());
+			std::sort(allMaps.begin(),allMaps.end(),compareNonCaseSensitive);
 		}
 
 		if (allMaps.empty()) {

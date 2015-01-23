@@ -129,7 +129,6 @@ public:
 	vector<Unit*> enemyUnitsOnRange(const Unit *unit,const AttackSkillType *ast);
 	void findEnemiesForCell(const Vec2i pos, int size, int sightRange, const Faction *faction, vector<Unit*> &enemies, bool attackersOnly) const;
 
-	void findUnitsForCell(Cell *cell, const Unit *unit,vector<Unit*> &units);
 	vector<Unit*> findUnitsInRange(const Unit *unit, int radius);
 
 	string getUnitRangeCellsLookupItemCacheStats();
@@ -159,6 +158,8 @@ private:
 	void SwapActiveCommandState(Unit *unit, CommandStateType commandStateType,
 								const CommandType *commandType,
 								int originalValue,int newValue);
+	void findUnitsForCell(Cell *cell, vector<Unit*> &units);
+
 };
 
 // =====================================================

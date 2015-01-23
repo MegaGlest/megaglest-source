@@ -29,10 +29,13 @@ namespace Glest{ namespace Game{
 
 extern const char *mailString;
 extern const string glestVersionString;
+extern const string lastCompatibleSaveGameVersionString;
 extern const string networkVersionString;
 
 void initSpecialStrings();
 string getCrashDumpFileName();
+string getPlatformTypeNameString();
+string getPlatformArchTypeNameString();
 string getPlatformNameString();
 string getGITRevisionString();
 string getRAWGITRevisionString();
@@ -50,6 +53,8 @@ string formatString(string str);
 
 string getGameReadWritePath(string lookupKey="");
 string getGameCustomCoreDataPath(string originalBasePath, string uniqueFilePath);
+
+bool upgradeFilesInTemp();
 
 }}//end namespace
 

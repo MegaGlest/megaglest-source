@@ -88,6 +88,9 @@ UnitType::UnitType() : ProducibleType() {
 	meetingPointImage = NULL;
     lightColor= Vec3f(0.f);
     light= false;
+	healthbarheight= -100.0f;
+	healthbarthickness=-1.0f;
+	healthbarVisible=hbvUndefined;
     multiSelect= false;
     commandable= true;
 	armorType= NULL;
@@ -138,6 +141,8 @@ UnitType::UnitType() : ProducibleType() {
 	size=0;
 	renderSize=0;
 	height=0;
+	burnHeight=0;
+	targetHeight=0;
 
 	addItemToVault(&(this->maxHp),this->maxHp);
 	addItemToVault(&(this->hpRegeneration),this->hpRegeneration);
@@ -231,6 +236,22 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		//checkItemInVault(&(this->height),this->height);
 		height= parametersNode->getChild("height")->getAttribute("value")->getIntValue();
 		addItemToVault(&(this->height),this->height);
+
+		//targetHeight
+		if(parametersNode->hasChild("target-height")){
+			targetHeight= parametersNode->getChild("target-height")->getAttribute("value")->getIntValue();
+			addItemToVault(&(this->targetHeight),this->targetHeight);
+		} else {
+			targetHeight=height;
+		}
+		//burnHeight
+		if(parametersNode->hasChild("target-height")){
+			burnHeight= parametersNode->getChild("burn-height")->getAttribute("value")->getIntValue();
+			addItemToVault(&(this->burnHeight),this->burnHeight);
+		} else {
+			burnHeight=height;
+		}
+
 
 		//maxHp
 		//checkItemInVault(&(this->maxHp),this->maxHp);
@@ -446,6 +467,35 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 			}
 		}
 
+		//healthbar
+		if(parametersNode->hasChild("healthbar")) {
+			const XmlNode *healthbarNode= parametersNode->getChild("healthbar");
+			if(healthbarNode->hasChild("height")) {
+				healthbarheight= healthbarNode->getChild("height")->getAttribute("value")->getFloatValue();
+			}
+			if(healthbarNode->hasChild("thickness")) {
+				healthbarthickness= healthbarNode->getChild("thickness")->getAttribute("value")->getFloatValue(0.f, 1.f);
+			}
+			if(healthbarNode->hasChild("visible")) {
+				string healthbarVisibleString=healthbarNode->getChild("visible")->getAttribute("value")->getValue();
+				vector<string> v=split(healthbarVisibleString,"|");
+				for (int i = 0; i < (int)v.size(); ++i) {
+					string current=trim(v[i]);
+					if(current=="always") {
+						healthbarVisible=healthbarVisible|hbvAlways;
+					} else if(current=="selected") {
+						healthbarVisible=healthbarVisible|hbvSelected;
+					} else if(current=="ifNeeded") {
+						healthbarVisible=healthbarVisible|hbvIfNeeded;
+					} else if(current=="off") {
+						healthbarVisible=healthbarVisible|hbvOff;
+					} else {
+						throw megaglest_runtime_error("Unknown Healthbar Visible Option: " + current, validationMode);
+					}
+				}
+			}
+		}
+
 		//light
 		const XmlNode *lightNode= parametersNode->getChild("light");
 		light= lightNode->getAttribute("enabled")->getBoolValue();
@@ -596,13 +646,13 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 			}
 		}
 		sortedItems.clear();
-		hasDup = false;
+		//hasDup = false;
 
 		// Lootable resources (resources given/lost on death)
 		if(parametersNode->hasChild("resources-death")) {
 			const XmlNode *deathResourcesNode= parametersNode->getChild("resources-death");
 
-			for(size_t i=0; i < deathResourcesNode->getChildCount(); ++i){
+			for(unsigned int i = 0; i < deathResourcesNode->getChildCount(); ++i){
 				const XmlNode *resourceNode= deathResourcesNode->getChild("resource", i);
 				string name= resourceNode->getAttribute("name")->getRestrictedValue();
 
@@ -660,7 +710,7 @@ void UnitType::loaddd(int id,const string &dir, const TechTree *techTree,
 		if(parametersNode->hasChild("tags")) {
 			const XmlNode *tagsNode= parametersNode->getChild("tags");
 
-			for(size_t i=0; i < tagsNode->getChildCount(); ++i){
+			for(unsigned int i = 0; i < tagsNode->getChildCount(); ++i){
 				const XmlNode *resourceNode= tagsNode->getChild("tag", i);
 				string tag= resourceNode->getAttribute("value")->getRestrictedValue();
 				tags.insert(tag);

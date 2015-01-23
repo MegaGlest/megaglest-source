@@ -326,7 +326,9 @@ public:
 	void initTeamResource(const ResourceType *rt,int teamIndex, int value);
 	const Resource * getResourceForTeam(const ResourceType *rt, int teamIndex);
 	int getStoreAmountForTeam(const ResourceType *rt, int teamIndex) const;
-	bool showResourceTypeForFaction(const ResourceType *rt, const Faction *faction,bool localFactionOnly) const;
+	bool showResourceTypeForFaction(const ResourceType *rt, const Faction *faction) const;
+	bool showResourceTypeForTeam(const ResourceType *rt, int teamIndex) const;
+
 
 private:
 

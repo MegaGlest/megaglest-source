@@ -39,6 +39,9 @@ private:
 	GraphicListBox listBoxShadows;
 	GraphicLabel labelFilter;
 	GraphicListBox listBoxFilter;
+	GraphicLabel labelFilterMaxAnisotropy;
+	GraphicListBox listBoxFilterMaxAnisotropy;
+
 	GraphicLabel labelTextures3D;
 	GraphicCheckBox checkBoxTextures3D;
 	GraphicLabel labelLights;

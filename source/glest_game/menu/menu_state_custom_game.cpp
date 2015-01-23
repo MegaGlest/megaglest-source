@@ -143,7 +143,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	this->dirList = Config::getInstance().getPathListForType(ptScenarios);
 
     mainMessageBox.registerGraphicComponent(containerName,"mainMessageBox");
-	mainMessageBox.init(lang.getString("Ok"));
+	mainMessageBox.init(lang.getString("Ok"),500,300);
 	mainMessageBox.setEnabled(false);
 	mainMessageBoxState=0;
 
@@ -172,6 +172,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	needToSetChangedGameSettings = false;
 	needToRepublishToMasterserver = false;
 	needToBroadcastServerSettings = false;
+	lastGameSettingsreceivedCount = -1;
 	showMasterserverError = false;
 	tMasterserverErrorElapsed = 0;
 	masterServererErrorToShow = "---";
@@ -193,16 +194,33 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	int xoffset=10;
 
 	//create
-	int buttonx=200;
+	int buttonx=170;
 	int buttony=180;
+
+    // player status
+	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
+	listBoxPlayerStatus.init(buttonx, buttony, 150);
+	vector<string> playerStatuses;
+	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
+	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
+	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
+	listBoxPlayerStatus.setItems(playerStatuses);
+	listBoxPlayerStatus.setSelectedItemIndex(2,true);
+	listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
+	listBoxPlayerStatus.setLighted(false);
+	listBoxPlayerStatus.setVisible(true);
+	buttonx+=180;
+
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	buttonReturn.init(buttonx, buttony, 125);
+	buttonx+=130;
 
 	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
-	buttonRestoreLastSettings.init(buttonx+130, buttony, 220);
+	buttonRestoreLastSettings.init(buttonx, buttony, 220);
+	buttonx+=225;
 
 	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
-	buttonPlayNow.init(buttonx+130+225, buttony, 125);
+	buttonPlayNow.init(buttonx, buttony, 125);
 
 	labelLocalGameVersion.registerGraphicComponent(containerName,"labelLocalGameVersion");
 	labelLocalGameVersion.init(10, networkHeadPos+labelOffset);
@@ -355,19 +373,6 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	checkBoxAllowNativeLanguageTechtree.registerGraphicComponent(containerName,"checkBoxAllowNativeLanguageTechtree");
 	checkBoxAllowNativeLanguageTechtree.init(xoffset+650, mapHeadPos-70);
 	checkBoxAllowNativeLanguageTechtree.setValue(false);
-
-    // player status
-	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
-	listBoxPlayerStatus.init(810, buttony, 150);
-	vector<string> playerStatuses;
-	playerStatuses.push_back(lang.getString("PlayerStatusSetup"));
-	playerStatuses.push_back(lang.getString("PlayerStatusBeRightBack"));
-	playerStatuses.push_back(lang.getString("PlayerStatusReady"));
-	listBoxPlayerStatus.setItems(playerStatuses);
-	listBoxPlayerStatus.setSelectedItemIndex(2,true);
-	listBoxPlayerStatus.setTextColor(Vec3f(0.0f,1.0f,0.0f));
-	listBoxPlayerStatus.setLighted(false);
-	listBoxPlayerStatus.setVisible(true);
 
 	// Network Scenario
 	int scenarioX=810;
@@ -542,6 +547,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
         listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
 		listBoxTeams[i].init(xoffset+650, setupPos-30-i*rowHeight, 60);
+		listBoxTeams[i].setLighted(true);
 
 		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
 		labelNetStatus[i].init(xoffset+715, setupPos-30-i*rowHeight, 60);
@@ -733,7 +739,7 @@ void MenuStateCustomGame::reloadUI() {
     Config &config = Config::getInstance();
 
     console.resetFonts();
-	mainMessageBox.init(lang.getString("Ok"));
+	mainMessageBox.init(lang.getString("Ok"),500,300);
 
 
 	if(EndsWith(glestVersionString, "-dev") == false){
@@ -2192,8 +2198,15 @@ void MenuStateCustomGame::render() {
 
 				if(listBoxControls[i].getSelectedItemIndex()!=ctClosed){
 					renderer.renderListBox(&listBoxRMultiplier[i]);
-
 					renderer.renderListBox(&listBoxFactions[i]);
+
+					int teamnumber=listBoxTeams[i].getSelectedItemIndex();
+					Vec3f teamcolor=Vec3f(1.0f,1.0f,1.0f);
+					if(teamnumber>=0 && teamnumber<8){
+						teamcolor=crcPlayerTextureCache[teamnumber]->getPixmap()->getPixel3f(0, 0);
+					}
+					listBoxTeams[i].setTextColor(teamcolor);
+
 					renderer.renderListBox(&listBoxTeams[i]);
 					renderer.renderLabel(&labelNetStatus[i]);
 				}
@@ -2287,7 +2300,7 @@ void MenuStateCustomGame::render() {
 				renderer.renderChatManager(&chatManager);
 			}
 		}
-		renderer.renderConsole(&console,showFullConsole,true);
+		renderer.renderConsole(&console,showFullConsole?consoleFull:consoleStoredAndNormal);
 	}
 	catch(const std::exception &ex) {
 		char szBuf[8096]="";
@@ -2439,7 +2452,10 @@ void MenuStateCustomGame::update() {
 
 		if(this->autoloadScenarioName != "") {
 			listBoxScenario.setSelectedItem(formatString(this->autoloadScenarioName),false);
-
+			lastSetChangedGameSettings = time(NULL);
+			if(serverInterface != NULL){
+				lastGameSettingsreceivedCount=serverInterface->getGameSettingsUpdateCount();
+			}
 			if(listBoxScenario.getSelectedItem() != formatString(this->autoloadScenarioName)) {
 				mainMessageBoxState=1;
 				showMessageBox( "Could not find scenario name: " + formatString(this->autoloadScenarioName), "Scenario Missing", false);
@@ -2489,7 +2505,7 @@ void MenuStateCustomGame::update() {
 				publishText = lang.getString("PublishDisabled");
 			}
 
-            masterServererErrorToShow += publishText;
+            masterServererErrorToShow += "\n\n"+ publishText;
 			showMasterserverError=false;
 			mainMessageBoxState=1;
 			showMessageBox( masterServererErrorToShow, lang.getString("ErrorFromMasterserver"), false);
@@ -2845,7 +2861,15 @@ void MenuStateCustomGame::update() {
 		if(needToPublishDelayed == false || headlessServerMode == true) {
 			bool broadCastSettings = (difftime((long int)time(NULL),lastSetChangedGameSettings) >= BROADCAST_SETTINGS_SECONDS);
 
-			//printf("broadCastSettings = %d\n",broadCastSettings);
+			if(headlessServerMode==true){
+				// publish settings directly when we receive them
+				ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+				if(lastGameSettingsreceivedCount<serverInterface->getGameSettingsUpdateCount()){
+					needToBroadcastServerSettings=true;
+					lastSetChangedGameSettings = time(NULL);
+					lastGameSettingsreceivedCount=serverInterface->getGameSettingsUpdateCount();
+				}
+			}
 
 			if(broadCastSettings == true) {
 				needToBroadcastServerSettings=true;
@@ -3081,8 +3105,7 @@ void MenuStateCustomGame::publishToMasterserver() {
     publishToServerInfo["binaryCompileDate"] = getCompileDateTime();
 
 	//game info:
-	publishToServerInfo["serverTitle"] = getHumanPlayerName() + "'s game";
-	publishToServerInfo["serverTitle"] = labelGameName.getText();
+	publishToServerInfo["serverTitle"] = gameSettings.getGameName();
 	//ip is automatically set
 
 	//game setup info:
@@ -3342,7 +3365,7 @@ void MenuStateCustomGame::simpleTaskForClients(BaseThread *callingThread) {
             }
             ServerInterface *serverInterface= NetworkManager::getInstance().getServerInterface(false);
             if(serverInterface != NULL) {
-
+				lastGameSettingsreceivedCount++;
             	if(this->headlessServerMode == false || (serverInterface->getGameSettingsUpdateCount() <= lastMasterServerSettingsUpdateCount)) {
                     GameSettings gameSettings;
                     loadGameSettings(&gameSettings);
@@ -3421,6 +3444,8 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 
 		setupUIFromGameSettings(*settings);
 	}
+
+	gameSettings->setGameName(labelGameName.getText());
 
     // Test flags values
     //gameSettings->setFlagTypes1(ft1_show_map_resources);
@@ -3704,7 +3729,7 @@ void MenuStateCustomGame::loadGameSettings(GameSettings *gameSettings,bool force
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] i = %d, factionFiles[listBoxFactions[i].getSelectedItemIndex()] [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,i,factionFiles[listBoxFactions[i].getSelectedItemIndex()].c_str());
 
 			gameSettings->setFactionTypeName(slotIndex, factionFiles[listBoxFactions[i].getSelectedItemIndex()]);
-			gameSettings->setNetworkPlayerName(slotIndex, "Closed");
+			gameSettings->setNetworkPlayerName(slotIndex, GameConstants::NETWORK_SLOT_CLOSED_SLOTNAME);
 			gameSettings->setNetworkPlayerUUID(slotIndex,"");
 			gameSettings->setNetworkPlayerPlatform(slotIndex,"");
 
@@ -3969,6 +3994,8 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 		else {
 			listBoxFogOfWar.setSelectedItemIndex(0);
 		}
+		checkBoxAllowTeamUnitSharing.setValue(scenarioInfo.allowTeamUnitSharing);
+		checkBoxAllowTeamResourceSharing.setValue(scenarioInfo.allowTeamResourceSharing);
 	}
 	setupMapList(gameSettings.getScenario());
 	setupTechList(gameSettings.getScenario(),false);
@@ -4666,6 +4693,9 @@ void MenuStateCustomGame::processScenario() {
 				listBoxFogOfWar.setSelectedItemIndex(0);
 			}
 
+			checkBoxAllowTeamUnitSharing.setValue(scenarioInfo.allowTeamUnitSharing);
+			checkBoxAllowTeamResourceSharing.setValue(scenarioInfo.allowTeamResourceSharing);
+
 			setupTechList(scenarioInfo.name, false);
 			listBoxTechTree.setSelectedItem(formatString(scenarioInfo.techTreeName));
 			reloadFactions(false,scenarioInfo.name);
@@ -4836,6 +4866,8 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 			}
 			listBoxFogOfWar.setEditable(false);
 			checkBoxAllowObservers.setEditable(false);
+			checkBoxAllowTeamUnitSharing.setEditable(false);
+			checkBoxAllowTeamResourceSharing.setEditable(false);
 			//listBoxPathFinderType.setEditable(false);
 			checkBoxEnableSwitchTeamMode.setEditable(false);
 			listBoxAISwitchTeamAcceptPercent.setEditable(false);
@@ -4856,6 +4888,8 @@ void MenuStateCustomGame::SetupUIForScenarios() {
 			}
 			listBoxFogOfWar.setEditable(true);
 			checkBoxAllowObservers.setEditable(true);
+			checkBoxAllowTeamUnitSharing.setEditable(true);
+			checkBoxAllowTeamResourceSharing.setEditable(true);
 			//listBoxPathFinderType.setEditable(true);
 			checkBoxEnableSwitchTeamMode.setEditable(true);
 			listBoxAISwitchTeamAcceptPercent.setEditable(true);
@@ -4887,11 +4921,12 @@ int MenuStateCustomGame::setupMapList(string scenario) {
 		string scenarioDir = Scenario::getScenarioDir(dirList, scenario);
 		vector<string> pathList = config.getPathListForType(ptMaps,scenarioDir);
 		vector<string> allMaps = MapPreview::findAllValidMaps(pathList,scenarioDir,false,true,&invalidMapList);
-
+		// sort map list non case sensitive
+		std::sort(allMaps.begin(),allMaps.end(),compareNonCaseSensitive);
 		if(scenario != "") {
 			vector<string> allMaps2 = MapPreview::findAllValidMaps(config.getPathListForType(ptMaps,""),"",false,true,&invalidMapList);
 			copy(allMaps2.begin(), allMaps2.end(), std::inserter(allMaps, allMaps.begin()));
-			std::sort(allMaps.begin(),allMaps.end());
+			std::sort(allMaps.begin(),allMaps.end(),compareNonCaseSensitive);
 		}
 
 		if (allMaps.empty()) {

@@ -79,6 +79,8 @@ cd "$CURRENTDIR"
 # START
 # remove embedded data
 rm -rf "$RELEASEDIR/data/core/fonts"
+# remove cegui data
+rm -rf "$RELEASEDIR/data/cegui"
 # END
 
 echo "creating $PACKAGE"

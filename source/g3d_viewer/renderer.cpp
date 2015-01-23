@@ -200,6 +200,10 @@ Model * Renderer::newModel(ResourceScope rs,const string &path,bool deletePixMap
     return modelManager->newModel(path,deletePixMapAfterLoad,loadedFileList,sourceLoader);
 }
 
+void Renderer::endModel(ResourceScope rs,Model *model) {
+	modelManager->endModel(model);
+}
+
 void Renderer::init() {
 	assertGl();
 

@@ -4,7 +4,7 @@
 !define APNAME MegaGlest
 !define APNAME_OLD Mega-Glest
 !define APVER_OLD 3.9.1
-!define APVER 3.10.0-dev
+!define APVER 3.11.0
 
 Name "${APNAME} ${APVER}"
 SetCompressor /FINAL /SOLID lzma
@@ -16,7 +16,7 @@ UninstallIcon "..\..\shared\megaglest.ico"
 !define MUI_UNICON "..\..\shared\megaglest.ico"
 InstallDir "$PROGRAMFILES\${APNAME}"
 ShowInstDetails show
-BGGradient 0xDF9437 0xffffff
+;BGGradient 0xDF9437 0xffffff
 
 ; Request application privileges for Windows Vista
 RequestExecutionLevel none
@@ -31,6 +31,8 @@ PageEx license
        LicenseData "..\..\..\data\glest_game\docs\cc-by-sa-3.0-unported.txt"
 PageExEnd
 
+;---- add local plugins dir
+!addPluginDir "plugins"
 ;--------------------------------
 ; Images not included!
 ; Use your own animated GIFs please
@@ -67,7 +69,7 @@ Function myGUIInit
   File megaglestinstallscreen.jpg
 
   FindWindow $0 '_Nb'
-  EBanner::show /NOUNLOAD /FIT=BOTH /HWND=$0 "$PLUGINSDIR\megaglestinstallscreen.jpg"
+  #EBanner::show /NOUNLOAD /FIT=BOTH /HWND=$0 "$PLUGINSDIR\megaglestinstallscreen.jpg"
   #BgImage::SetBg /NOUNLOAD /FILLSCREEN "$PLUGINSDIR\megaglestinstallscreen.jpg"
   #BgImage::Redraw /NOUNLOAD
 
@@ -81,7 +83,7 @@ Function un.myGUIInit
   File megaglestinstallscreen.jpg
 
   FindWindow $0 '_Nb'
-  EBanner::show /NOUNLOAD /FIT=BOTH /HWND=$0 "$PLUGINSDIR\megaglestinstallscreen.jpg"
+  #EBanner::show /NOUNLOAD /FIT=BOTH /HWND=$0 "$PLUGINSDIR\megaglestinstallscreen.jpg"
 FunctionEnd
   
 Function MUIGUIInit
@@ -173,7 +175,7 @@ FunctionEnd
 
 Function .onGUIEnd
 
-  EBanner::stop
+  #EBanner::stop
 
 FunctionEnd
 
@@ -235,7 +237,7 @@ Section "${APNAME} (required)"
   File /r /x .svn /x mydata "..\..\..\source\tools\glexemel\*.*"
   SetOutPath $INSTDIR
 
-  File /r /x .svn /x mydata "..\..\..\data\glest_game\data"
+  File /r /x .svn /x mydata /x cegui "..\..\..\data\glest_game\data"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\docs"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\maps"
   File /r /x .svn /x mydata "..\..\..\data\glest_game\scenarios"

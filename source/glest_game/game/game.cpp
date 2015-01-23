@@ -115,6 +115,7 @@ Game::Game() : ProgramState(NULL) {
 	renderFpsAvgTest=0;
 	renderExtraTeamColor=0;
 	photoModeEnabled=false;
+	healthbarMode=hbvUndefined;
 	visibleHUD=false;
 	timeDisplay=false;
 	withRainEffect=false;
@@ -190,11 +191,15 @@ void Game::resetMembers() {
 	GameConstants::updateFps= 40;
 	GameConstants::cameraFps= 100;
 	captureAvgTestStatus = false;
+	updateFpsAvgTest=0;
+	renderFpsAvgTest=0;
 	lastRenderLog2d		 = 0;
-	lastMasterServerGameStatsDump = 0;
-	totalRenderFps       = 0;
-	lastMaxUnitCalcTime  = 0;
-	renderExtraTeamColor = 0;
+	playerIndexDisconnect=0;
+	lastMasterServerGameStatsDump=0;
+	highlightCellTexture=NULL;
+	totalRenderFps       =0;
+	lastMaxUnitCalcTime  =0;
+	renderExtraTeamColor =0;
 
 	mouseMoved= false;
 	quitTriggeredIndicator = false;
@@ -235,6 +240,7 @@ void Game::resetMembers() {
 
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
 	photoModeEnabled = Config::getInstance().getBool("PhotoMode","false");
+	healthbarMode = Config::getInstance().getInt("HealthBarMode","0");
 	visibleHUD = Config::getInstance().getBool("VisibleHud","true");
 	timeDisplay = Config::getInstance().getBool("TimeDisplay","true");
 	withRainEffect = Config::getInstance().getBool("RainEffect","true");
@@ -269,6 +275,7 @@ void Game::resetMembers() {
 	this->speed= 1;
 	showFullConsole= false;
 	setMarker = false;
+	cameraDragAllowed=false;
 	camLeftButtonDown=false;
 	camRightButtonDown=false;
 	camUpButtonDown=false;
@@ -309,6 +316,11 @@ Game::Game(Program *program, const GameSettings *gameSettings,bool masterserverM
 	this->masterserverMode = masterserverMode;
 	videoPlayer = NULL;
 	playingStaticVideo = false;
+	highlightCellTexture = NULL;
+	playerIndexDisconnect=0;
+	updateFpsAvgTest=0;
+	renderFpsAvgTest=0;
+	cameraDragAllowed=false;
 
 	if(this->masterserverMode == true) {
 		printf("Starting a new game...\n");
@@ -328,6 +340,7 @@ void Game::endGame() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	quitGame();
+	sleep(0);
 
 	Object::setStateCallback(NULL);
 	thisGamePtr = NULL;
@@ -1242,7 +1255,8 @@ void Game::init(bool initForPreviewOnly) {
 		//message box
 		errorMessageBox.init(lang.getString("Ok"));
 		errorMessageBox.setEnabled(false);
-		errorMessageBox.setY(mainMessageBox.getY() - mainMessageBox.getH() - 10);
+		errorMessageBox.setY(20);
+
 
 		//init world, and place camera
 		commander.init(&world);
@@ -2169,7 +2183,7 @@ void Game::update() {
 					}
 
 					if(currentCameraFollowUnit != NULL) {
-						Vec3f c=currentCameraFollowUnit->getCurrVector();
+						Vec3f c=currentCameraFollowUnit->getCurrMidHeightVector();
 						int rotation=currentCameraFollowUnit->getRotation();
 						float angle=rotation+180;
 
@@ -4109,8 +4123,7 @@ void Game::mouseDownLeft(int x, int y) {
 				if(setMarker) {
 					Vec2i targetPos;
 					Vec2i screenPos(x,y-60);
-					Renderer &renderer= Renderer::getInstance();
-					renderer.computePosition(screenPos, targetPos);
+					targetPos=getMouseCellPos();
 					//Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
 
 
@@ -4124,8 +4137,7 @@ void Game::mouseDownLeft(int x, int y) {
 				if(originalIsMarkCellEnabled == true && isMarkCellEnabled == true) {
 					Vec2i targetPos;
 					Vec2i screenPos(x,y-60);
-					Renderer &renderer= Renderer::getInstance();
-					renderer.computePosition(screenPos, targetPos);
+					targetPos=getMouseCellPos();
 					Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
 
 					MarkedCell mc(targetPos,world.getThisFaction(),"placeholder for note",world.getThisFaction()->getStartLocationIndex());
@@ -4139,14 +4151,13 @@ void Game::mouseDownLeft(int x, int y) {
 					chatManager.switchOnEdit(this,500);
 
 					//renderer.updateMarkedCellScreenPosQuadCache(surfaceCellPos);
-					renderer.forceQuadCacheUpdate();
+					Renderer::getInstance().forceQuadCacheUpdate();
 				}
 
 				if(originalIsUnMarkCellEnabled == true && isUnMarkCellEnabled == true) {
 					Vec2i targetPos;
 					Vec2i screenPos(x,y-35);
-					Renderer &renderer= Renderer::getInstance();
-					renderer.computePosition(screenPos, targetPos);
+					targetPos=getMouseCellPos();
 					Vec2i surfaceCellPos = map->toSurfCoords(targetPos);
 
 //					if(mapMarkedCellList.find(surfaceCellPos) != mapMarkedCellList.end()) {
@@ -4164,7 +4175,7 @@ void Game::mouseDownLeft(int x, int y) {
 
 					//Renderer &renderer= Renderer::getInstance();
 					//renderer.updateMarkedCellScreenPosQuadCache(surfaceCellPos);
-					renderer.forceQuadCacheUpdate();
+					Renderer::getInstance().forceQuadCacheUpdate();
 				}
 			}
 		}
@@ -4246,9 +4257,8 @@ void Game::mouseDownRight(int x, int y) {
 		else {
 			Vec2i targetPos;
 			Vec2i screenPos(x,y);
-			Renderer &renderer= Renderer::getInstance();
-			renderer.computePosition(screenPos, targetPos);
-			if(renderer.computePosition(screenPos, targetPos) == true &&
+			targetPos=getMouseCellPos();
+			if(isValidMouseCellPos() == true &&
 				map->isInsideSurface(map->toSurfCoords(targetPos)) == true) {
 				gui.mouseDownRightGraphics(x, y,false);
 			}
@@ -4508,7 +4518,7 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 		lastMousePos.y = mouseY;
 
 		Renderer &renderer= Renderer::getInstance();
-		renderer.computePosition(Vec2i(mouseX, mouseY), mouseCellPos);
+		renderer.ccomputePosition(Vec2i(mouseX, mouseY), mouseCellPos);
 	}
 	catch(const exception &ex) {
 		char szBuf[8096]="";
@@ -4525,6 +4535,15 @@ void Game::mouseMove(int x, int y, const MouseState *ms) {
 			networkManager.getGameNetworkInterface()->quitGame(true);
 		}
 		ErrorDisplayMessage(ex.what(),true);
+	}
+}
+
+bool Game::isValidMouseCellPos() const{
+	if(world.getMap() == NULL){
+		return false;
+	}
+	else {
+		return world.getMap()->isInside(mouseCellPos);
 	}
 }
 
@@ -4566,7 +4585,7 @@ void Game::startCameraFollowUnit() {
 		if(currentUnit != NULL) {
 			currentCameraFollowUnit = currentUnit;
 			getGameCameraPtr()->setState(GameCamera::sUnit);
-			getGameCameraPtr()->setPos(currentCameraFollowUnit->getCurrVector());
+			getGameCameraPtr()->setPos(currentCameraFollowUnit->getCurrMidHeightVector());
 
 			int rotation=currentCameraFollowUnit->getRotation();
 			getGameCameraPtr()->stop();
@@ -4654,6 +4673,39 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 					gameCamera.setMaxHeight(-1);
 				}
 
+			}
+			//Toggle Healthbars
+			else if(isKeyPressed(configKeys.getSDLKey("ToggleHealthbars"),key, false) == true) {
+				switch (healthbarMode) {
+					case hbvUndefined:
+						healthbarMode=hbvOff;
+						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsOff"));
+						break;
+					case hbvOff:
+						healthbarMode=hbvAlways;
+						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsAlways"));
+						break;
+					case hbvAlways:
+						healthbarMode=hbvIfNeeded;
+						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsIfNeeded"));
+						break;
+					case hbvIfNeeded:
+						healthbarMode=hbvSelected;
+						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsSelected"));
+						break;
+					case hbvSelected:
+						healthbarMode=hbvSelected | hbvIfNeeded;
+						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsSelectedOrNeeded"));
+						break;
+					case (hbvSelected | hbvIfNeeded):
+						healthbarMode=hbvUndefined;
+						console.addLine(lang.getString("Healthbar")+": "+lang.getString("HealthbarsFactionDefault"));
+						break;
+					default:
+						printf("In [%s::%s Line: %d] Toggle Healthbars Hotkey - Invalid Value. Setting to default.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+						healthbarMode=hbvUndefined;
+						break;
+				}
 			}
 			//Toggle music
 			//else if(key == configKeys.getCharKey("ToggleMusic")) {
@@ -5205,7 +5257,7 @@ void Game::render3d(){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
 	//selection circles
-	renderer.renderSelectionEffects();
+	renderer.renderSelectionEffects(healthbarMode);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderSelectionEffects]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
 
@@ -5255,6 +5307,11 @@ void Game::render3d(){
 	renderer.renderParticleManager(rsGame);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) SystemFlags::OutputDebug(SystemFlags::debugPerformance,"In [%s::%s Line: %d] renderFps = %d took msecs: %lld [renderParticleManager]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,renderFps,chrono.getMillis());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugPerformance).enabled && chrono.getMillis() > 0) chrono.start();
+
+	//renderOnTopBars (aka Healthbars)
+	if(photoModeEnabled == false) {
+		renderer.renderHealthBars(healthbarMode);
+	}
 
 	//mouse 3d
 	renderer.renderMouse3d();
@@ -5411,11 +5468,11 @@ string Game::getDebugStats(std::map<int,string> &factionDebugInfo) {
 		factionInfo +=	" [" + formatString(this->gameSettings.getFactionTypeName(i)) +
 				" team: " + intToStr(this->gameSettings.getTeam(i)) + "]";
 
-//		bool showResourceDebugInfo = false;
+//		bool showResourceDebugInfo = true;
 //		if(showResourceDebugInfo == true) {
 //			factionInfo +=" res: ";
 //			for(int j = 0; j < world.getTechTree()->getResourceTypeCount(); ++j) {
-//				factionInfo += intToStr(world.getFaction(i)->getResource(j)->getAmount());
+//				factionInfo += world.getFaction(i)->getResource(j)->getType()->getName()+":"+intToStr(world.getFaction(i)->getResource(j)->getAmount());
 //				factionInfo += " ";
 //			}
 //		}
@@ -5629,7 +5686,7 @@ void Game::render2d() {
 		if(this->masterserverMode == false) {
 			renderer.renderResourceStatus();
 		}
-		renderer.renderConsole(&console,showFullConsole);
+		renderer.renderConsole(&console,showFullConsole?consoleFull:consoleNormal);
     }
 
     //2d mouse
@@ -6650,7 +6707,7 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 
 		Lang &lang= Lang::getInstance();
 		string gameVer = versionNode->getAttribute("version")->getValue();
-		if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false) {
+		if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false){
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,lang.getString("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
 			throw megaglest_runtime_error(szBuf,true);
@@ -6711,7 +6768,10 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 
 	Lang &lang= Lang::getInstance();
 	string gameVer = versionNode->getAttribute("version")->getValue();
-	if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false) {
+	// this is the version check for loading normal save games from menu_state_load_game
+	if (gameVer != glestVersionString
+			&& (compareMajorMinorVersion(gameVer, lastCompatibleSaveGameVersionString) < 0
+					|| compareMajorMinorVersion(glestVersionString, gameVer) < 0)) {
 		char szBuf[8096]="";
 		snprintf(szBuf,8096,lang.getString("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
 		throw megaglest_runtime_error(szBuf,true);
@@ -6729,6 +6789,12 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 		XmlNode *selectionNode = guiNode->getChild("Selection");
 		XmlNode *statsNode = worldNode->getChild("Stats");
 		XmlNode *minimapNode = worldNode->getChild("Minimap");
+
+		if(gameVer != glestVersionString && checkVersionComptability(gameVer, glestVersionString) == false){
+			char szBuf[8096]="";
+			snprintf(szBuf,8096,lang.getString("SavedGameBadVersion").c_str(),gameVer.c_str(),glestVersionString.c_str());
+			throw megaglest_runtime_error(szBuf,true);
+		}
 		// This is explored fog of war for the host player, clear it
 		minimapNode->clearChild("fowPixmap1");
 
@@ -6801,7 +6867,13 @@ void Game::loadGame(string name,Program *programPtr,bool isMasterserverMode,cons
 	newGame->tickCount = gameNode->getAttribute("tickCount")->getIntValue();
 
 	//bool paused;
-	newGame->paused = gameNode->getAttribute("paused")->getIntValue() != 0;
+	if(newGame->inJoinGameLoading==true){
+		newGame->paused = gameNode->getAttribute("paused")->getIntValue() != 0;
+	}else{
+		//newGame->paused = gameNode->getAttribute("paused")->getIntValue() != 0;
+		newGame->paused = true;
+	}
+	if(newGame->paused) newGame->console.addLine(lang.getString("GamePaused"));
 	//bool gameOver;
 	newGame->gameOver = gameNode->getAttribute("gameOver")->getIntValue() != 0;
 	//bool renderNetworkStatus;

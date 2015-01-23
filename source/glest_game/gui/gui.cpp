@@ -256,8 +256,8 @@ void Gui::mouseMoveOutsideDisplay() {
 void Gui::mouseDownLeftGraphics(int x, int y, bool prepared) {
 	if(selectingPos) {
 		//give standard orders
-		Vec2i targetPos;
-		if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos) &&
+		Vec2i targetPos=game->getMouseCellPos();
+		if(game->isValidMouseCellPos() &&
 			world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
 			giveTwoClickOrders(x, y, prepared);
 		}
@@ -266,8 +266,8 @@ void Gui::mouseDownLeftGraphics(int x, int y, bool prepared) {
 	//set meeting point
 	else if(selectingMeetingPoint) {
 		if(selection.isCommandable()) {
-			Vec2i targetPos;
-			if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos) &&
+			Vec2i targetPos=game->getMouseCellPos();
+			if(game->isValidMouseCellPos() &&
 				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
 				commander->trySetMeetingPoint(selection.getFrontUnit(), targetPos);
 			}
@@ -287,15 +287,15 @@ void Gui::mouseDownRightGraphics(int x, int y , bool prepared) {
 	}
 	else if(selection.isCommandable()) {
 		if(prepared) {
-			Vec2i targetPos;
-			if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos) &&
+			Vec2i targetPos=game->getMouseCellPos();
+			if(game->isValidMouseCellPos() &&
 				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
 				givePreparedDefaultOrders(x, y);
 			}
 		}
 		else {
-			Vec2i targetPos;
-			if(Renderer::getInstance().computePosition(Vec2i(x, y), targetPos) &&
+			Vec2i targetPos=game->getMouseCellPos();
+			if(game->isValidMouseCellPos() &&
 				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
 				giveDefaultOrders(x, y);
 			}
@@ -314,7 +314,7 @@ void Gui::mouseUpLeftGraphics(int x, int y) {
 			if(selection.isCommandable() && random.randRange(0, 1)==0){
 				SoundRenderer::getInstance().playFx(
 					selection.getFrontUnit()->getType()->getSelectionSound(),
-					selection.getFrontUnit()->getCurrVector(),
+					selection.getFrontUnit()->getCurrMidHeightVector(),
 					gameCamera->getPos());
 			}
 			selectionQuad.disable();
@@ -331,7 +331,8 @@ void Gui::mouseMoveGraphics(int x, int y) {
 
 	//compute position for building
 	if(isPlacingBuilding()){
-		validPosObjWorld= Renderer::getInstance().computePosition(Vec2i(x,y), posObjWorld);
+		posObjWorld=game->getMouseCellPos();
+		validPosObjWorld= game->isValidMouseCellPos();
 	}
 
 	display.setInfoText("");
@@ -488,7 +489,7 @@ void Gui::giveDefaultOrders(int x, int y,const Unit *targetUnit, bool paintMouse
 		if(random.randRange(0, 1)==0){
 			SoundRenderer::getInstance().playFx(
 				selection.getFrontUnit()->getType()->getCommandSound(),
-				selection.getFrontUnit()->getCurrVector(),
+				selection.getFrontUnit()->getCurrMidHeightVector(),
 				gameCamera->getPos());
 		}
 	}
@@ -543,7 +544,7 @@ void Gui::giveTwoClickOrders(int x, int y , bool prepared) {
 		if(random.randRange(0, 1) == 0) {
 			SoundRenderer::getInstance().playFx(
 				selection.getFrontUnit()->getType()->getCommandSound(),
-				selection.getFrontUnit()->getCurrVector(),
+				selection.getFrontUnit()->getCurrMidHeightVector(),
 				gameCamera->getPos());
 		}
 	}
@@ -768,6 +769,7 @@ void Gui::computeInfoString(int posDisplay){
 							display.setInfoText(ct->getDesc(unit->getTotalUpgrade(),game->showTranslatedTechTree()));
 						}
 						else{
+							display.setInfoText(ct->getReqDesc(game->showTranslatedTechTree()));
 							if(ct->getClass()==ccUpgrade){
 								string text="";
 								const UpgradeCommandType *uct= static_cast<const UpgradeCommandType*>(ct);
@@ -779,8 +781,19 @@ void Gui::computeInfoString(int posDisplay){
 								}
 								display.setInfoText(text+ct->getReqDesc(game->showTranslatedTechTree()));
 							}
-							else{
-								display.setInfoText(ct->getReqDesc(game->showTranslatedTechTree()));
+							//locked by scenario
+							else if(ct->getClass()==ccProduce){
+								string text="";
+								const ProduceCommandType *pct= static_cast<const ProduceCommandType*>(ct);
+								if(unit->getFaction()->isUnitLocked(pct->getProducedUnit())){
+									display.setInfoText(lang.getString("LockedByScenario")+"\n\n"+ct->getReqDesc(game->showTranslatedTechTree()));
+								}
+							}
+							else if(ct->getClass()==ccMorph){
+								const MorphCommandType *mct= static_cast<const MorphCommandType*>(ct);
+								if(unit->getFaction()->isUnitLocked(mct->getMorphUnit())){
+									display.setInfoText(lang.getString("LockedByScenario")+"\n\n"+ct->getReqDesc(game->showTranslatedTechTree()));
+								}
 							}
 						}
 					}
@@ -802,8 +815,14 @@ void Gui::computeInfoString(int posDisplay){
 			}
 			else{
 				if(activeCommandType!=NULL && activeCommandType->getClass()==ccBuild){
+					//locked by scenario
 					const BuildCommandType *bct= static_cast<const BuildCommandType*>(activeCommandType);
-					display.setInfoText(bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
+					const Unit *unit= selection.getFrontUnit();
+					if(unit->getFaction()->isUnitLocked(bct->getBuilding(posDisplay))){
+						display.setInfoText(lang.getString("LockedByScenario")+"\n\n"+bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
+					} else {
+						display.setInfoText(bct->getBuilding(posDisplay)->getReqDesc(game->showTranslatedTechTree()));
+					}
 				}
 			}
 		}
@@ -1142,8 +1161,7 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 		if(selObj != NULL) {
 			selObj->resetHighlight();
 			// get real click pos
-			renderer.computePosition(screenPos, targetPos);
-
+			targetPos=game->getMouseCellPos();
 			//validPosObjWorld= true;
 			//posObjWorld = targetPos;
 
@@ -1234,7 +1252,8 @@ bool Gui::computeTarget(const Vec2i &screenPos, Vec2i &targetPos, const Unit *&t
 	}
 	else{
 		targetUnit= NULL;
-		if(renderer.computePosition(screenPos, targetPos)){
+		targetPos=game->getMouseCellPos();
+		if(game->isValidMouseCellPos()){
 			validPosObjWorld= true;
 			posObjWorld= targetPos;
 

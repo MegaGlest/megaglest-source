@@ -619,7 +619,7 @@ void updatePathClimbingParts(string &path,bool processPreviousDirTokenCheck) {
 					//printf("x [%d][%c] pos [%ld][%c] [%s]\n",x,path[x],(long int)pos,path[pos],path.substr(0,x+1).c_str());
 
 					if((path[x] == '/' || path[x] == '\\') && x != (int)pos) {
-						string origLoop = path;
+						//string origLoop = path;
 						path.erase(x,(int)pos-x);
 
 						//printf("#5 [%d] [%d] [%d] CHANGE relative path from [%s] to [%s]\n",(int)pos,(int)x,(int)origLoop.length(),origLoop.c_str(),path.c_str());
@@ -2455,7 +2455,7 @@ void ValueCheckerVault::checkItemInVault(const void *ptr,int value) const {
 }
 
 string getUserHome() {
-	string home_folder = "";
+	string home_folder;
 	home_folder = safeCharPtrCopy(getenv("HOME"),8095);
 	if(home_folder == "") {
 #if _BSD_SOURCE || _SVID_SOURCE || _XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED

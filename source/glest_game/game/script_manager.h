@@ -282,6 +282,7 @@ private:
 	void createUnit(const string &unitName, int factionIndex, Vec2i pos);
 	void createUnitNoSpacing(const string &unitName, int factionIndex, Vec2i pos);
 
+	void setLockedUnitForFaction(const string &unitName, int factionIndex , bool lock);
 	void destroyUnit(int unitId);
 	void giveKills(int unitId, int amount);
 	void morphToUnit(int unitId,const string &morphName, int ignoreRequirements);
@@ -448,6 +449,7 @@ private:
 	static int createUnit(LuaHandle* luaHandle);
 	static int createUnitNoSpacing(LuaHandle* luaHandle);
 
+	static int setLockedUnitForFaction(LuaHandle* luaHandle);
 	static int destroyUnit(LuaHandle* luaHandle);
 	static int giveKills(LuaHandle* luaHandle);
 	static int morphToUnit(LuaHandle* luaHandle);

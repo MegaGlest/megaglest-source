@@ -709,6 +709,22 @@ string replaceBy(const string &s, char c1, char c2){
 	return rs;
 }
 
+vector<string> split(string s,string d) {
+    vector<string> results;
+    size_t lastOffset = 0;
+
+    while(true)
+    {
+        size_t offset = s.find_first_of(d, lastOffset);
+        results.push_back(s.substr(lastOffset, offset - lastOffset));
+        if (offset == string::npos)
+            break;
+        else
+            lastOffset = offset + d.size(); //skip the delimiter
+    }
+    return results;
+}
+
 string toLower(const string &s){
 	string rs= s;
 
@@ -717,6 +733,10 @@ string toLower(const string &s){
 	}
 
 	return rs;
+}
+
+bool compareNonCaseSensitive(const string a, const string b) {
+	return (toLower(a) < toLower(b));
 }
 
 void copyStringToBuffer(char *buffer, int bufferSize, const string& s){
@@ -771,6 +791,67 @@ int round(float f){
 }
 
 // ==================== misc ====================
+int compareMajorMinorVersion(string versionA,string versionB) {
+	int majorA = getMajor(versionA);
+	int minorA = getMinor(versionA);
+	int majorB = getMajor(versionB);
+	int minorB = getMinor(versionB);
+
+	//printf("majorA:%d  minorA:%d majorB:%d minorB:%d\n",majorA,minorA,majorB,minorB);
+	if(majorA < majorB) {
+		return -1;
+	}
+	else if(majorA == majorB) {
+		if(minorA < minorB) {
+			return -1;
+		}
+		else if(minorA == minorB) {
+			return 0;
+		}
+		else {
+			return 1;
+		}
+	}
+	else {
+		return 1;
+	}
+}
+
+int getMajor(string version) {
+	vector<string> parts = split(version.substr(1),".");
+
+	if(parts.size() > 1 && parts[0] != "" && IsNumeric(parts[0].c_str(),false)) {
+		return strToInt(parts[0]);
+	}
+	else {
+		return 0;
+	}
+}
+
+int getMinor(string version) {
+	vector<string> parts = split(version.substr(1),".");
+	if(parts.size() > 1 && parts[1] != "") {
+		string resultStr="";
+		for (int i = 0; i < (int)parts[1].length(); ++i) {
+			// just add leading numbers
+			if(IsNumeric((resultStr + parts[1][i]).c_str(),false) ) {
+				resultStr += parts[1][i];
+			}
+			else {
+				break;
+			}
+		}
+		if(resultStr == "") {
+			return 0;
+		}
+		else {
+			return strToInt(resultStr);
+		}
+	}
+	else {
+		return 0;
+	}
+}
 
 bool checkVersionComptability(string clientVersionString, string serverVersionString) {
 	//SystemFlags::VERBOSE_MODE_ENABLED = true;

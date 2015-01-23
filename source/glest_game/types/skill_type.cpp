@@ -62,38 +62,25 @@ bool AttackBoost::isAffected(const Unit *source, const Unit *dest) const {
 		else {
 			// All units are affected (including enemies)
 			if(targetType == abtAll) {
-				destUnitMightApply = (boostUnitList.empty() && tags.empty());
-				destUnitMightApply = isInUnitListOrTags(dest->getType());
+				destUnitMightApply = (boostUnitList.empty() && tags.empty()) || isInUnitListOrTags(dest->getType());;
 			}
 			// Only same faction units are affected
 			else if(targetType == abtFaction) {
-				//if(boostUnitList.empty() == true) {
 				if(source->getFactionIndex() == dest->getFactionIndex()) {
-					//destUnitMightApply = true;
-					destUnitMightApply = (boostUnitList.empty() && tags.empty());
-					destUnitMightApply = isInUnitListOrTags(dest->getType());
+					destUnitMightApply = (boostUnitList.empty() && tags.empty()) || isInUnitListOrTags(dest->getType());
 				}
-				//}
 			}
 			// Only ally units are affected
 			else if(targetType == abtAlly) {
-				//if(boostUnitList.empty() == true) {
 				if(source->isAlly(dest) == true) {
-					//destUnitMightApply = true;
-					destUnitMightApply = (boostUnitList.empty() && tags.empty());
-					destUnitMightApply = isInUnitListOrTags(dest->getType());
+					destUnitMightApply = (boostUnitList.empty() && tags.empty()) || isInUnitListOrTags(dest->getType());
 				}
-				//}
 			}
 			// Only foe units are affected
 			else if(targetType == abtFoe) {
-				//if(boostUnitList.empty() == true) {
 				if(source->isAlly(dest) == false) {
-					//destUnitMightApply = true;
-					destUnitMightApply = (boostUnitList.empty() && tags.empty());
-					destUnitMightApply = isInUnitListOrTags(dest->getType());
+					destUnitMightApply = (boostUnitList.empty() && tags.empty()) || isInUnitListOrTags(dest->getType());
 				}
-				//}
 			}
 			else if(targetType == abtUnitTypes) {
 				destUnitMightApply = isInUnitListOrTags(dest->getType());
@@ -533,9 +520,21 @@ void SkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 					unitParticleSystemType->setEndTime(particleNode->getAttribute("end-time")->getFloatValue());
 				}
 
+				if(particleNode->getChild(i)->hasAttribute("minHp") && particleNode->getChild(i)->hasAttribute("maxHp")) {
+					unitParticleSystemType->setMinmaxEnabled(true);
+					unitParticleSystemType->setMinHp(particleNode->getChild(i)->getAttribute("minHp")->getIntValue());
+					unitParticleSystemType->setMaxHp(particleNode->getChild(i)->getAttribute("maxHp")->getIntValue());
+
+					if(particleNode->getChild(i)->hasAttribute("ispercentbased")) {
+						unitParticleSystemType->setMinmaxIsPercent(particleNode->getChild(i)->getAttribute("ispercentbased")->getBoolValue());
+					}
+				}
+
 				loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleFileNode->getAttribute("path")->getRestrictedValue()));
 				unitParticleSystemTypes.push_back(unitParticleSystemType);
 			}
+
+			//printf("Load skill particles line: %d size: %d\n",__LINE__,(int)unitParticleSystemTypes.size());
 		}
 	}
 
@@ -655,7 +654,7 @@ Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 						const AnimationAttributes &attributes = animationAttributes[i];
 						if(attributes.fromHp != 0 || attributes.toHp != 0) {
 							if(unit->getHp() >= attributes.fromHp && unit->getHp() <= attributes.toHp) {
-								modelIndex = i;
+								//modelIndex = i;
 								foundSpecificAnimation = true;
 								filteredAnimations.push_back(i);
 								//printf("SELECTING Model index = %d [%s] model attributes [%d to %d] for unit [%s - %d] with HP = %d\n",i,animations[modelIndex]->getFileName().c_str(),attributes.fromHp,attributes.toHp,unit->getType()->getName().c_str(),unit->getId(),unit->getHp());
@@ -669,7 +668,7 @@ Model *SkillType::getAnimation(float animProgress, const Unit *unit,
 						for(unsigned int i = 0; i < animationAttributes.size(); ++i) {
 							const AnimationAttributes &attributes = animationAttributes[i];
 							if(attributes.fromHp == 0 && attributes.toHp == 0) {
-								modelIndex = i;
+								//modelIndex = i;
 								foundSpecificAnimation = true;
 								filteredAnimations.push_back(i);
 									//printf("SELECTING Model index = %d [%s] model attributes [%d to %d] for unit [%s - %d] with HP = %d\n",i,animations[modelIndex]->getFileName().c_str(),attributes.fromHp,attributes.toHp,unit->getType()->getName().c_str(),unit->getId(),unit->getHp());
@@ -933,15 +932,17 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 		projectile= projectileNode->getAttribute("value")->getBoolValue();
 		if(projectile){
 			// create new projectile
-				ProjectileType *projectileType=new ProjectileType();
-				projectileTypes.push_back(projectileType);
-				projectileType->setAttackStartTime(attackStartTime);
-				projectileType->setDamagePercentage(100);
+			ProjectileType *projectileType = new ProjectileType();
+			//only add this projectile if there is an enabled particlesystem
+			//projectileTypes.push_back(projectileType);
+			projectileType->setAttackStartTime(attackStartTime);
+			projectileType->setDamagePercentage(100);
 			//proj particle
 			if(projectileNode->hasChild("particle")){
 				const XmlNode *particleNode= projectileNode->getChild("particle");
 				bool particleEnabled= particleNode->getAttribute("value")->getBoolValue();
-				if(particleEnabled){
+				if(particleEnabled) {
+					projectileTypes.push_back(projectileType);
 					string path= particleNode->getAttribute("path")->getRestrictedValue();
 					ParticleSystemTypeProjectile* projectileParticleSystemType= new ParticleSystemTypeProjectile();
 					projectileParticleSystemType->load(particleNode, dir, currentPath + path,
@@ -950,6 +951,12 @@ void AttackSkillType::load(const XmlNode *sn, const XmlNode *attackBoostsNode,
 							loadedFileList[currentPath + path].push_back(make_pair(parentLoader,particleNode->getAttribute("path")->getRestrictedValue()));
 							projectileType->setProjectileParticleSystemType(projectileParticleSystemType);
 				}
+				else {
+					delete projectileType;
+				}
+			}
+			else {
+				delete projectileType;
 			}
 			//proj sounds
 			const XmlNode *soundNode= projectileNode->getChild("sound");

@@ -204,7 +204,7 @@ bool Selection::isMeetable() const{
 }
 
 Vec3f Selection::getRefPos() const{
-	return getFrontUnit()->getCurrVector();
+	return getFrontUnit()->getCurrMidHeightVector();
 }
 
 bool Selection::hasUnit(const Unit* unit) const {

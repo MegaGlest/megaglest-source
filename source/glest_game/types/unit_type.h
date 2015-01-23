@@ -79,6 +79,15 @@ private:
 	bool negativeAllowed;
 
 public:
+	LootableResource() {
+		type=NULL;
+		amountValue=0;
+		amountFactionPercent=0;
+		lossValue=0;
+		lossFactionPercent=0;
+		negativeAllowed=false;
+	}
+
 	const ResourceType* getResourceType() const {return type;}
 	void setResourceType(const ResourceType *type) {this->type=type;}
 
@@ -115,6 +124,14 @@ enum UnitClass {
 };
 
 typedef vector<UnitParticleSystemType*> DamageParticleSystemTypes;
+
+enum HealthbarVisible {
+	hbvUndefined=0,
+	hbvOff=1,
+	hbvAlways=2,
+	hbvIfNeeded=4,
+	hbvSelected=8
+};
 
 enum UnitCountsInVictoryConditions {
 	ucvcNotSet,
@@ -170,12 +187,17 @@ private:
 	const ArmorType *armorType;
 	bool light;
     Vec3f lightColor;
+	float healthbarheight;
+	float healthbarthickness;
+	int healthbarVisible;
     bool multiSelect;
     bool commandable;
     int sight;
     int size;							//size in cells
     int renderSize;						//size to render in cells
     int height;
+    int burnHeight;
+    int targetHeight;
     float rotatedBuildPos;
     bool rotationAllowed;
 
@@ -256,15 +278,20 @@ public:
 	inline bool getLight() const								{return light;}
 	inline bool getRotationAllowed() const						{return rotationAllowed;}
 	inline Vec3f getLightColor() const							{return lightColor;}
+	inline float getHealthbarHeight() const							{return healthbarheight;}
+	inline float getHealthbarThickness() const							{return healthbarthickness;}
+	inline int getHealthbarVisible() const							{return healthbarVisible;}
 	inline bool getMultiSelect() const							{return multiSelect;}
 	inline bool isCommandable() const							{return commandable;}
 	inline int getSight() const								{return sight;}
 	inline int getSize() const									{return size;}
 	inline int getRenderSize() const								{return renderSize;}
-	int getHeight() const								{return height;}
-	int getStoredResourceCount() const					{return (int)storedResources.size();}
+	int getHeight() const										{return height;}
+	int getBurnHeight() const								{return burnHeight;}
+	int getTargetHeight() const								{return targetHeight;}
+	int getStoredResourceCount() const						{return (int)storedResources.size();}
 	inline const Resource *getStoredResource(int i) const		{return &storedResources[i];}
-	int getLootableResourceCount() const					{return lootableResources.size();}
+	int getLootableResourceCount() const					{return (int)lootableResources.size();}
 	inline const LootableResource getLootableResource(int i) const		{return lootableResources.at(i);}
 	const set<string> &getTags() const	{return tags;}
 	bool getCellMapCell(int x, int y, CardinalDir facing) const;

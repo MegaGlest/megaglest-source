@@ -845,6 +845,8 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getFileInternalFromServer(p
     pair<FTP_Client_ResultType,string> result = getFileFromServer(ftp_cct_File,
     		fileName,remotePath, destFileSaveAs, "", "");
 
+    //printf("Got file [%s] result.first = %d\n",destFileSaveAs.c_str(),result.first);
+
     // Extract the archive
     if(result.first == ftp_crt_SUCCESS) {
     	string ext = extractExtension(destFileSaveAs);
@@ -897,10 +899,18 @@ pair<FTP_Client_ResultType,string>  FTPClientThread::getTempFileInternalFromServ
 	destFileSaveAs += fileName.first;
 
 	string remotePath = fileName.second;
-	fileName.second = "";
 
-    pair<FTP_Client_ResultType,string> result = getFileFromServer(ftp_cct_TempFile,
-    		fileName,remotePath, destFileSaveAs, FTP_TEMPFILES_USERNAME, FTP_COMMON_PASSWORD);
+	//printf("First [%s] Second [%s]\n",fileName.first.c_str(),fileName.second.c_str());
+	pair<FTP_Client_ResultType,string> result;
+	if(StartsWith(remotePath,"http://")) {
+		result = getFileFromServer(ftp_cct_TempFile, fileName,remotePath, destFileSaveAs, "", "");
+	}
+	else {
+		fileName.second = "";
+		result = getFileFromServer(ftp_cct_TempFile,fileName,remotePath, destFileSaveAs, FTP_TEMPFILES_USERNAME, FTP_COMMON_PASSWORD);
+	}
+
+    //printf("Got temp file [%s] result.first = %d\n",destFileSaveAs.c_str(),result.first);
 
     // Extract the archive
     if(result.first == ftp_crt_SUCCESS) {

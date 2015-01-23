@@ -705,15 +705,15 @@ XmlNode::XmlNode(xml_node<> *node, const std::map<string,string> &mapTagReplacem
 	if(node->type() == node_element && children.size() == 0) {
 		string xmlText = node->value();
 
-		bool debugReplace = false;
+//		bool debugReplace = false;
 //		if(xmlText.find("{SCENARIOPATH}") != string::npos) {
 //			printf("\n----------------------\n** XML!! WILL REPLACE [%s]\n",xmlText.c_str());
 //			debugReplace = true;
 //		}
 		Properties::applyTagsToValue(xmlText,&mapTagReplacementValues, skipUpdatePathClimbingParts);
-		if(debugReplace) {
-			printf("\n\n** XML!! REPLACED WITH [%s]\n===================\n",xmlText.c_str());
-		}
+//		if(debugReplace) {
+//			printf("\n\n** XML!! REPLACED WITH [%s]\n===================\n",xmlText.c_str());
+//		}
 		text = xmlText;
 	}
 }

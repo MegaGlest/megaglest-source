@@ -138,12 +138,12 @@ END_EVENT_TABLE()
 
 void MainWindow::init(string fname) {
 #if wxCHECK_VERSION(2, 9, 3)
-	glCanvas->setCurrentGLContext();
+	//glCanvas->setCurrentGLContext();
 	//printf("setcurrent #1\n");
 #elif wxCHECK_VERSION(2, 9, 1)
 
 #else
-	glCanvas->SetCurrent();
+	//glCanvas->SetCurrent();
 	//printf("setcurrent #2\n");
 #endif
 
@@ -638,11 +638,17 @@ void MainWindow::onPaint(wxPaintEvent &event) {
 		return;
 	}
 
-#if wxCHECK_VERSION(2, 9, 3)
+//#if wxCHECK_VERSION(2, 9, 3)
 
-#elif wxCHECK_VERSION(2, 9, 1)
+//#elif wxCHECK_VERSION(2, 9, 1)
+//	glCanvas->setCurrentGLContext();
+//#endif
+
+	//static bool contextSet = false;
+	//if(contextSet == false) {
+	//	contextSet = true;
 	glCanvas->setCurrentGLContext();
-#endif
+	//}
 
 	if(lastPaintEvent.getMillis() < 30) {
 		sleep(1);
@@ -1578,6 +1584,10 @@ bool SimpleDialog::show(const string &title, bool wide) {
 bool App::OnInit() {
 	SystemFlags::VERBOSE_MODE_ENABLED  = false;
 	SystemFlags::ENABLE_THREADED_LOGGING = false;
+
+#if defined(wxMAJOR_VERSION) && defined(wxMINOR_VERSION) && defined(wxRELEASE_NUMBER) && defined(wxSUBRELEASE_NUMBER)
+	printf("Using wxWidgets version [%d.%d.%d.%d]\n",wxMAJOR_VERSION,wxMINOR_VERSION,wxRELEASE_NUMBER,wxSUBRELEASE_NUMBER);
+#endif
 
 	string fileparam;
 	if(argc==2){
