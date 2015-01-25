@@ -59,6 +59,7 @@ cp *.bmp "$RELEASEDIR/"
 cp *.png "$RELEASEDIR/"
 cp *.xpm "$RELEASEDIR/"
 cp {../shared/,}*.ini "$RELEASEDIR/"
+if [ -e "$RELEASEDIR/glest-dev.ini" ]; then rm "$RELEASEDIR/glest-dev.ini"; fi
 cp megaglest "$RELEASEDIR/"
 cp megaglest_editor "$RELEASEDIR/"
 cp megaglest_g3dviewer "$RELEASEDIR/"
