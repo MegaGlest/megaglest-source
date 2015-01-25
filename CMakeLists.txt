@@ -16,9 +16,9 @@ endif(NOT DEFINED CMAKE_BUILD_TYPE)
 # add additional CMake modules
 MESSAGE(STATUS "CMAKE_SOURCE_DIR = ${CMAKE_SOURCE_DIR}")
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/mk/cmake/Modules)
-
-MESSAGE(STATUS "Build type for this compile will be: ${CMAKE_BUILD_TYPE}")
-
+IF(CMAKE_BUILD_TYPE)
+	MESSAGE(STATUS "Build type for this compile will be: ${CMAKE_BUILD_TYPE}")
+ENDIF()
 IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         SET(CMAKE_COMPILER_IS_GNUCXX "YES")
 #        ADD_DEFINITIONS("-Qunused-arguments -Wno-switch")
@@ -45,38 +45,35 @@ include(${CMAKE_SOURCE_DIR}/mk/cmake/Modules/SpecialMacros.cmake)
 
 SET(PKG_NAME "megaglest")
 # read version
-file(READ ${PROJECT_SOURCE_DIR}/source/glest_game/facilities/game_util.cpp MG_VERSION_H_CONTENTS)
-# find the version string
-#
+FILE(READ ${PROJECT_SOURCE_DIR}/source/glest_game/facilities/game_util.cpp MG_VERSION_H_CONTENTS)
 MESSAGE(STATUS "Determining version number system type to use:")
-string (REGEX MATCH "\"v([0-9]).([0-9]).([0-9].*)[^\";]" _threePartMatch ${MG_VERSION_H_CONTENTS})
-if(NOT _threePartMatch)
-        MESSAGE(STATUS "** Trying 2 part versioning] ")
-        string (REGEX MATCH "\"v([0-9]).([0-9].*)[^\";]" _threePartMatch ${MG_VERSION_H_CONTENTS})
-
-        if (_threePartMatch)
-                # parse the parts of the version string
-                STRING(REGEX REPLACE "\"v([0-9])\\.[0-9].*" "\\1" VER_MAJOR   "${_threePartMatch}")
-                STRING(REGEX REPLACE "\"v[0-9]\\.([0-9]).*" "\\1" VER_MINOR "${_threePartMatch}")
-
-                MESSAGE(STATUS "MegaGlest Version is [${VER_MAJOR}.${VER_MINOR}] ")
-        endif()
-# parse the version string
-else()
-        MESSAGE(STATUS "** Trying 3 part versioning] ")
-        if (_threePartMatch)
-                # parse the parts of the version string
-                STRING(REGEX REPLACE "\"v([0-9])\\.[0-9]\\.[0-9].*" "\\1" VER_MAJOR   "${_threePartMatch}")
-                STRING(REGEX REPLACE "\"v[0-9]\\.([0-9])\\.[0-9].*" "\\1" VER_MINOR   "${_threePartMatch}")
-                STRING(REGEX REPLACE "\"v[0-9]\\.[0-9]\\.([0-9]).*" "\\1" VER_RELEASE "${_threePartMatch}")
-
-                #MESSAGE(STATUS "******* TEST3 MegaGlest Version #1 is [${VER_MAJOR}] ")
-                #MESSAGE(STATUS "******* TEST3 MegaGlest Version #2 is [${VER_MINOR}] ")
-                #MESSAGE(STATUS "******* TEST3 MegaGlest Version #3 is [${VER_RELEASE}] ")
-
-                MESSAGE(STATUS "MegaGlest Version is [${VER_MAJOR}.${VER_MINOR}.${VER_RELEASE}] ")
-        endif()
-endif()
+SET(Begin_otv_string "string glestVersionString")
+STRING(REGEX MATCH "${Begin_otv_string}[ \t]*=[ \t]*\"[ \t]*v[ \t]*([0-9][^\\.]*)(\\.)([^\\.]*)(\\.)([^\"\\.;]*)\";" _threePartMatch "${MG_VERSION_H_CONTENTS}")
+STRING(REGEX MATCH "${Begin_otv_string}[ \t]*=[ \t]*\"[ \t]*v[ \t]*([0-9][^\\.]*)(\\.)([^\"\\.;]*)\";" _twoPartMatch "${MG_VERSION_H_CONTENTS}")
+STRING(REGEX MATCH "${Begin_otv_string}[ \t]*=[ \t]*\"[ \t]*v[ \t]*([0-9][^\"\\.;]*)\";" _onePartMatch "${MG_VERSION_H_CONTENTS}")
+IF(_threePartMatch)
+	MESSAGE(STATUS "** Trying 3 part versioning ")
+	STRING(REGEX REPLACE "[^=]*=[ \t]*\"[ \t]*v[ \t]*([0-9][^\\.]*)\\.[^\\.]*\\..*" "\\1" VER_MAJOR "${_threePartMatch}")
+	STRING(REGEX REPLACE "[^=]*=[ \t]*\"[ \t]*v[ \t]*[0-9][^\\.]*\\.([^\\.]*)\\..*" "\\1" VER_MINOR "${_threePartMatch}")
+	STRING(REGEX REPLACE "[^=]*=[ \t]*\"[ \t]*v[ \t]*[0-9][^\\.]*\\.[^\\.]*\\.([^\"\\.;]*).*" "\\1" VER_PATCH "${_threePartMatch}")
+	SET(MEGAGLEST_VERSION "${VER_MAJOR}.${VER_MINOR}.${VER_PATCH}")
+ELSEIF(_twoPartMatch)
+	MESSAGE(STATUS "** Trying 2 part versioning ")
+	STRING(REGEX REPLACE "[^=]*=[ \t]*\"[ \t]*v[ \t]*([0-9][^\\.]*)\\..*" "\\1" VER_MAJOR "${_twoPartMatch}")
+	STRING(REGEX REPLACE "[^=]*=[ \t]*\"[ \t]*v[ \t]*[0-9][^\\.]*\\.([^\"\\.;]*).*" "\\1" VER_MINOR "${_twoPartMatch}")
+	SET(VER_PATCH "0")
+	SET(MEGAGLEST_VERSION "${VER_MAJOR}.${VER_MINOR}")
+ELSEIF(_onePartMatch)
+	MESSAGE(STATUS "** Trying 1 part versioning ")
+	STRING(REGEX REPLACE "[^=]*=[ \t]*\"[ \t]*v[ \t]*([0-9][^\"\\.;]*).*" "\\1" VER_MAJOR "${_onePartMatch}")
+	SET(VER_MINOR "0")
+	SET(VER_PATCH "0")
+	SET(MEGAGLEST_VERSION "${VER_MAJOR}")
+ENDIF()
+FOREACH(ver_var VER_MAJOR;VER_MINOR;VER_PATCH;MEGAGLEST_VERSION)
+	STRING(REGEX REPLACE "[ \t]" "" "${ver_var}" "${${ver_var}}")
+ENDFOREACH()
+MESSAGE(STATUS "Detected MegaGlest Version is [v${MEGAGLEST_VERSION}] ")
 
 ## Compiler flags, CPACK configuration and other Apple specific code.
 IF(APPLE)
@@ -215,17 +212,17 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 		SET(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -s")  ## Strip binary
 	ENDIF()
 
-        # Get the git revision info for the binary
-	SET(HAS_GIT "FALSE") 
-        SET(GIT_LIVE_REV_CMD "") 
+	# Get the git revision info for the binary
+	SET(HAS_GIT "FALSE")
+	SET(GIT_LIVE_REV_CMD "")
 
 	OPTION(WANT_GIT_STAMP "use git revision stamp" ON)
 	IF(WANT_GIT_STAMP)
 		# The stuff below gets GIT Global Revision # but ONLY when calling cmake!
 		# the FindGit.cmake module is part of the standard distribution
 		include(FindGit)
-	
-		IF(GIT_FOUND)
+
+		IF(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git/")
                         SET(HAS_GIT "TRUE") 
                         MESSAGE(STATUS "Found GIT and using GIT version stamping...")
 
@@ -248,14 +245,13 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
                         SET(GIT_LIVE_REV_CMD "`git rev-list HEAD --count`.`git log -1 --format=%h`")
 
                         MESSAGE(STATUS "Using GIT revision stamp: [${GIT_COMMIT_COUNT}.${GIT_SHA1}] CMD [${GIT_LIVE_REV_CMD}]")
-                        
-		ENDIF()
-	ENDIF()
 
-	IF(CMAKE_GENERATOR STREQUAL Xcode)
-		SET(GIT_VERSION_CMD "-DGITVERSION='\\\\'${GIT_LIVE_REV_CMD}\\\\''")
-	ELSE()
-		SET(GIT_VERSION_CMD "-DGITVERSION='\\\"${GIT_LIVE_REV_CMD}\\\"'")
+			IF(CMAKE_GENERATOR STREQUAL Xcode)
+				SET(GIT_VERSION_CMD "-DGITVERSION='\\\\'${GIT_LIVE_REV_CMD}\\\\''")
+			ELSE()
+				SET(GIT_VERSION_CMD "-DGITVERSION='\\\"${GIT_LIVE_REV_CMD}\\\"'")
+			ENDIF()
+		ENDIF()
 	ENDIF()
 
 	IF(CMAKE_INSTALL_PREFIX STREQUAL "")
@@ -288,11 +284,18 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 		MESSAGE(STATUS "*NOTE: Custom Data Install Path is [${CUSTOM_DATA_INSTALL_PATH}]")
 	ENDIF()
 
-	SET(CMAKE_CXX_FLAGS_NONE "${CMAKE_CXX_FLAGS_NONE} ${GIT_VERSION_CMD} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
-	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${GIT_VERSION_CMD} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
-	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${GIT_VERSION_CMD} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
-	SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${GIT_VERSION_CMD} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
-	SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} ${GIT_VERSION_CMD} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
+	IF(HAS_GIT STREQUAL "TRUE")
+		SET(CMAKE_CXX_FLAGS_NONE "${CMAKE_CXX_FLAGS_NONE} ${GIT_VERSION_CMD}")
+		SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${GIT_VERSION_CMD}")
+		SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${GIT_VERSION_CMD}")
+		SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${GIT_VERSION_CMD}")
+		SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} ${GIT_VERSION_CMD}")
+	ENDIF()
+	SET(CMAKE_CXX_FLAGS_NONE "${CMAKE_CXX_FLAGS_NONE} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
+	SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
+	SET(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
+	SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
+	SET(CMAKE_CXX_FLAGS_MINSIZEREL "${CMAKE_CXX_FLAGS_MINSIZEREL} ${CUSTOM_DATA_INSTALL_PATH_VALUE}")
 
 	# We do some funky character escaping to get the right stuff written out to 
 	# the final Makefile so we get the GIT Global Revsion #
@@ -308,9 +311,9 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 		message("CMAKE_CXX_FLAGS_DEBUG: ${CMAKE_CXX_FLAGS_DEBUG}")
 	ELSEIF( CMAKE_BUILD_TYPE STREQUAL Release )
 		message("CMAKE_CXX_FLAGS_RELEASE: ${CMAKE_CXX_FLAGS_RELEASE}")
-	ELSEIF( CMAKE_BUILD_TYPE STREQUAL RELWITHDEBINFO )
+	ELSEIF( CMAKE_BUILD_TYPE STREQUAL RelWithDebInfo )
 		message("CMAKE_CXX_FLAGS_RELWITHDEBINFO: ${CMAKE_CXX_FLAGS_RELWITHDEBINFO}")
-	ELSEIF( CMAKE_BUILD_TYPE STREQUAL MINSIZEREL )
+	ELSEIF( CMAKE_BUILD_TYPE STREQUAL MinSizeRel )
 		message("CMAKE_CXX_FLAGS_MINSIZEREL: ${CMAKE_CXX_FLAGS_MINSIZEREL}")
 
 	ENDIF()
@@ -388,9 +391,10 @@ SET(CPACK_PACKAGE_VENDOR "megaglest.org")
 #SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README")
 #SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING")
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "megaglest")
-SET(CPACK_PACKAGE_VERSION_MAJOR ${VER_MAJOR})
-SET(CPACK_PACKAGE_VERSION_MINOR ${VER_MINOR})
-SET(CPACK_PACKAGE_VERSION_PATCH ${VER_RELEASE})
+SET(CPACK_PACKAGE_VERSION "${MEGAGLEST_VERSION}")
+SET(CPACK_PACKAGE_VERSION_MAJOR "${VER_MAJOR}")
+SET(CPACK_PACKAGE_VERSION_MINOR "${VER_MINOR}")
+SET(CPACK_PACKAGE_VERSION_PATCH "${VER_PATCH}")
 
 
 # Debian specific generator options
@@ -417,6 +421,7 @@ IF(NOT DEFINED CPACK_GENERATOR)
 	 libxml2-dev,
 	 libz-dev,
 	 libfribidi-dev")
+	# FIXME ^ cpack configuration should be fixed and tested
 
 	#find_program(DPKG_PROGRAM dpkg DOC "dpkg program of Debian-based systems")
 	#if(DPKG_PROGRAM)
@@ -441,12 +446,9 @@ get_directory_property( DirDefs DIRECTORY ${CMAKE_SOURCE_DIR} COMPILE_DEFINITION
 foreach( d ${DirDefs} )
     message( STATUS "=====> Found Define: " ${d} )
 endforeach()
-message( STATUS "=====> DirDefs: " ${DirDefs} )
+#MESSAGE( STATUS "=====> DirDefs: " ${DirDefs} )
 #MESSAGE(STATUS "*** Compiler definitions are [${COMPILE_DEFINITIONS}]")
 
 MARK_AS_ADVANCED(SDLMAIN_LIBRARY)
 MARK_AS_ADVANCED(SDL_INCLUDE_DIR)
 MARK_AS_ADVANCED(SDL_LIBRARY)
-
-
-
