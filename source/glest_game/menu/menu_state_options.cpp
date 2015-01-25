@@ -411,7 +411,7 @@ void MenuStateOptions::reloadUI() {
 	buttonKeyboardSetup.setText(lang.getString("Keyboardsetup"));
 
 	labelVisibleHud.setText(lang.getString("VisibleHUD"));
-	labelHealthBars.setText(lang.getString("HealthBars"));
+	labelHealthBars.setText(lang.getString("Healthbar"));
 	labelChatStaysActive.setText(lang.getString("ChatStaysActive"));
 	labelTimeDisplay.setText(lang.getString("TimeDisplay"));
 
