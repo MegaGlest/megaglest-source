@@ -257,8 +257,8 @@ void Gui::mouseDownLeftGraphics(int x, int y, bool prepared) {
 	if(selectingPos) {
 		//give standard orders
 		Vec2i targetPos=game->getMouseCellPos();
-		if(game->isValidMouseCellPos() &&
-			world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
+		if(prepared || (game->isValidMouseCellPos() &&
+			world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true)) {
 			giveTwoClickOrders(x, y, prepared);
 		}
 		resetState();
@@ -267,8 +267,8 @@ void Gui::mouseDownLeftGraphics(int x, int y, bool prepared) {
 	else if(selectingMeetingPoint) {
 		if(selection.isCommandable()) {
 			Vec2i targetPos=game->getMouseCellPos();
-			if(game->isValidMouseCellPos() &&
-				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
+			if(prepared || (game->isValidMouseCellPos() &&
+				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true)) {
 				commander->trySetMeetingPoint(selection.getFrontUnit(), targetPos);
 			}
 		}
@@ -288,15 +288,15 @@ void Gui::mouseDownRightGraphics(int x, int y , bool prepared) {
 	else if(selection.isCommandable()) {
 		if(prepared) {
 			Vec2i targetPos=game->getMouseCellPos();
-			if(game->isValidMouseCellPos() &&
-				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
+			if(prepared || (game->isValidMouseCellPos() &&
+				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true )) {
 				givePreparedDefaultOrders(x, y);
 			}
 		}
 		else {
 			Vec2i targetPos=game->getMouseCellPos();
-			if(game->isValidMouseCellPos() &&
-				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true) {
+			if(prepared || (game->isValidMouseCellPos() &&
+				world->getMap()->isInsideSurface(world->getMap()->toSurfCoords(targetPos)) == true)) {
 				giveDefaultOrders(x, y);
 			}
 		}
