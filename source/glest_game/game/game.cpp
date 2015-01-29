@@ -4355,17 +4355,21 @@ void Game::mouseDoubleClickLeft(int x, int y) {
 
 		const Metrics &metrics= Metrics::getInstance();
 
-		//display panel
-		if(metrics.isInDisplay(x, y) && !gui.isSelectingPos()) {
-			int xd= x - metrics.getDisplayX();
-			int yd= y - metrics.getDisplayY();
-			if(gui.mouseValid(xd, yd)){
-				return;
-			}
+		if(metrics.isInMinimap(x, y)){
+			// no double click on minimap
 		}
-
-		//graphics panel
-		gui.mouseDoubleClickLeftGraphics(x, y);
+		else {
+			//display panel
+			if(metrics.isInDisplay(x, y) && !gui.isSelectingPos()) {
+				int xd= x - metrics.getDisplayX();
+				int yd= y - metrics.getDisplayY();
+				if(gui.mouseValid(xd, yd)){
+					return;
+				}
+			}
+			//graphics panel
+			gui.mouseDoubleClickLeftGraphics(x, y);
+		}
 	}
 	catch(const exception &ex) {
 		char szBuf[8096]="";
