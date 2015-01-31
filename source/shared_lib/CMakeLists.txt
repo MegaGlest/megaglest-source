@@ -455,7 +455,7 @@ option(FORCE_LUA_5_2 "Force looking for LUA 5.2" OFF)
 
 	IF(NOT WIN32)
 		ADD_LIBRARY(${TARGET_NAME} STATIC ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
-		MESSAGE(STATUS "Building shared game library as a STATIC library and saving to [${LIBRARY_OUTPUT_PATH}]")
+		#MESSAGE(STATUS "Building shared game library as a STATIC library and saving to [${LIBRARY_OUTPUT_PATH}]")
 	ELSE()
 		SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game)
 		ADD_LIBRARY(${TARGET_NAME} STATIC ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})

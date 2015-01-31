@@ -317,7 +317,7 @@ IF(BUILD_MEGAGLEST)
 		  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH}data/core/misc_textures
 		  OPTIONAL REGEX "/.git" EXCLUDE)
 
-	        MESSAGE(STATUS "**Source package detected git folder structure.")
+	        #MESSAGE(STATUS "**Source package detected git folder structure.")
 
 	        # Installation of the program desktop file
 	        INSTALL(FILES 

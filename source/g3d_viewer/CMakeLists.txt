@@ -163,7 +163,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 	IF(EXISTS ${HELP2MAN})
 		MESSAGE("***-- Found help2man: ${HELP2MAN} about to build manpage in [${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}]")
 
-                SET(MG_MANPAGE_DESCRIPTION "G3D Model editor for the popular 3D realtime stragegy game")
+                SET(MG_MANPAGE_DESCRIPTION "G3D Model editor for the popular 3D realtime strategy game")
 
 		IF(EXISTS ${XVFB_EXEC})
 			MESSAGE("***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
