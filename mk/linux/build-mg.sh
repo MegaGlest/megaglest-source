@@ -140,6 +140,16 @@ echo ' [ '"$distribution"' ] [ '"$release"' ] [ '"$codename"' ] [ '"$architectur
 
 
 case $distribution in
+	Debian)
+		case $release in
+			6.*|7.*) ;;
+			*)
+				echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG, IRCCLIENT ...'
+				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFTGL_STATIC=OFF -DLUA_STATIC=OFF -DJPEG_STATIC=OFF -DPNG_STATIC=OFF -DFORCE_IRCCLIENT_DYNAMIC_LIBS=ON"
+				;;
+		esac
+		;;
+
 	SuSE|SUSE?LINUX|Opensuse) 
 		case $release in
 			*)
