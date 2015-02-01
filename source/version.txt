@@ -1,0 +1,21 @@
+# How it currently works?
+# Set version here (only here) and just start build on linux. Versions will be
+# updated everywhere automatically, but if CurrentGameVersion is a "dev" then
+# only game version will be automatically updated (saving time during rebuild
+# and for cleaner "git status").
+#
+# Then you should on the occasion commit changed files (this step should/will
+# disappear someday, during later improvements).
+
+CurrentGameVersion = "3.12-dev";
+# ^ typical version numbers look like this: "3.11-beta1.0", "3.12-dev", "3.12.0"
+
+OldReleaseGameBinaryVersion = "3.11.0";
+OldReleaseGameDataVersion = "3.11.0";
+LastCompatibleSaveGameVersion = "3.9.0";
+
+MapeditorVersion = "1.6.1";
+G3dviewerVersion = "1.3.6";
+
+GitCommitForRelease = "4446.1a8673f";
+# ^ will be automatically generated
