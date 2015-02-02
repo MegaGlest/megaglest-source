@@ -16,10 +16,9 @@ checked out for that specific release (example, tag: 3.11.0) or downloaded all
 source archives/"tarballs" which in their name have same version, equal to tag.
 
 To set the current version for release, modify the file source/version.txt
-and change there available variables.
-During build (on linux by script build-mg.sh) version number will be updated
-automatically everywhere where it is needed.
-Then you only have to commit changed files.
+and change there available variables, then run mk/linux/mg-version-synch.sh script
+for updating version number everywhere where it is needed and then you only have
+to commit changed files.
 
 #1. The source archive:
 This archive contains source code for binary compilation of the application and 

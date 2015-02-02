@@ -1,11 +1,7 @@
 # How it currently works?
-# Set version here (only here) and just start build on linux. Versions will be
-# updated everywhere automatically, but if CurrentGameVersion is a "dev" then
-# only game version will be automatically updated (saving time during rebuild
-# and for cleaner "git status").
-#
-# Then you should on the occasion commit changed files (this step should/will
-# disappear someday, during later improvements).
+# Set version here (only here) and just start mk/linux/mg-version-synch.sh script.
+# Versions will be updated everywhere automatically.
+# Then you should commit changed files and that's all.
 
 CurrentGameVersion = "3.12-dev";
 # ^ typical version numbers look like this: "3.11-beta1.0", "3.12-dev", "3.12.0"

@@ -11,7 +11,8 @@ VERSION_INFO_FILE="$(dirname "$(readlink -f "$0")")/../../source/version.txt"
 LastCompatibleSaveGameVersion="$(awk -F '=' '/^LastCompatibleSaveGameVersion =/ {print $2}' "$VERSION_INFO_FILE" | awk -F '"' '{print $2}')"
 MapeditorVersion="$(awk -F '=' '/^MapeditorVersion =/ {print $2}' "$VERSION_INFO_FILE" | awk -F '"' '{print $2}')"
 G3dviewerVersion="$(awk -F '=' '/^G3dviewerVersion =/ {print $2}' "$VERSION_INFO_FILE" | awk -F '"' '{print $2}')"
-if [ "$(echo "$CURRENT_VERSION" | grep -v [a-zA-Z])" != "" ]; then modifymore="yes"; else modifymore="no"; fi
+#if [ "$(echo "$CURRENT_VERSION" | grep -v [a-zA-Z])" != "" ]; then modifymore="yes"; else modifymore="no"; fi
+modifymore="yes"
 echo
 echo '===== Updating Game ======'
 # const string glestVersionString 	= "v3.12-dev";

@@ -89,7 +89,6 @@ CLANG_BIN_PATH=$( which clang 2>/dev/null )
 CLANGPP_BIN_PATH=$( which clang++ 2>/dev/null )
 
 cd ${SCRIPTDIR}
-./mg-version-synch.sh >/dev/null
 
 # Google breakpad integration (cross platform memory dumps) - OPTIONAL
 # Set this to the root path of your Google breakpad subversion working copy.
