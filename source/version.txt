@@ -9,5 +9,5 @@ CurrentGameVersion = "3.12-dev";
 OldReleaseGameVersion = "3.11.0";
 LastCompatibleSaveGameVersion = "3.9.0";
 
-GitCommitForRelease = "4446.1a8673f";
+GitCommitForRelease = "5060.7451e49";
 # ^ will be automatically generated
