@@ -43,7 +43,7 @@ const string lastCompatibleSaveGameVersionString 	= "v3.9.0";
     const string GIT_RawRev			= string(GITVERSION);
     const string GIT_Rev 			= string("Rev: ") + string(GITVERSION);
 #else
-const string GIT_RawRev			= "$4446.1a8673f$";
+const string GIT_RawRev			= "$5060.7451e49$";
 const string GIT_Rev 			= "$Rev$";
 #endif
 
