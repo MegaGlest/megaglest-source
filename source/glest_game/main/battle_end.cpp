@@ -587,7 +587,7 @@ void BattleEnd::render() {
 
 			Vec3f color = stats.getPlayerColor(i);
 			if(stats.getPlayerName(i) != "") {
-				string textToRender=stats.getPlayerName(i);
+				string textToRender=stats.getPlayerName(i).substr(0,11);
 				if(stats.getPlayerLeftBeforeEnd(i)==true){
 					textToRender+="\n("+getTimeDuationString(stats.getTimePlayerLeft(i),GameConstants::updateFps) + ")";
 				}
