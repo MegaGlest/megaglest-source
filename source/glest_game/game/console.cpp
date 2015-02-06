@@ -35,7 +35,7 @@ Console::Console() {
 	maxStoredLines	= Config::getInstance().getInt("ConsoleMaxLinesStored");
 	timeout			= Config::getInstance().getInt("ConsoleTimeout");
 	timeElapsed		= 0.0f;
-	xPos=20;
+	xPos=10;
 	yPos=20;
 	lineHeight=Config::getInstance().getInt("FontConsoleBaseSize","18")+2;
 	font=CoreData::getInstance().getConsoleFont();

@@ -39,9 +39,9 @@ ChatManager::ChatManager() {
 	teamMode= false;
 	thisTeamIndex= -1;
 	disableTeamMode = false;
-	xPos=300;
-	yPos=150;
-	maxTextLenght=64;
+	xPos=25;
+	yPos=155;
+	maxTextLenght=90;
 	textCharLength.clear();
 	text="";
 	font=CoreData::getInstance().getConsoleFont();
