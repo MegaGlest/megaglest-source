@@ -178,7 +178,7 @@ void TimerTriggerEvent::loadGame(const XmlNode *rootNode) {
 //	class ScriptManager
 // =====================================================
 ScriptManager* ScriptManager::thisScriptManager		= NULL;
-const int ScriptManager::messageWrapCount			= 30;
+const int ScriptManager::messageWrapCount			= 35;
 const int ScriptManager::displayTextWrapCount		= 64;
 
 ScriptManager::ScriptManager() {
