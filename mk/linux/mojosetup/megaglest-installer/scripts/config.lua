@@ -119,7 +119,7 @@ Setup.Package
             genericname = _("MegaGlest"),
             tooltip = _("A real time strategy game."),
             builtin_icon = false,
-            icon = "megaglest.ico",
+            icon = "megaglest.png",
             commandline = "%0/start_megaglest",
             category = "Game;StrategyGame"
         },
@@ -131,7 +131,7 @@ Setup.Package
             genericname = _("MegaGlest"),
             tooltip = _("A real time strategy game."),
             builtin_icon = false,
-            icon = "editor.ico",
+            icon = "megaglest.png",
             commandline = "%0/start_megaglest_mapeditor",
             category = "Game;StrategyGame",
             --mimetype = {"application/x-gbm", "application/mgm"}
@@ -144,7 +144,7 @@ Setup.Package
             genericname = _("MegaGlest"),
             tooltip = _("A real time strategy game."),
             builtin_icon = false,
-            icon = "g3dviewer.ico",
+            icon = "megaglest.png",
             commandline = "%0/start_megaglest_g3dviewer",
             category = "Game;StrategyGame",
             --mimetype = {"application/x-g3d"}
@@ -157,7 +157,7 @@ Setup.Package
             genericname = _("MegaGlest"),
             tooltip = _("A real time strategy game."),
             builtin_icon = false,
-	    icon = "megaglest-uninstall.ico",
+            icon = "megaglest-uninstall.ico",
             commandline = "%0/uninstall-megaglest.sh",
             category = "Game;StrategyGame"
         }

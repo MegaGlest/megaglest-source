@@ -183,7 +183,7 @@ if [ $REPACKONLY -eq 0 ]; then
 	cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_linux_path/megaglest" ${INSTALLDATADIR}
 	cp "$CURRENTDIR/$megaglest_linux_path/glest.ini" $INSTALLDATADIR
-	cp "$CURRENTDIR/$megaglest_linux_path/megaglest.bmp" $INSTALLDATADIR
+	cp "$CURRENTDIR/$megaglest_linux_path/megaglest.png" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_shared_path/glestkeys.ini" $INSTALLDATADIR
         cp "$CURRENTDIR/$megaglest_linux_path/start_megaglest_mapeditor" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_linux_path/megaglest_editor" ${INSTALLDATADIR}
