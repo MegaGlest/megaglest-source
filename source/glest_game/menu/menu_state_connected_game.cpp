@@ -205,7 +205,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelAllowTeamUnitSharing.setVisible(true);
 
 	checkBoxAllowTeamUnitSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamUnitSharing");
-	checkBoxAllowTeamUnitSharing.init(xoffset+600, 670);
+	checkBoxAllowTeamUnitSharing.init(xoffset+612, 670);
 	checkBoxAllowTeamUnitSharing.setValue(false);
 	checkBoxAllowTeamUnitSharing.setVisible(true);
 	checkBoxAllowTeamUnitSharing.setEditable(false);
@@ -216,13 +216,13 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	labelAllowTeamResourceSharing.setVisible(true);
 
 	checkBoxAllowTeamResourceSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamResourceSharing");
-	checkBoxAllowTeamResourceSharing.init(xoffset+600, 640);
+	checkBoxAllowTeamResourceSharing.init(xoffset+612, 640);
 	checkBoxAllowTeamResourceSharing.setValue(false);
 	checkBoxAllowTeamResourceSharing.setVisible(true);
 	checkBoxAllowTeamResourceSharing.setEditable(false);
 
 	// fog - o - war
-	xoffset=62;
+	xoffset=65;
 	labelFogOfWar.registerGraphicComponent(containerName,"labelFogOfWar");
 	labelFogOfWar.init(xoffset+100, aHeadPos, 165);
 	labelFogOfWar.setText(lang.getString("FogOfWar"));
@@ -286,7 +286,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	buttonCancelDownloads.setText(lang.getString("CancelDownloads"));
 
 	// Network Frame Period
-	xoffset=62;
+	xoffset=65;
     //map listBox
 	// put them all in a set, to weed out duplicates (gbm & mgm with same name)
 	// will also ensure they are alphabetically listed (rather than how the OS provides them)
@@ -338,57 +338,57 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	int rowHeight=27;
     for(int i=0; i<GameConstants::maxPlayers; ++i){
     	labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
-		labelPlayers[i].init(xoffset, setupPos-30-i*rowHeight+2);
+		labelPlayers[i].init(xoffset-1, setupPos-30-i*rowHeight+2);
 		labelPlayers[i].setFont(CoreData::getInstance().getMenuFontVeryBig());
 		labelPlayers[i].setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 		labelPlayers[i].setEditable(false);
 
 		labelPlayerStatus[i].registerGraphicComponent(containerName,"labelPlayerStatus" + intToStr(i));
-		labelPlayerStatus[i].init(xoffset+15, setupPos-30-i*rowHeight+2, 60);
+		labelPlayerStatus[i].init(xoffset+14, setupPos-30-i*rowHeight+2);
 		labelPlayerNames[i].registerGraphicComponent(containerName,"labelPlayerNames" + intToStr(i));
-		labelPlayerNames[i].init(xoffset+33,setupPos-30-i*rowHeight);
+		labelPlayerNames[i].init(xoffset+30,setupPos-30-i*rowHeight);
 
 		listBoxControls[i].registerGraphicComponent(containerName,"listBoxControls" + intToStr(i));
-        listBoxControls[i].init(xoffset+170, setupPos-30-i*rowHeight, 170);
+        listBoxControls[i].init(xoffset+160, setupPos-30-i*rowHeight, 174);
         listBoxControls[i].setEditable(false);
 
         listBoxRMultiplier[i].registerGraphicComponent(containerName,"listBoxRMultiplier" + intToStr(i));
-        listBoxRMultiplier[i].init(xoffset+342, setupPos-30-i*rowHeight,68);
+        listBoxRMultiplier[i].init(xoffset+336, setupPos-30-i*rowHeight,70);
         listBoxRMultiplier[i].setEditable(false);
 
         listBoxFactions[i].registerGraphicComponent(containerName,"listBoxFactions" + intToStr(i));
-        listBoxFactions[i].init(xoffset+415, setupPos-30-i*rowHeight, 250);
+        listBoxFactions[i].init(xoffset+411, setupPos-30-i*rowHeight, 247);
         listBoxFactions[i].setLeftControlled(true);
         listBoxFactions[i].setEditable(false);
 
         listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
-		listBoxTeams[i].init(xoffset+667, setupPos-30-i*rowHeight, 60);
+		listBoxTeams[i].init(xoffset+660, setupPos-30-i*rowHeight, 60);
 		listBoxTeams[i].setEditable(false);
 		listBoxTeams[i].setLighted(true);
 
 		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
-		labelNetStatus[i].init(xoffset+733, setupPos-30-i*rowHeight, 60);
+		labelNetStatus[i].init(xoffset+723, setupPos-30-i*rowHeight, 60);
 		labelNetStatus[i].setFont(CoreData::getInstance().getDisplayFontSmall());
 		labelNetStatus[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
 		grabSlotButton[i].registerGraphicComponent(containerName,"grabSlotButton" + intToStr(i));
-		grabSlotButton[i].init(xoffset+733, setupPos-30-i*rowHeight, 35, rowHeight-5);
+		grabSlotButton[i].init(xoffset+726, setupPos-30-i*rowHeight, 35, rowHeight-5);
 		grabSlotButton[i].setText(">");
     }
 
     labelControl.registerGraphicComponent(containerName,"labelControl");
-	labelControl.init(xoffset+170, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+	labelControl.init(xoffset+160, setupPos, 50, GraphicListBox::defH, true);
 	labelControl.setText(lang.getString("Control"));
 
 	labelRMultiplier.registerGraphicComponent(containerName,"labelRMultiplier");
-	labelRMultiplier.init(xoffset+310, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+	labelRMultiplier.init(xoffset+310, setupPos, 50, GraphicListBox::defH, true);
 
 	labelFaction.registerGraphicComponent(containerName,"labelFaction");
-    labelFaction.init(xoffset+390, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelFaction.init(xoffset+411, setupPos, 50, GraphicListBox::defH, true);
     labelFaction.setText(lang.getString("Faction"));
 
     labelTeam.registerGraphicComponent(containerName,"labelTeam");
-    labelTeam.init(xoffset+650, setupPos, 60, GraphicListBox::defH, true);
+    labelTeam.init(xoffset+660, setupPos, 50, GraphicListBox::defH, true);
 	labelTeam.setText(lang.getString("Team"));
 
     labelControl.setFont(CoreData::getInstance().getMenuFontBig());
@@ -434,7 +434,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 		labelPlayers[i].setText(intToStr(i+1));
 		labelPlayerNames[i].setText("");
 		labelPlayerNames[i].setMaxEditWidth(16);
-		labelPlayerNames[i].setMaxEditRenderWidth(135);
+		labelPlayerNames[i].setMaxEditRenderWidth(127);
 
         listBoxTeams[i].setItems(teamItems);
 		listBoxTeams[i].setSelectedItemIndex(i);
@@ -456,7 +456,7 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	setupMapList("");
     listBoxMap.setItems(formattedPlayerSortedMaps[0]);
 
-	int buttonx=162;
+	int buttonx=165;
 	int buttony=180;
 
 	listBoxPlayerStatus.registerGraphicComponent(containerName,"listBoxPlayerStatus");
@@ -471,12 +471,12 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 
 	buttonDisconnect.registerGraphicComponent(containerName,"buttonDisconnect");
 	buttonDisconnect.init(buttonx, buttony, 125);
-	buttonx+=130;
+	buttonx+=132;
 
 	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
 	buttonRestoreLastSettings.init(buttonx, buttony, 240);
 	buttonRestoreLastSettings.setText(lang.getString("ReloadLastGameSettings"));
-	buttonx+=245;
+	buttonx+=247;
 
 	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
 	buttonPlayNow.init(buttonx, buttony, 125);
@@ -501,12 +501,12 @@ MenuStateConnectedGame::MenuStateConnectedGame(Program *program, MainMenu *mainM
 	int scenarioX=800;
 	int scenarioY=140;
     labelScenario.registerGraphicComponent(containerName,"labelScenario");
-    labelScenario.init(scenarioX, scenarioY);
+    labelScenario.init(scenarioX+30, scenarioY);
     labelScenario.setText(lang.getString("Scenario"));
 	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
     listBoxScenario.init(scenarioX, scenarioY-30,190);
     checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
-    checkBoxScenario.init(scenarioX+90, scenarioY);
+    checkBoxScenario.init(scenarioX, scenarioY);
     checkBoxScenario.setValue(false);
 
     //scenario listbox

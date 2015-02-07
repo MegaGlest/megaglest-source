@@ -194,7 +194,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	int xoffset=10;
 
 	//create
-	int buttonx=162;
+	int buttonx=165;
 	int buttony=180;
 
     // player status
@@ -213,11 +213,11 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 
 	buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
 	buttonReturn.init(buttonx, buttony, 125);
-	buttonx+=130;
+	buttonx+=132;
 
 	buttonRestoreLastSettings.registerGraphicComponent(containerName,"buttonRestoreLastSettings");
 	buttonRestoreLastSettings.init(buttonx, buttony, 240);
-	buttonx+=245;
+	buttonx+=247;
 
 	buttonPlayNow.registerGraphicComponent(containerName,"buttonPlayNow");
 	buttonPlayNow.init(buttonx, buttony, 125);
@@ -252,7 +252,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		labelLocalGameVersion.setText(glestVersionString + " [" + getCompileDateTime() + ", " + getGITRevisionString() + "]");
 	}
 
-	xoffset=62;
+	xoffset=65;
 	// MapFilter
 	labelMapFilter.registerGraphicComponent(containerName,"labelMapFilter");
 	labelMapFilter.init(xoffset+325, mapHeadPos);
@@ -378,12 +378,12 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	int scenarioX=800;
 	int scenarioY=140;
     labelScenario.registerGraphicComponent(containerName,"labelScenario");
-    labelScenario.init(scenarioX, scenarioY);
+    labelScenario.init(scenarioX+30, scenarioY);
     labelScenario.setText(lang.getString("Scenario"));
 	listBoxScenario.registerGraphicComponent(containerName,"listBoxScenario");
     listBoxScenario.init(scenarioX, scenarioY-30,190);
     checkBoxScenario.registerGraphicComponent(containerName,"checkBoxScenario");
-    checkBoxScenario.init(scenarioX+90, scenarioY);
+    checkBoxScenario.init(scenarioX, scenarioY);
     checkBoxScenario.setValue(false);
 
     //scenario listbox
@@ -478,7 +478,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelAllowInGameJoinPlayer.setVisible(allowInProgressJoin);
 
 	checkBoxAllowInGameJoinPlayer.registerGraphicComponent(containerName,"checkBoxAllowInGameJoinPlayer");
-	checkBoxAllowInGameJoinPlayer.init(xoffset+600, 670);
+	checkBoxAllowInGameJoinPlayer.init(xoffset+612, 670);
 	checkBoxAllowInGameJoinPlayer.setValue(false);
 	checkBoxAllowInGameJoinPlayer.setVisible(allowInProgressJoin);
 
@@ -489,7 +489,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelAllowTeamUnitSharing.setVisible(true);
 
 	checkBoxAllowTeamUnitSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamUnitSharing");
-	checkBoxAllowTeamUnitSharing.init(xoffset+600, 670);
+	checkBoxAllowTeamUnitSharing.init(xoffset+612, 670);
 	checkBoxAllowTeamUnitSharing.setValue(false);
 	checkBoxAllowTeamUnitSharing.setVisible(true);
 
@@ -499,7 +499,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	labelAllowTeamResourceSharing.setVisible(true);
 
 	checkBoxAllowTeamResourceSharing.registerGraphicComponent(containerName,"checkBoxAllowTeamResourceSharing");
-	checkBoxAllowTeamResourceSharing.init(xoffset+600, 640);
+	checkBoxAllowTeamResourceSharing.init(xoffset+612, 640);
 	checkBoxAllowTeamResourceSharing.setValue(false);
 	checkBoxAllowTeamResourceSharing.setVisible(true);
 
@@ -519,58 +519,58 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
     for(int i=0; i<GameConstants::maxPlayers; ++i){
 
     	labelPlayers[i].registerGraphicComponent(containerName,"labelPlayers" + intToStr(i));
-		labelPlayers[i].init(xoffset, setupPos-30-i*rowHeight+2);
+		labelPlayers[i].init(xoffset-1, setupPos-30-i*rowHeight+2);
 		labelPlayers[i].setFont(CoreData::getInstance().getMenuFontVeryBig());
 		labelPlayers[i].setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
 
 		labelPlayerStatus[i].registerGraphicComponent(containerName,"labelPlayerStatus" + intToStr(i));
-		labelPlayerStatus[i].init(xoffset+15, setupPos-30-i*rowHeight+2, 60);
+		labelPlayerStatus[i].init(xoffset+14, setupPos-30-i*rowHeight+2);
 		labelPlayerNames[i].registerGraphicComponent(containerName,"labelPlayerNames" + intToStr(i));
-		labelPlayerNames[i].init(xoffset+33,setupPos-30-i*rowHeight);
+		labelPlayerNames[i].init(xoffset+30,setupPos-30-i*rowHeight);
 
 		listBoxControls[i].registerGraphicComponent(containerName,"listBoxControls" + intToStr(i));
-        listBoxControls[i].init(xoffset+170, setupPos-30-i*rowHeight, 170);
+        listBoxControls[i].init(xoffset+160, setupPos-30-i*rowHeight, 174);
 
         buttonBlockPlayers[i].registerGraphicComponent(containerName,"buttonBlockPlayers" + intToStr(i));
         //buttonBlockPlayers[i].init(xoffset+355, setupPos-30-i*rowHeight, 70);
-        buttonBlockPlayers[i].init(xoffset+195, setupPos-30-i*rowHeight, 120);
+        buttonBlockPlayers[i].init(xoffset+185, setupPos-30-i*rowHeight, 124);
         buttonBlockPlayers[i].setText(lang.getString("BlockPlayer"));
         buttonBlockPlayers[i].setFont(CoreData::getInstance().getDisplayFontSmall());
         buttonBlockPlayers[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
         listBoxRMultiplier[i].registerGraphicComponent(containerName,"listBoxRMultiplier" + intToStr(i));
-        listBoxRMultiplier[i].init(xoffset+342, setupPos-30-i*rowHeight,68);
+        listBoxRMultiplier[i].init(xoffset+336, setupPos-30-i*rowHeight,70);
 
         listBoxFactions[i].registerGraphicComponent(containerName,"listBoxFactions" + intToStr(i));
-        listBoxFactions[i].init(xoffset+415, setupPos-30-i*rowHeight, 250);
+        listBoxFactions[i].init(xoffset+411, setupPos-30-i*rowHeight, 247);
         listBoxFactions[i].setLeftControlled(true);
 
         listBoxTeams[i].registerGraphicComponent(containerName,"listBoxTeams" + intToStr(i));
-		listBoxTeams[i].init(xoffset+667, setupPos-30-i*rowHeight, 60);
+		listBoxTeams[i].init(xoffset+660, setupPos-30-i*rowHeight, 60);
 		listBoxTeams[i].setLighted(true);
 
 		labelNetStatus[i].registerGraphicComponent(containerName,"labelNetStatus" + intToStr(i));
-		labelNetStatus[i].init(xoffset+733, setupPos-30-i*rowHeight, 60);
+		labelNetStatus[i].init(xoffset+726, setupPos-30-i*rowHeight, 60);
 		labelNetStatus[i].setFont(CoreData::getInstance().getDisplayFontSmall());
 		labelNetStatus[i].setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
     }
 
 	buttonClearBlockedPlayers.registerGraphicComponent(containerName,"buttonClearBlockedPlayers");
-	buttonClearBlockedPlayers.init(xoffset+170, setupPos-30-8*rowHeight, 170+2+68);
+	buttonClearBlockedPlayers.init(xoffset+160, setupPos-30-8*rowHeight, 174+2+70);
 
 	labelControl.registerGraphicComponent(containerName,"labelControl");
-	labelControl.init(xoffset+170, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+	labelControl.init(xoffset+160, setupPos, 50, GraphicListBox::defH, true);
 	labelControl.setText(lang.getString("Control"));
 
     labelRMultiplier.registerGraphicComponent(containerName,"labelRMultiplier");
-	labelRMultiplier.init(xoffset+310, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+	labelRMultiplier.init(xoffset+310, setupPos, 50, GraphicListBox::defH, true);
 
 	labelFaction.registerGraphicComponent(containerName,"labelFaction");
-    labelFaction.init(xoffset+390, setupPos, GraphicListBox::defW, GraphicListBox::defH, true);
+    labelFaction.init(xoffset+411, setupPos, 50, GraphicListBox::defH, true);
     labelFaction.setText(lang.getString("Faction"));
 
     labelTeam.registerGraphicComponent(containerName,"labelTeam");
-    labelTeam.init(xoffset+650, setupPos, 50, GraphicListBox::defH, true);
+    labelTeam.init(xoffset+660, setupPos, 50, GraphicListBox::defH, true);
     labelTeam.setText(lang.getString("Team"));
 
     labelControl.setFont(CoreData::getInstance().getMenuFontBig());
@@ -632,7 +632,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 		labelPlayers[i].setText(intToStr(i+1));
 		labelPlayerNames[i].setText("*");
 		labelPlayerNames[i].setMaxEditWidth(16);
-		labelPlayerNames[i].setMaxEditRenderWidth(135);
+		labelPlayerNames[i].setMaxEditRenderWidth(127);
 
         listBoxTeams[i].setItems(teamItems);
 		listBoxTeams[i].setSelectedItemIndex(i);
