@@ -39,7 +39,7 @@ ChatManager::ChatManager() {
 	teamMode= false;
 	thisTeamIndex= -1;
 	disableTeamMode = false;
-	xPos=25;
+	xPos=75;
 	yPos=155;
 	maxTextLenght=90;
 	textCharLength.clear();
