@@ -159,7 +159,7 @@ Program::Program(int w, int h) {
 void Program::init() {
 	undoStack = ChangeStack();
 	redoStack = ChangeStack();
-	cellSize = 6;
+	cellSize = 5;
 	grid=false;
 	heightmap=false;
 	hideWater=false;
