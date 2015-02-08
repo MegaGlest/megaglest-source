@@ -314,7 +314,7 @@ void MainWindow::init(string fname) {
 	GetStatusBar()->SetStatusWidths(siCOUNT, status_widths);
 
 	SetStatusText(wxT("File: ") + ToUnicode(fileName), siFILE_NAME);
-	SetStatusText(wxT(".gbm"), siFILE_TYPE);
+	SetStatusText(wxT(".mgm"), siFILE_TYPE);
 	SetStatusText(wxT("Object: None (Erase)"), siCURR_OBJECT);
 	SetStatusText(wxT("Brush: Height"), siBRUSH_TYPE);
 	SetStatusText(wxT("Value: 0"), siBRUSH_VALUE);
@@ -536,14 +536,8 @@ void MainWindow::setExtension() {
 	if (extnsn == "gbm" || extnsn == "mgm") {
 		currentFile = cutLastExt(currentFile);
 	}
-	if (Program::getMap()->getMaxFactions() <= 4 || Program::getMap()->getCliffLevel() == 0) {
-		SetStatusText(wxT(".gbm"), siFILE_TYPE);
-		currentFile += ".gbm";
-	}
-	else {
-		SetStatusText(wxT(".mgm"), siFILE_TYPE);
-		currentFile += ".mgm";
-	}
+	SetStatusText(wxT(".mgm"), siFILE_TYPE);
+	currentFile += ".mgm";
 }
 
 void MainWindow::onMouseDown(wxMouseEvent &event, int x, int y) {
@@ -740,9 +734,9 @@ void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
 	}
 
 #if wxCHECK_VERSION(2, 9, 1)
-	wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.gbm|*.mgm"), wxFD_SAVE);
+	wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.mgm|*.gbm"), wxFD_SAVE);
 #else
-	wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.gbm|*.mgm"), wxSAVE);
+	wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.mgm|*.gbm"), wxSAVE);
 #endif
 
 	if(fileDialog->GetPath() != ToUnicode("")) {
@@ -758,7 +752,7 @@ void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
 		fd.SetDirectory(ToUnicode(defaultPath));
 	}
 
-	fd.SetWildcard(wxT("Glest Map (*.gbm)|*.gbm|MegaGlest Map (*.mgm)|*.mgm"));
+	fd.SetWildcard(wxT("MegaGlest Map (*.mgm)|*.mgm|Glest Map (*.gbm)|*.gbm"));
 	if (fd.ShowModal() == wxID_OK) {
 #ifdef WIN32
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(fd.GetPath()));
@@ -1593,7 +1587,7 @@ bool App::OnInit() {
 	if(argc==2){
 		if(argv[1][0]=='-') {   // any flag gives help and exits program.
 			std::cout << "MegaGlest map editor " << mapeditorVersionString << " [Using " << (const char *)wxConvCurrent->cWX2MB(wxVERSION_STRING) << "]" << std::endl << std::endl;
-			std::cout << "glest_map_editor [GBM OR MGM FILE]" << std::endl << std::endl;
+			std::cout << "glest_map_editor [MGM FILE]" << std::endl << std::endl;
 			std::cout << "Creates or edits glest/megaglest maps."  << std::endl;
 			std::cout << "Draw with left mouse button (select what and how large area in menu or toolbar)"  << std::endl;
 			std::cout << "Move map with right mouse button"  << std::endl;
