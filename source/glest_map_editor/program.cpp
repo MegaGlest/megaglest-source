@@ -145,13 +145,14 @@ void UndoPoint::revert() {
 MapPreview *Program::map = NULL;
 
 Program::Program(int w, int h) {
-	cellSize = 6;
+	cellSize = 5;
 	grid=false;
 	heightmap=false;
 	hideWater=false;
 	ofsetX = 0;
 	ofsetY = 0;
 	map = new MapPreview();
+	resetFactions(8);
 	renderer.initMapSurface(w, h);
 }
 
@@ -581,6 +582,8 @@ void Program::resize(int w, int h, int alt, int surf) {
 
 void Program::resetFactions(int maxFactions) {
 	if(map) map->resetFactions(maxFactions);
+	for (int i = 0; i < map->getMaxFactions(); ++i)
+		map->changeStartLocation(2*i,2*(i%4)+5,i);
 }
 
 bool Program::setMapTitle(const string &title) {
@@ -634,7 +637,7 @@ void Program::incCellSize(int i) {
 void Program::resetOfset() {
 	ofsetX = 0;
 	ofsetY = 0;
-	cellSize = 6;
+	cellSize = 5;
 }
 
 bool Program::setGridOnOff() {
