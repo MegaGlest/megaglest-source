@@ -487,8 +487,8 @@ void MainWindow::onClose(wxCloseEvent &event) {
 }
 
 void MainWindow::setupStartupSettings() {
-	program = new Program(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
-
+	string playerName = Config::getInstance().getString("NetPlayerName","");
+	program = new Program(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y, playerName);
 	fileName = "New (unsaved) Map";
 
 	//printf("#0 file load [%s]\n",currentFile.c_str());
@@ -1616,17 +1616,13 @@ bool App::OnInit() {
 	SystemFlags::VERBOSE_MODE_ENABLED  = false;
 	SystemFlags::ENABLE_THREADED_LOGGING = false;
 
-#if defined(wxMAJOR_VERSION) && defined(wxMINOR_VERSION) && defined(wxRELEASE_NUMBER) && defined(wxSUBRELEASE_NUMBER)
-	printf("Using wxWidgets version [%d.%d.%d.%d]\n",wxMAJOR_VERSION,wxMINOR_VERSION,wxRELEASE_NUMBER,wxSUBRELEASE_NUMBER);
-#endif
-
 	string fileparam;
 	if(argc==2){
 		if(argv[1][0]=='-') {   // any flag gives help and exits program.
 			std::cout << "MegaGlest map editor " << mapeditorVersionString << " [Using " << (const char *)wxConvCurrent->cWX2MB(wxVERSION_STRING) << "]" << std::endl << std::endl;
 			std::cout << "glest_map_editor [MGM FILE]" << std::endl << std::endl;
 			std::cout << "Creates or edits glest/megaglest maps."  << std::endl;
-			std::cout << "Draw with left mouse button (select what and how large area in menu or toolbar)"  << std::endl;
+			std::cout << "Draw with left mouse button"  << std::endl;
 			std::cout << "Move map with right mouse button"  << std::endl;
 			std::cout << "Zoom with middle mouse button or mousewheel"  << std::endl;
 
@@ -1634,7 +1630,6 @@ bool App::OnInit() {
 			std::cout << std::endl;
 			exit (0);
 		}
-
 //#if defined(__MINGW32__)
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(argv[1]);
 		fileparam = tmp_buf;
@@ -1648,6 +1643,10 @@ bool App::OnInit() {
 //        fileparam = wxFNCONV(argv[1]);
 //#endif
 	}
+
+#if defined(wxMAJOR_VERSION) && defined(wxMINOR_VERSION) && defined(wxRELEASE_NUMBER) && defined(wxSUBRELEASE_NUMBER)
+	printf("Using wxWidgets version [%d.%d.%d.%d]\n",wxMAJOR_VERSION,wxMINOR_VERSION,wxRELEASE_NUMBER,wxSUBRELEASE_NUMBER);
+#endif
 
 	wxString exe_path = wxStandardPaths::Get().GetExecutablePath();
     //wxString path_separator = wxFileName::GetPathSeparator();

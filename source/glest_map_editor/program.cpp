@@ -14,10 +14,8 @@
 #include "util.h"
 #include <iostream>
 #include "platform_util.h"
-#include "config.h"
 
 using namespace Shared::Util;
-using namespace Glest::Game;
 
 namespace MapEditor {
 
@@ -146,7 +144,7 @@ void UndoPoint::revert() {
 
 MapPreview *Program::map = NULL;
 
-Program::Program(int w, int h) {
+Program::Program(int w, int h, string playerName) {
 	cellSize = 5;
 	grid=false;
 	heightmap=false;
@@ -157,9 +155,6 @@ Program::Program(int w, int h) {
 	map = new MapPreview();
 	resetFactions(8);
 	renderer.initMapSurface(w, h);
-	Config &config = Config::getInstance();
-	// set player name as default author
-	string playerName = config.getString("NetPlayerName","");
 	map->setAuthor(playerName);
 }
 

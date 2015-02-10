@@ -107,7 +107,7 @@ private:
 
 	void init();
 public:
-	Program(int w, int h);
+	Program(int w, int h, string playerName);
 	~Program();
 
 	Program(const Program& obj) {
