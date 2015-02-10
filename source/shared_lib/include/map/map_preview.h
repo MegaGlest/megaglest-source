@@ -207,16 +207,16 @@ public:
 	void reset(int w, int h, float alt, MapSurfaceType surf);
 	void resize(int w, int h, float alt, MapSurfaceType surf);
 	void resetFactions(int maxFactions);
-	void randomizeHeights();
-	void randomize();
+	void randomizeHeights(bool withReset,int minimumHeight, int maximumHeight, int chanceDevider, int smoothRecursions);
+	void randomizeFactions();
+	void smoothSurface(bool limitHeights);
 	void switchSurfaces(MapSurfaceType surf1, MapSurfaceType surf2);
 
 	void loadFromFile(const string &path);
 	void saveToFile(const string &path);
 
 	void resetHeights(int height);
-	void sinRandomize(int strenght);
-	void decalRandomize(int strenght);
+	void realRandomize(int minimumHeight, int maximumHeight, int chanceDivider, int smoothRecursions);
 	void applyNewHeight(float newHeight, int x, int y, int strenght);
 
 	bool hasFileLoaded() const {return fileLoaded;}

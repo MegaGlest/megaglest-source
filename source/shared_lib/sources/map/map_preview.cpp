@@ -704,17 +704,13 @@ void MapPreview::setAdvanced(int heightFactor, int waterLevel, int cliffLevel, i
 	hasChanged = true;
 }
 
-void MapPreview::randomizeHeights() {
-	resetHeights(random.randRange(8, 10));
-	sinRandomize(0);
-	decalRandomize(4);
-	sinRandomize(1);
+void MapPreview::randomizeHeights(bool withReset,int minimumHeight, int maximumHeight, int chanceDevider, int smoothRecursions) {
+	if(withReset) resetHeights(random.randRange(8, 10));
+	realRandomize(minimumHeight,maximumHeight,chanceDevider,smoothRecursions);
 	hasChanged = true;
 }
 
-void MapPreview::randomize() {
-	randomizeHeights();
-
+void MapPreview::randomizeFactions() {
 	int slPlaceFactorX = random.randRange(0, 1);
 	int slPlaceFactorY = random.randRange(0, 1) * 2;
 
@@ -727,6 +723,40 @@ void MapPreview::randomize() {
 		startLocations[i] = sl;
 	}
 	hasChanged = true;
+}
+
+void MapPreview::smoothSurface(bool limitHeight) {
+	float *oldHeights = new float[w*h];
+
+	for (int i = 0; i < w; ++i) {
+		for (int j = 0; j < h; ++j) {
+			oldHeights[i*w+j] = cells[i][j].height;
+			//printf("count=%d height=%f h=%f\n",i*w+h,oldHeights[i*w+h],cells[i][j].height);
+		}
+	}
+
+	for (int i = 1; i < w - 1; ++i) {
+		for (int j = 1; j < h - 1; ++j) {
+			float height = 0.f;
+			float numUsedToSmooth = 0.f;
+			for (int k = -1; k <= 1; ++k) {
+				for (int l = -1; l <= 1; ++l) {
+					int tmpHeight=oldHeights[(j + k) * w + (i + l)];
+					if(limitHeight && tmpHeight>20){
+						tmpHeight=20;
+					}
+					if(limitHeight && tmpHeight<0){
+						tmpHeight=0;
+					}
+					height += tmpHeight;
+					numUsedToSmooth++;
+				}
+			}
+			height /= numUsedToSmooth;
+			cells[i][j].height=height;
+		}
+	}
+	delete[] oldHeights;
 }
 
 void MapPreview::switchSurfaces(MapSurfaceType surf1, MapSurfaceType surf2) {
@@ -986,52 +1016,32 @@ void MapPreview::resetHeights(int height) {
 	}
 }
 
-void MapPreview::sinRandomize(int strenght) {
-	float sinH1 = random.randRange(5.f, 40.f);
-	float sinH2 = random.randRange(5.f, 40.f);
-	float sinV1 = random.randRange(5.f, 40.f);
-	float sinV2 = random.randRange(5.f, 40.f);
-	float ah = static_cast<float>(10 + random.randRange(-2, 2));
-	float bh = static_cast<float>((maxHeight - minHeight)) / static_cast<float>(random.randRange(2, 3));
-	float av = static_cast<float>(10 + random.randRange(-2, 2));
-	float bv = static_cast<float>((maxHeight - minHeight)) / static_cast<float>(random.randRange(2, 3));
+void MapPreview::realRandomize(int minimumHeight, int maximumHeight, int _chanceDevider, int _smoothRecursions) {
+	int moduloParam=abs(maximumHeight-minimumHeight);
+	int chanceDevider=_chanceDevider;
+	int smoothRecursions=_smoothRecursions;
+	if(moduloParam<2) moduloParam=2;
+	//printf("moduloParam=%d   minimumHeight=%d  maximumHeight=%d\n",moduloParam,minimumHeight,maximumHeight);
 
-	for (int i = 0; i < w; ++i) {
-		for (int j = 0; j < h; ++j) {
-			float normH = static_cast<float>(i) / w;
-			float normV = static_cast<float>(j) / h;
+	// set chanceDevider to something possible
+	if(chanceDevider<2) chanceDevider=2;
 
-#ifdef USE_STREFLOP
-			float sh = (streflop::sinf(static_cast<streflop::Simple>(normH * sinH1)) + streflop::sin(static_cast<streflop::Simple>(normH * sinH2))) / 2.f;
-			float sv = (streflop::sinf(static_cast<streflop::Simple>(normV * sinV1)) + streflop::sin(static_cast<streflop::Simple>(normV * sinV2))) / 2.f;
-#else
-			float sh = (sinf(normH * sinH1) + sin(normH * sinH2)) / 2.f;
-			float sv = (sinf(normV * sinV1) + sin(normV * sinV2)) / 2.f;
-#endif
-			float newHeight = (ah + bh * sh + av + bv * sv) / 2.f;
-			applyNewHeight(newHeight, i, j, strenght);
+	// set smoothRecursions to something useful
+	if(smoothRecursions<0) smoothRecursions=0;
+	if(smoothRecursions>1000) smoothRecursions=1000;
+
+	for (int i = 1; i < w-1; ++i) {
+		for (int j = 1; j < h-1; ++j) {
+			if(rand()%chanceDevider==1){
+				cells[i][j].height=(rand() % moduloParam)+minimumHeight;
+			}
 		}
 	}
-}
-
-void MapPreview::decalRandomize(int strenght) {
-	//first row
-	int lastHeight = DEFAULT_MAP_CELL_HEIGHT;
-	for (int i = 0; i < w; ++i) {
-		lastHeight += random.randRange(-1, 1);
-		lastHeight = clamp(lastHeight, minHeight, maxHeight);
-		applyNewHeight(static_cast<float>(lastHeight), i, 0, strenght);
-	}
-
-	//other rows
-	for (int j = 1; j < h; ++j) {
-		int height = static_cast<int>(cells[0][j-1].height + random.randRange(-1, 1));
-		applyNewHeight(static_cast<float>(clamp(height, minHeight, maxHeight)), 0, j, strenght);
-		for (int i = 1; i < w; ++i) {
-			height = static_cast<int>((cells[i][j-1].height + cells[i-1][j].height) / 2.f + random.randRange(-1, 1));
-			float newHeight = static_cast<float>(clamp(height, minHeight, maxHeight));
-			applyNewHeight(newHeight, i, j, strenght);
-		}
+	for( int i = 0; i<smoothRecursions;++i){
+		if(i+1==smoothRecursions)
+			smoothSurface(true);
+		else
+			smoothSurface(false);
 	}
 }
 

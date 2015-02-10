@@ -153,6 +153,7 @@ Program::Program(int w, int h) {
 	hideWater=false;
 	ofsetX = 0;
 	ofsetY = 0;
+
 	map = new MapPreview();
 	resetFactions(8);
 	renderer.initMapSurface(w, h);
@@ -564,12 +565,12 @@ void Program::shiftDown() {
 }
 
 
-void Program::randomizeMapHeights() {
-	if(map) map->randomizeHeights();
+void Program::randomizeMapHeights(bool withReset,int minimumHeight, int maximumHeight, int chanceDevider, int smoothRecursions) {
+	if(map) map->randomizeHeights(withReset, minimumHeight,  maximumHeight,  chanceDevider,  smoothRecursions);
 }
 
-void Program::randomizeMap() {
-	if(map) map->randomize();
+void Program::randomizeFactions() {
+	if(map) map->randomizeFactions();
 }
 
 void Program::switchMapSurfaces(int surf1, int surf2) {
@@ -588,8 +589,7 @@ void Program::resize(int w, int h, int alt, int surf) {
 
 void Program::resetFactions(int maxFactions) {
 	if(map) map->resetFactions(maxFactions);
-	for (int i = 0; i < map->getMaxFactions(); ++i)
-		map->changeStartLocation(2*i,2*(i%4)+5,i);
+	randomizeFactions();
 }
 
 bool Program::setMapTitle(const string &title) {
