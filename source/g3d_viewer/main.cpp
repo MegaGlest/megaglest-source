@@ -92,14 +92,14 @@ string getGameReadWritePath(string lookupKey) {
     {
         ui->setupUi(this);
 
-        QGLFormat glFormat;
+        /*GLFormat glFormat;
         glFormat.setVersion( 1, 3 );
-        glFormat.setProfile( QGLFormat::NoProfile ); // Requires >=Qt-4.8.0
+        glFormat.setProfile( QGLFormat::NoProfile ); // Requires >=Qt-4.8.0*/
         //~ glFormat.setVersion( 3, 3 );
         //~ glFormat.setProfile( QGLFormat::CompatibilityProfile ); // Requires >=Qt-4.8.0
         //~ //glFormat.setProfile( QGLFormat::CoreProfile ); // Requires >=Qt-4.8.0
-        glFormat.setSampleBuffers( true );
-        glWidget = new Shared::G3dViewer::GLWidget(glFormat,this);
+        //glFormat.setSampleBuffers( true );
+        glWidget = new Shared::G3dViewer::GLWidget(/*glFormat,*/this);
         //glWidget = new GLWidget(this);
         ui->verticalLayout->addWidget(glWidget);
 
@@ -176,7 +176,7 @@ string getGameReadWritePath(string lookupKey) {
         QColorDialog::setCustomColor(5,qRgb(0x00,0xFF,0xCC));
         QColorDialog::setCustomColor(6,qRgb(0xFF,0x7F,0x00));
         QColorDialog::setCustomColor(7,qRgb(0xFF,0x7F,0xFF));
-        
+
         QColor chosen = QColorDialog::getColor(glWidget->getPlayerColor(),this,
                 tr("Choose Player Color"), QColorDialog::DontUseNativeDialog);
         if(chosen.isValid()){

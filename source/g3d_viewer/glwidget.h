@@ -16,6 +16,16 @@
 #include <QColor>
 
 namespace Shared{ namespace G3dViewer{
+
+/*class GLFormat ://Qt5.4 replaces QGLFormat
+#if QT_VERSION >= 0x050400
+public QSurfaceFormat {
+#else
+public QGLFormat {
+#endif
+
+};*/
+
 class GLWidget ://Qt5.4 replaces QGLWidget
 #if QT_VERSION >= 0x050400
 public QOpenGLWidget {
@@ -24,7 +34,7 @@ public QGLWidget {
 #endif
     Q_OBJECT
 public:
-    GLWidget( const QGLFormat& format, QWidget* parent = 0 );
+    GLWidget( /*const GLFormat& format,*/ QWidget* parent = 0 );
 
 
     void loadModel(QString path);
@@ -74,6 +84,13 @@ protected:
      * Event for scrolling
      */
     virtual void mouseMoveEvent(QMouseEvent* e);
+
+#if QT_VERSION >= 0x050400
+    /**
+     * Qt 5.4 does not have this, calls update() instead
+     */
+    void updateGL();
+#endif
 //~
 private:
     Renderer* renderer;

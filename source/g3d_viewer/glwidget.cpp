@@ -5,6 +5,11 @@
 #include <QWheelEvent>
 #include "xml_parser.h"
 #include "properties.h"
+
+#if QT_VERSION >= 0x050400
+#include <QOpenGLContext>
+#endif
+
 //~ //~
 //~ //~
 namespace Shared{ namespace G3dViewer{
@@ -15,8 +20,23 @@ const char *folderDelimiter = "\\";
 const char *folderDelimiter = "/";
 #endif
 
-GLWidget::GLWidget( const QGLFormat& format, QWidget* parent):QGLWidget( format, parent ),
-        renderer(Renderer::getInstance()),rotX(50),rotY(50),zoom(1),model(NULL),playerColor(0xFF,0x00,0x00){}
+GLWidget::GLWidget( /*const GLFormat& format,*/ QWidget* parent):
+#if QT_VERSION >= 0x050400
+QOpenGLWidget( parent ),
+#else
+QGLWidget( parent ),
+#endif
+        renderer(Renderer::getInstance()),rotX(50),rotY(50),zoom(1),model(NULL),playerColor(0xFF,0x00,0x00){
+            #if QT_VERSION >= 0x050400
+            QSurfaceFormat glFormat;
+            #else
+            QGLFormat glFormat;
+            #endif
+            glFormat.setVersion( 1, 3 );
+            glFormat.setProfile( glFormat.NoProfile ); // Requires >=Qt-4.8.0
+            //glFormat.setSampleBuffers( true );//why did I do that at all?
+            setFormat(glFormat);
+}
 
 void GLWidget::loadModel(QString path) {
     try{
@@ -72,7 +92,7 @@ void GLWidget::loadParticle(QString path) {
     try{if(this->particlePathList.empty() == false) {
         for(unsigned int idx = 0; idx < this->particlePathList.size(); idx++) {
             string particlePath = this->particlePathList[idx];
-            
+
             QStringList dir = path.split(folderDelimiter);
             dir.pop_back();
 
@@ -165,8 +185,15 @@ void GLWidget::setBackgroundColor(const QColor &col) {
 void GLWidget::screenshot(QString path, bool transparent) {
     makeCurrent();
     renderer->setAlphaColor(transparent ? 0.0f : 1.0f);
-    context()->swapBuffers();
+    #if QT_VERSION >= 0x050400
+    update();
+    QPixmap pixmap(size());
+    render(&pixmap);//no special method for pixmaps anymore
+    pixmap.toImage().save(path);
+    #else
+    context()->swapBuffers();//since Qt 5.4 this is not needed any more
     renderPixmap().toImage().save(path);
+    #endif
 }
 
 void GLWidget::setPlayerColor(const QColor &col) {
@@ -186,6 +213,7 @@ void GLWidget::setPlayerColor(const QColor &col) {
     //~ }
 }
 
+
 void GLWidget::toggleNormals() {
     renderer->toggleNormals();
     updateGL();
@@ -194,7 +222,9 @@ void GLWidget::toggleNormals() {
 void GLWidget::toggleWireframe() {
     makeCurrent();//use opengl on this widget
     renderer->toggleWireframe();
-    context()->swapBuffers();//push stuff to GPU
+    #if QT_VERSION < 0x050400
+    context()->swapBuffers();//push stuff to GPU//
+    #endif
     updateGL();
 }
 
@@ -215,7 +245,7 @@ void GLWidget::clearAll() {
     unitParticleSystemTypes.clear();
     //~ projectileParticleSystems.clear();
     //~ projectileParticleSystemTypes.clear();
-    //~ splashParticleSystems.clear(); // as above
+    //~ splashParticleSystems.clear(); // as a//TODO: FIX!bove
     //~ splashParticleSystemTypes.clear();
     delete model;
     model = NULL;
@@ -257,7 +287,7 @@ void GLWidget::paintGL() {
         renderer->updateParticleManager();
     }*/
     renderer->renderParticleManager();
-    
+
     if(!modelPathList.empty()){// && resetAnimation && haveLoadedParticles) {
         //~ if(anim >= resetAnim && resetAnim > 0) {
             std::cout << "RESETTING EVERYTHING ...\n" << std::endl;
@@ -304,10 +334,16 @@ void GLWidget::mousePressEvent(QMouseEvent* e){
 void GLWidget::mouseMoveEvent(QMouseEvent* e){
     std::cout << "mouse move" << std::endl;
     QPoint currPos = mapFromGlobal(QCursor::pos());
-    rotX = oldRotX + (e->pos().x() - oldPos.x()) / 4; 
+    rotX = oldRotX + (e->pos().x() - oldPos.x()) / 4;
     rotY = oldRotY + (e->pos().y() - oldPos.y()) / 4;
     updateGL();
     e->accept();
 }
+
+#if QT_VERSION >= 0x050400
+void GLWidget::updateGL(){
+    update();
+}
+#endif
 
 }}
