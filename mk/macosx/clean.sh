@@ -55,6 +55,9 @@ rm -rf \
 	source/g3d_viewer/megaglest_g3dviewer \
 	source/glest_game/megaglest \
 	source/glest_map_editor/megaglest_editor \
+	source/g3d_viewer/Release/ \
+	source/glest_game/Release/ \
+	source/glest_map_editor/Release/ \
 	data/glest_game/CMakeFiles/ \
 	data/glest_game/Makefile \
 	data/glest_game/Release/ \
