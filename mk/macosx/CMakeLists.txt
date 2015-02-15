@@ -29,6 +29,9 @@ ENDIF(NOT CONFIG_HAS_BEEN_RUN_BEFORE)
 INCLUDE_DIRECTORIES(/opt/local/include)
 LINK_DIRECTORIES(/opt/local/lib)
 
+# Set custom data path as macos apps don't use /local/
+SET(CUSTOM_DATA_INSTALL_PATH "/Applications/MegaGlest.app/Contents/Resources/share/megaglest/")
+
 ##install part
 
 # This changes Info.plist from something with variables and CMakeisms to
@@ -48,7 +51,20 @@ set (CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/MegaGlest.icns")
 set (CPACK_RESOURCE_FILE_LICENSE  
      "${CMAKE_CURRENT_SOURCE_DIR}/docs/COPYRIGHT.source_code.txt")
 set (CPACK_BUNDLE_NAME "MegaGlest")
-set (CPACK_BUNDLE_STARTUP_COMMAND "${PROJECT_SOURCE_DIR}/data/glest_game/megaglest")
+
+# This variable changs depending on the build type
+IF(CMAKE_GENERATOR STREQUAL Xcode)
+	IF(CMAKE_BUILD_TYPE STREQUAL Release)
+		set (CPACK_BUNDLE_STARTUP_COMMAND "${PROJECT_SOURCE_DIR}/source/glest_game/Release/megaglest")
+	ELSEIF(CMAKE_BUILD_TYPE STREQUAL Debug)
+		set (CPACK_BUNDLE_STARTUP_COMMAND "${PROJECT_SOURCE_DIR}/source/glest_game/Debug/megaglest")
+	ENDIF()
+ELSE()
+# Assume gnumake
+	set (CPACK_BUNDLE_STARTUP_COMMAND "${PROJECT_SOURCE_DIR}/source/glest_game/megaglest")
+ENDIF()
+
+
 set (CPACK_BUNDLE_ICON  "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/MegaGlest.icns")
 set (CPACK_BUNDLE_PLIST "${CMAKE_CURRENT_BINARY_DIR}/Info.plist")
 
