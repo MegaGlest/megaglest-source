@@ -306,7 +306,7 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
     string indent="->";
 	Lang &lang= Lang::getInstance();
 
-	if(getMaxHp() != 0) {
+	if(getMaxHp() != 0 || getMaxHpRegeneration() != 0) {
 		str += indent+lang.getString("Hp",(translatedValue == true ? "" : "english")) + " +" + intToStr(maxHp);
 		if(maxHpIsMultiplier) {
 			str += "%";
@@ -315,11 +315,11 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 //			str += " +" + intToStr(getMaxHpFromBoosts());
 //		}
 		if(getMaxHpRegeneration() != 0) {
-			str += " [" + intToStr(maxHpRegeneration);
+			str += " (" + lang.getString("Regeneration",(translatedValue == true ? "" : "english")) + ": +" + intToStr(maxHpRegeneration);
 //			if(getMaxHpRegenerationFromBoosts() != 0) {
 //				str += " +" + intToStr(getMaxHpRegenerationFromBoosts());
 //			}
-			str += "]";
+			str += ")";
 		}
 	}
 
@@ -336,7 +336,7 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 //		}
 	}
 
-	if(getMaxEp() != 0) {
+	if(getMaxEp() != 0 || getMaxEpRegeneration() != 0) {
 		if(str != "") {
 			str += "\n";
 		}
@@ -350,11 +350,11 @@ string UpgradeTypeBase::getDesc(bool translatedValue) const{
 //		}
 
 		if(getMaxEpRegeneration() != 0) {
-			str += " [" + intToStr(maxEpRegeneration);
+			str += " (" + lang.getString("Regeneration",(translatedValue == true ? "" : "english")) + ": +" + intToStr(maxEpRegeneration);
 //			if(getMaxEpRegenerationFromBoosts() != 0) {
 //				str += " +" + intToStr(getMaxEpRegenerationFromBoosts());
 //			}
-			str += "]";
+			str += ")";
 		}
 	}
 
