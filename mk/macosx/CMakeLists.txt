@@ -31,6 +31,9 @@ LINK_DIRECTORIES(/opt/local/lib)
 
 ##install part
 
+# This file is in git CRLF but that causes the cpack run to fail
+EXECUTE_PROCESS(COMMAND dos2unix -k docs/COPYRIGHT.source_code.txt WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
+
 # This changes Info.plist from something with variables and CMakeisms to
 # something that can be installed on disk.
 CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/Info.plist"
