@@ -1,0 +1,12 @@
+/megaglest
+/megaglest.6
+/megaglest_*
+/[Mm]ega[Gg]lest*.dmg
+
+core
+core.bak
+
+/build/
+/[Rr]elease/
+/[Dd]ebug/
+/mydata/
