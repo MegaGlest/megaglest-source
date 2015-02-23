@@ -7,16 +7,26 @@
 # Consider setting this for small packages if there's plenty of RAM and CPU available:
 #export XZ_OPT="$XZ_OPT -9e"
 
+KERNEL="$(uname -s | tr '[A-Z]' '[a-z]')"
+if [ "$KERNEL" = "darwin" ]; then
+	CURRENTDIR="$(cd "$(dirname "$0")"; pwd)"
+else
+	CURRENTDIR="$(dirname "$(readlink -f "$0")")"
+fi
+cd "$CURRENTDIR"
 VERSION=`./mg-version.sh --version`
 RELEASENAME=megaglest-standalone-data
 PACKAGE="$RELEASENAME-$VERSION.tar.xz"
-CURRENTDIR="$(dirname $(readlink -f $0))"
-RELEASEDIR_ROOT="$CURRENTDIR/../../../release/"
+RELEASEDIR_ROOT="$CURRENTDIR/../../../release"
 RELEASEDIR="${RELEASEDIR_ROOT}/${RELEASENAME-$VERSION}"
 PROJDIR="$CURRENTDIR/../../"
 REPODIR="$CURRENTDIR/../../"
 
-echo "Creating data package in $RELEASEDIR"
+if [ "$KERNEL" != "darwin" ]; then
+	echo "Creating data package in $RELEASEDIR"
+else
+	echo "Creating data directory $RELEASEDIR"
+fi
 
 [[ -d "$RELEASEDIR" ]] && rm -rf "$RELEASEDIR"
 mkdir -p "$RELEASEDIR"
@@ -74,11 +84,12 @@ rm -rf "$RELEASEDIR/data/cegui"
 # END
 
 cd "$CURRENTDIR"
-echo "creating data archive: $PACKAGE"
-[[ -f "${RELEASEDIR_ROOT}/$PACKAGE" ]] && rm "${RELEASEDIR_ROOT}/$PACKAGE"
-cd $RELEASEDIR
-tar -cf - * | xz > ../$PACKAGE
-cd $CURRENTDIR
+if [ "$KERNEL" != "darwin" ]; then
+	echo "creating data archive: $PACKAGE"
+	[[ -f "${RELEASEDIR_ROOT}/$PACKAGE" ]] && rm "${RELEASEDIR_ROOT}/$PACKAGE"
+	cd $RELEASEDIR
+	tar -cf - * | xz > ../$PACKAGE
+	cd $CURRENTDIR
 
-ls -la ${RELEASEDIR_ROOT}/$PACKAGE
-
+	ls -la ${RELEASEDIR_ROOT}/$PACKAGE
+fi
