@@ -146,7 +146,7 @@ fi
 
 if [ "$MAKE_ONLY" -eq "0" ]; then
 	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DWANT_DEV_OUTPATH=ON $WANT_STATIC_LIBS -DBREAKPAD_ROOT=$BREAKPAD_ROOT"
-	if [ "$BUILD_BUNDLE" -eq "1" ]; then
+	if [ "$BUILD_BUNDLE" -ne "1" ]; then
 		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_INSTALL_PREFIX=''"
 		if [ "$CLANG_FORCED" -eq "1" ] || [ "$USE_XCODE" -eq "1" ]; then
 			#^ Remove this condition when it V will start working on gcc
