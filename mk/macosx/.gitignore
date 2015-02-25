@@ -6,6 +6,7 @@
 core
 core.bak
 
+/p7zip/
 /build/
 /[Rr]elease/
 /[Dd]ebug/
