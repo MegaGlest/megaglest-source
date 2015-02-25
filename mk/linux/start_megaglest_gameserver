@@ -23,9 +23,14 @@
 #
 # Please read http://wiki.megaglest.org/Dedicated_Server for more information
 #
+# ----------------------------------------------------------------------------
+# Written by Tom Reynolds <tomreyn[at]megaglest.org>
+# Copyright (c) 2013 Tom Reynolds, The Megaglest Team, under GNU GPL v3.0+
+# ----------------------------------------------------------------------------
+LANG=C
 
 # Install location
-DIR_GAME=~/megaglest
+DIR_GAME="$(dirname "$(readlink -f "$0")")"
 
 # Log file location (beware, this can grow large)
 #LOG_SERVER=/dev/null
@@ -42,7 +47,7 @@ while true; do
   if [ -f "core" ]; then mv -f "core" "core.1"; fi
   date > "$LOG_SERVER"
   echo 'Starting server...' | tee -a "$LOG_SERVER"
-  ./start_megaglest --ini-path=./ --data-path=./ --headless-server-mode=vps,exit >> "$LOG_SERVER" 2>&1
+  ./start_megaglest --headless-server-mode=vps,exit >> "$LOG_SERVER" 2>&1
   if [ $? -ne 0 ];
   then
     echo 'ERROR: Server has quit unexpectedly.' >> "$LOG_SERVER"
