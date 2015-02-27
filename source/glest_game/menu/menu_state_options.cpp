@@ -240,7 +240,7 @@ MenuStateOptions::MenuStateOptions(Program *program, MainMenu *mainMenu, Program
 		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsSelected"));
 		listBoxHealthBars.pushBackItem(lang.getString("HealthbarsSelectedOrNeeded"));
 
-		int hpMode=config.getInt("HealthBarMode","0");
+		int hpMode=config.getInt("HealthBarMode","4");
 		int hpIndex=0;
 		switch (hpMode) {
 			case hbvUndefined:
@@ -411,7 +411,7 @@ void MenuStateOptions::reloadUI() {
 	buttonKeyboardSetup.setText(lang.getString("Keyboardsetup"));
 
 	labelVisibleHud.setText(lang.getString("VisibleHUD"));
-	labelHealthBars.setText(lang.getString("HealthBars"));
+	labelHealthBars.setText(lang.getString("Healthbar"));
 	labelChatStaysActive.setText(lang.getString("ChatStaysActive"));
 	labelTimeDisplay.setText(lang.getString("TimeDisplay"));
 

@@ -217,13 +217,15 @@ IF(BUILD_MEGAGLEST)
 	ENDIF()
 
         OPTION(WANT_DEV_OUTPATH "use developer friendly output paths" OFF)
-        IF(WANT_DEV_OUTPATH)
-	        IF(UNIX AND NOT APPLE)
-		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux/)
-	        ELSE()
-		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game/)
-	        ENDIF()
-        ENDIF()
+		IF(WANT_DEV_OUTPATH)
+			IF(UNIX AND NOT APPLE)
+				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux/)
+			ELSEIF(UNIX AND APPLE)
+				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/macosx/)
+			ELSE()
+				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game/)
+			ENDIF()
+		ENDIF()
 
         MESSAGE(STATUS "***Note: The final output path for Megaglest Game will be [${EXECUTABLE_OUTPUT_PATH}]")
 
@@ -299,17 +301,27 @@ IF(BUILD_MEGAGLEST)
 		          DESTINATION ${MEGAGLEST_MANPAGE_INSTALL_PATH})
 	        ENDIF()
 
-		# rename the ini for installation
+		INSTALL(FILES
+			"${PROJECT_SOURCE_DIR}/mk/shared/glestkeys.ini"
+			"${PROJECT_SOURCE_DIR}/mk/shared/servers.ini"
+			DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 		IF(WIN32)
-			INSTALL(FILES 
-			  "${PROJECT_SOURCE_DIR}/mk/windoze/glest.ini"
-                          "${PROJECT_SOURCE_DIR}/mk/shared/glestkeys.ini"
-			  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
-		ELSE()
-			INSTALL(FILES 
-			  "${PROJECT_SOURCE_DIR}/mk/linux/glest.ini"
-                          "${PROJECT_SOURCE_DIR}/mk/shared/glestkeys.ini"
-			  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+			INSTALL(FILES
+				"${PROJECT_SOURCE_DIR}/mk/windoze/glest.ini"
+				DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+		ELSEIF(UNIX AND NOT APPLE)
+			INSTALL(FILES
+				"${PROJECT_SOURCE_DIR}/mk/linux/glest.ini"
+				DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+		ELSEIF(UNIX AND APPLE)
+			INSTALL(FILES
+				"${PROJECT_SOURCE_DIR}/mk/macosx/glest.ini"
+				DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+			IF(SINGLE_INSTALL_DIRECTORY AND EXISTS "${PROJECT_SOURCE_DIR}/mk/macosx/p7zip/")
+				INSTALL(DIRECTORY
+					"${PROJECT_SOURCE_DIR}/mk/macosx/p7zip"
+					DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
+			ENDIF()
 		ENDIF()
 
 		# Installation of data files from outside normal data folder
@@ -317,21 +329,34 @@ IF(BUILD_MEGAGLEST)
 		#  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH}data/core/misc_textures
 		#  OPTIONAL REGEX "/.git" EXCLUDE)
 
-	        MESSAGE(STATUS "**Source package detected git folder structure.")
+	        #MESSAGE(STATUS "**Source package detected git folder structure.")
 
-	        # Installation of the program desktop file
-	        INSTALL(FILES 
-	          "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.desktop"
-	          DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
+		IF(NOT APPLE)
+			# Installation of the program desktop file
+			INSTALL(FILES
+				"${PROJECT_SOURCE_DIR}/mk/linux/megaglest.desktop"
+				DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
+		ENDIF()
 
-	        # Installation of the program desktop icon file
-	        INSTALL(FILES 
-	          "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.png"
-	          "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.xpm"
-	          "${PROJECT_SOURCE_DIR}/mk/linux/megaglest.bmp"
-	          "${PROJECT_SOURCE_DIR}/mk/shared/editor.ico"
-	          "${PROJECT_SOURCE_DIR}/mk/shared/glest.ico"
-	          "${PROJECT_SOURCE_DIR}/mk/shared/g3dviewer.ico"
-	          DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
-        ENDIF()
+		# Installation of the program desktop icon file
+		INSTALL(FILES
+			"${PROJECT_SOURCE_DIR}/mk/shared/megaglest.ico"
+			DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
+		IF(UNIX AND NOT APPLE)
+			INSTALL(FILES
+				"${PROJECT_SOURCE_DIR}/mk/linux/megaglest.png"
+				"${PROJECT_SOURCE_DIR}/mk/linux/megaglest.xpm"
+				DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
+		ELSEIF(UNIX AND APPLE)
+			IF(NOT SINGLE_INSTALL_DIRECTORY)
+				INSTALL(FILES
+					"${PROJECT_SOURCE_DIR}/mk/macosx/bundle_resources/MegaGlest.icns"
+					DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
+			ENDIF()
+		ELSE()
+			INSTALL(FILES
+				"${PROJECT_SOURCE_DIR}/mk/linux/megaglest.bmp"
+				DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
+		ENDIF()
+	ENDIF()
 ENDIF()

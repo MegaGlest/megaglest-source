@@ -6,6 +6,10 @@ SET(TARGET_NAME_MANPAGE "${TARGET_NAME}.6")
 
 IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 	MESSAGE(STATUS "Will try to build MegaGlest model viewer")
+	
+	IF(UNIX AND APPLE AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+		ADD_DEFINITIONS("-std=c++11")
+	ENDIF()
 
 	FIND_PACKAGE(SDL REQUIRED)
 	INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
@@ -128,13 +132,15 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 	ENDFOREACH(DIR)
 	
         OPTION(WANT_DEV_OUTPATH "use developer friendly output paths" OFF)
-        IF(WANT_DEV_OUTPATH)
-	        IF(UNIX AND NOT APPLE)
-		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux/)
-	        ELSE()
-		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game/)
-	        ENDIF()
-        ENDIF()
+		IF(WANT_DEV_OUTPATH)
+			IF(UNIX AND NOT APPLE)
+				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux/)
+			ELSEIF(UNIX AND APPLE)
+				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/macosx/)
+			ELSE()
+				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game/)
+			ENDIF()
+		ENDIF()
 
         SET(HELP2MAN_OUT_PATH ${EXECUTABLE_OUTPUT_PATH})
         IF("${EXECUTABLE_OUTPUT_PATH}" STREQUAL "")
@@ -163,7 +169,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 	IF(EXISTS ${HELP2MAN})
 		MESSAGE("***-- Found help2man: ${HELP2MAN} about to build manpage in [${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}]")
 
-                SET(MG_MANPAGE_DESCRIPTION "G3D Model editor for the popular 3D realtime stragegy game")
+                SET(MG_MANPAGE_DESCRIPTION "G3D Model editor for the popular 3D realtime strategy game")
 
 		IF(EXISTS ${XVFB_EXEC})
 			MESSAGE("***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
@@ -199,12 +205,21 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 	          "${PROJECT_SOURCE_DIR}/mk/shared/g3dviewer.ico"
 	          DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 
-	        # Installation of the program desktop file
-                SET(MG_DESKTOP_FILE ${PROJECT_SOURCE_DIR}/mk/linux/megaglest_g3dviewer.desktop)
+			IF(UNIX AND NOT APPLE)
+				# Installation of the program desktop file
+				SET(MG_DESKTOP_FILE ${PROJECT_SOURCE_DIR}/mk/linux/megaglest_g3dviewer.desktop)
 
-                INSTALL(FILES
-	          "${MG_DESKTOP_FILE}"
-	          DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
+				INSTALL(FILES
+					"${MG_DESKTOP_FILE}"
+					DESTINATION ${MEGAGLEST_DESKTOP_INSTALL_PATH})
+
+				IF(NOT BUILD_MEGAGLEST)
+					INSTALL(FILES
+						"${PROJECT_SOURCE_DIR}/mk/linux/megaglest.png"
+						"${PROJECT_SOURCE_DIR}/mk/linux/megaglest.xpm"
+						DESTINATION ${MEGAGLEST_ICON_INSTALL_PATH})
+				ENDIF()
+			ENDIF()
 
         ENDIF()
 ENDIF()

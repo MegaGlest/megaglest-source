@@ -197,6 +197,12 @@ private:
 	int resourceUnderMouse;
 	int objectUnderMouse;
 
+	bool randomWithReset;
+	int randomMinimumHeight;
+	int randomMaximumHeight;
+	int randomChanceDevider;
+	int randomRecursions;
+
 	ChangeType enabledGroup;
 
 	string fileName;

@@ -144,21 +144,24 @@ void UndoPoint::revert() {
 
 MapPreview *Program::map = NULL;
 
-Program::Program(int w, int h) {
-	cellSize = 6;
+Program::Program(int w, int h, string playerName) {
+	cellSize = 5;
 	grid=false;
 	heightmap=false;
 	hideWater=false;
 	ofsetX = 0;
 	ofsetY = 0;
+
 	map = new MapPreview();
+	resetFactions(8);
 	renderer.initMapSurface(w, h);
+	map->setAuthor(playerName);
 }
 
 void Program::init() {
 	undoStack = ChangeStack();
 	redoStack = ChangeStack();
-	cellSize = 6;
+	cellSize = 5;
 	grid=false;
 	heightmap=false;
 	hideWater=false;
@@ -557,12 +560,12 @@ void Program::shiftDown() {
 }
 
 
-void Program::randomizeMapHeights() {
-	if(map) map->randomizeHeights();
+void Program::randomizeMapHeights(bool withReset,int minimumHeight, int maximumHeight, int chanceDevider, int smoothRecursions) {
+	if(map) map->randomizeHeights(withReset, minimumHeight,  maximumHeight,  chanceDevider,  smoothRecursions);
 }
 
-void Program::randomizeMap() {
-	if(map) map->randomize();
+void Program::randomizeFactions() {
+	if(map) map->randomizeFactions();
 }
 
 void Program::switchMapSurfaces(int surf1, int surf2) {
@@ -581,6 +584,7 @@ void Program::resize(int w, int h, int alt, int surf) {
 
 void Program::resetFactions(int maxFactions) {
 	if(map) map->resetFactions(maxFactions);
+	randomizeFactions();
 }
 
 bool Program::setMapTitle(const string &title) {
@@ -634,7 +638,7 @@ void Program::incCellSize(int i) {
 void Program::resetOfset() {
 	ofsetX = 0;
 	ofsetY = 0;
-	cellSize = 6;
+	cellSize = 5;
 }
 
 bool Program::setGridOnOff() {

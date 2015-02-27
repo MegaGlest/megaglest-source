@@ -11,30 +11,14 @@ Source and Data Archives:
 =========================
 
 There are 3 archives that are built for a given release (starting with versions 
-after 3.6.0). In order to build a release you must have all files checked out
-of svn for that specific release (example: trunk)
+after 3.6.0). In order to build a release you must have all git repositories
+checked out for that specific release (example, tag: 3.11.0) or downloaded all
+source archives/"tarballs" which in their name have same version, equal to tag.
 
-To set the current version for release, modify the file mk/linux/mg-version.sh
-and change the two variables:
-
-OLD_MG_VERSION=3.6.0.1
-MG_VERSION=3.6.0.2
-
-*Note: Please ensure the MG_VERSION variable matches the version set in the 
-MegaGlest binary, this can be checked by running: ./megaglest --version
-It is possible to have the mg-version.sh script NOT match the binary in cases
-where we are releasing binary compatible updates to the archives in which case 
-we typically use a forth digit in the version # (as seen above)
-
-After setting the correct verions in mg-version.sh you should call:
-./mg-version-synch.sh
-
-This will update associated installers to use the correct version stamps
-
-To set the actual binary to the desired version you must manually edit 
-glest_game/facilities/game_util.cpp
-const string glestVersionString 	= "v3.8-dev";
-
+To set the current version for release, modify the file source/version.txt
+and change there available variables, then run mk/linux/mg-version-synch.sh script
+for updating version number everywhere where it is needed and then you only have
+to commit changed files.
 
 #1. The source archive:
 This archive contains source code for binary compilation of the application and 

@@ -140,13 +140,15 @@ IF(BUILD_MEGAGLEST_TESTS)
 	SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
         OPTION(WANT_DEV_OUTPATH "use developer friendly output paths" OFF)
-        IF(WANT_DEV_OUTPATH)
-	        IF(UNIX AND NOT APPLE)
-		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux/)
-	        ELSE()
-		        SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game/)
-	        ENDIF()
-        ENDIF()
+		IF(WANT_DEV_OUTPATH)
+			IF(UNIX AND NOT APPLE)
+				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux/)
+			ELSEIF(UNIX AND APPLE)
+				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/macosx/)
+			ELSE()
+				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game/)
+			ENDIF()
+		ENDIF()
 
 	MESSAGE(STATUS "EXTERNAL_LIBS = [${EXTERNAL_LIBS}]")
 
@@ -164,19 +166,19 @@ IF(BUILD_MEGAGLEST_TESTS)
 	ENDIF()
 
         TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
+	IF(NOT "${CMAKE_GENERATOR}" STREQUAL "Xcode")
+		# Run the unit tests after build
+		IF(EXISTS ${XVFB_EXEC})
+			MESSAGE("***-- Found xvfb-run: ${XVFB_EXEC} will run tests with it.")
 
-        # Run the unit tests after build
-	IF(EXISTS ${XVFB_EXEC})
-		MESSAGE("***-- Found xvfb-run: ${XVFB_EXEC} will run tests with it.")
-
-	  	add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-	    		COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME}
-                        COMMENT "***-- Found megaglest test runner: ${TARGET_NAME} about to run unit tests via xvfb...")
-
-	ELSE()
-	  	add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-	    		COMMAND ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME}
-                        COMMENT "***-- Found megaglest test runner: ${TARGET_NAME} about to run unit tests...")
+			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+				COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME}
+				COMMENT "***-- Found megaglest test runner: ${TARGET_NAME} about to run unit tests via xvfb...")
+		ELSE()
+			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+				COMMAND ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME}
+				COMMENT "***-- Found megaglest test runner: ${TARGET_NAME} about to run unit tests...")
+		ENDIF()
 	ENDIF()
 
 ENDIF()

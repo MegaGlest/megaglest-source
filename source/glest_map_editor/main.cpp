@@ -46,7 +46,7 @@ string getGameReadWritePath(string lookupKey) {
 
 namespace MapEditor {
 
-const string mapeditorVersionString = "v1.6.1";
+const string mapeditorVersionString = "v3.12-dev";
 const string MainWindow::winHeader = "MegaGlest Map Editor " + mapeditorVersionString;
 
 // ===============================================
@@ -103,6 +103,13 @@ MainWindow::MainWindow(string appPath)
 	resourceUnderMouse=0;
 	objectUnderMouse=0;
 
+	// default values for random height calculation that turned out to be quite useful
+	randomWithReset=true;
+	randomMinimumHeight=-300;
+	randomMaximumHeight=400;
+	randomChanceDevider=30;
+	randomRecursions=3;
+
 	this->appPath = appPath;
 	Properties::setApplicationPath(executable_path(appPath));
 
@@ -143,7 +150,7 @@ void MainWindow::init(string fname) {
 #elif wxCHECK_VERSION(2, 9, 1)
 
 #else
-	//glCanvas->SetCurrent();
+	glCanvas->SetCurrent();
 	//printf("setcurrent #2\n");
 #endif
 
@@ -187,7 +194,7 @@ void MainWindow::init(string fname) {
     // ---------------------------------------------------------
 
 	menuEdit->Append(miEditRandomizeHeights, wxT("Randomize &Heights"));
-	menuEdit->Append(miEditRandomize, wxT("Randomi&ze Heights/Players"));
+	menuEdit->Append(miEditRandomize, wxT("Randomi&ze Players"));
 	menuEdit->Append(miEditSwitchSurfaces, wxT("Switch Sur&faces..."));
 	menuEdit->Append(miEditInfo, wxT("&Info..."));
 	menuEdit->Append(miEditAdvanced, wxT("&Advanced..."));
@@ -314,7 +321,7 @@ void MainWindow::init(string fname) {
 	GetStatusBar()->SetStatusWidths(siCOUNT, status_widths);
 
 	SetStatusText(wxT("File: ") + ToUnicode(fileName), siFILE_NAME);
-	SetStatusText(wxT(".gbm"), siFILE_TYPE);
+	SetStatusText(wxT(".mgm"), siFILE_TYPE);
 	SetStatusText(wxT("Object: None (Erase)"), siCURR_OBJECT);
 	SetStatusText(wxT("Brush: Height"), siBRUSH_TYPE);
 	SetStatusText(wxT("Value: 0"), siBRUSH_VALUE);
@@ -480,8 +487,8 @@ void MainWindow::onClose(wxCloseEvent &event) {
 }
 
 void MainWindow::setupStartupSettings() {
-	program = new Program(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y);
-
+	string playerName = Config::getInstance().getString("NetPlayerName","");
+	program = new Program(glCanvas->GetClientSize().x, glCanvas->GetClientSize().y, playerName);
 	fileName = "New (unsaved) Map";
 
 	//printf("#0 file load [%s]\n",currentFile.c_str());
@@ -536,14 +543,8 @@ void MainWindow::setExtension() {
 	if (extnsn == "gbm" || extnsn == "mgm") {
 		currentFile = cutLastExt(currentFile);
 	}
-	if (Program::getMap()->getMaxFactions() <= 4 || Program::getMap()->getCliffLevel() == 0) {
-		SetStatusText(wxT(".gbm"), siFILE_TYPE);
-		currentFile += ".gbm";
-	}
-	else {
-		SetStatusText(wxT(".mgm"), siFILE_TYPE);
-		currentFile += ".mgm";
-	}
+	SetStatusText(wxT(".mgm"), siFILE_TYPE);
+	currentFile += ".mgm";
 }
 
 void MainWindow::onMouseDown(wxMouseEvent &event, int x, int y) {
@@ -740,9 +741,9 @@ void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
 	}
 
 #if wxCHECK_VERSION(2, 9, 1)
-	wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.gbm|*.mgm"), wxFD_SAVE);
+	wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.mgm|*.gbm"), wxFD_SAVE);
 #else
-	wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.gbm|*.mgm"), wxSAVE);
+	wxFileDialog fd(this, wxT("Select file"), wxT(""), wxT(""), wxT("*.mgm|*.gbm"), wxSAVE);
 #endif
 
 	if(fileDialog->GetPath() != ToUnicode("")) {
@@ -758,7 +759,7 @@ void MainWindow::onMenuFileSaveAs(wxCommandEvent &event) {
 		fd.SetDirectory(ToUnicode(defaultPath));
 	}
 
-	fd.SetWildcard(wxT("Glest Map (*.gbm)|*.gbm|MegaGlest Map (*.mgm)|*.mgm"));
+	fd.SetWildcard(wxT("MegaGlest Map (*.mgm)|*.mgm|Glest Map (*.gbm)|*.gbm"));
 	if (fd.ShowModal() == wxID_OK) {
 #ifdef WIN32
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(wxFNCONV(fd.GetPath()));
@@ -991,10 +992,40 @@ void MainWindow::onMenuEditRandomizeHeights(wxCommandEvent &event) {
 	if(program == NULL) {
 		return;
 	}
+	while(true){
+		program->setUndoPoint(ctAll);//randomizeHeights(-300,400,30,3);
 
-	program->setUndoPoint(ctAll);
-	program->randomizeMapHeights();
-	setDirty();
+		SimpleDialog simpleDialog;
+		simpleDialog.addValue("Initial Reset", boolToStr(randomWithReset),"If set to '0' no height reset is done before calculating");
+		simpleDialog.addValue("Min Height", intToStr(randomMinimumHeight),"Lowest random height. example: -300 or below if you want water , 0 if you don't want water.");
+		simpleDialog.addValue("Max Height", intToStr(randomMaximumHeight),"Max random height. A good value is 400");
+		simpleDialog.addValue("Chance Devider", intToStr(randomChanceDevider),"Defines how often you get a hill or hole default is 30. Bigger number, less hills/holes.");
+		simpleDialog.addValue("Smooth Recursions", intToStr(randomRecursions),"Number of recursions cycles to smooth the hills and holes. 0<x<50 default is 3.");
+		if (!simpleDialog.show("Randomize Height")) return;
+
+		try {
+			randomWithReset=strToBool(simpleDialog.getValue("Initial Reset"));
+			randomMinimumHeight=strToInt(simpleDialog.getValue("Min Height"));
+			randomMaximumHeight=strToInt(simpleDialog.getValue("Max Height"));
+			randomChanceDevider=strToInt(simpleDialog.getValue("Chance Devider"));
+			randomRecursions=strToInt(simpleDialog.getValue("Smooth Recursions"));
+
+			// set insane inputs to something that does not crash
+			if(randomMinimumHeight>=randomMaximumHeight) randomMinimumHeight=randomMaximumHeight-1;
+			if(randomChanceDevider<1) randomChanceDevider=1;
+
+			// set randomRecursions to something useful
+			if(randomRecursions<0) randomRecursions=0;
+			if(randomRecursions>50) randomRecursions=50;
+
+			program->randomizeMapHeights(randomWithReset, randomMinimumHeight, randomMaximumHeight,
+					randomChanceDevider, randomRecursions);
+		}
+		catch (const exception &e) {
+			MsgDialog(this, ToUnicode(e.what()), wxT("Exception"), wxOK | wxICON_ERROR).ShowModal();
+		}
+		setDirty();
+	}
 }
 
 void MainWindow::onMenuEditRandomize(wxCommandEvent &event) {
@@ -1003,7 +1034,7 @@ void MainWindow::onMenuEditRandomize(wxCommandEvent &event) {
 	}
 
 	program->setUndoPoint(ctAll);
-	program->randomizeMap();
+	program->randomizeFactions();
 	setDirty();
 }
 
@@ -1585,25 +1616,20 @@ bool App::OnInit() {
 	SystemFlags::VERBOSE_MODE_ENABLED  = false;
 	SystemFlags::ENABLE_THREADED_LOGGING = false;
 
-#if defined(wxMAJOR_VERSION) && defined(wxMINOR_VERSION) && defined(wxRELEASE_NUMBER) && defined(wxSUBRELEASE_NUMBER)
-	printf("Using wxWidgets version [%d.%d.%d.%d]\n",wxMAJOR_VERSION,wxMINOR_VERSION,wxRELEASE_NUMBER,wxSUBRELEASE_NUMBER);
-#endif
-
 	string fileparam;
 	if(argc==2){
 		if(argv[1][0]=='-') {   // any flag gives help and exits program.
 			std::cout << "MegaGlest map editor " << mapeditorVersionString << " [Using " << (const char *)wxConvCurrent->cWX2MB(wxVERSION_STRING) << "]" << std::endl << std::endl;
-			std::cout << "glest_map_editor [GBM OR MGM FILE]" << std::endl << std::endl;
+			std::cout << "glest_map_editor [MGM FILE]" << std::endl << std::endl;
 			std::cout << "Creates or edits glest/megaglest maps."  << std::endl;
-			std::cout << "Draw with left mouse button (select what and how large area in menu or toolbar)"  << std::endl;
-			std::cout << "Pan trough the map with right mouse button"  << std::endl;
+			std::cout << "Draw with left mouse button"  << std::endl;
+			std::cout << "Move map with right mouse button"  << std::endl;
 			std::cout << "Zoom with middle mouse button or mousewheel"  << std::endl;
 
 //			std::cout << " ~ more helps should be written here ~"  << std::endl;
 			std::cout << std::endl;
 			exit (0);
 		}
-
 //#if defined(__MINGW32__)
 		const wxWX2MBbuf tmp_buf = wxConvCurrent->cWX2MB(argv[1]);
 		fileparam = tmp_buf;
@@ -1617,6 +1643,10 @@ bool App::OnInit() {
 //        fileparam = wxFNCONV(argv[1]);
 //#endif
 	}
+
+#if defined(wxMAJOR_VERSION) && defined(wxMINOR_VERSION) && defined(wxRELEASE_NUMBER) && defined(wxSUBRELEASE_NUMBER)
+	printf("Using wxWidgets version [%d.%d.%d.%d]\n",wxMAJOR_VERSION,wxMINOR_VERSION,wxRELEASE_NUMBER,wxSUBRELEASE_NUMBER);
+#endif
 
 	wxString exe_path = wxStandardPaths::Get().GetExecutablePath();
     //wxString path_separator = wxFileName::GetPathSeparator();

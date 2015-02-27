@@ -20,9 +20,10 @@ MESSAGE(STATUS "** Searching for library: FriBiDi...")
 # Set variable in temp var, otherwise FIND_PATH might fail
 # unset isn't present in the required version of cmake.
 FIND_PATH(xFRIBIDI_INCLUDE_DIR fribidi.h
-  /usr/local/include/fribidi
-  /usr/include/fribidi
-  )
+	/usr/local/include/fribidi
+	/usr/include/fribidi
+	/opt/local/include/fribidi
+	)
 set(FRIBIDI_INCLUDE_DIR ${xFRIBIDI_INCLUDE_DIR})
 
 SET(FRIBIDI_NAMES ${FRIBIDI_NAMES} fribidi libfribidi)
@@ -35,8 +36,10 @@ ENDIF()
 MESSAGE(STATUS "** Searching for library names: [${FRIBIDI_NAMES}] ...")
 
 FIND_LIBRARY(FRIBIDI_LIBRARY
-  NAMES ${FRIBIDI_NAMES}
-  PATHS /usr/lib /usr/local/lib
+	NAMES ${FRIBIDI_NAMES}
+	PATHS /usr/lib
+	/usr/local/lib
+	/opt/local/lib
   )
 
 IF (FRIBIDI_LIBRARY AND FRIBIDI_INCLUDE_DIR)

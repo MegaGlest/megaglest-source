@@ -103,12 +103,11 @@ private:
 	//static Map *map;
 	static MapPreview *map;
 	friend class UndoPoint;
-
 	ChangeStack undoStack, redoStack;
 
 	void init();
 public:
-	Program(int w, int h);
+	Program(int w, int h, string playerName);
 	~Program();
 
 	Program(const Program& obj) {
@@ -152,8 +151,8 @@ public:
 	void shiftUp();
 	void shiftDown();
 
-	void randomizeMapHeights();
-	void randomizeMap();
+	void randomizeMapHeights(bool withReset, int minimumHeight, int maximumHeight, int chanceDevider, int smoothRecursions);;
+	void randomizeFactions();
 	void switchMapSurfaces(int surf1, int surf2);
 	void loadMap(const string &path);
 	void saveMap(const string &path);

@@ -240,7 +240,7 @@ void Game::resetMembers() {
 
 	scrollSpeed = Config::getInstance().getFloat("UiScrollSpeed","1.5");
 	photoModeEnabled = Config::getInstance().getBool("PhotoMode","false");
-	healthbarMode = Config::getInstance().getInt("HealthBarMode","0");
+	healthbarMode = Config::getInstance().getInt("HealthBarMode","4");
 	visibleHUD = Config::getInstance().getBool("VisibleHud","true");
 	timeDisplay = Config::getInstance().getBool("TimeDisplay","true");
 	withRainEffect = Config::getInstance().getBool("RainEffect","true");
@@ -1334,39 +1334,13 @@ void Game::init(bool initForPreviewOnly) {
 	}
 
 	if(this->loadGameNode == NULL) {
-		gameCamera.init(map->getW(), map->getH());
-
-		// camera default height calculation
-		if(map->getCameraHeight()>0 && gameCamera.getCalculatedDefault()<map->getCameraHeight()){
-			gameCamera.setCalculatedDefault(map->getCameraHeight());
-		}
-		else if(gameCamera.getCalculatedDefault()<map->getMaxMapHeight()+13.0f){
-			gameCamera.setCalculatedDefault(map->getMaxMapHeight()+13.0f);
-		}
-
-		if(world.getThisFaction() != NULL) {
-			const Vec2i &v= map->getStartLocation(world.getThisFaction()->getStartLocationIndex());
-			gameCamera.setPos(Vec2f(v.x, v.y));
-		}
+		initCamera(map);
 	}
 	else {
 		gui.loadGame(loadGameNode,&world);
 
 		if(inJoinGameLoading == true) {
-			gameCamera.init(map->getW(), map->getH());
-
-			// camera default height calculation
-			if(map->getCameraHeight()>0 && gameCamera.getCalculatedDefault()<map->getCameraHeight()){
-				gameCamera.setCalculatedDefault(map->getCameraHeight());
-			}
-			else if(gameCamera.getCalculatedDefault()<map->getMaxMapHeight()+13.0f){
-				gameCamera.setCalculatedDefault(map->getMaxMapHeight()+13.0f);
-			}
-
-			if(world.getThisFaction() != NULL) {
-				const Vec2i &v= map->getStartLocation(world.getThisFaction()->getStartLocationIndex());
-				gameCamera.setPos(Vec2f(v.x, v.y));
-			}
+			initCamera(map);
 		}
 	}
 
@@ -1631,6 +1605,23 @@ void Game::init(bool initForPreviewOnly) {
 		for(unsigned int x = 0; x < perfList.size(); ++x) {
 			printf("%s",perfList[x].c_str());
 		}
+	}
+}
+
+void Game::initCamera(Map *map){
+	gameCamera.init(map->getW(), map->getH());
+
+	// camera default height calculation
+	if(map->getCameraHeight()>0 && gameCamera.getCalculatedDefault()<map->getCameraHeight()){
+		gameCamera.setCalculatedDefault(map->getCameraHeight());
+	}
+	else if(gameCamera.getCalculatedDefault()<map->getMaxMapHeight()+13.0f){
+		gameCamera.setCalculatedDefault(map->getMaxMapHeight()+13.0f);
+	}
+
+	if(world.getThisFaction() != NULL) {
+		const Vec2i &v= map->getStartLocation(world.getThisFaction()->getStartLocationIndex());
+		gameCamera.setPos(Vec2f(v.x, v.y+gameCamera.getCalculatedDefault()/2));
 	}
 }
 
@@ -4355,17 +4346,21 @@ void Game::mouseDoubleClickLeft(int x, int y) {
 
 		const Metrics &metrics= Metrics::getInstance();
 
-		//display panel
-		if(metrics.isInDisplay(x, y) && !gui.isSelectingPos()) {
-			int xd= x - metrics.getDisplayX();
-			int yd= y - metrics.getDisplayY();
-			if(gui.mouseValid(xd, yd)){
-				return;
-			}
+		if(metrics.isInMinimap(x, y)){
+			// no double click on minimap
 		}
-
-		//graphics panel
-		gui.mouseDoubleClickLeftGraphics(x, y);
+		else {
+			//display panel
+			if(metrics.isInDisplay(x, y) && !gui.isSelectingPos()) {
+				int xd= x - metrics.getDisplayX();
+				int yd= y - metrics.getDisplayY();
+				if(gui.mouseValid(xd, yd)){
+					return;
+				}
+			}
+			//graphics panel
+			gui.mouseDoubleClickLeftGraphics(x, y);
+		}
 	}
 	catch(const exception &ex) {
 		char szBuf[8096]="";

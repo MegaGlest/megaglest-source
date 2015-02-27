@@ -17,10 +17,11 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 
 	INCLUDE (CheckIncludeFiles)
 
-#Game options
-option(ENABLE_FRIBIDI "Enable FriBIDi support" ON)
-option(FORCE_LUA_5_1 "Force looking for LUA 5.1" OFF)
-option(FORCE_LUA_5_2 "Force looking for LUA 5.2" OFF)
+	#Game options
+	option(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
+	option(ENABLE_FRIBIDI "Enable FriBIDi support" ON)
+	option(FORCE_LUA_5_1 "Force looking for LUA 5.1" OFF)
+	option(FORCE_LUA_5_2 "Force looking for LUA 5.2" OFF)
 
 	IF(WIN32)
 		SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
@@ -115,10 +116,14 @@ option(FORCE_LUA_5_2 "Force looking for LUA 5.2" OFF)
 	        SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${LUA_LIBRARIES} ${CMAKE_DL_LIBS})
         ENDIF()
 
-	OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
-
 	IF(WANT_STATIC_LIBS)
-		SET(JPEG_NAMES libjpeg.a ${JPEG_NAMES}) 
+		OPTION(JPEG_STATIC "Set to ON to link your project with static library (instead of DLL)." ON)
+		OPTION(PNG_STATIC "Set to ON to link your project with static library (instead of DLL)." ON)
+	ENDIF()
+	IF(JPEG_STATIC)
+		SET(JPEG_NAMES libjpeg.a ${JPEG_NAMES})
+	ELSE()
+		SET(JPEG_NAMES libjpeg ${JPEG_NAMES})
 	ENDIF()
 
 	FIND_PACKAGE(JPEG REQUIRED)
@@ -127,8 +132,10 @@ option(FORCE_LUA_5_2 "Force looking for LUA 5.2" OFF)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${JPEG_LIBRARY})
 	ENDIF()
 	
-	IF(WANT_STATIC_LIBS)
-		SET(PNG_NAMES libpng.a ${PNG_NAMES}) 
+	IF(PNG_STATIC)
+		SET(PNG_NAMES libpng.a ${PNG_NAMES})
+	ELSE()
+		SET(PNG_NAMES libpng ${PNG_NAMES})
 	ENDIF()
 	FIND_PACKAGE(PNG REQUIRED)
 	INCLUDE_DIRECTORIES(${PNG_INCLUDE_DIR})
@@ -455,7 +462,7 @@ option(FORCE_LUA_5_2 "Force looking for LUA 5.2" OFF)
 
 	IF(NOT WIN32)
 		ADD_LIBRARY(${TARGET_NAME} STATIC ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
-		MESSAGE(STATUS "Building shared game library as a STATIC library and saving to [${LIBRARY_OUTPUT_PATH}]")
+		#MESSAGE(STATUS "Building shared game library as a STATIC library and saving to [${LIBRARY_OUTPUT_PATH}]")
 	ELSE()
 		SET(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game)
 		ADD_LIBRARY(${TARGET_NAME} STATIC ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})

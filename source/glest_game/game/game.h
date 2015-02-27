@@ -408,6 +408,7 @@ private:
 	void checkWinnerStandardHeadlessOrObserver();
 	void checkWinnerStandardPlayer();
 	std::map<int, int> getTeamsAlive();
+	void initCamera(Map *map);
 
 	virtual bool clientLagHandler(int slotIndex,bool networkPauseGameForLaggedClients);
 };

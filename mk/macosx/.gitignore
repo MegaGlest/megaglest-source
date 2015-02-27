@@ -1,0 +1,13 @@
+/megaglest
+/megaglest.6
+/megaglest_*
+/[Mm]ega[Gg]lest*.dmg
+
+core
+core.bak
+
+/p7zip/
+/build/
+/[Rr]elease/
+/[Dd]ebug/
+/mydata/

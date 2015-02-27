@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # Start a headless MegaGlest game server (and keep it running)
 #
@@ -30,7 +30,7 @@
 LANG=C
 
 # Install location
-DIR_GAME="$(dirname "$(readlink -f "$0")")"
+DIR_GAME="$(cd "$(dirname "$0")"; pwd)"
 
 # Log file location (beware, this can grow large)
 #LOG_SERVER=/dev/null
@@ -40,14 +40,14 @@ LOG_SERVER=~/.megaglest/server.log
 # ---
 
 cd $DIR_GAME
-ulimit -c unlimited
+#ulimit -c unlimited
 
 while true; do
   if [ -f "$LOG_SERVER" ]; then mv -f "$LOG_SERVER" "$LOG_SERVER.1"; fi
   if [ -f "core" ]; then mv -f "core" "core.1"; fi
   date > "$LOG_SERVER"
   echo 'Starting server...' | tee -a "$LOG_SERVER"
-  ./start_megaglest --headless-server-mode=vps,exit >> "$LOG_SERVER" 2>&1
+  ./megaglest --headless-server-mode=vps,exit >> "$LOG_SERVER" 2>&1
   if [ $? -ne 0 ];
   then
     echo 'ERROR: Server has quit unexpectedly.' >> "$LOG_SERVER"

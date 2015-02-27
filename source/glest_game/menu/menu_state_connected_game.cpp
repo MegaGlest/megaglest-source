@@ -4607,7 +4607,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 
 					// Is the item in the mod center?
 					MutexSafeWrapper safeMutexThread((modHttpServerThread != NULL ? modHttpServerThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-					if(tilesetCacheList.find(getMissingMapFromFTPServer) == tilesetCacheList.end()) {
+					if(tilesetCacheList.find(getMissingTilesetFromFTPServer) == tilesetCacheList.end()) {
 						ftpMessageBox.init(lang.getString("Yes"),lang.getString("NoDownload"));
 					}
 					else {
@@ -4775,7 +4775,7 @@ void MenuStateConnectedGame::setupUIFromGameSettings(GameSettings *gameSettings,
 
 					// Is the item in the mod center?
 					MutexSafeWrapper safeMutexThread((modHttpServerThread != NULL ? modHttpServerThread->getMutexThreadObjectAccessor() : NULL),string(__FILE__) + "_" + intToStr(__LINE__));
-					if(mapCacheList.find(getMissingTechtreeFromFTPServer) == mapCacheList.end()) {
+					if(mapCacheList.find(getMissingMapFromFTPServer) == mapCacheList.end()) {
 						ftpMessageBox.init(lang.getString("Yes"),lang.getString("NoDownload"));
 					}
 					else {
