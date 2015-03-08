@@ -13,10 +13,10 @@ v3.11.1
 - nicer tilesets as defaults
 - improved camera startposition on game start ( main building in center ).
 - attackBoosts: Ep + Hp regeneration is shown in description
-- MegaGlest can be build on MacOS ( sadly noone was willing to test )
+- MegaGlest can be build easier on MacOS ( sadly noone was willing to test )
 
 v3.11.0
-- healthbars with a lots of options
+- healthbars with a lot of options
 - multi shot / multi-projectiles with different timings,sounds and particle systems
 - several camera shake effects
 - new tileset "pine rock"
