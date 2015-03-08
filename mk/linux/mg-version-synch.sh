@@ -5,6 +5,8 @@
 # Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
 # Copyright (c) 2011-2015 Mark Vejvoda under GNU GPL v3.0+
 
+CURRENTDIR="$(dirname "$(readlink -f "$0")")"
+cd "$CURRENTDIR"
 CURRENT_VERSION=`./mg-version.sh --version`
 OLD_VERSION=`./mg-version.sh --oldversion_binary`
 VERSION_INFO_FILE="$(dirname "$(readlink -f "$0")")/../../source/version.txt"
