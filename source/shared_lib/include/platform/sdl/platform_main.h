@@ -251,7 +251,7 @@ void printParameterHelp(const char *argv0, bool foundInvalidArgs) {
 	printf("\n%s=x\t\t\tAuto load a mod by mod pathname.",GAME_ARGS[GAME_ARG_MOD]);
 
 	//     "================================================================================"
-	printf("\n%s=x\t\t\tAuto Preview a map by map name.",GAME_ARGS[GAME_ARG_PREVIEW_MAP]);
+	printf("\n%s=Map,Tileset\tAuto Preview a map by map name. (tileset is optional)",GAME_ARGS[GAME_ARG_PREVIEW_MAP]);
 	printf("\n%s\t\t\tdisplays the version string of this program.",GAME_ARGS[GAME_ARG_VERSION]);
 	printf("\n%s\t\t\tdisplays your video driver's OpenGL info.",GAME_ARGS[GAME_ARG_OPENGL_INFO]);
 	printf("\n%s\t\t\tdisplays your SDL version information.",GAME_ARGS[GAME_ARG_SDL_INFO]);

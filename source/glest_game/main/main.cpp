@@ -5044,11 +5044,17 @@ int glestMain(int argc, char** argv) {
 			vector<string> paramPartTokens;
 			Tokenize(mapName,paramPartTokens,"=");
 			if(paramPartTokens.size() >= 2 && paramPartTokens[1].length() > 0) {
-				string autoloadMapName = paramPartTokens[1];
+				vector<string> paramPartTokens2;
+				string tileset="forest";
+				Tokenize(paramPartTokens[1],paramPartTokens2,",");
+				if(paramPartTokens2.size() >= 2 && paramPartTokens2[1].length() > 0) {
+					tileset = paramPartTokens2[1];
+				}
+				string autoloadMapName = paramPartTokens2[0];
 
 				GameSettings *gameSettings = &startupGameSettings;
 				gameSettings->setMap(autoloadMapName);
-				gameSettings->setTileset("forest");
+				gameSettings->setTileset(tileset);
 				gameSettings->setTech("megapack");
 				gameSettings->setDefaultUnits(false);
 				gameSettings->setDefaultResources(false);
