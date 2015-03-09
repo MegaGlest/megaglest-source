@@ -32,7 +32,7 @@ const char *mailString				= " http://bugs.megaglest.org";
 // !! Use minor versions !!  Only major and minor version control compatibility!
 // typical version numbers look like this: v3.11-beta1.0   v3.12-dev   v3.12.0
 // don't forget to update mk/linux/mg-version.sh
-const string glestVersionString 	= "v3.11.1";
+const string glestVersionString 	= "v3.12-dev";
 const string lastCompatibleSaveGameVersionString 	= "v3.9.0";
 
 #if defined(GITVERSION)
@@ -43,7 +43,7 @@ const string lastCompatibleSaveGameVersionString 	= "v3.9.0";
     const string GIT_RawRev			= string(GITVERSION);
     const string GIT_Rev 			= string("Rev: ") + string(GITVERSION);
 #else
-const string GIT_RawRev			= "$5088.9d98d2e$";
+const string GIT_RawRev			= "$5091.787074b$";
 const string GIT_Rev 			= "$Rev$";
 #endif
 

@@ -46,7 +46,7 @@ string getGameReadWritePath(string lookupKey) {
 
 namespace MapEditor {
 
-const string mapeditorVersionString = "v3.11.1";
+const string mapeditorVersionString = "v3.12-dev";
 const string MainWindow::winHeader = "MegaGlest Map Editor " + mapeditorVersionString;
 
 // ===============================================
