@@ -4178,7 +4178,13 @@ void Unit::setMeshPosInParticleSystem(UnitParticleSystem *ups){
 	if(ups->getMeshName()!=""){
 		string meshName=ups->getMeshName();
 		Model *model= getCurrentModelPtr();
-		model->updateInterpolationVertices(getAnimProgressAsFloat(), isAlive() && !isAnimProgressBound());
+
+		// as it can happen that anim progress is a bit out of range we correct it to get something valid for the particle positions.
+		float currentAnimProgress=getAnimProgressAsFloat();
+		if( currentAnimProgress>1.f || currentAnimProgress<0.f) {
+			currentAnimProgress=0.f;
+		}
+		model->updateInterpolationVertices(currentAnimProgress, isAlive() && !isAnimProgressBound());
 
 		bool foundMesh=false;
 		for(unsigned int i=0; i<model->getMeshCount() ; i++){
