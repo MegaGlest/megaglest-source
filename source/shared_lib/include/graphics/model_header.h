@@ -43,7 +43,8 @@ enum ModelType{
 enum MeshPropertyFlag{
 	mpfCustomColor= 1,
 	mpfTwoSided= 2,
-	mpfNoSelect= 4
+	mpfNoSelect= 4,
+	mpfGlow= 8
 };
 
 enum MeshTexture{

@@ -225,6 +225,7 @@ Mesh::Mesh() {
 	twoSided= false;
 	customColor= false;
 	noSelect= false;
+	glow= false;
 
 	textureFlags=0;
 
@@ -446,6 +447,7 @@ void Mesh::loadV2(int meshIndex, const string &dir, FILE *f, TextureManager *tex
 	twoSided= false;
 	customColor= false;
 	noSelect= false;
+	glow= false;
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("Load v2, this = %p Found meshHeader.hasTexture = %d, texName [%s] mtDiffuse = %d meshIndex = %d modelFile [%s]\n",this,meshHeader.hasTexture,toLower(reinterpret_cast<char*>(meshHeader.texName)).c_str(),mtDiffuse,meshIndex,modelFile.c_str());
 
@@ -586,6 +588,7 @@ void Mesh::loadV3(int meshIndex, const string &dir, FILE *f,
 	twoSided= (meshHeader.properties & mp3TwoSided) != 0;
 	customColor= (meshHeader.properties & mp3CustomColor) != 0;
 	noSelect = false;
+	glow = false;
 
 	textureFlags= 0;
 	if((meshHeader.properties & mp3NoTexture) != mp3NoTexture) {
@@ -781,6 +784,7 @@ void Mesh::load(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 	customColor= (meshHeader.properties & mpfCustomColor) != 0;
 	twoSided= (meshHeader.properties & mpfTwoSided) != 0;
 	noSelect= (meshHeader.properties & mpfNoSelect) != 0;
+	glow= (meshHeader.properties & mpfGlow) != 0;
 
 	//material
 	diffuseColor= Vec3f(meshHeader.diffuseColor);
@@ -899,6 +903,9 @@ void Mesh::save(int meshIndex, const string &dir, FILE *f, TextureManager *textu
 	}
 	if(noSelect) {
 		meshHeader.properties |= mpfNoSelect;
+	}
+	if(glow) {
+		meshHeader.properties |= mpfGlow;
 	}
 
 	meshHeader.textures = textureFlags;
@@ -1532,6 +1539,7 @@ void Mesh::copyInto(Mesh *dest, bool ignoreInterpolationData,
 	dest->twoSided 		= this->twoSided;
 	dest->customColor 	= this->customColor;
 	dest->noSelect 		= this->noSelect;
+	dest->glow 			= this->glow;
 
 	dest->textureFlags 	= this->textureFlags;
 
@@ -1605,6 +1613,7 @@ void Model::autoJoinMeshFrames() {
 				           string("_") + intToStr(mesh.getCustomTexture()) +
 				           string("_") + intToStr(mesh.getNoSelect()) +
 				           string("_") + floatToStr(mesh.getOpacity()) +
+				           string("_") + floatToStr(mesh.getGlow()) +
 				           string("_") + mesh.getDiffuseColor().getString() +
 				           string("_") + mesh.getSpecularColor().getString() +
 				           string("_") + floatToStr(mesh.getSpecularPower());

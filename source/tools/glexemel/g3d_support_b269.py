@@ -226,6 +226,7 @@ class G3DMeshHeaderv4:										 #Read Meshheader
 		self.customalpha = bool(self.properties & 1)
 		self.istwosided  = bool(self.properties & 2)
 		self.noselect    = bool(self.properties & 4)
+		self.glow    = bool(self.properties & 8)
 
 		self.hastexture = False
 		self.diffusetexture  = None
@@ -358,8 +359,10 @@ def createMesh(filename, header, data, toblender, operator):
 	mesh.show_double_sided = header.istwosided
 	if header.isv4:
 		mesh.g3d_noSelect = header.noselect
+		mesh.g3d_glow = header.glow
 	else:
 		mesh.g3d_noSelect = False
+		mesh.glow = False
 	mesh.g3d_fullyOpaque = False
 	#===================================================================================================
 	#Material Setup
@@ -705,6 +708,8 @@ def G3DSaver(filepath, context, toglest, operator):
 			properties |= 2
 		if mesh.g3d_noSelect:
 			properties |= 4
+		if mesh.g3d_glow:
+			properties |= 8
 
 		#MeshData
 		vertices = []
@@ -789,6 +794,7 @@ class G3DPanel(bpy.types.Panel):
 		self.layout.prop(context.object.data, "show_double_sided", text="double sided")
 		self.layout.prop(context.object.data, "g3d_noSelect")
 		self.layout.prop(context.object.data, "g3d_fullyOpaque")
+		self.layout.prop(context.object.data, "g3d_glow")
 
 class ImportG3D(bpy.types.Operator, ImportHelper):
 	'''Load a G3D file'''
@@ -891,6 +897,9 @@ def register():
 	bpy.types.Mesh.g3d_fullyOpaque = bpy.props.BoolProperty(
 			name="fully opaque",
 			description="sets opacity to 1.0, ignoring what's set in materials")
+	bpy.types.Mesh.g3d_glow = bpy.props.BoolProperty(
+			name="glow",
+			description="let objects glow like particles")
 
 	bpy.utils.register_module(__name__)
 

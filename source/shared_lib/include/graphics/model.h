@@ -72,6 +72,7 @@ private:
 	bool twoSided;
 	bool customColor;
 	bool noSelect;
+	bool glow;
 
 	uint32 textureFlags;
 
@@ -133,6 +134,7 @@ public:
 	bool getTwoSided() const		{return twoSided;}
 	bool getCustomTexture() const	{return customColor;}
 	bool getNoSelect() const		{return noSelect;}
+	bool getGlow() const		{return glow;}
 	string getName() const		{return name;}
 
 	uint32 getTextureFlags() const { return textureFlags; }
