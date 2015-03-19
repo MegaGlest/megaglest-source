@@ -221,7 +221,7 @@ void Logger::renderLoadingScreen() {
                 metrics.getVirtualW() / 4,
                 59 * metrics.getVirtualH() / 100,
                 coreData.getDisplayFontSmall3D(),
-                350,""); // no string here, because it has to be language specific and does not give much information
+                500,""); // no string here, because it has to be language specific and does not give much information
     	}
     	else {
 			renderer.renderProgressBar(
@@ -229,7 +229,7 @@ void Logger::renderLoadingScreen() {
 				metrics.getVirtualW() / 4,
 				59 * metrics.getVirtualH() / 100,
 				coreData.getDisplayFontSmall(),
-				350,""); // no string here, because it has to be language specific and does not give much information
+				500,""); // no string here, because it has to be language specific and does not give much information
     	}
     }
 
@@ -300,7 +300,7 @@ void Logger::renderLoadingScreen() {
 		}
 		//Show next Hint
 		if(buttonNextHint.getEnabled() == false) {
-			buttonNextHint.init((metrics.getVirtualW() / 2) - (300 / 2), 90 * metrics.getVirtualH() / 100 + 20,175);
+			buttonNextHint.init((metrics.getVirtualW() / 2) - (175 / 2), 90 * metrics.getVirtualH() / 100 + 20, 175);
 			buttonNextHint.setText(lang.getString("ShowNextHint","",true));
 			buttonNextHint.setEnabled(true);
 			buttonNextHint.setVisible(true);

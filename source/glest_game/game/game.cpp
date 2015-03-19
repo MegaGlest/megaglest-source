@@ -1691,37 +1691,37 @@ void Game::setupPopupMenus(bool checkClientAdminOverrideOnly) {
 		}
 		//PopupMenu popupMenu;
 		std::vector<string> menuItems;
-		menuItems.push_back(lang.getString("ExitGameMenu?"));
+		menuItems.push_back("  " + lang.getString("ExitGameMenu") + "  ");
 		exitGamePopupMenuIndex = (int)menuItems.size()-1;
 
 		if((gameSettings.getFlagTypes1() & ft1_allow_team_switching) == ft1_allow_team_switching &&
 			world.getThisFaction() != NULL && world.getThisFaction()->getPersonalityType() != fpt_Observer) {
-			menuItems.push_back(lang.getString("JoinOtherTeam"));
+			menuItems.push_back("  " + lang.getString("JoinOtherTeam") + "  ");
 			joinTeamPopupMenuIndex = (int)menuItems.size()-1;
 		}
 
 		if(allowAdminMenuItems == true){
-			menuItems.push_back(lang.getString("PauseResumeGame"));
+			menuItems.push_back("  " + lang.getString("PauseResumeGame") + "  ");
 			pauseGamePopupMenuIndex= (int)menuItems.size() - 1;
 
 			if(gameSettings.isNetworkGame() == false || gameSettings.getScenario() != "") {
-				menuItems.push_back(lang.getString("SaveGame"));
+				menuItems.push_back("  " + lang.getString("SaveGame") + "  ");
 				saveGamePopupMenuIndex= (int)menuItems.size() - 1;
 			}
 
 			if(gameSettings.isNetworkGame() == true) {
-				menuItems.push_back(lang.getString("DisconnectNetorkPlayer"));
+				menuItems.push_back("  " + lang.getString("DisconnectNetorkPlayer") + "  ");
 				disconnectPlayerPopupMenuIndex= (int)menuItems.size() - 1;
 			}
 		}
-		menuItems.push_back(lang.getString("Keyboardsetup"));
+		menuItems.push_back("  " + lang.getString("KeyboardsetupL") + "  ");
 		keyboardSetupPopupMenuIndex = (int)menuItems.size()-1;
 
-		menuItems.push_back(lang.getString("Cancel"));
+		menuItems.push_back("  " + lang.getString("Cancel") + "  ");
 
 		popupMenu.setW(100);
 		popupMenu.setH(100);
-		popupMenu.init(lang.getString("GameMenuTitle"),menuItems);
+		popupMenu.init("  " + lang.getString("GameMenuTitle") + "  ",menuItems);
 		popupMenu.setEnabled(false);
 		popupMenu.setVisible(false);
 
@@ -3717,7 +3717,7 @@ void Game::mouseDownLeft(int x, int y) {
 
 			// Exit game
 			if(result.first == exitGamePopupMenuIndex) {
-				showMessageBox(Lang::getInstance().getString("ExitGameMenu?"), "", true);
+				showMessageBox(Lang::getInstance().getString("ExitBattleQuestion"), "", true);
 			}
 			else if(result.first == joinTeamPopupMenuIndex) {
 
@@ -3738,10 +3738,10 @@ void Game::mouseDownLeft(int x, int y) {
 						world.getThisFaction()->getTeam() != faction->getTeam()) {
 						char szBuf[8096]="";
 						if(lang.hasString("JoinPlayerTeam") == true) {
-							snprintf(szBuf,8096,lang.getString("JoinPlayerTeam").c_str(),faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
+							snprintf(szBuf,8096,("  " + lang.getString("JoinPlayerTeam") + "  ").c_str(),faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
 						}
 						else {
-							snprintf(szBuf,8096,"Join player #%d - %s on Team: %d",faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
+							snprintf(szBuf,8096,"  Join player #%d - %s on Team: %d  ",faction->getIndex(),this->gameSettings.getNetworkPlayerName(i).c_str(),faction->getTeam());
 						}
 
 						menuItems.push_back(szBuf);
@@ -3751,15 +3751,15 @@ void Game::mouseDownLeft(int x, int y) {
 				}
 
 				if((int)uniqueTeamNumbersUsed.size() < 8) {
-					menuItems.push_back(lang.getString("CreateNewTeam"));
+					menuItems.push_back("  " + lang.getString("CreateNewTeam") + "  ");
 					switchTeamIndexMap[(int)menuItems.size()-1] = CREATE_NEW_TEAM;
 				}
-				menuItems.push_back(lang.getString("Cancel"));
+				menuItems.push_back("  " + lang.getString("Cancel") + "  ");
 				switchTeamIndexMap[(int)menuItems.size()-1] = CANCEL_SWITCH_TEAM;
 
 				popupMenuSwitchTeams.setW(100);
 				popupMenuSwitchTeams.setH(100);
-				popupMenuSwitchTeams.init(lang.getString("SwitchTeams"),menuItems);
+				popupMenuSwitchTeams.init("  " + lang.getString("SwitchTeams") + "  ",menuItems);
 				popupMenuSwitchTeams.setEnabled(true);
 				popupMenuSwitchTeams.setVisible(true);
 			}
@@ -3801,10 +3801,10 @@ void Game::mouseDownLeft(int x, int y) {
 
 						char szBuf[8096]="";
 						if(lang.hasString("DisconnectNetorkPlayerIndex") == true) {
-							snprintf(szBuf,8096,lang.getString("DisconnectNetorkPlayerIndex").c_str(),faction->getIndex()+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+							snprintf(szBuf,8096,("  " + lang.getString("DisconnectNetorkPlayerIndex") + "  ").c_str(),faction->getIndex()+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 						}
 						else {
-							snprintf(szBuf,8096,"Disconnect player #%d - %s:",faction->getIndex()+1,this->gameSettings.getNetworkPlayerName(i).c_str());
+							snprintf(szBuf,8096,"  Disconnect player #%d - %s:  ",faction->getIndex()+1,this->gameSettings.getNetworkPlayerName(i).c_str());
 						}
 
 						menuItems.push_back(szBuf);
@@ -3814,12 +3814,12 @@ void Game::mouseDownLeft(int x, int y) {
 					}
 				}
 
-				menuItems.push_back(lang.getString("Cancel"));
+				menuItems.push_back("  " + lang.getString("Cancel") + "  ");
 				disconnectPlayerIndexMap[(int)menuItems.size()-1] = CANCEL_DISCONNECT_PLAYER;
 
 				popupMenuDisconnectPlayer.setW(100);
 				popupMenuDisconnectPlayer.setH(100);
-				popupMenuDisconnectPlayer.init(lang.getString("DisconnectNetorkPlayer"),menuItems);
+				popupMenuDisconnectPlayer.init("  " + lang.getString("DisconnectNetorkPlayer") + "  ",menuItems);
 				popupMenuDisconnectPlayer.setEnabled(true);
 				popupMenuDisconnectPlayer.setVisible(true);
 			}
@@ -3942,10 +3942,10 @@ void Game::mouseDownLeft(int x, int y) {
 
 					char szBuf[8096]="";
 					if(lang.hasString("DisconnectNetorkPlayerIndexConfirm") == true) {
-						snprintf(szBuf,8096,lang.getString("DisconnectNetorkPlayerIndexConfirm").c_str(),factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
+						snprintf(szBuf,8096,("  " + lang.getString("DisconnectNetorkPlayerIndexConfirm") + "  ").c_str(),factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
 					}
 					else {
-						snprintf(szBuf,8096,"Confirm disconnection for player #%d - %s?",factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
+						snprintf(szBuf,8096,"  Confirm disconnection for player #%d - %s?  ",factionIndex+1,settings->getNetworkPlayerName(factionIndex).c_str());
 					}
 
 					disconnectPlayerConfirmMessageBox.setText(szBuf);
@@ -6225,10 +6225,10 @@ void Game::showLoseMessageBox() {
 
 	NetworkManager &networkManager= NetworkManager::getInstance();
 	if(networkManager.isNetworkGame() == true && networkManager.getNetworkRole() == nrServer) {
-		showMessageBox(lang.getString("YouLose")+" "+lang.getString("ExitGameServer?"), lang.getString("BattleOver"), false);
+		showMessageBox(lang.getString("YouLose")+" "+lang.getString("ExitBattleServerQuestion"), lang.getString("BattleOver"), false);
 	}
 	else {
-		showMessageBox(lang.getString("YouLose")+" "+lang.getString("ExitGameMenu?"), lang.getString("BattleOver"), false);
+		showMessageBox(lang.getString("YouLose")+" "+lang.getString("ExitBattleQuestion"), lang.getString("BattleOver"), false);
 	}
 }
 
@@ -6236,10 +6236,10 @@ void Game::showWinMessageBox() {
 	Lang &lang= Lang::getInstance();
 
 	if(this->masterserverMode == true || world.getThisFaction()->getPersonalityType() == fpt_Observer) {
-		showMessageBox(lang.getString("GameOver")+" "+lang.getString("ExitGameMenu?"), lang.getString("BattleOver"), false);
+		showMessageBox(lang.getString("GameOver")+" "+lang.getString("ExitBattleQuestion"), lang.getString("BattleOver"), false);
 	}
 	else {
-		showMessageBox(lang.getString("YouWin")+" "+lang.getString("ExitGameMenu?"), lang.getString("BattleOver"), false);
+		showMessageBox(lang.getString("YouWin")+" "+lang.getString("ExitBattleQuestion"), lang.getString("BattleOver"), false);
 	}
 }
 

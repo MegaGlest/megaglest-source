@@ -74,13 +74,13 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
 	noSavedGamesLabel.setText(lang.getString("NoSavedGames"));
 
 	savedGamesLabel.registerGraphicComponent(containerName,"savedGamesLabel");
-	savedGamesLabel.init(120, slotLinesYBase+slotsLineHeight+10);
+	savedGamesLabel.init(150, slotLinesYBase+slotsLineHeight+10);
 	savedGamesLabel.setFont(CoreData::getInstance().getMenuFontBig());
 	savedGamesLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	savedGamesLabel.setText(lang.getString("SavedGames"));
 
 	infoHeaderLabel.registerGraphicComponent(containerName,"infoHeaderLabel");
-	infoHeaderLabel.init(650, slotLinesYBase+slotsLineHeight+10);
+	infoHeaderLabel.init(600, slotLinesYBase+slotsLineHeight+10);
 	infoHeaderLabel.setFont(CoreData::getInstance().getMenuFontBig());
 	infoHeaderLabel.setFont3D(CoreData::getInstance().getMenuFontBig3D());
 	infoHeaderLabel.setText(lang.getString("SavegameInfo"));
@@ -100,9 +100,9 @@ MenuStateLoadGame::MenuStateLoadGame(Program *program, MainMenu *mainMenu):
 	abortButton.setText(lang.getString("Abort"));
 	xPos+=buttonWidth+xSpacing;
     loadButton.registerGraphicComponent(containerName,"loadButton");
-    loadButton.init(xPos, yPos, buttonWidth);
+    loadButton.init(xPos, yPos, buttonWidth+80);
     loadButton.setText(lang.getString("LoadGame"));
-	xPos+=buttonWidth+xSpacing;
+	xPos+=buttonWidth+80+xSpacing;
     deleteButton.registerGraphicComponent(containerName,"deleteButton");
     deleteButton.init(xPos, yPos, buttonWidth);
     deleteButton.setText(lang.getString("Delete"));
@@ -149,9 +149,9 @@ void MenuStateLoadGame::clearSlots() {
 }
 
 void MenuStateLoadGame::listFiles() {
-	int keyButtonsXBase = 20;
+	int keyButtonsXBase = 2;
 	int keyButtonsYBase = slotLinesYBase;
-	int keyButtonsWidth = 460;
+	int keyButtonsWidth = 476;
 	int keyButtonsHeight = slotsLineHeight;
 
 	clearSlots();

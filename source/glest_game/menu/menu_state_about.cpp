@@ -50,7 +50,7 @@ MenuStateAbout::MenuStateAbout(Program *program, MainMenu *mainMenu) :
 
 	//init
 	buttonReturn.registerGraphicComponent(containerName, "buttonReturn");
-	buttonReturn.init(460, 100, 125);
+	buttonReturn.init(438, 100, 125);
 	buttonReturn.setText(lang.getString("Return"));
 
 	labelAdditionalCredits.registerGraphicComponent(containerName, "labelAdditionalCredits");

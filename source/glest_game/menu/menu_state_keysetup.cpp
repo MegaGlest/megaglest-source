@@ -39,6 +39,14 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 	MenuState(program, mainMenu, "config")
 {
 	try {
+		keyButtonsLineHeight=30;
+		keyButtonsHeight=25;
+		keyButtonsWidth=400;
+		keyButtonsXBase=200;
+		keyButtonsYBase=200+400-keyButtonsLineHeight;
+		keyButtonsToRender=400/keyButtonsLineHeight;
+		int labelWidth=100;
+
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 		containerName = "KeySetup";
 
@@ -48,7 +56,8 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 		hotkeyChar = SDLK_UNKNOWN;
 
 		Lang &lang= Lang::getInstance();
-		int buttonRowPos=80;
+		int buttonStartPos=170;
+		int buttonRowPos=50;
 		if(this->parentUI==NULL){
 			int tabButtonWidth=200;
 			int tabButtonHeight=30;
@@ -87,21 +96,23 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 		}
 		// header
 		labelTitle.registerGraphicComponent(containerName,"labelTitle");
-		labelTitle.init(360,670);
-		labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
-		labelTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-		labelTitle.setText(lang.getString("Keyboardsetup"));
+		labelTitle.init(375,650);
+		labelTitle.setFont(CoreData::getInstance().getMenuFontVeryBig());
+		labelTitle.setFont3D(CoreData::getInstance().getMenuFontVeryBig3D());
+		labelTitle.setText(lang.getString("KeyboardsetupL"));
 
 		labelTestTitle.registerGraphicComponent(containerName,"labelTestTitle");
-		labelTestTitle.init(50,170);
-		labelTestTitle.setFont(CoreData::getInstance().getMenuFontBig());
-		labelTestTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+		labelTestTitle.init(keyButtonsXBase,155);
+		labelTestTitle.setFont(CoreData::getInstance().getMenuFontNormal());
+		labelTestTitle.setFont3D(CoreData::getInstance().getMenuFontNormal3D());
 		labelTestTitle.setText(lang.getString("KeyboardsetupTest"));
 
 		labelTestValue.registerGraphicComponent(containerName,"labelTestValue");
-		labelTestValue.init(50,140);
+		labelTestValue.init(keyButtonsXBase,155-28);
 		labelTestValue.setFont(CoreData::getInstance().getMenuFontBig());
 		labelTestValue.setFont3D(CoreData::getInstance().getMenuFontBig3D());
+		labelTestValue.setRenderBackground(true);
+		labelTestValue.setMaxEditRenderWidth(keyButtonsWidth);
 		labelTestValue.setText("");
 
 		// mainMassegeBox
@@ -116,27 +127,18 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 		keyScrollBar.setVisibleSize(keyButtonsToRender);
 		keyScrollBar.setVisibleStart(0);
 
-
 		// buttons
 		buttonOk.registerGraphicComponent(containerName,"buttonOk");
-		buttonOk.init(200, buttonRowPos, 100);
+		buttonOk.init(buttonStartPos, buttonRowPos, 100);
 		buttonOk.setText(lang.getString("Save"));
 
-		buttonDefaults.registerGraphicComponent(containerName,"buttonDefaults");
-		buttonDefaults.init(310, buttonRowPos, 100);
-		buttonDefaults.setText(lang.getString("Defaults"));
-
 		buttonReturn.registerGraphicComponent(containerName,"buttonReturn");
-		buttonReturn.init(420, buttonRowPos, 100);
+		buttonReturn.init(buttonStartPos+110, buttonRowPos, 100);
 		buttonReturn.setText(lang.getString("Return"));
 
-		keyButtonsLineHeight=30;
-		keyButtonsHeight=25;
-		keyButtonsWidth=400;
-		keyButtonsXBase=200;
-		keyButtonsYBase=200+400-keyButtonsLineHeight;
-		keyButtonsToRender=400/keyButtonsLineHeight;
-		int labelWidth=100;
+		buttonDefaults.registerGraphicComponent(containerName,"buttonDefaults");
+		buttonDefaults.init(buttonStartPos+230, buttonRowPos, 125);
+		buttonDefaults.setText(lang.getString("Defaults"));
 
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
@@ -177,8 +179,10 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 			button->setText(mergedProperties[i].first);
 			keyButtons.push_back(button);
 			GraphicLabel *label=new GraphicLabel();
-			label->init(keyButtonsXBase+keyButtonsWidth+10,keyButtonsYBase,labelWidth,20);
-			label->setText(keyName);
+			label->init(keyButtonsXBase+keyButtonsWidth+5,keyButtonsYBase,labelWidth,20);
+			label->setRenderBackground(true);
+			label->setMaxEditRenderWidth(105);
+			label->setText("  " + keyName);
 			labels.push_back(label);
 		}
 
@@ -207,7 +211,7 @@ void MenuStateKeysetup::reloadUI() {
 	console.resetFonts();
 	labelTitle.setFont(CoreData::getInstance().getMenuFontBig());
 	labelTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
-	labelTitle.setText(lang.getString("Keyboardsetup"));
+	labelTitle.setText(lang.getString("KeyboardsetupL"));
 
 	labelTestTitle.setFont(CoreData::getInstance().getMenuFontBig());
 	labelTestTitle.setFont3D(CoreData::getInstance().getMenuFontBig3D());
@@ -518,7 +522,7 @@ void MenuStateKeysetup::keyDown(SDL_KeyboardEvent key) {
 	char *utfStr = ConvertToUTF8(&szCharText[0]);
 
 	char szBuf[8096] = "";
-	snprintf(szBuf,8096,"%s [%s][%d][%d][%d][%d]",keyName.c_str(),utfStr,key.keysym.sym,hotkeyChar,key.keysym.unicode,key.keysym.mod);
+	snprintf(szBuf,8096,"  %s [%s][%d][%d][%d][%d]",keyName.c_str(),utfStr,key.keysym.sym,hotkeyChar,key.keysym.unicode,key.keysym.mod);
 	labelTestValue.setText(szBuf);
 
 	delete [] utfStr;

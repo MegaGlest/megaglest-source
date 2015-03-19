@@ -37,7 +37,7 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	this->lineHeight= lineHeight;
 	int lineOffset= lineHeight * lineIndex;
 	masterServerInfo= *mServerInfo;
-	int i= 7;
+	int i= 5;
 	this->baseY= baseY;
 	Vec3f color=Vec3f(1.0f,1.0f,1.0f);
 
@@ -50,13 +50,13 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	//i+= 10;
 	glestVersionLabel.init(i, baseY - lineOffset);
 	glestVersionLabel.setRenderBackground(true);
-	glestVersionLabel.setMaxEditRenderWidth(960); // use background for whole line
+	glestVersionLabel.setMaxEditRenderWidth(970); // use background for whole line
 	glestVersionLabel.setTextColor(color);
-	glestVersionLabel.setText(masterServerInfo.getGlestVersion());
+	glestVersionLabel.setText(" " + masterServerInfo.getGlestVersion());
 	glestVersionLabel.setFont(CoreData::getInstance().getDisplayFontSmall());
 	glestVersionLabel.setFont3D(CoreData::getInstance().getDisplayFontSmall3D());
 
-	i+= 70;
+	i+= 80;
 	string platform=masterServerInfo.getPlatform();
 	size_t revOffset = platform.find("-Rev");
 	if(revOffset != platform.npos) {
@@ -76,12 +76,12 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	//	binaryCompileDateLabel.setText(masterServerInfo.getBinaryCompileDate());
 
 	//game info:
-	i+= 130;
+	i+= 120;
 	serverTitleLabel.init(i, baseY - lineOffset);
 	serverTitleLabel.setTextColor(color);
 	serverTitleLabel.setText(masterServerInfo.getServerTitle());
 
-	i+= 150;
+	i+= 170;
 	country.init(i, baseY - lineOffset);
 	country.setTextColor(color);
 	country.setText(masterServerInfo.getCountry());
@@ -112,7 +112,7 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 		renderer.initTexture(rsGlobal, countryTexture);
 	}
 
-	i+= 65;
+	i+= 60;
 	//	ipAddressLabel.init(i,baseY-lineOffset);
 	//	ipAddressLabel.setText(masterServerInfo.getIpAddress());
 	//	i+=100;
@@ -126,11 +126,11 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	techLabel.setTextColor(color);
 	techLabel.setText(masterServerInfo.getTech());
 
-	i+= 120;
+	i+= 130;
 	mapLabel.init(i, baseY - lineOffset);
 	mapLabel.setTextColor(color);
 	mapLabel.setText(masterServerInfo.getMap());
-	i+= 120;
+	i+= 130;
 
 	//	tilesetLabel.init(i,baseY-lineOffset);
 	//	tilesetLabel.setText(masterServerInfo.getTileset());
@@ -142,17 +142,17 @@ ServerLine::ServerLine(MasterServerInfo *mServerInfo, int lineIndex, int baseY, 
 	        masterServerInfo.getNetworkSlots()) + "/" + intToStr(masterServerInfo.getConnectedClients()));
 
 	i+= 50;
-	externalConnectPort.init(i, baseY - lineOffset);
-	externalConnectPort.setTextColor(color);
-	externalConnectPort.setText(intToStr(masterServerInfo.getExternalConnectPort()));
+	//externalConnectPort.init(i, baseY - lineOffset);
+	//externalConnectPort.setTextColor(color);
+	//externalConnectPort.setText(intToStr(masterServerInfo.getExternalConnectPort()));
 
-	i+= 60;
-	status.init(i, baseY - lineOffset);
+	i+= 30;
+	status.init(i-10, baseY - lineOffset);
 	status.setTextColor(color);
 	status.setText(lang.getString("MGGameStatus" + intToStr(masterServerInfo.getStatus())));
 
 	i+= 130;
-	selectButton.init(i, baseY - lineOffset, 30);
+	selectButton.init(i+25, baseY - lineOffset, 35, lineHeight - 5);
 	selectButton.setText(">");
 	selectButton.setAlwaysLighted(true);
 
@@ -188,7 +188,7 @@ void ServerLine::reloadUI() {
 	activeSlotsLabel.setText(intToStr(masterServerInfo.getActiveSlots()) + "/" + intToStr(
 	        masterServerInfo.getNetworkSlots()) + "/" + intToStr(masterServerInfo.getConnectedClients()));
 
-	externalConnectPort.setText(intToStr(masterServerInfo.getExternalConnectPort()));
+	//externalConnectPort.setText(intToStr(masterServerInfo.getExternalConnectPort()));
 
 	status.setText(lang.getString("MGGameStatus" + intToStr(masterServerInfo.getStatus())));
 
@@ -230,7 +230,7 @@ void ServerLine::render(){
 	//game info:
 	renderer.renderLabel(&serverTitleLabel);
 	if(countryTexture != NULL){
-		renderer.renderTextureQuad(country.getX() + 20, country.getY(), countryTexture->getTextureWidth(),
+		renderer.renderTextureQuad(country.getX()+1, country.getY()+4, countryTexture->getTextureWidth(),
 		        countryTexture->getTextureHeight(), countryTexture, 0.7f);
 	}
 	else{
@@ -244,7 +244,7 @@ void ServerLine::render(){
 			renderer.renderLabel(&mapLabel);
 			//renderer.renderLabel(&tilesetLabel);
 			renderer.renderLabel(&activeSlotsLabel);
-			renderer.renderLabel(&externalConnectPort);
+			//renderer.renderLabel(&externalConnectPort);
 			renderer.renderLabel(&status);
 		}
 	}
@@ -287,7 +287,7 @@ void ServerLine::setY(int y){
 	//tilesetLabel.setY(y);
 	activeSlotsLabel.setY(y);
 
-	externalConnectPort.setY(y);
+	//externalConnectPort.setY(y);
 
 }
 

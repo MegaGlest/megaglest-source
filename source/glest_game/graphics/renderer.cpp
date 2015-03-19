@@ -2248,7 +2248,7 @@ void Renderer::renderChatManager(const ChatManager *chatManager) {
 	else
 	{
 		if (chatManager->getInMenu()) {
-			string text = ">> "+lang.getString("PressEnterToChat")+" <<";
+			string text = "\t\t\t\t\t>> "+lang.getString("PressEnterToChat")+" <<";
 			fontColor = Vec4f(0.5f, 0.5f, 0.5f, 0.5f);
 
 			if(renderText3DEnabled == true) {
@@ -6588,7 +6588,7 @@ void Renderer::renderDisplay() {
 				display->getProgressBar(),
 				metrics.getDisplayX(),
 				metrics.getDisplayY() + metrics.getDisplayH()-50,
-				coreData.getDisplayFontSmall3D());
+				coreData.getDisplayFontSmall3D(), 175);
 		}
 	}
 	else {
@@ -8927,7 +8927,7 @@ Renderer::Shadows Renderer::strToShadows(const string &s){
 string Renderer::shadowsToStr(Shadows shadows){
 	switch(shadows){
 	case sDisabled:
-		return "Disabled";
+		return "Disabled2";
 	case sProjected:
 		return "Projected";
 	case sShadowMapping:

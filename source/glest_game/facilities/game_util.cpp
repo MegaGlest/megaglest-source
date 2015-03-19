@@ -191,7 +191,7 @@ string getNetworkVersionString() {
 string getNetworkVersionGITString() {
 	static string version = "";
 	if(version == "") {
-			version = glestVersionString + "-" + getCompilerNameString() + "-" + getGITRevisionString();
+		version = glestVersionString + "-" + getGITRevisionString() + "-" + getCompilerNameString();
 	}
 	return version;
 }
