@@ -1,5 +1,6 @@
 #!/bin/bash
 # Use this script to build MegaGlest Data Archive for a Version Release
+# (Data archive for 'snapshots', with embedded content)
 # ----------------------------------------------------------------------------
 # Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
 # Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+
@@ -70,17 +71,9 @@ mkdir -p "$RELEASEDIR/tutorials/"
 cd "$RELEASEDIR/tutorials/"
 git archive --remote ${REPODIR}/data/glest_game/ HEAD:tutorials | tar x
 
-# special export for flag images
-cd "$RELEASEDIR"
-mkdir -p "$RELEASEDIR/data/core/misc_textures/flags/"
-cd "$RELEASEDIR/data/core/misc_textures/flags/"
-git archive --remote ${REPODIR} HEAD:source/masterserver/flags | tar x
-
 echo "Removing non required files ..."
 cd "$CURRENTDIR"
 # START
-# remove cegui data
-rm -rf "$RELEASEDIR/data/cegui"
 # END
 
 cd "$CURRENTDIR"

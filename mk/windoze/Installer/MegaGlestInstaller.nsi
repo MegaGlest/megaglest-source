@@ -249,7 +249,7 @@ Section "${APNAME} (required)"
   File /r /x .svn /x mydata "..\..\..\docs\*.*"
   
   SetOutPath "$INSTDIR\data\core\misc_textures\flags"
-  File /r /x .svn /x mydata "..\..\..\source\masterserver\flags\*.*"
+  File /r /x .svn /x mydata "..\..\..\data\glest_game\data\core\misc_textures\flags\*.*"
   SetOutPath $INSTDIR
 
   ; Write the installation path into the registry

@@ -325,9 +325,9 @@ IF(BUILD_MEGAGLEST)
 		ENDIF()
 
 		# Installation of data files from outside normal data folder
-		INSTALL(DIRECTORY "${PROJECT_SOURCE_DIR}/source/masterserver/flags" 
-		  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH}data/core/misc_textures
-		  OPTIONAL REGEX "/.git" EXCLUDE)
+		#INSTALL(DIRECTORY "${PROJECT_SOURCE_DIR}/source/masterserver/flags" 
+		#  DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH}data/core/misc_textures
+		#  OPTIONAL REGEX "/.git" EXCLUDE)
 
 	        #MESSAGE(STATUS "**Source package detected git folder structure.")
 

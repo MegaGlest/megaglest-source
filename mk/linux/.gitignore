@@ -1,8 +1,8 @@
-megaglest
-megaglest.6
+/megaglest
+/megaglest.6
 
-megaglest_*
-!*.desktop
+/megaglest_*
+!/*.desktop
 
 core
 core.bak

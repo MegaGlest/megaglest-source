@@ -1,5 +1,6 @@
 #!/bin/bash
 # Use this script to build MegaGlest Source Code Archive for a Version Release
+# (Source archive for 'make install', without embedded content)
 # ----------------------------------------------------------------------------
 # Written by Mark Vejvoda <mark_vejvoda@hotmail.com>
 # Copyright (c) 2011 Mark Vejvoda under GNU GPL v3.0+
@@ -8,7 +9,7 @@ VERSION=$(./mg-version.sh --version)
 RELEASENAME=megaglest-source
 PACKAGE="$RELEASENAME-$VERSION.tar.xz"
 CURRENTDIR="$(dirname $(readlink -f $0))"
-RELEASEDIR_ROOT="$CURRENTDIR/../../../release/"
+RELEASEDIR_ROOT="$CURRENTDIR/../../../release"
 RELEASEDIR="$RELEASEDIR_ROOT/$RELEASENAME-$VERSION/megaglest-$VERSION"
 SOURCEDIR="$CURRENTDIR/../../source/"
 REPODIR="$CURRENTDIR/../../"
@@ -69,7 +70,6 @@ rm -rf "$RELEASEDIR/source/shared_lib/sources/libircclient/"
 rm -rf "$RELEASEDIR/source/shared_lib/include/libircclient/"
 rm -rf "$RELEASEDIR/source/shared_lib/sources/platform/miniupnpc/"
 rm -rf "$RELEASEDIR/source/shared_lib/include/platform/miniupnpc/"
-rm -rf "$RELEASEDIR/source/masterserver/flags/"
 # END
 
 cd ${CURRENTDIR}
