@@ -12,7 +12,7 @@ SCRIPTDIR="$(dirname $(readlink -f $0))"
 . $SCRIPTDIR/../../../mk/linux/mg_shared.sh
 
 echo 'Downloading Javascript libraries...'
-wget http://code.jquery.com/jquery-1.5.2.js -O media/jquery-1.5.min.js
+wget http://code.jquery.com/jquery-1.11.2.js -O media/jquery-1.11.2.min.js
 wget http://www.datatables.net/download/build/jquery.dataTables.min.js -O media/jquery.dataTables.min.js
 
 echo 'Detecting system and installing dependencies...'
@@ -22,35 +22,25 @@ detect_system
 echo 'We have detected the following system:'
 echo ' [ '"$distribution"' ] [ '"$release"' ] [ '"$codename"' ] [ '"$architecture"' ]'
 
-
 case $distribution in
-        SuSE|SUSE?LINUX|Opensuse)
-                case $release in
-                        *)
+	SuSE|SUSE?LINUX|Opensuse)
+		case $release in
+			*)
 				echo '(Open)SuSE...'
 				sudo zypper install graphviz-perl perl-GraphViz perl-Config-IniFiles perl-PerlMagick
-                                ;;
-                esac
-                ;;
+				;;
+		esac
+		;;
 
-        Fedora)
-                case $release in
-                        *)
-				echo 'Fedora...'
-				#sudo yum groupinstall "Development Tools"
-				#sudo yum install subversion automake autoconf autogen jam
-                                ;;
-                esac
-                ;;
 	Debian|Ubuntu|LinuxMint)
-                case $release in
-                        *)
+		case $release in
+			*)
 				echo 'Debian / Ubuntu...'
 				sudo apt-get install perl graphviz libgraphviz-perl libconfig-inifiles-perl perlmagick
 				#sudo apt-get install libimage-size-perl
-                                ;;
-                esac
-                ;;
+				;;
+		esac
+		;;
 	*)
 		echo 'ERROR: Unknown distribution. Stopping here.' >&2
 		exit 1

@@ -58,6 +58,3 @@ $RECYCLE.BIN/
 # breakpad symlink / directory
 /google-breakpad
 /google-breakpad/
-
-# convert_faction_xml2html
-/html/
