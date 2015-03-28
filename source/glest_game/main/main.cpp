@@ -2556,66 +2556,85 @@ void runTechTranslationExtractionForPath(string techPath, string techName,
 #endif
 
 					if(txFile.is_open() == true) {
-						txFile << "TechTreeName=" << techName << std::endl;
+						string _transl_TechTreeName = techName;
+						replaceAll(_transl_TechTreeName,"_"," ");
+						txFile << "; TechTree" << std::endl;
+						txFile << "TechTreeName=" << _transl_TechTreeName << std::endl;
 
-						txFile << "; --------------" << std::endl;
+						txFile << "; -------------------------------------" << std::endl;
 						txFile << "; Types of Armor" << std::endl;
 						for(int index = 0; index < techtree->getArmorTypeCount(); ++index) {
 							const ArmorType *at = techtree->getArmorTypeByIndex(index);
-							txFile << "ArmorTypeName_" << at->getName(false) << "=" << at->getName(false) << std::endl;
+							string _transl_ArmorTypeName = at->getName(false);
+							replaceAll(_transl_ArmorTypeName,"_"," ");
+							txFile << "ArmorTypeName_" << at->getName(false) << "=" << _transl_ArmorTypeName << std::endl;
 						}
 
-						txFile << "; -------------- " << std::endl;
+						txFile << "; --------------------" << std::endl;
 						txFile << "; Types of Attack" << std::endl;
 						for(int index = 0; index < techtree->getAttackTypeCount(); ++index) {
 							const AttackType *at = techtree->getAttackTypeByIndex(index);
-							txFile << "AttackTypeName_" << at->getName(false) << "=" << at->getName(false) << std::endl;
+							string _transl_AttackTypeName = at->getName(false);
+							replaceAll(_transl_AttackTypeName,"_"," ");
+							txFile << "AttackTypeName_" << at->getName(false) << "=" << _transl_AttackTypeName << std::endl;
 						}
 
-						txFile << "; ------------------" << std::endl;
+						txFile << "; --------------------" << std::endl;
 						txFile << "; Types of Resources" << std::endl;
 						for(int index = 0; index < techtree->getResourceTypeCount(); ++index) {
 							const ResourceType *rt = techtree->getResourceType(index);
-							txFile << "ResourceTypeName_" << rt->getName(false) << "=" << rt->getName(false) << std::endl;
+							string _transl_ResourceTypeName = rt->getName(false);
+							replaceAll(_transl_ResourceTypeName,"_"," ");
+							txFile << "ResourceTypeName_" << rt->getName(false) << "=" << _transl_ResourceTypeName << std::endl;
 						}
 
-						txFile << "; -----------------" << std::endl;
-						txFile << "; Types of Factions" << std::endl;
-						txFile << "FactionName_" << GameConstants::OBSERVER_SLOTNAME << "=" << GameConstants::OBSERVER_SLOTNAME << std::endl;
-						txFile << "FactionName_" << GameConstants::RANDOMFACTION_SLOTNAME << "=" << GameConstants::RANDOMFACTION_SLOTNAME << std::endl;
-
+						//txFile << "FactionName_" << GameConstants::OBSERVER_SLOTNAME << "=" << GameConstants::OBSERVER_SLOTNAME << std::endl;
+						//txFile << "FactionName_" << GameConstants::RANDOMFACTION_SLOTNAME << "=" << GameConstants::RANDOMFACTION_SLOTNAME << std::endl;
 						for(int index = 0; index < techtree->getTypeCount(); ++index) {
 							const FactionType *ft = techtree->getType(index);
-							txFile << "FactionName_" << ft->getName(false) << "=" << ft->getName(false) << std::endl;
+							string _transl_FactionName = ft->getName(false);
+							replaceAll(_transl_FactionName,"_"," ");
+							txFile << "; -----------------------------------------------------------------------------" << std::endl;
+							txFile << "; Faction" << std::endl;
+							txFile << "FactionName_" << ft->getName(false) << "=" << _transl_FactionName << std::endl;
 
-							txFile << "; ----------------------------------" << std::endl;
+							txFile << "; -------------------------------------" << std::endl;
 							txFile << "; Types of Upgrades for this Faction" << std::endl;
 							for(int upgradeIndex = 0; upgradeIndex < ft->getUpgradeTypeCount(); ++upgradeIndex) {
 								const UpgradeType *upt = ft->getUpgradeType(upgradeIndex);
-								txFile << "UpgradeTypeName_" << upt->getName(false) << "=" << upt->getName(false) << std::endl;
+								string _transl_UpgradeTypeName = upt->getName(false);
+								replaceAll(_transl_UpgradeTypeName,"_"," ");
+								txFile << "UpgradeTypeName_" << upt->getName(false) << "=" << _transl_UpgradeTypeName << std::endl;
 							}
 
-							txFile << "; -------------------------------" << std::endl;
-							txFile << "; Types of Units for this Faction" << std::endl;
 							for(int unitIndex = 0; unitIndex < ft->getUnitTypeCount(); ++unitIndex) {
 								const UnitType *ut = ft->getUnitType(unitIndex);
-								txFile << "UnitTypeName_" << ut->getName(false) << "=" << ut->getName(false) << std::endl;
+								string _transl_UnitTypeName = ut->getName(false);
+								replaceAll(_transl_UnitTypeName,"_"," ");
+								txFile << "; -------------------------------------" << std::endl;
+								txFile << "; Unit" << std::endl;
+								txFile << "UnitTypeName_" << ut->getName(false) << "=" << _transl_UnitTypeName << std::endl;
 
 								txFile << "; --------------------" << std::endl;
 								txFile << "; Levels for this Unit" << std::endl;
 								for(int levelIndex = 0; levelIndex < ut->getLevelCount(); ++levelIndex) {
 									const Level *level = ut->getLevel(levelIndex);
-									txFile << "LevelName_" << level->getName(false) << "=" << level->getName(false) << std::endl;
+									string _transl_LevelName = level->getName(false);
+									replaceAll(_transl_LevelName,"_"," ");
+									txFile << "LevelName_" << level->getName(false) << "=" << _transl_LevelName << std::endl;
 								}
 
-								txFile << "; -------------------------------" << std::endl;
+								txFile << "; --------------------" << std::endl;
 								txFile << "; Types of Commands for this Unit" << std::endl;
 								for(int commandIndex = 0; commandIndex < ut->getCommandTypeCount(); ++commandIndex) {
 									const CommandType *ct = ut->getCommandType(commandIndex);
-									txFile << "CommandName_" << ct->getName(false) << "=" << ct->getName(false) << std::endl;
+									string _transl_CommandName = ct->getName(false);
+									replaceAll(_transl_CommandName,"_"," ");
+									txFile << "CommandName_" << ct->getName(false) << "=" << _transl_CommandName << std::endl;
 								}
 							}
 						}
+						txFile << "; -------------------------------------" << std::endl;
 					}
 					txFile.close();
 
