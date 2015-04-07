@@ -573,7 +573,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		if (ircClient != NULL && ircClient->isConnected() == true
 					&& ircClient->getHasJoinedChannel() == true) {
-			ircClient->SendIRCCmdMessage(IRC_CHANNEL, "left the lobby");
+			ircClient->SendIRCCmdMessage(IRC_CHANNEL, "   <<   left the lobby");
 			sleep(30);
 		}
         cleanup();
@@ -595,7 +595,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		if (ircClient != NULL && ircClient->isConnected() == true
 					&& ircClient->getHasJoinedChannel() == true) {
-			ircClient->SendIRCCmdMessage(IRC_CHANNEL, "tries to create a game");
+			ircClient->SendIRCCmdMessage(IRC_CHANNEL, "   <<   tries to create a game");
 			sleep(30);
 		}
         cleanup();
@@ -629,7 +629,7 @@ void MenuStateMasterserver::mouseClick(int x, int y, MouseButton mouseButton){
 
 						if (ircClient != NULL && ircClient->isConnected() == true
 									&& ircClient->getHasJoinedChannel() == true) {
-							ircClient->SendIRCCmdMessage(IRC_CHANNEL, "connecting to '"+serverLines[i]->getMasterServerInfo()->getServerTitle()+"'");
+							ircClient->SendIRCCmdMessage(IRC_CHANNEL, "   <<   is connecting to '"+serverLines[i]->getMasterServerInfo()->getServerTitle()+"'");
 							sleep(30);
 						}
 						cleanup();
