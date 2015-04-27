@@ -161,6 +161,14 @@ void ResourceType::load(const string &dir, Checksum* checksum, Checksum *techtre
 			}
 			break;
 
+            case rcProduced:
+            {
+                //interval
+                const XmlNode *intervalNode= typeNode->getChild("interval");
+                interval= intervalNode->getAttribute("value")->getIntValue();
+			}
+			break;
+
             case rcStatic:
             {
                 //recoup_cost
@@ -206,6 +214,9 @@ ResourceClass ResourceType::strToRc(const string &s){
 	}
 	if(s=="consumable"){
         return rcConsumable;
+	}
+	if(s=="produced"){
+        return rcProduced;
 	}
 	throw megaglest_runtime_error("Error converting from string ro resourceClass, found: " + s);
 }

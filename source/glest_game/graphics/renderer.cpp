@@ -2612,7 +2612,7 @@ int Renderer::renderResource(const Faction *factionForResourceView,bool localFac
 	if(rt->getClass() != rcStatic) {
 		str+= "/" + intToStr(factionForResourceView->getStoreAmount(rt,localFactionResourcesOnly));
 	}
-	if(rt->getClass() == rcConsumable) {
+	if(rt->getClass() == rcConsumable || rt->getClass() == rcProduced) {
 		str+= "(";
 		if(r->getBalance() > 0) {
 			str+= "+";

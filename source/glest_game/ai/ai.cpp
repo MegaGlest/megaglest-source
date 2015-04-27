@@ -465,13 +465,13 @@ const ResourceType *Ai::getNeededResource(int unitIndex) {
         const ResourceType *rt= tt->getResourceType(i);
         const Resource *r= aiInterface->getResource(rt);
 
-		if( rt->getClass() != rcStatic && rt->getClass() != rcConsumable) {
+		if( rt->getClass() != rcStatic && rt->getClass() != rcConsumable && rt->getClass() != rcConsumable) {
 			char szBuf[8096]="";
 			snprintf(szBuf,8096,"Examining resource [%s] amount [%d] (previous amount [%d]",rt->getName().c_str(),r->getAmount(),amount);
 			aiInterface->printLog(3, szBuf);
 		}
 
-		if( rt->getClass() != rcStatic && rt->getClass() != rcConsumable &&
+		if( rt->getClass() != rcStatic && rt->getClass() != rcConsumable && rt->getClass() != rcProduced &&
 			r->getAmount() < amount) {
 
 			// Only have up to x units going for this resource so we can focus
