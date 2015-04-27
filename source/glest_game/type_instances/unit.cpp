@@ -3502,6 +3502,11 @@ string Unit::getDesc(bool translatedValue) const {
 			str+= r->getAmount() < 0 ? lang.getString("Produce")+": ": lang.getString("Consume")+": ";
 			str+= intToStr(abs(r->getAmount())) + " " + r->getType()->getName(translatedValue);
 		}
+		if(r->getType()->getClass() == rcProduced && r->getAmount() < 0) {
+			str+= "\n";
+			str+= lang.getString("Produce")+": ";
+			str+= intToStr(abs(r->getAmount())) + " " + r->getType()->getName(translatedValue);
+		}
 	}
 
 	//command info

@@ -1012,7 +1012,7 @@ bool Faction::applyCosts(const ProducibleType *p,const CommandType *ct) {
 				throw megaglest_runtime_error(szBuf);
 			}
 			int cost= r->getAmount();
-			if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable) {
+			if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable && rt->getClass() != rcProduced) {
 				incResourceAmount(rt, -(cost));
 			}
 
@@ -1031,7 +1031,7 @@ void Faction::applyDiscount(const ProducibleType *p, int discount)
 		const ResourceType *rt= p->getCost(i)->getType();
 		assert(rt != NULL);
         int cost= p->getCost(i)->getAmount();
-		if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable)
+		if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable && rt->getClass() != rcProduced)
 		{
             incResourceAmount(rt, cost*discount/100);
 		}
@@ -1112,7 +1112,7 @@ void Faction::deApplyCosts(const ProducibleType *p,const CommandType *ct) {
 			const ResourceType *rt= p->getCost(i)->getType();
 			assert(rt != NULL);
 			int cost= p->getCost(i)->getAmount();
-			if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable) {
+			if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable && rt->getClass() != rcProduced) {
 				incResourceAmount(rt, cost);
 			}
 		}
@@ -1186,15 +1186,17 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 		if(unit->isOperative() == true) {
 			for(int k = 0; k < unit->getType()->getCostCount(); ++k) {
 				const Resource *resource = unit->getType()->getCost(k);
-				if(resource->getType() == rtApply && resource->getType()->getClass() == rcConsumable && resource->getAmount() != 0) {
+				if(resource->getType() == rtApply && (resource->getType()->getClass() == rcConsumable || resource->getType()->getClass() == rcProduced) && resource->getAmount() != 0) {
 					if(resourceIntervalUsage.find(resource->getType()) == resourceIntervalUsage.end()) {
 						resourceIntervalUsage[resource->getType()] = make_pair<int, std::vector<Unit *> >(0,std::vector<Unit *>());
 					}
 					// Negative cost means accumulate the resource type
-					resourceIntervalUsage[resource->getType()].first += -resource->getAmount();
+					if((resource->getType()->getClass() == rcProduced && resource->getAmount() < 0) || resource->getType()->getClass() != rcProduced) {
+						resourceIntervalUsage[resource->getType()].first += -resource->getAmount();
+					}
 
 					// If the cost > 0 then the unit is a consumer
-					if(resource->getAmount() > 0) {
+					if(resource->getAmount() > 0 && resource->getType()->getClass() == rcConsumable) {
 						resourceIntervalUsage[resource->getType()].second.push_back(unit);
 					}
 				}
@@ -1213,7 +1215,7 @@ void Faction::applyCostsOnInterval(const ResourceType *rtApply) {
 			incResourceAmount(rt, resourceTypeUsage);
 
 			// Check if we have any unit consumers
-			if(getResource(rt)->getAmount() < 0) {
+			if(getResource(rt)->getAmount() < 0 && getResource(rt)->getType()->getClass() == rcConsumable) {
 				resetResourceAmount(rt);
 
 				// Apply consequences to consumer units of this resource type

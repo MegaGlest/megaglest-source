@@ -808,7 +808,7 @@ void World::updateAllFactionConsumableCosts() {
 	int factionCount = getFactionCount();
 	for(int i = 0; i < resourceTypeCount; ++i) {
 		const ResourceType *rt = techTree->getResourceType(i);
-		if(rt != NULL && rt->getClass() == rcConsumable && frameCount % (rt->getInterval() * GameConstants::updateFps) == 0) {
+		if(rt != NULL && (rt->getClass() == rcConsumable || rt->getClass() == rcProduced) && frameCount % (rt->getInterval() * GameConstants::updateFps) == 0) {
 			for(int j = 0; j < factionCount; ++j) {
 				Faction *faction = getFaction(j);
 				if(faction == NULL) {
@@ -1037,7 +1037,7 @@ void World::tick() {
 			const ResourceType *rt= techTree->getResourceType(resourceTypeIndex);
 
 			//if consumable
-			if(rt != NULL && rt->getClass() == rcConsumable) {
+			if(rt != NULL && (rt->getClass() == rcConsumable || rt->getClass() == rcProduced)) {
 
 				int balance= 0;
 				for(int unitIndex = 0;
@@ -1060,7 +1060,9 @@ void World::tick() {
 							resourceCostCache[ut][rt] = resource;
 						}
 						if(resource != NULL) {
-							balance -= resource->getAmount();
+							if((rt->getClass() == rcProduced && resource->getAmount() < 0) || rt->getClass() != rcProduced) {
+								balance -= resource->getAmount();
+							}
 						}
 					}
 				}
