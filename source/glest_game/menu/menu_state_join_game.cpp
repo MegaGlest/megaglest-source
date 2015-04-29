@@ -154,7 +154,7 @@ void MenuStateJoinGame::CommonInit(bool connect, Ip serverIp,int portNumberOverr
 	//server ip
 	labelServerIp.registerGraphicComponent(containerName,"labelServerIp");
 	labelServerIp.setEditable(true);
-	labelServerIp.setMaxEditWidth(20);
+	labelServerIp.setMaxEditWidth(26);
 	labelServerIp.setMaxEditRenderWidth(210);
 	labelServerIp.init(labelXright, 460);
 
@@ -696,7 +696,7 @@ void MenuStateJoinGame::keyPress(SDL_KeyboardEvent c) {
 	ClientInterface* clientInterface= NetworkManager::getInstance().getClientInterface();
 
 	if(clientInterface->isConnected() == false)	{
-		int maxTextSize= 16;
+		int maxTextSize= 22;
 
 		//Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
@@ -708,8 +708,8 @@ void MenuStateJoinGame::keyPress(SDL_KeyboardEvent c) {
 			if((int)labelServerIp.getText().size() < maxTextSize) {
 				string text= labelServerIp.getText();
 				//text.insert(text.end()-1, key);
-				char szCharText[20]="";
-				snprintf(szCharText,20,"%c",key);
+				char szCharText[26]="";
+				snprintf(szCharText,26,"%c",key);
 				char *utfStr = ConvertToUTF8(&szCharText[0]);
 				if(text.size() > 0) {
 					text.insert(text.end() -1, utfStr[0]);
@@ -732,6 +732,20 @@ void MenuStateJoinGame::keyPress(SDL_KeyboardEvent c) {
 				}
 				else {
 					text = ".";
+				}
+
+				labelServerIp.setText(text);
+			}
+		}
+		//else if (c==':') {
+		else if (key == SDLK_COLON) {
+			if((int)labelServerIp.getText().size() < maxTextSize) {
+				string text= labelServerIp.getText();
+				if(text.size() > 0) {
+					text.insert(text.end() -1, ':');
+				}
+				else {
+					text = ":";
 				}
 
 				labelServerIp.setText(text);
