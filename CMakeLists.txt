@@ -76,6 +76,12 @@ FOREACH(ver_var VER_MAJOR;VER_MINOR;VER_PATCH;MEGAGLEST_VERSION)
 ENDFOREACH()
 MESSAGE(STATUS "Detected MegaGlest Version is [v${MEGAGLEST_VERSION}] ")
 
+SET(PIC_FLAG "${PIC_FLAG} -fPIC")
+IF(WANT_STATIC_LIBS AND "${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
+	# CMAKE_SIZEOF_VOID_P=8 => 64bit
+	ADD_DEFINITIONS("${PIC_FLAG}")
+ENDIF()
+
 ## Compiler flags, CPACK configuration and other Apple specific code.
 IF(APPLE)
 	include(${PROJECT_SOURCE_DIR}/mk/macosx/CMakeLists.txt)
