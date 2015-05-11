@@ -1012,7 +1012,7 @@ bool Faction::applyCosts(const ProducibleType *p,const CommandType *ct) {
 				throw megaglest_runtime_error(szBuf);
 			}
 			int cost= r->getAmount();
-			if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable && rt->getClass() != rcProduced) {
+			if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable) {
 				incResourceAmount(rt, -(cost));
 			}
 
@@ -1031,7 +1031,7 @@ void Faction::applyDiscount(const ProducibleType *p, int discount)
 		const ResourceType *rt= p->getCost(i)->getType();
 		assert(rt != NULL);
         int cost= p->getCost(i)->getAmount();
-		if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable && rt->getClass() != rcProduced)
+		if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable)
 		{
             incResourceAmount(rt, cost*discount/100);
 		}
@@ -1112,7 +1112,7 @@ void Faction::deApplyCosts(const ProducibleType *p,const CommandType *ct) {
 			const ResourceType *rt= p->getCost(i)->getType();
 			assert(rt != NULL);
 			int cost= p->getCost(i)->getAmount();
-			if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable && rt->getClass() != rcProduced) {
+			if((cost > 0 || (rt->getClass() != rcStatic)) && rt->getClass() != rcConsumable) {
 				incResourceAmount(rt, cost);
 			}
 		}
