@@ -192,14 +192,19 @@ if [ $REPACKONLY -eq 0 ]; then
 	cp "$CURRENTDIR/$megaglest_shared_path/servers.ini" $INSTALLDATADIR
 	cp "$CURRENTDIR/$megaglest_linux_path/makedeps_folder.sh" $INSTALL_ROOTDIR
 
+	if [ "$(echo "$VERSION" | grep -v '\-dev')" != "" ]; then
+	    cd "$CURRENTDIR/$megaglest_linux_path/tools-for-standalone-client"
+	    ./prepare-mini-update.sh --only_script; sleep 0.5s
+	    cp megaglest-mini-update.sh $INSTALLDATADIR
+	    if [ -e "megaglest-mini-update.sh" ]; then rm -f "megaglest-mini-update.sh"; fi
+	fi
+
 	# Now copy all blender related files
 	echo Copying blender modelling MegaGlest files...
 
         mkdir -p "${INSTALLDATADIR}blender/"
-        cd "${INSTALLDATADIR}blender/"
-        git archive --remote ${REPODIR} HEAD:source/tools/glexemel | tar x
-        cd "$CURRENTDIR"
-
+	cp "$CURRENTDIR/$megaglest_linux_toolspath/glexemel/"*.py "${INSTALLDATADIR}blender/"
+	cd "$CURRENTDIR"
 
 	# Now copy all glest data
 	echo Copying live MegaGlest data files...
@@ -245,32 +250,25 @@ if [ $REPACKONLY -eq 0 ]; then
         git archive --remote ${REPODIR}/data/glest_game/ HEAD:tutorials | tar x
         cd "$CURRENTDIR"
 
-	# Now copy all megaglest data
-	echo Copying live MegaGlest country logo files...
-
-	mkdir -p "${INSTALLDATADIR}/data/core/misc_textures/flags/"
-        cd "${INSTALLDATADIR}/data/core/misc_textures/flags/"
-        git archive --remote ${REPODIR}/data/glest_game/data/core/misc_textures HEAD:flags | tar x
-        cd "$CURRENTDIR"
-
-
 	# Copy shared lib dependencies for megaglest
 	cd data
 	copyGlestDeptsCmd="${INSTALL_ROOTDIR}makedeps_folder.sh megaglest"
 	$copyGlestDeptsCmd
+	if [ -e "${INSTALL_ROOTDIR}makedeps_folder.sh" ]; then rm -f "${INSTALL_ROOTDIR}makedeps_folder.sh"; fi
 
-	cd "$CURRENTDIR"
-	cd data
-        LIBVLC_DIR_CHECK=$( ldd megaglest | grep "libvlc\." | sort -u | awk '{print $3}' )
-        if [ "$LIBVLC_DIR_CHECK" != '' ]; then
-                LIBVLC_DIR=$( dirname $LIBVLC_DIR_CHECK )
-        fi
+	# If this part -V- is required then should be moved to 'makedeps_folder.sh' script
+	#cd "$CURRENTDIR"
+	#cd data
+	#LIBVLC_DIR_CHECK=$( ldd megaglest | grep "libvlc\." | sort -u | awk '{print $3}' )
+	#if [ "$LIBVLC_DIR_CHECK" != '' ]; then
+	#	LIBVLC_DIR=$( dirname $LIBVLC_DIR_CHECK )
+	#fi
 	
-	echo LibVLC installed in [$LIBVLC_DIR] copying to lib/
-        if [ "$LIBVLC_DIR" != '' ]; then
-        	cp -r $LIBVLC_DIR/vlc lib/
-        	#exit 1
-        fi
+	#echo LibVLC installed in [$LIBVLC_DIR] copying to lib/
+	#if [ "$LIBVLC_DIR" != '' ]; then
+	#	cp -r $LIBVLC_DIR/vlc lib/
+	#	#exit 1
+	#fi
 
 	cd ..
 fi
@@ -365,11 +363,12 @@ cd ../megaglest-installer
 # Compress the main data archive
 cd data
 #${megaglest_archiver_app_data} ${megaglest_archivefilename_data}
-tar -cf - * | xz > $megaglest_archivefilename_data
+tar -cf - * | xz > ../$megaglest_archivefilename_data
 # now remove everything except for the docs folder and the data archive
 shopt -s extglob
 rm -rf !(docs|$megaglest_archivefilename_data)
 cd ..
+mv -f $megaglest_archivefilename_data data/
 
 cp -R data/* image/data/
 cp meta/* image/meta/

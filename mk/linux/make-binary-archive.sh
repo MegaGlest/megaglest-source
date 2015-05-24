@@ -54,26 +54,29 @@ fi
 cd $PROJDIR
 echo "copying binaries ..."
 cp -r lib/* "$RELEASEDIR/lib"
-cp {../shared/,}*.ico "$RELEASEDIR/"
-cp *.bmp "$RELEASEDIR/"
-cp *.png "$RELEASEDIR/"
-cp *.xpm "$RELEASEDIR/"
-cp {../shared/,}*.ini "$RELEASEDIR/"
-if [ -e "$RELEASEDIR/glest-dev.ini" ]; then rm "$RELEASEDIR/glest-dev.ini"; fi
-cp megaglest "$RELEASEDIR/"
-cp megaglest_editor "$RELEASEDIR/"
-cp megaglest_g3dviewer "$RELEASEDIR/"
-cp start_megaglest "$RELEASEDIR/"
-cp start_megaglest_mapeditor "$RELEASEDIR/"
-cp start_megaglest_g3dviewer "$RELEASEDIR/"
-cp start_megaglest_gameserver "$RELEASEDIR/"
+cp {../shared/,}*.ico {../shared/,}*.ini "$RELEASEDIR/"
+if [ -e "$RELEASEDIR/glest-dev.ini" ]; then rm -f "$RELEASEDIR/glest-dev.ini"; fi
+cp *.bmp *.png *.xpm *.desktop "$RELEASEDIR/"
+cp megaglest megaglest_editor megaglest_g3dviewer start_megaglest \
+	start_megaglest_mapeditor start_megaglest_g3dviewer \
+	start_megaglest_gameserver "$RELEASEDIR/"
+
+cd "$CURRENTDIR/tools-for-standalone-client"
+cp megaglest-configure-desktop.sh "$RELEASEDIR/"
+if [ "$(echo "$VERSION" | grep -v '\-dev')" != "" ]; then
+    ./prepare-mini-update.sh --only_script; sleep 0.5s
+    cp megaglest-mini-update.sh "$RELEASEDIR/"
+    if [ -e "megaglest-mini-update.sh" ]; then rm -f "megaglest-mini-update.sh"; fi
+fi
+
+mkdir -p "$RELEASEDIR/blender/"
+cp "$CURRENTDIR/../../source/tools/glexemel/"*.py "$RELEASEDIR/blender/"
 
 echo "creating $PACKAGE"
 cd $CURRENTDIR
-[[ -f "${RELEASEDIR_ROOT}/$PACKAGE" ]] && rm "${RELEASEDIR_ROOT}/$PACKAGE"
+[[ -f "${RELEASEDIR_ROOT}/$PACKAGE" ]] && rm -f "${RELEASEDIR_ROOT}/$PACKAGE"
 cd $RELEASEDIR
 tar -cf - * | xz > ../$PACKAGE
 cd $CURRENTDIR
 
 ls -la ${RELEASEDIR_ROOT}/$PACKAGE
-
