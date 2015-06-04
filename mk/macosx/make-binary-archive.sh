@@ -44,7 +44,8 @@ if [ -e "$RELEASEDIR/glest.ico" ]; then rm "$RELEASEDIR/glest.ico"; fi
 #cp bundle_resources/*.icns "$RELEASEDIR"
 cp {../shared/,}*.ini "$RELEASEDIR"
 if [ -e "$RELEASEDIR/glest-dev.ini" ]; then rm "$RELEASEDIR/glest-dev.ini"; fi
-cp megaglest "$RELEASEDIR"
+cp megaglest bundle_resources/MegaGlest.sh "$RELEASEDIR"
+
 if [ -e "megaglest_editor" ]; then
 	cp megaglest_editor "$RELEASEDIR"
 else
@@ -56,6 +57,7 @@ else
 	if [ -e "$RELEASEDIR/g3dviewer.ico" ]; then rm "$RELEASEDIR/g3dviewer.ico"; fi
 fi
 if [ -d "p7zip" ]; then cp -r p7zip "$RELEASEDIR"; fi
+if [ -d "lib" ]; then cp -r lib "$RELEASEDIR"; fi
 
 echo "creating $PACKAGE"
 cd "$RELEASEDIR_ROOT"

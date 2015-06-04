@@ -45,14 +45,14 @@ SET(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/bundle_resources/M
 SET(CPACK_BUNDLE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/mk/macosx/bundle_resources/MegaGlest.icns")
 SET(CPACK_BUNDLE_STARTUP_COMMAND "${PROJECT_SOURCE_DIR}/mk/macosx/bundle_resources/MegaGlest.sh")
 
-# Install files in to the package (FIXME: how? we sure?)
-INSTALL(FILES
-	${LUA_LIBRARIES}
-	DESTINATION ../Frameworks
-)
+# Install files in to the package
+#INSTALL(FILES
+#	${LUA_LIBRARIES}
+#	DESTINATION ../Frameworks
+#)
 
 #the SDL_LIBRARY is seen as a framework thus we need to remove the suffix...
-STRING(REGEX REPLACE ";.*" "" SDL_LIBRARY_DIR "${SDL_LIBRARY}")
+#STRING(REGEX REPLACE ";.*" "" SDL_LIBRARY_DIR "${SDL_LIBRARY}")
 
 #INSTALL(DIRECTORY
 #	${OGG_LIBRARY}

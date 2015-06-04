@@ -322,6 +322,11 @@ IF(BUILD_MEGAGLEST)
 					"${PROJECT_SOURCE_DIR}/mk/macosx/p7zip"
 					DESTINATION ${MEGAGLEST_DATA_INSTALL_PATH})
 			ENDIF()
+			IF(SINGLE_INSTALL_DIRECTORY AND EXISTS "${PROJECT_SOURCE_DIR}/mk/macosx/lib/")
+				INSTALL(DIRECTORY
+					"${PROJECT_SOURCE_DIR}/mk/macosx/lib/"
+					DESTINATION "${MEGAGLEST_DATA_INSTALL_PATH}/../../Frameworks/")
+			ENDIF()
 		ENDIF()
 
 		# Installation of data files from outside normal data folder

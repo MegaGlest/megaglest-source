@@ -30,22 +30,26 @@ mkdir -p "$APP_BIN_DIR"
 ./make-binary-archive.sh
 cp -r "$RELEASEDIR_ROOT/$BINARY_DIR/"* "$APP_GAME_DIR"
 ../linux/make-data-archive.sh
-cp -r "$RELEASEDIR_ROOT/$DATA_DIR/"* "$APP_GAME_DIR"
+cp -r "$RELEASEDIR_ROOT/$DATA_DIR/"* "$APP_GAME_DIR"; sleep 0.5s
+if [ -f "$APP_GAME_DIR/MegaGlest.sh" ]; then rm -f "$APP_GAME_DIR/MegaGlest.sh"; fi
+
 cp "$CURRENTDIR/build/mk/macosx/bundle_resources/Info.plist" "$APP_PLIST_DIR"
 cp "$CURRENTDIR/bundle_resources/MegaGlest.icns" "$APP_RES_DIR"
 cp "$CURRENTDIR/bundle_resources/MegaGlest.sh" "$APP_BIN_DIR"
 mv "$APP_BIN_DIR/MegaGlest.sh" "$APP_BIN_DIR/MegaGlest"
+mv "$APP_GAME_DIR/lib" "$APP_GAME_DIR/Frameworks"; sleep 0.5s
+mv "$APP_GAME_DIR/Frameworks" "$APP_PLIST_DIR/"
 
 echo "creating $PACKAGE"
 cd "$RELEASEDIR_ROOT"
-if [ -f "$PACKAGE" ]; then rm "$PACKAGE"; fi
+if [ -f "$PACKAGE" ]; then rm -f "$PACKAGE"; fi
 cd "$RELEASENAME"
 zip -9r "../$PACKAGE" "MegaGlest.app" >/dev/null
 ls -lhA "${RELEASEDIR_ROOT}/$PACKAGE"
 
 echo "creating $PACKAGE2"
 cd "$CURRENTDIR/build"
-if [ -f "$RELEASEDIR_ROOT/$PACKAGE2" ]; then rm "$RELEASEDIR_ROOT/$PACKAGE2"; fi
+if [ -f "$RELEASEDIR_ROOT/$PACKAGE2" ]; then rm -f "$RELEASEDIR_ROOT/$PACKAGE2"; fi
 cpack
 mv -f MegaGlest*.dmg "$RELEASEDIR_ROOT"
 ls -lhA "${RELEASEDIR_ROOT}/$PACKAGE2"

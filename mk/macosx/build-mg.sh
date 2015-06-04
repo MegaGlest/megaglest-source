@@ -70,6 +70,21 @@ if [ ! -e ".p7zip.zip" ]; then
 fi
 if [ ! -d "p7zip" ]; then unzip .p7zip.zip >/dev/null; fi
 
+if [ "$BUILD_BUNDLE" -eq "1" ]; then
+	if [ -e "megaglest" ] && [ "$(./megaglest --version >/dev/null; echo "$?")" -eq "0" ]; then
+		if [ -d "lib" ]; then rm -rf "lib"; fi
+		mkdir -p "lib"
+		list_of_libs="$(otool -L megaglest | grep -v '/System/Library/Frameworks/' | grep -v '/usr/lib/' | awk '{print $1}')"
+		for dyn_lib in $list_of_libs; do
+		    cp "$dyn_lib" "lib/"
+		done
+	else
+		echo 'Error: Please run first at least once build-mg.sh script to be ready for prepare directory with dynamic libraries.'
+		# strange method but required for cpack/.dmg
+		exit 1
+	fi
+fi
+
 # Google breakpad integration (cross platform memory dumps) - OPTIONAL
 # Set this to the root path of your Google breakpad subversion working copy.
 # By default, this script looks for a "google-breakpad" sub-directory within
