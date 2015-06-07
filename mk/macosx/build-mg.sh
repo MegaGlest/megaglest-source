@@ -74,7 +74,17 @@ if [ "$BUILD_BUNDLE" -eq "1" ]; then
 	if [ -e "megaglest" ] && [ "$(./megaglest --version >/dev/null; echo "$?")" -eq "0" ]; then
 		if [ -d "lib" ]; then rm -rf "lib"; fi
 		mkdir -p "lib"
-		list_of_libs="$(otool -L megaglest | grep -v '/System/Library/Frameworks/' | grep -v '/usr/lib/' | awk '{print $1}')"
+		list_of_libs="$(otool -L megaglest | grep -v '/System/Library/Frameworks/' | grep -v '/usr/lib/' | awk '{print $1}' | sed '/:$/d')"
+		for (( i=1; i<=50; i++ )); do
+		    for dyn_lib in $list_of_libs; do
+			if [ "$(echo "$list_of_checked_libs" | grep "$dyn_lib")" = "" ]; then
+			    list_of_libs2="$(otool -L "$dyn_lib" | grep -v '/System/Library/Frameworks/' | grep -v '/usr/lib/' | awk '{print $1}')"
+			    list_of_libs="$(echo "$list_of_libs
+$list_of_libs2" | sed '/:$/d' | sed '/^$/d' | sort -u )"
+			    list_of_checked_libs="$list_of_checked_libs $dyn_lib"
+			fi
+		    done
+		done
 		for dyn_lib in $list_of_libs; do
 		    cp "$dyn_lib" "lib/"
 		done
