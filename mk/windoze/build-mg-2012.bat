@@ -29,8 +29,7 @@ goto processBuildStageA
 
 :getDepFile
 ECHO Retrieving windows dependency archive...
-rem call ..\..\data\glest_game\wget.exe -c -O ..\..\source\%depfile%  http://master.dl.sourceforge.net/project/megaglest/%depfile%
-call .\wget.exe -c -O ..\..\source\%depfile% http://download.sourceforge.net/project/megaglest/%depfile%
+call .\wget.exe -c -O ..\..\source\%depfile% http://github.com/MegaGlest/megaglest-source/releases/download/3.2.3/%depfile%
 call .\7z.exe x -r -o..\..\source\ ..\..\source\%depfile%
 goto processBuildStageA
 

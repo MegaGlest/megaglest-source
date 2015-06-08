@@ -70,13 +70,16 @@ To build this archive open a terminal and from the mk/linux folder run:
 This will produce megaglest-data-source-<VERSION>.tar.xz in the release subfolder
 *NOTE: Currently this script only works for the trunk level release
 
-Once these files have been built they should be ftp'd to the sourceforge
-files repository and and announcement made to the community. The folder on 
-sourceforge where these files belong would following this naming convention:
+Once these files have been built they should be published / uploaded to the binary 
+file storage (currently GitHub) and an announcement made to the community. On GitHub,
+files are uploaded as an attachment to tagged releases, search the GitHub blog for 
+"GitHub releases" for more information. 
 
-http://sourceforge.net/projects/megaglest/files/megaglest_<VERSION>/
+https://github.com/aktau/github-release provides a handy CLI for file uploading to 
+this GitHub specific blob storage API.
 
-#5 To produce a standalone gcc based binary and data archive you may run:
+
+#5. To produce a standalone gcc based binary and data archive you may run:
 ./make-binary-archive.sh
 ./make-data-archive.sh
 
