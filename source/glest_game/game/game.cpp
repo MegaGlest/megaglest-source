@@ -4859,11 +4859,9 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("input.keysym.mod = %d groupHotKey = %d key = %d (%d) [%s] isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,key.keysym.unicode,keyName.c_str(),isKeyPressed(groupHotKey,key));
 					//printf("input.keysym.mod = %d groupHotKey = %d key = %d (%d) [%s] isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,key.keysym.unicode,keyName.c_str(),isKeyPressed(groupHotKey,key));
-
-					//if(key == groupHotKey) {
-					if(isKeyPressed(groupHotKey,key) == true) {
-						//printf("GROUP KEY!\n");
-						//gui.groupKey(key-'0');
+					//printf("IS GROUP KEY %d   scancode:%d sym:%d groupHotKey=%d  \n",idx,key.keysym.scancode,key.keysym.sym,groupHotKey);
+					if(key.keysym.sym==groupHotKey){
+					//if(isKeyPressed(groupHotKey,key) == true) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 						gui.groupKey(idx-1);
 						break;

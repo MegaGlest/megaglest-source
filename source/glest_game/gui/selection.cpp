@@ -211,13 +211,15 @@ bool Selection::hasUnit(const Unit* unit) const {
 	return find(selectedUnits.begin(), selectedUnits.end(), unit) != selectedUnits.end();
 }
 
-void Selection::assignGroup(int groupIndex,const UnitContainer *pUnits) {
+void Selection::assignGroup(int groupIndex, bool clearGroup,const UnitContainer *pUnits) {
 	if(groupIndex < 0 || groupIndex >= maxGroups) {
 		throw megaglest_runtime_error("Invalid value for groupIndex = " + intToStr(groupIndex));
 	}
 
 	//clear group
-	groups[groupIndex].clear();
+	if(true==clearGroup){
+		groups[groupIndex].clear();
+	}
 
 	//assign new group
 	const UnitContainer *addUnits = &selectedUnits;
@@ -260,12 +262,14 @@ vector<Unit*> Selection::getUnitsForGroup(int groupIndex) {
 	return groups[groupIndex];
 }
 
-void Selection::recallGroup(int groupIndex){
+void Selection::recallGroup(int groupIndex,bool clearSelection){
 	if(groupIndex < 0 || groupIndex >= maxGroups) {
 		throw megaglest_runtime_error("Invalid value for groupIndex = " + intToStr(groupIndex));
 	}
 
-	clear();
+	if(clearSelection==true){
+		clear();
+	}
 	for(int i = 0; i < (int)groups[groupIndex].size(); ++i) {
 		select(groups[groupIndex][i]);
 	}
