@@ -4198,12 +4198,12 @@ void Unit::setMeshPosInParticleSystem(UnitParticleSystem *ups){
 			}
 		}
 		if( foundMesh == false ) {
-			string meshesFound="";
-			for(unsigned i=0; i<model->getMeshCount() ; i++){
-				meshesFound+= model->getMesh(i)->getName()+", ";
+			string meshesFound = model->getMesh(0)->getName();
+			for(unsigned i=1; i<model->getMeshCount() ; i++){
+				meshesFound+= ", "+model->getMesh(i)->getName();
 			}
 
-			string errorString = "Warning: Particle system is trying to find mesh'"+meshName+"', but just found:\n'"+meshesFound+"' in file:\n'"+model->getFileName()+"'\n";
+			string errorString = "Warning: Particle system is trying to find mesh '"+meshName+"', but just found:\n'"+meshesFound+"' in file:\n'"+model->getFileName()+"'\n";
 			//throw megaglest_runtime_error(errorString);
 			printf("%s",errorString.c_str());
 		}
