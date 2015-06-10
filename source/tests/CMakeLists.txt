@@ -152,7 +152,7 @@ IF(BUILD_MEGAGLEST_TESTS)
 
 	MESSAGE(STATUS "EXTERNAL_LIBS = [${EXTERNAL_LIBS}]")
 
-        MESSAGE(STATUS "***Note: The final output path for Megaglest Game will be [${EXECUTABLE_OUTPUT_PATH}]")
+        MESSAGE(STATUS "***Note: The final output path for the MegaGlest engine will be [${EXECUTABLE_OUTPUT_PATH}]")
 
 	SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
@@ -173,11 +173,11 @@ IF(BUILD_MEGAGLEST_TESTS)
 
 			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 				COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME}
-				COMMENT "***-- Found megaglest test runner: ${TARGET_NAME} about to run unit tests via xvfb...")
+				COMMENT "***-- Found MegaGlest test runner: ${TARGET_NAME} about to run unit tests via xvfb...")
 		ELSE()
 			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
 				COMMAND ${EXECUTABLE_OUTPUT_PATH}${TARGET_NAME}
-				COMMENT "***-- Found megaglest test runner: ${TARGET_NAME} about to run unit tests...")
+				COMMENT "***-- Found MegaGlest test runner: ${TARGET_NAME} about to run unit tests...")
 		ENDIF()
 	ENDIF()
 

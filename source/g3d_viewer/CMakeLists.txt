@@ -147,7 +147,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
                 SET(HELP2MAN_OUT_PATH "${CMAKE_CURRENT_BINARY_DIR}/")
         ENDIF()
 
-        MESSAGE(STATUS "***Note: The final output path for Megaglest G3d Viewer will be [${HELP2MAN_OUT_PATH}]")
+        MESSAGE(STATUS "***Note: The final output path for MegaGlest G3d Viewer will be [${HELP2MAN_OUT_PATH}]")
 
 	FIND_PROGRAM(HELP2MAN "help2man")
 

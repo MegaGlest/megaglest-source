@@ -51,7 +51,7 @@ MojoSetup.applocalization = {
         de = "Es wurde eine frühere Installation von MegaGlest erkannt. Möchtest Du sie entfernen?",
         es = "We have detected a previous installation of MegaGlest, should we remove it?",
         pl = "Wykryto poprzednią instalację MegaGlest, usunąć ją?",
-        it = "E' stata trovata una versione meno recente di Megaglest, vuoi rimuoverla?",
+        it = "E' stata trovata una versione meno recente di MegaGlest, vuoi rimuoverla?",
     };
 
     ["MegaGlest Visit Website Title"] = {

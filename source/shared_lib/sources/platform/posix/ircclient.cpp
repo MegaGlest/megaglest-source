@@ -472,7 +472,7 @@ void event_numeric(irc_session_t * session, unsigned int event, const char * ori
                                 get_nickname(tokens[j].c_str(),realNick,127);
                                 if(SystemFlags::VERBOSE_MODE_ENABLED || IRCThread::debugEnabled) printf ("===> IRC: LIBIRC_RFC_RPL_NAMREPLY user joined channel realNick [%s] tokens[j] [%s]\n", realNick,tokens[j].c_str());
 
-                                // Only show Megaglest users in the user list
+                                // Only show MegaGlest users in the user list
                                 //if(strncmp(&realNick[0],"MG_",3) == 0) {
                                 nickList.push_back(realNick);
                                 //}

@@ -25,7 +25,7 @@
 #
 # ----------------------------------------------------------------------------
 # Written by Tom Reynolds <tomreyn[at]megaglest.org>
-# Copyright (c) 2013 Tom Reynolds, The Megaglest Team, under GNU GPL v3.0+
+# Copyright (c) 2013 Tom Reynolds, The MegaGlest Team, under GNU GPL v3.0+
 # ----------------------------------------------------------------------------
 LANG=C
 

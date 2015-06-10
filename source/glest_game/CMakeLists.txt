@@ -227,7 +227,7 @@ IF(BUILD_MEGAGLEST)
 			ENDIF()
 		ENDIF()
 
-        MESSAGE(STATUS "***Note: The final output path for Megaglest Game will be [${EXECUTABLE_OUTPUT_PATH}]")
+        MESSAGE(STATUS "***Note: The final output path for the MegaGlest engine will be [${EXECUTABLE_OUTPUT_PATH}]")
 
 	SET_SOURCE_FILES_PROPERTIES(${MG_INCLUDE_FILES} PROPERTIES HEADER_FILE_ONLY 1)
 
