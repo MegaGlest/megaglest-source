@@ -225,9 +225,14 @@ case $distribution in
 	Mageia)
 		if [ "$architecture" = "x86_64" ]; then lib="lib64"; else lib="lib"; fi
 		case $release in
+			#4)
+			#	installcommand="urpmi $URPMI_OPTIONS gcc gcc-c++ cmake make ${lib}curl-devel ${lib}SDL-devel ${lib}openal-devel ${lib}lua-devel ${lib}jpeg-devel ${lib}png-devel ${lib}freetype6-devel ${lib}wxgtku2.9-devel ${lib}cppunit-devel ${lib}fribidi-devel ${lib}ftgl-devel ${lib}glew-devel ${lib}ogg-devel ${lib}vorbis-devel ${lib}miniupnpc-devel ${lib}ircclient-static-devel ${lib}vlc-devel ${lib}xml2-devel ${lib}x11-devel ${lib}mesagl1-devel ${lib}mesaglu1-devel"
+			#	$installcommand
+			#	if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
+			#	;;
 			*)
 				installcommand="urpmi $URPMI_OPTIONS gcc gcc-c++ cmake make ${lib}curl-devel ${lib}SDL-devel ${lib}openal-devel ${lib}lua-devel ${lib}jpeg-devel ${lib}png-devel ${lib}freetype6-devel ${lib}wxgtku2.9-devel ${lib}cppunit-devel ${lib}fribidi-devel ${lib}ftgl-devel ${lib}glew-devel ${lib}ogg-devel ${lib}vorbis-devel ${lib}miniupnpc-devel ${lib}ircclient-static-devel ${lib}vlc-devel ${lib}xml2-devel ${lib}x11-devel ${lib}mesagl1-devel ${lib}mesaglu1-devel"
-				# mageia uses link patches
+				# ^ probably should be added ssl/openssl-devel to the list
 				unsupported_release
 				exit 1
 				;;
