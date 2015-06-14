@@ -8,12 +8,14 @@
 # Look for the header file.
 FIND_PATH(CURL_INCLUDE_DIR NAMES curl/curl.h
                            PATHS /usr/local/include/
-                                /opt/local/include/)
+                                 /usr/include/
+                                 /opt/local/include/)
 MARK_AS_ADVANCED(CURL_INCLUDE_DIR)
 
 # Look for the library.
 FIND_LIBRARY(CURL_LIBRARY NAMES curl curl-gnutls
                           PATHS /usr/local/lib/
+                                /usr/lib/
                                 /opt/local/lib/)
 MARK_AS_ADVANCED(CURL_LIBRARY)
 

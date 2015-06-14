@@ -12,3 +12,4 @@ core.bak
 /[Rr]elease/
 /[Dd]ebug/
 /mydata/
+/*.dSYM/

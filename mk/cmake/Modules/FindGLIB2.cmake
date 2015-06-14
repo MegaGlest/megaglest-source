@@ -57,14 +57,15 @@ ELSE (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS )
     NAMES
       glibconfig.h
     PATHS
+      /usr/local/include
+      /usr/include
+      /usr/lib64
+      /usr/lib
       /opt/gnome/lib64
       /opt/gnome/lib
       /opt/lib/
       /opt/local/lib
       /sw/lib/
-      /usr/lib64
-      /usr/lib
-      /usr/local/include
       ${CMAKE_LIBRARY_PATH}
     PATH_SUFFIXES
       glib-2.0/include
@@ -75,11 +76,11 @@ ELSE (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS )
     NAMES
       glib.h
     PATHS
+      /usr/include
+      /usr/local/include
       /opt/gnome/include
       /opt/local/include
       /sw/include
-      /usr/include
-      /usr/local/include
     PATH_SUFFIXES
       glib-2.0
     )
@@ -92,11 +93,11 @@ ELSE (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS )
       glib-2.0
       glib
     PATHS
+      /usr/lib
+      /usr/local/lib
       /opt/gnome/lib
       /opt/local/lib
       /sw/lib
-      /usr/lib
-      /usr/local/lib
     )
     IF ( _glib2_include_DIR AND _glib2_link_DIR )
         SET ( _glib2_FOUND TRUE )
@@ -118,22 +119,22 @@ ELSE (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS )
       NAMES
         libintl.h
       PATHS
+        /usr/include
+        /usr/local/include
         /opt/gnome/include
         /opt/local/include
         /sw/include
-        /usr/include
-        /usr/local/include
       )
 
       FIND_LIBRARY(LIBINTL_LIBRARY
       NAMES
         intl
       PATHS
+        /usr/local/lib
+        /usr/lib
         /opt/gnome/lib
         /opt/local/lib
         /sw/lib
-        /usr/local/lib
-        /usr/lib
       )
 
       IF (LIBINTL_LIBRARY AND LIBINTL_INCLUDE_DIR)
@@ -147,13 +148,11 @@ ELSE (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS )
       NAMES
         iconv.h
       PATHS
-        /opt/gnome/include
-        /opt/local/include
-        /opt/local/include
-        /sw/include
-        /sw/include
         /usr/local/include
         /usr/include
+        /opt/gnome/include
+        /opt/local/include
+        /sw/include
       PATH_SUFFIXES
         glib-2.0
       )
@@ -162,11 +161,11 @@ ELSE (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS )
       NAMES
         iconv
       PATHS
+        /usr/lib
+        /usr/local/lib
         /opt/gnome/lib
         /opt/local/lib
         /sw/lib
-        /usr/lib
-        /usr/local/lib
       )
 
       IF (LIBICONV_LIBRARY AND LIBICONV_INCLUDE_DIR)

@@ -18,9 +18,9 @@ ENDIF(NOT CONFIG_HAS_BEEN_RUN_BEFORE)
 # don't try to be too much "modern"
 ADD_DEFINITIONS(-Wno-deprecated -Wno-deprecated-declarations)
 
-# Include extra paths to search for includes; this is the default system wide macports path.
-INCLUDE_DIRECTORIES(/opt/local/include)
-LINK_DIRECTORIES(/opt/local/lib)
+# Include extra paths to search for includes; this is the default system wide macports and X11 path.
+INCLUDE_DIRECTORIES(/usr/X11/include /opt/local/include)
+#LINK_DIRECTORIES(/opt/local/lib)
 
 ##install part
 
