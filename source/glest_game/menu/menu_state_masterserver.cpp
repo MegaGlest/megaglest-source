@@ -1204,7 +1204,7 @@ void MenuStateMasterserver::keyDown(SDL_KeyboardEvent key) {
 			//printf("keyDown key [%d] chatManager.getText() [%s]\n",key,chatManager.getText().c_str());
 			MutexSafeWrapper safeMutexIRCPtr(mutexIRCClient,string(extractFileFromDirectoryPath(__FILE__).c_str()) + "_" + intToStr(__LINE__));
 			//if (key == vkReturn && ircClient != NULL) {
-			if(isKeyPressed(SDLK_RETURN,key) == true && ircClient != NULL) {
+			if(isKeyPressed(SDLK_RETURN,key,false) == true && ircClient != NULL) {
 				ircClient->SendIRCCmdMessage(IRC_CHANNEL, chatManager.getText());
 			}
 		}
