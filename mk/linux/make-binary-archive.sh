@@ -67,6 +67,19 @@ if [ "$(echo "$VERSION" | grep -v '\-dev')" != "" ]; then
     ./prepare-mini-update.sh --only_script; sleep 0.5s
     cp megaglest-mini-update.sh "$RELEASEDIR/"
     if [ -e "megaglest-mini-update.sh" ]; then rm -f "megaglest-mini-update.sh"; fi
+
+    cd $CURRENTDIR
+    if [ -e "megaglest" ]; then
+	ldd_log="$(echo "$VERSION - $kernel - $architecture - $(date +%F)")"
+	ldd_log="$(echo -e "$ldd_log\n\nmegaglest:\n$(ldd megaglest | awk '{print $1}')")"
+	if [ -e "megaglest_editor" ]; then
+	    ldd_log="$(echo -e "$ldd_log\n\nmegaglest_editor:\n$(ldd megaglest_editor | awk '{print $1}')")"
+	fi
+	if [ -e "megaglest_g3dviewer" ]; then
+	    ldd_log="$(echo -e "$ldd_log\n\nmegaglest_g3dviewer:\n$(ldd megaglest_g3dviewer | awk '{print $1}')")"
+	fi
+	echo "$ldd_log" > "$RELEASEDIR/ldd-megaglest.log"
+    fi
 fi
 
 mkdir -p "$RELEASEDIR/blender/"
