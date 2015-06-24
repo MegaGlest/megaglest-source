@@ -145,6 +145,8 @@ private:
 	time_t mapPublishingDelayTimer;
 	bool needToPublishDelayed;
 
+	bool headlessHasConnectedPlayer;
+
 	bool needToRepublishToMasterserver;
 	bool needToBroadcastServerSettings;
 	std::map<string,string> publishToServerInfo;
@@ -251,6 +253,7 @@ public:
     virtual bool isVideoPlaying();
 private:
 
+    void lastPlayerDisconnected();
     bool hasNetworkGameSettings();
     void loadGameSettings(GameSettings *gameSettings, bool forceCloseUnusedSlots=false);
 	void loadMapInfo(string file, MapInfo *mapInfo,bool loadMapPreview);

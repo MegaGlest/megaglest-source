@@ -110,6 +110,7 @@ MenuStateCustomGame::MenuStateCustomGame(Program *program, MainMenu *mainMenu,
 	hasCheckedForUPNP = false;
 	needToPublishDelayed=false;
 	mapPublishingDelayTimer=time(NULL);
+	headlessHasConnectedPlayer=false;
 
     lastCheckedCRCTilesetName					= "";
     lastCheckedCRCTechtreeName					= "";
@@ -1079,7 +1080,6 @@ void MenuStateCustomGame::mouseClick(int x, int y, MouseButton mouseButton) {
         	string advanceToItemStartingWith = "";
         	if(::Shared::Platform::Window::isKeyStateModPressed(KMOD_SHIFT) == true) {
         		const wchar_t lastKey = ::Shared::Platform::Window::extractLastKeyPressed();
-//        		xxx:
 //        		string hehe=lastKey;
 //        		printf("lastKey = %d [%c] '%s'\n",lastKey,lastKey,hehe);
         		advanceToItemStartingWith =  lastKey;
@@ -2885,6 +2885,10 @@ void MenuStateCustomGame::update() {
 			//}
 		}
 
+		if(this->headlessServerMode == true) {
+			lastPlayerDisconnected();
+		}
+
 		//call the chat manager
 		chatManager.updateNetwork();
 
@@ -4170,6 +4174,34 @@ void MenuStateCustomGame::setupUIFromGameSettings(const GameSettings &gameSettin
 	}
 }
 // ============ PRIVATE ===========================
+
+void MenuStateCustomGame::lastPlayerDisconnected() {
+	// this is for headless mode only!
+	// if last player disconnects we load the network defaults.
+	if(this->headlessServerMode == false) {
+		return;
+	}
+
+	ServerInterface* serverInterface= NetworkManager::getInstance().getServerInterface();
+	bool foundConnectedPlayer=false;
+	for(int i = 0; i < GameConstants::maxPlayers; ++i) {
+		if(serverInterface->getSlot(i,true) != NULL &&
+			(listBoxControls[i].getSelectedItemIndex() == ctNetwork ||
+			listBoxControls[i].getSelectedItemIndex() == ctNetworkUnassigned)) {
+			if(serverInterface->getSlot(i,true)->isConnected() == true) {
+				foundConnectedPlayer=true;
+			}
+		}
+	}
+
+	if(!foundConnectedPlayer && headlessHasConnectedPlayer==true ){
+		// load defaults
+		string data_path = getGameReadWritePath(GameConstants::path_data_CacheLookupKey);
+		if(fileExists(data_path + DEFAULT_NETWORKGAME_FILENAME) == true)
+			loadGameSettings(data_path + DEFAULT_NETWORKGAME_FILENAME);
+	}
+	headlessHasConnectedPlayer=foundConnectedPlayer;
+}
 
 bool MenuStateCustomGame::hasNetworkGameSettings() {
     bool hasNetworkSlot = false;
