@@ -36,43 +36,57 @@ bool PlatformExceptionHandler::disableBacktrace = false;
 const char * getDialogCommand() {
 
 /*
-  if (::system(NULL)) {
-    if (::system("which gdialog") == 0)
-      return "gdialog";
-    else if (::system("which kdialog") == 0)
-      return "kdialog";
-  }
+	if (::system(NULL)) {
+	    if (::system("which gdialog") == 0)
+		    return "gdialog";
+	    else if (::system("which kdialog") == 0)
+		    return "kdialog";
+	}
 */
+	FILE *file;
+	char file_string [100];
 
-  FILE *file = popen("which zenity","r");
-  //printf("File #1 [%p]\n",file);
-  if (file != NULL) {
-	  pclose(file);
-	  return "zenity";
-  }
+	file = popen("which zenity","r");
+	//printf("File #1 [%p]\n",file);
+	if (fgets(file_string, 100, file) != NULL ) {
+		pclose(file);
+		return "zenity";
+	}
+	else if (file != NULL) {
+		pclose(file);
+	}
 
-  file = popen("which kdialog","r");
-  //printf("File #2 [%p]\n",file);
-  if (file != NULL) {
-	  pclose(file);
-	  return "kdialog";
-  }
+	file = popen("which kdialog","r");
+	//printf("File #2 [%p]\n",file);
+	if (fgets(file_string, 100, file) != NULL ) {
+		pclose(file);
+		return "kdialog";
+	}
+	else if (file != NULL) {
+		pclose(file);
+	}
 
-  file = popen("which yad","r");
-  //printf("File #1 [%p]\n",file);
-  if (file != NULL) {
-	  pclose(file);
-	  return "yad";
-  }
+	file = popen("which yad","r");
+	//printf("File #3 [%p]\n",file);
+	if (fgets(file_string, 100, file) != NULL ) {
+		pclose(file);
+		return "yad";
+	}
+	else if (file != NULL) {
+		pclose(file);
+	}
 
-  file = popen("which gdialog","r");
-  //printf("File #1 [%p]\n",file);
-  if (file != NULL) {
-	  pclose(file);
-	  return "gdialog";
-  }
+	file = popen("which gdialog","r");
+	//printf("File #4 [%p]\n",file);
+	if (fgets(file_string, 100, file) != NULL ) {
+		pclose(file);
+		return "gdialog";
+	}
+	else if (file != NULL) {
+		pclose(file);
+	}
 
-  return NULL;
+	return NULL;
 }
 
 bool showMessage(std::string warning,string writepath) {
@@ -93,10 +107,10 @@ bool showMessage(std::string warning,string writepath) {
 		//command += " --title \"Error\" --msgbox \"`printf \"" + warning + "\"`\"";
 		command += " --title \"Error\" ";
 
-		if (dialogCommand == "kdialog") {
+		if (!strcmp(dialogCommand, "kdialog")) {
 		    command += "--textbox " + text_file + " 640 360";
 		}
-		else if (dialogCommand == "yad") {
+		else if (!strcmp(dialogCommand, "yad")) {
 		    command += "--text-info --center --wrap --width 640 --height 360 --filename=" + text_file;
 		}
 		else {
