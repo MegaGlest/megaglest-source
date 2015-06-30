@@ -270,6 +270,9 @@ fi
 if [ "$OperatingMode" = "--game" ]; then
     if [ -d "$GAMEDIR/$LIBDIR" ]; then
 	export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${GAMEDIR}/${LIBDIR}"
+	if [ -d "$GAMEDIR/$LIBDIR/vlc" ]; then
+		export VLC_PLUGIN_PATH="${GAMEDIR}/${LIBDIR}/vlc"
+	fi
     fi
     $GAMEDIR/megaglest $@
     ExitStatus="$?"

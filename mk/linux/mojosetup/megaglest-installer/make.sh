@@ -256,20 +256,6 @@ if [ $REPACKONLY -eq 0 ]; then
 	$copyGlestDeptsCmd
 	if [ -e "${INSTALL_ROOTDIR}makedeps_folder.sh" ]; then rm -f "${INSTALL_ROOTDIR}makedeps_folder.sh"; fi
 
-	# If this part -V- is required then should be moved to 'makedeps_folder.sh' script
-	#cd "$CURRENTDIR"
-	#cd data
-	#LIBVLC_DIR_CHECK=$( ldd megaglest | grep "libvlc\." | sort -u | awk '{print $3}' )
-	#if [ "$LIBVLC_DIR_CHECK" != '' ]; then
-	#	LIBVLC_DIR=$( dirname $LIBVLC_DIR_CHECK )
-	#fi
-	
-	#echo LibVLC installed in [$LIBVLC_DIR] copying to lib/
-	#if [ "$LIBVLC_DIR" != '' ]; then
-	#	cp -r $LIBVLC_DIR/vlc lib/
-	#	#exit 1
-	#fi
-
 	cd ..
 fi
 
