@@ -10,9 +10,9 @@
 
 KERNEL="$(uname -s | tr '[A-Z]' '[a-z]')"
 if [ "$KERNEL" = "darwin" ]; then
-	CURRENTDIR="$(cd "$(dirname "$0")"; pwd)"
+    CURRENTDIR="$(cd "$(dirname "$0")"; pwd)"
 else
-	CURRENTDIR="$(dirname "$(readlink -f "$0")")"
+    CURRENTDIR="$(dirname "$(readlink -f "$0")")"
 fi
 cd "$CURRENTDIR"
 VERSION=`./mg-version.sh --version`
@@ -20,13 +20,26 @@ RELEASENAME=megaglest-standalone-data
 PACKAGE="$RELEASENAME-$VERSION.tar.xz"
 RELEASEDIR_ROOT="$CURRENTDIR/../../../release"
 RELEASEDIR="${RELEASEDIR_ROOT}/${RELEASENAME-$VERSION}"
-PROJDIR="$CURRENTDIR/../../"
 REPODIR="$CURRENTDIR/../../"
+REPO_DATADIR="$REPODIR/data/glest_game"
+if [ -f "$REPO_DATADIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
+    cd "$REPO_DATADIR"
+    DATA_BRANCH="$(git branch | awk -F '* ' '/^* / {print $2}')"
+    DATA_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h)]")"
+    echo "Detected parameters for data repository: branch=[$DATA_BRANCH], commit=$DATA_COMMIT"
+fi
+if [ -d "$REPODIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
+    cd "$REPODIR"
+    SOURCE_BRANCH="$(git branch | awk -F '* ' '/^* / {print $2}')"
+    SOURCE_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h)]")"
+    echo "Detected parameters for source repository: branch=[$SOURCE_BRANCH], commit=$SOURCE_COMMIT"
+fi
+cd "$CURRENTDIR"
 
 if [ "$KERNEL" != "darwin" ]; then
-	echo "Creating data package in $RELEASEDIR"
+    echo "Creating data package in $RELEASEDIR"
 else
-	echo "Creating data directory $RELEASEDIR"
+    echo "Creating data directory $RELEASEDIR"
 fi
 
 [[ -d "$RELEASEDIR" ]] && rm -rf "$RELEASEDIR"
@@ -78,11 +91,11 @@ cd "$CURRENTDIR"
 
 cd "$CURRENTDIR"
 if [ "$KERNEL" != "darwin" ]; then
-	echo "creating data archive: $PACKAGE"
-	[[ -f "${RELEASEDIR_ROOT}/$PACKAGE" ]] && rm "${RELEASEDIR_ROOT}/$PACKAGE"
-	cd $RELEASEDIR
-	tar -cf - * | xz > ../$PACKAGE
-	cd $CURRENTDIR
+    echo "creating data archive: $PACKAGE"
+    [[ -f "${RELEASEDIR_ROOT}/$PACKAGE" ]] && rm "${RELEASEDIR_ROOT}/$PACKAGE"
+    cd $RELEASEDIR
+    tar -cf - * | xz > ../$PACKAGE
+    cd $CURRENTDIR
 
-	ls -la ${RELEASEDIR_ROOT}/$PACKAGE
+    ls -la ${RELEASEDIR_ROOT}/$PACKAGE
 fi

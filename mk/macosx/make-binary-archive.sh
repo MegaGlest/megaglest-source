@@ -21,6 +21,13 @@ PACKAGE="$RELEASENAME-$VERSION.tar.bz2"
 CURRENTDIR="$(cd "$(dirname "$0")"; pwd)"
 RELEASEDIR_ROOT="$CURRENTDIR/../../../release"
 RELEASEDIR="${RELEASEDIR_ROOT}/${RELEASENAME-$VERSION}"
+REPODIR="$CURRENTDIR/../../"
+if [ -d "$REPODIR/.git" ] && [ "$(which git 2>/dev/null)" != "" ]; then
+    cd "$REPODIR"
+    SOURCE_BRANCH="$(git branch | awk -F '* ' '/^* / {print $2}')"
+    SOURCE_COMMIT="$(echo "[$(git rev-list HEAD --count).$(git log -1 --format=%h)]")"
+    echo "Detected parameters for source repository: branch=[$SOURCE_BRANCH], commit=$SOURCE_COMMIT"
+fi
 
 echo "Creating binary package in $RELEASEDIR"
 
