@@ -33,7 +33,7 @@ IF(WANT_STATIC_LIBS)
 	SET(FRIBIDI_NAMES fribidi.a libfribidi.a ${FRIBIDI_NAMES})
 ENDIF()
 
-MESSAGE(STATUS "** Searching for library names: [${FRIBIDI_NAMES}] ...")
+#MESSAGE(STATUS "** Searching for library names: [${FRIBIDI_NAMES}] ...")
 
 FIND_LIBRARY(FRIBIDI_LIBRARY
 	NAMES ${FRIBIDI_NAMES}
