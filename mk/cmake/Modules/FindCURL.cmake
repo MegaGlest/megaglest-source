@@ -25,50 +25,47 @@ INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(CURL DEFAULT_MSG CURL_LIBRARY CURL_INCLUDE_DIR)
 
 IF(CURL_FOUND)
+    SET(CURL_LIBRARIES ${CURL_LIBRARY})
+    SET(CURL_INCLUDE_DIRS ${CURL_INCLUDE_DIR})
 
-  SET(CURL_LIBRARIES ${CURL_LIBRARY})
-  SET(CURL_INCLUDE_DIRS ${CURL_INCLUDE_DIR})
+    # IF we are using a system that supports curl-config use it
+    # and force using static libs
+    IF(UNIX AND NOT APPLE)
+	FIND_PROGRAM( CMAKE_CURL_CONFIG curl-config)
+	MARK_AS_ADVANCED(CMAKE_CURL_CONFIG)
 
-  # IF we are using a system that supports curl-config use it
-  # and force using static libs
-  IF(UNIX AND NOT APPLE)
-    FIND_PROGRAM( CMAKE_CURL_CONFIG curl-config)
-    MARK_AS_ADVANCED(CMAKE_CURL_CONFIG)
+	IF(CMAKE_CURL_CONFIG)
+	    OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
+	    OPTION(FORCE_CURL_DYNAMIC_LIBS "force the use of dynamic libs for CURL" OFF)
+	    MESSAGE(STATUS "Force Curl dynamic: ${FORCE_CURL_DYNAMIC_LIBS}")
 
-    IF(CMAKE_CURL_CONFIG)
-      OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
-      OPTION(FORCE_CURL_DYNAMIC_LIBS "force the use of dynamic libs for CURL" OFF)
-      MESSAGE(STATUS "Force Curl dynamic: ${FORCE_CURL_DYNAMIC_LIBS}")
+	    IF(WANT_STATIC_LIBS AND NOT FORCE_CURL_DYNAMIC_LIBS)
+		# run the curl-config program to get --static-libs
+		EXEC_PROGRAM(sh
+			ARGS "${CMAKE_CURL_CONFIG} --static-libs"
+			OUTPUT_VARIABLE CURL_STATIC_LIBS
+			RETURN_VALUE RET)
 
-      IF(WANT_STATIC_LIBS AND NOT FORCE_CURL_DYNAMIC_LIBS)
-	# run the curl-config program to get --static-libs
-	EXEC_PROGRAM(sh
-		ARGS "${CMAKE_CURL_CONFIG} --static-libs"
-	        OUTPUT_VARIABLE CURL_STATIC_LIBS
-	        RETURN_VALUE RET)
+		MESSAGE(STATUS "CURL RET = ${RET} libs: [${CURL_STATIC_LIBS}]")
+	    ELSE()
+		SET(RET 1)
+	    ENDIF()
 
-	MESSAGE(STATUS "CURL RET = ${RET} libs: [${CURL_STATIC_LIBS}]")
-      ELSE()
-      	SET(RET 1)
-      ENDIF()
+	    IF(RET EQUAL 0 AND CURL_STATIC_LIBS)
+		MESSAGE(STATUS "#2 CURL RET = ${RET}, using CURL static libs")
+		SET(CURL_LIBRARIES "-Bstatic ${CURL_STATIC_LIBS}")
+	    ELSE()
+		EXEC_PROGRAM(sh
+		ARGS "${CMAKE_CURL_CONFIG} --libs"
+		OUTPUT_VARIABLE CURL_STATIC_LIBS
+		RETURN_VALUE RET)
 
-      IF(RET EQUAL 0 AND CURL_STATIC_LIBS)
-        MESSAGE(STATUS "USING CURL STATIC LIBS: ${CURL_STATIC_LIBS}")
-      	SET(CURL_LIBRARIES "-Bstatic ${CURL_STATIC_LIBS}")
-      ELSE()
-
-        EXEC_PROGRAM(sh
-	  ARGS "${CMAKE_CURL_CONFIG} --libs"
-          OUTPUT_VARIABLE CURL_STATIC_LIBS
-          RETURN_VALUE RET)
-
-        MESSAGE(STATUS "#2 CURL RET = ${RET} using CURL dynamic libs: ${CURL_STATIC_LIBS}")
-        SET(CURL_LIBRARIES "${CURL_STATIC_LIBS}")
-
-      ENDIF()
+		MESSAGE(STATUS "#2 CURL RET = ${RET}, using CURL dynamic libs: ${CURL_STATIC_LIBS}")
+		SET(CURL_LIBRARIES "${CURL_STATIC_LIBS}")
+	    ENDIF()
+	ENDIF()
     ENDIF()
-ENDIF()
 ELSE(CURL_FOUND)
-  SET(CURL_LIBRARIES)
-  SET(CURL_INCLUDE_DIRS)
+    SET(CURL_LIBRARIES)
+    SET(CURL_INCLUDE_DIRS)
 ENDIF(CURL_FOUND)

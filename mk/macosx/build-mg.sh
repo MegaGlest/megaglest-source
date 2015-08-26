@@ -88,6 +88,17 @@ $list_of_libs2" | sed '/:$/d' | sed '/^$/d' | sort -u )"
 		for dyn_lib in $list_of_libs; do
 		    cp "$dyn_lib" "lib/"
 		done
+		
+		if [ "$(find lib -type f -name "libvlc.*")" != "" ]; then
+			LIBVLC_DIR_CHECK="$( echo "$list_of_checked_libs" | tr ' ' '\n' | grep "libvlc\." | sort -u | head -1 )"
+			if [ "$LIBVLC_DIR_CHECK" != "" ]; then
+				LIBVLC_DIR="$(cd "$(dirname "$LIBVLC_DIR_CHECK")"; pwd)"
+				if [ -d "$LIBVLC_DIR/vlc/plugins" ]; then
+					mkdir -p "lib/vlc"
+					cp -f -r "$LIBVLC_DIR/vlc/plugins" "lib/vlc/"
+				fi
+			fi
+		fi
 	else
 		echo 'Error: Please run first at least once build-mg.sh script to be ready for prepare directory with dynamic libraries.'
 		# strange method but required for cpack/.dmg
@@ -160,7 +171,10 @@ fi
 
 LUA_FORCED_CMAKE=
 if [ "$LUA_FORCED_VERSION" -ne "0" ]; then
-	if [ "$LUA_FORCED_VERSION" -eq "52" ]; then
+	if [ "$LUA_FORCED_VERSION" -eq "53" ]; then
+		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_5_3=ON"
+		echo "USER WANTS TO FORCE USE of LUA 5.3"
+	elif [ "$LUA_FORCED_VERSION" -eq "52" ]; then
 		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_5_2=ON"
 		echo "USER WANTS TO FORCE USE of LUA 5.2"
 	elif [ "$LUA_FORCED_VERSION" -eq "51" ]; then

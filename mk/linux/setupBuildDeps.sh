@@ -111,7 +111,7 @@ if [ "$quiet" -eq "1" ]; then
 	URPMI_OPTIONS="$URPMI_OPTIONS -q --auto"
 fi
 
-packages_for_next_debian_ubuntu_mint="build-essential cmake libcurl4-gnutls-dev libsdl1.2-dev libopenal-dev liblua5.2-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev"
+packages_for_next_debian_ubuntu_mint="build-essential cmake libcurl4-gnutls-dev libsdl1.2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev"
 
 case $distribution in
 	Debian)
@@ -152,8 +152,13 @@ case $distribution in
 				$installcommand
 				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
 				;;
-			14.10|15.04)
+			14.10)
 				installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl1.2-dev libopenal-dev liblua5.2-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev"
+				$installcommand
+				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
+				;;
+			15.04)
+				installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl1.2-dev libopenal-dev liblua5.2-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev"
 				$installcommand
 				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
 				;;

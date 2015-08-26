@@ -18,59 +18,68 @@ IF(LUA_INCLUDE_DIR AND LUA_LIBRARIES)
 	#SET(LUA_FIND_QUIETLY TRUE)
 ENDIF(LUA_INCLUDE_DIR AND LUA_LIBRARIES)
 
-IF(FORCE_LUA_5_2)
-        MESSAGE(STATUS "Trying to FORCE LUA 5.2 ...")
+IF(FORCE_LUA_5_3)
+	MESSAGE(STATUS "Trying to FORCE LUA 5.3 ...")
 
-        SET(LUA_FIND_INCLUDE_PATHS  /usr/include/lua5.2
-                                    /usr/include
-   			            /usr/include/lua )
-        SET(LUA_FIND_STATIC_LIB_NAMES liblua5.2.a lua5.2 liblua.a lua )
-        SET(LUA_FIND_DYNAMIC_LIB_NAMES lua5.2 lua )
+	SET(LUA_FIND_INCLUDE_PATHS  /usr/include/lua5.3
+				    /usr/include/lua
+				    /usr/include )
+	SET(LUA_FIND_STATIC_LIB_NAMES liblua5.3.a lua5.3 liblua.a lua )
+	SET(LUA_FIND_DYNAMIC_LIB_NAMES lua5.3 lua )
+
+ELSEIF(FORCE_LUA_5_2)
+	MESSAGE(STATUS "Trying to FORCE LUA 5.2 ...")
+
+	SET(LUA_FIND_INCLUDE_PATHS  /usr/include/lua5.2
+				    /usr/include/lua
+				    /usr/include )
+	SET(LUA_FIND_STATIC_LIB_NAMES liblua5.2.a lua5.2 liblua.a lua )
+	SET(LUA_FIND_DYNAMIC_LIB_NAMES lua5.2 lua )
 
 ELSEIF(FORCE_LUA_5_1)
         MESSAGE(STATUS "Trying to FORCE LUA 5.1 ...")
 
-        SET(LUA_FIND_INCLUDE_PATHS /usr/include/lua5.1
-                                   /usr/include
-                                   /usr/include/lua )
-        SET(LUA_FIND_STATIC_LIB_NAMES liblua5.1.a lua5.1 liblua.a lua )
-        SET(LUA_FIND_DYNAMIC_LIB_NAMES lua5.1 lua )
+	SET(LUA_FIND_INCLUDE_PATHS /usr/include/lua5.1
+				   /usr/include/lua
+				   /usr/include )
+	SET(LUA_FIND_STATIC_LIB_NAMES liblua5.1.a lua5.1 liblua.a lua )
+	SET(LUA_FIND_DYNAMIC_LIB_NAMES lua5.1 lua )
 ELSE()
-        SET(LUA_FIND_INCLUDE_PATHS /usr/include
-                                /usr/include/lua5.2
-			        /usr/include/lua
-			        /usr/include/lua5.1 )
-        SET(LUA_FIND_STATIC_LIB_NAMES liblua5.2.a liblua.a liblua5.1.a lua5.2 lua lua5.1 )
-        SET(LUA_FIND_DYNAMIC_LIB_NAMES lua5.2 lua lua5.1 )
+	SET(LUA_FIND_INCLUDE_PATHS /usr/include/lua5.3
+				/usr/include/lua5.2
+				/usr/include/lua
+				/usr/include/lua5.1
+				/usr/include )
+	SET(LUA_FIND_STATIC_LIB_NAMES liblua5.3.a liblua5.2.a liblua.a liblua5.1.a lua5.3 lua5.2 lua lua5.1 )
+	SET(LUA_FIND_DYNAMIC_LIB_NAMES lua5.3 lua5.2 lua lua5.1 )
 ENDIF()
 
-FIND_PATH(LUA_INCLUDE_DIR NAMES lua.hpp 
+FIND_PATH(LUA_INCLUDE_DIR NAMES lua.hpp
 		PATHS 	${LUA_FIND_INCLUDE_PATHS}
 		IF(FreeBSD)
-                	SET(PATHS "/usr/local/include/lua51")
-                ENDIF()
-		$ENV{LUA_HOME}
-		)
+			SET(PATHS "/usr/local/include/lua53 /usr/local/include/lua52 /usr/local/include/lua51")
+		ENDIF()
+		$ENV{LUA_HOME})
 
 IF (LUA_STATIC AND NOT LUA_LIBRARIES)
 	FIND_LIBRARY(LUA_LIBRARIES NAMES ${LUA_FIND_STATIC_LIB_NAMES}
-		PATHS 
-                IF(FreeBSD)
-                       SET(PATHS "/usr/local/lib/lua51")
-                ENDIF()
-                $ENV{LUA_HOME})
+		PATHS
+		IF(FreeBSD)
+			SET(PATHS "/usr/local/lib/lua53 /usr/local/lib/lua52 /usr/local/lib/lua51")
+		ENDIF()
+		$ENV{LUA_HOME})
 
 ELSE()
 	FIND_LIBRARY(LUA_LIBRARIES NAMES ${LUA_FIND_DYNAMIC_LIB_NAMES}
-		PATHS 
-                IF(FreeBSD)
-                       SET(PATHS "/usr/local/lib/lua51")
-                ENDIF()
-                $ENV{LUA_HOME})
+		PATHS
+		IF(FreeBSD)
+			SET(PATHS "/usr/local/lib/lua53 /usr/local/lib/lua52 /usr/local/lib/lua51")
+		ENDIF()
+		$ENV{LUA_HOME})
 ENDIF()
 
-MESSAGE(STATUS "LUA_INC: ${LUA_INCLUDE_DIR}")
-MESSAGE(STATUS "LUA_LIB: ${LUA_LIBRARIES}")
+#MESSAGE(STATUS "LUA_INC: ${LUA_INCLUDE_DIR}")
+#MESSAGE(STATUS "LUA_LIB: ${LUA_LIBRARIES}")
 
 IF(LUA_INCLUDE_DIR AND LUA_LIBRARIES)
 	SET(LUA_FOUND TRUE)

@@ -22,6 +22,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	option(ENABLE_FRIBIDI "Enable FriBIDi support" ON)
 	option(FORCE_LUA_5_1 "Force looking for LUA 5.1" OFF)
 	option(FORCE_LUA_5_2 "Force looking for LUA 5.2" OFF)
+	option(FORCE_LUA_5_3 "Force looking for LUA 5.3" OFF)
 
 	IF(WIN32)
 		SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
@@ -303,7 +304,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 
 	#IF(NOT WANT_STATIC_LIBS)
 	#MESSAGE(STATUS "*** Searching for miniupnpc since WANT_STATIC_LIBS is off ...")
-        MESSAGE(STATUS "*** Searching for miniupnpc ...")
+        #MESSAGE(STATUS "*** Searching for miniupnpc ...")
 	FIND_PACKAGE(Miniupnpc)
 	#ENDIF()
 

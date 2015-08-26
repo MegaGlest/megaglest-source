@@ -222,10 +222,13 @@ fi
 
 LUA_FORCED_CMAKE=
 if [ $LUA_FORCED_VERSION != 0 ]; then
-        if [ $LUA_FORCED_VERSION = 52 ]; then  
+        if [ $LUA_FORCED_VERSION = 53 ]; then
+                EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_5_3=ON"
+                echo "USER WANTS TO FORCE USE of LUA 5.3"
+        elif [ $LUA_FORCED_VERSION = 52 ]; then
                 EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_5_2=ON"
                 echo "USER WANTS TO FORCE USE of LUA 5.2"
-        elif [ $LUA_FORCED_VERSION = 51 ]; then 
+        elif [ $LUA_FORCED_VERSION = 51 ]; then
                 EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_5_1=ON"
                 echo "USER WANTS TO FORCE USE of LUA 5.1"
         fi
