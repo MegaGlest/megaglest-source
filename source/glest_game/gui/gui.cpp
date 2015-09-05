@@ -629,7 +629,7 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 				    const CommandType *ct = display.getCommandType(posDisplay);
 
 				    // try to switch to next attack type
-				    if(activeCommandClass == ccAttack) {
+				    if(activeCommandClass == ccAttack && activeCommandType!=NULL) {
 
 						int maxI			= unit->getType()->getCommandTypeCount();
 						int cmdTypeId		= activeCommandType->getId();
@@ -651,7 +651,7 @@ void Gui::mouseDownDisplayUnitSkills(int posDisplay) {
 					}
 
 					if(ct != NULL && unit->getFaction()->reqsOk(ct)) {
-						activeCommandType= display.getCommandType(posDisplay);
+						activeCommandType= ct;
 						activeCommandClass= activeCommandType->getClass();
 					}
 					else {
