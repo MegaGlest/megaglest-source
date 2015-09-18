@@ -7,8 +7,12 @@ SET(TARGET_NAME_MANPAGE "${TARGET_NAME}.6")
 IF(BUILD_MEGAGLEST_MAP_EDITOR)
 	MESSAGE(STATUS "Will try to build MegaGlest map editor")
 	
-	IF(UNIX AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-		ADD_DEFINITIONS("-std=c++11")
+	IF(UNIX AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+		IF("${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 4.7 OR NOT "${CMAKE_CXX_COMPILER_VERSION}")
+			ADD_DEFINITIONS("-std=gnu++0x")
+		ELSE()
+			ADD_DEFINITIONS("-std=c++11")
+		ENDIF()
 		# Required at least on bsd and macos, on linux most likely not but we probably want to see same output on
 		# linux too, e.g. deprecation warnings especially when newer than c++11 "standard" is on the way.
 	ENDIF()
