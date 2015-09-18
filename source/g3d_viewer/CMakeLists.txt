@@ -7,13 +7,15 @@ SET(TARGET_NAME_MANPAGE "${TARGET_NAME}.6")
 IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 	MESSAGE(STATUS "Will try to build MegaGlest model viewer")
 	
-	IF(UNIX AND APPLE AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	IF(UNIX AND NOT "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 		ADD_DEFINITIONS("-std=c++11")
+		# Required at least on bsd and macos, on linux most likely not but we probably want to see same output on
+		# linux too, e.g. deprecation warnings especially when newer than c++11 "standard" is on the way.
 	ENDIF()
 
-	FIND_PACKAGE(SDL REQUIRED)
-	INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
-	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${SDL_LIBRARY})
+	FIND_PACKAGE(${SDL_VERSION_NAME} REQUIRED)
+	INCLUDE_DIRECTORIES(${${SDL_VERSION_NAME}_INCLUDE_DIR})
+	SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${${SDL_VERSION_NAME}_LIBRARY})
 
 	FIND_PACKAGE(OpenGL REQUIRED)
 	INCLUDE_DIRECTORIES(${OPENGL_INCLUDE_DIR})
@@ -63,7 +65,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/lpng141)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/zlib-1.2.5)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.21.3/include)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/SDL-1.2.x/include)
+		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/${SDL_WINDOWS_DIR_DINC}/include)
 				       
 		link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/lib)
 		link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/xerces-c-src_2_8_0/lib)
@@ -81,7 +83,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 
 	SET(GLEST_LIB_INCLUDE_DIRS
 	    ${GLEST_LIB_INCLUDE_ROOT}platform/common
-	#    ${GLEST_LIB_INCLUDE_ROOT}platform/sdl
+	#    ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME}
 	    ${GLEST_LIB_INCLUDE_ROOT}platform/posix
 	    ${GLEST_LIB_INCLUDE_ROOT}util
 	    ${GLEST_LIB_INCLUDE_ROOT}graphics
@@ -106,9 +108,9 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER)
 
 	IF(WIN32)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/win32)
-		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/sdl )
+		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
 	ELSE()
-		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/sdl )
+		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
 	ENDIF()
 
 	SET(MG_SOURCE_FILES "../glest_game/graphics/particle_type.cpp" "../glest_game/graphics/unit_particle_type.cpp" "../glest_game/global/config.cpp")

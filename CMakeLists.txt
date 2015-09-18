@@ -353,6 +353,32 @@ IF(CMAKE_COMPILER_IS_GNUCXX OR MINGW)
 	ENDIF()
 ENDIF()
 
+IF(UNIX AND NOT "${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+	OPTION(WANT_DEPRECATION_WARNINGS "Want to see warnings related with deprecated code parts." OFF)
+	# We don't wanna see bug reports with deprecation warnings from OSes where game isn't
+	# actively developed, and where usually those warnings can make "make log" completely unreadable.
+	# Main targets are: bsd and macos
+ELSE()
+	OPTION(WANT_DEPRECATION_WARNINGS "Want to see warnings related with deprecated code parts." ON)
+ENDIF()
+IF(NOT WANT_DEPRECATION_WARNINGS)
+	ADD_DEFINITIONS(-Wno-deprecated -Wno-deprecated-declarations)
+ENDIF()
+MARK_AS_ADVANCED(WANT_DEPRECATION_WARNINGS)
+
+OPTION(WANT_USE_SDL2 "Want to use SDL2 instead of SDL1.X. SDL2 is not officially supported yet." OFF)
+IF(NOT WANT_USE_SDL2)
+	SET(SDL_WINDOWS_DIR_DINC "SDL-1.2.x")
+	SET(SDL_VERSION_NAME "SDL")
+	SET(SDL_VERSION_SNAME "sdl")
+ELSE()
+	SET(SDL_WINDOWS_DIR_DINC "SDL-2.0.x")
+	SET(SDL_VERSION_NAME "SDL2")
+	SET(SDL_VERSION_SNAME "sdl")
+	# ^ sdl > sdl2
+ENDIF()
+MARK_AS_ADVANCED(WANT_USE_SDL2)
+
 IF(WIN32)
 	SET(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
 	   ${PROJECT_SOURCE_DIR}/source/win32_deps/lib
@@ -370,7 +396,7 @@ IF(WIN32)
 	   ${PROJECT_SOURCE_DIR}/source/win32_deps/lpng141
 	   ${PROJECT_SOURCE_DIR}/source/win32_deps/zlib-1.2.5
 	   ${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.21.3/include
-	   ${PROJECT_SOURCE_DIR}/source/win32_deps/SDL-1.2.x/include
+	   ${PROJECT_SOURCE_DIR}/source/win32_deps/${SDL_WINDOWS_DIR_DINC}/include
 	   ${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/include)
 
 	link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/lib)
@@ -476,6 +502,6 @@ endforeach()
 #MESSAGE( STATUS "=====> DirDefs: " ${DirDefs} )
 #MESSAGE(STATUS "*** Compiler definitions are [${COMPILE_DEFINITIONS}]")
 
-MARK_AS_ADVANCED(SDLMAIN_LIBRARY)
-MARK_AS_ADVANCED(SDL_INCLUDE_DIR)
-MARK_AS_ADVANCED(SDL_LIBRARY)
+MARK_AS_ADVANCED(${SDL_VERSION_NAME}MAIN_LIBRARY)
+MARK_AS_ADVANCED(${SDL_VERSION_NAME}_INCLUDE_DIR)
+MARK_AS_ADVANCED(${SDL_VERSION_NAME}_LIBRARY)

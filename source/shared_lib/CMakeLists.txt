@@ -40,7 +40,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/lpng141)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/zlib-1.2.5)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/curl-7.21.3/include)
-		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/SDL-1.2.x/include)
+		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/${SDL_WINDOWS_DIR_DINC}/include)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/win32_deps/wxWidgets-2.8.10/include)
 				       
 		link_directories(${PROJECT_SOURCE_DIR}/source/win32_deps/lib)
@@ -97,10 +97,10 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		message(FATAL_ERROR " CURL version = [${CURL_VERSION}] we require AT LEAST [7.16.4]")
 	ENDIF()
 
-	FIND_PACKAGE(SDL REQUIRED)
-	INCLUDE_DIRECTORIES(${SDL_INCLUDE_DIR})
+	FIND_PACKAGE(${SDL_VERSION_NAME} REQUIRED)
+	INCLUDE_DIRECTORIES(${${SDL_VERSION_NAME}_INCLUDE_DIR})
 	IF(UNIX)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${SDL_LIBRARY})
+		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${${SDL_VERSION_NAME}_LIBRARY})
 	ENDIF()
 
 	FIND_PACKAGE(OpenGL REQUIRED)
@@ -348,14 +348,14 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
         ENDIF()
 
 	IF(APPLE)
-		SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/sdl)
+		SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/${SDL_VERSION_SNAME})
 		SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/posix)
 		SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/macosx)
 	ELSEIF(WIN32)
 		SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/win32)
 		SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} ${PROJECT_SOURCE_DIR}/source/win32_deps/src)
 	ELSE()
-		SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/sdl)
+		SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/${SDL_VERSION_SNAME})
 		SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/posix)
 		SET(DIRS_WITH_SRC ${DIRS_WITH_SRC} platform/unix)
 	ENDIF()
@@ -364,7 +364,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	SET(MG_SOURCES_ROOT "sources/")
 	SET(MG_INCLUDE_FILES "")
 	SET(MG_SOURCE_FILES "")
-	INCLUDE_DIRECTORIES( ${MG_INCLUDES_ROOT}platform/sdl )
+	INCLUDE_DIRECTORIES( ${MG_INCLUDES_ROOT}platform/${SDL_VERSION_SNAME} )
         INCLUDE_DIRECTORIES( ${MG_INCLUDES_ROOT}xml/rapidxml )
         INCLUDE_DIRECTORIES("sources/")
 
@@ -428,10 +428,10 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/posix/ircclient.cpp)
 		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/posix/miniftpserver.cpp)
 		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/posix/miniftpclient.cpp)
-		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/sdl/gl_wrap.cpp)
-		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/sdl/thread.cpp)
-		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/sdl/window.cpp)
-		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/sdl/window_gl.cpp)
+		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/${SDL_VERSION_SNAME}/gl_wrap.cpp)
+		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/${SDL_VERSION_SNAME}/thread.cpp)
+		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/${SDL_VERSION_SNAME}/window.cpp)
+		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/platform/${SDL_VERSION_SNAME}/window_gl.cpp)
 		SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/win32_deps/src/glprocs.c)
 	ENDIF()
 	
@@ -505,7 +505,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 	ENDIF()
 
 	IF(WIN32)
-	  TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 SDL SDLmain lua5.1 stdc++ moldname mingwex msvcrt user32 kernel32)
+	  TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 ${SDL_VERSION_NAME} ${SDL_VERSION_NAME}main lua5.1 stdc++ moldname mingwex msvcrt user32 kernel32)
 
 	  IF(WANT_STREFLOP)
 	    TARGET_LINK_LIBRARIES(${TARGET_NAME} streflop)
