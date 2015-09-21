@@ -46,7 +46,6 @@ find_path(LIBVLC_INCLUDE_DIR PATHS "${CMAKE_INCLUDE_PATH}/vlc" NAMES vlc.h
         HINTS ${PC_LIBVLC_INCLUDEDIR} ${PC_LIBVLC_INCLUDE_DIRS})
 
 # dream on libvlc doesn't support static linking
-#OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
 set(LIBVLC_LIB_NAMES vlc libvlc)
 set(LIBVLC_LIB_CORE_NAMES vlccore libvlccore)
 #IF(WANT_STATIC_LIBS)

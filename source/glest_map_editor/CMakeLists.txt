@@ -121,16 +121,9 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 			ENDIF(APPLE)
 	ENDFOREACH(DIR)
 
-        OPTION(WANT_DEV_OUTPATH "use developer friendly output paths" OFF)
-		IF(WANT_DEV_OUTPATH)
-			IF(UNIX AND NOT APPLE)
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux/)
-			ELSEIF(UNIX AND APPLE)
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/macosx/)
-			ELSE()
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game/)
-			ENDIF()
-		ENDIF()
+	IF(WANT_DEV_OUTPATH)
+		SET(EXECUTABLE_OUTPUT_PATH "${MEGAGLEST_FRIENDLY_OUTPUT_PATH}")
+	ENDIF()
 
         SET(HELP2MAN_OUT_PATH ${EXECUTABLE_OUTPUT_PATH})
         IF("${EXECUTABLE_OUTPUT_PATH}" STREQUAL "")
@@ -166,12 +159,12 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 	TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
 
 	IF(EXISTS ${HELP2MAN})
-		MESSAGE("***-- Found help2man: ${HELP2MAN} about to build manpage in [${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}]")
+		MESSAGE(STATUS "***-- Found help2man: ${HELP2MAN} about to build manpage in [${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}]")
 
                 SET(MG_MANPAGE_DESCRIPTION "Map editor for the popular 3D realtime strategy game")
 
 		IF(EXISTS ${XVFB_EXEC})
-			MESSAGE("***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
+			MESSAGE(STATUS "***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
 
 		  	add_custom_target(${TARGET_NAME_MANPAGE} ALL
 		    		COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${HELP2MAN} --name='${MG_MANPAGE_DESCRIPTION}' --section=6 -N -o ${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE} ${HELP2MAN_OUT_PATH}${TARGET_NAME}

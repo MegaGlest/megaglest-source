@@ -76,9 +76,8 @@ IF(BUILD_MEGAGLEST)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${JPEG_LIBRARY})
 	ENDIF()
 
-	OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
 	IF(WANT_STATIC_LIBS)
-		SET(PNG_NAMES libpng.a ${PNG_NAMES}) 
+		SET(PNG_NAMES libpng.a ${PNG_NAMES})
 	ENDIF()
 	FIND_PACKAGE(PNG REQUIRED)
 	INCLUDE_DIRECTORIES(${PNG_INCLUDE_DIR})
@@ -86,6 +85,9 @@ IF(BUILD_MEGAGLEST)
 		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${PNG_LIBRARY})
 	ENDIF()
 
+	IF(WANT_STATIC_LIBS)
+	    OPTION(OPENSSL_USE_STATIC_LIBS "Set to ON to link your project with static library (instead of DLL)." ON)
+	ENDIF()
 	FIND_PACKAGE(OpenSSL)
 	IF(OPENSSL_FOUND)
 	    INCLUDE_DIRECTORIES(${OPENSSL_INCLUDE_DIR})
@@ -101,14 +103,14 @@ IF(BUILD_MEGAGLEST)
 		    SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${CURL_LIBRARIES})
 		ELSE()
 		    # mageia
-		    SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${CURL_LIBRARIES} ssl crypto)
+		    SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${CURL_LIBRARIES} ${OPENSSL_LIBRARIES})
 		ENDIF()
 	ENDIF()
 
 	FIND_PACKAGE(GLEW REQUIRED)
-	INCLUDE_DIRECTORIES(${GLEW_INCLUDE_PATH})
+	INCLUDE_DIRECTORIES(${GLEW_INCLUDE_DIRS})
 	IF(UNIX)
-		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${GLEW_LIBRARY})
+		SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${GLEW_LIBRARIES})
 	ENDIF()
 
         #SET(LIBVLC_MIN_VERSION "2.0.1")
@@ -230,16 +232,9 @@ IF(BUILD_MEGAGLEST)
 
 	ENDIF()
 
-        OPTION(WANT_DEV_OUTPATH "use developer friendly output paths" OFF)
-		IF(WANT_DEV_OUTPATH)
-			IF(UNIX AND NOT APPLE)
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/linux/)
-			ELSEIF(UNIX AND APPLE)
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/mk/macosx/)
-			ELSE()
-				SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/data/glest_game/)
-			ENDIF()
-		ENDIF()
+	IF(WANT_DEV_OUTPATH)
+		SET(EXECUTABLE_OUTPUT_PATH "${MEGAGLEST_FRIENDLY_OUTPUT_PATH}")
+	ENDIF()
 
         MESSAGE(STATUS "***Note: The final output path for the MegaGlest engine will be [${EXECUTABLE_OUTPUT_PATH}]")
 
@@ -260,7 +255,7 @@ IF(BUILD_MEGAGLEST)
                 SET(EXTERNAL_LIBS ${EXTERNAL_LIBS} ${BREAKPAD_EXCEPTION_HANDLER_LIBRARIES})
 
 	else()
-		message("** WARNING: Could not find GoogleBreakpad. Disabling GoogleBreakpad support.")
+		message(STATUS "** WARNING: Could not find GoogleBreakpad. Disabling GoogleBreakpad support.")
 	endif()
 
 	IF(WIN32)
@@ -280,12 +275,12 @@ IF(BUILD_MEGAGLEST)
         ENDIF()
 
 	IF(EXISTS ${HELP2MAN})
-		MESSAGE("***-- Found help2man: ${HELP2MAN} about to build manpage in [${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}]")
+		MESSAGE(STATUS "***-- Found help2man: ${HELP2MAN} about to build manpage in [${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE}]")
 
                 SET(MG_MANPAGE_DESCRIPTION "3D multi-player real time strategy game")
 
 		IF(EXISTS ${XVFB_EXEC})
-			MESSAGE("***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
+			MESSAGE(STATUS "***-- Found xvfb-run: ${XVFB_EXEC} about to build manpage with it.")
 
 		  	add_custom_target(${TARGET_NAME_MANPAGE} ALL
 		    		COMMAND ${XVFB_EXEC} --auto-servernum --server-num=770 ${HELP2MAN} --name='${MG_MANPAGE_DESCRIPTION}' --section=6 -N -o ${HELP2MAN_OUT_PATH}${TARGET_NAME_MANPAGE} ${HELP2MAN_OUT_PATH}${TARGET_NAME}

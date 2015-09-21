@@ -24,47 +24,47 @@ FORCE_32BIT_CROSS_COMPILE=0
 
 while getopts "c:dfhl:mnx" option; do
    case "${option}" in
-        c) 
+        c)
            CPU_COUNT=${OPTARG}
 #           echo "${option} value: ${OPTARG}"
         ;;
-        d) 
+        d)
            WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF"
 #           echo "${option} value: ${OPTARG}"
         ;;
-        f) 
+        f)
            CLANG_FORCED=1
 #           echo "${option} value: ${OPTARG}"
         ;;
-        h) 
+        h)
                 echo "Usage: $0 <option>"
                 echo "       where <option> can be: -c x, -d, -f, -m, -n, -h, -l x, -x"
                 echo "       option descriptions:"
                 echo "       -c x : Force the cpu / cores count to x - example: -c 4"
                 echo "       -d   : Force DYNAMIC compile (do not want static libs)"
                 echo "       -f   : Force using CLANG compiler"
-                echo "       -l x : Force using LUA version x - example: -l 51"                
+                echo "       -l x : Force using LUA version x - example: -l 5.3"
                 echo "       -m   : Force running CMAKE only to create Make files (do not compile)"
                 echo "       -n   : Force running MAKE only to compile (assume CMAKE already built make files)"
                 echo "       -x   : Force cross compiling on x64 linux to produce an x86 32 bit binary"
 
                 echo "       -h   : Display this help usage"
 
-        	exit 1        
+        	exit 1
         ;;
-        l) 
+        l)
            LUA_FORCED_VERSION=${OPTARG}
 #           echo "${option} value: ${OPTARG} LUA_FORCED_VERSION [${LUA_FORCED_VERSION}]"
         ;;
-        m) 
+        m)
            CMAKE_ONLY=1
 #           echo "${option} value: ${OPTARG}"
         ;;
-        n) 
+        n)
            MAKE_ONLY=1
 #           echo "${option} value: ${OPTARG}"
         ;;
-        x) 
+        x)
            FORCE_32BIT_CROSS_COMPILE=1
 #           echo "${option} value: ${OPTARG}"
         ;;
@@ -220,18 +220,9 @@ elif [ "`echo $CC | grep -oF 'clang'`" = 'clang' -a "`echo $CXX | grep -oF 'clan
 #exit 1;
 fi
 
-LUA_FORCED_CMAKE=
-if [ $LUA_FORCED_VERSION != 0 ]; then
-        if [ $LUA_FORCED_VERSION = 53 ]; then
-                EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_5_3=ON"
-                echo "USER WANTS TO FORCE USE of LUA 5.3"
-        elif [ $LUA_FORCED_VERSION = 52 ]; then
-                EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_5_2=ON"
-                echo "USER WANTS TO FORCE USE of LUA 5.2"
-        elif [ $LUA_FORCED_VERSION = 51 ]; then
-                EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_5_1=ON"
-                echo "USER WANTS TO FORCE USE of LUA 5.1"
-        fi
+if [ "$LUA_FORCED_VERSION" != "0" ] && [ "$LUA_FORCED_VERSION" != "" ]; then
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_VERSION=$LUA_FORCED_VERSION"
+	#echo "USER WANTS TO FORCE USE of LUA $LUA_FORCED_VERSION"
 fi
 
 if [ $FORCE_32BIT_CROSS_COMPILE != 0 ]; then

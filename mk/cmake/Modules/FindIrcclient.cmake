@@ -41,7 +41,6 @@ FIND_PATH(IRCCLIENT_INCLUDE_DIR libircclient.h
 
 SET(IRCCLIENT_FIND_LIBRARIES ircclient)
 
-OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
 OPTION(FORCE_IRCCLIENT_DYNAMIC_LIBS "force the use of dynamic libs for IRCCLIENT" OFF)
 MESSAGE(STATUS "Force IRCCLient dynamic: ${FORCE_IRCCLIENT_DYNAMIC_LIBS}")
 

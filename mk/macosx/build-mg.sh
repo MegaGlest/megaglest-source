@@ -30,7 +30,7 @@ while getopts "c:dfhl:mnxb" option; do
 			echo "       -c x : Force the cpu / cores count to x - example: -c 4"
 			echo "       -d   : Force DYNAMIC compile (do not want static libs)"
 			echo "       -f   : Force using Clang compiler"
-			echo "       -l x : Force using LUA version x - example: -l 51"
+			echo "       -l x : Force using LUA version x - example: -l 5.3"
 			echo "       -m   : Force running CMAKE only to create Make files (do not compile)"
 			echo "       -n   : Force running MAKE only to compile (assume CMAKE already built make files)"
 			echo "       -x   : Force usage of Xcode and xcodebuild"
@@ -169,18 +169,9 @@ if [ "$USE_XCODE" -ne "1" ]; then
 	fi
 fi
 
-LUA_FORCED_CMAKE=
-if [ "$LUA_FORCED_VERSION" -ne "0" ]; then
-	if [ "$LUA_FORCED_VERSION" -eq "53" ]; then
-		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_5_3=ON"
-		echo "USER WANTS TO FORCE USE of LUA 5.3"
-	elif [ "$LUA_FORCED_VERSION" -eq "52" ]; then
-		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_5_2=ON"
-		echo "USER WANTS TO FORCE USE of LUA 5.2"
-	elif [ "$LUA_FORCED_VERSION" -eq "51" ]; then
-		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_5_1=ON"
-		echo "USER WANTS TO FORCE USE of LUA 5.1"
-	fi
+if [ "$LUA_FORCED_VERSION" != "0" ] && [ "$LUA_FORCED_VERSION" != "" ]; then
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_VERSION=$LUA_FORCED_VERSION"
+	#echo "USER WANTS TO FORCE USE of LUA $LUA_FORCED_VERSION"
 fi
 
 if [ "$MAKE_ONLY" -eq "0" ]; then

@@ -6,7 +6,6 @@
 #  VORBIS_FILE_LIBRARY
 #
 
-OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
 IF(WANT_STATIC_LIBS)
 	OPTION(OGG_STATIC "Set to ON to link your project with static library (instead of DLL)." ON)
 ENDIF()

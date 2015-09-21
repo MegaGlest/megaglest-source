@@ -28,7 +28,6 @@ set(FRIBIDI_INCLUDE_DIR ${xFRIBIDI_INCLUDE_DIR})
 
 SET(FRIBIDI_NAMES ${FRIBIDI_NAMES} fribidi libfribidi)
 
-OPTION(WANT_STATIC_LIBS "builds as many static libs as possible" OFF)
 IF(WANT_STATIC_LIBS)
 	SET(FRIBIDI_NAMES fribidi.a libfribidi.a ${FRIBIDI_NAMES})
 ENDIF()
