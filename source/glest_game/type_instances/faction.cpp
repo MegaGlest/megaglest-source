@@ -887,6 +887,8 @@ void Faction::cancelUpgrade(const UpgradeType *ut){
 
 void Faction::finishUpgrade(const UpgradeType *ut){
 	upgradeManager.finishUpgrade(ut);
+	Console *console=world->getGame()->getConsole();
+	console->addStdMessage("UpgradeFinished",": " + formatString(ut->getName(true)));
 	for(int i=0; i<getUnitCount(); ++i){
 		getUnit(i)->applyUpgrade(ut);
 	}
