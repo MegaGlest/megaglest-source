@@ -137,7 +137,7 @@ echo 'We have detected the following system:'
 echo " [ $distribution ] [ $release ] [ $architecture ] [ $xcode_ver ]"
 case $release in
 	*) 	echo 'Turning ON dynamic PNG ...'
-		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DPNG_STATIC=OFF";;
+		EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_PNG=OFF";;
 esac
 case $xcode_ver in
 	# en.wikipedia.org/wiki/Xcode, Version, OS X SDK(s) <- lowest, but not less than 10.4

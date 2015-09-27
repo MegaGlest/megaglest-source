@@ -28,8 +28,8 @@ set(FRIBIDI_INCLUDE_DIR ${xFRIBIDI_INCLUDE_DIR})
 
 SET(FRIBIDI_NAMES ${FRIBIDI_NAMES} fribidi libfribidi)
 
-IF(WANT_STATIC_LIBS)
-	SET(FRIBIDI_NAMES fribidi.a libfribidi.a ${FRIBIDI_NAMES})
+IF(STATIC_FriBiDi)
+	SET(FRIBIDI_NAMES libfribidi.a fribidi.a ${FRIBIDI_NAMES})
 ENDIF()
 
 #MESSAGE(STATUS "** Searching for library names: [${FRIBIDI_NAMES}] ...")

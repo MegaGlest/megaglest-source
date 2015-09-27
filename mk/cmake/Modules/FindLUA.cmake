@@ -51,11 +51,12 @@
 unset(_lua_include_subdirs)
 unset(_lua_library_names)
 
-IF(WANT_STATIC_LIBS)
-	OPTION(LUA_STATIC "Set to ON to link your project with static library (instead of DLL)." ON)
-ENDIF()
 IF("${FORCE_LUA_VERSION}" STREQUAL "OFF")
-	SET(LUA_VERSIONS5 "${ALL_LUA_VERSIONS_IN_ORDER}")
+	IF(DEFINED ALL_LUA_VERSIONS_IN_ORDER)
+		SET(LUA_VERSIONS5 "${ALL_LUA_VERSIONS_IN_ORDER}")
+	ELSE()
+		SET(LUA_VERSIONS5 5.3 5.2 5.1 5.0)
+	ENDIF()
 ELSE()
 	SET(LUA_VERSIONS5 "${FORCE_LUA_VERSION}")
 ENDIF()
@@ -91,12 +92,15 @@ function(set_lua_version_vars)
              include/lua${CMAKE_MATCH_1}.${CMAKE_MATCH_2}
              include/lua-${CMAKE_MATCH_1}.${CMAKE_MATCH_2}
         )
-        IF(LUA_STATIC)
+        IF(STATIC_LUA)
             list(APPEND _lua_library_names
                 liblua${CMAKE_MATCH_1}${CMAKE_MATCH_2}.a
                 liblua${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.a
                 liblua-${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.a
-             )
+                lua${CMAKE_MATCH_1}${CMAKE_MATCH_2}.a
+                lua${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.a
+                lua-${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.a
+        )
         ENDIF()
         list(APPEND _lua_library_names
              lua${CMAKE_MATCH_1}${CMAKE_MATCH_2}

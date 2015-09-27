@@ -138,14 +138,14 @@ detect_system
 echo 'We have detected the following system:'
 echo ' [ '"$distribution"' ] [ '"$release"' ] [ '"$codename"' ] [ '"$architecture"' ]'
 
-EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFONTCONFIG_STATIC=OFF"
+EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FONTCONFIG=OFF"
 case $distribution in
 	Debian)
 		case $release in
 			6.*|7.*) ;;
 			*)
 				echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
-				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFTGL_STATIC=OFF -DLUA_STATIC=OFF -DJPEG_STATIC=OFF -DPNG_STATIC=OFF -DOGG_STATIC=OFF -DFORCE_USE_EMBEDDED_IRCCLIENT=ON"
+				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
 				;;
 		esac
 		;;
@@ -155,7 +155,7 @@ case $distribution in
 			10.*|11.*|12.*|13.*|14.*) ;;
 			*)
 				echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
-				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFTGL_STATIC=OFF -DLUA_STATIC=OFF -DJPEG_STATIC=OFF -DPNG_STATIC=OFF -DOGG_STATIC=OFF -DFORCE_USE_EMBEDDED_IRCCLIENT=ON"
+				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
 				;;
 		esac
 		;;
@@ -165,7 +165,7 @@ case $distribution in
 			13|13.*|14|15|16|17|17.*) ;;
 			*)
 				echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
-				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFTGL_STATIC=OFF -DLUA_STATIC=OFF -DJPEG_STATIC=OFF -DPNG_STATIC=OFF -DOGG_STATIC=OFF -DFORCE_USE_EMBEDDED_IRCCLIENT=ON"
+				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
 				;;
 		esac
 		;;
@@ -174,7 +174,7 @@ case $distribution in
 		case $release in
 			*)
 				echo 'Turning ON dynamic CURL ...'
-				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_CURL_DYNAMIC_LIBS=ON"
+				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_CURL=OFF"
 				;;
 		esac
 		;;
@@ -183,7 +183,7 @@ case $distribution in
 		case $release in
 			*)
 				echo 'Turning ON dynamic CURL ...'
-				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_CURL_DYNAMIC_LIBS=ON"
+				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_CURL=OFF"
 				;;
 		esac
 		;;

@@ -85,7 +85,7 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
             ${GLEST_LIB_INCLUDE_ROOT}xml/rapidxml
 	    ${GLEST_MAIN_INCLUDE_ROOT}global)
 
-	IF(WANT_STREFLOP)
+	IF(WANT_USE_STREFLOP)
 		SET(GLEST_LIB_INCLUDE_DIRS
 			${GLEST_LIB_INCLUDE_DIRS}
     			${GLEST_LIB_INCLUDE_ROOT}streflop)
@@ -95,11 +95,8 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 
 	IF(WIN32)
 		INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/platform/win32)
-		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
-	ELSE()
-		INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
 	ENDIF()
-
+	INCLUDE_DIRECTORIES( ${GLEST_LIB_INCLUDE_ROOT}platform/${SDL_VERSION_SNAME} )
 
 	SET(MG_SOURCE_FILES "../glest_game/global/config.cpp")
 	
@@ -139,7 +136,7 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 	ADD_EXECUTABLE(${TARGET_NAME} ${MG_SOURCE_FILES} ${MG_INCLUDE_FILES})
 	
 	SET(MG_STREFLOP "")
-	IF(WANT_STREFLOP)
+	IF(WANT_USE_STREFLOP)
 		SET(MG_STREFLOP "streflop")
 	ENDIF()
 
@@ -147,15 +144,11 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} stdc++ gcc odbc32 wsock32 winspool winmm shell32 comctl32 ctl3d32  advapi32 wsock32 opengl32 glu32 ole32 oleaut32 uuid mingw32 ddraw dsound dxguid ws2_32 iphlpapi wsock32 libogg libvorbis libvorbisfile zlib jpeg libpng xerces-c2_8_0 OpenAL32 libcurl winmm gdi32 opengl32 glu32 ${SDL_VERSION_NAME} ${SDL_VERSION_NAME}main lua5.1 ${MG_STREFLOP} libmegaglest stdc++ moldname mingwex msvcrt user32 kernel32)
 	ENDIF()
 
-	IF(WANT_STREFLOP)
+	IF(WANT_USE_STREFLOP)
 		TARGET_LINK_LIBRARIES(${TARGET_NAME} ${MG_STREFLOP})
 	ENDIF()
 
-	IF(WIN32)
-		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
-	ELSE()
-		TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
-	ENDIF()
+	TARGET_LINK_LIBRARIES(${TARGET_NAME} libmegaglest)
 	TARGET_LINK_LIBRARIES(${TARGET_NAME} ${EXTERNAL_LIBS})
 
 	IF(EXISTS ${HELP2MAN})
@@ -175,7 +168,6 @@ IF(BUILD_MEGAGLEST_MAP_EDITOR)
 		    	DEPENDS ${TARGET_NAME})
 		ENDIF()
 	ENDIF()
-
 
         # Requires an install prefix for the items below to work
         IF(NOT CMAKE_INSTALL_PREFIX STREQUAL "")

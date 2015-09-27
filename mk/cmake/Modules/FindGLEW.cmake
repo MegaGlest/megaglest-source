@@ -35,15 +35,11 @@
 # (To distribute this file outside of CMake, substitute the full
 #  License text for the above reference.)
 
-IF(WANT_STATIC_LIBS)
-	OPTION(GLEW_STATIC "Set to ON to link your project with static library (instead of DLL)." ON)
-ENDIF()
-
 find_path(GLEW_INCLUDE_DIR GL/glew.h)
 
 SET(GLEW_NAMES ${GLEW_NAMES} GLEW glew32 glew glew32s)
-IF(GLEW_STATIC)
-	SET(GLEW_NAMES libGLEW.a libglew32.a libglew.a libglew32s.a ${GLEW_NAMES})
+IF(STATIC_GLEW)
+	SET(GLEW_NAMES libGLEW.a libglew32.a libglew.a libglew32s.a GLEW.a glew32.a glew.a glew32s.a ${GLEW_NAMES})
 ENDIF()
 
 find_library(GLEW_LIBRARY NAMES ${GLEW_NAMES} PATH_SUFFIXES lib64)
