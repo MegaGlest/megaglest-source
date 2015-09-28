@@ -220,7 +220,7 @@ string extractExtension(const string& filename);
 void getFullscreenVideoModes(vector<ModeInfo> *modeinfos,bool isFullscreen);
 void getFullscreenVideoInfo(int &colorBits,int &screenWidth,int &screenHeight,bool isFullscreen);
 void changeVideoModeFullScreen(bool value);
-void restoreVideoMode(bool exitingApp=false);
+void restoreVideoMode(SDL_Window *sdlWindow,bool exitingApp=false);
 
 bool StartsWith(const std::string &str, const std::string &key);
 bool EndsWith(const string &str, const string& key);
@@ -241,8 +241,8 @@ off_t getFileSize(string filename);
 bool searchAndReplaceTextInFile(string fileName, string findText, string replaceText, bool simulateOnly);
 void copyFileTo(string fromFileName, string toFileName);
 
-int getScreenW();
-int getScreenH();
+//int getScreenW();
+//int getScreenH();
 
 void sleep(int millis);
 

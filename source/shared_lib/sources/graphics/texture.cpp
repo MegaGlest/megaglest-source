@@ -151,12 +151,13 @@ std::pair<SDL_Surface*,unsigned char*> Texture2D::CreateSDLSurface(bool newPixel
 	                return result;
 	        }
 
-	        /* Save the alpha blending attributes */
-	        Uint32 savedFlags = result.first->flags&(SDL_SRCALPHA|SDL_RLEACCELOK);
-	        Uint8  savedAlpha = result.first->format->alpha;
-	        if ( (savedFlags & SDL_SRCALPHA) == SDL_SRCALPHA ) {
-	                SDL_SetAlpha(result.first, 0, 0);
-	        }
+	        // TTSDL
+//	        /* Save the alpha blending attributes */
+//	        Uint32 savedFlags = result.first->flags&(SDL_SRCALPHA|SDL_RLEACCELOK);
+//	        Uint8  savedAlpha = result.first->format->alpha;
+//	        if ( (savedFlags & SDL_SRCALPHA) == SDL_SRCALPHA ) {
+//	                SDL_SetAlpha(result.first, 0, 0);
+//	        }
 
 	        SDL_Rect srcArea, destArea;
 	        /* Copy the surface into the GL texture image */
@@ -169,10 +170,11 @@ std::pair<SDL_Surface*,unsigned char*> Texture2D::CreateSDLSurface(bool newPixel
 	        srcArea.h = result.first->h;
 	        SDL_BlitSurface(result.first, &srcArea, image, &destArea);
 
-	        /* Restore the alpha blending attributes */
-	        if ((savedFlags & SDL_SRCALPHA) == SDL_SRCALPHA) {
-	                SDL_SetAlpha(result.first, savedFlags, savedAlpha);
-	        }
+	        // TTSDL
+//	        /* Restore the alpha blending attributes */
+//	        if ((savedFlags & SDL_SRCALPHA) == SDL_SRCALPHA) {
+//	                SDL_SetAlpha(result.first, savedFlags, savedAlpha);
+//	        }
 
 	        /* Turn the image upside-down, because OpenGL textures
 	           start at the bottom-left, instead of the top-left

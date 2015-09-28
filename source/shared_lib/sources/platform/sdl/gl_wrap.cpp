@@ -73,9 +73,9 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 
 	//printf("In [%s::%s %d] PlatformCommon::Private::shouldBeFullscreen = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,PlatformCommon::Private::shouldBeFullscreen);
 
-	int flags = SDL_OPENGL;
+	int flags = SDL_WINDOW_OPENGL;
 	if(PlatformCommon::Private::shouldBeFullscreen) {
-		flags |= SDL_FULLSCREEN;
+		flags |= SDL_WINDOW_FULLSCREEN;
 		Window::setIsFullScreen(true);
 	}
 	else {
@@ -93,13 +93,18 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to set resolution: %d x %d, colorBits = %d.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,resW,resH,colorBits);
 
 		if(screen != NULL) {
-			SDL_FreeSurface(screen);
+			SDL_FreeSurface(SDL_GetWindowSurface(screen));
 			screen = NULL;
 		}
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-		screen = SDL_SetVideoMode(resW, resH, colorBits, flags);
+		//screen = SDL_CreateWindow(resW, resH, colorBits, flags);
+		screen = SDL_CreateWindow("MG",
+                SDL_WINDOWPOS_UNDEFINED,
+                SDL_WINDOWPOS_UNDEFINED,
+                resW, resH, flags);
+
 		if(screen == 0) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -112,51 +117,37 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s Line: %d] error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg.str().c_str());
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg.str().c_str());
 
-			for(int i = 32; i >= 8; i-=8) {
-				// try different color bits
-				screen = SDL_SetVideoMode(resW, resH, i, flags);
-				if(screen != 0) {
-					glViewport( 0, 0, resW, resH ) ;
-
-					break;
-				}
-			}
+			//screen = SDL_SetVideoMode(resW, resH, i, flags);
+			screen = SDL_CreateWindow("MG",
+					SDL_WINDOWPOS_UNDEFINED,
+					SDL_WINDOWPOS_UNDEFINED,
+					resW, resH, flags);
 
 			if(screen == 0) {
-				for(int i = 32; i >= 8; i-=8) {
-					// try to revert to 800x600
-					screen = SDL_SetVideoMode(800, 600, i, flags);
-					if(screen != 0) {
-						resW = 800;
-						resH = 600;
-
-						glViewport( 0, 0, resW, resH ) ;
-						break;
-					}
-				}
+				// try to switch to native desktop resolution
+				screen = SDL_CreateWindow("MG",
+					SDL_WINDOWPOS_UNDEFINED,
+					SDL_WINDOWPOS_UNDEFINED,
+					 0, 0,
+					 SDL_WINDOW_FULLSCREEN_DESKTOP|flags);
 			}
 			if(screen == 0) {
-				for(int i = 32; i >= 8; i-=8) {
-					// try to revert to 640x480
-					screen = SDL_SetVideoMode(640, 480, i, flags);
-					if(screen != 0) {
-						resW = 640;
-						resH = 480;
-
-						glViewport( 0, 0, resW, resH ) ;
-						break;
-					}
-				}
+				// try to revert to 640x480
+				screen = SDL_CreateWindow("MG",
+					SDL_WINDOWPOS_UNDEFINED,
+					SDL_WINDOWPOS_UNDEFINED,
+					 650, 480,
+					SDL_WINDOW_FULLSCREEN_DESKTOP);
 			}
-
 			if(screen == 0) {
 				throw std::runtime_error(msg.str());
 			}
 		}
-		else {
-			glViewport( 0, 0, resW, resH ) ;
-			//printf("Reset resolution to [%d] x [%d]\n",resW, resH);
-		}
+
+		int h;
+		int w;
+		SDL_GetWindowSize(screen, &w, &h);
+		glViewport( 0, 0, w, h ) ;
 
 #ifndef WIN32
 		string mg_icon_file = "";
@@ -224,18 +215,19 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 
 				//uint32 colorkey = SDL_MapRGB(icon->format, 255, 0, 255);
 				//SDL_SetColorKey(icon, SDL_SRCCOLORKEY, colorkey);
-				if(SDL_SetColorKey(icon, SDL_SRCCOLORKEY, SDL_MapRGB(icon->format, 255, 0, 255))) {
+				if(SDL_SetColorKey(icon, SDL_TRUE, SDL_MapRGB(icon->format, 255, 0, 255))) {
 					printf("Icon Load Error #2: %s\n", SDL_GetError());
 				}
 				else {
-					SDL_WM_SetIcon(icon, NULL);
+					SDL_SetWindowIcon(screen,icon);
 				}
 			}
 		}
 #endif
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		SDL_WM_GrabInput(SDL_GRAB_OFF);
+		//SDL_WM_GrabInput(SDL_GRAB_OFF);
+		SDL_SetRelativeMouseMode(SDL_FALSE);
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d] BEFORE glewInit call\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		
@@ -265,13 +257,15 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 		if(gammaValue != 0.0) {
 			//printf("Attempting to call SDL_SetGamma using value %f\n", gammaValue);
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			if (SDL_SetGamma(gammaValue, gammaValue, gammaValue) < 0) {
-				printf("WARNING, SDL_SetGamma failed using value %f [%s]\n", gammaValue,SDL_GetError());
+			if (SDL_SetWindowBrightness(screen, gammaValue) < 0) {
+				printf("WARNING, SDL_SetWindowBrightness failed using value %f [%s]\n", gammaValue,SDL_GetError());
 			}
 		}
 
-        SDL_WM_GrabInput(SDL_GRAB_ON);
-        SDL_WM_GrabInput(SDL_GRAB_OFF);
+//        SDL_WM_GrabInput(SDL_GRAB_ON);
+//        SDL_WM_GrabInput(SDL_GRAB_OFF);
+		SDL_SetRelativeMouseMode(SDL_TRUE);
+		SDL_SetRelativeMouseMode(SDL_FALSE);
 	}
 }
 
@@ -290,7 +284,7 @@ void PlatformContextGl::end() {
 	if(screen != NULL) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-		SDL_FreeSurface(screen);
+		SDL_DestroyWindow(screen);
 		screen = NULL;
 	}
 
@@ -302,7 +296,7 @@ void PlatformContextGl::makeCurrent() {
 
 void PlatformContextGl::swapBuffers() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
-		SDL_GL_SwapBuffers();
+		 SDL_GL_SwapWindow(screen);
 	}
 }
 	

@@ -44,8 +44,6 @@ enum MouseButton {
 	mbLeft,
 	mbCenter,
 	mbRight,
-	mbWheelUp,
-	mbWheelDown,
 	mbButtonX1,
 	mbButtonX2,
 
@@ -97,6 +95,7 @@ enum WindowStyle{
 
 class Window {
 private:
+	SDL_Window *sdlWindow;
 	Uint32 lastMouseDown[mbCount];
 	int lastMouseX[mbCount];
 	int lastMouseY[mbCount];
@@ -132,7 +131,7 @@ protected:
 
 public:
 	static bool handleEvent();
-	static void revertMousePos();
+	static void revertMousePos(SDL_Window *sdlwindow);
 	static Vec2i getOldMousePos();
 	static bool isKeyDown() { return isKeyPressedDown; }
 	static void setupGraphicsScreen(int depthBits=-1, int stencilBits=-1, bool hardware_acceleration=false, bool fullscreen_anti_aliasing=false);
@@ -142,7 +141,7 @@ public:
 	static bool isKeyStateModPressed(int mod);
 	static wchar_t extractLastKeyPressed();
 
-	Window();
+	Window(SDL_Window *sdlWindow);
 	virtual ~Window();
 
 	static void addAllowedKeys(string keyList);
@@ -214,11 +213,12 @@ protected:
 private:
 	/// needed to detect double clicks
 	void handleMouseDown(SDL_Event event);
+	void handleMouseWheel(SDL_Event event);
 
 	static MouseButton getMouseButton(int sdlButton);
 	//static char getKey(SDL_keysym keysym, bool skipSpecialKeys=false);
 	//static char getNormalKey(SDL_keysym keysym,bool skipSpecialKeys=false);
-	static void toggleFullscreen();
+	static void toggleFullscreen(SDL_Window *sdlwindow);
 
 	static wchar_t convertStringtoSDLKey(const string &value);
 };

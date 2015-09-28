@@ -79,7 +79,8 @@ static HWND GetSDLWindow()
 
 #endif
 
-Window::Window()  {
+Window::Window(SDL_Window *sdlWindow)  {
+	this->sdlWindow=sdlWindow;
 	// Default to 1x1 until set by caller to avoid divide by 0
 	this->w = 1;
 	this->h = 1;
@@ -157,9 +158,7 @@ bool Window::handleEvent() {
 					codeLocation = "f";
 
 					if(global_window) {
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 						global_window->handleMouseDown(event);
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					}
 					break;
 				case SDL_MOUSEBUTTONUP: {
@@ -171,6 +170,14 @@ bool Window::handleEvent() {
 
 						global_window->eventMouseUp(event.button.x,
 							event.button.y,getMouseButton(event.button.button));
+					}
+					break;
+				}
+				case SDL_MOUSEWHEEL: {
+					//printf("In [%s::%s] Line :%d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+					codeLocation = "g2";
+					if(global_window) {
+						global_window->handleMouseWheel(event);
 					}
 					break;
 				}
@@ -207,8 +214,8 @@ bool Window::handleEvent() {
 					keystate = event.key.keysym;
 
 					string keyName = SDL_GetKeyName(event.key.keysym.sym);
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Raw SDL key [%d - %c] mod [%d] unicode [%d - %c] scancode [%d] keyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.unicode,event.key.keysym.unicode,event.key.keysym.scancode,keyName.c_str());
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d] keyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.unicode,event.key.keysym.scancode,keyName.c_str());
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Raw SDL key [%d - %c] mod [%d] scancode [%d] keyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.scancode,keyName.c_str());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] scancode [%d] keyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.scancode,keyName.c_str());
 
 					/* handle ALT+Return */
 					if((keyName == "return" || keyName == "enter")
@@ -255,7 +262,7 @@ bool Window::handleEvent() {
 
 					keystate = event.key.keysym;
 
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] KEY_UP, Raw SDL key [%d] mod [%d] unicode [%d] scancode [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.unicode,event.key.keysym.scancode);
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] KEY_UP, Raw SDL key [%d] mod [%d] scancode [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.scancode);
 
 					if(global_window) {
 						//char key = getKey(event.key.keysym,true);
@@ -266,15 +273,15 @@ bool Window::handleEvent() {
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] =================================== END OF SDL SDL_KEYUP ================================\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 					break;
-				case SDL_ACTIVEEVENT:
+				case SDL_WINDOWEVENT:
 				{
-//					codeLocation = "k";
+					codeLocation = "k";
 //					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] SDL_ACTIVEEVENT event.active.state = %d event.active. = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.active.state,event.active.gain);
 //
 //					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Window::isActive = %d event.active.state = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,Window::isActive,event.active.state);
 //
 //					// Check if the program has lost window focus
-//					if ((event.active.state & SDL_APPACTIVE) == SDL_APPACTIVE) {
+//					if ((event.active.state & (SDL_APPACTIVE | SDL_APPINPUTFOCUS))) {
 //						if (event.active.gain == 0) {
 //							Window::isActive = false;
 //						}
@@ -289,47 +296,7 @@ bool Window::handleEvent() {
 //						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
 //						showCursor(willShowCursor);
 //					}
-//					// Check if the program has lost window focus
-//					if ((event.active.state & SDL_APPMOUSEFOCUS) != SDL_APPMOUSEFOCUS &&
-//						(event.active.state & SDL_APPINPUTFOCUS) != SDL_APPINPUTFOCUS &&
-//						(event.active.state & SDL_APPACTIVE) != SDL_APPACTIVE) {
-//						if (event.active.gain == 0) {
-//							Window::isActive = false;
-//						}
-//						//else if (event.active.gain == 1) {
-//						else {
-//							Window::isActive = true;
-//						}
-//
-//						if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Window::isActive = %d \n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,Window::isActive);
-//
-//						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d, event.active.state = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,Window::isActive,event.active.state);
-//						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
-//						showCursor(willShowCursor);
-//					}
-//				}
-
-					codeLocation = "k";
-					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] SDL_ACTIVEEVENT event.active.state = %d event.active. = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.active.state,event.active.gain);
-
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Window::isActive = %d event.active.state = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,Window::isActive,event.active.state);
-
-					// Check if the program has lost window focus
-					if ((event.active.state & (SDL_APPACTIVE | SDL_APPINPUTFOCUS))) {
-						if (event.active.gain == 0) {
-							Window::isActive = false;
-						}
-						else {
-							Window::isActive = true;
-						}
-
-						if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Window::isActive = %d \n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,Window::isActive);
-
-						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Window::isActive = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,Window::isActive);
-
-						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
-						showCursor(willShowCursor);
-					}
+					showCursor(true);
 				}
 				break;
 			}
@@ -357,8 +324,8 @@ bool Window::handleEvent() {
 	return true;
 }
 
-void Window::revertMousePos() {
-	SDL_WarpMouse(oldX, oldY);
+void Window::revertMousePos(SDL_Window *sdlwindow) {
+	SDL_WarpMouseInWindow( sdlwindow,oldX, oldY);
 }
 
 Vec2i Window::getOldMousePos() {
@@ -366,8 +333,9 @@ Vec2i Window::getOldMousePos() {
 }
 
 string Window::getText() {
-	char* c = 0;
-	SDL_WM_GetCaption(&c, 0);
+	const char* c = 0;
+	//SDL_WM_GetCaption(&c, 0);
+	c=SDL_GetWindowTitle(sdlWindow);
 
 	return string(c);
 }
@@ -378,7 +346,8 @@ float Window::getAspect() {
 
 void Window::setText(string text) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	SDL_WM_SetCaption(text.c_str(), 0);
+	//SDL_WM_SetCaption(text.c_str(), 0);
+	SDL_SetWindowTitle(sdlWindow,text.c_str());
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
 
@@ -471,7 +440,8 @@ void Window::setupGraphicsScreen(int depthBits, int stencilBits, bool hardware_a
 	#ifdef SDL_GL_SWAP_CONTROL
 		if(Window::tryVSynch == true) {
 			/* we want vsync for smooth scrolling */
-			SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
+			//SDL_GL_SetAttribute(SDL_GL_SWAP_CONTROL, 1);
+			SDL_GL_SetSwapInterval(1);
 		}
 	#endif
 
@@ -488,144 +458,50 @@ void Window::setupGraphicsScreen(int depthBits, int stencilBits, bool hardware_a
 	}
 }
 
-void Window::toggleFullscreen() {
+void Window::toggleFullscreen(SDL_Window *sdlwindow) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	Window::isFullScreen = !Window::isFullScreen;
-#ifdef WIN32
-	/* -- Portable Fullscreen Toggling --
-	As of SDL 1.2.10, if width and height are both 0, SDL_SetVideoMode will use the
-	width and height of the current video mode (or the desktop mode, if no mode has been set).
-	Use 0 for Height, Width, and Color Depth to keep the current values. */
 
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-	if(Window::allowAltEnterFullscreenToggle == true) {
-
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
-
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			SDL_Surface *cur_surface = SDL_GetVideoSurface();
-			if(cur_surface != NULL) {
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				Window::isFullScreen = !((cur_surface->flags & SDL_FULLSCREEN) == SDL_FULLSCREEN);
+	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
+		//SDL_Surface *cur_surface = SDL_GetVideoSurface();
+		if(sdlwindow != NULL) {
+			if(isFullScreen){
+				SDL_SetWindowFullscreen(sdlwindow,SDL_WINDOW_FULLSCREEN);
 			}
-
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			SDL_Surface *sf = SDL_GetVideoSurface();
-
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			SDL_Surface **surface = &sf;
-
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			uint32 *flags = NULL;
-			//void *pixels = NULL;
-			//SDL_Color *palette = NULL;
-			SDL_Rect clip;
-			//int ncolors = 0;
-			Uint32 tmpflags = 0;
-			int w = 0;
-			int h = 0;
-			int bpp = 0;
-
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			if ( (!surface) || (!(*surface)) )  // don't bother if there's no surface.
-				return;
-
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			tmpflags = (*surface)->flags;
-			w = (*surface)->w;
-			h = (*surface)->h;
-			bpp = (*surface)->format->BitsPerPixel;
-
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n w = %d, h = %d, bpp = %d",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,w,h,bpp);
-
-			if (flags == NULL)  // use the surface's flags.
-				flags = &tmpflags;
-
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			//
-			if ( *flags & SDL_FULLSCREEN )
-				*flags &= ~SDL_FULLSCREEN;
-			//
-			else
-				*flags |= SDL_FULLSCREEN;
-
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			SDL_GetClipRect(*surface, &clip);
-
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			*surface = SDL_SetVideoMode(w, h, bpp, (*flags));
-
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			if (*surface == NULL) {
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				*surface = SDL_SetVideoMode(w, h, bpp, tmpflags);
-			} // if
-
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			SDL_SetClipRect(*surface, &clip);
-
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-		}
-	}
-	else {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-		HWND handle = GetSDLWindow();
-		if(Window::isFullScreen == true) {
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == true [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,handle);
-			ShowWindow(handle, SW_MAXIMIZE);
-			//if(Window::getUseDefaultCursorOnly() == false) {
-			//	showCursor(false);
-			//}
-		}
-		else {
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] Window::isFullScreen == false [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,handle);
-			ShowWindow(handle, SW_RESTORE);
-			//showCursor(true);
-		}
-
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-	}
-
-	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-#else
-	if(Window::allowAltEnterFullscreenToggle == true) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
-			SDL_Surface *cur_surface = SDL_GetVideoSurface();
-			if(cur_surface != NULL) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				SDL_WM_ToggleFullScreen(cur_surface);
+			else {
+				SDL_SetWindowFullscreen(sdlwindow,0);
 			}
 		}
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	}
-#endif
-
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+}
+
+void Window::handleMouseWheel(SDL_Event event) {
+	int x;
+	int y;
+
+	if (event.type != SDL_MOUSEWHEEL) {
+		return;
+	}
+
+	if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+	SDL_GetMouseState(&x, &y);
+
+	//	// windows implementation uses 120 for the resolution of a standard mouse
+	//	// wheel notch.  However, newer mice have finer resolutions.  I dunno if SDL
+	//	// handles those, but for now we're going to say that each mouse wheel
+	//	// movement is 120.
+	eventMouseWheel(x, y, event.wheel.y * 120);
+	return;
+
+	if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
 }
 
 void Window::handleMouseDown(SDL_Event event) {
@@ -634,24 +510,6 @@ void Window::handleMouseDown(SDL_Event event) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	MouseButton button = getMouseButton(event.button.button);
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-	// windows implementation uses 120 for the resolution of a standard mouse
-	// wheel notch.  However, newer mice have finer resolutions.  I dunno if SDL
-	// handles those, but for now we're going to say that each mouse wheel
-	// movement is 120.
-	if(button == mbWheelUp) {
-	    //printf("button == mbWheelUp\n");
-		eventMouseWheel(event.button.x, event.button.y, 120);
-		return;
-	} else if(button == mbWheelDown) {
-	    //printf("button == mbWheelDown\n");
-		eventMouseWheel(event.button.x, event.button.y, -120);
-		return;
-	}
-
-	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	Uint32 ticks = SDL_GetTicks();
 	int n = (int) button;
@@ -692,10 +550,6 @@ MouseButton Window::getMouseButton(int sdlButton) {
 			return mbRight;
 		case SDL_BUTTON_MIDDLE:
 			return mbCenter;
-        case SDL_BUTTON_WHEELUP:
-            return mbWheelUp;
-        case SDL_BUTTON_WHEELDOWN:
-            return mbWheelDown;
 		default:
 			//throw std::runtime_error("Mouse Button > 3 not handled.");
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Mouse Button [%d] not handled.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,sdlButton);
@@ -792,74 +646,86 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,bool modifiersAllow
 bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,vector<int> modifiersToCheck) {
 	Uint16 c = SDLK_UNKNOWN;
 	//if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
-	if(input.keysym.unicode > 0) {
-		string unicodeKeyName = SDL_GetKeyName((SDLKey)input.keysym.unicode);
-
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] input.keysym.unicode = %d input.keysym.mod = %d input.keysym.sym = %d unicodeKeyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,input.keysym.unicode,input.keysym.mod,input.keysym.sym,unicodeKeyName.c_str());
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.unicode = %d input.keysym.mod = %d input.keysym.sym = %d unicodeKeyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,input.keysym.unicode,input.keysym.mod,input.keysym.sym,unicodeKeyName.c_str());
-
-		// When modifiers are pressed the unicode result is wrong
-		// example CTRL-3 will give the ESCAPE vslue 27 in unicode
-		if( !(input.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) &&
-			!(input.keysym.mod & (KMOD_LALT | KMOD_RALT)) &&
-			!(input.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) ) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			c = input.keysym.unicode;
-			//c = toupper(c);
-		}
-		else if((input.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) &&
-				(input.keysym.unicode == SDLK_QUESTION ||
-				 input.keysym.unicode == SDLK_AT ||
-				 input.keysym.unicode == SDLK_COLON ||
-				 input.keysym.unicode == SDLK_LESS ||
-				 input.keysym.unicode == SDLK_GREATER ||
-				 input.keysym.unicode == SDLK_CARET ||
-				 input.keysym.unicode == SDLK_UNDERSCORE ||
-				 input.keysym.unicode == SDLK_BACKQUOTE ||
-				 input.keysym.unicode == SDLK_EXCLAIM ||
-				 input.keysym.unicode == SDLK_QUOTEDBL ||
-				 input.keysym.unicode == SDLK_HASH ||
-				 input.keysym.unicode == SDLK_DOLLAR ||
-				 input.keysym.unicode == SDLK_AMPERSAND ||
-				 input.keysym.unicode == SDLK_QUOTE ||
-				 input.keysym.unicode == SDLK_LEFTPAREN ||
-				 input.keysym.unicode == SDLK_RIGHTPAREN ||
-				 input.keysym.unicode == SDLK_ASTERISK ||
-				 input.keysym.unicode == SDLK_KP_MULTIPLY ||
-				 input.keysym.unicode == SDLK_PLUS ||
-				 input.keysym.unicode == SDLK_COMMA ||
-				 input.keysym.unicode == SDLK_MINUS ||
-				 input.keysym.unicode == SDLK_PERIOD ||
-				 input.keysym.unicode == SDLK_SLASH ||
-				 // Need to allow Shift + # key for AZERTY style keyboards
-				 (input.keysym.unicode >= SDLK_0 && input.keysym.unicode <= SDLK_9))) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			c = input.keysym.unicode;
-		}
-		else if(input.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-			if( (input.keysym.unicode >= SDLK_0 && input.keysym.unicode <= SDLK_9) ||
-				(input.keysym.unicode >= SDLK_KP0 && input.keysym.unicode <= SDLK_KP9)) {
-				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
-				c = input.keysym.unicode;
-			}
-		}
-
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(c & 0xFF));
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(c & 0xFF));
-	}
-	//if(c == 0) {
-	if(c <= SDLK_UNKNOWN || c >= SDLK_LAST) {
+	if(input.keysym.sym > 0) {
 		c = input.keysym.sym;
 	}
+////		string unicodeKeyName = SDL_GetKeyName((SDLKey)input.keysym.unicode);
+////
+////		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] input.keysym.unicode = %d input.keysym.mod = %d input.keysym.sym = %d unicodeKeyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,input.keysym.unicode,input.keysym.mod,input.keysym.sym,unicodeKeyName.c_str());
+////		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.unicode = %d input.keysym.mod = %d input.keysym.sym = %d unicodeKeyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,input.keysym.unicode,input.keysym.mod,input.keysym.sym,unicodeKeyName.c_str());
+//
+//		// When modifiers are pressed the unicode result is wrong
+//		// example CTRL-3 will give the ESCAPE vslue 27 in unicode
+//		if( !(input.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) &&
+//			!(input.keysym.mod & (KMOD_LALT | KMOD_RALT)) &&
+//			!(input.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) ) {
+//			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//
+//			c = input.keysym.sym;
+//			//c = toupper(c);
+//		}
+//		else if((input.keysym.mod & (KMOD_LSHIFT | KMOD_RSHIFT)) &&
+//				(input.keysym.sym == SDLK_QUESTION ||
+//				 input.keysym.sym == SDLK_AT ||
+//				 input.keysym.sym == SDLK_COLON ||
+//				 input.keysym.sym == SDLK_LESS ||
+//				 input.keysym.sym == SDLK_GREATER ||
+//				 input.keysym.sym == SDLK_CARET ||
+//				 input.keysym.sym == SDLK_UNDERSCORE ||
+//				 input.keysym.sym == SDLK_BACKQUOTE ||
+//				 input.keysym.sym == SDLK_EXCLAIM ||
+//				 input.keysym.sym == SDLK_QUOTEDBL ||
+//				 input.keysym.sym == SDLK_HASH ||
+//				 input.keysym.sym == SDLK_DOLLAR ||
+//				 input.keysym.sym == SDLK_AMPERSAND ||
+//				 input.keysym.sym == SDLK_QUOTE ||
+//				 input.keysym.sym == SDLK_LEFTPAREN ||
+//				 input.keysym.sym == SDLK_RIGHTPAREN ||
+//				 input.keysym.sym == SDLK_ASTERISK ||
+//				 input.keysym.sym == SDLK_KP_MULTIPLY ||
+//				 input.keysym.sym == SDLK_PLUS ||
+//				 input.keysym.sym == SDLK_COMMA ||
+//				 input.keysym.sym == SDLK_MINUS ||
+//				 input.keysym.sym == SDLK_PERIOD ||
+//				 input.keysym.sym == SDLK_SLASH ||
+//				 // Need to allow Shift + # key for AZERTY style keyboards
+//				 input.keysym.sym == SDLK_0 ||
+//				 input.keysym.sym == SDLK_1 ||
+//				 input.keysym.sym == SDLK_2 ||
+//				 input.keysym.sym == SDLK_3 ||
+//				 input.keysym.sym == SDLK_4 ||
+//				 input.keysym.sym == SDLK_5 ||
+//				 input.keysym.sym == SDLK_6 ||
+//				 input.keysym.sym == SDLK_7 ||
+//				 input.keysym.sym == SDLK_8 ||
+//				 input.keysym.sym == SDLK_9
+//				)) {
+//			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//
+//			c = input.keysym.sym;
+//		}
+//		else if(input.keysym.mod & (KMOD_LCTRL | KMOD_RCTRL)) {
+//			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//
+//			if( (input.keysym.sym >= SDLK_0 && input.keysym.sym <= SDLK_9) ||
+//				(input.keysym.sym >= SDLK_KP_0 && input.keysym.sym <= SDLK_KP_9)) {
+//				if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//				if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+//
+//				c = input.keysym.sym;
+//			}
+//		}
+//
+//		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(c & 0xFF));
+//		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem, "In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(c & 0xFF));
+//	}
+//	//if(c == 0) {
+//	if(c <= SDLK_UNKNOWN.sym || c >= SDLK_LAST.sym) {
+//		c = input.keysym.sym;
+//	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %u] c = [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,c);
 
@@ -896,67 +762,67 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,vector<int> modifie
 		else if( compareKey >= SDLK_0 && compareKey <= SDLK_9) {
 			switch(compareKey) {
 				case SDLK_0:
-					result = (c == SDLK_KP0);
+					result = (c == SDLK_KP_0);
 					break;
 				case SDLK_1:
-					result = (c == SDLK_KP1);
+					result = (c == SDLK_KP_1);
 					break;
 				case SDLK_2:
-					result = (c == SDLK_KP2);
+					result = (c == SDLK_KP_2);
 					break;
 				case SDLK_3:
-					result = (c == SDLK_KP3);
+					result = (c == SDLK_KP_3);
 					break;
 				case SDLK_4:
-					result = (c == SDLK_KP4);
+					result = (c == SDLK_KP_4);
 					break;
 				case SDLK_5:
-					result = (c == SDLK_KP5);
+					result = (c == SDLK_KP_5);
 					break;
 				case SDLK_6:
-					result = (c == SDLK_KP6);
+					result = (c == SDLK_KP_6);
 					break;
 				case SDLK_7:
-					result = (c == SDLK_KP7);
+					result = (c == SDLK_KP_7);
 					break;
 				case SDLK_8:
-					result = (c == SDLK_KP8);
+					result = (c == SDLK_KP_8);
 					break;
 				case SDLK_9:
-					result = (c == SDLK_KP9);
+					result = (c == SDLK_KP_9);
 					break;
 			}
 		}
-		else if(compareKey >= SDLK_KP0 && compareKey <= SDLK_KP9) {
+		else if(compareKey >= SDLK_KP_0 && compareKey <= SDLK_KP_9) {
 			switch(compareKey) {
-				case SDLK_KP0:
+				case SDLK_KP_0:
 					result = (c == SDLK_0);
 					break;
-				case SDLK_KP1:
+				case SDLK_KP_1:
 					result = (c == SDLK_1);
 					break;
-				case SDLK_KP2:
+				case SDLK_KP_2:
 					result = (c == SDLK_2);
 					break;
-				case SDLK_KP3:
+				case SDLK_KP_3:
 					result = (c == SDLK_3);
 					break;
-				case SDLK_KP4:
+				case SDLK_KP_4:
 					result = (c == SDLK_4);
 					break;
-				case SDLK_KP5:
+				case SDLK_KP_5:
 					result = (c == SDLK_5);
 					break;
-				case SDLK_KP6:
+				case SDLK_KP_6:
 					result = (c == SDLK_6);
 					break;
-				case SDLK_KP7:
+				case SDLK_KP_7:
 					result = (c == SDLK_7);
 					break;
-				case SDLK_KP8:
+				case SDLK_KP_8:
 					result = (c == SDLK_8);
 					break;
-				case SDLK_KP9:
+				case SDLK_KP_9:
 					result = (c == SDLK_9);
 					break;
 			}
@@ -991,10 +857,10 @@ bool isKeyPressed(SDLKey compareKey, SDL_KeyboardEvent input,vector<int> modifie
 wchar_t extractKeyPressedUnicode(SDL_KeyboardEvent input) {
 	wchar_t c = SDLK_UNKNOWN;
 	//if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
-	if(input.keysym.unicode > 0) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.unicode = %d input.keysym.mod = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,input.keysym.unicode,input.keysym.mod);
+	if(input.keysym.sym > 0) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.sym = %d input.keysym.mod = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,input.keysym.sym,input.keysym.mod);
 
-		c = input.keysym.unicode;
+		c = input.keysym.sym;
 //		if(c <= SDLK_UNKNOWN || c >= SDLK_LAST) {
 //			c = SDLKey(c & 0xFF);
 //		}
@@ -1057,10 +923,10 @@ vector<int> extractKeyPressedUnicodeLength(string text) {
 SDLKey extractKeyPressed(SDL_KeyboardEvent input) {
 	SDLKey c = SDLK_UNKNOWN;
 	//if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
-	if(input.keysym.unicode > 0) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.unicode = %d input.keysym.mod = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,input.keysym.unicode,input.keysym.mod);
+	if(input.keysym.sym > 0) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.sym = %d input.keysym.mod = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,input.keysym.sym,input.keysym.mod);
 
-		c = (SDLKey)input.keysym.unicode;
+		c = (SDLKey)input.keysym.sym;
 //		if(c <= SDLK_UNKNOWN || c >= SDLK_LAST) {
 //			c = SDLKey(c & 0xFF);
 //		}
@@ -1070,7 +936,7 @@ SDLKey extractKeyPressed(SDL_KeyboardEvent input) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(c & 0xFF));
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(c & 0xFF));
 	}
-	if(c <= SDLK_UNKNOWN || c >= SDLK_LAST) {
+	if(c <= SDLK_UNKNOWN) {
 		c = input.keysym.sym;
 	}
 
@@ -1128,24 +994,22 @@ bool isAllowedInputTextKey(wchar_t &key) {
 	key != SDLK_F13 &&
 	key != SDLK_F14 &&
 	key != SDLK_F15 &&
-	key != SDLK_NUMLOCK &&
+	key != SDLK_NUMLOCKCLEAR &&
 	key != SDLK_CAPSLOCK &&
-	key != SDLK_SCROLLOCK &&
+	key != SDLK_SCROLLLOCK &&
 	key != SDLK_RSHIFT &&
 	key != SDLK_LSHIFT &&
 	key != SDLK_RCTRL &&
 	key != SDLK_LCTRL &&
 	key != SDLK_RALT &&
 	key != SDLK_LALT &&
-	key != SDLK_RMETA &&
-	key != SDLK_LMETA &&
-	key != SDLK_LSUPER &&
-	key != SDLK_RSUPER &&
+	key != SDLK_RGUI &&
+	key != SDLK_LGUI &&
 	key != SDLK_MODE &&
 	key != SDLK_HELP &&
-	key != SDLK_PRINT &&
+	key != SDLK_PRINTSCREEN &&
 	key != SDLK_SYSREQ &&
-	key != SDLK_BREAK &&
+	key != SDLK_PAUSE &&
 	key != SDLK_MENU &&
 	key != SDLK_POWER);
 
@@ -1192,24 +1056,22 @@ bool isAllowedInputTextKey(SDLKey key) {
 	key != SDLK_F13 &&
 	key != SDLK_F14 &&
 	key != SDLK_F15 &&
-	key != SDLK_NUMLOCK &&
+	key != SDLK_NUMLOCKCLEAR &&
 	key != SDLK_CAPSLOCK &&
-	key != SDLK_SCROLLOCK &&
+	key != SDLK_SCROLLLOCK &&
 	key != SDLK_RSHIFT &&
 	key != SDLK_LSHIFT &&
 	key != SDLK_RCTRL &&
 	key != SDLK_LCTRL &&
 	key != SDLK_RALT &&
 	key != SDLK_LALT &&
-	key != SDLK_RMETA &&
-	key != SDLK_LMETA &&
-	key != SDLK_LSUPER &&
-	key != SDLK_RSUPER &&
+	key != SDLK_RGUI &&
+	key != SDLK_LGUI &&
 	key != SDLK_MODE &&
 	key != SDLK_HELP &&
-	key != SDLK_PRINT &&
+	key != SDLK_PRINTSCREEN &&
 	key != SDLK_SYSREQ &&
-	key != SDLK_BREAK &&
+	key != SDLK_PAUSE &&
 	key != SDLK_MENU &&
 	key != SDLK_POWER);
 
@@ -1232,10 +1094,10 @@ bool Window::isKeyStateModPressed(int mod) {
 wchar_t Window::extractLastKeyPressed() {
 	wchar_t c = SDLK_UNKNOWN;
 	//if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
-	if(keystate.unicode > 0) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.unicode = %d input.keysym.mod = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,keystate.unicode,keystate.mod);
+	if(keystate.sym > 0) {
+		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.sym = %d input.keysym.mod = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,keystate.sym,keystate.mod);
 
-		c = keystate.unicode;
+		c = keystate.sym;
 //		if(c <= SDLK_UNKNOWN || c >= SDLK_LAST) {
 //			c = SDLKey(c & 0xFF);
 //		}

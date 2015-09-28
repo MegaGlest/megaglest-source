@@ -13,7 +13,7 @@
 
 #include <string>
 
-struct SDL_Surface;
+struct SDL_Window;
 class ctx;
 
 using namespace std;
@@ -32,7 +32,7 @@ protected:
 
 	string filename;
 	string filenameFallback;
-	SDL_Surface *surface;
+	SDL_Window *window;
 	int x;
 	int y;
 	int width;
@@ -60,7 +60,7 @@ public:
 	VideoPlayer(VideoLoadingCallbackInterface *loadingCB,
 				 string filename,
 				 string filenameFallback,
-				 SDL_Surface *surface, int x, int y,
+				 SDL_Window *window, int x, int y,
 				 int width, int height, int colorBits,
 				 bool loop, string pluginsPath,bool verboseEnabled=false);
 	virtual ~VideoPlayer();

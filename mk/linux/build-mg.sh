@@ -104,7 +104,7 @@ BREAKPAD_ROOT="$SCRIPTDIR/../../google-breakpad/"
 # by our installers.
 # For more cmake/build options refer to 
 #   http://wiki.megaglest.org/Linux_Compiling#Building_using_CMake_by_Hand
-EXTRA_CMAKE_OPTIONS=
+EXTRA_CMAKE_OPTIONS=-DWANT_USE_SDL2=ON
 
 # Build threads
 # By default we use all physical CPU cores to build.
