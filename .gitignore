@@ -51,6 +51,8 @@ $RECYCLE.BIN/
 !.gitattributes
 !.gitmodules
 
+!.travis-before_install.sh
+
 ## Repo
 *.blend
 *.blend1
