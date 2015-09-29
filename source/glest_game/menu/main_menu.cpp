@@ -119,7 +119,9 @@ void MainMenu::initBackgroundVideo() {
 		string introVideoFileFallback = CoreData::getInstance().getMainMenuVideoFilenameFallback();
 
 		Context *c= GraphicsInterface::getInstance().getCurrentContext();
-		SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+		PlatformContextGl *glCtx = static_cast<ContextGl*>(c)->getPlatformContextGlPtr();
+		SDL_Window *window = glCtx->getScreenWindow();
+		SDL_Surface *screen = glCtx->getScreenSurface();
 
 		string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 		//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
@@ -127,7 +129,7 @@ void MainMenu::initBackgroundVideo() {
 				&Renderer::getInstance(),
 				introVideoFile,
 				introVideoFileFallback,
-				screen,
+				window,
 				0,0,
 				screen->w,
 				screen->h,
@@ -404,7 +406,7 @@ bool MenuState::keyPressEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInpu
 	if(activeInputLabel != NULL) {
 		int maxTextSize= activeInputLabel->getMaxEditWidth();
 
-		SDLKey key = extractKeyPressed(c);
+		SDL_Keycode key = extractKeyPressed(c);
 		if(isKeyPressed(SDLK_ESCAPE,c,false) == true ||
 				isKeyPressed(SDLK_RETURN,c,false) == true ) {
 			setActiveInputLabel(NULL,activeInputLabelPtr);

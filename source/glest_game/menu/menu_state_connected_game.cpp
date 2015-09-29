@@ -5035,7 +5035,9 @@ void MenuStateConnectedGame::initFactionPreview(const GameSettings *gameSettings
 				string introVideoFileFallback = factionVideoUrlFallback;
 
 				Context *c= GraphicsInterface::getInstance().getCurrentContext();
-				SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+				PlatformContextGl *glCtx = static_cast<ContextGl*>(c)->getPlatformContextGlPtr();
+				SDL_Window *window = glCtx->getScreenWindow();
+				SDL_Surface *screen = glCtx->getScreenSurface();
 
 				string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 				//printf("screen->w = %d screen->h = %d screen->format->BitsPerPixel = %d\n",screen->w,screen->h,screen->format->BitsPerPixel);
@@ -5043,7 +5045,7 @@ void MenuStateConnectedGame::initFactionPreview(const GameSettings *gameSettings
 						&Renderer::getInstance(),
 						introVideoFile,
 						introVideoFileFallback,
-						screen,
+						window,
 						0,0,
 						screen->w,
 						screen->h,

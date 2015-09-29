@@ -157,12 +157,12 @@ MenuStateKeysetup::MenuStateKeysetup(Program *program, MainMenu *mainMenu,
 			string keyName = mergedProperties[i].second;
 			if(keyName.length() > 0) {
 				//char c = configKeys.translateStringToCharKey(keyName);
-				SDLKey c = configKeys.translateStringToSDLKey(keyName);
-				if(c > SDLK_UNKNOWN && c < SDLK_LAST) {
-					SDLKey keysym = static_cast<SDLKey>(c);
+				SDL_Keycode c = configKeys.translateStringToSDLKey(keyName);
+				if(c > SDLK_UNKNOWN && c < SDL_NUM_SCANCODES) {
+					SDL_Keycode keysym = static_cast<SDL_Keycode>(c);
 					// SDL skips capital letters
 					if(keysym >= 65 && keysym <= 90) {
-						keysym = (SDLKey)((int)keysym + 32);
+						keysym = (SDL_Keycode)((int)keysym + 32);
 					}
 					keyName = SDL_GetKeyName(keysym);
 				}
@@ -492,7 +492,7 @@ void MenuStateKeysetup::keyDown(SDL_KeyboardEvent key) {
 	//printf("\nkeyDown [%d]\n",hotkeyChar);
 
 	string keyName = "";
-	if(hotkeyChar > SDLK_UNKNOWN && hotkeyChar < SDLK_LAST) {
+	if(hotkeyChar > SDLK_UNKNOWN && hotkeyChar < SDL_NUM_SCANCODES) {
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key.keysym.sym);
 		keyName = SDL_GetKeyName(hotkeyChar);
 	}
@@ -522,7 +522,7 @@ void MenuStateKeysetup::keyDown(SDL_KeyboardEvent key) {
 	char *utfStr = ConvertToUTF8(&szCharText[0]);
 
 	char szBuf[8096] = "";
-	snprintf(szBuf,8096,"  %s [%s][%d][%d][%d][%d]",keyName.c_str(),utfStr,key.keysym.sym,hotkeyChar,key.keysym.unicode,key.keysym.mod);
+	snprintf(szBuf,8096,"  %s [%s][%d][%d][%d]",keyName.c_str(),utfStr,key.keysym.sym,hotkeyChar,key.keysym.mod);
 	labelTestValue.setText(szBuf);
 
 	delete [] utfStr;
@@ -541,7 +541,7 @@ void MenuStateKeysetup::keyUp(SDL_KeyboardEvent key) {
     		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,hotkeyChar,key.keysym.sym);
 
     		string keyName = "";
-			if(hotkeyChar > SDLK_UNKNOWN && hotkeyChar < SDLK_LAST) {
+			if(hotkeyChar > SDLK_UNKNOWN && hotkeyChar < SDL_NUM_SCANCODES) {
 				keyName = SDL_GetKeyName(hotkeyChar);
 			}
 			key.keysym.sym = hotkeyChar;

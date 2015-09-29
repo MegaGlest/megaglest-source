@@ -459,11 +459,11 @@ const string Config::getString(const string &key,const char *defaultValueIfNotFo
 	return properties.first.getString(key,defaultValueIfNotFound);
 }
 
-SDLKey Config::translateStringToSDLKey(const string &value) const {
-	SDLKey result = SDLK_UNKNOWN;
+SDL_Keycode Config::translateStringToSDLKey(const string &value) const {
+	SDL_Keycode result = SDLK_UNKNOWN;
 
 	if(IsNumeric(value.c_str()) == true) {
-		result = (SDLKey)strToInt(value);
+		result = (SDL_Keycode)strToInt(value);
 	}
 	else if(value.substr(0,2) == "vk") {
 		if(value == "vkLeft") {
@@ -524,7 +524,7 @@ SDLKey Config::translateStringToSDLKey(const string &value) const {
 			result = SDLK_F12;
 		}
 		else if(value == "vkPrint") {
-			result = SDLK_PRINT;
+			result = SDLK_PRINTSCREEN;
 		}
 		else if(value == "vkPause") {
 			result = SDLK_PAUSE;
@@ -536,13 +536,13 @@ SDLKey Config::translateStringToSDLKey(const string &value) const {
 	}
 	else if(value.length() >= 1) {
 		if(value.length() == 3 && value[0] == '\'' && value[2] == '\'') {
-			result = (SDLKey)value[1];
+			result = (SDL_Keycode)value[1];
 		}
 		else {
 			bool foundKey = false;
 			if(value.length() > 1) {
-				for(int i = SDLK_UNKNOWN; i < SDLK_LAST; ++i) {
-					SDLKey key = static_cast<SDLKey>(i);
+				for(int i = SDLK_UNKNOWN; i < SDL_NUM_SCANCODES; ++i) {
+					SDL_Keycode key = static_cast<SDL_Keycode>(i);
 					string keyName = SDL_GetKeyName(key);
 					if(value == keyName) {
 						result = key;
@@ -553,7 +553,7 @@ SDLKey Config::translateStringToSDLKey(const string &value) const {
 			}
 
 			if(foundKey == false) {
-				result = (SDLKey)value[0];
+				result = (SDL_Keycode)value[0];
 			}
 		}
 	}
@@ -567,7 +567,7 @@ SDLKey Config::translateStringToSDLKey(const string &value) const {
 	return result;
 }
 
-SDLKey Config::getSDLKey(const char *key) const {
+SDL_Keycode Config::getSDLKey(const char *key) const {
 	if(fileLoaded.second == true &&
 		properties.second.getString(key, defaultNotFoundValue.c_str()) != defaultNotFoundValue) {
 

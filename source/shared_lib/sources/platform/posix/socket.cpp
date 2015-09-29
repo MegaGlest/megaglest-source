@@ -2481,7 +2481,7 @@ void ServerSocket::NETdiscoverUPnPDevices() {
     // WATCH OUT! Because the thread takes void * as a parameter we MUST cast to the pointer type
     // used on the other side (inside the thread)
 	//printf("STARTING UPNP Thread\n");
-	ServerSocket::upnpdiscoverThread = SDL_CreateThread(&UPNP_Tools::upnp_init, dynamic_cast<UPNPInitInterface *>(this));
+	ServerSocket::upnpdiscoverThread = SDL_CreateThread(&UPNP_Tools::upnp_init, "upnpdiscoverThread", dynamic_cast<UPNPInitInterface *>(this));
 	safeMutexUPNP.ReleaseLock();
 	//printf("In [%s::%s] Line: %d safeMutexUPNP\n",__FILE__,__FUNCTION__,__LINE__);
 

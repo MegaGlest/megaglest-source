@@ -48,7 +48,7 @@ int PlatformContextGl::charSet = 1;
 PlatformContextGl::PlatformContextGl() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 	icon = NULL;
-	screen = NULL;
+	window = NULL;
 }
 
 PlatformContextGl::~PlatformContextGl() {
@@ -57,6 +57,10 @@ PlatformContextGl::~PlatformContextGl() {
 	end();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+}
+
+SDL_Surface * PlatformContextGl::getScreenSurface() {
+	return SDL_GetWindowSurface(window);
 }
 
 void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
@@ -92,20 +96,20 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to set resolution: %d x %d, colorBits = %d.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,resW,resH,colorBits);
 
-		if(screen != NULL) {
-			SDL_FreeSurface(SDL_GetWindowSurface(screen));
-			screen = NULL;
+		if(window != NULL) {
+			SDL_FreeSurface(getScreenSurface());
+			window = NULL;
 		}
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		//screen = SDL_CreateWindow(resW, resH, colorBits, flags);
-		screen = SDL_CreateWindow("MG",
+		window = SDL_CreateWindow("MG",
                 SDL_WINDOWPOS_UNDEFINED,
                 SDL_WINDOWPOS_UNDEFINED,
                 resW, resH, flags);
 
-		if(screen == 0) {
+		if(window == 0) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 			std::ostringstream msg;
@@ -118,35 +122,37 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg.str().c_str());
 
 			//screen = SDL_SetVideoMode(resW, resH, i, flags);
-			screen = SDL_CreateWindow("MG",
+			window = SDL_CreateWindow("MG",
 					SDL_WINDOWPOS_UNDEFINED,
 					SDL_WINDOWPOS_UNDEFINED,
 					resW, resH, flags);
 
-			if(screen == 0) {
+			if(window == 0) {
 				// try to switch to native desktop resolution
-				screen = SDL_CreateWindow("MG",
+				window = SDL_CreateWindow("MG",
 					SDL_WINDOWPOS_UNDEFINED,
 					SDL_WINDOWPOS_UNDEFINED,
 					 0, 0,
 					 SDL_WINDOW_FULLSCREEN_DESKTOP|flags);
 			}
-			if(screen == 0) {
+			if(window == 0) {
 				// try to revert to 640x480
-				screen = SDL_CreateWindow("MG",
+				window = SDL_CreateWindow("MG",
 					SDL_WINDOWPOS_UNDEFINED,
 					SDL_WINDOWPOS_UNDEFINED,
 					 650, 480,
 					SDL_WINDOW_FULLSCREEN_DESKTOP);
 			}
-			if(screen == 0) {
+			if(window == 0) {
 				throw std::runtime_error(msg.str());
 			}
 		}
 
+		glcontext = SDL_GL_CreateContext(window);
+
 		int h;
 		int w;
-		SDL_GetWindowSize(screen, &w, &h);
+		SDL_GetWindowSize(window, &w, &h);
 		glViewport( 0, 0, w, h ) ;
 
 #ifndef WIN32
@@ -219,7 +225,7 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 					printf("Icon Load Error #2: %s\n", SDL_GetError());
 				}
 				else {
-					SDL_SetWindowIcon(screen,icon);
+					SDL_SetWindowIcon(window,icon);
 				}
 			}
 		}
@@ -257,7 +263,7 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 		if(gammaValue != 0.0) {
 			//printf("Attempting to call SDL_SetGamma using value %f\n", gammaValue);
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			if (SDL_SetWindowBrightness(screen, gammaValue) < 0) {
+			if (SDL_SetWindowBrightness(window, gammaValue) < 0) {
 				printf("WARNING, SDL_SetWindowBrightness failed using value %f [%s]\n", gammaValue,SDL_GetError());
 			}
 		}
@@ -281,11 +287,11 @@ void PlatformContextGl::end() {
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-	if(screen != NULL) {
+	if(window != NULL) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
-		SDL_DestroyWindow(screen);
-		screen = NULL;
+		SDL_DestroyWindow(window);
+		window = NULL;
 	}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -296,7 +302,7 @@ void PlatformContextGl::makeCurrent() {
 
 void PlatformContextGl::swapBuffers() {
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
-		 SDL_GL_SwapWindow(screen);
+		 SDL_GL_SwapWindow(window);
 	}
 }
 	

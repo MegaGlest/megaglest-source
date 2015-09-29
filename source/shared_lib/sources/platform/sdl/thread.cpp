@@ -213,7 +213,7 @@ Thread::~Thread() {
 
 		if(isThreadExecuteCompleteStatus() == false) {
 			printf("**WARNING** thread destructor will KILL thread [%p]...\n",thread);
-			SDL_KillThread(thread);
+			//SDL_KillThread(thread);
 		}
 		else {
 			SDL_WaitThread(thread, NULL);
@@ -248,7 +248,7 @@ void Thread::start() {
 	BaseThread *base_thread = dynamic_cast<BaseThread *>(this);
 	if(base_thread) base_thread->setStarted(true);
 
-	thread = SDL_CreateThread(beginExecution, this);
+	thread = SDL_CreateThread(beginExecution, base_thread->getUniqueID().c_str(), this);
 	if(thread == NULL) {
 		if(base_thread) base_thread->setStarted(false);
 
@@ -380,7 +380,7 @@ void Thread::queueAutoCleanThread() {
 
 void Thread::kill() {
 	MutexSafeWrapper safeMutex(mutexthreadAccessor);
-	SDL_KillThread(thread);
+	//SDL_KillThread(thread);
 	thread = NULL;
 }
 

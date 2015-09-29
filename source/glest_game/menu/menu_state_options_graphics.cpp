@@ -661,7 +661,6 @@ void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton)
 			if(gammaValue==0.0f) gammaValue=1.0f;
 			if(gammaValue!=0.0){
 				program->getWindow()->setGamma(gammaValue);
-				SDL_SetGamma(gammaValue, gammaValue, gammaValue);
 			}
 		}
 		if(this->parentUI != NULL) {
@@ -725,7 +724,6 @@ void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton)
 			float gammaValue=strToFloat(listBoxGammaCorrection.getSelectedItem());
 			if(gammaValue!=0.0){
 				program->getWindow()->setGamma(gammaValue);
-				SDL_SetGamma(gammaValue, gammaValue, gammaValue);
 			}
 		}
 		checkBoxTextures3D.mouseClick(x, y);

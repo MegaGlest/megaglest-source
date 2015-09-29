@@ -7610,7 +7610,6 @@ void Renderer::loadConfig() {
 		//if(this->program != NULL) {
 		if(gammaValue != 0.0) {
 			this->program->getWindow()->setGamma(gammaValue);
-			SDL_SetGamma(gammaValue, gammaValue, gammaValue);
 		}
 		//}
 	}

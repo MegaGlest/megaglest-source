@@ -700,11 +700,11 @@ void MenuStateJoinGame::keyPress(SDL_KeyboardEvent c) {
 
 		//Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
-		SDLKey key = extractKeyPressed(c);
+		SDL_Keycode key = extractKeyPressed(c);
 
 		//if(c>='0' && c<='9') {
 		if( (key >= SDLK_0 && key <= SDLK_9) ||
-			(key >= SDLK_KP0 && key <= SDLK_KP9)) {
+			(key >= SDLK_KP_0 && key <= SDLK_KP_9)) {
 			if((int)labelServerIp.getText().size() < maxTextSize) {
 				string text= labelServerIp.getText();
 				//text.insert(text.end()-1, key);

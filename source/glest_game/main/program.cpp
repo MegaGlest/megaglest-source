@@ -63,6 +63,10 @@ ProgramState::ProgramState(Program *program) {
 	this->startY=0;
 }
 
+void ProgramState::restoreToStartXY() {
+	SDL_WarpMouseInWindow(this->program->getWindow()->getSDLWindow(), startX, startY);
+}
+
 void ProgramState::incrementFps() {
 	fps++;
 }
@@ -887,7 +891,7 @@ void Program::restoreDisplaySettings(){
 	Config &config= Config::getInstance();
 
 	if(!config.getBool("Windowed")){
-		restoreVideoMode();
+		restoreVideoMode(this->getWindow()->getSDLWindow());
 	}
 }
 

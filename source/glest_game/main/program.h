@@ -98,7 +98,7 @@ public:
 	virtual void keyUp(SDL_KeyboardEvent key){};
 	virtual void keyPress(SDL_KeyboardEvent c){};
 	virtual void setStartXY(int X,int Y) { startX=X; startY=Y; }
-	virtual void restoreToStartXY() { SDL_WarpMouse(startX, startY); }
+	virtual void restoreToStartXY();
 	virtual bool isInSpecialKeyCaptureEvent() { return false; }
 	virtual bool quitTriggered() { return false; }
 	virtual Stats quitAndToggleState() { return Stats(); };

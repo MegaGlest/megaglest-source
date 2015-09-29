@@ -4854,10 +4854,11 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 					//char groupHotKey = configKeys.getCharKey(keyName.c_str());
 					//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keyName [%s] group index = %d, key = [%c] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,keyName.c_str(),idx,groupHotKey,groupHotKey);
 
-					SDLKey groupHotKey = configKeys.getSDLKey(keyName.c_str());
+					SDL_Keycode groupHotKey = configKeys.getSDLKey(keyName.c_str());
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] keyName [%s] group index = %d, key = [%c] [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,keyName.c_str(),idx,groupHotKey,groupHotKey);
 
-					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("input.keysym.mod = %d groupHotKey = %d key = %d (%d) [%s] isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,key.keysym.unicode,keyName.c_str(),isKeyPressed(groupHotKey,key));
+					//if(SystemFlags::VERBOSE_MODE_ENABLED) printf("input.keysym.mod = %d groupHotKey = %d key = %d (%d) [%s] isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,key.keysym.unicode,keyName.c_str(),isKeyPressed(groupHotKey,key));
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("input.keysym.mod = %d groupHotKey = %d key = (%d) [%s] isgroup = %d\n",key.keysym.mod,groupHotKey,keyName.c_str(),isKeyPressed(groupHotKey,key));
 					//printf("input.keysym.mod = %d groupHotKey = %d key = %d (%d) [%s] isgroup = %d\n",key.keysym.mod,groupHotKey,key.keysym.sym,key.keysym.unicode,keyName.c_str(),isKeyPressed(groupHotKey,key));
 					//printf("IS GROUP KEY %d   scancode:%d sym:%d groupHotKey=%d  \n",idx,key.keysym.scancode,key.keysym.sym,groupHotKey);
 					if(key.keysym.sym==groupHotKey){
@@ -6348,7 +6349,9 @@ void Game::playStreamingVideo(const string &playVideo) {
 		if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
 				::Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
 			Context *c= GraphicsInterface::getInstance().getCurrentContext();
-			SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+			PlatformContextGl *glCtx = static_cast<ContextGl*>(c)->getPlatformContextGlPtr();
+			SDL_Window *window = glCtx->getScreenWindow();
+			SDL_Surface *screen = glCtx->getScreenSurface();
 
 			string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 
@@ -6356,7 +6359,7 @@ void Game::playStreamingVideo(const string &playVideo) {
 					&Renderer::getInstance(),
 					playVideo,
 					"",
-					screen,
+					window,
 					0,0,
 					screen->w,
 					screen->h,
@@ -6374,7 +6377,9 @@ void Game::playStreamingVideo(const string &playVideo) {
 			if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false &&
 					::Shared::Graphics::VideoPlayer::hasBackEndVideoPlayer() == true) {
 				Context *c= GraphicsInterface::getInstance().getCurrentContext();
-				SDL_Surface *screen = static_cast<ContextGl*>(c)->getPlatformContextGlPtr()->getScreen();
+				PlatformContextGl *glCtx = static_cast<ContextGl*>(c)->getPlatformContextGlPtr();
+				SDL_Window *window = glCtx->getScreenWindow();
+				SDL_Surface *screen = glCtx->getScreenSurface();
 
 				string vlcPluginsPath = Config::getInstance().getString("VideoPlayerPluginsPath","");
 
@@ -6382,7 +6387,7 @@ void Game::playStreamingVideo(const string &playVideo) {
 						&Renderer::getInstance(),
 						playVideo,
 						"",
-						screen,
+						window,
 						0,0,
 						screen->w,
 						screen->h,

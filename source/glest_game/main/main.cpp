@@ -202,7 +202,7 @@ static void cleanupProcessObjects() {
 
 	if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
 		showCursor(true);
-		restoreVideoMode(true);
+		restoreVideoMode(::Shared::Platform::Window::getSDLWindow(), true);
 	}
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("#1 IRCCLient Cache SHUTDOWN\n");
@@ -4265,7 +4265,7 @@ int glestMain(int argc, char** argv) {
 		print_SDL_version("SDL compile-time version", &ver);
 
         // Prints the run-time version
-        ver = *SDL_Linked_Version();
+		SDL_GetVersion(&ver);
         print_SDL_version("SDL runtime version", &ver);
         //const SDL_VideoInfo *vidInfo = SDL_GetVideoInfo();
         //printf("Video card Memory: %u\n",vidInfo->video_mem);

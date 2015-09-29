@@ -31,6 +31,40 @@ namespace Shared{ namespace Platform{
 //	class WindowGl
 // =====================================================
 
+WindowGl::WindowGl() : Window() {
+}
+WindowGl::WindowGl(SDL_Window *sdlWindow) : Window(sdlWindow) {
+}
+WindowGl::~WindowGl() {
+}
+
+void WindowGl::setGamma(SDL_Window *window,float gammaValue) {
+	//SDL_SetGamma(gammaValue, gammaValue, gammaValue);
+	//SDL_SetWindowGammaRamp(getSDLWindow(), gammaValue, gammaValue, gammaValue);
+	gammaValue = clamp(gammaValue, 0.1f, 10.0f);
+
+	Uint16 red_ramp[256];
+	Uint16 green_ramp[256];
+	Uint16 blue_ramp[256];
+
+	SDL_CalculateGammaRamp(gammaValue, red_ramp);
+	SDL_memcpy(green_ramp, red_ramp, sizeof(red_ramp));
+	SDL_memcpy(blue_ramp, red_ramp, sizeof(red_ramp));
+
+	SDL_SetWindowGammaRamp(window, red_ramp, green_ramp, blue_ramp);
+}
+void WindowGl::setGamma(float gammaValue) {
+	context.setGammaValue(gammaValue);
+	WindowGl::setGamma(getSDLWindow(),gammaValue);
+}
+
+SDL_Window * WindowGl::getScreenWindow() {
+	return context.getPlatformContextGlPtr()->getScreenWindow();
+}
+SDL_Surface * WindowGl::getScreenSurface() {
+	return context.getPlatformContextGlPtr()->getScreenSurface();
+}
+
 void WindowGl::initGl(int colorBits, int depthBits, int stencilBits,
 		             bool hardware_acceleration, bool fullscreen_anti_aliasing,
 		             float gammaValue) {
@@ -42,6 +76,7 @@ void WindowGl::initGl(int colorBits, int depthBits, int stencilBits,
 	context.setGammaValue(gammaValue);
 	
 	context.init();
+	setSDLWindow(context.getPlatformContextGlPtr()->getScreenWindow());
 }
 
 void WindowGl::makeCurrentGl() {
