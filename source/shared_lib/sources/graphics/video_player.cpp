@@ -919,7 +919,7 @@ bool VideoPlayer::initPlayer(string mediaURL) {
 
 #if !defined(LIBVLC_VERSION_PRE_2) && !defined(LIBVLC_VERSION_PRE_1_1_0)
 		libvlc_video_set_callbacks(ctxPtr->mp, lock, unlock, display, ctxPtr);
-		libvlc_video_set_format(ctxPtr->mp, "RV16", width, height, this->window->pitch);
+		libvlc_video_set_format(ctxPtr->mp, "RV16", width, height, SDL_GetWindowSurface(this->window)->pitch);
 
 #endif
 
