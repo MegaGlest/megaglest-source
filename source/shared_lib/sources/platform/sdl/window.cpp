@@ -166,6 +166,7 @@ bool Window::handleEvent() {
 
 	//codeLocation = "b";
 
+	SDL_StartTextInput();
 	while(SDL_PollEvent(&event)) {
 		try {
 			codeLocation = "c";
@@ -235,6 +236,7 @@ bool Window::handleEvent() {
 					}
 					break;
 				}
+
 				case SDL_KEYDOWN:
 					//printf("In [%s::%s] Line :%d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -681,7 +683,8 @@ bool isKeyPressed(SDL_Keycode compareKey, SDL_KeyboardEvent input,bool modifiers
 	return result;
 }
 bool isKeyPressed(SDL_Keycode compareKey, SDL_KeyboardEvent input,vector<int> modifiersToCheck) {
-	Uint16 c = SDLK_UNKNOWN;
+	//Uint16 c = SDLK_UNKNOWN;
+	SDL_Keycode c = SDLK_UNKNOWN;
 	//if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
 	if(input.keysym.sym > 0) {
 		c = input.keysym.sym;
@@ -780,6 +783,8 @@ bool isKeyPressed(SDL_Keycode compareKey, SDL_KeyboardEvent input,vector<int> mo
 	}
 
 	bool result = (c == compareKey);
+	//printf("result = %d input = %d compare = %d\n",result,c,compareKey);
+
 	if(result == false) {
 		if(compareKey == SDLK_RETURN) {
 			result = (c == SDLK_KP_ENTER);
@@ -963,7 +968,7 @@ SDL_Keycode extractKeyPressed(SDL_KeyboardEvent input) {
 	if(input.keysym.sym > 0) {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.sym = %d input.keysym.mod = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,input.keysym.sym,input.keysym.mod);
 
-		c = (SDL_Keycode)input.keysym.sym;
+		c = input.keysym.sym;
 //		if(c <= SDLK_UNKNOWN || c >= SDLK_LAST) {
 //			c = SDLKey(c & 0xFF);
 //		}
@@ -983,7 +988,7 @@ SDL_Keycode extractKeyPressed(SDL_KeyboardEvent input) {
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] returning key [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,c);
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] returning key [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,c);
 
-	string pressKeyName = SDL_GetKeyName((SDL_Keycode)c);
+	string pressKeyName = SDL_GetKeyName(c);
 	//string inputKeyName = SDL_GetKeyName(input.keysym.sym);
 
 	//printf ("PRESS pressed key [%d - %s] input.keysym.sym [%d] input.keysym.unicode [%d] mod = %d\n",

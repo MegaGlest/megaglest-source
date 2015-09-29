@@ -541,14 +541,10 @@ SDL_Keycode Config::translateStringToSDLKey(const string &value) const {
 		else {
 			bool foundKey = false;
 			if(value.length() > 1) {
-				for(int i = SDLK_UNKNOWN; i < SDL_NUM_SCANCODES; ++i) {
-					SDL_Keycode key = static_cast<SDL_Keycode>(i);
-					string keyName = SDL_GetKeyName(key);
-					if(value == keyName) {
-						result = key;
-						foundKey = true;
-						break;
-					}
+				SDL_Keycode lookup = SDL_GetKeyFromName(value.c_str());
+				if(lookup != SDLK_UNKNOWN) {
+					result = lookup;
+					foundKey = true;
 				}
 			}
 

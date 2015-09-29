@@ -706,6 +706,7 @@ void MenuStateRoot::keyDown(SDL_KeyboardEvent key) {
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 	//exit
 	//if(key == configKeys.getCharKey("ExitKey")) {
+	//printf("Check Root menu exit key!\n");
 	if(isKeyPressed(configKeys.getSDLKey("ExitKey"),key) == true) {
 		Lang &lang= Lang::getInstance();
 		showMessageBox(lang.getString("ExitGameQuestion"), "", true);
