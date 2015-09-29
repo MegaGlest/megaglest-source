@@ -23,6 +23,7 @@ before_install:
   - sudo apt-get update -qq # UPDATE REPOS
   #- sudo apt-get upgrade -qq # UPGRADE SYSTEM TO LATEST PATCH LEVEL
   - sudo apt-get install -y -qq
+  - sudo apt-get install libsdl2-dev
   - sudo mk/linux/setupBuildDeps.sh --quiet # INSTALL OUR DEPENDENCIES
 
 script:
