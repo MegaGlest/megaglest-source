@@ -257,7 +257,7 @@ bool Window::handleEvent() {
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] scancode [%d] keyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.scancode,keyName.c_str());
 
 					/* handle ALT+Return */
-					if((keyName == "return" || keyName == "enter")
+					if((keyName == "Return" || keyName == "Enter")
 							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] SDLK_RETURN pressed.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 						toggleFullscreen();
