@@ -523,7 +523,7 @@ void MenuStateOptionsGraphics::revertScreenMode(){
 				   config.getBool("HardwareAcceleration","false"),
 				   config.getBool("FullScreenAntiAliasing","false"),
 				   config.getFloat("GammaValue","0.0"));
-
+	window->setText(config.getString("WindowTitle","MegaGlest"));
 	Metrics::reload();
 	this->mainMenu->init();
 }

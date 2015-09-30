@@ -754,7 +754,7 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	//window
-	window->setText("MegaGlest");
+	//window->setText("MegaGlest");
 	window->setStyle(config.getBool("Windowed")? wsWindowedFixed: wsFullscreen);
 	window->setPos(0, 0);
 	window->setSize(config.getInt("ScreenWidth"), config.getInt("ScreenHeight"));
@@ -805,7 +805,7 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 			       config.getBool("HardwareAcceleration","false"),
 			       config.getBool("FullScreenAntiAliasing","false"),
 			       config.getFloat("GammaValue","0.0"));
-
+	window->setText(config.getString("WindowTitle","MegaGlest"));
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	window->makeCurrentGl();
@@ -947,6 +947,7 @@ void Program::reInitGl() {
 				       config.getBool("HardwareAcceleration","false"),
 				       config.getBool("FullScreenAntiAliasing","false"),
 				       config.getFloat("GammaValue","0.0"));
+		window->setText(config.getString("WindowTitle","MegaGlest"));
 	}
 }
 
