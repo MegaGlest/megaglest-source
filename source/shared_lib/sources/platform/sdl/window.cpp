@@ -80,6 +80,31 @@ static HWND GetSDLWindow()
 
 #endif
 
+static bool isUnprintableChar(SDL_keysym key)
+{
+    // U+0000 to U+001F are control characters
+    if (key.sym < 0x20)
+    {
+        switch (key.sym)
+        {
+            // We want to allow some, which are handled specially
+        case SDLK_RETURN: case SDLK_TAB:
+        case SDLK_BACKSPACE: case SDLK_DELETE:
+        case SDLK_HOME: case SDLK_END:
+        case SDLK_LEFT: case SDLK_RIGHT:
+        case SDLK_UP: case SDLK_DOWN:
+        case SDLK_PAGEUP: case SDLK_PAGEDOWN:
+            return true;
+
+            // Ignore the others
+        default:
+            return true;
+        }
+    }
+
+    return false;
+}
+
 Window::Window()  {
 	this->sdlWindow=0;
 	// Default to 1x1 until set by caller to avoid divide by 0
@@ -237,8 +262,8 @@ bool Window::handleEvent() {
 					break;
 				}
 
-				case SDL_KEYDOWN:
-					//printf("In [%s::%s] Line :%d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+				case SDL_TEXTINPUT:
+				//case SDL_TEXTEDITING:
 
 					{
 
@@ -252,9 +277,11 @@ bool Window::handleEvent() {
 //#endif
 					keystate = event.key.keysym;
 
-					string keyName = SDL_GetKeyName(event.key.keysym.sym);
+					string keyName = SDL_GetKeyName(event.text.text[0]);
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Raw SDL key [%d - %c] mod [%d] scancode [%d] keyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.scancode,keyName.c_str());
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] scancode [%d] keyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.scancode,keyName.c_str());
+
+					//printf("In SDL_TEXTINPUT key [%s] keyName [%s] mod: %d\n",event.text.text,keyName.c_str(),event.key.keysym.mod);
 
 					/* handle ALT+Return */
 					if((keyName == "Return" || keyName == "Enter")
@@ -264,6 +291,72 @@ bool Window::handleEvent() {
 					}
 #ifdef WIN32
 					/* handle ALT+f4 */
+					if((keyName == "f4" || keyName == "F4")
+							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] ALT-F4 pressed.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+						return false;
+					}
+#endif
+					if(global_window) {
+						//char key = getKey(event.key.keysym,true);
+						//key = tolower(key);
+						//if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("******************* key [%d]\n",key);
+
+						//event.key.keysym.mod = SDL_GetModState();
+
+						event.key.keysym.sym = event.text.text[0];
+						global_window->eventKeyDown(event.key);
+						global_window->eventKeyPress(event.key);
+
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+					}
+
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] =================================== END OF SDL SDL_KEYDOWN ================================\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+					}
+					break;
+
+
+					break;
+
+				case SDL_KEYDOWN:
+					//printf("In [%s::%s] Line :%d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+					{
+
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] =================================== START OF SDL SDL_KEYDOWN ================================\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+
+//					if(SDL_GetModState() == 0 && event.key.keysym.sym != SDLK_BACKSPACE) {
+//						printf("In SDL_KEYDOWN key SKIP\n");
+//						break;
+//					}
+					// Stop unprintable characters (ctrl+, alt+ and escape),
+					// also prevent ` and/or ~ appearing in console every time it's toggled.
+					if (!isUnprintableChar(event.key.keysym)) {
+						//printf("In SDL_KEYDOWN key SKIP\n");
+						break;
+					}
+					codeLocation = "i";
+					Window::isKeyPressedDown = true;
+//#ifdef WIN32
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf("KD mod = %d : %d\n",event.key.keysym.mod,SDL_GetModState());
+					event.key.keysym.mod = SDL_GetModState();
+//#endif
+					keystate = event.key.keysym;
+
+					string keyName = SDL_GetKeyName(event.key.keysym.sym);
+					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Raw SDL key [%d - %c] mod [%d] scancode [%d] keyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.scancode,keyName.c_str());
+					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] scancode [%d] keyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.scancode,keyName.c_str());
+
+					//printf("In SDL_KEYDOWN key [%d] keyName [%s] mod: %d\n",event.key.keysym.sym,keyName.c_str(),event.key.keysym.mod);
+
+					// handle ALT+Return
+					if((keyName == "Return" || keyName == "Enter")
+							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
+						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] SDLK_RETURN pressed.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+						toggleFullscreen();
+					}
+#ifdef WIN32
+					// handle ALT+f4
 					if((keyName == "f4" || keyName == "F4")
 							&& (event.key.keysym.mod & (KMOD_LALT | KMOD_RALT))) {
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s %d] ALT-F4 pressed.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
@@ -359,6 +452,7 @@ bool Window::handleEvent() {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] (c) Couldn't process event: [UNKNOWN ERROR] codeLocation = %s\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,codeLocation.c_str());
 		}
 	}
+	SDL_StopTextInput();
 
 	return true;
 }
@@ -689,6 +783,17 @@ bool isKeyPressed(SDL_Keycode compareKey, SDL_KeyboardEvent input,vector<int> mo
 	if(input.keysym.sym > 0) {
 		c = input.keysym.sym;
 	}
+
+	//printf("START isKeyPressed input = %d compare = %d mod = %d\n",c,compareKey,input.keysym.mod);
+
+
+//	if(compareKey == SDLK_QUESTION && (c == SDLK_SLASH && (input.keysym.mod & (KMOD_SHIFT)))) {
+//		return true;
+//	}
+//	else if(compareKey == SDLK_SLASH && (c == SDLK_SLASH && (input.keysym.mod & (KMOD_SHIFT)))) {
+//		return false;
+//	}
+
 ////		string unicodeKeyName = SDL_GetKeyName((SDLKey)input.keysym.unicode);
 ////
 ////		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s Line: %d] input.keysym.unicode = %d input.keysym.mod = %d input.keysym.sym = %d unicodeKeyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,input.keysym.unicode,input.keysym.mod,input.keysym.sym,unicodeKeyName.c_str());
@@ -1170,7 +1275,5 @@ wchar_t Window::extractLastKeyPressed() {
 
 	return c;
 }
-
-
 
 }}//end namespace
