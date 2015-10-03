@@ -47,6 +47,7 @@ int PlatformContextGl::charSet = 1;
 // ======================================
 PlatformContextGl::PlatformContextGl() {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+	glcontext = NULL;
 	icon = NULL;
 	window = NULL;
 }
@@ -96,19 +97,21 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] about to set resolution: %d x %d, colorBits = %d.\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,resW,resH,colorBits);
 
+		int windowX = SDL_WINDOWPOS_UNDEFINED;
+		int windowY = SDL_WINDOWPOS_UNDEFINED;
+		string windowTitleText = "MG";
 		if(window != NULL) {
-			SDL_FreeSurface(getScreenSurface());
+			SDL_GetWindowPosition(window,&windowX,&windowY);
+			windowTitleText = SDL_GetWindowTitle(window);
+			//SDL_FreeSurface(getScreenSurface());
+			SDL_DestroyWindow(window);
 			window = NULL;
 		}
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 		//screen = SDL_CreateWindow(resW, resH, colorBits, flags);
-		window = SDL_CreateWindow("MG",
-                SDL_WINDOWPOS_UNDEFINED,
-                SDL_WINDOWPOS_UNDEFINED,
-                resW, resH, flags);
-
+		window = SDL_CreateWindow(windowTitleText.c_str(),windowX,windowY,resW, resH, flags);
 		if(window == 0) {
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -122,38 +125,39 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] error [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,msg.str().c_str());
 
 			//screen = SDL_SetVideoMode(resW, resH, i, flags);
-			window = SDL_CreateWindow("MG",
-					SDL_WINDOWPOS_UNDEFINED,
-					SDL_WINDOWPOS_UNDEFINED,
-					resW, resH, flags);
-
+			window = SDL_CreateWindow(windowTitleText.c_str(),windowX,windowY,resW, resH, flags);
 			if(window == 0) {
 				// try to switch to native desktop resolution
-				window = SDL_CreateWindow("MG",
-					SDL_WINDOWPOS_UNDEFINED,
-					SDL_WINDOWPOS_UNDEFINED,
-					 0, 0,
-					 SDL_WINDOW_FULLSCREEN_DESKTOP|flags);
+				window = SDL_CreateWindow(windowTitleText.c_str(),windowX,windowY,0, 0,SDL_WINDOW_FULLSCREEN_DESKTOP|flags);
 			}
 			if(window == 0) {
 				// try to revert to 640x480
-				window = SDL_CreateWindow("MG",
-					SDL_WINDOWPOS_UNDEFINED,
-					SDL_WINDOWPOS_UNDEFINED,
-					 650, 480,
-					SDL_WINDOW_FULLSCREEN_DESKTOP);
+				window = SDL_CreateWindow(windowTitleText.c_str(),windowX,windowY,650, 480,SDL_WINDOW_FULLSCREEN_DESKTOP);
 			}
 			if(window == 0) {
 				throw std::runtime_error(msg.str());
 			}
 		}
 
-		glcontext = SDL_GL_CreateContext(window);
+		if(glcontext == NULL) {
+			glcontext = SDL_GL_CreateContext(window);
+		}
+		else {
+			SDL_GL_MakeCurrent(window, glcontext);
+		}
 
 		int h;
 		int w;
 		SDL_GetWindowSize(window, &w, &h);
 		glViewport( 0, 0, w, h ) ;
+
+		// There seems to be a bug where if relative mouse mouse is enabled when you create a new window,
+		// the window still reports that it has input & mouse focus, but it doesn't send any events for
+		// mouse motion or mouse button clicks. You can fix this by toggling relative mouse mode.
+		if (SDL_GetRelativeMouseMode()) {
+			SDL_SetRelativeMouseMode(SDL_FALSE);
+			SDL_SetRelativeMouseMode(SDL_TRUE);
+		}
 
 #ifndef WIN32
 		string mg_icon_file = "";
@@ -233,7 +237,7 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		//SDL_WM_GrabInput(SDL_GRAB_OFF);
-		SDL_SetRelativeMouseMode(SDL_FALSE);
+		//SDL_SetRelativeMouseMode(SDL_FALSE);
 
 		if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d] BEFORE glewInit call\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 		
@@ -270,8 +274,9 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 
 //        SDL_WM_GrabInput(SDL_GRAB_ON);
 //        SDL_WM_GrabInput(SDL_GRAB_OFF);
-		SDL_SetRelativeMouseMode(SDL_TRUE);
+		//SDL_SetRelativeMouseMode(SDL_TRUE);
 		SDL_SetRelativeMouseMode(SDL_FALSE);
+
 	}
 }
 
