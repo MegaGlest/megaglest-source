@@ -140,10 +140,16 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 		}
 
 		if(Window::getIsFullScreen()) {
-			SDL_SetWindowFullscreen(window,SDL_WINDOW_FULLSCREEN);
+			SDL_SetWindowDisplayMode(window,NULL);
 		}
-		else {
-			SDL_SetWindowFullscreen(window,0);
+
+		if(glcontext != NULL) {
+			if(Window::getIsFullScreen()) {
+				SDL_SetWindowFullscreen(window,SDL_WINDOW_FULLSCREEN);
+			}
+			else {
+				SDL_SetWindowFullscreen(window,0);
+			}
 		}
 
 		if(glcontext == NULL) {
@@ -284,6 +290,11 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 		//SDL_SetRelativeMouseMode(SDL_TRUE);
 		SDL_SetRelativeMouseMode(SDL_FALSE);
 
+
+//		if(Window::getIsFullScreen())
+//			SDL_SetWindowGrab(window, SDL_TRUE);
+//		else
+//			SDL_SetWindowGrab(window, SDL_FALSE);
 	}
 }
 
