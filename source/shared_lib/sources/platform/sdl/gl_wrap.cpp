@@ -139,6 +139,13 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 			}
 		}
 
+		if(Window::getIsFullScreen()) {
+			SDL_SetWindowFullscreen(window,SDL_WINDOW_FULLSCREEN);
+		}
+		else {
+			SDL_SetWindowFullscreen(window,0);
+		}
+
 		if(glcontext == NULL) {
 			glcontext = SDL_GL_CreateContext(window);
 		}
