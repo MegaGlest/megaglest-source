@@ -108,8 +108,8 @@ static bool isUnprintableChar(SDL_keysym key)
 Window::Window()  {
 	this->sdlWindow=0;
 	// Default to 1x1 until set by caller to avoid divide by 0
-	this->w = 1;
-	this->h = 1;
+	//this->w = 1;
+	//this->h = 1;
 
 	for(int idx = 0; idx < mbCount; idx++) {
 		lastMouseDown[idx]  = 0;
@@ -137,8 +137,8 @@ Window::Window()  {
 Window::Window(SDL_Window *sdlWindow)  {
 	this->sdlWindow=sdlWindow;
 	// Default to 1x1 until set by caller to avoid divide by 0
-	this->w = 1;
-	this->h = 1;
+	//this->w = 1;
+	//this->h = 1;
 
 	for(int idx = 0; idx < mbCount; idx++) {
 		lastMouseDown[idx]  = 0;
@@ -485,8 +485,8 @@ void Window::setText(string text) {
 }
 
 void Window::setSize(int w, int h) {
-	this->w = w;
-	this->h = h;
+	//this->w = w;
+	//this->h = h;
 	Private::ScreenWidth = w;
 	Private::ScreenHeight = h;
 }

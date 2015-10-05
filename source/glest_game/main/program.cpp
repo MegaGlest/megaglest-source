@@ -738,6 +738,23 @@ void Program::exit() {
 
 // ==================== PRIVATE ====================
 
+void Program::initResolution() {
+	const Metrics &metrics = Metrics::getInstance();
+	if(window->getScreenWidth() != metrics.getScreenW() ||
+		window->getScreenHeight() != metrics.getScreenH()) {
+
+		int oldW = metrics.getScreenW();
+		int oldH = metrics.getScreenH();
+
+		Config &config= Config::getInstance();
+		config.setInt("ScreenWidth",window->getScreenWidth(),true);
+		config.setInt("ScreenHeight",window->getScreenHeight(),true);
+
+		metrics.reload(window->getScreenWidth(), window->getScreenHeight());
+		printf("MainWindow forced change of resolution to desktop values (%d x %d) instead of (%d x %d)\n",metrics.getScreenW(), metrics.getScreenH(),oldW,oldH);
+	}
+}
+
 void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -809,6 +826,7 @@ void Program::init(WindowGl *window, bool initSound, bool toggleFullScreen){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	window->makeCurrentGl();
+	initResolution();
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -948,6 +966,7 @@ void Program::reInitGl() {
 				       config.getBool("FullScreenAntiAliasing","false"),
 				       config.getFloat("GammaValue","0.0"));
 		window->setText(config.getString("WindowTitle","MegaGlest"));
+		initResolution();
 	}
 }
 

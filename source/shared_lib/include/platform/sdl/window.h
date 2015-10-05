@@ -122,7 +122,7 @@ private:
     static map<wchar_t,bool> mapAllowedKeys;
 
 protected:
-	int w, h;
+	//int w, h;
 	static bool isActive;
 	static bool no2DMouseRendering;
 	static bool allowAltEnterFullscreenToggle;
@@ -149,6 +149,9 @@ public:
 	static void clearAllowedKeys();
 	static bool isAllowedKey(wchar_t key);
 
+	virtual int getScreenWidth() = 0;
+	virtual int getScreenHeight() = 0;
+
 	virtual bool ChangeVideoMode(bool preserveContext,int resWidth, int resHeight,
 			bool fullscreenWindow, int colorBits, int depthBits, int stencilBits,
             bool hardware_acceleration, bool fullscreen_anti_aliasing,
@@ -163,8 +166,8 @@ public:
 	string getText();
 	int getX()					{ return 0; }
 	int getY()					{ return 0; }
-	int getW()					{ return w; }
-	int getH()					{ return h; }
+	int getW()					{ return getScreenWidth(); }
+	int getH()					{ return getScreenHeight(); }
 
 	//component state
 	int getClientW()			{ return getW(); }

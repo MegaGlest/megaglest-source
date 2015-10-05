@@ -43,6 +43,8 @@ public:
 
 	SDL_Window * getScreenWindow();
 	SDL_Surface * getScreenSurface();
+	virtual int getScreenWidth();
+	virtual int getScreenHeight();
 
 	virtual bool ChangeVideoMode(bool preserveContext, int resWidth, int resHeight,
 			bool fullscreenWindow, int colorBits, int depthBits, int stencilBits,

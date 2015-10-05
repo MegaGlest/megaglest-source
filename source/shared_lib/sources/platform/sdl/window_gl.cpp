@@ -38,6 +38,14 @@ WindowGl::WindowGl(SDL_Window *sdlWindow) : Window(sdlWindow) {
 WindowGl::~WindowGl() {
 }
 
+int WindowGl::getScreenWidth() {
+	return PlatformCommon::Private::ScreenWidth;
+
+}
+int WindowGl::getScreenHeight() {
+	return PlatformCommon::Private::ScreenHeight;
+}
+
 void WindowGl::setGamma(SDL_Window *window,float gammaValue) {
 	//SDL_SetGamma(gammaValue, gammaValue, gammaValue);
 	//SDL_SetWindowGammaRamp(getSDLWindow(), gammaValue, gammaValue, gammaValue);

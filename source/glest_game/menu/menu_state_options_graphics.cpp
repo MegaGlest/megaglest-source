@@ -523,8 +523,10 @@ void MenuStateOptionsGraphics::revertScreenMode(){
 				   config.getBool("HardwareAcceleration","false"),
 				   config.getBool("FullScreenAntiAliasing","false"),
 				   config.getFloat("GammaValue","0.0"));
+	Metrics::reload(this->program->getWindow()->getScreenWidth(),
+			this->program->getWindow()->getScreenHeight());
 	window->setText(config.getString("WindowTitle","MegaGlest"));
-	Metrics::reload();
+
 	this->mainMenu->init();
 }
 
@@ -635,7 +637,9 @@ void MenuStateOptionsGraphics::mouseClick(int x, int y, MouseButton mouseButton)
 						   config.getBool("FullScreenAntiAliasing","false"),
 						   strToFloat(listBoxGammaCorrection.getSelectedItem()));
 
-			Metrics::reload(selectedMode->width,selectedMode->height);
+			Metrics::reload(this->program->getWindow()->getScreenWidth(),
+					this->program->getWindow()->getScreenHeight());
+
 			this->mainMenu->init();
 
 			mainMessageBoxState=1;
