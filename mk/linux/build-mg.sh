@@ -21,6 +21,7 @@ CLANG_FORCED=0
 WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
 LUA_FORCED_VERSION=0
 FORCE_32BIT_CROSS_COMPILE=0
+BUILD_MEGAGLEST_TESTS="ON"
 
 while getopts "c:dfhl:mnx" option; do
    case "${option}" in
@@ -146,6 +147,7 @@ case $distribution in
 			*)
 				echo 'Turning ON dynamic FTGL, LUA, JPEG, PNG ... and forcing use the embedded IRCCLIENT'
 				EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DSTATIC_FTGL=OFF -DSTATIC_LUA=OFF -DSTATIC_JPEG=OFF -DSTATIC_PNG=OFF -DSTATIC_OGG=OFF -DFORCE_USE_EMBEDDED_Ircclient=ON"
+				if [ $CLANG_FORCED = 1 ]; then BUILD_MEGAGLEST_TESTS="OFF"; fi
 				;;
 		esac
 		;;
@@ -233,15 +235,15 @@ if [ $FORCE_32BIT_CROSS_COMPILE != 0 ]; then
 
 fi
 
-if [ $MAKE_ONLY = 0 ]; then 
+if [ $MAKE_ONLY = 0 ]; then
         echo "Calling cmake with EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
-        cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON $WANT_STATIC_LIBS -DBUILD_MEGAGLEST_TESTS=ON -DBREAKPAD_ROOT=$BREAKPAD_ROOT $EXTRA_CMAKE_OPTIONS ../../..
-        if [ $? -ne 0 ]; then 
+        cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON $WANT_STATIC_LIBS -DBUILD_MEGAGLEST_TESTS=$BUILD_MEGAGLEST_TESTS -DBREAKPAD_ROOT=$BREAKPAD_ROOT $EXTRA_CMAKE_OPTIONS ../../..
+        if [ $? -ne 0 ]; then
           echo 'ERROR: CMAKE failed.' >&2; exit 1
         fi
 fi
 
-if [ $CMAKE_ONLY = 1 ]; then 
+if [ $CMAKE_ONLY = 1 ]; then
         echo "==================> You may now call make with $NUMCORES cores... <=================="
 else
         echo "==================> About to call make with $NUMCORES cores... <=================="

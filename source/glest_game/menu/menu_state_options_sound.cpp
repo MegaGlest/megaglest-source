@@ -110,7 +110,12 @@ MenuStateOptionsSound::MenuStateOptionsSound(Program *program, MainMenu *mainMen
 		listBoxSoundFactory.pushBackItem(lang.getString("None"));
 		listBoxSoundFactory.pushBackItem("OpenAL");
 
-		listBoxSoundFactory.setSelectedItem(config.getString("FactorySound"));
+		string FSoundMode=config.getString("FactorySound");
+		string FSoundModeT=lang.getString(config.getString("FactorySound"));
+		if(FSoundModeT != "???" + FSoundMode + "???") {
+		    FSoundMode=FSoundModeT;
+		}
+		listBoxSoundFactory.setSelectedItem(FSoundMode);
 		currentLine-=lineOffset;
 
 		labelVolumeFx.registerGraphicComponent(containerName,"labelVolumeFx");
@@ -419,7 +424,18 @@ void MenuStateOptionsSound::saveConfig(){
 	Lang &lang= Lang::getInstance();
 	setActiveInputLable(NULL);
 
-	config.setString("FactorySound", listBoxSoundFactory.getSelectedItem());
+	int FSoundIndex=listBoxSoundFactory.getSelectedItemIndex();
+	string FSoundMode;
+	switch (FSoundIndex) {
+		case 0:
+			FSoundMode = "None";
+			break;
+		case 1:
+			FSoundMode = "OpenAL";
+			break;
+	}
+	config.setString("FactorySound",FSoundMode);
+
 	config.setString("SoundVolumeFx", listBoxVolumeFx.getSelectedItem());
 	config.setString("SoundVolumeAmbient", listBoxVolumeAmbient.getSelectedItem());
 	CoreData::getInstance().getMenuMusic()->setVolume(strToInt(listBoxVolumeMusic.getSelectedItem())/100.f);

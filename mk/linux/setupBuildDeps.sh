@@ -23,20 +23,19 @@ then
 fi
 
 # Do you have the 'git' command?
-if [ `which git`'x' = 'x' ] 
+if [ `which git`'x' = 'x' ]
 then
 	echo 'Could not find "git", please make sure it is installed.' >&2
 	exit 1
 fi
 
 # Allow for quiet/silent installs
-if [ $1'x' = '-qx' -o $1'x' = '--quietx' -o $1'x' = '--silentx' ] 
+if [ $1'x' = '-qx' -o $1'x' = '--quietx' -o $1'x' = '--silentx' ]
 then
 	quiet=1
 else
 	quiet=0
 fi
-
 
 # Included from shared functions
 detect_system
@@ -47,40 +46,31 @@ echo ''
 echo 'On supported systems, we will now install build dependencies.'
 echo ''
 
-# Until this point you may cancel without any modifications applied 
-#exit 0
-
-
+common_info() {
+	echo ''
+	echo 'Please report a bug at http://bugs.megaglest.org providing the following information:'
+	echo '--- snip ---'
+	echo 'Git revision: '"$gitcommit"
+	echo 'LSB support:  '"$lsb"
+	echo 'Distribution: '"$distribution"
+	echo 'Release:      '"$release"
+	echo 'Codename:     '"$codename"
+	echo 'Architecture: '"$architecture"
+	echo '--- snip ---'
+	echo ''
+	if [ "$1" = "+wiki" ]; then
+		echo 'For now, you may want to take a look at the build hints on the MegaGlest wiki at:'
+		echo '  https://docs.megaglest.org/MG/Linux_Compiling'
+		echo 'If you can come up with something which works for you, please report back to us, too. Thanks!'
+	fi
+}
 unsupported_distribution () {
 	echo 'Unsupported Linux distribution.' >&2
-	echo ''
-	echo 'Please report a bug at http://bugs.megaglest.org providing the following information:'
-	echo '--- snip ---'
-	echo 'Git revision: '"$gitcommit"
-	echo 'LSB support:  '"$lsb"
-	echo 'Distribution: '"$distribution"
-	echo 'Release:      '"$release"
-	echo 'Codename:     '"$codename"
-	echo 'Architecture: '"$architecture"
-	echo '--- snip ---'
-	echo ''
-	echo 'For now, you may want to take a look at the build hints on the MegaGlest wiki at http://wiki.megaglest.org/'
-	echo 'If you can come up with something which works for you, please report back to us, too. Thanks!'
+	common_info +wiki
 }
-
 unsupported_release () {
 	echo 'Unsupported '"$distribution"' release.' >&2
-	echo ''
-	echo 'Please report a bug at http://bugs.megaglest.org providing the following information:'
-	echo '--- snip ---'
-	echo 'Git revision: '"$gitcommit"
-	echo 'LSB support:  '"$lsb"
-	echo 'Distribution: '"$distribution"
-	echo 'Release:      '"$release"
-	echo 'Codename:     '"$codename"
-	echo 'Architecture: '"$architecture"
-	echo '--- snip ---'
-	echo ''
+	common_info
 	if [ "$installcommand" != '' ]
 	then
 		echo 'For now, please try this (which works with other '"$distribution"' releases) and report back how it works for you:'
@@ -88,22 +78,9 @@ unsupported_release () {
 		echo 'Thanks!'
 	fi
 }
-
 error_during_installation () {
 	echo 'An error occurred while installing build dependencies.' >&2
-	echo ''
-	echo 'Please report a bugs at http://bugs.megaglest.org providing the following information:'
-	echo '--- snip ---'
-	echo 'Git revision: '"$gitcommit"
-	echo 'LSB support:  '"$lsb"
-	echo 'Distribution: '"$distribution"
-	echo 'Release:      '"$release"
-	echo 'Codename:     '"$codename"
-	echo 'Architecture: '"$architecture"
-	echo '--- snip ---'
-	echo ''
-	echo 'For now, you may want to take a look at the build hints on the MegaGlest wiki at http://wiki.megaglest.org/'
-	echo 'If you can come up with something which works for you, please report back to us, too. Thanks!'
+	common_info +wiki
 }
 
 if [ "$quiet" -eq "1" ]; then
@@ -111,7 +88,7 @@ if [ "$quiet" -eq "1" ]; then
 	URPMI_OPTIONS="$URPMI_OPTIONS -q --auto"
 fi
 
-packages_for_next_debian_ubuntu_mint="build-essential cmake libcurl4-gnutls-dev libsdl1.2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev"
+packages_for_next_debian_ubuntu_mint="build-essential cmake libcurl4-gnutls-dev libsdl1.2-dev libopenal-dev liblua5.3-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev libnghttp2-dev"
 
 case $distribution in
 	Debian)
@@ -152,11 +129,6 @@ case $distribution in
 				$installcommand
 				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
 				;;
-			14.10)
-				installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl1.2-dev libopenal-dev liblua5.2-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev"
-				$installcommand
-				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
-				;;
 			15.04)
 				installcommand="apt-get install $APT_OPTIONS build-essential cmake libcurl4-gnutls-dev libsdl1.2-dev libopenal-dev liblua5.2-dev libjpeg-dev libpng12-dev libfreetype6-dev libwxgtk3.0-dev libcppunit-dev libfribidi-dev libftgl-dev libglew-dev libogg-dev libvorbis-dev libminiupnpc-dev libircclient-dev libvlc-dev libvlccore-dev libxml2-dev libx11-dev libgl1-mesa-dev libglu1-mesa-dev librtmp-dev libkrb5-dev libldap2-dev libidn11-dev libgnutls28-dev"
 				$installcommand
@@ -188,12 +160,6 @@ case $distribution in
 
 	SuSE|SUSE?LINUX|Opensuse*|openSUSE*)
 		case $release in
-			11.4)
-				#LTS
-				installcommand="zypper install gcc gcc-c++ cmake libSDL-devel MesaGLw-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng14-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel"
-				$installcommand
-				if [ "$?" -ne "0" ]; then error_during_installation; exit 1; fi
-				;;
 			13.1)
 				#LTS
 				installcommand="zypper install gcc gcc-c++ cmake libSDL-devel Mesa-libGL-devel freeglut-devel libvorbis-devel wxGTK-devel lua-devel libjpeg-devel libpng-devel libcurl-devel openal-soft-devel xorg-x11-libX11-devel libxml2-devel libircclient-devel glew-devel ftgl-devel fribidi-devel cppunit-devel"
@@ -253,7 +219,7 @@ case $distribution in
 		esac
 		;;
 
-	*) 
+	*)
 		unsupported_distribution
 		exit 1
 		;;
