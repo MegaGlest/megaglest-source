@@ -4996,8 +4996,6 @@ int glestMain(int argc, char** argv) {
 
 		mainWindow= new MainWindow(program);
 
-		mainWindow->setUseDefaultCursorOnly(config.getBool("No2DMouseRendering","false"));
-
         SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
         GameSettings startupGameSettings;
@@ -5247,7 +5245,6 @@ int glestMain(int argc, char** argv) {
 				}
 
 				showCursor(true);
-				mainWindow->setUseDefaultCursorOnly(true);
 
 				const Metrics &metrics= Metrics::getInstance();
 				renderer.clearBuffers();

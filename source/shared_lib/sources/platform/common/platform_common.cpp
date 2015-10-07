@@ -1685,7 +1685,7 @@ void showCursor(bool b) {
 	if(isCursorShowing() == b) {
 		return;
 	}
-
+	//printf("showCursor(bool b) b=%d\n",b);
 	SDL_ShowCursor(b == true ? SDL_ENABLE : SDL_DISABLE);
 }
 

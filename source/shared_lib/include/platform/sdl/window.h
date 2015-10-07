@@ -124,7 +124,6 @@ private:
 protected:
 	//int w, h;
 	static bool isActive;
-	static bool no2DMouseRendering;
 	static bool allowAltEnterFullscreenToggle;
 	static int lastShowMouseState;
 
@@ -186,9 +185,6 @@ public:
 	void create();
 	void destroy();
 	void minimize();
-
-	static void setUseDefaultCursorOnly(bool value) { no2DMouseRendering = value; }
-	static bool getUseDefaultCursorOnly() { return no2DMouseRendering; }
 
 	static void setAllowAltEnterFullscreenToggle(bool value) { allowAltEnterFullscreenToggle = value; }
 	static bool getAllowAltEnterFullscreenToggle() { return allowAltEnterFullscreenToggle; }

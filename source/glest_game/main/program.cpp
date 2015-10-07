@@ -203,12 +203,13 @@ Program::Program() {
 
 void Program::initNormal(WindowGl *window){
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-
+	Config &config = Config::getInstance();
 	init(window);
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 	setState(new Intro(this));
+	showCursor(config.getBool("No2DMouseRendering","false"));
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
@@ -603,7 +604,6 @@ void Program::setState(ProgramState *programStateNew, bool cleanupOldState) {
 		this->programStateOldSystemError = this->programState;
 		bool msgBoxEnabled = msgBox.getEnabled();
 
-		bool showingOSCursor = isCursorShowing();
 		if(dynamic_cast<Game *>(programStateNew) != NULL) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
@@ -666,16 +666,11 @@ void Program::setState(ProgramState *programStateNew, bool cleanupOldState) {
 		updateCameraTimer.reset();
 		fpsTimer.reset();
 
-		if(showingOSCursor == false) {
-			Config &config = Config::getInstance();
-			if(config.getBool("No2DMouseRendering","false") == false) {
-				showCursor(false);
-			}
-			sleep(0);
-
-			if(dynamic_cast<Intro *>(programStateNew) != NULL && msgBoxEnabled == true) {
-				showCursor(true);
-			}
+		Config &config = Config::getInstance();
+		if(dynamic_cast<Intro *>(programStateNew) != NULL && msgBoxEnabled == true) {
+			showCursor(true);
+		} else {
+			showCursor(config.getBool("No2DMouseRendering","false"));
 		}
 
 		this->programStateOldSystemError = NULL;

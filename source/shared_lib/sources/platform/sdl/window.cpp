@@ -50,7 +50,6 @@ bool Window::isFullScreen = false;
 SDL_keysym Window::keystate;
 
 bool Window::isActive = false;
-bool Window::no2DMouseRendering = false;
 #ifdef WIN32
 bool Window::allowAltEnterFullscreenToggle = false;
 #else
@@ -428,7 +427,7 @@ bool Window::handleEvent() {
 //						bool willShowCursor = (!Window::isActive || (Window::lastShowMouseState == SDL_ENABLE) || Window::getUseDefaultCursorOnly());
 //						showCursor(willShowCursor);
 //					}
-					showCursor(true);
+					showCursor(false);
 				}
 				break;
 			}
