@@ -79,29 +79,26 @@ static HWND GetSDLWindow()
 
 #endif
 
-static bool isUnprintableChar(SDL_keysym key)
-{
-    // U+0000 to U+001F are control characters
-    if (key.sym < 0x20)
-    {
-        switch (key.sym)
-        {
-            // We want to allow some, which are handled specially
-        case SDLK_RETURN: case SDLK_TAB:
-        case SDLK_BACKSPACE: case SDLK_DELETE:
-        case SDLK_HOME: case SDLK_END:
-        case SDLK_LEFT: case SDLK_RIGHT:
-        case SDLK_UP: case SDLK_DOWN:
-        case SDLK_PAGEUP: case SDLK_PAGEDOWN:
-            return true;
-
-            // Ignore the others
-        default:
-            return true;
-        }
+static bool isUnprintableChar(SDL_keysym key) {
+    switch (key.sym) {
+        // We want to allow some, which are handled specially
+		case SDLK_RETURN:
+		case SDLK_TAB:
+		case SDLK_BACKSPACE:
+		case SDLK_DELETE:
+		case SDLK_HOME:
+		case SDLK_END:
+		case SDLK_LEFT:
+		case SDLK_RIGHT:
+		case SDLK_UP:
+		case SDLK_DOWN:
+		case SDLK_PAGEUP:
+		case SDLK_PAGEDOWN:
+			return true;
+		default:
+			// U+0000 to U+001F are control characters
+			return (key.sym < 0x20);
     }
-
-    return false;
 }
 
 Window::Window()  {
@@ -280,7 +277,7 @@ bool Window::handleEvent() {
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] Raw SDL key [%d - %c] mod [%d] scancode [%d] keyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.scancode,keyName.c_str());
 					if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] Raw SDL key [%d] mod [%d] scancode [%d] keyName [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,event.key.keysym.sym,event.key.keysym.mod,event.key.keysym.scancode,keyName.c_str());
 
-					//printf("In SDL_TEXTINPUT key [%s] keyName [%s] mod: %d\n",event.text.text,keyName.c_str(),event.key.keysym.mod);
+					//printf("In SDL_TEXTINPUT key [%s] keyName [%s] mod: %d global_window: %p\n",event.text.text,keyName.c_str(),event.key.keysym.mod,global_window);
 
 					/* handle ALT+Return */
 					if((keyName == "Return" || keyName == "Enter")
@@ -304,6 +301,7 @@ bool Window::handleEvent() {
 						//event.key.keysym.mod = SDL_GetModState();
 
 						event.key.keysym.sym = event.text.text[0];
+
 						global_window->eventKeyDown(event.key);
 						global_window->eventKeyPress(event.key);
 
@@ -331,7 +329,7 @@ bool Window::handleEvent() {
 					// Stop unprintable characters (ctrl+, alt+ and escape),
 					// also prevent ` and/or ~ appearing in console every time it's toggled.
 					if (!isUnprintableChar(event.key.keysym)) {
-						//printf("In SDL_KEYDOWN key SKIP\n");
+						//printf("In SDL_KEYDOWN key SKIP [%d]\n",event.key.keysym.sym);
 						break;
 					}
 					codeLocation = "i";

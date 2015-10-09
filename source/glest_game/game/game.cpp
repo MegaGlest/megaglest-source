@@ -4601,6 +4601,8 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 		return;
 	}
 
+	//printf("In game checking keypress for key [%d]\n",key.keysym.sym);
+
 	try {
 		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d] gameStarted [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym, gameStarted);
 		if(gameStarted == false || totalRenderFps <= 0) {
@@ -4640,6 +4642,8 @@ void Game::keyDown(SDL_KeyboardEvent key) {
 				configKeys.getSDLKey("SetMarker") == SDLK_LALT) {
 				setMarkerKeyAllowsModifier = true;
 			}
+
+			//printf("In game checking keypress for key [%d] camera left [%d]\n",key.keysym.sym,configKeys.getSDLKey("CameraModeLeft"));
 
 			if(isKeyPressed(configKeys.getSDLKey("RenderInGamePerformance"),key, false) == true) {
 				renderInGamePerformance = !renderInGamePerformance;

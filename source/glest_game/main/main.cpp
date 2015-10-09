@@ -1093,6 +1093,8 @@ void MainWindow::toggleLanguage(string language) {
 void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym);
 
+	//printf("In mainwindow checking keypress for key [%d]\n",key.keysym.sym);
+
 	SDL_keysym keystate = key.keysym;
 
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c][%d]\n",__FILE__,__FUNCTION__,__LINE__,key,key);
