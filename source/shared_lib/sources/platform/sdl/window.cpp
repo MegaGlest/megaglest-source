@@ -97,7 +97,15 @@ static bool isUnprintableChar(SDL_keysym key) {
 			return true;
 		default:
 			// U+0000 to U+001F are control characters
-			return (key.sym < 0x20);
+			/* Don't post text events for unprintable characters */
+		    if (key.sym > 127) {
+		    	return true;
+		    }
+		    if(key.sym < 0x20) {
+		    	return true;
+		    }
+		    //printf("isUnprintableChar returns false for [%d]\n",key.sym);
+		    return false;
     }
 }
 
@@ -1067,22 +1075,22 @@ vector<int> extractKeyPressedUnicodeLength(string text) {
 SDL_Keycode extractKeyPressed(SDL_KeyboardEvent input) {
 	SDL_Keycode c = SDLK_UNKNOWN;
 	//if(input.keysym.unicode > 0 && input.keysym.unicode < 0x80) {
-	if(input.keysym.sym > 0) {
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.sym = %d input.keysym.mod = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,input.keysym.sym,input.keysym.mod);
+	//if(input.keysym.sym > 0) {
+	//	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] input.keysym.sym = %d input.keysym.mod = %d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,input.keysym.sym,input.keysym.mod);
 
-		c = input.keysym.sym;
+	//	c = input.keysym.sym;
 //		if(c <= SDLK_UNKNOWN || c >= SDLK_LAST) {
 //			c = SDLKey(c & 0xFF);
 //		}
 
 		//c = toupper(c);
 
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(c & 0xFF));
-		if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(c & 0xFF));
-	}
-	if(c <= SDLK_UNKNOWN) {
-		c = input.keysym.sym;
-	}
+		//if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(c & 0xFF));
+		//if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] #1 (c & 0xFF) [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,(c & 0xFF));
+	//}
+	//if(c <= SDLK_UNKNOWN) {
+	c = input.keysym.sym;
+	//}
 
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %u] c = [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,c);
 
@@ -1093,8 +1101,8 @@ SDL_Keycode extractKeyPressed(SDL_KeyboardEvent input) {
 	string pressKeyName = SDL_GetKeyName(c);
 	//string inputKeyName = SDL_GetKeyName(input.keysym.sym);
 
-	//printf ("PRESS pressed key [%d - %s] input.keysym.sym [%d] input.keysym.unicode [%d] mod = %d\n",
-	//		c,pressKeyName.c_str(),input.keysym.sym,input.keysym.unicode,input.keysym.mod);
+//	printf ("PRESS pressed key [%d - %s] input.keysym.sym [%d] mod = %d\n",
+//			c,pressKeyName.c_str(),input.keysym.sym,input.keysym.mod);
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] pressed key [%d - %s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,c,pressKeyName.c_str());
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] pressed key [%d - %s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,c,pressKeyName.c_str());

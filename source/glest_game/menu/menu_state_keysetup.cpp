@@ -492,10 +492,11 @@ void MenuStateKeysetup::keyDown(SDL_KeyboardEvent key) {
 	//printf("\nkeyDown [%d]\n",hotkeyChar);
 
 	string keyName = "";
-	if(hotkeyChar > SDLK_UNKNOWN && hotkeyChar < SDL_NUM_SCANCODES) {
-		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key.keysym.sym);
-		keyName = SDL_GetKeyName(hotkeyChar);
-	}
+	//if(hotkeyChar > SDLK_UNKNOWN && hotkeyChar < SDL_NUM_SCANCODES) {
+	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key.keysym.sym);
+	keyName = SDL_GetKeyName(hotkeyChar);
+	//printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key.keysym.sym);
+	//}
 	//key = hotkeyChar;
 
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key.keysym.sym);
@@ -524,6 +525,7 @@ void MenuStateKeysetup::keyDown(SDL_KeyboardEvent key) {
 	char szBuf[8096] = "";
 	snprintf(szBuf,8096,"  %s [%s][%d][%d][%d]",keyName.c_str(),utfStr,key.keysym.sym,hotkeyChar,key.keysym.mod);
 	labelTestValue.setText(szBuf);
+	//printf ("In [%s::%s Line: %d] szBuf [%s]\n",__FILE__,__FUNCTION__,__LINE__,szBuf);
 
 	delete [] utfStr;
 
@@ -541,9 +543,9 @@ void MenuStateKeysetup::keyUp(SDL_KeyboardEvent key) {
     		if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,hotkeyChar,key.keysym.sym);
 
     		string keyName = "";
-			if(hotkeyChar > SDLK_UNKNOWN && hotkeyChar < SDL_NUM_SCANCODES) {
-				keyName = SDL_GetKeyName(hotkeyChar);
-			}
+			//if(hotkeyChar > SDLK_UNKNOWN && hotkeyChar < SDL_NUM_SCANCODES) {
+			keyName = SDL_GetKeyName(hotkeyChar);
+			//}
 			key.keysym.sym = hotkeyChar;
 
 			if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] keyName [%s] char [%d][%d]\n",__FILE__,__FUNCTION__,__LINE__,keyName.c_str(),hotkeyChar,key.keysym.sym);
