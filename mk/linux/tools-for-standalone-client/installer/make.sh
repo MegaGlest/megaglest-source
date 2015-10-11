@@ -270,14 +270,13 @@ fi
 
 # Build MojoSetup binaries from scratch.
 # YOU ALWAYS NEED THE LUA PARSER IF YOU WANT UNINSTALL SUPPORT!
-cd ../
+#cd mojosetup
 rm -rf cmake-build
 mkdir cmake-build
 cd cmake-build
 cmake \
     -DCMAKE_BUILD_TYPE=$BUILDTYPE \
     -DCMAKE_C_COMPILER=$CC \
-    -DCMAKE_CXX_COMPILER=$CXX \
     -DMOJOSETUP_MULTIARCH=FALSE \
     -DMOJOSETUP_ARCHIVE_ZIP=TRUE \
     -DMOJOSETUP_ARCHIVE_TAR=TRUE \
@@ -285,7 +284,6 @@ cmake \
     -DMOJOSETUP_ARCHIVE_TAR_GZ=TRUE \
     -DMOJOSETUP_ARCHIVE_TAR_XZ=TRUE \
     -DMOJOSETUP_INPUT_XZ=TRUE \
-    -DMOJOSETUP_INTERNAL_LIBLZMA=TRUE \
     -DMOJOSETUP_BUILD_LUAC=TRUE \
     -DMOJOSETUP_GUI_GTKPLUS2=TRUE \
     -DMOJOSETUP_GUI_GTKPLUS2_STATIC=TRUE \
@@ -294,7 +292,6 @@ cmake \
     -DMOJOSETUP_GUI_STDIO=TRUE \
     -DMOJOSETUP_GUI_STDIO_STATIC=TRUE \
     -DMOJOSETUP_GUI_WWW=FALSE \
-    -DMOJOSETUP_GUI_WWW_STATIC=FALSE \
     -DMOJOSETUP_LUALIB_DB=FALSE \
     -DMOJOSETUP_LUALIB_IO=TRUE \
     -DMOJOSETUP_LUALIB_MATH=FALSE \
@@ -305,10 +302,10 @@ cmake \
     -DMOJOSETUP_IMAGE_JPG=FALSE \
     -DMOJOSETUP_IMAGE_PNG=FALSE \
     -DMOJOSETUP_INTERNAL_BZLIB=TRUE \
-    -DMOJOSETUP_INTERNAL_ZLIB=TRUE \
+    -DMOJOSETUP_INTERNAL_LIBLZMA=TRUE \
     -DMOJOSETUP_URL_HTTP=FALSE \
     -DMOJOSETUP_URL_FTP=FALSE \
-    ..
+    ../mojosetup
 
 # Perhaps needed to remove compiler / linker warnings considered as errors
 # sed -i 's/-Werror//' Makefile
@@ -320,31 +317,31 @@ if [ "$DEBUG" != "1" ]; then
     strip ./mojosetup
 fi
 
-mv ./mojosetup ../megaglest-installer/${mg_installer_bin_name}
+mv ./mojosetup ../${mg_installer_bin_name}
 for feh in *.so *.dll *.dylib ; do
     if [ -f $feh ]; then
         if [ "$DEBUG" != "1" ]; then
             strip $feh
         fi
-        mv $feh ../megaglest-installer/image/guis
+        mv $feh ../image/guis
     fi
 done
 
 # Compile the Lua scripts, put them in the base archive.
 for feh in ../scripts/*.lua ; do
-    ./mojoluac $LUASTRIPOPT -o ../megaglest-installer/image/scripts/${feh}c $feh
+    ./mojoluac $LUASTRIPOPT -o ../image/scripts/${feh}c $feh
 done
 
 # Don't want the example config...use our's instead.
-rm -f ../megaglest-installer/image/scripts/config.luac
-./mojoluac $LUASTRIPOPT -o ../megaglest-installer/image/scripts/config.luac ../megaglest-installer/scripts/config.lua
+rm -f ../image/scripts/config.luac
+./mojoluac $LUASTRIPOPT -o ../image/scripts/config.luac ../scripts/config.lua
 
 # Don't want the example app_localization...use our's instead.
-rm -f ../megaglest-installer/image/scripts/app_localization.luac
-./mojoluac $LUASTRIPOPT -o ../megaglest-installer/image/scripts/app_localization.luac ../megaglest-installer/scripts/app_localization.lua
+rm -f ../image/scripts/app_localization.luac
+./mojoluac $LUASTRIPOPT -o ../image/scripts/app_localization.luac ../scripts/app_localization.lua
 
 # Fill in the rest of the Base Archive...
-cd ../megaglest-installer
+cd ..
 
 # Compress the main data archive
 cd data
@@ -353,6 +350,11 @@ tar -cf - * | xz > ../$megaglest_archivefilename_data
 # now remove everything except for the docs folder and the data archive
 shopt -s extglob
 rm -rf !(docs|$megaglest_archivefilename_data)
+# now remove everything in the docs except files listed in config.lua
+cd docs
+rm -rf !(gnu_gpl_*.txt|cc-by-sa-*-unported.txt|README.txt)
+cd ..
+
 cd ..
 mv -f $megaglest_archivefilename_data data/
 
@@ -369,7 +371,7 @@ fi
 
 if [ "x$USE_XDG_UTILS" = "x1" ]; then
     mkdir image/meta/xdg-utils
-    cp ../meta/xdg-utils/* image/meta/xdg-utils/
+    cp $CURRENTDIR/mojosetup/meta/xdg-utils/* image/meta/xdg-utils/
     chmod a+rx image/meta/xdg-utils/*
 fi
 
@@ -403,7 +405,7 @@ fi
 set +e
 set +x
 echo "Successfully built!"
-ls -la ${mg_installer_bin_name}
+ls -lha ${mg_installer_bin_name}
 
 if [ "$DEBUG" = "1" ]; then
     echo
@@ -419,4 +421,3 @@ if [ "$DEBUG" = "1" ]; then
 fi
 
 exit 0
-

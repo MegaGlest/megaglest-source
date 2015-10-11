@@ -39,6 +39,7 @@ $RECYCLE.BIN/
 *.tar
 *.zip
 *.bz2
+*.tar.xz
 
 ## Logs and databases
 *.log

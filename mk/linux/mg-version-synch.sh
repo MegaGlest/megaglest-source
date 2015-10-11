@@ -66,10 +66,10 @@ echo
 echo '===== Updating Linux Installer ======'
 # local GAME_VERSION = "x.x.x";
 echo 'Linux Installer version # before:'
-grep -E '^local GAME_VERSION = "[^"]*";$' mojosetup/megaglest-installer/scripts/config.lua
-sed -i 's/^local GAME_VERSION = "[^"]*";$/local GAME_VERSION = "'$CURRENT_VERSION'";/' mojosetup/megaglest-installer/scripts/config.lua
+grep -E '^local GAME_VERSION = "[^"]*";$' tools-for-standalone-client/installer/scripts/config.lua
+sed -i 's/^local GAME_VERSION = "[^"]*";$/local GAME_VERSION = "'$CURRENT_VERSION'";/' tools-for-standalone-client/installer/scripts/config.lua
 echo 'Linux Installer version # after:'
-grep -E '^local GAME_VERSION = "[^"]*";$' mojosetup/megaglest-installer/scripts/config.lua
+grep -E '^local GAME_VERSION = "[^"]*";$' tools-for-standalone-client/installer/scripts/config.lua
 echo
 echo '===== Updating Windows Installer ======'
 # !define APVER 3.6.0
