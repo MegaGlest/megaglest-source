@@ -80,7 +80,7 @@ void PlatformContextGl::init(int colorBits, int depthBits, int stencilBits,
 
 	// SDL_WINDOW_FULLSCREEN seems very broken when changing resolutions that differ from the desktop resolution
 	// For now fullscreen will mean use desktop resolution
-	int flags = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE;
+	int flags = SDL_WINDOW_OPENGL;
 	if(PlatformCommon::Private::shouldBeFullscreen) {
 		Window::setIsFullScreen(true);
 		//flags |= SDL_WINDOW_FULLSCREEN;
