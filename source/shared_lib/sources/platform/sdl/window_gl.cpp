@@ -111,13 +111,13 @@ bool WindowGl::ChangeVideoMode(bool preserveContext, int resWidth, int resHeight
 	if(preserveContext == true) {
 		// get window handle from SDL
 		SDL_VERSION(&info.version);
-		if (SDL_GetWMInfo(&info) == -1) {
+		if (SDL_GetWindowWMInfo(Window::getSDLWindow(),&info) == -1) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s %d] SDL_GetWMInfo #1 failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			return false;
 		}
 
 		// get device context handle
-		tempDC = GetDC( info.window );
+		tempDC = GetDC( info.info.win.window );
 
 		// create temporary context
 		tempRC = wglCreateContext( tempDC );
@@ -128,10 +128,10 @@ bool WindowGl::ChangeVideoMode(bool preserveContext, int resWidth, int resHeight
 
 		// share resources to temporary context
 		SetLastError(0);
-		if (!wglShareLists(info.hglrc, tempRC)) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s %d] wglShareLists #1 failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			return false;
-		}
+		//if (!wglShareLists(info.info.win.hglrc, tempRC)) {
+		//	if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s %d] wglShareLists #1 failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		//	return false;
+		//}
 	}
 #endif
 
@@ -160,16 +160,16 @@ bool WindowGl::ChangeVideoMode(bool preserveContext, int resWidth, int resHeight
 	if(preserveContext == true) {
 		// previously used structure may possibly be invalid, to be sure we get it again
 		SDL_VERSION(&info.version);
-		if (SDL_GetWMInfo(&info) == -1) {
+		if (SDL_GetWindowWMInfo(Window::getSDLWindow(),&info) == -1) {
 			if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s %d] SDL_GetWMInfo #2 failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 			return false;
 		}
 
 		// share resources to new SDL-created context
-		if (!wglShareLists(tempRC, info.hglrc)) {
-			if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s %d] wglShareLists #2 failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
-			return false;
-		}
+		//if (!wglShareLists(tempRC, info.hglrc)) {
+		//	if(SystemFlags::getSystemSettingType(SystemFlags::debugError).enabled) SystemFlags::OutputDebug(SystemFlags::debugError,"In [%s::%s %d] wglShareLists #2 failed\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
+		//	return false;
+		//}
 
 		// we no longer need our temporary context
 		if (!wglDeleteContext(tempRC)) {

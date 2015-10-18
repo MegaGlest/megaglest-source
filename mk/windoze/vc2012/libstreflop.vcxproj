@@ -464,7 +464,9 @@
     <None Include="..\..\..\source\shared_lib\sources\streflop\libm\flt-32\Makefile" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="..\..\..\source\shared_lib\sources\streflop\FPUSettings.asm" />
+    <MASM Include="..\..\..\source\shared_lib\sources\streflop\FPUSettings.asm">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </MASM>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

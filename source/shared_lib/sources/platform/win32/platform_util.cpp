@@ -10,6 +10,7 @@
 // ==============================================================
 
 #include "platform_util.h"
+#include "window.h"
 
 #include <io.h>
 #include <dbghelp.h>
@@ -392,11 +393,11 @@ void init_win32() {
 
 	SDL_SysWMinfo wminfo;
 	SDL_VERSION(&wminfo.version)
-	if (SDL_GetWMInfo(&wminfo) != 1) {
+	if (SDL_GetWindowWMInfo(Window::getSDLWindow(),&wminfo) != 1) {
 		// error: wrong SDL version
 	}
 
-	HWND hwnd = wminfo.window;
+	HWND hwnd = wminfo.info.win.window;
 
 #ifdef __MINGW32__
 	#define GCL_HICON -14
@@ -418,11 +419,11 @@ void init_win32() {
 void ontop_win32(int width, int height) {
 	SDL_SysWMinfo wminfo;
 	SDL_VERSION(&wminfo.version)
-	if (SDL_GetWMInfo(&wminfo) != 1) {
+	if (SDL_GetWindowWMInfo(Window::getSDLWindow(),&wminfo) != 1) {
 		// error: wrong SDL version
 	}
 
-	HWND hwnd = wminfo.window;
+	HWND hwnd = wminfo.info.win.window;
 
 	SetWindowLong(hwnd, GWL_EXSTYLE, 0);
     SetWindowLong(hwnd, GWL_STYLE, WS_POPUP | WS_CLIPCHILDREN | WS_CLIPSIBLINGS);

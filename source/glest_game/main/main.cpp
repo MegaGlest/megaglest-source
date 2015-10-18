@@ -298,7 +298,7 @@ void fatal(const char *s, ...)    // failure exit
 
 		if(errors <= 1) { // avoid recursion
             if(SDL_WasInit(SDL_INIT_VIDEO)) {
-                SDL_SetRelativeMouseMode(SDL_FALSE););
+                SDL_SetRelativeMouseMode(SDL_FALSE);
             }
             #ifdef WIN32
 				LPWSTR wstr = Ansi2WideString(errText.c_str());
@@ -741,7 +741,7 @@ void stackdumper(unsigned int type, EXCEPTION_POINTERS *ep, bool fatalExit) {
 
         if(GlobalStaticFlags::getIsNonGraphicalModeEnabled() == false) {
         	showCursor(true);
-        	restoreVideoMode(true);
+        	restoreVideoMode(::Shared::Platform::Window::getSDLWindow(), true);
         }
 
 		runtimeErrorMsg = errMsg;

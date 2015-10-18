@@ -70,11 +70,10 @@ map<wchar_t,bool> Window::mapAllowedKeys;
 static HWND GetSDLWindow()
 {
     SDL_SysWMinfo   info;
-
     SDL_VERSION(&info.version);
-    if (SDL_GetWMInfo(&info) == -1)
+    if (SDL_GetWindowWMInfo(Window::getSDLWindow(),&info) == -1)
         return NULL;
-    return info.window;
+    return info.info.win.window;
 }
 
 #endif
@@ -525,7 +524,7 @@ void Window::create() {
 	// nothing here
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 #ifdef WIN32
-	ontop_win32(this->w,this->h);
+	ontop_win32(this->getScreenWidth(),this->getScreenHeight());
 #endif
 	if(SystemFlags::VERBOSE_MODE_ENABLED) printf("In [%s::%s %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 }
