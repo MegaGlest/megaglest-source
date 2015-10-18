@@ -1131,6 +1131,8 @@ void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 		}
 	}
 
+	//printf("In mainwindow checking keypress for key [%d] mod [%d] modvalue: %d\n",key.keysym.sym,keystate.mod,(keystate.mod & (KMOD_LCTRL | KMOD_RCTRL)));
+
 	if(program != NULL && program->isInSpecialKeyCaptureEvent() == false) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
