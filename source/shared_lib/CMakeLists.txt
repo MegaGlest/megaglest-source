@@ -253,10 +253,15 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 
 	#IF(NOT WANT_STATIC_LIBS)
 	#MESSAGE(STATUS "*** Searching for miniupnpc since WANT_STATIC_LIBS is off ...")
-        #MESSAGE(STATUS "*** Searching for miniupnpc ...")
+	#MESSAGE(STATUS "*** Searching for miniupnpc ...")
 
-        OPTION(FORCE_USE_EMBEDDED_Miniupnpc "Use embedded to source code version of miniupnpc" OFF)
-        IF(NOT FORCE_USE_EMBEDDED_Miniupnpc)
+	OPTION(FORCE_EMBEDDED_LIBS "Force use of embedded libraries' code." OFF)
+	IF(FORCE_EMBEDDED_LIBS)
+		SET(FORCE_USE_EMBEDDED_Miniupnpc ON)
+	ELSE()
+		OPTION(FORCE_USE_EMBEDDED_Miniupnpc "Use embedded to source code version of miniupnpc" OFF)
+	ENDIF()
+	IF(NOT FORCE_USE_EMBEDDED_Miniupnpc)
 		FIND_PACKAGE(Miniupnpc)
 	ENDIF()
 
@@ -264,7 +269,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 		if(NOT FORCE_USE_EMBEDDED_Miniupnpc)
 			MESSAGE(STATUS "*** Using EMBEDDED miniupnpc since dev system does not have it... MINIUPNP_FOUND [${MINIUPNP_FOUND}]")
 		else()
-			MESSAGE(STATUS "*** Using EMBEDDED miniupnpc because it was forced by option 'FORCE_USE_EMBEDDED_Miniupnpc'")
+			MESSAGE(STATUS "*** Using EMBEDDED miniupnpc because it was forced by option")
 		endif()
 
                 if (NOT WIN32)
@@ -325,7 +330,11 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
         INCLUDE_DIRECTORIES("sources/")
 
 	OPTION(WANT_USE_Ircclient "Enable libircclient support" ON)
-	OPTION(FORCE_USE_EMBEDDED_Ircclient "Use embedded to source code version of ircclient" OFF)
+	IF(FORCE_EMBEDDED_LIBS)
+		SET(FORCE_USE_EMBEDDED_Ircclient ON)
+	ELSE()
+		OPTION(FORCE_USE_EMBEDDED_Ircclient "Use embedded to source code version of ircclient" OFF)
+	ENDIF()
 
         IF(WANT_USE_Ircclient)
 	        #IF(NOT WANT_STATIC_LIBS)
@@ -338,7 +347,7 @@ IF(BUILD_MEGAGLEST_MODEL_VIEWER OR BUILD_MEGAGLEST_MAP_EDITOR OR BUILD_MEGAGLEST
 				if(NOT FORCE_USE_EMBEDDED_Ircclient)
 					MESSAGE(STATUS "*** Using EMBEDDED libircclient since this system does not have it... IRCCLIENT_FOUND [${IRCCLIENT_FOUND}]")
 				else()
-					MESSAGE(STATUS "*** Using EMBEDDED libircclient because it was forced by option 'FORCE_USE_EMBEDDED_Ircclient'")
+					MESSAGE(STATUS "*** Using EMBEDDED libircclient because it was forced by option")
 				endif()
 		        SET(MG_SOURCE_FILES ${MG_SOURCE_FILES} ${PROJECT_SOURCE_DIR}/source/shared_lib/sources/libircclient/src/libircclient.c)
 		        INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/source/shared_lib/include/libircclient/include)

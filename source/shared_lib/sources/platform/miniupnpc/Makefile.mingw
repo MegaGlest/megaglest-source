@@ -1,7 +1,7 @@
-# $Id: Makefile.mingw,v 1.16 2011/04/18 17:39:31 nanard Exp $
+# $Id: Makefile.mingw,v 1.21 2015/09/18 12:45:16 nanard Exp $
 # Miniupnp project.
 # http://miniupnp.free.fr/ or http://miniupnp.tuxfamily.org/
-# (c) 2005-2011 Thomas Bernard
+# (c) 2005-2015 Thomas Bernard
 # This Makefile is made for MinGW
 #
 CC = gcc
@@ -9,11 +9,13 @@ CC = gcc
 CFLAGS = -Wall -Os -DNDEBUG -D_WIN32_WINNT=0X501
 LDLIBS = -lws2_32 -liphlpapi
 # -lwsock32
-# -liphlpapi is used for GetBestRoute()
+# -liphlpapi is needed for GetBestRoute() and GetIpAddrTable()
 PYTHON=\utils\python25\python
 OBJS=miniwget.o minixml.o igd_desc_parse.o minisoap.o \
+     minissdpc.o \
      miniupnpc.o upnpreplyparse.o upnpcommands.o upnperrors.o \
-     connecthostport.o portlistingparse.o receivedata.o
+     connecthostport.o portlistingparse.o receivedata.o \
+     upnpdev.o
 OBJSDLL=$(addprefix dll/, $(OBJS))
 
 all:	init upnpc-static upnpc-shared testminixml libminiupnpc.a miniupnpc.dll
@@ -50,18 +52,19 @@ dll/upnpc.o:	upnpc.o
 	echo $@ generated with $<
 
 .c.o:
-	$(CC) $(CFLAGS) -DSTATICLIB -c -o $@ $<
+	$(CC) $(CFLAGS) -DMINIUPNP_STATICLIB -c -o $@ $<
 	$(CC) $(CFLAGS) -DMINIUPNP_EXPORTS -c -o dll/$@ $<
 
 upnpc.o:
-	$(CC) $(CFLAGS) -DSTATICLIB -c -o $@ $<
+	$(CC) $(CFLAGS) -DMINIUPNP_STATICLIB -c -o $@ $<
 	$(CC) $(CFLAGS) -c -o dll/$@ $<
 
+# --enable-stdcall-fixup
 upnpc-static:	upnpc.o libminiupnpc.a
-	$(CC) -enable-stdcall-fixup -o $@ $^ $(LDLIBS)
+	$(CC) -o $@ $^ $(LDLIBS)
 
 upnpc-shared:	dll/upnpc.o miniupnpc.lib
-	$(CC) -enable-stdcall-fixup -o $@ $^ $(LDLIBS)
+	$(CC) -o $@ $^ $(LDLIBS)
 
 wingenminiupnpcstrings:	wingenminiupnpcstrings.o
 
@@ -70,9 +73,10 @@ wingenminiupnpcstrings.o:	wingenminiupnpcstrings.c
 miniupnpcstrings.h: miniupnpcstrings.h.in wingenminiupnpcstrings
 	wingenminiupnpcstrings $< $@
 
-minixml.o:	minixml.c minixml.h miniupnpcstrings.h
+minixml.o:	minixml.c minixml.h
 
-upnpc.o:	upnpc.c miniwget.h minisoap.h miniupnpc.h igd_desc_parse.h upnpreplyparse.h upnpcommands.h upnperrors.h
+upnpc.o:	upnpc.c miniwget.h minisoap.h miniupnpc.h igd_desc_parse.h
+upnpc.o:	upnpreplyparse.h upnpcommands.h upnperrors.h miniupnpcstrings.h
 
 miniwget.o:	miniwget.c miniwget.h miniupnpcstrings.h connecthostport.h
 
@@ -87,4 +91,8 @@ testminixml:	minixml.o igd_desc_parse.o testminixml.c
 upnpreplyparse.o:	upnpreplyparse.c upnpreplyparse.h minixml.h
 
 upnpcommands.o:	upnpcommands.c upnpcommands.h upnpreplyparse.h miniupnpc.h portlistingparse.h
+
+minissdpc.o:	minissdpc.c minissdpc.h receivedata.h
+
+upnpdev.o:	upnpdev.c upnpdev.h
 

@@ -16,19 +16,22 @@ MAKE_ONLY=0
 USE_XCODE=0
 CLANG_FORCED=0
 WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
+FORCE_EMBEDDED_LIBS=0
 LUA_FORCED_VERSION=0
 
-while getopts "c:dfhl:mnxb" option; do
+while getopts "c:defhl:mnxb" option; do
 	case "${option}" in
 		c) CPU_COUNT=${OPTARG};;
 		d) WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF";;
+		e) FORCE_EMBEDDED_LIBS=1;;
 		f) CLANG_FORCED=1;;
 		h) 	echo "Usage: $0 <option>"
-			echo "       where <option> can be: -b, -c x, -d, -f, -m, -n, -h, -l x, -x"
+			echo "       where <option> can be: -b, -c x, -d, -e, -f, -m, -n, -h, -l x, -x"
 			echo "       option descriptions:"
 			echo "       -b   : Force default configuration designed for bundle/release."
 			echo "       -c x : Force the cpu / cores count to x - example: -c 4"
 			echo "       -d   : Force DYNAMIC compile (do not want static libs)"
+			echo "       -e   : Force compile with EMBEDDED libraries"
 			echo "       -f   : Force using Clang compiler"
 			echo "       -l x : Force using LUA version x - example: -l 5.3"
 			echo "       -m   : Force running CMAKE only to create Make files (do not compile)"
@@ -170,6 +173,10 @@ fi
 if [ "$LUA_FORCED_VERSION" != "0" ] && [ "$LUA_FORCED_VERSION" != "" ]; then
 	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_LUA_VERSION=$LUA_FORCED_VERSION"
 	#echo "USER WANTS TO FORCE USE of LUA $LUA_FORCED_VERSION"
+fi
+
+if [ "$FORCE_EMBEDDED_LIBS" != "0" ] && [ "$FORCE_EMBEDDED_LIBS" != "" ]; then
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_EMBEDDED_LIBS=ON"
 fi
 
 if [ "$MAKE_ONLY" -eq "0" ]; then

@@ -19,11 +19,12 @@ CMAKE_ONLY=0
 MAKE_ONLY=0
 CLANG_FORCED=0
 WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
+FORCE_EMBEDDED_LIBS=0
 LUA_FORCED_VERSION=0
 FORCE_32BIT_CROSS_COMPILE=0
 BUILD_MEGAGLEST_TESTS="ON"
 
-while getopts "c:dfhl:mnx" option; do
+while getopts "c:defhl:mnx" option; do
    case "${option}" in
         c)
            CPU_COUNT=${OPTARG}
@@ -33,16 +34,21 @@ while getopts "c:dfhl:mnx" option; do
            WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF"
 #           echo "${option} value: ${OPTARG}"
         ;;
+        e)
+           FORCE_EMBEDDED_LIBS=1
+#           echo "${option} value: ${OPTARG}"
+        ;;
         f)
            CLANG_FORCED=1
 #           echo "${option} value: ${OPTARG}"
         ;;
         h)
                 echo "Usage: $0 <option>"
-                echo "       where <option> can be: -c x, -d, -f, -m, -n, -h, -l x, -x"
+                echo "       where <option> can be: -c x, -d, -e, -f, -m, -n, -h, -l x, -x"
                 echo "       option descriptions:"
                 echo "       -c x : Force the cpu / cores count to x - example: -c 4"
                 echo "       -d   : Force DYNAMIC compile (do not want static libs)"
+                echo "       -e   : Force compile with EMBEDDED libraries"
                 echo "       -f   : Force using CLANG compiler"
                 echo "       -l x : Force using LUA version x - example: -l 5.3"
                 echo "       -m   : Force running CMAKE only to create Make files (do not compile)"
@@ -227,6 +233,10 @@ if [ "$LUA_FORCED_VERSION" != "0" ] && [ "$LUA_FORCED_VERSION" != "" ]; then
 	#echo "USER WANTS TO FORCE USE of LUA $LUA_FORCED_VERSION"
 fi
 
+if [ "$FORCE_EMBEDDED_LIBS" != "0" ] && [ "$FORCE_EMBEDDED_LIBS" != "" ]; then
+	EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DFORCE_EMBEDDED_LIBS=ON"
+fi
+
 if [ $FORCE_32BIT_CROSS_COMPILE != 0 ]; then
         EXTRA_CMAKE_OPTIONS="${EXTRA_CMAKE_OPTIONS} -DCMAKE_TOOLCHAIN_FILE=../mk/cmake/Modules/Toolchain-linux32.cmake"
 
@@ -261,4 +271,3 @@ else
         echo 'Or change into mk/linux and run it from there:'
         echo '  ./megaglest --ini-path=./ --data-path=./'
 fi
-
