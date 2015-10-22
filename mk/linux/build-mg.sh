@@ -19,10 +19,11 @@ CMAKE_ONLY=0
 MAKE_ONLY=0
 CLANG_FORCED=0
 WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=ON"
+FORCE_EMBEDDED_LIBS="-DFORCE_EMBEDDED_LIBS=OFF"
 LUA_FORCED_VERSION=0
 FORCE_32BIT_CROSS_COMPILE=0
 
-while getopts "c:dfhl:mnx" option; do
+while getopts "c:defhl:mnx" option; do
    case "${option}" in
         c) 
            CPU_COUNT=${OPTARG}
@@ -32,16 +33,21 @@ while getopts "c:dfhl:mnx" option; do
            WANT_STATIC_LIBS="-DWANT_STATIC_LIBS=OFF"
 #           echo "${option} value: ${OPTARG}"
         ;;
+        e) 
+           FORCE_EMBEDDED_LIBS="-DFORCE_EMBEDDED_LIBS=ON"
+#           echo "${option} value: ${OPTARG}"
+        ;;
         f) 
            CLANG_FORCED=1
 #           echo "${option} value: ${OPTARG}"
         ;;
         h) 
                 echo "Usage: $0 <option>"
-                echo "       where <option> can be: -c x, -d, -f, -m, -n, -h, -l x, -x"
+                echo "       where <option> can be: -c x, -d, -e, -f, -m, -n, -h, -l x, -x"
                 echo "       option descriptions:"
                 echo "       -c x : Force the cpu / cores count to x - example: -c 4"
                 echo "       -d   : Force DYNAMIC compile (do not want static libs)"
+                echo "       -e   : Force EMBEDDED libraries compile"
                 echo "       -f   : Force using CLANG compiler"
                 echo "       -l x : Force using LUA version x - example: -l 51"                
                 echo "       -m   : Force running CMAKE only to create Make files (do not compile)"
@@ -244,7 +250,7 @@ fi
 
 if [ $MAKE_ONLY = 0 ]; then 
         echo "Calling cmake with EXTRA_CMAKE_OPTIONS = ${EXTRA_CMAKE_OPTIONS}"
-        cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON $WANT_STATIC_LIBS -DBUILD_MEGAGLEST_TESTS=ON -DBREAKPAD_ROOT=$BREAKPAD_ROOT $EXTRA_CMAKE_OPTIONS ../../..
+        cmake -DCMAKE_INSTALL_PREFIX='' -DWANT_DEV_OUTPATH=ON $WANT_STATIC_LIBS $FORCE_EMBEDDED_LIBS -DBUILD_MEGAGLEST_TESTS=ON -DBREAKPAD_ROOT=$BREAKPAD_ROOT $EXTRA_CMAKE_OPTIONS ../../..
         if [ $? -ne 0 ]; then 
           echo 'ERROR: CMAKE failed.' >&2; exit 1
         fi

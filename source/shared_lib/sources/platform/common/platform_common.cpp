@@ -1620,10 +1620,10 @@ void getFullscreenVideoModes(vector<ModeInfo> *modeinfos, bool isFullscreen) {
 	if (SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled)
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 
-		SDL_PixelFormat format;
+		//SDL_PixelFormat format;
 		//SDL_Rect **modes;
-		int loops(0);
-		int bpp(0);
+		//int loops(0);
+		//int bpp(0);
 		std::map<std::string,bool> uniqueResList;
 
 		///////////////////////////
