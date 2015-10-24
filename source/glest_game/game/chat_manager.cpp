@@ -95,18 +95,15 @@ void ChatManager::keyUp(SDL_KeyboardEvent key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
-bool ChatManager::textInput(std::string text) {
-	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] text [%s]\n",__FILE__,__FUNCTION__,__LINE__,text.c_str());
+bool ChatManager::textInput(std::string inputText) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] inputText [%s]\n",__FILE__,__FUNCTION__,__LINE__,inputText.c_str());
 
 	int maxTextLenAllowed = (customCB != NULL ? this->maxCustomTextLength : maxTextLenght);
-	if(editEnabled && (int)text.size() < maxTextLenAllowed) {
+	if(editEnabled && (int)textCharLength.size() < maxTextLenAllowed) {
 		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
-		//space is the first meaningful code
-		//wchar_t key = extractKeyPressedUnicode(c);
-		//wchar_t textAppend[] = { key, 0 };
-		std::wstring widestr = std::wstring(text.begin(), text.end());
-		const wchar_t *textAppend = widestr.c_str();
-		appendText(textAppend);
+		textCharLength.push_back(inputText.length());
+		this->text +=inputText;
+		updateAutoCompleteBuffer();
 		return true;
 	}
 	return false;
@@ -351,14 +348,15 @@ void ChatManager::keyDown(SDL_KeyboardEvent key) {
 void ChatManager::keyPress(SDL_KeyboardEvent c) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
 
-	int maxTextLenAllowed = (customCB != NULL ? this->maxCustomTextLength : maxTextLenght);
-	if(editEnabled && (int)text.size() < maxTextLenAllowed) {
-		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
-		//space is the first meaningful code
-		wchar_t key = extractKeyPressedUnicode(c);
-		wchar_t textAppend[] = { key, 0 };
-		appendText(textAppend);
-	}
+// no more textinput with keyPress in SDL2!
+//	int maxTextLenAllowed = (customCB != NULL ? this->maxCustomTextLength : maxTextLenght);
+//	if(editEnabled && (int)text.size() < maxTextLenAllowed) {
+//		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,c.keysym.sym,c.keysym.sym);
+//		//space is the first meaningful code
+//		wchar_t key = extractKeyPressedUnicode(c);
+//		wchar_t textAppend[] = { key, 0 };
+//		appendText(textAppend);
+//	}
 }
 
 void ChatManager::switchOnEdit(CustomInputCallbackInterface *customCB,int maxCustomTextLength) {

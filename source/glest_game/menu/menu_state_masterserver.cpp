@@ -1218,9 +1218,7 @@ void MenuStateMasterserver::keyDown(SDL_KeyboardEvent key) {
 				ircClient->SendIRCCmdMessage(IRC_CHANNEL, chatManager.getText());
 			}
 		}
-		if(isKeyPressed(SDLK_RETURN,key,false) == true){
-			chatManager.keyDown(key);
-		}
+		chatManager.keyDown(key);
 	}
     if(chatManager.getEditEnabled() == false) {
         //if(key == configKeys.getCharKey("ToggleMusic")) {
