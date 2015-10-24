@@ -110,7 +110,7 @@ protected:
 protected:
 
 	void setActiveInputLabel(GraphicLabel *newLabel, GraphicLabel **activeInputLabelPtr);
-	bool keyPressEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInputLabelPtr);
+	bool keyPressEditLabel(string input, GraphicLabel **activeInputLabelPtr);
 	bool keyDownEditLabel(SDL_KeyboardEvent c, GraphicLabel **activeInputLabelPtr);
 
 public:

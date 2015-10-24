@@ -236,6 +236,7 @@ public:
 	void render();
 	void update();
 
+	virtual bool textInput(std::string text);
     virtual void keyDown(SDL_KeyboardEvent key);
     virtual void keyPress(SDL_KeyboardEvent c);
     virtual void keyUp(SDL_KeyboardEvent key);

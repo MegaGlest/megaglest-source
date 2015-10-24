@@ -1019,23 +1019,24 @@ void MenuStateOptions::keyDown(SDL_KeyboardEvent key) {
 	}
 }
 
-void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
+bool MenuStateOptions::textInput(std::string text) {
 	if(activeInputLabel != NULL) {
-	    //printf("[%d]\n",c); fflush(stdout);
+    //printf("[%d]\n",c); fflush(stdout);
 		if( &labelPlayerName 	== activeInputLabel ||
 			&labelTransifexUser == activeInputLabel ||
 			&labelTransifexPwd == activeInputLabel ||
 			&labelTransifexI18N == activeInputLabel) {
-			keyPressEditLabel(c, &activeInputLabel);
+			keyPressEditLabel(text, &activeInputLabel);
 		}
 	}
-	else {
-		Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
-		if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),c) == true) {
-			GraphicComponent::saveAllCustomProperties(containerName);
-			//Lang &lang= Lang::getInstance();
-			//console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
-		}
+}
+
+void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
+	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
+	if(isKeyPressed(configKeys.getSDLKey("SaveGUILayout"),c) == true) {
+		GraphicComponent::saveAllCustomProperties(containerName);
+		//Lang &lang= Lang::getInstance();
+		//console.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
 	}
 }
 
