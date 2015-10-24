@@ -1194,7 +1194,19 @@ void MenuStateMasterserver::showMessageBox(const string &text, const string &hea
 }
 
 
+bool MenuStateMasterserver::textInput(std::string text) {
+	//printf("In [%s::%s Line: %d] text [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,text.c_str());
+
+	if (ircClient != NULL && ircClient->isConnected() == true
+			&& ircClient->getHasJoinedChannel() == true) {
+		return chatManager.textInput(text);
+	}
+    return false;
+}
+
 void MenuStateMasterserver::keyDown(SDL_KeyboardEvent key) {
+	//printf("In [%s::%s Line: %d] key [%d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,key.keysym.sym);
+
 	Config &configKeys = Config::getInstance(std::pair<ConfigType,ConfigType>(cfgMainKeys,cfgUserKeys));
 
 	if (ircClient != NULL && ircClient->isConnected() == true

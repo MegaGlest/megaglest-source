@@ -321,6 +321,14 @@ void Program::restoreStateFromSystemError() {
 	}
 }
 
+bool Program::textInput(std::string text) {
+	if(msgBox.getEnabled()) {
+		return false;
+	}
+	//delegate event
+	return programState->textInput(text);
+}
+
 void Program::keyDown(SDL_KeyboardEvent key) {
 	if(msgBox.getEnabled()) {
 		//SDL_keysym keystate = Window::getKeystate();

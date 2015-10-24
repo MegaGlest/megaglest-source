@@ -321,11 +321,11 @@ bool Window::handleEvent() {
 						//if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("******************* key [%d]\n",key);
 
 						//event.key.keysym.mod = SDL_GetModState();
-
-						event.key.keysym.sym = event.text.text[0];
-
-						global_window->eventKeyDown(event.key);
-						global_window->eventKeyPress(event.key);
+						if(global_window->eventTextInput(event.text.text) == false) {
+							event.key.keysym.sym = event.text.text[0];
+							global_window->eventKeyDown(event.key);
+							global_window->eventKeyPress(event.key);
+						}
 
 						if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 					}
@@ -338,10 +338,9 @@ bool Window::handleEvent() {
 					break;
 
 				case SDL_KEYDOWN:
-					//printf("In [%s::%s] Line :%d\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 					{
-
+					//printf("In SDL_KEYDOWN\n");
 					if(SystemFlags::VERBOSE_MODE_ENABLED) printf ("In [%s::%s Line: %d] =================================== START OF SDL SDL_KEYDOWN ================================\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__);
 
 //					if(SDL_GetModState() == 0 && event.key.keysym.sym != SDLK_BACKSPACE) {

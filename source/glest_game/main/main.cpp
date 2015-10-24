@@ -1090,6 +1090,20 @@ void MainWindow::toggleLanguage(string language) {
 	}
 }
 
+bool MainWindow::eventTextInput(std::string text) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%s]\n",__FILE__,__FUNCTION__,__LINE__,text.c_str());
+
+    if(program == NULL) {
+    	throw megaglest_runtime_error("In [MainWindow::eventKeyDown] ERROR, program == NULL!");
+    }
+
+	bool result = program->textInput(text);
+
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] result = %d\n",__FILE__,__FUNCTION__,__LINE__,result);
+
+	return result;
+}
+
 void MainWindow::eventKeyDown(SDL_KeyboardEvent key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym);
 

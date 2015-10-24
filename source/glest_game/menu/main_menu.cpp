@@ -233,6 +233,9 @@ void MainMenu::mouseUpLeft(int x, int y){
 	state->mouseUp(x, y, mbLeft);
 }
 
+bool MainMenu::textInput(std::string text) {
+	return state->textInput(text);
+}
 void MainMenu::keyDown(SDL_KeyboardEvent key) {
 	state->keyDown(key);
 }

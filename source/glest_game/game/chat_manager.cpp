@@ -95,6 +95,23 @@ void ChatManager::keyUp(SDL_KeyboardEvent key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
 }
 
+bool ChatManager::textInput(std::string text) {
+	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] text [%s]\n",__FILE__,__FUNCTION__,__LINE__,text.c_str());
+
+	int maxTextLenAllowed = (customCB != NULL ? this->maxCustomTextLength : maxTextLenght);
+	if(editEnabled && (int)text.size() < maxTextLenAllowed) {
+		SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d]\n",__FILE__,__FUNCTION__,__LINE__);
+		//space is the first meaningful code
+		//wchar_t key = extractKeyPressedUnicode(c);
+		//wchar_t textAppend[] = { key, 0 };
+		std::wstring widestr = std::wstring(text.begin(), text.end());
+		const wchar_t *textAppend = widestr.c_str();
+		appendText(textAppend);
+		return true;
+	}
+	return false;
+}
+
 void ChatManager::keyDown(SDL_KeyboardEvent key) {
 	SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c] [%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 

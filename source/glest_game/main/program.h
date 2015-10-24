@@ -94,6 +94,7 @@ public:
 	virtual void mouseDoubleClickCenter(int x, int y){}
 	virtual void eventMouseWheel(int x, int y, int zDelta){}
 	virtual void mouseMove(int x, int y, const MouseState *mouseState);
+	virtual bool textInput(std::string text){ return false; };
 	virtual void keyDown(SDL_KeyboardEvent key){};
 	virtual void keyUp(SDL_KeyboardEvent key){};
 	virtual void keyPress(SDL_KeyboardEvent c){};
@@ -192,6 +193,7 @@ public:
 	void initScenario(WindowGl *window, string autoloadScenarioName);
 
 	//main
+	bool textInput(std::string text);
     void keyDown(SDL_KeyboardEvent key);
     void keyUp(SDL_KeyboardEvent key);
     void keyPress(SDL_KeyboardEvent c);
