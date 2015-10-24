@@ -1195,8 +1195,6 @@ void MenuStateMasterserver::showMessageBox(const string &text, const string &hea
 
 
 bool MenuStateMasterserver::textInput(std::string text) {
-	//printf("In [%s::%s Line: %d] text [%s]\n",extractFileFromDirectoryPath(__FILE__).c_str(),__FUNCTION__,__LINE__,text.c_str());
-
 	if (ircClient != NULL && ircClient->isConnected() == true
 			&& ircClient->getHasJoinedChannel() == true) {
 		return chatManager.textInput(text);
@@ -1220,8 +1218,9 @@ void MenuStateMasterserver::keyDown(SDL_KeyboardEvent key) {
 				ircClient->SendIRCCmdMessage(IRC_CHANNEL, chatManager.getText());
 			}
 		}
-
-		chatManager.keyDown(key);
+		if(isKeyPressed(SDLK_RETURN,key,false) == true){
+			chatManager.keyDown(key);
+		}
 	}
     if(chatManager.getEditEnabled() == false) {
         //if(key == configKeys.getCharKey("ToggleMusic")) {
@@ -1249,24 +1248,6 @@ void MenuStateMasterserver::keyDown(SDL_KeyboardEvent key) {
             consoleIRC.addLine(lang.getString("GUILayoutSaved") + " [" + (saved ? lang.getString("Yes") : lang.getString("No"))+ "]");
         }
     }
-}
-
-void MenuStateMasterserver::keyPress(SDL_KeyboardEvent c) {
-	if (ircClient != NULL && ircClient->isConnected() == true
-			&& ircClient->getHasJoinedChannel() == true) {
-		chatManager.keyPress(c);
-	}
-}
-void MenuStateMasterserver::keyUp(SDL_KeyboardEvent key) {
-	if (ircClient != NULL && ircClient->isConnected() == true
-			&& ircClient->getHasJoinedChannel() == true) {
-		chatManager.keyUp(key);
-
-		if (chatManager.getEditEnabled()) {
-			//send key to the chat manager
-			chatManager.keyUp(key);
-		}
-	}
 }
 
 }}//end namespace
