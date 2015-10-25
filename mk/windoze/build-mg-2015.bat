@@ -1,10 +1,5 @@
 @echo off
 
-rem To get this working you may need to copy the following:
-rem C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Microsoft.Cpp.Common.props to C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0
-rem C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Platforms\Win32\PlatformToolsets\*.* to C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Platforms\Win32\PlatformToolsets
-rem C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V110\Platforms\Win32\Microsoft.Cpp.Win32.Common.props to C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\Platforms\Win32
-
 rem change to the directory of this batch file
 SET VCVARS_PLATFORM=x86_amd64
 
@@ -29,7 +24,7 @@ goto processBuildStageA
 
 :getDepFile
 ECHO Retrieving windows dependency archive...
-call .\wget.exe -c -O ..\..\source\%depfile% http://github.com/MegaGlest/megaglest-source/releases/download/3.2.3/%depfile%
+call .\wget.exe -c -O ..\..\source\%depfile% http://http://softcoder.megaglest.org/msvc/2015/%depfile%
 call .\7z.exe x -r -o..\..\source\ ..\..\source\%depfile%
 goto processBuildStageA
 
@@ -42,9 +37,9 @@ if NOT "%7ztestdep%" == "0" goto getDepFile
 goto processBuildStageA
 
 :processBuildStageA
-call CopyWindowsRuntimeDlls_2012.bat nopause
+call CopyWindowsRuntimeDlls_2015.bat nopause
 
-rem setup the Visual Studio 2010 environment
+rem setup the Visual Studio 2015 environment
 ECHO --------------------------------
 ECHO Setting up Visual Studio 2015 environment vars...
 REM Ensure ultifds HP doesn't mess the build up
@@ -57,7 +52,6 @@ GOTO GITSECTION
 IF EXIST "%VS140COMNTOOLS%..\..\"                             GOTO VC_Common_15
 IF EXIST "\Program Files\Microsoft Visual Studio 14.0\"       GOTO VC_32_15
 IF EXIST "\Program Files (x86)\Microsoft Visual Studio 14.0\" GOTO VC_64_15
-
 goto GITSECTION
 
 :VC_Common_15
@@ -72,10 +66,6 @@ goto GITSECTION
 :VC_64_15
 ECHO 64 bit Windows detected...
 call "\Program Files (x86)\Microsoft Visual Studio 14.0\vc\vcvarsall.bat" %VCVARS_PLATFORM%
-goto GITSECTION
-
-:VC_Common
-rem call "%VS100COMNTOOLS%..\..\vc\vcvarsall.bat"
 goto GITSECTION
 
 :GITSECTION
@@ -103,7 +93,7 @@ copy /b ..\..\source\glest_game\facilities\game_util.cpp +,,
 
 rem Build Mega-Glest in release mode
 ECHO --------------------------------
-Echo Building MegaGlest using Visual Studio 2012...
+Echo Building MegaGlest using Visual Studio 2015...
 
 set CL=/MP
 rem set INCLUDE=%ProgramFiles(x86)%\Microsoft SDKs\Windows\7.1A\Include;%INCLUDE%
@@ -139,7 +129,6 @@ if %NUMBER_OF_PROCESSORS% GTR 2 (
 				SET msBuildMaxCPU=/maxcpucount)
 
 ECHO Found CPU Count [%NUMBER_OF_PROCESSORS%]
-rem SET MSBUILD_PATH_MG_x64="%ProgramFiles(x86)%\MSBuild\Microsoft.Cpp\v4.0\V110\\"
 SET MSBUILD_PATH_MG_x64="%ProgramFiles(x86)%\MSBuild\Microsoft.Cpp\v4.0\V140\\"
 
 if "%2" == "rebuild" echo Doing a FULL REBUILD...
