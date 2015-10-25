@@ -29,11 +29,16 @@ call .\7z.exe x -r -o..\..\source\ ..\..\source\%depfile%
 goto processBuildStageA
 
 :checkDepIntegrity
-ECHO Looking for windows dependency archive...
+ECHO Looking for windows dependency archive, please wait... (testing existing archive)...
 call .\7z.exe t ..\..\source\%depfile% >nul
-set 7ztestdep=%ERRORLEVEL%
-ECHO Result of windows dependency archive [%7ztestdep%]
-if NOT "%7ztestdep%" == "0" goto getDepFile
+rem call .\7z.exe t ..\..\source\%depfile%
+set testdeperr=%ERRORLEVEL%
+ECHO Result of windows dependency archive [%testdeperr%]
+rem pause
+
+if NOT "%testdeperr%" == "0" goto getDepFile
+if NOT EXIST ..\..\source\%depfolder%\NUL echo Extracting archive [%depfile%]
+if NOT EXIST ..\..\source\%depfolder%\NUL call .\7z.exe x -r -o..\..\source\ ..\..\source\%depfile%
 goto processBuildStageA
 
 :processBuildStageA
