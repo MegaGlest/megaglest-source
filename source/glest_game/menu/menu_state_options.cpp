@@ -1026,9 +1026,10 @@ bool MenuStateOptions::textInput(std::string text) {
 			&labelTransifexUser == activeInputLabel ||
 			&labelTransifexPwd == activeInputLabel ||
 			&labelTransifexI18N == activeInputLabel) {
-			textInputEditLabel(text, &activeInputLabel);
+			return textInputEditLabel(text, &activeInputLabel);
 		}
 	}
+	return false;
 }
 
 void MenuStateOptions::keyPress(SDL_KeyboardEvent c) {
