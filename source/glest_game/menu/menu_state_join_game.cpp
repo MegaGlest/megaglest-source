@@ -643,6 +643,13 @@ void MenuStateJoinGame::update()
     if(clientInterface != NULL && clientInterface->getLaunchGame()) if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s] clientInterface->getLaunchGame() - D\n",__FILE__,__FUNCTION__);
 }
 
+bool MenuStateJoinGame::textInput(std::string text) {
+	if(chatManager.getEditEnabled() == true) {
+		return chatManager.textInput(text);
+	}
+	return false;
+}
+
 void MenuStateJoinGame::keyDown(SDL_KeyboardEvent key) {
 	if(SystemFlags::getSystemSettingType(SystemFlags::debugSystem).enabled) SystemFlags::OutputDebug(SystemFlags::debugSystem,"In [%s::%s Line: %d] key = [%c][%d]\n",__FILE__,__FUNCTION__,__LINE__,key.keysym.sym,key.keysym.sym);
 

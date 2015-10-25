@@ -4596,6 +4596,13 @@ void Game::startCameraFollowUnit() {
 	}
 }
 
+bool Game::textInput(std::string text) {
+	if(chatManager.getEditEnabled() == true) {
+		return chatManager.textInput(text);
+	}
+	return false;
+}
+
 void Game::keyDown(SDL_KeyboardEvent key) {
 	if(this->masterserverMode == true) {
 		return;

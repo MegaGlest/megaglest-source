@@ -79,6 +79,8 @@ public:
 	void mouseMove(int x, int y, const MouseState *mouseState);
 	void render();
 	void update();
+
+	virtual bool textInput(std::string text);
     virtual void keyDown(SDL_KeyboardEvent key);
     virtual void keyPress(SDL_KeyboardEvent c);
 
